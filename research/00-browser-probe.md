@@ -154,3 +154,18 @@ Phi-4-mini instance, after about 35 minutes of `availability()` returning `downl
 - `EdgeLLMOnDeviceModel` and `EdgeLLMRuntime` are both empty; Aion's runtime folder holds 3.5 MB.
 - Earlier, Lars's own Edge Dev profile showed `edge_base_model` Not Installed too (builder report).
 - Inferred, not checked: Edge Dev 157 does not currently serve the release ("default", expected Phi-4-mini) component, so the download never starts. Edge stable 155 might; it has not been tried.
+
+## Moving Lars's own Chrome Beta and Edge Dev profiles to D: (2026-10-12, measured)
+
+Lars ruled: "I mean use D:/ for profiles and models for all browsers used by control-* and verify-* skills" and "Including *my* Chrome Beta and Edge Dev profiles and models".
+
+Method:
+1. Both browsers closed. A survey found no reparse points in either `User Data`.
+2. `robocopy /E /COPY:DAT /DCOPY:DAT /XJ` to `D:\browser-profiles\<browser>\User Data`: Chrome Beta 953 files, 6.561 GB; Edge Dev 4,349 files, 2.087 GB. Counts and bytes matched, and robocopy reported 0 failed.
+3. Each original was renamed to `User Data.bak`, and a junction now sits at `%LOCALAPPDATA%\<vendor>\<browser>\User Data` pointing to D:.
+
+Results:
+- Chrome Beta through the junction: works. Remote debugging needed Lars to allow it again; then `LanguageModel.availability()` is `available`, `LanguageModelToolCall` is defined, and `document.modelContext` is an object.
+- **Edge Dev through the junction: broken.** At every startup Edge Dev empties `EdgeOptimizationGuideModelsManifest` (seen twice, the second time after restoring it from the `.bak`). Broker State then shows Manifest Path N/A and Manifest Loaded false, and `availability()` never resolves. The Aion model folder (1.3 GB) stays intact.
+- **Edge Dev started with `--user-data-dir="D:\browser-profiles\Edge Dev\User Data"`: works.** The manifest survives startup and `availability()` is `available`.
+- Inferred cause: Edge's component handling rejects a profile path that resolves through a reparse point. Chrome Beta does not.
