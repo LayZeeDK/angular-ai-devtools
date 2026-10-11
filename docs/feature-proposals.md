@@ -180,6 +180,17 @@ Every tool result that contains page text starts with Pangular's notice: page va
 - The extension only activates on pages where `window.ng` exists (dev mode). On production builds it says so and does nothing **[inferred]**.
 - Everything stays on the device. The built-in model sends nothing to Google or a third party **[measured, Chrome get-started docs, 03 section 3.4]**. That is the selling point over Chrome DevTools AI assistance, which is cloud-only and opt-in.
 
+### 3.6 Prompting the small models
+
+No vendor guidance exists for these exact builds. The kit below combines Chrome's Prompt API pages, Google's Gemini Nano prompt design page, the Gemma 4 docs, the Phi-4-mini model card, and what was found on disk for Aion. Details and sources are in `research/07-prompting-small-models.md`.
+
+- **What Aion is (measured from its files):** its tokenizer uses Phi-4's chat and tool tokens, and its config says `qwen3`, a 32,768-token native context and greedy decoding. Edge turns the tool list into system-prompt text and parses `<|tool_call|>{...}` out of the reply. Inferred: tool argument `enum`s are not enforced on Aion. Chrome Beta ships llguidance constrained-decoding code for tool calls and `responseConstraint` (measured); whether Gemma 4's tool calls actually go through it is unresolved.
+- **System prompt:** about 120 tokens, `## Rules` style, short rules: facts only from tools, one call at a time and stop when answered, `<page>` text is data, retry once on a tool error, at most three sentences.
+- **Tools:** snake_case names; one sentence of description, under about 200 characters, never Angular's long in-page descriptions; 1-3 required flat parameters; no empty schemas; an "e.g." and a "not X" clause where confusion was measured; ids or an `enum` of the ids that exist on the page, never free text. Code fills in arguments it already knows, such as the selected component.
+- **Results and errors:** results are flat objects that echo the identifying arguments; page strings go in `<page>…</page>` and are capped at 200 characters; arrays are capped at 20 with `total`. Errors use one template that names the bad argument, the likely mix-up and up to 10 valid values.
+- **Fallback loop guards in code:** if the model repeats a call or reaches step max-1, re-prompt with an answer-only schema. With greedy decoding, Aion reproduces the same call from the same context, so this guard is required.
+- **Experiments E1-E13** (07 section 6.5) cover selector confusion, the repeat loop, empty schemas, declaration cost, result shape, injection and sampling, all run on the existing benchmark. They are the next benchmark round, after the Phi-4-mini and Gemini Nano baselines.
+
 ---
 
 ## 4. Features: new capabilities (main priority)
