@@ -27,8 +27,13 @@ The niche is open. Nobody ships an on-device model inside a framework devtools p
 
 Four facts shape the design:
 
-1. **Tool calling works on-device today, as an open loop, on both target models.** In Edge Dev 157 with Aion-1.1-Instruct, the model picked the right tool, filled `{"selector":"app-counter"}` from the question, and answered from the tool result in about 2 s per turn. Chrome Beta 156 with Gemma 4 (`gemma4-2b-it`) made the same tool calls in about 5 s per turn, but misread one result **[measured, 00]**. The browser never runs tools itself: `prompt()` returns `tool-call` parts and the extension runs them and sends `tool-response` parts back **[measured, 00 and 01]**.
-2. **The context window is small: 7,168 tokens on Aion, 9,216 on Chrome 154's default model** **[measured, 00]**. A component tree does not fit. The model must pull facts through small, pre-digested tools by id, never receive dumps.
+1. **On-device models can drive tools today, but not equally.**
+   - Aion-1.1-Instruct (Edge Dev 157) answered all 15 benchmark runs through native tool calls, at 3-6 s per question.
+   - Gemma 4 (Chrome Beta 156) and Gemini Nano are reliable only through a structured-output loop (Gemma 4: 13-15/15 runs).
+   - Phi-4-mini (Edge stable) is weak at both **[measured, 05]**.
+   - The browser never runs tools itself: `prompt()` returns `tool-call` parts, and the extension runs them and sends `tool-response` parts back **[measured, 00 and 01]**.
+   - So the model loop routes per model and detects support with a canary call. `availability()` cannot tell **[measured, 09]**.
+2. **The context window is small: 7,168 tokens on Aion and 9,216 on the Chrome models and Phi-4-mini** **[measured, 05]**. A component tree does not fit. The model must pull facts through small, pre-digested tools by id, never receive dumps.
 3. **Angular 22 already ships two in-page AI tools.** Every dev-mode app answers the `devtoolstooldiscovery` DOM event with `angular:di_graph` and `angular:signal_graph` **[measured, `packages/core/src/debug/ai/registration.ts:21-38`, `platform.ts:48-50`]**. The extension can collect them with one event dispatch and no `ɵ` name.
 4. **Most of what Angular DevTools shows is reachable from `window.ng` in a MAIN-world script** with no app change **[measured, 02 section 1-2]**. The parts that need internals are already published on `ng` with a `ɵ` prefix (Tier 1). Real Tier 2 gaps at 22.2 are small: `@if`/`@switch` block state, error-boundary state, template local refs, the DI event stream **[measured, 02 section 1.3 and 5.7]**.
 
@@ -51,23 +56,40 @@ Plus a chat panel that promptifies every Angular DevTools tab (section 5), and e
 
 ### 2.1 Browsers and models
 
-| Browser | Model | `contextWindow` | Structured output | Tool calling | Source |
-|---|---|---|---|---|---|
-| Edge Dev 157 | Aion-1.1-Instruct (`EdgeLLMOnDeviceModel\2026.10.2.1\manifest.json`) | 7,168 | works | works (open loop) | **[measured, 00]** |
-| Chrome Beta 156 | Gemma 4 `gemma4-2b-it` 2026.06.10 (`prompt_api_gemma4` solution, `gemma4_gpu_low_tier_model` backend) | 9,216 | works | works (open loop) if every tool has at least one parameter; arguments right, answer quality weaker than Aion's | **[measured, 00]** |
-| Chrome 154 stable | default model, tool-use flag off | 9,216 | works | `tools` accepted, never called | **[measured, 00]** |
-| Edge 155 stable | Phi-4-mini per docs; tool-use flag off | not measured | not measured | not measured | **[measured flags only, 00]** |
+All measurements come from per-model browser instances: separate profiles on D: under `.browsers/`, one model each (00, "Per-model instances").
 
-Gemma 4's small variants have a 128K context per Google's model docs **[measured, 01]**, but Chrome caps the session at 9,216 tokens **[measured, 00]**. Chrome's model manifest also carries 4B and 12B Gemma 4 configs; Lars's machine got the 2B "low tier" **[measured, 00]**. Design for 7-9K tokens.
+| Model | Browser | Backend on this machine | `contextWindow` | Prompt API tool calling | Structured output | Source |
+|---|---|---|---|---|---|---|
+| Aion-1.1-Instruct (2026.10.2.1) | Edge Dev 157 (default and prerelease) | WebGPU only; no CPU variant offered on this ARM64 machine, even for a Low-class device | 7,168 | works, open loop (through Edge's tool-use workaround) | works | **[measured, 00, 05]** |
+| Phi-4-mini-instruct (2026.8.19.1) | Edge stable 155 only | WebGPU only | 9,216 | works, open loop, but often describes the call in prose instead | works | **[measured, 00, 05]** |
+| Gemma 4 `gemma4-2b-it` | Chrome Beta 156 | GPU low tier by default; CPU with `OnDeviceModelForceCpuBackend` | 9,216 | works, open loop, if every tool has a parameter | works | **[measured, 00, 05]** |
+| Gemini Nano v3 | Chrome Beta 156 | CPU or GPU low tier, chosen by the stored performance class; switchable with `OnDeviceModelPerformanceParams` | 9,216 | sessions open with `AIPromptAPIToolUse`, but the model writes `tool_code` text instead of calling tools | works on GPU; broken on CPU | **[measured, 05, 09]** |
 
-First benchmark round (five questions about the spike app, three runs each, three narrow tools; details in 05) **[measured]**:
+What the browsers do not tell you **[measured, 05, 09]**:
+- Whether tools will work: `availability()` ignores tool types.
+- Which backend a model runs on: that comes only from `on-device-internals` Broker State, or from the stored performance class.
+- Whether a forced backend exists: on Edge, forcing CPU deletes the installed model.
 
-| Model | Native tool calling, runs passed | Structured-output fallback, runs passed | Median per question |
+Gemma 4's small variants have a 128K context per Google's model docs **[measured, 01]**, but Chrome caps the session at 9,216 tokens **[measured, 00]**. Design for 7-9K tokens.
+
+Benchmark: five questions about the counter app, three runs each, three narrow tools, native tools against the structured-output fallback loop. Details are in 05; all four models ran under another session's CPU load, so latencies are indicative only **[measured]**:
+
+| Configuration | Native, runs passed | Fallback, runs passed | Median per question |
 |---|---|---|---|
-| Aion-1.1-Instruct (Edge Dev) | 14/15 | 12/15 | 2-10 s |
-| Gemma 4 2B (Chrome Beta) | 11/15 | 13/15 | 8-13 s |
+| Aion-1.1, WebGPU | **15/15** | 11/15 | 3-6 s |
+| Phi-4-mini, WebGPU | 5/15 | 7/15 | 3-6 s |
+| Gemma 4, GPU low tier | 8/15 | 13/15 | 11-13 s |
+| Gemma 4, CPU | 9/15 | **15/15** | 25-34 s |
+| Nano v3, GPU low tier | 3/15 | 13/15 | 2-12 s |
+| Nano v3, CPU | 1/15 | 0/15 | 15-42 s |
 
-Both models picked sensible tools; nearly every failure was a wrong argument (a CSS selector or a signal name in the wrong field). That drives one rule in 3.4: tools take ids returned by earlier tool calls, not free-text selectors **[inferred]**. Phi-4-mini and Gemini Nano v3 are not measured yet.
+Readings:
+- The extension routes per model:
+  - Aion: native tools.
+  - Gemma 4 and Nano: the structured-output loop. Native tools on Gemma 4 only after S4 improves argument accuracy.
+  - Phi-4-mini: supported only as a fallback-loop model.
+- Nearly every failure was an argument mistake (an invented CSS selector, or a signal name in the selector field), which drives the id-based tool rule in 3.4 **[inferred]**.
+- On this machine's weak GPU, CPU Gemma 4 is the accuracy leader and Aion the speed leader.
 
 API details that the implementation must follow **[measured, 00 and 01]**:
 
@@ -429,7 +451,11 @@ The `control-ai-browsers` skill launches, checks and stops them.
 These are open; Claude applied the default shown so the design could proceed.
 
 1. **Tier 1 (`ng.ɵ*` already on the page).** Default applied: allowed, labelled and feature-detected (section 2.2). Without it, N1, N2, N5, most of N3 and half of section 5 need an app-side re-export.
-2. **Primary browser.** Default applied: Edge Dev (Aion-1.1-Instruct) and Chrome Beta (Gemma 4) are both first-class, since tool calling works in both. Aion is the reference model for answer quality until S4 says otherwise, because it was faster, used a quarter of the tokens and read the tool result correctly. Stable channels run on the structured-output fallback loop (section 3.3).
+2. **Primary browser and model.** Default applied:
+   - Edge Dev with Aion-1.1-Instruct is the reference for native tool calling: 15/15 runs at 3-6 s.
+   - Chrome Beta with Gemma 4 is the reference for the structured-output loop: 15/15 on CPU, 13/15 on GPU.
+   - Gemini Nano (fallback loop on GPU, 13/15) and Phi-4-mini on Edge stable stay supported, with the canary deciding the loop **[measured, 05]**.
+   - Recorded as Claude's default, because only Lars can rank Edge against Chrome as the product's lead browser.
 3. **Writes from chat.** Default applied: allowed behind a per-action confirm and a read-only switch (section 3.5).
 
 ### Rulings from Lars (2026-10-11, verbatim)
