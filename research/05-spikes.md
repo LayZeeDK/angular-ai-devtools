@@ -1,0 +1,87 @@
+# 05 - Spike results
+
+All results are **measured** unless a line says inferred. Probes ran in Lars's Edge Dev 157 (Aion-1.1-Instruct) and Chrome Beta 156 (Gemma 4 `gemma4-2b-it`). playwright-cli attached over remote debugging, and the scripts ran in the page's main world, the same world a MAIN-world content script gets. This is not an extension context; S1 is still open.
+
+## S2 - Angular's in-page tools and the `ng` global on a real 22.2 app
+
+App: `spikes/ng222-app`, generated with `@angular/cli@22.2.2 new --routing --ssr=false`, installed `@angular/core` 22.2.2, served with `ng serve --port 4222`. A component `app-counter` (`src/app/counter.ts`) has `title = input()`, `count = signal(3)`, `double = computed(count * 2)`, an injected root `CartService.items` signal, and an `effect` that writes `lastLogged`. The effect-writes-signal pattern is there on purpose, as a fixture for the anti-pattern finder (N2).
+
+### Discovery
+
+- `window.ng` has 25 functions: `applyChanges, enableProfiling, getComponent, getContext, getDirectiveMetadata, getDirectives, getHostElement, getInjector, getListeners, getOwningComponent, getRootComponents, isSignal, toggleWatchSignal, ɵgetComponentInstanceDeepLinkId, ɵgetControlFlowBlocks, ɵgetDependenciesFromInjectable, ɵgetInjectorMetadata, ɵgetInjectorProviders, ɵgetInjectorResolutionPath, ɵgetLoadedRoutes, ɵgetRouterInstance, ɵgetSignalGraph, ɵgetTransferState, ɵnavigateByUrl, ɵsetProfiler`. This matches the inventory in `02-angular-surface.md` for a `provideRouter` app.
+- Dispatching `new CustomEvent('devtoolstooldiscovery')` with a `respondWith` expando from the main world returns `{name: 'Angular', tools: [angular:di_graph, angular:signal_graph]}` synchronously.
+  - `angular:di_graph` has schema `{type: 'object', properties: {}}`. A tool with no parameters breaks Gemma 4 tool prompts (00), so this schema cannot be passed to the Prompt API as is.
+  - `angular:signal_graph` has schema `{target: {type: 'object', 'x-mcp-type': 'HTMLElement'}}`. A model cannot produce an element, so the extension must wrap it (selector or component id in, element looked up in the page).
+  - The two descriptions are 1,318 and 1,390 characters. That is about 700 tokens together, roughly 10% of Aion's window, before any result **[token count inferred from the usual 4 characters per token]**.
+- `angular:di_graph` output on this one-component app, serialized naively with DOM nodes and functions replaced, is **42,788 characters**. It is mostly raw `TNode` internals reached through provider values. It cannot go to a 7-9K-token model unfiltered.
+
+### Finding: `angular:di_graph` changes what `ɵgetSignalGraph` returns
+
+- Before `di_graph`, `ng.ɵgetSignalGraph(ng.getInjector(host))` returns `template:app-counter, signal:title, signal:count, computed:double (6), signal:items, effect`, with edges `template->title,count,double,items`, `double->count` and `effect->count`. The `angular:signal_graph` tool returns the same.
+- After one `angular:di_graph` execution, both return only `effect, signal:count`, and they stay that way for the rest of the page's life. The app keeps working: clicks still update the view.
+- Cause, isolated per token: `serializeInjector` calls `injector.get(token, null, {optional: true, self: true})` for every provider record. For the host's records (`Injector, DestroyRef, ElementRef, Renderer2, ViewContainerRef, ChangeDetectorRef`), getting **`ViewContainerRef`** is the call that breaks the graph. **Inferred:** it creates a view container at the host, and the signal-graph lookup does not unwrap it.
+- Design consequence: the extension never runs `angular:di_graph`, and never calls `injector.get` on node-injector special tokens. DI facts come from `ɵgetInjectorProviders` / `ɵgetInjectorResolutionPath` / `ɵgetInjectorMetadata` without instantiating anything. A draft upstream report is in `docs/filing-ledger.md`.
+
+### End-to-end question through a tool
+
+Question: "In the app-counter component, which signals does `double` depend on, and what is its current value?" One tool, `signal_graph {selector}`, returns the raw `ɵgetSignalGraph` nodes (index, kind, label, value) and the edges by index (script `s2b.js` in the session scratchpad).
+
+| Model | Tool call | Answer | Time | Context used |
+|---|---|---|---|---|
+| Aion-1.1-Instruct (Edge Dev) | `signal_graph {"selector":"app-counter"}` | value 6, right; dependencies "title, count, items", **wrong**: it read the template's edges as `double`'s | 4.7 s | 452 / 7,168 |
+| Gemma 4 2B (Chrome Beta) | `signal_graph {"selector":"app-counter"}` | depends on `count` (3), value 6: **right** | 11.9 s | 765 / 9,216 |
+
+Together with 00's two-tool run, where Gemma 4 misread a value and Aion did not, neither model reads raw structures reliably. **Inferred design rule:** tools answer the narrow question (`signals.dependenciesOf {component, signal}` -> `["count"]`) instead of returning a graph by index for the model to walk.
+
+## S3 (part) - Sizes on a real-world app
+
+App: the ng-journal insurance portal (Nx 23.1.1), in Claude's worktree `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools`, branch `claude/ai-devtools-spike`. Commit `2d87cd8` updated it from Angular 22.1.3 to 22.2.2 with `nx migrate` and a regenerated lockfile; `nx affected -t lint` passed in the pre-commit hook. The probe (`portal-probe.js` in the session scratchpad) ran in Edge Dev, read `window.ng` on five routes and navigated with `ng.ɵgetRouterInstance(...).navigateByUrl`.
+
+| Route | Components (unique classes) | OnPush | Inputs on hosts | Signal nodes (max per component) | Compact signal graphs, all components | Component list JSON | Element providers | Resolution path length |
+|---|---|---|---|---|---|---|---|---|
+| `/home` | 9 (6) | 9 | 25 | 116 (34) | 7,802 chars | 488 chars | 57 | 10 |
+| `/contract/list` | 47 (9) | 45 | 418 | 892 (60) | 54,597 chars | 2,766 chars | 349 | 12 |
+| `/claim/list` | 7 (7) | 5 | 118 | 142 (38) | 9,034 chars | 346 chars | 49 | 11 |
+| `/complaint/list` | 7 (7) | 5 | 118 | 136 (38) | 8,623 chars | 346 chars | 49 | 11 |
+| `/customer/list` | 7 (7) | 5 | 118 | 192 (80) | 12,515 chars | 346 chars | 49 | 11 |
+
+Other facts:
+- About 99-124 environment providers lie on the resolution path of a single component.
+- The router config grew from 7 to 23 routes as lazy routes loaded.
+- `typeof Zone !== 'undefined'`: this app still loads zone.js.
+- `mark_feature_usage` entries: `NgStandalone`, `NgControlFlow`.
+- Dev-build class names carry a leading underscore (`_AppComponent`, `_SidebarComponent`), so tools should strip it before showing names to the model.
+- The control-flow block count (110-129) was summed per element, so blocks are probably counted more than once. Treat it as rough.
+
+Consequences (inferred from the numbers): one component's compact signal graph (up to 80 nodes) fits in a 7K-token window, but a whole page does not (`/contract/list` is about 14K tokens at 4 characters per token). A component list fits. A provider dump for one component's path (100+ environment providers) does not, which is why `di.lookup(token)` answers one token instead of listing providers.
+
+## S3/S4 - Model benchmark (first round)
+
+Harness: `spikes/probes/bench.js`, summarized with `bench-summary.mjs`. It runs against `spikes/ng222-app` and offers three narrow tools:
+- `components_find {query}`
+- `component_details {selector}`, which returns change detection, input values and outputs
+- `signal_info {selector, signal}`, which returns kind, value and direct dependencies by label
+
+It asks five questions with checkable answers, three runs each, in two modes:
+- **native:** the Prompt API's open-loop tool calling.
+- **fallback:** `responseConstraint` with `anyOf {tool,args} | {answer}`. Tool results are appended as text with "If this answers the question, reply {"answer": ...} now; otherwise call another tool."
+
+A first Aion run without that follow-up line failed every fallback question by repeating the same call until the step limit. The question "Which change detection strategy?" expects **OnPush**: Angular 22 made OnPush the default (`CHANGELOG.md:859`), and Aion answered OnPush before the harness knew that.
+
+| Model (browser) | contextWindow | native: pass@3 / pass^3 / runs | fallback: pass@3 / pass^3 / runs | Median per question |
+|---|---|---|---|---|
+| Aion-1.1-Instruct (Edge Dev 157) | 7,168 | 5/5 / 4/5 / 14/15 | 4/5 / 4/5 / 12/15 | 2.2-10.5 s native, 3.2-7.0 s fallback |
+| Gemma 4 2B (Chrome Beta 156) | 9,216 | 5/5 / 3/5 / 11/15 | 5/5 / 4/5 / 13/15 | 8.3-11.7 s native, 9.2-13.5 s fallback |
+
+Failures:
+- **Aion native:** one `kErrorUnknown` thrown by the browser.
+- **Aion fallback:** three of three on "which signals does double depend on": it put the signal name in `selector` (`{"selector":"double","signal":"double"}`).
+- **Gemma 4 native:** wrong selectors. It used `app-counter input[type="text"]` for an input, and `app-root` for a signal that lives in `app-counter`.
+- **Gemma 4 fallback:** it twice answered "which signals does double depend on" from `component_details`, which has no signal data, instead of calling `signal_info`.
+
+Reading (inferred, 15 runs per cell is a small sample):
+- Both models choose tools well. Their errors are in arguments: selectors and signal names.
+- Tools that take a component id from a previous `components_find` result, instead of a free-text CSS selector, should remove most failures.
+- Aion is 3-4 times faster.
+
+Phi-4-mini (Edge) and Gemini Nano v3 (Chrome stable, native tool calling off there) are not measured yet.
