@@ -188,3 +188,21 @@ The probe `spikes/probes/read-throughput.ps1` reads 1 GB sequentially in 4 MB bl
 D: reads about 30% slower. At these rates, loading Aion (1.3 GB) takes about 0.6 s from C: and 0.85 s from D:; Gemini Nano (4 GB) about 1.8 s against 2.6 s.
 
 The weights are read when a session first loads the model. Inference afterwards runs from memory or GPU, so the drive affects cold `create()` only (inferred). The cause of the ReFS gap is not isolated: ReFS read path, Defender handling of the Dev Drive, or the file's layout on D: as written by the browser.
+
+## Phi-4-mini in Edge Dev 157: every route tried (2026-10-12, measured)
+
+Lars asked: "Have you exhausted all options to make Phi-4-mini work in Edge Dev?" and "Find research that confirms whether Aion will replace Phi-4-mini in Edge".
+
+Each experiment used a fresh Edge Dev 157.0.4322.0 profile on D:, with the base feature set and no prerelease feature:
+1. **Waiting** (the first instance, 35 minutes): Broker State stayed at `edge_base_model 2026.10.2.1 Foreground Installing 0%`. `edge://components` showed "Edge LLM On Device Model" and "Edge LLM Runtime" at version 0.0.0.0, status New: the component updater had never started them.
+2. **Forcing "Check for update"** on both components in `edge://components`: status changed to Downloading. About two minutes later `EdgeLLMOnDeviceModel\2026.10.2.1` held 1,248 MB, and its `manifest.json` names **`Aion-1.1-Instruct`**. Edge Dev 157's default model is Aion, the same as its prerelease model. Both variants in manifest 2026.10.2.1 (`webgpu-fp16` and `webgpu-fp16-prerelease`) name `edge_base_model` 2026.10.2.1.
+3. **Seeding the profile before its first start** with Edge stable's Phi-4-mini folder (`EdgeLLMOnDeviceModel\2026.8.19.1`, 2.4 GB): the manifest loaded (2026.10.2.1), Broker State listed no base model, and `prompt_api` was "Not Supported". The seed was ignored.
+4. Not tried: the CPU variant through Edge's performance flag. It cannot change the model, because the manifest names Aion for the default.
+
+Conclusion: Edge Dev 157 does not serve Phi-4-mini. Phi-4-mini is available here only from Edge stable 155 (manifest 2026.9.18.5, model 2026.8.19.1). Both experiment profiles were deleted afterwards. Gotcha for the skills: a fresh Edge profile can sit at "Installing 0%" until "Check for update" is pressed for its model components in `edge://components`.
+
+Microsoft's own statements (page reads via markdown.new):
+- Edge Prompt API docs (`https://learn.microsoft.com/en-us/microsoft-edge/web-platform/prompt-api`, updated 2026-10-06) say: "By default, the Prompt API uses the Phi-4-mini model." Aion-1.0-Instruct is the prerelease model behind "Enable prerelease on-device language model" in Canary and Dev from 150.0.4070, "expected to be made available as an open source model in July 2026". On devices of Medium or Low performance class, the Prompt API is supported only through Aion. The docs do not mention Aion-1.1, nor any date when Aion becomes the default in Edge.
+- Windows App SDK docs (`https://learn.microsoft.com/en-us/windows/ai/apis/phi-silica`, updated 2026-10-02) say: "Phi Silica is being replaced by Aion Instruct". The timeline: a sideloadable package in early October 2026, a rollout to Windows Insider devices in November 2026, and "January 2027 - Aion Instruct rolls out to retail devices and Phi Silica is removed." That is Windows' system model, not Edge's.
+
+Reading (inferred): no source states that Aion replaces Phi-4-mini in Edge. The measurement shows Edge Dev 157 already ships Aion-1.1 as its default. Windows is replacing its own on-device model with Aion on a published timeline. Both point the same way, but Microsoft's Edge docs still describe Phi-4-mini as the default and were last updated 2026-10-06.
