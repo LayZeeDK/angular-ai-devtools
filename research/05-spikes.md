@@ -89,3 +89,24 @@ Phi-4-mini (Edge) and Gemini Nano v3 (Chrome stable, native tool calling off the
 ### Update: the `di_graph` side effect also breaks Angular DevTools' signal graph pane (measured)
 
 Measured with the `verify-angular-devtools` skill: Angular DevTools 1.22.0 ran in an isolated Playwright Chromium against `spikes/ng222-app` on 22.2.2, and Claude reran the check on 2026-10-11. Before `angular:di_graph`, the DevTools signal graph pane for `app-counter` shows the same 6 nodes as `ng.ɵgetSignalGraph`. After one `angular:di_graph` execution, the pane drops to 2 nodes (`count`, `effect`) and the template node is gone, matching the `ng` call (`diGraphTemplateLostInPane: true`, `diGraphTemplateLostInNg: true`). So running Angular's own in-page AI DI tool, for example through chrome-devtools-mcp, degrades Angular DevTools for the rest of the page's life.
+
+## Root cause hunt: "The device is unable to create a session to run the model" (Gemini Nano, native tool calling)
+
+Probe `spikes/probes/tool-session-matrix.js` calls `LanguageModel.availability(opts)` and `LanguageModel.create(opts)` for nine option sets. It ran in Chrome Beta 156.0.8078.17 on 2026-10-11 under two flag profiles, switched with `control-ai-browsers model switch`. Raw output was saved to `tmp/matrix-gemma4.json` and `tmp/matrix-nano.json`. All measured.
+
+| Case | Gemma 4 profile (`gemma4-for-built-in-ai` + `prompt-api-tool-use` Enabled) | Nano profile (both Default, serving `v3Nano`) |
+|---|---|---|
+| `LanguageModelToolCall` / `LanguageModelToolSuccess` | `function` | `undefined` |
+| `{}` and text `en` types | available / ok | available / ok |
+| tool types only (`tool-response` in, `tool-call` out) | available / ok | available / **NotSupportedError** |
+| `tool-call` out only | available / ok | available / **NotSupportedError** |
+| `tool-response` in only | available / ok | available / **NotSupportedError** |
+| `tools` only | available / **TypeError** "When tools are provided, expectedOutputs must include {type: "tool-call"}" | available / ok, tools ignored, prompt returns text |
+| `tools` + tool types (also without `languages`, also with a system prompt) | available / ok, prompt returns a tool call | available / **NotSupportedError** |
+
+Findings:
+- The trigger is a `tool-call` or `tool-response` entry in `expectedInputs`/`expectedOutputs`, not the `tools` list, the language tag or the system prompt. The benchmark's native mode (`bench.js`) always passes both tool types, so every Nano run failed at `create()` in 0 ms.
+- `availability()` returns `available` for every option set, including the ones `create()` refuses, while the error text says "Please check the result of availability() first." So on this build `availability()` does not evaluate the tool types.
+- With tool use off, a `tools` list without tool types is accepted and silently ignored. This matches Chrome 154 stable earlier (00), where tools were never called.
+- In this build tool use and Gemini Nano cannot be combined through flags. `prompt-api-tool-use` maps to `AIPromptAPIToolUse,OnDeviceModelConversationBackend,AIApiFoundationalModel:model_version/v4` (binary strings, 00), so turning it on also selects the v4 (Gemma 4) model.
+- Side observation: after `model switch`, a freshly loaded `chrome://flags` still shows the "relaunch to take effect" banner, but `chrome://version` shows the switched features on the command line and the API reflects them. The banner is cosmetic. Inferred cause: the switch command's restarts accumulate one `--enable-features` entry per changed flag (three seen), which Chrome compares with a single merged entry.
