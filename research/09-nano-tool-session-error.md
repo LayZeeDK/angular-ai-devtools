@@ -141,3 +141,13 @@ Open question: does Nano then produce tool calls, or does tool-call formatting d
 Related nuance [inferred]: `#enable-experimental-web-platform-features` would turn on only the Blink runtime feature. In that setup, tool types alone would pass. `tools` plus tool types would reach `CreateLanguageModelInternal`, fail the base::Feature check, and come back as `InvalidStateError` with the same message.
 
 Running this needs a browser session through `control-ai-browsers`, which this research did not open.
+
+## Addendum: web sources on Gemini Nano tool calling (Claude, 2026-10-11)
+
+Lars asked whether the web was searched for Gemini Nano tool-calling support. It had not been, specifically, before this addendum. What a targeted search found:
+- The official Chrome Prompt API page (`https://developer.chrome.com/docs/ai/prompt-api`, fetched via markdown.new) does not mention tools or function calling. It names Gemini Nano as the Prompt API's model and does not mention Gemma 4 (measured).
+- No Google source documents tool calling for Gemini Nano, in Chrome or in Android's ML Kit GenAI Prompt API. For Android, Google promotes tool calling only for Gemma 4 (`https://android-developers.googleblog.com/2026/04/gemma-4-new-standard-for-local-agentic-intelligence.html`). The ML Kit Prompt API's Nano is described as text and image in, text out (InfoQ, `https://www.infoq.com/news/2025/11/android-genai-prompt-api`). These come from search summaries, not page reads.
+- Third-party write-ups say the Prompt API has no tool calling (Apidog, about mid-2026) and that function calling on Nano is done by prompting, with weak instruction following (Swyx, Chrome 137: `https://swyx.io/gemini-nano`). Search summaries only.
+- The tool-use flag appears only in Chrome flag reporting about Gemma 4 (PiunikaWeb, `https://piunikaweb.com/2026/06/08/google-chrome-gemma-4-built-in-ai/`). Search summary only.
+
+Together with the measured matrix, the best reading is this (inferred). Chrome's code lets a Nano session accept tools, but Nano was never trained or documented for tool calls. Google ships tool calling with Gemma 4. On Nano, the structured-output fallback loop is the supported route.
