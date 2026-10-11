@@ -12,8 +12,9 @@ unpacked copy loaded at launch.
 
 ## How to get to it (user POV)
 
-- Store page: `https://chromewebstore.google.com/detail/ienfalfjdbdpebioblfackkekamfmbnh`, "Add to Chrome"
-  (Edge: "Get" after allowing extensions from other stores).
+- Store page: `https://chromewebstore.google.com/detail/ienfalfjdbdpebioblfackkekamfmbnh`, the add button, then
+  "Add extension" in the confirm dialog (Edge first asks to allow extensions from other stores; the button
+  labels in Edge are not measured).
 - Extensions page: `chrome://extensions/?id=ienfalfjdbdpebioblfackkekamfmbnh` or `edge://extensions/?id=...`;
   the toggle enables, Remove uninstalls.
 
@@ -35,6 +36,10 @@ End state: test: `doctor` line `extension: Angular DevTools 1.22.0 ENABLED (UNPA
 - Branded install and uninstall are unproven (not run in any browser yet).
 - After Remove, Chrome may leave the version folder on disk for a while; `uninstall` treats the profile entry
   as the authority and reports leftover folders.
-- `enabled` for branded browsers is read from `disable_reasons` (inferred meaning); the extensions page is
-  the authority.
-- Proof runs never touch `chrome` or `edge`, and never uninstall the copies in `edge` or `edge-dev`.
+- `enabled` for branded browsers is read from `disable_reasons` and `state` (inferred meaning); the extensions
+  page is the authority. Measured 2026-10-11: Edge Dev `installed true, version 1.22.0, enabled true,
+  disable_reasons []`; Chrome Beta `installed false`.
+- `--profile P` picks the profile read and also passes `--profile-directory=P` to the window it opens (not yet
+  run in a branded browser).
+- Proof runs never touch `chrome` or `edge`, and never uninstall the copy in `edge-dev`; branded install and
+  uninstall proofs run in `chrome-beta`.

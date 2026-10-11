@@ -16,7 +16,7 @@ skill for the commands this one runs and for install and uninstall.
 1. Serve a development build of the app, for example the counter fixture:
    `node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target counter --port 4317`.
 2. `node $V --app-url=http://localhost:4317/ [--di-graph]` runs, in the test harness:
-   `install`, `up`, `doctor`, `attach`, `coexist [--di-graph]`, `down`. Measured: 20 s end to end with `--di-graph`.
+   `install`, `up`, `doctor`, `attach`, `coexist [--di-graph]`, `down`. Measured: 20-27 s end to end with `--di-graph` (26-27 s on 2026-10-11).
 3. Branded browser: `node $V --browser=chrome-beta` (or `chrome`, `edge`, `edge-dev`) checks the profile
    only; nothing is launched. Proof runs never use `chrome` or `edge`.
 
@@ -65,9 +65,9 @@ Angular bug (`research/05-spikes.md`), not a verify failure.
 
 ## Gotchas
 
-- Branded browsers get the install check only. Enabled state comes from `disable_reasons` in the profile
-  (inferred meaning); Edge Dev read `[1,2]` on 2026-10-11, which suggests it is disabled there. Check
-  `edge://extensions` before trusting it.
+- Branded browsers get the install check only. Enabled state comes from `disable_reasons` and `state` in the
+  profile (inferred meaning). Edge Dev read `[1,2]` while Lars had it off and `[]` after he re-enabled it;
+  `--browser=edge-dev` exits 0 as of 2026-10-11 (measured). Check `edge://extensions` before trusting it.
 - The harness is headed; it opens a window on Lars's desktop for about half a minute.
 - Run `verify.mjs` with no other `control-angular-devtools` flow up in the same checkout: `up` refuses
   when a state file exists.

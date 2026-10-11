@@ -14,7 +14,8 @@ harness for proofs and scripted panel work, not a supported target. To drive the
 (`ng.*` recipes) use `control-angular-dev-app`; to restart Lars's AI browsers use `control-ai-browsers`.
 
 Rules for proof runs (not for Lars asking for a change): never touch `chrome` or `edge` (his daily browsers);
-never uninstall the copies in `edge` or `edge-dev`; never attach to Chrome Beta or Edge Dev while another
+Chrome Beta and Edge Dev are his project browsers, not daily ones (Lars, 2026-10-11), so branded install and
+uninstall proofs run in `chrome-beta`; never uninstall the copy in `edge-dev` (the source of the harness copy); never attach to Chrome Beta or Edge Dev while another
 agent restarts them; never use the playwright-cli sessions `cb`, `ed`, `ai-cb`, `ai-ed`, `ng-dev`.
 
 `S=.claude/skills/control-angular-devtools/scripts/control.mjs` below, run from the repository root.
@@ -49,7 +50,7 @@ node $S up --app-url=http://localhost:4317/
   `args: --disable-extensions-except=<copy> --load-extension=<copy> --auto-open-devtools-for-tabs
   --remote-debugging-port=<port>`, then runs `playwright-cli -s=ngdt --config=<file> open <app-url>`. The
   `--config` / `launchOptions` schema is in playwright-cli 0.1.21's README; no Node launcher is needed.
-- Ready when the CDP port lists the extension's `service_worker` target. Measured: 2.9-5.9 s (2.9 s from a fresh copy and profile).
+- Ready when the CDP port lists the extension's `service_worker` target. Measured: 2.9-8 s (2.9 s from a fresh copy and profile, 8 s measured 2026-10-11).
 - For the app, prefer `control-angular-dev-app` (it owns the fixture's lifecycle). Without it:
   `npx ng serve --port <free port>` in `spikes/ng222-app`, and stop that PID's tree yourself.
 
@@ -82,8 +83,11 @@ node $S coexist [--di-graph]                     # see Inspect
 ```
 
 Panel handles (read from the live panel, 1.22.0): tabs are buttons/links named `Components`, `Profiler`,
-`Injector Tree`, `Router Tree`; tree rows are `.node-name`; the `Show Signal Graph` button; graph nodes are
-`ng-signal-graph-pane .node-cont.kind-<template|signal|computed|effect>` with the label and value as text;
+`Injector Tree`, `Router Tree`, and `Transfer State` only for a hydrated (SSR) app; `Router Tree` only when the
+app has routes (`devtools-tabs.component.ts`); tree rows are `.node-name`; the `Show Signal Graph` button; graph
+nodes are `ng-signal-graph-pane .node-cont.kind-<kind>` with the label and value as text, where kind is
+`template`, `signal`, `computed`, `effect`, `linked-signal`, `child-signal-prop`, `resource` or `unknown`
+(`signals-visualizer.ts`; the counter shows the first four);
 the profiler button has `aria-label` `Start recording` / `Stop recording` and the result reads
 `Change detection cycles ... <n> / <total>`.
 
@@ -128,7 +132,7 @@ read properties of undefined (reading 'inspectedWindow')` from `bundle/main.js`)
 
 `node $S down`: checks the recorded playwright-cli PID's start time and command line, runs
 `playwright-cli -s=ngdt close`, waits for that PID and the Chromium PID to exit (`taskkill /T /F` on the
-recorded PID if they do not), deletes the state file and the profile, keeps the evidence. A PID that is
+recorded PID if they do not), deletes the state file, the playwright-cli config and the profile, keeps the evidence. A PID that is
 already gone is noted, exit 0. Then stop the app with the tool that started it. Never `close-all` or
 `kill-all`. `uninstall` (test) deletes the extension copy and test profiles; it refuses while `up`.
 
@@ -141,12 +145,12 @@ a non-numeric `--timeout`/`--cdp-port` exits 2 before anything runs.
 
 | Command | Does | Notes |
 |---|---|---|
-| `install [--browser test\|chrome\|chrome-beta\|edge\|edge-dev] [--from ...] [--profile P] [--timeout S]` | test: copies the extension. Branded: no-op when installed; else opens the Chrome Web Store page `https://chromewebstore.google.com/detail/ienfalfjdbdpebioblfackkekamfmbnh` in that browser and polls the profile until the extension appears | Lars clicks "Add to Chrome/Edge" and confirms; Edge first asks to allow extensions from other stores |
-| `uninstall [--browser ...] [--profile P] [--timeout S]` | test: removes copy and profiles. Branded: opens `chrome://extensions/?id=<id>` or `edge://...` and polls until the profile entry is gone | Lars clicks Remove and confirms |
+| `install [--browser test\|chrome\|chrome-beta\|edge\|edge-dev] [--from ...] [--profile P] [--timeout S]` | test: copies the extension. Branded: no-op when installed; else opens the Chrome Web Store page `https://chromewebstore.google.com/detail/ienfalfjdbdpebioblfackkekamfmbnh` in that browser's profile P (`--profile-directory`) and polls the profile every 2 s until the extension appears (default 180 s) | Lars clicks the store's add button and confirms "Add extension"; Edge first asks to allow extensions from other stores |
+| `uninstall [--browser ...] [--profile P] [--timeout S]` | test: removes copy and profiles. Branded: no-op when not installed; else opens `chrome://extensions/?id=<id>` or `edge://...` in profile P and polls every 2 s until the profile's `extensions.settings.<id>` entry is gone | Lars clicks Remove and confirms |
 | `status [--browser ...] [--profile P]` | installed, versions on disk, enabled, `disable_reasons` | read only |
 | `up --app-url <url> [--cdp-port N]` | launches the test harness | state `tmp/control-angular-devtools/state/<flow>.json`: pid, browserPid, created, commandLine, cdpPort, session, evidenceDir, readyInSeconds |
-| `doctor`, `attach`, `info`, `down` | above | |
-| `panel show\|signal-graph [--component C]\|screenshot [--file F]` | panel driving | |
+| `doctor`, `attach`, `info`, `down` | above | `info` prints the state (flow, session, PIDs, CDP port, evidence dir, state path) |
+| `panel show\|signal-graph [--component C]\|screenshot [--file F]` | panel driving | `show` prints the panel's text (tabs, tree, selected component) |
 | `coexist [--component C] [--click "<locator>"] [--di-graph]` | coexistence checks | defaults fit the counter fixture: `app-counter`, `getByRole('button', { name: 'Increment' })` |
 
 ## Gotchas
@@ -162,9 +166,12 @@ a non-numeric `--timeout`/`--cdp-port` exits 2 before anything runs.
 - The pane re-reads the graph after change detection; `coexist --di-graph` clicks the app before the second
   read. Without that nudge the pane keeps showing the old graph (inferred, not measured).
 - `--auto-open-devtools-for-tabs` needs a headed browser; the window opens on Lars's desktop.
-- Edge Dev's `Secure Preferences` lists Angular DevTools 1.22.0 with `disable_reasons [1,2]` (measured
-  2026-10-11). Reading those codes as "disabled by the user / permissions increase" is inferred from
-  Chromium's enum; confirm on `edge://extensions` before trusting `enabled` for a branded browser.
+- Branded `enabled` is inferred from the profile: no `disable_reasons` and `state` not 0. Edge Dev read
+  `disable_reasons [1,2]` while Lars had it off and `[]` with neither key present after he re-enabled it
+  (measured 2026-10-11); the extensions page is the authority.
+- The panel id is `chrome-extension://<id>Angular` because the panel title is `Angular`; for a Google-internal
+  user the title becomes `Angular & Wiz` (`shell-browser/src/devtools.ts`) and `panel` would not find it
+  (inferred, not run).
 - Branded install and uninstall need a human click on browser UI (the store's confirm dialog, the Remove
   confirm); the script opens the page and polls. These steps are unproven: not yet run in any branded
-  browser.
+  browser. `--profile P` also passes `--profile-directory=P` to the window it opens (not yet run in a branded browser).

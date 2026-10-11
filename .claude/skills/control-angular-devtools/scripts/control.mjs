@@ -388,8 +388,8 @@ function brandedStatus(name, profile = 'Default') {
   return { browser: name, profile, extensionsDir: dir, versionsOnDisk: versions, settings, installed, enabled, extensionsPage: `${b.scheme}://extensions/?id=${EXT_ID}` };
 }
 
-function openInBrowser(name, url) {
-  spawn(BROWSERS[name].exe, [url], { detached: true, stdio: 'ignore' }).unref();
+function openInBrowser(name, url, profile = 'Default') {
+  spawn(BROWSERS[name].exe, [`--profile-directory=${profile}`, url], { detached: true, stdio: 'ignore' }).unref();
 }
 
 // ---------- commands ----------
@@ -415,7 +415,7 @@ async function cmdInstall() {
       return { ok: true, already: true, status: before };
     }
 
-    openInBrowser(browser, STORE_URL);
+    openInBrowser(browser, STORE_URL, opts.profile);
     log('INFO', `opened ${STORE_URL} in ${browser}. Lars clicks "Add to ${browser.startsWith('edge') ? 'Edge' : 'Chrome'}"${browser.startsWith('edge') ? ' (after "Allow extensions from other stores" if Edge asks)' : ''} and confirms "Add extension"; polling the profile for ${opts.timeout ?? 180} s`);
     const after = await waitFor(() => {
       const s = brandedStatus(browser, opts.profile);
@@ -469,7 +469,7 @@ async function cmdUninstall() {
       return { ok: true, already: true, status: before };
     }
 
-    openInBrowser(browser, before.extensionsPage);
+    openInBrowser(browser, before.extensionsPage, opts.profile);
     log('INFO', `opened ${before.extensionsPage} in ${browser}. Lars clicks "Remove" and confirms; polling for ${opts.timeout ?? 180} s`);
     const after = await waitFor(() => {
       const s = brandedStatus(browser, opts.profile);
@@ -640,7 +640,10 @@ async function cmdPanel() {
   await showPanel(st.cdpPort);
 
   if (sub === 'show') {
-    return { ok: true, text: await evalIn(st.cdpPort, isPanel, PANEL.text) };
+    const text = await evalIn(st.cdpPort, isPanel, PANEL.text);
+    log('OK', `Angular panel: ${text}`);
+
+    return { ok: true, text };
   }
 
   if (sub === 'signal-graph') {
@@ -738,6 +741,7 @@ async function cmdCoexist() {
 
 async function cmdInfo() {
   const st = requireState();
+  log('INFO', `flow ${st.flowId}, session ${st.session}, app ${st.appUrl}, playwright-cli PID ${st.pid}, browser PID ${st.browserPid}, CDP ${st.cdpPort}, Angular DevTools ${st.extensionVersion}, evidence ${st.evidenceDir}, state ${STATE}`);
 
   return { ok: true, statePath: STATE, ...st };
 }
@@ -761,8 +765,9 @@ async function cmdDown() {
   }
 
   rmSync(STATE, { force: true });
+  rmSync(st.configPath ?? join(TMP, 'state', `${flowId}.cli.config.json`), { force: true });
   rmSync(st.profile, { recursive: true, force: true });
-  notes.push(`removed state and profile; evidence kept in ${st.evidenceDir}`);
+  notes.push(`removed state, config and profile; evidence kept in ${st.evidenceDir}`);
   notes.forEach((n) => log('OK', n));
 
   return { ok: true, notes, evidenceDir: st.evidenceDir, pid: st.pid, browserPid: st.browserPid, cdpPort: st.cdpPort, session: st.session };

@@ -45,4 +45,5 @@ One file per feature: H1, one paragraph of user-visible behaviour, then `Sub-fea
 - The panel in branded browsers (press F12, pick the Angular tab): the scripted path uses DevTools frontend
   internals proven only in the test harness.
 - The Web Store "Add" confirmation and the Remove confirmation on the extensions page: browser UI.
-- Injector Tree and Router Tree tabs: reachable by the same panel driver, not yet mapped.
+- Injector Tree, Router Tree and Transfer State tabs: reachable by the same panel driver, not yet mapped.
+  Router Tree shows only when the app has routes, Transfer State only for a hydrated (SSR) app.
