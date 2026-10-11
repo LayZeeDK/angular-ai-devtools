@@ -120,3 +120,36 @@ A separate Chrome Beta 156 instance (`--user-data-dir=.browsers/chrome-beta-nano
 - In all three `tools` + tool-type cases, Nano answered with text instead of a tool call (one run each).
 
 So the error is the feature gate described in `09-nano-tool-session-error.md`, not the model. Whether Nano ever emits tool calls is a separate quality question for the benchmark.
+
+## Four-model benchmark, second round (2026-10-12, measured)
+
+- **Harness:** `spikes/probes/bench.js` with the corrected grader (`9c1b585`) and a 120 s per-prompt timeout, run by `bench-all.sh` against `spikes/ng222-app` on port 4222. Five questions, three runs each, native tools and the structured-output fallback.
+- **Instances:** one per model (`research/00`, "Per-model instances"). Backend comes from Broker State; performance class from `optimization_guide.on_device.performance_class` in the instance's `Local State`.
+- **Load:** another heavy Claude session for a different project ran on the machine throughout (Lars, verbatim: "another session is using many resources working on a different project"). Latencies are therefore not comparable across rounds.
+
+| Model | Browser | Backend (perf class) | contextWindow | Native, runs passed | Fallback, runs passed | Median per question |
+|---|---|---|---|---|---|---|
+| Gemini Nano v3 (2025.8.21.1028) | Chrome Beta 156 | CPU `nano_v3_cpu_model` (2) | 9,216 | 1/15 | 0/15 | 15-22 s native, 34-42 s fallback |
+| Gemma 4 2B | Chrome Beta 156 | GPU `gemma4_gpu_low_tier_model` (3) | 9,216 | 8/15 | 13/15 | 11-13 s |
+| Aion-1.1-Instruct | Edge Dev 157 | GPU, variant `webgpu-fp16-prerelease` (5) | 7,168 | **15/15** | 11/15 | 3-6 s |
+| Phi-4-mini-instruct (2026.8.19.1) | Edge stable 155 | GPU, "highest quality" (5) | 9,216 | 5/15 | 7/15 | 3-6 s |
+
+Failure patterns:
+- **Nano on CPU:**
+  - Native: it writes `tool_code` blocks with made-up JavaScript as text instead of calling a tool. That matches its lack of documented tool calling (10).
+  - Fallback: 15/15 runs failed with "Unexpected end of JSON input", meaning the constrained output came back empty or cut off. Not explained yet. The CPU backend is the prime suspect, since the first round's Nano on GPU low tier in Lars's own profile passed 11/15 (regraded). Inferred.
+- **Gemma 4:** wrong selectors (`app-counter input[type="text"]`) and invented signal names (`[ + ]`) in native mode. In the fallback, once, it answered from the wrong tool.
+- **Aion:**
+  - Native: perfect.
+  - Fallback: the `selector`/`signal` mix-up again (`{"selector":"double"}`, 3/3 on that question), plus one `kErrorUnknown`.
+  - The first attempt this round failed because the counter page reloaded mid-run. The second wedged the whole Aion instance, with no GPU or CPU activity and `availability()` not answering in a new tab. A restart of the instance fixed it, and the third attempt is the one in the table.
+- **Phi-4-mini:**
+  - Native: it often describes the tool call in prose ("Use the components_find tool...") instead of making it. Once `kErrorUnknown`.
+  - Fallback: CSS-class selectors (`.app-counter`), and queries like `app-counter *`.
+
+Reading (inferred):
+- Aion is the clear first choice for native tool calling, and fast.
+- Gemma 4 is the best fallback-loop model but slow on this GPU.
+- Phi-4-mini is fast but weak at both.
+- Nano needs its GPU backend measured before any verdict.
+- Argument mistakes still dominate the failures, which supports the id-based tool design (3.4) and prompt-kit experiment E1 (`07`).

@@ -8,6 +8,8 @@ async page => {
   return await page.evaluate(async () => {
     const RUNS = 3;
     const MAX_STEPS = 4;
+    const PROMPT_TIMEOUT_MS = 120000;
+    const timed = (promise) => Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error(`prompt timed out after ${PROMPT_TIMEOUT_MS} ms`)), PROMPT_TIMEOUT_MS))]);
 
     const hosts = () => [...document.querySelectorAll('*')].filter((el) => ng.getComponent(el));
     const impl = {
@@ -77,7 +79,7 @@ async page => {
 
       try {
         for (let step = 0; step < MAX_STEPS; step++) {
-          const out = await s.prompt(input);
+          const out = await timed(s.prompt(input));
           const parts = Array.isArray(out) ? out : [{ type: 'text', value: out }];
           const tc = parts.filter((p) => p.type === 'tool-call').map((p) => p.value);
 
@@ -115,7 +117,7 @@ async page => {
 
       try {
         for (let step = 0; step < MAX_STEPS; step++) {
-          const raw = await s.prompt(input, { responseConstraint: schema });
+          const raw = await timed(s.prompt(input, { responseConstraint: schema }));
           const msg = JSON.parse(raw);
 
           if (msg.answer !== undefined) {
