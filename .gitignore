@@ -5,3 +5,5 @@ tmp/control-ai-browsers/
 tmp/verify-ai-browsers/
 tmp/control-angular-devtools/
 tmp/verify-angular-devtools/
+tmp/control-pangular-inspector/
+tmp/verify-pangular-inspector/

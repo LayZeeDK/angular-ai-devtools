@@ -39,3 +39,32 @@ Measured per token: `Injector`, `DestroyRef`, `ElementRef`, `Renderer2` leave th
 **Evidence:** spike app `spikes/ng222-app` in `D:\projects\sandbox\angular-ai-devtools`; probe results in `research/05-spikes.md`.
 
 **Added 2026-10-11 (measured):** Angular DevTools 1.22.0's signal graph pane shows the same loss. Before `angular:di_graph` it shows 6 nodes for the component; after it, 2 nodes (`count`, `effect`), with no template node. So the tool's side effect reaches users who never call `ɵgetSignalGraph` themselves: anyone who runs Angular's DI tool through chrome-devtools-mcp and then opens Angular DevTools. Evidence: `verify-angular-devtools` run, `tmp/verify-angular-devtools/20261011-192415.460/` (gitignored), skill in `.claude/skills/verify-angular-devtools/`.
+
+## 2. pangular-inspector/devtools: the source scan finds nothing in an Nx workspace that uses `project.json` and `libs/`
+
+Status: draft, not filed. Found 2026-10-11 while building `.claude/skills/control-pangular-inspector`.
+
+**Versions:** `@pangular-inspector/devtools` 0.0.7 (npm), source read at clone commit 76c09d0; Nx 23.1.1, Angular 22.2.2, npm 11.16.0, Node 24.18.0, Windows 11 arm64.
+
+**What happens:** `sourceRoots()` (`packages/devtools/src/rpc/source-scan.ts:313`) collects `sourceRoot` / `root/src` from `angular.json` projects, plus `<cwd>/src`. An Nx workspace configures projects in `project.json` files and has no `angular.json`, so the scan sees nothing outside `<cwd>/src`.
+
+**Reproduction** in the ng-journal Insurance Portal (Nx, app in `apps/insurance-portal`, features in `libs/*`), with the package installed:
+
+```bash
+npx pangular mcp --root .                      # get-components -> []
+npx pangular mcp --root apps/insurance-portal  # get-components -> 4 app-shell components; stderr warns "no angular.json and no package.json that depends on @angular/core"
+```
+
+The panel dashboard shows 0 components, routes, signals and providers "discovered in source" while the live tabs work.
+
+**Expected:** read Nx `project.json` files (`sourceRoot`, or `root` + `src`) next to `angular.json`, or accept several `--root` folders.
+
+**Evidence:** `.claude/skills/control-pangular-inspector/features/source-scan.md`; rerun with `node .claude/skills/control-pangular-inspector/scripts/control.mjs scan get-components [--root apps/insurance-portal]`.
+
+## 3. pangular-inspector/devtools: the docs list `list-components`, the published 0.0.7 does not have it
+
+Status: draft, not filed. Found 2026-10-11.
+
+**What happens:** `apps/docs/src/content/agents/tools.md` documents `list-components`. `tools/list` on `pangular dev --read-only` from the npm 0.0.7 package returns 46 tools without it; the tool was added in 20ebbb9 after the release. A reader of the docs site cannot tell which tools a version has.
+
+**Expected:** a "since" marker per tool, or docs versioned with the package.
