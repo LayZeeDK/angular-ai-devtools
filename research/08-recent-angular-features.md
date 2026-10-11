@@ -1,0 +1,275 @@
+# 08 - Recent Angular features (20.0 to 22.2) as a source of AI DevTools ideas
+
+Date: 2026-10-11. Author: Claude, for Lars.
+
+Lars's requests, verbatim:
+
+- "Consider researcing recent Angular features via https://www.angular.courses/'s sub-pages (using /playwright-cli) and via the Angular changelog or Angular's GitHub Releases."
+- "The Angular features research should be used as an inspiration to Angular AI DevTools feature proposals."
+- "Experimental Angular features are acceptable"
+
+So section 4 (feature ideas) is the main output. Sections 2 and 3 are compact support for it. No idea is ranked down because the Angular feature behind it is experimental or in developer preview; the status column only marks the dependency.
+
+Labels: **[measured]** = read in a named source (file:line, URL) or run; **[inferred]** = reasoned from measured facts, not run. Paths under `packages/` are in `D:\projects\github\angular\angular` (branch `22.2.x`). `CL:n` means `CHANGELOG.md` line n in that clone. Tiers are the ones in `docs/feature-proposals.md` section 2.2: tier 0 = public `ng.*` or DOM or standard browser API, tier 1 = `ng.ɵ*` or another internal already on the page in dev mode, tier 2 = needs an app change.
+
+---
+
+## 1. Sources
+
+### 1.1 angular.courses (browsed with `playwright-cli -s=ngcourses`, own Chromium, session closed)
+
+Sub-pages visited [measured]:
+
+| URL | What it held |
+|---|---|
+| `https://www.angular.courses/` | Home: links to Can I Use, Release Insights, Blog, AI chat, Library health check |
+| `/releases/insights/22`, `/releases/insights/22/overview` | Release Insights shell for v22 (nav only rendered as text) |
+| `/releases/insights/22/features` | Table of features whose status changed from 21 to 22 |
+| `/releases/insights/22/mcp` | "No new MCP server features were released in Angular 22" |
+| `/releases/insights/21/features`, `/releases/insights/20/features` | Same tables for 21 and 20 |
+| `/caniuse?tab=features` | Angular "Can I Use": 226 features with status per version (experimental, developer preview, stable, deprecated, removed) |
+| `/blog` | Article index |
+| `/blog/angular-22-resource-params-status` | Throwing `ResourceParamsStatus.LOADING` to force a loading state while a `debounced` signal waits |
+| `/blog/selectorless-components-truth` | "Selectorless" means two things: omitting `selector` on routed components (works today) vs an official class-name template syntax prototype that the article says is on hold and off the roadmap |
+| `/blog/angular-webmcp-localhost-only` | Angular WebMCP can only be exercised locally today, through `modelContext` calls or the WebMCP extension behind Chrome flags; the author waits for Prompt API access to WebMCP tools |
+| `/blog/angular-resources-not-for-guards` | A resource read synchronously in a guard returns `undefined` and cancels navigation; use Observables or Promises in guards and resolvers |
+
+What the site says about 20-22 (summary, not copied) [measured from the feature tables]:
+
+- **v20**: `linkedSignal`, `effect`, `afterRenderEffect`, `afterEveryRender`/`afterNextRender`, `toSignal`/`toObservable`, `PendingTasks`, `withIncrementalHydration` and the SSR engine APIs go from preview or experimental to stable; `provideZonelessChangeDetection` stable in 20.2; `*ngIf`/`*ngFor`/`*ngSwitch` and the animations package deprecated (20.0 and 20.2).
+- **v21**: Signal Forms experimental; Angular Aria developer preview; `enableProfiling()` experimental; `withAutoCleanupInjectors` experimental in 21.1; `resourceFromSnapshots`/`ResourceSnapshot` experimental in 21.2; `ChangeDetectionStrategy.Eager` stable and `Default` deprecated in 21.2.
+- **v22**: stable `resource`, `rxResource`, `httpResource`, Signal Forms, Angular Aria, `@Service`, `injectAsync`, `debounced`, default OnPush, HTML element comments, `withXhr`; `withAutoCleanupInjectors` stable in 22.2; `@boundary` and router resources developer preview in 22.2; `provideExperimentalWebMcpTools` experimental; `withFetch`, `CommonEngine`, Webpack builders and JSONP deprecated.
+
+Where the site and the source disagree [measured]:
+
+- `debounced`: site says stable in 22; source says `@experimental 22.0` (`packages/core/src/resource/debounce.ts:32`, `packages/core/src/resource/api.ts:316,331`). Trust the source.
+- `enableProfiling()`: site says experimental in 21; source says `@publicApi v21.0` (`packages/core/src/render3/debug/chrome_dev_tools_performance.ts:370`).
+
+### 1.2 Local changelog
+
+`CHANGELOG.md` top entry is 22.2.0 (`CL:1-2`). Minor sections read: 22.2.0 `CL:1-46`, 22.1.0 `CL:370-438`, 22.0.0 `CL:841-1052`, 21.2.0 `CL:1616-1691`, 21.1.0 `CL:1802-1851`, 21.0.0 `CL:2173-2440`, 20.3.0 `CL:2787`, 20.2.0 `CL:2900-3006`, 20.1.0 `CL:3190-3274`, 20.0.0 `CL:3394-3700`.
+
+### 1.3 GitHub Releases (`gh release list/view -R angular/angular`)
+
+Newer than the local changelog [measured]: 22.2.1 (2026-09-30), 22.2.2 (latest, 2026-10-08), 22.3.0-next.0 and next.1, 22.1.8. Items that matter to a runtime tool:
+
+- 22.2.1 core: "add debugName on afterRenderEffect"; "include signal and component name in NG0600 error message"; "render error boundary fallbacks after HMR". Router: "set initial blocking resource input synchronously on activation".
+- 22.2.2 core: "defer afterRenderEffect sequences registered while hooks run"; "untrack `onError` handler to prevent signal write exceptions". Forms: "write a pending debounced value when its control is destroyed".
+- 22.3.0-next.0: increment/decrement operators in template expressions. 22.3.0-next.1: `scrollMargin` for `@defer` viewport options.
+- 22.1.8 notes were not read (a 22.1 patch, older line).
+
+---
+
+## 2. Features table, 20.0 to 22.2 (trimmed)
+
+Status is the source annotation when it was checked, else the changelog or angular.courses wording.
+
+| Ver | Feature | Status | Source |
+|---|---|---|---|
+| 20.0 | `linkedSignal` stable and public | stable (`@publicApi 20.0`, `linked_signal.ts:27`) | CL:3580,3589 |
+| 20.0 | `afterRender` renamed `afterEveryRender`, stable; `afterRenderEffect` stable | stable | CL:3587; angular.courses v20 table |
+| 20.0 | Incremental hydration API stable | stable | CL:3588 |
+| 20.0 | Zoneless to developer preview, renamed `provideZonelessChangeDetection` | dev preview | CL:3584,3438-3439 |
+| 20.0 | Performance data in Chrome DevTools; DI profiling event; template function in profiler hooks | feature | CL:3576,3577,3573 |
+| 20.0 | `provideBrowserGlobalErrorListeners` | stable | CL:3569 |
+| 20.1 | Implicit `debugName` compiler transform (first tag `20.1.0-next.0`, `git describe`) | internal | `implicit_signal_debug_name_transform.ts` |
+| 20.1 | `httpResource` fetch options and `timeout` | experimental then | CL:3244-3251 |
+| 20.2 | Zoneless promoted to stable | stable | CL:2945 |
+| 20.2 | `animate.enter`/`animate.leave` instructions | feature | CL:2943 |
+| 20.2 | Router `currentNavigation` signal | feature | CL:2993 |
+| 21.0 | Zoneless is the default; no Zone scheduler unless `provideZoneChangeDetection` | breaking | CL:2234-2238,2339 |
+| 21.0 | Signal Forms (experimental) with `debounce()` rule | experimental | CL:2370-2371 |
+| 21.0 | Regular expressions in templates; IntersectionObserver options in viewport triggers | feature | CL:2344,2343 |
+| 21.0 | `enableProfiling()` | `@publicApi v21.0` | `chrome_dev_tools_performance.ts:370` |
+| 21.0 | Angular Aria (`@angular/aria`, angular/components repo, not in this changelog) | dev preview | angular.courses v21 table |
+| 21.1 | `provideStabilityDebugging()` | `@publicApi 21.1` | CL:1820; `stability_debug_impl.ts:53-55` |
+| 21.1 | Multiple matching `@switch` cases; spread and rest in expressions | feature | CL:1815,1821-1823 |
+| 21.1 | Route cleanup controls (`withAutoCleanupInjectors`, experimental); Navigation API integration | experimental | CL:1838,1843 |
+| 21.2 | `ChangeDetectionStrategy.Eager` alias | stable | CL:1641 |
+| 21.2 | Host node in `DeferBlockData` | feature | CL:1642 |
+| 21.2 | Resource composition via snapshots (`resourceFromSnapshots`) | experimental (21.2), stable 22 | CL:1645 |
+| 21.2 | Exhaustive `@switch` checks; arrow functions in expressions | feature | CL:1628,1646 |
+| 21.2.3 | Signal debug names in `toString()` | fix | CL:1550 |
+| 22.0 | Default `changeDetection` is OnPush; migration adds `Eager` | breaking | CL:859,945,930 |
+| 22.0 | `resource`, `rxResource`, `httpResource` stable | `@publicApi 22.0` | `resource/resource.ts:50,64`; `common/http/src/resource.ts:45` |
+| 22.0 | Special return statuses for resource params (`ResourceParamsStatus`) | stable | CL:931 |
+| 22.0 | Synchronous values for stream resources | stable | CL:935 |
+| 22.0 | `debounced()` signals | `@experimental 22.0` | CL:933; `debounce.ts:32` |
+| 22.0 | `@Service` decorator | stable | CL:942,957 |
+| 22.0 | `injectAsync` | `@publicApi 22.0` | CL:927; `inject_async.ts:48` |
+| 22.0 | Signal Forms graduate to public API; `reloadValidation`, async validator debounce, `FieldState.getError()` | stable (`@publicApi 22.0`) | CL:975,972-974 |
+| 22.0 | WebMCP `provideWebMcpTools` / `declareWebMcpTool` | experimental | CL:926,940 |
+| 22.0 | In-page AI debugging tools (`devtoolstooldiscovery`, DI graph) | internal | CL:941,944 |
+| 22.0 | Profiling events carry documentation URLs | feature | CL:939 |
+| 22.0 | Incremental hydration is the default behavior | stable | CL:1031 |
+| 22.0 | `@defer` idle customization and idle timeout; prefetch-without-trigger warning | feature | CL:947-948,916 |
+| 22.0 | HTML comments inside elements | stable | CL:896 |
+| 22.0 | `FetchBackend` default for `HttpClient` | stable | CL:1006 |
+| 22.0 | `ɵgetControlFlowBlocks` (`@defer` + `@for`) on `ng` (file first tagged `v22.0.0-next.4`) | internal | `render3/util/control_flow.ts` |
+| 22.0.5-6 | `debugName` transform covers `toSignal` and required queries | fix | CL:610,582 |
+| 22.1 | `linkedSignal` custom `set` option | feature | CL:398 |
+| 22.1 | Deep links from Performance panel to Angular DevTools | feature | CL:399 |
+| 22.1 | Foreign components (framework interop in templates) | feature | CL:387-405,393 |
+| 22.1 | Migration from `@Injectable` to `@Service` | feature | CL:428 |
+| 22.1.3 | `debuggableFn` for non-computed signal graph nodes | fix | CL:222 |
+| 22.2 | `ErrorBoundary` programmatic APIs; `@boundary` blocks | `@developerPreview 22.2` (`error_handler.ts:25`); `BoundaryError` `@publicApi 22.2` | CL:18,33; `render3/instructions/boundary.ts:31-40` |
+| 22.2 | Router resources (`Route.resources`, `nonBlocking`) | `@developerPreview 22.2` | CL:39,42; `router/src/models.ts:767`; `router_resource.ts:55` |
+| 22.2 | `withAutoCleanupInjectors` stable | stable | CL:40 |
+| 22.2 | Throwing `RedirectCommand` redirects | feature | CL:38 |
+| 22.2 | WebMCP tool annotations; implicit form tools hard-code `readOnlyHint`/`untrustedContentHint` | experimental | CL:21,29 |
+| 22.2 | Permanent hidden fields in Signal Forms | feature | CL:28 |
+| 22.2 | `strictUnclaimedEventNames` (misspelled output bindings); templates can read private members | compile time | CL:12,6 |
+| 22.2.1 | `afterRenderEffect` gets a `debugName`; NG0600 names the signal and component | fix | GitHub release v22.2.1 |
+| -- | Selectorless template syntax | prototype on hold, not shipped | angular.courses blog; no `selectorless` hit in `CHANGELOG.md` (rg) |
+| -- | `@let` | before 20 (stable) | `NgLet` mark at `render3/instructions/let_declaration.ts:28` |
+
+---
+
+## 3. Runtime visibility in a dev build
+
+The `ng` inventory is `research/02-angular-surface.md` section 1.2. One new channel matters for every row below:
+
+**Feature-usage marks [measured].** `performanceMarkFeature(name)` calls `performance.mark('mark_feature_usage', {detail: {feature}})` once per feature, in dev and prod (`packages/core/src/util/performance.ts`). Callers at 22.2 include `NgBoundary` (`instructions/boundary.ts:63`), `NgSignalForms` (`instructions/control.ts:57`), `NgLet` (`let_declaration.ts:28`), `NgControlFlow` (`control_flow.ts:82,130,187,328`), `NgDefer` (`defer/instructions.ts:145`), `NgIncrementalHydration` (`hydration/incremental_runtime.ts:86`), `NgHydration`, `NgI18nHydration`, `NgEventReplay`, `NgAfterRender`, `NgAfterNextRender`, `NgAnimateEnter`, `NgAnimateLeave`, `NgZoneless`, `NgZone_CoalesceEvent`, `NgStandalone`, `NgHttpTransferCache`, `NgOptimizedImage`, `NgRouterViewTransitions`, `Chrome DevTools profiling`. Read with `performance.getEntriesByName('mark_feature_usage')`: tier 0. 02 listed only two of these names.
+
+| Feature | Visible through | Tier | Label |
+|---|---|---|---|
+| `signal`, `computed`, `linkedSignal`, `effect` | `ng.ɵgetSignalGraph` node `kind` (`signal`, `computed`, `linkedSignal`, `effect`, `template`, `afterRenderEffectPhase`; `signal_debug.ts:41-61`) with `label` from `debugName` | 1 | measured |
+| `resource`, `rxResource`, `httpResource` | Its inner signals appear as graph nodes labelled `Resource#<name>.<part>`, part one of `isLoading`, `value`, `extRequest`, `stream`, `state` (`resource/resource.ts:133,240,266,283,320,593-599`). Status comes from reading the `state` node's value | 1 | label format measured; that these nodes reach a component's graph is inferred (they do when the template or an effect reads them) |
+| Streaming resource | Same, `.stream` node (`resource.ts:283,294`) | 1 | measured from source |
+| `debounced` | It is a resource (`resource/debounce.ts`, blog), so the same nodes; no `debugName` call in `debounce.ts` (rg) | 1 | inferred |
+| Router resources | `ng.ɵgetRouterInstance(...).config` exposes `Route.resources` functions; `ActivatedRoute.resources` holds the result (`router_state.ts:175-179`); blocking flag is a symbol with description `__isBlocking` in dev mode (`router_resource.ts:36-38`), readable with `Object.getOwnPropertySymbols` | 1 | measured from source, not run |
+| Signal Forms | `ng.getDirectives(inputEl)` returns the `FormField` directive (`selector: '[formField]'`, `forms/signals/src/directive/form_field.ts:106-126`) whose public `state` computed gives the `FieldState`; `form[formRoot]` gives `FormRoot.fieldTree` (`form_root.ts:36-43`). `NgSignalForms` mark. Signal Forms internals set no `debugName` (rg in `forms/signals/src` returns 0 hits, positive control: 8 `signal(`/`computed(` hits in `api/structure.ts`), so their graph nodes are unlabelled | 0 | measured from source, not run |
+| `@defer`, incremental hydration | `ng.ɵgetControlFlowBlocks` (state, triggers, `incrementalHydrationState`, timings); `ngh`, `__ngDebugHydrationInfo__`, `ngDevMode` counters (02 section 5.5); `NgDefer` / `NgIncrementalHydration` marks | 1 (marks 0) | measured |
+| `@boundary` / `ErrorBoundary` | `ɵgetControlFlowBlocks` does not cover it (02 section 5.6). But the `@error` view's context is `{$error, $reset}` (`boundary.ts:113-118`), so `ng.getContext(nodeInsideErrorView)` should return the caught error and the reset function. The error also goes to `ErrorHandler` with `details.boundary` set (`boundary.ts:120-131`). `NgBoundary` mark | 0 | context shape measured from source; `getContext` returning it is inferred, not run |
+| Default OnPush (22.0) | `ng.getDirectiveMetadata(...).changeDetection`; a value of `Eager` is now an explicit opt-out (02 section 5.2, measured on the spike app) | 0 | measured |
+| Zoneless default | `NgZoneless` mark, `typeof Zone` (02 section 5.2) | 0 | measured |
+| `@Service()` | Compiles to the same `ɵprov` shape as `@Injectable` (`di/interface/defs.ts:37-46,167-175`); no runtime marker for "declared with `@Service`" found (rg `isService|autoProvided` in `defs.ts`: none). Seen through the `ɵ` injector functions like any provider | 1 | inferred from absence |
+| `injectAsync` | No debug surface found | -- | inferred |
+| WebMCP APIs | Only through `document.modelContext` (native or a shim), 02 section 4.3 | app opt-in | measured |
+| `devtoolstooldiscovery` tools | 02 section 1.5 | 1 | measured |
+| `enableProfiling` and Performance-panel tracks | Tracks are written with `console.timeStamp(..., trackName, trackGroup '\u{1F170}️ Angular', color)` (`chrome_dev_tools_performance.ts:37-46,196,218-220`). `console.timeStamp` does not create `performance` entries, so page JS cannot read the tracks; reading them needs a CDP trace (`chrome.debugger`, `Tracing` domain) | 0 to switch on; CDP to read | call measured; "not readable from the page" inferred |
+| `debugName` | Graph `label` (02 section 5.3); included in `toString()` since 21.2.3 (CL:1550); `afterRenderEffect` labelled since 22.2.1 | 1 | measured |
+| `@let` | `NgLet` mark only; values live in the `LView`, no `ng` reader found | 0 (presence only) | inferred |
+| Control-flow changes (`@switch` multi-case, exhaustive checks, regex, spread) | Compile-time or template-only. `@for` via `ɵgetControlFlowBlocks`; `@if`/`@switch` not exposed (02) | 1 for `@for` | measured |
+| Angular Aria | Directive instances via `ng.getDirectives`; ARIA attributes and roles in the DOM and accessibility tree. Package not in this repo, directive class names not checked | 0 | inferred |
+| Selectorless / foreign components | Selectorless syntax not shipped. Foreign components use symbols `RENDER`, `ON_DESTROY`, `CONTENT_ADAPTER`, `GET_CONTEXT` (`interface/foreign_component.ts:10-19`); no `ng` reader | -- | measured symbols; no runtime surface inferred |
+| `afterRenderEffect` | Graph node kind `afterRenderEffectPhase` (`signal_debug.ts:61`) | 1 | measured |
+| `provideStabilityDebugging` (21.1) | App opt-in; after a timeout it logs `console.group` lists of macrotasks and `PendingTasks` with creation stacks (`stability_debug_impl.ts:83-104`) | 2 | measured from source |
+
+---
+
+## 4. Feature ideas
+
+Each idea says what the on-device model adds that a static panel cannot. "Covered" refers to `docs/feature-proposals.md` (N1-N13, sections 5-6). New ideas come first, then extensions of existing proposals.
+
+### 4.1 New compared with Angular DevTools and N1-N13
+
+**F1. Resource lifecycle explainer ("why is this spinner still spinning?")**
+- Model adds: explains a cause from a timeline. "`Resource#products.state` went `loading` at 12:01:03 and has not resolved; its params read `debouncedSearch.value`, which is still `loading` because typing restarts the 300 ms timer" or "params threw `ResourceParamsStatus.IDLE`, so the resource is idle by design".
+- Data: graph nodes labelled `Resource#<name>.*` (state, isLoading, extRequest, value), sampled by the page agent per CD cycle (`ɵsetProfiler`) and correlated with `PerformanceResourceTiming` entries for `httpResource` URLs. The tool returns one line per transition, never the raw graph.
+- Tier 1. Min Angular 22.0 for stable resources and `ResourceParamsStatus`; labels need ngtsc and 20.1+. Status: stable (`debounced` part experimental).
+- Covered: no. N2 has one resource rule (params read a per-keystroke signal); this is the lifecycle view.
+
+**F2. Signal Forms doctor ("why can't I submit?")**
+- Model adds: connects field state to the user's question and judges it. "Submit is blocked: `email` has a `required` error, `password` is valid but `username` is `pending` on an async validator debounced 500 ms."
+- Data: `ng.getDirectives(el)` -> `FormField.state()` per `[formField]` element (valid, errors, pending, touched, dirty, disabled, hidden, readonly), grouped by the nearest `form[formRoot]`. The page agent supplies labels from the DOM, because Signal Forms nodes have no `debugName`.
+- Tier 0 (public directive class and its public `state`). Min 22.0 stable; 21.0 experimental. Detect with the `NgSignalForms` mark.
+- Covered: no. N9 tests WebMCP form tools; nothing explains form state.
+
+**F3. Error boundary inspector**
+- Model adds: explains which boundary caught what and why the page shows a fallback. "The `@boundary` in `ProductPage` caught `TypeError: price is undefined` from `PriceTag`; `$reset` retries. The input `product` was `null` at render."
+- Data: `NgBoundary` mark; DOM walk with `ng.getContext` on nodes inside `@error` views to read `{$error, $reset}`; caught-error details (`declarationType`, `boundary.type`) from the `console.error` hook N4 already installs (the default `ErrorHandler` path, `boundary.ts:120-131`). "Retry" calls `$reset` behind a confirm.
+- Tier 0 (inferred: needs a spike on a 22.2 app). Min 22.2. Status: developer preview.
+- Covered: no. N4 explains uncaught errors; boundary-caught errors never reach `window.onerror`.
+
+**F4. Navigation blocking explainer (router resources)**
+- Model adds: names the resource that holds a navigation and judges whether it should block. "Navigation to `/orders/42` waits on `orders` (blocking, `loading` for 2.8 s); `recommendations` is non-blocking. Wrap `orders` in `nonBlocking()` only if the page can render without it."
+- Data: `ng.ɵgetRouterInstance` -> `router.config` (`Route.resources`), `routerState` -> `ActivatedRoute.resources` with status per resource, blocking flag via the `__isBlocking` symbol; navigation start and end from router events.
+- Tier 1, `provideRouter` apps only. Min 22.2. Status: developer preview.
+- Covered: no. Section 5 router rows show the tree, not the waits.
+
+**F5. Feature fingerprint that picks the tool groups**
+- Model adds: decides which tool groups to load before the question. If the app never marked `NgSignalForms`, the forms tools stay out of the session and save context in a 7-9K window; "this app uses `@defer` with incremental hydration and Signal Forms, no `@boundary`" also opens the chat as a context chip.
+- Data: `performance.getEntriesByName('mark_feature_usage')` (about 20 feature names, section 3), `[ng-version]`, `getDirectiveMetadata` counts.
+- Tier 0. Min: each mark's version (for example `NgBoundary` 22.2, `NgSignalForms` 21.0+).
+- Covered: partly. `app.facts` in 3.4 reads only the zoneless mark; step 1 of the model loop (3.3) picks groups from the question only.
+
+**F6. Linked state reset explainer ("why did my selection reset?")**
+- Model adds: explains a cause. "`selectedId` (linkedSignal) recomputed because its source `items` changed at 12:03:10 after `reload()`; your manual `set` was dropped. Since 22.1 a custom `set` option can keep it."
+- Data: graph nodes of kind `linkedSignal` with their producers and `epoch`, watched with `toggleWatchSignal`; epoch changes recorded per CD cycle.
+- Tier 1. Min 20.0 (`linkedSignal` stable); the `set` advice needs 22.1.
+- Covered: partly. N2 traces provenance; it does not explain a reset over time.
+
+**F7. Render-phase effect checker (`afterRenderEffect`)**
+- Model adds: judges against a rule and explains. "`measureHeight` writes a signal in the `write` phase that the template reads, which schedules another CD pass each frame."
+- Data: graph nodes of kind `afterRenderEffectPhase` (labelled since 22.2.1) and their producers; profiler `AfterRender*` events counted per cycle.
+- Tier 1. Min 20.0; labels 22.2.1.
+- Covered: no.
+
+**F8. Performance recording narrator**
+- Model adds: produces an artifact from a trace. "In this 4 s recording Angular ran 37 CD passes; `ProductList` took 61% of template time; 12 passes started from `scroll` listeners."
+- Data: `ng.enableProfiling()` (tier 0), then a CDP trace through `chrome.debugger` to read the `'\u{1F170}️ Angular'` track entries, because `console.timeStamp` entries are not readable from the page. Deep links (22.1) map entries to components. The `docsUrl` that profiling events carry since 22.0 (CL:939) gives the model a link to cite.
+- Tier 0 plus the `debugger` permission. Min 21.0 (`enableProfiling`), 22.1 for deep links.
+- Covered: partly. Section 5 has "turn on Angular tracks"; N1 uses `ɵsetProfiler`, not the Performance panel.
+
+**F9. Stability explainer ("why does my app never become stable?")**
+- Model adds: explains a cause. "Two `PendingTasks` are open: an `httpResource` for `/api/feed` and a task created in `AnalyticsService.init` (stack shown). SSR and `whenStable()` tests wait on them."
+- Data: console output of `provideStabilityDebugging()`, captured by the MAIN-world console hook. Without the provider, fall back to the profiler and resource states (F1).
+- Tier 2 (the app adds one provider). Min 21.1.
+- Covered: no. Section 5 notes that standalone apps have no testability globals; nothing explains instability.
+
+**F10. Angular Aria pattern checker**
+- Model adds: judges against a rule set per pattern. "This `ngTabs` group has no `aria-labelledby` on its panels and arrow keys do not move focus."
+- Data: Aria directive instances via `ng.getDirectives`, roles and names from the accessibility tree (CDP `Accessibility` domain or DOM), a keyboard probe that sends key events.
+- Tier 0. Min 22.0 (stable per angular.courses; 21 developer preview). Directive names not checked yet.
+- Covered: partly. N10 has generic a11y basics on component hosts.
+
+### 4.2 Extensions of existing proposals
+
+| Idea | What changes | Data, tier, min version | Covered by |
+|---|---|---|---|
+| E1. OnPush readiness for `Eager` components | For each `Eager` component, check whether every value its template reads is a signal or an input (template node producers in the signal graph). The model then says "safe to drop `Eager`" or "reads plain field `count`, mutated in `onClick`" | `getDirectiveMetadata` + `ɵgetSignalGraph`; tier 1; 22.0 | extends N10's `Eager` finding |
+| E2. NG0600 explainer gets names for free | Since 22.2.1 the message names the signal and component, so N4 can jump to the node without a stack walk | console hook; tier 0; 22.2.1 | N4 |
+| E3. `@defer` trigger doctor learns 22.x triggers | Explain idle timeouts and custom idle (22.0), viewport options (21.0), `scrollMargin` (22.3), and incremental hydration being the default (22.0) | `ɵgetControlFlowBlocks`; tier 1; 22.0 | N5 |
+| E4. WebMCP annotation audit | In agent rehearsal, flag tools without `readOnlyHint` on reads; note that implicit form tools hard-code hints since 22.2 | `document.modelContext`; app opt-in; 22.2 | N9 |
+| E5. Unlabelled-node report knows Signal Forms | Unlabelled nodes coming from Signal Forms are expected (no `debugName` in that package); label them by their `[formField]` element instead of suggesting a `debugName` | graph + F2; tier 1; 22.0 | N2 |
+| E6. Resource-in-guard detector | A navigation cancelled in the same tick as an `httpResource` request starts suggests a resource read synchronously in a guard (angular.courses blog). Low confidence, so the model words it as a question | router events + network timing; tier 1; 22.0 | new rule for N10 |
+
+### 4.3 Not worth a feature
+
+- `@Service()`: no runtime marker, so DI tools see it as any provider (N3 covers DI).
+- `injectAsync`, `@let`, foreign components, selectorless: no runtime surface beyond a feature mark.
+- Compile-time items (`strictUnclaimedEventNames`, private members in templates, exhaustive `@switch`): belong to the CLI MCP server or the language service, not a runtime extension.
+
+---
+
+## 5. Version gates
+
+Minimum Angular version for each idea and for the existing proposals' data sources [measured from the tables above unless marked].
+
+| Feature | Minimum | Why |
+|---|---|---|
+| N1, N2 (signal graph, profiler) | 19.1: the commit that published `getSignalGraph` in `global_utils.ts` is first in `19.1.0-next.3` (`git log -S` + `git describe`); labels need 20.1+ for the implicit `debugName` transform | `ɵgetSignalGraph`, implicit labels |
+| N5, E3 | 22.0 for `ɵgetControlFlowBlocks` (publish commit first in `v22.0.0-next.4`, same method). 19.1 to 21.x apps published `getDeferBlocks` instead (first in `19.1.0-next.4`), so a fallback can cover `@defer` but not `@for` | `global_utils.ts` history |
+| `devtoolstooldiscovery` tools | 22.0 (`registration.ts` first tagged `v22.0.0-next.8`; CL:941,944) | in-page AI tools |
+| N9, E4 | 22.0 WebMCP; 22.2 for annotations | CL:926,940,21 |
+| F1 | 22.0 (stable resources, `ResourceParamsStatus`) | CL:931; `resource.ts:50` |
+| F2, E5 | 22.0 (21.0 experimental) | CL:975,2371 |
+| F3 | 22.2 | CL:18,33 |
+| F4 | 22.2, `provideRouter` only | CL:39 |
+| F5 | per mark; `NgBoundary` 22.2, `NgSignalForms` 21.0 | section 3 |
+| F6 | 20.0 (22.1 for the custom `set` advice) | CL:3589,398 |
+| F7 | 20.0; labels 22.2.1 | GitHub release v22.2.1 |
+| F8 | 21.0 (`enableProfiling`); 22.1 deep links | `chrome_dev_tools_performance.ts:370`; CL:399 |
+| F9 | 21.1, app opt-in | CL:1820 |
+| F10 | 22.0 (stable Aria) | angular.courses v22 table |
+| E1 | 22.0 (OnPush default) | CL:859 |
+| E2 | 22.2.1 | GitHub release v22.2.1 |
+
+Practical floor: the target is 22.2, so every idea works there. For older apps, F5 should hide tool groups whose version gate the `[ng-version]` value does not meet, so the model is never offered a tool that cannot answer [inferred].
+
+## 6. Not checked
+
+- No idea was run. F3's `ng.getContext` reading of `{$error, $reset}` and F2's `FormField.state()` access from a MAIN-world script are the two claims to spike first on `spikes/ng222-app`.
+- Angular Aria lives in angular/components; its directive names and statuses come only from angular.courses.
+- The angular.courses Release Insights overview and AI chat pages rendered only navigation text in the snapshot.

@@ -14,6 +14,7 @@ Evidence files (all in `research/`):
 - `05-spikes.md`: runs on a real Angular 22.2.2 app, sizes on the insurance portal, and the model benchmark.
 - `06-angular-skills.md`: the official angular/skills repo as a rule source.
 - `07-prompting-small-models.md`: prompting guidance for the on-device models.
+- `08-recent-angular-features.md`: Angular 20.0-22.2 features, their runtime visibility, and feature ideas (N14-N23).
 - `../docs/filing-ledger.md`: a draft upstream report found during the spikes (not filed).
 
 Labels: **[measured]** means read in source or run in Lars's browsers; **[inferred]** means reasoned from measured facts and not yet run. Every feature names the data tier it needs (section 2.2).
@@ -293,6 +294,36 @@ Test for "new": the model does something a panel cannot, such as explain a cause
 - Every answer gets a "Copy for coding agent" action: the question, the tool walkthrough, the facts, and the component source location. The location comes from `constructor.ɵcmp.debugInfo` (file and line, used by Pangular **[03 section 1.4]**; weaker than the other Tier 1 items, because it is a field on the compiled class, not a function on `ng`, so the "stays supported for DevTools" comment in `global_utils.ts` does not cover it) or from the Sources panel lookup Angular DevTools does with `inspect()`. Paste into Claude Code or any agent that has the Angular CLI MCP server: the extension covers live state and the CLI MCP server covers code and build; none of the CLI's tools inspects the running page **[measured, 02 section 4.6]**.
 - Tier 0 plus Tier 1 for file and line.
 
+### N14-N23. Features inspired by recent Angular releases (20.0-22.2)
+
+Taken from `research/08-recent-angular-features.md`, which sources each one in the changelog, GitHub Releases or angular.courses. Experimental and developer-preview Angular features are allowed (Lars's ruling, section 8). Nothing here has been run; spike items are named.
+
+| # | Feature and example prompt | What the model adds | Data, tier | Min Angular, status |
+|---|---|---|---|---|
+| N14 | **Resource lifecycle explainer**: "Why is this spinner still spinning?" | A timeline of `Resource#<name>.state` transitions joined with request timing, explained as a cause | `Resource#...` signal-graph nodes sampled per CD cycle, `PerformanceResourceTiming`; tier 1 | 22.0, stable (`debounced` experimental) |
+| N15 | **Signal Forms doctor**: "Why can't I submit?" | Ties field state (errors, pending async validators, disabled) to the question; names the blocking field | `ng.getDirectives(el)` -> `FormField.state()`; tier 0; **spike: read from MAIN world** | 22.0 (21.0 experimental) |
+| N16 | **Error boundary inspector**: "Why does this page show a fallback?" | Says which `@boundary` caught what, from which component, with what input; offers `$reset` behind a confirm | `NgBoundary` mark, `ng.getContext` inside `@error` views for `{$error, $reset}`, the console hook; tier 0; **spike** | 22.2, developer preview |
+| N17 | **Navigation blocking explainer**: "Why does /orders/42 take 3 s?" | Names the router resource that holds the navigation and judges whether it should block | `ng.ɵgetRouterInstance` -> `Route.resources`, `ActivatedRoute.resources`, router events; tier 1, `provideRouter` only | 22.2, developer preview |
+| N18 | **Feature fingerprint**: opens every chat | Picks the tool groups for the session from the features the app uses, saving context; shows a context chip | about 20 `mark_feature_usage` names (`NgSignalForms`, `NgBoundary`, `NgDefer`, ...), `[ng-version]`; tier 0 | per mark |
+| N19 | **Linked state reset explainer**: "Why did my selection reset?" | Explains a `linkedSignal` recompute over time and when a manual `set` was dropped | `linkedSignal` graph nodes, epochs per cycle, `toggleWatchSignal`; tier 1 | 20.0 (22.1 for the custom `set` advice) |
+| N20 | **Render-phase effect checker** | Flags an `afterRenderEffect` write phase that schedules another CD pass every frame | `afterRenderEffectPhase` graph nodes, profiler `AfterRender*` events; tier 1 | 20.0 (labels 22.2.1) |
+| N21 | **Performance recording narrator** | Turns a Performance-panel recording into a summary with component names and links | `ng.enableProfiling()` plus a CDP trace via the `debugger` permission (the tracks are `console.timeStamp`, not readable from the page); tier 0 | 21.0 (deep links 22.1) |
+| N22 | **Stability explainer**: "Why does my app never become stable?" | Lists the open pending tasks with their sources | console output of `provideStabilityDebugging()`; **tier 2** (one app provider); fallback from N14 and the profiler | 21.1 |
+| N23 | **Angular Aria pattern checker** | Judges each Aria pattern (tabs, menus, listbox) against its rules, with a keyboard probe | Aria directive instances via `ng.getDirectives`, accessibility tree; tier 0 | 22.0 |
+
+Extensions of earlier proposals:
+
+| Extends | Change | Min |
+|---|---|---|
+| N10 | OnPush readiness: for each `Eager` component, check whether everything its template reads is a signal or an input, then say whether `Eager` can go | 22.0 |
+| N4 | `NG0600` messages name the signal and component since 22.2.1, so the explainer jumps straight to the node | 22.2.1 |
+| N5 | Knows the 22.x `@defer` triggers: idle timeouts, viewport options; incremental hydration is the default | 22.0 |
+| N9 | Flags WebMCP read tools without `readOnlyHint` (annotations added in 22.2) | 22.2 |
+| N2 | Unlabelled signal nodes from Signal Forms are expected; label them by their `[formField]` element instead of suggesting a `debugName` | 22.0 |
+| N10 | Resource-in-guard detector: a navigation cancelled in the same tick as an `httpResource` request starts, worded as a question (low confidence) | 22.0 |
+
+Version gates (08 section 5): the signal graph exists from 19.1, `ɵgetControlFlowBlocks` from 22.0 (older apps have `getDeferBlocks`, so `@for` data is missing), and the `devtoolstooldiscovery` tools from 22.0. N18 hides tool groups whose gate the app's `[ng-version]` does not meet.
+
 ---
 
 ## 5. Features: promptified Angular DevTools
@@ -394,6 +425,8 @@ These are open; Claude applied the default shown so the design could proceed.
 
 - "Assume prerequisite feature flags enabled in the features for the Angular AI DevTools but specifically for my browsers, you must confirm that they are enabled, enable them if you can, or escalate to me if you can't."
 - "A Chrome Beta or Edge Dev prerequisite is also acceptable."
+- "Experimental Angular features are acceptable": proposals may depend on experimental or developer-preview Angular APIs, such as WebMCP and Signal Forms; each one is marked as such.
+- "By any browser, I mean Edge, Edge Dev, Chrome, and Chrome Beta. Not Firefox because it doesn't support Prompt API so isn't relevant for this project."
 - "You must get Gemma 4 working in Chrome and/or Chrome Beta" and "you must get Aion-1.1-Instruct working in Edge and/or Edge Dev". Done: Gemma 4 in Chrome Beta and Aion-1.1-Instruct in Edge Dev both complete a tool-calling round trip (00).
 
 ## 9. What was not checked
