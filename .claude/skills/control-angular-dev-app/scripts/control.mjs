@@ -172,6 +172,30 @@ function playwrightCli(args) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// The portal proxies /__pangular to this port (proxy.conf.json); control-pangular-inspector writes its state here.
+const PANGULAR_PORT = 9999;
+const PANGULAR_STATE = path.join(REPO_ROOT, 'tmp', 'control-pangular-inspector', 'state', `pangular-${PANGULAR_PORT}.json`);
+
+function pangularServer() {
+  let log = null;
+
+  try {
+    log = JSON.parse(readFileSync(PANGULAR_STATE, 'utf8')).log ?? null;
+  } catch {
+    // no server started by control-pangular-inspector
+  }
+
+  return { pid: listeningPid(PANGULAR_PORT), log };
+}
+
+// Same parse as control-pangular-inspector's authCode: the latest "auth code NNNNNN" in its server log.
+function authCode(logPath) {
+  const log = existsSync(logPath) ? readFileSync(logPath, 'utf8').replace(/\x1b\[[0-9;]*m/g, '') : '';
+  const all = [...log.matchAll(/auth code\s+(\d{4,8})/g)];
+
+  return all.length ? all[all.length - 1][1] : null;
+}
+
 async function fetchText(url) {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
@@ -368,18 +392,62 @@ async function doctor() {
       const owned = owner && descendants(table, p.pid).has(owner);
       add(`port-owned:${p.name}`, owned ? 'pass' : 'fail', owner ? `port ${p.port} listened on by PID ${owner}${owned ? ` (in the tree of ${p.pid})` : ' (NOT ours)'}` : `nothing listens on ${p.port}`);
       const log = existsSync(p.log) ? readFileSync(p.log, 'utf8') : '';
-      // [vite] lines are runtime noise (proxy errors, the browser console forwarded as "(client)"); console-errors covers the page.
-      const errLines = log.split(/\r?\n/).filter((l) => !l.includes('[vite]') && /\[ERROR\]|ERROR in|Error:|error TS\d+|NG\d{4}/.test(l));
+      // [vite] entries are runtime noise (proxy errors, the browser console forwarded as "(client)"); console-errors
+      // covers the page. A proxy error carries its Error and stack on the following lines (measured: "Error: read
+      // ECONNRESET" or "AggregateError [ECONNREFUSED]:" + "    at ..." around a Pangular server's stop or start), so
+      // those belong to the [vite] entry.
+      let inVite = false;
+      const errLines = log.split(/\r?\n/).filter((l) => {
+        if (l.includes('[vite]')) {
+          inVite = true;
+
+          return false;
+        }
+
+        if (inVite && /^(\w*Error\b|\s+at )/.test(l)) {
+          return false;
+        }
+
+        inVite = false;
+
+        return /\[ERROR\]|ERROR in|Error:|error TS\d+|NG\d{4}/.test(l);
+      });
       add(`build-log:${p.name}`, errLines.length === 0 ? 'pass' : 'fail', errLines.length === 0 ? 'no error lines in the server log' : errLines.slice(0, 3).join(' | '));
     }
   }
 
   // Page checks through the run's own playwright-cli session.
   const s = state.session;
-  let r = playwrightCli([`-s=${s}`, 'goto', state.url]);
+  const pangular = pangularServer();
+  // With a Pangular server behind /__pangular the overlay opens a prompt for its one-time code, at a moment of its
+  // own choosing, and every playwright-cli command fails on the modal state until it is answered. Answer it the way
+  // control-pangular-inspector does: read the code from that skill's server log; dismiss it when no code is known.
+  let authNoted = false;
+  const pw = (args) => {
+    let res = playwrightCli([`-s=${s}`, ...args]);
+
+    // Only run-code and eval errors omit the dialog text; snapshot names it (measured).
+    const isAuthPrompt = (x) => /modal state/i.test(x.stdout + x.stderr) && /authentication code/i.test(playwrightCli([`-s=${s}`, 'snapshot']).stdout);
+
+    for (let i = 0; i < 3 && isAuthPrompt(res); i++) {
+      const otp = pangular.log ? authCode(pangular.log) : null;
+      const acc = playwrightCli([`-s=${s}`, otp ? 'dialog-accept' : 'dialog-dismiss', ...(otp ? [otp] : [])]);
+
+      if (!authNoted) {
+        add('pangular-auth', otp && acc.status === 0 ? 'pass' : 'warn', otp ? `entered the one-time code from ${path.basename(pangular.log)} into the overlay prompt` : `dismissed the overlay's code prompt: no control-pangular-inspector state file with a code for port ${PANGULAR_PORT}`);
+        authNoted = true;
+      }
+
+      res = playwrightCli([`-s=${s}`, ...args]);
+    }
+
+    return res;
+  };
+  pw(['--raw', 'eval', '() => 1']); // a prompt left open by an earlier command would block goto
+  let r = pw(['goto', state.url]);
 
   if (r.status !== 0 || /not open|is not running|No browser/i.test(r.stdout + r.stderr)) {
-    r = playwrightCli([`-s=${s}`, 'open', state.url]);
+    r = pw(['open', state.url]);
   }
 
   if (r.status !== 0) {
@@ -389,7 +457,7 @@ async function doctor() {
   }
 
   add('browser-session', 'pass', `session ${s} on ${state.url}`);
-  r = playwrightCli([`-s=${s}`, '--raw', 'run-code', `--filename=${INSPECT_JS}`]);
+  r = pw(['--raw', 'run-code', `--filename=${INSPECT_JS}`]);
   let page;
 
   try {
@@ -416,16 +484,19 @@ async function doctor() {
   }
 
   add('change-detection-mode', 'pass', `${page.zoneLoaded ? 'zone.js loaded (zone-based CD)' : 'zone.js not loaded (zoneless)'}; mark_feature_usage: ${page.featureMarks.join(', ') || 'none'}`);
-  r = playwrightCli([`-s=${s}`, 'console', 'error']);
+  r = pw(['console', 'error']);
   const total = Number(/Errors: (\d+)/.exec(r.stdout)?.[1] ?? NaN);
-  // The portal's dev-only Pangular overlay probes three /__connection.json URLs and logs "[pangular] No devtools
-  // server found" when nothing listens behind the /__pangular proxy (port 9999). Expected without
-  // control-pangular-inspector; reported apart so it does not hide real errors.
-  const pangularErrors = r.stdout.split(/\r?\n/).filter((l) => l.startsWith('[ERROR]') && /__connection\.json|\[pangular\]/.test(l)).length;
+  // The portal's dev-only Pangular overlay probes /__connection.json URLs next to the page (404 with or without a
+  // server) and logs "[pangular] No devtools server found" when nothing answers behind the /__pangular proxy
+  // (port 9999). Reported apart so it does not hide real errors.
+  const pangularLines = r.stdout.split(/\r?\n/).filter((l) => l.startsWith('[ERROR]') && /__connection\.json|\[pangular\]/.test(l));
+  const pangularErrors = pangularLines.length;
   const errorCount = total - pangularErrors;
 
   if (pangularErrors > 0) {
-    add('pangular-overlay', 'warn', `${pangularErrors} console error(s) from the Pangular overlay: no devtools server behind /__pangular (port 9999); start one with control-pangular-inspector for live Pangular data`);
+    const noServer = pangularLines.some((l) => l.includes('No devtools server found'));
+    const listener = pangular.pid ? `PID ${pangular.pid} listens on ${PANGULAR_PORT}` : `nothing listens on ${PANGULAR_PORT}`;
+    add('pangular-overlay', 'warn', noServer ? `${pangularErrors} console error(s) from the Pangular overlay: it found no devtools server behind /__pangular (${listener}); start one with control-pangular-inspector for live Pangular data` : `${pangularErrors} console error(s) from the Pangular overlay's /__connection.json probes, expected while a devtools server runs behind /__pangular (${listener})`);
   }
 
   add('console-errors', errorCount === 0 ? 'pass' : 'fail', errorCount === 0 ? `no console errors since load${pangularErrors ? ' besides the Pangular overlay' : ''}` : Number.isNaN(errorCount) ? `could not read the console: ${r.stdout.slice(0, 200)}` : `${errorCount} console error(s)${pangularErrors ? ' besides the Pangular overlay' : ''}; run playwright-cli -s=${s} console error`);

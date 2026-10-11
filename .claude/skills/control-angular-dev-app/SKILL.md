@@ -53,8 +53,13 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs doctor [--target
 Answers "is this instance worth driving?". One line per check:
 
 - `process-alive:<name>`, `port-owned:<name>` (the listening PID is in the recorded process tree),
-  `build-log:<name>` (no `[ERROR]`, `error TS`, `NGxxxx` lines; `[vite]` runtime lines such as proxy errors
-  and the browser console forwarded as `(client)` are ignored, `console-errors` covers those). Skipped with `--url`.
+  `build-log:<name>` (no `[ERROR]`, `error TS`, `NGxxxx` lines; `[vite]` runtime entries such as proxy errors,
+  with the `Error: read ECONNRESET` and `at ...` lines that follow them, and the browser console forwarded as
+  `(client)` are ignored, `console-errors` covers those). Skipped with `--url`.
+- `pangular-auth` (portal, only when the Pangular overlay asks): with a Pangular server behind `/__pangular`
+  the overlay opens a `prompt` for a one-time code that blocks every playwright-cli command. Doctor reads the
+  code from control-pangular-inspector's `pangular.log` (via its state file `pangular-9999.json`) and enters it;
+  with no such state file it dismisses the prompt and warns.
 - `browser-session`: opens (or reuses) the run's session `control-ngdev-<flowId>` and goes to the app URL.
 - `angular-root`: an element with `[ng-version]`; prints the version and root tags. `app-marker`: the fixture's
   root tag.
@@ -64,9 +69,10 @@ Answers "is this instance worth driving?". One line per check:
 - `router-globals`: `ɵgetRouterInstance`, `ɵgetLoadedRoutes`, `ɵnavigateByUrl` (present only with
   `provideRouter`; absent with `RouterModule.forRoot`). Absence is a warning, not a failure.
 - `change-detection-mode`: zone.js loaded or not, plus `performance.getEntriesByName('mark_feature_usage')`.
-- `pangular-overlay` (portal only, warning): the console errors the dev-only Pangular overlay logs when no
-  Pangular server sits behind `/__pangular` (port 9999): three `__connection.json` 404/502 and
-  `[pangular] No devtools server found`. Expected unless control-pangular-inspector runs its server.
+- `pangular-overlay` (portal only, warning): the console errors the dev-only Pangular overlay logs, with what
+  listens on port 9999. Without a server: three `__connection.json` 404/502 and `[pangular] No devtools server
+  found` ("it found no devtools server"). With control-pangular-inspector's server: one `__connection.json` 404,
+  which is expected ("expected while a devtools server runs").
 - `console-errors`: `playwright-cli console error` reports zero errors besides the `pangular-overlay` ones.
 
 Exit 0 healthy, 1 a check failed (named), 2 could not run. The doctor also installs the `__ngc` helpers
@@ -165,9 +171,10 @@ facts.
   `f102b97`). It adds `div#pangular-popup-root` (shadow root) and a floating `button "Toggle Pangular
   Inspector"` that appears last in every snapshot; recipes do not use it. Without a Pangular server on 9999 it
   logs four console errors (doctor: `pangular-overlay` warning). With control-pangular-inspector's server
-  running, the first page load asks for a one-time code in a `prompt` and playwright-cli commands fail with
-  "does not handle the modal state" until it is answered (`dialog-accept <code>`, the code from that skill's
-  `pangular.log`); measured by control-pangular-inspector, not probed here.
+  running, the first page load in a new session asks for a one-time code in a `prompt` and playwright-cli
+  commands fail with "does not handle the modal state" until it is answered (`dialog-accept <code>`, the code
+  from that skill's `pangular.log`). `doctor` answers it (`pangular-auth`); a session opened by hand must run
+  `dialog-accept` itself. `run-code` and `eval` errors do not name the dialog; `snapshot` does.
 - Snapshot refs in the portal carry a prefix that changes between page loads (`f12e325`); take refs from
   the latest snapshot only.
 - `/claim/create` shows the heading "Complaint Create" (app bug, reported, not patched).
