@@ -174,3 +174,17 @@ Lars's rulings, 2026-10-12: "Edge Dev: Option B." (move it back to C:) and "Chro
 - Edge Dev: junction removed, the untouched `User Data.bak` renamed back to `User Data` on C:, and the D: copy deleted. Started normally, its manifest stays and `availability()` is `available` (measured).
 - Chrome Beta: stays on D: through the junction; `User Data.bak` deleted.
 - Free space afterwards: C: 30.0 GB, D: 43.3 GB.
+
+## Read speed of model weights: C: vs D: (2026-10-12, measured)
+
+Lars asked: "Could there be a performance penalty from running profiles and (especially) models on D: vs. C:?"
+
+Both drives are partitions of the same physical disk, a WD `SDDPTQD-1T00-1124-WD` NVMe SSD. C: is NTFS (666 GB); D: is ReFS (285 GB), Lars's Dev Drive (`fsutil devdrv query` needs admin, so not confirmed here).
+
+The probe `spikes/probes/read-throughput.ps1` reads 1 GB sequentially in 4 MB blocks with `FILE_FLAG_NO_BUFFERING`, so the Windows file cache is bypassed. Both targets are identical copies of Aion's `model.onnx.data` (1,291,678,720 bytes). Three runs each, alternating:
+- C: (Lars's Edge Dev profile): 2,148 / 2,237 / 2,280 MB/s
+- D: (`.browsers/edge-dev-aion`): 1,464 / 1,558 / 1,616 MB/s
+
+D: reads about 30% slower. At these rates, loading Aion (1.3 GB) takes about 0.6 s from C: and 0.85 s from D:; Gemini Nano (4 GB) about 1.8 s against 2.6 s.
+
+The weights are read when a session first loads the model. Inference afterwards runs from memory or GPU, so the drive affects cold `create()` only (inferred). The cause of the ReFS gap is not isolated: ReFS read path, Defender handling of the Dev Drive, or the file's layout on D: as written by the browser.
