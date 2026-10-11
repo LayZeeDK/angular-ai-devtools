@@ -37,3 +37,5 @@ Measured per token: `Injector`, `DestroyRef`, `ElementRef`, `Renderer2` leave th
 **Possible fixes (inferred):** skip `ViewContainerRef`, `ChangeDetectorRef` and other node-injector special tokens in `serializeInjector`, or report them without calling `get`; and make the signal-graph lookup unwrap a view container at the host to reach the component view.
 
 **Evidence:** spike app `spikes/ng222-app` in `D:\projects\sandbox\angular-ai-devtools`; probe results in `research/05-spikes.md`.
+
+**Added 2026-10-11 (measured):** Angular DevTools 1.22.0's signal graph pane shows the same loss. Before `angular:di_graph` it shows 6 nodes for the component; after it, 2 nodes (`count`, `effect`), with no template node. So the tool's side effect reaches users who never call `ɵgetSignalGraph` themselves: anyone who runs Angular's DI tool through chrome-devtools-mcp and then opens Angular DevTools. Evidence: `verify-angular-devtools` run, `tmp/verify-angular-devtools/20261011-192415.460/` (gitignored), skill in `.claude/skills/verify-angular-devtools/`.

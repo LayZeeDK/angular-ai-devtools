@@ -85,3 +85,7 @@ Reading (inferred, 15 runs per cell is a small sample):
 - Aion is 3-4 times faster.
 
 Phi-4-mini (Edge) and Gemini Nano v3 (Chrome stable, native tool calling off there) are not measured yet.
+
+### Update: the `di_graph` side effect also breaks Angular DevTools' signal graph pane (measured)
+
+Measured with the `verify-angular-devtools` skill: Angular DevTools 1.22.0 ran in an isolated Playwright Chromium against `spikes/ng222-app` on 22.2.2, and Claude reran the check on 2026-10-11. Before `angular:di_graph`, the DevTools signal graph pane for `app-counter` shows the same 6 nodes as `ng.ɵgetSignalGraph`. After one `angular:di_graph` execution, the pane drops to 2 nodes (`count`, `effect`) and the template node is gone, matching the `ng` call (`diGraphTemplateLostInPane: true`, `diGraphTemplateLostInNg: true`). So running Angular's own in-page AI DI tool, for example through chrome-devtools-mcp, degrades Angular DevTools for the rest of the page's life.
