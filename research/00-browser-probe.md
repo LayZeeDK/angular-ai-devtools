@@ -169,3 +169,8 @@ Results:
 - **Edge Dev through the junction: broken.** At every startup Edge Dev empties `EdgeOptimizationGuideModelsManifest` (seen twice, the second time after restoring it from the `.bak`). Broker State then shows Manifest Path N/A and Manifest Loaded false, and `availability()` never resolves. The Aion model folder (1.3 GB) stays intact.
 - **Edge Dev started with `--user-data-dir="D:\browser-profiles\Edge Dev\User Data"`: works.** The manifest survives startup and `availability()` is `available`.
 - Inferred cause: Edge's component handling rejects a profile path that resolves through a reparse point. Chrome Beta does not.
+
+Lars's rulings, 2026-10-12: "Edge Dev: Option B." (move it back to C:) and "Chrome Beta: I don't care about any of that user data from Chrome Beta."
+- Edge Dev: junction removed, the untouched `User Data.bak` renamed back to `User Data` on C:, and the D: copy deleted. Started normally, its manifest stays and `availability()` is `available` (measured).
+- Chrome Beta: stays on D: through the junction; `User Data.bak` deleted.
+- Free space afterwards: C: 30.0 GB, D: 43.3 GB.
