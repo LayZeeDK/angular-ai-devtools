@@ -110,3 +110,13 @@ Findings:
 - With tool use off, a `tools` list without tool types is accepted and silently ignored. This matches Chrome 154 stable earlier (00), where tools were never called.
 - In this build tool use and Gemini Nano cannot be combined through flags. `prompt-api-tool-use` maps to `AIPromptAPIToolUse,OnDeviceModelConversationBackend,AIApiFoundationalModel:model_version/v4` (binary strings, 00), so turning it on also selects the v4 (Gemma 4) model.
 - Side observation: after `model switch`, a freshly loaded `chrome://flags` still shows the "relaunch to take effect" banner, but `chrome://version` shows the switched features on the command line and the API reflects them. The banner is cosmetic. Inferred cause: the switch command's restarts accumulate one `--enable-features` entry per changed flag (three seen), which Chrome compares with a single merged entry.
+
+### Prediction confirmed: Nano gets tool sessions with `AIPromptAPIToolUse` alone (measured)
+
+A separate Chrome Beta 156 instance (`--user-data-dir=.browsers/chrome-beta-nano`, `--enable-features=AIPromptAPI,AIPromptAPIToolUse,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP`, no `AIApiFoundationalModel:model_version/v4`) downloaded only `v3Nano` (4.0 GB). Running `tool-session-matrix.js` on it:
+- `LanguageModelToolCall` and `LanguageModelToolSuccess` are defined.
+- Every tool-typed `create()` succeeds; there is no NotSupportedError any more.
+- `tools` without the `tool-call` output type gives the same TypeError as on Gemma 4.
+- In all three `tools` + tool-type cases, Nano answered with text instead of a tool call (one run each).
+
+So the error is the feature gate described in `09-nano-tool-session-error.md`, not the model. Whether Nano ever emits tool calls is a separate quality question for the benchmark.
