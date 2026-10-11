@@ -29,7 +29,8 @@ Exit 2 means refused or failed: the reason names the port owner, the state file,
 
 `node $S doctor [--target counter|portal|--url <url>]`. Exit 0 before any drive. It checks the recorded
 processes and port ownership, the build log, the Angular root and version, `window.ng` (dev build), router
-globals, zone mode and console errors, opens the session `control-ngdev-<flowId>` and installs the `__ngc`
+globals, zone mode and console errors (on the portal, the Pangular overlay's errors are a
+`pangular-overlay` warning, not a failure), opens the session `control-ngdev-<flowId>` and installs the `__ngc`
 read helpers. Exit 1 names the failing check; a `dev-build` failure means a production build, which this skill
 cannot verify.
 
@@ -91,5 +92,8 @@ listener on the port, and `playwright-cli list` has no `control-ngdev-*` session
 - Never `ng.ɵsetProfiler(null)`.
 - Since Angular 22.0, no `changeDetection` means OnPush; a claim of "Default" CD is checked against
   `__ngc.inspect(host).changeDetection`.
+- The portal's Pangular overlay adds a `button "Toggle Pangular Inspector"` to every snapshot; it is not
+  portal UI. If control-pangular-inspector runs its server on 9999, the first load asks for a one-time code in
+  a `prompt` that blocks playwright-cli until answered (see control-angular-dev-app Gotchas).
 - `/claim/create` in the portal shows the heading "Complaint Create" (known app bug); do not count it as a
   regression of the change under test.

@@ -44,5 +44,5 @@ Preconditions:
 
 - A reload resets the count to 3; there is no persistence.
 - The effect node has an empty label, so `dependenciesOf` cannot name it; read it from `signals()`.
-- `router()` returns `present: true` with an empty route list: `provideRouter([])`.
+- `router()` returns `present: true` with an empty route list: `provideRouter(routes)` with `routes = []`.
 - Do not fix the effect that writes a signal; other tools use it as a fixture.

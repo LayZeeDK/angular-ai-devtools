@@ -22,6 +22,8 @@ same shape before claiming coverage.
 - Roles and accessible names first, landmark-scoped text next, snapshot refs for one-off steps, CSS last.
 - One action per step; snapshot before and after into `<evidenceDir>`.
 - Wait on an end state with `run-code` (`waitForURL`, `locator(...).waitFor()`), never a sleep.
+- PrimeNG dropdowns: click the `combobox` by name, then `getByRole('option')`. Date fields: click the
+  `combobox`, then a day in the calendar `grid`; typed dates do not reach the form.
 - `__ngc.navigate(url)` is a setup shortcut. A claim about navigation is proven by clicking.
 
 ## Proof and skip reporting
@@ -46,13 +48,13 @@ Each feature file has an H1, one paragraph of user-visible behaviour, then four 
 
 - Angular DevTools panels (Components, Profiler, Injector Tree, Router Tree).
 - The external link `https://www.ng-journal.com` in the portal header (leaves the app).
-- Date pickers' calendar overlays were not probed; treat them as unverified until a recipe exists.
+- The Pangular Inspector panel and its floating button: driven by control-pangular-inspector, not here.
 
 ## Features
 
 - [Counter](./counter.md): the ng222-app counter, its signals and its effect.
 - [Portal navigation](./portal-navigation.md): header, sidebar, home tiles, lazy routes, not-found page.
-- [Portal contracts](./portal-contracts.md): list, details, edit entry, create form.
-- [Portal claims](./portal-claims.md): list and create form.
-- [Portal complaints and customers](./portal-complaints-customers.md): both lists, complaint create, customer
-  details.
+- [Portal contracts](./portal-contracts.md): list, details, edit and save, create and save.
+- [Portal claims](./portal-claims.md): list, details, create form.
+- [Portal complaints and customers](./portal-complaints-customers.md): both lists, complaint details, complaint
+  create and save, customer details.

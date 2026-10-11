@@ -38,7 +38,8 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target coun
   removed from its environment. Both get `NX_DAEMON=false` and `NX_TUI=false`, so no Nx daemon outlives `down`.
 - Readiness: each URL answers (portal API: `/api/customers`) and the app's index HTML contains its root tag
   (`<app-root>`, `<ng-journal-root>`). The doctor then checks the rendered page.
-- Measured time to ready, warm caches: counter 2.6-3.9 s, portal 13.9-14.9 s (two runs each). The first portal build after a change
+- Measured time to ready, warm caches: counter 2.6-8 s (four runs), portal 13.9-18.7 s (three
+  runs). The first portal build after a change
   can take minutes; `--timeout <seconds>` (default 240).
 - Server output goes to `<evidenceDir>/app.log` (and `api.log`).
 - `up` refuses (exit 2) a port already in use and names the owning PID; that may be Lars's own server.
@@ -52,7 +53,8 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs doctor [--target
 Answers "is this instance worth driving?". One line per check:
 
 - `process-alive:<name>`, `port-owned:<name>` (the listening PID is in the recorded process tree),
-  `build-log:<name>` (no `[ERROR]`, `error TS`, `NGxxxx` lines). Skipped with `--url`.
+  `build-log:<name>` (no `[ERROR]`, `error TS`, `NGxxxx` lines; `[vite]` runtime lines such as proxy errors
+  and the browser console forwarded as `(client)` are ignored, `console-errors` covers those). Skipped with `--url`.
 - `browser-session`: opens (or reuses) the run's session `control-ngdev-<flowId>` and goes to the app URL.
 - `angular-root`: an element with `[ng-version]`; prints the version and root tags. `app-marker`: the fixture's
   root tag.
@@ -62,7 +64,10 @@ Answers "is this instance worth driving?". One line per check:
 - `router-globals`: `ɵgetRouterInstance`, `ɵgetLoadedRoutes`, `ɵnavigateByUrl` (present only with
   `provideRouter`; absent with `RouterModule.forRoot`). Absence is a warning, not a failure.
 - `change-detection-mode`: zone.js loaded or not, plus `performance.getEntriesByName('mark_feature_usage')`.
-- `console-errors`: `playwright-cli console error` reports zero errors.
+- `pangular-overlay` (portal only, warning): the console errors the dev-only Pangular overlay logs when no
+  Pangular server sits behind `/__pangular` (port 9999): three `__connection.json` 404/502 and
+  `[pangular] No devtools server found`. Expected unless control-pangular-inspector runs its server.
+- `console-errors`: `playwright-cli console error` reports zero errors besides the `pangular-overlay` ones.
 
 Exit 0 healthy, 1 a check failed (named), 2 could not run. The doctor also installs the `__ngc` helpers
 (Inspect). It navigates to the app root, so do not run it mid-recipe.
@@ -156,6 +161,15 @@ facts.
   `getByRole('navigation').getByRole('listitem').filter({ hasText: 'CONTRACT' }).getByText('List')`.
 - Form labels in the portal are not associated with their inputs (`textbox` with no name); use the snapshot ref
   or the label text's sibling.
+- The portal loads the Pangular Inspector overlay in development builds (`main.ts`, since the portal commit
+  `f102b97`). It adds `div#pangular-popup-root` (shadow root) and a floating `button "Toggle Pangular
+  Inspector"` that appears last in every snapshot; recipes do not use it. Without a Pangular server on 9999 it
+  logs four console errors (doctor: `pangular-overlay` warning). With control-pangular-inspector's server
+  running, the first page load asks for a one-time code in a `prompt` and playwright-cli commands fail with
+  "does not handle the modal state" until it is answered (`dialog-accept <code>`, the code from that skill's
+  `pangular.log`); measured by control-pangular-inspector, not probed here.
+- Snapshot refs in the portal carry a prefix that changes between page loads (`f12e325`); take refs from
+  the latest snapshot only.
 - `/claim/create` shows the heading "Complaint Create" (app bug, reported, not patched).
 - Never run Angular's in-page tool `angular:di_graph` and never call `injector.get` on a node injector's
   `ViewContainerRef`: afterwards `ng.ɵgetSignalGraph` loses the template node for the rest of the page's life

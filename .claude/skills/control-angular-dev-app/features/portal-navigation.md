@@ -3,7 +3,8 @@
 The Insurance Portal has a fixed header ("Insurance Portal" with the ng-journal logo), a sidebar grouped by
 domain (General, Contract, Claim, Complaint, Customer) and a content area. `/` redirects to `/home`, which
 shows four tiles linking to the domain lists. Domain routes load lazily, guarded by feature flags; unknown URLs
-show "Page Not Found".
+show "Page Not Found". In development builds the Pangular Inspector overlay adds a floating
+"Toggle Pangular Inspector" button.
 
 ## Sub-features
 
@@ -12,7 +13,8 @@ show "Page Not Found".
 - `nav-sidebar` sidebar entries `List` and `Create` per domain (Customer has `List` only) and `Home`.
 - `nav-active` the active sidebar entry gets a highlighted background.
 - `nav-lazy` the router config grows as domain routes load (`__ngc.router()`).
-- `nav-not-found` any unknown path renders `Page Not Found` (read from source; not driven yet).
+- `nav-not-found` any unknown path renders `Page Not Found` and "Sorry, but the page you were trying to view
+  does not exist." inside the normal shell.
 
 ## How to get to it (user POV)
 
@@ -39,12 +41,20 @@ Preconditions:
   `/contract/list` the route list contains `/contract/list`, `/contract/create`, `/contract/:id/edit`,
   `/contract/:id/details`.
 - **Deep link.** `playwright-cli -s=<session> goto <url>customer/list`; heading `Customers`.
+- **Not found.** `playwright-cli -s=<session> goto <url>nope`, then
+  `--raw eval "() => document.querySelector('ng-journal-root').innerText"` contains `Page Not Found` after the sidebar text.
 - **Proof.** Screenshot with the header visible:
   `playwright-cli -s=<session> screenshot --filename=<evidenceDir>/nav.png`.
 
 ## Gotchas
 
-- Sidebar texts render upper-case through CSS/pipe (`CONTRACT`), and the entries have no link role.
+- Only the sidebar group headings render upper-case (`CONTRACT`, through the `capitalize` pipe, which calls
+  `toUpperCase`); the entries read `Home`, `List`, `Create` and have no link role.
+- Home tiles and sidebar entries are hidden by the `*ngJournalFeatureFlag` directive when their flag is off; the
+  domain routes carry `canMatch` feature-flag guards, so a disabled route should fall through to `Page Not Found` (read from source; every flag is on, so not
+  driven).
+- The last node of every snapshot is the Pangular overlay's `button "Toggle Pangular Inspector"`; it is not
+  part of the portal.
 - The header link goes to `https://www.ng-journal.com`; do not click it in a proof.
 - `goto` reloads the app and drops `__ngc` unless it was installed by `doctor` or `run-code` (the init script
   re-installs it on every load in the same session).

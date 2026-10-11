@@ -10,11 +10,11 @@ contract are in [that README](../../control-angular-dev-app/features/README.md).
 - [Counter](../../control-angular-dev-app/features/counter.md): render, increment (mouse and keyboard),
   signal graph, effect, OnPush default.
 - [Portal navigation](../../control-angular-dev-app/features/portal-navigation.md): home tiles, sidebar,
-  router state, deep links.
+  router state, deep links, not-found page.
 - [Portal contracts](../../control-angular-dev-app/features/portal-contracts.md): list, details, customer
-  link, create form.
-- [Portal claims](../../control-angular-dev-app/features/portal-claims.md): list and create form.
+  link, edit and save, create and save.
+- [Portal claims](../../control-angular-dev-app/features/portal-claims.md): list, details, create form.
 - [Portal complaints and customers](../../control-angular-dev-app/features/portal-complaints-customers.md):
-  both lists, customer details.
+  both lists, complaint details, complaint create and save, customer details.
 
 An app attached with `--url` has no map entry until someone writes one in the control skill's `features/`.

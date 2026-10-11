@@ -8,3 +8,5 @@ tmp/verify-angular-devtools/
 tmp/control-pangular-inspector/
 tmp/verify-pangular-inspector/
 .browsers/
+tmp/maintain-angular-dev-app/
+tmp/maintain-angular-devtools/

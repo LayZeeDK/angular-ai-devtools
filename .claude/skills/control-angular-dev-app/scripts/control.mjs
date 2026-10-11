@@ -368,7 +368,8 @@ async function doctor() {
       const owned = owner && descendants(table, p.pid).has(owner);
       add(`port-owned:${p.name}`, owned ? 'pass' : 'fail', owner ? `port ${p.port} listened on by PID ${owner}${owned ? ` (in the tree of ${p.pid})` : ' (NOT ours)'}` : `nothing listens on ${p.port}`);
       const log = existsSync(p.log) ? readFileSync(p.log, 'utf8') : '';
-      const errLines = log.split(/\r?\n/).filter((l) => /\[ERROR\]|ERROR in|Error:|error TS\d+|NG\d{4}/.test(l));
+      // [vite] lines are runtime noise (proxy errors, the browser console forwarded as "(client)"); console-errors covers the page.
+      const errLines = log.split(/\r?\n/).filter((l) => !l.includes('[vite]') && /\[ERROR\]|ERROR in|Error:|error TS\d+|NG\d{4}/.test(l));
       add(`build-log:${p.name}`, errLines.length === 0 ? 'pass' : 'fail', errLines.length === 0 ? 'no error lines in the server log' : errLines.slice(0, 3).join(' | '));
     }
   }
@@ -416,8 +417,18 @@ async function doctor() {
 
   add('change-detection-mode', 'pass', `${page.zoneLoaded ? 'zone.js loaded (zone-based CD)' : 'zone.js not loaded (zoneless)'}; mark_feature_usage: ${page.featureMarks.join(', ') || 'none'}`);
   r = playwrightCli([`-s=${s}`, 'console', 'error']);
-  const errorCount = Number(/Errors: (\d+)/.exec(r.stdout)?.[1] ?? NaN);
-  add('console-errors', errorCount === 0 ? 'pass' : 'fail', errorCount === 0 ? 'no console errors since load' : Number.isNaN(errorCount) ? `could not read the console: ${r.stdout.slice(0, 200)}` : `${errorCount} console error(s); run playwright-cli -s=${s} console error`);
+  const total = Number(/Errors: (\d+)/.exec(r.stdout)?.[1] ?? NaN);
+  // The portal's dev-only Pangular overlay probes three /__connection.json URLs and logs "[pangular] No devtools
+  // server found" when nothing listens behind the /__pangular proxy (port 9999). Expected without
+  // control-pangular-inspector; reported apart so it does not hide real errors.
+  const pangularErrors = r.stdout.split(/\r?\n/).filter((l) => l.startsWith('[ERROR]') && /__connection\.json|\[pangular\]/.test(l)).length;
+  const errorCount = total - pangularErrors;
+
+  if (pangularErrors > 0) {
+    add('pangular-overlay', 'warn', `${pangularErrors} console error(s) from the Pangular overlay: no devtools server behind /__pangular (port 9999); start one with control-pangular-inspector for live Pangular data`);
+  }
+
+  add('console-errors', errorCount === 0 ? 'pass' : 'fail', errorCount === 0 ? `no console errors since load${pangularErrors ? ' besides the Pangular overlay' : ''}` : Number.isNaN(errorCount) ? `could not read the console: ${r.stdout.slice(0, 200)}` : `${errorCount} console error(s)${pangularErrors ? ' besides the Pangular overlay' : ''}; run playwright-cli -s=${s} console error`);
 
   const failed = checks.filter((c) => c.status === 'fail');
   out({ ok: failed.length === 0, command: 'doctor', flowId, url: state.url, session: s, ngVersion: page.ngVersion, checks }, failed.length === 0 ? 0 : 1);
