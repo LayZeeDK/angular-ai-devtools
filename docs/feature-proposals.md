@@ -427,6 +427,7 @@ These are open; Claude applied the default shown so the design could proceed.
 - "A Chrome Beta or Edge Dev prerequisite is also acceptable."
 - "Experimental Angular features are acceptable": proposals may depend on experimental or developer-preview Angular APIs, such as WebMCP and Signal Forms; each one is marked as such.
 - "By any browser, I mean Edge, Edge Dev, Chrome, and Chrome Beta. Not Firefox because it doesn't support Prompt API so isn't relevant for this project."
+- "C:\ is running low on space. Unnecessary models should be cleaned up after use." Measured that day: 22.0 GB free on C:, which is Chrome's documented minimum for the on-device model. Gemma 4 (2.32 GB) and Aion-1.1 (1.22 GB) are the standing models; Phi-4-mini and Gemini Nano are downloaded for a comparison and cleared afterwards.
 - "You must get Gemma 4 working in Chrome and/or Chrome Beta" and "you must get Aion-1.1-Instruct working in Edge and/or Edge Dev". Done: Gemma 4 in Chrome Beta and Aion-1.1-Instruct in Edge Dev both complete a tool-calling round trip (00).
 
 ## 9. What was not checked
