@@ -230,3 +230,13 @@ Results (measured with `spikes/probes/relaunch-instance.ps1` and `broker-state.j
 Inferred cause for Edge: its manifests offer only WebGPU variants (`webgpu-fp16` and `webgpu-fp32`, with and without `-prerelease`). Forced to CPU, Edge has no variant to run, so it uninstalls the model. Its ONNX runtime does carry `CPUExecutionProvider`, `DmlExecutionProvider` and `QNNExecutionProvider` (Qualcomm NPU), but no flag found selects them. Edge's `edge-llm-on-device-model-performance-param` flag offers only Default, Enabled, "Enabled BypassPerfRequirement" and Disabled.
 
 **Gotcha for the skills: never start an Edge instance with `OnDeviceModelForceCpuBackend`; it deletes the model.**
+
+### Correction: Edge CPU test redone fairly (2026-10-12, measured)
+
+Lars asked: "Did your Edge mistake impact your judgment on whether they could run on CPU?" Partly, yes. The first Edge verdict rested on a read taken seconds after relaunch, before the manifest was confirmed loaded. It used the force-CPU feature, not the performance-class route that Microsoft's Edge docs describe for CPU inferencing ("supported on devices with less capable GPUs or no GPU, via CPU-inferencing"). It was also run on the standing instances, deleting their models.
+
+Redone in a disposable copy of the Aion profile (`.browsers/edge-dev-aion-lowclass`, deleted afterwards):
+1. **GPU disallowed for the device's class:** `OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/6/compatible_low_tier_on_device_performance_classes/6`, stored class 5. With the manifest loaded (`true`), every use case was "Not Supported" and `availability()` stayed `unavailable` for over two minutes. Edge deleted the copy's model folder.
+2. **A Low-class device:** stored class seeded to 2 with the profile closed (`spikes/probes/seed-perf-class.mjs`), the manifest folder deleted, then a restart. The class stayed 2, and Edge downloaded a new manifest with the same four variants: `webgpu-fp16`, `webgpu-fp16-prerelease`, `webgpu-fp32`, `webgpu-fp32-prerelease`. No CPU variant, and `availability()` stayed `unavailable`.
+
+Verdict: on this machine (Windows 11 ARM64), Edge Dev 157 offers Aion only through WebGPU, whatever the performance class. Inferred: Microsoft's CPU-inferencing route ships to other platforms or later builds. Phi-4-mini (Edge stable) was tested only with the force-CPU switch, and its docs make no CPU claim.
