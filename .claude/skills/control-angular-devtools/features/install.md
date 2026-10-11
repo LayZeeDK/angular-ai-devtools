@@ -24,7 +24,7 @@ unpacked copy loaded at launch.
 node $S install                          # test copy from Edge Dev (read only)
 node $S status --browser=chrome-beta     # read only, any branded browser
 node $S install --browser=chrome-beta    # opens the store page, polls for Lars's click (default 180 s)
-node $S uninstall --browser=chrome-beta  # opens the extensions page, polls for the Remove
+node $S uninstall --browser=chrome-beta  # opens the store page, polls for "Remove from Chrome"
 node $S uninstall                        # test copy and profiles
 ```
 
@@ -33,7 +33,9 @@ End state: test: `doctor` line `extension: Angular DevTools 1.22.0 ENABLED (UNPA
 
 ## Gotchas
 
-- Branded install and uninstall are unproven (not run in any browser yet).
+- Branded install, uninstall and reinstall are proven in Chrome Beta (2026-10-11, measured): install exit 0, uninstall exit 0 once Lars removed it, install exit 0, `verify --browser=chrome-beta` exit 0 (1.22.0). The first uninstall timed out (exit 1) because the poll window ran out before Lars clicked; rerun `uninstall` and it exits 0 at once if the entry is gone.
+- `chrome://` and `edge://` URLs passed on the command line open an empty window instead of the page (measured in Chrome Beta), which is why `uninstall` opens the store page.
+- Right after the click, the profile entry can exist before the manifest version is written; `install` then reads the version from the `<version>_0` folder name.
 - After Remove, Chrome may leave the version folder on disk for a while; `uninstall` treats the profile entry
   as the authority and reports leftover folders.
 - `enabled` for branded browsers is read from `disable_reasons` and `state` (inferred meaning); the extensions

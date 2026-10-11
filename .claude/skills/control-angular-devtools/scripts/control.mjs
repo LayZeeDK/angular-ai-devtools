@@ -427,7 +427,7 @@ async function cmdInstall() {
       throw new Unhealthy(`${browser}: not installed after ${opts.timeout ?? 180} s; profile has no ${EXT_ID} entry`);
     }
 
-    log('OK', `${browser}: installed ${after.settings.version}, enabled ${after.enabled}`);
+    log('OK', `${browser}: installed ${after.settings.version ?? after.versionsOnDisk.at(-1)?.replace(/_\d+$/, '')}, enabled ${after.enabled}`);
 
     return { ok: true, status: after };
   }
@@ -469,8 +469,8 @@ async function cmdUninstall() {
       return { ok: true, already: true, status: before };
     }
 
-    openInBrowser(browser, before.extensionsPage, opts.profile);
-    log('INFO', `opened ${before.extensionsPage} in ${browser}. Lars clicks "Remove" and confirms; polling for ${opts.timeout ?? 180} s`);
+    openInBrowser(browser, STORE_URL, opts.profile);
+    log('INFO', `opened ${STORE_URL} in ${browser} (a browser will not open ${before.extensionsPage} from the command line). Lars clicks "Remove from ${browser.startsWith('edge') ? 'Edge' : 'Chrome'}" there, or opens ${before.extensionsPage} himself and clicks Remove; polling the profile for ${opts.timeout ?? 180} s`);
     const after = await waitFor(() => {
       const s = brandedStatus(browser, opts.profile);
 
