@@ -120,3 +120,11 @@ The WebMCP flag's internal name is **`enable-webmcp-testing`**, not `webmcp-test
 - Both `Local State` files kept `enable-webmcp-testing@1` after the clean close.
 - **WebMCP is live in both browsers:** `typeof document.modelContext === 'object'` (`navigator.modelContext` is `undefined`). The prototype has `registerTool`, `getTools`, `executeTool`, `ontoolchange`, `ontoolactivated` and `ontoolcancel`.
 - `LanguageModel.availability()` is `available` in both after the restart.
+
+## Model cleanup (2026-10-11, on Lars's approval)
+
+Lars ruled: "C:\ is running low on space. Unnecessary models should be cleaned up after use." He then approved clearing two models outside this project's browsers: "Approve both clearings".
+
+- Edge Canary's `Aion-1.0-Instruct` (`Edge SxS\User Data\EdgeLLMOnDeviceModel\2026.5.30.1`, 1.41 GB): folder deleted with the browser not running. Lars uninstalled Edge Canary afterwards, so the Edge Canary row in the flag table above is historical. Its profile folder `%LOCALAPPDATA%\Microsoft\Edge SxS` remains (0.62 GB, measured).
+- Chrome stable's Gemini Nano `v3Nano` (`Chrome\User Data\OptGuideOnDeviceModel\2025.8.8.1141`, 3.98 GB): folder deleted after Lars closed Chrome stable (no stable `chrome.exe` left, measured). Chrome stable still has the Prompt API flags on, so it may download the model again on next use.
+- C: free space: 22.0 GB at first measurement, 10.84 GB at its lowest during the comparison-model downloads, 25.18 GB after both clears.
