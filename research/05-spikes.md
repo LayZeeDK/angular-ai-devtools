@@ -153,3 +153,19 @@ Reading (inferred):
 - Phi-4-mini is fast but weak at both.
 - Nano needs its GPU backend measured before any verdict.
 - Argument mistakes still dominate the failures, which supports the id-based tool design (3.4) and prompt-kit experiment E1 (`07`).
+
+## Backend comparison: Nano on GPU and Gemma 4 on CPU (2026-10-12, measured)
+
+Same harness and questions as the second round, run while the machine was still under another session's load. Backends were switched as described in `research/00`, "Choosing CPU or GPU per instance".
+
+| Configuration | Backend | Native, runs passed | Fallback, runs passed | Median per question |
+|---|---|---|---|---|
+| Nano v3 | CPU `nano_v3_cpu_model` | 1/15 | 0/15 | 15-42 s |
+| Nano v3 | GPU `nano_v3_gpu_low_tier_model` (2025.8.8.1141) | 3/15 | 13/15 | 2-12 s native, 7-8 s fallback |
+| Gemma 4 2B | GPU `gemma4_gpu_low_tier_model` | 8/15 | 13/15 | 11-13 s |
+| Gemma 4 2B | CPU (`OnDeviceModelForceCpuBackend`) | 9/15 | **15/15** | 25-34 s |
+
+Readings (inferred unless marked):
+- The CPU backend is what broke Nano's structured output: 0/15 on CPU, 13/15 on GPU (measured). On both backends Nano writes `tool_code` text instead of calling tools.
+- Gemma 4 on CPU gave the best fallback score of any configuration (15/15), at 2-3 times the GPU latency.
+- **Harness defect found and fixed:** a model-invented selector such as `app-counter input:browser...` made `document.querySelector` throw. That failed the whole run (2 of Gemma 4 CPU's native failures) instead of returning a tool error. `bench.js` now wraps every tool call (`runTool`) and returns `{error}`. Runs before this fix count such cases as failures. The tool-error template in the prompt kit (`07` section 6.3) is the matching design rule for the extension.
