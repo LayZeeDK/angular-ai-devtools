@@ -13,7 +13,7 @@ while [ $SECONDS -lt $deadline ]; do
     session=${spec%%:*}
     port=${spec##*:}
     playwright-cli -s="$session" attach --cdp="http://127.0.0.1:$port" >/dev/null 2>&1
-    a=$(timeout 40 playwright-cli -s="$session" --raw eval "(async()=>await Promise.race([LanguageModel.availability(), new Promise(r=>setTimeout(()=>r('pending'),15000))]))()" 2>/dev/null | tr -d '"\r\n')
+    a=$(timeout 60 playwright-cli -s="$session" --raw run-code "async page => { if (!page.url().startsWith('https:')) { await page.goto('https://example.com'); } return await page.evaluate(() => typeof LanguageModel === 'undefined' ? 'no-LanguageModel' : Promise.race([LanguageModel.availability(), new Promise(r => setTimeout(() => r('pending'), 15000))])); }" 2>/dev/null | tr -d '"\r\n')
     line="$line $session=${a:-no-answer}"
 
     if [ "$a" != available ]; then
