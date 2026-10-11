@@ -143,6 +143,12 @@ The extension's own tool group, answered through `devtoolstooldiscovery` for chr
 1. **Intent and tool subset.** A fresh clone of a warm session gets the question and a list of tool groups, and returns `{groups: [...]}` under `responseConstraint`. Only those groups' tools go into the next session. Small models choose worse among many tools, and every tool schema costs context **[inferred; tool count per session is a spike, S3]**.
 2. **Tool session.** `create({tools, expectedInputs, expectedOutputs, initialPrompts: [system, context chip]})`. Loop: `prompt` -> run each `tool-call` in the page agent -> send `tool-response` -> repeat, with a step cap (Chrome's own assistant caps at 20 **[01]**; start at 6 for a 7K window **[inferred]**).
 3. **Fallback without native tools.** On builds where `tools` is missing or ignored (Chrome 154 stable with the flag off), the same loop runs on structured output: the model returns `{"tool": name, "args": {...}}` or `{"answer": "..."}` under a `responseConstraint` built from the tool schemas, and tool results are appended as text. Neither the API surface nor `create()` tells whether tools work. Chrome 154 accepted `tools` silently and never called them; Chrome Beta defines `LanguageModelToolCall` and `LanguageModelToolSuccess` and accepts a tool session, yet fails tool prompts when a tool has no parameters **[measured, 00]**. So detect by running one canary round trip when the panel opens (a `ping` tool and "Call ping."), and choose native tools only if a `tool-call` part comes back and the follow-up prompt succeeds. Cache the result per browser version **[inferred design; the fallback's `responseConstraint` part is measured to work in all three browsers]**.
+
+   Why `availability()` cannot decide this:
+   - In Chrome 156 the tool types are gated by the Blink runtime feature `AIPromptAPIToolUse`, not by the model. With the feature off, `create()` refuses any `tool-call`/`tool-response` type with "unable to create a session". `availability()` still says `available`, because it never checks tool types, which contradicts the spec **[measured: probe matrix 05, Chromium 156.0.8078.17 source 09]**.
+   - With the feature on, Gemini Nano opens tool sessions but answered with text instead of a tool call in all three tries **[measured, 05]**. No Google source claims tool calling for Nano **[10]**.
+   - So the loop routes per model: native tools on Gemma 4 and Aion, and on Phi-4-mini if the benchmark confirms it. The structured-output loop runs on Gemini Nano.
+   - Aion-1.1-Instruct is documented as a text model; its tool calls come from Edge's runtime workaround (`msEdgeLLMOnDeviceModelMuffinToolUseWorkaround`), so they can change with an Edge update **[10; the link between the workaround and Aion is inferred]**.
 4. **Answer rendering.** Answers show the tool walkthrough (each call, its arguments, a short result, a Reveal link to the element, the component in the tree, or the source), as Chrome DevTools AI assistance does **[03 section 3.1]**. The walkthrough is what makes a small model's answer checkable.
 5. **Context budget.** Track `contextUsage`; on `contextoverflow`, summarize the conversation with the Summarizer API (available in both browsers **[measured, 00]**) into a new session's initial prompts.
 
@@ -409,7 +415,12 @@ Each spike is the smallest isolated thing that settles one unknown. S1 blocks ev
 | S5 | Image input on Aion and Gemma 4 | One `expectedInputs: [{type:'image'}]` prompt with a cropped tab capture | Works or not, per browser |
 | S6 | Redux DevTools shim coexisting with the real Redux DevTools extension | NgRx sample app with both installed | Both receive actions |
 
-The spikes run in Lars's own Chrome Beta and Edge Dev with Claude attached through `playwright-cli attach --cdp=chrome-beta|msedge-dev` (remote debugging is on in both; see 00).
+The spikes run in the per-model browser instances: one browser process per model, each with its own profile on D: under `.browsers/` and its own debugging port (00, "Per-model instances"):
+- Chrome Beta with Gemini Nano (9333) and with Gemma 4 (9334);
+- Edge Dev with Aion (9335);
+- Edge stable with Phi-4-mini (9337), because Edge Dev 157 did not deliver it.
+
+The `control-ai-browsers` skill launches, checks and stops them.
 
 ---
 
@@ -427,15 +438,17 @@ These are open; Claude applied the default shown so the design could proceed.
 - "A Chrome Beta or Edge Dev prerequisite is also acceptable."
 - "Experimental Angular features are acceptable": proposals may depend on experimental or developer-preview Angular APIs, such as WebMCP and Signal Forms; each one is marked as such.
 - "By any browser, I mean Edge, Edge Dev, Chrome, and Chrome Beta. Not Firefox because it doesn't support Prompt API so isn't relevant for this project."
-- "C:\ is running low on space. Unnecessary models should be cleaned up after use." Measured that day: 22.0 GB free on C:, which is Chrome's documented minimum for the on-device model. Gemma 4 (2.32 GB) and Aion-1.1 (1.22 GB) are the standing models; Phi-4-mini and Gemini Nano are downloaded for a comparison and cleared afterwards.
+- "C:\ is running low on space. Unnecessary models should be cleaned up after use." Measured that day: 22.0 GB free on C:, which is Chrome's documented minimum for the on-device model. The first plan was to download Phi-4-mini and Gemini Nano only for a comparison and clear them afterwards. The next ruling replaced that plan with one standing instance per model on D:.
+- "I want to keep testing both Gemini Nano and Gemma 4. Could we manage multiple Chrome Beta instances - one with Nano and one with Gemma?" and "Same for Edge Dev with Phi-4-mini and Aion-1.1-Instruct." Done with separate profiles under `.browsers/` on D:. Phi-4-mini runs in Edge stable, because Edge Dev 157 stalled at 0% (00).
 - "I don't use Chrome Beta or Edge Dev daily, only for projects like this" and "My Chrome Beta and Edge Dev profiles should keep AI feature flags". The per-model test instances live in separate profiles under `.browsers/` on D:. Lars's own profiles keep their flags, and their models stay, because Chrome Beta downloads Gemini Nano again by itself within minutes of a clear while the flags are on (measured twice).
 - "I mean use D:/ for profiles and models for all browsers used by control-* and verify-* skills". The skills run their browsers only from profiles on D: (`.browsers/` in this project), so models download to D:. They no longer use Lars's own browser profiles on C:. Playwright's own browsers use in-memory profiles; their binaries in `%LOCALAPPDATA%\ms-playwright` are not covered by the ruling.
+- "Including *my* Chrome Beta and Edge Dev profiles and models", then (2026-10-12) "Edge Dev: Option B." and "Chrome Beta: I don't care about any of that user data from Chrome Beta." Lars's Chrome Beta profile is on D: through a junction. His Edge Dev profile is back on C:, because Edge Dev deletes its model manifest when its profile path resolves through a junction (measured, 00). Models on D: load about 30% slower from disk than on C: (same NVMe, ReFS against NTFS), which affects only a cold model load (00).
 - "You must get Gemma 4 working in Chrome and/or Chrome Beta" and "you must get Aion-1.1-Instruct working in Edge and/or Edge Dev". Done: Gemma 4 in Chrome Beta and Aion-1.1-Instruct in Edge Dev both complete a tool-calling round trip (00).
 
 ## 9. What was not checked
 
 - No extension context was run; all extension-context claims rest on Chromium and DevTools source (S1).
 - One small Angular 22.2.2 app was run (`spikes/ng222-app`, 05). The rest of the Angular claims come from the 22.2.x source and from Angular DevTools' and Pangular's call sites.
-- Gemma 4 and Aion were each measured on one scripted two-tool exchange in a normal page tab, not on an Angular app and not in an extension context.
-- WebMCP is active in both browsers (00), but no Angular app with WebMCP tools has been run yet.
-- Edge stable and Chrome stable keep their current flags; Lars's stable browsers were running and were not changed.
+- The models were measured in page tabs of the per-model instances against the counter app, not in an extension context.
+- WebMCP is active in Chrome Beta and Edge Dev (00), but no Angular app with WebMCP tools has been run yet.
+- Lars's everyday Chrome and Edge profiles were not changed, apart from clearing Chrome stable's Gemini Nano copy on his approval. Edge Canary's Aion-1.0 copy was cleared too, and Lars then uninstalled Edge Canary (00).
