@@ -128,3 +128,29 @@ Lars ruled: "C:\ is running low on space. Unnecessary models should be cleaned u
 - Edge Canary's `Aion-1.0-Instruct` (`Edge SxS\User Data\EdgeLLMOnDeviceModel\2026.5.30.1`, 1.41 GB): folder deleted with the browser not running. Lars uninstalled Edge Canary afterwards, so the Edge Canary row in the flag table above is historical. Its profile folder `%LOCALAPPDATA%\Microsoft\Edge SxS` remains (0.62 GB, measured).
 - Chrome stable's Gemini Nano `v3Nano` (`Chrome\User Data\OptGuideOnDeviceModel\2025.8.8.1141`, 3.98 GB): folder deleted after Lars closed Chrome stable (no stable `chrome.exe` left, measured). Chrome stable still has the Prompt API flags on, so it may download the model again on next use.
 - C: free space: 22.0 GB at first measurement, 10.84 GB at its lowest during the comparison-model downloads, 25.18 GB after both clears.
+
+## Per-model instances (2026-10-11, measured)
+
+Lars asked: "Could we manage multiple Chrome Beta instances - one with Nano and one with Gemma?" and "Same for Edge Dev with Phi-4-mini and Aion-1.1-Instruct." Each instance runs with its own `--user-data-dir` under `.browsers/` (gitignored, on D:). Its features are set on the command line with `--enable-features`, and it has its own `--remote-debugging-port`. Remote debugging needs no approval on a non-default profile.
+
+| Instance | Port | Features beyond the base API set | Model on disk | Status at 23:45 |
+|---|---|---|---|---|
+| `.browsers/chrome-beta-nano` | 9333 | `AIPromptAPIToolUse` | `v3Nano` 4.0 GB | available |
+| `.browsers/chrome-beta-gemma4` | 9334 | `AIPromptAPIToolUse`, `OnDeviceModelConversationBackend`, `AIApiFoundationalModel:model_version/v4`, `OptimizationGuideManifestBroker` | `gemma4-2b-it` 2.4 GB | available |
+| `.browsers/edge-dev-aion` | 9335 | `msEdgeLLMOnDeviceModelMuffinToolUseWorkaround`, `msEdgeLLMOnDeviceModelPrerelease` | Aion 1.3 GB | available |
+| `.browsers/edge-dev-phi4mini` | 9336 | none (base set) | nothing | stuck, see below |
+
+Base sets: Chrome `AIPromptAPI,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP`; Edge `AIPromptAPI,AIPromptAPIStructuredOutput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,WebMCP`. The Edge names were read from Lars's Edge Dev `edge://version` command line.
+
+Gotchas:
+- A fresh profile has Chrome's internal debugging pages off, so `chrome://on-device-internals` shows "Internal debugging pages are currently disabled". Turn them on once per profile with the "Enable internal debugging pages" button on `chrome://chrome-urls`. Edge's instances did not need it.
+- Starting the download needs a real user gesture. In the Phi-4-mini instance, pointer clicks from playwright-cli time out (on page buttons and on the internals tabs), but keyboard input works: focus the element, then press Enter or the arrow keys. Cause unknown.
+
+Phi-4-mini instance, after about 35 minutes of `availability()` returning `downloading`:
+- Broker State: `edge_base_model 2026.10.2.1 Foreground Installing 0%`, error None.
+- `prompt_api` is Pending Assets.
+- Every criterion passes: performance class High, device capable, 62,956 MiB free against 20,480 required.
+- Manifest variant: `webgpu-fp16`, where Aion's is `webgpu-fp16-prerelease`.
+- `EdgeLLMOnDeviceModel` and `EdgeLLMRuntime` are both empty; Aion's runtime folder holds 3.5 MB.
+- Earlier, Lars's own Edge Dev profile showed `edge_base_model` Not Installed too (builder report).
+- Inferred, not checked: Edge Dev 157 does not currently serve the release ("default", expected Phi-4-mini) component, so the download never starts. Edge stable 155 might; it has not been tried.
