@@ -1,0 +1,34 @@
+# Attach to a dev-mode Angular app
+
+On an Angular page the extension sets a flag, detects Angular, injects its backend and shakes hands with it,
+and its toolbar icon turns from grey to colour. The Angular tab in DevTools then shows the app; the info
+button shows the Angular version.
+
+## Sub-features
+
+- Connected flag `window.__NG_DEVTOOLS_CONNECTED__`.
+- Detection result: `isAngular`, `isDebugMode` (development build), `isIvy`, `isSupportedAngularVersion`
+  (major 12+ or 0).
+- Backend injection and handshake.
+- Angular version from `[ng-version]`.
+
+## How to get to it (user POV)
+
+Load any page of the app with the extension enabled; the popup (toolbar icon) says whether the page is a
+supported development build.
+
+## Driving it with control-angular-devtools
+
+```bash
+node $S attach
+```
+
+Expected (measured on the counter fixture): `flag true (set at ~50 ms); detection {"isIvy":true,
+"isAngular":true,"isDebugMode":true,"isSupportedAngularVersion":true,"isAngularDevTools":true};
+backendInstalled true; backendReady at ~950 ms; Angular 22.2.2`.
+
+## Gotchas
+
+- `attach` reloads the page to catch messages from the start.
+- A production build gives `isDebugMode: false` and no backend; DevTools then shows its "production" popup.
+- The toolbar icon and popup are browser UI, not checked by script.

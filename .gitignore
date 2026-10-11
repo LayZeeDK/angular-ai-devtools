@@ -1,3 +1,7 @@
 .playwright-cli/
 spikes/probes/bench/
 tmp/control-angular-dev-app/
+tmp/control-ai-browsers/
+tmp/verify-ai-browsers/
+tmp/control-angular-devtools/
+tmp/verify-angular-devtools/
