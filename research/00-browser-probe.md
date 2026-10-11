@@ -206,3 +206,27 @@ Microsoft's own statements (page reads via markdown.new):
 - Windows App SDK docs (`https://learn.microsoft.com/en-us/windows/ai/apis/phi-silica`, updated 2026-10-02) say: "Phi Silica is being replaced by Aion Instruct". The timeline: a sideloadable package in early October 2026, a rollout to Windows Insider devices in November 2026, and "January 2027 - Aion Instruct rolls out to retail devices and Phi Silica is removed." That is Windows' system model, not Edge's.
 
 Reading (inferred): no source states that Aion replaces Phi-4-mini in Edge. The measurement shows Edge Dev 157 already ships Aion-1.1 as its default. Windows is replacing its own on-device model with Aion on a published timeline. Both point the same way, but Microsoft's Edge docs still describe Phi-4-mini as the default and were last updated 2026-10-06.
+
+## Choosing CPU or GPU per instance (2026-10-12)
+
+Lars asked: "Can we make the Nano instance use the GPU backend? Can we make Gemma 4 and Phi-4-mini use CPU? What about Aion-1.1-Instruct?" He added: "Keep in mind that this machine is CPU-heavy with an NPU but a poor GPU".
+
+How Chrome chooses, read in Chromium 156.0.8078.17 source:
+- At startup Chrome measures a performance class and stores it in the profile's `Local State` (`optimization_guide.on_device.performance_class`).
+- GPU models are allowed only for the classes in the `OnDeviceModelPerformanceParams` feature parameter `compatible_on_device_performance_classes`, default `3,4,5,6` (`components/optimization_guide/core/optimization_guide_features.cc:120-139`). Low-tier GPU models use `compatible_low_tier_on_device_performance_classes`, default `3,4`.
+- `OnDeviceModelForceCpuBackend` is a separate feature, off by default (`services/on_device_model/public/cpp/features.cc:11`). The same string is in Edge Dev 157's binary.
+
+Stored classes, all on the same GPU (16,162 MB VRAM): chrome-beta-nano 2, chrome-beta-gemma4 3, edge-dev-aion 5, edge-phi4mini 5. Inferred: the Nano instance measured its class while another session loaded the machine.
+
+Results (measured with `spikes/probes/relaunch-instance.ps1` and `broker-state.js`):
+
+| Change | Features added | Result |
+|---|---|---|
+| Nano to GPU | `OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/2%2C3%2C4%2C5%2C6/compatible_low_tier_on_device_performance_classes/2%2C3%2C4` (commas escaped as `%2C`) | Broker State lists "GPU (fastest inference)" backends, and `availability()` turned `downloading` while Chrome fetched Nano's GPU variant. Outcome is recorded below once the download finishes. |
+| Gemma 4 to CPU | `OnDeviceModelForceCpuBackend` | Every backend in Broker State reads CPU, and the model stays `available` with no new download. |
+| Aion to CPU | `OnDeviceModelForceCpuBackend` (Edge Dev 157) | `availability()` `unavailable`, and Broker State lists no backend. **Edge deleted the installed model**: `EdgeLLMOnDeviceModel` was empty after restoring the normal features, and the model had to be downloaded again. |
+| Phi-4-mini to CPU | `OnDeviceModelForceCpuBackend` (Edge stable 155) | Same as Aion: `unavailable`, and the model was deleted. |
+
+Inferred cause for Edge: its manifests offer only WebGPU variants (`webgpu-fp16` and `webgpu-fp32`, with and without `-prerelease`). Forced to CPU, Edge has no variant to run, so it uninstalls the model. Its ONNX runtime does carry `CPUExecutionProvider`, `DmlExecutionProvider` and `QNNExecutionProvider` (Qualcomm NPU), but no flag found selects them. Edge's `edge-llm-on-device-model-performance-param` flag offers only Default, Enabled, "Enabled BypassPerfRequirement" and Disabled.
+
+**Gotcha for the skills: never start an Edge instance with `OnDeviceModelForceCpuBackend`; it deletes the model.**
