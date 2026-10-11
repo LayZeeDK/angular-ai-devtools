@@ -12,8 +12,8 @@ control-pangular-inspector. Read this index, then use the matching feature file 
 - Server: `node $S up --app-url http://localhost:4775/`, then `node $S doctor` exits 0 with
   `overlay-connected` passing. Read-only unless the recipe says `--allow-actions`.
 - Take `evidenceDir` and `session` (`pangular-9999`) from `node $S info`.
-- Never drive an instance this run did not start; never Lars's browsers or the sessions `cb`, `ed`, `ai-cb`,
-  `ai-ed`, `ngdt`.
+- Never drive an instance this run did not start; never Lars's browsers or the sessions `cb`, `ed`, `nano`,
+  `g4`, `aion`, `phi`, `ai-cb`, `ai-ed`, `ngdt`.
 
 ## Driving conventions
 

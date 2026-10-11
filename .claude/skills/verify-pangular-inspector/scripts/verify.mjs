@@ -3,7 +3,7 @@
 // Reuses control-pangular-inspector and control-angular-dev-app. Run with --help.
 
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -58,9 +58,13 @@ function pw(...args) {
 
 const p = (...a) => node(PANGULAR, 'pangular', ...a);
 const checks = {};
-const notCovered = ['action tools (navigate, fill-form, form-action, highlight): read-only by design; refusal checked instead', 'Express hub and Vite plugin mounts: not automated by control-pangular-inspector', 'install/remove round trip: run control.mjs remove and install separately (needs the servers stopped)'];
+const notCovered = ['action tools (navigate, fill-form, form-action, highlight): read-only by design; refusal checked instead', 'Express hub and Vite plugin mounts: not automated by control-pangular-inspector', 'install/remove round trip: run control.mjs remove and install separately (needs the servers stopped; on the portal, remove keeps the setup committed in f102b97)'];
 let appStarted = false;
 let pangularUp = { code: 2 };
+// up writes its state file before the readiness wait, so a failed up can leave a server behind; a state file that
+// was there before this run belongs to someone else and is never torn down here.
+const pangularState = join(ROOT, 'tmp', 'control-pangular-inspector', 'state', 'pangular-9999.json');
+const hadPangularState = existsSync(pangularState);
 let verdict;
 
 try {
@@ -74,13 +78,18 @@ try {
   let appUrl = givenUrl;
 
   if (!appUrl) {
+    // control-angular-dev-app up can print ok and then die in process.exit (exit 3221226505, measured), so a new
+    // state file, not the exit code, says whether it left a portal running.
+    const appStateDir = join(ROOT, 'tmp', 'control-angular-dev-app', 'state');
+    const listStates = () => (existsSync(appStateDir) ? readdirSync(appStateDir) : []);
+    const before = new Set(listStates());
     const up = node(APP, 'app', 'up', '--target', 'portal');
+    appStarted = listStates().some((f) => !before.has(f));
 
-    if (up.code !== 0) {
+    if (up.out.ok !== true) {
       throw new Error(`could not start the portal: ${up.out.reason ?? 'see steps'}`);
     }
 
-    appStarted = true;
     appUrl = up.out.url;
   }
 
@@ -122,7 +131,7 @@ try {
   const ev = pangularUp.out?.evidenceDir;
 
   if (!keep) {
-    if (pangularUp.code === 0) {
+    if (pangularUp.code === 0 || (!hadPangularState && existsSync(pangularState))) {
       p('down');
     }
 

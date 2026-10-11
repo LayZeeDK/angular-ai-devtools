@@ -44,7 +44,9 @@ control run: `doctor.json`, the MCP answers, before and after snapshots, a scree
 ## Cleanup
 
 The script stops what it started (`control-pangular-inspector down`, and `control-angular-dev-app down
---target portal` when it launched the portal), unless `--keep`. Evidence stays.
+--target portal` when it launched the portal), unless `--keep`. It also runs `down` after a failed `up`
+that left a new state file behind, and never touches a state file that was there before the run (the run is
+then inconclusive). Evidence stays.
 
 ## Helpers
 
@@ -58,8 +60,14 @@ The script stops what it started (`control-pangular-inspector down`, and `contro
 
 ## Gotchas
 
+- `control-angular-dev-app up` once printed `ok: true` and then exited 3221226505 (a crash in `process.exit`),
+  leaving the portal running while the run reported inconclusive. The script now trusts the printed result and
+  stops the portal whenever a new `control-angular-dev-app` state file appeared (crash path not reproduced since).
 - The run needs ports 3000, 4775 and 9999 free (or `--app-url` for a portal already up); a busy port gives
   inconclusive, never a stop of someone else's process.
 - Setup is checked, not changed: run `control-pangular-inspector install` first when `setup` fails.
 - The install and remove round trip is not part of the verdict; it needs the servers stopped
-  (`control-pangular-inspector` features/setup.md).
+  (`control-pangular-inspector` features/setup.md). The portal has the setup committed (`f102b97`), so
+  `remove` there keeps Pangular.
+- While the devtools server runs, `control-angular-dev-app doctor --target portal` fails; see
+  `control-pangular-inspector` Gotchas.

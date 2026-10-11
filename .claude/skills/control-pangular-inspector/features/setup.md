@@ -7,7 +7,8 @@ reports to a devtools server, and can take it out again leaving the app exactly 
 
 - `setup.install`: exact pin `@pangular-inspector/devtools@0.0.7` in `devDependencies`, overlay import, proxy, `proxyConfig`.
 - `setup.check`: six read-only facts, one line each.
-- `setup.remove`: restore from git `HEAD`, prune `node_modules`, assert a clean worktree.
+- `setup.remove`: restore from git `HEAD`, prune `node_modules`, assert a clean worktree; undoes an uncommitted
+  install only.
 - `setup.refuse`: `remove` refuses when files it does not manage are changed; `install` refuses SSR and Vite mounts.
 
 ## How to get to it (user POV)
@@ -25,7 +26,12 @@ changes; no server from this skill running (`remove` changes files a running dev
   `git diff --stat` shows the lockfile with insertions only (457 lines measured).
 - Check: `node $S check` -> six `[OK]` lines, exit 0.
 - Type check: `npm exec -- nx run insurance-portal:typecheck` in the worktree exits 0 with the overlay import.
-- Remove: `node $S remove --json` -> exit 0, `gitStatus: []`, `gitDiffStat: ""`; `node $S check` then exits 1.
+- Remove: `node $S remove --json` -> exit 0, `gitStatus: []`, `gitDiffStat: ""`; `node $S check` then exits 1
+  only where `HEAD` has no Pangular setup.
+- The portal worktree has the setup committed (`f102b97`), so there `check` exits 0 with no install (measured),
+  `install` finds the package pinned, and `remove` restores `HEAD`, which keeps Pangular: it removes only an
+  uncommitted install (read from `remove` in `scripts/control.mjs`, not run in this pass). Taking Pangular out
+  of the portal means reverting that commit, a product change for Lars.
 
 ## Gotchas
 

@@ -10,7 +10,8 @@ installs and removes the dependency and its configuration, starts the standalone
 whole chain, and speaks MCP (Model Context Protocol) over HTTP by itself, so no MCP client has to be configured.
 The app itself is launched with `control-angular-dev-app`; the page is opened in a playwright-cli session.
 Skip it for production builds (no `window.ng`, the overlay import is compiled out) and for Lars's own
-browsers: never `--cdp` or `--extension`, never the sessions `cb`, `ed`, `ai-cb`, `ai-ed`, `ngdt`.
+browsers: never `--cdp` or `--extension`, never the sessions `cb`, `ed`, `nano`, `g4`, `aion`, `phi`, `ai-cb`,
+`ai-ed`, `ngdt`.
 
 Commands run from the repository root (`D:\projects\sandbox\angular-ai-devtools`).
 `S=.claude/skills/control-pangular-inspector/scripts/control.mjs`. The app folder defaults to the Insurance
@@ -39,16 +40,20 @@ worktree) and API port 3000, both owned by `control-angular-dev-app`.
 
 1. Install once (idempotent): `node $S install`; the npm install step takes most of its time.
    - `npm install --save-dev --save-exact @pangular-inspector/devtools@0.0.7` (devDependency: it only runs
-     in development builds). `devframe` is not added: npm hoists it (`npm ls devframe` shows 1.2.3); the
-     docs add it for pnpm and for code that imports `devframe` directly.
+     in development builds). `devframe` is not added: the package depends on it and npm hoists it
+     (`npm ls devframe` shows 1.2.3). The docs add it in every install command because pnpm and similar
+     managers resolve only direct dependencies; the portal imports `devframe` nowhere.
    - Puts back the 27 committed lockfile entries npm 11 drops from this checkout on any install, so the
      lockfile diff holds only the 31 entries Pangular adds.
    - `main.ts`: the overlay import after bootstrap, guarded by `typeof ngDevMode === 'undefined' || ngDevMode`
      (the docs' Angular CLI form; Analog uses `import.meta.env.DEV`).
    - `apps/<app>/proxy.conf.json`: `/__pangular` -> `http://localhost:9999`, prefix stripped, `ws: true`;
-     and `serve.options.proxyConfig` in the app's `project.json`. Formatted with the repo's own prettier.
+     and `serve.options.proxyConfig` in the app's `project.json` (the docs put the file next to
+     `angular.json`; Nx keeps it in the app folder and names it workspace-relative). Formatted with the repo's
+     prettier when `node_modules/prettier` exists.
+   - The portal worktree has this setup committed (`f102b97`); `check` exits 0 there and `install` is not needed.
 2. Start the app: `node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target portal`
-   (17.3 s to ready, measured). Its `info` prints the URL (`http://localhost:4775/`).
+   (17-20 s to ready, measured). Its `info` prints the URL (`http://localhost:4775/`).
 3. Start the devtools server: `node $S up --app-url http://localhost:4775/`. It runs
    `node node_modules/@pangular-inspector/devtools/bin.mjs dev --port 9999 --no-open --root <app> --read-only`
    in the app folder, logs to `<evidenceDir>/pangular.log`, and is ready when MCP `initialize` answers
@@ -99,6 +104,7 @@ to pick a tab. Answers that hold page text start with Pangular's notice to treat
 | Its injectors and providers | `node $S call inspect-providers --args '{"selector":"ng-journal-list"}'` (or `{"token":"HttpClient"}`) |
 | Why a navigation went where it did | `node $S call explain-navigation --args '{"limit":3}'` |
 | Current route | `node $S call inspect-route` |
+| Live route config and its lint | `node $S call list-routes`, `node $S call lint-routes` |
 
 Fallbacks: `node $S scan <get-routes|get-components|...>` runs the CLI's stdio MCP server (source scan, no
 app needed); the panel UI at `http://localhost:4775/__pangular/` in the same playwright-cli session (wait for
@@ -120,9 +126,11 @@ that no longer runs is noted, not refused; a mismatch is refused with exit 2. Th
 `control-angular-dev-app ... down --target portal`. Never `playwright-cli close-all` or `kill-all`.
 
 Removing Pangular from the app: `node $S remove` restores every file `install` changed from git `HEAD`,
-deletes `proxy.conf.json`, prunes `node_modules` with `npm install`, restores the lockfile once more (npm's
-unrelated drift), and exits 0 only when `git status --porcelain` and `git diff HEAD` are empty. It refuses
-(exit 2) when the worktree has changes in files it does not manage. Stop the servers first.
+deletes `proxy.conf.json` when git does not track it, prunes `node_modules` with `npm install`, restores the
+lockfile once more (npm's unrelated drift), and exits 0 only when `git status --porcelain` and `git diff HEAD`
+are empty. It refuses (exit 2) when the worktree has changes in files it does not manage. Stop the servers
+first. `HEAD` of the portal worktree holds the setup (`f102b97`), so `remove` there undoes only an uncommitted
+install and leaves Pangular in place; reverting that commit is a product change for Lars.
 
 ## Helpers
 
@@ -169,7 +177,15 @@ application/json, text/event-stream`, `Origin: http://localhost:<port>`, optiona
   `--root apps/insurance-portal`, so the panel's source tabs show 0. Live tools are not affected.
 - The first page load shows a `prompt` asking for the one-time code; any playwright-cli command then fails
   with "does not handle the modal state". `doctor` reads the newest `auth code` from `pangular.log` and
-  answers it with `dialog-accept <code>`. The browser keeps the trust, so later loads do not ask.
+  answers it with `dialog-accept <code>`, before its `goto`, while it waits for the page id, and while it waits
+  for `list-pages`: the prompt can come after the page id is set, and a doctor that missed it left
+  `overlay-connected` failing ("No page is reporting") and the next drive blocked (measured once). The browser
+  keeps the trust, so later loads do not ask.
+- While this server runs, `control-angular-dev-app doctor --target portal` fails (measured): its own session
+  meets the one-time-code prompt (`page-probe`: "does not handle the modal state"; `dialog-accept <code>` in
+  that session clears it), and `build-log:app` counts the `Error: read ECONNRESET` lines that follow a `[vite]
+  ws proxy error` after a page holding the overlay socket navigates. Run that doctor before `up` or after
+  `down`; this skill's own doctor covers the page while Pangular runs.
 - The standalone server listens on `[::1]:9999`; the proxy target `http://localhost:9999` reaches it.
 - `process.exit` while a `fetch` keep-alive socket is open crashed Node 24 on Windows with
   `Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)` (exit 127); the script uses `node:http` without

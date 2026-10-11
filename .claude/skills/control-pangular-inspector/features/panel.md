@@ -5,9 +5,11 @@ and the active configuration. Agents use it only as a fallback or for a screensh
 
 ## Sub-features
 
-- `panel.dashboard`: project name, Angular and TypeScript versions, SSR off, `LIVE` badge, Configuration block (`Agent: Read-only`).
+- `panel.dashboard`: project name, Angular and TypeScript versions, SSR off, `LIVE` badge, Configuration block
+  (`Agent` / `Read-only`; shown only when the server runs `--read-only`).
 - `panel.tabs`: Components, Routes, Signals, Injectors, Store, Forms, Pipes, SSR & HTTP.
-- `panel.button`: the amber floating button the overlay adds to the app page.
+- `panel.button`: the amber floating button the overlay adds to the app page; icon only, accessible name
+  `Toggle Pangular Inspector`.
 
 ## How to get to it (user POV)
 
@@ -20,12 +22,15 @@ and the active configuration. Agents use it only as a fallback or for a screensh
 Preconditions: baseline (the doctor has answered the one-time-code prompt in this session).
 
 - Open: `playwright-cli -s=pangular-9999 goto http://localhost:4775/__pangular/` -> title `Pangular Inspector`.
-- Wait: `playwright-cli -s=pangular-9999 --raw run-code "async page => { await page.getByText('LIVE').first().waitFor(); return (await page.locator('body').innerText()).slice(0, 400); }"`
-  -> the dashboard text with `Angular 22.2.2` and `Agent Read-only`.
+- Wait: `playwright-cli -s=pangular-9999 --raw run-code "async page => { await page.getByText('LIVE').first().waitFor(); return (await page.locator('body').innerText()).slice(0, 800); }"`
+  -> the dashboard text with the eight tab names, `LIVE`, `Angular 22.2.2`, and `Agent` then `Read-only`
+  (measured).
 - Evidence: `playwright-cli -s=pangular-9999 screenshot --filename=<evidenceDir>/panel-dashboard.png`.
 - Return: `playwright-cli -s=pangular-9999 goto http://localhost:4775/` before the next live read.
+- Button: `playwright-cli -s=pangular-9999 find "Toggle Pangular"` on the app page finds it.
 
 ## Gotchas
 
 - The dashboard's source counts are 0 in this Nx workspace (see source-scan.md); live tabs are unaffected.
-- A new browser profile asks for the one-time code again; take it from `pangular.log`.
+- A new browser profile asks for the one-time code again (a `window.prompt`); take the newest `auth code` from
+  `pangular.log`. A code expires after 5 minutes; each untrusted browser that asks gets a new banner.

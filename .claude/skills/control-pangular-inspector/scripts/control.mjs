@@ -564,6 +564,27 @@ async function doctor() {
   if (!appUrl) {
     add('overlay-connected', 'skip', 'no --app-url: pass the portal URL (control-angular-dev-app info) to check the page');
   } else {
+    // The overlay asks for the one-time code in a prompt, at a moment of its own choosing (before or after it sets
+    // its page id, measured both ways); the code is printed in the server log, as a user would read it.
+    let answered = false;
+    const answerPrompt = async (probe) => {
+      if (!/modal state/i.test(probe.stdout + probe.stderr)) {
+        return false;
+      }
+
+      await sleep(500);
+      const otp = authCode(state);
+      const acc = playwrightCli([`-s=${state.session}`, 'dialog-accept', otp ?? '']);
+
+      if (!answered) {
+        add('auth-code', otp && acc.status === 0 ? 'pass' : 'fail', otp ? `entered the one-time code from ${path.basename(state.log)} into the overlay prompt` : 'prompt shown but no auth code in the server log');
+      }
+
+      answered = true;
+
+      return true;
+    };
+    await answerPrompt(playwrightCli([`-s=${state.session}`, '--raw', 'eval', '() => 1']));
     let r = playwrightCli([`-s=${state.session}`, 'goto', appUrl]);
 
     if (r.status !== 0 || /not open|is not running|No browser/i.test(r.stdout + r.stderr)) {
@@ -581,12 +602,7 @@ async function doctor() {
       for (let i = 0; i < 6 && !page.pageId; i++) {
         pr = playwrightCli([`-s=${state.session}`, '--raw', 'run-code', code]);
 
-        if (/modal state/i.test(pr.stdout + pr.stderr)) {
-          // The overlay asks for the one-time code in a prompt; the code is printed in the server log, as a user would read it.
-          await sleep(500);
-          const otp = authCode(state);
-          const acc = playwrightCli([`-s=${state.session}`, 'dialog-accept', otp ?? '']);
-          add('auth-code', otp && acc.status === 0 ? 'pass' : 'fail', otp ? `entered the one-time code from ${path.basename(state.log)} into the overlay prompt` : 'prompt shown but no auth code in the server log');
+        if (await answerPrompt(pr)) {
           continue;
         }
 
@@ -608,6 +624,7 @@ async function doctor() {
         listed = text.includes(page.pageId);
 
         if (!listed) {
+          await answerPrompt(playwrightCli([`-s=${state.session}`, '--raw', 'eval', '() => 1']));
           await sleep(500);
         }
       }
