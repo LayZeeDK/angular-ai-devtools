@@ -262,3 +262,19 @@ Edge (Aion, Phi-4-mini), measured from files:
 Other routes to the NPU, outside the built-in Prompt API (inferred, untested):
 - Windows' own on-device model runs on the Snapdragon NPU through the Windows App SDK: Phi Silica today, Aion Instruct from the November 2026 Insider rollout (`research/00`, "Phi-4-mini in Edge Dev 157" sources). An extension could reach it only through a native-messaging host.
 - WebNN with `deviceType: 'npu'` (Edge flag `webnn-onnxruntime`: "Enables using ONNX Runtime for CPU, GPU and NPU inference with the WebNN API") runs a model the page supplies itself, not the browser's built-in one.
+
+### Edge provider trials on the standing Aion instance (2026-10-12, measured)
+
+`spikes/probes/ep-trials.sh` sets the provider list in Aion's `genai_config.json` with `set-genai-provider.mjs`. It restarts the instance through `control-ai-browsers` `stop` and `launch`, runs one prompt (`ep-prompt.js`), and restores the original config afterwards (checked with `cmp`; doctor exits 0). Results in `research/ep-trials/`, one run each:
+
+| Provider | Session | create() | First answer |
+|---|---|---|---|
+| `webgpu` (as shipped) | works | 2,953 ms | 6,290 ms |
+| `qnn` (`QnnHtp.dll`, Qualcomm NPU) | fails: `InvalidStateError: The device is unable to create a session to run the model.` | | |
+| CPU (empty provider list) | **works** | 4,623 ms | 14,507 ms |
+
+Corrections to the earlier sections:
+- **Aion can run on CPU in Edge**, but only by editing the downloaded component's config. That is unsupported, and an update of the component overwrites it. Chromium's `OnDeviceModelForceCpuBackend` remains destructive on Edge. The earlier "Edge Dev 157 offers Aion only through WebGPU" holds for what Edge selects by itself, not for what its runtime can do.
+- **NPU through QNN: no** with this model. Inferred: QNN needs a model compiled for the NPU, and Aion ships as WebGPU fp16.
+- The engine sampler (`engine-sampler.ps1`) saw no GPU activity even in the WebGPU run, so it missed the model process. Only the latency and the errors above count as evidence.
+- The trial runs reported `launch` exit 127, from a libuv assertion after a successful launch. Fixed in `control.mjs`, then re-driven: exit 0.
