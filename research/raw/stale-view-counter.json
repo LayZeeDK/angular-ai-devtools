@@ -1,0 +1,1 @@
+{"probe":"N24 stale view, counter fixture (zoneless, Angular 22.2.2), temporary change: timer(300).subscribe(() => (this.plain = "after")) with {{ plain }} in the template; reverted after the run","after1500ms":{"domBefore":"before","instance":"after","hits":[{"field":"plain","isSignal":false}]},"afterUnrelatedClick":"after"}
