@@ -9,7 +9,7 @@ Evidence files (in `research/`, plus the filing ledger in `docs/`):
 - `00-browser-probe.md`: what Claude measured in Lars's browsers (flags, models, context windows, tool calling).
 - `01-built-in-ai-apis.md`: Prompt API and the other built-in AI APIs, extension availability, WebMCP, Chrome DevTools AI assistance.
 - `02-angular-surface.md`: the `ng` global at 22.2 with tiers, what Angular DevTools calls, the Angular AI docs, Angular's in-page AI tools.
-- `03-prior-art.md`: Pangular Inspector, React DevTools, Chrome DevTools AI assistance and MCP, other framework devtools.
+- `03-prior-art.md`: Pangular Inspector, React DevTools, Chrome DevTools AI assistance and MCP, other framework devtools. The Pangular comparisons describe its source at clone commit `76c09d0`, not the published npm 0.0.7, which lacks tools added later such as `list-components` (`filing-ledger.md` section 3).
 - `04-ecosystem.md`: NgRx, Analog, Storybook, Vitest Browser Mode, RxAngular.
 - `05-spikes.md`: runs on a real Angular 22.2.2 app, sizes on the insurance portal, and the model benchmark.
 - `06-angular-skills.md`: the official angular/skills repo as a rule source.
@@ -45,12 +45,12 @@ Four facts shape the design:
 1. **On-device models can drive tools today, but not equally.**
    - Aion-1.1-Instruct (Edge Dev 157) answered all 15 benchmark runs through native tool calls, at 3-6 s per question.
    - Gemma 4 (Chrome Beta 156) is reliable only through a structured-output loop (13-15/15 runs).
-   - Gemini Nano also runs on that loop, because in native mode it makes no tool calls at all. On the loop it passed 11/15 runs on GPU and 0/15 on CPU, so it is supported but not reliable.
+   - Gemini Nano also runs on that loop, because in native mode it makes no tool calls at all. On the loop it passed 11/15 runs on GPU and 0/15 on CPU, so it is supported on GPU but not reliable, and unsupported on CPU.
    - Phi-4-mini (Edge stable) is weak at both **[measured, 05; Nano GPU figures regraded with `916fc09`, `spikes/probes/regrade.mjs`]**.
    - The browser never runs tools itself: `prompt()` returns `tool-call` parts, and the extension runs them and sends `tool-response` parts back **[measured, 00 and 01]**.
-   - So the model loop routes per model and detects support with a canary call. `availability()` cannot tell **[measured, 09]**.
+   - So the model loop routes per model and detects support with canary calls (3.3). `availability()` cannot tell **[measured, 09]**.
 2. **The context window is small: 7,168 tokens on Aion and 9,216 on the Chrome models and Phi-4-mini** **[measured, 05]**. A component tree does not fit. The model must pull facts by id through small tools that return a short summary, never receive full output.
-3. **Angular 22 already ships two in-page AI tools.** Every dev-mode app answers the `devtoolstooldiscovery` DOM event with `angular:di_graph` and `angular:signal_graph` **[measured, `packages/core/src/debug/ai/registration.ts:21-38`, `platform.ts:48-50`]**. The extension can collect them with one event dispatch and no `ɵ` name.
+3. **Angular 22 already ships two in-page AI tools.** Every dev-mode app answers the `devtoolstooldiscovery` DOM event with `angular:di_graph` and `angular:signal_graph` **[measured, `packages/core/src/debug/ai/registration.ts:21-38`, `platform.ts:48-50`]**. The extension can collect them with one event dispatch and no `ɵ` name (run from the page's main world in S2; from the extension's content script, spike S8).
 4. **Most of what Angular DevTools shows is reachable from `window.ng` in a MAIN-world script** with no app change **[measured, 02 section 1-2]**. The parts that need internals are already published on `ng` with a `ɵ` prefix (Tier 1). Real Tier 2 gaps at 22.2 are small: `@if`/`@switch` block state, error-boundary state, template local refs, the DI event stream **[measured, 02 section 1.3 and 5.7]**. The error-boundary gap means that `ng` exposes no boundary API. N16 tries a Tier 0 route around it, which its spike must confirm.
 
 Recommended first release, in priority order:
@@ -84,7 +84,7 @@ Where the measurements ran:
 |---|---|---|---|---|---|---|
 | Aion-1.1-Instruct (2026.10.2.1) | Edge Dev 157 (default and prerelease) | WebGPU as selected by Edge (no CPU variant offered, even for a Low-class device); with an empty provider list in its runtime config (an unsupported edit) it still answers, 1.6x slower to `create()` and 2.3x slower to the first answer, one run each; that this is the CPU provider is inferred, not observed (00); QNN NPU fails | 7,168 | works, open loop (through Edge's tool-use workaround) | works | **[measured, 00, 05; CPU provider inferred, 00]** |
 | Phi-4-mini-instruct (2026.8.19.1) | Edge stable 155 only | WebGPU only | 9,216 | works, open loop, but often describes the call in prose instead | works | **[measured, 00, 05]** |
-| Gemma 4 `gemma4-2b-it` | Chrome Beta 156 | GPU low tier by default; CPU with `OnDeviceModelForceCpuBackend` | 9,216 | works, open loop, with snake_case tool names; camelCase names crash the model process | works | **[measured, 00, 05, 11]** |
+| Gemma 4 `gemma4-2b-it` | Chrome Beta 156 | GPU low tier by default; CPU with `OnDeviceModelForceCpuBackend` | 9,216 | works, open loop, with snake_case tool names; camelCase names without underscores crash the model process (case and underscores not separated, 11) | works | **[measured, 00, 05, 11]** |
 | Gemini Nano v3 | Chrome Beta 156 | CPU or GPU low tier, chosen by the stored performance class; switchable with `OnDeviceModelPerformanceParams` | 9,216 | sessions open with `AIPromptAPIToolUse`, but the model writes `tool_code` text instead of calling tools | works on GPU; broken on CPU | **[measured, 05, 09]** |
 
 What the browsers do not tell you **[measured, 05, 09]**:
@@ -108,13 +108,28 @@ Benchmark: five questions about the counter app, three runs each, three narrow t
 Readings:
 - The extension routes per model:
   - Aion: native tools.
-  - Gemma 4 and Nano: the structured-output loop. Native tools on Gemma 4 only after S4 improves argument accuracy.
+  - Gemma 4 and Nano: the structured-output loop. Native tools on Gemma 4 only after S4 improves tool choice and argument accuracy. Nano on the CPU backend: unsupported, because its fallback failed 15 of 15 runs (3.3, startup check).
   - Phi-4-mini: supported only as a fallback-loop model.
-- Two failure classes **[measured, counted from `research/raw/bench/*.json`]**:
-  - Bad arguments (an invented CSS selector, or a signal name in the selector field) caused most failures in Aion's and Phi-4-mini's fallback runs (3 of 4, 6 of 8) and 2 of Gemma 4 GPU's 7 native failures. This drives the id-based tool rule in 3.4.
-  - Choosing the wrong tool, or stopping after one call without an answer, caused 4 of Gemma 4 GPU's 7 native failures and 3 of Gemma 4 CPU's 6. Ids do not address this class.
-  - The rest are other kinds: Nano writes `tool_code` text in native mode and returned empty JSON on CPU in the fallback; Phi-4-mini's native runs mostly describe the call in prose; a few runs hit `kErrorUnknown`.
-- On this machine's weak GPU, CPU Gemma 4 and native Aion both scored 15/15; Aion has the lowest latency.
+- Every failed run, by class **[measured, counted from `research/raw/bench/*.json` after the `916fc09` regrade]**. The rule for a run that fits two classes: a run whose calls never reach a tool that can answer the question counts as wrong tool, whatever its arguments; a run that calls a tool that can answer, with an argument that does not resolve, counts as bad arguments. `component_details` has no signal data, so calling it for a signal question is a wrong tool.
+
+  | Configuration | Failed runs | Bad arguments | Wrong tool, or no follow-up call | No tool call (prose, `tool_code` text, or a text answer) | `kErrorUnknown` | Other |
+  |---|---|---|---|---|---|---|
+  | Aion, native | 0 | | | | | |
+  | Aion, fallback | 4 | 3 (a signal name in the selector field) | | | 1 | |
+  | Phi-4-mini, native | 10 | | | 9 | 1 | |
+  | Phi-4-mini, fallback | 8 | 3 (CSS-class selectors such as `.app-counter`) | 3 (one of them also with an invented selector) | | 2 | |
+  | Gemma 4 GPU, native | 7 | 2 | 4 | | 1 | |
+  | Gemma 4 GPU, fallback | 2 | 2 (`signal: "*"`) | | | | |
+  | Gemma 4 CPU, native | 6 | 3 (2 of them invalid selectors that made the harness throw, 05) | 3 | | | |
+  | Gemma 4 CPU, fallback | 0 | | | | | |
+  | Nano GPU, native | 13 | | | 13 | | |
+  | Nano GPU, fallback | 4 | 3 (wrong signal names: `count`, `increment`) | | | | 1 (a wrong answer after a correct call) |
+  | Nano CPU, native | 14 | | | 14 | | |
+  | Nano CPU, fallback | 15 | | | 1 | | 14 (empty or cut-off JSON) |
+
+  - Bad arguments caused 3 of Aion's 4 fallback failures, 3 of Phi-4-mini's 8, both of Gemma 4 GPU's 2, 3 of Nano GPU's 4, and 5 of Gemma 4's 13 native failures (GPU and CPU). This is the reason for the id-based tool rule in 3.4.
+  - Choosing the wrong tool, or stopping after one call without an answer, caused 4 of Gemma 4 GPU's 7 native failures, 3 of Gemma 4 CPU's 6, and 3 of Phi-4-mini's 8 fallback failures. Ids do not address this class; S4 does.
+- On this machine's weak GPU, CPU Gemma 4 and native Aion both scored 15/15. Native Aion is 5.5-9 times faster per question than CPU Gemma 4's fallback loop (medians 3-6 s against 25-34 s).
 
 API details that the implementation must follow **[measured, 00 and 01]**:
 
@@ -123,11 +138,11 @@ API details that the implementation must follow **[measured, 00 and 01]**:
 - Results go back as `new LanguageModelToolSuccess({callID, name, result: [{type:'object', value}]})` (or `LanguageModelToolError`) inside `{role:'user', content:[{type:'tool-response', value}]}`, immediately after the call. Prompting without a response fails with `kErrorUnknown`.
 - Model quirks to code around:
   - Gemma 4 returns `callID: ""`. Pass it back unchanged.
-  - Gemma 4 fails tool prompts with `kErrorUnknown` on camelCase tool names such as `getComponentCount`, while `get_component_count` works **[measured, S1 phase 2, 11]**.
+  - Gemma 4 fails tool prompts with `kErrorUnknown` on camelCase tool names without underscores such as `getComponentCount`, while `get_component_count` works **[measured, S1 phase 2, 11]**. The rename changed case and underscores together, and the two were not separated (11; spike S11).
   - Each `kErrorUnknown` is a model-process crash. After three crashes, Chrome disables the on-device model. It re-enables it after 1 minute at the third crash, and the wait doubles per further crash, up to 1 hour **[measured, Chromium 156 source, 11]**.
   - The earlier finding that empty `properties` causes the failure is confounded, because every failing probe also used camelCase names **[measured, 11]**. The controlled test (`spikes/probes/tool-name-matrix.js`) was stopped by a low-memory shutdown and has not run.
   - Until that test runs, tools use snake_case names and at least one parameter (a required `scope` or `id`). That rule avoids both suspects **[inferred]**.
-  - Streaming on Gemma 4 tool sessions is not established either way. The only test (`spikes/probes/probe9.js:18-27`) called `prompt()`, got a tool call back, and then streamed on a `clone()` of that session without sending a `tool-response`. That failed with `kErrorUnknown` **[measured, 00]**, but a prompt after an unanswered tool call fails on its own (above), so the test does not show that streaming fails. Safe default: tool turns use `prompt()`, and only the final answer streams, from a clone of the tool-free base session (the pre-warmed session below). `clone()` keeps the source session's context (01), and tools are `create()` options, so a clone of a tool session is still a tool session **[inferred]**. Spike S7 streams after the tool response has been sent.
+  - Streaming on Gemma 4 tool sessions is not established either way. The only test (`spikes/probes/probe9.js:18-27`) called `prompt()`, got a tool call back, and then streamed on a `clone()` of that session without sending a `tool-response`. That failed with `kErrorUnknown` **[measured, 00]**, but a prompt after an unanswered tool call fails on its own (above), so the test does not show that streaming fails. Safe default: tool turns use `prompt()`, and only the final answer streams, from a clone of the tool-free base session (the pre-warmed session below). That clone has none of the tool calls or results, so the tool results from the tool session are appended to it as text, as in the fallback loop (3.3 step 3). The results then sit in the context twice, once in the tool session and once in the answer clone; in a 7-9K window that second copy limits how much tool output a question can use **[inferred]**. S7 measures that cost against streaming on the tool session itself. `clone()` keeps the source session's context (01), and tools are `create()` options, so a clone of a tool session is still a tool session **[inferred]**. Spike S7 streams after the tool response has been sent.
 - Quota names in current builds: `contextWindow`, `contextUsage`, `measureContextUsage()`, `contextoverflow` event.
 - First `create()` in a browser session can take 3-21 s; later ones take milliseconds. Pre-warm a base session when the panel opens and `clone()` it per question **[measured timing, 00; `clone` pattern is what DevTools Console Insights does, 01]**.
 - The model must be present before `create()` from a page without user activation. The download needs a user gesture **[measured: a click started the Gemma 4 download in Chrome Beta, 00]**.
@@ -137,7 +152,7 @@ API details that the implementation must follow **[measured, 00 and 01]**:
 | Tier | Meaning | Works on any 22.2 dev-mode app? |
 |---|---|---|
 | 0 | Public `ng.*` functions (`getComponent`, `getContext`, `getOwningComponent`, `getRootComponents`, `getInjector`, `getDirectives`, `getDirectiveMetadata`, `getHostElement`, `getListeners`, `applyChanges`, `isSignal`, `enableProfiling`), standard DOM and browser APIs, `[ng-version]`, `performance.getEntriesByName('mark_feature_usage')` | yes |
-| 1 | Already on the page in dev mode but internal: `ng.ɵgetSignalGraph`, `ɵgetInjectorResolutionPath`, `ɵgetInjectorMetadata`, `ɵgetInjectorProviders`, `ɵgetDependenciesFromInjectable`, `ɵsetProfiler`, `ɵgetControlFlowBlocks`, `ɵgetTransferState`, router `ɵ` trio (only with `provideRouter`), `toggleWatchSignal`, `__ngDebugHydrationInfo__`, the `devtoolstooldiscovery` tools | yes, but version-fragile |
+| 1 | Already on the page in dev mode but internal: `ng.ɵgetSignalGraph`, `ɵgetInjectorResolutionPath`, `ɵgetInjectorMetadata`, `ɵgetInjectorProviders`, `ɵgetDependenciesFromInjectable`, `ɵsetProfiler`, `ɵgetControlFlowBlocks`, `ɵgetTransferState`, router `ɵ` trio (only with `provideRouter`), `toggleWatchSignal`, `__ngDebugHydrationInfo__`, the `ngDevMode` counters, `constructor.ɵcmp.debugInfo` (a field on the compiled class), the `devtoolstooldiscovery` tools | yes, but version-fragile |
 | 1 (third-party) | Internals of third-party packages that are on the page in dev mode but not exported from their public entry points: the `@ngrx/signals` `STATE_SOURCE` symbol (its `index.ts` exports `getState`, `patchState` and `watchState`, not `STATE_SOURCE` **[measured, `modules/signals/src/index.ts` in the local ngrx clone]**), and tokens such as Analog's `DEBUG_ROUTES` or RxAngular's `RxStrategyProvider` found by token name in provider records | yes, when the package is present, but version-fragile, with no support statement from the package |
 | 2 (stretch; WebMCP tools are called "app opt-in" in the rest of this document) | Needs the app to change: re-export internals to `globalThis`, add a provider, register WebMCP tools, or install a third-party devtools provider | no |
 
@@ -145,7 +160,7 @@ Lars's brief says: "Using internal APIs like the theta-prefixed symbols exported
 
 Tier 1 is "using internal APIs". The difference from the case the brief names is that Angular itself already publishes these functions on `window.ng` for Angular DevTools, so they need no app change and no `globalThis` export. Decision 1 in section 8 asks Lars to rule on it. **Assumption (Claude's):** Tier 1 is allowed, each use is labelled, and every Tier 1 call is feature-detected with `typeof ng[name] === 'function'`, as Angular DevTools does (`ng-debug-api.ts:24-30`). Tier 1 splits into two groups by what Angular says about them (`packages/core/src/render3/util/global_utils.ts` on the 22.2.x branch) **[measured]**:
 - **Covered by a support statement:** the nine `ɵ` functions in `ExternalCoreGlobalUtils` (lines 105-136): `ɵgetDependenciesFromInjectable`, `ɵgetInjectorProviders`, `ɵgetInjectorResolutionPath`, `ɵgetInjectorMetadata`, `ɵsetProfiler`, `ɵgetSignalGraph`, `ɵgetControlFlowBlocks`, `ɵgetTransferState`, `ɵgetComponentInstanceDeepLinkId`. The comment above that interface (lines 99-104) says any function that has ever been in it exists in long-lived public versions that DevTools must support. So these nine are more stable than ordinary `ɵ` exports **[inferred from that comment]**.
-- **No support statement:** `toggleWatchSignal` is in `InternalCoreGlobalUtils` (lines 77-97), a "beta" channel that Angular says it can change "more or less as much as we want"; the router trio is in `NonCoreGlobalUtils` (lines 72-76), with no statement; `__ngDebugHydrationInfo__`, the `ngDevMode` counters and the `devtoolstooldiscovery` tools are in none of these interfaces. Third-party Tier 1 has no statement either.
+- **No support statement:** `toggleWatchSignal` is in `InternalCoreGlobalUtils` (lines 77-97), a "beta" channel that Angular says it can change "more or less as much as we want"; the router trio is in `NonCoreGlobalUtils` (lines 72-76), with no statement; `__ngDebugHydrationInfo__`, the `ngDevMode` counters, `constructor.ɵcmp.debugInfo` and the `devtoolstooldiscovery` tools are in none of these interfaces. Third-party Tier 1 has no statement either.
 
 Decision 1 in section 8 lists what drops to Tier 2 if Lars rules Tier 1 out, and which of those features rest on the group with no support statement.
 
@@ -153,6 +168,12 @@ Two Tier 1 rules from source:
 
 - Never call `ng.ɵsetProfiler(null)`. It clears every profiler, including Angular DevTools' **[measured, `render3/profiler.ts:40-42`]**. Only add callbacks and keep the remover.
 - Token lookups (`injector.get(Router)`) are impossible from an extension, because the extension's classes are not the app's. Use the `ng` helpers that do the lookup inside the app bundle (`ɵgetRouterInstance`), injector provider records matched by token name, or duck typing **[inferred, 02 section 1.3; 04 section 0]**.
+
+Where accessibility roles and names come from (N6, N10's a11y rule, N23, and the locator suggestions in 6.3). Page JavaScript has no standard API that returns the accessibility tree **[inferred; not checked in `research/`]**. 08 names two sources:
+- Computed in the page agent from the DOM: explicit `role` and `aria-*` attributes, the implicit role of the element (for example `button`, `a[href]`, `input[type=checkbox]`), and a name from `aria-labelledby`, `aria-label`, an associated `<label>` or the text content. This is Tier 0. It is a subset of what the browser computes and can differ from it in complex cases **[inferred]**.
+- The CDP `Accessibility` domain through the `debugger` permission: the full tree as the browser computes it. The `debugger` permission is the reason N21 is left out of the Tier 0-only release (Decision 1), so the same rule applies here: the full tree is not part of any Tier 0 feature.
+
+N6, N10 and N23 use the DOM-computed roles and names and say so in their output.
 
 ---
 
@@ -196,15 +217,15 @@ Every capability is a tool with `{name, description, inputSchema, execute}`. The
 | App WebMCP tools via `document.modelContext` | whatever the app registers with `provideExperimentalWebMcpTools` or Signal Forms `experimentalWebMcpTool` | app opt-in |
 | Ecosystem adapters | NgRx, Storybook, Vitest, Analog, RxAngular (section 6) | 0 to 2 |
 
-The extension also answers `devtoolstooldiscovery` with its own tool group, so users of chrome-devtools-mcp (with `--categoryExperimentalThirdParty`) get the same Angular runtime tools in Claude Code or any MCP client, with no extra code in the extension **[03 section 3.3; inferred that both groups can coexist because the event takes one `respondWith` per listener]**.
+The extension also answers `devtoolstooldiscovery` with its own tool group, so users of chrome-devtools-mcp (with `--categoryExperimentalThirdParty`) get the same Angular runtime read tools in Claude Code or any MCP client, with no tool code beyond the one registry **[03 section 3.3; inferred that both groups can coexist because the event takes one `respondWith` per listener]**.
 
 Angular's two tools need care **[measured, 05 S2]**:
 
 - **Never run `angular:di_graph`.** On a one-component 22.2 app its output is 42,788 characters. Worse, it calls `injector.get(ViewContainerRef)` on component hosts, after which `ng.ɵgetSignalGraph` (and `angular:signal_graph`) lose the template node and every signal it reads, for the rest of the page's life. A draft upstream report is in `filing-ledger.md`. DI facts come from the `ɵ` injector functions, which read without instantiating anything.
-- `angular:signal_graph` takes `{target: HTMLElement}`, which a model cannot produce, and its description alone is 1,390 characters. The registry wraps it behind a selector or component id and a short description, or calls `ng.ɵgetSignalGraph` directly.
+- `angular:signal_graph` takes `{target: HTMLElement}`, which a model cannot produce, and its description alone is 1,390 characters. The registry wraps it behind a component id from `find_components` and a short description, or calls `ng.ɵgetSignalGraph` directly. N2's write rules always call `ng.ɵgetSignalGraph` directly, because `angular:signal_graph` strips `debuggableFn` (02 section 1.5).
 - `angular:di_graph`'s definition has an empty `properties` schema and a namespaced name (`angular:di_graph`), and neither is known to be safe on Gemma 4 (see 2.1). So even its definition is not passed through unchanged.
 
-The extension's own tool group, answered through `devtoolstooldiscovery` for chrome-devtools-mcp users, follows the same rules.
+The extension's own tool group, answered through `devtoolstooldiscovery` for chrome-devtools-mcp users, follows the same rules and holds read tools only (3.5).
 
 ### 3.3 The model loop
 
@@ -215,16 +236,19 @@ The extension's own tool group, answered through `devtoolstooldiscovery` for chr
    - Tool results are appended as text.
    - Neither the API nor `create()` tells whether tools work. Chrome 154 accepted `tools` silently and never called them **[measured, 00]**.
    - Chrome Beta defines `LanguageModelToolCall` and `LanguageModelToolSuccess` and accepts a tool session. Yet its model process crashed on tool prompts in 00's probes **[measured, 00]**. 00 blamed tools with no parameters. That cause is confounded, and the camelCase tool name alone reproduces the crash (see the quirks in 2.1) **[measured, 11]**.
-   - So run one canary round trip when the panel opens: a `ping` tool and "Call ping.". Choose native tools only if a `tool-call` part comes back and the follow-up prompt succeeds. Cache the result per browser version **[inferred design; the fallback's `responseConstraint` part is measured to work in all three browsers]**.
+   - So run a two-part startup check when the panel opens, and cache the result per browser version **[inferred design]**:
+     - Native canary: one round trip with a `ping` tool and "Call ping.". The canary follows the same name and parameter rules as every other tool (3.4, 3.6): `ping {scope: {enum: ['page']}}`, snake_case, one required parameter. Choose native tools only if a `tool-call` part comes back and the follow-up prompt succeeds.
+     - Structured-output canary: a one-step prompt under a small `responseConstraint`. If the reply is empty or is not valid JSON, mark the model unsupported, because the fallback loop cannot run on it either. Nano on the CPU backend is the measured case: its fallback failed 15 of 15 runs, 14 with empty or cut-off JSON (2.1). The extension cannot read the backend (2.1), so this check is how it finds out. One of those 15 runs returned valid JSON, so a single passing reply is not enough: repeat the canary three times and require all three **[inferred from the 14 of 15 rate]**.
+     - The fallback's `responseConstraint` part is measured to work on Gemma 4 (GPU and CPU), Aion, Phi-4-mini and Nano on GPU, and to fail on Nano on CPU **[measured, 05]**.
 
    Why `availability()` cannot decide this:
    - In Chrome 156 the tool types are gated by the Blink runtime feature `AIPromptAPIToolUse`, not by the model. With the feature off, `create()` refuses any `tool-call`/`tool-response` type with "unable to create a session". `availability()` still says `available`, because it never checks tool types, which contradicts the spec **[measured: probe matrix 05, Chromium 156.0.8078.17 source 09]**.
    - With the feature on, Gemini Nano opens tool sessions but answered with text instead of a tool call in all three tries **[measured, 05]**. In the benchmark, none of Nano's 15 native GPU runs made a tool call, so its 2 passes (after the `916fc09` regrade) were text answers that the grader accepted **[measured, `research/raw/bench/nano-gpu.json`]**. No Google source claims tool calling for Nano **[measured by search and page reads, 10]**.
    - So the loop routes per model, as in 2.1:
      - Aion: native tools.
-     - Gemma 4 and Gemini Nano: the structured-output loop. Native tools on Gemma 4 only after S4 improves argument accuracy.
+     - Gemma 4 and Gemini Nano: the structured-output loop. Native tools on Gemma 4 only after S4 improves tool choice and argument accuracy. Nano on the CPU backend fails the structured-output canary and is unsupported.
      - Phi-4-mini: the fallback loop only.
-   - Microsoft documents Aion 1.0 Instruct as a text model; no source describes Aion-1.1-Instruct, the version Edge Dev 157 serves. Its tool calls come from Edge's runtime workaround (`msEdgeLLMOnDeviceModelMuffinToolUseWorkaround`), so they can change with an Edge update **[documented, 10; the link between the workaround and Aion is inferred]**.
+   - Microsoft documents Aion 1.0 Instruct as a text model; no source describes Aion-1.1-Instruct, the version Edge Dev 157 serves. Its tool calls come from Edge's runtime workaround (`msEdgeLLMOnDeviceModelMuffinToolUseWorkaround`), so they can change with an Edge update **[documented, 10; the link between the workaround and Aion measured, 00: the flag's description in Edge Dev 157 names "the on-device Aion model family"]**.
 4. **Answer rendering.** Answers show the tool walkthrough (each call, its arguments, a short result, a Reveal link to the element, the component in the tree, or the source), as Chrome DevTools AI assistance does **[documented, 03 section 3.1]**. The walkthrough is what makes a small model's answer checkable.
 5. **Context budget.** Track `contextUsage`; on `contextoverflow`, summarize the conversation with the Summarizer API (available in both browsers **[measured, 00]**) into a new session's initial prompts.
 
@@ -232,25 +256,25 @@ The extension's own tool group, answered through `devtoolstooldiscovery` for chr
 
 Designed after Pangular's agent tools and React DevTools' lazy detail protocol **[measured for Pangular, documented for React DevTools, 03 sections 1.5 and 2.2]**: a small tree with ids, details on demand, hard output caps with "N more, narrow with X" messages, and stable ids from a `WeakMap`.
 
-**Tools take ids, not selectors.** `find_components` returns short ids (`c3`), and every other tool takes `{id}`. In the benchmark, bad arguments (an invented CSS selector, or a signal name in the selector field) caused 3 of Aion's 4 fallback failures, 6 of Phi-4-mini's 8 fallback failures and 2 of Gemma 4 GPU's 7 native failures. Ids remove that class of failure. A second class, choosing the wrong tool or stopping after one call without an answer, caused 4 of those 7 Gemma 4 GPU failures and 3 of Gemma 4 CPU's 6 native failures. Ids do not address it; S4 does **[measured, counted from `research/raw/bench/*.json`]**.
+**Tools take ids, not selectors.** `find_components` returns short ids (`c3`), and every other tool takes `{id}`. In the benchmark, bad arguments (an invented CSS selector, a signal name in the selector field, or a wrong signal name) caused 3 of Aion's 4 fallback failures, 3 of Phi-4-mini's 8 fallback failures, 2 of Gemma 4 GPU's 2 fallback failures, 3 of Nano GPU's 4 fallback failures, 2 of Gemma 4 GPU's 7 native failures and 3 of Gemma 4 CPU's 6 native failures (2 of them invalid selectors that made the harness throw). Ids remove the selector part of that class; signal names are checked against `list_signals` (below). A second class, choosing the wrong tool or stopping after one call without an answer, caused 4 of those 7 Gemma 4 GPU failures, the other 3 of Gemma 4 CPU's 6 native failures and 3 of Phi-4-mini's 8 fallback failures. Ids do not address it; S4 does **[measured, counted from `research/raw/bench/*.json`; table and counting rule in 2.1]**.
 
-The names in the table are the names the model receives. They follow the rules in 3.6: snake_case, at least one required parameter (tools with nothing to ask take `scope: {enum: ['page']}`), and no free-text arguments. Arguments that name something take a value that a list tool returned: `id` comes from `find_components`, `signal` is a signal label from `list_signals`, `token` is a token name from `di_path`, `field` is the name of a writable signal (from `list_signals`, kind writable) or a plain field (from `inspect_component`). Tools are fixed at `create()` (07 section 2), so where the set of values is known when the session is created (component names, rule ids), the argument is an `enum`. Where it is not (the signal labels of a component found later), the argument is a string that the tool checks against the list tool's output, and a miss returns the error template with up to 10 valid values (3.6). Aion probably does not enforce `enum`s (inferred in 3.6), so that check runs on every model **[inferred design]**.
+The names in the table are the names the model receives. They follow the rules in 3.6: snake_case, at least one required parameter (tools with nothing to ask take `scope: {enum: ['page']}`), no optional parameters, and no free-text arguments. `set_writable_field.value` is the one argument whose content the model writes; the tool checks it against the field's current type (table) **[inferred design]**. Arguments that name something take a value that a list tool returned: `id` comes from `find_components`, `signal` is a signal label from `list_signals`, `token` is a token name from `di_path`, `field` is the name of a writable signal (from `list_signals`, kind writable) or a plain field (from `inspect_component`). Tools are fixed at `create()` (07 section 2), so where the set of values is known when the session is created (component names, rule ids), the argument is an `enum`. Where it is not (the signal labels of a component found later), the argument is a string that the tool checks against the list tool's output, and a miss returns the error template with up to 10 valid values (3.6). Aion probably does not enforce `enum`s (inferred in 3.6), so that check runs on every model **[inferred design]**.
 
 **Tools answer the narrow question; the page agent does the walking.** In S2, given the raw signal graph (nodes plus edges by index), Aion named the wrong dependencies for `double` and Gemma 4 named the right ones. In the earlier two-tool probe it was the other way round **[measured, 00 and 05]**. Neither 2B-class model reads index-linked structures reliably, so no tool returns one.
 
 | Tool | Input | Returns (capped) | Backing API | Tier |
 |---|---|---|---|---|
-| `find_components` | `{scope: page\|selected, name?}` (`name`: enum of the component class names on the page) | up to 15 `{id, name, selector, hostPath, text}` (`text`: the host's first 80 visible characters, for the model to rank against the question) | DOM walk + `ng.getComponent`, `[ng-version]` roots | 0 |
+| `find_components` | `{scope: page\|selected, name}` (`name`: enum of the component class names on the page, plus `any`) | up to 15 `{id, name, selector, hostPath, text}` (`text`: the host's first 80 visible characters, for the model to rank against the question) | DOM walk + `ng.getComponent`, `[ng-version]` roots | 0 |
 | `inspect_component` | `{id}` | inputs (signals unwrapped), outputs with listened flag, plain fields, CD strategy, encapsulation, owner | `getComponent`, `getDirectiveMetadata`, `getListeners`, `getOwningComponent`, `isSignal` | 0 |
 | `component_listeners` | `{id}` | template and host listeners, output subscriptions | `ng.getListeners` (unused by Angular DevTools) | 0 |
-| `set_writable_field` | `{id, field, value}` | new value, re-render done. Writable signals and plain fields only: a signal input (`input()`, the 22.x default) is a read-only signal, and Angular DevTools refuses to write one too ("Cannot mutate a readonly signal", `property-mutation.ts:93-99`) **[measured]**. Setting a signal input needs internals and is not offered | plain field write or `.set()` on a writable signal, then `ng.applyChanges` | 0, write |
+| `set_writable_field` | `{id, field, value}` (`value`: a string that the tool parses against the type of the field's current value, as read by `inspect_component`; a value that does not parse to that type is refused with the error template) | new value, re-render done. Writable signals and plain fields only: a signal input (`input()`, the 22.x default) is a read-only signal, and Angular DevTools refuses to write one too ("Cannot mutate a readonly signal", `property-mutation.ts:93-99`) **[measured]**. Setting a signal input needs internals and is not offered | plain field write or `.set()` on a writable signal, then `ng.applyChanges` | 0, write |
 | `signal_dependencies` | `{id, signal}` | the named signal's value and its direct producers by label, e.g. `{"double": 6, "dependsOn": ["count"]}` | `ng.ɵgetSignalGraph`, walked in the page agent | 1 |
 | `signal_trace` | `{id, signal}` | producer chain back to writable sources, one line per hop | graph walk over the above | 1 |
 | `list_signals` | `{id}` | labels, kinds and short values of the component's signals, without edges | `ng.ɵgetSignalGraph` | 1 |
 | `di_path` | `{id}` | resolution path with injector kind and source, and the token names provided on it | `ɵgetInjectorResolutionPath`, `ɵgetInjectorMetadata` | 1 |
 | `di_lookup` | `{id, token}` | where `token` resolves, or why not | `ɵgetInjectorProviders` over the path, `ɵgetDependenciesFromInjectable` | 1 |
 | `cd_record` | `{action: start\|stop}` | per-cycle summary: trigger, components checked, time | `ng.ɵsetProfiler` (add only) | 1 |
-| `defer_blocks` | `{scope: page, id?}` (`id` narrows to one component) | state, triggers, hydration state, timings | `ng.ɵgetControlFlowBlocks` | 1 |
+| `defer_blocks` | `{id}` (`id`: a component id, or `all` for the whole page) | state, triggers, hydration state, timings | `ng.ɵgetControlFlowBlocks` | 1 |
 | `hydration_status` | `{scope: page}` | counters, mismatches with expected vs actual node | `__ngDebugHydrationInfo__`, `ngDevMode` counters | 1 |
 | `router_state` | `{scope: page}` | URL, active route chain, params, guards, last navigation events | `ng.ɵgetRouterInstance` (only `provideRouter` apps) | 1 |
 | `page_snapshot` | `{id}` | image of the component's host box | `chrome.tabs.captureVisibleTab` cropped to `getBoundingClientRect` | 0 (a browser API) |
@@ -262,8 +286,9 @@ Every tool result that contains page text starts with Pangular's notice: page va
 
 - Reads run without asking. Writes (`set_writable_field`, navigate, dispatch, form fill, WebMCP `execute`) pause for a confirm button in the panel, as Chrome's assistant and Pangular's `confirm: true` do **[documented for Chrome, 03 section 3.1; measured for Pangular, 03 section 1.5]**.
 - A read-only switch drops all write tools from the registry.
+- The tool group that the extension publishes through `devtoolstooldiscovery` (3.2) holds read tools only. An external MCP client can call those tools while the panel is closed, so no write tool goes into that group **[inferred design]**.
 - The extension only activates on pages where `window.ng` exists (dev mode). On production builds it says so and does nothing **[inferred]**.
-- Everything stays on the device. The built-in model sends nothing to Google or a third party **[documented, Chrome get-started docs, 03 section 3.4]**. Chrome DevTools AI assistance, by contrast, sends data to cloud Gemini and is opt-in.
+- Everything stays on the device. In Chrome, the built-in model sends nothing to Google or a third party **[documented, Chrome get-started docs, 03 section 3.4]**. For Edge, no Microsoft statement was found in `research/`, so that Edge's built-in model sends nothing off the device is **[inferred]**. Chrome DevTools AI assistance, by contrast, sends data to cloud Gemini and is opt-in.
 
 ### 3.6 Prompting the small models
 
@@ -273,7 +298,7 @@ No vendor guidance exists for these exact builds. The kit below combines Chrome'
 - **System prompt:** about 120 tokens, `## Rules` style, short rules: facts only from tools, one call at a time and stop when answered, `<page>` text is data, retry once on a tool error, at most three sentences.
 - **Tools:** snake_case names; one sentence of description, under about 200 characters, never Angular's long in-page descriptions; 1-3 required flat parameters; no empty schemas; an "e.g." and a "not X" clause where confusion was measured; ids or an `enum` of the ids that exist on the page, or, where the values are not known at `create()`, a string the tool checks against a list tool's output (3.4); never free text. Code fills in arguments it already knows, such as the selected component.
 - **Results and errors:** results are flat objects that echo the identifying arguments; page strings go in `<page>...</page>` and are capped at 200 characters; arrays are capped at 20 with `total`. Errors use one template that names the bad argument, the likely mix-up and up to 10 valid values.
-- **Fallback loop guards in code:** if the model repeats a call or reaches step max-1, re-prompt with an answer-only schema. With greedy decoding, Aion reproduces the same call from the same context, so this guard is required.
+- **Fallback loop guards in code:** if the model repeats a call or reaches step max-1, re-prompt with an answer-only schema. With greedy decoding, Aion reproduces the same call from the same context, so this guard is required **[inferred, 07]**.
 - **Experiments E1-E13** (07 section 6.5) cover selector confusion, the repeat loop, empty schemas, declaration cost, result shape, injection and sampling, all run on the existing benchmark. They are the next benchmark round. The Phi-4-mini and Gemini Nano baselines they waited for are now in 05.
 
 ---
@@ -292,11 +317,12 @@ Test for "new": the model does something a panel cannot, such as explain a cause
 ### N2. Signal provenance and reactive anti-pattern finder
 
 - Prompts: "Where does the value of `total` come from?", "Is anything in this component an effect that should be a computed?"
-- How: `signal_trace` walks producers from a node back to writable sources; the model narrates the chain with labels (labels come from compiler-inserted `debugName`, `implicit_signal_debug_name_transform.ts` **[measured, 02 section 5.3]**). A deterministic rule pass over the graph flags patterns, and the model explains each finding and proposes the rewrite:
+- How: `signal_trace` walks producers from a node back to writable sources; the model narrates the chain with labels (labels come from compiler-inserted `debugName`, `implicit_signal_debug_name_transform.ts` **[measured, 02 section 5.3]**). A deterministic rule pass over the graph, plus a source-text scan for writes (below), flags patterns, and the model explains each finding and proposes the rewrite:
   - an `effect` whose only job is to write another signal (prefer `computed` or `linkedSignal`);
   - a cycle or an effect that writes a signal it reads (possible loop);
   - a `resource` whose params read a signal that changes per keystroke (the `design-patterns.md` advice on separate input and submitted signals, `design-patterns.md:5-39` **[measured]**);
-  - unlabeled nodes (suggest a `debugName`, Solid devtools idea **[documented, 03 section 4.6]**).
+  - unlabeled nodes (suggest a `debugName`, Solid devtools idea **[documented, 03 section 4.6]**). Effect nodes have an empty label too (05), so this rule skips effects, and findings name an effect by its owning component and its source text.
+- How the write rules see writes: the signal graph alone cannot see them. `ng.ɵgetSignalGraph` has read edges only, and a signal that nothing reads is not a node. On `spikes/ng222-app` the effect that writes `lastLogged` appears only as `effect -> signal:count` **[measured, `spikes/probes/effect-writes.js`, `9959d32`, 05]**. The profiler events include no effect runs either **[measured in source, 05]**. The route that works: each effect node keeps `debuggableFn`, and its source text there is `() => this.lastLogged.set(this.count())`, in which a scan for `.<name>.set(` and `.<name>.update(` found `lastLogged.set` **[measured, same probe]**. The scan reads `ng.ɵgetSignalGraph` directly, because `angular:signal_graph` strips `debuggableFn`, and it needs Angular 22.1.3 or later, when non-computed nodes got the field (02). It is a heuristic **[inferred]**: writes made through a called method or another object, writes without `this.`, and minified code were not tested and can be missed. Findings from these two rules say so.
 - Rule detection is code; the model only explains and drafts the fix. That keeps findings deterministic while the prose adapts to the code **[inferred design choice]**.
 - Tier 1. Prompt API with tools and structured output (findings schema: rule, node, severity, fix).
 
@@ -311,7 +337,7 @@ Test for "new": the model does something a panel cannot, such as explain a cause
 
 - Trigger: an uncaught error or `console.error` containing `NG0` / `NG0xxxx` codes, or a click on "Explain" in the panel's error list.
 - How: the page agent hooks `window.onerror`, `unhandledrejection` and `console.error`, keeps the stack and the element if the error carries one, and maps it to a component with `ng.getOwningComponent`. The model gets: error code, message, the component's inputs and listeners, and the matching entry from a bundled offline digest of `angular.dev/errors` (shipped with the extension, no network). It answers "what happened, in this component, and the likely fix."
-- Adds over Chrome Console Insights: on-device, works for local pages without opting in, and knows Angular error codes and component context **[documented, 03 section 3]**.
+- Adds over Chrome Console Insights: Console Insights' full explanation runs on cloud Gemini under opt-in **[documented, 03 section 3]**; its short "teasers" already run on-device through the Prompt API (`BuiltInAi.ts`) **[measured, 01]**. N4 adds Angular error codes, the owning component and its inputs and listeners, and a full explanation on-device.
 - Tier 0. Prompt API with tools; Summarizer for long stacks.
 
 ### N5. Hydration and `@defer` doctor
@@ -324,16 +350,16 @@ Test for "new": the model does something a panel cannot, such as explain a cause
 ### N6. Capture-to-test: a Vitest Browser Mode spec from live state
 
 - Prompt: "Write a test for this component as it is now."
-- How: capture the selected component's class name, inputs (current values), DOM listeners and outputs, the accessible tree of its host (roles and names), and optionally a short interaction recording (clicks, input events, resulting input/DOM changes). A deterministic template produces a `vitest-browser-angular` spec (`render(Component, {inputs})`, `page.getByRole(...)` queries, `expect.element(...)` assertions) **[render API measured in 04 section 4]**. The model fills only the parts that need judgment: test names, which assertions matter, which recorded steps are noise. Structured output keeps it to a schema `{tests: [{name, steps, assertions}]}`.
+- How: capture the selected component's class name, inputs (current values), DOM listeners and outputs, the roles and names of its host and children (computed from the DOM, 2.2), and optionally a short interaction recording (clicks, input events, resulting input/DOM changes). A deterministic template produces a `vitest-browser-angular` spec (`render(Component, {inputs})`, `page.getByRole(...)` queries, `expect.element(...)` assertions) **[render API measured in 04 section 4]**. The model fills only the parts that need judgment: test names, which assertions matter, which recorded steps are noise. Structured output keeps it to a schema `{tests: [{name, steps, assertions}]}`.
 - Delivery without a repo bridge: copy, download, or a File System Access directory handle the developer picks. With the Angular CLI MCP server or a coding agent, "Copy to coding agent" hands over the spec plus the file path **[inferred design; Vitest facts measured, 04 section 4]**.
-- Lars's testing position applies: assertions are on the rendered DOM, not on instance fields; no jsdom **[documented, lars-frontend-dev testing reference]**.
+- Lars's testing position applies: assertions are on the rendered DOM, not on instance fields; no jsdom.
 - Tier 0. Prompt API with structured output; Writer for test names is optional.
 
 ### N7. Interaction story and bug report
 
 - Prompt: "Turn what I just did into a bug report."
 - How: a recorder in the page agent logs user events with the target component, the CD cycles they caused (N1 data), signal value changes on watched nodes, router navigations, console errors and network failures. The model writes "steps to reproduce, expected, actual" with component names, and the Writer API adapts tone and length **[Writer available in both browsers, measured, 00]**. The same recording can feed N6 (test) or a Storybook story (section 5.3).
-- Tier 0 for events and errors, Tier 1 for CD and signals.
+- Tier 0 for events, errors and router navigations (the Navigation API's `navigate` events **[inferred, not run]**; router events through `ɵgetRouterInstance` are Tier 1, `provideRouter` only), Tier 1 for CD and signals.
 
 ### N8. Visual question answering
 
@@ -346,7 +372,7 @@ Test for "new": the model does something a panel cannot, such as explain a cause
 
 - Prompt: "Can an agent use my app's tools to add an item to the cart?"
 - How: when the page exposes `document.modelContext` (flag `enable-webmcp-testing`, active in Chrome Beta and Edge Dev after a relaunch; `document.modelContext` exposes `registerTool`, `getTools`, `executeTool` and `toolchange`/`toolactivated`/`toolcancel` events **[measured, 00]**), the extension lists the app's tools (Chrome documents `getTools()` / `executeTool()` for extensions **[documented, 01]**) and runs the on-device model as the agent against them. It reports where the model failed: an unclear description, a schema that allows bad input, a form tool blocked by a field the model cannot fill, a missing `readOnlyHint` on a read. A small model failing is a useful signal: a cloud agent will do better, but the same descriptions confuse it too **[inferred]**.
-- Fallback when the browser has no `document.modelContext`: a MAIN-world shim at `document_start` that provides `registerTool`, so Angular's `declareExperimentalWebMcpTool` registers into the extension (Angular registers only if `registerTool` exists, `declare_tool.ts:35-46` **[measured]**). The shim must step aside when a native implementation is present.
+- Fallback when the browser has no `document.modelContext`: a MAIN-world shim at `document_start` that provides `registerTool`, so Angular's `declareExperimentalWebMcpTool` registers into the extension (Angular registers only if `registerTool` exists, `declare_tool.ts:35-46` **[measured]**). The shim must not install itself when a native implementation is present.
 - Tier: app opt-in (the app must use `provideExperimentalWebMcpTools` or Signal Forms `experimentalWebMcpTool`). Pangular shows WebMCP form tools but does not test them with a model **[measured, 03 section 1.5]**.
 
 ### N10. Runtime lint, explained
@@ -357,7 +383,7 @@ Test for "new": the model does something a panel cannot, such as explain a cause
   - outputs with no listener (`getListeners`), inputs never set;
   - `@for` blocks whose `trackExpression` is the item itself on object items (`ɵgetControlFlowBlocks` returns `trackExpression`);
   - Zone.js loaded in a zoneless app (`mark_feature_usage` says `NgZoneless` while `typeof Zone` is defined, the case Angular warns about in `zoneless_scheduling_impl.ts:360-388`);
-  - a11y basics on interactive component hosts (role, name, keyboard reachability) from the accessibility tree.
+  - a11y basics on interactive component hosts (role, name, keyboard reachability), from the roles and names the page agent computes from the DOM (2.2).
 - Rule source: the official `angular/skills` repo (`angular-developer` skill, about 34 rules; 11 checkable at runtime, 14 partly, 9 source-only **[counted; classification inferred, 06]**). Its whole reference set is about 34K tokens, so it cannot sit in a 7-9K window. The extension ships a rules table `{id, check, message, fix}` with fix text taken from the skill, and a `get_rule {id}` tool that returns one rule in at most 150 tokens when the model explains a finding **[measured byte count, 06; token sizes estimated at 4 characters per token]**. The skills declare `license: MIT` in their frontmatter (no LICENSE file in the repo), so bundled text keeps the MIT notice and Google's copyright line **[measured, 06; not legal advice]**.
 - Tier 0 and 1. Prompt API with structured output (finding schema), then explanation.
 
@@ -379,9 +405,9 @@ Test for "new": the model does something a panel cannot, such as explain a cause
 - Every answer gets a "Copy for coding agent" action: the question, the tool walkthrough, the facts, and the component source location.
 - The location comes from one of two places:
   - `constructor.ɵcmp.debugInfo`, which gives file and line and is what Pangular uses **[measured, 03 section 1.4]**. It is weaker than the Tier 1 functions with a support statement (2.2). It is a field on the compiled class, not a function on `ng`, so the "stays supported for DevTools" comment in `global_utils.ts` does not cover it.
-  - The Sources panel lookup that Angular DevTools does with `inspect()`.
+  - The Sources panel lookup that Angular DevTools does with `inspect()` on the constructor, through `chrome.devtools.inspectedWindow.eval` (Tier 0, 02 sections 2.2 and 3). It opens the source in the Sources panel; whether it can also give file and line as text was not checked.
 - Paste the result into Claude Code or any agent that has the Angular CLI MCP server. The extension covers live state, and the CLI MCP server covers code and build. None of the CLI's tools inspects the running page **[inferred, 02 section 4.6, from the tool list read on the CLI's `22.0.x` branch; the 22.2 list may differ]**.
-- Tier 0 plus Tier 1 for file and line.
+- Tier 0 plus Tier 1 for file and line from `ɵcmp.debugInfo`. If Tier 1 is ruled out, the location is reached through the `inspect()` route instead.
 
 ### N14-N23. Features inspired by recent Angular releases (20.0-22.2)
 
@@ -390,15 +416,15 @@ Taken from `research/08-recent-angular-features.md`, which sources each one in t
 | # | Feature and example prompt | What the model adds | Data, tier | Min Angular, status |
 |---|---|---|---|---|
 | N14 | **Resource lifecycle explainer**: "Why is this spinner still spinning?" | A timeline of `Resource#<name>.state` transitions joined with request timing, explained as a cause | `Resource#...` signal-graph nodes sampled per CD cycle, `PerformanceResourceTiming`; tier 1 | 22.0, stable (`debounced` experimental) |
-| N15 | **Signal Forms doctor**: "Why can't I submit?" | Ties field state (errors, pending async validators, disabled) to the question; names the blocking field | `ng.getDirectives(el)` -> `FormField.state()`; tier 0; **spike: read from MAIN world** | 22.0 (21.0 experimental) |
-| N16 | **Error boundary inspector**: "Why does this page show a fallback?" | Says which `@boundary` caught what, from which component, with what input; offers `$reset` behind a confirm | `NgBoundary` mark, `ng.getContext` inside `@error` views for `{$error, $reset}`, the console hook; tier 0 only if the **spike** confirms this route, because `ng` has no boundary API (section 1) | 22.2, developer preview |
+| N15 | **Signal Forms doctor**: "Why can't I submit?" | Ties field state (errors, pending async validators, disabled) to the question; names the blocking field | `ng.getDirectives(el)` -> `FormField.state()`; tier 0; **spike S9: read from MAIN world** | 22.0 (21.0 experimental) |
+| N16 | **Error boundary inspector**: "Why does this page show a fallback?" | Says which `@boundary` caught what, from which component, with what input; offers `$reset` behind a confirm | `NgBoundary` mark, `ng.getContext` inside `@error` views for `{$error, $reset}`, the console hook; tier 0 only if **spike S10** confirms this route, because `ng` has no boundary API (section 1) | 22.2, developer preview |
 | N17 | **Navigation blocking explainer**: "Why does /orders/42 take 3 s?" | Names the router resource that holds the navigation and judges whether it should block | `ng.ɵgetRouterInstance` -> `Route.resources`, `ActivatedRoute.resources`, router events; tier 1, `provideRouter` only | 22.2, developer preview |
 | N18 | **Feature fingerprint**: opens every chat | Picks the tool groups for the session from the features the app uses, saving context; shows a context chip | about 20 `mark_feature_usage` names (`NgSignalForms`, `NgBoundary`, `NgDefer`, ...), `[ng-version]`; tier 0 | per mark |
 | N19 | **Linked state reset explainer**: "Why did my selection reset?" | Explains a `linkedSignal` recompute over time and when a manual `set` was dropped | `linkedSignal` graph nodes, epochs per cycle, `toggleWatchSignal`; tier 1 | 20.0 (22.1 for the custom `set` advice) |
 | N20 | **Render-phase effect checker** | Flags an `afterRenderEffect` write phase that schedules another CD pass every frame | `afterRenderEffectPhase` graph nodes, profiler `AfterRender*` events; tier 1 | 20.0 (labels 22.2.1) |
 | N21 | **Performance recording narrator** | Turns a Performance-panel recording into a summary with component names and links | `ng.enableProfiling()` plus a CDP trace via the `debugger` permission (the tracks are `console.timeStamp`, not readable from the page); tier 0 | 21.0 (deep links 22.1) |
 | N22 | **Stability explainer**: "Why does my app never become stable?" | Lists the open pending tasks with their sources | console output of `provideStabilityDebugging()`; **tier 2** (one app provider); fallback from N14 and the profiler | 21.1 |
-| N23 | **Angular Aria pattern checker** | Judges each Aria pattern (tabs, menus, listbox) against its rules, with a keyboard probe | Aria directive instances via `ng.getDirectives`, accessibility tree; tier 0 | 22.0 |
+| N23 | **Angular Aria pattern checker** | Judges each Aria pattern (tabs, menus, listbox) against its rules, with a keyboard probe | Aria directive instances via `ng.getDirectives`, roles and names computed from the DOM (2.2); tier 0. The full accessibility tree needs the `debugger` permission, as N21 does | 22.0 |
 
 Prior art for N14, N15 and N17 **[measured, 03 sections 1.3 and 1.5]**:
 - N14: Pangular's signal view folds each resource into one card with its status history.
@@ -412,7 +438,7 @@ Extensions of earlier proposals (ids from 08 section 4.2):
 | Id | Extends | Change | Tier | Min |
 |---|---|---|---|---|
 | EXT1 | N10 | OnPush readiness: for each `Eager` component, check whether everything its template reads is a signal or an input, then say whether `Eager` can go | 1 (`ɵgetSignalGraph`) | 22.0 |
-| EXT2 | N4 | `NG0600` messages name the signal and component since 22.2.1, so the explainer jumps straight to the node | 0 | 22.2.1 |
+| EXT2 | N4 | `NG0600` messages name the signal and component since 22.2.1, so the explainer goes directly to the node | 0 | 22.2.1 |
 | EXT3 | N5 | Knows the 22.x `@defer` triggers: idle timeouts, viewport options; incremental hydration is the default | 1 (`ɵgetControlFlowBlocks`) | 22.0 |
 | EXT4 | N9 | Flags WebMCP read tools without `readOnlyHint` (annotations added in 22.2) | app opt-in | 22.2 |
 | EXT5 | N2 | Unlabelled signal nodes from Signal Forms are expected; label them by their `[formField]` element instead of suggesting a `debugName` | 1 (`ɵgetSignalGraph`) | 22.0 |
@@ -462,7 +488,7 @@ Detection is by global, URL, DOM marker, directive class name, or token name in 
 
 ### 6.2 Storybook (Angular)
 
-- Detection: in the preview iframe, `window.__STORYBOOK_PREVIEW__` (`PreviewWeb.tsx:19` **[measured]**); the story index at `/index.json`; Storybook MCP at `/mcp` when `@storybook/addon-mcp` is added **[documented]**. Inside the iframe the story renders a normal Angular app, so every `ng.*` tool works **[inferred]**.
+- Detection: in the preview iframe, `window.__STORYBOOK_PREVIEW__` (`PreviewWeb.tsx:19` **[measured]**); the story index at `/index.json` **[inferred, 04]**; Storybook MCP at `/mcp` when `@storybook/addon-mcp` is added **[documented]**. Inside the iframe the story renders a normal Angular app, so every `ng.*` tool works **[inferred]**.
 - Features:
   - "Write a story for this": from a component selected in the running app, generate CSF with the live input values as `args` (pairs with N6's capture).
   - "Story gap finder": components rendered in the app that have no story, by comparing the component walk with the story index.
@@ -475,13 +501,13 @@ Detection is by global, URL, DOM marker, directive class name, or token name in 
 - Features:
   - N6 targets `vitest-browser-angular` specs.
   - Failure explainer: when a test page is open, inspect the component under test in the tester iframe with the same `ng.*` tools and explain the failed assertion against live DOM and state.
-  - Locator suggestions from the real accessibility tree (role and name queries instead of CSS).
+  - Locator suggestions from roles and names (role and name queries instead of CSS), with the same source and limits as in 2.2.
 - Caution: `window.VITEST_API_TOKEN` is readable in the page; attaching to Vitest's RPC with it crosses a trust boundary and stays out of scope **[token measured, 04 section 4]**.
 
 ### 6.4 Analog.js
 
 - Detection: Vite client URLs, `/@ng/component?c=` HMR requests, server function calls to `/_analog/fn/:id`, page endpoints under `/_analog/pages/` **[measured, 04 section 2]**.
-- Features: "route doctor" that explains why a URL 404s or which layout wraps a page, using the router state plus the file-route table from the root-provided `DEBUG_ROUTES` token (found by token name in provider records; `withDebugRoutes()` makes it visible without that lookup); "slow page" tracing from a page to its server function calls via network timing.
+- Features: "route doctor" that explains why a URL 404s or which layout wraps a page, using the router state plus the file-route table from the root-provided `DEBUG_ROUTES` token (found by token name in provider records; `withDebugRoutes()` makes it visible without that lookup) **[inferred, 04 section 2]**. The lookup may find nothing unless the app uses `withDebugRoutes()`: a root-provided token may get an injector record only when something first injects it, and `withDebugRoutes()` does **[inferred from Angular DI, not measured; spike S12]**. "Slow page" tracing from a page to its server function calls via network timing.
 - Tier 0 for network patterns; Tier 1 (third-party) for the `DEBUG_ROUTES` lookup by token name, which reads Analog's internal token through `ɵgetInjectorProviders`; opt-in for `withDebugRoutes()`.
 
 ### 6.5 RxAngular
@@ -501,11 +527,15 @@ Each spike is the smallest isolated thing that settles one unknown. S1 blocked e
 | S1 | ~~Can the extension use `LanguageModel` from each of its contexts?~~ **Done (11):** seven of eight contexts complete `create()` plus a tool round trip in both browsers (phase 2). The `devtools_page` throws `NotAllowedError`. | `spikes/s1-extension`, loaded over CDP `Extensions.loadUnpacked` | done |
 | S2 | ~~Does dispatching `devtoolstooldiscovery` return Angular's tool group on a real 22.2 app?~~ **Done (05):** yes, from the page's main world. It also turned up the `di_graph` side effect and the raw-graph reading errors. The repeat from an actual MAIN-world content script is open as S8; S1 did not dispatch the event. | `spikes/ng222-app` | done |
 | S3 | How many tools and how much tool output fit in Aion's 7,168 tokens and Gemma 4's window before answers degrade? Partly done (05): component and signal-graph sizes on the portal, and the benchmark with three tools. The tool-count question is still open. | Run 20 scripted questions against 5, 10 and 15 tools on a sample app; log `contextUsage` and correctness | A tool-count and output-cap budget per model |
-| S4 | Answer quality per model. Partly done (05): the benchmark with three tools. Gemma 4 2B misread a tool result where Aion did not, in one run. In S1 phase 2, Aion picked the wrong tool in all seven contexts and reported 42 as the count input (11). That run differed from 00's earlier correct Aion run (`probe5.js`/`probe6.js`) in three ways: the system prompt, the tool result shape, and the tool names (snake_case in S1, camelCase in 00) **[inferred as the likely causes, not isolated, 11]**. The snake_case rule that this document sets for every model is therefore one of the candidates | The S3 question set, scored per model, with tool results as compact JSON vs short prose, and on Aion with snake_case against camelCase names | A per-model choice of result format, whether Gemma 4 needs a "quote the tool result" instruction, and whether the snake_case rule holds on Aion |
+| S4 | Answer quality per model. Partly done (05): the benchmark with three tools. Gemma 4 2B misread a tool result where Aion did not, in one run. In S1 phase 2, Aion picked the wrong tool in all seven contexts and reported 42 as the count input (11). That run differed from 00's earlier correct Aion run (`probe5.js`/`probe6.js`) in three ways: the system prompt, the tool result shape, and the tool names (snake_case in S1, camelCase in 00) **[inferred as the likely causes, not isolated, 11]**. The snake_case rule that this document sets for every model is therefore one of the candidates | The S3 question set, scored per model, with tool results as compact JSON vs short prose, and on Aion with snake_case against camelCase names | A per-model choice of result format, whether Gemma 4 needs a "quote the tool result" instruction, whether the snake_case rule holds on Aion, and Gemma 4's native tool-choice accuracy (right tool, and a follow-up call where one is needed) and argument accuracy, scored per run as in 2.1 |
 | S5 | Image input on Aion and Gemma 4 | One `expectedInputs: [{type:'image'}]` prompt with a cropped tab capture | Works or not, per browser |
 | S6 | Redux DevTools shim coexisting with the real Redux DevTools extension, and whether the shim receives `withDevtools` traffic from the ngrx-toolkit, which activates only after the "NgRx Signal Store" tab is opened (04 section 1.2) | NgRx sample app with both installed, plus a SignalStore with `withDevtools` | Both receive actions; the shim receives `withDevtools` actions, or the step that makes it is known |
-| S7 | Does `promptStreaming()` work on a Gemma 4 tool session once the tool response has been sent? The only test streamed after an unanswered tool call (2.1) | `probe9.js` changed to send the `tool-response` before streaming, plus a stream from a clone of the tool-free base session | Streaming works or fails on each, per model |
+| S7 | Does `promptStreaming()` work on a Gemma 4 tool session once the tool response has been sent? The only test streamed after an unanswered tool call (2.1) | `probe9.js` changed to send the `tool-response` before streaming, plus a stream from a clone of the tool-free base session with the tool results appended as text | Streaming works or fails on each, per model, and the `contextUsage` of the answer clone with the appended results is logged against streaming on the tool session itself |
 | S8 | Does dispatching `devtoolstooldiscovery` from the extension's MAIN-world content script return Angular's tool group? S2 ran it from the page's main world only | `spikes/s1-extension` content script against `spikes/ng222-app` | The two tools come back, or the failure is known |
+| S9 | Can a MAIN-world script read Signal Forms field state (N15)? 08 names it as one of two claims to spike first | A Signal Forms form added to `spikes/ng222-app`; from the page's main world, `ng.getDirectives(el)` on a `[formField]` element, then `FormField.state()` | Errors, pending and disabled state come back for one field, or the failure is known |
+| S10 | Does the N16 route reach an error boundary's state with Tier 0 calls? 08 names it as the second claim to spike first | An `@boundary` whose content throws, added to `spikes/ng222-app`; `ng.getContext` on a node inside the `@error` view, plus the `NgBoundary` mark | `{$error, $reset}` comes back, and `$reset` resets the block behind a confirm, or the failure is known |
+| S11 | Is it the camelCase tool name or the empty `properties` schema that crashes Gemma 4 (2.1)? | `spikes/probes/tool-name-matrix.js`, run again on the Gemma 4 instance after the low-memory shutdown stopped it; waiting on Lars to restart it | Each of its five variants (snake_case with and without a parameter, camelCase, lowercase without separators, snake_case with a capital) passes or crashes, which separates case, underscores and the empty schema |
+| S12 | Does the Analog `DEBUG_ROUTES` lookup by token name find the token without `withDebugRoutes()` (6.4)? | One run on an Analog app that does not call `withDebugRoutes()`: does `ng.ɵgetInjectorProviders(<root environment injector>)` list `DEBUG_ROUTES`? | Listed or not listed |
 
 The spikes run in the per-model browser instances: one browser process per model, each with its own profile on D: under `.browsers/` and its own debugging port:
 - Chrome Beta with Gemini Nano (9333) and with Gemma 4 (9334), and Edge Dev with Aion (9335) (00, "Per-model instances");
@@ -523,17 +553,18 @@ These are open; Claude applied the default shown so the design could proceed.
    - If Lars rules Tier 1 out, these need an app-side re-export (Tier 2):
      - N1, N2, N5, N14, N17, N19 and N20.
      - N3, except the `getInjector` part.
-     - N7's CD and signal parts, N10's `@for` check, N12's navigation, and N13's file and line.
+     - N7's CD and signal parts, N10's `@for` check, N12's navigation, and N13's file and line from `ɵcmp.debugInfo` (N13 then reaches the location through the `inspect()` route).
      - EXT1 (OnPush readiness, `ɵgetSignalGraph`), EXT3 (`@defer` triggers), EXT5 (Signal Forms nodes, `ɵgetSignalGraph`) and EXT6 (resource-in-guard detector, router events through `ɵgetRouterInstance`).
      - The `@defer`, hydration, signal graph, watch signal, profiler, injector tree, router tree and Transfer State rows of section 5.
      - Angular's own `devtoolstooldiscovery` tools (3.2).
      - The third-party lookups: Analog's `DEBUG_ROUTES` token (6.4), RxAngular's `RxStrategyProvider` by token name (6.5), and the NgRx `STATE_SOURCE` scan (6.1).
-   - Of these, the ones that rest on Tier 1 with no support statement (2.2), and so are the most likely to break on an Angular update: the watch signal row and N19 (`toggleWatchSignal`); `router_state`, N12's navigation, N17, EXT6 and the router tree row (router trio); `hydration_status`, N5's hydration part and the hydration row (`__ngDebugHydrationInfo__`, `ngDevMode` counters); Angular's `devtoolstooldiscovery` tools; N13's file and line (`ɵcmp.debugInfo`); and the third-party lookups. N1, N2, N3, N14, N20, EXT1, EXT3 and EXT5 rest only on the nine functions with a support statement.
-   - The Tier 0-only first release Lars could pick instead: N4, N6, N10's Tier 0 rules (`Eager` components, unlistened outputs, Zone.js in a zoneless app, a11y basics), N11, N12 search, N15, N16, N18, N23, and N7's event and error part. N15 and N16 each depend on their spike. Left out although they are Tier 0: N8, which waits on spike S5, and N21, which needs the `debugger` permission.
+   - Of these, the ones that rest on Tier 1 with no support statement (2.2), and so are the most likely to break on an Angular update: the watch signal row and N19 (`toggleWatchSignal`); `router_state`, N12's navigation, N17, EXT6 and the router tree row (router trio); `hydration_status`, N5's hydration part and the hydration row (`__ngDebugHydrationInfo__`, `ngDevMode` counters); Angular's `devtoolstooldiscovery` tools; N13's file and line (`ɵcmp.debugInfo`); and the third-party lookups.
+   - Among the items in the list above, these rest only on the nine functions with a support statement: N1, N3, N14, N20, EXT1, EXT3 and EXT5; N7's CD and signal parts; N10's `@for` check; N5's `@defer` part; and the `@defer`, signal graph, profiler, injector tree and Transfer State rows of section 5. N2 also rests on the nine: its write rules read `debuggableFn`, which is a field of `ɵgetSignalGraph`'s result, but only from 22.1.3, when non-computed nodes got it (02; 05, "an effect's signal writes") **[measured in source]**.
+   - The Tier 0-only first release Lars could pick instead: N4, N6, N10's Tier 0 rules (`Eager` components, unlistened outputs, inputs never set, Zone.js in a zoneless app, a11y basics), N11, N12 search, N13 with the location reached through the `inspect()` route, N15, N16, N18, N23, and N7's event and error part. N15 and N16 each depend on their spike (S9, S10). N6's roles and names, N10's a11y rule and N23 get only the roles and names the page agent computes from the DOM (2.2). Left out although they are Tier 0: N8, which waits on spike S5; N21, which needs the `debugger` permission; and the full accessibility tree for N6, N10 and N23, for the same reason.
 2. **Primary browser and model.** Default applied:
    - Edge Dev with Aion-1.1-Instruct is the reference for native tool calling: 15/15 runs at 3-6 s. In S1 phase 2, though, Aion picked the wrong tool on one question in all seven extension contexts **[measured, 11]**.
    - Chrome Beta with Gemma 4 is the reference for the structured-output loop: 15/15 on CPU, 13/15 on GPU.
-   - Gemini Nano (fallback loop on GPU, 11/15 after the `916fc09` regrade) and Phi-4-mini on Edge stable stay supported, with the canary deciding the loop **[measured, 05; regrade by `spikes/probes/regrade.mjs` over `research/raw/bench/nano-gpu.json`]**.
+   - Gemini Nano (fallback loop on GPU, 11/15 after the `916fc09` regrade) and Phi-4-mini on Edge stable stay supported, with the startup check (3.3) deciding the loop **[measured, 05; regrade by `spikes/probes/regrade.mjs` over `research/raw/bench/nano-gpu.json`]**. Nano on the CPU backend failed the fallback loop in 15 of 15 runs, so the startup check marks it unsupported (3.3).
    - Recorded as Claude's default, because only Lars can rank Edge against Chrome as the product's lead browser.
 3. **Writes from chat.** Default applied: allowed behind a per-action confirm and a read-only switch (section 3.5).
 

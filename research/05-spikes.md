@@ -88,6 +88,19 @@ Reading (inferred, 15 runs per cell is a small sample):
 
 Phi-4-mini (Edge) and Gemini Nano v3 (Chrome stable, native tool calling off there) are not measured yet. (Superseded: both measured in "Four-model benchmark, second round" and "Backend comparison" below.)
 
+### Finding: an effect's signal writes are visible only in its source text (2026-10-12)
+
+N2's rules "an effect whose only job is to write another signal" and "an effect that writes a signal it reads" need to know which signals an effect writes. Claude ran `spikes/probes/effect-writes.js` (commit `9959d32`) on `spikes/ng222-app` (Angular 22.2.2) on 2026-10-12. The raw output, copied from the run's console output, is `research/raw/effect-writes.json`.
+
+- `ng.ɵgetSignalGraph(ng.getInjector(host))` has read edges only, consumer to producer. The effect appears as `effect -> signal:count`. The written signal `lastLogged` is not a node, because nothing reads it and the graph is reached from consumers **[measured]**.
+- The effect node has an empty label **[measured]**. So a finding about an effect cannot name it by label, and N2's "unlabeled nodes" rule also flags the effect itself **[inferred]**.
+- The effect node's `debuggableFn` source is `() => this.lastLogged.set(this.count())`. The probe's regular expression for `.<name>.set(` and `.<name>.update(` finds `lastLogged.set` **[measured]**. The template node's `debuggableFn` is the whole component class source **[measured]**, so the scan applies only to effect nodes.
+- `debuggableFn` is a field of `ɵgetSignalGraph`'s result type (02, `debug_signal_graph.ts:68-96`), and non-computed nodes carry it since 22.1.3 (02 line 167; 08) **[measured in source]**. `angular:signal_graph` strips it (02 section 1.5), so the scan must call `ng.ɵgetSignalGraph` directly.
+- Not tested, and so gaps of the heuristic **[inferred]**: writes made through a called method or through another object, a write without `this.` (for example a local alias), and minified or otherwise transformed code.
+- The `ɵsetProfiler` events include no effect runs (`profiler_types.ts`), so matching effect runs to epoch changes is not a route either **[measured in source, neutral review round 3]**.
+
+Design consequence: N2's two write rules scan effect nodes' `debuggableFn` text and label each finding as a heuristic. The graph alone cannot see writes. See `docs/feature-proposals.md`, N2.
+
 ### Update: the `di_graph` side effect also breaks Angular DevTools' signal graph pane (measured)
 
 Measured with the `verify-angular-devtools` skill: Angular DevTools 1.22.0 ran in an isolated Playwright Chromium against `spikes/ng222-app` on 22.2.2, and Claude reran the check on 2026-10-11. Before `angular:di_graph`, the DevTools signal graph pane for `app-counter` shows the same 6 nodes as `ng.ɵgetSignalGraph`. After one `angular:di_graph` execution, the pane drops to 2 nodes (`count`, `effect`) and the template node is gone, matching the `ng` call (`diGraphTemplateLostInPane: true`, `diGraphTemplateLostInNg: true`). So running Angular's own in-page AI DI tool, for example through chrome-devtools-mcp, degrades Angular DevTools for the rest of the page's life.
@@ -141,8 +154,8 @@ Raw files: `research/raw/bench/nano.json` (Nano on CPU), `gemma4.json`, `aion.js
 Failure patterns:
 - **Nano on CPU:**
   - Native: it writes `tool_code` blocks with made-up JavaScript as text instead of calling a tool. That matches its lack of documented tool calling (10).
-  - Fallback: 15/15 runs failed with "Unexpected end of JSON input", meaning the constrained output came back empty or cut off. Not explained yet. The CPU backend is the prime suspect, since the first round's Nano on GPU low tier in Lars's own profile passed 11/15 (regraded). Inferred. Corrected: the first round of this file has no Nano row. The 11/15 is Claude's re-grade of an earlier Nano fallback run in `10-model-capabilities.md`, "Correction: the benchmark grader passes wrong answers on one question" (reported 13/15). Neither 10 nor that run records the backend, so "GPU low tier in Lars's own profile" is unsourced. That earlier `nano.json` was overwritten: the copy now in `research/raw/bench/nano.json` holds this round's CPU run (native 1/15, fallback 0/15). The backend comparison below measures Nano on GPU directly (fallback 13/15; 11/15 after the `916fc09` regrade).
-- **Gemma 4:** wrong selectors (`app-counter input[type="text"]`) and invented signal names (`[ + ]`) in native mode. In the fallback, once, it answered from the wrong tool.
+  - Fallback: 15/15 runs failed with "Unexpected end of JSON input" (Corrected after counting `nano.json`: 14 of the 15 failed that way; the fifteenth returned valid JSON with a wrong answer, "OnDestroy", and no tool call. See `docs/feature-proposals.md` 2.1), meaning the constrained output came back empty or cut off. Not explained yet. The CPU backend is the prime suspect, since the first round's Nano on GPU low tier in Lars's own profile passed 11/15 (regraded). Inferred. Corrected: the first round of this file has no Nano row. The 11/15 is Claude's re-grade of an earlier Nano fallback run in `10-model-capabilities.md`, "Correction: the benchmark grader passes wrong answers on one question" (reported 13/15). Neither 10 nor that run records the backend, so "GPU low tier in Lars's own profile" is unsourced. That earlier `nano.json` was overwritten: the copy now in `research/raw/bench/nano.json` holds this round's CPU run (native 1/15, fallback 0/15). The backend comparison below measures Nano on GPU directly (fallback 13/15; 11/15 after the `916fc09` regrade).
+- **Gemma 4:** wrong selectors (`app-counter input[type="text"]`) and invented signal names (`[ + ]`) in native mode. In the fallback, once, it answered from the wrong tool. (Corrected after counting `gemma4.json`: both fallback failures called `component_details` and then `signal_info` with `signal: "*"`, a wildcard instead of a signal name, so they count as bad arguments; see `docs/feature-proposals.md` 2.1.)
 - **Aion:**
   - Native: perfect.
   - Fallback: the `selector`/`signal` mix-up again (`{"selector":"double"}`, 3/3 on that question), plus one `kErrorUnknown`.
@@ -156,7 +169,7 @@ Reading (inferred):
 - Gemma 4 is the best fallback-loop model but slow on this GPU.
 - Phi-4-mini is fast but weak at both.
 - Nano needs its GPU backend measured before any verdict.
-- Argument mistakes still dominate the failures, which supports the id-based tool design (3.4) and prompt-kit experiment E1 (`07`). (Narrowed after counting the raw runs: argument mistakes dominate Aion's and Phi-4-mini's fallback failures, but wrong tool choice or no follow-up call caused 4 of Gemma 4 GPU's 7 native failures; see `docs/feature-proposals.md` 2.1.)
+- Argument mistakes still dominate the failures, which supports the id-based tool design (3.4) and prompt-kit experiment E1 (`07`). (Narrowed after counting the raw runs: argument mistakes dominate Aion's and Phi-4-mini's fallback failures, but wrong tool choice or no follow-up call caused 4 of Gemma 4 GPU's 7 native failures; see `docs/feature-proposals.md` 2.1. Corrected again in review round 3, counting every failed run with one rule: Phi-4-mini's 8 fallback failures are 3 bad arguments, 3 wrong tool and 2 `kErrorUnknown`, so argument mistakes do not dominate there; the full table is in 2.1.)
 
 ## Backend comparison: Nano on GPU and Gemma 4 on CPU (2026-10-12, measured)
 
