@@ -1,6 +1,6 @@
 ---
 name: verify-angular-dev-app
-description: Verify a change or claim in a dev-mode Angular app by driving it in the browser like a user and reporting one verdict with evidence. Covers the ng222-app counter fixture, the ng-journal Insurance Portal (with its API), or any dev-mode Angular app reached by URL; reuses control-angular-dev-app's control script and feature map. Use after changing either fixture, when a claim about ng.* output, signals, change detection, DI or routing needs proof on a real page, or before reporting a UI fix as done.
+description: Verify a change or claim in a dev-mode Angular app by driving it in the browser like a user and reporting one verdict with evidence. Covers the ng222-app counter fixture, the ng222-ssr server-rendered fixture (server HTML, hydration, expected mismatch), the ng-journal Insurance Portal (with its API), or any dev-mode Angular app reached by URL; reuses control-angular-dev-app's control script and feature map. Use after changing any fixture, when a claim about ng.* output, signals, change detection, DI, routing, SSR or hydration needs proof on a real page, or before reporting a UI fix as done.
 ---
 
 # verify-angular-dev-app
@@ -19,6 +19,7 @@ Run everything from the repository root (`D:\projects\sandbox\angular-ai-devtool
 | Target | Command | Ready when |
 |---|---|---|
 | Counter | `node $S up --target counter --json` | exit 0; `readyInSeconds` about 3; app on 4222 (derived in a worktree) |
+| SSR | `node $S up --target ssr --json` | exit 0; `readyInSeconds` 7-15; app on 4223 (derived in a worktree) |
 | Portal | `node $S up --target portal --json` | exit 0; about 15 s warm; API on 3000, app on 4775 for the default worktree folder |
 | Any running dev-mode app | `node $S up --url http://localhost:<port>/ --json` | exit 0 when the URL answers; nothing is started |
 
@@ -27,7 +28,7 @@ Exit 2 means refused or failed: the reason names the port owner, the state file,
 
 ## Doctor
 
-`node $S doctor [--target counter|portal|--url <url>]`. Exit 0 before any drive. It checks the recorded
+`node $S doctor [--target counter|ssr|portal|--url <url>]`. Exit 0 before any drive. It checks the recorded
 processes and port ownership, the build log, the Angular root and version, `window.ng` (dev build), router
 globals, zone mode and console errors (on the portal, the Pangular overlay's errors are a
 `pangular-overlay` warning, not a failure), opens the session `control-ngdev-<flowId>` and installs the `__ngc`
@@ -48,13 +49,35 @@ cannot verify.
    > <evidenceDir>/<n>-<fn>.json` (`inspect`, `signals`, `dependenciesOf`, `injectors`, `providers`,
    `router`). These are reads; never prove a behaviour by calling setters or `ng.applyChanges`.
 
+## SSR target
+
+Verifies that the SSR fixture renders on the server and hydrates in dev mode. After `doctor --target ssr`
+exits 0, in this order:
+
+1. `playwright-cli -s=<session> --raw run-code --filename=.claude/skills/control-angular-dev-app/scripts/ssr-check.js
+   > <evidenceDir>/ssr-check.json`. It reads the server HTML before the browser touches it, then loads each page.
+2. Check the server HTML of `/`: `server-html-ngh` (`ngh` attributes present) and `server-html-transfer-state`
+   (`<script id="ng-state">` present).
+3. Check hydration on `/`: `dev-build-after-hydration` (`window.ng` present), `hydration-counters`
+   (`hydratedComponents` above 0, `componentsSkippedHydration` 0), `no-mismatch-on-default-route` (no node with
+   a `__ngDebugHydrationInfo__` status other than `hydrated`, no NG05xx console error).
+4. Record `?mismatch=1` as the expected failure: `expected-mismatch-detected` passes when `<app-mismatch>` is
+   `mismatched` and NG0500 is logged. Copy its expected and actual DOM into `verdict.md`.
+5. `snapshot --filename=<evidenceDir>/ssr-after.yml` and `screenshot --filename=<evidenceDir>/ssr.png` on `/`
+   (heading `Render mode: server`).
+
+Verdict: verified when `ok` is `true` (all six checks pass). Not verified when a check on `/` fails, or when
+`expected-mismatch-detected` fails: then the page can no longer show a mismatch, so a clean `/` proves nothing.
+Inconclusive when `doctor` fails or the probe returns no JSON. For transfer cache, `@defer`, event replay and
+render-mode claims, drive the recipes in the SSR feature file.
+
 ## Evidence
 
 Everything goes to `<evidenceDir>` (`tmp/control-angular-dev-app/<flowId>-<timestamp>/`, git-ignored; it
 survives `down`). A proof holds:
 
 - before and after snapshots of every step, and one screenshot with the app identity visible (the counter line,
-  or the portal header "Insurance Portal");
+  the SSR heading "Render mode: server", or the portal header "Insurance Portal");
 - the side effect next to the screen: URL after navigation, `playwright-cli -s=<session> requests` lines for
   API calls (portal: `http://localhost:3000/api/...`), an `__ngc` read for signal, DI, CD or router claims;
 - the server log (`app.log`, `api.log`) for build-related claims;
@@ -78,10 +101,11 @@ listener on the port, and `playwright-cli list` has no `control-ngdev-*` session
 ## Helpers
 
 - `.claude/skills/control-angular-dev-app/scripts/control.mjs` `up|doctor|info|down` with
-  `--target counter|portal`, `--url <url>`, `--port N`, `--dir <path>`, `--timeout S`, `--json`. Exit 0 ok,
+  `--target counter|ssr|portal`, `--url <url>`, `--port N`, `--dir <path>`, `--timeout S`, `--json`. Exit 0 ok,
   1 unhealthy (doctor), 2 refused or could not run. Full table in control-angular-dev-app's Helpers.
 - `.claude/skills/control-angular-dev-app/scripts/ng-inspect.js`: `playwright-cli -s=<session> --raw run-code
   --filename=<path>` installs `__ngc` when `doctor` was not run in this session.
+- `.claude/skills/control-angular-dev-app/scripts/ssr-check.js`: the SSR target's six checks (SSR target).
 
 ## Gotchas
 

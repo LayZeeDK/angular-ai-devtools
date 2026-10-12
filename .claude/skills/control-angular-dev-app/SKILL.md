@@ -1,11 +1,11 @@
 ---
 name: control-angular-dev-app
-description: Drive, screenshot, inspect and reproduce behaviour in an Angular application running in development mode, in the browser through playwright-cli, with ng.* recipes for the component list, inputs and change detection, signal graphs, injector resolution paths and providers, and router state. Launches one of two fixtures in isolation (the ng222-app counter in spikes/ng222-app, or the ng-journal Insurance Portal with its API) or attaches to any dev-mode Angular app by URL. Use to verify a change in the browser, prove what ng.* returns on a real page, or check that a page is an Angular dev build.
+description: Drive, screenshot, inspect and reproduce behaviour in an Angular application running in development mode, in the browser through playwright-cli, with ng.* recipes for the component list, inputs and change detection, signal graphs, injector resolution paths and providers, and router state. Launches one of three fixtures in isolation (the ng222-app counter in spikes/ng222-app, the ng222-ssr server-rendered app in spikes/ng222-ssr with hydration, transfer state, @defer hydrate triggers and a mismatch switch, or the ng-journal Insurance Portal with its API) or attaches to any dev-mode Angular app by URL. Use to verify a change in the browser, prove what ng.* returns on a real page, read SSR and hydration state, or check that a page is an Angular dev build.
 ---
 
 # control-angular-dev-app
 
-Launches the counter fixture or the Insurance Portal on derived ports, or attaches to any running dev-mode
+Launches the counter fixture, the SSR fixture or the Insurance Portal on derived ports, or attaches to any running dev-mode
 Angular app by URL; checks the page is an Angular development build; drives it through a named playwright-cli
 session; reads Angular state through `window.ng` helpers; captures evidence; tears down only what it started.
 Skip it for production builds (no `window.ng`), for unit tests, and for Lars's own browsers: never attach to
@@ -19,6 +19,7 @@ sessions are looked up from there. `S` stands for `.claude/skills/control-angula
 | Flow | Command | App port | Notes |
 |---|---|---|---|
 | Counter fixture | `node $S up --target counter` | 4222 in the main checkout; derived (4300-4799, hash of the fixture path) when the fixture sits in a git worktree | `spikes/ng222-app`, Angular 22.2.2, zoneless, `provideRouter` with no routes |
+| SSR fixture | `node $S up --target ssr` | 4223 in the main checkout; derived when the fixture sits in a git worktree | `spikes/ng222-ssr`, Angular 22.2.2, `@angular/ssr`, zoneless, `provideClientHydration()`; routes `/` (`RenderMode.Server`), `/prerender` (`RenderMode.Prerender`), `/client` (`RenderMode.Client`); local data at `/api/items` from `src/server.ts` |
 | Insurance Portal | `node $S up --target portal` | 4200 in a main checkout; derived when the folder is a git worktree. The default folder `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools` is a worktree, so it gets 4775 | API always on 3000 (the portal hard-codes `http://localhost:3000/api/`). Override the folder with `--dir <path>` or `CONTROL_NG_PORTAL_DIR` |
 | Any dev-mode app | `node $S up --url http://localhost:<port>/` | whatever the app uses | Nothing is launched or stopped; process checks report skipped |
 
@@ -33,6 +34,10 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target coun
 ```
 
 - Counter runs `node node_modules/@angular/cli/bin/ng.js serve --port <port>` in the fixture folder.
+- SSR runs `node node_modules/@angular/cli/bin/ng.js serve --port <port> --no-hmr` in `spikes/ng222-ssr`. The
+  dev server renders every request on the server through `src/server.ts` (development mode, so `window.ng`
+  exists after hydration). `--no-hmr` because HMR, the dev-server default, loads every `@defer` dependency
+  eagerly (NG0751 in the log), which hides incremental hydration.
 - Portal runs two processes in the portal folder: `node node_modules/nx/dist/bin/nx.js run api:serve` with
   `PORT=3000`, and `node node_modules/nx/dist/bin/nx.js run insurance-portal:serve --port=<port>` with `PORT`
   removed from its environment. Both get `NX_DAEMON=false` and `NX_TUI=false`, so no Nx daemon outlives `down`.
@@ -41,7 +46,9 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target coun
 - The portal API starts first and the app only after the API answers. Started together, the two cold `nx run`
   processes timed out in the Nx plugin worker ("did not receive a load message within 10 seconds") in 3 of 4 runs
   (2026-10-11). Started one at a time, 2 of 2 runs passed (2026-10-12).
-- Measured time to ready, warm caches: counter 2.6-8 s (four runs), portal 18.5-20.5 s with the API first (two
+- Readiness polls wait up to 60 s per request: the first SSR render compiles on demand, and aborting it at the
+  old 3 s limit left an `AbortError` in the server log, which failed `build-log` (measured 2026-10-12).
+- Measured time to ready, warm caches: counter 2.6-8 s (four runs), SSR 7.5-14.5 s (four runs, 2026-10-12), portal 18.5-20.5 s with the API first (two
   runs). The first portal build after a change can take minutes; `--timeout <seconds>` (default 240).
 - Server output goes to `<evidenceDir>/app.log` (and `api.log`).
 - `up` refuses (exit 2) a port already in use and names the owning PID; that may be Lars's own server.
@@ -121,6 +128,14 @@ Also: `playwright-cli -s=<session> console`, `requests` (the portal calls `http:
 and raw `ng.*` through `eval`, for example the button's listeners:
 `eval "() => ng.getListeners(document.querySelector('app-counter button')).map(l => l.name)"`.
 
+SSR target: `playwright-cli -s=<session> --raw run-code --filename=.claude/skills/control-angular-dev-app/scripts/ssr-check.js
+> <evidenceDir>/ssr-check.json` reads the server HTML of `/` and `/?mismatch=1` (`ngh` count, `<script
+id="ng-state">`, `ng-server-context`), loads each page, and returns `window.ng`, the `ngDevMode` hydration
+counters, every node whose `__ngDebugHydrationInfo__` status is not `hydrated` (with expected and actual DOM)
+and console errors, plus six named checks and `ok`. It navigates the session's page and ends on `/`. The SSR
+reads in [features/ssr.md](features/ssr.md) cover transfer state, `@defer` blocks, event replay and render
+modes.
+
 Not reachable: Angular DevTools (browser extension, manual only); the Nx and Angular CLI MCP servers are not
 used (the script cannot call MCP tools).
 
@@ -128,8 +143,8 @@ used (the script cannot call MCP tools).
 
 Evidence and logs go to `tmp/control-angular-dev-app/<flowId>-<timestamp>/` (git-ignored; `info` prints it).
 Pass `--filename=<evidenceDir>/...` to every `snapshot` and `screenshot`, or they land in `.playwright-cli/`.
-A proof holds: a before and after snapshot, a screenshot showing the app (the header "Insurance Portal" or
-the counter line), the side effect (URL, `requests`, an `__ngc` read saved with `--raw ... > file.json`), and
+A proof holds: a before and after snapshot, a screenshot showing the app (the header "Insurance Portal", the
+counter line, or the SSR heading "Render mode: server"), the side effect (URL, `requests`, an `__ngc` read saved with `--raw ... > file.json`), and
 the server log. Proof rules: [features/README.md](features/README.md#proof-and-skip-reporting).
 
 ## Cleanup
@@ -145,7 +160,7 @@ evidence directory. A PID that no longer runs is noted, not refused. Never `play
 
 ## Helpers
 
-`scripts/control.mjs <command> [--target counter|portal] [--url <url>] [--port N] [--dir <path>] [--timeout S] [--json]`
+`scripts/control.mjs <command> [--target counter|ssr|portal] [--url <url>] [--port N] [--dir <path>] [--timeout S] [--json]`
 
 | Command | Does | Output | Exit |
 |---|---|---|---|
@@ -155,7 +170,7 @@ evidence directory. A PID that no longer runs is noted, not refused. Never `play
 | `down` | teardown | notes per process and the session | 0 done (also when the PID is already gone); 2 missing state file, or PID start time / command mismatch (nothing stopped) |
 
 `scripts/ng-inspect.js` is a playwright-cli `run-code` file: it installs `__ngc` and returns the doctor's page
-facts.
+facts. `scripts/ssr-check.js` is a `run-code` file for the SSR target (Inspect).
 
 ## Gotchas
 
@@ -193,3 +208,11 @@ facts.
   Zone.js app lists `NoopNgZone` first and `NgZone` (`useFactory`) last. Measured 2026-10-12 on both fixtures
   (zoneless) and on the portal with `provideZoneChangeDetection()` added and reverted (zone-based).
 - The counter's `effect` writes a signal on purpose (anti-pattern fixture). Do not fix it.
+- The SSR fixture's `app-mismatch` component is a deliberate hydration mismatch fixture (`REQUEST` tells server
+  from client, `Renderer2` adds a server-only node). Do not fix it. `?mismatch=1` logs NG0500 on purpose;
+  `?mismatch=text` renders different text on server and client, which hydration overwrites with no error.
+- On the SSR fixture, run `doctor` on `/` only: `console-errors` fails on `?mismatch=1` by design.
+- Under `ng serve`, `/prerender` is rendered per request like `/` but marked `ng-server-context="ssg"`.
+  Production prerendering (HTML written at build time) is not what the dev server shows.
+- `/client` (`RenderMode.Client`) is served as the bare shell: `<body ngcm>`, an empty `<app-root>`, no `ngh`,
+  no `ng-state`. Hydration recipes need `/` or `/prerender`.

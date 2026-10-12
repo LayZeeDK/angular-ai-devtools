@@ -1,6 +1,6 @@
 # Angular dev app verification map
 
-The maintained source for driving the two fixtures through control-angular-dev-app. Read this index, then use
+The maintained source for driving the three fixtures through control-angular-dev-app. Read this index, then use
 the matching feature file as the recipe. For an app attached with `--url`, write its features here in the
 same shape before claiming coverage.
 
@@ -9,6 +9,8 @@ same shape before claiming coverage.
 - Run commands from the repository root. `S` is `.claude/skills/control-angular-dev-app/scripts/control.mjs`.
 - Counter: `node $S up --target counter`, then `node $S doctor` exits 0. Fresh page state: `count` 3,
   `double` 6, cart 1 item.
+- SSR: `node $S up --target ssr`, then `node $S doctor --target ssr` exits 0 on `/`. Fresh page state:
+  heading `Render mode: server`, `Early clicks: 0`, list Alpha, Beta, Gamma, `@defer` block dehydrated.
 - Portal: `node $S up --target portal` (API on 3000, app on the derived port, 4775 by default), then
   `node $S doctor --target portal` exits 0. No login. Every flag in
   `apps/insurance-portal/src/assets/feature-flags.manifest.json` decides whether a sidebar entry and its route
@@ -53,6 +55,8 @@ Each feature file has an H1, one paragraph of user-visible behaviour, then four 
 ## Features
 
 - [Counter](./counter.md): the ng222-app counter, its signals and its effect.
+- [SSR and hydration](./ssr.md): server HTML, hydration counters and mismatches, transfer cache, `@defer`
+  hydrate triggers, event replay, render mode per route.
 - [Portal navigation](./portal-navigation.md): header, sidebar, home tiles, lazy routes, not-found page.
 - [Portal contracts](./portal-contracts.md): list, details, edit and save, create and save.
 - [Portal claims](./portal-claims.md): list, details, create form.

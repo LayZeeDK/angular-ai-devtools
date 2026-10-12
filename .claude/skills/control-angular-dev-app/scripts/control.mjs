@@ -24,6 +24,15 @@ const TARGETS = {
       { name: 'app', bin: binOf(dir, '@angular/cli', 'ng'), args: ['serve', '--port', String(port)], env: {}, port, readyPath: '/' },
     ],
   },
+  ssr: {
+    dir: path.join(REPO_ROOT, 'spikes', 'ng222-ssr'),
+    documentedPort: 4223,
+    marker: 'app-root',
+    // HMR (the dev-server default) loads every @defer dependency eagerly (NG0751), which hides incremental hydration.
+    procs: (dir, port) => [
+      { name: 'app', bin: binOf(dir, '@angular/cli', 'ng'), args: ['serve', '--port', String(port), '--no-hmr'], env: {}, port, readyPath: '/' },
+    ],
+  },
   portal: {
     dir: process.env.CONTROL_NG_PORTAL_DIR || PORTAL_DEFAULT_DIR,
     documentedPort: 4200,
@@ -196,9 +205,9 @@ function authCode(logPath) {
   return all.length ? all[all.length - 1][1] : null;
 }
 
-async function fetchText(url) {
+async function fetchText(url, timeoutMs = 3000) {
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
+    const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
 
     return { status: res.status, body: await res.text() };
   } catch (e) {
@@ -221,7 +230,7 @@ function resolveFlow() {
 
   if (target && target !== true) {
     if (!TARGETS[target]) {
-      fail(2, `unknown target "${target}"; use counter or portal`);
+      fail(2, `unknown target "${target}"; use counter, ssr or portal`);
     }
 
     const t = TARGETS[target];
@@ -279,7 +288,7 @@ async function up() {
   const targetName = flag('target');
 
   if (!TARGETS[targetName]) {
-    fail(2, 'up needs --target counter|portal, or --url <dev-server URL> to attach to a running app');
+    fail(2, 'up needs --target counter|ssr|portal, or --url <dev-server URL> to attach to a running app');
   }
 
   const t = TARGETS[targetName];
@@ -338,7 +347,8 @@ async function up() {
     writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
 
     for (;;) {
-      const r = await fetchText(s.readyUrl);
+      // A first SSR render compiles on demand; aborting it at 3 s logs an AbortError in the server log (measured).
+      const r = await fetchText(s.readyUrl, 60000);
       const pageOk = s.name !== 'app' || (r.status === 200 && r.body.includes(`<${t.marker}`));
 
       if (r.status >= 200 && r.status < 500 && pageOk) {
@@ -543,7 +553,7 @@ function down() {
 const commands = { up, doctor, info, down };
 
 if (!commands[cmd]) {
-  process.stdout.write('usage: control.mjs <up|doctor|info|down> [--target counter|portal] [--url <url>] [--port N] [--dir <path>] [--timeout S] [--json]\n');
+  process.stdout.write('usage: control.mjs <up|doctor|info|down> [--target counter|ssr|portal] [--url <url>] [--port N] [--dir <path>] [--timeout S] [--json]\n');
   process.exit(2);
 }
 

@@ -9,6 +9,8 @@ contract are in [that README](../../control-angular-dev-app/features/README.md).
 
 - [Counter](../../control-angular-dev-app/features/counter.md): render, increment (mouse and keyboard),
   signal graph, effect, OnPush default.
+- [SSR and hydration](../../control-angular-dev-app/features/ssr.md): server HTML, hydration counters,
+  expected mismatch, transfer cache, `@defer` hydrate trigger, event replay, render modes.
 - [Portal navigation](../../control-angular-dev-app/features/portal-navigation.md): home tiles, sidebar,
   router state, deep links, not-found page.
 - [Portal contracts](../../control-angular-dev-app/features/portal-contracts.md): list, details, customer
