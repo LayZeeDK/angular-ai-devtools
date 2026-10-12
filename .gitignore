@@ -11,3 +11,4 @@ tmp/verify-pangular-inspector/
 tmp/maintain-angular-dev-app/
 tmp/maintain-angular-devtools/
 tmp/maintain-pangular/
+.audit/
