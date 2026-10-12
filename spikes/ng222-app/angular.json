@@ -65,7 +65,24 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "runnerConfig": true
+          },
+          "configurations": {
+            "headless": {
+              "browsers": [
+                "ChromiumHeadless"
+              ]
+            },
+            "attach": {
+              "runnerConfig": "vitest-attach.config.mts"
+            },
+            "extension": {
+              "runnerConfig": "vitest-extension.config.mts"
+            }
+          },
+          "defaultConfiguration": "headless"
         }
       }
     }

@@ -1,0 +1,155 @@
+{
+  "cmd": "doctor",
+  "instance": "chrome-beta-gemma4",
+  "at": "2026-10-12T10:28:10.872Z",
+  "ok": true,
+  "backend": "gpu",
+  "checks": [
+    {
+      "id": "process",
+      "pass": true,
+      "warn": false,
+      "detail": "PID 52112 C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe --user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.browsers\\chrome-beta-gemma4"
+    },
+    {
+      "id": "commandLine",
+      "pass": true,
+      "warn": false,
+      "detail": "matches the registry, backend gpu"
+    },
+    {
+      "id": "port",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "cdp": "http://127.0.0.1:9334",
+        "browser": "Chrome/156.0.8078.17",
+        "owner": 52112
+      }
+    },
+    {
+      "id": "tabs",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "count": 1,
+        "urls": [
+          "about:blank"
+        ]
+      }
+    },
+    {
+      "id": "model.disk",
+      "pass": true,
+      "warn": true,
+      "detail": "gemma4-2b-it 2026.06.10.0000 (3126 MiB) at D:\\projects\\sandbox\\angular-ai-devtools\\.browsers\\chrome-beta-gemma4\\OptGuideManifestModel\\7feacbfe693922f1d6422391a2fec1202689398bbd985d3f0aa13bd765cabeda\\2026.8.7.929"
+    },
+    {
+      "id": "model.broker",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "asset": {
+          "name": "gemma4_component",
+          "version": "2026.8.7.929",
+          "state": "Ready",
+          "progress": 100
+        },
+        "useCase": "prompt_api_gemma4",
+        "state": "Available",
+        "manifestLoaded": "true"
+      }
+    },
+    {
+      "id": "backend",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "requested": "gpu",
+        "broker": "GPU (fastest inference)",
+        "row": "gemma4_gpu_low_tier_model"
+      }
+    },
+    {
+      "id": "performanceClass",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "localState": 3,
+        "broker": "Low"
+      }
+    },
+    {
+      "id": "disk.free",
+      "pass": true,
+      "warn": false,
+      "detail": "41790 MiB free on D:, browser minimum 22528 MiB (Broker State: true (41475 MiB available, 20480 MiB required))"
+    },
+    {
+      "id": "api.availability",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "LanguageModel": "available",
+        "LanguageModelTools": "available",
+        "Summarizer": "available",
+        "Writer": "available",
+        "Rewriter": "available",
+        "Proofreader": "undefined",
+        "LanguageDetector": "available",
+        "Translator(en->da)": "downloadable",
+        "webmcp": {
+          "documentModelContext": "object",
+          "navigatorModelContext": "undefined"
+        },
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+      }
+    },
+    {
+      "id": "model.contextWindow",
+      "pass": true,
+      "warn": false,
+      "detail": "contextWindow 9216, expected 9216"
+    },
+    {
+      "id": "canary.structured",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "pass": true,
+        "raw": "{\n  \"hook\": \"ngOnInit\"\n}",
+        "ms": 4314
+      }
+    },
+    {
+      "id": "canary.tools",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "pass": true,
+        "calls": [
+          {
+            "name": "get_component_count",
+            "callID": "",
+            "arguments": {
+              "scope": "page"
+            }
+          }
+        ],
+        "answer": "There are 42 Angular components on the page.",
+        "ms": 7895,
+        "contextUsage": 304,
+        "attempt": 1
+      }
+    },
+    {
+      "id": "canary.webmcp",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "pass": true,
+        "documentModelContext": "object"
+      }
+    }
+  ]
+}

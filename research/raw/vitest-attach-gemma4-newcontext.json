@@ -1,0 +1,278 @@
+{
+  "route": "attach",
+  "label": "gemma4-newcontext",
+  "cdpPort": 9334,
+  "vitestPort": 51316,
+  "holdMs": 20000,
+  "startedAt": "2026-10-12T10:38:11.918Z",
+  "steps": {
+    "extension": "Extensions.loadUnpacked: cbefgjgcbjnbgfhpeacpnkfilgjeeoil",
+    "panelRegistered": false,
+    "panelTarget": "not seen",
+    "ngTestKilled": true,
+    "uninstallError": "Extensions.uninstall: timeout",
+    "uninstalled": true
+  },
+  "browser": "Chrome/156.0.8078.17",
+  "command": "ng test -c attach --watch=false --filter \"keeps the counter mounted\" (VITEST_BROWSER_PORT=51316, VITE_COUNTER_HOLD_MS=20000)",
+  "orchestratorUrl": "http://127.0.0.1:51316/__vitest_test__/?sessionId=f6c6a954-652c-4f96-aa63-6e0181a08e55",
+  "targetsDuringRun": [
+    "service_worker chrome-extension://cbefgjgcbjnbgfhpeacpnkfilgjeeoil/sw.js",
+    "service_worker chrome-extension://nkeimhogjdpnpccoofpliimaahmaaome/thunk.js",
+    "browser_ui chrome://omnibox-popup.top-chrome/omnibox_popup_aim.html",
+    "background_page chrome-extension://cbefgjgcbjnbgfhpeacpnkfilgjeeoil/offscreen.html",
+    "browser_ui chrome://omnibox-popup.top-chrome/",
+    "page about:blank",
+    "browser_ui chrome://omnibox-popup.top-chrome/",
+    "page http://127.0.0.1:51316/__vitest_test__/?sessionId=f6c6a954-652c-4f96-aa63-6e0181a08e55",
+    "browser_ui chrome://omnibox-popup.top-chrome/omnibox_popup_aim.html"
+  ],
+  "frameTree": {
+    "top": "http://127.0.0.1:51316/__vitest_test__/?sessionId=f6c6a954-652c-4f96-aa63-6e0181a08e55",
+    "children": [
+      {
+        "url": "http://127.0.0.1:51316/?sessionId=f6c6a954-652c-4f96-aa63-6e0181a08e55&iframeId=__vitest_all__",
+        "name": "vitest-iframe",
+        "securityOrigin": "http://127.0.0.1:51316"
+      }
+    ]
+  },
+  "executionContexts": [
+    {
+      "frameId": "tester",
+      "type": "isolated",
+      "isDefault": false,
+      "name": "__playwright_utility_world_page@8e6f8cce5f157cfbcbd0037a1e3d7549",
+      "origin": "http://127.0.0.1:51316"
+    },
+    {
+      "frameId": "tester",
+      "type": "default",
+      "isDefault": true,
+      "name": "",
+      "origin": "http://127.0.0.1:51316"
+    },
+    {
+      "frameId": "top",
+      "type": "isolated",
+      "isDefault": false,
+      "name": "__playwright_utility_world_page@8e6f8cce5f157cfbcbd0037a1e3d7549",
+      "origin": "http://127.0.0.1:51316"
+    },
+    {
+      "frameId": "top",
+      "type": "default",
+      "isDefault": true,
+      "name": "",
+      "origin": "http://127.0.0.1:51316"
+    }
+  ],
+  "iframeMount": {
+    "href": "http://127.0.0.1:51316/?sessionId=f6c6a954-652c-4f96-aa63-6e0181a08e55&iframeId=__vitest_all__",
+    "origin": "http://127.0.0.1:51316",
+    "topIsSelf": false,
+    "sameOriginAsParent": true,
+    "typeofNg": "object",
+    "ngKeys": [
+      "applyChanges",
+      "enableProfiling",
+      "getComponent",
+      "getContext",
+      "getDirectiveMetadata",
+      "getDirectives",
+      "getHostElement",
+      "getInjector",
+      "getListeners",
+      "getOwningComponent",
+      "getRootComponents",
+      "isSignal",
+      "toggleWatchSignal",
+      "ɵcompilerFacade",
+      "ɵgetComponentInstanceDeepLinkId",
+      "ɵgetControlFlowBlocks",
+      "ɵgetDependenciesFromInjectable",
+      "ɵgetInjectorMetadata",
+      "ɵgetInjectorProviders",
+      "ɵgetInjectorResolutionPath",
+      "ɵgetSignalGraph",
+      "ɵgetTransferState",
+      "ɵsetProfiler"
+    ],
+    "hasCounterHost": true,
+    "counterText": "Clicks: 3 (double 6, cart 2)Increment",
+    "vitestRunnerGlobal": "object",
+    "vitestRunnerKeys": [
+      "activeTraceTaskIds",
+      "aria",
+      "browserTraceAttempts",
+      "cdp",
+      "cleanups",
+      "commands",
+      "config",
+      "disposeExceptionTracker",
+      "iframeId",
+      "method",
+      "otelCarrier",
+      "providedContext",
+      "provider",
+      "runner",
+      "selectorEngine",
+      "sessionId",
+      "testerId",
+      "traces",
+      "type",
+      "viteConfig",
+      "wrapDynamicImport",
+      "wrapModule"
+    ],
+    "vitestWorkerGlobal": "object",
+    "ngVersionAttr": "22.2.2",
+    "typeofLanguageModel": "function",
+    "languageModelAvailability": "available",
+    "getComponent": {
+      "constructorName": "_Counter",
+      "count": 3,
+      "double": 6,
+      "title": "Clicks",
+      "countIsSignal": true
+    },
+    "rootComponents": [
+      "_Counter"
+    ],
+    "signalGraph": {
+      "nodes": [
+        {
+          "kind": "template",
+          "label": "div"
+        },
+        {
+          "kind": "signal",
+          "label": "title",
+          "value": "Clicks"
+        },
+        {
+          "kind": "signal",
+          "label": "count",
+          "value": 3
+        },
+        {
+          "kind": "computed",
+          "label": "double",
+          "value": 6
+        },
+        {
+          "kind": "signal",
+          "label": null,
+          "value": "object"
+        },
+        {
+          "kind": "effect",
+          "label": ""
+        }
+      ],
+      "edges": [
+        "template:div -> signal:title",
+        "template:div -> signal:count",
+        "template:div -> computed:double",
+        "template:div -> signal:",
+        "computed:double -> signal:count",
+        "effect: -> signal:count"
+      ]
+    },
+    "injectorResolutionPath": [
+      {
+        "type": "element",
+        "source": "HTMLDivElement"
+      },
+      {
+        "type": "environment",
+        "source": "DynamicTestModule"
+      },
+      {
+        "type": "environment",
+        "source": "Platform: core"
+      },
+      {
+        "type": "null",
+        "source": null
+      }
+    ],
+    "dependencies": [
+      {
+        "token": "_CartService",
+        "valueIsOverride": true,
+        "valueItems": [
+          "pear",
+          "plum"
+        ],
+        "providedIn": "R3Injector"
+      },
+      {
+        "token": "Injector",
+        "valueIsOverride": true,
+        "valueItems": null,
+        "providedIn": "NodeInjector"
+      }
+    ],
+    "providers": [
+      {
+        "depth": 1,
+        "injector": "environment",
+        "token": "_CartService",
+        "isViewProvider": false,
+        "provider": [
+          "provide",
+          "useValue"
+        ],
+        "importPath": [
+          "_Counter"
+        ]
+      },
+      {
+        "depth": 3,
+        "error": "Error: ASSERTION ERROR: getInjectorProviders only supports NodeInjector and EnvironmentInjector"
+      }
+    ],
+    "profilerInstalled": true
+  },
+  "orchestratorReach": [
+    {
+      "src": "http://127.0.0.1:51316/?sessionId=f6c6a954-652c-4f96-aa63-6e0181a08e55&iframeId=__vitest_all__",
+      "dataVitest": "true",
+      "name": "vitest-iframe",
+      "sameOrigin": true,
+      "typeofNg": "object",
+      "counterText": "Clicks: 3 (double 6, cart 2)Increment",
+      "getComponentName": "_Counter"
+    }
+  ],
+  "orchestratorGlobals": {
+    "href": "http://127.0.0.1:51316/__vitest_test__/?sessionId=f6c6a954-652c-4f96-aa63-6e0181a08e55",
+    "vitestBrowserRunner": "object",
+    "vitestBrowserRunnerKeys": [
+      "cleanups",
+      "config",
+      "disposeExceptionTracker",
+      "method",
+      "orchestrator",
+      "otelCarrier",
+      "providedContext",
+      "provider",
+      "sessionId",
+      "testerId",
+      "type",
+      "viteConfig",
+      "wrapDynamicImport",
+      "wrapModule"
+    ],
+    "typeofNg": "undefined"
+  },
+  "iframePrompt": {
+    "error": "Runtime.evaluate: timeout"
+  },
+  "iframeAfterClick": {
+    "error": "Runtime.evaluate: timeout"
+  },
+  "error": "Error: Target.getTargets: timeout\n    at Timeout._onTimeout (file:///D:/projects/sandbox/angular-ai-devtools/spikes/probes/vitest-attach.mjs:150:18)\n    at listOnTimeout (node:internal/timers:605:17)\n    at process.processTimers (node:internal/timers:541:7)",
+  "finishedAt": "2026-10-12T10:44:16.128Z"
+}

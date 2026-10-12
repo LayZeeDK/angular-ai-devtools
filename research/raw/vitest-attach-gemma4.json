@@ -1,0 +1,503 @@
+{
+  "route": "attach",
+  "label": "gemma4",
+  "cdpPort": 9334,
+  "vitestPort": 51316,
+  "holdMs": 40000,
+  "startedAt": "2026-10-12T10:27:14.180Z",
+  "steps": {
+    "extension": "Extensions.loadUnpacked: dmggnnpklabgnjkfefpenhbggndojfkm",
+    "panelRegistered": true,
+    "panelTarget": "iframe",
+    "uninstalled": true
+  },
+  "browser": "Chrome/156.0.8078.17",
+  "command": "ng test -c attach --watch=false --filter \"keeps the counter mounted\" (VITEST_BROWSER_PORT=51316, VITE_COUNTER_HOLD_MS=40000)",
+  "orchestratorUrl": "http://127.0.0.1:51316/__vitest_test__/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d",
+  "targetsDuringRun": [
+    "service_worker chrome-extension://dmggnnpklabgnjkfefpenhbggndojfkm/sw.js",
+    "page about:blank",
+    "browser_ui chrome://omnibox-popup.top-chrome/omnibox_popup_aim.html",
+    "browser_ui chrome://omnibox-popup.top-chrome/",
+    "background_page chrome-extension://dmggnnpklabgnjkfefpenhbggndojfkm/offscreen.html",
+    "page http://127.0.0.1:51316/__vitest_test__/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d"
+  ],
+  "frameTree": {
+    "top": "http://127.0.0.1:51316/__vitest_test__/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d",
+    "children": [
+      {
+        "url": "http://127.0.0.1:51316/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d&iframeId=__vitest_all__",
+        "name": "vitest-iframe",
+        "securityOrigin": "http://127.0.0.1:51316"
+      }
+    ]
+  },
+  "executionContexts": [
+    {
+      "frameId": "tester",
+      "type": "isolated",
+      "isDefault": false,
+      "name": "S1 probe (Vitest tester iframe variant)",
+      "origin": "chrome-extension://dmggnnpklabgnjkfefpenhbggndojfkm"
+    },
+    {
+      "frameId": "tester",
+      "type": "isolated",
+      "isDefault": false,
+      "name": "__playwright_utility_world_page@c5a68e60e29b17433af6e352e9a1d989",
+      "origin": "http://127.0.0.1:51316"
+    },
+    {
+      "frameId": "tester",
+      "type": "default",
+      "isDefault": true,
+      "name": "",
+      "origin": "http://127.0.0.1:51316"
+    },
+    {
+      "frameId": "top",
+      "type": "isolated",
+      "isDefault": false,
+      "name": "S1 probe (Vitest tester iframe variant)",
+      "origin": "chrome-extension://dmggnnpklabgnjkfefpenhbggndojfkm"
+    },
+    {
+      "frameId": "top",
+      "type": "isolated",
+      "isDefault": false,
+      "name": "__playwright_utility_world_page@c5a68e60e29b17433af6e352e9a1d989",
+      "origin": "http://127.0.0.1:51316"
+    },
+    {
+      "frameId": "top",
+      "type": "default",
+      "isDefault": true,
+      "name": "",
+      "origin": "http://127.0.0.1:51316"
+    }
+  ],
+  "iframeMount": {
+    "href": "http://127.0.0.1:51316/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d&iframeId=__vitest_all__",
+    "origin": "http://127.0.0.1:51316",
+    "topIsSelf": false,
+    "sameOriginAsParent": true,
+    "typeofNg": "object",
+    "ngKeys": [
+      "applyChanges",
+      "enableProfiling",
+      "getComponent",
+      "getContext",
+      "getDirectiveMetadata",
+      "getDirectives",
+      "getHostElement",
+      "getInjector",
+      "getListeners",
+      "getOwningComponent",
+      "getRootComponents",
+      "isSignal",
+      "toggleWatchSignal",
+      "ɵcompilerFacade",
+      "ɵgetComponentInstanceDeepLinkId",
+      "ɵgetControlFlowBlocks",
+      "ɵgetDependenciesFromInjectable",
+      "ɵgetInjectorMetadata",
+      "ɵgetInjectorProviders",
+      "ɵgetInjectorResolutionPath",
+      "ɵgetSignalGraph",
+      "ɵgetTransferState",
+      "ɵsetProfiler"
+    ],
+    "hasCounterHost": true,
+    "counterText": "Clicks: 3 (double 6, cart 2)Increment",
+    "vitestRunnerGlobal": "object",
+    "vitestRunnerKeys": [
+      "activeTraceTaskIds",
+      "aria",
+      "browserTraceAttempts",
+      "cdp",
+      "cleanups",
+      "commands",
+      "config",
+      "disposeExceptionTracker",
+      "iframeId",
+      "method",
+      "otelCarrier",
+      "providedContext",
+      "provider",
+      "runner",
+      "selectorEngine",
+      "sessionId",
+      "testerId",
+      "traces",
+      "type",
+      "viteConfig",
+      "wrapDynamicImport",
+      "wrapModule"
+    ],
+    "vitestWorkerGlobal": "object",
+    "ngVersionAttr": "22.2.2",
+    "typeofLanguageModel": "function",
+    "languageModelAvailability": "available",
+    "getComponent": {
+      "constructorName": "_Counter",
+      "count": 3,
+      "double": 6,
+      "title": "Clicks",
+      "countIsSignal": true
+    },
+    "rootComponents": [
+      "_Counter"
+    ],
+    "signalGraph": {
+      "nodes": [
+        {
+          "kind": "template",
+          "label": "div"
+        },
+        {
+          "kind": "signal",
+          "label": "title",
+          "value": "Clicks"
+        },
+        {
+          "kind": "signal",
+          "label": "count",
+          "value": 3
+        },
+        {
+          "kind": "computed",
+          "label": "double",
+          "value": 6
+        },
+        {
+          "kind": "signal",
+          "label": null,
+          "value": "object"
+        },
+        {
+          "kind": "effect",
+          "label": ""
+        }
+      ],
+      "edges": [
+        "template:div -> signal:title",
+        "template:div -> signal:count",
+        "template:div -> computed:double",
+        "template:div -> signal:",
+        "computed:double -> signal:count",
+        "effect: -> signal:count"
+      ]
+    },
+    "injectorResolutionPath": [
+      {
+        "type": "element",
+        "source": "HTMLDivElement"
+      },
+      {
+        "type": "environment",
+        "source": "DynamicTestModule"
+      },
+      {
+        "type": "environment",
+        "source": "Platform: core"
+      },
+      {
+        "type": "null",
+        "source": null
+      }
+    ],
+    "dependencies": [
+      {
+        "token": "_CartService",
+        "valueIsOverride": true,
+        "valueItems": [
+          "pear",
+          "plum"
+        ],
+        "providedIn": "R3Injector"
+      },
+      {
+        "token": "Injector",
+        "valueIsOverride": true,
+        "valueItems": null,
+        "providedIn": "NodeInjector"
+      }
+    ],
+    "providers": [
+      {
+        "depth": 1,
+        "injector": "environment",
+        "token": "_CartService",
+        "isViewProvider": false,
+        "provider": [
+          "provide",
+          "useValue"
+        ],
+        "importPath": [
+          "_Counter"
+        ]
+      },
+      {
+        "depth": 3,
+        "error": "Error: ASSERTION ERROR: getInjectorProviders only supports NodeInjector and EnvironmentInjector"
+      }
+    ],
+    "profilerInstalled": true
+  },
+  "orchestratorReach": [
+    {
+      "src": "http://127.0.0.1:51316/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d&iframeId=__vitest_all__",
+      "dataVitest": "true",
+      "name": "vitest-iframe",
+      "sameOrigin": true,
+      "typeofNg": "object",
+      "counterText": "Clicks: 3 (double 6, cart 2)Increment",
+      "getComponentName": "_Counter"
+    }
+  ],
+  "orchestratorGlobals": {
+    "href": "http://127.0.0.1:51316/__vitest_test__/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d",
+    "vitestBrowserRunner": "object",
+    "vitestBrowserRunnerKeys": [
+      "cleanups",
+      "config",
+      "disposeExceptionTracker",
+      "method",
+      "orchestrator",
+      "otelCarrier",
+      "providedContext",
+      "provider",
+      "sessionId",
+      "testerId",
+      "type",
+      "viteConfig",
+      "wrapDynamicImport",
+      "wrapModule"
+    ],
+    "typeofNg": "undefined"
+  },
+  "panelInspectedWindowTop": {
+    "result": {
+      "href": "http://127.0.0.1:51316/__vitest_test__/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d",
+      "typeofNg": "undefined",
+      "counterText": null,
+      "getComponentName": null
+    },
+    "exceptionInfo": null
+  },
+  "panelInspectedWindowTester": {
+    "result": {
+      "href": "http://127.0.0.1:51316/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d&iframeId=__vitest_all__",
+      "typeofNg": "object",
+      "counterText": "Clicks: 3 (double 6, cart 2)Increment",
+      "getComponentName": "_Counter"
+    },
+    "exceptionInfo": null
+  },
+  "iframePrompt": {
+    "availability": "available",
+    "contextWindow": 9216,
+    "answer": "OK",
+    "ms": 10771
+  },
+  "iframeAfterClick": {
+    "total": 12,
+    "byEventId": {
+      "2": 2,
+      "3": 2,
+      "6": 1,
+      "7": 1,
+      "12": 1,
+      "13": 1,
+      "14": 1,
+      "15": 1,
+      "18": 1,
+      "19": 1
+    },
+    "first": [
+      {
+        "event": 6,
+        "instance": "_Counter",
+        "at": 21277
+      },
+      {
+        "event": 7,
+        "instance": "_Counter",
+        "at": 21277
+      },
+      {
+        "event": 12,
+        "instance": null,
+        "at": 21287
+      },
+      {
+        "event": 14,
+        "instance": null,
+        "at": 21287
+      },
+      {
+        "event": 2,
+        "instance": "_Counter",
+        "at": 21287
+      },
+      {
+        "event": 3,
+        "instance": "_Counter",
+        "at": 21287
+      },
+      {
+        "event": 18,
+        "instance": null,
+        "at": 21287
+      },
+      {
+        "event": 2,
+        "instance": "_Counter",
+        "at": 21287
+      },
+      {
+        "event": 3,
+        "instance": "_Counter",
+        "at": 21287
+      },
+      {
+        "event": 19,
+        "instance": "_Counter",
+        "at": 21287
+      },
+      {
+        "event": 15,
+        "instance": null,
+        "at": 21287
+      },
+      {
+        "event": 13,
+        "instance": null,
+        "at": 21287
+      }
+    ],
+    "instancesSeen": [
+      "_Counter"
+    ],
+    "textAfter": "Clicks: 4 (double 8, cart 2)Increment"
+  },
+  "extensionStorage": {
+    "content_isolated|frame|/": {
+      "at": "2026-10-12T10:27:17.871Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "content_isolated",
+      "href": "http://127.0.0.1:51316/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d&iframeId=__vitest_all__",
+      "isSecureContext": true,
+      "ngVisibleFromIsolatedWorld": "undefined",
+      "permissionsPolicyAllowsLanguageModel": true,
+      "relayedFrom": "http://127.0.0.1:51316/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d&iframeId=__vitest_all__",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "content_isolated|top|/__vitest_test__/": {
+      "at": "2026-10-12T10:27:17.003Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "content_isolated",
+      "href": "http://127.0.0.1:51316/__vitest_test__/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d",
+      "isSecureContext": true,
+      "ngVisibleFromIsolatedWorld": "undefined",
+      "permissionsPolicyAllowsLanguageModel": true,
+      "relayedFrom": "http://127.0.0.1:51316/__vitest_test__/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "content_main|frame|/": {
+      "at": "2026-10-12T10:27:18.392Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "content_main",
+      "counterSeen": true,
+      "getComponent": {
+        "count": 3,
+        "name": "_Counter"
+      },
+      "href": "http://127.0.0.1:51316/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d&iframeId=__vitest_all__",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "relayedFrom": "http://127.0.0.1:51316/?sessionId=78130a41-f457-4404-b26c-7b8f181bd30d&iframeId=__vitest_all__",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "typeofNg": "object",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "waitedMs": 521
+    },
+    "devtools_page": {
+      "at": "2026-10-12T10:27:19.508Z",
+      "availability": "unavailable",
+      "availabilityWithToolOptions": "unavailable",
+      "context": "devtools_page",
+      "href": "chrome-extension://dmggnnpklabgnjkfefpenhbggndojfkm/devtools.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": false,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "devtools_panel": {
+      "at": "2026-10-12T10:27:19.908Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "devtools_panel",
+      "href": "chrome-extension://dmggnnpklabgnjkfefpenhbggndojfkm/panel.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "offscreen": {
+      "at": "2026-10-12T10:27:14.383Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "offscreen",
+      "href": "chrome-extension://dmggnnpklabgnjkfefpenhbggndojfkm/offscreen.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "relayedFrom": "chrome-extension://dmggnnpklabgnjkfefpenhbggndojfkm/offscreen.html",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "service_worker": {
+      "at": "2026-10-12T10:27:14.358Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "service_worker",
+      "href": "chrome-extension://dmggnnpklabgnjkfefpenhbggndojfkm/sw.js",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": "no document (worker)",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    }
+  },
+  "ngTestExitCode": 0,
+  "ngTestOutputTail": [
+    "Using Vitest configuration file: D:\\projects\\sandbox\\angular-ai-devtools\\spikes\\ng222-app\\vitest-attach.config.mts",
+    "❯ Building...\r",
+    "✔ Building...\r",
+    "Application bundle generation complete. [1.190 seconds] - 2026-10-12T10:27:16.156Z",
+    " RUN  v5.0.3 D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app",
+    " Test Files  1 passed (1)",
+    "      Tests  1 passed | 3 skipped (4)",
+    "   Start at  12:27:16",
+    "   Duration  41.53s (tests 99%)"
+  ],
+  "finishedAt": "2026-10-12T10:27:58.455Z"
+}
