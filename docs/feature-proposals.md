@@ -367,6 +367,7 @@ Every tool result that contains page text starts with Pangular's notice: page va
 
 - Reads run without asking. Writes (`set_writable_field`, navigate, dispatch, form fill) and every WebMCP call, including ones marked `readOnlyHint`, because the hint comes from the app, pause for a confirm button in the panel, as Chrome's assistant and Pangular's `confirm: true` do **[documented for Chrome, 03 section 3.1; documented for Pangular, Pangular docs at `76c09d0`, 03 section 1.5]**.
 - A read-only switch drops all write tools from the registry.
+- The confirm labels a write that can leave the page (a form submit, an NgRx `dispatch` whose effect calls the server, an app WebMCP call) as "may change server data"; the small models' argument errors (2.1) make the exact call on the confirm screen the only guard **[inferred design; Lars's decision 3]**.
 - The tool group that the extension publishes through `devtoolstooldiscovery` (3.2) holds only tools whose `execute` runs entirely in the page's MAIN world on data the page can already read (`ng.*`, the DOM). It holds no write tool and no tool that uses extension privileges: not `page_snapshot` (`chrome.tabs.captureVisibleTab` returns the pixels of the whole visible tab, including cross-origin iframes the page cannot read), nothing through `chrome.*` or `chrome.devtools.*`, and no data captured from other frames. Two kinds of caller can reach that group without the user: an external MCP client while the panel is closed, and any script on the page, because `devtoolstooldiscovery` is a plain DOM event that any page script (or another extension's MAIN-world script) can dispatch, after which it can call each returned `execute` directly (02 section 1.5; 03 section 3.3) **[inferred design]**.
 - The extension only activates on pages where `window.ng` exists (dev mode). On production builds it says so and does nothing **[inferred]**.
 - Everything stays on the device. In Chrome, the built-in model sends nothing to Google or a third party **[documented, Chrome get-started docs, 03 section 3.4]**. For Edge, no Microsoft statement was found in `research/`, so that Edge's built-in model sends nothing off the device is **[inferred]**. Chrome DevTools AI assistance, by contrast, sends data to cloud Gemini and is opt-in.
@@ -646,7 +647,7 @@ The `control-ai-browsers` skill launches, checks and stops them.
 
 ## 8. Decisions for Lars
 
-Decisions 1 and 2 are decided by Lars (2026-10-12, Rulings below). Decision 3 is open; Claude applied the default shown so the design could proceed.
+Decisions 1, 2 and 3 are decided by Lars (2026-10-12, Rulings below).
 
 1. **Tier 1 (`ng.ɵ*` already on the page).** Decided by Lars (2026-10-12, Rulings below): allowed, labelled and feature-detected (section 2.2), as the default applied. The alternatives below stay for the record. Tier 1 is still "using internal APIs" in the brief's words.
    - Had Lars ruled Tier 1 out, these would need an app-side re-export (Tier 2):
@@ -670,7 +671,7 @@ Decisions 1 and 2 are decided by Lars (2026-10-12, Rulings below). Decision 3 is
    - Chrome Beta with Gemma 4 is the reference for the structured-output loop: 15/15 on CPU (forced with the `OnDeviceModelForceCpuBackend` command-line feature, 2.1), 13/15 on the default GPU low tier.
    - Gemini Nano (fallback loop on GPU, 11/15 after the `916fc09` regrade, one of them a garbled answer that its check accepts, section 9) and Phi-4-mini on Edge stable stay supported on the structured-output loop **[measured, 05; regrade by `spikes/probes/regrade.mjs` over `research/raw/bench/nano-gpu.json`]**. The startup check decides support; the routing rule decides the loop (3.3): native tools only on Edge with a `contextWindow` of 7,168 and a passing native canary, the structured-output loop otherwise, with a manual override in the panel settings, because no API names the model **[inferred from measured per-model results]**. Nano on the CPU backend failed the fallback loop in 15 of 15 runs, so the structured-output canary marks it unsupported (3.3).
    - Recorded as Claude's default, because only Lars can rank Edge against Chrome as the product's lead browser. Lars approved it on 2026-10-12 (Rulings below).
-3. **Writes from chat.** Default applied: allowed behind a per-action confirm and a read-only switch (section 3.5).
+3. **Writes from chat.** Decided by Lars (2026-10-12, Rulings below): allowed behind a per-action confirm and a read-only switch (section 3.5). Rejected for the record: a read-only first release (B), and reversible writes without a confirm (C).
 
 ### Rulings from Lars (2026-10-11 to 2026-10-12)
 
@@ -690,6 +691,7 @@ Quotes are verbatim. Text after "Claude's note:" is Claude's account.
 - (2026-10-12) "We are okay to abandon legacy Angular features like NgZone/zone.js (supporting zoneless only), NgModules, class-based vs. functional, template-based forms, and Reactive Forms, and only support modern Angular features." Claude's note: Claude reads this as: supported apps are standalone, zoneless, use functional guards, resolvers, interceptors and providers, and use Signal Forms (section 1, "Supported apps"); a Zone.js app gets a "not supported" notice instead of a second code path, using the zone-mode check in `app_facts` (3.3, 3.4) as the support check, and NgModule setups such as `RouterModule.forRoot` are unsupported.
 - (2026-10-12) "I rule out NgModules for simplicity. Every NgModule-based API has a replacement and `@angular/*` packages themselves have moved away from NgModules. They are all but deprecated and add complexity to any 3rd-party package or tool supporting them." Claude's note: no feature, tool or rule has an NgModule code path; an NgModule app is out of scope even though the panel has no check that detects one yet (section 9).
 - (2026-10-12) "Blocked items: Approve all 3 as recommended." Claude's note: the three items are (1) Tier 1 allowed by default, labelled and feature-detected (decision 1, section 8); (2) Aion on Edge Dev is the native-tools reference and Gemma 4 on Chrome Beta the structured-output reference (decision 2, section 8); (3) the S11 matrix was run (S11 in section 7; results in 2.1).
+- (2026-10-12) "Decision 3: Option A." Claude's note: writes from chat stay allowed behind a per-action confirm that shows the exact tool and arguments, with a read-only switch that removes every write tool (decision 3, section 3.5). Claude added one refinement to 3.5 as part of the recommendation Lars accepted: the confirm labels writes that can leave the page (a form submit, an NgRx `dispatch` with an HTTP effect, an app WebMCP call) as "may change server data" **[inferred design]**.
 
 ## 9. What was not checked
 
