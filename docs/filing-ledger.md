@@ -84,3 +84,59 @@ The measured run used the skill's client, `node .claude/skills/control-pangular-
 **Evidence:** `.claude/skills/control-pangular-inspector/SKILL.md:172` (0.0.7 has no `list-components`; added in 20ebbb9; 46 tools with `--read-only`).
 
 **Expected:** a "since" marker per tool, or docs versioned with the package.
+
+## 4. Chromium (Blink>AI>Prompt): `LanguageModel.availability()` returns `available` for tool types that `create()` then refuses
+
+Status: draft, not filed. Found 2026-10-11 in the root-cause reading of Gemini Nano's "unable to create a session" error (`research/09-nano-tool-session-error.md`, Q3 and Q5; measured behaviour in `research/05-spikes.md`, "Root cause hunt").
+
+**Versions:** Chrome Beta 156.0.8078.17 on Windows 11 arm64, model `v3Nano`. Source read at tag `156.0.8078.17`; the same checks are present on `main` at `157.0.8100.0` with shifted line numbers (09). Spec read at webmachinelearning/prompt-api `index.bs` commit `8040b81`.
+
+**What happens:** with the Blink runtime feature `AIPromptAPIToolUse` off, `LanguageModel.create()` with `expectedInputs` containing `tool-response` and `expectedOutputs` containing `tool-call` rejects with "The device is unable to create a session to run the model. Please check the result of availability() first." `LanguageModel.availability()` with the same options returns `available`.
+
+**Why (source, measured in 09):**
+- `LanguageModel::ExecuteAvailability` always sends an empty `tools` vector to the browser (`third_party/blink/renderer/modules/ai/language_model.cc`, L659-L686, L674).
+- `AIManager::CanCreateLanguageModel` runs its only tool gate, `!base::FeatureList::IsEnabled(kAIPromptAPIToolUse)`, only when `options->tools` is non-empty (`chrome/browser/ai/ai_manager.cc`, L774-L783), so `availability()` never reaches it. `GetExpectedInputCapabilities` skips `kToolCall`/`kToolResponse` (L244-L268).
+- In the spec, `availability()` and `create()` share "compute language model options availability" (`index.bs` L415-L445), which adds a content-type availability for every expected input and output type (L463-L471), and `create()` fails only when that availability is `unavailable` (L322-L324). So the two are meant to agree; 09 reads this as a conformance bug against the spec, not a spec gap.
+
+**Reproduction** in Chrome 156 with `AIPromptAPIToolUse` off and the model available:
+
+```js
+const opts = { expectedInputs: [{ type: 'text' }, { type: 'tool-response' }], expectedOutputs: [{ type: 'text' }, { type: 'tool-call' }] };
+await LanguageModel.availability(opts); // 'available'
+await LanguageModel.create(opts);       // rejects: "The device is unable to create a session to run the model. ..."
+```
+
+The snippet restates the probe matrix in 05; it was not run in this exact form (inferred).
+
+**Expected:** `availability()` returns `unavailable` for the tool types when `create()` would refuse them.
+
+**Existing reports:** 09 found none. The Chromium tracker's search needs sign-in, and web search with `site:issues.chromium.org` had no hits. crbug 422803232 ("Implement function calling support in chromium") is related: its TODO in `ModelClient` says per-model tool capability is not implemented yet. Check the tracker again before filing.
+
+**Evidence:** the source links in `research/09-nano-tool-session-error.md` Q3 and Q5 are public and self-contained.
+
+## 5. Chromium (on-device model, Gemma 4): a camelCase tool name crashes the model process on the first prompt
+
+Status: draft, not filed. Found 2026-10-12 in spike S1 phase 2 (`research/11-spike-s1-extension-contexts.md`, "Finding: camelCase tool names crash Gemma 4's model process").
+
+**Versions:** Chrome Beta 156.0.8078.17 on Windows 11 arm64, model `gemma4-2b-it` (GPU low tier), launched with `AIPromptAPIToolUse`, `OnDeviceModelConversationBackend`, `AIApiFoundationalModel:model_version/v4` and `OptimizationGuideManifestBroker` (00, "Per-model instances").
+
+**What happens:** a tool session whose tool is named `getComponentCount` (one required parameter) fails on the first `prompt()` with `UnknownError: An unknown error occurred: kErrorUnknown`. The identical tool named `get_component_count` returns a tool call and a correct answer. Each failure counts as a model-process crash: after three in a row, `availability()` reads `unavailable` and `create()` throws `NotSupportedError: The model process crashed too many times for this version.` for at least a minute (crash limit and backoff in `on_device_model_access_controller.cc` and `optimization_guide_features.h`, read at tag 156.0.8078.17, 11).
+
+**Reproduction** in a page tab on the Gemma 4 instance (measured as a controlled pair):
+
+```js
+const tool = (name) => ({ name, description: 'Returns the number of Angular components on the page.', inputSchema: { type: 'object', properties: { scope: { type: 'string' } }, required: ['scope'] } });
+const opts = (name) => ({ tools: [tool(name)], expectedInputs: [{ type: 'text' }, { type: 'tool-response' }], expectedOutputs: [{ type: 'text' }, { type: 'tool-call' }] });
+await (await LanguageModel.create(opts('get_component_count'))).prompt('How many components are on the page?'); // returns a tool-call part
+await (await LanguageModel.create(opts('getComponentCount'))).prompt('How many components are on the page?');   // UnknownError: kErrorUnknown
+```
+
+The snippet restates the measured pair in its shape; the description and question text are paraphrased from the probe, not copied (inferred).
+
+**Not separated:** the rename changes case and underscores together, so whether case alone or the missing underscores trigger the crash is not known (11). The controlled test (`spikes/probes/tool-name-matrix.js`, spike S11) has not run. Run it before filing so the report names the trigger.
+
+**Expected:** any valid tool name either works or is rejected with a clear error at `create()`; a tool name never crashes the model process or counts toward disabling the model.
+
+**Existing reports:** not searched (unchecked).
+
+**Evidence:** `research/s1-results/chrome-gemma4-tool-name-pair.json` (the pair) and `research/s1-results/chrome-gemma4-crash-doctor.json` (the disabled state). (For Lars only: these are local paths; in the filed issue, describe the runs in words.)
