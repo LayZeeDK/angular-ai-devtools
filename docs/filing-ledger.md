@@ -150,3 +150,49 @@ The snippet restates the matrix's calls; the script adds the 70 s wait, a 120 s 
 **Existing reports:** not searched (unchecked).
 
 **Evidence:** `research/raw/tool-name-matrix-gemma4-gpu.json` (the five-variant matrix), `research/s1-results/chrome-gemma4-tool-name-pair.json` (the earlier pair) and `research/s1-results/chrome-gemma4-crash-doctor.json` (the disabled state). (For Lars only: these are local paths; in the filed issue, describe the runs in words.)
+
+## 6. openng-org/optimus-ui: `pTextarea` throws under Signal Forms `[formField]` because it subscribes to `NgControl.valueChanges`
+
+Status: draft, not filed. Found 2026-10-12 while migrating the Insurance Portal's forms to Signal Forms.
+
+**Versions:** `@openng/optimus-ui` 2.0.2, `@angular/forms` 22.2.2 (`@angular/forms/signals`), Windows 11 arm64, Chromium via playwright-cli.
+
+**What happens:** `Textarea.onInit` (`fesm2022/openng-optimus-ui-textarea.mjs`) runs `this.ngControl.valueChanges.subscribe(...)` whenever an `NgControl` is injected on its host. The Signal Forms `FormField` directive provides `NgControl` as an `InteropNgControl`, which implements `value`, `valid`, `errors`, `dirty` and similar getters but has no `valueChanges` (`packages/forms/signals/src/controls/interop_ng_control.ts` on 22.2.x). The page logs `TypeError: Cannot read properties of undefined (reading 'subscribe') at Textarea.onInit` and the textarea never initializes. `pInputText` only reads `ngControl?.value` and works.
+
+**Reproduction:**
+
+```ts
+import { Component, signal } from '@angular/core';
+import { form, FormField, required } from '@angular/forms/signals';
+import { TextareaModule } from '@openng/optimus-ui/textarea';
+
+@Component({
+  imports: [FormField, TextareaModule],
+  template: `<textarea pTextarea [formField]="f.text"></textarea>`,
+})
+export class Repro {
+  readonly f = form(signal({ text: '' }), (p) => required(p.text));
+}
+```
+
+**Expected:** `pTextarea` works under `[formField]`, for example by guarding the subscription (`this.ngControl.valueChanges?.subscribe`) or by updating its state from the `input` event alone.
+
+**Existing reports:** not searched (unchecked).
+
+**Evidence:** measured in the portal; the console log is in `tmp/control-angular-dev-app/portal-4775-2026-10-12T07-18-44-815Z/` (gitignored). (For Lars only: local path; in the filed issue, use the snippet.)
+
+## 7. openng-org/optimus-ui (and possibly angular/angular): `BaseInput` controls fail the `[formField]` type-check and turn red before they are touched
+
+Status: draft, not filed. Found 2026-10-12 while migrating the Insurance Portal's forms to Signal Forms.
+
+**Versions:** `@openng/optimus-ui` 2.0.2, `@angular/forms` and `@angular/compiler-cli` 22.2.2, strict templates.
+
+**What happens, part 1 (types):** `BaseInput`, which `Select` and `DatePicker` extend, declares inputs `pattern: string | null | undefined` and `min`, `max: number | null | undefined`. For a `[formField]` host, the template type-checker binds the field's `pattern()` (`readonly RegExp[]`) and `min()`/`max()` (`NonNullable<TValue> | undefined`) to inputs of those names (`expandBoundAttributesForField` in `packages/compiler/src/typecheck/ops/signal_forms.ts`). `<p-select [formField]="f.choice" />` and `<p-datepicker [formField]="f.date" />` therefore fail with `TS2322: Type 'readonly RegExp[]' is not assignable to type 'string'` and `Type 'Date | undefined' is not assignable to type 'number | null | undefined'`, whatever the field's value type. The portal works around it with `[formField]="$any(f.choice)"`.
+
+**What happens, part 2 (styling):** at runtime `FormField` writes every name in `CONTROL_BINDING_NAMES`, including `invalid`, to matching directive inputs (`cvaControlCreate` in `packages/forms/signals/src/directive/control_cva.ts`). Optimus maps its `invalid` input to the `p-invalid` class, which Aura styles with the invalid border colour. A required control is red on first render. Under reactive forms the theme rule was `.ng-invalid.ng-dirty`, so it turned red only after the user changed it.
+
+**Expected:** a control library written for `ControlValueAccessor` either works with Signal Forms' metadata bindings (types that accept them, or inputs named differently) or documents the combination; Angular could also skip metadata bindings whose types do not match on CVA hosts, where no value type is checked anyway. Which project should change is a judgement call (inferred).
+
+**Existing reports:** not searched (unchecked).
+
+**Evidence:** build output and screenshot `claim-01-empty.png` in `tmp/control-angular-dev-app/portal-4775-2026-10-12T07-18-44-815Z/` (gitignored); the portal commits `754aa1e`, `66e8ad6`, `92053b9` on `claude/ai-devtools-spike` carry the `$any` workaround. (For Lars only: local paths; in the filed issue, describe them in words.)

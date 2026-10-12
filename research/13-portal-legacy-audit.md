@@ -30,3 +30,7 @@ Measured against Lars's rulings of 2026-10-12 (supported apps are standalone, zo
 ## Not covered
 
 Third-party code under `node_modules` (for example `@openng/optimus-ui`) was not scanned; a UI library that ships NgModules would still work in a standalone app, but its internals were not checked.
+
+## Update: forms migrated (2026-10-12)
+
+The three forms now use Signal Forms (`@angular/forms/signals`) in commits `754aa1e` (claim), `66e8ad6` (contract) and `92053b9` (complaint) on `claude/ai-devtools-spike`, not pushed. The Reactive Forms search above now finds nothing (exit 1), and `@angular/forms/signals` appears in 6 files **[measured]**. Type-check, build and lint exit 0, and each form was driven in the browser through create (and edit for contract) with the API payload keys unchanged; evidence in `tmp/control-angular-dev-app/portal-4775-2026-10-12T07-18-44-815Z/` (gitignored). Two optimus-ui incompatibilities are drafted in `docs/filing-ledger.md` (6 and 7), not filed.
