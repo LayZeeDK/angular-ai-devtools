@@ -136,7 +136,7 @@ page (MAIN world, document_start)          isolated content script        extens
 ```
 
 - The page agent must run in the MAIN world: `window.ng` and the `respondWith` expando on the discovery event are invisible to an isolated content script **[inferred from 02 section 1.5; Angular DevTools does the same, `manifest.chrome.json`]**.
-- Where the model session lives is the riskiest unknown. Chromium force-enables `LanguageModel` for extension service workers, and DevTools creates extension panel iframes with `allow="language-model; summarizer; ..."` **[measured in Chromium and DevTools source, 01]**, so both a DevTools panel and the side panel should work. Nothing has been run in an extension context yet. Spike S1 settles it first (section 7).
+- Where the model session lives: spike S1, phase 1 (`research/11`) **[measured in Chrome Beta 156 and Edge Dev 157]**. `LanguageModel` and `LanguageModelToolCall` exist in all eight extension contexts, and `availability()` reads `downloadable` in the DevTools panel, side panel, service worker, offscreen document, both content-script worlds and an extension tab. The exception is the hidden `devtools_page`, where the `language-model` permissions policy is denied and `availability()` reads `unavailable`. So the session lives in the DevTools panel or side panel page, never the `devtools_page`. The tool round trip per context (phase 2) still has to run on the model instances.
 - Recommended surface: a DevTools panel ("Angular AI") for the full chat, plus "Ask about this" entries in the Elements sidebar that open the chat with the selected element as context, following Chrome DevTools AI assistance **[03 section 3]**.
 
 ### 3.2 One tool registry, four sources
@@ -430,7 +430,7 @@ Each spike is the smallest isolated thing that settles one unknown. S1 blocks ev
 
 | # | Unknown | Spike | Done when |
 |---|---|---|---|
-| S1 | Can the extension create a `LanguageModel` session from a DevTools panel page, the side panel, and the service worker, in Chrome Beta and Edge Dev? | Minimal MV3 extension that logs `typeof LanguageModel`, `availability()`, `contextWindow`, and runs one tool round trip from each context | A table per browser and context, run in Lars's Chrome Beta and Edge Dev |
+| S1 | Can the extension use `LanguageModel` from each of its contexts? **Phase 1 done (11):** yes in seven of eight contexts in both browsers; not in the `devtools_page`. Phase 2, a tool round trip per context, is open. | `spikes/s1-extension`, loaded over CDP `Extensions.loadUnpacked` | phase 2 on the model instances |
 | S2 | ~~Does dispatching `devtoolstooldiscovery` return Angular's tool group on a real 22.2 app?~~ **Done (05):** yes, from the page's main world. It also turned up the `di_graph` side effect and the raw-graph reading errors. Still to repeat from an actual MAIN-world content script as part of S1. | `spikes/ng222-app` | done |
 | S3 | How many tools and how much tool output fit in Aion's 7,168 tokens and Gemma 4's window before answers degrade? | Run 20 scripted questions against 5, 10 and 15 tools on a sample app; log `contextUsage` and correctness | A tool-count and output-cap budget per model |
 | S4 | Answer quality per model: Gemma 4 2B misread a tool result where Aion did not, in one run | The S3 question set, scored per model, with tool results as compact JSON vs short prose | A per-model choice of result format, and whether Gemma 4 needs a "quote the tool result" instruction |
