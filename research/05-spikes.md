@@ -145,7 +145,7 @@ So the error is the feature gate described in `09-nano-tool-session-error.md`, n
 | Model | Browser | Backend (perf class) | contextWindow | Native, runs passed | Fallback, runs passed | Median per question |
 |---|---|---|---|---|---|---|
 | Gemini Nano v3 (2025.8.21.1028) | Chrome Beta 156 | CPU `nano_v3_cpu_model` (2) | 9,216 | 1/15 | 0/15 | 15-22 s native, 34-42 s fallback |
-| Gemma 4 2B | Chrome Beta 156 | GPU `gemma4_gpu_low_tier_model` (3) | 9,216 | 8/15 | 13/15 | 11-13 s |
+| Gemma 4 2B | Chrome Beta 156 | GPU `gemma4_gpu_low_tier_model` (3) | 9,216 | 8/15 | 13/15 | 11-14 s (superseded rounding: 11-13 s; raw medians 11.0-13.5 s) |
 | Aion-1.1-Instruct | Edge Dev 157 | GPU, variant `webgpu-fp16-prerelease` (5) | 7,168 | **15/15** | 11/15 | 3-6 s |
 | Phi-4-mini-instruct (2026.8.19.1) | Edge stable 155 | GPU, "highest quality" (5) | 9,216 | 5/15 | 7/15 | 3-6 s |
 
@@ -179,7 +179,7 @@ Same harness and questions as the second round, run while the machine was still 
 |---|---|---|---|---|
 | Nano v3 | CPU `nano_v3_cpu_model` | 1/15 | 0/15 | 15-42 s |
 | Nano v3 | GPU `nano_v3_gpu_low_tier_model` (2025.8.8.1141) | 2/15 (3/15 before the `916fc09` regrade) | 11/15 (13/15 before the regrade) | 2-12 s native, 7-8 s fallback |
-| Gemma 4 2B | GPU `gemma4_gpu_low_tier_model` | 8/15 | 13/15 | 11-13 s |
+| Gemma 4 2B | GPU `gemma4_gpu_low_tier_model` | 8/15 | 13/15 | 11-14 s (superseded rounding: 11-13 s; raw medians 11.0-13.5 s) |
 | Gemma 4 2B | CPU (`OnDeviceModelForceCpuBackend`) | 9/15 | **15/15** | 25-34 s |
 
 Raw files: `research/raw/bench/nano.json` (CPU), `nano-gpu.json`, `gemma4-cpu.json`. The Gemma 4 GPU row has the same figures as the second round; the only saved file for it is `gemma4.json`. The `916fc09` regrade changes only the Nano GPU row: native 3/15 to 2/15 (the extra pass was a text answer naming `count` and `increment`, with no tool call) and fallback 13/15 to 11/15 (two answers about the `count` signal itself) (measured).

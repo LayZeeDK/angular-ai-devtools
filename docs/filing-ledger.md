@@ -36,6 +36,8 @@ Measured per token: `Injector`, `DestroyRef`, `ElementRef`, `Renderer2` leave th
 
 **Possible fixes (inferred):** skip `ViewContainerRef`, `ChangeDetectorRef` (untested, included as another node-injector special token) and other node-injector special tokens in `serializeInjector`, or report them without calling `get`; and make the signal-graph lookup unwrap a view container at the host to reach the component view.
 
+**Related (inferred, not run):** `ng.ɵgetDependenciesFromInjectable` makes the same call, `injector.get(token, null, {self: true, optional: true})`, as its first statement (`packages/core/src/render3/util/injector_discovery_utils.ts:61` on 22.2.x, read in source). So a debugging client that passes it a `ViewContainerRef` token from `ɵgetInjectorProviders` would probably cause the same loss. Angular DevTools passes it only component and directive classes (`component-tree.ts:155-158`), so it does not.
+
 **Evidence:** the two reproduction snippets above are self-contained; the issue text needs nothing else.
 
 (For Lars only, leave out of the filed issue: the spike app is `spikes/ng222-app` and the probe results are in `research/05-spikes.md`, both in this repository.)
