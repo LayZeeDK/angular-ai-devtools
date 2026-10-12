@@ -240,3 +240,25 @@ Redone in a disposable copy of the Aion profile (`.browsers/edge-dev-aion-lowcla
 2. **A Low-class device:** stored class seeded to 2 with the profile closed (`spikes/probes/seed-perf-class.mjs`), the manifest folder deleted, then a restart. The class stayed 2, and Edge downloaded a new manifest with the same four variants: `webgpu-fp16`, `webgpu-fp16-prerelease`, `webgpu-fp32`, `webgpu-fp32-prerelease`. No CPU variant, and `availability()` stayed `unavailable`.
 
 Verdict: on this machine (Windows 11 ARM64), Edge Dev 157 offers Aion only through WebGPU, whatever the performance class. Inferred: Microsoft's CPU-inferencing route ships to other platforms or later builds. Phi-4-mini (Edge stable) was tested only with the force-CPU switch, and its docs make no CPU claim.
+
+## NPU (2026-10-12)
+
+Lars asked: "Any way to force any of the models on NPU?"
+
+Chrome (Gemini Nano, Gemma 4), measured from Chromium 156.0.8078.17 source:
+- `services/on_device_model/public/mojom/on_device_model_service.mojom:49-56` defines three backends: `kGpu` (WebGPU), `kApu` ("Only available on devices with APU, and need special APU model files"), and `kCpu`.
+- GitHub code search finds `ModelBackendType::kApu` only in the mojom traits, the fake ChromeML backend and a unit test. Nothing in `chrome/` or `components/` selects it.
+- Chrome Beta 156's binary has no APU or NPU strings near the on-device model code.
+- Verdict: no NPU route for Chrome's built-in models on Windows. Inferred: the APU backend serves ChromeOS devices.
+
+Edge (Aion, Phi-4-mini), measured from files:
+- Edge's model runtime is a downloaded component, `EdgeLLMRuntime\2026.10.2.1\onnxruntime-genai.dll` (ONNX Runtime GenAI).
+- It reads the execution provider from the model's `genai_config.json`. Aion's config says `"provider_options": [{"webgpu": {...}}]`.
+- The runtime's strings mention "the QNN EP package" (Qualcomm's NPU provider). `msedge.dll` also contains `QNNExecutionProvider` and Windows ML provider-download calls (`EnsureExecutionProviderReadyAsync`).
+- So in principle, editing `genai_config.json` could point Aion at QNN (NPU) or at CPU (an empty provider list). Inferred: QNN usually needs a model quantized and compiled for the NPU, and Aion ships as WebGPU fp16.
+- The trial was not completed. In a copy of the Aion profile, even the unchanged WebGPU baseline reported `downloading`: the copy did not adopt its model folder, though the files matched the original byte for byte. Cause not found.
+- Next step: run `spikes/probes/set-genai-provider.mjs` (webgpu, qnn, cpu) on the standing Aion instance with `ep-prompt.js` and `engine-sampler.ps1`, once that instance is free, and restore `webgpu` afterwards.
+
+Other routes to the NPU, outside the built-in Prompt API (inferred, untested):
+- Windows' own on-device model runs on the Snapdragon NPU through the Windows App SDK: Phi Silica today, Aion Instruct from the November 2026 Insider rollout (`research/00`, "Phi-4-mini in Edge Dev 157" sources). An extension could reach it only through a native-messaging host.
+- WebNN with `deviceType: 'npu'` (Edge flag `webnn-onnxruntime`: "Enables using ONNX Runtime for CPU, GPU and NPU inference with the WebNN API") runs a model the page supplies itself, not the browser's built-in one.
