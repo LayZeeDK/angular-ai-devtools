@@ -39,6 +39,30 @@ async page => {
       return el;
     };
     const root = () => document.querySelector('[ng-version]');
+    // Zoneless-by-default apps never get the NgZoneless mark and may still load zone.js; the NgZone provider record tells.
+    const ngZoneClass = () => {
+      try {
+        for (const inj of window.ng.ɵgetInjectorResolutionPath(window.ng.getInjector(root()))) {
+          let records = [];
+
+          try {
+            records = window.ng.ɵgetInjectorProviders(inj);
+          } catch {
+            continue;
+          }
+
+          const rec = records.find((r) => r.token?.name === 'NgZone');
+
+          if (rec) {
+            return rec.provider?.useClass?.name ?? rec.provider?.name ?? 'unknown';
+          }
+        }
+      } catch {
+        return null;
+      }
+
+      return null;
+    };
     const CORE = ['getComponent', 'getContext', 'getOwningComponent', 'getRootComponents', 'getInjector', 'getDirectives', 'getDirectiveMetadata', 'getHostElement', 'getListeners', 'applyChanges', 'isSignal', 'ɵgetSignalGraph', 'ɵgetInjectorResolutionPath', 'ɵgetInjectorMetadata', 'ɵgetInjectorProviders', 'ɵgetDependenciesFromInjectable'];
 
     window.__ngc = {
@@ -55,6 +79,7 @@ async page => {
           missingCore: CORE.filter((k) => typeof ng?.[k] !== 'function'),
           router: ['ɵgetRouterInstance', 'ɵgetLoadedRoutes', 'ɵnavigateByUrl'].every((k) => typeof ng?.[k] === 'function'),
           zoneLoaded: typeof window.Zone !== 'undefined',
+          ngZone: ngZoneClass(),
           featureMarks: performance.getEntriesByName('mark_feature_usage').map((m) => m.detail?.feature),
         };
       },

@@ -476,7 +476,8 @@ async function doctor() {
     add('router-globals', page.router ? 'pass' : 'warn', page.router ? 'ɵgetRouterInstance, ɵgetLoadedRoutes, ɵnavigateByUrl present (provideRouter)' : 'router globals absent (no provideRouter, or RouterModule.forRoot): router recipes unavailable');
   }
 
-  add('change-detection-mode', 'pass', `${page.zoneLoaded ? 'zone.js loaded (zone-based CD)' : 'zone.js not loaded (zoneless)'}; mark_feature_usage: ${page.featureMarks.join(', ') || 'none'}`);
+  const cdMode = page.ngZone === 'NoopNgZone' ? 'zoneless' : page.ngZone ? 'zone-based' : 'unknown (no NgZone provider record found)';
+  add('change-detection-mode', 'pass', `${cdMode} (NgZone provider: ${page.ngZone ?? 'none'}); zone.js ${page.zoneLoaded ? 'loaded' : 'not loaded'}; mark_feature_usage: ${page.featureMarks.join(', ') || 'none'}`);
   r = pw(['console', 'error']);
   const total = Number(/Errors: (\d+)/.exec(r.stdout)?.[1] ?? NaN);
   // The portal's dev-only Pangular overlay probes /__connection.json URLs next to the page (404 with or without a
