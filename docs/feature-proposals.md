@@ -15,15 +15,30 @@ Evidence files (all in `research/`):
 - `06-angular-skills.md`: the official angular/skills repo as a rule source.
 - `07-prompting-small-models.md`: prompting guidance for the on-device models.
 - `08-recent-angular-features.md`: Angular 20.0-22.2 features, their runtime visibility, and feature ideas (N14-N23).
+- `09-nano-tool-session-error.md`: root cause of Gemini Nano's "unable to create a session" error with native tools.
+- `10-model-capabilities.md`: what vendors say about tool calling and structured output per model, against the measurements.
+- `11-spike-s1-extension-contexts.md`: spike S1, the Prompt API and a tool round trip in each extension context.
 - `../docs/filing-ledger.md`: a draft upstream report found during the spikes (not filed).
 
-Labels: **[measured]** means read in source or run in Lars's browsers; **[inferred]** means reasoned from measured facts and not yet run. Every feature names the data tier it needs (section 2.2).
+Labels:
+- **[measured]** means read in source or run in Lars's browsers.
+- **[documented]** means stated in vendor documentation and not checked by a run.
+- **[inferred]** means reasoned from measured facts and not yet run.
+
+Every feature names the data tier it needs (section 2.2).
 
 ---
 
 ## 1. Summary
 
 The niche is open. Nobody ships an on-device model inside a framework devtools panel **[inferred from search, 03 section 5]**. Pangular Inspector, Chrome DevTools for agents, agent-react-devtools and the Angular CLI MCP server all hand data to an external cloud or IDE agent; Chrome's own DevTools assistant runs on cloud Gemini and is opt-in under terms of service.
+
+The Angular AI docs contributed three things:
+- `design-patterns.md` gives one of N2's rules.
+- WebMCP support gives N9.
+- The Angular CLI MCP server is the code-side complement to this extension (N13).
+
+The AI tutor (`ai-tutor.md`) is a persona for a coding agent. It runs through the CLI MCP server and reads project files, so it has no runtime counterpart in a devtools extension **[02 section 4.4]**.
 
 Four facts shape the design:
 
@@ -35,7 +50,7 @@ Four facts shape the design:
    - So the model loop routes per model and detects support with a canary call. `availability()` cannot tell **[measured, 09]**.
 2. **The context window is small: 7,168 tokens on Aion and 9,216 on the Chrome models and Phi-4-mini** **[measured, 05]**. A component tree does not fit. The model must pull facts through small, pre-digested tools by id, never receive dumps.
 3. **Angular 22 already ships two in-page AI tools.** Every dev-mode app answers the `devtoolstooldiscovery` DOM event with `angular:di_graph` and `angular:signal_graph` **[measured, `packages/core/src/debug/ai/registration.ts:21-38`, `platform.ts:48-50`]**. The extension can collect them with one event dispatch and no `ɵ` name.
-4. **Most of what Angular DevTools shows is reachable from `window.ng` in a MAIN-world script** with no app change **[measured, 02 section 1-2]**. The parts that need internals are already published on `ng` with a `ɵ` prefix (Tier 1). Real Tier 2 gaps at 22.2 are small: `@if`/`@switch` block state, error-boundary state, template local refs, the DI event stream **[measured, 02 section 1.3 and 5.7]**.
+4. **Most of what Angular DevTools shows is reachable from `window.ng` in a MAIN-world script** with no app change **[measured, 02 section 1-2]**. The parts that need internals are already published on `ng` with a `ɵ` prefix (Tier 1). Real Tier 2 gaps at 22.2 are small: `@if`/`@switch` block state, error-boundary state, template local refs, the DI event stream **[measured, 02 section 1.3 and 5.7]**. The error-boundary gap means that `ng` exposes no boundary API. N16 tries a Tier 0 route around it, which its spike must confirm.
 
 Recommended first release, in priority order:
 
@@ -46,7 +61,8 @@ Recommended first release, in priority order:
 | N3 | DI doctor | Explains resolution failures and duplicate instances in prose | 0 + 1 |
 | N4 | Angular error explainer | On-device Console Insights that knows `NG0xxx` and the owning component | 0 |
 | N6 | Capture-to-test (Vitest Browser Mode) | Turns live state into a runnable spec | 0 |
-| N9 | Agent rehearsal for WebMCP tools | Tests whether a small model can use the app's own tools | WebMCP opt-in |
+
+Stretch (app opt-in): N9, agent rehearsal for WebMCP tools. It tests whether a small model can use the app's own tools, so it works only on apps that register WebMCP tools. The brief calls that a stretch: "using WebMCP in the Angular application may be considered a stretch prerequisite".
 
 Plus a chat panel that promptifies every Angular DevTools tab (section 5), and ecosystem adapters led by an NgRx Redux DevTools shim (section 6).
 
@@ -70,7 +86,7 @@ What the browsers do not tell you **[measured, 05, 09]**:
 - Which backend a model runs on: that comes only from `on-device-internals` Broker State, or from the stored performance class.
 - Whether a forced backend exists: on Edge, forcing CPU deletes the installed model.
 
-Gemma 4's small variants have a 128K context per Google's model docs **[measured, 01]**, but Chrome caps the session at 9,216 tokens **[measured, 00]**. Design for 7-9K tokens.
+Gemma 4's small variants have a 128K context per Google's model docs **[documented, 01]**, but Chrome caps the session at 9,216 tokens **[measured, 00]**. Design for 7-9K tokens.
 
 Benchmark: five questions about the counter app, three runs each, three narrow tools, native tools against the structured-output fallback loop. Details are in 05; all four models ran under another session's CPU load, so latencies are indicative only **[measured]**:
 
@@ -96,7 +112,13 @@ API details that the implementation must follow **[measured, 00 and 01]**:
 - `create()` with `tools` needs both `expectedOutputs: [{type:'text'}, {type:'tool-call'}]` and `expectedInputs: [{type:'text'}, {type:'tool-response'}]`, or it throws.
 - Tool calls arrive as `LanguageModelToolCall` objects with getter fields `name`, `callID`, `arguments`. `JSON.stringify` shows `{}`. The member is spelled `callID`; `callId` throws.
 - Results go back as `new LanguageModelToolSuccess({callID, name, result: [{type:'object', value}]})` (or `LanguageModelToolError`) inside `{role:'user', content:[{type:'tool-response', value}]}`, immediately after the call. Prompting without a response fails with `kErrorUnknown`.
-- Model quirks to code around: Gemma 4 returns `callID: ""` (pass it back unchanged); Gemma 4 fails tool prompts with `kErrorUnknown` (a model-process crash; after three, Chrome disables the Prompt API for a minute) on camelCase tool names such as `getComponentCount`, while `get_component_count` works **[measured, S1 phase 2, 11]**. The earlier finding that empty `properties` causes it is confounded, because every failing probe also used camelCase names. The controlled test (`spikes/probes/tool-name-matrix.js`) was stopped by a low-memory shutdown and has not run. Until it does, tools use snake_case names and at least one parameter (a required `scope` or `id`), which avoids both suspects; `promptStreaming()` on a Gemma 4 tool session fails, so tool turns use `prompt()` and only the final answer streams in a separate, tool-less clone **[measured cause of streaming failure; empty-schema cause inferred from the one change that fixed it, 00]**.
+- Model quirks to code around:
+  - Gemma 4 returns `callID: ""`. Pass it back unchanged.
+  - Gemma 4 fails tool prompts with `kErrorUnknown` on camelCase tool names such as `getComponentCount`, while `get_component_count` works **[measured, S1 phase 2, 11]**.
+  - Each `kErrorUnknown` is a model-process crash. After three crashes, Chrome disables the on-device model. It re-enables it after 1 minute at the third crash, and the wait doubles per further crash, up to 1 hour **[measured, Chromium 156 source, 11]**.
+  - The earlier finding that empty `properties` causes the failure is confounded, because every failing probe also used camelCase names **[measured, 11]**. The controlled test (`spikes/probes/tool-name-matrix.js`) was stopped by a low-memory shutdown and has not run.
+  - Until that test runs, tools use snake_case names and at least one parameter (a required `scope` or `id`). That rule avoids both suspects **[inferred]**.
+  - `promptStreaming()` on a Gemma 4 tool session fails. Tool turns use `prompt()`, and only the final answer streams, in a separate clone with no tools **[measured cause of streaming failure; empty-schema cause inferred from the one change that fixed it, 00]**.
 - Quota names in current builds: `contextWindow`, `contextUsage`, `measureContextUsage()`, `contextoverflow` event.
 - First `create()` in a browser session can take 3-21 s; later ones take milliseconds. Pre-warm a base session when the panel opens and `clone()` it per question **[measured timing, 00; `clone` pattern is what DevTools Console Insights does, 01]**.
 - The model must be present before `create()` from a page without user activation. The download needs a user gesture **[measured: a click started the Gemma 4 download in Chrome Beta, 00]**.
@@ -109,7 +131,9 @@ API details that the implementation must follow **[measured, 00 and 01]**:
 | 1 | Already on the page in dev mode but internal: `ng.ɵgetSignalGraph`, `ɵgetInjectorResolutionPath`, `ɵgetInjectorMetadata`, `ɵgetInjectorProviders`, `ɵgetDependenciesFromInjectable`, `ɵsetProfiler`, `ɵgetControlFlowBlocks`, `ɵgetTransferState`, router `ɵ` trio (only with `provideRouter`), `toggleWatchSignal`, `__ngDebugHydrationInfo__`, the `devtoolstooldiscovery` tools | yes, but version-fragile |
 | 2 (stretch) | Needs the app to change: re-export internals to `globalThis`, add a provider, register WebMCP tools, or install a third-party devtools provider | no |
 
-Lars's brief says to avoid importing `ɵ` symbols from `@angular/*` packages. Tier 1 is a different case: these functions are already published on `window.ng` by Angular itself for Angular DevTools, and need no app change. **Assumption (Claude's):** Tier 1 is allowed, each use is labelled, and every Tier 1 call is feature-detected with `typeof ng[name] === 'function'`, as Angular DevTools does (`ng-debug-api.ts:24-30`). The `ExternalCoreGlobalUtils` comment says functions that have ever been on `ng` stay supported for DevTools (`global_utils.ts:99-104`), so Tier 1 is more stable than ordinary `ɵ` exports **[inferred]**. If Lars rules Tier 1 out, features N1, N2, N3 (partly), N5 and the router and defer rows of section 5 drop to Tier 2.
+Lars's brief says: "Using internal APIs like the theta-prefixed symbols exported by `@angular/*` packages should be avoided but if features require these APIs, then exporting them to `globalThis` may be a stretch prerequisite."
+
+Tier 1 is "using internal APIs". The difference from the case the brief names is that Angular itself already publishes these functions on `window.ng` for Angular DevTools, so they need no app change and no `globalThis` export. Decision 1 in section 8 asks Lars to rule on it. **Assumption (Claude's):** Tier 1 is allowed, each use is labelled, and every Tier 1 call is feature-detected with `typeof ng[name] === 'function'`, as Angular DevTools does (`ng-debug-api.ts:24-30`). The `ExternalCoreGlobalUtils` comment says functions that have ever been on `ng` stay supported for DevTools (`global_utils.ts:99-104`), so Tier 1 is more stable than ordinary `ɵ` exports **[inferred]**. Decision 1 in section 8 lists what drops to Tier 2 if Lars rules Tier 1 out.
 
 Two Tier 1 rules from source:
 
@@ -136,8 +160,12 @@ page (MAIN world, document_start)          isolated content script        extens
 ```
 
 - The page agent must run in the MAIN world: `window.ng` and the `respondWith` expando on the discovery event are invisible to an isolated content script **[inferred from 02 section 1.5; Angular DevTools does the same, `manifest.chrome.json`]**.
-- Where the model session lives: spike S1, phase 1 (`research/11`) **[measured in Chrome Beta 156 and Edge Dev 157]**. `LanguageModel` and `LanguageModelToolCall` exist in all eight extension contexts, and `availability()` reads `downloadable` in the DevTools panel, side panel, service worker, offscreen document, both content-script worlds and an extension tab. The exception is the hidden `devtools_page`, where the `language-model` permissions policy is denied and `availability()` reads `unavailable`. So the session lives in the DevTools panel or side panel page, never the `devtools_page`. The tool round trip per context (phase 2) still has to run on the model instances.
-- Recommended surface: a DevTools panel ("Angular AI") for the full chat, plus "Ask about this" entries in the Elements sidebar that open the chat with the selected element as context, following Chrome DevTools AI assistance **[03 section 3]**.
+- Where the model session lives: spike S1 (`research/11`) **[measured in Chrome Beta 156 and Edge Dev 157]**.
+  - Phase 1: `LanguageModel` and `LanguageModelToolCall` exist in all eight extension contexts.
+  - Phase 2, on the Gemma 4 and Aion instances: seven of the eight contexts complete `create()` plus a tool round trip in both browsers. They are the DevTools panel, side panel, service worker, offscreen document, both content-script worlds and an extension tab.
+  - The exception is the hidden `devtools_page`. Its `language-model` permissions policy is denied, `availability()` reads `unavailable`, and `create()` throws `NotAllowedError`.
+  - So the session lives in the DevTools panel or side panel page, never the `devtools_page`.
+- Recommended UI: a DevTools panel ("Angular AI") for the full chat, plus "Ask about this" entries in the Elements sidebar that open the chat with the selected element as context, following Chrome DevTools AI assistance **[03 section 3]**.
 
 ### 3.2 One tool registry, four sources
 
@@ -150,7 +178,7 @@ Every capability is a tool with `{name, description, inputSchema, execute}`. Tha
 | App WebMCP tools via `document.modelContext` | whatever the app registers with `provideExperimentalWebMcpTools` or Signal Forms `experimentalWebMcpTool` | app opt-in |
 | Ecosystem adapters | NgRx, Storybook, Vitest, Analog, RxAngular (section 6) | 0 to 2 |
 
-The extension also answers `devtoolstooldiscovery` with its own tool group, so users of chrome-devtools-mcp (with `--categoryExperimentalThirdParty`) get the same Angular runtime tools in Claude Code or any MCP client for free **[03 section 3.3; inferred that both groups can coexist because the event takes one `respondWith` per listener]**.
+The extension also answers `devtoolstooldiscovery` with its own tool group, so users of chrome-devtools-mcp (with `--categoryExperimentalThirdParty`) get the same Angular runtime tools in Claude Code or any MCP client, with no extra code in the extension **[03 section 3.3; inferred that both groups can coexist because the event takes one `respondWith` per listener]**.
 
 Angular's two tools need care **[measured, 05 S2]**:
 
@@ -164,13 +192,21 @@ The extension's own tool group, answered through `devtoolstooldiscovery` for chr
 
 1. **Intent and tool subset.** A fresh clone of a warm session gets the question and a list of tool groups, and returns `{groups: [...]}` under `responseConstraint`. Only those groups' tools go into the next session. Small models choose worse among many tools, and every tool schema costs context **[inferred; tool count per session is a spike, S3]**.
 2. **Tool session.** `create({tools, expectedInputs, expectedOutputs, initialPrompts: [system, context chip]})`. Loop: `prompt` -> run each `tool-call` in the page agent -> send `tool-response` -> repeat, with a step cap (Chrome's own assistant caps at 20 **[01]**; start at 6 for a 7K window **[inferred]**).
-3. **Fallback without native tools.** On builds where `tools` is missing or ignored (Chrome 154 stable with the flag off), the same loop runs on structured output: the model returns `{"tool": name, "args": {...}}` or `{"answer": "..."}` under a `responseConstraint` built from the tool schemas, and tool results are appended as text. Neither the API surface nor `create()` tells whether tools work. Chrome 154 accepted `tools` silently and never called them; Chrome Beta defines `LanguageModelToolCall` and `LanguageModelToolSuccess` and accepts a tool session, yet fails tool prompts when a tool has no parameters **[measured, 00]**. So detect by running one canary round trip when the panel opens (a `ping` tool and "Call ping."), and choose native tools only if a `tool-call` part comes back and the follow-up prompt succeeds. Cache the result per browser version **[inferred design; the fallback's `responseConstraint` part is measured to work in all three browsers]**.
+3. **Fallback without native tools.** On builds where `tools` is missing or ignored (Chrome 154 stable with the flag off), the same loop runs on structured output.
+   - The model returns `{"tool": name, "args": {...}}` or `{"answer": "..."}` under a `responseConstraint` built from the tool schemas.
+   - Tool results are appended as text.
+   - Neither the API nor `create()` tells whether tools work. Chrome 154 accepted `tools` silently and never called them **[measured, 00]**.
+   - Chrome Beta defines `LanguageModelToolCall` and `LanguageModelToolSuccess` and accepts a tool session. Yet its model process crashed on tool prompts in 00's probes **[measured, 00]**. 00 blamed tools with no parameters. That cause is confounded, and the camelCase tool name alone reproduces the crash (see the quirks in 2.1) **[measured, 11]**.
+   - So run one canary round trip when the panel opens: a `ping` tool and "Call ping.". Choose native tools only if a `tool-call` part comes back and the follow-up prompt succeeds. Cache the result per browser version **[inferred design; the fallback's `responseConstraint` part is measured to work in all three browsers]**.
 
    Why `availability()` cannot decide this:
    - In Chrome 156 the tool types are gated by the Blink runtime feature `AIPromptAPIToolUse`, not by the model. With the feature off, `create()` refuses any `tool-call`/`tool-response` type with "unable to create a session". `availability()` still says `available`, because it never checks tool types, which contradicts the spec **[measured: probe matrix 05, Chromium 156.0.8078.17 source 09]**.
-   - With the feature on, Gemini Nano opens tool sessions but answered with text instead of a tool call in all three tries **[measured, 05]**. No Google source claims tool calling for Nano **[10]**.
-   - So the loop routes per model: native tools on Gemma 4 and Aion, and on Phi-4-mini if the benchmark confirms it. The structured-output loop runs on Gemini Nano.
-   - Aion-1.1-Instruct is documented as a text model; its tool calls come from Edge's runtime workaround (`msEdgeLLMOnDeviceModelMuffinToolUseWorkaround`), so they can change with an Edge update **[10; the link between the workaround and Aion is inferred]**.
+   - With the feature on, Gemini Nano opens tool sessions but answered with text instead of a tool call in all three tries **[measured, 05]**. In the benchmark, none of Nano's 15 native GPU runs made a tool call, so its 3 passes were text answers that the grader accepted **[measured, `spikes/probes/bench/nano-gpu.json`]**. No Google source claims tool calling for Nano **[10]**.
+   - So the loop routes per model, as in 2.1:
+     - Aion: native tools.
+     - Gemma 4 and Gemini Nano: the structured-output loop. Native tools on Gemma 4 only after S4 improves argument accuracy.
+     - Phi-4-mini: the fallback loop only.
+   - Aion-1.1-Instruct is documented as a text model. Its tool calls come from Edge's runtime workaround (`msEdgeLLMOnDeviceModelMuffinToolUseWorkaround`), so they can change with an Edge update **[documented, 10; the link between the workaround and Aion is inferred]**.
 4. **Answer rendering.** Answers show the tool walkthrough (each call, its arguments, a short result, a Reveal link to the element, the component in the tree, or the source), as Chrome DevTools AI assistance does **[03 section 3.1]**. The walkthrough is what makes a small model's answer checkable.
 5. **Context budget.** Track `contextUsage`; on `contextoverflow`, summarize the conversation with the Summarizer API (available in both browsers **[measured, 00]**) into a new session's initial prompts.
 
@@ -207,7 +243,7 @@ Every tool result that contains page text starts with Pangular's notice: page va
 - Reads run without asking. Writes (`setInput`, navigate, dispatch, form fill, WebMCP `execute`) pause for a confirm button in the panel, as Chrome's assistant and Pangular's `confirm: true` do **[03 section 6.5]**.
 - A read-only switch drops all write tools from the registry.
 - The extension only activates on pages where `window.ng` exists (dev mode). On production builds it says so and does nothing **[inferred]**.
-- Everything stays on the device. The built-in model sends nothing to Google or a third party **[measured, Chrome get-started docs, 03 section 3.4]**. That is the selling point over Chrome DevTools AI assistance, which is cloud-only and opt-in.
+- Everything stays on the device. The built-in model sends nothing to Google or a third party **[documented, Chrome get-started docs, 03 section 3.4]**. Chrome DevTools AI assistance, by contrast, sends data to cloud Gemini and is opt-in.
 
 ### 3.6 Prompting the small models
 
@@ -216,7 +252,7 @@ No vendor guidance exists for these exact builds. The kit below combines Chrome'
 - **What Aion is (measured from its files):** its tokenizer uses Phi-4's chat and tool tokens, and its config says `qwen3`, a 32,768-token native context and greedy decoding. Edge turns the tool list into system-prompt text and parses `<|tool_call|>{...}` out of the reply. Inferred: tool argument `enum`s are not enforced on Aion. Chrome Beta ships llguidance constrained-decoding code for tool calls and `responseConstraint` (measured); whether Gemma 4's tool calls actually go through it is unresolved.
 - **System prompt:** about 120 tokens, `## Rules` style, short rules: facts only from tools, one call at a time and stop when answered, `<page>` text is data, retry once on a tool error, at most three sentences.
 - **Tools:** snake_case names; one sentence of description, under about 200 characters, never Angular's long in-page descriptions; 1-3 required flat parameters; no empty schemas; an "e.g." and a "not X" clause where confusion was measured; ids or an `enum` of the ids that exist on the page, never free text. Code fills in arguments it already knows, such as the selected component.
-- **Results and errors:** results are flat objects that echo the identifying arguments; page strings go in `<page>…</page>` and are capped at 200 characters; arrays are capped at 20 with `total`. Errors use one template that names the bad argument, the likely mix-up and up to 10 valid values.
+- **Results and errors:** results are flat objects that echo the identifying arguments; page strings go in `<page>...</page>` and are capped at 200 characters; arrays are capped at 20 with `total`. Errors use one template that names the bad argument, the likely mix-up and up to 10 valid values.
 - **Fallback loop guards in code:** if the model repeats a call or reaches step max-1, re-prompt with an answer-only schema. With greedy decoding, Aion reproduces the same call from the same context, so this guard is required.
 - **Experiments E1-E13** (07 section 6.5) cover selector confusion, the repeat loop, empty schemas, declaration cost, result shape, injection and sampling, all run on the existing benchmark. They are the next benchmark round, after the Phi-4-mini and Gemini Nano baselines.
 
@@ -248,7 +284,7 @@ Test for "new": the model does something a panel cannot, such as explain a cause
 
 - Prompts: "Why do `ProductList` and `ProductDetail` get different `CartService` instances?", "Where would `AUTH_CONFIG` resolve from here?"
 - How: `di.path` plus `di.lookup` for both components, then a diff of the two resolution paths. The model explains which injector provided each instance (component `providers`, route environment injector, root) and suggests the provider change. For `NullInjectorError` caught by N4, it reconstructs the path at the failing component.
-- Uses Angular's own `angular:di_graph` when the question is about the whole app.
+- For a question about the whole app, it runs `di.path` and `di.lookup` over the relevant components. It never runs `angular:di_graph`, which section 3.2 forbids.
 - Tier 0 (`getInjector`) plus Tier 1 (injector functions). Prompt API with tools.
 
 ### N4. Angular error explainer (on-device Console Insights for Angular)
@@ -288,7 +324,7 @@ Test for "new": the model does something a panel cannot, such as explain a cause
 ### N9. Agent rehearsal for WebMCP tools (stretch: app opt-in)
 
 - Prompt: "Can an agent use my app's tools to add an item to the cart?"
-- How: when the page exposes `document.modelContext` (flag `enable-webmcp-testing`, active in Chrome Beta and Edge Dev after a relaunch; `document.modelContext` exposes `registerTool`, `getTools`, `executeTool` and `toolchange`/`toolactivated`/`toolcancel` events **[measured, 00]**), the extension lists the app's tools (Chrome documents `getTools()` / `executeTool()` for extensions **[01]**) and runs the on-device model as the agent against them. It reports where the model failed: an unclear description, a schema that allows bad input, a form tool blocked by a field the model cannot fill, a missing `readOnlyHint` on a read. A small model failing is a useful signal: a cloud agent will do better, but the same descriptions confuse it too **[inferred]**.
+- How: when the page exposes `document.modelContext` (flag `enable-webmcp-testing`, active in Chrome Beta and Edge Dev after a relaunch; `document.modelContext` exposes `registerTool`, `getTools`, `executeTool` and `toolchange`/`toolactivated`/`toolcancel` events **[measured, 00]**), the extension lists the app's tools (Chrome documents `getTools()` / `executeTool()` for extensions **[documented, 01]**) and runs the on-device model as the agent against them. It reports where the model failed: an unclear description, a schema that allows bad input, a form tool blocked by a field the model cannot fill, a missing `readOnlyHint` on a read. A small model failing is a useful signal: a cloud agent will do better, but the same descriptions confuse it too **[inferred]**.
 - Fallback when the browser has no `document.modelContext`: a MAIN-world shim at `document_start` that provides `registerTool`, so Angular's `declareExperimentalWebMcpTool` registers into the extension (Angular registers only if `registerTool` exists, `declare_tool.ts:35-46` **[measured]**). The shim must step aside when a native implementation is present.
 - Tier: app opt-in (the app must use `provideExperimentalWebMcpTools` or Signal Forms `experimentalWebMcpTool`). Pangular shows WebMCP form tools but does not test them with a model **[03 section 1.5]**.
 
@@ -301,7 +337,7 @@ Test for "new": the model does something a panel cannot, such as explain a cause
   - `@for` blocks whose `trackExpression` is the item itself on object items (`ɵgetControlFlowBlocks` returns `trackExpression`);
   - Zone.js loaded in a zoneless app (`mark_feature_usage` says `NgZoneless` while `typeof Zone` is defined, the case Angular warns about in `zoneless_scheduling_impl.ts:360-388`);
   - a11y basics on interactive component hosts (role, name, keyboard reachability) from the accessibility tree.
-- Rule source: the official `angular/skills` repo (`angular-developer` skill, about 34 rules; 11 checkable at runtime, 14 partly, 9 source-only **[measured, 06]**). Its whole reference set is about 34K tokens, so it cannot sit in a 7-9K window. The extension ships a rules table `{id, check, message, fix}` with fix text taken from the skill, and a `rules.get {id}` tool that returns one rule in at most 150 tokens when the model explains a finding **[06; token sizes estimated at 4 characters per token]**. The skills declare `license: MIT` in their frontmatter (no LICENSE file in the repo), so bundled text keeps the MIT notice and Google's copyright line **[measured, 06; not legal advice]**.
+- Rule source: the official `angular/skills` repo (`angular-developer` skill, about 34 rules; 11 checkable at runtime, 14 partly, 9 source-only **[counted; classification inferred, 06]**). Its whole reference set is about 34K tokens, so it cannot sit in a 7-9K window. The extension ships a rules table `{id, check, message, fix}` with fix text taken from the skill, and a `rules.get {id}` tool that returns one rule in at most 150 tokens when the model explains a finding **[06; token sizes estimated at 4 characters per token]**. The skills declare `license: MIT` in their frontmatter (no LICENSE file in the repo), so bundled text keeps the MIT notice and Google's copyright line **[measured, 06; not legal advice]**.
 - Tier 0 and 1. Prompt API with structured output (finding schema), then explanation.
 
 ### N11. UI copy check (Proofreader, Translator, Language Detector)
@@ -319,7 +355,11 @@ Test for "new": the model does something a panel cannot, such as explain a cause
 
 ### N13. Copy to coding agent
 
-- Every answer gets a "Copy for coding agent" action: the question, the tool walkthrough, the facts, and the component source location. The location comes from `constructor.ɵcmp.debugInfo` (file and line, used by Pangular **[03 section 1.4]**; weaker than the other Tier 1 items, because it is a field on the compiled class, not a function on `ng`, so the "stays supported for DevTools" comment in `global_utils.ts` does not cover it) or from the Sources panel lookup Angular DevTools does with `inspect()`. Paste into Claude Code or any agent that has the Angular CLI MCP server: the extension covers live state and the CLI MCP server covers code and build; none of the CLI's tools inspects the running page **[measured, 02 section 4.6]**.
+- Every answer gets a "Copy for coding agent" action: the question, the tool walkthrough, the facts, and the component source location.
+- The location comes from one of two places:
+  - `constructor.ɵcmp.debugInfo`, which gives file and line and is what Pangular uses **[03 section 1.4]**. It is weaker than the other Tier 1 items. It is a field on the compiled class, not a function on `ng`, so the "stays supported for DevTools" comment in `global_utils.ts` does not cover it.
+  - The Sources panel lookup that Angular DevTools does with `inspect()`.
+- Paste the result into Claude Code or any agent that has the Angular CLI MCP server. The extension covers live state, and the CLI MCP server covers code and build. None of the CLI's tools inspects the running page **[measured, 02 section 4.6]**.
 - Tier 0 plus Tier 1 for file and line.
 
 ### N14-N23. Features inspired by recent Angular releases (20.0-22.2)
@@ -330,7 +370,7 @@ Taken from `research/08-recent-angular-features.md`, which sources each one in t
 |---|---|---|---|---|
 | N14 | **Resource lifecycle explainer**: "Why is this spinner still spinning?" | A timeline of `Resource#<name>.state` transitions joined with request timing, explained as a cause | `Resource#...` signal-graph nodes sampled per CD cycle, `PerformanceResourceTiming`; tier 1 | 22.0, stable (`debounced` experimental) |
 | N15 | **Signal Forms doctor**: "Why can't I submit?" | Ties field state (errors, pending async validators, disabled) to the question; names the blocking field | `ng.getDirectives(el)` -> `FormField.state()`; tier 0; **spike: read from MAIN world** | 22.0 (21.0 experimental) |
-| N16 | **Error boundary inspector**: "Why does this page show a fallback?" | Says which `@boundary` caught what, from which component, with what input; offers `$reset` behind a confirm | `NgBoundary` mark, `ng.getContext` inside `@error` views for `{$error, $reset}`, the console hook; tier 0; **spike** | 22.2, developer preview |
+| N16 | **Error boundary inspector**: "Why does this page show a fallback?" | Says which `@boundary` caught what, from which component, with what input; offers `$reset` behind a confirm | `NgBoundary` mark, `ng.getContext` inside `@error` views for `{$error, $reset}`, the console hook; tier 0 only if the **spike** confirms this route, because `ng` has no boundary API (section 1) | 22.2, developer preview |
 | N17 | **Navigation blocking explainer**: "Why does /orders/42 take 3 s?" | Names the router resource that holds the navigation and judges whether it should block | `ng.ɵgetRouterInstance` -> `Route.resources`, `ActivatedRoute.resources`, router events; tier 1, `provideRouter` only | 22.2, developer preview |
 | N18 | **Feature fingerprint**: opens every chat | Picks the tool groups for the session from the features the app uses, saving context; shows a context chip | about 20 `mark_feature_usage` names (`NgSignalForms`, `NgBoundary`, `NgDefer`, ...), `[ng-version]`; tier 0 | per mark |
 | N19 | **Linked state reset explainer**: "Why did my selection reset?" | Explains a `linkedSignal` recompute over time and when a manual `set` was dropped | `linkedSignal` graph nodes, epochs per cycle, `toggleWatchSignal`; tier 1 | 20.0 (22.1 for the custom `set` advice) |
@@ -356,7 +396,7 @@ Version gates (08 section 5): the signal graph exists from 19.1, `ɵgetControlFl
 
 ## 5. Features: promptified Angular DevTools
 
-Every Angular DevTools tab becomes a set of tools, so it can be asked about in chat. These are table stakes, not the innovation; they also give N1 to N13 their data.
+Every Angular DevTools tab becomes a set of tools, so it can be asked about in chat. These tools repeat what Angular DevTools already shows, so they are not the new part. They also give N1 to N13 their data.
 
 | Angular DevTools feature | Prompt example | Tools | Tier |
 |---|---|---|---|
@@ -365,7 +405,7 @@ Every Angular DevTools tab becomes a set of tools, so it can be asked about in c
 | Inspect element / Elements sync | "What is this?" with `$0` selected | `ng.getOwningComponent($0)` as the context chip | 0 |
 | `@defer` blocks in tree | "Which defer blocks are still on placeholder?" | `defer.blocks` | 1 |
 | Hydration status and overlay | "Did anything fail to hydrate?" | `hydration.status` | 1 |
-| Signal graph pane | "Show the signals this component reads." | `signals.graph` | 1 |
+| Signal graph pane | "Show the signals this component reads." | `signals.list` | 1 |
 | Watch signal | "Tell me when `cartItems` changes." | `ng.toggleWatchSignal(id)` plus a panel notification | 1 |
 | Profiler | "Record while I scroll, then show the slowest components." | `cd.record` | 1 |
 | Performance-panel tracks | "Turn on Angular tracks in the Performance panel." | `ng.enableProfiling()` | 0 |
@@ -394,7 +434,7 @@ Detection is by global, URL, DOM marker, directive class name, or token name in 
 
 ### 6.2 Storybook (Angular)
 
-- Detection: in the preview iframe, `window.__STORYBOOK_PREVIEW__` (`PreviewWeb.tsx:19` **[measured]**); the story index at `/index.json`; Storybook MCP at `/mcp` when `@storybook/addon-mcp` is added **[measured, docs]**. Inside the iframe the story renders a normal Angular app, so every `ng.*` tool works **[inferred]**.
+- Detection: in the preview iframe, `window.__STORYBOOK_PREVIEW__` (`PreviewWeb.tsx:19` **[measured]**); the story index at `/index.json`; Storybook MCP at `/mcp` when `@storybook/addon-mcp` is added **[documented]**. Inside the iframe the story renders a normal Angular app, so every `ng.*` tool works **[inferred]**.
 - Features:
   - "Write a story for this": from a component selected in the running app, generate CSF with the live input values as `args` (pairs with N6's capture).
   - "Story gap finder": components rendered in the app that have no story, by comparing the component walk with the story index.
@@ -426,14 +466,14 @@ Detection is by global, URL, DOM marker, directive class name, or token name in 
 
 ## 7. Spikes, riskiest first
 
-Each spike is the smallest isolated thing that settles one unknown. S1 blocks everything else.
+Each spike is the smallest isolated thing that settles one unknown. S1 blocked everything else and is done.
 
 | # | Unknown | Spike | Done when |
 |---|---|---|---|
-| S1 | Can the extension use `LanguageModel` from each of its contexts? **Phase 1 done (11):** yes in seven of eight contexts in both browsers; not in the `devtools_page`. Phase 2, a tool round trip per context, is open. | `spikes/s1-extension`, loaded over CDP `Extensions.loadUnpacked` | phase 2 on the model instances |
+| S1 | ~~Can the extension use `LanguageModel` from each of its contexts?~~ **Done (11):** seven of eight contexts complete `create()` plus a tool round trip in both browsers (phase 2). The `devtools_page` throws `NotAllowedError`. | `spikes/s1-extension`, loaded over CDP `Extensions.loadUnpacked` | done |
 | S2 | ~~Does dispatching `devtoolstooldiscovery` return Angular's tool group on a real 22.2 app?~~ **Done (05):** yes, from the page's main world. It also turned up the `di_graph` side effect and the raw-graph reading errors. Still to repeat from an actual MAIN-world content script as part of S1. | `spikes/ng222-app` | done |
 | S3 | How many tools and how much tool output fit in Aion's 7,168 tokens and Gemma 4's window before answers degrade? | Run 20 scripted questions against 5, 10 and 15 tools on a sample app; log `contextUsage` and correctness | A tool-count and output-cap budget per model |
-| S4 | Answer quality per model: Gemma 4 2B misread a tool result where Aion did not, in one run | The S3 question set, scored per model, with tool results as compact JSON vs short prose | A per-model choice of result format, and whether Gemma 4 needs a "quote the tool result" instruction |
+| S4 | Answer quality per model. Gemma 4 2B misread a tool result where Aion did not, in one run. In S1 phase 2, Aion picked the wrong tool in all seven contexts and reported 42 as the count input (11). That run used a different system prompt and tool result shape than 00's probe **[inferred as the likely cause, not isolated, 11]** | The S3 question set, scored per model, with tool results as compact JSON vs short prose | A per-model choice of result format, and whether Gemma 4 needs a "quote the tool result" instruction |
 | S5 | Image input on Aion and Gemma 4 | One `expectedInputs: [{type:'image'}]` prompt with a cropped tab capture | Works or not, per browser |
 | S6 | Redux DevTools shim coexisting with the real Redux DevTools extension | NgRx sample app with both installed | Both receive actions |
 
@@ -450,32 +490,41 @@ The `control-ai-browsers` skill launches, checks and stops them.
 
 These are open; Claude applied the default shown so the design could proceed.
 
-1. **Tier 1 (`ng.ɵ*` already on the page).** Default applied: allowed, labelled and feature-detected (section 2.2). Without it, N1, N2, N5, most of N3 and half of section 5 need an app-side re-export.
+1. **Tier 1 (`ng.ɵ*` already on the page).** Default applied: allowed, labelled and feature-detected (section 2.2). Tier 1 is still "using internal APIs" in the brief's words.
+   - If Lars rules Tier 1 out, these need an app-side re-export (Tier 2):
+     - N1, N2, N5, N14, N17, N19 and N20.
+     - N3, except the `getInjector` part.
+     - N7's CD and signal parts, N10's `@for` check, N12's navigation, and N13's file and line.
+     - The `@defer`, hydration, signal graph, watch signal, profiler, injector tree, router tree and Transfer State rows of section 5.
+     - The Analog token lookup in 6.4.
+   - The Tier 0-only first release Lars could pick instead: N4, N6, N11, N12 search, N15, N16 and N18. N15 and N16 each depend on their spike.
 2. **Primary browser and model.** Default applied:
-   - Edge Dev with Aion-1.1-Instruct is the reference for native tool calling: 15/15 runs at 3-6 s.
+   - Edge Dev with Aion-1.1-Instruct is the reference for native tool calling: 15/15 runs at 3-6 s. In S1 phase 2, though, Aion picked the wrong tool on one question in all seven extension contexts **[measured, 11]**.
    - Chrome Beta with Gemma 4 is the reference for the structured-output loop: 15/15 on CPU, 13/15 on GPU.
    - Gemini Nano (fallback loop on GPU, 13/15) and Phi-4-mini on Edge stable stay supported, with the canary deciding the loop **[measured, 05]**.
    - Recorded as Claude's default, because only Lars can rank Edge against Chrome as the product's lead browser.
 3. **Writes from chat.** Default applied: allowed behind a per-action confirm and a read-only switch (section 3.5).
 
-### Rulings from Lars (2026-10-11, verbatim)
+### Rulings from Lars (2026-10-11 to 2026-10-12)
+
+Quotes are verbatim. Text after "Claude's note:" is Claude's account.
 
 - "Assume prerequisite feature flags enabled in the features for the Angular AI DevTools but specifically for my browsers, you must confirm that they are enabled, enable them if you can, or escalate to me if you can't."
 - "A Chrome Beta or Edge Dev prerequisite is also acceptable."
-- "Experimental Angular features are acceptable": proposals may depend on experimental or developer-preview Angular APIs, such as WebMCP and Signal Forms; each one is marked as such.
+- "Experimental Angular features are acceptable". Claude's note: proposals may depend on experimental or developer-preview Angular APIs, such as WebMCP and Signal Forms; each one is marked as such.
 - "By any browser, I mean Edge, Edge Dev, Chrome, and Chrome Beta. Not Firefox because it doesn't support Prompt API so isn't relevant for this project."
-- "C:\ is running low on space. Unnecessary models should be cleaned up after use." Measured that day: 22.0 GB free on C:, which is Chrome's documented minimum for the on-device model. The first plan was to download Phi-4-mini and Gemini Nano only for a comparison and clear them afterwards. The next ruling replaced that plan with one standing instance per model on D:.
-- "I want to keep testing both Gemini Nano and Gemma 4. Could we manage multiple Chrome Beta instances - one with Nano and one with Gemma?" and "Same for Edge Dev with Phi-4-mini and Aion-1.1-Instruct." Done with separate profiles under `.browsers/` on D:. Phi-4-mini runs in Edge stable, because Edge Dev 157 stalled at 0% (00).
-- "I don't use Chrome Beta or Edge Dev daily, only for projects like this" and "My Chrome Beta and Edge Dev profiles should keep AI feature flags". The per-model test instances live in separate profiles under `.browsers/` on D:. Lars's own profiles keep their flags, and their models stay, because Chrome Beta downloads Gemini Nano again by itself within minutes of a clear while the flags are on (measured twice).
-- "I mean use D:/ for profiles and models for all browsers used by control-* and verify-* skills". The skills run their browsers only from profiles on D: (`.browsers/` in this project), so models download to D:. They no longer use Lars's own browser profiles on C:. Playwright's own browsers use in-memory profiles; their binaries in `%LOCALAPPDATA%\ms-playwright` are not covered by the ruling.
-- "Including *my* Chrome Beta and Edge Dev profiles and models", then (2026-10-12) "Edge Dev: Option B." and "Chrome Beta: I don't care about any of that user data from Chrome Beta." Lars's Chrome Beta profile is on D: through a junction. His Edge Dev profile is back on C:, because Edge Dev deletes its model manifest when its profile path resolves through a junction (measured, 00). Models on D: load about 30% slower from disk than on C: (same NVMe, ReFS against NTFS), which affects only a cold model load (00).
-- (2026-10-12) "For now, keep Phi-4-mini in the matrices, using a dedicated Edge stable profile". Edge Dev 157 serves Aion-1.1 as its default and ignores a seeded Phi-4-mini (00), so Phi-4-mini runs in `.browsers/edge-phi4mini` on Edge stable 155.
-- "You must get Gemma 4 working in Chrome and/or Chrome Beta" and "you must get Aion-1.1-Instruct working in Edge and/or Edge Dev". Done: Gemma 4 in Chrome Beta and Aion-1.1-Instruct in Edge Dev both complete a tool-calling round trip (00).
+- "C:\ is running low on space. Unnecessary models should be cleaned up after use." Claude's note: measured that day: 22.0 GB free on C:, which is Chrome's documented minimum for the on-device model. The first plan was to download Phi-4-mini and Gemini Nano only for a comparison and clear them afterwards. The next ruling replaced that plan with one standing instance per model on D:.
+- "I want to keep testing both Gemini Nano and Gemma 4. Could we manage multiple Chrome Beta instances - one with Nano and one with Gemma?" and "Same for Edge Dev with Phi-4-mini and Aion-1.1-Instruct." Claude's note: done with separate profiles under `.browsers/` on D:. Phi-4-mini runs in Edge stable, because Edge Dev 157 stalled at 0% (00).
+- "I don't use Chrome Beta or Edge Dev daily, only for projects like this" and "My Chrome Beta and Edge Dev profiles should keep AI feature flags". Claude's note: the per-model test instances live in separate profiles under `.browsers/` on D:. Lars's own profiles keep their flags, and their models stay, because Chrome Beta downloads Gemini Nano again by itself within minutes of a clear while the flags are on (measured twice).
+- "I mean use D:/ for profiles and models for all browsers used by control-* and verify-* skills". Claude's note: the skills run their browsers only from profiles on D: (`.browsers/` in this project), so models download to D:. They no longer use Lars's own browser profiles on C:. Playwright's own browsers use in-memory profiles; their binaries in `%LOCALAPPDATA%\ms-playwright` are not covered by the ruling.
+- "Including *my* Chrome Beta and Edge Dev profiles and models", then (2026-10-12) "Edge Dev: Option B." and "Chrome Beta: I don't care about any of that user data from Chrome Beta." Claude's note: Lars's Chrome Beta profile is on D: through a junction. His Edge Dev profile is back on C:, because Edge Dev deletes its model manifest when its profile path resolves through a junction (measured, 00). Models on D: load about 30% slower from disk than on C: (same NVMe, ReFS against NTFS), which affects only a cold model load (00).
+- (2026-10-12) "For now, keep Phi-4-mini in the matrices, using a dedicated Edge stable profile". Claude's note: Edge Dev 157 serves Aion-1.1 as its default and ignores a seeded Phi-4-mini (00), so Phi-4-mini runs in `.browsers/edge-phi4mini` on Edge stable 155.
+- "You must get Gemma 4 working in Chrome and/or Chrome Beta" and "you must get Aion-1.1-Instruct working in Edge and/or Edge Dev". Claude's note: done. Gemma 4 in Chrome Beta and Aion-1.1-Instruct in Edge Dev both complete a tool-calling round trip (00).
 
 ## 9. What was not checked
 
-- No extension context was run; all extension-context claims rest on Chromium and DevTools source (S1).
+- Extension contexts ran one question each in S1 phase 2 (11). Not checked there: whether `create()` from the service worker needs user activation when the model is `downloadable`, session lifetime in the service worker and offscreen document, and answer quality beyond one question (S4).
 - One small Angular 22.2.2 app was run (`spikes/ng222-app`, 05). The rest of the Angular claims come from the 22.2.x source and from Angular DevTools' and Pangular's call sites.
-- The models were measured in page tabs of the per-model instances against the counter app, not in an extension context.
+- The benchmark ran in page tabs of the per-model instances against the counter app. In extension contexts, only S1's single tool round trip per context ran (11).
 - WebMCP is active in Chrome Beta and Edge Dev (00), but no Angular app with WebMCP tools has been run yet.
 - Lars's everyday Chrome and Edge profiles were not changed, apart from clearing Chrome stable's Gemini Nano copy on his approval. Edge Canary's Aion-1.0 copy was cleared too, and Lars then uninstalled Edge Canary (00).
