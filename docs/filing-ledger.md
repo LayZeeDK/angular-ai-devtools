@@ -196,3 +196,33 @@ Status: draft, not filed. Found 2026-10-12 while migrating the Insurance Portal'
 **Existing reports:** not searched (unchecked).
 
 **Evidence:** build output and screenshot `claim-01-empty.png` in `tmp/control-angular-dev-app/portal-4775-2026-10-12T07-18-44-815Z/` (gitignored); the portal commits `754aa1e`, `66e8ad6`, `92053b9` on `claude/ai-devtools-spike` carry the `$any` workaround. (For Lars only: local paths; in the filed issue, describe them in words.)
+
+## 8. angular/angular: the WebMCP `Annotations` interface lacks the spec's `debugging` hint
+
+Status: draft, not filed. Found 2026-10-12 in the prior-art survey (`research/14-ai-devtools-prior-art.md`, sections 3.1 and 6).
+
+**What happens:** the WebMCP spec draft (`webmachinelearning/webmcp` `index.bs` at `d0e4e0e`) defines `ToolAnnotations` with `readOnlyHint`, `untrustedContentHint`, `consequentialHint` and `debugging`, all defaulting to `false`. Angular 22.2's WebMCP `Annotations` interface has no `debugging` member, so an Angular app cannot mark a tool as a debugging tool through Angular's API **[measured in both sources, research/14 section 3.1]**.
+
+**Expected:** Angular's `Annotations` mirrors the spec's `ToolAnnotations`, or documents why `debugging` is left out.
+
+**Evidence:** research/14 section 3.1 (spec IDL and Angular source lines). Re-check both at their current heads before filing.
+
+## 9. Chrome developer docs: the WebMCP secure-tools page cites `requestUserInteraction()`, which the spec draft does not contain
+
+Status: draft, not filed. Found 2026-10-12 (`research/14`, sections 3.1 and 6).
+
+**What happens:** Chrome's WebMCP secure-tools page says the spec draft has `requestUserInteraction()` on a `ModelContextClient`. `index.bs` at `d0e4e0e` contains neither name **[measured for `index.bs`; the Chrome page is documented, read through a fetch]**.
+
+**Expected:** the page and the spec draft agree, or the page says the API is proposed, not specified.
+
+**Evidence:** research/14 section 3.1. Re-check the page and the spec's current head before filing; the spec may have moved.
+
+## 10. microsoft/playwright-mcp: the README omits `browser_webmcp_list` and `browser_webmcp_call`
+
+Status: draft, not filed. Found 2026-10-12 (`research/14`, sections 1.18 and 6).
+
+**What happens:** Playwright's source defines `browser_webmcp_list` and `browser_webmcp_call` (capability `core`, on by default, turned off with `--no-webmcp`), and every snapshot response lists the page's WebMCP tools. The Playwright MCP README's tool list does not include them **[measured for the source; documented for the README]**.
+
+**Expected:** the README lists both tools and the `--no-webmcp` flag.
+
+**Evidence:** research/14 section 1.18 (`webmcp.ts` strings). Re-check the README at its current head before filing.
