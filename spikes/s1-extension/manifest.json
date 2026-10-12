@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "S1 Prompt API context probe",
+  "version": "0.1.0",
+  "description": "Spike S1: records LanguageModel exposure in every extension context.",
+  "minimum_chrome_version": "138",
+  "permissions": ["storage", "offscreen", "sidePanel"],
+  "background": { "service_worker": "sw.js" },
+  "devtools_page": "devtools.html",
+  "side_panel": { "default_path": "sidepanel.html" },
+  "action": { "default_title": "S1 probe" },
+  "content_scripts": [
+    { "matches": ["<all_urls>"], "js": ["probe.js", "cs-isolated.js"], "run_at": "document_idle" },
+    { "matches": ["<all_urls>"], "js": ["probe-main.js", "cs-main.js"], "run_at": "document_idle", "world": "MAIN" }
+  ]
+}

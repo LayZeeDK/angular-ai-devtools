@@ -12,3 +12,5 @@ tmp/maintain-angular-dev-app/
 tmp/maintain-angular-devtools/
 tmp/maintain-pangular/
 .audit/
+tmp/maintain-ai-browsers/
+spikes/s1-extension/probe-main.js

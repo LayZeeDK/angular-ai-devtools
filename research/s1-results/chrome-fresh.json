@@ -1,0 +1,247 @@
+{
+  "browser": "chrome",
+  "model": "fresh",
+  "port": 9341,
+  "mode": "launch",
+  "startedAt": "2026-10-12T00:25:19.885Z",
+  "steps": {
+    "loadUnpacked": "Extensions.loadUnpacked over --remote-debugging-port",
+    "serviceWorkerTarget": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sw.js",
+    "devtoolsOpen": "--auto-open-devtools-for-tabs: devtools://devtools/bundled/devtools_app.html",
+    "panelRegistered": true,
+    "panelShow": "Extensions.extensionServer.onShowPanel",
+    "panelTarget": "iframe",
+    "sidePanel": "chrome.sidePanel.open from tab.html on CDP Enter key: target page"
+  },
+  "launchArgs": [
+    "--user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.browsers\\s1-chrome-9341",
+    "--remote-debugging-port=9341",
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--enable-features=AIPromptAPI,AIPromptAPIToolUse,OnDeviceModelConversationBackend,AIApiFoundationalModel:model_version/v4,OptimizationGuideManifestBroker,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP",
+    "--enable-unsafe-extension-debugging",
+    "--auto-open-devtools-for-tabs",
+    "--window-size=1800,1100",
+    "about:blank"
+  ],
+  "version": "Chrome/156.0.8078.17",
+  "extensionId": "adkapcgoeebpdmbepbdjmbhfknkcllcc",
+  "results": {
+    "content_isolated": {
+      "at": "2026-10-12T00:25:21.741Z",
+      "availability": "downloadable",
+      "availabilityWithToolOptions": "downloadable",
+      "context": "content_isolated",
+      "href": "http://localhost:52564/s1-test",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "relayedFrom": "http://localhost:52564/s1-test",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "content_main": {
+      "at": "2026-10-12T00:25:22.753Z",
+      "availability": "downloadable",
+      "availabilityWithToolOptions": "downloadable",
+      "context": "content_main",
+      "href": "http://localhost:52564/s1-test",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "relayedFrom": "http://localhost:52564/s1-test",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "devtools_page": {
+      "at": "2026-10-12T00:25:24.628Z",
+      "availability": "unavailable",
+      "availabilityWithToolOptions": "unavailable",
+      "context": "devtools_page",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/devtools.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": false,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "devtools_panel": {
+      "at": "2026-10-12T00:25:22.859Z",
+      "availability": "downloadable",
+      "availabilityWithToolOptions": "downloadable",
+      "context": "devtools_panel",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/panel.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "extension_tab": {
+      "at": "2026-10-12T00:25:23.428Z",
+      "availability": "downloadable",
+      "availabilityWithToolOptions": "downloadable",
+      "context": "extension_tab",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/tab.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "offscreen": {
+      "at": "2026-10-12T00:25:21.284Z",
+      "availability": "downloadable",
+      "availabilityWithToolOptions": "downloadable",
+      "context": "offscreen",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/offscreen.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "relayedFrom": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/offscreen.html",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "service_worker": {
+      "at": "2026-10-12T00:25:21.253Z",
+      "availability": "downloadable",
+      "availabilityWithToolOptions": "downloadable",
+      "context": "service_worker",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sw.js",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": "no document (worker)",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "side_panel": {
+      "at": "2026-10-12T00:25:24.031Z",
+      "availability": "downloadable",
+      "availabilityWithToolOptions": "downloadable",
+      "context": "side_panel",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sidepanel.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "side_panel_open_attempt": "side panel opened"
+  },
+  "missingContexts": [],
+  "resultsHtmlKeys": [
+    "content_isolated",
+    "content_main",
+    "devtools_page",
+    "devtools_panel",
+    "extension_tab",
+    "offscreen",
+    "service_worker",
+    "side_panel",
+    "side_panel_open_attempt"
+  ],
+  "mainWorldDiag": "{\"typeofProbe\":\"function\",\"availability\":\"downloadable\",\"typeofErr\":\"function\",\"typeofOptions\":\"object\"}",
+  "mainWorldMarker": "{\"state\":\"posted\",\"result\":{\"context\":\"content_main\",\"at\":\"2026-10-12T00:25:22.753Z\",\"href\":\"http://localhost:52564/s1-test\",\"isSecureContext\":true,\"typeofLanguageModel\":\"function\",\"typeofLanguageModelToolCall\":\"function\",\"typeofLanguageModelToolSuccess\":\"function\",\"userAgent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36\",\"permissionsPolicyAllowsLanguageModel\":true,\"availability\":\"downloadable\",\"availabilityWithToolOptions\":\"downloadable\"}}",
+  "lateReadAt": "2026-10-12T00:25:46.598Z",
+  "late": {
+    "service_worker /sw.js": "downloadable",
+    "page /sidepanel.html": "downloadable",
+    "iframe /devtools.html": "unavailable",
+    "iframe /panel.html": "downloadable",
+    "page http://localhost:52564/s1-test": "downloadable",
+    "background_page /offscreen.html": "downloadable",
+    "page /tab.html": "downloadable",
+    "page /results.html": "downloadable"
+  },
+  "targets": [
+    {
+      "type": "service_worker",
+      "url": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js"
+    },
+    {
+      "type": "service_worker",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sw.js"
+    },
+    {
+      "type": "service_worker",
+      "url": "chrome-extension://ghbmnnjooekpmoecnnnilnnbdlolhkhi/service_worker_bin_prod.js"
+    },
+    {
+      "type": "page",
+      "url": "about:blank"
+    },
+    {
+      "type": "browser_ui",
+      "url": "chrome://omnibox-popup.top-chrome/omnibox_popup_aim.html"
+    },
+    {
+      "type": "browser_ui",
+      "url": "chrome://omnibox-popup.top-chrome/"
+    },
+    {
+      "type": "page",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sidepanel.html"
+    },
+    {
+      "type": "page",
+      "url": "devtools://devtools/bundled/devtools_app.html?remoteBase=https://chrome-devtools-frontend.appspot.com/serve_file/@ab5de1"
+    },
+    {
+      "type": "iframe",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/devtools.html"
+    },
+    {
+      "type": "iframe",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/panel.html"
+    },
+    {
+      "type": "page",
+      "url": "http://localhost:52564/s1-test"
+    },
+    {
+      "type": "page",
+      "url": "devtools://devtools/bundled/devtools_app.html?remoteBase=https://chrome-devtools-frontend.appspot.com/serve_file/@ab5de1"
+    },
+    {
+      "type": "iframe",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/devtools.html"
+    },
+    {
+      "type": "background_page",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/offscreen.html"
+    },
+    {
+      "type": "page",
+      "url": "devtools://devtools/bundled/devtools_app.html?remoteBase=https://chrome-devtools-frontend.appspot.com/serve_file/@ab5de1"
+    },
+    {
+      "type": "iframe",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/devtools.html"
+    },
+    {
+      "type": "page",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/tab.html"
+    },
+    {
+      "type": "page",
+      "url": "devtools://devtools/bundled/devtools_app.html?remoteBase=https://chrome-devtools-frontend.appspot.com/serve_file/@ab5de1"
+    },
+    {
+      "type": "iframe",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/devtools.html"
+    },
+    {
+      "type": "page",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/results.html"
+    }
+  ],
+  "finishedAt": "2026-10-12T00:25:46.629Z"
+}
