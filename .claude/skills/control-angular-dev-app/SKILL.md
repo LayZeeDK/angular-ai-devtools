@@ -38,9 +38,11 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target coun
   removed from its environment. Both get `NX_DAEMON=false` and `NX_TUI=false`, so no Nx daemon outlives `down`.
 - Readiness: each URL answers (portal API: `/api/customers`) and the app's index HTML contains its root tag
   (`<app-root>`, `<ng-journal-root>`). The doctor then checks the rendered page.
-- Measured time to ready, warm caches: counter 2.6-8 s (four runs), portal 13.9-18.7 s (three
-  runs). The first portal build after a change
-  can take minutes; `--timeout <seconds>` (default 240).
+- The portal API starts first and the app only after the API answers. Started together, the two cold `nx run`
+  processes timed out in the Nx plugin worker ("did not receive a load message within 10 seconds") in 3 of 4 runs
+  (2026-10-11). Started one at a time, 2 of 2 runs passed (2026-10-12).
+- Measured time to ready, warm caches: counter 2.6-8 s (four runs), portal 18.5-20.5 s with the API first (two
+  runs). The first portal build after a change can take minutes; `--timeout <seconds>` (default 240).
 - Server output goes to `<evidenceDir>/app.log` (and `api.log`).
 - `up` refuses (exit 2) a port already in use and names the owning PID; that may be Lars's own server.
 

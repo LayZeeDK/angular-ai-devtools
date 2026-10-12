@@ -315,7 +315,10 @@ async function up() {
   mkdirSync(evidenceDir, { recursive: true });
   const t0 = Date.now();
   const started = [];
+  const state = { flowId, mode: 'launch', target: targetName, dir, worktree, url: `http://localhost:${port}/`, port, session: `control-ngdev-${flowId}`, evidenceDir, startedAt: new Date().toISOString(), procs: started };
+  const timeoutMs = Number(flag('timeout') ?? 240) * 1000;
 
+  // One at a time: two cold `nx run` processes started together timed out in the Nx plugin worker (3 of 4 portal runs, 2026-10-11).
   for (const p of procs) {
     const env = { ...process.env, NX_DAEMON: 'false', NX_TUI: 'false', NG_CLI_ANALYTICS: 'false', ...p.env };
 
@@ -327,23 +330,13 @@ async function up() {
     const fd = openSync(log, 'a');
     const child = spawn(process.execPath, [p.bin, ...p.args], { cwd: dir, env, detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
     child.unref();
-    started.push({ name: p.name, pid: child.pid, port: p.port, readyUrl: `http://localhost:${p.port}${p.readyPath}`, log });
-  }
-
-  const table = processTable();
-
-  for (const s of started) {
-    const row = table.find((r) => r.ProcessId === s.pid);
+    const s = { name: p.name, pid: child.pid, port: p.port, readyUrl: `http://localhost:${p.port}${p.readyPath}`, log };
+    const row = processTable().find((r) => r.ProcessId === s.pid);
     s.start = row?.Start ?? null;
     s.commandLine = row?.CommandLine ?? null;
-  }
+    started.push(s);
+    writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
 
-  const state = { flowId, mode: 'launch', target: targetName, dir, worktree, url: `http://localhost:${port}/`, port, session: `control-ngdev-${flowId}`, evidenceDir, startedAt: new Date().toISOString(), procs: started };
-  writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
-
-  const timeoutMs = Number(flag('timeout') ?? 240) * 1000;
-
-  for (const s of started) {
     for (;;) {
       const r = await fetchText(s.readyUrl);
       const pageOk = s.name !== 'app' || (r.status === 200 && r.body.includes(`<${t.marker}`));
