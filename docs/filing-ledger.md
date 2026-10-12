@@ -116,29 +116,37 @@ The snippet restates the probe matrix in 05; it was not run in this exact form (
 
 **Evidence:** the source links in `research/09-nano-tool-session-error.md` Q3 and Q5 are public and self-contained.
 
-## 5. Chromium (on-device model, Gemma 4): a camelCase tool name crashes the model process on the first prompt
+## 5. Chromium (on-device model, Gemma 4): a tool name with an uppercase letter crashes the model process
 
 Status: draft, not filed. Found 2026-10-12 in spike S1 phase 2 (`research/11-spike-s1-extension-contexts.md`, "Finding: camelCase tool names crash Gemma 4's model process").
 
 **Versions:** Chrome Beta 156.0.8078.17 on Windows 11 arm64, model `gemma4-2b-it` (GPU low tier), launched with `AIPromptAPIToolUse`, `OnDeviceModelConversationBackend`, `AIApiFoundationalModel:model_version/v4` and `OptimizationGuideManifestBroker` (00, "Per-model instances").
 
-**What happens:** a tool session whose tool is named `getComponentCount` (one required parameter) fails on the first `prompt()` with `UnknownError: An unknown error occurred: kErrorUnknown`. The identical tool named `get_component_count` returns a tool call and a correct answer. Each failure counts as a model-process crash: after three in a row, `availability()` reads `unavailable` and `create()` throws `NotSupportedError: The model process crashed too many times for this version.` for at least a minute (crash limit and backoff in `on_device_model_access_controller.cc` and `optimization_guide_features.h`, read at tag 156.0.8078.17, 11).
+**What happens:** a tool session whose tool name contains an uppercase letter (`getComponentCount` or `Get_component_count`, one required parameter) fails on the first `prompt()` with `UnknownError: An unknown error occurred: kErrorUnknown`. The identical tool named `get_component_count` or `getcomponentcount` returns a tool call. Each failure counts as a model-process crash: after three in a row, `availability()` reads `unavailable` and `create()` throws `NotSupportedError: The model process crashed too many times for this version.` for at least a minute (crash limit and backoff in `on_device_model_access_controller.cc` and `optimization_guide_features.h`, read at tag 156.0.8078.17, 11).
 
-**Reproduction** in a page tab on the Gemma 4 instance (measured as a controlled pair):
+**Reproduction** in a page tab on the Gemma 4 instance, one fresh session per variant, run 70 s apart so Chrome's crash backoff cannot affect a later variant (the S11 matrix, `spikes/probes/tool-name-matrix.js`, run 2026-10-12):
 
 ```js
-const tool = (name) => ({ name, description: 'Returns the number of Angular components on the page.', inputSchema: { type: 'object', properties: { scope: { type: 'string' } }, required: ['scope'] } });
-const opts = (name) => ({ tools: [tool(name)], expectedInputs: [{ type: 'text' }, { type: 'tool-response' }], expectedOutputs: [{ type: 'text' }, { type: 'tool-call' }] });
-await (await LanguageModel.create(opts('get_component_count'))).prompt('How many components are on the page?'); // returns a tool-call part
-await (await LanguageModel.create(opts('getComponentCount'))).prompt('How many components are on the page?');   // UnknownError: kErrorUnknown
+const withParam = { type: 'object', properties: { scope: { type: 'string', enum: ['page'] } }, required: ['scope'] };
+const noParam = { type: 'object', properties: {} };
+const run = async (name, inputSchema) => (await LanguageModel.create({
+  expectedInputs: [{ type: 'text', languages: ['en'] }, { type: 'tool-response' }],
+  expectedOutputs: [{ type: 'text', languages: ['en'] }, { type: 'tool-call' }],
+  tools: [{ name, description: 'Returns how many Angular components are on the page.', inputSchema }],
+})).prompt('How many Angular components are on the page? Use the tool.');
+await run('get_component_count', withParam); // tool call get_component_count({"scope":"page"})
+await run('get_component_count', noParam);   // tool call get_component_count({})
+await run('getComponentCount', withParam);   // UnknownError: An unknown error occurred: kErrorUnknown
+await run('getcomponentcount', withParam);   // tool call getcomponentcount({"scope":"page"})
+await run('Get_component_count', withParam); // UnknownError: An unknown error occurred: kErrorUnknown
 ```
 
-The snippet restates the measured pair in its shape; the description and question text are paraphrased from the probe, not copied (inferred).
+The snippet restates the matrix's calls; the script adds the 70 s wait, a 120 s timeout and `destroy()` per session.
 
-**Not separated:** the rename changes case and underscores together, so whether case alone or the missing underscores trigger the crash is not known (11). The controlled test (`spikes/probes/tool-name-matrix.js`, spike S11) has not run. Run it before filing so the report names the trigger.
+**Trigger:** an uppercase letter in the tool name fails, at the start (`Get_component_count`) or inside (`getComponentCount`); missing underscores and an empty `properties` schema do not **[measured, n=1 per variant; inferred that it generalises]**. Earlier, a controlled pair (`get_component_count` against `getComponentCount`) showed the same split (11). A doctor run right after the matrix passed every canary, so two crashes alone did not disable the model, as Chrome's count predicts **[measured]**. Not run: other models, the CPU backend, names with digits or other punctuation.
 
 **Expected:** any valid tool name either works or is rejected with a clear error at `create()`; a tool name never crashes the model process or counts toward disabling the model.
 
 **Existing reports:** not searched (unchecked).
 
-**Evidence:** `research/s1-results/chrome-gemma4-tool-name-pair.json` (the pair) and `research/s1-results/chrome-gemma4-crash-doctor.json` (the disabled state). (For Lars only: these are local paths; in the filed issue, describe the runs in words.)
+**Evidence:** `research/raw/tool-name-matrix-gemma4-gpu.json` (the five-variant matrix), `research/s1-results/chrome-gemma4-tool-name-pair.json` (the earlier pair) and `research/s1-results/chrome-gemma4-crash-doctor.json` (the disabled state). (For Lars only: these are local paths; in the filed issue, describe the runs in words.)
