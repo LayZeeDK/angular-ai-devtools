@@ -60,9 +60,9 @@ All measurements come from per-model browser instances: separate profiles on D: 
 
 | Model | Browser | Backend on this machine | `contextWindow` | Prompt API tool calling | Structured output | Source |
 |---|---|---|---|---|---|---|
-| Aion-1.1-Instruct (2026.10.2.1) | Edge Dev 157 (default and prerelease) | WebGPU only; no CPU variant offered on this ARM64 machine, even for a Low-class device | 7,168 | works, open loop (through Edge's tool-use workaround) | works | **[measured, 00, 05]** |
+| Aion-1.1-Instruct (2026.10.2.1) | Edge Dev 157 (default and prerelease) | WebGPU as selected by Edge (no CPU variant offered, even for a Low-class device); CPU works if its runtime config is edited (unsupported, 2.3x slower); QNN NPU fails | 7,168 | works, open loop (through Edge's tool-use workaround) | works | **[measured, 00, 05]** |
 | Phi-4-mini-instruct (2026.8.19.1) | Edge stable 155 only | WebGPU only | 9,216 | works, open loop, but often describes the call in prose instead | works | **[measured, 00, 05]** |
-| Gemma 4 `gemma4-2b-it` | Chrome Beta 156 | GPU low tier by default; CPU with `OnDeviceModelForceCpuBackend` | 9,216 | works, open loop, if every tool has a parameter | works | **[measured, 00, 05]** |
+| Gemma 4 `gemma4-2b-it` | Chrome Beta 156 | GPU low tier by default; CPU with `OnDeviceModelForceCpuBackend` | 9,216 | works, open loop, with snake_case tool names; camelCase names crash the model process | works | **[measured, 00, 05, 11]** |
 | Gemini Nano v3 | Chrome Beta 156 | CPU or GPU low tier, chosen by the stored performance class; switchable with `OnDeviceModelPerformanceParams` | 9,216 | sessions open with `AIPromptAPIToolUse`, but the model writes `tool_code` text instead of calling tools | works on GPU; broken on CPU | **[measured, 05, 09]** |
 
 What the browsers do not tell you **[measured, 05, 09]**:
@@ -96,7 +96,7 @@ API details that the implementation must follow **[measured, 00 and 01]**:
 - `create()` with `tools` needs both `expectedOutputs: [{type:'text'}, {type:'tool-call'}]` and `expectedInputs: [{type:'text'}, {type:'tool-response'}]`, or it throws.
 - Tool calls arrive as `LanguageModelToolCall` objects with getter fields `name`, `callID`, `arguments`. `JSON.stringify` shows `{}`. The member is spelled `callID`; `callId` throws.
 - Results go back as `new LanguageModelToolSuccess({callID, name, result: [{type:'object', value}]})` (or `LanguageModelToolError`) inside `{role:'user', content:[{type:'tool-response', value}]}`, immediately after the call. Prompting without a response fails with `kErrorUnknown`.
-- Model quirks to code around: Gemma 4 returns `callID: ""` (pass it back unchanged); Gemma 4 fails every tool prompt with `kErrorUnknown` when a tool has an empty `properties` object, so every tool gets at least one parameter (a required `scope` or `id`); `promptStreaming()` on a Gemma 4 tool session fails, so tool turns use `prompt()` and only the final answer streams in a separate, tool-less clone **[measured cause of streaming failure; empty-schema cause inferred from the one change that fixed it, 00]**.
+- Model quirks to code around: Gemma 4 returns `callID: ""` (pass it back unchanged); Gemma 4 fails tool prompts with `kErrorUnknown` (a model-process crash; after three, Chrome disables the Prompt API for a minute) on camelCase tool names such as `getComponentCount`, while `get_component_count` works **[measured, S1 phase 2, 11]**. The earlier finding that empty `properties` causes it is confounded, because every failing probe also used camelCase names. The controlled test (`spikes/probes/tool-name-matrix.js`) was stopped by a low-memory shutdown and has not run. Until it does, tools use snake_case names and at least one parameter (a required `scope` or `id`), which avoids both suspects; `promptStreaming()` on a Gemma 4 tool session fails, so tool turns use `prompt()` and only the final answer streams in a separate, tool-less clone **[measured cause of streaming failure; empty-schema cause inferred from the one change that fixed it, 00]**.
 - Quota names in current builds: `contextWindow`, `contextUsage`, `measureContextUsage()`, `contextoverflow` event.
 - First `create()` in a browser session can take 3-21 s; later ones take milliseconds. Pre-warm a base session when the panel opens and `clone()` it per question **[measured timing, 00; `clone` pattern is what DevTools Console Insights does, 01]**.
 - The model must be present before `create()` from a page without user activation. The download needs a user gesture **[measured: a click started the Gemma 4 download in Chrome Beta, 00]**.
@@ -156,7 +156,7 @@ Angular's two tools need care **[measured, 05 S2]**:
 
 - **Never run `angular:di_graph`.** On a one-component 22.2 app its output is 42,788 characters. Worse, it calls `injector.get(ViewContainerRef)` on component hosts, after which `ng.ɵgetSignalGraph` (and `angular:signal_graph`) lose the template node and every signal it reads, for the rest of the page's life. A draft upstream report is in `filing-ledger.md`. DI facts come from the `ɵ` injector functions, which read without instantiating anything.
 - `angular:signal_graph` takes `{target: HTMLElement}`, which a model cannot produce, and its description alone is 1,390 characters. The registry wraps it behind a selector or component id and a short description, or calls `ng.ɵgetSignalGraph` directly.
-- `angular:di_graph`'s empty `properties` schema also breaks Gemma 4 tool prompts (00), so even its definition cannot be passed through unchanged.
+- `angular:di_graph`'s definition has an empty `properties` schema and a namespaced name (`angular:di_graph`), and neither is known to be safe on Gemma 4 (see 2.1). So even its definition is not passed through unchanged.
 
 The extension's own tool group, answered through `devtoolstooldiscovery` for chrome-devtools-mcp users, follows the same rules.
 

@@ -278,3 +278,7 @@ Corrections to the earlier sections:
 - **NPU through QNN: no** with this model. Inferred: QNN needs a model compiled for the NPU, and Aion ships as WebGPU fp16.
 - The engine sampler (`engine-sampler.ps1`) saw no GPU activity even in the WebGPU run, so it missed the model process. Only the latency and the errors above count as evidence.
 - The trial runs reported `launch` exit 127, from a libuv assertion after a successful launch. Fixed in `control.mjs`, then re-driven: exit 0.
+
+## Correction (2026-10-12): Gemma 4's tool-prompt failure
+
+The rule "a tool with empty `properties` makes every Gemma 4 tool prompt fail" is not established. Spike S1 phase 2 (`research/11`) measured Gemma 4's model process crashing with `kErrorUnknown` on camelCase tool names (`getComponentCount`), while the same tool named `get_component_count` worked. Every failing probe behind the empty-`properties` rule also used camelCase names, so the two suspects are confounded. The controlled test that separates them, `spikes/probes/tool-name-matrix.js` (five variants including empty `properties` with a snake_case name), was stopped by a low-memory shutdown before it produced results. Until it runs: snake_case tool names and at least one required parameter, which avoids both suspects. Experiment E3 in `07` should add name style as a factor.

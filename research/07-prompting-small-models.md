@@ -320,3 +320,7 @@ Proposed only; Claude ran no browser. Each row names the measured failure it tar
 - Whether Chrome and Edge include the `responseConstraint` schema in the prompt by default, and how many tokens it costs (E5).
 - Gemma 4 token counts for the kit texts (Chrome does not expose the tokenizer; use `measureContextUsage`).
 - Whether the empty-`properties` failure comes from the declaration renderer or the grammar compiler (E3 distinguishes the cases but not the cause).
+
+## Correction (2026-10-12): Gemma 4's tool-prompt failure
+
+The rule "a tool with empty `properties` makes every Gemma 4 tool prompt fail" is not established. Spike S1 phase 2 (`research/11`) measured Gemma 4's model process crashing with `kErrorUnknown` on camelCase tool names (`getComponentCount`), while the same tool named `get_component_count` worked. Every failing probe behind the empty-`properties` rule also used camelCase names, so the two suspects are confounded. The controlled test that separates them, `spikes/probes/tool-name-matrix.js` (five variants including empty `properties` with a snake_case name), was stopped by a low-memory shutdown before it produced results. Until it runs: snake_case tool names and at least one required parameter, which avoids both suspects. Experiment E3 in `07` should add name style as a factor.
