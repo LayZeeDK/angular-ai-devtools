@@ -236,7 +236,7 @@ Outcomes, derived from the "Runtime DevTools view" column in section 1:
 | F2, F3 | differs | not supported; N10 flags it when detected | `ng.getDirectives(el)` returns `FormControlDirective`, `FormControlName`, `FormGroupDirective`, `FormGroupName` or `FormArrayName`. Tier 0 [inferred]. F3 is reported as F2 |
 | F4 | same | works, not listed, no flag | none needed |
 | A1 | same | works, not listed, no flag | none needed. Removal is planned for v23, after which such code does not compile |
-| X1 | differs | never flag | not legacy |
+| X1 | differs | never flag | not legacy. `docs/feature-proposals.md` N24 flags a plain field written in a `subscribe` callback in a zoneless app for the stale view it leaves, not for the RxJS use; N25 explains interop nodes and flags nothing |
 | I1 | same | works, not listed, no flag | none needed |
 | I2 | differs | not supported; N10 flags it when detected | A provider record from `ɵgetInjectorProviders` whose class token has `ɵprov.providedIn === 'any'`, or a class with `ɵmod` there (the NgModule form). Tier 1: the records plus an internal static field [inferred] |
 | K1 to K7 | same | works, not listed, no flag | none needed. K2: rules that read the class metadata may not fire on a webpack dev build (not checked) |
