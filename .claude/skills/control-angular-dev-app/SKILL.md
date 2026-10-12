@@ -71,7 +71,7 @@ Answers "is this instance worth driving?". One line per check:
 - `router-globals`: `ɵgetRouterInstance`, `ɵgetLoadedRoutes`, `ɵnavigateByUrl` (present only with
   `provideRouter`; absent with `RouterModule.forRoot`). Absence is a warning, not a failure.
 - `change-detection-mode`: zoneless or zone-based from the root environment injector's `NgZone` provider record
-  (`NoopNgZone` = zoneless), plus whether zone.js is loaded and `mark_feature_usage` marks.
+  (last record; `NoopNgZone` = zoneless), plus whether zone.js is loaded and `mark_feature_usage` marks.
 - `pangular-overlay` (portal only, warning): the console errors the dev-only Pangular overlay logs, with what
   listens on port 9999. Without a server: three `__connection.json` 404/502 and `[pangular] No devtools server
   found` ("it found no devtools server"). With control-pangular-inspector's server: one `__connection.json` 404,
@@ -188,7 +188,8 @@ facts.
 - Since Angular 22.0 a component without `changeDetection` is OnPush: `getDirectiveMetadata(...)
   .changeDetection === 0`. `Eager` means the author opted out.
 - Neither fixture gets the `NgZoneless` mark (it is set only inside `provideZonelessChangeDetection()`), and
-  the portal loads zone.js yet is zoneless. Read zone mode from the `NgZone` provider record, as the doctor
-  does: `NoopNgZone` means zoneless (measured on both fixtures, 2026-10-12). The zone-based branch is not
-  verified; no fixture uses `provideZoneChangeDetection()`.
+  the portal loads zone.js yet is zoneless. Read zone mode from the LAST `NgZone` provider record, as the doctor
+  does: bootstrap adds a `NoopNgZone` record before the app's providers and the profiler keeps both, so a
+  Zone.js app lists `NoopNgZone` first and `NgZone` (`useFactory`) last. Measured 2026-10-12 on both fixtures
+  (zoneless) and on the portal with `provideZoneChangeDetection()` added and reverted (zone-based).
 - The counter's `effect` writes a signal on purpose (anti-pattern fixture). Do not fix it.

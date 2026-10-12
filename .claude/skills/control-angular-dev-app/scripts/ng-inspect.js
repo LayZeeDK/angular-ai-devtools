@@ -51,10 +51,11 @@ async page => {
             continue;
           }
 
-          const rec = records.find((r) => r.token?.name === 'NgZone');
+          // Bootstrap adds the zoneless NgZone record before the app's providers, and the profiler keeps both, so the last record wins.
+          const rec = records.findLast((r) => r.token?.name === 'NgZone');
 
           if (rec) {
-            return rec.provider?.useClass?.name ?? rec.provider?.name ?? 'unknown';
+            return rec.provider?.useClass?.name ?? (rec.provider?.useFactory ? 'NgZone' : rec.provider?.name ?? 'unknown');
           }
         }
       } catch {
