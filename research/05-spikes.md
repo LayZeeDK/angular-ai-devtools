@@ -31,7 +31,7 @@ Question: "In the app-counter component, which signals does `double` depend on, 
 | Aion-1.1-Instruct (Edge Dev) | `signal_graph {"selector":"app-counter"}` | value 6, right; dependencies "title, count, items", **wrong**: it read the template's edges as `double`'s | 4.7 s | 452 / 7,168 |
 | Gemma 4 2B (Chrome Beta) | `signal_graph {"selector":"app-counter"}` | depends on `count` (3), value 6: **right** | 11.9 s | 765 / 9,216 |
 
-Together with 00's two-tool run, where Gemma 4 misread a value and Aion did not, neither model reads raw structures reliably. **Inferred design rule:** tools answer the narrow question (`signals.dependenciesOf {component, signal}` -> `["count"]`) instead of returning a graph by index for the model to walk.
+Together with 00's two-tool run, where Gemma 4 misread a value and Aion did not, neither model reads raw structures reliably. **Inferred design rule:** tools answer the narrow question (`signals.dependenciesOf {component, signal}` -> `["count"]`; now `signal_dependencies {id, signal}` in `docs/feature-proposals.md` 3.4) instead of returning a graph by index for the model to walk.
 
 ## S3 (part) - Sizes on a real-world app
 
@@ -53,7 +53,7 @@ Other facts:
 - Dev-build class names carry a leading underscore (`_AppComponent`, `_SidebarComponent`), so tools should strip it before showing names to the model.
 - The control-flow block count (110-129) was summed per element, so blocks are probably counted more than once. Treat it as rough.
 
-Consequences (inferred from the numbers): one component's compact signal graph (up to 80 nodes) fits in a 7K-token window, but a whole page does not (`/contract/list` is about 14K tokens at 4 characters per token). A component list fits. A provider dump for one component's path (100+ environment providers) does not, which is why `di.lookup(token)` answers one token instead of listing providers.
+Consequences (inferred from the numbers): one component's compact signal graph (up to 80 nodes) fits in a 7K-token window, but a whole page does not (`/contract/list` is about 14K tokens at 4 characters per token). A component list fits. A provider dump for one component's path (100+ environment providers) does not, which is why `di.lookup(token)` (now `di_lookup` in the proposals) answers one token instead of listing providers.
 
 ## S3/S4 - Model benchmark (first round)
 
@@ -72,6 +72,8 @@ A first Aion run without that follow-up line failed every fallback question by r
 |---|---|---|---|---|
 | Aion-1.1-Instruct (Edge Dev 157) | 7,168 | 5/5 / 4/5 / 14/15 | 4/5 / 4/5 / 12/15 | 2.2-10.5 s native, 3.2-7.0 s fallback |
 | Gemma 4 2B (Chrome Beta 156) | 9,216 | 5/5 / 3/5 / 11/15 | 5/5 / 4/5 / 13/15 | 8.3-11.7 s native, 9.2-13.5 s fallback |
+
+Raw files: none kept (10, "Correction: the benchmark grader passes wrong answers on one question"). Only a Nano `nano.json` existed, and the second round overwrote it. So this table cannot be regraded.
 
 Failures:
 - **Aion native:** one `kErrorUnknown` thrown by the browser.
@@ -123,7 +125,7 @@ So the error is the feature gate described in `09-nano-tool-session-error.md`, n
 
 ## Four-model benchmark, second round (2026-10-12, measured)
 
-- **Harness:** `spikes/probes/bench.js` with the corrected grader (`9c1b585`) and a 120 s per-prompt timeout, run by `bench-all.sh` against `spikes/ng222-app` on port 4222. Five questions, three runs each, native tools and the structured-output fallback.
+- **Harness:** `spikes/probes/bench.js` with the corrected grader (`9c1b585`) and a 120 s per-prompt timeout (Superseded: that check still passed answers about the `count` signal itself. `916fc09` fixed the dependency check again, and `node spikes/probes/regrade.mjs research/raw/bench/*.json` regraded the saved runs; see the notes under each table), run by `bench-all.sh` against `spikes/ng222-app` on port 4222. Five questions, three runs each, native tools and the structured-output fallback.
 - **Instances:** one per model (`research/00`, "Per-model instances"). Backend comes from Broker State; performance class from `optimization_guide.on_device.performance_class` in the instance's `Local State`.
 - **Load:** another heavy Claude session for a different project ran on the machine throughout (Lars, verbatim: "another session is using many resources working on a different project"). Latencies are therefore not comparable across rounds.
 
@@ -134,10 +136,12 @@ So the error is the feature gate described in `09-nano-tool-session-error.md`, n
 | Aion-1.1-Instruct | Edge Dev 157 | GPU, variant `webgpu-fp16-prerelease` (5) | 7,168 | **15/15** | 11/15 | 3-6 s |
 | Phi-4-mini-instruct (2026.8.19.1) | Edge stable 155 | GPU, "highest quality" (5) | 9,216 | 5/15 | 7/15 | 3-6 s |
 
+Raw files: `research/raw/bench/nano.json` (Nano on CPU), `gemma4.json`, `aion.json` and `phi4mini.json`. The `916fc09` regrade changes none of these rows (measured).
+
 Failure patterns:
 - **Nano on CPU:**
   - Native: it writes `tool_code` blocks with made-up JavaScript as text instead of calling a tool. That matches its lack of documented tool calling (10).
-  - Fallback: 15/15 runs failed with "Unexpected end of JSON input", meaning the constrained output came back empty or cut off. Not explained yet. The CPU backend is the prime suspect, since the first round's Nano on GPU low tier in Lars's own profile passed 11/15 (regraded). Inferred. Corrected: the first round of this file has no Nano row. The 11/15 is Claude's re-grade of an earlier Nano fallback run in `10-model-capabilities.md`, "Correction: the benchmark grader passes wrong answers on one question" (reported 13/15). Neither 10 nor that run records the backend, so "GPU low tier in Lars's own profile" is unsourced. That earlier `nano.json` was overwritten: the copy now in `research/raw/bench/nano.json` holds this round's CPU run (native 1/15, fallback 0/15). The backend comparison below measures Nano on GPU directly (fallback 13/15).
+  - Fallback: 15/15 runs failed with "Unexpected end of JSON input", meaning the constrained output came back empty or cut off. Not explained yet. The CPU backend is the prime suspect, since the first round's Nano on GPU low tier in Lars's own profile passed 11/15 (regraded). Inferred. Corrected: the first round of this file has no Nano row. The 11/15 is Claude's re-grade of an earlier Nano fallback run in `10-model-capabilities.md`, "Correction: the benchmark grader passes wrong answers on one question" (reported 13/15). Neither 10 nor that run records the backend, so "GPU low tier in Lars's own profile" is unsourced. That earlier `nano.json` was overwritten: the copy now in `research/raw/bench/nano.json` holds this round's CPU run (native 1/15, fallback 0/15). The backend comparison below measures Nano on GPU directly (fallback 13/15; 11/15 after the `916fc09` regrade).
 - **Gemma 4:** wrong selectors (`app-counter input[type="text"]`) and invented signal names (`[ + ]`) in native mode. In the fallback, once, it answered from the wrong tool.
 - **Aion:**
   - Native: perfect.
@@ -152,7 +156,7 @@ Reading (inferred):
 - Gemma 4 is the best fallback-loop model but slow on this GPU.
 - Phi-4-mini is fast but weak at both.
 - Nano needs its GPU backend measured before any verdict.
-- Argument mistakes still dominate the failures, which supports the id-based tool design (3.4) and prompt-kit experiment E1 (`07`).
+- Argument mistakes still dominate the failures, which supports the id-based tool design (3.4) and prompt-kit experiment E1 (`07`). (Narrowed after counting the raw runs: argument mistakes dominate Aion's and Phi-4-mini's fallback failures, but wrong tool choice or no follow-up call caused 4 of Gemma 4 GPU's 7 native failures; see `docs/feature-proposals.md` 2.1.)
 
 ## Backend comparison: Nano on GPU and Gemma 4 on CPU (2026-10-12, measured)
 
@@ -161,11 +165,13 @@ Same harness and questions as the second round, run while the machine was still 
 | Configuration | Backend | Native, runs passed | Fallback, runs passed | Median per question |
 |---|---|---|---|---|
 | Nano v3 | CPU `nano_v3_cpu_model` | 1/15 | 0/15 | 15-42 s |
-| Nano v3 | GPU `nano_v3_gpu_low_tier_model` (2025.8.8.1141) | 3/15 | 13/15 | 2-12 s native, 7-8 s fallback |
+| Nano v3 | GPU `nano_v3_gpu_low_tier_model` (2025.8.8.1141) | 2/15 (3/15 before the `916fc09` regrade) | 11/15 (13/15 before the regrade) | 2-12 s native, 7-8 s fallback |
 | Gemma 4 2B | GPU `gemma4_gpu_low_tier_model` | 8/15 | 13/15 | 11-13 s |
 | Gemma 4 2B | CPU (`OnDeviceModelForceCpuBackend`) | 9/15 | **15/15** | 25-34 s |
 
+Raw files: `research/raw/bench/nano.json` (CPU), `nano-gpu.json`, `gemma4-cpu.json`. The Gemma 4 GPU row has the same figures as the second round; the only saved file for it is `gemma4.json`. The `916fc09` regrade changes only the Nano GPU row: native 3/15 to 2/15 (the extra pass was a text answer naming `count` and `increment`, with no tool call) and fallback 13/15 to 11/15 (two answers about the `count` signal itself) (measured).
+
 Readings (inferred unless marked):
-- The CPU backend is what broke Nano's structured output: 0/15 on CPU, 13/15 on GPU (measured). On both backends Nano writes `tool_code` text instead of calling tools.
+- The CPU backend is what broke Nano's structured output: 0/15 on CPU, 13/15 on GPU (measured; 11/15 after the `916fc09` regrade). On both backends Nano writes `tool_code` text instead of calling tools.
 - Gemma 4 on CPU gave the best fallback score of any configuration (15/15), at 2-3 times the GPU latency.
 - **Harness defect found and fixed:** a model-invented selector such as `app-counter input:browser...` made `document.querySelector` throw. That failed the whole run (2 of Gemma 4 CPU's native failures) instead of returning a tool error. `bench.js` now wraps every tool call (`runTool`) and returns `{error}`. Runs before this fix count such cases as failures. The tool-error template in the prompt kit (`07` section 6.3) is the matching design rule for the extension.

@@ -192,7 +192,7 @@ Each idea says what the on-device model adds that a static panel cannot. "Covere
 - Model adds: decides which tool groups to load before the question. If the app never marked `NgSignalForms`, the forms tools stay out of the session and save context in a 7-9K window; "this app uses `@defer` with incremental hydration and Signal Forms, no `@boundary`" also opens the chat as a context chip.
 - Data: `performance.getEntriesByName('mark_feature_usage')` (about 20 feature names, section 3), `[ng-version]`, `getDirectiveMetadata` counts.
 - Tier 0. Min: each mark's version (for example `NgBoundary` 22.2, `NgSignalForms` 21.0+).
-- Covered: partly. `app.facts` in 3.4 reads only the zoneless mark; step 1 of the model loop (3.3) picks groups from the question only.
+- Covered: partly. `app.facts` (now `app_facts`) in 3.4 reads only the zoneless mark; step 1 of the model loop (3.3) picks groups from the question only.
 
 **F6. Linked state reset explainer ("why did my selection reset?")**
 - Model adds: explains a cause. "`selectedId` (linkedSignal) recomputed because its source `items` changed at 12:03:10 after `reload()`; your manual `set` was dropped. Since 22.1 a custom `set` option can keep it."
@@ -226,16 +226,16 @@ Each idea says what the on-device model adds that a static panel cannot. "Covere
 
 ### 4.2 Extensions of existing proposals
 
-IDs X1-X6 were E1-E6 until 2026-10-12; renamed so they do not clash with 07's experiments E1-E13.
+IDs EXT1-EXT6 were E1-E6, then X1-X6, until 2026-10-12. E clashed with 07's experiments E1-E13, and X clashed with the source ids X1-X4 in 07 and X1 in 01, so the prefix is now EXT (extension of an earlier proposal).
 
 | Idea | What changes | Data, tier, min version | Covered by |
 |---|---|---|---|
-| X1. OnPush readiness for `Eager` components | For each `Eager` component, check whether every value its template reads is a signal or an input (template node producers in the signal graph). The model then says "safe to drop `Eager`" or "reads plain field `count`, mutated in `onClick`" | `getDirectiveMetadata` + `ɵgetSignalGraph`; tier 1; 22.0 | extends N10's `Eager` finding |
-| X2. NG0600 explainer gets names for free | Since 22.2.1 the message names the signal and component, so N4 can jump to the node without a stack walk | console hook; tier 0; 22.2.1 | N4 |
-| X3. `@defer` trigger doctor learns 22.x triggers | Explain idle timeouts and custom idle (22.0), viewport options (21.0), `scrollMargin` (22.3), and incremental hydration being the default (22.0) | `ɵgetControlFlowBlocks`; tier 1; 22.0 | N5 |
-| X4. WebMCP annotation audit | In agent rehearsal, flag tools without `readOnlyHint` on reads; note that implicit form tools hard-code hints since 22.2 | `document.modelContext`; app opt-in; 22.2 | N9 |
-| X5. Unlabelled-node report knows Signal Forms | Unlabelled nodes coming from Signal Forms are expected (no `debugName` in that package); label them by their `[formField]` element instead of suggesting a `debugName` | graph + F2; tier 1; 22.0 | N2 |
-| X6. Resource-in-guard detector | A navigation cancelled in the same tick as an `httpResource` request starts suggests a resource read synchronously in a guard (angular.courses blog). Low confidence, so the model words it as a question | router events + network timing; tier 1; 22.0 | new rule for N10 |
+| EXT1. OnPush readiness for `Eager` components | For each `Eager` component, check whether every value its template reads is a signal or an input (template node producers in the signal graph). The model then says "safe to drop `Eager`" or "reads plain field `count`, mutated in `onClick`" | `getDirectiveMetadata` + `ɵgetSignalGraph`; tier 1; 22.0 | extends N10's `Eager` finding |
+| EXT2. NG0600 explainer gets names for free | Since 22.2.1 the message names the signal and component, so N4 can jump to the node without a stack walk | console hook; tier 0; 22.2.1 | N4 |
+| EXT3. `@defer` trigger doctor learns 22.x triggers | Explain idle timeouts and custom idle (22.0), viewport options (21.0), `scrollMargin` (22.3), and incremental hydration being the default (22.0) | `ɵgetControlFlowBlocks`; tier 1; 22.0 | N5 |
+| EXT4. WebMCP annotation audit | In agent rehearsal, flag tools without `readOnlyHint` on reads; note that implicit form tools hard-code hints since 22.2 | `document.modelContext`; app opt-in; 22.2 | N9 |
+| EXT5. Unlabelled-node report knows Signal Forms | Unlabelled nodes coming from Signal Forms are expected (no `debugName` in that package); label them by their `[formField]` element instead of suggesting a `debugName` | graph + F2; tier 1; 22.0 | N2 |
+| EXT6. Resource-in-guard detector | A navigation cancelled in the same tick as an `httpResource` request starts suggests a resource read synchronously in a guard (angular.courses blog). Low confidence, so the model words it as a question | router events + network timing; tier 1; 22.0 | new rule for N10 |
 
 ### 4.3 Not worth a feature
 
@@ -252,11 +252,11 @@ Minimum Angular version for each idea and for the existing proposals' data sourc
 | Feature | Minimum | Why |
 |---|---|---|
 | N1, N2 (signal graph, profiler) | 19.1: the commit that published `getSignalGraph` in `global_utils.ts` is first in `19.1.0-next.3` (`git log -S` + `git describe`); labels need 20.1+ for the implicit `debugName` transform | `ɵgetSignalGraph`, implicit labels |
-| N5, X3 | 22.0 for `ɵgetControlFlowBlocks` (publish commit first in `v22.0.0-next.4`, same method). 19.1 to 21.x apps published `getDeferBlocks` instead (first in `19.1.0-next.4`), so a fallback can cover `@defer` but not `@for` | `global_utils.ts` history |
+| N5, EXT3 | 22.0 for `ɵgetControlFlowBlocks` (publish commit first in `v22.0.0-next.4`, same method). 19.1 to 21.x apps published `getDeferBlocks` instead (first in `19.1.0-next.4`), so a fallback can cover `@defer` but not `@for` | `global_utils.ts` history |
 | `devtoolstooldiscovery` tools | 22.0 (`registration.ts` first tagged `v22.0.0-next.8`; CL:941,944) | in-page AI tools |
-| N9, X4 | 22.0 WebMCP; 22.2 for annotations | CL:926,940,21 |
+| N9, EXT4 | 22.0 WebMCP; 22.2 for annotations | CL:926,940,21 |
 | F1 | 22.0 (stable resources, `ResourceParamsStatus`) | CL:931; `resource.ts:50` |
-| F2, X5 | 22.0 (21.0 experimental) | CL:975,2371 |
+| F2, EXT5 | 22.0 (21.0 experimental) | CL:975,2371 |
 | F3 | 22.2 | CL:18,33 |
 | F4 | 22.2, `provideRouter` only | CL:39 |
 | F5 | per mark; `NgBoundary` 22.2, `NgSignalForms` 21.0 | section 3 |
@@ -265,8 +265,8 @@ Minimum Angular version for each idea and for the existing proposals' data sourc
 | F8 | 21.0 (`enableProfiling`); 22.1 deep links | `chrome_dev_tools_performance.ts:370`; CL:399 |
 | F9 | 21.1, app opt-in | CL:1820 |
 | F10 | 22.0 (stable Aria) | angular.courses v22 table |
-| X1 | 22.0 (OnPush default) | CL:859 |
-| X2 | 22.2.1 | GitHub release v22.2.1 |
+| EXT1 | 22.0 (OnPush default) | CL:859 |
+| EXT2 | 22.2.1 | GitHub release v22.2.1 |
 
 Practical floor: the target is 22.2, so every idea works there. For older apps, F5 should hide tool groups whose version gate the `[ng-version]` value does not meet, so the model is never offered a tool that cannot answer [inferred].
 

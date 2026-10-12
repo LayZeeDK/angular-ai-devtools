@@ -102,7 +102,7 @@ After the download (probe `probe8.js`):
   - "How many ...?" called `get_component_count {"scope":"page"}` and answered "There are 42 Angular components on the page." (5.7 s).
   - "What is the count input of app-counter?" called `get_component_inputs {"selector":"app-counter"}` with the right arguments, but the answer was wrong: "The count input for the `app-counter` component has 3 inputs: "Hello"." The correct value was 3, and Aion got it right (4.5 s).
   - Total `contextUsage` was 1,007 tokens, against 285 for the same exchange on Aion.
-- Gemma 4 quirks: tool calls arrive with **`callID: ""`** (empty string), and `LanguageModelToolSuccess` accepts that. **`promptStreaming()` on a tool session fails** with `kErrorUnknown`, so use `prompt()`.
+- Gemma 4 quirks: tool calls arrive with **`callID: ""`** (empty string), and `LanguageModelToolSuccess` accepts that. **`promptStreaming()` on a tool session fails** with `kErrorUnknown`, so use `prompt()`. (Superseded: not established. `probe9.js:18-27` streamed on a `clone()` of the session right after `prompt()` returned a tool call, without sending a `tool-response`, and a prompt after an unanswered tool call fails on its own ("Edge Dev 157 results (Aion), measured" above). The failure is measured; its cause is not. The repeat with the tool response sent is spike S7 in `docs/feature-proposals.md`.)
 
 ## Flag name correction (measured)
 
