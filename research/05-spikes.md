@@ -48,7 +48,7 @@ App: the ng-journal insurance portal (Nx 23.1.1), in Claude's worktree `D:\proje
 Other facts:
 - About 99-124 environment providers lie on the resolution path of a single component.
 - The router config grew from 7 to 23 routes as lazy routes loaded.
-- `typeof Zone !== 'undefined'`: this app still loads zone.js.
+- `typeof Zone !== 'undefined'`: this app still loads zone.js. (Answered 2026-10-12, review round 7: loading zone.js does not make it a Zone.js app. It calls neither zone provider, and its root environment injector provides `NgZone` with `useClass: NoopNgZone` and the `Zoneless enabled` token with `useValue: true`, so it is zoneless [measured, `spikes/probes/zone-mode.js`, `research/raw/zone-mode-portal.json`, commit `8e057fc`]. See `docs/feature-proposals.md` 3.4, `app_facts`.)
 - `mark_feature_usage` entries: `NgStandalone`, `NgControlFlow`.
 - Dev-build class names carry a leading underscore (`_AppComponent`, `_SidebarComponent`), so tools should strip it before showing names to the model.
 - The control-flow block count (110-129) was summed per element, so blocks are probably counted more than once. Treat it as rough.
