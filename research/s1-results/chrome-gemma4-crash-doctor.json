@@ -1,0 +1,133 @@
+{
+  "cmd": "doctor",
+  "instance": "chrome-beta-gemma4",
+  "at": "2026-10-12T02:06:28.383Z",
+  "ok": false,
+  "backend": "gpu",
+  "checks": [
+    {
+      "id": "process",
+      "pass": true,
+      "warn": false,
+      "detail": "PID 48272 C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe --user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.browsers\\chrome-beta-gemma4"
+    },
+    {
+      "id": "commandLine",
+      "pass": true,
+      "warn": false,
+      "detail": "matches the registry, backend gpu"
+    },
+    {
+      "id": "port",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "cdp": "http://127.0.0.1:9334",
+        "browser": "Chrome/156.0.8078.17",
+        "owner": 48272
+      }
+    },
+    {
+      "id": "tabs",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "count": 1,
+        "urls": [
+          "about:blank"
+        ]
+      }
+    },
+    {
+      "id": "model.disk",
+      "pass": true,
+      "warn": true,
+      "detail": "gemma4-2b-it 2026.06.10.0000 (3126 MiB) at D:\\projects\\sandbox\\angular-ai-devtools\\.browsers\\chrome-beta-gemma4\\OptGuideManifestModel\\7feacbfe693922f1d6422391a2fec1202689398bbd985d3f0aa13bd765cabeda\\2026.8.7.929"
+    },
+    {
+      "id": "model.broker",
+      "pass": false,
+      "warn": false,
+      "detail": {
+        "asset": {
+          "name": "gemma4_component",
+          "version": "2026.8.7.929",
+          "state": "Ready",
+          "progress": 100
+        },
+        "useCase": "prompt_api_gemma4",
+        "state": "Not Supported",
+        "manifestLoaded": "true"
+      }
+    },
+    {
+      "id": "backend",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "requested": "gpu",
+        "broker": "GPU (fastest inference)",
+        "row": "gemma4_gpu_low_tier_model"
+      }
+    },
+    {
+      "id": "performanceClass",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "localState": 3,
+        "broker": "Low"
+      }
+    },
+    {
+      "id": "disk.free",
+      "pass": true,
+      "warn": false,
+      "detail": "42533 MiB free on D:, browser minimum 22528 MiB (Broker State: true (42537 MiB available, 20480 MiB required))"
+    },
+    {
+      "id": "api.availability",
+      "pass": false,
+      "warn": false,
+      "detail": {
+        "LanguageModel": "unavailable",
+        "LanguageModelTools": "unavailable",
+        "Summarizer": "unavailable",
+        "Writer": "unavailable",
+        "Rewriter": "unavailable",
+        "Proofreader": "undefined",
+        "LanguageDetector": "available",
+        "Translator(en->da)": "downloadable",
+        "webmcp": {
+          "documentModelContext": "object",
+          "navigatorModelContext": "undefined"
+        },
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+      }
+    },
+    {
+      "id": "model.contextWindow",
+      "pass": null,
+      "warn": false,
+      "detail": "skipped: LanguageModel is unavailable; run \"model download chrome-beta-gemma4\""
+    },
+    {
+      "id": "canary.structured",
+      "pass": null,
+      "warn": false,
+      "detail": "skipped: LanguageModel is unavailable; run \"model download chrome-beta-gemma4\""
+    },
+    {
+      "id": "canary.tools",
+      "pass": null,
+      "warn": false,
+      "detail": "skipped: LanguageModel is unavailable; run \"model download chrome-beta-gemma4\""
+    },
+    {
+      "id": "canary.webmcp",
+      "pass": null,
+      "warn": false,
+      "detail": "skipped: LanguageModel is unavailable; run \"model download chrome-beta-gemma4\""
+    }
+  ]
+}

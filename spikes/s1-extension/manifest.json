@@ -10,7 +10,7 @@
   "side_panel": { "default_path": "sidepanel.html" },
   "action": { "default_title": "S1 probe" },
   "content_scripts": [
-    { "matches": ["<all_urls>"], "js": ["probe.js", "cs-isolated.js"], "run_at": "document_idle" },
-    { "matches": ["<all_urls>"], "js": ["probe-main.js", "cs-main.js"], "run_at": "document_idle", "world": "MAIN" }
+    { "matches": ["https://example.com/*"], "js": ["probe.js", "cs-isolated.js"], "run_at": "document_idle" },
+    { "matches": ["https://example.com/*"], "js": ["probe-main.js", "cs-main.js"], "run_at": "document_idle", "world": "MAIN" }
   ]
 }

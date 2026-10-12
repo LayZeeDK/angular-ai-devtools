@@ -1,0 +1,690 @@
+{
+  "browser": "chrome",
+  "model": "gemma4",
+  "port": 9334,
+  "mode": "attach",
+  "startedAt": "2026-10-12T02:10:58.626Z",
+  "steps": {
+    "loadUnpacked": "Extensions.loadUnpacked over --remote-debugging-port",
+    "serviceWorkerTarget": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sw.js",
+    "devtoolsOpen": "Target.openDevTools (returned {\"targetId\":\"4079AC5208157F0CE37F38C4897937C6\"}): devtools://devtools/bundled/devtools_app.html",
+    "panelRegistered": true,
+    "panelShow": "Extensions.extensionServer.onShowPanel",
+    "panelTarget": "iframe",
+    "sidePanel": "chrome.sidePanel.open from tab.html on CDP Enter key: target page"
+  },
+  "version": "Chrome/156.0.8078.17",
+  "extensionId": "adkapcgoeebpdmbepbdjmbhfknkcllcc",
+  "loadTime": {
+    "content_isolated": {
+      "at": "2026-10-12T02:10:59.266Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "content_isolated",
+      "href": "https://example.com/",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "relayedFrom": "https://example.com/",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "content_main": {
+      "at": "2026-10-12T02:11:00.276Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "content_main",
+      "href": "https://example.com/",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "relayedFrom": "https://example.com/",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "devtools_page": {
+      "at": "2026-10-12T02:11:02.719Z",
+      "availability": "unavailable",
+      "availabilityWithToolOptions": "unavailable",
+      "context": "devtools_page",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/devtools.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": false,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "devtools_panel": {
+      "at": "2026-10-12T02:11:02.827Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "devtools_panel",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/panel.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "extension_tab": {
+      "at": "2026-10-12T02:11:03.366Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "extension_tab",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/tab.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "offscreen": {
+      "at": "2026-10-12T02:10:58.772Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "offscreen",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/offscreen.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "relayedFrom": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/offscreen.html",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "service_worker": {
+      "at": "2026-10-12T02:10:58.754Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "service_worker",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sw.js",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": "no document (worker)",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "side_panel": {
+      "at": "2026-10-12T02:11:03.912Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "side_panel",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sidepanel.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "side_panel_open_attempt": "side panel opened"
+  },
+  "missingContexts": [],
+  "roundTrips": {
+    "devtools_page": {
+      "context": "devtools_page",
+      "at": "2026-10-12T02:11:04.922Z",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/devtools.html",
+      "isSecureContext": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "permissionsPolicyAllowsLanguageModel": false,
+      "availability": "unavailable",
+      "availabilityWithToolOptions": "unavailable",
+      "createWhenUnavailableError": "NotAllowedError: Access denied because the Permission Policy is not enabled.",
+      "trigger": "runner"
+    },
+    "devtools_panel": {
+      "context": "devtools_panel",
+      "at": "2026-10-12T02:11:04.925Z",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/panel.html",
+      "isSecureContext": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "permissionsPolicyAllowsLanguageModel": true,
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "roundTrip": {
+        "calls": [
+          {
+            "name": "get_component_inputs",
+            "callID": "",
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "isToolCallInstance": true
+          }
+        ],
+        "prompts": 2,
+        "contextWindow": 9216,
+        "answer": "The input for `app-counter` is `count` with a value of `3`.",
+        "steps": 1,
+        "ms": 7390,
+        "contextUsage": 511
+      },
+      "contextWindow": 9216,
+      "trigger": "runner"
+    },
+    "side_panel": {
+      "context": "side_panel",
+      "at": "2026-10-12T02:11:13.298Z",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sidepanel.html",
+      "isSecureContext": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "permissionsPolicyAllowsLanguageModel": true,
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "roundTrip": {
+        "calls": [
+          {
+            "name": "get_component_inputs",
+            "callID": "",
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "isToolCallInstance": true
+          }
+        ],
+        "prompts": 2,
+        "contextWindow": 9216,
+        "answer": "The input for the `app-counter` component is `count` with a value of `3`.",
+        "steps": 1,
+        "ms": 11077,
+        "contextUsage": 513
+      },
+      "contextWindow": 9216,
+      "trigger": "runner"
+    },
+    "service_worker": {
+      "context": "service_worker",
+      "at": "2026-10-12T02:11:26.006Z",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sw.js",
+      "isSecureContext": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "permissionsPolicyAllowsLanguageModel": "no document (worker)",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "roundTrip": {
+        "calls": [
+          {
+            "name": "get_component_inputs",
+            "callID": "",
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "isToolCallInstance": true
+          }
+        ],
+        "prompts": 2,
+        "contextWindow": 9216,
+        "answer": "The input `count` of the `app-counter` component is **3**.",
+        "steps": 1,
+        "ms": 12921,
+        "contextUsage": 509
+      },
+      "contextWindow": 9216,
+      "trigger": "runner"
+    },
+    "offscreen": {
+      "context": "offscreen",
+      "at": "2026-10-12T02:11:40.765Z",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/offscreen.html",
+      "isSecureContext": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "permissionsPolicyAllowsLanguageModel": true,
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "roundTrip": {
+        "calls": [
+          {
+            "name": "get_component_inputs",
+            "callID": "",
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "isToolCallInstance": true
+          }
+        ],
+        "prompts": 2,
+        "contextWindow": 9216,
+        "answer": "The input for the `app-counter` component is `count` with a value of `3`.",
+        "steps": 1,
+        "ms": 11411,
+        "contextUsage": 513
+      },
+      "contextWindow": 9216,
+      "trigger": "runner"
+    },
+    "content_isolated": {
+      "context": "content_isolated",
+      "at": "2026-10-12T02:11:53.905Z",
+      "href": "https://example.com/",
+      "isSecureContext": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "permissionsPolicyAllowsLanguageModel": true,
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "roundTrip": {
+        "calls": [
+          {
+            "name": "get_component_inputs",
+            "callID": "",
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "isToolCallInstance": true
+          }
+        ],
+        "prompts": 2,
+        "contextWindow": 9216,
+        "answer": "The input value for the `count` property of the `app-counter` component is 3.",
+        "steps": 1,
+        "ms": 10865,
+        "contextUsage": 513
+      },
+      "contextWindow": 9216,
+      "trigger": "runner"
+    },
+    "content_main": {
+      "context": "content_main",
+      "at": "2026-10-12T02:12:06.517Z",
+      "href": "https://example.com/",
+      "isSecureContext": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "permissionsPolicyAllowsLanguageModel": true,
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "roundTrip": {
+        "calls": [
+          {
+            "name": "get_component_inputs",
+            "callID": "",
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "isToolCallInstance": true
+          }
+        ],
+        "prompts": 2,
+        "contextWindow": 9216,
+        "answer": "The input for the `app-counter` component is `count` with a value of `3`.",
+        "steps": 1,
+        "ms": 10991,
+        "contextUsage": 513
+      },
+      "contextWindow": 9216,
+      "trigger": "runner"
+    },
+    "extension_tab": {
+      "context": "extension_tab",
+      "at": "2026-10-12T02:12:19.105Z",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/tab.html",
+      "isSecureContext": true,
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "permissionsPolicyAllowsLanguageModel": true,
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "roundTrip": {
+        "calls": [
+          {
+            "name": "get_component_inputs",
+            "callID": "",
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "isToolCallInstance": true
+          }
+        ],
+        "prompts": 2,
+        "contextWindow": 9216,
+        "answer": "The `count` input of the `app-counter` component is currently set to `3`.",
+        "steps": 1,
+        "ms": 11000,
+        "contextUsage": 512
+      },
+      "contextWindow": 9216,
+      "trigger": "runner"
+    }
+  },
+  "results": {
+    "content_isolated": {
+      "at": "2026-10-12T02:11:53.905Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "content_isolated",
+      "contextWindow": 9216,
+      "href": "https://example.com/",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "roundTrip": {
+        "answer": "The input value for the `count` property of the `app-counter` component is 3.",
+        "calls": [
+          {
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "callID": "",
+            "isToolCallInstance": true,
+            "name": "get_component_inputs"
+          }
+        ],
+        "contextUsage": 513,
+        "contextWindow": 9216,
+        "ms": 10865,
+        "prompts": 2,
+        "steps": 1
+      },
+      "trigger": "runner",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "content_main": {
+      "at": "2026-10-12T02:12:06.517Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "content_main",
+      "contextWindow": 9216,
+      "href": "https://example.com/",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "relayedFrom": "https://example.com/",
+      "roundTrip": {
+        "answer": "The input for the `app-counter` component is `count` with a value of `3`.",
+        "calls": [
+          {
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "callID": "",
+            "isToolCallInstance": true,
+            "name": "get_component_inputs"
+          }
+        ],
+        "contextUsage": 513,
+        "contextWindow": 9216,
+        "ms": 10991,
+        "prompts": 2,
+        "steps": 1
+      },
+      "trigger": "runner",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "devtools_page": {
+      "at": "2026-10-12T02:11:04.922Z",
+      "availability": "unavailable",
+      "availabilityWithToolOptions": "unavailable",
+      "context": "devtools_page",
+      "createWhenUnavailableError": "NotAllowedError: Access denied because the Permission Policy is not enabled.",
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/devtools.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": false,
+      "trigger": "runner",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "devtools_panel": {
+      "at": "2026-10-12T02:11:04.925Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "devtools_panel",
+      "contextWindow": 9216,
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/panel.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "roundTrip": {
+        "answer": "The input for `app-counter` is `count` with a value of `3`.",
+        "calls": [
+          {
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "callID": "",
+            "isToolCallInstance": true,
+            "name": "get_component_inputs"
+          }
+        ],
+        "contextUsage": 511,
+        "contextWindow": 9216,
+        "ms": 7390,
+        "prompts": 2,
+        "steps": 1
+      },
+      "trigger": "runner",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "extension_tab": {
+      "at": "2026-10-12T02:12:19.105Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "extension_tab",
+      "contextWindow": 9216,
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/tab.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "roundTrip": {
+        "answer": "The `count` input of the `app-counter` component is currently set to `3`.",
+        "calls": [
+          {
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "callID": "",
+            "isToolCallInstance": true,
+            "name": "get_component_inputs"
+          }
+        ],
+        "contextUsage": 512,
+        "contextWindow": 9216,
+        "ms": 11000,
+        "prompts": 2,
+        "steps": 1
+      },
+      "trigger": "runner",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "offscreen": {
+      "at": "2026-10-12T02:11:40.765Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "offscreen",
+      "contextWindow": 9216,
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/offscreen.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "relayedFrom": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/offscreen.html",
+      "roundTrip": {
+        "answer": "The input for the `app-counter` component is `count` with a value of `3`.",
+        "calls": [
+          {
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "callID": "",
+            "isToolCallInstance": true,
+            "name": "get_component_inputs"
+          }
+        ],
+        "contextUsage": 513,
+        "contextWindow": 9216,
+        "ms": 11411,
+        "prompts": 2,
+        "steps": 1
+      },
+      "trigger": "runner",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "service_worker": {
+      "at": "2026-10-12T02:11:26.006Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "service_worker",
+      "contextWindow": 9216,
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sw.js",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": "no document (worker)",
+      "roundTrip": {
+        "answer": "The input `count` of the `app-counter` component is **3**.",
+        "calls": [
+          {
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "callID": "",
+            "isToolCallInstance": true,
+            "name": "get_component_inputs"
+          }
+        ],
+        "contextUsage": 509,
+        "contextWindow": 9216,
+        "ms": 12921,
+        "prompts": 2,
+        "steps": 1
+      },
+      "trigger": "runner",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "side_panel": {
+      "at": "2026-10-12T02:11:13.298Z",
+      "availability": "available",
+      "availabilityWithToolOptions": "available",
+      "context": "side_panel",
+      "contextWindow": 9216,
+      "href": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sidepanel.html",
+      "isSecureContext": true,
+      "permissionsPolicyAllowsLanguageModel": true,
+      "roundTrip": {
+        "answer": "The input for the `app-counter` component is `count` with a value of `3`.",
+        "calls": [
+          {
+            "arguments": {
+              "selector": "app-counter"
+            },
+            "callID": "",
+            "isToolCallInstance": true,
+            "name": "get_component_inputs"
+          }
+        ],
+        "contextUsage": 513,
+        "contextWindow": 9216,
+        "ms": 11077,
+        "prompts": 2,
+        "steps": 1
+      },
+      "trigger": "runner",
+      "typeofLanguageModel": "function",
+      "typeofLanguageModelToolCall": "function",
+      "typeofLanguageModelToolSuccess": "function",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    "side_panel_open_attempt": "side panel opened"
+  },
+  "resultsHtmlKeys": [
+    "content_isolated",
+    "content_main",
+    "devtools_page",
+    "devtools_panel",
+    "extension_tab",
+    "offscreen",
+    "service_worker",
+    "side_panel",
+    "side_panel_open_attempt"
+  ],
+  "targets": [
+    {
+      "type": "service_worker",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sw.js"
+    },
+    {
+      "type": "page",
+      "url": "https://example.com/"
+    },
+    {
+      "type": "browser_ui",
+      "url": "chrome://omnibox-popup.top-chrome/omnibox_popup_aim.html"
+    },
+    {
+      "type": "page",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/sidepanel.html"
+    },
+    {
+      "type": "page",
+      "url": "devtools://devtools/bundled/devtools_app.html?remoteBase=https://chrome-devtools-frontend.appspot.com/serve_file/@ab5de1"
+    },
+    {
+      "type": "iframe",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/devtools.html"
+    },
+    {
+      "type": "iframe",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/panel.html"
+    },
+    {
+      "type": "page",
+      "url": "about:blank"
+    },
+    {
+      "type": "page",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/tab.html"
+    },
+    {
+      "type": "browser_ui",
+      "url": "chrome://omnibox-popup.top-chrome/"
+    },
+    {
+      "type": "page",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/results.html"
+    },
+    {
+      "type": "background_page",
+      "url": "chrome-extension://adkapcgoeebpdmbepbdjmbhfknkcllcc/offscreen.html"
+    }
+  ],
+  "finishedAt": "2026-10-12T02:12:33.044Z"
+}

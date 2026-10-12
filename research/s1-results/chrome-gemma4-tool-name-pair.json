@@ -1,0 +1,64 @@
+{
+  "cmd": "run",
+  "instance": "chrome-beta-gemma4",
+  "at": "2026-10-12T02:09:46.811Z",
+  "ok": true,
+  "result": [
+    {
+      "label": "get_component_count",
+      "calls": [
+        {
+          "name": "get_component_count",
+          "callID": "",
+          "arguments": {
+            "scope": "page"
+          }
+        }
+      ],
+      "prompts": 2,
+      "answer": "There are 42 Angular components on the page.",
+      "ms": 26559
+    },
+    {
+      "label": "getComponentCount",
+      "calls": [],
+      "prompts": 1,
+      "error": "UnknownError: An unknown error occurred: kErrorUnknown",
+      "ms": 7573
+    },
+    {
+      "label": "get_component_count",
+      "calls": [
+        {
+          "name": "get_component_count",
+          "callID": "",
+          "arguments": {
+            "scope": "page"
+          }
+        }
+      ],
+      "prompts": 2,
+      "answer": "There are 42 Angular components on the page.",
+      "ms": 18041
+    },
+    {
+      "label": "s1ToolRoundTrip (snake_case names)",
+      "calls": [
+        {
+          "name": "get_component_inputs",
+          "callID": "",
+          "arguments": {
+            "selector": "app-counter"
+          },
+          "isToolCallInstance": true
+        }
+      ],
+      "prompts": 2,
+      "contextWindow": 9216,
+      "answer": "The input for the `app-counter` component is `count` with a value of `3`.",
+      "steps": 1,
+      "ms": 7829,
+      "contextUsage": 513
+    }
+  ]
+}
