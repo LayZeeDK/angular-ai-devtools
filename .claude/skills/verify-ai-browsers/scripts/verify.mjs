@@ -1,173 +1,103 @@
 #!/usr/bin/env node
-// Verdicts for the built-in AI in Chrome Beta and Edge Dev, built on control-ai-browsers/scripts/control.mjs.
-// Usage: node verify.mjs state|cycle --browser=chrome-beta|msedge-dev [--to=<profile>] [--run=<probe.js> --out=<json>] [--evidence=<dir>]
+// Verdicts for the per-model browser instances, built on control-ai-browsers/scripts/control.mjs.
+// Usage: node verify.mjs state [<instance>...] | cycle <instance> [--evidence=<dir>] [--timeout-min=45]
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..', '..', '..');
-const CONTROL = resolve(HERE, '..', '..', 'control-ai-browsers', 'scripts', 'control.mjs');
-const HOME = { 'chrome-beta': 'gemma4', 'msedge-dev': 'aion' };
-const PROTECTED = ['gemma4-2b-it', 'Aion-1.1-Instruct'];
-const EXPECT = {
-  gemma4: { model: /^gemma4-/, contextWindow: 9216 },
-  nano: { model: /^v3Nano$/ },
-  aion: { model: /^Aion-1\.1-Instruct$/, contextWindow: 7168 },
-  default: { model: /phi-?4-?mini/i },
-};
+const CONTROL_DIR = resolve(HERE, '..', '..', 'control-ai-browsers');
+const CONTROL = join(CONTROL_DIR, 'scripts', 'control.mjs');
+const REGISTRY = JSON.parse(readFileSync(join(CONTROL_DIR, 'instances.json'), 'utf8'));
 
-const opts = Object.fromEntries(process.argv.slice(2).filter((a) => a.startsWith('--')).map((a) => {
+const args = process.argv.slice(2);
+const opts = Object.fromEntries(args.filter((a) => a.startsWith('--')).map((a) => {
   const [k, ...v] = a.slice(2).split('=');
 
   return [k, v.length ? v.join('=') : true];
 }));
-const [mode = 'state'] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
-const browser = opts.browser;
+const [mode = 'state', ...named] = args.filter((a) => !a.startsWith('--'));
 const runId = new Date().toISOString().replace(/[-:]/g, '').replace(/\..*/, '').replace('T', '-');
-const evidence = resolve(ROOT, typeof opts.evidence === 'string' ? opts.evidence : join('tmp', 'verify-ai-browsers', `${runId}-${browser}-${mode}`));
+const evidence = resolve(ROOT, typeof opts.evidence === 'string' ? opts.evidence : join('tmp', 'verify-ai-browsers', `${runId}-${mode}`));
 const steps = [];
 
-function control(...args) {
+function control(...a) {
   const t = Date.now();
-  const r = spawnSync(process.execPath, [CONTROL, ...args, `--browser=${browser}`, `--evidence=${evidence}`, '--json'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-  const line = r.stdout.trim().split('\n').pop();
-  let json = null;
+  const r = spawnSync(process.execPath, [CONTROL, ...a, `--evidence=${evidence}`, '--json'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  let json;
 
   try {
-    json = JSON.parse(line);
+    json = JSON.parse(r.stdout.trim().split('\n').pop());
   } catch {
     json = { ok: false, reason: (r.stdout + r.stderr).slice(-600) };
   }
 
-  const step = { cmd: args.join(' '), exit: r.status, ms: Date.now() - t, ok: json.ok, evidence: json.evidence, reason: json.reason };
+  const step = { cmd: a.join(' '), exit: r.status, ms: Date.now() - t, ok: json.ok, evidence: json.evidence, reason: json.reason };
   steps.push(step);
   console.log(`[${r.status === 0 ? 'OK' : 'ERROR'}] ${step.cmd} -> exit ${r.status} (${step.ms} ms)${json.reason ? ` ${json.reason}` : ''}`);
 
   return { ...json, exit: r.status };
 }
 
-function modelMatches(info, profile) {
-  const want = EXPECT[profile];
-  const disk = info.disk?.find((d) => want.model.test(d.name));
+// Doctor twice (a pass counts only when it repeats), effective features, and the model read three ways.
+function state(name) {
+  const want = REGISTRY.instances[name];
+  const d1 = control('doctor', name);
+  const d2 = control('doctor', name);
+  const flags = control('flags', name);
+  const info = control('model', 'info', name);
+  const failed = [...new Set([...(d1.checks ?? []), ...(d2.checks ?? [])].filter((c) => c.pass === false).map((c) => c.id))];
+  const model = { expected: want.model.name, disk: info.disk?.some((x) => x.name === want.model.name) ?? false, serving: info.serving ?? null, backend: info.backend?.backendType ?? null, requestedBackend: info.requestedBackend ?? null, performanceClass: info.performanceClass ?? null };
+  const pass = d1.exit === 0 && d2.exit === 0 && flags.exit === 0 && model.disk && model.serving === want.model.name;
 
-  return { pass: !!info.serving?.name && want.model.test(info.serving.name) && !!disk, serving: info.serving?.name ?? null, disk: disk ? `${disk.name} ${disk.mib} MiB` : null };
+  return { instance: name, pass, doctor: [d1.exit, d2.exit], failedChecks: failed, flagsExit: flags.exit, model };
 }
 
-// Doctor twice: a pass counts only when it repeats.
-function state(profile) {
-  const d1 = control('doctor', `--expect=${profile}`);
-  const d2 = control('doctor', `--expect=${profile}`);
-  const flags = control('flags', 'get');
-  const info = control('model', 'info');
-  const m = modelMatches(info, profile);
-  const failed = [...(d1.checks ?? []), ...(d2.checks ?? [])].filter((c) => c.pass === false).map((c) => c.id);
+// Clear the instance's own model and get it back: stop, clear, launch, download, init, state.
+function cycle(name) {
+  const want = REGISTRY.instances[name];
+  const before = control('model', 'info', name);
+  const backend = before.requestedBackend ?? want.backend.default;
+  control('attach', name);
+  const stop = control('stop', name);
+  const clear = stop.exit === 0 ? control('model', 'clear', name, `--confirm=${want.model.name}`) : null;
+  const launch = control('launch', name, `--backend=${backend}`);
+  const download = launch.exit === 0 ? control('model', 'download', name, `--timeout-min=${opts['timeout-min'] ?? 45}`) : null;
+  const init = download?.exit === 0 ? control('model', 'init', name) : null;
+  const after = state(name);
+  control('detach', name);
+  const pass = stop.exit === 0 && clear?.exit === 0 && launch.exit === 0 && download?.exit === 0 && init?.exit === 0 && init.contextWindow === want.model.contextWindow && after.pass;
 
-  return { profile, doctor: [d1.exit, d2.exit], failedChecks: [...new Set(failed)], localState: flags.localState, model: m, pass: d1.exit === 0 && d2.exit === 0 && m.pass };
+  return {
+    instance: name, pass, backend,
+    clear: clear && { exit: clear.exit, bytesRemoved: clear.bytesRemoved, removed: clear.removed?.map((x) => `${x.name} ${x.componentVersion} ${x.mib} MiB`) },
+    download: download && { exit: download.exit, gesture: download.gesture, durationMs: download.durationMs, alreadyAvailable: !!download.alreadyAvailable, added: download.added?.map((x) => `${x.name} ${x.componentVersion} ${x.mib} MiB`) },
+    init: init && { exit: init.exit, firstCreateMs: init.firstCreateMs, secondCreateMs: init.secondCreateMs, contextWindow: init.contextWindow, answer: init.answer },
+    after,
+  };
 }
 
-function downloadIfNeeded() {
-  const dl = control('model', 'download');
-
-  return { alreadyAvailable: !!dl.alreadyAvailable, ok: dl.ok, reason: dl.reason, durationMs: dl.durationMs, added: dl.added?.map((a) => `${a.name} ${a.mib} MiB (${a.bytes} bytes)`), exit: dl.exit };
-}
-
-function switchAndCheck(profile) {
-  const sw = control('model', 'switch', profile);
-  const dl = sw.ok || sw.exit === 1 ? downloadIfNeeded() : null;
-
-  // A refused or failed download ends this leg; nothing else is deleted to make room.
-  if (dl && !dl.ok) {
-    return { profile, switchExit: sw.exit, download: dl, model: { pass: false, serving: null }, pass: false };
-  }
-
-  const init = control('model', 'init');
-  const info = control('model', 'info');
-  const m = modelMatches(info, profile);
-  const cw = EXPECT[profile].contextWindow;
-
-  return { profile, switchExit: sw.exit, profileAfter: sw.profile, download: dl, init: { exit: init.exit, firstCreateMs: init.firstCreateMs, secondCreateMs: init.secondCreateMs, contextWindow: init.contextWindow, answer: init.answer }, model: m, pass: sw.exit === 0 && init.exit === 0 && m.pass && (!cw || init.contextWindow === cw) };
-}
-
-function verdict(result) {
-  if (steps.some((s) => s.exit === 2)) {
-    return 'inconclusive';
-  }
-
-  return result.pass ? 'verified' : 'not verified';
-}
-
-let result;
-
-if (!HOME[browser]) {
-  console.log('[ERROR] --browser must be chrome-beta or msedge-dev');
-  process.exit(2);
-}
-
-const home = HOME[browser];
-
-if (control('attach').exit !== 0) {
+function finish(result) {
+  const verdict = steps.some((s) => s.exit === 2) ? 'inconclusive' : result.pass ? 'verified' : 'not verified';
   mkdirSync(evidence, { recursive: true });
   const file = join(evidence, 'verdict.json');
-  writeFileSync(file, JSON.stringify({ browser, mode, verdict: 'inconclusive', reason: steps[0].reason, steps }, null, 2));
-  console.log(`[ERROR] ${browser} ${mode}: inconclusive (attach refused; Lars must allow remote debugging); evidence ${file}`);
+  writeFileSync(file, JSON.stringify({ mode, verdict, result, steps }, null, 2));
+  console.log(`[${verdict === 'verified' ? 'OK' : 'ERROR'}] ${mode}: ${verdict}; evidence ${file}`);
+  process.exit(verdict === 'verified' ? 0 : verdict === 'not verified' ? 1 : 2);
+}
+
+const unknown = named.filter((n) => !REGISTRY.instances[n]);
+
+if (unknown.length || !['state', 'cycle'].includes(mode) || (mode === 'cycle' && named.length !== 1)) {
+  console.log(`[ERROR] usage: verify.mjs state [<instance>...] | cycle <instance>; instances: ${Object.keys(REGISTRY.instances).join(', ')}`);
   process.exit(2);
 }
 
 if (mode === 'state') {
-  result = state(typeof opts.expect === 'string' ? opts.expect : home);
-} else if (mode === 'cycle') {
-  const to = opts.to;
-
-  if (!EXPECT[to] || to === home) {
-    console.log(`[ERROR] cycle needs --to=<profile other than ${home}>`);
-    process.exit(2);
-  }
-
-  const freeStart = control('doctor').checks?.find((c) => c.id === 'disk.free')?.detail;
-  const before = state(home);
-  const away = switchAndCheck(to);
-  // The comparison model's name, read from disk while it is loaded; it is cleared after the switch back.
-  const comparison = away.model.serving && !PROTECTED.includes(away.model.serving) ? away.model.serving : null;
-  let probe = null;
-
-  if (away.pass && typeof opts.run === 'string') {
-    const r = control('run', opts.run, `--timeout-min=${opts['timeout-min'] ?? 40}`);
-    probe = { exit: r.exit, saved: null };
-
-    if (r.exit === 0 && typeof opts.out === 'string') {
-      const out = resolve(ROOT, opts.out);
-      mkdirSync(dirname(out), { recursive: true });
-      writeFileSync(out, JSON.stringify(r.result, null, 2));
-      probe.saved = out;
-    }
-  }
-
-  const back = switchAndCheck(home);
-  let clear = { skipped: 'no comparison model on disk' };
-
-  if (comparison) {
-    const c = control('model', 'clear', `--confirm=${comparison}`);
-    clear = { exit: c.exit, model: comparison, method: c.method, bytesFreed: c.bytesFreed, freeBeforeMib: c.freeBefore?.mib, freeAfterMib: c.freeAfter?.mib, left: c.diskAfter?.map((d) => d.name) };
-  }
-
-  const after = state(home);
-  const info = control('model', 'info');
-  const onlyStanding = info.disk?.length === 1 && EXPECT[home].model.test(info.disk[0].name);
-  result = {
-    freeStartMib: freeStart?.mib, before, away, probe, back, clear, after, onlyStandingModelOnDisk: onlyStanding,
-    pass: before.pass && away.pass && back.pass && after.pass && onlyStanding && (probe === null || probe.exit === 0) && JSON.stringify(before.localState) === JSON.stringify(after.localState),
-  };
+  const results = (named.length ? named : Object.keys(REGISTRY.instances)).map(state);
+  finish({ pass: results.every((r) => r.pass), instances: results });
 } else {
-  console.log('[ERROR] mode must be state or cycle');
-  process.exit(2);
+  finish(cycle(named[0]));
 }
-
-control('cleanup');
-const v = verdict(result);
-mkdirSync(evidence, { recursive: true });
-const file = join(evidence, 'verdict.json');
-writeFileSync(file, JSON.stringify({ browser, mode, verdict: v, result, steps }, null, 2));
-console.log(`[${v === 'verified' ? 'OK' : 'ERROR'}] ${browser} ${mode}: ${v}; evidence ${file}`);
-process.exit(v === 'verified' ? 0 : v === 'not verified' ? 1 : 2);

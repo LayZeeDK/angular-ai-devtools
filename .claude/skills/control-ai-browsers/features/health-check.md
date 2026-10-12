@@ -1,11 +1,14 @@
 # Health check
 
-A page in Chrome Beta or Edge Dev can use the built-in AI: the Prompt API reports `available`, the model answers
-under a JSON Schema constraint, completes a tool round trip, and `document.modelContext` (WebMCP) exists.
+A page in an instance can use its built-in AI: the instance runs as the registry says, its model is on disk and
+`Ready` in Broker State on the requested backend, the Prompt API reports `available`, and the model answers under
+a JSON Schema constraint, completes a tool round trip, and `document.modelContext` (WebMCP) exists.
 
 ## Sub-features
 
-- `health-doctor` runs every check against the home or a named profile.
+- `health-doctor` runs every check against one instance.
+- `health-backend` compares the Broker State backend with the backend on the command line and reports the
+  performance class.
 - `health-availability` reads `availability()` for LanguageModel (plain and with tool use), Summarizer, Writer,
   Rewriter, Proofreader, LanguageDetector and Translator en->da.
 - `health-structured` proves `responseConstraint` output parses.
@@ -21,21 +24,22 @@ under a JSON Schema constraint, completes a tool round trip, and `document.model
 
 Preconditions: the README baseline.
 
-- **Full doctor.** Run `C doctor --browser=chrome-beta`. Exit 0 and twelve check lines, each `[OK]` or
-  `[SKIP]`.
-- **Doctor against another profile.** After a switch, run `C doctor --browser=chrome-beta --expect=nano`. The
-  flag and model checks compare with that profile; `canary.tools` is skipped.
-- **Canaries only.** Run `C canary --browser=msedge-dev`. JSON with `structured.pass`, `tools.pass` (calls,
-  answer, ms, `contextUsage`) and `webmcp.pass`.
+- **Full doctor.** Run `C doctor chrome-beta-gemma4`. Exit 0 and fourteen check lines, each `[OK]`, `[WARN]` or
+  `[SKIP]`. `backend` reads `requested gpu`, `GPU (fastest inference)`, row `gemma4_gpu_low_tier_model`.
+- **Nano.** Run `C doctor chrome-beta-nano`. `canary.tools` is `[SKIP]`; `backend` row `nano_v3_gpu_low_tier_model`.
+- **Edge.** Run `C doctor edge-dev-aion`. `backend` row `edge_base_model_gpu`, `GPU (highest quality)`.
 - **Proof.** Keep the doctor JSON from the evidence directory; it holds every check's detail.
 
 ## Gotchas
 
-- Measured canary times: Edge Dev (Aion) structured 1.8 s, tool round trip 1.9 s; Chrome Beta (Gemma 4)
-  structured 6.3 s, tool round trip 9.6 s.
+- Measured canary times (2026-10-12, machine under another session's load): Aion structured 3.2 s, tool round
+  trip 2.5 s; Gemma 4 (GPU) 6.0 s and 9.0 s; Nano (GPU) 2.0-28 s structured.
 - Gemma 4 sends `callID: ""`; the canary passes it back unchanged and Chrome accepts it.
-- A tool with `properties: {}` makes every Gemma 4 tool prompt fail with `UnknownError`; the canary tool has a
-  required `scope` parameter for that reason.
-- `navigator.modelContext` is `undefined` in both browsers; WebMCP lives on `document.modelContext`.
-- `Proofreader` is not defined in either browser, and Translator en->da is `downloadable`; doctor reports these
+- Doctor skips the page canaries when the model is not `available`: `create()` would wait for, or start, a
+  download.
+- `navigator.modelContext` is `undefined`; WebMCP lives on `document.modelContext`.
+- `Proofreader` is not defined in these builds, and Translator en->da is `downloadable`; doctor reports these
   without failing.
+- Phi-4-mini answers the tool canary in prose (all six sessions on 2026-10-12), so `canary.tools` is reported
+  only for it; its structured canary failed once with `kErrorUnknown`.
+- Stored performance classes on the same GPU: Nano 2 (VeryLow), Gemma 4 3 (Low), Aion and Phi-4-mini 5 (High).
