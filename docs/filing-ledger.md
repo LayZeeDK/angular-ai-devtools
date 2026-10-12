@@ -30,15 +30,17 @@ await g.tools.find((t) => t.name === 'angular:di_graph').execute({});
 // signal graph for any component host now lacks its template node
 ```
 
-Measured per token: `Injector`, `DestroyRef`, `ElementRef`, `Renderer2` leave the graph intact; `ViewContainerRef` breaks it.
+Measured per token: `Injector`, `DestroyRef`, `ElementRef`, `Renderer2` leave the graph intact; `ViewContainerRef` breaks it. `ChangeDetectorRef` was not tested on its own.
 
 **Expected:** a read-only debugging tool does not change the view structure, and reading the signal graph works whether or not a `ViewContainerRef` was ever injected at the host. That second point matters on its own: a component whose host has an injected `ViewContainerRef` for real app reasons probably shows the same missing template node (inferred, not tested).
 
-**Possible fixes (inferred):** skip `ViewContainerRef`, `ChangeDetectorRef` and other node-injector special tokens in `serializeInjector`, or report them without calling `get`; and make the signal-graph lookup unwrap a view container at the host to reach the component view.
+**Possible fixes (inferred):** skip `ViewContainerRef`, `ChangeDetectorRef` (untested, included as another node-injector special token) and other node-injector special tokens in `serializeInjector`, or report them without calling `get`; and make the signal-graph lookup unwrap a view container at the host to reach the component view.
 
-**Evidence:** spike app `spikes/ng222-app` in `D:\projects\sandbox\angular-ai-devtools`; probe results in `research/05-spikes.md`.
+**Evidence:** the two reproduction snippets above are self-contained; the issue text needs nothing else.
 
-**Added 2026-10-11 (measured):** Angular DevTools 1.22.0's signal graph pane shows the same loss. Before `angular:di_graph` it shows 6 nodes for the component; after it, 2 nodes (`count`, `effect`), with no template node. So the tool's side effect reaches users who never call `ɵgetSignalGraph` themselves: anyone who runs Angular's DI tool through chrome-devtools-mcp and then opens Angular DevTools. Evidence: `verify-angular-devtools` run, `tmp/verify-angular-devtools/20261011-192415.460/` (gitignored), skill in `.claude/skills/verify-angular-devtools/`.
+(For Lars only, leave out of the filed issue: the spike app is `spikes/ng222-app` and the probe results are in `research/05-spikes.md`, both in this repository.)
+
+**Added 2026-10-11 (measured):** Angular DevTools 1.22.0's signal graph pane shows the same loss. Before `angular:di_graph` it shows 6 nodes for the component; after it, 2 nodes (`count`, `effect`), with no template node. So the tool's side effect reaches users who never call `ɵgetSignalGraph` themselves: anyone who runs Angular's DI tool through chrome-devtools-mcp and then opens Angular DevTools. Evidence: `verify-angular-devtools` run, `tmp/verify-angular-devtools/20261011-192415.460/` (gitignored), skill in `.claude/skills/verify-angular-devtools/`. (For Lars only: these are local paths; in the filed issue, describe the DevTools check in words.)
 
 ## 2. pangular-inspector/devtools: the source scan finds nothing in an Nx workspace that uses `project.json` and `libs/`
 
@@ -63,8 +65,22 @@ The panel dashboard shows 0 components, routes, signals and providers "discovere
 
 ## 3. pangular-inspector/devtools: the docs list `list-components`, the published 0.0.7 does not have it
 
-Status: draft, not filed. Found 2026-10-11.
+Status: draft, not filed. Found 2026-10-11 while building `.claude/skills/control-pangular-inspector`.
+
+**Versions:** `@pangular-inspector/devtools` 0.0.7 (npm); `list-components` added in clone commit 20ebbb9; Node 24.18.0, Windows 11 arm64.
 
 **What happens:** `apps/docs/src/content/agents/tools.md` documents `list-components`. `tools/list` on `pangular dev --read-only` from the npm 0.0.7 package returns 46 tools without it; the tool was added in 20ebbb9 after the release. A reader of the docs site cannot tell which tools a version has.
+
+**Reproduction** in an Angular app with the package installed (`npm install --save-dev --save-exact @pangular-inspector/devtools@0.0.7`):
+
+```bash
+node node_modules/@pangular-inspector/devtools/bin.mjs dev --port 9999 --no-open --root . --read-only
+curl -s http://localhost:9999/__mcp -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -H 'Origin: http://localhost:9999' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+# one SSE "data:" line; result.tools has 46 entries and no list-components
+```
+
+The measured run used the skill's client, `node .claude/skills/control-pangular-inspector/scripts/control.mjs tools`, which sends the same JSON-RPC request; the `curl` line is its equivalent and was not run itself (inferred).
+
+**Evidence:** `.claude/skills/control-pangular-inspector/SKILL.md:172` (0.0.7 has no `list-components`; added in 20ebbb9; 46 tools with `--read-only`).
 
 **Expected:** a "since" marker per tool, or docs versioned with the package.

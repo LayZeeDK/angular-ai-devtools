@@ -1,7 +1,7 @@
 # 06 - angular/skills repo: inspiration for the AI DevTools extension
 
 Source: `D:\projects\github\angular\skills`, branch `main`, commit `747c3c2` (message "release: cut the v22.1.0-next.4 release", 2026-07-01), `BUILD_INFO` line 1-2 (measured).
-Labels: **(measured)** = read in the clone, with `file:line`. **(inferred)** = my reasoning or prior knowledge of Angular, not checked in this repo.
+Labels: **(measured)** = read in the clone, with `file:line`. **(inferred)** = Claude's reasoning or prior knowledge of Angular, not checked in this repo.
 All paths below are relative to `D:\projects\github\angular\skills\` unless stated. `R/` = `angular-developer/references/`.
 Size basis: whole reference corpus is 135,754 bytes (measured, `wc -c`), about 34K tokens at 4 chars/token, so it cannot fit a 7-9K window; only distilled rules can.
 
@@ -60,7 +60,7 @@ Observation (measured): the skills target v22.x (`@Service()` decorator, `di-fun
 ## 2. Rules checkable at runtime in a dev-mode app
 
 Legend: **R** = runtime-checkable, **P** = partly, **S** = source-only.
-API names for `ng.*` come from my knowledge of Angular's debug API and from Lars's brief, not from this repo (inferred). Verify each against the target Angular version in a spike before building on it. In particular `getDirectiveMetadata` returns `inputs/outputs/encapsulation` and a change-detection flag for components; the exact field name differs by version (inferred).
+API names for `ng.*` come from Claude's knowledge of Angular's debug API and from Lars's brief, not from this repo (inferred). Verify each against the target Angular version in a spike before building on it. In particular `getDirectiveMetadata` returns `inputs/outputs/encapsulation` and a change-detection flag for components; the exact field name differs by version (inferred). Answered: the `ng` names were checked against 22.2 source in `02-angular-surface.md` section 1.2 and on a live 22.2.2 app in `05-spikes.md` S2 (25 functions listed).
 
 | # | Rule (source) | Class | Live data that would check it |
 |---|---|---|---|
@@ -84,7 +84,7 @@ API names for `ng.*` come from my knowledge of Angular's debug API and from Lars
 | 18 | Output names should not start with `on` (`outputs.md:84`) | R | Output names from metadata, regex `^on[A-Z]` |
 | 19 | Do not use `::ng-deep` (`component-styling.md:73-74`) | P | `getDirectiveMetadata(...).encapsulation`; `ng-deep` itself is in the compiled CSS: visible by scanning `document.styleSheets`/`<style>` text for `::ng-deep` leakage patterns (CSS rule text seen in the DOM is already transformed by the emulation, so detecting ng-deep is unreliable; inferred) |
 | 20 | `ViewEncapsulation.None` makes styles global (`component-styling.md:32`) | R | `getDirectiveMetadata(...).encapsulation === None` per component |
-| 21 | Use `provideRouter` routes: wildcard last, first match wins (`define-routes.md:26-30`) | R | Router config from `ng.getInjector(...).get(Router).config` (Router is a public token; the injector comes from a root element) (inferred). Check: `path: '**'` not last; unreachable routes after a broader match |
+| 21 | Use `provideRouter` routes: wildcard last, first match wins (`define-routes.md:26-30`) | R | Router config from `ng.getInjector(...).get(Router).config` (Router is a public token; the injector comes from a root element) (inferred). Superseded: the extension cannot hold the app's `Router` token; use `ng.ɵgetRouterInstance` (`02-angular-surface.md` section 1.3). Check: `path: '**'` not last; unreachable routes after a broader match |
 | 22 | Lazy-load all but landing routes (`loading-strategies.md:58-61`) | R | Same router config: routes with `component` (eager) vs `loadComponent/loadChildren` (lazy) |
 | 23 | Routes should have titles (`define-routes.md:41-43`) | R | Router config: route entries with `title` undefined |
 | 24 | Guards are not security (`route-guards.md:50-52`) | S | Explanation only; can be shown whenever guards exist in the router config |
@@ -99,7 +99,7 @@ API names for `ng.*` come from my knowledge of Angular's debug API and from Lars
 | 33 | ARIA widgets use `ng*` directives, not native elements (`angular-aria.md:595`) | P | Directive names on elements via `ng.getDirectives(el)` vs presence of `role` attributes; accessibility lint partly overlaps what browsers' a11y tree already gives |
 | 34 | Build errors from signal-forms pitfalls (`signal-forms.md:763-end`) | S | Compile-time messages; at runtime only relevant if the extension captures console errors |
 
-Summary (measured count from the table above, classification is my judgement): R = 11 (rows 1, 13, 14, 16, 17, 18, 20, 21, 22, 23, 32), P = 14 (3, 4, 5, 8, 9, 10, 11, 15, 19, 26, 27, 28, 29, 33), S = 9 (2, 6, 7, 12, 24, 25, 30, 31, 34). Row 2 adds little: the compiler already rejects `@for` without `track`.
+Summary (measured count from the table above, classification is Claude's judgement): R = 11 (rows 1, 13, 14, 16, 17, 18, 20, 21, 22, 23, 32), P = 14 (3, 4, 5, 8, 9, 10, 11, 15, 19, 26, 27, 28, 29, 33), S = 9 (2, 6, 7, 12, 24, 25, 30, 31, 34). Row 2 adds little: the compiler already rejects `@for` without `track`.
 
 Most valuable runtime-checkable families (inferred): (a) component metadata hygiene (OnPush, encapsulation, input/output naming, collisions: rows 1, 14, 16-20), (b) router config audit (rows 21-23), (c) signal-graph smells (rows 8-11, 13).
 
@@ -108,7 +108,7 @@ Most valuable runtime-checkable families (inferred): (a) component metadata hygi
 Token budget basis: 4 chars per token. A 7K window leaves roughly 2-3K for system prompt + tools, so rule text should be at most ~1K tokens per turn (~4,000 chars).
 
 **1. Runtime best-practices lint ("Doctor" tab).**
-Rules in a JSON table `{id, check, severity, message, fix}` where `message` and `fix` are short quotes from the references (e.g. outputs.md:84 "Avoid prefixing with `on`"). Checks are plain JS over `ng.getComponent/getDirectiveMetadata/getInjector(Router)`; the model is not needed to detect, only to explain and prioritise. Data: component metadata, router config (section 2 rows 1, 14-23). Measured sizes: each fix text is one line of 60-120 chars = 15-30 tokens.
+Rules in a JSON table `{id, check, severity, message, fix}` where `message` and `fix` are short quotes from the references (e.g. outputs.md:84 "Avoid prefixing with `on`"). Checks are plain JS over `ng.getComponent/getDirectiveMetadata/getInjector(Router)` (Superseded for the router: use `ng.ɵgetRouterInstance`, see `02-angular-surface.md` section 1.3); the model is not needed to detect, only to explain and prioritise. Data: component metadata, router config (section 2 rows 1, 14-23). Measured sizes: each fix text is one line of 60-120 chars = 15-30 tokens.
 
 **2. Explain-from-the-skill.**
 When the user clicks a finding, put only that rule's snippet into context: one bullet plus a 5-8 line code sample, trimmed from the reference. Example `effects.md:15-16` (2 lines, ~70 tokens) or `signals-overview.md:81-93` (13 lines, ~300 tokens). A whole reference is 1.4-3.5K bytes = 350-900 tokens (measured sizes, `wc -c`/4), so one full small reference still fits in 7K if nothing else is loaded; the large ones (`signal-forms.md` 28 KB = 7K tokens, `angular-aria.md` 18 KB = 4.6K tokens) must never be loaded whole.
@@ -126,7 +126,7 @@ Walk the router config and report: wildcard not last, eager routes that could be
 For each finding that has a schematic, print the exact command from `migrations.md:14-22` (e.g. `ng generate @angular/core:signal-input-migration`) and the standalone 3-step workflow (`migrations.md:26-30`). The extension runs in the browser, so it only prints the commands. Data: lint findings (rows 3-5, 15) -> command table (7 rows, ~200 tokens).
 
 **7. Version-aware rules.**
-`SKILL.md:12` says "analyze the project's Angular version before providing guidance". Use `ng.getComponent`'s framework version (`ng.coreTokens`/`VERSION` is reachable in dev mode, inferred) to gate rules (e.g. animate.enter only if >= 20.2, `angular-animations.md:3-4`; signal forms only if >= 21, `SKILL.md:23`).
+`SKILL.md:12` says "analyze the project's Angular version before providing guidance". Use `ng.getComponent`'s framework version (`ng.coreTokens`/`VERSION` is reachable in dev mode, inferred; Superseded: neither is among the 25 `ng` functions in `05-spikes.md` S2; the version source is the `[ng-version]` attribute, `02-angular-surface.md` section 1.4) to gate rules (e.g. animate.enter only if >= 20.2, `angular-animations.md:3-4`; signal forms only if >= 21, `SKILL.md:23`).
 
 **8. Hand-off to the Angular CLI MCP.**
 The CLI MCP has `get_best_practices`, `onpush_zoneless_migration`, `search_documentation` (`mcp.md:9-15`). The extension could emit a ready-to-paste prompt for an external agent ("run `onpush_zoneless_migration` on components X, Y") for findings it cannot fix in the browser. Zero context cost on-device; data: lint findings.

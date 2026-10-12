@@ -79,7 +79,7 @@ Lars turned on remote debugging in both browsers (`chrome://inspect/#remote-debu
   - The result goes back with `new LanguageModelToolSuccess({ callID, name, result: [{ type: 'object', value }] })` inside `[{ role: 'user', content: [{ type: 'tool-response', value }] }]`. The member is spelled **`callID`**: `callId` throws "Required member is undefined".
   - With two tools, "How many Angular components are on the page?" produced one `getComponentCount {}` call and the answer "There are 42 ..." (2.1 s). "What is the count input of app-counter?" produced `getComponentInputs {"selector":"app-counter"}` and the answer "... is **3**" (1.6 s). Total context use after both: 285 tokens.
   - A `prompt()` sent after a tool call, without a tool response, fails with `UnknownError: kErrorUnknown`.
-- Probe scripts: session scratchpad `probe5.js` / `probe6.js`.
+- Probe scripts: `spikes/probes/probe5.js` / `spikes/probes/probe6.js` (first written in the session scratchpad, now tracked there).
 
 ## Chrome Beta 156, measured
 
@@ -89,7 +89,7 @@ After the download (probe `probe8.js`):
 
 - **(Superseded, see the correction below.)** First reading: the downloaded model looked like Gemini Nano. `OptGuideOnDeviceModel\2025.8.8.1141\manifest.json` has `"name": "v3Nano"` (4.0 GB). This is despite `chrome://flags` showing "Gemma 4 for Built-in AI: Enabled" and "Prompt API Tool Use: Enabled". **Inferred, not checked:** Gemma 4 is not offered to this device, or it needs a relaunch to fetch. The `chrome://on-device-internals` Event Logs tab would say which, but it did not respond to automation.
 - `contextWindow` = **9216**. `create()` took 3.6 s. A plain prompt answered in 3.8 s, and structured output worked in 2.5 s.
-- `LanguageModelToolCall` and `LanguageModelToolSuccess` are defined, and `create()` with `tools` plus `expectedInputs`/`expectedOutputs` succeeds. With a parameterless tool, every tool prompt failed with `UnknownError: kErrorUnknown`; see the correction below for the cause.
+- `LanguageModelToolCall` and `LanguageModelToolSuccess` are defined, and `create()` with `tools` plus `expectedInputs`/`expectedOutputs` succeeds. With a parameterless tool, every tool prompt failed with `UnknownError: kErrorUnknown`; see the correction below for the cause. (Confounded with camelCase names; see "Correction (2026-10-12): Gemma 4's tool-prompt failure" at the end of this file and `research/11`.)
 - Neither the constructors nor `create()` show that tools work, so detection has to run one canary tool prompt and fall back on error.
 
 ### Correction: Gemma 4 is the Prompt API model in Chrome Beta, and tool calling works (measured later the same day)
@@ -97,7 +97,7 @@ After the download (probe `probe8.js`):
 - The `v3Nano` folder above is an older download from 2025. The model downloaded today is in the manifest-broker folder: `OptGuideManifestModel\7feacbfe...\2026.8.7.929\manifest.json` names **`gemma4-2b-it`** version `2026.06.10.0000` (2.4 GB).
 - `chrome://on-device-internals` > Broker State lists the solutions `prompt_api_gemma4`, `summarizer_gemma4` and `writing_assistance_api_gemma4`, plus the backend `gemma4_gpu_low_tier_model` pointing at those weights. The models manifest also carries `prompt_gemma4_4b` and `prompt_gemma4_12b` configs. This device got the 2B "low tier".
 - In the binary, the flag `gemma4-for-built-in-ai` maps to the features `OptimizationGuideManifestBroker,AIApiFoundationalModel:model_version/v4`. `prompt-api-tool-use` maps to `AIPromptAPIToolUse,OnDeviceModelConversationBackend,AIApiFoundationalModel:model_version/v4`.
-- **Why tool prompts failed with `kErrorUnknown`:** in every failing probe, the first tool had `inputSchema: { type: 'object', properties: {} }`. With a tool whose schema has at least one required property (`get_component_count {scope: string}`), `prompt()` returned a proper tool call (`probe9.js`). **Inferred:** a tool with no parameters breaks Gemma 4's tool prompt. Aion accepted the empty schema.
+- **Why tool prompts failed with `kErrorUnknown`:** in every failing probe, the first tool had `inputSchema: { type: 'object', properties: {} }`. With a tool whose schema has at least one required property (`get_component_count {scope: string}`), `prompt()` returned a proper tool call (`probe9.js`). **Inferred:** a tool with no parameters breaks Gemma 4's tool prompt. Aion accepted the empty schema. **Superseded:** this cause is not established; the failing probes also used camelCase names (confounded with camelCase names; see "Correction (2026-10-12): Gemma 4's tool-prompt failure" at the end of this file and `research/11`).
 - Full round trip on Gemma 4 (`probe10.js`, the same two tools as on Edge Dev):
   - "How many ...?" called `get_component_count {"scope":"page"}` and answered "There are 42 Angular components on the page." (5.7 s).
   - "What is the count input of app-counter?" called `get_component_inputs {"selector":"app-counter"}` with the right arguments, but the answer was wrong: "The count input for the `app-counter` component has 3 inputs: "Hello"." The correct value was 3, and Aion got it right (4.5 s).
@@ -110,9 +110,9 @@ The WebMCP flag's internal name is **`enable-webmcp-testing`**, not `webmcp-test
 
 ## Not measured
 
-- The model name and version: `chrome://on-device-internals` cannot be opened through the automation extension.
-- Any extension context (DevTools panel, side panel, service worker, offscreen document).
-- Edge.
+- The model name and version: `chrome://on-device-internals` cannot be opened through the automation extension. Answered: see "Correction: Gemma 4 is the Prompt API model in Chrome Beta" above (manifest and Broker State read).
+- Any extension context (DevTools panel, side panel, service worker, offscreen document). Answered: see `research/11-spike-s1-extension-contexts.md` (spike S1).
+- Edge. Answered: see "Edge Dev 157 results (Aion), measured" above.
 
 ## After relaunch with `enable-webmcp-testing` (measured 2026-10-11 ~20:57)
 
@@ -153,7 +153,7 @@ Phi-4-mini instance, after about 35 minutes of `availability()` returning `downl
 - Manifest variant: `webgpu-fp16`, where Aion's is `webgpu-fp16-prerelease`.
 - `EdgeLLMOnDeviceModel` and `EdgeLLMRuntime` are both empty; Aion's runtime folder holds 3.5 MB.
 - Earlier, Lars's own Edge Dev profile showed `edge_base_model` Not Installed too (builder report).
-- Inferred, not checked: Edge Dev 157 does not currently serve the release ("default", expected Phi-4-mini) component, so the download never starts. Edge stable 155 might; it has not been tried.
+- Inferred, not checked: Edge Dev 157 does not currently serve the release ("default", expected Phi-4-mini) component, so the download never starts. Edge stable 155 might; it has not been tried. Superseded: forcing "Check for update" downloads Aion-1.1 as Edge Dev 157's default model, and Phi-4-mini was measured in Edge stable 155; see "Phi-4-mini in Edge Dev 157: every route tried" below.
 
 ## Moving Lars's own Chrome Beta and Edge Dev profiles to D: (2026-10-12, measured)
 
@@ -239,7 +239,7 @@ Redone in a disposable copy of the Aion profile (`.browsers/edge-dev-aion-lowcla
 1. **GPU disallowed for the device's class:** `OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/6/compatible_low_tier_on_device_performance_classes/6`, stored class 5. With the manifest loaded (`true`), every use case was "Not Supported" and `availability()` stayed `unavailable` for over two minutes. Edge deleted the copy's model folder.
 2. **A Low-class device:** stored class seeded to 2 with the profile closed (`spikes/probes/seed-perf-class.mjs`), the manifest folder deleted, then a restart. The class stayed 2, and Edge downloaded a new manifest with the same four variants: `webgpu-fp16`, `webgpu-fp16-prerelease`, `webgpu-fp32`, `webgpu-fp32-prerelease`. No CPU variant, and `availability()` stayed `unavailable`.
 
-Verdict: on this machine (Windows 11 ARM64), Edge Dev 157 offers Aion only through WebGPU, whatever the performance class. Inferred: Microsoft's CPU-inferencing route ships to other platforms or later builds. Phi-4-mini (Edge stable) was tested only with the force-CPU switch, and its docs make no CPU claim.
+Verdict: on this machine (Windows 11 ARM64), Edge Dev 157 offers Aion only through WebGPU, whatever the performance class. (Narrowed: this holds for what Edge selects by itself; a CPU run after editing `genai_config.json` is in "Edge provider trials on the standing Aion instance" below.) Inferred: Microsoft's CPU-inferencing route ships to other platforms or later builds. Phi-4-mini (Edge stable) was tested only with the force-CPU switch, and its docs make no CPU claim.
 
 ## NPU (2026-10-12)
 
@@ -271,10 +271,10 @@ Other routes to the NPU, outside the built-in Prompt API (inferred, untested):
 |---|---|---|---|
 | `webgpu` (as shipped) | works | 2,953 ms | 6,290 ms |
 | `qnn` (`QnnHtp.dll`, Qualcomm NPU) | fails: `InvalidStateError: The device is unable to create a session to run the model.` | | |
-| CPU (empty provider list) | **works** | 4,623 ms | 14,507 ms |
+| CPU (empty provider list) | **works** (provider inferred, see below) | 4,623 ms | 14,507 ms |
 
 Corrections to the earlier sections:
-- **Aion can run on CPU in Edge**, but only by editing the downloaded component's config. That is unsupported, and an update of the component overwrites it. Chromium's `OnDeviceModelForceCpuBackend` remains destructive on Edge. The earlier "Edge Dev 157 offers Aion only through WebGPU" holds for what Edge selects by itself, not for what its runtime can do.
+- **Aion can run on CPU in Edge**, but only by editing the downloaded component's config. That is unsupported, and an update of the component overwrites it. Chromium's `OnDeviceModelForceCpuBackend` remains destructive on Edge. The earlier "Edge Dev 157 offers Aion only through WebGPU" holds for what Edge selects by itself, not for what its runtime can do. **[inferred]** Which execution provider ran is not observed: the claim rests on the config edit plus the slower `create()` and answer times, with the same answer text as the WebGPU run. No engine observation backs it (see the engine sampler note below).
 - **NPU through QNN: no** with this model. Inferred: QNN needs a model compiled for the NPU, and Aion ships as WebGPU fp16.
 - The engine sampler (`engine-sampler.ps1`) saw no GPU activity even in the WebGPU run, so it missed the model process. Only the latency and the errors above count as evidence.
 - The trial runs reported `launch` exit 127, from a libuv assertion after a successful launch. Fixed in `control.mjs`, then re-driven: exit 0.

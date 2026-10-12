@@ -1,6 +1,6 @@
 # 05 - Spike results
 
-All results are **measured** unless a line says inferred. Probes ran in Lars's Edge Dev 157 (Aion-1.1-Instruct) and Chrome Beta 156 (Gemma 4 `gemma4-2b-it`). playwright-cli attached over remote debugging, and the scripts ran in the page's main world, the same world a MAIN-world content script gets. This is not an extension context; S1 is still open.
+All results are **measured** unless a line says inferred. Probes ran in Lars's Edge Dev 157 (Aion-1.1-Instruct) and Chrome Beta 156 (Gemma 4 `gemma4-2b-it`). playwright-cli attached over remote debugging, and the scripts ran in the page's main world, the same world a MAIN-world content script gets. This is not an extension context; S1 is still open. (Answered: S1 ran; see `11-spike-s1-extension-contexts.md`.)
 
 ## S2 - Angular's in-page tools and the `ng` global on a real 22.2 app
 
@@ -10,7 +10,7 @@ App: `spikes/ng222-app`, generated with `@angular/cli@22.2.2 new --routing --ssr
 
 - `window.ng` has 25 functions: `applyChanges, enableProfiling, getComponent, getContext, getDirectiveMetadata, getDirectives, getHostElement, getInjector, getListeners, getOwningComponent, getRootComponents, isSignal, toggleWatchSignal, ɵgetComponentInstanceDeepLinkId, ɵgetControlFlowBlocks, ɵgetDependenciesFromInjectable, ɵgetInjectorMetadata, ɵgetInjectorProviders, ɵgetInjectorResolutionPath, ɵgetLoadedRoutes, ɵgetRouterInstance, ɵgetSignalGraph, ɵgetTransferState, ɵnavigateByUrl, ɵsetProfiler`. This matches the inventory in `02-angular-surface.md` for a `provideRouter` app.
 - Dispatching `new CustomEvent('devtoolstooldiscovery')` with a `respondWith` expando from the main world returns `{name: 'Angular', tools: [angular:di_graph, angular:signal_graph]}` synchronously.
-  - `angular:di_graph` has schema `{type: 'object', properties: {}}`. A tool with no parameters breaks Gemma 4 tool prompts (00), so this schema cannot be passed to the Prompt API as is.
+  - `angular:di_graph` has schema `{type: 'object', properties: {}}`. A tool with no parameters breaks Gemma 4 tool prompts (00), so this schema cannot be passed to the Prompt API as is. [confounded] (Confounded with camelCase names; see Correction at end of 00/07 and research/11. The extension keeps `angular:di_graph` out of the Prompt API anyway, because of its side effect measured below.)
   - `angular:signal_graph` has schema `{target: {type: 'object', 'x-mcp-type': 'HTMLElement'}}`. A model cannot produce an element, so the extension must wrap it (selector or component id in, element looked up in the page).
   - The two descriptions are 1,318 and 1,390 characters. That is about 700 tokens together, roughly 10% of Aion's window, before any result **[token count inferred from the usual 4 characters per token]**.
 - `angular:di_graph` output on this one-component app, serialized naively with DOM nodes and functions replaced, is **42,788 characters**. It is mostly raw `TNode` internals reached through provider values. It cannot go to a 7-9K-token model unfiltered.
@@ -24,7 +24,7 @@ App: `spikes/ng222-app`, generated with `@angular/cli@22.2.2 new --routing --ssr
 
 ### End-to-end question through a tool
 
-Question: "In the app-counter component, which signals does `double` depend on, and what is its current value?" One tool, `signal_graph {selector}`, returns the raw `ɵgetSignalGraph` nodes (index, kind, label, value) and the edges by index (script `s2b.js` in the session scratchpad).
+Question: "In the app-counter component, which signals does `double` depend on, and what is its current value?" One tool, `signal_graph {selector}`, returns the raw `ɵgetSignalGraph` nodes (index, kind, label, value) and the edges by index (script `spikes/probes/s2b.js`).
 
 | Model | Tool call | Answer | Time | Context used |
 |---|---|---|---|---|
@@ -35,7 +35,7 @@ Together with 00's two-tool run, where Gemma 4 misread a value and Aion did not,
 
 ## S3 (part) - Sizes on a real-world app
 
-App: the ng-journal insurance portal (Nx 23.1.1), in Claude's worktree `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools`, branch `claude/ai-devtools-spike`. Commit `2d87cd8` updated it from Angular 22.1.3 to 22.2.2 with `nx migrate` and a regenerated lockfile; `nx affected -t lint` passed in the pre-commit hook. The probe (`portal-probe.js` in the session scratchpad) ran in Edge Dev, read `window.ng` on five routes and navigated with `ng.ɵgetRouterInstance(...).navigateByUrl`.
+App: the ng-journal insurance portal (Nx 23.1.1), in Claude's worktree `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools`, branch `claude/ai-devtools-spike`. Commit `2d87cd8` updated it from Angular 22.1.3 to 22.2.2 with `nx migrate` and a regenerated lockfile; `nx affected -t lint` passed in the pre-commit hook. The probe (`spikes/probes/portal-probe.js`) ran in Edge Dev, read `window.ng` on five routes and navigated with `ng.ɵgetRouterInstance(...).navigateByUrl`.
 
 | Route | Components (unique classes) | OnPush | Inputs on hosts | Signal nodes (max per component) | Compact signal graphs, all components | Component list JSON | Element providers | Resolution path length |
 |---|---|---|---|---|---|---|---|---|
@@ -84,7 +84,7 @@ Reading (inferred, 15 runs per cell is a small sample):
 - Tools that take a component id from a previous `components_find` result, instead of a free-text CSS selector, should remove most failures.
 - Aion is 3-4 times faster.
 
-Phi-4-mini (Edge) and Gemini Nano v3 (Chrome stable, native tool calling off there) are not measured yet.
+Phi-4-mini (Edge) and Gemini Nano v3 (Chrome stable, native tool calling off there) are not measured yet. (Superseded: both measured in "Four-model benchmark, second round" and "Backend comparison" below.)
 
 ### Update: the `di_graph` side effect also breaks Angular DevTools' signal graph pane (measured)
 
@@ -92,7 +92,7 @@ Measured with the `verify-angular-devtools` skill: Angular DevTools 1.22.0 ran i
 
 ## Root cause hunt: "The device is unable to create a session to run the model" (Gemini Nano, native tool calling)
 
-Probe `spikes/probes/tool-session-matrix.js` calls `LanguageModel.availability(opts)` and `LanguageModel.create(opts)` for nine option sets. It ran in Chrome Beta 156.0.8078.17 on 2026-10-11 under two flag profiles, switched with `control-ai-browsers model switch`. Raw output was saved to `tmp/matrix-gemma4.json` and `tmp/matrix-nano.json`. All measured.
+Probe `spikes/probes/tool-session-matrix.js` calls `LanguageModel.availability(opts)` and `LanguageModel.create(opts)` for nine option sets. It ran in Chrome Beta 156.0.8078.17 on 2026-10-11 under two flag profiles, switched with `control-ai-browsers model switch`. Raw output: `research/raw/matrix-gemma4.json` and `research/raw/matrix-nano.json` (copies of the gitignored `tmp/` originals). All measured.
 
 | Case | Gemma 4 profile (`gemma4-for-built-in-ai` + `prompt-api-tool-use` Enabled) | Nano profile (both Default, serving `v3Nano`) |
 |---|---|---|
@@ -137,7 +137,7 @@ So the error is the feature gate described in `09-nano-tool-session-error.md`, n
 Failure patterns:
 - **Nano on CPU:**
   - Native: it writes `tool_code` blocks with made-up JavaScript as text instead of calling a tool. That matches its lack of documented tool calling (10).
-  - Fallback: 15/15 runs failed with "Unexpected end of JSON input", meaning the constrained output came back empty or cut off. Not explained yet. The CPU backend is the prime suspect, since the first round's Nano on GPU low tier in Lars's own profile passed 11/15 (regraded). Inferred.
+  - Fallback: 15/15 runs failed with "Unexpected end of JSON input", meaning the constrained output came back empty or cut off. Not explained yet. The CPU backend is the prime suspect, since the first round's Nano on GPU low tier in Lars's own profile passed 11/15 (regraded). Inferred. Corrected: the first round of this file has no Nano row. The 11/15 is Claude's re-grade of an earlier Nano fallback run in `10-model-capabilities.md`, "Correction: the benchmark grader passes wrong answers on one question" (reported 13/15). Neither 10 nor that run records the backend, so "GPU low tier in Lars's own profile" is unsourced. That earlier `nano.json` was overwritten: the copy now in `research/raw/bench/nano.json` holds this round's CPU run (native 1/15, fallback 0/15). The backend comparison below measures Nano on GPU directly (fallback 13/15).
 - **Gemma 4:** wrong selectors (`app-counter input[type="text"]`) and invented signal names (`[ + ]`) in native mode. In the fallback, once, it answered from the wrong tool.
 - **Aion:**
   - Native: perfect.

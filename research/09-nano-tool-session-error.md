@@ -8,7 +8,7 @@ Measured behaviour: `05-spikes.md`, section "Root cause hunt" (Chrome Beta 156.0
 
 - **Ref used:** tag `156.0.8078.17`, the exact build that was measured. Its `chrome/VERSION` reads `156.0.8078.17`. Files were fetched raw from the GitHub mirror on 2026-10-11. Links below point at `https://github.com/chromium/chromium/blob/156.0.8078.17/<path>#L<n>`.
 - **main check:** On the same day `main` was `157.0.8100.0`. Every check cited below has the same substance there: the Blink tool gates, the empty `tools` vector in `ExecuteAvailability`, the browser's handling of tool types, the `kToolUse` assumption in `ModelClient`, and the `AIPromptAPIToolUse` entry. Only the line numbers are shifted.
-- **Labels:** **[measured]** means I read it in the named file at the named ref. **[inferred]** means a conclusion drawn from that code that no run has tested.
+- **Labels:** **[measured]** means Claude read it in the named file at the named ref. **[inferred]** means a conclusion drawn from that code that no run has tested.
 
 Short names used in links:
 - `CC` = `third_party/blink/renderer/modules/ai/language_model_create_client.cc`
@@ -76,7 +76,7 @@ Neither layer checks the tool types. [measured]
    - What remains is the plain text/image/audio capability check and the language check, run by `CanCreateSession[WithConfig]` with `kPromptApi`. On this device that check returns `available`.
 3. **Why `"tool-call"` gets past the bindings at all [measured].** The `LanguageModelMessageType` enum includes `"tool-call"` and `"tool-response"` with no `RuntimeEnabled` ([`IDL#L37`](https://github.com/chromium/chromium/blob/156.0.8078.17/third_party/blink/renderer/modules/ai/language_model_create_options.idl#L37)). WebIDL enum values cannot be runtime-gated, so the strings always parse, and only the C++ gate in Q2 rejects them.
 
-**Spec comparison [measured in spec source].** I read webmachinelearning/prompt-api `index.bs` at commit `8040b81` (2026-10-06).
+**Spec comparison [measured in spec source].** Claude read webmachinelearning/prompt-api `index.bs` at commit `8040b81` (2026-10-06).
 - `availability()` and `create()` share [compute language model options availability](https://github.com/webmachinelearning/prompt-api/blob/8040b8143949937e7bdd8dbe715a6d478bd41daf/index.bs#L415-L445).
 - That algorithm appends the "language model content type availability" ([`#L463-L471`](https://github.com/webmachinelearning/prompt-api/blob/8040b8143949937e7bdd8dbe715a6d478bd41daf/index.bs#L463-L471)) for **every** expected input and output type, which includes `tool-call` and `tool-response`.
 - `create()`'s "initialize the language model" step (`#L322-L324`) throws `NotSupportedError` only when that same availability is `unavailable`.
@@ -105,9 +105,9 @@ Neither layer checks the tool types. [measured]
 ## Q5 - Bugs and spec issues
 
 - **Chromium.**
-  - [crbug 422803232](https://issues.chromium.org/issues/422803232) is public. I fetched its title through the tracker's JSON endpoint: "Feature Work: Implement function calling support in chromium", component Blink>AI>Prompt. It is the TODO cited in `ModelClient`, which says per-model tool capability is not implemented yet. [measured]
+  - [crbug 422803232](https://issues.chromium.org/issues/422803232) is public. Claude fetched its title through the tracker's JSON endpoint: "Feature Work: Implement function calling support in chromium", component Blink>AI>Prompt. It is the TODO cited in `ModelClient`, which says per-model tool capability is not implemented yet. [measured]
   - crbug 417817645 is cited in the TODO "Check model capabilities before conversion" (`CC#L323`). The tracker said "Unsigned-in user does not have permission", so its content is unknown.
-  - **Unresolved:** I found no Chromium bug about `availability()` returning `available` for tool types while `create()` rejects them, or about tool use on Gemini Nano. What I tried: the tracker list/search endpoint (HTTP 405 without sign-in), markdown.new on issue pages (sign-in wall only), and web search including `site:issues.chromium.org` (no hits).
+  - **Unresolved:** Claude found no Chromium bug about `availability()` returning `available` for tool types while `create()` rejects them, or about tool use on Gemini Nano. What Claude tried: the tracker list/search endpoint (HTTP 405 without sign-in), markdown.new on issue pages (sign-in wall only), and web search including `site:issues.chromium.org` (no hits).
 - **Spec (webmachinelearning/prompt-api)** [measured, from `gh search issues` and `gh issue view`]:
   - [#223 "Availability API does not provide actionable failure information"](https://github.com/webmachinelearning/prompt-api/issues/223), opened 2026-10-05, about `availability()` collapsing all failures into `unavailable`. Related, but it is not about the disagreement seen here.
   - [#158 "Make API features queryable"](https://github.com/webmachinelearning/prompt-api/issues/158) asks for feature detection of tool support and similar.
@@ -130,9 +130,11 @@ In Chrome 156, Blink allows tool use only when the runtime feature `AIPromptAPIT
 
 **Confidence.**
 - High for the mechanism: every step was read at the measured tag and matches all nine probe cases, including the error name.
-- Medium for calling the `availability()` mismatch a bug rather than a known shortcut. The TODOs (417817645, 422803232) suggest the tool-capability work is known to be incomplete, but I found no bug filed on the mismatch.
+- Medium for calling the `availability()` mismatch a bug rather than a known shortcut. The TODOs (417817645, 422803232) suggest the tool-capability work is known to be incomplete, but Claude found no bug filed on the mismatch.
 
 ## Next probe (not run)
+
+Answered: this probe ran later. With `AIPromptAPIToolUse` alone, `v3Nano` kept serving and every tool-typed `create()` succeeded; Nano answered in text, not with a tool call. See `05-spikes.md`, "Prediction confirmed: Nano gets tool sessions with `AIPromptAPIToolUse` alone", and `10-model-capabilities.md`, Matrix. The open question below about `OnDeviceModelConversationBackend` was not tested.
 
 `AIPromptAPIToolUse` has its own generated base::Feature. So launching with `--enable-features=AIPromptAPIToolUse` alone, without `AIApiFoundationalModel:model_version/v4` and `OnDeviceModelConversationBackend`, should pass both the Blink gate and the browser gate while `v3Nano` keeps serving. [inferred]
 
@@ -140,7 +142,7 @@ Open question: does Nano then produce tool calls, or does tool-call formatting d
 
 Related nuance [inferred]: `#enable-experimental-web-platform-features` would turn on only the Blink runtime feature. In that setup, tool types alone would pass. `tools` plus tool types would reach `CreateLanguageModelInternal`, fail the base::Feature check, and come back as `InvalidStateError` with the same message.
 
-Running this needs a browser session through `control-ai-browsers`, which this research did not open.
+Running this needs a browser session through `control-ai-browsers`, which this research did not open. (Superseded: run later; see the note at the top of this section.)
 
 ## Addendum: web sources on Gemini Nano tool calling (Claude, 2026-10-11)
 
