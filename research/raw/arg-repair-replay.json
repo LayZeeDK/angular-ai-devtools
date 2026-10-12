@@ -1,0 +1,11 @@
+{
+  "total": 131,
+  "invalid": 26,
+  "fixed": 21,
+  "stillInvalid": {
+    "signal_info{\"selector\":\"app-counter\",\"signal\":\"[ + ]\"} -> {\"selector\":\"app-counter\",\"signal\":\"[ + ]\"}": 1,
+    "signal_info{\"selector\":\"app-counter\",\"signal\":\"*\"} -> {\"selector\":\"app-counter\",\"signal\":\"*\"}": 2,
+    "signal_info{\"selector\":\"app-counter\",\"signal\":\"increment\"} -> {\"selector\":\"app-counter\",\"signal\":\"increment\"}": 1,
+    "component_details{\"selector\":\".app-counters-double-increment\"} -> {\"selector\":\".app-counters-double-increment\"}": 1
+  }
+}
