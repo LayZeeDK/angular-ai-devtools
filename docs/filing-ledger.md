@@ -116,13 +116,13 @@ The snippet restates the probe matrix in 05; it was not run in this exact form (
 
 **Evidence:** the source links in `research/09-nano-tool-session-error.md` Q3 and Q5 are public and self-contained.
 
-## 5. Chromium (on-device model, Gemma 4): a tool name with an uppercase letter crashes the model process
+## 5. Chromium (on-device model, Gemma 4): a tool name with an uppercase letter fails with `kErrorUnknown`, a model-process crash for camelCase
 
 Status: draft, not filed. Found 2026-10-12 in spike S1 phase 2 (`research/11-spike-s1-extension-contexts.md`, "Finding: camelCase tool names crash Gemma 4's model process").
 
 **Versions:** Chrome Beta 156.0.8078.17 on Windows 11 arm64, model `gemma4-2b-it` (GPU low tier), launched with `AIPromptAPIToolUse`, `OnDeviceModelConversationBackend`, `AIApiFoundationalModel:model_version/v4` and `OptimizationGuideManifestBroker` (00, "Per-model instances").
 
-**What happens:** a tool session whose tool name contains an uppercase letter (`getComponentCount` or `Get_component_count`, one required parameter) fails on the first `prompt()` with `UnknownError: An unknown error occurred: kErrorUnknown`. The identical tool named `get_component_count` or `getcomponentcount` returns a tool call. Each failure counts as a model-process crash: after three in a row, `availability()` reads `unavailable` and `create()` throws `NotSupportedError: The model process crashed too many times for this version.` for at least a minute (crash limit and backoff in `on_device_model_access_controller.cc` and `optimization_guide_features.h`, read at tag 156.0.8078.17, 11).
+**What happens:** a tool session whose tool name contains an uppercase letter (`getComponentCount` or `Get_component_count`, one required parameter) fails on the first `prompt()` with `UnknownError: An unknown error occurred: kErrorUnknown`. The identical tool named `get_component_count` or `getcomponentcount` returns a tool call. For camelCase the failure was measured to be a model-process crash (11); that the `Get_component_count` failure was a crash too is inferred (same error on the same instance). Each such crash counts toward Chrome's limit: after three in a row, `availability()` reads `unavailable` and `create()` throws `NotSupportedError: The model process crashed too many times for this version.` for at least a minute (crash limit and backoff in `on_device_model_access_controller.cc` and `optimization_guide_features.h`, read at tag 156.0.8078.17, 11).
 
 **Reproduction** in a page tab on the Gemma 4 instance, one fresh session per variant, run 70 s apart so Chrome's crash backoff cannot affect a later variant (the S11 matrix, `spikes/probes/tool-name-matrix.js`, run 2026-10-12):
 
