@@ -1,0 +1,229 @@
+# 15 - Deterministic code first: combining the built-in AI with plain TypeScript
+
+Written 2026-10-12 by Claude for Lars. No browser was run for this note; the probes it needs are spikes S14 and S15 (section 4). Every claim carries a label:
+
+- **[measured]**: read in source, counted by Claude with a tool, or run in Lars's browsers (with the file that holds the run).
+- **[documented]**: stated in vendor documentation, a specification or an explainer, and not checked by a run.
+- **[inferred]**: reasoned from measured or documented facts, not run. Design choices are **[inferred design]**.
+
+Lars's request (verbatim, 2026-10-12): "Generally for our design and feature proposals, we should consider how browser built-in AI APIs can be combined with normal, deterministic TypeScript/JavaScript, especially to mitigate the small context windows, for example to process graphs in chunks or offload deterministic computations to the main thread rather than Prompt API or other browser built-in AI APIs, or to Workers if that is possible in a DevTools web (browser) extension."
+
+Claude reads "offload deterministic computations to the main thread" as "run them as ordinary JavaScript instead of asking the model", not as a preference for the page's main thread. Section 1 says which thread each piece of that JavaScript should run on.
+
+## Sources
+
+| ID | Source |
+|---|---|
+| PX | Prompt API explainer, `https://raw.githubusercontent.com/webmachinelearning/prompt-api/main/README.md`, section "Permissions policy, iframes, and workers" (fetched 2026-10-12) |
+| PC | Chrome, "The Prompt API", `https://developer.chrome.com/docs/ai/prompt-api`, section "Permission Policy, iframes, and Web Workers" (fetched 2026-10-12) |
+| WA | Writing assistance APIs explainer (Summarizer, Writer, Rewriter), `https://raw.githubusercontent.com/webmachinelearning/writing-assistance-apis/main/README.md` (fetched 2026-10-12) |
+| CR | Chromium `main`, `chrome/renderer/chrome_content_renderer_client.cc` lines 1551-1568 (fetched 2026-10-12; `main`, not the 156 or 157 release tags) |
+| IDL | Chromium `main`, `third_party/blink/renderer/modules/ai/language_model.idl` line 22 and `summarizer.idl` lines 36, 78-109 |
+| BIB | Chromium `main`, `content/browser/browser_interface_binders.cc`: `PopulateDedicatedWorkerBinders` (line 1637), `PopulateSharedWorkerBinders` (1730), `PopulateServiceWorkerBinders` (1884), frames (1357); and `chrome/browser/chrome_content_browser_client.cc` `BindAIManager` (line 9547) |
+| XO | Chrome extensions, `chrome.offscreen` reference, `https://developer.chrome.com/docs/extensions/reference/api/offscreen` |
+| XL | Chrome extensions, "The extension service worker lifecycle", `https://developer.chrome.com/docs/extensions/develop/concepts/service-workers/lifecycle` |
+| XM | Chrome extensions, "Message passing", `https://developer.chrome.com/docs/extensions/develop/concepts/messaging`, section "Serialization" |
+| XC | Chrome extensions, "Content scripts", `https://developer.chrome.com/docs/extensions/develop/concepts/content-scripts` |
+| XI | Chrome extensions, `chrome.devtools.inspectedWindow` reference, `https://developer.chrome.com/docs/extensions/reference/api/devtools/inspectedWindow` |
+| MW | MDN, `Worker`, `https://developer.mozilla.org/en-US/docs/Web/API/Worker` |
+| MS | MDN, "The structured clone algorithm", `https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm` |
+
+Project evidence: `research/00`, `01`, `02`, `05`, `07`, `11`, `docs/feature-proposals.md` (cited by section), and `research/raw/tosignal-node-portal.json`.
+
+## Summary
+
+1. **The model is the scarce resource, not the CPU.** At the sizes measured on the insurance portal (at most 892 signal nodes and 54,597 characters of compact graphs on one route, 05 S3), a graph walk, a diff or a rule pass is small work for JavaScript **[inferred; not timed]**, while one question takes a median of 2-34 s on the supported configurations and has a 7-9K-token window (2.1 of the proposals) **[measured, 05, 11]**. So code computes every fact it can, and the model receives only what code cannot do: choose among candidates, explain a finding, write prose.
+2. **Only the page's MAIN world can read `ng.*`** (proposals 3.1) **[inferred from 02 section 1.5; Angular DevTools does the same]**. Everything else gets shaped copies. The MAIN world must shape data before it leaves, because `ɵgetSignalGraph` nodes carry functions (`debuggableFn`) and arbitrary values, and functions fail the structured clone **[documented, MS]** while Chrome's extension messaging uses JSON **[documented, XM]**.
+3. **Workers with built-in AI are possible only when an extension page starts them, and that is read in source, not run.** Chromium enables `AIPromptAPIForWorkers` (and the Summarizer, Writer, Rewriter, Translator and Language Detector worker flags) in extension processes **[documented in source, CR]**, exposes `LanguageModel` on `Worker` scopes behind that flag **[documented in source, IDL]**, and binds the AI service for dedicated and shared workers **[documented in source, BIB]**. The explainer and Chrome's page say the API is not in web workers **[documented, PX, PC]**; a worker started by a content script is a web worker in the page's process **[inferred]**. Spike S14 checks the extension-page case in both browsers.
+4. **Eight patterns** (section 2) cut what the model receives by one to two orders of magnitude on the measured data: for example one component's signal graph on the portal is 13,878-25,838 characters, and the one-hop slice around its template is 230 characters **[measured, Claude's count over `research/raw/tosignal-node-portal.json`]**.
+5. **Chunking has a price** (section 3): every chunk is a prompt. 47 components on `/contract/list` at Gemma 4's 11-14 s per question would take 8.6-11 minutes **[inferred multiplication of measured medians]**. Code must first shrink the chunk count (group 47 components into their 9 classes, 05 S3 **[measured]**), and a question that needs global reasoning over data that does not fit even in chunks is answered by code or not at all.
+
+## 1. Execution contexts for deterministic work
+
+### 1.1 Table
+
+"Blocks" means: a long synchronous computation in that context delays what. "AI" means the built-in AI APIs (Prompt API unless named). Chrome and Edge are reported separately only where they differ or where only one was measured.
+
+| # | Context | Thread and what a long task blocks | Reads `ng.*`? How data reaches it | Message and clone cost | Built-in AI exposed | Lifetime |
+|---|---|---|---|---|---|---|
+| 1 | Page MAIN world (the page agent, a `world: "MAIN"` content script) | The page's main thread. A long task delays the page's input, rendering and Angular's change detection **[inferred]** | Yes, directly: the only context that can (proposals 3.1) **[inferred from 02 section 1.5]** | Out to the isolated world by `window.postMessage`, which uses the structured clone; functions and DOM nodes throw `DataCloneError` **[documented, MS; the relay pattern documented, XC]**. So `debuggableFn` must become text and values must become short strings before posting **[inferred]** | Yes, with web-page semantics, in both browsers: `create()` and a tool round trip passed (S1 phase 2, row 7) **[measured, 11]** | The page's lifetime |
+| 2 | Isolated-world content script | The same page main thread: content scripts run in the page's renderer **[inferred; XC describes the worlds, not threads]** | No (proposals 3.1) **[inferred]**. Gets shaped data from row 1 by `window.postMessage` | Out to extension pages and the service worker by `chrome.runtime.sendMessage`, `tabs.sendMessage` or a port: in Chrome this is JSON serialization (`undefined` becomes `null`; a value that cannot be serialized rejects the send) **[documented, XM]**. Edge: not documented; that it matches Chrome is **[inferred]** | Yes, web-page semantics, both browsers (S1 row 6) **[measured, 11]** | The page's lifetime |
+| 3 | DevTools panel page (`chrome.devtools.panels.create`) | The extension renderer's main thread. A long task freezes the panel UI, not the inspected page **[inferred]**. Whether it also stalls the side panel and the offscreen document (same extension process, one main thread per renderer process) is **[inferred, not checked]**; S14 step 7 checks it | No. Gets data from row 2 over a port, or from `chrome.devtools.inspectedWindow.eval`, whose result must be JSON-compliant **[documented, XI]** | JSON in and out (XM, XI) **[documented]** | Yes in both browsers: `create()` plus a tool round trip (S1 row 2), because the DevTools frontend delegates `language-model` to panel iframes **[measured, 11]** | While DevTools is open on the tab **[inferred]** |
+| 4 | Side panel | As row 3 **[inferred]** | No; as row 3, without `inspectedWindow` | JSON (XM) **[documented]** | Yes, both browsers (S1 row 3) **[measured, 11]** | While open |
+| 5 | Extension service worker | Its own worker thread, no DOM. A long task blocks only the worker's own events **[inferred]** | No; messages only | JSON (XM) **[documented]** | Yes, both browsers (S1 row 4), no user activation needed once the model is `available` **[measured, 11]** | Terminated after 30 s without events or extension API calls, and when one event or API call takes over 5 minutes **[documented, XL]**; S1 kept it alive with an attached debugger **[measured, 11]**. It cannot start a `Worker`: the constructor exists in windows and in dedicated and shared workers, not in service workers **[documented, MW]** |
+| 6 | Offscreen document | A hidden document in the extension process; its main thread, with the same sharing question as row 3 **[inferred]** | No; `chrome.runtime` is the only extension API it has **[documented, XO]** | JSON over `chrome.runtime` (XM) **[documented]** | Yes, both browsers (S1 row 5) **[measured, 11]** | One open at a time per extension; no lifetime limit except for the `AUDIO_PLAYBACK` reason; a `WORKERS` reason exists "for the offscreen document [that] needs to spawn workers" **[documented, XO]** |
+| 7 | Dedicated `Worker` started from an extension page (panel, side panel, offscreen document, extension tab) | Its own thread. A long task blocks neither the page nor the panel **[documented for workers, MW; for this case inferred]** | No; gets shaped data from its parent page by `postMessage` | Structured clone, with transferable buffers **[documented, MS]** | **Not measured.** Read in Chromium `main` source as yes: `language_model.idl` is `Exposed(Window AIPromptAPI, Worker AIPromptAPIForWorkers)` (IDL), extension processes turn `AIPromptAPIForWorkers` on (CR), and the AI service is bound for dedicated workers (BIB) **[documented in source]**. Summarizer, Writer, Rewriter, Translator and Language Detector have the same worker flags in that list; Proofreader does not (CR; 01 section 3) **[documented in source]**. The worker binding passes no frame (`rfh=nullptr`, BIB), so whether a download from a worker works, or anything else that needs a document, is **[inferred: probably not]**. Edge is closed source: unknown. Spike S14 | While its parent page lives **[documented, MW]** |
+| 8 | `SharedWorker` started from extension pages | Its own thread, shared by every extension page that connects **[documented for shared workers, MW; for this case inferred]** | No; as row 7, by port | Structured clone **[documented, MS]** | Not measured; read in source as row 7 (the AI service is bound for shared workers too, BIB) **[documented in source]**. Spike S14 | While any connected extension page lives **[inferred]** |
+| 9 | `Worker` started by a content script (either world) or by the page | Its own thread in the page's renderer process **[inferred]** | No; `window.ng` is not in a worker **[inferred]**. Gets shaped data from row 1 | Structured clone **[documented, MS]**. A blob or page-origin script is subject to the page's Content Security Policy **[inferred; XC states the CSP for content scripts, not for their workers]**, and an extension-origin script URL from a page is cross-origin **[inferred]** | **No**, as read: the explainer and Chrome's page exclude web workers (PX, PC) **[documented]**, and the worker flag is turned on only in extension processes (CR) **[documented in source]**. S14 step 6 checks it as the negative control | The page's lifetime |
+
+The rows 1-6 results above come from S1 (`research/11`), which measured the same values in Chrome Beta 156 and Edge Dev 157 in every context **[measured]**. Rows 7-9 were not run in either browser.
+
+### 1.2 What the table means for the design
+
+- **Reads stay in the MAIN world and are shaped there [inferred design].** The page agent calls `ng.*`, turns each value into the capped result shape of proposals 3.6 (strings at most 200 characters, arrays at most 20 with `total`), turns `debuggableFn` into text only for the tools that scan it (N2, N24), and posts the result. Nothing with a function or a DOM node crosses.
+- **Small deterministic work also stays in the MAIN world [inferred design].** A walk over one component's graph (at most 107 nodes measured, 80 in 05 S3) or a rule pass over one component's metadata touches the page thread only briefly **[inferred; not timed]**, and moving the raw graph out would cost a serialization of 13,878-25,838 characters per component **[measured size, Claude's count; cost inferred]** for no gain.
+- **Merging, grouping and caching run in the panel page [inferred design].** They work on shaped results that are already small.
+- **A dedicated worker from the panel is for the work that grows with the recording, not with the page [inferred design]:** N1's and N7's recordings over a long session, N21's trace aggregation, N11's text batches over a whole page, and regex scans over the `debuggableFn` source of every component on a page (the template node's `debuggableFn` holds the whole class source, 05). If S14 shows that a worker can also hold `LanguageModel`, the chunk loop of pattern 2.3 can run there, off the panel's UI thread. Until then the chunk loop runs in the panel: `prompt()` is asynchronous, so awaiting it does not block the panel **[documented, PX: the explainer awaits `prompt()`]**.
+- **The service worker hosts no long work and no session [inferred design]**, because of the 30-second idle limit (XL), as 01 section 3 already recommends.
+- **The offscreen document is the host for workers when no panel is open [inferred design]**, for example for the `devtoolstooldiscovery` tool group of proposals 3.2, which is reachable while the panel is closed. Its `WORKERS` reason exists for that (XO).
+- **Sizes that cross today are small [measured sizes, 05 S3; cost inferred]:** a component list is 346-2,766 characters, all compact signal graphs of a route 7,802-54,597 characters, one component's graph up to 25,838 characters. Serializing that once per question is cheap next to one prompt **[inferred; S14 step 8 times one 55 KB hop]**. The one large source, `angular:di_graph` at 42,788 characters on a one-component app, is never run (proposals 3.2).
+
+## 2. Patterns
+
+Each pattern names when to use it, what stays deterministic, and what model input it buys. Token figures use 4 characters per token, the convention of 05 and the proposals; Aion measured 4.5 characters per token on English prompt text (07 section 2) **[measured]**, and JSON with short keys can tokenize worse **[inferred]**, so every token figure below is **[inferred]** unless it is a measured `contextUsage`.
+
+Reference sizes used below:
+
+| Data | Size | Source |
+|---|---|---|
+| One component's signal graph on the portal's `/claim/create` (`ng-journal-create`): 107 nodes, 171 edges | 25,838 characters as recorded (with `fn` text that the probe cut to about 150 characters per node); 13,878 characters as kind, label, value and edges only | **[measured, Claude's count over `research/raw/tosignal-node-portal.json`]** |
+| One-hop slice of that graph around the template node: `toSignal.source` (value `array(20)`, reads `toSignal.state`), `action` (object), `invalid` (boolean, reads `status`) | 230 characters | **[measured, same count]** |
+| All compact signal graphs on one route | 7,802-54,597 characters (`/contract/list` the largest, about 14K tokens) | **[measured, 05 S3]** |
+| Component list JSON for one route | 346-2,766 characters | **[measured, 05 S3]** |
+| Components on `/contract/list` | 47 instances of 9 classes | **[measured, 05 S3]** |
+| Environment providers on one component's resolution path | about 99-124 | **[measured, 05 S3]** |
+| Angular's two in-page tool descriptions | about 700 tokens | **[measured characters, inferred tokens, 05]** |
+| Angular error pages (61 pages) | about 24K tokens; one digest entry capped at 150 | **[measured bytes; tokens estimated, proposals N4]** |
+| `angular/skills` reference set | about 34K tokens; one rule capped at 150 | **[measured bytes; tokens estimated, 06, proposals N10]** |
+| Measured context use of a whole question | 239-513 (S1 one tool round trip); 452 Aion, 765 Gemma 4 (S2, raw graph tool) | **[measured, 11, 05]** |
+
+### 2.1 Deterministic pre-computation before any prompt
+
+- **When:** every fact that has an algorithm: counts, diffs of two paths, rule checks, graph walks, cycle detection, epoch comparisons, matching an error code to a digest entry.
+- **What stays deterministic:** the fact itself and whether a finding exists. The proposals already do this for N2's rules, N10's lint, `app_facts` and the support checks (3.3, 3.4). This pattern extends it to every feature (proposals 3.7 and the "Deterministic part" lines) **[inferred design]**.
+- **What the model gets:** the computed fact with names, never the data it was computed from. S2 is the measured reason: given a raw graph by index, Aion named the wrong dependencies of `double` and Gemma 4 the right ones (05) **[measured]**, so the walk belongs in code.
+- **Input it buys:** a finding object (rule id, component, node label, one line of evidence) is under 100 tokens, plus at most 150 tokens of rule text from `get_rule` **[inferred]**, against 3,500-6,500 tokens for the one portal component's whole graph **[inferred from the measured character counts]**.
+
+### 2.2 Graph slicing around one node
+
+- **When:** a question names a node or a component ("where does `total` come from", "what is this `toSignal.source` node").
+- **What stays deterministic:** the walk. Code takes the k-hop producers and consumers of the node, drops library-internal nodes, and emits named facts (`dependsOn: [...]`) instead of edges by index (proposals 3.4, "Tools answer the narrow question") **[inferred design]**.
+- **Measured shape of the portal graph:**
+  - The template node's one-hop slice is 230 characters, about 60 tokens **[measured characters; tokens inferred]**.
+  - The recorded file keys edges by `kind:label` strings, so its 171 edges collapse to 56 distinct label pairs and a walk over it is over label keys, not nodes: from the template, 4 keys at one hop, 6 at two, 10 at three **[measured, Claude's count]**. The live `ɵgetSignalGraph` result has `{consumer, producer}` edges by node index and an `id` per node (02 section 1.2) **[measured in source]**, so the live walk is exact; the tool walks by index and prints labels only in its output **[inferred design]**.
+  - Library-internal nodes: dropping the Signal Forms labels that Claude listed (`status`, `errors`, `pending`, `disabled`, `hidden`, `readonly` and the rest of that family) and empty labels keeps 39 of 107 nodes **[measured, Claude's list over the recorded graph]**. The 39 still hold per-field library nodes repeated five or six times (`isOrphaned`, `keyOrOrphan`, `keyInParent`, and nodes labelled `undefined`). A second rule that drops a node whose label repeats once per form field, or whose `debuggableFn` reads `this.node.`, would leave about 7 nodes that belong to the component (template, `toSignal.source`, `toSignal.state`, `action`, `contracts`, `#state`, `field`) **[inferred, not run]**. The proposals' "about 100 of the nodes are Signal Forms internals" (3.4) matches the second figure, not the first.
+- **Input it buys:** about 60 tokens for a one-hop slice against 3,500-6,500 tokens for the whole graph **[inferred from measured characters]**.
+- **Limit:** a question about a chain longer than k hops needs `signal_trace`, which is the same walk with a larger k and one line per hop.
+
+### 2.3 Chunked map-reduce
+
+- **When:** a task over data larger than the budget that splits into independent parts with a known merge: per component, per CD cycle, per rule, per text block, per navigation.
+- **What stays deterministic:** the split, the merge and every cross-chunk relation. Code first shrinks the set (dedupe by component class: 47 instances are 9 classes on `/contract/list`, 05 S3 **[measured]**; group findings by rule; drop chunks with nothing to report), then sends each remaining chunk to a fresh clone of a warm base session (2.7) under a `responseConstraint` (2.6), merges the structured results in code, and makes at most one summary call over the merged result **[inferred design]**.
+- **Chunk size:** the window minus the fixed overhead (system prompt about 120 tokens, tool or schema declarations, 07 section 4 aims for under 600 together), the free margin of proposals 3.3 step 5 (about 1,000 tokens) and the answer cap (400 characters, about 100 tokens, 07 section 3) leaves about 5,400 tokens on Aion and 7,400 on the Chrome models **[inferred from measured windows]**. Claude proposes chunks of at most 2,000 tokens, because a long input costs prefill time on every chunk and both models misread long raw structures (05 S2) **[inferred design; S15 measures latency against input size]**.
+- **Map output is extraction, not prose:** each chunk returns fields that code checks (ids that exist, enums), so the merge never parses free text **[inferred design]**.
+- **Input it buys:** each prompt stays under the chunk cap however large the page is; the summary call sees only merged findings, for example 9 classes times about 100 tokens **[inferred]**.
+- **Where it does not apply:** see section 3.
+
+### 2.4 Summarizer for long text, with a deterministic outline
+
+- **When:** free text that code cannot shorten by rule: a long stack trace after code has dropped framework frames, console output, a long recorded session for N7, the conversation itself when the budget runs low (proposals 3.3 step 5).
+- **What stays deterministic:** the outline. Code builds the headings, the order, the ids, the component names and every number; the Summarizer shortens only the free-text parts inside that outline. A summary never carries an id or a value that code did not put in the outline **[inferred design]**.
+- **Facts:** `Summarizer` is `available` in Chrome Beta and Edge Dev (00) **[measured]**. It has `inputQuota` and `measureInputUsage()`, and input over the quota rejects with `QuotaExceededError` **[documented, WA; IDL lines 78-109]**. Its quota on these builds is **not measured**; Chrome Beta serves it from the same Gemma 4 package as the Prompt API (`summarizer_gemma4` in Broker State, 00) **[measured]**, so a window of the same order is **[inferred]**. S15 reads the quota.
+- **Input it buys:** text beyond the quota goes in quota-sized pieces, each summarized, and the outline joins them; the Prompt API session then gets the outline plus the summaries **[inferred design]**.
+
+### 2.5 Tool results capped and shaped by code
+
+- **When:** every tool, always. Already in the proposals: arrays at most 20 with `total`, page strings at most 200 characters inside `<page>`, "N more, narrow with X", ids instead of selectors, lists without edges (3.4, 3.6) **[inferred design, from measured failures]**.
+- **What this note adds:** the cap is set per session from the measured window: before a tool result goes back, code calls `measureContextUsage()` on it and, if it would leave less than the free margin, cuts the array further and says so in `total` **[inferred design; `measureContextUsage` documented, 01 section 1]**.
+- **Input it buys:** one result stays at a few hundred tokens; `find_components` returns at most 15 entries (3.4), about 600 tokens at about 40 tokens each **[inferred]**.
+
+### 2.6 Structured output validated by code, with a deterministic fallback
+
+- **When:** whenever the model's output drives code: the intent step (3.3 step 1), finding schemas (N2, N10, N24), map steps (2.3).
+- **What stays deterministic:** validation and the fallback. Code checks every value (ids exist, rule ids are in the table, labels are in the slice) because constrained decoding guarantees shape, not truth: Aion's `selector: "double"` was schema-valid (07 section 3) **[measured failure, 05]**. On an invalid or empty reply, code shows the deterministic result it already has (the finding with the rules table's message and fix text) without model prose, and marks it "not explained" **[inferred design]**.
+- **Why a fallback, not a retry loop:** Nano on CPU returned empty or cut-off JSON in 14 of 15 runs (2.1 of the proposals) **[measured]**, and on Chrome each `kErrorUnknown` may count toward the three-crash limit (proposals 3.3) **[measured limit, 11; that each error counts inferred]**.
+- **Input it buys:** nothing directly; it bounds the damage of a bad reply to one finding.
+
+### 2.7 `clone()` from a warm base session
+
+- **When:** every question and every chunk.
+- **Facts:** cold `create()` took 21,288 ms on Chrome stable and 3.3 s on Aion; warm `create()` took 2-3 ms on Aion and 373 ms on the second Chrome stable call (00) **[measured]**. `clone()` keeps the source session's context (01 section 1) **[documented, PX]**. DevTools clones per answer so that "previous dialog would pollute the context" does not happen (01 section 6) **[measured in DevTools source]**. `clone()` itself was not timed **[not measured; S15]**.
+- **What stays deterministic:** which base to clone. Code keeps one base per tool subset (3.3 step 1), and for map steps a base with only the system prompt and the map schema in its instructions **[inferred design]**.
+- **Input it buys:** each chunk starts from the base's few hundred tokens instead of carrying earlier chunks; tool declarations cost tokens in every clone (one two-tool round trip used 1,007 tokens on Gemma 4 and 285 on Aion, 00) **[measured]**, so a map base carries no tools **[inferred design]**.
+
+### 2.8 Caching keyed by graph epoch
+
+- **When:** repeated questions about state that may not have changed: "is anything off" asked twice, a re-opened panel, N1 or N14 timelines that sample per cycle.
+- **What stays deterministic:** the key and the hit. Every `ɵgetSignalGraph` node carries `epoch` (02 section 1.2, `debug_signal_graph.ts:68-96`) **[measured in source]**. Code keys a slice, a finding or a model explanation by component id, node ids and their epochs; when no epoch changed, the cached answer is shown with no prompt **[inferred design]**.
+- **Limits:** a plain field (N24's case) is not a graph node, so its change does not move any epoch **[inferred from 05, "an effect's signal writes"]**; the key must also hold the component's plain-field values for features that read them, or skip the cache. Ids from the `WeakMap` (3.4) last for the page's lifetime only.
+- **Input it buys:** a cache hit costs no prompt at all.
+
+## 3. Where it fails
+
+### 3.1 Global reasoning over data that does not fit even in chunks
+
+- **Open questions over the whole page** ("why is this page slow", "anything odd anywhere") have no known split and no known merge. Per-chunk answers lose relations that cross chunks, and a small model summarizing summaries loses facts at each level **[inferred]**. Gemma 4 E2B scores 24.5% on Tau2 (07 section 1.2) **[documented]**, so long multi-step plans are not reliable **[inferred]**.
+- **What code can still do:** the global relations that have an algorithm stay global in code: cycles, reachability, which components read a changed signal, which injector provides a token for every component. Only the explanation is chunked **[inferred design]**.
+- **What the panel then does:** it answers from code alone (a list of findings with the rules table's text), and the model explains one finding the user picks **[inferred design]**. It does not offer a whole-app narrative.
+- **The reduce step has its own budget:** 47 map results at about 100 tokens each are about 4,700 tokens, close to Aion's usable 5,400 (2.3), so a reduce over many chunks needs a second level, which adds prompts and loses detail **[inferred]**.
+
+### 3.2 Latency of many small sessions
+
+Measured per-question and per-prompt times:
+
+| Model, backend | One tool round trip (2 prompts), S1 phase 2 | Median per benchmark question | Source |
+|---|---|---|---|
+| Aion, WebGPU | 2.2-2.5 s | 3-6 s | **[measured, 11, 05]** |
+| Gemma 4, GPU low tier | 7.4-12.9 s | 11-14 s | **[measured, 11, 05]** |
+| Gemma 4, CPU | not run | 25-34 s | **[measured, 05]** |
+| Nano, GPU low tier | not run | 2-12 s native, 7-8 s fallback | **[measured, 05]** |
+| Nano, CPU | not run | 34-42 s fallback (unsupported, proposals 3.3) | **[measured, 05]** |
+
+The benchmark ran while another session loaded the machine, so these are indicative (proposals 2.1) **[measured condition]**.
+
+What that means for chunking **[inferred multiplication of the measured medians; prompt inputs in the benchmark were smaller than a 2,000-token chunk, so these are lower bounds]**:
+
+| Job | Aion (3-6 s) | Gemma 4 GPU (11-14 s) | Gemma 4 CPU (25-34 s) |
+|---|---|---|---|
+| 47 prompts (one per component on `/contract/list`) | 2.4-4.7 min | 8.6-11 min | 20-27 min |
+| 9 prompts (one per class, after dedupe) plus one reduce | 30-60 s | 1.8-2.3 min | 4.2-5.7 min |
+| 7 prompts (2,000-token chunks of `/contract/list`'s compact graphs, about 14K tokens, before any node is dropped) plus one reduce | 24-48 s | 1.5-1.9 min | 3.3-4.5 min |
+
+- **Rule [inferred design]:** a chat answer may use at most about five prompts; a job above that is shown as a background job with progress and a stop button, or replaced by the code-only answer of 3.1.
+- **Concurrency is unknown.** S1 ran sessions one at a time on purpose (11) **[measured setup]**, and no run measured two sessions prompting at once. Whether parallel clones finish sooner on one GPU is **[inferred: probably not]**; S15 measures it.
+- **More prompts, more crash exposure on Chrome:** each `kErrorUnknown` may count toward Chrome's three-crash limit, which disables the model for the whole browser for at least a minute (proposals 2.1, 3.3) **[measured limit, 11]**. A 47-prompt job multiplies that exposure **[inferred]**.
+- **Errors compound across chunks:** if each chunk were right with the per-question rate of Nano on GPU (11/15, about 0.73), all five chunks would be right about 21% of the time (0.73^5) **[inferred arithmetic; chunk errors may not be independent]**. That is why map steps are extraction validated by code (2.3, 2.6), not prose.
+
+## 4. Probes for Claude
+
+### S14 - built-in AI in dedicated and shared workers, and thread sharing between extension pages
+
+Question: is `LanguageModel` (and `Summarizer`) usable in a dedicated `Worker` and a `SharedWorker` started from extension pages, and absent in a worker started from a content script, in Chrome Beta 156 and Edge Dev 157? Does a long task in the offscreen document stall the panel?
+
+Steps (extend `spikes/s1-extension/`; follow S1's rule that `create()` runs only when `availability()` is `available`, so no download starts):
+
+1. Add `worker.js`: `importScripts('probe.js'); self.onmessage = async (e) => self.postMessage(await (e.data.roundTrip ? s1RunRoundTrip(e.data.ctx) : s1Probe(e.data.ctx)));`. Also record `typeof Summarizer` and `await Summarizer.availability()` in the worker result (add both to `s1Probe` if absent). `probe.js` already handles a context without `document` (`'no document (worker)'`).
+2. Add `shared.js`: the same handler on `self.onconnect` ports.
+3. Spawn `new Worker('worker.js')` from `panel.js`, `sidepanel.js`, `offscreen.js` and `tab.js`; spawn `new SharedWorker('shared.js')` from `tab.js`. Each parent stores the worker's result in `chrome.storage.local` under `<parent>_worker` (`tab_shared_worker` for the shared one), relaying through the service worker as the offscreen document already does. In `sw.js`, change the offscreen `reasons` to `['WORKERS']` (also a check that the reason is accepted).
+4. Expose a runner hook in each parent page, for example `s1RunWorkerRoundTrip(ctx)`, that posts `{ctx, roundTrip: true}` to its worker and resolves with the reply.
+5. Add the context names (`devtools_panel_worker`, `side_panel_worker`, `offscreen_worker`, `extension_tab_worker`, `extension_tab_shared_worker`) to `CONTEXTS` in `run-s1.mjs`, and trigger each round trip through the parent target one at a time, as `s1RunRoundTrip` is triggered now, so sessions never run in parallel.
+6. Negative control: in `cs-main.js`, create a worker from a `Blob` URL holding a minimal probe (`typeof LanguageModel`, `typeof Summarizer`, `availability()` when defined); post its result to the isolated world and on to storage. A page cannot load a `chrome-extension://` worker script, so the probe is inlined. Record any CSP error as the result.
+7. Thread check: from `tab.js` (or the panel), ask the offscreen document to run a 2,000 ms busy loop; meanwhile the panel records the longest gap between `requestAnimationFrame` callbacks and the delay of a `setTimeout(0)` scheduled at the loop's start. Repeat with the busy loop in the offscreen document's worker. Record both gaps.
+8. Serialization timing: in the MAIN world, build a 55,000-character JSON-compatible object (the size of `/contract/list`'s compact graphs, 05 S3), send it MAIN -> isolated -> service worker -> panel, and record the time per hop with `performance.now()` stamps carried in the message.
+9. Run: `node .claude/skills/control-ai-browsers/scripts/control.mjs attach chrome-beta-gemma4`, then `doctor chrome-beta-gemma4` (exit 0), then `node spikes/s1-extension/run-s1.mjs --browser chrome --port 9334 --attach --model gemma4`; then `doctor` (exit 0) and `detach`. Repeat on `edge-dev-aion` (port 9335, `--browser edge --model aion`).
+10. Record per worker context: `typeof LanguageModel`, `typeof LanguageModelToolCall`, `availability()` with and without tool options, `contextWindow`, the round trip's calls, answer, `contextUsage` and milliseconds, and `typeof Summarizer` with its availability. Write the evidence to `research/s1-results/<browser>-<model>-workers.json`.
+
+Done when: each of the five extension worker contexts and the content-script worker has a recorded value in both browsers, the step 7 gaps are recorded, and the step 8 hop times are recorded. Expected from source: exposed in the extension workers, absent in the content-script worker **[inferred]**.
+
+### S15 - the cost of many small prompts
+
+Question: how does one prompt's time grow with input size, does `clone()` cost anything, do parallel clones finish sooner than sequential ones, and what is the Summarizer's `inputQuota`?
+
+Steps (a page tab of each instance is enough; the extension is not needed):
+
+1. On `chrome-beta-gemma4` and `edge-dev-aion` (attach and doctor as in S14), create a base session with the 07 section 6.1 system prompt and no tools, and time `clone()` 10 times.
+2. From clones of that base, prompt with inputs of about 500, 2,000 and 4,000 tokens (check each with `measureContextUsage()`), answer capped by `responseConstraint` `{"type":"object","properties":{"answer":{"type":"string","maxLength":400}},"required":["answer"]}`, three runs each; record time and `contextUsage`.
+3. Run four 2,000-token prompts on four clones one after another, then the same four concurrently with `Promise.all`; record total wall time for both, three runs each.
+4. Read `(await Summarizer.create()).inputQuota` and `measureInputUsage()` of a 10,000-character text, and time one `summarize()` of 2,000 tokens.
+5. Record the backend from Broker State and the CPU load, as `control.mjs bench` does, because the earlier rounds ran under load.
+
+Done when: a per-model table of `clone()` time, prompt time at three input sizes, sequential against concurrent wall time, and the Summarizer quota exists. It sets the chunk size and the prompt cap of 2.3 and 3.2.
+
+## 5. Not checked
+
+- Rows 7-9 of 1.1 in any browser (S14). The source read is Chromium `main`, not the 156.0.8078.17 or 157 release tags, and Edge's source is closed.
+- Whether extension pages of one extension share one renderer main thread (S14 step 7).
+- Any timing of deterministic work on the page thread; the "small work" claims in 1.2 and the summary are **[inferred]**.
+- The Summarizer's quota and speed (S15), and how a summary of a stack trace reads on these models.
+- The library-node rule beyond Claude's label list (2.2): the per-field repetition rule and the `debuggableFn` rule are not run.
+- `clone()` time and concurrent sessions (S15).
