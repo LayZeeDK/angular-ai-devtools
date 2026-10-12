@@ -1029,6 +1029,12 @@ function save(result) {
   return file;
 }
 
+// process.exit() while a socket or child handle is still closing trips a libuv assertion on Windows (seen on launch).
+function exitWith(code) {
+  process.exitCode = code;
+  setTimeout(() => process.exit(code), 10000).unref();
+}
+
 function finish() {
   if (attachedHere) {
     pw(attachedHere, ['detach']);
@@ -1047,7 +1053,7 @@ main().then(
       console.log(`[${code === 0 ? 'OK' : 'ERROR'}] exit ${code}; evidence ${file}`);
     }
 
-    process.exit(code);
+    exitWith(code);
   },
   (err) => {
     finish();
@@ -1061,6 +1067,6 @@ main().then(
       console.log(`[ERROR] ${refused ? 'refused' : 'could not run'}: ${err.message}\n[ERROR] exit 2; evidence ${file}`);
     }
 
-    process.exit(EXIT.REFUSED);
+    exitWith(EXIT.REFUSED);
   },
 );
