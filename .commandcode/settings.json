@@ -1,0 +1,11 @@
+{
+  "tasteLearning": true,
+  "permissions": {
+    "allow": [
+      "Shell(taste:*)",
+      "Shell(cmdc:*)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}
