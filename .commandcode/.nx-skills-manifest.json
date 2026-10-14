@@ -1,0 +1,58 @@
+{
+  "repoPath": "D:/projects/github/nrwl/nx-ai-agents-config",
+  "githubUrl": "https://github.com/nrwl/nx-ai-agents-config.git",
+  "skillsSrc": "artifacts/skills",
+  "skills": [
+    {
+      "name": "link-workspace-packages",
+      "src": "../../github/nrwl/nx-ai-agents-config/artifacts/skills/link-workspace-packages",
+      "dest": ".commandcode/skills/link-workspace-packages"
+    },
+    {
+      "name": "monitor-ci",
+      "src": "../../github/nrwl/nx-ai-agents-config/artifacts/skills/monitor-ci",
+      "dest": ".commandcode/skills/monitor-ci"
+    },
+    {
+      "name": "nx-cloud-api",
+      "src": "../../github/nrwl/nx-ai-agents-config/artifacts/skills/nx-cloud-api",
+      "dest": ".commandcode/skills/nx-cloud-api"
+    },
+    {
+      "name": "nx-cloud-cache-investigator",
+      "src": "../../github/nrwl/nx-ai-agents-config/artifacts/skills/nx-cloud-cache-investigator",
+      "dest": ".commandcode/skills/nx-cloud-cache-investigator"
+    },
+    {
+      "name": "nx-cloud-ci-failure-review",
+      "src": "../../github/nrwl/nx-ai-agents-config/artifacts/skills/nx-cloud-ci-failure-review",
+      "dest": ".commandcode/skills/nx-cloud-ci-failure-review"
+    },
+    {
+      "name": "nx-generate",
+      "src": "../../github/nrwl/nx-ai-agents-config/artifacts/skills/nx-generate",
+      "dest": ".commandcode/skills/nx-generate"
+    },
+    {
+      "name": "nx-import",
+      "src": "../../github/nrwl/nx-ai-agents-config/artifacts/skills/nx-import",
+      "dest": ".commandcode/skills/nx-import"
+    },
+    {
+      "name": "nx-plugins",
+      "src": "../../github/nrwl/nx-ai-agents-config/artifacts/skills/nx-plugins",
+      "dest": ".commandcode/skills/nx-plugins"
+    },
+    {
+      "name": "nx-run-tasks",
+      "src": "../../github/nrwl/nx-ai-agents-config/artifacts/skills/nx-run-tasks",
+      "dest": ".commandcode/skills/nx-run-tasks"
+    },
+    {
+      "name": "nx-workspace",
+      "src": "../../github/nrwl/nx-ai-agents-config/artifacts/skills/nx-workspace",
+      "dest": ".commandcode/skills/nx-workspace"
+    }
+  ],
+  "updated": "2026-10-14T19:40:57.394Z"
+}
