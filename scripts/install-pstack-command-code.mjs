@@ -20,10 +20,13 @@
  *   node scripts/install-pstack-command-code.mjs
  *   node scripts/install-pstack-command-code.mjs --dry-run
  *   node scripts/install-pstack-command-code.mjs --no-pull
+ *   node scripts/install-pstack-command-code.mjs --uninstall
+ *   node scripts/install-pstack-command-code.mjs --clean-cache
  *
  * Environment:
- *   PSTACK_REPO_PATH  override the local clone path
- *                     (default: D:/projects/github/michael-denyer/pstack-claude)
+ *   PSTACK_REPO_PATH  override the clone cache path
+ *                     (default: <tmpdir>/commandcode-pstack-claude-cache)
+ *   PSTACK_BRANCH     git branch / tag to clone (default: main)
  *   COMMAND_CODE_HOME override the ~/.commandcode path
  */
 
@@ -40,7 +43,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { homedir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { join, relative } from "node:path";
 
 // ---------------------------------------------------------------------------
@@ -49,7 +52,10 @@ import { join, relative } from "node:path";
 
 const REPO_PATH =
   process.env.PSTACK_REPO_PATH ||
-  "D:/projects/github/michael-denyer/pstack-claude";
+  join(tmpdir(), "commandcode-pstack-claude-cache");
+
+const GITHUB_URL = "https://github.com/michael-denyer/pstack-claude.git";
+const BRANCH = process.env.PSTACK_BRANCH || "main";
 
 const COMMAND_CODE_DIR =
   process.env.COMMAND_CODE_HOME || join(homedir(), ".commandcode");
@@ -69,6 +75,8 @@ const EFFORT_AGENTS_SRC = join(REPO_PATH, "plugins/pstack/effort-agents");
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run") || args.includes("-n");
 const skipPull = args.includes("--no-pull");
+const isUninstall = args.includes("--uninstall");
+const cleanCache = args.includes("--clean-cache");
 const verbose = !args.includes("--quiet") && !args.includes("-q");
 
 function log(msg) {
@@ -164,10 +172,30 @@ function loadManifest() {
 // Steps
 // ---------------------------------------------------------------------------
 
-function stepGitPull(skip) {
-  log("\n1. Syncing local clone");
+function stepGitSync(skip) {
+  log("\n1. Syncing clone from GitHub");
   if (!existsSync(REPO_PATH)) {
-    fail(`clone not found at ${REPO_PATH}. Set PSTACK_REPO_PATH or clone first.`);
+    if (dryRun) {
+      log(
+        `   [dry-run] would run: git clone --depth 1 --branch ${BRANCH} ${GITHUB_URL} "${REPO_PATH}"`
+      );
+      return;
+    }
+    try {
+      execSync(
+        `git clone --depth 1 --branch ${BRANCH} ${GITHUB_URL} "${REPO_PATH}"`,
+        { stdio: "pipe" }
+      );
+      log(`   cloned ${GITHUB_URL} (branch: ${BRANCH})`);
+    } catch (err) {
+      fail(
+        `git clone failed: ${err.message || String(err).trim()}. ` +
+          `Clone manually: git clone --depth 1 --branch ${BRANCH} ${GITHUB_URL.replace(
+            /\.git$/,
+            ""
+          )} "${REPO_PATH}"`
+      );
+    }
   }
   if (skip) {
     log("   (skipped — --no-pull)");
@@ -351,17 +379,48 @@ function stepWriteManifest(skills, agents, effortAgents) {
   }
 }
 
+function stepCleanCache() {
+  log("\n6. Cleaning clone cache");
+  if (!existsSync(REPO_PATH)) {
+    log("   (cache not present)");
+    return;
+  }
+  if (dryRun) {
+    log(`   [dry-run] would remove ${REPO_PATH}`);
+    return;
+  }
+  try {
+    rmSync(REPO_PATH, { recursive: true, force: true });
+    log(`   removed ${REPO_PATH}`);
+  } catch (err) {
+    warn(`failed to remove cache: ${err.message}`);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
 function main() {
   log("=== pstack-claude → Command Code installer ===");
-  log(`Repo:     ${REPO_PATH}`);
+  log(`Cache:    ${REPO_PATH}`);
+  log(`GitHub:   ${GITHUB_URL} (branch: ${BRANCH})`);
   log(`Dest:     ${COMMAND_CODE_DIR}`);
   log(`Mode:     ${dryRun ? "DRY RUN" : "live"}`);
 
-  stepGitPull(skipPull);
+  stepGitSync(skipPull);
+
+  if (isUninstall) {
+    log("\n=== Uninstall ===");
+    if (!dryRun) {
+      rmSync(MANIFEST_PATH, { force: true });
+      log(`   removed manifest ${MANIFEST_PATH}`);
+    } else {
+      log("   [dry-run] would remove manifest");
+    }
+    if (cleanCache) stepCleanCache();
+    return;
+  }
 
   const manifest = loadManifest();
   if (manifest) {
@@ -380,6 +439,8 @@ function main() {
 
   stepWriteManifest(skills, agents, effortAgents);
 
+  if (cleanCache) stepCleanCache();
+
   log("\n=== Summary ===");
   log(`Skills:  ${skills.length} symlinked`);
   log(
@@ -389,6 +450,9 @@ function main() {
   log(
     `Manifest: ${dryRun ? "[dry-run] would " : ""}write ${MANIFEST_PATH}`,
   );
+  if (cleanCache && !dryRun) {
+    log(`Cache:   removed ${REPO_PATH}`);
+  }
   log("");
   if (dryRun) {
     log("Dry run complete — no changes were made.");
