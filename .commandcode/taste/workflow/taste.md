@@ -13,6 +13,8 @@
 - Commit taste-file (`taste.md`) changes automatically whenever they are detected — but always in their own dedicated commits, never bundled together with other changes. Confidence: 0.9
 - Splits config into shared vs personal layers: shared project settings stay committed in `.commandcode/settings.json`, while personal/machine-specific config such as permission rules goes in a gitignored `.commandcode/settings.local.json`. Confidence: 0.7
 - Allows all `git` commands without prompting, but `git push` must always stay at "ask" (never auto-approved). Confidence: 0.75
+- Writes commit messages to temp files via the `write_file` tool and commits with `git commit -F <path>` when heredocs are unavailable in the shell (e.g. Windows cmd), rather than attempting inline `git commit -F - <<'EOF'` syntax. Confidence: 0.8
+- Reviews `.commandcode/taste/` changes with `git diff` before committing taste files, to verify the recorded preferences match the session's learnings. Confidence: 0.7
 - Organizes agent instructions/rules with progressive disclosure: a compact root file (CLAUDE.md / AGENTS.md) that points to a `references/*.md` folder read on demand, rather than one large file. Confidence: 0.8
 - Delegates substantial, multi-part work to subagents (e.g. one research subagent per model) instead of doing everything in the main thread. Confidence: 0.85
 - Prefers using free subagents for parallelizable scanning/summarization tasks (e.g. summarizing a prior session that failed to auto-compact, then resuming its work) rather than doing the scanning inline; treats subagent delegation as the default mechanism for this class of work. Confidence: 0.75
