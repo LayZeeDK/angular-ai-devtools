@@ -20,4 +20,5 @@
 - Follows existing code conventions and patterns when creating new scripts (e.g. "similar to the other install-*.mjs scripts in scripts/"). Confidence: 0.85
 - Uses a plan-first workflow: writes implementation plans to `~/.commandcode/plans/`, presents them via `exit_plan_mode`, and waits for approval before implementing. Confidence: 0.75
 - Creates new skills by analyzing the difference between existing parallel skills (e.g. create-vs-maintain variants of the same skill type) and applying the same transformation pattern to generate new skill variants. Confidence: 0.8
+- Skill-install scripts are self-managing across their lifecycle via flags: `--dry-run` (preview without writing), `--no-pull` (reuse existing clone without fetching), `--uninstall` (remove installed skills + manifest), `--clean-cache` (remove the temp clone), and `--quiet` (suppress output). Confidence: 0.75
 - Treats "create and test" as a single integrated workflow step — newly created skills must be tested as part of their creation, producing verified working versions rather than untested artifacts. Confidence: 0.75

@@ -7,3 +7,4 @@
 - Experimental Angular features are acceptable input to designs and proposals. Confidence: 0.8
 - Legacy-support rule: if a feature judged legacy behaves identically to its modern replacement from a runtime DevTools perspective, leave it working with no flag, do not list it as supported, and remove support plus flag it only once the runtime behaviour differs (when it can be detected). Confidence: 0.85
 - Expects him to be told about legacy APIs that a target app actually uses (audit the app, then map legacy → modern replacement). Confidence: 0.75
+- When adapting Angular skills for Command Code, the `angular-developer` skill should be model-invocable (no `disable-model-invocation` flag) so it auto-loads when working on Angular projects; only `angular-new-app` should remain explicit-only (`disable-model-invocation: true`). Confidence: 0.9
