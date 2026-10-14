@@ -17,5 +17,7 @@
 - Delegates substantial, multi-part work to subagents (e.g. one research subagent per model) instead of doing everything in the main thread. Confidence: 0.85
 - Prefers using free subagents for parallelizable scanning/summarization tasks (e.g. summarizing a prior session that failed to auto-compact, then resuming its work) rather than doing the scanning inline; treats subagent delegation as the default mechanism for this class of work. Confidence: 0.75
 - Keep scope narrow to exactly what was asked: when adapting/mirroring an existing setup (e.g. porting the Claude config to Command Code), carry over only the directly relevant parts, not the whole thing or unrelated sections and conventions. Confidence: 0.6
+- Follows existing code conventions and patterns when creating new scripts (e.g. "similar to the other install-*.mjs scripts in scripts/"). Confidence: 0.85
+- Uses a plan-first workflow: writes implementation plans to `~/.commandcode/plans/`, presents them via `exit_plan_mode`, and waits for approval before implementing. Confidence: 0.75
 - Creates new skills by analyzing the difference between existing parallel skills (e.g. create-vs-maintain variants of the same skill type) and applying the same transformation pattern to generate new skill variants. Confidence: 0.8
 - Treats "create and test" as a single integrated workflow step — newly created skills must be tested as part of their creation, producing verified working versions rather than untested artifacts. Confidence: 0.75

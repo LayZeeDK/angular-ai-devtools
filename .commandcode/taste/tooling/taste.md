@@ -9,6 +9,8 @@
 - Chrome Beta and Edge Dev are the primary AI-capable test targets; Chrome and Edge stable are acceptable, and Phi-4-mini runs on a dedicated Edge stable profile. Confidence: 0.75
 - Commits must be authored/committed as `larsbrinknielsen@gmail.com`; his work email and its domain must never appear in commits or documents. Confidence: 0.7
 - Prefers interfaces designed for agents when a tool offers several (e.g. MCP/JSON-RPC over a UI panel). Confidence: 0.7
+- Prefers `.mjs` (ESM) script format with `node:` protocol imports for Node.js scripts in `scripts/` (e.g. `install-*-command-code.mjs`). Confidence: 0.9
+- Validates JavaScript/Node script syntax with `node --check` before runtime testing. Confidence: 0.75
 - Mirrors his global (user-scope) agent setup across coding tools: he ports the Claude configuration (`~/.claude/CLAUDE.md` + `references/*.md`) into the equivalent Command Code files (`~/.commandcode/AGENTS.md`, `references/*.md`, `agents/*.md`) rather than starting fresh. Confidence: 0.75
 - Names subagent types with a `<model>-<effort>` pattern to encode both the model and its reasoning effort, and prefixes the free-model roster's types with `free-`. Confidence: 0.8
 - Builds custom model-pinned subagent types by reusing the tool's own built-in general-purpose agent prompt as the body verbatim, with only the frontmatter (name/description/model/effort) doing the pinning — never hand-writing a bespoke prompt body. Confidence: 0.85
