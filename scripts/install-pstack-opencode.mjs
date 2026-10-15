@@ -634,8 +634,8 @@ Claude Code keeps one directory per project under \`~/.claude/projects/<encoded-
 
 | skill | note |
 | --- | --- |
-| \`setup-pstack\` | The sheet is \`~/.config/opencode/pstack-models.md\`; load it through the \`instructions\` array in \`opencode.json(c)\`. The \`session hook\` line is inert: opencode loads skills natively, with no SessionStart hook. There is no \`@\` include syntax in \`AGENTS.md\`; add the path to \`instructions\` instead. |
-| \`poteto-mode\` | Its Subagents section is the Claude one; dispatch \`pstack-poteto-agent\` per the Subagent policy above. Routing is manual: opencode has no SessionStart mandate, so invoke \`poteto-mode\` explicitly or add a standing instruction to \`AGENTS.md\`. |
+| \`setup-pstack\` | The sheet is \`~/.config/opencode/pstack-models.md\`; load it through the \`instructions\` array in \`opencode.json(c)\`. The \`session hook\` line gates the installed plugin: an explicit \`session hook: off\` disables the routing mandate, and a missing sheet leaves it on. opencode has no SessionStart hook, so the installer ships \`~/.config/opencode/plugins/pstack.ts\`, whose \`context\` hook appends the mandate before each model call. There is no \`@\` include syntax in \`AGENTS.md\`; add the path to \`instructions\` instead. |
+| \`poteto-mode\` | Its Subagents section is the Claude one; dispatch \`pstack-poteto-agent\` per the Subagent policy above. Routing needs no standing instruction: the installed plugin injects the mandate, gated by the sheet's \`session hook\` line. Add one to \`AGENTS.md\` only if you disable the plugin. |
 | \`how\`, \`why\`, \`arena\`, \`swarm\`, \`architect\`, \`interrogate\`, \`reflect\` | Each names a role line and dispatches subagents. Map roles to agent ids (Subagent policy) and keep the panel model-diverse (Model names). |
 | \`recall\`, \`show-me-your-work\`, \`automate-me\`, \`eval\`, \`session-pickup\` | Read Transcripts above before following the step that names \`~/.claude/projects/\`. |
 | \`babysit\` | Uses \`gh\` or \`gt\` through \`shell\`; there is no \`/loop\` on opencode, so drive iterations yourself. |
