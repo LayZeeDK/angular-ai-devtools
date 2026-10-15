@@ -503,6 +503,7 @@ async function cmdStatus() {
   if (browser === 'test') {
     const copy = newestCopy();
     const st = readState();
+    log(copy ? 'OK' : 'INFO', `test: copy ${copy ? `${copy.version} at ${copy.dir}` : 'none (run install)'}; up ${!!st}`);
 
     return { ok: !!copy, browser, copy, up: !!st };
   }
