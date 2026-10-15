@@ -365,11 +365,13 @@ const CANARY = `async (p, { toolCanary }) => p.evaluate(async ([toolCanary, ms])
       const tc = parts.filter((x) => x.type === 'tool-call').map((x) => x.value);
       if (tc.length === 0) { answer = parts.map((x) => x.value).join(''); break; }
       input = [{ role: 'user', content: tc.map((c) => {
-        calls.push({ name: c.name, callID: c.callID, arguments: c.arguments });
+        const id = c.callID ?? c.callId;
+        calls.push({ name: c.name, callID: id, arguments: c.arguments });
         const result = impl[c.name]?.(c.arguments ?? {});
+        // Chrome Beta 156 reads callID; Edge Dev 157.0.4329 requires callId. Unknown dictionary members are ignored.
         return { type: 'tool-response', value: result
-          ? new LanguageModelToolSuccess({ callID: c.callID, name: c.name, result: [{ type: 'object', value: result }] })
-          : new LanguageModelToolError({ callID: c.callID, name: c.name, errorMessage: 'unknown tool' }) };
+          ? new LanguageModelToolSuccess({ callID: id, callId: id, name: c.name, result: [{ type: 'object', value: result }] })
+          : new LanguageModelToolError({ callID: id, callId: id, name: c.name, errorMessage: 'unknown tool' }) };
       }) }];
     }
     o.tools = { pass: calls.some((c) => c.name === 'get_component_count') && /\\b(42|forty-two)\\b/i.test(answer ?? ''), calls, answer, ms: Math.round(performance.now() - t), contextUsage: s.contextUsage, attempt };

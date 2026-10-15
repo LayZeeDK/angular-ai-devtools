@@ -34,7 +34,8 @@ Preconditions: the README baseline.
 
 - Measured canary times (2026-10-12, machine under another session's load): Aion structured 3.2 s, tool round
   trip 2.5 s; Gemma 4 (GPU) 6.0 s and 9.0 s; Nano (GPU) 2.0-28 s structured.
-- Gemma 4 sends `callID: ""`; the canary passes it back unchanged and Chrome accepts it.
+- Gemma 4 sends `callID: ""`; the canary passes it back unchanged and Chrome accepts it. Edge Dev 157.0.4329
+  requires `callId` on `LanguageModelToolSuccess`; the canary sends `callID` and `callId`.
 - Doctor skips the page canaries when the model is not `available`: `create()` would wait for, or start, a
   download.
 - `navigator.modelContext` is `undefined`; WebMCP lives on `document.modelContext`.

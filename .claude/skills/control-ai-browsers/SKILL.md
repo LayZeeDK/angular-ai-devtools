@@ -187,8 +187,10 @@ Measured 2026-10-11/12 unless marked inferred.
 - `availability()` says `available` even when `create()` refuses the requested tool types (research 09); a
   tool canary is the real check. Nano answers tool prompts with `tool_code` text, so its tool canary is skipped.
 - Gemma 4 rejects every tool prompt when a tool has an empty `properties` (`UnknownError`); the canary tool has a
-  required `scope` parameter. Results go back as `LanguageModelToolSuccess({callID, name, result})`: the field is
-  `callID`, and Gemma 4 sends `callID: ""` (Aion sends a hex id).
+  required `scope` parameter. Results go back as `LanguageModelToolSuccess({callID, callId, name, result})`: the tool call reports
+  `callID` in both browsers, Chrome Beta 156 reads `callID` back, and Edge Dev 157.0.4329 requires `callId`
+  ("Required member is undefined" without it, measured 2026-10-15), so the canary sends both. Gemma 4 sends
+  `callID: ""` (Aion sends a hex id).
 - Chrome downloads a model the profile has `Requested` without any page call: after `model clear` on a running
   profile, Nano came back within 7-9 minutes. Right after `stop`, `clear`, `launch`, Nano's download finished
   inside the first doctor's canary (which is why doctor now skips canaries unless `available`). `model clear`
