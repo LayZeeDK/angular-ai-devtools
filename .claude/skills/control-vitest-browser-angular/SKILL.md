@@ -12,7 +12,7 @@ down only what it started. Skip it for the counter app served by `ng serve`: use
 Never point it at Lars's own browsers: it only attaches to instances listed in
 `.claude/skills/control-ai-browsers/instances.json`, or to the Chromium it launches itself.
 
-All commands run from the repository root (`D:\projects\sandbox\angular-ai-devtools`). `S` stands for
+All commands run from the root of the checkout you drive (the main checkout or a worktree). `S` stands for
 `.claude/skills/control-vitest-browser-angular/scripts/control.mjs`. Background and measurements:
 `research/17-vitest-browser-runtime.md`.
 

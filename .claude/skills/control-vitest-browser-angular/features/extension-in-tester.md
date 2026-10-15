@@ -30,7 +30,8 @@ Preconditions:
 - **Content script.** `doctor --json > <evidenceDir>/doctor.json` records the isolated world's name.
 - **Storage.** The content-script results appear once the Counter is mounted. To read them, use the spike runner
   (`node spikes/probes/vitest-attach.mjs --route attach --cdp-port <port> --label <label>` after `down`), which
-  writes them to `research/raw/vitest-attach-<label>.json` under `extensionStorage`.
+  writes them to `research/raw/vitest-attach-<label>.json` under `extensionStorage`. That folder is tracked:
+  move the file into `<evidenceDir>` after the run unless it is meant for the research record.
 - **Panel.** Same runner: `panelInspectedWindowTop` and `panelInspectedWindowTester` in its output.
 - **Model.** `doctor` `language-model`; for a prompt, the runner's `iframePrompt` ("OK" from Gemma 4 in 10.8 s,
   research 17).
@@ -40,5 +41,6 @@ Preconditions:
 - `spikes/s1-extension` itself matches only `https://example.com/*`; use `s1-vitest`, which matches the Vitest
   server in every frame.
 - The isolated world sees `typeof window.ng === 'undefined'`; only the MAIN world sees `ng`.
-- `down` uninstalls the extension; `Extensions.getExtensions` is then empty.
+- In attach mode `down` uninstalls the extension (its notes say `uninstalled extension <id>`); in bundled mode it
+  deletes the profile the extension was loaded into.
 - In the bundled flow the extension id comes from its service worker target after `up` (the path decides the id).
