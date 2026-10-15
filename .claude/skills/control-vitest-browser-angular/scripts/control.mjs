@@ -535,6 +535,9 @@ async function down() {
   }
 
   rmSync(sp, { force: true });
+  // process.exit while fetch's sockets to the CDP port are still closing aborts Node on Windows
+  // ("Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)", exit 127; measured after attach-mode down).
+  await sleep(250);
   out({ ok: true, command: 'down', flowId: state.flowId, evidenceDir: state.evidenceDir, notes }, 0);
 }
 
