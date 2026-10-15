@@ -241,10 +241,10 @@ async function up() {
     cdpPort = entry.port;
 
     if (!(await cdpVersion(cdpPort))) {
-      const r = aiControl(['launch', instance]);
+      const r = aiControl(['up', instance]);
 
       if (r.status !== 0) {
-        fail(2, `control-ai-browsers launch ${instance} exited ${r.status}: ${(r.stdout + r.stderr).trim().slice(-400)}`);
+        fail(2, `control-ai-browsers up ${instance} exited ${r.status}: ${(r.stdout + r.stderr).trim().slice(-400)}`);
       }
 
       launchedInstance = true;
@@ -509,14 +509,14 @@ async function down() {
     }
 
     if (state.launchedInstance) {
-      let r = aiControl(['stop', state.instance]);
+      let r = aiControl(['down', state.instance]);
 
       if (r.status !== 0) {
         aiControl(['attach', state.instance]);
-        r = aiControl(['stop', state.instance]);
+        r = aiControl(['down', state.instance]);
       }
 
-      notes.push(`control-ai-browsers stop ${state.instance}: exit ${r.status}`);
+      notes.push(`control-ai-browsers down ${state.instance}: exit ${r.status}`);
     } else {
       notes.push(`instance ${state.instance} left running: this skill did not start it`);
     }

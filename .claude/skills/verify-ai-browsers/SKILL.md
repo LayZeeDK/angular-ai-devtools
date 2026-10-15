@@ -1,6 +1,6 @@
 ---
 name: verify-ai-browsers
-description: Verify the built-in AI in the per-model browser instances (Chrome Beta with Gemini Nano or Gemma 4, Edge Dev with Aion-1.1-Instruct, Edge stable with Phi-4-mini) and report one verdict (verified, not verified, inconclusive) with JSON evidence. Checks each instance's command line against the registry, the model on disk and in on-device-internals Broker State, the CPU or GPU backend, free disk space, availability(), contextWindow, structured-output, tool-calling and WebMCP canaries, twice; and runs a model cycle on one instance (stop, clear its model, launch, download, initialise, check again). Reuses control-ai-browsers' control script and registry. Use after a browser update, after changing an instance or its backend, or before reporting a built-in AI result as proven.
+description: Verify the built-in AI in the per-model browser instances (Chrome Beta with Gemini Nano or Gemma 4, Edge Dev with Aion-1.1-Instruct, Edge stable with Phi-4-mini) and report one verdict (verified, not verified, inconclusive) with JSON evidence. Checks each instance's command line against the registry, the model on disk and in on-device-internals Broker State, the CPU or GPU backend, free disk space, availability(), contextWindow, structured-output, tool-calling and WebMCP canaries, twice; and runs a model cycle on one instance (down, clear its model, up, download, initialise, check again). Reuses control-ai-browsers' control script and registry. Use after a browser update, after changing an instance or its backend, or before reporting a built-in AI result as proven.
 ---
 
 # verify-ai-browsers
@@ -13,7 +13,7 @@ own Chrome Beta, Edge Dev and everyday Edge are never touched.
 ## Launch
 
 The four instances are standing processes; start a stopped one with
-`node .claude/skills/control-ai-browsers/scripts/control.mjs launch <instance>`. `verify.mjs` starts nothing
+`node .claude/skills/control-ai-browsers/scripts/control.mjs up <instance>`. `verify.mjs` starts nothing
 itself except in `cycle`, which stops and launches the instance it cycles. A step that cannot run (instance not
 running, refusal) makes the verdict `inconclusive`.
 
@@ -40,8 +40,8 @@ The model cycle on one instance proves clearing, download and initialisation end
 node .claude/skills/verify-ai-browsers/scripts/verify.mjs cycle chrome-beta-nano [--timeout-min=45]
 ```
 
-Steps: `model info` (records the running backend), `attach`, `stop`, `model clear --confirm=<registry model>`,
-`launch --backend=<the backend it ran with>`, `model download`, `model init`, then the `state` checks. Verified
+Steps: `model info` (records the running backend), `attach`, `down`, `model clear --confirm=<registry model>`,
+`up --backend=<the backend it ran with>`, `model download`, `model init`, then the `state` checks. Verified
 when every step exits 0, `init` reads the registry `contextWindow`, and the state checks pass. `verdict.json`
 records `bytesRemoved`, the download gesture, duration and folder size, and the init timings. Measured with
 `cycle chrome-beta-nano` (2026-10-12): verified, 4,269,934,855 bytes removed, downloaded again in 138 s by click,
@@ -62,7 +62,7 @@ exit code, duration and evidence path. Proof rules: `control-ai-browsers/feature
 
 `verify.mjs` leaves every instance running, as it found it; `cycle` relaunches the instance at the backend it ran
 with. Each control step closes the tabs it opened and detaches the session it attached. A run that stops early
-can leave the cycled instance stopped: run `control.mjs launch <instance>`, then `state` again.
+can leave the cycled instance stopped: run `control.mjs up <instance>`, then `state` again.
 
 ## Helpers
 
@@ -81,7 +81,7 @@ can leave the cycled instance stopped: run `control.mjs launch <instance>`, then
 - `edge-phi4mini` came out `not verified` on 2026-10-12: one of its two doctors failed `canary.structured` with
   `kErrorUnknown`. That is the model, not the harness; report it as found.
 - `cycle` needs the instance running at the start: it reads the backend from the live command line and needs a
-  state file for `stop`.
+  state file for `down`.
 - A cycle on Nano deletes both variants when both are on disk and downloads back only the one its backend uses.
 - Chrome may finish the download before `model download` starts (the profile has the use case Requested); the
   download step then reports `alreadyAvailable` and the cycle still counts.

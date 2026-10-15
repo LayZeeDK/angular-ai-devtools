@@ -28,7 +28,7 @@ All commands run from the root of the checkout you drive (the main checkout or a
   9350). `up` refuses the main checkout's port from a worktree. Vitest's default 63315 cannot be used here,
   because it sits in a Windows excluded port range.
 - Attach mode uses the instance's own CDP port. If the instance is not running, `up` launches it through
-  `control-ai-browsers launch` and `down` stops it again. An instance that was already running is left
+  `control-ai-browsers up` and `down` stops it again. An instance that was already running is left
   running.
 - One run at a time: `up` refuses while any state file exists.
 - The playwright-cli session is `control-vitest-<flowId>`, for example `control-vitest-chrome-beta-gemma4-51315`.

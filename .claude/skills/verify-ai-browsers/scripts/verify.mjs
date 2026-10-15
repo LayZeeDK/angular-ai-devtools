@@ -55,20 +55,20 @@ function state(name) {
   return { instance: name, pass, doctor: [d1.exit, d2.exit], failedChecks: failed, flagsExit: flags.exit, model };
 }
 
-// Clear the instance's own model and get it back: stop, clear, launch, download, init, state.
+// Clear the instance's own model and get it back: down, clear, up, download, init, state.
 function cycle(name) {
   const want = REGISTRY.instances[name];
   const before = control('model', 'info', name);
   const backend = before.requestedBackend ?? want.backend.default;
   control('attach', name);
-  const stop = control('stop', name);
-  const clear = stop.exit === 0 ? control('model', 'clear', name, `--confirm=${want.model.name}`) : null;
-  const launch = control('launch', name, `--backend=${backend}`);
-  const download = launch.exit === 0 ? control('model', 'download', name, `--timeout-min=${opts['timeout-min'] ?? 45}`) : null;
+  const down = control('down', name);
+  const clear = down.exit === 0 ? control('model', 'clear', name, `--confirm=${want.model.name}`) : null;
+  const up = control('up', name, `--backend=${backend}`);
+  const download = up.exit === 0 ? control('model', 'download', name, `--timeout-min=${opts['timeout-min'] ?? 45}`) : null;
   const init = download?.exit === 0 ? control('model', 'init', name) : null;
   const after = state(name);
   control('detach', name);
-  const pass = stop.exit === 0 && clear?.exit === 0 && launch.exit === 0 && download?.exit === 0 && init?.exit === 0 && init.contextWindow === want.model.contextWindow && after.pass;
+  const pass = down.exit === 0 && clear?.exit === 0 && up.exit === 0 && download?.exit === 0 && init?.exit === 0 && init.contextWindow === want.model.contextWindow && after.pass;
 
   return {
     instance: name, pass, backend,

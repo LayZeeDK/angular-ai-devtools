@@ -493,7 +493,7 @@ async function brokerState(inst) {
   const text = await inTab(inst, BROKER, { url: null, args: { scheme: inst.scheme } });
 
   if (text === 'DEBUG-PAGES-DISABLED') {
-    return { disabled: true, error: `internal debugging pages are off in ${inst.name}; "launch ${inst.name}" turns them on (chrome://chrome-urls)` };
+    return { disabled: true, error: `internal debugging pages are off in ${inst.name}; "up ${inst.name}" turns them on (chrome://chrome-urls)` };
   }
 
   return parseBroker(text);
@@ -552,7 +552,7 @@ async function cmdInstances() {
   return { ok: true, instances: rows };
 }
 
-async function cmdLaunch(inst) {
+async function cmdUp(inst) {
   const backend = typeof opts.backend === 'string' ? opts.backend : inst.backend.default;
   const features = featuresFor(inst, backend);
   const running = mainProcess(inst);
@@ -566,7 +566,7 @@ async function cmdLaunch(inst) {
       return { ok: true, alreadyRunning: true, state: writeState(inst, running) };
     }
 
-    refuse(`${inst.name} runs as PID ${running.ProcessId} with ${d.backend ?? 'a drifted'} configuration (${d.problems.join('; ') || `backend ${d.backend}`}); run "stop ${inst.name}" first`);
+    refuse(`${inst.name} runs as PID ${running.ProcessId} with ${d.backend ?? 'a drifted'} configuration (${d.problems.join('; ') || `backend ${d.backend}`}); run "down ${inst.name}" first`);
   }
 
   const owner = portOwner(inst.port);
@@ -617,11 +617,11 @@ async function cmdLaunch(inst) {
 }
 
 async function cmdAttach(inst) {
-  const proc = mainProcess(inst) ?? refuse(`${inst.name} is not running; run "launch ${inst.name}"`);
+  const proc = mainProcess(inst) ?? refuse(`${inst.name} is not running; run "up ${inst.name}"`);
   const st = writeState(inst, proc);
   await ensureAttached(inst);
   attachedHere = null;
-  log('OK', `${inst.session} attached to ${inst.name} PID ${proc.ProcessId}; it stays attached for ad hoc playwright-cli commands until "detach ${inst.name}" or "stop ${inst.name}"`);
+  log('OK', `${inst.session} attached to ${inst.name} PID ${proc.ProcessId}; it stays attached for ad hoc playwright-cli commands until "detach ${inst.name}" or "down ${inst.name}"`);
 
   return { ok: true, state: st };
 }
@@ -633,8 +633,8 @@ async function cmdDetach(inst) {
   return { ok: true };
 }
 
-async function cmdStop(inst) {
-  const st = readState(inst.name) ?? refuse(`no state file at ${statePath(inst.name)}; run "attach ${inst.name}" or "launch ${inst.name}" first`);
+async function cmdDown(inst) {
+  const st = readState(inst.name) ?? refuse(`no state file at ${statePath(inst.name)}; run "attach ${inst.name}" or "up ${inst.name}" first`);
   const live = processById(st.pid);
 
   if (!live) {
@@ -903,7 +903,7 @@ async function modelClear(inst) {
   }
 
   if (instanceProcesses(inst).length) {
-    refuse(`${inst.name} is running; run "stop ${inst.name}" first (files are never deleted under a running browser)`);
+    refuse(`${inst.name} is running; run "down ${inst.name}" first (files are never deleted under a running browser)`);
   }
 
   const disk = diskModels(inst);
@@ -988,16 +988,14 @@ async function cmdInfo(inst) {
 // ---------- main ----------
 const COMMANDS = {
   instances: () => cmdInstances(),
-  launch: (i) => cmdLaunch(i),
-  up: (i) => cmdLaunch(i),
+  up: (i) => cmdUp(i),
   attach: (i) => cmdAttach(i),
   detach: (i) => cmdDetach(i),
   doctor: (i) => cmdDoctor(i),
   flags: (i) => cmdFlags(i),
   model: (i, sub) => cmdModel(i, sub),
   run: (i) => cmdRun(i),
-  stop: (i) => cmdStop(i),
-  down: (i) => cmdStop(i),
+  down: (i) => cmdDown(i),
   bench: () => cmdBench(),
   info: (i) => cmdInfo(i),
 };
@@ -1033,7 +1031,7 @@ function save(result) {
   return file;
 }
 
-// process.exit() while a socket or child handle is still closing trips a libuv assertion on Windows (seen on launch).
+// process.exit() while a socket or child handle is still closing trips a libuv assertion on Windows (seen on up).
 function exitWith(code) {
   process.exitCode = code;
   setTimeout(() => process.exit(code), 10000).unref();

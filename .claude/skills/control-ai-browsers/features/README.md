@@ -6,7 +6,7 @@ matching feature file. `C` below stands for `node .claude/skills/control-ai-brow
 ## Baseline preconditions
 
 - Chrome Beta 156, Edge Dev 157 and Edge stable 155 are installed at the paths in `instances.json`.
-- The four instances run, started by `C launch <name>` (or `C instances` shows them with no drift): Nano on
+- The four instances run, started by `C up <name>` (or `C instances` shows them with no drift): Nano on
   9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337, each at its default backend.
 - `C doctor <name>` exits 0 for the instance a recipe uses.
 - Nobody else drives the same instance during the run. Sessions are `ai-<instance>` only.
@@ -17,8 +17,8 @@ matching feature file. `C` below stands for `node .claude/skills/control-ai-brow
   not, after `C attach <instance>`, and `C detach <instance>` afterwards.
 - Page code runs in a tab the script opens on `https://example.org/?ai-browsers=<purpose>` (the built-in AI APIs
   are not defined on `about:blank`) and closes in the same command.
-- Choose a model by choosing its instance. Change a backend with `C stop <name>` and
-  `C launch <name> --backend=<b>`, never by editing a command line by hand.
+- Choose a model by choosing its instance. Change a backend with `C down <name>` and
+  `C up <name> --backend=<b>`, never by editing a command line by hand.
 - Wait on observable state (`availability()`, a resolved `create()`, a Broker State asset `Ready`), never a fixed
   sleep.
 - Put each run's evidence in one directory: `--evidence=tmp/control-ai-browsers/evidence/<run-id>`.
@@ -50,7 +50,7 @@ to get to it (user POV)`, `Driving it with control-ai-browsers`, `Gotchas`.
 
 ## Features
 
-- [Instances](./instances.md): registry, launch, backend, drift, effective features, stop.
+- [Instances](./instances.md): registry, up, backend, drift, effective features, down.
 - [Health check](./health-check.md): doctor, availability, canaries, WebMCP.
 - [Model lifecycle](./model-lifecycle.md): info, download, init, clear.
 - [Probes and benchmarks](./probes.md): run a probe script, the model benchmark.

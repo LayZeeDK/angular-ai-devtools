@@ -28,10 +28,10 @@ Preconditions: the README baseline; Broker State "Enough disk space to install" 
 - **Report.** Run `C model info chrome-beta-nano`. One `v3Nano` line per variant on disk (2025.8.8.1141 hints
   `[2,1]` is the GPU variant, 2025.8.21.1028 hints `[3]` the CPU variant), the asset `nano_v3_gpu_component`
   `Ready`, `serving v3Nano; backend GPU (fastest inference) (requested gpu); performance class 2`.
-- **Clear.** Run `C stop chrome-beta-nano`, then `C model clear chrome-beta-nano --confirm=v3Nano`. Every folder
+- **Clear.** Run `C down chrome-beta-nano`, then `C model clear chrome-beta-nano --confirm=v3Nano`. Every folder
   whose manifest names `v3Nano` is deleted; the JSON holds `bytesRemoved` (4,269,934,855 for the GPU variant) and
   `diskAfter`.
-- **Download.** Run `C launch chrome-beta-nano`, then `C model download chrome-beta-nano`. It logs the gesture
+- **Download.** Run `C up chrome-beta-nano`, then `C model download chrome-beta-nano`. It logs the gesture
   (`click` or `Enter`), samples progress every 5 s, and ends with the duration and the folder added. Measured:
   click, 180 s, 4,072 MiB (2026-10-12, D:). On Edge it first presses "Check for update" on the two model
   components.
@@ -44,7 +44,7 @@ Preconditions: the README baseline; Broker State "Enough disk space to install" 
 
 - `model clear` refuses a running instance: deleting files under a running browser is unsafe, and a running
   profile with the use case Requested downloads the model again by itself.
-- Chrome starts downloading a Requested model at launch without any page call. After `stop`, `clear`, `launch`,
+- Chrome starts downloading a Requested model at launch without any page call. After `down`, `clear`, `up`,
   availability read `downloading` straight away, and the first create() finished the 4 GB download.
 - The Gemma 4 instance holds Nano that the Prompt API there never uses: both variants (GPU 2025.8.8.1141,
   4,072 MiB; CPU 2025.8.21.1028, 2,730 MiB) while it ran with `--backend=cpu`; after a relaunch on GPU, Chrome
@@ -62,5 +62,5 @@ Preconditions: the README baseline; Broker State "Enough disk space to install" 
   `downloadMib` must stay above the browser minimum in `instances.json` (Chrome 22,528 MiB, Edge 20,480 MiB).
 - A fresh Edge profile waits at "Foreground Installing 0%" until "Check for update" is pressed for both model
   components; `model download` does that.
-- Forcing CPU on Edge uninstalls the model; `launch --backend=cpu` is refused on Edge instances.
+- Forcing CPU on Edge uninstalls the model; `up --backend=cpu` is refused on Edge instances.
 - `availability()` can say `available` while `create()` refuses tool types; trust the tool canary instead.

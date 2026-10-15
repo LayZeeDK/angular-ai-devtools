@@ -28,7 +28,7 @@ expected model, model folder pattern, Broker State asset and use case. Other ski
 add an instance, add an entry; no command takes features as flags. The playwright-cli session is
 `ai-<instance>`; never use `cb`, `ed`, `nano`, `g4`, `aion`, `phi`, `ai-cb`, `ai-ed` or `bench-*`.
 
-Backends (`launch <name> --backend=gpu|cpu`):
+Backends (`up <name> --backend=gpu|cpu`):
 - `chrome-beta-nano`: `gpu` adds `OnDeviceModelPerformanceParams:...` so the stored performance class 2 may
   use GPU models; `cpu` adds nothing. Default `gpu`: on CPU Nano's structured output failed 15 of 15 runs.
 - `chrome-beta-gemma4`: `cpu` adds `OnDeviceModelForceCpuBackend`; `gpu` adds nothing. Default `gpu` for speed;
@@ -45,12 +45,12 @@ use, and every kept path to his profiles is a way to break them.
 ## Launch
 
 ```bash
-node .claude/skills/control-ai-browsers/scripts/control.mjs launch chrome-beta-nano [--backend=gpu|cpu]
+node .claude/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-nano [--backend=gpu|cpu]
 ```
 
 Starts `<exe> --user-data-dir=<profile> --remote-debugging-port=<port> --no-first-run --no-default-browser-check
 --enable-features=<registry features + backend extras> about:blank`, creating the profile folder on first use. It
-refuses (exit 2) when the instance already runs with another configuration (run `stop` first), when another
+refuses (exit 2) when the instance already runs with another configuration (run `down` first), when another
 process owns the port, or when the profile path resolves through a junction. Ready means `/json/version` answers
 and the main process is found by its `--user-data-dir`. It then closes tabs Edge restored from the last session,
 leaving one blank tab, and on Chrome turns on "Enable internal debugging pages" (`chrome://chrome-urls`), which
@@ -59,7 +59,7 @@ instance that already runs as requested is not restarted (exit 0, `alreadyRunnin
 
 `attach <name>` records the running instance in the state file (`tmp/control-ai-browsers/state-<name>.json`:
 PID, start time, executable, command line, port, session, backend) and leaves the session attached for ad hoc
-`playwright-cli -s=ai-<name>` commands. `stop` needs that state file.
+`playwright-cli -s=ai-<name>` commands. `down` needs that state file.
 
 ## Doctor
 
@@ -127,14 +127,14 @@ a fixed sleep. Model calls carry a 180 s per-step timeout inside the page. Recip
 
 Every command writes its JSON result to `<evidence dir>/<instance>-<command>-<ms>.json` and prints the path. The
 default directory is `tmp/control-ai-browsers/evidence/<YYYYMMDD-HHMMSS>/`; pass `--evidence=<dir>` to keep a
-run together. The directory is git-ignored and survives `stop`. Add `--json` for the same result on stdout with
+run together. The directory is git-ignored and survives `down`. Add `--json` for the same result on stdout with
 `evidence` and `exit` fields. For a model change keep `model info` before and after, the `clear` result
 (`bytesRemoved`), the `download` result (gesture, duration, size) and `model init`.
 
 ## Cleanup
 
 ```bash
-node .claude/skills/control-ai-browsers/scripts/control.mjs stop chrome-beta-nano
+node .claude/skills/control-ai-browsers/scripts/control.mjs down chrome-beta-nano
 ```
 
 Reads the state file and refuses (exit 2) when the recorded PID's executable, command line or start time differ
@@ -142,7 +142,7 @@ from the live process, or when another process owns the port. A recorded PID tha
 refusal: the state file is removed and the exit is 0. Otherwise it detaches the session, sends CDP
 `Browser.close` over the browser websocket, waits up to 60 s until no process uses the profile (it never kills),
 checks the port is free and removes the state file. Evidence stays. The standing state is all four instances
-running, each on one blank tab; `stop` is for a relaunch, a clear, or a proof. Never run `playwright-cli close`,
+running, each on one blank tab; `down` is for a relaunch, a clear, or a proof. Never run `playwright-cli close`,
 `close-all` or `kill-all`: they reach other agents' sessions.
 
 ## Helpers
@@ -152,7 +152,7 @@ running, each on one blank tab; `stop` is for a relaunch, a clear, or a proof. N
 | Command | Does | Exit |
 |---|---|---|
 | `instances` | registry plus live state: PID, backend, drift, tabs, state file | 0 |
-| `launch <name> [--backend=gpu\|cpu]`, alias `up` | start (profile created on first use), wait for `/json/version`, one blank tab, write state | 0 / 2 |
+| `up <name> [--backend=gpu\|cpu]` | start (profile created on first use), wait for `/json/version`, one blank tab, write state | 0 / 2 |
 | `attach <name>` | write state, attach `ai-<name>` and leave it attached | 0 / 2 |
 | `detach <name>` | detach `ai-<name>` | 0 |
 | `doctor <name>` | the checks above | 0 / 1 / 2 |
@@ -163,7 +163,7 @@ running, each on one blank tab; `stop` is for a relaunch, a clear, or a proof. N
 | `model clear <name> --confirm=<model>` | instance must be stopped; deletes every folder whose `manifest.json` names `<model>`; reports bytes removed and free space | 0 / 1 / 2 |
 | `run <name> <file.js>` | run `async page => {...}` in a new tab | 0 / 2 |
 | `bench [names...]` | `bench.js` per instance with backend, performance class and CPU load | 0 / 1 / 2 |
-| `stop <name>`, alias `down` | CDP `Browser.close`, confirm the processes and the port are gone | 0 / 1 / 2 |
+| `down <name>` | CDP `Browser.close`, confirm the processes and the port are gone | 0 / 1 / 2 |
 | `info <name>` | port, CDP URL, session, profile, state file, evidence dir | 0 |
 
 Exit codes: 0 done or healthy; 1 not healthy or the change did not take; 2 refused or could not run, with the
@@ -175,11 +175,11 @@ instance for `clear`, missing `--confirm`, `--backend=cpu` on Edge, junctioned p
 Measured 2026-10-11/12 unless marked inferred.
 
 - A Chrome profile starts with internal debugging pages off; `on-device-internals` then shows "Internal debugging
-  pages are currently disabled". `launch` turns them on; doctor reports it under `model.broker`.
+  pages are currently disabled". `up` turns them on; doctor reports it under `model.broker`.
 - Pointer clicks can time out in an instance (seen in the first Phi-4-mini profile); focus plus Enter still
   counts as a user gesture. `model download` falls back to it.
 - Edge deletes its model manifest at startup when the profile path resolves through a junction (Lars's Edge Dev,
-  2026-10-12). `launch` refuses such a path.
+  2026-10-12). `up` refuses such a path.
 - Edge Dev 157's default model is Aion, not Phi-4-mini, and a fresh Edge profile can sit at "Foreground Installing
   0%" until "Check for update" is pressed for "Edge LLM On Device Model" and "Edge LLM Runtime" in
   `edge://components`. Phi-4-mini comes only from Edge stable 155 (`edge-phi4mini`).
@@ -192,9 +192,9 @@ Measured 2026-10-11/12 unless marked inferred.
   ("Required member is undefined" without it, measured 2026-10-15), so the canary sends both. Gemma 4 sends
   `callID: ""` (Aion sends a hex id).
 - Chrome downloads a model the profile has `Requested` without any page call: after `model clear` on a running
-  profile, Nano came back within 7-9 minutes. Right after `stop`, `clear`, `launch`, Nano's download finished
+  profile, Nano came back within 7-9 minutes. Right after `down`, `clear`, `up`, Nano's download finished
   inside the first doctor's canary (which is why doctor now skips canaries unless `available`). `model clear`
-  therefore works on a stopped instance and `model download` right after `launch` finds `downloading`.
+  therefore works on a stopped instance and `model download` right after `up` finds `downloading`.
 - The Gemma 4 instance also holds Nano it never serves for the Prompt API (both variants, 6.7 GB, while it ran on CPU;
   after a relaunch on GPU Chrome removed the CPU variant and 4,072 MiB remain): Broker State has
   the base `summarizer_api` and `writing_assistance_api` use cases Requested, and Chrome serves those with Nano
@@ -208,7 +208,7 @@ Measured 2026-10-11/12 unless marked inferred.
 - The Nano instance's stored performance class is 2 (VeryLow) and Gemma 4's is 3, on the same GPU; inferred: the
   class was measured while another session loaded the machine. Latency is comparable only at the same backend and
   similar CPU load, which is why `bench` records both.
-- Edge restores the last session's tabs on start; `launch` closes them. A new Edge profile opens first-run tabs
+- Edge restores the last session's tabs on start; `up` closes them. A new Edge profile opens first-run tabs
   after that (a welcome extension page, `edge://sync-confirmation-dialog/`), so the first doctor reports `tabs`
   `[WARN]` (measured on new `edge-dev-aion` and `edge-phi4mini` profiles, 2026-10-15).
 - A hung tab renderer blocks every `run-code` on that session, even `async page => 1+1` (edge-phi4mini, whose only
@@ -218,7 +218,7 @@ Measured 2026-10-11/12 unless marked inferred.
 - Phi-4-mini answered the tool canary in prose in all three sessions of two doctors (2026-10-12), and once failed the
   structured canary with `UnknownError: kErrorUnknown` (one of three doctors). Its tool canary is reported only; a
   structured failure still fails doctor.
-- Exiting Node while the CDP websocket is still closing trips a libuv assertion on Windows; `stop` waits for the
+- Exiting Node while the CDP websocket is still closing trips a libuv assertion on Windows; `down` waits for the
   close.
 - `--raw run-code` prints the function's return value as JSON; returning a string double-encodes it.
 - The internals and components pages are localised (Danish UI); match ids, classes and English data strings, not
