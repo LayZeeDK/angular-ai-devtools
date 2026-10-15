@@ -35,7 +35,8 @@ Preconditions:
   `dependsOn: ["count"]`.
 - **Change detection.** `eval "() => __ngc.inspect('app-counter').changeDetection"` returns `"OnPush"`; inputs
   show `title: {signal: "Clicks"}`.
-- **Effect.** `eval "() => __ngc.inspect('app-counter').state.lastLogged"` equals the count.
+- **Effect.** `eval "() => __ngc.inspect('app-counter').state.lastLogged"` returns `{signal: <count>}`
+  (`{signal: 4}` after one click).
 - **Button listener.** `eval "() => ng.getListeners(document.querySelector('app-counter button')).map(l => l.name)"`
   returns `["click"]`.
 - **Proof.** `playwright-cli -s=<session> screenshot --filename=<evidenceDir>/counter-after.png`.

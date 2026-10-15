@@ -10,14 +10,14 @@ policy number and start date. Data comes from the API at `http://localhost:3000/
   after a fresh API start.
 - `contract-details` clicking a row opens `/contract/<id>/details` with heading `Contract Details` and an
   `Edit` button.
-- `contract-customer-link` the customer name on details links to `/customer/<id>/details`.
+- `contract-customer-link` the customer name on details links to `/customer/<id>/details`, which shows
+  `Customer Details` with name, email, phone and an Address block.
 - `contract-edit` `Edit` opens `/contract/<id>/edit`, heading `Contract Edit`, with Status and Customer
   comboboxes (current values), the Policynumber textbox and the start date; `Save` is disabled until a field
   changes, then sends `PUT /api/contracts` and returns to details with the new value.
 - `contract-create` `/contract/create`: Status chip `Pending`, Customer dropdown `Select customer`,
   Policynumber textbox, Insurance Start On date field, `Save` disabled until valid; Save sends
   `POST /api/contracts` (201) and opens the new contract's details.
-- `contract-customer-link` lands on `Customer Details` with name, email, phone and an Address block.
 
 ## How to get to it (user POV)
 

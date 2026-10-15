@@ -52,8 +52,10 @@ Preconditions:
   `click "getByRole('button', { name: 'Deferred click' })"`; the same read returns `complete`, `hydrated`, and
   the page shows `Deferred clicks: 1`.
 - **Event replay and render modes.** Run the spike probes `spikes/probes/ssr-event-replay.js` and
-  `spikes/probes/ssr-render-modes.js` with `--raw run-code --filename=...`; they hold `main.js` back with
-  `page.route` and load each route in full.
+  `spikes/probes/ssr-render-modes.js` with `--raw run-code --filename=...`. The event-replay probe holds
+  `main.js` back with `page.route`, clicks `Early click` on `/` and reads `Early clicks: 1` after hydration; the
+  render-modes probe fetches and then loads `/`, `/prerender` and `/client` in full (`ng-server-context` `ssr`,
+  `ssg`, and `<body ngcm>` for the client shell).
 - **Proof.** `playwright-cli -s=<session> screenshot --filename=<evidenceDir>/ssr.png`.
 
 ## Gotchas

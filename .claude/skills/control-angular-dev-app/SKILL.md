@@ -11,7 +11,7 @@ session; reads Angular state through `window.ng` helpers; captures evidence; tea
 Skip it for production builds (no `window.ng`), for unit tests, and for Lars's own browsers: never attach to
 Chrome Beta or Edge Dev (`--cdp`, `--extension`), and never use the sessions `cb`, `ed`, `ai-cb`, `ai-ed`.
 
-All commands below run from the repository root (`D:\projects\sandbox\angular-ai-devtools`); playwright-cli
+All commands below run from the root of the checkout you drive (the main checkout or a worktree); playwright-cli
 sessions are looked up from there. `S` stands for `.claude/skills/control-angular-dev-app/scripts/control.mjs`.
 
 ## Pick a flow
@@ -49,7 +49,8 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target coun
 - Readiness polls wait up to 60 s per request: the first SSR render compiles on demand, and aborting it at the
   old 3 s limit left an `AbortError` in the server log, which failed `build-log` (measured 2026-10-12).
 - Measured time to ready, warm caches: counter 2.6-8 s (four runs), SSR 7.5-14.5 s (four runs, 2026-10-12), portal 18.5-20.5 s with the API first (two
-  runs). The first portal build after a change can take minutes; `--timeout <seconds>` (default 240).
+  runs). In a fresh worktree with a cold `.angular` cache: counter 21 s, SSR 19.3 s (2026-10-15). The first
+  portal build after a change can take minutes; `--timeout <seconds>` (default 240).
 - Server output goes to `<evidenceDir>/app.log` (and `api.log`).
 - `up` refuses (exit 2) a port already in use and names the owning PID; that may be Lars's own server.
 
