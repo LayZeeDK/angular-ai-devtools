@@ -16,4 +16,5 @@
 - Builds custom model-pinned subagent types by reusing the tool's own built-in general-purpose agent prompt as the body verbatim, with only the frontmatter (name/description/model/effort) doing the pinning — never hand-writing a bespoke prompt body. Confidence: 0.85
 - Prefers a free-models-only agent setup: the main orchestrator session and every subagent run on free models, with no paid model spawned anywhere. Confidence: 0.65
 - Wants a fallback/resilience strategy designed into his free-model setup: because free routes can still carry usage caps, a fallback ladder should reroute the same task to the next model on a limit (429 / "capacity" / quota message) rather than stalling, treating a limit as a routing signal and never as a task failure, and keeping routine/long runs on the uncapped routes so capped ones last. Confidence: 0.7
+- Pre-tests subagent model-route availability with a minimal probe prompt (e.g. a trivial question) before assigning a substantive task; if a route fails with zero tool uses, probe alternatives until one confirms available, then use it for the real work. Confidence: 0.85
 
