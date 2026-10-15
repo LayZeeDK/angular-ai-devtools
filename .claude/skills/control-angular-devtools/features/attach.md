@@ -33,6 +33,7 @@ backendInstalled true; backendReady at ~950 ms; Angular 22.2.2`.
 
 - `attach` reloads the page to catch messages from the start.
 - A production build gives `isDebugMode: false`; the content script still injects the backend (it gates on
-  `isAngular` only, built 1.22.0 `app/content_script_bundle.js`), the popup shows `production.html`, and
+  `isAngularDevTools`, `isAngular` and an HTML document, not on `isDebugMode`; built 1.22.0
+  `app/content_script_bundle.js`), the popup shows `production.html`, and
   `attach` exits 1 because it requires `isDebugMode`.
 - The toolbar icon and popup are browser UI, not checked by script.

@@ -84,7 +84,7 @@ node $S coexist [--di-graph]                     # see Inspect
 
 Panel handles (read from the live panel, 1.22.0): tabs are buttons/links named `Components`, `Profiler`,
 `Injector Tree`, `Router Tree`, and `Transfer State` only for a hydrated (SSR) app; `Router Tree` only when the
-app has routes (`devtools-tabs.component.ts`); tree rows are `.node-name`; the `Show Signal Graph` button; graph
+app provides the router, even with an empty route list as in the counter (`devtools-tabs.component.ts`); tree rows are `.node-name`; the `Show Signal Graph` button; graph
 nodes are `ng-signal-graph-pane .node-cont.kind-<kind>` with the label and value as text, where kind is
 `template`, `signal`, `computed`, `effect`, `linked-signal`, `child-signal-prop`, `resource` or `unknown`
 (`signals-visualizer.ts`; the counter shows the first four);

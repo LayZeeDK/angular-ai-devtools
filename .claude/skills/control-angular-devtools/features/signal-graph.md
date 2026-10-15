@@ -32,6 +32,6 @@ effect:Effect`, `ng.ɵgetSignalGraph` `effect, signal:count`.
 ## Gotchas
 
 - `--di-graph` leaves the page's signal graph broken until reload.
-- The pane refreshes after change detection; the recipe clicks the app before re-reading.
+- The pane refreshes after change detection; `coexist --di-graph` clicks the app before re-reading.
 - `.node-cont.kind-*` are DevTools 1.22.0 class names; re-read them from the live panel after an update. Other
   kinds the counter lacks: `linked-signal`, `child-signal-prop`, `resource`, `unknown`.
