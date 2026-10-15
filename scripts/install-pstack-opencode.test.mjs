@@ -21,6 +21,7 @@ import {
   adaptAgent,
   adaptFrontmatter,
   applyInlineSwaps,
+  injectMappingPointer,
   isRuntimeSpecificDoc,
   listDirNames,
   listMarkdown,
@@ -164,13 +165,82 @@ describe("applyInlineSwaps", () => {
   });
 
   it("is idempotent", () => {
-    const once = applyInlineSwaps("Use `Read` and `AskUserQuestion` and `subagent_type`.").text;
+    const once = applyInlineSwaps(
+      'Use `Read` and `AskUserQuestion` and `subagent_type`, load `pstack:arena`, dispatch "pstack:poteto-agent".',
+    ).text;
     assert.equal(applyInlineSwaps(once).text, once);
   });
 
   it("keeps backticks balanced", () => {
     const { text } = applyInlineSwaps("`Read` `Bash` `Agent` `Skill` `Task`");
     assert.equal((text.match(/`/g) ?? []).length, 10);
+  });
+
+  it("gives a namespaced skill id the bare installed directory name", () => {
+    const result = applyInlineSwaps("Load `pstack:arena`, then `pstack:poteto-mode`.");
+    assert.equal(result.text, "Load `arena`, then `poteto-mode`.");
+    assert.equal(result.count, 2);
+  });
+
+  it("keeps the pstack- prefix on the two bundled agent ids", () => {
+    const result = applyInlineSwaps('`agent: "pstack:poteto-agent"` or `"pstack:comment-sicko"`');
+    assert.equal(result.text, '`agent: "pstack-poteto-agent"` or `"pstack-comment-sicko"`');
+    assert.equal(result.count, 2);
+  });
+
+  it("does not let an agent id swallow the Claude-only effort id that extends it", () => {
+    const result = applyInlineSwaps("`pstack:poteto-agent` becomes `pstack:poteto-agent-<level>` or `pstack:effort-<level>`.");
+    assert.equal(result.text, "`pstack-poteto-agent` becomes `poteto-agent-<level>` or `effort-<level>`.");
+    assert.equal(result.count, 3);
+  });
+
+  it("leaves prose that merely ends in the namespace alone", () => {
+    const input = "Not in pstack:\n\n- nothing here";
+    const result = applyInlineSwaps(input);
+    assert.equal(result.text, input);
+    assert.equal(result.count, 0);
+  });
+});
+
+describe("injectMappingPointer", () => {
+  const codex =
+    "On Codex, read the [platform mapping](../poteto-mode/references/codex-tools.md), including its per-skill notes, before following this skill.";
+  const copilot =
+    "On GitHub Copilot, read the [platform mapping](../poteto-mode/references/copilot-tools.md), including its per-skill notes, before following this skill.";
+  const opencode =
+    "On opencode, read the [platform mapping](../poteto-mode/references/opencode-tools.md), including its per-skill notes, before following this skill.";
+
+  it("adds the opencode paragraph after the Copilot one, as its own paragraph", () => {
+    const result = injectMappingPointer(`# How\n\n${codex}\n\n${copilot}\n\nExplore the codebase.`);
+    assert.equal(result.changed, true);
+    assert.equal(result.text, `# How\n\n${codex}\n\n${copilot}\n\n${opencode}\n\nExplore the codebase.`);
+  });
+
+  it("falls back to the Codex paragraph when a skill carries no Copilot one", () => {
+    const result = injectMappingPointer(`# Recall\n\n${codex}\n\nRebuild the context.`);
+    assert.equal(result.changed, true);
+    assert.equal(result.text, `# Recall\n\n${codex}\n\n${opencode}\n\nRebuild the context.`);
+  });
+
+  it("adds the inline clause to poteto-mode's platform paragraph", () => {
+    const input =
+      "On GitHub Copilot, CLI or app, read [`references/copilot-tools.md`](references/copilot-tools.md) instead. Other runtimes have their own.";
+    const result = injectMappingPointer(input);
+    assert.equal(result.changed, true);
+    assert.equal(
+      result.text,
+      "On GitHub Copilot, CLI or app, read [`references/copilot-tools.md`](references/copilot-tools.md) instead. On opencode, read [`references/opencode-tools.md`](references/opencode-tools.md) instead. Other runtimes have their own.",
+    );
+  });
+
+  it("leaves a document that already names the opencode mapping unchanged", () => {
+    const input = `# How\n\n${codex}\n\n${copilot}\n\n${opencode}\n`;
+    assert.deepEqual(injectMappingPointer(input), { text: input, changed: false });
+  });
+
+  it("leaves a document with no platform paragraph unchanged", () => {
+    const input = "# Setup\n\nRun the installer.\n";
+    assert.deepEqual(injectMappingPointer(input), { text: input, changed: false });
   });
 });
 

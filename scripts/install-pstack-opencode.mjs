@@ -19,20 +19,31 @@
  *          `shell`, `Agent` -> `subagent`, `Skill` -> `skill`, ...
  *        - dispatch field names, as bare words: `subagent_type` -> `agent`,
  *          `run_in_background` -> `background`, `AskUserQuestion` -> `question`.
- *   3. Anything with no 1:1 opencode equivalent stays upstream-faithful and is
+ *        - pstack's Claude plugin namespace, which opencode does not have: a
+ *          skill id becomes the bare installed directory name (`pstack:arena` ->
+ *          `arena`), while the two agent ids keep the `pstack-` prefix their
+ *          installed files carry (`pstack:poteto-agent` -> `pstack-poteto-agent`).
+ *          The Claude-only effort ids have no opencode equivalent and lose just
+ *          the namespace (`pstack:effort-<level>` -> `effort-<level>`).
+ *   3. The platform-mapping pointer, applied to the installed *.md: a skill that
+ *      names another runtime's mapping gains an opencode paragraph pointing at
+ *      the generated file, and poteto-mode's inline sentence gains the same
+ *      clause. Injected after the swaps, so the pointer is never itself swapped.
+ *   4. Anything with no 1:1 opencode equivalent stays upstream-faithful and is
  *      documented in the generated `opencode-tools.md`, exactly as the repo
  *      already does for Codex, Pi, and GitHub Copilot: Claude model families
- *      (`opus`/`fable`/`sonnet`/`haiku`), `pstack:*` agent ids, reasoning
- *      effort, and `~/.claude/...` paths (notably the transcript layout under
- *      `~/.claude/projects/`, which opencode does not share).
- *   4. Subagents: pstack's two real agents (`poteto-agent`, `comment-sicko`) are
+ *      (`opus`/`fable`/`sonnet`/`haiku`), reasoning effort, the built-in
+ *      `general-purpose` agent id, and `~/.claude/...` paths (notably the
+ *      transcript layout under `~/.claude/projects/`, which opencode does not
+ *      share).
+ *   5. Subagents: pstack's two real agents (`poteto-agent`, `comment-sicko`) are
  *      installed as `agents/pstack-<name>.md` with `mode: subagent` and no pinned
  *      model, so each inherits the parent session's model or takes one per
  *      `subagent` call. `comment-sicko` additionally denies `edit`, matching its
  *      report-only prompt. The ten `effort-agents/` are NOT installed: they exist
  *      only because a Claude Code dispatch cannot carry an effort, which opencode
  *      expresses as a model variant (`opencode/<model>#<variant>`) instead.
- *   5. Session hook: opencode has no SessionStart hook, and no file or config
+ *   6. Session hook: opencode has no SessionStart hook, and no file or config
  *      equivalent, so this is the one part of the install that must be code. The
  *      installer copies `opencode-pstack-plugin.ts` (shipped beside this script)
  *      to `<config dir>/plugins/pstack.ts`. Its `context` hook appends pstack's
@@ -48,7 +59,8 @@
  *
  * The mapping files the repo ships for the OTHER runtimes (codex-tools.md,
  * pi-tools.md, copilot-tools.md, setup-pstack/copilot.md) are copied verbatim
- * and exempt from the inline swaps, because they document those runtimes.
+ * and exempt from both the inline swaps and the pointer, because they document
+ * those runtimes.
  *
  * Usage:
  *   node scripts/install-pstack-opencode.mjs
@@ -339,6 +351,21 @@ const TOOL_SWAPS = [
   ["Skill", "skill"],
 ];
 
+/**
+ * pstack's Claude Code plugin namespace, which opencode does not have.
+ *
+ * The two real agents keep the `pstack-` prefix their installed files carry, so a
+ * dispatch still names a real agent. Every other `pstack:<id>` is a skill, and an
+ * opencode skill id is the bare installed directory name. Add an entry here if
+ * pstack ever ships a third agent.
+ *
+ * @type {ReadonlyArray<readonly [string, string]>}
+ */
+const NAMESPACE_AGENT_SWAPS = [
+  ["pstack:poteto-agent", "pstack-poteto-agent"],
+  ["pstack:comment-sicko", "pstack-comment-sicko"],
+];
+
 /** Dispatch field names, unique compound tokens, swapped as bare words.
  * @type {ReadonlyArray<readonly [string, string]>} */
 const FIELD_SWAPS = [
@@ -358,8 +385,8 @@ const GRAMMAR_FIXES = [
  * Apply the safe inline swaps to a markdown document.
  *
  * Tool names are only swapped between backticks, because the bare words also
- * occur as ordinary English ("Read the file"). Field names are unique compound
- * tokens and are safe to swap bare.
+ * occur as ordinary English ("Read the file"). Field names and namespace ids are
+ * unique tokens and are safe to swap in any position.
  *
  * @param {string} text Markdown source.
  * @returns {{ text: string, count: number }} Rewritten source and swaps applied.
@@ -367,6 +394,24 @@ const GRAMMAR_FIXES = [
 export function applyInlineSwaps(text) {
   let out = text;
   let count = 0;
+
+  // Agent ids first, and only as whole ids: the skill rule below would otherwise
+  // shorten them to a name that does not exist, and the trailing boundary keeps
+  // `pstack:poteto-agent` from swallowing the Claude-only
+  // `pstack:poteto-agent-<level>` effort id, which has no opencode equivalent.
+  for (const [from, to] of NAMESPACE_AGENT_SWAPS) {
+    out = out.replace(new RegExp(`${from}(?![\\w-])`, "g"), () => {
+      count += 1;
+      return to;
+    });
+  }
+
+  // A skill id becomes its bare installed directory name. Requiring an identifier
+  // leaves prose that merely ends in "pstack:" alone.
+  out = out.replace(/pstack:([A-Za-z0-9_-]+)/g, (_match, id) => {
+    count += 1;
+    return id;
+  });
 
   for (const [from, to] of TOOL_SWAPS) {
     out = out.replaceAll(`\`${from}\``, () => {
@@ -515,7 +560,7 @@ export function adaptAgent(text, agentName = "") {
 
 const MAPPING_MD = `# opencode tool mapping for pstack
 
-pstack skills are written in Claude Code tool language (the \`Skill\` tool, the \`Agent\` tool, \`AskUserQuestion\`, Claude model names, \`~/.claude/\` paths). This install applies the 1:1 renames inline, so a skill body already says \`read\`, \`shell\`, \`subagent\`, \`question\`, \`agent\`, and \`background\`. Read this file for everything that has no 1:1 opencode equivalent: models, \`pstack:*\` agent ids, reasoning effort, and paths. This file is opencode-specific.
+pstack skills are written in Claude Code tool language (the \`Skill\` tool, the \`Agent\` tool, \`AskUserQuestion\`, Claude model names, \`~/.claude/\` paths). This install applies the 1:1 renames inline, so a skill body already says \`read\`, \`shell\`, \`subagent\`, \`question\`, \`agent\`, and \`background\`, and it already names the opencode agent ids. Read this file for everything that has no 1:1 opencode equivalent: models, reasoning effort, the built-in agent ids, and paths. This file is opencode-specific.
 
 ## What was renamed inline
 
@@ -530,16 +575,17 @@ pstack skills are written in Claude Code tool language (the \`Skill\` tool, the 
 | \`AskUserQuestion\` | \`question\` |
 | \`subagent_type\` | \`agent\` |
 | \`run_in_background\` | \`background\` |
+| \`pstack:<skill>\` | the bare skill id: \`pstack:arena\` → \`arena\` |
+| \`pstack:poteto-agent\` / \`pstack:comment-sicko\` | \`pstack-poteto-agent\` / \`pstack-comment-sicko\` (the ids of the bundled subagents) |
 
 ## Subagent policy
 
 The single biggest difference. opencode's \`subagent\` takes an agent id, and a model is pinned per agent file under \`~/.config/opencode/agents/\`, not passed per call.
 
-- \`subagent_type: "pstack:poteto-agent"\` → the **\`pstack-poteto-agent\`** subagent installed alongside these skills. Its system prompt is pstack's own, and it reads the \`poteto-mode\` skill in full before working, which a generic agent would not.
-- \`subagent_type: "pstack:comment-sicko"\` → the **\`pstack-comment-sicko\`** subagent installed alongside these skills.
-- \`subagent_type: "general-purpose"\` → the built-in \`general\`.
-- \`subagent_type: "pstack:effort-<level>"\` and \`"pstack:poteto-agent-<level>"\` are **not installed**. pstack generates those in Claude Code only because a dispatch there cannot carry an effort. opencode carries effort as a model variant (\`opencode/<model>#high\`), so pick the variant rather than an effort agent.
-- \`subagent_type\` has already been renamed to \`agent\` inline. The values above are still Claude values and need this mapping.
+- The two bundled agents are already named in the skill bodies. \`agent: "pstack-poteto-agent"\` is the **\`pstack-poteto-agent\`** subagent installed alongside these skills; its system prompt is pstack's own, and it reads the \`poteto-mode\` skill in full before working, which a generic agent would not. \`agent: "pstack-comment-sicko"\` is **\`pstack-comment-sicko\`**.
+- \`agent: "general-purpose"\` → the built-in \`general\`. This is the one value the inline swaps left as a Claude value, because it has no 1:1 opencode equivalent.
+- The effort ids, \`pstack:effort-<level>\` and \`pstack:poteto-agent-<level>\`, are **not installed**. The inline namespace swap leaves them as \`effort-<level>\` and \`poteto-agent-<level>\`, and neither names a subagent here. pstack generates those two families in Claude Code only because a dispatch there cannot carry an effort. opencode carries effort as a model variant (\`opencode/<model>#high\`), so pick the variant rather than an effort agent.
+- \`subagent_type\` itself has already been renamed to \`agent\` inline. So have the two agent ids. \`general-purpose\` is the only value left to translate.
 
 ### Bundled subagents
 
@@ -596,6 +642,48 @@ Claude Code keeps one directory per project under \`~/.claude/projects/<encoded-
 | \`worktree-cleanup\` | The cleanup targets name \`~/.claude/\` caches; substitute this session's actual cache locations and leave unrelated tools' data alone. |
 | \`create-verification-skill\`, \`maintain-verification-skill\` | Runtime-neutral; drive the app through \`shell\`. |
 `;
+
+/** Where pstack tells a reader on another runtime which mapping to read. */
+const COPILOT_MAPPING_PARAGRAPH =
+  "On GitHub Copilot, read the [platform mapping](../poteto-mode/references/copilot-tools.md), including its per-skill notes, before following this skill.";
+const CODEX_MAPPING_PARAGRAPH =
+  "On Codex, read the [platform mapping](../poteto-mode/references/codex-tools.md), including its per-skill notes, before following this skill.";
+const OPENCODE_MAPPING_PARAGRAPH =
+  "On opencode, read the [platform mapping](../poteto-mode/references/opencode-tools.md), including its per-skill notes, before following this skill.";
+
+/** poteto-mode states the same pointer inline, inside a longer paragraph. */
+const COPILOT_MAPPING_INLINE = "](references/copilot-tools.md) instead.";
+const OPENCODE_MAPPING_INLINE =
+  "](references/copilot-tools.md) instead. On opencode, read [`references/opencode-tools.md`](references/opencode-tools.md) instead.";
+
+/**
+ * Add the opencode mapping pointer to one skill document.
+ *
+ * The Copilot paragraph is preferred as the anchor: it is the last of the
+ * runtime paragraphs, and it is present wherever the Codex one is. poteto-mode
+ * words the same pointer inline instead, so it has its own anchor.
+ *
+ * Idempotent: a document that already names `opencode-tools.md` is returned
+ * unchanged, so re-running the installer never stacks pointers.
+ *
+ * @param {string} text Markdown source.
+ * @returns {{ text: string, changed: boolean }} Rewritten source, and whether it changed.
+ */
+export function injectMappingPointer(text) {
+  if (text.includes("opencode-tools.md")) return { text, changed: false };
+
+  for (const anchor of [COPILOT_MAPPING_PARAGRAPH, CODEX_MAPPING_PARAGRAPH]) {
+    if (text.includes(anchor)) {
+      return { text: text.replace(anchor, `${anchor}\n\n${OPENCODE_MAPPING_PARAGRAPH}`), changed: true };
+    }
+  }
+
+  if (text.includes(COPILOT_MAPPING_INLINE)) {
+    return { text: text.replace(COPILOT_MAPPING_INLINE, OPENCODE_MAPPING_INLINE), changed: true };
+  }
+
+  return { text, changed: false };
+}
 
 // ---------------------------------------------------------------------------
 // Manifest
@@ -867,34 +955,55 @@ function stepGenerateMapping() {
 }
 
 /**
- * Point poteto-mode's Platform Adaptation paragraph at the opencode mapping.
+ * Point every installed skill that names another runtime's mapping at the
+ * opencode mapping too.
  *
- * @returns {boolean} True when the pointer is present.
+ * Runs after the copy and the inline swaps, so the sentence it adds reaches the
+ * reader exactly as written. A document with no such paragraph, and a runtime's
+ * own mapping document, are left alone.
+ *
+ * @param {readonly string[]} skills Installed skill directory names.
+ * @returns {number} How many documents gained the pointer.
  */
-function stepInjectPointer() {
-  const skillPath = join(SKILLS_DEST, "poteto-mode", "SKILL.md");
-  const readPath = dryRun ? join(SKILLS_SRC, "poteto-mode", "SKILL.md") : skillPath;
-  if (!existsSync(readPath)) return false;
+function stepInjectPointer(skills) {
+  log("\n7. Adding the opencode mapping pointer");
 
-  const text = readFileSync(readPath, "utf8");
-  if (text.includes("opencode-tools.md")) {
-    log("7. Platform Adaptation already references opencode-tools.md");
-    return true;
+  let changed = 0;
+  let present = 0;
+  for (const skill of skills) {
+    // In a dry run nothing was copied, so read the source tree instead.
+    const root = join(dryRun ? SKILLS_SRC : SKILLS_DEST, skill);
+    if (!existsSync(root)) continue;
+
+    for (const relPath of listMarkdown(root)) {
+      const name = relPath.split(/[\\/]/).pop() ?? relPath;
+      if (isRuntimeSpecificDoc(name)) continue;
+
+      const text = readFileSync(join(root, relPath), "utf8");
+      const pointer = injectMappingPointer(text);
+      if (!pointer.changed) {
+        if (text.includes("opencode-tools.md")) present += 1;
+        continue;
+      }
+
+      if (!dryRun) writeFileSync(join(SKILLS_DEST, skill, relPath), pointer.text);
+      changed += 1;
+    }
   }
 
-  const anchor = "](references/copilot-tools.md) instead.";
-  if (!text.includes(anchor)) {
-    warn("could not find the Platform Adaptation anchor in poteto-mode/SKILL.md");
-    return false;
+  log(
+    `   ${dryRun ? "[dry-run] would add " : "added "}the opencode pointer to ${changed} file(s)` +
+      `, ${present} already carried it`,
+  );
+
+  // Every path to the mapping is a text match on pstack's own wording. If neither
+  // an addition nor an existing pointer was found, the anchor has drifted and the
+  // mapping is unreachable, which is silent otherwise.
+  if (changed === 0 && present === 0) {
+    warn("no skill carried a platform-mapping pointer; the anchor text may have changed upstream");
   }
 
-  const pointer =
-    "](references/copilot-tools.md) instead. On opencode, read " +
-    "[`references/opencode-tools.md`](references/opencode-tools.md) instead.";
-
-  if (!dryRun) writeFileSync(skillPath, text.replace(anchor, pointer));
-  log(`7. ${dryRun ? "[dry-run] would add " : "added "}the opencode pointer to poteto-mode/SKILL.md`);
-  return true;
+  return changed;
 }
 
 /**
@@ -1030,7 +1139,7 @@ function main() {
   const agents = stepInstallAgents(manifest);
   const plugin = stepInstallPlugin(manifest);
   stepGenerateMapping();
-  stepInjectPointer();
+  stepInjectPointer(skills);
   stepWriteManifest(skills, agents, plugin);
 
   if (cleanCache) stepCleanCache();
