@@ -20,6 +20,9 @@ unpacked copy loaded at launch.
 
 ## Driving it with control-angular-devtools
 
+Preconditions: none for `status`; a test `install` needs no browser running, a branded one needs Lars at the
+browser to click the store button. A test `uninstall` refuses while `up` runs (`down` first).
+
 ```bash
 node $S install                          # test copy from Edge Dev (read only)
 node $S status --browser=chrome-beta     # read only, any branded browser

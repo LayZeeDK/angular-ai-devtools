@@ -17,7 +17,7 @@ What a developer does with Angular DevTools, and how `control-angular-devtools` 
 - Panel: `control.mjs panel ...` and `coexist` (raw CDP into `chrome-extension://<id>/index.html`).
 - Wait on an observable end state (a message topic, a DOM text change, a CDP target), never a sleep.
 
-## Proof rules
+## Proof and skip reporting
 
 - Drive what a developer does: open the Angular tab, select a component, open the signal graph, record a
   profile. Do not call the backend message bus directly in place of the panel.

@@ -19,6 +19,8 @@ supported development build.
 
 ## Driving it with control-angular-devtools
 
+Preconditions: the test harness is up on a development build (`doctor` exits 0).
+
 ```bash
 node $S attach
 ```

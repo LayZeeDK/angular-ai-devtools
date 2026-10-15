@@ -16,6 +16,9 @@ F12 -> Angular tab -> Components -> click `app-counter` -> "Show Signal Graph".
 
 ## Driving it with control-angular-devtools
 
+Preconditions: the test harness is up on the counter fixture (`doctor` exits 0); `--di-graph` last, since it
+breaks the page's signal graph until reload.
+
 ```bash
 node $S panel signal-graph --component=app-counter
 node $S panel screenshot

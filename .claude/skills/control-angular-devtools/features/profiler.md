@@ -14,6 +14,8 @@ F12 -> Angular tab -> Profiler -> record button -> use the app -> stop.
 
 ## Driving it with control-angular-devtools
 
+Preconditions: the test harness is up on the counter fixture (`doctor` exits 0).
+
 ```bash
 node $S coexist
 ```
