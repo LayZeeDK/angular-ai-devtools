@@ -398,16 +398,21 @@ async function doctor() {
       // [vite] entries are runtime noise (proxy errors, the browser console forwarded as "(client)"); console-errors
       // covers the page. A proxy error carries its Error and stack on the following lines (measured: "Error: read
       // ECONNRESET" or "AggregateError [ECONNREFUSED]:" + "    at ..." around a Pangular server's stop or start), so
-      // those belong to the [vite] entry.
+      // those belong to the [vite] entry. A forwarded client console error spans many lines (NG0500 prints the
+      // expected and actual DOM, then "Find more at .../NG0500"), so a [vite] entry runs until a line that starts a
+      // new entry: a build error, a timestamped or [tag]-prefixed line, or a builder status line.
+      const entryStart = /\[ERROR\]|error TS\d+|^\[\w+\]|^\d\d\.\d\d\.\d\d |^[❯✔✘]|^Application bundle/;
       let inVite = false;
-      const errLines = log.split(/\r?\n/).filter((l) => {
+      const errLines = log.split(/\r?\n/).filter((raw) => {
+        const l = raw.replace(/\x1b\[[0-9;]*m/g, '');
+
         if (l.includes('[vite]')) {
           inVite = true;
 
           return false;
         }
 
-        if (inVite && /^(\w*Error\b|\s+at )/.test(l)) {
+        if (inVite && !entryStart.test(l)) {
           return false;
         }
 

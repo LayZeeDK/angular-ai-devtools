@@ -63,9 +63,10 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs doctor [--target
 Answers "is this instance worth driving?". One line per check:
 
 - `process-alive:<name>`, `port-owned:<name>` (the listening PID is in the recorded process tree),
-  `build-log:<name>` (no `[ERROR]`, `error TS`, `NGxxxx` lines; `[vite]` runtime entries such as proxy errors,
-  with the `Error: read ECONNRESET` and `at ...` lines that follow them, and the browser console forwarded as
-  `(client)` are ignored, `console-errors` covers those). Skipped with `--url`.
+  `build-log:<name>` (no `[ERROR]`, `error TS`, `NGxxxx` lines; a `[vite]` runtime entry is ignored up to the
+  next entry: proxy errors with their `Error: read ECONNRESET` and `at ...` lines, and the browser console
+  forwarded as `(client)`, including the multi-line NG0500 that `ssr-check.js` provokes on `?mismatch=1`;
+  `console-errors` covers those). Skipped with `--url`.
 - `pangular-auth` (portal, only when the Pangular overlay asks): with a Pangular server behind `/__pangular`
   the overlay opens a `prompt` for a one-time code that blocks every playwright-cli command. Doctor reads the
   code from control-pangular-inspector's `pangular.log` (via its state file `pangular-9999.json`) and enters it;
