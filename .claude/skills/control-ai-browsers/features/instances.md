@@ -15,7 +15,8 @@ Each on-device model has its own browser instance: a separate browser process wi
 ## How to get to it (user POV)
 
 - The browser's own command line, visible on `chrome://version` / `edge://version` under the command line row.
-- The profile folders in `D:\projects\sandbox\angular-ai-devtools\.browsers\` (git-ignored).
+- The profile folders in `.browsers\` at the root of the checkout that holds the skill (git-ignored); a
+  worktree gets its own, empty until its first `launch`.
 - `http://127.0.0.1:<port>/json/version` and `/json/list` for the CDP endpoint and its tabs.
 
 ## Driving it with control-ai-browsers

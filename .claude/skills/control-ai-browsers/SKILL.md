@@ -206,7 +206,9 @@ Measured 2026-10-11/12 unless marked inferred.
 - The Nano instance's stored performance class is 2 (VeryLow) and Gemma 4's is 3, on the same GPU; inferred: the
   class was measured while another session loaded the machine. Latency is comparable only at the same backend and
   similar CPU load, which is why `bench` records both.
-- Edge restores the last session's tabs on start; `launch` closes them.
+- Edge restores the last session's tabs on start; `launch` closes them. A new Edge profile opens first-run tabs
+  after that (a welcome extension page, `edge://sync-confirmation-dialog/`), so the first doctor reports `tabs`
+  `[WARN]` (measured on new `edge-dev-aion` and `edge-phi4mini` profiles, 2026-10-15).
 - A hung tab renderer blocks every `run-code` on that session, even `async page => 1+1` (edge-phi4mini, whose only
   tab was an `example.com` page left by an older probe). The browser itself still answers CDP. Recovery without a
   restart: `curl -X PUT "http://127.0.0.1:<port>/json/new?about:blank"`, then `curl http://127.0.0.1:<port>/json/close/<id>`

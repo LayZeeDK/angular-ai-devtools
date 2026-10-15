@@ -58,7 +58,8 @@ Preconditions: the README baseline; Broker State "Enough disk space to install" 
   (2026-10-11) it did not stop the download. Leave the Nano folders in that profile; clearing them frees space only until Chrome fetches
   Nano again.
 - Downloads need 20,480 MiB free on D: (Broker State); below it `availability()` still says `downloadable` or
-  `downloading` while nothing downloads.
+  `downloading` while nothing downloads. `model download` refuses earlier: free space minus the model's
+  `downloadMib` must stay above the browser minimum in `instances.json` (Chrome 22,528 MiB, Edge 20,480 MiB).
 - A fresh Edge profile waits at "Foreground Installing 0%" until "Check for update" is pressed for both model
   components; `model download` does that.
 - Forcing CPU on Edge uninstalls the model; `launch --backend=cpu` is refused on Edge instances.
