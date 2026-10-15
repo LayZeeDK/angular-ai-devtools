@@ -13,7 +13,7 @@ Skip it for production builds (no `window.ng`, the overlay import is compiled ou
 browsers: never `--cdp` or `--extension`, never the sessions `cb`, `ed`, `nano`, `g4`, `aion`, `phi`, `ai-cb`,
 `ai-ed`, `ngdt`.
 
-Commands run from the repository root (`D:\projects\sandbox\angular-ai-devtools`).
+Commands run from the root of the checkout you drive (the main checkout or a worktree).
 `S=.claude/skills/control-pangular-inspector/scripts/control.mjs`. The app folder defaults to the Insurance
 Portal worktree `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools`; pass
 `--dir <path>` (or set `CONTROL_PANGULAR_DIR`) for another app.

@@ -37,6 +37,7 @@ changes; no server from this skill running (`remove` changes files a running dev
 
 - `install` reads the first Nx app under `apps/` with an `@angular/build:dev-server` serve target; pass
   `--project` in a workspace with several.
-- The `main.ts` edit needs the form `bootstrapApplication(...).catch(`; anything else exits 2 and the snippet
-  in SKILL.md goes in by hand.
+- The `main.ts` edit needs the form `bootstrapApplication(...).catch(`; anything else exits 2 and the overlay
+  import goes in by hand, in the dev-guarded form SKILL.md Launch step 1 describes. npm has already
+  pinned the package by then, so `package.json` and the lockfile are changed.
 - npm 11 rewrites this lockfile on any install; see SKILL.md Gotchas.
