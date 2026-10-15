@@ -152,7 +152,7 @@ running, each on one blank tab; `stop` is for a relaunch, a clear, or a proof. N
 | Command | Does | Exit |
 |---|---|---|
 | `instances` | registry plus live state: PID, backend, drift, tabs, state file | 0 |
-| `launch <name> [--backend=gpu\|cpu]` | start (profile created on first use), wait for `/json/version`, one blank tab, write state | 0 / 2 |
+| `launch <name> [--backend=gpu\|cpu]`, alias `up` | start (profile created on first use), wait for `/json/version`, one blank tab, write state | 0 / 2 |
 | `attach <name>` | write state, attach `ai-<name>` and leave it attached | 0 / 2 |
 | `detach <name>` | detach `ai-<name>` | 0 |
 | `doctor <name>` | the checks above | 0 / 1 / 2 |
@@ -163,7 +163,7 @@ running, each on one blank tab; `stop` is for a relaunch, a clear, or a proof. N
 | `model clear <name> --confirm=<model>` | instance must be stopped; deletes every folder whose `manifest.json` names `<model>`; reports bytes removed and free space | 0 / 1 / 2 |
 | `run <name> <file.js>` | run `async page => {...}` in a new tab | 0 / 2 |
 | `bench [names...]` | `bench.js` per instance with backend, performance class and CPU load | 0 / 1 / 2 |
-| `stop <name>` | CDP `Browser.close`, confirm the processes and the port are gone | 0 / 1 / 2 |
+| `stop <name>`, alias `down` | CDP `Browser.close`, confirm the processes and the port are gone | 0 / 1 / 2 |
 | `info <name>` | port, CDP URL, session, profile, state file, evidence dir | 0 |
 
 Exit codes: 0 done or healthy; 1 not healthy or the change did not take; 2 refused or could not run, with the

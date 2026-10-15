@@ -987,6 +987,7 @@ async function cmdInfo(inst) {
 const COMMANDS = {
   instances: () => cmdInstances(),
   launch: (i) => cmdLaunch(i),
+  up: (i) => cmdLaunch(i),
   attach: (i) => cmdAttach(i),
   detach: (i) => cmdDetach(i),
   doctor: (i) => cmdDoctor(i),
@@ -994,6 +995,7 @@ const COMMANDS = {
   model: (i, sub) => cmdModel(i, sub),
   run: (i) => cmdRun(i),
   stop: (i) => cmdStop(i),
+  down: (i) => cmdStop(i),
   bench: () => cmdBench(),
   info: (i) => cmdInfo(i),
 };
