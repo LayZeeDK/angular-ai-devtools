@@ -41,8 +41,8 @@ worktree) and API port 3000, both owned by `control-angular-dev-app`.
 1. Install once (idempotent): `node $S install`; the npm install step takes most of its time.
    - `npm install --save-dev --save-exact @pangular-inspector/devtools@0.0.7` (devDependency: it only runs
      in development builds). `devframe` is not added: the package depends on it and npm hoists it
-     (`npm ls devframe` shows 1.2.3). The docs add it in every install command because pnpm and similar
-     managers resolve only direct dependencies; the portal imports `devframe` nowhere.
+     (`npm ls devframe` lists it under the package). The docs add it in every install command because pnpm
+     and similar managers resolve only direct dependencies; the portal imports `devframe` nowhere.
    - Puts back the 27 committed lockfile entries npm 11 drops from this checkout on any install, so the
      lockfile diff holds only the 31 entries Pangular adds.
    - `main.ts`: the overlay import after bootstrap, guarded by `typeof ngDevMode === 'undefined' || ngDevMode`

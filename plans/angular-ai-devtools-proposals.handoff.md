@@ -86,5 +86,5 @@ Research and design for an AI-assisted Angular DevTools browser extension (Chrom
 - **`control-ai-browsers` / `verify-ai-browsers`:** for any spike that needs a model (S14, S15, S20, S23, the tutor spikes).
 - **`control-angular-dev-app` with `lars-verify`:** for counter, SSR or portal spikes (S16, S17, S18).
 - **`control-vitest-browser-angular` with `lars-verify`:** for S20 to S23.
-- **`pstack:maintain-verification-skill`:** if a fixture or skill drifts.
+- **`lars-maintain-verification`:** if a fixture or skill drifts.
 - **`playwright-cli`:** for driving pages, as the skills do.
