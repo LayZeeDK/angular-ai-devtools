@@ -93,7 +93,7 @@ test('listeners maps each LISTENING port to its PID, IPv4 or IPv6, and nothing e
     '  TCP    127.0.0.1:9999         127.0.0.1:50000        ESTABLISHED     8',
     '  TCP    [::1]:9999             [::]:0                 LISTENING       4242',
   ].join('\r\n');
-  assert.deepEqual([...listeners(text)], [[19999, 7], [9999, 4242]]);
+  assert.deepEqual([...listeners(text)], [[19999, [7]], [9999, [4242]]]);
 });
 
 test('portRows pins the devtools port to the line of the app proxy that names it, and lists the app as external', (t) => {
@@ -128,8 +128,8 @@ test('portsCheck passes an owned devtools port, fails a missing or foreign one, 
     { name: 'pangular', port: 9999, kind: 'fixed', reason: 'apps/portal/proxy.conf.json:3' },
     { name: 'app', port: 4507, kind: 'external', reason: 'control-angular-dev-app' },
   ];
-  assert.deepEqual(portsCheck(ports, new Map([[9999, 10]]), new Set([10])), { status: 'pass', detail: 'pangular 9999 (fixed: apps/portal/proxy.conf.json:3), app 4507 (external: control-angular-dev-app)' });
-  assert.deepEqual(portsCheck(ports, new Map([[9999, 99]]), new Set([10])), { status: 'fail', detail: 'pangular 9999 held by PID 99, not the recorded tree' });
+  assert.deepEqual(portsCheck(ports, new Map([[9999, [10]]]), new Set([10])), { status: 'pass', detail: 'pangular 9999 (fixed: apps/portal/proxy.conf.json:3), app 4507 (external: control-angular-dev-app)' });
+  assert.deepEqual(portsCheck(ports, new Map([[9999, [10, 99]]]), new Set([10])), { status: 'fail', detail: 'pangular 9999 held by PID 99, not the recorded tree' });
   assert.deepEqual(portsCheck(ports, new Map(), new Set([10])), { status: 'fail', detail: 'pangular 9999 not listening' });
 });
 
