@@ -27,13 +27,14 @@ Preconditions: the README baseline; Broker State "Enough disk space to install" 
 
 - **Report.** Run `C model info chrome-beta-nano`. One `v3Nano` line per variant on disk (2025.8.8.1141 hints
   `[2,1]` is the GPU variant, 2025.8.21.1028 hints `[3]` the CPU variant), the asset `nano_v3_gpu_component`
-  `Ready`, `serving v3Nano; backend GPU (fastest inference) (requested gpu); performance class 2`.
+  `Ready`, `serving v3Nano; backend GPU (fastest inference) (requested gpu); performance class 3 (Broker State Low)` on
+  Chrome Beta 157 (it read class 2 on 156).
 - **Clear.** Run `C down chrome-beta-nano`, then `C model clear chrome-beta-nano --confirm=v3Nano`. Every folder
   whose manifest names `v3Nano` is deleted; the JSON holds `bytesRemoved` (4,269,934,855 for the GPU variant) and
   `diskAfter`.
 - **Download.** Run `C up chrome-beta-nano`, then `C model download chrome-beta-nano`. It logs the gesture
   (`click` or `Enter`), samples progress every 5 s, and ends with the duration and the folder added. Measured:
-  click, 180 s, 4,072 MiB (2026-10-12, D:). On Edge it first presses "Check for update" on the two model
+  click, 180 s, 4,072 MiB (2026-10-12, D:); click, 455 s, 4,072 MiB (2026-10-16). On Edge it first presses "Check for update" on the two model
   components.
 - **Initialise.** Run `C model init chrome-beta-nano`. First and second create, `contextWindow` 9,216, the answer
   to `Say hi in three words.`

@@ -1,6 +1,6 @@
 ---
 name: control-ai-browsers
-description: Launch, stop, doctor and drive the per-model browser instances for the built-in AI (Prompt API, Summarizer, Writer, Rewriter, WebMCP) - Chrome Beta 156 with Gemini Nano or Gemma 4, Edge Dev 157 with Aion-1.1-Instruct, Edge stable 155 with Phi-4-mini - each a separate browser process with its own D: profile, features and CDP port, through playwright-cli and raw CDP. Check the command line against the registry, the model on disk and in on-device-internals Broker State, the CPU or GPU backend and performance class, availability(), contextWindow, structured-output, tool-calling and WebMCP canaries; read the effective features; report, download, initialise and clear models; run a probe or the model benchmark with backend and CPU load recorded; capture JSON evidence. Use before trusting a built-in AI result, after a browser update, or to switch, clear or re-download a model.
+description: Launch, stop, doctor and drive the per-model browser instances for the built-in AI (Prompt API, Summarizer, Writer, Rewriter, WebMCP) - Chrome Beta 157 with Gemini Nano or Gemma 4, Edge Dev 157 with Aion-1.1-Instruct, Edge stable 155 with Phi-4-mini - each a separate browser process with its own D: profile, features and CDP port, through playwright-cli and raw CDP. Check the command line against the registry, the model on disk and in on-device-internals Broker State, the CPU or GPU backend and performance class, availability(), contextWindow, structured-output, tool-calling and WebMCP canaries; read the effective features; report, download, initialise and clear models; run a probe or the model benchmark with backend and CPU load recorded; capture JSON evidence. Use before trusting a built-in AI result, after a browser update, or to switch, clear or re-download a model.
 ---
 
 # control-ai-browsers
@@ -18,8 +18,8 @@ flipped and nothing restarts.
 
 | Instance | Browser | Port | Model (manifest name) | Default backend | `contextWindow` |
 |---|---|---|---|---|---|
-| `chrome-beta-nano` | Chrome Beta 156 | 9333 | `v3Nano` (GPU variant 2025.8.8.1141, CPU variant 2025.8.21.1028) | `gpu` | 9,216 |
-| `chrome-beta-gemma4` | Chrome Beta 156 | 9334 | `gemma4-2b-it` | `gpu` | 9,216 |
+| `chrome-beta-nano` | Chrome Beta 157 | 9333 | `v3Nano` (GPU variant 2025.8.8.1141, CPU variant 2025.8.21.1028) | `gpu` | 9,216 |
+| `chrome-beta-gemma4` | Chrome Beta 157 | 9334 | `gemma4-2b-it` | `gpu` | 9,216 |
 | `edge-dev-aion` | Edge Dev 157 | 9335 | `Aion-1.1-Instruct` | `gpu` (only) | 7,168 |
 | `edge-phi4mini` | Edge stable 155 | 9337 | `Phi-4-mini-instruct` | `gpu` (only) | 9,216 |
 
@@ -202,7 +202,7 @@ Measured 2026-10-11/12 unless marked inferred.
   tool canary is the real check. Nano answers tool prompts with `tool_code` text, so its tool canary is skipped.
 - Gemma 4 rejects every tool prompt when a tool has an empty `properties` (`UnknownError`); the canary tool has a
   required `scope` parameter. Results go back as `LanguageModelToolSuccess({callID, callId, name, result})`: the tool call reports
-  `callID` in both browsers, Chrome Beta 156 reads `callID` back, and Edge Dev 157.0.4329 requires `callId`
+  `callID` in both browsers, Chrome Beta 156 and 157 read `callID` back, and Edge Dev 157.0.4329 requires `callId`
   ("Required member is undefined" without it, measured 2026-10-15), so the canary sends both. Gemma 4 sends
   `callID: ""` (Aion sends a hex id).
 - Chrome downloads a model the profile has `Requested` without any page call: after `model clear` on a running
