@@ -1,73 +1,52 @@
 ---
 name: verify-angular-devtools
-description: Verify that the Angular DevTools extension is installed, enabled, attached to a dev-mode Angular app, shows the right Angular version, and coexists with an in-page AI extension (ng.ɵsetProfiler subscribers, the __NG_DEVTOOLS_CONNECTED__ flag, the signal graph pane, the angular:di_graph regression), and report one verdict with evidence. Covers Chrome, Chrome Beta, Edge and Edge Dev (install state from the profile) and the isolated Playwright Chromium test harness (full checks). Use after installing or updating Angular DevTools, before trusting it for a debugging session, or when a change to the AI extension could disturb it.
+description: Fixed proof checks for the Angular DevTools extension in control-angular-devtools' isolated Playwright Chromium test harness - the extension is loaded and enabled, it attaches to a dev-mode Angular app (connected flag, detection, backend, version), and an in-page AI extension's use of ng.ɵsetProfiler, the __NG_DEVTOOLS_CONNECTED__ flag and the signal graph coexists with it (the angular:di_graph regression recorded). Each check exits 0 pass, 1 claim failed, 2 could not run, for lars-verify to turn into a verdict. Use after installing or updating Angular DevTools, before trusting it for a debugging session, or when a change to the AI extension could disturb it.
 ---
 
 # verify-angular-devtools
 
-One command that proves Angular DevTools works against an app and says verified, not verified or
-inconclusive. It reuses `control-angular-devtools` (its `scripts/control.mjs` and feature map); read that
-skill for the commands this one runs and for install and uninstall.
+Proves claims about Angular DevTools in the test harness; it never launches or stops anything itself.
+`control-angular-devtools` launches, health-checks and drives the harness and the panel, and
+`control-angular-dev-app` serves the app: read those skills for every command, flag and gotcha.
 
-`V=.claude/skills/verify-angular-devtools/scripts/verify.mjs` below, run from the repository root.
+## Checks
 
-## Launch
+| Check | Claim | Feature file and sub-feature in `control-angular-devtools/features/` | Needs running |
+|---|---|---|---|
+| `extension-enabled` | `doctor`'s `extension` line passes: the copy is loaded `ENABLED` and its service worker runs. | `install.md` Status (test) | the harness (`up --app-url`) |
+| `attached` | `attach` passes: connected flag set, `detectAngular` reports Angular in debug mode, backend installed and ready. | `attach.md` Connected flag, Detection result, Backend injection (handshake and version saved, not judged) | the harness on a dev-mode app |
+| `coexist` | `coexist` reports the profiler part (two `ng.ɵsetProfiler` subscribers count while DevTools records, the removed one stops, DevTools recorded the cycles), the connected flag still `true`, and the pane's signal graph equal to `ng.ɵgetSignalGraph`. With `--di-graph` it runs `angular:di_graph` last and records whether the template node is lost, without judging it. | `profiler.md` Coexistence; `signal-graph.md` Agreement and the `angular:di_graph` regression; `attach.md` Connected flag | the harness on the counter fixture |
 
-1. Serve a development build of the app, for example the counter fixture:
-   `node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target counter --port 4317`.
-2. `node $V --app-url=http://localhost:4317/ [--di-graph]` runs, in the test harness:
-   `install`, `up`, `doctor`, `attach`, `coexist [--di-graph]`, `down`. Measured: 20-27 s end to end with `--di-graph` (26-27 s on 2026-10-11).
-3. Branded browser: `node $V --browser=chrome-beta` (or `chrome`, `edge`, `edge-dev`) checks the profile
-   only; nothing is launched. Proof runs never use `chrome` or `edge`.
+Each check's header comment holds its claim, the feature it covers, its usage and the files it writes.
 
-## Doctor
+## Run
 
-`node .claude/skills/control-angular-devtools/scripts/control.mjs doctor` while the harness is up (run
-`verify.mjs --keep` to leave it up): process, CDP port, extension enabled and version, development build,
-connected flag, DevTools window.
+Through `lars-verify` (`~/.claude/skills/lars-verify/references/contract.md`), with
+`D=.claude/skills/control-angular-devtools/scripts/control.mjs`,
+`A=.claude/skills/control-angular-dev-app/scripts/control.mjs`, and `APP` standing for the four arguments
+`"--target", "counter", "--port", "4317"`:
 
-## Drive
+- setup: `{ "argv": ["node", A, "up", APP, "--json"], "as": "app" }`,
+  `["node", D, "install", "--from", "tmp/control-angular-devtools/extension"]`, then
+  `{ "argv": ["node", D, "up", "--app-url", "{app.url}", "--json"], "as": "up" }`;
+- condition: `["node", ".claude/skills/verify-angular-devtools/checks/<id>.mjs", "--out", "{up.evidenceDir}"]`, plus
+  `"--di-graph"` for `coexist`;
+- teardown: `D info --json`, `D down`, `check-teardown.mjs {runDir}/steps/teardown-1.out --artifact <file>`, then
+  `A info APP --json`, `A down APP`, `check-teardown.mjs {runDir}/steps/teardown-4.out --artifact app.log`;
+- artifacts: `{up.evidenceDir}/<file>`, where `<file>` is `extension.json`, `attach.json` or
+  `coexist-result.json`.
 
-`verify.mjs` drives what a developer does: loads the page, opens the Angular tab, selects the component,
-opens the signal graph, records a profile while clicking the app. Recipes and handles are in
-`control-angular-devtools/features/` (`attach.md`, `signal-graph.md`, `profiler.md`, `install.md`);
-this skill's `features/README.md` maps each verdict check to them.
+`install --from` takes the harness copy already in the checkout; a bare `install` copies from Lars's Edge Dev
+profile, which a proof run never reads.
 
-## Evidence
-
-`tmp/verify-angular-devtools/<yyyymmdd-hhmmss.mmm>/` (git-ignored): `verdict.json` (browser, verdict, checks,
-every control step with its exit code and JSON result) and `control-evidence/` (copied from the control
-run: `coexist.json`, DevTools window screenshots before and after `angular:di_graph`). Rules: the real user
-path, before and after state, page-side values next to the panel, a second run before a pass after a fix
-counts, and every check not reached is listed under `notCovered`.
-
-## Cleanup
-
-`verify.mjs` runs `control.mjs down` itself (unless `--keep`): the browser it started is closed, its state
-and profile removed, evidence kept. Stop the app with the tool that started it
-(`control-angular-dev-app ... down --target counter --port 4317`).
-
-## Helpers
-
-`scripts/verify.mjs [--browser test|chrome|chrome-beta|edge|edge-dev] [--app-url <url>] [--di-graph] [--keep]`
-
-| Exit | Verdict |
-|---|---|
-| 0 | verified: extension loaded and enabled, attached, coexistence checks passed (branded: installed and enabled in the profile) |
-| 1 | not verified: a check failed; `verdict.json` names it |
-| 2 | inconclusive: a step could not run (no app, port in use, launch failed), `--app-url` missing, or a branded profile lists the extension with `disable_reasons` |
-
-Flags take `--flag value` or `--flag=value`; an unknown flag, a missing value or an unknown `--browser` exits 2
-before anything runs.
-
-`--di-graph` adds the `angular:di_graph` check. It reports `diGraphTemplateLostInPane`; `true` is the known
-Angular bug (`research/05-spikes.md`), not a verify failure.
+Standalone, against a harness started by hand:
+`node .claude/skills/verify-angular-devtools/checks/<id>.mjs --out <dir> [--di-graph]`.
 
 ## Gotchas
 
-- Branded browsers get the install check only. Enabled state comes from `disable_reasons` and `state` in the
-  profile (inferred meaning). Edge Dev read `[1,2]` while Lars had it off and `[]` after he re-enabled it;
-  `--browser=edge-dev` exits 0 as of 2026-10-11 (measured). Check `edge://extensions` before trusting it.
-- The harness is headed; it opens a window on Lars's desktop for about half a minute.
-- Run `verify.mjs` with no other `control-angular-devtools` flow up in the same checkout: `up` refuses
-  when a state file exists.
+- One harness per checkout: `up` refuses while a state file exists, so run the checks one at a time.
+- `coexist --di-graph` leaves the page's signal graph broken until reload; nothing may run after it on that page.
+  `templateLostInPane: true` is the known Angular bug (`research/05-spikes.md`), not a check failure.
+- The harness is headed; it opens a window on Lars's desktop for about half a minute per run.
+- Not covered: the branded browsers (Chrome, Chrome Beta, Edge, Edge Dev). `control.mjs status --browser <name>`
+  reads Lars's own profile, which proof runs never touch, so their install and enabled state has no check.

@@ -37,7 +37,7 @@ End state: test: `doctor` line `extension: Angular DevTools 1.22.0 ENABLED (UNPA
 
 ## Gotchas
 
-- Branded install, uninstall and reinstall are proven in Chrome Beta (2026-10-11, measured): install exit 0, uninstall exit 0 once Lars removed it, install exit 0, verify-angular-devtools's `verify.mjs --browser=chrome-beta` exit 0 (1.22.0). The first uninstall timed out (exit 1) because the poll window ran out before Lars clicked; rerun `uninstall` and it exits 0 at once if the entry is gone.
+- Branded install, uninstall and reinstall are proven in Chrome Beta (2026-10-11, measured): install exit 0, uninstall exit 0 once Lars removed it, install exit 0, `status --browser chrome-beta` installed and enabled (1.22.0). The first uninstall timed out (exit 1) because the poll window ran out before Lars clicked; rerun `uninstall` and it exits 0 at once if the entry is gone.
 - `chrome://` and `edge://` URLs passed on the command line open an empty window instead of the page (measured in Chrome Beta), which is why `uninstall` opens the store page.
 - Right after the click, the profile entry can exist before the manifest version is written; `install` then reads the version from the `<version>_0` folder name.
 - After Remove, Chrome may leave the version folder on disk for a while; `uninstall` treats the profile entry
