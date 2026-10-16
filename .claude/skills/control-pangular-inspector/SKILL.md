@@ -65,8 +65,8 @@ worktree) and API port 3000, both owned by `control-angular-dev-app`.
 
 - `map-fresh` (first): whether each feature file still matches the source it was proven against, from
   `scripts/fingerprint.mjs`; `[WARN]` names stale and unproven features and never changes the exit code. Every
-  feature here shows as unproven: they all depend on the portal, which lives outside this repository, and the
-  manifest records only files inside it.
+  feature here is recorded as external: they all depend on the portal, which lives outside this repository, so
+  no file in it can be hashed.
 - `package-pinned`: `package.json` declares exactly 0.0.7 and `node_modules` holds 0.0.7.
 - `overlay-import`: `main.ts` imports the overlay behind a dev guard.
 - `process-alive`, `port-owned`: the recorded PID runs with its recorded start time and holds 9999.
@@ -167,9 +167,10 @@ Every command that reads the app (`install`, `check`, `remove`, `doctor`) refuse
 `scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
 `features/.proven.json`: `node .claude/skills/control-pangular-inspector/scripts/fingerprint.mjs record --feature <id>
 --entries <path>...` records the repository files a feature depends on with their git blob hashes (exit 0 written or
-unchanged, 2 refused, for example an entry outside the repository); `... fingerprint.mjs check [--feature <id>]
-[--json]` prints `fresh`, `stale` or `unproven` per feature (exit 0 all fresh, 1 one stale or unproven, 2 could not
-run).
+unchanged, 2 refused, for example an entry outside the repository); `... record --feature <id> --external "<reason>"`
+records a feature whose source lives outside the repository; `... fingerprint.mjs check [--feature <id>] [--json]`
+prints `fresh`, `stale`, `unproven` or `external` per feature (exit 0 all fresh or external, 1 one stale or
+unproven, 2 could not run).
 
 Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
 `npm run check` type-checks the scripts.

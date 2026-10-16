@@ -19,6 +19,11 @@
         "spikes/ng222-app/tsconfig.json": "d2fbb9c2b057731ece0e7ac10ae3875caf0df324"
       }
     },
+    "install": {
+      "recordedAt": "2026-10-16T18:19:40.225Z",
+      "commit": "faa978feed4f67b54c217450bc00dbb59117ef8f",
+      "external": "test install copies the extension from Lars's Edge Dev profile and a branded install needs Lars's click in the store; neither is in this repository"
+    },
     "profiler": {
       "provenAt": "2026-10-16T13:13:06.972Z",
       "commit": "cef6fd94d7d38912c3a339fd5be8071eccb8fe49",

@@ -65,8 +65,8 @@ Answers "is this instance worth driving?". One line per check:
 
 - `map-fresh` (first): whether each feature file still matches the source it was proven against, from
   `scripts/fingerprint.mjs` and `features/.proven.json`. `[WARN]` names the stale and unproven features; it never
-  changes the exit code. The four portal features always show as unproven: the portal lives outside this
-  repository, and the manifest records only files inside it.
+  changes the exit code. The four portal features are recorded as external: the portal lives outside this
+  repository, so no file in it can be hashed.
 - `process-alive:<name>`, `port-owned:<name>` (the listening PID is in the recorded process tree),
   `build-log:<name>` (no `[ERROR]`, `error TS`, `NGxxxx` lines; a `[vite]` runtime entry is ignored up to the
   next entry: proxy errors with their `Error: read ECONNRESET` and `at ...` lines, and the browser console
@@ -182,10 +182,11 @@ evidence directory. A PID that no longer runs is noted, not refused. Never `play
 - `node .claude/skills/control-angular-dev-app/scripts/fingerprint.mjs record --feature <id> --entries <path>...`
   records the files feature `<id>` depends on (the TypeScript import closure of the repository-relative entries,
   plus templates and styles) with their git blob hashes. Without `--entries` it reuses the recorded ones. Exit 0
-  written or unchanged, 2 refused (an entry outside the repository, a missing feature file).
+  written or unchanged, 2 refused (an entry outside the repository, a missing feature file). With
+  `--external "<reason>"` in place of `--entries` it records a feature whose source lives outside the repository.
 - `node .claude/skills/control-angular-dev-app/scripts/fingerprint.mjs check [--feature <id>] [--json]` prints
-  `fresh`, `stale` (with the changed files) or `unproven` per feature. Exit 0 every feature fresh, 1 one is stale or
-  unproven, 2 could not run.
+  `fresh`, `stale` (with the changed files), `unproven` or `external` per feature. Exit 0 every feature fresh or
+  external, 1 one is stale or unproven, 2 could not run.
 
 Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
 `npm run check` type-checks the scripts.

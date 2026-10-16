@@ -184,7 +184,8 @@ failed to start).
   records the files feature `<id>` depends on (the TypeScript import closure of the repository-relative entries)
   with their git blob hashes; without `--entries` it reuses the recorded ones. Exit 0 written or unchanged, 2 refused.
 - `node .claude/skills/control-vitest-browser-angular/scripts/fingerprint.mjs check [--feature <id>] [--json]` prints
-  `fresh`, `stale` or `unproven` per feature. Exit 0 every feature fresh, 1 one is stale or unproven, 2 could not run.
+  `fresh`, `stale`, `unproven` or `external` per feature. Exit 0 every feature fresh or external, 1 one is stale or
+  unproven, 2 could not run.
 
 Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
 `npm run check` type-checks the scripts.

@@ -23,8 +23,8 @@
       }
     },
     "extension-in-tester": {
-      "provenAt": "2026-10-16T13:03:20.464Z",
-      "commit": "2850f4fb5268ecf601246ecb207cd1187442e40e",
+      "provenAt": "2026-10-16T18:19:38.505Z",
+      "commit": "faa978feed4f67b54c217450bc00dbb59117ef8f",
       "method": "typescript",
       "entries": [
         "spikes/ng222-app/src/app/counter.spec.ts",
@@ -36,13 +36,12 @@
         "spikes/ng222-app/src/app/counter.ts": "c2690d09d1c7c67319c587c11a9fed08ee41d63e",
         "spikes/ng222-app/tsconfig.json": "d2fbb9c2b057731ece0e7ac10ae3875caf0df324",
         "spikes/probes/vitest-attach.mjs": "6aa8554133a9b67744a276bd5d1234b283af657a",
-        "spikes/probes/vitest-lib.mjs": "447b8cea5aa4787c51f35dcc6e6431e1fea52b2e",
-        "tsconfig.json": "b6e86cb441f1aae627055d0cb22cd57cac0eb888"
+        "spikes/probes/vitest-lib.mjs": "447b8cea5aa4787c51f35dcc6e6431e1fea52b2e"
       }
     },
     "held-counter": {
-      "provenAt": "2026-10-16T13:03:19.952Z",
-      "commit": "2850f4fb5268ecf601246ecb207cd1187442e40e",
+      "provenAt": "2026-10-16T18:19:38.982Z",
+      "commit": "faa978feed4f67b54c217450bc00dbb59117ef8f",
       "method": "typescript",
       "entries": [
         "spikes/ng222-app/src/app/counter.spec.ts",
@@ -52,8 +51,7 @@
         "spikes/ng222-app/src/app/counter.spec.ts": "c9fc9caf5c1142247d78e2ee0b00fc2b89adb462",
         "spikes/ng222-app/src/app/counter.ts": "c2690d09d1c7c67319c587c11a9fed08ee41d63e",
         "spikes/ng222-app/tsconfig.json": "d2fbb9c2b057731ece0e7ac10ae3875caf0df324",
-        "spikes/probes/vitest-iframe-probe.js": "8d8a536c6c243a5dda5f42fbac1926cfbe0e8556",
-        "tsconfig.json": "b6e86cb441f1aae627055d0cb22cd57cac0eb888"
+        "spikes/probes/vitest-iframe-probe.js": "8d8a536c6c243a5dda5f42fbac1926cfbe0e8556"
       }
     }
   }

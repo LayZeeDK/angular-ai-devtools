@@ -178,8 +178,9 @@ instance for `clear`, missing `--confirm`, `--backend=cpu` on Edge, junctioned p
 `scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
 `features/.proven.json`: `node .claude/skills/control-ai-browsers/scripts/fingerprint.mjs record --feature <id>
 --entries <path>...` records the repository files a feature depends on with their git blob hashes (exit 0 written or
-unchanged, 2 refused); `... fingerprint.mjs check [--feature <id>] [--json]` prints `fresh`, `stale` or `unproven` per
-feature (exit 0 all fresh, 1 one stale or unproven, 2 could not run).
+unchanged, 2 refused); `... record --feature <id> --external "<reason>"` records a feature whose source lives
+outside the repository; `... fingerprint.mjs check [--feature <id>] [--json]` prints `fresh`, `stale`, `unproven` or
+`external` per feature (exit 0 all fresh or external, 1 one stale or unproven, 2 could not run).
 
 Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
 `npm run check` type-checks the scripts.
