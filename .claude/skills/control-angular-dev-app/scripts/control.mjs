@@ -486,12 +486,13 @@ export function timeoutMsOf(args, defaultSeconds) {
 }
 
 /**
- * The page URL a playwright-cli snapshot reports (`- Page URL: <url>`), or null.
- * @param {string} snapshot
+ * The current tab's URL in playwright-cli `tab-list` output (`- 0: (current) [<title>](<url>)`), or null. tab-list
+ * answers while a prompt is open; snapshot then refuses and names no URL (measured 2026-10-17).
+ * @param {string} tabList
  * @returns {string | null}
  */
-export function pageUrlIn(snapshot) {
-  return snapshot.match(/^- Page URL: (\S+)/m)?.[1] ?? null;
+export function currentTabUrl(tabList) {
+  return tabList.match(/^- \d+: \(current\) \[.*\]\((\S+)\)\s*$/m)?.[1] ?? null;
 }
 
 /**
@@ -1108,15 +1109,15 @@ async function doctor() {
   const pw = (args) => {
     let res = playwrightCli([`-s=${s}`, ...args]);
 
-    // Only run-code and eval errors omit the dialog text; snapshot names it (measured), and the page URL.
+    // Only run-code and eval errors omit the dialog text; tab-list names it and the current tab's URL (measured).
     for (let i = 0; i < 3 && /modal state/i.test(res.stdout + res.stderr); i++) {
-      const snapshot = playwrightCli([`-s=${s}`, 'snapshot']).stdout;
+      const tabs = playwrightCli([`-s=${s}`, 'tab-list']).stdout;
 
-      if (!/authentication code/i.test(snapshot)) {
+      if (!/authentication code/i.test(tabs)) {
         break;
       }
 
-      const pageUrl = pageUrlIn(snapshot);
+      const pageUrl = currentTabUrl(tabs);
       const otp = pangular.log && existsSync(pangular.log) ? authCodeIn(readFileSync(pangular.log, 'utf8')) : null;
       const reply = playwrightCli([`-s=${s}`, ...authReply(state.target, otp, pageUrl, state.url)]);
 

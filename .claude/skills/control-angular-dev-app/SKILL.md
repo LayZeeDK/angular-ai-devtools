@@ -105,8 +105,9 @@ Answers "is this instance worth driving?". One line per check:
   `console-errors` covers those). Skipped with `--url`.
 - `pangular-auth` (only when a code prompt blocks the session): with a Pangular server behind `/__pangular`
   the overlay opens a `prompt` for a one-time code that blocks every playwright-cli command. For the portal,
-  when the snapshot's page URL has the run's origin, doctor reads the code from control-pangular-inspector's
-  `pangular.log` (via its state file `pangular-9999.json`) and enters it; with no such state file it dismisses
+  when the current tab's URL (from `tab-list`, which answers while the prompt is open) has the run's origin,
+  doctor reads the code from control-pangular-inspector's `pangular.log` (via its state file
+  `pangular-9999.json`) and enters it; with no such state file it dismisses
   the prompt and warns, and a failed `dialog-accept` warns with its error (the code itself is never printed).
   Any other page (another origin, another target, or an `--url` attach) never gets the code: its prompt is
   dismissed with a warning.

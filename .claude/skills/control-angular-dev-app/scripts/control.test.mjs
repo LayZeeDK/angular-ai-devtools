@@ -6,7 +6,7 @@ import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, cdMode, checkLine, consoleErrors, descendants, flagIn, flowIdFor, isWorktree, listeners, markerCheck, orphansOf, pageUrlIn, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder, takenBy, timeoutMsOf, urlPort } from './control.mjs';
+import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, cdMode, checkLine, consoleErrors, currentTabUrl, descendants, flagIn, flowIdFor, isWorktree, listeners, markerCheck, orphansOf, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder, takenBy, timeoutMsOf, urlPort } from './control.mjs';
 
 /**
  * A throwaway listener on a port the OS picks; closed after the test.
@@ -314,9 +314,11 @@ test('authReply gives the one-time code only to a page on the portal origin and 
   assert.deepEqual(authReply(undefined, '123456', app, app), ['dialog-dismiss'], 'an --url attach has no target');
 });
 
-test('pageUrlIn reads the page URL a playwright-cli snapshot reports', () => {
-  assert.equal(pageUrlIn('### Page\n- Page URL: http://localhost:4507/x?y=1\n- Page Title: Portal'), 'http://localhost:4507/x?y=1');
-  assert.equal(pageUrlIn('### Snapshot\nno url'), null);
+test('currentTabUrl reads the current tab from tab-list output, as printed while the code prompt is open', () => {
+  const measured = '### Result\n- 0: (current) [](http://localhost:4507/home)\n### Modal state\n- ["prompt" dialog with message "devframe: enter the authentication code shown in your terminal"]: can be handled by dialog-accept or dialog-dismiss\n';
+  assert.equal(currentTabUrl(measured), 'http://localhost:4507/home');
+  assert.equal(currentTabUrl('- 0: [Other](https://a.example/)\n- 1: (current) [Portal [x]](http://localhost:4507/x?y=1)'), 'http://localhost:4507/x?y=1');
+  assert.equal(currentTabUrl('### Error\nsession not open'), null);
 });
 
 test('authCheck says what happened from the same condition the reply used, and never shows the code', () => {
