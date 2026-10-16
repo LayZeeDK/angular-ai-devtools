@@ -6,7 +6,7 @@ import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { authCodeIn, buildLogErrors, busyPorts, cdMode, consoleErrors, descendants, flagIn, flowIdFor, isWorktree, listeners, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder } from './control.mjs';
+import { authCodeIn, buildLogErrors, busyPorts, cdMode, consoleErrors, descendants, flagIn, flowIdFor, isWorktree, listeners, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder, takenBy } from './control.mjs';
 
 /**
  * A throwaway listener on a port the OS picks; closed after the test.
@@ -167,6 +167,27 @@ test('planPorts refuses a busy fixed port with its holder and pin, whatever the 
   assert.deepEqual(external, { ok: true, slot: 0, ports: [{ name: 'app', port: free, kind: 'derived' }, { name: 'pangular', port: held, kind: 'external', reason: 'someone else' }] }, 'a busy external port is not checked');
 });
 
+test('planPorts keeps the fallback reason when a retry has already used the first slot', async (t) => {
+  const held = await listen(t);
+  const free = await freePort();
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'app', kind: 'derived', at: (slot) => (slot === 5 ? held : free) }];
+  assert.deepEqual(planPorts(rows, [6], busyPorts(), undefined, 5), { ok: true, slot: 6, ports: [{ name: 'app', port: free, kind: 'derived', reason: `fell back from ${held}: held by PID ${process.pid}` }] });
+  /** @type {import('./control.mjs').PortRow[]} */
+  const gone = [{ name: 'app', kind: 'derived', at: () => free }];
+  assert.deepEqual(planPorts(gone, [6], busyPorts(), undefined, 5), { ok: true, slot: 6, ports: [{ name: 'app', port: free, kind: 'derived', reason: `fell back from ${free}: taken after the check` }] });
+});
+
+test('takenBy sees a foreign holder even while the probe answers, and a port error only in an exited run', () => {
+  const tree = new Set([10, 11]);
+  assert.deepEqual(takenBy([11], tree, false, ''), null, 'our own holder');
+  assert.deepEqual(takenBy([42], tree, false, ''), { pid: 42 }, 'a foreign answer before ours fails');
+  assert.deepEqual(takenBy([11, 42], tree, false, ''), { pid: 42 });
+  assert.deepEqual(takenBy([], tree, true, 'Error: listen EADDRINUSE: address already in use :::3000'), { pid: null });
+  assert.deepEqual(takenBy([], tree, true, 'error TS2304'), null, 'a crash for another reason is not a taken port');
+  assert.deepEqual(takenBy([], tree, false, 'Port 4336 is already in use'), null, 'still running: not decided from the log');
+});
+
 test('portsCheck passes owned ports, fails a missing or foreign one, and ignores external ports', () => {
   /** @type {import('./control.mjs').PortEntry[]} */
   const ports = [
@@ -175,8 +196,9 @@ test('portsCheck passes owned ports, fails a missing or foreign one, and ignores
     { name: 'pangular', port: 9999, kind: 'external', reason: 'control-pangular-inspector' },
   ];
   const tree = new Set([10, 11]);
-  assert.deepEqual(portsCheck(ports, new Map([[4501, 10], [3000, 11]]), tree), { status: 'pass', detail: 'app 4501 (derived), api 3000 (fixed: libs/x.ts:5), pangular 9999 (external: control-pangular-inspector)' });
-  assert.deepEqual(portsCheck(ports, new Map([[3000, 99]]), tree), { status: 'fail', detail: 'app 4501 not listening; api 3000 held by PID 99, not the recorded tree' });
+  assert.deepEqual(portsCheck(ports, new Map([[4501, [10]], [3000, [11]]]), tree), { status: 'pass', detail: 'app 4501 (derived), api 3000 (fixed: libs/x.ts:5), pangular 9999 (external: control-pangular-inspector)' });
+  assert.deepEqual(portsCheck(ports, new Map([[3000, [99]]]), tree), { status: 'fail', detail: 'app 4501 not listening; api 3000 held by PID 99, not the recorded tree' });
+  assert.deepEqual(portsCheck(ports, new Map([[4501, [10, 98]], [3000, [11]]]), tree), { status: 'fail', detail: 'app 4501 held by PID 98, not the recorded tree' }, 'a second holder on another address is not ours');
 });
 
 test('descendants walks the whole tree below a PID and nothing beside it', () => {
@@ -191,13 +213,15 @@ test('listeners maps each LISTENING port to its PID, IPv4 or IPv6, and nothing e
     '  TCP    0.0.0.0:14222          0.0.0.0:0              LISTENING       7',
     '  TCP    127.0.0.1:4222         127.0.0.1:50000        ESTABLISHED     8',
     '  TCP    [::1]:4222             [::]:0                 LISTENING       4242',
+    '  TCP    0.0.0.0:4222           0.0.0.0:0              LISTENING       77',
+    '  TCP    [::]:14222             [::]:0                 LISTENING       7',
   ].join('\r\n');
-  assert.deepEqual([...listeners(text)], [[14222, 7], [4222, 4242]]);
+  assert.deepEqual([...listeners(text)], [[14222, [7]], [4222, [4242, 77]]]);
 });
 
 test('busyPorts sees a throwaway listener with this process as its holder', async (t) => {
   const port = await listen(t);
-  assert.equal(busyPorts().get(port), process.pid);
+  assert.deepEqual(busyPorts().get(port), [process.pid]);
 });
 
 test('authCodeIn takes the latest code and ignores colour codes', () => {

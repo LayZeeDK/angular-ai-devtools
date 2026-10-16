@@ -23,8 +23,8 @@ sessions are looked up from there. `S` stands for `.claude/skills/control-angula
 | Insurance Portal | `node $S up --target portal` | The portal checkout `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools` (a git worktree of the portal repository); override it with `--dir <path>` or `CONTROL_NG_PORTAL_DIR` |
 | Any dev-mode app | `node $S up --url http://localhost:<port>/` | Nothing is launched or stopped; process and port checks report skipped |
 
-Ports. The main checkout uses slot 0, the defaults below. A worktree (`.git` is a file; for the portal, the
-portal folder's own `.git`) takes slot 1-99 from a hash of the fixture or portal folder, so its ports stay the
+Ports. The main checkout uses slot 0, the defaults below. A worktree session (this checkout's `.git` is a file, or the target folder's: the portal
+folder is a worktree of its own repository) takes slot 1-99 from a hash of the fixture or portal folder, so its ports stay the
 same from run to run: counter `4300 + slot`, SSR `4400 + slot`, portal `4500 + slot` (measured
 2026-10-16 in the `verification-skills` worktree: counter 4336, SSR 4464; the default portal folder: 4507). When a derived port is busy, `up` tries the next
 slot, 10 slots in all, and records the slot and the ports it used (`info --json`: `slot`, `ports`).
@@ -39,7 +39,11 @@ slot, 10 slots in all, and records the slot and the ports it used (`info --json`
 | `--url` app | external | the URL's port | whatever runs it; this skill never starts or stops it |
 
 - `--port N` sets the app port with no fallback for it: a busy `N` exits 2 naming its holder's PID; from a
-  worktree the main checkout's port is refused (use `--url` to drive that instance on purpose).
+  worktree the main checkout's port is refused (use `--url` to drive that instance on purpose), and so are a
+  bare `--port` and a value equal to the flow's fixed or external port (3000, 9999).
+- A process that loses its port to another one after the check (the other one answers the readiness probe,
+  or the server exits with "already in use" in its log) is stopped, and `up` tries the next slot; each attempt
+  logs to its own file (`app.log`, `app-2.log`, ...).
 - A busy fixed port exits 2: `fixed port api 3000 held by PID <p>; pinned by
   libs/shared/utils/src/lib/injection-tokens.ts:5 in the portal checkout <dir>`. The holder may be another
   session's portal or Lars's own; it is never stopped.

@@ -195,19 +195,27 @@ export function slotOrder(first) {
 }
 
 /**
- * The PID listening on each port in `netstat -ano` output, IPv4 and IPv6.
+ * The PIDs listening on each port in `netstat -ano` output, IPv4 and IPv6: a port can have one holder per address.
  * @param {string} text
- * @returns {Map<number, number>}
+ * @returns {Map<number, number[]>}
  */
 export function listeners(text) {
-  /** @type {Map<number, number>} */
+  /** @type {Map<number, number[]>} */
   const map = new Map();
 
   for (const l of text.split(/\r?\n/)) {
     const m = l.trim().split(/\s+/);
 
     if (m[0] === 'TCP' && m[3] === 'LISTENING') {
-      map.set(Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1)), Number(m[4]));
+      const port = Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1));
+      const pid = Number(m[4]);
+      const pids = map.get(port) ?? [];
+
+      if (!pids.includes(pid)) {
+        pids.push(pid);
+      }
+
+      map.set(port, pids);
     }
   }
 
@@ -233,17 +241,22 @@ export function pinOf(dir, rel, needle) {
 
 /**
  * Picks the ports of one run. A busy fixed port is a refusal. `forced` (`--port`) is the main port in every slot,
- * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free; the derived
- * entries of a slot after the first say what they fell back from.
+ * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free. A derived entry
+ * of a slot other than `first` (the run's own slot, `order[0]` unless a retry already used it) says what it fell
+ * back from.
  * @param {PortRow[]} rows
  * @param {number[]} order
- * @param {Map<number, number>} busy  the PID listening on each port
+ * @param {Map<number, number[]>} busy  the PIDs listening on each port
  * @param {number} [forced]
+ * @param {number} [first]
  * @returns {{ ok: true, slot: number, ports: PortEntry[] } | { ok: false, reason: string }}
  */
-export function planPorts(rows, order, busy, forced) {
+export function planPorts(rows, order, busy, forced, first = order[0]) {
+  /** @param {number} port */
+  const holder = (port) => busy.get(port)?.[0];
+
   for (const r of rows) {
-    const pid = r.kind === 'fixed' ? busy.get(r.port) : undefined;
+    const pid = r.kind === 'fixed' ? holder(r.port) : undefined;
 
     if (r.kind === 'fixed' && pid !== undefined) {
       return { ok: false, reason: `fixed port ${r.name} ${r.port} held by PID ${pid}; pinned by ${r.pin}` };
@@ -251,7 +264,7 @@ export function planPorts(rows, order, busy, forced) {
   }
 
   const main = rows.findIndex((r) => r.kind === 'derived');
-  const forcedPid = forced === undefined ? undefined : busy.get(forced);
+  const forcedPid = forced === undefined ? undefined : holder(forced);
 
   if (forced !== undefined && forcedPid !== undefined) {
     return { ok: false, reason: `port ${forced} (--port) is held by PID ${forcedPid}; --port has no fallback` };
@@ -264,17 +277,15 @@ export function planPorts(rows, order, busy, forced) {
 
   for (const slot of order) {
     const taken = rows.flatMap((r, i) => {
-      const pid = r.kind === 'derived' ? busy.get(portAt(r, i, slot)) : undefined;
+      const pid = r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
 
       return pid === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} held by PID ${pid}`];
     });
 
     if (taken.length === 0) {
-      const first = /** @type {number} */ (order[0]);
       /** @type {PortEntry[]} */
       const ports = rows.map((r, i) => {
         const port = portAt(r, i, slot);
-        const from = portAt(r, i, first);
 
         if (r.kind === 'fixed') {
           return { name: r.name, port, kind: r.kind, reason: r.pin };
@@ -284,13 +295,15 @@ export function planPorts(rows, order, busy, forced) {
           return { name: r.name, port, kind: r.kind, reason: r.owner };
         }
 
-        if (slot === first) {
+        if (first === undefined || slot === first) {
           return { name: r.name, port, kind: r.kind };
         }
 
-        const pid = busy.get(from);
+        const from = portAt(r, i, first);
+        const pid = holder(from);
+        const why = pid !== undefined ? `held by PID ${pid}` : order[0] === first ? `slot ${first} had ${tried[0]}` : 'taken after the check';
 
-        return { name: r.name, port, kind: r.kind, reason: pid === undefined ? `fell back from ${from}: slot ${first} had ${tried[0]}` : `fell back from ${from}: held by PID ${pid}` };
+        return { name: r.name, port, kind: r.kind, reason: `fell back from ${from}: ${why}` };
       });
 
       return { ok: true, slot, ports };
@@ -303,26 +316,27 @@ export function planPorts(rows, order, busy, forced) {
 }
 
 /**
- * The doctor's `ports` line: every derived and fixed port answers and is held by the recorded process tree; every
- * port is listed.
+ * The doctor's `ports` line: every derived and fixed port answers and every holder of it is in the recorded process
+ * tree; every port is listed.
  * @param {PortEntry[]} ports
- * @param {Map<number, number>} busy
+ * @param {Map<number, number[]>} busy
  * @param {Set<number>} tree
  * @returns {{ status: 'pass' | 'fail', detail: string }}
  */
 export function portsCheck(ports, busy, tree) {
   const problems = ports.flatMap((p) => {
-    const pid = busy.get(p.port);
+    const pids = busy.get(p.port) ?? [];
+    const foreign = pids.filter((pid) => !tree.has(pid));
 
     if (p.kind === 'external') {
       return [];
     }
 
-    if (pid === undefined) {
+    if (pids.length === 0) {
       return [`${p.name} ${p.port} not listening`];
     }
 
-    return tree.has(pid) ? [] : [`${p.name} ${p.port} held by PID ${pid}, not the recorded tree`];
+    return foreign.length === 0 ? [] : [`${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`];
   });
 
   if (problems.length > 0) {
@@ -498,8 +512,8 @@ function processTable() {
 }
 
 /**
- * The PID listening on each port now (netstat, IPv4 and IPv6).
- * @returns {Map<number, number>}
+ * The PIDs listening on each port now (netstat, IPv4 and IPv6).
+ * @returns {Map<number, number[]>}
  */
 export function busyPorts() {
   const netstat = path.join(SYSTEM32, 'netstat.exe');
@@ -543,7 +557,7 @@ function pangularServer() {
     // no server started by control-pangular-inspector
   }
 
-  return { pid: busyPorts().get(PANGULAR_PORT) ?? null, log };
+  return { pid: busyPorts().get(PANGULAR_PORT)?.[0] ?? null, log };
 }
 
 /**
@@ -662,17 +676,37 @@ function stopTree(pid) {
 }
 
 /**
+ * Whether another process took a started process's port after planPorts checked it: a holder outside the started
+ * tree (it may answer the readiness probe first), or, once the process exited, a port error in its own log.
+ * @param {number[]} holders  the PIDs listening on the port now
+ * @param {Set<number>} tree  the started process and its descendants
+ * @param {boolean} exited
+ * @param {string} log  this attempt's log only
+ * @returns {{ pid: number | null } | null}
+ */
+export function takenBy(holders, tree, exited, log) {
+  const foreign = holders.find((pid) => !tree.has(pid));
+
+  if (foreign !== undefined) {
+    return { pid: foreign };
+  }
+
+  return exited && /already in use|EADDRINUSE/.test(log) ? { pid: null } : null;
+}
+
+/**
  * Starts the run's processes one at a time and waits until each answers. Null when all are ready; the port entry
- * (and its holder, when one listens) when a process exited because another process took its port after planPorts
- * checked it. Any other failure exits through fail().
+ * (and its holder, when one listens) when another process took a port after planPorts checked it. Any other
+ * failure exits through fail(). Each attempt writes its own logs, so a retry never reads the last one's errors.
  * @param {State} state
  * @param {ProcSpec[]} specs
  * @param {string} marker
+ * @param {number} attempt  0 for the first
  * @param {number} t0
  * @param {number} timeoutMs
  * @returns {Promise<{ entry: PortEntry, pid: number | null } | null>}
  */
-async function launch(state, specs, marker, t0, timeoutMs) {
+async function launch(state, specs, marker, attempt, t0, timeoutMs) {
   const sp = statePath(state.flowId);
 
   // One at a time: two cold `nx run` processes started together timed out in the Nx plugin worker (3 of 4 portal runs, 2026-10-11).
@@ -684,7 +718,7 @@ async function launch(state, specs, marker, t0, timeoutMs) {
       delete env['PORT']; // measured: the Angular dev server serves on $PORT and ignores --port when PORT is set
     }
 
-    const log = path.join(state.evidenceDir, `${p.name}.log`);
+    const log = path.join(state.evidenceDir, `${p.name}${attempt === 0 ? '' : `-${attempt + 1}`}.log`);
     const fd = openSync(log, 'a');
     const child = spawn(process.execPath, [/** @type {string} */ (p.bin), ...p.args], { cwd: state.dir, env, detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
     child.unref();
@@ -703,19 +737,21 @@ async function launch(state, specs, marker, t0, timeoutMs) {
       // A first SSR render compiles on demand; aborting it at 3 s logs an AbortError in the server log (measured).
       const r = await fetchText(s.readyUrl, 60000);
       const pageOk = s.name !== 'app' || (r.status === 200 && r.body.includes(`<${marker}`));
+      const answered = r.status >= 200 && r.status < 500 && pageOk;
+      const table = processTable();
+      const exited = !table.some((x) => x.ProcessId === s.pid);
+      const entry = (state.ports ?? []).find((e) => e.port === s.port);
+      const taken = answered || exited ? takenBy(busyPorts().get(s.port) ?? [], descendants(table, s.pid), exited, readFileSync(s.log, 'utf8')) : null;
 
-      if (r.status >= 200 && r.status < 500 && pageOk) {
+      if (taken !== null && entry !== undefined) {
+        return { entry, pid: taken.pid };
+      }
+
+      if (answered) {
         break;
       }
 
-      if (!processTable().some((x) => x.ProcessId === s.pid)) {
-        const holder = busyPorts().get(s.port) ?? null;
-        const entry = (state.ports ?? []).find((e) => e.port === s.port);
-
-        if (entry !== undefined && (holder !== null || /already in use|EADDRINUSE/.test(readFileSync(s.log, 'utf8')))) {
-          return { entry, pid: holder };
-        }
-
+      if (exited) {
         fail(2, `${s.name} (PID ${s.pid}) exited before it was ready; see ${s.log}; run down to clear the state`, { state: sp });
       }
 
@@ -766,13 +802,24 @@ async function up() {
   const t = TARGETS[targetName];
   const dirFlag = flag('dir');
   const dir = typeof dirFlag === 'string' && dirFlag !== '' ? dirFlag : t.dir;
-  const worktree = isWorktree(dir);
+  // A worktree session never takes slot 0, also for a target folder outside it (the portal, --dir).
+  const worktree = isWorktree(dir) || isWorktree(REPO_ROOT);
   const rows = t.ports(dir);
   const portFlag = flag('port');
   const forced = typeof portFlag === 'string' && portFlag !== '' ? Number(portFlag) : undefined;
 
+  if (portFlag === true) {
+    fail(2, 'refused: --port needs a value');
+  }
+
   if (forced !== undefined && !(Number.isInteger(forced) && forced > 0 && forced < 65536)) {
     fail(2, `refused: --port ${portFlag} is not a port number`);
+  }
+
+  const other = rows.find((r) => r.kind !== 'derived' && r.port === forced);
+
+  if (other !== undefined) {
+    fail(2, `refused: --port ${forced} is the ${other.kind} port ${other.name} of this flow`);
   }
 
   if (worktree && forced === mainPortOf(rows)) {
@@ -795,9 +842,11 @@ async function up() {
   const t0 = Date.now();
   const timeoutMs = Number(flag('timeout') ?? 240) * 1000;
   let order = slotOrder(slotOf(dir, worktree));
+  const first = order[0];
+  let attempt = 0;
 
   for (;;) {
-    const plan = planPorts(rows, order, busyPorts(), forced);
+    const plan = planPorts(rows, order, busyPorts(), forced, first);
 
     if (!plan.ok) {
       return fail(2, `refused: ${plan.reason}`);
@@ -808,15 +857,23 @@ async function up() {
     const port = Number(ports['app']);
     /** @type {State} */
     const state = { flowId, mode: 'launch', target: targetName, dir, worktree, url: `http://localhost:${port}/`, port, slot: plan.slot, ports: plan.ports, session: `control-ngdev-${flowId}-${port}`, evidenceDir, startedAt: new Date().toISOString(), procs: [] };
-    const busy = await launch(state, t.procs(dir, ports), t.marker, t0, timeoutMs);
+    const busy = await launch(state, t.procs(dir, ports), t.marker, attempt, t0, timeoutMs);
+    attempt += 1;
 
     if (busy === null) {
       out({ ok: true, command: 'up', readyInSeconds: Math.round((Date.now() - t0) / 100) / 10, ...state }, 0);
     }
 
-    // Another process took a port after the check: stop the trees this attempt started, then try the next slot.
+    // Another process took a port after the check: stop the trees this attempt started (a PID that is gone or
+    // was reused is left alone), then try the next slot.
+    const table = processTable();
+
     for (const p of state.procs) {
-      stopTree(p.pid);
+      const row = table.find((r) => r.ProcessId === p.pid);
+
+      if (row !== undefined && pidMismatch(row, p) === null) {
+        stopTree(p.pid);
+      }
     }
 
     rmSync(statePath(flowId), { force: true });
@@ -874,7 +931,8 @@ async function doctor() {
       }
     }
 
-    const ports = portsCheck(state.ports ?? [], busyPorts(), tree);
+    // A state file written before ports were recorded: check the ports its processes record.
+    const ports = portsCheck(state.ports ?? state.procs.map((p) => ({ name: p.name, port: p.port, kind: /** @type {PortKind} */ ('derived') })), busyPorts(), tree);
     add('ports', ports.status, ports.detail);
 
     for (const p of state.procs) {
