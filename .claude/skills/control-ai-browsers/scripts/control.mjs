@@ -1016,17 +1016,18 @@ export const EDGE_COMPONENT_LIST = `async (p, { names }) => {
     while (n && !/Version/.test(n.textContent)) {
       n = n.parentElement;
     }
-    const text = n?.textContent ?? '';
+    // The page indents its markup, so its text holds runs of spaces and line breaks (measured on Edge Dev 157).
+    const text = (n?.textContent ?? '').replace(/\\s+/g, ' ');
     const name = names.find((x) => text.includes(x + ' - '));
     if (!name) {
       return null;
     }
-    const label = b.textContent.trim();
+    const label = b.textContent.replace(/\\s+/g, ' ').trim();
     let status = text.split('Status - ')[1] ?? null;
     if (status !== null && label && status.includes(label)) {
       status = status.slice(0, status.indexOf(label));
     }
-    return { id: b.id, name, status: status === null ? null : status.split('\\n')[0].trim() || null };
+    return { id: b.id, name, status: status === null ? null : status.trim() || null };
   }).filter(Boolean), names);
 }`;
 
