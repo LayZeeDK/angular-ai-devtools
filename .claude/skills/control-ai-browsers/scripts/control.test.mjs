@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { delimiter, join, sep } from 'node:path';
 import { test } from 'node:test';
 import {
+  brokerPending,
   Refusal,
   checkMarker,
   diskModels,
@@ -269,4 +270,11 @@ test('downloadRefusal keeps the browser minimum free after the download', () => 
   const model = { name: 'm', downloadMib: 4000 };
   assert.equal(downloadRefusal({ bytes: 0, mib: 24000, minMib: 20000, volume: 'D:' }, model), null);
   assert.match(downloadRefusal({ bytes: 0, mib: 23999, minMib: 20000, volume: 'D:' }, model) ?? '', /leaves 19999 MiB, under the browser minimum of 20000 MiB/);
+});
+
+test('brokerPending holds back the Broker State checks until the manifest is loaded', () => {
+  const loaded = { manifestPath: 'x', manifestLoaded: 'true', perfClass: 'High', diskInstall: 'true', assets: [], useCases: {}, models: [] };
+  assert.equal(brokerPending(loaded), false);
+  assert.equal(brokerPending({ ...loaded, manifestLoaded: 'false' }), true);
+  assert.equal(brokerPending({ disabled: true, error: 'internal debugging pages are off' }), false);
 });

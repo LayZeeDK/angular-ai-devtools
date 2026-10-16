@@ -78,7 +78,7 @@ Read-only; one line per check:
 | `tabs` | always; `[WARN]` when more than one tab is open |
 | `model.disk` | a `manifest.json` in the profile names the expected model; `[WARN]` lists other models in the profile |
 | `model.broker` | Broker State shows the asset `Ready` and the use case `Available` |
-| `backend` | the Broker State backend of the model row whose weights sit in the model folder (CPU or GPU) is the backend the command line asks for |
+| `backend` | (with `model.broker` and `performanceClass` read after the page checks when Broker State has not loaded the model manifest yet, as right after a launch) the Broker State backend of the model row whose weights sit in the model folder (CPU or GPU) is the backend the command line asks for |
 | `performanceClass` | always; reports `optimization_guide.on_device.performance_class` from `Local State` and Broker State's class |
 | `disk.free` | always; `[WARN]` under the browser minimum (Chrome 22 GB, Edge 20 GB) |
 | `api.availability` | `LanguageModel.availability()` is `available`; also reports tool use, Summarizer, Writer, Rewriter, Proofreader, LanguageDetector, Translator en->da, `document.modelContext` |

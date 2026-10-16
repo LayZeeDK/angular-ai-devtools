@@ -831,6 +831,16 @@ export function parseBroker(text) {
 }
 
 /**
+ * Whether Broker State has not loaded the model manifest yet, as right after a launch, so its model rows are not
+ * there to judge.
+ * @param {Broker | BrokerDisabled} b
+ * @returns {boolean}
+ */
+export function brokerPending(b) {
+  return !b.disabled && b.manifestLoaded !== 'true';
+}
+
+/**
  * @param {Inst} inst
  * @returns {Promise<Broker | BrokerDisabled>}
  */
@@ -1180,15 +1190,26 @@ async function cmdDoctor(inst) {
   }
 
   const broker = await brokerState(inst);
+  /** @param {Broker | BrokerDisabled} b */
+  const brokerChecks = (b) => {
+    if (b.disabled) {
+      add('model.broker', false, b.error);
 
-  if (broker.disabled) {
-    add('model.broker', false, broker.error);
-  } else {
-    const asset = broker.assets.find((a) => new RegExp(inst.model.asset).test(a.name) && a.state === 'Ready') ?? broker.assets.find((a) => new RegExp(inst.model.asset).test(a.name));
-    add('model.broker', asset?.state === 'Ready' && broker.useCases[inst.model.useCase] === 'Available', { asset: asset ?? `${inst.model.asset} absent`, useCase: inst.model.useCase, state: broker.useCases[inst.model.useCase] ?? null, manifestLoaded: broker.manifestLoaded });
-    const be = servingBackend(inst, broker, disk);
+      return;
+    }
+
+    const asset = b.assets.find((a) => new RegExp(inst.model.asset).test(a.name) && a.state === 'Ready') ?? b.assets.find((a) => new RegExp(inst.model.asset).test(a.name));
+    add('model.broker', asset?.state === 'Ready' && b.useCases[inst.model.useCase] === 'Available', { asset: asset ?? `${inst.model.asset} absent`, useCase: inst.model.useCase, state: b.useCases[inst.model.useCase] ?? null, manifestLoaded: b.manifestLoaded });
+    const be = servingBackend(inst, b, disk);
     add('backend', be.kind === d.backend, { requested: d.backend, broker: be.backendType ?? 'no model row with weights in the model folder', row: be.row });
-    add('performanceClass', true, { localState: perfClass(inst), broker: broker.perfClass });
+    add('performanceClass', true, { localState: perfClass(inst), broker: b.perfClass });
+  };
+  // Right after a launch Broker State has not loaded the model manifest yet (measured: the asset absent and
+  // manifestLoaded false, then Ready once a page had used the model); read it again after the page checks.
+  const brokerLater = brokerPending(broker);
+
+  if (!brokerLater) {
+    brokerChecks(broker);
   }
 
   const free = freeSpace(inst);
@@ -1203,6 +1224,10 @@ async function cmdDoctor(inst) {
       add(id, null, `skipped: LanguageModel is ${avail.LanguageModel}; run "model download ${inst.name}"`);
     }
 
+    if (brokerLater) {
+      brokerChecks(await brokerState(inst));
+    }
+
     return { ok: false, backend: d.backend, checks };
   }
 
@@ -1212,6 +1237,10 @@ async function cmdDoctor(inst) {
   // "report": the model's native tool calling is too unreliable to gate health on (Phi-4-mini); the result is kept.
   add('canary.tools', toolsPass(inst.model.toolCanary, canary.tools), inst.model.toolCanary === 'report' ? { reportedOnly: true, ...canary.tools } : canary.tools);
   add('canary.webmcp', canary.webmcp?.pass === true, canary.webmcp);
+
+  if (brokerLater) {
+    brokerChecks(await brokerState(inst));
+  }
 
   return { ok: doctorOk(checks), backend: d.backend, checks };
 }
