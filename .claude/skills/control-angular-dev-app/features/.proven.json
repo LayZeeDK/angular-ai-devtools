@@ -2,41 +2,34 @@
   "version": 1,
   "features": {
     "counter": {
-      "provenAt": "2026-10-16T12:57:17.261Z",
-      "commit": "f346392806124f7f677c39860a8838488005edb5",
+      "provenAt": "2026-10-16T13:44:01.657Z",
+      "commit": "a553213310899e1bb9f1b58fc97a75ced93c9d41",
       "method": "typescript",
       "entries": [
         "spikes/ng222-app/src/main.ts",
-        "spikes/ng222-app/src/index.html",
-        ".claude/skills/control-angular-dev-app/scripts/ng-inspect.js"
+        "spikes/ng222-app/src/index.html"
       ],
       "files": {
-        ".claude/skills/control-angular-dev-app/scripts/ng-inspect.js": "d7e079a841717ebd9b9925fce6813693b9838c69",
-        ".claude/skills/tsconfig.json": "e9da5132a68bdadc3afa28fda46b9e9b00769942",
         "spikes/ng222-app/src/app/app.config.ts": "e60fc79fa4a0a0dcd99d4d06a82ff642f45e0d16",
         "spikes/ng222-app/src/app/app.routes.ts": "dc39edb5f23a35f788cba146dd7337127ba6c5ab",
         "spikes/ng222-app/src/app/app.ts": "7090c0cd7276b21a637542c2845e925a22b910a4",
         "spikes/ng222-app/src/app/counter.ts": "c2690d09d1c7c67319c587c11a9fed08ee41d63e",
         "spikes/ng222-app/src/index.html": "1693bcd9aa1c15aeff2830427641132063e9e576",
         "spikes/ng222-app/src/main.ts": "5df75f9c838ea50f80ee4d5703b68dd8ac7243d4",
-        "spikes/ng222-app/tsconfig.json": "d2fbb9c2b057731ece0e7ac10ae3875caf0df324",
-        "tsconfig.json": "b6e86cb441f1aae627055d0cb22cd57cac0eb888"
+        "spikes/ng222-app/tsconfig.json": "d2fbb9c2b057731ece0e7ac10ae3875caf0df324"
       }
     },
     "ssr": {
-      "provenAt": "2026-10-16T12:12:10.961Z",
-      "commit": "f346392806124f7f677c39860a8838488005edb5",
+      "provenAt": "2026-10-16T13:44:02.018Z",
+      "commit": "a553213310899e1bb9f1b58fc97a75ced93c9d41",
       "method": "typescript",
       "entries": [
         "spikes/ng222-ssr/src/main.ts",
         "spikes/ng222-ssr/src/main.server.ts",
         "spikes/ng222-ssr/src/server.ts",
-        "spikes/ng222-ssr/src/index.html",
-        ".claude/skills/control-angular-dev-app/scripts/ssr-check.js"
+        "spikes/ng222-ssr/src/index.html"
       ],
       "files": {
-        ".claude/skills/control-angular-dev-app/scripts/ssr-check.js": "16b604b3991c0ae2281686eb5adcd7a199e12215",
-        ".claude/skills/tsconfig.json": "e9da5132a68bdadc3afa28fda46b9e9b00769942",
         "spikes/ng222-ssr/src/app/app.config.server.ts": "41031f1165dd9da570d26867f2b3a23cd49797c6",
         "spikes/ng222-ssr/src/app/app.config.ts": "bf177e740c15bff9de53e46cfda09f2274fc8b1b",
         "spikes/ng222-ssr/src/app/app.html": "1a61120d9633e89b439bf2db07902a7e4a49e62f",
@@ -51,8 +44,7 @@
         "spikes/ng222-ssr/src/main.server.ts": "723e001fbf7e9916b0f6957c733e46955e931884",
         "spikes/ng222-ssr/src/main.ts": "5df75f9c838ea50f80ee4d5703b68dd8ac7243d4",
         "spikes/ng222-ssr/src/server.ts": "99138f0b578d19001d6027a8b287ef014d7fc7b7",
-        "spikes/ng222-ssr/tsconfig.json": "30d64cea383f2fa41e0ae6113047f5bed44814c1",
-        "tsconfig.json": "b6e86cb441f1aae627055d0cb22cd57cac0eb888"
+        "spikes/ng222-ssr/tsconfig.json": "30d64cea383f2fa41e0ae6113047f5bed44814c1"
       }
     }
   }
