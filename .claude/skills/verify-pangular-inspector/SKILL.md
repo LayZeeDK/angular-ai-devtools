@@ -31,8 +31,10 @@ Through `lars-verify` (`~/.claude/skills/lars-verify/references/contract.md`): t
 - condition: `["node", ".claude/skills/verify-pangular-inspector/checks/live-reads.mjs", "--session", "{up.session}",
   "--out", "{up.evidenceDir}"]` (`read-only.mjs` takes `--out` only);
 - teardown: `P info --json`, `P down`, `check-teardown.mjs {runDir}/steps/teardown-1.out --artifact
-  contract-list.png` (`tools-list.json` for `read-only`), then the same three for `A` with `--target portal` and
-  `--artifact app.log`;
+  contract-list.png` (`tools-list.json` for `read-only`), then `A info --target portal --json`,
+  `A down --target portal`, `check-teardown.mjs {runDir}/steps/teardown-4.out --no-artifact "supporting portal
+  instance; the proof files are in control-pangular-inspector's evidence directory"` (the portal is a supporting
+  instance: its session captures nothing, and its log proves nothing);
 - artifacts: `{up.evidenceDir}/contract-list.png` and `{up.evidenceDir}/live-reads.json` (`tools-list.json` and
   `navigate-refused.json` for `read-only`).
 
