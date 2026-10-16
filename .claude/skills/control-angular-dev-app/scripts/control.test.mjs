@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
-import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, cdMode, checkLine, consoleErrors, currentTabUrl, descendants, flagIn, flowIdFor, isWorktree, listeners, markerCheck, ownedProcesses, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, processTable, slotOf, slotOrder, stopOwned, takenBy, trackedOf, timeoutMsOf, urlPort } from './control.mjs';
+import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, cdMode, checkLine, consoleErrors, currentTabUrl, descendants, flagIn, flowIdFor, isWorktree, listeners, markerCheck, namesFolder, ownedProcesses, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, processTable, slotOf, slotOrder, stopOwned, takenBy, trackedOf, timeoutMsOf, urlPort } from './control.mjs';
 
 /**
  * A throwaway listener on a port the OS picks; closed after the test.
@@ -383,12 +383,22 @@ test('ownedProcesses follows recorded processes that still match, and the childr
   assert.deepEqual(ownedProcesses(live, [root], 'D:\\portal').map((r) => r.ProcessId).sort((a, b) => a - b), [7, 20, 24, 30], 'root alive: its whole tree that started after it');
 
   const reused = [{ ProcessId: 7, ParentProcessId: 1, Start: '2026-10-16T13:00:00.0000000Z', CommandLine: 'someone else' }, ...table];
-  assert.deepEqual(ownedProcesses(reused, [root], 'D:\\portal'), [], 'PID 7 now held by another process: neither it nor its children');
+  assert.deepEqual(ownedProcesses(reused, [root], 'D:\\portal').map((r) => r.ProcessId).sort((a, b) => a - b), [20, 24, 30], 'PID 7 now held by another process: not it, only the children started before it took the PID');
+  const reuserChild = { ProcessId: 40, ParentProcessId: 7, Start: '2026-10-16T13:00:01.0000000Z', CommandLine: 'node D:\\portal\\x.js' };
+  assert.equal(ownedProcesses([...reused, reuserChild], [root], 'D:\\portal').some((r) => r.ProcessId === 40), false, "the new owner's child is not the run's");
 
   const grandchild = { pid: 30, start: '2026-10-16T12:00:02.0000000Z', commandLine: 'esbuild --service' };
   const parentGone = table.filter((r) => r.ProcessId !== 20);
   assert.deepEqual(ownedProcesses(parentGone, [root, grandchild], 'D:\\portal').map((r) => r.ProcessId), [30], 'a tracked grandchild whose parent exited is still found');
   assert.deepEqual(ownedProcesses(parentGone, [root, { ...grandchild, commandLine: 'other' }], 'D:\\portal'), [], 'a tracked PID with another command line is not');
+});
+
+test('namesFolder matches a path inside the folder with either slash and stops at a path boundary', () => {
+  assert.equal(namesFolder('node D:\\Portal\\node_modules\\nx\\bin\\run.js', 'D:\\portal'), true);
+  assert.equal(namesFolder('node D:/portal/node_modules/x.js', 'D:\\portal'), true);
+  assert.equal(namesFolder('node "D:\\portal"', 'D:\\portal'), true);
+  assert.equal(namesFolder('node D:\\portal-v2\\x.js', 'D:\\portal'), false);
+  assert.equal(namesFolder(null, 'D:\\portal'), false);
 });
 
 test('trackedOf records the descendants below the roots and keeps those recorded before', () => {
@@ -400,6 +410,8 @@ test('trackedOf records the descendants below the roots and keeps those recorded
   const earlier = { pid: 31, start: '2026-10-16T12:00:05.0000000Z', commandLine: 'gone' };
   const state = /** @type {Parameters<typeof trackedOf>[1]} */ ({ flowId: 'counter', mode: 'launch', url: '', session: '', evidenceDir: '', startedAt: '', procs: [proc], dir: 'D:\\app', tracked: [earlier] });
   assert.deepEqual(trackedOf(table, state), [earlier, { pid: 20, start: '2026-10-16T12:00:01.0000000Z', commandLine: 'esbuild' }]);
+  const reusedEarlier = [...table, { ProcessId: 31, ParentProcessId: 1, Start: '2026-10-16T14:00:00.0000000Z', CommandLine: 'someone else' }];
+  assert.deepEqual(trackedOf(reusedEarlier, state).map((x) => x.pid), [20], 'a tracked PID another process holds now is dropped');
 });
 
 test('stopOwned stops a recorded grandchild whose parent exited, and leaves an unrelated process alone', { skip: process.platform !== 'win32' && 'taskkill and Win32_Process' }, async (t) => {
@@ -417,15 +429,14 @@ test('stopOwned stops a recorded grandchild whose parent exited, and leaves an u
     '',
   ].join('\n'));
   const root = spawn(process.execPath, [join(dir, 'root.js')], { detached: true, stdio: 'ignore' });
-  const decoy = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { detached: true, stdio: 'ignore' });
+  const decoy = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)', `${dir}-decoy`], { detached: true, stdio: 'ignore' });
   root.unref();
   decoy.unref();
-  /** @type {(number | undefined)[]} */
-  const started = [root.pid, decoy.pid];
+  // Every process this test starts names its own temp folder; only live rows that do are stopped.
   t.after(() => {
-    for (const p of started) {
+    for (const r of processTable().filter((x) => (x.CommandLine ?? '').includes(dir))) {
       try {
-        process.kill(/** @type {number} */ (p));
+        process.kill(r.ProcessId);
       } catch {
         // already gone
       }
@@ -443,7 +454,6 @@ test('stopOwned stops a recorded grandchild whose parent exited, and leaves an u
   };
   await until(() => existsSync(join(dir, 'pids')));
   const [parentPid, grandPid] = readFileSync(join(dir, 'pids'), 'utf8').split(' ').map(Number);
-  started.push(parentPid, grandPid);
   const before = processTable();
   const rootRow = before.find((r) => r.ProcessId === root.pid);
   assert.ok(rootRow);
@@ -460,7 +470,8 @@ test('stopOwned stops a recorded grandchild whose parent exited, and leaves an u
   assert.ok(orphan, 'the grandchild outlived its parent');
   assert.ok(!descendants(processTable(), proc.pid).has(Number(grandPid)), "the root's live tree no longer reaches the grandchild");
 
-  const notes = stopOwned([proc, ...tracked], dir);
+  const { notes, left } = stopOwned([proc, ...tracked], dir);
+  assert.deepEqual(left, []);
   const after = processTable();
   assert.equal(after.some((r) => r.ProcessId === grandPid || r.ProcessId === root.pid), false, notes.join('\n'));
   assert.ok(after.some((r) => r.ProcessId === decoy.pid), 'the unrelated process still runs');

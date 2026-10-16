@@ -585,36 +585,66 @@ export function checkLine(c) {
 }
 
 /**
+ * Whether a command line names a path inside `folder` (slashes either way, case ignored, ending at a path
+ * boundary, so `D:\portal` does not match `D:\portal-v2`).
+ * @param {string | null} commandLine
+ * @param {string} folder  path.resolve()d target folder
+ * @returns {boolean}
+ */
+export function namesFolder(commandLine, folder) {
+  const cl = (commandLine ?? '').replace(/\//g, '\\').toLowerCase();
+  const f = folder.replace(/[\\/]+$/, '').toLowerCase();
+
+  for (let i = cl.indexOf(f); i !== -1; i = cl.indexOf(f, i + 1)) {
+    const next = cl[i + f.length];
+
+    if (next === undefined || next === '\\' || next === '"' || next === "'" || next === ' ') {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * The live processes this run started, deepest first: each known process (a recorded root or tracked descendant)
  * whose row still has the recorded start time and command line, and every process below one of them that started
- * after its parent. A known process that is gone still counts as a parent, then only for a child whose command line
- * names the target folder (an Nx executor keeps a dead PID as its ParentProcessId; a later owner of that PID has
- * other children). A PID now held by another process (other start time or command line) is not followed.
+ * after its parent. A known process that is gone still counts as a parent: when its PID now belongs to another
+ * process, only for a child started between the two start times (the old owner's own children); when nothing holds
+ * the PID, only for a child whose command line names the target folder (an Nx executor keeps a dead PID as its
+ * ParentProcessId).
  * @param {ProcessRow[]} table
  * @param {Tracked[]} known
  * @param {string | undefined} dir  the target folder the run served from
  * @returns {ProcessRow[]}
  */
 export function ownedProcesses(table, known, dir) {
-  const folder = dir === undefined ? null : path.resolve(dir).toLowerCase();
+  const folder = dir === undefined ? null : path.resolve(dir);
   const byPid = new Map(table.map((r) => [r.ProcessId, r]));
-  /** @type {Map<number, { start: string, live: boolean }>} */
-  const parents = new Map();
+  /** @type {Map<number, string>} */
+  const live = new Map();
+  /** @type {Map<number, { start: string, end: string | null }>} */
+  const gone = new Map();
   /** @type {ProcessRow[]} */
   const owned = [];
 
   for (const k of known) {
     const row = byPid.get(k.pid);
 
-    if (k.start === null || parents.has(k.pid)) {
+    if (k.start === null || live.has(k.pid)) {
       continue;
     }
 
-    if (row === undefined) {
-      parents.set(k.pid, { start: k.start, live: false });
-    } else if (row.Start === k.start && row.CommandLine === k.commandLine) {
-      parents.set(k.pid, { start: k.start, live: true });
+    if (row !== undefined && row.Start === k.start && row.CommandLine === k.commandLine) {
+      live.set(k.pid, k.start);
+      gone.delete(k.pid);
       owned.push(row);
+    } else if (row === undefined || (row.Start !== null && row.Start > k.start)) {
+      const prev = gone.get(k.pid);
+
+      if (prev === undefined || prev.start > k.start) {
+        gone.set(k.pid, { start: k.start, end: row?.Start ?? null });
+      }
     }
   }
 
@@ -624,19 +654,21 @@ export function ownedProcesses(table, known, dir) {
     grew = false;
 
     for (const r of table) {
-      const parent = parents.get(r.ParentProcessId);
-
-      if (parent === undefined || parents.has(r.ProcessId) || r.Start === null || r.Start <= parent.start) {
+      if (live.has(r.ProcessId) || r.Start === null) {
         continue;
       }
 
-      if (!parent.live && (folder === null || !(r.CommandLine ?? '').toLowerCase().includes(folder))) {
-        continue;
-      }
+      const parentStart = live.get(r.ParentProcessId);
+      const dead = gone.get(r.ParentProcessId);
+      const ours = parentStart !== undefined
+        ? r.Start > parentStart
+        : dead !== undefined && r.Start > dead.start && (dead.end !== null ? r.Start < dead.end : folder !== null && namesFolder(r.CommandLine, folder));
 
-      parents.set(r.ProcessId, { start: r.Start, live: true });
-      owned.push(r);
-      grew = true;
+      if (ours) {
+        live.set(r.ProcessId, r.Start);
+        owned.push(r);
+        grew = true;
+      }
     }
   }
 
@@ -644,18 +676,25 @@ export function ownedProcesses(table, known, dir) {
 }
 
 /**
- * The descendants to record in the state file: those tracked before, and every live process below the roots now.
+ * The descendants to record in the state file: those tracked before whose PID no other process holds now, and every
+ * live process below the roots.
  * @param {ProcessRow[]} table
  * @param {State} state
  * @returns {Tracked[]}
  */
 export function trackedOf(table, state) {
   const roots = new Set(state.procs.map((p) => p.pid));
+  const byPid = new Map(table.map((r) => [r.ProcessId, r]));
   /** @type {Map<string, Tracked>} */
   const all = new Map();
+  const kept = (state.tracked ?? []).filter((t) => {
+    const row = byPid.get(t.pid);
+
+    return row === undefined || (row.Start === t.start && row.CommandLine === t.commandLine);
+  });
   const live = ownedProcesses(table, [...state.procs, ...(state.tracked ?? [])], state.dir).filter((r) => !roots.has(r.ProcessId));
 
-  for (const t of [...(state.tracked ?? []), ...live.map((r) => ({ pid: r.ProcessId, start: r.Start, commandLine: r.CommandLine }))]) {
+  for (const t of [...kept, ...live.map((r) => ({ pid: r.ProcessId, start: r.Start, commandLine: r.CommandLine }))]) {
     all.set(`${t.pid}@${t.start}`, t);
   }
 
@@ -668,7 +707,7 @@ export function trackedOf(table, state) {
  * @param {Tracked[]} known
  * @param {string | undefined} dir
  * @param {() => ProcessRow[]} [table]
- * @returns {string[]}  one note per process
+ * @returns {{ notes: string[], left: ProcessRow[] }}  `left`: still running after the last pass (a failed taskkill shows there)
  */
 export function stopOwned(known, dir, table = processTable) {
   /** @type {Tracked[]} */
@@ -690,7 +729,7 @@ export function stopOwned(known, dir, table = processTable) {
     }
   }
 
-  return notes;
+  return { notes, left: ownedProcesses(table(), seen, dir) };
 }
 
 /**
@@ -910,10 +949,6 @@ function mainPortOf(rows) {
   return r === undefined ? NaN : r.kind === 'derived' ? r.at(0) : r.port;
 }
 
-/** @param {number} pid */
-function stopTree(pid) {
-  return spawnSync(path.join(SYSTEM32, 'taskkill.exe'), ['/PID', String(pid), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
-}
 
 /**
  * Whether another process took a started process's port after planPorts checked it: a holder outside the started
@@ -1114,16 +1149,11 @@ async function up() {
       out({ ok: true, command: 'up', readyInSeconds: Math.round((Date.now() - t0) / 100) / 10, ...state }, 0);
     }
 
-    // Another process took a port after the check: stop the trees this attempt started (a PID that is gone or
-    // was reused is left alone), then try the next slot.
-    const table = processTable();
+    // Another process took a port after the check: stop what this attempt started, then try the next slot.
+    const stopped = stopOwned(state.procs, state.dir);
 
-    for (const p of state.procs) {
-      const row = table.find((r) => r.ProcessId === p.pid);
-
-      if (row !== undefined && pidMismatch(row, p) === null) {
-        stopTree(p.pid);
-      }
+    if (stopped.left.length > 0) {
+      fail(2, `${busy.entry.name} ${busy.entry.port} was taken after the check, and PID(s) ${stopped.left.map((r) => r.ProcessId).join(', ')} this attempt started still run; run down`, { state: statePath(flowId), notes: stopped.notes });
     }
 
     rmSync(statePath(flowId), { force: true });
@@ -1182,9 +1212,15 @@ async function doctor() {
     }
 
     // A state file written before ports were recorded: check the ports its processes record.
-    state.tracked = trackedOf(table, state);
-    writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
-    add('tracked', 'pass', `${state.tracked.length} process(es) below the roots recorded for down`);
+    const tracked = trackedOf(table, state);
+
+    // Written only while the state file is there and the record changed: a down that just removed it stays done.
+    if (existsSync(statePath(flowId)) && JSON.stringify(tracked) !== JSON.stringify(state.tracked ?? [])) {
+      state.tracked = tracked;
+      writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
+    }
+
+    add('tracked', 'pass', `${tracked.length} process(es) below the roots recorded for down`);
     const ports = portsCheck(state.ports ?? state.procs.map((p) => ({ name: p.name, port: p.port, kind: /** @type {PortKind} */ ('derived') })), busyPorts(), tree);
     add('ports', ports.status, ports.detail);
 
@@ -1306,6 +1342,12 @@ function down() {
       continue;
     }
 
+    if (row.Start !== p.start) {
+      notes.push(`${p.name} PID ${p.pid} is not running; the PID now belongs to a process started ${row.Start}`);
+
+      continue;
+    }
+
     const mismatch = pidMismatch(row, p);
 
     if (mismatch !== null) {
@@ -1315,7 +1357,15 @@ function down() {
 
   const close = playwrightCli([`-s=${state.session}`, 'close']);
   notes.push(`session ${state.session}: ${close.status === 0 ? 'closed' : 'was not open'}`);
-  notes.push(...stopOwned([...state.procs, ...(state.tracked ?? [])], state.dir));
+  const stopped = stopOwned([...state.procs, ...(state.tracked ?? [])], state.dir);
+  notes.push(...stopped.notes);
+
+  if (stopped.left.length > 0) {
+    const left = stopped.left.map((r) => ({ pid: r.ProcessId, start: r.Start, commandLine: r.CommandLine }));
+    state.tracked = [...(state.tracked ?? []), ...left];
+    writeFileSync(sp, JSON.stringify(state, null, 2));
+    out({ ok: false, command: 'down', flowId, evidenceDir: state.evidenceDir, notes, left, reason: `PID(s) ${left.map((l) => l.pid).join(', ')} this run started still run; the state file is kept, run down again` }, 1);
+  }
 
   rmSync(sp, { force: true });
   out({ ok: true, command: 'down', flowId, evidenceDir: state.evidenceDir, notes }, 0);

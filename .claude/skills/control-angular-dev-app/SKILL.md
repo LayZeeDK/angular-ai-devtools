@@ -197,15 +197,19 @@ the server log. Proof rules: [features/README.md](features/README.md#proof-and-s
 node .claude/skills/control-angular-dev-app/scripts/control.mjs down [--target ...|--url ...]
 ```
 
-Checks every recorded root PID against its recorded start time and command line (a mismatch stops nothing,
-exit 2), closes the run's playwright-cli session, then stops every process the run started, one PID at a time
+Checks every recorded root PID: a root that is gone, or whose PID now belongs to a process with another start
+time, is noted; one with the recorded start time but another command line stops nothing (exit 2). It closes the
+run's playwright-cli session, then stops every process the run started, one PID at a time
 (`taskkill /PID <pid> /F`, deepest first, never by name, no `/T`): each recorded root and each descendant
 `up` recorded once ready and `doctor` recorded since (`tracked` in the state file) whose start time and
 command line still match, and every live process below one of them that started after its parent. That reaches
 a grandchild whose parent already exited, which a tree walk from the root misses on Windows. A recorded process
-that is gone still counts as a parent, then only for a child whose command line names the target folder (an Nx
-executor keeps a dead PID as its parent). It looks again, up to three times, for a child started meanwhile,
-deletes the state file and keeps the evidence directory. A root PID that no longer runs is noted, not refused.
+that is gone still counts as a parent: when another process holds its PID now, for a child started between the
+two start times; when nothing does, for a child whose command line names the target folder (an Nx executor keeps
+a dead PID as its parent). It looks again, up to three times, for a child started meanwhile. If one of the run's
+processes still runs after that, `down` exits 1, lists it under `left` and keeps the state file (with it in
+`tracked`) for the next `down`; otherwise it deletes the state file. The evidence directory stays. `up` stops
+an attempt whose port was taken the same way before it tries the next slot.
 Never `playwright-cli close-all` or `kill-all`: they reach Lars's sessions.
 
 ## Helpers
@@ -217,7 +221,7 @@ Never `playwright-cli close-all` or `kill-all`: they reach Lars's sessions.
 | `up` | launch (`--target`) or attach (`--url`); writes `tmp/control-angular-dev-app/state/<flowId>.json` | flowId (the target, or `url-<port>`; a URL without a port uses 80 or 443), url, port, slot, ports `{name, port, kind, reason?}`, session, evidenceDir, procs `{name, pid, port, start, commandLine, log}`, tracked `{pid, start, commandLine}` (the processes below them once ready), `readyInSeconds` | 0 ready; 2 refused (10 slots busy, a busy fixed port, a busy `--port`, worktree on the main port, state exists), process exited, timeout |
 | `doctor` | checks above | one line per check, or `checks[]` with `--json` | 0 / 1 / 2 |
 | `info` | prints the state | state plus `statePath` | 0; 2 no state |
-| `down` | teardown | notes per process and the session | 0 done (also when the PID is already gone); 2 missing state file, or PID start time / command mismatch (nothing stopped) |
+| `down` | teardown | notes per process and the session; `left` when some still run | 0 done (also when a root PID is gone or reused); 1 a process the run started still runs (state file kept); 2 missing state file, or a root PID with its recorded start time but another command line (nothing stopped) |
 
 `scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
 `features/.proven.json`:
