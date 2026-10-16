@@ -25,7 +25,8 @@ All commands run from the root of the checkout you drive (the main checkout or a
 
 Ports. The main checkout uses slot 0, the defaults below. A git worktree (`.git` is a file) takes slot 1-99
 from a hash of the fixture path, so its ports stay the same from run to run: Vitest `51400 + slot`, bundled CDP
-`9400 + slot` (measured 2026-10-16 in the `verification-skills` worktree: slot 36, 51436 and 9436). When a
+`9500 + slot`, apart from control-angular-devtools' 9420-9499 (measured 2026-10-16 in the `verification-skills`
+worktree: slot 36, 51436 and 9536). When a
 derived port is busy, `up` tries the next slot, 10 slots in all, and records the slot and the ports it used
 (`info --json`: `slot`, `ports`). Vitest's default 63315 cannot be used here, because it sits in a Windows
 excluded port range.
@@ -33,15 +34,17 @@ excluded port range.
 | Port | Kind | Default | How it moves |
 |---|---|---|---|
 | vitest | derived | 51315 | `--port`, passed as `VITEST_BROWSER_PORT` to `vitest-base.config.mts` (`strictPort`) (measured: listened on 51436, and on its fallback 51437 while a throwaway listener held 51436) |
-| bundled-cdp | derived | 9350 | moves with the slot, passed as `VITEST_CDP_PORT` to Chromium's `--remote-debugging-port` (bundled mode only; measured: 9437, the fallback slot's) |
+| bundled-cdp | derived | 9350 | moves with the slot, passed as `VITEST_CDP_PORT` to Chromium's `--remote-debugging-port` (bundled mode only; measured: 9536) |
 | instance | external | the instance's CDP port | control-ai-browsers owns it: `up` asks `control-ai-browsers up <instance> --json` for it, which starts the instance when it is not running (measured: 9334 for `chrome-beta-gemma4` before control-ai-browsers derived worktree ports, 9681 after, in the `verification-skills` worktree) |
 
 - `--port N` sets the Vitest port with no fallback for it: a busy `N` exits 2 naming its holder's PID; from a
   worktree the main checkout's 51315 is refused. The bundled CDP port still derives and falls back.
 - A server that finds its port taken after the check ("already in use" from Vitest's `strictPort`, or another
-  process on the CDP port) is stopped, and `up` tries the next slot.
-- Attach mode: an instance this run started is stopped again by `down` (through `control-ai-browsers down`); an
-  instance that was already running is left running.
+  process on the CDP port) is stopped, and `up` tries the next slot; each attempt logs to its own file
+  (`ng-test.log`, `ng-test-2.log`, ...). A bare `--port` exits 2.
+- Attach mode: an instance this run started is stopped again by `down` (through `control-ai-browsers down`), and
+  the state records its port as `launchedInstancePort` so a teardown check sees it stopped; an instance that was
+  already running is left running.
 - One run at a time: `up` refuses while any state file exists.
 - The playwright-cli session is `control-vitest-<flowId>-<Vitest port>`, for example
   `control-vitest-chrome-beta-gemma4-51315`; the flow id is the instance name or `bundled`. Never use
@@ -93,7 +96,7 @@ Read-only. Each check prints one line (`--json` for the list):
 |---|---|
 | `map-fresh` | always; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`), or that were never proven; never fails doctor |
 | `process-alive` | the recorded `ng test` PID runs with the recorded start time |
-| `ports` | every derived port listens and its PID is in the `ng test` tree (bundled Chromium included); the instance's external port is listed, not checked: `[OK] ports: vitest 51436 (derived), instance 9334 (external: control-ai-browsers instance chrome-beta-gemma4; this skill attaches to it)` |
+| `ports` | every derived port listens and its PID is in the `ng test` tree (bundled Chromium included); the instance's external port is listed, not checked: `[OK] ports: vitest 51436 (derived), instance 9681 (external: control-ai-browsers instance chrome-beta-gemma4; this skill attaches to it)` |
 | `test-run` | the log has Vitest's `DEV` (watch) or `RUN` line and no "An exception occurred" or "Unhandled Error"; reports the last `Tests` summary |
 | `browser-cdp` | `/json/version` answers on the CDP port |
 | `orchestrator-tab` | a tab starts with `http://127.0.0.1:<port>/__vitest_test__/` |

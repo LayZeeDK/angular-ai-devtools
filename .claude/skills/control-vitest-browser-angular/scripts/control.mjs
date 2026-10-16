@@ -48,6 +48,7 @@ import { mapFresh } from './fingerprint.mjs';
  * @property {'bundled' | 'attach'} mode
  * @property {string | null} instance
  * @property {boolean} launchedInstance
+ * @property {number} [launchedInstancePort]  set when this run started the instance, so a teardown check sees it stopped
  * @property {string} cdpUrl  the browser's CDP endpoint: the bundled CDP port, or the instance's (external)
  * @property {number} vitestPort
  * @property {number} slot
@@ -108,7 +109,7 @@ export function portRows(bundled) {
   const rows = [{ name: 'vitest', kind: 'derived', at: (slot) => (slot === 0 ? MAIN_VITEST_PORT : 51400 + slot) }];
 
   if (bundled) {
-    rows.push({ name: 'bundled-cdp', kind: 'derived', at: (slot) => (slot === 0 ? MAIN_BUNDLED_CDP_PORT : 9400 + slot) });
+    rows.push({ name: 'bundled-cdp', kind: 'derived', at: (slot) => (slot === 0 ? MAIN_BUNDLED_CDP_PORT : 9500 + slot) });
   }
 
   return rows;
@@ -161,7 +162,7 @@ export function upOptions(args) {
   return {
     bundled: Boolean(flagIn(args, 'bundled')),
     instance: text('instance') ?? DEFAULT_INSTANCE,
-    port: port === null ? null : Number(port),
+    port: flagIn(args, 'port') === true ? NaN : port === null ? null : Number(port),
     hold: hold === null ? null : Number(hold),
     filter: text('filter'),
     timingDemo: Boolean(flagIn(args, 'timing-demo')),
@@ -221,19 +222,27 @@ export function slotOrder(first) {
 }
 
 /**
- * The PID listening on each port in `netstat -ano` output, IPv4 and IPv6.
+ * The PIDs listening on each port in `netstat -ano` output, IPv4 and IPv6: a port can have one holder per address.
  * @param {string} text
- * @returns {Map<number, number>}
+ * @returns {Map<number, number[]>}
  */
 export function listeners(text) {
-  /** @type {Map<number, number>} */
+  /** @type {Map<number, number[]>} */
   const map = new Map();
 
   for (const l of text.split(/\r?\n/)) {
     const m = l.trim().split(/\s+/);
 
     if (m[0] === 'TCP' && m[3] === 'LISTENING') {
-      map.set(Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1)), Number(m[4]));
+      const port = Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1));
+      const pid = Number(m[4]);
+      const pids = map.get(port) ?? [];
+
+      if (!pids.includes(pid)) {
+        pids.push(pid);
+      }
+
+      map.set(port, pids);
     }
   }
 
@@ -242,17 +251,22 @@ export function listeners(text) {
 
 /**
  * Picks the ports of one run. A busy fixed port is a refusal. `forced` (`--port`) is the main port in every slot,
- * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free; the derived
- * entries of a slot after the first say what they fell back from.
+ * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free. A derived entry
+ * of a slot other than `first` (the run's own slot, `order[0]` unless a retry already used it) says what it fell
+ * back from.
  * @param {PortRow[]} rows
  * @param {number[]} order
- * @param {Map<number, number>} busy  the PID listening on each port
+ * @param {Map<number, number[]>} busy  the PIDs listening on each port
  * @param {number} [forced]
+ * @param {number} [first]
  * @returns {{ ok: true, slot: number, ports: PortEntry[] } | { ok: false, reason: string }}
  */
-export function planPorts(rows, order, busy, forced) {
+export function planPorts(rows, order, busy, forced, first = order[0]) {
+  /** @param {number} port */
+  const holder = (port) => busy.get(port)?.[0];
+
   for (const r of rows) {
-    const pid = r.kind === 'fixed' ? busy.get(r.port) : undefined;
+    const pid = r.kind === 'fixed' ? holder(r.port) : undefined;
 
     if (r.kind === 'fixed' && pid !== undefined) {
       return { ok: false, reason: `fixed port ${r.name} ${r.port} held by PID ${pid}; pinned by ${r.pin}` };
@@ -260,7 +274,7 @@ export function planPorts(rows, order, busy, forced) {
   }
 
   const main = rows.findIndex((r) => r.kind === 'derived');
-  const forcedPid = forced === undefined ? undefined : busy.get(forced);
+  const forcedPid = forced === undefined ? undefined : holder(forced);
 
   if (forced !== undefined && forcedPid !== undefined) {
     return { ok: false, reason: `port ${forced} (--port) is held by PID ${forcedPid}; --port has no fallback` };
@@ -273,17 +287,15 @@ export function planPorts(rows, order, busy, forced) {
 
   for (const slot of order) {
     const taken = rows.flatMap((r, i) => {
-      const pid = r.kind === 'derived' ? busy.get(portAt(r, i, slot)) : undefined;
+      const pid = r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
 
       return pid === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} held by PID ${pid}`];
     });
 
     if (taken.length === 0) {
-      const first = /** @type {number} */ (order[0]);
       /** @type {PortEntry[]} */
       const ports = rows.map((r, i) => {
         const port = portAt(r, i, slot);
-        const from = portAt(r, i, first);
 
         if (r.kind === 'fixed') {
           return { name: r.name, port, kind: r.kind, reason: r.pin };
@@ -293,13 +305,15 @@ export function planPorts(rows, order, busy, forced) {
           return { name: r.name, port, kind: r.kind, reason: r.owner };
         }
 
-        if (slot === first) {
+        if (first === undefined || slot === first) {
           return { name: r.name, port, kind: r.kind };
         }
 
-        const pid = busy.get(from);
+        const from = portAt(r, i, first);
+        const pid = holder(from);
+        const why = pid !== undefined ? `held by PID ${pid}` : order[0] === first ? `slot ${first} had ${tried[0]}` : 'taken after the check';
 
-        return { name: r.name, port, kind: r.kind, reason: pid === undefined ? `fell back from ${from}: slot ${first} had ${tried[0]}` : `fell back from ${from}: held by PID ${pid}` };
+        return { name: r.name, port, kind: r.kind, reason: `fell back from ${from}: ${why}` };
       });
 
       return { ok: true, slot, ports };
@@ -312,26 +326,27 @@ export function planPorts(rows, order, busy, forced) {
 }
 
 /**
- * The doctor's `ports` line: every derived and fixed port answers and is held by the recorded process tree; every
- * port is listed.
+ * The doctor's `ports` line: every derived and fixed port answers and every holder of it is in the recorded process
+ * tree; every port is listed.
  * @param {PortEntry[]} ports
- * @param {Map<number, number>} busy
+ * @param {Map<number, number[]>} busy
  * @param {Set<number>} tree
  * @returns {{ status: 'pass' | 'fail', detail: string }}
  */
 export function portsCheck(ports, busy, tree) {
   const problems = ports.flatMap((p) => {
-    const pid = busy.get(p.port);
+    const pids = busy.get(p.port) ?? [];
+    const foreign = pids.filter((pid) => !tree.has(pid));
 
     if (p.kind === 'external') {
       return [];
     }
 
-    if (pid === undefined) {
+    if (pids.length === 0) {
       return [`${p.name} ${p.port} not listening`];
     }
 
-    return tree.has(pid) ? [] : [`${p.name} ${p.port} held by PID ${pid}, not the recorded tree`];
+    return foreign.length === 0 ? [] : [`${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`];
   });
 
   if (problems.length > 0) {
@@ -538,8 +553,8 @@ function processTable() {
 }
 
 /**
- * The PID listening on each port now (netstat, IPv4 and IPv6).
- * @returns {Map<number, number>}
+ * The PIDs listening on each port now (netstat, IPv4 and IPv6).
+ * @returns {Map<number, number[]>}
  */
 export function busyPorts() {
   const netstat = path.join(SYSTEM32, 'netstat.exe');
@@ -719,15 +734,15 @@ function aiInstance(name) {
 /**
  * The first derived port of the run that a process outside the ng test tree now holds, with that holder.
  * @param {PortEntry[]} ports
- * @param {Map<number, number>} busy
+ * @param {Map<number, number[]>} busy
  * @param {Set<number>} tree
  * @returns {{ entry: PortEntry, pid: number } | null}
  */
 export function takenPort(ports, busy, tree) {
   for (const entry of ports) {
-    const pid = busy.get(entry.port);
+    const pid = (busy.get(entry.port) ?? []).find((p) => !tree.has(p));
 
-    if (entry.kind === 'derived' && pid !== undefined && !tree.has(pid)) {
+    if (entry.kind === 'derived' && pid !== undefined) {
       return { entry, pid };
     }
   }
@@ -768,7 +783,8 @@ async function up() {
   }
 
   let order = slotOrder(slotOf(FIXTURE, worktree));
-  let plan = planPorts(rows, order, busyPorts(), forced);
+  const first = order[0];
+  let plan = planPorts(rows, order, busyPorts(), forced, first);
 
   if (!plan.ok) {
     return fail(2, `refused: ${plan.reason}`);
@@ -804,6 +820,7 @@ async function up() {
     mode: bundled ? 'bundled' : 'attach',
     instance,
     launchedInstance,
+    ...(launchedInstance ? { launchedInstancePort: cdpPort } : {}),
     ...placed(plan),
     worktree,
     evidenceDir,
@@ -850,10 +867,11 @@ async function up() {
   }
 
   writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
-  const log = path.join(evidenceDir, 'ng-test.log');
   const t0 = Date.now();
 
-  for (;;) {
+  for (let attempt = 1; ; attempt++) {
+    // Each attempt has its own log, so a retry never reads the last attempt's "already in use".
+    const log = path.join(evidenceDir, attempt === 1 ? 'ng-test.log' : `ng-test-${attempt}.log`);
     const fd = openSync(log, 'a');
     const child = spawn(process.execPath, testArgs(NG, state), { cwd: FIXTURE, env: testEnv(process.env, state), detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
     child.unref();
@@ -909,7 +927,12 @@ async function up() {
       break;
     }
 
-    stopTree(pid);
+    const live = processTable().find((r) => r.ProcessId === pid);
+
+    if (live !== undefined && state.proc !== null && pidMismatch(live, state.proc) === null) {
+      stopTree(pid);
+    }
+
     const what = `${taken.entry.name} ${taken.entry.port} was taken ${taken.pid === null ? 'by another process' : `by PID ${taken.pid}`} after the check`;
 
     if (forced !== undefined && taken.entry.port === forced) {
@@ -917,10 +940,15 @@ async function up() {
     }
 
     order = order.slice(order.indexOf(plan.slot) + 1);
-    plan = planPorts(rows, order, busyPorts(), forced);
 
-    if (order.length === 0 || !plan.ok) {
-      fail(2, `refused: ${what}, and ${plan.ok ? `none of the ${SLOT_TRIES} slots is left` : plan.reason}; run down`, { state: statePath(flowId) });
+    if (order.length === 0) {
+      fail(2, `refused: ${what}, and none of the ${SLOT_TRIES} slots is left; run down`, { state: statePath(flowId) });
+    }
+
+    plan = planPorts(rows, order, busyPorts(), forced, first);
+
+    if (!plan.ok) {
+      fail(2, `refused: ${what}, and ${plan.reason}; run down`, { state: statePath(flowId) });
     }
 
     Object.assign(state, placed(plan), { proc: null });

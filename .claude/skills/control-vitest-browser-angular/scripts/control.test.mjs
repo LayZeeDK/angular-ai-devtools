@@ -126,7 +126,7 @@ test('upOptions reads every value, and a bare --port, --hold or --extension as a
   const full = upOptions(['up', '--bundled', '--instance', 'edge-dev', '--port', '51999', '--hold', '90000', '--filter', 'hold', '--timing-demo', '--extension', 's1-vitest', '--timeout', '30']);
   assert.deepEqual(full, { bundled: true, instance: 'edge-dev', port: 51999, hold: 90000, filter: 'hold', timingDemo: true, extension: 's1-vitest', timeoutMs: 30000 });
   const bare = upOptions(['up', '--port', '--hold', '--extension', '--json']);
-  assert.equal(bare.port, null);
+  assert.ok(Number.isNaN(bare.port), 'a bare --port is refused as no port number, not ignored');
   assert.equal(bare.hold, null);
   assert.equal(bare.extension, null);
   const empty = upOptions(['up', '--port', '', '--hold', '', '--extension', '', '--instance', '', '--filter', '']);
@@ -206,6 +206,24 @@ test('planPorts refuses after 10 busy slots and names each port and its holder',
   }
 });
 
+test('planPorts keeps a free --port in every slot while the bundled CDP port falls back from a held one', async (t) => {
+  const held = await listen(t);
+  const [forced, cdp1] = await Promise.all([freePort(), freePort()]);
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [
+    { name: 'vitest', kind: 'derived', at: () => 1 },
+    { name: 'bundled-cdp', kind: 'derived', at: (slot) => (slot === 0 ? held : cdp1) },
+  ];
+  assert.deepEqual(planPorts(rows, [0, 1], busyPorts(), forced), {
+    ok: true,
+    slot: 1,
+    ports: [
+      { name: 'vitest', port: forced, kind: 'derived', reason: `fell back from ${forced}: slot 0 had bundled-cdp ${held} held by PID ${process.pid}` },
+      { name: 'bundled-cdp', port: cdp1, kind: 'derived', reason: `fell back from ${held}: held by PID ${process.pid}` },
+    ],
+  });
+});
+
 test('planPorts refuses a busy --port with its holder and never falls back from it', async (t) => {
   const held = await listen(t);
   const free = await freePort();
@@ -231,8 +249,8 @@ test('takenPort finds a derived port a process outside the tree holds, and ignor
     { name: 'vitest', port: 51401, kind: 'derived' },
     { name: 'instance', port: 9334, kind: 'external' },
   ];
-  assert.equal(takenPort(ports, new Map([[51401, 10], [9334, 99]]), new Set([10])), null);
-  assert.deepEqual(takenPort(ports, new Map([[51401, 77]]), new Set([10])), { entry: ports[0], pid: 77 });
+  assert.equal(takenPort(ports, new Map([[51401, [10]], [9334, [99]]]), new Set([10])), null);
+  assert.deepEqual(takenPort(ports, new Map([[51401, [10, 77]]]), new Set([10])), { entry: ports[0], pid: 77 });
 });
 
 test('portsCheck passes owned ports, fails a missing or foreign one, and ignores the external instance', () => {
@@ -241,8 +259,8 @@ test('portsCheck passes owned ports, fails a missing or foreign one, and ignores
     { name: 'vitest', port: 51401, kind: 'derived' },
     { name: 'instance', port: 9334, kind: 'external', reason: 'control-ai-browsers instance chrome-beta-gemma4' },
   ];
-  assert.deepEqual(portsCheck(ports, new Map([[51401, 10]]), new Set([10])), { status: 'pass', detail: 'vitest 51401 (derived), instance 9334 (external: control-ai-browsers instance chrome-beta-gemma4)' });
-  assert.deepEqual(portsCheck(ports, new Map([[51401, 99]]), new Set([10])), { status: 'fail', detail: 'vitest 51401 held by PID 99, not the recorded tree' });
+  assert.deepEqual(portsCheck(ports, new Map([[51401, [10]]]), new Set([10])), { status: 'pass', detail: 'vitest 51401 (derived), instance 9334 (external: control-ai-browsers instance chrome-beta-gemma4)' });
+  assert.deepEqual(portsCheck(ports, new Map([[51401, [99]]]), new Set([10])), { status: 'fail', detail: 'vitest 51401 held by PID 99, not the recorded tree' });
   assert.deepEqual(portsCheck(ports, new Map(), new Set([10])), { status: 'fail', detail: 'vitest 51401 not listening' });
 });
 
@@ -263,12 +281,12 @@ test('listeners maps each LISTENING port to its PID, IPv4 or IPv6, and nothing e
     '  TCP    127.0.0.1:51315        127.0.0.1:50000        ESTABLISHED     8',
     '  TCP    [::1]:51315            [::]:0                 LISTENING       4242',
   ].join('\r\n');
-  assert.deepEqual([...listeners(text)], [[15131, 7], [51315, 4242]]);
+  assert.deepEqual([...listeners(text)], [[15131, [7]], [51315, [4242]]]);
 });
 
 test('busyPorts sees a throwaway listener with this process as its holder', async (t) => {
   const port = await listen(t);
-  assert.equal(busyPorts().get(port), process.pid);
+  assert.deepEqual(busyPorts().get(port), [process.pid]);
 });
 
 test('playwrightCliJs takes the script beside the first absolute shim folder and skips relative PATH entries', (t) => {
