@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "features": {
+    "health-check": {
+      "provenAt": "2026-10-16T13:41:42.295Z",
+      "commit": "04f1aa1d9c8d5eee88a846aef5dfe84ca460882d",
+      "method": "typescript",
+      "entries": [
+        ".claude/skills/control-ai-browsers/instances.json"
+      ],
+      "files": {
+        ".claude/skills/control-ai-browsers/instances.json": "92cd2853138e0870c7249d06164f9e4295a07365"
+      }
+    },
+    "instances": {
+      "provenAt": "2026-10-16T13:41:41.818Z",
+      "commit": "04f1aa1d9c8d5eee88a846aef5dfe84ca460882d",
+      "method": "typescript",
+      "entries": [
+        ".claude/skills/control-ai-browsers/instances.json"
+      ],
+      "files": {
+        ".claude/skills/control-ai-browsers/instances.json": "92cd2853138e0870c7249d06164f9e4295a07365"
+      }
+    },
+    "model-lifecycle": {
+      "provenAt": "2026-10-16T13:41:42.566Z",
+      "commit": "04f1aa1d9c8d5eee88a846aef5dfe84ca460882d",
+      "method": "typescript",
+      "entries": [
+        ".claude/skills/control-ai-browsers/instances.json"
+      ],
+      "files": {
+        ".claude/skills/control-ai-browsers/instances.json": "92cd2853138e0870c7249d06164f9e4295a07365"
+      }
+    }
+  }
+}
