@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { mapFresh } from './fingerprint.mjs';
+import { mapFresh, printable } from './fingerprint.mjs';
 
 /** @typedef {{ ProcessId: number, ParentProcessId: number, Start: string | null, CommandLine: string | null }} ProcessRow */
 /** @typedef {{ pid: number, start: string | null, commandLine: string | null, log: string }} ProcState */
@@ -169,6 +169,63 @@ export function upOptions(args) {
     extension: nonEmpty('extension'),
     timeoutMs: Number(flagIn(args, 'timeout') ?? 180) * 1000,
   };
+}
+
+/**
+ * Why `up` refuses its value flags, or null: a flag given without its value, a `--timeout` (seconds) that is not a
+ * positive number, or a `--hold` (milliseconds) that is not a positive whole number. `--port` has its own check.
+ * @param {string[]} args
+ * @returns {string | null}
+ */
+export function upRefusal(args) {
+  for (const name of ['timeout', 'hold', 'instance', 'extension']) {
+    if (flagIn(args, name) === true) {
+      return `refused: --${name} needs a value`;
+    }
+  }
+
+  const timeout = flagIn(args, 'timeout');
+
+  if (typeof timeout === 'string' && timeout !== '' && !(Number.isFinite(Number(timeout)) && Number(timeout) > 0)) {
+    return `refused: --timeout ${timeout} is not a positive number of seconds`;
+  }
+
+  const hold = flagIn(args, 'hold');
+
+  if (typeof hold === 'string' && hold !== '' && !(Number.isInteger(Number(hold)) && Number(hold) > 0)) {
+    return `refused: --hold ${hold} is not a positive whole number of milliseconds`;
+  }
+
+  return null;
+}
+
+/**
+ * Runs a command; null when it finished, else the could-not-run reason for an error it threw (a CDP endpoint that
+ * does not answer, a refused extension path), so the caller exits 2 with it rather than 1 with a stack.
+ * @param {() => void | Promise<void>} run
+ * @param {string} name
+ * @returns {Promise<string | null>}
+ */
+export async function couldNotRun(run, name) {
+  try {
+    await run();
+
+    return null;
+  } catch (error) {
+    return `${name} could not run: ${error instanceof Error ? error.message : String(error)}; run down`;
+  }
+}
+
+/**
+ * One human-readable doctor line. Text from the test page, its tabs or a loaded extension can hold control
+ * characters, so they are escaped rather than written to the terminal.
+ * @param {Check} c
+ * @returns {string}
+ */
+export function checkLine(c) {
+  const tag = c.status === 'pass' ? '[OK]' : c.status === 'skip' ? '[SKIP]' : c.status === 'warn' ? '[WARN]' : '[ERROR]';
+
+  return `${tag} ${c.name}: ${printable(c.detail)}`;
 }
 
 /**
@@ -664,8 +721,7 @@ function out(result, code) {
     process.stdout.write(JSON.stringify(result, null, 2) + '\n');
   } else {
     for (const c of result.checks ?? []) {
-      const tag = c.status === 'pass' ? '[OK]' : c.status === 'skip' ? '[SKIP]' : c.status === 'warn' ? '[WARN]' : '[ERROR]';
-      process.stdout.write(`${tag} ${c.name}: ${c.detail}\n`);
+      process.stdout.write(`${checkLine(c)}\n`);
     }
 
     const { checks, ...rest } = result;
@@ -767,6 +823,12 @@ async function up() {
     fail(2, `cannot find the Angular CLI at ${NG}; run npm ci in spikes/ng222-app first`);
   }
 
+  const refusal = upRefusal(argv);
+
+  if (refusal !== null) {
+    fail(2, refusal);
+  }
+
   const opts = upOptions(argv);
   const bundled = opts.bundled;
   const instance = bundled ? null : opts.instance;
@@ -834,6 +896,11 @@ async function up() {
   };
   writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
 
+  // Before the extension loads: a failure here then leaves nothing installed in the instance.
+  if (!bundled) {
+    await clearHttpCache(cdpPortOf(state));
+  }
+
   if (opts.extension !== null) {
     const dir = opts.extension === 's1-vitest' ? writeS1VitestVariant(path.join(evidenceDir, 'extension')) : path.resolve(opts.extension);
 
@@ -854,16 +921,14 @@ async function up() {
 
       try {
         state.extension.id = /** @type {{ id: string }} */ (await cdp.send('Extensions.loadUnpacked', { path: dir })).id;
+        // Recorded at once, so down uninstalls it whatever fails after this point.
+        writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
       } finally {
         cdp.ws.close();
       }
     }
   } else if (bundled) {
     fail(2, '--bundled needs --extension <dir> or --extension s1-vitest (vitest-extension.config.mts requires one); run down to clear the state', { state: statePath(flowId) });
-  }
-
-  if (!bundled) {
-    await clearHttpCache(cdpPortOf(state));
   }
 
   writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
@@ -1008,16 +1073,18 @@ async function doctor() {
       const sid = await cdp.session(tab.id);
       const tree = /** @type {{ frameTree: FrameTree }} */ (await cdp.send('Page.getFrameTree', {}, sid)).frameTree;
       const tester = (tree.childFrames ?? []).find((c) => c.frame.name === 'vitest-iframe');
-      add('tester-frame', tester ? 'pass' : 'fail', tester ? tester.frame.url : 'no child frame named vitest-iframe');
+      const contexts = tester ? await frameContexts(cdp, sid) : [];
+      const main = tester ? contexts.find((c) => c.auxData?.frameId === tester.frame.id && c.auxData?.isDefault) : undefined;
 
-      if (tester) {
-        const contexts = await frameContexts(cdp, sid);
-        const main = contexts.find((c) => c.auxData?.frameId === tester.frame.id && c.auxData?.isDefault);
+      if (!tester) {
+        add('tester-frame', 'fail', 'no child frame named vitest-iframe');
+      } else if (!main) {
+        add('tester-frame', 'fail', `no default execution context in the tester iframe ${tester.frame.url}`);
+      } else {
+        add('tester-frame', 'pass', tester.frame.url);
+      }
 
-        if (!main) {
-          throw new Error('no default execution context for the tester iframe');
-        }
-
+      if (tester && main) {
         const page = /** @type {{ ng: number, host: string | null, runner: string, lm: string }} */ (
           await evalIn(
             cdp,
@@ -1165,5 +1232,9 @@ if (process.argv[1] && realpathSync.native(path.resolve(process.argv[1])) === re
     process.exit(2);
   }
 
-  await run();
+  const reason = await couldNotRun(run, String(cmd));
+
+  if (reason !== null) {
+    fail(2, reason);
+  }
 }

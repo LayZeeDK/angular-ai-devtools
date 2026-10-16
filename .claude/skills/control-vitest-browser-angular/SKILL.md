@@ -78,7 +78,8 @@ node .claude/skills/control-vitest-browser-angular/scripts/control.mjs up --exte
   `ng test` to ready, and 19.3 s for the whole `up` including launching the stopped `chrome-beta-gemma4`
   instance. The bundled flow took 9.9 s. In a worktree (2026-10-16): attach 4.4 s with the instance launched, bundled
   21.6 s on a cold cache.
-- Attach mode clears the instance's HTTP cache (`Network.clearBrowserCache`) before `ng test` starts: the browser
+- Attach mode clears the instance's HTTP cache (`Network.clearBrowserCache`) before it loads the extension and
+  before `ng test` starts: the browser
   otherwise reused a test chunk an earlier run on the same Vitest port had cached, with that run's `--hold` value
   (measured 2026-10-16: a run without `--hold` held for 90 s).
 - Re-run the tests: change or touch a file under `spikes/ng222-app/src` (`touch spikes/ng222-app/src/app/counter.spec.ts`).
@@ -100,7 +101,7 @@ Read-only. Each check prints one line (`--json` for the list):
 | `test-run` | the log has Vitest's `DEV` (watch) or `RUN` line and no "An exception occurred" or "Unhandled Error"; reports the last `Tests` summary |
 | `browser-cdp` | `/json/version` answers on the CDP port |
 | `orchestrator-tab` | a tab starts with `http://127.0.0.1:<port>/__vitest_test__/` |
-| `tester-frame` | the tab has a child frame named `vitest-iframe` |
+| `tester-frame` | the tab has a child frame named `vitest-iframe` with a default execution context |
 | `dev-build` | `window.ng` has functions in the tester iframe |
 | `vitest-runner` | `window.__vitest_browser_runner__` is an object in the tester iframe |
 | `mounted-component` | a `[ng-version]` host exists now; `[WARN]` when no test is running |
@@ -192,7 +193,10 @@ not a refusal. Never `close-all` or `kill-all`.
 State file: `tmp/control-vitest-browser-angular/state/<flowId>.json`. Exit codes: 0 done or healthy; 1 not
 healthy; 2 refused or could not run, with the reason (a run already recorded, 10 busy slots, a busy `--port`, worktree on
 the main port, `control-ai-browsers up` failed, unknown instance, missing state file, PID mismatch, `--bundled` without an extension, `ng test` exited or
-failed to start).
+failed to start, a value flag given without its value, a `--timeout` that is not a positive number of seconds or a `--hold`
+that is not a positive whole number of milliseconds, and any error a command throws, such as a CDP endpoint that does not
+answer: `<command> could not run: <error>; run down`). Text a page or an extension controls is printed with its control
+characters escaped.
 
 `scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
 `features/.proven.json`:

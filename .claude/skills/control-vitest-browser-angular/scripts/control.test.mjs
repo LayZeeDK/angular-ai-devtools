@@ -9,6 +9,8 @@ import { test } from 'node:test';
 import {
   busyPorts,
   cdpPortOf,
+  checkLine,
+  couldNotRun,
   descendants,
   extensionIdIn,
   flagIn,
@@ -30,6 +32,7 @@ import {
   testEnv,
   testRunCheck,
   upOptions,
+  upRefusal,
 } from './control.mjs';
 
 /** @typedef {Parameters<typeof testEnv>[1]} State */
@@ -418,4 +421,40 @@ test('loading the script makes Windows skip the current directory when Node look
   const freshCopy = new URL('./control.mjs?fresh', import.meta.url).href;
   await import(freshCopy);
   assert.equal(process.env['NoDefaultCurrentDirectoryInExePath'], '1');
+});
+
+test('upRefusal refuses a bare value flag and a timeout or hold that is not a positive number', () => {
+  assert.equal(upRefusal(['up']), null);
+  assert.equal(upRefusal(['up', '--timeout', '30', '--hold', '90000', '--instance', 'edge-dev', '--extension', 's1-vitest']), null);
+  assert.match(upRefusal(['up', '--timeout', 'abc']) ?? '', /^refused: --timeout abc is not a positive number of seconds/);
+  assert.match(upRefusal(['up', '--timeout', '0']) ?? '', /--timeout 0 is not a positive/);
+  assert.match(upRefusal(['up', '--hold', 'abc']) ?? '', /^refused: --hold abc is not a positive whole number of milliseconds/);
+  assert.match(upRefusal(['up', '--hold', '-5']) ?? '', /--hold -5 is not/);
+  assert.match(upRefusal(['up', '--hold', '1.5']) ?? '', /--hold 1.5 is not/);
+
+  for (const name of ['timeout', 'hold', 'instance', 'extension']) {
+    assert.equal(upRefusal(['up', `--${name}`]), `refused: --${name} needs a value`);
+    assert.equal(upRefusal(['up', `--${name}`, '--json']), `refused: --${name} needs a value`);
+  }
+});
+
+test('couldNotRun turns a thrown error into a could-not-run reason, and a clean run into null', async () => {
+  assert.equal(await couldNotRun(async () => {}, 'doctor'), null);
+  assert.equal(
+    await couldNotRun(async () => {
+      throw new Error('nothing answers on http://127.0.0.1:9350');
+    }, 'up'),
+    'up could not run: nothing answers on http://127.0.0.1:9350; run down',
+  );
+  assert.equal(
+    await couldNotRun(() => {
+      throw 'plain';
+    }, 'doctor'),
+    'doctor could not run: plain; run down',
+  );
+});
+
+test('checkLine escapes control characters page text put in a detail', () => {
+  assert.equal(checkLine({ name: 'mounted-component', status: 'warn', detail: 'x\u001b[2Jy' }), String.raw`[WARN] mounted-component: x\u001b[2Jy`);
+  assert.equal(checkLine({ name: 'ports', status: 'pass', detail: 'ok' }), '[OK] ports: ok');
 });
