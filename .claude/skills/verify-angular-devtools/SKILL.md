@@ -23,8 +23,8 @@ Each check's header comment holds its claim, the feature it covers, its usage an
 
 Through `lars-verify` (`~/.claude/skills/lars-verify/references/contract.md`), with
 `D=.claude/skills/control-angular-devtools/scripts/control.mjs`,
-`A=.claude/skills/control-angular-dev-app/scripts/control.mjs`, and `APP` standing for the four arguments
-`"--target", "counter", "--port", "4317"`:
+`A=.claude/skills/control-angular-dev-app/scripts/control.mjs`, and `APP` standing for the two arguments
+`"--target", "counter"` (each side derives its own app port, so a baseline and a head run side by side):
 
 - setup: `{ "argv": ["node", A, "up", APP, "--json"], "as": "app" }`,
   `["node", D, "install", "--from", "tmp/control-angular-devtools/extension"]`, then

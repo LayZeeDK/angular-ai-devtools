@@ -2,6 +2,7 @@
 // Run: node --test .claude/skills/control-angular-devtools/scripts/control.test.mjs
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -13,7 +14,7 @@ import {
   isExtensionVersion,
   killDecision,
   brandedStatusIn,
-  cdpPortOf,
+  busyPorts,
   checkOf,
   evaluated,
   evidenceStamp,
@@ -23,16 +24,47 @@ import {
   isDevtools,
   isPanel,
   isWorktreeRoot,
+  listeners,
   newestVersion,
   parseArgs,
-  parsePortOwner,
   parseRunCode,
+  planPorts,
+  portRows,
+  portsCheck,
   profilerOk,
+  slotOfFlow,
+  slotOrder,
   UsageError,
   waitFor,
 } from './control.mjs';
 
 const EXT_ID = 'ienfalfjdbdpebioblfackkekamfmbnh';
+
+/**
+ * A throwaway listener on a port the OS picks; closed after the test.
+ * @param {import('node:test').TestContext} t
+ * @returns {Promise<number>}
+ */
+async function listen(t) {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  t.after(() => server.close());
+
+  return /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+}
+
+/**
+ * A port nothing listens on: the OS picks it for a listener that is closed again.
+ * @returns {Promise<number>}
+ */
+async function freePort() {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  const { port } = /** @type {import('node:net').AddressInfo} */ (server.address());
+  await new Promise((resolve) => server.close(() => resolve(undefined)));
+
+  return port;
+}
 
 /**
  * @param {import('node:test').TestContext} t
@@ -61,9 +93,10 @@ test('parseArgs refuses bad flags with a UsageError', () => {
   assert.throws(() => parseArgs(['up', '--app-url=']), /--app-url needs a value/);
   assert.throws(() => parseArgs(['status', '--browser', 'firefox']), /--browser firefox is not one of/);
   assert.throws(() => parseArgs(['up', '--timeout', '1.5']), /--timeout must be a whole number/);
-  assert.throws(() => parseArgs(['up', '--cdp-port=x9']), /--cdp-port must be a whole number/);
+  assert.throws(() => parseArgs(['up', '--port=x9']), /--port must be a whole number/);
+  assert.throws(() => parseArgs(['up', '--cdp-port', '9450']), /unknown flag --cdp-port/);
   assert.equal(parseArgs(['status', '--browser', 'edge-dev']).opts.browser, 'edge-dev');
-  assert.equal(parseArgs(['up', '--cdp-port', '9450']).opts['cdp-port'], '9450');
+  assert.equal(parseArgs(['up', '--port', '9450']).opts.port, '9450');
 });
 
 test('isBranded accepts the four browsers and no inherited names', () => {
@@ -83,26 +116,82 @@ test('isWorktreeRoot: a .git file is a worktree, a .git folder or none is not', 
   assert.equal(isWorktreeRoot(tempDir(t)), false);
 });
 
-test('flowIdOf and cdpPortOf: main keeps 9420, a worktree gets a stable case-blind id and a port in 9421-9499', () => {
+test('flowIdOf and slotOfFlow: main keeps slot 0 (CDP 9420), a worktree gets a stable case-blind id and a slot in 1-79', () => {
   assert.equal(flowIdOf('D:\\x', false), 'main');
-  assert.equal(cdpPortOf('main'), 9420);
+  assert.equal(slotOfFlow('main'), 0);
   const id = flowIdOf('D:\\wt\\a', true);
   assert.match(id, /^wt-[0-9a-f]{6}$/);
   assert.equal(flowIdOf('d:\\WT\\A', true), id);
   assert.notEqual(flowIdOf('D:\\wt\\b', true), id);
-  assert.equal(cdpPortOf('wt-000000'), 9421);
-  assert.equal(cdpPortOf('wt-00004e'), 9421 + 78);
-  assert.equal(cdpPortOf('wt-00004f'), 9421);
+  assert.equal(slotOfFlow('wt-000000'), 1);
+  assert.equal(slotOfFlow('wt-00004e'), 79);
+  assert.equal(slotOfFlow('wt-00004f'), 1);
 });
 
-test('parsePortOwner takes the LISTENING line for the exact port', () => {
+test('slotOrder tries 10 slots and from a worktree wraps within 1-79, never onto slot 0', () => {
+  assert.deepEqual(slotOrder(0), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  assert.deepEqual(slotOrder(75), [75, 76, 77, 78, 79, 1, 2, 3, 4, 5]);
+});
+
+test('portRows: the CDP port is 9420 + slot, so 9420 for main and 9421-9499 for a worktree; the app is external', () => {
+  const [cdp, app] = portRows('http://localhost:4336/');
+  assert.equal(cdp?.kind === 'derived' && [cdp.at(0), cdp.at(1), cdp.at(79)].join(), '9420,9421,9499');
+  assert.deepEqual(app, { name: 'app', kind: 'external', port: 4336, owner: 'control-angular-dev-app (or whatever serves --app-url); this skill never starts or stops it' });
+  assert.throws(() => portRows('nope'), /Invalid URL/);
+});
+
+test('listeners maps each LISTENING port to its PID, and nothing else', () => {
   const text = [
     '  TCP    127.0.0.1:94200        0.0.0.0:0              LISTENING       5',
     '  TCP    127.0.0.1:9420         127.0.0.1:5000         ESTABLISHED     6',
     '  TCP    127.0.0.1:9420         0.0.0.0:0              LISTENING       4242',
   ].join('\r\n');
-  assert.equal(parsePortOwner(text, 9420), 4242);
-  assert.equal(parsePortOwner(text, 9421), null);
+  assert.deepEqual([...listeners(text)], [[94200, 5], [9420, 4242]]);
+});
+
+test('planPorts falls back to the next slot when a throwaway listener holds the CDP port, and says why', async (t) => {
+  const held = await listen(t);
+  const free = await freePort();
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'cdp', kind: 'derived', at: (slot) => (slot === 5 ? held : free) }];
+  assert.deepEqual(planPorts(rows, [5, 6], busyPorts()), { ok: true, slot: 6, ports: [{ name: 'cdp', port: free, kind: 'derived', reason: `fell back from ${held}: held by PID ${process.pid}` }] });
+});
+
+test('planPorts refuses after 10 busy slots and names each port and its holder', async (t) => {
+  const held = await Promise.all(Array.from({ length: 10 }, () => listen(t)));
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'cdp', kind: 'derived', at: (slot) => Number(held[slot]) }];
+  const plan = planPorts(rows, slotOrder(0), busyPorts());
+  assert.equal(plan.ok, false);
+
+  for (const port of held) {
+    assert.ok(!plan.ok && plan.reason.includes(`cdp ${port} held by PID ${process.pid}`), `names ${port}`);
+  }
+});
+
+test('planPorts refuses a busy --port with its holder, and a busy fixed port with its pin', async (t) => {
+  const held = await listen(t);
+  const free = await freePort();
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'cdp', kind: 'derived', at: () => free }];
+  assert.deepEqual(planPorts(rows, [0, 1], busyPorts(), held), { ok: false, reason: `port ${held} (--port) is held by PID ${process.pid}; --port has no fallback` });
+  assert.deepEqual(planPorts([...rows, { name: 'x', kind: 'fixed', port: held, pin: 'a.ts:1' }], [0], busyPorts()), { ok: false, reason: `fixed port x ${held} held by PID ${process.pid}; pinned by a.ts:1` });
+});
+
+test('portsCheck passes a CDP port the recorded browser holds and fails a foreign or missing one', () => {
+  /** @type {import('./control.mjs').PortEntry[]} */
+  const ports = [
+    { name: 'cdp', port: 9437, kind: 'derived' },
+    { name: 'app', port: 4336, kind: 'external', reason: 'control-angular-dev-app' },
+  ];
+  assert.deepEqual(portsCheck(ports, new Map([[9437, 10]]), new Set([10])), { status: 'pass', detail: 'cdp 9437 (derived), app 4336 (external: control-angular-dev-app)' });
+  assert.deepEqual(portsCheck(ports, new Map([[9437, 99]]), new Set([10])), { status: 'fail', detail: 'cdp 9437 held by PID 99, not the recorded tree' });
+  assert.deepEqual(portsCheck(ports, new Map(), new Set([10])), { status: 'fail', detail: 'cdp 9437 not listening' });
+});
+
+test('busyPorts sees a throwaway listener with this process as its holder', async (t) => {
+  const port = await listen(t);
+  assert.equal(busyPorts().get(port), process.pid);
 });
 
 test('identityProblem refuses a reused PID by start time, then by command line', () => {

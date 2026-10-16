@@ -5,7 +5,6 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { createServer } from 'node:net';
 import { homedir } from 'node:os';
 import path, { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +14,7 @@ import { mapFresh } from './fingerprint.mjs';
 /** @typedef {'test' | BrandedName} BrowserValue */
 /** @typedef {{ exe: string, userData: string, scheme: 'chrome' | 'edge' }} Browser */
 
-/** @typedef {{ browser?: BrowserValue, from?: string, profile?: string, timeout?: string, 'app-url'?: string, 'cdp-port'?: string, component?: string, click?: string, file?: string, json?: true, 'di-graph'?: true }} Opts */
+/** @typedef {{ browser?: BrowserValue, from?: string, profile?: string, timeout?: string, 'app-url'?: string, port?: string, component?: string, click?: string, file?: string, json?: true, 'di-graph'?: true }} Opts */
 
 /** @typedef {{ cmd: string | undefined, opts: Opts, pos: string[] }} Parsed */
 /** @typedef {{ ProcessId: number, CommandLine: string | null, Created: string }} ProcessRow */
@@ -28,6 +27,8 @@ import { mapFresh } from './fingerprint.mjs';
  * @property {string} created
  * @property {string | null} commandLine
  * @property {number} cdpPort
+ * @property {number} [slot]
+ * @property {PortEntry[]} [ports]
  * @property {string} appUrl
  * @property {string} extensionVersion
  * @property {string} extensionDir
@@ -40,6 +41,12 @@ import { mapFresh } from './fingerprint.mjs';
  */
 
 /** @typedef {{ type: string, url: string, webSocketDebuggerUrl: string }} CdpTarget */
+/** @typedef {'derived' | 'fixed' | 'external'} PortKind */
+/** @typedef {{ name: string, port: number, kind: PortKind, reason?: string }} PortEntry */
+/**
+ * A row of the ports table (SKILL.md, "Pick a flow"): a derived port has a value per slot, the first row is the main port.
+ * @typedef {{ name: string, kind: 'derived', at: (slot: number) => number } | { name: string, kind: 'fixed', port: number, pin: string } | { name: string, kind: 'external', port: number, owner: string }} PortRow
+ */
 /** @typedef {{ id?: number, result?: { data?: string, result?: { value?: unknown }, exceptionDetails?: { text?: string, exception?: { description?: string } } }, error?: unknown }} CdpResponse */
 /** @typedef {{ manifest?: { version?: string }, disable_reasons?: number[], state?: number, from_webstore?: boolean, path?: string }} PrefEntry */
 /** @typedef {{ file: string, version: string | null, disableReasons: number[], state: number | null, fromWebstore: boolean | null, path: string | null }} ExtSettings */
@@ -99,7 +106,7 @@ const BROWSERS = {
 };
 
 // ---------- args ----------
-const VALUE_FLAGS = ['browser', 'from', 'profile', 'timeout', 'app-url', 'cdp-port', 'component', 'click', 'file'];
+const VALUE_FLAGS = ['browser', 'from', 'profile', 'timeout', 'app-url', 'port', 'component', 'click', 'file'];
 const BOOL_FLAGS = ['json', 'di-graph'];
 /** @type {readonly string[]} */
 const BROWSER_VALUES = ['test', 'chrome', 'chrome-beta', 'edge', 'edge-dev'];
@@ -164,7 +171,7 @@ export function parseArgs(argv) {
     throw new UsageError(`--browser ${browser} is not one of ${BROWSER_VALUES.join(', ')}`);
   }
 
-  for (const n of ['timeout', 'cdp-port']) {
+  for (const n of ['timeout', 'port']) {
     const v = opts[n];
 
     if (typeof v === 'string' && !/^\d+$/.test(v)) {
@@ -252,47 +259,175 @@ export function flowIdOf(root, worktree) {
 }
 
 const MAIN_CDP_PORT = 9420;
+// Slot 0 is the main checkout's (CDP 9420); a worktree's flow id hashes to one of 1 to SLOTS - 1 (9421-9499).
+const SLOTS = 80;
+const SLOT_TRIES = 10;
 
 /**
- * The CDP port a flow uses unless `--cdp-port` says otherwise: 9420 for main, 9421-9499 for a worktree.
+ * The flow's own slot: 0 for main, else 1 to 79 from the worktree's hash, so its port stays the same from run to run.
  * @param {string} flowId
  * @returns {number}
  */
-export function cdpPortOf(flowId) {
-  return flowId === 'main' ? MAIN_CDP_PORT : 9421 + (parseInt(flowId.slice(3), 16) % 79);
+export function slotOfFlow(flowId) {
+  return flowId === 'main' ? 0 : 1 + (parseInt(flowId.slice(3), 16) % (SLOTS - 1));
+}
+
+/**
+ * The slots `up` tries, in order: `first`, then the next ones, 10 in all. From a worktree (`first` above 0) they
+ * wrap within 1 to 79 and never reach slot 0.
+ * @param {number} first
+ * @returns {number[]}
+ */
+export function slotOrder(first) {
+  return Array.from({ length: SLOT_TRIES }, (_, i) => (first === 0 ? i : 1 + ((first - 1 + i) % (SLOTS - 1))));
+}
+
+/**
+ * The ports table rows of a test-harness run: the CDP port per slot, and the app the browser opens.
+ * @param {string} appUrl
+ * @returns {PortRow[]}
+ */
+export function portRows(appUrl) {
+  return [
+    { name: 'cdp', kind: 'derived', at: (slot) => MAIN_CDP_PORT + slot },
+    { name: 'app', kind: 'external', port: Number(new URL(appUrl).port || 80), owner: 'control-angular-dev-app (or whatever serves --app-url); this skill never starts or stops it' },
+  ];
 }
 
 const isWorktree = isWorktreeRoot(ROOT);
 const flowId = flowIdOf(ROOT, isWorktree);
 const SESSION = flowId === 'main' ? 'ngdt' : `ngdt-${flowId}`;
-const cdpPortDefault = cdpPortOf(flowId);
 const STATE = join(TMP, 'state', `${flowId}.json`);
 const PROFILE = join(TMP, 'profile', flowId);
 const EXT_COPY = join(TMP, 'extension');
 
 /**
- * @param {number} port
- * @returns {Promise<boolean>}
+ * The PID listening on each port in `netstat -ano` output, IPv4 and IPv6.
+ * @param {string} text
+ * @returns {Map<number, number>}
  */
-function portFree(port) {
-  return new Promise((r) => {
-    const s = createServer();
-    s.once('error', () => r(false));
-    s.once('listening', () => s.close(() => r(true)));
-    s.listen(port, '127.0.0.1');
-  });
+export function listeners(text) {
+  /** @type {Map<number, number>} */
+  const map = new Map();
+
+  for (const l of text.split(/\r?\n/)) {
+    const m = l.trim().split(/\s+/);
+
+    if (m[0] === 'TCP' && m[3] === 'LISTENING') {
+      map.set(Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1)), Number(m[4]));
+    }
+  }
+
+  return map;
 }
 
 /**
- * The PID on the first `netstat -ano` line that listens on `port`, or null.
- * @param {string} text
- * @param {number} port
- * @returns {number | null}
+ * Picks the ports of one run. A busy fixed port is a refusal. `forced` (`--port`) is the main port in every slot,
+ * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free; the derived
+ * entries of a slot after the first say what they fell back from.
+ * @param {PortRow[]} rows
+ * @param {number[]} order
+ * @param {Map<number, number>} busy  the PID listening on each port
+ * @param {number} [forced]
+ * @returns {{ ok: true, slot: number, ports: PortEntry[] } | { ok: false, reason: string }}
  */
-export function parsePortOwner(text, port) {
-  const line = text.split('\n').find((l) => new RegExp(`:${port}\\s.*LISTENING`).test(l));
+export function planPorts(rows, order, busy, forced) {
+  for (const r of rows) {
+    const pid = r.kind === 'fixed' ? busy.get(r.port) : undefined;
 
-  return line ? Number(line.trim().split(/\s+/).pop()) : null;
+    if (r.kind === 'fixed' && pid !== undefined) {
+      return { ok: false, reason: `fixed port ${r.name} ${r.port} held by PID ${pid}; pinned by ${r.pin}` };
+    }
+  }
+
+  const main = rows.findIndex((r) => r.kind === 'derived');
+  const forcedPid = forced === undefined ? undefined : busy.get(forced);
+
+  if (forced !== undefined && forcedPid !== undefined) {
+    return { ok: false, reason: `port ${forced} (--port) is held by PID ${forcedPid}; --port has no fallback` };
+  }
+
+  /** @type {(r: PortRow, i: number, slot: number) => number} */
+  const portAt = (r, i, slot) => (r.kind !== 'derived' ? r.port : i === main && forced !== undefined ? forced : r.at(slot));
+  /** @type {string[]} */
+  const tried = [];
+
+  for (const slot of order) {
+    const taken = rows.flatMap((r, i) => {
+      const pid = r.kind === 'derived' ? busy.get(portAt(r, i, slot)) : undefined;
+
+      return pid === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} held by PID ${pid}`];
+    });
+
+    if (taken.length === 0) {
+      const first = /** @type {number} */ (order[0]);
+      /** @type {PortEntry[]} */
+      const ports = rows.map((r, i) => {
+        const port = portAt(r, i, slot);
+        const from = portAt(r, i, first);
+
+        if (r.kind === 'fixed') {
+          return { name: r.name, port, kind: r.kind, reason: r.pin };
+        }
+
+        if (r.kind === 'external') {
+          return { name: r.name, port, kind: r.kind, reason: r.owner };
+        }
+
+        if (slot === first) {
+          return { name: r.name, port, kind: r.kind };
+        }
+
+        const pid = busy.get(from);
+
+        return { name: r.name, port, kind: r.kind, reason: pid === undefined ? `fell back from ${from}: slot ${first} had ${tried[0]}` : `fell back from ${from}: held by PID ${pid}` };
+      });
+
+      return { ok: true, slot, ports };
+    }
+
+    tried.push(...taken);
+  }
+
+  return { ok: false, reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}` };
+}
+
+/**
+ * The doctor's `ports` line: every derived and fixed port answers and is held by the recorded process tree; every
+ * port is listed.
+ * @param {PortEntry[]} ports
+ * @param {Map<number, number>} busy
+ * @param {Set<number>} tree
+ * @returns {{ status: 'pass' | 'fail', detail: string }}
+ */
+export function portsCheck(ports, busy, tree) {
+  const problems = ports.flatMap((p) => {
+    const pid = busy.get(p.port);
+
+    if (p.kind === 'external') {
+      return [];
+    }
+
+    if (pid === undefined) {
+      return [`${p.name} ${p.port} not listening`];
+    }
+
+    return tree.has(pid) ? [] : [`${p.name} ${p.port} held by PID ${pid}, not the recorded tree`];
+  });
+
+  if (problems.length > 0) {
+    return { status: 'fail', detail: problems.join('; ') };
+  }
+
+  return { status: 'pass', detail: ports.map((p) => `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`).join(', ') };
+}
+
+/**
+ * The PID listening on each port now (netstat).
+ * @returns {Map<number, number>}
+ */
+export function busyPorts() {
+  return listeners(spawnSync(join(SYSTEM32, 'netstat.exe'), ['-ano'], { encoding: 'utf8' }).stdout);
 }
 
 /**
@@ -300,9 +435,7 @@ export function parsePortOwner(text, port) {
  * @returns {number | null}
  */
 function portOwner(port) {
-  const r = spawnSync(join(SYSTEM32, 'netstat.exe'), ['-ano'], { encoding: 'utf8' });
-
-  return parsePortOwner(r.stdout, port);
+  return busyPorts().get(port) ?? null;
 }
 
 // ---------- processes ----------
@@ -945,69 +1078,106 @@ async function cmdUp() {
     return refuse('no extension copy; run "install" first');
   }
 
-  const port = Number(opts['cdp-port'] ?? cdpPortDefault);
+  const forced = opts.port === undefined ? undefined : Number(opts.port);
 
-  if (isWorktree && port === MAIN_CDP_PORT) {
+  if (isWorktree && forced === MAIN_CDP_PORT) {
     refuse(`port ${MAIN_CDP_PORT} belongs to the main checkout's flow`);
   }
 
-  if (!(await portFree(port))) {
-    refuse(`CDP port ${port} is in use by PID ${portOwner(port)}; pass --cdp-port or stop your own instance`);
+  /** @type {PortRow[]} */
+  let rows;
+
+  try {
+    rows = portRows(appUrl);
+  } catch (e) {
+    return refuse(`--app-url ${appUrl}: ${e instanceof Error ? e.message : String(e)}`);
   }
 
+  let order = slotOrder(slotOfFlow(flowId));
   const evidenceDir = join(TMP, 'evidence', evidenceStamp(new Date()));
-  mkdirSync(evidenceDir, { recursive: true });
   const ext = copy.dir.replace(/\\/g, '/');
-  const config = {
-    browser: {
-      browserName: 'chromium',
-      userDataDir: PROFILE.replace(/\\/g, '/'),
-      launchOptions: {
-        channel: 'chromium',
-        headless: false,
-        args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`, '--auto-open-devtools-for-tabs', `--remote-debugging-port=${port}`],
-      },
-    },
-  };
   const configPath = join(TMP, 'state', `${flowId}.cli.config.json`);
-  mkdirSync(dirname(configPath), { recursive: true });
-  writeFileSync(configPath, JSON.stringify(config, null, 2));
   const t0 = Date.now();
-  const r = pw([`--config=${configPath}`, 'open', appUrl]);
-  const pid = Number(r.out.match(/opened with pid (\d+)/)?.[1]);
 
-  if (r.code !== 0 || !pid) {
-    throw new Error(`playwright-cli open failed (${r.code}): ${r.out.slice(0, 600)}`);
-  }
+  for (;;) {
+    const plan = planPorts(rows, order, busyPorts(), forced);
 
-  const live = processById(pid);
-
-  if (!live) {
-    throw new Error(`playwright-cli PID ${pid} is not in the process table`);
-  }
-
-  /** @type {State} */
-  const st = { flowId, session: SESSION, pid, created: live.Created, commandLine: live.CommandLine, cdpPort: port, appUrl, extensionVersion: copy.version, extensionDir: copy.dir, profile: PROFILE, configPath, evidenceDir, startedAt: new Date().toISOString() };
-  writeFileSync(STATE, JSON.stringify(st, null, 2));
-  const ready = await waitFor(async () => {
-    try {
-      return (await targets(port)).some((t) => t.type === 'service_worker' && t.url.startsWith(`chrome-extension://${EXT_ID}/`));
-    } catch {
-      return false;
+    if (!plan.ok) {
+      return refuse(plan.reason);
     }
-  }, 20000);
 
-  if (!ready) {
-    throw new Unhealthy(`browser PID ${pid} up but no Angular DevTools service worker on CDP port ${port}; run doctor`);
+    const port = /** @type {PortEntry} */ (plan.ports.find((p) => p.name === 'cdp')).port;
+    mkdirSync(evidenceDir, { recursive: true });
+    const config = {
+      browser: {
+        browserName: 'chromium',
+        userDataDir: PROFILE.replace(/\\/g, '/'),
+        launchOptions: {
+          channel: 'chromium',
+          headless: false,
+          args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`, '--auto-open-devtools-for-tabs', `--remote-debugging-port=${port}`],
+        },
+      },
+    };
+    mkdirSync(dirname(configPath), { recursive: true });
+    writeFileSync(configPath, JSON.stringify(config, null, 2));
+    const r = pw([`--config=${configPath}`, 'open', appUrl]);
+    const pid = Number(r.out.match(/opened with pid (\d+)/)?.[1]);
+
+    if (r.code !== 0 || !pid) {
+      throw new Error(`playwright-cli open failed (${r.code}): ${r.out.slice(0, 600)}`);
+    }
+
+    const live = processById(pid);
+
+    if (!live) {
+      throw new Error(`playwright-cli PID ${pid} is not in the process table`);
+    }
+
+    /** @type {State} */
+    const st = { flowId, session: SESSION, pid, created: live.Created, commandLine: live.CommandLine, cdpPort: port, slot: plan.slot, ports: plan.ports, appUrl, extensionVersion: copy.version, extensionDir: copy.dir, profile: PROFILE, configPath, evidenceDir, startedAt: new Date().toISOString() };
+    writeFileSync(STATE, JSON.stringify(st, null, 2));
+    const ready = await waitFor(async () => {
+      try {
+        return (await targets(port)).some((t) => t.type === 'service_worker' && t.url.startsWith(`chrome-extension://${EXT_ID}/`));
+      } catch {
+        return false;
+      }
+    }, 20000);
+
+    if (ready) {
+      st.readyInSeconds = Math.round((Date.now() - t0) / 100) / 10;
+      st.browserPid = portOwner(port);
+      writeFileSync(STATE, JSON.stringify(st, null, 2));
+      log('OK', `session ${SESSION} (playwright-cli PID ${pid}), browser PID ${st.browserPid}, CDP ${port}${plan.slot === order[0] ? '' : ` (fell back to slot ${plan.slot})`}, Angular DevTools ${copy.version}, ready in ${st.readyInSeconds} s`);
+
+      return { ok: true, ...st };
+    }
+
+    // Another process took the CDP port after the check: the browser this run opened does not hold it, because
+    // its command line loads the extension copy and a foreign listener's does not.
+    const holder = portOwner(port);
+    const holderLine = holder === null ? null : processById(holder)?.CommandLine ?? '';
+
+    if (holder === null || holderLine === null || holderLine.includes(ext) || holderLine.includes(copy.dir)) {
+      throw new Unhealthy(`browser PID ${pid} up but no Angular DevTools service worker on CDP port ${port}; run doctor`);
+    }
+
+    pw(['close']);
+    rmSync(STATE, { force: true });
+
+    if (forced !== undefined) {
+      refuse(`port ${port} (--port) was taken by PID ${holder} after the check; --port has no fallback`);
+    }
+
+    order = order.slice(order.indexOf(plan.slot) + 1);
+
+    if (order.length === 0) {
+      refuse(`CDP port ${port} was taken by PID ${holder} after the check, and none of the ${SLOT_TRIES} slots is left`);
+    }
   }
-
-  st.readyInSeconds = Math.round((Date.now() - t0) / 100) / 10;
-  st.browserPid = portOwner(port);
-  writeFileSync(STATE, JSON.stringify(st, null, 2));
-  log('OK', `session ${SESSION} (playwright-cli PID ${pid}), browser PID ${st.browserPid}, CDP ${port}, Angular DevTools ${copy.version}, ready in ${st.readyInSeconds} s`);
-
-  return { ok: true, ...st };
 }
+
 
 /**
  * One doctor check: true/'pass' passes, 'warn' is reported but never fails doctor, false fails.
@@ -1051,7 +1221,9 @@ async function cmdDoctor() {
     version = /** @type {{ Browser?: string }} */ (await (await fetch(`http://127.0.0.1:${st.cdpPort}/json/version`)).json());
   } catch {}
 
-  add('cdp-port', !!version && portOwner(st.cdpPort) === st.browserPid, version ? `${st.cdpPort} answers (${version.Browser}), owner PID ${portOwner(st.cdpPort)} (recorded browser PID ${st.browserPid}, child of session PID ${st.pid})` : `${st.cdpPort} does not answer`);
+  // The CDP port is held by the recorded Chromium (a child of the playwright-cli session process), and answers.
+  const ports = portsCheck(st.ports ?? [{ name: 'cdp', port: st.cdpPort, kind: 'derived' }], busyPorts(), new Set(st.browserPid ? [st.browserPid] : []));
+  add('ports', ports.status === 'pass' && !!version, `${ports.detail}; ${version ? `CDP answers (${version.Browser}), recorded browser PID ${st.browserPid}` : `CDP ${st.cdpPort} /json/version does not answer`}`);
   const ext = /** @type {{ serviceWorkers: string[], info: { name: string, version: string, state: string, location: string, path: string, runtimeErrors: number, manifestErrors: number } | null }} */ (runCode(EXT_INFO));
   add('extension', ext.info?.state === 'ENABLED' && ext.serviceWorkers.length > 0, ext.info ? `${ext.info.name} ${ext.info.version} ${ext.info.state} (${ext.info.location}, ${ext.info.path}); service worker ${ext.serviceWorkers.length ? 'running' : 'absent'}; errors ${ext.info.runtimeErrors}/${ext.info.manifestErrors}` : 'not registered');
   const page = /** @type {{ url: string, ngVersion: string | null, devBuild: boolean, flag: boolean }} */ (runCode(`async (page) => ({ url: page.url(), ngVersion: await page.evaluate(() => document.querySelector('[ng-version]')?.getAttribute('ng-version') ?? null), devBuild: await page.evaluate(() => typeof window.ng === 'object' && typeof window.ng.getComponent === 'function'), flag: await page.evaluate(() => window.__NG_DEVTOOLS_CONNECTED__ === true) })`));
@@ -1278,7 +1450,7 @@ const HELP = `control.mjs <command> [options] [--json]
   install   [--browser test|chrome|chrome-beta|edge|edge-dev] [--from edge-dev|edge|chrome|chrome-beta|<dir>] [--profile Default] [--timeout S]
   uninstall [--browser ...] [--profile Default] [--timeout S]
   status    [--browser ...] [--profile Default]
-  up        --app-url <url> [--cdp-port N]       (test harness only)
+  up        --app-url <url> [--port N]           (test harness only)
   doctor | attach | info | down
   panel     show | signal-graph [--component app-counter] | screenshot [--file f.png]
   coexist   [--component app-counter] [--click "getByRole('button', { name: 'Increment' })"] [--di-graph]`;

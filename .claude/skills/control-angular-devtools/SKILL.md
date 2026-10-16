@@ -25,10 +25,23 @@ agent restarts them; never use the playwright-cli sessions `cb`, `ed`, `ai-cb`, 
 | Flow | Browser | Session, ports, profile |
 |---|---|---|
 | Test harness, main checkout (`.git` is a directory) | Playwright's bundled Chromium (Chrome for Testing 154.0.8037.0 measured), headed | session `ngdt`, CDP port 9420, profile `tmp/control-angular-devtools/profile/main` |
-| Test harness, worktree (`.git` is a file) | same | session `ngdt-wt-<hash>`, CDP port 9421-9499 from a hash of the worktree path, profile `.../profile/wt-<hash>`; port 9420 is refused |
+| Test harness, worktree (`.git` is a file) | same | session `ngdt-wt-<hash>`, CDP port `9420 + slot` (9421-9499, slot 1-79 from a hash of the worktree path), profile `.../profile/wt-<hash>`; port 9420 is refused |
 | Branded | `--browser chrome|chrome-beta|edge|edge-dev` | Lars's own profile (`--profile Default` by default); nothing launched or stopped by `up`/`down` |
 
-The script derives all of these; `--cdp-port N` overrides the port.
+The script derives all of these. When the CDP port is busy, `up` tries the next slot, 10 slots in all, and
+records the slot and the ports it used (`info --json`: `slot`, `ports`); measured 2026-10-16 in the
+`verification-skills` worktree (`wt-423ece`, slot 10): a throwaway listener on 9430 moved the run to 9431.
+
+| Port | Kind | Default | How it moves |
+|---|---|---|---|
+| cdp | derived | 9420 | `--port N`, written into the playwright-cli config as Chromium's `--remote-debugging-port` (measured: listened on 9431, the fallback from 9430) |
+| app | external | the `--app-url` port | control-angular-dev-app serves it (`up --target counter`; its `info` prints the URL); this skill never starts or stops it |
+
+- `--port N` sets the CDP port with no fallback for it: a busy `N` exits 2 naming its holder's PID; from a
+  worktree 9420 is refused.
+- A CDP port another process takes after the check (the browser then never shows the extension's service worker
+  on it) closes the session and moves the run to the next slot.
+- The branded flow opens no port: it reads and opens Lars's own profiles, and `up`/`down` never touch them.
 
 ## Launch
 
@@ -36,8 +49,8 @@ Install the extension copy, start the app, then the browser:
 
 ```bash
 node $S install                                   # copy from Edge Dev's profile, read only
-node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target counter --port 4317
-node $S up --app-url=http://localhost:4317/
+node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target counter   # prints its url
+node $S up --app-url=<that url, for example http://localhost:4336/>
 ```
 
 - `install` (test): copies the newest `<version>_0` folder from
@@ -59,7 +72,7 @@ node $S up --app-url=http://localhost:4317/
 `node $S doctor` (read only). One line per check: `map-fresh` (first; whether each feature file still matches
 the source it was proven against, from `scripts/fingerprint.mjs`; `[WARN]` names stale and unproven features and
 never fails doctor), `process` (the playwright-cli PID is alive and its start
-time and command line match the state), `cdp-port` (answers, owned by the recorded Chromium PID), `extension`
+time and command line match the state), `ports` (the CDP port listens, its PID is the recorded Chromium, and `/json/version` answers; the app port is listed as external: `[OK] ports: cdp 9431 (derived: fell back from 9430: held by PID 32396), app 4336 (external: ...); CDP answers (Chrome/154.0.8037.0), recorded browser PID 59044`), `extension`
 (`chrome.developerPrivate.getExtensionInfo` on `chrome://extensions/?id=...`: name, version, `ENABLED`,
 `UNPACKED`, path, error counts; plus the service worker), `app` (`[ng-version]` and `window.ng`, which only a
 development build has), `connected-flag`, `devtools-window`. Exit 0 healthy, 1 a check failed, 2 no state.
@@ -143,14 +156,14 @@ already gone is noted, exit 0. Then stop the app with the tool that started it. 
 `scripts/control.mjs <command> [options] [--json]`; exit 0 done or healthy, 1 not healthy, 2 refused or
 could not run (the reason is printed; `--json` gives `{ok, exit, reason}`). Flags take `--flag value` or
 `--flag=value`; an unknown flag, a missing value, a `--browser` outside `test|chrome|chrome-beta|edge|edge-dev` or
-a non-numeric `--timeout`/`--cdp-port` exits 2 before anything runs.
+a non-numeric `--timeout`/`--port` exits 2 before anything runs.
 
 | Command | Does | Notes |
 |---|---|---|
 | `install [--browser test\|chrome\|chrome-beta\|edge\|edge-dev] [--from ...] [--profile P] [--timeout S]` | test: copies the extension. Branded: no-op when installed; else opens the Chrome Web Store page `https://chromewebstore.google.com/detail/ienfalfjdbdpebioblfackkekamfmbnh` in that browser's profile P (`--profile-directory`) and polls the profile every 2 s until the extension appears (default 180 s) | Lars clicks the store's add button and confirms "Add extension"; Edge first asks to allow extensions from other stores |
 | `uninstall [--browser ...] [--profile P] [--timeout S]` | test: removes copy and profiles. Branded: no-op when not installed; else opens the Web Store page in profile P (a browser will not open `chrome://` or `edge://` pages from the command line) and polls every 2 s until the profile's `extensions.settings.<id>` entry is gone | Lars clicks "Remove from Chrome" on the store page, or Remove on `chrome://extensions` |
 | `status [--browser ...] [--profile P]` | installed, versions on disk, enabled, `disable_reasons` | read only |
-| `up --app-url <url> [--cdp-port N]` | launches the test harness | state `tmp/control-angular-devtools/state/<flow>.json`: pid, browserPid, created, commandLine, cdpPort, session, evidenceDir, readyInSeconds |
+| `up --app-url <url> [--port N]` | launches the test harness | state `tmp/control-angular-devtools/state/<flow>.json`: pid, browserPid, created, commandLine, cdpPort, slot, ports `{name, port, kind, reason?}`, session, evidenceDir, readyInSeconds |
 | `doctor`, `attach`, `info`, `down` | above | `info` prints the state (flow, session, PIDs, CDP port, evidence dir, state path) |
 | `panel show\|signal-graph [--component C]\|screenshot [--file F]` | panel driving | `show` prints the panel's text (tabs, tree, selected component) |
 | `coexist [--component C] [--click "<locator>"] [--di-graph]` | coexistence checks | defaults fit the counter fixture: `app-counter`, `getByRole('button', { name: 'Increment' })`; `--click` is JavaScript placed after `page.` in the run-code source |

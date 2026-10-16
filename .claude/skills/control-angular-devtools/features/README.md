@@ -6,7 +6,7 @@ What a developer does with Angular DevTools, and how `control-angular-devtools` 
 ## Baseline preconditions
 
 - A development build of an Angular app is serving (`window.ng` present); the counter fixture at
-  `spikes/ng222-app` (Angular 22.2.2) through `control-angular-dev-app up --target counter --port 4317`.
+  `spikes/ng222-app` (Angular 22.2.2) through `control-angular-dev-app up --target counter` (its `info` prints the URL to pass as `--app-url`).
 - Test harness: `node $S install`, `node $S up --app-url=<app url>`, `node $S doctor` exits 0.
 - Branded browser: `node $S status --browser <name>` says installed.
 - Desktop session available (the harness is headed).
