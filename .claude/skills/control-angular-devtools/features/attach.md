@@ -1,8 +1,8 @@
 # Attach to a dev-mode Angular app
 
-On an Angular page the extension sets a flag, detects Angular, injects its backend and shakes hands with it,
-and its toolbar icon turns from grey to colour. The Angular tab in DevTools then shows the app; the info
-button shows the Angular version.
+The extension sets a flag on every page (its MAIN-world script matches all URLs); on an Angular page it
+detects Angular, injects its backend and shakes hands with it, and its toolbar icon turns from grey to colour. The
+Angular tab in DevTools then shows the app; the info button shows the Angular version.
 
 ## Sub-features
 
