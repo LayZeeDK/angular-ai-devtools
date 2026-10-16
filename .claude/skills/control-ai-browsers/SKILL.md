@@ -37,7 +37,7 @@ slot and the port it used (`info --json`: `slot`, `ports`).
 | Port | Kind | Default | How it moves |
 |---|---|---|---|
 | cdp | derived | the instance's registry port (9333, 9334, 9335, 9337) | `up <name> --port=N`, passed as `--remote-debugging-port` (measured: `chrome-beta-nano` listened on 9680, and on its fallback 9690 while a throwaway listener held 9680) |
-| bench app | external | 4222 | the counter fixture of control-angular-dev-app in the main checkout; `spikes/probes/bench.js:4` hard-codes it, so `bench` runs from the main checkout only; this skill never starts it |
+| bench app | external | 4222 | the counter fixture of control-angular-dev-app in the main checkout; `spikes/probes/bench.js:4` hard-codes it, so `bench` refuses (exit 2) in a worktree; this skill never starts it |
 
 - `--port=N` sets the port with no fallback for it: a busy `N` exits 2 naming its holder's PID; from a worktree
   the registry port is refused.
@@ -46,7 +46,8 @@ slot and the port it used (`info --json`: `slot`, `ports`).
 - Every other command finds the port an instance runs on from its state file, else from the running browser's
   command line. To
 add an instance, add an entry; no command takes features as flags. The playwright-cli session is
-`ai-<instance>`; never use `cb`, `ed`, `nano`, `g4`, `aion`, `phi`, `ai-cb`, `ai-ed` or `bench-*`.
+`ai-<instance>` on the registry port and `ai-<instance>-<port>` on any other (a worktree, a fallback): playwright-cli
+keeps one session namespace for every checkout on the machine; never use `cb`, `ed`, `nano`, `g4`, `aion`, `phi`, `ai-cb`, `ai-ed` or `bench-*`.
 
 Backends (`up <name> --backend=gpu|cpu`):
 - `chrome-beta-nano`: `gpu` adds `OnDeviceModelPerformanceParams:...` so the stored performance class 2 may

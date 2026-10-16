@@ -102,7 +102,7 @@ test('parseArgs splits --name=value, bare --name and positionals', () => {
 });
 
 test('instance merges registry, browser and derived fields and refuses unknown or inherited names', () => {
-  const i = instance('chrome-beta-nano');
+  const i = instance('chrome-beta-nano', undefined, 0, false);
   assert.equal(i.session, 'ai-chrome-beta-nano');
   assert.equal(i.cdp, `http://127.0.0.1:${i.port}`);
   assert.equal(i.scheme, 'chrome');
@@ -119,8 +119,9 @@ test('instance takes the registry port in slot 0 and 9600 + 10 * slot + index in
   const main = instance('chrome-beta-nano', undefined, 0, false);
   assert.deepEqual([main.port, main.mainPort, main.index, main.slot, main.worktree, main.cdp], [9333, 9333, 0, 0, false, 'http://127.0.0.1:9333']);
   const wt = instance('chrome-beta-gemma4', undefined, 5, true);
-  assert.deepEqual([wt.port, wt.mainPort, wt.index, wt.cdp], [9651, 9334, 1, 'http://127.0.0.1:9651']);
-  assert.deepEqual([at(wt, 9661).port, at(wt, 9661).cdp], [9661, 'http://127.0.0.1:9661']);
+  assert.deepEqual([wt.port, wt.mainPort, wt.index, wt.cdp, wt.session], [9651, 9334, 1, 'http://127.0.0.1:9651', 'ai-chrome-beta-gemma4-9651']);
+  assert.deepEqual([at(wt, 9661).port, at(wt, 9661).cdp, at(wt, 9661).session], [9661, 'http://127.0.0.1:9661', 'ai-chrome-beta-gemma4-9661'], 'a worktree never shares the main checkout session name');
+  assert.equal(at(wt, 9334).session, 'ai-chrome-beta-gemma4');
   assert.equal(slotFor(wt, 9661), 6);
   assert.equal(slotFor(wt, 9334), 0);
   assert.equal(slotFor(wt, 12345), null, 'a --port no slot has');
@@ -156,9 +157,9 @@ test('slotOf keeps slot 0 for a main checkout and hashes a worktree to a stable 
 
 test('listeners maps each LISTENING port to its PID; busyPorts sees a throwaway listener', async (t) => {
   const text = '  TCP    127.0.0.1:9333         0.0.0.0:0              LISTENING       42\r\n  TCP    127.0.0.1:9334         127.0.0.1:1            ESTABLISHED     43';
-  assert.deepEqual([...listeners(text)], [[9333, 42]]);
+  assert.deepEqual([...listeners(text)], [[9333, [42]]]);
   const port = await listen(t);
-  assert.equal(busyPorts().get(port), process.pid);
+  assert.deepEqual(busyPorts().get(port), [process.pid]);
 });
 
 test('planPorts falls back to the next slot when a throwaway listener holds the instance port, and says why', async (t) => {
@@ -187,8 +188,8 @@ test('planPorts refuses after 10 busy slots, a busy --port, and a busy fixed por
 test('portsCheck passes the port the browser holds and fails a foreign or missing one', () => {
   /** @type {import('./control.mjs').PortEntry[]} */
   const ports = [{ name: 'cdp', port: 9651, kind: 'derived' }];
-  assert.deepEqual(portsCheck(ports, new Map([[9651, 10]]), new Set([10])), { status: 'pass', detail: 'cdp 9651 (derived)' });
-  assert.deepEqual(portsCheck(ports, new Map([[9651, 11]]), new Set([10])), { status: 'fail', detail: 'cdp 9651 held by PID 11, not the recorded tree' });
+  assert.deepEqual(portsCheck(ports, new Map([[9651, [10]]]), new Set([10])), { status: 'pass', detail: 'cdp 9651 (derived)' });
+  assert.deepEqual(portsCheck(ports, new Map([[9651, [10, 11]]]), new Set([10])), { status: 'fail', detail: 'cdp 9651 held by PID 11, not the recorded tree' });
 });
 
 test('importing the module makes Windows skip the current directory when it looks up pwsh', async (t) => {

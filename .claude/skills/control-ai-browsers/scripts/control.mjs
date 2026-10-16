@@ -97,6 +97,9 @@ const SLOTS = 40;
 const SLOT_TRIES = 10;
 const IS_WORKTREE = existsSync(join(ROOT, '.git')) && statSync(join(ROOT, '.git')).isFile();
 const OWN_SLOT = slotOf(ROOT, IS_WORKTREE);
+// bench.js hard-codes the main checkout's counter fixture (control-angular-dev-app owns it).
+/** @type {PortEntry} */
+const BENCH_APP = { name: 'bench app', port: 4222, kind: 'external', reason: 'control-angular-dev-app counter fixture in the main checkout; spikes/probes/bench.js:4 hard-codes it' };
 const PROBE_ORIGIN = 'https://example.org/';
 const STEP_TIMEOUT_MS = 180000;
 const EXIT = { OK: 0, UNHEALTHY: 1, REFUSED: 2 };
@@ -182,19 +185,27 @@ export function slotOrder(first) {
 }
 
 /**
- * The PID listening on each port in `netstat -ano` output, IPv4 and IPv6.
+ * The PIDs listening on each port in `netstat -ano` output, IPv4 and IPv6: a port can have one holder per address.
  * @param {string} text
- * @returns {Map<number, number>}
+ * @returns {Map<number, number[]>}
  */
 export function listeners(text) {
-  /** @type {Map<number, number>} */
+  /** @type {Map<number, number[]>} */
   const map = new Map();
 
   for (const l of text.split(/\r?\n/)) {
     const m = l.trim().split(/\s+/);
 
     if (m[0] === 'TCP' && m[3] === 'LISTENING') {
-      map.set(Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1)), Number(m[4]));
+      const port = Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1));
+      const pid = Number(m[4]);
+      const pids = map.get(port) ?? [];
+
+      if (!pids.includes(pid)) {
+        pids.push(pid);
+      }
+
+      map.set(port, pids);
     }
   }
 
@@ -203,17 +214,22 @@ export function listeners(text) {
 
 /**
  * Picks the ports of one run. A busy fixed port is a refusal. `forced` (`--port`) is the main port in every slot,
- * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free; the derived
- * entries of a slot after the first say what they fell back from.
+ * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free. A derived entry
+ * of a slot other than `first` (the run's own slot, `order[0]` unless a retry already used it) says what it fell
+ * back from.
  * @param {PortRow[]} rows
  * @param {number[]} order
- * @param {Map<number, number>} busy  the PID listening on each port
+ * @param {Map<number, number[]>} busy  the PIDs listening on each port
  * @param {number} [forced]
+ * @param {number} [first]
  * @returns {{ ok: true, slot: number, ports: PortEntry[] } | { ok: false, reason: string }}
  */
-export function planPorts(rows, order, busy, forced) {
+export function planPorts(rows, order, busy, forced, first = order[0]) {
+  /** @param {number} port */
+  const holder = (port) => busy.get(port)?.[0];
+
   for (const r of rows) {
-    const pid = r.kind === 'fixed' ? busy.get(r.port) : undefined;
+    const pid = r.kind === 'fixed' ? holder(r.port) : undefined;
 
     if (r.kind === 'fixed' && pid !== undefined) {
       return { ok: false, reason: `fixed port ${r.name} ${r.port} held by PID ${pid}; pinned by ${r.pin}` };
@@ -221,7 +237,7 @@ export function planPorts(rows, order, busy, forced) {
   }
 
   const main = rows.findIndex((r) => r.kind === 'derived');
-  const forcedPid = forced === undefined ? undefined : busy.get(forced);
+  const forcedPid = forced === undefined ? undefined : holder(forced);
 
   if (forced !== undefined && forcedPid !== undefined) {
     return { ok: false, reason: `port ${forced} (--port) is held by PID ${forcedPid}; --port has no fallback` };
@@ -234,17 +250,15 @@ export function planPorts(rows, order, busy, forced) {
 
   for (const slot of order) {
     const taken = rows.flatMap((r, i) => {
-      const pid = r.kind === 'derived' ? busy.get(portAt(r, i, slot)) : undefined;
+      const pid = r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
 
       return pid === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} held by PID ${pid}`];
     });
 
     if (taken.length === 0) {
-      const first = /** @type {number} */ (order[0]);
       /** @type {PortEntry[]} */
       const ports = rows.map((r, i) => {
         const port = portAt(r, i, slot);
-        const from = portAt(r, i, first);
 
         if (r.kind === 'fixed') {
           return { name: r.name, port, kind: r.kind, reason: r.pin };
@@ -254,13 +268,15 @@ export function planPorts(rows, order, busy, forced) {
           return { name: r.name, port, kind: r.kind, reason: r.owner };
         }
 
-        if (slot === first) {
+        if (first === undefined || slot === first) {
           return { name: r.name, port, kind: r.kind };
         }
 
-        const pid = busy.get(from);
+        const from = portAt(r, i, first);
+        const pid = holder(from);
+        const why = pid !== undefined ? `held by PID ${pid}` : order[0] === first ? `slot ${first} had ${tried[0]}` : 'taken after the check';
 
-        return { name: r.name, port, kind: r.kind, reason: pid === undefined ? `fell back from ${from}: slot ${first} had ${tried[0]}` : `fell back from ${from}: held by PID ${pid}` };
+        return { name: r.name, port, kind: r.kind, reason: `fell back from ${from}: ${why}` };
       });
 
       return { ok: true, slot, ports };
@@ -273,26 +289,27 @@ export function planPorts(rows, order, busy, forced) {
 }
 
 /**
- * The doctor's `ports` line: every derived and fixed port answers and is held by the recorded process tree; every
- * port is listed.
+ * The doctor's `ports` line: every derived and fixed port answers and every holder of it is in the recorded process
+ * tree; every port is listed.
  * @param {PortEntry[]} ports
- * @param {Map<number, number>} busy
+ * @param {Map<number, number[]>} busy
  * @param {Set<number>} tree
  * @returns {{ status: 'pass' | 'fail', detail: string }}
  */
 export function portsCheck(ports, busy, tree) {
   const problems = ports.flatMap((p) => {
-    const pid = busy.get(p.port);
+    const pids = busy.get(p.port) ?? [];
+    const foreign = pids.filter((pid) => !tree.has(pid));
 
     if (p.kind === 'external') {
       return [];
     }
 
-    if (pid === undefined) {
+    if (pids.length === 0) {
       return [`${p.name} ${p.port} not listening`];
     }
 
-    return tree.has(pid) ? [] : [`${p.name} ${p.port} held by PID ${pid}, not the recorded tree`];
+    return foreign.length === 0 ? [] : [`${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`];
   });
 
   if (problems.length > 0) {
@@ -315,13 +332,26 @@ export function portAt(index, mainPort, slot) {
 }
 
 /**
- * The PID listening on each port now (netstat, IPv4 and IPv6).
- * @returns {Map<number, number>}
+ * The PIDs listening on each port now (netstat, IPv4 and IPv6).
+ * @returns {Map<number, number[]>}
  */
 export function busyPorts() {
   const netstat = join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32', 'netstat.exe');
 
   return listeners(['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n'));
+}
+
+/**
+ * The playwright-cli session of an instance on a port: `ai-<name>` on the registry port, `ai-<name>-<port>` on any
+ * other. playwright-cli keeps one session namespace for every checkout on the machine, so a worktree's instance
+ * must never share the main checkout's session name.
+ * @param {string} name
+ * @param {number} port
+ * @param {number} mainPort
+ * @returns {string}
+ */
+export function sessionOf(name, port, mainPort) {
+  return port === mainPort ? `ai-${name}` : `ai-${name}-${port}`;
 }
 
 /**
@@ -331,7 +361,7 @@ export function busyPorts() {
  * @returns {Inst}
  */
 export function at(inst, port) {
-  return { ...inst, port, cdp: `http://127.0.0.1:${port}` };
+  return { ...inst, port, cdp: `http://127.0.0.1:${port}`, session: sessionOf(inst.name, port, inst.mainPort) };
 }
 
 /**
@@ -354,7 +384,7 @@ export function instance(name, registry = REGISTRY, slot = OWN_SLOT, worktree = 
   const index = Object.keys(registry.instances).indexOf(name);
   const port = portAt(index, i.port, slot);
 
-  return { name, ...i, ...b, dir, session: `ai-${name}`, port, cdp: `http://127.0.0.1:${port}`, mainPort: i.port, index, slot, worktree };
+  return { name, ...i, ...b, dir, session: sessionOf(name, port, i.port), port, cdp: `http://127.0.0.1:${port}`, mainPort: i.port, index, slot, worktree };
 }
 
 /**
@@ -475,7 +505,7 @@ function processById(pid) {
  * @returns {number | null}
  */
 function portOwner(port) {
-  return busyPorts().get(port) ?? null;
+  return busyPorts().get(port)?.[0] ?? null;
 }
 
 // Which registry backend a command line matches, or null when it matches none (drift).
@@ -637,7 +667,7 @@ export function slotFor(inst, port) {
 function writeState(inst, proc, placed) {
   mkdirSync(TMP, { recursive: true });
   /** @type {State} */
-  const st = { instance: inst.name, pid: proc.ProcessId, created: proc.Created, exe: proc.ExecutablePath, commandLine: proc.CommandLine, port: inst.port, slot: placed?.slot ?? slotFor(inst, inst.port), ports: placed?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }], cdp: inst.cdp, session: inst.session, profile: inst.dir, backend: drift(inst, proc).backend, at: new Date().toISOString() };
+  const st = { instance: inst.name, pid: proc.ProcessId, created: proc.Created, exe: proc.ExecutablePath, commandLine: proc.CommandLine, port: inst.port, slot: placed?.slot ?? slotFor(inst, inst.port), ports: [...(placed?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }]), BENCH_APP], cdp: inst.cdp, session: inst.session, profile: inst.dir, backend: drift(inst, proc).backend, at: new Date().toISOString() };
   writeFileSync(statePath(inst.name), JSON.stringify(st, null, 2));
 
   return st;
@@ -1213,7 +1243,7 @@ async function cmdUp(inst) {
   }
 
   const portOpt = opts['port'];
-  const forced = portOpt === undefined ? undefined : Number(portOpt);
+  const forced = portOpt === undefined ? undefined : typeof portOpt === 'string' ? Number(portOpt) : NaN;
 
   if (forced !== undefined && !(Number.isInteger(forced) && forced > 0 && forced < 65536)) {
     refuse(`--port=${portOpt} is not a port number`);
@@ -1234,9 +1264,10 @@ async function cmdUp(inst) {
   /** @type {PortRow[]} */
   const rows = [{ name: 'cdp', kind: 'derived', at: (slot) => portAt(inst.index, inst.mainPort, slot) }];
   let order = slotOrder(inst.slot);
+  const first = order[0];
 
   for (;;) {
-    const plan = planPorts(rows, order, busyPorts(), forced);
+    const plan = planPorts(rows, order, busyPorts(), forced, first);
 
     if (!plan.ok) {
       return refuse(plan.reason);
@@ -1710,6 +1741,10 @@ async function cmdRun(inst) {
 
 /** @returns {Promise<Result>} */
 async function cmdBench() {
+  if (IS_WORKTREE) {
+    refuse('bench runs from the main checkout only: bench.js hard-codes the counter fixture on http://localhost:4222, which in a worktree is not this checkout\'s app');
+  }
+
   const names = pos.slice(1).length ? pos.slice(1) : Object.keys(REGISTRY.instances);
   const bench = join(ROOT, 'spikes', 'probes', 'bench.js');
   const fixture = await fetch('http://localhost:4222/', { signal: AbortSignal.timeout(3000) }).then((r) => r.ok, () => false);
@@ -1756,7 +1791,7 @@ async function cmdBench() {
  */
 async function cmdInfo(inst) {
   const st = readState(inst.name);
-  const result = { ok: true, instance: inst.name, port: inst.port, slot: st?.slot ?? slotFor(inst, inst.port), ports: st?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }], cdp: inst.cdp, session: inst.session, profile: inst.dir, statePath: statePath(inst.name), state: st, evidenceDir };
+  const result = { ok: true, instance: inst.name, port: inst.port, slot: st?.slot ?? slotFor(inst, inst.port), ports: st?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }, BENCH_APP], cdp: inst.cdp, session: inst.session, profile: inst.dir, statePath: statePath(inst.name), state: st, evidenceDir };
   log('INFO', JSON.stringify(result));
 
   return result;
