@@ -1,87 +1,58 @@
 ---
 name: verify-ai-browsers
-description: Verify the built-in AI in the per-model browser instances (Chrome Beta with Gemini Nano or Gemma 4, Edge Dev with Aion-1.1-Instruct, Edge stable with Phi-4-mini) and report one verdict (verified, not verified, inconclusive) with JSON evidence. Checks each instance's command line against the registry, the model on disk and in on-device-internals Broker State, the CPU or GPU backend, free disk space, availability(), contextWindow, structured-output, tool-calling and WebMCP canaries, twice; and runs a model cycle on one instance (down, clear its model, up, download, initialise, check again). Reuses control-ai-browsers' control script and registry. Use after a browser update, after changing an instance or its backend, or before reporting a built-in AI result as proven.
+description: Fixed proof checks for the built-in AI in control-ai-browsers' per-model browser instances (Chrome Beta with Gemini Nano or Gemma 4, Edge Dev with Aion-1.1-Instruct, Edge stable with Phi-4-mini) - each instance passes doctor (command line, model on disk and in Broker State, backend, availability(), contextWindow, structured-output, tool and WebMCP canaries) and flags and serves its registry model, and a model cycle (clear, download, initialise) brings an instance's own model back. Each check exits 0 pass, 1 claim failed, 2 could not run, for lars-verify to turn into a verdict. Use after a browser update, after changing an instance or its backend, or before reporting a built-in AI result as proven.
 ---
 
 # verify-ai-browsers
 
-Turns `control-ai-browsers` into a verdict. `scripts/verify.mjs` runs that skill's `scripts/control.mjs` steps in
-order, repeats the doctor, compares readings and writes `verdict.json`. Same instances, sessions (`ai-<instance>`)
-and limits as `control-ai-browsers` (read its `SKILL.md` first); instances come from its `instances.json`. Lars's
-own Chrome Beta, Edge Dev and everyday Edge are never touched.
+Proves claims about the per-model browser instances; it never launches or stops anything itself.
+`control-ai-browsers` launches, health-checks and drives the instances, and its `instances.json` is the registry
+both skills read: read that skill for every command, flag and gotcha.
 
-## Launch
+## Checks
 
-The four instances are standing processes; start a stopped one with
-`node .claude/skills/control-ai-browsers/scripts/control.mjs up <instance>`. `verify.mjs` starts nothing
-itself except in `cycle`, which stops and launches the instance it cycles. A step that cannot run (instance not
-running, refusal) makes the verdict `inconclusive`.
+| Check | Claim | Feature file and sub-feature in `control-ai-browsers/features/` | Needs running |
+|---|---|---|---|
+| `state` | Each named instance (all four when none is named): `doctor` exits 0, `flags` exits 0, `model info` finds the registry model's manifest on disk, and Broker State serves that model. | `health-check.md` `health-doctor`; `instances.md` `instances-features`; `model-lifecycle.md` `model-info` | every named instance |
+| `model-init` | `model init` exits 0 with the registry `contextWindow`, and the instance then passes `state`. Run after a model cycle in the setup, it proves clearing, downloading and initialising the instance's own model end to end. | `model-lifecycle.md` `model-init`, after `model-clear` and `model-download` | the instance, its model downloaded |
 
-## Doctor
+Each check's header comment holds its claim, the feature it covers, its usage and the files it writes. `state` records each instance's
+backend, requested backend and performance class in `state.json`; `model-init` records the init timings and
+answer in `model-init.json`.
 
-`verify.mjs state` is the doctor-based verdict, for every instance or the ones named:
+## Run
 
-```bash
-node .claude/skills/verify-ai-browsers/scripts/verify.mjs state
-node .claude/skills/verify-ai-browsers/scripts/verify.mjs state edge-dev-aion chrome-beta-nano
-```
+Through `lars-verify` (`~/.claude/skills/lars-verify/references/contract.md`), with
+`C=.claude/skills/control-ai-browsers/scripts/control.mjs`:
 
-Per instance: `control.mjs doctor` twice (a pass counts only when it repeats), `flags` (effective features
-against the registry) and `model info`. The instance passes when both doctors and `flags` exit 0, the expected
-model's manifest is on disk, and the model Broker State serves (from the weights path) is the expected one. The
-verdict is `verified` only when every instance passes. `verdict.json` holds each instance's backend, requested
-backend and performance class.
+- `state`: setup `["node", C, "up", "<instance>"]` per instance (exit 0 `alreadyRunning` when it runs as
+  configured); condition `["node", ".claude/skills/verify-ai-browsers/checks/state.mjs", "--evidence", "{runDir}",
+  "<instance>", ...]`; artifact `state.json`.
+- `model-init` as the model cycle: setup `C up <instance> --backend=<b>`, `C down <instance>`,
+  `C model clear <instance> --confirm=<registry model>`, `C up <instance> --backend=<b>`,
+  `C model download <instance> --timeout-min=45`, each with `--evidence={runDir}`; condition
+  `["node", ".claude/skills/verify-ai-browsers/checks/model-init.mjs", "--evidence", "{runDir}", "<instance>"]`;
+  artifact `model-init.json`; `timeoutMs` above the download limit (3000000).
+- teardown, per instance: `["node", C, "info", "<instance>", "--evidence={runDir}", "--json"]`, `C down <instance>`,
+  then `check-teardown.mjs {runDir}/steps/teardown-<n>.out --artifact state.json` (or `model-init.json`), where
+  `<n>` is that instance's `info` step.
 
-## Drive
-
-The model cycle on one instance proves clearing, download and initialisation end to end:
-
-```bash
-node .claude/skills/verify-ai-browsers/scripts/verify.mjs cycle chrome-beta-nano [--timeout-min=45]
-```
-
-Steps: `model info` (records the running backend), `attach`, `down`, `model clear --confirm=<registry model>`,
-`up --backend=<the backend it ran with>`, `model download`, `model init`, then the `state` checks. Verified
-when every step exits 0, `init` reads the registry `contextWindow`, and the state checks pass. `verdict.json`
-records `bytesRemoved`, the download gesture, duration and folder size, and the init timings. Measured with
-`cycle chrome-beta-nano` (2026-10-12): verified, 4,269,934,855 bytes removed, downloaded again in 138 s by click,
-about 4 minutes in all.
-
-Cycle `chrome-beta-nano` or an Edge instance. Do not cycle `chrome-beta-gemma4` to clear Nano there: `cycle`
-clears the instance's own model (Gemma 4), and the extra Nano folders in that profile come back by themselves
-(`control-ai-browsers/features/model-lifecycle.md`). For single checks or a probe, use `control-ai-browsers`
-directly; its `features/` map is the recipe source for both skills.
-
-## Evidence
-
-Each run writes into `tmp/verify-ai-browsers/<YYYYMMDD-HHMMSS>-<mode>/` (git-ignored) or `--evidence=<dir>`: one
-JSON per control step plus `verdict.json` with the verdict, the per-instance results and every step's command,
-exit code, duration and evidence path. Proof rules: `control-ai-browsers/features/README.md`.
-
-## Cleanup
-
-`verify.mjs` leaves every instance running, as it found it; `cycle` relaunches the instance at the backend it ran
-with. Each control step closes the tabs it opened and detaches the session it attached. A run that stops early
-can leave the cycled instance stopped: run `control.mjs up <instance>`, then `state` again.
-
-## Helpers
-
-`scripts/verify.mjs state [<instance>...] | cycle <instance> [--timeout-min=45] [--evidence=<dir>]`
-
-| Exit | Verdict |
-|---|---|
-| 0 | verified |
-| 1 | not verified (a check or a model match failed; `verdict.json` names it) |
-| 2 | inconclusive (a step was refused or could not run: instance stopped, download refused for space, bad arguments) |
+Standalone, against instances started by hand:
+`node .claude/skills/verify-ai-browsers/checks/state.mjs --evidence <dir> [<instance>...]` or
+`node .claude/skills/verify-ai-browsers/checks/model-init.mjs --evidence <dir> <instance>`.
 
 ## Gotchas
 
-- `state` takes 1-2 minutes per instance (two doctors, `flags`, `model info`; measured 1.3-2.3 min), longer while
-  another session loads the machine.
-- `edge-phi4mini` came out `not verified` on 2026-10-12: one of its two doctors failed `canary.structured` with
-  `kErrorUnknown`. That is the model, not the harness; report it as found.
-- `cycle` needs the instance running at the start: it reads the backend from the live command line and needs a
-  state file for `down`.
-- A cycle on Nano deletes both variants when both are on disk and downloads back only the one its backend uses.
+- `state` takes about a minute per instance (doctor, flags, model info; doctor 10-60 s), longer while another
+  session loads the machine; set `timeoutMs` for all four (900000 was enough on 2026-10-16).
+- Cycle `chrome-beta-nano` or an Edge instance. Do not cycle `chrome-beta-gemma4` to clear Nano there: the cycle
+  clears the instance's own model (Gemma 4), and the extra Nano folders in that profile come back by themselves
+  (`control-ai-browsers/features/model-lifecycle.md`). Every run of the cycle downloads the model again (Nano:
+  about 4 GB, 85-140 s by click).
+- `edge-phi4mini` has failed `canary.structured` with `kErrorUnknown` in one doctor out of three (2026-10-12): that
+  is the model, not the check; a `not verified` from it is reported as found.
+- A cycle step that fails in the setup (`down`, `model clear`, `up`, `model download`) skips the condition, so
+  lars-verify reports the run `inconclusive`; the check itself judges only `model init` and the state after it.
+  Read the failing step's output in `{runDir}/steps/` before calling it a harness problem.
 - Chrome may finish the download before `model download` starts (the profile has the use case Requested); the
   download step then reports `alreadyAvailable` and the cycle still counts.
