@@ -61,8 +61,9 @@ or Lars's own) is never stopped.
      and `serve.options.proxyConfig` in the app's `project.json` (the docs put the file next to
      `angular.json`; Nx keeps it in the app folder and names it workspace-relative). An existing proxy file
      keeps its entries: `/__pangular` is merged in. Before any change, `install` refuses (exit 2) a serve target
-     whose `proxyConfig` names another file, an array-form proxy file, and an untracked proxy file with other
-     entries (`remove` deletes an untracked proxy file). Formatted with the repo's prettier when
+     whose `proxyConfig` names another file, an array-form proxy file, an untracked proxy file with other
+     entries (`remove` deletes an untracked proxy file), and a tracked one whose other entries differ from HEAD
+     (`remove` restores it from HEAD). Formatted with the repo's prettier when
      `node_modules/prettier` exists.
    - The portal worktree has this setup committed (`f102b97`); `check` exits 0 there and `install` is not needed.
 2. Start the app: `node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target portal`
@@ -87,7 +88,8 @@ or Lars's own) is never stopped.
   (`[OK] ports: pangular 9999 (fixed: apps/insurance-portal/proxy.conf.json:3 in the app checkout ...), app 4507 (external: ...)`).
 - `mcp-origin-guard`: a POST without `Origin` gets 403.
 - `mcp-initialize`: `initialize` with a local `Origin` (and `PANGULAR_MCP_TOKEN` as a bearer token when set) answers.
-  A server that is down fails both MCP checks with `HTTP 0: ECONNREFUSED` rather than crashing doctor. Page text
+  A server that is down fails `mcp-origin-guard` (`-> 0`), `mcp-initialize` (`HTTP 0: ECONNREFUSED`) and
+  `read-only` (no tool list is no evidence) rather than crashing doctor. Page text
   in a detail (titles, URLs, console lines) is printed with its control characters escaped.
 - `read-only`: `tools/list` holds none of the eight action tools (`highlight`, `navigate`,
   `dispatch-ngrx-action`, `form-action`, `fill-form`, `set-http-rule`, `remove-http-rule`, `analog-call-api`).
@@ -170,7 +172,7 @@ install and leaves Pangular in place; reverting that commit is a product change 
 | `down` | teardown | 0 (also when the PID is gone); 2 no state file, or PID start-time / command mismatch |
 | `tools [--out F]` | MCP `tools/list`; names, read-only flags, action tools present | 0; 2 failed (a server that is down: `HTTP 0: ECONNREFUSED`) |
 | `call <tool> [--args JSON] [--confirm] [--out F]` | MCP `tools/call`; the eight action tools need `--confirm` | 0; 1 tool error; 2 refused, `tools/list` failed (server down), or unknown tool |
-| `components [--filter T] [--depth N] [--out F]` | `list-components`, or the same outline from the `component-tree` resource | 0 / 1 |
+| `components [--filter T] [--depth N] [--out F]` | `list-components`, or the same outline from the `component-tree` resource | 0 / 1; 2 `tools/list` failed (server down) |
 | `resource <id> [--out F]` | MCP `resources/read`, e.g. `component-tree`, `signal-graph`, `router` | 0 / 1; 2 unknown id, or `resources/list` failed |
 | `scan <tool> [--root DIR] [--out F]` | stdio `pangular mcp --read-only` source-scan tool | 0 / 1 / 2 |
 

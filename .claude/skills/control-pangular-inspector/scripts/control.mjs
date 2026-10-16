@@ -471,16 +471,21 @@ export function withProxyConfig(serve, rel) {
 
 /**
  * The proxy file install writes, or why it refuses, so an app's own proxy entries survive install and remove. The
- * `/__pangular` entry is merged into the existing file. remove restores a tracked file from git and deletes an
- * untracked one, so an untracked file with other entries is refused, as is a serve target that names another file.
+ * `/__pangular` entry is merged into the existing file. remove restores a tracked file from HEAD and deletes an
+ * untracked one, so it refuses an untracked file with other entries, a tracked one whose other entries differ from
+ * HEAD (uncommitted edits remove would drop), and a serve target that names another file.
  * @param {unknown} existing  the app's proxy.conf.json, parsed, or null when there is none
- * @param {boolean} tracked  whether git tracks that file
+ * @param {unknown} head  that file at HEAD, parsed; undefined when git does not track it
  * @param {string | null | undefined} current  the serve target's options.proxyConfig
  * @param {string} rel  the proxy file install manages, repository-relative
  * @param {string} target  the devtools server's URL
  * @returns {{ proxy: Record<string, unknown> } | { refusal: string }}
  */
-export function proxyPlan(existing, tracked, current, rel, target) {
+export function proxyPlan(existing, head, current, rel, target) {
+  const tracked = head !== undefined;
+  /** @param {unknown} v */
+  const others = (v) => JSON.stringify(Object.entries(v !== null && typeof v === 'object' ? v : {}).filter(([k]) => k !== '/__pangular'));
+
   if (current && current !== rel) {
     return { refusal: `refused: serve.options.proxyConfig names ${current}, not ${rel}; add the /__pangular entry to ${current} by hand (SKILL.md "Launch" shows it)` };
   }
@@ -490,10 +495,14 @@ export function proxyPlan(existing, tracked, current, rel, target) {
   }
 
   const entries = /** @type {Record<string, unknown>} */ (existing ?? {});
-  const others = Object.keys(entries).filter((k) => k !== '/__pangular');
+  const keys = Object.keys(entries).filter((k) => k !== '/__pangular');
 
-  if (others.length > 0 && !tracked) {
-    return { refusal: `refused: ${rel} is not tracked by git and holds other entries (${others.join(', ')}); remove deletes an untracked proxy file, so commit it first` };
+  if (keys.length > 0 && !tracked) {
+    return { refusal: `refused: ${rel} is not tracked by git and holds other entries (${keys.join(', ')}); remove deletes an untracked proxy file, so commit it first` };
+  }
+
+  if (tracked && existing !== null && others(existing) !== others(head)) {
+    return { refusal: `refused: ${rel} has uncommitted changes besides /__pangular; remove restores it from HEAD and would drop them, so commit them first` };
   }
 
   return { proxy: { ...entries, '/__pangular': { target, pathRewrite: { '^/__pangular': '' }, ws: true } } };
@@ -865,8 +874,19 @@ function install() {
   const target = `http://localhost:${port()}`;
   const rel = path.relative(dir, f.app.proxy).split(path.sep).join('/');
   const existing = existsSync(f.app.proxy) ? JSON.parse(readFileSync(f.app.proxy, 'utf8')) : null;
-  const tracked = existing !== null && git(dir, ['ls-files', '--error-unmatch', rel]).status === 0;
-  const proxy = proxyPlan(existing, tracked, f.proxyConfig, rel, target);
+  const atHead = existing === null ? null : git(dir, ['show', `HEAD:./${rel}`]);
+  /** @type {unknown} */
+  let head;
+
+  if (atHead !== null && atHead.status === 0) {
+    try {
+      head = JSON.parse(atHead.stdout);
+    } catch {
+      head = null;
+    }
+  }
+
+  const proxy = proxyPlan(existing, head, f.proxyConfig, rel, target);
 
   if ('refusal' in proxy) {
     fail(2, proxy.refusal);
@@ -1141,11 +1161,6 @@ async function toolList(state) {
   return { list, why: list ? '' : `tools/list failed on ${state.mcpUrl}: ${r.httpStatus === 200 ? JSON.stringify(r.error ?? null) : `HTTP ${r.httpStatus}: ${r.body}`}` };
 }
 
-/** @param {State} state */
-async function listTools(state) {
-  return (await toolList(state)).list;
-}
-
 async function tools() {
   const state = readState();
   const { list, why } = await toolList(state);
@@ -1293,9 +1308,16 @@ async function doctor() {
   const init = await mcp(state, 'initialize', initParams());
   const tokenNote = process.env['PANGULAR_MCP_TOKEN'] ? 'with Bearer token' : 'no token (the standalone CLI asks for none; a hub mount needs PANGULAR_MCP_TOKEN)';
   add('mcp-initialize', init.result ? 'pass' : 'fail', init.result ? `${init.result.serverInfo?.name} ${init.result.serverInfo?.version}, local Origin, ${tokenNote}` : `HTTP ${init.httpStatus}: ${init.body ?? JSON.stringify(init.error)}`);
-  const list = (await listTools(state)) ?? [];
-  const ro = readOnlyCheck(state.readOnly, list.map((t) => t.name));
-  add('read-only', ro.status, ro.detail);
+  const tools = await toolList(state);
+  const list = tools.list ?? [];
+
+  // No tool list is no evidence of read-only.
+  if (tools.list === null) {
+    add('read-only', 'fail', tools.why);
+  } else {
+    const ro = readOnlyCheck(state.readOnly, list.map((t) => t.name));
+    add('read-only', ro.status, ro.detail);
+  }
 
   const appUrl = str('app-url') ?? state.appUrl;
 
@@ -1389,7 +1411,12 @@ async function components() {
   const state = readState();
   const filter = str('filter')?.toLowerCase();
   const depth = Number(str('depth') ?? Infinity);
-  const list = (await listTools(state)) ?? [];
+  const { list, why } = await toolList(state);
+
+  if (!list) {
+    return fail(2, why);
+  }
+
   const tool = list.find((t) => short(t.name) === 'list-components');
   let text;
   let source;

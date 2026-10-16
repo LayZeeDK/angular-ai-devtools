@@ -368,16 +368,18 @@ test('proxyPlan merges /__pangular into an app proxy and refuses what install or
   const rel = 'apps/a/proxy.conf.json';
   const target = 'http://localhost:9999';
   const entry = { target, pathRewrite: { '^/__pangular': '' }, ws: true };
-  assert.deepEqual(proxyPlan(null, false, null, rel, target), { proxy: { '/__pangular': entry } });
-  assert.deepEqual(proxyPlan({ '/api': { target: 'http://localhost:3000' } }, true, rel, rel, target), {
-    proxy: { '/api': { target: 'http://localhost:3000' }, '/__pangular': entry },
-  });
-  assert.deepEqual(proxyPlan({ '/__pangular': { target: 'http://localhost:1' } }, false, rel, rel, target), { proxy: { '/__pangular': entry } }, 'an untracked file of its own is rewritten');
-  const untracked = proxyPlan({ '/api': {} }, false, null, rel, target);
+  const api = { '/api': { target: 'http://localhost:3000' } };
+  assert.deepEqual(proxyPlan(null, undefined, null, rel, target), { proxy: { '/__pangular': entry } });
+  assert.deepEqual(proxyPlan(api, api, rel, rel, target), { proxy: { ...api, '/__pangular': entry } });
+  assert.deepEqual(proxyPlan({ ...api, '/__pangular': { target: 'http://localhost:1' } }, api, rel, rel, target), { proxy: { ...api, '/__pangular': entry } }, 'a second install over its own entry');
+  assert.deepEqual(proxyPlan({ '/__pangular': { target: 'http://localhost:1' } }, undefined, rel, rel, target), { proxy: { '/__pangular': entry } }, 'an untracked file of its own is rewritten');
+  const untracked = proxyPlan({ '/api': {} }, undefined, null, rel, target);
   assert.match('refusal' in untracked ? untracked.refusal : '', /^refused: apps\/a\/proxy.conf.json is not tracked by git and holds other entries \(\/api\)/);
-  const other = proxyPlan(null, false, 'apps/a/other.json', rel, target);
+  const edited = proxyPlan({ '/api': { target: 'http://localhost:3001' } }, api, null, rel, target);
+  assert.match('refusal' in edited ? edited.refusal : '', /^refused: apps\/a\/proxy.conf.json has uncommitted changes besides \/__pangular/);
+  const other = proxyPlan(null, undefined, 'apps/a/other.json', rel, target);
   assert.match('refusal' in other ? other.refusal : '', /^refused: serve.options.proxyConfig names apps\/a\/other.json, not apps\/a\/proxy.conf.json/);
-  const array = proxyPlan([{ context: ['/api'] }], true, null, rel, target);
+  const array = proxyPlan([{ context: ['/api'] }], [{ context: ['/api'] }], null, rel, target);
   assert.match('refusal' in array ? array.refusal : '', /not a key-per-path object/);
 });
 
