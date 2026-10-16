@@ -60,7 +60,8 @@ node .claude/skills/control-vitest-browser-angular/scripts/control.mjs up --exte
 - Ready means: a tab whose URL starts with `http://127.0.0.1:<port>/__vitest_test__/` exists in the browser, and
   the log has Vitest's `DEV` (watch) or `RUN` line. Measured in the proof run (2026-10-12): 5.2 s from spawning
   `ng test` to ready, and 19.3 s for the whole `up` including launching the stopped `chrome-beta-gemma4`
-  instance. The bundled flow took 9.9 s.
+  instance. The bundled flow took 9.9 s. In a worktree (2026-10-16): attach 4.4 s with the instance launched, bundled
+  21.6 s on a cold cache.
 - Re-run the tests: change or touch a file under `spikes/ng222-app/src` (`touch spikes/ng222-app/src/app/counter.spec.ts`).
   The builder rebuilds and the log shows `RERUN` **[measured]**.
 
@@ -74,6 +75,7 @@ Read-only. Each check prints one line (`--json` for the list):
 
 | Check | Passes when |
 |---|---|
+| `map-fresh` | always; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`), or that were never proven; never fails doctor |
 | `process-alive` | the recorded `ng test` PID runs with the recorded start time |
 | `port-owned` | the Vitest port is listened on by a process in that PID's tree |
 | `test-run` | the log has Vitest's `DEV` (watch) or `RUN` line and no "An exception occurred" or "Unhandled Error"; reports the last `Tests` summary |
@@ -171,6 +173,18 @@ State file: `tmp/control-vitest-browser-angular/state/<flowId>.json`. Exit codes
 healthy; 2 refused or could not run, with the reason (a run already recorded, port in use, worktree on the main
 port, unknown instance, missing state file, PID mismatch, `--bundled` without an extension, `ng test` exited or
 failed to start).
+
+`scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
+`features/.proven.json`:
+
+- `node .claude/skills/control-vitest-browser-angular/scripts/fingerprint.mjs record --feature <id> --entries <path>...`
+  records the files feature `<id>` depends on (the TypeScript import closure of the repository-relative entries)
+  with their git blob hashes; without `--entries` it reuses the recorded ones. Exit 0 written or unchanged, 2 refused.
+- `node .claude/skills/control-vitest-browser-angular/scripts/fingerprint.mjs check [--feature <id>] [--json]` prints
+  `fresh`, `stale` or `unproven` per feature. Exit 0 every feature fresh, 1 one is stale or unproven, 2 could not run.
+
+Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
+`npm run check` type-checks the scripts.
 
 Shared code: `spikes/probes/vitest-lib.mjs` (CDP client, frame contexts, the S1 Vitest variant), also used by
 the spike runner `spikes/probes/vitest-attach.mjs`.
