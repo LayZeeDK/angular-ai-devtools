@@ -60,8 +60,14 @@ export function check({ out }, deps) {
   const line = checks.find((c) => c !== null && typeof c === 'object' && /** @type {Record<string, unknown>} */ (c)['name'] === 'extension');
   const ext = /** @type {Record<string, unknown> | undefined} */ (line);
 
-  if (ext?.['ok'] !== true) {
-    throw new Error(`CLAIM: doctor's extension line ${ext ? `failed: ${String(ext['detail'])}` : 'is missing'}`);
+  // No extension line: doctor stopped before it looked (the harness process is gone), so nothing was observed.
+  if (ext === undefined) {
+    const failed = checks.filter((c) => /** @type {Record<string, unknown>} */ (c)?.['ok'] === false).map((c) => String(/** @type {Record<string, unknown>} */ (c)['name']));
+    throw new Error(`doctor reported no extension line (failing: ${failed.join(', ') || 'none'}); run up, then the check again`);
+  }
+
+  if (ext['ok'] !== true) {
+    throw new Error(`CLAIM: doctor's extension line failed: ${String(ext['detail'])}`);
   }
 }
 

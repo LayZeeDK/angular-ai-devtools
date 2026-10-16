@@ -42,9 +42,15 @@ test('passes on the extension line of the live doctor, even when another doctor 
   assert.ok(f.files.has(join('D:\\ev', 'extension.json')));
 });
 
-test('a failed or missing extension line throws its CLAIM error', () => {
+test('a failed extension line throws its CLAIM error', () => {
   assert.throws(() => check({ out: 'o' }, fake(1, [{ name: 'extension', ok: false, detail: 'DISABLED' }]).deps), /^Error: CLAIM: doctor's extension line failed: DISABLED$/);
-  assert.throws(() => check({ out: 'o' }, fake(0, [{ name: 'process', ok: true }]).deps), /^Error: CLAIM: doctor's extension line is missing$/);
+});
+
+test('a missing extension line (the harness process is gone) is could not run, not a failed claim', (t) => {
+  const dead = fake(1, [{ name: 'map-fresh', ok: true }, { name: 'process', ok: false, detail: 'PID 7 not running' }]);
+  assert.throws(() => check({ out: 'o' }, dead.deps), (e) => e instanceof Error && !e.message.startsWith('CLAIM:') && e.message.includes('no extension line (failing: process)'));
+  t.mock.method(console, 'error', () => {});
+  assert.equal(main(['--out', 'o'], dead.deps), 2);
 });
 
 test('main: 1 with the Error: CLAIM line; 2 for no state (exit 2), no JSON or no checks list', (t) => {
