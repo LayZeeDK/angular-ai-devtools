@@ -6,7 +6,7 @@ import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { authCodeIn, buildLogErrors, busyPorts, cdMode, consoleErrors, descendants, flagIn, flowIdFor, isWorktree, listeners, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder, takenBy } from './control.mjs';
+import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, cdMode, checkLine, consoleErrors, descendants, flagIn, flowIdFor, isWorktree, listeners, markerCheck, orphansOf, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder, takenBy, timeoutMsOf, urlPort } from './control.mjs';
 
 /**
  * A throwaway listener on a port the OS picks; closed after the test.
@@ -301,4 +301,64 @@ test('loading the script makes Windows skip the current directory when Node look
   delete process.env['NoDefaultCurrentDirectoryInExePath'];
   await import(new URL('./control.mjs?fresh-env', import.meta.url).href);
   assert.equal(process.env['NoDefaultCurrentDirectoryInExePath'], '1');
+});
+
+test('authReply gives the one-time code only to the portal and dismisses every other prompt', () => {
+  assert.deepEqual(authReply('portal', '123456'), ['dialog-accept', '123456']);
+  assert.deepEqual(authReply('portal', null), ['dialog-dismiss']);
+  assert.deepEqual(authReply('counter', '123456'), ['dialog-dismiss']);
+  assert.deepEqual(authReply(undefined, '123456'), ['dialog-dismiss'], 'an --url attach has no target');
+});
+
+test('authCheck says what happened from the same condition the reply used', () => {
+  const ok = { status: 0, stdout: '', stderr: '' };
+  assert.equal(authCheck('portal', '123456', 'pangular.log', ok).status, 'pass');
+  const failed = authCheck('portal', '123456', 'pangular.log', { status: 1, stdout: '', stderr: 'no dialog' });
+  assert.equal(failed.status, 'warn');
+  assert.match(failed.detail, /dialog-accept failed: no dialog/);
+  assert.doesNotMatch(failed.detail, /^entered/);
+  assert.match(authCheck('portal', null, null, ok).detail, /^dismissed .*no control-pangular-inspector state file/);
+  assert.match(authCheck('counter', '123456', 'pangular.log', ok).detail, /^dismissed .*not the portal/);
+});
+
+test('timeoutMsOf refuses a value that is not a positive number', () => {
+  assert.equal(timeoutMsOf(['up'], 240), 240000);
+  assert.equal(timeoutMsOf(['up', '--timeout', '30'], 240), 30000);
+  assert.equal(timeoutMsOf(['up', '--timeout', '1.5'], 240), 1500);
+  assert.throws(() => timeoutMsOf(['up', '--timeout', 'abc'], 240), /--timeout abc is not a positive number of seconds/);
+  assert.throws(() => timeoutMsOf(['up', '--timeout'], 240), /--timeout needs a value/);
+  assert.throws(() => timeoutMsOf(['up', '--timeout', '0'], 240), /not a positive/);
+  assert.throws(() => timeoutMsOf(['up', '--timeout', '-5'], 240), /not a positive/);
+  assert.throws(() => timeoutMsOf(['up', '--timeout', 'Infinity'], 240), /not a positive/);
+});
+
+test('markerCheck fails a page with no Angular root', () => {
+  assert.equal(markerCheck([], 'app-root').status, 'fail');
+  assert.equal(markerCheck(['app-other'], 'app-root').status, 'fail');
+  assert.equal(markerCheck(['app-root'], 'app-root').status, 'pass');
+});
+
+test('checkLine escapes control characters a page put in a detail', () => {
+  const line = checkLine({ name: 'angular-root', status: 'pass', detail: 'v\u001b]0;x\u0007\u009b2J' });
+  assert.equal(line, String.raw`[OK] angular-root: v\u001b]0;x\u0007\u009b2J`);
+  assert.equal(checkLine({ name: 'ports', status: 'skip', detail: 'plain' }), '[SKIP] ports: plain');
+});
+
+test('urlPort reads the scheme default when the URL names no port', () => {
+  assert.equal(urlPort('http://localhost/'), 80);
+  assert.equal(urlPort('https://localhost/'), 443);
+  assert.equal(urlPort('https://localhost:4775/'), 4775);
+  assert.equal(flowIdFor(['doctor', '--url', 'https://localhost/']), 'url-443');
+});
+
+test('orphansOf finds the children a gone root left, started after it', () => {
+  const proc = { name: 'app', pid: 7, port: 4222, readyUrl: '', log: '', start: '2026-10-16T12:00:00.0000000Z', commandLine: 'node nx.js run' };
+  const table = [
+    { ProcessId: 20, ParentProcessId: 7, Start: '2026-10-16T12:00:01.0000000Z', CommandLine: 'node executor' },
+    { ProcessId: 21, ParentProcessId: 7, Start: '2026-10-16T11:00:00.0000000Z', CommandLine: 'older: parent PID reused' },
+    { ProcessId: 22, ParentProcessId: 8, Start: '2026-10-16T12:00:02.0000000Z', CommandLine: 'unrelated' },
+    { ProcessId: 23, ParentProcessId: 7, Start: null, CommandLine: null },
+  ];
+  assert.deepEqual(orphansOf(table, proc).map((r) => r.ProcessId), [20]);
+  assert.deepEqual(orphansOf(table, { ...proc, start: null }), [], 'no recorded start: nothing to compare, nothing stopped');
 });

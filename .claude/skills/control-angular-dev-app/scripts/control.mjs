@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mapFresh } from './fingerprint.mjs';
+import { mapFresh, printable } from './fingerprint.mjs';
 
 /** @typedef {'counter' | 'ssr' | 'portal'} TargetName */
 /** @typedef {{ name: string, bin: string | null, args: string[], env: Record<string, string | undefined>, port: number, readyPath: string }} ProcSpec */
@@ -453,6 +453,118 @@ export function cdMode(ngZone) {
 }
 
 /**
+ * The port a URL reaches: its own, else the scheme's default. Throws on an invalid URL.
+ * @param {string} url
+ * @returns {number}
+ */
+export function urlPort(url) {
+  const u = new URL(url);
+
+  return Number(u.port || (u.protocol === 'https:' ? 443 : 80));
+}
+
+/**
+ * `up`'s `--timeout` in milliseconds. Throws when the flag has no value or the value is not a positive, finite number.
+ * @param {string[]} args
+ * @param {number} defaultSeconds
+ * @returns {number}
+ */
+export function timeoutMsOf(args, defaultSeconds) {
+  const v = flagIn(args, 'timeout');
+
+  if (v === true) {
+    throw new Error('--timeout needs a value');
+  }
+
+  const s = v === undefined || v === '' ? defaultSeconds : Number(v);
+
+  if (!(Number.isFinite(s) && s > 0)) {
+    throw new Error(`--timeout ${v} is not a positive number of seconds`);
+  }
+
+  return s * 1000;
+}
+
+/**
+ * The playwright-cli command that answers the Pangular overlay's code prompt. The one-time code of the devtools server
+ * goes only to the portal, the one target whose dev server proxies /__pangular to it; any other page's prompt (an
+ * --url attach included) is dismissed.
+ * @param {string | undefined} target
+ * @param {string | null} otp
+ * @returns {string[]}
+ */
+export function authReply(target, otp) {
+  return target === 'portal' && otp ? ['dialog-accept', otp] : ['dialog-dismiss'];
+}
+
+/**
+ * The `pangular-auth` check for the reply authReply chose and how playwright-cli ran it.
+ * @param {string | undefined} target
+ * @param {string | null} otp
+ * @param {string | null} logName  the server log the code came from
+ * @param {Run} reply
+ * @returns {Check}
+ */
+export function authCheck(target, otp, logName, reply) {
+  const name = 'pangular-auth';
+
+  if (target !== 'portal') {
+    return { name, status: 'warn', detail: 'dismissed a code prompt on a page that is not the portal; the one-time code goes only to the portal' };
+  }
+
+  if (!otp) {
+    return { name, status: 'warn', detail: `dismissed the overlay's code prompt: no control-pangular-inspector state file with a code for port ${PANGULAR_PORT}` };
+  }
+
+  if (reply.status !== 0) {
+    return { name, status: 'warn', detail: `found the one-time code in ${logName}, but dialog-accept failed: ${(reply.stderr || reply.stdout).trim().slice(0, 200)}` };
+  }
+
+  return { name, status: 'pass', detail: `entered the one-time code from ${logName} into the overlay prompt` };
+}
+
+/**
+ * The `app-marker` check: the target's root tag is on the page. A page with no Angular root fails it too.
+ * @param {string[]} roots
+ * @param {string} marker
+ * @returns {Check}
+ */
+export function markerCheck(roots, marker) {
+  return roots.includes(marker)
+    ? { name: 'app-marker', status: 'pass', detail: `root <${marker}> present` }
+    : { name: 'app-marker', status: 'fail', detail: `expected root <${marker}>, found ${roots.length ? `<${roots.join('>, <')}>` : 'no Angular root'}` };
+}
+
+/**
+ * One human-readable doctor line. Page text (ng-version, mark details, playwright-cli output) can hold control
+ * characters, so they are escaped rather than written to the terminal.
+ * @param {Check} c
+ * @returns {string}
+ */
+export function checkLine(c) {
+  const tag = c.status === 'pass' ? '[OK]' : c.status === 'skip' ? '[SKIP]' : c.status === 'warn' ? '[WARN]' : '[ERROR]';
+
+  return `${tag} ${c.name}: ${printable(c.detail)}`;
+}
+
+/**
+ * The processes a recorded root left behind when it exited: its direct children (an Nx executor keeps the dead PID as
+ * its ParentProcessId) that started after it, so a later process that got the same PID is never the parent matched.
+ * @param {ProcessRow[]} table
+ * @param {ProcState} proc
+ * @returns {ProcessRow[]}
+ */
+export function orphansOf(table, proc) {
+  const start = proc.start;
+
+  if (start === null) {
+    return [];
+  }
+
+  return table.filter((r) => r.ParentProcessId === proc.pid && r.Start !== null && r.Start > start);
+}
+
+/**
  * The flow id the arguments name: `url-<port>` for `--url`, the target's name for `--target` (one instance per
  * target per checkout), else null (the caller then looks at the state files). Throws on an unknown target or an
  * invalid `--url`.
@@ -464,7 +576,7 @@ export function flowIdFor(args) {
   const target = flagIn(args, 'target');
 
   if (typeof url === 'string' && url !== '') {
-    return `url-${new URL(url).port || 80}`;
+    return `url-${urlPort(url)}`;
   }
 
   if (typeof target === 'string' && target !== '') {
@@ -595,8 +707,7 @@ function out(result, code) {
     process.stdout.write(JSON.stringify(result, null, 2) + '\n');
   } else {
     for (const c of result.checks ?? []) {
-      const tag = c.status === 'pass' ? '[OK]' : c.status === 'skip' ? '[SKIP]' : c.status === 'warn' ? '[WARN]' : '[ERROR]';
-      process.stdout.write(`${tag} ${c.name}: ${c.detail}\n`);
+      process.stdout.write(`${checkLine(c)}\n`);
     }
 
     const { checks, ...rest } = result;
@@ -786,7 +897,7 @@ async function up() {
       fail(2, `nothing answers at ${url} (${res.body})`);
     }
 
-    const ports = [{ name: 'app', port: Number(new URL(url).port || 80), kind: /** @type {PortKind} */ ('external'), reason: 'attached with --url; this skill did not start it' }];
+    const ports = [{ name: 'app', port: urlPort(url), kind: /** @type {PortKind} */ ('external'), reason: 'attached with --url; this skill did not start it' }];
     /** @type {State} */
     const state = { flowId, mode: 'attach', url, ports, session: `control-ngdev-${flowId}`, evidenceDir, startedAt: new Date().toISOString(), procs: [] };
     writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
@@ -826,6 +937,15 @@ async function up() {
     fail(2, `refused: ${dir} is a git worktree and port ${forced} is the main checkout's documented port; use the derived port or --url on purpose`);
   }
 
+  /** @type {number} */
+  let timeoutMs;
+
+  try {
+    timeoutMs = timeoutMsOf(argv, 240);
+  } catch (error) {
+    return fail(2, `refused: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
   const flowId = targetName;
 
   if (existsSync(statePath(flowId))) {
@@ -840,7 +960,6 @@ async function up() {
 
   const evidenceDir = path.join(SCRATCH, `${flowId}-${stamp}`);
   const t0 = Date.now();
-  const timeoutMs = Number(flag('timeout') ?? 240) * 1000;
   let order = slotOrder(slotOf(dir, worktree));
   const first = order[0];
   let attempt = 0;
@@ -958,10 +1077,10 @@ async function doctor() {
 
     for (let i = 0; i < 3 && isAuthPrompt(res); i++) {
       const otp = pangular.log && existsSync(pangular.log) ? authCodeIn(readFileSync(pangular.log, 'utf8')) : null;
-      const acc = playwrightCli([`-s=${s}`, otp ? 'dialog-accept' : 'dialog-dismiss', ...(otp ? [otp] : [])]);
+      const reply = playwrightCli([`-s=${s}`, ...authReply(state.target, otp)]);
 
       if (!authNoted) {
-        add('pangular-auth', otp && acc.status === 0 ? 'pass' : 'warn', otp && pangular.log ? `entered the one-time code from ${path.basename(pangular.log)} into the overlay prompt` : `dismissed the overlay's code prompt: no control-pangular-inspector state file with a code for port ${PANGULAR_PORT}`);
+        checks.push(authCheck(state.target, otp, pangular.log && path.basename(pangular.log), reply));
         authNoted = true;
       }
 
@@ -998,10 +1117,8 @@ async function doctor() {
 
   add('angular-root', page.ngVersion ? 'pass' : 'fail', page.ngVersion ? `[ng-version="${page.ngVersion}"] on <${page.roots.join('>, <')}>` : 'no [ng-version] element: not an Angular app or not bootstrapped');
 
-  if (target && page.roots.length && !page.roots.includes(target.marker)) {
-    add('app-marker', 'fail', `expected root <${target.marker}>, found <${page.roots.join('>, <')}>`);
-  } else if (target) {
-    add('app-marker', 'pass', `root <${target.marker}> present`);
+  if (target) {
+    checks.push(markerCheck(page.roots, target.marker));
   }
 
   add('dev-build', page.devMode ? 'pass' : 'fail', page.devMode ? `window.ng has ${page.ngFunctions.length} functions` : 'window.ng missing: production build (or ngDevMode=false); ng.* recipes will not work');
@@ -1048,7 +1165,14 @@ function down() {
     const row = table.find((r) => r.ProcessId === p.pid);
 
     if (!row) {
-      notes.push(`${p.name} PID ${p.pid} is not running`);
+      const orphans = orphansOf(table, p);
+      notes.push(`${p.name} PID ${p.pid} is not running${orphans.length ? `; stopping the ${orphans.length} child process(es) it left` : ''}`);
+
+      for (const o of orphans) {
+        const r = stopTree(o.ProcessId);
+        notes.push(`stopped ${p.name}'s child tree of PID ${o.ProcessId}: ${r.status === 0 ? 'ok' : r.stderr.trim()}`);
+      }
+
       continue;
     }
 

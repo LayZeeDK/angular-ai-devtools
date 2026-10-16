@@ -76,7 +76,8 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target coun
 - Measured time to ready, warm caches: counter 2.6-8 s (four runs), SSR 7.5-14.5 s (four runs, 2026-10-12), portal 15.3-20.5 s with
   the API first (three runs). In a fresh worktree with a cold `.angular` cache: counter 13.6-21 s, SSR 16.7-19.3 s
   (2026-10-15, 2026-10-16); the first portal start of a session took 81.7 s (2026-10-16). The first portal build
-  after a change can take minutes; `--timeout <seconds>` (default 240).
+  after a change can take minutes; `--timeout <seconds>` (default 240; a missing value or one that is not a
+  positive number exits 2).
 - Server output goes to `<evidenceDir>/app.log` (and `api.log`).
 - A port another process holds is never taken over: a derived one moves the run to the next slot (also when
   the server finds its port taken after the check: `up` stops the tree it started and tries the next slot); a
@@ -102,13 +103,16 @@ Answers "is this instance worth driving?". One line per check:
   next entry: proxy errors with their `Error: read ECONNRESET` and `at ...` lines, and the browser console
   forwarded as `(client)`, including the multi-line NG0500 that `ssr-check.js` provokes on `?mismatch=1`;
   `console-errors` covers those). Skipped with `--url`.
-- `pangular-auth` (portal, only when the Pangular overlay asks): with a Pangular server behind `/__pangular`
-  the overlay opens a `prompt` for a one-time code that blocks every playwright-cli command. Doctor reads the
-  code from control-pangular-inspector's `pangular.log` (via its state file `pangular-9999.json`) and enters it;
-  with no such state file it dismisses the prompt and warns.
+- `pangular-auth` (only when a code prompt blocks the session): with a Pangular server behind `/__pangular`
+  the overlay opens a `prompt` for a one-time code that blocks every playwright-cli command. For the portal,
+  doctor reads the code from control-pangular-inspector's `pangular.log` (via its state file
+  `pangular-9999.json`) and enters it; with no such state file it dismisses the prompt and warns, and a failed
+  `dialog-accept` warns with its error. Any other page (another target, or an `--url` attach) never gets the
+  code: its prompt is dismissed with a warning.
 - `browser-session`: opens (or reuses) the run's session (`control-ngdev-<target>-<port>`, or `control-ngdev-url-<port>`) and goes to the app URL.
 - `angular-root`: an element with `[ng-version]`; prints the version and root tags. `app-marker`: the fixture's
-  root tag.
+  root tag (fails too when the page has no Angular root). Page text in a detail is printed with its control
+  characters escaped.
 - `dev-build`: `window.ng` exists. Missing means a production build or `ngDevMode=false`; `ng.*` recipes will
   not work.
 - `ng-core-functions`: the 11 public functions plus `ɵgetSignalGraph` and the four `ɵ` injector functions.
@@ -192,7 +196,8 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs down [--target .
 
 Checks every recorded PID against its recorded start time and command line, closes the run's playwright-cli
 session, stops each recorded process tree (`taskkill /T /F` by PID), deletes the state file, keeps the
-evidence directory. A PID that no longer runs is noted, not refused. Never `playwright-cli close-all` or
+evidence directory. A PID that no longer runs is noted, not refused; the child processes it left (those whose
+parent is that PID and that started after it, such as an Nx executor) are stopped by PID with their trees. Never `playwright-cli close-all` or
 `kill-all`: they reach Lars's sessions.
 
 ## Helpers
@@ -201,7 +206,7 @@ evidence directory. A PID that no longer runs is noted, not refused. Never `play
 
 | Command | Does | Output | Exit |
 |---|---|---|---|
-| `up` | launch (`--target`) or attach (`--url`); writes `tmp/control-angular-dev-app/state/<flowId>.json` | flowId (the target, or `url-<port>`), url, port, slot, ports `{name, port, kind, reason?}`, session, evidenceDir, procs `{name, pid, port, start, commandLine, log}`, `readyInSeconds` | 0 ready; 2 refused (10 slots busy, a busy fixed port, a busy `--port`, worktree on the main port, state exists), process exited, timeout |
+| `up` | launch (`--target`) or attach (`--url`); writes `tmp/control-angular-dev-app/state/<flowId>.json` | flowId (the target, or `url-<port>`; a URL without a port uses 80 or 443), url, port, slot, ports `{name, port, kind, reason?}`, session, evidenceDir, procs `{name, pid, port, start, commandLine, log}`, `readyInSeconds` | 0 ready; 2 refused (10 slots busy, a busy fixed port, a busy `--port`, worktree on the main port, state exists), process exited, timeout |
 | `doctor` | checks above | one line per check, or `checks[]` with `--json` | 0 / 1 / 2 |
 | `info` | prints the state | state plus `statePath` | 0; 2 no state |
 | `down` | teardown | notes per process and the session | 0 done (also when the PID is already gone); 2 missing state file, or PID start time / command mismatch (nothing stopped) |
