@@ -19,6 +19,12 @@ import { mapFresh } from './fingerprint.mjs';
 /** @typedef {{ id: string, type: string, url: string }} CdpTarget */
 /** @typedef {{ frame: { id: string, name?: string, url: string }, childFrames?: FrameTree[] }} FrameTree */
 /** @typedef {{ id: number, origin: string, name: string, auxData?: { frameId?: string, isDefault?: boolean } }} ExecutionContext */
+/** @typedef {'derived' | 'fixed' | 'external'} PortKind */
+/** @typedef {{ name: string, port: number, kind: PortKind, reason?: string }} PortEntry */
+/**
+ * A row of the ports table (SKILL.md, "Pick a flow"): a derived port has a value per slot, the first row is the main port.
+ * @typedef {{ name: string, kind: 'derived', at: (slot: number) => number } | { name: string, kind: 'fixed', port: number, pin: string } | { name: string, kind: 'external', port: number, owner: string }} PortRow
+ */
 
 /**
  * The part of spikes/probes/vitest-lib.mjs this script uses.
@@ -42,9 +48,10 @@ import { mapFresh } from './fingerprint.mjs';
  * @property {'bundled' | 'attach'} mode
  * @property {string | null} instance
  * @property {boolean} launchedInstance
- * @property {number} cdpPort
- * @property {string} cdpUrl
+ * @property {string} cdpUrl  the browser's CDP endpoint: the bundled CDP port, or the instance's (external)
  * @property {number} vitestPort
+ * @property {number} slot
+ * @property {PortEntry[]} ports
  * @property {string} orchestratorPrefix
  * @property {boolean} worktree
  * @property {string} session
@@ -78,7 +85,6 @@ const STATE_DIR = path.join(SCRATCH, 'state');
 const FIXTURE = path.join(REPO_ROOT, 'spikes', 'ng222-app');
 const NG = path.join(FIXTURE, 'node_modules', '@angular', 'cli', 'bin', 'ng.js');
 const AI_CONTROL = path.join(REPO_ROOT, '.claude', 'skills', 'control-ai-browsers', 'scripts', 'control.mjs');
-const AI_REGISTRY = path.join(REPO_ROOT, '.claude', 'skills', 'control-ai-browsers', 'instances.json');
 const SYSTEM32 = path.join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32');
 // Windows reads this from this process when Node looks up a bare program name (pwsh): it then skips the current directory.
 process.env['NoDefaultCurrentDirectoryInExePath'] = '1';
@@ -90,6 +96,32 @@ const MAIN_BUNDLED_CDP_PORT = 9350;
 const DEFAULT_INSTANCE = 'chrome-beta-gemma4';
 
 // ---------- pure helpers (exported for the tests) ----------
+
+/**
+ * The derived rows of the ports table: the Vitest browser server, and in bundled mode the bundled Chromium's CDP
+ * port. The attach-mode instance's CDP port is external (control-ai-browsers owns it).
+ * @param {boolean} bundled
+ * @returns {PortRow[]}
+ */
+export function portRows(bundled) {
+  /** @type {PortRow[]} */
+  const rows = [{ name: 'vitest', kind: 'derived', at: (slot) => (slot === 0 ? MAIN_VITEST_PORT : 51400 + slot) }];
+
+  if (bundled) {
+    rows.push({ name: 'bundled-cdp', kind: 'derived', at: (slot) => (slot === 0 ? MAIN_BUNDLED_CDP_PORT : 9400 + slot) });
+  }
+
+  return rows;
+}
+
+/**
+ * The CDP port of the run's browser, from its endpoint.
+ * @param {Pick<State, 'cdpUrl'>} state
+ * @returns {number}
+ */
+export function cdpPortOf(state) {
+  return Number(new URL(state.cdpUrl).port);
+}
 
 /**
  * The value after `--<name>`: a string, true when the flag has no value, undefined when it is absent.
@@ -157,23 +189,156 @@ export function isWorktree(dir) {
   }
 }
 
+// ---------- ports (SKILL.md, "Pick a flow") ----------
+
+// Slot 0 is the main checkout's (the documented ports); a worktree hashes to one of 1 to SLOTS - 1.
+const SLOTS = 100;
+const SLOT_TRIES = 10;
+
 /**
- * `main` in a main checkout; in a worktree a port in `base` to `base + span` from a hash of `dir`, never `main`.
+ * The checkout's own slot: 0 in a main checkout, else 1 to 99 from a hash of the folder, so it stays the same
+ * from run to run.
  * @param {string} dir
- * @param {number} main
- * @param {number} base
- * @param {number} span
  * @param {boolean} worktree
  * @returns {number}
  */
-export function derivePort(dir, main, base, span, worktree) {
+export function slotOf(dir, worktree) {
   if (!worktree) {
-    return main;
+    return 0;
   }
 
-  const p = base + (createHash('sha1').update(path.resolve(dir).toLowerCase()).digest().readUInt32BE(0) % span);
+  return 1 + (createHash('sha1').update(path.resolve(dir).toLowerCase()).digest().readUInt32BE(0) % (SLOTS - 1));
+}
 
-  return p === main ? p + 1 : p;
+/**
+ * The slots `up` tries, in order: `first`, then the next ones, 10 in all. From a worktree (`first` above 0) they
+ * wrap within 1 to 99 and never reach slot 0.
+ * @param {number} first
+ * @returns {number[]}
+ */
+export function slotOrder(first) {
+  return Array.from({ length: SLOT_TRIES }, (_, i) => (first === 0 ? i : 1 + ((first - 1 + i) % (SLOTS - 1))));
+}
+
+/**
+ * The PID listening on each port in `netstat -ano` output, IPv4 and IPv6.
+ * @param {string} text
+ * @returns {Map<number, number>}
+ */
+export function listeners(text) {
+  /** @type {Map<number, number>} */
+  const map = new Map();
+
+  for (const l of text.split(/\r?\n/)) {
+    const m = l.trim().split(/\s+/);
+
+    if (m[0] === 'TCP' && m[3] === 'LISTENING') {
+      map.set(Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1)), Number(m[4]));
+    }
+  }
+
+  return map;
+}
+
+/**
+ * Picks the ports of one run. A busy fixed port is a refusal. `forced` (`--port`) is the main port in every slot,
+ * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free; the derived
+ * entries of a slot after the first say what they fell back from.
+ * @param {PortRow[]} rows
+ * @param {number[]} order
+ * @param {Map<number, number>} busy  the PID listening on each port
+ * @param {number} [forced]
+ * @returns {{ ok: true, slot: number, ports: PortEntry[] } | { ok: false, reason: string }}
+ */
+export function planPorts(rows, order, busy, forced) {
+  for (const r of rows) {
+    const pid = r.kind === 'fixed' ? busy.get(r.port) : undefined;
+
+    if (r.kind === 'fixed' && pid !== undefined) {
+      return { ok: false, reason: `fixed port ${r.name} ${r.port} held by PID ${pid}; pinned by ${r.pin}` };
+    }
+  }
+
+  const main = rows.findIndex((r) => r.kind === 'derived');
+  const forcedPid = forced === undefined ? undefined : busy.get(forced);
+
+  if (forced !== undefined && forcedPid !== undefined) {
+    return { ok: false, reason: `port ${forced} (--port) is held by PID ${forcedPid}; --port has no fallback` };
+  }
+
+  /** @type {(r: PortRow, i: number, slot: number) => number} */
+  const portAt = (r, i, slot) => (r.kind !== 'derived' ? r.port : i === main && forced !== undefined ? forced : r.at(slot));
+  /** @type {string[]} */
+  const tried = [];
+
+  for (const slot of order) {
+    const taken = rows.flatMap((r, i) => {
+      const pid = r.kind === 'derived' ? busy.get(portAt(r, i, slot)) : undefined;
+
+      return pid === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} held by PID ${pid}`];
+    });
+
+    if (taken.length === 0) {
+      const first = /** @type {number} */ (order[0]);
+      /** @type {PortEntry[]} */
+      const ports = rows.map((r, i) => {
+        const port = portAt(r, i, slot);
+        const from = portAt(r, i, first);
+
+        if (r.kind === 'fixed') {
+          return { name: r.name, port, kind: r.kind, reason: r.pin };
+        }
+
+        if (r.kind === 'external') {
+          return { name: r.name, port, kind: r.kind, reason: r.owner };
+        }
+
+        if (slot === first) {
+          return { name: r.name, port, kind: r.kind };
+        }
+
+        const pid = busy.get(from);
+
+        return { name: r.name, port, kind: r.kind, reason: pid === undefined ? `fell back from ${from}: slot ${first} had ${tried[0]}` : `fell back from ${from}: held by PID ${pid}` };
+      });
+
+      return { ok: true, slot, ports };
+    }
+
+    tried.push(...taken);
+  }
+
+  return { ok: false, reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}` };
+}
+
+/**
+ * The doctor's `ports` line: every derived and fixed port answers and is held by the recorded process tree; every
+ * port is listed.
+ * @param {PortEntry[]} ports
+ * @param {Map<number, number>} busy
+ * @param {Set<number>} tree
+ * @returns {{ status: 'pass' | 'fail', detail: string }}
+ */
+export function portsCheck(ports, busy, tree) {
+  const problems = ports.flatMap((p) => {
+    const pid = busy.get(p.port);
+
+    if (p.kind === 'external') {
+      return [];
+    }
+
+    if (pid === undefined) {
+      return [`${p.name} ${p.port} not listening`];
+    }
+
+    return tree.has(pid) ? [] : [`${p.name} ${p.port} held by PID ${pid}, not the recorded tree`];
+  });
+
+  if (problems.length > 0) {
+    return { status: 'fail', detail: problems.join('; ') };
+  }
+
+  return { status: 'pass', detail: ports.map((p) => `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`).join(', ') };
 }
 
 /**
@@ -198,24 +363,6 @@ export function descendants(table, pid) {
   }
 
   return set;
-}
-
-/**
- * The PID listening on `port` in `netstat -ano` output, or null.
- * @param {string} text
- * @param {number} port
- * @returns {number | null}
- */
-export function parseListeningPid(text, port) {
-  for (const l of text.split(/\r?\n/)) {
-    const m = l.trim().split(/\s+/);
-
-    if (m[0] === 'TCP' && m[3] === 'LISTENING' && (m[1] ?? '').endsWith(`:${port}`)) {
-      return Number(m[4]);
-    }
-  }
-
-  return null;
 }
 
 /**
@@ -320,7 +467,7 @@ export function testEnv(base, state) {
 
   if (state.mode === 'bundled') {
     env['VITEST_EXTENSION_DIR'] = state.extension?.dir;
-    env['VITEST_CDP_PORT'] = String(state.cdpPort);
+    env['VITEST_CDP_PORT'] = String(cdpPortOf(state));
     env['VITEST_USER_DATA_DIR'] = state.userDataDir ?? undefined;
   } else {
     env['VITEST_CDP_URL'] = state.cdpUrl;
@@ -391,14 +538,13 @@ function processTable() {
 }
 
 /**
- * @param {number} port
- * @returns {number | null}
+ * The PID listening on each port now (netstat, IPv4 and IPv6).
+ * @returns {Map<number, number>}
  */
-function listeningPid(port) {
+export function busyPorts() {
   const netstat = path.join(SYSTEM32, 'netstat.exe');
-  const text = ['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n');
 
-  return parseListeningPid(text, port);
+  return listeners(['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n'));
 }
 
 /**
@@ -544,6 +690,56 @@ function readState() {
   return { sp: p, state: /** @type {State} */ (JSON.parse(readFileSync(p, 'utf8'))) };
 }
 
+/**
+ * The instance's CDP port from `control-ai-browsers up <name> --json`, which starts the instance when it is not
+ * running and leaves a running one as it is. That skill owns the port; this one only attaches to it.
+ * @param {string} name
+ * @returns {{ port: number, launched: boolean }}
+ */
+function aiInstance(name) {
+  const r = aiControl(['up', name, '--json']);
+  /** @type {{ alreadyRunning?: boolean, state?: { port?: number } } | null} */
+  let result = null;
+
+  try {
+    result = JSON.parse(r.stdout.trim().split(/\r?\n/).at(-1) ?? '');
+  } catch {
+    result = null;
+  }
+
+  const port = result?.state?.port;
+
+  if (r.status !== 0 || typeof port !== 'number') {
+    return fail(2, `control-ai-browsers up ${name} exited ${r.status}: ${(r.stdout + r.stderr).trim().slice(-400)}`);
+  }
+
+  return { port, launched: result?.alreadyRunning !== true };
+}
+
+/**
+ * The first derived port of the run that a process outside the ng test tree now holds, with that holder.
+ * @param {PortEntry[]} ports
+ * @param {Map<number, number>} busy
+ * @param {Set<number>} tree
+ * @returns {{ entry: PortEntry, pid: number } | null}
+ */
+export function takenPort(ports, busy, tree) {
+  for (const entry of ports) {
+    const pid = busy.get(entry.port);
+
+    if (entry.kind === 'derived' && pid !== undefined && !tree.has(pid)) {
+      return { entry, pid };
+    }
+  }
+
+  return null;
+}
+
+/** @param {number} pid */
+function stopTree(pid) {
+  return spawnSync(path.join(SYSTEM32, 'taskkill.exe'), ['/PID', String(pid), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
+}
+
 async function up() {
   mkdirSync(STATE_DIR, { recursive: true });
 
@@ -560,65 +756,56 @@ async function up() {
   const bundled = opts.bundled;
   const instance = bundled ? null : opts.instance;
   const worktree = isWorktree(FIXTURE);
-  const vitestPort = opts.port ?? derivePort(FIXTURE, MAIN_VITEST_PORT, 51400, 500, worktree);
+  const rows = portRows(bundled);
+  const forced = opts.port ?? undefined;
 
-  if (worktree && vitestPort === MAIN_VITEST_PORT) {
-    fail(2, `refused: ${FIXTURE} is in a git worktree and port ${vitestPort} is the main checkout's Vitest port`);
+  if (forced !== undefined && !(Number.isInteger(forced) && forced > 0 && forced < 65536)) {
+    fail(2, `refused: --port ${forced} is not a port number`);
   }
 
-  const owner = listeningPid(vitestPort);
-
-  if (owner) {
-    fail(2, `refused: port ${vitestPort} is already in use by PID ${owner}; it may be another Vitest run`, { port: vitestPort, ownerPid: owner });
+  if (worktree && forced === MAIN_VITEST_PORT) {
+    fail(2, `refused: ${FIXTURE} is in a git worktree and port ${forced} is the main checkout's Vitest port`);
   }
 
-  let cdpPort;
+  let order = slotOrder(slotOf(FIXTURE, worktree));
+  let plan = planPorts(rows, order, busyPorts(), forced);
+
+  if (!plan.ok) {
+    return fail(2, `refused: ${plan.reason}`);
+  }
+
+  /** @type {PortEntry[]} */
+  let external = [];
   let launchedInstance = false;
+  let cdpPort = NaN;
 
-  if (bundled) {
-    cdpPort = derivePort(FIXTURE, MAIN_BUNDLED_CDP_PORT, 9400, 100, worktree);
-    const cdpOwner = listeningPid(cdpPort);
-
-    if (cdpOwner) {
-      fail(2, `refused: CDP port ${cdpPort} is already in use by PID ${cdpOwner}`);
-    }
-  } else {
-    const registry = /** @type {{ instances: Record<string, { port: number }> }} */ (JSON.parse(readFileSync(AI_REGISTRY, 'utf8')));
-    const entry = registry.instances[opts.instance];
-
-    if (!entry) {
-      return fail(2, `unknown instance "${opts.instance}"; pick one from ${AI_REGISTRY}: ${Object.keys(registry.instances).join(', ')}`);
-    }
-
-    cdpPort = entry.port;
-
-    if (!(await cdpVersion(cdpPort))) {
-      const r = aiControl(['up', opts.instance]);
-
-      if (r.status !== 0) {
-        fail(2, `control-ai-browsers up ${opts.instance} exited ${r.status}: ${(r.stdout + r.stderr).trim().slice(-400)}`);
-      }
-
-      launchedInstance = true;
-    }
+  if (instance !== null) {
+    const i = aiInstance(instance);
+    launchedInstance = i.launched;
+    cdpPort = i.port;
+    external = [{ name: 'instance', port: i.port, kind: 'external', reason: `control-ai-browsers instance ${instance}; this skill attaches to it` }];
   }
 
-  const flowId = `${bundled ? 'bundled' : instance}-${vitestPort}`;
+  const flowId = bundled ? 'bundled' : /** @type {string} */ (instance);
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const evidenceDir = path.join(SCRATCH, `${flowId}-${stamp}`);
   mkdirSync(evidenceDir, { recursive: true });
+  /** @param {{ slot: number, ports: PortEntry[] }} p */
+  const placed = (p) => {
+    const at = Object.fromEntries(p.ports.map((e) => [e.name, e.port]));
+    const vitestPort = Number(at['vitest']);
+    const cdp = bundled ? Number(at['bundled-cdp']) : cdpPort;
+
+    return { vitestPort, cdpUrl: `http://127.0.0.1:${cdp}`, orchestratorPrefix: orchestratorPrefix(vitestPort), session: `control-vitest-${flowId}-${vitestPort}`, slot: p.slot, ports: [...p.ports, ...external] };
+  };
   /** @type {State} */
   const state = {
     flowId,
     mode: bundled ? 'bundled' : 'attach',
     instance,
     launchedInstance,
-    cdpPort,
-    cdpUrl: `http://127.0.0.1:${cdpPort}`,
-    vitestPort,
-    orchestratorPrefix: orchestratorPrefix(vitestPort),
+    ...placed(plan),
     worktree,
-    session: `control-vitest-${flowId}`,
     evidenceDir,
     startedAt: new Date().toISOString(),
     extension: null,
@@ -640,7 +827,7 @@ async function up() {
     state.extension = { dir, id: null };
 
     if (!bundled) {
-      const v = await cdpVersion(cdpPort);
+      const v = await cdpVersion(cdpPortOf(state));
 
       if (!v) {
         throw new Error(`nothing answers on ${state.cdpUrl}`);
@@ -659,53 +846,89 @@ async function up() {
   }
 
   if (!bundled) {
-    await clearHttpCache(cdpPort);
+    await clearHttpCache(cdpPortOf(state));
   }
 
   writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
-
   const log = path.join(evidenceDir, 'ng-test.log');
-  const fd = openSync(log, 'a');
   const t0 = Date.now();
-  const child = spawn(process.execPath, testArgs(NG, state), { cwd: FIXTURE, env: testEnv(process.env, state), detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
-  child.unref();
-  const pid = child.pid;
-
-  if (pid === undefined) {
-    fail(2, `ng test did not start; see ${log}; run down`, { state: statePath(flowId) });
-  }
-
-  const row = processTable().find((r) => r.ProcessId === pid);
-  state.proc = { pid, start: row?.Start ?? null, commandLine: row?.CommandLine ?? null, log };
-  writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
 
   for (;;) {
-    const tab = orchestratorTab(await cdpList(cdpPort), state.orchestratorPrefix);
-    const status = logStart(existsSync(log) ? readFileSync(log, 'utf8') : '');
+    const fd = openSync(log, 'a');
+    const child = spawn(process.execPath, testArgs(NG, state), { cwd: FIXTURE, env: testEnv(process.env, state), detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
+    child.unref();
+    const pid = child.pid;
 
-    // Ready once Vitest has started a run in the tab; a held test (--hold) keeps that run going.
-    if (tab && status.started) {
-      state.orchestratorUrl = tab.url;
+    if (pid === undefined) {
+      fail(2, `ng test did not start; see ${log}; run down`, { state: statePath(flowId) });
+    }
+
+    const row = processTable().find((r) => r.ProcessId === pid);
+    state.proc = { pid, start: row?.Start ?? null, commandLine: row?.CommandLine ?? null, log };
+    writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
+    /** @type {{ entry: PortEntry, pid: number | null } | null} */
+    let taken = null;
+
+    for (;;) {
+      const tab = orchestratorTab(await cdpList(cdpPortOf(state)), state.orchestratorPrefix);
+      const text = existsSync(log) ? readFileSync(log, 'utf8') : '';
+      const status = logStart(text);
+
+      // Ready once Vitest has started a run in the tab; a held test (--hold) keeps that run going.
+      if (tab && status.started) {
+        state.orchestratorUrl = tab.url;
+        break;
+      }
+
+      const table = processTable();
+      const exited = !table.some((r) => r.ProcessId === pid);
+
+      // Another process took a port after the check: Vitest's strictPort reports "already in use", and a Chromium
+      // whose CDP port is taken starts without one.
+      const held = takenPort(state.ports, busyPorts(), descendants(table, pid));
+
+      if (status.failed || exited || held !== null) {
+        const vitest = state.ports.find((e) => e.name === 'vitest');
+        taken = held ?? (/already in use/.test(text) && vitest !== undefined ? { entry: vitest, pid: null } : null);
+
+        if (taken === null) {
+          fail(2, `ng test ${exited ? `(PID ${pid}) exited before it was ready` : 'failed to start'}; see ${log}; run down`, { state: statePath(flowId) });
+        }
+
+        break;
+      }
+
+      if (Date.now() - t0 > opts.timeoutMs) {
+        fail(2, `no Vitest tab and DEV or RUN line after ${opts.timeoutMs / 1000}s; see ${log}; run down`, { state: statePath(flowId) });
+      }
+
+      await sleep(500);
+    }
+
+    if (taken === null) {
       break;
     }
 
-    if (status.failed) {
-      fail(2, `ng test failed to start; see ${log}; run down`, { state: statePath(flowId) });
+    stopTree(pid);
+    const what = `${taken.entry.name} ${taken.entry.port} was taken ${taken.pid === null ? 'by another process' : `by PID ${taken.pid}`} after the check`;
+
+    if (forced !== undefined && taken.entry.port === forced) {
+      fail(2, `refused: port ${forced} (--port) ${what}; --port has no fallback; run down`, { state: statePath(flowId) });
     }
 
-    if (!processTable().some((r) => r.ProcessId === pid)) {
-      fail(2, `ng test (PID ${pid}) exited before it was ready; see ${log}; run down`, { state: statePath(flowId) });
+    order = order.slice(order.indexOf(plan.slot) + 1);
+    plan = planPorts(rows, order, busyPorts(), forced);
+
+    if (order.length === 0 || !plan.ok) {
+      fail(2, `refused: ${what}, and ${plan.ok ? `none of the ${SLOT_TRIES} slots is left` : plan.reason}; run down`, { state: statePath(flowId) });
     }
 
-    if (Date.now() - t0 > opts.timeoutMs) {
-      fail(2, `no Vitest tab and DEV or RUN line after ${opts.timeoutMs / 1000}s; see ${log}; run down`, { state: statePath(flowId) });
-    }
-
-    await sleep(500);
+    Object.assign(state, placed(plan), { proc: null });
+    writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
   }
 
   if (bundled && state.extension) {
-    state.extension.id = extensionIdIn(await cdpList(cdpPort));
+    state.extension.id = extensionIdIn(await cdpList(cdpPortOf(state)));
   }
 
   writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
@@ -734,21 +957,20 @@ async function doctor() {
   const row = proc ? table.find((r) => r.ProcessId === proc.pid) : undefined;
   const alive = proc !== null && row !== undefined && row.Start === proc.start;
   add('process-alive', alive ? 'pass' : 'fail', alive ? `ng test PID ${proc.pid} running since ${proc.start}` : `ng test PID ${proc?.pid} is gone or reused`);
-  const owner = listeningPid(state.vitestPort);
-  const owned = !!owner && alive && descendants(table, proc.pid).has(owner);
-  add('port-owned', owned ? 'pass' : 'fail', owner ? `port ${state.vitestPort} listened on by PID ${owner}${owned ? ` (in the tree of ${proc?.pid})` : ' (NOT ours)'}` : `nothing listens on ${state.vitestPort}`);
+  const ports = portsCheck(state.ports, busyPorts(), alive ? descendants(table, proc.pid) : new Set());
+  add('ports', ports.status, ports.detail);
   const logPath = proc?.log ?? '';
   const run = testRunCheck(logPath && existsSync(logPath) ? readFileSync(logPath, 'utf8') : '', logPath);
   add('test-run', run.status, run.detail);
 
-  const version = await cdpVersion(state.cdpPort);
+  const version = await cdpVersion(cdpPortOf(state));
   add('browser-cdp', version ? 'pass' : 'fail', version ? `${version.Browser} on ${state.cdpUrl}${state.instance ? ` (instance ${state.instance})` : ' (bundled Chromium)'}` : `nothing answers on ${state.cdpUrl}`);
 
   if (!version) {
     return out({ ok: false, command: 'doctor', flowId: state.flowId, checks }, 1);
   }
 
-  const tab = orchestratorTab(await cdpList(state.cdpPort), state.orchestratorPrefix);
+  const tab = orchestratorTab(await cdpList(cdpPortOf(state)), state.orchestratorPrefix);
   add('orchestrator-tab', tab ? 'pass' : 'fail', tab ? tab.url : `no tab starting with ${state.orchestratorPrefix}`);
 
   if (tab) {
@@ -802,7 +1024,7 @@ async function doctor() {
 
   if (state.extension) {
     const prefix = `chrome-extension://${state.extension.id}/`;
-    const sw = (await cdpList(state.cdpPort)).find((t) => t.type === 'service_worker' && t.url.startsWith(prefix));
+    const sw = (await cdpList(cdpPortOf(state))).find((t) => t.type === 'service_worker' && t.url.startsWith(prefix));
     add('extension-loaded', sw ? 'pass' : 'fail', sw ? `service worker ${sw.url}` : `no service worker for extension ${state.extension.id}`);
   } else {
     add('extension-loaded', 'skip', 'no --extension given to up');
@@ -847,12 +1069,12 @@ async function down() {
     notes.push(`ng test PID ${proc.pid} was not running`);
   }
 
-  const version = state.mode === 'attach' ? await cdpVersion(state.cdpPort) : null;
+  const version = state.mode === 'attach' ? await cdpVersion(cdpPortOf(state)) : null;
 
   if (version) {
-    for (const t of await cdpList(state.cdpPort)) {
+    for (const t of await cdpList(cdpPortOf(state))) {
       if (t.type === 'page' && t.url.startsWith(`http://127.0.0.1:${state.vitestPort}/`)) {
-        await fetch(`http://127.0.0.1:${state.cdpPort}/json/close/${t.id}`).catch(() => {});
+        await fetch(`http://127.0.0.1:${cdpPortOf(state)}/json/close/${t.id}`).catch(() => {});
         notes.push(`closed Vitest tab ${t.url}`);
       }
     }

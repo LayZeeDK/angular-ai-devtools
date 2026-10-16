@@ -20,19 +20,32 @@ All commands run from the root of the checkout you drive (the main checkout or a
 
 | Flow | Command | Browser | Model | Extension load |
 |---|---|---|---|---|
-| Attach (default) | `node $S up [--instance <name>]` | the per-model instance (default `chrome-beta-gemma4`, CDP 9334) | yes | `Extensions.loadUnpacked` over CDP |
+| Attach (default) | `node $S up [--instance <name>]` | the per-model instance (default `chrome-beta-gemma4`), on the CDP port control-ai-browsers gives it | yes | `Extensions.loadUnpacked` over CDP |
 | Bundled | `node $S up --bundled --extension <dir>` | Playwright's Chromium (Chrome for Testing 153), persistent profile under `tmp/` | no (`LanguageModel` `unavailable`) | `--load-extension` |
 
-- Vitest's browser server port: 51315 in the main checkout. In a git worktree (`.git` is a file), the port
-  comes from a hash of the fixture path in 51400-51899, and the bundled CDP port in 9400-9499 (main checkout:
-  9350). `up` refuses the main checkout's port from a worktree. Vitest's default 63315 cannot be used here,
-  because it sits in a Windows excluded port range.
-- Attach mode uses the instance's own CDP port. If the instance is not running, `up` launches it through
-  `control-ai-browsers up` and `down` stops it again. An instance that was already running is left
-  running.
+Ports. The main checkout uses slot 0, the defaults below. A git worktree (`.git` is a file) takes slot 1-99
+from a hash of the fixture path, so its ports stay the same from run to run: Vitest `51400 + slot`, bundled CDP
+`9400 + slot` (measured 2026-10-16 in the `verification-skills` worktree: slot 36, 51436 and 9436). When a
+derived port is busy, `up` tries the next slot, 10 slots in all, and records the slot and the ports it used
+(`info --json`: `slot`, `ports`). Vitest's default 63315 cannot be used here, because it sits in a Windows
+excluded port range.
+
+| Port | Kind | Default | How it moves |
+|---|---|---|---|
+| vitest | derived | 51315 | `--port`, passed as `VITEST_BROWSER_PORT` to `vitest-base.config.mts` (`strictPort`) (measured: listened on 51436, and on its fallback 51437 while a throwaway listener held 51436) |
+| bundled-cdp | derived | 9350 | moves with the slot, passed as `VITEST_CDP_PORT` to Chromium's `--remote-debugging-port` (bundled mode only; measured: 9437, the fallback slot's) |
+| instance | external | the instance's CDP port | control-ai-browsers owns it: `up` asks `control-ai-browsers up <instance> --json` for it, which starts the instance when it is not running (measured: 9334 for `chrome-beta-gemma4`) |
+
+- `--port N` sets the Vitest port with no fallback for it: a busy `N` exits 2 naming its holder's PID; from a
+  worktree the main checkout's 51315 is refused. The bundled CDP port still derives and falls back.
+- A server that finds its port taken after the check ("already in use" from Vitest's `strictPort`, or another
+  process on the CDP port) is stopped, and `up` tries the next slot.
+- Attach mode: an instance this run started is stopped again by `down` (through `control-ai-browsers down`); an
+  instance that was already running is left running.
 - One run at a time: `up` refuses while any state file exists.
-- The playwright-cli session is `control-vitest-<flowId>`, for example `control-vitest-chrome-beta-gemma4-51315`.
-  Never use `ai-<instance>` (control-ai-browsers) or `control-ngdev-*` (control-angular-dev-app).
+- The playwright-cli session is `control-vitest-<flowId>-<Vitest port>`, for example
+  `control-vitest-chrome-beta-gemma4-51315`; the flow id is the instance name or `bundled`. Never use
+  `ai-<instance>` (control-ai-browsers) or `control-ngdev-*` (control-angular-dev-app).
 
 ## Launch
 
@@ -80,7 +93,7 @@ Read-only. Each check prints one line (`--json` for the list):
 |---|---|
 | `map-fresh` | always; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`), or that were never proven; never fails doctor |
 | `process-alive` | the recorded `ng test` PID runs with the recorded start time |
-| `port-owned` | the Vitest port is listened on by a process in that PID's tree |
+| `ports` | every derived port listens and its PID is in the `ng test` tree (bundled Chromium included); the instance's external port is listed, not checked: `[OK] ports: vitest 51436 (derived), instance 9334 (external: control-ai-browsers instance chrome-beta-gemma4; this skill attaches to it)` |
 | `test-run` | the log has Vitest's `DEV` (watch) or `RUN` line and no "An exception occurred" or "Unhandled Error"; reports the last `Tests` summary |
 | `browser-cdp` | `/json/version` answers on the CDP port |
 | `orchestrator-tab` | a tab starts with `http://127.0.0.1:<port>/__vitest_test__/` |
@@ -96,7 +109,8 @@ Exit 0 healthy, 1 a check failed (named), 2 could not run (no state file, refuse
 
 ## Drive
 
-Attach the run's session to the browser, then select the Vitest tab:
+Attach the run's session to the browser, then select the Vitest tab (the CDP URL and session come from `info`; the
+example is a main-checkout run):
 
 ```bash
 playwright-cli attach --cdp=http://127.0.0.1:9334 --session=control-vitest-chrome-beta-gemma4-51315
@@ -169,12 +183,12 @@ not a refusal. Never `close-all` or `kill-all`.
 |---|---|---|---|
 | `up` | `--instance <name>` (default `chrome-beta-gemma4`) or `--bundled`; `--extension <dir>\|s1-vitest`; `--hold <ms>`; `--timing-demo`; `--filter <text>`; `--port <n>`; `--timeout <s>` (default 180) | starts the run as above, writes the state file, waits until ready | 0 / 2 |
 | `doctor` | | the checks above | 0 / 1 / 2 |
-| `info` | | the state: flow id, mode, instance, CDP URL, Vitest port, orchestrator URL, session, evidence dir, extension dir and id, PID, start time, command line, log | 0 / 2 |
+| `info` | | the state: flow id, mode, instance, CDP URL, Vitest port, `slot`, `ports` (`{name, port, kind, reason?}`), orchestrator URL, session, evidence dir, extension dir and id, PID, start time, command line, log | 0 / 2 |
 | `down` | | the cleanup above | 0 / 2 |
 
 State file: `tmp/control-vitest-browser-angular/state/<flowId>.json`. Exit codes: 0 done or healthy; 1 not
-healthy; 2 refused or could not run, with the reason (a run already recorded, port in use, worktree on the main
-port, unknown instance, missing state file, PID mismatch, `--bundled` without an extension, `ng test` exited or
+healthy; 2 refused or could not run, with the reason (a run already recorded, 10 busy slots, a busy `--port`, worktree on
+the main port, `control-ai-browsers up` failed, unknown instance, missing state file, PID mismatch, `--bundled` without an extension, `ng test` exited or
 failed to start).
 
 `scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest

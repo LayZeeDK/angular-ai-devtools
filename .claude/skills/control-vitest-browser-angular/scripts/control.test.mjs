@@ -2,22 +2,30 @@
 // Run: node --test .claude/skills/control-vitest-browser-angular/scripts/control.test.mjs
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 import { test } from 'node:test';
 import {
-  derivePort,
+  busyPorts,
+  cdpPortOf,
   descendants,
   extensionIdIn,
   flagIn,
   isWorktree,
+  listeners,
   languageModelCheck,
   logStart,
   orchestratorTab,
-  parseListeningPid,
   pidMismatch,
+  planPorts,
+  portRows,
+  portsCheck,
   profileOutside,
   playwrightCliJs,
+  slotOf,
+  slotOrder,
+  takenPort,
   testArgs,
   testEnv,
   testRunCheck,
@@ -25,6 +33,32 @@ import {
 } from './control.mjs';
 
 /** @typedef {Parameters<typeof testEnv>[1]} State */
+
+/**
+ * A throwaway listener on a port the OS picks; closed after the test.
+ * @param {import('node:test').TestContext} t
+ * @returns {Promise<number>}
+ */
+async function listen(t) {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  t.after(() => server.close());
+
+  return /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+}
+
+/**
+ * A port nothing listens on: the OS picks it for a listener that is closed again.
+ * @returns {Promise<number>}
+ */
+async function freePort() {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  const { port } = /** @type {import('node:net').AddressInfo} */ (server.address());
+  await new Promise((resolve) => server.close(() => resolve(undefined)));
+
+  return port;
+}
 
 /**
  * @param {import('node:test').TestContext} t
@@ -43,13 +77,14 @@ function tempDir(t) {
  */
 function state(over) {
   return {
-    flowId: 'chrome-beta-gemma4-51315',
+    flowId: 'chrome-beta-gemma4',
     mode: 'attach',
     instance: 'chrome-beta-gemma4',
     launchedInstance: false,
-    cdpPort: 9334,
     cdpUrl: 'http://127.0.0.1:9334',
     vitestPort: 51315,
+    slot: 0,
+    ports: [],
     orchestratorPrefix: 'http://127.0.0.1:51315/__vitest_test__/',
     worktree: false,
     session: 'control-vitest-chrome-beta-gemma4-51315',
@@ -110,13 +145,109 @@ test('isWorktree tells a .git file from a .git folder, from below the top too', 
   assert.equal(isWorktree(join(worktree, 'sub')), true);
 });
 
-test('derivePort keeps the main port in a main checkout and derives a stable other one in a worktree', () => {
-  assert.equal(derivePort('D:\\any', 51315, 51400, 500, false), 51315);
-  const port = derivePort('D:\\wt\\spikes\\ng222-app', 51315, 51400, 500, true);
-  assert.ok(port >= 51400 && port <= 51899, `port ${port}`);
-  assert.equal(derivePort('d:\\WT\\spikes\\ng222-app', 51315, 51400, 500, true), port, 'the hash ignores letter case');
-  assert.notEqual(derivePort('D:\\other\\spikes\\ng222-app', 51315, 51400, 500, true), port);
-  assert.equal(derivePort('D:\\wt', 9400, 9400, 1, true), 9401, 'a hash that lands on the main port moves one up');
+test('slotOf keeps slot 0 for a main checkout and hashes a worktree to a stable slot in 1-99', () => {
+  assert.equal(slotOf('D:\\any', false), 0);
+  const slot = slotOf('D:\\wt\\spikes\\ng222-app', true);
+  assert.ok(slot >= 1 && slot <= 99, `slot ${slot}`);
+  assert.equal(slotOf('d:\\WT\\spikes\\ng222-app', true), slot, 'the hash ignores letter case');
+  assert.notEqual(slotOf('D:\\other\\spikes\\ng222-app', true), slot);
+});
+
+test('slotOrder tries 10 slots and from a worktree wraps within 1-99, never onto slot 0', () => {
+  assert.deepEqual(slotOrder(0), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  assert.deepEqual(slotOrder(97), [97, 98, 99, 1, 2, 3, 4, 5, 6, 7]);
+});
+
+test('portRows keeps the Vitest and bundled CDP ports of every slot apart, and off the main checkout ports', () => {
+  /** @type {Map<number, string>} */
+  const seen = new Map();
+  const rows = portRows(true);
+  assert.deepEqual(rows.map((r) => r.name), ['vitest', 'bundled-cdp']);
+  assert.deepEqual(portRows(false).map((r) => r.name), ['vitest'], 'attach mode derives the Vitest port only');
+
+  for (const row of rows) {
+    for (let slot = 0; slot < 100; slot++) {
+      const port = row.kind === 'derived' ? row.at(slot) : NaN;
+      assert.ok(!seen.has(port), `${row.name} slot ${slot} and ${seen.get(port)} share ${port}`);
+      seen.set(port, `${row.name} slot ${slot}`);
+      assert.ok(slot === 0 || (port !== 51315 && port !== 9350), `${row.name} slot ${slot} is a main checkout port`);
+    }
+  }
+});
+
+test('planPorts falls back to the next slot when a throwaway listener holds one of its ports, and says why', async (t) => {
+  const held = await listen(t);
+  const free = await Promise.all([freePort(), freePort(), freePort()]);
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [
+    { name: 'vitest', kind: 'derived', at: (slot) => (slot === 0 ? Number(free[0]) : Number(free[1])) },
+    { name: 'bundled-cdp', kind: 'derived', at: (slot) => (slot === 0 ? held : Number(free[2])) },
+  ];
+  assert.deepEqual(planPorts(rows, [0, 1], busyPorts()), {
+    ok: true,
+    slot: 1,
+    ports: [
+      { name: 'vitest', port: free[1], kind: 'derived', reason: `fell back from ${free[0]}: slot 0 had bundled-cdp ${held} held by PID ${process.pid}` },
+      { name: 'bundled-cdp', port: free[2], kind: 'derived', reason: `fell back from ${held}: held by PID ${process.pid}` },
+    ],
+  });
+});
+
+test('planPorts refuses after 10 busy slots and names each port and its holder', async (t) => {
+  const held = await Promise.all(Array.from({ length: 10 }, () => listen(t)));
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'vitest', kind: 'derived', at: (slot) => Number(held[slot - 1]) }];
+  const plan = planPorts(rows, slotOrder(1), busyPorts());
+  assert.equal(plan.ok, false);
+  assert.match(plan.ok ? '' : plan.reason, /^no free slot in 10 tries \(slots 1, 2, 3, 4, 5, 6, 7, 8, 9, 10\): /);
+
+  for (const port of held) {
+    assert.ok(!plan.ok && plan.reason.includes(`vitest ${port} held by PID ${process.pid}`), `names ${port}`);
+  }
+});
+
+test('planPorts refuses a busy --port with its holder and never falls back from it', async (t) => {
+  const held = await listen(t);
+  const free = await freePort();
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'vitest', kind: 'derived', at: () => free }];
+  assert.deepEqual(planPorts(rows, [0, 1], busyPorts(), held), { ok: false, reason: `port ${held} (--port) is held by PID ${process.pid}; --port has no fallback` });
+});
+
+test('planPorts refuses a busy fixed port with its holder and pin', async (t) => {
+  const held = await listen(t);
+  const free = await freePort();
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [
+    { name: 'vitest', kind: 'derived', at: () => free },
+    { name: 'pinned', kind: 'fixed', port: held, pin: 'src/x.ts:1' },
+  ];
+  assert.deepEqual(planPorts(rows, [0, 1], busyPorts()), { ok: false, reason: `fixed port pinned ${held} held by PID ${process.pid}; pinned by src/x.ts:1` });
+});
+
+test('takenPort finds a derived port a process outside the tree holds, and ignores external and own ones', () => {
+  /** @type {import('./control.mjs').PortEntry[]} */
+  const ports = [
+    { name: 'vitest', port: 51401, kind: 'derived' },
+    { name: 'instance', port: 9334, kind: 'external' },
+  ];
+  assert.equal(takenPort(ports, new Map([[51401, 10], [9334, 99]]), new Set([10])), null);
+  assert.deepEqual(takenPort(ports, new Map([[51401, 77]]), new Set([10])), { entry: ports[0], pid: 77 });
+});
+
+test('portsCheck passes owned ports, fails a missing or foreign one, and ignores the external instance', () => {
+  /** @type {import('./control.mjs').PortEntry[]} */
+  const ports = [
+    { name: 'vitest', port: 51401, kind: 'derived' },
+    { name: 'instance', port: 9334, kind: 'external', reason: 'control-ai-browsers instance chrome-beta-gemma4' },
+  ];
+  assert.deepEqual(portsCheck(ports, new Map([[51401, 10]]), new Set([10])), { status: 'pass', detail: 'vitest 51401 (derived), instance 9334 (external: control-ai-browsers instance chrome-beta-gemma4)' });
+  assert.deepEqual(portsCheck(ports, new Map([[51401, 99]]), new Set([10])), { status: 'fail', detail: 'vitest 51401 held by PID 99, not the recorded tree' });
+  assert.deepEqual(portsCheck(ports, new Map(), new Set([10])), { status: 'fail', detail: 'vitest 51401 not listening' });
+});
+
+test('cdpPortOf reads the port of the CDP endpoint', () => {
+  assert.equal(cdpPortOf({ cdpUrl: 'http://127.0.0.1:9401' }), 9401);
 });
 
 test('descendants walks the whole tree below a PID and nothing beside it', () => {
@@ -125,15 +256,19 @@ test('descendants walks the whole tree below a PID and nothing beside it', () =>
   assert.deepEqual([...descendants(table, 10)].sort(), [10, 11, 12]);
 });
 
-test('parseListeningPid finds the LISTENING row for the exact port, IPv4 or IPv6', () => {
+test('listeners maps each LISTENING port to its PID, IPv4 or IPv6, and nothing else', () => {
   const text = [
     '  Proto  Local Address          Foreign Address        State           PID',
-    '  TCP    0.0.0.0:151315         0.0.0.0:0              LISTENING       7',
+    '  TCP    0.0.0.0:15131          0.0.0.0:0              LISTENING       7',
     '  TCP    127.0.0.1:51315        127.0.0.1:50000        ESTABLISHED     8',
     '  TCP    [::1]:51315            [::]:0                 LISTENING       4242',
   ].join('\r\n');
-  assert.equal(parseListeningPid(text, 51315), 4242);
-  assert.equal(parseListeningPid(text, 51316), null);
+  assert.deepEqual([...listeners(text)], [[15131, 7], [51315, 4242]]);
+});
+
+test('busyPorts sees a throwaway listener with this process as its holder', async (t) => {
+  const port = await listen(t);
+  assert.equal(busyPorts().get(port), process.pid);
 });
 
 test('playwrightCliJs takes the script beside the first absolute shim folder and skips relative PATH entries', (t) => {
@@ -218,7 +353,7 @@ test('testEnv drops CI and sets the attach or the bundled variables', () => {
     VITE_COUNTER_TIMING_DEMO: '1',
     VITEST_CDP_URL: 'http://127.0.0.1:9334',
   });
-  const bundled = testEnv({}, state({ mode: 'bundled', instance: null, cdpPort: 9350, extension: { dir: 'D:\\ext', id: null }, userDataDir: 'D:\\profile' }));
+  const bundled = testEnv({}, state({ mode: 'bundled', instance: null, cdpUrl: 'http://127.0.0.1:9350', extension: { dir: 'D:\\ext', id: null }, userDataDir: 'D:\\profile' }));
   assert.deepEqual(bundled, {
     VITEST_BROWSER_PORT: '51315',
     NG_CLI_ANALYTICS: 'false',
