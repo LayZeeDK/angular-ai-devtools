@@ -63,6 +63,10 @@ worktree) and API port 3000, both owned by `control-angular-dev-app`.
 
 `node $S doctor [--app-url <url>] [--json]` - one line per check, exit 0 healthy, 1 a check failed, 2 could not run:
 
+- `map-fresh` (first): whether each feature file still matches the source it was proven against, from
+  `scripts/fingerprint.mjs`; `[WARN]` names stale and unproven features and never changes the exit code. Every
+  feature here shows as unproven: they all depend on the portal, which lives outside this repository, and the
+  manifest records only files inside it.
 - `package-pinned`: `package.json` declares exactly 0.0.7 and `node_modules` holds 0.0.7.
 - `overlay-import`: `main.ts` imports the overlay behind a dev guard.
 - `process-alive`, `port-owned`: the recorded PID runs with its recorded start time and holds 9999.
@@ -113,7 +117,8 @@ the text `LIVE`). Not reachable: Angular DevTools (manual only).
 ## Evidence
 
 `tmp/control-pangular-inspector/pangular-<port>-<timestamp>/` (git-ignored; `info` prints `evidenceDir`). A
-relative `--out name.json` on `tools`, `call`, `components` and `resource` writes there; pass
+relative `--out name.json` on `tools`, `call`, `components`, `resource` and `scan` writes there; an `--out` that
+resolves outside it is refused (exit 2, and `call` refuses before it calls the tool); pass
 `--filename=<evidenceDir>/...` to playwright-cli `snapshot` and `screenshot`. A proof holds: snapshot before
 and after the user action, a screenshot showing the app, the MCP answers saved as JSON, `doctor --json`, and
 `pangular.log`. Proof rules: `features/README.md`.
@@ -155,6 +160,19 @@ The MCP client is plain JSON-RPC over `node:http`: `Content-Type: application/js
 application/json, text/event-stream`, `Origin: http://localhost:<port>`, optional bearer token from
 `PANGULAR_MCP_TOKEN`; the answer is one SSE `data:` line. The standalone server is stateless (no
 `Mcp-Session-Id`), so `tools/list` works without `initialize`.
+
+Every command that reads the app (`install`, `check`, `remove`, `doctor`) refuses (exit 2) when the app's
+`project.json` names a main file outside the app folder.
+
+`scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
+`features/.proven.json`: `node .claude/skills/control-pangular-inspector/scripts/fingerprint.mjs record --feature <id>
+--entries <path>...` records the repository files a feature depends on with their git blob hashes (exit 0 written or
+unchanged, 2 refused, for example an entry outside the repository); `... fingerprint.mjs check [--feature <id>]
+[--json]` prints `fresh`, `stale` or `unproven` per feature (exit 0 all fresh, 1 one stale or unproven, 2 could not
+run).
+
+Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
+`npm run check` type-checks the scripts.
 
 ### Other mounts (documented, not automated)
 

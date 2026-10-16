@@ -1,11 +1,61 @@
 #!/usr/bin/env node
+// @ts-check
 // Control script for control-pangular-inspector: install, check, remove, up, doctor, info, down,
 // tools, call, resource. Deterministic steps only; driving the app stays in playwright-cli.
 import { spawn, spawnSync } from 'node:child_process';
 import http from 'node:http';
-import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { mapFresh } from './fingerprint.mjs';
+
+/** @typedef {{ name: string, status: 'pass' | 'fail' | 'warn' | 'skip', detail: string }} Check */
+/** @typedef {{ ProcessId: number, ParentProcessId: number, Start: string | null, CommandLine: string | null }} ProcessRow */
+/** @typedef {{ browser?: string, ssr?: unknown, proxyConfig?: string, [key: string]: unknown }} TargetOptions */
+/** @typedef {{ executor?: string, defaultConfiguration?: string, continuous?: boolean, options?: TargetOptions, [key: string]: unknown }} NxTarget */
+/** @typedef {{ name?: string, targets?: Record<string, NxTarget> }} ProjectJson */
+/** @typedef {{ name: string | undefined, projectJson: string, root: string, main: string, proxy: string }} App */
+/** @typedef {'express-hub' | 'vite-plugin' | 'standalone-cli'} Mount */
+
+/**
+ * @typedef {object} SetupFacts
+ * @property {App} app
+ * @property {Mount} mount
+ * @property {string | null} declared
+ * @property {string | null} installed
+ * @property {boolean} overlayImport
+ * @property {boolean} devGuard
+ * @property {string | null} proxyConfig
+ * @property {string | null} proxyTarget
+ */
+
+/**
+ * @typedef {object} State
+ * @property {'launch'} mode
+ * @property {string} dir
+ * @property {number} port
+ * @property {boolean} readOnly
+ * @property {string} mcpUrl
+ * @property {string} origin
+ * @property {string | null} appUrl
+ * @property {string} session
+ * @property {string} evidenceDir
+ * @property {string} log
+ * @property {number} pid
+ * @property {string | null} start
+ * @property {string | null} commandLine
+ * @property {string} startedAt
+ */
+
+/** @typedef {{ type?: string, text?: string }} Content */
+/** @typedef {{ name: string, annotations?: { readOnlyHint?: boolean } }} Tool */
+/** @typedef {{ uri: string, name?: string }} Resource */
+/** @typedef {{ serverInfo?: { name?: string, version?: string }, tools?: Tool[], content?: Content[], isError?: boolean, resources?: Resource[], contents?: Content[] }} RpcResult */
+/** @typedef {{ id?: number, result?: RpcResult, error?: unknown }} RpcMessage */
+/** @typedef {RpcMessage & { httpStatus: number, body?: string }} RpcResponse */
+/** @typedef {{ name: string, tag: string, id: string, children?: TreeNode[] }} TreeNode */
+/** @typedef {{ pageId?: string | null, ngVersion?: string | null, devBuild?: boolean }} PageProbe */
+/** @typedef {{ status: number | null, stdout: string, stderr: string }} Run */
 
 const SKILL_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const REPO_ROOT = path.resolve(SKILL_DIR, '../../..');
@@ -24,67 +74,39 @@ const OVERLAY_SNIPPET = `
 
     return undefined;
   })`;
+const SYSTEM32 = path.join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32');
+// Windows reads this from this process when Node looks up a bare program name (git, pwsh): the current directory
+// is then not searched.
+process.env['NoDefaultCurrentDirectoryInExePath'] = '1';
+const NPM_CLI = path.join(path.dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js');
 
-// ---------- small helpers ----------
-const argv = process.argv.slice(2);
-const cmd = argv[0];
-const flag = (name) => {
-  const i = argv.indexOf(`--${name}`);
+// ---------- pure helpers (exported for the tests) ----------
+
+/**
+ * The value after `--<name>`: a string, true when the flag has no value, undefined when it is absent.
+ * @param {string[]} args
+ * @param {string} name
+ * @returns {string | true | undefined}
+ */
+export function flagIn(args, name) {
+  const i = args.indexOf(`--${name}`);
 
   if (i === -1) {
     return undefined;
   }
 
-  const v = argv[i + 1];
+  const v = args[i + 1];
 
   return v === undefined || v.startsWith('--') ? true : v;
-};
-const str = (name) => (typeof flag(name) === 'string' ? flag(name) : undefined);
-const JSON_OUT = argv.includes('--json');
-
-function out(result, code) {
-  if (JSON_OUT) {
-    process.stdout.write(JSON.stringify(result, null, 2) + '\n');
-  } else {
-    for (const c of result.checks ?? []) {
-      const tag = c.status === 'pass' ? '[OK]' : c.status === 'skip' ? '[SKIP]' : c.status === 'warn' ? '[WARN]' : '[ERROR]';
-      process.stdout.write(`${tag} ${c.name}: ${c.detail}\n`);
-    }
-
-    const { checks, ...rest } = result;
-    process.stdout.write(`${code === 0 ? '[OK]' : '[ERROR]'} ${JSON.stringify(rest)}\n`);
-  }
-
-  process.exit(code);
 }
 
-function fail(code, reason, extra = {}) {
-  out({ ok: false, command: cmd, reason, ...extra }, code);
-}
-
-const appDir = () => path.resolve(str('dir') ?? process.env.CONTROL_PANGULAR_DIR ?? PORTAL_DEFAULT_DIR);
-const port = () => Number(str('port') ?? DEFAULT_PORT);
-
-function run(bin, args, cwd) {
-  return spawnSync(bin, args, { cwd, encoding: 'utf8', windowsHide: true, shell: process.platform === 'win32' && bin === 'npm', maxBuffer: 64 * 1024 * 1024 });
-}
-
-function git(dir, args) {
-  return run('git', args, dir);
-}
-
-function processTable() {
-  const ps = "Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,@{n='Start';e={$_.CreationDate.ToUniversalTime().ToString('o')}},CommandLine | ConvertTo-Json -Compress";
-  const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', ps], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
-
-  if (r.status !== 0) {
-    throw new Error(`process table query failed: ${r.stderr}`);
-  }
-
-  return JSON.parse(r.stdout);
-}
-
-function descendants(table, pid) {
+/**
+ * `pid` and every process below it in `table`.
+ * @param {ProcessRow[]} table
+ * @param {number} pid
+ * @returns {Set<number>}
+ */
+export function descendants(table, pid) {
   const set = new Set([pid]);
   let grew = true;
 
@@ -102,13 +124,17 @@ function descendants(table, pid) {
   return set;
 }
 
-function listeningPid(p) {
-  const lines = ['TCP', 'TCPv6'].flatMap((proto) => spawnSync('netstat', ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout.split(/\r?\n/));
-
-  for (const l of lines) {
+/**
+ * The PID listening on `port` in `netstat -ano` output, or null.
+ * @param {string} text
+ * @param {number} port
+ * @returns {number | null}
+ */
+export function parseListeningPid(text, port) {
+  for (const l of text.split(/\r?\n/)) {
     const m = l.trim().split(/\s+/);
 
-    if (m[0] === 'TCP' && m[3] === 'LISTENING' && m[1].endsWith(`:${p}`)) {
+    if (m[0] === 'TCP' && m[3] === 'LISTENING' && (m[1] ?? '').endsWith(`:${port}`)) {
       return Number(m[4]);
     }
   }
@@ -116,36 +142,74 @@ function listeningPid(p) {
   return null;
 }
 
-function playwrightCli(args) {
-  const shimDir = (process.env.PATH ?? '').split(path.delimiter).find((d) => d && existsSync(path.join(d, 'playwright-cli.cmd')));
-  const js = shimDir && path.join(shimDir, 'node_modules', '@playwright', 'cli', 'playwright-cli.js');
+/**
+ * The latest "auth code NNNNNN" in a server log, colour codes removed.
+ * @param {string} log
+ * @returns {string | null}
+ */
+export function authCodeIn(log) {
+  const all = [...log.replace(/\x1b\[[0-9;]*m/g, '').matchAll(/auth code\s+(\d{4,8})/g)];
 
-  if (!js || !existsSync(js)) {
-    return { status: 127, stdout: '', stderr: 'playwright-cli not found on PATH' };
+  return all.at(-1)?.[1] ?? null;
+}
+
+/** @param {string} name */
+export const short = (name) => name.replace(/^pangular[_:]/, '');
+
+/**
+ * Why `call` refuses a tool, or null: an action tool needs --confirm.
+ * @param {string} name
+ * @param {boolean} confirm
+ * @returns {string | null}
+ */
+export function callRefusal(name, confirm) {
+  return ACTION_TOOLS.includes(short(name)) && !confirm ? `refused: ${short(name)} acts on the app; pass --confirm to run it (and start the server with up --allow-actions)` : null;
+}
+
+/**
+ * Why `down` refuses to stop the recorded PID, or null: a live PID whose start time or command line differs from
+ * the state file is not the process this skill started.
+ * @param {ProcessRow | undefined} row
+ * @param {{ pid: number, start: string | null, commandLine: string | null }} state
+ * @returns {string | null}
+ */
+export function stopRefusal(row, state) {
+  if (row && (row.Start !== state.start || row.CommandLine !== state.commandLine)) {
+    return `refused: PID ${state.pid} does not match the state file (start-time ${row.Start} vs recorded ${state.start}; command "${row.CommandLine}" vs recorded "${state.commandLine}"). Not stopping a process this skill did not start.`;
   }
 
-  return spawnSync(process.execPath, [js, ...args], { cwd: REPO_ROOT, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
+  return null;
 }
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+/**
+ * The JSON-RPC message in an MCP HTTP reply: the last `data:` line of an event stream, else the body.
+ * @param {string} text
+ * @returns {RpcMessage}
+ */
+export function parseRpcText(text) {
+  const data = text.includes('data:') ? text.split(/\r?\n/).filter((l) => l.startsWith('data:')).map((l) => l.slice(5).trim()).pop() : text;
 
-// ---------- the app's Pangular setup ----------
-function readJson(file) {
-  return JSON.parse(readFileSync(file, 'utf8'));
+  return JSON.parse(data ?? '');
 }
 
-function findApp(dir) {
+/**
+ * The first Nx application under `<dir>/apps` with an @angular/build:dev-server serve target (named `project` when
+ * given), or null.
+ * @param {string} dir
+ * @param {string | undefined} project
+ * @returns {App | null}
+ */
+export function findApp(dir, project) {
   // ponytail: Nx project.json with an @angular/build:dev-server serve target; angular.json workspaces are not covered
-  const name = str('project');
   const appsDir = path.join(dir, 'apps');
   const candidates = existsSync(appsDir) ? readdirSync(appsDir).map((d) => path.join(appsDir, d, 'project.json')).filter(existsSync) : [];
 
   for (const pj of candidates) {
-    const j = readJson(pj);
+    const j = readProject(pj);
 
-    if ((!name || j.name === name) && j.targets?.serve?.executor === '@angular/build:dev-server') {
+    if ((!project || j.name === project) && j.targets?.['serve']?.executor === '@angular/build:dev-server') {
       const root = path.dirname(pj);
-      const browser = j.targets.build?.options?.browser;
+      const browser = j.targets['build']?.options?.browser;
 
       return { name: j.name, projectJson: pj, root, main: path.join(dir, browser ?? path.relative(dir, path.join(root, 'src', 'main.ts'))), proxy: path.join(root, 'proxy.conf.json') };
     }
@@ -154,9 +218,27 @@ function findApp(dir) {
   return null;
 }
 
-function detectMount(dir, app) {
-  const j = readJson(app.projectJson);
-  const ssr = j.targets?.build?.options?.ssr || existsSync(path.join(app.root, 'src', 'server.ts'));
+/**
+ * Whether `file` lies strictly inside `dir` (not `dir` itself, not beside or above it).
+ * @param {string} dir
+ * @param {string} file
+ * @returns {boolean}
+ */
+export function insideDir(dir, file) {
+  const rel = path.relative(dir, file);
+
+  return rel !== '' && !path.isAbsolute(rel) && rel.split(path.sep)[0] !== '..';
+}
+
+/**
+ * How Pangular mounts in the app: SSR (build option or src/server.ts), a Vite config, else the standalone CLI.
+ * @param {string} dir
+ * @param {App} app
+ * @returns {Mount}
+ */
+export function detectMount(dir, app) {
+  const j = readProject(app.projectJson);
+  const ssr = j.targets?.['build']?.options?.ssr || existsSync(path.join(app.root, 'src', 'server.ts'));
 
   if (ssr) {
     return 'express-hub';
@@ -169,45 +251,368 @@ function detectMount(dir, app) {
   return 'standalone-cli';
 }
 
+/**
+ * Whether main.ts imports the overlay, and whether a dev-mode guard is present.
+ * @param {string} main
+ * @returns {{ overlayImport: boolean, devGuard: boolean }}
+ */
+export function mainFacts(main) {
+  return {
+    overlayImport: main.includes(`import('${PKG}/overlay')`),
+    devGuard: /typeof ngDevMode === 'undefined' \|\| ngDevMode|import\.meta\.env\.DEV/.test(main),
+  };
+}
+
+/**
+ * main.ts with the dev-guarded overlay import chained before `bootstrapApplication(...).catch(`, or null when that
+ * call is not there.
+ * @param {string} src
+ * @returns {string | null}
+ */
+export function addOverlayImport(src) {
+  const m = /bootstrapApplication\(([^)]*)\)(\s*)\.catch\(/.exec(src);
+
+  if (!m) {
+    return null;
+  }
+
+  return src.replace(m[0], `bootstrapApplication(${m[1]})${OVERLAY_SNIPPET}\n  .catch(`);
+}
+
+/**
+ * The serve target with `options.proxyConfig` set, keeping Nx's key order (executor, defaultConfiguration,
+ * continuous, options, then the rest).
+ * @param {NxTarget} serve
+ * @param {string} rel
+ * @returns {NxTarget}
+ */
+export function withProxyConfig(serve, rel) {
+  const { executor, defaultConfiguration, continuous, options, ...rest } = serve;
+
+  return { executor, defaultConfiguration, continuous, options: { ...options, proxyConfig: rel }, ...rest };
+}
+
+/**
+ * The lockfile's packages with every HEAD entry npm dropped put back, in npm's key order; unchanged when none was
+ * dropped.
+ * @param {Record<string, unknown>} head
+ * @param {Record<string, unknown>} packages
+ * @returns {{ packages: Record<string, unknown>, dropped: string[] }}
+ */
+export function withHeadLockEntries(head, packages) {
+  const dropped = Object.keys(head).filter((k) => !(k in packages));
+
+  if (dropped.length === 0) {
+    return { packages, dropped };
+  }
+
+  const merged = { ...packages, ...Object.fromEntries(dropped.map((k) => [k, head[k]])) };
+
+  return { packages: Object.fromEntries(Object.keys(merged).sort((a, b) => a.localeCompare(b, 'en')).map((k) => [k, merged[k]])), dropped };
+}
+
+/**
+ * The repo-relative, forward-slash paths install writes.
+ * @param {App} app
+ * @param {string} dir
+ * @returns {string[]}
+ */
+export function managedPaths(app, dir) {
+  return ['package.json', 'package-lock.json', path.relative(dir, app.main), path.relative(dir, app.projectJson), path.relative(dir, app.proxy)].map((p) => p.split(path.sep).join('/'));
+}
+
+/**
+ * The paths in `git status --porcelain` output.
+ * @param {string} stdout
+ * @returns {string[]}
+ */
+export function porcelainPaths(stdout) {
+  return stdout.split(/\r?\n/).filter(Boolean).map((l) => l.slice(3).trim());
+}
+
+/**
+ * The `check` command's checks.
+ * @param {SetupFacts} f
+ * @param {string} dir
+ * @param {number} port
+ * @returns {Check[]}
+ */
+export function setupChecks(f, dir, port) {
+  /** @type {Check[]} */
+  const checks = [];
+  /** @type {(name: string, ok: boolean, detail: string) => void} */
+  const add = (name, ok, detail) => {
+    checks.push({ name, status: ok ? 'pass' : 'fail', detail });
+  };
+  add('declared-exact', f.declared === PINNED, `package.json declares ${f.declared ?? 'nothing'} (want exactly ${PINNED})`);
+  add('installed', f.installed === PINNED, `node_modules has ${f.installed ?? 'nothing'}`);
+  add('overlay-import', f.overlayImport, `${path.relative(dir, f.app.main)} ${f.overlayImport ? 'imports' : 'does not import'} ${PKG}/overlay`);
+  add('dev-guard', f.devGuard, f.devGuard ? 'overlay import is guarded by ngDevMode / import.meta.env.DEV' : 'no ngDevMode / import.meta.env.DEV guard found');
+  add('proxy-config', !!f.proxyConfig, `serve.options.proxyConfig = ${f.proxyConfig ?? 'unset'}`);
+  add('proxy-target', f.proxyTarget === `http://localhost:${port}`, `/__pangular -> ${f.proxyTarget ?? 'none'}`);
+
+  return checks;
+}
+
+/**
+ * doctor's read-only line: pass when a --read-only server lists no action tool, warn when started with
+ * --allow-actions.
+ * @param {boolean} readOnly
+ * @param {string[]} toolNames
+ * @returns {{ status: Check['status'], detail: string }}
+ */
+export function readOnlyCheck(readOnly, toolNames) {
+  const actions = toolNames.map(short).filter((n) => ACTION_TOOLS.includes(n));
+
+  if (!readOnly) {
+    return { status: 'warn', detail: `started with --allow-actions: ${actions.join(', ')}` };
+  }
+
+  return { status: actions.length === 0 ? 'pass' : 'fail', detail: `${toolNames.length} tools, action tools present: ${actions.join(', ') || 'none'}` };
+}
+
+/**
+ * doctor's console-errors line from `playwright-cli console error` output. The overlay probes /__connection.json
+ * next to the page before /__pangular/; that 404 is expected (measured). "No devtools server found" fails.
+ * @param {string} stdout
+ * @param {number} port
+ * @returns {{ status: Check['status'], detail: string }}
+ */
+export function consoleCheck(stdout, port) {
+  const errs = stdout.split(/\r?\n/).filter((l) => l.startsWith('[ERROR]') && !l.includes('/__connection.json'));
+  const noServer = errs.some((l) => l.includes('No devtools server found'));
+
+  if (errs.length === 0) {
+    return { status: 'pass', detail: 'no console errors besides the expected /__connection.json 404' };
+  }
+
+  return { status: noServer ? 'fail' : 'warn', detail: `${errs.length} console error(s): ${(errs[0] ?? '').slice(0, 200)}${noServer ? ` (the proxy did not reach port ${port})` : ''}` };
+}
+
+/**
+ * The component-tree resource as an indented outline: nodes below `depth` dropped, and with a filter only the
+ * nodes whose name or tag match or that have a matching descendant.
+ * @param {{ nodes: TreeNode[] }} tree
+ * @param {string | undefined} filter  lower case
+ * @param {number} depth
+ * @returns {string}
+ */
+export function componentOutline(tree, filter, depth) {
+  /** @type {string[]} */
+  const lines = [];
+  /** @type {(n: TreeNode) => boolean} */
+  const keep = (n) => !filter || `${n.name} ${n.tag}`.toLowerCase().includes(filter) || (n.children ?? []).some(keep);
+  /** @type {(n: TreeNode, d: number) => void} */
+  const walk = (n, d) => {
+    if (d >= depth || !keep(n)) {
+      return;
+    }
+
+    lines.push(`${'  '.repeat(d)}${n.name} <${n.tag}> ${n.id}`);
+    (n.children ?? []).forEach((c) => walk(c, d + 1));
+  };
+  tree.nodes.forEach((n) => walk(n, 0));
+
+  return lines.join('\n');
+}
+
+/**
+ * The resource `id` names: its URI, its name, or the end of its decoded URI.
+ * @param {Resource[]} all
+ * @param {string | undefined} id
+ * @returns {Resource | undefined}
+ */
+export function findResource(all, id) {
+  return id ? all.find((x) => x.uri === id || x.name === id || decodeURIComponent(x.uri).endsWith(id)) : undefined;
+}
+
+// ---------- process and tool access ----------
+
+/**
+ * @param {string} file
+ * @returns {ProjectJson}
+ */
+function readProject(file) {
+  return JSON.parse(readFileSync(file, 'utf8'));
+}
+
+/**
+ * @param {string} bin  'npm' (run as node npm-cli.js beside this node) or 'git'
+ * @param {string[]} args
+ * @param {string} cwd
+ * @returns {Run}
+ */
+function run(bin, args, cwd) {
+  const [file, full] = bin === 'npm' ? [process.execPath, [NPM_CLI, ...args]] : [bin, args];
+  const r = spawnSync(file, full, { cwd, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
+
+  return { status: r.status, stdout: r.stdout ?? '', stderr: r.stderr ?? '' };
+}
+
+/**
+ * @param {string} dir
+ * @param {string[]} args
+ */
+function git(dir, args) {
+  return run('git', args, dir);
+}
+
+/** @returns {ProcessRow[]} */
+function processTable() {
+  const ps = "Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,@{n='Start';e={$_.CreationDate.ToUniversalTime().ToString('o')}},CommandLine | ConvertTo-Json -Compress";
+  const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', ps], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
+
+  if (r.status !== 0) {
+    throw new Error(`process table query failed: ${r.stderr}`);
+  }
+
+  return JSON.parse(r.stdout);
+}
+
+/**
+ * @param {number} p
+ * @returns {number | null}
+ */
+function listeningPid(p) {
+  const netstat = path.join(SYSTEM32, 'netstat.exe');
+  const text = ['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n');
+
+  return parseListeningPid(text, p);
+}
+
+/**
+ * Runs playwright-cli through node, from the npm shim's folder on PATH (absolute PATH entries only).
+ * @param {string[]} args
+ * @returns {Run}
+ */
+function playwrightCli(args) {
+  const shimDir = (process.env['PATH'] ?? '').split(path.delimiter).find((d) => path.isAbsolute(d) && existsSync(path.join(d, 'playwright-cli.cmd')));
+  const js = shimDir && path.join(shimDir, 'node_modules', '@playwright', 'cli', 'playwright-cli.js');
+
+  if (!js || !existsSync(js)) {
+    return { status: 127, stdout: '', stderr: 'playwright-cli not found on PATH' };
+  }
+
+  const r = spawnSync(process.execPath, [js, ...args], { cwd: REPO_ROOT, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
+
+  return { status: r.status, stdout: r.stdout ?? '', stderr: r.stderr ?? '' };
+}
+
+/** @param {number} ms */
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// ---------- CLI ----------
+
+const argv = process.argv.slice(2);
+const cmd = argv[0];
+/** @param {string} name */
+const str = (name) => {
+  const v = flagIn(argv, name);
+
+  return typeof v === 'string' ? v : undefined;
+};
+const JSON_OUT = argv.includes('--json');
+
+/**
+ * @param {{ checks?: Check[] } & Record<string, unknown>} result
+ * @param {number} code
+ * @returns {never}
+ */
+function out(result, code) {
+  if (JSON_OUT) {
+    process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+  } else {
+    for (const c of result.checks ?? []) {
+      const tag = c.status === 'pass' ? '[OK]' : c.status === 'skip' ? '[SKIP]' : c.status === 'warn' ? '[WARN]' : '[ERROR]';
+      process.stdout.write(`${tag} ${c.name}: ${c.detail}\n`);
+    }
+
+    const { checks, ...rest } = result;
+    process.stdout.write(`${code === 0 ? '[OK]' : '[ERROR]'} ${JSON.stringify(rest)}\n`);
+  }
+
+  process.exit(code);
+}
+
+/**
+ * @param {number} code
+ * @param {string} reason
+ * @param {Record<string, unknown>} [extra]
+ * @returns {never}
+ */
+function fail(code, reason, extra = {}) {
+  return out({ ok: false, command: cmd, reason, ...extra }, code);
+}
+
+const appDir = () => path.resolve(str('dir') ?? process.env['CONTROL_PANGULAR_DIR'] ?? PORTAL_DEFAULT_DIR);
+const port = () => Number(str('port') ?? DEFAULT_PORT);
+
+// ---------- the app's Pangular setup ----------
+
+/**
+ * @param {string} dir
+ * @returns {string | null}
+ */
 function installedVersion(dir) {
   const pj = path.join(dir, 'node_modules', PKG, 'package.json');
 
-  return existsSync(pj) ? readJson(pj).version : null;
+  return existsSync(pj) ? /** @type {{ version: string }} */ (JSON.parse(readFileSync(pj, 'utf8'))).version : null;
 }
 
+/**
+ * @param {string} dir
+ * @returns {SetupFacts}
+ */
 function setupFacts(dir) {
-  const app = findApp(dir);
+  const app = findApp(dir, str('project'));
 
   if (!app) {
-    fail(2, `no Nx application with an @angular/build:dev-server serve target under ${dir}/apps (pass --dir, --project)`);
+    return fail(2, `no Nx application with an @angular/build:dev-server serve target under ${dir}/apps (pass --dir, --project)`);
   }
 
-  const manifest = readJson(path.join(dir, 'package.json'));
+  refuseOutside(dir, app);
+
+  /** @type {{ dependencies?: Record<string, string>, devDependencies?: Record<string, string> }} */
+  const manifest = JSON.parse(readFileSync(path.join(dir, 'package.json'), 'utf8'));
   const declared = manifest.devDependencies?.[PKG] ?? manifest.dependencies?.[PKG] ?? null;
   const main = existsSync(app.main) ? readFileSync(app.main, 'utf8') : '';
-  const serveOptions = readJson(app.projectJson).targets.serve.options ?? {};
-  const proxy = existsSync(app.proxy) ? readJson(app.proxy) : null;
+  const serveOptions = readProject(app.projectJson).targets?.['serve']?.options ?? {};
+  /** @type {Record<string, { target?: string }> | null} */
+  const proxy = existsSync(app.proxy) ? JSON.parse(readFileSync(app.proxy, 'utf8')) : null;
 
   return {
     app,
     mount: detectMount(dir, app),
     declared,
     installed: installedVersion(dir),
-    overlayImport: main.includes(`import('${PKG}/overlay')`),
-    devGuard: /typeof ngDevMode === 'undefined' \|\| ngDevMode|import\.meta\.env\.DEV/.test(main),
+    ...mainFacts(main),
     proxyConfig: serveOptions.proxyConfig ?? null,
     proxyTarget: proxy?.['/__pangular']?.target ?? null,
   };
 }
 
-const MANAGED = (app, dir) => ['package.json', 'package-lock.json', path.relative(dir, app.main), path.relative(dir, app.projectJson), path.relative(dir, app.proxy)].map((p) => p.split(path.sep).join('/'));
+/**
+ * install rewrites and remove deletes the main file, so it must lie inside the checkout.
+ * @param {string} dir
+ * @param {App} app
+ */
+function refuseOutside(dir, app) {
+  if (!insideDir(dir, app.main)) {
+    fail(2, `refused: ${app.projectJson} names a main file outside ${dir} (${app.main})`, { main: app.main });
+  }
+}
 
+/** @param {string} dir */
 function dirtyPaths(dir) {
-  return git(dir, ['status', '--porcelain', '--untracked-files=all']).stdout.split(/\r?\n/).filter(Boolean).map((l) => l.slice(3).trim());
+  return porcelainPaths(git(dir, ['status', '--porcelain', '--untracked-files=all']).stdout);
 }
 
 // npm 11 drops 27 lockfile entries from this checkout's committed lockfile on any install (measured on HEAD, without
 // Pangular). Put back what HEAD has and npm removed, so the diff holds only what the new package adds.
+/**
+ * @param {string} dir
+ * @returns {number}
+ */
 function keepHeadLockEntries(dir) {
   const head = git(dir, ['show', 'HEAD:package-lock.json']);
 
@@ -216,14 +621,14 @@ function keepHeadLockEntries(dir) {
   }
 
   const file = path.join(dir, 'package-lock.json');
-  const before = JSON.parse(head.stdout).packages ?? {};
-  const lock = readJson(file);
-  const dropped = Object.keys(before).filter((k) => !(k in lock.packages));
+  /** @type {{ packages?: Record<string, unknown> }} */
+  const before = JSON.parse(head.stdout);
+  /** @type {{ packages: Record<string, unknown> }} */
+  const lock = JSON.parse(readFileSync(file, 'utf8'));
+  const { packages, dropped } = withHeadLockEntries(before.packages ?? {}, lock.packages);
 
   if (dropped.length) {
-    const merged = { ...lock.packages, ...Object.fromEntries(dropped.map((k) => [k, before[k]])) };
-    // npm's own key order
-    lock.packages = Object.fromEntries(Object.keys(merged).sort((a, b) => a.localeCompare(b, 'en')).map((k) => [k, merged[k]]));
+    lock.packages = packages;
     writeFileSync(file, JSON.stringify(lock, null, 2) + '\n');
   }
 
@@ -233,6 +638,7 @@ function keepHeadLockEntries(dir) {
 function install() {
   const dir = appDir();
   const f = setupFacts(dir);
+  /** @type {string[]} */
   const notes = [];
 
   if (f.mount !== 'standalone-cli') {
@@ -253,26 +659,26 @@ function install() {
   }
 
   if (!f.overlayImport) {
-    const src = readFileSync(f.app.main, 'utf8');
-    const m = /bootstrapApplication\(([^)]*)\)(\s*)\.catch\(/.exec(src);
+    const next = addOverlayImport(readFileSync(f.app.main, 'utf8'));
 
-    if (!m) {
+    if (next === null) {
       fail(2, `could not find "bootstrapApplication(...).catch(" in ${f.app.main}; add the overlay import by hand (SKILL.md "Install")`);
     }
 
-    writeFileSync(f.app.main, src.replace(m[0], `bootstrapApplication(${m[1]})${OVERLAY_SNIPPET}\n  .catch(`));
+    writeFileSync(f.app.main, next);
     notes.push(`overlay import added to ${f.app.main}`);
   }
 
   const target = `http://localhost:${port()}`;
   writeFileSync(f.app.proxy, JSON.stringify({ '/__pangular': { target, pathRewrite: { '^/__pangular': '' }, ws: true } }, null, 2) + '\n');
   notes.push(`proxy /__pangular -> ${target} in ${f.app.proxy}`);
-  const pj = readJson(f.app.projectJson);
+  const pj = readProject(f.app.projectJson);
   const rel = path.relative(dir, f.app.proxy).split(path.sep).join('/');
+  const targets = pj.targets ?? {};
+  const serve = targets['serve'] ?? {};
 
-  if (pj.targets.serve.options?.proxyConfig !== rel) {
-    const { executor, defaultConfiguration, continuous, options, ...rest } = pj.targets.serve;
-    pj.targets.serve = { executor, defaultConfiguration, continuous, options: { ...options, proxyConfig: rel }, ...rest };
+  if (serve.options?.proxyConfig !== rel) {
+    targets['serve'] = withProxyConfig(serve, rel);
     writeFileSync(f.app.projectJson, JSON.stringify(pj, null, 2) + '\n');
     notes.push(`serve.options.proxyConfig = ${rel}`);
   }
@@ -290,27 +696,22 @@ function install() {
 function check() {
   const dir = appDir();
   const f = setupFacts(dir);
-  const checks = [];
-  const add = (name, ok, detail) => checks.push({ name, status: ok ? 'pass' : 'fail', detail });
-  add('declared-exact', f.declared === PINNED, `package.json declares ${f.declared ?? 'nothing'} (want exactly ${PINNED})`);
-  add('installed', f.installed === PINNED, `node_modules has ${f.installed ?? 'nothing'}`);
-  add('overlay-import', f.overlayImport, `${path.relative(dir, f.app.main)} ${f.overlayImport ? 'imports' : 'does not import'} ${PKG}/overlay`);
-  add('dev-guard', f.devGuard, f.devGuard ? 'overlay import is guarded by ngDevMode / import.meta.env.DEV' : 'no ngDevMode / import.meta.env.DEV guard found');
-  add('proxy-config', !!f.proxyConfig, `serve.options.proxyConfig = ${f.proxyConfig ?? 'unset'}`);
-  add('proxy-target', f.proxyTarget === `http://localhost:${port()}`, `/__pangular -> ${f.proxyTarget ?? 'none'}`);
+  const checks = setupChecks(f, dir, port());
   const failed = checks.filter((c) => c.status === 'fail');
   out({ ok: failed.length === 0, command: 'check', dir, project: f.app.name, mount: f.mount, checks }, failed.length === 0 ? 0 : 1);
 }
 
 function remove() {
   const dir = appDir();
-  const app = findApp(dir);
+  const app = findApp(dir, str('project'));
 
   if (!app) {
-    fail(2, `no Nx application found under ${dir}`);
+    return fail(2, `no Nx application found under ${dir}`);
   }
 
-  const managed = MANAGED(app, dir);
+  refuseOutside(dir, app);
+
+  const managed = managedPaths(app, dir);
   const foreign = dirtyPaths(dir).filter((p) => !managed.includes(p));
 
   if (foreign.length) {
@@ -342,10 +743,13 @@ function remove() {
 }
 
 // ---------- the standalone devtools server ----------
+
+/** @param {number} p */
 function statePath(p) {
   return path.join(STATE_DIR, `pangular-${p}.json`);
 }
 
+/** @returns {State} */
 function readState() {
   const p = statePath(port());
 
@@ -386,22 +790,29 @@ async function up() {
   const args = [bin, 'dev', '--port', String(p), '--no-open', '--root', dir, ...(readOnly ? ['--read-only'] : [])];
   const fd = openSync(log, 'a');
   const t0 = Date.now();
-  const child = spawn(process.execPath, args, { cwd: dir, env: { ...process.env }, detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
+  const child = spawn(process.execPath, args, { cwd: dir, detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
   child.unref();
-  const row = processTable().find((r) => r.ProcessId === child.pid);
-  const appUrl = str('app-url') ?? null;
-  const state = { mode: 'launch', dir, port: p, readOnly, mcpUrl: `http://localhost:${p}/__mcp`, origin: `http://localhost:${p}`, appUrl, session: `pangular-${p}`, evidenceDir, log, pid: child.pid, start: row?.Start ?? null, commandLine: row?.CommandLine ?? null, startedAt: new Date().toISOString() };
+  const pid = child.pid;
+
+  if (pid === undefined) {
+    return fail(2, `pangular did not start; see ${log}`);
+  }
+
+  const row = processTable().find((r) => r.ProcessId === pid);
+  /** @type {State} */
+  const state = { mode: 'launch', dir, port: p, readOnly, mcpUrl: `http://localhost:${p}/__mcp`, origin: `http://localhost:${p}`, appUrl: str('app-url') ?? null, session: `pangular-${p}`, evidenceDir, log, pid, start: row?.Start ?? null, commandLine: row?.CommandLine ?? null, startedAt: new Date().toISOString() };
   writeFileSync(statePath(p), JSON.stringify(state, null, 2));
 
   for (;;) {
-    const r = await mcp(state, 'initialize', initParams()).catch((e) => ({ error: e.message }));
+    /** @type {RpcResponse | { error: string, result?: undefined }} */
+    const r = await mcp(state, 'initialize', initParams()).catch((e) => ({ error: e instanceof Error ? e.message : String(e) }));
 
     if (r.result) {
       break;
     }
 
-    if (!processTable().some((x) => x.ProcessId === child.pid)) {
-      fail(2, `pangular (PID ${child.pid}) exited before it answered; see ${log}; run down`, { state: statePath(p) });
+    if (!processTable().some((x) => x.ProcessId === pid)) {
+      fail(2, `pangular (PID ${pid}) exited before it answered; see ${log}; run down`, { state: statePath(p) });
     }
 
     if (Date.now() - t0 > 60000) {
@@ -418,18 +829,28 @@ async function up() {
 const initParams = () => ({ protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'control-pangular-inspector', version: '1' } });
 let rpcId = 0;
 
-async function mcp(state, method, params, { origin = state.origin, token = process.env.PANGULAR_MCP_TOKEN ?? state.token } = {}) {
+/**
+ * @param {{ mcpUrl: string, origin: string }} state
+ * @param {string} method
+ * @param {object} [params]
+ * @param {{ origin?: string | null }} [options]
+ * @returns {Promise<RpcResponse>}
+ */
+async function mcp(state, method, params, { origin = state.origin } = {}) {
+  /** @type {Record<string, string>} */
   const headers = { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' };
+  const token = process.env['PANGULAR_MCP_TOKEN'];
 
   if (origin) {
-    headers.Origin = origin;
+    headers['Origin'] = origin;
   }
 
   if (token) {
-    headers.Authorization = `Bearer ${token}`;
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
   // node:http without keep-alive: process.exit with an open fetch socket trips a libuv assertion on Windows (measured)
+  /** @type {{ status: number | undefined, text: string }} */
   const res = await new Promise((resolve, reject) => {
     const req = http.request(state.mcpUrl, { method: 'POST', headers, agent: false, timeout: 20000 }, (r) => {
       let buf = '';
@@ -444,41 +865,66 @@ async function mcp(state, method, params, { origin = state.origin, token = proce
   const text = res.text;
 
   if (res.status !== 200) {
-    return { httpStatus: res.status, body: text.slice(0, 300) };
+    return { httpStatus: res.status ?? 0, body: text.slice(0, 300) };
   }
 
-  const data = text.includes('data:') ? text.split(/\r?\n/).filter((l) => l.startsWith('data:')).map((l) => l.slice(5).trim()).pop() : text;
-
-  return { httpStatus: 200, ...JSON.parse(data) };
+  return { httpStatus: 200, ...parseRpcText(text) };
 }
 
+/** @param {State} state */
 async function listTools(state) {
   const r = await mcp(state, 'tools/list');
 
   return r.result?.tools ?? null;
 }
 
-const short = (name) => name.replace(/^pangular[_:]/, '');
-
 async function tools() {
   const state = readState();
   const list = await listTools(state);
 
   if (!list) {
-    fail(2, `tools/list failed on ${state.mcpUrl}`);
+    return fail(2, `tools/list failed on ${state.mcpUrl}`);
   }
 
+  /** @type {Record<string, unknown>} */
   const result = { ok: true, command: 'tools', mcpUrl: state.mcpUrl, count: list.length, actionToolsPresent: list.map((t) => short(t.name)).filter((n) => ACTION_TOOLS.includes(n)), tools: list.map((t) => ({ name: t.name, readOnly: t.annotations?.readOnlyHint === true })) };
-  result.savedTo = save(state, result);
+  result['savedTo'] = save(state, result);
   out(result, 0);
 }
 
-function save(state, result) {
-  if (!str('out')) {
+/**
+ * Where --out writes: resolved against the run's evidence directory, refused outside it.
+ * @param {{ evidenceDir: string }} state
+ * @returns {string | undefined}
+ */
+function outPath(state) {
+  const outFile = str('out');
+
+  if (!outFile) {
     return undefined;
   }
 
-  const file = path.resolve(state.evidenceDir, str('out')); // a relative --out lands in the run's evidence directory
+  const file = path.resolve(state.evidenceDir, outFile);
+
+  if (!insideDir(state.evidenceDir, file)) {
+    fail(2, `refused: --out ${outFile} lies outside the evidence directory ${state.evidenceDir}`);
+  }
+
+  return file;
+}
+
+/**
+ * @param {{ evidenceDir: string }} state
+ * @param {Record<string, unknown>} result
+ * @returns {string | undefined}
+ */
+function save(state, result) {
+  const file = outPath(state);
+
+  if (file === undefined) {
+    return undefined;
+  }
+
   mkdirSync(path.dirname(file), { recursive: true });
   writeFileSync(file, JSON.stringify(result, null, 2));
 
@@ -489,33 +935,39 @@ async function call() {
   const name = argv[1];
 
   if (!name || name.startsWith('--')) {
-    fail(2, 'usage: call <tool> [--args <json>] [--confirm] [--out <file>]');
+    return fail(2, 'usage: call <tool> [--args <json>] [--confirm] [--out <file>]');
   }
 
-  if (ACTION_TOOLS.includes(short(name)) && !argv.includes('--confirm')) {
-    fail(2, `refused: ${short(name)} acts on the app; pass --confirm to run it (and start the server with up --allow-actions)`);
+  const refusal = callRefusal(name, argv.includes('--confirm'));
+
+  if (refusal) {
+    fail(2, refusal);
   }
 
+  /** @type {Record<string, unknown>} */
   let args = {};
 
   try {
-    args = str('args') ? JSON.parse(str('args')) : {};
+    const raw = str('args');
+    args = raw ? JSON.parse(raw) : {};
   } catch (e) {
-    fail(2, `--args is not JSON: ${e.message}`);
+    fail(2, `--args is not JSON: ${e instanceof Error ? e.message : String(e)}`);
   }
 
   const state = readState();
+  outPath(state);
   const list = await listTools(state);
   const tool = list?.find((t) => short(t.name) === short(name));
 
   if (!tool) {
-    fail(2, `no tool ${name} on ${state.mcpUrl}${state.readOnly && ACTION_TOOLS.includes(short(name)) ? ' (the server runs --read-only)' : ''}; available: ${(list ?? []).map((t) => short(t.name)).join(', ')}`);
+    return fail(2, `no tool ${name} on ${state.mcpUrl}${state.readOnly && ACTION_TOOLS.includes(short(name)) ? ' (the server runs --read-only)' : ''}; available: ${(list ?? []).map((t) => short(t.name)).join(', ')}`);
   }
 
   const r = await mcp(state, 'tools/call', { name: tool.name, arguments: args });
   const text = (r.result?.content ?? []).filter((c) => c.type === 'text').map((c) => c.text).join('\n');
+  /** @type {Record<string, unknown> & { ok: boolean }} */
   const result = { ok: !!r.result && !r.result.isError, command: 'call', tool: tool.name, arguments: args, isError: r.result?.isError ?? null, text, error: r.error ?? (r.httpStatus !== 200 ? r : undefined) };
-  result.savedTo = save(state, result);
+  result['savedTo'] = save(state, result);
   out(result, result.ok ? 0 : 1);
 }
 
@@ -524,23 +976,30 @@ async function resource() {
   const state = readState();
   const list = await mcp(state, 'resources/list');
   const all = list.result?.resources ?? [];
-  const hit = id && all.find((x) => x.uri === id || x.name === id || decodeURIComponent(x.uri).endsWith(id));
+  const hit = findResource(all, id);
 
   if (!hit) {
-    fail(2, `usage: resource <id>; available: ${all.map((x) => decodeURIComponent(x.uri)).join(', ')}`);
+    return fail(2, `usage: resource <id>; available: ${all.map((x) => decodeURIComponent(x.uri)).join(', ')}`);
   }
 
   const r = await mcp(state, 'resources/read', { uri: hit.uri });
+  /** @type {Record<string, unknown> & { ok: boolean }} */
   const result = { ok: !!r.result, command: 'resource', uri: hit.uri, contents: (r.result?.contents ?? []).map((c) => c.text ?? c) };
-  result.savedTo = save(state, result);
+  result['savedTo'] = save(state, result);
   out(result, result.ok ? 0 : 1);
 }
 
 async function doctor() {
   const state = readState();
   const dir = state.dir;
+  /** @type {Check[]} */
   const checks = [];
-  const add = (name, status, detail) => checks.push({ name, status, detail });
+  /** @type {(name: string, status: Check['status'], detail: string) => void} */
+  const add = (name, status, detail) => {
+    checks.push({ name, status, detail });
+  };
+  const fresh = mapFresh(SKILL_DIR);
+  add('map-fresh', fresh.status, fresh.detail);
   const f = setupFacts(dir);
   add('package-pinned', f.declared === PINNED && f.installed === PINNED ? 'pass' : 'fail', `declared ${f.declared ?? 'none'}, installed ${f.installed ?? 'none'}, pin ${PINNED}`);
   add('overlay-import', f.overlayImport && f.devGuard ? 'pass' : 'fail', f.overlayImport ? (f.devGuard ? 'dev-guarded overlay import in main' : 'overlay import without a dev guard') : 'no overlay import in main');
@@ -553,11 +1012,11 @@ async function doctor() {
   const noOrigin = await mcp(state, 'initialize', initParams(), { origin: null });
   add('mcp-origin-guard', noOrigin.httpStatus === 403 ? 'pass' : 'fail', `POST without Origin -> ${noOrigin.httpStatus} (want 403)`);
   const init = await mcp(state, 'initialize', initParams());
-  const tokenNote = process.env.PANGULAR_MCP_TOKEN || state.token ? 'with Bearer token' : 'no token (the standalone CLI asks for none; a hub mount needs PANGULAR_MCP_TOKEN)';
+  const tokenNote = process.env['PANGULAR_MCP_TOKEN'] ? 'with Bearer token' : 'no token (the standalone CLI asks for none; a hub mount needs PANGULAR_MCP_TOKEN)';
   add('mcp-initialize', init.result ? 'pass' : 'fail', init.result ? `${init.result.serverInfo?.name} ${init.result.serverInfo?.version}, local Origin, ${tokenNote}` : `HTTP ${init.httpStatus}: ${init.body ?? JSON.stringify(init.error)}`);
   const list = (await listTools(state)) ?? [];
-  const actions = list.map((t) => short(t.name)).filter((n) => ACTION_TOOLS.includes(n));
-  add('read-only', state.readOnly ? (actions.length === 0 ? 'pass' : 'fail') : 'warn', state.readOnly ? `${list.length} tools, action tools present: ${actions.join(', ') || 'none'}` : `started with --allow-actions: ${actions.join(', ')}`);
+  const ro = readOnlyCheck(state.readOnly, list.map((t) => t.name));
+  add('read-only', ro.status, ro.detail);
 
   const appUrl = str('app-url') ?? state.appUrl;
 
@@ -567,13 +1026,14 @@ async function doctor() {
     // The overlay asks for the one-time code in a prompt, at a moment of its own choosing (before or after it sets
     // its page id, measured both ways); the code is printed in the server log, as a user would read it.
     let answered = false;
+    /** @type {(probe: Run) => Promise<boolean>} */
     const answerPrompt = async (probe) => {
       if (!/modal state/i.test(probe.stdout + probe.stderr)) {
         return false;
       }
 
       await sleep(500);
-      const otp = authCode(state);
+      const otp = existsSync(state.log) ? authCodeIn(readFileSync(state.log, 'utf8')) : null;
       const acc = playwrightCli([`-s=${state.session}`, 'dialog-accept', otp ?? '']);
 
       if (!answered) {
@@ -596,8 +1056,10 @@ async function doctor() {
     } else {
       add('browser-session', 'pass', `session ${state.session} on ${appUrl}`);
       const code = "async page => { await page.waitForFunction(() => typeof window.__pangularPageId === 'string', null, { timeout: 3000 }).catch(() => {}); return await page.evaluate(() => ({ pageId: window.__pangularPageId ?? null, ngVersion: document.querySelector('[ng-version]')?.getAttribute('ng-version') ?? null, devBuild: typeof window.ng === 'object' })); }";
+      /** @type {PageProbe} */
       let page = {};
-      let pr = { stdout: '' };
+      /** @type {Run} */
+      let pr = { status: null, stdout: '', stderr: '' };
 
       for (let i = 0; i < 6 && !page.pageId; i++) {
         pr = playwrightCli([`-s=${state.session}`, '--raw', 'run-code', code]);
@@ -630,17 +1092,15 @@ async function doctor() {
       }
 
       add('overlay-connected', listed ? 'pass' : 'fail', listed ? `list-pages reports page ${page.pageId}` : `list-pages does not show ${page.pageId ?? 'the page'}: ${text.slice(0, 200)}`);
-      const ce = playwrightCli([`-s=${state.session}`, 'console', 'error']);
-      // The overlay probes /__connection.json next to the page before /__pangular/; that 404 is expected (measured).
-      const errs = ce.stdout.split(/\r?\n/).filter((l) => l.startsWith('[ERROR]') && !l.includes('/__connection.json'));
-      const noServer = errs.some((l) => l.includes('No devtools server found'));
-      add('console-errors', errs.length === 0 ? 'pass' : noServer ? 'fail' : 'warn', errs.length === 0 ? 'no console errors besides the expected /__connection.json 404' : `${errs.length} console error(s): ${errs[0].slice(0, 200)}${noServer ? ` (the proxy did not reach port ${state.port})` : ''}`);
+      const ce = consoleCheck(playwrightCli([`-s=${state.session}`, 'console', 'error']).stdout, state.port);
+      add('console-errors', ce.status, ce.detail);
     }
   }
 
   const failed = checks.filter((c) => c.status === 'fail');
+  /** @type {Record<string, unknown> & { checks: Check[] }} */
   const result = { ok: failed.length === 0, command: 'doctor', port: state.port, mcpUrl: state.mcpUrl, session: state.session, checks };
-  result.savedTo = save(state, result);
+  result['savedTo'] = save(state, result);
   out(result, failed.length === 0 ? 0 : 1);
 }
 
@@ -663,24 +1123,16 @@ async function components() {
     const res = (await mcp(state, 'resources/list')).result?.resources ?? [];
     const uri = res.find((x) => decodeURIComponent(x.uri).endsWith('pangular:component-tree'))?.uri;
     const r = uri && (await mcp(state, 'resources/read', { uri }));
-    const tree = r?.result?.contents?.[0]?.text ? JSON.parse(r.result.contents[0].text) : { nodes: [] };
-    const lines = [];
-    const keep = (n) => !filter || `${n.name} ${n.tag}`.toLowerCase().includes(filter) || (n.children ?? []).some(keep);
-    const walk = (n, d) => {
-      if (d >= depth || !keep(n)) {
-        return;
-      }
-
-      lines.push(`${'  '.repeat(d)}${n.name} <${n.tag}> ${n.id}`);
-      (n.children ?? []).forEach((c) => walk(c, d + 1));
-    };
-    tree.nodes.forEach((n) => walk(n, 0));
-    text = lines.join('\n');
+    const first = r ? r.result?.contents?.[0]?.text : undefined;
+    /** @type {{ nodes: TreeNode[] }} */
+    const tree = first ? JSON.parse(first) : { nodes: [] };
+    text = componentOutline(tree, filter, depth);
     source = 'resource pangular:component-tree (list-components is not in this version)';
   }
 
+  /** @type {Record<string, unknown> & { ok: boolean }} */
   const result = { ok: !!text, command: 'components', source, text };
-  result.savedTo = save(state, result);
+  result['savedTo'] = save(state, result);
   out(result, result.ok ? 0 : 1);
 }
 
@@ -692,10 +1144,11 @@ async function scan() {
   const bin = path.join(dir, 'node_modules', PKG, 'bin.mjs');
 
   if (!name || name.startsWith('--') || !existsSync(bin)) {
-    fail(2, !existsSync(bin) ? `${PKG} is not installed in ${dir}` : 'usage: scan <get-routes|get-components|get-signals|get-providers|get-pipes|get-ngrx-store|build-meta> [--root <dir>] [--out <file>]');
+    return fail(2, !existsSync(bin) ? `${PKG} is not installed in ${dir}` : 'usage: scan <get-routes|get-components|get-signals|get-providers|get-pipes|get-ngrx-store|build-meta> [--root <dir>] [--out <file>]');
   }
 
   const child = spawn(process.execPath, [bin, 'mcp', '--root', root, '--read-only'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
+  /** @type {Map<number, (msg: RpcMessage) => void>} */
   const pending = new Map();
   let buf = '';
   let stderr = '';
@@ -709,51 +1162,40 @@ async function scan() {
       buf = buf.slice(i + 1);
 
       if (line) {
+        /** @type {RpcMessage} */
         const msg = JSON.parse(line);
-        pending.get(msg.id)?.(msg);
+        pending.get(msg.id ?? -1)?.(msg);
       }
     }
   });
-  const send = (method, params, id) => new Promise((resolve) => {
-    if (id !== undefined) {
-      pending.set(id, resolve);
-    }
-
-    child.stdin.write(JSON.stringify({ jsonrpc: '2.0', ...(id !== undefined ? { id } : {}), method, ...(params ? { params } : {}) }) + '\n');
-
-    if (id === undefined) {
-      resolve();
-    }
+  /** @type {(method: string, params: object | undefined, id: number) => Promise<RpcMessage>} */
+  const request = (method, params, id) => new Promise((resolve) => {
+    pending.set(id, resolve);
+    child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id, method, ...(params ? { params } : {}) }) + '\n');
   });
   const timer = setTimeout(() => {
     child.kill();
     fail(2, `stdio MCP server did not answer within 60 s: ${stderr.slice(0, 300)}`);
   }, 60000);
-  await send('initialize', initParams(), 1);
-  await send('notifications/initialized');
-  const list = await send('tools/list', undefined, 2);
+  await request('initialize', initParams(), 1);
+  child.stdin.write(JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) + '\n');
+  const list = await request('tools/list', undefined, 2);
   const tool = list.result?.tools?.find((t) => short(t.name) === short(name));
 
   if (!tool) {
     child.kill();
-    fail(2, `no source tool ${name}; stdio has: ${(list.result?.tools ?? []).map((t) => short(t.name)).join(', ')}`);
+
+    return fail(2, `no source tool ${name}; stdio has: ${(list.result?.tools ?? []).map((t) => short(t.name)).join(', ')}`);
   }
 
-  const r = await send('tools/call', { name: tool.name, arguments: {} }, 3);
+  const r = await request('tools/call', { name: tool.name, arguments: {} }, 3);
   clearTimeout(timer);
   child.kill();
   const text = (r.result?.content ?? []).map((c) => c.text).join('\n');
+  /** @type {Record<string, unknown> & { ok: boolean }} */
   const result = { ok: !!r.result && !r.result.isError, command: 'scan', root, tool: tool.name, warnings: stderr.trim() || undefined, text };
-  const state = { evidenceDir: path.join(SCRATCH, 'scan') };
-  result.savedTo = save(state, result);
+  result['savedTo'] = save({ evidenceDir: path.join(SCRATCH, 'scan') }, result);
   out(result, result.ok ? 0 : 1);
-}
-
-function authCode(state) {
-  const log = existsSync(state.log) ? readFileSync(state.log, 'utf8').replace(/\x1b\[[0-9;]*m/g, '') : '';
-  const all = [...log.matchAll(/auth code\s+(\d{4,8})/g)];
-
-  return all.length ? all[all.length - 1][1] : null;
 }
 
 function info() {
@@ -763,18 +1205,20 @@ function info() {
 function down() {
   const sp = statePath(port());
   const state = readState();
+  /** @type {string[]} */
   const notes = [];
   const row = processTable().find((r) => r.ProcessId === state.pid);
+  const refusal = stopRefusal(row, state);
 
-  if (row && (row.Start !== state.start || row.CommandLine !== state.commandLine)) {
-    fail(2, `refused: PID ${state.pid} does not match the state file (start-time ${row.Start} vs recorded ${state.start}; command "${row.CommandLine}" vs recorded "${state.commandLine}"). Not stopping a process this skill did not start.`, { state: sp });
+  if (refusal) {
+    fail(2, refusal, { state: sp });
   }
 
   const close = playwrightCli([`-s=${state.session}`, 'close']);
   notes.push(`session ${state.session}: ${close.status === 0 ? 'closed' : 'was not open'}`);
 
   if (row) {
-    const r = spawnSync('taskkill', ['/PID', String(state.pid), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
+    const r = spawnSync(path.join(SYSTEM32, 'taskkill.exe'), ['/PID', String(state.pid), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
     notes.push(`stopped tree of PID ${state.pid}: ${r.status === 0 ? 'ok' : r.stderr.trim()}`);
   } else {
     notes.push(`PID ${state.pid} was not running`);
@@ -784,11 +1228,17 @@ function down() {
   out({ ok: true, command: 'down', evidenceDir: state.evidenceDir, notes }, 0);
 }
 
+/** @type {Record<string, () => void | Promise<void>>} */
 const commands = { install, check, remove, up, doctor, info, down, tools, call, resource, scan, components };
 
-if (!commands[cmd]) {
-  process.stdout.write('usage: control.mjs <install|check|remove|up|doctor|info|down|tools|call|resource> [--dir <app>] [--project <name>] [--port N] [--app-url <url>] [--allow-actions] [--args <json>] [--confirm] [--out <file>] [--json]\n');
-  process.exit(2);
-}
+// import.meta.url is the real path, so compare real paths: run through a link, the CLI still runs.
+if (process.argv[1] && realpathSync.native(path.resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+  const command = cmd !== undefined && Object.hasOwn(commands, cmd) ? commands[cmd] : undefined;
 
-await commands[cmd]();
+  if (command === undefined) {
+    process.stdout.write('usage: control.mjs <install|check|remove|up|doctor|info|down|tools|call|resource> [--dir <app>] [--project <name>] [--port N] [--app-url <url>] [--allow-actions] [--args <json>] [--confirm] [--out <file>] [--json]\n');
+    process.exit(2);
+  }
+
+  await command();
+}
