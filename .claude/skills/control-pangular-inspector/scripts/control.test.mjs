@@ -13,6 +13,7 @@ import {
   authCodeIn,
   busyPorts,
   callRefusal,
+  checkLine,
   componentOutline,
   consoleCheck,
   descendants,
@@ -24,12 +25,14 @@ import {
   listeners,
   mainFacts,
   managedPaths,
+  mcp,
   parseRpcText,
   pinOf,
   planPorts,
   porcelainPaths,
   portRows,
   portsCheck,
+  proxyPlan,
   readOnlyCheck,
   setupChecks,
   short,
@@ -347,6 +350,51 @@ test('check and remove refuse an app whose main file lies outside the checkout, 
     assert.equal(r.status, 2, cmd);
     assert.match(JSON.parse(r.out).reason, /^refused: .* names a main file outside /, cmd);
   }
+});
+
+test('mcp answers HTTP 0 with the error when nothing listens, instead of rejecting', async (t) => {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  const port = /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+  await new Promise((resolve) => server.close(() => resolve(undefined)));
+  t.diagnostic(`closed port ${port}`);
+  const r = await mcp({ mcpUrl: `http://127.0.0.1:${port}/__mcp`, origin: `http://127.0.0.1:${port}` }, 'initialize');
+  assert.equal(r.httpStatus, 0);
+  assert.match(r.body ?? '', /ECONNREFUSED/);
+  assert.equal(r.result, undefined);
+});
+
+test('proxyPlan merges /__pangular into an app proxy and refuses what install or remove would lose', () => {
+  const rel = 'apps/a/proxy.conf.json';
+  const target = 'http://localhost:9999';
+  const entry = { target, pathRewrite: { '^/__pangular': '' }, ws: true };
+  assert.deepEqual(proxyPlan(null, false, null, rel, target), { proxy: { '/__pangular': entry } });
+  assert.deepEqual(proxyPlan({ '/api': { target: 'http://localhost:3000' } }, true, rel, rel, target), {
+    proxy: { '/api': { target: 'http://localhost:3000' }, '/__pangular': entry },
+  });
+  assert.deepEqual(proxyPlan({ '/__pangular': { target: 'http://localhost:1' } }, false, rel, rel, target), { proxy: { '/__pangular': entry } }, 'an untracked file of its own is rewritten');
+  const untracked = proxyPlan({ '/api': {} }, false, null, rel, target);
+  assert.match('refusal' in untracked ? untracked.refusal : '', /^refused: apps\/a\/proxy.conf.json is not tracked by git and holds other entries \(\/api\)/);
+  const other = proxyPlan(null, false, 'apps/a/other.json', rel, target);
+  assert.match('refusal' in other ? other.refusal : '', /^refused: serve.options.proxyConfig names apps\/a\/other.json, not apps\/a\/proxy.conf.json/);
+  const array = proxyPlan([{ context: ['/api'] }], true, null, rel, target);
+  assert.match('refusal' in array ? array.refusal : '', /not a key-per-path object/);
+});
+
+test('install refuses an untracked proxy with other entries before it changes anything', (t) => {
+  const dir = workspace(t, {
+    'apps/a/project.json': devServer('a'),
+    'apps/a/proxy.conf.json': '{ "/api": { "target": "http://localhost:3000" } }\n',
+    'apps/a/src/main.ts': 'bootstrapApplication(App).catch((e) => console.error(e));\n',
+    'package.json': '{}',
+  });
+  const r = control(['install', '--dir', dir]);
+  assert.equal(r.status, 2);
+  assert.match(JSON.parse(r.out).reason, /is not tracked by git and holds other entries \(\/api\)/);
+});
+
+test('checkLine escapes control characters page text put in a detail', () => {
+  assert.equal(checkLine({ name: 'overlay-connected', status: 'fail', detail: 'title\u001b]8;;x\u0007' }), String.raw`[ERROR] overlay-connected: title\u001b]8;;x\u0007`);
 });
 
 test('scan refuses an --out outside its evidence directory', (t) => {

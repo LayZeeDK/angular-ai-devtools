@@ -7,7 +7,7 @@ import http from 'node:http';
 import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mapFresh } from './fingerprint.mjs';
+import { mapFresh, printable } from './fingerprint.mjs';
 
 /** @typedef {{ name: string, status: 'pass' | 'fail' | 'warn' | 'skip', detail: string }} Check */
 /** @typedef {{ ProcessId: number, ParentProcessId: number, Start: string | null, CommandLine: string | null }} ProcessRow */
@@ -445,6 +445,18 @@ export function addOverlayImport(src) {
 }
 
 /**
+ * One human-readable doctor line. A page title, URL or console message can hold control characters, so they are
+ * escaped rather than written to the terminal.
+ * @param {Check} c
+ * @returns {string}
+ */
+export function checkLine(c) {
+  const tag = c.status === 'pass' ? '[OK]' : c.status === 'skip' ? '[SKIP]' : c.status === 'warn' ? '[WARN]' : '[ERROR]';
+
+  return `${tag} ${c.name}: ${printable(c.detail)}`;
+}
+
+/**
  * The serve target with `options.proxyConfig` set, keeping Nx's key order (executor, defaultConfiguration,
  * continuous, options, then the rest).
  * @param {NxTarget} serve
@@ -455,6 +467,36 @@ export function withProxyConfig(serve, rel) {
   const { executor, defaultConfiguration, continuous, options, ...rest } = serve;
 
   return { executor, defaultConfiguration, continuous, options: { ...options, proxyConfig: rel }, ...rest };
+}
+
+/**
+ * The proxy file install writes, or why it refuses, so an app's own proxy entries survive install and remove. The
+ * `/__pangular` entry is merged into the existing file. remove restores a tracked file from git and deletes an
+ * untracked one, so an untracked file with other entries is refused, as is a serve target that names another file.
+ * @param {unknown} existing  the app's proxy.conf.json, parsed, or null when there is none
+ * @param {boolean} tracked  whether git tracks that file
+ * @param {string | null | undefined} current  the serve target's options.proxyConfig
+ * @param {string} rel  the proxy file install manages, repository-relative
+ * @param {string} target  the devtools server's URL
+ * @returns {{ proxy: Record<string, unknown> } | { refusal: string }}
+ */
+export function proxyPlan(existing, tracked, current, rel, target) {
+  if (current && current !== rel) {
+    return { refusal: `refused: serve.options.proxyConfig names ${current}, not ${rel}; add the /__pangular entry to ${current} by hand (SKILL.md "Launch" shows it)` };
+  }
+
+  if (existing !== null && (typeof existing !== 'object' || Array.isArray(existing))) {
+    return { refusal: `refused: ${rel} is not a key-per-path object (an array-form proxy config?); add the /__pangular entry by hand` };
+  }
+
+  const entries = /** @type {Record<string, unknown>} */ (existing ?? {});
+  const others = Object.keys(entries).filter((k) => k !== '/__pangular');
+
+  if (others.length > 0 && !tracked) {
+    return { refusal: `refused: ${rel} is not tracked by git and holds other entries (${others.join(', ')}); remove deletes an untracked proxy file, so commit it first` };
+  }
+
+  return { proxy: { ...entries, '/__pangular': { target, pathRewrite: { '^/__pangular': '' }, ws: true } } };
 }
 
 /**
@@ -687,8 +729,7 @@ function out(result, code) {
     process.stdout.write(JSON.stringify(result, null, 2) + '\n');
   } else {
     for (const c of result.checks ?? []) {
-      const tag = c.status === 'pass' ? '[OK]' : c.status === 'skip' ? '[SKIP]' : c.status === 'warn' ? '[WARN]' : '[ERROR]';
-      process.stdout.write(`${tag} ${c.name}: ${c.detail}\n`);
+      process.stdout.write(`${checkLine(c)}\n`);
     }
 
     const { checks, ...rest } = result;
@@ -820,6 +861,17 @@ function install() {
     fail(2, `mount ${f.mount} detected: this script automates only the standalone CLI mount of a client-only app. Follow SKILL.md "Other mounts" for ${f.mount === 'express-hub' ? 'initPangularHub() in server.ts' : 'the pangular() Vite plugin'}.`, { mount: f.mount });
   }
 
+  // Decided before any change: install never drops an app's own proxy entries.
+  const target = `http://localhost:${port()}`;
+  const rel = path.relative(dir, f.app.proxy).split(path.sep).join('/');
+  const existing = existsSync(f.app.proxy) ? JSON.parse(readFileSync(f.app.proxy, 'utf8')) : null;
+  const tracked = existing !== null && git(dir, ['ls-files', '--error-unmatch', rel]).status === 0;
+  const proxy = proxyPlan(existing, tracked, f.proxyConfig, rel, target);
+
+  if ('refusal' in proxy) {
+    fail(2, proxy.refusal);
+  }
+
   if (f.declared !== PINNED || f.installed !== PINNED) {
     const r = run('npm', ['install', '--save-dev', '--save-exact', `${PKG}@${PINNED}`], dir);
 
@@ -844,11 +896,9 @@ function install() {
     notes.push(`overlay import added to ${f.app.main}`);
   }
 
-  const target = `http://localhost:${port()}`;
-  writeFileSync(f.app.proxy, JSON.stringify({ '/__pangular': { target, pathRewrite: { '^/__pangular': '' }, ws: true } }, null, 2) + '\n');
-  notes.push(`proxy /__pangular -> ${target} in ${f.app.proxy}`);
+  writeFileSync(f.app.proxy, JSON.stringify(proxy.proxy, null, 2) + '\n');
+  notes.push(`proxy /__pangular -> ${target} in ${f.app.proxy}${existing === null ? '' : ' (merged into the existing file)'}`);
   const pj = readProject(f.app.projectJson);
-  const rel = path.relative(dir, f.app.proxy).split(path.sep).join('/');
   const targets = pj.targets ?? {};
   const serve = targets['serve'] ?? {};
 
@@ -1032,13 +1082,15 @@ const initParams = () => ({ protocolVersion: '2025-06-18', capabilities: {}, cli
 let rpcId = 0;
 
 /**
+ * One JSON-RPC request to the devtools server. Never rejects: a request error comes back as `httpStatus` 0 with the
+ * error in `body`.
  * @param {{ mcpUrl: string, origin: string }} state
  * @param {string} method
  * @param {object} [params]
  * @param {{ origin?: string | null }} [options]
  * @returns {Promise<RpcResponse>}
  */
-async function mcp(state, method, params, { origin = state.origin } = {}) {
+export async function mcp(state, method, params, { origin = state.origin } = {}) {
   /** @type {Record<string, string>} */
   const headers = { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' };
   const token = process.env['PANGULAR_MCP_TOKEN'];
@@ -1053,7 +1105,7 @@ async function mcp(state, method, params, { origin = state.origin } = {}) {
 
   // node:http without keep-alive: process.exit with an open fetch socket trips a libuv assertion on Windows (measured)
   /** @type {{ status: number | undefined, text: string }} */
-  const res = await new Promise((resolve, reject) => {
+  const res = await new Promise((resolve) => {
     const req = http.request(state.mcpUrl, { method: 'POST', headers, agent: false, timeout: 20000 }, (r) => {
       let buf = '';
       r.setEncoding('utf8');
@@ -1061,7 +1113,11 @@ async function mcp(state, method, params, { origin = state.origin } = {}) {
       r.on('end', () => resolve({ status: r.statusCode, text: buf }));
     });
     req.on('timeout', () => req.destroy(new Error('timeout')));
-    req.on('error', reject);
+    // A server that is down is a result (HTTP 0 and the error), so doctor and call name it instead of crashing.
+    req.on('error', (e) => {
+      const code = /** @type {NodeJS.ErrnoException} */ (e).code;
+      resolve({ status: 0, text: [code, e.message].filter(Boolean).join(': ') || 'request failed' });
+    });
     req.end(JSON.stringify({ jsonrpc: '2.0', id: ++rpcId, method, ...(params ? { params } : {}) }));
   });
   const text = res.text;
@@ -1073,19 +1129,29 @@ async function mcp(state, method, params, { origin = state.origin } = {}) {
   return { httpStatus: 200, ...parseRpcText(text) };
 }
 
+/**
+ * The server's tools, or null with why tools/list failed (a server that is down: `HTTP 0: ECONNREFUSED`).
+ * @param {State} state
+ * @returns {Promise<{ list: Tool[] | null, why: string }>}
+ */
+async function toolList(state) {
+  const r = await mcp(state, 'tools/list');
+  const list = r.result?.tools ?? null;
+
+  return { list, why: list ? '' : `tools/list failed on ${state.mcpUrl}: ${r.httpStatus === 200 ? JSON.stringify(r.error ?? null) : `HTTP ${r.httpStatus}: ${r.body}`}` };
+}
+
 /** @param {State} state */
 async function listTools(state) {
-  const r = await mcp(state, 'tools/list');
-
-  return r.result?.tools ?? null;
+  return (await toolList(state)).list;
 }
 
 async function tools() {
   const state = readState();
-  const list = await listTools(state);
+  const { list, why } = await toolList(state);
 
   if (!list) {
-    return fail(2, `tools/list failed on ${state.mcpUrl}`);
+    return fail(2, why);
   }
 
   /** @type {Record<string, unknown>} */
@@ -1158,11 +1224,16 @@ async function call() {
 
   const state = readState();
   outPath(state);
-  const list = await listTools(state);
-  const tool = list?.find((t) => short(t.name) === short(name));
+  const { list, why } = await toolList(state);
+
+  if (!list) {
+    return fail(2, why);
+  }
+
+  const tool = list.find((t) => short(t.name) === short(name));
 
   if (!tool) {
-    return fail(2, `no tool ${name} on ${state.mcpUrl}${state.readOnly && ACTION_TOOLS.includes(short(name)) ? ' (the server runs --read-only)' : ''}; available: ${(list ?? []).map((t) => short(t.name)).join(', ')}`);
+    return fail(2, `no tool ${name} on ${state.mcpUrl}${state.readOnly && ACTION_TOOLS.includes(short(name)) ? ' (the server runs --read-only)' : ''}; available: ${list.map((t) => short(t.name)).join(', ')}`);
   }
 
   const r = await mcp(state, 'tools/call', { name: tool.name, arguments: args });
@@ -1177,6 +1248,11 @@ async function resource() {
   const id = argv[1];
   const state = readState();
   const list = await mcp(state, 'resources/list');
+
+  if (list.httpStatus !== 200) {
+    return fail(2, `resources/list failed on ${state.mcpUrl}: HTTP ${list.httpStatus}: ${list.body}`);
+  }
+
   const all = list.result?.resources ?? [];
   const hit = findResource(all, id);
 
@@ -1439,7 +1515,7 @@ if (process.argv[1] && realpathSync.native(path.resolve(process.argv[1])) === re
   const command = cmd !== undefined && Object.hasOwn(commands, cmd) ? commands[cmd] : undefined;
 
   if (command === undefined) {
-    process.stdout.write('usage: control.mjs <install|check|remove|up|doctor|info|down|tools|call|resource> [--dir <app>] [--project <name>] [--port N] [--app-url <url>] [--allow-actions] [--args <json>] [--confirm] [--out <file>] [--json]\n');
+    process.stdout.write('usage: control.mjs <install|check|remove|up|doctor|info|down|tools|call|resource|scan|components> [--dir <app>] [--project <name>] [--port N] [--app-url <url>] [--allow-actions] [--args <json>] [--confirm] [--out <file>] [--json]\n');
     process.exit(2);
   }
 

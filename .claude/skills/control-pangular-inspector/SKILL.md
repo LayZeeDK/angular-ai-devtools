@@ -59,8 +59,11 @@ or Lars's own) is never stopped.
      (the docs' Angular CLI form; Analog uses `import.meta.env.DEV`).
    - `apps/<app>/proxy.conf.json`: `/__pangular` -> `http://localhost:9999`, prefix stripped, `ws: true`;
      and `serve.options.proxyConfig` in the app's `project.json` (the docs put the file next to
-     `angular.json`; Nx keeps it in the app folder and names it workspace-relative). Formatted with the repo's
-     prettier when `node_modules/prettier` exists.
+     `angular.json`; Nx keeps it in the app folder and names it workspace-relative). An existing proxy file
+     keeps its entries: `/__pangular` is merged in. Before any change, `install` refuses (exit 2) a serve target
+     whose `proxyConfig` names another file, an array-form proxy file, and an untracked proxy file with other
+     entries (`remove` deletes an untracked proxy file). Formatted with the repo's prettier when
+     `node_modules/prettier` exists.
    - The portal worktree has this setup committed (`f102b97`); `check` exits 0 there and `install` is not needed.
 2. Start the app: `node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target portal`
    (17-20 s to ready, measured). Its `info` prints the URL (`http://localhost:4507/`).
@@ -84,6 +87,8 @@ or Lars's own) is never stopped.
   (`[OK] ports: pangular 9999 (fixed: apps/insurance-portal/proxy.conf.json:3 in the app checkout ...), app 4507 (external: ...)`).
 - `mcp-origin-guard`: a POST without `Origin` gets 403.
 - `mcp-initialize`: `initialize` with a local `Origin` (and `PANGULAR_MCP_TOKEN` as a bearer token when set) answers.
+  A server that is down fails both MCP checks with `HTTP 0: ECONNREFUSED` rather than crashing doctor. Page text
+  in a detail (titles, URLs, console lines) is printed with its control characters escaped.
 - `read-only`: `tools/list` holds none of the eight action tools (`highlight`, `navigate`,
   `dispatch-ngrx-action`, `form-action`, `fill-form`, `set-http-rule`, `remove-http-rule`, `analog-call-api`).
 - With an app URL: `browser-session` (playwright-cli session `pangular-9999` on the app), `auth-code` (the
@@ -129,7 +134,8 @@ the text `LIVE`). Not reachable: Angular DevTools (manual only).
 ## Evidence
 
 `tmp/control-pangular-inspector/pangular-<port>-<timestamp>/` (git-ignored; `info` prints `evidenceDir`). A
-relative `--out name.json` on `tools`, `call`, `components`, `resource` and `scan` writes there; an `--out` that
+relative `--out name.json` on `tools`, `call`, `components` and `resource` writes there (`scan`, which needs no
+server, writes under `tmp/control-pangular-inspector/scan/`); an `--out` that
 resolves outside it is refused (exit 2, and `call` refuses before it calls the tool); pass
 `--filename=<evidenceDir>/...` to playwright-cli `snapshot` and `screenshot`. A proof holds: snapshot before
 and after the user action, a screenshot showing the app, the MCP answers saved as JSON, `doctor --json`, and
@@ -155,17 +161,17 @@ install and leaves Pangular in place; reverting that commit is a product change 
 
 | Command | Does | Exit |
 |---|---|---|
-| `install` | pin, overlay import, proxy, `proxyConfig` (standalone flow) | 0 done; 2 other mount, npm failure, `main.ts` pattern not found |
-| `check` | the six setup facts, read-only | 0 / 1 |
+| `install` | pin, overlay import, proxy, `proxyConfig` (standalone flow) | 0 done; 2 other mount, another or untracked proxy file (see Launch), npm failure, `main.ts` pattern not found |
+| `check` | the six setup facts, read-only | 0 / 1; 2 no app found, or its main file lies outside the checkout |
 | `remove` | restore from git, prune, assert clean | 0 clean; 1 not clean; 2 refused (foreign changes) or failed |
 | `up [--app-url U] [--allow-actions]` | start `pangular dev`, write `tmp/control-pangular-inspector/state/pangular-<port>.json` | 0; 2 port busy, state exists, not installed, exited, timeout |
 | `doctor [--app-url U]` | checks above | 0 / 1 / 2 |
 | `info` | the state file | 0; 2 no state |
 | `down` | teardown | 0 (also when the PID is gone); 2 no state file, or PID start-time / command mismatch |
-| `tools [--out F]` | MCP `tools/list`; names, read-only flags, action tools present | 0; 2 failed |
-| `call <tool> [--args JSON] [--confirm] [--out F]` | MCP `tools/call`; the eight action tools need `--confirm` | 0; 1 tool error; 2 refused or unknown tool |
+| `tools [--out F]` | MCP `tools/list`; names, read-only flags, action tools present | 0; 2 failed (a server that is down: `HTTP 0: ECONNREFUSED`) |
+| `call <tool> [--args JSON] [--confirm] [--out F]` | MCP `tools/call`; the eight action tools need `--confirm` | 0; 1 tool error; 2 refused, `tools/list` failed (server down), or unknown tool |
 | `components [--filter T] [--depth N] [--out F]` | `list-components`, or the same outline from the `component-tree` resource | 0 / 1 |
-| `resource <id> [--out F]` | MCP `resources/read`, e.g. `component-tree`, `signal-graph`, `router` | 0 / 1; 2 unknown id |
+| `resource <id> [--out F]` | MCP `resources/read`, e.g. `component-tree`, `signal-graph`, `router` | 0 / 1; 2 unknown id, or `resources/list` failed |
 | `scan <tool> [--root DIR] [--out F]` | stdio `pangular mcp --read-only` source-scan tool | 0 / 1 / 2 |
 
 The MCP client is plain JSON-RPC over `node:http`: `Content-Type: application/json`, `Accept:
@@ -212,11 +218,9 @@ Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the r
   for `list-pages`: the prompt can come after the page id is set, and a doctor that missed it left
   `overlay-connected` failing ("No page is reporting") and the next drive blocked (measured once). The browser
   keeps the trust, so later loads do not ask.
-- While this server runs, `control-angular-dev-app doctor --target portal` fails (measured): its own session
-  meets the one-time-code prompt (`page-probe`: "does not handle the modal state"; `dialog-accept <code>` in
-  that session clears it), and `build-log:app` counts the `Error: read ECONNRESET` lines that follow a `[vite]
-  ws proxy error` after a page holding the overlay socket navigates. Run that doctor before `up` or after
-  `down`; this skill's own doctor covers the page while Pangular runs.
+- `control-angular-dev-app doctor --target portal` can run while this server runs: it answers the one-time-code
+  prompt itself (`pangular-auth`, from this skill's state file and `pangular.log`) and its `build-log` ignores the
+  `[vite]` proxy entries with their `Error: read ECONNRESET` lines.
 - The standalone server listens on `[::1]:9999`; the proxy target `http://localhost:9999` reaches it.
 - `process.exit` while a `fetch` keep-alive socket is open crashed Node 24 on Windows with
   `Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)` (exit 127); the script uses `node:http` without
