@@ -38,7 +38,18 @@ Preconditions:
 
 - **Server HTML, hydration, mismatch.** Run `playwright-cli -s=<session> --raw run-code
   --filename=.claude/skills/control-angular-dev-app/scripts/ssr-check.js > <evidenceDir>/ssr-check.json`.
-  `ok` is `true` when all six checks pass; `expected-mismatch-detected` is the `?mismatch=1` case.
+  `ok` is `true` when all six checks pass; `expected-mismatch-detected` is the `?mismatch=1` case. The checks:
+  `server-html-ngh` (`ngh` attributes in the server HTML of `/`), `server-html-transfer-state`
+  (`<script id="ng-state">` in it), `dev-build-after-hydration` (`window.ng` present), `hydration-counters`
+  (`hydratedComponents` above 0, `componentsSkippedHydration` 0), `no-mismatch-on-default-route` (no node with
+  a `__ngDebugHydrationInfo__` status other than `hydrated`, no NG05xx console error on `/`), and
+  `expected-mismatch-detected` (`<app-mismatch>` is `mismatched` and NG0500 is logged on `/?mismatch=1`).
+- **Verdict for a render-and-hydrate claim.** It holds only when `ok` is `true`. `expected-mismatch-detected` is
+  the control that must fail on `?mismatch=1`: when it does not, the page can no longer show a mismatch and a
+  clean `/` proves nothing, so the claim is not verified, whatever the five `/` checks say. A failed `doctor` or
+  a probe that prints no JSON is inconclusive. `ssr-check.js` returns `ok: false` without throwing, and an exit 0
+  counts as a pass under lars-verify, so a pass condition built on it throws `CLAIM:` naming the failed checks.
+  For a mismatch claim, keep the `expected` and `actual` DOM of `mismatch.mismatches` from `ssr-check.json`.
 - **Hydration render.** `playwright-cli -s=<session> snapshot --filename=<evidenceDir>/ssr-before.yml` contains
   `heading "Render mode: server"`, `button "Early click"`, the three list items and `button "Deferred click"`.
 - **Transfer state.** `eval "() => ng.ɵgetTransferState(ng.getInjector(document.querySelector('app-root')))"`

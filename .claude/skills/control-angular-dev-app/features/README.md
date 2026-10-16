@@ -34,8 +34,13 @@ same shape before claiming coverage.
 - Capture the action and the state after it: snapshots before and after, one screenshot with the app visible.
 - Check the side effect next to the screen: the URL, `requests` for API calls, an `__ngc` read for Angular
   state.
+- A claim that names an entry point is driven through that entry point; a different path does not count.
+- Mocks only behind an existing production boundary; these fixtures have none.
 - For a fix, run the same recipe on the old state (a second checkout on its own derived port) and on the
-  change; report verified, not verified, or inconclusive.
+  change; the verdict (verified, not verified, or inconclusive) comes from lars-verify. The portal's API port
+  is fixed at 3000, so a portal baseline and its change run one after the other, never side by side.
+- A failed `doctor` makes the claim inconclusive; a `dev-build` failure means a production build, which these
+  recipes cannot prove anything about.
 - A recipe that passed once after a fix runs a second time before it counts.
 - Name each entry point you did not reach and why; do not count it as covered through another path.
 - Portal data is random per API start: assert on structure, not on names or ids.
