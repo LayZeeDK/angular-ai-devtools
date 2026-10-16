@@ -16,6 +16,7 @@ import {
   brandedStatusIn,
   busyPorts,
   checkOf,
+  descendantsOf,
   evaluated,
   evidenceStamp,
   flowIdOf,
@@ -146,7 +147,7 @@ test('listeners maps each LISTENING port to its PID, and nothing else', () => {
     '  TCP    127.0.0.1:9420         127.0.0.1:5000         ESTABLISHED     6',
     '  TCP    127.0.0.1:9420         0.0.0.0:0              LISTENING       4242',
   ].join('\r\n');
-  assert.deepEqual([...listeners(text)], [[94200, 5], [9420, 4242]]);
+  assert.deepEqual([...listeners(text)], [[94200, [5]], [9420, [4242]]]);
 });
 
 test('planPorts falls back to the next slot when a throwaway listener holds the CDP port, and says why', async (t) => {
@@ -184,14 +185,19 @@ test('portsCheck passes a CDP port the recorded browser holds and fails a foreig
     { name: 'cdp', port: 9437, kind: 'derived' },
     { name: 'app', port: 4336, kind: 'external', reason: 'control-angular-dev-app' },
   ];
-  assert.deepEqual(portsCheck(ports, new Map([[9437, 10]]), new Set([10])), { status: 'pass', detail: 'cdp 9437 (derived), app 4336 (external: control-angular-dev-app)' });
-  assert.deepEqual(portsCheck(ports, new Map([[9437, 99]]), new Set([10])), { status: 'fail', detail: 'cdp 9437 held by PID 99, not the recorded tree' });
+  assert.deepEqual(portsCheck(ports, new Map([[9437, [10]]]), new Set([10])), { status: 'pass', detail: 'cdp 9437 (derived), app 4336 (external: control-angular-dev-app)' });
+  assert.deepEqual(portsCheck(ports, new Map([[9437, [10, 99]]]), new Set([10])), { status: 'fail', detail: 'cdp 9437 held by PID 99, not the recorded tree' });
   assert.deepEqual(portsCheck(ports, new Map(), new Set([10])), { status: 'fail', detail: 'cdp 9437 not listening' });
+});
+
+test('descendantsOf walks the whole tree below the session PID and nothing beside it', () => {
+  const rows = [[10, 1], [11, 10], [12, 11], [13, 1]].map(([ProcessId, ParentProcessId]) => ({ ProcessId: Number(ProcessId), ParentProcessId: Number(ParentProcessId) }));
+  assert.deepEqual([...descendantsOf(rows, 10)].sort(), [10, 11, 12]);
 });
 
 test('busyPorts sees a throwaway listener with this process as its holder', async (t) => {
   const port = await listen(t);
-  assert.equal(busyPorts().get(port), process.pid);
+  assert.deepEqual(busyPorts().get(port), [process.pid]);
 });
 
 test('identityProblem refuses a reused PID by start time, then by command line', () => {

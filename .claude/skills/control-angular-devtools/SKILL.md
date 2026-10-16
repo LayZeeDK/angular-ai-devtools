@@ -39,8 +39,8 @@ records the slot and the ports it used (`info --json`: `slot`, `ports`); measure
 
 - `--port N` sets the CDP port with no fallback for it: a busy `N` exits 2 naming its holder's PID; from a
   worktree 9420 is refused.
-- A CDP port another process takes after the check (the browser then never shows the extension's service worker
-  on it) closes the session and moves the run to the next slot.
+- A CDP port another process takes after the check (a holder outside this session's process tree, even another
+  harness browser that shows the same extension ID) closes the session and moves the run to the next slot.
 - The branded flow opens no port: it reads and opens Lars's own profiles, and `up`/`down` never touch them.
 
 ## Launch
@@ -72,7 +72,7 @@ node $S up --app-url=<that url, for example http://localhost:4336/>
 `node $S doctor` (read only). One line per check: `map-fresh` (first; whether each feature file still matches
 the source it was proven against, from `scripts/fingerprint.mjs`; `[WARN]` names stale and unproven features and
 never fails doctor), `process` (the playwright-cli PID is alive and its start
-time and command line match the state), `ports` (the CDP port listens, its PID is the recorded Chromium, and `/json/version` answers; the app port is listed as external: `[OK] ports: cdp 9431 (derived: fell back from 9430: held by PID 32396), app 4336 (external: ...); CDP answers (Chrome/154.0.8037.0), recorded browser PID 59044`), `extension`
+time and command line match the state), `ports` (the CDP port listens, every holder is in the playwright-cli session's process tree, and `/json/version` answers; the app port is listed as external: `[OK] ports: cdp 9431 (derived: fell back from 9430: held by PID 32396), app 4336 (external: ...); CDP answers (Chrome/154.0.8037.0), recorded browser PID 59044`), `extension`
 (`chrome.developerPrivate.getExtensionInfo` on `chrome://extensions/?id=...`: name, version, `ENABLED`,
 `UNPACKED`, path, error counts; plus the service worker), `app` (`[ng-version]` and `window.ng`, which only a
 development build has), `connected-flag`, `devtools-window`. Exit 0 healthy, 1 a check failed, 2 no state.

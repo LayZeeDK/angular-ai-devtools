@@ -302,19 +302,27 @@ const PROFILE = join(TMP, 'profile', flowId);
 const EXT_COPY = join(TMP, 'extension');
 
 /**
- * The PID listening on each port in `netstat -ano` output, IPv4 and IPv6.
+ * The PIDs listening on each port in `netstat -ano` output, IPv4 and IPv6: a port can have one holder per address.
  * @param {string} text
- * @returns {Map<number, number>}
+ * @returns {Map<number, number[]>}
  */
 export function listeners(text) {
-  /** @type {Map<number, number>} */
+  /** @type {Map<number, number[]>} */
   const map = new Map();
 
   for (const l of text.split(/\r?\n/)) {
     const m = l.trim().split(/\s+/);
 
     if (m[0] === 'TCP' && m[3] === 'LISTENING') {
-      map.set(Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1)), Number(m[4]));
+      const port = Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1));
+      const pid = Number(m[4]);
+      const pids = map.get(port) ?? [];
+
+      if (!pids.includes(pid)) {
+        pids.push(pid);
+      }
+
+      map.set(port, pids);
     }
   }
 
@@ -323,17 +331,22 @@ export function listeners(text) {
 
 /**
  * Picks the ports of one run. A busy fixed port is a refusal. `forced` (`--port`) is the main port in every slot,
- * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free; the derived
- * entries of a slot after the first say what they fell back from.
+ * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free. A derived entry
+ * of a slot other than `first` (the run's own slot, `order[0]` unless a retry already used it) says what it fell
+ * back from.
  * @param {PortRow[]} rows
  * @param {number[]} order
- * @param {Map<number, number>} busy  the PID listening on each port
+ * @param {Map<number, number[]>} busy  the PIDs listening on each port
  * @param {number} [forced]
+ * @param {number} [first]
  * @returns {{ ok: true, slot: number, ports: PortEntry[] } | { ok: false, reason: string }}
  */
-export function planPorts(rows, order, busy, forced) {
+export function planPorts(rows, order, busy, forced, first = order[0]) {
+  /** @param {number} port */
+  const holder = (port) => busy.get(port)?.[0];
+
   for (const r of rows) {
-    const pid = r.kind === 'fixed' ? busy.get(r.port) : undefined;
+    const pid = r.kind === 'fixed' ? holder(r.port) : undefined;
 
     if (r.kind === 'fixed' && pid !== undefined) {
       return { ok: false, reason: `fixed port ${r.name} ${r.port} held by PID ${pid}; pinned by ${r.pin}` };
@@ -341,7 +354,7 @@ export function planPorts(rows, order, busy, forced) {
   }
 
   const main = rows.findIndex((r) => r.kind === 'derived');
-  const forcedPid = forced === undefined ? undefined : busy.get(forced);
+  const forcedPid = forced === undefined ? undefined : holder(forced);
 
   if (forced !== undefined && forcedPid !== undefined) {
     return { ok: false, reason: `port ${forced} (--port) is held by PID ${forcedPid}; --port has no fallback` };
@@ -354,17 +367,15 @@ export function planPorts(rows, order, busy, forced) {
 
   for (const slot of order) {
     const taken = rows.flatMap((r, i) => {
-      const pid = r.kind === 'derived' ? busy.get(portAt(r, i, slot)) : undefined;
+      const pid = r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
 
       return pid === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} held by PID ${pid}`];
     });
 
     if (taken.length === 0) {
-      const first = /** @type {number} */ (order[0]);
       /** @type {PortEntry[]} */
       const ports = rows.map((r, i) => {
         const port = portAt(r, i, slot);
-        const from = portAt(r, i, first);
 
         if (r.kind === 'fixed') {
           return { name: r.name, port, kind: r.kind, reason: r.pin };
@@ -374,13 +385,15 @@ export function planPorts(rows, order, busy, forced) {
           return { name: r.name, port, kind: r.kind, reason: r.owner };
         }
 
-        if (slot === first) {
+        if (first === undefined || slot === first) {
           return { name: r.name, port, kind: r.kind };
         }
 
-        const pid = busy.get(from);
+        const from = portAt(r, i, first);
+        const pid = holder(from);
+        const why = pid !== undefined ? `held by PID ${pid}` : order[0] === first ? `slot ${first} had ${tried[0]}` : 'taken after the check';
 
-        return { name: r.name, port, kind: r.kind, reason: pid === undefined ? `fell back from ${from}: slot ${first} had ${tried[0]}` : `fell back from ${from}: held by PID ${pid}` };
+        return { name: r.name, port, kind: r.kind, reason: `fell back from ${from}: ${why}` };
       });
 
       return { ok: true, slot, ports };
@@ -393,26 +406,27 @@ export function planPorts(rows, order, busy, forced) {
 }
 
 /**
- * The doctor's `ports` line: every derived and fixed port answers and is held by the recorded process tree; every
- * port is listed.
+ * The doctor's `ports` line: every derived and fixed port answers and every holder of it is in the recorded process
+ * tree; every port is listed.
  * @param {PortEntry[]} ports
- * @param {Map<number, number>} busy
+ * @param {Map<number, number[]>} busy
  * @param {Set<number>} tree
  * @returns {{ status: 'pass' | 'fail', detail: string }}
  */
 export function portsCheck(ports, busy, tree) {
   const problems = ports.flatMap((p) => {
-    const pid = busy.get(p.port);
+    const pids = busy.get(p.port) ?? [];
+    const foreign = pids.filter((pid) => !tree.has(pid));
 
     if (p.kind === 'external') {
       return [];
     }
 
-    if (pid === undefined) {
+    if (pids.length === 0) {
       return [`${p.name} ${p.port} not listening`];
     }
 
-    return tree.has(pid) ? [] : [`${p.name} ${p.port} held by PID ${pid}, not the recorded tree`];
+    return foreign.length === 0 ? [] : [`${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`];
   });
 
   if (problems.length > 0) {
@@ -423,11 +437,46 @@ export function portsCheck(ports, busy, tree) {
 }
 
 /**
- * The PID listening on each port now (netstat).
- * @returns {Map<number, number>}
+ * The PIDs listening on each port now (netstat).
+ * @returns {Map<number, number[]>}
  */
 export function busyPorts() {
   return listeners(spawnSync(join(SYSTEM32, 'netstat.exe'), ['-ano'], { encoding: 'utf8' }).stdout);
+}
+
+/**
+ * `pid` and every process below it in `rows`.
+ * @param {{ ProcessId: number, ParentProcessId: number }[]} rows
+ * @param {number} pid
+ * @returns {Set<number>}
+ */
+export function descendantsOf(rows, pid) {
+  const set = new Set([pid]);
+  let grew = true;
+
+  while (grew) {
+    grew = false;
+
+    for (const r of rows) {
+      if (set.has(r.ParentProcessId) && !set.has(r.ProcessId)) {
+        set.add(r.ProcessId);
+        grew = true;
+      }
+    }
+  }
+
+  return set;
+}
+
+/**
+ * `pid` and every process below it now: the playwright-cli session process and the Chromium it opened.
+ * @param {number} pid
+ * @returns {Set<number>}
+ */
+function treeOf(pid) {
+  const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', 'Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId | ConvertTo-Json -Compress'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+
+  return descendantsOf(/** @type {{ ProcessId: number, ParentProcessId: number }[]} */ (JSON.parse(r.stdout || '[]')), pid);
 }
 
 /**
@@ -435,7 +484,7 @@ export function busyPorts() {
  * @returns {number | null}
  */
 function portOwner(port) {
-  return busyPorts().get(port) ?? null;
+  return busyPorts().get(port)?.[0] ?? null;
 }
 
 // ---------- processes ----------
@@ -1080,6 +1129,10 @@ async function cmdUp() {
 
   const forced = opts.port === undefined ? undefined : Number(opts.port);
 
+  if (forced !== undefined && (forced < 1 || forced > 65535)) {
+    refuse(`--port ${opts.port} is not a port number`);
+  }
+
   if (isWorktree && forced === MAIN_CDP_PORT) {
     refuse(`port ${MAIN_CDP_PORT} belongs to the main checkout's flow`);
   }
@@ -1094,13 +1147,14 @@ async function cmdUp() {
   }
 
   let order = slotOrder(slotOfFlow(flowId));
+  const first = order[0];
   const evidenceDir = join(TMP, 'evidence', evidenceStamp(new Date()));
   const ext = copy.dir.replace(/\\/g, '/');
   const configPath = join(TMP, 'state', `${flowId}.cli.config.json`);
   const t0 = Date.now();
 
   for (;;) {
-    const plan = planPorts(rows, order, busyPorts(), forced);
+    const plan = planPorts(rows, order, busyPorts(), forced, first);
 
     if (!plan.ok) {
       return refuse(plan.reason);
@@ -1145,22 +1199,23 @@ async function cmdUp() {
       }
     }, 20000);
 
-    if (ready) {
+    // The port must be held by the browser this session opened: another harness browser that took it after the
+    // check has the same extension ID, so the service worker alone proves nothing.
+    const holders = busyPorts().get(port) ?? [];
+    const tree = treeOf(pid);
+    const holder = holders.find((h) => !tree.has(h)) ?? null;
+
+    if (ready && holder === null && holders.length > 0) {
       st.readyInSeconds = Math.round((Date.now() - t0) / 100) / 10;
-      st.browserPid = portOwner(port);
+      st.browserPid = holders[0] ?? null;
       writeFileSync(STATE, JSON.stringify(st, null, 2));
-      log('OK', `session ${SESSION} (playwright-cli PID ${pid}), browser PID ${st.browserPid}, CDP ${port}${plan.slot === order[0] ? '' : ` (fell back to slot ${plan.slot})`}, Angular DevTools ${copy.version}, ready in ${st.readyInSeconds} s`);
+      log('OK', `session ${SESSION} (playwright-cli PID ${pid}), browser PID ${st.browserPid}, CDP ${port}${plan.slot === first ? '' : ` (fell back to slot ${plan.slot})`}, Angular DevTools ${copy.version}, ready in ${st.readyInSeconds} s`);
 
       return { ok: true, ...st };
     }
 
-    // Another process took the CDP port after the check: the browser this run opened does not hold it, because
-    // its command line loads the extension copy and a foreign listener's does not.
-    const holder = portOwner(port);
-    const holderLine = holder === null ? null : processById(holder)?.CommandLine ?? '';
-
-    if (holder === null || holderLine === null || holderLine.includes(ext) || holderLine.includes(copy.dir)) {
-      throw new Unhealthy(`browser PID ${pid} up but no Angular DevTools service worker on CDP port ${port}; run doctor`);
+    if (holder === null) {
+      throw new Unhealthy(`browser PID ${pid} up but no Angular DevTools service worker of its own on CDP port ${port}; run doctor`);
     }
 
     pw(['close']);
@@ -1177,7 +1232,6 @@ async function cmdUp() {
     }
   }
 }
-
 
 /**
  * One doctor check: true/'pass' passes, 'warn' is reported but never fails doctor, false fails.
@@ -1222,7 +1276,7 @@ async function cmdDoctor() {
   } catch {}
 
   // The CDP port is held by the recorded Chromium (a child of the playwright-cli session process), and answers.
-  const ports = portsCheck(st.ports ?? [{ name: 'cdp', port: st.cdpPort, kind: 'derived' }], busyPorts(), new Set(st.browserPid ? [st.browserPid] : []));
+  const ports = portsCheck(st.ports ?? [{ name: 'cdp', port: st.cdpPort, kind: 'derived' }], busyPorts(), treeOf(st.pid));
   add('ports', ports.status === 'pass' && !!version, `${ports.detail}; ${version ? `CDP answers (${version.Browser}), recorded browser PID ${st.browserPid}` : `CDP ${st.cdpPort} /json/version does not answer`}`);
   const ext = /** @type {{ serviceWorkers: string[], info: { name: string, version: string, state: string, location: string, path: string, runtimeErrors: number, manifestErrors: number } | null }} */ (runCode(EXT_INFO));
   add('extension', ext.info?.state === 'ENABLED' && ext.serviceWorkers.length > 0, ext.info ? `${ext.info.name} ${ext.info.version} ${ext.info.state} (${ext.info.location}, ${ext.info.path}); service worker ${ext.serviceWorkers.length ? 'running' : 'absent'}; errors ${ext.info.runtimeErrors}/${ext.info.manifestErrors}` : 'not registered');
