@@ -14,6 +14,7 @@ import { mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
+import { printable } from '../../control-ai-browsers/scripts/fingerprint.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..', '..', '..');
@@ -225,12 +226,12 @@ export function main(argv, makeDeps, loadRegistry) {
     return 0;
   } catch (e) {
     if (e instanceof Error && e.message.startsWith('CLAIM:')) {
-      console.error(String(e).replace(/\s+/g, ' '));
+      console.error(printable(String(e).replace(/\s+/g, ' ')));
 
       return 1;
     }
 
-    console.error(`[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`);
+    console.error(printable(`[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`));
 
     return 2;
   }

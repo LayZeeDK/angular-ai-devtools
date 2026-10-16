@@ -146,6 +146,13 @@ test('main: exit 0 pass, 1 with the Error: CLAIM line, 2 for an unknown instance
   assert.equal(runMain(t, ['chrome-beta-nano'], fake('v3Nano').deps).code, 2);
 });
 
+test('main escapes control characters a control step put in its reason', (t) => {
+  const r = runMain(t, ['--evidence', 'ev', 'chrome-beta-nano'], fake('v3Nano', { flags: { code: 2, json: { ok: false, reason: 'page said \u001b]0;pwned\u0007' } } }).deps);
+  assert.equal(r.code, 2);
+  assert.ok(r.stderr.includes(String.raw`page said \u001b]0;pwned\u0007`), r.stderr);
+  assert.doesNotMatch(r.stderr, /\u001b/);
+});
+
 test('the script exits 2 on bad arguments before it runs a control step', () => {
   for (const args of [[], ['--evidence'], ['--evidence', 'x', '--bogus']]) {
     const r = spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8' });

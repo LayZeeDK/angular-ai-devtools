@@ -12,6 +12,7 @@ import { realpathSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
+import { printable } from '../../control-ai-browsers/scripts/fingerprint.mjs';
 import { instanceState, loadRegistry, realDeps } from './state.mjs';
 
 /** @typedef {import('./state.mjs').Deps} Deps */
@@ -93,12 +94,12 @@ export function main(argv, makeDeps, load) {
     return 0;
   } catch (e) {
     if (e instanceof Error && e.message.startsWith('CLAIM:')) {
-      console.error(String(e).replace(/\s+/g, ' '));
+      console.error(printable(String(e).replace(/\s+/g, ' ')));
 
       return 1;
     }
 
-    console.error(`[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`);
+    console.error(printable(`[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`));
 
     return 2;
   }
