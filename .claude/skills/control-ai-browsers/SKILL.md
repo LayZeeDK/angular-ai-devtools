@@ -103,7 +103,7 @@ Read-only; one line per check:
 | `map-fresh` | always, first; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`) or that were never proven; never fails doctor |
 | `process` | one main process uses the instance profile |
 | `commandLine` | executable, the two common arguments and `--enable-features` match the registry for one backend, and from a worktree the port is not the registry's (drift check) |
-| `ports` | the CDP port listens, the main PID holds it, and `/json/version` answers with the right product: `[OK] ports: cdp 9680 (derived); http://127.0.0.1:9680 answers as Chrome/157.0.8103.6` |
+| `ports` | the CDP port listens, the main PID holds it, and `/json/version` answers with the right product: `[OK] ports: cdp 9680 (derived), bench app 4222 (external: ...); http://127.0.0.1:9680 answers as Chrome/157.0.8103.6` (measured 2026-10-16); the external bench app port is listed, not checked |
 | `tabs` | always; `[WARN]` when more than one tab is open |
 | `model.disk` | a `manifest.json` in the profile names the expected model; `[WARN]` lists other models in the profile |
 | `model.broker` | Broker State shows the asset `Ready` and the use case `Available` |
