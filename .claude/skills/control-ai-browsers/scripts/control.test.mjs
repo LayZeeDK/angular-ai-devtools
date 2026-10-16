@@ -1,12 +1,15 @@
 // @ts-check
 // Run: node --test .claude/skills/control-ai-browsers/scripts/control.test.mjs
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { delimiter, join, sep } from 'node:path';
 import { test } from 'node:test';
 import {
+  at,
   brokerPending,
+  busyPorts,
   Refusal,
   checkMarker,
   diskModels,
@@ -21,11 +24,18 @@ import {
   instance,
   jsonRows,
   launchArgs,
+  listeners,
   parseArgs,
   parseBroker,
   parseCommandLine,
+  planPorts,
+  portAt,
+  portsCheck,
   sameDir,
   servingBackend,
+  slotFor,
+  slotOf,
+  slotOrder,
   tabSource,
   toolsPass,
 } from './control.mjs';
@@ -36,7 +46,9 @@ import {
 const chromeLike = {
   name: 'fake-chrome',
   exe: 'C:\\Browsers\\chrome.exe',
-  port: 9400,
+  port: 9651,
+  mainPort: 9400,
+  worktree: true,
   dir: 'D:\\profiles\\fake-chrome',
   features: ['AIPromptAPI', 'WebMCP'],
   backend: { default: 'gpu', gpu: ['PerfParams:x'], cpu: ['OnDeviceModelForceCpuBackend'] },
@@ -44,6 +56,32 @@ const chromeLike = {
 
 /** @type {FakeInst} */
 const edgeLike = { ...chromeLike, name: 'fake-edge', backend: { default: 'gpu', gpu: [], cpu: null } };
+
+/**
+ * A throwaway listener on a port the OS picks; closed after the test.
+ * @param {import('node:test').TestContext} t
+ * @returns {Promise<number>}
+ */
+async function listen(t) {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  t.after(() => server.close());
+
+  return /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+}
+
+/**
+ * A port nothing listens on: the OS picks it for a listener that is closed again.
+ * @returns {Promise<number>}
+ */
+async function freePort() {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  const { port } = /** @type {import('node:net').AddressInfo} */ (server.address());
+  await new Promise((resolve) => server.close(() => resolve(undefined)));
+
+  return port;
+}
 
 /**
  * @param {import('node:test').TestContext} t
@@ -75,6 +113,82 @@ test('instance merges registry, browser and derived fields and refuses unknown o
   const def = { browser: 'nope', port: 1, features: [], backend: { default: 'gpu', gpu: [], cpu: null }, model: { name: 'm', folders: '', asset: '', useCase: '', contextWindow: 1, toolCanary: false, downloadMib: 1 } };
   assert.throws(() => instance('x', { instances: { x: def }, browsers: {} }), (e) => e instanceof Refusal && /names unknown browser "nope"/.test(e.message));
   assert.throws(() => instance('x', { instances: { x: { ...def, browser: 'constructor' } }, browsers: {} }), /names unknown browser "constructor"/);
+});
+
+test('instance takes the registry port in slot 0 and 9600 + 10 * slot + index in a worktree slot', () => {
+  const main = instance('chrome-beta-nano', undefined, 0, false);
+  assert.deepEqual([main.port, main.mainPort, main.index, main.slot, main.worktree, main.cdp], [9333, 9333, 0, 0, false, 'http://127.0.0.1:9333']);
+  const wt = instance('chrome-beta-gemma4', undefined, 5, true);
+  assert.deepEqual([wt.port, wt.mainPort, wt.index, wt.cdp], [9651, 9334, 1, 'http://127.0.0.1:9651']);
+  assert.deepEqual([at(wt, 9661).port, at(wt, 9661).cdp], [9661, 'http://127.0.0.1:9661']);
+  assert.equal(slotFor(wt, 9661), 6);
+  assert.equal(slotFor(wt, 9334), 0);
+  assert.equal(slotFor(wt, 12345), null, 'a --port no slot has');
+});
+
+test('every instance keeps its own port in every slot, and no worktree slot reaches a registry port', () => {
+  /** @type {{ instances: Record<string, { port: number }> }} */
+  const registry = JSON.parse(readFileSync(new URL('../instances.json', import.meta.url), 'utf8'));
+  const entries = Object.values(registry.instances);
+  const mains = entries.map((e) => e.port);
+  /** @type {Set<number>} */
+  const seen = new Set();
+  assert.ok(entries.length <= 10, 'the stride of 10 holds at most 10 instances');
+
+  entries.forEach((e, index) => {
+    for (let slot = 0; slot < 40; slot++) {
+      const port = portAt(index, e.port, slot);
+      assert.ok(!seen.has(port), `${port} twice`);
+      seen.add(port);
+      assert.ok(slot === 0 || !mains.includes(port), `slot ${slot} reaches a registry port`);
+    }
+  });
+});
+
+test('slotOf keeps slot 0 for a main checkout and hashes a worktree to a stable slot in 1-39; slotOrder wraps within 1-39', () => {
+  assert.equal(slotOf('D:\\any', false), 0);
+  const slot = slotOf('D:\\wt\\checkout', true);
+  assert.ok(slot >= 1 && slot <= 39, `slot ${slot}`);
+  assert.equal(slotOf('d:\\WT\\checkout', true), slot);
+  assert.deepEqual(slotOrder(0), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  assert.deepEqual(slotOrder(36), [36, 37, 38, 39, 1, 2, 3, 4, 5, 6]);
+});
+
+test('listeners maps each LISTENING port to its PID; busyPorts sees a throwaway listener', async (t) => {
+  const text = '  TCP    127.0.0.1:9333         0.0.0.0:0              LISTENING       42\r\n  TCP    127.0.0.1:9334         127.0.0.1:1            ESTABLISHED     43';
+  assert.deepEqual([...listeners(text)], [[9333, 42]]);
+  const port = await listen(t);
+  assert.equal(busyPorts().get(port), process.pid);
+});
+
+test('planPorts falls back to the next slot when a throwaway listener holds the instance port, and says why', async (t) => {
+  const held = await listen(t);
+  const free = await freePort();
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'cdp', kind: 'derived', at: (slot) => (slot === 3 ? held : free) }];
+  assert.deepEqual(planPorts(rows, [3, 4], busyPorts()), { ok: true, slot: 4, ports: [{ name: 'cdp', port: free, kind: 'derived', reason: `fell back from ${held}: held by PID ${process.pid}` }] });
+});
+
+test('planPorts refuses after 10 busy slots, a busy --port, and a busy fixed port, naming each holder', async (t) => {
+  const held = await Promise.all(Array.from({ length: 10 }, () => listen(t)));
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'cdp', kind: 'derived', at: (slot) => Number(held[slot]) }];
+  const plan = planPorts(rows, slotOrder(0), busyPorts());
+  assert.equal(plan.ok, false);
+
+  for (const port of held) {
+    assert.ok(!plan.ok && plan.reason.includes(`cdp ${port} held by PID ${process.pid}`), `names ${port}`);
+  }
+
+  assert.deepEqual(planPorts(rows, [0], busyPorts(), held[0]), { ok: false, reason: `port ${held[0]} (--port) is held by PID ${process.pid}; --port has no fallback` });
+  assert.deepEqual(planPorts([{ name: 'x', kind: 'fixed', port: Number(held[1]), pin: 'instances.json:5' }], [0], busyPorts()), { ok: false, reason: `fixed port x ${held[1]} held by PID ${process.pid}; pinned by instances.json:5` });
+});
+
+test('portsCheck passes the port the browser holds and fails a foreign or missing one', () => {
+  /** @type {import('./control.mjs').PortEntry[]} */
+  const ports = [{ name: 'cdp', port: 9651, kind: 'derived' }];
+  assert.deepEqual(portsCheck(ports, new Map([[9651, 10]]), new Set([10])), { status: 'pass', detail: 'cdp 9651 (derived)' });
+  assert.deepEqual(portsCheck(ports, new Map([[9651, 11]]), new Set([10])), { status: 'fail', detail: 'cdp 9651 held by PID 11, not the recorded tree' });
 });
 
 test('importing the module makes Windows skip the current directory when it looks up pwsh', async (t) => {
@@ -125,11 +239,12 @@ test('drift finds the backend of the launch command line and reports every diffe
   assert.deepEqual(cpu.problems, []);
   assert.equal(drift(chromeLike, proc(launchArgs(chromeLike, ['WebMCP', 'PerfParams:x', 'AIPromptAPI']))).backend, 'gpu', 'feature order does not matter');
 
-  const bad = drift(chromeLike, proc(launchArgs({ ...chromeLike, port: 1 }, ['AIPromptAPI']).filter((a) => a !== '--no-first-run'), 'C:\\other.exe'));
+  assert.deepEqual(drift(chromeLike, proc(launchArgs({ ...chromeLike, port: 9661 }, featuresFor(chromeLike, 'gpu')))).problems, [], 'any slot port is fine');
+  const bad = drift(chromeLike, proc(launchArgs({ ...chromeLike, port: 9400 }, ['AIPromptAPI']).filter((a) => a !== '--no-first-run'), 'C:\\other.exe'));
   assert.equal(bad.backend, null);
   assert.deepEqual(bad.problems, [
     `exe C:\\other.exe, registry ${chromeLike.exe}`,
-    'port 1, registry 9400',
+    "port 9400, the main checkout's 9400",
     '--enable-features matches no registry backend: AIPromptAPI',
     'missing --no-first-run',
   ]);

@@ -3,8 +3,9 @@
 // Deterministic control of the per-model browser instances in instances.json, through playwright-cli and raw CDP.
 // Usage: node control.mjs <command> [sub] <instance> [--json] [--evidence=<dir>]  (see SKILL.md, Helpers)
 import { spawn, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statfsSync, statSync, writeFileSync } from 'node:fs';
-import { delimiter, dirname, isAbsolute, join, resolve, sep } from 'node:path';
+import path, { delimiter, dirname, isAbsolute, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mapFresh } from './fingerprint.mjs';
 
@@ -13,7 +14,17 @@ import { mapFresh } from './fingerprint.mjs';
 /** @typedef {{ default: string, gpu: string[] | null, cpu: string[] | null }} BackendDef */
 /** @typedef {{ browser: string, port: number, features: string[], backend: BackendDef, model: ModelDef }} InstanceDef */
 /** @typedef {{ profilesRoot: string, commonArgs: string[], browsers: Record<string, BrowserDef>, instances: Record<string, InstanceDef> }} Registry */
-/** @typedef {InstanceDef & BrowserDef & { name: string, dir: string, session: string, cdp: string }} Inst */
+/**
+ * An instance as the commands use it: its registry entry and browser, its profile and session, and the CDP port of
+ * this checkout's slot (`mainPort` is the registry's, slot 0).
+ * @typedef {InstanceDef & BrowserDef & { name: string, dir: string, session: string, cdp: string, mainPort: number, index: number, slot: number, worktree: boolean }} Inst
+ */
+/** @typedef {'derived' | 'fixed' | 'external'} PortKind */
+/** @typedef {{ name: string, port: number, kind: PortKind, reason?: string }} PortEntry */
+/**
+ * A row of the ports table (SKILL.md, "Pick a flow"): a derived port has a value per slot.
+ * @typedef {{ name: string, kind: 'derived', at: (slot: number) => number } | { name: string, kind: 'fixed', port: number, pin: string } | { name: string, kind: 'external', port: number, owner: string }} PortRow
+ */
 /** @typedef {'gpu' | 'cpu'} Backend */
 /** @typedef {{ ProcessId: number, ExecutablePath: string | null, CommandLine: string | null, Created: string | null }} ProcRow */
 /** @typedef {{ userDataDir: string | null, port: number, features: string[], args: string[] }} CommandLine */
@@ -27,6 +38,8 @@ import { mapFresh } from './fingerprint.mjs';
  * @property {string | null} exe
  * @property {string | null} commandLine
  * @property {number} port
+ * @property {number | null} slot
+ * @property {PortEntry[]} ports
  * @property {string} cdp
  * @property {string} session
  * @property {string} profile
@@ -78,6 +91,12 @@ const TMP = join(ROOT, 'tmp', 'control-ai-browsers');
 /** @type {Registry} */
 const REGISTRY = JSON.parse(readFileSync(join(SKILL_DIR, 'instances.json'), 'utf8'));
 const PROFILES = resolve(ROOT, REGISTRY.profilesRoot);
+// Slot 0 is the main checkout's (the registry ports); a worktree hashes to one of 1 to SLOTS - 1. Profiles are per
+// checkout (profilesRoot is below ROOT), so each checkout runs its own instances on its own ports.
+const SLOTS = 40;
+const SLOT_TRIES = 10;
+const IS_WORKTREE = existsSync(join(ROOT, '.git')) && statSync(join(ROOT, '.git')).isFile();
+const OWN_SLOT = slotOf(ROOT, IS_WORKTREE);
 const PROBE_ORIGIN = 'https://example.org/';
 const STEP_TIMEOUT_MS = 180000;
 const EXIT = { OK: 0, UNHEALTHY: 1, REFUSED: 2 };
@@ -138,11 +157,191 @@ function log(marker, msg) {
 // ---------- registry ----------
 
 /**
- * @param {string | undefined} name
- * @param {Pick<Registry, 'instances' | 'browsers'>} [registry]
+ * The checkout's own slot: 0 in a main checkout, else 1 to 39 from a hash of the folder, so it stays the same
+ * from run to run.
+ * @param {string} dir
+ * @param {boolean} worktree
+ * @returns {number}
+ */
+export function slotOf(dir, worktree) {
+  if (!worktree) {
+    return 0;
+  }
+
+  return 1 + (createHash('sha1').update(path.resolve(dir).toLowerCase()).digest().readUInt32BE(0) % (SLOTS - 1));
+}
+
+/**
+ * The slots `up` tries, in order: `first`, then the next ones, 10 in all. From a worktree (`first` above 0) they
+ * wrap within 1 to 39 and never reach slot 0.
+ * @param {number} first
+ * @returns {number[]}
+ */
+export function slotOrder(first) {
+  return Array.from({ length: SLOT_TRIES }, (_, i) => (first === 0 ? i : 1 + ((first - 1 + i) % (SLOTS - 1))));
+}
+
+/**
+ * The PID listening on each port in `netstat -ano` output, IPv4 and IPv6.
+ * @param {string} text
+ * @returns {Map<number, number>}
+ */
+export function listeners(text) {
+  /** @type {Map<number, number>} */
+  const map = new Map();
+
+  for (const l of text.split(/\r?\n/)) {
+    const m = l.trim().split(/\s+/);
+
+    if (m[0] === 'TCP' && m[3] === 'LISTENING') {
+      map.set(Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1)), Number(m[4]));
+    }
+  }
+
+  return map;
+}
+
+/**
+ * Picks the ports of one run. A busy fixed port is a refusal. `forced` (`--port`) is the main port in every slot,
+ * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free; the derived
+ * entries of a slot after the first say what they fell back from.
+ * @param {PortRow[]} rows
+ * @param {number[]} order
+ * @param {Map<number, number>} busy  the PID listening on each port
+ * @param {number} [forced]
+ * @returns {{ ok: true, slot: number, ports: PortEntry[] } | { ok: false, reason: string }}
+ */
+export function planPorts(rows, order, busy, forced) {
+  for (const r of rows) {
+    const pid = r.kind === 'fixed' ? busy.get(r.port) : undefined;
+
+    if (r.kind === 'fixed' && pid !== undefined) {
+      return { ok: false, reason: `fixed port ${r.name} ${r.port} held by PID ${pid}; pinned by ${r.pin}` };
+    }
+  }
+
+  const main = rows.findIndex((r) => r.kind === 'derived');
+  const forcedPid = forced === undefined ? undefined : busy.get(forced);
+
+  if (forced !== undefined && forcedPid !== undefined) {
+    return { ok: false, reason: `port ${forced} (--port) is held by PID ${forcedPid}; --port has no fallback` };
+  }
+
+  /** @type {(r: PortRow, i: number, slot: number) => number} */
+  const portAt = (r, i, slot) => (r.kind !== 'derived' ? r.port : i === main && forced !== undefined ? forced : r.at(slot));
+  /** @type {string[]} */
+  const tried = [];
+
+  for (const slot of order) {
+    const taken = rows.flatMap((r, i) => {
+      const pid = r.kind === 'derived' ? busy.get(portAt(r, i, slot)) : undefined;
+
+      return pid === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} held by PID ${pid}`];
+    });
+
+    if (taken.length === 0) {
+      const first = /** @type {number} */ (order[0]);
+      /** @type {PortEntry[]} */
+      const ports = rows.map((r, i) => {
+        const port = portAt(r, i, slot);
+        const from = portAt(r, i, first);
+
+        if (r.kind === 'fixed') {
+          return { name: r.name, port, kind: r.kind, reason: r.pin };
+        }
+
+        if (r.kind === 'external') {
+          return { name: r.name, port, kind: r.kind, reason: r.owner };
+        }
+
+        if (slot === first) {
+          return { name: r.name, port, kind: r.kind };
+        }
+
+        const pid = busy.get(from);
+
+        return { name: r.name, port, kind: r.kind, reason: pid === undefined ? `fell back from ${from}: slot ${first} had ${tried[0]}` : `fell back from ${from}: held by PID ${pid}` };
+      });
+
+      return { ok: true, slot, ports };
+    }
+
+    tried.push(...taken);
+  }
+
+  return { ok: false, reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}` };
+}
+
+/**
+ * The doctor's `ports` line: every derived and fixed port answers and is held by the recorded process tree; every
+ * port is listed.
+ * @param {PortEntry[]} ports
+ * @param {Map<number, number>} busy
+ * @param {Set<number>} tree
+ * @returns {{ status: 'pass' | 'fail', detail: string }}
+ */
+export function portsCheck(ports, busy, tree) {
+  const problems = ports.flatMap((p) => {
+    const pid = busy.get(p.port);
+
+    if (p.kind === 'external') {
+      return [];
+    }
+
+    if (pid === undefined) {
+      return [`${p.name} ${p.port} not listening`];
+    }
+
+    return tree.has(pid) ? [] : [`${p.name} ${p.port} held by PID ${pid}, not the recorded tree`];
+  });
+
+  if (problems.length > 0) {
+    return { status: 'fail', detail: problems.join('; ') };
+  }
+
+  return { status: 'pass', detail: ports.map((p) => `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`).join(', ') };
+}
+
+/**
+ * An instance's CDP port in a slot: the registry's in slot 0, else `9600 + 10 * slot + index` (index: its place in
+ * the registry), so no two instances or slots share a port and none reaches slot 0's.
+ * @param {number} index
+ * @param {number} mainPort
+ * @param {number} slot
+ * @returns {number}
+ */
+export function portAt(index, mainPort, slot) {
+  return slot === 0 ? mainPort : 9600 + 10 * slot + index;
+}
+
+/**
+ * The PID listening on each port now (netstat, IPv4 and IPv6).
+ * @returns {Map<number, number>}
+ */
+export function busyPorts() {
+  const netstat = join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32', 'netstat.exe');
+
+  return listeners(['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n'));
+}
+
+/**
+ * The instance on another CDP port.
+ * @param {Inst} inst
+ * @param {number} port
  * @returns {Inst}
  */
-export function instance(name, registry = REGISTRY) {
+export function at(inst, port) {
+  return { ...inst, port, cdp: `http://127.0.0.1:${port}` };
+}
+
+/**
+ * @param {string | undefined} name
+ * @param {Pick<Registry, 'instances' | 'browsers'>} [registry]
+ * @param {number} [slot]  this checkout's slot
+ * @param {boolean} [worktree]
+ * @returns {Inst}
+ */
+export function instance(name, registry = REGISTRY, slot = OWN_SLOT, worktree = IS_WORKTREE) {
   const i = name !== undefined && Object.hasOwn(registry.instances, name) ? registry.instances[name] : undefined;
 
   if (name === undefined || i === undefined) {
@@ -152,7 +351,10 @@ export function instance(name, registry = REGISTRY) {
   const b = (Object.hasOwn(registry.browsers, i.browser) ? registry.browsers[i.browser] : undefined) ?? refuse(`instance "${name}" names unknown browser "${i.browser}"`);
   const dir = join(PROFILES, name);
 
-  return { name, ...i, ...b, dir, session: `ai-${name}`, cdp: `http://127.0.0.1:${i.port}` };
+  const index = Object.keys(registry.instances).indexOf(name);
+  const port = portAt(index, i.port, slot);
+
+  return { name, ...i, ...b, dir, session: `ai-${name}`, port, cdp: `http://127.0.0.1:${port}`, mainPort: i.port, index, slot, worktree };
 }
 
 /**
@@ -273,14 +475,12 @@ function processById(pid) {
  * @returns {number | null}
  */
 function portOwner(port) {
-  const rows = /** @type {{ OwningProcess: number }[]} */ (pwshJson(`Get-NetTCPConnection -LocalPort ${Number(port)} -State Listen -ErrorAction SilentlyContinue | Select-Object OwningProcess`));
-
-  return rows.map((c) => c.OwningProcess)[0] ?? null;
+  return busyPorts().get(port) ?? null;
 }
 
 // Which registry backend a command line matches, or null when it matches none (drift).
 /**
- * @param {Pick<Inst, 'exe' | 'port' | 'features' | 'backend'>} inst
+ * @param {Pick<Inst, 'exe' | 'mainPort' | 'worktree' | 'features' | 'backend'>} inst
  * @param {Pick<ProcRow, 'ExecutablePath' | 'CommandLine'>} proc
  * @returns {Drift}
  */
@@ -301,8 +501,9 @@ export function drift(inst, proc) {
     problems.push(`exe ${proc.ExecutablePath}, registry ${inst.exe}`);
   }
 
-  if (cl.port !== inst.port) {
-    problems.push(`port ${cl.port}, registry ${inst.port}`);
+  // The port may be any slot's (a fallback, or --port); from a worktree it is never the main checkout's.
+  if (!Number.isInteger(cl.port) || (inst.worktree && cl.port === inst.mainPort)) {
+    problems.push(`port ${cl.port}${inst.worktree ? `, the main checkout's ${inst.mainPort}` : ''}`);
   }
 
   if (!backend) {
@@ -416,14 +617,27 @@ function readState(name) {
 }
 
 /**
- * @param {Inst} inst
+ * The slot whose port for this instance is `port`, or null for a port no slot has (`--port`).
+ * @param {Pick<Inst, 'index' | 'mainPort'>} inst
+ * @param {number} port
+ * @returns {number | null}
+ */
+export function slotFor(inst, port) {
+  const slot = Array.from({ length: SLOTS }, (_, i) => i).find((i) => portAt(inst.index, inst.mainPort, i) === port);
+
+  return slot ?? null;
+}
+
+/**
+ * @param {Inst} inst  on the port it runs on
  * @param {ProcRow} proc
+ * @param {{ slot: number, ports: PortEntry[] }} [placed]  what up planned; else the slot of the port it runs on
  * @returns {State}
  */
-function writeState(inst, proc) {
+function writeState(inst, proc, placed) {
   mkdirSync(TMP, { recursive: true });
   /** @type {State} */
-  const st = { instance: inst.name, pid: proc.ProcessId, created: proc.Created, exe: proc.ExecutablePath, commandLine: proc.CommandLine, port: inst.port, cdp: inst.cdp, session: inst.session, profile: inst.dir, backend: drift(inst, proc).backend, at: new Date().toISOString() };
+  const st = { instance: inst.name, pid: proc.ProcessId, created: proc.Created, exe: proc.ExecutablePath, commandLine: proc.CommandLine, port: inst.port, slot: placed?.slot ?? slotFor(inst, inst.port), ports: placed?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }], cdp: inst.cdp, session: inst.session, profile: inst.dir, backend: drift(inst, proc).backend, at: new Date().toISOString() };
   writeFileSync(statePath(inst.name), JSON.stringify(st, null, 2));
 
   return st;
@@ -967,10 +1181,11 @@ async function cmdInstances() {
     const inst = instance(name);
     const proc = mainProcess(inst);
     const d = proc ? drift(inst, proc) : null;
-    const tabs = proc ? await pageTabs(inst) : [];
-    const row = { name, browser: inst.browser, port: inst.port, model: inst.model.name, defaultBackend: inst.backend.default, profileExists: existsSync(inst.dir), pid: proc?.ProcessId ?? null, backend: d?.backend ?? null, drift: d?.problems ?? null, tabs: tabs.length, stateFile: existsSync(statePath(name)) };
+    const port = proc ? parseCommandLine(proc.CommandLine).port : inst.port;
+    const tabs = proc ? await pageTabs(at(inst, port)) : [];
+    const row = { name, browser: inst.browser, port, model: inst.model.name, defaultBackend: inst.backend.default, profileExists: existsSync(inst.dir), pid: proc?.ProcessId ?? null, backend: d?.backend ?? null, drift: d?.problems ?? null, tabs: tabs.length, stateFile: existsSync(statePath(name)) };
     rows.push(row);
-    log(proc && d ? (d.problems.length ? 'WARN' : 'OK') : 'INFO', `${name} :${inst.port} ${inst.model.name}: ${proc && d ? `PID ${proc.ProcessId}, backend ${d.backend ?? '?'}${d.problems.length ? `, drift: ${d.problems.join('; ')}` : ''}, ${tabs.length} tab(s)` : 'stopped'}`);
+    log(proc && d ? (d.problems.length ? 'WARN' : 'OK') : 'INFO', `${name} :${port} ${inst.model.name}: ${proc && d ? `PID ${proc.ProcessId}, backend ${d.backend ?? '?'}${d.problems.length ? `, drift: ${d.problems.join('; ')}` : ''}, ${tabs.length} tab(s)` : 'stopped'}`);
   }
 
   return { ok: true, instances: rows };
@@ -991,16 +1206,21 @@ async function cmdUp(inst) {
     if (d.backend === backend && d.problems.length === 0) {
       log('OK', `${inst.name} already runs as PID ${running.ProcessId} with backend ${backend}`);
 
-      return { ok: true, alreadyRunning: true, state: writeState(inst, running) };
+      return { ok: true, alreadyRunning: true, state: writeState(at(inst, d.commandLine.port), running) };
     }
 
     refuse(`${inst.name} runs as PID ${running.ProcessId} with ${d.backend ?? 'a drifted'} configuration (${d.problems.join('; ') || `backend ${d.backend}`}); run "down ${inst.name}" first`);
   }
 
-  const owner = portOwner(inst.port);
+  const portOpt = opts['port'];
+  const forced = portOpt === undefined ? undefined : Number(portOpt);
 
-  if (owner) {
-    refuse(`port ${inst.port} is already owned by PID ${owner}, which is not ${inst.name}`);
+  if (forced !== undefined && !(Number.isInteger(forced) && forced > 0 && forced < 65536)) {
+    refuse(`--port=${portOpt} is not a port number`);
+  }
+
+  if (inst.worktree && forced === inst.mainPort) {
+    refuse(`port ${forced} is ${inst.name}'s port in the main checkout; a worktree never uses it`);
   }
 
   const firstUse = !existsSync(inst.dir);
@@ -1011,43 +1231,74 @@ async function cmdUp(inst) {
     refuse(`${inst.dir} resolves through a reparse point to ${realpathSync.native(inst.dir)}; use a real folder`);
   }
 
-  const t0 = Date.now();
-  spawn(inst.exe, launchArgs(inst, features), { detached: true, stdio: 'ignore' }).unref();
-  const version = /** @type {CdpVersion | null} */ (await waitFor(() => cdpJson(inst, '/json/version'), 60000, 500));
+  /** @type {PortRow[]} */
+  const rows = [{ name: 'cdp', kind: 'derived', at: (slot) => portAt(inst.index, inst.mainPort, slot) }];
+  let order = slotOrder(inst.slot);
 
-  if (!version) {
-    refuse(`${inst.name} did not answer on ${inst.cdp}/json/version within 60 s`);
+  for (;;) {
+    const plan = planPorts(rows, order, busyPorts(), forced);
+
+    if (!plan.ok) {
+      return refuse(plan.reason);
+    }
+
+    const run = at(inst, /** @type {PortEntry} */ (plan.ports[0]).port);
+    const t0 = Date.now();
+    spawn(run.exe, launchArgs(run, features), { detached: true, stdio: 'ignore' }).unref();
+    const version = /** @type {CdpVersion | null} */ (await waitFor(() => cdpJson(run, '/json/version'), 60000, 500));
+    const proc = await waitFor(() => mainProcess(run), version ? 10000 : 1000, 500);
+    const owner = portOwner(run.port);
+
+    // Another process took the port after the check: it answers (or holds the port) instead of this profile's browser.
+    if (proc && owner !== null && owner !== proc.ProcessId) {
+      spawnSync(join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32', 'taskkill.exe'), ['/PID', String(proc.ProcessId), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
+      await waitFor(() => instanceProcesses(run).length === 0, 30000, 500);
+
+      if (forced !== undefined) {
+        refuse(`port ${run.port} (--port) was taken by PID ${owner} after the check; --port has no fallback`);
+      }
+
+      order = order.slice(order.indexOf(plan.slot) + 1);
+
+      if (order.length === 0) {
+        refuse(`port ${run.port} was taken by PID ${owner} after the check, and none of the ${SLOT_TRIES} slots is left`);
+      }
+
+      continue;
+    }
+
+    if (!version) {
+      refuse(`${run.name} did not answer on ${run.cdp}/json/version within 60 s`);
+    }
+
+    if (!proc) {
+      throw new Error(`${run.name} answers on ${run.cdp} but no main process uses ${run.dir} after 10 s`);
+    }
+
+    const st = writeState(run, proc, plan);
+    const readyMs = Date.now() - t0;
+
+    // Edge restores the last session's tabs; leave the instance on the one blank tab it was started with.
+    await sleep(2000);
+    const pages = await pageTargets(run);
+    const keep = pages.find((t) => t.url === 'about:blank') ?? pages[0];
+    const restored = pages.filter((t) => t !== keep);
+
+    for (const t of restored) {
+      await fetch(`${run.cdp}/json/close/${t.id}`).catch(() => {});
+    }
+
+    /** @type {unknown} */
+    let debugPages = null;
+
+    if (run.scheme === 'chrome') {
+      debugPages = await inTab(run, ENABLE_DEBUG_PAGES, { url: null });
+    }
+
+    log('OK', `${run.name} launched as PID ${proc.ProcessId} on ${run.cdp} (${version.Browser}), backend ${backend}, ready in ${readyMs} ms${firstUse ? ', new profile' : ''}${plan.slot === inst.slot ? '' : `, slot ${plan.slot} (${plan.ports[0]?.reason})`}${restored.length ? `; closed ${restored.length} restored tab(s)` : ''}${debugPages ? `; internal debugging pages ${debugPages}` : ''}`);
+
+    return { ok: true, backend, firstUse, readyMs, browserVersion: version.Browser, closedRestoredTabs: restored.map((t) => t.url), debugPages, state: st, tabs: await pageTabs(run) };
   }
-
-  const proc = await waitFor(() => mainProcess(inst), 10000, 500);
-
-  if (!proc) {
-    throw new Error(`${inst.name} answers on ${inst.cdp} but no main process uses ${inst.dir} after 10 s`);
-  }
-
-  const st = writeState(inst, proc);
-  const readyMs = Date.now() - t0;
-
-  // Edge restores the last session's tabs; leave the instance on the one blank tab it was started with.
-  await sleep(2000);
-  const pages = await pageTargets(inst);
-  const keep = pages.find((t) => t.url === 'about:blank') ?? pages[0];
-  const restored = pages.filter((t) => t !== keep);
-
-  for (const t of restored) {
-    await fetch(`${inst.cdp}/json/close/${t.id}`).catch(() => {});
-  }
-
-  /** @type {unknown} */
-  let debugPages = null;
-
-  if (inst.scheme === 'chrome') {
-    debugPages = await inTab(inst, ENABLE_DEBUG_PAGES, { url: null });
-  }
-
-  log('OK', `${inst.name} launched as PID ${proc.ProcessId} on ${inst.cdp} (${version.Browser}), backend ${backend}, ready in ${readyMs} ms${firstUse ? ', new profile' : ''}${restored.length ? `; closed ${restored.length} restored tab(s)` : ''}${debugPages ? `; internal debugging pages ${debugPages}` : ''}`);
-
-  return { ok: true, backend, firstUse, readyMs, browserVersion: version.Browser, closedRestoredTabs: restored.map((t) => t.url), debugPages, state: st, tabs: await pageTabs(inst) };
 }
 
 /**
@@ -1056,7 +1307,7 @@ async function cmdUp(inst) {
  */
 async function cmdAttach(inst) {
   const proc = mainProcess(inst) ?? refuse(`${inst.name} is not running; run "up ${inst.name}"`);
-  const st = writeState(inst, proc);
+  const st = writeState(at(inst, parseCommandLine(proc.CommandLine).port), proc);
   await ensureAttached(inst);
   attachedHere = null;
   log('OK', `${inst.session} attached to ${inst.name} PID ${proc.ProcessId}; it stays attached for ad hoc playwright-cli commands until "detach ${inst.name}" or "down ${inst.name}"`);
@@ -1173,8 +1424,8 @@ async function cmdDoctor(inst) {
   add('commandLine', d.problems.length === 0, d.problems.length ? { drift: d.problems } : `matches the registry, backend ${d.backend}`);
 
   const version = /** @type {CdpVersion | null} */ (await cdpJson(inst, '/json/version'));
-  const owner = portOwner(inst.port);
-  add('port', !!version && new RegExp(inst.product).test(version.Browser) && owner === proc.ProcessId, { cdp: inst.cdp, browser: version?.Browser ?? 'no answer', owner });
+  const ports = portsCheck(readState(inst.name)?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }], busyPorts(), new Set([proc.ProcessId]));
+  add('ports', ports.status === 'pass' && !!version && new RegExp(inst.product).test(version.Browser), `${ports.detail}; ${inst.cdp} answers as ${version?.Browser ?? 'nothing'}`);
 
   const tabs = await pageTabs(inst);
   add('tabs', true, { count: tabs.length, urls: tabs }, tabs.length > 1);
@@ -1471,7 +1722,7 @@ async function cmdBench() {
   const results = [];
 
   for (const name of names) {
-    const inst = instance(name);
+    const inst = located(instance(name));
     mainProcess(inst) ?? refuse(`${name} is not running`);
     const info = await modelInfo(inst);
     /** @type {BenchRecord} */
@@ -1505,13 +1756,31 @@ async function cmdBench() {
  */
 async function cmdInfo(inst) {
   const st = readState(inst.name);
-  const result = { ok: true, instance: inst.name, port: inst.port, cdp: inst.cdp, session: inst.session, profile: inst.dir, statePath: statePath(inst.name), state: st, evidenceDir };
+  const result = { ok: true, instance: inst.name, port: inst.port, slot: st?.slot ?? slotFor(inst, inst.port), ports: st?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }], cdp: inst.cdp, session: inst.session, profile: inst.dir, statePath: statePath(inst.name), state: st, evidenceDir };
   log('INFO', JSON.stringify(result));
 
   return result;
 }
 
 // ---------- main ----------
+
+/**
+ * The instance on the port it runs on: the state file's, else the running browser's command line's, else its slot's.
+ * @param {Inst} inst
+ * @returns {Inst}
+ */
+function located(inst) {
+  const st = readState(inst.name);
+
+  if (st) {
+    return at(inst, st.port);
+  }
+
+  const proc = mainProcess(inst);
+  const port = proc ? parseCommandLine(proc.CommandLine).port : NaN;
+
+  return Number.isInteger(port) ? at(inst, port) : inst;
+}
 
 /** @type {Record<string, (i: Inst, sub: string | undefined) => Promise<Result>>} */
 const COMMANDS = {
@@ -1547,7 +1816,7 @@ async function main() {
     pos.splice(1, 1);
   }
 
-  const inst = instance(name);
+  const inst = cmd === 'up' ? instance(name) : located(instance(name));
 
   return { cmd: [cmd, sub].filter(Boolean).join(' '), instance: inst.name, at: new Date().toISOString(), ...(await run(inst, sub)) };
 }

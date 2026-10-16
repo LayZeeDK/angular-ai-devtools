@@ -16,15 +16,35 @@ own Chrome Beta, Edge Dev and everyday Edge are never touched: the script only a
 Pick the instance that serves the model you want. Switching models means choosing another instance; no flag is
 flipped and nothing restarts.
 
-| Instance | Browser | Port | Model (manifest name) | Default backend | `contextWindow` |
+| Instance | Browser | Port (main checkout) | Model (manifest name) | Default backend | `contextWindow` |
 |---|---|---|---|---|---|
 | `chrome-beta-nano` | Chrome Beta 157 | 9333 | `v3Nano` (GPU variant 2025.8.8.1141, CPU variant 2025.8.21.1028) | `gpu` | 9,216 |
 | `chrome-beta-gemma4` | Chrome Beta 157 | 9334 | `gemma4-2b-it` | `gpu` | 9,216 |
 | `edge-dev-aion` | Edge Dev 157 | 9335 | `Aion-1.1-Instruct` | `gpu` (only) | 7,168 |
 | `edge-phi4mini` | Edge stable 155 | 9337 | `Phi-4-mini-instruct` | `gpu` (only) | 9,216 |
 
-`instances.json` is the single source for each instance's browser, executable, port, features, backends,
-expected model, model folder pattern, Broker State asset and use case. Other skills look instances up there. To
+`instances.json` is the single source for each instance's browser, executable, main-checkout port, features,
+backends, expected model, model folder pattern, Broker State asset and use case. Other skills look instances up
+there, and ask `up <name> --json` or `info <name> --json` for the port an instance runs on.
+
+Ports. The profiles live under the checkout (`.browsers\<name>`), so every checkout runs its own instances.
+The main checkout uses slot 0, the registry ports above. A git worktree (`.git` is a file) takes slot 1-39 from a
+hash of the checkout path, so its ports stay the same from run to run: `9600 + 10 * slot + index`, the index being
+the instance's place in `instances.json` (measured 2026-10-16 in the `verification-skills` worktree: slot 8,
+`chrome-beta-nano` on 9680). When the port is busy, `up` tries the next slot, 10 slots in all, and records the
+slot and the port it used (`info --json`: `slot`, `ports`).
+
+| Port | Kind | Default | How it moves |
+|---|---|---|---|
+| cdp | derived | the instance's registry port (9333, 9334, 9335, 9337) | `up <name> --port=N`, passed as `--remote-debugging-port` (measured: `chrome-beta-nano` listened on 9680, and on its fallback 9690 while a throwaway listener held 9680) |
+| bench app | external | 4222 | the counter fixture of control-angular-dev-app in the main checkout; `spikes/probes/bench.js:4` hard-codes it, so `bench` runs from the main checkout only; this skill never starts it |
+
+- `--port=N` sets the port with no fallback for it: a busy `N` exits 2 naming its holder's PID; from a worktree
+  the registry port is refused.
+- A port another process takes after the check (it answers or holds the port instead of this profile's browser)
+  stops the browser this run started, and `up` tries the next slot.
+- Every other command finds the port an instance runs on from its state file, else from the running browser's
+  command line. To
 add an instance, add an entry; no command takes features as flags. The playwright-cli session is
 `ai-<instance>`; never use `cb`, `ed`, `nano`, `g4`, `aion`, `phi`, `ai-cb`, `ai-ed` or `bench-*`.
 
@@ -50,8 +70,8 @@ node .claude/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-nano 
 
 Starts `<exe> --user-data-dir=<profile> --remote-debugging-port=<port> --no-first-run --no-default-browser-check
 --enable-features=<registry features + backend extras> about:blank`, creating the profile folder on first use. It
-refuses (exit 2) when the instance already runs with another configuration (run `down` first), when another
-process owns the port, or when the profile path resolves through a junction. Ready means `/json/version` answers
+refuses (exit 2) when the instance already runs with another configuration (run `down` first), when no slot
+of the 10 has a free port (or `--port=N` is busy), or when the profile path resolves through a junction. Ready means `/json/version` answers
 and the main process is found by its `--user-data-dir`. It then closes tabs Edge restored from the last session,
 leaving one blank tab, and on Chrome turns on "Enable internal debugging pages" (`chrome://chrome-urls`), which
 `on-device-internals` needs in a new profile. Measured time to ready: 1.3-2.2 s, once 28 s (Edge Dev). An
@@ -73,8 +93,8 @@ Read-only; one line per check:
 |---|---|
 | `map-fresh` | always, first; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`) or that were never proven; never fails doctor |
 | `process` | one main process uses the instance profile |
-| `commandLine` | executable, port, the two common arguments and `--enable-features` match the registry for one backend (drift check) |
-| `port` | `/json/version` answers with the right product and the main PID owns the port |
+| `commandLine` | executable, the two common arguments and `--enable-features` match the registry for one backend, and from a worktree the port is not the registry's (drift check) |
+| `ports` | the CDP port listens, the main PID holds it, and `/json/version` answers with the right product: `[OK] ports: cdp 9680 (derived); http://127.0.0.1:9680 answers as Chrome/157.0.8103.6` |
 | `tabs` | always; `[WARN]` when more than one tab is open |
 | `model.disk` | a `manifest.json` in the profile names the expected model; `[WARN]` lists other models in the profile |
 | `model.broker` | Broker State shows the asset `Ready` and the use case `Available` |
@@ -169,7 +189,7 @@ playwright-cli runs as node with `node_modules/@playwright/cli/playwright-cli.js
 | `run <name> <file.js>` | run `async page => {...}` in a new tab | 0 / 2 |
 | `bench [names...]` | `bench.js` per instance with backend, performance class and CPU load | 0 / 1 / 2 |
 | `down <name>` | CDP `Browser.close`, confirm the processes and the port are gone | 0 / 1 / 2 |
-| `info <name>` | port, CDP URL, session, profile, state file, evidence dir | 0 |
+| `info <name>` | port, `slot`, `ports` (`{name, port, kind, reason?}`), CDP URL, session, profile, state file, evidence dir | 0 |
 
 Exit codes: 0 done or healthy; 1 not healthy or the change did not take; 2 refused or could not run, with the
 reason (unknown instance, not running, missing state file, PID mismatch, port owned by another process, running

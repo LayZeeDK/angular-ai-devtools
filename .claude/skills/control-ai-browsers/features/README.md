@@ -7,7 +7,8 @@ matching feature file. `C` below stands for `node .claude/skills/control-ai-brow
 
 - Chrome Beta 157 (156 until it updated itself on 2026-10-16), Edge Dev 157 and Edge stable 155 are installed at the paths in `instances.json`.
 - The four instances run, started by `C up <name>` (or `C instances` shows them with no drift): Nano on
-  9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337, each at its default backend.
+  9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337 in the main checkout (a worktree derives its own
+  ports; `info <name>` prints them), each at its default backend.
 - `C doctor <name>` exits 0 for the instance a recipe uses.
 - Nobody else drives the same instance during the run. Sessions are `ai-<instance>` only.
 
