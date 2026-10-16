@@ -2,10 +2,37 @@
 // Run: node --test .claude/skills/control-angular-dev-app/scripts/control.test.mjs
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { authCodeIn, buildLogErrors, cdMode, consoleErrors, derivePort, descendants, flagIn, flowIdFor, isWorktree, parseListeningPid, pidMismatch } from './control.mjs';
+import { authCodeIn, buildLogErrors, busyPorts, cdMode, consoleErrors, descendants, flagIn, flowIdFor, isWorktree, listeners, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder } from './control.mjs';
+
+/**
+ * A throwaway listener on a port the OS picks; closed after the test.
+ * @param {import('node:test').TestContext} t
+ * @returns {Promise<number>}
+ */
+async function listen(t) {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  t.after(() => server.close());
+
+  return /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+}
+
+/**
+ * A port nothing listens on: the OS picks it for a listener that is closed again.
+ * @returns {Promise<number>}
+ */
+async function freePort() {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  const { port } = /** @type {import('node:net').AddressInfo} */ (server.address());
+  await new Promise((resolve) => server.close(() => resolve(undefined)));
+
+  return port;
+}
 
 /**
  * A folder that is the top of a main checkout (`.git` folder) or a worktree (`.git` file), with a `sub` folder.
@@ -44,13 +71,112 @@ test('isWorktree tells a .git file from a .git folder, from below the top too', 
   assert.equal(isWorktree(join(worktree, 'sub')), true);
 });
 
-test('derivePort keeps the documented port in a main checkout and derives a stable other one in a worktree', () => {
-  assert.equal(derivePort('D:\\any', 4222, false), 4222);
-  const port = derivePort('D:\\wt\\spikes\\ng222-app', 4222, true);
-  assert.ok(port >= 4300 && port <= 4799, `port ${port}`);
-  assert.notEqual(port, 4222);
-  assert.equal(derivePort('d:\\WT\\spikes\\ng222-app', 4222, true), port, 'the hash ignores letter case');
-  assert.notEqual(derivePort('D:\\other\\spikes\\ng222-app', 4222, true), port);
+test('slotOf keeps slot 0 for a main checkout and hashes a worktree to a stable slot in 1-99', () => {
+  assert.equal(slotOf('D:\\any', false), 0);
+  const slot = slotOf('D:\\wt\\spikes\\ng222-app', true);
+  assert.ok(slot >= 1 && slot <= 99, `slot ${slot}`);
+  assert.equal(slotOf('d:\\WT\\spikes\\ng222-app', true), slot, 'the hash ignores letter case');
+  assert.notEqual(slotOf('D:\\other\\spikes\\ng222-app', true), slot);
+});
+
+test('slotOrder tries 10 slots and from a worktree wraps within 1-99, never onto slot 0', () => {
+  assert.deepEqual(slotOrder(0), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  assert.deepEqual(slotOrder(95), [95, 96, 97, 98, 99, 1, 2, 3, 4, 5]);
+  assert.deepEqual(slotOrder(99), [99, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+});
+
+test('the ports table keeps every slot of every target apart, and no worktree slot reaches a main checkout port', () => {
+  /** @type {Map<number, string>} */
+  const seen = new Map();
+  const targets = /** @type {const} */ (['counter', 'ssr', 'portal']);
+  const mains = targets.map((name) => {
+    const row = portRowsOf(name, 'D:\\portal')[0];
+
+    return row?.kind === 'derived' ? row.at(0) : NaN;
+  });
+  assert.deepEqual(mains, [4222, 4223, 4200]);
+
+  for (const name of targets) {
+    for (const row of portRowsOf(name, 'D:\\portal')) {
+      for (let slot = 0; slot < 100; slot++) {
+        const port = row.kind === 'derived' ? row.at(slot) : row.port;
+        const key = `${name} ${row.name} slot ${row.kind === 'derived' ? slot : 'any'}`;
+        const other = seen.get(port);
+        assert.ok(other === undefined || other === key, `${key} and ${other} share ${port}`);
+        seen.set(port, key);
+        assert.ok(slot === 0 || row.kind !== 'derived' || !mains.includes(port), `${key} is a main checkout port`);
+      }
+    }
+  }
+
+  assert.deepEqual(portRowsOf('portal', 'D:\\portal').map((r) => `${r.name}:${r.kind}`), ['app:derived', 'api:fixed', 'pangular:external']);
+});
+
+test('pinOf names the line that holds the value, or the bare path', (t) => {
+  const dir = mkdtempSync(join(tmpdir(), 'control-ngdev-pin-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  writeFileSync(join(dir, 'tokens.ts'), "import x;\n\nexport const url = 'http://localhost:3000/api/';\n");
+  assert.equal(pinOf(dir, 'tokens.ts', 'localhost:3000'), 'tokens.ts:3');
+  assert.equal(pinOf(dir, 'tokens.ts', 'localhost:4000'), 'tokens.ts');
+  assert.equal(pinOf(dir, 'missing.ts', 'localhost:3000'), 'missing.ts');
+});
+
+test('planPorts falls back to the next slot when a throwaway listener holds the first one, and says why', async (t) => {
+  const held = await listen(t);
+  const free = await freePort();
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'app', kind: 'derived', at: (slot) => (slot === 0 ? held : free) }];
+  const plan = planPorts(rows, [0, 1], busyPorts());
+  assert.deepEqual(plan, { ok: true, slot: 1, ports: [{ name: 'app', port: free, kind: 'derived', reason: `fell back from ${held}: held by PID ${process.pid}` }] });
+  assert.deepEqual(planPorts(rows, [1, 2], busyPorts()), { ok: true, slot: 1, ports: [{ name: 'app', port: free, kind: 'derived' }] }, 'a free first slot carries no reason');
+});
+
+test('planPorts refuses after 10 busy slots and names each port and its holder', async (t) => {
+  const held = await Promise.all(Array.from({ length: 10 }, () => listen(t)));
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'app', kind: 'derived', at: (slot) => /** @type {number} */ (held[slot]) }];
+  const plan = planPorts(rows, slotOrder(0), busyPorts());
+  assert.equal(plan.ok, false);
+  assert.match(plan.ok ? '' : plan.reason, /^no free slot in 10 tries \(slots 0, 1, 2, 3, 4, 5, 6, 7, 8, 9\): /);
+
+  for (const port of held) {
+    assert.ok(!plan.ok && plan.reason.includes(`app ${port} held by PID ${process.pid}`), `names ${port}`);
+  }
+});
+
+test('planPorts refuses a busy --port with its holder and never falls back from it', async (t) => {
+  const held = await listen(t);
+  const free = await freePort();
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'app', kind: 'derived', at: () => free }];
+  assert.deepEqual(planPorts(rows, [0, 1, 2], busyPorts(), held), { ok: false, reason: `port ${held} (--port) is held by PID ${process.pid}; --port has no fallback` });
+  assert.deepEqual(planPorts(rows, [0, 1, 2], busyPorts(), free), { ok: true, slot: 0, ports: [{ name: 'app', port: free, kind: 'derived' }] });
+});
+
+test('planPorts refuses a busy fixed port with its holder and pin, whatever the slots', async (t) => {
+  const held = await listen(t);
+  const free = await freePort();
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [
+    { name: 'app', kind: 'derived', at: () => free },
+    { name: 'api', kind: 'fixed', port: held, pin: 'libs/x.ts:5 in the portal checkout D:\\p' },
+    { name: 'pangular', kind: 'external', port: held, owner: 'someone else' },
+  ];
+  assert.deepEqual(planPorts(rows, [0, 1], busyPorts()), { ok: false, reason: `fixed port api ${held} held by PID ${process.pid}; pinned by libs/x.ts:5 in the portal checkout D:\\p` });
+  const external = planPorts([rows[0], rows[2]].filter((r) => r !== undefined), [0], busyPorts());
+  assert.deepEqual(external, { ok: true, slot: 0, ports: [{ name: 'app', port: free, kind: 'derived' }, { name: 'pangular', port: held, kind: 'external', reason: 'someone else' }] }, 'a busy external port is not checked');
+});
+
+test('portsCheck passes owned ports, fails a missing or foreign one, and ignores external ports', () => {
+  /** @type {import('./control.mjs').PortEntry[]} */
+  const ports = [
+    { name: 'app', port: 4501, kind: 'derived' },
+    { name: 'api', port: 3000, kind: 'fixed', reason: 'libs/x.ts:5' },
+    { name: 'pangular', port: 9999, kind: 'external', reason: 'control-pangular-inspector' },
+  ];
+  const tree = new Set([10, 11]);
+  assert.deepEqual(portsCheck(ports, new Map([[4501, 10], [3000, 11]]), tree), { status: 'pass', detail: 'app 4501 (derived), api 3000 (fixed: libs/x.ts:5), pangular 9999 (external: control-pangular-inspector)' });
+  assert.deepEqual(portsCheck(ports, new Map([[3000, 99]]), tree), { status: 'fail', detail: 'app 4501 not listening; api 3000 held by PID 99, not the recorded tree' });
 });
 
 test('descendants walks the whole tree below a PID and nothing beside it', () => {
@@ -59,15 +185,19 @@ test('descendants walks the whole tree below a PID and nothing beside it', () =>
   assert.deepEqual([...descendants(table, 10)].sort(), [10, 11, 12]);
 });
 
-test('parseListeningPid finds the LISTENING row for the exact port, IPv4 or IPv6', () => {
+test('listeners maps each LISTENING port to its PID, IPv4 or IPv6, and nothing else', () => {
   const text = [
     '  Proto  Local Address          Foreign Address        State           PID',
     '  TCP    0.0.0.0:14222          0.0.0.0:0              LISTENING       7',
     '  TCP    127.0.0.1:4222         127.0.0.1:50000        ESTABLISHED     8',
     '  TCP    [::1]:4222             [::]:0                 LISTENING       4242',
   ].join('\r\n');
-  assert.equal(parseListeningPid(text, 4222), 4242);
-  assert.equal(parseListeningPid(text, 4223), null);
+  assert.deepEqual([...listeners(text)], [[14222, 7], [4222, 4242]]);
+});
+
+test('busyPorts sees a throwaway listener with this process as its holder', async (t) => {
+  const port = await listen(t);
+  assert.equal(busyPorts().get(port), process.pid);
 });
 
 test('authCodeIn takes the latest code and ignores colour codes', () => {
@@ -127,11 +257,10 @@ test('cdMode reads zoneless only from NoopNgZone', () => {
 test('flowIdFor names url and target flows and refuses an unknown target', () => {
   assert.equal(flowIdFor(['doctor', '--url', 'http://localhost:4775/']), 'url-4775');
   assert.equal(flowIdFor(['doctor', '--url', 'http://localhost/']), 'url-80');
-  assert.equal(flowIdFor(['doctor', '--target', 'ssr', '--port', '4999']), 'ssr-4999');
-  assert.match(flowIdFor(['doctor', '--target', 'counter']) ?? '', /^counter-\d+$/);
+  assert.equal(flowIdFor(['doctor', '--target', 'ssr', '--port', '4999']), 'ssr', 'one instance per target: the port is not part of the flow');
+  assert.equal(flowIdFor(['doctor', '--target', 'counter']), 'counter');
   assert.equal(flowIdFor(['doctor']), null);
   assert.equal(flowIdFor(['doctor', '--url', '']), null, 'an empty --url counts as absent');
-  assert.match(flowIdFor(['doctor', '--target', 'ssr', '--port', '']) ?? '', /^ssr-(4223|4[3-7]\d\d)$/, 'an empty --port counts as absent');
   assert.throws(() => flowIdFor(['doctor', '--url', 'notaurl']), /Invalid URL/);
   assert.throws(() => flowIdFor(['doctor', '--target', 'constructor']), /unknown target "constructor"/);
 });

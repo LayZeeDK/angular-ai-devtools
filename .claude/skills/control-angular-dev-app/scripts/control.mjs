@@ -11,7 +11,13 @@ import { mapFresh } from './fingerprint.mjs';
 
 /** @typedef {'counter' | 'ssr' | 'portal'} TargetName */
 /** @typedef {{ name: string, bin: string | null, args: string[], env: Record<string, string | undefined>, port: number, readyPath: string }} ProcSpec */
-/** @typedef {{ dir: string, documentedPort: number, marker: string, procs: (dir: string, port: number) => ProcSpec[] }} Target */
+/** @typedef {'derived' | 'fixed' | 'external'} PortKind */
+/** @typedef {{ name: string, port: number, kind: PortKind, reason?: string }} PortEntry */
+/**
+ * A row of the ports table (SKILL.md, "Pick a flow"): a derived port has a value per slot, the first row is the main port.
+ * @typedef {{ name: string, kind: 'derived', at: (slot: number) => number } | { name: string, kind: 'fixed', port: number, pin: string } | { name: string, kind: 'external', port: number, owner: string }} PortRow
+ */
+/** @typedef {{ dir: string, marker: string, ports: (dir: string) => PortRow[], procs: (dir: string, ports: Record<string, number>) => ProcSpec[] }} Target */
 /** @typedef {{ ProcessId: number, ParentProcessId: number, Start: string | null, CommandLine: string | null }} ProcessRow */
 /** @typedef {{ name: string, pid: number, port: number, readyUrl: string, log: string, start: string | null, commandLine: string | null }} ProcState */
 
@@ -28,6 +34,8 @@ import { mapFresh } from './fingerprint.mjs';
  * @property {string} [dir]
  * @property {boolean} [worktree]
  * @property {number} [port]
+ * @property {number} [slot]
+ * @property {PortEntry[]} [ports]
  */
 
 /** @typedef {{ name: string, status: 'pass' | 'fail' | 'warn' | 'skip', detail: string }} Check */
@@ -54,7 +62,9 @@ const SCRATCH = path.join(REPO_ROOT, 'tmp', 'control-angular-dev-app');
 const STATE_DIR = path.join(SCRATCH, 'state');
 const INSPECT_JS = path.join(SKILL_DIR, 'scripts', 'ng-inspect.js');
 const PORTAL_DEFAULT_DIR = 'D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools';
-const PORTAL_API_PORT = 3000; // ponytail: fixed by the portal's BaseUrl token (http://localhost:3000/api/); not isolatable
+// Fixed: the API takes PORT, but the portal frontend's BaseUrl token hardcodes http://localhost:3000/api/.
+const PORTAL_API_PORT = 3000;
+const PORTAL_API_PIN = 'libs/shared/utils/src/lib/injection-tokens.ts';
 const SYSTEM32 = path.join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32');
 // Node looks a bare program name (pwsh) up through Windows, which skips the current directory only when this process
 // has the variable (measured: set in the child's env alone, a pwsh.exe planted in the cwd still ran).
@@ -64,31 +74,46 @@ process.env['NoDefaultCurrentDirectoryInExePath'] = '1';
 const TARGETS = {
   counter: {
     dir: path.join(REPO_ROOT, 'spikes', 'ng222-app'),
-    documentedPort: 4222,
     marker: 'app-root',
-    procs: (dir, port) => [
-      { name: 'app', bin: binOf(dir, '@angular/cli', 'ng'), args: ['serve', '--port', String(port)], env: {}, port, readyPath: '/' },
+    ports: () => [{ name: 'app', kind: 'derived', at: (slot) => (slot === 0 ? 4222 : 4300 + slot) }],
+    procs: (dir, ports) => [
+      { name: 'app', bin: binOf(dir, '@angular/cli', 'ng'), args: ['serve', '--port', String(ports['app'])], env: {}, port: Number(ports['app']), readyPath: '/' },
     ],
   },
   ssr: {
     dir: path.join(REPO_ROOT, 'spikes', 'ng222-ssr'),
-    documentedPort: 4223,
     marker: 'app-root',
+    ports: () => [{ name: 'app', kind: 'derived', at: (slot) => (slot === 0 ? 4223 : 4400 + slot) }],
     // HMR (the dev-server default) loads every @defer dependency eagerly (NG0751), which hides incremental hydration.
-    procs: (dir, port) => [
-      { name: 'app', bin: binOf(dir, '@angular/cli', 'ng'), args: ['serve', '--port', String(port), '--no-hmr'], env: {}, port, readyPath: '/' },
+    procs: (dir, ports) => [
+      { name: 'app', bin: binOf(dir, '@angular/cli', 'ng'), args: ['serve', '--port', String(ports['app']), '--no-hmr'], env: {}, port: Number(ports['app']), readyPath: '/' },
     ],
   },
   portal: {
     dir: process.env['CONTROL_NG_PORTAL_DIR'] || PORTAL_DEFAULT_DIR,
-    documentedPort: 4200,
     marker: 'ng-journal-root',
-    procs: (dir, port) => [
-      { name: 'api', bin: binOf(dir, 'nx', 'nx'), args: ['run', 'api:serve'], env: { PORT: String(PORTAL_API_PORT) }, port: PORTAL_API_PORT, readyPath: '/api/customers' },
-      { name: 'app', bin: binOf(dir, 'nx', 'nx'), args: ['run', 'insurance-portal:serve', `--port=${port}`], env: {}, port, readyPath: '/' },
+    ports: (dir) => [
+      { name: 'app', kind: 'derived', at: (slot) => (slot === 0 ? 4200 : 4500 + slot) },
+      { name: 'api', kind: 'fixed', port: PORTAL_API_PORT, pin: `${pinOf(dir, PORTAL_API_PIN, `localhost:${PORTAL_API_PORT}`)} in the portal checkout ${dir}` },
+      { name: 'pangular', kind: 'external', port: PANGULAR_PORT, owner: 'control-pangular-inspector, whose server the portal reaches through its /__pangular proxy' },
+    ],
+    procs: (dir, ports) => [
+      // --inspect=false: the @nx/js:node executor otherwise opens the Node inspector on 9229 (measured), a port any other Node process may hold.
+      { name: 'api', bin: binOf(dir, 'nx', 'nx'), args: ['run', 'api:serve', '--inspect=false'], env: { PORT: String(PORTAL_API_PORT) }, port: PORTAL_API_PORT, readyPath: '/api/customers' },
+      { name: 'app', bin: binOf(dir, 'nx', 'nx'), args: ['run', 'insurance-portal:serve', `--port=${ports['app']}`], env: {}, port: Number(ports['app']), readyPath: '/' },
     ],
   },
 };
+
+/**
+ * The ports table rows of a target in `dir` (exported for the tests).
+ * @param {TargetName} name
+ * @param {string} [dir]
+ * @returns {PortRow[]}
+ */
+export function portRowsOf(name, dir = TARGETS[name].dir) {
+  return TARGETS[name].ports(dir);
+}
 
 /**
  * @param {string} name
@@ -138,20 +163,173 @@ export function isWorktree(dir) {
   }
 }
 
+// ---------- ports (SKILL.md, "Pick a flow") ----------
+
+// Slot 0 is the main checkout's (the documented ports); a worktree hashes to one of 1 to SLOTS - 1.
+const SLOTS = 100;
+const SLOT_TRIES = 10;
+
 /**
- * The documented port in a main checkout; in a worktree a port in 4300-4799 from a hash of the folder (every
- * documented port lies below that range).
+ * The checkout's own slot: 0 in a main checkout, else 1 to 99 from a hash of the folder, so it stays the same
+ * from run to run.
  * @param {string} dir
- * @param {number} documented
  * @param {boolean} worktree
  * @returns {number}
  */
-export function derivePort(dir, documented, worktree) {
+export function slotOf(dir, worktree) {
   if (!worktree) {
-    return documented;
+    return 0;
   }
 
-  return 4300 + (createHash('sha1').update(path.resolve(dir).toLowerCase()).digest().readUInt32BE(0) % 500);
+  return 1 + (createHash('sha1').update(path.resolve(dir).toLowerCase()).digest().readUInt32BE(0) % (SLOTS - 1));
+}
+
+/**
+ * The slots `up` tries, in order: `first`, then the next ones, 10 in all. From a worktree (`first` above 0) they
+ * wrap within 1 to 99 and never reach slot 0.
+ * @param {number} first
+ * @returns {number[]}
+ */
+export function slotOrder(first) {
+  return Array.from({ length: SLOT_TRIES }, (_, i) => (first === 0 ? i : 1 + ((first - 1 + i) % (SLOTS - 1))));
+}
+
+/**
+ * The PID listening on each port in `netstat -ano` output, IPv4 and IPv6.
+ * @param {string} text
+ * @returns {Map<number, number>}
+ */
+export function listeners(text) {
+  /** @type {Map<number, number>} */
+  const map = new Map();
+
+  for (const l of text.split(/\r?\n/)) {
+    const m = l.trim().split(/\s+/);
+
+    if (m[0] === 'TCP' && m[3] === 'LISTENING') {
+      map.set(Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1)), Number(m[4]));
+    }
+  }
+
+  return map;
+}
+
+/**
+ * `path:line` of the first line of `rel` (below `dir`) that contains `needle`; the bare path when none does.
+ * @param {string} dir
+ * @param {string} rel
+ * @param {string} needle
+ * @returns {string}
+ */
+export function pinOf(dir, rel, needle) {
+  try {
+    const i = readFileSync(path.join(dir, rel), 'utf8').split(/\r?\n/).findIndex((l) => l.includes(needle));
+
+    return i === -1 ? rel : `${rel}:${i + 1}`;
+  } catch {
+    return rel;
+  }
+}
+
+/**
+ * Picks the ports of one run. A busy fixed port is a refusal. `forced` (`--port`) is the main port in every slot,
+ * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free; the derived
+ * entries of a slot after the first say what they fell back from.
+ * @param {PortRow[]} rows
+ * @param {number[]} order
+ * @param {Map<number, number>} busy  the PID listening on each port
+ * @param {number} [forced]
+ * @returns {{ ok: true, slot: number, ports: PortEntry[] } | { ok: false, reason: string }}
+ */
+export function planPorts(rows, order, busy, forced) {
+  for (const r of rows) {
+    const pid = r.kind === 'fixed' ? busy.get(r.port) : undefined;
+
+    if (r.kind === 'fixed' && pid !== undefined) {
+      return { ok: false, reason: `fixed port ${r.name} ${r.port} held by PID ${pid}; pinned by ${r.pin}` };
+    }
+  }
+
+  const main = rows.findIndex((r) => r.kind === 'derived');
+  const forcedPid = forced === undefined ? undefined : busy.get(forced);
+
+  if (forced !== undefined && forcedPid !== undefined) {
+    return { ok: false, reason: `port ${forced} (--port) is held by PID ${forcedPid}; --port has no fallback` };
+  }
+
+  /** @type {(r: PortRow, i: number, slot: number) => number} */
+  const portAt = (r, i, slot) => (r.kind !== 'derived' ? r.port : i === main && forced !== undefined ? forced : r.at(slot));
+  /** @type {string[]} */
+  const tried = [];
+
+  for (const slot of order) {
+    const taken = rows.flatMap((r, i) => {
+      const pid = r.kind === 'derived' ? busy.get(portAt(r, i, slot)) : undefined;
+
+      return pid === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} held by PID ${pid}`];
+    });
+
+    if (taken.length === 0) {
+      const first = /** @type {number} */ (order[0]);
+      /** @type {PortEntry[]} */
+      const ports = rows.map((r, i) => {
+        const port = portAt(r, i, slot);
+        const from = portAt(r, i, first);
+
+        if (r.kind === 'fixed') {
+          return { name: r.name, port, kind: r.kind, reason: r.pin };
+        }
+
+        if (r.kind === 'external') {
+          return { name: r.name, port, kind: r.kind, reason: r.owner };
+        }
+
+        if (slot === first) {
+          return { name: r.name, port, kind: r.kind };
+        }
+
+        const pid = busy.get(from);
+
+        return { name: r.name, port, kind: r.kind, reason: pid === undefined ? `fell back from ${from}: slot ${first} had ${tried[0]}` : `fell back from ${from}: held by PID ${pid}` };
+      });
+
+      return { ok: true, slot, ports };
+    }
+
+    tried.push(...taken);
+  }
+
+  return { ok: false, reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}` };
+}
+
+/**
+ * The doctor's `ports` line: every derived and fixed port answers and is held by the recorded process tree; every
+ * port is listed.
+ * @param {PortEntry[]} ports
+ * @param {Map<number, number>} busy
+ * @param {Set<number>} tree
+ * @returns {{ status: 'pass' | 'fail', detail: string }}
+ */
+export function portsCheck(ports, busy, tree) {
+  const problems = ports.flatMap((p) => {
+    const pid = busy.get(p.port);
+
+    if (p.kind === 'external') {
+      return [];
+    }
+
+    if (pid === undefined) {
+      return [`${p.name} ${p.port} not listening`];
+    }
+
+    return tree.has(pid) ? [] : [`${p.name} ${p.port} held by PID ${pid}, not the recorded tree`];
+  });
+
+  if (problems.length > 0) {
+    return { status: 'fail', detail: problems.join('; ') };
+  }
+
+  return { status: 'pass', detail: ports.map((p) => `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`).join(', ') };
 }
 
 /**
@@ -176,24 +354,6 @@ export function descendants(table, pid) {
   }
 
   return set;
-}
-
-/**
- * The PID listening on `port` in `netstat -ano` output, or null.
- * @param {string} text
- * @param {number} port
- * @returns {number | null}
- */
-export function parseListeningPid(text, port) {
-  for (const l of text.split(/\r?\n/)) {
-    const m = l.trim().split(/\s+/);
-
-    if (m[0] === 'TCP' && m[3] === 'LISTENING' && (m[1] ?? '').endsWith(`:${port}`)) {
-      return Number(m[4]);
-    }
-  }
-
-  return null;
 }
 
 /**
@@ -279,8 +439,9 @@ export function cdMode(ngZone) {
 }
 
 /**
- * The flow id the arguments name: `url-<port>` for `--url`, `<target>-<port>` for `--target`, else null (the caller
- * then looks at the state files). Throws on an unknown target or an invalid `--url`.
+ * The flow id the arguments name: `url-<port>` for `--url`, the target's name for `--target` (one instance per
+ * target per checkout), else null (the caller then looks at the state files). Throws on an unknown target or an
+ * invalid `--url`.
  * @param {string[]} args
  * @returns {string | null}
  */
@@ -297,25 +458,10 @@ export function flowIdFor(args) {
       throw new Error(`unknown target "${target}"; use counter, ssr or portal`);
     }
 
-    return `${target}-${placement(args, TARGETS[target]).port}`;
+    return target;
   }
 
   return null;
-}
-
-/**
- * The folder and port a target runs on: `--dir` and `--port` when given, else the defaults.
- * @param {string[]} args
- * @param {Target} t
- * @returns {{ dir: string, port: number, worktree: boolean }}
- */
-function placement(args, t) {
-  const dirFlag = flagIn(args, 'dir');
-  const portFlag = flagIn(args, 'port');
-  const dir = typeof dirFlag === 'string' && dirFlag !== '' ? dirFlag : t.dir;
-  const worktree = isWorktree(dir);
-
-  return { dir, worktree, port: typeof portFlag === 'string' && portFlag !== '' ? Number(portFlag) : derivePort(dir, t.documentedPort, worktree) };
 }
 
 // ---------- process and tool access ----------
@@ -352,14 +498,13 @@ function processTable() {
 }
 
 /**
- * @param {number} port
- * @returns {number | null}
+ * The PID listening on each port now (netstat, IPv4 and IPv6).
+ * @returns {Map<number, number>}
  */
-function listeningPid(port) {
+export function busyPorts() {
   const netstat = path.join(SYSTEM32, 'netstat.exe');
-  const text = ['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n');
 
-  return parseListeningPid(text, port);
+  return listeners(['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n'));
 }
 
 /**
@@ -398,7 +543,7 @@ function pangularServer() {
     // no server started by control-pangular-inspector
   }
 
-  return { pid: listeningPid(PANGULAR_PORT), log };
+  return { pid: busyPorts().get(PANGULAR_PORT) ?? null, log };
 }
 
 /**
@@ -500,6 +645,91 @@ function readState(flowId) {
   return /** @type {State} */ (JSON.parse(readFileSync(p, 'utf8')));
 }
 
+/**
+ * The main port of a ports table: its first derived row in slot 0, else its first row.
+ * @param {PortRow[]} rows
+ * @returns {number}
+ */
+function mainPortOf(rows) {
+  const r = rows.find((x) => x.kind === 'derived') ?? rows[0];
+
+  return r === undefined ? NaN : r.kind === 'derived' ? r.at(0) : r.port;
+}
+
+/** @param {number} pid */
+function stopTree(pid) {
+  return spawnSync(path.join(SYSTEM32, 'taskkill.exe'), ['/PID', String(pid), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
+}
+
+/**
+ * Starts the run's processes one at a time and waits until each answers. Null when all are ready; the port entry
+ * (and its holder, when one listens) when a process exited because another process took its port after planPorts
+ * checked it. Any other failure exits through fail().
+ * @param {State} state
+ * @param {ProcSpec[]} specs
+ * @param {string} marker
+ * @param {number} t0
+ * @param {number} timeoutMs
+ * @returns {Promise<{ entry: PortEntry, pid: number | null } | null>}
+ */
+async function launch(state, specs, marker, t0, timeoutMs) {
+  const sp = statePath(state.flowId);
+
+  // One at a time: two cold `nx run` processes started together timed out in the Nx plugin worker (3 of 4 portal runs, 2026-10-11).
+  for (const p of specs) {
+    /** @type {NodeJS.ProcessEnv} */
+    const env = { ...process.env, NX_DAEMON: 'false', NX_TUI: 'false', NG_CLI_ANALYTICS: 'false', ...p.env };
+
+    if (!('PORT' in p.env)) {
+      delete env['PORT']; // measured: the Angular dev server serves on $PORT and ignores --port when PORT is set
+    }
+
+    const log = path.join(state.evidenceDir, `${p.name}.log`);
+    const fd = openSync(log, 'a');
+    const child = spawn(process.execPath, [/** @type {string} */ (p.bin), ...p.args], { cwd: state.dir, env, detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
+    child.unref();
+
+    if (child.pid === undefined) {
+      fail(2, `${p.name} did not start; see ${log}`);
+    }
+
+    const row = processTable().find((r) => r.ProcessId === child.pid);
+    /** @type {ProcState} */
+    const s = { name: p.name, pid: child.pid, port: p.port, readyUrl: `http://localhost:${p.port}${p.readyPath}`, log, start: row?.Start ?? null, commandLine: row?.CommandLine ?? null };
+    state.procs.push(s);
+    writeFileSync(sp, JSON.stringify(state, null, 2));
+
+    for (;;) {
+      // A first SSR render compiles on demand; aborting it at 3 s logs an AbortError in the server log (measured).
+      const r = await fetchText(s.readyUrl, 60000);
+      const pageOk = s.name !== 'app' || (r.status === 200 && r.body.includes(`<${marker}`));
+
+      if (r.status >= 200 && r.status < 500 && pageOk) {
+        break;
+      }
+
+      if (!processTable().some((x) => x.ProcessId === s.pid)) {
+        const holder = busyPorts().get(s.port) ?? null;
+        const entry = (state.ports ?? []).find((e) => e.port === s.port);
+
+        if (entry !== undefined && (holder !== null || /already in use|EADDRINUSE/.test(readFileSync(s.log, 'utf8')))) {
+          return { entry, pid: holder };
+        }
+
+        fail(2, `${s.name} (PID ${s.pid}) exited before it was ready; see ${s.log}; run down to clear the state`, { state: sp });
+      }
+
+      if (Date.now() - t0 > timeoutMs) {
+        fail(2, `${s.name} not ready after ${timeoutMs / 1000}s at ${s.readyUrl}; see ${s.log}; run down`, { state: sp });
+      }
+
+      await sleep(500);
+    }
+  }
+
+  return null;
+}
+
 async function up() {
   const url = flag('url');
   mkdirSync(STATE_DIR, { recursive: true });
@@ -520,8 +750,9 @@ async function up() {
       fail(2, `nothing answers at ${url} (${res.body})`);
     }
 
+    const ports = [{ name: 'app', port: Number(new URL(url).port || 80), kind: /** @type {PortKind} */ ('external'), reason: 'attached with --url; this skill did not start it' }];
     /** @type {State} */
-    const state = { flowId, mode: 'attach', url, session: `control-ngdev-${flowId}`, evidenceDir, startedAt: new Date().toISOString(), procs: [] };
+    const state = { flowId, mode: 'attach', url, ports, session: `control-ngdev-${flowId}`, evidenceDir, startedAt: new Date().toISOString(), procs: [] };
     writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
     out({ ok: true, command: 'up', ...state }, 0);
   }
@@ -533,87 +764,78 @@ async function up() {
   }
 
   const t = TARGETS[targetName];
-  const { dir, worktree, port } = placement(argv, t);
+  const dirFlag = flag('dir');
+  const dir = typeof dirFlag === 'string' && dirFlag !== '' ? dirFlag : t.dir;
+  const worktree = isWorktree(dir);
+  const rows = t.ports(dir);
+  const portFlag = flag('port');
+  const forced = typeof portFlag === 'string' && portFlag !== '' ? Number(portFlag) : undefined;
 
-  if (worktree && port === t.documentedPort) {
-    fail(2, `refused: ${dir} is a git worktree and port ${port} is the main checkout's documented port; use the derived port or --url on purpose`);
+  if (forced !== undefined && !(Number.isInteger(forced) && forced > 0 && forced < 65536)) {
+    fail(2, `refused: --port ${portFlag} is not a port number`);
   }
 
-  const flowId = `${targetName}-${port}`;
+  if (worktree && forced === mainPortOf(rows)) {
+    fail(2, `refused: ${dir} is a git worktree and port ${forced} is the main checkout's documented port; use the derived port or --url on purpose`);
+  }
+
+  const flowId = targetName;
 
   if (existsSync(statePath(flowId))) {
     fail(2, `flow ${flowId} already has a state file; run down first`, { state: statePath(flowId) });
   }
 
-  const procs = t.procs(dir, port);
-
-  for (const p of procs) {
+  for (const p of t.procs(dir, {})) {
     if (!p.bin || !existsSync(p.bin)) {
       fail(2, `cannot find the CLI for ${p.name} under ${dir}/node_modules (install dependencies first)`);
-    }
-
-    const owner = listeningPid(p.port);
-
-    if (owner) {
-      fail(2, `refused: port ${p.port} (${p.name}) is already in use by PID ${owner}; it may be Lars's own server`, { port: p.port, ownerPid: owner });
     }
   }
 
   const evidenceDir = path.join(SCRATCH, `${flowId}-${stamp}`);
-  mkdirSync(evidenceDir, { recursive: true });
   const t0 = Date.now();
-  /** @type {ProcState[]} */
-  const started = [];
-  /** @type {State} */
-  const state = { flowId, mode: 'launch', target: targetName, dir, worktree, url: `http://localhost:${port}/`, port, session: `control-ngdev-${flowId}`, evidenceDir, startedAt: new Date().toISOString(), procs: started };
   const timeoutMs = Number(flag('timeout') ?? 240) * 1000;
+  let order = slotOrder(slotOf(dir, worktree));
 
-  // One at a time: two cold `nx run` processes started together timed out in the Nx plugin worker (3 of 4 portal runs, 2026-10-11).
-  for (const p of procs) {
-    /** @type {NodeJS.ProcessEnv} */
-    const env = { ...process.env, NX_DAEMON: 'false', NX_TUI: 'false', NG_CLI_ANALYTICS: 'false', ...p.env };
+  for (;;) {
+    const plan = planPorts(rows, order, busyPorts(), forced);
 
-    if (!('PORT' in p.env)) {
-      delete env['PORT']; // measured: the Angular dev server serves on $PORT and ignores --port when PORT is set
+    if (!plan.ok) {
+      return fail(2, `refused: ${plan.reason}`);
     }
 
-    const log = path.join(evidenceDir, `${p.name}.log`);
-    const fd = openSync(log, 'a');
-    const child = spawn(process.execPath, [/** @type {string} */ (p.bin), ...p.args], { cwd: dir, env, detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
-    child.unref();
+    mkdirSync(evidenceDir, { recursive: true });
+    const ports = Object.fromEntries(plan.ports.map((p) => [p.name, p.port]));
+    const port = Number(ports['app']);
+    /** @type {State} */
+    const state = { flowId, mode: 'launch', target: targetName, dir, worktree, url: `http://localhost:${port}/`, port, slot: plan.slot, ports: plan.ports, session: `control-ngdev-${flowId}-${port}`, evidenceDir, startedAt: new Date().toISOString(), procs: [] };
+    const busy = await launch(state, t.procs(dir, ports), t.marker, t0, timeoutMs);
 
-    if (child.pid === undefined) {
-      fail(2, `${p.name} did not start; see ${log}`);
+    if (busy === null) {
+      out({ ok: true, command: 'up', readyInSeconds: Math.round((Date.now() - t0) / 100) / 10, ...state }, 0);
     }
 
-    const row = processTable().find((r) => r.ProcessId === child.pid);
-    /** @type {ProcState} */
-    const s = { name: p.name, pid: child.pid, port: p.port, readyUrl: `http://localhost:${p.port}${p.readyPath}`, log, start: row?.Start ?? null, commandLine: row?.CommandLine ?? null };
-    started.push(s);
-    writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
+    // Another process took a port after the check: stop the trees this attempt started, then try the next slot.
+    for (const p of state.procs) {
+      stopTree(p.pid);
+    }
 
-    for (;;) {
-      // A first SSR render compiles on demand; aborting it at 3 s logs an AbortError in the server log (measured).
-      const r = await fetchText(s.readyUrl, 60000);
-      const pageOk = s.name !== 'app' || (r.status === 200 && r.body.includes(`<${t.marker}`));
+    rmSync(statePath(flowId), { force: true });
+    const taken = `${busy.entry.name} ${busy.entry.port} was taken ${busy.pid === null ? 'by another process' : `by PID ${busy.pid}`} after the check`;
 
-      if (r.status >= 200 && r.status < 500 && pageOk) {
-        break;
-      }
+    if (busy.entry.kind === 'fixed') {
+      fail(2, `refused: fixed port ${busy.entry.name} ${busy.entry.port} held by ${busy.pid === null ? 'another process' : `PID ${busy.pid}`}; pinned by ${busy.entry.reason}`);
+    }
 
-      if (!processTable().some((row) => row.ProcessId === s.pid)) {
-        fail(2, `${s.name} (PID ${s.pid}) exited before it was ready; see ${s.log}; run down to clear the state`, { state: statePath(flowId) });
-      }
+    if (forced !== undefined && busy.entry.port === forced) {
+      fail(2, `refused: port ${forced} (--port) ${taken}; --port has no fallback`);
+    }
 
-      if (Date.now() - t0 > timeoutMs) {
-        fail(2, `${s.name} not ready after ${timeoutMs / 1000}s at ${s.readyUrl}; see ${s.log}; run down`, { state: statePath(flowId) });
-      }
+    order = order.slice(order.indexOf(plan.slot) + 1);
 
-      await sleep(500);
+    if (order.length === 0) {
+      fail(2, `refused: ${taken}, and none of the ${SLOT_TRIES} slots is left`);
     }
   }
-
-  out({ ok: true, command: 'up', readyInSeconds: Math.round((Date.now() - t0) / 100) / 10, ...state }, 0);
 }
 
 async function doctor() {
@@ -629,24 +851,33 @@ async function doctor() {
   const fresh = mapFresh(SKILL_DIR);
   add('map-fresh', fresh.status, fresh.detail);
 
-  if (state.mode === 'attach' || target === undefined) {
+  if (state.mode === 'attach' || state.target === undefined) {
     add('process-alive', 'skip', 'attached with --url; this skill did not start the server');
-    add('port-owned', 'skip', 'attached with --url');
+    add('ports', 'skip', '--url given; ownership not checked');
     add('build-log', 'skip', 'attached with --url; no build log');
   } else {
-    if (state.worktree && state.port === target.documentedPort) {
+    if (state.worktree && state.port === mainPortOf(portRowsOf(state.target, state.dir))) {
       fail(2, 'refused: worktree flow points at the main checkout port');
     }
 
     const table = processTable();
+    /** @type {Set<number>} */
+    const tree = new Set();
 
     for (const p of state.procs) {
       const row = table.find((r) => r.ProcessId === p.pid);
       const alive = row !== undefined && row.Start === p.start;
       add(`process-alive:${p.name}`, alive ? 'pass' : 'fail', alive ? `PID ${p.pid} running since ${p.start}` : `PID ${p.pid} is gone or reused`);
-      const owner = listeningPid(p.port);
-      const owned = owner !== null && descendants(table, p.pid).has(owner);
-      add(`port-owned:${p.name}`, owned ? 'pass' : 'fail', owner ? `port ${p.port} listened on by PID ${owner}${owned ? ` (in the tree of ${p.pid})` : ' (NOT ours)'}` : `nothing listens on ${p.port}`);
+
+      if (alive) {
+        descendants(table, p.pid).forEach((pid) => tree.add(pid));
+      }
+    }
+
+    const ports = portsCheck(state.ports ?? [], busyPorts(), tree);
+    add('ports', ports.status, ports.detail);
+
+    for (const p of state.procs) {
       const errLines = buildLogErrors(existsSync(p.log) ? readFileSync(p.log, 'utf8') : '');
       add(`build-log:${p.name}`, errLines.length === 0 ? 'pass' : 'fail', errLines.length === 0 ? 'no error lines in the server log' : errLines.slice(0, 3).join(' | '));
     }
@@ -776,7 +1007,7 @@ function down() {
   notes.push(`session ${state.session}: ${close.status === 0 ? 'closed' : 'was not open'}`);
 
   for (const p of toStop) {
-    const r = spawnSync(path.join(SYSTEM32, 'taskkill.exe'), ['/PID', String(p.pid), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
+    const r = stopTree(p.pid);
     notes.push(`stopped ${p.name} tree of PID ${p.pid}: ${r.status === 0 ? 'ok' : r.stderr.trim()}`);
   }
 

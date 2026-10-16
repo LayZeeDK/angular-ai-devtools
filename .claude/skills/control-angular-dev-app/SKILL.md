@@ -16,16 +16,37 @@ sessions are looked up from there. `S` stands for `.claude/skills/control-angula
 
 ## Pick a flow
 
-| Flow | Command | App port | Notes |
-|---|---|---|---|
-| Counter fixture | `node $S up --target counter` | 4222 in the main checkout; derived (4300-4799, hash of the fixture path) when the fixture sits in a git worktree | `spikes/ng222-app`, Angular 22.2.2, zoneless, `provideRouter` with no routes |
-| SSR fixture | `node $S up --target ssr` | 4223 in the main checkout; derived when the fixture sits in a git worktree | `spikes/ng222-ssr`, Angular 22.2.2, `@angular/ssr`, zoneless, `provideClientHydration()`; routes `/` (`RenderMode.Server`), `/prerender` (`RenderMode.Prerender`), `/client` (`RenderMode.Client`); local data at `/api/items` from `src/server.ts` |
-| Insurance Portal | `node $S up --target portal` | 4200 in a main checkout; derived when the folder is a git worktree. The default folder `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools` is a worktree, so it gets 4775 | API always on 3000 (the portal hard-codes `http://localhost:3000/api/`). Override the folder with `--dir <path>` or `CONTROL_NG_PORTAL_DIR` |
-| Any dev-mode app | `node $S up --url http://localhost:<port>/` | whatever the app uses | Nothing is launched or stopped; process checks report skipped |
+| Flow | Command | Notes |
+|---|---|---|
+| Counter fixture | `node $S up --target counter` | `spikes/ng222-app`, Angular 22.2.2, zoneless, `provideRouter` with no routes |
+| SSR fixture | `node $S up --target ssr` | `spikes/ng222-ssr`, Angular 22.2.2, `@angular/ssr`, zoneless, `provideClientHydration()`; routes `/` (`RenderMode.Server`), `/prerender` (`RenderMode.Prerender`), `/client` (`RenderMode.Client`); local data at `/api/items` from `src/server.ts` |
+| Insurance Portal | `node $S up --target portal` | The portal checkout `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools` (a git worktree of the portal repository); override it with `--dir <path>` or `CONTROL_NG_PORTAL_DIR` |
+| Any dev-mode app | `node $S up --url http://localhost:<port>/` | Nothing is launched or stopped; process and port checks report skipped |
 
-A worktree is detected by `.git` being a file. From a worktree, `up` refuses the main checkout's port; use
-`--url` when you mean to drive that instance. Every command takes `--target <name>` (with `--port`/`--dir` if
-you passed them to `up`) or `--url <url>` to pick the flow; with exactly one flow running, neither is needed.
+Ports. The main checkout uses slot 0, the defaults below. A worktree (`.git` is a file; for the portal, the
+portal folder's own `.git`) takes slot 1-99 from a hash of the fixture or portal folder, so its ports stay the
+same from run to run: counter `4300 + slot`, SSR `4400 + slot`, portal `4500 + slot` (measured
+2026-10-16 in the `verification-skills` worktree: counter 4336, SSR 4464; the default portal folder: 4507). When a derived port is busy, `up` tries the next
+slot, 10 slots in all, and records the slot and the ports it used (`info --json`: `slot`, `ports`).
+
+| Port | Kind | Default | How it moves |
+|---|---|---|---|
+| counter app | derived | 4222 | `--port`, passed to `ng serve --port` (measured: listened on 4336, and on its fallback 4337 while a throwaway listener held 4336) |
+| SSR app | derived | 4223 | `--port`, passed to `ng serve --port` (measured: listened on 4464) |
+| portal app | derived | 4200 | `--port`, passed to `nx run insurance-portal:serve --port=` (measured: listened on 4507) |
+| portal api | fixed | 3000 | `.claude/skills/control-angular-dev-app/scripts/control.mjs:66` keeps it at 3000 because the portal checkout (outside this repository) hardcodes `http://localhost:3000/api/` at `libs/shared/utils/src/lib/injection-tokens.ts:5`; the API itself takes `PORT`. One portal per machine |
+| portal pangular | external | 9999 | control-pangular-inspector starts it; the portal proxies `/__pangular` to it. This skill never starts or stops it |
+| `--url` app | external | the URL's port | whatever runs it; this skill never starts or stops it |
+
+- `--port N` sets the app port with no fallback for it: a busy `N` exits 2 naming its holder's PID; from a
+  worktree the main checkout's port is refused (use `--url` to drive that instance on purpose).
+- A busy fixed port exits 2: `fixed port api 3000 held by PID <p>; pinned by
+  libs/shared/utils/src/lib/injection-tokens.ts:5 in the portal checkout <dir>`. The holder may be another
+  session's portal or Lars's own; it is never stopped.
+- One instance per flow per checkout: `up` refuses while the flow's state file exists. A second session runs
+  its own instance from its own worktree.
+- Every command takes `--target <name>` or `--url <url>` to pick the flow; with exactly one flow running,
+  neither is needed.
 
 ## Launch
 
@@ -38,8 +59,8 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target coun
   dev server renders every request on the server through `src/server.ts` (development mode, so `window.ng`
   exists after hydration). `--no-hmr` because HMR, the dev-server default, loads every `@defer` dependency
   eagerly (NG0751 in the log), which hides incremental hydration.
-- Portal runs two processes in the portal folder: `node node_modules/nx/dist/bin/nx.js run api:serve` with
-  `PORT=3000`, and `node node_modules/nx/dist/bin/nx.js run insurance-portal:serve --port=<port>` with `PORT`
+- Portal runs two processes in the portal folder: `node node_modules/nx/dist/bin/nx.js run api:serve --inspect=false`
+  with `PORT=3000`, and `node node_modules/nx/dist/bin/nx.js run insurance-portal:serve --port=<port>` with `PORT`
   removed from its environment. Both get `NX_DAEMON=false` and `NX_TUI=false`, so no Nx daemon outlives `down`.
 - Readiness: each URL answers (portal API: `/api/customers`) and the app's index HTML contains its root tag
   (`<app-root>`, `<ng-journal-root>`). The doctor then checks the rendered page.
@@ -53,7 +74,9 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target coun
   (2026-10-15, 2026-10-16); the first portal start of a session took 81.7 s (2026-10-16). The first portal build
   after a change can take minutes; `--timeout <seconds>` (default 240).
 - Server output goes to `<evidenceDir>/app.log` (and `api.log`).
-- `up` refuses (exit 2) a port already in use and names the owning PID; that may be Lars's own server.
+- A port another process holds is never taken over: a derived one moves the run to the next slot (also when
+  the server finds its port taken after the check: `up` stops the tree it started and tries the next slot); a
+  busy fixed port or `--port` exits 2 naming the holder's PID (see Pick a flow).
 
 ## Doctor
 
@@ -67,7 +90,10 @@ Answers "is this instance worth driving?". One line per check:
   `scripts/fingerprint.mjs` and `features/.proven.json`. `[WARN]` names the stale and unproven features; it never
   changes the exit code. The four portal features are recorded as external: the portal lives outside this
   repository, so no file in it can be hashed.
-- `process-alive:<name>`, `port-owned:<name>` (the listening PID is in the recorded process tree),
+- `process-alive:<name>`; `ports`: every derived and fixed port of the run listens and its PID is in a recorded
+  process tree, and every port is listed with its kind
+  (`[OK] ports: app 4507 (derived), api 3000 (fixed: libs/shared/utils/src/lib/injection-tokens.ts:5 in the portal checkout ...), pangular 9999 (external: ...)`;
+  `[SKIP] ports: --url given; ownership not checked`);
   `build-log:<name>` (no `[ERROR]`, `error TS`, `NGxxxx` lines; a `[vite]` runtime entry is ignored up to the
   next entry: proxy errors with their `Error: read ECONNRESET` and `at ...` lines, and the browser console
   forwarded as `(client)`, including the multi-line NG0500 that `ssr-check.js` provokes on `?mismatch=1`;
@@ -76,7 +102,7 @@ Answers "is this instance worth driving?". One line per check:
   the overlay opens a `prompt` for a one-time code that blocks every playwright-cli command. Doctor reads the
   code from control-pangular-inspector's `pangular.log` (via its state file `pangular-9999.json`) and enters it;
   with no such state file it dismisses the prompt and warns.
-- `browser-session`: opens (or reuses) the run's session `control-ngdev-<flowId>` and goes to the app URL.
+- `browser-session`: opens (or reuses) the run's session (`control-ngdev-<target>-<port>`, or `control-ngdev-url-<port>`) and goes to the app URL.
 - `angular-root`: an element with `[ng-version]`; prints the version and root tags. `app-marker`: the fixture's
   root tag.
 - `dev-build`: `window.ng` exists. Missing means a production build or `ngDevMode=false`; `ng.*` recipes will
@@ -98,7 +124,7 @@ Exit 0 healthy, 1 a check failed (named), 2 could not run. The doctor also insta
 ## Drive
 
 Session: `playwright-cli -s=<session>`; take `<session>` from `info` (`control-ngdev-counter-4222`,
-`control-ngdev-portal-4775` for the defaults).
+`control-ngdev-portal-4507` for the defaults).
 
 - Selector order: role plus accessible name (`getByRole('button', { name: 'Increment' })`), visible text
   scoped to a landmark (`getByRole('navigation').getByText(...)`), snapshot refs for one-off steps, CSS last.
@@ -171,7 +197,7 @@ evidence directory. A PID that no longer runs is noted, not refused. Never `play
 
 | Command | Does | Output | Exit |
 |---|---|---|---|
-| `up` | launch (`--target`) or attach (`--url`); writes `tmp/control-angular-dev-app/state/<flowId>.json` | flowId, url, port, session, evidenceDir, procs `{name, pid, port, start, commandLine, log}`, `readyInSeconds` | 0 ready; 2 refused (port in use, worktree on the main port, state exists), process exited, timeout |
+| `up` | launch (`--target`) or attach (`--url`); writes `tmp/control-angular-dev-app/state/<flowId>.json` | flowId (the target, or `url-<port>`), url, port, slot, ports `{name, port, kind, reason?}`, session, evidenceDir, procs `{name, pid, port, start, commandLine, log}`, `readyInSeconds` | 0 ready; 2 refused (10 slots busy, a busy fixed port, a busy `--port`, worktree on the main port, state exists), process exited, timeout |
 | `doctor` | checks above | one line per check, or `checks[]` with `--json` | 0 / 1 / 2 |
 | `info` | prints the state | state plus `statePath` | 0; 2 no state |
 | `down` | teardown | notes per process and the session | 0 done (also when the PID is already gone); 2 missing state file, or PID start time / command mismatch (nothing stopped) |
@@ -196,11 +222,15 @@ facts. `scripts/ssr-check.js` is a `run-code` file for the SSR target (Inspect).
 
 ## Gotchas
 
+- The portal API's `@nx/js:node` serve target opens the Node inspector on 9229 by default (measured 2026-10-16:
+  the API process listened on 3000, 127.0.0.1:9229 and [::1]:9229). The script passes `--inspect=false`,
+  so the stack opens only the ports in the table; any other Node process on the machine may hold 9229.
 - `PORT` in the environment beats `--port` on the Angular dev server: with `PORT=3000` set for the API, the
   portal served on 3000 (measured). The script strips `PORT` for the app process; keep it that way.
 - Nx 23's CLI entry is `node_modules/nx/dist/bin/nx.js`; the script reads it from `package.json` `bin`.
 - The dev servers listen on `[::1]` only; use `localhost`, not `127.0.0.1`.
-- The portal API port is fixed at 3000, so only one portal flow runs at a time on this machine.
+- The portal API port is fixed at 3000, so only one portal flow runs at a time on this machine; a second
+  session's `up --target portal` exits 2 naming the first one's API PID.
 - Portal data is generated by faker when the API starts: names, policy numbers and ids change with every
   `up`. Assert on structure (row count 20, column headers), not values.
 - The portal sidebar entries are `div`s with `routerLink`, not links: target them with

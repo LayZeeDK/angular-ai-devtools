@@ -11,7 +11,7 @@ same shape before claiming coverage.
   `double` 6, cart 1 item.
 - SSR: `node $S up --target ssr`, then `node $S doctor --target ssr` exits 0 on `/`. Fresh page state:
   heading `Render mode: server`, `Early clicks: 0`, list Alpha, Beta, Gamma, `@defer` block dehydrated.
-- Portal: `node $S up --target portal` (API on 3000, app on the derived port, 4775 by default), then
+- Portal: `node $S up --target portal` (API on 3000, app on the derived port, 4507 for the default portal folder), then
   `node $S doctor --target portal` exits 0. No login. Every flag in
   `apps/insurance-portal/src/assets/feature-flags.manifest.json` decides whether a sidebar entry and its route
   exist.
