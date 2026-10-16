@@ -6,7 +6,7 @@ import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, cdMode, checkLine, consoleErrors, descendants, flagIn, flowIdFor, isWorktree, listeners, markerCheck, orphansOf, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder, takenBy, timeoutMsOf, urlPort } from './control.mjs';
+import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, cdMode, checkLine, consoleErrors, descendants, flagIn, flowIdFor, isWorktree, listeners, markerCheck, orphansOf, pageUrlIn, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder, takenBy, timeoutMsOf, urlPort } from './control.mjs';
 
 /**
  * A throwaway listener on a port the OS picks; closed after the test.
@@ -303,22 +303,33 @@ test('loading the script makes Windows skip the current directory when Node look
   assert.equal(process.env['NoDefaultCurrentDirectoryInExePath'], '1');
 });
 
-test('authReply gives the one-time code only to the portal and dismisses every other prompt', () => {
-  assert.deepEqual(authReply('portal', '123456'), ['dialog-accept', '123456']);
-  assert.deepEqual(authReply('portal', null), ['dialog-dismiss']);
-  assert.deepEqual(authReply('counter', '123456'), ['dialog-dismiss']);
-  assert.deepEqual(authReply(undefined, '123456'), ['dialog-dismiss'], 'an --url attach has no target');
+test('authReply gives the one-time code only to a page on the portal origin and dismisses every other prompt', () => {
+  const app = 'http://localhost:4507/';
+  assert.deepEqual(authReply('portal', '123456', 'http://localhost:4507/contract/list', app), ['dialog-accept', '123456']);
+  assert.deepEqual(authReply('portal', null, app, app), ['dialog-dismiss']);
+  assert.deepEqual(authReply('portal', '123456', 'https://evil.example/', app), ['dialog-dismiss'], 'a portal session left on another origin');
+  assert.deepEqual(authReply('portal', '123456', 'http://localhost:4508/', app), ['dialog-dismiss'], 'another port is another origin');
+  assert.deepEqual(authReply('portal', '123456', null, app), ['dialog-dismiss'], 'no page URL in the snapshot');
+  assert.deepEqual(authReply('counter', '123456', app, app), ['dialog-dismiss']);
+  assert.deepEqual(authReply(undefined, '123456', app, app), ['dialog-dismiss'], 'an --url attach has no target');
 });
 
-test('authCheck says what happened from the same condition the reply used', () => {
+test('pageUrlIn reads the page URL a playwright-cli snapshot reports', () => {
+  assert.equal(pageUrlIn('### Page\n- Page URL: http://localhost:4507/x?y=1\n- Page Title: Portal'), 'http://localhost:4507/x?y=1');
+  assert.equal(pageUrlIn('### Snapshot\nno url'), null);
+});
+
+test('authCheck says what happened from the same condition the reply used, and never shows the code', () => {
+  const app = 'http://localhost:4507/';
   const ok = { status: 0, stdout: '', stderr: '' };
-  assert.equal(authCheck('portal', '123456', 'pangular.log', ok).status, 'pass');
-  const failed = authCheck('portal', '123456', 'pangular.log', { status: 1, stdout: '', stderr: 'no dialog' });
+  assert.equal(authCheck('portal', '123456', app, app, 'pangular.log', ok).status, 'pass');
+  const failed = authCheck('portal', '123456', app, app, 'pangular.log', { status: 1, stdout: '', stderr: 'dialog-accept 123456: no dialog' });
   assert.equal(failed.status, 'warn');
-  assert.match(failed.detail, /dialog-accept failed: no dialog/);
-  assert.doesNotMatch(failed.detail, /^entered/);
-  assert.match(authCheck('portal', null, null, ok).detail, /^dismissed .*no control-pangular-inspector state file/);
-  assert.match(authCheck('counter', '123456', 'pangular.log', ok).detail, /^dismissed .*not the portal/);
+  assert.match(failed.detail, /dialog-accept failed: dialog-accept <code>: no dialog/);
+  assert.doesNotMatch(failed.detail, /123456/);
+  assert.match(authCheck('portal', null, app, app, null, ok).detail, /^dismissed .*no control-pangular-inspector state file/);
+  assert.match(authCheck('counter', '123456', app, app, 'pangular.log', ok).detail, /^dismissed .*not the portal/);
+  assert.match(authCheck('portal', '123456', 'https://evil.example/', app, 'pangular.log', ok).detail, /^dismissed a code prompt on https:\/\/evil\.example\/, not on the portal's origin/);
 });
 
 test('timeoutMsOf refuses a value that is not a positive number', () => {
@@ -351,14 +362,15 @@ test('urlPort reads the scheme default when the URL names no port', () => {
   assert.equal(flowIdFor(['doctor', '--url', 'https://localhost/']), 'url-443');
 });
 
-test('orphansOf finds the children a gone root left, started after it', () => {
+test('orphansOf finds the children a gone root left, started after it, under the target folder', () => {
   const proc = { name: 'app', pid: 7, port: 4222, readyUrl: '', log: '', start: '2026-10-16T12:00:00.0000000Z', commandLine: 'node nx.js run' };
   const table = [
-    { ProcessId: 20, ParentProcessId: 7, Start: '2026-10-16T12:00:01.0000000Z', CommandLine: 'node executor' },
+    { ProcessId: 20, ParentProcessId: 7, Start: '2026-10-16T12:00:01.0000000Z', CommandLine: 'node D:\\Portal\\node_modules\\nx\\bin\\run-executor.js' },
+    { ProcessId: 24, ParentProcessId: 7, Start: '2026-10-16T12:00:03.0000000Z', CommandLine: 'C:\\other\\tool.exe' },
     { ProcessId: 21, ParentProcessId: 7, Start: '2026-10-16T11:00:00.0000000Z', CommandLine: 'older: parent PID reused' },
     { ProcessId: 22, ParentProcessId: 8, Start: '2026-10-16T12:00:02.0000000Z', CommandLine: 'unrelated' },
     { ProcessId: 23, ParentProcessId: 7, Start: null, CommandLine: null },
   ];
-  assert.deepEqual(orphansOf(table, proc).map((r) => r.ProcessId), [20]);
-  assert.deepEqual(orphansOf(table, { ...proc, start: null }), [], 'no recorded start: nothing to compare, nothing stopped');
+  assert.deepEqual(orphansOf(table, proc, 'D:\\portal').map((r) => r.ProcessId), [20], "a child outside the folder is not the run's");
+  assert.deepEqual(orphansOf(table, { ...proc, start: null }, 'D:\\portal'), [], 'no recorded start: nothing to compare, nothing stopped');
 });

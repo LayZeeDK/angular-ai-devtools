@@ -486,30 +486,62 @@ export function timeoutMsOf(args, defaultSeconds) {
 }
 
 /**
- * The playwright-cli command that answers the Pangular overlay's code prompt. The one-time code of the devtools server
- * goes only to the portal, the one target whose dev server proxies /__pangular to it; any other page's prompt (an
- * --url attach included) is dismissed.
- * @param {string | undefined} target
- * @param {string | null} otp
- * @returns {string[]}
+ * The page URL a playwright-cli snapshot reports (`- Page URL: <url>`), or null.
+ * @param {string} snapshot
+ * @returns {string | null}
  */
-export function authReply(target, otp) {
-  return target === 'portal' && otp ? ['dialog-accept', otp] : ['dialog-dismiss'];
+export function pageUrlIn(snapshot) {
+  return snapshot.match(/^- Page URL: (\S+)/m)?.[1] ?? null;
 }
 
 /**
- * The `pangular-auth` check for the reply authReply chose and how playwright-cli ran it.
+ * Whether two URLs have the same origin; false when either is missing or invalid.
+ * @param {string | null} a
+ * @param {string | null} b
+ * @returns {boolean}
+ */
+function sameOrigin(a, b) {
+  try {
+    return a !== null && b !== null && new URL(a).origin === new URL(b).origin;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The playwright-cli command that answers the Pangular overlay's code prompt. The one-time code of the devtools server
+ * goes only to a page on the portal's own origin, the one target whose dev server proxies /__pangular to it; any other
+ * page's prompt (another origin, another target, an --url attach) is dismissed.
  * @param {string | undefined} target
  * @param {string | null} otp
+ * @param {string | null} pageUrl  the URL of the page that shows the prompt
+ * @param {string} appUrl  the run's app URL
+ * @returns {string[]}
+ */
+export function authReply(target, otp, pageUrl, appUrl) {
+  return target === 'portal' && otp && sameOrigin(pageUrl, appUrl) ? ['dialog-accept', otp] : ['dialog-dismiss'];
+}
+
+/**
+ * The `pangular-auth` check for the reply authReply chose and how playwright-cli ran it. The code itself never appears
+ * in the detail, also when playwright-cli echoes it in an error.
+ * @param {string | undefined} target
+ * @param {string | null} otp
+ * @param {string | null} pageUrl
+ * @param {string} appUrl
  * @param {string | null} logName  the server log the code came from
  * @param {Run} reply
  * @returns {Check}
  */
-export function authCheck(target, otp, logName, reply) {
+export function authCheck(target, otp, pageUrl, appUrl, logName, reply) {
   const name = 'pangular-auth';
 
   if (target !== 'portal') {
     return { name, status: 'warn', detail: 'dismissed a code prompt on a page that is not the portal; the one-time code goes only to the portal' };
+  }
+
+  if (!sameOrigin(pageUrl, appUrl)) {
+    return { name, status: 'warn', detail: `dismissed a code prompt on ${pageUrl ?? 'a page whose URL the snapshot did not name'}, not on the portal's origin; the one-time code goes only there` };
   }
 
   if (!otp) {
@@ -517,7 +549,9 @@ export function authCheck(target, otp, logName, reply) {
   }
 
   if (reply.status !== 0) {
-    return { name, status: 'warn', detail: `found the one-time code in ${logName}, but dialog-accept failed: ${(reply.stderr || reply.stdout).trim().slice(0, 200)}` };
+    const error = (reply.stderr || reply.stdout).split(otp).join('<code>').trim().slice(0, 200);
+
+    return { name, status: 'warn', detail: `found the one-time code in ${logName}, but dialog-accept failed: ${error}` };
   }
 
   return { name, status: 'pass', detail: `entered the one-time code from ${logName} into the overlay prompt` };
@@ -549,19 +583,22 @@ export function checkLine(c) {
 
 /**
  * The processes a recorded root left behind when it exited: its direct children (an Nx executor keeps the dead PID as
- * its ParentProcessId) that started after it, so a later process that got the same PID is never the parent matched.
+ * its ParentProcessId) that started after it and whose command line names the target folder, so a process under a
+ * later owner of the same PID is never matched. A grandchild whose own parent also exited is not found.
  * @param {ProcessRow[]} table
  * @param {ProcState} proc
+ * @param {string} dir  the target folder the run served from
  * @returns {ProcessRow[]}
  */
-export function orphansOf(table, proc) {
+export function orphansOf(table, proc, dir) {
   const start = proc.start;
+  const folder = path.resolve(dir).toLowerCase();
 
   if (start === null) {
     return [];
   }
 
-  return table.filter((r) => r.ParentProcessId === proc.pid && r.Start !== null && r.Start > start);
+  return table.filter((r) => r.ParentProcessId === proc.pid && r.Start !== null && r.Start > start && (r.CommandLine ?? '').toLowerCase().includes(folder));
 }
 
 /**
@@ -1071,16 +1108,20 @@ async function doctor() {
   const pw = (args) => {
     let res = playwrightCli([`-s=${s}`, ...args]);
 
-    // Only run-code and eval errors omit the dialog text; snapshot names it (measured).
-    /** @type {(x: Run) => boolean} */
-    const isAuthPrompt = (x) => /modal state/i.test(x.stdout + x.stderr) && /authentication code/i.test(playwrightCli([`-s=${s}`, 'snapshot']).stdout);
+    // Only run-code and eval errors omit the dialog text; snapshot names it (measured), and the page URL.
+    for (let i = 0; i < 3 && /modal state/i.test(res.stdout + res.stderr); i++) {
+      const snapshot = playwrightCli([`-s=${s}`, 'snapshot']).stdout;
 
-    for (let i = 0; i < 3 && isAuthPrompt(res); i++) {
+      if (!/authentication code/i.test(snapshot)) {
+        break;
+      }
+
+      const pageUrl = pageUrlIn(snapshot);
       const otp = pangular.log && existsSync(pangular.log) ? authCodeIn(readFileSync(pangular.log, 'utf8')) : null;
-      const reply = playwrightCli([`-s=${s}`, ...authReply(state.target, otp)]);
+      const reply = playwrightCli([`-s=${s}`, ...authReply(state.target, otp, pageUrl, state.url)]);
 
       if (!authNoted) {
-        checks.push(authCheck(state.target, otp, pangular.log && path.basename(pangular.log), reply));
+        checks.push(authCheck(state.target, otp, pageUrl, state.url, pangular.log && path.basename(pangular.log), reply));
         authNoted = true;
       }
 
@@ -1165,7 +1206,7 @@ function down() {
     const row = table.find((r) => r.ProcessId === p.pid);
 
     if (!row) {
-      const orphans = orphansOf(table, p);
+      const orphans = state.dir === undefined ? [] : orphansOf(table, p, state.dir);
       notes.push(`${p.name} PID ${p.pid} is not running${orphans.length ? `; stopping the ${orphans.length} child process(es) it left` : ''}`);
 
       for (const o of orphans) {
