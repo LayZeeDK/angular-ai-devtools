@@ -43,7 +43,7 @@ Preconditions:
 ## Gotchas
 
 - Outside the hold, no component is mounted: `vitest-browser-angular` cleans up before each test, and TestBed
-  tears down after each.
+  tears down after each. A drive that finds no mounted Counter is inconclusive, not a failure of the claim.
 - `<app-counter>` does not exist under TestBed; select `[ng-version]`.
 - Clicks by the agent after the test's halfway click do not affect its expectation; clicks before it are counted
   in the value it reads first.

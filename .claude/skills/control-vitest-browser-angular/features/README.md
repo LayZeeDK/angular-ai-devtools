@@ -30,12 +30,19 @@ control-vitest-browser-angular. Read this index, then use the matching feature f
 - Capture the action and the state after it: snapshots before and after, one screenshot of the Vitest tab.
 - Check the side effect next to the screen: the `ng.*` state read in the frame, and the test result in
   `ng-test.log`.
+- No mocks except the `CartService` override the spec itself makes; no test-only hooks beyond the hold.
+- A claim that names an entry point is driven through that entry point; a different path does not count.
 - For a fix, run the same recipe on the old state (a second worktree, which gets its own derived Vitest port)
-  and on the change; report verified, not verified, or inconclusive. One run at a time per checkout.
+  and on the change. One run at a time per checkout and one browser instance at a time, so a baseline and its
+  change run one after the other.
+- The verdict comes from lars-verify. Verified: `doctor` exited 0, the expected end state is in the
+  after-snapshot or the read, and for a fix the baseline shows the old behaviour. Not verified: `doctor`
+  exited 0 and the end state or the test summary contradicts the claim. Inconclusive: `doctor` failed, the
+  Counter was not mounted when driven (the hold ran out), there is no valid baseline, or a pass did not repeat.
 - A recipe that passed once after a fix runs a second time before it counts.
 - Name each entry point you did not reach and why; do not count it as covered through another path.
 - A result from the bundled flow says nothing about the model; a result from one instance says nothing about
-  another browser.
+  another browser. Name the browser and version `doctor` reports.
 
 ## Feature entry contract
 

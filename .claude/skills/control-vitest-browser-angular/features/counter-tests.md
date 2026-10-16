@@ -34,6 +34,8 @@ Preconditions:
 - **Rerun.** `touch spikes/ng222-app/src/app/counter.spec.ts`; the log gains `RERUN  src/app/counter.spec.ts x1`
   and a new summary.
 - Save the log lines you cite: `cp <evidenceDir>/ng-test.log <evidenceDir>/ng-test-<step>.log`.
+- **Evidence for a test-result claim** is the run's own log: copy it only after the `Tests` summary line
+  appears, and cite the summary and any failure text. `doctor` passing is not a test result.
 
 ## Gotchas
 
