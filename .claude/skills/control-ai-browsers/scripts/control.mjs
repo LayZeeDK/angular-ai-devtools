@@ -27,7 +27,7 @@ import { mapFresh, printable } from './fingerprint.mjs';
  */
 /** @typedef {'gpu' | 'cpu'} Backend */
 /** @typedef {{ ProcessId: number, ExecutablePath: string | null, CommandLine: string | null, Created: string | null }} ProcRow */
-/** @typedef {{ userDataDir: string | null, port: number, features: string[], args: string[] }} CommandLine */
+/** @typedef {{ userDataDir: string | null, port: number, features: string[], args: string[], flags: string[] }} CommandLine */
 /** @typedef {{ backend: Backend | null, problems: string[], commandLine: CommandLine }} Drift */
 
 /**
@@ -194,7 +194,8 @@ export function positiveFlag(flag, value, fallback, what = 'number above 0') {
     return fallback;
   }
 
-  const n = typeof value === 'string' && value.trim() !== '' ? Number(value) : NaN;
+  // Decimal digits only: Number() alone also reads 0x2400, 1e3 and padded whitespace.
+  const n = typeof value === 'string' && /^\d+(\.\d+)?$/.test(value) ? Number(value) : NaN;
 
   if (!(Number.isFinite(n) && n > 0)) {
     return refuse(`usage: --${flag}=<${what}>; got ${value === true ? `--${flag} with no value` : JSON.stringify(value)}`);
@@ -563,6 +564,8 @@ export function parseCommandLine(commandLine) {
     port: Number(cl.match(/--remote-debugging-port=(\d+)/)?.[1] ?? NaN),
     features: (cl.match(/--enable-features=(?:"([^"]+)"|(\S+))/)?.slice(1).find(Boolean) ?? '').split(',').filter(Boolean),
     args: REGISTRY.commonArgs.filter((a) => cl.includes(a)),
+    // Every switch name, in order: drift compares them with what up launches.
+    flags: [...cl.matchAll(/(?:^|\s)"?(--[A-Za-z0-9-]+)/g)].map((m) => m[1] ?? ''),
   };
 }
 
@@ -645,6 +648,16 @@ export function drift(inst, proc) {
 
   for (const a of REGISTRY.commonArgs.filter((x) => !cl.args.includes(x))) {
     problems.push(`missing ${a}`);
+  }
+
+  const launched = ['--user-data-dir', '--remote-debugging-port', '--enable-features', ...REGISTRY.commonArgs];
+
+  for (const [i, f] of cl.flags.entries()) {
+    if (!launched.includes(f)) {
+      problems.push(`extra ${f}`);
+    } else if (cl.flags.indexOf(f) !== i) {
+      problems.push(`repeated ${f}`);
+    }
   }
 
   return { backend, problems, commandLine: cl };

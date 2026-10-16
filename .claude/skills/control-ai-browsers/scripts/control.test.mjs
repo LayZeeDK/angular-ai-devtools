@@ -225,12 +225,12 @@ test('featuresFor adds the backend features and refuses a null or unknown backen
 
 test('parseCommandLine reads quoted and bare values', () => {
   const cl = parseCommandLine('"C:\\b\\chrome.exe" --user-data-dir="D:\\p q\\x" --remote-debugging-port=9333 --no-first-run --enable-features=A,B about:blank');
-  assert.deepEqual(cl, { userDataDir: 'D:\\p q\\x', port: 9333, features: ['A', 'B'], args: ['--no-first-run'] });
+  assert.deepEqual(cl, { userDataDir: 'D:\\p q\\x', port: 9333, features: ['A', 'B'], args: ['--no-first-run'], flags: ['--user-data-dir', '--remote-debugging-port', '--no-first-run', '--enable-features'] });
   const bare = parseCommandLine('x --user-data-dir=D:\\p\\y --enable-features="C,D"');
   assert.equal(bare.userDataDir, 'D:\\p\\y');
   assert.deepEqual(bare.features, ['C', 'D']);
   assert.ok(Number.isNaN(bare.port));
-  assert.deepEqual(parseCommandLine(null), { userDataDir: null, port: NaN, features: [], args: [] });
+  assert.deepEqual(parseCommandLine(null), { userDataDir: null, port: NaN, features: [], args: [], flags: [] });
 });
 
 test('sameDir compares resolved paths without letter case', () => {
@@ -256,6 +256,8 @@ test('drift finds the backend of the launch command line and reports every diffe
     '--enable-features matches no registry backend: AIPromptAPI',
     'missing --no-first-run',
   ]);
+  const gpuArgs = launchArgs(chromeLike, featuresFor(chromeLike, 'gpu'));
+  assert.deepEqual(drift(chromeLike, proc([...gpuArgs.slice(0, -1), '--headless', '--enable-features=X', 'about:blank'])).problems, ['extra --headless', 'repeated --enable-features'], 'a switch up does not launch is drift');
   assert.equal(drift(edgeLike, proc(launchArgs(edgeLike, ['AIPromptAPI', 'WebMCP']))).backend, 'gpu', 'an empty backend list matches the base features');
   assert.equal(drift(edgeLike, proc(launchArgs(edgeLike, ['Other']))).backend, null, 'a null backend is skipped, not spread');
 });
@@ -425,7 +427,7 @@ test('positiveFlag refuses a non-numeric, non-finite, zero or negative value wit
   assert.equal(positiveFlag('timeout-min', undefined, 15), 15);
   assert.equal(positiveFlag('timeout-min', '2.5', 15), 2.5);
 
-  for (const bad of ['abc', 'NaN', 'Infinity', '-Infinity', '0', '-3', '', ' ', '1e999', true]) {
+  for (const bad of ['abc', 'NaN', 'Infinity', '-Infinity', '0', '-3', '', ' ', '1e999', '1e3', '0x10', ' 5', true]) {
     assert.throws(() => positiveFlag('timeout-min', bad, 15), (e) => e instanceof Refusal && /^usage: --timeout-min=<number above 0>; got /.test(e.message), String(bad));
   }
 });
@@ -434,7 +436,7 @@ test('portFlag takes a port number and refuses anything else', () => {
   assert.equal(portFlag(undefined), undefined);
   assert.equal(portFlag('9651'), 9651);
 
-  for (const bad of ['x', '0', '-1', '1.5', '65536', true]) {
+  for (const bad of ['x', '0', '-1', '1.5', '65536', '0x2400', true]) {
     assert.throws(() => portFlag(bad), (e) => e instanceof Refusal && /^usage: --port=<port number 1-65535>; got /.test(e.message), String(bad));
   }
 });

@@ -80,7 +80,8 @@ of the 10 has a free port (or `--port=N` is busy), or when the profile path reso
 and the main process is found by its `--user-data-dir`. It then closes tabs Edge restored from the last session,
 leaving one blank tab, and on Chrome turns on "Enable internal debugging pages" (`chrome://chrome-urls`), which
 `on-device-internals` needs in a new profile. Measured time to ready: 1.3-2.2 s, once 28 s (Edge Dev). An
-instance that already runs as requested (same backend, same port when `--port=N` is given, no drift) is not
+instance that already runs as requested (same backend, same port when `--port=N` is given, no drift: the
+registry executable, and exactly the switches `up` launches with) is not
 restarted: `up` records it and exits 0 with `alreadyRunning: true`. A live instance that does not match exits 2
 naming its PID, its port and each difference. This uses the generated-skill contract's exception for skills whose
 instances stay running between runs (lars-create-verification `references/generated-skill.md`, "State"): the
@@ -104,7 +105,7 @@ Read-only; one line per check:
 |---|---|
 | `map-fresh` | always, first; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`) or that were never proven; never fails doctor |
 | `process` | one main process uses the instance profile |
-| `commandLine` | executable, the two common arguments and `--enable-features` match the registry for one backend, and from a worktree the port is not the registry's (drift check) |
+| `commandLine` | executable, the two common arguments and `--enable-features` match the registry for one backend, no other switch is present and none repeats, and from a worktree the port is not the registry's (drift check) |
 | `ports` | the CDP port listens, the main PID holds it, and `/json/version` answers with the right product: `[OK] ports: cdp 9680 (derived), bench app 4222 (external: ...); http://127.0.0.1:9680 answers as Chrome/157.0.8103.6` (measured 2026-10-16); the external bench app port is listed, not checked |
 | `tabs` | always; `[WARN]` when more than one tab is open |
 | `model.disk` | a `manifest.json` in the profile names the expected model; `[WARN]` lists other models in the profile |
@@ -206,7 +207,7 @@ playwright-cli runs as node with `node_modules/@playwright/cli/playwright-cli.js
 Exit codes: 0 done or healthy; 1 not healthy or the change did not take; 2 refused or could not run, with the
 reason (unknown instance, not running, missing state file, PID mismatch, port owned by another process, running
 instance for `clear`, missing `--confirm`, `--backend=cpu` on Edge, junctioned profile, missing fixture, a numeric
-flag (`--timeout-min`, `--port`) whose value is not a finite number above 0, or for `--port` not a port number;
+flag (`--timeout-min`, `--port`) whose value is not a decimal number above 0, or for `--port` not a port number;
 the line starts with `usage:`). Model
 answers, page text and playwright-cli output in a human-readable line are printed with their control characters
 escaped.
