@@ -34,7 +34,7 @@ excluded port range.
 |---|---|---|---|
 | vitest | derived | 51315 | `--port`, passed as `VITEST_BROWSER_PORT` to `vitest-base.config.mts` (`strictPort`) (measured: listened on 51436, and on its fallback 51437 while a throwaway listener held 51436) |
 | bundled-cdp | derived | 9350 | moves with the slot, passed as `VITEST_CDP_PORT` to Chromium's `--remote-debugging-port` (bundled mode only; measured: 9437, the fallback slot's) |
-| instance | external | the instance's CDP port | control-ai-browsers owns it: `up` asks `control-ai-browsers up <instance> --json` for it, which starts the instance when it is not running (measured: 9334 for `chrome-beta-gemma4`) |
+| instance | external | the instance's CDP port | control-ai-browsers owns it: `up` asks `control-ai-browsers up <instance> --json` for it, which starts the instance when it is not running (measured: 9334 for `chrome-beta-gemma4` before control-ai-browsers derived worktree ports, 9681 after, in the `verification-skills` worktree) |
 
 - `--port N` sets the Vitest port with no fallback for it: a busy `N` exits 2 naming its holder's PID; from a
   worktree the main checkout's 51315 is refused. The bundled CDP port still derives and falls back.
