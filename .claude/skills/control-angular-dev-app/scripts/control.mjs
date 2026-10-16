@@ -20,6 +20,7 @@ import { mapFresh, printable } from './fingerprint.mjs';
 /** @typedef {{ dir: string, marker: string, ports: (dir: string) => PortRow[], procs: (dir: string, ports: Record<string, number>) => ProcSpec[] }} Target */
 /** @typedef {{ ProcessId: number, ParentProcessId: number, Start: string | null, CommandLine: string | null }} ProcessRow */
 /** @typedef {{ name: string, pid: number, port: number, readyUrl: string, log: string, start: string | null, commandLine: string | null }} ProcState */
+/** @typedef {{ pid: number, start: string | null, commandLine: string | null }} Tracked */
 
 /**
  * @typedef {object} State
@@ -36,6 +37,7 @@ import { mapFresh, printable } from './fingerprint.mjs';
  * @property {number} [port]
  * @property {number} [slot]
  * @property {PortEntry[]} [ports]
+ * @property {Tracked[]} [tracked]  the processes below `procs` seen once the run was ready, and on each doctor
  */
 
 /** @typedef {{ name: string, status: 'pass' | 'fail' | 'warn' | 'skip', detail: string }} Check */
@@ -583,23 +585,112 @@ export function checkLine(c) {
 }
 
 /**
- * The processes a recorded root left behind when it exited: its direct children (an Nx executor keeps the dead PID as
- * its ParentProcessId) that started after it and whose command line names the target folder, so a process under a
- * later owner of the same PID is never matched. A grandchild whose own parent also exited is not found.
+ * The live processes this run started, deepest first: each known process (a recorded root or tracked descendant)
+ * whose row still has the recorded start time and command line, and every process below one of them that started
+ * after its parent. A known process that is gone still counts as a parent, then only for a child whose command line
+ * names the target folder (an Nx executor keeps a dead PID as its ParentProcessId; a later owner of that PID has
+ * other children). A PID now held by another process (other start time or command line) is not followed.
  * @param {ProcessRow[]} table
- * @param {ProcState} proc
- * @param {string} dir  the target folder the run served from
+ * @param {Tracked[]} known
+ * @param {string | undefined} dir  the target folder the run served from
  * @returns {ProcessRow[]}
  */
-export function orphansOf(table, proc, dir) {
-  const start = proc.start;
-  const folder = path.resolve(dir).toLowerCase();
+export function ownedProcesses(table, known, dir) {
+  const folder = dir === undefined ? null : path.resolve(dir).toLowerCase();
+  const byPid = new Map(table.map((r) => [r.ProcessId, r]));
+  /** @type {Map<number, { start: string, live: boolean }>} */
+  const parents = new Map();
+  /** @type {ProcessRow[]} */
+  const owned = [];
 
-  if (start === null) {
-    return [];
+  for (const k of known) {
+    const row = byPid.get(k.pid);
+
+    if (k.start === null || parents.has(k.pid)) {
+      continue;
+    }
+
+    if (row === undefined) {
+      parents.set(k.pid, { start: k.start, live: false });
+    } else if (row.Start === k.start && row.CommandLine === k.commandLine) {
+      parents.set(k.pid, { start: k.start, live: true });
+      owned.push(row);
+    }
   }
 
-  return table.filter((r) => r.ParentProcessId === proc.pid && r.Start !== null && r.Start > start && (r.CommandLine ?? '').toLowerCase().includes(folder));
+  let grew = true;
+
+  while (grew) {
+    grew = false;
+
+    for (const r of table) {
+      const parent = parents.get(r.ParentProcessId);
+
+      if (parent === undefined || parents.has(r.ProcessId) || r.Start === null || r.Start <= parent.start) {
+        continue;
+      }
+
+      if (!parent.live && (folder === null || !(r.CommandLine ?? '').toLowerCase().includes(folder))) {
+        continue;
+      }
+
+      parents.set(r.ProcessId, { start: r.Start, live: true });
+      owned.push(r);
+      grew = true;
+    }
+  }
+
+  return owned.reverse();
+}
+
+/**
+ * The descendants to record in the state file: those tracked before, and every live process below the roots now.
+ * @param {ProcessRow[]} table
+ * @param {State} state
+ * @returns {Tracked[]}
+ */
+export function trackedOf(table, state) {
+  const roots = new Set(state.procs.map((p) => p.pid));
+  /** @type {Map<string, Tracked>} */
+  const all = new Map();
+  const live = ownedProcesses(table, [...state.procs, ...(state.tracked ?? [])], state.dir).filter((r) => !roots.has(r.ProcessId));
+
+  for (const t of [...(state.tracked ?? []), ...live.map((r) => ({ pid: r.ProcessId, start: r.Start, commandLine: r.CommandLine }))]) {
+    all.set(`${t.pid}@${t.start}`, t);
+  }
+
+  return [...all.values()];
+}
+
+/**
+ * Stop every live process this run started, one PID at a time (`taskkill /PID <pid> /F`, no `/T`: a tree walk would
+ * follow a reused PID's children), deepest first, and look again for a child started meanwhile.
+ * @param {Tracked[]} known
+ * @param {string | undefined} dir
+ * @param {() => ProcessRow[]} [table]
+ * @returns {string[]}  one note per process
+ */
+export function stopOwned(known, dir, table = processTable) {
+  /** @type {Tracked[]} */
+  const seen = [...known];
+  /** @type {string[]} */
+  const notes = [];
+
+  for (let pass = 0; pass < 3; pass++) {
+    const owned = ownedProcesses(table(), seen, dir);
+
+    if (owned.length === 0) {
+      break;
+    }
+
+    for (const r of owned) {
+      const k = spawnSync(path.join(SYSTEM32, 'taskkill.exe'), ['/PID', String(r.ProcessId), '/F'], { encoding: 'utf8', windowsHide: true });
+      notes.push(`stopped PID ${r.ProcessId} (${printable((r.CommandLine ?? '').slice(0, 80))}): ${k.status === 0 ? 'ok' : printable(k.stderr.trim())}`);
+      seen.push({ pid: r.ProcessId, start: r.Start, commandLine: r.CommandLine });
+    }
+  }
+
+  return notes;
 }
 
 /**
@@ -650,7 +741,7 @@ function binOf(dir, pkg, binName) {
 }
 
 /** @returns {ProcessRow[]} */
-function processTable() {
+export function processTable() {
   const ps = "Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,@{n='Start';e={$_.CreationDate.ToUniversalTime().ToString('o')}},CommandLine | ConvertTo-Json -Compress";
   const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', ps], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
 
@@ -1018,6 +1109,8 @@ async function up() {
     attempt += 1;
 
     if (busy === null) {
+      state.tracked = trackedOf(processTable(), state);
+      writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
       out({ ok: true, command: 'up', readyInSeconds: Math.round((Date.now() - t0) / 100) / 10, ...state }, 0);
     }
 
@@ -1089,6 +1182,9 @@ async function doctor() {
     }
 
     // A state file written before ports were recorded: check the ports its processes record.
+    state.tracked = trackedOf(table, state);
+    writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
+    add('tracked', 'pass', `${state.tracked.length} process(es) below the roots recorded for down`);
     const ports = portsCheck(state.ports ?? state.procs.map((p) => ({ name: p.name, port: p.port, kind: /** @type {PortKind} */ ('derived') })), busyPorts(), tree);
     add('ports', ports.status, ports.detail);
 
@@ -1198,8 +1294,6 @@ function down() {
   const sp = statePath(flowId);
   const state = readState(flowId);
   const table = processTable();
-  /** @type {ProcState[]} */
-  const toStop = [];
   /** @type {string[]} */
   const notes = [];
 
@@ -1207,13 +1301,7 @@ function down() {
     const row = table.find((r) => r.ProcessId === p.pid);
 
     if (!row) {
-      const orphans = state.dir === undefined ? [] : orphansOf(table, p, state.dir);
-      notes.push(`${p.name} PID ${p.pid} is not running${orphans.length ? `; stopping the ${orphans.length} child process(es) it left` : ''}`);
-
-      for (const o of orphans) {
-        const r = stopTree(o.ProcessId);
-        notes.push(`stopped ${p.name}'s child tree of PID ${o.ProcessId}: ${r.status === 0 ? 'ok' : r.stderr.trim()}`);
-      }
+      notes.push(`${p.name} PID ${p.pid} is not running`);
 
       continue;
     }
@@ -1223,17 +1311,11 @@ function down() {
     if (mismatch !== null) {
       fail(2, mismatch, { state: sp });
     }
-
-    toStop.push(p);
   }
 
   const close = playwrightCli([`-s=${state.session}`, 'close']);
   notes.push(`session ${state.session}: ${close.status === 0 ? 'closed' : 'was not open'}`);
-
-  for (const p of toStop) {
-    const r = stopTree(p.pid);
-    notes.push(`stopped ${p.name} tree of PID ${p.pid}: ${r.status === 0 ? 'ok' : r.stderr.trim()}`);
-  }
+  notes.push(...stopOwned([...state.procs, ...(state.tracked ?? [])], state.dir));
 
   rmSync(sp, { force: true });
   out({ ok: true, command: 'down', flowId, evidenceDir: state.evidenceDir, notes }, 0);

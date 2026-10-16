@@ -1,12 +1,14 @@
 // @ts-check
 // Run: node --test .claude/skills/control-angular-dev-app/scripts/control.test.mjs
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { spawn } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, cdMode, checkLine, consoleErrors, currentTabUrl, descendants, flagIn, flowIdFor, isWorktree, listeners, markerCheck, orphansOf, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder, takenBy, timeoutMsOf, urlPort } from './control.mjs';
+import { setTimeout as sleep } from 'node:timers/promises';
+import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, cdMode, checkLine, consoleErrors, currentTabUrl, descendants, flagIn, flowIdFor, isWorktree, listeners, markerCheck, ownedProcesses, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, processTable, slotOf, slotOrder, stopOwned, takenBy, trackedOf, timeoutMsOf, urlPort } from './control.mjs';
 
 /**
  * A throwaway listener on a port the OS picks; closed after the test.
@@ -364,15 +366,102 @@ test('urlPort reads the scheme default when the URL names no port', () => {
   assert.equal(flowIdFor(['doctor', '--url', 'https://localhost/']), 'url-443');
 });
 
-test('orphansOf finds the children a gone root left, started after it, under the target folder', () => {
-  const proc = { name: 'app', pid: 7, port: 4222, readyUrl: '', log: '', start: '2026-10-16T12:00:00.0000000Z', commandLine: 'node nx.js run' };
+test('ownedProcesses follows recorded processes that still match, and the children a gone one left under the target folder', () => {
+  const root = { pid: 7, start: '2026-10-16T12:00:00.0000000Z', commandLine: 'node nx.js run' };
   const table = [
     { ProcessId: 20, ParentProcessId: 7, Start: '2026-10-16T12:00:01.0000000Z', CommandLine: 'node D:\\Portal\\node_modules\\nx\\bin\\run-executor.js' },
+    { ProcessId: 30, ParentProcessId: 20, Start: '2026-10-16T12:00:02.0000000Z', CommandLine: 'esbuild --service' },
     { ProcessId: 24, ParentProcessId: 7, Start: '2026-10-16T12:00:03.0000000Z', CommandLine: 'C:\\other\\tool.exe' },
     { ProcessId: 21, ParentProcessId: 7, Start: '2026-10-16T11:00:00.0000000Z', CommandLine: 'older: parent PID reused' },
     { ProcessId: 22, ParentProcessId: 8, Start: '2026-10-16T12:00:02.0000000Z', CommandLine: 'unrelated' },
     { ProcessId: 23, ParentProcessId: 7, Start: null, CommandLine: null },
   ];
-  assert.deepEqual(orphansOf(table, proc, 'D:\\portal').map((r) => r.ProcessId), [20], "a child outside the folder is not the run's");
-  assert.deepEqual(orphansOf(table, { ...proc, start: null }, 'D:\\portal'), [], 'no recorded start: nothing to compare, nothing stopped');
+  assert.deepEqual(ownedProcesses(table, [root], 'D:\\portal').map((r) => r.ProcessId), [30, 20], "root gone: only its child under the folder, and that child's own tree, deepest first");
+  assert.deepEqual(ownedProcesses(table, [{ ...root, start: null }], 'D:\\portal'), [], 'no recorded start: nothing to compare, nothing stopped');
+
+  const live = [{ ProcessId: 7, ParentProcessId: 1, Start: root.start, CommandLine: root.commandLine }, ...table];
+  assert.deepEqual(ownedProcesses(live, [root], 'D:\\portal').map((r) => r.ProcessId).sort((a, b) => a - b), [7, 20, 24, 30], 'root alive: its whole tree that started after it');
+
+  const reused = [{ ProcessId: 7, ParentProcessId: 1, Start: '2026-10-16T13:00:00.0000000Z', CommandLine: 'someone else' }, ...table];
+  assert.deepEqual(ownedProcesses(reused, [root], 'D:\\portal'), [], 'PID 7 now held by another process: neither it nor its children');
+
+  const grandchild = { pid: 30, start: '2026-10-16T12:00:02.0000000Z', commandLine: 'esbuild --service' };
+  const parentGone = table.filter((r) => r.ProcessId !== 20);
+  assert.deepEqual(ownedProcesses(parentGone, [root, grandchild], 'D:\\portal').map((r) => r.ProcessId), [30], 'a tracked grandchild whose parent exited is still found');
+  assert.deepEqual(ownedProcesses(parentGone, [root, { ...grandchild, commandLine: 'other' }], 'D:\\portal'), [], 'a tracked PID with another command line is not');
+});
+
+test('trackedOf records the descendants below the roots and keeps those recorded before', () => {
+  const proc = { name: 'app', pid: 7, port: 4222, readyUrl: '', log: '', start: '2026-10-16T12:00:00.0000000Z', commandLine: 'node ng serve' };
+  const table = [
+    { ProcessId: 7, ParentProcessId: 1, Start: proc.start, CommandLine: proc.commandLine },
+    { ProcessId: 20, ParentProcessId: 7, Start: '2026-10-16T12:00:01.0000000Z', CommandLine: 'esbuild' },
+  ];
+  const earlier = { pid: 31, start: '2026-10-16T12:00:05.0000000Z', commandLine: 'gone' };
+  const state = /** @type {Parameters<typeof trackedOf>[1]} */ ({ flowId: 'counter', mode: 'launch', url: '', session: '', evidenceDir: '', startedAt: '', procs: [proc], dir: 'D:\\app', tracked: [earlier] });
+  assert.deepEqual(trackedOf(table, state), [earlier, { pid: 20, start: '2026-10-16T12:00:01.0000000Z', commandLine: 'esbuild' }]);
+});
+
+test('stopOwned stops a recorded grandchild whose parent exited, and leaves an unrelated process alone', { skip: process.platform !== 'win32' && 'taskkill and Win32_Process' }, async (t) => {
+  const dir = realpathSync.native(mkdtempSync(join(tmpdir(), 'ngdev-tree-')));
+  writeFileSync(join(dir, 'idle.js'), 'setInterval(() => {}, 1000);\n');
+  writeFileSync(join(dir, 'root.js'), "const { spawn } = require('node:child_process');\nspawn(process.execPath, [require('node:path').join(__dirname, 'parent.js')], { stdio: 'ignore' });\nsetInterval(() => {}, 1000);\n");
+  writeFileSync(join(dir, 'parent.js'), [
+    "const { spawn } = require('node:child_process');",
+    "const { existsSync, writeFileSync } = require('node:fs');",
+    "const { join } = require('node:path');",
+    "const g = spawn(process.execPath, [join(__dirname, 'idle.js'), 'grandchild'], { detached: true, stdio: 'ignore' });",
+    'g.unref();',
+    "writeFileSync(join(__dirname, 'pids'), `${process.pid} ${g.pid}`);",
+    "setInterval(() => { if (existsSync(join(__dirname, 'exit'))) { process.exit(0); } }, 100);",
+    '',
+  ].join('\n'));
+  const root = spawn(process.execPath, [join(dir, 'root.js')], { detached: true, stdio: 'ignore' });
+  const decoy = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { detached: true, stdio: 'ignore' });
+  root.unref();
+  decoy.unref();
+  /** @type {(number | undefined)[]} */
+  const started = [root.pid, decoy.pid];
+  t.after(() => {
+    for (const p of started) {
+      try {
+        process.kill(/** @type {number} */ (p));
+      } catch {
+        // already gone
+      }
+    }
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+  /** @type {(ok: () => boolean) => Promise<void>} */
+  const until = async (ok) => {
+    for (let i = 0; i < 100 && !ok(); i++) {
+      await sleep(100);
+    }
+
+    assert.ok(ok(), 'timed out waiting');
+  };
+  await until(() => existsSync(join(dir, 'pids')));
+  const [parentPid, grandPid] = readFileSync(join(dir, 'pids'), 'utf8').split(' ').map(Number);
+  started.push(parentPid, grandPid);
+  const before = processTable();
+  const rootRow = before.find((r) => r.ProcessId === root.pid);
+  assert.ok(rootRow);
+  const proc = { name: 'app', pid: rootRow.ProcessId, port: 0, readyUrl: '', log: '', start: rootRow.Start, commandLine: rootRow.CommandLine };
+  const state = /** @type {Parameters<typeof trackedOf>[1]} */ ({ flowId: 'counter', mode: 'launch', url: '', session: '', evidenceDir: '', startedAt: '', procs: [proc], dir });
+  const tracked = trackedOf(before, state);
+  const extra = tracked.filter((x) => x.pid !== parentPid && x.pid !== grandPid).map((x) => before.find((r) => r.ProcessId === x.pid)?.CommandLine ?? '');
+  assert.ok(tracked.some((x) => x.pid === parentPid) && tracked.some((x) => x.pid === grandPid), 'the ready-time record holds the parent and the grandchild');
+  assert.ok(extra.every((c) => /\\conhost\.exe/i.test(c)), `besides them only the detached child's console host: ${extra.join(', ')}`);
+
+  writeFileSync(join(dir, 'exit'), '');
+  await until(() => !processTable().some((r) => r.ProcessId === parentPid));
+  const orphan = processTable().find((r) => r.ProcessId === grandPid);
+  assert.ok(orphan, 'the grandchild outlived its parent');
+  assert.ok(!descendants(processTable(), proc.pid).has(Number(grandPid)), "the root's live tree no longer reaches the grandchild");
+
+  const notes = stopOwned([proc, ...tracked], dir);
+  const after = processTable();
+  assert.equal(after.some((r) => r.ProcessId === grandPid || r.ProcessId === root.pid), false, notes.join('\n'));
+  assert.ok(after.some((r) => r.ProcessId === decoy.pid), 'the unrelated process still runs');
 });

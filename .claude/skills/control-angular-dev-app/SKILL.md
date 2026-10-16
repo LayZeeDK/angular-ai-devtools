@@ -95,7 +95,8 @@ Answers "is this instance worth driving?". One line per check:
   `scripts/fingerprint.mjs` and `features/.proven.json`. `[WARN]` names the stale and unproven features; it never
   changes the exit code. The four portal features are recorded as external: the portal lives outside this
   repository, so no file in it can be hashed.
-- `process-alive:<name>`; `ports`: every derived and fixed port of the run listens and its PID is in a recorded
+- `process-alive:<name>`; `tracked` (records the live processes below each root in the state file, for `down`);
+  `ports`: every derived and fixed port of the run listens and its PID is in a recorded
   process tree, and every port is listed with its kind
   (`[OK] ports: app 4507 (derived), api 3000 (fixed: libs/shared/utils/src/lib/injection-tokens.ts:5 in the portal checkout ...), pangular 9999 (external: ...)`;
   `[SKIP] ports: --url given; ownership not checked`);
@@ -196,11 +197,16 @@ the server log. Proof rules: [features/README.md](features/README.md#proof-and-s
 node .claude/skills/control-angular-dev-app/scripts/control.mjs down [--target ...|--url ...]
 ```
 
-Checks every recorded PID against its recorded start time and command line, closes the run's playwright-cli
-session, stops each recorded process tree (`taskkill /T /F` by PID), deletes the state file, keeps the
-evidence directory. A PID that no longer runs is noted, not refused; the child processes it left (those whose
-parent is that PID, that started after it and whose command line names the target folder, such as an Nx executor) are stopped by PID with their trees. Never `playwright-cli close-all` or
-`kill-all`: they reach Lars's sessions.
+Checks every recorded root PID against its recorded start time and command line (a mismatch stops nothing,
+exit 2), closes the run's playwright-cli session, then stops every process the run started, one PID at a time
+(`taskkill /PID <pid> /F`, deepest first, never by name, no `/T`): each recorded root and each descendant
+`up` recorded once ready and `doctor` recorded since (`tracked` in the state file) whose start time and
+command line still match, and every live process below one of them that started after its parent. That reaches
+a grandchild whose parent already exited, which a tree walk from the root misses on Windows. A recorded process
+that is gone still counts as a parent, then only for a child whose command line names the target folder (an Nx
+executor keeps a dead PID as its parent). It looks again, up to three times, for a child started meanwhile,
+deletes the state file and keeps the evidence directory. A root PID that no longer runs is noted, not refused.
+Never `playwright-cli close-all` or `kill-all`: they reach Lars's sessions.
 
 ## Helpers
 
@@ -208,7 +214,7 @@ parent is that PID, that started after it and whose command line names the targe
 
 | Command | Does | Output | Exit |
 |---|---|---|---|
-| `up` | launch (`--target`) or attach (`--url`); writes `tmp/control-angular-dev-app/state/<flowId>.json` | flowId (the target, or `url-<port>`; a URL without a port uses 80 or 443), url, port, slot, ports `{name, port, kind, reason?}`, session, evidenceDir, procs `{name, pid, port, start, commandLine, log}`, `readyInSeconds` | 0 ready; 2 refused (10 slots busy, a busy fixed port, a busy `--port`, worktree on the main port, state exists), process exited, timeout |
+| `up` | launch (`--target`) or attach (`--url`); writes `tmp/control-angular-dev-app/state/<flowId>.json` | flowId (the target, or `url-<port>`; a URL without a port uses 80 or 443), url, port, slot, ports `{name, port, kind, reason?}`, session, evidenceDir, procs `{name, pid, port, start, commandLine, log}`, tracked `{pid, start, commandLine}` (the processes below them once ready), `readyInSeconds` | 0 ready; 2 refused (10 slots busy, a busy fixed port, a busy `--port`, worktree on the main port, state exists), process exited, timeout |
 | `doctor` | checks above | one line per check, or `checks[]` with `--json` | 0 / 1 / 2 |
 | `info` | prints the state | state plus `statePath` | 0; 2 no state |
 | `down` | teardown | notes per process and the session | 0 done (also when the PID is already gone); 2 missing state file, or PID start time / command mismatch (nothing stopped) |
