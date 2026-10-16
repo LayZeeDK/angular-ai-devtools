@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statfsSync, statSync, writeFileSync } from 'node:fs';
 import path, { delimiter, dirname, isAbsolute, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mapFresh } from './fingerprint.mjs';
+import { mapFresh, printable } from './fingerprint.mjs';
 
 /** @typedef {{ exe: string, scheme: string, product: string, modelRoots: string[], minFreeMib: number, modelComponents?: string[] }} BrowserDef */
 /** @typedef {{ name: string, folders: string, asset: string, useCase: string, contextWindow: number, toolCanary: boolean | 'report', downloadMib: number }} ModelDef */
@@ -148,13 +148,52 @@ function refuse(msg) {
 }
 
 /**
+ * One human-readable line. Model answers, page exceptions and playwright-cli output can hold control characters, so
+ * they are escaped rather than written to the terminal.
+ * @param {string} marker
+ * @param {string} msg
+ * @returns {string}
+ */
+export function logLine(marker, msg) {
+  return `[${marker}] ${printable(msg)}`;
+}
+
+/**
  * @param {string} marker
  * @param {string} msg
  */
 function log(marker, msg) {
   if (!opts['json']) {
-    console.log(`[${marker}] ${msg}`);
+    console.log(logLine(marker, msg));
   }
+}
+
+/**
+ * Why a profile folder must not be used or have files deleted under it: it resolves through a junction or link to
+ * another folder (Edge deletes its model manifest at startup then, measured; and a link could reach a profile this
+ * skill does not own). Null when it is a real folder.
+ * @param {string} dir
+ * @param {string} real  realpathSync.native(dir)
+ * @returns {string | null}
+ */
+export function reparseRefusal(dir, real) {
+  return sameDir(real, dir) ? null : `${dir} resolves through a reparse point to ${real}; use a real folder`;
+}
+
+/**
+ * `model download`'s time budgets: the page polls for `--timeout-min` (default 45) minutes after its click, and the
+ * playwright-cli client that runs it waits 5 minutes longer, so the page's own timeout result comes back.
+ * @param {unknown} timeoutMin  opts['timeout-min']
+ * @returns {{ pageMs: number, clientMs: number }}
+ */
+export function downloadTimeouts(timeoutMin) {
+  const min = timeoutMin === undefined ? 45 : typeof timeoutMin === 'string' ? Number(timeoutMin) : NaN;
+
+  if (!(Number.isFinite(min) && min > 0)) {
+    return refuse(`--timeout-min=${String(timeoutMin)} is not a positive number of minutes`);
+  }
+
+  return { pageMs: min * 60000, clientMs: (min + 5) * 60000 };
 }
 
 // ---------- registry ----------
@@ -342,16 +381,15 @@ export function busyPorts() {
 }
 
 /**
- * The playwright-cli session of an instance on a port: `ai-<name>` on the registry port, `ai-<name>-<port>` on any
- * other. playwright-cli keeps one session namespace for every checkout on the machine, so a worktree's instance
- * must never share the main checkout's session name.
+ * The playwright-cli session of an instance on a port: `ai-<name>-<port>`, on the registry port too. playwright-cli
+ * keeps one session namespace for every checkout on the machine, and a teardown check treats every open
+ * `<session>-*` as this run's, so no instance's session name may be a prefix of another's.
  * @param {string} name
  * @param {number} port
- * @param {number} mainPort
  * @returns {string}
  */
-export function sessionOf(name, port, mainPort) {
-  return port === mainPort ? `ai-${name}` : `ai-${name}-${port}`;
+export function sessionOf(name, port) {
+  return `ai-${name}-${port}`;
 }
 
 /**
@@ -361,7 +399,7 @@ export function sessionOf(name, port, mainPort) {
  * @returns {Inst}
  */
 export function at(inst, port) {
-  return { ...inst, port, cdp: `http://127.0.0.1:${port}`, session: sessionOf(inst.name, port, inst.mainPort) };
+  return { ...inst, port, cdp: `http://127.0.0.1:${port}`, session: sessionOf(inst.name, port) };
 }
 
 /**
@@ -384,7 +422,7 @@ export function instance(name, registry = REGISTRY, slot = OWN_SLOT, worktree = 
   const index = Object.keys(registry.instances).indexOf(name);
   const port = portAt(index, i.port, slot);
 
-  return { name, ...i, ...b, dir, session: sessionOf(name, port, i.port), port, cdp: `http://127.0.0.1:${port}`, mainPort: i.port, index, slot, worktree };
+  return { name, ...i, ...b, dir, session: sessionOf(name, port), port, cdp: `http://127.0.0.1:${port}`, mainPort: i.port, index, slot, worktree };
 }
 
 /**
@@ -453,10 +491,11 @@ const PROC_FIELDS = "Select-Object ProcessId,ExecutablePath,CommandLine,@{n='Cre
  */
 export function parseCommandLine(commandLine) {
   const cl = commandLine ?? '';
-  const udd = cl.match(/--user-data-dir=(?:"([^"]+)"|(\S+))/);
+  // Node quotes a spawned argument that holds a space as a whole: "--user-data-dir=D:\a b\x".
+  const udd = cl.match(/"--user-data-dir=([^"]+)"|--user-data-dir=(?:"([^"]+)"|(\S+))/);
 
   return {
-    userDataDir: udd ? (udd[1] ?? udd[2] ?? null) : null,
+    userDataDir: udd ? (udd[1] ?? udd[2] ?? udd[3] ?? null) : null,
     port: Number(cl.match(/--remote-debugging-port=(\d+)/)?.[1] ?? NaN),
     features: (cl.match(/--enable-features=(?:"([^"]+)"|(\S+))/)?.slice(1).find(Boolean) ?? '').split(',').filter(Boolean),
     args: REGISTRY.commonArgs.filter((a) => cl.includes(a)),
@@ -762,23 +801,25 @@ export function tabSource(body, { args = {}, url = PROBE_ORIGIN, purpose = 'prob
  * @param {Inst} inst
  * @param {string} body
  * @param {TabOptions} [options]
+ * @param {number} [timeoutMs]  how long the playwright-cli client may run; see runCode
  * @returns {Promise<unknown>}
  */
-async function inTab(inst, body, options) {
-  return runCode(inst, tabSource(body, options));
+async function inTab(inst, body, options, timeoutMs) {
+  return runCode(inst, tabSource(body, options), timeoutMs);
 }
 
 /**
  * @param {Inst} inst
  * @param {string} src
+ * @param {number} [timeoutMs]  default `--timeout-min` (15) minutes
  * @returns {Promise<unknown>}
  */
-async function runCode(inst, src) {
+async function runCode(inst, src, timeoutMs = Number(opts['timeout-min'] ?? 15) * 60000) {
   await ensureAttached(inst);
   mkdirSync(join(TMP, 'run'), { recursive: true });
   const file = join(TMP, 'run', `${inst.session}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.js`);
   writeFileSync(file, src);
-  const r = pw(inst, ['run-code', `--filename=${file}`], { raw: true, timeoutMs: Number(opts['timeout-min'] ?? 15) * 60000 });
+  const r = pw(inst, ['run-code', `--filename=${file}`], { raw: true, timeoutMs });
   rmSync(file, { force: true });
 
   if (r.code !== 0) {
@@ -798,11 +839,25 @@ async function runCode(inst, src) {
 const DEEP_TEXT = `() => {
   const parts = [];
   const walk = (n) => {
-    if (n.nodeType === 3) { const t = n.textContent.trim(); if (t) parts.push(t); return; }
-    if (n.nodeType !== 1 && n.nodeType !== 11) return;
-    if (n.nodeType === 1 && (n.tagName === 'STYLE' || n.tagName === 'SCRIPT' || n.hidden)) return;
-    if (n.shadowRoot) walk(n.shadowRoot);
-    for (const c of n.childNodes) walk(c);
+    if (n.nodeType === 3) {
+      const t = n.textContent.trim();
+      if (t) {
+        parts.push(t);
+      }
+      return;
+    }
+    if (n.nodeType !== 1 && n.nodeType !== 11) {
+      return;
+    }
+    if (n.nodeType === 1 && (n.tagName === 'STYLE' || n.tagName === 'SCRIPT' || n.hidden)) {
+      return;
+    }
+    if (n.shadowRoot) {
+      walk(n.shadowRoot);
+    }
+    for (const c of n.childNodes) {
+      walk(c);
+    }
   };
   walk(document.body);
   return parts.join(' | ');
@@ -812,12 +867,16 @@ const DEEP_TEXT = `() => {
 const BROKER = `async (p, { scheme }) => {
   await p.goto(scheme + '://on-device-internals');
   const first = await p.evaluate(${DEEP_TEXT});
-  if (/Internal debugging pages are currently disabled/i.test(first)) return 'DEBUG-PAGES-DISABLED';
+  if (/Internal debugging pages are currently disabled/i.test(first)) {
+    return 'DEBUG-PAGES-DISABLED';
+  }
   await p.locator('[role=tab]').nth(2).click({ force: true, timeout: 10000 }).catch(() => p.locator('[role=tab]').nth(2).press('Enter'));
   let text = '';
   for (let i = 0; i < 30; i++) {
     text = await p.evaluate(${DEEP_TEXT});
-    if (text.includes('Manifest Path')) break;
+    if (text.includes('Manifest Path')) {
+      break;
+    }
     await p.waitForTimeout(1000);
   }
   return text;
@@ -826,7 +885,9 @@ const BROKER = `async (p, { scheme }) => {
 const ENABLE_DEBUG_PAGES = `async (p) => {
   await p.goto('chrome://chrome-urls');
   const b = p.getByRole('button', { name: /Enable internal debugging pages/i });
-  if (!(await b.count())) return 'already enabled';
+  if (!(await b.count())) {
+    return 'already enabled';
+  }
   await b.click({ timeout: 5000 }).catch(async () => { await b.focus(); await p.keyboard.press('Enter'); });
   await p.getByRole('button', { name: /Disable internal debugging pages/i }).waitFor({ timeout: 10000 });
   return 'enabled';
@@ -839,7 +900,13 @@ const VERSION_CMDLINE = `async (p, { scheme }) => {
 
 const AVAILABILITY = `async (p) => p.evaluate(async () => {
   const o = {};
-  const check = async (name, fn) => { try { o[name] = await Promise.race([fn(), new Promise((r) => setTimeout(() => r('no answer in 20 s'), 20000))]); } catch (e) { o[name] = 'ERR ' + e.name + ': ' + e.message; } };
+  const check = async (name, fn) => {
+    try {
+      o[name] = await Promise.race([fn(), new Promise((r) => setTimeout(() => r('no answer in 20 s'), 20000))]);
+    } catch (e) {
+      o[name] = 'ERR ' + e.name + ': ' + e.message;
+    }
+  };
   const g = globalThis;
   await check('LanguageModel', () => g.LanguageModel ? LanguageModel.availability() : 'undefined');
   await check('LanguageModelTools', () => g.LanguageModel ? LanguageModel.availability({ expectedInputs: [{ type: 'text' }, { type: 'tool-response' }], expectedOutputs: [{ type: 'text' }, { type: 'tool-call' }] }) : 'undefined');
@@ -864,46 +931,57 @@ const CANARY = `async (p, { toolCanary }) => p.evaluate(async ([toolCanary, ms])
     const t1 = performance.now();
     const raw = await to(s.prompt('Name one Angular lifecycle hook.', { responseConstraint: { type: 'object', properties: { hook: { type: 'string' } }, required: ['hook'] } }));
     let parsed = null;
-    try { parsed = JSON.parse(raw); } catch {}
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      // not JSON: structured fails below
+    }
     o.structured = { pass: !!parsed && typeof parsed.hook === 'string', raw, ms: Math.round(performance.now() - t1) };
     s.destroy();
   } catch (e) {
     o.structured = { pass: false, error: e.name + ': ' + e.message };
   }
   o.createMs = Math.round(performance.now() - t0);
-  if (!toolCanary) { o.tools = { pass: null, skipped: 'this model has no tool calling (it answers in text); see Gotchas' }; }
+  if (!toolCanary) {
+    o.tools = { pass: null, skipped: 'this model has no tool calling (it answers in text); see Gotchas' };
+  }
   // Up to three fresh sessions: Phi-4-mini often answers the tool question in prose (5 of 15 native runs passed).
-  else for (let attempt = 1; attempt <= 3 && !o.tools?.pass; attempt++) try {
-    const calls = [];
-    const impl = { get_component_count: () => ({ count: 42 }) };
-    const s = await to(LanguageModel.create({
-      initialPrompts: [{ role: 'system', content: 'You cannot see the page; call tools to answer.' }],
-      expectedInputs: [{ type: 'text', languages: ['en'] }, { type: 'tool-response' }],
-      expectedOutputs: [{ type: 'text', languages: ['en'] }, { type: 'tool-call' }],
-      tools: [{ name: 'get_component_count', description: 'Returns how many Angular components are on the page.', inputSchema: { type: 'object', properties: { scope: { type: 'string', description: 'Use "page".' } }, required: ['scope'] } }],
-    }));
-    const t = performance.now();
-    let input = 'How many Angular components are on the page?';
-    let answer = null;
-    for (let step = 0; step < 4 && answer === null; step++) {
-      const out = await to(s.prompt(input));
-      const parts = Array.isArray(out) ? out : [{ type: 'text', value: out }];
-      const tc = parts.filter((x) => x.type === 'tool-call').map((x) => x.value);
-      if (tc.length === 0) { answer = parts.map((x) => x.value).join(''); break; }
-      input = [{ role: 'user', content: tc.map((c) => {
-        const id = c.callID ?? c.callId;
-        calls.push({ name: c.name, callID: id, arguments: c.arguments });
-        const result = impl[c.name]?.(c.arguments ?? {});
-        // Chrome Beta 156 reads callID; Edge Dev 157.0.4329 requires callId. Unknown dictionary members are ignored.
-        return { type: 'tool-response', value: result
-          ? new LanguageModelToolSuccess({ callID: id, callId: id, name: c.name, result: [{ type: 'object', value: result }] })
-          : new LanguageModelToolError({ callID: id, callId: id, name: c.name, errorMessage: 'unknown tool' }) };
-      }) }];
+  for (let attempt = 1; toolCanary && attempt <= 3 && !o.tools?.pass; attempt++) {
+    try {
+      const calls = [];
+      const impl = { get_component_count: () => ({ count: 42 }) };
+      const s = await to(LanguageModel.create({
+        initialPrompts: [{ role: 'system', content: 'You cannot see the page; call tools to answer.' }],
+        expectedInputs: [{ type: 'text', languages: ['en'] }, { type: 'tool-response' }],
+        expectedOutputs: [{ type: 'text', languages: ['en'] }, { type: 'tool-call' }],
+        tools: [{ name: 'get_component_count', description: 'Returns how many Angular components are on the page.', inputSchema: { type: 'object', properties: { scope: { type: 'string', description: 'Use "page".' } }, required: ['scope'] } }],
+      }));
+      const t = performance.now();
+      let input = 'How many Angular components are on the page?';
+      let answer = null;
+      for (let step = 0; step < 4 && answer === null; step++) {
+        const out = await to(s.prompt(input));
+        const parts = Array.isArray(out) ? out : [{ type: 'text', value: out }];
+        const tc = parts.filter((x) => x.type === 'tool-call').map((x) => x.value);
+        if (tc.length === 0) {
+          answer = parts.map((x) => x.value).join('');
+          break;
+        }
+        input = [{ role: 'user', content: tc.map((c) => {
+          const id = c.callID ?? c.callId;
+          calls.push({ name: c.name, callID: id, arguments: c.arguments });
+          const result = impl[c.name]?.(c.arguments ?? {});
+          // Chrome Beta 156 reads callID; Edge Dev 157.0.4329 requires callId. Unknown dictionary members are ignored.
+          return { type: 'tool-response', value: result
+            ? new LanguageModelToolSuccess({ callID: id, callId: id, name: c.name, result: [{ type: 'object', value: result }] })
+            : new LanguageModelToolError({ callID: id, callId: id, name: c.name, errorMessage: 'unknown tool' }) };
+        }) }];
+      }
+      o.tools = { pass: calls.some((c) => c.name === 'get_component_count') && /\\b(42|forty-two)\\b/i.test(answer ?? ''), calls, answer, ms: Math.round(performance.now() - t), contextUsage: s.contextUsage, attempt };
+      s.destroy();
+    } catch (e) {
+      o.tools = { pass: false, error: e.name + ': ' + e.message, attempt };
     }
-    o.tools = { pass: calls.some((c) => c.name === 'get_component_count') && /\\b(42|forty-two)\\b/i.test(answer ?? ''), calls, answer, ms: Math.round(performance.now() - t), contextUsage: s.contextUsage, attempt };
-    s.destroy();
-  } catch (e) {
-    o.tools = { pass: false, error: e.name + ': ' + e.message, attempt };
   }
   o.webmcp = { pass: typeof document.modelContext === 'object', documentModelContext: typeof document.modelContext };
   return o;
@@ -928,16 +1006,33 @@ const INIT = `async (p) => p.evaluate(async (ms) => {
   return o;
 }, ${STEP_TIMEOUT_MS})`;
 
-// edge://components: press "Check for update" on the model components; a fresh Edge profile can wait at 0% without it.
-const EDGE_COMPONENTS = `async (p, { names }) => {
+// edge://components, read only: each model component's update button and status. The status runs from "Status - " to
+// the button's own label, so it reads the same whatever language the browser shows the label in.
+export const EDGE_COMPONENT_LIST = `async (p, { names }) => {
   await p.goto('edge://components');
   await p.waitForSelector('.button-check-update');
-  const ids = await p.evaluate((names) => [...document.querySelectorAll('.button-check-update')].map((b) => {
-    let n = b; while (n && !/Version/.test(n.textContent)) n = n.parentElement;
+  return p.evaluate((names) => [...document.querySelectorAll('.button-check-update')].map((b) => {
+    let n = b;
+    while (n && !/Version/.test(n.textContent)) {
+      n = n.parentElement;
+    }
     const text = n?.textContent ?? '';
     const name = names.find((x) => text.includes(x + ' - '));
-    return name ? { id: b.id, name, status: (text.match(/Status - ([^\\n]+?)(?:Søg|Check|$)/) ?? [])[1] ?? null } : null;
+    if (!name) {
+      return null;
+    }
+    const label = b.textContent.trim();
+    let status = text.split('Status - ')[1] ?? null;
+    if (status !== null && label && status.includes(label)) {
+      status = status.slice(0, status.indexOf(label));
+    }
+    return { id: b.id, name, status: status === null ? null : status.split('\\n')[0].trim() || null };
   }).filter(Boolean), names);
+}`;
+
+// edge://components: press "Check for update" on the model components; a fresh Edge profile can wait at 0% without it.
+const EDGE_COMPONENTS = `async (p, { names }) => {
+  const ids = await (${EDGE_COMPONENT_LIST})(p, { names });
   for (const c of ids) {
     const b = p.locator('#' + c.id + '.button-check-update');
     await b.click({ timeout: 5000 }).catch(async () => { await b.focus(); await p.keyboard.press('Enter'); });
@@ -1236,7 +1331,9 @@ async function cmdUp(inst) {
     if (d.backend === backend && d.problems.length === 0) {
       log('OK', `${inst.name} already runs as PID ${running.ProcessId} with backend ${backend}`);
 
-      return { ok: true, alreadyRunning: true, state: writeState(at(inst, d.commandLine.port), running) };
+      const st = writeState(at(inst, d.commandLine.port), running);
+
+      return { ok: true, alreadyRunning: true, session: st.session, evidenceDir, state: st };
     }
 
     refuse(`${inst.name} runs as PID ${running.ProcessId} with ${d.backend ?? 'a drifted'} configuration (${d.problems.join('; ') || `backend ${d.backend}`}); run "down ${inst.name}" first`);
@@ -1256,9 +1353,10 @@ async function cmdUp(inst) {
   const firstUse = !existsSync(inst.dir);
   mkdirSync(inst.dir, { recursive: true });
 
-  // Edge deletes its model manifest at startup when the profile path resolves through a junction (measured).
-  if (!sameDir(realpathSync.native(inst.dir), inst.dir)) {
-    refuse(`${inst.dir} resolves through a reparse point to ${realpathSync.native(inst.dir)}; use a real folder`);
+  const linked = reparseRefusal(inst.dir, realpathSync.native(inst.dir));
+
+  if (linked !== null) {
+    refuse(linked);
   }
 
   /** @type {PortRow[]} */
@@ -1328,7 +1426,7 @@ async function cmdUp(inst) {
 
     log('OK', `${run.name} launched as PID ${proc.ProcessId} on ${run.cdp} (${version.Browser}), backend ${backend}, ready in ${readyMs} ms${firstUse ? ', new profile' : ''}${plan.slot === inst.slot ? '' : `, slot ${plan.slot} (${plan.ports[0]?.reason})`}${restored.length ? `; closed ${restored.length} restored tab(s)` : ''}${debugPages ? `; internal debugging pages ${debugPages}` : ''}`);
 
-    return { ok: true, backend, firstUse, readyMs, browserVersion: version.Browser, closedRestoredTabs: restored.map((t) => t.url), debugPages, state: st, tabs: await pageTabs(run) };
+    return { ok: true, session: st.session, evidenceDir, backend, firstUse, readyMs, browserVersion: version.Browser, closedRestoredTabs: restored.map((t) => t.url), debugPages, state: st, tabs: await pageTabs(run) };
   }
 }
 
@@ -1577,6 +1675,7 @@ async function cmdModel(inst, sub) {
  * @returns {Promise<Result>}
  */
 async function modelDownload(inst) {
+  const budget = downloadTimeouts(opts['timeout-min']);
   mainProcess(inst) ?? refuse(`${inst.name} is not running`);
   const before = /** @type {Availability} */ (await inTab(inst, AVAILABILITY, { purpose: 'availability' }));
   const diskBefore = diskModels(inst);
@@ -1636,7 +1735,7 @@ async function modelDownload(inst) {
     let gesture = 'click';
     await p.click('#ai-browsers-download', { timeout: 5000 }).catch(async () => { gesture = 'Enter'; await p.focus('#ai-browsers-download'); await p.keyboard.press('Enter'); });
     await p.waitForFunction(() => window.__dl.state !== 'idle', null, { timeout: 10000 }).catch(() => {});
-    const timeoutMs = ${Number(opts['timeout-min'] ?? 45) * 60000};
+    const timeoutMs = ${budget.pageMs};
     const end = Date.now() + timeoutMs;
     const samples = [];
     while (Date.now() < end) {
@@ -1648,7 +1747,7 @@ async function modelDownload(inst) {
     return { gesture, ...(await p.evaluate(() => ({ ...window.__dl, progress: undefined, samples: window.__dl.progress.length }))), polls: samples.filter((s, i) => i % 12 === 0 || i === samples.length - 1) };
   }`;
   const t0 = Date.now();
-  const run = /** @type {DownloadRun} */ (await inTab(inst, START, { purpose: 'download' }));
+  const run = /** @type {DownloadRun} */ (await inTab(inst, START, { purpose: 'download' }, budget.clientMs));
   const after = await waitFor(async () => {
     const a = /** @type {Availability} */ (await inTab(inst, AVAILABILITY, { purpose: 'availability' }));
 
@@ -1686,6 +1785,12 @@ async function modelClear(inst) {
   }
 
   const profileReal = realpathSync.native(inst.dir);
+  const linked = reparseRefusal(inst.dir, profileReal);
+
+  // A linked profile folder would make every victim's real path look inside it.
+  if (linked !== null) {
+    refuse(`${linked}; not deleting anything under it`);
+  }
 
   for (const v of victims) {
     const real = realpathSync.native(v.dir);
@@ -1907,7 +2012,7 @@ if (process.argv[1] && realpathSync.native(resolve(process.argv[1])) === realpat
       if (opts['json']) {
         console.log(JSON.stringify({ ...result, evidence: file, exit: EXIT.REFUSED }));
       } else {
-        console.log(`[ERROR] ${refused ? 'refused' : 'could not run'}: ${message}\n[ERROR] exit 2; evidence ${file}`);
+        console.log(`${logLine('ERROR', `${refused ? 'refused' : 'could not run'}: ${message}`)}\n[ERROR] exit 2; evidence ${file}`);
       }
 
       exitWith(EXIT.REFUSED);

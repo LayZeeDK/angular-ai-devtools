@@ -43,4 +43,5 @@ Preconditions: the README baseline.
   without failing.
 - Phi-4-mini answers the tool canary in prose (all six sessions on 2026-10-12), so `canary.tools` is reported
   only for it; its structured canary failed once with `kErrorUnknown`.
-- Stored performance classes on the same GPU: Nano 2 (VeryLow), Gemma 4 3 (Low), Aion and Phi-4-mini 5 (High).
+- Stored performance classes on the same GPU: Nano 3 (Low) on Chrome Beta 157 (2, VeryLow, on 156), Gemma 4 3
+  (Low), Aion and Phi-4-mini 5 (High).

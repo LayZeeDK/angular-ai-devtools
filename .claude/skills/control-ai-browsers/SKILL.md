@@ -44,14 +44,18 @@ slot and the port it used (`info --json`: `slot`, `ports`).
 - A port another process takes after the check (it answers or holds the port instead of this profile's browser)
   stops the browser this run started, and `up` tries the next slot.
 - Every other command finds the port an instance runs on from its state file, else from the running browser's
-  command line. To
-add an instance, add an entry; no command takes features as flags. The playwright-cli session is
-`ai-<instance>` on the registry port and `ai-<instance>-<port>` on any other (a worktree, a fallback): playwright-cli
-keeps one session namespace for every checkout on the machine; never use `cb`, `ed`, `nano`, `g4`, `aion`, `phi`, `ai-cb`, `ai-ed` or `bench-*`.
+  command line.
+
+To add an instance, add an entry; no command takes features as flags.
+
+The playwright-cli session is `ai-<instance>-<port>`, on the registry port too: playwright-cli keeps one session
+namespace for every checkout on the machine, and a teardown check counts every open `<session>-*` as the run's, so
+no session name may be a prefix of another checkout's. Read it from `info <name> --json` (`session`). Never use `cb`,
+`ed`, `nano`, `g4`, `aion`, `phi`, `ai-cb`, `ai-ed` or `bench-*`.
 
 Backends (`up <name> --backend=gpu|cpu`):
-- `chrome-beta-nano`: `gpu` adds `OnDeviceModelPerformanceParams:...` so the stored performance class 2 may
-  use GPU models; `cpu` adds nothing. Default `gpu`: on CPU Nano's structured output failed 15 of 15 runs.
+- `chrome-beta-nano`: `gpu` adds `OnDeviceModelPerformanceParams:...` so the low stored performance class (2 on
+  Chrome Beta 156, 3 on 157) may use GPU models; `cpu` adds nothing. Default `gpu`: on CPU Nano's structured output failed 15 of 15 runs.
 - `chrome-beta-gemma4`: `cpu` adds `OnDeviceModelForceCpuBackend`; `gpu` adds nothing. Default `gpu` for speed;
   `cpu` scored best in the fallback benchmark (15 of 15) at 2-3 times the latency.
 - Edge instances: `gpu` only. `--backend=cpu` exits 2: forcing CPU on Edge deletes the installed model
@@ -76,11 +80,15 @@ of the 10 has a free port (or `--port=N` is busy), or when the profile path reso
 and the main process is found by its `--user-data-dir`. It then closes tabs Edge restored from the last session,
 leaving one blank tab, and on Chrome turns on "Enable internal debugging pages" (`chrome://chrome-urls`), which
 `on-device-internals` needs in a new profile. Measured time to ready: 1.3-2.2 s, once 28 s (Edge Dev). An
-instance that already runs as requested is not restarted (exit 0, `alreadyRunning`).
+instance that already runs as requested is not restarted (exit 0, `alreadyRunning`). That is an exception to the
+generated-skill contract, which has `up` refuse a live instance of its flow: the standing state is all four
+instances running (see Cleanup), and other skills call `up` to reach one (control-vitest-browser-angular), so `up`
+only records an instance that runs as asked. Claude's decision in the 2026-10-16 review; Lars has not ruled on it.
+`up --json` gives `session` and `evidenceDir` at the top level, also with `alreadyRunning`.
 
 `attach <name>` records the running instance in the state file (`tmp/control-ai-browsers/state-<name>.json`:
 PID, start time, executable, command line, port, session, backend) and leaves the session attached for ad hoc
-`playwright-cli -s=ai-<name>` commands. `down` needs that state file.
+`playwright-cli -s=<session>` commands (`ai-<name>-<port>`, from `info`). `down` needs that state file.
 
 ## Doctor
 
@@ -125,7 +133,8 @@ is not running or the command could not run. A run takes 25-50 s, longer under l
   load snapshot before and after each result. It needs the counter fixture on `http://localhost:4222`
   (`bench.js` hard-codes the port). It does not call `spikes/probes/bench-all.sh`, which cannot record backend
   and load per result; it runs the same `bench.js`.
-- Ad hoc: `attach <name>`, then `playwright-cli -s=ai-<name> <command>`; `detach <name>` when done. `run-code`
+- Ad hoc: `attach <name>`, then `playwright-cli -s=<session> <command>` with the session from `info <name> --json`
+  (`ai-<name>-<port>`); `detach <name>` when done. `run-code`
   acts on the current tab, the instance's blank tab; open your own tab for page work and close it.
 
 Every command that opens a tab closes it before it exits, and a session the command attached is detached again.
@@ -178,15 +187,15 @@ playwright-cli runs as node with `node_modules/@playwright/cli/playwright-cli.js
 | Command | Does | Exit |
 |---|---|---|
 | `instances` | registry plus live state: PID, backend, drift, tabs, state file | 0 |
-| `up <name> [--backend=gpu\|cpu]` | start (profile created on first use), wait for `/json/version`, one blank tab, write state | 0 / 2 |
-| `attach <name>` | write state, attach `ai-<name>` and leave it attached | 0 / 2 |
-| `detach <name>` | detach `ai-<name>` | 0 |
+| `up <name> [--backend=gpu\|cpu]` | start (profile created on first use), wait for `/json/version`, one blank tab, write state; `--json` has `session` and `evidenceDir` | 0 / 2 |
+| `attach <name>` | write state, attach the instance's session (`ai-<name>-<port>`) and leave it attached | 0 / 2 |
+| `detach <name>` | detach that session | 0 |
 | `doctor <name>` | the checks above | 0 / 1 / 2 |
 | `flags <name>` | effective features from the version page against the registry | 0 / 1 / 2 |
 | `model info <name>` | disk manifests (name, versions, performance hints, MiB, folder), Broker State, serving model, backend, performance class; disk only when stopped | 0 / 2 |
-| `model download <name> [--timeout-min=45]` | free-space check, Edge "Check for update" on its model components, `create()` from a trusted gesture (click, or Enter on the focused button when the click times out), poll until `available` | 0 / 1 / 2 |
+| `model download <name> [--timeout-min=45]` | free-space check, Edge "Check for update" on its model components, `create()` from a trusted gesture (click, or Enter on the focused button when the click times out), poll until `available` for `--timeout-min` minutes; the playwright-cli client waits 5 minutes longer, so the page's own timeout result comes back; a value that is not a positive number exits 2 | 0 / 1 / 2 |
 | `model init <name>` | cold and warm `create()`, `contextWindow`, one prompt | 0 / 2 |
-| `model clear <name> --confirm=<model>` | instance must be stopped; deletes every folder whose `manifest.json` names `<model>`; reports bytes removed and free space | 0 / 1 / 2 |
+| `model clear <name> --confirm=<model>` | instance must be stopped, and its profile folder must not resolve through a junction; deletes every folder whose `manifest.json` names `<model>`; reports bytes removed and free space | 0 / 1 / 2 |
 | `run <name> <file.js>` | run `async page => {...}` in a new tab | 0 / 2 |
 | `bench [names...]` | `bench.js` per instance with backend, performance class and CPU load | 0 / 1 / 2 |
 | `down <name>` | CDP `Browser.close`, confirm the processes and the port are gone | 0 / 1 / 2 |
@@ -194,7 +203,9 @@ playwright-cli runs as node with `node_modules/@playwright/cli/playwright-cli.js
 
 Exit codes: 0 done or healthy; 1 not healthy or the change did not take; 2 refused or could not run, with the
 reason (unknown instance, not running, missing state file, PID mismatch, port owned by another process, running
-instance for `clear`, missing `--confirm`, `--backend=cpu` on Edge, junctioned profile, missing fixture).
+instance for `clear`, missing `--confirm`, `--backend=cpu` on Edge, junctioned profile, missing fixture). Model
+answers, page text and playwright-cli output in a human-readable line are printed with their control characters
+escaped.
 
 `scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
 `features/.proven.json`: `node .claude/skills/control-ai-browsers/scripts/fingerprint.mjs record --feature <id>
@@ -241,9 +252,9 @@ Measured 2026-10-11/12 unless marked inferred.
   `bytesRemoved` from the folder sizes as the reliable figure.
 - D: reads model weights about 30% slower than C: (`spikes/probes/read-throughput.ps1`); that only affects a cold
   `create()`.
-- The Nano instance's stored performance class is 2 (VeryLow) and Gemma 4's is 3, on the same GPU; inferred: the
-  class was measured while another session loaded the machine. Latency is comparable only at the same backend and
-  similar CPU load, which is why `bench` records both.
+- The Nano instance's stored performance class is 3 (Low) on Chrome Beta 157, the same as Gemma 4's (it read 2,
+  VeryLow, on 156; measured 2026-10-16). Latency is comparable only at the same backend and similar CPU load, which
+  is why `bench` records both.
 - Edge restores the last session's tabs on start; `up` closes them. A new Edge profile opens first-run tabs
   after that (a welcome extension page, `edge://sync-confirmation-dialog/`), so the first doctor reports `tabs`
   `[WARN]` (measured on new `edge-dev-aion` and `edge-phi4mini` profiles, 2026-10-15).

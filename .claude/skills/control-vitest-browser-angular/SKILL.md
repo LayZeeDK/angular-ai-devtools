@@ -48,7 +48,7 @@ excluded port range.
 - One run at a time: `up` refuses while any state file exists.
 - The playwright-cli session is `control-vitest-<flowId>-<Vitest port>`, for example
   `control-vitest-chrome-beta-gemma4-51315`; the flow id is the instance name or `bundled`. Never use
-  `ai-<instance>` or `ai-<instance>-<port>` (control-ai-browsers) or `control-ngdev-*` (control-angular-dev-app).
+  `ai-<instance>-<port>` (control-ai-browsers) or `control-ngdev-*` (control-angular-dev-app).
 
 ## Launch
 

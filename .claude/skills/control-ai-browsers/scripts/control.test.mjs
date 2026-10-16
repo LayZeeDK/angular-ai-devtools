@@ -13,6 +13,7 @@ import {
   Refusal,
   checkMarker,
   diskModels,
+  downloadTimeouts,
   insideProfile,
   doctorOk,
   downRefusal,
@@ -25,12 +26,14 @@ import {
   jsonRows,
   launchArgs,
   listeners,
+  logLine,
   parseArgs,
   parseBroker,
   parseCommandLine,
   planPorts,
   portAt,
   portsCheck,
+  reparseRefusal,
   sameDir,
   servingBackend,
   slotFor,
@@ -103,7 +106,7 @@ test('parseArgs splits --name=value, bare --name and positionals', () => {
 
 test('instance merges registry, browser and derived fields and refuses unknown or inherited names', () => {
   const i = instance('chrome-beta-nano', undefined, 0, false);
-  assert.equal(i.session, 'ai-chrome-beta-nano');
+  assert.equal(i.session, 'ai-chrome-beta-nano-9333', 'the port is part of every session name');
   assert.equal(i.cdp, `http://127.0.0.1:${i.port}`);
   assert.equal(i.scheme, 'chrome');
   assert.match(i.dir, /[\\/]chrome-beta-nano$/);
@@ -121,7 +124,8 @@ test('instance takes the registry port in slot 0 and 9600 + 10 * slot + index in
   const wt = instance('chrome-beta-gemma4', undefined, 5, true);
   assert.deepEqual([wt.port, wt.mainPort, wt.index, wt.cdp, wt.session], [9651, 9334, 1, 'http://127.0.0.1:9651', 'ai-chrome-beta-gemma4-9651']);
   assert.deepEqual([at(wt, 9661).port, at(wt, 9661).cdp, at(wt, 9661).session], [9661, 'http://127.0.0.1:9661', 'ai-chrome-beta-gemma4-9661'], 'a worktree never shares the main checkout session name');
-  assert.equal(at(wt, 9334).session, 'ai-chrome-beta-gemma4');
+  assert.equal(at(wt, 9334).session, 'ai-chrome-beta-gemma4-9334');
+  assert.ok(!at(wt, 9661).session.startsWith(`${at(wt, 9334).session}-`), 'no session name is a prefix of another instance session');
   assert.equal(slotFor(wt, 9661), 6);
   assert.equal(slotFor(wt, 9334), 0);
   assert.equal(slotFor(wt, 12345), null, 'a --port no slot has');
@@ -393,4 +397,35 @@ test('brokerPending holds back the Broker State checks until the manifest is loa
   assert.equal(brokerPending(loaded), false);
   assert.equal(brokerPending({ ...loaded, manifestLoaded: 'false' }), true);
   assert.equal(brokerPending({ disabled: true, error: 'internal debugging pages are off' }), false);
+});
+
+test('parseCommandLine reads a --user-data-dir that Node quoted as a whole argument', () => {
+  const cl = parseCommandLine('"C:\\b\\chrome.exe" "--user-data-dir=D:\\a b\\.browsers\\x" --remote-debugging-port=9651 about:blank');
+  assert.equal(cl.userDataDir, 'D:\\a b\\.browsers\\x');
+  assert.equal(cl.port, 9651);
+});
+
+test('reparseRefusal refuses a profile folder that resolves elsewhere', () => {
+  assert.equal(reparseRefusal('D:\\wt\\.browsers\\x', 'd:\\WT\\.browsers\\x'), null);
+  assert.match(reparseRefusal('D:\\wt\\.browsers\\x', 'C:\\Users\\me\\AppData\\Local\\Google\\Chrome Beta\\User Data') ?? '', /^D:\\wt\\.browsers\\x resolves through a reparse point to C:\\Users/);
+});
+
+test('downloadTimeouts gives the run-code client a margin over the page budget, and refuses a bad --timeout-min', () => {
+  assert.deepEqual(downloadTimeouts(undefined), { pageMs: 45 * 60000, clientMs: 50 * 60000 });
+  assert.deepEqual(downloadTimeouts('20'), { pageMs: 20 * 60000, clientMs: 25 * 60000 });
+  assert.throws(() => downloadTimeouts('abc'), (e) => e instanceof Refusal && /--timeout-min=abc is not a positive number of minutes/.test(e.message));
+  assert.throws(() => downloadTimeouts('0'), Refusal);
+  assert.throws(() => downloadTimeouts(true), Refusal);
+});
+
+test('logLine escapes control characters model or page text put in a message', () => {
+  assert.equal(logLine('OK', 'answer: hi\u001b]0;x\u0007'), String.raw`[OK] answer: hi\u001b]0;x\u0007`);
+});
+
+test('the page snippets hold only ASCII', () => {
+  const source = readFileSync(new URL('./control.mjs', import.meta.url), 'utf8');
+  const start = source.indexOf('// ---------- page snippets ----------');
+  const end = source.indexOf('// ---------- readers ----------');
+  assert.ok(start > 0 && end > start);
+  assert.deepEqual(source.slice(start, end).match(/[^\x00-\x7f]/g), null);
 });
