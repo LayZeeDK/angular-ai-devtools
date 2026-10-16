@@ -20,7 +20,7 @@ which routes the router checked, how long each phase took, and how it ended.
 Preconditions: baseline; the page on `/home`.
 
 - Navigate like a user: the `run-code` click on CONTRACT > List from SKILL.md Drive -> returns
-  `http://localhost:4775/contract/list`.
+  `http://localhost:4507/contract/list`.
 - Explain: `node $S call explain-navigation --args '{"limit":2}' --out explain-navigation.json` -> newest entry
   `` `/contract/list`: **succeeded** ``, trigger `imperative`, `from /home`, `started by RouterLink div "List"`,
   lazy loaded `contract`, `list`.

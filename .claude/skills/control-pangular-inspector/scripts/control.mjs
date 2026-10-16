@@ -16,6 +16,12 @@ import { mapFresh } from './fingerprint.mjs';
 /** @typedef {{ name?: string, targets?: Record<string, NxTarget> }} ProjectJson */
 /** @typedef {{ name: string | undefined, projectJson: string, root: string, main: string, proxy: string }} App */
 /** @typedef {'express-hub' | 'vite-plugin' | 'standalone-cli'} Mount */
+/** @typedef {'derived' | 'fixed' | 'external'} PortKind */
+/** @typedef {{ name: string, port: number, kind: PortKind, reason?: string }} PortEntry */
+/**
+ * A row of the ports table (SKILL.md, "Pick a flow"); this skill has no derived row.
+ * @typedef {{ name: string, kind: 'derived', at: (slot: number) => number } | { name: string, kind: 'fixed', port: number, pin: string } | { name: string, kind: 'external', port: number, owner: string }} PortRow
+ */
 
 /**
  * @typedef {object} SetupFacts
@@ -34,6 +40,7 @@ import { mapFresh } from './fingerprint.mjs';
  * @property {'launch'} mode
  * @property {string} dir
  * @property {number} port
+ * @property {PortEntry[]} [ports]
  * @property {boolean} readOnly
  * @property {string} mcpUrl
  * @property {string} origin
@@ -124,22 +131,166 @@ export function descendants(table, pid) {
   return set;
 }
 
+// ---------- ports (SKILL.md, "Pick a flow") ----------
+
 /**
- * The PID listening on `port` in `netstat -ano` output, or null.
+ * The PID listening on each port in `netstat -ano` output, IPv4 and IPv6.
  * @param {string} text
- * @param {number} port
- * @returns {number | null}
+ * @returns {Map<number, number>}
  */
-export function parseListeningPid(text, port) {
+export function listeners(text) {
+  /** @type {Map<number, number>} */
+  const map = new Map();
+
   for (const l of text.split(/\r?\n/)) {
     const m = l.trim().split(/\s+/);
 
-    if (m[0] === 'TCP' && m[3] === 'LISTENING' && (m[1] ?? '').endsWith(`:${port}`)) {
-      return Number(m[4]);
+    if (m[0] === 'TCP' && m[3] === 'LISTENING') {
+      map.set(Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1)), Number(m[4]));
     }
   }
 
-  return null;
+  return map;
+}
+
+/**
+ * `path:line` of the first line of `rel` (below `dir`) that contains `needle`; the bare path when none does.
+ * @param {string} dir
+ * @param {string} rel
+ * @param {string} needle
+ * @returns {string}
+ */
+export function pinOf(dir, rel, needle) {
+  try {
+    const i = readFileSync(path.join(dir, rel), 'utf8').split(/\r?\n/).findIndex((l) => l.includes(needle));
+
+    return i === -1 ? rel : `${rel}:${i + 1}`;
+  } catch {
+    return rel;
+  }
+}
+
+/**
+ * Picks the ports of one run. A busy fixed port is a refusal. `forced` (`--port`) is the main port in every slot,
+ * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free; the derived
+ * entries of a slot after the first say what they fell back from.
+ * @param {PortRow[]} rows
+ * @param {number[]} order
+ * @param {Map<number, number>} busy  the PID listening on each port
+ * @param {number} [forced]
+ * @returns {{ ok: true, slot: number, ports: PortEntry[] } | { ok: false, reason: string }}
+ */
+export function planPorts(rows, order, busy, forced) {
+  for (const r of rows) {
+    const pid = r.kind === 'fixed' ? busy.get(r.port) : undefined;
+
+    if (r.kind === 'fixed' && pid !== undefined) {
+      return { ok: false, reason: `fixed port ${r.name} ${r.port} held by PID ${pid}; pinned by ${r.pin}` };
+    }
+  }
+
+  const main = rows.findIndex((r) => r.kind === 'derived');
+  const forcedPid = forced === undefined ? undefined : busy.get(forced);
+
+  if (forced !== undefined && forcedPid !== undefined) {
+    return { ok: false, reason: `port ${forced} (--port) is held by PID ${forcedPid}; --port has no fallback` };
+  }
+
+  /** @type {(r: PortRow, i: number, slot: number) => number} */
+  const portAt = (r, i, slot) => (r.kind !== 'derived' ? r.port : i === main && forced !== undefined ? forced : r.at(slot));
+  /** @type {string[]} */
+  const tried = [];
+
+  for (const slot of order) {
+    const taken = rows.flatMap((r, i) => {
+      const pid = r.kind === 'derived' ? busy.get(portAt(r, i, slot)) : undefined;
+
+      return pid === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} held by PID ${pid}`];
+    });
+
+    if (taken.length === 0) {
+      const first = /** @type {number} */ (order[0]);
+      /** @type {PortEntry[]} */
+      const ports = rows.map((r, i) => {
+        const port = portAt(r, i, slot);
+        const from = portAt(r, i, first);
+
+        if (r.kind === 'fixed') {
+          return { name: r.name, port, kind: r.kind, reason: r.pin };
+        }
+
+        if (r.kind === 'external') {
+          return { name: r.name, port, kind: r.kind, reason: r.owner };
+        }
+
+        if (slot === first) {
+          return { name: r.name, port, kind: r.kind };
+        }
+
+        const pid = busy.get(from);
+
+        return { name: r.name, port, kind: r.kind, reason: pid === undefined ? `fell back from ${from}: slot ${first} had ${tried[0]}` : `fell back from ${from}: held by PID ${pid}` };
+      });
+
+      return { ok: true, slot, ports };
+    }
+
+    tried.push(...taken);
+  }
+
+  return { ok: false, reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}` };
+}
+
+/**
+ * The doctor's `ports` line: every derived and fixed port answers and is held by the recorded process tree; every
+ * port is listed.
+ * @param {PortEntry[]} ports
+ * @param {Map<number, number>} busy
+ * @param {Set<number>} tree
+ * @returns {{ status: 'pass' | 'fail', detail: string }}
+ */
+export function portsCheck(ports, busy, tree) {
+  const problems = ports.flatMap((p) => {
+    const pid = busy.get(p.port);
+
+    if (p.kind === 'external') {
+      return [];
+    }
+
+    if (pid === undefined) {
+      return [`${p.name} ${p.port} not listening`];
+    }
+
+    return tree.has(pid) ? [] : [`${p.name} ${p.port} held by PID ${pid}, not the recorded tree`];
+  });
+
+  if (problems.length > 0) {
+    return { status: 'fail', detail: problems.join('; ') };
+  }
+
+  return { status: 'pass', detail: ports.map((p) => `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`).join(', ') };
+}
+
+/**
+ * The ports table rows of a run: the devtools server's port, fixed by the app's proxy.conf.json (its pinning line
+ * is found in the app checkout), and the app the overlay runs in, which control-angular-dev-app serves.
+ * @param {string} dir  the app checkout
+ * @param {number} port
+ * @param {string | null} appUrl
+ * @param {string | undefined} project
+ * @returns {PortRow[]}
+ */
+export function portRows(dir, port, appUrl, project) {
+  const app = findApp(dir, project);
+  const proxy = app === null ? 'apps/<app>/proxy.conf.json' : path.relative(dir, app.proxy).split(path.sep).join('/');
+  /** @type {PortRow[]} */
+  const rows = [{ name: 'pangular', kind: 'fixed', port, pin: `${pinOf(dir, proxy, `localhost:${port}`)} in the app checkout ${dir}` }];
+
+  if (appUrl !== null) {
+    rows.push({ name: 'app', kind: 'external', port: Number(new URL(appUrl).port || 80), owner: 'control-angular-dev-app (or whatever serves --app-url); this skill never starts or stops it' });
+  }
+
+  return rows;
 }
 
 /**
@@ -470,14 +621,13 @@ function processTable() {
 }
 
 /**
- * @param {number} p
- * @returns {number | null}
+ * The PID listening on each port now (netstat, IPv4 and IPv6).
+ * @returns {Map<number, number>}
  */
-function listeningPid(p) {
+export function busyPorts() {
   const netstat = path.join(SYSTEM32, 'netstat.exe');
-  const text = ['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n');
 
-  return parseListeningPid(text, p);
+  return listeners(['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n'));
 }
 
 /**
@@ -776,10 +926,21 @@ async function up() {
     fail(2, `${PKG} is not installed in ${dir}; run install first`);
   }
 
-  const owner = listeningPid(p);
+  const appUrl = str('app-url') ?? null;
+  /** @type {PortRow[]} */
+  let rows;
 
-  if (owner) {
-    fail(2, `refused: port ${p} is already in use by PID ${owner}; it may be another devtools server or Lars's own`, { ownerPid: owner });
+  try {
+    rows = portRows(dir, p, appUrl, str('project'));
+  } catch (error) {
+    return fail(2, `refused: --app-url ${appUrl}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  // A busy fixed port is never taken over: it may be another session's devtools server or Lars's own.
+  const plan = planPorts(rows, [0], busyPorts());
+
+  if (!plan.ok) {
+    return fail(2, `refused: ${plan.reason}`);
   }
 
   const readOnly = !argv.includes('--allow-actions');
@@ -800,7 +961,7 @@ async function up() {
 
   const row = processTable().find((r) => r.ProcessId === pid);
   /** @type {State} */
-  const state = { mode: 'launch', dir, port: p, readOnly, mcpUrl: `http://localhost:${p}/__mcp`, origin: `http://localhost:${p}`, appUrl: str('app-url') ?? null, session: `pangular-${p}`, evidenceDir, log, pid, start: row?.Start ?? null, commandLine: row?.CommandLine ?? null, startedAt: new Date().toISOString() };
+  const state = { mode: 'launch', dir, port: p, ports: plan.ports, readOnly, mcpUrl: `http://localhost:${p}/__mcp`, origin: `http://localhost:${p}`, appUrl, session: `pangular-${p}`, evidenceDir, log, pid, start: row?.Start ?? null, commandLine: row?.CommandLine ?? null, startedAt: new Date().toISOString() };
   writeFileSync(statePath(p), JSON.stringify(state, null, 2));
 
   for (;;) {
@@ -1006,8 +1167,8 @@ async function doctor() {
   const table = processTable();
   const row = table.find((r) => r.ProcessId === state.pid);
   add('process-alive', row && row.Start === state.start ? 'pass' : 'fail', row ? `PID ${state.pid} since ${row.Start}` : `PID ${state.pid} is gone`);
-  const owner = listeningPid(state.port);
-  add('port-owned', owner && descendants(table, state.pid).has(owner) ? 'pass' : 'fail', owner ? `port ${state.port} held by PID ${owner}` : `nothing listens on ${state.port}`);
+  const ports = portsCheck(state.ports ?? [], busyPorts(), row && row.Start === state.start ? descendants(table, state.pid) : new Set());
+  add('ports', ports.status, ports.detail);
 
   const noOrigin = await mcp(state, 'initialize', initParams(), { origin: null });
   add('mcp-origin-guard', noOrigin.httpStatus === 403 ? 'pass' : 'fail', `POST without Origin -> ${noOrigin.httpStatus} (want 403)`);

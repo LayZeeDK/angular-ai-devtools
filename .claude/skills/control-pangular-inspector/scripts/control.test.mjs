@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -10,6 +11,7 @@ import { test } from 'node:test';
 import {
   addOverlayImport,
   authCodeIn,
+  busyPorts,
   callRefusal,
   componentOutline,
   consoleCheck,
@@ -19,11 +21,15 @@ import {
   findResource,
   flagIn,
   insideDir,
+  listeners,
   mainFacts,
   managedPaths,
-  parseListeningPid,
   parseRpcText,
+  pinOf,
+  planPorts,
   porcelainPaths,
+  portRows,
+  portsCheck,
   readOnlyCheck,
   setupChecks,
   short,
@@ -50,6 +56,19 @@ function workspace(t, files) {
   return dir;
 }
 
+/**
+ * A throwaway listener on a port the OS picks; closed after the test.
+ * @param {import('node:test').TestContext} t
+ * @returns {Promise<number>}
+ */
+async function listen(t) {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  t.after(() => server.close());
+
+  return /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+}
+
 const devServer = (/** @type {string} */ name, /** @type {Record<string, unknown>} */ build = {}) =>
   JSON.stringify({ name, targets: { build: { options: build }, serve: { executor: '@angular/build:dev-server' } } });
 
@@ -67,15 +86,51 @@ test('descendants walks the whole tree below a PID and nothing beside it', () =>
   assert.deepEqual([...descendants(table, 10)].sort(), [10, 11, 12]);
 });
 
-test('parseListeningPid finds the LISTENING row for the exact port, IPv4 or IPv6', () => {
+test('listeners maps each LISTENING port to its PID, IPv4 or IPv6, and nothing else', () => {
   const text = [
     '  Proto  Local Address          Foreign Address        State           PID',
     '  TCP    0.0.0.0:19999          0.0.0.0:0              LISTENING       7',
     '  TCP    127.0.0.1:9999         127.0.0.1:50000        ESTABLISHED     8',
     '  TCP    [::1]:9999             [::]:0                 LISTENING       4242',
   ].join('\r\n');
-  assert.equal(parseListeningPid(text, 9999), 4242);
-  assert.equal(parseListeningPid(text, 9998), null);
+  assert.deepEqual([...listeners(text)], [[19999, 7], [9999, 4242]]);
+});
+
+test('portRows pins the devtools port to the line of the app proxy that names it, and lists the app as external', (t) => {
+  const dir = workspace(t, {
+    'apps/portal/project.json': devServer('portal'),
+    'apps/portal/proxy.conf.json': '{\n  "/__pangular": {\n    "target": "http://localhost:9999",\n    "ws": true\n  }\n}\n',
+  });
+  assert.deepEqual(portRows(dir, 9999, 'http://localhost:4507/', undefined), [
+    { name: 'pangular', kind: 'fixed', port: 9999, pin: `apps/portal/proxy.conf.json:3 in the app checkout ${dir}` },
+    { name: 'app', kind: 'external', port: 4507, owner: 'control-angular-dev-app (or whatever serves --app-url); this skill never starts or stops it' },
+  ]);
+  const other = portRows(dir, 9998, null, undefined)[0];
+  assert.equal(other?.kind === 'fixed' ? other.pin : null, `apps/portal/proxy.conf.json in the app checkout ${dir}`, 'a port the proxy does not name pins the file only');
+  assert.equal(portRows(dir, 9999, null, undefined).length, 1, 'no --app-url, no app row');
+  assert.throws(() => portRows(dir, 9999, 'not a url', undefined), /Invalid URL/);
+  assert.equal(pinOf(dir, 'missing.json', 'x'), 'missing.json');
+});
+
+test('a busy fixed devtools port is a refusal naming the throwaway listener and the pin; a free one passes', async (t) => {
+  const held = await listen(t);
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'pangular', kind: 'fixed', port: held, pin: 'apps/portal/proxy.conf.json:3 in the app checkout D:\\p' }];
+  assert.deepEqual(planPorts(rows, [0], busyPorts()), { ok: false, reason: `fixed port pangular ${held} held by PID ${process.pid}; pinned by apps/portal/proxy.conf.json:3 in the app checkout D:\\p` });
+  /** @type {import('./control.mjs').PortRow[]} */
+  const free = [{ name: 'pangular', kind: 'fixed', port: 1, pin: 'p:1' }, { name: 'app', kind: 'external', port: held, owner: 'o' }];
+  assert.deepEqual(planPorts(free, [0], busyPorts()), { ok: true, slot: 0, ports: [{ name: 'pangular', port: 1, kind: 'fixed', reason: 'p:1' }, { name: 'app', port: held, kind: 'external', reason: 'o' }] }, 'a busy external app port is not checked');
+});
+
+test('portsCheck passes an owned devtools port, fails a missing or foreign one, and ignores the app', () => {
+  /** @type {import('./control.mjs').PortEntry[]} */
+  const ports = [
+    { name: 'pangular', port: 9999, kind: 'fixed', reason: 'apps/portal/proxy.conf.json:3' },
+    { name: 'app', port: 4507, kind: 'external', reason: 'control-angular-dev-app' },
+  ];
+  assert.deepEqual(portsCheck(ports, new Map([[9999, 10]]), new Set([10])), { status: 'pass', detail: 'pangular 9999 (fixed: apps/portal/proxy.conf.json:3), app 4507 (external: control-angular-dev-app)' });
+  assert.deepEqual(portsCheck(ports, new Map([[9999, 99]]), new Set([10])), { status: 'fail', detail: 'pangular 9999 held by PID 99, not the recorded tree' });
+  assert.deepEqual(portsCheck(ports, new Map(), new Set([10])), { status: 'fail', detail: 'pangular 9999 not listening' });
 });
 
 test('authCodeIn takes the latest code and ignores colour codes', () => {

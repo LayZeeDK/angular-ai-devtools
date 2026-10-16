@@ -44,7 +44,8 @@ Standalone, against instances started by hand:
 
 ## Gotchas
 
-- The setup steps need ports 3000, 4775 and 9999 free; `up` refuses a busy port, which makes the run
+- The setup steps need ports 3000 and 9999 free (both fixed: one portal and one devtools server per machine),
+  and the portal app falls back to a free slot; `up` refuses a busy fixed port, which makes the run
   inconclusive, never a stop of someone else's process.
 - `live-reads` runs `doctor` itself: a `doctor` exit 1 fails the claim, an exit 2 (no server) means it could not
   run.

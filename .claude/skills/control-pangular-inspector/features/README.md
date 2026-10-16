@@ -8,8 +8,8 @@ control-pangular-inspector. Read this index, then use the matching feature file 
 - Run commands from the repository root. `S` is `.claude/skills/control-pangular-inspector/scripts/control.mjs`;
   `D` is `.claude/skills/control-angular-dev-app/scripts/control.mjs`.
 - Setup: `node $S check` exits 0 (pin, overlay import, proxy). If not, `node $S install`.
-- App: `node $D up --target portal` (API 3000, app 4775 for the default worktree).
-- Server: `node $S up --app-url http://localhost:4775/`, then `node $S doctor` exits 0 with
+- App: `node $D up --target portal` (API 3000, app 4507 for the default portal folder).
+- Server: `node $S up --app-url http://localhost:4507/`, then `node $S doctor` exits 0 with
   `overlay-connected` passing. Read-only unless the recipe says `--allow-actions`.
 - Take `evidenceDir` and `session` (`pangular-9999`) from `node $S info`.
 - Never drive an instance this run did not start; never Lars's browsers or the sessions `cb`, `ed`, `nano`,

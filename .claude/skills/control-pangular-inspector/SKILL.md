@@ -32,9 +32,19 @@ standalone for the portal: it has no server of its own (the Nest API on 3000 is 
 docs' "Client-only Angular CLI app" recipe is exactly this setup. Mounting the hub in the Nest API would put
 devtools into backend product code and still need the proxy.
 
-Ports: 9999 is fixed per app because `proxy.conf.json` names it (`install --port N` writes another one; pass
-the same `--port N` to every command). The portal itself uses its derived port (4775 for the default
-worktree) and API port 3000, both owned by `control-angular-dev-app`.
+Ports. The devtools server has no slots: the app's `proxy.conf.json` names its port, so it is fixed per app,
+and one devtools server per app runs on this machine. The state file is per port
+(`tmp/control-pangular-inspector/state/pangular-<port>.json`) and records the ports it used (`info --json`:
+`ports`).
+
+| Port | Kind | Default | How it moves |
+|---|---|---|---|
+| pangular | fixed | 9999 | `.claude/skills/control-pangular-inspector/scripts/control.mjs:73` defaults to 9999 because the app's proxy (the portal checkout's `apps/insurance-portal/proxy.conf.json:3`, outside this repository) sends `/__pangular` there; `install --port N` rewrites that proxy (a change to the app), then pass the same `--port N` to every command |
+| app | external | the `--app-url` port | control-angular-dev-app serves it (the portal: its derived port, 4507 for the default folder, and its API on 3000); this skill never starts or stops it |
+
+A busy devtools port exits 2 with `fixed port pangular 9999 held by PID <p>; pinned by
+apps/insurance-portal/proxy.conf.json:3 in the app checkout <dir>`, and the holder (another session's server,
+or Lars's own) is never stopped.
 
 ## Launch
 
@@ -53,11 +63,11 @@ worktree) and API port 3000, both owned by `control-angular-dev-app`.
      prettier when `node_modules/prettier` exists.
    - The portal worktree has this setup committed (`f102b97`); `check` exits 0 there and `install` is not needed.
 2. Start the app: `node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target portal`
-   (17-20 s to ready, measured). Its `info` prints the URL (`http://localhost:4775/`).
-3. Start the devtools server: `node $S up --app-url http://localhost:4775/`. It runs
+   (17-20 s to ready, measured). Its `info` prints the URL (`http://localhost:4507/`).
+3. Start the devtools server: `node $S up --app-url http://localhost:4507/`. It runs
    `node node_modules/@pangular-inspector/devtools/bin.mjs dev --port 9999 --no-open --root <app> --read-only`
    in the app folder, logs to `<evidenceDir>/pangular.log`, and is ready when MCP `initialize` answers
-   (2.2 s measured). `--allow-actions` drops `--read-only`. `up` refuses a busy port 9999 and names its PID.
+   (2.2 s measured). `--allow-actions` drops `--read-only`. `up` refuses a busy port 9999 and names its PID and the proxy line that pins it (Pick a flow).
 
 ## Doctor
 
@@ -69,7 +79,9 @@ worktree) and API port 3000, both owned by `control-angular-dev-app`.
   no file in it can be hashed.
 - `package-pinned`: `package.json` declares exactly 0.0.7 and `node_modules` holds 0.0.7.
 - `overlay-import`: `main.ts` imports the overlay behind a dev guard.
-- `process-alive`, `port-owned`: the recorded PID runs with its recorded start time and holds 9999.
+- `process-alive`: the recorded PID runs with its recorded start time. `ports`: 9999 listens and its PID is in
+  that process tree; the app's port is listed as external, not checked
+  (`[OK] ports: pangular 9999 (fixed: apps/insurance-portal/proxy.conf.json:3 in the app checkout ...), app 4507 (external: ...)`).
 - `mcp-origin-guard`: a POST without `Origin` gets 403.
 - `mcp-initialize`: `initialize` with a local `Origin` (and `PANGULAR_MCP_TOKEN` as a bearer token when set) answers.
 - `read-only`: `tools/list` holds none of the eight action tools (`highlight`, `navigate`,
@@ -111,7 +123,7 @@ to pick a tab. Answers that hold page text start with Pangular's notice to treat
 | Live route config and its lint | `node $S call list-routes`, `node $S call lint-routes` |
 
 Fallbacks: `node $S scan <get-routes|get-components|...>` runs the CLI's stdio MCP server (source scan, no
-app needed); the panel UI at `http://localhost:4775/__pangular/` in the same playwright-cli session (wait for
+app needed); the panel UI at `http://localhost:4507/__pangular/` in the same playwright-cli session (wait for
 the text `LIVE`). Not reachable: Angular DevTools (manual only).
 
 ## Evidence
