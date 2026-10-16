@@ -71,6 +71,7 @@ Read-only; one line per check:
 
 | Check | Passes when |
 |---|---|
+| `map-fresh` | always, first; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`) or that were never proven; never fails doctor |
 | `process` | one main process uses the instance profile |
 | `commandLine` | executable, port, the two common arguments and `--enable-features` match the registry for one backend (drift check) |
 | `port` | `/json/version` answers with the right product and the main PID owns the port |
@@ -149,6 +150,10 @@ running, each on one blank tab; `down` is for a relaunch, a clear, or a proof. N
 
 `node .claude/skills/control-ai-browsers/scripts/control.mjs <command> ... [--json] [--evidence=<dir>]`
 
+playwright-cli runs as node with `node_modules/@playwright/cli/playwright-cli.js` beside the first
+`playwright-cli.cmd` in an absolute PATH folder (an npm global install); without it, page commands fail with
+`playwright-cli not found on PATH`.
+
 | Command | Does | Exit |
 |---|---|---|
 | `instances` | registry plus live state: PID, backend, drift, tabs, state file | 0 |
@@ -169,6 +174,15 @@ running, each on one blank tab; `down` is for a relaunch, a clear, or a proof. N
 Exit codes: 0 done or healthy; 1 not healthy or the change did not take; 2 refused or could not run, with the
 reason (unknown instance, not running, missing state file, PID mismatch, port owned by another process, running
 instance for `clear`, missing `--confirm`, `--backend=cpu` on Edge, junctioned profile, missing fixture).
+
+`scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
+`features/.proven.json`: `node .claude/skills/control-ai-browsers/scripts/fingerprint.mjs record --feature <id>
+--entries <path>...` records the repository files a feature depends on with their git blob hashes (exit 0 written or
+unchanged, 2 refused); `... fingerprint.mjs check [--feature <id>] [--json]` prints `fresh`, `stale` or `unproven` per
+feature (exit 0 all fresh, 1 one stale or unproven, 2 could not run).
+
+Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
+`npm run check` type-checks the scripts.
 
 ## Gotchas
 

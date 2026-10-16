@@ -1,60 +1,168 @@
 #!/usr/bin/env node
+// @ts-check
 // Deterministic control of the per-model browser instances in instances.json, through playwright-cli and raw CDP.
 // Usage: node control.mjs <command> [sub] <instance> [--json] [--evidence=<dir>]  (see SKILL.md, Helpers)
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statfsSync, statSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { delimiter, dirname, isAbsolute, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { mapFresh } from './fingerprint.mjs';
+
+/** @typedef {{ exe: string, scheme: string, product: string, modelRoots: string[], minFreeMib: number, modelComponents?: string[] }} BrowserDef */
+/** @typedef {{ name: string, folders: string, asset: string, useCase: string, contextWindow: number, toolCanary: boolean | 'report', downloadMib: number }} ModelDef */
+/** @typedef {{ default: string, gpu: string[] | null, cpu: string[] | null }} BackendDef */
+/** @typedef {{ browser: string, port: number, features: string[], backend: BackendDef, model: ModelDef }} InstanceDef */
+/** @typedef {{ profilesRoot: string, commonArgs: string[], browsers: Record<string, BrowserDef>, instances: Record<string, InstanceDef> }} Registry */
+/** @typedef {InstanceDef & BrowserDef & { name: string, dir: string, session: string, cdp: string }} Inst */
+/** @typedef {'gpu' | 'cpu'} Backend */
+/** @typedef {{ ProcessId: number, ExecutablePath: string | null, CommandLine: string | null, Created: string | null }} ProcRow */
+/** @typedef {{ userDataDir: string | null, port: number, features: string[], args: string[] }} CommandLine */
+/** @typedef {{ backend: Backend | null, problems: string[], commandLine: CommandLine }} Drift */
+
+/**
+ * @typedef {object} State
+ * @property {string} instance
+ * @property {number} pid
+ * @property {string | null} created
+ * @property {string | null} exe
+ * @property {string | null} commandLine
+ * @property {number} port
+ * @property {string} cdp
+ * @property {string} session
+ * @property {string} profile
+ * @property {Backend | null} backend
+ * @property {string} at
+ */
+
+/** @typedef {{ name: string, version: string, state: string, progress: number }} BrokerAsset */
+/** @typedef {{ name: string, mib: number, weights: string | null, backend: string }} BrokerModel */
+
+/**
+ * What the Broker State tab of on-device-internals shows, parsed.
+ * @typedef {object} Broker
+ * @property {undefined} [disabled]
+ * @property {string | null} manifestPath
+ * @property {string | null} manifestLoaded
+ * @property {string | null} perfClass
+ * @property {string | null} diskInstall
+ * @property {BrokerAsset[]} assets
+ * @property {Record<string, string>} useCases
+ * @property {BrokerModel[]} models
+ */
+
+/** @typedef {{ disabled: true, error: string, diskInstall?: undefined }} BrokerDisabled */
+/** @typedef {{ kind: Backend | null, row: string | null, backendType?: string, weights?: string | null }} Serving */
+/** @typedef {{ name: string | undefined, modelVersion: string | undefined, componentVersion: string | undefined, performanceHints: unknown, dir: string, bytes: number, mib: number }} DiskModel */
+/** @typedef {{ bytes: number, mib: number, minMib: number, volume: string }} FreeSpace */
+/** @typedef {{ id: string, pass: boolean | null, warn: boolean, detail: unknown }} Check */
+/** @typedef {{ ok: boolean, couldNotRun?: boolean } & Record<string, unknown>} Result */
+/** @typedef {{ code: number | null, out: string }} PwRun */
+/** @typedef {{ Browser: string, webSocketDebuggerUrl: string }} CdpVersion */
+/** @typedef {{ id: string, type: string, url: string }} CdpTarget */
+
+/**
+ * What the AVAILABILITY snippet returns: an availability string or an error text per API, and a few page facts.
+ * @typedef {{ LanguageModel?: string } & Record<string, unknown>} Availability
+ */
+/** @typedef {{ pass: boolean | null } & Record<string, unknown>} CanaryPart */
+/** @typedef {{ contextWindow?: number, structured?: CanaryPart, tools?: CanaryPart, webmcp?: CanaryPart, createMs?: number }} Canary */
+/** @typedef {{ firstCreateMs: number, secondCreateMs: number, contextWindow: number, promptMs: number, answer: unknown, contextUsage?: number }} InitRun */
+/** @typedef {{ id: string, name: string, status: string | null }} EdgeComponent */
+/** @typedef {{ gesture: string, state: string, clickAt?: number, readyAt?: number, contextWindow?: number, samples: number, polls: unknown[] }} DownloadRun */
+/** @typedef {{ optimization_guide?: { on_device?: { performance_class?: unknown } } }} LocalState */
+/** @typedef {{ name?: string, version?: string, BaseModelSpec?: { name?: string, version?: string, supported_performance_hints?: unknown } }} ModelManifest */
 
 const SKILL_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = resolve(SKILL_DIR, '..', '..', '..');
 const TMP = join(ROOT, 'tmp', 'control-ai-browsers');
+/** @type {Registry} */
 const REGISTRY = JSON.parse(readFileSync(join(SKILL_DIR, 'instances.json'), 'utf8'));
 const PROFILES = resolve(ROOT, REGISTRY.profilesRoot);
 const PROBE_ORIGIN = 'https://example.org/';
 const STEP_TIMEOUT_MS = 180000;
 const EXIT = { OK: 0, UNHEALTHY: 1, REFUSED: 2 };
+// Windows reads this from this process, not the child's env, when Node looks up a bare program name (pwsh):
+// it then skips the current directory.
+process.env['NoDefaultCurrentDirectoryInExePath'] = '1';
 
 // ---------- args ----------
-const opts = {};
-const pos = [];
 
-for (const a of process.argv.slice(2)) {
-  const m = a.match(/^--([^=]+)(?:=(.*))?$/);
+/**
+ * `--name=value` and bare `--name` (true) into opts; everything else, in order, into pos.
+ * @param {string[]} argv
+ * @returns {{ opts: Record<string, string | true>, pos: string[] }}
+ */
+export function parseArgs(argv) {
+  /** @type {Record<string, string | true>} */
+  const opts = {};
+  /** @type {string[]} */
+  const pos = [];
 
-  if (m) {
-    opts[m[1]] = m[2] ?? true;
-  } else {
-    pos.push(a);
+  for (const a of argv) {
+    const m = a.match(/^--([^=]+)(?:=(.*))?$/);
+
+    if (m) {
+      opts[/** @type {string} */ (m[1])] = m[2] ?? true;
+    } else {
+      pos.push(a);
+    }
   }
+
+  return { opts, pos };
 }
 
+const { opts, pos } = parseArgs(process.argv.slice(2));
 const runId = new Date().toISOString().replace(/[-:]/g, '').replace(/\..*/, '').replace('T', '-');
-const evidenceDir = resolve(ROOT, typeof opts.evidence === 'string' ? opts.evidence : join('tmp', 'control-ai-browsers', 'evidence', runId));
+const evidenceDir = resolve(ROOT, typeof opts['evidence'] === 'string' ? opts['evidence'] : join('tmp', 'control-ai-browsers', 'evidence', runId));
 
-class Refusal extends Error {}
+export class Refusal extends Error {}
 
+/**
+ * @param {string} msg
+ * @returns {never}
+ */
 function refuse(msg) {
   throw new Refusal(msg);
 }
 
+/**
+ * @param {string} marker
+ * @param {string} msg
+ */
 function log(marker, msg) {
-  if (!opts.json) {
+  if (!opts['json']) {
     console.log(`[${marker}] ${msg}`);
   }
 }
 
 // ---------- registry ----------
-function instance(name) {
-  const i = REGISTRY.instances[name] ?? refuse(`unknown instance "${name}"; known: ${Object.keys(REGISTRY.instances).join(', ')}`);
-  const b = REGISTRY.browsers[i.browser];
+
+/**
+ * @param {string | undefined} name
+ * @param {Pick<Registry, 'instances' | 'browsers'>} [registry]
+ * @returns {Inst}
+ */
+export function instance(name, registry = REGISTRY) {
+  const i = name !== undefined && Object.hasOwn(registry.instances, name) ? registry.instances[name] : undefined;
+
+  if (name === undefined || i === undefined) {
+    return refuse(`unknown instance "${name}"; known: ${Object.keys(registry.instances).join(', ')}`);
+  }
+
+  const b = (Object.hasOwn(registry.browsers, i.browser) ? registry.browsers[i.browser] : undefined) ?? refuse(`instance "${name}" names unknown browser "${i.browser}"`);
   const dir = join(PROFILES, name);
 
   return { name, ...i, ...b, dir, session: `ai-${name}`, cdp: `http://127.0.0.1:${i.port}` };
 }
 
-function featuresFor(inst, backend) {
-  const extra = inst.backend[backend];
+/**
+ * The --enable-features list for a backend; refuses a backend the registry does not offer.
+ * @param {Pick<Inst, 'name' | 'features' | 'backend'>} inst
+ * @param {string} backend
+ * @returns {string[]}
+ */
+export function featuresFor(inst, backend) {
+  const extra = backend === 'gpu' || backend === 'cpu' ? inst.backend[backend] : undefined;
 
   if (extra === undefined) {
     refuse(`--backend must be gpu or cpu`);
@@ -67,62 +175,126 @@ function featuresFor(inst, backend) {
   return [...inst.features, ...extra];
 }
 
-// ---------- processes ----------
-function pwshJson(command) {
-  const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', `${command} | ConvertTo-Json -Depth 4 -Compress`], { encoding: 'utf8' });
-  const text = (r.stdout ?? '').trim();
+/**
+ * The command line `up` launches the instance with.
+ * @param {Pick<Inst, 'dir' | 'port'>} inst
+ * @param {string[]} features
+ * @returns {string[]}
+ */
+export function launchArgs(inst, features) {
+  return [`--user-data-dir=${inst.dir}`, `--remote-debugging-port=${inst.port}`, ...REGISTRY.commonArgs, `--enable-features=${features.join(',')}`, 'about:blank'];
+}
 
-  if (!text) {
+// ---------- processes ----------
+
+/**
+ * pwsh's ConvertTo-Json output as rows: nothing, one object, or an array.
+ * @param {string} text
+ * @returns {unknown[]}
+ */
+export function jsonRows(text) {
+  if (!text.trim()) {
     return [];
   }
 
+  /** @type {unknown} */
   const v = JSON.parse(text);
 
   return Array.isArray(v) ? v : [v];
 }
 
+/**
+ * @param {string} command
+ * @returns {unknown[]}
+ */
+function pwshJson(command) {
+  const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', `${command} | ConvertTo-Json -Depth 4 -Compress`], { encoding: 'utf8', windowsHide: true });
+
+  return jsonRows(r.stdout ?? '');
+}
+
 const PROC_FIELDS = "Select-Object ProcessId,ExecutablePath,CommandLine,@{n='Created';e={$_.CreationDate.ToString('o')}}";
 
-function parseCommandLine(commandLine) {
+/**
+ * @param {string | null | undefined} commandLine
+ * @returns {CommandLine}
+ */
+export function parseCommandLine(commandLine) {
   const cl = commandLine ?? '';
   const udd = cl.match(/--user-data-dir=(?:"([^"]+)"|(\S+))/);
 
   return {
-    userDataDir: udd ? (udd[1] ?? udd[2]) : null,
+    userDataDir: udd ? (udd[1] ?? udd[2] ?? null) : null,
     port: Number(cl.match(/--remote-debugging-port=(\d+)/)?.[1] ?? NaN),
     features: (cl.match(/--enable-features=(?:"([^"]+)"|(\S+))/)?.slice(1).find(Boolean) ?? '').split(',').filter(Boolean),
     args: REGISTRY.commonArgs.filter((a) => cl.includes(a)),
   };
 }
 
-const sameDir = (a, b) => !!a && !!b && resolve(a).toLowerCase() === resolve(b).toLowerCase();
+/**
+ * @param {string | null | undefined} a
+ * @param {string | null | undefined} b
+ * @returns {boolean}
+ */
+export const sameDir = (a, b) => !!a && !!b && resolve(a).toLowerCase() === resolve(b).toLowerCase();
 
 // The instance's browser processes are the ones whose --user-data-dir is its profile; Lars's own browsers never match.
+/**
+ * @param {Inst} inst
+ * @returns {ProcRow[]}
+ */
 function instanceProcesses(inst) {
   const exeName = inst.exe.split('\\').pop();
+  const rows = /** @type {ProcRow[]} */ (pwshJson(`Get-CimInstance Win32_Process -Filter "Name='${exeName}'" | ${PROC_FIELDS}`));
 
-  return pwshJson(`Get-CimInstance Win32_Process -Filter "Name='${exeName}'" | ${PROC_FIELDS}`).filter((p) => sameDir(parseCommandLine(p.CommandLine).userDataDir, inst.dir));
+  return rows.filter((p) => sameDir(parseCommandLine(p.CommandLine).userDataDir, inst.dir));
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {ProcRow | null}
+ */
 function mainProcess(inst) {
   const main = instanceProcesses(inst).filter((p) => !/--type=/.test(p.CommandLine ?? ''));
 
-  return main.length === 1 ? main[0] : main.length === 0 ? null : refuse(`${main.length} main processes use ${inst.dir}`);
+  return main.length === 1 ? /** @type {ProcRow} */ (main[0]) : main.length === 0 ? null : refuse(`${main.length} main processes use ${inst.dir}`);
 }
 
+/**
+ * @param {number} pid
+ * @returns {ProcRow | null}
+ */
 function processById(pid) {
-  return pwshJson(`Get-CimInstance Win32_Process -Filter "ProcessId=${Number(pid)}" | ${PROC_FIELDS}`)[0] ?? null;
+  return /** @type {ProcRow[]} */ (pwshJson(`Get-CimInstance Win32_Process -Filter "ProcessId=${Number(pid)}" | ${PROC_FIELDS}`))[0] ?? null;
 }
 
+/**
+ * @param {number} port
+ * @returns {number | null}
+ */
 function portOwner(port) {
-  return pwshJson(`Get-NetTCPConnection -LocalPort ${Number(port)} -State Listen -ErrorAction SilentlyContinue | Select-Object OwningProcess`).map((c) => c.OwningProcess)[0] ?? null;
+  const rows = /** @type {{ OwningProcess: number }[]} */ (pwshJson(`Get-NetTCPConnection -LocalPort ${Number(port)} -State Listen -ErrorAction SilentlyContinue | Select-Object OwningProcess`));
+
+  return rows.map((c) => c.OwningProcess)[0] ?? null;
 }
 
 // Which registry backend a command line matches, or null when it matches none (drift).
-function drift(inst, proc) {
+/**
+ * @param {Pick<Inst, 'exe' | 'port' | 'features' | 'backend'>} inst
+ * @param {Pick<ProcRow, 'ExecutablePath' | 'CommandLine'>} proc
+ * @returns {Drift}
+ */
+export function drift(inst, proc) {
   const cl = parseCommandLine(proc.CommandLine);
   const have = [...cl.features].sort().join(',');
-  const backend = ['gpu', 'cpu'].find((k) => Array.isArray(inst.backend[k]) && [...inst.features, ...inst.backend[k]].sort().join(',') === have) ?? null;
+  /** @type {Backend[]} */
+  const kinds = ['gpu', 'cpu'];
+  const backend = kinds.find((k) => {
+    const extra = inst.backend[k];
+
+    return Array.isArray(extra) && [...inst.features, ...extra].sort().join(',') === have;
+  }) ?? null;
+  /** @type {string[]} */
   const problems = [];
 
   if (proc.ExecutablePath !== inst.exe) {
@@ -144,10 +316,36 @@ function drift(inst, proc) {
   return { backend, problems, commandLine: cl };
 }
 
+/**
+ * Why `down` must not close the recorded PID, or null when the live process is the one the state file recorded.
+ * @param {Pick<State, 'pid' | 'exe' | 'commandLine' | 'created'>} st
+ * @param {Pick<ProcRow, 'ExecutablePath' | 'CommandLine' | 'Created'>} live
+ * @returns {string | null}
+ */
+export function downRefusal(st, live) {
+  if (live.ExecutablePath !== st.exe || live.CommandLine !== st.commandLine) {
+    return `PID ${st.pid} command line mismatch: running "${live.ExecutablePath}" ${String(live.CommandLine).slice(0, 120)}, recorded ${st.exe}`;
+  }
+
+  if (live.Created !== st.created) {
+    return `PID ${st.pid} start-time mismatch: live ${live.Created}, recorded ${st.created}`;
+  }
+
+  return null;
+}
+
+/** @param {number} ms */
 async function sleep(ms) {
   await new Promise((r) => setTimeout(r, ms));
 }
 
+/**
+ * @template T
+ * @param {() => T | Promise<T>} fn
+ * @param {number} timeoutMs
+ * @param {number} [everyMs]
+ * @returns {Promise<T | null>}
+ */
 async function waitFor(fn, timeoutMs, everyMs = 1000) {
   const end = Date.now() + timeoutMs;
 
@@ -164,6 +362,11 @@ async function waitFor(fn, timeoutMs, everyMs = 1000) {
   return null;
 }
 
+/**
+ * @param {Inst} inst
+ * @param {string} path
+ * @returns {Promise<unknown>}
+ */
 async function cdpJson(inst, path) {
   try {
     const r = await fetch(`${inst.cdp}${path}`, { signal: AbortSignal.timeout(3000) });
@@ -174,21 +377,52 @@ async function cdpJson(inst, path) {
   }
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {Promise<CdpTarget[]>}
+ */
+async function pageTargets(inst) {
+  return (/** @type {CdpTarget[] | null} */ (await cdpJson(inst, '/json/list')) ?? []).filter((t) => t.type === 'page');
+}
+
+/**
+ * @param {Inst} inst
+ * @returns {Promise<string[]>}
+ */
 async function pageTabs(inst) {
-  return ((await cdpJson(inst, '/json/list')) ?? []).filter((t) => t.type === 'page').map((t) => t.url);
+  return (await pageTargets(inst)).map((t) => t.url);
 }
 
 // ---------- state ----------
+
+/** @param {string} name */
 function statePath(name) {
   return join(TMP, `state-${name}.json`);
 }
 
+/**
+ * @param {string} name
+ * @returns {State | null}
+ */
 function readState(name) {
-  return existsSync(statePath(name)) ? JSON.parse(readFileSync(statePath(name), 'utf8')) : null;
+  if (!existsSync(statePath(name))) {
+    return null;
+  }
+
+  /** @type {unknown} */
+  const st = JSON.parse(readFileSync(statePath(name), 'utf8'));
+
+  return /** @type {State} */ (st);
 }
 
+/**
+ * @param {Inst} inst
+ * @param {ProcRow} proc
+ * @returns {State}
+ */
 function writeState(inst, proc) {
   mkdirSync(TMP, { recursive: true });
+  /** @type {State} */
   const st = { instance: inst.name, pid: proc.ProcessId, created: proc.Created, exe: proc.ExecutablePath, commandLine: proc.CommandLine, port: inst.port, cdp: inst.cdp, session: inst.session, profile: inst.dir, backend: drift(inst, proc).backend, at: new Date().toISOString() };
   writeFileSync(statePath(inst.name), JSON.stringify(st, null, 2));
 
@@ -196,20 +430,46 @@ function writeState(inst, proc) {
 }
 
 // ---------- playwright-cli ----------
+/** @type {Inst | null} */
 let attachedHere = null;
 
-function pw(inst, args, { raw = false, timeoutMs = 120000 } = {}) {
-  const full = [...(raw ? ['--raw'] : []), `-s=${inst.session}`, ...args];
-  const line = ['playwright-cli', ...full].map((a) => (/[\s"]/.test(a) ? `"${a.replace(/"/g, '\\"')}"` : a)).join(' ');
-  const r = spawnSync(line, { cwd: ROOT, encoding: 'utf8', shell: true, maxBuffer: 64 * 1024 * 1024, timeout: timeoutMs });
+/**
+ * playwright-cli's script beside its npm shim on PATH (absolute PATH entries only), or null.
+ * @param {string} pathEnv
+ * @returns {string | null}
+ */
+export function findPlaywrightCli(pathEnv) {
+  const shimDir = pathEnv.split(delimiter).find((d) => isAbsolute(d) && existsSync(join(d, 'playwright-cli.cmd')));
+  const js = shimDir && join(shimDir, 'node_modules', '@playwright', 'cli', 'playwright-cli.js');
 
-  if (r.error?.code === 'ETIMEDOUT') {
+  return js && existsSync(js) ? js : null;
+}
+
+/**
+ * @param {Inst} inst
+ * @param {string[]} args
+ * @param {{ raw?: boolean, timeoutMs?: number }} [options]
+ * @returns {PwRun}
+ */
+function pw(inst, args, { raw = false, timeoutMs = 120000 } = {}) {
+  const js = findPlaywrightCli(process.env['PATH'] ?? '');
+
+  if (!js) {
+    return { code: 127, out: 'playwright-cli not found on PATH' };
+  }
+
+  const full = [...(raw ? ['--raw'] : []), `-s=${inst.session}`, ...args];
+  const r = spawnSync(process.execPath, [js, ...full], { cwd: ROOT, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024, timeout: timeoutMs });
+  const error = /** @type {(Error & { code?: string }) | undefined} */ (r.error);
+
+  if (error?.code === 'ETIMEDOUT') {
     return { code: -1, out: `playwright-cli ${args[0]} timed out after ${timeoutMs} ms; a tab renderer may be hung (see Gotchas)` };
   }
 
   return { code: r.status, out: (r.stdout ?? '') + (r.stderr ?? '') };
 }
 
+/** @param {Inst} inst */
 function isAttached(inst) {
   const r = pw(inst, ['tab-list']);
 
@@ -217,6 +477,7 @@ function isAttached(inst) {
 }
 
 // Attaches the instance's session when it is not attached; a session this command attached is detached when it ends.
+/** @param {Inst} inst */
 async function ensureAttached(inst) {
   if (isAttached(inst)) {
     return;
@@ -231,10 +492,18 @@ async function ensureAttached(inst) {
   attachedHere = inst;
 }
 
-// Runs `async (p, args) => {...}` in a tab the command opens and always closes. Tabs carry ?ai-browsers=<purpose>.
-async function inTab(inst, body, { args = {}, url = PROBE_ORIGIN, purpose = 'probe' } = {}) {
+/** @typedef {{ args?: Record<string, unknown>, url?: string | null, purpose?: string }} TabOptions */
+
+// A run-code file that runs `async (p, args) => {...}` in a tab it opens and always closes. Tabs carry ?ai-browsers=<purpose>.
+/**
+ * @param {string} body
+ * @param {TabOptions} [options]
+ * @returns {string}
+ */
+export function tabSource(body, { args = {}, url = PROBE_ORIGIN, purpose = 'probe' } = {}) {
   const target = url && url.startsWith('https://') ? `${url}${url.includes('?') ? '&' : '?'}ai-browsers=${purpose}` : url;
-  const src = `async page => {
+
+  return `async page => {
   const p = await page.context().newPage();
   try {
     ${target ? `await p.goto(${JSON.stringify(target)});` : ''}
@@ -243,10 +512,23 @@ async function inTab(inst, body, { args = {}, url = PROBE_ORIGIN, purpose = 'pro
     await p.close().catch(() => {});
   }
 }`;
-
-  return runCode(inst, src);
 }
 
+/**
+ * @param {Inst} inst
+ * @param {string} body
+ * @param {TabOptions} [options]
+ * @returns {Promise<unknown>}
+ */
+async function inTab(inst, body, options) {
+  return runCode(inst, tabSource(body, options));
+}
+
+/**
+ * @param {Inst} inst
+ * @param {string} src
+ * @returns {Promise<unknown>}
+ */
 async function runCode(inst, src) {
   await ensureAttached(inst);
   mkdirSync(join(TMP, 'run'), { recursive: true });
@@ -421,16 +703,33 @@ const EDGE_COMPONENTS = `async (p, { names }) => {
 }`;
 
 // ---------- readers ----------
+
+/**
+ * @param {Inst} inst
+ * @returns {LocalState | null}
+ */
 function readLocalState(inst) {
   const f = join(inst.dir, 'Local State');
 
-  return existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : null;
+  if (!existsSync(f)) {
+    return null;
+  }
+
+  /** @type {unknown} */
+  const ls = JSON.parse(readFileSync(f, 'utf8'));
+
+  return /** @type {LocalState} */ (ls);
 }
 
+/** @param {Inst} inst */
 function perfClass(inst) {
   return readLocalState(inst)?.optimization_guide?.on_device?.performance_class ?? null;
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {FreeSpace}
+ */
 function freeSpace(inst) {
   const st = statfsSync(existsSync(inst.dir) ? inst.dir : PROFILES);
   const bytes = Number(st.bavail) * Number(st.bsize);
@@ -438,6 +737,35 @@ function freeSpace(inst) {
   return { bytes, mib: Math.floor(bytes / 1048576), minMib: inst.minFreeMib, volume: inst.dir.slice(0, 2) };
 }
 
+/**
+ * Whether a real (link-resolved) path lies below the real profile folder, ignoring letter case; `model clear` deletes
+ * only such folders.
+ * @param {string} profileReal
+ * @param {string} dirReal
+ * @returns {boolean}
+ */
+export function insideProfile(profileReal, dirReal) {
+  return dirReal.toLowerCase().startsWith(profileReal.toLowerCase().replace(/[\\/]+$/, '') + sep);
+}
+
+/**
+ * Why a download of about `downloadMib` must not start, or null when the volume keeps the browser's minimum free.
+ * @param {FreeSpace} free
+ * @param {Pick<ModelDef, 'name' | 'downloadMib'>} model
+ * @returns {string | null}
+ */
+export function downloadRefusal(free, model) {
+  if (free.mib - model.downloadMib < free.minMib) {
+    return `download refused: ${free.mib} MiB free on ${free.volume} minus about ${model.downloadMib} MiB for ${model.name} leaves ${free.mib - model.downloadMib} MiB, under the browser minimum of ${free.minMib} MiB`;
+  }
+
+  return null;
+}
+
+/**
+ * @param {string} dir
+ * @returns {number}
+ */
 function dirSize(dir) {
   let total = 0;
 
@@ -449,8 +777,15 @@ function dirSize(dir) {
   return total;
 }
 
-function diskModels(inst) {
+/**
+ * The model folders (a manifest.json, at most three levels down) under the instance's model roots.
+ * @param {Pick<Inst, 'dir' | 'modelRoots'>} inst
+ * @returns {DiskModel[]}
+ */
+export function diskModels(inst) {
+  /** @type {DiskModel[]} */
   const out = [];
+  /** @type {(dir: string, depth: number) => void} */
   const visit = (dir, depth) => {
     if (!existsSync(dir) || depth > 3) {
       return;
@@ -459,6 +794,7 @@ function diskModels(inst) {
     const manifest = join(dir, 'manifest.json');
 
     if (existsSync(manifest)) {
+      /** @type {ModelManifest} */
       const m = JSON.parse(readFileSync(manifest, 'utf8'));
       const bytes = dirSize(dir);
       out.push({ name: m.BaseModelSpec?.name ?? m.name, modelVersion: m.BaseModelSpec?.version, componentVersion: m.version, performanceHints: m.BaseModelSpec?.supported_performance_hints, dir, bytes, mib: Math.round(bytes / 1048576) });
@@ -480,17 +816,26 @@ function diskModels(inst) {
   return out;
 }
 
-function parseBroker(text) {
-  const assets = [...text.matchAll(/([a-z0-9_]+) \| (\d{4}\.[\d.]+) \| (Ready|Not Installed|Registering|Background Installing|Foreground Installing|Uninstalling|Unknown) \| (\d+)%/g)].map((m) => ({ name: m[1], version: m[2], state: m[3], progress: Number(m[4]) }));
-  const useCases = Object.fromEntries([...text.matchAll(/\| ([a-z][a-z0-9_]+) \| (Available|Not Supported|Pending Usage|Pending Assets|[A-Z][A-Za-z ]+?) (?=\|)/g)].filter((m) => !/^(true|false)$/.test(m[2])).map((m) => [m[1], m[2].trim()]));
-  const models = [...text.matchAll(/([a-z0-9_]+) \| ([\d,.]+) \| MiB \| (?:([A-Z]:\\[^|]+?) \| )?(GPU[^|]*?|CPU)(?= \||$)/g)].map((m) => ({ name: m[1], mib: Number(m[2].replace(/,/g, '')), weights: m[3] ?? null, backend: m[4].trim() }));
+/**
+ * @param {string} text
+ * @returns {Broker}
+ */
+export function parseBroker(text) {
+  const assets = [...text.matchAll(/([a-z0-9_]+) \| (\d{4}\.[\d.]+) \| (Ready|Not Installed|Registering|Background Installing|Foreground Installing|Uninstalling|Unknown) \| (\d+)%/g)].map((m) => ({ name: m[1] ?? '', version: m[2] ?? '', state: m[3] ?? '', progress: Number(m[4]) }));
+  const useCases = Object.fromEntries([...text.matchAll(/\| ([a-z][a-z0-9_]+) \| (Available|Not Supported|Pending Usage|Pending Assets|[A-Z][A-Za-z ]+?) (?=\|)/g)].map((m) => [m[1] ?? '', (m[2] ?? '').trim()]));
+  const models = [...text.matchAll(/([a-z0-9_]+) \| ([\d,.]+) \| MiB \| (?:([A-Z]:\\[^|]+?) \| )?(GPU[^|]*?|CPU)(?= \||$)/g)].map((m) => ({ name: m[1] ?? '', mib: Number((m[2] ?? '').replace(/,/g, '')), weights: m[3] ?? null, backend: (m[4] ?? '').trim() }));
+  /** @type {(label: string) => string | null} */
   const pick = (label) => text.match(new RegExp(`${label} \\| ([^|]+?) \\|`))?.[1] ?? null;
 
   return { manifestPath: pick('Manifest Path'), manifestLoaded: pick('Manifest Loaded'), perfClass: pick('Performance Class'), diskInstall: pick('Enough disk space to install'), assets, useCases, models };
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {Promise<Broker | BrokerDisabled>}
+ */
 async function brokerState(inst) {
-  const text = await inTab(inst, BROKER, { url: null, args: { scheme: inst.scheme } });
+  const text = /** @type {string} */ (await inTab(inst, BROKER, { url: null, args: { scheme: inst.scheme } }));
 
   if (text === 'DEBUG-PAGES-DISABLED') {
     return { disabled: true, error: `internal debugging pages are off in ${inst.name}; "up ${inst.name}" turns them on (chrome://chrome-urls)` };
@@ -500,16 +845,42 @@ async function brokerState(inst) {
 }
 
 // The backend that serves this instance's model: the Broker State model row whose weights sit in the model's folder.
-function servingBackend(inst, broker, disk) {
+/**
+ * @param {{ model: Pick<ModelDef, 'name'> }} inst
+ * @param {Pick<Broker, 'models'>} broker
+ * @param {DiskModel[]} disk
+ * @returns {Serving}
+ */
+export function servingBackend(inst, broker, disk) {
   const mine = disk.filter((d) => d.name === inst.model.name);
-  const row = broker.models?.find((m) => m.weights && mine.some((d) => m.weights.toLowerCase().startsWith(d.dir.toLowerCase())));
+  const row = broker.models?.find((m) => m.weights && mine.some((d) => /** @type {string} */ (m.weights).toLowerCase().startsWith(d.dir.toLowerCase())));
 
   return row ? { kind: row.backend.startsWith('GPU') ? 'gpu' : 'cpu', row: row.name, backendType: row.backend, weights: row.weights } : { kind: null, row: null };
 }
 
+/**
+ * @typedef {object} ModelInfo
+ * @property {string} instance
+ * @property {string} expected
+ * @property {boolean} running
+ * @property {DiskModel[]} disk
+ * @property {unknown} performanceClass
+ * @property {FreeSpace} free
+ * @property {Backend | null} [requestedBackend]
+ * @property {Broker | BrokerDisabled} [broker]
+ * @property {Serving} [backend]
+ * @property {BrokerAsset | null} [asset]
+ * @property {string | null | undefined} [serving]
+ */
+
+/**
+ * @param {Inst} inst
+ * @returns {Promise<ModelInfo>}
+ */
 async function modelInfo(inst) {
   const disk = diskModels(inst);
   const proc = mainProcess(inst);
+  /** @type {ModelInfo} */
   const out = { instance: inst.name, expected: inst.model.name, running: !!proc, disk, performanceClass: perfClass(inst), free: freeSpace(inst) };
 
   if (!proc) {
@@ -517,25 +888,68 @@ async function modelInfo(inst) {
   }
 
   out.requestedBackend = drift(inst, proc).backend;
-  out.broker = await brokerState(inst);
+  const broker = await brokerState(inst);
+  out.broker = broker;
 
-  if (!out.broker.disabled) {
-    out.backend = servingBackend(inst, out.broker, disk);
-    out.asset = out.broker.assets.find((a) => new RegExp(inst.model.asset).test(a.name)) ?? null;
-    out.serving = out.backend.row ? disk.find((d) => out.backend.weights.toLowerCase().startsWith(d.dir.toLowerCase()))?.name ?? null : null;
+  if (!broker.disabled) {
+    const backend = servingBackend(inst, broker, disk);
+    out.backend = backend;
+    out.asset = broker.assets.find((a) => new RegExp(inst.model.asset).test(a.name)) ?? null;
+    out.serving = backend.row ? disk.find((d) => String(backend.weights).toLowerCase().startsWith(d.dir.toLowerCase()))?.name ?? null : null;
   }
 
   return out;
 }
 
 function cpuLoad() {
-  const load = pwshJson("Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average | Select-Object Average")[0]?.Average ?? null;
-  const top = pwshJson("Get-CimInstance Win32_PerfFormattedData_PerfProc_Process | Where-Object { $_.Name -notin '_Total','Idle' } | Sort-Object PercentProcessorTime -Descending | Select-Object -First 5 Name,PercentProcessorTime");
+  const load = /** @type {{ Average: number | null }[]} */ (pwshJson("Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average | Select-Object Average"))[0]?.Average ?? null;
+  const top = /** @type {{ Name: string, PercentProcessorTime: number }[]} */ (pwshJson("Get-CimInstance Win32_PerfFormattedData_PerfProc_Process | Where-Object { $_.Name -notin '_Total','Idle' } | Sort-Object PercentProcessorTime -Descending | Select-Object -First 5 Name,PercentProcessorTime"));
 
   return { at: new Date().toISOString(), loadPercent: load, top: top.map((p) => `${p.Name} ${p.PercentProcessorTime}%`) };
 }
 
+// ---------- doctor rules ----------
+
+/**
+ * The log marker of a doctor check.
+ * @param {boolean | null} pass
+ * @param {boolean} warn
+ * @returns {string}
+ */
+export function checkMarker(pass, warn) {
+  return pass === null ? 'SKIP' : !pass ? 'ERROR' : warn ? 'WARN' : 'OK';
+}
+
+/**
+ * Healthy when no check failed; skipped (null) and warned checks do not count against it.
+ * @param {Pick<Check, 'pass'>[]} checks
+ * @returns {boolean}
+ */
+export function doctorOk(checks) {
+  return checks.every((c) => c.pass !== false);
+}
+
+/**
+ * The canary.tools verdict: "report" keeps the result without gating health on it.
+ * @param {ModelDef['toolCanary']} toolCanary
+ * @param {CanaryPart | undefined} tools
+ * @returns {boolean | null}
+ */
+export function toolsPass(toolCanary, tools) {
+  return toolCanary === 'report' ? null : tools?.pass ?? null;
+}
+
+/**
+ * @param {Pick<Result, 'ok' | 'couldNotRun'>} result
+ * @returns {number}
+ */
+export function exitCode(result) {
+  return result.couldNotRun ? EXIT.REFUSED : result.ok ? EXIT.OK : EXIT.UNHEALTHY;
+}
+
 // ---------- commands ----------
+
+/** @returns {Promise<Result>} */
 async function cmdInstances() {
   const rows = [];
 
@@ -546,14 +960,18 @@ async function cmdInstances() {
     const tabs = proc ? await pageTabs(inst) : [];
     const row = { name, browser: inst.browser, port: inst.port, model: inst.model.name, defaultBackend: inst.backend.default, profileExists: existsSync(inst.dir), pid: proc?.ProcessId ?? null, backend: d?.backend ?? null, drift: d?.problems ?? null, tabs: tabs.length, stateFile: existsSync(statePath(name)) };
     rows.push(row);
-    log(proc ? (d.problems.length ? 'WARN' : 'OK') : 'INFO', `${name} :${inst.port} ${inst.model.name}: ${proc ? `PID ${proc.ProcessId}, backend ${d.backend ?? '?'}${d.problems.length ? `, drift: ${d.problems.join('; ')}` : ''}, ${tabs.length} tab(s)` : 'stopped'}`);
+    log(proc && d ? (d.problems.length ? 'WARN' : 'OK') : 'INFO', `${name} :${inst.port} ${inst.model.name}: ${proc && d ? `PID ${proc.ProcessId}, backend ${d.backend ?? '?'}${d.problems.length ? `, drift: ${d.problems.join('; ')}` : ''}, ${tabs.length} tab(s)` : 'stopped'}`);
   }
 
   return { ok: true, instances: rows };
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {Promise<Result>}
+ */
 async function cmdUp(inst) {
-  const backend = typeof opts.backend === 'string' ? opts.backend : inst.backend.default;
+  const backend = typeof opts['backend'] === 'string' ? opts['backend'] : inst.backend.default;
   const features = featuresFor(inst, backend);
   const running = mainProcess(inst);
 
@@ -583,28 +1001,34 @@ async function cmdUp(inst) {
     refuse(`${inst.dir} resolves through a reparse point to ${realpathSync.native(inst.dir)}; use a real folder`);
   }
 
-  const args = [`--user-data-dir=${inst.dir}`, `--remote-debugging-port=${inst.port}`, ...REGISTRY.commonArgs, `--enable-features=${features.join(',')}`, 'about:blank'];
   const t0 = Date.now();
-  spawn(inst.exe, args, { detached: true, stdio: 'ignore' }).unref();
-  const version = await waitFor(() => cdpJson(inst, '/json/version'), 60000, 500);
+  spawn(inst.exe, launchArgs(inst, features), { detached: true, stdio: 'ignore' }).unref();
+  const version = /** @type {CdpVersion | null} */ (await waitFor(() => cdpJson(inst, '/json/version'), 60000, 500));
 
   if (!version) {
     refuse(`${inst.name} did not answer on ${inst.cdp}/json/version within 60 s`);
   }
 
   const proc = await waitFor(() => mainProcess(inst), 10000, 500);
+
+  if (!proc) {
+    throw new Error(`${inst.name} answers on ${inst.cdp} but no main process uses ${inst.dir} after 10 s`);
+  }
+
   const st = writeState(inst, proc);
   const readyMs = Date.now() - t0;
 
   // Edge restores the last session's tabs; leave the instance on the one blank tab it was started with.
   await sleep(2000);
-  const pages = ((await cdpJson(inst, '/json/list')) ?? []).filter((t) => t.type === 'page');
+  const pages = await pageTargets(inst);
   const keep = pages.find((t) => t.url === 'about:blank') ?? pages[0];
   const restored = pages.filter((t) => t !== keep);
 
   for (const t of restored) {
     await fetch(`${inst.cdp}/json/close/${t.id}`).catch(() => {});
   }
+
+  /** @type {unknown} */
   let debugPages = null;
 
   if (inst.scheme === 'chrome') {
@@ -616,6 +1040,10 @@ async function cmdUp(inst) {
   return { ok: true, backend, firstUse, readyMs, browserVersion: version.Browser, closedRestoredTabs: restored.map((t) => t.url), debugPages, state: st, tabs: await pageTabs(inst) };
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {Promise<Result>}
+ */
 async function cmdAttach(inst) {
   const proc = mainProcess(inst) ?? refuse(`${inst.name} is not running; run "up ${inst.name}"`);
   const st = writeState(inst, proc);
@@ -626,6 +1054,10 @@ async function cmdAttach(inst) {
   return { ok: true, state: st };
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {Promise<Result>}
+ */
 async function cmdDetach(inst) {
   pw(inst, ['detach']);
   log('OK', `${inst.session} detached; ${inst.name} left running`);
@@ -633,6 +1065,10 @@ async function cmdDetach(inst) {
   return { ok: true };
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {Promise<Result>}
+ */
 async function cmdDown(inst) {
   const st = readState(inst.name) ?? refuse(`no state file at ${statePath(inst.name)}; run "attach ${inst.name}" or "up ${inst.name}" first`);
   const live = processById(st.pid);
@@ -644,12 +1080,10 @@ async function cmdDown(inst) {
     return { ok: true, alreadyStopped: true, pid: st.pid };
   }
 
-  if (live.ExecutablePath !== st.exe || live.CommandLine !== st.commandLine) {
-    refuse(`PID ${st.pid} command line mismatch: running "${live.ExecutablePath}" ${String(live.CommandLine).slice(0, 120)}, recorded ${st.exe}`);
-  }
+  const mismatch = downRefusal(st, live);
 
-  if (live.Created !== st.created) {
-    refuse(`PID ${st.pid} start-time mismatch: live ${live.Created}, recorded ${st.created}`);
+  if (mismatch !== null) {
+    refuse(mismatch);
   }
 
   if (portOwner(inst.port) !== st.pid) {
@@ -657,7 +1091,7 @@ async function cmdDown(inst) {
   }
 
   pw(inst, ['detach']);
-  const version = (await cdpJson(inst, '/json/version')) ?? refuse(`${inst.cdp} does not answer`);
+  const version = /** @type {CdpVersion | null} */ (await cdpJson(inst, '/json/version')) ?? refuse(`${inst.cdp} does not answer`);
   const ws = new WebSocket(version.webSocketDebuggerUrl);
   await new Promise((r, j) => {
     ws.addEventListener('open', r);
@@ -685,9 +1119,13 @@ async function cmdDown(inst) {
   return { ok: portFree, pid: st.pid, portFree };
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {Promise<Result>}
+ */
 async function cmdFlags(inst) {
   const proc = mainProcess(inst) ?? refuse(`${inst.name} is not running`);
-  const page = parseCommandLine(await inTab(inst, VERSION_CMDLINE, { url: null, args: { scheme: inst.scheme } }));
+  const page = parseCommandLine(/** @type {string | null} */ (await inTab(inst, VERSION_CMDLINE, { url: null, args: { scheme: inst.scheme } })));
   const d = drift(inst, proc);
   const want = d.backend ? featuresFor(inst, d.backend) : inst.features;
   const missing = want.filter((f) => !page.features.includes(f));
@@ -698,12 +1136,21 @@ async function cmdFlags(inst) {
   return { ok, backend: d.backend, effective: page.features, registry: want, missing, extra, drift: d.problems };
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {Promise<Result>}
+ */
 async function cmdDoctor(inst) {
+  /** @type {Check[]} */
   const checks = [];
+  /** @type {(id: string, pass: boolean | null, detail: unknown, warn?: boolean) => void} */
   const add = (id, pass, detail, warn = false) => {
     checks.push({ id, pass, warn, detail });
-    log(pass === null ? 'SKIP' : !pass ? 'ERROR' : warn ? 'WARN' : 'OK', `${id}: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`);
+    log(checkMarker(pass, warn), `${id}: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`);
   };
+
+  const fresh = mapFresh(SKILL_DIR);
+  add('map-fresh', true, fresh.detail, fresh.status === 'warn');
 
   const proc = mainProcess(inst);
   add('process', !!proc, proc ? `PID ${proc.ProcessId} ${proc.ExecutablePath} --user-data-dir=${inst.dir}` : `no process uses ${inst.dir}`);
@@ -715,7 +1162,7 @@ async function cmdDoctor(inst) {
   const d = drift(inst, proc);
   add('commandLine', d.problems.length === 0, d.problems.length ? { drift: d.problems } : `matches the registry, backend ${d.backend}`);
 
-  const version = await cdpJson(inst, '/json/version');
+  const version = /** @type {CdpVersion | null} */ (await cdpJson(inst, '/json/version'));
   const owner = portOwner(inst.port);
   add('port', !!version && new RegExp(inst.product).test(version.Browser) && owner === proc.ProcessId, { cdp: inst.cdp, browser: version?.Browser ?? 'no answer', owner });
 
@@ -728,7 +1175,7 @@ async function cmdDoctor(inst) {
   const others = disk.filter((x) => x.name !== inst.model.name);
 
   if (others.length) {
-    checks.at(-1).warn = true;
+    /** @type {Check} */ (checks.at(-1)).warn = true;
     log('WARN', `model.disk: other models in this profile: ${others.map((x) => `${x.name} ${x.componentVersion} ${x.mib} MiB`).join(', ')}`);
   }
 
@@ -747,7 +1194,7 @@ async function cmdDoctor(inst) {
   const free = freeSpace(inst);
   add('disk.free', true, `${free.mib} MiB free on ${free.volume}, browser minimum ${free.minMib} MiB (Broker State: ${broker.diskInstall ?? '?'})`, free.mib < free.minMib);
 
-  const avail = await inTab(inst, AVAILABILITY, { purpose: 'availability' });
+  const avail = /** @type {Availability} */ (await inTab(inst, AVAILABILITY, { purpose: 'availability' }));
   add('api.availability', avail.LanguageModel === 'available', avail);
 
   // create() on a model that is not available waits for (and can start) a download; doctor stays read-only.
@@ -759,16 +1206,21 @@ async function cmdDoctor(inst) {
     return { ok: false, backend: d.backend, checks };
   }
 
-  const canary = await inTab(inst, CANARY, { purpose: 'canary', args: { toolCanary: inst.model.toolCanary } });
+  const canary = /** @type {Canary} */ (await inTab(inst, CANARY, { purpose: 'canary', args: { toolCanary: inst.model.toolCanary } }));
   add('model.contextWindow', canary.contextWindow === inst.model.contextWindow, `contextWindow ${canary.contextWindow}, expected ${inst.model.contextWindow}`);
   add('canary.structured', canary.structured?.pass === true, canary.structured);
   // "report": the model's native tool calling is too unreliable to gate health on (Phi-4-mini); the result is kept.
-  add('canary.tools', inst.model.toolCanary === 'report' ? null : canary.tools?.pass ?? null, inst.model.toolCanary === 'report' ? { reportedOnly: true, ...canary.tools } : canary.tools);
+  add('canary.tools', toolsPass(inst.model.toolCanary, canary.tools), inst.model.toolCanary === 'report' ? { reportedOnly: true, ...canary.tools } : canary.tools);
   add('canary.webmcp', canary.webmcp?.pass === true, canary.webmcp);
 
-  return { ok: checks.every((c) => c.pass !== false), backend: d.backend, checks };
+  return { ok: doctorOk(checks), backend: d.backend, checks };
 }
 
+/**
+ * @param {Inst} inst
+ * @param {string | undefined} sub
+ * @returns {Promise<Result>}
+ */
 async function cmdModel(inst, sub) {
   if (sub === 'info') {
     const info = await modelInfo(inst);
@@ -777,14 +1229,14 @@ async function cmdModel(inst, sub) {
       log('INFO', `disk: ${x.name} ${x.modelVersion} component ${x.componentVersion} hints ${JSON.stringify(x.performanceHints)} ${x.mib} MiB ${x.dir}`);
     }
 
-    if (info.broker?.assets) {
+    if (info.broker && !info.broker.disabled) {
       for (const a of info.broker.assets.filter((a) => a.state !== 'Not Installed')) {
         log('INFO', `broker asset: ${a.name} ${a.version} ${a.state} ${a.progress}%`);
       }
 
-      log('INFO', `serving ${info.serving ?? 'none'}; backend ${info.backend.backendType ?? '?'} (requested ${info.requestedBackend}); performance class ${info.performanceClass} (Broker State ${info.broker.perfClass})`);
+      log('INFO', `serving ${info.serving ?? 'none'}; backend ${info.backend?.backendType ?? '?'} (requested ${info.requestedBackend}); performance class ${info.performanceClass} (Broker State ${info.broker.perfClass})`);
     } else {
-      log('INFO', info.running ? info.broker.error : `${inst.name} is stopped; disk only. performance class ${info.performanceClass}`);
+      log('INFO', info.broker?.disabled ? info.broker.error : `${inst.name} is stopped; disk only. performance class ${info.performanceClass}`);
     }
 
     return { ok: true, ...info };
@@ -792,7 +1244,7 @@ async function cmdModel(inst, sub) {
 
   if (sub === 'init') {
     mainProcess(inst) ?? refuse(`${inst.name} is not running`);
-    const r = await inTab(inst, INIT, { purpose: 'init' });
+    const r = /** @type {InitRun} */ (await inTab(inst, INIT, { purpose: 'init' }));
     log('OK', `first create ${r.firstCreateMs} ms, second create ${r.secondCreateMs} ms, contextWindow ${r.contextWindow}, prompt ${r.promptMs} ms: ${String(r.answer).slice(0, 80)}`);
 
     return { ok: true, ...r };
@@ -806,12 +1258,16 @@ async function cmdModel(inst, sub) {
     return modelClear(inst);
   }
 
-  refuse('usage: model info|init|download|clear <instance> [--confirm=<model name>]');
+  return refuse('usage: model info|init|download|clear <instance> [--confirm=<model name>]');
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {Promise<Result>}
+ */
 async function modelDownload(inst) {
   mainProcess(inst) ?? refuse(`${inst.name} is not running`);
-  const before = await inTab(inst, AVAILABILITY, { purpose: 'availability' });
+  const before = /** @type {Availability} */ (await inTab(inst, AVAILABILITY, { purpose: 'availability' }));
   const diskBefore = diskModels(inst);
 
   if (before.LanguageModel === 'available') {
@@ -824,10 +1280,10 @@ async function modelDownload(inst) {
     return { ok: false, reason: `LanguageModel.availability() is ${before.LanguageModel}`, before };
   }
 
-  const free = freeSpace(inst);
+  const roomless = downloadRefusal(freeSpace(inst), inst.model);
 
-  if (free.mib - inst.model.downloadMib < free.minMib) {
-    refuse(`download refused: ${free.mib} MiB free on ${free.volume} minus about ${inst.model.downloadMib} MiB for ${inst.model.name} leaves ${free.mib - inst.model.downloadMib} MiB, under the browser minimum of ${free.minMib} MiB`);
+  if (roomless !== null) {
+    refuse(roomless);
   }
 
   const broker = await brokerState(inst);
@@ -836,10 +1292,11 @@ async function modelDownload(inst) {
     return { ok: false, reason: `Broker State: not enough disk space to install: ${broker.diskInstall}`, before, broker };
   }
 
+  /** @type {EdgeComponent[] | null} */
   let components = null;
 
   if (inst.modelComponents) {
-    components = await inTab(inst, EDGE_COMPONENTS, { url: null, args: { names: inst.modelComponents } });
+    components = /** @type {EdgeComponent[]} */ (await inTab(inst, EDGE_COMPONENTS, { url: null, args: { names: inst.modelComponents } }));
     log('INFO', `edge://components: pressed Check for update on ${components.map((c) => `${c.name} (${c.status})`).join(', ')}`);
   }
 
@@ -880,9 +1337,9 @@ async function modelDownload(inst) {
     return { gesture, ...(await p.evaluate(() => ({ ...window.__dl, progress: undefined, samples: window.__dl.progress.length }))), polls: samples.filter((s, i) => i % 12 === 0 || i === samples.length - 1) };
   }`;
   const t0 = Date.now();
-  const run = await inTab(inst, START, { purpose: 'download' });
+  const run = /** @type {DownloadRun} */ (await inTab(inst, START, { purpose: 'download' }));
   const after = await waitFor(async () => {
-    const a = await inTab(inst, AVAILABILITY, { purpose: 'availability' });
+    const a = /** @type {Availability} */ (await inTab(inst, AVAILABILITY, { purpose: 'availability' }));
 
     return a.LanguageModel === 'available' ? a : null;
   }, 120000, 5000);
@@ -895,11 +1352,15 @@ async function modelDownload(inst) {
   return { ok, state: run.state, gesture: run.gesture, durationMs, contextWindow: run.contextWindow, progressEvents: run.samples, polls: run.polls, components, added, diskBefore, diskAfter, availabilityAfter: after };
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {Promise<Result>}
+ */
 async function modelClear(inst) {
-  const confirm = opts.confirm;
+  const confirm = opts['confirm'];
 
   if (typeof confirm !== 'string') {
-    refuse('model clear needs --confirm=<model name from its manifest.json>, e.g. --confirm=v3Nano');
+    return refuse('model clear needs --confirm=<model name from its manifest.json>, e.g. --confirm=v3Nano');
   }
 
   if (instanceProcesses(inst).length) {
@@ -911,6 +1372,16 @@ async function modelClear(inst) {
 
   if (victims.length === 0) {
     refuse(`no model named ${confirm} in ${inst.dir}; installed: ${disk.map((x) => x.name).join(', ') || 'none'}`);
+  }
+
+  const profileReal = realpathSync.native(inst.dir);
+
+  for (const v of victims) {
+    const real = realpathSync.native(v.dir);
+
+    if (!insideProfile(profileReal, real)) {
+      refuse(`${v.dir} resolves to ${real}, outside the profile ${profileReal}; not deleting it`);
+    }
   }
 
   const freeBefore = freeSpace(inst);
@@ -926,11 +1397,15 @@ async function modelClear(inst) {
   return { ok: victims.every((v) => !existsSync(v.dir)), removed: victims, bytesRemoved: victims.reduce((s, v) => s + v.bytes, 0), freeBefore, freeAfter, bytesFreed: freeAfter.bytes - freeBefore.bytes, diskAfter: diskModels(inst) };
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {Promise<Result>}
+ */
 async function cmdRun(inst) {
   const file = pos[2];
 
   if (!file || !existsSync(file)) {
-    refuse('usage: run <instance> <script.js> (a file holding "async page => {...}"; it runs in a new tab that is closed afterwards)');
+    return refuse('usage: run <instance> <script.js> (a file holding "async page => {...}"; it runs in a new tab that is closed afterwards)');
   }
 
   mainProcess(inst) ?? refuse(`${inst.name} is not running`);
@@ -939,6 +1414,21 @@ async function cmdRun(inst) {
   return { ok: true, result: await inTab(inst, body, { url: null, purpose: 'run' }) };
 }
 
+/**
+ * @typedef {object} BenchRecord
+ * @property {string} instance
+ * @property {string | null | undefined} model
+ * @property {string | null} backend
+ * @property {Backend | null | undefined} requestedBackend
+ * @property {unknown} performanceClass
+ * @property {ReturnType<typeof cpuLoad>} cpuBefore
+ * @property {ReturnType<typeof cpuLoad>} [cpuAfter]
+ * @property {unknown} [result]
+ * @property {string} [error]
+ * @property {number} [ms]
+ */
+
+/** @returns {Promise<Result>} */
 async function cmdBench() {
   const names = pos.slice(1).length ? pos.slice(1) : Object.keys(REGISTRY.instances);
   const bench = join(ROOT, 'spikes', 'probes', 'bench.js');
@@ -948,25 +1438,28 @@ async function cmdBench() {
     refuse('bench needs the counter fixture on http://localhost:4222 (bench.js hard-codes it); start it with control-angular-dev-app');
   }
 
+  /** @type {BenchRecord[]} */
   const results = [];
 
   for (const name of names) {
     const inst = instance(name);
     mainProcess(inst) ?? refuse(`${name} is not running`);
     const info = await modelInfo(inst);
+    /** @type {BenchRecord} */
     const record = { instance: name, model: info.serving, backend: info.backend?.backendType ?? null, requestedBackend: info.requestedBackend, performanceClass: info.performanceClass, cpuBefore: cpuLoad() };
     const t0 = Date.now();
 
     try {
       record.result = await inTab(inst, readFileSync(bench, 'utf8').trim().replace(/;\s*$/, ''), { url: null, purpose: 'bench' });
     } catch (e) {
-      record.error = e.message;
+      record.error = e instanceof Error ? e.message : String(e);
     }
 
     record.ms = Date.now() - t0;
-    record.cpuAfter = cpuLoad();
+    const cpuAfter = cpuLoad();
+    record.cpuAfter = cpuAfter;
     results.push(record);
-    log(record.error ? 'ERROR' : 'OK', `${name}: ${record.model} on ${record.backend}, CPU ${record.cpuBefore.loadPercent}% -> ${record.cpuAfter.loadPercent}%, ${record.ms} ms${record.error ? `: ${record.error}` : ''}`);
+    log(record.error ? 'ERROR' : 'OK', `${name}: ${record.model} on ${record.backend}, CPU ${record.cpuBefore.loadPercent}% -> ${cpuAfter.loadPercent}%, ${record.ms} ms${record.error ? `: ${record.error}` : ''}`);
 
     if (attachedHere === inst) {
       pw(inst, ['detach']);
@@ -977,6 +1470,10 @@ async function cmdBench() {
   return { ok: results.every((r) => !r.error), results, summarize: 'node spikes/probes/bench-summary.mjs takes bench.js return values; pass each results[i].result' };
 }
 
+/**
+ * @param {Inst} inst
+ * @returns {Promise<Result>}
+ */
 async function cmdInfo(inst) {
   const st = readState(inst.name);
   const result = { ok: true, instance: inst.name, port: inst.port, cdp: inst.cdp, session: inst.session, profile: inst.dir, statePath: statePath(inst.name), state: st, evidenceDir };
@@ -986,8 +1483,9 @@ async function cmdInfo(inst) {
 }
 
 // ---------- main ----------
+
+/** @type {Record<string, (i: Inst, sub: string | undefined) => Promise<Result>>} */
 const COMMANDS = {
-  instances: () => cmdInstances(),
   up: (i) => cmdUp(i),
   attach: (i) => cmdAttach(i),
   detach: (i) => cmdDetach(i),
@@ -996,19 +1494,21 @@ const COMMANDS = {
   model: (i, sub) => cmdModel(i, sub),
   run: (i) => cmdRun(i),
   down: (i) => cmdDown(i),
-  bench: () => cmdBench(),
   info: (i) => cmdInfo(i),
 };
 
+/** @returns {Promise<Result & { cmd: string, instance?: string }>} */
 async function main() {
   const cmd = pos[0];
 
-  if (!cmd || !(cmd in COMMANDS)) {
-    refuse(`usage: control.mjs <${Object.keys(COMMANDS).join('|')}> ... (see SKILL.md, Helpers)`);
+  if (cmd === 'instances' || cmd === 'bench') {
+    return { cmd, at: new Date().toISOString(), ...(await (cmd === 'instances' ? cmdInstances() : cmdBench())) };
   }
 
-  if (cmd === 'instances' || cmd === 'bench') {
-    return { cmd, at: new Date().toISOString(), ...(await COMMANDS[cmd]()) };
+  const run = cmd !== undefined && Object.hasOwn(COMMANDS, cmd) ? COMMANDS[cmd] : undefined;
+
+  if (cmd === undefined || run === undefined) {
+    return refuse('usage: control.mjs <instances|up|attach|detach|doctor|flags|model|run|down|bench|info> ... (see SKILL.md, Helpers)');
   }
 
   const sub = cmd === 'model' ? pos[1] : undefined;
@@ -1020,9 +1520,13 @@ async function main() {
 
   const inst = instance(name);
 
-  return { cmd: [cmd, sub].filter(Boolean).join(' '), instance: inst.name, at: new Date().toISOString(), ...(await COMMANDS[cmd](inst, sub)) };
+  return { cmd: [cmd, sub].filter(Boolean).join(' '), instance: inst.name, at: new Date().toISOString(), ...(await run(inst, sub)) };
 }
 
+/**
+ * @param {{ instance?: string, cmd?: string } & Record<string, unknown>} result
+ * @returns {string}
+ */
 function save(result) {
   mkdirSync(evidenceDir, { recursive: true });
   const file = join(evidenceDir, `${result.instance ?? 'all'}-${(result.cmd ?? 'error').replace(/[^A-Za-z0-9.]+/g, '-').slice(0, 60)}-${Date.now()}.json`);
@@ -1032,6 +1536,7 @@ function save(result) {
 }
 
 // process.exit() while a socket or child handle is still closing trips a libuv assertion on Windows (seen on up).
+/** @param {number} code */
 function exitWith(code) {
   process.exitCode = code;
   setTimeout(() => process.exit(code), 10000).unref();
@@ -1043,32 +1548,36 @@ function finish() {
   }
 }
 
-main().then(
-  (result) => {
-    finish();
-    const file = save(result);
-    const code = result.couldNotRun ? EXIT.REFUSED : result.ok ? EXIT.OK : EXIT.UNHEALTHY;
+// import.meta.url is the real path, so compare real paths: run through a link, the CLI still runs.
+if (process.argv[1] && realpathSync.native(resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+  main().then(
+    (result) => {
+      finish();
+      const file = save(result);
+      const code = exitCode(result);
 
-    if (opts.json) {
-      console.log(JSON.stringify({ ...result, evidence: file, exit: code }));
-    } else {
-      console.log(`[${code === 0 ? 'OK' : 'ERROR'}] exit ${code}; evidence ${file}`);
-    }
+      if (opts['json']) {
+        console.log(JSON.stringify({ ...result, evidence: file, exit: code }));
+      } else {
+        console.log(`[${code === 0 ? 'OK' : 'ERROR'}] exit ${code}; evidence ${file}`);
+      }
 
-    exitWith(code);
-  },
-  (err) => {
-    finish();
-    const refused = err instanceof Refusal;
-    const result = { cmd: pos.join(' '), instance: pos.find((p) => p in REGISTRY.instances), ok: false, refused, reason: err.message };
-    const file = save(result);
+      exitWith(code);
+    },
+    (err) => {
+      finish();
+      const refused = err instanceof Refusal;
+      const message = err instanceof Error ? err.message : String(err);
+      const result = { cmd: pos.join(' '), instance: pos.find((p) => Object.hasOwn(REGISTRY.instances, p)), ok: false, refused, reason: message };
+      const file = save(result);
 
-    if (opts.json) {
-      console.log(JSON.stringify({ ...result, evidence: file, exit: EXIT.REFUSED }));
-    } else {
-      console.log(`[ERROR] ${refused ? 'refused' : 'could not run'}: ${err.message}\n[ERROR] exit 2; evidence ${file}`);
-    }
+      if (opts['json']) {
+        console.log(JSON.stringify({ ...result, evidence: file, exit: EXIT.REFUSED }));
+      } else {
+        console.log(`[ERROR] ${refused ? 'refused' : 'could not run'}: ${message}\n[ERROR] exit 2; evidence ${file}`);
+      }
 
-    exitWith(EXIT.REFUSED);
-  },
-);
+      exitWith(EXIT.REFUSED);
+    },
+  );
+}
