@@ -16,6 +16,7 @@ import {
   downloadTimeouts,
   portFlag,
   positiveFlag,
+  upMismatch,
   insideProfile,
   doctorOk,
   downRefusal,
@@ -435,6 +436,28 @@ test('portFlag takes a port number and refuses anything else', () => {
 
   for (const bad of ['x', '0', '-1', '1.5', '65536', true]) {
     assert.throws(() => portFlag(bad), (e) => e instanceof Refusal && /^usage: --port=<port number 1-65535>; got /.test(e.message), String(bad));
+  }
+});
+
+test('upMismatch accepts a live instance that runs as requested and names one that does not', () => {
+  /** @type {{ backend: 'gpu' | 'cpu' | null, problems: string[], commandLine: { port: number } }} */
+  const live = { backend: 'gpu', problems: [], commandLine: { port: 9680 } };
+  assert.equal(upMismatch('chrome-beta-nano', 4242, live, 'gpu', undefined), null);
+  assert.equal(upMismatch('chrome-beta-nano', 4242, live, 'gpu', 9680), null);
+
+  /** @type {[typeof live, string, number | undefined, RegExp][]} */
+  const cases = [
+    [live, 'cpu', undefined, /backend gpu, requested cpu/],
+    [live, 'gpu', 9681, /port 9680, requested 9681/],
+    [{ ...live, problems: ['missing --no-first-run'] }, 'gpu', undefined, /missing --no-first-run/],
+    [{ ...live, backend: null }, 'gpu', undefined, /backend none, requested gpu/],
+  ];
+
+  for (const [d, backend, port, why] of cases) {
+    const msg = upMismatch('chrome-beta-nano', 4242, d, backend, port) ?? '';
+    assert.match(msg, /^chrome-beta-nano already runs as PID 4242 on port 9680 with another configuration/);
+    assert.match(msg, why);
+    assert.match(msg, /run "down chrome-beta-nano" first$/);
   }
 });
 

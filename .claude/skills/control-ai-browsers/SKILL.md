@@ -80,10 +80,12 @@ of the 10 has a free port (or `--port=N` is busy), or when the profile path reso
 and the main process is found by its `--user-data-dir`. It then closes tabs Edge restored from the last session,
 leaving one blank tab, and on Chrome turns on "Enable internal debugging pages" (`chrome://chrome-urls`), which
 `on-device-internals` needs in a new profile. Measured time to ready: 1.3-2.2 s, once 28 s (Edge Dev). An
-instance that already runs as requested is not restarted (exit 0, `alreadyRunning`). That is an exception to the
-generated-skill contract, which has `up` refuse a live instance of its flow: the standing state is all four
-instances running (see Cleanup), and other skills call `up` to reach one (control-vitest-browser-angular), so `up`
-only records an instance that runs as asked. Claude's decision in the 2026-10-16 review; Lars has not ruled on it.
+instance that already runs as requested (same backend, same port when `--port=N` is given, no drift) is not
+restarted: `up` records it and exits 0 with `alreadyRunning: true`. A live instance that does not match exits 2
+naming its PID, its port and each difference. This uses the generated-skill contract's exception for skills whose
+instances stay running between runs (lars-create-verification `references/generated-skill.md`, "State"): the
+standing state is all four instances running (see Cleanup), and other skills call `up` to reach one
+(control-vitest-browser-angular).
 `up --json` gives `session` and `evidenceDir` at the top level, also with `alreadyRunning`.
 
 `attach <name>` records the running instance in the state file (`tmp/control-ai-browsers/state-<name>.json`:

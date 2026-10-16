@@ -26,7 +26,8 @@ Through `lars-verify` (`~/.claude/skills/lars-verify/references/contract.md`), w
 `C=.claude/skills/control-ai-browsers/scripts/control.mjs`:
 
 - `state`: setup `["node", C, "up", "<instance>"]` per instance (exit 0 `alreadyRunning` when it runs as
-  configured); condition `["node", ".claude/skills/verify-ai-browsers/checks/state.mjs", "--evidence", "{runDir}",
+  configured, the generated-skill contract's exception for standing instances; see control-ai-browsers Launch);
+  condition `["node", ".claude/skills/verify-ai-browsers/checks/state.mjs", "--evidence", "{runDir}",
   "<instance>", ...]`; artifact `state.json`.
 - `model-init` as the model cycle: setup `C up <instance> --backend=<b>`, `C down <instance>`,
   `C model clear <instance> --confirm=<registry model>`, `C up <instance> --backend=<b>`,

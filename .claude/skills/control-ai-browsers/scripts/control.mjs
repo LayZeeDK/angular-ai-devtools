@@ -235,6 +235,30 @@ export function portFlag(value) {
   return n;
 }
 
+/**
+ * Why `up` must refuse a live instance, or null when it runs as requested (the contract's exception for instances
+ * that stay running between runs: `up` then answers exit 0 with `alreadyRunning`).
+ * @param {string} name
+ * @param {number} pid
+ * @param {{ backend: Backend | null, problems: string[], commandLine: { port: number } }} d  drift() of the live process
+ * @param {string} backend  the requested backend
+ * @param {number | undefined} port  --port, when given
+ * @returns {string | null}
+ */
+export function upMismatch(name, pid, d, backend, port) {
+  /** @type {string[]} */
+  const why = [...d.problems];
+
+  if (d.backend !== backend) {
+    why.push(`backend ${d.backend ?? 'none'}, requested ${backend}`);
+  }
+
+  if (port !== undefined && d.commandLine.port !== port) {
+    why.push(`port ${d.commandLine.port}, requested ${port}`);
+  }
+
+  return why.length === 0 ? null : `${name} already runs as PID ${pid} on port ${d.commandLine.port} with another configuration (${why.join('; ')}); run "down ${name}" first`;
+}
 
 // ---------- registry ----------
 
@@ -1369,16 +1393,17 @@ async function cmdUp(inst) {
 
   if (running) {
     const d = drift(inst, running);
+    const mismatch = upMismatch(inst.name, running.ProcessId, d, backend, forced);
 
-    if (d.backend === backend && d.problems.length === 0) {
-      log('OK', `${inst.name} already runs as PID ${running.ProcessId} with backend ${backend}`);
-
-      const st = writeState(at(inst, d.commandLine.port), running);
-
-      return { ok: true, alreadyRunning: true, session: st.session, evidenceDir, state: st };
+    if (mismatch !== null) {
+      refuse(mismatch);
     }
 
-    refuse(`${inst.name} runs as PID ${running.ProcessId} with ${d.backend ?? 'a drifted'} configuration (${d.problems.join('; ') || `backend ${d.backend}`}); run "down ${inst.name}" first`);
+    log('OK', `${inst.name} already runs as PID ${running.ProcessId} with backend ${backend}`);
+
+    const st = writeState(at(inst, d.commandLine.port), running);
+
+    return { ok: true, alreadyRunning: true, session: st.session, evidenceDir, state: st };
   }
 
   if (inst.worktree && forced === inst.mainPort) {
