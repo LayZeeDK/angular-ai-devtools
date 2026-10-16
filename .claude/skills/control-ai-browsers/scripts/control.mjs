@@ -181,20 +181,60 @@ export function reparseRefusal(dir, real) {
 }
 
 /**
+ * A numeric flag's value: `fallback` when the flag is absent, else a finite number above 0, or a refusal (exit 2)
+ * with a usage line. Every numeric flag is parsed here.
+ * @param {string} flag  name without the dashes
+ * @param {unknown} value  opts[flag]
+ * @param {number} fallback
+ * @param {string} [what]  the value the usage line asks for
+ * @returns {number}
+ */
+export function positiveFlag(flag, value, fallback, what = 'number above 0') {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  const n = typeof value === 'string' && value.trim() !== '' ? Number(value) : NaN;
+
+  if (!(Number.isFinite(n) && n > 0)) {
+    return refuse(`usage: --${flag}=<${what}>; got ${value === true ? `--${flag} with no value` : JSON.stringify(value)}`);
+  }
+
+  return n;
+}
+
+/**
  * `model download`'s time budgets: the page polls for `--timeout-min` (default 45) minutes after its click, and the
  * playwright-cli client that runs it waits 5 minutes longer, so the page's own timeout result comes back.
  * @param {unknown} timeoutMin  opts['timeout-min']
  * @returns {{ pageMs: number, clientMs: number }}
  */
 export function downloadTimeouts(timeoutMin) {
-  const min = timeoutMin === undefined ? 45 : typeof timeoutMin === 'string' ? Number(timeoutMin) : NaN;
-
-  if (!(Number.isFinite(min) && min > 0)) {
-    return refuse(`--timeout-min=${String(timeoutMin)} is not a positive number of minutes`);
-  }
+  const min = positiveFlag('timeout-min', timeoutMin, 45);
 
   return { pageMs: min * 60000, clientMs: (min + 5) * 60000 };
 }
+
+/**
+ * `--port`: undefined when absent, else a port number, or a refusal (exit 2).
+ * @param {unknown} value  opts['port']
+ * @returns {number | undefined}
+ */
+export function portFlag(value) {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const what = 'port number 1-65535';
+  const n = positiveFlag('port', value, 0, what);
+
+  if (!(Number.isInteger(n) && n < 65536)) {
+    return refuse(`usage: --port=<${what}>; got ${JSON.stringify(value)}`);
+  }
+
+  return n;
+}
+
 
 // ---------- registry ----------
 
@@ -814,7 +854,7 @@ async function inTab(inst, body, options, timeoutMs) {
  * @param {number} [timeoutMs]  default `--timeout-min` (15) minutes
  * @returns {Promise<unknown>}
  */
-async function runCode(inst, src, timeoutMs = Number(opts['timeout-min'] ?? 15) * 60000) {
+async function runCode(inst, src, timeoutMs = positiveFlag('timeout-min', opts['timeout-min'], 15) * 60000) {
   await ensureAttached(inst);
   mkdirSync(join(TMP, 'run'), { recursive: true });
   const file = join(TMP, 'run', `${inst.session}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.js`);
@@ -1324,6 +1364,7 @@ async function cmdInstances() {
 async function cmdUp(inst) {
   const backend = typeof opts['backend'] === 'string' ? opts['backend'] : inst.backend.default;
   const features = featuresFor(inst, backend);
+  const forced = portFlag(opts['port']);
   const running = mainProcess(inst);
 
   if (running) {
@@ -1338,13 +1379,6 @@ async function cmdUp(inst) {
     }
 
     refuse(`${inst.name} runs as PID ${running.ProcessId} with ${d.backend ?? 'a drifted'} configuration (${d.problems.join('; ') || `backend ${d.backend}`}); run "down ${inst.name}" first`);
-  }
-
-  const portOpt = opts['port'];
-  const forced = portOpt === undefined ? undefined : typeof portOpt === 'string' ? Number(portOpt) : NaN;
-
-  if (forced !== undefined && !(Number.isInteger(forced) && forced > 0 && forced < 65536)) {
-    refuse(`--port=${portOpt} is not a port number`);
   }
 
   if (inst.worktree && forced === inst.mainPort) {
@@ -1939,6 +1973,8 @@ const COMMANDS = {
 /** @returns {Promise<Result & { cmd: string, instance?: string }>} */
 async function main() {
   const cmd = pos[0];
+  positiveFlag('timeout-min', opts['timeout-min'], 15);
+  portFlag(opts['port']);
 
   if (cmd === 'instances' || cmd === 'bench') {
     return { cmd, at: new Date().toISOString(), ...(await (cmd === 'instances' ? cmdInstances() : cmdBench())) };

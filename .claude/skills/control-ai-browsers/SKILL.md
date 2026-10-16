@@ -203,7 +203,9 @@ playwright-cli runs as node with `node_modules/@playwright/cli/playwright-cli.js
 
 Exit codes: 0 done or healthy; 1 not healthy or the change did not take; 2 refused or could not run, with the
 reason (unknown instance, not running, missing state file, PID mismatch, port owned by another process, running
-instance for `clear`, missing `--confirm`, `--backend=cpu` on Edge, junctioned profile, missing fixture). Model
+instance for `clear`, missing `--confirm`, `--backend=cpu` on Edge, junctioned profile, missing fixture, a numeric
+flag (`--timeout-min`, `--port`) whose value is not a finite number above 0, or for `--port` not a port number;
+the line starts with `usage:`). Model
 answers, page text and playwright-cli output in a human-readable line are printed with their control characters
 escaped.
 

@@ -14,6 +14,8 @@ import {
   checkMarker,
   diskModels,
   downloadTimeouts,
+  portFlag,
+  positiveFlag,
   insideProfile,
   doctorOk,
   downRefusal,
@@ -413,9 +415,27 @@ test('reparseRefusal refuses a profile folder that resolves elsewhere', () => {
 test('downloadTimeouts gives the run-code client a margin over the page budget, and refuses a bad --timeout-min', () => {
   assert.deepEqual(downloadTimeouts(undefined), { pageMs: 45 * 60000, clientMs: 50 * 60000 });
   assert.deepEqual(downloadTimeouts('20'), { pageMs: 20 * 60000, clientMs: 25 * 60000 });
-  assert.throws(() => downloadTimeouts('abc'), (e) => e instanceof Refusal && /--timeout-min=abc is not a positive number of minutes/.test(e.message));
+  assert.throws(() => downloadTimeouts('abc'), (e) => e instanceof Refusal && /^usage: --timeout-min=<number above 0>; got "abc"$/.test(e.message));
   assert.throws(() => downloadTimeouts('0'), Refusal);
   assert.throws(() => downloadTimeouts(true), Refusal);
+});
+
+test('positiveFlag refuses a non-numeric, non-finite, zero or negative value with a usage line', () => {
+  assert.equal(positiveFlag('timeout-min', undefined, 15), 15);
+  assert.equal(positiveFlag('timeout-min', '2.5', 15), 2.5);
+
+  for (const bad of ['abc', 'NaN', 'Infinity', '-Infinity', '0', '-3', '', ' ', '1e999', true]) {
+    assert.throws(() => positiveFlag('timeout-min', bad, 15), (e) => e instanceof Refusal && /^usage: --timeout-min=<number above 0>; got /.test(e.message), String(bad));
+  }
+});
+
+test('portFlag takes a port number and refuses anything else', () => {
+  assert.equal(portFlag(undefined), undefined);
+  assert.equal(portFlag('9651'), 9651);
+
+  for (const bad of ['x', '0', '-1', '1.5', '65536', true]) {
+    assert.throws(() => portFlag(bad), (e) => e instanceof Refusal && /^usage: --port=<port number 1-65535>; got /.test(e.message), String(bad));
+  }
 });
 
 test('logLine escapes control characters model or page text put in a message', () => {
