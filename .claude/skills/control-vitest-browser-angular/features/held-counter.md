@@ -49,3 +49,9 @@ Preconditions:
   in the value it reads first.
 - `ng.ɵgetInjectorProviders` throws on the null injector at the end of the resolution path ("only supports
   NodeInjector and EnvironmentInjector").
+- In attach mode the `run-code` route recorded only the click's output events (event ids 6 and 7) in two runs on
+  2026-10-16, with the DOM already updated; the spike runner recorded output, change detection and template events
+  (12 events) on the same instance, as did the `run-code` route in bundled mode. Take profiler claims in attach mode
+  from the runner.
+- The spike runner does not clear the instance's HTTP cache the way `up` does; after a run with another hold on
+  the runner's port (51316), clear it first or the runner can get the earlier test chunk.

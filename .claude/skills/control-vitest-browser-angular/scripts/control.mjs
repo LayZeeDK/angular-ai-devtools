@@ -442,6 +442,32 @@ async function cdpVersion(port) {
 }
 
 /**
+ * Clears the attached browser's HTTP cache. The browser otherwise reuses a test chunk an earlier run on the same
+ * Vitest port cached, with that run's VITE_* values: after a --hold run, a run without --hold still held (measured
+ * 2026-10-16; Network.clearBrowserCache before the run fixed it).
+ * @param {number} port
+ * @returns {Promise<void>}
+ */
+async function clearHttpCache(port) {
+  const v = await cdpVersion(port);
+  const page = (await cdpList(port)).find((t) => t.type === 'page');
+
+  if (!v || !page) {
+    throw new Error(`no browser page answers on CDP port ${port}`);
+  }
+
+  const cdp = await Cdp.connect(v.webSocketDebuggerUrl);
+
+  try {
+    const { sessionId } = /** @type {{ sessionId: string }} */ (await cdp.send('Target.attachToTarget', { targetId: page.id, flatten: true }));
+    await cdp.send('Network.clearBrowserCache', {}, sessionId);
+    await cdp.send('Target.detachFromTarget', { sessionId });
+  } finally {
+    cdp.ws.close();
+  }
+}
+
+/**
  * @param {number} port
  * @returns {Promise<CdpTarget[]>}
  */
@@ -632,6 +658,10 @@ async function up() {
     fail(2, '--bundled needs --extension <dir> or --extension s1-vitest (vitest-extension.config.mts requires one); run down to clear the state', { state: statePath(flowId) });
   }
 
+  if (!bundled) {
+    await clearHttpCache(cdpPort);
+  }
+
   writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
 
   const log = path.join(evidenceDir, 'ng-test.log');
@@ -679,6 +709,8 @@ async function up() {
   }
 
   writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
+  // Same abort as at the end of down (measured after up --bundled, 2026-10-16).
+  await sleep(250);
   out({ ok: true, command: 'up', readyInSeconds: Math.round((Date.now() - t0) / 100) / 10, statePath: statePath(flowId), ...state }, 0);
 }
 

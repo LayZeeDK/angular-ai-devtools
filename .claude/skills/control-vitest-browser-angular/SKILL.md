@@ -62,6 +62,9 @@ node .claude/skills/control-vitest-browser-angular/scripts/control.mjs up --exte
   `ng test` to ready, and 19.3 s for the whole `up` including launching the stopped `chrome-beta-gemma4`
   instance. The bundled flow took 9.9 s. In a worktree (2026-10-16): attach 4.4 s with the instance launched, bundled
   21.6 s on a cold cache.
+- Attach mode clears the instance's HTTP cache (`Network.clearBrowserCache`) before `ng test` starts: the browser
+  otherwise reused a test chunk an earlier run on the same Vitest port had cached, with that run's `--hold` value
+  (measured 2026-10-16: a run without `--hold` held for 90 s).
 - Re-run the tests: change or touch a file under `spikes/ng222-app/src` (`touch spikes/ng222-app/src/app/counter.spec.ts`).
   The builder rebuilds and the log shows `RERUN` **[measured]**.
 
@@ -205,6 +208,9 @@ the spike runner `spikes/probes/vitest-attach.mjs`.
 - `ready` first waited for the first test summary, which a long `--hold` delays by the whole hold (98 s). In
   watch mode Vitest prints `DEV`, not `RUN`, so a wait for `RUN` timed out after 180 s. Ready now accepts `DEV`,
   `RUN` or `RERUN`.
+- `up` and `down` wait 250 ms before they exit: exiting while fetch's sockets to the CDP port close aborts Node on Windows
+  (`Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)`, exit 127; measured after `up --bundled` and an
+  attach-mode `down`).
 - Killing `ng test` leaves Vitest's tab open in an attached browser; `down` closes tabs on the Vitest port.
 - Chrome 137+ branded builds ignore `--load-extension`, hence `Extensions.loadUnpacked` in attach mode (research
   11 and 17).
