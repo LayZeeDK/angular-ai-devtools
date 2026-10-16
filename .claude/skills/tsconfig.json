@@ -2,5 +2,5 @@
   // Type-check the Node scripts the control skills ship, and their tests.
   // The playwright-cli run-code files (scripts/*.js) run in a page: tsconfig.run-code.json.
   "extends": "../../tsconfig.json",
-  "include": ["control-angular-dev-app/scripts/**/*.mjs", "control-vitest-browser-angular/scripts/**/*.mjs", "control-pangular-inspector/scripts/**/*.mjs"]
+  "include": ["control-angular-dev-app/scripts/**/*.mjs", "control-vitest-browser-angular/scripts/**/*.mjs", "control-pangular-inspector/scripts/**/*.mjs", "control-angular-devtools/scripts/**/*.mjs"]
 }

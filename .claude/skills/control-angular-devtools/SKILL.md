@@ -56,7 +56,9 @@ node $S up --app-url=http://localhost:4317/
 
 ## Doctor
 
-`node $S doctor` (read only). One line per check: `process` (the playwright-cli PID is alive and its start
+`node $S doctor` (read only). One line per check: `map-fresh` (first; whether each feature file still matches
+the source it was proven against, from `scripts/fingerprint.mjs`; `[WARN]` names stale and unproven features and
+never fails doctor), `process` (the playwright-cli PID is alive and its start
 time and command line match the state), `cdp-port` (answers, owned by the recorded Chromium PID), `extension`
 (`chrome.developerPrivate.getExtensionInfo` on `chrome://extensions/?id=...`: name, version, `ENABLED`,
 `UNPACKED`, path, error counts; plus the service worker), `app` (`[ng-version]` and `window.ng`, which only a
@@ -151,7 +153,20 @@ a non-numeric `--timeout`/`--cdp-port` exits 2 before anything runs.
 | `up --app-url <url> [--cdp-port N]` | launches the test harness | state `tmp/control-angular-devtools/state/<flow>.json`: pid, browserPid, created, commandLine, cdpPort, session, evidenceDir, readyInSeconds |
 | `doctor`, `attach`, `info`, `down` | above | `info` prints the state (flow, session, PIDs, CDP port, evidence dir, state path) |
 | `panel show\|signal-graph [--component C]\|screenshot [--file F]` | panel driving | `show` prints the panel's text (tabs, tree, selected component) |
-| `coexist [--component C] [--click "<locator>"] [--di-graph]` | coexistence checks | defaults fit the counter fixture: `app-counter`, `getByRole('button', { name: 'Increment' })` |
+| `coexist [--component C] [--click "<locator>"] [--di-graph]` | coexistence checks | defaults fit the counter fixture: `app-counter`, `getByRole('button', { name: 'Increment' })`; `--click` is JavaScript placed after `page.` in the run-code source |
+
+`panel` and `coexist` refuse (exit 2) unless the recorded browser still owns the CDP port; `down` refuses a state
+file whose profile or config path is not the one the script derives, and checks the PID again just before it stops
+the tree.
+
+`scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
+`features/.proven.json`: `node .claude/skills/control-angular-devtools/scripts/fingerprint.mjs record --feature <id>
+--entries <path>...` records the repository files a feature depends on (their TypeScript import closure) with their
+git blob hashes (exit 0 written or unchanged, 2 refused); `... fingerprint.mjs check [--feature <id>] [--json]` prints
+`fresh`, `stale` or `unproven` per feature (exit 0 all fresh, 1 one stale or unproven, 2 could not run).
+
+Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
+`npm run check` type-checks the scripts.
 
 ## Gotchas
 
