@@ -195,7 +195,7 @@ healthy; 2 refused or could not run, with the reason (a run already recorded, 10
 the main port, `control-ai-browsers up` failed, unknown instance, missing state file, PID mismatch, `--bundled` without an extension, `ng test` exited or
 failed to start, a value flag given without its value, a `--timeout` that is not a positive number of seconds or a `--hold`
 that is not a positive whole number of milliseconds, and any error a command throws, such as a CDP endpoint that does not
-answer: `<command> could not run: <error>; run down`). Text a page or an extension controls is printed with its control
+answer: `<command> could not run: <error>`, with `; run down` after a failed `up`). Text a page or an extension controls is printed with its control
 characters escaped.
 
 `scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest

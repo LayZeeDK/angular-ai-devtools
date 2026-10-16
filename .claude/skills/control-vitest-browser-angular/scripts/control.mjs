@@ -186,7 +186,12 @@ export function upRefusal(args) {
 
   const timeout = flagIn(args, 'timeout');
 
-  if (typeof timeout === 'string' && timeout !== '' && !(Number.isFinite(Number(timeout)) && Number(timeout) > 0)) {
+  // upOptions reads an empty --timeout as 0 s.
+  if (timeout === '') {
+    return 'refused: --timeout needs a value';
+  }
+
+  if (typeof timeout === 'string' && !(Number.isFinite(Number(timeout)) && Number(timeout) > 0)) {
     return `refused: --timeout ${timeout} is not a positive number of seconds`;
   }
 
@@ -201,7 +206,8 @@ export function upRefusal(args) {
 
 /**
  * Runs a command; null when it finished, else the could-not-run reason for an error it threw (a CDP endpoint that
- * does not answer, a refused extension path), so the caller exits 2 with it rather than 1 with a stack.
+ * does not answer, a refused extension path), so the caller exits 2 with it rather than 1 with a stack. Only `up`
+ * advises `down`: a failed `up` can leave a state file and an extension behind.
  * @param {() => void | Promise<void>} run
  * @param {string} name
  * @returns {Promise<string | null>}
@@ -212,7 +218,7 @@ export async function couldNotRun(run, name) {
 
     return null;
   } catch (error) {
-    return `${name} could not run: ${error instanceof Error ? error.message : String(error)}; run down`;
+    return `${name} could not run: ${error instanceof Error ? error.message : String(error)}${name === 'up' ? '; run down' : ''}`;
   }
 }
 

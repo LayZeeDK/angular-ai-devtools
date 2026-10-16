@@ -431,6 +431,7 @@ test('upRefusal refuses a bare value flag and a timeout or hold that is not a po
   assert.match(upRefusal(['up', '--hold', 'abc']) ?? '', /^refused: --hold abc is not a positive whole number of milliseconds/);
   assert.match(upRefusal(['up', '--hold', '-5']) ?? '', /--hold -5 is not/);
   assert.match(upRefusal(['up', '--hold', '1.5']) ?? '', /--hold 1.5 is not/);
+  assert.equal(upRefusal(['up', '--timeout', '']), 'refused: --timeout needs a value', 'upOptions would read it as 0 s');
 
   for (const name of ['timeout', 'hold', 'instance', 'extension']) {
     assert.equal(upRefusal(['up', `--${name}`]), `refused: --${name} needs a value`);
@@ -450,7 +451,8 @@ test('couldNotRun turns a thrown error into a could-not-run reason, and a clean 
     await couldNotRun(() => {
       throw 'plain';
     }, 'doctor'),
-    'doctor could not run: plain; run down',
+    'doctor could not run: plain',
+    'only up advises down',
   );
 });
 
