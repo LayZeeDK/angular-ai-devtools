@@ -1,11 +1,52 @@
 #!/usr/bin/env node
+// @ts-check
 // Control script for control-angular-dev-app: up, doctor, info, down.
 // Deterministic steps only; driving stays in playwright-cli.
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { mapFresh } from './fingerprint.mjs';
+
+/** @typedef {'counter' | 'ssr' | 'portal'} TargetName */
+/** @typedef {{ name: string, bin: string | null, args: string[], env: Record<string, string | undefined>, port: number, readyPath: string }} ProcSpec */
+/** @typedef {{ dir: string, documentedPort: number, marker: string, procs: (dir: string, port: number) => ProcSpec[] }} Target */
+/** @typedef {{ ProcessId: number, ParentProcessId: number, Start: string | null, CommandLine: string | null }} ProcessRow */
+/** @typedef {{ name: string, pid: number, port: number, readyUrl: string, log: string, start: string | null, commandLine: string | null }} ProcState */
+
+/**
+ * @typedef {object} State
+ * @property {string} flowId
+ * @property {'attach' | 'launch'} mode
+ * @property {string} url
+ * @property {string} session
+ * @property {string} evidenceDir
+ * @property {string} startedAt
+ * @property {ProcState[]} procs
+ * @property {TargetName} [target]
+ * @property {string} [dir]
+ * @property {boolean} [worktree]
+ * @property {number} [port]
+ */
+
+/** @typedef {{ name: string, status: 'pass' | 'fail' | 'warn' | 'skip', detail: string }} Check */
+
+/**
+ * What ng-inspect.js returns.
+ * @typedef {object} PageFacts
+ * @property {string | null} ngVersion
+ * @property {string[]} roots
+ * @property {boolean} devMode
+ * @property {string[]} ngFunctions
+ * @property {string[]} missingCore
+ * @property {boolean} router
+ * @property {boolean} zoneLoaded
+ * @property {string | null} ngZone
+ * @property {string[]} featureMarks
+ */
+
+/** @typedef {{ status: number | null, stdout: string, stderr: string }} Run */
 
 const SKILL_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const REPO_ROOT = path.resolve(SKILL_DIR, '../../..');
@@ -14,7 +55,12 @@ const STATE_DIR = path.join(SCRATCH, 'state');
 const INSPECT_JS = path.join(SKILL_DIR, 'scripts', 'ng-inspect.js');
 const PORTAL_DEFAULT_DIR = 'D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools';
 const PORTAL_API_PORT = 3000; // ponytail: fixed by the portal's BaseUrl token (http://localhost:3000/api/); not isolatable
+const SYSTEM32 = path.join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32');
+// Node looks a bare program name (pwsh) up through Windows, which skips the current directory only when this process
+// has the variable (measured: set in the child's env alone, a pwsh.exe planted in the cwd still ran).
+process.env['NoDefaultCurrentDirectoryInExePath'] = '1';
 
+/** @type {Record<TargetName, Target>} */
 const TARGETS = {
   counter: {
     dir: path.join(REPO_ROOT, 'spikes', 'ng222-app'),
@@ -34,7 +80,7 @@ const TARGETS = {
     ],
   },
   portal: {
-    dir: process.env.CONTROL_NG_PORTAL_DIR || PORTAL_DEFAULT_DIR,
+    dir: process.env['CONTROL_NG_PORTAL_DIR'] || PORTAL_DEFAULT_DIR,
     documentedPort: 4200,
     marker: 'ng-journal-root',
     procs: (dir, port) => [
@@ -44,97 +90,77 @@ const TARGETS = {
   },
 };
 
-// ---------- small helpers ----------
-const argv = process.argv.slice(2);
-const cmd = argv[0];
-const flag = (name) => {
-  const i = argv.indexOf(`--${name}`);
+/**
+ * @param {string} name
+ * @returns {name is TargetName}
+ */
+function isTarget(name) {
+  return Object.hasOwn(TARGETS, name);
+}
+
+// ---------- pure helpers (exported for the tests) ----------
+
+/**
+ * The value after `--<name>`: a string, true when the flag has no value, undefined when it is absent. Callers treat an
+ * empty string as absent.
+ * @param {string[]} args
+ * @param {string} name
+ * @returns {string | true | undefined}
+ */
+export function flagIn(args, name) {
+  const i = args.indexOf(`--${name}`);
 
   if (i === -1) {
     return undefined;
   }
 
-  const v = argv[i + 1];
+  const v = args[i + 1];
 
   return v === undefined || v.startsWith('--') ? true : v;
-};
-const JSON_OUT = argv.includes('--json');
-
-function out(result, code) {
-  if (JSON_OUT) {
-    process.stdout.write(JSON.stringify(result, null, 2) + '\n');
-  } else {
-    for (const c of result.checks ?? []) {
-      const tag = c.status === 'pass' ? '[OK]' : c.status === 'skip' ? '[SKIP]' : c.status === 'warn' ? '[WARN]' : '[ERROR]';
-      process.stdout.write(`${tag} ${c.name}: ${c.detail}\n`);
-    }
-
-    const { checks, ...rest } = result;
-    process.stdout.write(`${code === 0 ? '[OK]' : '[ERROR]'} ${JSON.stringify(rest)}\n`);
-  }
-
-  process.exit(code);
 }
 
-function fail(code, reason, extra = {}) {
-  out({ ok: false, command: cmd, reason, ...extra }, code);
-}
-
-function binOf(dir, pkg, binName) {
-  const pj = path.join(dir, 'node_modules', pkg, 'package.json');
-
-  if (!existsSync(pj)) {
-    return null;
-  }
-
-  const bin = JSON.parse(readFileSync(pj, 'utf8')).bin;
-
-  return path.join(dir, 'node_modules', pkg, typeof bin === 'string' ? bin : bin[binName]);
-}
-
-function isWorktree(dir) {
-  let d = path.resolve(dir);
-
-  for (;;) {
+/**
+ * Whether `dir` lies in a git worktree: the nearest `.git` is a file. No git at all counts as a main checkout.
+ * @param {string} dir
+ * @returns {boolean}
+ */
+export function isWorktree(dir) {
+  for (let d = path.resolve(dir); ; d = path.dirname(d)) {
     const g = path.join(d, '.git');
 
     if (existsSync(g)) {
       return statSync(g).isFile();
     }
 
-    const up = path.dirname(d);
-
-    if (up === d) {
-      return false; // no git at all: treat as a main checkout
+    if (path.dirname(d) === d) {
+      return false;
     }
-
-    d = up;
   }
 }
 
-function derivePort(dir, documented) {
-  if (!isWorktree(dir)) {
+/**
+ * The documented port in a main checkout; in a worktree a port in 4300-4799 from a hash of the folder (every
+ * documented port lies below that range).
+ * @param {string} dir
+ * @param {number} documented
+ * @param {boolean} worktree
+ * @returns {number}
+ */
+export function derivePort(dir, documented, worktree) {
+  if (!worktree) {
     return documented;
   }
 
-  const h = createHash('sha1').update(path.resolve(dir).toLowerCase()).digest().readUInt32BE(0);
-  const p = 4300 + (h % 500);
-
-  return p === documented ? p + 1 : p;
+  return 4300 + (createHash('sha1').update(path.resolve(dir).toLowerCase()).digest().readUInt32BE(0) % 500);
 }
 
-function processTable() {
-  const ps = "Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,@{n='Start';e={$_.CreationDate.ToUniversalTime().ToString('o')}},CommandLine | ConvertTo-Json -Compress";
-  const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', ps], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
-
-  if (r.status !== 0) {
-    throw new Error(`process table query failed: ${r.stderr}`);
-  }
-
-  return JSON.parse(r.stdout);
-}
-
-function descendants(table, pid) {
+/**
+ * `pid` and every process below it in `table`.
+ * @param {ProcessRow[]} table
+ * @param {number} pid
+ * @returns {Set<number>}
+ */
+export function descendants(table, pid) {
   const set = new Set([pid]);
   let grew = true;
 
@@ -152,15 +178,17 @@ function descendants(table, pid) {
   return set;
 }
 
-function listeningPid(port) {
-  const r = spawnSync('netstat', ['-ano', '-p', 'TCP'], { encoding: 'utf8', windowsHide: true });
-  const r6 = spawnSync('netstat', ['-ano', '-p', 'TCPv6'], { encoding: 'utf8', windowsHide: true });
-  const lines = `${r.stdout}\n${r6.stdout}`.split(/\r?\n/);
-
-  for (const l of lines) {
+/**
+ * The PID listening on `port` in `netstat -ano` output, or null.
+ * @param {string} text
+ * @param {number} port
+ * @returns {number | null}
+ */
+export function parseListeningPid(text, port) {
+  for (const l of text.split(/\r?\n/)) {
     const m = l.trim().split(/\s+/);
 
-    if (m[0] === 'TCP' && m[3] === 'LISTENING' && m[1].endsWith(`:${port}`)) {
+    if (m[0] === 'TCP' && m[3] === 'LISTENING' && (m[1] ?? '').endsWith(`:${port}`)) {
       return Number(m[4]);
     }
   }
@@ -168,28 +196,204 @@ function listeningPid(port) {
   return null;
 }
 
+/**
+ * Same parse as control-pangular-inspector's authCode: the latest "auth code NNNNNN" in a server log.
+ * @param {string} log
+ * @returns {string | null}
+ */
+export function authCodeIn(log) {
+  const all = [...log.replace(/\x1b\[[0-9;]*m/g, '').matchAll(/auth code\s+(\d{4,8})/g)];
+
+  return all.at(-1)?.[1] ?? null;
+}
+
+/**
+ * The error lines of a dev-server log. [vite] entries are runtime noise (proxy errors, the browser console forwarded
+ * as "(client)"); console-errors covers the page. A proxy error carries its Error and stack on the following lines
+ * (measured: "Error: read ECONNRESET" or "AggregateError [ECONNREFUSED]:" + "    at ..." around a Pangular server's
+ * stop or start), so those belong to the [vite] entry. A forwarded client console error spans many lines (NG0500
+ * prints the expected and actual DOM, then "Find more at .../NG0500"), so a [vite] entry runs until a line that
+ * starts a new entry: a build error, a timestamped or [tag]-prefixed line, or a builder status line.
+ * @param {string} log
+ * @returns {string[]}
+ */
+export function buildLogErrors(log) {
+  const entryStart = /\[ERROR\]|error TS\d+|^\[\w+\]|^\d\d\.\d\d\.\d\d |^[❯✔✘]|^Application bundle/;
+  let inVite = false;
+
+  return log.split(/\r?\n/).filter((raw) => {
+    const l = raw.replace(/\x1b\[[0-9;]*m/g, '');
+
+    if (l.includes('[vite]')) {
+      inVite = true;
+
+      return false;
+    }
+
+    if (inVite && !entryStart.test(l)) {
+      return false;
+    }
+
+    inVite = false;
+
+    return /\[ERROR\]|ERROR in|Error:|error TS\d+|NG\d{4}/.test(l);
+  });
+}
+
+/**
+ * Reads `playwright-cli console error` output: the total it reports and the error lines the dev-only Pangular
+ * overlay logs (its /__connection.json probes, 404 with or without a server, and "[pangular] No devtools server
+ * found" when nothing answers behind the /__pangular proxy).
+ * @param {string} stdout
+ * @returns {{ total: number, pangular: string[], others: number }}  total is NaN when the output names none
+ */
+export function consoleErrors(stdout) {
+  const total = Number(/Errors: (\d+)/.exec(stdout)?.[1] ?? NaN);
+  const pangular = stdout.split(/\r?\n/).filter((l) => l.startsWith('[ERROR]') && /__connection\.json|\[pangular\]/.test(l));
+
+  return { total, pangular, others: total - pangular.length };
+}
+
+/**
+ * Why `down` must not stop a recorded process: its live row's start time or command line differs from the state
+ * file (a PID Windows reused). Null when they match.
+ * @param {ProcessRow} row
+ * @param {ProcState} proc
+ * @returns {string | null}
+ */
+export function pidMismatch(row, proc) {
+  if (row.Start === proc.start && row.CommandLine === proc.commandLine) {
+    return null;
+  }
+
+  return `refused: PID ${proc.pid} (${proc.name}) does not match the state file: start-time ${row.Start} vs recorded ${proc.start}; command ${row.Start !== proc.start ? 'not compared' : `"${row.CommandLine}" vs recorded "${proc.commandLine}"`}. Not stopping a process this skill did not start.`;
+}
+
+/**
+ * The change-detection mode from the NgZone provider record ng-inspect.js found.
+ * @param {string | null} ngZone
+ * @returns {string}
+ */
+export function cdMode(ngZone) {
+  return ngZone === 'NoopNgZone' ? 'zoneless' : ngZone ? 'zone-based' : 'unknown (no NgZone provider record found)';
+}
+
+/**
+ * The flow id the arguments name: `url-<port>` for `--url`, `<target>-<port>` for `--target`, else null (the caller
+ * then looks at the state files). Throws on an unknown target or an invalid `--url`.
+ * @param {string[]} args
+ * @returns {string | null}
+ */
+export function flowIdFor(args) {
+  const url = flagIn(args, 'url');
+  const target = flagIn(args, 'target');
+
+  if (typeof url === 'string' && url !== '') {
+    return `url-${new URL(url).port || 80}`;
+  }
+
+  if (typeof target === 'string' && target !== '') {
+    if (!isTarget(target)) {
+      throw new Error(`unknown target "${target}"; use counter, ssr or portal`);
+    }
+
+    return `${target}-${placement(args, TARGETS[target]).port}`;
+  }
+
+  return null;
+}
+
+/**
+ * The folder and port a target runs on: `--dir` and `--port` when given, else the defaults.
+ * @param {string[]} args
+ * @param {Target} t
+ * @returns {{ dir: string, port: number, worktree: boolean }}
+ */
+function placement(args, t) {
+  const dirFlag = flagIn(args, 'dir');
+  const portFlag = flagIn(args, 'port');
+  const dir = typeof dirFlag === 'string' && dirFlag !== '' ? dirFlag : t.dir;
+  const worktree = isWorktree(dir);
+
+  return { dir, worktree, port: typeof portFlag === 'string' && portFlag !== '' ? Number(portFlag) : derivePort(dir, t.documentedPort, worktree) };
+}
+
+// ---------- process and tool access ----------
+
+/**
+ * @param {string} dir
+ * @param {string} pkg
+ * @param {string} binName
+ * @returns {string | null}
+ */
+function binOf(dir, pkg, binName) {
+  const pj = path.join(dir, 'node_modules', pkg, 'package.json');
+
+  if (!existsSync(pj)) {
+    return null;
+  }
+
+  const manifest = /** @type {{ bin?: string | Record<string, string> }} */ (JSON.parse(readFileSync(pj, 'utf8')));
+  const bin = typeof manifest.bin === 'string' ? manifest.bin : manifest.bin?.[binName];
+
+  return bin === undefined ? null : path.join(dir, 'node_modules', pkg, bin);
+}
+
+/** @returns {ProcessRow[]} */
+function processTable() {
+  const ps = "Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,@{n='Start';e={$_.CreationDate.ToUniversalTime().ToString('o')}},CommandLine | ConvertTo-Json -Compress";
+  const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', ps], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
+
+  if (r.status !== 0) {
+    throw new Error(`process table query failed: ${r.stderr}`);
+  }
+
+  return /** @type {ProcessRow[]} */ (JSON.parse(r.stdout));
+}
+
+/**
+ * @param {number} port
+ * @returns {number | null}
+ */
+function listeningPid(port) {
+  const netstat = path.join(SYSTEM32, 'netstat.exe');
+  const text = ['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n');
+
+  return parseListeningPid(text, port);
+}
+
+/**
+ * Runs playwright-cli through node, from the npm shim's folder on PATH (absolute PATH entries only).
+ * @param {string[]} args
+ * @returns {Run}
+ */
 function playwrightCli(args) {
-  const shimDir = (process.env.PATH ?? '').split(path.delimiter).find((d) => d && existsSync(path.join(d, 'playwright-cli.cmd')));
+  const shimDir = (process.env['PATH'] ?? '').split(path.delimiter).find((d) => path.isAbsolute(d) && existsSync(path.join(d, 'playwright-cli.cmd')));
   const js = shimDir && path.join(shimDir, 'node_modules', '@playwright', 'cli', 'playwright-cli.js');
 
   if (!js || !existsSync(js)) {
     return { status: 127, stdout: '', stderr: 'playwright-cli not found on PATH' };
   }
 
-  return spawnSync(process.execPath, [js, ...args], { cwd: REPO_ROOT, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
+  const r = spawnSync(process.execPath, [js, ...args], { cwd: REPO_ROOT, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
+
+  return { status: r.status, stdout: r.stdout ?? '', stderr: r.stderr ?? '' };
 }
 
+/** @param {number} ms */
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // The portal proxies /__pangular to this port (proxy.conf.json); control-pangular-inspector writes its state here.
 const PANGULAR_PORT = 9999;
 const PANGULAR_STATE = path.join(REPO_ROOT, 'tmp', 'control-pangular-inspector', 'state', `pangular-${PANGULAR_PORT}.json`);
 
+/** @returns {{ pid: number | null, log: string | null }} */
 function pangularServer() {
+  /** @type {string | null} */
   let log = null;
 
   try {
-    log = JSON.parse(readFileSync(PANGULAR_STATE, 'utf8')).log ?? null;
+    log = /** @type {{ log?: string }} */ (JSON.parse(readFileSync(PANGULAR_STATE, 'utf8'))).log ?? null;
   } catch {
     // no server started by control-pangular-inspector
   }
@@ -197,58 +401,95 @@ function pangularServer() {
   return { pid: listeningPid(PANGULAR_PORT), log };
 }
 
-// Same parse as control-pangular-inspector's authCode: the latest "auth code NNNNNN" in its server log.
-function authCode(logPath) {
-  const log = existsSync(logPath) ? readFileSync(logPath, 'utf8').replace(/\x1b\[[0-9;]*m/g, '') : '';
-  const all = [...log.matchAll(/auth code\s+(\d{4,8})/g)];
-
-  return all.length ? all[all.length - 1][1] : null;
-}
-
+/**
+ * @param {string} url
+ * @param {number} [timeoutMs]
+ * @returns {Promise<{ status: number, body: string }>}
+ */
 async function fetchText(url, timeoutMs = 3000) {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
 
     return { status: res.status, body: await res.text() };
   } catch (e) {
-    return { status: 0, body: String(e.cause?.code ?? e.message) };
+    const error = /** @type {Error & { cause?: { code?: string } }} */ (e);
+
+    return { status: 0, body: String(error.cause?.code ?? error.message) };
   }
 }
 
-// ---------- state ----------
+// ---------- CLI ----------
+
+const argv = process.argv.slice(2);
+const cmd = argv[0];
+const JSON_OUT = argv.includes('--json');
+/** @param {string} name */
+const flag = (name) => flagIn(argv, name);
+
+/**
+ * @param {{ checks?: Check[] } & Record<string, unknown>} result
+ * @param {number} code
+ * @returns {never}
+ */
+function out(result, code) {
+  if (JSON_OUT) {
+    process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+  } else {
+    for (const c of result.checks ?? []) {
+      const tag = c.status === 'pass' ? '[OK]' : c.status === 'skip' ? '[SKIP]' : c.status === 'warn' ? '[WARN]' : '[ERROR]';
+      process.stdout.write(`${tag} ${c.name}: ${c.detail}\n`);
+    }
+
+    const { checks, ...rest } = result;
+    process.stdout.write(`${code === 0 ? '[OK]' : '[ERROR]'} ${JSON.stringify(rest)}\n`);
+  }
+
+  process.exit(code);
+}
+
+/**
+ * @param {number} code
+ * @param {string} reason
+ * @param {Record<string, unknown>} [extra]
+ * @returns {never}
+ */
+function fail(code, reason, extra = {}) {
+  return out({ ok: false, command: cmd, reason, ...extra }, code);
+}
+
+/** @param {string} flowId */
 function statePath(flowId) {
   return path.join(STATE_DIR, `${flowId}.json`);
 }
 
+/** @returns {string} */
 function resolveFlow() {
-  const url = flag('url');
-  const target = flag('target');
+  /** @type {string | null} */
+  let named;
 
-  if (url && url !== true) {
-    return `url-${new URL(url).port || 80}`;
+  try {
+    named = flowIdFor(argv);
+  } catch (error) {
+    return fail(2, error instanceof Error ? error.message : String(error));
   }
 
-  if (target && target !== true) {
-    if (!TARGETS[target]) {
-      fail(2, `unknown target "${target}"; use counter, ssr or portal`);
-    }
-
-    const t = TARGETS[target];
-    const dir = typeof flag('dir') === 'string' ? flag('dir') : t.dir;
-    const port = flag('port') && flag('port') !== true ? Number(flag('port')) : derivePort(dir, t.documentedPort);
-
-    return `${target}-${port}`;
+  if (named !== null) {
+    return named;
   }
 
   const files = existsSync(STATE_DIR) ? readdirSync(STATE_DIR).filter((f) => f.endsWith('.json')) : [];
 
-  if (files.length === 1) {
+  if (files.length === 1 && files[0] !== undefined) {
     return files[0].slice(0, -5);
   }
 
-  fail(2, files.length === 0 ? 'no state file: nothing was started by this skill (run up first)' : `several flows are running (${files.join(', ')}); pass --target or --url`);
+  return fail(2, files.length === 0 ? 'no state file: nothing was started by this skill (run up first)' : `several flows are running (${files.join(', ')}); pass --target or --url`);
 }
 
+/**
+ * @param {string} flowId
+ * @returns {State}
+ */
 function readState(flowId) {
   const p = statePath(flowId);
 
@@ -256,16 +497,15 @@ function readState(flowId) {
     fail(2, `no state file for flow ${flowId} at ${p}: nothing to act on (run up first)`);
   }
 
-  return JSON.parse(readFileSync(p, 'utf8'));
+  return /** @type {State} */ (JSON.parse(readFileSync(p, 'utf8')));
 }
 
-// ---------- commands ----------
 async function up() {
   const url = flag('url');
   mkdirSync(STATE_DIR, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
 
-  if (url && url !== true) {
+  if (typeof url === 'string' && url !== '') {
     const flowId = resolveFlow();
 
     if (existsSync(statePath(flowId))) {
@@ -280,6 +520,7 @@ async function up() {
       fail(2, `nothing answers at ${url} (${res.body})`);
     }
 
+    /** @type {State} */
     const state = { flowId, mode: 'attach', url, session: `control-ngdev-${flowId}`, evidenceDir, startedAt: new Date().toISOString(), procs: [] };
     writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
     out({ ok: true, command: 'up', ...state }, 0);
@@ -287,14 +528,12 @@ async function up() {
 
   const targetName = flag('target');
 
-  if (!TARGETS[targetName]) {
-    fail(2, 'up needs --target counter|ssr|portal, or --url <dev-server URL> to attach to a running app');
+  if (typeof targetName !== 'string' || !isTarget(targetName)) {
+    return fail(2, 'up needs --target counter|ssr|portal, or --url <dev-server URL> to attach to a running app');
   }
 
   const t = TARGETS[targetName];
-  const dir = typeof flag('dir') === 'string' ? flag('dir') : t.dir;
-  const worktree = isWorktree(dir);
-  const port = flag('port') && flag('port') !== true ? Number(flag('port')) : derivePort(dir, t.documentedPort);
+  const { dir, worktree, port } = placement(argv, t);
 
   if (worktree && port === t.documentedPort) {
     fail(2, `refused: ${dir} is a git worktree and port ${port} is the main checkout's documented port; use the derived port or --url on purpose`);
@@ -323,26 +562,33 @@ async function up() {
   const evidenceDir = path.join(SCRATCH, `${flowId}-${stamp}`);
   mkdirSync(evidenceDir, { recursive: true });
   const t0 = Date.now();
+  /** @type {ProcState[]} */
   const started = [];
+  /** @type {State} */
   const state = { flowId, mode: 'launch', target: targetName, dir, worktree, url: `http://localhost:${port}/`, port, session: `control-ngdev-${flowId}`, evidenceDir, startedAt: new Date().toISOString(), procs: started };
   const timeoutMs = Number(flag('timeout') ?? 240) * 1000;
 
   // One at a time: two cold `nx run` processes started together timed out in the Nx plugin worker (3 of 4 portal runs, 2026-10-11).
   for (const p of procs) {
+    /** @type {NodeJS.ProcessEnv} */
     const env = { ...process.env, NX_DAEMON: 'false', NX_TUI: 'false', NG_CLI_ANALYTICS: 'false', ...p.env };
 
     if (!('PORT' in p.env)) {
-      delete env.PORT; // measured: the Angular dev server serves on $PORT and ignores --port when PORT is set
+      delete env['PORT']; // measured: the Angular dev server serves on $PORT and ignores --port when PORT is set
     }
 
     const log = path.join(evidenceDir, `${p.name}.log`);
     const fd = openSync(log, 'a');
-    const child = spawn(process.execPath, [p.bin, ...p.args], { cwd: dir, env, detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
+    const child = spawn(process.execPath, [/** @type {string} */ (p.bin), ...p.args], { cwd: dir, env, detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
     child.unref();
-    const s = { name: p.name, pid: child.pid, port: p.port, readyUrl: `http://localhost:${p.port}${p.readyPath}`, log };
-    const row = processTable().find((r) => r.ProcessId === s.pid);
-    s.start = row?.Start ?? null;
-    s.commandLine = row?.CommandLine ?? null;
+
+    if (child.pid === undefined) {
+      fail(2, `${p.name} did not start; see ${log}`);
+    }
+
+    const row = processTable().find((r) => r.ProcessId === child.pid);
+    /** @type {ProcState} */
+    const s = { name: p.name, pid: child.pid, port: p.port, readyUrl: `http://localhost:${p.port}${p.readyPath}`, log, start: row?.Start ?? null, commandLine: row?.CommandLine ?? null };
     started.push(s);
     writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
 
@@ -373,15 +619,22 @@ async function up() {
 async function doctor() {
   const flowId = resolveFlow();
   const state = readState(flowId);
+  /** @type {Check[]} */
   const checks = [];
-  const add = (name, status, detail) => checks.push({ name, status, detail });
+  /** @type {(name: string, status: Check['status'], detail: string) => void} */
+  const add = (name, status, detail) => {
+    checks.push({ name, status, detail });
+  };
+  const target = state.target === undefined ? undefined : TARGETS[state.target];
+  const fresh = mapFresh(SKILL_DIR);
+  add('map-fresh', fresh.status, fresh.detail);
 
-  if (state.mode === 'attach') {
+  if (state.mode === 'attach' || target === undefined) {
     add('process-alive', 'skip', 'attached with --url; this skill did not start the server');
     add('port-owned', 'skip', 'attached with --url');
     add('build-log', 'skip', 'attached with --url; no build log');
   } else {
-    if (state.worktree && state.port === TARGETS[state.target].documentedPort) {
+    if (state.worktree && state.port === target.documentedPort) {
       fail(2, 'refused: worktree flow points at the main checkout port');
     }
 
@@ -389,37 +642,12 @@ async function doctor() {
 
     for (const p of state.procs) {
       const row = table.find((r) => r.ProcessId === p.pid);
-      const alive = row && row.Start === p.start;
+      const alive = row !== undefined && row.Start === p.start;
       add(`process-alive:${p.name}`, alive ? 'pass' : 'fail', alive ? `PID ${p.pid} running since ${p.start}` : `PID ${p.pid} is gone or reused`);
       const owner = listeningPid(p.port);
-      const owned = owner && descendants(table, p.pid).has(owner);
+      const owned = owner !== null && descendants(table, p.pid).has(owner);
       add(`port-owned:${p.name}`, owned ? 'pass' : 'fail', owner ? `port ${p.port} listened on by PID ${owner}${owned ? ` (in the tree of ${p.pid})` : ' (NOT ours)'}` : `nothing listens on ${p.port}`);
-      const log = existsSync(p.log) ? readFileSync(p.log, 'utf8') : '';
-      // [vite] entries are runtime noise (proxy errors, the browser console forwarded as "(client)"); console-errors
-      // covers the page. A proxy error carries its Error and stack on the following lines (measured: "Error: read
-      // ECONNRESET" or "AggregateError [ECONNREFUSED]:" + "    at ..." around a Pangular server's stop or start), so
-      // those belong to the [vite] entry. A forwarded client console error spans many lines (NG0500 prints the
-      // expected and actual DOM, then "Find more at .../NG0500"), so a [vite] entry runs until a line that starts a
-      // new entry: a build error, a timestamped or [tag]-prefixed line, or a builder status line.
-      const entryStart = /\[ERROR\]|error TS\d+|^\[\w+\]|^\d\d\.\d\d\.\d\d |^[❯✔✘]|^Application bundle/;
-      let inVite = false;
-      const errLines = log.split(/\r?\n/).filter((raw) => {
-        const l = raw.replace(/\x1b\[[0-9;]*m/g, '');
-
-        if (l.includes('[vite]')) {
-          inVite = true;
-
-          return false;
-        }
-
-        if (inVite && !entryStart.test(l)) {
-          return false;
-        }
-
-        inVite = false;
-
-        return /\[ERROR\]|ERROR in|Error:|error TS\d+|NG\d{4}/.test(l);
-      });
+      const errLines = buildLogErrors(existsSync(p.log) ? readFileSync(p.log, 'utf8') : '');
       add(`build-log:${p.name}`, errLines.length === 0 ? 'pass' : 'fail', errLines.length === 0 ? 'no error lines in the server log' : errLines.slice(0, 3).join(' | '));
     }
   }
@@ -431,18 +659,20 @@ async function doctor() {
   // own choosing, and every playwright-cli command fails on the modal state until it is answered. Answer it the way
   // control-pangular-inspector does: read the code from that skill's server log; dismiss it when no code is known.
   let authNoted = false;
+  /** @type {(args: string[]) => Run} */
   const pw = (args) => {
     let res = playwrightCli([`-s=${s}`, ...args]);
 
     // Only run-code and eval errors omit the dialog text; snapshot names it (measured).
+    /** @type {(x: Run) => boolean} */
     const isAuthPrompt = (x) => /modal state/i.test(x.stdout + x.stderr) && /authentication code/i.test(playwrightCli([`-s=${s}`, 'snapshot']).stdout);
 
     for (let i = 0; i < 3 && isAuthPrompt(res); i++) {
-      const otp = pangular.log ? authCode(pangular.log) : null;
+      const otp = pangular.log && existsSync(pangular.log) ? authCodeIn(readFileSync(pangular.log, 'utf8')) : null;
       const acc = playwrightCli([`-s=${s}`, otp ? 'dialog-accept' : 'dialog-dismiss', ...(otp ? [otp] : [])]);
 
       if (!authNoted) {
-        add('pangular-auth', otp && acc.status === 0 ? 'pass' : 'warn', otp ? `entered the one-time code from ${path.basename(pangular.log)} into the overlay prompt` : `dismissed the overlay's code prompt: no control-pangular-inspector state file with a code for port ${PANGULAR_PORT}`);
+        add('pangular-auth', otp && acc.status === 0 ? 'pass' : 'warn', otp && pangular.log ? `entered the one-time code from ${path.basename(pangular.log)} into the overlay prompt` : `dismissed the overlay's code prompt: no control-pangular-inspector state file with a code for port ${PANGULAR_PORT}`);
         authNoted = true;
       }
 
@@ -466,10 +696,11 @@ async function doctor() {
 
   add('browser-session', 'pass', `session ${s} on ${state.url}`);
   r = pw(['--raw', 'run-code', `--filename=${INSPECT_JS}`]);
+  /** @type {PageFacts} */
   let page;
 
   try {
-    page = JSON.parse(r.stdout.trim());
+    page = /** @type {PageFacts} */ (JSON.parse(r.stdout.trim()));
   } catch {
     add('page-probe', 'fail', `inspect helper did not return JSON: ${(r.stdout + r.stderr).slice(0, 300)}`);
 
@@ -478,10 +709,10 @@ async function doctor() {
 
   add('angular-root', page.ngVersion ? 'pass' : 'fail', page.ngVersion ? `[ng-version="${page.ngVersion}"] on <${page.roots.join('>, <')}>` : 'no [ng-version] element: not an Angular app or not bootstrapped');
 
-  if (state.target && page.roots.length && !page.roots.includes(TARGETS[state.target].marker)) {
-    add('app-marker', 'fail', `expected root <${TARGETS[state.target].marker}>, found <${page.roots.join('>, <')}>`);
-  } else if (state.target) {
-    add('app-marker', 'pass', `root <${TARGETS[state.target].marker}> present`);
+  if (target && page.roots.length && !page.roots.includes(target.marker)) {
+    add('app-marker', 'fail', `expected root <${target.marker}>, found <${page.roots.join('>, <')}>`);
+  } else if (target) {
+    add('app-marker', 'pass', `root <${target.marker}> present`);
   }
 
   add('dev-build', page.devMode ? 'pass' : 'fail', page.devMode ? `window.ng has ${page.ngFunctions.length} functions` : 'window.ng missing: production build (or ngDevMode=false); ng.* recipes will not work');
@@ -491,24 +722,18 @@ async function doctor() {
     add('router-globals', page.router ? 'pass' : 'warn', page.router ? 'ɵgetRouterInstance, ɵgetLoadedRoutes, ɵnavigateByUrl present (provideRouter)' : 'router globals absent (no provideRouter, or RouterModule.forRoot): router recipes unavailable');
   }
 
-  const cdMode = page.ngZone === 'NoopNgZone' ? 'zoneless' : page.ngZone ? 'zone-based' : 'unknown (no NgZone provider record found)';
-  add('change-detection-mode', 'pass', `${cdMode} (NgZone provider: ${page.ngZone ?? 'none'}); zone.js ${page.zoneLoaded ? 'loaded' : 'not loaded'}; mark_feature_usage: ${page.featureMarks.join(', ') || 'none'}`);
-  r = pw(['console', 'error']);
-  const total = Number(/Errors: (\d+)/.exec(r.stdout)?.[1] ?? NaN);
-  // The portal's dev-only Pangular overlay probes /__connection.json URLs next to the page (404 with or without a
-  // server) and logs "[pangular] No devtools server found" when nothing answers behind the /__pangular proxy
-  // (port 9999). Reported apart so it does not hide real errors.
-  const pangularLines = r.stdout.split(/\r?\n/).filter((l) => l.startsWith('[ERROR]') && /__connection\.json|\[pangular\]/.test(l));
-  const pangularErrors = pangularLines.length;
-  const errorCount = total - pangularErrors;
+  add('change-detection-mode', 'pass', `${cdMode(page.ngZone)} (NgZone provider: ${page.ngZone ?? 'none'}); zone.js ${page.zoneLoaded ? 'loaded' : 'not loaded'}; mark_feature_usage: ${page.featureMarks.join(', ') || 'none'}`);
+  const consoleOut = pw(['console', 'error']).stdout;
+  const errors = consoleErrors(consoleOut);
 
-  if (pangularErrors > 0) {
-    const noServer = pangularLines.some((l) => l.includes('No devtools server found'));
+  if (errors.pangular.length > 0) {
+    const noServer = errors.pangular.some((l) => l.includes('No devtools server found'));
     const listener = pangular.pid ? `PID ${pangular.pid} listens on ${PANGULAR_PORT}` : `nothing listens on ${PANGULAR_PORT}`;
-    add('pangular-overlay', 'warn', noServer ? `${pangularErrors} console error(s) from the Pangular overlay: it found no devtools server behind /__pangular (${listener}); start one with control-pangular-inspector for live Pangular data` : `${pangularErrors} console error(s) from the Pangular overlay's /__connection.json probes, expected while a devtools server runs behind /__pangular (${listener})`);
+    add('pangular-overlay', 'warn', noServer ? `${errors.pangular.length} console error(s) from the Pangular overlay: it found no devtools server behind /__pangular (${listener}); start one with control-pangular-inspector for live Pangular data` : `${errors.pangular.length} console error(s) from the Pangular overlay's /__connection.json probes, expected while a devtools server runs behind /__pangular (${listener})`);
   }
 
-  add('console-errors', errorCount === 0 ? 'pass' : 'fail', errorCount === 0 ? `no console errors since load${pangularErrors ? ' besides the Pangular overlay' : ''}` : Number.isNaN(errorCount) ? `could not read the console: ${r.stdout.slice(0, 200)}` : `${errorCount} console error(s)${pangularErrors ? ' besides the Pangular overlay' : ''}; run playwright-cli -s=${s} console error`);
+  const besides = errors.pangular.length ? ' besides the Pangular overlay' : '';
+  add('console-errors', errors.others === 0 ? 'pass' : 'fail', errors.others === 0 ? `no console errors since load${besides}` : Number.isNaN(errors.others) ? `could not read the console: ${consoleOut.slice(0, 200)}` : `${errors.others} console error(s)${besides}; run playwright-cli -s=${s} console error`);
 
   const failed = checks.filter((c) => c.status === 'fail');
   out({ ok: failed.length === 0, command: 'doctor', flowId, url: state.url, session: s, ngVersion: page.ngVersion, checks }, failed.length === 0 ? 0 : 1);
@@ -525,7 +750,9 @@ function down() {
   const sp = statePath(flowId);
   const state = readState(flowId);
   const table = processTable();
+  /** @type {ProcState[]} */
   const toStop = [];
+  /** @type {string[]} */
   const notes = [];
 
   for (const p of state.procs) {
@@ -536,8 +763,10 @@ function down() {
       continue;
     }
 
-    if (row.Start !== p.start || row.CommandLine !== p.commandLine) {
-      fail(2, `refused: PID ${p.pid} (${p.name}) does not match the state file: start-time ${row.Start} vs recorded ${p.start}; command ${row.Start !== p.start ? 'not compared' : `"${row.CommandLine}" vs recorded "${p.commandLine}"`}. Not stopping a process this skill did not start.`, { state: sp });
+    const mismatch = pidMismatch(row, p);
+
+    if (mismatch !== null) {
+      fail(2, mismatch, { state: sp });
     }
 
     toStop.push(p);
@@ -547,7 +776,7 @@ function down() {
   notes.push(`session ${state.session}: ${close.status === 0 ? 'closed' : 'was not open'}`);
 
   for (const p of toStop) {
-    const r = spawnSync('taskkill', ['/PID', String(p.pid), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
+    const r = spawnSync(path.join(SYSTEM32, 'taskkill.exe'), ['/PID', String(p.pid), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
     notes.push(`stopped ${p.name} tree of PID ${p.pid}: ${r.status === 0 ? 'ok' : r.stderr.trim()}`);
   }
 
@@ -555,11 +784,17 @@ function down() {
   out({ ok: true, command: 'down', flowId, evidenceDir: state.evidenceDir, notes }, 0);
 }
 
+/** @type {Record<string, () => void | Promise<void>>} */
 const commands = { up, doctor, info, down };
 
-if (!commands[cmd]) {
-  process.stdout.write('usage: control.mjs <up|doctor|info|down> [--target counter|ssr|portal] [--url <url>] [--port N] [--dir <path>] [--timeout S] [--json]\n');
-  process.exit(2);
-}
+// import.meta.url is the real path, so compare real paths: run through a link, the CLI still runs.
+if (process.argv[1] && realpathSync.native(path.resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+  const run = cmd !== undefined && Object.hasOwn(commands, cmd) ? commands[cmd] : undefined;
 
-await commands[cmd]();
+  if (run === undefined) {
+    process.stdout.write('usage: control.mjs <up|doctor|info|down> [--target counter|ssr|portal] [--url <url>] [--port N] [--dir <path>] [--timeout S] [--json]\n');
+    process.exit(2);
+  }
+
+  await run();
+}

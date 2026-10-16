@@ -48,9 +48,10 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target coun
   (2026-10-11). Started one at a time, 2 of 2 runs passed (2026-10-12).
 - Readiness polls wait up to 60 s per request: the first SSR render compiles on demand, and aborting it at the
   old 3 s limit left an `AbortError` in the server log, which failed `build-log` (measured 2026-10-12).
-- Measured time to ready, warm caches: counter 2.6-8 s (four runs), SSR 7.5-14.5 s (four runs, 2026-10-12), portal 18.5-20.5 s with the API first (two
-  runs). In a fresh worktree with a cold `.angular` cache: counter 21 s, SSR 19.3 s (2026-10-15). The first
-  portal build after a change can take minutes; `--timeout <seconds>` (default 240).
+- Measured time to ready, warm caches: counter 2.6-8 s (four runs), SSR 7.5-14.5 s (four runs, 2026-10-12), portal 15.3-20.5 s with
+  the API first (three runs). In a fresh worktree with a cold `.angular` cache: counter 13.6-21 s, SSR 16.7-19.3 s
+  (2026-10-15, 2026-10-16); the first portal start of a session took 81.7 s (2026-10-16). The first portal build
+  after a change can take minutes; `--timeout <seconds>` (default 240).
 - Server output goes to `<evidenceDir>/app.log` (and `api.log`).
 - `up` refuses (exit 2) a port already in use and names the owning PID; that may be Lars's own server.
 
@@ -62,6 +63,10 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs doctor [--target
 
 Answers "is this instance worth driving?". One line per check:
 
+- `map-fresh` (first): whether each feature file still matches the source it was proven against, from
+  `scripts/fingerprint.mjs` and `features/.proven.json`. `[WARN]` names the stale and unproven features; it never
+  changes the exit code. The four portal features always show as unproven: the portal lives outside this
+  repository, and the manifest records only files inside it.
 - `process-alive:<name>`, `port-owned:<name>` (the listening PID is in the recorded process tree),
   `build-log:<name>` (no `[ERROR]`, `error TS`, `NGxxxx` lines; a `[vite]` runtime entry is ignored up to the
   next entry: proxy errors with their `Error: read ECONNRESET` and `at ...` lines, and the browser console
@@ -170,6 +175,20 @@ evidence directory. A PID that no longer runs is noted, not refused. Never `play
 | `doctor` | checks above | one line per check, or `checks[]` with `--json` | 0 / 1 / 2 |
 | `info` | prints the state | state plus `statePath` | 0; 2 no state |
 | `down` | teardown | notes per process and the session | 0 done (also when the PID is already gone); 2 missing state file, or PID start time / command mismatch (nothing stopped) |
+
+`scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
+`features/.proven.json`:
+
+- `node .claude/skills/control-angular-dev-app/scripts/fingerprint.mjs record --feature <id> --entries <path>...`
+  records the files feature `<id>` depends on (the TypeScript import closure of the repository-relative entries,
+  plus templates and styles) with their git blob hashes. Without `--entries` it reuses the recorded ones. Exit 0
+  written or unchanged, 2 refused (an entry outside the repository, a missing feature file).
+- `node .claude/skills/control-angular-dev-app/scripts/fingerprint.mjs check [--feature <id>] [--json]` prints
+  `fresh`, `stale` (with the changed files) or `unproven` per feature. Exit 0 every feature fresh, 1 one is stale or
+  unproven, 2 could not run.
+
+Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
+`npm run check` type-checks the scripts.
 
 `scripts/ng-inspect.js` is a playwright-cli `run-code` file: it installs `__ngc` and returns the doctor's page
 facts. `scripts/ssr-check.js` is a `run-code` file for the SSR target (Inspect).

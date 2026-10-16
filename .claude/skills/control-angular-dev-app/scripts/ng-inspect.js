@@ -1,17 +1,59 @@
+// @ts-check
+// playwright-cli run-code file. Installs window.__ngc (read-only ng.* helpers) on this page and on every later load,
+// then returns the doctor summary as JSON. Never calls injector.get, never runs angular:di_graph, never calls
+// ng.ɵsetProfiler.
+
+/** @param {{ addInitScript: (script: () => void) => Promise<void>, evaluate: <T>(fn: () => T) => Promise<Awaited<T>> }} page */
 async page => {
-  // Installs window.__ngc (read-only ng.* helpers) on this page and on every later load,
-  // then returns the doctor summary as JSON. Never calls injector.get, never runs angular:di_graph,
-  // never calls ng.ɵsetProfiler.
+  /** @typedef {{ id?: string, kind: string, label?: string, value: unknown, epoch: number }} SignalNode */
+  /** @typedef {{ token?: { name?: string }, provider?: { useClass?: { name: string }, useFactory?: unknown, name?: string }, isViewProvider?: boolean, importPath?: object[] }} ProviderRecord */
+  /** @typedef {{ path?: string, children?: RouteLike[], loadChildren?: unknown, loadComponent?: unknown, component?: unknown, redirectTo?: string }} RouteLike */
+  /** @typedef {{ url: string, navigated: boolean, config: RouteLike[] }} RouterLike */
+  /** @typedef {{ inputs?: Record<string, unknown>, outputs?: Record<string, unknown>, changeDetection?: number, encapsulation?: number }} DirectiveMeta */
+
+  /**
+   * The `window.ng` functions the helpers call, as Angular 22 development builds expose them.
+   * @typedef {object} NgApi
+   * @property {(el: Node) => Record<string, unknown> | null} getComponent
+   * @property {(target: Node | object) => object} getInjector
+   * @property {(cmp: object) => DirectiveMeta | null} getDirectiveMetadata
+   * @property {(el: Element) => { name: string, type: string, useCapture: boolean }[]} getListeners
+   * @property {(el: Element) => object[]} getDirectives
+   * @property {(el: Element) => object | null} getOwningComponent
+   * @property {(value: unknown) => boolean} [isSignal]
+   * @property {(injector: object) => { nodes: SignalNode[], edges: { consumer: number, producer: number }[] }} ɵgetSignalGraph
+   * @property {(injector: object) => object[]} ɵgetInjectorResolutionPath
+   * @property {(injector: object) => ProviderRecord[]} ɵgetInjectorProviders
+   * @property {(injector: object) => { type?: string, source?: unknown } | null} ɵgetInjectorMetadata
+   * @property {(injector: object) => RouterLike | undefined} [ɵgetRouterInstance]
+   * @property {(route: RouteLike) => RouteLike[] | undefined} ɵgetLoadedRoutes
+   * @property {(router: RouterLike, url: string) => Promise<boolean>} ɵnavigateByUrl
+   */
+
+  /** @typedef {{ ng?: NgApi, Zone?: unknown, __ngc?: { doctor: () => unknown } & Record<string, unknown> }} NgGlobals */
+
   const install = () => {
-    const name = (x) => (x?.constructor?.name ?? String(x)).replace(/^_/, '');
-    const tokenName = (t) => (typeof t === 'function' ? t.name.replace(/^_/, '') : t?.toString?.() ?? String(t));
+    const w = /** @type {Window & NgGlobals} */ (window);
+    /** @type {() => NgApi} */
+    const ng = () => {
+      if (w.ng === undefined) {
+        throw new Error('window.ng is missing: not an Angular development build');
+      }
+
+      return w.ng;
+    };
+    /** @type {(x: unknown) => string} */
+    const name = (x) => (/** @type {{ constructor?: { name?: string } } | null | undefined} */ (x)?.constructor?.name ?? String(x)).replace(/^_/, '');
+    /** @type {(t: unknown) => string} */
+    const tokenName = (t) => (typeof t === 'function' ? t.name.replace(/^_/, '') : String(t));
+    /** @type {(v: unknown, depth?: number) => unknown} */
     const safe = (v, depth = 0) => {
-      if (v === null || typeof v !== 'object' && typeof v !== 'function') {
+      if (v === null || (typeof v !== 'object' && typeof v !== 'function')) {
         return v;
       }
 
       if (typeof v === 'function') {
-        return window.ng?.isSignal?.(v) ? { signal: safe(v(), depth + 1) } : `[fn ${v.name}]`;
+        return w.ng?.isSignal?.(v) ? { signal: safe(v(), depth + 1) } : `[fn ${v.name}]`;
       }
 
       if (v instanceof Node) {
@@ -28,25 +70,35 @@ async page => {
 
       return Object.fromEntries(Object.entries(v).slice(0, 30).map(([k, x]) => [k, safe(x, depth + 1)]));
     };
-    const hosts = () => [...document.querySelectorAll('*')].filter((el) => window.ng.getComponent(el));
+    const hosts = () => [...document.querySelectorAll('*')].filter((el) => ng().getComponent(el));
+    /** @type {(selector: string | number) => Element} */
     const host = (selector) => {
       const el = typeof selector === 'number' ? hosts()[selector] : document.querySelector(selector);
 
-      if (!el || !window.ng?.getComponent(el)) {
+      if (!el || !w.ng?.getComponent(el)) {
         throw new Error(`no component host matches ${selector}`);
       }
 
       return el;
     };
-    const root = () => document.querySelector('[ng-version]');
+    const root = () => {
+      const el = document.querySelector('[ng-version]');
+
+      if (el === null) {
+        throw new Error('no [ng-version] element');
+      }
+
+      return el;
+    };
     // Zoneless-by-default apps never get the NgZoneless mark and may still load zone.js; the NgZone provider record tells.
     const ngZoneClass = () => {
       try {
-        for (const inj of window.ng.ɵgetInjectorResolutionPath(window.ng.getInjector(root()))) {
+        for (const inj of ng().ɵgetInjectorResolutionPath(ng().getInjector(root()))) {
+          /** @type {ProviderRecord[]} */
           let records = [];
 
           try {
-            records = window.ng.ɵgetInjectorProviders(inj);
+            records = ng().ɵgetInjectorProviders(inj);
           } catch {
             continue;
           }
@@ -65,32 +117,36 @@ async page => {
       return null;
     };
     const CORE = ['getComponent', 'getContext', 'getOwningComponent', 'getRootComponents', 'getInjector', 'getDirectives', 'getDirectiveMetadata', 'getHostElement', 'getListeners', 'applyChanges', 'isSignal', 'ɵgetSignalGraph', 'ɵgetInjectorResolutionPath', 'ɵgetInjectorMetadata', 'ɵgetInjectorProviders', 'ɵgetDependenciesFromInjectable'];
+    /** @type {(selector: string | number) => ReturnType<NgApi['ɵgetSignalGraph']>} */
+    const graph = (selector) => ng().ɵgetSignalGraph(ng().getInjector(host(selector)));
+    const router = () => ng().ɵgetRouterInstance?.(ng().getInjector(root()));
 
-    window.__ngc = {
+    w.__ngc = {
       doctor() {
-        const ng = window.ng;
-        const keys = Object.keys(ng ?? {}).sort();
+        const api = /** @type {Record<string, unknown> | undefined} */ (w.ng);
+        const fns = ['ɵgetRouterInstance', 'ɵgetLoadedRoutes', 'ɵnavigateByUrl'];
 
         return {
           url: location.href,
-          ngVersion: root()?.getAttribute('ng-version') ?? null,
+          ngVersion: document.querySelector('[ng-version]')?.getAttribute('ng-version') ?? null,
           roots: [...document.querySelectorAll('[ng-version]')].map((e) => e.tagName.toLowerCase()),
-          devMode: typeof ng === 'object' && typeof ng.getComponent === 'function',
-          ngFunctions: keys,
-          missingCore: CORE.filter((k) => typeof ng?.[k] !== 'function'),
-          router: ['ɵgetRouterInstance', 'ɵgetLoadedRoutes', 'ɵnavigateByUrl'].every((k) => typeof ng?.[k] === 'function'),
-          zoneLoaded: typeof window.Zone !== 'undefined',
+          devMode: typeof api === 'object' && typeof api['getComponent'] === 'function',
+          ngFunctions: Object.keys(api ?? {}).sort(),
+          missingCore: CORE.filter((k) => typeof api?.[k] !== 'function'),
+          router: fns.every((k) => typeof api?.[k] === 'function'),
+          zoneLoaded: typeof w.Zone !== 'undefined',
           ngZone: ngZoneClass(),
-          featureMarks: performance.getEntriesByName('mark_feature_usage').map((m) => m.detail?.feature),
+          featureMarks: performance.getEntriesByName('mark_feature_usage').map((m) => /** @type {{ detail?: { feature?: string } }} */ (m).detail?.feature),
         };
       },
       components() {
-        return hosts().map((el, i) => ({ i, tag: el.tagName.toLowerCase(), name: name(window.ng.getComponent(el)) }));
+        return hosts().map((el, i) => ({ i, tag: el.tagName.toLowerCase(), name: name(ng().getComponent(el)) }));
       },
+      /** @param {string | number} selector */
       inspect(selector) {
         const el = host(selector);
-        const cmp = window.ng.getComponent(el);
-        const meta = window.ng.getDirectiveMetadata(cmp) ?? {};
+        const cmp = /** @type {Record<string, unknown>} */ (ng().getComponent(el));
+        const meta = ng().getDirectiveMetadata(cmp) ?? {};
         const inputs = Object.fromEntries(Object.keys(meta.inputs ?? {}).map((k) => [k, safe(cmp[k])]));
 
         return {
@@ -99,18 +155,20 @@ async page => {
           encapsulation: meta.encapsulation,
           inputs,
           outputs: meta.outputs ?? {},
-          listeners: window.ng.getListeners(el).map((l) => ({ name: l.name, type: l.type, useCapture: l.useCapture })),
-          directives: window.ng.getDirectives(el).map(name),
-          owner: name(window.ng.getOwningComponent(el)),
+          listeners: ng().getListeners(el).map((l) => ({ name: l.name, type: l.type, useCapture: l.useCapture })),
+          directives: ng().getDirectives(el).map(name),
+          owner: name(ng().getOwningComponent(el)),
           state: Object.fromEntries(Object.keys(cmp).filter((k) => !k.startsWith('__')).slice(0, 30).map((k) => [k, safe(cmp[k])])),
         };
       },
+      /** @param {string | number} selector */
       signals(selector) {
-        const g = window.ng.ɵgetSignalGraph(window.ng.getInjector(host(selector)));
+        const g = graph(selector);
+        /** @type {(id: string | number) => string} */
         const label = (id) => {
           const n = g.nodes.find((x) => x.id === id);
 
-          return n ? `${n.kind}:${n.label ?? '?'}` : id;
+          return n ? `${n.kind}:${n.label ?? '?'}` : String(id);
         };
 
         return {
@@ -118,59 +176,87 @@ async page => {
           edges: g.edges.map((e) => `${label(g.nodes[e.consumer]?.id ?? e.consumer)} -> ${label(g.nodes[e.producer]?.id ?? e.producer)}`),
         };
       },
+      /**
+       * @param {string | number} selector
+       * @param {string} signalLabel
+       */
       dependenciesOf(selector, signalLabel) {
-        const g = window.ng.ɵgetSignalGraph(window.ng.getInjector(host(selector)));
-        const idx = g.nodes.findIndex((n) => n.label === signalLabel);
+        const g = graph(selector);
+        const node = g.nodes.find((n) => n.label === signalLabel);
 
-        if (idx === -1) {
+        if (node === undefined) {
           throw new Error(`no signal node labelled ${signalLabel}; labels: ${g.nodes.map((n) => n.label).join(', ')}`);
         }
 
-        return { signal: signalLabel, kind: g.nodes[idx].kind, value: safe(g.nodes[idx].value), dependsOn: g.edges.filter((e) => e.consumer === idx).map((e) => g.nodes[e.producer].label ?? g.nodes[e.producer].kind) };
+        const idx = g.nodes.indexOf(node);
+
+        return {
+          signal: signalLabel,
+          kind: node.kind,
+          value: safe(node.value),
+          dependsOn: g.edges.filter((e) => e.consumer === idx).map((e) => g.nodes[e.producer]?.label ?? g.nodes[e.producer]?.kind),
+        };
       },
+      /** @param {string | number} selector */
       injectors(selector) {
-        const path = window.ng.ɵgetInjectorResolutionPath(window.ng.getInjector(host(selector)));
+        return ng()
+          .ɵgetInjectorResolutionPath(ng().getInjector(host(selector)))
+          .map((inj, i) => {
+            const m = ng().ɵgetInjectorMetadata(inj);
+            /** @type {number | null} */
+            let providers = null;
 
-        return path.map((inj, i) => {
-          const m = window.ng.ɵgetInjectorMetadata(inj);
-          let providers = null;
+            try {
+              providers = ng().ɵgetInjectorProviders(inj).length;
+            } catch {
+              // some injectors list no providers
+            }
 
-          try {
-            providers = window.ng.ɵgetInjectorProviders(inj).length;
-          } catch {}
-
-          return { i, type: m?.type ?? null, source: m?.source instanceof Node ? `<${m.source.tagName.toLowerCase()}>` : m?.source ?? null, providers };
-        });
+            return { i, type: m?.type ?? null, source: m?.source instanceof Element ? `<${m.source.tagName.toLowerCase()}>` : (m?.source ?? null), providers };
+          });
       },
+      /**
+       * @param {string | number} selector
+       * @param {number} [index]
+       */
       providers(selector, index = 0) {
-        const inj = window.ng.ɵgetInjectorResolutionPath(window.ng.getInjector(host(selector)))[index];
+        const inj = ng().ɵgetInjectorResolutionPath(ng().getInjector(host(selector)))[index];
 
-        return window.ng.ɵgetInjectorProviders(inj).map((p) => ({ token: tokenName(p.token), isViewProvider: p.isViewProvider, importPath: p.importPath?.map?.(name) ?? null }));
+        if (inj === undefined) {
+          throw new Error(`no injector at index ${index}`);
+        }
+
+        return ng()
+          .ɵgetInjectorProviders(inj)
+          .map((p) => ({ token: tokenName(p.token), isViewProvider: p.isViewProvider, importPath: p.importPath?.map?.(name) ?? null }));
       },
       router() {
-        const r = window.ng.ɵgetRouterInstance?.(window.ng.getInjector(root()));
+        const r = router();
 
         if (!r) {
           return { present: false };
         }
 
-        const walk = (routes, prefix) => (routes ?? []).flatMap((rt) => {
-          const p = [prefix, rt.path].filter((x) => x).join('/');
-          const kids = rt.children ?? window.ng.ɵgetLoadedRoutes(rt);
+        /** @type {(routes: RouteLike[] | undefined, prefix: string) => { path: string, lazy: boolean, loaded: boolean, redirectTo: string | undefined }[]} */
+        const walk = (routes, prefix) =>
+          (routes ?? []).flatMap((rt) => {
+            const p = [prefix, rt.path].filter((x) => x).join('/');
+            const kids = rt.children ?? ng().ɵgetLoadedRoutes(rt);
 
-          return [{ path: `/${p}`, lazy: !!(rt.loadChildren || rt.loadComponent), loaded: !!kids || !!rt.component, redirectTo: rt.redirectTo ?? undefined }, ...walk(kids, p)];
-        });
+            return [{ path: `/${p}`, lazy: !!(rt.loadChildren || rt.loadComponent), loaded: !!kids || !!rt.component, redirectTo: rt.redirectTo ?? undefined }, ...walk(kids, p)];
+          });
 
         return { present: true, url: r.url, navigated: r.navigated, routes: walk(r.config, '') };
       },
+      /** @param {string} url */
       async navigate(url) {
-        const r = window.ng.ɵgetRouterInstance?.(window.ng.getInjector(root()));
+        const r = router();
 
         if (!r) {
           throw new Error('router globals absent: navigate through the UI instead');
         }
 
-        const ok = await window.ng.ɵnavigateByUrl(r, url);
+        const ok = await ng().ɵnavigateByUrl(r, url);
 
         return { ok, url: location.pathname };
       },
@@ -180,5 +266,5 @@ async page => {
   await page.addInitScript(install);
   await page.evaluate(install);
 
-  return await page.evaluate(() => window.__ngc.doctor());
+  return await page.evaluate(() => /** @type {Window & NgGlobals} */ (window).__ngc?.doctor());
 }
