@@ -75,7 +75,9 @@ never fails doctor), `process` (the playwright-cli PID is alive and its start
 time and command line match the state), `ports` (the CDP port listens, every holder is in the playwright-cli session's process tree, and `/json/version` answers; the app port is listed as external: `[OK] ports: cdp 9431 (derived: fell back from 9430: held by PID 32396), app 4336 (external: ...); CDP answers (Chrome/154.0.8037.0), recorded browser PID 59044`), `extension`
 (`chrome.developerPrivate.getExtensionInfo` on `chrome://extensions/?id=...`: name, version, `ENABLED`,
 `UNPACKED`, path, error counts; plus the service worker), `app` (`[ng-version]` and `window.ng`, which only a
-development build has), `connected-flag`, `devtools-window`. Exit 0 healthy, 1 a check failed, 2 no state.
+development build has), `connected-flag`, `devtools-window`. Exit 0 healthy, 1 a check failed, 2 no state. It has no console-errors
+line: the page is whichever app `--app-url` names, and that app's own driver checks its console
+(`control-angular-dev-app doctor`, `console-errors`); this doctor answers whether the DevTools harness is worth driving.
 
 ## Drive
 
@@ -125,7 +127,8 @@ Feature recipes: `features/README.md`.
   subscribers, clicks the app, removes one with its returned function, clicks again, stops recording. Passes
   when the removed one stops counting, the other keeps counting and DevTools recorded the cycles. Never call
   `ng.ɵsetProfiler(null)`: it empties the list, DevTools' subscriber included (`render3/profiler.ts`). Then
-  checks the connected flag and that the pane's signal graph matches `ng.ɵgetSignalGraph`. `--di-graph` runs
+  checks the connected flag and that the pane's signal graph lists the same nodes as `ng.ɵgetSignalGraph`
+  (kind and label, in any order; a node `ng` leaves unlabelled, such as an effect, matches by kind). `--di-graph` runs
   Angular's `angular:di_graph` tool and re-reads both: the template node disappears from both (measured).
   That breaks the page's signal graph until reload; run it last.
 - **Branded browsers:** `status --browser <name>` reads `<User Data>\<profile>\Extensions\<id>\` and
@@ -147,14 +150,17 @@ read properties of undefined (reading 'inspectedWindow')` from `bundle/main.js`)
 
 `node $S down`: checks the recorded playwright-cli PID's start time and command line, runs
 `playwright-cli -s=ngdt close`, waits for that PID and the Chromium PID to exit (`taskkill /T /F` on the
-recorded PID if they do not), deletes the state file, the playwright-cli config and the profile, keeps the evidence. A PID that is
-already gone is noted, exit 0. Then stop the app with the tool that started it. Never `close-all` or
+recorded PID if they do not), then stops a Chromium that outlived it (`taskkill /T /F` on the browser PID, only
+while its start time and command line match what `up` recorded; otherwise it is noted and left). It deletes the
+playwright-cli config and the profile, then the state file, so a profile that cannot be deleted keeps the record
+(exit 2, run `down` again); the evidence stays. A PID that is already gone is noted, exit 0. Then stop the app with the tool that started it. Never `close-all` or
 `kill-all`. `uninstall` (test) deletes the extension copy and test profiles; it refuses while `up`.
 
 ## Helpers
 
 `scripts/control.mjs <command> [options] [--json]`; exit 0 done or healthy, 1 not healthy, 2 refused or
-could not run (the reason is printed; `--json` gives `{ok, exit, reason}`). Flags take `--flag value` or
+could not run (the reason is printed; `--json` gives `{ok, exit, reason}`, also for a usage error and an unknown
+command; page text is printed with its control characters escaped). Flags take `--flag value` or
 `--flag=value`; an unknown flag, a missing value, a `--browser` outside `test|chrome|chrome-beta|edge|edge-dev` or
 a non-numeric `--timeout`/`--port` exits 2 before anything runs.
 

@@ -8,7 +8,7 @@ import { createHash } from 'node:crypto';
 import { homedir } from 'node:os';
 import path, { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mapFresh } from './fingerprint.mjs';
+import { mapFresh, printable } from './fingerprint.mjs';
 
 /** @typedef {'chrome' | 'chrome-beta' | 'edge' | 'edge-dev'} BrandedName */
 /** @typedef {'test' | BrandedName} BrowserValue */
@@ -38,6 +38,8 @@ import { mapFresh } from './fingerprint.mjs';
  * @property {string} startedAt
  * @property {number} [readyInSeconds]
  * @property {number | null} [browserPid]
+ * @property {string | null} [browserCreated]  the browser PID's start time, as processById reads it
+ * @property {string | null} [browserCommandLine]
  */
 
 /** @typedef {{ type: string, url: string, webSocketDebuggerUrl: string }} CdpTarget */
@@ -199,12 +201,23 @@ const opts = {};
 const pos = [];
 
 /**
+ * One human-readable line. Page text (the panel, URLs, signal labels, playwright-cli output) can hold control
+ * characters, so they are escaped rather than written to the terminal.
+ * @param {string} marker
+ * @param {string} msg
+ * @returns {string}
+ */
+export function logLine(marker, msg) {
+  return `[${marker}] ${printable(msg)}`;
+}
+
+/**
  * @param {string} marker
  * @param {string} msg
  */
 function log(marker, msg) {
   if (!opts.json) {
-    console.log(`[${marker}] ${msg}`);
+    console.log(logLine(marker, msg));
   }
 }
 
@@ -604,6 +617,29 @@ export function killDecision(st, live) {
   const problem = identityProblem(st, live);
 
   return problem ? { action: 'refuse', reason: problem } : { action: 'kill' };
+}
+
+/**
+ * What `down` does to the recorded Chromium once the playwright-cli process is gone: stop it only while it is still
+ * the browser `up` recorded (same start time and command line). A state without that identity never stops it.
+ * @param {State} st
+ * @param {ProcessRow | null} live  the process now running under st.browserPid
+ * @returns {{ action: 'kill' } | { action: 'gone' } | { action: 'leave', reason: string }}
+ */
+export function browserDecision(st, live) {
+  if (!st.browserPid || !live) {
+    return { action: 'gone' };
+  }
+
+  if (!st.browserCreated) {
+    return { action: 'leave', reason: `browser PID ${st.browserPid} still runs, but the state records no start time for it; not stopping it` };
+  }
+
+  if (live.Created !== st.browserCreated || live.CommandLine !== st.browserCommandLine) {
+    return { action: 'leave', reason: `PID ${st.browserPid} is no longer the recorded browser (start time or command line differ); not stopping it` };
+  }
+
+  return { action: 'kill' };
 }
 
 /**
@@ -1208,6 +1244,10 @@ async function cmdUp() {
     if (ready && holder === null && holders.length > 0) {
       st.readyInSeconds = Math.round((Date.now() - t0) / 100) / 10;
       st.browserPid = holders[0] ?? null;
+      // Its identity, so down can stop a Chromium that outlives the playwright-cli process, and only that one.
+      const browser = st.browserPid === null ? null : processById(st.browserPid);
+      st.browserCreated = browser?.Created ?? null;
+      st.browserCommandLine = browser?.CommandLine ?? null;
       writeFileSync(STATE, JSON.stringify(st, null, 2));
       log('OK', `session ${SESSION} (playwright-cli PID ${pid}), browser PID ${st.browserPid}, CDP ${port}${plan.slot === first ? '' : ` (fell back to slot ${plan.slot})`}, Angular DevTools ${copy.version}, ready in ${st.readyInSeconds} s`);
 
@@ -1356,6 +1396,46 @@ export function profilerOk(prof, cycles) {
   return prof.bothOn.a > 0 && prof.bothOn.b > 0 && prof.afterRemoveA.a === prof.bothOn.a && prof.afterRemoveA.b > prof.bothOn.b && (cycles ?? 0) >= 2;
 }
 
+/**
+ * Whether the DevTools pane lists the same signal graph nodes as ng.ɵgetSignalGraph, each written `kind:label`, in any
+ * order. A node ng gives no label (an effect) matches a pane node of the same kind whatever the pane calls it.
+ * @param {string[]} ng
+ * @param {string[] | null} pane  null when the pane showed no graph
+ * @returns {{ ok: boolean, missing: string[], extra: string[] }}
+ */
+export function signalGraphMatch(ng, pane) {
+  if (pane === null) {
+    return { ok: false, missing: [...ng], extra: [] };
+  }
+
+  /** @param {string} n */
+  const split = (n) => {
+    const i = n.indexOf(':');
+
+    return i === -1 ? { kind: n, label: '' } : { kind: n.slice(0, i), label: n.slice(i + 1) };
+  };
+  const left = pane.map(split);
+  /** @type {string[]} */
+  const missing = [];
+  // Labelled nodes first, so an unlabelled one never takes the pane node a labelled one needs.
+  const ordered = [...ng].sort((a, b) => Number(split(a).label === '') - Number(split(b).label === ''));
+
+  for (const n of ordered) {
+    const { kind, label } = split(n);
+    const i = left.findIndex((p) => p.kind === kind && (label === '' || p.label === label));
+
+    if (i === -1) {
+      missing.push(n);
+    } else {
+      left.splice(i, 1);
+    }
+  }
+
+  const extra = left.map((p) => `${p.kind}:${p.label}`);
+
+  return { ok: missing.length === 0 && extra.length === 0, missing, extra };
+}
+
 // Coexistence checks an in-page AI extension shares with Angular DevTools.
 /** @returns {Promise<Result>} */
 async function cmdCoexist() {
@@ -1397,12 +1477,14 @@ async function cmdCoexist() {
   const flag = { ok: flagValue.value === true, ...flagValue };
   log(flag.ok ? 'OK' : 'ERROR', `connected flag ${JSON.stringify(flagValue)}`);
 
-  // 3. Signal graph: ng.ɵgetSignalGraph and the DevTools pane agree.
+  // 3. Signal graph: ng.ɵgetSignalGraph and the DevTools pane list the same nodes.
   const readNg = `async (page) => page.evaluate((sel) => ng.ɵgetSignalGraph(ng.getInjector(document.querySelector(sel))).nodes.map((n) => n.kind + ':' + (n.label ?? '')), ${JSON.stringify(component)})`;
   const ngBefore = /** @type {string[]} */ (runCode(readNg));
   const paneBefore = await panelSignalGraph(st.cdpPort, component);
-  const signalGraph = { ok: !!paneBefore && paneBefore.length === ngBefore.length, ng: ngBefore, pane: paneBefore?.map((n) => `${n.kind}:${n.text[0]}`) };
-  log(signalGraph.ok ? 'OK' : 'ERROR', `signal graph: ng ${ngBefore.length} nodes, pane ${paneBefore?.length ?? 0} nodes`);
+  const pane = paneBefore?.map((n) => `${n.kind}:${n.text[0]}`);
+  const match = signalGraphMatch(ngBefore, pane ?? null);
+  const signalGraph = { ok: match.ok, ng: ngBefore, pane, missing: match.missing, extra: match.extra };
+  log(signalGraph.ok ? 'OK' : 'ERROR', `signal graph: ng ${ngBefore.length} nodes, pane ${paneBefore?.length ?? 0} nodes${match.ok ? ', the same nodes' : `; missing from the pane ${JSON.stringify(match.missing)}, extra in the pane ${JSON.stringify(match.extra)}`}`);
   const screenshotBefore = await screenshotTarget(st.cdpPort, isDevtools, join(st.evidenceDir, 'signal-graph-before.png'));
   /** @type {Record<string, unknown>} */
   let afterDiGraph = {};
@@ -1491,10 +1573,29 @@ async function cmdDown() {
     pw(['close']);
   }
 
+  // A Chromium that outlived its playwright-cli process holds the CDP port and locks the profile.
+  const browser = browserDecision(st, st.browserPid ? processById(st.browserPid) : null);
+
+  if (browser.action === 'kill') {
+    spawnSync(join(SYSTEM32, 'taskkill.exe'), ['/PID', String(st.browserPid), '/T', '/F'], { encoding: 'utf8' });
+    notes.push(`browser PID ${st.browserPid} outlived the session: taskkill /T /F ${st.browserPid}`);
+    await waitFor(() => !processById(Number(st.browserPid)), 10000);
+  }
+
+  if (browser.action === 'leave') {
+    notes.push(browser.reason);
+  }
+
+  // The profile and config go before the state file: a failure here keeps the record for the next down.
+  try {
+    rmSync(configPath, { force: true });
+    rmSync(PROFILE, { recursive: true, force: true });
+  } catch (e) {
+    throw new Error(`could not remove the profile or config (${e instanceof Error ? e.message : String(e)}); the state file is kept, run down again`);
+  }
+
   rmSync(STATE, { force: true });
-  rmSync(configPath, { force: true });
-  rmSync(PROFILE, { recursive: true, force: true });
-  notes.push(`removed state, config and profile; evidence kept in ${st.evidenceDir}`);
+  notes.push(`removed config, profile and state; evidence kept in ${st.evidenceDir}`);
   notes.forEach((n) => log('OK', n));
 
   return { ok: true, notes, evidenceDir: st.evidenceDir, pid: st.pid, browserPid: st.browserPid, cdpPort: st.cdpPort, session: st.session };
@@ -1514,6 +1615,13 @@ const COMMANDS = { install: cmdInstall, uninstall: cmdUninstall, status: cmdStat
 
 // import.meta.url is the real path, so compare real paths: run through a link, the CLI still runs.
 if (process.argv[1] && realpathSync.native(path.resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+  // Read before parsing, so a usage error still answers in JSON when --json was given.
+  const json = process.argv.slice(2).includes('--json');
+  /** @type {(reason: string) => never} */
+  const usageExit = (reason) => {
+    console.log(json ? JSON.stringify({ ok: false, exit: 2, reason }, null, 2) : `[ERROR] ${printable(reason)}`);
+    process.exit(2);
+  };
   /** @type {Parsed} */
   let parsed;
 
@@ -1524,8 +1632,7 @@ if (process.argv[1] && realpathSync.native(path.resolve(process.argv[1])) === re
       throw e;
     }
 
-    console.log(`[ERROR] refused: ${e.message}`);
-    process.exit(2);
+    usageExit(`refused: ${e.message}`);
   }
 
   Object.assign(opts, parsed.opts);
@@ -1533,9 +1640,18 @@ if (process.argv[1] && realpathSync.native(path.resolve(process.argv[1])) === re
   const cmd = parsed.cmd;
   const run = cmd !== undefined && Object.hasOwn(COMMANDS, cmd) ? COMMANDS[cmd] : undefined;
 
+  if (!run && cmd !== undefined) {
+    if (json) {
+      usageExit(`unknown command ${cmd}`);
+    }
+
+    console.log(HELP);
+    process.exit(2);
+  }
+
   if (!run) {
     console.log(HELP);
-    process.exit(cmd ? 2 : 0);
+    process.exit(0);
   }
 
   try {
@@ -1554,7 +1670,7 @@ if (process.argv[1] && realpathSync.native(path.resolve(process.argv[1])) === re
     if (opts.json) {
       console.log(JSON.stringify({ ok: false, exit: code, reason }, null, 2));
     } else {
-      console.log(`[ERROR] ${reason}`);
+      console.log(logLine('ERROR', reason));
     }
 
     process.exit(code);

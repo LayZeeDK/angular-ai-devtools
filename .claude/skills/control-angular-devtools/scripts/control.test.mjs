@@ -1,13 +1,16 @@
 // @ts-check
 // Run: node --test .claude/skills/control-angular-devtools/scripts/control.test.mjs
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import {
   attachOk,
+  browserDecision,
   cdpOwnerProblem,
   deleteProblem,
   findPlaywrightCli,
@@ -26,6 +29,7 @@ import {
   isPanel,
   isWorktreeRoot,
   listeners,
+  logLine,
   newestVersion,
   parseArgs,
   parseRunCode,
@@ -33,6 +37,7 @@ import {
   portRows,
   portsCheck,
   profilerOk,
+  signalGraphMatch,
   slotOfFlow,
   slotOrder,
   UsageError,
@@ -329,6 +334,49 @@ test('killDecision: taskkill only while the PID is still the recorded process', 
   assert.deepEqual(killDecision(STATE, null), { action: 'gone' });
   assert.equal(killDecision(STATE, { ...LIVE, Created: 't2' }).action, 'refuse');
   assert.equal(killDecision(STATE, { ...LIVE, CommandLine: 'other' }).action, 'refuse');
+});
+
+test('browserDecision: down stops a surviving Chromium only while it is still the recorded browser', () => {
+  const st = { ...STATE, browserCreated: 'b1', browserCommandLine: 'chrome --remote-debugging-port=9420' };
+  const browser = { ProcessId: 8, Created: 'b1', CommandLine: 'chrome --remote-debugging-port=9420' };
+  assert.deepEqual(browserDecision(st, browser), { action: 'kill' });
+  assert.deepEqual(browserDecision(st, null), { action: 'gone' });
+  assert.deepEqual(browserDecision({ ...st, browserPid: null }, browser), { action: 'gone' });
+  assert.equal(browserDecision(st, { ...browser, Created: 'b2' }).action, 'leave');
+  assert.equal(browserDecision(st, { ...browser, CommandLine: 'other' }).action, 'leave');
+  assert.match(JSON.stringify(browserDecision(STATE, browser)), /records no start time/, 'an old state without the identity never stops it');
+});
+
+test('signalGraphMatch compares kinds and labels, not only the count', () => {
+  const ng = ['template:app-counter', 'signal:title', 'signal:count', 'computed:double', 'signal:items', 'effect:'];
+  const pane = ['template:app-counter', 'signal:title', 'signal:count', 'computed:double', 'signal:items', 'effect:Effect'];
+  assert.deepEqual(signalGraphMatch(ng, pane), { ok: true, missing: [], extra: [] });
+  assert.equal(signalGraphMatch(ng, [...pane].reverse()).ok, true, 'order does not matter');
+  const stale = ['template:app-other', 'signal:a', 'signal:b', 'signal:c', 'computed:d', 'effect:Effect'];
+  const r = signalGraphMatch(ng, stale);
+  assert.equal(r.ok, false, 'six different nodes fail although the count matches');
+  assert.ok(r.missing.includes('signal:title') && r.extra.includes('signal:a'));
+  assert.equal(signalGraphMatch(ng, pane.slice(1)).ok, false);
+  assert.deepEqual(signalGraphMatch(['effect:', 'effect:Watch'], ['effect:Watch', 'effect:Effect']), { ok: true, missing: [], extra: [] }, 'a labelled node keeps its pane node');
+  assert.equal(signalGraphMatch(ng, null).ok, false);
+});
+
+test('logLine escapes control characters page text put in a message', () => {
+  assert.equal(logLine('OK', 'Angular panel: x\u001b[2Jy'), String.raw`[OK] Angular panel: x\u001b[2Jy`);
+});
+
+test('a usage error and an unknown command answer in JSON with --json', () => {
+  const script = fileURLToPath(new URL('./control.mjs', import.meta.url));
+  const usage = spawnSync(process.execPath, [script, 'up', '--bogus', '--json'], { encoding: 'utf8' });
+  assert.equal(usage.status, 2);
+  assert.match(JSON.parse(usage.stdout).reason, /^refused: /);
+  assert.equal(JSON.parse(usage.stdout).exit, 2);
+  const unknown = spawnSync(process.execPath, [script, 'bogus', '--json'], { encoding: 'utf8' });
+  assert.equal(unknown.status, 2);
+  assert.deepEqual(JSON.parse(unknown.stdout), { ok: false, exit: 2, reason: 'unknown command bogus' });
+  const human = spawnSync(process.execPath, [script, 'bogus'], { encoding: 'utf8' });
+  assert.equal(human.status, 2);
+  assert.match(human.stdout, /^control\.mjs <command>/);
 });
 
 test('deleteProblem: down deletes only the profile and config this flow derives', () => {
