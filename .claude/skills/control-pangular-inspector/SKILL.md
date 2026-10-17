@@ -83,8 +83,9 @@ or Lars's own) is never stopped.
   no file in it can be hashed.
 - `package-pinned`: `package.json` declares exactly 0.0.7 and `node_modules` holds 0.0.7.
 - `overlay-import`: `main.ts` imports the overlay behind a dev guard.
-- `process-alive`: the recorded PID runs with its recorded start time. `ports`: 9999 listens and its PID is in
-  that process tree; the app's port is listed as external, not checked
+- `process-alive`: the recorded PID runs with its recorded start time and command line. `tree`: adds the live
+  processes below it to the recorded tree, for `down`. `ports`: 9999 listens and its PID is in that process
+  tree; the app's port is listed as external, not checked
   (`[OK] ports: pangular 9999 (fixed: apps/insurance-portal/proxy.conf.json:3 in the app checkout ...), app 4507 (external: ...)`).
 - `mcp-origin-guard`: a POST without `Origin` gets 403.
 - `mcp-initialize`: `initialize` with a local `Origin` (and `PANGULAR_MCP_TOKEN` as a bearer token when set) answers.
@@ -145,10 +146,15 @@ and after the user action, a screenshot showing the app, the MCP answers saved a
 
 ## Cleanup
 
-`node $S down` checks the recorded PID against its start time and command line, closes session
-`pangular-9999`, stops that PID's tree (`taskkill /T /F`), deletes the state file, keeps the evidence. A PID
-that no longer runs is noted, not refused; a mismatch is refused with exit 2. Then stop the app with
-`control-angular-dev-app ... down --target portal`. Never `playwright-cli close-all` or `kill-all`.
+`node $S down` closes session `pangular-9999` and stops the server's recorded process tree through
+`scripts/proctree.mjs`. `up` records the root right after the spawn and every process below it once the server
+answers, and `doctor` adds what it sees since (`tree` in the state file and `info --json`). `down` takes a last
+snapshot below the root, merges it into the record and stops every record whose live process still has its
+start time and command line, children before parents, one PID at a time with a forced stop, never by name. It
+deletes the state file and keeps the evidence. A PID that no longer runs is noted, not refused. A root whose PID
+now belongs to another process is never touched and `down` exits 2; so does a record that still runs after the
+last round; both keep the state file, with the merged record, for the next `down`. Then stop the app with
+`control-angular-dev-app ... down --target portal`. A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). Never `playwright-cli close-all` or `kill-all`.
 
 Removing Pangular from the app: `node $S remove` restores every file `install` changed from git `HEAD`,
 deletes `proxy.conf.json` when git does not track it, prunes `node_modules` with `npm install`, restores the
@@ -168,8 +174,8 @@ install and leaves Pangular in place; reverting that commit is a product change 
 | `remove` | restore from git, prune, assert clean | 0 clean; 1 not clean; 2 refused (foreign changes) or failed |
 | `up [--app-url U] [--allow-actions]` | start `pangular dev`, write `tmp/control-pangular-inspector/state/pangular-<port>.json` | 0; 2 port busy, state exists, not installed, exited, timeout |
 | `doctor [--app-url U]` | checks above | 0 / 1 / 2 |
-| `info` | the state file | 0; 2 no state |
-| `down` | teardown | 0 (also when the PID is gone); 2 no state file, or PID start-time / command mismatch |
+| `info` | the state file, with `tree` (`{pid, ppid, start, commandLine}`, the root first; `start` in ms since the epoch) | 0; 2 no state |
+| `down` | teardown (Cleanup) | 0 (also when the PID is gone); 2 no state file, a root PID that now belongs to another process (never touched), or a record still running after the last round |
 | `tools [--out F]` | MCP `tools/list`; names, read-only flags, action tools present | 0; 2 failed (a server that is down: `HTTP 0: ECONNREFUSED`) |
 | `call <tool> [--args JSON] [--confirm] [--out F]` | MCP `tools/call`; the eight action tools need `--confirm` | 0; 1 tool error; 2 refused, `tools/list` failed (server down), or unknown tool |
 | `components [--filter T] [--depth N] [--out F]` | `list-components`, or the same outline from the `component-tree` resource | 0 / 1; 2 `tools/list` failed (server down) |
@@ -192,7 +198,11 @@ records a feature whose source lives outside the repository; `... fingerprint.mj
 prints `fresh`, `stale`, `unproven` or `external` per feature (exit 0 all fresh or external, 1 one stale or
 unproven, 2 could not run).
 
-Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
+`scripts/proctree.mjs` (a byte copy of lars-create-verification's; never edit it here; its tests live there) records
+and stops the server's process tree for `up`, `doctor` and `down`: `processTable`, `snapshot`, `merge`, `stop`, `describe`. It has
+no command line of its own and prints nothing.
+
+Every other script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
 `npm run check` type-checks the scripts.
 
 ### Other mounts (documented, not automated)

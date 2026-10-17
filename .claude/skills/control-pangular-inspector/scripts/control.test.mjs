@@ -2,7 +2,7 @@
 // Run: node --test .claude/skills/control-pangular-inspector/scripts/control.test.mjs
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -16,8 +16,8 @@ import {
   checkLine,
   componentOutline,
   consoleCheck,
-  descendants,
   detectMount,
+  downOutcome,
   findApp,
   findResource,
   flagIn,
@@ -36,10 +36,12 @@ import {
   readOnlyCheck,
   setupChecks,
   short,
-  stopRefusal,
+  stopRun,
   withHeadLockEntries,
   withProxyConfig,
 } from './control.mjs';
+
+/** @typedef {import('./proctree.mjs').ProcRecord} ProcRecord */
 
 /**
  * A throwaway workspace with the given files.
@@ -81,12 +83,6 @@ test('flagIn reads a value, a bare flag, and an absent one', () => {
   assert.equal(flagIn(args, 'confirm'), true);
   assert.equal(flagIn(args, 'out'), true);
   assert.equal(flagIn(args, 'port'), undefined);
-});
-
-test('descendants walks the whole tree below a PID and nothing beside it', () => {
-  const row = (/** @type {number} */ pid, /** @type {number} */ parent) => ({ ProcessId: pid, ParentProcessId: parent, Start: null, CommandLine: null });
-  const table = [row(10, 1), row(11, 10), row(12, 11), row(13, 1), row(14, 13)];
-  assert.deepEqual([...descendants(table, 10)].sort(), [10, 11, 12]);
 });
 
 test('listeners maps each LISTENING port to its PID, IPv4 or IPv6, and nothing else', () => {
@@ -151,15 +147,6 @@ test('callRefusal refuses an action tool without --confirm and lets read tools t
   assert.match(callRefusal('pangular_navigate', false) ?? '', /^refused: navigate acts on the app/);
   assert.equal(callRefusal('pangular_navigate', true), null);
   assert.equal(callRefusal('inspect-component', false), null);
-});
-
-test('stopRefusal refuses a live PID whose start time or command line differs, and allows a gone one', () => {
-  const state = { pid: 5, start: 'T1', commandLine: 'node bin.mjs dev' };
-  const row = (/** @type {string} */ start, /** @type {string} */ commandLine) => ({ ProcessId: 5, ParentProcessId: 1, Start: start, CommandLine: commandLine });
-  assert.equal(stopRefusal(row('T1', 'node bin.mjs dev'), state), null);
-  assert.match(stopRefusal(row('T2', 'node bin.mjs dev'), state) ?? '', /^refused: PID 5 does not match/);
-  assert.match(stopRefusal(row('T1', 'other'), state) ?? '', /^refused/);
-  assert.equal(stopRefusal(undefined, state), null);
 });
 
 test('parseRpcText reads the last data: line of an event stream, or a plain JSON body', () => {
@@ -404,4 +391,47 @@ test('scan refuses an --out outside its evidence directory', (t) => {
   const r = control(['scan', 'get-routes', '--dir', dir, '--out', join(dir, 'escaped.json')]);
   assert.equal(r.status, 2);
   assert.match(JSON.parse(r.out).reason, /^refused: --out .* lies outside the evidence directory /);
+});
+
+test('down goes through proctree.mjs: the last snapshot below the root is merged into the record, then stop gets it all', () => {
+  const root = { pid: 7, ppid: 1, start: 1000, commandLine: 'node pangular.mjs dev --port 9999' };
+  // Recorded once ready; its parent (PID 20) has exited since, so no walk from the root reaches it.
+  const orphan = { pid: 30, ppid: 20, start: 1200, commandLine: 'node worker.js' };
+  const late = { pid: 40, ppid: 7, start: 1300, commandLine: 'esbuild --service' };
+  const state = { pid: 7, tree: [root, orphan] };
+  /** @type {ProcRecord[][]} */
+  const calls = [];
+  const { records, result } = stopRun(state, {
+    table: () => [root, orphan, late, { pid: 99, ppid: 1, start: 900, commandLine: 'not started by the run' }],
+    stop: (list) => {
+      calls.push(list);
+
+      return { stopped: list, gone: [], refused: [] };
+    },
+  });
+  assert.deepEqual(calls, [[root, orphan, late]], 'one stop call with the record and the late child, nothing else');
+  assert.deepEqual(records, [root, orphan, late]);
+  assert.equal(downOutcome(state, result).code, 0);
+  const source = readFileSync(new URL('./control.mjs', import.meta.url), 'utf8');
+  assert.match(source, /^function down\(\) \{[^]*?stopRun\(state\)[^]*?^\}/m, 'down stops through stopRun');
+  assert.doesNotMatch(source, /taskkill|process\.kill|Stop-Process|Win32_Process\b|Get-Process|wmic|ParentProcessId|\.ppid\b/, 'no stop or process query of its own besides proctree.mjs');
+  assert.match(source, /snapshot\((?:child\.)?pid, \{ notBefore(?:: t0)?, notAfter \}\)/, 'up records the spawned process inside its spawn window');
+});
+
+test('downOutcome refuses a reused root PID and a survivor with exit 2, and only notes a reused child or a shared helper', () => {
+  const root = { pid: 7, ppid: 1, start: 1000, commandLine: 'node pangular.mjs dev' };
+  const child = { pid: 30, ppid: 7, start: 1200, commandLine: 'node worker.js' };
+  const state = { pid: 7, tree: [root, child] };
+  const reusedRoot = downOutcome(state, { stopped: [child], gone: [], refused: [{ ...root, reason: 'reused' }] });
+  assert.equal(reusedRoot.code, 2);
+  assert.match(reusedRoot.reason ?? '', /^refused: PID 7 now belongs to another process .*; the state file is kept$/);
+  const survived = downOutcome(state, { stopped: [root], gone: [], refused: [{ ...child, reason: 'survived' }] });
+  assert.equal(survived.code, 2);
+  assert.match(survived.reason ?? '', /PID 30 \(node worker\.js\) still runs after the last round; run down again/);
+  const noted = downOutcome(state, { stopped: [root], gone: [], refused: [{ ...child, reason: 'reused' }, { pid: 50, ppid: 7, start: 1300, commandLine: 'node nx/src/daemon/server/start.js', reason: 'helper' }] });
+  assert.equal(noted.code, 0);
+  assert.deepEqual(noted.notes.slice(1), ['left PID 30 alone: it now belongs to another process', 'left PID 50 (node nx/src/daemon/server/start.js) alone: a shared helper (the Nx daemon), never stopped']);
+  assert.equal(downOutcome(state, { stopped: [], gone: [root, child], refused: [] }).code, 0, 'a run that already exited is not a refusal');
+  const { tree, ...noTree } = state;
+  assert.match(downOutcome(noTree, { stopped: [], gone: [], refused: [] }).reason ?? '', /^refused: the state file records no process tree/, 'a state file from before proctree.mjs is refused, not dropped');
 });

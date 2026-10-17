@@ -8,9 +8,11 @@ import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSyn
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mapFresh, printable } from './fingerprint.mjs';
+import { describe, merge, processTable, snapshot, stop } from './proctree.mjs';
 
 /** @typedef {{ name: string, status: 'pass' | 'fail' | 'warn' | 'skip', detail: string }} Check */
-/** @typedef {{ ProcessId: number, ParentProcessId: number, Start: string | null, CommandLine: string | null }} ProcessRow */
+/** @typedef {import('./proctree.mjs').ProcRecord} ProcRecord */
+/** @typedef {import('./proctree.mjs').StopResult} StopResult */
 /** @typedef {{ browser?: string, ssr?: unknown, proxyConfig?: string, [key: string]: unknown }} TargetOptions */
 /** @typedef {{ executor?: string, defaultConfiguration?: string, continuous?: boolean, options?: TargetOptions, [key: string]: unknown }} NxTarget */
 /** @typedef {{ name?: string, targets?: Record<string, NxTarget> }} ProjectJson */
@@ -49,8 +51,7 @@ import { mapFresh, printable } from './fingerprint.mjs';
  * @property {string} evidenceDir
  * @property {string} log
  * @property {number} pid
- * @property {string | null} start
- * @property {string | null} commandLine
+ * @property {ProcRecord[]} [tree]  every process the server run was seen to start (proctree.mjs), the root first
  * @property {string} startedAt
  */
 
@@ -82,8 +83,8 @@ const OVERLAY_SNIPPET = `
     return undefined;
   })`;
 const SYSTEM32 = path.join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32');
-// Windows reads this from this process when Node looks up a bare program name (git, pwsh): the current directory
-// is then not searched.
+// Windows reads this from this process when Node looks up a bare program name (git): the current directory is then
+// not searched.
 process.env['NoDefaultCurrentDirectoryInExePath'] = '1';
 const NPM_CLI = path.join(path.dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js');
 
@@ -108,27 +109,68 @@ export function flagIn(args, name) {
 }
 
 /**
- * `pid` and every process below it in `table`.
- * @param {ProcessRow[]} table
- * @param {number} pid
- * @returns {Set<number>}
+ * The recorded root of the server run: the `tree` record with its PID, or none when `up` never saw it run.
+ * @param {{ pid: number, tree?: ProcRecord[] }} state
+ * @returns {ProcRecord | undefined}
  */
-export function descendants(table, pid) {
-  const set = new Set([pid]);
-  let grew = true;
+export function rootOf(state) {
+  return (state.tree ?? []).find((r) => r.pid === state.pid);
+}
 
-  while (grew) {
-    grew = false;
+/**
+ * The live tree below the recorded root now: empty when it is gone or its PID belongs to another process.
+ * @param {{ pid: number, tree?: ProcRecord[] }} state
+ * @param {() => ProcRecord[]} [table]
+ * @returns {ProcRecord[]}
+ */
+export function liveTree(state, table = processTable) {
+  const root = rootOf(state);
 
-    for (const p of table) {
-      if (set.has(p.ParentProcessId) && !set.has(p.ProcessId)) {
-        set.add(p.ProcessId);
-        grew = true;
-      }
+  return root === undefined ? [] : snapshot(root, { table });
+}
+
+/**
+ * Stops every process the run recorded, through proctree.mjs: a last snapshot below the root while the parents
+ * still live, merged into the record, then `stop`.
+ * @param {{ pid: number, tree?: ProcRecord[] }} state
+ * @param {{ table?: () => ProcRecord[], stop?: (records: ProcRecord[]) => StopResult }} [deps]
+ * @returns {{ records: ProcRecord[], result: StopResult }}
+ */
+export function stopRun(state, { table = processTable, stop: stopRecords = stop } = {}) {
+  const records = merge(state.tree ?? [], liveTree(state, table));
+
+  return { records, result: stopRecords(records) };
+}
+
+/**
+ * What `down` reports for a stop result. Exit 2 when the root's PID now belongs to another process (that one is never
+ * touched) or a record still runs after the last round; any other refusal is only noted.
+ * @param {{ pid: number, tree?: ProcRecord[] }} state
+ * @param {StopResult} result
+ * @returns {{ code: 0 | 2, notes: string[], reason: string | null }}
+ */
+export function downOutcome(state, result) {
+  // A state file written before proctree.mjs records no tree: stopping nothing and removing it would lose the run.
+  if (state.tree === undefined) {
+    return { code: 2, notes: [], reason: `refused: the state file records no process tree (written before proctree.mjs); nothing stopped: check PID ${state.pid} by hand, then delete the state file` };
+  }
+
+  const root = rootOf(state);
+  /** @type {string[]} */
+  const reasons = [];
+  const notes = [...result.stopped.map((r) => `stopped ${describe(r)}`), ...result.gone.map((r) => `${describe(r)} was not running`)];
+
+  for (const r of result.refused) {
+    if (r.reason === 'reused' && root !== undefined && r.pid === root.pid && r.start === root.start) {
+      reasons.push(`refused: PID ${r.pid} now belongs to another process (its start time or command line differs from the state file); not stopping a process this skill did not start`);
+    } else if (r.reason === 'survived') {
+      reasons.push(`${describe(r)} still runs after the last round; run down again`);
+    } else {
+      notes.push(`left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`);
     }
   }
 
-  return set;
+  return reasons.length === 0 ? { code: 0, notes, reason: null } : { code: 2, notes, reason: `${reasons.join('; ')}; the state file is kept` };
 }
 
 // ---------- ports (SKILL.md, "Pick a flow") ----------
@@ -329,21 +371,6 @@ export const short = (name) => name.replace(/^pangular[_:]/, '');
  */
 export function callRefusal(name, confirm) {
   return ACTION_TOOLS.includes(short(name)) && !confirm ? `refused: ${short(name)} acts on the app; pass --confirm to run it (and start the server with up --allow-actions)` : null;
-}
-
-/**
- * Why `down` refuses to stop the recorded PID, or null: a live PID whose start time or command line differs from
- * the state file is not the process this skill started.
- * @param {ProcessRow | undefined} row
- * @param {{ pid: number, start: string | null, commandLine: string | null }} state
- * @returns {string | null}
- */
-export function stopRefusal(row, state) {
-  if (row && (row.Start !== state.start || row.CommandLine !== state.commandLine)) {
-    return `refused: PID ${state.pid} does not match the state file (start-time ${row.Start} vs recorded ${state.start}; command "${row.CommandLine}" vs recorded "${state.commandLine}"). Not stopping a process this skill did not start.`;
-  }
-
-  return null;
 }
 
 /**
@@ -671,18 +698,6 @@ function run(bin, args, cwd) {
  */
 function git(dir, args) {
   return run('git', args, dir);
-}
-
-/** @returns {ProcessRow[]} */
-function processTable() {
-  const ps = "Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,@{n='Start';e={$_.CreationDate.ToUniversalTime().ToString('o')}},CommandLine | ConvertTo-Json -Compress";
-  const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', ps], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
-
-  if (r.status !== 0) {
-    throw new Error(`process table query failed: ${r.stderr}`);
-  }
-
-  return JSON.parse(r.stdout);
 }
 
 /**
@@ -1047,6 +1062,7 @@ async function up() {
   const fd = openSync(log, 'a');
   const t0 = Date.now();
   const child = spawn(process.execPath, args, { cwd: dir, detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
+  const notAfter = Date.now();
   child.unref();
   const pid = child.pid;
 
@@ -1054,32 +1070,44 @@ async function up() {
     return fail(2, `pangular did not start; see ${log}`);
   }
 
-  const row = processTable().find((r) => r.ProcessId === pid);
   /** @type {State} */
-  const state = { mode: 'launch', dir, port: p, ports: plan.ports, readOnly, mcpUrl: `http://localhost:${p}/__mcp`, origin: `http://localhost:${p}`, appUrl, session: `pangular-${p}`, evidenceDir, log, pid, start: row?.Start ?? null, commandLine: row?.CommandLine ?? null, startedAt: new Date().toISOString() };
+  const state = { mode: 'launch', dir, port: p, ports: plan.ports, readOnly, mcpUrl: `http://localhost:${p}/__mcp`, origin: `http://localhost:${p}`, appUrl, session: `pangular-${p}`, evidenceDir, log, pid, tree: snapshot(pid, { notBefore: t0, notAfter }), startedAt: new Date().toISOString() };
   writeFileSync(statePath(p), JSON.stringify(state, null, 2));
 
   for (;;) {
     /** @type {RpcResponse | { error: string, result?: undefined }} */
     const r = await mcp(state, 'initialize', initParams()).catch((e) => ({ error: e instanceof Error ? e.message : String(e) }));
 
-    const table = processTable();
-    const exited = !table.some((x) => x.ProcessId === pid);
+    const live = liveTree(state);
+    const exited = live.length === 0;
+    const seen = merge(state.tree ?? [], live);
+
+    // Every poll's snapshot is kept, so a run that fails before it answers leaves down its whole tree.
+    if (seen.length !== (state.tree ?? []).length) {
+      state.tree = seen;
+      writeFileSync(statePath(p), JSON.stringify(state, null, 2));
+    }
     // Another process took the port after the check: it can answer initialize before this server fails to bind.
-    const foreign = r.result || exited ? (busyPorts().get(p) ?? []).find((holder) => !descendants(table, pid).has(holder)) : undefined;
+    const foreign = r.result || exited ? (busyPorts().get(p) ?? []).find((holder) => !live.some((x) => x.pid === holder)) : undefined;
 
     if (foreign !== undefined) {
-      const live = table.find((x) => x.ProcessId === pid);
+      const refusal = `refused: fixed port pangular ${p} held by PID ${foreign}; pinned by ${plan.ports[0]?.reason}`;
+      const { records, result } = stopRun(state);
+      const stopped = downOutcome(state, result);
 
-      if (live !== undefined && stopRefusal(live, state) === null) {
-        spawnSync(path.join(SYSTEM32, 'taskkill.exe'), ['/PID', String(pid), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
+      if (stopped.code !== 0) {
+        state.tree = records;
+        writeFileSync(statePath(p), JSON.stringify(state, null, 2));
+        fail(2, `${refusal}; stopping what this run started failed: ${stopped.reason}; run down`, { state: statePath(p), notes: stopped.notes });
       }
 
       rmSync(statePath(p), { force: true });
-      fail(2, `refused: fixed port pangular ${p} held by PID ${foreign}; pinned by ${plan.ports[0]?.reason}`);
+      fail(2, refusal);
     }
 
     if (r.result) {
+      state.tree = merge(state.tree ?? [], live);
+      writeFileSync(statePath(p), JSON.stringify(state, null, 2));
       break;
     }
 
@@ -1296,11 +1324,20 @@ async function doctor() {
   const f = setupFacts(dir);
   add('package-pinned', f.declared === PINNED && f.installed === PINNED ? 'pass' : 'fail', `declared ${f.declared ?? 'none'}, installed ${f.installed ?? 'none'}, pin ${PINNED}`);
   add('overlay-import', f.overlayImport && f.devGuard ? 'pass' : 'fail', f.overlayImport ? (f.devGuard ? 'dev-guarded overlay import in main' : 'overlay import without a dev guard') : 'no overlay import in main');
-  const table = processTable();
-  const row = table.find((r) => r.ProcessId === state.pid);
-  add('process-alive', row && row.Start === state.start ? 'pass' : 'fail', row ? `PID ${state.pid} since ${row.Start}` : `PID ${state.pid} is gone`);
+  const root = rootOf(state);
+  const live = liveTree(state);
+  add('process-alive', root !== undefined && live.length > 0 ? 'pass' : 'fail', root !== undefined && live.length > 0 ? `PID ${state.pid} since ${new Date(root.start).toISOString()}` : `PID ${state.pid} is gone or reused`);
+  const recorded = merge(state.tree ?? [], live);
+
+  // Written only while the state file is there and the record changed: a down that just removed it stays done.
+  if (existsSync(statePath(port())) && JSON.stringify(recorded) !== JSON.stringify(state.tree ?? [])) {
+    state.tree = recorded;
+    writeFileSync(statePath(port()), JSON.stringify(state, null, 2));
+  }
+
+  add('tree', 'pass', `${recorded.length} process(es) recorded for down`);
   // A state file written before ports were recorded: check its one port.
-  const ports = portsCheck(state.ports ?? [{ name: 'pangular', port: state.port, kind: 'fixed' }], busyPorts(), row && row.Start === state.start ? descendants(table, state.pid) : new Set());
+  const ports = portsCheck(state.ports ?? [{ name: 'pangular', port: state.port, kind: 'fixed' }], busyPorts(), new Set(live.map((r) => r.pid)));
   add('ports', ports.status, ports.detail);
 
   const noOrigin = await mcp(state, 'initialize', initParams(), { origin: null });
@@ -1511,23 +1548,15 @@ function info() {
 function down() {
   const sp = statePath(port());
   const state = readState();
-  /** @type {string[]} */
-  const notes = [];
-  const row = processTable().find((r) => r.ProcessId === state.pid);
-  const refusal = stopRefusal(row, state);
-
-  if (refusal) {
-    fail(2, refusal, { state: sp });
-  }
-
   const close = playwrightCli([`-s=${state.session}`, 'close']);
-  notes.push(`session ${state.session}: ${close.status === 0 ? 'closed' : 'was not open'}`);
+  const { records, result } = stopRun(state);
+  const outcome = downOutcome(state, result);
+  const notes = [`session ${state.session}: ${close.status === 0 ? 'closed' : 'was not open'}`, ...outcome.notes];
 
-  if (row) {
-    const r = spawnSync(path.join(SYSTEM32, 'taskkill.exe'), ['/PID', String(state.pid), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
-    notes.push(`stopped tree of PID ${state.pid}: ${r.status === 0 ? 'ok' : r.stderr.trim()}`);
-  } else {
-    notes.push(`PID ${state.pid} was not running`);
+  if (outcome.code !== 0) {
+    state.tree = records;
+    writeFileSync(sp, JSON.stringify(state, null, 2));
+    out({ ok: false, command: 'down', evidenceDir: state.evidenceDir, notes, reason: outcome.reason, state: sp }, outcome.code);
   }
 
   rmSync(sp, { force: true });
