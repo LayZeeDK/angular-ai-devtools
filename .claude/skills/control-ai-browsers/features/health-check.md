@@ -27,7 +27,11 @@ Preconditions: the README baseline.
 - **Full doctor.** Run `C doctor chrome-beta-gemma4`. Exit 0 and fifteen check lines, each `[OK]`, `[WARN]` or
   `[SKIP]`. `backend` reads `requested gpu`, `GPU (fastest inference)`, row `gemma4_gpu_low_tier_model`.
 - **Nano.** Run `C doctor chrome-beta-nano`. `canary.tools` is `[SKIP]`; `backend` row `nano_v3_gpu_low_tier_model`.
-- **Edge.** Run `C doctor edge-dev-aion`. `backend` row `edge_base_model_gpu`, `GPU (highest quality)`.
+- **Edge.** Run `C doctor edge-dev-aion`. `backend` row `edge_base_model_gpu`, `GPU (highest quality)`;
+  `model.pin` `[OK]` `matches the pin of <date>` (`[WARN]` before the first `model pin`).
+- **Mismatch.** When Edge has updated the model past its manifest, `model.broker` fails with a `mismatch` field
+  (`Broker State wants edge_base_model 2026.10.2.1 (Not Installed), the disk holds 2026.10.15.1, ...`) and a `fix`
+  naming the pin restore; with the update still running it carries `in-flight` instead.
 - **Proof.** Keep the doctor JSON from the evidence directory; it holds every check's detail.
 
 ## Gotchas

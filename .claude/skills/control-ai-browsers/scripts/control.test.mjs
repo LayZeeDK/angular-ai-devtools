@@ -1,14 +1,20 @@
 // @ts-check
 // Run: node --test .claude/skills/control-ai-browsers/scripts/control.test.mjs
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { delimiter, join, sep } from 'node:path';
 import { test } from 'node:test';
 import {
+  applyPin,
+  assetVerdict,
   at,
   brokerPending,
+  describePlan,
+  pinPlan,
+  switchesOf,
+  versionFolders,
   busyPorts,
   Refusal,
   checkMarker,
@@ -531,4 +537,69 @@ test('downOutcome refuses a reused main PID and a survivor with exit 2, and only
   assert.equal(downOutcome(st, { stopped: [], gone: [root, child], refused: [] }).code, 0, 'a browser that already exited is not a refusal');
   const { tree, ...noTree } = st;
   assert.match(downOutcome(noTree, { stopped: [], gone: [], refused: [] }).reason ?? '', /^refused: the state file records no process tree/, 'a state file from before proctree.mjs is refused, not dropped');
+});
+
+test('assetVerdict reads the measured Edge update states: in flight, then a model past its manifest', () => {
+  const asset = /^edge_base_model$/;
+  /** @param {{ name: string, version: string, state: string, progress: number }[]} assets */
+  const broker = (assets, manifestLoaded = 'true') => ({ manifestPath: 'm', manifestLoaded, perfClass: 'High', diskInstall: null, assets, useCases: {}, models: [] });
+  const wants = (/** @type {string} */ state) => [{ name: 'edge_base_model', version: '2026.10.2.1', state, progress: state === 'Ready' ? 100 : 0 }];
+  assert.equal(assetVerdict(broker(wants('Ready')), asset, ['2026.10.2.1'], true).verdict, 'ready');
+  assert.equal(assetVerdict(broker([]), asset, ['2026.10.2.1'], true).verdict, 'in-flight', 'Edge drops the asset row while its model component updates');
+  assert.equal(assetVerdict(broker([]), asset, ['2026.10.2.1'], false).verdict, 'other', 'a missing row is in flight on Edge only, where it was measured');
+  assert.equal(assetVerdict(broker([{ name: 'edge_base_model', version: '1.0', state: 'Foreground Installing', progress: 42 }]), asset, [], false).verdict, 'in-flight');
+  const before = assetVerdict(broker(wants('Not Installed')), asset, ['2026.10.15.1', '2026.10.2.1'], true);
+  assert.equal(before.verdict, 'mismatch', 'right after the update the old folder is still beside the new one');
+  assert.match(before.detail, /wants edge_base_model 2026\.10\.2\.1 \(Not Installed\), the disk holds 2026\.10\.15\.1, 2026\.10\.2\.1/);
+  assert.equal(assetVerdict(broker(wants('Not Installed')), asset, ['2026.10.15.1'], true).verdict, 'mismatch', 'after the restart only the new folder is left');
+  assert.equal(assetVerdict(broker(wants('Not Installed')), asset, [], true).verdict, 'other', 'no model on disk is a missing model, not a mismatch');
+  assert.equal(assetVerdict(broker([], 'false'), asset, ['2026.10.15.1'], true).verdict, 'other', 'nothing is judged before the manifest loads');
+  assert.equal(assetVerdict({ disabled: true, error: 'off' }, asset, [], false).detail, 'off');
+});
+
+test('pinPlan removes every other version and adds the pinned one; describePlan names both', () => {
+  const pinned = { EdgeLLMOnDeviceModel: '2026.10.2.1', EdgeLLMRuntime: '2026.10.2.1' };
+  assert.deepEqual(pinPlan(pinned, { EdgeLLMOnDeviceModel: ['2026.10.2.1'], EdgeLLMRuntime: ['2026.10.2.1'] }), { remove: [], add: [] });
+  const after = pinPlan(pinned, { EdgeLLMOnDeviceModel: ['2026.10.15.1'], EdgeLLMRuntime: ['2026.10.12.1', '2026.10.2.1'] });
+  assert.deepEqual(after, {
+    remove: [{ root: 'EdgeLLMOnDeviceModel', version: '2026.10.15.1' }, { root: 'EdgeLLMRuntime', version: '2026.10.12.1' }],
+    add: [{ root: 'EdgeLLMOnDeviceModel', version: '2026.10.2.1' }],
+  });
+  assert.equal(describePlan(after), 'EdgeLLMOnDeviceModel -2026.10.15.1 +2026.10.2.1; EdgeLLMRuntime -2026.10.12.1');
+  assert.deepEqual(pinPlan(pinned, {}).add.length, 2, 'a missing root gets the pinned version');
+});
+
+test('applyPin restores the pinned folders in a profile and leaves everything else alone', (t) => {
+  // The temp folder can be an 8.3 short path, which reparseRefusal reads as a link.
+  const base = realpathSync.native(tempDir(t));
+  const profile = join(base, 'profile');
+  const pin = join(base, 'pin');
+  const put = (/** @type {string} */ rel, /** @type {string} */ text) => {
+    mkdirSync(join(rel, '..'), { recursive: true });
+    writeFileSync(rel, text);
+  };
+  put(join(pin, 'Model', '1.0.0.1', 'w.bin'), 'pinned');
+  put(join(profile, 'Model', '2.0.0.1', 'w.bin'), 'newer');
+  put(join(profile, 'Model', 'notes.txt'), 'not a version folder');
+  put(join(profile, 'Other', '2.0.0.1', 'w.bin'), 'not pinned');
+  const plan = pinPlan({ Model: '1.0.0.1' }, { Model: versionFolders(join(profile, 'Model')) });
+  applyPin(profile, pin, plan);
+  assert.deepEqual(versionFolders(join(profile, 'Model')), ['1.0.0.1']);
+  assert.equal(readFileSync(join(profile, 'Model', '1.0.0.1', 'w.bin'), 'utf8'), 'pinned');
+  assert.equal(readFileSync(join(profile, 'Model', 'notes.txt'), 'utf8'), 'not a version folder');
+  assert.deepEqual(versionFolders(join(profile, 'Other')), ['2.0.0.1']);
+  assert.deepEqual(versionFolders(join(profile, 'Missing')), []);
+  assert.throws(() => applyPin(profile, pin, { remove: [], add: [{ root: 'Model', version: '9.9' }] }), Refusal, 'a version the pin lacks is refused before anything is deleted');
+});
+
+test('an instance\'s own args are launched after the common ones, and drift requires them', () => {
+  const pinned = { ...edgeLike, args: ['--disable-component-update'] };
+  /** @param {string[]} a */
+  const proc = (a) => ({ commandLine: [`"${edgeLike.exe}"`, ...a].join(' ') });
+  const args = launchArgs(pinned, ['AIPromptAPI', 'WebMCP']);
+  assert.deepEqual(switchesOf(pinned).slice(-1), ['--disable-component-update']);
+  assert.ok(args.includes('--disable-component-update'));
+  assert.deepEqual(drift(pinned, proc(args)).problems, []);
+  assert.deepEqual(drift(pinned, proc(launchArgs(edgeLike, ['AIPromptAPI', 'WebMCP']))).problems, ['missing --disable-component-update'], 'a launch without the switch is drift');
+  assert.deepEqual(drift(edgeLike, proc(args)).problems, ['extra --disable-component-update'], 'and the switch on an instance without it is drift too');
 });

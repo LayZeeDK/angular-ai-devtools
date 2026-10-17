@@ -4,7 +4,7 @@
 // Usage: node control.mjs <command> [sub] <instance> [--json] [--evidence=<dir>]  (see SKILL.md, Helpers)
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statfsSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statfsSync, statSync, writeFileSync } from 'node:fs';
 import path, { delimiter, dirname, isAbsolute, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mapFresh, printable } from './fingerprint.mjs';
@@ -13,7 +13,10 @@ import { describe, matches, merge, processTable, snapshot, stop } from './proctr
 /** @typedef {{ exe: string, scheme: string, product: string, modelRoots: string[], minFreeMib: number, modelComponents?: string[] }} BrowserDef */
 /** @typedef {{ name: string, folders: string, asset: string, useCase: string, contextWindow: number, toolCanary: boolean | 'report', downloadMib: number }} ModelDef */
 /** @typedef {{ default: string, gpu: string[] | null, cpu: string[] | null }} BackendDef */
-/** @typedef {{ browser: string, port: number, features: string[], backend: BackendDef, model: ModelDef }} InstanceDef */
+/** @typedef {{ browser: string, port: number, features: string[], args?: string[], pin?: string[], backend: BackendDef, model: ModelDef }} InstanceDef */
+/** @typedef {{ instance: string, at: string, roots: Record<string, string> }} Pin */
+/** @typedef {{ root: string, version: string }} PinFolder */
+/** @typedef {{ remove: PinFolder[], add: PinFolder[] }} PinPlan */
 /** @typedef {{ profilesRoot: string, commonArgs: string[], browsers: Record<string, BrowserDef>, instances: Record<string, InstanceDef> }} Registry */
 /**
  * An instance as the commands use it: its registry entry and browser, its profile and session, and the CDP port of
@@ -512,12 +515,21 @@ export function featuresFor(inst, backend) {
 
 /**
  * The command line `up` launches the instance with.
- * @param {Pick<Inst, 'dir' | 'port'>} inst
+ * @param {Pick<Inst, 'dir' | 'port'> & Pick<Partial<Inst>, 'args'>} inst
  * @param {string[]} features
  * @returns {string[]}
  */
 export function launchArgs(inst, features) {
-  return [`--user-data-dir=${inst.dir}`, `--remote-debugging-port=${inst.port}`, ...REGISTRY.commonArgs, `--enable-features=${features.join(',')}`, 'about:blank'];
+  return [`--user-data-dir=${inst.dir}`, `--remote-debugging-port=${inst.port}`, ...switchesOf(inst), `--enable-features=${features.join(',')}`, 'about:blank'];
+}
+
+/**
+ * The bare switches `up` adds: the registry's common ones, then the instance's own `args`.
+ * @param {Pick<Partial<Inst>, 'args'>} inst
+ * @returns {string[]}
+ */
+export function switchesOf(inst) {
+  return [...REGISTRY.commonArgs, ...(inst.args ?? [])];
 }
 
 // ---------- processes ----------
@@ -691,7 +703,7 @@ function portOwner(port) {
 
 // Which registry backend a command line matches, or null when it matches none (drift).
 /**
- * @param {Pick<Inst, 'exe' | 'mainPort' | 'worktree' | 'features' | 'backend'>} inst
+ * @param {Pick<Inst, 'exe' | 'mainPort' | 'worktree' | 'features' | 'backend'> & Pick<Partial<Inst>, 'args'>} inst
  * @param {Pick<ProcRecord, 'commandLine'>} proc
  * @returns {Drift}
  */
@@ -722,11 +734,11 @@ export function drift(inst, proc) {
     problems.push(`--enable-features matches no registry backend: ${cl.features.join(',')}`);
   }
 
-  for (const a of REGISTRY.commonArgs.filter((x) => !cl.args.includes(x))) {
+  for (const a of switchesOf(inst).filter((x) => !cl.flags.includes(x))) {
     problems.push(`missing ${a}`);
   }
 
-  const launched = ['--user-data-dir', '--remote-debugging-port', '--enable-features', ...REGISTRY.commonArgs];
+  const launched = ['--user-data-dir', '--remote-debugging-port', '--enable-features', ...switchesOf(inst)];
 
   for (const [i, f] of cl.flags.entries()) {
     if (!launched.includes(f)) {
@@ -818,6 +830,88 @@ function readState(name) {
   const st = JSON.parse(readFileSync(statePath(name), 'utf8'));
 
   return /** @type {State} */ (st);
+}
+
+/**
+ * The pinned copy of an instance's model components: `tmp/control-ai-browsers/pins/<name>`, git-ignored.
+ * @param {string} name
+ */
+function pinFolderOf(name) {
+  return join(TMP, 'pins', name);
+}
+
+/**
+ * @param {string} name
+ * @returns {Pin | null}
+ */
+function readPin(name) {
+  const f = join(pinFolderOf(name), 'pin.json');
+
+  if (!existsSync(f)) {
+    return null;
+  }
+
+  try {
+    /** @type {unknown} */
+    const pin = JSON.parse(readFileSync(f, 'utf8'));
+
+    return /** @type {Pin} */ (pin);
+  } catch (e) {
+    return refuse(`${f} does not parse (${e instanceof Error ? e.message : String(e)}); run "model pin ${name}" again on a healthy instance`);
+  }
+}
+
+/**
+ * The registry's pin roots the pin does not hold (the registry gained a root after the pin was taken).
+ * @param {Inst} inst
+ * @param {Pin} pin
+ * @returns {string[]}
+ */
+function unpinnedRoots(inst, pin) {
+  return (inst.pin ?? []).filter((r) => !Object.hasOwn(pin.roots, r));
+}
+
+/**
+ * The version folders of each pinned component root in the profile.
+ * @param {Inst} inst
+ * @returns {Record<string, string[]>}
+ */
+function pinRootsOnDisk(inst) {
+  return Object.fromEntries((inst.pin ?? []).map((r) => [r, versionFolders(join(inst.dir, r))]));
+}
+
+/**
+ * `up` on a stopped instance with a pin: makes its pinned component roots hold the pinned versions again, whatever
+ * an update, a crash or an interrupted download left there.
+ * @param {Inst} inst
+ * @returns {PinPlan | null}  the plan carried out, or null when there was nothing to do
+ */
+function restorePin(inst) {
+  const pin = inst.pin ? readPin(inst.name) : null;
+
+  if (pin === null) {
+    if (inst.pin) {
+      log('WARN', `${inst.name} has no pin yet: once doctor passes, run "model pin ${inst.name}" so up can restore its model components`);
+    }
+
+    return null;
+  }
+
+  const plan = pinPlan(pin.roots, pinRootsOnDisk(inst));
+  const unpinned = unpinnedRoots(inst, pin);
+
+  if (unpinned.length > 0) {
+    log('WARN', `the pin of ${inst.name} lacks ${unpinned.join(', ')}; run "model pin ${inst.name}" again once doctor passes`);
+  }
+
+  if (plan.remove.length === 0 && plan.add.length === 0) {
+    return null;
+  }
+
+  applyPin(inst.dir, pinFolderOf(inst.name), plan);
+  log('WARN', `${inst.name}: the model components on disk differed from the pin of ${pin.at}; restored it (${describePlan(plan)})`);
+
+  return plan;
 }
 
 /**
@@ -1323,11 +1417,164 @@ export function brokerPending(b) {
 }
 
 /**
+ * What Broker State says about the instance's model asset, against the model component versions on disk.
+ * `in-flight`: an Installing or Registering asset, or, on Edge, no asset row while the manifest is loaded (measured
+ * while Edge updated its model component). `mismatch`: the asset is not Ready and the version Broker State wants is
+ * not the only one on disk (measured: Edge's updater put model 2026.10.15.1 on disk while its manifest
+ * component still named 2026.10.2.1).
+ * @param {Broker | BrokerDisabled} b
+ * @param {RegExp} asset
+ * @param {string[]} onDisk  component versions of the instance's model on disk
+ * @param {boolean} edge
+ * @returns {{ verdict: 'ready' | 'in-flight' | 'mismatch' | 'other', detail: string }}
+ */
+export function assetVerdict(b, asset, onDisk, edge) {
+  if (b.disabled || b.manifestLoaded !== 'true') {
+    return { verdict: 'other', detail: b.disabled ? b.error : 'Broker State has not loaded the model manifest yet' };
+  }
+
+  const rows = b.assets.filter((a) => asset.test(a.name));
+  const row = rows.find((a) => a.state === 'Ready') ?? rows[0];
+
+  if (row === undefined) {
+    return edge ? { verdict: 'in-flight', detail: `no ${asset.source} row while the manifest is loaded: a model component update is in flight` } : { verdict: 'other', detail: `no ${asset.source} row` };
+  }
+
+  if (row.state === 'Ready') {
+    return { verdict: 'ready', detail: `${row.name} ${row.version} Ready` };
+  }
+
+  if (/Installing|Registering/.test(row.state)) {
+    return { verdict: 'in-flight', detail: `${row.name} ${row.version} ${row.state} ${row.progress}%` };
+  }
+
+  // Right after the update the old folder is still beside the new one; Edge deletes it at the next start (measured).
+  if (onDisk.some((v) => v !== row.version)) {
+    return { verdict: 'mismatch', detail: `Broker State wants ${row.name} ${row.version} (${row.state}), the disk holds ${onDisk.join(', ')}: the model component moved past the version the manifest names` };
+  }
+
+  return { verdict: 'other', detail: `${row.name} ${row.version} ${row.state} ${row.progress}%` };
+}
+
+/**
+ * The version folders (`2026.10.2.1`) directly below a folder; none when it is missing.
+ * @param {string} dir
+ * @returns {string[]}
+ */
+export function versionFolders(dir) {
+  return existsSync(dir) ? readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory() && /^\d+(\.\d+)+$/.test(e.name)).map((e) => e.name).sort() : [];
+}
+
+/**
+ * What makes the pinned component roots of a profile hold exactly the pinned versions: the other version folders to
+ * remove and the pinned ones to copy in.
+ * @param {Pin['roots']} pinned  root -> version
+ * @param {Record<string, string[]>} disk  root -> version folders on disk
+ * @returns {PinPlan}
+ */
+export function pinPlan(pinned, disk) {
+  /** @type {PinPlan} */
+  const plan = { remove: [], add: [] };
+
+  for (const [root, version] of Object.entries(pinned)) {
+    const have = disk[root] ?? [];
+    plan.remove.push(...have.filter((v) => v !== version).map((v) => ({ root, version: v })));
+
+    if (!have.includes(version)) {
+      plan.add.push({ root, version });
+    }
+  }
+
+  return plan;
+}
+
+/**
+ * A pin plan as one line: `EdgeLLMOnDeviceModel -2026.10.15.1 +2026.10.2.1`.
+ * @param {PinPlan} plan
+ * @returns {string}
+ */
+export function describePlan(plan) {
+  const roots = [...new Set([...plan.remove, ...plan.add].map((f) => f.root))];
+
+  return roots.map((r) => [r, ...plan.remove.filter((f) => f.root === r).map((f) => `-${f.version}`), ...plan.add.filter((f) => f.root === r).map((f) => `+${f.version}`)].join(' ')).join('; ');
+}
+
+/**
+ * Carries out a pin plan in a stopped profile: removes the other version folders and copies the pinned ones in from
+ * the pin folder. Refuses a profile that resolves through a reparse point and any folder that resolves outside it.
+ * @param {string} profile
+ * @param {string} pinFolder
+ * @param {PinPlan} plan
+ */
+export function applyPin(profile, pinFolder, plan) {
+  const profileReal = realpathSync.native(profile);
+  const linked = reparseRefusal(profile, profileReal);
+
+  if (linked !== null) {
+    refuse(`${linked}; not restoring the pin under it`);
+  }
+
+  for (const f of plan.add) {
+    if (!existsSync(join(pinFolder, f.root, f.version))) {
+      refuse(`the pin has no ${f.root}\\${f.version} in ${pinFolder}`);
+    }
+  }
+
+  for (const f of plan.remove) {
+    const dir = join(profile, f.root, f.version);
+    const real = realpathSync.native(dir);
+
+    if (!insideProfile(profileReal, real)) {
+      refuse(`${dir} resolves to ${real}, outside the profile ${profileReal}; not deleting it`);
+    }
+
+    rmSync(dir, { recursive: true, force: true });
+  }
+
+  for (const f of plan.add) {
+    cpSync(join(pinFolder, f.root, f.version), join(profile, f.root, f.version), { recursive: true });
+  }
+}
+
+/**
+ * The component versions of the instance's model on disk.
  * @param {Inst} inst
+ * @param {DiskModel[]} [disk]
+ * @returns {string[]}
+ */
+function modelVersionsOnDisk(inst, disk = diskModels(inst)) {
+  return disk.filter((d) => d.name === inst.model.name).flatMap((d) => (d.componentVersion === undefined ? [] : [d.componentVersion]));
+}
+
+/**
+ * @param {Inst} inst
+ * @param {Broker | BrokerDisabled} broker
+ * @param {DiskModel[]} [disk]
+ */
+function verdictOf(inst, broker, disk) {
+  return assetVerdict(broker, new RegExp(inst.model.asset), modelVersionsOnDisk(inst, disk), !!inst.modelComponents);
+}
+
+/**
+ * What to do about a mismatched model component, for a log line.
+ * @param {Inst} inst
+ * @returns {string}
+ */
+function pinHint(inst) {
+  if (!inst.pin) {
+    return `${inst.name} has no "pin" in instances.json; see SKILL.md Gotchas, "Edge updates its model past its manifest"`;
+  }
+
+  return readPin(inst.name) ? `"down ${inst.name}", then "up ${inst.name}" restores the pin` : `no pin to restore from: copy a matching ${inst.pin.join(' and ')} set into the stopped profile, then "model pin ${inst.name}" once doctor passes`;
+}
+
+/**
+ * @param {Inst} inst
+ * @param {number} [timeoutMs]  how long the playwright-cli client may run; see runCode
  * @returns {Promise<Broker | BrokerDisabled>}
  */
-async function brokerState(inst) {
-  const text = /** @type {string} */ (await inTab(inst, BROKER, { url: null, args: { scheme: inst.scheme } }));
+async function brokerState(inst, timeoutMs) {
+  const text = /** @type {string} */ (await inTab(inst, BROKER, { url: null, args: { scheme: inst.scheme } }, timeoutMs));
 
   if (text === 'DEBUG-PAGES-DISABLED') {
     return { disabled: true, error: `internal debugging pages are off in ${inst.name}; "up ${inst.name}" turns them on (chrome://chrome-urls)` };
@@ -1497,6 +1744,8 @@ async function cmdUp(inst) {
     refuse(linked);
   }
 
+  const pinRestored = restorePin(inst);
+
   /** @type {PortRow[]} */
   const rows = [{ name: 'cdp', kind: 'derived', at: (slot) => portAt(inst.index, inst.mainPort, slot) }];
   let order = slotOrder(inst.slot);
@@ -1575,7 +1824,7 @@ async function cmdUp(inst) {
 
     log('OK', `${run.name} launched as PID ${proc.pid} on ${run.cdp} (${version.Browser}), backend ${backend}, ready in ${readyMs} ms${firstUse ? ', new profile' : ''}${plan.slot === inst.slot ? '' : `, slot ${plan.slot} (${plan.ports[0]?.reason})`}${restored.length ? `; closed ${restored.length} restored tab(s)` : ''}${debugPages ? `; internal debugging pages ${debugPages}` : ''}`);
 
-    return { ok: true, session: st.session, evidenceDir, backend, firstUse, readyMs, browserVersion: version.Browser, closedRestoredTabs: restored.map((t) => t.url), debugPages, state: st, tabs: await pageTabs(run) };
+    return { ok: true, session: st.session, evidenceDir, backend, firstUse, pinRestored, readyMs, browserVersion: version.Browser, closedRestoredTabs: restored.map((t) => t.url), debugPages, state: st, tabs: await pageTabs(run) };
   }
 }
 
@@ -1634,10 +1883,26 @@ async function cmdDown(inst) {
     refuse(`port ${inst.port} is not owned by PID ${st.pid}; not sending Browser.close to it`);
   }
 
+  // down does not wait for a model download; it says what closing interrupts or leaves behind.
+  /** @type {ReturnType<typeof assetVerdict> | null} */
+  let model = null;
+
+  try {
+    // A hung tab must not hold down for the 15-minute run-code default.
+    model = verdictOf(inst, await brokerState(inst, 90000));
+
+    if (model.verdict === 'in-flight' || model.verdict === 'mismatch') {
+      log('WARN', `${inst.name} model ${model.verdict}: ${model.detail}; closing anyway${inst.pin && readPin(inst.name) ? `; the next "up ${inst.name}" restores the pin` : model.verdict === 'mismatch' || inst.pin ? `; ${pinHint(inst)}` : ''}`);
+    }
+  } catch (e) {
+    log('WARN', `could not read Broker State before closing: ${e instanceof Error ? e.message : String(e)}`);
+  }
+
   // The last snapshot, while the main process still lives; kept in the state before Browser.close.
   st.tree = merge(st.tree ?? [], snapshot(root));
   writeFileSync(statePath(inst.name), JSON.stringify(st, null, 2));
   pw(inst, ['detach']);
+  attachedHere = null;
   const version = /** @type {CdpVersion | null} */ (await cdpJson(inst, '/json/version')) ?? refuse(`${inst.cdp} does not answer`);
   const ws = new WebSocket(version.webSocketDebuggerUrl);
   await new Promise((r, j) => {
@@ -1669,7 +1934,7 @@ async function cmdDown(inst) {
   const portFree = !portOwner(inst.port);
   log(portFree ? 'OK' : 'ERROR', `${inst.name} PID ${st.pid} closed over CDP; no process uses ${inst.dir}; port ${inst.port} ${portFree ? 'free' : 'still owned'}; state file removed`);
 
-  return { ok: portFree, pid: st.pid, portFree, notes: outcome.notes };
+  return { ok: portFree, pid: st.pid, portFree, model, notes: outcome.notes };
 }
 
 /**
@@ -1752,6 +2017,19 @@ async function cmdDoctor(inst) {
     log('WARN', `model.disk: other models in this profile: ${others.map((x) => `${x.name} ${x.componentVersion} ${x.mib} MiB`).join(', ')}`);
   }
 
+  if (inst.pin) {
+    const pin = readPin(inst.name);
+    if (pin === null) {
+      add('model.pin', true, `no pin: run "model pin ${inst.name}" once doctor passes, so up can restore ${inst.pin.join(' and ')}`, true);
+    } else {
+      const plan = pinPlan(pin.roots, pinRootsOnDisk(inst));
+      const same = plan.remove.length === 0 && plan.add.length === 0;
+      const unpinned = unpinnedRoots(inst, pin);
+      const lacks = unpinned.length > 0 ? `; the pin lacks ${unpinned.join(', ')}: run "model pin ${inst.name}" again` : '';
+      add('model.pin', same, same ? `matches the pin of ${pin.at}: ${Object.entries(pin.roots).map(([r, v]) => `${r} ${v}`).join(', ')}${lacks}` : `the disk differs from the pin of ${pin.at} (${describePlan(plan)}); ${pinHint(inst)}${lacks}`, unpinned.length > 0);
+    }
+  }
+
   const broker = await brokerState(inst);
   /** @param {Broker | BrokerDisabled} b */
   const brokerChecks = (b) => {
@@ -1762,7 +2040,8 @@ async function cmdDoctor(inst) {
     }
 
     const asset = b.assets.find((a) => new RegExp(inst.model.asset).test(a.name) && a.state === 'Ready') ?? b.assets.find((a) => new RegExp(inst.model.asset).test(a.name));
-    add('model.broker', asset?.state === 'Ready' && b.useCases[inst.model.useCase] === 'Available', { asset: asset ?? `${inst.model.asset} absent`, useCase: inst.model.useCase, state: b.useCases[inst.model.useCase] ?? null, manifestLoaded: b.manifestLoaded });
+    const v = verdictOf(inst, b, disk);
+    add('model.broker', asset?.state === 'Ready' && b.useCases[inst.model.useCase] === 'Available', { asset: asset ?? `${inst.model.asset} absent`, useCase: inst.model.useCase, state: b.useCases[inst.model.useCase] ?? null, manifestLoaded: b.manifestLoaded, ...(v.verdict === 'in-flight' || v.verdict === 'mismatch' ? { [v.verdict]: v.detail, fix: v.verdict === 'mismatch' ? pinHint(inst) : 'wait for the update to finish, then run doctor again' } : {}) });
     const be = servingBackend(inst, b, disk);
     add('backend', be.kind === d.backend, { requested: d.backend, broker: be.backendType ?? 'no model row with weights in the model folder', row: be.row });
     add('performanceClass', true, { localState: perfClass(inst), broker: b.perfClass });
@@ -1784,7 +2063,7 @@ async function cmdDoctor(inst) {
   // create() on a model that is not available waits for (and can start) a download; doctor stays read-only.
   if (avail.LanguageModel !== 'available') {
     for (const id of ['model.contextWindow', 'canary.structured', 'canary.tools', 'canary.webmcp']) {
-      add(id, null, `skipped: LanguageModel is ${avail.LanguageModel}; run "model download ${inst.name}"`);
+      add(id, null, `skipped: LanguageModel is ${avail.LanguageModel}; ${switchesOf(inst).includes('--disable-component-update') ? pinHint(inst) : `run "model download ${inst.name}"`}`);
     }
 
     if (brokerLater) {
@@ -1850,7 +2129,80 @@ async function cmdModel(inst, sub) {
     return modelClear(inst);
   }
 
-  return refuse('usage: model info|init|download|clear <instance> [--confirm=<model name>]');
+  if (sub === 'pin') {
+    return modelPin(inst);
+  }
+
+  return refuse('usage: model info|init|download|clear|pin <instance> [--confirm=<model name>]');
+}
+
+/**
+ * Copies the instance's pinned component roots to its pin folder, from a running instance whose Broker State asset
+ * is Ready and whose LanguageModel is available; `up` restores that copy when the disk differs from it.
+ * @param {Inst} inst
+ * @returns {Promise<Result>}
+ */
+async function modelPin(inst) {
+  const roots = inst.pin ?? refuse(`${inst.name} has no "pin" roots in instances.json`);
+  mainProcess(inst) ?? refuse(`${inst.name} is not running; pin a running instance that doctor passes`);
+  const v = verdictOf(inst, await brokerState(inst));
+  const avail = /** @type {Availability} */ (await inTab(inst, AVAILABILITY, { purpose: 'availability' }));
+
+  if (v.verdict !== 'ready' || avail.LanguageModel !== 'available') {
+    log('ERROR', `not pinning: Broker State ${v.detail}, LanguageModel ${avail.LanguageModel}`);
+
+    return { ok: false, reason: `not pinning: Broker State ${v.detail}, LanguageModel ${avail.LanguageModel}` };
+  }
+
+  const disk = pinRootsOnDisk(inst);
+  /** @type {Record<string, string>} */
+  const versions = {};
+
+  for (const r of roots) {
+    const have = disk[r] ?? [];
+
+    if (have.length !== 1) {
+      log('ERROR', `not pinning: ${r} holds ${have.join(', ') || 'no version'}; a pin takes exactly one`);
+
+      return { ok: false, reason: `${r} holds ${have.join(', ') || 'no version'}; a pin takes exactly one`, disk };
+    }
+
+    versions[r] = /** @type {string} */ (have[0]);
+  }
+
+  const dir = pinFolderOf(inst.name);
+  const next = `${dir}.new`;
+  rmSync(next, { recursive: true, force: true });
+
+  for (const [r, version] of Object.entries(versions)) {
+    cpSync(join(inst.dir, r, version), join(next, r, version), { recursive: true });
+  }
+
+  /** @type {Pin} */
+  const pin = { instance: inst.name, at: new Date().toISOString(), roots: versions };
+  writeFileSync(join(next, 'pin.json'), JSON.stringify(pin, null, 2));
+  // The old pin stays until the new one is in place, so a failed rename still leaves one whole pin.
+  const old = `${dir}.old`;
+  rmSync(old, { recursive: true, force: true });
+
+  if (existsSync(dir)) {
+    renameSync(dir, old);
+  }
+
+  try {
+    renameSync(next, dir);
+  } catch (e) {
+    if (existsSync(old)) {
+      renameSync(old, dir);
+    }
+
+    throw e;
+  }
+
+  rmSync(old, { recursive: true, force: true });
+  log('OK', `pinned ${Object.entries(versions).map(([r, ver]) => `${r} ${ver}`).join(', ')} in ${dir}`);
+
+  return { ok: true, pin, dir };
 }
 
 /**
@@ -1859,6 +2211,11 @@ async function cmdModel(inst, sub) {
  */
 async function modelDownload(inst) {
   const budget = downloadTimeouts(opts['timeout-min']);
+
+  if (switchesOf(inst).includes('--disable-component-update')) {
+    refuse(`${inst.name} runs with --disable-component-update, so Check for update starts no download (measured); its model comes back from the pin: ${pinHint(inst)}`);
+  }
+
   mainProcess(inst) ?? refuse(`${inst.name} is not running`);
   const before = /** @type {Availability} */ (await inTab(inst, AVAILABILITY, { purpose: 'availability' }));
   const diskBefore = diskModels(inst);

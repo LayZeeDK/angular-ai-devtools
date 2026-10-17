@@ -11,6 +11,8 @@ with a user gesture, initialise it, and clear it to free space. Switching models
   `available`.
 - `model-init` times the cold and warm `create()` and reads `contextWindow`.
 - `model-clear` deletes a named model's folders in a stopped instance's profile and reports the bytes removed.
+- `model-pin` copies a healthy instance's model components (registry `pin` roots) to its pin folder; `up` restores
+  them when the disk differs, and `down` warns when it closes an instance in the middle of a model update.
 
 ## How to get to it (user POV)
 
@@ -40,6 +42,16 @@ Preconditions: the README baseline; Broker State "Enough disk space to install" 
   to `Say hi in three words.`
 - **Check.** Run `C doctor chrome-beta-nano`; exit 0.
 - **Proof.** One evidence directory with `model info` before, `clear`, `download`, `init`, `model info` after.
+- **Pin (Aion).** With `edge-dev-aion` running and doctor at exit 0, run `C model pin edge-dev-aion`. It logs
+  `pinned EdgeLLMOnDeviceModel 2026.10.2.1, EdgeLLMRuntime 2026.10.2.1` and the folder
+  `tmp/control-ai-browsers/pins/edge-dev-aion` (1.3 GB, git-ignored). From then on, an `up` of the stopped instance
+  whose disk holds other versions logs `[WARN] ... restored it (EdgeLLMRuntime -2026.10.12.1)` and doctor's
+  `model.pin` reads `matches the pin`. Measured 2026-10-17 in a worktree copy: twice, an update was let run without
+  `--disable-component-update` and interrupted by `down` (once after the runtime landed, once while the model
+  component read "Downloading"); each time `up` restored the pin and doctor exited 0.
+- **No pin yet.** Copy a matching `EdgeLLMOnDeviceModel\<v>` and `EdgeLLMRuntime\<v>` pair into the stopped
+  profile (the pair the profile's `EdgeOptimizationGuideModelsManifest\<v>` names; 2026.10.2.1 on 2026-10-17),
+  removing other version folders there, then `up`, `doctor`, `model pin`.
 
 ## Gotchas
 
@@ -62,6 +74,17 @@ Preconditions: the README baseline; Broker State "Enough disk space to install" 
   `downloading` while nothing downloads. `model download` refuses earlier: free space minus the model's
   `downloadMib` must stay above the browser minimum in `instances.json` (Chrome 22,528 MiB, Edge 20,480 MiB).
 - A fresh Edge profile waits at "Foreground Installing 0%" until "Check for update" is pressed for both model
-  components; `model download` does that.
+  components; `model download` does that, except on an instance launched with `--disable-component-update`
+  (`edge-dev-aion`), where the button starts nothing (measured) and `model download` refuses (exit 2).
+- Edge updates its model past its manifest (measured 2026-10-17, Edge Dev 157.0.4329): the component updater
+  installs "Edge LLM Runtime" 2026.10.12.1 and "Edge LLM On Device Model" 2026.10.15.1 about a minute after launch,
+  with no page call, while "Edge On-Device Model Manifest" stays 2026.10.2.1 (its "Check for update" finds nothing
+  newer) and names `edge_base_model` 2026.10.2.1. Broker State then reads that asset `Not Installed`, `prompt_api`
+  `Not Supported` and `availability()` `unavailable`; at the next start Edge deletes the old folders and it reads
+  `Pending Assets` and `downloading` for good, and `model download` cannot fix it. While the update runs, Broker
+  State has no `edge_base_model` row at all and `availability()` still says `available`; the fetch took about 40 s.
+  `edge-dev-aion` therefore launches with `--disable-component-update` (watched for 4.5 minutes and two restarts:
+  the 2026.10.2.1 pair stayed and stayed `Ready`; the manifest, runtime and model components still load) and keeps
+  a pin. Without the switch a restored pair broke again 1.5 minutes after launch.
 - Forcing CPU on Edge uninstalls the model; `up --backend=cpu` is refused on Edge instances.
 - `availability()` can say `available` while `create()` refuses tool types; trust the tool canary instead.

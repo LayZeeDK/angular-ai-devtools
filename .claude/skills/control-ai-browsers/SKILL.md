@@ -24,7 +24,8 @@ flipped and nothing restarts.
 | `edge-phi4mini` | Edge stable 155 | 9337 | `Phi-4-mini-instruct` | `gpu` (only) | 9,216 |
 
 `instances.json` is the single source for each instance's browser, executable, main-checkout port, features,
-backends, expected model, model folder pattern, Broker State asset and use case. Other skills look instances up
+extra switches (`args`), backends, expected model, model folder pattern, Broker State asset, use case and pinned
+component roots (`pin`). Other skills look instances up
 there, and ask `up <name> --json` or `info <name> --json` for the port an instance runs on.
 
 Ports. The profiles live under the checkout (`.browsers\<name>`), so every checkout runs its own instances.
@@ -74,7 +75,11 @@ node .claude/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-nano 
 ```
 
 Starts `<exe> --user-data-dir=<profile> --remote-debugging-port=<port> --no-first-run --no-default-browser-check
---enable-features=<registry features + backend extras> about:blank`, creating the profile folder on first use. It
+[<instance args>] --enable-features=<registry features + backend extras> about:blank`, creating the profile folder
+on first use. `edge-dev-aion` adds `--disable-component-update`, so Edge cannot update its model past its manifest
+(Gotchas). Before it starts an instance with `pin` roots, `up` compares them with the pin (`model pin`) and, when
+they differ, removes the other version folders and copies the pinned ones back, with a `[WARN]` naming each
+(`pinRestored` in the JSON); with no pin yet it warns and goes on. It
 refuses (exit 2) when the instance already runs with another configuration (run `down` first), when no slot
 of the 10 has a free port (or `--port=N` is busy), or when the profile path resolves through a junction. Ready means `/json/version` answers
 and the main process is found by its `--user-data-dir`. It then closes tabs Edge restored from the last session,
@@ -112,7 +117,8 @@ Read-only; one line per check:
 | `ports` | the CDP port listens, a process of the instance's tree holds it, and `/json/version` answers with the right product: `[OK] ports: cdp 9680 (derived), bench app 4222 (external: ...); http://127.0.0.1:9680 answers as Chrome/157.0.8103.6` (measured 2026-10-16); the external bench app port is listed, not checked |
 | `tabs` | always; `[WARN]` when more than one tab is open |
 | `model.disk` | a `manifest.json` in the profile names the expected model; `[WARN]` lists other models in the profile |
-| `model.broker` | Broker State shows the asset `Ready` and the use case `Available` |
+| `model.pin` | (instances with `pin` roots) every pinned root holds only the pinned version; fails naming the difference and the fix, `[WARN]` with no pin yet |
+| `model.broker` | Broker State shows the asset `Ready` and the use case `Available`; a failure carries `mismatch` (the asset is not `Ready` and the disk holds another model version) or `in-flight` (an Installing asset, or on Edge no asset row) with a `fix` |
 | `backend` | (with `model.broker` and `performanceClass` read after the page checks when Broker State has not loaded the model manifest yet, as right after a launch) the Broker State backend of the model row whose weights sit in the model folder (CPU or GPU) is the backend the command line asks for |
 | `performanceClass` | always; reports `optimization_guide.on_device.performance_class` from `Local State` and Broker State's class |
 | `disk.free` | always; `[WARN]` under the browser minimum (Chrome 22 GB, Edge 20 GB) |
@@ -128,7 +134,7 @@ is not running or the command could not run. A run takes 25-50 s, longer under l
 
 ## Drive
 
-- Model lifecycle: `model info|download|init <name>`, `model clear <name> --confirm=<model>` (see Helpers).
+- Model lifecycle: `model info|download|init|pin <name>`, `model clear <name> --confirm=<model>` (see Helpers).
 - Effective features: `flags <name>` reads the command line from `chrome://version` / `edge://version` and
   compares it with the registry.
 - A probe: `run <name> <file.js>`, where the file holds `async page => {...}`. It runs in a new tab that is
@@ -177,7 +183,9 @@ node .claude/skills/control-ai-browsers/scripts/control.mjs down chrome-beta-nan
 Reads the state file. When the recorded main process is gone, or its PID now belongs to another process, it sends
 no `Browser.close`: it stops what the recorded tree left still running and removes the state file (exit 0); a PID
 that now belongs to another process is never touched and exits 2. It refuses (exit 2) when another process owns
-the port. Otherwise it records a last snapshot of the tree, detaches the session, sends CDP `Browser.close` over
+the port. Otherwise it reads Broker State (at most 90 s) and, without waiting for it, prints a `[WARN]` when a
+model update is in flight or the model is past its manifest, naming asset, version and state (`model` in the
+JSON); the next `up` restores a pin. Then it records a last snapshot of the tree, detaches the session, sends CDP `Browser.close` over
 the browser websocket and waits up to 60 s for the recorded processes to exit. Then it stops, through
 `scripts/proctree.mjs`, every record that still runs as the recorded process (same start time and command line),
 children before parents, one PID at a time with a forced stop, never by name; a record still running after that
@@ -196,18 +204,19 @@ playwright-cli runs as node with `node_modules/@playwright/cli/playwright-cli.js
 | Command | Does | Exit |
 |---|---|---|
 | `instances` | registry plus live state: PID, backend, drift, tabs, state file | 0 |
-| `up <name> [--backend=gpu\|cpu]` | start (profile created on first use), wait for `/json/version`, one blank tab, write state; `--json` has `session` and `evidenceDir` | 0 / 2 |
+| `up <name> [--backend=gpu\|cpu]` | restore the pin when the disk differs, start (profile created on first use), wait for `/json/version`, one blank tab, write state; `--json` has `session` and `evidenceDir` | 0 / 2 |
 | `attach <name>` | write state, attach the instance's session (`ai-<name>-<port>`) and leave it attached | 0 / 2 |
 | `detach <name>` | detach that session | 0 |
 | `doctor <name>` | the checks above | 0 / 1 / 2 |
 | `flags <name>` | effective features from the version page against the registry | 0 / 1 / 2 |
 | `model info <name>` | disk manifests (name, versions, performance hints, MiB, folder), Broker State, serving model, backend, performance class; disk only when stopped | 0 / 2 |
-| `model download <name> [--timeout-min=45]` | free-space check, Edge "Check for update" on its model components, `create()` from a trusted gesture (click, or Enter on the focused button when the click times out), poll until `available` for `--timeout-min` minutes; the playwright-cli client waits 5 minutes longer, so the page's own timeout result comes back; a value that is not a positive number exits 2 | 0 / 1 / 2 |
+| `model download <name> [--timeout-min=45]` | free-space check, Edge "Check for update" on its model components, `create()` from a trusted gesture (click, or Enter on the focused button when the click times out), poll until `available` for `--timeout-min` minutes; the playwright-cli client waits 5 minutes longer, so the page's own timeout result comes back; a value that is not a positive number exits 2; refused on an instance with `--disable-component-update` | 0 / 1 / 2 |
+| `model pin <name>` | instance running, Broker State asset `Ready`, `available`, one version per `pin` root; copies them to `tmp/control-ai-browsers/pins/<name>` with `pin.json` | 0 / 1 / 2 |
 | `model init <name>` | cold and warm `create()`, `contextWindow`, one prompt | 0 / 2 |
 | `model clear <name> --confirm=<model>` | instance must be stopped, and its profile folder must not resolve through a junction; deletes every folder whose `manifest.json` names `<model>`; reports bytes removed and free space | 0 / 1 / 2 |
 | `run <name> <file.js>` | run `async page => {...}` in a new tab | 0 / 2 |
 | `bench [names...]` | `bench.js` per instance with backend, performance class and CPU load | 0 / 1 / 2 |
-| `down <name>` | CDP `Browser.close`, stop what outlived it, confirm the processes and the port are gone | 0 / 1 / 2 |
+| `down <name>` | warn on a model update in flight, CDP `Browser.close`, stop what outlived it, confirm the processes and the port are gone | 0 / 1 / 2 |
 | `info <name>` | port, `slot`, `ports` (`{name, port, kind, reason?}`), CDP URL, session, profile, state file, the state without its tree, `tree` at the top level, evidence dir | 0 |
 
 Exit codes: 0 done or healthy; 1 not healthy or the change did not take; 2 refused or could not run, with the
@@ -245,8 +254,16 @@ Measured 2026-10-11/12 unless marked inferred.
   2026-10-12). `up` refuses such a path.
 - Edge Dev 157's default model is Aion, not Phi-4-mini, and a fresh Edge profile can sit at "Foreground Installing
   0%" until "Check for update" is pressed for "Edge LLM On Device Model" and "Edge LLM Runtime" in
-  `edge://components`. Phi-4-mini comes only from Edge stable 155 (`edge-phi4mini`).
+  `edge://components` (not under `--disable-component-update`, where the button starts nothing). Phi-4-mini comes only from Edge stable 155 (`edge-phi4mini`).
 - Forcing CPU (`OnDeviceModelForceCpuBackend`, or GPU classes the device lacks) makes Edge uninstall its model.
+- Edge updates its model past its manifest (measured 2026-10-17): about a minute after launch, with no page call,
+  Edge Dev 157's component updater installed runtime 2026.10.12.1 and model 2026.10.15.1, while its "Edge On-Device
+  Model Manifest" stays 2026.10.2.1 and names `edge_base_model` 2026.10.2.1. Broker State then reads that asset
+  `Not Installed` and `availability()` `unavailable`; the next start deletes the old folders, leaving `downloading`
+  for good, which `model download` and "Check for update" cannot fix. `edge-dev-aion` therefore launches with
+  `--disable-component-update` (it also stops "Check for update"; the components still load) and keeps a pin that
+  `up` restores; see `features/model-lifecycle.md`. The Chrome instances and `edge-phi4mini` run without the switch:
+  nothing measured calls for it there, and on Chrome it would also stop the model download (inferred).
 - `availability()` says `available` even when `create()` refuses the requested tool types (research 09); a
   tool canary is the real check. Nano answers tool prompts with `tool_code` text, so its tool canary is skipped.
 - Gemma 4 rejects every tool prompt when a tool has an empty `properties` (`UnknownError`); the canary tool has a

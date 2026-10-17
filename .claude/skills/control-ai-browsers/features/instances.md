@@ -43,3 +43,5 @@ Preconditions: the README baseline, except that `up` also works on a stopped ins
 - Node's `spawn` writes `--user-data-dir=D:\...` without quotes; instances started by hand have quotes. The drift
   check parses both.
 - `--backend=cpu` on Edge is refused: forcing CPU deleted the installed model twice.
+- An entry's `args` are bare switches `up` adds after the common ones; drift requires them and refuses them on
+  other instances. `edge-dev-aion` has `--disable-component-update` (see model-lifecycle Gotchas).

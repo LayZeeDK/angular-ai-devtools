@@ -118,6 +118,13 @@
         "msEdgeLLMOnDeviceModelMuffinToolUseWorkaround",
         "msEdgeLLMOnDeviceModelPrerelease"
       ],
+      "args": [
+        "--disable-component-update"
+      ],
+      "pin": [
+        "EdgeLLMOnDeviceModel",
+        "EdgeLLMRuntime"
+      ],
       "backend": {
         "default": "gpu",
         "gpu": [],
