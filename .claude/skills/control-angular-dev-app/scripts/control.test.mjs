@@ -1,14 +1,15 @@
 // @ts-check
 // Run: node --test .claude/skills/control-angular-dev-app/scripts/control.test.mjs
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { setTimeout as sleep } from 'node:timers/promises';
-import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, cdMode, checkLine, consoleErrors, currentTabUrl, descendants, flagIn, flowIdFor, isWorktree, listeners, markerCheck, namesFolder, ownedProcesses, pidMismatch, pinOf, planPorts, portRowsOf, portsCheck, processTable, slotOf, slotOrder, stopOwned, takenBy, trackedOf, timeoutMsOf, urlPort } from './control.mjs';
+import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, cdMode, checkLine, consoleErrors, currentTabUrl, downOutcome, flagIn, flowIdFor, isWorktree, listeners, markerCheck, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder, stopRun, takenBy, timeoutMsOf, urlPort } from './control.mjs';
+
+/** @typedef {import('./proctree.mjs').ProcRecord} ProcRecord */
+/** @typedef {Parameters<typeof stopRun>[0]} State */
 
 /**
  * A throwaway listener on a port the OS picks; closed after the test.
@@ -203,12 +204,6 @@ test('portsCheck passes owned ports, fails a missing or foreign one, and ignores
   assert.deepEqual(portsCheck(ports, new Map([[4501, [10, 98]], [3000, [11]]]), tree), { status: 'fail', detail: 'app 4501 held by PID 98, not the recorded tree' }, 'a second holder on another address is not ours');
 });
 
-test('descendants walks the whole tree below a PID and nothing beside it', () => {
-  const row = (/** @type {number} */ pid, /** @type {number} */ parent) => ({ ProcessId: pid, ParentProcessId: parent, Start: null, CommandLine: null });
-  const table = [row(10, 1), row(11, 10), row(12, 11), row(13, 1), row(14, 13)];
-  assert.deepEqual([...descendants(table, 10)].sort(), [10, 11, 12]);
-});
-
 test('listeners maps each LISTENING port to its PID, IPv4 or IPv6, and nothing else', () => {
   const text = [
     '  Proto  Local Address          Foreign Address        State           PID',
@@ -291,14 +286,6 @@ test('flowIdFor names url and target flows and refuses an unknown target', () =>
   assert.throws(() => flowIdFor(['doctor', '--target', 'constructor']), /unknown target "constructor"/);
 });
 
-test('pidMismatch refuses a reused PID by start time or command line and passes a match', () => {
-  const proc = { name: 'app', pid: 7, port: 4222, readyUrl: '', log: '', start: '2026-10-16T12:00:00.0000000Z', commandLine: 'node ng.js serve --port 4222' };
-  const row = { ProcessId: 7, ParentProcessId: 1, Start: proc.start, CommandLine: proc.commandLine };
-  assert.equal(pidMismatch(row, proc), null);
-  assert.match(pidMismatch({ ...row, Start: '2026-10-16T13:00:00.0000000Z' }, proc) ?? '', /^refused: PID 7 \(app\) does not match the state file: start-time .* command not compared/);
-  assert.match(pidMismatch({ ...row, CommandLine: 'node other.js' }, proc) ?? '', /command "node other.js" vs recorded "node ng.js serve --port 4222"/);
-});
-
 test('loading the script makes Windows skip the current directory when Node looks up a bare program', async () => {
   delete process.env['NoDefaultCurrentDirectoryInExePath'];
   await import(new URL('./control.mjs?fresh-env', import.meta.url).href);
@@ -366,113 +353,48 @@ test('urlPort reads the scheme default when the URL names no port', () => {
   assert.equal(flowIdFor(['doctor', '--url', 'https://localhost/']), 'url-443');
 });
 
-test('ownedProcesses follows recorded processes that still match, and the children a gone one left under the target folder', () => {
-  const root = { pid: 7, start: '2026-10-16T12:00:00.0000000Z', commandLine: 'node nx.js run' };
-  const table = [
-    { ProcessId: 20, ParentProcessId: 7, Start: '2026-10-16T12:00:01.0000000Z', CommandLine: 'node D:\\Portal\\node_modules\\nx\\bin\\run-executor.js' },
-    { ProcessId: 30, ParentProcessId: 20, Start: '2026-10-16T12:00:02.0000000Z', CommandLine: 'esbuild --service' },
-    { ProcessId: 24, ParentProcessId: 7, Start: '2026-10-16T12:00:03.0000000Z', CommandLine: 'C:\\other\\tool.exe' },
-    { ProcessId: 21, ParentProcessId: 7, Start: '2026-10-16T11:00:00.0000000Z', CommandLine: 'older: parent PID reused' },
-    { ProcessId: 22, ParentProcessId: 8, Start: '2026-10-16T12:00:02.0000000Z', CommandLine: 'unrelated' },
-    { ProcessId: 23, ParentProcessId: 7, Start: null, CommandLine: null },
-  ];
-  assert.deepEqual(ownedProcesses(table, [root], 'D:\\portal').map((r) => r.ProcessId), [30, 20], "root gone: only its child under the folder, and that child's own tree, deepest first");
-  assert.deepEqual(ownedProcesses(table, [{ ...root, start: null }], 'D:\\portal'), [], 'no recorded start: nothing to compare, nothing stopped');
+test('down goes through proctree.mjs: the last snapshot below each root is merged into the record, then stop gets it all', () => {
+  const root = { pid: 7, ppid: 1, start: 1000, commandLine: 'node ng.js serve --port 4336' };
+  // Recorded once ready; its parent (PID 20) has exited since, so no walk from the root reaches it.
+  const orphan = { pid: 30, ppid: 20, start: 1200, commandLine: 'esbuild --service' };
+  const late = { pid: 40, ppid: 7, start: 1300, commandLine: 'node worker.js' };
+  const other = { pid: 99, ppid: 1, start: 900, commandLine: 'not started by the run' };
+  /** @type {State} */
+  const state = { flowId: 'counter', mode: 'launch', url: '', session: '', evidenceDir: '', startedAt: '', procs: [{ name: 'app', pid: 7, port: 4336, readyUrl: '', log: '' }], tree: [root, orphan] };
+  /** @type {ProcRecord[][]} */
+  const calls = [];
+  const { records, result } = stopRun(state, {
+    table: () => [root, orphan, late, other],
+    stop: (list) => {
+      calls.push(list);
 
-  const live = [{ ProcessId: 7, ParentProcessId: 1, Start: root.start, CommandLine: root.commandLine }, ...table];
-  assert.deepEqual(ownedProcesses(live, [root], 'D:\\portal').map((r) => r.ProcessId).sort((a, b) => a - b), [7, 20, 24, 30], 'root alive: its whole tree that started after it');
-
-  const reused = [{ ProcessId: 7, ParentProcessId: 1, Start: '2026-10-16T13:00:00.0000000Z', CommandLine: 'someone else' }, ...table];
-  assert.deepEqual(ownedProcesses(reused, [root], 'D:\\portal').map((r) => r.ProcessId).sort((a, b) => a - b), [20, 24, 30], 'PID 7 now held by another process: not it, only the children started before it took the PID');
-  const reuserChild = { ProcessId: 40, ParentProcessId: 7, Start: '2026-10-16T13:00:01.0000000Z', CommandLine: 'node D:\\portal\\x.js' };
-  assert.equal(ownedProcesses([...reused, reuserChild], [root], 'D:\\portal').some((r) => r.ProcessId === 40), false, "the new owner's child is not the run's");
-
-  const grandchild = { pid: 30, start: '2026-10-16T12:00:02.0000000Z', commandLine: 'esbuild --service' };
-  const parentGone = table.filter((r) => r.ProcessId !== 20);
-  assert.deepEqual(ownedProcesses(parentGone, [root, grandchild], 'D:\\portal').map((r) => r.ProcessId), [30], 'a tracked grandchild whose parent exited is still found');
-  assert.deepEqual(ownedProcesses(parentGone, [root, { ...grandchild, commandLine: 'other' }], 'D:\\portal'), [], 'a tracked PID with another command line is not');
-});
-
-test('namesFolder matches a path inside the folder with either slash and stops at a path boundary', () => {
-  assert.equal(namesFolder('node D:\\Portal\\node_modules\\nx\\bin\\run.js', 'D:\\portal'), true);
-  assert.equal(namesFolder('node D:/portal/node_modules/x.js', 'D:\\portal'), true);
-  assert.equal(namesFolder('node "D:\\portal"', 'D:\\portal'), true);
-  assert.equal(namesFolder('node D:\\portal-v2\\x.js', 'D:\\portal'), false);
-  assert.equal(namesFolder(null, 'D:\\portal'), false);
-});
-
-test('trackedOf records the descendants below the roots and keeps those recorded before', () => {
-  const proc = { name: 'app', pid: 7, port: 4222, readyUrl: '', log: '', start: '2026-10-16T12:00:00.0000000Z', commandLine: 'node ng serve' };
-  const table = [
-    { ProcessId: 7, ParentProcessId: 1, Start: proc.start, CommandLine: proc.commandLine },
-    { ProcessId: 20, ParentProcessId: 7, Start: '2026-10-16T12:00:01.0000000Z', CommandLine: 'esbuild' },
-  ];
-  const earlier = { pid: 31, start: '2026-10-16T12:00:05.0000000Z', commandLine: 'gone' };
-  const state = /** @type {Parameters<typeof trackedOf>[1]} */ ({ flowId: 'counter', mode: 'launch', url: '', session: '', evidenceDir: '', startedAt: '', procs: [proc], dir: 'D:\\app', tracked: [earlier] });
-  assert.deepEqual(trackedOf(table, state), [earlier, { pid: 20, start: '2026-10-16T12:00:01.0000000Z', commandLine: 'esbuild' }]);
-  const reusedEarlier = [...table, { ProcessId: 31, ParentProcessId: 1, Start: '2026-10-16T14:00:00.0000000Z', CommandLine: 'someone else' }];
-  assert.deepEqual(trackedOf(reusedEarlier, state).map((x) => x.pid), [20], 'a tracked PID another process holds now is dropped');
-});
-
-test('stopOwned stops a recorded grandchild whose parent exited, and leaves an unrelated process alone', { skip: process.platform !== 'win32' && 'taskkill and Win32_Process' }, async (t) => {
-  const dir = realpathSync.native(mkdtempSync(join(tmpdir(), 'ngdev-tree-')));
-  writeFileSync(join(dir, 'idle.js'), 'setInterval(() => {}, 1000);\n');
-  writeFileSync(join(dir, 'root.js'), "const { spawn } = require('node:child_process');\nspawn(process.execPath, [require('node:path').join(__dirname, 'parent.js')], { stdio: 'ignore' });\nsetInterval(() => {}, 1000);\n");
-  writeFileSync(join(dir, 'parent.js'), [
-    "const { spawn } = require('node:child_process');",
-    "const { existsSync, writeFileSync } = require('node:fs');",
-    "const { join } = require('node:path');",
-    "const g = spawn(process.execPath, [join(__dirname, 'idle.js'), 'grandchild'], { detached: true, stdio: 'ignore' });",
-    'g.unref();',
-    "writeFileSync(join(__dirname, 'pids'), `${process.pid} ${g.pid}`);",
-    "setInterval(() => { if (existsSync(join(__dirname, 'exit'))) { process.exit(0); } }, 100);",
-    '',
-  ].join('\n'));
-  const root = spawn(process.execPath, [join(dir, 'root.js')], { detached: true, stdio: 'ignore' });
-  const decoy = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)', `${dir}-decoy`], { detached: true, stdio: 'ignore' });
-  root.unref();
-  decoy.unref();
-  // Every process this test starts names its own temp folder; only live rows that do are stopped.
-  t.after(() => {
-    for (const r of processTable().filter((x) => (x.CommandLine ?? '').includes(dir))) {
-      try {
-        process.kill(r.ProcessId);
-      } catch {
-        // already gone
-      }
-    }
-
-    rmSync(dir, { recursive: true, force: true });
+      return { stopped: list, gone: [], refused: [] };
+    },
   });
-  /** @type {(ok: () => boolean) => Promise<void>} */
-  const until = async (ok) => {
-    for (let i = 0; i < 100 && !ok(); i++) {
-      await sleep(100);
-    }
+  assert.deepEqual(calls, [[root, orphan, late]], 'one stop call with the record and the late child, nothing else');
+  assert.deepEqual(records, [root, orphan, late]);
+  assert.deepEqual(downOutcome(state, result), { code: 0, notes: ['stopped PID 7 (node ng.js serve --port 4336)', 'stopped PID 30 (esbuild --service)', 'stopped PID 40 (node worker.js)'], reason: null });
+  const source = readFileSync(new URL('./control.mjs', import.meta.url), 'utf8');
+  assert.match(source, /^function down\(\) \{[^]*?stopRun\(state\)[^]*?^\}/m, 'down stops through stopRun');
+  assert.doesNotMatch(source, /taskkill|process\.kill|Stop-Process|Win32_Process\b|Get-Process|wmic|ParentProcessId|\.ppid\b/, 'no stop or process query of its own besides proctree.mjs');
+  assert.match(source, /snapshot\((?:child\.)?pid, \{ notBefore(?:: t0)?, notAfter \}\)/, 'up records the spawned process inside its spawn window');
+});
 
-    assert.ok(ok(), 'timed out waiting');
-  };
-  await until(() => existsSync(join(dir, 'pids')));
-  const [parentPid, grandPid] = readFileSync(join(dir, 'pids'), 'utf8').split(' ').map(Number);
-  const before = processTable();
-  const rootRow = before.find((r) => r.ProcessId === root.pid);
-  assert.ok(rootRow);
-  const proc = { name: 'app', pid: rootRow.ProcessId, port: 0, readyUrl: '', log: '', start: rootRow.Start, commandLine: rootRow.CommandLine };
-  const state = /** @type {Parameters<typeof trackedOf>[1]} */ ({ flowId: 'counter', mode: 'launch', url: '', session: '', evidenceDir: '', startedAt: '', procs: [proc], dir });
-  const tracked = trackedOf(before, state);
-  const extra = tracked.filter((x) => x.pid !== parentPid && x.pid !== grandPid).map((x) => before.find((r) => r.ProcessId === x.pid)?.CommandLine ?? '');
-  assert.ok(tracked.some((x) => x.pid === parentPid) && tracked.some((x) => x.pid === grandPid), 'the ready-time record holds the parent and the grandchild');
-  assert.ok(extra.every((c) => /\\conhost\.exe/i.test(c)), `besides them only the detached child's console host: ${extra.join(', ')}`);
-
-  writeFileSync(join(dir, 'exit'), '');
-  await until(() => !processTable().some((r) => r.ProcessId === parentPid));
-  const orphan = processTable().find((r) => r.ProcessId === grandPid);
-  assert.ok(orphan, 'the grandchild outlived its parent');
-  assert.ok(!descendants(processTable(), proc.pid).has(Number(grandPid)), "the root's live tree no longer reaches the grandchild");
-
-  const { notes, left } = stopOwned([proc, ...tracked], dir);
-  assert.deepEqual(left, []);
-  const after = processTable();
-  assert.equal(after.some((r) => r.ProcessId === grandPid || r.ProcessId === root.pid), false, notes.join('\n'));
-  assert.ok(after.some((r) => r.ProcessId === decoy.pid), 'the unrelated process still runs');
+test('downOutcome refuses a reused root PID and a survivor with exit 2, and only notes a reused child or a shared helper', () => {
+  const root = { pid: 7, ppid: 1, start: 1000, commandLine: 'node nx.js run api:serve' };
+  const child = { pid: 30, ppid: 7, start: 1200, commandLine: 'node main.js' };
+  /** @type {State} */
+  const state = { flowId: 'portal', mode: 'launch', url: '', session: '', evidenceDir: '', startedAt: '', procs: [{ name: 'api', pid: 7, port: 3000, readyUrl: '', log: '' }], tree: [root, child] };
+  const reusedRoot = downOutcome(state, { stopped: [child], gone: [], refused: [{ ...root, reason: 'reused' }] });
+  assert.equal(reusedRoot.code, 2);
+  assert.match(reusedRoot.reason ?? '', /^refused: PID 7 \(api\) now belongs to another process .*; the state file is kept$/);
+  const survived = downOutcome(state, { stopped: [root], gone: [], refused: [{ ...child, reason: 'survived' }] });
+  assert.equal(survived.code, 2);
+  assert.match(survived.reason ?? '', /PID 30 \(node main\.js\) still runs after the last round; run down again/);
+  const noted = downOutcome(state, { stopped: [root], gone: [], refused: [{ ...child, reason: 'reused' }, { pid: 50, ppid: 7, start: 1300, commandLine: 'node nx/src/daemon/server/start.js', reason: 'helper' }] });
+  assert.equal(noted.code, 0);
+  assert.deepEqual(noted.notes.slice(1), ['left PID 30 alone: it now belongs to another process', 'left PID 50 (node nx/src/daemon/server/start.js) alone: a shared helper (the Nx daemon), never stopped']);
+  assert.equal(downOutcome(state, { stopped: [], gone: [root, child], refused: [] }).code, 0, 'a run that already exited is not a refusal');
+  const { tree, ...noTree } = state;
+  assert.match(downOutcome(noTree, { stopped: [], gone: [], refused: [] }).reason ?? '', /^refused: the state file records no process tree/, 'a state file from before proctree.mjs is refused, not dropped');
 });

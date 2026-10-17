@@ -65,7 +65,8 @@ node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target coun
   eagerly (NG0751 in the log), which hides incremental hydration.
 - Portal runs two processes in the portal folder: `node node_modules/nx/dist/bin/nx.js run api:serve --inspect=false`
   with `PORT=3000`, and `node node_modules/nx/dist/bin/nx.js run insurance-portal:serve --port=<port>` with `PORT`
-  removed from its environment. Both get `NX_DAEMON=false` and `NX_TUI=false`, so no Nx daemon outlives `down`.
+  removed from its environment. Both get `NX_TUI=false`. The Nx daemon stays on: `nx` starts it in the portal
+  checkout when none runs, and it outlives `down` by design (see Cleanup).
 - Readiness: each URL answers (portal API: `/api/customers`) and the app's index HTML contains its root tag
   (`<app-root>`, `<ng-journal-root>`). The doctor then checks the rendered page.
 - The portal API starts first and the app only after the API answers. Started together, the two cold `nx run`
@@ -95,7 +96,7 @@ Answers "is this instance worth driving?". One line per check:
   `scripts/fingerprint.mjs` and `features/.proven.json`. `[WARN]` names the stale and unproven features; it never
   changes the exit code. The four portal features are recorded as external: the portal lives outside this
   repository, so no file in it can be hashed.
-- `process-alive:<name>`; `tracked` (records the live processes below each root in the state file, for `down`);
+- `process-alive:<name>`; `tree` (adds the live processes below each root to the recorded tree, for `down`);
   `ports`: every derived and fixed port of the run listens and its PID is in a recorded
   process tree, and every port is listed with its kind
   (`[OK] ports: app 4507 (derived), api 3000 (fixed: libs/shared/utils/src/lib/injection-tokens.ts:5 in the portal checkout ...), pangular 9999 (external: ...)`;
@@ -197,20 +198,19 @@ the server log. Proof rules: [features/README.md](features/README.md#proof-and-s
 node .claude/skills/control-angular-dev-app/scripts/control.mjs down [--target ...|--url ...]
 ```
 
-Checks every recorded root PID: a root that is gone, or whose PID now belongs to a process with another start
-time, is noted; one with the recorded start time but another command line stops nothing (exit 2). It closes the
-run's playwright-cli session, then stops every process the run started, one PID at a time
-(`taskkill /PID <pid> /F`, deepest first, never by name, no `/T`): each recorded root and each descendant
-`up` recorded once ready and `doctor` recorded since (`tracked` in the state file) whose start time and
-command line still match, and every live process below one of them that started after its parent. That reaches
-a grandchild whose parent already exited, which a tree walk from the root misses on Windows. A recorded process
-that is gone still counts as a parent: when another process holds its PID now, for a child started between the
-two start times; when nothing does, for a child whose command line names the target folder (an Nx executor keeps
-a dead PID as its parent). It looks again, up to three times, for a child started meanwhile. If one of the run's
-processes still runs after that, `down` exits 1, lists it under `left` and keeps the state file (with it in
-`tracked`) for the next `down`; otherwise it deletes the state file. The evidence directory stays. `up` stops
-an attempt whose port was taken the same way before it tries the next slot.
-Never `playwright-cli close-all` or `kill-all`: they reach Lars's sessions.
+Closes the run's playwright-cli session, then stops the run's recorded process tree through `scripts/proctree.mjs`.
+`up` records each root right after the spawn and every process below it once ready, and `doctor` adds what it
+sees since (`tree` in the state file and `info --json`). `down` takes a last snapshot below each root while the
+parents still live, merges it into the record, and stops every record whose live process still has its start time
+and command line, children before parents, one PID at a time with a forced stop, never by name. A grandchild whose
+parent already exited is stopped because it was recorded while the parent lived; a process started after the last
+snapshot by a parent that then exits is not covered. The Nx daemon is never recorded, never stopped and never
+turned off: other Nx work in the portal checkout uses it. A root that already exited is noted, not refused. A root
+whose PID now belongs to another process is never touched and `down` exits 2; so does a record that still runs
+after the last round. Both keep the state file, with the merged record, for the next `down`; otherwise `down`
+deletes it. The evidence directory stays. `up` stops an attempt whose port was taken the same way before it tries
+the next slot.
+A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). Never `playwright-cli close-all` or `kill-all`: they reach Lars's sessions.
 
 ## Helpers
 
@@ -218,10 +218,10 @@ Never `playwright-cli close-all` or `kill-all`: they reach Lars's sessions.
 
 | Command | Does | Output | Exit |
 |---|---|---|---|
-| `up` | launch (`--target`) or attach (`--url`); writes `tmp/control-angular-dev-app/state/<flowId>.json` | flowId (the target, or `url-<port>`; a URL without a port uses 80 or 443), url, port, slot, ports `{name, port, kind, reason?}`, session, evidenceDir, procs `{name, pid, port, start, commandLine, log}`, tracked `{pid, start, commandLine}` (the processes below them once ready), `readyInSeconds` | 0 ready; 2 refused (10 slots busy, a busy fixed port, a busy `--port`, worktree on the main port, state exists), process exited, timeout |
+| `up` | launch (`--target`) or attach (`--url`); writes `tmp/control-angular-dev-app/state/<flowId>.json` | flowId (the target, or `url-<port>`; a URL without a port uses 80 or 443), url, port, slot, ports `{name, port, kind, reason?}`, session, evidenceDir, procs `{name, pid, port, readyUrl, log}`, tree `{pid, ppid, start, commandLine}` (each root and every process seen below it; `start` in ms since the epoch), `readyInSeconds` | 0 ready; 2 refused (10 slots busy, a busy fixed port, a busy `--port`, worktree on the main port, state exists), process exited, timeout |
 | `doctor` | checks above | one line per check, or `checks[]` with `--json` | 0 / 1 / 2 |
 | `info` | prints the state | state plus `statePath` | 0; 2 no state |
-| `down` | teardown | notes per process and the session; `left` when some still run | 0 done (also when a root PID is gone or reused); 1 a process the run started still runs (state file kept); 2 missing state file, or a root PID with its recorded start time but another command line (nothing stopped) |
+| `down` | teardown (Cleanup) | notes per process and the session; `reason` and `state` on exit 2 | 0 done (also when a root PID is gone); 2 missing state file, a root PID that now belongs to another process (never touched), or a record still running after the last round (state file kept for both) |
 
 `scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
 `features/.proven.json`:
@@ -235,7 +235,11 @@ Never `playwright-cli close-all` or `kill-all`: they reach Lars's sessions.
   `fresh`, `stale` (with the changed files), `unproven` or `external` per feature. Exit 0 every feature fresh or
   external, 1 one is stale or unproven, 2 could not run.
 
-Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
+`scripts/proctree.mjs` (a byte copy of lars-create-verification's; never edit it here; its tests live there) records
+and stops the run's process tree for `up`, `doctor` and `down`: `processTable`, `snapshot`, `merge`, `stop`, `describe`. It has no
+command line of its own and prints nothing.
+
+Every other script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
 `npm run check` type-checks the scripts.
 
 `scripts/ng-inspect.js` is a playwright-cli `run-code` file: it installs `__ngc` and returns the doctor's page
