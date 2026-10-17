@@ -33,8 +33,10 @@ from `lars-verify`'s `verdict.mjs run` with `runs: 2`. This file records what a 
 
 - 2026-10-17, inconclusive (`20261017T1200Z-state-rerun`): run 2 passed; in run 1 `edge-phi4mini`'s `doctor`
   hung from 15:32:30 until the 600 s step timeout killed it, so the condition hit 900 s. It wrote no doctor
-  evidence. The next verdict, started about 40 minutes later, passed 2/2 with that doctor at about 40 s. Cause
-  not found. If it hangs again, capture what the doctor was waiting on before re-running.
+  evidence. The next verdict, started about 40 minutes later, passed 2/2 with that doctor at about 40 s. Three
+  cold up / doctor / down cycles later the same day all passed, in 64, 32 and 20 s (evidence
+  `tmp/control-ai-browsers/evidence/phi4mini-hang`). Not reproduced, cause not found; the 600 s step timeout turns
+  a hang into an inconclusive verdict. If it hangs again, capture what the doctor was waiting on before re-running.
 - 2026-10-17, inconclusive before the Aion pin: `edge-dev-aion` failed when Edge updated its model past its
   manifest mid-run. Fixed by the pin: `references/edge-dev-aion-model.md`.
 - An inconclusive verdict is never a pass. Re-run; do not raise the timeouts to make a hang pass.
