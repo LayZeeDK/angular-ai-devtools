@@ -45,7 +45,8 @@ Preconditions: the README baseline; Broker State "Enough disk space to install" 
 - **Pin (Aion).** With `edge-dev-aion` running and doctor at exit 0, run `C model pin edge-dev-aion`. It logs
   `pinned EdgeLLMOnDeviceModel 2026.10.2.1, EdgeLLMRuntime 2026.10.2.1` and the folder
   `tmp/control-ai-browsers/pins/edge-dev-aion` (1.3 GB, git-ignored). From then on, an `up` of the stopped instance
-  whose disk holds other versions logs `[WARN] ... restored it (EdgeLLMRuntime -2026.10.12.1)` and doctor's
+  whose disk holds other versions, or the pinned version with other files or sizes, logs
+  `[WARN] ... restored it (EdgeLLMRuntime -2026.10.12.1)` (`~<version>` for a replaced folder) and doctor's
   `model.pin` reads `matches the pin`. Measured 2026-10-17 in a worktree copy: twice, an update was let run without
   `--disable-component-update` and interrupted by `down` (once after the runtime landed, once while the model
   component read "Downloading"); each time `up` restored the pin and doctor exited 0.

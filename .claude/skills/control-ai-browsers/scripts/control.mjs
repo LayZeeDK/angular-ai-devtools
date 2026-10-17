@@ -4,7 +4,7 @@
 // Usage: node control.mjs <command> [sub] <instance> [--json] [--evidence=<dir>]  (see SKILL.md, Helpers)
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statfsSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statfsSync, statSync, writeFileSync } from 'node:fs';
 import path, { delimiter, dirname, isAbsolute, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mapFresh, printable } from './fingerprint.mjs';
@@ -14,9 +14,10 @@ import { describe, matches, merge, processTable, snapshot, stop } from './proctr
 /** @typedef {{ name: string, folders: string, asset: string, useCase: string, contextWindow: number, toolCanary: boolean | 'report', downloadMib: number }} ModelDef */
 /** @typedef {{ default: string, gpu: string[] | null, cpu: string[] | null }} BackendDef */
 /** @typedef {{ browser: string, port: number, features: string[], args?: string[], pin?: string[], backend: BackendDef, model: ModelDef }} InstanceDef */
-/** @typedef {{ instance: string, at: string, roots: Record<string, string> }} Pin */
-/** @typedef {{ root: string, version: string }} PinFolder */
+/** @typedef {{ instance: string, at: string, roots: Record<string, string>, files: Record<string, Record<string, number>> }} Pin */
+/** @typedef {{ root: string, version: string, replace?: boolean }} PinFolder */
 /** @typedef {{ remove: PinFolder[], add: PinFolder[] }} PinPlan */
+/** @typedef {{ files: Record<string, number>, links: string[] }} Listing */
 /** @typedef {{ profilesRoot: string, commonArgs: string[], browsers: Record<string, BrowserDef>, instances: Record<string, InstanceDef> }} Registry */
 /**
  * An instance as the commands use it: its registry entry and browser, its profile and session, and the CDP port of
@@ -106,6 +107,8 @@ const BENCH_APP = { name: 'bench app', port: 4222, kind: 'external', reason: 'co
 const PROBE_ORIGIN = 'https://example.org/';
 const STEP_TIMEOUT_MS = 180000;
 const EXIT = { OK: 0, UNHEALTHY: 1, REFUSED: 2 };
+// A component version folder's name, as Edge writes it (2026.10.2.1).
+const VERSION = /^\d+(\.\d+)+$/;
 // Windows reads this from this process, not the child's env, when Node looks up a bare program name (pwsh):
 // it then skips the current directory.
 process.env['NoDefaultCurrentDirectoryInExePath'] = '1';
@@ -734,11 +737,16 @@ export function drift(inst, proc) {
     problems.push(`--enable-features matches no registry backend: ${cl.features.join(',')}`);
   }
 
-  for (const a of switchesOf(inst).filter((x) => !cl.flags.includes(x))) {
+  // An entry may carry a value (--name=value): its name must be a switch, and the whole entry must be on the line.
+  /** @param {string} a */
+  const nameOf = (a) => a.split('=')[0] ?? a;
+  const tokens = (proc.commandLine ?? '').split(/\s+/).map((t) => t.replace(/^"|"$/g, ''));
+
+  for (const a of switchesOf(inst).filter((x) => !cl.flags.includes(nameOf(x)) || (x.includes('=') && !tokens.includes(x)))) {
     problems.push(`missing ${a}`);
   }
 
-  const launched = ['--user-data-dir', '--remote-debugging-port', '--enable-features', ...switchesOf(inst)];
+  const launched = ['--user-data-dir', '--remote-debugging-port', '--enable-features', ...switchesOf(inst).map(nameOf)];
 
   for (const [i, f] of cl.flags.entries()) {
     if (!launched.includes(f)) {
@@ -841,23 +849,129 @@ function pinFolderOf(name) {
 }
 
 /**
+ * Why a parsed pin.json is not a pin of this instance, one line each; empty when it is. Roots must be among the
+ * registry's `pin` roots, versions version folder names, and file paths plain relative paths with byte sizes.
+ * @param {unknown} v
  * @param {string} name
+ * @param {string[]} roots  the registry's pin roots
+ * @returns {string[]}
+ */
+export function pinProblems(v, name, roots) {
+  /** @type {(x: unknown) => x is Record<string, unknown>} */
+  const isObject = (x) => typeof x === 'object' && x !== null && !Array.isArray(x);
+
+  if (!isObject(v) || !isObject(v['roots']) || !isObject(v['files'])) {
+    return ['not an object with roots and files'];
+  }
+
+  const pinRoots = v['roots'];
+  const files = v['files'];
+  /** @type {string[]} */
+  const out = [];
+
+  if (v['instance'] !== name) {
+    out.push(`instance ${JSON.stringify(v['instance'])}, not ${name}`);
+  }
+
+  if (typeof v['at'] !== 'string') {
+    out.push('no "at" time');
+  }
+
+  for (const [root, version] of Object.entries(pinRoots)) {
+    if (!roots.includes(root)) {
+      out.push(`root ${JSON.stringify(root)} is not a registry pin root`);
+    }
+
+    if (typeof version !== 'string' || !VERSION.test(version)) {
+      out.push(`${root} version ${JSON.stringify(version)} is not a version folder name`);
+    }
+
+    const list = files[root];
+
+    if (!isObject(list) || Object.keys(list).length === 0) {
+      out.push(`no file list for ${root}`);
+      continue;
+    }
+
+    for (const [f, size] of Object.entries(list)) {
+      if (f.split('/').some((s) => s === '' || s === '.' || s === '..' || /[\\:]/.test(s))) {
+        out.push(`${root} file ${JSON.stringify(f)} is not a plain relative path`);
+      }
+
+      if (!Number.isInteger(size) || /** @type {number} */ (size) < 0) {
+        out.push(`${root} file ${f} size ${JSON.stringify(size)} is not a byte count`);
+      }
+    }
+  }
+
+  for (const root of Object.keys(files)) {
+    if (!Object.hasOwn(pinRoots, root)) {
+      out.push(`file list for ${JSON.stringify(root)} with no pinned version`);
+    }
+  }
+
+  return out;
+}
+
+/**
+ * The instance's pin, or null when it has none; a pin.json that does not parse or check out is a refusal (exit 2).
+ * @param {Inst} inst
  * @returns {Pin | null}
  */
-function readPin(name) {
-  const f = join(pinFolderOf(name), 'pin.json');
+function readPin(inst) {
+  const f = join(pinFolderOf(inst.name), 'pin.json');
 
   if (!existsSync(f)) {
     return null;
   }
 
-  try {
-    /** @type {unknown} */
-    const pin = JSON.parse(readFileSync(f, 'utf8'));
+  /** @type {unknown} */
+  let v;
 
-    return /** @type {Pin} */ (pin);
+  try {
+    v = JSON.parse(readFileSync(f, 'utf8'));
   } catch (e) {
-    return refuse(`${f} does not parse (${e instanceof Error ? e.message : String(e)}); run "model pin ${name}" again on a healthy instance`);
+    return refuse(`${f} does not parse (${e instanceof Error ? e.message : String(e)}); run "model pin ${inst.name}" again on a healthy instance`);
+  }
+
+  const bad = pinProblems(v, inst.name, inst.pin ?? []);
+
+  if (bad.length > 0) {
+    refuse(`${f} is not a valid pin (${bad.slice(0, 3).join('; ')}); run "model pin ${inst.name}" again on a healthy instance`);
+  }
+
+  return /** @type {Pin} */ (v);
+}
+
+/**
+ * What `up` would do to the pinned roots: the version folders on disk against the pin, by name and by contents.
+ * @param {Inst} inst
+ * @param {Pin} pin
+ * @returns {PinPlan}
+ */
+function planFor(inst, pin) {
+  return pinPlan(pin.roots, pinRootsOnDisk(inst), (root, version) => listingDiff(pin.files[root] ?? {}, listing(join(inst.dir, root, version))).length > 0);
+}
+
+/**
+ * A `model pin` swap that stopped between its two renames leaves only `<dir>.old`; puts it back.
+ * @param {string} dir
+ * @returns {boolean}  whether it put one back
+ */
+export function restoreSwap(dir) {
+  if (existsSync(dir) || !existsSync(`${dir}.old`)) {
+    return false;
+  }
+
+  renameSync(`${dir}.old`, dir);
+
+  return true;
+}
+
+/** @param {Inst} inst */
+function recoverPinSwap(inst) {
+  if (restoreSwap(pinFolderOf(inst.name))) {
+    log('WARN', `${inst.name}: put back the pin an interrupted "model pin" left at ${pinFolderOf(inst.name)}.old`);
   }
 }
 
@@ -887,7 +1001,11 @@ function pinRootsOnDisk(inst) {
  * @returns {PinPlan | null}  the plan carried out, or null when there was nothing to do
  */
 function restorePin(inst) {
-  const pin = inst.pin ? readPin(inst.name) : null;
+  if (inst.pin) {
+    recoverPinSwap(inst);
+  }
+
+  const pin = inst.pin ? readPin(inst) : null;
 
   if (pin === null) {
     if (inst.pin) {
@@ -897,7 +1015,7 @@ function restorePin(inst) {
     return null;
   }
 
-  const plan = pinPlan(pin.roots, pinRootsOnDisk(inst));
+  const plan = planFor(inst, pin);
   const unpinned = unpinnedRoots(inst, pin);
 
   if (unpinned.length > 0) {
@@ -908,7 +1026,7 @@ function restorePin(inst) {
     return null;
   }
 
-  applyPin(inst.dir, pinFolderOf(inst.name), plan);
+  applyPin(inst.dir, pinFolderOf(inst.name), plan, pin.files);
   log('WARN', `${inst.name}: the model components on disk differed from the pin of ${pin.at}; restored it (${describePlan(plan)})`);
 
   return plan;
@@ -1462,17 +1580,77 @@ export function assetVerdict(b, asset, onDisk, edge) {
  * @returns {string[]}
  */
 export function versionFolders(dir) {
-  return existsSync(dir) ? readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory() && /^\d+(\.\d+)+$/.test(e.name)).map((e) => e.name).sort() : [];
+  return existsSync(dir) ? readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory() && VERSION.test(e.name)).map((e) => e.name).sort() : [];
+}
+
+/**
+ * Every file below a folder with its size, by `/`-separated relative path, walked with lstat. Links (symlinks and
+ * junctions) are listed in `links` and never followed.
+ * @param {string} dir
+ * @returns {Listing}
+ */
+export function listing(dir) {
+  /** @type {Listing} */
+  const out = { files: {}, links: [] };
+  /** @type {(d: string, rel: string) => void} */
+  const walk = (d, rel) => {
+    for (const name of readdirSync(d).sort()) {
+      const p = join(d, name);
+      const r = rel ? `${rel}/${name}` : name;
+      const st = lstatSync(p);
+
+      if (st.isSymbolicLink()) {
+        out.links.push(r);
+      } else if (st.isDirectory()) {
+        walk(p, r);
+      } else {
+        out.files[r] = st.size;
+      }
+    }
+  };
+  walk(dir, '');
+
+  return out;
+}
+
+/**
+ * How a folder's files differ from the pinned list, one line each; empty when they match.
+ * @param {Record<string, number>} want
+ * @param {Listing} have
+ * @returns {string[]}
+ */
+export function listingDiff(want, have) {
+  /** @type {string[]} */
+  const out = have.links.map((l) => `link ${l}`);
+
+  for (const [f, size] of Object.entries(want)) {
+    const got = Object.hasOwn(have.files, f) ? have.files[f] : undefined;
+
+    if (got === undefined) {
+      out.push(`missing ${f}`);
+    } else if (got !== size) {
+      out.push(`${f} ${got} bytes, pinned ${size}`);
+    }
+  }
+
+  for (const f of Object.keys(have.files)) {
+    if (!Object.hasOwn(want, f)) {
+      out.push(`extra ${f}`);
+    }
+  }
+
+  return out;
 }
 
 /**
  * What makes the pinned component roots of a profile hold exactly the pinned versions: the other version folders to
- * remove and the pinned ones to copy in.
+ * remove, and the pinned ones to copy in, either missing or present with other contents (`replace`).
  * @param {Pin['roots']} pinned  root -> version
  * @param {Record<string, string[]>} disk  root -> version folders on disk
+ * @param {(root: string, version: string) => boolean} [differs]  whether a present pinned folder's contents differ
  * @returns {PinPlan}
  */
-export function pinPlan(pinned, disk) {
+export function pinPlan(pinned, disk, differs = () => false) {
   /** @type {PinPlan} */
   const plan = { remove: [], add: [] };
 
@@ -1482,6 +1660,8 @@ export function pinPlan(pinned, disk) {
 
     if (!have.includes(version)) {
       plan.add.push({ root, version });
+    } else if (differs(root, version)) {
+      plan.add.push({ root, version, replace: true });
     }
   }
 
@@ -1489,50 +1669,117 @@ export function pinPlan(pinned, disk) {
 }
 
 /**
- * A pin plan as one line: `EdgeLLMOnDeviceModel -2026.10.15.1 +2026.10.2.1`.
+ * A pin plan as one line: `EdgeLLMOnDeviceModel -2026.10.15.1 +2026.10.2.1`, `~` for a replaced folder.
  * @param {PinPlan} plan
  * @returns {string}
  */
 export function describePlan(plan) {
   const roots = [...new Set([...plan.remove, ...plan.add].map((f) => f.root))];
 
-  return roots.map((r) => [r, ...plan.remove.filter((f) => f.root === r).map((f) => `-${f.version}`), ...plan.add.filter((f) => f.root === r).map((f) => `+${f.version}`)].join(' ')).join('; ');
+  return roots.map((r) => [r, ...plan.remove.filter((f) => f.root === r).map((f) => `-${f.version}`), ...plan.add.filter((f) => f.root === r).map((f) => `${f.replace ? '~' : '+'}${f.version}`)].join(' ')).join('; ');
 }
 
 /**
- * Carries out a pin plan in a stopped profile: removes the other version folders and copies the pinned ones in from
- * the pin folder. Refuses a profile that resolves through a reparse point and any folder that resolves outside it.
+ * Refuses a folder that resolves elsewhere (a reparse point) or outside the real profile.
+ * @param {string} dir
+ * @param {string} profileReal
+ * @param {string} what
+ */
+function refuseLinked(dir, profileReal, what) {
+  const real = realpathSync.native(dir);
+  const linked = reparseRefusal(dir, real);
+
+  if (linked !== null) {
+    refuse(`${linked}; not ${what}`);
+  }
+
+  if (profileReal !== '' && !insideProfile(profileReal, real)) {
+    refuse(`${dir} resolves to ${real}, outside the profile ${profileReal}; not ${what}`);
+  }
+}
+
+/**
+ * Carries out a pin plan in a stopped profile. Every check runs before anything is deleted: no reparse point at the
+ * profile, the pin folder, a component root or a target, and every pinned source matching `files` with no link in
+ * it. Each pinned folder is copied to `<version>.pinning` beside its target and checked against `files`, then
+ * renamed into place; the other versions are deleted last.
  * @param {string} profile
  * @param {string} pinFolder
  * @param {PinPlan} plan
+ * @param {Pin['files']} files  root -> the pinned folder's files and sizes
  */
-export function applyPin(profile, pinFolder, plan) {
+export function applyPin(profile, pinFolder, plan, files) {
   const profileReal = realpathSync.native(profile);
-  const linked = reparseRefusal(profile, profileReal);
+  refuseLinked(profile, '', 'restoring the pin under it');
+  refuseLinked(pinFolder, '', 'restoring from it');
+  const roots = [...new Set([...plan.add, ...plan.remove].map((f) => f.root))];
 
-  if (linked !== null) {
-    refuse(`${linked}; not restoring the pin under it`);
+  for (const r of roots) {
+    if (existsSync(join(profile, r))) {
+      refuseLinked(join(profile, r), profileReal, 'restoring the pin into it');
+    }
   }
 
   for (const f of plan.add) {
-    if (!existsSync(join(pinFolder, f.root, f.version))) {
+    const src = join(pinFolder, f.root, f.version);
+
+    if (!existsSync(src)) {
       refuse(`the pin has no ${f.root}\\${f.version} in ${pinFolder}`);
     }
+
+    refuseLinked(join(pinFolder, f.root), '', 'restoring from it');
+    const bad = listingDiff(files[f.root] ?? {}, listing(src));
+
+    if (bad.length > 0) {
+      refuse(`the pin's ${f.root}\\${f.version} does not match pin.json (${bad.slice(0, 3).join('; ')}); run "model pin" again on a healthy instance`);
+    }
+  }
+
+  for (const f of [...plan.remove, ...plan.add.filter((a) => a.replace)]) {
+    refuseLinked(join(profile, f.root, f.version), profileReal, 'deleting it');
+  }
+
+  /** @type {string[]} */
+  const staged = [];
+
+  try {
+    for (const f of plan.add) {
+      const staging = join(profile, f.root, `${f.version}.pinning`);
+      rmSync(staging, { recursive: true, force: true });
+      mkdirSync(join(profile, f.root), { recursive: true });
+      staged.push(staging);
+      cpSync(join(pinFolder, f.root, f.version), staging, { recursive: true });
+      const bad = listingDiff(files[f.root] ?? {}, listing(staging));
+
+      if (bad.length > 0) {
+        refuse(`the copy of ${f.root}\\${f.version} does not match the pin (${bad.slice(0, 3).join('; ')}); nothing in the profile was changed`);
+      }
+    }
+  } catch (e) {
+    for (const s of staged) {
+      rmSync(s, { recursive: true, force: true });
+    }
+
+    throw e;
+  }
+
+  for (const f of plan.add) {
+    const target = join(profile, f.root, f.version);
+
+    if (existsSync(target)) {
+      rmSync(`${target}.replaced`, { recursive: true, force: true });
+      renameSync(target, `${target}.replaced`);
+    }
+
+    renameSync(`${target}.pinning`, target);
   }
 
   for (const f of plan.remove) {
-    const dir = join(profile, f.root, f.version);
-    const real = realpathSync.native(dir);
-
-    if (!insideProfile(profileReal, real)) {
-      refuse(`${dir} resolves to ${real}, outside the profile ${profileReal}; not deleting it`);
-    }
-
-    rmSync(dir, { recursive: true, force: true });
+    rmSync(join(profile, f.root, f.version), { recursive: true, force: true });
   }
 
   for (const f of plan.add) {
-    cpSync(join(pinFolder, f.root, f.version), join(profile, f.root, f.version), { recursive: true });
+    rmSync(join(profile, f.root, `${f.version}.replaced`), { recursive: true, force: true });
   }
 }
 
@@ -1565,7 +1812,7 @@ function pinHint(inst) {
     return `${inst.name} has no "pin" in instances.json; see SKILL.md Gotchas, "Edge updates its model past its manifest"`;
   }
 
-  return readPin(inst.name) ? `"down ${inst.name}", then "up ${inst.name}" restores the pin` : `no pin to restore from: copy a matching ${inst.pin.join(' and ')} set into the stopped profile, then "model pin ${inst.name}" once doctor passes`;
+  return readPin(inst) ? `"down ${inst.name}", then "up ${inst.name}" restores the pin` : `no pin to restore from: copy a matching ${inst.pin.join(' and ')} set into the stopped profile, then "model pin ${inst.name}" once doctor passes`;
 }
 
 /**
@@ -1892,7 +2139,7 @@ async function cmdDown(inst) {
     model = verdictOf(inst, await brokerState(inst, 90000));
 
     if (model.verdict === 'in-flight' || model.verdict === 'mismatch') {
-      log('WARN', `${inst.name} model ${model.verdict}: ${model.detail}; closing anyway${inst.pin && readPin(inst.name) ? `; the next "up ${inst.name}" restores the pin` : model.verdict === 'mismatch' || inst.pin ? `; ${pinHint(inst)}` : ''}`);
+      log('WARN', `${inst.name} model ${model.verdict}: ${model.detail}; closing anyway${inst.pin && readPin(inst) ? `; the next "up ${inst.name}" restores the pin` : model.verdict === 'mismatch' || inst.pin ? `; ${pinHint(inst)}` : ''}`);
     }
   } catch (e) {
     log('WARN', `could not read Broker State before closing: ${e instanceof Error ? e.message : String(e)}`);
@@ -2018,11 +2265,11 @@ async function cmdDoctor(inst) {
   }
 
   if (inst.pin) {
-    const pin = readPin(inst.name);
+    const pin = readPin(inst);
     if (pin === null) {
       add('model.pin', true, `no pin: run "model pin ${inst.name}" once doctor passes, so up can restore ${inst.pin.join(' and ')}`, true);
     } else {
-      const plan = pinPlan(pin.roots, pinRootsOnDisk(inst));
+      const plan = planFor(inst, pin);
       const same = plan.remove.length === 0 && plan.add.length === 0;
       const unpinned = unpinnedRoots(inst, pin);
       const lacks = unpinned.length > 0 ? `; the pin lacks ${unpinned.join(', ')}: run "model pin ${inst.name}" again` : '';
@@ -2144,19 +2391,36 @@ async function cmdModel(inst, sub) {
  */
 async function modelPin(inst) {
   const roots = inst.pin ?? refuse(`${inst.name} has no "pin" roots in instances.json`);
-  mainProcess(inst) ?? refuse(`${inst.name} is not running; pin a running instance that doctor passes`);
-  const v = verdictOf(inst, await brokerState(inst));
-  const avail = /** @type {Availability} */ (await inTab(inst, AVAILABILITY, { purpose: 'availability' }));
+  const proc = mainProcess(inst) ?? refuse(`${inst.name} is not running; pin a running instance that doctor passes`);
+  const d = drift(inst, proc);
 
-  if (v.verdict !== 'ready' || avail.LanguageModel !== 'available') {
-    log('ERROR', `not pinning: Broker State ${v.detail}, LanguageModel ${avail.LanguageModel}`);
-
-    return { ok: false, reason: `not pinning: Broker State ${v.detail}, LanguageModel ${avail.LanguageModel}` };
+  // The registry's switches keep the component updater off while the folders are copied.
+  if (d.problems.length > 0) {
+    refuse(`${inst.name} does not run with its registry command line (${d.problems.join('; ')}); run "down ${inst.name}" and "up ${inst.name}" first`);
   }
 
+  /** @param {string} when */
+  const healthy = async (when) => {
+    const v = verdictOf(inst, await brokerState(inst));
+    const avail = /** @type {Availability} */ (await inTab(inst, AVAILABILITY, { purpose: 'availability' }));
+
+    return v.verdict === 'ready' && avail.LanguageModel === 'available' ? null : `not pinning: ${when}, Broker State ${v.detail}, LanguageModel ${avail.LanguageModel}`;
+  };
+  const before = await healthy('before the copy');
+
+  if (before !== null) {
+    log('ERROR', before);
+
+    return { ok: false, reason: before };
+  }
+
+  const profileReal = realpathSync.native(inst.dir);
+  refuseLinked(inst.dir, '', 'pinning from it');
   const disk = pinRootsOnDisk(inst);
   /** @type {Record<string, string>} */
   const versions = {};
+  /** @type {Pin['files']} */
+  const files = {};
 
   for (const r of roots) {
     const have = disk[r] ?? [];
@@ -2167,9 +2431,21 @@ async function modelPin(inst) {
       return { ok: false, reason: `${r} holds ${have.join(', ') || 'no version'}; a pin takes exactly one`, disk };
     }
 
-    versions[r] = /** @type {string} */ (have[0]);
+    const version = /** @type {string} */ (have[0]);
+    refuseLinked(join(inst.dir, r), profileReal, 'pinning from it');
+    refuseLinked(join(inst.dir, r, version), profileReal, 'pinning from it');
+    const list = listing(join(inst.dir, r, version));
+
+    if (list.links.length > 0) {
+      refuse(`${join(inst.dir, r, version)} holds a link (${list.links.join(', ')}); not pinning a folder with links`);
+    }
+
+    versions[r] = version;
+    files[r] = list.files;
   }
 
+  mkdirSync(join(TMP, 'pins'), { recursive: true });
+  refuseLinked(join(TMP, 'pins'), '', 'writing a pin into it');
   const dir = pinFolderOf(inst.name);
   const next = `${dir}.new`;
   rmSync(next, { recursive: true, force: true });
@@ -2178,8 +2454,26 @@ async function modelPin(inst) {
     cpSync(join(inst.dir, r, version), join(next, r, version), { recursive: true });
   }
 
+  // The copy must match what was listed, the profile must not have moved meanwhile, and the model must still be Ready.
+  const moved = roots.flatMap((r) => {
+    const now = versionFolders(join(inst.dir, r));
+    const v = /** @type {string} */ (versions[r]);
+    const changed = now.length !== 1 || now[0] !== v ? [`${r} now holds ${now.join(', ') || 'no version'}`] : listingDiff(files[r] ?? {}, listing(join(inst.dir, r, v))).map((x) => `${r}\\${v}: ${x}`);
+
+    return [...changed, ...listingDiff(files[r] ?? {}, listing(join(next, r, v))).map((x) => `copy of ${r}\\${v}: ${x}`)];
+  });
+  const after = await healthy('after the copy');
+
+  if (moved.length > 0 || after !== null) {
+    rmSync(next, { recursive: true, force: true });
+    const reason = after ?? `not pinning: the folders changed during the copy (${moved.slice(0, 3).join('; ')})`;
+    log('ERROR', reason);
+
+    return { ok: false, reason };
+  }
+
   /** @type {Pin} */
-  const pin = { instance: inst.name, at: new Date().toISOString(), roots: versions };
+  const pin = { instance: inst.name, at: new Date().toISOString(), roots: versions, files };
   writeFileSync(join(next, 'pin.json'), JSON.stringify(pin, null, 2));
   // The old pin stays until the new one is in place, so a failed rename still leaves one whole pin.
   const old = `${dir}.old`;

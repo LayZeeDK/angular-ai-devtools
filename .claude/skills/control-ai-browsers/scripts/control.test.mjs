@@ -1,13 +1,17 @@
 // @ts-check
 // Run: node --test .claude/skills/control-ai-browsers/scripts/control.test.mjs
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { delimiter, join, sep } from 'node:path';
 import { test } from 'node:test';
 import {
   applyPin,
+  listing,
+  listingDiff,
+  pinProblems,
+  restoreSwap,
   assetVerdict,
   at,
   brokerPending,
@@ -569,28 +573,107 @@ test('pinPlan removes every other version and adds the pinned one; describePlan 
   assert.deepEqual(pinPlan(pinned, {}).add.length, 2, 'a missing root gets the pinned version');
 });
 
-test('applyPin restores the pinned folders in a profile and leaves everything else alone', (t) => {
-  // The temp folder can be an 8.3 short path, which reparseRefusal reads as a link.
+/**
+ * A profile and a pin folder under a real (not 8.3 short) temp path, which reparseRefusal would read as a link.
+ * @param {import('node:test').TestContext} t
+ */
+function pinFixture(t) {
   const base = realpathSync.native(tempDir(t));
   const profile = join(base, 'profile');
   const pin = join(base, 'pin');
-  const put = (/** @type {string} */ rel, /** @type {string} */ text) => {
-    mkdirSync(join(rel, '..'), { recursive: true });
-    writeFileSync(rel, text);
+  const put = (/** @type {string} */ file, /** @type {string} */ text) => {
+    mkdirSync(join(file, '..'), { recursive: true });
+    writeFileSync(file, text);
   };
   put(join(pin, 'Model', '1.0.0.1', 'w.bin'), 'pinned');
+  put(join(pin, 'Model', '1.0.0.1', 'sub', 'cfg.json'), '{}');
   put(join(profile, 'Model', '2.0.0.1', 'w.bin'), 'newer');
   put(join(profile, 'Model', 'notes.txt'), 'not a version folder');
   put(join(profile, 'Other', '2.0.0.1', 'w.bin'), 'not pinned');
+  const files = { Model: listing(join(pin, 'Model', '1.0.0.1')).files };
+
+  return { base, profile, pin, put, files };
+}
+
+test('listing records files and sizes by relative path and lists links without following them', (t) => {
+  const { base, pin } = pinFixture(t);
+  const dir = join(pin, 'Model', '1.0.0.1');
+  assert.deepEqual(listing(dir), { files: { 'sub/cfg.json': 2, 'w.bin': 6 }, links: [] });
+  symlinkSync(join(base, 'profile'), join(dir, 'junction'), 'junction');
+  assert.deepEqual(listing(dir).links, ['junction'], 'a junction is a link, not a folder to walk');
+  assert.deepEqual(listingDiff({ 'w.bin': 6, 'gone.bin': 1 }, { files: { 'w.bin': 5, 'new.bin': 1 }, links: ['l'] }), ['link l', 'w.bin 5 bytes, pinned 6', 'missing gone.bin', 'extra new.bin']);
+});
+
+test('pinPlan replaces a pinned folder whose contents differ', () => {
+  const plan = pinPlan({ Model: '1.0.0.1' }, { Model: ['1.0.0.1'] }, () => true);
+  assert.deepEqual(plan, { remove: [], add: [{ root: 'Model', version: '1.0.0.1', replace: true }] });
+  assert.equal(describePlan(plan), 'Model ~1.0.0.1');
+});
+
+test('applyPin restores the pinned folders in a profile and leaves everything else alone', (t) => {
+  const { profile, pin, files } = pinFixture(t);
   const plan = pinPlan({ Model: '1.0.0.1' }, { Model: versionFolders(join(profile, 'Model')) });
-  applyPin(profile, pin, plan);
+  applyPin(profile, pin, plan, files);
   assert.deepEqual(versionFolders(join(profile, 'Model')), ['1.0.0.1']);
+  assert.deepEqual(readdirSync(join(profile, 'Model')).sort(), ['1.0.0.1', 'notes.txt'], 'no staging folder is left');
   assert.equal(readFileSync(join(profile, 'Model', '1.0.0.1', 'w.bin'), 'utf8'), 'pinned');
   assert.equal(readFileSync(join(profile, 'Model', 'notes.txt'), 'utf8'), 'not a version folder');
   assert.deepEqual(versionFolders(join(profile, 'Other')), ['2.0.0.1']);
   assert.deepEqual(versionFolders(join(profile, 'Missing')), []);
-  assert.throws(() => applyPin(profile, pin, { remove: [], add: [{ root: 'Model', version: '9.9' }] }), Refusal, 'a version the pin lacks is refused before anything is deleted');
 });
+
+test('applyPin replaces a truncated pinned folder, and deletes nothing when the pin itself is damaged', (t) => {
+  const { profile, pin, put, files } = pinFixture(t);
+  put(join(profile, 'Model', '1.0.0.1', 'w.bin'), 'pin');
+  const differs = (/** @type {string} */ r, /** @type {string} */ v) => listingDiff(files[/** @type {'Model'} */ (r)] ?? {}, listing(join(profile, r, v))).length > 0;
+  const plan = pinPlan({ Model: '1.0.0.1' }, { Model: versionFolders(join(profile, 'Model')) }, differs);
+  assert.deepEqual(plan.add, [{ root: 'Model', version: '1.0.0.1', replace: true }], 'the truncated folder counts as not restored');
+  writeFileSync(join(pin, 'Model', '1.0.0.1', 'w.bin'), 'damaged pin');
+  assert.throws(() => applyPin(profile, pin, plan, files), /does not match pin\.json/);
+  assert.deepEqual(versionFolders(join(profile, 'Model')), ['1.0.0.1', '2.0.0.1'], 'nothing was deleted');
+  writeFileSync(join(pin, 'Model', '1.0.0.1', 'w.bin'), 'pinned');
+  applyPin(profile, pin, plan, files);
+  assert.equal(readFileSync(join(profile, 'Model', '1.0.0.1', 'w.bin'), 'utf8'), 'pinned');
+  assert.deepEqual(readdirSync(join(profile, 'Model')).sort(), ['1.0.0.1', 'notes.txt']);
+  assert.throws(() => applyPin(profile, pin, { remove: [{ root: 'Model', version: '1.0.0.1' }], add: [{ root: 'Model', version: '9.9' }] }, files), Refusal, 'a version the pin lacks is refused before anything is deleted');
+  assert.deepEqual(versionFolders(join(profile, 'Model')), ['1.0.0.1']);
+});
+
+test('applyPin refuses a component root that is a junction and a pinned source that holds a link', (t) => {
+  const { base, profile, pin, files } = pinFixture(t);
+  const elsewhere = join(base, 'elsewhere');
+  mkdirSync(elsewhere);
+  symlinkSync(elsewhere, join(profile, 'Linked'), 'junction');
+  assert.throws(() => applyPin(profile, pin, { remove: [], add: [{ root: 'Linked', version: '1.0.0.1' }] }, files), /reparse point/);
+  assert.deepEqual(readdirSync(elsewhere), [], 'nothing was copied through the junction');
+  symlinkSync(elsewhere, join(pin, 'Model', '1.0.0.1', 'link'), 'junction');
+  const plan = pinPlan({ Model: '1.0.0.1' }, { Model: versionFolders(join(profile, 'Model')) });
+  assert.throws(() => applyPin(profile, pin, plan, files), /link link/);
+  assert.deepEqual(versionFolders(join(profile, 'Model')), ['2.0.0.1'], 'nothing was deleted');
+});
+
+test('pinProblems accepts a pin of the registry roots only, with version names and plain relative file paths', () => {
+  const good = { instance: 'x', at: '2026-10-17T00:00:00Z', roots: { Model: '1.0.0.1' }, files: { Model: { 'w.bin': 6, 'sub/cfg.json': 2 } } };
+  assert.deepEqual(pinProblems(good, 'x', ['Model', 'Runtime']), []);
+  assert.match(pinProblems({ ...good, roots: { '..\\..\\x': '1.0.0.1' }, files: { '..\\..\\x': { a: 1 } } }, 'x', ['Model']).join(';'), /is not a registry pin root/);
+  assert.match(pinProblems({ ...good, roots: { Model: '..\\1' } }, 'x', ['Model']).join(';'), /is not a version folder name/);
+  assert.match(pinProblems({ ...good, files: { Model: { '../w.bin': 6 } } }, 'x', ['Model']).join(';'), /not a plain relative path/);
+  assert.match(pinProblems({ ...good, files: { Model: { 'C:/w.bin': 6 } } }, 'x', ['Model']).join(';'), /not a plain relative path/);
+  assert.match(pinProblems({ ...good, files: { Model: { 'w.bin': -1 } } }, 'x', ['Model']).join(';'), /not a byte count/);
+  assert.match(pinProblems({ ...good, files: {} }, 'x', ['Model']).join(';'), /no file list for Model/);
+  assert.match(pinProblems(good, 'y', ['Model']).join(';'), /not y/);
+  assert.deepEqual(pinProblems([], 'x', ['Model']), ['not an object with roots and files']);
+});
+
+test('drift compares an args entry with a value by switch name and whole entry', () => {
+  const valued = { ...edgeLike, args: ['--disable-component-update', '--lang=en-US'] };
+  /** @param {string[]} a */
+  const proc = (a) => ({ commandLine: [`"${edgeLike.exe}"`, ...a].join(' ') });
+  const args = launchArgs(valued, ['AIPromptAPI', 'WebMCP']);
+  assert.deepEqual(drift(valued, proc(args)).problems, [], 'a --name=value entry matches its own launch');
+  assert.deepEqual(drift(valued, proc(args.map((a) => (a === '--lang=en-US' ? '--lang=da' : a)))).problems, ['missing --lang=en-US'], 'another value is drift');
+});
+
 
 test('an instance\'s own args are launched after the common ones, and drift requires them', () => {
   const pinned = { ...edgeLike, args: ['--disable-component-update'] };
@@ -602,4 +685,16 @@ test('an instance\'s own args are launched after the common ones, and drift requ
   assert.deepEqual(drift(pinned, proc(args)).problems, []);
   assert.deepEqual(drift(pinned, proc(launchArgs(edgeLike, ['AIPromptAPI', 'WebMCP']))).problems, ['missing --disable-component-update'], 'a launch without the switch is drift');
   assert.deepEqual(drift(edgeLike, proc(args)).problems, ['extra --disable-component-update'], 'and the switch on an instance without it is drift too');
+});
+
+test('restoreSwap puts back a pin left at .old only when no current pin exists', (t) => {
+  const base = tempDir(t);
+  const dir = join(base, 'pin');
+  assert.equal(restoreSwap(dir), false, 'nothing to put back');
+  mkdirSync(`${dir}.old`);
+  writeFileSync(join(`${dir}.old`, 'pin.json'), 'old');
+  assert.equal(restoreSwap(dir), true);
+  assert.equal(readFileSync(join(dir, 'pin.json'), 'utf8'), 'old');
+  mkdirSync(`${dir}.old`);
+  assert.equal(restoreSwap(dir), false, 'a current pin wins over a leftover .old');
 });
