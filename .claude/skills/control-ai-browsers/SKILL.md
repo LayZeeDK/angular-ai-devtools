@@ -90,7 +90,9 @@ standing state is all four instances running (see Cleanup), and other skills cal
 `up --json` gives `session` and `evidenceDir` at the top level, also with `alreadyRunning`.
 
 `attach <name>` records the running instance in the state file (`tmp/control-ai-browsers/state-<name>.json`:
-PID, start time, executable, command line, port, session, backend) and leaves the session attached for ad hoc
+the main PID, `tree` (the main process and every process below it, `{pid, ppid, start, commandLine}`, recorded
+through `scripts/proctree.mjs`; `up` also records the spawned process right after the spawn), port, session,
+backend) and leaves the session attached for ad hoc
 `playwright-cli -s=<session>` commands (`ai-<name>-<port>`, from `info`). `down` needs that state file.
 
 ## Doctor
@@ -104,9 +106,10 @@ Read-only; one line per check:
 | Check | Passes when |
 |---|---|
 | `map-fresh` | always, first; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`) or that were never proven; never fails doctor |
-| `process` | one main process uses the instance profile |
+| `process` | one main process of the registry's browser uses the instance profile |
+| `tree` | adds the live processes below it to the recorded tree, for `down`, and drops records that exited; `[SKIP]` with no state file, or one that records another process |
 | `commandLine` | executable, the two common arguments and `--enable-features` match the registry for one backend, no other switch is present and none repeats, and from a worktree the port is not the registry's (drift check) |
-| `ports` | the CDP port listens, the main PID holds it, and `/json/version` answers with the right product: `[OK] ports: cdp 9680 (derived), bench app 4222 (external: ...); http://127.0.0.1:9680 answers as Chrome/157.0.8103.6` (measured 2026-10-16); the external bench app port is listed, not checked |
+| `ports` | the CDP port listens, a process of the instance's tree holds it, and `/json/version` answers with the right product: `[OK] ports: cdp 9680 (derived), bench app 4222 (external: ...); http://127.0.0.1:9680 answers as Chrome/157.0.8103.6` (measured 2026-10-16); the external bench app port is listed, not checked |
 | `tabs` | always; `[WARN]` when more than one tab is open |
 | `model.disk` | a `manifest.json` in the profile names the expected model; `[WARN]` lists other models in the profile |
 | `model.broker` | Broker State shows the asset `Ready` and the use case `Available` |
@@ -171,11 +174,14 @@ run together. The directory is git-ignored and survives `down`. Add `--json` for
 node .claude/skills/control-ai-browsers/scripts/control.mjs down chrome-beta-nano
 ```
 
-Reads the state file and refuses (exit 2) when the recorded PID's executable, command line or start time differ
-from the live process, or when another process owns the port. A recorded PID that no longer runs is not a
-refusal: the state file is removed and the exit is 0. Otherwise it detaches the session, sends CDP
-`Browser.close` over the browser websocket, waits up to 60 s until no process uses the profile (it never kills),
-checks the port is free and removes the state file. Evidence stays. The standing state is all four instances
+Reads the state file. When the recorded main process is gone, or its PID now belongs to another process, it sends
+no `Browser.close`: it stops what the recorded tree left still running and removes the state file (exit 0); a PID
+that now belongs to another process is never touched and exits 2. It refuses (exit 2) when another process owns
+the port. Otherwise it records a last snapshot of the tree, detaches the session, sends CDP `Browser.close` over
+the browser websocket and waits up to 60 s for the recorded processes to exit. Then it stops, through
+`scripts/proctree.mjs`, every record that still runs as the recorded process (same start time and command line),
+children before parents, one PID at a time with a forced stop, never by name; a record still running after that
+exits 2 and keeps the state file. It checks the port is free and removes the state file. Evidence stays. A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). Run `attach` to record a running instance afresh; `attach` and `up` keep the records of an earlier state file that still run. The standing state is all four instances
 running, each on one blank tab; `down` is for a relaunch, a clear, or a proof. Never run `playwright-cli close`,
 `close-all` or `kill-all`: they reach other agents' sessions.
 
@@ -201,11 +207,12 @@ playwright-cli runs as node with `node_modules/@playwright/cli/playwright-cli.js
 | `model clear <name> --confirm=<model>` | instance must be stopped, and its profile folder must not resolve through a junction; deletes every folder whose `manifest.json` names `<model>`; reports bytes removed and free space | 0 / 1 / 2 |
 | `run <name> <file.js>` | run `async page => {...}` in a new tab | 0 / 2 |
 | `bench [names...]` | `bench.js` per instance with backend, performance class and CPU load | 0 / 1 / 2 |
-| `down <name>` | CDP `Browser.close`, confirm the processes and the port are gone | 0 / 1 / 2 |
-| `info <name>` | port, `slot`, `ports` (`{name, port, kind, reason?}`), CDP URL, session, profile, state file, evidence dir | 0 |
+| `down <name>` | CDP `Browser.close`, stop what outlived it, confirm the processes and the port are gone | 0 / 1 / 2 |
+| `info <name>` | port, `slot`, `ports` (`{name, port, kind, reason?}`), CDP URL, session, profile, state file, the state without its tree, `tree` at the top level, evidence dir | 0 |
 
 Exit codes: 0 done or healthy; 1 not healthy or the change did not take; 2 refused or could not run, with the
-reason (unknown instance, not running, missing state file, PID mismatch, port owned by another process, running
+reason (unknown instance, not running, missing state file, a recorded PID that now belongs to another process, a
+record still running after `down`'s last round, port owned by another process, running
 instance for `clear`, missing `--confirm`, `--backend=cpu` on Edge, junctioned profile, missing fixture, a numeric
 flag (`--timeout-min`, `--port`) whose value is not a decimal number above 0, or for `--port` not a port number;
 the line starts with `usage:`). Model
@@ -219,7 +226,11 @@ unchanged, 2 refused); `... record --feature <id> --external "<reason>"` records
 outside the repository; `... fingerprint.mjs check [--feature <id>] [--json]` prints `fresh`, `stale`, `unproven` or
 `external` per feature (exit 0 all fresh or external, 1 one stale or unproven, 2 could not run).
 
-Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
+`scripts/proctree.mjs` (a byte copy of lars-create-verification's; never edit it here; its tests live there) reads
+the process table and records and stops an instance's process tree: `processTable`, `snapshot`, `merge`, `stop`,
+`matches`, `describe`. It has no command line of its own and prints nothing.
+
+Every other script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
 `npm run check` type-checks the scripts.
 
 ## Gotchas

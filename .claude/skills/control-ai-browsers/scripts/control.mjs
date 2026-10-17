@@ -8,6 +8,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync,
 import path, { delimiter, dirname, isAbsolute, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mapFresh, printable } from './fingerprint.mjs';
+import { describe, matches, merge, processTable, snapshot, stop } from './proctree.mjs';
 
 /** @typedef {{ exe: string, scheme: string, product: string, modelRoots: string[], minFreeMib: number, modelComponents?: string[] }} BrowserDef */
 /** @typedef {{ name: string, folders: string, asset: string, useCase: string, contextWindow: number, toolCanary: boolean | 'report', downloadMib: number }} ModelDef */
@@ -26,17 +27,16 @@ import { mapFresh, printable } from './fingerprint.mjs';
  * @typedef {{ name: string, kind: 'derived', at: (slot: number) => number } | { name: string, kind: 'fixed', port: number, pin: string } | { name: string, kind: 'external', port: number, owner: string }} PortRow
  */
 /** @typedef {'gpu' | 'cpu'} Backend */
-/** @typedef {{ ProcessId: number, ExecutablePath: string | null, CommandLine: string | null, Created: string | null }} ProcRow */
+/** @typedef {import('./proctree.mjs').ProcRecord} ProcRecord */
+/** @typedef {import('./proctree.mjs').StopResult} StopResult */
 /** @typedef {{ userDataDir: string | null, port: number, features: string[], args: string[], flags: string[] }} CommandLine */
 /** @typedef {{ backend: Backend | null, problems: string[], commandLine: CommandLine }} Drift */
 
 /**
  * @typedef {object} State
  * @property {string} instance
- * @property {number} pid
- * @property {string | null} created
- * @property {string | null} exe
- * @property {string | null} commandLine
+ * @property {number} pid  the instance's main browser process
+ * @property {ProcRecord[]} [tree]  every process of the instance seen (proctree.mjs), the main process first
  * @property {number} port
  * @property {number | null} slot
  * @property {PortEntry[]} ports
@@ -548,7 +548,16 @@ function pwshJson(command) {
   return jsonRows(r.stdout ?? '');
 }
 
-const PROC_FIELDS = "Select-Object ProcessId,ExecutablePath,CommandLine,@{n='Created';e={$_.CreationDate.ToString('o')}}";
+/**
+ * The program a command line starts: its first token, with or without quotes.
+ * @param {string | null | undefined} commandLine
+ * @returns {string | null}
+ */
+export function programOf(commandLine) {
+  const m = /^\s*(?:"([^"]*)"|(\S+))/.exec(commandLine ?? '');
+
+  return m ? (m[1] ?? m[2] ?? null) : null;
+}
 
 /**
  * @param {string | null | undefined} commandLine
@@ -576,34 +585,100 @@ export function parseCommandLine(commandLine) {
  */
 export const sameDir = (a, b) => !!a && !!b && resolve(a).toLowerCase() === resolve(b).toLowerCase();
 
-// The instance's browser processes are the ones whose --user-data-dir is its profile; Lars's own browsers never match.
+// The instance's browser processes are the ones of the registry's browser program whose --user-data-dir is its
+// profile; Lars's own browsers never match. Found to read them, never to stop by name.
+/**
+ * @param {Pick<Inst, 'exe' | 'dir'>} inst
+ * @param {ProcRecord[]} rows  the process table (proctree.mjs)
+ * @returns {ProcRecord[]}
+ */
+export function instanceProcessesIn(inst, rows) {
+  const exeName = (inst.exe.split('\\').pop() ?? '').toLowerCase();
+
+  return rows.filter((p) => (programOf(p.commandLine)?.split('\\').pop() ?? '').toLowerCase() === exeName && sameDir(parseCommandLine(p.commandLine).userDataDir, inst.dir));
+}
+
 /**
  * @param {Inst} inst
- * @returns {ProcRow[]}
+ * @returns {ProcRecord[]}
  */
 function instanceProcesses(inst) {
-  const exeName = inst.exe.split('\\').pop();
-  const rows = /** @type {ProcRow[]} */ (pwshJson(`Get-CimInstance Win32_Process -Filter "Name='${exeName}'" | ${PROC_FIELDS}`));
-
-  return rows.filter((p) => sameDir(parseCommandLine(p.CommandLine).userDataDir, inst.dir));
+  return instanceProcessesIn(inst, processTable());
 }
 
 /**
  * @param {Inst} inst
- * @returns {ProcRow | null}
+ * @returns {ProcRecord | null}
  */
 function mainProcess(inst) {
-  const main = instanceProcesses(inst).filter((p) => !/--type=/.test(p.CommandLine ?? ''));
+  const main = instanceProcesses(inst).filter((p) => !/--type=/.test(p.commandLine ?? ''));
 
-  return main.length === 1 ? /** @type {ProcRow} */ (main[0]) : main.length === 0 ? null : refuse(`${main.length} main processes use ${inst.dir}`);
+  return main.length === 1 ? /** @type {ProcRecord} */ (main[0]) : main.length === 0 ? null : refuse(`${main.length} main processes use ${inst.dir}`);
 }
 
 /**
- * @param {number} pid
- * @returns {ProcRow | null}
+ * The recorded main process: the `tree` record with the state's PID, or none.
+ * @param {{ pid: number, tree?: ProcRecord[] }} st
+ * @returns {ProcRecord | undefined}
  */
-function processById(pid) {
-  return /** @type {ProcRow[]} */ (pwshJson(`Get-CimInstance Win32_Process -Filter "ProcessId=${Number(pid)}" | ${PROC_FIELDS}`))[0] ?? null;
+export function rootOf(st) {
+  return (st.tree ?? []).find((r) => r.pid === st.pid);
+}
+
+/**
+ * Stops every process the state recorded, through proctree.mjs: a last snapshot below the main process while it
+ * still lives, merged into the record, then `stop`.
+ * @param {{ pid: number, tree?: ProcRecord[] }} st
+ * @param {{ table?: () => ProcRecord[], stop?: (records: ProcRecord[]) => StopResult }} [deps]
+ * @returns {{ records: ProcRecord[], result: StopResult }}
+ */
+export function stopRun(st, { table = processTable, stop: stopRecords = stop } = {}) {
+  const root = rootOf(st);
+  const records = merge(st.tree ?? [], root === undefined ? [] : snapshot(root, { table }));
+
+  return { records, result: stopRecords(records) };
+}
+
+/**
+ * What `down` reports for a stop result. Exit 2 when the main process's PID now belongs to another process (that one
+ * is never touched) or a record still runs after the last round; any other refusal is only noted.
+ * @param {{ pid: number, tree?: ProcRecord[] }} st
+ * @param {StopResult} result
+ * @returns {{ code: 0 | 2, notes: string[], reason: string | null }}
+ */
+export function downOutcome(st, result) {
+  // A state file written before proctree.mjs records no tree: stopping nothing and removing it would lose the run.
+  if (st.tree === undefined) {
+    return { code: 2, notes: [], reason: `refused: the state file records no process tree (written before proctree.mjs); nothing stopped: run attach to record the running instance, then down` };
+  }
+
+  const root = rootOf(st);
+  /** @type {string[]} */
+  const reasons = [];
+  const notes = [...result.stopped.map((r) => `stopped ${describe(r)}`), ...result.gone.map((r) => `${describe(r)} was not running`)];
+
+  for (const r of result.refused) {
+    if (r.reason === 'reused' && root !== undefined && r.pid === root.pid && r.start === root.start) {
+      reasons.push(`refused: PID ${r.pid} now belongs to another process (its start time or command line differs from the state file); not stopping a process this skill did not start`);
+    } else if (r.reason === 'survived') {
+      reasons.push(`${describe(r)} still runs after the last round; run down again`);
+    } else {
+      notes.push(`left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`);
+    }
+  }
+
+  return reasons.length === 0 ? { code: 0, notes, reason: null } : { code: 2, notes, reason: `${reasons.join('; ')}; the state file is kept` };
+}
+
+/**
+ * Whether any record still runs as the recorded process (same PID, start time and command line).
+ * @param {ProcRecord[]} records
+ * @returns {boolean}
+ */
+function anyAlive(records) {
+  const rows = new Map(processTable().map((r) => [r.pid, r]));
+
+  return records.some((r) => matches(r, rows.get(r.pid)));
 }
 
 /**
@@ -617,11 +692,12 @@ function portOwner(port) {
 // Which registry backend a command line matches, or null when it matches none (drift).
 /**
  * @param {Pick<Inst, 'exe' | 'mainPort' | 'worktree' | 'features' | 'backend'>} inst
- * @param {Pick<ProcRow, 'ExecutablePath' | 'CommandLine'>} proc
+ * @param {Pick<ProcRecord, 'commandLine'>} proc
  * @returns {Drift}
  */
 export function drift(inst, proc) {
-  const cl = parseCommandLine(proc.CommandLine);
+  const cl = parseCommandLine(proc.commandLine);
+  const exe = programOf(proc.commandLine);
   const have = [...cl.features].sort().join(',');
   /** @type {Backend[]} */
   const kinds = ['gpu', 'cpu'];
@@ -633,8 +709,8 @@ export function drift(inst, proc) {
   /** @type {string[]} */
   const problems = [];
 
-  if (proc.ExecutablePath !== inst.exe) {
-    problems.push(`exe ${proc.ExecutablePath}, registry ${inst.exe}`);
+  if (exe !== inst.exe) {
+    problems.push(`exe ${exe}, registry ${inst.exe}`);
   }
 
   // The port may be any slot's (a fallback, or --port); from a worktree it is never the main checkout's.
@@ -661,24 +737,6 @@ export function drift(inst, proc) {
   }
 
   return { backend, problems, commandLine: cl };
-}
-
-/**
- * Why `down` must not close the recorded PID, or null when the live process is the one the state file recorded.
- * @param {Pick<State, 'pid' | 'exe' | 'commandLine' | 'created'>} st
- * @param {Pick<ProcRow, 'ExecutablePath' | 'CommandLine' | 'Created'>} live
- * @returns {string | null}
- */
-export function downRefusal(st, live) {
-  if (live.ExecutablePath !== st.exe || live.CommandLine !== st.commandLine) {
-    return `PID ${st.pid} command line mismatch: running "${live.ExecutablePath}" ${String(live.CommandLine).slice(0, 120)}, recorded ${st.exe}`;
-  }
-
-  if (live.Created !== st.created) {
-    return `PID ${st.pid} start-time mismatch: live ${live.Created}, recorded ${st.created}`;
-  }
-
-  return null;
 }
 
 /** @param {number} ms */
@@ -776,14 +834,21 @@ export function slotFor(inst, port) {
 
 /**
  * @param {Inst} inst  on the port it runs on
- * @param {ProcRow} proc
+ * @param {ProcRecord} proc  the live main process
  * @param {{ slot: number, ports: PortEntry[] }} [placed]  what up planned; else the slot of the port it runs on
+ * @param {ProcRecord[]} [seen]  processes of this instance already seen (up: the spawn's snapshot)
  * @returns {State}
  */
-function writeState(inst, proc, placed) {
+function writeState(inst, proc, placed, seen = []) {
   mkdirSync(TMP, { recursive: true });
+  const prior = readState(inst.name);
+  const rows = processTable();
+  const live = new Map(rows.map((r) => [r.pid, r]));
+  // A state file of this same browser process keeps what it recorded; one of another process keeps only its records
+  // that still run (a down that exited 2 left them), so a later down still stops them.
+  const kept = prior === null ? [] : prior.pid === proc.pid && rootOf(prior)?.start === proc.start ? prior.tree ?? [] : (prior.tree ?? []).filter((r) => matches(r, live.get(r.pid)));
   /** @type {State} */
-  const st = { instance: inst.name, pid: proc.ProcessId, created: proc.Created, exe: proc.ExecutablePath, commandLine: proc.CommandLine, port: inst.port, slot: placed?.slot ?? slotFor(inst, inst.port), ports: [...(placed?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }]), BENCH_APP], cdp: inst.cdp, session: inst.session, profile: inst.dir, backend: drift(inst, proc).backend, at: new Date().toISOString() };
+  const st = { instance: inst.name, pid: proc.pid, tree: merge(merge(snapshot(proc, { table: () => rows }), kept), seen), port: inst.port, slot: placed?.slot ?? slotFor(inst, inst.port), ports: [...(placed?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }]), BENCH_APP], cdp: inst.cdp, session: inst.session, profile: inst.dir, backend: drift(inst, proc).backend, at: new Date().toISOString() };
   writeFileSync(statePath(inst.name), JSON.stringify(st, null, 2));
 
   return st;
@@ -1384,11 +1449,11 @@ async function cmdInstances() {
     const inst = instance(name);
     const proc = mainProcess(inst);
     const d = proc ? drift(inst, proc) : null;
-    const port = proc ? parseCommandLine(proc.CommandLine).port : inst.port;
+    const port = proc ? parseCommandLine(proc.commandLine).port : inst.port;
     const tabs = proc ? await pageTabs(at(inst, port)) : [];
-    const row = { name, browser: inst.browser, port, model: inst.model.name, defaultBackend: inst.backend.default, profileExists: existsSync(inst.dir), pid: proc?.ProcessId ?? null, backend: d?.backend ?? null, drift: d?.problems ?? null, tabs: tabs.length, stateFile: existsSync(statePath(name)) };
+    const row = { name, browser: inst.browser, port, model: inst.model.name, defaultBackend: inst.backend.default, profileExists: existsSync(inst.dir), pid: proc?.pid ?? null, backend: d?.backend ?? null, drift: d?.problems ?? null, tabs: tabs.length, stateFile: existsSync(statePath(name)) };
     rows.push(row);
-    log(proc && d ? (d.problems.length ? 'WARN' : 'OK') : 'INFO', `${name} :${port} ${inst.model.name}: ${proc && d ? `PID ${proc.ProcessId}, backend ${d.backend ?? '?'}${d.problems.length ? `, drift: ${d.problems.join('; ')}` : ''}, ${tabs.length} tab(s)` : 'stopped'}`);
+    log(proc && d ? (d.problems.length ? 'WARN' : 'OK') : 'INFO', `${name} :${port} ${inst.model.name}: ${proc && d ? `PID ${proc.pid}, backend ${d.backend ?? '?'}${d.problems.length ? `, drift: ${d.problems.join('; ')}` : ''}, ${tabs.length} tab(s)` : 'stopped'}`);
   }
 
   return { ok: true, instances: rows };
@@ -1406,13 +1471,13 @@ async function cmdUp(inst) {
 
   if (running) {
     const d = drift(inst, running);
-    const mismatch = upMismatch(inst.name, running.ProcessId, d, backend, forced);
+    const mismatch = upMismatch(inst.name, running.pid, d, backend, forced);
 
     if (mismatch !== null) {
       refuse(mismatch);
     }
 
-    log('OK', `${inst.name} already runs as PID ${running.ProcessId} with backend ${backend}`);
+    log('OK', `${inst.name} already runs as PID ${running.pid} with backend ${backend}`);
 
     const st = writeState(at(inst, d.commandLine.port), running);
 
@@ -1446,15 +1511,26 @@ async function cmdUp(inst) {
 
     const run = at(inst, /** @type {PortEntry} */ (plan.ports[0]).port);
     const t0 = Date.now();
-    spawn(run.exe, launchArgs(run, features), { detached: true, stdio: 'ignore' }).unref();
+    const child = spawn(run.exe, launchArgs(run, features), { detached: true, stdio: 'ignore' });
+    const notAfter = Date.now();
+    child.unref();
+    // The browser process as spawned, inside the spawn's time window; the main process is found by its profile.
+    const spawned = child.pid === undefined ? [] : snapshot(child.pid, { notBefore: t0, notAfter });
     const version = /** @type {CdpVersion | null} */ (await waitFor(() => cdpJson(run, '/json/version'), 60000, 500));
     const proc = await waitFor(() => mainProcess(run), version ? 10000 : 1000, 500);
     const owner = portOwner(run.port);
 
     // Another process took the port after the check: it answers (or holds the port) instead of this profile's browser.
-    if (proc && owner !== null && owner !== proc.ProcessId) {
-      spawnSync(join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32', 'taskkill.exe'), ['/PID', String(proc.ProcessId), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
-      await waitFor(() => instanceProcesses(run).length === 0, 30000, 500);
+    if (proc && owner !== null && owner !== proc.pid) {
+      const attempt = { pid: proc.pid, tree: merge(snapshot(proc), spawned) };
+      const { records, result } = stopRun(attempt);
+      const stopped = downOutcome(attempt, result);
+
+      if (stopped.code !== 0) {
+        // Kept, so a later down finds what this attempt started.
+        writeState(run, proc, plan, records);
+        refuse(`port ${run.port} was taken by PID ${owner} after the check, and stopping this attempt failed: ${stopped.reason}; run down`);
+      }
 
       if (forced !== undefined) {
         refuse(`port ${run.port} (--port) was taken by PID ${owner} after the check; --port has no fallback`);
@@ -1477,7 +1553,7 @@ async function cmdUp(inst) {
       throw new Error(`${run.name} answers on ${run.cdp} but no main process uses ${run.dir} after 10 s`);
     }
 
-    const st = writeState(run, proc, plan);
+    const st = writeState(run, proc, plan, spawned);
     const readyMs = Date.now() - t0;
 
     // Edge restores the last session's tabs; leave the instance on the one blank tab it was started with.
@@ -1497,7 +1573,7 @@ async function cmdUp(inst) {
       debugPages = await inTab(run, ENABLE_DEBUG_PAGES, { url: null });
     }
 
-    log('OK', `${run.name} launched as PID ${proc.ProcessId} on ${run.cdp} (${version.Browser}), backend ${backend}, ready in ${readyMs} ms${firstUse ? ', new profile' : ''}${plan.slot === inst.slot ? '' : `, slot ${plan.slot} (${plan.ports[0]?.reason})`}${restored.length ? `; closed ${restored.length} restored tab(s)` : ''}${debugPages ? `; internal debugging pages ${debugPages}` : ''}`);
+    log('OK', `${run.name} launched as PID ${proc.pid} on ${run.cdp} (${version.Browser}), backend ${backend}, ready in ${readyMs} ms${firstUse ? ', new profile' : ''}${plan.slot === inst.slot ? '' : `, slot ${plan.slot} (${plan.ports[0]?.reason})`}${restored.length ? `; closed ${restored.length} restored tab(s)` : ''}${debugPages ? `; internal debugging pages ${debugPages}` : ''}`);
 
     return { ok: true, session: st.session, evidenceDir, backend, firstUse, readyMs, browserVersion: version.Browser, closedRestoredTabs: restored.map((t) => t.url), debugPages, state: st, tabs: await pageTabs(run) };
   }
@@ -1509,10 +1585,10 @@ async function cmdUp(inst) {
  */
 async function cmdAttach(inst) {
   const proc = mainProcess(inst) ?? refuse(`${inst.name} is not running; run "up ${inst.name}"`);
-  const st = writeState(at(inst, parseCommandLine(proc.CommandLine).port), proc);
+  const st = writeState(at(inst, parseCommandLine(proc.commandLine).port), proc);
   await ensureAttached(inst);
   attachedHere = null;
-  log('OK', `${inst.session} attached to ${inst.name} PID ${proc.ProcessId}; it stays attached for ad hoc playwright-cli commands until "detach ${inst.name}" or "down ${inst.name}"`);
+  log('OK', `${inst.session} attached to ${inst.name} PID ${proc.pid}; it stays attached for ad hoc playwright-cli commands until "detach ${inst.name}" or "down ${inst.name}"`);
 
   return { ok: true, state: st };
 }
@@ -1534,25 +1610,33 @@ async function cmdDetach(inst) {
  */
 async function cmdDown(inst) {
   const st = readState(inst.name) ?? refuse(`no state file at ${statePath(inst.name)}; run "attach ${inst.name}" or "up ${inst.name}" first`);
-  const live = processById(st.pid);
+  const root = rootOf(st);
+  const live = processTable().find((r) => r.pid === st.pid);
 
-  if (!live) {
+  // The browser is gone, or its PID now belongs to another process: no Browser.close; stop what it left.
+  if (live === undefined || root === undefined || !matches(root, live)) {
+    const { records, result } = stopRun(st);
+    const outcome = downOutcome(st, result);
+
+    if (outcome.code !== 0) {
+      writeFileSync(statePath(inst.name), JSON.stringify({ ...st, tree: records }, null, 2));
+
+      return { ok: false, couldNotRun: true, reason: outcome.reason, notes: outcome.notes, pid: st.pid };
+    }
+
     rmSync(statePath(inst.name), { force: true });
     log('OK', `PID ${st.pid} is not running any more; removed the state file`);
 
-    return { ok: true, alreadyStopped: true, pid: st.pid };
-  }
-
-  const mismatch = downRefusal(st, live);
-
-  if (mismatch !== null) {
-    refuse(mismatch);
+    return { ok: true, alreadyStopped: true, pid: st.pid, notes: outcome.notes };
   }
 
   if (portOwner(inst.port) !== st.pid) {
     refuse(`port ${inst.port} is not owned by PID ${st.pid}; not sending Browser.close to it`);
   }
 
+  // The last snapshot, while the main process still lives; kept in the state before Browser.close.
+  st.tree = merge(st.tree ?? [], snapshot(root));
+  writeFileSync(statePath(inst.name), JSON.stringify(st, null, 2));
   pw(inst, ['detach']);
   const version = /** @type {CdpVersion | null} */ (await cdpJson(inst, '/json/version')) ?? refuse(`${inst.cdp} does not answer`);
   const ws = new WebSocket(version.webSocketDebuggerUrl);
@@ -1561,7 +1645,8 @@ async function cmdDown(inst) {
     ws.addEventListener('error', j);
   });
   ws.send(JSON.stringify({ id: 1, method: 'Browser.close' }));
-  const gone = await waitFor(() => instanceProcesses(inst).length === 0, 60000, 1000);
+  // Browser.close lets the browser end on its own and write its profile; stop then takes whatever outlived it.
+  await waitFor(() => !anyAlive(st.tree ?? []), 60000, 1000);
 
   // Exiting while the socket is still closing trips a libuv assertion on Windows.
   if (ws.readyState !== WebSocket.CLOSED) {
@@ -1571,15 +1656,20 @@ async function cmdDown(inst) {
     });
   }
 
-  if (!gone) {
-    return { ok: false, reason: `${inst.name} processes still run 60 s after Browser.close; not killing them`, left: instanceProcesses(inst).map((p) => p.ProcessId) };
+  const { records, result } = stopRun(st);
+  const outcome = downOutcome(st, result);
+
+  if (outcome.code !== 0) {
+    writeFileSync(statePath(inst.name), JSON.stringify({ ...st, tree: records }, null, 2));
+
+    return { ok: false, couldNotRun: true, reason: outcome.reason, notes: outcome.notes, pid: st.pid };
   }
 
   rmSync(statePath(inst.name), { force: true });
   const portFree = !portOwner(inst.port);
   log(portFree ? 'OK' : 'ERROR', `${inst.name} PID ${st.pid} closed over CDP; no process uses ${inst.dir}; port ${inst.port} ${portFree ? 'free' : 'still owned'}; state file removed`);
 
-  return { ok: portFree, pid: st.pid, portFree };
+  return { ok: portFree, pid: st.pid, portFree, notes: outcome.notes };
 }
 
 /**
@@ -1616,17 +1706,37 @@ async function cmdDoctor(inst) {
   add('map-fresh', true, fresh.detail, fresh.status === 'warn');
 
   const proc = mainProcess(inst);
-  add('process', !!proc, proc ? `PID ${proc.ProcessId} ${proc.ExecutablePath} --user-data-dir=${inst.dir}` : `no process uses ${inst.dir}`);
+  add('process', !!proc, proc ? `PID ${proc.pid} ${programOf(proc.commandLine)} --user-data-dir=${inst.dir}` : `no process uses ${inst.dir}`);
 
   if (!proc) {
     return { ok: false, couldNotRun: true, checks };
+  }
+
+  const rows = processTable();
+  const byPid = new Map(rows.map((r) => [r.pid, r]));
+  const live = snapshot(proc, { table: () => rows });
+  const st = readState(inst.name);
+  const root = st === null ? undefined : rootOf(st);
+
+  // Written only for a state file of this same browser process, and only when the record changed. A standing
+  // instance runs for days: records that exited are dropped (a PID with its start time never runs again).
+  if (st !== null && root !== undefined && matches(root, proc)) {
+    const recorded = merge(st.tree ?? [], live).filter((r) => matches(r, byPid.get(r.pid)));
+
+    if (JSON.stringify(recorded) !== JSON.stringify(st.tree ?? [])) {
+      writeFileSync(statePath(inst.name), JSON.stringify({ ...st, tree: recorded }, null, 2));
+    }
+
+    add('tree', true, `${recorded.length} process(es) recorded for down`);
+  } else {
+    add('tree', null, st === null ? 'no state file: nothing recorded for down (run attach or up)' : `the state file records PID ${st.pid}, not this browser process; not changed`);
   }
 
   const d = drift(inst, proc);
   add('commandLine', d.problems.length === 0, d.problems.length ? { drift: d.problems } : `matches the registry, backend ${d.backend}`);
 
   const version = /** @type {CdpVersion | null} */ (await cdpJson(inst, '/json/version'));
-  const ports = portsCheck(readState(inst.name)?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }], busyPorts(), new Set([proc.ProcessId]));
+  const ports = portsCheck(readState(inst.name)?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }], busyPorts(), new Set(live.map((r) => r.pid)));
   add('ports', ports.status === 'pass' && !!version && new RegExp(inst.product).test(version.Browser), `${ports.detail}; ${inst.cdp} answers as ${version?.Browser ?? 'nothing'}`);
 
   const tabs = await pageTabs(inst);
@@ -1969,7 +2079,9 @@ async function cmdBench() {
  */
 async function cmdInfo(inst) {
   const st = readState(inst.name);
-  const result = { ok: true, instance: inst.name, port: inst.port, slot: st?.slot ?? slotFor(inst, inst.port), ports: st?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }, BENCH_APP], cdp: inst.cdp, session: inst.session, profile: inst.dir, statePath: statePath(inst.name), state: st, evidenceDir };
+  // The recorded tree goes to the top level, where a teardown check reads it, and only there.
+  const { tree, ...rest } = st ?? { tree: undefined };
+  const result = { ok: true, instance: inst.name, port: inst.port, slot: st?.slot ?? slotFor(inst, inst.port), ports: st?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }, BENCH_APP], cdp: inst.cdp, session: inst.session, profile: inst.dir, statePath: statePath(inst.name), state: st && rest, ...(tree === undefined ? {} : { tree }), evidenceDir };
   log('INFO', JSON.stringify(result));
 
   return result;
@@ -1990,7 +2102,7 @@ function located(inst) {
   }
 
   const proc = mainProcess(inst);
-  const port = proc ? parseCommandLine(proc.CommandLine).port : NaN;
+  const port = proc ? parseCommandLine(proc.commandLine).port : NaN;
 
   return Number.isInteger(port) ? at(inst, port) : inst;
 }

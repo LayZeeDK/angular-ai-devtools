@@ -2,8 +2,8 @@
   "version": 1,
   "features": {
     "health-check": {
-      "provenAt": "2026-10-16T23:29:25.449Z",
-      "commit": "b236ec650d0a4186a0071094456f56fe33b9f634",
+      "provenAt": "2026-10-17T02:12:49.696Z",
+      "commit": "c0748d4f80e13ddead478fcb2e4334589f39d3bb",
       "method": "typescript",
       "entries": [
         ".claude/skills/control-ai-browsers/scripts/control.mjs",
@@ -11,13 +11,14 @@
       ],
       "files": {
         ".claude/skills/control-ai-browsers/instances.json": "92cd2853138e0870c7249d06164f9e4295a07365",
-        ".claude/skills/control-ai-browsers/scripts/control.mjs": "169323634bd903fc8b333856324b827950850ec7",
-        ".claude/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0"
+        ".claude/skills/control-ai-browsers/scripts/control.mjs": "326693de3c29936ce3400d07d90feaccccab6d2c",
+        ".claude/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0",
+        ".claude/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
       }
     },
     "instances": {
-      "provenAt": "2026-10-16T23:29:25.854Z",
-      "commit": "b236ec650d0a4186a0071094456f56fe33b9f634",
+      "provenAt": "2026-10-17T02:12:50.076Z",
+      "commit": "c0748d4f80e13ddead478fcb2e4334589f39d3bb",
       "method": "typescript",
       "entries": [
         ".claude/skills/control-ai-browsers/scripts/control.mjs",
@@ -25,13 +26,14 @@
       ],
       "files": {
         ".claude/skills/control-ai-browsers/instances.json": "92cd2853138e0870c7249d06164f9e4295a07365",
-        ".claude/skills/control-ai-browsers/scripts/control.mjs": "169323634bd903fc8b333856324b827950850ec7",
-        ".claude/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0"
+        ".claude/skills/control-ai-browsers/scripts/control.mjs": "326693de3c29936ce3400d07d90feaccccab6d2c",
+        ".claude/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0",
+        ".claude/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
       }
     },
     "model-lifecycle": {
-      "provenAt": "2026-10-16T23:29:26.626Z",
-      "commit": "b236ec650d0a4186a0071094456f56fe33b9f634",
+      "provenAt": "2026-10-17T02:12:51.041Z",
+      "commit": "c0748d4f80e13ddead478fcb2e4334589f39d3bb",
       "method": "typescript",
       "entries": [
         ".claude/skills/control-ai-browsers/scripts/control.mjs",
@@ -39,8 +41,9 @@
       ],
       "files": {
         ".claude/skills/control-ai-browsers/instances.json": "92cd2853138e0870c7249d06164f9e4295a07365",
-        ".claude/skills/control-ai-browsers/scripts/control.mjs": "169323634bd903fc8b333856324b827950850ec7",
-        ".claude/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0"
+        ".claude/skills/control-ai-browsers/scripts/control.mjs": "326693de3c29936ce3400d07d90feaccccab6d2c",
+        ".claude/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0",
+        ".claude/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
       }
     }
   }

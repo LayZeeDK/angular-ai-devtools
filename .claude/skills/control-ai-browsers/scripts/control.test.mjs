@@ -19,13 +19,14 @@ import {
   upMismatch,
   insideProfile,
   doctorOk,
-  downRefusal,
+  downOutcome,
   downloadRefusal,
   drift,
   exitCode,
   featuresFor,
   findPlaywrightCli,
   instance,
+  instanceProcessesIn,
   jsonRows,
   launchArgs,
   listeners,
@@ -36,12 +37,14 @@ import {
   planPorts,
   portAt,
   portsCheck,
+  programOf,
   reparseRefusal,
   sameDir,
   servingBackend,
   slotFor,
   slotOf,
   slotOrder,
+  stopRun,
   tabSource,
   toolsPass,
 } from './control.mjs';
@@ -241,7 +244,7 @@ test('sameDir compares resolved paths without letter case', () => {
 
 test('drift finds the backend of the launch command line and reports every difference', () => {
   /** @param {string[]} args */
-  const proc = (args, exe = chromeLike.exe) => ({ ExecutablePath: exe, CommandLine: [exe, ...args].join(' ') });
+  const proc = (args, exe = chromeLike.exe) => ({ commandLine: [`"${exe}"`, ...args].join(' ') });
   const cpu = drift(chromeLike, proc(launchArgs(chromeLike, featuresFor(chromeLike, 'cpu'))));
   assert.equal(cpu.backend, 'cpu');
   assert.deepEqual(cpu.problems, []);
@@ -260,15 +263,6 @@ test('drift finds the backend of the launch command line and reports every diffe
   assert.deepEqual(drift(chromeLike, proc([...gpuArgs.slice(0, -1), '--headless', '--enable-features=X', 'about:blank'])).problems, ['extra --headless', 'repeated --enable-features'], 'a switch up does not launch is drift');
   assert.equal(drift(edgeLike, proc(launchArgs(edgeLike, ['AIPromptAPI', 'WebMCP']))).backend, 'gpu', 'an empty backend list matches the base features');
   assert.equal(drift(edgeLike, proc(launchArgs(edgeLike, ['Other']))).backend, null, 'a null backend is skipped, not spread');
-});
-
-test('downRefusal refuses a PID whose executable, command line or start time differ from the state file', () => {
-  const st = { pid: 7, exe: 'C:\\b.exe', commandLine: 'b --x', created: '2026-10-16T10:00:00.0000000+02:00' };
-  const live = { ExecutablePath: st.exe, CommandLine: st.commandLine, Created: st.created };
-  assert.equal(downRefusal(st, live), null);
-  assert.match(downRefusal(st, { ...live, ExecutablePath: 'C:\\c.exe' }) ?? '', /command line mismatch/);
-  assert.match(downRefusal(st, { ...live, CommandLine: 'b --y' }) ?? '', /command line mismatch/);
-  assert.match(downRefusal(st, { ...live, Created: '2026-10-16T11:00:00.0000000+02:00' }) ?? '', /start-time mismatch/);
 });
 
 test('jsonRows turns pwsh output into rows', () => {
@@ -473,4 +467,68 @@ test('the page snippets hold only ASCII', () => {
   const end = source.indexOf('// ---------- readers ----------');
   assert.ok(start > 0 && end > start);
   assert.deepEqual(source.slice(start, end).match(/[^\x00-\x7f]/g), null);
+});
+
+test('programOf reads the program of a command line, quoted or not', () => {
+  assert.equal(programOf('"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe" --user-data-dir=D:\\p about:blank'), 'C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe');
+  assert.equal(programOf('C:\\b\\msedge.exe --x'), 'C:\\b\\msedge.exe');
+  assert.equal(programOf(null), null);
+});
+
+test('instanceProcessesIn takes the registry program on this profile only, whatever the letter case', () => {
+  const inst = { exe: 'C:\\Browsers\\chrome.exe', dir: 'D:\\co\\.browsers\\nano' };
+  const row = (/** @type {number} */ pid, /** @type {string} */ commandLine) => ({ pid, ppid: 1, start: 1000, commandLine });
+  const rows = [
+    row(10, '"C:\\Browsers\\chrome.exe" --user-data-dir=D:\\co\\.browsers\\nano --remote-debugging-port=9680'),
+    row(11, '"C:\\Browsers\\CHROME.EXE" --type=renderer --user-data-dir=d:\\co\\.browsers\\NANO'),
+    row(12, '"C:\\Browsers\\chrome.exe" --user-data-dir=C:\\Users\\Lars\\AppData\\Local\\Google\\Chrome\\User Data'),
+    row(13, 'C:\\other\\node.exe --user-data-dir=D:\\co\\.browsers\\nano'),
+    { pid: 14, ppid: 1, start: 1000, commandLine: null },
+  ];
+  assert.deepEqual(instanceProcessesIn(inst, rows).map((r) => r.pid), [10, 11], "Lars's own profile and another program never match");
+});
+
+test('down goes through proctree.mjs: the last snapshot below the main process is merged into the record, then stop gets it all', () => {
+  const root = { pid: 7, ppid: 1, start: 1000, commandLine: '"C:\\Browsers\\chrome.exe" --user-data-dir=D:\\p' };
+  // Recorded once ready; its parent (PID 20) has exited since, so no walk from the root reaches it.
+  const orphan = { pid: 30, ppid: 20, start: 1200, commandLine: 'chrome.exe --type=crashpad-handler' };
+  const late = { pid: 40, ppid: 7, start: 1300, commandLine: 'chrome.exe --type=renderer' };
+  const st = { pid: 7, tree: [root, orphan] };
+  /** @type {import('./proctree.mjs').ProcRecord[][]} */
+  const calls = [];
+  const { records, result } = stopRun(st, {
+    table: () => [root, orphan, late, { pid: 99, ppid: 1, start: 900, commandLine: 'not started by the run' }],
+    stop: (list) => {
+      calls.push(list);
+
+      return { stopped: list, gone: [], refused: [] };
+    },
+  });
+  assert.deepEqual(calls, [[root, orphan, late]], 'one stop call with the record and the late child, nothing else');
+  assert.deepEqual(records, [root, orphan, late]);
+  assert.equal(downOutcome(st, result).code, 0);
+  const source = readFileSync(new URL('./control.mjs', import.meta.url), 'utf8');
+  const down = /^async function cmdDown\(inst\) \{[^]*?^\}/m.exec(source)?.[0] ?? '';
+  assert.equal(down.match(/stopRun\(st\)/g)?.length, 2, 'both down paths (browser gone, browser closed) stop through stopRun');
+  // Win32_Processor (cpuLoad) is the CPU, not a process query.
+  assert.doesNotMatch(source, /taskkill|process\.kill|Stop-Process|Win32_Process\b|Get-Process|wmic|ParentProcessId|\.ppid\b/, 'no stop or process query of its own besides proctree.mjs');
+  assert.match(source, /snapshot\((?:child\.)?pid, \{ notBefore(?:: t0)?, notAfter \}\)/, 'up records the spawned process inside its spawn window');
+});
+
+test('downOutcome refuses a reused main PID and a survivor with exit 2, and only notes a reused child or a shared helper', () => {
+  const root = { pid: 7, ppid: 1, start: 1000, commandLine: 'chrome.exe --user-data-dir=D:\p' };
+  const child = { pid: 30, ppid: 7, start: 1200, commandLine: 'chrome.exe --type=gpu-process' };
+  const st = { pid: 7, tree: [root, child] };
+  const reusedRoot = downOutcome(st, { stopped: [child], gone: [], refused: [{ ...root, reason: 'reused' }] });
+  assert.equal(reusedRoot.code, 2);
+  assert.match(reusedRoot.reason ?? '', /^refused: PID 7 now belongs to another process .*; the state file is kept$/);
+  const survived = downOutcome(st, { stopped: [root], gone: [], refused: [{ ...child, reason: 'survived' }] });
+  assert.equal(survived.code, 2);
+  assert.match(survived.reason ?? '', /PID 30 \(chrome\.exe --type=gpu-process\) still runs after the last round; run down again/);
+  const noted = downOutcome(st, { stopped: [root], gone: [], refused: [{ ...child, reason: 'reused' }, { pid: 50, ppid: 7, start: 1300, commandLine: 'node nx/src/daemon/server/start.js', reason: 'helper' }] });
+  assert.equal(noted.code, 0);
+  assert.deepEqual(noted.notes.slice(1), ['left PID 30 alone: it now belongs to another process', 'left PID 50 (node nx/src/daemon/server/start.js) alone: a shared helper (the Nx daemon), never stopped']);
+  assert.equal(downOutcome(st, { stopped: [], gone: [root, child], refused: [] }).code, 0, 'a browser that already exited is not a refusal');
+  const { tree, ...noTree } = st;
+  assert.match(downOutcome(noTree, { stopped: [], gone: [], refused: [] }).reason ?? '', /^refused: the state file records no process tree/, 'a state file from before proctree.mjs is refused, not dropped');
 });
