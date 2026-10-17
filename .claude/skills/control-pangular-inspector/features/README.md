@@ -50,6 +50,16 @@ Each feature file starts with an H1 and one paragraph of user-visible behavior, 
 - [Source scan](./source-scan.md): the CLI's stdio tools with no running app.
 - [Panel UI](./panel.md): the full-page panel through the proxy, for a human view.
 
+## Full sweep
+
+A full pass drives the features in this order.
+
+1. [Setup](./setup.md)
+2. [Live inspection](./live-inspection.md)
+3. [Navigation](./navigation.md)
+4. [Source scan](./source-scan.md)
+5. [Panel UI](./panel.md)
+
 ## Manual only
 
 Angular DevTools (browser extension); the Pangular Chrome extension (needs a branded browser profile).

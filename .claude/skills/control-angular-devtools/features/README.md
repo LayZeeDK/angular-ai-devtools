@@ -40,6 +40,15 @@ One file per feature: H1, one paragraph of user-visible behaviour, then `Sub-fea
 - [signal-graph.md](signal-graph.md) - Components tab, signal graph pane
 - [profiler.md](profiler.md) - Profiler tab recording, coexistence with other `ɵsetProfiler` subscribers
 
+## Full sweep
+
+A full pass drives the features in this order.
+
+1. [install.md](install.md)
+2. [attach.md](attach.md)
+3. [signal-graph.md](signal-graph.md)
+4. [profiler.md](profiler.md)
+
 ## Manual only
 
 - The panel in branded browsers (press F12, pick the Angular tab): the scripted path uses DevTools frontend

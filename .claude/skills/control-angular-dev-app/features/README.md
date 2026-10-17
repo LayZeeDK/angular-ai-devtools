@@ -51,12 +51,6 @@ Each feature file has an H1, one paragraph of user-visible behaviour, then four 
 `Sub-features`, `How to get to it (user POV)`, `Driving it with control-angular-dev-app` (starting with
 `Preconditions:`), `Gotchas`.
 
-## Manual only
-
-- Angular DevTools panels (Components, Profiler, Injector Tree, Router Tree).
-- The external link `https://www.ng-journal.com` in the portal header (leaves the app).
-- The Pangular Inspector panel and its floating button: driven by control-pangular-inspector, not here.
-
 ## Features
 
 - [Counter](./counter.md): the ng222-app counter, its signals and its effect.
@@ -67,3 +61,20 @@ Each feature file has an H1, one paragraph of user-visible behaviour, then four 
 - [Portal claims](./portal-claims.md): list, details, create form.
 - [Portal complaints and customers](./portal-complaints-customers.md): both lists, complaint details, complaint
   create and save, customer details.
+
+## Full sweep
+
+A full pass drives the features in this order.
+
+1. [Counter](./counter.md)
+2. [SSR and hydration](./ssr.md)
+3. [Portal navigation](./portal-navigation.md)
+4. [Portal contracts](./portal-contracts.md)
+5. [Portal claims](./portal-claims.md)
+6. [Portal complaints and customers](./portal-complaints-customers.md)
+
+## Manual only
+
+- Angular DevTools panels (Components, Profiler, Injector Tree, Router Tree).
+- The external link `https://www.ng-journal.com` in the portal header (leaves the app).
+- The Pangular Inspector panel and its floating button: driven by control-pangular-inspector, not here.

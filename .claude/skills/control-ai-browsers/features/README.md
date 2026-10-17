@@ -45,15 +45,24 @@ matching feature file. `C` below stands for `node .claude/skills/control-ai-brow
 Each feature file starts with an H1 and one paragraph of behaviour, then four H2s in order: `Sub-features`, `How
 to get to it (user POV)`, `Driving it with control-ai-browsers`, `Gotchas`.
 
-## Manual only
-
-- The `on-device-internals` Event Logs and Tools tabs (not read by the script).
-- Extension contexts (DevTools panels, side panels, service workers).
-- Lars's own Chrome Beta, Edge Dev and everyday Edge profiles: the skills never touch them.
-
 ## Features
 
 - [Instances](./instances.md): registry, up, backend, drift, effective features, down.
 - [Health check](./health-check.md): doctor, availability, canaries, WebMCP.
 - [Model lifecycle](./model-lifecycle.md): info, download, init, clear.
 - [Probes and benchmarks](./probes.md): run a probe script, the model benchmark.
+
+## Full sweep
+
+A full pass drives the features in this order.
+
+1. [Instances](./instances.md)
+2. [Health check](./health-check.md)
+3. [Model lifecycle](./model-lifecycle.md)
+4. [Probes and benchmarks](./probes.md)
+
+## Manual only
+
+- The `on-device-internals` Event Logs and Tools tabs (not read by the script).
+- Extension contexts (DevTools panels, side panels, service workers).
+- Lars's own Chrome Beta, Edge Dev and everyday Edge profiles: the skills never touch them.

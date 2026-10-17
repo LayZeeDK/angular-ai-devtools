@@ -47,12 +47,6 @@ Each feature file has an H1, one paragraph of user-visible behaviour, then four 
 `Sub-features`, `How to get to it (user POV)`, `Driving it with control-vitest-browser-angular` (starting with
 `Preconditions:`), `Gotchas`.
 
-## Manual only
-
-- The Angular DevTools extension: not loaded into these browsers; install it by hand in an instance if needed.
-- The Vitest UI (`ui: false` in both runner configs).
-- Edge Dev and Edge stable instances: the provider is the same, but no run was made on them.
-
 ## Features
 
 - [Counter tests](./counter-tests.md): the four specs, their results, the failing timing demo.
@@ -60,3 +54,17 @@ Each feature file has an H1, one paragraph of user-visible behaviour, then four 
   and profiler events.
 - [Extension in the tester iframe](./extension-in-tester.md): the S1 variant's content scripts, DevTools panel
   and `LanguageModel` reaching the tester iframe.
+
+## Full sweep
+
+A full pass drives the features in this order.
+
+1. [Counter tests](./counter-tests.md)
+2. [Held Counter](./held-counter.md)
+3. [Extension in the tester iframe](./extension-in-tester.md)
+
+## Manual only
+
+- The Angular DevTools extension: not loaded into these browsers; install it by hand in an instance if needed.
+- The Vitest UI (`ui: false` in both runner configs).
+- Edge Dev and Edge stable instances: the provider is the same, but no run was made on them.
