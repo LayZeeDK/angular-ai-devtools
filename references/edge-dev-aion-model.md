@@ -37,9 +37,8 @@ Measured: `down` and the skill do not cause the break. The command line and feat
 and the working state (doctor's `flags` row passed in both); only the model folders differed. A broken download
 leaves the same wrong folders, and the restore on `up` covers both.
 
-Inferred, not proven: that Edge simply published the model ahead of its manifest. Not ruled out: the new model
-may need an `edge://flags` entry or a server-side experiment this profile does not have, which could also be what
-moves the manifest. The flags were never listed against the ones the registry turns on. See "Open question".
+Why the new model cannot run in Edge 157: see "Can the newest model run? (2026-10-17)" below. In short, it needs
+Edge 158 code, and no channel is served a manifest that names it yet.
 
 ## Costs of the pin
 
@@ -64,16 +63,53 @@ The signal is the manifest, not the model: wait until "Edge On-Device Model Mani
 
 If step 2 fails, keep the pin; the current setup is the known-good fallback.
 
-## Open question: a missing flag
+## Can the newest model run? (2026-10-17)
 
-The registry turns on `msEdgeLLMOnDeviceModelPrerelease` and `msEdgeLLMOnDeviceModelMuffinToolUseWorkaround`
-plus the Prompt API features (`instances.json`). Not yet checked: whether Edge Dev 157 has other model or
-manifest flags (search `edge://flags` for "LLM", "on-device", "model") that are off here and that make the
-updater fetch a manifest naming 2026.10.15.1. The test, on a throwaway copy without `--disable-component-update`:
-list those flags and their state, turn on one candidate at a time, restart, and read `edge://components` and
-Broker State. If one moves the manifest and the new pair serves, add it to the registry features and follow the
-steps above instead of keeping the pin.
+Measured in a spike worktree on throwaway profile copies, one browser at a time.
+
+What 2026.10.15.1 is. Still `Aion-1.1-Instruct` (its `manifest.json`), rebuilt: a new `model.onnx` whose graph has
+842 inputs instead of 58, 784 of them LoRA tensors (`lora_A` / `lora_B` per projection, also stored as
+initializers), plus two new adapters, `rewrite_general.onnx_adapter` and `summarize_webpage.onnx_adapter`
+(47.6 MB each). `genai_config.json`, the tokenizer and the execution config are byte-identical to 2026.10.2.1.
+
+What Microsoft's update server offers. The real requests were captured from a NetLog (update protocol 4.0, to
+`edge.microsoft.com/componentupdater/api/v1/update`) and replayed per channel as a fresh install:
+
+| Edge (arm64) | Manifest | Model | Runtime |
+| --- | --- | --- | --- |
+| Stable 155.0.4283.62 | 2026.9.18.5 | none | 2026.10.2.1 |
+| Beta 156.0.4314.30 | 2026.10.2.1 | none | 2026.10.12.1 |
+| Dev 157.0.4329.0 | 2026.10.2.1 | 2026.10.15.1 | 2026.10.12.1 |
+| Canary 158.0.4344.0 | 2026.10.2.1 | 2026.10.15.1 | 2026.10.12.1 |
+
+The rollout bucket (`AppRollout` 0 to 0.99) changes nothing. So no channel is served a manifest naming
+2026.10.15.1; a Canary or Beta install gets the same mismatch or no new model at all.
+
+Flags and experiments. Edge's experiment config (`config.edge.skype.com`) carries no on-device model or Aion
+entry for this client, and Dev 157, Canary 158 and stable 155 ship the same model flags. No flag or experiment
+was found that moves the manifest.
+
+Running it anyway. The manifest's variant files (`variants/*/manifest.binarypb`) name the model version as a
+protobuf string. Rewriting `2026.10.2.1` to `2026.10.15.1` in both variants makes Edge load the new model:
+
+| Browser | Model | Runtime | Result |
+| --- | --- | --- | --- |
+| Edge Dev 157 | 2026.10.15.1 | 2026.10.12.1 or 2026.10.2.1 | Ready and `available`, but every prompt returns 32 x U+0018 in under half a second; canaries fail |
+| Edge stable 155 | 2026.10.15.1 | 2026.10.12.1 | same garbage |
+| Edge Canary 158 | 2026.10.15.1 | 2026.10.12.1 | doctor exit 0 on three launches: structured and tool canaries pass, "Hello!" and "5" answered correctly |
+| Edge Canary 158, original manifest | 2026.10.15.1 | 2026.10.12.1 | the usual mismatch: wants 2026.10.2.1, `downloading` |
+
+The patched manifest survived 3.5 minutes without `--disable-component-update` (the updater sees the same
+manifest version and leaves it); a real newer manifest from Microsoft would replace it. Edge deletes model and
+runtime folders the manifest does not name at startup. Beta 156 was not installed: it sits between two builds that
+fail, so it would fail too (inferred).
+
+So the newest Aion runs today only on Edge Canary 158 with a hand-patched manifest, which is unsupported. The
+supported path is to wait until Microsoft publishes a manifest naming 2026.10.15.1 (expected once Edge 158 code
+reaches Dev; inferred) and then follow "When and how to move to a newer model". Throwaway copies only: the
+patch has no place in `edge-dev-aion`, which Edge 157 cannot run it on.
 
 ## Not measured
 
-- Whether `edge-phi4mini` (Edge stable, Phi-4-mini) has the same model-ahead-of-manifest exposure.
+- Whether the patched Canary setup still works after Canary's next daily update.
+- Whether Canary 158 also runs 2026.10.15.1 with the older 2026.10.2.1 runtime.
