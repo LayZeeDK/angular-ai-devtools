@@ -9,6 +9,7 @@ import { homedir } from 'node:os';
 import path, { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mapFresh, printable } from './fingerprint.mjs';
+import { describe, matches, merge, processTable, snapshot, stop } from './proctree.mjs';
 
 /** @typedef {'chrome' | 'chrome-beta' | 'edge' | 'edge-dev'} BrandedName */
 /** @typedef {'test' | BrandedName} BrowserValue */
@@ -17,15 +18,15 @@ import { mapFresh, printable } from './fingerprint.mjs';
 /** @typedef {{ browser?: BrowserValue, from?: string, profile?: string, timeout?: string, 'app-url'?: string, port?: string, component?: string, click?: string, file?: string, json?: true, 'di-graph'?: true }} Opts */
 
 /** @typedef {{ cmd: string | undefined, opts: Opts, pos: string[] }} Parsed */
-/** @typedef {{ ProcessId: number, CommandLine: string | null, Created: string }} ProcessRow */
+/** @typedef {import('./proctree.mjs').ProcRecord} ProcRecord */
+/** @typedef {import('./proctree.mjs').StopResult} StopResult */
 
 /**
  * @typedef {object} State
  * @property {string} flowId
  * @property {string} session
- * @property {number} pid
- * @property {string} created
- * @property {string | null} commandLine
+ * @property {number} pid  the playwright-cli session process `open` started
+ * @property {ProcRecord[]} [tree]  every process the run was seen to start (proctree.mjs), the session process first
  * @property {number} cdpPort
  * @property {number} [slot]
  * @property {PortEntry[]} [ports]
@@ -37,9 +38,7 @@ import { mapFresh, printable } from './fingerprint.mjs';
  * @property {string} evidenceDir
  * @property {string} startedAt
  * @property {number} [readyInSeconds]
- * @property {number | null} [browserPid]
- * @property {string | null} [browserCreated]  the browser PID's start time, as processById reads it
- * @property {string | null} [browserCommandLine]
+ * @property {number | null} [browserPid]  the Chromium holding the CDP port, a record of `tree`
  */
 
 /** @typedef {{ type: string, url: string, webSocketDebuggerUrl: string }} CdpTarget */
@@ -95,8 +94,8 @@ const ROOT = resolve(SKILL_DIR, '..', '..', '..');
 const TMP = join(ROOT, 'tmp', 'control-angular-devtools');
 const LOCAL = process.env['LOCALAPPDATA'] ?? join(homedir(), 'AppData', 'Local');
 const SYSTEM32 = join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32');
-// Windows reads this from this process, not the child's env, when Node looks up a bare program name (pwsh): set,
-// the current directory is skipped.
+// Windows reads this from the looking process, not the child's env, when Node looks up a bare program name: set,
+// the current directory is skipped. The processes this script starts inherit it.
 process.env['NoDefaultCurrentDirectoryInExePath'] = '1';
 
 /** @type {Record<BrandedName, Browser>} */
@@ -458,41 +457,6 @@ export function busyPorts() {
 }
 
 /**
- * `pid` and every process below it in `rows`.
- * @param {{ ProcessId: number, ParentProcessId: number }[]} rows
- * @param {number} pid
- * @returns {Set<number>}
- */
-export function descendantsOf(rows, pid) {
-  const set = new Set([pid]);
-  let grew = true;
-
-  while (grew) {
-    grew = false;
-
-    for (const r of rows) {
-      if (set.has(r.ParentProcessId) && !set.has(r.ProcessId)) {
-        set.add(r.ProcessId);
-        grew = true;
-      }
-    }
-  }
-
-  return set;
-}
-
-/**
- * `pid` and every process below it now: the playwright-cli session process and the Chromium it opened.
- * @param {number} pid
- * @returns {Set<number>}
- */
-function treeOf(pid) {
-  const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', 'Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId | ConvertTo-Json -Compress'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-
-  return descendantsOf(/** @type {{ ProcessId: number, ParentProcessId: number }[]} */ (JSON.parse(r.stdout || '[]')), pid);
-}
-
-/**
  * @param {number} port
  * @returns {number | null}
  */
@@ -500,17 +464,82 @@ function portOwner(port) {
   return busyPorts().get(port)?.[0] ?? null;
 }
 
-// ---------- processes ----------
+// ---------- processes (proctree.mjs) ----------
 
 /**
- * @param {number} pid
- * @returns {ProcessRow | null}
+ * The recorded session process: the `tree` record with its PID, or none when `up` never saw it run.
+ * @param {{ pid: number, tree?: ProcRecord[] }} st
+ * @returns {ProcRecord | undefined}
  */
-function processById(pid) {
-  const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', `Get-CimInstance Win32_Process -Filter "ProcessId=${Number(pid)}" | Select-Object ProcessId,CommandLine,@{n='Created';e={$_.CreationDate.ToString('o')}} | ConvertTo-Json -Compress`], { encoding: 'utf8' });
-  const text = r.stdout.trim();
+export function rootOf(st) {
+  return (st.tree ?? []).find((r) => r.pid === st.pid);
+}
 
-  return text ? /** @type {ProcessRow} */ (JSON.parse(text)) : null;
+/**
+ * The live tree below the recorded session process now: empty when it is gone or its PID belongs to another process.
+ * @param {{ pid: number, tree?: ProcRecord[] }} st
+ * @param {() => ProcRecord[]} [table]
+ * @returns {ProcRecord[]}
+ */
+export function liveTree(st, table = processTable) {
+  const root = rootOf(st);
+
+  return root === undefined ? [] : snapshot(root, { table });
+}
+
+/**
+ * Stops every process the run recorded, through proctree.mjs: a last snapshot below the root, merged into the
+ * record, then `stop`.
+ * @param {{ pid: number, tree?: ProcRecord[] }} st
+ * @param {{ table?: () => ProcRecord[], stop?: (records: ProcRecord[]) => StopResult }} [deps]
+ * @returns {{ records: ProcRecord[], result: StopResult }}
+ */
+export function stopRun(st, { table = processTable, stop: stopRecords = stop } = {}) {
+  const records = merge(st.tree ?? [], liveTree(st, table));
+
+  return { records, result: stopRecords(records) };
+}
+
+/**
+ * What `down` reports for a stop result. Exit 2 when the root's PID now belongs to another process (that one is never
+ * touched) or a record still runs after the last round; any other refusal is only noted.
+ * @param {{ pid: number, tree?: ProcRecord[] }} st
+ * @param {StopResult} result
+ * @returns {{ code: 0 | 2, notes: string[], reason: string | null }}
+ */
+export function downOutcome(st, result) {
+  // A state file written before proctree.mjs records no tree: stopping nothing and removing it would lose the run.
+  if (st.tree === undefined) {
+    return { code: 2, notes: [], reason: `refused: the state file records no process tree (written before proctree.mjs); nothing stopped: check PID ${st.pid} by hand, then delete the state file` };
+  }
+
+  const root = rootOf(st);
+  /** @type {string[]} */
+  const reasons = [];
+  const notes = [...result.stopped.map((r) => `stopped ${describe(r)}`), ...result.gone.map((r) => `${describe(r)} was not running`)];
+
+  for (const r of result.refused) {
+    if (r.reason === 'reused' && root !== undefined && r.pid === root.pid && r.start === root.start) {
+      reasons.push(`refused: PID ${r.pid} now belongs to another process (its start time or command line differs from the state file); not stopping a process this skill did not start`);
+    } else if (r.reason === 'survived') {
+      reasons.push(`${describe(r)} still runs after the last round; run down again`);
+    } else {
+      notes.push(`left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`);
+    }
+  }
+
+  return reasons.length === 0 ? { code: 0, notes, reason: null } : { code: 2, notes, reason: `${reasons.join('; ')}; the state file is kept` };
+}
+
+/**
+ * Whether any record still runs as the recorded process (same PID, start time and command line).
+ * @param {ProcRecord[]} records
+ * @returns {boolean}
+ */
+function anyAlive(records) {
+  const rows = new Map(processTable().map((r) => [r.pid, r]));
+
+  return records.some((r) => matches(r, rows.get(r.pid)));
 }
 
 // ---------- state ----------
@@ -532,29 +561,24 @@ function requireState() {
 }
 
 /**
- * Why the live process is not the one the state recorded, or null when start time and command line match.
- * @param {State} st
- * @param {ProcessRow} live
+ * Why the live process holding the recorded PID is not the one `up` recorded, or null when it is (proctree.mjs
+ * `matches`: same PID, start time and command line).
+ * @param {{ pid: number, tree?: ProcRecord[] }} st
+ * @param {ProcRecord} live
  * @returns {string | null}
  */
 export function identityProblem(st, live) {
-  if (live.Created !== st.created) {
-    return `PID ${st.pid} start-time mismatch: live ${live.Created}, recorded ${st.created}; not the browser this run started`;
-  }
+  const root = rootOf(st);
 
-  if (live.CommandLine !== st.commandLine) {
-    return `PID ${st.pid} command-line mismatch: live "${(live.CommandLine ?? '').slice(0, 120)}", recorded "${(st.commandLine ?? '').slice(0, 120)}"`;
-  }
-
-  return null;
+  return root !== undefined && matches(root, live) ? null : `PID ${st.pid} is not the process this run started (${root === undefined ? 'no record of it' : 'start time or command line differ'}); not the browser this run started`;
 }
 
 /**
  * @param {State} st
- * @returns {ProcessRow | null} the live process, null when it is gone; refuses when it is another process
+ * @returns {ProcRecord | null} the live process, null when it is gone; refuses when it is another process
  */
 function checkIdentity(st) {
-  const live = processById(st.pid);
+  const live = processTable().find((r) => r.pid === st.pid);
 
   if (!live) {
     return null;
@@ -572,7 +596,7 @@ function checkIdentity(st) {
 /**
  * Why CDP commands must not use the state's port: the recorded process is gone, or another PID owns the port.
  * @param {State} st
- * @param {ProcessRow | null} live
+ * @param {ProcRecord | null} live
  * @param {number | null} owner the PID listening on st.cdpPort
  * @returns {string | null}
  */
@@ -601,45 +625,6 @@ function requireOwnedCdp() {
   }
 
   return st;
-}
-
-/**
- * What `down` does to the recorded PID after the wait: kill it only while it is still the recorded process.
- * @param {State} st
- * @param {ProcessRow | null} live
- * @returns {{ action: 'kill' } | { action: 'gone' } | { action: 'refuse', reason: string }}
- */
-export function killDecision(st, live) {
-  if (!live) {
-    return { action: 'gone' };
-  }
-
-  const problem = identityProblem(st, live);
-
-  return problem ? { action: 'refuse', reason: problem } : { action: 'kill' };
-}
-
-/**
- * What `down` does to the recorded Chromium once the playwright-cli process is gone: stop it only while it is still
- * the browser `up` recorded (same start time and command line). A state without that identity never stops it.
- * @param {State} st
- * @param {ProcessRow | null} live  the process now running under st.browserPid
- * @returns {{ action: 'kill' } | { action: 'gone' } | { action: 'leave', reason: string }}
- */
-export function browserDecision(st, live) {
-  if (!st.browserPid || !live) {
-    return { action: 'gone' };
-  }
-
-  if (!st.browserCreated) {
-    return { action: 'leave', reason: `browser PID ${st.browserPid} still runs, but the state records no start time for it; not stopping it` };
-  }
-
-  if (live.Created !== st.browserCreated || live.CommandLine !== st.browserCommandLine) {
-    return { action: 'leave', reason: `PID ${st.browserPid} is no longer the recorded browser (start time or command line differ); not stopping it` };
-  }
-
-  return { action: 'kill' };
 }
 
 /**
@@ -1211,21 +1196,24 @@ async function cmdUp() {
     };
     mkdirSync(dirname(configPath), { recursive: true });
     writeFileSync(configPath, JSON.stringify(config, null, 2));
+    const notBefore = Date.now();
     const r = pw([`--config=${configPath}`, 'open', appUrl]);
+    const notAfter = Date.now();
     const pid = Number(r.out.match(/opened with pid (\d+)/)?.[1]);
 
     if (r.code !== 0 || !pid) {
       throw new Error(`playwright-cli open failed (${r.code}): ${r.out.slice(0, 600)}`);
     }
 
-    const live = processById(pid);
+    // The session process starts while `open` runs, so it started inside that window.
+    const opened = snapshot(pid, { notBefore, notAfter });
 
-    if (!live) {
-      throw new Error(`playwright-cli PID ${pid} is not in the process table`);
+    if (opened.length === 0) {
+      throw new Error(`playwright-cli PID ${pid} is not running, or did not start while open ran`);
     }
 
     /** @type {State} */
-    const st = { flowId, session: SESSION, pid, created: live.Created, commandLine: live.CommandLine, cdpPort: port, slot: plan.slot, ports: plan.ports, appUrl, extensionVersion: copy.version, extensionDir: copy.dir, profile: PROFILE, configPath, evidenceDir, startedAt: new Date().toISOString() };
+    const st = { flowId, session: SESSION, pid, tree: opened, cdpPort: port, slot: plan.slot, ports: plan.ports, appUrl, extensionVersion: copy.version, extensionDir: copy.dir, profile: PROFILE, configPath, evidenceDir, startedAt: new Date().toISOString() };
     writeFileSync(STATE, JSON.stringify(st, null, 2));
     const ready = await waitFor(async () => {
       try {
@@ -1238,16 +1226,15 @@ async function cmdUp() {
     // The port must be held by the browser this session opened: another harness browser that took it after the
     // check has the same extension ID, so the service worker alone proves nothing.
     const holders = busyPorts().get(port) ?? [];
-    const tree = treeOf(pid);
-    const holder = holders.find((h) => !tree.has(h)) ?? null;
+    const live = liveTree(st);
+    const holder = holders.find((h) => !live.some((x) => x.pid === h)) ?? null;
+    // Recorded with its start time on every path, so down can stop a Chromium that outlives the playwright-cli process.
+    st.tree = merge(st.tree ?? [], live);
+    writeFileSync(STATE, JSON.stringify(st, null, 2));
 
     if (ready && holder === null && holders.length > 0) {
       st.readyInSeconds = Math.round((Date.now() - t0) / 100) / 10;
       st.browserPid = holders[0] ?? null;
-      // Its identity, so down can stop a Chromium that outlives the playwright-cli process, and only that one.
-      const browser = st.browserPid === null ? null : processById(st.browserPid);
-      st.browserCreated = browser?.Created ?? null;
-      st.browserCommandLine = browser?.CommandLine ?? null;
       writeFileSync(STATE, JSON.stringify(st, null, 2));
       log('OK', `session ${SESSION} (playwright-cli PID ${pid}), browser PID ${st.browserPid}, CDP ${port}${plan.slot === first ? '' : ` (fell back to slot ${plan.slot})`}, Angular DevTools ${copy.version}, ready in ${st.readyInSeconds} s`);
 
@@ -1259,6 +1246,17 @@ async function cmdUp() {
     }
 
     pw(['close']);
+    // As in down: close first lets Chromium end on its own; stop takes what outlived it.
+    await waitFor(() => !anyAlive(st.tree ?? []), 10000);
+    const { records, result } = stopRun(st);
+    const stopped = downOutcome(st, result);
+
+    if (stopped.code !== 0) {
+      st.tree = records;
+      writeFileSync(STATE, JSON.stringify(st, null, 2));
+      throw new Error(`CDP port ${port} was taken by PID ${holder} after the check, and stopping this attempt failed: ${stopped.reason}; run down`);
+    }
+
     rmSync(STATE, { force: true });
 
     if (forced !== undefined) {
@@ -1308,6 +1306,17 @@ async function cmdDoctor() {
     return { ok: false, checks };
   }
 
+  const tree = liveTree(st);
+  const recorded = merge(st.tree ?? [], tree);
+
+  // Written only while the state file is there and the record changed: a down that just removed it stays done.
+  if (existsSync(STATE) && JSON.stringify(recorded) !== JSON.stringify(st.tree ?? [])) {
+    st.tree = recorded;
+    writeFileSync(STATE, JSON.stringify(st, null, 2));
+  }
+
+  add('tree', true, `${recorded.length} process(es) recorded for down`);
+
   /** @type {{ Browser?: string } | null} */
   let version = null;
 
@@ -1316,7 +1325,7 @@ async function cmdDoctor() {
   } catch {}
 
   // The CDP port is held by the recorded Chromium (a child of the playwright-cli session process), and answers.
-  const ports = portsCheck(st.ports ?? [{ name: 'cdp', port: st.cdpPort, kind: 'derived' }], busyPorts(), treeOf(st.pid));
+  const ports = portsCheck(st.ports ?? [{ name: 'cdp', port: st.cdpPort, kind: 'derived' }], busyPorts(), new Set(tree.map((r) => r.pid)));
   add('ports', ports.status === 'pass' && !!version, `${ports.detail}; ${version ? `CDP answers (${version.Browser}), recorded browser PID ${st.browserPid}` : `CDP ${st.cdpPort} /json/version does not answer`}`);
   const ext = /** @type {{ serviceWorkers: string[], info: { name: string, version: string, state: string, location: string, path: string, runtimeErrors: number, manifestErrors: number } | null }} */ (runCode(EXT_INFO));
   add('extension', ext.info?.state === 'ENABLED' && ext.serviceWorkers.length > 0, ext.info ? `${ext.info.name} ${ext.info.version} ${ext.info.state} (${ext.info.location}, ${ext.info.path}); service worker ${ext.serviceWorkers.length ? 'running' : 'absent'}; errors ${ext.info.runtimeErrors}/${ext.info.manifestErrors}` : 'not registered');
@@ -1544,46 +1553,24 @@ async function cmdDown() {
     refuse(badPath);
   }
 
-  const live = checkIdentity(st);
+  // The last snapshot, while the session process and its Chromium still live; kept in the state before close.
+  st.tree = merge(st.tree ?? [], liveTree(st));
+  writeFileSync(STATE, JSON.stringify(st, null, 2));
+  const r = pw(['close']);
   /** @type {string[]} */
-  const notes = [];
+  const notes = [`playwright-cli close: ${r.out.trim().split('\n')[0]}`];
+  // close lets Chromium end on its own and write its profile; stop then takes whatever outlived it, such as a
+  // Chromium whose playwright-cli process is gone (it holds the CDP port and locks the profile).
+  await waitFor(() => !anyAlive(st.tree ?? []), 10000);
+  const { records, result } = stopRun(st);
+  const outcome = downOutcome(st, result);
+  notes.push(...outcome.notes);
 
-  if (live) {
-    const r = pw(['close']);
-    notes.push(`playwright-cli close: ${r.out.trim().split('\n')[0]}`);
-
-    if (!(await waitFor(() => !processById(st.pid) && !(st.browserPid && processById(st.browserPid)), 10000))) {
-      const decision = killDecision(st, processById(st.pid));
-
-      if (decision.action === 'refuse') {
-        refuse(`${decision.reason}; not running taskkill`);
-      }
-
-      if (decision.action === 'kill') {
-        spawnSync(join(SYSTEM32, 'taskkill.exe'), ['/PID', String(st.pid), '/T', '/F'], { encoding: 'utf8' });
-        notes.push(`taskkill /T /F ${st.pid}`);
-      }
-
-      if (decision.action === 'gone') {
-        notes.push(`PID ${st.pid} exited during the wait; taskkill skipped`);
-      }
-    }
-  } else {
-    notes.push(`PID ${st.pid} already gone`);
-    pw(['close']);
-  }
-
-  // A Chromium that outlived its playwright-cli process holds the CDP port and locks the profile.
-  const browser = browserDecision(st, st.browserPid ? processById(st.browserPid) : null);
-
-  if (browser.action === 'kill') {
-    spawnSync(join(SYSTEM32, 'taskkill.exe'), ['/PID', String(st.browserPid), '/T', '/F'], { encoding: 'utf8' });
-    notes.push(`browser PID ${st.browserPid} outlived the session: taskkill /T /F ${st.browserPid}`);
-    await waitFor(() => !processById(Number(st.browserPid)), 10000);
-  }
-
-  if (browser.action === 'leave') {
-    notes.push(browser.reason);
+  if (outcome.code !== 0) {
+    st.tree = records;
+    writeFileSync(STATE, JSON.stringify(st, null, 2));
+    // A refusal carries one message, so what was stopped and left goes into it.
+    throw new Error(`${outcome.reason ?? 'stop failed; the state file is kept'}; notes: ${notes.join('; ')}`);
   }
 
   // The profile and config go before the state file: a failure here keeps the record for the next down.

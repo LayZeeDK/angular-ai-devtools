@@ -2,7 +2,7 @@
 // Run: node --test .claude/skills/control-angular-devtools/scripts/control.test.mjs
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -10,16 +10,14 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
   attachOk,
-  browserDecision,
   cdpOwnerProblem,
   deleteProblem,
   findPlaywrightCli,
   isExtensionVersion,
-  killDecision,
   brandedStatusIn,
   busyPorts,
   checkOf,
-  descendantsOf,
+  downOutcome,
   evaluated,
   evidenceStamp,
   flowIdOf,
@@ -38,6 +36,7 @@ import {
   portsCheck,
   profilerOk,
   signalGraphMatch,
+  stopRun,
   slotOfFlow,
   slotOrder,
   UsageError,
@@ -195,22 +194,9 @@ test('portsCheck passes a CDP port the recorded browser holds and fails a foreig
   assert.deepEqual(portsCheck(ports, new Map(), new Set([10])), { status: 'fail', detail: 'cdp 9437 not listening' });
 });
 
-test('descendantsOf walks the whole tree below the session PID and nothing beside it', () => {
-  const rows = [[10, 1], [11, 10], [12, 11], [13, 1]].map(([ProcessId, ParentProcessId]) => ({ ProcessId: Number(ProcessId), ParentProcessId: Number(ParentProcessId) }));
-  assert.deepEqual([...descendantsOf(rows, 10)].sort(), [10, 11, 12]);
-});
-
 test('busyPorts sees a throwaway listener with this process as its holder', async (t) => {
   const port = await listen(t);
   assert.deepEqual(busyPorts().get(port), [process.pid]);
-});
-
-test('identityProblem refuses a reused PID by start time, then by command line', () => {
-  const st = /** @type {import('./control.mjs').State} */ ({ pid: 7, created: 't1', commandLine: 'node a' });
-  assert.equal(identityProblem(st, { ProcessId: 7, Created: 't1', CommandLine: 'node a' }), null);
-  assert.match(identityProblem(st, { ProcessId: 7, Created: 't2', CommandLine: 'node a' }) ?? '', /start-time mismatch: live t2, recorded t1/);
-  assert.match(identityProblem(st, { ProcessId: 7, Created: 't1', CommandLine: 'node b' }) ?? '', /command-line mismatch: live "node b", recorded "node a"/);
-  assert.match(identityProblem(st, { ProcessId: 7, Created: 't1', CommandLine: null }) ?? '', /command-line mismatch: live ""/);
 });
 
 test('parseRunCode unwraps the JSON string the run-code wrapper prints', () => {
@@ -319,32 +305,21 @@ test('waitFor returns the first truthy value, or null at the timeout', async () 
 });
 
 /** @type {import('./control.mjs').State} */
-const STATE = { flowId: 'main', session: 'ngdt', pid: 7, created: 't1', commandLine: 'node a', cdpPort: 9420, appUrl: 'http://localhost:4200/', extensionVersion: '1.22.0', extensionDir: 'D:/x', profile: 'D:/tmp/profile/main', configPath: 'D:/tmp/state/main.cli.config.json', evidenceDir: 'D:/tmp/e', startedAt: 't', browserPid: 8 };
-const LIVE = { ProcessId: 7, Created: 't1', CommandLine: 'node a' };
+const STATE = { flowId: 'main', session: 'ngdt', pid: 7, tree: [{ pid: 7, ppid: 1, start: 1000, commandLine: 'node a' }], cdpPort: 9420, appUrl: 'http://localhost:4200/', extensionVersion: '1.22.0', extensionDir: 'D:/x', profile: 'D:/tmp/profile/main', configPath: 'D:/tmp/state/main.cli.config.json', evidenceDir: 'D:/tmp/e', startedAt: 't', browserPid: 8 };
+const LIVE = { pid: 7, ppid: 1, start: 1000, commandLine: 'node a' };
+
+test('identityProblem passes only the recorded session process: same PID, start time and command line', () => {
+  assert.equal(identityProblem(STATE, LIVE), null);
+  assert.match(identityProblem(STATE, { ...LIVE, start: 2000 }) ?? '', /^PID 7 is not the process this run started \(start time or command line differ\)/);
+  assert.match(identityProblem(STATE, { ...LIVE, commandLine: 'node b' }) ?? '', /start time or command line differ/);
+  assert.match(identityProblem({ pid: 7 }, LIVE) ?? '', /no record of it/, 'a state with no tree never passes');
+});
 
 test('cdpOwnerProblem: CDP only while the recorded process lives and the browser PID owns the port', () => {
   assert.equal(cdpOwnerProblem(STATE, LIVE, 8), null);
   assert.match(cdpOwnerProblem(STATE, null, 8) ?? '', /PID 7 not running/);
   assert.match(cdpOwnerProblem(STATE, LIVE, 99) ?? '', /CDP port 9420 is owned by PID 99, not the recorded browser PID 8/);
   assert.match(cdpOwnerProblem(STATE, LIVE, null) ?? '', /owned by PID null/);
-});
-
-test('killDecision: taskkill only while the PID is still the recorded process', () => {
-  assert.deepEqual(killDecision(STATE, LIVE), { action: 'kill' });
-  assert.deepEqual(killDecision(STATE, null), { action: 'gone' });
-  assert.equal(killDecision(STATE, { ...LIVE, Created: 't2' }).action, 'refuse');
-  assert.equal(killDecision(STATE, { ...LIVE, CommandLine: 'other' }).action, 'refuse');
-});
-
-test('browserDecision: down stops a surviving Chromium only while it is still the recorded browser', () => {
-  const st = { ...STATE, browserCreated: 'b1', browserCommandLine: 'chrome --remote-debugging-port=9420' };
-  const browser = { ProcessId: 8, Created: 'b1', CommandLine: 'chrome --remote-debugging-port=9420' };
-  assert.deepEqual(browserDecision(st, browser), { action: 'kill' });
-  assert.deepEqual(browserDecision(st, null), { action: 'gone' });
-  assert.deepEqual(browserDecision({ ...st, browserPid: null }, browser), { action: 'gone' });
-  assert.equal(browserDecision(st, { ...browser, Created: 'b2' }).action, 'leave');
-  assert.equal(browserDecision(st, { ...browser, CommandLine: 'other' }).action, 'leave');
-  assert.match(JSON.stringify(browserDecision(STATE, browser)), /records no start time/, 'an old state without the identity never stops it');
 });
 
 test('signalGraphMatch compares kinds and labels, not only the count', () => {
@@ -422,4 +397,47 @@ test('findPlaywrightCli takes the script beside the shim in an absolute PATH ent
   assert.equal(findPlaywrightCli('rel'), null, 'a relative PATH entry is never used');
   assert.equal(findPlaywrightCli(noJs), null);
   assert.equal(findPlaywrightCli(''), null);
+});
+
+test('down goes through proctree.mjs: the last snapshot below the session process is merged into the record, then stop gets it all', () => {
+  const root = { pid: 7, ppid: 1, start: 1000, commandLine: 'node playwright-cli session' };
+  // The Chromium, recorded once ready; its playwright-cli process has exited since, so no walk from the root reaches it.
+  const orphan = { pid: 8, ppid: 20, start: 1200, commandLine: 'chrome.exe --remote-debugging-port=9420' };
+  const late = { pid: 40, ppid: 7, start: 1300, commandLine: 'chrome.exe --type=renderer' };
+  const st = { pid: 7, tree: [root, orphan] };
+  /** @type {import('./proctree.mjs').ProcRecord[][]} */
+  const calls = [];
+  const { records, result } = stopRun(st, {
+    table: () => [root, orphan, late, { pid: 99, ppid: 1, start: 900, commandLine: 'not started by the run' }],
+    stop: (list) => {
+      calls.push(list);
+
+      return { stopped: list, gone: [], refused: [] };
+    },
+  });
+  assert.deepEqual(calls, [[root, orphan, late]], 'one stop call with the record and the late child, nothing else');
+  assert.deepEqual(records, [root, orphan, late]);
+  assert.equal(downOutcome(st, result).code, 0);
+  const source = readFileSync(new URL('./control.mjs', import.meta.url), 'utf8');
+  assert.match(source, /^async function cmdDown\(\) \{[^]*?stopRun\(st\)[^]*?^\}/m, 'down stops through stopRun');
+  assert.doesNotMatch(source, /taskkill|process\.kill|Stop-Process|Win32_Process\b|Get-Process|wmic|ParentProcessId|\.ppid\b/, 'no stop or process query of its own besides proctree.mjs');
+  assert.match(source, /snapshot\((?:child\.)?pid, \{ notBefore(?:: t0)?, notAfter \}\)/, 'up records the spawned process inside its spawn window');
+});
+
+test('downOutcome refuses a reused root PID and a survivor with exit 2, and only notes a reused child or a shared helper', () => {
+  const root = { pid: 7, ppid: 1, start: 1000, commandLine: 'node playwright-cli session' };
+  const child = { pid: 30, ppid: 7, start: 1200, commandLine: 'chrome.exe' };
+  const st = { pid: 7, tree: [root, child] };
+  const reusedRoot = downOutcome(st, { stopped: [child], gone: [], refused: [{ ...root, reason: 'reused' }] });
+  assert.equal(reusedRoot.code, 2);
+  assert.match(reusedRoot.reason ?? '', /^refused: PID 7 now belongs to another process .*; the state file is kept$/);
+  const survived = downOutcome(st, { stopped: [root], gone: [], refused: [{ ...child, reason: 'survived' }] });
+  assert.equal(survived.code, 2);
+  assert.match(survived.reason ?? '', /PID 30 \(chrome\.exe\) still runs after the last round; run down again/);
+  const noted = downOutcome(st, { stopped: [root], gone: [], refused: [{ ...child, reason: 'reused' }, { pid: 50, ppid: 7, start: 1300, commandLine: 'node nx/src/daemon/server/start.js', reason: 'helper' }] });
+  assert.equal(noted.code, 0);
+  assert.deepEqual(noted.notes.slice(1), ['left PID 30 alone: it now belongs to another process', 'left PID 50 (node nx/src/daemon/server/start.js) alone: a shared helper (the Nx daemon), never stopped']);
+  assert.equal(downOutcome(st, { stopped: [], gone: [root, child], refused: [] }).code, 0, 'a run that already exited is not a refusal');
+  const { tree, ...noTree } = st;
+  assert.match(downOutcome(noTree, { stopped: [], gone: [], refused: [] }).reason ?? '', /^refused: the state file records no process tree/, 'a state file from before proctree.mjs is refused, not dropped');
 });
