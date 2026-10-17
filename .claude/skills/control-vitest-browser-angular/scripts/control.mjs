@@ -10,9 +10,11 @@ import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSyn
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { mapFresh, printable } from './fingerprint.mjs';
+import { describe, merge, processTable, snapshot, stop } from './proctree.mjs';
 
-/** @typedef {{ ProcessId: number, ParentProcessId: number, Start: string | null, CommandLine: string | null }} ProcessRow */
-/** @typedef {{ pid: number, start: string | null, commandLine: string | null, log: string }} ProcState */
+/** @typedef {import('./proctree.mjs').ProcRecord} ProcRecord */
+/** @typedef {import('./proctree.mjs').StopResult} StopResult */
+/** @typedef {{ pid: number, log: string }} ProcState */
 /** @typedef {{ name: string, status: 'pass' | 'fail' | 'warn' | 'skip', detail: string }} Check */
 /** @typedef {{ status: number | null, stdout: string, stderr: string }} Run */
 /** @typedef {{ Browser: string, webSocketDebuggerUrl: string }} CdpVersion */
@@ -64,6 +66,7 @@ import { mapFresh, printable } from './fingerprint.mjs';
  * @property {string | null} filter
  * @property {boolean} timingDemo
  * @property {ProcState | null} proc
+ * @property {ProcRecord[]} [tree]  every process the ng test run was seen to start (proctree.mjs), the root first
  * @property {string} [orchestratorUrl]
  */
 
@@ -87,7 +90,8 @@ const FIXTURE = path.join(REPO_ROOT, 'spikes', 'ng222-app');
 const NG = path.join(FIXTURE, 'node_modules', '@angular', 'cli', 'bin', 'ng.js');
 const AI_CONTROL = path.join(REPO_ROOT, '.claude', 'skills', 'control-ai-browsers', 'scripts', 'control.mjs');
 const SYSTEM32 = path.join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32');
-// Windows reads this from this process when Node looks up a bare program name (pwsh): it then skips the current directory.
+// Windows reads this from the looking process when Node looks up a bare program name: it then skips the current
+// directory. The ng test run inherits it.
 process.env['NoDefaultCurrentDirectoryInExePath'] = '1';
 const { Cdp, evalIn, frameContexts, writeS1VitestVariant } = /** @type {VitestLib} */ (await import(pathToFileURL(path.join(REPO_ROOT, 'spikes', 'probes', 'vitest-lib.mjs')).href));
 
@@ -420,27 +424,70 @@ export function portsCheck(ports, busy, tree) {
 }
 
 /**
- * `pid` and every process below it in `table`.
- * @param {ProcessRow[]} table
- * @param {number} pid
- * @returns {Set<number>}
+ * The recorded root of the ng test run: the `tree` record with its PID, or none when `up` never saw it run.
+ * @param {State} state
+ * @returns {ProcRecord | undefined}
  */
-export function descendants(table, pid) {
-  const set = new Set([pid]);
-  let grew = true;
+export function rootOf(state) {
+  const proc = state.proc;
 
-  while (grew) {
-    grew = false;
+  return proc === null ? undefined : (state.tree ?? []).find((r) => r.pid === proc.pid);
+}
 
-    for (const p of table) {
-      if (set.has(p.ParentProcessId) && !set.has(p.ProcessId)) {
-        set.add(p.ProcessId);
-        grew = true;
-      }
+/**
+ * The live tree below the recorded root now: empty when it is gone or its PID belongs to another process.
+ * @param {State} state
+ * @param {() => ProcRecord[]} [table]
+ * @returns {ProcRecord[]}
+ */
+export function liveTree(state, table = processTable) {
+  const root = rootOf(state);
+
+  return root === undefined ? [] : snapshot(root, { table });
+}
+
+/**
+ * Stops every process the run recorded, through proctree.mjs: a last snapshot below the root while the parents
+ * still live, merged into the record, then `stop`.
+ * @param {State} state
+ * @param {{ table?: () => ProcRecord[], stop?: (records: ProcRecord[]) => StopResult }} [deps]
+ * @returns {{ records: ProcRecord[], result: StopResult }}
+ */
+export function stopRun(state, { table = processTable, stop: stopRecords = stop } = {}) {
+  const records = merge(state.tree ?? [], liveTree(state, table));
+
+  return { records, result: stopRecords(records) };
+}
+
+/**
+ * What `down` reports for a stop result. Exit 2 when the root's PID now belongs to another process (that one is never
+ * touched) or a record still runs after the last round; any other refusal is only noted.
+ * @param {State} state
+ * @param {StopResult} result
+ * @returns {{ code: 0 | 2, notes: string[], reason: string | null }}
+ */
+export function downOutcome(state, result) {
+  // A state file written before proctree.mjs records no tree: stopping nothing and removing it would lose the run.
+  if (state.proc !== null && state.tree === undefined) {
+    return { code: 2, notes: [], reason: `refused: the state file records no process tree (written before proctree.mjs); nothing stopped: check ng test PID ${state.proc.pid} by hand, then delete the state file` };
+  }
+
+  const root = rootOf(state);
+  /** @type {string[]} */
+  const reasons = [];
+  const notes = [...result.stopped.map((r) => `stopped ${describe(r)}`), ...result.gone.map((r) => `${describe(r)} was not running`)];
+
+  for (const r of result.refused) {
+    if (r.reason === 'reused' && root !== undefined && r.pid === root.pid && r.start === root.start) {
+      reasons.push(`refused: ng test PID ${r.pid} now belongs to another process (its start time or command line differs from the state file); not stopping a process this skill did not start`);
+    } else if (r.reason === 'survived') {
+      reasons.push(`${describe(r)} still runs after the last round; run down again`);
+    } else {
+      notes.push(`left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`);
     }
   }
 
-  return set;
+  return reasons.length === 0 ? { code: 0, notes, reason: null } : { code: 2, notes, reason: `${reasons.join('; ')}; the state file is kept` };
 }
 
 /**
@@ -572,20 +619,6 @@ export function testArgs(ng, state) {
 }
 
 /**
- * Why `down` must not stop the recorded process, or null when the live row matches the state file.
- * @param {ProcessRow} row
- * @param {ProcState} proc
- * @returns {string | null}
- */
-export function pidMismatch(row, proc) {
-  if (row.Start === proc.start && row.CommandLine === proc.commandLine) {
-    return null;
-  }
-
-  return `refused: PID ${proc.pid} does not match the state file: start-time ${row.Start} vs recorded ${proc.start}; command ${row.Start !== proc.start ? 'not compared' : `"${row.CommandLine}" vs recorded "${proc.commandLine}"`}. Not stopping a process this skill did not start.`;
-}
-
-/**
  * Why `down` must not delete the recorded bundled profile, or null when it lies strictly below `scratch`.
  * @param {string} dir
  * @param {string} scratch
@@ -602,18 +635,6 @@ export function profileOutside(dir, scratch) {
 }
 
 // ---------- process and tool access ----------
-
-/** @returns {ProcessRow[]} */
-function processTable() {
-  const ps = "Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,@{n='Start';e={$_.CreationDate.ToUniversalTime().ToString('o')}},CommandLine | ConvertTo-Json -Compress";
-  const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', ps], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
-
-  if (r.status !== 0) {
-    throw new Error(`process table query failed: ${r.stderr}`);
-  }
-
-  return /** @type {ProcessRow[]} */ (JSON.parse(r.stdout));
-}
 
 /**
  * The PIDs listening on each port now (netstat, IPv4 and IPv6).
@@ -812,11 +833,6 @@ export function takenPort(ports, busy, tree) {
   return null;
 }
 
-/** @param {number} pid */
-function stopTree(pid) {
-  return spawnSync(path.join(SYSTEM32, 'taskkill.exe'), ['/PID', String(pid), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
-}
-
 async function up() {
   mkdirSync(STATE_DIR, { recursive: true });
 
@@ -944,7 +960,9 @@ async function up() {
     // Each attempt has its own log, so a retry never reads the last attempt's "already in use".
     const log = path.join(evidenceDir, attempt === 1 ? 'ng-test.log' : `ng-test-${attempt}.log`);
     const fd = openSync(log, 'a');
+    const notBefore = Date.now();
     const child = spawn(process.execPath, testArgs(NG, state), { cwd: FIXTURE, env: testEnv(process.env, state), detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
+    const notAfter = Date.now();
     child.unref();
     const pid = child.pid;
 
@@ -952,8 +970,8 @@ async function up() {
       fail(2, `ng test did not start; see ${log}; run down`, { state: statePath(flowId) });
     }
 
-    const row = processTable().find((r) => r.ProcessId === pid);
-    state.proc = { pid, start: row?.Start ?? null, commandLine: row?.CommandLine ?? null, log };
+    state.proc = { pid, log };
+    state.tree = merge(state.tree ?? [], snapshot(pid, { notBefore, notAfter }));
     writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
     /** @type {{ entry: PortEntry, pid: number | null } | null} */
     let taken = null;
@@ -969,12 +987,19 @@ async function up() {
         break;
       }
 
-      const table = processTable();
-      const exited = !table.some((r) => r.ProcessId === pid);
+      const live = liveTree(state);
+      const exited = live.length === 0;
+      const seen = merge(state.tree ?? [], live);
+
+      // Every poll's snapshot is kept, so a run that fails before it is ready leaves down its whole tree.
+      if (seen.length !== (state.tree ?? []).length) {
+        state.tree = seen;
+        writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
+      }
 
       // Another process took a port after the check: Vitest's strictPort reports "already in use", and a Chromium
       // whose CDP port is taken starts without one.
-      const held = takenPort(state.ports, busyPorts(), descendants(table, pid));
+      const held = takenPort(state.ports, busyPorts(), new Set(live.map((r) => r.pid)));
 
       if (status.failed || exited || held !== null) {
         const vitest = state.ports.find((e) => e.name === 'vitest');
@@ -998,10 +1023,13 @@ async function up() {
       break;
     }
 
-    const live = processTable().find((r) => r.ProcessId === pid);
+    const { records, result } = stopRun(state);
+    const stopped = downOutcome(state, result);
 
-    if (live !== undefined && state.proc !== null && pidMismatch(live, state.proc) === null) {
-      stopTree(pid);
+    if (stopped.code !== 0) {
+      state.tree = records;
+      writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
+      fail(2, `a port was taken after the check, and stopping this attempt failed: ${stopped.reason}; run down`, { state: statePath(flowId), notes: stopped.notes });
     }
 
     const what = `${taken.entry.name} ${taken.entry.port} was taken ${taken.pid === null ? 'by another process' : `by PID ${taken.pid}`} after the check`;
@@ -1022,7 +1050,7 @@ async function up() {
       fail(2, `refused: ${what}, and ${plan.reason}; run down`, { state: statePath(flowId) });
     }
 
-    Object.assign(state, placed(plan), { proc: null });
+    Object.assign(state, placed(plan), { proc: null, tree: [] });
     writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
   }
 
@@ -1030,6 +1058,7 @@ async function up() {
     state.extension.id = extensionIdIn(await cdpList(cdpPortOf(state)));
   }
 
+  state.tree = merge(state.tree ?? [], liveTree(state));
   writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
   // Same abort as at the end of down (measured after up --bundled, 2026-10-16).
   await sleep(250);
@@ -1052,11 +1081,19 @@ async function doctor() {
   }
 
   const proc = state.proc;
-  const table = processTable();
-  const row = proc ? table.find((r) => r.ProcessId === proc.pid) : undefined;
-  const alive = proc !== null && row !== undefined && row.Start === proc.start;
-  add('process-alive', alive ? 'pass' : 'fail', alive ? `ng test PID ${proc.pid} running since ${proc.start}` : `ng test PID ${proc?.pid} is gone or reused`);
-  const ports = portsCheck(state.ports, busyPorts(), alive ? descendants(table, proc.pid) : new Set());
+  const root = rootOf(state);
+  const live = liveTree(state);
+  add('process-alive', root !== undefined && live.length > 0 ? 'pass' : 'fail', root !== undefined && live.length > 0 ? `ng test PID ${root.pid} running since ${new Date(root.start).toISOString()}` : `ng test PID ${proc?.pid} is gone or reused`);
+  const recorded = merge(state.tree ?? [], live);
+
+  // Written only while the state file is there and the record changed: a down that just removed it stays done.
+  if (existsSync(statePath(state.flowId)) && JSON.stringify(recorded) !== JSON.stringify(state.tree ?? [])) {
+    state.tree = recorded;
+    writeFileSync(statePath(state.flowId), JSON.stringify(state, null, 2));
+  }
+
+  add('tree', 'pass', `${recorded.length} process(es) recorded for down`);
+  const ports = portsCheck(state.ports, busyPorts(), new Set(live.map((r) => r.pid)));
   add('ports', ports.status, ports.detail);
   const logPath = proc?.log ?? '';
   const run = testRunCheck(logPath && existsSync(logPath) ? readFileSync(logPath, 'utf8') : '', logPath);
@@ -1142,17 +1179,8 @@ function info() {
 
 async function down() {
   const { sp, state } = readState();
-  const table = processTable();
   /** @type {string[]} */
   const notes = [];
-  const proc = state.proc;
-  const row = proc ? table.find((r) => r.ProcessId === proc.pid) : undefined;
-  const refusal = row && proc ? pidMismatch(row, proc) : null;
-
-  if (refusal !== null) {
-    fail(2, refusal, { state: sp });
-  }
-
   const profileRefusal = state.userDataDir ? profileOutside(state.userDataDir, SCRATCH) : null;
 
   if (profileRefusal !== null) {
@@ -1163,11 +1191,16 @@ async function down() {
   const det = playwrightCli([`-s=${state.session}`, 'detach']);
   notes.push(`session ${state.session}: ${det.status === 0 ? 'detached' : 'was not attached'}`);
 
-  if (row && proc) {
-    const r = spawnSync(path.join(SYSTEM32, 'taskkill.exe'), ['/PID', String(proc.pid), '/T', '/F'], { encoding: 'utf8', windowsHide: true });
-    notes.push(`stopped ng test tree of PID ${proc.pid}: ${r.status === 0 ? 'ok' : r.stderr.trim()}`);
-  } else if (proc) {
-    notes.push(`ng test PID ${proc.pid} was not running`);
+  const { records, result } = stopRun(state);
+  const outcome = downOutcome(state, result);
+  notes.push(...outcome.notes);
+
+  if (outcome.code !== 0) {
+    state.tree = records;
+    writeFileSync(sp, JSON.stringify(state, null, 2));
+    // Same abort as below.
+    await sleep(250);
+    out({ ok: false, command: 'down', flowId: state.flowId, evidenceDir: state.evidenceDir, notes, reason: outcome.reason, state: sp }, outcome.code);
   }
 
   const version = state.mode === 'attach' ? await cdpVersion(cdpPortOf(state)) : null;
@@ -1196,7 +1229,8 @@ async function down() {
     if (state.launchedInstance && state.instance !== null) {
       let r = aiControl(['down', state.instance]);
 
-      if (r.status !== 0) {
+      // Only a missing state file is mended with attach; any other refusal stands (the instance may not be ours now).
+      if (r.status !== 0 && /no state file at/.test(r.stdout + r.stderr)) {
         aiControl(['attach', state.instance]);
         r = aiControl(['down', state.instance]);
       }

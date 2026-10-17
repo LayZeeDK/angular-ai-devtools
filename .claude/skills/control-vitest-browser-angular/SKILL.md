@@ -96,7 +96,8 @@ Read-only. Each check prints one line (`--json` for the list):
 | Check | Passes when |
 |---|---|
 | `map-fresh` | always; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`), or that were never proven; never fails doctor |
-| `process-alive` | the recorded `ng test` PID runs with the recorded start time |
+| `process-alive` | the recorded `ng test` PID runs with the recorded start time and command line |
+| `tree` | adds the live processes below the `ng test` root to the recorded tree, for `down` |
 | `ports` | every derived port listens and its PID is in the `ng test` tree (bundled Chromium included); the instance's external port is listed, not checked: `[OK] ports: vitest 51436 (derived), instance 9681 (external: control-ai-browsers instance chrome-beta-gemma4; this skill attaches to it)` |
 | `test-run` | the log has Vitest's `DEV` (watch) or `RUN` line and no "An exception occurred" or "Unhandled Error"; reports the last `Tests` summary |
 | `browser-cdp` | `/json/version` answers on the CDP port |
@@ -172,12 +173,18 @@ redirected to `<dir>/<name>.json`. `down` keeps it. Proof rules: `features/READM
 node .claude/skills/control-vitest-browser-angular/scripts/control.mjs down
 ```
 
-It reads the state file and refuses (exit 2) when the recorded PID's start time or command line differ from the
-live process. It then detaches the playwright-cli session and stops the `ng test` tree by PID (`taskkill /T /F`;
-in bundled mode the tree includes Vitest's Chromium). In attach mode it closes leftover tabs on the Vitest port,
-uninstalls the extension (`Extensions.uninstall`), and stops the instance only if `up` launched it. It also
-deletes the bundled profile, removes the state file and keeps the evidence. A recorded PID that no longer runs is
-not a refusal. Never `close-all` or `kill-all`.
+It reads the state file, detaches the playwright-cli session and stops the recorded `ng test` tree through
+`scripts/proctree.mjs` (in bundled mode the tree includes Vitest's Chromium). `up` records the root right after the
+spawn and every process below it once ready, and `doctor` adds what it sees since (`tree` in the state file and
+`info --json`). `down` takes a last snapshot below the root, merges it into the record and stops every record
+whose live process still has its start time and command line, children before parents, one PID at a time with a
+forced stop, never by name; a process whose parent already exited is stopped because it was recorded while the
+parent lived. A root whose PID now belongs to another process is never touched and `down` exits 2; so does a
+record that still runs after the last round. Both keep the state file, with the merged record, and skip the rest,
+so the next `down` finishes it. Otherwise, in attach mode, it closes leftover tabs on the Vitest port, uninstalls
+the extension (`Extensions.uninstall`), and stops the instance only if `up` launched it. It also deletes the
+bundled profile, removes the state file and keeps the evidence. A recorded PID that no longer runs is not a
+refusal. A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). When `control-ai-browsers down` refuses (exit 2), the refusal stands and is noted; only a missing state file there is mended with `attach` and a second `down`. Never `close-all` or `kill-all`.
 
 ## Helpers
 
@@ -187,12 +194,12 @@ not a refusal. Never `close-all` or `kill-all`.
 |---|---|---|---|
 | `up` | `--instance <name>` (default `chrome-beta-gemma4`) or `--bundled`; `--extension <dir>\|s1-vitest`; `--hold <ms>`; `--timing-demo`; `--filter <text>`; `--port <n>`; `--timeout <s>` (default 180) | starts the run as above, writes the state file, waits until ready | 0 / 2 |
 | `doctor` | | the checks above | 0 / 1 / 2 |
-| `info` | | the state: flow id, mode, instance, CDP URL, Vitest port, `slot`, `ports` (`{name, port, kind, reason?}`), orchestrator URL, session, evidence dir, extension dir and id, PID, start time, command line, log | 0 / 2 |
+| `info` | | the state: flow id, mode, instance, CDP URL, Vitest port, `slot`, `ports` (`{name, port, kind, reason?}`), orchestrator URL, session, evidence dir, extension dir and id, `proc` (`{pid, log}`), `tree` (`{pid, ppid, start, commandLine}`, the root first; `start` in ms since the epoch) | 0 / 2 |
 | `down` | | the cleanup above | 0 / 2 |
 
 State file: `tmp/control-vitest-browser-angular/state/<flowId>.json`. Exit codes: 0 done or healthy; 1 not
 healthy; 2 refused or could not run, with the reason (a run already recorded, 10 busy slots, a busy `--port`, worktree on
-the main port, `control-ai-browsers up` failed, unknown instance, missing state file, PID mismatch, `--bundled` without an extension, `ng test` exited or
+the main port, `control-ai-browsers up` failed, unknown instance, missing state file, a root PID that now belongs to another process, a record still running after `down`'s last round, `--bundled` without an extension, `ng test` exited or
 failed to start, a value flag given without its value, a `--timeout` that is not a positive number of seconds or a `--hold`
 that is not a positive whole number of milliseconds, and any error a command throws, such as a CDP endpoint that does not
 answer: `<command> could not run: <error>`, with `; run down` after a failed `up`). Text a page or an extension controls is printed with its control
@@ -208,7 +215,11 @@ characters escaped.
   `fresh`, `stale`, `unproven` or `external` per feature. Exit 0 every feature fresh or external, 1 one is stale or
   unproven, 2 could not run.
 
-Each script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
+`scripts/proctree.mjs` (a byte copy of lars-create-verification's; never edit it here; its tests live there) records
+and stops the run's process tree for `up`, `doctor` and `down`: `processTable`, `snapshot`, `merge`, `stop`, `describe`. It has no
+command line of its own and prints nothing.
+
+Every other script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
 `npm run check` type-checks the scripts.
 
 Shared code: `spikes/probes/vitest-lib.mjs` (CDP client, frame contexts, the S1 Vitest variant), also used by

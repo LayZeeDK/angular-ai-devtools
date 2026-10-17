@@ -1,7 +1,7 @@
 // @ts-check
 // Run: node --test .claude/skills/control-vitest-browser-angular/scripts/control.test.mjs
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
@@ -11,7 +11,7 @@ import {
   cdpPortOf,
   checkLine,
   couldNotRun,
-  descendants,
+  downOutcome,
   extensionIdIn,
   flagIn,
   isWorktree,
@@ -19,7 +19,6 @@ import {
   languageModelCheck,
   logStart,
   orchestratorTab,
-  pidMismatch,
   planPorts,
   portRows,
   portsCheck,
@@ -27,6 +26,7 @@ import {
   playwrightCliJs,
   slotOf,
   slotOrder,
+  stopRun,
   takenPort,
   testArgs,
   testEnv,
@@ -36,6 +36,7 @@ import {
 } from './control.mjs';
 
 /** @typedef {Parameters<typeof testEnv>[1]} State */
+/** @typedef {import('./proctree.mjs').ProcRecord} ProcRecord */
 
 /**
  * A throwaway listener on a port the OS picks; closed after the test.
@@ -271,12 +272,6 @@ test('cdpPortOf reads the port of the CDP endpoint', () => {
   assert.equal(cdpPortOf({ cdpUrl: 'http://127.0.0.1:9401' }), 9401);
 });
 
-test('descendants walks the whole tree below a PID and nothing beside it', () => {
-  const row = (/** @type {number} */ pid, /** @type {number} */ parent) => ({ ProcessId: pid, ParentProcessId: parent, Start: null, CommandLine: null });
-  const table = [row(10, 1), row(11, 10), row(12, 11), row(13, 1), row(14, 13)];
-  assert.deepEqual([...descendants(table, 10)].sort(), [10, 11, 12]);
-});
-
 test('listeners maps each LISTENING port to its PID, IPv4 or IPv6, and nothing else', () => {
   const text = [
     '  Proto  Local Address          Foreign Address        State           PID',
@@ -389,14 +384,6 @@ test('testArgs picks the configuration, always watches, and passes a filter', ()
   assert.deepEqual(testArgs('ng.js', state({ mode: 'bundled', filter: 'hold' })), ['ng.js', 'test', '-c', 'extension', '--watch', '--filter', 'hold']);
 });
 
-test('pidMismatch refuses a different start time or command line', () => {
-  const proc = { pid: 42, start: '2026-10-16T10:00:00Z', commandLine: 'node ng.js test', log: 'L' };
-  const row = { ProcessId: 42, ParentProcessId: 1, Start: proc.start, CommandLine: proc.commandLine };
-  assert.equal(pidMismatch(row, proc), null);
-  assert.match(pidMismatch({ ...row, Start: '2026-10-16T11:00:00Z' }, proc) ?? '', /^refused: PID 42 does not match .*command not compared\. Not stopping/);
-  assert.match(pidMismatch({ ...row, CommandLine: 'node other.js' }, proc) ?? '', /command "node other.js" vs recorded "node ng.js test"/);
-});
-
 test('profileOutside allows only a folder strictly below the scratch folder', () => {
   const scratch = String.raw`D:\repo\tmp\control-vitest-browser-angular`;
   assert.equal(profileOutside(String.raw`${scratch}\profile-bundled-51315`, scratch), null);
@@ -459,4 +446,47 @@ test('couldNotRun turns a thrown error into a could-not-run reason, and a clean 
 test('checkLine escapes control characters page text put in a detail', () => {
   assert.equal(checkLine({ name: 'mounted-component', status: 'warn', detail: 'x\u001b[2Jy' }), String.raw`[WARN] mounted-component: x\u001b[2Jy`);
   assert.equal(checkLine({ name: 'ports', status: 'pass', detail: 'ok' }), '[OK] ports: ok');
+});
+
+test('down goes through proctree.mjs: the last snapshot below the root is merged into the record, then stop gets it all', () => {
+  const root = { pid: 7, ppid: 1, start: 1000, commandLine: 'node ng.js test --watch' };
+  // Recorded once ready; its parent (PID 20) has exited since, so no walk from the root reaches it.
+  const orphan = { pid: 30, ppid: 20, start: 1200, commandLine: 'chrome.exe --type=renderer' };
+  const late = { pid: 40, ppid: 7, start: 1300, commandLine: 'esbuild --service' };
+  const run = state({ proc: { pid: 7, log: '' }, tree: [root, orphan] });
+  /** @type {ProcRecord[][]} */
+  const calls = [];
+  const { records, result } = stopRun(run, {
+    table: () => [root, orphan, late, { pid: 99, ppid: 1, start: 900, commandLine: 'not started by the run' }],
+    stop: (list) => {
+      calls.push(list);
+
+      return { stopped: list, gone: [], refused: [] };
+    },
+  });
+  assert.deepEqual(calls, [[root, orphan, late]], 'one stop call with the record and the late child, nothing else');
+  assert.deepEqual(records, [root, orphan, late]);
+  assert.equal(downOutcome(run, result).code, 0);
+  const source = readFileSync(new URL('./control.mjs', import.meta.url), 'utf8');
+  assert.match(source, /^async function down\(\) \{[^]*?stopRun\(state\)[^]*?^\}/m, 'down stops through stopRun');
+  assert.doesNotMatch(source, /taskkill|process\.kill|Stop-Process|Win32_Process\b|Get-Process|wmic|ParentProcessId|\.ppid\b/, 'no stop or process query of its own besides proctree.mjs');
+  assert.match(source, /snapshot\((?:child\.)?pid, \{ notBefore(?:: t0)?, notAfter \}\)/, 'up records the spawned process inside its spawn window');
+});
+
+test('downOutcome refuses a reused root PID and a survivor with exit 2, and only notes a reused child or a shared helper', () => {
+  const root = { pid: 7, ppid: 1, start: 1000, commandLine: 'node ng.js test --watch' };
+  const child = { pid: 30, ppid: 7, start: 1200, commandLine: 'chrome.exe' };
+  const run = state({ proc: { pid: 7, log: '' }, tree: [root, child] });
+  const reusedRoot = downOutcome(run, { stopped: [child], gone: [], refused: [{ ...root, reason: 'reused' }] });
+  assert.equal(reusedRoot.code, 2);
+  assert.match(reusedRoot.reason ?? '', /^refused: ng test PID 7 now belongs to another process .*; the state file is kept$/);
+  const survived = downOutcome(run, { stopped: [root], gone: [], refused: [{ ...child, reason: 'survived' }] });
+  assert.equal(survived.code, 2);
+  assert.match(survived.reason ?? '', /PID 30 \(chrome\.exe\) still runs after the last round; run down again/);
+  const noted = downOutcome(run, { stopped: [root], gone: [], refused: [{ ...child, reason: 'reused' }, { pid: 50, ppid: 7, start: 1300, commandLine: 'node nx/src/daemon/server/start.js', reason: 'helper' }] });
+  assert.equal(noted.code, 0);
+  assert.deepEqual(noted.notes.slice(1), ['left PID 30 alone: it now belongs to another process', 'left PID 50 (node nx/src/daemon/server/start.js) alone: a shared helper (the Nx daemon), never stopped']);
+  assert.equal(downOutcome(run, { stopped: [], gone: [root, child], refused: [] }).code, 0, 'a run that already exited is not a refusal');
+  const { tree, ...noTree } = run;
+  assert.match(downOutcome(noTree, { stopped: [], gone: [], refused: [] }).reason ?? '', /^refused: the state file records no process tree/, 'a state file from before proctree.mjs is refused, not dropped');
 });
