@@ -102,7 +102,10 @@ async page => {
             calls.push(`${c.name}${stringify(c.arguments)}`);
             const r = runTool(c.name, c.arguments);
 
-            return { type: 'tool-response', value: new LanguageModelToolSuccess({ callID: c.callID ?? '', name: c.name, result: [{ type: 'text', value: stringify(r) }] }) };
+            // Chrome Beta 156 reads callID; Edge Dev 157.0.4329 requires callId. Unknown dictionary members are ignored.
+            const id = c.callID ?? c.callId ?? '';
+
+            return { type: 'tool-response', value: new LanguageModelToolSuccess({ callID: id, callId: id, name: c.name, result: [{ type: 'text', value: stringify(r) }] }) };
           }) }];
         }
 

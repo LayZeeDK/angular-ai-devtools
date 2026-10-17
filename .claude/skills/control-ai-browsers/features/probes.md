@@ -43,9 +43,11 @@ the main checkout's port: in a worktree `control-angular-dev-app` derives anothe
   timeout. `bench.js` has a 120 s per-prompt timeout and returns tool exceptions as tool errors.
 - The function gets the tab as `page`; `page.context()` is the whole instance profile. Do not close other pages or
   clear storage from a probe.
-- `spikes/probes/probe10.js` passes only `callID` to `LanguageModelToolSuccess`, so on Edge Dev 157.0.4329 its
-  tool round trip ends in `TypeError: ... 'callId' ... Required member is undefined` (measured 2026-10-15);
-  `doctor`'s `canary.tools` covers the round trip there until the probe sends `callId` too.
+- A tool response must carry both `callID` (Chrome Beta 156) and `callId` (Edge Dev 157.0.4329 requires it, or the
+  round trip ends in `TypeError: ... 'callId' ... Required member is undefined`). `probe10.js`, `bench.js` and
+  `doctor`'s `canary.tools` send both; a new probe must too.
+- Chrome Beta Nano runs `probe10.js` without error but answers in prose instead of calling the tools (measured
+  2026-10-17); the tool round trip is proven on `edge-dev-aion`.
 - `bench` does not use `spikes/probes/bench-all.sh`: that script cannot record the backend and load per result,
   and it uses the `bench-*` sessions, which belong to Claude.
 - Benchmark latency depends on the backend and on CPU load from other sessions on this machine; compare only
