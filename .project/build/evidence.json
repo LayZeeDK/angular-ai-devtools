@@ -1,0 +1,32 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "633678cf55791e0804b0bb3de5d289c067a22fe7",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M002",
+        "candidates": [
+          {
+            "base": "5c9ea9c18d395a0bad51146b1828193e6d354ef2",
+            "commit": "9f0185a811021ba74c25b8cc0cf1147c5426bcb8",
+            "valid": true
+          }
+        ],
+        "head": "633678cf55791e0804b0bb3de5d289c067a22fe7",
+        "subject": "T001: Document verify-sidecar dependency bridge and confirm baseline"
+      },
+      "landed_commit": "9f0185a811021ba74c25b8cc0cf1147c5426bcb8",
+      "reasons": [],
+      "task": {
+        "base": "5c9ea9c18d395a0bad51146b1828193e6d354ef2",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-sidecar-bridge.md"
+      }
+    }
+  ]
+}
