@@ -3,9 +3,9 @@ id: T008
 title: Rerun closed-findings check since 0647e96 and final verification
 wave: 7
 deps: [T007]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T008
+base: 9b77a9d8fbccda4f898b65b1bdb29c26e5556a69
 worktree: null
 task_branch: null
 files:
@@ -50,3 +50,4 @@ Heavy: no
 ## Log
 
 - created by planner
+
