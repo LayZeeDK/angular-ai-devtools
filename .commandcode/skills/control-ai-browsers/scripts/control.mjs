@@ -126,9 +126,12 @@ function resolveArtifactDir(newDir, oldDir) {
   return newDir;
 }
 
+/** @param {string} newDir @param {string} oldDir */
 export function artifactDir(newDir, oldDir) {
   return resolveArtifactDir(newDir, oldDir);
 }
+
+/** @param {string} newDir @param {string} oldDir */
 export function fallbackRead(newDir, oldDir) {
   return existsSync(newDir) && readdirSync(newDir).length > 0 ? newDir : (oldDir && existsSync(oldDir) ? oldDir : newDir);
 }
