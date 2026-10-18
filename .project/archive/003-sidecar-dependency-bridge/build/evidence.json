@@ -1,0 +1,104 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "94b57dd5dec9e4915e81fc683976b665becef441",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M003",
+        "candidates": [
+          {
+            "base": "119a4ab2d13cc10cb48c22ef2c375aa818af70ab",
+            "commit": "ea2f3e94071060fdfdb58969c5579002612a574d",
+            "valid": true
+          }
+        ],
+        "head": "94b57dd5dec9e4915e81fc683976b665becef441",
+        "subject": "T001: Add automatic verify-sidecar dependency bridge helper with reuse, fail-fast, and safe teardown"
+      },
+      "landed_commit": "ea2f3e94071060fdfdb58969c5579002612a574d",
+      "reasons": [],
+      "task": {
+        "base": "119a4ab2d13cc10cb48c22ef2c375aa818af70ab",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-bridge-helper.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M003",
+        "candidates": [
+          {
+            "base": "119a4ab2d13cc10cb48c22ef2c375aa818af70ab",
+            "commit": "eeae36930d90db2a9d2c6dbe529b506ac5db3b6c",
+            "valid": true
+          }
+        ],
+        "head": "94b57dd5dec9e4915e81fc683976b665becef441",
+        "subject": "T002: Relocate .browsers/ and tmp/ runtime artifacts under .commandcode/worktrees/ with fallback read"
+      },
+      "landed_commit": "eeae36930d90db2a9d2c6dbe529b506ac5db3b6c",
+      "reasons": [],
+      "task": {
+        "base": "119a4ab2d13cc10cb48c22ef2c375aa818af70ab",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-artifact-relocation.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M003",
+        "candidates": [
+          {
+            "base": "2d42aa14126d6052a2fd33310b1bf86e7d0cfa1f",
+            "commit": "1746b9be797ff46201fb5a412f151a6c995d6538",
+            "valid": true
+          }
+        ],
+        "head": "94b57dd5dec9e4915e81fc683976b665becef441",
+        "subject": "T003: Update AGENTS.md, skill docs, and .gitignore; prove sidecar checks and no regression"
+      },
+      "landed_commit": "1746b9be797ff46201fb5a412f151a6c995d6538",
+      "reasons": [],
+      "task": {
+        "base": "2d42aa14126d6052a2fd33310b1bf86e7d0cfa1f",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-docs-integration-verify.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M003",
+        "candidates": [
+          {
+            "base": "4a085616bd4ae877a09e4aa0d4830cc450fc4f81",
+            "commit": "1b070ade55f247de177df8cf89f69ee306f220bc",
+            "valid": true
+          }
+        ],
+        "head": "94b57dd5dec9e4915e81fc683976b665becef441",
+        "subject": "T004: Add held-out edge E3 pin test fallback-read-old-path to control-ai-browsers"
+      },
+      "landed_commit": "1b070ade55f247de177df8cf89f69ee306f220bc",
+      "reasons": [],
+      "task": {
+        "base": "4a085616bd4ae877a09e4aa0d4830cc450fc4f81",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-fix-fallback-test.md"
+      }
+    }
+  ]
+}

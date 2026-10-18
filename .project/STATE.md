@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: sidecar-hardening
+milestone: sidecar-dependency-bridge
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M002
+branch: gsd-path/M003
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/002-sidecar-hardening
+archive: .project/archive/003-sidecar-dependency-bridge
 integration_default: direct
 integration: direct
 integration_source: default
@@ -44,6 +44,19 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-18 — inspect — inspection artifacts passed
 - 2026-10-18 — define — definition started
 - 2026-10-18 — define — milestone intent approved
+- 2026-10-18 — plan — planning started
+- 2026-10-18 — plan — plan approved
+- 2026-10-18 — build — build started
+- 2026-10-18 — ship — build done; final review pending
+- 2026-10-18 — shipped — archive preflight passed; shipment recorded
+- 2026-10-18 — inspect — router bound next milestone: base dc6e6937590292f3f2ac0f57f09cf9c4162c1350, integration dc6e6937590292f3f2ac0f57f09cf9c4162c1350
+- 2026-10-18 — inspect — inspection artifacts passed
+- 2026-10-18 — define — definition started
+- 2026-10-18 — define — milestone intent approved
+- 2026-10-18 — research — research started
+- 2026-10-18 — research — research complete; manifest .project/research/RESEARCH.md; dispatched domain, pitfalls, similar, stack; skipped none; 2 questions
+- 2026-10-18 — decide — decision synthesis started
+- 2026-10-18 — decide — decision synthesis complete; synthesis .project/research/SYNTHESIS.md
 - 2026-10-18 — plan — planning started
 - 2026-10-18 — plan — plan approved
 - 2026-10-18 — build — build started

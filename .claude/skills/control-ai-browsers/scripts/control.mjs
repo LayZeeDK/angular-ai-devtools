@@ -91,10 +91,64 @@ import { describe, matches, merge, processTable, snapshot, stop } from './proctr
 
 const SKILL_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = resolve(SKILL_DIR, '..', '..', '..');
-const TMP = join(ROOT, 'tmp', 'control-ai-browsers');
+// Runtime artifacts moved under .commandcode/worktrees/ (per-worktree, copy not symlink). One-time fallback read
+// from the legacy root location preserves existing artifacts (edge E3, prohibition N5).
+const OLD_TMP = join(ROOT, 'tmp', 'control-ai-browsers');
 /** @type {Registry} */
 const REGISTRY = JSON.parse(readFileSync(join(SKILL_DIR, 'instances.json'), 'utf8'));
-const PROFILES = resolve(ROOT, REGISTRY.profilesRoot);
+const OLD_PROFILES = resolve(ROOT, REGISTRY.profilesRoot);
+const ARTIFACT_ROOT = resolve(ROOT, '.commandcode', 'worktrees');
+const NEW_TMP = join(ARTIFACT_ROOT, 'tmp', 'control-ai-browsers');
+const NEW_PROFILES = resolve(ARTIFACT_ROOT, REGISTRY.profilesRoot);
+
+/**
+ * Resolve an artifact directory, migrating (copying, never symlinking) from the legacy location on first use and
+ * falling back to reading the legacy location when the new one is empty/missing, so no artifacts are lost.
+ * @param {string} newDir
+ * @param {string} oldDir
+ * @returns {string}
+ */
+function resolveArtifactDir(newDir, oldDir) {
+  try {
+    if (existsSync(newDir) && readdirSync(newDir).length > 0) {
+      return newDir;
+    }
+  } catch {
+    // fall through to migration / fallback
+  }
+
+  if (oldDir && existsSync(oldDir)) {
+    try {
+      mkdirSync(dirname(newDir), { recursive: true });
+      if (!existsSync(newDir)) {
+        cpSync(oldDir, newDir, { recursive: true });
+      }
+      if (existsSync(newDir) && readdirSync(newDir).length > 0) {
+        return newDir;
+      }
+    } catch {
+      // fall back to reading the legacy location
+    }
+
+    return oldDir;
+  }
+
+  mkdirSync(newDir, { recursive: true });
+  return newDir;
+}
+
+/** @param {string} newDir @param {string} oldDir */
+export function artifactDir(newDir, oldDir) {
+  return resolveArtifactDir(newDir, oldDir);
+}
+
+/** @param {string} newDir @param {string} oldDir */
+export function fallbackRead(newDir, oldDir) {
+  return existsSync(newDir) && readdirSync(newDir).length > 0 ? newDir : (oldDir && existsSync(oldDir) ? oldDir : newDir);
+}
+export const TMP = resolveArtifactDir(NEW_TMP, OLD_TMP);
+export const PROFILES = resolveArtifactDir(NEW_PROFILES, OLD_PROFILES);
+export const OLD_ROOT = ROOT;
 // Slot 0 is the main checkout's (the registry ports); a worktree hashes to one of 1 to SLOTS - 1. Profiles are per
 // checkout (profilesRoot is below ROOT), so each checkout runs its own instances on its own ports.
 const SLOTS = 40;
@@ -141,7 +195,7 @@ export function parseArgs(argv) {
 
 const { opts, pos } = parseArgs(process.argv.slice(2));
 const runId = new Date().toISOString().replace(/[-:]/g, '').replace(/\..*/, '').replace('T', '-');
-const evidenceDir = resolve(ROOT, typeof opts['evidence'] === 'string' ? opts['evidence'] : join('tmp', 'control-ai-browsers', 'evidence', runId));
+const evidenceDir = resolve(typeof opts['evidence'] === 'string' ? opts['evidence'] : join(TMP, 'evidence', runId));
 
 export class Refusal extends Error {}
 
