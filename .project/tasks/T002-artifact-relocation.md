@@ -3,9 +3,9 @@ id: T002
 title: Relocate .browsers/ and tmp/ runtime artifacts under .commandcode/worktrees/ with fallback read
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002
+base: 119a4ab2d13cc10cb48c22ef2c375aa818af70ab
 worktree: null
 task_branch: null
 files:
@@ -54,3 +54,27 @@ Heavy: no
 ## Log
 
 - 2026-10-18 — created by planner
+- 2026-10-18 — implemented: relocated TMP/PROFILES to .commandcode/worktrees/ with copy-migration and fallback read; updated evidenceDir; both skill copies; tests pass
+- 2026-10-18 — orchestrator Verify (isolate gsd-path-task/T002): pass, exit 0; output tail:
+  ```
+  ✔ downOutcome refuses a reused main PID and a survivor with exit 2, and only notes a reused child or a shared helper (0.2053ms)
+  ✔ assetVerdict reads the measured Edge update states: in flight, then a model past its manifest (0.3163ms)
+  ✔ pinPlan removes every other version and adds the pinned one; describePlan names both (0.2388ms)
+  ✔ listing records files and sizes by relative path and lists links without following them (7.1746ms)
+  ✔ pinPlan replaces a pinned folder whose contents differ (0.1177ms)
+  ✔ applyPin restores the pinned folders in a profile and leaves everything else alone (11.3955ms)
+  ✔ applyPin replaces a truncated pinned folder, and deletes nothing when the pin itself is damaged (12.7543ms)
+  ✔ applyPin refuses a component root that is a junction and a pinned source that holds a link (7.2233ms)
+  ✔ pinProblems accepts a pin of the registry roots only, with version names and plain relative file paths (0.49ms)
+  ✔ drift compares an args entry with a value by switch name and whole entry (0.1777ms)
+  ✔ an instance's own args are launched after the common ones, and drift requires them (0.1246ms)
+  ✔ restoreSwap puts back a pin left at .old only when no current pin exists (1.9993ms)
+  ℹ tests 47
+  ℹ suites 0
+  ℹ pass 47
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 1577.3078
+  ```
