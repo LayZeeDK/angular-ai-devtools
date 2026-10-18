@@ -1,0 +1,1 @@
+{"command": "grep -q \"Verify sidecar\" AGENTS.md", "commit": "5c9ea9c18d395a0bad51146b1828193e6d354ef2", "recorded_at": "2026-10-18T01:44:36+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
