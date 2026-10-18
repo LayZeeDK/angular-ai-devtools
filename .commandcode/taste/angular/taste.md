@@ -9,3 +9,4 @@
 - Expects him to be told about legacy APIs that a target app actually uses (audit the app, then map legacy → modern replacement). Confidence: 0.75
 - When adapting Angular skills for Command Code, the `angular-developer` skill should be model-invocable (no `disable-model-invocation` flag) so it auto-loads when working on Angular projects; only `angular-new-app` should remain explicit-only (`disable-model-invocation: true`). Confidence: 0.9
 - Chrome/Edge web extension dev tools must be implemented in Angular, following the `/angular-developer` skill, and using modern Angular APIs/features (zoneless, Signal Forms, Signals, resources, and optionally `@defer` and render hooks). Confidence: 0.85
+- Features should be Angular-only with no third-party packages; specifically excludes Vitest, Analog.js, Storybook, NgRx, and RxAngular. Confidence: 0.85
