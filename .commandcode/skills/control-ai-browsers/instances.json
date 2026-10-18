@@ -1,0 +1,171 @@
+{
+  "profilesRoot": ".browsers",
+  "commonArgs": [
+    "--no-first-run",
+    "--no-default-browser-check"
+  ],
+  "browsers": {
+    "chrome-beta": {
+      "exe": "C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe",
+      "scheme": "chrome",
+      "product": "^Chrome/",
+      "modelRoots": [
+        "OptGuideManifestModel",
+        "OptGuideOnDeviceModel"
+      ],
+      "minFreeMib": 22528
+    },
+    "edge-dev": {
+      "exe": "C:\\Program Files (x86)\\Microsoft\\Edge Dev\\Application\\msedge.exe",
+      "scheme": "edge",
+      "product": "^Edg/",
+      "modelRoots": [
+        "EdgeLLMOnDeviceModel"
+      ],
+      "minFreeMib": 20480,
+      "modelComponents": [
+        "Edge LLM On Device Model",
+        "Edge LLM Runtime"
+      ]
+    },
+    "edge-stable": {
+      "exe": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+      "scheme": "edge",
+      "product": "^Edg/",
+      "modelRoots": [
+        "EdgeLLMOnDeviceModel"
+      ],
+      "minFreeMib": 20480,
+      "modelComponents": [
+        "Edge LLM On Device Model",
+        "Edge LLM Runtime"
+      ]
+    }
+  },
+  "instances": {
+    "chrome-beta-nano": {
+      "browser": "chrome-beta",
+      "port": 9333,
+      "features": [
+        "AIPromptAPI",
+        "AIPromptAPIToolUse",
+        "AIPromptAPIMultimodalInput",
+        "AISummarizationAPI",
+        "AIWriterAPI",
+        "AIRewriterAPI",
+        "WebMCP"
+      ],
+      "backend": {
+        "default": "gpu",
+        "gpu": [
+          "OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/2%2C3%2C4%2C5%2C6/compatible_low_tier_on_device_performance_classes/2%2C3%2C4"
+        ],
+        "cpu": []
+      },
+      "model": {
+        "name": "v3Nano",
+        "folders": "OptGuideOnDeviceModel\\<version>",
+        "asset": "^nano_v3_(gpu|cpu)_component$",
+        "useCase": "prompt_api",
+        "contextWindow": 9216,
+        "toolCanary": false,
+        "downloadMib": 4073
+      }
+    },
+    "chrome-beta-gemma4": {
+      "browser": "chrome-beta",
+      "port": 9334,
+      "features": [
+        "AIPromptAPI",
+        "AIPromptAPIToolUse",
+        "OnDeviceModelConversationBackend",
+        "AIApiFoundationalModel:model_version/v4",
+        "OptimizationGuideManifestBroker",
+        "AIPromptAPIMultimodalInput",
+        "AISummarizationAPI",
+        "AIWriterAPI",
+        "AIRewriterAPI",
+        "WebMCP"
+      ],
+      "backend": {
+        "default": "gpu",
+        "gpu": [],
+        "cpu": [
+          "OnDeviceModelForceCpuBackend"
+        ]
+      },
+      "model": {
+        "name": "gemma4-2b-it",
+        "folders": "OptGuideManifestModel\\<hash>\\<version>",
+        "asset": "^gemma4_component$",
+        "useCase": "prompt_api_gemma4",
+        "contextWindow": 9216,
+        "toolCanary": true,
+        "downloadMib": 3127
+      }
+    },
+    "edge-dev-aion": {
+      "browser": "edge-dev",
+      "port": 9335,
+      "features": [
+        "AIPromptAPI",
+        "AIPromptAPIStructuredOutput",
+        "AIPromptAPIToolUse",
+        "AIRewriterAPI",
+        "AISummarizationAPI",
+        "AIWriterAPI",
+        "WebMCP",
+        "msEdgeLLMOnDeviceModelMuffinToolUseWorkaround",
+        "msEdgeLLMOnDeviceModelPrerelease"
+      ],
+      "args": [
+        "--disable-component-update"
+      ],
+      "pin": [
+        "EdgeLLMOnDeviceModel",
+        "EdgeLLMRuntime"
+      ],
+      "backend": {
+        "default": "gpu",
+        "gpu": [],
+        "cpu": null
+      },
+      "model": {
+        "name": "Aion-1.1-Instruct",
+        "folders": "EdgeLLMOnDeviceModel\\<version>",
+        "asset": "^edge_base_model$",
+        "useCase": "prompt_api",
+        "contextWindow": 7168,
+        "toolCanary": true,
+        "downloadMib": 1248
+      }
+    },
+    "edge-phi4mini": {
+      "browser": "edge-stable",
+      "port": 9337,
+      "features": [
+        "AIPromptAPI",
+        "AIPromptAPIStructuredOutput",
+        "AIPromptAPIToolUse",
+        "AIRewriterAPI",
+        "AISummarizationAPI",
+        "AIWriterAPI",
+        "WebMCP"
+      ],
+      "backend": {
+        "default": "gpu",
+        "gpu": [],
+        "cpu": null
+      },
+      "model": {
+        "name": "Phi-4-mini-instruct",
+        "folders": "EdgeLLMOnDeviceModel\\<version>",
+        "asset": "^edge_base_model$",
+        "useCase": "prompt_api",
+        "contextWindow": 9216,
+        "toolCanary": "report",
+        "downloadMib": 2391
+      }
+    }
+  }
+}
