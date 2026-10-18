@@ -3,9 +3,9 @@ id: T002
 title: Check instance/model availability and record blocked preconditions
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002
+base: 5e346c1f1b738a54f7d5c463372e9c8953c578ae
 worktree: null
 task_branch: null
 files:
@@ -51,3 +51,4 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-18 — orchestrator Verify (sidecar gsd-path-verify/task-t002-verify): pass, exit 0

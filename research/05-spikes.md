@@ -2,7 +2,15 @@
 
 All results are **measured** unless a line says inferred. Probes ran in Lars's Edge Dev 157 (Aion-1.1-Instruct) and Chrome Beta 156 (Gemma 4 `gemma4-2b-it`). playwright-cli attached over remote debugging, and the scripts ran in the page's main world, the same world a MAIN-world content script gets. This is not an extension context; S1 is still open. (Answered: S1 ran; see `11-spike-s1-extension-contexts.md`.)
 
-## S2 - Angular's in-page tools and the `ng` global on a real 22.2 app
+## Instance availability (T002, 2026-10-18)
+
+All four per-model instances verified healthy via `control-ai-browsers doctor` (exit 0):
+- chrome-beta-nano (port 9333): v3Nano 2025.8.8.1141 GPU, available, structured canary pass
+- chrome-beta-gemma4 (port 9334): gemma4-2b-it GPU, available, structured+tools+webmcp canary pass
+- edge-dev-aion (port 9335): Aion-1.1-Instruct GPU, available, structured+tools+webmcp canary pass
+- edge-phi4mini (port 9337): Phi-4-mini-instruct GPU, available, structured+webmcp canary pass (tools reported, not required)
+
+No blocked preconditions recorded for model-dependent spikes; all four instances runnable. S4/E-spikes needing branded-browser access remain blocked pending Lars's approval (no branded browser was started).
 
 App: `spikes/ng222-app`, generated with `@angular/cli@22.2.2 new --routing --ssr=false`, installed `@angular/core` 22.2.2, served with `ng serve --port 4222`. A component `app-counter` (`src/app/counter.ts`) has `title = input()`, `count = signal(3)`, `double = computed(count * 2)`, an injected root `CartService.items` signal, and an `effect` that writes `lastLogged`. The effect-writes-signal pattern is there on purpose, as a fixture for the anti-pattern finder (N2).
 
