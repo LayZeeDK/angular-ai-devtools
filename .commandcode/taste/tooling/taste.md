@@ -6,10 +6,13 @@
 - Do not modify, reset or discard his own Chrome Beta / Edge Dev profile data without asking; those profiles must keep their AI feature flags. Feature flags and downloaded Prompt API models persist in profiles across restarts, so recreating a profile wipes them — reuse/preserve existing profiles (and their flags/models) instead of starting fresh. Confidence: 0.85
 - Installing and uninstalling browser extensions (such as Angular DevTools) in Edge, Edge Dev, Chrome and Chrome Beta is pre-approved; Firefox is out of scope. Confidence: 0.8
 - Prefers global (user-scope) installation of CLI tools and agent skills over local or project-scoped installation; the `command-code` CLI and all skills/agents are installed globally in `~/.commandcode/` and managed via the `command-code` CLI. Confidence: 0.9
+- Prefers packaging related Command Code skills, scripts, and reference docs into a single globally installed Command Code plugin (mod) rather than leaving them as loose files under `~/.commandcode/`. Confidence: 0.7
 - Chrome Beta and Edge Dev are the primary AI-capable test targets; Chrome and Edge stable must also be supported (not only Beta/Dev channels). Edge (Stable, Beta, Dev, Canary) supports the Prompt API when the relevant feature flags are enabled, so verify/enable those flags rather than treating Edge as unsupported. Phi-4-mini runs on a dedicated Edge stable profile. Confidence: 0.85
 - Commits must be authored/committed as `larsbrinknielsen@gmail.com`; his work email and its domain must never appear in commits or documents. Confidence: 0.7
 - Prefers interfaces designed for agents when a tool offers several (e.g. MCP/JSON-RPC over a UI panel). Confidence: 0.7
-- Prefers `.mjs` (ESM) script format with `node:` protocol imports for Node.js scripts in `scripts/` (e.g. `install-*-command-code.mjs`). Confidence: 0.9
+- Prefers `.mjs` (ESM) script format with `node:` protocol imports for plain JavaScript Node.js scripts in `scripts/` (e.g. `install-*-command-code.mjs`). Confidence: 0.9
+- Prefers Node.js scripts written as TypeScript `.ts` using erasable syntax only (no enums, namespaces, parameter properties, or decorators) so they run on Node 22/24 via `node --experimental-strip-types`, keeping `node:` protocol imports. Confidence: 0.75
+- Prefers unit tests for Node scripts written as `.ts` files using `node:test` (and `node:assert`), run with `node --test`. Confidence: 0.75
 - Validates JavaScript/Node script syntax with `node --check` before runtime testing. Confidence: 0.75
 - Mirrors his global (user-scope) agent setup across coding tools: he ports the Claude configuration (`~/.claude/CLAUDE.md` + `references/*.md`) into the equivalent Command Code files (`~/.commandcode/AGENTS.md`, `references/*.md`, `agents/*.md`) rather than starting fresh. Confidence: 0.75
 - Names subagent types with a `<model>-<effort>` pattern to encode both the model and its reasoning effort, and prefixes the free-model roster's types with `free-`. Confidence: 0.8
@@ -28,5 +31,5 @@
 - Uses `playwright-cli` (the `/playwright-cli` skill) for browser automation and verification; browsers are installed and reachable through it, so do not fall back to manual `where`/path checks or assume they are unavailable. Confidence: 0.8
 - Never kills all `node.exe` processes at once (e.g. `taskkill /F /IM node.exe`); terminate only the specific process/PID or port needed. Confidence: 0.95
 - Prefers the PowerShell tool over the generic shell tool for running Windows commands. Confidence: 0.7
-- Uses `opencode run --auto` headless sessions to troubleshoot environment and tooling issues. Confidence: 0.7
+- Prefers package.json to include standardized "test" and "typecheck" npm scripts, with test running via `node --test` and typecheck via `tsc --noEmit`. Confidence: 0.75
 ence: 0.7
