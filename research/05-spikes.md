@@ -209,3 +209,7 @@ Readings (inferred unless marked):
 ## S17-S19 - offline spikes (blocked 2026-10-18)
 
 S17, S18, S19 recorded **blocked** — exact precondition: offline spike definition/probe not present in this checkout; no probe script named for these spikes. Evidence: research/raw/s17-blocked.json, s18-blocked.json, s19-blocked.json.
+
+## S14/S15/S20/S23 - model-browser spikes (blocked 2026-10-18)
+
+S14, S15, S20, S23 recorded **blocked** — exact precondition: model-browser spike definition/probe not present in this checkout. Evidence: research/raw/s14-blocked.json etc.

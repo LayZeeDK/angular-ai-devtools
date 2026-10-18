@@ -3,9 +3,9 @@ id: T004
 title: Run model-browser spikes S14 S15 S20 S23
 wave: 3
 deps: [T001, T003]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T004
+base: 5a2ab2022a68cae0762c15ebf8384edb7f68b071
 worktree: null
 task_branch: null
 files:
@@ -51,3 +51,6 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-18 — orchestrator Verify (sidecar gsd-path-verify/task-t004-verify): pass, exit 0
+- 2026-10-18 — orchestrator regression Verify of T001 (sidecar gsd-path-verify/task-t004-verify): pass, exit 0
+- 2026-10-18 — orchestrator regression Verify of T002 (sidecar gsd-path-verify/task-t004-verify): pass, exit 0
