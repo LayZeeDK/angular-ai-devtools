@@ -3,9 +3,9 @@ id: T003
 title: Run offline spikes S17-S19
 wave: 2
 deps: [T001]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: 9f2dc23ba06dfcc8c4cb211230a6c76b9bcdb5f1
 worktree: null
 task_branch: null
 files:
@@ -51,3 +51,6 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-18 — orchestrator Verify (sidecar gsd-path-verify/task-t003-verify): pass, exit 0
+- 2026-10-18 — orchestrator regression Verify of T001 (sidecar gsd-path-verify/task-t003-verify): pass, exit 0
+- 2026-10-18 — orchestrator regression Verify of T002 (sidecar gsd-path-verify/task-t003-verify): pass, exit 0

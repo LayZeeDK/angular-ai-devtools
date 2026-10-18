@@ -205,3 +205,7 @@ Readings (inferred unless marked):
 - The CPU backend is what broke Nano's structured output: 0/15 on CPU, 13/15 on GPU (measured; 11/15 after the `916fc09` regrade). On both backends Nano writes `tool_code` text instead of calling tools.
 - Gemma 4 on CPU gave the best fallback score of any configuration (15/15), at 2-3 times the GPU latency.
 - **Harness defect found and fixed:** a model-invented selector such as `app-counter input:browser...` made `document.querySelector` throw. That failed the whole run (2 of Gemma 4 CPU's native failures) instead of returning a tool error. `bench.js` now wraps every tool call (`runTool`) and returns `{error}`. Runs before this fix count such cases as failures. The tool-error template in the prompt kit (`07` section 6.3) is the matching design rule for the extension.
+
+## S17-S19 - offline spikes (blocked 2026-10-18)
+
+S17, S18, S19 recorded **blocked** — exact precondition: offline spike definition/probe not present in this checkout; no probe script named for these spikes. Evidence: research/raw/s17-blocked.json, s18-blocked.json, s19-blocked.json.
