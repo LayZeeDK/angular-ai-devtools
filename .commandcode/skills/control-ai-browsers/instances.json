@@ -119,7 +119,11 @@
         "msEdgeLLMOnDeviceModelPrerelease"
       ],
       "args": [
-        "--disable-component-update"
+        "--disable-component-update",
+        "--disable-sync",
+        "--disable-features=msImplicitSignin,msProfileSignIn,msForceBrowserSignIn,msOneAuthWAM,msEdgeOSAccountInfoSubstrate,msPrimaryOSAccountInfoCache,msEdgeOSAccountInfoManagerCache,msLoadOneAuthInBackground",
+        "--auth-schemes=basic,digest",
+        "--password-store=basic"
       ],
       "pin": [
         "EdgeLLMOnDeviceModel",
@@ -143,6 +147,14 @@
     "edge-phi4mini": {
       "browser": "edge-stable",
       "port": 9337,
+      "args": [
+        "--load-extension=D:/projects/sandbox/angular-ai-devtools/extension",
+        "--disable-extensions-except=D:/projects/sandbox/angular-ai-devtools/extension",
+        "--disable-sync",
+        "--disable-features=msImplicitSignin,msProfileSignIn,msForceBrowserSignIn,msOneAuthWAM,msEdgeOSAccountInfoSubstrate,msPrimaryOSAccountInfoCache,msEdgeOSAccountInfoManagerCache,msLoadOneAuthInBackground",
+        "--auth-schemes=basic,digest",
+        "--password-store=basic"
+      ],
       "features": [
         "AIPromptAPI",
         "AIPromptAPIStructuredOutput",
