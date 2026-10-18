@@ -3,9 +3,9 @@ id: T001
 title: Add automatic verify-sidecar dependency bridge helper with reuse, fail-fast, and safe teardown
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: 119a4ab2d13cc10cb48c22ef2c375aa818af70ab
 worktree: null
 task_branch: null
 files:
@@ -54,3 +54,18 @@ Heavy: no
 ## Log
 
 - 2026-10-18 — created by planner
+- Implemented scripts/sidecar-deps-bridge.mjs and tests; Verify: node --test scripts/sidecar-deps-bridge.test.mjs (3/3 pass)
+- 2026-10-18 — orchestrator Verify (isolate gsd-path-task/T001): pass, exit 0; output tail:
+  ```
+  ✔ reuse-if-correct (5.6261ms)
+  ✔ fail-fast-missing-primary (1.955ms)
+  ✔ rerun-reuses-bridge (3.5855ms)
+  ℹ tests 3
+  ℹ suites 0
+  ℹ pass 3
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 150.4839
+  ```
