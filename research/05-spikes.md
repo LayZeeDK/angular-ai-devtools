@@ -217,3 +217,7 @@ S14, S15, S20, S23 recorded **blocked** — exact precondition: model-browser sp
 ## TS1-TS12 - tutor spikes (blocked 2026-10-18)
 
 TS1-TS12 recorded **blocked** — exact precondition: tutor spike definition/probe not present in this checkout. Evidence: research/raw/TS*-blocked.json.
+
+## E1-E13 and S4 - edge/extension spikes (blocked 2026-10-18)
+
+E1-E13 and S4 recorded **blocked** — exact precondition: extension-identity/edge spike requires branded browser or extension setup not available in AFK run. Evidence: research/raw/E*-blocked.json, s4-blocked.json.
