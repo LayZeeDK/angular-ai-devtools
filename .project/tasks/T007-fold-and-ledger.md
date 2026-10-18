@@ -3,9 +3,9 @@ id: T007
 title: Fold measured results into research notes and filing ledger
 wave: 6
 deps: [T001, T003, T004, T005, T006]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T007
+base: 047ae1cda2c303dd6aadb8b50a772bb0e2a41112
 worktree: null
 task_branch: null
 files:
@@ -53,3 +53,6 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-18 — orchestrator Verify (sidecar gsd-path-verify/task-t007-verify): pass, exit 0
+- 2026-10-18 — orchestrator regression Verify of T001 (sidecar gsd-path-verify/task-t007-verify): pass, exit 0
+- 2026-10-18 — orchestrator regression Verify of T002 (sidecar gsd-path-verify/task-t007-verify): pass, exit 0
