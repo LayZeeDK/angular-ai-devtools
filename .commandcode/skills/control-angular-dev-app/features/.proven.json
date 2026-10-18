@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "features": {
+    "counter": {
+      "provenAt": "2026-10-16T13:44:01.657Z",
+      "commit": "a553213310899e1bb9f1b58fc97a75ced93c9d41",
+      "method": "typescript",
+      "entries": [
+        "spikes/ng222-app/src/main.ts",
+        "spikes/ng222-app/src/index.html"
+      ],
+      "files": {
+        "spikes/ng222-app/src/app/app.config.ts": "e60fc79fa4a0a0dcd99d4d06a82ff642f45e0d16",
+        "spikes/ng222-app/src/app/app.routes.ts": "dc39edb5f23a35f788cba146dd7337127ba6c5ab",
+        "spikes/ng222-app/src/app/app.ts": "7090c0cd7276b21a637542c2845e925a22b910a4",
+        "spikes/ng222-app/src/app/counter.ts": "c2690d09d1c7c67319c587c11a9fed08ee41d63e",
+        "spikes/ng222-app/src/index.html": "1693bcd9aa1c15aeff2830427641132063e9e576",
+        "spikes/ng222-app/src/main.ts": "5df75f9c838ea50f80ee4d5703b68dd8ac7243d4",
+        "spikes/ng222-app/tsconfig.json": "d2fbb9c2b057731ece0e7ac10ae3875caf0df324"
+      }
+    },
+    "portal-claims": {
+      "recordedAt": "2026-10-16T18:19:39.347Z",
+      "commit": "faa978feed4f67b54c217450bc00dbb59117ef8f",
+      "external": "needs the ng-journal Insurance Portal checkout at D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools, outside this repository"
+    },
+    "portal-complaints-customers": {
+      "recordedAt": "2026-10-16T18:19:39.464Z",
+      "commit": "faa978feed4f67b54c217450bc00dbb59117ef8f",
+      "external": "needs the ng-journal Insurance Portal checkout at D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools, outside this repository"
+    },
+    "portal-contracts": {
+      "recordedAt": "2026-10-16T18:19:39.224Z",
+      "commit": "faa978feed4f67b54c217450bc00dbb59117ef8f",
+      "external": "needs the ng-journal Insurance Portal checkout at D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools, outside this repository"
+    },
+    "portal-navigation": {
+      "recordedAt": "2026-10-16T18:19:39.106Z",
+      "commit": "faa978feed4f67b54c217450bc00dbb59117ef8f",
+      "external": "needs the ng-journal Insurance Portal checkout at D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools, outside this repository"
+    },
+    "ssr": {
+      "provenAt": "2026-10-16T13:44:02.018Z",
+      "commit": "a553213310899e1bb9f1b58fc97a75ced93c9d41",
+      "method": "typescript",
+      "entries": [
+        "spikes/ng222-ssr/src/main.ts",
+        "spikes/ng222-ssr/src/main.server.ts",
+        "spikes/ng222-ssr/src/server.ts",
+        "spikes/ng222-ssr/src/index.html"
+      ],
+      "files": {
+        "spikes/ng222-ssr/src/app/app.config.server.ts": "41031f1165dd9da570d26867f2b3a23cd49797c6",
+        "spikes/ng222-ssr/src/app/app.config.ts": "bf177e740c15bff9de53e46cfda09f2274fc8b1b",
+        "spikes/ng222-ssr/src/app/app.html": "1a61120d9633e89b439bf2db07902a7e4a49e62f",
+        "spikes/ng222-ssr/src/app/app.routes.server.ts": "70d6bcba0ef10dccb2c0487592b72cd71de542ce",
+        "spikes/ng222-ssr/src/app/app.routes.ts": "e00d14daf47366cd6d6457841dbee6b4fb29df52",
+        "spikes/ng222-ssr/src/app/app.ts": "251537d738c1ca9928b4b5936a9c37e428a91c56",
+        "spikes/ng222-ssr/src/app/data-list.ts": "4037d9f12a301445061c016b6aaf3e36cc7509dc",
+        "spikes/ng222-ssr/src/app/deferred.ts": "85b6906a4e5382978826908d21d1d725d3a2ddcd",
+        "spikes/ng222-ssr/src/app/mismatch.ts": "b246c2642b497f3bb854a9cae25ce5ccb6ab22dc",
+        "spikes/ng222-ssr/src/app/page.ts": "69919e9302d90616bf9d54a43fc325c425f352fa",
+        "spikes/ng222-ssr/src/index.html": "d3644d0282be05ce628b7181328e69587674080b",
+        "spikes/ng222-ssr/src/main.server.ts": "723e001fbf7e9916b0f6957c733e46955e931884",
+        "spikes/ng222-ssr/src/main.ts": "5df75f9c838ea50f80ee4d5703b68dd8ac7243d4",
+        "spikes/ng222-ssr/src/server.ts": "99138f0b578d19001d6027a8b287ef014d7fc7b7",
+        "spikes/ng222-ssr/tsconfig.json": "30d64cea383f2fa41e0ae6113047f5bed44814c1"
+      }
+    }
+  }
+}
