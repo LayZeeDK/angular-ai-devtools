@@ -18,3 +18,14 @@ spikes/s1-extension/probe-main.js
 tmp/
 .commandcode/settings.local.json
 .commandcode/worktrees/
+
+.angular
+
+__screenshots__/
+
+# Nx
+.nx/
+dist/
+
+# VS Code
+.vscode/

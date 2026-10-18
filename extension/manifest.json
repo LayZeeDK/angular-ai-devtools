@@ -1,26 +1,32 @@
 {
   "manifest_version": 3,
   "name": "Angular AI DevTools",
-  "version": "0.1.0",
-  "description": "AI-powered Angular DevTools extension",
-  "permissions": ["activeTab", "scripting"],
-  "host_permissions": ["<all_urls>"],
+  "version": "0.3.0",
+  "description": "Angular AI DevTools - MV3 extension with on-device Prompt API",
+  "permissions": [
+    "scripting",
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "run_at": "document_idle",
-      "all_frames": true
-    }
-  ],
-  "web_accessible_resources": [
+      "js": ["relay.js"],
+      "run_at": "document_idle"
+    },
     {
-      "resources": ["page-script.js"],
-      "matches": ["<all_urls>"]
+      "matches": ["<all_urls>"],
+      "js": ["agent-main.js"],
+      "run_at": "document_idle",
+      "world": "MAIN"
     }
   ],
-  "devtools_page": "devtools.html",
-  "background": {
-    "service_worker": "background.js"
-  }
+  "web_accessible_resources": []
 }
