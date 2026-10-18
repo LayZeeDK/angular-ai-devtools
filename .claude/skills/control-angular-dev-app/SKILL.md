@@ -11,6 +11,10 @@ session; reads Angular state through `window.ng` helpers; captures evidence; tea
 Skip it for production builds (no `window.ng`), for unit tests, and for Lars's own browsers: never attach to
 Chrome Beta or Edge Dev (`--cdp`, `--extension`), and never use the sessions `cb`, `ed`, `ai-cb`, `ai-ed`.
 
+One skill covers all three targets on purpose (Lars, 2026-10-18): they share the dev-build check, the `window.ng`
+helpers, playwright-cli and the port handling, and control-angular-devtools and control-pangular-inspector start
+their apps through `up --target counter|portal`. A maintain pass keeps it whole rather than splitting it per app.
+
 All commands below run from the root of the checkout you drive (the main checkout or a worktree); playwright-cli
 sessions are looked up from there. `S` stands for `.claude/skills/control-angular-dev-app/scripts/control.mjs`.
 
