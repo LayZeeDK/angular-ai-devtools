@@ -1,0 +1,200 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "c58f6b70c6af65368cbb184654e8dea9b2081dbc",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M001",
+        "candidates": [
+          {
+            "base": "f6cae0271077cf5d79e7c4e14a8ebea227fba161",
+            "commit": "dee42de95cbad2e6dbd4e32f7aa80d677b89b73c",
+            "valid": true
+          }
+        ],
+        "head": "c58f6b70c6af65368cbb184654e8dea9b2081dbc",
+        "subject": "T001: Run S16 companion-package Meta-class lookup spike"
+      },
+      "landed_commit": "dee42de95cbad2e6dbd4e32f7aa80d677b89b73c",
+      "reasons": [],
+      "task": {
+        "base": "f6cae0271077cf5d79e7c4e14a8ebea227fba161",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-s16-spike.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M001",
+        "candidates": [
+          {
+            "base": "5e346c1f1b738a54f7d5c463372e9c8953c578ae",
+            "commit": "f6cae0271077cf5d79e7c4e14a8ebea227fba161",
+            "valid": true
+          }
+        ],
+        "head": "c58f6b70c6af65368cbb184654e8dea9b2081dbc",
+        "subject": "T002: Check instance/model availability and record blocked preconditions"
+      },
+      "landed_commit": "f6cae0271077cf5d79e7c4e14a8ebea227fba161",
+      "reasons": [],
+      "task": {
+        "base": "5e346c1f1b738a54f7d5c463372e9c8953c578ae",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-instance-availability.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M001",
+        "candidates": [
+          {
+            "base": "9f2dc23ba06dfcc8c4cb211230a6c76b9bcdb5f1",
+            "commit": "bf0c478c141155ba31b11dec9644ca79ff2e56ce",
+            "valid": true
+          }
+        ],
+        "head": "c58f6b70c6af65368cbb184654e8dea9b2081dbc",
+        "subject": "T003: Run offline spikes S17-S19"
+      },
+      "landed_commit": "bf0c478c141155ba31b11dec9644ca79ff2e56ce",
+      "reasons": [],
+      "task": {
+        "base": "9f2dc23ba06dfcc8c4cb211230a6c76b9bcdb5f1",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-offline-spikes-s17-s19.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M001",
+        "candidates": [
+          {
+            "base": "5a2ab2022a68cae0762c15ebf8384edb7f68b071",
+            "commit": "8cf220ec80b4f7f239cccda7ea9afb8dba41ea14",
+            "valid": true
+          }
+        ],
+        "head": "c58f6b70c6af65368cbb184654e8dea9b2081dbc",
+        "subject": "T004: Run model-browser spikes S14 S15 S20 S23"
+      },
+      "landed_commit": "8cf220ec80b4f7f239cccda7ea9afb8dba41ea14",
+      "reasons": [],
+      "task": {
+        "base": "5a2ab2022a68cae0762c15ebf8384edb7f68b071",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-model-browser-spikes.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M001",
+        "candidates": [
+          {
+            "base": "3134e96286a3fa67c5a6358650cb8e0496efba47",
+            "commit": "7449707c358c92962d83e5d04208fe2d5f68cd0a",
+            "valid": true
+          }
+        ],
+        "head": "c58f6b70c6af65368cbb184654e8dea9b2081dbc",
+        "subject": "T005: Run tutor spikes TS1-TS12"
+      },
+      "landed_commit": "7449707c358c92962d83e5d04208fe2d5f68cd0a",
+      "reasons": [],
+      "task": {
+        "base": "3134e96286a3fa67c5a6358650cb8e0496efba47",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-tutor-spikes.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M001",
+        "candidates": [
+          {
+            "base": "7449707c358c92962d83e5d04208fe2d5f68cd0a",
+            "commit": "cf5c85753442cc7bea17805764fa291fab93939a",
+            "valid": true
+          }
+        ],
+        "head": "c58f6b70c6af65368cbb184654e8dea9b2081dbc",
+        "subject": "T006: Run S4 and E1-E13 spikes"
+      },
+      "landed_commit": "cf5c85753442cc7bea17805764fa291fab93939a",
+      "reasons": [],
+      "task": {
+        "base": "7449707c358c92962d83e5d04208fe2d5f68cd0a",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-edge-and-s4-spikes.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M001",
+        "candidates": [
+          {
+            "base": "047ae1cda2c303dd6aadb8b50a772bb0e2a41112",
+            "commit": "9b77a9d8fbccda4f898b65b1bdb29c26e5556a69",
+            "valid": true
+          }
+        ],
+        "head": "c58f6b70c6af65368cbb184654e8dea9b2081dbc",
+        "subject": "T007: Fold measured results into research notes and filing ledger"
+      },
+      "landed_commit": "9b77a9d8fbccda4f898b65b1bdb29c26e5556a69",
+      "reasons": [],
+      "task": {
+        "base": "047ae1cda2c303dd6aadb8b50a772bb0e2a41112",
+        "id": "T007",
+        "status": "done",
+        "task_file": ".project/tasks/T007-fold-and-ledger.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M001",
+        "candidates": [
+          {
+            "base": "9b77a9d8fbccda4f898b65b1bdb29c26e5556a69",
+            "commit": "6b49452b16e38ea6b5307811aa422e8b1f6c7aaf",
+            "valid": true
+          }
+        ],
+        "head": "c58f6b70c6af65368cbb184654e8dea9b2081dbc",
+        "subject": "T008: Rerun closed-findings check since 0647e96 and final verification"
+      },
+      "landed_commit": "6b49452b16e38ea6b5307811aa422e8b1f6c7aaf",
+      "reasons": [],
+      "task": {
+        "base": "9b77a9d8fbccda4f898b65b1bdb29c26e5556a69",
+        "id": "T008",
+        "status": "done",
+        "task_file": ".project/tasks/T008-closed-findings-check.md"
+      }
+    }
+  ]
+}
