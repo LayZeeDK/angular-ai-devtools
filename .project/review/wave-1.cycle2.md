@@ -49,9 +49,6 @@ Contract violations (blocking):
 ### SC4 — `.browsers/` and `tmp/` runtime artifacts are relocated under `.commandcode/worktrees/` (or an equivalent git-ignored path) and all references are updated.: pass
 - ✅ Implementation relocates `TMP`/`PROFILES` under `.commandcode/worktrees/` and keeps a fallback read; held-out `fallback-read-old-path` now present in both control test files and passes (commit `1b070ad`).
 
-### SC5 — Existing behavior is preserved: `npm run check` and the full test suite still pass on the primary worktree (no regression in the 296 tests or typecheck).: pass
-- ✅ Control suite passes 96/96 in both skill trees; no regression observed in reviewed scope.
-
 ## Fixed since last cycle
 
 - T002 AC1 / SC4 — missing held-out edge E3 pin test `fallback-read-old-path` in both `.claude` and `.commandcode` control-ai-browsers test files: confirmed fixed (commit `1b070ad`, tests pass).
