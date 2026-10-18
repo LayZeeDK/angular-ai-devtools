@@ -23,4 +23,5 @@
 - When a new free model becomes available in Command Code, updates the global rules, `references/*.md` docs (including a prompting guide), and adds `free-<model>[-<effort>]` subagent types so the free-model setup stays in sync. Confidence: 0.75
 - Command Code discovers skills from `.commandcode/skills/` and `.agents/skills/`, not `.claude/skills/`; to surface Claude-side `control-*`/`verify-*` skills in Command Code, either run the equivalent Claude-side skill, generate them in Command Code and copy/move the folder, or point Command Code at `.claude/skills` via the `skills` array in `.commandcode/settings.json` or the `--skill` flag. Confidence: 0.7
 - Runs the relevant skill/script test suites after changes and reports pass/fail counts before declaring the work complete. Confidence: 0.75
+- Prefers scaffolding Nx Angular workspaces with `create-nx-workspace`, then moving the generated workspace so its root becomes the repository root. Confidence: 0.8
 
