@@ -1,13 +1,14 @@
 // @ts-check
 // Run: node --test .claude/skills/control-ai-browsers/scripts/control.test.mjs
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { delimiter, join, sep } from 'node:path';
 import { test } from 'node:test';
 import {
   applyPin,
+  artifactDir,
   listing,
   listingDiff,
   pinProblems,
@@ -33,6 +34,7 @@ import {
   downloadRefusal,
   drift,
   exitCode,
+  fallbackRead,
   featuresFor,
   findPlaywrightCli,
   instance,
@@ -697,4 +699,33 @@ test('restoreSwap puts back a pin left at .old only when no current pin exists',
   assert.equal(readFileSync(join(dir, 'pin.json'), 'utf8'), 'old');
   mkdirSync(`${dir}.old`);
   assert.equal(restoreSwap(dir), false, 'a current pin wins over a leftover .old');
+});
+
+test('fallback-read-old-path', (t) => {
+  const base = tempDir(t);
+  const oldRoot = join(base, 'legacy-root');
+  const newRoot = join(base, '.commandcode', 'worktrees');
+
+  // An artifact at the legacy root (e.g. a profile pin left by an older layout).
+  mkdirSync(join(oldRoot, 'profiles', 'edge-base'), { recursive: true });
+  writeFileSync(join(oldRoot, 'profiles', 'edge-base', 'pin.json'), '{"pinned":true}');
+
+  // Copy-migration from the legacy root: artifactDir copies the legacy content into the new location and returns it.
+  const migrated = artifactDir(newRoot, oldRoot);
+  assert.equal(migrated, newRoot, 'artifactDir migrates a copy into the new location and returns it');
+  assert.equal(existsSync(newRoot), true, 'the new location now exists');
+  assert.equal(existsSync(join(newRoot, 'profiles', 'edge-base', 'pin.json')), true, 'the migrated copy holds the legacy file');
+  assert.equal(readFileSync(join(newRoot, 'profiles', 'edge-base', 'pin.json'), 'utf8'), '{"pinned":true}', 'the copy preserves the legacy bytes');
+  assert.equal(existsSync(join(oldRoot, 'profiles', 'edge-base', 'pin.json')), true, 'copy-migration copies, never deletes the legacy artifact');
+
+  // After migration the new location is non-empty, so a fallback read prefers it over the legacy root.
+  assert.equal(fallbackRead(newRoot, oldRoot), newRoot, 'fallbackRead prefers a non-empty new location over the legacy root');
+
+  // When the new location is empty, the fallback read reads the legacy root instead.
+  const emptyNew = join(base, 'empty-new');
+  mkdirSync(emptyNew, { recursive: true });
+  assert.equal(fallbackRead(emptyNew, oldRoot), oldRoot, 'fallbackRead reads the legacy root when the new location is empty');
+
+  // When the new location never existed, the fallback read still reads the legacy root.
+  assert.equal(fallbackRead(join(base, 'never-created'), oldRoot), oldRoot, 'fallbackRead reads the legacy root when the new location is missing');
 });
