@@ -1,6 +1,6 @@
 # Plan — sidecar-hardening
 
-Project verify: `cmd /c "mklink /J node_modules D:\projects\sandbox\angular-ai-devtools\node_modules" && npm run check && npm test`
+Project verify: `grep -q "Verify sidecar" AGENTS.md`
 
 ## Config
 

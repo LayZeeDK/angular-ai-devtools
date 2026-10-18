@@ -1,15 +1,15 @@
 # Gap Review — 1: project Verify
 
-Reviewed HEAD: 65970f112acf347585d6f2cfd74ac0fc184c8bd7
+Reviewed HEAD: bc5d23c787838032beff6dd675924cc4867368a0
 Gap verdict: blocked
 Risk: project Verify
 Waves checked: 1
 
 ## Checked evidence
 
-- **Check**: `npm run check && npm test`
+- **Check**: `cmd /c "mklink /J node_modules D:\projects\sandbox\angular-ai-devtools\node_modules" && npm run check && npm test`
 - **Observed**: Exit 1; exact stdout and stderr are in the command/commit ledger entry.
-- **Reference**: .project/build/verify-ledger.jsonl — 65970f112acf347585d6f2cfd74ac0fc184c8bd7, command above
+- **Reference**: .project/build/verify-ledger.jsonl — bc5d23c787838032beff6dd675924cc4867368a0, command above
 
 ## Finding
 
