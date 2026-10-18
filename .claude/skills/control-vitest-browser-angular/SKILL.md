@@ -12,7 +12,7 @@ down only what it started. Skip it for the counter app served by `ng serve`: use
 Never point it at Lars's own browsers: it only attaches to instances listed in
 `.claude/skills/control-ai-browsers/instances.json`, or to the Chromium it launches itself.
 
-All commands run from the repository root (`D:\projects\sandbox\angular-ai-devtools`). `S` stands for
+All commands run from the root of the checkout you drive (the main checkout or a worktree). `S` stands for
 `.claude/skills/control-vitest-browser-angular/scripts/control.mjs`. Background and measurements:
 `research/17-vitest-browser-runtime.md`.
 
@@ -20,19 +20,35 @@ All commands run from the repository root (`D:\projects\sandbox\angular-ai-devto
 
 | Flow | Command | Browser | Model | Extension load |
 |---|---|---|---|---|
-| Attach (default) | `node $S up [--instance <name>]` | the per-model instance (default `chrome-beta-gemma4`, CDP 9334) | yes | `Extensions.loadUnpacked` over CDP |
+| Attach (default) | `node $S up [--instance <name>]` | the per-model instance (default `chrome-beta-gemma4`), on the CDP port control-ai-browsers gives it | yes | `Extensions.loadUnpacked` over CDP |
 | Bundled | `node $S up --bundled --extension <dir>` | Playwright's Chromium (Chrome for Testing 153), persistent profile under `tmp/` | no (`LanguageModel` `unavailable`) | `--load-extension` |
 
-- Vitest's browser server port: 51315 in the main checkout. In a git worktree (`.git` is a file), the port
-  comes from a hash of the fixture path in 51400-51899, and the bundled CDP port in 9400-9499 (main checkout:
-  9350). `up` refuses the main checkout's port from a worktree. Vitest's default 63315 cannot be used here,
-  because it sits in a Windows excluded port range.
-- Attach mode uses the instance's own CDP port. If the instance is not running, `up` launches it through
-  `control-ai-browsers launch` and `down` stops it again. An instance that was already running is left
-  running.
+Ports. The main checkout uses slot 0, the defaults below. A git worktree (`.git` is a file) takes slot 1-99
+from a hash of the fixture path, so its ports stay the same from run to run: Vitest `51400 + slot`, bundled CDP
+`9500 + slot`, apart from control-angular-devtools' 9420-9499 (measured 2026-10-16 in the `verification-skills`
+worktree: slot 36, 51436 and 9536). When a
+derived port is busy, `up` tries the next slot, 10 slots in all, and records the slot and the ports it used
+(`info --json`: `slot`, `ports`). Vitest's default 63315 cannot be used here, because it sits in a Windows
+excluded port range.
+
+| Port | Kind | Default | How it moves |
+|---|---|---|---|
+| vitest | derived | 51315 | `--port`, passed as `VITEST_BROWSER_PORT` to `vitest-base.config.mts` (`strictPort`) (measured: listened on 51436, and on its fallback 51437 while a throwaway listener held 51436) |
+| bundled-cdp | derived | 9350 | moves with the slot, passed as `VITEST_CDP_PORT` to Chromium's `--remote-debugging-port` (bundled mode only; measured: 9536) |
+| instance | external | the instance's CDP port | control-ai-browsers owns it: `up` asks `control-ai-browsers up <instance> --json` for it, which starts the instance when it is not running (measured: 9334 for `chrome-beta-gemma4` before control-ai-browsers derived worktree ports, 9681 after, in the `verification-skills` worktree) |
+
+- `--port N` sets the Vitest port with no fallback for it: a busy `N` exits 2 naming its holder's PID; from a
+  worktree the main checkout's 51315 is refused. The bundled CDP port still derives and falls back.
+- A server that finds its port taken after the check ("already in use" from Vitest's `strictPort`, or another
+  process on the CDP port) is stopped, and `up` tries the next slot; each attempt logs to its own file
+  (`ng-test.log`, `ng-test-2.log`, ...). A bare `--port` exits 2.
+- Attach mode: an instance this run started is stopped again by `down` (through `control-ai-browsers down`), and
+  the state records its port as `launchedInstancePort` so a teardown check sees it stopped; an instance that was
+  already running is left running.
 - One run at a time: `up` refuses while any state file exists.
-- The playwright-cli session is `control-vitest-<flowId>`, for example `control-vitest-chrome-beta-gemma4-51315`.
-  Never use `ai-<instance>` (control-ai-browsers) or `control-ngdev-*` (control-angular-dev-app).
+- The playwright-cli session is `control-vitest-<flowId>-<Vitest port>`, for example
+  `control-vitest-chrome-beta-gemma4-51315`; the flow id is the instance name or `bundled`. Never use
+  `ai-<instance>-<port>` (control-ai-browsers) or `control-ngdev-*` (control-angular-dev-app).
 
 ## Launch
 
@@ -60,7 +76,12 @@ node .claude/skills/control-vitest-browser-angular/scripts/control.mjs up --exte
 - Ready means: a tab whose URL starts with `http://127.0.0.1:<port>/__vitest_test__/` exists in the browser, and
   the log has Vitest's `DEV` (watch) or `RUN` line. Measured in the proof run (2026-10-12): 5.2 s from spawning
   `ng test` to ready, and 19.3 s for the whole `up` including launching the stopped `chrome-beta-gemma4`
-  instance. The bundled flow took 9.9 s.
+  instance. The bundled flow took 9.9 s. In a worktree (2026-10-16): attach 4.4 s with the instance launched, bundled
+  21.6 s on a cold cache.
+- Attach mode clears the instance's HTTP cache (`Network.clearBrowserCache`) before it loads the extension and
+  before `ng test` starts: the browser
+  otherwise reused a test chunk an earlier run on the same Vitest port had cached, with that run's `--hold` value
+  (measured 2026-10-16: a run without `--hold` held for 90 s).
 - Re-run the tests: change or touch a file under `spikes/ng222-app/src` (`touch spikes/ng222-app/src/app/counter.spec.ts`).
   The builder rebuilds and the log shows `RERUN` **[measured]**.
 
@@ -74,12 +95,14 @@ Read-only. Each check prints one line (`--json` for the list):
 
 | Check | Passes when |
 |---|---|
-| `process-alive` | the recorded `ng test` PID runs with the recorded start time |
-| `port-owned` | the Vitest port is listened on by a process in that PID's tree |
+| `map-fresh` | always; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`), or that were never proven; never fails doctor |
+| `process-alive` | the recorded `ng test` PID runs with the recorded start time and command line |
+| `tree` | adds the live processes below the `ng test` root to the recorded tree, for `down` |
+| `ports` | every derived port listens and its PID is in the `ng test` tree (bundled Chromium included); the instance's external port is listed, not checked: `[OK] ports: vitest 51436 (derived), instance 9681 (external: control-ai-browsers instance chrome-beta-gemma4; this skill attaches to it)` |
 | `test-run` | the log has Vitest's `DEV` (watch) or `RUN` line and no "An exception occurred" or "Unhandled Error"; reports the last `Tests` summary |
 | `browser-cdp` | `/json/version` answers on the CDP port |
 | `orchestrator-tab` | a tab starts with `http://127.0.0.1:<port>/__vitest_test__/` |
-| `tester-frame` | the tab has a child frame named `vitest-iframe` |
+| `tester-frame` | the tab has a child frame named `vitest-iframe` with a default execution context |
 | `dev-build` | `window.ng` has functions in the tester iframe |
 | `vitest-runner` | `window.__vitest_browser_runner__` is an object in the tester iframe |
 | `mounted-component` | a `[ng-version]` host exists now; `[WARN]` when no test is running |
@@ -91,7 +114,8 @@ Exit 0 healthy, 1 a check failed (named), 2 could not run (no state file, refuse
 
 ## Drive
 
-Attach the run's session to the browser, then select the Vitest tab:
+Attach the run's session to the browser, then select the Vitest tab (the CDP URL and session come from `info`; the
+example is a main-checkout run):
 
 ```bash
 playwright-cli attach --cdp=http://127.0.0.1:9334 --session=control-vitest-chrome-beta-gemma4-51315
@@ -149,12 +173,18 @@ redirected to `<dir>/<name>.json`. `down` keeps it. Proof rules: `features/READM
 node .claude/skills/control-vitest-browser-angular/scripts/control.mjs down
 ```
 
-It reads the state file and refuses (exit 2) when the recorded PID's start time or command line differ from the
-live process. It then detaches the playwright-cli session and stops the `ng test` tree by PID (`taskkill /T /F`;
-in bundled mode the tree includes Vitest's Chromium). In attach mode it closes leftover tabs on the Vitest port,
-uninstalls the extension (`Extensions.uninstall`), and stops the instance only if `up` launched it. It also
-deletes the bundled profile, removes the state file and keeps the evidence. A recorded PID that no longer runs is
-not a refusal. Never `close-all` or `kill-all`.
+It reads the state file, detaches the playwright-cli session and stops the recorded `ng test` tree through
+`scripts/proctree.mjs` (in bundled mode the tree includes Vitest's Chromium). `up` records the root right after the
+spawn and every process below it once ready, and `doctor` adds what it sees since (`tree` in the state file and
+`info --json`). `down` takes a last snapshot below the root, merges it into the record and stops every record
+whose live process still has its start time and command line, children before parents, one PID at a time with a
+forced stop, never by name; a process whose parent already exited is stopped because it was recorded while the
+parent lived. A root whose PID now belongs to another process is never touched and `down` exits 2; so does a
+record that still runs after the last round. Both keep the state file, with the merged record, and skip the rest,
+so the next `down` finishes it. Otherwise, in attach mode, it closes leftover tabs on the Vitest port, uninstalls
+the extension (`Extensions.uninstall`), and stops the instance only if `up` launched it. It also deletes the
+bundled profile, removes the state file and keeps the evidence. A recorded PID that no longer runs is not a
+refusal. A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). When `control-ai-browsers down` refuses (exit 2), the refusal stands and is noted; only a missing state file there is mended with `attach` and a second `down`. Never `close-all` or `kill-all`.
 
 ## Helpers
 
@@ -164,13 +194,33 @@ not a refusal. Never `close-all` or `kill-all`.
 |---|---|---|---|
 | `up` | `--instance <name>` (default `chrome-beta-gemma4`) or `--bundled`; `--extension <dir>\|s1-vitest`; `--hold <ms>`; `--timing-demo`; `--filter <text>`; `--port <n>`; `--timeout <s>` (default 180) | starts the run as above, writes the state file, waits until ready | 0 / 2 |
 | `doctor` | | the checks above | 0 / 1 / 2 |
-| `info` | | the state: flow id, mode, instance, CDP URL, Vitest port, orchestrator URL, session, evidence dir, extension dir and id, PID, start time, command line, log | 0 / 2 |
+| `info` | | the state: flow id, mode, instance, CDP URL, Vitest port, `slot`, `ports` (`{name, port, kind, reason?}`), orchestrator URL, session, evidence dir, extension dir and id, `proc` (`{pid, log}`), `tree` (`{pid, ppid, start, commandLine}`, the root first; `start` in ms since the epoch) | 0 / 2 |
 | `down` | | the cleanup above | 0 / 2 |
 
 State file: `tmp/control-vitest-browser-angular/state/<flowId>.json`. Exit codes: 0 done or healthy; 1 not
-healthy; 2 refused or could not run, with the reason (a run already recorded, port in use, worktree on the main
-port, unknown instance, missing state file, PID mismatch, `--bundled` without an extension, `ng test` exited or
-failed to start).
+healthy; 2 refused or could not run, with the reason (a run already recorded, 10 busy slots, a busy `--port`, worktree on
+the main port, `control-ai-browsers up` failed, unknown instance, missing state file, a root PID that now belongs to another process, a record still running after `down`'s last round, `--bundled` without an extension, `ng test` exited or
+failed to start, a value flag given without its value, a `--timeout` that is not a positive number of seconds or a `--hold`
+that is not a positive whole number of milliseconds, and any error a command throws, such as a CDP endpoint that does not
+answer: `<command> could not run: <error>`, with `; run down` after a failed `up`). Text a page or an extension controls is printed with its control
+characters escaped.
+
+`scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
+`features/.proven.json`:
+
+- `node .claude/skills/control-vitest-browser-angular/scripts/fingerprint.mjs record --feature <id> --entries <path>...`
+  records the files feature `<id>` depends on (the TypeScript import closure of the repository-relative entries)
+  with their git blob hashes; without `--entries` it reuses the recorded ones. Exit 0 written or unchanged, 2 refused.
+- `node .claude/skills/control-vitest-browser-angular/scripts/fingerprint.mjs check [--feature <id>] [--json]` prints
+  `fresh`, `stale`, `unproven` or `external` per feature. Exit 0 every feature fresh or external, 1 one is stale or
+  unproven, 2 could not run.
+
+`scripts/proctree.mjs` (a byte copy of lars-create-verification's; never edit it here; its tests live there) records
+and stops the run's process tree for `up`, `doctor` and `down`: `processTable`, `snapshot`, `merge`, `stop`, `describe`. It has no
+command line of its own and prints nothing.
+
+Every other script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
+`npm run check` type-checks the scripts.
 
 Shared code: `spikes/probes/vitest-lib.mjs` (CDP client, frame contexts, the S1 Vitest variant), also used by
 the spike runner `spikes/probes/vitest-attach.mjs`.
@@ -191,6 +241,9 @@ the spike runner `spikes/probes/vitest-attach.mjs`.
 - `ready` first waited for the first test summary, which a long `--hold` delays by the whole hold (98 s). In
   watch mode Vitest prints `DEV`, not `RUN`, so a wait for `RUN` timed out after 180 s. Ready now accepts `DEV`,
   `RUN` or `RERUN`.
+- `up` and `down` wait 250 ms before they exit: exiting while fetch's sockets to the CDP port close aborts Node on Windows
+  (`Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)`, exit 127; measured after `up --bundled` and an
+  attach-mode `down`).
 - Killing `ng test` leaves Vitest's tab open in an attached browser; `down` closes tabs on the Vitest port.
 - Chrome 137+ branded builds ignore `--load-extension`, hence `Extensions.loadUnpacked` in attach mode (research
   11 and 17).

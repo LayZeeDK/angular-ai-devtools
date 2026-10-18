@@ -2,7 +2,24 @@
 
 All results are **measured** unless a line says inferred. Probes ran in Lars's Edge Dev 157 (Aion-1.1-Instruct) and Chrome Beta 156 (Gemma 4 `gemma4-2b-it`). playwright-cli attached over remote debugging, and the scripts ran in the page's main world, the same world a MAIN-world content script gets. This is not an extension context; S1 is still open. (Answered: S1 ran; see `11-spike-s1-extension-contexts.md`.)
 
-## S2 - Angular's in-page tools and the `ng` global on a real 22.2 app
+## Instance availability (T002, 2026-10-18)
+
+All four per-model instances verified healthy via `control-ai-browsers doctor` (exit 0):
+- chrome-beta-nano (port 9333): v3Nano 2025.8.8.1141 GPU, available, structured canary pass
+- chrome-beta-gemma4 (port 9334): gemma4-2b-it GPU, available, structured+tools+webmcp canary pass
+- edge-dev-aion (port 9335): Aion-1.1-Instruct GPU, available, structured+tools+webmcp canary pass
+- edge-phi4mini (port 9337): Phi-4-mini-instruct GPU, available, structured+webmcp canary pass (tools reported, not required)
+
+No blocked preconditions recorded for model-dependent spikes; all four instances runnable. S4/E-spikes needing branded-browser access remain blocked pending Lars's approval (no branded browser was started).
+
+## S16 - companion-package Meta-class lookup (measured 2026-10-18)
+
+Verdict: **works**. Evidence: `research/raw/s16-meta-lookup.json`.
+
+- Walked root component's `ɵgetInjectorResolutionPath`: 5 injectors (app-counter element, app-root element, environment, platform, null).
+- `Meta` token absent from all injectors (expected "provided, not created yet").
+- `Router` token present in environment injector (index 2); `ng.ɵgetRouterInstance()` returns instance with url `/`.
+- Identity-only token-name matching works; no `injector.get` on ViewContainerRef needed.
 
 App: `spikes/ng222-app`, generated with `@angular/cli@22.2.2 new --routing --ssr=false`, installed `@angular/core` 22.2.2, served with `ng serve --port 4222`. A component `app-counter` (`src/app/counter.ts`) has `title = input()`, `count = signal(3)`, `double = computed(count * 2)`, an injected root `CartService.items` signal, and an `effect` that writes `lastLogged`. The effect-writes-signal pattern is there on purpose, as a fixture for the anti-pattern finder (N2).
 
@@ -188,3 +205,19 @@ Readings (inferred unless marked):
 - The CPU backend is what broke Nano's structured output: 0/15 on CPU, 13/15 on GPU (measured; 11/15 after the `916fc09` regrade). On both backends Nano writes `tool_code` text instead of calling tools.
 - Gemma 4 on CPU gave the best fallback score of any configuration (15/15), at 2-3 times the GPU latency.
 - **Harness defect found and fixed:** a model-invented selector such as `app-counter input:browser...` made `document.querySelector` throw. That failed the whole run (2 of Gemma 4 CPU's native failures) instead of returning a tool error. `bench.js` now wraps every tool call (`runTool`) and returns `{error}`. Runs before this fix count such cases as failures. The tool-error template in the prompt kit (`07` section 6.3) is the matching design rule for the extension.
+
+## S17-S19 - offline spikes (blocked 2026-10-18)
+
+S17, S18, S19 recorded **blocked** — exact precondition: offline spike definition/probe not present in this checkout; no probe script named for these spikes. Evidence: research/raw/s17-blocked.json, s18-blocked.json, s19-blocked.json.
+
+## S14/S15/S20/S23 - model-browser spikes (blocked 2026-10-18)
+
+S14, S15, S20, S23 recorded **blocked** — exact precondition: model-browser spike definition/probe not present in this checkout. Evidence: research/raw/s14-blocked.json etc.
+
+## TS1-TS12 - tutor spikes (blocked 2026-10-18)
+
+TS1-TS12 recorded **blocked** — exact precondition: tutor spike definition/probe not present in this checkout. Evidence: research/raw/TS*-blocked.json.
+
+## E1-E13 and S4 - edge/extension spikes (blocked 2026-10-18)
+
+E1-E13 and S4 recorded **blocked** — exact precondition: extension-identity/edge spike requires branded browser or extension setup not available in AFK run. Evidence: research/raw/E*-blocked.json, s4-blocked.json.

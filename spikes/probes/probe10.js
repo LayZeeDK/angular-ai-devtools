@@ -31,14 +31,16 @@ async page => {
         }
 
         const responses = calls.map((c) => {
-          o.log.push({ name: c.name, callID: c.callID ?? c.callId, arguments: c.arguments });
+          const id = c.callID ?? c.callId;
+          o.log.push({ name: c.name, callID: id, arguments: c.arguments });
           const result = impl[c.name]?.(c.arguments ?? {});
 
+          // Chrome Beta 156 reads callID; Edge Dev 157.0.4329 requires callId. Unknown dictionary members are ignored.
           return {
             type: 'tool-response',
             value: result
-              ? new LanguageModelToolSuccess({ callID: c.callID ?? c.callId, name: c.name, result: [{ type: 'object', value: result }] })
-              : new LanguageModelToolError({ callID: c.callID ?? c.callId, name: c.name, errorMessage: 'unknown tool' }),
+              ? new LanguageModelToolSuccess({ callID: id, callId: id, name: c.name, result: [{ type: 'object', value: result }] })
+              : new LanguageModelToolError({ callID: id, callId: id, name: c.name, errorMessage: 'unknown tool' }),
           };
         });
         input = [{ role: 'user', content: responses }];

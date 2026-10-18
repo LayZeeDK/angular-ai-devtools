@@ -11,7 +11,7 @@ same shape before claiming coverage.
   `double` 6, cart 1 item.
 - SSR: `node $S up --target ssr`, then `node $S doctor --target ssr` exits 0 on `/`. Fresh page state:
   heading `Render mode: server`, `Early clicks: 0`, list Alpha, Beta, Gamma, `@defer` block dehydrated.
-- Portal: `node $S up --target portal` (API on 3000, app on the derived port, 4775 by default), then
+- Portal: `node $S up --target portal` (API on 3000, app on the derived port, 4507 for the default portal folder), then
   `node $S doctor --target portal` exits 0. No login. Every flag in
   `apps/insurance-portal/src/assets/feature-flags.manifest.json` decides whether a sidebar entry and its route
   exist.
@@ -34,8 +34,13 @@ same shape before claiming coverage.
 - Capture the action and the state after it: snapshots before and after, one screenshot with the app visible.
 - Check the side effect next to the screen: the URL, `requests` for API calls, an `__ngc` read for Angular
   state.
+- A claim that names an entry point is driven through that entry point; a different path does not count.
+- Mocks only behind an existing production boundary; these fixtures have none.
 - For a fix, run the same recipe on the old state (a second checkout on its own derived port) and on the
-  change; report verified, not verified, or inconclusive.
+  change; the verdict (verified, not verified, or inconclusive) comes from lars-verify. The portal's API port
+  is fixed at 3000, so a portal baseline and its change run one after the other, never side by side.
+- A failed `doctor` makes the claim inconclusive; a `dev-build` failure means a production build, which these
+  recipes cannot prove anything about.
 - A recipe that passed once after a fix runs a second time before it counts.
 - Name each entry point you did not reach and why; do not count it as covered through another path.
 - Portal data is random per API start: assert on structure, not on names or ids.
@@ -45,12 +50,6 @@ same shape before claiming coverage.
 Each feature file has an H1, one paragraph of user-visible behaviour, then four H2s in order:
 `Sub-features`, `How to get to it (user POV)`, `Driving it with control-angular-dev-app` (starting with
 `Preconditions:`), `Gotchas`.
-
-## Manual only
-
-- Angular DevTools panels (Components, Profiler, Injector Tree, Router Tree).
-- The external link `https://www.ng-journal.com` in the portal header (leaves the app).
-- The Pangular Inspector panel and its floating button: driven by control-pangular-inspector, not here.
 
 ## Features
 
@@ -62,3 +61,20 @@ Each feature file has an H1, one paragraph of user-visible behaviour, then four 
 - [Portal claims](./portal-claims.md): list, details, create form.
 - [Portal complaints and customers](./portal-complaints-customers.md): both lists, complaint details, complaint
   create and save, customer details.
+
+## Full sweep
+
+A full pass drives the features in this order.
+
+1. [Counter](./counter.md)
+2. [SSR and hydration](./ssr.md)
+3. [Portal navigation](./portal-navigation.md)
+4. [Portal contracts](./portal-contracts.md)
+5. [Portal claims](./portal-claims.md)
+6. [Portal complaints and customers](./portal-complaints-customers.md)
+
+## Manual only
+
+- Angular DevTools panels (Components, Profiler, Injector Tree, Router Tree).
+- The external link `https://www.ng-journal.com` in the portal header (leaves the app).
+- The Pangular Inspector panel and its floating button: driven by control-pangular-inspector, not here.

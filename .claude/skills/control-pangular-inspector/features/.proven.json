@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "features": {
+    "live-inspection": {
+      "recordedAt": "2026-10-16T18:19:39.579Z",
+      "commit": "faa978feed4f67b54c217450bc00dbb59117ef8f",
+      "external": "needs the ng-journal Insurance Portal checkout at D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools, outside this repository"
+    },
+    "navigation": {
+      "recordedAt": "2026-10-16T18:19:39.697Z",
+      "commit": "faa978feed4f67b54c217450bc00dbb59117ef8f",
+      "external": "needs the ng-journal Insurance Portal checkout at D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools, outside this repository"
+    },
+    "panel": {
+      "recordedAt": "2026-10-16T18:19:39.817Z",
+      "commit": "faa978feed4f67b54c217450bc00dbb59117ef8f",
+      "external": "needs the ng-journal Insurance Portal checkout at D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools, outside this repository"
+    },
+    "setup": {
+      "recordedAt": "2026-10-16T18:19:39.938Z",
+      "commit": "faa978feed4f67b54c217450bc00dbb59117ef8f",
+      "external": "needs the ng-journal Insurance Portal checkout at D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools, outside this repository"
+    },
+    "source-scan": {
+      "recordedAt": "2026-10-16T18:19:40.085Z",
+      "commit": "faa978feed4f67b54c217450bc00dbb59117ef8f",
+      "external": "needs the ng-journal Insurance Portal checkout at D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools, outside this repository"
+    }
+  }
+}

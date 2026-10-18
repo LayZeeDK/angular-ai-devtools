@@ -34,10 +34,13 @@ Preconditions:
 - **Rerun.** `touch spikes/ng222-app/src/app/counter.spec.ts`; the log gains `RERUN  src/app/counter.spec.ts x1`
   and a new summary.
 - Save the log lines you cite: `cp <evidenceDir>/ng-test.log <evidenceDir>/ng-test-<step>.log`.
+- **Evidence for a test-result claim** is the run's own log: copy it only after the `Tests` summary line
+  appears, and cite the summary and any failure text. `doctor` passing is not a test result.
 
 ## Gotchas
 
 - A held run's summary appears only after the hold ends; `doctor` reports "a run is in progress" until then.
 - `test-run` passes on a failing test on purpose: it checks the run, not the results. Read the summary.
-- The builder's `--filter` matches test names; `up --filter "keeps the counter mounted"` runs the hold test
-  alone.
+- The builder's `--filter` matches test names, but the hold test runs only with `--hold`:
+  `up --hold <ms> --filter "keeps the counter mounted"` runs it alone (`1 passed | 3 skipped (4)`); without
+  `--hold` the same filter reports `4 skipped (4)`.

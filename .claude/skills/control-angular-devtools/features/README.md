@@ -6,7 +6,7 @@ What a developer does with Angular DevTools, and how `control-angular-devtools` 
 ## Baseline preconditions
 
 - A development build of an Angular app is serving (`window.ng` present); the counter fixture at
-  `spikes/ng222-app` (Angular 22.2.2) through `control-angular-dev-app up --target counter --port 4317`.
+  `spikes/ng222-app` (Angular 22.2.2) through `control-angular-dev-app up --target counter` (its `info` prints the URL to pass as `--app-url`).
 - Test harness: `node $S install`, `node $S up --app-url=<app url>`, `node $S doctor` exits 0.
 - Branded browser: `node $S status --browser <name>` says installed.
 - Desktop session available (the harness is headed).
@@ -17,7 +17,7 @@ What a developer does with Angular DevTools, and how `control-angular-devtools` 
 - Panel: `control.mjs panel ...` and `coexist` (raw CDP into `chrome-extension://<id>/index.html`).
 - Wait on an observable end state (a message topic, a DOM text change, a CDP target), never a sleep.
 
-## Proof rules
+## Proof and skip reporting
 
 - Drive what a developer does: open the Angular tab, select a component, open the signal graph, record a
   profile. Do not call the backend message bus directly in place of the panel.
@@ -40,10 +40,20 @@ One file per feature: H1, one paragraph of user-visible behaviour, then `Sub-fea
 - [signal-graph.md](signal-graph.md) - Components tab, signal graph pane
 - [profiler.md](profiler.md) - Profiler tab recording, coexistence with other `ɵsetProfiler` subscribers
 
+## Full sweep
+
+A full pass drives the features in this order.
+
+1. [install.md](install.md)
+2. [attach.md](attach.md)
+3. [signal-graph.md](signal-graph.md)
+4. [profiler.md](profiler.md)
+
 ## Manual only
 
 - The panel in branded browsers (press F12, pick the Angular tab): the scripted path uses DevTools frontend
   internals proven only in the test harness.
 - The Web Store "Add" confirmation and the Remove confirmation on the extensions page: browser UI.
 - Injector Tree, Router Tree and Transfer State tabs: reachable by the same panel driver, not yet mapped.
-  Router Tree shows only when the app has routes, Transfer State only for a hydrated (SSR) app.
+  Router Tree shows only when the app provides the router, even with an empty route list as in the counter
+  (`devtools-tabs.component.ts`); Transfer State only for a hydrated (SSR) app.

@@ -19,7 +19,9 @@ ran under.
 ## Driving it with control-ai-browsers
 
 Preconditions: the README baseline. For `probe-bench`, the ng222-app counter fixture serves
-`http://localhost:4222` (`bench.js` hard-codes it; `control-angular-dev-app` launches the fixture).
+`http://localhost:4222` (`bench.js` hard-codes it; `control-angular-dev-app` launches the fixture). That is
+the main checkout's port: in a worktree `control-angular-dev-app` derives another port and refuses 4222, so
+`bench` runs from the main checkout only.
 
 - **Broker State text.** Run `C run chrome-beta-nano spikes/probes/broker-state.js --json`. `result` is the
   Broker State text; the tab is gone afterwards (`C instances` shows `1 tab(s)`).
@@ -41,6 +43,11 @@ Preconditions: the README baseline. For `probe-bench`, the ng222-app counter fix
   timeout. `bench.js` has a 120 s per-prompt timeout and returns tool exceptions as tool errors.
 - The function gets the tab as `page`; `page.context()` is the whole instance profile. Do not close other pages or
   clear storage from a probe.
+- A tool response must carry both `callID` (Chrome Beta 156) and `callId` (Edge Dev 157.0.4329 requires it, or the
+  round trip ends in `TypeError: ... 'callId' ... Required member is undefined`). `probe10.js`, `bench.js` and
+  `doctor`'s `canary.tools` send both; a new probe must too.
+- Chrome Beta Nano runs `probe10.js` without error but answers in prose instead of calling the tools (measured
+  2026-10-17); the tool round trip is proven on `edge-dev-aion`.
 - `bench` does not use `spikes/probes/bench-all.sh`: that script cannot record the backend and load per result,
   and it uses the `bench-*` sessions, which belong to Claude.
 - Benchmark latency depends on the backend and on CPU load from other sessions on this machine; compare only

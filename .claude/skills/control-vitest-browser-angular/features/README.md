@@ -30,24 +30,22 @@ control-vitest-browser-angular. Read this index, then use the matching feature f
 - Capture the action and the state after it: snapshots before and after, one screenshot of the Vitest tab.
 - Check the side effect next to the screen: the `ng.*` state read in the frame, and the test result in
   `ng-test.log`.
-- For a fix, run the same recipe on the old state (a second worktree, which gets its own derived Vitest port)
-  and on the change; report verified, not verified, or inconclusive. One run at a time per checkout.
-- A recipe that passed once after a fix runs a second time before it counts.
+- No mocks except the `CartService` override the spec itself makes; no test-only hooks beyond the hold.
+- A claim that names an entry point is driven through that entry point; a different path does not count.
+- The verdict, the baseline in a second worktree and the repeat runs come from /lars-verify.
+- One run at a time per checkout and one browser instance at a time, so a baseline (in its worktree, with its
+  own derived Vitest port) and its change run one after the other.
+- A drive while the Counter was not mounted (the hold ran out) observed nothing: report it as such, not as a
+  contradiction of the claim.
 - Name each entry point you did not reach and why; do not count it as covered through another path.
 - A result from the bundled flow says nothing about the model; a result from one instance says nothing about
-  another browser.
+  another browser. Name the browser and version `doctor` reports.
 
 ## Feature entry contract
 
 Each feature file has an H1, one paragraph of user-visible behaviour, then four H2s in order:
 `Sub-features`, `How to get to it (user POV)`, `Driving it with control-vitest-browser-angular` (starting with
 `Preconditions:`), `Gotchas`.
-
-## Manual only
-
-- The Angular DevTools extension: not loaded into these browsers; install it by hand in an instance if needed.
-- The Vitest UI (`ui: false` in both runner configs).
-- Edge Dev and Edge stable instances: the provider is the same, but no run was made on them.
 
 ## Features
 
@@ -56,3 +54,17 @@ Each feature file has an H1, one paragraph of user-visible behaviour, then four 
   and profiler events.
 - [Extension in the tester iframe](./extension-in-tester.md): the S1 variant's content scripts, DevTools panel
   and `LanguageModel` reaching the tester iframe.
+
+## Full sweep
+
+A full pass drives the features in this order.
+
+1. [Counter tests](./counter-tests.md)
+2. [Held Counter](./held-counter.md)
+3. [Extension in the tester iframe](./extension-in-tester.md)
+
+## Manual only
+
+- The Angular DevTools extension: not loaded into these browsers; install it by hand in an instance if needed.
+- The Vitest UI (`ui: false` in both runner configs).
+- Edge Dev and Edge stable instances: the provider is the same, but no run was made on them.

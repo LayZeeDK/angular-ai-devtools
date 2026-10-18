@@ -1,0 +1,1 @@
+{"spike":"S20","date":"2026-10-18","verdict":"blocked","precondition":"model-browser spike definition/probe not present in this checkout; requires per-model instance run with specific probe not available","evidence":"none"}

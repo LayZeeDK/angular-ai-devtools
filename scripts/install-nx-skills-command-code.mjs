@@ -15,10 +15,11 @@
  *   node scripts/install-nx-skills-command-code.mjs
  *   node scripts/install-nx-skills-command-code.mjs --dry-run
  *   node scripts/install-nx-skills-command-code.mjs --no-pull
+ *   node scripts/install-nx-skills-command-code.mjs --clean-cache
  *
  * Environment:
- *   NX_AI_AGENTS_REPO_PATH  override the local clone path
- *                           (default: D:/projects/github/nrwl/nx-ai-agents-config)
+ *   NX_AI_AGENTS_REPO_PATH  override the clone cache path
+ *                           (default: <tmpdir>/commandcode-nx-ai-agents-cache)
  *   NX_SKILLS_DEST          override the project skills dir
  *                           (default: <cwd>/.commandcode/skills)
  */
@@ -35,6 +36,7 @@ import {
   symlinkSync,
   writeFileSync,
 } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 
 // ---------------------------------------------------------------------------
@@ -43,7 +45,7 @@ import { join, relative } from "node:path";
 
 const REPO_PATH =
   process.env.NX_AI_AGENTS_REPO_PATH ||
-  "D:/projects/github/nrwl/nx-ai-agents-config";
+  join(tmpdir(), "commandcode-nx-ai-agents-cache");
 
 const PROJECT_ROOT = process.cwd();
 const SKILLS_DEST =
@@ -65,6 +67,7 @@ const SKILLS_SRC = join(REPO_PATH, "artifacts/skills");
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run") || args.includes("-n");
 const skipPull = args.includes("--no-pull");
+const cleanCache = args.includes("--clean-cache");
 const verbose = !args.includes("--quiet") && !args.includes("-q");
 const force = args.includes("--force") || args.includes("-f");
 
@@ -302,13 +305,31 @@ function stepWriteManifest(skills) {
   }
 }
 
+function stepCleanCache() {
+  log("\n4. Cleaning clone cache");
+  if (!existsSync(REPO_PATH)) {
+    log("   (cache not present)");
+    return;
+  }
+  if (dryRun) {
+    log(`   [dry-run] would remove ${REPO_PATH}`);
+    return;
+  }
+  try {
+    rmSync(REPO_PATH, { recursive: true, force: true });
+    log(`   removed ${REPO_PATH}`);
+  } catch (err) {
+    warn(`failed to remove cache: ${err.message}`);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
 function main() {
   log("=== nx-ai-agents-config -> Command Code (project) installer ===");
-  log(`Repo:     ${REPO_PATH}`);
+  log(`Cache:    ${REPO_PATH}`);
   log(`GitHub:   ${GITHUB_URL}`);
   log(`Skills src: ${SKILLS_SRC}`);
   log(`Dest:     ${SKILLS_DEST}`);
@@ -329,10 +350,15 @@ function main() {
   const skills = stepInstallSkills();
   stepWriteManifest(skills);
 
+  if (cleanCache) stepCleanCache();
+
   log("\n=== Summary ===");
   log(`Skills:  ${skills.length} installed`);
   log(`Names:   ${skills.map((s) => s.name).join(", ")}`);
   log(`Manifest: ${dryRun ? "[dry-run] would " : ""}write ${MANIFEST_PATH}`);
+  if (cleanCache && !dryRun) {
+    log(`Cache:   removed ${REPO_PATH}`);
+  }
   log("");
   if (dryRun) {
     log("Dry run complete — no changes were made.");

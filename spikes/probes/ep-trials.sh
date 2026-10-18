@@ -13,10 +13,10 @@ cp "$cfg" "$backup"
 
 for provider in webgpu qnn cpu; do
   $C attach edge-dev-aion >/dev/null 2>&1
-  $C stop edge-dev-aion >/dev/null 2>&1
+  $C down edge-dev-aion >/dev/null 2>&1
   node "$root/spikes/probes/set-genai-provider.mjs" "$(cygpath -w "$cfg")" "$provider"
-  $C launch edge-dev-aion > "$root/tmp/ep-launch-$provider.txt" 2>&1
-  echo "launch $provider exit $?"
+  $C up edge-dev-aion > "$root/tmp/ep-launch-$provider.txt" 2>&1
+  echo "up $provider exit $?"
   playwright-cli -s=ep attach --cdp=http://127.0.0.1:9335 >/dev/null 2>&1
   (timeout 240 playwright-cli -s=ep --raw run-code --filename="$root/spikes/probes/ep-prompt.js" > "$out/$provider.json" 2>&1) &
   pwsh -NoProfile -File "$root/spikes/probes/engine-sampler.ps1" "$profile" 90 > "$out/$provider-engines.txt"
@@ -27,7 +27,7 @@ for provider in webgpu qnn cpu; do
 done
 
 $C attach edge-dev-aion >/dev/null 2>&1
-$C stop edge-dev-aion >/dev/null 2>&1
+$C down edge-dev-aion >/dev/null 2>&1
 
 if [ -d "$model_dir" ]; then
   cp "$backup" "$cfg"
@@ -36,5 +36,5 @@ else
   echo "model folder gone; Edge will download it again"
 fi
 
-$C launch edge-dev-aion > "$root/tmp/ep-launch-restore.txt" 2>&1
-echo "launch restored exit $?"
+$C up edge-dev-aion > "$root/tmp/ep-launch-restore.txt" 2>&1
+echo "up restored exit $?"

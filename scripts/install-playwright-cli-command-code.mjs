@@ -17,10 +17,11 @@
  *   node scripts/install-playwright-cli-command-code.mjs
  *   node scripts/install-playwright-cli-command-code.mjs --dry-run
  *   node scripts/install-playwright-cli-command-code.mjs --no-pull
+ *   node scripts/install-playwright-cli-command-code.mjs --clean-cache
  *
  * Environment:
- *   PLAYWRIGHT_REPO_PATH  override the local clone path
- *                         (default: D:/projects/github/microsoft/playwright)
+ *   PLAYWRIGHT_REPO_PATH  override the clone cache path
+ *                         (default: <tmpdir>/commandcode-playwright-cache)
  *   COMMAND_CODE_HOME     override the ~/.commandcode path
  */
 
@@ -37,7 +38,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { homedir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { join, relative } from "node:path";
 
 // ---------------------------------------------------------------------------
@@ -46,7 +47,7 @@ import { join, relative } from "node:path";
 
 const REPO_PATH =
   process.env.PLAYWRIGHT_REPO_PATH ||
-  "D:/projects/github/microsoft/playwright";
+  join(tmpdir(), "commandcode-playwright-cache");
 
 const COMMAND_CODE_DIR =
   process.env.COMMAND_CODE_HOME || join(homedir(), ".commandcode");
@@ -69,6 +70,7 @@ const SKILL_LINK = join(SKILLS_DEST, SKILL_NAME);
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run") || args.includes("-n");
 const skipPull = args.includes("--no-pull");
+const cleanCache = args.includes("--clean-cache");
 const verbose = !args.includes("--quiet") && !args.includes("-q");
 const force = args.includes("--force") || args.includes("-f");
 
@@ -251,13 +253,31 @@ function stepWriteManifest(skills) {
   }
 }
 
+function stepCleanCache() {
+  log("\n4. Cleaning clone cache");
+  if (!existsSync(REPO_PATH)) {
+    log("   (cache not present)");
+    return;
+  }
+  if (dryRun) {
+    log(`   [dry-run] would remove ${REPO_PATH}`);
+    return;
+  }
+  try {
+    rmSync(REPO_PATH, { recursive: true, force: true });
+    log(`   removed ${REPO_PATH}`);
+  } catch (err) {
+    warn(`failed to remove cache: ${err.message}`);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
 function main() {
   log("=== playwright-cli -> Command Code installer ===");
-  log(`Repo:     ${REPO_PATH}`);
+  log(`Cache:    ${REPO_PATH}`);
   log(`GitHub:   ${GITHUB_URL}`);
   log(`Dest:     ${SKILL_LINK}`);
   log(`Mode:     ${dryRun ? "DRY RUN" : "live"}`);
@@ -267,9 +287,14 @@ function main() {
   const skills = stepInstallSkill();
   stepWriteManifest(skills);
 
+  if (cleanCache) stepCleanCache();
+
   log("\n=== Summary ===");
   log(`Skills:  ${skills.length} installed (${skills.join(", ")})`);
   log(`Manifest: ${dryRun ? "[dry-run] would " : ""}write ${MANIFEST_PATH}`);
+  if (cleanCache && !dryRun) {
+    log(`Cache:   removed ${REPO_PATH}`);
+  }
   log("");
   if (dryRun) {
     log("Dry run complete — no changes were made.");

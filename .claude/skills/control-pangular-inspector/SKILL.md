@@ -13,7 +13,7 @@ Skip it for production builds (no `window.ng`, the overlay import is compiled ou
 browsers: never `--cdp` or `--extension`, never the sessions `cb`, `ed`, `nano`, `g4`, `aion`, `phi`, `ai-cb`,
 `ai-ed`, `ngdt`.
 
-Commands run from the repository root (`D:\projects\sandbox\angular-ai-devtools`).
+Commands run from the root of the checkout you drive (the main checkout or a worktree).
 `S=.claude/skills/control-pangular-inspector/scripts/control.mjs`. The app folder defaults to the Insurance
 Portal worktree `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools`; pass
 `--dir <path>` (or set `CONTROL_PANGULAR_DIR`) for another app.
@@ -32,42 +32,66 @@ standalone for the portal: it has no server of its own (the Nest API on 3000 is 
 docs' "Client-only Angular CLI app" recipe is exactly this setup. Mounting the hub in the Nest API would put
 devtools into backend product code and still need the proxy.
 
-Ports: 9999 is fixed per app because `proxy.conf.json` names it (`install --port N` writes another one; pass
-the same `--port N` to every command). The portal itself uses its derived port (4775 for the default
-worktree) and API port 3000, both owned by `control-angular-dev-app`.
+Ports. The devtools server has no slots: the app's `proxy.conf.json` names its port, so it is fixed per app,
+and one devtools server per app runs on this machine. The state file is per port
+(`tmp/control-pangular-inspector/state/pangular-<port>.json`) and records the ports it used (`info --json`:
+`ports`).
+
+| Port | Kind | Default | How it moves |
+|---|---|---|---|
+| pangular | fixed | 9999 | `.claude/skills/control-pangular-inspector/scripts/control.mjs:73` defaults to 9999 because the app's proxy (the portal checkout's `apps/insurance-portal/proxy.conf.json:3`, outside this repository) sends `/__pangular` there; `install --port N` rewrites that proxy (a change to the app), then pass the same `--port N` to every command |
+| app | external | the `--app-url` port | control-angular-dev-app serves it (the portal: its derived port, 4507 for the default folder, and its API on 3000); this skill never starts or stops it |
+
+A busy devtools port exits 2 with `fixed port pangular 9999 held by PID <p>; pinned by
+apps/insurance-portal/proxy.conf.json:3 in the app checkout <dir>`, and the holder (another session's server,
+or Lars's own) is never stopped.
 
 ## Launch
 
 1. Install once (idempotent): `node $S install`; the npm install step takes most of its time.
    - `npm install --save-dev --save-exact @pangular-inspector/devtools@0.0.7` (devDependency: it only runs
      in development builds). `devframe` is not added: the package depends on it and npm hoists it
-     (`npm ls devframe` shows 1.2.3). The docs add it in every install command because pnpm and similar
-     managers resolve only direct dependencies; the portal imports `devframe` nowhere.
+     (`npm ls devframe` lists it under the package). The docs add it in every install command because pnpm
+     and similar managers resolve only direct dependencies; the portal imports `devframe` nowhere.
    - Puts back the 27 committed lockfile entries npm 11 drops from this checkout on any install, so the
      lockfile diff holds only the 31 entries Pangular adds.
    - `main.ts`: the overlay import after bootstrap, guarded by `typeof ngDevMode === 'undefined' || ngDevMode`
      (the docs' Angular CLI form; Analog uses `import.meta.env.DEV`).
    - `apps/<app>/proxy.conf.json`: `/__pangular` -> `http://localhost:9999`, prefix stripped, `ws: true`;
      and `serve.options.proxyConfig` in the app's `project.json` (the docs put the file next to
-     `angular.json`; Nx keeps it in the app folder and names it workspace-relative). Formatted with the repo's
-     prettier when `node_modules/prettier` exists.
+     `angular.json`; Nx keeps it in the app folder and names it workspace-relative). An existing proxy file
+     keeps its entries: `/__pangular` is merged in. Before any change, `install` refuses (exit 2) a serve target
+     whose `proxyConfig` names another file, an array-form proxy file, an untracked proxy file with other
+     entries (`remove` deletes an untracked proxy file), and a tracked one whose other entries differ from HEAD
+     (`remove` restores it from HEAD). Formatted with the repo's prettier when
+     `node_modules/prettier` exists.
    - The portal worktree has this setup committed (`f102b97`); `check` exits 0 there and `install` is not needed.
 2. Start the app: `node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target portal`
-   (17-20 s to ready, measured). Its `info` prints the URL (`http://localhost:4775/`).
-3. Start the devtools server: `node $S up --app-url http://localhost:4775/`. It runs
+   (17-20 s to ready, measured). Its `info` prints the URL (`http://localhost:4507/`).
+3. Start the devtools server: `node $S up --app-url http://localhost:4507/`. It runs
    `node node_modules/@pangular-inspector/devtools/bin.mjs dev --port 9999 --no-open --root <app> --read-only`
    in the app folder, logs to `<evidenceDir>/pangular.log`, and is ready when MCP `initialize` answers
-   (2.2 s measured). `--allow-actions` drops `--read-only`. `up` refuses a busy port 9999 and names its PID.
+   (2.2 s measured). `--allow-actions` drops `--read-only`. `up` refuses a busy port 9999 and names its PID and the proxy line that pins it (Pick a flow).
 
 ## Doctor
 
 `node $S doctor [--app-url <url>] [--json]` - one line per check, exit 0 healthy, 1 a check failed, 2 could not run:
 
+- `map-fresh` (first): whether each feature file still matches the source it was proven against, from
+  `scripts/fingerprint.mjs`; `[WARN]` names stale and unproven features and never changes the exit code. Every
+  feature here is recorded as external: they all depend on the portal, which lives outside this repository, so
+  no file in it can be hashed.
 - `package-pinned`: `package.json` declares exactly 0.0.7 and `node_modules` holds 0.0.7.
 - `overlay-import`: `main.ts` imports the overlay behind a dev guard.
-- `process-alive`, `port-owned`: the recorded PID runs with its recorded start time and holds 9999.
+- `process-alive`: the recorded PID runs with its recorded start time and command line. `tree`: adds the live
+  processes below it to the recorded tree, for `down`. `ports`: 9999 listens and its PID is in that process
+  tree; the app's port is listed as external, not checked
+  (`[OK] ports: pangular 9999 (fixed: apps/insurance-portal/proxy.conf.json:3 in the app checkout ...), app 4507 (external: ...)`).
 - `mcp-origin-guard`: a POST without `Origin` gets 403.
 - `mcp-initialize`: `initialize` with a local `Origin` (and `PANGULAR_MCP_TOKEN` as a bearer token when set) answers.
+  A server that is down fails `mcp-origin-guard` (`-> 0`), `mcp-initialize` (`HTTP 0: ECONNREFUSED`) and
+  `read-only` (no tool list is no evidence) rather than crashing doctor. Page text
+  in a detail (titles, URLs, console lines) is printed with its control characters escaped.
 - `read-only`: `tools/list` holds none of the eight action tools (`highlight`, `navigate`,
   `dispatch-ngrx-action`, `form-action`, `fill-form`, `set-http-rule`, `remove-http-rule`, `analog-call-api`).
 - With an app URL: `browser-session` (playwright-cli session `pangular-9999` on the app), `auth-code` (the
@@ -107,23 +131,30 @@ to pick a tab. Answers that hold page text start with Pangular's notice to treat
 | Live route config and its lint | `node $S call list-routes`, `node $S call lint-routes` |
 
 Fallbacks: `node $S scan <get-routes|get-components|...>` runs the CLI's stdio MCP server (source scan, no
-app needed); the panel UI at `http://localhost:4775/__pangular/` in the same playwright-cli session (wait for
+app needed); the panel UI at `http://localhost:4507/__pangular/` in the same playwright-cli session (wait for
 the text `LIVE`). Not reachable: Angular DevTools (manual only).
 
 ## Evidence
 
 `tmp/control-pangular-inspector/pangular-<port>-<timestamp>/` (git-ignored; `info` prints `evidenceDir`). A
-relative `--out name.json` on `tools`, `call`, `components` and `resource` writes there; pass
+relative `--out name.json` on `tools`, `call`, `components` and `resource` writes there (`scan`, which needs no
+server, writes under `tmp/control-pangular-inspector/scan/`); an `--out` that
+resolves outside it is refused (exit 2, and `call` refuses before it calls the tool); pass
 `--filename=<evidenceDir>/...` to playwright-cli `snapshot` and `screenshot`. A proof holds: snapshot before
 and after the user action, a screenshot showing the app, the MCP answers saved as JSON, `doctor --json`, and
 `pangular.log`. Proof rules: `features/README.md`.
 
 ## Cleanup
 
-`node $S down` checks the recorded PID against its start time and command line, closes session
-`pangular-9999`, stops that PID's tree (`taskkill /T /F`), deletes the state file, keeps the evidence. A PID
-that no longer runs is noted, not refused; a mismatch is refused with exit 2. Then stop the app with
-`control-angular-dev-app ... down --target portal`. Never `playwright-cli close-all` or `kill-all`.
+`node $S down` closes session `pangular-9999` and stops the server's recorded process tree through
+`scripts/proctree.mjs`. `up` records the root right after the spawn and every process below it once the server
+answers, and `doctor` adds what it sees since (`tree` in the state file and `info --json`). `down` takes a last
+snapshot below the root, merges it into the record and stops every record whose live process still has its
+start time and command line, children before parents, one PID at a time with a forced stop, never by name. It
+deletes the state file and keeps the evidence. A PID that no longer runs is noted, not refused. A root whose PID
+now belongs to another process is never touched and `down` exits 2; so does a record that still runs after the
+last round; both keep the state file, with the merged record, for the next `down`. Then stop the app with
+`control-angular-dev-app ... down --target portal`. A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). Never `playwright-cli close-all` or `kill-all`.
 
 Removing Pangular from the app: `node $S remove` restores every file `install` changed from git `HEAD`,
 deletes `proxy.conf.json` when git does not track it, prunes `node_modules` with `npm install`, restores the
@@ -138,23 +169,41 @@ install and leaves Pangular in place; reverting that commit is a product change 
 
 | Command | Does | Exit |
 |---|---|---|
-| `install` | pin, overlay import, proxy, `proxyConfig` (standalone flow) | 0 done; 2 other mount, npm failure, `main.ts` pattern not found |
-| `check` | the six setup facts, read-only | 0 / 1 |
+| `install` | pin, overlay import, proxy, `proxyConfig` (standalone flow) | 0 done; 2 other mount, another or untracked proxy file (see Launch), npm failure, `main.ts` pattern not found |
+| `check` | the six setup facts, read-only | 0 / 1; 2 no app found, or its main file lies outside the checkout |
 | `remove` | restore from git, prune, assert clean | 0 clean; 1 not clean; 2 refused (foreign changes) or failed |
 | `up [--app-url U] [--allow-actions]` | start `pangular dev`, write `tmp/control-pangular-inspector/state/pangular-<port>.json` | 0; 2 port busy, state exists, not installed, exited, timeout |
 | `doctor [--app-url U]` | checks above | 0 / 1 / 2 |
-| `info` | the state file | 0; 2 no state |
-| `down` | teardown | 0 (also when the PID is gone); 2 no state file, or PID start-time / command mismatch |
-| `tools [--out F]` | MCP `tools/list`; names, read-only flags, action tools present | 0; 2 failed |
-| `call <tool> [--args JSON] [--confirm] [--out F]` | MCP `tools/call`; the eight action tools need `--confirm` | 0; 1 tool error; 2 refused or unknown tool |
-| `components [--filter T] [--depth N] [--out F]` | `list-components`, or the same outline from the `component-tree` resource | 0 / 1 |
-| `resource <id> [--out F]` | MCP `resources/read`, e.g. `component-tree`, `signal-graph`, `router` | 0 / 1; 2 unknown id |
+| `info` | the state file, with `tree` (`{pid, ppid, start, commandLine}`, the root first; `start` in ms since the epoch) | 0; 2 no state |
+| `down` | teardown (Cleanup) | 0 (also when the PID is gone); 2 no state file, a root PID that now belongs to another process (never touched), or a record still running after the last round |
+| `tools [--out F]` | MCP `tools/list`; names, read-only flags, action tools present | 0; 2 failed (a server that is down: `HTTP 0: ECONNREFUSED`) |
+| `call <tool> [--args JSON] [--confirm] [--out F]` | MCP `tools/call`; the eight action tools need `--confirm` | 0; 1 tool error; 2 refused, `tools/list` failed (server down), or unknown tool |
+| `components [--filter T] [--depth N] [--out F]` | `list-components`, or the same outline from the `component-tree` resource | 0 / 1; 2 `tools/list` failed (server down) |
+| `resource <id> [--out F]` | MCP `resources/read`, e.g. `component-tree`, `signal-graph`, `router` | 0 / 1; 2 unknown id, or `resources/list` failed |
 | `scan <tool> [--root DIR] [--out F]` | stdio `pangular mcp --read-only` source-scan tool | 0 / 1 / 2 |
 
 The MCP client is plain JSON-RPC over `node:http`: `Content-Type: application/json`, `Accept:
 application/json, text/event-stream`, `Origin: http://localhost:<port>`, optional bearer token from
 `PANGULAR_MCP_TOKEN`; the answer is one SSE `data:` line. The standalone server is stateless (no
 `Mcp-Session-Id`), so `tools/list` works without `initialize`.
+
+Every command that reads the app (`install`, `check`, `remove`, `doctor`) refuses (exit 2) when the app's
+`project.json` names a main file outside the app folder.
+
+`scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
+`features/.proven.json`: `node .claude/skills/control-pangular-inspector/scripts/fingerprint.mjs record --feature <id>
+--entries <path>...` records the repository files a feature depends on with their git blob hashes (exit 0 written or
+unchanged, 2 refused, for example an entry outside the repository); `... record --feature <id> --external "<reason>"`
+records a feature whose source lives outside the repository; `... fingerprint.mjs check [--feature <id>] [--json]`
+prints `fresh`, `stale`, `unproven` or `external` per feature (exit 0 all fresh or external, 1 one stale or
+unproven, 2 could not run).
+
+`scripts/proctree.mjs` (a byte copy of lars-create-verification's; never edit it here; its tests live there) records
+and stops the server's process tree for `up`, `doctor` and `down`: `processTable`, `snapshot`, `merge`, `stop`, `describe`. It has
+no command line of its own and prints nothing.
+
+Every other script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
+`npm run check` type-checks the scripts.
 
 ### Other mounts (documented, not automated)
 
@@ -181,11 +230,9 @@ application/json, text/event-stream`, `Origin: http://localhost:<port>`, optiona
   for `list-pages`: the prompt can come after the page id is set, and a doctor that missed it left
   `overlay-connected` failing ("No page is reporting") and the next drive blocked (measured once). The browser
   keeps the trust, so later loads do not ask.
-- While this server runs, `control-angular-dev-app doctor --target portal` fails (measured): its own session
-  meets the one-time-code prompt (`page-probe`: "does not handle the modal state"; `dialog-accept <code>` in
-  that session clears it), and `build-log:app` counts the `Error: read ECONNRESET` lines that follow a `[vite]
-  ws proxy error` after a page holding the overlay socket navigates. Run that doctor before `up` or after
-  `down`; this skill's own doctor covers the page while Pangular runs.
+- `control-angular-dev-app doctor --target portal` can run while this server runs: it answers the one-time-code
+  prompt itself (`pangular-auth`, from this skill's state file and `pangular.log`) and its `build-log` ignores the
+  `[vite]` proxy entries with their `Error: read ECONNRESET` lines.
 - The standalone server listens on `[::1]:9999`; the proxy target `http://localhost:9999` reaches it.
 - `process.exit` while a `fetch` keep-alive socket is open crashed Node 24 on Windows with
   `Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)` (exit 127); the script uses `node:http` without

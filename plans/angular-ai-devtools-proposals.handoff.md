@@ -32,10 +32,10 @@ Research and design for an AI-assisted Angular DevTools browser extension (Chrom
 - **Insurance Portal fixture:** `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools`, branch `claude/ai-devtools-spike`, head `cc9ce25`. It has Signal Forms (`754aa1e`, `66e8ad6`, `92053b9`), the error-timing fix (`987f000`) and the budget raised to 700 kB (`cc9ce25`). Not pushed.
 - **Skills (project):** in `.claude/skills/`:
   - `control-` / `verify-ai-browsers`;
-  - `control-` / `verify-angular-dev-app` (targets counter, ssr, portal, or `--url`);
+  - `control-angular-dev-app` (targets counter, ssr, portal, or `--url`; claims about it are proven with `lars-verify`);
   - `control-` / `verify-angular-devtools`;
   - `control-` / `verify-pangular-inspector`;
-  - `control-` / `verify-vitest-browser-angular`.
+  - `control-vitest-browser-angular` (claims about it are proven with `lars-verify`).
 
   The browser instance registry is `.claude/skills/control-ai-browsers/instances.json`. Instances: chrome-beta-nano 9333, chrome-beta-gemma4 9334, edge-dev-aion 9335, edge-phi4mini 9337. Profiles are on D: under `.browsers/`.
 - **Review history:** `tmp/review/` (gitignored), with round 1-10 findings and triage, plus every agent brief.
@@ -84,7 +84,7 @@ Research and design for an AI-assisted Angular DevTools browser extension (Chrom
 - **`lars-mode`:** working rules, delegation and AFK runs. Use its review-round playbook for any further review.
 - **`lars-frontend-dev`:** before touching Angular code in the fixtures or the portal.
 - **`control-ai-browsers` / `verify-ai-browsers`:** for any spike that needs a model (S14, S15, S20, S23, the tutor spikes).
-- **`control-angular-dev-app` / `verify-angular-dev-app`:** for counter, SSR or portal spikes (S16, S17, S18).
-- **`control-vitest-browser-angular` / `verify-vitest-browser-angular`:** for S20 to S23.
-- **`pstack:maintain-verification-skill`:** if a fixture or skill drifts.
+- **`control-angular-dev-app` with `lars-verify`:** for counter, SSR or portal spikes (S16, S17, S18).
+- **`control-vitest-browser-angular` with `lars-verify`:** for S20 to S23.
+- **`lars-maintain-verification`:** if a fixture or skill drifts.
 - **`playwright-cli`:** for driving pages, as the skills do.

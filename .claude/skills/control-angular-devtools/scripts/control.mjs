@@ -1,12 +1,90 @@
 #!/usr/bin/env node
+// @ts-check
 // Angular DevTools control script. Run with --help for commands.
 
 import { spawn, spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { createServer } from 'node:net';
-import { dirname, join, resolve } from 'node:path';
+import { homedir } from 'node:os';
+import path, { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { mapFresh, printable } from './fingerprint.mjs';
+import { describe, matches, merge, processTable, snapshot, stop } from './proctree.mjs';
+
+/** @typedef {'chrome' | 'chrome-beta' | 'edge' | 'edge-dev'} BrandedName */
+/** @typedef {'test' | BrandedName} BrowserValue */
+/** @typedef {{ exe: string, userData: string, scheme: 'chrome' | 'edge' }} Browser */
+
+/** @typedef {{ browser?: BrowserValue, from?: string, profile?: string, timeout?: string, 'app-url'?: string, port?: string, component?: string, click?: string, file?: string, json?: true, 'di-graph'?: true }} Opts */
+
+/** @typedef {{ cmd: string | undefined, opts: Opts, pos: string[] }} Parsed */
+/** @typedef {import('./proctree.mjs').ProcRecord} ProcRecord */
+/** @typedef {import('./proctree.mjs').StopResult} StopResult */
+
+/**
+ * @typedef {object} State
+ * @property {string} flowId
+ * @property {string} session
+ * @property {number} pid  the playwright-cli session process `open` started
+ * @property {ProcRecord[]} [tree]  every process the run was seen to start (proctree.mjs), the session process first
+ * @property {number} cdpPort
+ * @property {number} [slot]
+ * @property {PortEntry[]} [ports]
+ * @property {string} appUrl
+ * @property {string} extensionVersion
+ * @property {string} extensionDir
+ * @property {string} profile
+ * @property {string} [configPath]
+ * @property {string} evidenceDir
+ * @property {string} startedAt
+ * @property {number} [readyInSeconds]
+ * @property {number | null} [browserPid]  the Chromium holding the CDP port, a record of `tree`
+ */
+
+/** @typedef {{ type: string, url: string, webSocketDebuggerUrl: string }} CdpTarget */
+/** @typedef {'derived' | 'fixed' | 'external'} PortKind */
+/** @typedef {{ name: string, port: number, kind: PortKind, reason?: string }} PortEntry */
+/**
+ * A row of the ports table (SKILL.md, "Pick a flow"): a derived port has a value per slot, the first row is the main port.
+ * @typedef {{ name: string, kind: 'derived', at: (slot: number) => number } | { name: string, kind: 'fixed', port: number, pin: string } | { name: string, kind: 'external', port: number, owner: string }} PortRow
+ */
+/** @typedef {{ id?: number, result?: { data?: string, result?: { value?: unknown }, exceptionDetails?: { text?: string, exception?: { description?: string } } }, error?: unknown }} CdpResponse */
+/** @typedef {{ manifest?: { version?: string }, disable_reasons?: number[], state?: number, from_webstore?: boolean, path?: string }} PrefEntry */
+/** @typedef {{ file: string, version: string | null, disableReasons: number[], state: number | null, fromWebstore: boolean | null, path: string | null }} ExtSettings */
+
+/**
+ * @typedef {object} BrandedStatus
+ * @property {string} browser
+ * @property {string} profile
+ * @property {string} extensionsDir
+ * @property {string[]} versionsOnDisk
+ * @property {ExtSettings | null} settings
+ * @property {boolean} installed
+ * @property {boolean} enabled
+ * @property {string} extensionsPage
+ */
+
+/** @typedef {{ kind: string | null, text: string[] }} SignalNode */
+/** @typedef {{ isAngular?: boolean, isDebugMode?: boolean } & Record<string, unknown>} Detection */
+
+/**
+ * What ATTACH_PROBE returns.
+ * @typedef {object} AttachFacts
+ * @property {boolean} flag
+ * @property {number | null} flagSetAt
+ * @property {Detection | null} detection
+ * @property {boolean} backendInstalled
+ * @property {boolean} handshake
+ * @property {number | null} backendReady
+ * @property {string | null} ngVersion
+ * @property {boolean} ngGlobal
+ * @property {string[]} topics
+ */
+
+/** @typedef {{ a: number, b: number }} Counts */
+/** @typedef {{ bothOn: Counts, afterRemoveA: Counts }} ProfilerCounts */
+/** @typedef {{ ok: boolean } & Record<string, unknown>} Result */
+/** @typedef {{ name: string, ok: boolean, detail: string, status?: 'pass' | 'warn' }} Check */
 
 const EXT_ID = 'ienfalfjdbdpebioblfackkekamfmbnh';
 const PANEL_ID = `chrome-extension://${EXT_ID}Angular`;
@@ -14,7 +92,13 @@ const STORE_URL = `https://chromewebstore.google.com/detail/${EXT_ID}`;
 const SKILL_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = resolve(SKILL_DIR, '..', '..', '..');
 const TMP = join(ROOT, 'tmp', 'control-angular-devtools');
-const LOCAL = process.env.LOCALAPPDATA;
+const LOCAL = process.env['LOCALAPPDATA'] ?? join(homedir(), 'AppData', 'Local');
+const SYSTEM32 = join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32');
+// Windows reads this from the looking process, not the child's env, when Node looks up a bare program name: set,
+// the current directory is skipped. The processes this script starts inherit it.
+process.env['NoDefaultCurrentDirectoryInExePath'] = '1';
+
+/** @type {Record<BrandedName, Browser>} */
 const BROWSERS = {
   chrome: { exe: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', userData: join(LOCAL, 'Google', 'Chrome', 'User Data'), scheme: 'chrome' },
   'chrome-beta': { exe: 'C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe', userData: join(LOCAL, 'Google', 'Chrome Beta', 'User Data'), scheme: 'chrome' },
@@ -23,73 +107,131 @@ const BROWSERS = {
 };
 
 // ---------- args ----------
-const [cmd, ...rest] = process.argv.slice(2);
-const VALUE_FLAGS = ['browser', 'from', 'profile', 'timeout', 'app-url', 'cdp-port', 'component', 'click', 'file'];
+const VALUE_FLAGS = ['browser', 'from', 'profile', 'timeout', 'app-url', 'port', 'component', 'click', 'file'];
 const BOOL_FLAGS = ['json', 'di-graph'];
+/** @type {readonly string[]} */
 const BROWSER_VALUES = ['test', 'chrome', 'chrome-beta', 'edge', 'edge-dev'];
-const opts = {};
-const pos = [];
 
-function usageError(msg) {
-  console.log(`[ERROR] refused: ${msg}`);
-  process.exit(2);
+export class UsageError extends Error {}
+
+/**
+ * @param {string} name
+ * @returns {name is BrandedName}
+ */
+export function isBranded(name) {
+  return Object.hasOwn(BROWSERS, name);
 }
 
-for (let i = 0; i < rest.length; i++) {
-  const m = rest[i].match(/^--([^=]+)(?:=(.*))?$/s);
+/**
+ * Splits the command line into the command, flags and positionals. Throws a UsageError on a bad flag.
+ * @param {string[]} argv the arguments after the script path
+ * @returns {Parsed}
+ */
+export function parseArgs(argv) {
+  const [cmd, ...rest] = argv;
+  /** @type {Record<string, string | true>} */
+  const opts = {};
+  /** @type {string[]} */
+  const pos = [];
 
-  if (!m) {
-    pos.push(rest[i]);
-    continue;
-  }
+  for (let i = 0; i < rest.length; i++) {
+    const arg = /** @type {string} */ (rest[i]);
+    const m = arg.match(/^--([^=]+)(?:=(.*))?$/s);
 
-  const [, name, inline] = m;
-
-  if (BOOL_FLAGS.includes(name)) {
-    if (inline !== undefined) {
-      usageError(`--${name} takes no value`);
+    if (!m) {
+      pos.push(arg);
+      continue;
     }
 
-    opts[name] = true;
-  } else if (VALUE_FLAGS.includes(name)) {
-    const value = inline ?? (rest[i + 1] !== undefined && !rest[i + 1].startsWith('--') ? rest[++i] : undefined);
+    const name = /** @type {string} */ (m[1]);
+    const inline = m[2];
 
-    if (value === undefined || value === '') {
-      usageError(`--${name} needs a value (--${name} <value> or --${name}=<value>)`);
+    if (BOOL_FLAGS.includes(name)) {
+      if (inline !== undefined) {
+        throw new UsageError(`--${name} takes no value`);
+      }
+
+      opts[name] = true;
+    } else if (VALUE_FLAGS.includes(name)) {
+      const next = rest[i + 1];
+      const value = inline ?? (next !== undefined && !next.startsWith('--') ? rest[++i] : undefined);
+
+      if (value === undefined || value === '') {
+        throw new UsageError(`--${name} needs a value (--${name} <value> or --${name}=<value>)`);
+      }
+
+      opts[name] = value;
+    } else {
+      throw new UsageError(`unknown flag --${name}; flags: ${[...VALUE_FLAGS, ...BOOL_FLAGS].map((f) => '--' + f).join(', ')}`);
     }
-
-    opts[name] = value;
-  } else {
-    usageError(`unknown flag --${name}; flags: ${[...VALUE_FLAGS, ...BOOL_FLAGS].map((f) => '--' + f).join(', ')}`);
   }
-}
 
-if (opts.browser !== undefined && !BROWSER_VALUES.includes(opts.browser)) {
-  usageError(`--browser ${opts.browser} is not one of ${BROWSER_VALUES.join(', ')}`);
-}
+  const browser = opts['browser'];
 
-for (const n of ['timeout', 'cdp-port']) {
-  if (opts[n] !== undefined && !/^\d+$/.test(opts[n])) {
-    usageError(`--${n} must be a whole number, got "${opts[n]}"`);
+  if (typeof browser === 'string' && !BROWSER_VALUES.includes(browser)) {
+    throw new UsageError(`--browser ${browser} is not one of ${BROWSER_VALUES.join(', ')}`);
   }
+
+  for (const n of ['timeout', 'port']) {
+    const v = opts[n];
+
+    if (typeof v === 'string' && !/^\d+$/.test(v)) {
+      throw new UsageError(`--${n} must be a whole number, got "${v}"`);
+    }
+  }
+
+  return { cmd, opts: /** @type {Opts} */ (opts), pos };
 }
 
 class Refusal extends Error {}
 class Unhealthy extends Error {}
 
+/**
+ * @param {string} msg
+ * @returns {never}
+ */
 function refuse(msg) {
   throw new Refusal(msg);
 }
 
+/** @type {Opts} */
+const opts = {};
+/** @type {string[]} */
+const pos = [];
+
+/**
+ * One human-readable line. Page text (the panel, URLs, signal labels, playwright-cli output) can hold control
+ * characters, so they are escaped rather than written to the terminal.
+ * @param {string} marker
+ * @param {string} msg
+ * @returns {string}
+ */
+export function logLine(marker, msg) {
+  return `[${marker}] ${printable(msg)}`;
+}
+
+/**
+ * @param {string} marker
+ * @param {string} msg
+ */
 function log(marker, msg) {
   if (!opts.json) {
-    console.log(`[${marker}] ${msg}`);
+    console.log(logLine(marker, msg));
   }
 }
 
+/** @param {number} ms */
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function waitFor(fn, timeoutMs, everyMs = 500) {
+/**
+ * Polls `fn` until it returns a truthy value; null after `timeoutMs`.
+ * @template T
+ * @param {() => T | Promise<T>} fn
+ * @param {number} timeoutMs
+ * @param {number} [everyMs]
+ * @returns {Promise<T | null>}
+ */
+export async function waitFor(fn, timeoutMs, everyMs = 500) {
   const end = Date.now() + timeoutMs;
 
   while (Date.now() < end) {
@@ -106,81 +248,462 @@ async function waitFor(fn, timeoutMs, everyMs = 500) {
 }
 
 // ---------- worktree, session, ports ----------
-const isWorktree = existsSync(join(ROOT, '.git')) && !readdirSync(ROOT, { withFileTypes: true }).find((d) => d.name === '.git')?.isDirectory();
-const flowId = isWorktree ? `wt-${createHash('sha1').update(ROOT.toLowerCase()).digest('hex').slice(0, 6)}` : 'main';
-const SESSION = flowId === 'main' ? 'ngdt' : `ngdt-${flowId}`;
+
+/**
+ * Whether `root` is the top of a git worktree: its `.git` exists and is not a folder.
+ * @param {string} root
+ * @returns {boolean}
+ */
+export function isWorktreeRoot(root) {
+  const g = join(root, '.git');
+
+  return existsSync(g) && !lstatSync(g).isDirectory();
+}
+
+/**
+ * `main` in a main checkout, else `wt-` and 6 hex digits from a hash of the lower-cased root.
+ * @param {string} root
+ * @param {boolean} worktree
+ * @returns {string}
+ */
+export function flowIdOf(root, worktree) {
+  return worktree ? `wt-${createHash('sha1').update(root.toLowerCase()).digest('hex').slice(0, 6)}` : 'main';
+}
+
 const MAIN_CDP_PORT = 9420;
-const cdpPortDefault = flowId === 'main' ? MAIN_CDP_PORT : 9421 + (parseInt(flowId.slice(3), 16) % 79);
+// Slot 0 is the main checkout's (CDP 9420); a worktree's flow id hashes to one of 1 to SLOTS - 1 (9421-9499).
+const SLOTS = 80;
+const SLOT_TRIES = 10;
+
+/**
+ * The flow's own slot: 0 for main, else 1 to 79 from the worktree's hash, so its port stays the same from run to run.
+ * @param {string} flowId
+ * @returns {number}
+ */
+export function slotOfFlow(flowId) {
+  return flowId === 'main' ? 0 : 1 + (parseInt(flowId.slice(3), 16) % (SLOTS - 1));
+}
+
+/**
+ * The slots `up` tries, in order: `first`, then the next ones, 10 in all. From a worktree (`first` above 0) they
+ * wrap within 1 to 79 and never reach slot 0.
+ * @param {number} first
+ * @returns {number[]}
+ */
+export function slotOrder(first) {
+  return Array.from({ length: SLOT_TRIES }, (_, i) => (first === 0 ? i : 1 + ((first - 1 + i) % (SLOTS - 1))));
+}
+
+/**
+ * The ports table rows of a test-harness run: the CDP port per slot, and the app the browser opens.
+ * @param {string} appUrl
+ * @returns {PortRow[]}
+ */
+export function portRows(appUrl) {
+  return [
+    { name: 'cdp', kind: 'derived', at: (slot) => MAIN_CDP_PORT + slot },
+    { name: 'app', kind: 'external', port: Number(new URL(appUrl).port || 80), owner: 'control-angular-dev-app (or whatever serves --app-url); this skill never starts or stops it' },
+  ];
+}
+
+const isWorktree = isWorktreeRoot(ROOT);
+const flowId = flowIdOf(ROOT, isWorktree);
+const SESSION = flowId === 'main' ? 'ngdt' : `ngdt-${flowId}`;
 const STATE = join(TMP, 'state', `${flowId}.json`);
 const PROFILE = join(TMP, 'profile', flowId);
 const EXT_COPY = join(TMP, 'extension');
 
-function portFree(port) {
-  return new Promise((r) => {
-    const s = createServer();
-    s.once('error', () => r(false));
-    s.once('listening', () => s.close(() => r(true)));
-    s.listen(port, '127.0.0.1');
+/**
+ * The PIDs listening on each port in `netstat -ano` output, IPv4 and IPv6: a port can have one holder per address.
+ * @param {string} text
+ * @returns {Map<number, number[]>}
+ */
+export function listeners(text) {
+  /** @type {Map<number, number[]>} */
+  const map = new Map();
+
+  for (const l of text.split(/\r?\n/)) {
+    const m = l.trim().split(/\s+/);
+
+    if (m[0] === 'TCP' && m[3] === 'LISTENING') {
+      const port = Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1));
+      const pid = Number(m[4]);
+      const pids = map.get(port) ?? [];
+
+      if (!pids.includes(pid)) {
+        pids.push(pid);
+      }
+
+      map.set(port, pids);
+    }
+  }
+
+  return map;
+}
+
+/**
+ * Picks the ports of one run. A busy fixed port is a refusal. `forced` (`--port`) is the main port in every slot,
+ * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free. A derived entry
+ * of a slot other than `first` (the run's own slot, `order[0]` unless a retry already used it) says what it fell
+ * back from.
+ * @param {PortRow[]} rows
+ * @param {number[]} order
+ * @param {Map<number, number[]>} busy  the PIDs listening on each port
+ * @param {number} [forced]
+ * @param {number} [first]
+ * @returns {{ ok: true, slot: number, ports: PortEntry[] } | { ok: false, reason: string }}
+ */
+export function planPorts(rows, order, busy, forced, first = order[0]) {
+  /** @param {number} port */
+  const holder = (port) => busy.get(port)?.[0];
+
+  for (const r of rows) {
+    const pid = r.kind === 'fixed' ? holder(r.port) : undefined;
+
+    if (r.kind === 'fixed' && pid !== undefined) {
+      return { ok: false, reason: `fixed port ${r.name} ${r.port} held by PID ${pid}; pinned by ${r.pin}` };
+    }
+  }
+
+  const main = rows.findIndex((r) => r.kind === 'derived');
+  const forcedPid = forced === undefined ? undefined : holder(forced);
+
+  if (forced !== undefined && forcedPid !== undefined) {
+    return { ok: false, reason: `port ${forced} (--port) is held by PID ${forcedPid}; --port has no fallback` };
+  }
+
+  /** @type {(r: PortRow, i: number, slot: number) => number} */
+  const portAt = (r, i, slot) => (r.kind !== 'derived' ? r.port : i === main && forced !== undefined ? forced : r.at(slot));
+  /** @type {string[]} */
+  const tried = [];
+
+  for (const slot of order) {
+    const taken = rows.flatMap((r, i) => {
+      const pid = r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
+
+      return pid === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} held by PID ${pid}`];
+    });
+
+    if (taken.length === 0) {
+      /** @type {PortEntry[]} */
+      const ports = rows.map((r, i) => {
+        const port = portAt(r, i, slot);
+
+        if (r.kind === 'fixed') {
+          return { name: r.name, port, kind: r.kind, reason: r.pin };
+        }
+
+        if (r.kind === 'external') {
+          return { name: r.name, port, kind: r.kind, reason: r.owner };
+        }
+
+        if (first === undefined || slot === first) {
+          return { name: r.name, port, kind: r.kind };
+        }
+
+        const from = portAt(r, i, first);
+        const pid = holder(from);
+        const why = pid !== undefined ? `held by PID ${pid}` : order[0] === first ? `slot ${first} had ${tried[0]}` : 'taken after the check';
+
+        return { name: r.name, port, kind: r.kind, reason: `fell back from ${from}: ${why}` };
+      });
+
+      return { ok: true, slot, ports };
+    }
+
+    tried.push(...taken);
+  }
+
+  return { ok: false, reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}` };
+}
+
+/**
+ * The doctor's `ports` line: every derived and fixed port answers and every holder of it is in the recorded process
+ * tree; every port is listed.
+ * @param {PortEntry[]} ports
+ * @param {Map<number, number[]>} busy
+ * @param {Set<number>} tree
+ * @returns {{ status: 'pass' | 'fail', detail: string }}
+ */
+export function portsCheck(ports, busy, tree) {
+  const problems = ports.flatMap((p) => {
+    const pids = busy.get(p.port) ?? [];
+    const foreign = pids.filter((pid) => !tree.has(pid));
+
+    if (p.kind === 'external') {
+      return [];
+    }
+
+    if (pids.length === 0) {
+      return [`${p.name} ${p.port} not listening`];
+    }
+
+    return foreign.length === 0 ? [] : [`${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`];
   });
+
+  if (problems.length > 0) {
+    return { status: 'fail', detail: problems.join('; ') };
+  }
+
+  return { status: 'pass', detail: ports.map((p) => `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`).join(', ') };
 }
 
+/**
+ * The PIDs listening on each port now (netstat).
+ * @returns {Map<number, number[]>}
+ */
+export function busyPorts() {
+  return listeners(spawnSync(join(SYSTEM32, 'netstat.exe'), ['-ano'], { encoding: 'utf8' }).stdout);
+}
+
+/**
+ * @param {number} port
+ * @returns {number | null}
+ */
 function portOwner(port) {
-  const r = spawnSync('netstat', ['-ano'], { encoding: 'utf8' });
-  const line = r.stdout.split('\n').find((l) => new RegExp(`:${port}\\s.*LISTENING`).test(l));
-
-  return line ? Number(line.trim().split(/\s+/).pop()) : null;
+  return busyPorts().get(port)?.[0] ?? null;
 }
 
-// ---------- processes ----------
-function processById(pid) {
-  const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', `Get-CimInstance Win32_Process -Filter "ProcessId=${Number(pid)}" | Select-Object ProcessId,CommandLine,@{n='Created';e={$_.CreationDate.ToString('o')}} | ConvertTo-Json -Compress`], { encoding: 'utf8' });
-  const text = r.stdout.trim();
+// ---------- processes (proctree.mjs) ----------
 
-  return text ? JSON.parse(text) : null;
+/**
+ * The recorded session process: the `tree` record with its PID, or none when `up` never saw it run.
+ * @param {{ pid: number, tree?: ProcRecord[] }} st
+ * @returns {ProcRecord | undefined}
+ */
+export function rootOf(st) {
+  return (st.tree ?? []).find((r) => r.pid === st.pid);
+}
+
+/**
+ * The live tree below the recorded session process now: empty when it is gone or its PID belongs to another process.
+ * @param {{ pid: number, tree?: ProcRecord[] }} st
+ * @param {() => ProcRecord[]} [table]
+ * @returns {ProcRecord[]}
+ */
+export function liveTree(st, table = processTable) {
+  const root = rootOf(st);
+
+  return root === undefined ? [] : snapshot(root, { table });
+}
+
+/**
+ * Stops every process the run recorded, through proctree.mjs: a last snapshot below the root, merged into the
+ * record, then `stop`.
+ * @param {{ pid: number, tree?: ProcRecord[] }} st
+ * @param {{ table?: () => ProcRecord[], stop?: (records: ProcRecord[]) => StopResult }} [deps]
+ * @returns {{ records: ProcRecord[], result: StopResult }}
+ */
+export function stopRun(st, { table = processTable, stop: stopRecords = stop } = {}) {
+  const records = merge(st.tree ?? [], liveTree(st, table));
+
+  return { records, result: stopRecords(records) };
+}
+
+/**
+ * What `down` reports for a stop result. Exit 2 when the root's PID now belongs to another process (that one is never
+ * touched) or a record still runs after the last round; any other refusal is only noted.
+ * @param {{ pid: number, tree?: ProcRecord[] }} st
+ * @param {StopResult} result
+ * @returns {{ code: 0 | 2, notes: string[], reason: string | null }}
+ */
+export function downOutcome(st, result) {
+  // A state file written before proctree.mjs records no tree: stopping nothing and removing it would lose the run.
+  if (st.tree === undefined) {
+    return { code: 2, notes: [], reason: `refused: the state file records no process tree (written before proctree.mjs); nothing stopped: check PID ${st.pid} by hand, then delete the state file` };
+  }
+
+  const root = rootOf(st);
+  /** @type {string[]} */
+  const reasons = [];
+  const notes = [...result.stopped.map((r) => `stopped ${describe(r)}`), ...result.gone.map((r) => `${describe(r)} was not running`)];
+
+  for (const r of result.refused) {
+    if (r.reason === 'reused' && root !== undefined && r.pid === root.pid && r.start === root.start) {
+      reasons.push(`refused: PID ${r.pid} now belongs to another process (its start time or command line differs from the state file); not stopping a process this skill did not start`);
+    } else if (r.reason === 'survived') {
+      reasons.push(`${describe(r)} still runs after the last round; run down again`);
+    } else {
+      notes.push(`left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`);
+    }
+  }
+
+  return reasons.length === 0 ? { code: 0, notes, reason: null } : { code: 2, notes, reason: `${reasons.join('; ')}; the state file is kept` };
+}
+
+/**
+ * Whether any record still runs as the recorded process (same PID, start time and command line).
+ * @param {ProcRecord[]} records
+ * @returns {boolean}
+ */
+function anyAlive(records) {
+  const rows = new Map(processTable().map((r) => [r.pid, r]));
+
+  return records.some((r) => matches(r, rows.get(r.pid)));
 }
 
 // ---------- state ----------
+
+/** @returns {State | null} */
 function readState() {
-  return existsSync(STATE) ? JSON.parse(readFileSync(STATE, 'utf8')) : null;
+  return existsSync(STATE) ? /** @type {State} */ (JSON.parse(readFileSync(STATE, 'utf8'))) : null;
 }
 
+/** @returns {State} */
 function requireState() {
   const st = readState();
 
   if (!st) {
-    refuse(`no state file at ${STATE}; run "up" first`);
+    return refuse(`no state file at ${STATE}; run "up" first`);
   }
 
   return st;
 }
 
+/**
+ * Why the live process holding the recorded PID is not the one `up` recorded, or null when it is (proctree.mjs
+ * `matches`: same PID, start time and command line).
+ * @param {{ pid: number, tree?: ProcRecord[] }} st
+ * @param {ProcRecord} live
+ * @returns {string | null}
+ */
+export function identityProblem(st, live) {
+  const root = rootOf(st);
+
+  return root !== undefined && matches(root, live) ? null : `PID ${st.pid} is not the process this run started (${root === undefined ? 'no record of it' : 'start time or command line differ'}); not the browser this run started`;
+}
+
+/**
+ * @param {State} st
+ * @returns {ProcRecord | null} the live process, null when it is gone; refuses when it is another process
+ */
 function checkIdentity(st) {
-  const live = processById(st.pid);
+  const live = processTable().find((r) => r.pid === st.pid);
 
   if (!live) {
     return null;
   }
 
-  if (live.Created !== st.created) {
-    refuse(`PID ${st.pid} start-time mismatch: live ${live.Created}, recorded ${st.created}; not the browser this run started`);
-  }
+  const problem = identityProblem(st, live);
 
-  if (live.CommandLine !== st.commandLine) {
-    refuse(`PID ${st.pid} command-line mismatch: live "${(live.CommandLine ?? '').slice(0, 120)}", recorded "${st.commandLine.slice(0, 120)}"`);
+  if (problem) {
+    refuse(problem);
   }
 
   return live;
 }
 
+/**
+ * Why CDP commands must not use the state's port: the recorded process is gone, or another PID owns the port.
+ * @param {State} st
+ * @param {ProcRecord | null} live
+ * @param {number | null} owner the PID listening on st.cdpPort
+ * @returns {string | null}
+ */
+export function cdpOwnerProblem(st, live, owner) {
+  if (!live) {
+    return `PID ${st.pid} not running; run "down", then "up"`;
+  }
+
+  if (owner !== st.browserPid) {
+    return `CDP port ${st.cdpPort} is owned by PID ${owner}, not the recorded browser PID ${st.browserPid}`;
+  }
+
+  return null;
+}
+
+/**
+ * The state, once its process and CDP port are this run's; refuses otherwise.
+ * @returns {State}
+ */
+function requireOwnedCdp() {
+  const st = requireState();
+  const problem = cdpOwnerProblem(st, checkIdentity(st), portOwner(st.cdpPort));
+
+  if (problem) {
+    refuse(problem);
+  }
+
+  return st;
+}
+
+/**
+ * Why `down` must not delete the state's profile or config: either is not the path this script derives.
+ * @param {State} st
+ * @param {{ profile: string, configPath: string }} expected
+ * @returns {string | null}
+ */
+export function deleteProblem(st, expected) {
+  if (resolve(st.profile) !== resolve(expected.profile)) {
+    return `state profile ${st.profile} is not this flow's profile ${expected.profile}; not deleting it`;
+  }
+
+  if (st.configPath !== undefined && resolve(st.configPath) !== resolve(expected.configPath)) {
+    return `state configPath ${st.configPath} is not this flow's config ${expected.configPath}; not deleting it`;
+  }
+
+  return null;
+}
+
+/**
+ * A Chrome extension version: one to four dot-separated numbers.
+ * @param {unknown} version
+ * @returns {version is string}
+ */
+export function isExtensionVersion(version) {
+  return typeof version === 'string' && /^\d+(\.\d+){0,3}$/.test(version);
+}
+
 // ---------- playwright-cli ----------
+
+/**
+ * The playwright-cli.js beside the first playwright-cli.cmd shim in an absolute PATH entry, or null.
+ * @param {string} pathEnv
+ * @returns {string | null}
+ */
+export function findPlaywrightCli(pathEnv) {
+  const shimDir = pathEnv.split(path.delimiter).find((d) => path.isAbsolute(d) && existsSync(join(d, 'playwright-cli.cmd')));
+  const js = shimDir && join(shimDir, 'node_modules', '@playwright', 'cli', 'playwright-cli.js');
+
+  return js && existsSync(js) ? js : null;
+}
+
+/**
+ * Runs playwright-cli through node, from the npm shim's folder on PATH (absolute PATH entries only).
+ * @param {string[]} args
+ * @param {{ raw?: boolean }} [options]
+ * @returns {{ code: number | null, out: string }}
+ */
 function pw(args, { raw = false } = {}) {
+  const js = findPlaywrightCli(process.env['PATH'] ?? '');
+
+  if (!js) {
+    return { code: 127, out: 'playwright-cli not found on PATH' };
+  }
+
   const full = [...(raw ? ['--raw'] : []), `-s=${SESSION}`, ...args];
-  const r = spawnSync(['playwright-cli', ...full].map((a) => (/[s"]/.test(a) ? `"${a.replace(/"/g, '\\"')}"` : a)).join(' '), { cwd: ROOT, encoding: 'utf8', shell: true, maxBuffer: 64 * 1024 * 1024 });
+  const r = spawnSync(process.execPath, [js, ...full], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 
   return { code: r.status, out: (r.stdout ?? '') + (r.stderr ?? '') };
 }
 
-// Runs a playwright-cli run-code function; `src` is the source of `async page => ...` returning JSON-able data.
+/**
+ * The value a run-code wrapper printed: its JSON, unwrapped once more when that JSON is itself a string.
+ * @param {string} out
+ * @returns {unknown}
+ */
+export function parseRunCode(out) {
+  const v = JSON.parse(out.trim());
+
+  return typeof v === 'string' ? JSON.parse(v) : v;
+}
+
+/**
+ * Runs a playwright-cli run-code function; `src` is the source of `async page => ...` returning JSON-able data.
+ * @param {string} src
+ * @param {string} [dir]
+ * @returns {unknown}
+ */
 function runCode(src, dir = join(TMP, 'run')) {
   mkdirSync(dir, { recursive: true });
   const file = join(dir, `code-${process.pid}-${Date.now()}.js`);
@@ -192,16 +715,26 @@ function runCode(src, dir = join(TMP, 'run')) {
     throw new Error(`run-code failed (${r.code}): ${r.out.slice(0, 600)}`);
   }
 
-  let v = JSON.parse(r.out.trim());
-
-  return typeof v === 'string' ? JSON.parse(v) : v;
+  return parseRunCode(r.out);
 }
 
 // ---------- raw CDP (DevTools window and the Angular panel) ----------
+
+/**
+ * @param {number} port
+ * @returns {Promise<CdpTarget[]>}
+ */
 async function targets(port) {
-  return (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
+  return /** @type {CdpTarget[]} */ (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json());
 }
 
+/**
+ * @param {number} port
+ * @param {(t: CdpTarget) => boolean} match
+ * @param {string} method
+ * @param {Record<string, unknown>} [params]
+ * @returns {Promise<CdpResponse>}
+ */
 async function cdp(port, match, method, params = {}) {
   const list = await targets(port);
   const t = list.find(match);
@@ -219,7 +752,7 @@ async function cdp(port, match, method, params = {}) {
   try {
     return await new Promise((r) => {
       ws.addEventListener('message', (ev) => {
-        const m = JSON.parse(ev.data);
+        const m = /** @type {CdpResponse} */ (JSON.parse(String(ev.data)));
 
         if (m.id === 1) {
           r(m);
@@ -232,9 +765,12 @@ async function cdp(port, match, method, params = {}) {
   }
 }
 
-async function evalIn(port, match, fnSource) {
-  const r = await cdp(port, match, 'Runtime.evaluate', { expression: `(${fnSource})()`, awaitPromise: true, returnByValue: true });
-
+/**
+ * The value of a Runtime.evaluate response; throws with the exception text when the expression threw.
+ * @param {CdpResponse} r
+ * @returns {unknown}
+ */
+export function evaluated(r) {
   if (r.result?.exceptionDetails) {
     throw new Error(`evaluate threw: ${r.result.exceptionDetails.exception?.description ?? r.result.exceptionDetails.text}`);
   }
@@ -242,9 +778,22 @@ async function evalIn(port, match, fnSource) {
   return r.result?.result?.value;
 }
 
-const isDevtools = (t) => t.url.startsWith('devtools://devtools/bundled/devtools_app.html');
-const isPanel = (t) => t.url === `chrome-extension://${EXT_ID}/index.html`;
+/**
+ * @param {number} port
+ * @param {(t: CdpTarget) => boolean} match
+ * @param {string} fnSource
+ * @returns {Promise<unknown>}
+ */
+async function evalIn(port, match, fnSource) {
+  return evaluated(await cdp(port, match, 'Runtime.evaluate', { expression: `(${fnSource})()`, awaitPromise: true, returnByValue: true }));
+}
 
+/** @param {CdpTarget} t */
+export const isDevtools = (t) => t.url.startsWith('devtools://devtools/bundled/devtools_app.html');
+/** @param {CdpTarget} t */
+export const isPanel = (t) => t.url === `chrome-extension://${EXT_ID}/index.html`;
+
+/** @param {number} port */
 async function showPanel(port) {
   const ok = await waitFor(async () => (await targets(port)).some(isDevtools), 15000);
 
@@ -268,7 +817,9 @@ async function showPanel(port) {
 
 // Functions evaluated inside the panel (chrome-extension://<id>/index.html).
 const PANEL = {
+  /** @param {string} name */
   tab: (name) => `async () => { const t = [...document.querySelectorAll('a,button,[role=tab]')].find((b) => b.textContent.trim() === ${JSON.stringify(name)}); if (!t) return false; t.click(); return true; }`,
+  /** @param {string} name */
   selectComponent: (name) => `async () => {
     const leaf = [...document.querySelectorAll('*')].find((e) => e.children.length === 0 && e.textContent.trim() === ${JSON.stringify(name)} && e.closest('.node-name'));
     if (!leaf) return false;
@@ -282,6 +833,19 @@ const PANEL = {
   text: `async () => document.body.innerText.replace(/\\n+/g, ' | ').slice(0, 1500)`,
 };
 
+/**
+ * @param {number} port
+ * @returns {Promise<SignalNode[]>}
+ */
+async function readSignalGraph(port) {
+  return /** @type {SignalNode[]} */ (await evalIn(port, isPanel, PANEL.readSignalGraph));
+}
+
+/**
+ * @param {number} port
+ * @param {string} component
+ * @returns {Promise<SignalNode[] | null>}
+ */
 async function panelSignalGraph(port, component) {
   await evalIn(port, isPanel, PANEL.tab('Components'));
 
@@ -294,12 +858,18 @@ async function panelSignalGraph(port, component) {
   }
 
   return waitFor(async () => {
-    const nodes = await evalIn(port, isPanel, PANEL.readSignalGraph);
+    const nodes = await readSignalGraph(port);
 
     return nodes.length ? nodes : null;
   }, 10000);
 }
 
+/**
+ * @param {number} port
+ * @param {(t: CdpTarget) => boolean} match
+ * @param {string} file
+ * @returns {Promise<string>}
+ */
 async function screenshotTarget(port, match, file) {
   const r = await cdp(port, match, 'Page.captureScreenshot', { format: 'png' });
 
@@ -359,22 +929,26 @@ const EXT_INFO = `async (page) => {
 }`;
 
 // ---------- branded profiles (read-only) ----------
-function brandedStatus(name, profile = 'Default') {
-  const b = BROWSERS[name];
 
-  if (!b) {
-    refuse(`unknown --browser ${name}; use ${Object.keys(BROWSERS).join(', ')} (or test for the isolated Chromium harness)`);
-  }
-
+/**
+ * Reads a branded browser profile: the extension's folder versions and its `extensions.settings` entry.
+ * @param {BrandedName} name
+ * @param {Browser} b
+ * @param {string} [profile]
+ * @returns {BrandedStatus}
+ */
+export function brandedStatusIn(name, b, profile = 'Default') {
   const dir = join(b.userData, profile, 'Extensions', EXT_ID);
   const versions = existsSync(dir) ? readdirSync(dir).filter((v) => /^\d/.test(v)) : [];
+  /** @type {ExtSettings | null} */
   let settings = null;
 
   for (const f of ['Secure Preferences', 'Preferences']) {
     const p = join(b.userData, profile, f);
 
     if (!settings && existsSync(p)) {
-      const s = JSON.parse(readFileSync(p, 'utf8')).extensions?.settings?.[EXT_ID];
+      const prefs = /** @type {{ extensions?: { settings?: Record<string, PrefEntry> } }} */ (JSON.parse(readFileSync(p, 'utf8')));
+      const s = prefs.extensions?.settings?.[EXT_ID];
 
       if (s) {
         settings = { file: f, version: s.manifest?.version ?? null, disableReasons: s.disable_reasons ?? [], state: s.state ?? null, fromWebstore: s.from_webstore ?? null, path: s.path ?? null };
@@ -382,27 +956,53 @@ function brandedStatus(name, profile = 'Default') {
     }
   }
 
-  const installed = !!settings && versions.length > 0;
-  const enabled = installed && settings.disableReasons.length === 0 && settings.state !== 0;
+  const installed = settings !== null && versions.length > 0;
+  const enabled = installed && settings !== null && settings.disableReasons.length === 0 && settings.state !== 0;
 
   return { browser: name, profile, extensionsDir: dir, versionsOnDisk: versions, settings, installed, enabled, extensionsPage: `${b.scheme}://extensions/?id=${EXT_ID}` };
 }
 
+/**
+ * @param {BrandedName} name
+ * @param {string} [profile]
+ * @returns {BrandedStatus}
+ */
+function brandedStatus(name, profile) {
+  return brandedStatusIn(name, BROWSERS[name], profile);
+}
+
+/**
+ * @param {BrandedName} name
+ * @param {string} url
+ * @param {string} [profile]
+ */
 function openInBrowser(name, url, profile = 'Default') {
   spawn(BROWSERS[name].exe, [`--profile-directory=${profile}`, url], { detached: true, stdio: 'ignore' }).unref();
 }
 
 // ---------- commands ----------
+
+/**
+ * The highest-versioned subfolder of `dir` that holds a manifest.json, compared numerically.
+ * @param {string} dir
+ * @returns {string | undefined}
+ */
+export function newestVersion(dir) {
+  return readdirSync(dir).filter((d) => existsSync(join(dir, d, 'manifest.json'))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).pop();
+}
+
+/** @returns {{ version: string, dir: string } | null} */
 function newestCopy() {
   if (!existsSync(EXT_COPY)) {
     return null;
   }
 
-  const v = readdirSync(EXT_COPY).filter((d) => existsSync(join(EXT_COPY, d, 'manifest.json'))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).pop();
+  const v = newestVersion(EXT_COPY);
 
   return v ? { version: v, dir: join(EXT_COPY, v) } : null;
 }
 
+/** @returns {Promise<Result>} */
 async function cmdInstall() {
   const browser = opts.browser ?? 'test';
 
@@ -410,7 +1010,7 @@ async function cmdInstall() {
     const before = brandedStatus(browser, opts.profile);
 
     if (before.installed) {
-      log('OK', `${browser}: Angular DevTools ${before.settings.version} already installed (enabled: ${before.enabled})`);
+      log('OK', `${browser}: Angular DevTools ${before.settings?.version} already installed (enabled: ${before.enabled})`);
 
       return { ok: true, already: true, status: before };
     }
@@ -427,21 +1027,26 @@ async function cmdInstall() {
       throw new Unhealthy(`${browser}: not installed after ${opts.timeout ?? 180} s; profile has no ${EXT_ID} entry`);
     }
 
-    log('OK', `${browser}: installed ${after.settings.version ?? after.versionsOnDisk.at(-1)?.replace(/_\d+$/, '')}, enabled ${after.enabled}`);
+    log('OK', `${browser}: installed ${after.settings?.version ?? after.versionsOnDisk.at(-1)?.replace(/_\d+$/, '')}, enabled ${after.enabled}`);
 
     return { ok: true, status: after };
   }
 
   const from = opts.from ?? 'edge-dev';
-  const srcRoot = BROWSERS[from] ? join(BROWSERS[from].userData, opts.profile ?? 'Default', 'Extensions', EXT_ID) : resolve(from);
+  const srcRoot = isBranded(from) ? join(BROWSERS[from].userData, opts.profile ?? 'Default', 'Extensions', EXT_ID) : resolve(from);
 
   if (!existsSync(srcRoot)) {
     refuse(`no Angular DevTools in ${srcRoot}; install it in ${from} first or pass --from <dir>`);
   }
 
-  const srcVersion = readdirSync(srcRoot).filter((v) => existsSync(join(srcRoot, v, 'manifest.json'))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).pop();
+  const srcVersion = newestVersion(srcRoot);
   const src = srcVersion ? join(srcRoot, srcVersion) : srcRoot;
-  const version = JSON.parse(readFileSync(join(src, 'manifest.json'), 'utf8')).version;
+  const version = /** @type {{ version?: unknown }} */ (JSON.parse(readFileSync(join(src, 'manifest.json'), 'utf8'))).version;
+
+  if (!isExtensionVersion(version)) {
+    return refuse(`manifest version ${JSON.stringify(version)} in ${src} is not digits and dots`);
+  }
+
   const dest = join(EXT_COPY, version);
 
   if (existsSync(join(dest, 'manifest.json'))) {
@@ -457,6 +1062,7 @@ async function cmdInstall() {
   return { ok: true, version, dir: dest, source: src };
 }
 
+/** @returns {Promise<Result>} */
 async function cmdUninstall() {
   const browser = opts.browser ?? 'test';
 
@@ -497,22 +1103,34 @@ async function cmdUninstall() {
   return { ok: true };
 }
 
+/** @returns {Promise<Result>} */
 async function cmdStatus() {
   const browser = opts.browser ?? 'test';
 
   if (browser === 'test') {
     const copy = newestCopy();
     const st = readState();
+    log(copy ? 'OK' : 'INFO', `test: copy ${copy ? `${copy.version} at ${copy.dir}` : 'none (run install)'}; up ${!!st}`);
 
     return { ok: !!copy, browser, copy, up: !!st };
   }
 
   const s = brandedStatus(browser, opts.profile);
-  log(s.installed ? 'OK' : 'INFO', `${browser}/${s.profile}: installed ${s.installed}${s.installed ? `, version ${s.settings.version}, enabled ${s.enabled}, disable_reasons ${JSON.stringify(s.settings.disableReasons)}` : ''}`);
+  log(s.installed ? 'OK' : 'INFO', `${browser}/${s.profile}: installed ${s.installed}${s.installed ? `, version ${s.settings?.version}, enabled ${s.enabled}, disable_reasons ${JSON.stringify(s.settings?.disableReasons)}` : ''}`);
 
   return { ok: true, ...s };
 }
 
+/**
+ * The evidence folder name for a start time: `yyyymmdd-hhmmss` in UTC.
+ * @param {Date} date
+ * @returns {string}
+ */
+export function evidenceStamp(date) {
+  return date.toISOString().replace(/[-:]/g, '').replace(/\..*/, '').replace('T', '-');
+}
+
+/** @returns {Promise<Result>} */
 async function cmdUp() {
   if (readState()) {
     refuse(`state file exists at ${STATE}; run "down" first`);
@@ -521,80 +1139,166 @@ async function cmdUp() {
   const appUrl = opts['app-url'];
 
   if (!appUrl) {
-    refuse('--app-url <url of a dev-mode Angular app> is required');
+    return refuse('--app-url <url of a dev-mode Angular app> is required');
   }
 
   const copy = newestCopy();
 
   if (!copy) {
-    refuse('no extension copy; run "install" first');
+    return refuse('no extension copy; run "install" first');
   }
 
-  const port = Number(opts['cdp-port'] ?? cdpPortDefault);
+  const forced = opts.port === undefined ? undefined : Number(opts.port);
 
-  if (isWorktree && port === MAIN_CDP_PORT) {
+  if (forced !== undefined && (forced < 1 || forced > 65535)) {
+    refuse(`--port ${opts.port} is not a port number`);
+  }
+
+  if (isWorktree && forced === MAIN_CDP_PORT) {
     refuse(`port ${MAIN_CDP_PORT} belongs to the main checkout's flow`);
   }
 
-  if (!(await portFree(port))) {
-    refuse(`CDP port ${port} is in use by PID ${portOwner(port)}; pass --cdp-port or stop your own instance`);
+  /** @type {PortRow[]} */
+  let rows;
+
+  try {
+    rows = portRows(appUrl);
+  } catch (e) {
+    return refuse(`--app-url ${appUrl}: ${e instanceof Error ? e.message : String(e)}`);
   }
 
-  const evidenceDir = join(TMP, 'evidence', new Date().toISOString().replace(/[-:]/g, '').replace(/\..*/, '').replace('T', '-'));
-  mkdirSync(evidenceDir, { recursive: true });
+  let order = slotOrder(slotOfFlow(flowId));
+  const first = order[0];
+  const evidenceDir = join(TMP, 'evidence', evidenceStamp(new Date()));
   const ext = copy.dir.replace(/\\/g, '/');
-  const config = {
-    browser: {
-      browserName: 'chromium',
-      userDataDir: PROFILE.replace(/\\/g, '/'),
-      launchOptions: {
-        channel: 'chromium',
-        headless: false,
-        args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`, '--auto-open-devtools-for-tabs', `--remote-debugging-port=${port}`],
-      },
-    },
-  };
   const configPath = join(TMP, 'state', `${flowId}.cli.config.json`);
-  mkdirSync(dirname(configPath), { recursive: true });
-  writeFileSync(configPath, JSON.stringify(config, null, 2));
   const t0 = Date.now();
-  const r = pw([`--config=${configPath}`, 'open', appUrl]);
-  const pid = Number(r.out.match(/opened with pid (\d+)/)?.[1]);
 
-  if (r.code !== 0 || !pid) {
-    throw new Error(`playwright-cli open failed (${r.code}): ${r.out.slice(0, 600)}`);
-  }
+  for (;;) {
+    const plan = planPorts(rows, order, busyPorts(), forced, first);
 
-  const live = processById(pid);
-  const st = { flowId, session: SESSION, pid, created: live.Created, commandLine: live.CommandLine, cdpPort: port, appUrl, extensionVersion: copy.version, extensionDir: copy.dir, profile: PROFILE, configPath, evidenceDir, startedAt: new Date().toISOString() };
-  writeFileSync(STATE, JSON.stringify(st, null, 2));
-  const ready = await waitFor(async () => {
-    try {
-      return (await targets(port)).some((t) => t.type === 'service_worker' && t.url.startsWith(`chrome-extension://${EXT_ID}/`));
-    } catch {
-      return false;
+    if (!plan.ok) {
+      return refuse(plan.reason);
     }
-  }, 20000);
 
-  if (!ready) {
-    throw new Unhealthy(`browser PID ${pid} up but no Angular DevTools service worker on CDP port ${port}; run doctor`);
+    const port = /** @type {PortEntry} */ (plan.ports.find((p) => p.name === 'cdp')).port;
+    mkdirSync(evidenceDir, { recursive: true });
+    const config = {
+      browser: {
+        browserName: 'chromium',
+        userDataDir: PROFILE.replace(/\\/g, '/'),
+        launchOptions: {
+          channel: 'chromium',
+          headless: false,
+          args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`, '--auto-open-devtools-for-tabs', `--remote-debugging-port=${port}`],
+        },
+      },
+    };
+    mkdirSync(dirname(configPath), { recursive: true });
+    writeFileSync(configPath, JSON.stringify(config, null, 2));
+    const notBefore = Date.now();
+    const r = pw([`--config=${configPath}`, 'open', appUrl]);
+    const notAfter = Date.now();
+    const pid = Number(r.out.match(/opened with pid (\d+)/)?.[1]);
+
+    if (r.code !== 0 || !pid) {
+      throw new Error(`playwright-cli open failed (${r.code}): ${r.out.slice(0, 600)}`);
+    }
+
+    // The session process starts while `open` runs, so it started inside that window.
+    const opened = snapshot(pid, { notBefore, notAfter });
+
+    if (opened.length === 0) {
+      throw new Error(`playwright-cli PID ${pid} is not running, or did not start while open ran`);
+    }
+
+    /** @type {State} */
+    const st = { flowId, session: SESSION, pid, tree: opened, cdpPort: port, slot: plan.slot, ports: plan.ports, appUrl, extensionVersion: copy.version, extensionDir: copy.dir, profile: PROFILE, configPath, evidenceDir, startedAt: new Date().toISOString() };
+    writeFileSync(STATE, JSON.stringify(st, null, 2));
+    const ready = await waitFor(async () => {
+      try {
+        return (await targets(port)).some((t) => t.type === 'service_worker' && t.url.startsWith(`chrome-extension://${EXT_ID}/`));
+      } catch {
+        return false;
+      }
+    }, 20000);
+
+    // The port must be held by the browser this session opened: another harness browser that took it after the
+    // check has the same extension ID, so the service worker alone proves nothing.
+    const holders = busyPorts().get(port) ?? [];
+    const live = liveTree(st);
+    const holder = holders.find((h) => !live.some((x) => x.pid === h)) ?? null;
+    // Recorded with its start time on every path, so down can stop a Chromium that outlives the playwright-cli process.
+    st.tree = merge(st.tree ?? [], live);
+    writeFileSync(STATE, JSON.stringify(st, null, 2));
+
+    if (ready && holder === null && holders.length > 0) {
+      st.readyInSeconds = Math.round((Date.now() - t0) / 100) / 10;
+      st.browserPid = holders[0] ?? null;
+      writeFileSync(STATE, JSON.stringify(st, null, 2));
+      log('OK', `session ${SESSION} (playwright-cli PID ${pid}), browser PID ${st.browserPid}, CDP ${port}${plan.slot === first ? '' : ` (fell back to slot ${plan.slot})`}, Angular DevTools ${copy.version}, ready in ${st.readyInSeconds} s`);
+
+      return { ok: true, ...st };
+    }
+
+    if (holder === null) {
+      throw new Unhealthy(`browser PID ${pid} up but no Angular DevTools service worker of its own on CDP port ${port}; run doctor`);
+    }
+
+    pw(['close']);
+    // As in down: close first lets Chromium end on its own; stop takes what outlived it.
+    await waitFor(() => !anyAlive(st.tree ?? []), 10000);
+    const { records, result } = stopRun(st);
+    const stopped = downOutcome(st, result);
+
+    if (stopped.code !== 0) {
+      st.tree = records;
+      writeFileSync(STATE, JSON.stringify(st, null, 2));
+      throw new Error(`CDP port ${port} was taken by PID ${holder} after the check, and stopping this attempt failed: ${stopped.reason}; run down`);
+    }
+
+    rmSync(STATE, { force: true });
+
+    if (forced !== undefined) {
+      refuse(`port ${port} (--port) was taken by PID ${holder} after the check; --port has no fallback`);
+    }
+
+    order = order.slice(order.indexOf(plan.slot) + 1);
+
+    if (order.length === 0) {
+      refuse(`CDP port ${port} was taken by PID ${holder} after the check, and none of the ${SLOT_TRIES} slots is left`);
+    }
   }
-
-  st.readyInSeconds = Math.round((Date.now() - t0) / 100) / 10;
-  st.browserPid = portOwner(port);
-  writeFileSync(STATE, JSON.stringify(st, null, 2));
-  log('OK', `session ${SESSION} (playwright-cli PID ${pid}), browser PID ${st.browserPid}, CDP ${port}, Angular DevTools ${copy.version}, ready in ${st.readyInSeconds} s`);
-
-  return { ok: true, ...st };
 }
 
+/**
+ * One doctor check: true/'pass' passes, 'warn' is reported but never fails doctor, false fails.
+ * @param {string} name
+ * @param {boolean | 'pass' | 'warn'} result
+ * @param {string} detail
+ * @returns {{ check: Check, marker: 'OK' | 'WARN' | 'ERROR' }}
+ */
+export function checkOf(name, result, detail) {
+  const ok = result !== false;
+  /** @type {Check} */
+  const check = typeof result === 'string' ? { name, ok, detail, status: result } : { name, ok, detail };
+
+  return { check, marker: result === 'warn' ? 'WARN' : ok ? 'OK' : 'ERROR' };
+}
+
+/** @returns {Promise<Result>} */
 async function cmdDoctor() {
   const st = requireState();
+  /** @type {Check[]} */
   const checks = [];
-  const add = (name, ok, detail) => {
-    checks.push({ name, ok, detail });
-    log(ok ? 'OK' : 'ERROR', `${name}: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`);
+  /** @type {(name: string, result: boolean | 'pass' | 'warn', detail: string) => void} */
+  const add = (name, result, detail) => {
+    const { check, marker } = checkOf(name, result, detail);
+    checks.push(check);
+    log(marker, `${name}: ${detail}`);
   };
+  const fresh = mapFresh(SKILL_DIR);
+  add('map-fresh', fresh.status, fresh.detail);
   const live = checkIdentity(st);
   add('process', !!live, live ? `PID ${st.pid} alive, start time and command line match` : `PID ${st.pid} not running`);
 
@@ -602,16 +1306,30 @@ async function cmdDoctor() {
     return { ok: false, checks };
   }
 
+  const tree = liveTree(st);
+  const recorded = merge(st.tree ?? [], tree);
+
+  // Written only while the state file is there and the record changed: a down that just removed it stays done.
+  if (existsSync(STATE) && JSON.stringify(recorded) !== JSON.stringify(st.tree ?? [])) {
+    st.tree = recorded;
+    writeFileSync(STATE, JSON.stringify(st, null, 2));
+  }
+
+  add('tree', true, `${recorded.length} process(es) recorded for down`);
+
+  /** @type {{ Browser?: string } | null} */
   let version = null;
 
   try {
-    version = await (await fetch(`http://127.0.0.1:${st.cdpPort}/json/version`)).json();
+    version = /** @type {{ Browser?: string }} */ (await (await fetch(`http://127.0.0.1:${st.cdpPort}/json/version`)).json());
   } catch {}
 
-  add('cdp-port', !!version && portOwner(st.cdpPort) === st.browserPid, version ? `${st.cdpPort} answers (${version.Browser}), owner PID ${portOwner(st.cdpPort)} (recorded browser PID ${st.browserPid}, child of session PID ${st.pid})` : `${st.cdpPort} does not answer`);
-  const ext = runCode(EXT_INFO);
+  // The CDP port is held by the recorded Chromium (a child of the playwright-cli session process), and answers.
+  const ports = portsCheck(st.ports ?? [{ name: 'cdp', port: st.cdpPort, kind: 'derived' }], busyPorts(), new Set(tree.map((r) => r.pid)));
+  add('ports', ports.status === 'pass' && !!version, `${ports.detail}; ${version ? `CDP answers (${version.Browser}), recorded browser PID ${st.browserPid}` : `CDP ${st.cdpPort} /json/version does not answer`}`);
+  const ext = /** @type {{ serviceWorkers: string[], info: { name: string, version: string, state: string, location: string, path: string, runtimeErrors: number, manifestErrors: number } | null }} */ (runCode(EXT_INFO));
   add('extension', ext.info?.state === 'ENABLED' && ext.serviceWorkers.length > 0, ext.info ? `${ext.info.name} ${ext.info.version} ${ext.info.state} (${ext.info.location}, ${ext.info.path}); service worker ${ext.serviceWorkers.length ? 'running' : 'absent'}; errors ${ext.info.runtimeErrors}/${ext.info.manifestErrors}` : 'not registered');
-  const page = runCode(`async (page) => ({ url: page.url(), ngVersion: await page.evaluate(() => document.querySelector('[ng-version]')?.getAttribute('ng-version') ?? null), devBuild: await page.evaluate(() => typeof window.ng === 'object' && typeof window.ng.getComponent === 'function'), flag: await page.evaluate(() => window.__NG_DEVTOOLS_CONNECTED__ === true) })`);
+  const page = /** @type {{ url: string, ngVersion: string | null, devBuild: boolean, flag: boolean }} */ (runCode(`async (page) => ({ url: page.url(), ngVersion: await page.evaluate(() => document.querySelector('[ng-version]')?.getAttribute('ng-version') ?? null), devBuild: await page.evaluate(() => typeof window.ng === 'object' && typeof window.ng.getComponent === 'function'), flag: await page.evaluate(() => window.__NG_DEVTOOLS_CONNECTED__ === true) })`));
   add('app', !!page.ngVersion && page.devBuild, `${page.url}: ng-version ${page.ngVersion}, window.ng ${page.devBuild ? 'present (development build)' : 'absent (production build or not Angular)'}`);
   add('connected-flag', page.flag, `window.__NG_DEVTOOLS_CONNECTED__ ${page.flag}`);
   const devtools = (await targets(st.cdpPort)).some(isDevtools);
@@ -620,12 +1338,23 @@ async function cmdDoctor() {
   return { ok: checks.every((c) => c.ok), checks };
 }
 
+/**
+ * Attached means: connected flag set, Angular detected in debug mode, backend installed and ready.
+ * @param {AttachFacts} r
+ * @returns {boolean}
+ */
+export function attachOk(r) {
+  const d = r.detection ?? {};
+
+  return !!(r.flag && d.isAngular && d.isDebugMode && r.backendInstalled && r.backendReady);
+}
+
+/** @returns {Promise<Result>} */
 async function cmdAttach() {
   requireState();
-  const r = runCode(ATTACH_PROBE);
-  const d = r.detection ?? {};
-  const ok = r.flag && d.isAngular && d.isDebugMode && r.backendInstalled && !!r.backendReady;
-  log(ok ? 'OK' : 'ERROR', `flag ${r.flag} (set at ${r.flagSetAt} ms); detection ${JSON.stringify(d)}; backendInstalled ${r.backendInstalled}; backendReady at ${r.backendReady} ms; Angular ${r.ngVersion}`);
+  const r = /** @type {AttachFacts} */ (runCode(ATTACH_PROBE));
+  const ok = attachOk(r);
+  log(ok ? 'OK' : 'ERROR', `flag ${r.flag} (set at ${r.flagSetAt} ms); detection ${JSON.stringify(r.detection ?? {})}; backendInstalled ${r.backendInstalled}; backendReady at ${r.backendReady} ms; Angular ${r.ngVersion}`);
 
   if (!ok) {
     throw new Unhealthy(`not attached: ${JSON.stringify(r)}`);
@@ -634,13 +1363,14 @@ async function cmdAttach() {
   return { ok, ...r };
 }
 
+/** @returns {Promise<Result>} */
 async function cmdPanel() {
-  const st = requireState();
+  const st = requireOwnedCdp();
   const sub = pos[0] ?? 'show';
   await showPanel(st.cdpPort);
 
   if (sub === 'show') {
-    const text = await evalIn(st.cdpPort, isPanel, PANEL.text);
+    const text = /** @type {string} */ (await evalIn(st.cdpPort, isPanel, PANEL.text));
     log('OK', `Angular panel: ${text}`);
 
     return { ok: true, text };
@@ -661,22 +1391,73 @@ async function cmdPanel() {
     return { ok: true, file };
   }
 
-  refuse(`unknown panel subcommand ${sub}; use show, signal-graph, screenshot`);
+  return refuse(`unknown panel subcommand ${sub}; use show, signal-graph, screenshot`);
+}
+
+/**
+ * Passes when both subscribers counted, the removed one stopped, the other kept counting, and DevTools recorded
+ * at least two change detection cycles.
+ * @param {ProfilerCounts} prof
+ * @param {number | null} cycles
+ * @returns {boolean}
+ */
+export function profilerOk(prof, cycles) {
+  return prof.bothOn.a > 0 && prof.bothOn.b > 0 && prof.afterRemoveA.a === prof.bothOn.a && prof.afterRemoveA.b > prof.bothOn.b && (cycles ?? 0) >= 2;
+}
+
+/**
+ * Whether the DevTools pane lists the same signal graph nodes as ng.ɵgetSignalGraph, each written `kind:label`, in any
+ * order. A node ng gives no label (an effect) matches a pane node of the same kind whatever the pane calls it.
+ * @param {string[]} ng
+ * @param {string[] | null} pane  null when the pane showed no graph
+ * @returns {{ ok: boolean, missing: string[], extra: string[] }}
+ */
+export function signalGraphMatch(ng, pane) {
+  if (pane === null) {
+    return { ok: false, missing: [...ng], extra: [] };
+  }
+
+  /** @param {string} n */
+  const split = (n) => {
+    const i = n.indexOf(':');
+
+    return i === -1 ? { kind: n, label: '' } : { kind: n.slice(0, i), label: n.slice(i + 1) };
+  };
+  const left = pane.map(split);
+  /** @type {string[]} */
+  const missing = [];
+  // Labelled nodes first, so an unlabelled one never takes the pane node a labelled one needs.
+  const ordered = [...ng].sort((a, b) => Number(split(a).label === '') - Number(split(b).label === ''));
+
+  for (const n of ordered) {
+    const { kind, label } = split(n);
+    const i = left.findIndex((p) => p.kind === kind && (label === '' || p.label === label));
+
+    if (i === -1) {
+      missing.push(n);
+    } else {
+      left.splice(i, 1);
+    }
+  }
+
+  const extra = left.map((p) => `${p.kind}:${p.label}`);
+
+  return { ok: missing.length === 0 && extra.length === 0, missing, extra };
 }
 
 // Coexistence checks an in-page AI extension shares with Angular DevTools.
+/** @returns {Promise<Result>} */
 async function cmdCoexist() {
-  const st = requireState();
+  const st = requireOwnedCdp();
   const component = opts.component ?? 'app-counter';
   const click = opts.click ?? "getByRole('button', { name: 'Increment' })";
-  const results = {};
   await showPanel(st.cdpPort);
 
   // 1. Profiler: two extra subscribers, removing one leaves the other and the DevTools recording running.
   await evalIn(st.cdpPort, isPanel, PANEL.tab('Profiler'));
   await waitFor(() => evalIn(st.cdpPort, isPanel, `async () => !!document.querySelector('button[aria-label="Start recording"]')`), 10000);
   const started = await evalIn(st.cdpPort, isPanel, PANEL.recordButton);
-  const prof = runCode(`async (page) => {
+  const prof = /** @type {ProfilerCounts} */ (runCode(`async (page) => {
     const text = () => page.locator(${JSON.stringify(component)}).innerText();
     const clickAndSettle = async () => { const before = await text(); await page.${click}.click(); await page.waitForFunction(([sel, b]) => document.querySelector(sel)?.innerText !== b, [${JSON.stringify(component)}, before]); await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 50)))); };
     await page.evaluate(() => { window.__ngdtCoexist = { a: 0, b: 0 }; window.__ngdtRemoveA = ng.ɵsetProfiler(() => window.__ngdtCoexist.a++); window.__ngdtRemoveB = ng.ɵsetProfiler(() => window.__ngdtCoexist.b++); });
@@ -685,60 +1466,76 @@ async function cmdCoexist() {
     await clickAndSettle();
     const afterRemoveA = await page.evaluate(() => { const s = { ...window.__ngdtCoexist }; window.__ngdtRemoveB(); return s; });
     return { bothOn, afterRemoveA };
-  }`);
+  }`));
   const stopped = await evalIn(st.cdpPort, isPanel, PANEL.recordButton);
   const summary = await waitFor(async () => {
-    const s = await evalIn(st.cdpPort, isPanel, PANEL.profilerSummary);
+    const s = /** @type {{ cycles: number | null, text: string }} */ (await evalIn(st.cdpPort, isPanel, PANEL.profilerSummary));
 
     return s.cycles !== null ? s : null;
   }, 10000);
-  results.profiler = {
-    ok: prof.bothOn.a > 0 && prof.bothOn.b > 0 && prof.afterRemoveA.a === prof.bothOn.a && prof.afterRemoveA.b > prof.bothOn.b && (summary?.cycles ?? 0) >= 2,
+  const profiler = {
+    ok: profilerOk(prof, summary?.cycles ?? null),
     recording: [started, stopped],
     subscribers: prof,
     devtoolsCycles: summary?.cycles ?? null,
   };
-  log(results.profiler.ok ? 'OK' : 'ERROR', `profiler: own subscribers ${JSON.stringify(prof)}; DevTools recorded ${summary?.cycles} change detection cycles`);
+  log(profiler.ok ? 'OK' : 'ERROR', `profiler: own subscribers ${JSON.stringify(prof)}; DevTools recorded ${summary?.cycles} change detection cycles`);
 
   // 2. Connected flag: present and true; Angular reads it, an AI extension must not overwrite it.
-  const flag = runCode(`async (page) => page.evaluate(() => ({ value: window.__NG_DEVTOOLS_CONNECTED__ }))`);
-  results.flag = { ok: flag.value === true, ...flag };
-  log(results.flag.ok ? 'OK' : 'ERROR', `connected flag ${JSON.stringify(flag)}`);
+  const flagValue = /** @type {{ value?: unknown }} */ (runCode(`async (page) => page.evaluate(() => ({ value: window.__NG_DEVTOOLS_CONNECTED__ }))`));
+  const flag = { ok: flagValue.value === true, ...flagValue };
+  log(flag.ok ? 'OK' : 'ERROR', `connected flag ${JSON.stringify(flagValue)}`);
 
-  // 3. Signal graph: ng.ɵgetSignalGraph and the DevTools pane agree.
+  // 3. Signal graph: ng.ɵgetSignalGraph and the DevTools pane list the same nodes.
   const readNg = `async (page) => page.evaluate((sel) => ng.ɵgetSignalGraph(ng.getInjector(document.querySelector(sel))).nodes.map((n) => n.kind + ':' + (n.label ?? '')), ${JSON.stringify(component)})`;
-  const ngBefore = runCode(readNg);
+  const ngBefore = /** @type {string[]} */ (runCode(readNg));
   const paneBefore = await panelSignalGraph(st.cdpPort, component);
-  results.signalGraph = { ok: !!paneBefore && paneBefore.length === ngBefore.length, ng: ngBefore, pane: paneBefore?.map((n) => `${n.kind}:${n.text[0]}`) };
-  log(results.signalGraph.ok ? 'OK' : 'ERROR', `signal graph: ng ${ngBefore.length} nodes, pane ${paneBefore?.length ?? 0} nodes`);
-  results.screenshotBefore = await screenshotTarget(st.cdpPort, isDevtools, join(st.evidenceDir, 'signal-graph-before.png'));
+  const pane = paneBefore?.map((n) => `${n.kind}:${n.text[0]}`);
+  const match = signalGraphMatch(ngBefore, pane ?? null);
+  const signalGraph = { ok: match.ok, ng: ngBefore, pane, missing: match.missing, extra: match.extra };
+  log(signalGraph.ok ? 'OK' : 'ERROR', `signal graph: ng ${ngBefore.length} nodes, pane ${paneBefore?.length ?? 0} nodes${match.ok ? ', the same nodes' : `; missing from the pane ${JSON.stringify(match.missing)}, extra in the pane ${JSON.stringify(match.extra)}`}`);
+  const screenshotBefore = await screenshotTarget(st.cdpPort, isDevtools, join(st.evidenceDir, 'signal-graph-before.png'));
+  /** @type {Record<string, unknown>} */
+  let afterDiGraph = {};
 
   // 4. Angular's angular:di_graph tool versus the signal graph (changes the page until reload).
   if (opts['di-graph']) {
+    if (!paneBefore) {
+      throw new Error('no signal graph in the pane to compare after angular:di_graph');
+    }
+
     runCode(`async (page) => page.evaluate(async () => { let g = null; const ev = new CustomEvent('devtoolstooldiscovery'); ev.respondWith = (x) => { g = x; }; window.dispatchEvent(ev); await g.tools.find((t) => t.name === 'angular:di_graph').execute({}); return true; })`);
-    const ngAfter = runCode(readNg);
+    const ngAfter = /** @type {string[]} */ (runCode(readNg));
     runCode(`async (page) => { const sel = ${JSON.stringify(component)}; const before = await page.locator(sel).innerText(); await page.${click}.click(); await page.waitForFunction(([s, b]) => document.querySelector(s)?.innerText !== b, [sel, before]); return true; }`);
     const paneAfter = await waitFor(async () => {
-      const n = await evalIn(st.cdpPort, isPanel, PANEL.readSignalGraph);
+      const n = await readSignalGraph(st.cdpPort);
 
       return n.length && n.length !== paneBefore.length ? n : null;
     }, 8000) ?? (await panelSignalGraph(st.cdpPort, component));
-    results.diGraph = {
+
+    if (!paneAfter) {
+      throw new Error('no signal graph in the pane after angular:di_graph');
+    }
+
+    const diGraph = {
       templateLostInNg: ngBefore.some((n) => n.startsWith('template:')) && !ngAfter.some((n) => n.startsWith('template:')),
       templateLostInPane: paneBefore.some((n) => n.kind === 'template') && !paneAfter.some((n) => n.kind === 'template'),
       ngAfter,
       paneAfter: paneAfter.map((n) => `${n.kind}:${n.text[0]}`),
     };
-    results.screenshotAfter = await screenshotTarget(st.cdpPort, isDevtools, join(st.evidenceDir, 'signal-graph-after-di-graph.png'));
-    log(results.diGraph.templateLostInPane ? 'WARN' : 'OK', `after angular:di_graph: ng ${JSON.stringify(ngAfter)}; pane ${JSON.stringify(results.diGraph.paneAfter)}`);
+    const screenshotAfter = await screenshotTarget(st.cdpPort, isDevtools, join(st.evidenceDir, 'signal-graph-after-di-graph.png'));
+    afterDiGraph = { diGraph, screenshotAfter };
+    log(diGraph.templateLostInPane ? 'WARN' : 'OK', `after angular:di_graph: ng ${JSON.stringify(ngAfter)}; pane ${JSON.stringify(diGraph.paneAfter)}`);
   }
 
+  const results = { profiler, flag, signalGraph, screenshotBefore, ...afterDiGraph };
   writeFileSync(join(st.evidenceDir, 'coexist.json'), JSON.stringify(results, null, 2));
-  const ok = results.profiler.ok && results.flag.ok && results.signalGraph.ok;
+  const ok = profiler.ok && flag.ok && signalGraph.ok;
 
   return { ok, evidence: join(st.evidenceDir, 'coexist.json'), ...results };
 }
 
+/** @returns {Promise<Result>} */
 async function cmdInfo() {
   const st = requireState();
   log('INFO', `flow ${st.flowId}, session ${st.session}, app ${st.appUrl}, playwright-cli PID ${st.pid}, browser PID ${st.browserPid}, CDP ${st.cdpPort}, Angular DevTools ${st.extensionVersion}, evidence ${st.evidenceDir}, state ${STATE}`);
@@ -746,28 +1543,46 @@ async function cmdInfo() {
   return { ok: true, statePath: STATE, ...st };
 }
 
+/** @returns {Promise<Result>} */
 async function cmdDown() {
   const st = requireState();
-  const live = checkIdentity(st);
-  const notes = [];
+  const configPath = join(TMP, 'state', `${flowId}.cli.config.json`);
+  const badPath = deleteProblem(st, { profile: PROFILE, configPath });
 
-  if (live) {
-    const r = pw(['close']);
-    notes.push(`playwright-cli close: ${r.out.trim().split('\n')[0]}`);
+  if (badPath) {
+    refuse(badPath);
+  }
 
-    if (!(await waitFor(() => !processById(st.pid) && !(st.browserPid && processById(st.browserPid)), 10000))) {
-      spawnSync('taskkill', ['/PID', String(st.pid), '/T', '/F'], { encoding: 'utf8' });
-      notes.push(`taskkill /T /F ${st.pid}`);
-    }
-  } else {
-    notes.push(`PID ${st.pid} already gone`);
-    pw(['close']);
+  // The last snapshot, while the session process and its Chromium still live; kept in the state before close.
+  st.tree = merge(st.tree ?? [], liveTree(st));
+  writeFileSync(STATE, JSON.stringify(st, null, 2));
+  const r = pw(['close']);
+  /** @type {string[]} */
+  const notes = [`playwright-cli close: ${r.out.trim().split('\n')[0]}`];
+  // close lets Chromium end on its own and write its profile; stop then takes whatever outlived it, such as a
+  // Chromium whose playwright-cli process is gone (it holds the CDP port and locks the profile).
+  await waitFor(() => !anyAlive(st.tree ?? []), 10000);
+  const { records, result } = stopRun(st);
+  const outcome = downOutcome(st, result);
+  notes.push(...outcome.notes);
+
+  if (outcome.code !== 0) {
+    st.tree = records;
+    writeFileSync(STATE, JSON.stringify(st, null, 2));
+    // A refusal carries one message, so what was stopped and left goes into it.
+    throw new Error(`${outcome.reason ?? 'stop failed; the state file is kept'}; notes: ${notes.join('; ')}`);
+  }
+
+  // The profile and config go before the state file: a failure here keeps the record for the next down.
+  try {
+    rmSync(configPath, { force: true });
+    rmSync(PROFILE, { recursive: true, force: true });
+  } catch (e) {
+    throw new Error(`could not remove the profile or config (${e instanceof Error ? e.message : String(e)}); the state file is kept, run down again`);
   }
 
   rmSync(STATE, { force: true });
-  rmSync(st.configPath ?? join(TMP, 'state', `${flowId}.cli.config.json`), { force: true });
-  rmSync(st.profile, { recursive: true, force: true });
-  notes.push(`removed state, config and profile; evidence kept in ${st.evidenceDir}`);
+  notes.push(`removed config, profile and state; evidence kept in ${st.evidenceDir}`);
   notes.forEach((n) => log('OK', n));
 
   return { ok: true, notes, evidenceDir: st.evidenceDir, pid: st.pid, browserPid: st.browserPid, cdpPort: st.cdpPort, session: st.session };
@@ -777,35 +1592,74 @@ const HELP = `control.mjs <command> [options] [--json]
   install   [--browser test|chrome|chrome-beta|edge|edge-dev] [--from edge-dev|edge|chrome|chrome-beta|<dir>] [--profile Default] [--timeout S]
   uninstall [--browser ...] [--profile Default] [--timeout S]
   status    [--browser ...] [--profile Default]
-  up        --app-url <url> [--cdp-port N]       (test harness only)
+  up        --app-url <url> [--port N]           (test harness only)
   doctor | attach | info | down
   panel     show | signal-graph [--component app-counter] | screenshot [--file f.png]
   coexist   [--component app-counter] [--click "getByRole('button', { name: 'Increment' })"] [--di-graph]`;
 
+/** @type {Record<string, () => Promise<Result>>} */
 const COMMANDS = { install: cmdInstall, uninstall: cmdUninstall, status: cmdStatus, up: cmdUp, doctor: cmdDoctor, attach: cmdAttach, panel: cmdPanel, coexist: cmdCoexist, info: cmdInfo, down: cmdDown };
 
-if (!COMMANDS[cmd]) {
-  console.log(HELP);
-  process.exit(cmd ? 2 : 0);
-}
+// import.meta.url is the real path, so compare real paths: run through a link, the CLI still runs.
+if (process.argv[1] && realpathSync.native(path.resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+  // Read before parsing, so a usage error still answers in JSON when --json was given.
+  const json = process.argv.slice(2).includes('--json');
+  /** @type {(reason: string) => never} */
+  const usageExit = (reason) => {
+    console.log(json ? JSON.stringify({ ok: false, exit: 2, reason }, null, 2) : `[ERROR] ${printable(reason)}`);
+    process.exit(2);
+  };
+  /** @type {Parsed} */
+  let parsed;
 
-try {
-  const result = await COMMANDS[cmd]();
+  try {
+    parsed = parseArgs(process.argv.slice(2));
+  } catch (e) {
+    if (!(e instanceof UsageError)) {
+      throw e;
+    }
 
-  if (opts.json) {
-    console.log(JSON.stringify(result, null, 2));
+    usageExit(`refused: ${e.message}`);
   }
 
-  process.exit(result.ok ? 0 : 1);
-} catch (e) {
-  const code = e instanceof Unhealthy ? 1 : 2;
-  const reason = e instanceof Refusal ? `refused: ${e.message}` : e.message;
+  Object.assign(opts, parsed.opts);
+  pos.push(...parsed.pos);
+  const cmd = parsed.cmd;
+  const run = cmd !== undefined && Object.hasOwn(COMMANDS, cmd) ? COMMANDS[cmd] : undefined;
 
-  if (opts.json) {
-    console.log(JSON.stringify({ ok: false, exit: code, reason }, null, 2));
-  } else {
-    console.log(`[ERROR] ${reason}`);
+  if (!run && cmd !== undefined) {
+    if (json) {
+      usageExit(`unknown command ${cmd}`);
+    }
+
+    console.log(HELP);
+    process.exit(2);
   }
 
-  process.exit(code);
+  if (!run) {
+    console.log(HELP);
+    process.exit(0);
+  }
+
+  try {
+    const result = await run();
+
+    if (opts.json) {
+      console.log(JSON.stringify(result, null, 2));
+    }
+
+    process.exit(result.ok ? 0 : 1);
+  } catch (e) {
+    const code = e instanceof Unhealthy ? 1 : 2;
+    const message = e instanceof Error ? e.message : String(e);
+    const reason = e instanceof Refusal ? `refused: ${message}` : message;
+
+    if (opts.json) {
+      console.log(JSON.stringify({ ok: false, exit: code, reason }, null, 2));
+    } else {
+      console.log(logLine('ERROR', reason));
+    }
+
+    process.exit(code);
+  }
 }

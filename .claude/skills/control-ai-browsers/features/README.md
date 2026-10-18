@@ -5,20 +5,23 @@ matching feature file. `C` below stands for `node .claude/skills/control-ai-brow
 
 ## Baseline preconditions
 
-- Chrome Beta 156, Edge Dev 157 and Edge stable 155 are installed at the paths in `instances.json`.
-- The four instances run, started by `C launch <name>` (or `C instances` shows them with no drift): Nano on
-  9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337, each at its default backend.
+- Chrome Beta 157 (156 until it updated itself on 2026-10-16), Edge Dev 157 and Edge stable 155 are installed at the paths in `instances.json`.
+- The four instances run, started by `C up <name>` (or `C instances` shows them with no drift): Nano on
+  9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337 in the main checkout (a worktree derives its own
+  ports; `info <name>` prints them), each at its default backend.
 - `C doctor <name>` exits 0 for the instance a recipe uses.
-- Nobody else drives the same instance during the run. Sessions are `ai-<instance>` only.
+- Nobody else drives the same instance during the run. Its session is `ai-<instance>-<port>`; read it from
+  `C info <instance> --json` (`session`).
 
 ## Driving conventions
 
-- Use the control script for every step it covers; use raw `playwright-cli -s=ai-<instance>` only for what it does
+- Use the control script for every step it covers; use raw `playwright-cli -s=<session>` only for what it does
   not, after `C attach <instance>`, and `C detach <instance>` afterwards.
 - Page code runs in a tab the script opens on `https://example.org/?ai-browsers=<purpose>` (the built-in AI APIs
-  are not defined on `about:blank`) and closes in the same command.
-- Choose a model by choosing its instance. Change a backend with `C stop <name>` and
-  `C launch <name> --backend=<b>`, never by editing a command line by hand.
+  are not defined on `about:blank`) and closes in the same command; a `run` or `bench` probe starts on a blank tab
+  and navigates itself.
+- Choose a model by choosing its instance. Change a backend with `C down <name>` and
+  `C up <name> --backend=<b>`, never by editing a command line by hand.
 - Wait on observable state (`availability()`, a resolved `create()`, a Broker State asset `Ready`), never a fixed
   sleep.
 - Put each run's evidence in one directory: `--evidence=tmp/control-ai-browsers/evidence/<run-id>`.
@@ -42,15 +45,24 @@ matching feature file. `C` below stands for `node .claude/skills/control-ai-brow
 Each feature file starts with an H1 and one paragraph of behaviour, then four H2s in order: `Sub-features`, `How
 to get to it (user POV)`, `Driving it with control-ai-browsers`, `Gotchas`.
 
+## Features
+
+- [Instances](./instances.md): registry, up, backend, drift, effective features, down.
+- [Health check](./health-check.md): doctor, availability, canaries, WebMCP.
+- [Model lifecycle](./model-lifecycle.md): info, download, init, clear.
+- [Probes and benchmarks](./probes.md): run a probe script, the model benchmark.
+
+## Full sweep
+
+A full pass drives the features in this order.
+
+1. [Instances](./instances.md)
+2. [Health check](./health-check.md)
+3. [Model lifecycle](./model-lifecycle.md)
+4. [Probes and benchmarks](./probes.md)
+
 ## Manual only
 
 - The `on-device-internals` Event Logs and Tools tabs (not read by the script).
 - Extension contexts (DevTools panels, side panels, service workers).
 - Lars's own Chrome Beta, Edge Dev and everyday Edge profiles: the skills never touch them.
-
-## Features
-
-- [Instances](./instances.md): registry, launch, backend, drift, effective features, stop.
-- [Health check](./health-check.md): doctor, availability, canaries, WebMCP.
-- [Model lifecycle](./model-lifecycle.md): info, download, init, clear.
-- [Probes and benchmarks](./probes.md): run a probe script, the model benchmark.

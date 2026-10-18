@@ -10,8 +10,8 @@
  * dispatches phase skills. All GSD Path skills are explicit-only — they should
  * only run when the user or router explicitly invokes them.
  *
- * The local clone at D:/projects/github/open-gsd/gsd-path is used as the source
- * of truth (read-only). The clone is never modified by this script.
+ * The clone is fetched from GitHub into a temporary cache directory
+ * (`os.tmpdir()`) so the script never depends on a user's local GitHub clones.
  *
  * Adaptation for Command Code (compared to the upstream GSD Path installer):
  *
@@ -47,11 +47,12 @@
  *   node scripts/install-gsd-path-command-code.mjs --update
  *   node scripts/install-gsd-path-command-code.mjs --uninstall
  *   node scripts/install-gsd-path-command-code.mjs --local   (project-local)
+ *   node scripts/install-gsd-path-command-code.mjs --clean-cache
  *   node scripts/install-gsd-path-command-code.mjs --force   (skip prompts)
  *
  * Environment:
- *   GSD_PATH_REPO_PATH  override the local clone path
- *                      (default: D:/projects/github/open-gsd/gsd-path)
+ *   GSD_PATH_REPO_PATH  override the clone cache path
+ *                      (default: <tmpdir>/commandcode-gsd-path-cache)
  *   GSD_PATH_BRANCH     git branch / tag to clone (default: main)
  *   COMMAND_CODE_HOME   override the ~/.commandcode path
  *                      (default: <home>/.commandcode)
@@ -69,7 +70,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { homedir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { join, relative } from "node:path";
 
 // ---------------------------------------------------------------------------
@@ -77,7 +78,8 @@ import { join, relative } from "node:path";
 // ---------------------------------------------------------------------------
 
 const REPO_PATH =
-  process.env.GSD_PATH_REPO_PATH || "D:/projects/github/open-gsd/gsd-path";
+  process.env.GSD_PATH_REPO_PATH ||
+  join(tmpdir(), "commandcode-gsd-path-cache");
 
 const GITHUB_URL = "https://github.com/open-gsd/gsd-path.git";
 const BRANCH = process.env.GSD_PATH_BRANCH || "main";
@@ -105,6 +107,7 @@ const dryRun = args.includes("--dry-run") || args.includes("-n");
 const skipPull = args.includes("--no-pull");
 const isUninstall = args.includes("--uninstall");
 const isUpdate = args.includes("--update");
+const cleanCache = args.includes("--clean-cache");
 const verbose = !args.includes("--quiet") && !args.includes("-q");
 const force = args.includes("--force") || args.includes("-f");
 
@@ -488,6 +491,24 @@ function stepWriteManifest(skills) {
   }
 }
 
+function stepCleanCache() {
+  log("\n4. Cleaning clone cache");
+  if (!existsSync(REPO_PATH)) {
+    log("   (cache not present)");
+    return;
+  }
+  if (dryRun) {
+    log(`   [dry-run] would remove ${REPO_PATH}`);
+    return;
+  }
+  try {
+    rmSync(REPO_PATH, { recursive: true, force: true });
+    log(`   removed ${REPO_PATH}`);
+  } catch (err) {
+    warn(`failed to remove cache: ${err.message}`);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -499,6 +520,8 @@ function main() {
 
     stepGitSync(skipPull);
     stepRemoveOld(null, true);
+
+    if (cleanCache) stepCleanCache();
     return;
   }
 
@@ -545,11 +568,17 @@ function main() {
   // 6. Write manifest
   stepWriteManifest(installed);
 
+  // 7. Optionally clean cache
+  if (cleanCache) stepCleanCache();
+
   // Summary
   log("\n=== Summary ===");
   log(`Skills:  ${installed.length} ${dryRun ? "would be " : ""}installed`);
   log(`Names:   ${installed.map((s) => s.name).join(", ")}`);
   log(`Manifest: ${dryRun ? "[dry-run] would " : ""}write ${MANIFEST_PATH}`);
+  if (cleanCache && !dryRun) {
+    log(`Cache:   removed ${REPO_PATH}`);
+  }
   log("");
   if (dryRun) {
     log("Dry run complete — no changes were made.");

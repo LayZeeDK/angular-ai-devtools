@@ -25,10 +25,23 @@ agent restarts them; never use the playwright-cli sessions `cb`, `ed`, `ai-cb`, 
 | Flow | Browser | Session, ports, profile |
 |---|---|---|
 | Test harness, main checkout (`.git` is a directory) | Playwright's bundled Chromium (Chrome for Testing 154.0.8037.0 measured), headed | session `ngdt`, CDP port 9420, profile `tmp/control-angular-devtools/profile/main` |
-| Test harness, worktree (`.git` is a file) | same | session `ngdt-wt-<hash>`, CDP port 9421-9499 from a hash of the worktree path, profile `.../profile/wt-<hash>`; port 9420 is refused |
+| Test harness, worktree (`.git` is a file) | same | session `ngdt-wt-<hash>`, CDP port `9420 + slot` (9421-9499, slot 1-79 from a hash of the worktree path), profile `.../profile/wt-<hash>`; port 9420 is refused |
 | Branded | `--browser chrome|chrome-beta|edge|edge-dev` | Lars's own profile (`--profile Default` by default); nothing launched or stopped by `up`/`down` |
 
-The script derives all of these; `--cdp-port N` overrides the port.
+The script derives all of these. When the CDP port is busy, `up` tries the next slot, 10 slots in all, and
+records the slot and the ports it used (`info --json`: `slot`, `ports`); measured 2026-10-16 in the
+`verification-skills` worktree (`wt-423ece`, slot 10): a throwaway listener on 9430 moved the run to 9431.
+
+| Port | Kind | Default | How it moves |
+|---|---|---|---|
+| cdp | derived | 9420 | `--port N`, written into the playwright-cli config as Chromium's `--remote-debugging-port` (measured: listened on 9431, the fallback from 9430) |
+| app | external | the `--app-url` port | control-angular-dev-app serves it (`up --target counter`; its `info` prints the URL); this skill never starts or stops it |
+
+- `--port N` sets the CDP port with no fallback for it: a busy `N` exits 2 naming its holder's PID; from a
+  worktree 9420 is refused.
+- A CDP port another process takes after the check (a holder outside this session's process tree, even another
+  harness browser that shows the same extension ID) closes the session and moves the run to the next slot.
+- The branded flow opens no port: it reads and opens Lars's own profiles, and `up`/`down` never touch them.
 
 ## Launch
 
@@ -36,8 +49,8 @@ Install the extension copy, start the app, then the browser:
 
 ```bash
 node $S install                                   # copy from Edge Dev's profile, read only
-node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target counter --port 4317
-node $S up --app-url=http://localhost:4317/
+node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target counter   # prints its url
+node $S up --app-url=<that url, for example http://localhost:4336/>
 ```
 
 - `install` (test): copies the newest `<version>_0` folder from
@@ -56,11 +69,16 @@ node $S up --app-url=http://localhost:4317/
 
 ## Doctor
 
-`node $S doctor` (read only). One line per check: `process` (the playwright-cli PID is alive and its start
-time and command line match the state), `cdp-port` (answers, owned by the recorded Chromium PID), `extension`
+`node $S doctor` (read only). One line per check: `map-fresh` (first; whether each feature file still matches
+the source it was proven against, from `scripts/fingerprint.mjs`; `[WARN]` names stale and unproven features and
+never fails doctor), `process` (the playwright-cli PID is alive and its start
+time and command line match the state), `tree` (adds the live processes below it to the recorded tree, for
+`down`), `ports` (the CDP port listens, every holder is in the playwright-cli session's process tree, and `/json/version` answers; the app port is listed as external: `[OK] ports: cdp 9431 (derived: fell back from 9430: held by PID 32396), app 4336 (external: ...); CDP answers (Chrome/154.0.8037.0), recorded browser PID 59044`), `extension`
 (`chrome.developerPrivate.getExtensionInfo` on `chrome://extensions/?id=...`: name, version, `ENABLED`,
 `UNPACKED`, path, error counts; plus the service worker), `app` (`[ng-version]` and `window.ng`, which only a
-development build has), `connected-flag`, `devtools-window`. Exit 0 healthy, 1 a check failed, 2 no state.
+development build has), `connected-flag`, `devtools-window`. Exit 0 healthy, 1 a check failed, 2 no state. It has no console-errors
+line: the page is whichever app `--app-url` names, and that app's own driver checks its console
+(`control-angular-dev-app doctor`, `console-errors`); this doctor answers whether the DevTools harness is worth driving.
 
 ## Drive
 
@@ -84,7 +102,7 @@ node $S coexist [--di-graph]                     # see Inspect
 
 Panel handles (read from the live panel, 1.22.0): tabs are buttons/links named `Components`, `Profiler`,
 `Injector Tree`, `Router Tree`, and `Transfer State` only for a hydrated (SSR) app; `Router Tree` only when the
-app has routes (`devtools-tabs.component.ts`); tree rows are `.node-name`; the `Show Signal Graph` button; graph
+app provides the router, even with an empty route list as in the counter (`devtools-tabs.component.ts`); tree rows are `.node-name`; the `Show Signal Graph` button; graph
 nodes are `ng-signal-graph-pane .node-cont.kind-<kind>` with the label and value as text, where kind is
 `template`, `signal`, `computed`, `effect`, `linked-signal`, `child-signal-prop`, `resource` or `unknown`
 (`signals-visualizer.ts`; the counter shows the first four);
@@ -110,7 +128,8 @@ Feature recipes: `features/README.md`.
   subscribers, clicks the app, removes one with its returned function, clicks again, stops recording. Passes
   when the removed one stops counting, the other keeps counting and DevTools recorded the cycles. Never call
   `ng.ɵsetProfiler(null)`: it empties the list, DevTools' subscriber included (`render3/profiler.ts`). Then
-  checks the connected flag and that the pane's signal graph matches `ng.ɵgetSignalGraph`. `--di-graph` runs
+  checks the connected flag and that the pane's signal graph lists the same nodes as `ng.ɵgetSignalGraph`
+  (kind and label, in any order; a node `ng` leaves unlabelled, such as an effect, matches by kind). `--di-graph` runs
   Angular's `angular:di_graph` tool and re-reads both: the template node disappears from both (measured).
   That breaks the page's signal graph until reload; run it last.
 - **Branded browsers:** `status --browser <name>` reads `<User Data>\<profile>\Extensions\<id>\` and
@@ -130,33 +149,59 @@ read properties of undefined (reading 'inspectedWindow')` from `bundle/main.js`)
 
 ## Cleanup
 
-`node $S down`: checks the recorded playwright-cli PID's start time and command line, runs
-`playwright-cli -s=ngdt close`, waits for that PID and the Chromium PID to exit (`taskkill /T /F` on the
-recorded PID if they do not), deletes the state file, the playwright-cli config and the profile, keeps the evidence. A PID that is
-already gone is noted, exit 0. Then stop the app with the tool that started it. Never `close-all` or
+`node $S down`: takes a last snapshot of the session's process tree through `scripts/proctree.mjs` (`up` records
+the playwright-cli session process right after `open` and every process below it once ready, the Chromium
+included; `doctor` adds what it sees since; `tree` in the state file and `info --json`), runs
+`playwright-cli -s=ngdt close`, waits up to 10 s for the recorded processes to exit, then stops every record
+that still runs as the recorded process (same start time and command line), children before parents, one PID at a
+time with a forced stop, never by name. That stops a Chromium that outlived its playwright-cli process. A root
+whose PID now belongs to another process is never touched and `down` exits 2; so does a record that still runs
+after the last round; both keep the state file with the merged record. It deletes the playwright-cli config and
+the profile, then the state file, so a profile that cannot be deleted keeps the record (exit 2, run `down`
+again); the evidence stays. A PID that is already gone is noted, exit 0. A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). Then stop the app with the tool that started it. Never `close-all` or
 `kill-all`. `uninstall` (test) deletes the extension copy and test profiles; it refuses while `up`.
 
 ## Helpers
 
 `scripts/control.mjs <command> [options] [--json]`; exit 0 done or healthy, 1 not healthy, 2 refused or
-could not run (the reason is printed; `--json` gives `{ok, exit, reason}`). Flags take `--flag value` or
+could not run (the reason is printed; `--json` gives `{ok, exit, reason}`, also for a usage error and an unknown
+command; page text is printed with its control characters escaped). Flags take `--flag value` or
 `--flag=value`; an unknown flag, a missing value, a `--browser` outside `test|chrome|chrome-beta|edge|edge-dev` or
-a non-numeric `--timeout`/`--cdp-port` exits 2 before anything runs.
+a non-numeric `--timeout`/`--port` exits 2 before anything runs.
 
 | Command | Does | Notes |
 |---|---|---|
 | `install [--browser test\|chrome\|chrome-beta\|edge\|edge-dev] [--from ...] [--profile P] [--timeout S]` | test: copies the extension. Branded: no-op when installed; else opens the Chrome Web Store page `https://chromewebstore.google.com/detail/ienfalfjdbdpebioblfackkekamfmbnh` in that browser's profile P (`--profile-directory`) and polls the profile every 2 s until the extension appears (default 180 s) | Lars clicks the store's add button and confirms "Add extension"; Edge first asks to allow extensions from other stores |
 | `uninstall [--browser ...] [--profile P] [--timeout S]` | test: removes copy and profiles. Branded: no-op when not installed; else opens the Web Store page in profile P (a browser will not open `chrome://` or `edge://` pages from the command line) and polls every 2 s until the profile's `extensions.settings.<id>` entry is gone | Lars clicks "Remove from Chrome" on the store page, or Remove on `chrome://extensions` |
 | `status [--browser ...] [--profile P]` | installed, versions on disk, enabled, `disable_reasons` | read only |
-| `up --app-url <url> [--cdp-port N]` | launches the test harness | state `tmp/control-angular-devtools/state/<flow>.json`: pid, browserPid, created, commandLine, cdpPort, session, evidenceDir, readyInSeconds |
+| `up --app-url <url> [--port N]` | launches the test harness | state `tmp/control-angular-devtools/state/<flow>.json`: pid, tree (`{pid, ppid, start, commandLine}`, the session process first; `start` in ms since the epoch), browserPid, cdpPort, slot, ports `{name, port, kind, reason?}`, session, evidenceDir, readyInSeconds |
 | `doctor`, `attach`, `info`, `down` | above | `info` prints the state (flow, session, PIDs, CDP port, evidence dir, state path) |
 | `panel show\|signal-graph [--component C]\|screenshot [--file F]` | panel driving | `show` prints the panel's text (tabs, tree, selected component) |
-| `coexist [--component C] [--click "<locator>"] [--di-graph]` | coexistence checks | defaults fit the counter fixture: `app-counter`, `getByRole('button', { name: 'Increment' })` |
+| `coexist [--component C] [--click "<locator>"] [--di-graph]` | coexistence checks | defaults fit the counter fixture: `app-counter`, `getByRole('button', { name: 'Increment' })`; `--click` is JavaScript placed after `page.` in the run-code source |
+
+`panel` and `coexist` refuse (exit 2) unless the recorded browser still owns the CDP port; `down` refuses a state
+file whose profile or config path is not the one the script derives, and stops only records whose live process
+still has the recorded start time and command line.
+
+`scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
+`features/.proven.json`: `node .claude/skills/control-angular-devtools/scripts/fingerprint.mjs record --feature <id>
+--entries <path>...` records the repository files a feature depends on (their TypeScript import closure) with their
+git blob hashes (exit 0 written or unchanged, 2 refused); `... record --feature <id> --external "<reason>"` records a
+feature whose source lives outside the repository (`install`); `... fingerprint.mjs check [--feature <id>] [--json]`
+prints `fresh`, `stale`, `unproven` or `external` per feature (exit 0 all fresh or external, 1 one stale or
+unproven, 2 could not run).
+
+`scripts/proctree.mjs` (a byte copy of lars-create-verification's; never edit it here; its tests live there) records
+and stops the harness's process tree for `up`, `doctor` and `down`: `processTable`, `snapshot`, `merge`, `stop`,
+`matches`, `describe`. It has no command line of its own and prints nothing.
+
+Every other script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
+`npm run check` type-checks the scripts.
 
 ## Gotchas
 
 - playwright-cli prints the PID of its own Node daemon ("opened with pid N"), not Chromium's. The CDP port
-  belongs to a child `chrome.exe`; the state keeps both, and `down` waits for both.
+  belongs to a child `chrome.exe`; the recorded tree holds both, and `down` waits for both.
 - Playwright's init script runs before the extension's MAIN-world `document_start` script (the flag was
   unset in the init script, then set 53 ms in). Order among `document_start` scripts is not a contract: an
   AI extension reads `__NG_DEVTOOLS_CONNECTED__` lazily, never at its own start, and never writes it.

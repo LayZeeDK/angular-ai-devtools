@@ -11,6 +11,8 @@ with a user gesture, initialise it, and clear it to free space. Switching models
   `available`.
 - `model-init` times the cold and warm `create()` and reads `contextWindow`.
 - `model-clear` deletes a named model's folders in a stopped instance's profile and reports the bytes removed.
+- `model-pin` copies a healthy instance's model components (registry `pin` roots) to its pin folder; `up` restores
+  them when the disk differs, and `down` warns when it closes an instance in the middle of a model update.
 
 ## How to get to it (user POV)
 
@@ -27,24 +29,36 @@ Preconditions: the README baseline; Broker State "Enough disk space to install" 
 
 - **Report.** Run `C model info chrome-beta-nano`. One `v3Nano` line per variant on disk (2025.8.8.1141 hints
   `[2,1]` is the GPU variant, 2025.8.21.1028 hints `[3]` the CPU variant), the asset `nano_v3_gpu_component`
-  `Ready`, `serving v3Nano; backend GPU (fastest inference) (requested gpu); performance class 2`.
-- **Clear.** Run `C stop chrome-beta-nano`, then `C model clear chrome-beta-nano --confirm=v3Nano`. Every folder
+  `Ready`, `serving v3Nano; backend GPU (fastest inference) (requested gpu); performance class 3 (Broker State Low)` on
+  Chrome Beta 157 (it read class 2 on 156).
+- **Clear.** Run `C down chrome-beta-nano`, then `C model clear chrome-beta-nano --confirm=v3Nano`. Every folder
   whose manifest names `v3Nano` is deleted; the JSON holds `bytesRemoved` (4,269,934,855 for the GPU variant) and
   `diskAfter`.
-- **Download.** Run `C launch chrome-beta-nano`, then `C model download chrome-beta-nano`. It logs the gesture
+- **Download.** Run `C up chrome-beta-nano`, then `C model download chrome-beta-nano`. It logs the gesture
   (`click` or `Enter`), samples progress every 5 s, and ends with the duration and the folder added. Measured:
-  click, 180 s, 4,072 MiB (2026-10-12, D:). On Edge it first presses "Check for update" on the two model
+  click, 180 s, 4,072 MiB (2026-10-12, D:); click, 455 s, 4,072 MiB (2026-10-16). On Edge it first presses "Check for update" on the two model
   components.
 - **Initialise.** Run `C model init chrome-beta-nano`. First and second create, `contextWindow` 9,216, the answer
   to `Say hi in three words.`
 - **Check.** Run `C doctor chrome-beta-nano`; exit 0.
 - **Proof.** One evidence directory with `model info` before, `clear`, `download`, `init`, `model info` after.
+- **Pin (Aion).** With `edge-dev-aion` running and doctor at exit 0, run `C model pin edge-dev-aion`. It logs
+  `pinned EdgeLLMOnDeviceModel 2026.10.2.1, EdgeLLMRuntime 2026.10.2.1` and the folder
+  `tmp/control-ai-browsers/pins/edge-dev-aion` (1.3 GB, git-ignored). From then on, an `up` of the stopped instance
+  whose disk holds other versions, or the pinned version with other files or sizes, logs
+  `[WARN] ... restored it (EdgeLLMRuntime -2026.10.12.1)` (`~<version>` for a replaced folder) and doctor's
+  `model.pin` reads `matches the pin`. Measured 2026-10-17 in a worktree copy: twice, an update was let run without
+  `--disable-component-update` and interrupted by `down` (once after the runtime landed, once while the model
+  component read "Downloading"); each time `up` restored the pin and doctor exited 0.
+- **No pin yet.** Copy a matching `EdgeLLMOnDeviceModel\<v>` and `EdgeLLMRuntime\<v>` pair into the stopped
+  profile (the pair the profile's `EdgeOptimizationGuideModelsManifest\<v>` names; 2026.10.2.1 on 2026-10-17),
+  removing other version folders there, then `up`, `doctor`, `model pin`.
 
 ## Gotchas
 
 - `model clear` refuses a running instance: deleting files under a running browser is unsafe, and a running
   profile with the use case Requested downloads the model again by itself.
-- Chrome starts downloading a Requested model at launch without any page call. After `stop`, `clear`, `launch`,
+- Chrome starts downloading a Requested model at launch without any page call. After `down`, `clear`, `up`,
   availability read `downloading` straight away, and the first create() finished the 4 GB download.
 - The Gemma 4 instance holds Nano that the Prompt API there never uses: both variants (GPU 2025.8.8.1141,
   4,072 MiB; CPU 2025.8.21.1028, 2,730 MiB) while it ran with `--backend=cpu`; after a relaunch on GPU, Chrome
@@ -58,8 +72,20 @@ Preconditions: the README baseline; Broker State "Enough disk space to install" 
   (2026-10-11) it did not stop the download. Leave the Nano folders in that profile; clearing them frees space only until Chrome fetches
   Nano again.
 - Downloads need 20,480 MiB free on D: (Broker State); below it `availability()` still says `downloadable` or
-  `downloading` while nothing downloads.
+  `downloading` while nothing downloads. `model download` refuses earlier: free space minus the model's
+  `downloadMib` must stay above the browser minimum in `instances.json` (Chrome 22,528 MiB, Edge 20,480 MiB).
 - A fresh Edge profile waits at "Foreground Installing 0%" until "Check for update" is pressed for both model
-  components; `model download` does that.
-- Forcing CPU on Edge uninstalls the model; `launch --backend=cpu` is refused on Edge instances.
+  components; `model download` does that, except on an instance launched with `--disable-component-update`
+  (`edge-dev-aion`), where the button starts nothing (measured) and `model download` refuses (exit 2).
+- Edge updates its model past its manifest (measured 2026-10-17, Edge Dev 157.0.4329): the component updater
+  installs "Edge LLM Runtime" 2026.10.12.1 and "Edge LLM On Device Model" 2026.10.15.1 about a minute after launch,
+  with no page call, while "Edge On-Device Model Manifest" stays 2026.10.2.1 (its "Check for update" finds nothing
+  newer) and names `edge_base_model` 2026.10.2.1. Broker State then reads that asset `Not Installed`, `prompt_api`
+  `Not Supported` and `availability()` `unavailable`; at the next start Edge deletes the old folders and it reads
+  `Pending Assets` and `downloading` for good, and `model download` cannot fix it. While the update runs, Broker
+  State has no `edge_base_model` row at all and `availability()` still says `available`; the fetch took about 40 s.
+  `edge-dev-aion` therefore launches with `--disable-component-update` (watched for 4.5 minutes and two restarts:
+  the 2026.10.2.1 pair stayed and stayed `Ready`; the manifest, runtime and model components still load) and keeps
+  a pin. Without the switch a restored pair broke again 1.5 minutes after launch.
+- Forcing CPU on Edge uninstalls the model; `up --backend=cpu` is refused on Edge instances.
 - `availability()` can say `available` while `create()` refuses tool types; trust the tool canary instead.

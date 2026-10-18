@@ -1,8 +1,8 @@
 # Attach to a dev-mode Angular app
 
-On an Angular page the extension sets a flag, detects Angular, injects its backend and shakes hands with it,
-and its toolbar icon turns from grey to colour. The Angular tab in DevTools then shows the app; the info
-button shows the Angular version.
+The extension sets a flag on every page (its MAIN-world script matches all URLs); on an Angular page it
+detects Angular, injects its backend and shakes hands with it, and its toolbar icon turns from grey to colour. The
+Angular tab in DevTools then shows the app; the info button shows the Angular version.
 
 ## Sub-features
 
@@ -19,6 +19,8 @@ supported development build.
 
 ## Driving it with control-angular-devtools
 
+Preconditions: the test harness is up on a development build (`doctor` exits 0).
+
 ```bash
 node $S attach
 ```
@@ -31,6 +33,7 @@ backendInstalled true; backendReady at ~950 ms; Angular 22.2.2`.
 
 - `attach` reloads the page to catch messages from the start.
 - A production build gives `isDebugMode: false`; the content script still injects the backend (it gates on
-  `isAngular` only, built 1.22.0 `app/content_script_bundle.js`), the popup shows `production.html`, and
+  `isAngularDevTools`, `isAngular` and an HTML document, not on `isDebugMode`; built 1.22.0
+  `app/content_script_bundle.js`), the popup shows `production.html`, and
   `attach` exits 1 because it requires `isDebugMode`.
 - The toolbar icon and popup are browser UI, not checked by script.
