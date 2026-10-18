@@ -1,6 +1,7 @@
 // background.js - MV3 service worker
 // Simple message relay. The Prompt API runs in the page's MAIN world via agent-main.js.
-// The service worker just keeps the extension alive and handles host:capability messages.
+// The service worker keeps the extension alive and handles host:capability messages
+// plus relaying angular-detected events to the devtools panel.
 
 const hostCapabilities = new Map();
 
@@ -17,9 +18,14 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     return true;
   }
 
+  if (msg?.type === 'angular-detected') {
+    // Relay to all extension contexts (including the Angular devtools panel)
+    chrome.runtime.sendMessage(msg);
+    reply({ ok: true });
+    return true;
+  }
+
   if (msg?.type === 'PROMPT_API_REQUEST') {
-    // Relay to the content script (relay.js) which bridges to agent-main.js
-    // The content script handles the actual Prompt API call via the bridge
     reply({ ok: false, error: 'Use the content script bridge directly' });
     return true;
   }

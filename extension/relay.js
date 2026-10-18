@@ -3,6 +3,7 @@
 const NS = 'angular-ai:llm';
 const pending = new Map();
 let nextId = 0;
+let angularDetected = false;
 
 // Listen for responses from the MAIN-world agent
 window.addEventListener(`${NS}:response`, (e) => {
@@ -49,12 +50,19 @@ function request(method, params) {
 function checkAngular() {
   const el = document.querySelector('[ng-version]');
   if (el) {
-    const marker = document.createElement('div');
-    marker.id = 'angular-ai-devtools-marker';
-    marker.textContent = 'Angular ' + el.getAttribute('ng-version') + ' detected';
-    marker.style.cssText = 'position:fixed;top:0;right:0;background:#4caf50;color:#fff;padding:4px 8px;font-size:12px;z-index:999999;';
-    document.body.appendChild(marker);
-    console.log('[Angular AI DevTools] Angular detected, version:', el.getAttribute('ng-version'));
+    if (!angularDetected) {
+      angularDetected = true;
+      const version = el.getAttribute('ng-version') || 'unknown';
+      // Inject marker
+      const marker = document.createElement('div');
+      marker.id = 'angular-ai-devtools-marker';
+      marker.textContent = 'Angular ' + version + ' detected';
+      marker.style.cssText = 'position:fixed;top:0;right:0;background:#4caf50;color:#fff;padding:4px 8px;font-size:12px;z-index:999999;';
+      document.body.appendChild(marker);
+      console.log('[Angular AI DevTools] Angular detected, version:', version);
+      // Notify the background (which relays to the devtools panel)
+      chrome.runtime.sendMessage({ type: 'angular-detected', version });
+    }
     return true;
   }
   return false;

@@ -28,5 +28,16 @@
       "world": "MAIN"
     }
   ],
-  "web_accessible_resources": []
+  "devtools_page": "devtools.html",
+  "web_accessible_resources": [
+    {
+      "resources": ["panel/**/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "icons": {
+    "16": "icon16.svg",
+    "48": "icon48.svg",
+    "128": "icon128.svg"
+  }
 }
