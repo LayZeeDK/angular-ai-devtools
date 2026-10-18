@@ -1,0 +1,18 @@
+{
+  "spike": "S16",
+  "date": "2026-10-18",
+  "title": "companion-package Meta-class lookup",
+  "app": "spikes/ng222-app",
+  "angular": "22.2.2",
+  "method": "walk root component injector resolution path via ng.ɵgetInjectorResolutionPath + ɵgetInjectorProviders; identity-only token-name matching",
+  "injectorPath": [
+    { "i": 0, "type": "element", "source": "<app-counter>", "providers": 6 },
+    { "i": 1, "type": "element", "source": "<app-root>", "providers": 6 },
+    { "i": 2, "type": "environment", "source": "Environment Injector", "providers": 59 },
+    { "i": 3, "type": "environment", "source": null, "providers": 8 },
+    { "i": 4, "type": "null", "source": null, "providers": null }
+  ],
+  "meta": "absent (expected 'provided, not created yet')",
+  "router": "present in environment injector (index 2); instance url '/'",
+  "verdict": "works"
+}

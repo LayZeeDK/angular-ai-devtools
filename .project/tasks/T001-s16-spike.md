@@ -3,9 +3,9 @@ id: T001
 title: Run S16 companion-package Meta-class lookup spike
 wave: 1
 deps: [T002]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: f6cae0271077cf5d79e7c4e14a8ebea227fba161
 worktree: null
 task_branch: null
 files:
@@ -55,3 +55,4 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-18 — orchestrator Verify (sidecar gsd-path-verify/task-t001-verify): pass, exit 0

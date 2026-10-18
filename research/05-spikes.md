@@ -12,6 +12,15 @@ All four per-model instances verified healthy via `control-ai-browsers doctor` (
 
 No blocked preconditions recorded for model-dependent spikes; all four instances runnable. S4/E-spikes needing branded-browser access remain blocked pending Lars's approval (no branded browser was started).
 
+## S16 - companion-package Meta-class lookup (measured 2026-10-18)
+
+Verdict: **works**. Evidence: `research/raw/s16-meta-lookup.json`.
+
+- Walked root component's `ɵgetInjectorResolutionPath`: 5 injectors (app-counter element, app-root element, environment, platform, null).
+- `Meta` token absent from all injectors (expected "provided, not created yet").
+- `Router` token present in environment injector (index 2); `ng.ɵgetRouterInstance()` returns instance with url `/`.
+- Identity-only token-name matching works; no `injector.get` on ViewContainerRef needed.
+
 App: `spikes/ng222-app`, generated with `@angular/cli@22.2.2 new --routing --ssr=false`, installed `@angular/core` 22.2.2, served with `ng serve --port 4222`. A component `app-counter` (`src/app/counter.ts`) has `title = input()`, `count = signal(3)`, `double = computed(count * 2)`, an injected root `CartService.items` signal, and an `effect` that writes `lastLogged`. The effect-writes-signal pattern is there on purpose, as a fixture for the anti-pattern finder (N2).
 
 ### Discovery
