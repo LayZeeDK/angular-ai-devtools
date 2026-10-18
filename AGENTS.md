@@ -9,6 +9,15 @@ Read a reference only when the task touches it.
   `node_modules/typescript/package.json`: a 7.x there means a stale install; run `npm ci`.
 - Checks: `npm run check` (type check, root and skills) and `npm test` (node:test, root and skills).
 
+### Verify sidecar dependencies
+
+Verify sidecars created by `isolation.py isolate-verify` ship without `node_modules`, so `npm run check`
+fails with TS2688 unless dependencies are bridged from the primary worktree. Before running checks in a
+sidecar, create a directory junction from the sidecar to the primary `node_modules`, run `npm run check`,
+then remove the junction. Windows command: `mklink /J <sidecar>\node_modules <primary>\node_modules`.
+The junction must be removed before retiring the sidecar (`isolation.py retire --force` clears stale
+sidecars, including worktree and branch).
+
 ## Browsers and on-device models
 
 - Drive the browsers only through the `control-ai-browsers` skill; each instance runs in its own profile under

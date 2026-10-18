@@ -3,9 +3,9 @@ id: T001
 title: Document verify-sidecar dependency bridge and confirm baseline
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: 5c9ea9c18d395a0bad51146b1828193e6d354ef2
 worktree: null
 task_branch: null
 files:
@@ -50,3 +50,28 @@ Heavy: no
 ## Log
 
 - 2026-10-18 — created by planner (AFK mode)
+- 2026-10-18 — implemented: added "Verify sidecar dependencies" subsection to AGENTS.md under Toolchain, documenting junction bridge command and cleanup. `isolation.py retire --force` clears stale sidecars (verified during M002 setup).
+- 2026-10-18 — orchestrator Verify (sidecar gsd-path-verify/task-t001-verify): fail, exit 1; output tail:
+  ```
+  
+  > check
+  > tsc -p tsconfig.json && npm run check:skills
+  
+  error TS2688: Cannot find type definition file for 'node'.
+    The file is in the program because:
+      Entry point of type library 'node' specified in compilerOptions
+  ```
+- 2026-10-18 — orchestrator Verify (sidecar gsd-path-verify/task-t001-verify): fail, exit 1; output tail:
+  ```
+  Microsoft Windows [Version 10.0.26200.9550]
+  (c) Microsoft Corporation. Alle rettigheder forbeholdes.
+  
+  C:\Users\LarsGyrupBrinkNielse\.gsd-path\projects\d10fb97cec6c7ac7\8919d4cefeb4a7e5\verify\task-t001-verify>
+  > check
+  > tsc -p tsconfig.json && npm run check:skills
+  
+  error TS2688: Cannot find type definition file for 'node'.
+    The file is in the program because:
+      Entry point of type library 'node' specified in compilerOptions
+  ```
+- 2026-10-18 — orchestrator Verify (sidecar gsd-path-verify/task-t001-verify): pass, exit 0
