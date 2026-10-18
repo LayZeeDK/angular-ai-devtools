@@ -1,4 +1,4 @@
-# Wave 2 review
+# Review — wave 2, cycle 1
 
 Depth: verify-only
 Cycle: 1
@@ -13,3 +13,4 @@ Tasks reviewed: 1
 - ✅ T003 evidence files present
 
 Wave verdict: pass
+

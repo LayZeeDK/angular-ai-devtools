@@ -1,4 +1,4 @@
-# Wave 1 review
+# Review — wave 1, cycle 1
 
 Depth: full
 Cycle: 1
@@ -22,3 +22,4 @@ Tasks reviewed: 2
 - ✅ T002 instance availability recorded
 
 Wave verdict: pass
+

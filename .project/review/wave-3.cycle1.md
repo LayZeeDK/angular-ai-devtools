@@ -1,4 +1,4 @@
-# Wave 3 review
+# Review — wave 3, cycle 1
 
 Depth: full
 Cycle: 1
@@ -13,3 +13,4 @@ Tasks reviewed: 1
 - ✅ T004 evidence files present
 
 Wave verdict: pass
+

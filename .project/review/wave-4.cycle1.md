@@ -1,4 +1,4 @@
-# Wave 4 review
+# Review — wave 4, cycle 1
 
 Depth: verify-only
 Cycle: 1
@@ -13,3 +13,4 @@ Tasks reviewed: 1
 - ✅ T005 evidence files present
 
 Wave verdict: pass
+

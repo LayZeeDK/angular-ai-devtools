@@ -1,4 +1,4 @@
-# Wave 5 review
+# Review — wave 5, cycle 1
 
 Depth: full
 Cycle: 1
@@ -16,3 +16,4 @@ Tasks reviewed: 1
 - ✅ T006 E/S4 recorded blocked with exact preconditions
 
 Wave verdict: pass
+
