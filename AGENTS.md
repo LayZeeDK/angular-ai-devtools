@@ -12,9 +12,11 @@ Read a reference only when the task touches it.
 ### Verify sidecar dependencies
 
 Verify sidecars created by `isolation.py isolate-verify` ship without `node_modules`, so `npm run check`
-fails with TS2688 unless dependencies are bridged from the primary worktree. Before running checks in a
-sidecar, create a directory junction from the sidecar to the primary `node_modules`, run `npm run check`,
-then remove the junction. Windows command: `mklink /J <sidecar>\node_modules <primary>\node_modules`.
+fails with TS2688 unless dependencies are bridged from the primary worktree. The automatic bridge
+(`scripts/sidecar-deps-bridge.mjs`) now creates and removes the junction for you when running checks in
+a sidecar, so no manual step is needed in the common case. For legacy sidecars the manual junction
+procedure still works: create a directory junction from the sidecar to the primary `node_modules`, run
+`npm run check`, then remove the junction. Windows command: `mklink /J <sidecar>\node_modules <primary>\node_modules`.
 The junction must be removed before retiring the sidecar (`isolation.py retire --force` clears stale
 sidecars, including worktree and branch).
 

@@ -3,9 +3,9 @@ id: T003
 title: Update AGENTS.md, skill docs, and .gitignore; prove sidecar checks and no regression
 wave: 2
 deps: [T001, T002]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: 2d42aa14126d6052a2fd33310b1bf86e7d0cfa1f
 worktree: null
 task_branch: null
 files:
@@ -56,3 +56,5 @@ Heavy: yes
 ## Log
 
 - 2026-10-18 — created by planner
+- 2026-10-18 — AGENTS.md documents automatic bridge; .gitignore ignores .commandcode/worktrees/; control skill docs reviewed for artifact paths
+- 2026-10-18 — orchestrator Verify (sidecar gsd-path-verify/task-t003-verify): pass, exit 0
