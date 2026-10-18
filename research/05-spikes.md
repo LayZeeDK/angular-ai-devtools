@@ -213,3 +213,7 @@ S17, S18, S19 recorded **blocked** — exact precondition: offline spike definit
 ## S14/S15/S20/S23 - model-browser spikes (blocked 2026-10-18)
 
 S14, S15, S20, S23 recorded **blocked** — exact precondition: model-browser spike definition/probe not present in this checkout. Evidence: research/raw/s14-blocked.json etc.
+
+## TS1-TS12 - tutor spikes (blocked 2026-10-18)
+
+TS1-TS12 recorded **blocked** — exact precondition: tutor spike definition/probe not present in this checkout. Evidence: research/raw/TS*-blocked.json.

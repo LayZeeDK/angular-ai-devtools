@@ -3,9 +3,9 @@ id: T005
 title: Run tutor spikes TS1-TS12
 wave: 4
 deps: [T004]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T005
+base: 3134e96286a3fa67c5a6358650cb8e0496efba47
 worktree: null
 task_branch: null
 files:
@@ -49,3 +49,6 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-18 — orchestrator Verify (sidecar gsd-path-verify/task-t005-verify): pass, exit 0
+- 2026-10-18 — orchestrator regression Verify of T001 (sidecar gsd-path-verify/task-t005-verify): pass, exit 0
+- 2026-10-18 — orchestrator regression Verify of T002 (sidecar gsd-path-verify/task-t005-verify): pass, exit 0
