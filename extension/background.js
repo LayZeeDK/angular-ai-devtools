@@ -19,8 +19,8 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   }
 
   if (msg?.type === 'angular-detected') {
-    // Relay to all extension contexts (including the Angular devtools panel)
-    chrome.runtime.sendMessage(msg);
+    // Relay to all extension contexts; the tab id lets each DevTools panel keep only its inspected tab's detection.
+    chrome.runtime.sendMessage({ ...msg, tabId: sender.tab?.id });
     reply({ ok: true });
     return true;
   }

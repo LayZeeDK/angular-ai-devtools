@@ -4,15 +4,19 @@ import { UpdateCauseService } from './n1-update-cause.service';
 interface ExtensionMessage {
   type?: string;
   version?: string;
+  tabId?: number;
   capability?: { availability?: string };
 }
 
 @Injectable({ providedIn: 'root' })
 export class ExtensionMessageService {
   private readonly causeService = inject(UpdateCauseService);
+  private readonly inspectedTabId: number | undefined;
 
   constructor() {
-    const runtime = (globalThis as { chrome?: { runtime?: { onMessage?: { addListener: (cb: (msg: unknown) => void) => void } } } }).chrome?.runtime;
+    const chrome = (globalThis as { chrome?: { runtime?: { onMessage?: { addListener: (cb: (msg: unknown) => void) => void } }; devtools?: { inspectedWindow?: { tabId?: number } } } }).chrome;
+    const runtime = chrome?.runtime;
+    this.inspectedTabId = chrome?.devtools?.inspectedWindow?.tabId;
     if (runtime?.onMessage) {
       runtime.onMessage.addListener((msg: unknown) => {
         this.handleMessage(msg as ExtensionMessage);
@@ -21,6 +25,10 @@ export class ExtensionMessageService {
   }
 
   private handleMessage(msg: ExtensionMessage) {
+    // The service worker relays every tab's detection to every panel; keep the inspected tab's only.
+    if (msg.tabId !== undefined && this.inspectedTabId !== undefined && msg.tabId !== this.inspectedTabId) {
+      return;
+    }
     if (msg.type === 'angular-detected') {
       this.causeService.record('Angular', `v${msg.version ?? '?'} detected`);
     } else if (msg.type === 'host:capability') {
