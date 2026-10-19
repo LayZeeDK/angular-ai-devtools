@@ -49,6 +49,44 @@
         }
       }
     },
+    "build-extension": {
+      "executor": "@angular/build:application",
+      "outputs": [
+        "{workspaceRoot}/extension/panel"
+      ],
+      "options": {
+        "outputPath": {
+          "base": "extension/panel",
+          "browser": ""
+        },
+        "browser": "apps/angular-ai-devtools/src/main.ts",
+        "tsConfig": "apps/angular-ai-devtools/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/angular-ai-devtools/public"
+          }
+        ],
+        "styles": [
+          "apps/angular-ai-devtools/src/styles.css"
+        ],
+        "baseHref": "/panel/",
+        "outputHashing": "none",
+        "extractLicenses": false,
+        "budgets": [
+          {
+            "type": "initial",
+            "maximumWarning": "500kb",
+            "maximumError": "1mb"
+          },
+          {
+            "type": "anyComponentStyle",
+            "maximumWarning": "4kb",
+            "maximumError": "8kb"
+          }
+        ]
+      }
+    },
     "serve": {
       "continuous": true,
       "executor": "@angular/build:dev-server",
