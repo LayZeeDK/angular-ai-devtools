@@ -101,9 +101,9 @@ instance that already runs as requested (same backend, same port when `--port=N`
 registry executable, and exactly the switches `up` launches with) is not
 restarted: `up` records it and exits 0 with `alreadyRunning: true`. A live instance that does not match exits 2
 naming its PID, its port and each difference. This uses the generated-skill contract's exception for skills whose
-instances stay running between runs (lars-create-verification `references/generated-skill.md`, "State"): the
-standing state is every instance running (see Cleanup), and other skills call `up` to reach one
-(control-vitest-browser-angular).
+instances stay running between runs (lars-create-verification `references/generated-skill.md`, "State"): an
+instance may stay up while a session still uses it, and other skills call `up` to reach one
+(control-vitest-browser-angular). Close it after use (see Cleanup).
 `up --json` gives `session` and `evidenceDir` at the top level, also with `alreadyRunning`.
 
 The extension. Each instance's registry `extension` (`extension`, resolved against the primary checkout) names the
@@ -240,8 +240,9 @@ JSON); the next `up` restores a pin. Then it records a last snapshot of the tree
 the browser websocket and waits up to 60 s for the recorded processes to exit. Then it stops, through
 `scripts/proctree.mjs`, every record that still runs as the recorded process (same start time and command line),
 children before parents, one PID at a time with a forced stop, never by name; a record still running after that
-exits 2 and keeps the state file. It checks the port is free and removes the state file. Evidence stays. A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). Run `attach` to record a running instance afresh; `attach` and `up` keep the records of an earlier state file that still run. The standing state is every instance
-running, each on one blank tab; `down` is for a relaunch, a clear, or a proof. Never run `playwright-cli close`,
+exits 2 and keeps the state file. It checks the port is free and removes the state file. Evidence stays. A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). Run `attach` to record a running instance afresh; `attach` and `up` keep the records of an earlier state file that still run. Close every instance with `down` once
+its work is done (Lars's rule: no unused browser windows); the next `up` starts it again in about 2 s with its
+model, extension and developer mode, so nothing is lost. An instance another session is still using stays up. Never run `playwright-cli close`,
 `close-all` or `kill-all`: they reach other agents' sessions.
 
 ## Helpers

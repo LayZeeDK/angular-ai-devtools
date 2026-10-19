@@ -18,6 +18,11 @@ what a run costs and what has gone wrong.
   2026-10-19) and then the `state` claim.
 - Teardown is `down` per instance the setup started. The instances are shared, so an instance whose `up` reported
   `alreadyRunning` stays up for the other sessions.
+- Five instances at once contend for memory, CPU and GPU (Lars, 2026-10-19: "Running all 5 in parallel puts system
+  resources in contention. Keep that in mind if something fails."). Measured that day: Claude Code stopped a
+  background run when free memory fell to about 3 GB of 32 GB, and one instance exited with no crash report. Prefer
+  one or two instances at a time (`up`, check, `down`), and before calling a failure seen with all five up a
+  defect, re-run it with that instance alone.
 - Browsers with on-device models are heavy. One verdict was stopped by Claude Code for low memory (15 GB of 32 GB
   free after cleanup). Start with at least about 10 GB free, and nothing else heavy running.
 - Limits: the checks give each `control.mjs` call 600 s (`spawnSync` timeout). The spec gives `state` 900 s and

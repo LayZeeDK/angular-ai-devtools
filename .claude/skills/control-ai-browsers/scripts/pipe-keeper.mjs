@@ -20,6 +20,26 @@ export function splitMessages(buffered) {
   return { messages: parts.slice(0, -1).filter((m) => m !== ''), rest: parts.at(-1) ?? '' };
 }
 
+/**
+ * Why an Edge launch must not start: without --disable-sync and msImplicitSignin in --disable-features, Edge signs
+ * Lars's Windows work account in and syncs it into the profile (measured twice on 2026-10-19). Null for any other
+ * browser, or an Edge launch with both.
+ * @param {string} exe
+ * @param {string[]} switches
+ * @returns {string | null}
+ */
+export function signinRefusal(exe, switches) {
+  if (!/msedge\.exe$/i.test(exe)) {
+    return null;
+  }
+
+  const disabled = switches.filter((a) => a.startsWith('--disable-features=')).flatMap((a) => a.slice('--disable-features='.length).split(','));
+
+  return switches.includes('--disable-sync') && disabled.includes('msImplicitSignin')
+    ? null
+    : 'refused: an Edge launch needs --disable-sync and msImplicitSignin in --disable-features, or Edge signs the Windows work account in; start instances with control.mjs up';
+}
+
 // Set once the result file is written; a later error must neither overwrite it nor end the browser.
 let reported = false;
 
@@ -98,5 +118,13 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
     process.exit(1);
   });
+  const refusal = signinRefusal(exe, switches);
+
+  if (refusal) {
+    writeFileSync(resultFile, JSON.stringify({ ok: false, at: new Date().toISOString(), error: refusal }));
+    console.error(refusal);
+    process.exit(2);
+  }
+
   keep(resultFile, exe, extension, switches);
 }
