@@ -80,7 +80,9 @@ use, and every kept path to his profiles is a way to break them.
 node .commandcode/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-nano [--backend=gpu|cpu]
 ```
 
-Starts `<exe> --user-data-dir=<profile> --remote-debugging-port=<port> --no-first-run --no-default-browser-check
+Starts, through `scripts/pipe-keeper.mjs` (see The extension below), `<exe> --user-data-dir=<profile>
+--remote-debugging-port=<port> --remote-debugging-pipe --enable-unsafe-extension-debugging --no-first-run
+--no-default-browser-check
 [<instance args>] --enable-features=<registry features + backend extras> about:blank`, creating the profile folder
 on first use. `edge-dev-aion` adds `--disable-component-update`, so Edge cannot update its model past its manifest
 (Gotchas). Before it starts an instance with `pin` roots, `up` compares them with the pin (`model pin`) by version
@@ -183,8 +185,9 @@ is not running or the command could not run. A run takes 25-50 s, longer under l
   and load per result; it runs the same `bench.js`.
 - Ad hoc: `attach <name>`, then `playwright-cli -s=<session> <command>` with the session from `info <name> --json`
   (`ai-<name>-<port>`); `detach <name>` when done. `run-code`
-  acts on the current tab, the instance's blank tab; open your own tab for page work and close it. Before it
-  attaches, every command swaps the instance's idle `about:blank` tabs for one new blank tab over raw CDP (Gotchas,
+  acts on the current tab, the instance's blank tab; open your own tab for page work and close it. When it
+  has to attach the session (not after an ad hoc `attach`), a command first swaps the instance's idle `about:blank`
+  tabs for one new blank tab over raw CDP (Gotchas,
   "An idle Edge blank tab").
 - The extension's first feature: `panel <name> --url=<Angular page>` (`scripts/panel.mjs`, raw CDP). It opens the
   page, opens DevTools for it with Ctrl+Shift+I, shows the "Angular AI" panel (`Extensions.extensionServer.onShowPanel`
@@ -234,7 +237,7 @@ JSON); the next `up` restores a pin. Then it records a last snapshot of the tree
 the browser websocket and waits up to 60 s for the recorded processes to exit. Then it stops, through
 `scripts/proctree.mjs`, every record that still runs as the recorded process (same start time and command line),
 children before parents, one PID at a time with a forced stop, never by name; a record still running after that
-exits 2 and keeps the state file. It checks the port is free and removes the state file. Evidence stays. A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). Run `attach` to record a running instance afresh; `attach` and `up` keep the records of an earlier state file that still run. The standing state is all four instances
+exits 2 and keeps the state file. It checks the port is free and removes the state file. Evidence stays. A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). Run `attach` to record a running instance afresh; `attach` and `up` keep the records of an earlier state file that still run. The standing state is every instance
 running, each on one blank tab; `down` is for a relaunch, a clear, or a proof. Never run `playwright-cli close`,
 `close-all` or `kill-all`: they reach other agents' sessions.
 
@@ -249,7 +252,7 @@ playwright-cli runs as node with `node_modules/@playwright/cli/playwright-cli.js
 | Command | Does | Exit |
 |---|---|---|
 | `instances` | registry plus live state: PID, backend, drift, tabs, state file | 0 |
-| `up <name> [--backend=gpu\|cpu] [--extension=<dir>]` | restore the pin when the disk differs, start (profile created on first use; a Chrome instance with `extension` through `pipe-keeper.mjs`), wait for `/json/version`, one blank tab, write state, report the loaded extension; `--json` has `session`, `evidenceDir` and `extension` | 0 / 2 |
+| `up <name> [--backend=gpu\|cpu] [--extension=<dir>]` | restore the pin when the disk differs, start (profile created on first use; every instance with `extension` through `pipe-keeper.mjs`), wait for `/json/version`, one blank tab, write state, report the loaded extension; `--json` has `session`, `evidenceDir` and `extension` | 0 / 2 |
 | `attach <name>` | write state, attach the instance's session (`ai-<name>-<port>`) and leave it attached | 0 / 2 |
 | `detach <name>` | detach that session | 0 |
 | `doctor <name>` | the checks above | 0 / 1 / 2 |
@@ -292,6 +295,10 @@ Every other script has a `node:test` file beside it (`*.test.mjs`); `npm test` a
 
 Measured 2026-10-11/12 unless marked inferred.
 
+- Keep the instance profiles free of real accounts. The CDP port listens on 127.0.0.1 only, but any local process
+  of any user (and, inferred, a Docker container through `host.docker.internal`) can open it and drive the browser
+  fully, extension pages included (`--enable-unsafe-extension-debugging`). Web pages cannot reach it.
+
 - A new Chrome Beta profile has On-Device AI switched off (measured 2026-10-19, Chrome Beta 157.0.8103.6). Broker
   State's Manifest Criteria read "Enabled by user setting: false", every use case reads `Not Supported`, and
   `availability()` reads `unavailable`, so `model download` refuses. Pre-stable channels turn the setting on by
@@ -303,7 +310,7 @@ Measured 2026-10-11/12 unless marked inferred.
 - An idle Edge blank tab blocks playwright-cli (measured 2026-10-19 on `edge-dev-aion` and `edge-phi4mini`). After
   some minutes idle, the instance's `about:blank` tab still answers raw CDP `Runtime.evaluate`, but every
   playwright-cli `run-code` on the session, even `async page => 1+1`, and `newPage()` wait forever. Doctor and
-  `model pin` then hang with no output. Every command now opens a new blank tab and closes the idle ones before it
+  `model pin` then hang with no output. A command that has to attach now opens a new blank tab and closes the idle ones before it
   attaches. A hang that is already running needs its `control.mjs`, `playwright-cli.js` and `cliDaemon.js`
   processes stopped by PID.
 - Edge answers the first F12 in a profile with an "Open DevTools?" prompt in the window. Ctrl+Shift+I opens DevTools

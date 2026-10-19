@@ -5,7 +5,8 @@ matching feature file. `C` below stands for `node .commandcode/skills/control-ai
 
 ## Baseline preconditions
 
-- Chrome Beta 157 (156 until it updated itself on 2026-10-16), Edge Dev 157 and Edge stable 155 are installed at the paths in `instances.json`.
+- Chrome Beta 157 (156 until it updated itself on 2026-10-16), Chrome stable 156, Edge Dev 157 and Edge stable 155
+  are installed at the paths in `instances.json`.
 - The five instances run, started by `C up <name>` (or `C instances` shows them with no drift): Nano on
   9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337, Nano in Chrome stable on 9338. The instances, their profiles (with the models) and
   their state files belong to the primary checkout (`.commandcode/worktrees/` there). A worktree or a GSD Path

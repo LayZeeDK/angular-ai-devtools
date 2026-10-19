@@ -12,6 +12,9 @@ import { fileURLToPath } from 'node:url';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 // Command Code's maintenance notes live only beside the maintained copy.
 const LOCAL_ONLY = new Set(['maintain']);
+// Each tree keeps the byte copy of its own agent's lars-create-verification fingerprint.mjs (the Claude Code one
+// turns git filter drivers off and refuses quoted paths; Command Code's canonical copy does not yet).
+const OWN_CANONICAL = new Set(['scripts/fingerprint.mjs']);
 
 /**
  * @param {string} dir
@@ -44,7 +47,7 @@ for (const skill of ['control-ai-browsers', 'verify-ai-browsers']) {
     const maintained = files(join(ROOT, '.commandcode', 'skills', skill));
     const copy = files(join(ROOT, '.claude', 'skills', skill));
     assert.deepEqual([...copy.keys()].sort(), [...maintained.keys()].sort(), 'the same files');
-    const differ = [...maintained].filter(([f, bytes]) => !bytes.equals(/** @type {Buffer} */ (copy.get(f)))).map(([f]) => f);
+    const differ = [...maintained].filter(([f, bytes]) => !OWN_CANONICAL.has(f) && !bytes.equals(/** @type {Buffer} */ (copy.get(f)))).map(([f]) => f);
     assert.deepEqual(differ, [], 'the same bytes');
   });
 }

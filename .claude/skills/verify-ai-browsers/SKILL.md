@@ -42,11 +42,13 @@ Through `lars-verify` (`~/.commandcode/skills/lars-verify/references/contract.md
   build under test; the check exits 2 for an instance serving another checkout's folder); condition
   `["node", ".commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs", "--evidence", "{runDir}", "--url",
   "<counter url>", "<instance>", ...]`; artifact `extension-panel.json`; `timeoutMs` 1800000 (about two minutes per
-  instance for `panel` and `state`). A browser started before the panel was rebuilt still serves the old build:
-  `down` and `up` it first.
+  instance for `panel` and `state`). A rebuilt panel needs no restart (the browser reads the extension's pages from disk);
+  a change to `extension/background.js` or `manifest.json` does, so `down` and `up` after one.
 - teardown, per instance the setup started (its `up` did not report `alreadyRunning`; the instances are shared, so
-  never `down` one another session runs on, except to put back the primary checkout's build with a plain `up`): `["node", C, "info", "<instance>", "--evidence={runDir}", "--json"]`, `C down <instance>`,
-  then `check-teardown.mjs {runDir}/steps/teardown-<n>.out --artifact state.json` (or `model-init.json`), where
+  never `down` one another session runs on). After a sidecar `extension-panel` run, put back the primary checkout's
+  build: `C down <instance>`, then `["node", C, "up", "<instance>"]` (a plain `up` loads the primary's build), and
+  only then the steps below: `["node", C, "info", "<instance>", "--evidence={runDir}", "--json"]`, `C down <instance>`,
+  then `check-teardown.mjs {runDir}/steps/teardown-<n>.out --artifact state.json` (or `model-init.json`, or `extension-panel.json`), where
   `<n>` is that instance's `info` step.
 
 Standalone, against instances started by hand:

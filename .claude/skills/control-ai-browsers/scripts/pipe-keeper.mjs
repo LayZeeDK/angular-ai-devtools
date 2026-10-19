@@ -35,8 +35,8 @@ function keep(resultFile, exe, extension, switches) {
   const fromBrowser = /** @type {import('node:stream').Readable} */ (child.stdio[4]);
   /** @param {object} r */
   const report = (r) => {
-    reported = true;
     writeFileSync(resultFile, JSON.stringify({ pid: child.pid, at: new Date().toISOString(), ...r }));
+    reported = true;
   };
   let rest = '';
   fromBrowser.on('data', (chunk) => {
@@ -90,7 +90,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       return;
     }
 
-    writeFileSync(resultFile, JSON.stringify({ ok: false, at: new Date().toISOString(), error: `pipe-keeper.mjs failed: ${e.stack ?? e.message}` }));
+    try {
+      writeFileSync(resultFile, JSON.stringify({ ok: false, at: new Date().toISOString(), error: `pipe-keeper.mjs failed: ${e.stack ?? e.message}` }));
+    } catch {
+      // Nowhere to report; up says the keeper wrote no result.
+    }
+
     process.exit(1);
   });
   keep(resultFile, exe, extension, switches);

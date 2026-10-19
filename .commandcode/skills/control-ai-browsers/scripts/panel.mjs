@@ -145,7 +145,7 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000 } = {})
   const steps = [];
   /** @param {string} step @param {unknown} [value] */
   const note = (step, value) => steps.push({ at: Date.now() - t0, step, value });
-  const targets = async () => /** @type {Target[]} */ (await (await fetch(`${cdp}/json/list`)).json());
+  const targets = async () => /** @type {Target[]} */ (await (await fetch(`${cdp}/json/list`, { signal: AbortSignal.timeout(5000) })).json());
   /** @type {PanelRun} */
   const run = { ok: false, ngVersion: null, extensionId: null, answer: null, error: null, status: null, answerMs: 0, steps };
   /** @type {Session[]} */
@@ -157,7 +157,7 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000 } = {})
 
     return s;
   };
-  const version = /** @type {{ webSocketDebuggerUrl: string }} */ (await (await fetch(`${cdp}/json/version`)).json());
+  const version = /** @type {{ webSocketDebuggerUrl: string }} */ (await (await fetch(`${cdp}/json/version`, { signal: AbortSignal.timeout(5000) })).json());
   const browser = await attach(version.webSocketDebuggerUrl);
   /** @type {string[]} */
   const created = [];
@@ -234,7 +234,7 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000 } = {})
     note('button', found ?? false);
 
     if (!found) {
-      run.error = `the panel shows no ${SELECTORS.explain} within 30 s: no Angular detection was recorded, or the panel build predates the data-testid attributes (rebuild with build-extension, then down and up)`;
+      run.error = `the panel shows no ${SELECTORS.explain} within 30 s: no Angular detection was recorded, or the panel build predates the data-testid attributes (rebuild with build-extension and open DevTools again)`;
 
       return run;
     }

@@ -712,4 +712,12 @@ test('primaryCheckout resolves a worktree to the checkout that holds the git com
   assert.equal(realpathSync.native(primaryCheckout(wt)), realpathSync.native(main));
   assert.equal(realpathSync.native(primaryCheckout(main)), realpathSync.native(main));
   assert.equal(primaryCheckout(base), base, 'outside a repository the folder itself');
+  const other = join(base, 'other');
+  mkdirSync(other);
+  assert.equal(spawnSync('git', ['init', '-q'], { cwd: other }).status, 0);
+  process.env['GIT_DIR'] = join(other, '.git');
+  t.after(() => {
+    delete process.env['GIT_DIR'];
+  });
+  assert.equal(realpathSync.native(primaryCheckout(wt)), realpathSync.native(main), 'an inherited GIT_DIR is ignored');
 });

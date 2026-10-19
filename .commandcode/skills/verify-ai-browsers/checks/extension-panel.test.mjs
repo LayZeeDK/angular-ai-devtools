@@ -3,7 +3,9 @@
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { CHECKOUT_EXTENSION, check, main } from './extension-panel.mjs';
+import { mkdtempSync, realpathSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { CHECKOUT_EXTENSION, check, main, samePath } from './extension-panel.mjs';
 
 /** @type {Record<string, import('./state.mjs').RegistryInstance>} */
 const REGISTRY = { 'chrome-beta-gemma4': { model: { name: 'gemma4-2b-it', contextWindow: 9216 } }, 'edge-phi4mini': { model: { name: 'Phi-4-mini-instruct', contextWindow: 9216 } } };
@@ -84,4 +86,14 @@ test('main: all instances by default, 1 on a failed claim, 2 without --url or fo
   assert.equal(main(['--evidence', 'e', '--url', URL, 'edge-phi4mini'], () => fake({ 'edge-phi4mini': { panel: { code: 1, json: { error: 'x' } } } }).deps, () => REGISTRY), 1);
   assert.equal(main(['--evidence', 'e', 'edge-phi4mini'], () => fake().deps, () => REGISTRY), 2);
   assert.equal(main(['--evidence', 'e', '--url', URL, 'edge-dev-aion'], () => fake().deps, () => REGISTRY), 2);
+});
+
+test('samePath matches a folder across its short and long spellings and the case of the drive letter', (t) => {
+  const dir = mkdtempSync(join(tmpdir(), 'ext-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const long = realpathSync.native(dir);
+  assert.equal(samePath(dir, long), true);
+  assert.equal(samePath(long.replace(/^[A-Z]:/, (d) => d.toLowerCase()), long), true);
+  assert.equal(samePath(join(long, '..'), long), false);
+  assert.equal(samePath(null, long), false);
 });

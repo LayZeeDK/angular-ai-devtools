@@ -11,7 +11,7 @@
 // Usage: node .commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs --evidence <dir> --url <app url> [instance...]
 // Writes: <dir>/extension-panel.json, plus each control step's own evidence JSON in <dir>.
 // Exit 0 pass; 1 with `Error: CLAIM: ...` when the claim fails; 2 when it could not run.
-import { realpathSync } from 'node:fs';
+import { existsSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
@@ -20,6 +20,23 @@ import { instanceState, loadRegistry, realDeps } from './state.mjs';
 
 // The build under test: this checkout's extension folder, with the drive letter upper-cased as control.mjs stores it.
 export const CHECKOUT_EXTENSION = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', 'extension').replace(/^[a-z]:/, (d) => d.toUpperCase());
+
+/**
+ * Whether two spellings name one folder (a short 8.3 name and its long form, the drive letter's case).
+ * @param {unknown} a
+ * @param {string} b
+ * @returns {boolean}
+ */
+export function samePath(a, b) {
+  if (typeof a !== 'string') {
+    return false;
+  }
+
+  /** @param {string} p */
+  const real = (p) => (existsSync(p) ? realpathSync.native(p) : p).toLowerCase();
+
+  return real(a) === real(b);
+}
 
 /** @typedef {import('./state.mjs').Deps} Deps */
 /** @typedef {import('./state.mjs').RegistryInstance} RegistryInstance */
@@ -50,7 +67,7 @@ export function check({ evidence, url, names, extension = CHECKOUT_EXTENSION }, 
     // A shared instance may serve another checkout's build; proving that one would prove nothing about this checkout.
     const loaded = deps.control(['info', name]).json?.['extensionDir'];
 
-    if (loaded !== extension) {
+    if (!samePath(loaded, extension)) {
       couldNotRun.push(`${name} serves the extension from ${String(loaded)}, not this checkout's ${extension}: run "down ${name}", then "up ${name} --extension=extension" here`);
       results[name] = { loaded };
       continue;

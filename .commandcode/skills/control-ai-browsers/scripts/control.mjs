@@ -103,7 +103,9 @@ const REGISTRY = JSON.parse(readFileSync(join(SKILL_DIR, 'instances.json'), 'utf
  * @returns {string}
  */
 export function primaryCheckout(dir) {
-  const r = spawnSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: dir, encoding: 'utf8', windowsHide: true });
+  // A GIT_DIR or GIT_COMMON_DIR inherited from a hook or wrapper would point every shared path at another repository.
+  const env = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_')));
+  const r = spawnSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: dir, encoding: 'utf8', windowsHide: true, env });
   const common = r.status === 0 ? r.stdout.trim() : '';
 
   return common ? dirname(resolve(common)) : dir;
@@ -2089,6 +2091,8 @@ async function cmdUp(registered) {
     // One result file per launch, so two runs never read or delete each other's; the keeper writes it at once.
     const keeperResult = run.extensionDir === null ? null : join(TMP, `extension-${run.name}-${t0}.json`);
     mkdirSync(TMP, { recursive: true });
+    // Every way out of this attempt but a successful load (which reads and removes it) drops the result file.
+    const dropKeeperResult = () => keeperResult !== null && rmSync(keeperResult, { force: true });
     const child = run.extensionDir === null || keeperResult === null
       ? spawn(run.exe, launchArgs(run, features), { detached: true, stdio: 'ignore' })
       : spawn(process.execPath, [KEEPER, keeperResult, run.exe, run.extensionDir, ...launchArgs(run, features)], { detached: true, stdio: 'ignore' });
@@ -2116,6 +2120,7 @@ async function cmdUp(registered) {
         refuse(`port ${run.port} (--port) was taken by PID ${owner} after the check; --port has no fallback`);
       }
 
+      dropKeeperResult();
       order = order.slice(order.indexOf(plan.slot) + 1);
 
       if (order.length === 0) {
@@ -2123,6 +2128,10 @@ async function cmdUp(registered) {
       }
 
       continue;
+    }
+
+    if (!version || !proc) {
+      dropKeeperResult();
     }
 
     if (!version) {
@@ -2154,7 +2163,21 @@ async function cmdUp(registered) {
     }
 
     const developerMode = run.extensionDir === null ? null : /** @type {string} */ (await inTab(run, DEVELOPER_MODE, { url: null, args: { scheme: run.scheme } }));
-    const extension = keeperResult === null ? null : await loadedExtension(run, keeperResult);
+    const loaded = keeperResult === null ? null : await loadedExtension(run, keeperResult);
+
+    // A browser without its extension must not stay up: a later `up` would find it running as configured.
+    if (loaded !== null && 'error' in loaded) {
+      const attempt = { pid: proc.pid, tree: merge(snapshot(proc), spawned) };
+      const stopped = downOutcome(attempt, stopRun(attempt).result);
+
+      if (stopped.code === 0) {
+        rmSync(statePath(run.name), { force: true });
+      }
+
+      refuse(`${run.name}: loading ${run.extensionDir} failed: ${loaded.error}; ${stopped.code === 0 ? 'the browser was stopped; fix the extension, then "up" again' : `stopping the browser failed too (${stopped.reason}); run "down ${run.name}"`}`);
+    }
+
+    const extension = loaded;
 
     log('OK', `${run.name} launched as PID ${proc.pid} on ${run.cdp} (${version.Browser}), backend ${backend}, ready in ${readyMs} ms${extension ? `, extension ${extension.id}` : ''}${firstUse ? ', new profile' : ''}${plan.slot === inst.slot ? '' : `, slot ${plan.slot} (${plan.ports[0]?.reason})`}${restored.length ? `; closed ${restored.length} restored tab(s)` : ''}${debugPages ? `; internal debugging pages ${debugPages}` : ''}${developerMode ? `; developer mode ${developerMode}` : ''}`);
 
@@ -2176,11 +2199,11 @@ function extensionFlag(value) {
 }
 
 /**
- * The instance's unpacked extension after a launch: pipe-keeper.mjs's Extensions.loadUnpacked answer, refused when
- * it failed. The result file is removed once read.
+ * The instance's unpacked extension after a launch: pipe-keeper.mjs's Extensions.loadUnpacked answer, or why it
+ * failed. The result file is removed once read.
  * @param {Inst} run
  * @param {string} file  the keeper's result file
- * @returns {Promise<{ dir: string, id: string }>}
+ * @returns {Promise<{ dir: string, id: string } | { error: string }>}
  */
 async function loadedExtension(run, file) {
   /** @type {{ ok: boolean, id?: string, error?: string } | undefined} */
@@ -2189,7 +2212,7 @@ async function loadedExtension(run, file) {
   rmSync(file, { force: true });
 
   if (!r?.ok || !r.id) {
-    return refuse(`${run.name} runs, but loading ${run.extensionDir} failed: ${r?.error ?? 'pipe-keeper.mjs wrote no result in 30 s'}; fix the extension, then "down ${run.name}" and "up ${run.name}"`);
+    return { error: r?.error ?? 'pipe-keeper.mjs wrote no result in 30 s' };
   }
 
   return { dir: String(run.extensionDir), id: r.id };

@@ -31,7 +31,9 @@ records the Angular version, then press "Explain version with AI". The answer ap
 
 - **Build the panel.** `npx nx run angular-ai-devtools:build-extension` writes `extension/panel/` (`main.js`,
   `styles.css` and `index.html` with `<base href="/panel/">`). A cache hit restores the same files. Run it before
-  `up`, because the browser reads the extension from disk when it loads it.
+  `up` the first time. The browser reads the extension's pages from disk when they open, so a rebuilt panel needs
+  no restart (measured on Edge stable 155, 2026-10-19); a change to `background.js` or `manifest.json` needs
+  `down` and `up`.
 - **Start an Angular page.** `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter`
   prints the URL (`http://localhost:4222/` in the main checkout).
 - **Drive N1.** `C panel <name> --url=http://localhost:4222/`. It logs
