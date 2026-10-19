@@ -1,60 +1,51 @@
 import { TestBed } from '@angular/core/testing';
 import { ExtensionPromptService } from './extension-prompt.service';
 
-const globalChrome = globalThis as unknown as { chrome?: unknown };
+const globalLm = globalThis as unknown as { LanguageModel?: unknown };
 
-function setChrome(chrome: unknown): void {
-  globalChrome.chrome = chrome;
-}
-
-function clearChrome(): void {
-  globalChrome.chrome = undefined;
-}
-
-function mockChrome(opts: {
-  tabId?: number;
+function mockLanguageModel(opts: {
   availability?: string;
-  promptReply?: unknown;
-  createReply?: unknown;
-  promptMessage?: (message: unknown) => void;
-  runtimeMessage?: (message: unknown) => void;
+  createError?: string;
+  promptError?: string;
+  answer?: string;
+  prompts?: string[];
+  destroyed?: { count: number };
 }): void {
-  setChrome({
-    devtools: { inspectedWindow: { tabId: opts.tabId } },
-    runtime: {
-      lastError: undefined,
-      // The service worker cannot answer for a DevTools panel (no sender tab); the real one replies like this.
-      sendMessage(message: unknown, cb: (r: unknown) => void): void {
-        opts.runtimeMessage?.(message);
-        cb({ context: null, reason: 'no host registered' });
-      },
+  globalLm.LanguageModel = {
+    availability: async () => opts.availability ?? 'available',
+    create: async () => {
+      if (opts.createError) {
+        throw new Error(opts.createError);
+      }
+      return {
+        prompt: async (input: string) => {
+          opts.prompts?.push(input);
+          if (opts.promptError) {
+            throw new Error(opts.promptError);
+          }
+          return opts.answer ?? ' response from the Prompt API ';
+        },
+        destroy: () => {
+          if (opts.destroyed) {
+            opts.destroyed.count++;
+          }
+        },
+      };
     },
-    tabs: {
-      sendMessage(tabId: number, message: unknown, cb: (r: unknown) => void): void {
-        opts.promptMessage?.(message);
-        if ((message as { method?: string }).method === 'availability') {
-          cb({ ok: true, result: { availability: opts.availability ?? 'available', hasApi: true } });
-          return;
-        }
-        if ((message as { method?: string }).method === 'create') {
-          cb(opts.createReply ?? { ok: true, result: { created: true } });
-          return;
-        }
-        cb(opts.promptReply ?? { ok: true, result: { text: 'response from the Prompt API' } });
-      },
-    },
-  });
+  };
 }
 
 describe('ExtensionPromptService', () => {
   let service: ExtensionPromptService;
 
   beforeEach(() => {
-    clearChrome();
+    globalLm.LanguageModel = undefined;
     service = TestBed.configureTestingModule({}).inject(ExtensionPromptService);
   });
 
-  afterEach(() => clearChrome());
+  afterEach(() => {
+    globalLm.LanguageModel = undefined;
+  });
 
   it('is created', () => {
     expect(service).toBeTruthy();
@@ -62,99 +53,64 @@ describe('ExtensionPromptService', () => {
     expect(service.ready()).toBe(false);
   });
 
+  it('reports unavailable when the panel has no LanguageModel', async () => {
+    const result = await service.explain('22.2.2');
+    expect(result.ok).toBe(false);
+    expect(service.status()).toBe('unavailable');
+    expect(service.availability()).toBe('no LanguageModel');
+  });
+
   it('reports unavailable when availability is not supported', async () => {
-    mockChrome({ tabId: 1, availability: 'not supported' });
+    mockLanguageModel({ availability: 'unavailable' });
     const ok = await service.checkAvailability();
     expect(ok).toBe(false);
     expect(service.status()).toBe('unavailable');
-    expect(service.availability()).toBe('not supported');
+    expect(service.availability()).toBe('unavailable');
   });
 
-  it('reports ready when availability is available', async () => {
-    mockChrome({ tabId: 1, availability: 'available' });
-    const ok = await service.checkAvailability();
-    expect(ok).toBe(true);
-    expect(service.status()).toBe('ready');
-    expect(service.ready()).toBe(true);
-  });
-
-  it('explain() creates a session then prompts and stores the answer', async () => {
-    const calls: unknown[] = [];
-    mockChrome({
-      tabId: 1,
-      availability: 'available',
-      promptMessage: (message) => calls.push((message as { method?: string }).method),
-    });
-    const result = await service.explain('20.1.0');
-    expect(calls).toEqual(['availability', 'create', 'prompt']);
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.text).toContain('Prompt API');
-    }
+  it('explain() prompts the panel session, stores the trimmed answer and destroys the session', async () => {
+    const prompts: string[] = [];
+    const destroyed = { count: 0 };
+    mockLanguageModel({ prompts, destroyed });
+    const result = await service.explain('22.2.2');
+    expect(result).toEqual({ ok: true, text: 'response from the Prompt API' });
     expect(service.answer()).toBe('response from the Prompt API');
     expect(service.status()).toBe('ready');
-  });
-
-  it('explain() names the version in the prompt, or an Angular application without one', async () => {
-    const prompts: string[] = [];
-    mockChrome({
-      tabId: 1,
-      promptMessage: (message) => {
-        const m = message as { method?: string; params?: { text?: string } };
-        if (m.method === 'prompt') {
-          prompts.push(m.params?.text ?? '');
-        }
-      },
-    });
-    await service.explain('22.2.2');
-    await service.explain(null);
     expect(prompts[0]).toContain('running Angular 22.2.2.');
-    expect(prompts[1]).toContain('running an Angular application.');
+    expect(destroyed.count).toBe(1);
   });
 
-  it('explain() reports the create() error and does not prompt without a session', async () => {
-    const calls: unknown[] = [];
-    mockChrome({
-      tabId: 1,
-      createReply: { ok: false, error: 'NotAllowedError: Requires a user gesture' },
-      promptMessage: (message) => calls.push((message as { method?: string }).method),
-    });
+  it('explain() names an Angular application when no version was recorded', async () => {
+    const prompts: string[] = [];
+    mockLanguageModel({ prompts });
+    await service.explain(null);
+    expect(prompts[0]).toContain('running an Angular application.');
+  });
+
+  it('explain() reports the create() error', async () => {
+    mockLanguageModel({ createError: 'NotAllowedError: Requires a user gesture' });
     const result = await service.explain('22.2.2');
     expect(result.ok).toBe(false);
     expect(service.error()).toContain('NotAllowedError: Requires a user gesture');
-    expect(calls).toEqual(['availability', 'create']);
     expect(service.status()).toBe('error');
   });
 
-  it('explain() reports an error when the prompt call fails', async () => {
-    mockChrome({
-      tabId: 1,
-      availability: 'available',
-      promptReply: { ok: false, error: 'no session' },
-    });
+  it('explain() reports a failed prompt and still destroys the session', async () => {
+    const destroyed = { count: 0 };
+    mockLanguageModel({ promptError: 'UnknownError', destroyed });
     const result = await service.explain('1.0.0');
     expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error).toContain('no session');
-    }
-    expect(service.status()).toBe('error');
-    expect(service.error()).toContain('no session');
+    expect(service.error()).toContain('UnknownError');
+    expect(destroyed.count).toBe(1);
   });
 
-  it('explain() refuses to run when there is no inspected tab', async () => {
-    mockChrome({ tabId: undefined, availability: 'available' });
-    const result = await service.explain('1.0.0');
-    expect(result.ok).toBe(false);
-    expect(service.status()).toBe('error');
-    expect(service.error()).toContain('No inspected tab');
-  });
-
-  it('reads availability from the inspected tab, never from the service worker', async () => {
-    const runtimeCalls: unknown[] = [];
-    mockChrome({ tabId: 7, availability: 'available', runtimeMessage: (message) => runtimeCalls.push(message) });
-    const result = await service.explain('22.2.0');
-    expect(result.ok).toBe(true);
-    expect(runtimeCalls).toEqual([]);
-    expect(service.availability()).toBe('available');
+  it('is working while availability is checked, so a second click cannot start a second session', async () => {
+    let release: (value: string) => void = () => undefined;
+    globalLm.LanguageModel = { availability: () => new Promise<string>((r) => (release = r)), create: async () => ({ prompt: async () => 'x', destroy: () => undefined }) };
+    const pending = service.checkAvailability();
+    expect(service.working()).toBe(true);
+    release('available');
+    await pending;
+    expect(service.working()).toBe(false);
   });
 });

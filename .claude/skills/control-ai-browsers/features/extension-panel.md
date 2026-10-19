@@ -3,9 +3,9 @@
 Every instance loads the repository's unpacked Angular AI DevTools extension at launch: the primary checkout's
 `extension/` (registry `extension`), or the folder `up --extension=<dir>` names. The extension adds a DevTools panel, "Angular AI", built from `apps/angular-ai-devtools`. Its first
 feature (N1, "Why did this update?") lists the Angular version the inspected page announced, and "Explain version
-with AI" asks the instance's model about it: the panel sends `PROMPT_API_REQUEST` messages to the inspected tab,
-the isolated-world relay (`relay.js`) passes them to the MAIN-world agent (`agent-main.js`), and the agent calls
-the page's `LanguageModel` (`availability`, `create`, `prompt`). The answer renders in the panel.
+with AI" asks the instance's model about it: the panel calls `LanguageModel` (`availability`, `create`, `prompt`)
+itself, in its own extension page, so the inspected page can neither read the prompt nor forge the answer. The
+answer renders in the panel. Angular detection still comes from the content scripts (`relay.js`, `agent-main.js`).
 
 ## Sub-features
 
@@ -51,8 +51,11 @@ records the Angular version, then press "Explain version with AI". The answer ap
 - The panel loads only when it is shown, and the page announces Angular once, at load. `panel` therefore shows the
   panel first and then reloads the page. A person who opens the panel after the page has loaded sees "no update
   yet" until they reload.
-- The panel asks the inspected tab for availability (method `availability`). It does not ask the service worker:
-  a DevTools panel has no sender tab, so `host:pick` always answered "no host registered" (fixed 2026-10-19).
+- Where `LanguageModel` works (measured 2026-10-19 in all five pairs, `research/19`): the DevTools panel page, a
+  dedicated worker the panel starts, and the extension service worker. The hidden `devtools.html` page has it, but
+  `availability()` reads `unavailable` and `create()` throws "Access denied because the Permission Policy is not
+  enabled". Until 2026-10-19 the feature called the model in the inspected page's MAIN world, where the page could
+  read the prompt and answer in its place.
 - Edge answers the first F12 in a profile with an "Open DevTools?" prompt in the window. `panel` sends
   Ctrl+Shift+I, which opens DevTools directly in both browsers.
 - DevTools 157 keys extension panels as `extension-panel-<uuid>_<n>` in `Extensions.extensionServer.clientObjects`.
