@@ -16,7 +16,7 @@ import { parseArgs } from 'node:util';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..', '..', '..');
-const CONTROL = join(ROOT, '.claude', 'skills', 'control-pangular-inspector', 'scripts', 'control.mjs');
+const CONTROL = join(ROOT, '.commandcode', 'skills', 'control-pangular-inspector', 'scripts', 'control.mjs');
 
 /** @typedef {{ code: number | null, json: Record<string, unknown> | null, text: string }} StepResult */
 /** @typedef {{ control: (args: string[]) => StepResult, write: (file: string, data: string) => void }} Deps */

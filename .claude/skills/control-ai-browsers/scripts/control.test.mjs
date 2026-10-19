@@ -1,6 +1,7 @@
 // @ts-check
-// Run: node --test .claude/skills/control-ai-browsers/scripts/control.test.mjs
+// Run: node --test .commandcode/skills/control-ai-browsers/scripts/control.test.mjs
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -8,9 +9,9 @@ import { delimiter, join, sep } from 'node:path';
 import { test } from 'node:test';
 import {
   applyPin,
-  artifactDir,
   listing,
   listingDiff,
+  primaryCheckout,
   pinProblems,
   restoreSwap,
   assetVerdict,
@@ -34,7 +35,6 @@ import {
   downloadRefusal,
   drift,
   exitCode,
-  fallbackRead,
   featuresFor,
   findPlaywrightCli,
   instance,
@@ -54,8 +54,8 @@ import {
   sameDir,
   servingBackend,
   slotFor,
-  slotOf,
   slotOrder,
+  extensionId,
   stopRun,
   tabSource,
   toolsPass,
@@ -68,8 +68,6 @@ const chromeLike = {
   name: 'fake-chrome',
   exe: 'C:\\Browsers\\chrome.exe',
   port: 9651,
-  mainPort: 9400,
-  worktree: true,
   dir: 'D:\\profiles\\fake-chrome',
   features: ['AIPromptAPI', 'WebMCP'],
   backend: { default: 'gpu', gpu: ['PerfParams:x'], cpu: ['OnDeviceModelForceCpuBackend'] },
@@ -123,7 +121,7 @@ test('parseArgs splits --name=value, bare --name and positionals', () => {
 });
 
 test('instance merges registry, browser and derived fields and refuses unknown or inherited names', () => {
-  const i = instance('chrome-beta-nano', undefined, 0, false);
+  const i = instance('chrome-beta-nano', undefined, 0);
   assert.equal(i.session, 'ai-chrome-beta-nano-9333', 'the port is part of every session name');
   assert.equal(i.cdp, `http://127.0.0.1:${i.port}`);
   assert.equal(i.scheme, 'chrome');
@@ -136,12 +134,12 @@ test('instance merges registry, browser and derived fields and refuses unknown o
   assert.throws(() => instance('x', { instances: { x: { ...def, browser: 'constructor' } }, browsers: {} }), /names unknown browser "constructor"/);
 });
 
-test('instance takes the registry port in slot 0 and 9600 + 10 * slot + index in a worktree slot', () => {
-  const main = instance('chrome-beta-nano', undefined, 0, false);
-  assert.deepEqual([main.port, main.mainPort, main.index, main.slot, main.worktree, main.cdp], [9333, 9333, 0, 0, false, 'http://127.0.0.1:9333']);
-  const wt = instance('chrome-beta-gemma4', undefined, 5, true);
+test('instance takes the registry port in slot 0 and 9600 + 10 * slot + index in a fallback slot', () => {
+  const main = instance('chrome-beta-nano', undefined, 0);
+  assert.deepEqual([main.port, main.mainPort, main.index, main.slot, main.cdp], [9333, 9333, 0, 0, 'http://127.0.0.1:9333']);
+  const wt = instance('chrome-beta-gemma4', undefined, 5);
   assert.deepEqual([wt.port, wt.mainPort, wt.index, wt.cdp, wt.session], [9651, 9334, 1, 'http://127.0.0.1:9651', 'ai-chrome-beta-gemma4-9651']);
-  assert.deepEqual([at(wt, 9661).port, at(wt, 9661).cdp, at(wt, 9661).session], [9661, 'http://127.0.0.1:9661', 'ai-chrome-beta-gemma4-9661'], 'a worktree never shares the main checkout session name');
+  assert.deepEqual([at(wt, 9661).port, at(wt, 9661).cdp, at(wt, 9661).session], [9661, 'http://127.0.0.1:9661', 'ai-chrome-beta-gemma4-9661'], 'a fallback slot never shares the registry port session name');
   assert.equal(at(wt, 9334).session, 'ai-chrome-beta-gemma4-9334');
   assert.ok(!at(wt, 9661).session.startsWith(`${at(wt, 9334).session}-`), 'no session name is a prefix of another instance session');
   assert.equal(slotFor(wt, 9661), 6);
@@ -149,7 +147,7 @@ test('instance takes the registry port in slot 0 and 9600 + 10 * slot + index in
   assert.equal(slotFor(wt, 12345), null, 'a --port no slot has');
 });
 
-test('every instance keeps its own port in every slot, and no worktree slot reaches a registry port', () => {
+test('every instance keeps its own port in every slot, and no fallback slot reaches a registry port', () => {
   /** @type {{ instances: Record<string, { port: number }> }} */
   const registry = JSON.parse(readFileSync(new URL('../instances.json', import.meta.url), 'utf8'));
   const entries = Object.values(registry.instances);
@@ -168,13 +166,16 @@ test('every instance keeps its own port in every slot, and no worktree slot reac
   });
 });
 
-test('slotOf keeps slot 0 for a main checkout and hashes a worktree to a stable slot in 1-39; slotOrder wraps within 1-39', () => {
-  assert.equal(slotOf('D:\\any', false), 0);
-  const slot = slotOf('D:\\wt\\checkout', true);
-  assert.ok(slot >= 1 && slot <= 39, `slot ${slot}`);
-  assert.equal(slotOf('d:\\WT\\checkout', true), slot);
+test('slotOrder tries the registry ports first, then the next nine slots', () => {
   assert.deepEqual(slotOrder(0), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-  assert.deepEqual(slotOrder(36), [36, 37, 38, 39, 1, 2, 3, 4, 5, 6]);
+});
+
+test('extensionId matches the id Chromium gave the repository extension, and switchesOf loads it over the pipe', () => {
+  const dir = 'D:\\projects\\sandbox\\angular-ai-devtools\\extension';
+  assert.equal(extensionId(dir), 'mgkfgkdgobahfcgkdlokpoehblpbkfok', 'measured in Chrome Beta 157 and Edge 155');
+  assert.deepEqual(switchesOf({ extensionDir: dir }).slice(-2), ['--remote-debugging-pipe', '--enable-unsafe-extension-debugging']);
+  assert.ok(!switchesOf({ extensionDir: dir }).some((a) => a.includes(dir)), 'the folder is never on the command line');
+  assert.deepEqual(switchesOf({ extensionDir: null }), switchesOf({}), 'no extension, no extra switch');
 });
 
 test('listeners maps each LISTENING port to its PID; busyPorts sees a throwaway listener', async (t) => {
@@ -267,7 +268,6 @@ test('drift finds the backend of the launch command line and reports every diffe
   assert.equal(bad.backend, null);
   assert.deepEqual(bad.problems, [
     `exe C:\\other.exe, registry ${chromeLike.exe}`,
-    "port 9400, the main checkout's 9400",
     '--enable-features matches no registry backend: AIPromptAPI',
     'missing --no-first-run',
   ]);
@@ -701,31 +701,15 @@ test('restoreSwap puts back a pin left at .old only when no current pin exists',
   assert.equal(restoreSwap(dir), false, 'a current pin wins over a leftover .old');
 });
 
-test('fallback-read-old-path', (t) => {
+test('primaryCheckout resolves a worktree to the checkout that holds the git common dir', (t) => {
   const base = tempDir(t);
-  const oldRoot = join(base, 'legacy-root');
-  const newRoot = join(base, '.commandcode', 'worktrees');
-
-  // An artifact at the legacy root (e.g. a profile pin left by an older layout).
-  mkdirSync(join(oldRoot, 'profiles', 'edge-base'), { recursive: true });
-  writeFileSync(join(oldRoot, 'profiles', 'edge-base', 'pin.json'), '{"pinned":true}');
-
-  // Copy-migration from the legacy root: artifactDir copies the legacy content into the new location and returns it.
-  const migrated = artifactDir(newRoot, oldRoot);
-  assert.equal(migrated, newRoot, 'artifactDir migrates a copy into the new location and returns it');
-  assert.equal(existsSync(newRoot), true, 'the new location now exists');
-  assert.equal(existsSync(join(newRoot, 'profiles', 'edge-base', 'pin.json')), true, 'the migrated copy holds the legacy file');
-  assert.equal(readFileSync(join(newRoot, 'profiles', 'edge-base', 'pin.json'), 'utf8'), '{"pinned":true}', 'the copy preserves the legacy bytes');
-  assert.equal(existsSync(join(oldRoot, 'profiles', 'edge-base', 'pin.json')), true, 'copy-migration copies, never deletes the legacy artifact');
-
-  // After migration the new location is non-empty, so a fallback read prefers it over the legacy root.
-  assert.equal(fallbackRead(newRoot, oldRoot), newRoot, 'fallbackRead prefers a non-empty new location over the legacy root');
-
-  // When the new location is empty, the fallback read reads the legacy root instead.
-  const emptyNew = join(base, 'empty-new');
-  mkdirSync(emptyNew, { recursive: true });
-  assert.equal(fallbackRead(emptyNew, oldRoot), oldRoot, 'fallbackRead reads the legacy root when the new location is empty');
-
-  // When the new location never existed, the fallback read still reads the legacy root.
-  assert.equal(fallbackRead(join(base, 'never-created'), oldRoot), oldRoot, 'fallbackRead reads the legacy root when the new location is missing');
+  const main = join(base, 'main');
+  const wt = join(base, 'elsewhere', 'sidecar');
+  mkdirSync(main);
+  const git = (/** @type {string[]} */ ...args) => assert.equal(spawnSync('git', args, { cwd: main, encoding: 'utf8' }).status, 0, `git ${args.join(' ')}`);
+  git('init', '-q');
+  git('worktree', 'add', '-q', '--orphan', '-b', 'side', wt);
+  assert.equal(realpathSync.native(primaryCheckout(wt)), realpathSync.native(main));
+  assert.equal(realpathSync.native(primaryCheckout(main)), realpathSync.native(main));
+  assert.equal(primaryCheckout(base), base, 'outside a repository the folder itself');
 });

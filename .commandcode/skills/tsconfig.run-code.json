@@ -1,0 +1,10 @@
+{
+  // Type-check the playwright-cli run-code files: one async function of a Playwright page per file, whose
+  // page.evaluate callbacks run in the browser.
+  "extends": "../../tsconfig.json",
+  "include": ["control-*/scripts/**/*.js"],
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": []
+  }
+}

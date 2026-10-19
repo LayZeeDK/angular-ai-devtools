@@ -15,6 +15,16 @@
       ],
       "minFreeMib": 22528
     },
+    "chrome-stable": {
+      "exe": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "scheme": "chrome",
+      "product": "^Chrome/",
+      "modelRoots": [
+        "OptGuideManifestModel",
+        "OptGuideOnDeviceModel"
+      ],
+      "minFreeMib": 22528
+    },
     "edge-dev": {
       "exe": "C:\\Program Files (x86)\\Microsoft\\Edge Dev\\Application\\msedge.exe",
       "scheme": "edge",
@@ -46,8 +56,10 @@
     "chrome-beta-nano": {
       "browser": "chrome-beta",
       "port": 9333,
+      "extension": "extension",
       "features": [
         "AIPromptAPI",
+        "OnDeviceAiDefaultEnabled",
         "AIPromptAPIToolUse",
         "AIPromptAPIMultimodalInput",
         "AISummarizationAPI",
@@ -75,8 +87,10 @@
     "chrome-beta-gemma4": {
       "browser": "chrome-beta",
       "port": 9334,
+      "extension": "extension",
       "features": [
         "AIPromptAPI",
+        "OnDeviceAiDefaultEnabled",
         "AIPromptAPIToolUse",
         "OnDeviceModelConversationBackend",
         "AIApiFoundationalModel:model_version/v4",
@@ -107,6 +121,7 @@
     "edge-dev-aion": {
       "browser": "edge-dev",
       "port": 9335,
+      "extension": "extension",
       "features": [
         "AIPromptAPI",
         "AIPromptAPIStructuredOutput",
@@ -127,7 +142,8 @@
       ],
       "pin": [
         "EdgeLLMOnDeviceModel",
-        "EdgeLLMRuntime"
+        "EdgeLLMRuntime",
+        "EdgeOptimizationGuideModelsManifest"
       ],
       "backend": {
         "default": "gpu",
@@ -147,9 +163,8 @@
     "edge-phi4mini": {
       "browser": "edge-stable",
       "port": 9337,
+      "extension": "extension",
       "args": [
-        "--load-extension=D:/projects/sandbox/angular-ai-devtools/extension",
-        "--disable-extensions-except=D:/projects/sandbox/angular-ai-devtools/extension",
         "--disable-sync",
         "--disable-features=msImplicitSignin,msProfileSignIn,msForceBrowserSignIn,msOneAuthWAM,msEdgeOSAccountInfoSubstrate,msPrimaryOSAccountInfoCache,msEdgeOSAccountInfoManagerCache,msLoadOneAuthInBackground",
         "--auth-schemes=basic,digest",
@@ -177,6 +192,37 @@
         "contextWindow": 9216,
         "toolCanary": "report",
         "downloadMib": 2391
+      }
+    },
+    "chrome-stable-nano": {
+      "browser": "chrome-stable",
+      "port": 9338,
+      "extension": "extension",
+      "features": [
+        "AIPromptAPI",
+        "OnDeviceAiDefaultEnabled",
+        "AIPromptAPIToolUse",
+        "AIPromptAPIMultimodalInput",
+        "AISummarizationAPI",
+        "AIWriterAPI",
+        "AIRewriterAPI",
+        "WebMCP"
+      ],
+      "backend": {
+        "default": "gpu",
+        "gpu": [
+          "OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/2%2C3%2C4%2C5%2C6/compatible_low_tier_on_device_performance_classes/2%2C3%2C4"
+        ],
+        "cpu": []
+      },
+      "model": {
+        "name": "v3Nano",
+        "folders": "OptGuideOnDeviceModel\\<version>",
+        "asset": "^nano_v3_(gpu|cpu)_component$",
+        "useCase": "prompt_api",
+        "contextWindow": 9216,
+        "toolCanary": false,
+        "downloadMib": 4073
       }
     }
   }

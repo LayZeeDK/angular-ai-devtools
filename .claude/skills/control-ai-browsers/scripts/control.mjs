@@ -8,12 +8,13 @@ import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, re
 import path, { delimiter, dirname, isAbsolute, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mapFresh, printable } from './fingerprint.mjs';
+import { drivePanel } from './panel.mjs';
 import { describe, matches, merge, processTable, snapshot, stop } from './proctree.mjs';
 
 /** @typedef {{ exe: string, scheme: string, product: string, modelRoots: string[], minFreeMib: number, modelComponents?: string[] }} BrowserDef */
 /** @typedef {{ name: string, folders: string, asset: string, useCase: string, contextWindow: number, toolCanary: boolean | 'report', downloadMib: number }} ModelDef */
 /** @typedef {{ default: string, gpu: string[] | null, cpu: string[] | null }} BackendDef */
-/** @typedef {{ browser: string, port: number, features: string[], args?: string[], pin?: string[], backend: BackendDef, model: ModelDef }} InstanceDef */
+/** @typedef {{ browser: string, port: number, features: string[], args?: string[], pin?: string[], extension?: string, backend: BackendDef, model: ModelDef }} InstanceDef */
 /** @typedef {{ instance: string, at: string, roots: Record<string, string>, files: Record<string, Record<string, number>> }} Pin */
 /** @typedef {{ root: string, version: string, replace?: boolean }} PinFolder */
 /** @typedef {{ remove: PinFolder[], add: PinFolder[] }} PinPlan */
@@ -22,7 +23,7 @@ import { describe, matches, merge, processTable, snapshot, stop } from './proctr
 /**
  * An instance as the commands use it: its registry entry and browser, its profile and session, and the CDP port of
  * this checkout's slot (`mainPort` is the registry's, slot 0).
- * @typedef {InstanceDef & BrowserDef & { name: string, dir: string, session: string, cdp: string, mainPort: number, index: number, slot: number, worktree: boolean }} Inst
+ * @typedef {InstanceDef & BrowserDef & { name: string, dir: string, session: string, cdp: string, mainPort: number, index: number, slot: number, extensionDir: string | null }} Inst
  */
 /** @typedef {'derived' | 'fixed' | 'external'} PortKind */
 /** @typedef {{ name: string, port: number, kind: PortKind, reason?: string }} PortEntry */
@@ -48,6 +49,7 @@ import { describe, matches, merge, processTable, snapshot, stop } from './proctr
  * @property {string} session
  * @property {string} profile
  * @property {Backend | null} backend
+ * @property {string | null} [extensionDir]  the unpacked extension `up` loaded
  * @property {string} at
  */
 
@@ -91,70 +93,36 @@ import { describe, matches, merge, processTable, snapshot, stop } from './proctr
 
 const SKILL_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = resolve(SKILL_DIR, '..', '..', '..');
-// Runtime artifacts moved under .commandcode/worktrees/ (per-worktree, copy not symlink). One-time fallback read
-// from the legacy root location preserves existing artifacts (edge E3, prohibition N5).
-const OLD_TMP = join(ROOT, 'tmp', 'control-ai-browsers');
 /** @type {Registry} */
 const REGISTRY = JSON.parse(readFileSync(join(SKILL_DIR, 'instances.json'), 'utf8'));
-const OLD_PROFILES = resolve(ROOT, REGISTRY.profilesRoot);
-const ARTIFACT_ROOT = resolve(ROOT, '.commandcode', 'worktrees');
-const NEW_TMP = join(ARTIFACT_ROOT, 'tmp', 'control-ai-browsers');
-const NEW_PROFILES = resolve(ARTIFACT_ROOT, REGISTRY.profilesRoot);
 
 /**
- * Resolve an artifact directory, migrating (copying, never symlinking) from the legacy location on first use and
- * falling back to reading the legacy location when the new one is empty/missing, so no artifacts are lost.
- * @param {string} newDir
- * @param {string} oldDir
+ * The primary checkout of the repository `dir` belongs to: the folder holding the git common dir. A worktree or a
+ * GSD Path sidecar (elsewhere on disk, even on C:) resolves to the same primary checkout as the main one.
+ * @param {string} dir
  * @returns {string}
  */
-function resolveArtifactDir(newDir, oldDir) {
-  try {
-    if (existsSync(newDir) && readdirSync(newDir).length > 0) {
-      return newDir;
-    }
-  } catch {
-    // fall through to migration / fallback
-  }
+export function primaryCheckout(dir) {
+  const r = spawnSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: dir, encoding: 'utf8', windowsHide: true });
+  const common = r.status === 0 ? r.stdout.trim() : '';
 
-  if (oldDir && existsSync(oldDir)) {
-    try {
-      mkdirSync(dirname(newDir), { recursive: true });
-      if (!existsSync(newDir)) {
-        cpSync(oldDir, newDir, { recursive: true });
-      }
-      if (existsSync(newDir) && readdirSync(newDir).length > 0) {
-        return newDir;
-      }
-    } catch {
-      // fall back to reading the legacy location
-    }
-
-    return oldDir;
-  }
-
-  mkdirSync(newDir, { recursive: true });
-  return newDir;
+  return common ? dirname(resolve(common)) : dir;
 }
 
-/** @param {string} newDir @param {string} oldDir */
-export function artifactDir(newDir, oldDir) {
-  return resolveArtifactDir(newDir, oldDir);
-}
-
-/** @param {string} newDir @param {string} oldDir */
-export function fallbackRead(newDir, oldDir) {
-  return existsSync(newDir) && readdirSync(newDir).length > 0 ? newDir : (oldDir && existsSync(oldDir) ? oldDir : newDir);
-}
-export const TMP = resolveArtifactDir(NEW_TMP, OLD_TMP);
-export const PROFILES = resolveArtifactDir(NEW_PROFILES, OLD_PROFILES);
-export const OLD_ROOT = ROOT;
-// Slot 0 is the main checkout's (the registry ports); a worktree hashes to one of 1 to SLOTS - 1. Profiles are per
-// checkout (profilesRoot is below ROOT), so each checkout runs its own instances on its own ports.
+// Profiles (each holding a multi-GB model) and state files are machine-wide: every checkout of the repository uses
+// the primary checkout's, so a worktree or sidecar reaches the running instances with their models instead of
+// starting empty profiles that would need a fresh download.
+const PRIMARY = primaryCheckout(ROOT);
+const ARTIFACT_ROOT = join(PRIMARY, '.commandcode', 'worktrees');
+export const TMP = join(ARTIFACT_ROOT, 'tmp', 'control-ai-browsers');
+export const PROFILES = resolve(ARTIFACT_ROOT, REGISTRY.profilesRoot);
+// Slot 0 holds the registry ports. Instances are shared by every checkout, so every checkout starts at slot 0; a
+// slot above 0 is only a fallback when a registry port is busy.
+const KEEPER = join(SKILL_DIR, 'scripts', 'pipe-keeper.mjs');
 const SLOTS = 40;
 const SLOT_TRIES = 10;
 const IS_WORKTREE = existsSync(join(ROOT, '.git')) && statSync(join(ROOT, '.git')).isFile();
-const OWN_SLOT = slotOf(ROOT, IS_WORKTREE);
+const OWN_SLOT = 0;
 // bench.js hard-codes the main checkout's counter fixture (control-angular-dev-app owns it).
 /** @type {PortEntry} */
 const BENCH_APP = { name: 'bench app', port: 4222, kind: 'external', reason: 'control-angular-dev-app counter fixture in the main checkout; spikes/probes/bench.js:4 hard-codes it' };
@@ -324,28 +292,12 @@ export function upMismatch(name, pid, d, backend, port) {
 // ---------- registry ----------
 
 /**
- * The checkout's own slot: 0 in a main checkout, else 1 to 39 from a hash of the folder, so it stays the same
- * from run to run.
- * @param {string} dir
- * @param {boolean} worktree
- * @returns {number}
- */
-export function slotOf(dir, worktree) {
-  if (!worktree) {
-    return 0;
-  }
-
-  return 1 + (createHash('sha1').update(path.resolve(dir).toLowerCase()).digest().readUInt32BE(0) % (SLOTS - 1));
-}
-
-/**
- * The slots `up` tries, in order: `first`, then the next ones, 10 in all. From a worktree (`first` above 0) they
- * wrap within 1 to 39 and never reach slot 0.
+ * The slots `up` tries, in order: `first` (0, the registry ports), then the next ones, 10 in all.
  * @param {number} first
  * @returns {number[]}
  */
 export function slotOrder(first) {
-  return Array.from({ length: SLOT_TRIES }, (_, i) => (first === 0 ? i : 1 + ((first - 1 + i) % (SLOTS - 1))));
+  return Array.from({ length: SLOT_TRIES }, (_, i) => first + i);
 }
 
 /**
@@ -531,10 +483,9 @@ export function at(inst, port) {
  * @param {string | undefined} name
  * @param {Pick<Registry, 'instances' | 'browsers'>} [registry]
  * @param {number} [slot]  this checkout's slot
- * @param {boolean} [worktree]
  * @returns {Inst}
  */
-export function instance(name, registry = REGISTRY, slot = OWN_SLOT, worktree = IS_WORKTREE) {
+export function instance(name, registry = REGISTRY, slot = OWN_SLOT) {
   const i = name !== undefined && Object.hasOwn(registry.instances, name) ? registry.instances[name] : undefined;
 
   if (name === undefined || i === undefined) {
@@ -547,7 +498,10 @@ export function instance(name, registry = REGISTRY, slot = OWN_SLOT, worktree = 
   const index = Object.keys(registry.instances).indexOf(name);
   const port = portAt(index, i.port, slot);
 
-  return { name, ...i, ...b, dir, session: sessionOf(name, port), port, cdp: `http://127.0.0.1:${port}`, mainPort: i.port, index, slot, worktree };
+  // The shared instances load the primary checkout's build; `up --extension=<dir>` loads another one (state records it).
+  const extensionDir = i.extension ? resolve(PRIMARY, i.extension) : null;
+
+  return { name, ...i, ...b, dir, session: sessionOf(name, port), port, cdp: `http://127.0.0.1:${port}`, mainPort: i.port, index, slot, extensionDir };
 }
 
 /**
@@ -581,12 +535,28 @@ export function launchArgs(inst, features) {
 }
 
 /**
- * The bare switches `up` adds: the registry's common ones, then the instance's own `args`.
- * @param {Pick<Partial<Inst>, 'args'>} inst
+ * The bare switches `up` adds: the registry's common ones, the instance's own `args`, then those that load its
+ * unpacked extension. Branded Chrome ignores --load-extension ("--load-extension is not allowed in Google Chrome"), so
+ * an instance with an extension starts through pipe-keeper.mjs, which loads it over the pipe; Edge 155 and 157 load
+ * it the same way (measured 2026-10-19), so no extension path is on any command line.
+ * @param {Pick<Partial<Inst>, 'args' | 'extensionDir'>} inst
  * @returns {string[]}
  */
 export function switchesOf(inst) {
-  return [...REGISTRY.commonArgs, ...(inst.args ?? [])];
+  const extension = inst.extensionDir ? ['--remote-debugging-pipe', '--enable-unsafe-extension-debugging'] : [];
+
+  return [...REGISTRY.commonArgs, ...(inst.args ?? []), ...extension];
+}
+
+/**
+ * The id Chromium gives an unpacked extension: the first 16 bytes of SHA-256 over the absolute path (UTF-16LE on
+ * Windows), each nibble a letter a-p (measured: the repository's extension folder loads as
+ * mgkfgkdgobahfcgkdlokpoehblpbkfok in Chrome Beta 157 and Edge 155).
+ * @param {string} dir
+ * @returns {string}
+ */
+export function extensionId(dir) {
+  return [...createHash('sha256').update(Buffer.from(dir, 'utf16le')).digest().subarray(0, 16)].map((b) => String.fromCharCode(97 + (b >> 4), 97 + (b & 15))).join('');
 }
 
 // ---------- processes ----------
@@ -760,7 +730,7 @@ function portOwner(port) {
 
 // Which registry backend a command line matches, or null when it matches none (drift).
 /**
- * @param {Pick<Inst, 'exe' | 'mainPort' | 'worktree' | 'features' | 'backend'> & Pick<Partial<Inst>, 'args'>} inst
+ * @param {Pick<Inst, 'exe' | 'features' | 'backend'> & Pick<Partial<Inst>, 'args' | 'extensionDir'>} inst
  * @param {Pick<ProcRecord, 'commandLine'>} proc
  * @returns {Drift}
  */
@@ -782,9 +752,9 @@ export function drift(inst, proc) {
     problems.push(`exe ${exe}, registry ${inst.exe}`);
   }
 
-  // The port may be any slot's (a fallback, or --port); from a worktree it is never the main checkout's.
-  if (!Number.isInteger(cl.port) || (inst.worktree && cl.port === inst.mainPort)) {
-    problems.push(`port ${cl.port}${inst.worktree ? `, the main checkout's ${inst.mainPort}` : ''}`);
+  // The port may be any slot's (a fallback, or --port).
+  if (!Number.isInteger(cl.port)) {
+    problems.push(`port ${cl.port}`);
   }
 
   if (!backend) {
@@ -1114,7 +1084,7 @@ function writeState(inst, proc, placed, seen = []) {
   // that still run (a down that exited 2 left them), so a later down still stops them.
   const kept = prior === null ? [] : prior.pid === proc.pid && rootOf(prior)?.start === proc.start ? prior.tree ?? [] : (prior.tree ?? []).filter((r) => matches(r, live.get(r.pid)));
   /** @type {State} */
-  const st = { instance: inst.name, pid: proc.pid, tree: merge(merge(snapshot(proc, { table: () => rows }), kept), seen), port: inst.port, slot: placed?.slot ?? slotFor(inst, inst.port), ports: [...(placed?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }]), BENCH_APP], cdp: inst.cdp, session: inst.session, profile: inst.dir, backend: drift(inst, proc).backend, at: new Date().toISOString() };
+  const st = { instance: inst.name, pid: proc.pid, tree: merge(merge(snapshot(proc, { table: () => rows }), kept), seen), port: inst.port, slot: placed?.slot ?? slotFor(inst, inst.port), ports: [...(placed?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }]), BENCH_APP], cdp: inst.cdp, session: inst.session, profile: inst.dir, backend: drift(inst, proc).backend, extensionDir: inst.extensionDir, at: new Date().toISOString() };
   writeFileSync(statePath(inst.name), JSON.stringify(st, null, 2));
 
   return st;
@@ -1167,13 +1137,40 @@ function isAttached(inst) {
   return r.code === 0 && !/is not open|not connected/i.test(r.out);
 }
 
-// Attaches the instance's session when it is not attached; a session this command attached is detached when it ends.
+/**
+ * Replaces the instance's idle about:blank tabs with one new blank tab. An Edge blank tab left idle for some minutes
+ * still answers raw CDP but blocks every playwright-cli run-code, even `async page => 1+1`, and newPage() with it
+ * (measured on edge-dev-aion and edge-phi4mini, 2026-10-19); a new tab clears it. Other pages are left alone.
+ * @param {Inst} inst
+ */
+async function freshBlankTab(inst) {
+  const stale = (await pageTargets(inst)).filter((t) => t.url === 'about:blank');
+
+  if (stale.length === 0) {
+    return;
+  }
+
+  const opened = await fetch(`${inst.cdp}/json/new?about:blank`, { method: 'PUT', signal: AbortSignal.timeout(3000) }).then((r) => r.ok, () => false);
+
+  // Without a new tab, closing the old ones would leave the browser with none.
+  if (!opened) {
+    return;
+  }
+
+  for (const t of stale) {
+    await fetch(`${inst.cdp}/json/close/${t.id}`, { signal: AbortSignal.timeout(3000) }).catch(() => {});
+  }
+}
+
+// Attaches the instance's session when it is not attached, on fresh blank tabs; a session this command attached is
+// detached when it ends.
 /** @param {Inst} inst */
 async function ensureAttached(inst) {
   if (isAttached(inst)) {
     return;
   }
 
+  await freshBlankTab(inst);
   const r = pw(inst, ['attach', `--cdp=${inst.cdp}`]);
 
   if (r.code !== 0 || !isAttached(inst)) {
@@ -1299,6 +1296,21 @@ const ENABLE_DEBUG_PAGES = `async (p) => {
   await b.click({ timeout: 5000 }).catch(async () => { await b.focus(); await p.keyboard.press('Enter'); });
   await p.getByRole('button', { name: /Disable internal debugging pages/i }).waitFor({ timeout: 10000 });
   return 'enabled';
+}`;
+
+// Edge Dev 157 disables an unpacked extension while developer mode is off (disableReasons
+// unsupportedDeveloperExtension) and enables it again once it is on; Edge 155 and Chrome Beta 157 do not (measured
+// 2026-10-19). The setting is kept in the profile.
+const DEVELOPER_MODE = `async (p, { scheme }) => {
+  await p.goto(scheme + '://extensions/');
+  return await p.evaluate(async () => {
+    const dp = globalThis.chrome.developerPrivate;
+    if ((await dp.getProfileConfiguration()).inDeveloperMode) {
+      return 'already on';
+    }
+    await dp.updateProfileConfiguration({ inDeveloperMode: true });
+    return 'turned on';
+  });
 }`;
 
 const VERSION_CMDLINE = `async (p, { scheme }) => {
@@ -1870,6 +1882,16 @@ function pinHint(inst) {
 }
 
 /**
+ * What to do when a pinned instance's LanguageModel is not available. A pin restored into a new profile reads
+ * "downloadable" (asset Not Installed, use case Pending Usage) until one create() requests it; create() then installs
+ * the pinned files from disk with no download (measured on edge-dev-aion, 2026-10-19).
+ * @param {Inst} inst
+ */
+function requestHint(inst) {
+  return readPin(inst) ? `run "model init ${inst.name}" once: create() requests the pinned model from disk; if it stays unavailable, ${pinHint(inst)}` : pinHint(inst);
+}
+
+/**
  * @param {Inst} inst
  * @param {number} [timeoutMs]  how long the playwright-cli client may run; see runCode
  * @returns {Promise<Broker | BrokerDisabled>}
@@ -1994,7 +2016,7 @@ async function cmdInstances() {
   const rows = [];
 
   for (const name of Object.keys(REGISTRY.instances)) {
-    const inst = instance(name);
+    const inst = located(instance(name));
     const proc = mainProcess(inst);
     const d = proc ? drift(inst, proc) : null;
     const port = proc ? parseCommandLine(proc.commandLine).port : inst.port;
@@ -2008,16 +2030,23 @@ async function cmdInstances() {
 }
 
 /**
- * @param {Inst} inst
+ * @param {Inst} registered  the registry instance; `--extension` replaces its extension
  * @returns {Promise<Result>}
  */
-async function cmdUp(inst) {
+async function cmdUp(registered) {
+  const inst = { ...registered, extensionDir: typeof opts['extension'] === 'string' ? extensionFlag(opts['extension']) : registered.extensionDir };
   const backend = typeof opts['backend'] === 'string' ? opts['backend'] : inst.backend.default;
   const features = featuresFor(inst, backend);
   const forced = portFlag(opts['port']);
   const running = mainProcess(inst);
 
   if (running) {
+    const loaded = readState(inst.name)?.extensionDir;
+
+    if (loaded !== undefined && loaded !== inst.extensionDir) {
+      refuse(`${inst.name} runs with the extension from ${loaded}, not ${inst.extensionDir}; run "down ${inst.name}" first`);
+    }
+
     const d = drift(inst, running);
     const mismatch = upMismatch(inst.name, running.pid, d, backend, forced);
 
@@ -2030,10 +2059,6 @@ async function cmdUp(inst) {
     const st = writeState(at(inst, d.commandLine.port), running);
 
     return { ok: true, alreadyRunning: true, session: st.session, evidenceDir, state: st };
-  }
-
-  if (inst.worktree && forced === inst.mainPort) {
-    refuse(`port ${forced} is ${inst.name}'s port in the main checkout; a worktree never uses it`);
   }
 
   const firstUse = !existsSync(inst.dir);
@@ -2061,7 +2086,12 @@ async function cmdUp(inst) {
 
     const run = at(inst, /** @type {PortEntry} */ (plan.ports[0]).port);
     const t0 = Date.now();
-    const child = spawn(run.exe, launchArgs(run, features), { detached: true, stdio: 'ignore' });
+    // One result file per launch, so two runs never read or delete each other's; the keeper writes it at once.
+    const keeperResult = run.extensionDir === null ? null : join(TMP, `extension-${run.name}-${t0}.json`);
+    mkdirSync(TMP, { recursive: true });
+    const child = run.extensionDir === null || keeperResult === null
+      ? spawn(run.exe, launchArgs(run, features), { detached: true, stdio: 'ignore' })
+      : spawn(process.execPath, [KEEPER, keeperResult, run.exe, run.extensionDir, ...launchArgs(run, features)], { detached: true, stdio: 'ignore' });
     const notAfter = Date.now();
     child.unref();
     // The browser process as spawned, inside the spawn's time window; the main process is found by its profile.
@@ -2123,10 +2153,91 @@ async function cmdUp(inst) {
       debugPages = await inTab(run, ENABLE_DEBUG_PAGES, { url: null });
     }
 
-    log('OK', `${run.name} launched as PID ${proc.pid} on ${run.cdp} (${version.Browser}), backend ${backend}, ready in ${readyMs} ms${firstUse ? ', new profile' : ''}${plan.slot === inst.slot ? '' : `, slot ${plan.slot} (${plan.ports[0]?.reason})`}${restored.length ? `; closed ${restored.length} restored tab(s)` : ''}${debugPages ? `; internal debugging pages ${debugPages}` : ''}`);
+    const developerMode = run.extensionDir === null ? null : /** @type {string} */ (await inTab(run, DEVELOPER_MODE, { url: null, args: { scheme: run.scheme } }));
+    const extension = keeperResult === null ? null : await loadedExtension(run, keeperResult);
 
-    return { ok: true, session: st.session, evidenceDir, backend, firstUse, pinRestored, readyMs, browserVersion: version.Browser, closedRestoredTabs: restored.map((t) => t.url), debugPages, state: st, tabs: await pageTabs(run) };
+    log('OK', `${run.name} launched as PID ${proc.pid} on ${run.cdp} (${version.Browser}), backend ${backend}, ready in ${readyMs} ms${extension ? `, extension ${extension.id}` : ''}${firstUse ? ', new profile' : ''}${plan.slot === inst.slot ? '' : `, slot ${plan.slot} (${plan.ports[0]?.reason})`}${restored.length ? `; closed ${restored.length} restored tab(s)` : ''}${debugPages ? `; internal debugging pages ${debugPages}` : ''}${developerMode ? `; developer mode ${developerMode}` : ''}`);
+
+    return { ok: true, session: st.session, evidenceDir, backend, firstUse, pinRestored, readyMs, extension, developerMode, browserVersion: version.Browser, closedRestoredTabs: restored.map((t) => t.url), debugPages, state: st, tabs: await pageTabs(run) };
   }
+}
+
+/**
+ * `--extension=<dir>`: an unpacked extension folder (relative to the current directory) to load instead of the
+ * registry's, such as a worktree's own build.
+ * @param {string} value
+ * @returns {string}
+ */
+function extensionFlag(value) {
+  // Chromium upper-cases the drive letter before it hashes the path into the id (crx_file id_util MaybeNormalizePath).
+  const dir = resolve(value).replace(/^[a-z]:/, (d) => d.toUpperCase());
+
+  return existsSync(join(dir, 'manifest.json')) ? dir : refuse(`--extension: ${dir} holds no manifest.json`);
+}
+
+/**
+ * The instance's unpacked extension after a launch: pipe-keeper.mjs's Extensions.loadUnpacked answer, refused when
+ * it failed. The result file is removed once read.
+ * @param {Inst} run
+ * @param {string} file  the keeper's result file
+ * @returns {Promise<{ dir: string, id: string }>}
+ */
+async function loadedExtension(run, file) {
+  /** @type {{ ok: boolean, id?: string, error?: string } | undefined} */
+  const r = await waitFor(async () => (existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : undefined), 30000, 250);
+
+  rmSync(file, { force: true });
+
+  if (!r?.ok || !r.id) {
+    return refuse(`${run.name} runs, but loading ${run.extensionDir} failed: ${r?.error ?? 'pipe-keeper.mjs wrote no result in 30 s'}; fix the extension, then "down ${run.name}" and "up ${run.name}"`);
+  }
+
+  return { dir: String(run.extensionDir), id: r.id };
+}
+
+/**
+ * Whether the browser serves the unpacked extension `up` loaded (state `extensionDir`, else the primary checkout's):
+ * its manifest.json, opened by the id the folder gets, names the folder's extension and version.
+ * @param {Inst} inst
+ * @param {string} dir
+ * @returns {Promise<[boolean, unknown]>}
+ */
+async function extensionCheck(inst, dir) {
+  const id = extensionId(dir);
+  /** @type {{ name?: string, version?: string }} */
+  const want = JSON.parse(readFileSync(join(dir, 'manifest.json'), 'utf8'));
+  const text = await inTab(inst, 'async (p) => p.evaluate(() => document.body.innerText)', { url: `chrome-extension://${id}/manifest.json`, purpose: 'extension' }).catch((/** @type {unknown} */ e) => `error: ${e instanceof Error ? e.message : String(e)}`);
+  /** @type {{ name?: string, version?: string } | null} */
+  let got = null;
+
+  try {
+    got = JSON.parse(String(text));
+  } catch {
+    got = null;
+  }
+
+  const pass = got?.name === want.name && got?.version === want.version;
+
+  return [pass, pass ? `${want.name} ${want.version} loaded as ${id} from ${dir}` : { id, dir, expected: { name: want.name, version: want.version }, got: got ?? String(text).slice(0, 200), fix: `"down ${inst.name}", then "up ${inst.name} [--extension=<dir>]" loads the extension again and turns on developer mode, without which Edge Dev 157 disables it (net::ERR_BLOCKED_BY_CLIENT)` }];
+}
+
+/**
+ * `panel <name> --url=<app>`: the extension's first feature end to end (scripts/panel.mjs): the N1 panel's "Explain
+ * version with AI" answers through the Prompt API of the instance's model.
+ * @param {Inst} inst
+ * @returns {Promise<Result>}
+ */
+async function cmdPanel(inst) {
+  const url = typeof opts['url'] === 'string' ? opts['url'] : refuse('usage: panel <name> --url=<an Angular app page, e.g. the counter fixture of control-angular-dev-app>');
+
+  if (inst.extensionDir === null) {
+    refuse(`${inst.name} has no "extension" in instances.json`);
+  }
+
+  const r = await drivePanel(inst.cdp, url, { answerTimeoutMs: positiveFlag('timeout-min', opts['timeout-min'], 4) * 60000 });
+  log(r.ok ? 'OK' : 'ERROR', r.ok ? `${inst.name} panel answered in ${r.answerMs} ms (Angular ${r.ngVersion}, extension ${r.extensionId}): ${printable(String(r.answer).slice(0, 160))}` : `${inst.name} panel: ${printable(String(r.error))}`);
+
+  return { ...r, model: inst.model.name };
 }
 
 /**
@@ -2308,6 +2419,10 @@ async function cmdDoctor(inst) {
   const tabs = await pageTabs(inst);
   add('tabs', true, { count: tabs.length, urls: tabs }, tabs.length > 1);
 
+  if (inst.extensionDir !== null) {
+    add('extension', ...(await extensionCheck(inst, inst.extensionDir)));
+  }
+
   const disk = diskModels(inst);
   const hit = disk.find((x) => x.name === inst.model.name);
   add('model.disk', !!hit, hit ? `${hit.name} ${hit.modelVersion} (${hit.mib} MiB) at ${hit.dir}` : { expected: inst.model.name, found: disk.map((x) => x.name) });
@@ -2364,7 +2479,7 @@ async function cmdDoctor(inst) {
   // create() on a model that is not available waits for (and can start) a download; doctor stays read-only.
   if (avail.LanguageModel !== 'available') {
     for (const id of ['model.contextWindow', 'canary.structured', 'canary.tools', 'canary.webmcp']) {
-      add(id, null, `skipped: LanguageModel is ${avail.LanguageModel}; ${switchesOf(inst).includes('--disable-component-update') ? pinHint(inst) : `run "model download ${inst.name}"`}`);
+      add(id, null, `skipped: LanguageModel is ${avail.LanguageModel}; ${switchesOf(inst).includes('--disable-component-update') ? requestHint(inst) : `run "model download ${inst.name}"`}`);
     }
 
     if (brokerLater) {
@@ -2561,7 +2676,7 @@ async function modelDownload(inst) {
   const budget = downloadTimeouts(opts['timeout-min']);
 
   if (switchesOf(inst).includes('--disable-component-update')) {
-    refuse(`${inst.name} runs with --disable-component-update, so Check for update starts no download (measured); its model comes back from the pin: ${pinHint(inst)}`);
+    refuse(`${inst.name} runs with --disable-component-update, so Check for update starts no download (measured); its model comes back from the pin: ${requestHint(inst)}`);
   }
 
   mainProcess(inst) ?? refuse(`${inst.name} is not running`);
@@ -2786,7 +2901,7 @@ async function cmdInfo(inst) {
   const st = readState(inst.name);
   // The recorded tree goes to the top level, where a teardown check reads it, and only there.
   const { tree, ...rest } = st ?? { tree: undefined };
-  const result = { ok: true, instance: inst.name, port: inst.port, slot: st?.slot ?? slotFor(inst, inst.port), ports: st?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }, BENCH_APP], cdp: inst.cdp, session: inst.session, profile: inst.dir, statePath: statePath(inst.name), state: st && rest, ...(tree === undefined ? {} : { tree }), evidenceDir };
+  const result = { ok: true, instance: inst.name, port: inst.port, slot: st?.slot ?? slotFor(inst, inst.port), ports: st?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }, BENCH_APP], cdp: inst.cdp, session: inst.session, profile: inst.dir, extensionDir: inst.extensionDir, statePath: statePath(inst.name), state: st && rest, ...(tree === undefined ? {} : { tree }), evidenceDir };
   log('INFO', JSON.stringify(result));
 
   return result;
@@ -2803,7 +2918,7 @@ function located(inst) {
   const st = readState(inst.name);
 
   if (st) {
-    return at(inst, st.port);
+    return { ...at(inst, st.port), ...(st.extensionDir === undefined ? {} : { extensionDir: st.extensionDir }) };
   }
 
   const proc = mainProcess(inst);
@@ -2821,6 +2936,7 @@ const COMMANDS = {
   flags: (i) => cmdFlags(i),
   model: (i, sub) => cmdModel(i, sub),
   run: (i) => cmdRun(i),
+  panel: (i) => cmdPanel(i),
   down: (i) => cmdDown(i),
   info: (i) => cmdInfo(i),
 };
@@ -2838,7 +2954,7 @@ async function main() {
   const run = cmd !== undefined && Object.hasOwn(COMMANDS, cmd) ? COMMANDS[cmd] : undefined;
 
   if (cmd === undefined || run === undefined) {
-    return refuse('usage: control.mjs <instances|up|attach|detach|doctor|flags|model|run|down|bench|info> ... (see SKILL.md, Helpers)');
+    return refuse('usage: control.mjs <instances|up|attach|detach|doctor|flags|model|run|panel|down|bench|info> ... (see SKILL.md, Helpers)');
   }
 
   const sub = cmd === 'model' ? pos[1] : undefined;

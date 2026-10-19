@@ -1,42 +1,56 @@
-# Running the four-instance `state` verdict
+# Running the `state` and `extension-panel` verdicts
 
-The claim and the check live in `.claude/skills/verify-ai-browsers` (check `checks/state.mjs`); verdicts come
-from `lars-verify`'s `verdict.mjs run` with `runs: 2`. This file records what a run costs and what has gone wrong.
+The claims and checks live in `.commandcode/skills/verify-ai-browsers` (`checks/state.mjs`,
+`checks/extension-panel.mjs`). Verdicts come from `lars-verify`'s `verdict.mjs run` with `runs: 2`. This file records
+what a run costs and what has gone wrong.
 
 ## What a run does and costs
 
-- Setup starts all four instances (`chrome-beta-nano`, `chrome-beta-gemma4`, `edge-dev-aion`, `edge-phi4mini`)
-  through `control-ai-browsers up`. The condition runs `doctor`, `flags` and `model info` per instance and checks
-  that Broker State serves the registry model. Teardown is `down` per instance.
-- A warm run's condition takes about 3 minutes; the whole two-run verdict about 10-20 minutes.
-- Four browsers with on-device models are heavy. One verdict was stopped by Claude Code for low memory (15 GB of
-  32 GB free after cleanup). Start with at least about 10 GB free, and nothing else heavy running.
-- Limits: `state.mjs` gives each `control.mjs` call 600 s (`spawnSync` timeout); the spec gives the condition
-  900 s.
+- Setup starts every registry instance through `control-ai-browsers up`: `chrome-beta-nano`, `chrome-beta-gemma4`,
+  `edge-dev-aion`, `edge-phi4mini` and `chrome-stable-nano`. The instances belong to the primary checkout. A
+  worktree or GSD Path sidecar reaches the same running instances, so its setup finds them running
+  (`alreadyRunning`) and downloads nothing.
+- `state` runs `doctor`, `flags` and `model info` per instance and checks that Broker State serves the registry
+  model. A warm run's condition takes about 3 minutes for four instances; the whole two-run verdict takes 10-20
+  minutes.
+- `extension-panel` also needs the panel built (`npx nx run angular-ai-devtools:build-extension`) before `up`, and an
+  Angular page (control-angular-dev-app `up --target counter`). Per instance it runs `panel` (answers took 3-14 s on
+  2026-10-19) and then the `state` claim.
+- Teardown is `down` per instance the setup started. The instances are shared, so an instance whose `up` reported
+  `alreadyRunning` stays up for the other sessions.
+- Browsers with on-device models are heavy. One verdict was stopped by Claude Code for low memory (15 GB of 32 GB
+  free after cleanup). Start with at least about 10 GB free, and nothing else heavy running.
+- Limits: the checks give each `control.mjs` call 600 s (`spawnSync` timeout). The spec gives `state` 900 s and
+  `extension-panel` 1800 s.
 
 ## Before starting
 
-- Other Claude sessions on this machine may run builds, test suites, Docker or timing benchmarks. Before a
-  verdict, ask each live session (`ListAgents`, then `SendMessage`) whether it has heavy work running or queued,
-  agree an order, announce "starting", and send "done" once `down` has run and nothing is left listening. A
-  timing benchmark needs the machine fully quiet, not just free of heavy jobs.
-- Check that ports 9333-9337 and 9992 are free and `playwright-cli list` is empty.
+- Other agent sessions on this machine (Command Code, OpenCode, Claude Code) may run builds, test suites, Docker
+  or timing benchmarks. Before a verdict, agree an order with each live session, announce "starting", and send
+  "done" once `down` has run and nothing is left listening. A timing benchmark needs the machine fully quiet, not
+  just free of heavy jobs.
+- Check that port 9992 is free. Ports 9333-9338 belong to the shared instances; `control-ai-browsers instances`
+  shows which run.
 
 ## After a run
 
 - `verdict.mjs lint <verdict.json>` must exit 0.
-- Nothing may be left: no listener on 9333-9337 or 9992, no process using a `.browsers/` profile,
-  `playwright-cli list` empty. If `down` exits 2 with a `survived` process, run `down` again; it keeps the state
-  file until the tree is gone.
+- Nothing the run started may be left: no listener on 9992, no instance the setup started still running (with its
+  `pipe-keeper.mjs`), and no playwright-cli session of the run. Instances that were already running stay up. If `down`
+  exits 2 with a `survived` process, run `down` again; it keeps the state file until the tree is gone.
 
 ## Known failures
 
-- 2026-10-17, inconclusive (`20261017T1200Z-state-rerun`): run 2 passed; in run 1 `edge-phi4mini`'s `doctor`
-  hung from 15:32:30 until the 600 s step timeout killed it, so the condition hit 900 s. It wrote no doctor
-  evidence. The next verdict, started about 40 minutes later, passed 2/2 with that doctor at about 40 s. Three
-  cold up / doctor / down cycles later the same day all passed, in 64, 32 and 20 s (evidence
-  `tmp/control-ai-browsers/evidence/phi4mini-hang`). Not reproduced, cause not found; the 600 s step timeout turns
-  a hang into an inconclusive verdict. If it hangs again, capture what the doctor was waiting on before re-running.
+- 2026-10-17, inconclusive (`20261017T1200Z-state-rerun`): in run 1, `edge-phi4mini`'s `doctor` hung until the
+  600 s step timeout killed it, with no doctor evidence written. On 2026-10-19 the same hang was reproduced on
+  `edge-phi4mini` and `edge-dev-aion`. An Edge instance's `about:blank` tab, left idle for some minutes, still
+  answered raw CDP, but every playwright-cli `run-code` on it, even `async page => 1+1`, waited forever. Opening a
+  new blank tab and closing the idle one cleared it at once. Since then every `control.mjs` command swaps idle
+  blank tabs before it attaches (control-ai-browsers Gotchas). That this was the 2026-10-17 cause is inferred from
+  the matching symptom; it was not captured then.
 - 2026-10-17, inconclusive before the Aion pin: `edge-dev-aion` failed when Edge updated its model past its
   manifest mid-run. Fixed by the pin: `references/edge-dev-aion-model.md`.
+- Before 2026-10-19 every checkout had its own profiles, so a sidecar's setup started empty profiles. Chrome Beta
+  then offered no model at all (On-Device AI off by default on a new pre-stable profile), and Edge Dev had no pin.
+  Both are fixed: the instances are shared, and the Chrome instances list `OnDeviceAiDefaultEnabled`.
 - An inconclusive verdict is never a pass. Re-run; do not raise the timeouts to make a hang pass.

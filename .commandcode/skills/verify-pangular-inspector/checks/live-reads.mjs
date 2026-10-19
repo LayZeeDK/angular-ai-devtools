@@ -18,7 +18,7 @@ import { parseArgs } from 'node:util';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..', '..', '..');
-const CONTROL = join(ROOT, '.claude', 'skills', 'control-pangular-inspector', 'scripts', 'control.mjs');
+const CONTROL = join(ROOT, '.commandcode', 'skills', 'control-pangular-inspector', 'scripts', 'control.mjs');
 const DRIVE =
   "async page => { await page.getByRole('navigation').getByRole('listitem').filter({ hasText: 'CONTRACT' }).getByText('List').click(); await page.waitForURL('**/contract/list'); await page.locator('table tbody tr').first().waitFor(); return page.url(); }";
 const SELECTOR = '{"selector":"ng-journal-list"}';

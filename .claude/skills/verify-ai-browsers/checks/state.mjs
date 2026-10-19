@@ -1,12 +1,12 @@
 // @ts-check
-// Claim: each named per-model browser instance (all four in instances.json when none is named) is healthy and
+// Claim: each named per-model browser instance (every instance in instances.json when none is named) is healthy and
 // serves its registry model: control-ai-browsers `doctor` exits 0, `flags` exits 0 (the effective features match
 // the registry), `model info` finds the registry model's manifest on disk, and on-device-internals Broker State
 // serves that model.
 // Covers: control-ai-browsers features/health-check.md `health-doctor`, features/instances.md `instances-features`,
 // and features/model-lifecycle.md `model-info`.
 // Needs: every named instance running (control-ai-browsers up <instance>).
-// Usage: node .claude/skills/verify-ai-browsers/checks/state.mjs --evidence <dir> [<instance>...]
+// Usage: node .commandcode/skills/verify-ai-browsers/checks/state.mjs --evidence <dir> [<instance>...]
 // Writes: <dir>/state.json, plus each control step's own evidence JSON in <dir>.
 // Exit 0 pass; 1 with `Error: CLAIM: ...` when the claim fails; 2 when it could not run.
 import { spawnSync } from 'node:child_process';
@@ -18,7 +18,7 @@ import { printable } from '../../control-ai-browsers/scripts/fingerprint.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..', '..', '..');
-const CONTROL_DIR = join(ROOT, '.claude', 'skills', 'control-ai-browsers');
+const CONTROL_DIR = join(ROOT, '.commandcode', 'skills', 'control-ai-browsers');
 
 /** @typedef {{ code: number | null, json: Record<string, unknown> | null, text: string }} StepResult */
 /** @typedef {{ model: { name: string, contextWindow: number } }} RegistryInstance */

@@ -15,15 +15,16 @@ Each on-device model has its own browser instance: a separate browser process wi
 ## How to get to it (user POV)
 
 - The browser's own command line, visible on `chrome://version` / `edge://version` under the command line row.
-- The profile folders in `.browsers\` at the root of the checkout that holds the skill (git-ignored); a
-  worktree gets its own, empty until its first `up`.
+- The profile folders in `.commandcode\worktrees\.browsers\` of the primary checkout (git-ignored). Every
+  checkout of the repository, a worktree or a GSD Path sidecar included, uses these profiles and the instances
+  running on them, so a model downloaded once serves every checkout.
 - `http://127.0.0.1:<port>/json/version` and `/json/list` for the CDP endpoint and its tabs.
 
 ## Driving it with control-ai-browsers
 
 Preconditions: the README baseline, except that `up` also works on a stopped instance.
 
-- **List.** Run `C instances`. Four lines, each `[OK]` with PID, `backend gpu` and `1 tab(s)`; a stopped instance
+- **List.** Run `C instances`. One line per instance (five), each `[OK]` with PID, `backend gpu` and `1 tab(s)`; a stopped instance
   reads `stopped`.
 - **Effective features.** Run `C flags edge-dev-aion`. `[OK]` with the nine Aion features; exit 1 names any
   feature missing or not in the registry.

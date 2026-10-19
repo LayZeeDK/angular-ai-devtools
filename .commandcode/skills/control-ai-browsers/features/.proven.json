@@ -1,48 +1,78 @@
 {
   "version": 1,
   "features": {
+    "extension-panel": {
+      "provenAt": "2026-10-19T09:47:41.274Z",
+      "commit": "8831717c5245ede3134ef21e760ee5152f91fcc1",
+      "method": "typescript",
+      "entries": [
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+        ".commandcode/skills/control-ai-browsers/scripts/panel.mjs",
+        ".commandcode/skills/control-ai-browsers/scripts/pipe-keeper.mjs",
+        ".commandcode/skills/control-ai-browsers/instances.json",
+        "apps/angular-ai-devtools/src/app/n1-update-cause.component.ts",
+        "apps/angular-ai-devtools/src/app/extension-prompt.service.ts"
+      ],
+      "files": {
+        ".commandcode/skills/control-ai-browsers/instances.json": "30aaee3080ecd28904c40eb4e602210e6ac0b543",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "d423b78f5fb7292936a8ec1fd0eb639ead48d51c",
+        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "80468877039a73b215c9bab3be933392ac48c3ab",
+        ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "cbe6f6a4ecdbfc60a05b091cec0357b8824b4904",
+        ".commandcode/skills/control-ai-browsers/scripts/pipe-keeper.mjs": "b752f0b5d186ce3e632b43cd79af33f78f48c728",
+        ".commandcode/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd",
+        "apps/angular-ai-devtools/src/app/extension-message.service.ts": "b1a9573a74d277f47b8813470f2fb16335deb39e",
+        "apps/angular-ai-devtools/src/app/extension-prompt.service.ts": "3ff66671e5abe1c46f911246117cebfb1fd86803",
+        "apps/angular-ai-devtools/src/app/n1-update-cause.component.ts": "4a382d7a2078cd81dc407b304bcbcb05bf1cb20f",
+        "apps/angular-ai-devtools/src/app/n1-update-cause.service.ts": "bdd882c25a9e576d5d6be224da7c501955a6f141",
+        "apps/angular-ai-devtools/tsconfig.json": "c1c0963fd71f8bf5517bb62515f3c9c97cb3f8e0",
+        "tsconfig.json": "b6e86cb441f1aae627055d0cb22cd57cac0eb888"
+      }
+    },
     "health-check": {
-      "provenAt": "2026-10-17T03:25:51.905Z",
-      "commit": "3bafa742fb40bfc4880b55544f144ba9dfacb704",
+      "provenAt": "2026-10-19T09:47:40.066Z",
+      "commit": "8831717c5245ede3134ef21e760ee5152f91fcc1",
       "method": "typescript",
       "entries": [
         ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
         ".commandcode/skills/control-ai-browsers/instances.json"
       ],
       "files": {
-        ".commandcode/skills/control-ai-browsers/instances.json": "e01850969d30f47aed85da9a86d48a6f7e06be10",
-        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "2bd3e7d1d94e3499d53225c0b882a502fdce7973",
-        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0",
+        ".commandcode/skills/control-ai-browsers/instances.json": "30aaee3080ecd28904c40eb4e602210e6ac0b543",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "d423b78f5fb7292936a8ec1fd0eb639ead48d51c",
+        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "80468877039a73b215c9bab3be933392ac48c3ab",
+        ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "cbe6f6a4ecdbfc60a05b091cec0357b8824b4904",
         ".commandcode/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
       }
     },
     "instances": {
-      "provenAt": "2026-10-17T03:25:52.219Z",
-      "commit": "3bafa742fb40bfc4880b55544f144ba9dfacb704",
+      "provenAt": "2026-10-19T09:47:40.474Z",
+      "commit": "8831717c5245ede3134ef21e760ee5152f91fcc1",
       "method": "typescript",
       "entries": [
         ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
         ".commandcode/skills/control-ai-browsers/instances.json"
       ],
       "files": {
-        ".commandcode/skills/control-ai-browsers/instances.json": "e01850969d30f47aed85da9a86d48a6f7e06be10",
-        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "2bd3e7d1d94e3499d53225c0b882a502fdce7973",
-        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0",
+        ".commandcode/skills/control-ai-browsers/instances.json": "30aaee3080ecd28904c40eb4e602210e6ac0b543",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "d423b78f5fb7292936a8ec1fd0eb639ead48d51c",
+        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "80468877039a73b215c9bab3be933392ac48c3ab",
+        ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "cbe6f6a4ecdbfc60a05b091cec0357b8824b4904",
         ".commandcode/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
       }
     },
     "model-lifecycle": {
-      "provenAt": "2026-10-17T03:25:52.542Z",
-      "commit": "3bafa742fb40bfc4880b55544f144ba9dfacb704",
+      "provenAt": "2026-10-19T09:47:40.870Z",
+      "commit": "8831717c5245ede3134ef21e760ee5152f91fcc1",
       "method": "typescript",
       "entries": [
         ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
         ".commandcode/skills/control-ai-browsers/instances.json"
       ],
       "files": {
-        ".commandcode/skills/control-ai-browsers/instances.json": "e01850969d30f47aed85da9a86d48a6f7e06be10",
-        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "2bd3e7d1d94e3499d53225c0b882a502fdce7973",
-        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0",
+        ".commandcode/skills/control-ai-browsers/instances.json": "30aaee3080ecd28904c40eb4e602210e6ac0b543",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "d423b78f5fb7292936a8ec1fd0eb639ead48d51c",
+        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "80468877039a73b215c9bab3be933392ac48c3ab",
+        ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "cbe6f6a4ecdbfc60a05b091cec0357b8824b4904",
         ".commandcode/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
       }
     },

@@ -1,14 +1,17 @@
 # Built-in AI browser instances: control map
 
 The maintained source for driving the on-device AI in the per-model instances. Read this index, then the
-matching feature file. `C` below stands for `node .claude/skills/control-ai-browsers/scripts/control.mjs`.
+matching feature file. `C` below stands for `node .commandcode/skills/control-ai-browsers/scripts/control.mjs`.
 
 ## Baseline preconditions
 
 - Chrome Beta 157 (156 until it updated itself on 2026-10-16), Edge Dev 157 and Edge stable 155 are installed at the paths in `instances.json`.
-- The four instances run, started by `C up <name>` (or `C instances` shows them with no drift): Nano on
-  9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337 in the main checkout (a worktree derives its own
-  ports; `info <name>` prints them), each at its default backend.
+- The five instances run, started by `C up <name>` (or `C instances` shows them with no drift): Nano on
+  9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337, Nano in Chrome stable on 9338. The instances, their profiles (with the models) and
+  their state files belong to the primary checkout (`.commandcode/worktrees/` there). A worktree or a GSD Path
+  sidecar reaches the same running instances on the same ports; it never starts empty profiles of its own.
+- The panel is built (`npx nx run angular-ai-devtools:build-extension`) before `up`, because every instance loads
+  `extension/` when it starts.
 - `C doctor <name>` exits 0 for the instance a recipe uses.
 - Nobody else drives the same instance during the run. Its session is `ai-<instance>-<port>`; read it from
   `C info <instance> --json` (`session`).
@@ -51,6 +54,7 @@ to get to it (user POV)`, `Driving it with control-ai-browsers`, `Gotchas`.
 - [Health check](./health-check.md): doctor, availability, canaries, WebMCP.
 - [Model lifecycle](./model-lifecycle.md): info, download, init, clear.
 - [Probes and benchmarks](./probes.md): run a probe script, the model benchmark.
+- [Extension panel](./extension-panel.md): the unpacked extension each instance loads, and its N1 panel feature driven end to end.
 
 ## Full sweep
 
@@ -60,9 +64,11 @@ A full pass drives the features in this order.
 2. [Health check](./health-check.md)
 3. [Model lifecycle](./model-lifecycle.md)
 4. [Probes and benchmarks](./probes.md)
+5. [Extension panel](./extension-panel.md)
 
 ## Manual only
 
 - The `on-device-internals` Event Logs and Tools tabs (not read by the script).
-- Extension contexts (DevTools panels, side panels, service workers).
+- Extension contexts other than the Angular AI panel that `panel` drives (side panels, popups, service worker
+  internals).
 - Lars's own Chrome Beta, Edge Dev and everyday Edge profiles: the skills never touch them.
