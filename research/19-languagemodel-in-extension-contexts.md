@@ -42,6 +42,10 @@ bridge still carries Angular detection. It no longer carries prompts, so the pag
 forge the answer. A Worker started by the panel is the place for long prompts that should not block the panel UI
 (tutor design 4.4). The service worker suits work that must outlive the panel.
 
+Without feature flags (research/20): the panel and a worker it starts keep the Prompt API in all four browsers; the
+service worker loses it on Edge and cannot start workers. `LanguageDetector` and `Translator` crash the renderer when
+called in a worker.
+
 ## Not checked
 
 - The side panel and offscreen document in these five pairs (S1 measured them in Chrome Beta 156 and Edge Dev 157).

@@ -226,3 +226,28 @@ Status: draft, not filed. Found 2026-10-12 (`research/14`, sections 1.18 and 6).
 **Expected:** the README lists both tools and the `--no-webmcp` flag.
 
 **Evidence:** research/14 section 1.18 (`webmcp.ts` strings). Re-check the README at its current head before filing.
+
+## 11. Chromium (Blink>AI): `LanguageDetector.availability()` or `Translator.availability()` in a dedicated worker crashes the renderer
+
+Status: draft, not filed. Found 2026-10-19 in the no-flags worker spike (`research/20-built-in-ai-without-flags.md`, Workers; raw results in `research/raw/20-built-in-ai-without-flags.json`, `workers`).
+
+**Versions:** Chrome 156.0.8078.35 and Chrome Beta 157.0.8103.6 (Gemini Nano, Gemma 4), Edge 155.0.4283.62 and Edge Dev 157.0.4329.0, Windows 11 arm64. MV3 extension, unpacked.
+
+**What happens:** a dedicated worker started from an extension page (the DevTools panel, or a `chrome-extension://` tab) calls `LanguageDetector.availability()` or `Translator.availability({ sourceLanguage: 'en', targetLanguage: 'da' })`. The promise never settles, the extension renderer crashes (the panel shows the sad-face frame, and the profile's `Crashpad/reports` gains one report per call), and every frame and worker of that renderer stops answering CDP. Measured in all five browser-model pairs without feature flags, and with the AI flags on in Chrome Beta and Edge 155. In the same worker, `availability()` of `LanguageModel`, `Summarizer`, `Writer`, `Rewriter` and `Proofreader` answers in under 20 ms, and the same two calls in the page or the panel window answer normally.
+
+**Reproduction** (extension page script; `w.js` is in the extension):
+
+```js
+// w.js
+onmessage = async () => postMessage(await LanguageDetector.availability());
+// extension page
+const w = new Worker('/w.js');
+w.onmessage = (e) => console.log(e.data);
+w.postMessage('go'); // no reply; the renderer crashes
+```
+
+The minimal snippet restates the spike's worker file without the other probes; it was not run in this exact form (inferred).
+
+**Expected:** a value from `availability()`, or `undefined` globals when the APIs are not exposed in workers. A crash in any case is a bug.
+
+**Not checked:** a worker started by a web page (not an extension), and the crash stacks: the Crashpad reports are minidumps in the instance profiles and were not symbolized. Check the tracker for an existing report before filing.
