@@ -55,6 +55,7 @@ import {
   servingBackend,
   slotFor,
   slotOrder,
+  accountState,
   extensionId,
   stopRun,
   tabSource,
@@ -720,4 +721,27 @@ test('primaryCheckout resolves a worktree to the checkout that holds the git com
     delete process.env['GIT_DIR'];
   });
   assert.equal(realpathSync.native(primaryCheckout(wt)), realpathSync.native(main), 'an inherited GIT_DIR is ignored');
+});
+
+test('accountState reads a signed-in account or a completed sync setup from Preferences', () => {
+  assert.deepEqual(accountState(''), { accounts: 0, syncSetup: false });
+  assert.deepEqual(accountState('{not json'), { accounts: 0, syncSetup: false });
+  assert.deepEqual(accountState(JSON.stringify({ account_info: [], sync: {} })), { accounts: 0, syncSetup: false });
+  assert.deepEqual(accountState(JSON.stringify({ account_info: [{ account_id: 'x' }], sync: { has_setup_completed: true } })), { accounts: 1, syncSetup: true });
+  assert.deepEqual(accountState(JSON.stringify({ sync: { has_setup_completed: true } })), { accounts: 0, syncSetup: true });
+});
+
+test('every Edge browser in the registry launches with sign-in and sync off', () => {
+  /** @type {{ browsers: Record<string, { scheme: string, browserArgs?: string[] }> }} */
+  const registry = JSON.parse(readFileSync(new URL('../instances.json', import.meta.url), 'utf8'));
+
+  for (const [name, b] of Object.entries(registry.browsers).filter(([, x]) => x.scheme === 'edge')) {
+    const args = b.browserArgs ?? [];
+    assert.ok(args.includes('--disable-sync'), `${name} lacks --disable-sync`);
+    const features = (args.find((a) => a.startsWith('--disable-features=')) ?? '').slice('--disable-features='.length).split(',');
+
+    for (const f of ['msImplicitSignin', 'msProfileSignIn', 'msForceBrowserSignIn', 'msEdgeOSAccountInfoSubstrate']) {
+      assert.ok(features.includes(f), `${name} does not disable ${f}`);
+    }
+  }
 });

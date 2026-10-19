@@ -14,6 +14,8 @@ a JSON Schema constraint, completes a tool round trip, and `document.modelContex
 - `health-structured` proves `responseConstraint` output parses.
 - `health-tools` proves a tool call and its answer.
 - `health-webmcp` proves `document.modelContext` is an object.
+- `health-account` proves the profile holds no signed-in account and no sync setup (Edge signs the Windows work account
+  in when started without the browser's sign-in switches).
 - `health-extension` proves the instance serves the unpacked extension the state file records (`extensionDir`) (see [Extension panel](./extension-panel.md)).
 
 ## How to get to it (user POV)

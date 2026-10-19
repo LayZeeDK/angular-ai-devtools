@@ -27,6 +27,12 @@
     },
     "edge-dev": {
       "exe": "C:\\Program Files (x86)\\Microsoft\\Edge Dev\\Application\\msedge.exe",
+      "browserArgs": [
+        "--disable-sync",
+        "--disable-features=msImplicitSignin,msImplicitSignInNetworkRetry,msProfileSignIn,msForceBrowserSignIn,msOneAuthWAM,msLoadOneAuthInBackground,msSeamlessWebToBrowserSignIn,msEnableWebToBrowserSignIn,msEnableAADWebToBrowserSignIn,msEnableProfileAADAccountSSO,msQuickAuthToBrowserSignIn,msEdgeOSAccountInfoSubstrate,msPrimaryOSAccountInfoCache,msEdgeOSAccountInfoManagerCache,msEdgeSignInAccountPicker,msWAMSovereigntySignIn,msWAMAdminModeSignIn",
+        "--auth-schemes=basic,digest",
+        "--password-store=basic"
+      ],
       "scheme": "edge",
       "product": "^Edg/",
       "modelRoots": [
@@ -40,6 +46,12 @@
     },
     "edge-stable": {
       "exe": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+      "browserArgs": [
+        "--disable-sync",
+        "--disable-features=msImplicitSignin,msImplicitSignInNetworkRetry,msProfileSignIn,msForceBrowserSignIn,msOneAuthWAM,msLoadOneAuthInBackground,msSeamlessWebToBrowserSignIn,msEnableWebToBrowserSignIn,msEnableAADWebToBrowserSignIn,msEnableProfileAADAccountSSO,msQuickAuthToBrowserSignIn,msEdgeOSAccountInfoSubstrate,msPrimaryOSAccountInfoCache,msEdgeOSAccountInfoManagerCache,msEdgeSignInAccountPicker,msWAMSovereigntySignIn,msWAMAdminModeSignIn",
+        "--auth-schemes=basic,digest",
+        "--password-store=basic"
+      ],
       "scheme": "edge",
       "product": "^Edg/",
       "modelRoots": [
@@ -134,11 +146,7 @@
         "msEdgeLLMOnDeviceModelPrerelease"
       ],
       "args": [
-        "--disable-component-update",
-        "--disable-sync",
-        "--disable-features=msImplicitSignin,msProfileSignIn,msForceBrowserSignIn,msOneAuthWAM,msEdgeOSAccountInfoSubstrate,msPrimaryOSAccountInfoCache,msEdgeOSAccountInfoManagerCache,msLoadOneAuthInBackground",
-        "--auth-schemes=basic,digest",
-        "--password-store=basic"
+        "--disable-component-update"
       ],
       "pin": [
         "EdgeLLMOnDeviceModel",
@@ -164,12 +172,6 @@
       "browser": "edge-stable",
       "port": 9337,
       "extension": "extension",
-      "args": [
-        "--disable-sync",
-        "--disable-features=msImplicitSignin,msProfileSignIn,msForceBrowserSignIn,msOneAuthWAM,msEdgeOSAccountInfoSubstrate,msPrimaryOSAccountInfoCache,msEdgeOSAccountInfoManagerCache,msLoadOneAuthInBackground",
-        "--auth-schemes=basic,digest",
-        "--password-store=basic"
-      ],
       "features": [
         "AIPromptAPI",
         "AIPromptAPIStructuredOutput",

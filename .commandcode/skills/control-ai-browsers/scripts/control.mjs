@@ -11,7 +11,7 @@ import { mapFresh, printable } from './fingerprint.mjs';
 import { drivePanel } from './panel.mjs';
 import { describe, matches, merge, processTable, snapshot, stop } from './proctree.mjs';
 
-/** @typedef {{ exe: string, scheme: string, product: string, modelRoots: string[], minFreeMib: number, modelComponents?: string[] }} BrowserDef */
+/** @typedef {{ exe: string, scheme: string, product: string, modelRoots: string[], minFreeMib: number, modelComponents?: string[], browserArgs?: string[] }} BrowserDef */
 /** @typedef {{ name: string, folders: string, asset: string, useCase: string, contextWindow: number, toolCanary: boolean | 'report', downloadMib: number }} ModelDef */
 /** @typedef {{ default: string, gpu: string[] | null, cpu: string[] | null }} BackendDef */
 /** @typedef {{ browser: string, port: number, features: string[], args?: string[], pin?: string[], extension?: string, backend: BackendDef, model: ModelDef }} InstanceDef */
@@ -537,17 +537,48 @@ export function launchArgs(inst, features) {
 }
 
 /**
- * The bare switches `up` adds: the registry's common ones, the instance's own `args`, then those that load its
+ * The bare switches `up` adds: the registry's common ones, the browser's `browserArgs` (on Edge: sign-in and sync
+ * off, so the Windows work account is never signed in), the instance's own `args`, then those that load its
  * unpacked extension. Branded Chrome ignores --load-extension ("--load-extension is not allowed in Google Chrome"), so
  * an instance with an extension starts through pipe-keeper.mjs, which loads it over the pipe; Edge 155 and 157 load
  * it the same way (measured 2026-10-19), so no extension path is on any command line.
- * @param {Pick<Partial<Inst>, 'args' | 'extensionDir'>} inst
+ * @param {Pick<Partial<Inst>, 'args' | 'browserArgs' | 'extensionDir'>} inst
  * @returns {string[]}
  */
 export function switchesOf(inst) {
   const extension = inst.extensionDir ? ['--remote-debugging-pipe', '--enable-unsafe-extension-debugging'] : [];
 
-  return [...REGISTRY.commonArgs, ...(inst.args ?? []), ...extension];
+  return [...REGISTRY.commonArgs, ...(inst.browserArgs ?? []), ...(inst.args ?? []), ...extension];
+}
+
+/**
+ * Whether a profile's Default/Preferences records a signed-in account or a completed sync setup. Edge signs the
+ * Windows work account in by itself when started without the browser's sign-in switches (measured 2026-10-19), and
+ * an instance profile must never hold it.
+ * @param {string} prefsText  the Preferences file, or '' when there is none
+ * @returns {{ accounts: number, syncSetup: boolean }}
+ */
+export function accountState(prefsText) {
+  /** @type {{ account_info?: unknown, sync?: { has_setup_completed?: unknown } }} */
+  let p = {};
+
+  try {
+    p = prefsText ? JSON.parse(prefsText) : {};
+  } catch {
+    p = {};
+  }
+
+  return { accounts: Array.isArray(p.account_info) ? p.account_info.length : 0, syncSetup: p.sync?.has_setup_completed === true };
+}
+
+/**
+ * @param {Pick<Inst, 'dir'>} inst
+ * @returns {{ accounts: number, syncSetup: boolean }}
+ */
+function profileAccount(inst) {
+  const f = join(inst.dir, 'Default', 'Preferences');
+
+  return accountState(existsSync(f) ? readFileSync(f, 'utf8') : '');
 }
 
 /**
@@ -732,7 +763,7 @@ function portOwner(port) {
 
 // Which registry backend a command line matches, or null when it matches none (drift).
 /**
- * @param {Pick<Inst, 'exe' | 'features' | 'backend'> & Pick<Partial<Inst>, 'args' | 'extensionDir'>} inst
+ * @param {Pick<Inst, 'exe' | 'features' | 'backend'> & Pick<Partial<Inst>, 'args' | 'browserArgs' | 'extensionDir'>} inst
  * @param {Pick<ProcRecord, 'commandLine'>} proc
  * @returns {Drift}
  */
@@ -2064,6 +2095,11 @@ async function cmdUp(registered) {
   }
 
   const firstUse = !existsSync(inst.dir);
+  const account = profileAccount(inst);
+
+  if (account.accounts > 0 || account.syncSetup) {
+    refuse(`${inst.name}'s profile holds a signed-in account (${account.accounts} account entr${account.accounts === 1 ? 'y' : 'ies'}, sync set up: ${account.syncSetup}); an instance profile must never hold one. Delete ${inst.dir} (stopped) and "up" again; the model comes back by "model download", or from the pin`);
+  }
   mkdirSync(inst.dir, { recursive: true });
 
   const linked = reparseRefusal(inst.dir, realpathSync.native(inst.dir));
@@ -2444,6 +2480,9 @@ async function cmdDoctor(inst) {
 
   const tabs = await pageTabs(inst);
   add('tabs', true, { count: tabs.length, urls: tabs }, tabs.length > 1);
+
+  const account = profileAccount(inst);
+  add('account', account.accounts === 0 && !account.syncSetup, account.accounts === 0 && !account.syncSetup ? 'no signed-in account, sync not set up' : { ...account, fix: `down, delete ${inst.dir}, then up: an instance profile must never hold an account` });
 
   if (inst.extensionDir !== null) {
     add('extension', ...(await extensionCheck(inst, inst.extensionDir)));

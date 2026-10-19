@@ -25,6 +25,9 @@ sidecars, including worktree and branch).
 - Drive the browsers only through the `control-ai-browsers` skill; each instance runs in its own profile under the
   primary checkout's `.commandcode/worktrees/.browsers/` (git-ignored). Never start, stop or touch a browser profile
   outside it.
+- Launch an instance profile only through `control-ai-browsers up`, never by hand: Edge then signs Lars's Windows
+  work account in and syncs it. The Edge sign-in switches are browser-level in `instances.json`; `up` and doctor
+  refuse a profile that holds an account.
 - The instances and their models are shared by every checkout: a worktree or GSD Path sidecar runs `up`, gets
   `alreadyRunning`, and must not wait for or start a model download. A model missing from a shared profile is a
   bug to fix in the skill, not an environment blocker (`.commandcode/skills/control-ai-browsers/SKILL.md`, Gotchas).

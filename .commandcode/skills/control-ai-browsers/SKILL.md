@@ -166,6 +166,7 @@ Read-only; one line per check:
 | `canary.structured` | a `responseConstraint` prompt returns parseable JSON |
 | `canary.tools` | a tool round trip calls `get_component_count` and the answer names 42, in up to three fresh sessions (skipped for Nano; reported but not required for Phi-4-mini, registry `toolCanary: "report"`) |
 | `canary.webmcp` | `typeof document.modelContext === 'object'` |
+| `account` | the profile's `Default/Preferences` records no signed-in account (`account_info`) and no completed sync setup |
 | `extension` | (instances with `extension`) `chrome-extension://<id>/manifest.json`, the id derived from the loaded folder's path (state `extensionDir`, else the primary checkout's `extension/`), names the same extension and version as that folder's `manifest.json`; the `fix` says how to reload it |
 
 When availability is not `available`, the four page checks report skipped and doctor exits 1: `create()` on a
@@ -297,6 +298,14 @@ Every other script has a `node:test` file beside it (`*.test.mjs`); `npm test` a
 
 Measured 2026-10-11/12 unless marked inferred.
 
+- Edge signs Lars's Windows work account in by itself and turns sync on when an instance profile starts without
+  the sign-in switches (measured 2026-10-19: a spike that launched both Edge profiles by hand left each with an
+  account and synced store extensions; Lars saw a sync prompt). The switches are the Edge browsers' `browserArgs` in
+  `instances.json` (`--disable-sync`, `--disable-features=msImplicitSignin,...`, `--auth-schemes=basic,digest`,
+  `--password-store=basic`), so every Edge instance gets them. Launch an instance profile only through `up`, never
+  by hand. `up` refuses a profile that holds an account or a completed sync setup, and doctor's `account` check
+  fails on one; the fix is to delete the stopped profile and `up` again. Edge policies under `HKCU` would also stop
+  it, but they would change Lars's everyday Edge too, so they are not used.
 - Keep the instance profiles free of real accounts. The CDP port listens on 127.0.0.1 only, but any local process
   of any user (and, inferred, a Docker container through `host.docker.internal`) can open it and drive the browser
   fully, extension pages included (`--enable-unsafe-extension-debugging`). Web pages cannot reach it.
