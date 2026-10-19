@@ -86,8 +86,8 @@
       }
     },
     "probes": {
-      "provenAt": "2026-10-17T18:51:39.643Z",
-      "commit": "82b21635bc256312e60b2024e934b8c4bb056afb",
+      "provenAt": "2026-10-19T12:19:03.830Z",
+      "commit": "2ace8db4dda3f9e27724c0d3021cb36450a7fa85",
       "method": "typescript",
       "entries": [
         ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
@@ -98,9 +98,10 @@
         "spikes/probes/bench-summary.mjs"
       ],
       "files": {
-        ".commandcode/skills/control-ai-browsers/instances.json": "e01850969d30f47aed85da9a86d48a6f7e06be10",
-        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "2bd3e7d1d94e3499d53225c0b882a502fdce7973",
-        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0",
+        ".commandcode/skills/control-ai-browsers/instances.json": "30aaee3080ecd28904c40eb4e602210e6ac0b543",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "3891368b0fc9af814158cb95561faaec8e3b5d25",
+        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "b0972d3a0c47705f2bf772694776c51ce0e4ef0d",
+        ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "a88f92d7d0242ada9445ae585df6087a478a96b9",
         ".commandcode/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd",
         "spikes/probes/bench-summary.mjs": "e34f8900ee81c722eee1cf302696b0c0dbdfb5d8",
         "spikes/probes/bench.js": "35aed569395f3eecd2ebcef7cdf05f8a109efb7c",
