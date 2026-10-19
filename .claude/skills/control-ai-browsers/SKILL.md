@@ -85,7 +85,8 @@ Starts, through `scripts/pipe-keeper.mjs` (see The extension below), `<exe> --us
 --no-default-browser-check
 [<instance args>] --enable-features=<registry features + backend extras> about:blank`, creating the profile folder
 on first use. `edge-dev-aion` adds `--disable-component-update`, so Edge cannot update its model past its manifest
-(Gotchas). Before it starts an instance with `pin` roots, `up` compares them with the pin (`model pin`) by version
+(Gotchas). `--no-ai-features` drops the whole `--enable-features` switch, to measure what a user without flags gets
+(research/20); the Edge sign-in switches stay, and `instances` reports the missing features as drift. Before it starts an instance with `pin` roots, `up` compares them with the pin (`model pin`) by version
 folder and by contents (each file and its size, as `pin.json` records them). When they differ it checks everything
 first (no reparse point at the profile, a component root, a target or the pin folder; the pinned copy matches
 `pin.json` and holds no link), copies each pinned folder to `<version>.pinning`, checks the copy, renames it into
@@ -256,7 +257,7 @@ playwright-cli runs as node with `node_modules/@playwright/cli/playwright-cli.js
 | Command | Does | Exit |
 |---|---|---|
 | `instances` | registry plus live state: PID, backend, drift, tabs, state file | 0 |
-| `up <name> [--backend=gpu\|cpu] [--extension=<dir>]` | restore the pin when the disk differs, start (profile created on first use; every instance with `extension` through `pipe-keeper.mjs`), wait for `/json/version`, one blank tab, write state, report the loaded extension; `--json` has `session`, `evidenceDir` and `extension` | 0 / 2 |
+| `up <name> [--backend=gpu\|cpu] [--extension=<dir>] [--no-ai-features]` | restore the pin when the disk differs, start (profile created on first use; every instance with `extension` through `pipe-keeper.mjs`), wait for `/json/version`, one blank tab, write state, report the loaded extension; `--json` has `session`, `evidenceDir` and `extension` | 0 / 2 |
 | `attach <name>` | write state, attach the instance's session (`ai-<name>-<port>`) and leave it attached | 0 / 2 |
 | `detach <name>` | detach that session | 0 |
 | `doctor <name>` | the checks above | 0 / 1 / 2 |

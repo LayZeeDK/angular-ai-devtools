@@ -533,7 +533,7 @@ export function featuresFor(inst, backend) {
  * @returns {string[]}
  */
 export function launchArgs(inst, features) {
-  return [`--user-data-dir=${inst.dir}`, `--remote-debugging-port=${inst.port}`, ...switchesOf(inst), `--enable-features=${features.join(',')}`, 'about:blank'];
+  return [`--user-data-dir=${inst.dir}`, `--remote-debugging-port=${inst.port}`, ...switchesOf(inst), ...(features.length ? [`--enable-features=${features.join(',')}`] : []), 'about:blank'];
 }
 
 /**
@@ -2069,7 +2069,9 @@ async function cmdInstances() {
 async function cmdUp(registered) {
   const inst = { ...registered, extensionDir: typeof opts['extension'] === 'string' ? extensionFlag(opts['extension']) : registered.extensionDir };
   const backend = typeof opts['backend'] === 'string' ? opts['backend'] : inst.backend.default;
-  const features = featuresFor(inst, backend);
+  // `--no-ai-features`: an experiment launch with no --enable-features at all (what a user's browser has); doctor then
+  // reports drift. Every other switch, the Edge sign-in ones included, stays.
+  const features = opts['no-ai-features'] === true ? [] : featuresFor(inst, backend);
   const forced = portFlag(opts['port']);
   const running = mainProcess(inst);
 
