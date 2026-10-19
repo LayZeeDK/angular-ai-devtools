@@ -9,3 +9,4 @@
 - Model prompting guides should note the model's context window, multimodal/multi-model capabilities, and the tasks it excels at. Confidence: 0.7
 - Directly corrects conclusions that conflict with his prior experience (e.g., declaring a capability/environment impossible after past successful runs) and expects the assistant to revise rather than defend. Confidence: 0.7
 - Never call AskUserQuestion; proceed with available context and escalate through the normal channel instead. Confidence: 0.9
+- Research and evidence files must not contain leaked agent/tool-call text (e.g. `||write_file…`) and their findings must be updated when they become stale. Confidence: 0.8

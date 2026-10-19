@@ -56,3 +56,6 @@
 - Sync all branches and commits to the local remote as a backup. Confidence: 0.85
 - Gitignore `.playwright-cli/` and scrub any `.playwright-cli/` files from Git history. Confidence: 0.8
 - Use `/thermos` to review code, scripts, tests, docs, and other artifacts when asked. Confidence: 0.7
+- Keep `spikes/` and `research/` in the repository; do not archive them, because control/verify skills and proofs depend on spike fixtures and docs/skills cite research as evidence. Confidence: 0.9
+- AI browser verification should be run both with feature flags enabled and with `--no-ai-features` (e.g. `control-ai-browsers up <name> --no-ai-features`). Confidence: 0.8
+- Before approving a phase/gate, clean research/evidence artifacts of leaked agent/tool text and stale findings, because approval commits them as-is. Confidence: 0.75

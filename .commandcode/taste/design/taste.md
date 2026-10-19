@@ -9,3 +9,8 @@
 - Companion-package naming: `provideAiDevTools()` with per-package secondary entry points such as `provideAiNgrxDevTools()`; casing matters ("Ai" + "DevTools"). Confidence: 0.75
 - Avoid a fixed browser/prerequisite only where it is not needed, but a Chrome Beta or Edge Dev prerequisite is acceptable for the AI features. Confidence: 0.7
 - Removing `panel/**` from `web_accessible_resources` is conditional: keep it if any proposed feature needs it. Confidence: 0.7
+- Built-in AI (Prompt API) calls are panel-local by design: they run only in the DevTools panel or in a Worker the panel starts; the page, content scripts, and service worker never host `LanguageModel`, both because a page could read or forge the exchange and because Edge exposes no `LanguageModel` there without flags. Confidence: 0.9
+- The MAIN-world script is limited to reading the page (`ng.ɵsetProfiler`, `ng.ɵgetSignalGraph`) and sending shaped facts to the panel; it never runs Prompt API, and the prompt half of the page bridge is removed. Confidence: 0.85
+- Prompt text to small local models should be a short fact list with no tool calling, so Gemini Nano can answer. Confidence: 0.85
+- A Worker must not call `LanguageDetector` or `Translator` itself (renderer crash); it forwards those calls to the panel. Confidence: 0.85
+- Built-in AI availability/status in the panel reflects the panel's own `LanguageModel.availability()`, not proxied page state. Confidence: 0.85
