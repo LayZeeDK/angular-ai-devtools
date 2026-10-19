@@ -7,4 +7,4 @@
 - His rulings should be recorded verbatim in design docs, dated, with a clearly marked note for any inference drawn from them. Confidence: 0.7
 - Claims in research and design files are expected to be labelled with how they were established (measured vs. documented vs. inferred), and an inferred label must not be silently upgraded. Confidence: 0.7
 - Model prompting guides should note the model's context window, multimodal/multi-model capabilities, and the tasks it excels at. Confidence: 0.7
-- Answers direct scope/provenance questions (e.g. whether a dedicated creation workflow was used or whether global/user-scope skills changed) plainly and specifically. Confidence: 0.8
+- Directly corrects conclusions that conflict with his prior experience (e.g., declaring a capability/environment impossible after past successful runs) and expects the assistant to revise rather than defend. Confidence: 0.7
