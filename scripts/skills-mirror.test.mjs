@@ -12,8 +12,8 @@ import { fileURLToPath } from 'node:url';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 // Command Code's maintenance notes live only beside the maintained copy.
 const LOCAL_ONLY = new Set(['maintain']);
-// Each tree keeps the byte copy of its own agent's lars-create-verification fingerprint.mjs (the Claude Code one
-// turns git filter drivers off and refuses quoted paths; Command Code's canonical copy does not yet).
+// Each tree keeps the byte copy of its own agent's lars-create-verification fingerprint.mjs; the two differ only in
+// the agent path a comment names.
 const OWN_CANONICAL = new Set(['scripts/fingerprint.mjs']);
 
 /**
