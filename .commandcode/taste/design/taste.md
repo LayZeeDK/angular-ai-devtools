@@ -14,3 +14,5 @@
 - Prompt text to small local models should be a short fact list with no tool calling, so Gemini Nano can answer. Confidence: 0.85
 - A Worker must not call `LanguageDetector` or `Translator` itself (renderer crash); it forwards those calls to the panel. Confidence: 0.85
 - Built-in AI availability/status in the panel reflects the panel's own `LanguageModel.availability()`, not proxied page state. Confidence: 0.85
+- AI/model calls require an explicit user action (e.g. picking an item and clicking explain); no auto-trigger or auto-explain without an explicit pick. Confidence: 0.8
+- Inspection/recording tooling must not mutate the inspected app: do not run Angular's `angular:di_graph` tool or call `getViewContainerRef()` on component hosts (which removes the template node from the signal graph). Confidence: 0.8

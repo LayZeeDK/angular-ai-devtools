@@ -59,3 +59,4 @@
 - Keep `spikes/` and `research/` in the repository; do not archive them, because control/verify skills and proofs depend on spike fixtures and docs/skills cite research as evidence. Confidence: 0.9
 - AI browser verification should be run both with feature flags enabled and with `--no-ai-features` (e.g. `control-ai-browsers up <name> --no-ai-features`). Confidence: 0.8
 - Before approving a phase/gate, clean research/evidence artifacts of leaked agent/tool text and stale findings, because approval commits them as-is. Confidence: 0.75
+- Code changes (including deletions) belong in build, not in define/checkpoint commits: keep checkpoint commits (define, plan) free of code changes, implement and commit code changes separately, and commit deletions only after `npm run check`, `npm test` and the project's build-extension command pass. Confidence: 0.85
