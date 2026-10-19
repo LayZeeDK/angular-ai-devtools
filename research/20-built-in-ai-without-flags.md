@@ -55,9 +55,10 @@ ran in a fresh browser, from a temporary worker file in the extension (deleted a
 
 ## What it means
 
-- The DevTools panel, which is an extension page, is the only context where the Prompt API works without flags in all
-  four browsers. The panel-side call in `ExtensionPromptService` (research/19) therefore runs on an unflagged Chrome or
-  Edge. Writer and Rewriter are also panel-only in all four.
+- Extension pages (the DevTools panel, and on Edge an extension tab, which Chrome did not get probed for) and a dedicated
+  worker the panel starts are the only contexts where the Prompt API works without flags in all four browsers. The
+  panel-side call in `ExtensionPromptService` (research/19) therefore runs on an unflagged Chrome or Edge. Writer and
+  Rewriter likewise exist only in those contexts.
 - On Edge, the web page and the service worker have no `LanguageModel` without flags. On Chrome they do.
 - With the flags on (research/19), Edge also served `LanguageModel` in the service worker. That worked only because
   of the flags. The panel worker serves it with or without flags.
@@ -67,5 +68,8 @@ ran in a fresh browser, from a temporary worker file in the extension (deleted a
 - Every profile already had its model installed. On a new Chrome Beta profile, On-Device AI is off until a model
   was installed once or the setting is turned on in `chrome://settings/ai` (control-ai-browsers Gotchas).
   `availability()` then reads `unavailable`.
-- The Chrome launches did not go through `up` (Chrome does not sign accounts in by itself; Edge does, so Edge went
-  through `up` only).
+- The Chrome launches of the first table did not go through `up` (Chrome does not sign accounts in by itself; Edge
+  does, so Edge went through `up` only). The worker runs used `up <name> --no-ai-features` everywhere.
+- "No `LanguageModel` in the page" was measured on `http://localhost:4222/`, a secure context with no origin-trial
+  token, in profiles with no `edge://flags` or `chrome://flags` entries. Not tested: a page with a Prompt API
+  origin-trial token, and whether a browser's server-side field trials would turn the API on for a profile later.
