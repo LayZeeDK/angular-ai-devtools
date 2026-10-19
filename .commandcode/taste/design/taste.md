@@ -8,3 +8,4 @@
 - Text handed to built-in AI APIs must be sanitized: strip license and copyright notices (e.g. the Angular error digest), cap lengths, wrap page-derived strings as untrusted. Confidence: 0.75
 - Companion-package naming: `provideAiDevTools()` with per-package secondary entry points such as `provideAiNgrxDevTools()`; casing matters ("Ai" + "DevTools"). Confidence: 0.75
 - Avoid a fixed browser/prerequisite only where it is not needed, but a Chrome Beta or Edge Dev prerequisite is acceptable for the AI features. Confidence: 0.7
+- Removing `panel/**` from `web_accessible_resources` is conditional: keep it if any proposed feature needs it. Confidence: 0.7

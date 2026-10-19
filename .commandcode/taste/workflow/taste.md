@@ -49,3 +49,10 @@
 - Generated build artifacts (e.g. hashed JS/CSS outputs under `extension/panel/`) should be gitignored; only hand-maintained source/static entry files such as `index.html` and `favicon.ico` should remain tracked. Confidence: 0.75
 - Expects `control-*` / `verify-*` skills to support changing their listen ports so multiple skills or instances can run in parallel without port conflicts. Confidence: 0.65
 - Never run `git checkout -- <file>`, `git restore` or another whole-file revert on a file that a running subagent may be editing; undo only your own change, in place (on 2026-10-12 a whole-file revert discarded an agent's work in progress). Confidence: 0.8
+- Store durable learnings in Command Code taste files (`taste.md`) rather than Claude-only memories; audit which memories are worth persisting. Confidence: 0.9
+- AFK mode runs with a 4-agent cap; use subagents where applicable. Confidence: 0.85
+- Human-only gates: force-push, filing issues/PRs, and deleting anything not created by the agent require explicit user approval. Confidence: 0.9
+- Stage files by name (never blanket `git add`); commit with `git commit -F <file>` and no AI attribution. Confidence: 0.85
+- Sync all branches and commits to the local remote as a backup. Confidence: 0.85
+- Gitignore `.playwright-cli/` and scrub any `.playwright-cli/` files from Git history. Confidence: 0.8
+- Use `/thermos` to review code, scripts, tests, docs, and other artifacts when asked. Confidence: 0.7
