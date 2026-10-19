@@ -118,7 +118,9 @@ pages open, so a rebuilt panel needs no restart.
   loads the extension over the pipe, writes the result to `tmp/control-ai-browsers/extension-<name>-<ms>.json` (one
   file per launch, removed once read) and holds the pipe until the browser exits. The browser exits when the pipe
   closes, and a pipe-loaded extension is not kept in the profile (both measured), so the keeper stays for the
-  browser's lifetime. `down` closes the browser, and the keeper exits with it. Measured on Chrome Beta 157, Chrome
+  browser's lifetime. `down` closes the browser, and the keeper exits with it. Both run with the primary checkout
+  as their working directory, so a worktree or GSD Path sidecar that started them can be removed while they run
+  (measured 2026-10-19; before, a sidecar's keepers held its folder and `isolation.py retire` failed). Measured on Chrome Beta 157, Chrome
   stable 156, Edge Dev 157 and Edge stable 155 (2026-10-19). No extension path is on any command line.
 - `up` then turns on developer mode in the profile (`developerPrivate` on the extensions page; it stays on). Edge
   Dev 157 disables an unpacked extension while it is off (`unsupportedDeveloperExtension`).

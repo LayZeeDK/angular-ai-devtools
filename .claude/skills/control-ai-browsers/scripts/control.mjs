@@ -2093,9 +2093,12 @@ async function cmdUp(registered) {
     mkdirSync(TMP, { recursive: true });
     // Every way out of this attempt but a successful load (which reads and removes it) drops the result file.
     const dropKeeperResult = () => keeperResult !== null && rmSync(keeperResult, { force: true });
+    // The browser and its keeper outlive this command; started in a worktree they would hold its folder open, and
+    // retiring that worktree would fail. The primary checkout outlives every worktree.
+    const spawnOptions = /** @type {const} */ ({ detached: true, stdio: 'ignore', cwd: PRIMARY });
     const child = run.extensionDir === null || keeperResult === null
-      ? spawn(run.exe, launchArgs(run, features), { detached: true, stdio: 'ignore' })
-      : spawn(process.execPath, [KEEPER, keeperResult, run.exe, run.extensionDir, ...launchArgs(run, features)], { detached: true, stdio: 'ignore' });
+      ? spawn(run.exe, launchArgs(run, features), spawnOptions)
+      : spawn(process.execPath, [KEEPER, keeperResult, run.exe, run.extensionDir, ...launchArgs(run, features)], spawnOptions);
     const notAfter = Date.now();
     child.unref();
     // The browser process as spawned, inside the spawn's time window; the main process is found by its profile.

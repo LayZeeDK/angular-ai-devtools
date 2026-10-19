@@ -2,8 +2,8 @@
   "version": 1,
   "features": {
     "extension-panel": {
-      "provenAt": "2026-10-19T10:26:34.747Z",
-      "commit": "9f450bc2f49dba6b1aeaafd09dbffb90bb0bbad9",
+      "provenAt": "2026-10-19T10:45:03.877Z",
+      "commit": "77a8c0a164a318f5c817ee51c9a841d539b39fcb",
       "method": "typescript",
       "entries": [
         ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
@@ -19,7 +19,7 @@
       ],
       "files": {
         ".commandcode/skills/control-ai-browsers/instances.json": "30aaee3080ecd28904c40eb4e602210e6ac0b543",
-        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "57a5ccadc120fca5c72973fe04d522b32f97d399",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "3891368b0fc9af814158cb95561faaec8e3b5d25",
         ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "80468877039a73b215c9bab3be933392ac48c3ab",
         ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "a88f92d7d0242ada9445ae585df6087a478a96b9",
         ".commandcode/skills/control-ai-browsers/scripts/pipe-keeper.mjs": "886fc19e51187e6e086632f56c4786d141598bd4",
@@ -36,8 +36,8 @@
       }
     },
     "health-check": {
-      "provenAt": "2026-10-19T10:26:33.537Z",
-      "commit": "9f450bc2f49dba6b1aeaafd09dbffb90bb0bbad9",
+      "provenAt": "2026-10-19T10:45:02.649Z",
+      "commit": "77a8c0a164a318f5c817ee51c9a841d539b39fcb",
       "method": "typescript",
       "entries": [
         ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
@@ -45,15 +45,15 @@
       ],
       "files": {
         ".commandcode/skills/control-ai-browsers/instances.json": "30aaee3080ecd28904c40eb4e602210e6ac0b543",
-        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "57a5ccadc120fca5c72973fe04d522b32f97d399",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "3891368b0fc9af814158cb95561faaec8e3b5d25",
         ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "80468877039a73b215c9bab3be933392ac48c3ab",
         ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "a88f92d7d0242ada9445ae585df6087a478a96b9",
         ".commandcode/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
       }
     },
     "instances": {
-      "provenAt": "2026-10-19T10:26:33.933Z",
-      "commit": "9f450bc2f49dba6b1aeaafd09dbffb90bb0bbad9",
+      "provenAt": "2026-10-19T10:45:03.036Z",
+      "commit": "77a8c0a164a318f5c817ee51c9a841d539b39fcb",
       "method": "typescript",
       "entries": [
         ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
@@ -61,15 +61,15 @@
       ],
       "files": {
         ".commandcode/skills/control-ai-browsers/instances.json": "30aaee3080ecd28904c40eb4e602210e6ac0b543",
-        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "57a5ccadc120fca5c72973fe04d522b32f97d399",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "3891368b0fc9af814158cb95561faaec8e3b5d25",
         ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "80468877039a73b215c9bab3be933392ac48c3ab",
         ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "a88f92d7d0242ada9445ae585df6087a478a96b9",
         ".commandcode/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
       }
     },
     "model-lifecycle": {
-      "provenAt": "2026-10-19T10:26:34.343Z",
-      "commit": "9f450bc2f49dba6b1aeaafd09dbffb90bb0bbad9",
+      "provenAt": "2026-10-19T10:45:03.467Z",
+      "commit": "77a8c0a164a318f5c817ee51c9a841d539b39fcb",
       "method": "typescript",
       "entries": [
         ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
@@ -77,7 +77,7 @@
       ],
       "files": {
         ".commandcode/skills/control-ai-browsers/instances.json": "30aaee3080ecd28904c40eb4e602210e6ac0b543",
-        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "57a5ccadc120fca5c72973fe04d522b32f97d399",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "3891368b0fc9af814158cb95561faaec8e3b5d25",
         ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "80468877039a73b215c9bab3be933392ac48c3ab",
         ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "a88f92d7d0242ada9445ae585df6087a478a96b9",
         ".commandcode/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
