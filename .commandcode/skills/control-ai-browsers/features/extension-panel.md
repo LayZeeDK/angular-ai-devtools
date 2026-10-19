@@ -29,6 +29,9 @@ records the Angular version, then press "Explain version with AI". The answer ap
 
 ## Driving it with control-ai-browsers
 
+Preconditions: the README baseline; the panel built (`npx nx run angular-ai-devtools:build-extension`); an Angular
+dev page served (the counter fixture below).
+
 - **Build the panel.** `npx nx run angular-ai-devtools:build-extension` writes `extension/panel/` (`main.js`,
   `styles.css` and `index.html` with `<base href="/panel/">`). A cache hit restores the same files. Run it before
   `up` the first time. The browser reads the extension's pages from disk when they open, so a rebuilt panel needs
