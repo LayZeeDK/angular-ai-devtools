@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: nx-angular-workspace
-phase: inspect
+phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
@@ -64,3 +64,13 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-18 — shipped — archive preflight passed; shipment recorded
 - 2026-10-18 — inspect — router bound next milestone: M004 nx-angular-workspace
 - 2026-10-18 — build — build complete; extension verified in Chrome 156 (Gemini Nano responds) and Edge 155 (Phi-4-mini responds)
+- 2026-10-19 — inspect — inspection artifacts passed
+- 2026-10-19 — define — definition started
+- 2026-10-19 — define — milestone intent approved
+- 2026-10-19 — research — research started
+- 2026-10-20 — research — research complete; manifest .project/research/RESEARCH.md; dispatched domain, pitfalls, similar, stack; skipped none; 4 questions
+- 2026-10-20 — decide — decision synthesis started
+- 2026-10-20 — decide — decide complete; synthesis .project/research/SYNTHESIS.md validated
+- 2026-10-20 — plan — planning started
+- 2026-10-20 — plan — patch plan approved
+- 2026-10-20 — build — build started
