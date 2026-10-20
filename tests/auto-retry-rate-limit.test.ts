@@ -193,6 +193,68 @@ describe('auto-retry-rate-limit mod', () => {
     ok(api.notifications.some(n => n.msg.includes('routing to')));
   });
 
+  test('beforeModelRequest returns undefined after recovery timeout', async () => {
+    // Set recovery timeout to -1 so recovery triggers immediately
+    api.addFlag('retry-fallback-recovery', {
+      type: 'string',
+      default: '-1',
+      description: 'Test recovery',
+    });
+
+    api.emit('model_request_start', { model: 'poolside/laguna-s-2.1-free' });
+    api.emit('run_error', RATE_LIMIT_ERROR);
+
+    // Provider is in rateLimitedProviders; recovery timeout is -1ms
+    // so beforeModelRequest should clear it and return undefined
+    const result = await api.callHook('beforeModelRequest', {model: 'poolside/laguna-s-2.1-free'});
+    strictEqual(result, undefined);
+  });
+
+  test('model_request_end clears provider when original model succeeds', async () => {
+    // Set fallback to a different model so model !== fb
+    api.addFlag('retry-fallback-model', {
+      type: 'string',
+      default: 'reflection/beam:free',
+      description: 'Fallback',
+    });
+
+    api.emit('model_request_start', { model: 'poolside/laguna-s-2.1-free' });
+    api.emit('run_error', RATE_LIMIT_ERROR);
+
+    // model_request_end with healthy stop and original model (not fallback)
+    api.emit('model_request_end', {
+      stopReason: 'end_turn',
+      model: 'poolside/laguna-s-2.1-free',
+    });
+
+    // Provider should be cleared — beforeModelRequest should return undefined
+    const result = await api.callHook('beforeModelRequest', {model: 'poolside/laguna-s-2.1-free'});
+    strictEqual(result, undefined);
+  });
+
+  test('model_request_end does NOT clear provider when fallback model succeeds', async () => {
+    api.addFlag('retry-fallback-model', {
+      type: 'string',
+      default: 'reflection/beam:free',
+      description: 'Fallback',
+    });
+
+    api.emit('model_request_start', { model: 'poolside/laguna-s-2.1-free' });
+    api.emit('run_error', RATE_LIMIT_ERROR);
+
+    // model_request_end with healthy stop but fallback model
+    api.emit('model_request_end', {
+      stopReason: 'end_turn',
+      model: 'reflection/beam:free',
+    });
+
+    // Provider should NOT be cleared — beforeModelRequest should route to fallback
+    const result = await api.callHook('beforeModelRequest', {model: 'poolside/laguna-s-2.1-free'});
+    ok(result !== undefined);
+    const r = result as { model: string };
+    strictEqual(r.model, 'reflection/beam:free');
+  });
+
   test('beforeModelRequest does nothing for non-rate-limited model', async () => {
     api.addFlag('retry-fallback-model', {
       type: 'string',
