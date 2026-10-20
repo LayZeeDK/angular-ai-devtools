@@ -39,6 +39,7 @@
 
 - Runs maintenance on all `control-*` and `verify-*` skills (plus other verification artifacts) via subagents invoking `/lars-maintain-verification`, rather than performing the maintenance in the main thread. Confidence: 0.8
 - Keeps ephemeral session artifacts (scratch outputs, temp scripts, probe files) in the session scratchpad, outside the repo; before finishing, checks `git status` and does not leave assistant-created untracked/ephemeral files in the working tree, deleting one-off helpers with no callers after triage. Confidence: 0.75
+- When a subagent cannot reach files outside the workspace (e.g. under `~/.commandcode/projects/`), copy them into the session scratchpad first and clean them up afterward. Confidence: 0.75
 - When asked to preserve uncommitted work, backs it up as a copy in the session scratchpad rather than stashing, moving, or discarding it. Confidence: 0.8
 - When review findings are produced, audits and triages them, then resolves all surviving actionable findings before declaring the work complete. Confidence: 0.85
 - `/lars-create-verification <app>` produces only the `control-<app>` skill (generating and proving `${COMMANDCODE_PROJECT_DIR}/.commandcode/skills/control-<app>/`); the matching `verify-<app>` skill is added later by `/lars-maintain-verification` or `/lars-verify`, not during creation. Confidence: 0.8
