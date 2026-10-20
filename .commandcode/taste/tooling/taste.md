@@ -49,4 +49,5 @@
 - Command Code mods that need to inform the model of a retry or compaction use `api.queueMessage({content, deliverAs: 'steer'})` alongside `ui.notify()`, so the message is injected as steering context rather than a user message or command. Confidence: 0.7
 - On Windows, the correct username path is `C:\Users\LarsGyrupBrinkNielse` (without the trailing `n`): `shell_command` (Git Bash/Cmd) resolves only the correct spelling, while `read_file` may resolve both `LarsGyrupBrinkNielse` and `LarsGyrupBrinkNielsen`. Always use the correct spelling (`LarsGyrupBrinkNielse`) in shell commands. Confidence: 0.95
 - Prefers ARM64-native builds over x64 builds on Windows 11 ARM64; x64 binaries run through the x64-on-ARM64 emulation layer and are slower. Confidence: 0.7
-- Danish locale error messages from cmd.exe/PowerShell — account for localization when parsing command output. Confidence: 0.65
+- Prefers using local framework source clones under `d:/projects/github/` (rather than `node_modules`) when investigating framework internals (e.g. Angular's `ɵ` APIs). Confidence: 0.8
+">

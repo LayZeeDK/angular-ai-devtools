@@ -234,6 +234,25 @@ describe('auto-retry-rate-limit mod', () => {
     strictEqual(api.pendingTimers.length, 2);
   });
 
+  test('retry timer resets retryInProgress so consecutive retries work without model_request_end', () => {
+    // First run_error: sets retryInProgress=true, schedules timer
+    api.emit('run_error', RATE_LIMIT_ERROR);
+    strictEqual(api.pendingTimers.length, 1);
+
+    // Flush timer: fix resets retryInProgress=false, injects steering message
+    api.flushTimers();
+    ok(api.queuedMessages.some(m => m.content.includes('[auto-retry #1/3]')));
+
+    // Second run_error WITHOUT model_request_end in between.
+    // Without the retryInProgress reset in the timer callback,
+    // this would be swallowed.
+    api.emit('run_error', RATE_LIMIT_ERROR);
+
+    // Second timer should be scheduled (retry #2)
+    strictEqual(api.pendingTimers.length, 1);
+    ok(api.notifications.some(n => n.msg.includes('2/3')));
+  });
+
   test('model_request_end resets counters on healthy request', () => {
     api.emit('run_error', RATE_LIMIT_ERROR);
     api.flushTimers();
