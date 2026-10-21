@@ -76,3 +76,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-20 — build — build started
 - 2026-10-21 — build — build blocked: T003 done but no landing commit proves it
 - 2026-10-21 — build — block resolved: T003 stale worktree directory cleaned up, task file reverted to match landing commit
+- 2026-10-22 — build — wave 1 review passed (full, cycle 1); build continuing to wave 2
