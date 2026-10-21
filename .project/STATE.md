@@ -74,3 +74,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-20 — plan — planning started
 - 2026-10-20 — plan — patch plan approved
 - 2026-10-20 — build — build started
+- 2026-10-21 — build — build blocked: T003 done but no landing commit proves it
+- 2026-10-21 — build — block resolved: T003 stale worktree directory cleaned up, task file reverted to match landing commit
