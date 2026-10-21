@@ -3,9 +3,9 @@ id: T001
 title: Implement MAIN-world change-detection recorder core
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: ornith
+base: 44d0f4683aea12f12b4b21218759f8f53b478e8d
 worktree: null
 task_branch: null
 files:
@@ -66,3 +66,26 @@ Heavy: no
 ## Log
 
 - 2026-10-19 — created by planner
+- 2026-10-21 — orchestrator Verify (isolate gsd-path-task/T001): pass, exit 0; output tail:
+  ```
+      ✔ extracts from a host-binding handler name (0.1518ms)
+      ✔ returns null for names without a recognizable shape (0.1335ms)
+    ✔ extractTriggerName (formatOutput-style) (0.5406ms)
+    ▶ signal-graph capture and epoch diff
+      ✔ serializes the graph without signal values and diffs epochs across cycles (14.4672ms)
+      ✔ reports a null graph when ɵgetSignalGraph is unavailable (0.5166ms)
+    ✔ signal-graph capture and epoch diff (15.1302ms)
+  ✔ agent-main.js (recorder) (37.2362ms)
+  ℹ tests 15
+  ℹ suites 7
+  ℹ pass 15
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 161.1826
+  npm notice run check
+  npm notice run tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  ```
