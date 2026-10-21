@@ -7,6 +7,6 @@
 - His rulings should be recorded verbatim in design docs, dated, with a clearly marked note for any inference drawn from them. Confidence: 0.7
 - Claims in research and design files are expected to be labelled with how they were established (measured vs. documented vs. inferred), and an inferred label must not be silently upgraded. Confidence: 0.7
 - Model prompting guides should note the model's context window, multimodal/multi-model capabilities, the tasks it excels at, and when to use it for subagents. Confidence: 0.8
-- Directly corrects conclusions that conflict with his prior experience (e.g., declaring a capability/environment impossible after past successful runs) and expects the assistant to revise rather than defend. Confidence: 0.7
+- Directly corrects conclusions that conflict with his prior experience (e.g., declaring a capability/environment impossible after past successful runs) and expects the assistant to revise rather than defend. Confidence: 0.8
 - Never call AskUserQuestion; proceed with available context and escalate through the normal channel instead. Confidence: 0.9
-- Research and evidence files must not contain leaked agent/tool-call text (e.g. `||write_file…`) and their findings must be updated when they become stale. Confidence: 0.8
+- When reporting bugs or unexpected behavior, the user asks diagnostic questions ("why does X happen?") and expects a thorough root cause analysis with code traces and explanations, not just a proposed fix. Confidence: 0.7">
