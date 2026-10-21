@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { UpdateCauseService } from './n1-update-cause.service';
 
 interface ExtensionMessage {
@@ -6,12 +6,22 @@ interface ExtensionMessage {
   version?: string;
   tabId?: number;
   capability?: { availability?: string };
+  cycle?: {
+    cycleId: number;
+    startedAt: number;
+    trigger: { kind: 'output' | 'unknown'; listenerName: string | null };
+    checks: Array<{ instance?: unknown; componentName: string; events?: number[] }>;
+  };
+  notSupported?: boolean;
+  notSupportedReason?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ExtensionMessageService {
   private readonly causeService = inject(UpdateCauseService);
   private readonly inspectedTabId: number | undefined;
+  readonly notSupported = signal<boolean>(false);
+  readonly notSupportedReason = signal<string | null>(null);
 
   constructor() {
     const chrome = (globalThis as { chrome?: { runtime?: { onMessage?: { addListener: (cb: (msg: unknown) => void) => void } }; devtools?: { inspectedWindow?: { tabId?: number } } } }).chrome;
@@ -36,6 +46,13 @@ export class ExtensionMessageService {
         ? `availability: ${msg.capability.availability}`
         : 'capability announced';
       this.causeService.record('Prompt API', info);
+    } else if (msg.type === 'angular-ai:record' && msg.cycle) {
+      this.causeService.recordCycle(msg.cycle as any);
+    } else if (msg.type === 'angular-ai:state') {
+      if (msg.notSupported) {
+        this.notSupported.set(true);
+        this.notSupportedReason.set(msg.notSupportedReason ?? 'not supported');
+      }
     }
   }
 }

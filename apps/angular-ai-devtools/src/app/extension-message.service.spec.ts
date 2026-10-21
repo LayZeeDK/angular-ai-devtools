@@ -31,4 +31,12 @@ describe('ExtensionMessageService', () => {
     deliver({ type: 'angular-detected', version: '22.2.2', tabId: 5 });
     expect(causes.recorded().map((c) => c.reason)).toEqual(['v22.2.2 detected']);
   });
+
+  it('forwards recorded cycles', () => {
+    const causes = TestBed.inject(UpdateCauseService);
+    const cycle = { cycleId: 1, startedAt: 10, trigger: { kind: 'output', listenerName: 'click' }, checks: [{ componentName: 'Cmp', events: [] }] };
+    deliver({ type: 'angular-ai:record', cycle, tabId: 5 });
+    expect(causes.recordedCycles().length).toBe(1);
+    expect(causes.recordedCycles()[0]!.cycleId).toBe(1);
+  });
 });

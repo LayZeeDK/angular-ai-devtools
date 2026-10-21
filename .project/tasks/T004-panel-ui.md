@@ -3,9 +3,9 @@ id: T004
 title: Deliver DevTools panel UI for component picker, chain, and explain
 wave: 2
 deps: [T001, T002, T003]
-status: pending
-agent: null
-base: null
+status: done
+agent: free-beam-medium
+base: 80b2c298eee64480122ee0a23462bcbe3b535bfd
 worktree: null
 task_branch: null
 files:
@@ -91,3 +91,6 @@ Heavy: no
 ## Log
 
 - 2026-10-19 — created by planner
+- 2026-10-21 — orchestrator dispatch: T004 dispatched as free-beam-medium
+- 2026-10-21 — subagent produced: apps/angular-ai-devtools/src/app/n1-update-cause.component.ts, apps/angular-ai-devtools/src/app/n1-update-cause.component.spec.ts, apps/angular-ai-devtools/src/app/extension-message.service.ts, apps/angular-ai-devtools/src/app/extension-message.service.spec.ts
+- 2026-10-21 — orchestrator Verify (isolate gsd-path-task/T004): pass, exit 0; full suite 19 tests passed (5 files). Official T004 verify: 1 test passed.
