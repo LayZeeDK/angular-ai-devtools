@@ -54,6 +54,6 @@
 - Prefers ARM64-native builds over x64 builds on Windows 11 ARM64; x64 binaries run through the x64-on-ARM64 emulation layer and are slower. Confidence: 0.7
 - Prefers using local framework source clones under `d:/projects/github/` (rather than `node_modules`) when investigating framework internals (e.g. Angular's `ɵ` APIs). Confidence: 0.8
 - On this machine, global npm packages/node_modules live under `D:\packages\npm-global` (the npm global prefix); it is populated, not empty, and `npm prefix -g`/`npm root -g` should be checked before assuming the global location or its contents. Confidence: 0.9
-- When an agent model (Ornith) is too slow for a task, route subagents to faster free models (Beam 1.0, MiniMax) with guardrails instead, and prefer non-poolside routes to avoid rate limiting; Ornith remains the main/orchestration model but is not the only subagent route. Confidence: 0.7
+- Regards Ornith as a good overall model but slow in output; when it is too slow for a task, route subagents to faster free models (Beam 1.0, MiniMax) with guardrails instead, and prefer non-poolside routes to avoid rate limiting; Ornith remains the main/orchestration model but is not the only subagent route. Confidence: 0.8
 - For this Nx Angular workspace, verify with `nx test angular-ai-devtools --include=<path>` rather than `--testPathPattern=` (the latter is unsupported by the installed Nx version). Confidence: 0.75
 ">

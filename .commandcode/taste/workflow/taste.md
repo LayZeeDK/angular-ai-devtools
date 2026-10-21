@@ -65,3 +65,5 @@
 - Use `-lt`, `-gt`, `-le`, `-ge` instead of `<`, `>`, `<=`, `>=` in PowerShell comparisons for 5.1 compatibility (pwsh 7 supports the operators, but 5.1 does not). Confidence: 0.7
 
 - For Command Code mods, a live-display or stream-rewriting feature must be planned, typed, tested, code-reviewed, and security-reviewed before it is enabled; instruction-only behavior remains the default until those gates pass. Confidence: 0.9
+
+- Delegates all tasks and work items to subagents running free models other than the main session's Laguna S 2.1, to keep context and tool usage lean and avoid rate limiting; regards Ornith as a good overall model but slow in output. Confidence: 0.85
