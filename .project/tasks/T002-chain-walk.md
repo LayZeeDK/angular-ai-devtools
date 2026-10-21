@@ -71,7 +71,7 @@ type ChainResult = {
 ## Verify
 
 ```bash
-npx nx test angular-ai-devtools --skip-nx-cache --testPathPattern=apps/angular-ai-devtools/src/app/update-cause-chain.spec.ts
+npx nx test angular-ai-devtools --skip-nx-cache --include=apps/angular-ai-devtools/src/app/update-cause-chain.spec.ts
 ```
 
 Heavy: no
