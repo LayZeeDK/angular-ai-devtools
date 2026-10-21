@@ -68,6 +68,31 @@ describe('ExtensionPromptService', () => {
     expect(service.availability()).toBe('unavailable');
   });
 
+  it('treats "downloadable" as unavailable and surfaces the raw value as the reason', async () => {
+    mockLanguageModel({ availability: 'downloadable' });
+    const ok = await service.checkAvailability();
+    expect(ok).toBe(false);
+    expect(service.status()).toBe('unavailable');
+    expect(service.availability()).toBe('downloadable');
+  });
+
+  it('treats "downloading" as unavailable and surfaces the raw value as the reason', async () => {
+    mockLanguageModel({ availability: 'downloading' });
+    const ok = await service.checkAvailability();
+    expect(ok).toBe(false);
+    expect(service.status()).toBe('unavailable');
+    expect(service.availability()).toBe('downloading');
+  });
+
+  it('never starts a session when availability is downloadable/downloading', async () => {
+    const destroyed = { count: 0 };
+    mockLanguageModel({ availability: 'downloadable', destroyed });
+    const result = await service.explain('22.2.2');
+    expect(result.ok).toBe(false);
+    expect(destroyed.count).toBe(0);
+    expect(service.status()).toBe('unavailable');
+  });
+
   it('explain() prompts the panel session, stores the trimmed answer and destroys the session', async () => {
     const prompts: string[] = [];
     const destroyed = { count: 0 };

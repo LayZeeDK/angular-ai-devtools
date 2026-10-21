@@ -3,9 +3,9 @@ id: T003
 title: Fix panel Prompt API availability contract
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: ornith
+base: 44d0f4683aea12f12b4b21218759f8f53b478e8d
 worktree: null
 task_branch: null
 files:
