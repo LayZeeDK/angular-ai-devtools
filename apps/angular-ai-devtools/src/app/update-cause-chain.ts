@@ -109,7 +109,7 @@ export function walkChain(input: WalkInput | RecordedCheck): ChainResult {
     triggerLabel = 'Eager';
   }
 
-  const noSignalCause = !graphUnavailable && signals.length === 0 && !isEager ? true : (graphUnavailable ? false : (signals.length === 0 && !isEager));
+  const noSignalCause = !graphUnavailable && signals.length === 0 && !isEager;
 
   const chainParts: string[] = [];
   if (trig === 'output') chainParts.push(triggerLabel);

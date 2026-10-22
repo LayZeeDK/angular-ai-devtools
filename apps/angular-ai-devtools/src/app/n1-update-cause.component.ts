@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { UpdateCauseService } from './n1-update-cause.service';
 import { ExtensionMessageService } from './extension-message.service';
-import { ExtensionPromptService } from './extension-prompt.service';
+import { ExtensionPromptService, ChainResultLike } from './extension-prompt.service';
 import { walkChain, ChainResult } from './update-cause-chain';
 
 @Component({
@@ -91,7 +91,8 @@ export class N1UpdateCauseComponent {
   protected readonly ext = inject(ExtensionMessageService);
   protected readonly prompt = inject(ExtensionPromptService);
   protected readonly connected =
-    typeof (globalThis as any).chrome !== 'undefined' && !!(globalThis as any).chrome?.runtime;
+    typeof (globalThis as { chrome?: { runtime?: unknown } }).chrome !== 'undefined' &&
+    !!(globalThis as { chrome?: { runtime?: unknown } }).chrome?.runtime;
 
   protected readonly selected = signal<string | null>(null);
   protected readonly cachedAnswer = signal<string | null>(null);
@@ -139,7 +140,7 @@ export class N1UpdateCauseComponent {
     if (!this.prompt.ready()) {
       return;
     }
-    const res = await this.prompt.explain(c as unknown as Record<string, unknown>);
+    const res = await this.prompt.explain(c);
     if (res.ok) {
       this.cache.set(key, res.text);
       this.cachedAnswer.set(res.text);
