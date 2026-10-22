@@ -5,13 +5,39 @@
   "description": "Sandbox scripts that install agent skills and subagents for the AI coding CLIs.",
   "scripts": {
     "check": "tsc -p tsconfig.json && npm run check:skills",
-    "check:skills": "tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json",
+    "check:skills": "tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json",
     "test": "node --test \"scripts/**/*.test.mjs\" && npm run test:skills",
-    "test:skills": "node --test \".claude/skills/**/*.test.mjs\""
+    "test:skills": "node --test \".claude/skills/**/*.test.mjs\" \".commandcode/skills/**/*.test.mjs\""
   },
   "devDependencies": {
+    "@angular-devkit/core": "~22.1.0",
+    "@angular-devkit/schematics": "~22.1.0",
+    "@angular/build": "~22.1.0",
+    "@angular/cli": "~22.1.0",
+    "@angular/compiler-cli": "~22.1.0",
+    "@angular/language-service": "~22.1.0",
+    "@nx/angular": "^23.3.0",
+    "@nx/devkit": "23.3.0",
+    "@nx/js": "23.3.0",
+    "@nx/playwright": "23.3.0",
+    "@nx/web": "23.3.0",
     "@opencode/plugin": "2.0.29",
+    "@playwright/test": "^1.37.0",
+    "@schematics/angular": "~22.1.0",
+    "@swc/helpers": "~0.5.18",
     "@types/node": "^26.6.5",
-    "typescript": "6.0.3"
+    "jsdom": "^27.1.0",
+    "typescript": "6.0.3",
+    "vitest": "^4.0.8"
+  },
+  "dependencies": {
+    "@angular/common": "~22.1.0",
+    "@angular/compiler": "~22.1.0",
+    "@angular/core": "~22.1.0",
+    "@angular/forms": "~22.1.0",
+    "@angular/platform-browser": "~22.1.0",
+    "@angular/router": "~22.1.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
   }
 }

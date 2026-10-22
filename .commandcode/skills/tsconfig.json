@@ -1,0 +1,6 @@
+{
+  // Type-check the Node scripts the control skills ship, the verify skills' checks, and their tests.
+  // The playwright-cli run-code files (scripts/*.js) run in a page: tsconfig.run-code.json.
+  "extends": "../../tsconfig.json",
+  "include": ["control-*/scripts/**/*.mjs", "verify-*/checks/**/*.mjs"]
+}

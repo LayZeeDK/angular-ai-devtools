@@ -88,7 +88,7 @@ const SCRATCH = path.join(REPO_ROOT, 'tmp', 'control-vitest-browser-angular');
 const STATE_DIR = path.join(SCRATCH, 'state');
 const FIXTURE = path.join(REPO_ROOT, 'spikes', 'ng222-app');
 const NG = path.join(FIXTURE, 'node_modules', '@angular', 'cli', 'bin', 'ng.js');
-const AI_CONTROL = path.join(REPO_ROOT, '.claude', 'skills', 'control-ai-browsers', 'scripts', 'control.mjs');
+const AI_CONTROL = path.join(REPO_ROOT, '.commandcode', 'skills', 'control-ai-browsers', 'scripts', 'control.mjs');
 const SYSTEM32 = path.join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32');
 // Windows reads this from the looking process when Node looks up a bare program name: it then skips the current
 // directory. The ng test run inherits it.

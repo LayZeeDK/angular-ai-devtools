@@ -1,7 +1,8 @@
 # Edge Dev Aion: why the model is pinned
 
 How to use the pin (`model pin`, the restore on `up`, doctor's `model.pin` row) is in
-`.claude/skills/control-ai-browsers/features/model-lifecycle.md`. This file records why the pin exists, what was
+`.commandcode/skills/control-ai-browsers/features/model-lifecycle.md` (Command Code's copy, which Command Code and
+its GSD Path skills drive; `.claude/skills/` holds Claude Code's older copy). This file records why the pin exists, what was
 measured, and when to drop it.
 
 ## What Edge ships
@@ -30,7 +31,7 @@ Aion works only when the model and runtime on disk match the version the manifes
   the restored pair broke again 1.5 minutes after launch.
 - An update cut short by `down` (once after the runtime landed, once while the model read "Downloading") left the
   folders wrong in the same way; `up` restored the pin each time and doctor exited 0.
-- The four-instance `state` verdict on that setup: verified, 2/2 runs
+- The `state` verdict over the four instances of the time, on that setup: verified, 2/2 runs
   (`tmp/control-ai-browsers/verify/health-check/20261017T1430Z-state-rerun2`).
 
 Measured: `down` and the skill do not cause the break. The command line and features were the same in the broken
@@ -43,8 +44,12 @@ Edge 158 code, and no channel is served a manifest that names it yet.
 ## Costs of the pin
 
 - Aion stays on 2026.10.2.1 until someone moves it; it gets no fixes Edge ships in newer models.
-- A new Aion profile probably cannot get a working model from Edge today (inferred, not measured): the updater
-  would hand it the mismatched pair. Seed it with a matching pair instead ("No pin yet" in model-lifecycle.md).
+- A new Aion profile cannot get a working model from Edge, because the updater would hand it the mismatched pair
+  (inferred). The pin seeds it instead, and since 2026-10-19 the pin also holds the manifest component
+  (`EdgeOptimizationGuideModelsManifest`). A profile that starts under `--disable-component-update` never receives
+  one. Measured 2026-10-19: `up` on a new profile restored all three folders, one `model init` requested the asset
+  from disk (first create 3.3 s), and doctor exited 0 after a second `model pin`. See "Pin into a new profile" and
+  "No pin yet" in model-lifecycle.md.
 - `model download` refuses on `edge-dev-aion` while the switch is on.
 
 ## When and how to move to a newer model
@@ -52,11 +57,11 @@ Edge 158 code, and no channel is served a manifest that names it yet.
 The signal is the manifest, not the model: wait until "Edge On-Device Model Manifest" names a newer
 `edge_base_model`. A newer model alone is the broken case above.
 
-1. Check on a throwaway copy of the profile, never the pinned one: copy `.browsers/edge-dev-aion` (survey for
+1. Check on a throwaway copy of the profile, never the pinned one: copy `.commandcode/worktrees/.browsers/edge-dev-aion` of the primary checkout (survey for
    reparse points first), launch Edge Dev on the copy without `--disable-component-update`, and read
    `edge://components` once the updater settles. It downloads several GB.
 2. If the manifest now names the newer model and the copy's doctor exits 0 with it, remove
-   `--disable-component-update` from `edge-dev-aion` in `.claude/skills/control-ai-browsers/instances.json`.
+   `--disable-component-update` from `edge-dev-aion` in `.commandcode/skills/control-ai-browsers/instances.json`.
 3. `up edge-dev-aion`, let the updater bring in the matching set, then `doctor edge-dev-aion` (exit 0).
 4. `model pin edge-dev-aion` to save the new pair, and decide whether to put the switch back.
 5. Update this file, model-lifecycle.md (Gotchas and "No pin yet") and the version in AGENTS.md in the same commit.

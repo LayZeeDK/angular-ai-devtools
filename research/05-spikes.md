@@ -214,6 +214,8 @@ S17, S18, S19 recorded **blocked** — exact precondition: offline spike definit
 
 S14, S15, S20, S23 recorded **blocked** — exact precondition: model-browser spike definition/probe not present in this checkout. Evidence: research/raw/s14-blocked.json etc.
 
+Update 2026-10-19: S14 is partly answered by `20-built-in-ai-without-flags.md` (Workers): dedicated workers from the DevTools panel and an extension tab, and the service worker, without feature flags in four browsers. The open parts are listed in the S14 row of `docs/feature-proposals.md`.
+
 ## TS1-TS12 - tutor spikes (blocked 2026-10-18)
 
 TS1-TS12 recorded **blocked** — exact precondition: tutor spike definition/probe not present in this checkout. Evidence: research/raw/TS*-blocked.json.

@@ -1,0 +1,152 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "f76f439c0a19251e32adbecde440dceab3a28efb",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M004",
+        "candidates": [
+          {
+            "base": "44d0f4683aea12f12b4b21218759f8f53b478e8d",
+            "commit": "22da49791bcdb86c92e75799373f61cbd6e9bd26",
+            "valid": true
+          }
+        ],
+        "head": "f76f439c0a19251e32adbecde440dceab3a28efb",
+        "subject": "T001: Implement MAIN-world change-detection recorder core"
+      },
+      "landed_commit": "22da49791bcdb86c92e75799373f61cbd6e9bd26",
+      "reasons": [],
+      "task": {
+        "base": "44d0f4683aea12f12b4b21218759f8f53b478e8d",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-recorder-core.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M004",
+        "candidates": [
+          {
+            "base": "69c26fd550007e54a7d9d3435ae44084ca69e537",
+            "commit": "295bf17387da9946f0ff22e59ea9f20230bf5439",
+            "valid": true
+          }
+        ],
+        "head": "f76f439c0a19251e32adbecde440dceab3a28efb",
+        "subject": "T002: Implement per-component trigger-chain walk and unit tests"
+      },
+      "landed_commit": "295bf17387da9946f0ff22e59ea9f20230bf5439",
+      "reasons": [],
+      "task": {
+        "base": "69c26fd550007e54a7d9d3435ae44084ca69e537",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-chain-walk.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M004",
+        "candidates": [
+          {
+            "base": "44d0f4683aea12f12b4b21218759f8f53b478e8d",
+            "commit": "e6c4fc221ba1f4f9f57ff4bb35540f989b712e9d",
+            "valid": true
+          }
+        ],
+        "head": "f76f439c0a19251e32adbecde440dceab3a28efb",
+        "subject": "T003: Fix panel Prompt API availability contract"
+      },
+      "landed_commit": "e6c4fc221ba1f4f9f57ff4bb35540f989b712e9d",
+      "reasons": [],
+      "task": {
+        "base": "44d0f4683aea12f12b4b21218759f8f53b478e8d",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-prompt-availability.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M004",
+        "candidates": [
+          {
+            "base": "80b2c298eee64480122ee0a23462bcbe3b535bfd",
+            "commit": "5694ff23e70d8ef6c89bc701dda98ed97ed214ea",
+            "valid": true
+          }
+        ],
+        "head": "f76f439c0a19251e32adbecde440dceab3a28efb",
+        "subject": "T004: Deliver DevTools panel UI for component picker, chain, and explain"
+      },
+      "landed_commit": "5694ff23e70d8ef6c89bc701dda98ed97ed214ea",
+      "reasons": [],
+      "task": {
+        "base": "80b2c298eee64480122ee0a23462bcbe3b535bfd",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-panel-ui.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M004",
+        "candidates": [
+          {
+            "base": "5694ff23e70d8ef6c89bc701dda98ed97ed214ea",
+            "commit": "0be9220f14d41d7268e57c6b7365cfc5a53d1abb",
+            "valid": true
+          }
+        ],
+        "head": "f76f439c0a19251e32adbecde440dceab3a28efb",
+        "subject": "T005: Browser test of the chain on spikes/ng222-app"
+      },
+      "landed_commit": "0be9220f14d41d7268e57c6b7365cfc5a53d1abb",
+      "reasons": [],
+      "task": {
+        "base": "5694ff23e70d8ef6c89bc701dda98ed97ed214ea",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-browser-test-fixture.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M004",
+        "candidates": [
+          {
+            "base": "3dde8ad87bd8d26a478e20653e2f2d8fbf1dd74c",
+            "commit": "6e163667daf8b68db29123599a63668f12a28a45",
+            "valid": true
+          }
+        ],
+        "head": "f76f439c0a19251e32adbecde440dceab3a28efb",
+        "subject": "T006: Remove dead prompt bridge, content.js, page-script.js, and nx-welcome.ts"
+      },
+      "landed_commit": "6e163667daf8b68db29123599a63668f12a28a45",
+      "reasons": [],
+      "task": {
+        "base": "3dde8ad87bd8d26a478e20653e2f2d8fbf1dd74c",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-deletions-cleanup.md"
+      }
+    }
+  ]
+}

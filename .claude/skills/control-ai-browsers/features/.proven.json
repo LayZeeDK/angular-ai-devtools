@@ -1,68 +1,108 @@
 {
   "version": 1,
   "features": {
-    "health-check": {
-      "provenAt": "2026-10-17T03:25:51.905Z",
-      "commit": "3bafa742fb40bfc4880b55544f144ba9dfacb704",
+    "extension-panel": {
+      "provenAt": "2026-10-19T15:29:11.587Z",
+      "commit": "cb70071950b176d651e287049a7fc4a53a6d7d28",
       "method": "typescript",
       "entries": [
-        ".claude/skills/control-ai-browsers/scripts/control.mjs",
-        ".claude/skills/control-ai-browsers/instances.json"
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+        ".commandcode/skills/control-ai-browsers/scripts/panel.mjs",
+        ".commandcode/skills/control-ai-browsers/scripts/pipe-keeper.mjs",
+        ".commandcode/skills/control-ai-browsers/instances.json",
+        "apps/angular-ai-devtools/src/app/n1-update-cause.component.ts",
+        "apps/angular-ai-devtools/src/app/extension-prompt.service.ts",
+        "apps/angular-ai-devtools/src/app/extension-message.service.ts",
+        "extension/background.js",
+        "extension/relay.js",
+        "extension/agent-main.js",
+        "extension/manifest.json"
       ],
       "files": {
-        ".claude/skills/control-ai-browsers/instances.json": "e01850969d30f47aed85da9a86d48a6f7e06be10",
-        ".claude/skills/control-ai-browsers/scripts/control.mjs": "2bd3e7d1d94e3499d53225c0b882a502fdce7973",
-        ".claude/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0",
-        ".claude/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
+        ".commandcode/skills/control-ai-browsers/instances.json": "2e51a288ae6cff38e0fed0f90b58dc62c56c3125",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "d9c9036d8347957476cbbb4640838b5ac48ad00d",
+        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "b0972d3a0c47705f2bf772694776c51ce0e4ef0d",
+        ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "a88f92d7d0242ada9445ae585df6087a478a96b9",
+        ".commandcode/skills/control-ai-browsers/scripts/pipe-keeper.mjs": "db5baee9e2b26808df0637ecd0f1b74b269437a3",
+        ".commandcode/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd",
+        "apps/angular-ai-devtools/src/app/extension-message.service.ts": "859622d66f0727c65fe171db161d61f99e74fc3d",
+        "apps/angular-ai-devtools/src/app/extension-prompt.service.ts": "1a1ad8869b277f771b6c4d00f83a3d7d8debee78",
+        "apps/angular-ai-devtools/src/app/n1-update-cause.component.ts": "4a382d7a2078cd81dc407b304bcbcb05bf1cb20f",
+        "apps/angular-ai-devtools/src/app/n1-update-cause.service.ts": "bdd882c25a9e576d5d6be224da7c501955a6f141",
+        "apps/angular-ai-devtools/tsconfig.json": "c1c0963fd71f8bf5517bb62515f3c9c97cb3f8e0",
+        "extension/agent-main.js": "6a11034f1a7c099cbd573c98481be946f1502d91",
+        "extension/background.js": "b4d257128abf2a0f645e4de95770cf61ecdfa9ff",
+        "extension/manifest.json": "4c61c6339341b94883a41f1b654e5e3bde79c401",
+        "extension/relay.js": "015bf581d411f92960cfac30470f35b6fff0f367",
+        "tsconfig.json": "b6e86cb441f1aae627055d0cb22cd57cac0eb888"
+      }
+    },
+    "health-check": {
+      "provenAt": "2026-10-19T15:29:14.660Z",
+      "commit": "cb70071950b176d651e287049a7fc4a53a6d7d28",
+      "method": "typescript",
+      "entries": [
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+        ".commandcode/skills/control-ai-browsers/instances.json"
+      ],
+      "files": {
+        ".commandcode/skills/control-ai-browsers/instances.json": "2e51a288ae6cff38e0fed0f90b58dc62c56c3125",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "d9c9036d8347957476cbbb4640838b5ac48ad00d",
+        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "b0972d3a0c47705f2bf772694776c51ce0e4ef0d",
+        ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "a88f92d7d0242ada9445ae585df6087a478a96b9",
+        ".commandcode/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
       }
     },
     "instances": {
-      "provenAt": "2026-10-17T03:25:52.219Z",
-      "commit": "3bafa742fb40bfc4880b55544f144ba9dfacb704",
+      "provenAt": "2026-10-19T15:29:16.784Z",
+      "commit": "cb70071950b176d651e287049a7fc4a53a6d7d28",
       "method": "typescript",
       "entries": [
-        ".claude/skills/control-ai-browsers/scripts/control.mjs",
-        ".claude/skills/control-ai-browsers/instances.json"
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+        ".commandcode/skills/control-ai-browsers/instances.json"
       ],
       "files": {
-        ".claude/skills/control-ai-browsers/instances.json": "e01850969d30f47aed85da9a86d48a6f7e06be10",
-        ".claude/skills/control-ai-browsers/scripts/control.mjs": "2bd3e7d1d94e3499d53225c0b882a502fdce7973",
-        ".claude/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0",
-        ".claude/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
+        ".commandcode/skills/control-ai-browsers/instances.json": "2e51a288ae6cff38e0fed0f90b58dc62c56c3125",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "d9c9036d8347957476cbbb4640838b5ac48ad00d",
+        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "b0972d3a0c47705f2bf772694776c51ce0e4ef0d",
+        ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "a88f92d7d0242ada9445ae585df6087a478a96b9",
+        ".commandcode/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
       }
     },
     "model-lifecycle": {
-      "provenAt": "2026-10-17T03:25:52.542Z",
-      "commit": "3bafa742fb40bfc4880b55544f144ba9dfacb704",
+      "provenAt": "2026-10-19T15:29:19.696Z",
+      "commit": "cb70071950b176d651e287049a7fc4a53a6d7d28",
       "method": "typescript",
       "entries": [
-        ".claude/skills/control-ai-browsers/scripts/control.mjs",
-        ".claude/skills/control-ai-browsers/instances.json"
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+        ".commandcode/skills/control-ai-browsers/instances.json"
       ],
       "files": {
-        ".claude/skills/control-ai-browsers/instances.json": "e01850969d30f47aed85da9a86d48a6f7e06be10",
-        ".claude/skills/control-ai-browsers/scripts/control.mjs": "2bd3e7d1d94e3499d53225c0b882a502fdce7973",
-        ".claude/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0",
-        ".claude/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
+        ".commandcode/skills/control-ai-browsers/instances.json": "2e51a288ae6cff38e0fed0f90b58dc62c56c3125",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "d9c9036d8347957476cbbb4640838b5ac48ad00d",
+        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "b0972d3a0c47705f2bf772694776c51ce0e4ef0d",
+        ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "a88f92d7d0242ada9445ae585df6087a478a96b9",
+        ".commandcode/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd"
       }
     },
     "probes": {
-      "provenAt": "2026-10-17T18:51:39.643Z",
-      "commit": "82b21635bc256312e60b2024e934b8c4bb056afb",
+      "provenAt": "2026-10-19T15:29:22.276Z",
+      "commit": "cb70071950b176d651e287049a7fc4a53a6d7d28",
       "method": "typescript",
       "entries": [
-        ".claude/skills/control-ai-browsers/scripts/control.mjs",
-        ".claude/skills/control-ai-browsers/instances.json",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+        ".commandcode/skills/control-ai-browsers/instances.json",
         "spikes/probes/broker-state.js",
         "spikes/probes/probe10.js",
         "spikes/probes/bench.js",
         "spikes/probes/bench-summary.mjs"
       ],
       "files": {
-        ".claude/skills/control-ai-browsers/instances.json": "e01850969d30f47aed85da9a86d48a6f7e06be10",
-        ".claude/skills/control-ai-browsers/scripts/control.mjs": "2bd3e7d1d94e3499d53225c0b882a502fdce7973",
-        ".claude/skills/control-ai-browsers/scripts/fingerprint.mjs": "26238d10d349d33b5ea33dbeaeb9050d841062b0",
-        ".claude/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd",
+        ".commandcode/skills/control-ai-browsers/instances.json": "2e51a288ae6cff38e0fed0f90b58dc62c56c3125",
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs": "d9c9036d8347957476cbbb4640838b5ac48ad00d",
+        ".commandcode/skills/control-ai-browsers/scripts/fingerprint.mjs": "b0972d3a0c47705f2bf772694776c51ce0e4ef0d",
+        ".commandcode/skills/control-ai-browsers/scripts/panel.mjs": "a88f92d7d0242ada9445ae585df6087a478a96b9",
+        ".commandcode/skills/control-ai-browsers/scripts/proctree.mjs": "5bc389b65207291192115ffde9a0e2019f4ce4fd",
         "spikes/probes/bench-summary.mjs": "e34f8900ee81c722eee1cf302696b0c0dbdfb5d8",
         "spikes/probes/bench.js": "35aed569395f3eecd2ebcef7cdf05f8a109efb7c",
         "spikes/probes/broker-state.js": "0908b04cba0ee474f17027e7cc60dbd724076fd3",

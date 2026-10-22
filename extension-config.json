@@ -1,0 +1,6 @@
+{
+  "browser": "chrome",
+  "launchOptions": {
+    "args": ["--load-extension=D:/projects/sandbox/angular-ai-devtools/extension"]
+  }
+}

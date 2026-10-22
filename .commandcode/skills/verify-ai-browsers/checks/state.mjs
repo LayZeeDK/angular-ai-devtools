@@ -1,5 +1,5 @@
 // @ts-check
-// Claim: each named per-model browser instance (all four in instances.json when none is named) is healthy and
+// Claim: each named per-model browser instance (every instance in instances.json when none is named) is healthy and
 // serves its registry model: control-ai-browsers `doctor` exits 0, `flags` exits 0 (the effective features match
 // the registry), `model info` finds the registry model's manifest on disk, and on-device-internals Broker State
 // serves that model.
@@ -18,7 +18,7 @@ import { printable } from '../../control-ai-browsers/scripts/fingerprint.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..', '..', '..');
-const CONTROL_DIR = join(ROOT, '.claude', 'skills', 'control-ai-browsers');
+const CONTROL_DIR = join(ROOT, '.commandcode', 'skills', 'control-ai-browsers');
 
 /** @typedef {{ code: number | null, json: Record<string, unknown> | null, text: string }} StepResult */
 /** @typedef {{ model: { name: string, contextWindow: number } }} RegistryInstance */

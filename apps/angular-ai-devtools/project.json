@@ -1,0 +1,120 @@
+{
+  "name": "angular-ai-devtools",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/angular-ai-devtools/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/angular-ai-devtools",
+        "browser": "apps/angular-ai-devtools/src/main.ts",
+        "tsConfig": "apps/angular-ai-devtools/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/angular-ai-devtools/public"
+          }
+        ],
+        "styles": [
+          "apps/angular-ai-devtools/src/styles.css"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "build-extension": {
+      "executor": "@angular/build:application",
+      "outputs": [
+        "{workspaceRoot}/extension/panel"
+      ],
+      "options": {
+        "outputPath": {
+          "base": "extension/panel",
+          "browser": ""
+        },
+        "browser": "apps/angular-ai-devtools/src/main.ts",
+        "tsConfig": "apps/angular-ai-devtools/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/angular-ai-devtools/public"
+          }
+        ],
+        "styles": [
+          "apps/angular-ai-devtools/src/styles.css"
+        ],
+        "baseHref": "/panel/",
+        "outputHashing": "none",
+        "extractLicenses": false,
+        "budgets": [
+          {
+            "type": "initial",
+            "maximumWarning": "500kb",
+            "maximumError": "1mb"
+          },
+          {
+            "type": "anyComponentStyle",
+            "maximumWarning": "4kb",
+            "maximumError": "8kb"
+          }
+        ]
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
+      "configurations": {
+        "production": {
+          "buildTarget": "angular-ai-devtools:build:production"
+        },
+        "development": {
+          "buildTarget": "angular-ai-devtools:build:development"
+        }
+      }
+    },
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "options": {
+        "watch": false
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "angular-ai-devtools:build",
+        "port": 4200,
+        "staticFilePath": "dist/apps/angular-ai-devtools/browser",
+        "spa": true
+      }
+    }
+  }
+}

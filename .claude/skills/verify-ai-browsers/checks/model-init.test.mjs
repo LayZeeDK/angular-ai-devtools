@@ -1,5 +1,5 @@
 // @ts-check
-// Run: node --test .claude/skills/verify-ai-browsers/checks/model-init.test.mjs
+// Run: node --test .commandcode/skills/verify-ai-browsers/checks/model-init.test.mjs
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';

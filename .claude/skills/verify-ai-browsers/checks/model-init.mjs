@@ -5,7 +5,7 @@
 // clearing, downloading and initialising the instance's own model works end to end.
 // Covers: control-ai-browsers features/model-lifecycle.md `model-init` (after `model-clear` and `model-download`).
 // Needs: the instance running with its model downloaded.
-// Usage: node .claude/skills/verify-ai-browsers/checks/model-init.mjs --evidence <dir> <instance>
+// Usage: node .commandcode/skills/verify-ai-browsers/checks/model-init.mjs --evidence <dir> <instance>
 // Writes: <dir>/model-init.json, plus each control step's own evidence JSON in <dir>.
 // Exit 0 pass; 1 with `Error: CLAIM: ...` when the claim fails; 2 when it could not run.
 import { realpathSync } from 'node:fs';

@@ -14,6 +14,9 @@ a JSON Schema constraint, completes a tool round trip, and `document.modelContex
 - `health-structured` proves `responseConstraint` output parses.
 - `health-tools` proves a tool call and its answer.
 - `health-webmcp` proves `document.modelContext` is an object.
+- `health-account` proves the profile holds no signed-in account and no sync setup (Edge signs the Windows work account
+  in when started without the browser's sign-in switches).
+- `health-extension` proves the instance serves the unpacked extension the state file records (`extensionDir`) (see [Extension panel](./extension-panel.md)).
 
 ## How to get to it (user POV)
 
@@ -24,7 +27,8 @@ a JSON Schema constraint, completes a tool round trip, and `document.modelContex
 
 Preconditions: the README baseline.
 
-- **Full doctor.** Run `C doctor chrome-beta-gemma4`. Exit 0 and fifteen check lines, each `[OK]`, `[WARN]` or
+- **Full doctor.** Run `C doctor chrome-beta-gemma4`. Exit 0 and sixteen check lines (`extension` among them:
+  `Angular AI DevTools 0.3.0 loaded as mgkfgkdgobahfcgkdlokpoehblpbkfok from <primary checkout>/extension`), each `[OK]`, `[WARN]` or
   `[SKIP]`. `backend` reads `requested gpu`, `GPU (fastest inference)`, row `gemma4_gpu_low_tier_model`.
 - **Nano.** Run `C doctor chrome-beta-nano`. `canary.tools` is `[SKIP]`; `backend` row `nano_v3_gpu_low_tier_model`.
 - **Edge.** Run `C doctor edge-dev-aion`. `backend` row `edge_base_model_gpu`, `GPU (highest quality)`;

@@ -43,21 +43,42 @@ Preconditions: the README baseline; Broker State "Enough disk space to install" 
 - **Check.** Run `C doctor chrome-beta-nano`; exit 0.
 - **Proof.** One evidence directory with `model info` before, `clear`, `download`, `init`, `model info` after.
 - **Pin (Aion).** With `edge-dev-aion` running and doctor at exit 0, run `C model pin edge-dev-aion`. It logs
-  `pinned EdgeLLMOnDeviceModel 2026.10.2.1, EdgeLLMRuntime 2026.10.2.1` and the folder
-  `tmp/control-ai-browsers/pins/edge-dev-aion` (1.3 GB, git-ignored). From then on, an `up` of the stopped instance
+  `pinned EdgeLLMOnDeviceModel 2026.10.2.1, EdgeLLMRuntime 2026.10.2.1, EdgeOptimizationGuideModelsManifest 2026.10.2.1`
+  and the folder `.commandcode/worktrees/tmp/control-ai-browsers/pins/edge-dev-aion` of the primary checkout (1.3 GB,
+  git-ignored). From then on, an `up` of the stopped instance
   whose disk holds other versions, or the pinned version with other files or sizes, logs
   `[WARN] ... restored it (EdgeLLMRuntime -2026.10.12.1)` (`~<version>` for a replaced folder) and doctor's
   `model.pin` reads `matches the pin`. Measured 2026-10-17 in a worktree copy: twice, an update was let run without
   `--disable-component-update` and interrupted by `down` (once after the runtime landed, once while the model
   component read "Downloading"); each time `up` restored the pin and doctor exited 0.
-- **No pin yet.** Copy a matching `EdgeLLMOnDeviceModel\<v>` and `EdgeLLMRuntime\<v>` pair into the stopped
-  profile (the pair the profile's `EdgeOptimizationGuideModelsManifest\<v>` names; 2026.10.2.1 on 2026-10-17),
-  removing other version folders there, then `up`, `doctor`, `model pin`.
+- **Pin into a new profile.** The pin holds the manifest component too, because a profile that starts under
+  `--disable-component-update` never receives one. `up` on a new profile restores all three folders. Broker State
+  then reads `edge_base_model` `Not Installed`, `prompt_api` `Pending Usage` and `availability()` `downloadable`
+  until one `create()` requests the asset. Run `C model init edge-dev-aion` once. It installs the pinned files from
+  disk with no download (measured 2026-10-19: first create 3.3 s, `contextWindow` 7,168). Edge then rewrites the
+  cache files in the model folder, so run `C model pin edge-dev-aion` again once doctor's only failure is
+  `model.pin`.
+- **No pin yet.** Put a matching `EdgeLLMOnDeviceModel\<v>`, `EdgeLLMRuntime\<v>` and
+  `EdgeOptimizationGuideModelsManifest\<v>` set (2026.10.2.1) in the pin folder, with a `pin.json` listing each file
+  and size in the shape `model pin` writes. Then run `up`, `model init`, `doctor` and `model pin`. On 2026-10-19 the
+  set was copied read-only from Lars's stopped Edge Dev profile, which held the same 2026.10.2.1 set. Letting Edge
+  fetch it by removing `--disable-component-update` does not work: the updater installs a model past the manifest
+  (Gotchas).
 
 ## Gotchas
 
 - `model clear` refuses a running instance: deleting files under a running browser is unsafe, and a running
   profile with the use case Requested downloads the model again by itself.
+- A new Chrome Beta profile offers no model at all: Broker State's Manifest Criteria read "Enabled by user setting:
+  false", every use case reads `Not Supported`, the manifest lists no assets, and `model download` refuses because
+  `availability()` is `unavailable`. Pre-stable channels turn the On-Device AI setting (`chrome://settings/ai`, Local
+  State `optimization_guide.on_device_foundational_model_user_settings`) off by default unless a model was
+  installed before or the `OnDeviceAiDefaultEnabled` feature is on
+  (`chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc`,
+  `ShouldEnableOnDeviceAiByDefault`). Both Chrome instances list that feature. With it, a new profile offered
+  `nano_v3_gpu_component` and `gemma4_component` at once, and `model download` took 260 s (Nano, 4,072 MiB) and
+  196 s (Gemma 4, 2,374 MiB) on 2026-10-19. The performance class (2 to 4) and the VRAM reading ("16162 MiB actual")
+  were never the blocker.
 - Chrome starts downloading a Requested model at launch without any page call. After `down`, `clear`, `up`,
   availability read `downloading` straight away, and the first create() finished the 4 GB download.
 - The Gemma 4 instance holds Nano that the Prompt API there never uses: both variants (GPU 2025.8.8.1141,

@@ -22,12 +22,26 @@ sidecars, including worktree and branch).
 
 ## Browsers and on-device models
 
-- Drive the browsers only through the `control-ai-browsers` skill; each instance runs in its own profile under
-  `.browsers/` (git-ignored). Never start, stop or touch a browser profile outside `.browsers/`.
+- Drive the browsers only through the `control-ai-browsers` skill; each instance runs in its own profile under the
+  primary checkout's `.commandcode/worktrees/.browsers/` (git-ignored). Never start, stop or touch a browser profile
+  outside it.
+- Launch an instance profile only through `control-ai-browsers up`, never by hand: Edge then signs Lars's Windows
+  work account in and syncs it. The Edge sign-in switches are browser-level in `instances.json`; `up` and doctor
+  refuse a profile that holds an account.
+- The instances and their models are shared by every checkout: a worktree or GSD Path sidecar runs `up`, gets
+  `alreadyRunning`, and must not wait for or start a model download. A model missing from a shared profile is a
+  bug to fix in the skill, not an environment blocker (`.commandcode/skills/control-ai-browsers/SKILL.md`, Gotchas).
+- Every instance loads `extension/`. Run `npx nx run angular-ai-devtools:build-extension` before `up`, and prove the
+  extension's Prompt API feature with `control-ai-browsers panel <name> --url=<app>` or `verify-ai-browsers`
+  `checks/extension-panel.mjs`.
+- `.commandcode/skills/` is the maintained copy of the `control-*` and `verify-*` skills. `control-ai-browsers` and
+  `verify-ai-browsers` drive shared instances, so `.claude/skills/` holds byte copies of them; after changing one,
+  copy its `.commandcode` folder over the `.claude` one (`scripts/skills-mirror.test.mjs` fails until you do). The
+  other `.claude/skills/` folders are older copies, not kept in step. `npm test` and `npm run check` cover both trees.
 - `edge-dev-aion` is pinned to Aion model and runtime 2026.10.2.1 on purpose. Do not remove
   `--disable-component-update` or replace the pinned folders until a newer pair is proven to serve, and test that
   only on a throwaway copy of the profile: `references/edge-dev-aion-model.md`.
-- Running the four-instance `state` verdict (cost, timeouts, known hangs, coordinating with other sessions):
+- Running the `state` and `extension-panel` verdicts (cost, timeouts, known hangs, coordinating with other sessions):
   `references/ai-browsers-verification.md`.
 
 ## Control skills
