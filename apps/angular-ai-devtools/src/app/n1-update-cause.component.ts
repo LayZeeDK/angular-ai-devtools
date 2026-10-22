@@ -6,7 +6,6 @@ import { walkChain, ChainResult } from './update-cause-chain';
 
 @Component({
   selector: 'app-n1-update-cause',
-  standalone: true,
   template: `
     <h2>Why did this update?</h2>
     <p class="subtitle">Change-detection causality recorder</p>

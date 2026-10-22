@@ -65,14 +65,49 @@ function templateNode(check: RecordedCheck): GraphNode | undefined {
 
 function changedSignals(check: RecordedCheck): string[] {
   const nodes = check.graph?.nodes ?? [];
+  const edges = check.graph?.edges ?? [];
   const changed = new Set((check.changedNodeIds ?? []).map(String));
-  const out: string[] = [];
-  for (const n of nodes) {
-    if (changed.has(String(n.id))) {
-      if (n.kind !== 'template' && n.label) out.push(String(n.label));
+  // Topological order: producers before consumers (walk edges).
+  const changedNodes = nodes.filter((n) => changed.has(String(n.id)) && n.kind !== 'template' && n.label);
+  // Build adjacency: for each changed node, find which changed nodes it depends on.
+  const changedIds = new Set(changedNodes.map((n) => String(n.id)));
+  const inDegree = new Map<string, number>();
+  const dependents = new Map<string, string[]>();
+  for (const n of changedNodes) {
+    inDegree.set(String(n.id), 0);
+    dependents.set(String(n.id), []);
+  }
+  for (const e of edges) {
+    const consumer = String(e.consumer);
+    const producer = String(e.producer);
+    if (changedIds.has(consumer) && changedIds.has(producer)) {
+      inDegree.set(consumer, (inDegree.get(consumer) ?? 0) + 1);
+      dependents.get(producer)?.push(consumer);
     }
   }
-  return out;
+  // Kahn's algorithm.
+  const queue: string[] = [];
+  for (const [id, deg] of inDegree) {
+    if (deg === 0) queue.push(id);
+  }
+  const ordered: string[] = [];
+  while (queue.length > 0) {
+    const id = queue.shift()!;
+    const node = changedNodes.find((n) => String(n.id) === id);
+    if (node?.label) ordered.push(String(node.label));
+    for (const dep of dependents.get(id) ?? []) {
+      const newDeg = (inDegree.get(dep) ?? 1) - 1;
+      inDegree.set(dep, newDeg);
+      if (newDeg === 0) queue.push(dep);
+    }
+  }
+  // Append any remaining (cycles or disconnected) in node order.
+  for (const n of changedNodes) {
+    if (!ordered.includes(String(n.label))) {
+      if (n.label) ordered.push(String(n.label));
+    }
+  }
+  return ordered;
 }
 
 export function walkChain(input: WalkInput | RecordedCheck): ChainResult {
@@ -134,9 +169,8 @@ export function walkChain(input: WalkInput | RecordedCheck): ChainResult {
     chain = parts.join(' -> ');
   }
 
-  // noSignalCause reporting text handled by flag; chain string for no-signal case is 'no signal cause'
   if (!graphUnavailable && signals.length === 0 && trig === 'output') {
-    chain = 'no signal cause';
+    chain = `${triggerLabel} -> no signal cause`;
   }
 
   return {

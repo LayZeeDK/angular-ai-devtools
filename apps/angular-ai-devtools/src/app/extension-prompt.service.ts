@@ -24,7 +24,6 @@ interface LanguageModelApi {
   create(): Promise<LanguageModelSession>;
 }
 
-// Minimal structural type for chain-result objects passed to explain().
 export interface ChainResultLike {
   chain?: string;
   triggerLabel?: string;
