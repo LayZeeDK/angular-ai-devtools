@@ -1,4 +1,4 @@
-# Wave 2 Review — Cycle 1
+# Review — wave 2, cycle 1
 
 Wave verdict: pass
 Cycle: 1
