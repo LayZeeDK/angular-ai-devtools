@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: nx-angular-workspace
-phase: build
+phase: ship
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M004
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -78,3 +78,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-21 — build — block resolved: T003 stale worktree directory cleaned up, task file reverted to match landing commit
 - 2026-10-22 — build — wave 1 review passed (full, cycle 1); build continuing to wave 2
 - 2026-10-22 — build — build complete: all 6 tasks done and reviewed (waves 1-3 pass)
+- 2026-10-22 — ship — build done; final review pending
