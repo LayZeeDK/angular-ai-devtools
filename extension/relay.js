@@ -24,6 +24,11 @@ window.addEventListener(`${NS}:announce`, (e) => {
   });
 });
 
+// Forward cycle records from the MAIN-world agent
+window.addEventListener('angular-ai:record', (e) => {
+  chrome.runtime.sendMessage({ type: 'angular-ai:record', cycle: e.detail });
+});
+
 // Listen for requests from the background service worker (via chrome.runtime)
 chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
   if (msg?.type === 'PROMPT_API_REQUEST') {
