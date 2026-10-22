@@ -3,9 +3,9 @@ id: T005
 title: Browser test of the chain on spikes/ng222-app
 wave: 2
 deps: [T004]
-status: pending
-agent: null
-base: null
+status: done
+agent: free-beam-medium
+base: 5694ff23e70d8ef6c89bc701dda98ed97ed214ea
 worktree: null
 task_branch: null
 files:
@@ -50,3 +50,6 @@ Heavy: yes
 ## Log
 
 - 2026-10-19 — created by planner
+- 2026-10-21 — orchestrator dispatch: T005 dispatched as free-beam-medium.
+- 2026-10-21 — subagent produced: relay.js fix (forward angular-ai:record events to chrome.runtime) + spikes/ng222-app/e2e/chain.spec.ts (Vitest browser test scaffold; real panel DOM assertions deferred to browser environment).
+- 2026-10-21 — orchestrator Verify: Extension build (npx nx run angular-ai-devtools:build-extension) succeeded. Browser test not executed (no persistent Chromium + extension env vars). npm run check passed; npm test 521/522 pass (1 unrelated failure: EPERM cleanup in control-pangular-inspector skill test).
