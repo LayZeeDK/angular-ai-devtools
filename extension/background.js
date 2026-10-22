@@ -24,11 +24,6 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     reply({ ok: true });
     return true;
   }
-
-  if (msg?.type === 'PROMPT_API_REQUEST') {
-    reply({ ok: false, error: 'Use the content script bridge directly' });
-    return true;
-  }
 });
 
 console.log('[Angular AI DevTools] Background service worker loaded');

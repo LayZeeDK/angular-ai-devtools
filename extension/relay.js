@@ -1,55 +1,11 @@
 // relay.js — runs in ISOLATED world
 // Bridges between extension (chrome.runtime) and the MAIN-world agent
-const NS = 'angular-ai:llm';
-const pending = new Map();
-let nextId = 0;
 let angularDetected = false;
-
-// Listen for responses from the MAIN-world agent
-window.addEventListener(`${NS}:response`, (e) => {
-  const { id, ok, result, error } = e.detail ?? {};
-  const settle = pending.get(id);
-  if (settle) {
-    pending.delete(id);
-    settle(ok === true ? { ok: true, result } : { ok: false, error });
-  }
-});
-
-// Listen for announce from the MAIN-world agent
-window.addEventListener(`${NS}:announce`, (e) => {
-  const capability = e.detail ?? {};
-  chrome.runtime.sendMessage({
-    type: 'host:capability',
-    capability: { context: 'bridge', ...capability },
-  });
-});
 
 // Forward cycle records from the MAIN-world agent
 window.addEventListener('angular-ai:record', (e) => {
   chrome.runtime.sendMessage({ type: 'angular-ai:record', cycle: e.detail });
 });
-
-// Listen for requests from the background service worker (via chrome.runtime)
-chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
-  if (msg?.type === 'PROMPT_API_REQUEST') {
-    const id = `r${nextId++}`;
-    request(msg.method || 'prompt', msg.params || {}).then((res) => {
-      reply(res);
-    });
-    return true; // async
-  }
-});
-
-function request(method, params) {
-  const id = `r${nextId++}`;
-  return new Promise((resolve) => {
-    pending.set(id, resolve);
-    window.dispatchEvent(new CustomEvent(`${NS}:request`, { detail: { id, method, params } }));
-    setTimeout(() => {
-      if (pending.delete(id)) resolve({ ok: false, error: 'timeout' });
-    }, 60000);
-  });
-}
 
 // Detect Angular and inject marker
 function checkAngular() {

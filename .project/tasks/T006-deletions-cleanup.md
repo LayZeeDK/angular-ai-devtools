@@ -3,9 +3,9 @@ id: T006
 title: Remove dead prompt bridge, content.js, page-script.js, and nx-welcome.ts
 wave: 3
 deps: [T001, T004]
-status: pending
-agent: null
-base: null
+status: done
+agent: free-beam-medium
+base: 3dde8ad87bd8d26a478e20653e2f2d8fbf1dd74c
 worktree: null
 task_branch: null
 files:
@@ -59,3 +59,6 @@ Heavy: yes
 ## Log
 
 - 2026-10-19 — created by planner
+- 2026-10-21 — orchestrator dispatch: T006 dispatched as free-beam-medium (serial, primary worktree)
+- 2026-10-21 — subagent produced: deleted content.js, page-script.js, nx-welcome.ts; stripped prompt bridge from relay.js and background.js; agent-main.js already clean; committed as 1523a7a
+- 2026-10-21 — orchestrator Verify: npm run check PASS, npm test PASS (522 tests), npx nx run angular-ai-devtools:build-extension --skip-nx-cache PASS; grep for content.js, page-script.js, nx-welcome, PROMPT_API_REQUEST returns no references
