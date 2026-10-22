@@ -4,7 +4,7 @@ Per-role model overrides for pstack skills. Each pstack SKILL.md names its defau
 
 On Command Code, the model slug is passed to the `agent` tool's `model` parameter. The pstack effort agents (`effort-low`, `effort-medium`, `effort-high`, `effort-xhigh`, `effort-max`) set `reasoningEffort` in their frontmatter and do not pin a model; the caller supplies it. Models without effort control (`poolside/laguna-s-2.1-free`) ignore `reasoningEffort` and run at their default depth. Command Code has no SessionStart hook; the `session hook` line here is inert.
 
-Free models available: `poolside/laguna-s-2.1-free`, `reflection/beam:free`, `minimax/minimax-m3.1-flash:free`, `stealth/glyph-cluster:free`, `ornith/ornith-1.5-122b:free`.
+Free models available: `poolside/laguna-s-2.1-free`, `reflection/beam:free`, `minimax/minimax-m3.1-flash:free`, `stealth/glyph-cluster:free`.
 
 # Benchmark results (15 free-model variants on /lars-summarize c514846d transcript, ~2.5MB):
 # Winner: reflection/beam:free @medium (49s, 384K tokens, good quality — best speed/quality)
@@ -14,19 +14,15 @@ Free models available: `poolside/laguna-s-2.1-free`, `reflection/beam:free`, `mi
 #   glyph-low: 41s (failed), glyph-medium: 304s, glyph-high: 264s, glyph-xhigh: 490s (minimal)
 # Note: For summarization, Beam @medium is 11x faster than Laguna with good quality.
 # Effort barely matters for simple synthesis — low/medium effort is adequate and 2-3x faster.
-# Beam has no ZDR; MiniMax and Ornith are ZDR-capable. Irrelevant for open-source.
-# Ornith 1.5 122B: vendor-reported SWE-bench Verified 84.5, TerminalBench 2.1 81.2,
-#   CyberGym 80.0 — strong on coding/agentic but not independently verified by Command Code.
-#   262K context, multimodal (text/image/video input), ZDR-capable, no effort control.
-#   Free until 11:00 PM PT on October 21.
+# Beam has no ZDR; MiniMax is ZDR-capable. Irrelevant for open-source.
 
 ## Winner + fallback chain
 
 Coding roles (feature, refactoring, bug-fix, perf-issue):
-  feature, refactoring: poolside/laguna-s-2.1-free, ornith/ornith-1.5-122b:free, reflection/beam:free @low
-  bug-fix: poolside/laguna-s-2.1-free, ornith/ornith-1.5-122b:free, reflection/beam:free @low
-  perf-issue: poolside/laguna-s-2.1-free, ornith/ornith-1.5-122b:free, reflection/beam:free @low
-  hillclimb: reflection/beam:free @low, ornith/ornith-1.5-122b:free, poolside/laguna-s-2.1-free
+  feature, refactoring: poolside/laguna-s-2.1-free, reflection/beam:free @low
+  bug-fix: poolside/laguna-s-2.1-free, reflection/beam:free @low
+  perf-issue: poolside/laguna-s-2.1-free, reflection/beam:free @low
+  hillclimb: reflection/beam:free @low, poolside/laguna-s-2.1-free
 
 Judgment/prose roles (judgment and prose, strongest judgment, reflect):
   judgment and prose, strongest judgment, reflect:
@@ -34,22 +30,22 @@ Judgment/prose roles (judgment and prose, strongest judgment, reflect):
   Fallback:  poolside/laguna-s-2-1-free
 
 Investigation roles (how, why):
-  how explorer: reflection/beam:free @low, ornith/ornith-1.5-122b:free, minimax/minimax-m3.1-flash:free @xhigh
-  how explainer: reflection/beam:free @low, ornith/ornith-1.5-122b:free, minimax/minimax-m3.1-flash:free @xhigh
-  why investigators: reflection/beam:free @low, ornith/ornith-1.5-122b:free, minimax/minimax-m3.1-flash:free @xhigh
-  why synthesizer: reflection/beam:free @low, ornith/ornith-1.5-122b:free, minimax/minimax-m3.1-flash:free @xhigh
+  how explorer: reflection/beam:free @low, minimax/minimax-m3.1-flash:free @xhigh
+  how explainer: reflection/beam:free @low, minimax/minimax-m3.1-flash:free @xhigh
+  why investigators: reflection/beam:free @low, minimax/minimax-m3.1-flash:free @xhigh
+  why synthesizer: reflection/beam:free @low, minimax/minimax-m3.1-flash:free @xhigh
 
 Summarization (for /lars-summarize subagent):
-  summarize: reflection/beam:free @medium, ornith/ornith-1.5-122b:free, minimax/minimax-m3.1-flash:free @xhigh
+  summarize: reflection/beam:free @medium, minimax/minimax-m3.1-flash:free @xhigh
 
 Arena (unchanged — already multi-model fan-out):
-  arena runners: poolside/laguna-s-2.1-free, reflection/beam:free, ornith/ornith-1.5-122b:free, stealth/glyph-cluster:free
-  arena cross-judge pool: poolside/laguna-s-2.1-free, reflection/beam:free, ornith/ornith-1.5-122b:free, stealth/glyph-cluster:free
+  arena runners: poolside/laguna-s-2.1-free, reflection/beam:free, stealth/glyph-cluster:free
+  arena cross-judge pool: poolside/laguna-s-2.1-free, reflection/beam:free, stealth/glyph-cluster:free
 
 Other roles:
-  swarm workers: poolside/laguna-s-2.1-free, ornith/ornith-1.5-122b:free, reflection/beam:free @low
-  architect runners: poolside/laguna-s-2.1-free, reflection/beam:free, ornith/ornith-1.5-122b:free, stealth/glyph-cluster:free
-  interrogate reviewers: poolside/laguna-s-2.1-free, ornith/ornith-1.5-122b:free, reflection/beam:free, stealth/glyph-cluster:free
+  swarm workers: poolside/laguna-s-2.1-free, reflection/beam:free @low
+  architect runners: poolside/laguna-s-2.1-free, reflection/beam:free, stealth/glyph-cluster:free
+  interrogate reviewers: poolside/laguna-s-2.1-free, reflection/beam:free, stealth/glyph-cluster:free
 
 default effort: session
 session hook: off
