@@ -5,7 +5,7 @@ milestone: signal-provenance
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: active
 branch: gsd-path/M005
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -93,3 +93,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-23 — plan — plan approved
 - 2026-10-23 — build — build started
 - 2026-10-23 — build — build blocked: blocked recovery
+- 2026-10-23 — build — build started
