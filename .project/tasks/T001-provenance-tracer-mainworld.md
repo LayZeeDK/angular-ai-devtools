@@ -3,9 +3,9 @@ id: T001
 title: Implement MAIN-world provenance tracer with per-component graph aggregation
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: f9aa7a2202ddf6511340723e3d8c89913dd1e5c1
 worktree: null
 task_branch: null
 files:
@@ -55,3 +55,4 @@ Heavy: no
 ## Log
 
 - created by planner
+- implemented T001: resolved edges to global node ids in serializeGraph, added unavailable flag for missing template node, feature-detected ng.ɵgetSignalGraph in tryInstall. Updated tests: id-resolved edges, unavailable flag, not-supported state. Verify: npm run check (pass) + node --test (18 pass, 0 fail).
