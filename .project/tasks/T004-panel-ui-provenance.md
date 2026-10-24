@@ -52,7 +52,7 @@ Walking skeleton: the panel lets a user select a signal or component, renders th
 ## Verify
 
 ```bash
-npx nx test angular-ai-devtools --skip-nx-cache --testFilePattern=apps/angular-ai-devtools/src/app/signal-provenance.service.spec.ts && npx nx run angular-ai-devtools:build-extension --skip-nx-cache
+npx nx test angular-ai-devtools --skip-nx-cache --include=apps/angular-ai-devtools/src/app/signal-provenance.service.spec.ts && npx nx run angular-ai-devtools:build-extension --skip-nx-cache
 ```
 
 Heavy: no
