@@ -60,3 +60,4 @@ Heavy: no
 ## Log
 
 - created by planner
+- attested: T004 signal-provenance feature implemented manually on the primary worktree. The verify command uses Nx --include to run the signal-provenance service spec and build the DevTools extension, both passing.
