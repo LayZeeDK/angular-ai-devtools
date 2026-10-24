@@ -5,7 +5,7 @@ milestone: signal-provenance
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: active
 branch: gsd-path/M005
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -97,3 +97,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-23 — build — wave 1 full review passed (T001, T002, T003 all PASS); extension-panel check passed via verify-ai-browsers (chrome-stable-nano, CDP 9338); continuing to wave 2
 - 2026-10-23 — build — wave 2 task T004 verified: 7/7 tests pass, extension build succeeds; continuing to T005
 - 2026-10-24 — build — build blocked on T004: done but no landing commit proves it; base a9646ea is invalid (descendant of landing cd258b2)
+- 2026-10-25 — build — build started
