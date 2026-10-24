@@ -4,8 +4,8 @@ title: Deliver DevTools panel UI for signal provenance and anti-patterns
 wave: 2
 deps: [T001, T002, T003]
 status: done
-agent: null
-base: a7c42f5b8f93a1bce5a2fe9a72ca7c539f293719
+agent: claude
+base: 428bb85b02acf8dae95182151a94b3b5eef8292e
 worktree: null
 task_branch: null
 files:

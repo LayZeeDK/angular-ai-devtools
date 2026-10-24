@@ -56,7 +56,7 @@
 - Prefers using local source clones under `d:/projects/github/` (rather than `node_modules` or web fetch) when investigating framework internals (e.g. Angular's `ɵ` APIs) or analyzing/exploring repositories; corrected the assistant from `web_fetch` to a local clone for analysis. Confidence: 0.85
 - On this machine, global npm packages/node_modules live under `D:\packages\npm-global` (the npm global prefix); it is populated, not empty, and `npm prefix -g`/`npm root -g` should be checked before assuming the global location or its contents. Confidence: 0.9
 - Regards Ornith as a good overall model but slow in output; when it is too slow for a task, route subagents to faster free models (Beam 1.0, MiniMax) with guardrails instead, and prefer non-poolside routes to avoid rate limiting; Ornith remains the main/orchestration model but is not the only subagent route. Confidence: 0.8
-- For this Nx Angular workspace, verify with `nx test angular-ai-devtools --include=<path>` rather than `--testPathPattern=` (the latter is unsupported by the installed Nx version). Confidence: 0.75
+- For this Nx Angular workspace, verify with `nx test angular-ai-devtools --include=<path>` rather than `--testPathPattern=` or `--testFilePattern=` (both unsupported/rejected); user explicitly forced `--include=` as the canonical flag. Confidence: 0.85
 - In `gsd-path` isolation, `activate-task --repo` must point at the task worktree path (the function's first parameter is `worktree`), not the primary repo path — passing the primary repo fails the branch check. Confidence: 0.75
 - `gsd-path isolate-task` auto-bridges `node_modules` into the task worktree (junction), so `npx nx test` works there without a manual install. Confidence: 0.7
 
