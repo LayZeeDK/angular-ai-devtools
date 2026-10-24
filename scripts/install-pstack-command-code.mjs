@@ -526,10 +526,10 @@ function main() {
   if (cleanCache) stepCleanCache();
 
   log("\n=== Summary ===");
-  log(`Skills:  ${skills.length} symlinked`);
+  log(`Skills:  ${skills.length} installed (copied + path-adapted)`);
   log(
     `Agents:  ${agents.length + effortAgents.length} installed ` +
-      `(${agents.length} verbatim, ${effortAgents.length} adapted)`,
+      `(${agents.length} path-rebased, ${effortAgents.length} frontmatter + paths adapted)`,
   );
   log(
     `Manifest: ${dryRun ? "[dry-run] would " : ""}write ${MANIFEST_PATH}`,
