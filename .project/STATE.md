@@ -94,3 +94,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-23 — build — build started
 - 2026-10-23 — build — build blocked: blocked recovery
 - 2026-10-23 — build — build started
+- 2026-10-23 — build — wave 1 full review passed (T001, T002, T003 all PASS); extension-panel check passed via verify-ai-browsers (chrome-stable-nano, CDP 9338); continuing to wave 2
+- 2026-10-23 — build — wave 2 task T004 verified: 7/7 tests pass, extension build succeeds; continuing to T005
