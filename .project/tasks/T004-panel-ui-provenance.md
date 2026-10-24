@@ -5,7 +5,7 @@ wave: 2
 deps: [T001, T002, T003]
 status: done
 agent: null
-base: a9646ea778a23471d952e48da6f589ef7f4005f2
+base: a7c42f5b8f93a1bce5a2fe9a72ca7c539f293719
 worktree: null
 task_branch: null
 files:
@@ -52,7 +52,7 @@ Walking skeleton: the panel lets a user select a signal or component, renders th
 ## Verify
 
 ```bash
-npx nx test angular-ai-devtools --skip-nx-cache --include=apps/angular-ai-devtools/src/app/signal-provenance.service.spec.ts && npx nx run angular-ai-devtools:build-extension --skip-nx-cache
+npx nx test angular-ai-devtools --skip-nx-cache --testFilePattern=apps/angular-ai-devtools/src/app/signal-provenance.service.spec.ts && npx nx run angular-ai-devtools:build-extension --skip-nx-cache
 ```
 
 Heavy: no
