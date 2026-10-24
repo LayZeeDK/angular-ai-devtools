@@ -2,19 +2,28 @@
 /**
  * install-pstack-command-code.mjs
  *
- * Syncs a local pstack-claude clone and updates the Command Code global
+ * Syncs a local pstack-claude clone and installs the Command Code global
  * installation of pstack skills and subagents.
  *
- * Skills are symlinked from the clone's `plugins/pstack/skills/` so they track
- * upstream commits automatically. Subagents from `plugins/pstack/agents/` are
- * copied verbatim (already in Command Code's frontmatter format). Subagents
- * from `plugins/pstack/effort-agents/` are copied with one adaptation: the
- * frontmatter key `effort:` is renamed to `reasoningEffort:` because Command
- * Code (and Codex) read `reasoningEffort`, not `effort`.
+ * Skills are **copied** (not symlinked) from the clone's
+ * `plugins/pstack/skills/`.  Copying is required so that Claude Code-specific
+ * paths can be rebased onto Command Code equivalents during install:
+ *
+ *   ~/.claude         → ~/.commandcode        (Claude config dir)
+ *   .claude          → .commandcode           (project-relative config dir)
+ *   ~/.claude/CLAUDE.md → ~/.commandcode/AGENTS.md  (config file name)
+ *   .claude/CLAUDE.md → .commandcode/AGENTS.md
+ *
+ * Subagents from `plugins/pstack/agents/` are copied with the same path
+ * rebasing.  Subagents from `plugins/pstack/effort-agents/` are copied with two
+ * adaptations: the frontmatter key `effort:` is renamed to `reasoningEffort:`
+ * (Command Code and Codex read `reasoningEffort`, not `effort`), and Claude
+ * Code-specific paths are rebased as above.
  *
  * A manifest is written to `~/.commandcode/.pstack-claude-manifest.json` so
  * subsequent runs can remove stale skills and agents that pstack-claude no
- * longer ships.
+ * longer ships.  Backward compatibility: old symlinks from a previous
+ * symlinking install are also removed.
  *
  * Usage:
  *   node scripts/install-pstack-command-code.mjs
@@ -32,6 +41,7 @@
 
 import { execSync } from "node:child_process";
 import {
+  copyFileSync,
   existsSync,
   lstatSync,
   mkdirSync,
@@ -39,7 +49,6 @@ import {
   readFileSync,
   readlinkSync,
   rmSync,
-  symlinkSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
@@ -129,7 +138,7 @@ function listFileNames(dir) {
 }
 
 /**
- * Replace `effort:` with `reasoningEffect:` in the YAML frontmatter block only.
+ * Replace `effort:` with `reasoningEffort:` in the YAML frontmatter block only.
  * Effort-agent files have `effort: <level>` as the last frontmatter key
  * before the closing `---`.
  */
@@ -152,6 +161,61 @@ function adaptFrontmatter(text) {
   }
 
   return lines.join("\n");
+}
+
+/**
+ * Rebase Claude Code-specific paths onto Command Code equivalents.
+ *
+ * Only path-prefixed references are changed — standalone file names like
+ * "CLAUDE.md" in comparative prose (e.g. "On Claude Code, add to CLAUDE.md")
+ * are left untouched.  The replacements are:
+ *
+ *   ~/.claude/CLAUDE.md → ~/.commandcode/AGENTS.md
+ *   ~/.claude/          → ~/.commandcode/
+ *   .claude/CLAUDE.md   → .commandcode/AGENTS.md
+ *   .claude/            → .commandcode/
+ *
+ * Order matters: the CLAUDE.md → AGENTS.md rule runs first so the file-name
+ * change lands before the general directory rebase catches the remaining
+ * `.claude/` occurrences.
+ */
+function adaptPaths(text) {
+  return text
+    .replace(/~\/.claude\/CLAUDE\.md/g, "~/.commandcode/AGENTS.md")
+    .replace(/\.claude\/CLAUDE\.md/g, ".commandcode/AGENTS.md")
+    .replace(/~\/.claude/g, "~/.commandcode")
+    .replace(/\.claude/g, ".commandcode");
+}
+
+/** Heuristic: return true when `name` has a text-file extension. */
+function isTextFile(name) {
+  const ext = name.slice(name.lastIndexOf(".")).toLowerCase();
+  return [".md", ".mjs", ".ts", ".js", ".json", ".yaml", ".yml", ".txt"].includes(
+    ext
+  );
+}
+
+/**
+ * Recursively copy `src` to `dest`.  When `adapt` is true, text files are
+ * run through `adaptPaths` after copying; binary files (and non-text
+ * extensions) are copied verbatim.
+ */
+function copyDir(src, dest, adapt = false) {
+  mkdirSync(dest, { recursive: true });
+  for (const entry of readdirSync(src, { withFileTypes: true })) {
+    const s = join(src, entry.name);
+    const d = join(dest, entry.name);
+    if (entry.isDirectory()) {
+      copyDir(s, d, adapt);
+    } else if (entry.isFile()) {
+      if (adapt && isTextFile(entry.name)) {
+        const text = readFileSync(s, "utf8");
+        writeFileSync(d, adaptPaths(text));
+      } else {
+        copyFileSync(s, d);
+      }
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -222,16 +286,31 @@ function stepGitSync(skip) {
 function stepRemoveOld(manifest) {
   log("\n2. Removing stale pstack skills and agents");
 
-  // --- skills: remove symlinks pointing into the clone ---
+  // --- skills: remove stale directories from the manifest ---
+  // (also clean up old symlinks left by a previous symlinking install)
+  const currentSkillNames = new Set(listDirNames(SKILLS_SRC));
+  const staleSkills = (manifest?.skills || []).filter(
+    (name) => !currentSkillNames.has(name),
+  );
   const removedSkills = [];
+
   if (existsSync(SKILLS_DEST)) {
     for (const entry of readdirSync(SKILLS_DEST, { withFileTypes: true })) {
-      const linkPath = join(SKILLS_DEST, entry.name);
-      if (!entry.isSymbolicLink()) continue;
-      const target = resolveLink(linkPath, SKILLS_DEST);
-      if (isInside(target, SKILLS_SRC)) {
+      const destPath = join(SKILLS_DEST, entry.name);
+
+      if (staleSkills.includes(entry.name)) {
         removedSkills.push(entry.name);
-        if (!dryRun) unlinkSync(linkPath);
+        if (!dryRun) rmSync(destPath, { recursive: true, force: true });
+        continue;
+      }
+
+      // Backward compat: remove old symlinks that point into the clone
+      if (entry.isSymbolicLink()) {
+        const target = resolveLink(destPath, SKILLS_DEST);
+        if (isInside(target, SKILLS_SRC)) {
+          removedSkills.push(entry.name);
+          if (!dryRun) unlinkSync(destPath);
+        }
       }
     }
   }
@@ -267,13 +346,15 @@ function stepRemoveOld(manifest) {
   }
 
   log(
-    `   Removed ${removedSkills.length} skill symlinks, ` +
-      `${removedAgents.length} agent files`,
+    `   Removed ${removedSkills.length} stale skill${
+      dryRun ? " (would remove)" : ""
+    }, ` +
+      `${removedAgents.length} agent${dryRun ? " (would remove)" : ""} files`,
   );
 }
 
 function stepInstallSkills() {
-  log("\n3. Installing skill symlinks");
+  log("\n3. Installing skills (copy + path rebase)");
 
   mkdirSync(SKILLS_DEST, { recursive: true });
 
@@ -281,39 +362,41 @@ function stepInstallSkills() {
   const installed = [];
 
   for (const name of skillDirs) {
-    const linkPath = join(SKILLS_DEST, name);
-    const target = join(SKILLS_SRC, name);
+    const srcDir = join(SKILLS_SRC, name);
+    const destDir = join(SKILLS_DEST, name);
 
-    // Remove existing link or directory if present
-    const stat = lstatSync(linkPath, { throwIfNoEntry: false });
-    if (stat) {
-      if (!dryRun) {
-        if (stat.isSymbolicLink()) {
-          unlinkSync(linkPath);
-        } else {
-          rmSync(linkPath, { recursive: true, force: true });
-        }
+    // Remove existing symlink, file, or directory if present
+    const stat = lstatSync(destDir, { throwIfNoEntry: false });
+    if (stat && !dryRun) {
+      if (stat.isSymbolicLink() || stat.isFile()) {
+        unlinkSync(destDir);
+      } else {
+        rmSync(destDir, { recursive: true, force: true });
       }
     }
 
     if (!dryRun) {
       try {
-        symlinkSync(target, linkPath, "dir");
+        copyDir(srcDir, destDir, true);
         installed.push(name);
+        log(`   ${name} (path-adapted)`);
       } catch (err) {
-        warn(`failed to symlink skill "${name}": ${err.message}`);
+        warn(`failed to install skill "${name}": ${err.message}`);
       }
     } else {
       installed.push(name);
     }
   }
 
-  log(`   ${dryRun ? "[dry-run] would " : ""}symlink ${installed.length} skills`);
+  log(
+    `   ${dryRun ? "[dry-run] would " : ""}install ${installed.length} skills ` +
+      "(copied + path-adapted)",
+  );
   return installed;
 }
 
 function stepCopyAgents() {
-  log("\n4. Copying subagents from agents/ (verbatim)");
+  log("\n4. Copying subagents (path-rebased)");
 
   mkdirSync(AGENTS_DEST, { recursive: true });
 
@@ -325,17 +408,18 @@ function stepCopyAgents() {
     const dest = join(AGENTS_DEST, name);
 
     if (!dryRun) {
-      writeFileSync(dest, readFileSync(src));
+      const text = readFileSync(src, "utf8");
+      writeFileSync(dest, adaptPaths(text));
     }
     installed.push(name);
   }
 
-  log(`   ${dryRun ? "[dry-run] would " : ""}copy ${installed.length} agent files`);
+  log(`   ${dryRun ? "[dry-run] would " : ""}copy ${installed.length} agent files (path-rebased)`);
   return installed;
 }
 
 function stepCopyEffortAgents() {
-  log("\n5. Copying subagents from effort-agents/ (effort: → reasoningEffort:)");
+  log("\n5. Copying subagents from effort-agents/ (frontmatter + path rebase)");
 
   mkdirSync(AGENTS_DEST, { recursive: true });
 
@@ -346,7 +430,7 @@ function stepCopyEffortAgents() {
     const src = join(EFFORT_AGENTS_SRC, name);
     const dest = join(AGENTS_DEST, name);
     const content = readFileSync(src, "utf8");
-    const adapted = adaptFrontmatter(content);
+    const adapted = adaptPaths(adaptFrontmatter(content));
 
     if (!dryRun) {
       writeFileSync(dest, adapted);
@@ -356,7 +440,7 @@ function stepCopyEffortAgents() {
 
   log(
     `   ${dryRun ? "[dry-run] would " : ""}copy ${installed.length} effort-agent files ` +
-      `(frontmatter adapted)`,
+      `(frontmatter + paths adapted)`,
   );
   return installed;
 }
