@@ -41,6 +41,7 @@
 - Run AI browser instances one or two at a time; running all five in parallel causes resource contention. Confidence: 0.85
 - Close all unused Edge/Chrome windows after use; when he states he has no own browser windows open, the agent may close all of them. Confidence: 0.75
 - Persist Edge account-sync prevention in verification artifacts (switches/guards/docs) so instance profiles never sync his work account. Confidence: 0.8
+- For Nx Angular workspaces, do not use a custom Node script as the serve target; prefer Nx executors (e.g. `@nx/angular:*` or `@angular/build:dev-server`) instead. Confidence: 0.8
 - Work email/domain must be scrubbed from Git history and code, not just avoided in new commits/documents. Confidence: 0.85
 
 - When a Command Code mod is created or changed, verify it in the current session (reload mods and run its status command) in addition to its unit tests. Confidence: 0.75
