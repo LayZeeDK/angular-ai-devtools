@@ -31,9 +31,10 @@ export default defineConfig({
   },
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npx nx run angular-ai-devtools:serve',
+    command: 'node ./node_modules/nx/dist/bin/nx.js run angular-ai-devtools:serve --host 127.0.0.1',
     url: 'http://localhost:4200',
     reuseExistingServer: true,
+    timeout: 300_000,
     cwd: workspaceRoot
   },
   projects: [
