@@ -3,9 +3,9 @@ id: T004
 title: Deliver DevTools panel UI for signal provenance and anti-patterns
 wave: 2
 deps: [T001, T002, T003]
-status: pending
+status: done
 agent: null
-base: null
+base: a9646ea778a23471d952e48da6f589ef7f4005f2
 worktree: null
 task_branch: null
 files:
@@ -52,7 +52,7 @@ Walking skeleton: the panel lets a user select a signal or component, renders th
 ## Verify
 
 ```bash
-npx nx test angular-ai-devtools --skip-nx-cache --testFilePattern=apps/angular-ai-devtools/src/app/signal-provenance.service.spec.ts && npx nx run angular-ai-devtools:build-extension --skip-nx-cache
+npx nx test angular-ai-devtools --skip-nx-cache --include=apps/angular-ai-devtools/src/app/signal-provenance.service.spec.ts && npx nx run angular-ai-devtools:build-extension --skip-nx-cache
 ```
 
 Heavy: no
