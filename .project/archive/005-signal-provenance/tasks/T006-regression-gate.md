@@ -13,6 +13,7 @@ files:
   - apps/angular-ai-devtools/src/app/update-cause-chain.spec.ts
   - apps/angular-ai-devtools/src/app/signal-provenance.spec.ts
   - apps/angular-ai-devtools/src/app/anti-pattern-detector.spec.ts
+verify_only: true
 ---
 
 # T006 — Regression gate and full verification

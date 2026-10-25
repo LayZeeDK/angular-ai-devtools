@@ -2,14 +2,14 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: signal-provenance
-phase: ship
+phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M005
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: null
+archive: .project/archive/005-signal-provenance
 integration_default: direct
 integration: direct
 integration_source: default
@@ -99,3 +99,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-24 — build — build blocked on T004: done but no landing commit proves it; base a9646ea is invalid (descendant of landing cd258b2)
 - 2026-10-25 — build — build started
 - 2026-10-25 — build — build done; final review pending
+- 2026-10-25 — ship — archive preflight passed; shipment recorded
