@@ -3,9 +3,9 @@ id: T006
 title: Regression gate and full verification
 wave: 3
 deps: [T001, T002, T003, T004, T005]
-status: pending
-agent: null
-base: null
+status: done
+agent: orchestrator
+base: 49977ad5c457e2c14ada4dc98e2aab272c8a428c
 worktree: null
 task_branch: null
 files:
@@ -54,3 +54,20 @@ Heavy: yes
 ## Log
 
 - created by planner
+- 2026-10-25 — orchestrator Verify (sidecar gsd-path-verify/task-t006-verify): fail, exit 1; output tail:
+  ```
+  error TS2688: Cannot find type definition file for 'node'.
+    The file is in the program because:
+      Entry point of type library 'node' specified in compilerOptions
+      npm notice run check
+      npm notice run tsc -p tsconfig.json && npm run check:skills
+  ```
+- 2026-10-25 — orchestrator Verify (sidecar gsd-path-verify/task-t006-verify): fail, exit 1; output tail:
+  ```
+  error TS2688: Cannot find type definition file for 'node'.
+    The file is in the program because:
+      Entry point of type library 'node' specified in compilerOptions
+      npm notice run check
+      npm notice run tsc -p tsconfig.json && npm run check:skills
+  ```
+- 2026-10-25 — verify Verify (sidecar gsd-path-verify/task-t006-verify, deps bridged via sidecar-deps-bridge.mjs): pass, exit 0. npm run check + 522 tests + build-extension + agent-main.test.mjs all pass
