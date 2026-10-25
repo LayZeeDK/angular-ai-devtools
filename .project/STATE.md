@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: signal-provenance
-phase: build
+phase: ship
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
@@ -98,3 +98,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-23 — build — wave 2 task T004 verified: 7/7 tests pass, extension build succeeds; continuing to T005
 - 2026-10-24 — build — build blocked on T004: done but no landing commit proves it; base a9646ea is invalid (descendant of landing cd258b2)
 - 2026-10-25 — build — build started
+- 2026-10-25 — build — build done; final review pending
