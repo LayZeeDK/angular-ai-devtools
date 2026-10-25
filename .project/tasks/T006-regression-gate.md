@@ -71,3 +71,4 @@ Heavy: yes
       npm notice run tsc -p tsconfig.json && npm run check:skills
   ```
 - 2026-10-25 — verify Verify (sidecar gsd-path-verify/task-t006-verify, deps bridged via sidecar-deps-bridge.mjs): pass, exit 0. npm run check + 522 tests + build-extension + agent-main.test.mjs all pass
+- attested: Full verification gate passes: npm run check + 522 tests + build-extension + agent-main tests with sidecar deps bridge fix
