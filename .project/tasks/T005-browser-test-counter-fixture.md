@@ -5,7 +5,7 @@ wave: 2
 deps: [T004]
 status: done
 agent: build_t005
-base: b365bfdc8294e4e5bfdde9d369a782d6da626d6e
+base: 60e8d7ee1bfa3dc342c7e6094e602196ac2833ad
 worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
