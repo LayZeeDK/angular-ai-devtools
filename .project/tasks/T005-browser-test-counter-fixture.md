@@ -3,10 +3,10 @@ id: T005
 title: Browser test on spikes/ng222-app for signal provenance
 wave: 2
 deps: [T004]
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_t005
+base: b365bfdc8294e4e5bfdde9d369a782d6da626d6e
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - apps/angular-ai-devtools-e2e/src/signal-provenance.spec.ts
