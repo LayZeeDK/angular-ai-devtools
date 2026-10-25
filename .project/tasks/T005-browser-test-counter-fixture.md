@@ -6,7 +6,7 @@ deps: [T004]
 status: done
 agent: build_t005
 base: 60e8d7ee1bfa3dc342c7e6094e602196ac2833ad
-worktree: D:\projects\sandbox\angular-ai-devtools
+worktree: null
 task_branch: null
 files:
   - apps/angular-ai-devtools-e2e/src/signal-provenance.spec.ts
@@ -51,3 +51,4 @@ Heavy: yes
 ## Log
 
 - created by planner
+- attested: proven
