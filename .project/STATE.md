@@ -110,3 +110,7 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-26 — decide — validated synthesis path .project/research/SYNTHESIS.md
 - 2026-10-26 — plan — planning started
 - 2026-10-26 — plan — plan approved
+- 2026-10-26 — build — build started
+- 2026-10-26 — decide — decide complete
+- 2026-10-26 — plan — planning started
+- 2026-10-26 — plan — plan approved

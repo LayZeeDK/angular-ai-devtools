@@ -21,11 +21,11 @@ Validate exact ng.ɵgetSignalGraph output shape.
 Implement tracer.
 
 ## Acceptance criteria
-- AC1: tracer returns chain.
+1. Tracer returns provenance chain for selected signal.
 
 ## Verify
 ```bash
-npm test
+npm test -- src/main-world/provenance-tracer.ts
 ```
 
 ## Intent coverage
@@ -35,5 +35,3 @@ npm test
 - 2026-10-26 created
 ## Interface contract
 None
-
-

@@ -1,48 +1,56 @@
 # Synthesis
 
-<!-- Written by the decider role. The planner treats Decisions as settled. -->
-
 ## Settled
 
-- Provenance tracing via `ng.ɵgetSignalGraph` (Tier 1, feature-detected) — satisfies SC1/SC2 without page mutation (settled by INTENT.md Constraints Tier 1 + evidence-domain.md § Finding: Signal graph exposes producer/consumer edges sufficient for provenance).
-- Node-to-component mapping reuses N1 label mapping with fallback to node id — avoids new Tier 2 hooks (settled by evidence-stack.md § Finding: Node-to-component mapping reuses N1 labels).
-- Prompt sent as short fact list only (node kinds/labels/edges, no values) — (settled by evidence-stack.md § Finding: Short fact-list prompt suits small models + intent Prohibition N1).
-- Explain button gated on `LanguageModel.availability()`; disabled with reason when unavailable — (settled by evidence-pitfalls.md § Finding: Prompt API availability must gate explain button + intent Edge coverage E5/E6).
-- No tool calling in prompt; no auto-explain on load — (settled by intent Prohibitions N2/N7).
+- Zoneless standalone signals with inject() — Angular ~22.1 constraint (INTENT.md Constraints).
+- MV3 Chrome extension, panel-only Prompt API — no Prompt API in page/content/SW (INTENT.md Scope: out).
+- No worker, no downloadable model flow, no Tier 2 features this milestone (INTENT.md Scope: out).
+- Tier 1 (`ng.ɵ*`) allowed, labelled and feature-detected (INTENT.md Constraints).
+- Tracing must not mutate app state; no `angular:di_graph` / `getViewContainerRef` (INTENT.md Prohibitions N3).
+- Prompt is short fact list, no tool calling, no signal values/page data (INTENT.md Prohibitions N1/N2).
+- Prompt API availability gates explain button; deterministic results still render (evidence-pitfalls § Prompt API availability must gate explain button).
 
 ## Decisions
 
-### Provenance chain traversal direction
+### Anti-patterns to detect
 
-- **Decision**: Traverse producers -> consumers deterministically from the selected node, including both directions in the rendered chain, via `ng.ɵgetSignalGraph` edges only.
-- **Runner-up**: Consumer-only traversal; lost because SC2 requires showing all producers and consumers (intent Prohibition N5).
-- **Evidence**: evidence-domain.md § Finding: Signal graph exposes producer/consumer edges sufficient for provenance
+- **Decision**: Detect exactly three patterns: untracked dependency, circular dependency, over-broad computed; classify by node kind + edge direction.
+- **Runner-up**: Broader heuristic sets (e.g., missing memoization) — lost because not classifiable from graph shape alone with medium confidence.
+- **Evidence**: evidence-domain.md § Anti-patterns detectable from graph shape; evidence-similar.md § DevTools signal graph pane is visualization-only
+- **Confidence**: medium
+
+### Node-to-component mapping
+
+- **Decision**: Reuse N1 label mapping from signal graph node labels; fallback to node id when no component label.
+- **Runner-up**: New Tier 2 hooks — lost because prohibited and unnecessary; labels already encode component context.
+- **Evidence**: evidence-stack.md § Node-to-component mapping reuses N1 labels; evidence-domain.md § Signal graph exposes producer/consumer edges sufficient for provenance
 - **Confidence**: high
 
-### Anti-pattern detection set (initial)
+### Prompt shape
 
-- **Decision**: Implement three patterns from graph shape: untracked dependency, circular dependency, over-broad computed; classify by node kind + edge direction.
-- **Runner-up**: Single "smell" heuristic combining patterns; lost because SC3 requires at least three distinct reported patterns with evidence.
-- **Evidence**: evidence-domain.md § Finding: Anti-patterns detectable from graph shape; evidence-similar.md § Finding: DevTools signal graph pane is visualization-only
+- **Decision**: Panel-local Prompt API receives a compact fact list (node kinds, labels, edge directions), no values, no tool calling; explain button is sole trigger.
+- **Runner-up**: Richer context / tool-calling prompt — lost because prohibited and unstable on small models.
+- **Evidence**: evidence-stack.md § Short fact-list prompt suits small models; evidence-pitfalls.md § Prompt API availability must gate explain button
 - **Confidence**: medium
 
-### Prompt shape for anti-pattern explanation
+### Tracer implementation approach
 
-- **Decision**: Send a compact fact list (node kinds, labels, edge directions) to the panel-local Prompt API; no values, no tool calling.
-- **Runner-up**: Full graph JSON dump; lost because small models (Gemini Nano/Phi-4-mini) produce unusable output on large inputs (evidence-stack.md § Finding: Short fact-list prompt suits small models).
-- **Evidence**: evidence-stack.md § Finding: Short fact-list prompt suits small models; evidence-pitfalls.md § Finding: Prompt API availability must gate explain button
-- **Confidence**: medium
+- **Decision**: MAIN-world tracer calls `ng.ɵgetSignalGraph`, traverses producer->consumer edges deterministically, returns recorded graph data; no page mutation.
+- **Runner-up**: Live re-execution / value inspection — lost because prohibited (N1/N3) and non-deterministic.
+- **Evidence**: evidence-domain.md § Signal graph exposes producer/consumer edges sufficient for provenance; evidence-similar.md § DevTools signal graph pane is visualization-only
+- **Confidence**: high
 
 ## For the planner
 
-- **Wave-1 blockers**: Validate exact `ng.ɵgetSignalGraph` output shape on `spikes/ng222-app` (low/medium confidence on node kinds/labels); confirm the three anti-pattern classifiers against recorded graph data; verify Prompt API availability behavior across four browsers.
-- **Walking skeleton**: MAIN-world tracer returns provenance chain for a selected signal on the counter fixture -> panel renders chain + anti-pattern list -> explain button calls panel Prompt API with fact list and shows answer.
-- **Pitfalls → tasks**: "no signal graph on page" must render "not supported" with reason, no model call (E1); "signal not found" must render "not found" (E2); single node with no deps must show "no dependencies" (E3); no anti-patterns must show "no anti-patterns found" while still rendering chain (E4); Prompt API unavailable must disable explain with reason (E5/E6); do not mutate app while tracing (Prohibition N3).
+- **Wave-1 blockers**: Validate exact `ng.ɵgetSignalGraph` output shape on `spikes/ng222-app`; burn down anti-pattern classification on recorded graph data; verify Prompt API availability reasons across browsers.
+- **Walking skeleton**: Tracer returns chain for selected signal on counter fixture -> panel renders single-node chain with "no dependencies" -> explain button disabled with reason when Prompt API unavailable.
+- **Pitfalls → tasks**: Prompt API availability -> explain-button task must disable with reason; no auto-explain -> button is sole trigger; no page mutation -> tracer task must be read-only; incomplete chain -> panel task must render all producers/consumers.
 
 ## User rulings
 
-- Anti-pattern detection set (NEEDS-USER): accept evidence-recommended three — untracked dependency, circular dependency, over-broad computed (evidence-domain.md § Finding: Anti-patterns detectable from graph shape). Recorded 2026-10-26 under AFK mode (no human); decisive ruling per plan phase.
+- Confirm final set of anti-patterns to detect → Accepted: untracked dependency, circular dependency, over-broad computed.
 
 ## Still unknown
 
-- Confirm final set of anti-patterns to detect (untracked dependency, circular dependency, over-broad computed) — NEEDS-USER: values call; evidence leans toward the three listed (evidence-domain.md § Finding: Anti-patterns detectable from graph shape).
+- Exact `ng.ɵgetSignalGraph` node/edge schema — plan: wave-1 spike on counter fixture.
+- Prompt output quality on Gemini Nano/Phi-4-mini — plan: wave-1 spike with short fact list.

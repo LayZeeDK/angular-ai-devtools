@@ -11,21 +11,26 @@ task_branch: null
 files:
   - src/panel/chain.ts
 ---
+
 ## Context
 Traverse producers->consumers.
+
 ## Approach
 Implement.
+
 ## Acceptance criteria
-- AC1: chain renders.
+1. Chain renders with node kind, label, edge direction.
+
 ## Verify
 ```bash
-npm test
+npm test -- src/panel/chain.ts
 ```
+
 ## Intent coverage
 - SC2
+
 ## Log
 - 2026-10-26 created
+
 ## Interface contract
 None
-
-

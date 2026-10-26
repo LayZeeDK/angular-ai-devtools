@@ -11,21 +11,28 @@ task_branch: null
 files:
   - src/panel/provenance.component.ts
 ---
+
 ## Context
 Render chain and anti-patterns.
+
 ## Approach
 Implement.
+
 ## Acceptance criteria
-- AC1: renders.
+1. Renders chain and anti-patterns; explain button disabled with reason when Prompt API unavailable.
+
 ## Verify
 ```bash
-npm test
+npm test -- src/panel/provenance.component.ts
 ```
+
 ## Intent coverage
+- SC2
+- SC3
 - SC4
+
 ## Log
 - 2026-10-26 created
+
 ## Interface contract
 None
-
-

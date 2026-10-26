@@ -11,21 +11,26 @@ task_branch: null
 files:
   - src/panel/anti-patterns.ts
 ---
+
 ## Context
 Detect three patterns.
+
 ## Approach
 Implement classifiers.
+
 ## Acceptance criteria
-- AC1: three patterns reported.
+1. Three anti-patterns reported with evidence.
+
 ## Verify
 ```bash
-npm test
+npm test -- src/panel/anti-patterns.ts
 ```
+
 ## Intent coverage
 - SC3
+
 ## Log
 - 2026-10-26 created
+
 ## Interface contract
 None
-
-

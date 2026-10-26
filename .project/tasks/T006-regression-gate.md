@@ -11,21 +11,26 @@ task_branch: null
 files:
   - src/regression.spec.ts
 ---
+
 ## Context
 Regression.
+
 ## Approach
 Run checks.
+
 ## Acceptance criteria
-- AC1: passes.
+1. npm run check, npm test, build-extension pass.
+
 ## Verify
 ```bash
-npm test
+npm test -- src/regression.spec.ts
 ```
+
 ## Intent coverage
 - SC6
+
 ## Log
 - 2026-10-26 created
+
 ## Interface contract
 None
-
-

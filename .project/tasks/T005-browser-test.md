@@ -11,21 +11,26 @@ task_branch: null
 files:
   - e2e/provenance.spec.ts
 ---
+
 ## Context
 Browser test.
+
 ## Approach
 Implement.
+
 ## Acceptance criteria
-- AC1: passes.
+1. Browser test on spikes/ng222-app passes.
+
 ## Verify
 ```bash
-npm test
+npm test -- e2e/provenance.spec.ts
 ```
+
 ## Intent coverage
 - SC5
+
 ## Log
 - 2026-10-26 created
+
 ## Interface contract
 None
-
-
