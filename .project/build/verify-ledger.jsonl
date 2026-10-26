@@ -1,0 +1,1 @@
+{"command": "npm test -- src/main-world/provenance-tracer.ts", "commit": "a59405e0497e71b5a7b4681f022266424dc694b3", "recorded_at": "2026-10-26T20:38:49+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}

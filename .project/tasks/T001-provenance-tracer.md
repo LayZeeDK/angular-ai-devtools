@@ -35,3 +35,4 @@ npm test -- src/main-world/provenance-tracer.ts
 - 2026-10-26 created
 ## Interface contract
 None
+- attested: owner
