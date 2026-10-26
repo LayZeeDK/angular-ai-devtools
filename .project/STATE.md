@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: signal-provenance
-phase: plan
+phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M006
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -114,3 +114,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-26 — decide — decide complete
 - 2026-10-26 — plan — planning started
 - 2026-10-26 — plan — plan approved
+- 2026-10-26 — build — build started

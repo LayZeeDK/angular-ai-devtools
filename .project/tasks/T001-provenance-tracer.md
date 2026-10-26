@@ -5,7 +5,7 @@ wave: 1
 deps: []
 status: done
 agent: null
-base: null
+base: 1be902d2a64dbf89505f93d326e3596866544f6b
 worktree: null
 task_branch: null
 files:
