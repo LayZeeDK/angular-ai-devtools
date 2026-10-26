@@ -1,1 +1,7 @@
 {"command": "npm test -- src/main-world/provenance-tracer.ts", "commit": "a59405e0497e71b5a7b4681f022266424dc694b3", "recorded_at": "2026-10-26T20:38:49+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "npm test -- src/panel/chain.ts", "commit": "9b51140fd148d343ad0da5c0cc175441a510649e", "recorded_at": "2026-10-26T20:40:06+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "npm test -- src/panel/anti-patterns.ts", "commit": "9b51140fd148d343ad0da5c0cc175441a510649e", "recorded_at": "2026-10-26T20:44:44+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "npm test -- src/panel/provenance.component.ts", "commit": "9b51140fd148d343ad0da5c0cc175441a510649e", "recorded_at": "2026-10-26T20:44:45+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "npm test -- e2e/provenance.spec.ts", "commit": "9b51140fd148d343ad0da5c0cc175441a510649e", "recorded_at": "2026-10-26T20:44:46+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "npm test -- src/regression.spec.ts", "commit": "9b51140fd148d343ad0da5c0cc175441a510649e", "recorded_at": "2026-10-26T20:44:47+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "npm test -- src/panel/chain.ts", "commit": "9b51140fd148d343ad0da5c0cc175441a510649e", "recorded_at": "2026-10-26T22:18:33+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}

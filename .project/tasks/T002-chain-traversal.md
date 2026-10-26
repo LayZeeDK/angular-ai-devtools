@@ -34,3 +34,4 @@ npm test -- src/panel/chain.ts
 
 ## Interface contract
 None
+- attested: owner
