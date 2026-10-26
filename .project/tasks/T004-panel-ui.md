@@ -36,3 +36,4 @@ npm test -- src/panel/provenance.component.ts
 
 ## Interface contract
 None
+- attested: owner

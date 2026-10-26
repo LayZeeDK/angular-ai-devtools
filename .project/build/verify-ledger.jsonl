@@ -6,3 +6,4 @@
 {"command": "npm test -- src/regression.spec.ts", "commit": "9b51140fd148d343ad0da5c0cc175441a510649e", "recorded_at": "2026-10-26T20:44:47+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "npm test -- src/panel/chain.ts", "commit": "9b51140fd148d343ad0da5c0cc175441a510649e", "recorded_at": "2026-10-26T22:18:33+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "npm test -- src/panel/anti-patterns.ts", "commit": "4d452a07b79e6f56834c0286f1f55320cedab2cc", "recorded_at": "2026-10-26T22:21:15+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "npm test -- src/panel/provenance.component.ts", "commit": "b9ed29c3d1ad21b2cc4fa7f07e583e0230d4e03d", "recorded_at": "2026-10-26T22:21:44+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
