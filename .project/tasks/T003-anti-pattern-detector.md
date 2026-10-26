@@ -34,3 +34,4 @@ npm test -- src/panel/anti-patterns.ts
 
 ## Interface contract
 None
+- attested: owner

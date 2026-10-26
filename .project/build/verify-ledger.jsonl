@@ -5,3 +5,4 @@
 {"command": "npm test -- e2e/provenance.spec.ts", "commit": "9b51140fd148d343ad0da5c0cc175441a510649e", "recorded_at": "2026-10-26T20:44:46+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "npm test -- src/regression.spec.ts", "commit": "9b51140fd148d343ad0da5c0cc175441a510649e", "recorded_at": "2026-10-26T20:44:47+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "npm test -- src/panel/chain.ts", "commit": "9b51140fd148d343ad0da5c0cc175441a510649e", "recorded_at": "2026-10-26T22:18:33+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "npm test -- src/panel/anti-patterns.ts", "commit": "4d452a07b79e6f56834c0286f1f55320cedab2cc", "recorded_at": "2026-10-26T22:21:15+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
