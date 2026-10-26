@@ -34,3 +34,4 @@ npm test -- e2e/provenance.spec.ts
 
 ## Interface contract
 None
+- attested: owner
