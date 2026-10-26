@@ -2,14 +2,14 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: signal-provenance
-phase: shipped
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M005
+branch: gsd-path/M006
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/005-signal-provenance
+archive: null
 integration_default: direct
 integration: direct
 integration_source: default
@@ -100,3 +100,13 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-25 — build — build started
 - 2026-10-25 — build — build done; final review pending
 - 2026-10-25 — ship — archive preflight passed; shipment recorded
+- 2026-10-26 — inspect — bind-next complete; start inspect
+- 2026-10-26 — inspect — inspect complete
+- 2026-10-26 — define — definition started
+- 2026-10-26 — define — milestone intent approved
+- 2026-10-26 — research — research started
+- 2026-10-26 — research — research complete; manifest .project/research/RESEARCH.md; dispatched domain, pitfalls, similar, stack; skipped none; 3 questions
+- 2026-10-26 — decide — decision synthesis started
+- 2026-10-26 — decide — validated synthesis path .project/research/SYNTHESIS.md
+- 2026-10-26 — plan — planning started
+- 2026-10-26 — plan — plan approved
