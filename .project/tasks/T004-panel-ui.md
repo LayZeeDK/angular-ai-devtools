@@ -23,7 +23,7 @@ Implement.
 
 ## Verify
 ```bash
-npx tsc -p tsconfig.json --noEmit && npx nx run angular-ai-devtools:test && npx nx run angular-ai-devtools:build-extension
+npm test -- src/panel/provenance.component.ts
 ```
 
 ## Intent coverage
