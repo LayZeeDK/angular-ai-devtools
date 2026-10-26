@@ -5,7 +5,7 @@ wave: 2
 deps: [T001]
 status: done
 agent: owner
-base: 4417ad12a64dbf89505f93d326e3596866544f6b
+base: 4417ad1231786fe2c5e8888158f3b06eb8459deb
 worktree: null
 task_branch: null
 files:
