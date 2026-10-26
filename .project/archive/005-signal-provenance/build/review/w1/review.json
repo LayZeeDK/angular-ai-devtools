@@ -1,0 +1,56 @@
+{
+  "wave": 1,
+  "status": "pass",
+  "reviewed_at": "2026-10-23",
+  "evidence": {
+    "extension_panel_check": {
+      "passed": true,
+      "instance": "chrome-stable-nano",
+      "cdp": "http://127.0.0.1:9338",
+      "browser_version": "Chrome/156.0.8078.35",
+      "extension_id": "mgkfgkdgobahfcgkdlokpoehblpbkfok",
+      "evidence_path": "tmp/extension-panel-check-2/extension-panel.json",
+      "details": "AI model answered 'Explain version with AI' prompt successfully (Prompt API feature proven). Answer time: 18895ms."
+    }
+  },
+  "tasks": {
+    "T001": {
+      "title": "Implement MAIN-world provenance tracer with per-component graph aggregation",
+      "base": "f9aa7a2202ddf6511340723e3d8c89913dd1e5c1",
+      "landed": "2b4a34e7fdac2040eb5d00a9d4c789f8529849b3",
+      "verdict": "PASS",
+      "reviewed_files": [
+        "extension/agent-main.js",
+        "extension/agent-main.test.mjs"
+      ],
+      "passed_claims": [1, 2, 3, 4, 5],
+      "findings": []
+    },
+    "T002": {
+      "title": "Implement provenance chain traversal and unit tests",
+      "base": "2b4a34e7fdac2040eb5d00a9d4c789f8529849b3",
+      "landed": "6134992fbec986c29faa726ecce39fc45e482ba7",
+      "verdict": "PASS",
+      "reviewed_files": [
+        "apps/angular-ai-devtools/src/app/signal-provenance.ts",
+        "apps/angular-ai-devtools/src/app/signal-provenance.spec.ts"
+      ],
+      "passed_claims": [1, 2, 3, 4, 5],
+      "findings": []
+    },
+    "T003": {
+      "title": "Implement reactive anti-pattern detector (four rules)",
+      "base": "2b4a34e7fdac2040eb5d00a9d4c789f8529849b3",
+      "landed": "e213dc3394bad8dc1ea5d4c2032e5e6c6b78d08d",
+      "verdict": "PASS",
+      "reviewed_files": [
+        "apps/angular-ai-devtools/src/app/anti-pattern-detector.ts",
+        "apps/angular-ai-devtools/src/app/anti-pattern-detector.spec.ts"
+      ],
+      "passed_claims": [1, 2, 3, 4, 5, 6],
+      "findings": [
+        "T005 caveat (not a code issue): Angular's getSignalGraph emits read edges only, so rules 2-4 fire only where write edges reach the graph; the spec's counter fixture seeds them, and the live counter fixture alone shows no write edges."
+      ]
+    }
+  }
+}

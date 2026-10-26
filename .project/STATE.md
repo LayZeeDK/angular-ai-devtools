@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: nx-angular-workspace
+milestone: signal-provenance
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M004
+branch: gsd-path/M005
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/004-nx-angular-workspace
+archive: .project/archive/005-signal-provenance
 integration_default: direct
 integration: direct
 integration_source: default
@@ -80,3 +80,23 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-22 — build — build complete: all 6 tasks done and reviewed (waves 1-3 pass)
 - 2026-10-22 — ship — build done; final review pending
 - 2026-10-22 — shipped — archive preflight passed; shipment recorded
+- 2026-10-23 — inspect — ship validated and integrated; transitioning to inspect on gsd-path/M005
+- 2026-10-23 — inspect — inspection artifacts passed
+- 2026-10-23 — inspect — pre-approval: {"kinds": ["intent", "plan"]}
+- 2026-10-23 — define — definition started
+- 2026-10-23 — define — milestone intent approved
+- 2026-10-23 — research — research started
+- 2026-10-23 — research — research complete; manifest .project/research/RESEARCH.md; dispatched domain, pitfalls, similar, stack; skipped none; 3 questions
+- 2026-10-23 — decide — decision synthesis started
+- 2026-10-23 — decide — decision synthesis complete; synthesis .project/research/SYNTHESIS.md
+- 2026-10-23 — plan — planning started
+- 2026-10-23 — plan — plan approved
+- 2026-10-23 — build — build started
+- 2026-10-23 — build — build blocked: blocked recovery
+- 2026-10-23 — build — build started
+- 2026-10-23 — build — wave 1 full review passed (T001, T002, T003 all PASS); extension-panel check passed via verify-ai-browsers (chrome-stable-nano, CDP 9338); continuing to wave 2
+- 2026-10-23 — build — wave 2 task T004 verified: 7/7 tests pass, extension build succeeds; continuing to T005
+- 2026-10-24 — build — build blocked on T004: done but no landing commit proves it; base a9646ea is invalid (descendant of landing cd258b2)
+- 2026-10-25 — build — build started
+- 2026-10-25 — build — build done; final review pending
+- 2026-10-25 — ship — archive preflight passed; shipment recorded
