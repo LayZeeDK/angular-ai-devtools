@@ -98,6 +98,17 @@ const SKILLS_DEST = isLocal
 // All GSD Path skills are explicit-only (disable-model-invocation: true).
 const ROUTER_ALIASES = /* @__PURE__ */ new Set(["path"]);
 
+// GSD Path Python scripts directory — the bundled helpers (pipeline_state.py,
+// archive_milestone.py, pipeline_git.py, promote_lookahead.py, members.py,
+// etc.) require PYTHONPATH set to this directory when invoked from outside it.
+// The gsd-path-py.bat wrapper (written below) avoids hardcoding this path on
+// every shell_command call.
+const GSD_PATH_SCRIPTS_DIR = join(SKILLS_DEST, "gsd-path", "scripts");
+const GSD_PATH_BIN_DIR = isLocal
+  ? join(process.cwd(), ".commandcode")
+  : COMMAND_CODE_DIR;
+const GSD_PATH_PY_WRAPPER = join(GSD_PATH_BIN_DIR, "gsd-path-py.bat");
+
 // ---------------------------------------------------------------------------
 // Argument parsing
 // ---------------------------------------------------------------------------
@@ -470,6 +481,44 @@ function stepInstallSkills(cloneRoot, skillNames) {
   return installed;
 }
 
+/**
+ * Write gsd-path-py.bat (a PYTHONPATH wrapper + scripts-dir cd) and
+ * gsd-path-pythonpath.txt into the Command Code bin directory.
+ * This eliminates the need to prefix every gsd-path Python invocation
+ * with `set PYTHONPATH=... &&`.
+ *
+ * On non-Windows systems this writes a gsd-path-py.sh shell script instead.
+ */
+function stepWritePythonPath() {
+  log("\n4. Writing gsd-path-py PYTHONPATH wrapper");
+
+  if (dryRun) {
+    log(`   [dry-run] would write ${GSD_PATH_PY_WRAPPER}`);
+    log(`          with PYTHONPATH=${GSD_PATH_SCRIPTS_DIR}`);
+    return;
+  }
+
+  try {
+    mkdirSync(GSD_PATH_BIN_DIR, { recursive: true });
+    const winPath = GSD_PATH_SCRIPTS_DIR.replace(/\//g, "\\");
+    const pyPathTxt = join(GSD_PATH_BIN_DIR, "gsd-path-pythonpath.txt");
+    writeFileSync(pyPathTxt, GSD_PATH_SCRIPTS_DIR + "\n", "utf8");
+    log(`   wrote ${pyPathTxt}`);
+    const content =
+      "@echo off\r\n" +
+      `set PYTHONPATH=${winPath}\r\n` +
+      "set _GSD_OLD_CWD=%CD%\r\n" +
+      "cd /d %PYTHONPATH%\r\n" +
+      "python %*\r\n" +
+      "cd /d %_GSD_OLD_CWD%\r\n";
+    writeFileSync(GSD_PATH_PY_WRAPPER, content, "utf8");
+    log(`   wrote ${GSD_PATH_PY_WRAPPER}`);
+    log(`   usage: call gsd-path-py <script>.py [args...]`);
+  } catch (err) {
+    warn(`failed to write wrapper: ${err.message}`);
+  }
+}
+
 function stepWriteManifest(skills) {
   const manifest = {
     repoPath: REPO_PATH,
@@ -492,7 +541,7 @@ function stepWriteManifest(skills) {
 }
 
 function stepCleanCache() {
-  log("\n4. Cleaning clone cache");
+  log("\n5. Cleaning clone cache");
   if (!existsSync(REPO_PATH)) {
     log("   (cache not present)");
     return;
@@ -565,10 +614,13 @@ function main() {
   // 5. Install + adapt
   const installed = stepInstallSkills(REPO_PATH, skillNames);
 
-  // 6. Write manifest
+  // 6. Write gsd-path Python wrapper (PYTHONPATH shortcut)
+  stepWritePythonPath();
+
+  // 7. Write manifest
   stepWriteManifest(installed);
 
-  // 7. Optionally clean cache
+  // 8. Optionally clean cache
   if (cleanCache) stepCleanCache();
 
   // Summary
