@@ -34,3 +34,4 @@ npm test -- src/regression.spec.ts
 
 ## Interface contract
 None
+- attested: owner
