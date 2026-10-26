@@ -3,7 +3,7 @@ id: T001
 title: Provenance tracer MAIN-world
 wave: 1
 deps: []
-status: pending
+status: done
 agent: null
 base: null
 worktree: null
