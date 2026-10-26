@@ -3,9 +3,9 @@ id: T004
 title: Panel UI
 wave: 3
 deps: [T002, T003]
-status: pending
-agent: null
-base: null
+status: done
+agent: owner
+base: 7a1c33d752544fa2844e36994aeb38bb57e909d5
 worktree: null
 task_branch: null
 files:

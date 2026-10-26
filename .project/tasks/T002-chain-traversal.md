@@ -3,9 +3,9 @@ id: T002
 title: Chain traversal
 wave: 2
 deps: [T001]
-status: pending
-agent: null
-base: null
+status: done
+agent: owner
+base: 4417ad12a64dbf89505f93d326e3596866544f6b
 worktree: null
 task_branch: null
 files:
