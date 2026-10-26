@@ -1,4 +1,4 @@
-﻿# Review — wave 1, cycle 2
+# Review — wave 1, cycle 2
 
 Cycle: 2
 
