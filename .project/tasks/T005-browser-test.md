@@ -23,7 +23,7 @@ Implement.
 
 ## Verify
 ```bash
-npm test -- e2e/provenance.spec.ts
+npx nx run angular-ai-devtools-e2e:e2e
 ```
 
 ## Intent coverage
