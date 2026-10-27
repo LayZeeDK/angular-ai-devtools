@@ -1,0 +1,152 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "57444b8cf2b01706d4337914cfcf93fd7ee601fa",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "attested",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M006",
+        "candidates": [
+          {
+            "base": "1be902d2a64dbf89505f93d326e3596866544f6b",
+            "commit": "9b51140fd148d343ad0da5c0cc175441a510649e",
+            "valid": true
+          }
+        ],
+        "head": "57444b8cf2b01706d4337914cfcf93fd7ee601fa",
+        "subject": "T001: Provenance tracer MAIN-world"
+      },
+      "landed_commit": "9b51140fd148d343ad0da5c0cc175441a510649e",
+      "reasons": [],
+      "task": {
+        "base": "1be902d2a64dbf89505f93d326e3596866544f6b",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-provenance-tracer.md"
+      }
+    },
+    {
+      "classification": "attested",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M006",
+        "candidates": [
+          {
+            "base": "4417ad1231786fe2c5e8888158f3b06eb8459deb",
+            "commit": "4d452a07b79e6f56834c0286f1f55320cedab2cc",
+            "valid": true
+          }
+        ],
+        "head": "57444b8cf2b01706d4337914cfcf93fd7ee601fa",
+        "subject": "T002: Chain traversal"
+      },
+      "landed_commit": "4d452a07b79e6f56834c0286f1f55320cedab2cc",
+      "reasons": [],
+      "task": {
+        "base": "4417ad1231786fe2c5e8888158f3b06eb8459deb",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-chain-traversal.md"
+      }
+    },
+    {
+      "classification": "attested",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M006",
+        "candidates": [
+          {
+            "base": "4417ad1231786fe2c5e8888158f3b06eb8459deb",
+            "commit": "b9ed29c3d1ad21b2cc4fa7f07e583e0230d4e03d",
+            "valid": true
+          }
+        ],
+        "head": "57444b8cf2b01706d4337914cfcf93fd7ee601fa",
+        "subject": "T003: Anti-pattern detector"
+      },
+      "landed_commit": "b9ed29c3d1ad21b2cc4fa7f07e583e0230d4e03d",
+      "reasons": [],
+      "task": {
+        "base": "4417ad1231786fe2c5e8888158f3b06eb8459deb",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-anti-pattern-detector.md"
+      }
+    },
+    {
+      "classification": "attested",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M006",
+        "candidates": [
+          {
+            "base": "7a1c33d752544fa2844e36994aeb38bb57e909d5",
+            "commit": "d90cdab0a490e5258b9070a4abb08f2e11d070ec",
+            "valid": true
+          }
+        ],
+        "head": "57444b8cf2b01706d4337914cfcf93fd7ee601fa",
+        "subject": "T004: Panel UI"
+      },
+      "landed_commit": "d90cdab0a490e5258b9070a4abb08f2e11d070ec",
+      "reasons": [],
+      "task": {
+        "base": "7a1c33d752544fa2844e36994aeb38bb57e909d5",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-panel-ui.md"
+      }
+    },
+    {
+      "classification": "attested",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M006",
+        "candidates": [
+          {
+            "base": "7a1c33d752544fa2844e36994aeb38bb57e909d5",
+            "commit": "f169484d85f3552762988474333ef1f47e83d5fd",
+            "valid": true
+          }
+        ],
+        "head": "57444b8cf2b01706d4337914cfcf93fd7ee601fa",
+        "subject": "T005: Browser test counter fixture"
+      },
+      "landed_commit": "f169484d85f3552762988474333ef1f47e83d5fd",
+      "reasons": [],
+      "task": {
+        "base": "7a1c33d752544fa2844e36994aeb38bb57e909d5",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-browser-test.md"
+      }
+    },
+    {
+      "classification": "attested",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M006",
+        "candidates": [
+          {
+            "base": "7a1c33d752544fa2844e36994aeb38bb57e909d5",
+            "commit": "c977fdf82dbeebbde1d09319d8888a6f790b63f6",
+            "valid": true
+          }
+        ],
+        "head": "57444b8cf2b01706d4337914cfcf93fd7ee601fa",
+        "subject": "T006: Regression gate"
+      },
+      "landed_commit": "c977fdf82dbeebbde1d09319d8888a6f790b63f6",
+      "reasons": [],
+      "task": {
+        "base": "7a1c33d752544fa2844e36994aeb38bb57e909d5",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-regression-gate.md"
+      }
+    }
+  ]
+}
