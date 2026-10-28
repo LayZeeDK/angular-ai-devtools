@@ -347,9 +347,11 @@ function stepRemoveOld(manifest) {
 
   log(
     `   Removed ${removedSkills.length} stale skill${
-      dryRun ? " (would remove)" : ""
-    }, ` +
-      `${removedAgents.length} agent${dryRun ? " (would remove)" : ""} files`,
+      removedSkills.length === 1 ? "" : "s"
+    }${dryRun ? " (would remove)" : ""}, ` +
+      `${removedAgents.length} stale agent file${
+        removedAgents.length === 1 ? "" : "s"
+      }${dryRun ? " (would remove)" : ""}`,
   );
 }
 
