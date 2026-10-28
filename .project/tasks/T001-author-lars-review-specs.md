@@ -3,9 +3,9 @@ id: T001
 title: Author lars-review specifications for M001-M007
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: f3d82bb2644903a6e438e5a04ba85b67e9693a23
 worktree: null
 task_branch: null
 files:
@@ -60,3 +60,23 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-28 — T001 complete. Wrote 7 specs under .project/review/specs/ and tests/held-out/e10-spec-present.test.mjs. Command: node --test tests/held-out/e10-spec-present.test.mjs → tests 8, pass 8, fail 0, skipped 0, todo 0. ready
+- 2026-10-28 — orchestrator Verify (sidecar gsd-path-verify/task-t001-verify): pass, exit 0; output tail:
+  ```
+  ✔ m001.md exists with frozen range (1.6312ms)
+  ✔ m002.md exists with frozen range (0.2993ms)
+  ✔ m003.md exists with frozen range (0.2305ms)
+  ✔ m004.md exists with frozen range (0.2245ms)
+  ✔ m005.md exists with frozen range (0.9299ms)
+  ✔ m006.md exists with frozen range (0.3619ms)
+  ✔ m007.md exists with frozen range (0.2141ms)
+  ✔ m002 states no product code (0.1964ms)
+  ℹ tests 8
+  ℹ suites 0
+  ℹ pass 8
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 145.3605
+  ```
