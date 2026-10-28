@@ -14,3 +14,4 @@
 {"command": "npm test", "commit": "fa4062ba22b39eddcc2deaece50a4d8f4cd3b2e7", "recorded_at": "2026-10-28T10:37:36+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "npx nx run angular-ai-devtools:test", "commit": "fa4062ba22b39eddcc2deaece50a4d8f4cd3b2e7", "recorded_at": "2026-10-28T10:37:36+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "npx nx run angular-ai-devtools:build-extension", "commit": "fa4062ba22b39eddcc2deaece50a4d8f4cd3b2e7", "recorded_at": "2026-10-28T10:37:37+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "npx playwright test --project=chrome-stable --project=chrome-beta --project=edge-stable --project=edge-dev", "commit": "03e47e6aacdbb90c6eb74fe906b08cd716416886", "recorded_at": "2026-10-28T10:38:17+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
