@@ -294,7 +294,7 @@ Depends on: []
 Surfaces: none
 Status: shipped
 Archive: .project/archive/008-tooling
-Integrated: null
+Integrated: 2bd0eef5fb84181ff72dfbcefbbb4b96b882c81c
 
 Scope: in
 - Move all nine install-*-command-code.mjs scripts plus their tests to ~/.commandcode/scripts/.
@@ -329,7 +329,7 @@ Goal: Harden and stabilize everything shipped in M001-M007: fix defects, remove 
 
 Depends on: []
 Surfaces: DevTools panel
-Status: pending
+Status: active
 Archive: null
 Integrated: null
 
