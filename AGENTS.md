@@ -49,3 +49,9 @@ sidecars, including worktree and branch).
 - Every `control-*` skill stops processes through its byte copy of `proctree.mjs`; never kill by process name.
 - A process the run did not start (another program now holding a recorded PID, a port holder) is printed by PID,
   image name and start time only, never by command line, which can carry a secret.
+
+## GSD Path
+
+GSD Path workflow rules and lessons learned live in the user-scope
+`~/AGENTS.md` (`## GSD Path` section). Detailed progressive-disclosure
+docs are in `~/.commandcode/references/gsd-path-notes.md`.

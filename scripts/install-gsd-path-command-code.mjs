@@ -56,6 +56,26 @@
  *   GSD_PATH_BRANCH     git branch / tag to clone (default: main)
  *   COMMAND_CODE_HOME   override the ~/.commandcode path
  *                      (default: <home>/.commandcode)
+ *
+ * GSD Path learnings (persisted here per project convention — see
+ * references/gsd-path-notes.md in the project repo for the detailed
+ * progressive-disclosure document):
+ *
+ * 1. Never edit task files or ## Verify blocks after the attest commit
+ *    — reconcile landing proof first, then attest.
+ * 2. Wave review files require Depth:, Tasks reviewed:, and per-cycle
+ *    verdicts — stubs missing these block `complete`.
+ * 3. Delete superseded non-last wave review cycles rather than keeping
+ *    pass stubs.
+ * 4. Trust `pipeline_state.py route` JSON over subagent summaries of
+ *    blocked state — always run the router before acting on subagent
+ *    diagnoses.
+ * 5. Windows shell_command runs cmd.exe, not bash — use dir/type/Python.
+ * 6. `lars-summarize` UUID lookup needs * glob for full UUID paths.
+ * 7. AFK overnight: pre-approve with --pre-approve intent,plan and
+ *    delegate to free-model subagents.
+ * 8. `find-transcript.mjs` path resolution on Windows has spelling
+ *    variants — use the resolved path, not a fragment.
  */
 
 import { execSync } from "node:child_process";
