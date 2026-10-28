@@ -3,9 +3,9 @@ id: T006
 title: Browser regression gate for N3
 wave: 3
 deps: [T005]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T006
+base: 1d922025c08e440326cf232bab58dca53dc3f22e
 worktree: null
 task_branch: null
 files:
@@ -37,3 +37,5 @@ npx playwright test --project=chrome-stable --project=chrome-beta --project=edge
 ## Interface contract
 None
 - attested: owner
+
+- 2026-10-27 implemented: Playwright DI regression gate on the four supported browsers
