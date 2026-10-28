@@ -3,9 +3,9 @@ id: T005
 title: Explain button sends diff to panel Prompt API
 wave: 2
 deps: [T004]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T005
+base: 1d922025c08e440326cf232bab58dca53dc3f22e
 worktree: null
 task_branch: null
 files:
@@ -37,3 +37,4 @@ node --experimental-strip-types --test scripts/di-explain.test.mjs
 ## Interface contract
 None
 - attested: owner
+- 2026-10-27 implemented: buildDiExplainFacts caps at 15 facts; explain gated on Prompt API
