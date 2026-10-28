@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 
-import { buildDispatchText } from "./install-gsd-path-command-code.mjs";
+import { buildDispatchText, buildWrapper } from "./install-gsd-path-command-code.mjs";
 
 function clone(dispatch) {
   const dir = mkdtempSync(join(tmpdir(), "gsd-install-"));
@@ -41,4 +41,17 @@ test("refuses upstream text that still names general-purpose", () => {
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test("the generated wrapper quotes its paths and honours GSD_PYTHON", () => {
+  const winPath = "C:\\Users\\Some One\\.commandcode\\skills\\gsd-path\\scripts";
+  const out = buildWrapper(winPath);
+  assert.ok(out.startsWith("@echo off"));
+  assert.ok(out.includes(`set "PYTHONPATH=${winPath}"`));
+  assert.ok(out.includes('if not defined GSD_PYTHON set "GSD_PYTHON=python"'));
+  assert.ok(out.includes('cd /d "%PYTHONPATH%"'));
+  assert.ok(!out.includes("cd /d %PYTHONPATH%"));
+  assert.ok(out.includes('"%GSD_PYTHON%" %*'));
+  assert.ok(out.includes("exit /b 127"));
+  assert.ok(out.includes("exit /b %_GSD_EXIT%"));
 });

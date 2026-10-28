@@ -625,6 +625,31 @@ function stepInstallSkills(cloneRoot, skillNames) {
  *
  * On non-Windows systems this writes a gsd-path-py.sh shell script instead.
  */
+/**
+ * The wrapper must survive a profile path with spaces and a Python installed
+ * under a name other than `python`. Kept as a function so the generated text is
+ * testable without writing to the user's command directory.
+ */
+export function buildWrapper(winPath) {
+  return (
+    "@echo off\r\n" +
+    "setlocal\r\n" +
+    `set "PYTHONPATH=${winPath}"\r\n` +
+    'set "_GSD_OLD_CWD=%CD%"\r\n' +
+    'if not defined GSD_PYTHON set "GSD_PYTHON=python"\r\n' +
+    'where "%GSD_PYTHON%" >nul 2>nul\r\n' +
+    "if errorlevel 1 (\r\n" +
+    "  echo gsd-path-py: Python not found. Set GSD_PYTHON to the interpreter. 1>&2\r\n" +
+    "  exit /b 127\r\n" +
+    ")\r\n" +
+    'cd /d "%PYTHONPATH%"\r\n' +
+    '"%GSD_PYTHON%" %*\r\n' +
+    'set "_GSD_EXIT=%ERRORLEVEL%"\r\n' +
+    'cd /d "%_GSD_OLD_CWD%"\r\n' +
+    "exit /b %_GSD_EXIT%\r\n"
+  );
+}
+
 function stepWritePythonPath() {
   log("\n4. Writing gsd-path-py PYTHONPATH wrapper");
 
@@ -640,23 +665,7 @@ function stepWritePythonPath() {
     const pyPathTxt = join(GSD_PATH_BIN_DIR, "gsd-path-pythonpath.txt");
     writeFileSync(pyPathTxt, GSD_PATH_SCRIPTS_DIR + "\n", "utf8");
     log(`   wrote ${pyPathTxt}`);
-    const content =
-      "@echo off\r\n" +
-      "setlocal\r\n" +
-      `set "PYTHONPATH=${winPath}"\r\n` +
-      'set "_GSD_OLD_CWD=%CD%"\r\n' +
-      'if not defined GSD_PYTHON set "GSD_PYTHON=python"\r\n' +
-      'where "%GSD_PYTHON%" >nul 2>nul\r\n' +
-      "if errorlevel 1 (\r\n" +
-      "  echo gsd-path-py: Python not found. Set GSD_PYTHON to the interpreter. 1>&2\r\n" +
-      "  exit /b 127\r\n" +
-      ")\r\n" +
-      'cd /d "%PYTHONPATH%"\r\n' +
-      '"%GSD_PYTHON%" %*\r\n' +
-      'set "_GSD_EXIT=%ERRORLEVEL%"\r\n' +
-      'cd /d "%_GSD_OLD_CWD%"\r\n' +
-      "exit /b %_GSD_EXIT%\r\n";
-    writeFileSync(GSD_PATH_PY_WRAPPER, content, "utf8");
+    writeFileSync(GSD_PATH_PY_WRAPPER, buildWrapper(winPath), "utf8");
     log(`   wrote ${GSD_PATH_PY_WRAPPER}`);
     log(`   usage: call gsd-path-py <script>.py [args...]`);
   } catch (err) {
