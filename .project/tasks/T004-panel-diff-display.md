@@ -3,9 +3,9 @@ id: T004
 title: Panel compares two components resolution paths
 wave: 2
 deps: [T003]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T004
+base: 1d922025c08e440326cf232bab58dca53dc3f22e
 worktree: null
 task_branch: null
 files:
@@ -37,3 +37,4 @@ node --experimental-strip-types --test scripts/di-diff-display.test.mjs
 ## Interface contract
 None
 - attested: owner
+- 2026-10-27 implemented: diffDiPaths reports the first divergence, capped at 20 rows
