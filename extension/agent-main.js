@@ -11,6 +11,8 @@
   var NS = "angular-ai";
   var RECORD_EVENT = NS + ":record";
   var STATE_EVENT = NS + ":state";
+  var DI_QUERY_EVENT = NS + ":di-query";
+  var DI_GRAPH_EVENT = NS + ":di-graph";
 
   // ProfilerEvent enum values (packages/core/primitives/devtools/src/profiler_types.ts).
   // The enum is not published on the page's `ng` global, so the values are hard-coded for
@@ -62,6 +64,9 @@
       getHostElement: false,
       getInjector: false,
       getDirectiveMetadata: false,
+      getInjectorResolutionPath: false,
+      getInjectorMetadata: false,
+      getInjectorProviders: false,
     };
     if (!ng) return f;
     f.setProfiler = typeof ng.ɵsetProfiler === "function" || typeof ng.setProfiler === "function";
@@ -69,6 +74,9 @@
     f.getHostElement = typeof ng.getHostElement === "function" || typeof ng.ɵgetHostElement === "function";
     f.getInjector = typeof ng.getInjector === "function" || typeof ng.ɵgetInjectorFromNode === "function";
     f.getDirectiveMetadata = typeof ng.getDirectiveMetadata === "function" || typeof ng.ɵgetDirectiveMetadata === "function";
+    f.getInjectorResolutionPath = typeof ng.ɵgetInjectorResolutionPath === "function";
+    f.getInjectorMetadata = typeof ng.ɵgetInjectorMetadata === "function";
+    f.getInjectorProviders = typeof ng.ɵgetInjectorProviders === "function";
     return f;
   }
 
@@ -331,6 +339,94 @@
     };
   }
 
+  function handleDiQuery(e) {
+    try {
+      var detail = e && e.detail ? e.detail : {};
+      var componentName = detail.componentName;
+      var elementTag = detail.elementTag;
+      var ng = ngObj || readNg();
+      var el = null;
+      if (elementTag && typeof document !== "undefined" && document && typeof document.querySelector === "function") {
+        try { el = document.querySelector(elementTag); } catch (err) { el = null; }
+      }
+      if (!el && componentName && typeof document !== "undefined" && document && typeof document.querySelector === "function") {
+        try { el = document.querySelector(componentName); } catch (err) { el = null; }
+      }
+      var getInjector = ng && (typeof ng.getInjector === "function" ? ng.getInjector : (typeof ng.ɵgetInjectorFromNode === "function" ? ng.ɵgetInjectorFromNode : null));
+      var injector = null;
+      if (el && getInjector) {
+        try { injector = getInjector(el); } catch (err) { injector = null; }
+      }
+      var gip = ng && typeof ng.ɵgetInjectorResolutionPath === "function" ? ng.ɵgetInjectorResolutionPath : null;
+      var injectors = [];
+      if (gip && injector) {
+        try { injectors = gip(injector) || []; } catch (err) { injectors = []; }
+      } else if (injector) {
+        injectors = [injector];
+      }
+      if (!Array.isArray(injectors)) injectors = [];
+      var path = [];
+      for (var i = 0; i < injectors.length; i++) {
+        var inj = injectors[i];
+        var meta = null;
+        var providers = null;
+        if (ng && typeof ng.ɵgetInjectorMetadata === "function") {
+          try { meta = ng.ɵgetInjectorMetadata(inj); } catch (err) { meta = null; }
+        }
+        if (ng && typeof ng.ɵgetInjectorProviders === "function") {
+          try { providers = ng.ɵgetInjectorProviders(inj); } catch (err) { providers = null; }
+        }
+        var injectorName = "Injector";
+        if (meta) {
+          if (typeof meta === "string") injectorName = meta;
+          else if (meta.name) injectorName = meta.name;
+          else if (meta.displayName) injectorName = meta.displayName;
+        }
+        var provs = [];
+        if (Array.isArray(providers)) {
+          for (var p = 0; p < providers.length; p++) {
+            var pr = providers[p];
+            var token = (pr && (pr.token != null ? pr.token : pr.name)) != null ? String(pr.token != null ? pr.token : pr.name) : String(pr);
+            var providerType = (pr && pr.providerType) || "none";
+            var source = (pr && pr.source) || "";
+            var entry = {
+              token: token,
+              isViewProvider: typeof pr?.viewProviders === "boolean" ? pr.viewProviders : false,
+              provider: providerType,
+              importPath: (pr && (pr.importPath || pr.moduleName)) || source || undefined,
+            };
+            provs.push(entry);
+          }
+        }
+        var metaType;
+        if (typeof meta === "string") {
+          metaType = "environment";
+        } else if (meta && meta.type) {
+          if (meta.type === "element") metaType = "element";
+          else metaType = "environment";
+        } else {
+          metaType = "environment";
+        }
+        path.push({
+          id: i,
+          metadata: { type: metaType, source: String(injectorName) },
+          providers: provs,
+        });
+      }
+      dispatch(DI_GRAPH_EVENT, {
+        type: DI_GRAPH_EVENT,
+        resolutionPath: {
+          component: componentName,
+          elementTag: elementTag,
+          path: path,
+          available: true,
+        },
+      });
+    } catch (e) {
+      /* never throw */
+    }
+  }
+
   function dispatch(type, detail) {
     var CustomEventCtor = typeof globalThis.CustomEvent === "function" ? globalThis.CustomEvent : (typeof global.CustomEvent === "function" ? global.CustomEvent : null);
     var ev = CustomEventCtor ? new CustomEventCtor(type, { detail: detail }) : { type: type, detail: detail };
@@ -372,9 +468,12 @@
     closeCycle: closeCycle,
     extractTriggerName: extractTriggerName,
     reset: reset,
+    handleDiQuery: handleDiQuery,
     PROFILER_EVENT: ProfilerEvent,
     RECORD_EVENT: RECORD_EVENT,
     STATE_EVENT: STATE_EVENT,
+    DI_QUERY_EVENT: DI_QUERY_EVENT,
+    DI_GRAPH_EVENT: DI_GRAPH_EVENT,
     getSubscriber: function () {
       return subscriber;
     },
@@ -384,6 +483,9 @@
   };
 
   if (typeof globalThis !== "undefined") globalThis.__ngRecorder = api;
+  if (typeof globalThis !== "undefined" && typeof globalThis.addEventListener === "function") {
+    try { globalThis.addEventListener(DI_QUERY_EVENT, handleDiQuery); } catch (e) {}
+  }
   // Auto-run when loaded as a content script.
   start();
 })(typeof globalThis !== "undefined" ? globalThis : this);

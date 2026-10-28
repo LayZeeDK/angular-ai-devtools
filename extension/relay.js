@@ -7,6 +7,11 @@ window.addEventListener('angular-ai:record', (e) => {
   chrome.runtime.sendMessage({ type: 'angular-ai:record', cycle: e.detail });
 });
 
+window.addEventListener('angular-ai:di-graph', (e) => {
+  const d = e.detail || {};
+  chrome.runtime.sendMessage({ type: 'angular-ai:di-graph', ...d });
+});
+
 // Detect Angular and inject marker
 function checkAngular() {
   const el = document.querySelector('[ng-version]');

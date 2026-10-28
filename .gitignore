@@ -34,3 +34,7 @@ dist/
 extension/panel/*
 !extension/panel/index.html
 !extension/panel/favicon.ico
+
+# Playwright test results
+test-results/
+playwright-report/
