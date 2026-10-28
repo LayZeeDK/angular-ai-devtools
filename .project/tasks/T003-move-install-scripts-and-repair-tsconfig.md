@@ -56,7 +56,7 @@ User-scope directory produced by T003 and consumed by T002:
 ## Verify
 
 ```bash
-npx tsc -p tsconfig.json && node --experimental-strip-types --test scripts/skills-mirror.test.mjs
+node --input-type=module -e "import {execSync} from 'node:child_process';import {bridgeSidecarDeps,unlinkSidecarDeps} from 'file:///D:/projects/sandbox/angular-ai-devtools/scripts/sidecar-deps-bridge.mjs';bridgeSidecarDeps('.','D:/projects/sandbox/angular-ai-devtools');try{execSync('npx tsc -p tsconfig.json',{stdio:'inherit'});execSync('npm run check:skills',{stdio:'inherit'});execSync('node --experimental-strip-types --test scripts/skills-mirror.test.mjs',{stdio:'inherit'});}finally{unlinkSidecarDeps('.');}"
 ```
 
 Heavy: no
@@ -64,3 +64,30 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-28 — orchestrator plan-defect repair: the Verify now bridges the fresh verify sidecar's node_modules from the primary worktree for the duration of the check and always tears the junction down (`scripts/sidecar-deps-bridge.mjs`), because a sidecar ships without `node_modules` and `types: ["node"]` plus `@opencode/plugin` resolution need it. The check itself is unchanged: root `tsc -p tsconfig.json`, `npm run check:skills`, and the skills-mirror parity test.
+- 2026-10-28 — moved 9 install scripts/tests to C:/Users/LarsGyrupBrinkNielse/.commandcode/scripts/ (byte-identical); copied opencode-pstack-plugin.ts to user scope; tsconfig include updated to C:/Users/.../.commandcode/scripts/install-pstack-opencode.mjs + .test.mjs + scripts/opencode-pstack-plugin.ts; swept `scripts/install-` usage lines to `~/.commandcode/scripts/install-` in moved copies; no remaining `scripts/` self-refs in moved files. Verify: `npx tsc -p tsconfig.json && node --experimental-strip-types --test scripts/skills-mirror.test.mjs` → tsc exit 0, skills-mirror 2 pass 0 fail; second tsc run exit 0. Stale refs outside scope: package.json test glob still `scripts/**/*.test.mjs` (T002 owns); task-file/plan references to moved paths are historical.
+- 2026-10-28 — orchestrator Verify (sidecar gsd-path-verify/task-t003-verify): fail, exit 1; output tail:
+  ```
+  error TS2688: Cannot find type definition file for 'node'.
+    The file is in the program because:
+      Entry point of type library 'node' specified in compilerOptions
+  npm notice run npx
+  npm notice run tsc -p tsconfig.json
+  ```
+- 2026-10-28 — orchestrator Verify (sidecar gsd-path-verify/task-t003-verify): pass, exit 0; output tail:
+  ```
+  ✔ .claude/skills/control-ai-browsers mirrors .commandcode/skills/control-ai-browsers (6.575ms)
+  ✔ .claude/skills/verify-ai-browsers mirrors .commandcode/skills/verify-ai-browsers (1.8184ms)
+  ℹ tests 2
+  ℹ suites 0
+  ℹ pass 2
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 127.4615
+  npm notice run npx
+  npm notice run tsc -p tsconfig.json
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  ```
