@@ -25,11 +25,19 @@
  *      `display_name`, `default_prompt`, and `allow_implicit_invocation`).
  *      These are NOT Command Code custom subagents and are incompatible with
  *      Command Code's subagent system. Command Code dispatches child agents
- *      via the `Agent` tool with `subagent_type: general-purpose`, as
+ *      via the `Agent` tool with a free worker `subagent_type`, as
  *      described in the per-skill `references/dispatch.md`.
  *   4. Dispatch adapter — writes `references/dispatch.md` with the Command
  *      Code agent dispatch contract (derived from the GSD Path Claude platform
  *      adapter with "Claude Code" → "Command Code").
+ *   5. Model routing — the upstream adapter names `general-purpose` children.
+ *      In Command Code those are paid routes, so the adapter is rewritten to
+ *      spawn the free worker types (`free-beam-*`, `free-glyph-cluster-*`) and
+ *      to forbid `general`, `explore`, `plan` and `free-laguna-s-2-1`, matching
+ *      the free-model policy in `~/.commandcode/AGENTS.md`.
+ *   6. Command Code reference — writes `references/command-code.md` into each
+ *      skill with the routing table, the PYTHONPATH wrapper and the cmd.exe
+ *      notes, so the adaptation survives an upstream `--update`.
  *
  * Note: GSD Path skill `references/` directories contain role briefs
  * (coder.md, researcher.md, reviewer.md, …) that are kept as runtime
@@ -270,20 +278,116 @@ function rebaseInvocations(text) {
     .replaceAll("$path", "/path");
 }
 
+// Command Code overrides appended to the dispatch adapter. Upstream GSD Path
+// targets Claude Code, where `general-purpose` is the default child. In Command
+// Code that type routes to a paid model and is forbidden by the free-model
+// policy in `~/.commandcode/AGENTS.md`, so the adapter names the free workers.
+const COMMAND_CODE_MODEL_ROUTING = `
+## Command Code model routing (overrides model-policy.md)
+
+The free-model policy in \`~/.commandcode/AGENTS.md\` overrides the skill's
+portable \`references/model-policy.md\`. Spawn by type name only; the type pins
+the model and its effort.
+
+| Work | \`subagent_type\` |
+|---|---|
+| one file, one test, one patch, one bounded review | \`free-beam-low\` |
+| multi-step reasoning, repository search, debugging, planning | \`free-beam-medium\`, \`free-beam-high\` |
+| draft or second opinion | \`free-glyph-cluster-low\`, \`free-glyph-cluster-medium\` |
+| 4th failure of the same task type (GOAT plan only) | \`paid-deepseek-v4-1-flash-high\`, \`paid-glm-5-3-flash-high\` |
+
+Never dispatch \`general\`, \`explore\` or \`plan\`; they are not free worker types.
+Never dispatch \`free-laguna-s-2-1\`: it is the default orchestrator and
+rate-limits under load. A 429, capacity or quota message is a ladder event, not
+a task failure.
+
+Children must not call the \`taste\` tool or edit \`.commandcode/taste/\` during a
+build; a taste write is a product path change outside a proven landing. See
+\`~/.commandcode/references/gsd-path-taste.md\`.
+`;
+
+// Written to every installed skill as references/command-code.md.
+const COMMAND_CODE_REFERENCE = `# Command Code adapter
+
+This skill was installed for Command Code by
+\`scripts/install-gsd-path-command-code.mjs\`. This file records the platform
+adaptation; it is regenerated on every install or \`--update\`.
+
+## Model routing
+
+The free-model policy in \`~/.commandcode/AGENTS.md\` overrides
+\`references/model-policy.md\`. Spawn children by type name only; the type pins
+the model and its effort.
+
+| Work | \`subagent_type\` |
+|---|---|
+| one file, one test, one patch, one bounded review | \`free-beam-low\` |
+| multi-step reasoning, repository search, debugging, planning | \`free-beam-medium\`, \`free-beam-high\` |
+| draft or second opinion | \`free-glyph-cluster-low\`, \`free-glyph-cluster-medium\` |
+| 4th failure of the same task type (GOAT plan only) | \`paid-deepseek-v4-1-flash-high\`, \`paid-glm-5-3-flash-high\` |
+
+Never \`general\`, \`explore\`, \`plan\`, or \`free-laguna-s-2-1\` as a GSD Path child.
+Command Code subagents cannot spawn subagents, so every child is a worker.
+
+## Python helpers
+
+Scripts live at \`~/.commandcode/skills/gsd-path/scripts\`. Set \`PYTHONPATH\` to
+that directory or use the installed wrapper:
+
+\`\`\`
+call gsd-path-py pipeline_state.py route --repo <abs-root>
+\`\`\`
+
+## Shell
+
+\`shell_command\` is \`cmd.exe\` on this machine: no heredocs, no \`/dev/null\`,
+no \`$VAR\`, and Unix tools are denied by \`settings.json\`. Use the \`powershell\`
+tool, Python, or the dedicated file and search tools.
+
+## Taste
+
+A taste write is a product path change outside a proven landing. Children must
+not call the \`taste\` tool or edit \`.commandcode/taste/\` during a build. See
+\`~/.commandcode/references/gsd-path-taste.md\`.
+`;
+
 /**
  * Read the GSD Path Claude dispatch adapter from the clone, substitute
- * "Claude Code" → "Command Code", and return the Command Code dispatch
- * contract text.
+ * "Claude Code" → "Command Code", rebase the child type from the paid
+ * `general-purpose` to the free worker types, and append the Command Code
+ * model-routing override.
  */
 function buildDispatchText(cloneRoot) {
   const claudeDispatch = readFileSync(
     join(cloneRoot, "platforms", "claude", "dispatch.md"),
     "utf8"
   );
-  return claudeDispatch
-    .replaceAll("Claude Code agent dispatch", "Command Code agent dispatch")
-    .replaceAll("Use Claude Code's", "Use Command Code's")
-    .replaceAll("Do not ask Claude Code to", "Do not ask Command Code to");
+  return (
+    claudeDispatch
+      .replaceAll("Claude Code agent dispatch", "Command Code agent dispatch")
+      .replaceAll("Use Claude Code's", "Use Command Code's")
+      .replaceAll("Do not ask Claude Code to", "Do not ask Command Code to")
+      .replaceAll(
+        "`subagent_type: general-purpose`",
+        "a free worker `subagent_type` (`free-beam-low` by default, " +
+          "`free-beam-medium` or `free-beam-high` for multi-step work, or " +
+          "`free-glyph-cluster-*` for a draft or second opinion)"
+      )
+      .replaceAll(
+        "otherwise start a fresh `general-purpose` child",
+        "otherwise start a fresh free worker child"
+      )
+      .replaceAll(
+        "full-capability `general-purpose` agent",
+        "free worker agent"
+      )
+      // Catch the wrapped occurrences ("... a fresh `general-purpose`\n  child")
+      // and any upstream phrasing the three literals above do not cover.
+      .replaceAll("`general-purpose`", "free worker")
+      .trimEnd() +
+    "\n" +
+    COMMAND_CODE_MODEL_ROUTING
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -475,10 +579,11 @@ function stepInstallSkills(cloneRoot, skillNames) {
       rmSync(agentsDir, { recursive: true, force: true });
     }
 
-    // Write Command Code dispatch adapter
+    // Write Command Code dispatch adapter and platform reference
     const refDir = join(destDir, "references");
     mkdirSync(refDir, { recursive: true });
     writeFileSync(join(refDir, "dispatch.md"), dispatchText);
+    writeFileSync(join(refDir, "command-code.md"), COMMAND_CODE_REFERENCE);
 
     // Rebase invocations in all markdown files
     for (const mdPath of findAllMarkdown(destDir)) {
