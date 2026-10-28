@@ -3,9 +3,9 @@ id: T002
 title: Add repo-resident user-scope test runner and update package test glob
 wave: 1
 deps: [T003]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002
+base: ddb710abcffda06176201397a3c230b42d370350
 worktree: null
 task_branch: null
 files:
@@ -56,3 +56,21 @@ Heavy: no
 ## Log
 
 - created by planner
+- build_T002: added scripts/run-user-scope-tests.mjs (os.homedir() resolution, recursive *.test.mjs discovery, non-zero on empty, no fallback, child exit propagation, injectable root via arg/env) and scripts/run-user-scope-tests.test.mjs (6 tests); updated package.json test script to invoke runner between repo glob and test:skills. Verify `node --experimental-strip-types --test scripts/run-user-scope-tests.test.mjs` passed (6/6). npm test run1 pass 522, run2 pass 522, no new untracked files. E5: dedicated glob exits non-zero when no user-scope tests exist (no fallback to repository scripts/**/*.test.mjs).
+- 2026-10-28 — orchestrator Verify (sidecar gsd-path-verify/task-t002-verify): pass, exit 0; output tail:
+  ```
+  ✔ resolves home directory without tilde (1.1938ms)
+  ✔ recurses over a fixture tree (326.6778ms)
+  ✔ returns non-zero on empty match (94.0631ms)
+  ✔ does not fall back to repository glob (96.9698ms)
+  ✔ propagates child failure (317.7434ms)
+  ✔ injectable root via environment variable (337.8003ms)
+  ℹ tests 6
+  ℹ suites 0
+  ℹ pass 6
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 1300.8015
+  ```
