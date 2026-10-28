@@ -122,6 +122,11 @@
       announceState(false, "ng.ɵsetProfiler not found (production build or not an Angular page)");
       return "notsupported";
     }
+    var gsgCheck = typeof ngObj.ɵgetSignalGraph === "function" ? ngObj.ɵgetSignalGraph : (typeof ngObj.getSignalGraph === "function" ? ngObj.getSignalGraph : null);
+    if (!gsgCheck) {
+      announceState(false, "ng.ɵgetSignalGraph not found (production build or not an Angular page)");
+      return "notsupported";
+    }
     var zone = detectZone(ngObj);
     if (zone === "zone") {
       announceState(false, "Zone.js change detection is not supported; use zoneless Angular 22");
@@ -255,12 +260,24 @@
         debuggableFn: n.debuggableFn && n.debuggableFn.name ? n.debuggableFn.name : null,
       });
     }
+    // Resolve edges from raw indices to global node ids.
     var edges = [];
     for (var j = 0; j < graph.edges.length; j++) {
       var e2 = graph.edges[j];
-      edges.push({ consumer: e2.consumer, producer: e2.producer });
+      var consumerIdx = typeof e2.consumer === "number" ? e2.consumer : -1;
+      var producerIdx = typeof e2.producer === "number" ? e2.producer : -1;
+      var consumerId = (consumerIdx >= 0 && consumerIdx < nodes.length) ? nodes[consumerIdx].id : (typeof e2.consumer === "string" ? e2.consumer : null);
+      var producerId = (producerIdx >= 0 && producerIdx < nodes.length) ? nodes[producerIdx].id : (typeof e2.producer === "string" ? e2.producer : null);
+      edges.push({ consumer: consumerId, producer: producerId });
     }
-    return { nodes: nodes, edges: edges };
+    // Check for a template node (owning component). Missing means graph unavailable.
+    var hasTemplate = false;
+    for (var t = 0; t < nodes.length; t++) {
+      if (nodes[t].kind === "template") { hasTemplate = true; break; }
+    }
+    var result = { nodes: nodes, edges: edges };
+    if (!hasTemplate) result.unavailable = true;
+    return result;
   }
 
   function diffEpochs(instance, graph) {

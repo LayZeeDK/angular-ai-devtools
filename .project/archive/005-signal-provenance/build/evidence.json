@@ -1,0 +1,152 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "3416529f874ed813f23abb3c023abde2a9f8c81b",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M005",
+        "candidates": [
+          {
+            "base": "f9aa7a2202ddf6511340723e3d8c89913dd1e5c1",
+            "commit": "2b4a34e7fdac2040eb5d00a9d4c789f8529849b3",
+            "valid": true
+          }
+        ],
+        "head": "3416529f874ed813f23abb3c023abde2a9f8c81b",
+        "subject": "T001: Implement MAIN-world provenance tracer with per-component graph aggregation"
+      },
+      "landed_commit": "2b4a34e7fdac2040eb5d00a9d4c789f8529849b3",
+      "reasons": [],
+      "task": {
+        "base": "f9aa7a2202ddf6511340723e3d8c89913dd1e5c1",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-provenance-tracer-mainworld.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M005",
+        "candidates": [
+          {
+            "base": "2b4a34e7fdac2040eb5d00a9d4c789f8529849b3",
+            "commit": "6134992fbec986c29faa726ecce39fc45e482ba7",
+            "valid": true
+          }
+        ],
+        "head": "3416529f874ed813f23abb3c023abde2a9f8c81b",
+        "subject": "T002: Implement provenance chain traversal and unit tests"
+      },
+      "landed_commit": "6134992fbec986c29faa726ecce39fc45e482ba7",
+      "reasons": [],
+      "task": {
+        "base": "2b4a34e7fdac2040eb5d00a9d4c789f8529849b3",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-provenance-chain-traversal.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M005",
+        "candidates": [
+          {
+            "base": "2b4a34e7fdac2040eb5d00a9d4c789f8529849b3",
+            "commit": "e213dc3394bad8dc1ea5d4c2032e5e6c6b78d08d",
+            "valid": true
+          }
+        ],
+        "head": "3416529f874ed813f23abb3c023abde2a9f8c81b",
+        "subject": "T003: Implement reactive anti-pattern detector (four rules)"
+      },
+      "landed_commit": "e213dc3394bad8dc1ea5d4c2032e5e6c6b78d08d",
+      "reasons": [],
+      "task": {
+        "base": "2b4a34e7fdac2040eb5d00a9d4c789f8529849b3",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-anti-pattern-detector.md"
+      }
+    },
+    {
+      "classification": "attested",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M005",
+        "candidates": [
+          {
+            "base": "428bb85b02acf8dae95182151a94b3b5eef8292e",
+            "commit": "3f157dde087e9d8a21e308a97fd68316708dcc6b",
+            "valid": true
+          }
+        ],
+        "head": "3416529f874ed813f23abb3c023abde2a9f8c81b",
+        "subject": "T004: Deliver DevTools panel UI for signal provenance and anti-patterns"
+      },
+      "landed_commit": "3f157dde087e9d8a21e308a97fd68316708dcc6b",
+      "reasons": [],
+      "task": {
+        "base": "428bb85b02acf8dae95182151a94b3b5eef8292e",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-panel-ui-provenance.md"
+      }
+    },
+    {
+      "classification": "attested",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M005",
+        "candidates": [
+          {
+            "base": "60e8d7ee1bfa3dc342c7e6094e602196ac2833ad",
+            "commit": "49977ad5c457e2c14ada4dc98e2aab272c8a428c",
+            "valid": true
+          }
+        ],
+        "head": "3416529f874ed813f23abb3c023abde2a9f8c81b",
+        "subject": "T005: Browser test on spikes/ng222-app for signal provenance"
+      },
+      "landed_commit": "49977ad5c457e2c14ada4dc98e2aab272c8a428c",
+      "reasons": [],
+      "task": {
+        "base": "60e8d7ee1bfa3dc342c7e6094e602196ac2833ad",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-browser-test-counter-fixture.md"
+      }
+    },
+    {
+      "classification": "attested",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M005",
+        "candidates": [
+          {
+            "base": "49977ad5c457e2c14ada4dc98e2aab272c8a428c",
+            "commit": "3416529f874ed813f23abb3c023abde2a9f8c81b",
+            "valid": true
+          }
+        ],
+        "head": "3416529f874ed813f23abb3c023abde2a9f8c81b",
+        "subject": "T006: Regression gate and full verification"
+      },
+      "landed_commit": "3416529f874ed813f23abb3c023abde2a9f8c81b",
+      "reasons": [],
+      "task": {
+        "base": "49977ad5c457e2c14ada4dc98e2aab272c8a428c",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-regression-gate.md"
+      }
+    }
+  ]
+}

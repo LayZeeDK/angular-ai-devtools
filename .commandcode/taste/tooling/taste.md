@@ -41,6 +41,7 @@
 - Run AI browser instances one or two at a time; running all five in parallel causes resource contention. Confidence: 0.85
 - Close all unused Edge/Chrome windows after use; when he states he has no own browser windows open, the agent may close all of them. Confidence: 0.75
 - Persist Edge account-sync prevention in verification artifacts (switches/guards/docs) so instance profiles never sync his work account. Confidence: 0.8
+- For Nx Angular workspaces, do not use a custom Node script as the serve target; prefer Nx executors (e.g. `@nx/angular:*` or `@angular/build:dev-server`) instead. Confidence: 0.8
 - Work email/domain must be scrubbed from Git history and code, not just avoided in new commits/documents. Confidence: 0.85
 
 - When a Command Code mod is created or changed, verify it in the current session (reload mods and run its status command) in addition to its unit tests. Confidence: 0.75
@@ -52,10 +53,10 @@
 - Command Code mods that need to inform the model of a retry or compaction use `api.queueMessage({content, deliverAs: 'steer'})` alongside `ui.notify()`, so the message is injected as steering context rather than a user message or command — but `queueMessage` with `deliverAs: 'steer'` only steers a run already in progress and never starts one; to actually start or restart a run (e.g. after `run_error`), use `cmd.prompt.submit(...)` instead. Confidence: 0.75
 - On Windows, the correct username path is `C:\Users\LarsGyrupBrinkNielse` (without the trailing `n`): `shell_command` (Git Bash/Cmd) resolves only the correct spelling, while `read_file` may resolve both `LarsGyrupBrinkNielse` and `LarsGyrupBrinkNielsen`. Always use the correct spelling (`LarsGyrupBrinkNielse`) in shell commands. Confidence: 0.95
 - Prefers ARM64-native builds over x64 builds on Windows 11 ARM64; x64 binaries run through the x64-on-ARM64 emulation layer and are slower. Confidence: 0.7
-- Prefers using local framework source clones under `d:/projects/github/` (rather than `node_modules`) when investigating framework internals (e.g. Angular's `ɵ` APIs). Confidence: 0.8
+- Prefers using local source clones under `d:/projects/github/` (rather than `node_modules` or web fetch) when investigating framework internals (e.g. Angular's `ɵ` APIs) or analyzing/exploring repositories; corrected the assistant from `web_fetch` to a local clone for analysis. Confidence: 0.85
 - On this machine, global npm packages/node_modules live under `D:\packages\npm-global` (the npm global prefix); it is populated, not empty, and `npm prefix -g`/`npm root -g` should be checked before assuming the global location or its contents. Confidence: 0.9
 - Regards Ornith as a good overall model but slow in output; when it is too slow for a task, route subagents to faster free models (Beam 1.0, MiniMax) with guardrails instead, and prefer non-poolside routes to avoid rate limiting; Ornith remains the main/orchestration model but is not the only subagent route. Confidence: 0.8
-- For this Nx Angular workspace, verify with `nx test angular-ai-devtools --include=<path>` rather than `--testPathPattern=` (the latter is unsupported by the installed Nx version). Confidence: 0.75
+- For this Nx Angular workspace, verify with `nx test angular-ai-devtools --include=<path>` rather than `--testPathPattern=` or `--testFilePattern=` (both unsupported/rejected); user explicitly forced `--include=` as the canonical flag. Confidence: 0.85
 - In `gsd-path` isolation, `activate-task --repo` must point at the task worktree path (the function's first parameter is `worktree`), not the primary repo path — passing the primary repo fails the branch check. Confidence: 0.75
 - `gsd-path isolate-task` auto-bridges `node_modules` into the task worktree (junction), so `npx nx test` works there without a manual install. Confidence: 0.7
 

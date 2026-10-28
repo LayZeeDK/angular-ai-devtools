@@ -267,6 +267,63 @@ describe("agent-main.js (recorder)", () => {
   });
 
   describe("signal-graph capture and epoch diff", () => {
+    it("resolves edges to global node ids in serialized graph", async () => {
+      const counter = new Counter();
+      const { ng } = makeNg({ graph: counterGraph() });
+      const { recorder, dispatched } = boot({ ng });
+      const sub = recorder.getSubscriber();
+      sub(PE.TemplateUpdateStart, counter);
+      sub(PE.TemplateUpdateEnd, counter);
+      await flushMicrotasks();
+      const record = dispatched.find((e) => e.type === "angular-ai:record");
+      const graph = record.detail.checks[0].graph;
+      assert.ok(graph);
+      // Edges should be resolved to node id strings, not raw indices.
+      assert.equal(typeof graph.edges[0].consumer, "string");
+      assert.equal(typeof graph.edges[0].producer, "string");
+      assert.equal(graph.edges[0].consumer, "n2");
+      assert.equal(graph.edges[0].producer, "n0");
+      assert.equal(graph.edges[1].consumer, "n2");
+      assert.equal(graph.edges[1].producer, "n1");
+      assert.equal(graph.edges[2].consumer, "n1");
+      assert.equal(graph.edges[2].producer, "n0");
+    });
+
+    it("marks graph as unavailable when no template node exists", async () => {
+      const counter = new Counter();
+      const noTemplateGraph = {
+        nodes: [
+          { id: "n0", kind: "signal", label: "count", epoch: 1 },
+          { id: "n1", kind: "computed", label: "double", epoch: 1 },
+        ],
+        edges: [{ consumer: 1, producer: 0 }],
+      };
+      const { ng } = makeNg({ graph: noTemplateGraph });
+      const { recorder, dispatched } = boot({ ng });
+      const sub = recorder.getSubscriber();
+      sub(PE.TemplateUpdateStart, counter);
+      sub(PE.TemplateUpdateEnd, counter);
+      await flushMicrotasks();
+      const record = dispatched.find((e) => e.type === "angular-ai:record");
+      const graph = record.detail.checks[0].graph;
+      assert.ok(graph);
+      assert.equal(graph.unavailable, true);
+    });
+
+    it("does not mark graph as unavailable when template node exists", async () => {
+      const counter = new Counter();
+      const { ng } = makeNg({ graph: counterGraph() });
+      const { recorder, dispatched } = boot({ ng });
+      const sub = recorder.getSubscriber();
+      sub(PE.TemplateUpdateStart, counter);
+      sub(PE.TemplateUpdateEnd, counter);
+      await flushMicrotasks();
+      const record = dispatched.find((e) => e.type === "angular-ai:record");
+      const graph = record.detail.checks[0].graph;
+      assert.ok(graph);
+      assert.equal(graph.unavailable, undefined);
+    });
+
     it("serializes the graph without signal values and diffs epochs across cycles", async () => {
       const counter = new Counter();
       const graphA = {
@@ -302,18 +359,14 @@ describe("agent-main.js (recorder)", () => {
       assert.deepEqual(r2.detail.checks[0].changedNodeIds, ["n0", "n2"]);
     });
 
-    it("reports a null graph when ɵgetSignalGraph is unavailable", async () => {
-      const counter = new Counter();
+    it("reports 'not supported' when ɵgetSignalGraph is unavailable", () => {
       const { ng } = makeNg({ graph: null });
       delete ng.ɵgetSignalGraph;
       const { recorder, dispatched } = boot({ ng });
-      const sub = recorder.getSubscriber();
-      sub(PE.TemplateUpdateStart, counter);
-      sub(PE.TemplateUpdateEnd, counter);
-      await flushMicrotasks();
-      const record = dispatched.find((e) => e.type === "angular-ai:record");
-      assert.equal(record.detail.checks[0].graph, null);
-      assert.equal(record.detail.checks[0].changedNodeIds.length, 0);
+      const state = dispatched.find((e) => e.type === "angular-ai:state");
+      assert.equal(state.detail.supported, false);
+      assert.match(String(state.detail.reason), /ɵgetSignalGraph/);
+      assert.equal(recorder.installed, false);
     });
   });
 });
