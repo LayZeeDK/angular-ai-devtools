@@ -1,14 +1,44 @@
 {
   "roles": {
-    "inspect_codebase": {"model": "reflection/beam:free", "effort": "low"},
-    "inspect_docs": {"model": "reflection/beam:free", "effort": "low"},
-    "docs_audit": {"model": "reflection/beam:free", "effort": "low"},
-    "research": {"model": "reflection/beam:free", "effort": "low"},
-    "coder": {"model": "poolside/laguna-s-2-1-free"},
-    "reviewer": {"model": "reflection/beam:free", "effort": "low"},
-    "decide": {"model": "reflection/beam:free", "effort": "high"},
-    "roadmap": {"model": "reflection/beam:free", "effort": "high"},
-    "plan": {"model": "reflection/beam:free", "effort": "high"},
-    "plan_patch": {"model": "reflection/beam:free", "effort": "high"}
+    "coder": {
+      "effort": "high",
+      "model": "reflection/beam:free"
+    },
+    "decide": {
+      "effort": "high",
+      "model": "reflection/beam:free"
+    },
+    "docs_audit": {
+      "effort": "high",
+      "model": "reflection/beam:free"
+    },
+    "inspect_codebase": {
+      "effort": "high",
+      "model": "reflection/beam:free"
+    },
+    "inspect_docs": {
+      "effort": "high",
+      "model": "reflection/beam:free"
+    },
+    "plan": {
+      "effort": "high",
+      "model": "reflection/beam:free"
+    },
+    "plan_patch": {
+      "effort": "high",
+      "model": "reflection/beam:free"
+    },
+    "research": {
+      "effort": "high",
+      "model": "reflection/beam:free"
+    },
+    "reviewer": {
+      "effort": "high",
+      "model": "reflection/beam:free"
+    },
+    "roadmap": {
+      "effort": "high",
+      "model": "reflection/beam:free"
+    }
   }
 }

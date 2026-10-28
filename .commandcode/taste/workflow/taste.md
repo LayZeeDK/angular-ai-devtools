@@ -70,3 +70,4 @@
 
 - Delegates all tasks and work items to subagents running free models other than the main session's Laguna S 2.1, to keep context and tool usage lean and avoid rate limiting; regards Ornith as a good overall model but slow in output. Confidence: 0.85
 - When delegating task work into a `gsd-path` isolated worktree, the subagent brief must restrict edits to that worktree only, require absolute paths for file operations, and set `cwd` to the worktree for shell commands. Confidence: 0.7
+- Prefers a single bare `/gsd-path @<orchestrator prompt>` invocation to drive an entire milestone autonomously: user-scope rules should auto-approve legal intent/plan gates (via `gsd.bat preapprove` / `gsd.bat plan-approve`) so neither `/goal` nor `--pre-approve` is required, while continuing phase after phase with one-line receipts. Confidence: 0.85

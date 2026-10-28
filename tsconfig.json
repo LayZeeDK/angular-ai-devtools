@@ -3,8 +3,8 @@
   // it ships. The other install-*.mjs scripts in scripts/ are plain unannotated
   // JavaScript.
   "include": [
-    "scripts/install-pstack-opencode.mjs",
-    "scripts/install-pstack-opencode.test.mjs",
+    "C:/Users/LarsGyrupBrinkNielse/.commandcode/scripts/install-pstack-opencode.mjs",
+    "C:/Users/LarsGyrupBrinkNielse/.commandcode/scripts/install-pstack-opencode.test.mjs",
     "scripts/opencode-pstack-plugin.ts"
   ],
   "compilerOptions": {

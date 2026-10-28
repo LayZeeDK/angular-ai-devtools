@@ -1,0 +1,80 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "6f3a4905d1d5df2e7065185dd68aebdcf7fc60c6",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M008",
+        "candidates": [
+          {
+            "base": "0c04985798fe92f839e2d60a04f3d8460918641c",
+            "commit": "77bfa6b6a722ae94581e7c832f88f5db57c7156a",
+            "valid": true
+          }
+        ],
+        "head": "6f3a4905d1d5df2e7065185dd68aebdcf7fc60c6",
+        "subject": "T001: Add guarded idempotent review-panel family patch to installer"
+      },
+      "landed_commit": "77bfa6b6a722ae94581e7c832f88f5db57c7156a",
+      "reasons": [],
+      "task": {
+        "base": "0c04985798fe92f839e2d60a04f3d8460918641c",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-add-review-panel-family-patch.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M008",
+        "candidates": [
+          {
+            "base": "ddb710abcffda06176201397a3c230b42d370350",
+            "commit": "c6f056850e665927a4788d7aef33e6823798be10",
+            "valid": true
+          }
+        ],
+        "head": "6f3a4905d1d5df2e7065185dd68aebdcf7fc60c6",
+        "subject": "T002: Add repo-resident user-scope test runner and update package test glob"
+      },
+      "landed_commit": "c6f056850e665927a4788d7aef33e6823798be10",
+      "reasons": [],
+      "task": {
+        "base": "ddb710abcffda06176201397a3c230b42d370350",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-package-test-runner-and-glob.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M008",
+        "candidates": [
+          {
+            "base": "02e8e690a0217b217e27eced44604ace837f76f1",
+            "commit": "bf4cc3aeb6d126a83f315af56e37e6091c687688",
+            "valid": true
+          }
+        ],
+        "head": "6f3a4905d1d5df2e7065185dd68aebdcf7fc60c6",
+        "subject": "T003: Move install scripts to user scope and repair tsconfig include"
+      },
+      "landed_commit": "bf4cc3aeb6d126a83f315af56e37e6091c687688",
+      "reasons": [],
+      "task": {
+        "base": "02e8e690a0217b217e27eced44604ace837f76f1",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-move-install-scripts-and-repair-tsconfig.md"
+      }
+    }
+  ]
+}
