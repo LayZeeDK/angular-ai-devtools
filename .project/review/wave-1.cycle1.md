@@ -37,7 +37,7 @@ Contract violations (blocking):
 
 ### SC7 — Each of M001-M007 has a `lars-review` specification with a frozen range, file scope, focus areas, and acceptance.: pass
 
-- ✅ Each of M001-M007 has a `lars-review` specification with a frozen range, file scope, focus areas, and acceptance. — all seven specs exist under `.project/review/specs/` with frozen `Range:` lines, `## File scope`, `## Focus areas`, and `## Acceptance`; held-out edge E10 `tests/held-out/e10-spec-present.test.mjs` recorded pass (tests 8, pass 8, fail 0, cancelled 0, skipped 0, todo 0); prohibition N7 satisfied because every spec opens with its frozen `base..head` SHAs and file scope rather than being authored from memory
+- ✅ Each of M001-M007 has a `lars-review` specification with a frozen range, file scope, focus areas, and acceptance. — all seven specs exist under `.project/review/specs/` with frozen `Range:` lines, `## File scope`, `## Focus areas`, and `## Acceptance`; held-out edge E10 `tests/held-out/e10-spec-present.test.mjs` recorded pass (tests 8, pass 8, fail 0, cancelled 0, skipped 0); prohibition N7 satisfied because every spec opens with its frozen `base..head` SHAs and file scope rather than being authored from memory
 
 ## Fixed since last cycle
 
