@@ -3,9 +3,9 @@ id: T001
 title: DI path tracer MAIN-world
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: 1d922025c08e440326cf232bab58dca53dc3f22e
 worktree: null
 task_branch: null
 files:
@@ -38,3 +38,4 @@ node --experimental-strip-types --test scripts/di-path-tracer.test.mjs
 ## Interface contract
 None
 - attested: owner
+- 2026-10-27 implemented: pure traceDiPath/getDiResolutionPath over recorded injector data; 6/6 tests
