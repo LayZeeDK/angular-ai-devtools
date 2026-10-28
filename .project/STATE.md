@@ -1,11 +1,11 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: null
-phase: inspect
+milestone: tooling
+phase: roadmap
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M008
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -132,3 +132,12 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-28 — ship — STATE repair: milestone named n3-di-doctor (was null; M007 bind never recorded it)
 - 2026-10-28 — shipped — archive preflight passed; shipment recorded
 - 2026-10-28 — inspect — router bound next milestone: M008
+- 2026-10-28 — inspect — inspection artifacts passed
+- 2026-10-28 — define — definition started
+- 2026-10-28 — define — program charter approved
+- 2026-10-28 — research — research started
+- 2026-10-28 — research — research complete; manifest .project/research/RESEARCH.md; dispatched capability-map, domain-decomposition, stack; skipped domain, pitfalls, similar; 1 question
+- 2026-10-28 — decide — decision synthesis started
+- 2026-10-28 — decide — decision synthesis complete; validated .project/SYNTHESIS.md (7 decisions)
+- 2026-10-28 — roadmap — roadmap started
+- 2026-10-28 — roadmap — program roadmap approved
