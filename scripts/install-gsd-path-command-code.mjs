@@ -38,6 +38,9 @@
  *   6. Command Code reference — writes `references/command-code.md` into each
  *      skill with the routing table, the PYTHONPATH wrapper and the cmd.exe
  *      notes, so the adaptation survives an upstream `--update`.
+ *   7. Portable wrapper and guard — the generated `gsd-path-py` wrapper quotes
+ *      its paths and honours `GSD_PYTHON`, and the adapter throws instead of
+ *      installing dispatch text that still names `general-purpose`.
  *
  * Note: GSD Path skill `references/` directories contain role briefs
  * (coder.md, researcher.md, reviewer.md, …) that are kept as runtime
@@ -100,6 +103,7 @@ import {
 } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join, relative } from "node:path";
+import { pathToFileURL } from "node:url";
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -357,12 +361,12 @@ not call the \`taste\` tool or edit \`.commandcode/taste/\` during a build. See
  * `general-purpose` to the free worker types, and append the Command Code
  * model-routing override.
  */
-function buildDispatchText(cloneRoot) {
+export function buildDispatchText(cloneRoot) {
   const claudeDispatch = readFileSync(
     join(cloneRoot, "platforms", "claude", "dispatch.md"),
     "utf8"
   );
-  return (
+  const out =
     claudeDispatch
       .replaceAll("Claude Code agent dispatch", "Command Code agent dispatch")
       .replaceAll("Use Claude Code's", "Use Command Code's")
@@ -386,8 +390,15 @@ function buildDispatchText(cloneRoot) {
       .replaceAll("`general-purpose`", "free worker")
       .trimEnd() +
     "\n" +
-    COMMAND_CODE_MODEL_ROUTING
-  );
+    COMMAND_CODE_MODEL_ROUTING;
+  if (/\bgeneral-purpose\b/.test(out)) {
+    throw new Error(
+      "Command Code dispatch adapter still names general-purpose; " +
+        "upstream platforms/claude/dispatch.md changed. Update " +
+        "scripts/install-gsd-path-command-code.mjs before installing."
+    );
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------------
@@ -631,11 +642,20 @@ function stepWritePythonPath() {
     log(`   wrote ${pyPathTxt}`);
     const content =
       "@echo off\r\n" +
-      `set PYTHONPATH=${winPath}\r\n` +
-      "set _GSD_OLD_CWD=%CD%\r\n" +
-      "cd /d %PYTHONPATH%\r\n" +
-      "python %*\r\n" +
-      "cd /d %_GSD_OLD_CWD%\r\n";
+      "setlocal\r\n" +
+      `set "PYTHONPATH=${winPath}"\r\n` +
+      'set "_GSD_OLD_CWD=%CD%"\r\n' +
+      'if not defined GSD_PYTHON set "GSD_PYTHON=python"\r\n' +
+      'where "%GSD_PYTHON%" >nul 2>nul\r\n' +
+      "if errorlevel 1 (\r\n" +
+      "  echo gsd-path-py: Python not found. Set GSD_PYTHON to the interpreter. 1>&2\r\n" +
+      "  exit /b 127\r\n" +
+      ")\r\n" +
+      'cd /d "%PYTHONPATH%"\r\n' +
+      '"%GSD_PYTHON%" %*\r\n' +
+      'set "_GSD_EXIT=%ERRORLEVEL%"\r\n' +
+      'cd /d "%_GSD_OLD_CWD%"\r\n' +
+      "exit /b %_GSD_EXIT%\r\n";
     writeFileSync(GSD_PATH_PY_WRAPPER, content, "utf8");
     log(`   wrote ${GSD_PATH_PY_WRAPPER}`);
     log(`   usage: call gsd-path-py <script>.py [args...]`);
@@ -764,4 +784,6 @@ function main() {
   }
 }
 
-main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}
