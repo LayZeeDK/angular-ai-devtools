@@ -3,9 +3,9 @@ id: T005
 title: Retire spikes/s1-extension after its evidence is archived
 wave: 2
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T005
+base: 4f2ad05b61f750b920901f3d45a1674ed92a8f59
 worktree: null
 task_branch: null
 files:
@@ -63,3 +63,17 @@ Heavy: no
 ## Log
 
 - created by planner
+- implemented: removed spikes/s1-extension; rewrote references in declared docs; archive commit a24cedb6317481c8bf72b1e98a0f0c76b3119c60 is ancestor of HEAD (verified); grep sweep (excluding .git and .project/archive) shows only .project metadata and tests referencing path; tests 2/2 pass. ready
+- 2026-10-28 — orchestrator Verify (isolate gsd-path-task/T005): pass, exit 0; output tail:
+  ```
+  ✔ E7: archive commit is an ancestor of HEAD and spike tree is gone (182.495ms)
+  ✔ E8: ng222 fixtures and probes remain (1.7417ms)
+  ℹ tests 2
+  ℹ suites 0
+  ℹ pass 2
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 335.155
+  ```
