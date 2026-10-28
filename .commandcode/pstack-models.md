@@ -27,7 +27,7 @@ Coding roles (feature, refactoring, bug-fix, perf-issue):
 Judgment/prose roles (judgment and prose, strongest judgment, reflect):
   judgment and prose, strongest judgment, reflect:
   Primary:   reflection/beam:free @low   (fast, adequate quality)
-  Fallback:  poolside/laguna-s-2-1-free
+  Fallback:  poolside/laguna-s-2.1-free
 
 Investigation roles (how, why):
   how explorer: reflection/beam:free @low, minimax/minimax-m3.1-flash:free @xhigh

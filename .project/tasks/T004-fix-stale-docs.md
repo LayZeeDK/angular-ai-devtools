@@ -3,9 +3,9 @@ id: T004
 title: Fix the eight stale docs claims in both skill copies
 wave: 2
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T004
+base: 4f2ad05b61f750b920901f3d45a1674ed92a8f59
 worktree: null
 task_branch: null
 files:
@@ -58,3 +58,36 @@ Heavy: no
 ## Log
 
 - created by planner
+- T004 ready: fixed queue ids 1,39,76,78,109,159,160,185. Accepted drift rows 165 (taste.md) and 180 (feature-proposals.md) without edit. `node --test tests/docs-alignment.test.mjs`: 5 pass 0 fail. `node --test scripts/skills-mirror.test.mjs`: 2 pass 0 fail.
+- 2026-10-28 — orchestrator Verify (isolate gsd-path-task/T004): pass, exit 0; output tail:
+  ```
+  ✔ health-check copies say nineteen check lines (1.666ms)
+  ✔ pangular skill cites control.mjs:74 (0.3591ms)
+  ✔ pstack-models uses dotted model id (0.2247ms)
+  ✔ nx-plugins uses npx (0.2454ms)
+  ✔ browser probe marks phi4 available on gpu (0.9288ms)
+  ℹ tests 5
+  ℹ suites 0
+  ℹ pass 5
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 151.7567
+  ```
+- 2026-10-28 — orchestrator Verify (isolate gsd-path-task/T004): pass, exit 0; output tail:
+  ```
+  ✔ health-check copies say nineteen check lines (1.6261ms)
+  ✔ pangular skill cites control.mjs:74 (0.3331ms)
+  ✔ pstack-models uses dotted model id (0.2478ms)
+  ✔ nx-plugins uses npx (0.2026ms)
+  ✔ browser probe marks phi4 available on gpu (0.8241ms)
+  ℹ tests 5
+  ℹ suites 0
+  ℹ pass 5
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 161.9971
+  ```
