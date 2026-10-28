@@ -3,9 +3,9 @@ id: T001
 title: Add guarded idempotent review-panel family patch to installer
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: 0c04985798fe92f839e2d60a04f3d8460918641c
 worktree: null
 task_branch: null
 files:
@@ -53,3 +53,48 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-28 — implemented guarded idempotent review-panel family patch (beam, glyph, laguna, glm); wired into install run after Python wrapper; exported patchReviewPanel and anchors. Verify: node --experimental-strip-types --test scripts/install-gsd-path-command-code.test.mjs → 11 pass, 0 fail.
+- 2026-10-28 — orchestrator Verify (sidecar gsd-path-verify/task-t001-verify): pass, exit 0; output tail:
+  ```
+  ✔ adapts the Claude dispatch text to free worker types (2.86ms)
+  ✔ refuses upstream text that still names general-purpose (1.3772ms)
+  ✔ the generated wrapper quotes its paths and honours GSD_PYTHON (0.1244ms)
+  ✔ patches review panel families and aliases (0.3149ms)
+  ✔ patch is idempotent (0.2367ms)
+  ✔ missing KNOWN_FAMILIES anchor throws (0.1024ms)
+  ✔ missing FAMILY_ALIASES anchor throws (0.0968ms)
+  ✔ patched panel resolves families excluding parent (80.9221ms)
+  ✔ unknown family still raises (78.0988ms)
+  ✔ naming a fourth family is rejected (75.5817ms)
+  ✔ panel never resolves to empty selection silently (75.5943ms)
+  ℹ tests 11
+  ℹ suites 0
+  ℹ pass 11
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 441.0749
+  ```
+- 2026-10-28 — orchestrator Verify (sidecar gsd-path-verify/task-t001-verify): pass, exit 0; output tail:
+  ```
+  ✔ adapts the Claude dispatch text to free worker types (3.1068ms)
+  ✔ refuses upstream text that still names general-purpose (1.3908ms)
+  ✔ the generated wrapper quotes its paths and honours GSD_PYTHON (0.1285ms)
+  ✔ patches review panel families and aliases (0.3114ms)
+  ✔ patch is idempotent (0.2254ms)
+  ✔ missing KNOWN_FAMILIES anchor throws (0.0997ms)
+  ✔ missing FAMILY_ALIASES anchor throws (0.0944ms)
+  ✔ patched panel resolves families excluding parent (76.9429ms)
+  ✔ unknown family still raises (73.9766ms)
+  ✔ naming a fourth family is rejected (76.8652ms)
+  ✔ panel never resolves to empty selection silently (71.7341ms)
+  ℹ tests 11
+  ℹ suites 0
+  ℹ pass 11
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 428.2012
+  ```

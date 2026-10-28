@@ -402,8 +402,95 @@ export function buildDispatchText(cloneRoot) {
 }
 
 // ---------------------------------------------------------------------------
-// Steps
+// Review panel family patch
 // ---------------------------------------------------------------------------
+
+export const KNOWN_FAMILIES_ANCHOR = "KNOWN_FAMILIES = (";
+export const FAMILY_ALIASES_ANCHOR = "FAMILY_ALIASES = {";
+export const REVIEW_PANEL_KNOWN_FAMILIES_ANCHOR = KNOWN_FAMILIES_ANCHOR;
+export const REVIEW_PANEL_FAMILY_ALIASES_ANCHOR = FAMILY_ALIASES_ANCHOR;
+
+const REVIEW_PANEL_NEW_FAMILIES = ["beam", "glyph", "laguna", "glm"];
+const REVIEW_PANEL_NEW_ALIASES = [
+  ["beam", "beam"],
+  ["glyph", "glyph"],
+  ["glyph-cluster", "glyph"],
+  ["laguna", "laguna"],
+  ["laguna-s-2-1", "laguna"],
+  ["glm", "glm"],
+];
+
+function reviewPanelEnsureAnchor(text, anchor, fileName) {
+  const first = text.indexOf(anchor);
+  if (first === -1) {
+    throw new Error(`anchor "${anchor}" not found in ${fileName}`);
+  }
+  const second = text.indexOf(anchor, first + anchor.length);
+  if (second !== -1) {
+    throw new Error(`anchor "${anchor}" appears more than once in ${fileName}`);
+  }
+  return first;
+}
+
+function patchKnownFamilies(text, fileName) {
+  const ki = reviewPanelEnsureAnchor(text, KNOWN_FAMILIES_ANCHOR, fileName);
+  const close = text.indexOf(")", ki);
+  if (close === -1) {
+    throw new Error(`anchor "${KNOWN_FAMILIES_ANCHOR}" has no closing paren in ${fileName}`);
+  }
+  const block = text.slice(ki, close + 1);
+  let insert = "";
+  for (const family of REVIEW_PANEL_NEW_FAMILIES) {
+    if (!block.includes(`"${family}"`)) {
+      insert += `    "${family}",\n`;
+    }
+  }
+  if (!insert) return text;
+  return text.slice(0, close) + insert + text.slice(close);
+}
+
+function patchFamilyAliases(text, fileName) {
+  const ai = reviewPanelEnsureAnchor(text, FAMILY_ALIASES_ANCHOR, fileName);
+  const close = text.indexOf("}", ai);
+  if (close === -1) {
+    throw new Error(`anchor "${FAMILY_ALIASES_ANCHOR}" has no closing brace in ${fileName}`);
+  }
+  const block = text.slice(ai, close + 1);
+  let insert = "";
+  for (const [key, value] of REVIEW_PANEL_NEW_ALIASES) {
+    const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const keyRe = new RegExp(`"${escaped}"\\s*:`);
+    if (!keyRe.test(block)) {
+      insert += `    "${key}": "${value}",\n`;
+    }
+  }
+  if (!insert) return text;
+  return text.slice(0, close) + insert + text.slice(close);
+}
+
+export function patchReviewPanel(text, fileName = "review_panel.py") {
+  if (typeof text !== "string") {
+    throw new Error("patchReviewPanel expects a string");
+  }
+  reviewPanelEnsureAnchor(text, KNOWN_FAMILIES_ANCHOR, fileName);
+  reviewPanelEnsureAnchor(text, FAMILY_ALIASES_ANCHOR, fileName);
+  let out = patchKnownFamilies(text, fileName);
+  out = patchFamilyAliases(out, fileName);
+  return out;
+}
+
+export const patchReviewPanelText = patchReviewPanel;
+export const patchReviewPanelFamilies = patchReviewPanel;
+export const patch_review_panel = patchReviewPanel;
+export const applyReviewPanelPatch = patchReviewPanel;
+
+export function patchReviewPanelFile(filePath) {
+  const { readFileSync: _r, writeFileSync: _w } = { readFileSync, writeFileSync };
+  const original = _r(filePath, "utf8");
+  const patched = patchReviewPanel(original, filePath);
+  _w(filePath, patched, "utf8");
+  return patched;
+}
 
 function stepGitSync(skip) {
   log("\n1. Syncing local clone");
@@ -673,6 +760,23 @@ function stepWritePythonPath() {
   }
 }
 
+function stepPatchReviewPanel() {
+  log("\n4b. Patching review_panel.py families");
+  const target = join(GSD_PATH_SCRIPTS_DIR, "review_panel.py");
+  if (dryRun) {
+    log(`   [dry-run] would patch ${target}`);
+    return;
+  }
+  if (!existsSync(target)) {
+    fail(`review_panel.py not found at ${target}`);
+    return;
+  }
+  const original = readFileSync(target, "utf8");
+  const patched = patchReviewPanel(original, target);
+  writeFileSync(target, patched, "utf8");
+  log(`   patched ${target}`);
+}
+
 function stepWriteManifest(skills) {
   const manifest = {
     repoPath: REPO_PATH,
@@ -770,6 +874,9 @@ function main() {
 
   // 6. Write gsd-path Python wrapper (PYTHONPATH shortcut)
   stepWritePythonPath();
+
+  // 6b. Patch review_panel.py families
+  stepPatchReviewPanel();
 
   // 7. Write manifest
   stepWriteManifest(installed);
