@@ -46,4 +46,7 @@ Carried forward: none
 
 ## Notes
 
-- none
+- Owner ruling (2026-10-28): N7 ("no mocked DI data") is satisfied by recorded `angular-ai:di-graph` payloads replayed into the real panel, together with the live `ɵgetInjector*` boundary tests in `extension/agent-main.test.mjs`. A live drive of `spikes/ng222-app` is optional hardening carried forward, not a ship blocker.
+- Supported browsers are Google Chrome Stable, Google Chrome Beta, Microsoft Edge Stable and Microsoft Edge Dev. Firefox and Safari are out of scope because they ship no Prompt API.
+- History repair (2026-10-28): the six task landing commits were rebuilt so each task-file body is a pure append to its plan commit, which is what recovery requires. The Verify-command repair lives in the plan commit instead of the landings, and every brief now declares a command that actually runs.
+- State repair (2026-10-28): `STATE.milestone` was `null` because the M007 bind never recorded it; it was set to `n3-di-doctor` before the archive transaction so `prepare` could number the archive.
