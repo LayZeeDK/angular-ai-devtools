@@ -1,14 +1,15 @@
 {
   "roles": {
     "coder": {
-      "model": "poolside/laguna-s-2-1-free"
+      "effort": "high",
+      "model": "reflection/beam:free"
     },
     "decide": {
       "effort": "high",
       "model": "reflection/beam:free"
     },
     "docs_audit": {
-      "effort": "low",
+      "effort": "high",
       "model": "reflection/beam:free"
     },
     "inspect_codebase": {
@@ -28,11 +29,11 @@
       "model": "reflection/beam:free"
     },
     "research": {
-      "effort": "low",
+      "effort": "high",
       "model": "reflection/beam:free"
     },
     "reviewer": {
-      "effort": "low",
+      "effort": "high",
       "model": "reflection/beam:free"
     },
     "roadmap": {

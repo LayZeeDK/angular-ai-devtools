@@ -113,9 +113,14 @@ questions, answered in the panel, on the developer's machine.
 - Codebase: `npm run check` (TypeScript pin 6.0.x), `npm test`, and
   `npx nx run angular-ai-devtools:build-extension` must pass; the sidecar
   dependency bridge is used for worktree checks.
-- Model policy: free routes only. `inspect_codebase` and `inspect_docs` run
+- Model policy: free routes only. `inspect_codebase`, `inspect_docs`, `docs_audit`,
+  `research`, `reviewer`, `decide`, `roadmap`, `plan`, `plan_patch` and `coder` run
   `reflection/beam:free` at high effort (measured 2026-10-28: low effort produced
-  wrong dates and maps; Glyph Cluster failed every run).
+  wrong dates, degenerate docs audits and two-finding maps; Glyph Cluster failed
+  every run). High is the deliberate ceiling: xhigh and max added advisory depth
+  at several times the tokens without better recall. On Command Code the subagent
+  type pins model and effort, so this file records intent; the dispatch table in
+  the user-scope rules is what binds a run.
 - Delivery surfaces: the extension panel is the only product surface. The
   standalone `build`, `serve` and `serve-static` targets remain a developer and
   test surface only, and no milestone targets the standalone app. Angular
@@ -187,3 +192,5 @@ questions, answered in the panel, on the developer's machine.
 - 2026-10-28: add a consolidation milestone after the tooling item. "By
   *improves*, I mean *harden* and stabilize. Their implementation was
   orchestrated by the less capable and reliable Poolside Laguna S 2.1 model."
+- 2026-10-28: "We shouldn't use Laguna as coder, we should use Beam 1.0 Free."
+  Coders run `reflection/beam:free`; Laguna is never dispatched as a child.
