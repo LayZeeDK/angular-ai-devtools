@@ -3,9 +3,9 @@ id: T003
 title: Panel renders DI resolution path
 wave: 1
 deps: [T001, T002]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: 1d922025c08e440326cf232bab58dca53dc3f22e
 worktree: null
 task_branch: null
 files:
@@ -37,3 +37,4 @@ node --experimental-strip-types --test scripts/di-path-display.test.mjs
 ## Interface contract
 None
 - attested: owner
+- 2026-10-27 implemented: formatDiPath renders injector name and depth; panel route /di-doctor
