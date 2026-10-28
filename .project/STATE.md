@@ -156,3 +156,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-28 — plan — planning started
 - 2026-10-28 — plan — plan approved
 - 2026-10-28 — build — build started
+- 2026-10-28 — build — plan defect repaired: T005 files extended to cover the live doc references to spikes/s1-extension

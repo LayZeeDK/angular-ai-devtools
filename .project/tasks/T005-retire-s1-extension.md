@@ -12,6 +12,14 @@ files:
   - spikes/s1-extension
   - tests/held-out/e7-archive-order.test.mjs
   - tests/held-out/e8-fixtures-retained.test.mjs
+  - .gitignore
+  - docs/feature-proposals.md
+  - plans/angular-ai-devtools-proposals.handoff.md
+  - research/11-spike-s1-extension-contexts.md
+  - research/15-deterministic-and-ai.md
+  - research/17-vitest-browser-runtime.md
+  - .commandcode/skills/control-vitest-browser-angular/features/extension-in-tester.md
+  - .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md
 ---
 
 # T005 — Retire spikes/s1-extension after its evidence is archived
