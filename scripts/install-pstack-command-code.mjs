@@ -395,6 +395,140 @@ function stepInstallSkills() {
   return installed;
 }
 
+/**
+ * Pstack skill patches (applied after stepInstallSkills, before stepCopyAgents).
+ *
+ * These patches are NOT in the upstream pstack-claude repo
+ * (github.com/michael-denyer/pstack-claude) and must be re-applied
+ * after each sync.  Each patch is idempotent.
+ *
+ * Affected file: reflect/scripts/find-transcript.mjs
+ */
+function stepApplyPstackPatches() {
+  log("\n3a. Applying pstack skill patches");
+
+  const ftPath = join(SKILLS_DEST, "reflect", "scripts", "find-transcript.mjs");
+  if (!existsSync(ftPath)) {
+    warn("find-transcript.mjs not found — skipping patches");
+    return;
+  }
+
+  let content = readFileSync(ftPath, "utf8");
+  let changed = false;
+
+  // Patch F (marker): add PATCHED comment after shebang
+  if (!content.includes("// PATCHED:")) {
+    content = content.replace(
+      "#!/usr/bin/env node",
+      "#!/usr/bin/env node\n// PATCHED: path normalization + UUID lookup — see install-pstack-command-code.mjs"
+    );
+    changed = true;
+  }
+
+  // Patch A: add normalize to node:path import
+  if (!content.includes("join, normalize")) {
+    content = content.replace(
+      'import { isAbsolute, join } from "node:path";',
+      'import { isAbsolute, join, normalize } from "node:path";'
+    );
+    changed = true;
+  }
+
+  // Patch G: add realpathSync import (needed by resolveProjectsDir)
+  if (!content.includes("import { realpathSync } from \"node:fs\"")) {
+    content = content.replace(
+      'import { isAbsolute, join, normalize } from "node:path";',
+      'import { isAbsolute, join, normalize } from "node:path";\nimport { realpathSync } from "node:fs";'
+    );
+    changed = true;
+  }
+
+  // Patch B: inject resolveProjectsDir() helper before candidates()
+  if (!content.includes("function resolveProjectsDir")) {
+    var helperLines = [
+      "// Resolve a projects directory, normalizing path separators and",
+      "// resolving Windows short-name (~1) aliases via realpathSync.",
+      "function resolveProjectsDir(dir) {",
+      "  if (!dir) return dir;",
+      "  const normalized = normalize(dir);",
+      "  try {",
+      "    return realpathSync(normalized);",
+      "  } catch {",
+      "    return normalized;",
+      "  }",
+      "}",
+      "",
+      "",
+    ];
+    content = content.replace(
+      "export function candidates(",
+      helperLines.join("\n") + "export function candidates("
+    );
+    changed = true;
+  }
+
+  // Patch C: use resolveProjectsDir() in candidates() and findTranscript()
+  if (!content.includes("resolveProjectsDir(projectsDir)")) {
+    content = content.replace(
+      /const resolved = projectsDir;/g,
+      "const resolved = resolveProjectsDir(projectsDir);"
+    );
+    changed = true;
+  }
+
+  // Patch D: add findTranscriptByUUID() before openingPrompt()
+  if (!content.includes("export async function findTranscriptByUUID")) {
+    var fnLines = [
+      "// Look up a transcript by exact UUID, using filename matching for robustness.",
+      "// Supports a full UUID (36 chars with dashes) or a partial fragment (>=8 chars).",
+      "// Matches Claude Code's flat and nested layouts.",
+      "export async function findTranscriptByUUID(projectsDir, uuid) {",
+      "  const resolved = resolveProjectsDir(projectsDir);",
+      "  const prefix = uuid.replace(/-/g, \"\").slice(0, 8);",
+      "",
+      "  for (const { path } of candidates(resolved)) {",
+      "    const basename = path.replace(/.*[\\\\/]/, \"\");",
+      "    if (basename === uuid + \".jsonl\" || basename.replace(/-/g, \"\").startsWith(prefix)) {",
+      "      return path;",
+      "    }",
+      "  }",
+      "  return null;",
+      "}",
+      "",
+      "",
+    ];
+    content = content.replace(
+      "export async function openingPrompt",
+      fnLines.join("\n") + "export async function openingPrompt"
+    );
+    changed = true;
+  }
+
+  // Patch E: add UUID detection in main()
+  if (!content.includes("isUuid")) {
+    var uuidLines = [
+      "  // Detect UUID fragments (8+ hex chars, with or without dashes)",
+      "  const isUuid = /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(fragment) || /^[0-9a-f]{8,40}$/i.test(fragment);",
+      "  const path = isUuid",
+      "    ? await findTranscriptByUUID(projectsDir, fragment)",
+      "    : await findTranscript(projectsDir, fragment, workspace);",
+    ];
+    content = content.replace(
+      "  const path = await findTranscript(projectsDir, fragment, workspace);",
+      uuidLines.join("\n")
+    );
+    changed = true;
+  }
+
+  if (changed) {
+    writeFileSync(ftPath, content);
+    log("   Patched find-transcript.mjs");
+  } else {
+    log("   find-transcript.mjs already patched");
+  }
+}
+
+
 function stepCopyAgents() {
   log("\n4. Copying subagents (path-rebased)");
 
@@ -518,6 +652,7 @@ function main() {
   stepRemoveOld(manifest);
 
   const skills = stepInstallSkills();
+  stepApplyPstoolPatches();
   const agents = stepCopyAgents();
   const effortAgents = stepCopyEffortAgents();
 

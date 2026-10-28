@@ -1,13 +1,13 @@
 {
-  "name": "angular-ai-devtools",
+  "name": "angular-ai-devtools-workspace",
   "private": true,
   "type": "module",
   "description": "Sandbox scripts that install agent skills and subagents for the AI coding CLIs.",
   "scripts": {
     "check": "tsc -p tsconfig.json && npm run check:skills",
     "check:skills": "tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json",
-    "test": "node --test \"scripts/**/*.test.mjs\" && npm run test:skills",
-    "test:skills": "node --test \".claude/skills/**/*.test.mjs\" \".commandcode/skills/**/*.test.mjs\""
+    "test": "node --experimental-strip-types --test \"scripts/**/*.test.mjs\" \"extension/**/*.test.mjs\" && npm run test:skills",
+    "test:skills": "node --experimental-strip-types --test \".claude/skills/**/*.test.mjs\" \".commandcode/skills/**/*.test.mjs\""
   },
   "devDependencies": {
     "@angular-devkit/core": "~22.1.0",

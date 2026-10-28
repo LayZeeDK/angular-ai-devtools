@@ -2,7 +2,7 @@
 // The content script is loaded via vm.runInThisContext so it executes in Node's own realm
 // (no cross-realm prototype mismatch), with window.ng / globals mocked per test.
 import assert from "node:assert/strict";
-import { describe, it, afterEach } from "node:test";
+import { describe, it, before, afterEach } from "node:test";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -368,5 +368,142 @@ describe("agent-main.js (recorder)", () => {
       assert.match(String(state.detail.reason), /ɵgetSignalGraph/);
       assert.equal(recorder.installed, false);
     });
+  });
+});
+
+describe("agent-main.js (DI doctor)", () => {
+  var origAddEventListener;
+  var origDocument;
+
+  before(() => {
+    origAddEventListener = globalThis.addEventListener;
+    origDocument = globalThis.document;
+  });
+
+  afterEach(() => {
+    globalThis.addEventListener = origAddEventListener;
+    if (origDocument !== undefined) {
+      globalThis.document = origDocument;
+    } else {
+      delete globalThis.document;
+    }
+    globalThis.ng = ORIGINALS.ng;
+    globalThis.Zone = ORIGINALS.Zone;
+    globalThis.CustomEvent = ORIGINALS.CustomEvent;
+    globalThis.dispatchEvent = ORIGINALS.dispatchEvent;
+    globalThis.performance = ORIGINALS.performance;
+    delete globalThis.__ngRecorder;
+  });
+
+  it("dispatches di-graph with DiResolutionPath format on di-query", () => {
+    var diQueryCb = null;
+    var capAdd = globalThis.addEventListener;
+    globalThis.addEventListener = function (type, cb) {
+      if (type === "angular-ai:di-query") diQueryCb = cb;
+      if (capAdd) capAdd.call(globalThis, type, cb);
+    };
+
+    globalThis.document = {
+      querySelector: function () { return { tagName: "APP-COUNTER" }; },
+    };
+
+    var { ng } = makeNg();
+    ng.ɵgetInjectorResolutionPath = function () { return [1, 2, 3]; };
+    ng.ɵgetInjectorMetadata = function () {
+      return { name: "EnvironmentInjector", type: "environment", source: "AppModule" };
+    };
+    ng.ɵgetInjectorProviders = function () {
+      return [
+        { token: "FooService", providerType: "value", source: "AppModule", importPath: "app/module" },
+        { token: "BarToken", providerType: "factory", source: "CounterComponent" },
+      ];
+    };
+
+    var { dispatched } = boot({ ng });
+    globalThis.addEventListener = capAdd;
+
+    assert.ok(diQueryCb, "handleDiQuery should be registered as di-query listener");
+    diQueryCb({ detail: { componentName: "app-counter", elementTag: "app-counter" } });
+
+    var diGraph = dispatched.find(function (e) { return e.type === "angular-ai:di-graph"; });
+    assert.ok(diGraph, "di-graph event should be dispatched");
+    assert.equal(diGraph.detail.resolutionPath.component, "app-counter");
+    assert.equal(diGraph.detail.resolutionPath.elementTag, "app-counter");
+    assert.equal(diGraph.detail.resolutionPath.available, true);
+    assert.equal(diGraph.detail.resolutionPath.path.length, 3);
+
+    var inj0 = diGraph.detail.resolutionPath.path[0];
+    assert.equal(inj0.id, 0);
+    assert.equal(inj0.metadata.type, "environment");
+    assert.equal(inj0.metadata.source, "EnvironmentInjector");
+    assert.equal(inj0.providers.length, 2);
+    assert.equal(inj0.providers[0].token, "FooService");
+    assert.equal(inj0.providers[0].provider, "value");
+    assert.equal(inj0.providers[0].isViewProvider, false);
+    assert.equal(inj0.providers[0].importPath, "app/module");
+    assert.equal(inj0.providers[1].token, "BarToken");
+    assert.equal(inj0.providers[1].provider, "factory");
+  });
+
+  it("falls back to single-injector path when ɵgetInjectorResolutionPath is unavailable", () => {
+    var diQueryCb = null;
+    var capAdd = globalThis.addEventListener;
+    globalThis.addEventListener = function (type, cb) {
+      if (type === "angular-ai:di-query") diQueryCb = cb;
+      if (capAdd) capAdd.call(globalThis, type, cb);
+    };
+
+    globalThis.document = {
+      querySelector: function () { return { tagName: "APP-COUNTER" }; },
+    };
+
+    var { ng } = makeNg();
+    delete ng.ɵgetInjectorResolutionPath;
+    ng.ɵgetInjectorMetadata = function () {
+      return { name: "RootInjector", type: "environment", source: "AppModule" };
+    };
+    ng.ɵgetInjectorProviders = function () { return [{ token: "FooService", providerType: "value" }]; };
+
+    var { dispatched } = boot({ ng });
+    globalThis.addEventListener = capAdd;
+
+    diQueryCb({ detail: { componentName: "app-root", elementTag: "app-root" } });
+
+    var diGraph = dispatched.find(function (e) { return e.type === "angular-ai:di-graph"; });
+    assert.ok(diGraph, "di-graph event should be dispatched even with fallback");
+    assert.equal(diGraph.detail.resolutionPath.path.length, 1);
+    assert.equal(diGraph.detail.resolutionPath.path[0].metadata.source, "RootInjector");
+  });
+
+  it("uses componentName as querySelector fallback when elementTag is absent", () => {
+    var diQueryCb = null;
+    var capAdd = globalThis.addEventListener;
+    globalThis.addEventListener = function (type, cb) {
+      if (type === "angular-ai:di-query") diQueryCb = cb;
+      if (capAdd) capAdd.call(globalThis, type, cb);
+    };
+
+    var queriedSelector = null;
+    globalThis.document = {
+      querySelector: function (sel) {
+        queriedSelector = sel;
+        return { tagName: "APP-COUNTER" };
+      },
+    };
+
+    var { ng } = makeNg();
+    ng.ɵgetInjectorResolutionPath = function () { return []; };
+    ng.ɵgetInjectorMetadata = function () { return "RootInjector"; };
+    ng.ɵgetInjectorProviders = function () { return []; };
+
+    var { dispatched } = boot({ ng });
+    globalThis.addEventListener = capAdd;
+
+    diQueryCb({ detail: { componentName: "app-counter", elementTag: null } });
+
+    assert.equal(queriedSelector, "app-counter", "should fall back to componentName selector");
+    var diGraph = dispatched.find(function (e) { return e.type === "angular-ai:di-graph"; });
+    assert.ok(diGraph);
+    assert.equal(diGraph.detail.resolutionPath.available, true);
   });
 });

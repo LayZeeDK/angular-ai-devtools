@@ -1,0 +1,52 @@
+=== Success Criteria ===
+SC1: The MAIN-world script traces the reactive provenance of a selected signal or component through `ng.ɵgetSignalGraph`, computing the dependency chain (producers -> consumers) deterministically.
+SC2: The panel displays the provenance chain for a user-selected signal or component, showing each node's kind, label, and edge direction.
+SC3: The panel detects at least three reactive anti-patterns and reports them with evidence (node labels and graph positions).
+SC4: The panel asks the panel-local Prompt API to explain the provenance chain and detected anti-patterns, sending only a short fact list (no tool calling).
+SC5: Unit tests for provenance tracing on recorded graph data; browser test on `spikes/ng222-app`.
+SC6: `npm run check`, `npm test`, `npx nx run angular-ai-devtools:build-extension` pass.
+
+=== Intent Coverage (PLAN.md) ===
+SC1 -> T001 (AC: AC1)
+SC2 -> T002 (AC: AC1)
+SC2 -> T004 (AC: AC1)
+SC3 -> T003 (AC: AC1)
+SC3 -> T004 (AC: AC1)
+SC4 -> T004 (AC: AC1)
+SC5 -> T005 (AC: AC1)
+SC6 -> T006 (AC: AC1)
+
+=== Tasks ===
+T001: title="Provenance tracer MAIN-world" wave=1 status=done
+  files: ['src/main-world/provenance-tracer.ts']
+  acceptance: ['Tracer returns provenance chain for selected signal.']
+T002: title="Chain traversal" wave=2 status=done
+  files: ['src/panel/chain.ts']
+  acceptance: ['Chain renders with node kind, label, edge direction.']
+T003: title="Anti-pattern detector" wave=2 status=done
+  files: ['src/panel/anti-patterns.ts']
+  acceptance: ['Three anti-patterns reported with evidence.']
+T004: title="Panel UI" wave=3 status=done
+  files: ['src/panel/provenance.component.ts']
+  acceptance: ['Renders chain and anti-patterns; explain button disabled with reason when Prompt API unavailable.']
+T005: title="Browser test counter fixture" wave=4 status=done
+  files: ['e2e/provenance.spec.ts']
+  acceptance: ['Browser test on spikes/ng222-app passes.']
+T006: title="Regression gate" wave=5 status=done
+  files: ['src/regression.spec.ts']
+  acceptance: ['npm run check, npm test, build-extension pass.']
+
+=== Wave -> SC mapping ===
+Wave 1:
+  SC1: The MAIN-world script traces the reactive provenance of a selected signal or com...
+Wave 2:
+  SC2: The panel displays the provenance chain for a user-selected signal or component,...
+  SC3: The panel detects at least three reactive anti-patterns and reports them with ev...
+Wave 3:
+  SC2: The panel displays the provenance chain for a user-selected signal or component,...
+  SC3: The panel detects at least three reactive anti-patterns and reports them with ev...
+  SC4: The panel asks the panel-local Prompt API to explain the provenance chain and de...
+Wave 4:
+  SC5: Unit tests for provenance tracing on recorded graph data; browser test on `spike...
+Wave 5:
+  SC6: `npm run check`, `npm test`, `npx nx run angular-ai-devtools:build-extension` pa...

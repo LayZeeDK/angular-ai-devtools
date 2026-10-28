@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: signal-provenance
+milestone: n3-di-doctor
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M006
+branch: gsd-path/M007
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/006-signal-provenance
+archive: .project/archive/007-n3-di-doctor
 integration_default: direct
 integration: direct
 integration_source: default
@@ -117,3 +117,17 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-26 — build — build started
 - 2026-10-27 — ship — build done; final review pending
 - 2026-10-27 — shipped — archive preflight passed; shipment recorded
+- 2026-10-27 — inspect — shipment complete; validated and integrated; base 80d33df0b0cc30a1e8847913e046c351d9a9b10c
+- 2026-10-27 — inspect — inspection artifacts passed
+- 2026-10-27 — define — definition started
+- 2026-10-27 — define — definition approved
+- 2026-10-27 — research — research started
+- 2026-10-27 — research — research complete
+- 2026-10-27 — decide — decision synthesis started
+- 2026-10-27 — decide — decision synthesis complete
+- 2026-10-27 — plan — planning started
+- 2026-10-27 — plan — plan approved
+- 2026-10-27 — build — build started
+- 2026-10-28 — ship — build done; final review pending
+- 2026-10-28 — ship — STATE repair: milestone named n3-di-doctor (was null; M007 bind never recorded it)
+- 2026-10-28 — shipped — archive preflight passed; shipment recorded
