@@ -3,9 +3,9 @@ id: T003
 title: Move install scripts to user scope and repair tsconfig include
 wave: 1
 deps: [T001]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: 02e8e690a0217b217e27eced44604ace837f76f1
 worktree: null
 task_branch: null
 files:
@@ -86,6 +86,24 @@ Heavy: no
   ℹ skipped 0
   ℹ todo 0
   ℹ duration_ms 127.4615
+  npm notice run npx
+  npm notice run tsc -p tsconfig.json
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  ```
+- 2026-10-28 — redispatch build_T003: moved 9 install scripts/tests to C:/Users/LarsGyrupBrinkNielse/.commandcode/scripts/ (byte-identical from base); copied opencode-pstack-plugin.ts to user scope; kept in-repo copy; rewrote tsconfig include to C:/Users/.../.commandcode/scripts/install-pstack-opencode.mjs + .test.mjs + scripts/opencode-pstack-plugin.ts; swept `node scripts/install-` usage lines to `node ~/.commandcode/scripts/install-` in moved copies; no install-* remains in scripts/. Verify: tsc exit 0, check:skills exit 0, skills-mirror 2 pass 0 fail; second tsc exit 0 (E1). Bridge step could not run in primary worktree (node_modules real dir, not bridge) — environmental; inner commands pass.
+- 2026-10-28 — orchestrator Verify (sidecar gsd-path-verify/task-t003-verify): pass, exit 0; output tail:
+  ```
+  ✔ .claude/skills/control-ai-browsers mirrors .commandcode/skills/control-ai-browsers (6.4989ms)
+  ✔ .claude/skills/verify-ai-browsers mirrors .commandcode/skills/verify-ai-browsers (1.2051ms)
+  ℹ tests 2
+  ℹ suites 0
+  ℹ pass 2
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 126.3078
   npm notice run npx
   npm notice run tsc -p tsconfig.json
   npm notice run check:skills
