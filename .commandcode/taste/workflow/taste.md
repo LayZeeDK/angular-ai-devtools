@@ -66,6 +66,7 @@
 - Use `-lt`, `-gt`, `-le`, `-ge` instead of `<`, `>`, `<=`, `>=` in PowerShell comparisons for 5.1 compatibility (pwsh 7 supports the operators, but 5.1 does not). Confidence: 0.7
 
 - For Command Code mods, a live-display or stream-rewriting feature must be planned, typed, tested, code-reviewed, and security-reviewed before it is enabled; instruction-only behavior remains the default until those gates pass. Confidence: 0.9
+- Under GSD Path, `.commandcode/` is not a build bookkeeping prefix, so a taste write is a product change: never call the taste tool or edit taste files while STATE is `build/*`, never put a taste change in a landing or ship commit, record the preference in the task Log or a discussion record, and apply it after the milestone ships and archives, in a normal commit on `main`; only if the change is intrinsic to a task, declare `.commandcode/taste/` in that task's `files:` and land it with the task. Confidence: 0.9
 
 - Delegates all tasks and work items to subagents running free models other than the main session's Laguna S 2.1, to keep context and tool usage lean and avoid rate limiting; regards Ornith as a good overall model but slow in output. Confidence: 0.85
 - When delegating task work into a `gsd-path` isolated worktree, the subagent brief must restrict edits to that worktree only, require absolute paths for file operations, and set `cwd` to the worktree for shell commands. Confidence: 0.7
