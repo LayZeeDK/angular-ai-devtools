@@ -292,8 +292,8 @@ Open questions
 Goal: Move all nine install-* scripts and their tests to ~/.commandcode/scripts/, update package.json, tsconfig.json and AGENTS.md references, and extend the installer's guarded adaptation to add the beam, glyph, laguna and glm review-panel families.
 Depends on: []
 Surfaces: none
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/008-tooling
 Integrated: null
 
 Scope: in
