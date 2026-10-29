@@ -6,6 +6,7 @@ import { join } from 'node:path';
 const root = process.cwd();
 const r1 = readFileSync(join(root, '.project', 'review', 'rounds', 'round-1.md'), 'utf8');
 const r2 = readFileSync(join(root, '.project', 'review', 'rounds', 'round-2.md'), 'utf8');
+const r3 = readFileSync(join(root, '.project', 'review', 'rounds', 'round-3.md'), 'utf8');
 
 function parseRanges(text) {
   const out = {};
@@ -47,4 +48,15 @@ test('E11: unchanged ranges yield identical verdict sets and no new verified blo
   const fb = parseFindings(r2);
   assert.deepEqual([...fb].sort(), [...fa].sort(), 'finding set changed between rounds');
   // no blocking finding in round2 absent from round1: covered by set equality above
+
+  // Round 3 re-run: unchanged ranges, same verdict set, no new verified blocker (E11)
+  const rc = parseRanges(r3);
+  assert.deepEqual(Object.keys(rc).sort(), Object.keys(a).sort(), 'milestone set mismatch round3');
+  for (const ms of Object.keys(a)) {
+    assert.equal(rc[ms].range, a[ms].range, `${ms} range changed in round3`);
+    assert.equal(rc[ms].blocking, 0, `${ms} still has blocking findings in round3`);
+  }
+  const fc = parseFindings(r3);
+  assert.deepEqual([...fc].sort(), [...fa].sort(), 'finding set changed in round3');
+  assert.match(r3, /No new verified blocking finding appears on re-run/i, 'missing no-new-blocker statement');
 });

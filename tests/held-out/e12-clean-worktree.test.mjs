@@ -16,7 +16,7 @@ function parseFrontmatter(text) {
   return out;
 }
 
-test('E12: no T001-T005 fix task is in-progress while review round runs', () => {
+test('E12: no fix task (T001-T016) is in-progress while review round runs', () => {
   const dir = join(root, '.project', 'tasks');
   const files = readdirSync(dir).filter((f) => f.endsWith('.md'));
   const openFix = [];
@@ -24,7 +24,7 @@ test('E12: no T001-T005 fix task is in-progress while review round runs', () => 
     const text = readFileSync(join(dir, f), 'utf8');
     const fm = parseFrontmatter(text);
     const id = (fm.id || '').trim();
-    if (/^T00[1-5]$/.test(id) && fm.status === 'in-progress') {
+    if (/^T0(0[1-9]|1[0-6])$/.test(id) && fm.status === 'in-progress') {
       openFix.push(id);
     }
   }
@@ -36,4 +36,11 @@ test('E12: round-2 records review-on-clean-worktree sequencing', () => {
   assert.match(round2, /clean product worktree/i, 'missing clean worktree statement');
   assert.match(round2, /no fix task is open while this review round runs/i, 'missing sequencing statement');
   assert.match(round2, /sequenced/i, 'missing sequenced statement');
+});
+
+test('E12: round-3 records review-on-clean-worktree sequencing', () => {
+  const round3 = readFileSync(join(root, '.project', 'review', 'rounds', 'round-3.md'), 'utf8');
+  assert.match(round3, /clean product worktree/i, 'missing clean worktree statement');
+  assert.match(round3, /no fix task is open while this review round runs/i, 'missing sequencing statement');
+  assert.match(round3, /sequenced/i, 'missing sequenced statement');
 });
