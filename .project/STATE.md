@@ -5,7 +5,7 @@ milestone: consolidation-hardening
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M009
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -171,3 +171,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-29 — plan — build recovery: {"base": "98e831cd86f9ee4f94d3247f016309242beb30c6", "branch": "gsd-path/M009", "kind": "plan", "source": "build"}
 - 2026-10-29 — plan — plan approved
 - 2026-10-29 — build — build started
+- 2026-10-29 — build — build blocked: wave 6 review blocks SC3 because edge-dev-aion serves no panel drive on this host even after the documented pin restore; the fourth pair is chrome-stable-nano
