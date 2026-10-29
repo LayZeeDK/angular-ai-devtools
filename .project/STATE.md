@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: consolidation-hardening
-phase: build
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: done
 branch: gsd-path/M009
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -167,3 +167,6 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-29 — build — build blocked: T007 needs re-slicing into one task per pair plus an assembly task
 - 2026-10-29 — build — build started
 - 2026-10-29 — build — build blocked: T007 re-sliced into one task per model pair plus an assembly task
+- 2026-10-29 — plan — build plan repair requested
+- 2026-10-29 — plan — build recovery: {"base": "98e831cd86f9ee4f94d3247f016309242beb30c6", "branch": "gsd-path/M009", "kind": "plan", "source": "build"}
+- 2026-10-29 — plan — plan approved

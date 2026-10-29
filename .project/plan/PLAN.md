@@ -36,7 +36,8 @@ Review depth: full
 
 ## Wave 6 — verification after the fixes
 
-Goal: Re-run panel verification on all four model pairs and the portal with the new coverage and documented budgets, then re-run `lars-review` to dispose every blocking finding and prove E11/E12.
+Goal: Run panel verification per model pair (T018-T021 produce one fragment per pair with three verdicts each), assemble the single record in T007, then re-run `lars-review` (T017) to dispose every blocking finding and prove E11/E12.
+Task list: T018, T019, T020, T021, T007, T017.
 Review depth: full
 
 ## Surface contract
@@ -59,6 +60,10 @@ Walkthrough:
 | SC1 | T006 | AC1 |
 | SC2 | T003 | AC1 |
 | SC3 | T007 | AC1 |
+| SC3 | T018 | AC1 |
+| SC3 | T019 | AC1 |
+| SC3 | T020 | AC1 |
+| SC3 | T021 | AC1 |
 | SC4 | T007 | AC2 |
 | SC5 | T005 | AC1 |
 | SC6 | T006 | AC2 |
@@ -101,6 +106,8 @@ Walkthrough:
 - T006 is the round-2 re-review and blocker-disposition task: it re-runs `lars-review` over the changed ranges, records every finding's disposition (fixed in a named patch commit, or deferred with a written reason and acceptor), and owns SC1/SC6/SC8 through that disposition record. It does not fix product code. Actual review-sourced fixes land through plan patch waves appended after wave 3; the patch wave carries its own re-review task so E11's "no new verified blocker after fixes" is proven after the fixes, and that patch task lists T006's files where it re-runs them.
 - T008 (wave 4) has no deps: coverage infrastructure lands before panel re-verification.
 - T009-T016 (wave 5) are file-disjoint fix tasks; T012 depends on T011 via the shared state-message contract; all others are independent.
-- T007 (wave 6) depends on T006, T008, and the panel-touching fix tasks T011, T012, T016.
+- T007 (wave 6) depends on T006, T008, the panel-touching fix tasks T011, T012, T016, and T018-T021.
+- T018-T021 (wave 6) depend on T006, T008, T011, T012, T016: each pair runs after the re-review, coverage infrastructure, and panel-touching fixes land.
+- T007 is the assembler: it runs only after all four per-pair fragments (T018-T021) land.
 - T017 (wave 6) depends on every wave-5 fix task (T009-T016) and owns SC8.
 

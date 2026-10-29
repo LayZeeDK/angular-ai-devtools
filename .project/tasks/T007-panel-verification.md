@@ -2,7 +2,7 @@
 id: T007
 title: Verify N1/N2/N3 panel flows on all four model pairs and portal
 wave: 6
-deps: [T006, T008, T011, T012, T016]
+deps: [T006, T008, T011, T012, T016, T018, T019, T020, T021]
 status: pending
 agent: null
 base: null
@@ -22,19 +22,16 @@ SC3: the N1, N2 and N3 flows still answer in the DevTools panel on all four supp
 
 ## Approach
 
-- Build the extension and drive each of the four supported model instances (`chrome-beta-nano`, `chrome-beta-gemma4`, `edge-dev-aion`, `edge-phi4mini`) against `spikes/ng222-app` using the control/verify skills, one instance at a time.
-- Re-run `edge-dev-aion` N1 with the documented 600 s per control call / 1800 s per check budgets and the documented idle-tab recovery; record `unverifiable` only after that recovery fails.
-- Produce one `lars-verify` verdict per pair for each of N1, N2, N3; only `verified` counts. Record each `verdict.json` path (under the evidence root that `control-ai-browsers info` reports) in `.project/review/rounds/panel-verification.md`.
-- Use `inconclusive` + map gap only where a flow still has no feature file (N2/N3 now covered by T008).
-- If a pair cannot run, record `unverifiable` with the reason; never report it as `verified` (E5). SC3 is not met until all four pairs answer.
-- Run on the insurance-portal checkout where meaningful and record the external dependency in the claim; if the checkout is absent, record `unverifiable` with the checkout path (E6, N6).
+- Assembler only: do not drive browsers or produce verdicts. Consume the four per-pair fragments `.project/review/rounds/panel-<pair>.md` from T018-T021 (one per model pair) and merge them into `.project/review/rounds/panel-verification.md`, one section per pair and flow, preserving each verdict word and `verdict.json` path verbatim.
+- Add the insurance-portal row recording the checkout path and its `unverifiable` status when the checkout is absent (E6, N6).
+- Keep the two held-out tests `tests/held-out/e5-unverifiable-recorded.test.mjs` and `tests/held-out/e6-portal-dependency.test.mjs` and run them as part of Verify.
+- Run `gsd evidence-check --panel-report .project/review/rounds/panel-verification.md` before returning.
+- Record only `verified` when a real `verdict.json` exists and `verdict.mjs lint` exits 0; never upgrade `unverifiable` or `inconclusive` to `verified`.
 - Keep the panel panel-local Prompt API; no page/content-script Prompt API and no new host permission (N3).
-- Held-out E5/E6 tests assert the unverifiable recording and the portal dependency recording.
 
 ## Interface contract
 
-None
-
+- Fragment shape, identical in every producer and the consumer: one `## <Flow>` heading per flow (`N1`, `N2`, `N3`) carrying (a) the location of that flow's `verdict.json`, (b) the verdict word, (c) the claim as restated, and (d) for any verdict that is not `verified`: the reason, the recovery applied, the budget used and the route tried. The consumer merges the four fragments verbatim, without altering a verdict word or location, and adds the insurance-portal row.
 ## Intent coverage
 
 - SC3
