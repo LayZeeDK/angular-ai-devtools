@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: consolidation-hardening
-phase: shipped
+milestone: n4-error-explainer
+phase: inspect
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
-branch: gsd-path/M009
+status: active
+branch: gsd-path/M010
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/009-consolidation-hardening
+archive: null
 integration_default: direct
 integration: direct
 integration_source: default
@@ -181,3 +181,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-29 — build — build complete
 - 2026-10-29 — ship — build done; final review pending
 - 2026-10-29 — shipped — archive preflight passed; shipment recorded
+- 2026-10-30 — inspect — router bound next milestone: M010 n4-error-explainer; base 7354c107aa977ca68de24b959e714efba8238e26, integration 7354c107aa977ca68de24b959e714efba8238e26
