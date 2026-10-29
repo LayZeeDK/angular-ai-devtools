@@ -16,8 +16,10 @@ export interface SignalGraphNode {
 }
 
 export interface SignalGraphEdge {
-  readonly from: string;
-  readonly to: string;
+  readonly from?: string;
+  readonly to?: string;
+  readonly consumer?: string | number;
+  readonly producer?: string | number;
 }
 
 export interface SignalGraph {
@@ -38,19 +40,36 @@ function nodeById(graph: SignalGraph): Map<string, SignalGraphNode> {
   return m;
 }
 
+function resolveEndpoint(graph: SignalGraph, value: string | number | undefined): string | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === "number") {
+    const node = graph.nodes?.[value];
+    return node ? node.id : String(value);
+  }
+  return String(value);
+}
+
 function outgoing(graph: SignalGraph, id: string, node: SignalGraphNode): string[] {
   const set = new Set<string>();
-  for (const d of node.dependents ?? node.consumers ?? []) set.add(d);
-  for (const d of node.producers ?? []) set.add(d);
+  for (const d of node.dependents ?? node.consumers ?? []) set.add(String(d));
+  for (const d of node.producers ?? []) set.add(String(d));
   if (graph.edges) {
     for (const e of graph.edges) {
-      if (e.from === id) set.add(e.to);
+      const from = resolveEndpoint(graph, e.from as string | number | undefined);
+      const to = resolveEndpoint(graph, e.to as string | number | undefined);
+      const consumer = resolveEndpoint(graph, e.consumer);
+      const producer = resolveEndpoint(graph, e.producer);
+      // Legacy from/to shape (preserve original one-direction handling).
+      if (from === id && to !== undefined) set.add(to);
+      // Canonical serialized shape { consumer, producer }: traverse both directions.
+      if (consumer === id && producer !== undefined) set.add(producer);
+      if (producer === id && consumer !== undefined) set.add(consumer);
     }
   }
   // Angular sometimes stores producers as incoming; include dependencies as fallback
   // only when no explicit dependents exist.
   if (set.size === 0) {
-    for (const d of node.dependencies ?? []) set.add(d);
+    for (const d of node.dependencies ?? []) set.add(String(d));
   }
   return [...set];
 }
