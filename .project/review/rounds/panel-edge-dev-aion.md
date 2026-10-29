@@ -39,3 +39,14 @@ could be driven.
 - `verdict.json` above records `inconclusive` with `reason: the pass condition exited 2, not 0 or 1` and the per-run step timings (condition 847 s and 847 s).
 - Run 1 condition stderr: `[ERROR] could not run: edge-dev-aion: doctor edge-dev-aion exited null:`
 - Instances and page were stopped after the run; no tab was left open.
+
+## Pin restore attempted
+
+After the runs above, the documented restore was tried: `control.mjs up edge-dev-aion`, then
+`control.mjs model pin edge-dev-aion` (it reported pinning EdgeLLMOnDeviceModel 2026.10.2.1,
+EdgeLLMRuntime 2026.10.2.1 and EdgeOptimizationGuideModelsManifest 2026.10.2.1), then
+`control.mjs doctor edge-dev-aion` again. Doctor still did not return within a 600 s foreground
+timeout. `references/edge-dev-aion-model.md` expects doctor to exit 0 on this pair, so the
+profile's model folders are a broken set rather than a version mismatch. `model pin` recorded
+the folders that are on disk, so the pin now holds that same set: seed a known-good pair before
+relying on it.
