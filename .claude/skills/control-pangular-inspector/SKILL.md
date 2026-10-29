@@ -39,7 +39,7 @@ and one devtools server per app runs on this machine. The state file is per port
 
 | Port | Kind | Default | How it moves |
 |---|---|---|---|
-| pangular | fixed | 9999 | `.claude/skills/control-pangular-inspector/scripts/control.mjs:73` defaults to 9999 because the app's proxy (the portal checkout's `apps/insurance-portal/proxy.conf.json:3`, outside this repository) sends `/__pangular` there; `install --port N` rewrites that proxy (a change to the app), then pass the same `--port N` to every command |
+| pangular | fixed | 9999 | `.claude/skills/control-pangular-inspector/scripts/control.mjs:74` defaults to 9999 because the app's proxy (the portal checkout's `apps/insurance-portal/proxy.conf.json:3`, outside this repository) sends `/__pangular` there; `install --port N` rewrites that proxy (a change to the app), then pass the same `--port N` to every command |
 | app | external | the `--app-url` port | control-angular-dev-app serves it (the portal: its derived port, 4507 for the default folder, and its API on 3000); this skill never starts or stops it |
 
 A busy devtools port exits 2 with `fixed port pangular 9999 held by PID <p>; pinned by

@@ -35,13 +35,20 @@ function sidecarNodeModules(sidecarPath) {
 }
 
 function isSymlinkLike(st) {
-  return !!st && (st.isSymbolicLink() || st.isJunction?.() === true);
+  if (!st) return false;
+  let link = false;
+  if (typeof st.isSymbolicLink === 'function') {
+    link = st['isSymbolicLink']();
+  } else if (typeof st.mode === 'number') {
+    link = (st.mode & 0o170000) === 0o120000;
+  }
+  return !!(link || st.isJunction?.() === true);
 }
 
 function sameTarget(linkPath, targetAbs) {
   try {
     const st = lstatSync(linkPath, { throwIfNoEntry: false });
-    if (!st || !st.isSymbolicLink()) return false;
+    if (!st || !isSymlinkLike(st)) return false;
     const raw = realpathSync.native ? realpathSync.native(linkPath) : realpathSync(linkPath); // follows link
     // Compare resolved link target to primary node_modules
     const resolvedTarget = realpathSync.native ? realpathSync.native(targetAbs) : realpathSync(targetAbs);
@@ -92,7 +99,7 @@ function doBridge(sidecarPath, primaryPath) {
   // reuse check
   const existing = lstatSync(bridgePath, { throwIfNoEntry: false });
   if (existing) {
-    if (existing.isSymbolicLink()) {
+    if (isSymlinkLike(existing)) {
       // resolve target
       let targetResolved = null;
       try {
@@ -119,7 +126,7 @@ function doUnlink(sidecarPath) {
   const bridgePath = sidecarNodeModules(sidecarAbs);
   const st = lstatSync(bridgePath, { throwIfNoEntry: false });
   if (!st) return { removed: false, linkedPath: bridgePath };
-  if (st.isSymbolicLink()) {
+  if (isSymlinkLike(st)) {
     // non-recursive unlink
     try { unlinkSync(bridgePath); } catch { rmSync(bridgePath, { recursive: false, force: true }); }
     LINKED.delete(bridgePath);
@@ -153,7 +160,7 @@ export function isBridgeCorrect(sidecarPath, primaryPath) {
   const [s, p] = asPaths(sidecarPath, primaryPath);
   const bridgePath = sidecarNodeModules(s);
   const st = lstatSync(bridgePath, { throwIfNoEntry: false });
-  if (!st || !st.isSymbolicLink()) return false;
+  if (!st || !isSymlinkLike(st)) return false;
   try {
     const targetResolved = realpathSync.native ? realpathSync.native(bridgePath) : realpathSync(bridgePath);
     const primaryNmAbs = realpathSync.native ? realpathSync.native(primaryNodeModules(p)) : realpathSync(primaryNodeModules(p));

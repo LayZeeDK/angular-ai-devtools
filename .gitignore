@@ -14,7 +14,6 @@ tmp/maintain-angular-devtools/
 tmp/maintain-pangular/
 .audit/
 tmp/maintain-ai-browsers/
-spikes/s1-extension/probe-main.js
 tmp/
 .commandcode/settings.local.json
 .commandcode/worktrees/

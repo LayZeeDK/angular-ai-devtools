@@ -38,7 +38,7 @@ Preconditions:
 
 ## Gotchas
 
-- `spikes/s1-extension` itself matches only `https://example.com/*`; use `s1-vitest`, which matches the Vitest
+- `spikes/s1-extension` was retired in M009; its evidence and archived notes live under `.project/archive/001-run-unrun-spikes/`. Use `s1-vitest`, which matches the Vitest
   server in every frame.
 - The isolated world sees `typeof window.ng === 'undefined'`; only the MAIN world sees `ng`.
 - In attach mode `down` uninstalls the extension (its notes say `uninstalled extension <id>`); in bundled mode it

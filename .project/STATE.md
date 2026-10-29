@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: tooling
+milestone: consolidation-hardening
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M008
+branch: gsd-path/M009
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/008-tooling
+archive: .project/archive/009-consolidation-hardening
 integration_default: direct
 integration: direct
 integration_source: default
@@ -149,3 +149,35 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-28 — ship — build done; final review pending
 - 2026-10-28 — ship — final gate passed; shipping approval pending
 - 2026-10-28 — shipped — archive preflight passed; shipment recorded
+- 2026-10-28 — inspect — router bound next milestone: M009 consolidation-hardening; base 2bd0eef5fb84181ff72dfbcefbbb4b96b882c81c, integration 2bd0eef5fb84181ff72dfbcefbbb4b96b882c81c
+- 2026-10-28 — inspect — inspection artifacts passed
+- 2026-10-28 — define — definition started
+- 2026-10-28 — define — milestone intent approved
+- 2026-10-28 — plan — planning started
+- 2026-10-28 — plan — plan approved
+- 2026-10-28 — build — build started
+- 2026-10-28 — build — plan defect repaired: T005 files extended to cover the live doc references to spikes/s1-extension
+- 2026-10-29 — build — build blocked: T007 needs an owner ruling - SC3 requires N1/N2/N3 verified on all four pairs, but control-ai-browsers covers only N1 (N2/N3 inconclusive, map gap) and edge-dev-aion N1 hung at a 300s timeout against the documented 600s/1800s budget
+- 2026-10-29 — build — build started
+- 2026-10-29 — build — build blocked: structural plan repair required - owner ruling 1a/2a/3a adds N2/N3 verification coverage and the 12-finding patch wave
+- 2026-10-29 — plan — build plan repair requested
+- 2026-10-29 — plan — build recovery: {"base": "04d1b73711b6d70a0197d73083dbd9a9d6e3986f", "branch": "gsd-path/M009", "kind": "plan", "source": "build"}
+- 2026-10-29 — plan — plan approved
+- 2026-10-29 — build — build started
+- 2026-10-29 — build — build blocked: T007 needs re-slicing into one task per pair plus an assembly task
+- 2026-10-29 — build — build started
+- 2026-10-29 — build — build blocked: T007 re-sliced into one task per model pair plus an assembly task
+- 2026-10-29 — plan — build plan repair requested
+- 2026-10-29 — plan — build recovery: {"base": "98e831cd86f9ee4f94d3247f016309242beb30c6", "branch": "gsd-path/M009", "kind": "plan", "source": "build"}
+- 2026-10-29 — plan — plan approved
+- 2026-10-29 — build — build started
+- 2026-10-29 — build — build blocked: wave 6 review blocks SC3 because edge-dev-aion serves no panel drive on this host even after the documented pin restore; the fourth pair is chrome-stable-nano
+- 2026-10-29 — define — build intent corrections requested
+- 2026-10-29 — define — build recovery: {"base": "3bbfba8a1e608b57bfb163dad999fb15fbacdbdd", "branch": "gsd-path/M009", "kind": "define", "source": "build"}
+- 2026-10-29 — define — intent corrections recorded
+- 2026-10-29 — plan — planning started
+- 2026-10-29 — plan — plan approved
+- 2026-10-29 — build — build started
+- 2026-10-29 — build — build complete
+- 2026-10-29 — ship — build done; final review pending
+- 2026-10-29 — shipped — archive preflight passed; shipment recorded

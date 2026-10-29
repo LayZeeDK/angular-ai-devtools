@@ -39,4 +39,36 @@ describe('ExtensionMessageService', () => {
     expect(causes.recordedCycles().length).toBe(1);
     expect(causes.recordedCycles()[0]!.cycleId).toBe(1);
   });
+
+  it('deduplicates recorded cycles with the same cycleId', () => {
+    const causes = TestBed.inject(UpdateCauseService);
+    const cycle = { cycleId: 7, startedAt: 10, trigger: { kind: 'output', listenerName: 'click' }, checks: [{ componentName: 'Cmp', events: [] }] };
+    deliver({ type: 'angular-ai:record', cycle, tabId: 5 });
+    deliver({ type: 'angular-ai:record', cycle, tabId: 5 });
+    expect(causes.recordedCycles().length).toBe(1);
+  });
+
+  it('flips stateReceived to true after an angular-ai:state message', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+    expect(ext.stateReceived()).toBe(false);
+    deliver({ type: 'angular-ai:state', supported: true, tabId: 5 });
+    expect(ext.stateReceived()).toBe(true);
+  });
+
+  it('marks the page not supported from angular-ai:state with supported:false', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+    deliver({ type: 'angular-ai:state', supported: false, reason: 'no profiler', tabId: 5 });
+    expect(ext.notSupported()).toBe(true);
+    expect(ext.notSupportedReason()).toBe('no profiler');
+  });
+
+  it('ignores messages for another tab', () => {
+    const causes = TestBed.inject(UpdateCauseService);
+    const ext = TestBed.inject(ExtensionMessageService);
+    const cycle = { cycleId: 9, startedAt: 10, trigger: { kind: 'output', listenerName: 'click' }, checks: [{ componentName: 'Cmp', events: [] }] };
+    deliver({ type: 'angular-ai:record', cycle, tabId: 6 });
+    deliver({ type: 'angular-ai:state', supported: false, reason: 'no profiler', tabId: 6 });
+    expect(causes.recordedCycles().length).toBe(0);
+    expect(ext.stateReceived()).toBe(false);
+  });
 });

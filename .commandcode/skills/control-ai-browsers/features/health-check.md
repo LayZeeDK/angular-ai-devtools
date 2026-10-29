@@ -27,7 +27,7 @@ a JSON Schema constraint, completes a tool round trip, and `document.modelContex
 
 Preconditions: the README baseline.
 
-- **Full doctor.** Run `C doctor chrome-beta-gemma4`. Exit 0 and sixteen check lines (`extension` among them:
+- **Full doctor.** Run `C doctor chrome-beta-gemma4`. Exit 0 and nineteen check lines (`extension` among them:
   `Angular AI DevTools 0.3.0 loaded as mgkfgkdgobahfcgkdlokpoehblpbkfok from <primary checkout>/extension`), each `[OK]`, `[WARN]` or
   `[SKIP]`. `backend` reads `requested gpu`, `GPU (fastest inference)`, row `gemma4_gpu_low_tier_model`.
 - **Nano.** Run `C doctor chrome-beta-nano`. `canary.tools` is `[SKIP]`; `backend` row `nano_v3_gpu_low_tier_model`.

@@ -122,7 +122,7 @@ around the route 2 run). Probes: `spikes/probes/vitest-attach.mjs` (runner) and
 ### Extension and model on the attached instance
 
 Run: `node spikes/probes/vitest-attach.mjs --route attach --cdp-port 9334 --label gemma4 --hold 40000`
-(10:27 UTC). The runner copies `spikes/s1-extension` to `tmp/vitest-ext/<label>`. In the copy, the content scripts
+(10:27 UTC). The runner copies `spikes/s1-extension` (retired in M009; evidence and archived notes live under `.project/archive/001-run-unrun-spikes/`) to `tmp/vitest-ext/<label>`. In the copy, the content scripts
 match `http://127.0.0.1/*` and `http://localhost/*` with `all_frames: true`, and each result is keyed by frame.
 The runner loads the copy with `Extensions.loadUnpacked`, runs
 `ng test -c attach --watch=false --filter "keeps the counter mounted"`, inspects, then removes the copy with

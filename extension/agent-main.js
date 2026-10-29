@@ -379,21 +379,48 @@
         var injectorName = "Injector";
         if (meta) {
           if (typeof meta === "string") injectorName = meta;
-          else if (meta.name) injectorName = meta.name;
-          else if (meta.displayName) injectorName = meta.displayName;
+          else if (meta.source != null) {
+            if (typeof meta.source === "string") injectorName = meta.source;
+            else if (meta.source.tagName != null) injectorName = meta.source.tagName;
+          }
         }
         var provs = [];
         if (Array.isArray(providers)) {
           for (var p = 0; p < providers.length; p++) {
             var pr = providers[p];
-            var token = (pr && (pr.token != null ? pr.token : pr.name)) != null ? String(pr.token != null ? pr.token : pr.name) : String(pr);
-            var providerType = (pr && pr.providerType) || "none";
+            var token = (pr && pr.token != null)
+              ? (pr.token.name ?? (typeof pr.token.toString === "function" ? pr.token.toString() : undefined) ?? String(pr.token))
+              : (pr && pr.name != null ? String(pr.name) : String(pr));
+            var prov = pr && pr.provider;
+            var providerKind = "none";
+            if (prov && typeof prov === "object") {
+              if (Object.prototype.hasOwnProperty.call(prov, "useFactory")) providerKind = "factory";
+              else if (Object.prototype.hasOwnProperty.call(prov, "useValue")) providerKind = "value";
+              else if (Object.prototype.hasOwnProperty.call(prov, "useClass")) providerKind = "class";
+              else if (Object.prototype.hasOwnProperty.call(prov, "useExisting")) providerKind = "existing";
+            } else if (typeof prov === "function") {
+              providerKind = "class";
+            }
             var source = (pr && pr.source) || "";
+            var importPathRaw = pr && (pr.importPath || pr.moduleName);
+            var importPath;
+            if (Array.isArray(importPathRaw)) {
+              importPath = importPathRaw.map(function (t) {
+                if (t == null) return "";
+                if (typeof t === "string") return t;
+                if (t.name != null) return String(t.name);
+                if (typeof t.toString === "function") return t.toString();
+                return String(t);
+              }).filter(function (s) { return s !== ""; }).join(", ");
+            } else if (importPathRaw != null) {
+              importPath = String(importPathRaw);
+            }
+            if (!importPath) importPath = source || undefined;
             var entry = {
               token: token,
-              isViewProvider: typeof pr?.viewProviders === "boolean" ? pr.viewProviders : false,
-              provider: providerType,
-              importPath: (pr && (pr.importPath || pr.moduleName)) || source || undefined,
+              isViewProvider: (pr && typeof pr.isViewProvider === "boolean") ? pr.isViewProvider : false,
+              provider: providerKind,
+              importPath: importPath,
             };
             provs.push(entry);
           }

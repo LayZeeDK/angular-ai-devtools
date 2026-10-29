@@ -20,7 +20,7 @@ export class UpdateCauseService {
   }
 
   recordCycle(cycle: RecordedCycle): void {
-    this.cycles.update((prev) => [...prev, cycle]);
+    this.cycles.update((prev) => prev.some((c) => c.cycleId === cycle.cycleId) ? prev : [...prev, cycle]);
   }
 
   lastCycleForComponent(componentName: string): RecordedCycle | undefined {

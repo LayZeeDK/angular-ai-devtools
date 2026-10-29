@@ -28,7 +28,7 @@ Research and design for an AI-assisted Angular DevTools browser extension (Chrom
   - `spikes/probes/`: bench.js, regrade.mjs, arg-repair-replay.mjs, and the zone-mode, effect-writes, tosignal, ssr-* and vitest-* probes.
   - `spikes/ng222-app`: the counter, plus Vitest Browser tests.
   - `spikes/ng222-ssr`: the SSR fixture.
-  - `spikes/s1-extension`: the test extension.
+  - `spikes/s1-extension`: the test extension (retired in M009; evidence and archived notes live under `.project/archive/001-run-unrun-spikes/`).
 - **Insurance Portal fixture:** `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools`, branch `claude/ai-devtools-spike`, head `cc9ce25`. It has Signal Forms (`754aa1e`, `66e8ad6`, `92053b9`), the error-timing fix (`987f000`) and the budget raised to 700 kB (`cc9ce25`). Not pushed.
 - **Skills (project):** in `.claude/skills/`:
   - `control-` / `verify-ai-browsers`;
