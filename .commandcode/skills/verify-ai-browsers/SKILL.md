@@ -16,7 +16,8 @@ both skills read: read that skill for every command, flag and gotcha.
 | `state` | Each named instance (every registry instance when none is named): `doctor` exits 0, `flags` exits 0, `model info` finds the registry model's manifest on disk, and Broker State serves that model. | `health-check.md` `health-doctor`; `instances.md` `instances-features`; `model-lifecycle.md` `model-info` | every named instance |
 | `model-init` | `model init` exits 0 with the registry `contextWindow`, and the instance then passes `state`. Run after a model cycle in the setup, it proves clearing, downloading and initialising the instance's own model end to end. | `model-lifecycle.md` `model-init`, after `model-clear` and `model-download` | the instance, its model downloaded |
 | `extension-panel` | On each named instance (every registry instance when none is named), `panel --url=<app>` exits 0 with a non-empty answer: the extension's DevTools panel ran "Explain version with AI" through the Prompt API. The instance then passes `state` (which includes doctor's `extension` check), so the answer came from its registry model. | `extension-panel.md` `extension-panel`, `extension-check` | every named instance, the panel built (`npx nx run angular-ai-devtools:build-extension`) before `up`, and an Angular dev page (control-angular-dev-app `up --target counter`) |
-
+| `signal-provenance` | On each named instance (every registry instance when none is named), the extension's DevTools panel "Signal Provenance" tab (N2) renders the provenance chain from `angular-ai:record` facts and "Explain" returns a non-empty answer through the panel-local Prompt API. The instance then passes `state`. | `signal-provenance.md` `signal-provenance` | every named instance, the panel built, and an Angular dev page |
+| `di-doctor` | On each named instance (every registry instance when none is named), the extension's DevTools panel "DI Doctor" tab (N3) queries an injector, receives `angular-ai:di-graph` with a `DiResolutionPath`, renders the resolution path / diff, and "Explain" returns a non-empty answer through the panel-local Prompt API. The instance then passes `state`. | `di-doctor.md` `di-doctor` | every named instance, the panel built, and an Angular dev page |
 Each check's header comment holds its claim, the feature it covers, its usage and the files it writes. `state` records each instance's
 backend, requested backend and performance class in `state.json`; `model-init` records the init timings and
 answer in `model-init.json`; `extension-panel` records each instance's panel result and state in
@@ -54,8 +55,9 @@ Through `lars-verify` (`~/.commandcode/skills/lars-verify/references/contract.md
 Standalone, against instances started by hand:
 `node .commandcode/skills/verify-ai-browsers/checks/state.mjs --evidence <dir> [<instance>...]` or
 `node .commandcode/skills/verify-ai-browsers/checks/model-init.mjs --evidence <dir> <instance>` or
-`node .commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs --evidence <dir> --url <app url> [<instance>...]`.
-
+`node .commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs --evidence <dir> --url <app url> [<instance>...]` or
+`node .commandcode/skills/verify-ai-browsers/checks/signal-provenance.mjs --evidence <dir> --url <app url> [<instance>...]` or
+`node .commandcode/skills/verify-ai-browsers/checks/di-doctor.mjs --evidence <dir> --url <app url> [<instance>...]`.
 ## Gotchas
 
 - `state` takes about a minute per instance (doctor, flags, model info; doctor 10-60 s), longer while another

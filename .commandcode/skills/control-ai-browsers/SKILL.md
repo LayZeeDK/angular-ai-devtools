@@ -200,7 +200,9 @@ is not running or the command could not run. A run takes 25-50 s, longer under l
   `ngVersion`, `extensionId` and `steps`, or 1 with `error`. `--timeout-min` (default 4) caps the wait for the
   answer. Use the counter fixture of control-angular-dev-app as the page (`up --target counter`). The proof across
   every pair is `verify-ai-browsers` `checks/extension-panel.mjs`. Recipe: `features/extension-panel.md`.
-
+- The panel's other tabs are driven manually in the DevTools panel: "Signal Provenance" (N2, recipes
+  `features/signal-provenance.md`) and "DI Doctor" (N3, recipes `features/di-doctor.md`); their proof across every
+  pair is `verify-ai-browsers` `checks/signal-provenance.mjs` and `checks/di-doctor.mjs`.
 Every command that opens a tab closes it before it exits, and a session the command attached is detached again.
 Wait by polling an observable value (`availability()`, a resolved `create()`, a Broker State asset `Ready`), never
 a fixed sleep. Model calls carry a 180 s per-step timeout inside the page. Recipes: `features/README.md`.
