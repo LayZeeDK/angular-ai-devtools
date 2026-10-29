@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: n4-error-explainer
-phase: inspect
+phase: define
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
@@ -183,3 +183,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-29 — shipped — archive preflight passed; shipment recorded
 - 2026-10-30 — inspect — router bound next milestone: M010 n4-error-explainer; base 7354c107aa977ca68de24b959e714efba8238e26, integration 7354c107aa977ca68de24b959e714efba8238e26
 - 2026-10-30 — inspect — inspection artifacts passed
+- 2026-10-30 — define — definition started
+- 2026-10-30 — define — milestone intent approved
