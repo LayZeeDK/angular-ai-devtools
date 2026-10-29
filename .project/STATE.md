@@ -5,7 +5,7 @@ milestone: consolidation-hardening
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: active
 branch: gsd-path/M009
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -158,3 +158,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-28 — build — build started
 - 2026-10-28 — build — plan defect repaired: T005 files extended to cover the live doc references to spikes/s1-extension
 - 2026-10-29 — build — build blocked: T007 needs an owner ruling - SC3 requires N1/N2/N3 verified on all four pairs, but control-ai-browsers covers only N1 (N2/N3 inconclusive, map gap) and edge-dev-aion N1 hung at a 300s timeout against the documented 600s/1800s budget
+- 2026-10-29 — build — build started
