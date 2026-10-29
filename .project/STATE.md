@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: consolidation-hardening
-phase: plan
+phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M009
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -163,3 +163,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-29 — plan — build plan repair requested
 - 2026-10-29 — plan — build recovery: {"base": "04d1b73711b6d70a0197d73083dbd9a9d6e3986f", "branch": "gsd-path/M009", "kind": "plan", "source": "build"}
 - 2026-10-29 — plan — plan approved
+- 2026-10-29 — build — build started
