@@ -12,6 +12,12 @@ window.addEventListener('angular-ai:di-graph', (e) => {
   chrome.runtime.sendMessage({ type: 'angular-ai:di-graph', ...d });
 });
 
+// Forward supported / not-supported state from the MAIN-world agent
+window.addEventListener('angular-ai:state', (e) => {
+  const d = e.detail || {};
+  chrome.runtime.sendMessage({ type: 'angular-ai:state', ...d });
+});
+
 // Detect Angular and inject marker
 function checkAngular() {
   const el = document.querySelector('[ng-version]');
