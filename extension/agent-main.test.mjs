@@ -410,12 +410,12 @@ describe("agent-main.js (DI doctor)", () => {
     var { ng } = makeNg();
     ng.ɵgetInjectorResolutionPath = function () { return [1, 2, 3]; };
     ng.ɵgetInjectorMetadata = function () {
-      return { name: "EnvironmentInjector", type: "environment", source: "AppModule" };
+      return { type: "environment", source: "EnvironmentInjector" };
     };
     ng.ɵgetInjectorProviders = function () {
       return [
-        { token: "FooService", providerType: "value", source: "AppModule", importPath: "app/module" },
-        { token: "BarToken", providerType: "factory", source: "CounterComponent" },
+        { token: "FooService", provider: { useValue: 1 }, source: "AppModule", importPath: "app/module", isViewProvider: false },
+        { token: { name: "BarToken", toString: function () { return "InjectionToken BarToken"; } }, provider: { useFactory: function () {} }, source: "CounterComponent", isViewProvider: true },
       ];
     };
 
@@ -443,6 +443,7 @@ describe("agent-main.js (DI doctor)", () => {
     assert.equal(inj0.providers[0].importPath, "app/module");
     assert.equal(inj0.providers[1].token, "BarToken");
     assert.equal(inj0.providers[1].provider, "factory");
+    assert.equal(inj0.providers[1].isViewProvider, true);
   });
 
   it("falls back to single-injector path when ɵgetInjectorResolutionPath is unavailable", () => {
@@ -460,9 +461,9 @@ describe("agent-main.js (DI doctor)", () => {
     var { ng } = makeNg();
     delete ng.ɵgetInjectorResolutionPath;
     ng.ɵgetInjectorMetadata = function () {
-      return { name: "RootInjector", type: "environment", source: "AppModule" };
+      return { type: "environment", source: "RootInjector" };
     };
-    ng.ɵgetInjectorProviders = function () { return [{ token: "FooService", providerType: "value" }]; };
+    ng.ɵgetInjectorProviders = function () { return [{ token: "FooService", provider: { useValue: 1 } }]; };
 
     var { dispatched } = boot({ ng });
     globalThis.addEventListener = capAdd;
