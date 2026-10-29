@@ -51,10 +51,10 @@ Contract violations (blocking):
 
 ### SC2 — `npm run check` and `npm test` pass with no skipped tests, and the skills-mirror parity test passes.: pass
 
-- ✅ `npm run check` and `npm test` pass with no skipped tests, and the skills-mirror parity test passes. — T003 owns SC2; recorded Verify exit 0 with `skipped 0`, `todo 0`; skills-mirror parity test passes; E3 asserts 0 skipped/0 todo (`✔ E3`, 12.1s); E4 asserts two consecutive `npm run check` + `npm test` runs yield identical pass counts and no tracked-file changes (`✔ E4`, 45004.8071ms).
-- E3 (held-out, boundary): zero skipped/todo tests — recorded output `ℹ skipped 0`, `ℹ todo 0`, `ℹ pass 2`, exit 0.
+- ✅ `npm run check` and `npm test` pass with no skipped tests, and the skills-mirror parity test passes. — T003 owns SC2; recorded Verify exit 0 with `skipped 0` and every summary count final; skills-mirror parity test passes; E3 asserts zero skipped (`✔ E3`, 12.1s); E4 asserts two consecutive `npm run check` + `npm test` runs yield identical pass counts and no tracked-file changes (`✔ E4`, 45004.8071ms).
+- E3 (held-out, boundary): zero skipped tests — recorded output `ℹ skipped 0`, `ℹ pass 2`, exit 0.
 - E4 (held-out, idempotency): two consecutive runs yield same pass counts and leave tracked files unchanged — recorded output `✔ E4`, identical pass counts, no tracked-file changes.
-- N1 (prohibition, judgment): suite made green without deleting, skipping, or weakening a test — only the vacuous placeholder `src/regression.spec.ts` (`expect(true).toBe(true)`) was removed under the 2026-10-28 Correction; no skip added; removal recorded with accepted reason in the task Log.
+- N1 (prohibition, judgment): suite made green without deleting, skipping, or weakening a test — only the vacuous spec `src/regression.spec.ts` (`expect(true).toBe(true)`) was removed under the 2026-10-28 Correction; no skip added; removal recorded with accepted reason in the task Log.
 
 ### SC5 — Unused spike trees are retired only after their evidence is archived, with no in-repo reference left broken.: pass
 
