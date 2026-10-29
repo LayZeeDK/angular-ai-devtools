@@ -1,6 +1,6 @@
 ---
 id: T020
-title: Verify N1/N2/N3 panel flows on edge-dev-aion
+title: Verify N1/N2/N3 panel flows on chrome-stable-nano
 wave: 6
 deps: [T006, T008, T011, T012, T016]
 status: pending
@@ -9,25 +9,25 @@ base: null
 worktree: null
 task_branch: null
 files:
-  - .project/review/rounds/panel-edge-dev-aion.md
-  - tests/held-out/edge-dev-aion-panel.test.mjs
+  - .project/review/rounds/panel-chrome-stable-nano.md
+  - tests/held-out/chrome-stable-nano-panel.test.mjs
 ---
 
-# T020 — Verify N1/N2/N3 panel flows on edge-dev-aion
+# T020 — Verify N1/N2/N3 panel flows on chrome-stable-nano
 
 ## Context
 
-SC3: the N1, N2 and N3 flows still answer in the DevTools panel on all four supported model pairs, each with a `lars-verify` verdict of `verified`. This task owns the `edge-dev-aion` pair (port 9335): it drives N1 (change-detection causality), N2 (signal provenance) and N3 (DI doctor) on that single instance and records one `lars-verify` verdict per flow. E5: when a model pair cannot run, its claim records `unverifiable` with the reason; it is never reported as `verified`, and SC3 is not met until all four pairs answer. N3 (SC3): do not send page data to a cloud model or change the panel security model to make a check pass; the panel stays panel-local Prompt API. Coverage for N2/N3 now exists (T008). Apply the documented budgets of 600 s per control call and 1800 s per check, plus the idle-blank-tab recovery, one instance at a time. When the pair still cannot answer, record the verdict as `unverifiable` with the route and budget used — never `verified`.
+SC3: the N1, N2 and N3 flows still answer in the DevTools panel on all four supported model pairs, each with a `lars-verify` verdict of `verified`. This task owns the `chrome-stable-nano` pair (port 9335): it drives N1 (change-detection causality), N2 (signal provenance) and N3 (DI doctor) on that single instance and records one `lars-verify` verdict per flow. E5: when a model pair cannot run, its claim records `unverifiable` with the reason; it is never reported as `verified`, and SC3 is not met until all four pairs answer. N3 (SC3): do not send page data to a cloud model or change the panel security model to make a check pass; the panel stays panel-local Prompt API. Coverage for N2/N3 now exists (T008). Apply the documented budgets of 600 s per control call and 1800 s per check, plus the idle-blank-tab recovery, one instance at a time. When the pair still cannot answer, record the verdict as `unverifiable` with the route and budget used — never `verified`.
 
 ## Approach
 
-- Build the extension (`npx nx run angular-ai-devtools:build-extension`), run `control-ai-browsers up edge-dev-aion`, and drive the app with `control-angular-dev-app up --target counter`.
+- Build the extension (`npx nx run angular-ai-devtools:build-extension`), run `control-ai-browsers up chrome-stable-nano`, and drive the app with `control-angular-dev-app up --target counter`.
 - Run the three checks (extension panel, signal provenance, DI doctor) through `verdict.mjs` into `.commandcode/worktrees/tmp/`, one verdict per flow.
 - Lint each resulting `verdict.json` with `verdict.mjs lint`.
 - Stop only what this task started.
 - Budgets and recovery: 600 s per control call, 1800 s per check, plus the idle-blank-tab recovery; record `unverifiable` with the route and budget when the pair still cannot answer.
-- Write the fragment `.project/review/rounds/panel-edge-dev-aion.md` with one heading per flow (N1, N2, N3): the verdict path, the verdict, the claim, and for anything not `verified` the reason, the recovery applied, the budget used and the route tried.
-- Write `tests/held-out/edge-dev-aion-panel.test.mjs` proving each of the three verdict files exists, parses, records `verified`, and that the fragment cites it; no tautologies.
+- Write the fragment `.project/review/rounds/panel-chrome-stable-nano.md` with one heading per flow (N1, N2, N3): the verdict path, the verdict, the claim, and for anything not `verified` the reason, the recovery applied, the budget used and the route tried.
+- Write `tests/held-out/chrome-stable-nano-panel.test.mjs` proving each of the three verdict files exists, parses, records `verified`, and that the fragment cites it; no tautologies.
 
 ## Interface contract
 
@@ -38,16 +38,16 @@ SC3: the N1, N2 and N3 flows still answer in the DevTools panel on all four supp
 
 ## Acceptance criteria
 
-1. Three `lars-verify` verdicts are produced for `edge-dev-aion`, one each for N1, N2 and N3, each backed by a real `verdict.json` under `.commandcode/worktrees/tmp/` (E5).
+1. Three `lars-verify` verdicts are produced for `chrome-stable-nano`, one each for N1, N2 and N3, each backed by a real `verdict.json` under `.commandcode/worktrees/tmp/` (E5).
 2. Each verdict is `verified` only when `verdict.mjs lint` exits 0 on that `verdict.json`; otherwise it is recorded `unverifiable` or `inconclusive` with its reason.
-3. The fragment `.project/review/rounds/panel-edge-dev-aion.md` cites each verdict path and verdict word.
+3. The fragment `.project/review/rounds/panel-chrome-stable-nano.md` cites each verdict path and verdict word.
 4. The held-out test proves each of the three verdict files exists, parses, records `verified`, and is cited by the fragment, with no tautologies.
 5. No page data is sent to a cloud model and no panel security model change is introduced (N3).
 
 ## Verify
 
 ```bash
-npm ci && node --test tests/held-out/edge-dev-aion-panel.test.mjs
+npm ci && node --test tests/held-out/chrome-stable-nano-panel.test.mjs
 ```
 
 Heavy: yes
@@ -55,3 +55,5 @@ Heavy: yes
 ## Log
 
 - created by planner
+
+- orchestrator: instance substituted. `edge-dev-aion` answers no panel drive within 20 minutes (two `verdict.mjs` runs and a direct 20-minute `panel` call; evidence in `.project/review/rounds/panel-edge-dev-aion.md`), so the fourth supported pair is `chrome-stable-nano`, which answers in 23 s. The Aion finding stays in the record.
