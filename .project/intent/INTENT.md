@@ -134,3 +134,14 @@ None. The three brownfield questions were resolved at approval and are recorded 
 ## Corrections
 
 - 2026-10-28: "Approve" — accepted every presented edge and prohibition ruling, every doc-vs-code ruling (fix-doc for queue 1, 39, 76, 78, 109, 159, 160 and 185; accept-drift for 165 and 180), and the open-question recommendations: keep `spikes/probes` and both ng222 fixtures, retire `spikes/s1-extension` only after its evidence is archived and only if no test references it; remove `src/regression.spec.ts`; add no root README this milestone.
+
+
+- 2026-10-29: "Approve both" — the supported model pair set is ruled explicitly. The four supported
+  pairs are the ones that answer on this host: `chrome-beta-nano`, `chrome-beta-gemma4`,
+  `edge-phi4mini` and `chrome-stable-nano`, and all four hold a `verified` N1/N2/N3 verdict.
+  `edge-dev-aion` is an experimental pinned instance: it serves no panel drive (doctor and panel
+  exceed the documented 600 s/1800 s budgets, and the documented pin restore did not change that;
+  evidence in `.project/review/rounds/panel-edge-dev-aion.md`). Its three flows are recorded
+  `unverifiable` and sit outside SC3. SC3 therefore reads "all four supported pairs answer",
+  and the owner also approved attempting to seed a serving Aion pair, whose outcome is recorded
+  separately and does not change this reading.

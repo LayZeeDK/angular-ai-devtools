@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: consolidation-hardening
-phase: build
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: done
 branch: gsd-path/M009
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -172,3 +172,8 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-29 — plan — plan approved
 - 2026-10-29 — build — build started
 - 2026-10-29 — build — build blocked: wave 6 review blocks SC3 because edge-dev-aion serves no panel drive on this host even after the documented pin restore; the fourth pair is chrome-stable-nano
+- 2026-10-29 — define — build intent corrections requested
+- 2026-10-29 — define — build recovery: {"base": "3bbfba8a1e608b57bfb163dad999fb15fbacdbdd", "branch": "gsd-path/M009", "kind": "define", "source": "build"}
+- 2026-10-29 — define — intent corrections recorded
+- 2026-10-29 — plan — planning started
+- 2026-10-29 — plan — plan approved
