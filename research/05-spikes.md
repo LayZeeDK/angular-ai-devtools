@@ -14,7 +14,7 @@ No blocked preconditions recorded for model-dependent spikes; all four instances
 
 ## S16 - companion-package Meta-class lookup (measured 2026-10-18)
 
-Verdict: **works**. Evidence: `research/raw/s16-meta-lookup.json`.
+Verdict: **works-with-degradation**. Reason: Meta is absent from all five injectors; identity-only token-name matching cannot resolve a Meta instance. Evidence: `research/raw/s16-meta-lookup.json`.
 
 - Walked root component's `ɵgetInjectorResolutionPath`: 5 injectors (app-counter element, app-root element, environment, platform, null).
 - `Meta` token absent from all injectors (expected "provided, not created yet").

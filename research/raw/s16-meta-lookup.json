@@ -14,5 +14,6 @@
   ],
   "meta": "absent (expected 'provided, not created yet')",
   "router": "present in environment injector (index 2); instance url '/'",
-  "verdict": "works"
+  "verdict": "works-with-degradation",
+  "reason": "Meta is absent from all five injectors; identity-only token-name matching cannot resolve a Meta instance."
 }
