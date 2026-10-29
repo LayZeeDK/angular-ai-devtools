@@ -1,8 +1,8 @@
 ---
 id: T007
 title: Verify N1/N2/N3 panel flows on all four model pairs and portal
-wave: 3
-deps: [T006]
+wave: 6
+deps: [T006, T008, T011, T012, T016]
 status: pending
 agent: null
 base: null
@@ -18,14 +18,16 @@ files:
 
 ## Context
 
-SC3: the N1, N2 and N3 flows still answer in the DevTools panel on all four supported model pairs, each with a `lars-verify` verdict of `verified`. SC4: where meaningful, the same claims are also verified on the insurance-portal fixture, and the claim records that external dependency. E5: when a model pair cannot run, its claim records `unverifiable` with the reason; it is never reported as `verified`, and SC3 is not met until all four pairs answer. E6: when the insurance-portal checkout is absent, the claim records the external dependency and stays `unverifiable` here; it never silently counts as verified. N3 (SC3): do not send page data to a cloud model or change the panel security model to make a check pass; the panel stays panel-local Prompt API. N6 (SC4): do not report a portal claim as verified when the portal checkout was absent.
+SC3: the N1, N2 and N3 flows still answer in the DevTools panel on all four supported model pairs, each with a `lars-verify` verdict of `verified`. SC4: where meaningful, the same claims are also verified on the insurance-portal fixture, and the claim records that external dependency. E5: when a model pair cannot run, its claim records `unverifiable` with the reason; it is never reported as `verified`, and SC3 is not met until all four pairs answer. E6: when the insurance-portal checkout is absent, the claim records the external dependency and stays `unverifiable` here; it never silently counts as verified. N3 (SC3): do not send page data to a cloud model or change the panel security model to make a check pass; the panel stays panel-local Prompt API. N6 (SC4): do not report a portal claim as verified when the portal checkout was absent. Coverage for N2/N3 now exists (T008), so `inconclusive` + map gap applies only where a flow still has no feature file. Cite verdicts from the evidence root that `control-ai-browsers info` reports, not a git-ignored `tmp/` root. Apply the 600 s per control call / 1800 s per check budgets and the documented idle-tab recovery per pair, one instance at a time. Record the portal checkout path and stay non-verified without it.
 
 ## Approach
 
-- Build the extension and drive each of the four supported model instances (`chrome-beta-nano`, `chrome-beta-gemma4`, `edge-dev-aion`, `edge-phi4mini`) against `spikes/ng222-app` using the control/verify skills.
-- Produce one `lars-verify` verdict per pair for each of N1, N2, N3; only `verified` counts. Record each `verdict.json` path in `.project/review/rounds/panel-verification.md`.
+- Build the extension and drive each of the four supported model instances (`chrome-beta-nano`, `chrome-beta-gemma4`, `edge-dev-aion`, `edge-phi4mini`) against `spikes/ng222-app` using the control/verify skills, one instance at a time.
+- Re-run `edge-dev-aion` N1 with the documented 600 s per control call / 1800 s per check budgets and the documented idle-tab recovery; record `unverifiable` only after that recovery fails.
+- Produce one `lars-verify` verdict per pair for each of N1, N2, N3; only `verified` counts. Record each `verdict.json` path (under the evidence root that `control-ai-browsers info` reports) in `.project/review/rounds/panel-verification.md`.
+- Use `inconclusive` + map gap only where a flow still has no feature file (N2/N3 now covered by T008).
 - If a pair cannot run, record `unverifiable` with the reason; never report it as `verified` (E5). SC3 is not met until all four pairs answer.
-- Run on the insurance-portal checkout where meaningful and record the external dependency in the claim; if the checkout is absent, record `unverifiable` with the dependency (E6, N6).
+- Run on the insurance-portal checkout where meaningful and record the external dependency in the claim; if the checkout is absent, record `unverifiable` with the checkout path (E6, N6).
 - Keep the panel panel-local Prompt API; no page/content-script Prompt API and no new host permission (N3).
 - Held-out E5/E6 tests assert the unverifiable recording and the portal dependency recording.
 

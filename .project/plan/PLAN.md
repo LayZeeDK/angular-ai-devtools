@@ -24,6 +24,21 @@ Review depth: full
 Goal: Re-run `lars-review` over the changed ranges after the known fixes, resolve every verified blocking finding (or defer with a written reason), then prove the N1/N2/N3 panel flows on all four supported model pairs and the insurance-portal fixture.
 Review depth: full
 
+## Wave 4 — coverage infrastructure
+
+Goal: Author `control-ai-browsers` feature files plus `verify-ai-browsers` checks for signal provenance (N2) and the DI doctor (N3), with byte-mirrored `.claude/skills/` copies, so T007's coverage gap closes and `lars-verify` can produce real verdicts.
+Review depth: full
+
+## Wave 5 — blocking findings patch wave
+
+Goal: Fix all 12 verified blocking findings from round-2.md in file-scope batches, without public behavior change, each with a Verify that proves the pattern is absent where applicable.
+Review depth: full
+
+## Wave 6 — verification after the fixes
+
+Goal: Re-run panel verification on all four model pairs and the portal with the new coverage and documented budgets, then re-run `lars-review` to dispose every blocking finding and prove E11/E12.
+Review depth: full
+
 ## Surface contract
 
 ### DevTools panel — T007
@@ -49,6 +64,19 @@ Walkthrough:
 | SC6 | T006 | AC2 |
 | SC7 | T001 | AC1 |
 | SC8 | T006 | AC3 |
+| SC2 | T008 | AC5 |
+| SC1 | T009 | AC1 |
+| SC1 | T010 | AC1 |
+| SC1 | T011 | AC1 |
+| SC6 | T011 | AC2 |
+| SC1 | T012 | AC1 |
+| SC6 | T012 | AC2 |
+| SC1 | T013 | AC2 |
+| SC1 | T014 | AC1 |
+| SC1 | T015 | AC1 |
+| SC1 | T016 | AC1 |
+| SC6 | T016 | AC6 |
+| SC8 | T017 | AC2 |
 
 ## Held-out checks
 
@@ -71,4 +99,8 @@ Walkthrough:
 - T006 depends on T002, T003, T004, T005: the final re-review runs only after the first round's findings exist and the known fixes have landed (E12: no fix task open while a review round runs).
 - T007 depends on T006: panel verification runs after the re-review and its blocker resolution.
 - T006 is the round-2 re-review and blocker-disposition task: it re-runs `lars-review` over the changed ranges, records every finding's disposition (fixed in a named patch commit, or deferred with a written reason and acceptor), and owns SC1/SC6/SC8 through that disposition record. It does not fix product code. Actual review-sourced fixes land through plan patch waves appended after wave 3; the patch wave carries its own re-review task so E11's "no new verified blocker after fixes" is proven after the fixes, and that patch task lists T006's files where it re-runs them.
+- T008 (wave 4) has no deps: coverage infrastructure lands before panel re-verification.
+- T009-T016 (wave 5) are file-disjoint fix tasks; T012 depends on T011 via the shared state-message contract; all others are independent.
+- T007 (wave 6) depends on T006, T008, and the panel-touching fix tasks T011, T012, T016.
+- T017 (wave 6) depends on every wave-5 fix task (T009-T016) and owns SC8.
 
