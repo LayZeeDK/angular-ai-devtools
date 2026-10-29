@@ -12,8 +12,8 @@ interface ExtensionMessage {
     trigger: { kind: 'output' | 'unknown'; listenerName: string | null };
     checks: Array<{ instance?: unknown; componentName: string; events?: number[] }>;
   };
-  notSupported?: boolean;
-  notSupportedReason?: string;
+  supported?: boolean;
+  reason?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -49,9 +49,9 @@ export class ExtensionMessageService {
     } else if (msg.type === 'angular-ai:record' && msg.cycle) {
       this.causeService.recordCycle(msg.cycle as any);
     } else if (msg.type === 'angular-ai:state') {
-      if (msg.notSupported) {
+      if (msg.supported === false) {
         this.notSupported.set(true);
-        this.notSupportedReason.set(msg.notSupportedReason ?? 'not supported');
+        this.notSupportedReason.set(msg.reason ?? 'not supported');
       }
     }
   }

@@ -39,4 +39,11 @@ describe('ExtensionMessageService', () => {
     expect(causes.recordedCycles().length).toBe(1);
     expect(causes.recordedCycles()[0]!.cycleId).toBe(1);
   });
+
+  it('marks the page not supported from angular-ai:state with supported:false', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+    deliver({ type: 'angular-ai:state', supported: false, reason: 'no profiler', tabId: 5 });
+    expect(ext.notSupported()).toBe(true);
+    expect(ext.notSupportedReason()).toBe('no profiler');
+  });
 });
