@@ -2,14 +2,14 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: consolidation-hardening
-phase: ship
+phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M009
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: null
+archive: .project/archive/009-consolidation-hardening
 integration_default: direct
 integration: direct
 integration_source: default
@@ -180,3 +180,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-29 — build — build started
 - 2026-10-29 — build — build complete
 - 2026-10-29 — ship — build done; final review pending
+- 2026-10-29 — shipped — archive preflight passed; shipment recorded

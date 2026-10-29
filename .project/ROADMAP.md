@@ -329,8 +329,8 @@ Goal: Harden and stabilize everything shipped in M001-M007: fix defects, remove 
 
 Depends on: []
 Surfaces: DevTools panel
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/009-consolidation-hardening
 Integrated: null
 
 Scope: in
