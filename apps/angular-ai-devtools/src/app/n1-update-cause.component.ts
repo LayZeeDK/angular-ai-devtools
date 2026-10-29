@@ -49,7 +49,13 @@ import { walkChain, ChainResult } from './update-cause-chain';
           }
         </div>
       } @else {
-        <p class="empty">no components recorded yet</p>
+        <p class="empty" data-testid="empty-reason">
+          @if (ext.stateReceived()) {
+            no components recorded yet — interact with the page to record a change-detection cycle
+          } @else {
+            waiting for the page tracer (no state message received)
+          }
+        </p>
       }
     }
 

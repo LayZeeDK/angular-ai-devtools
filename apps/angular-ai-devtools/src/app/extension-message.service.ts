@@ -22,6 +22,7 @@ export class ExtensionMessageService {
   private readonly inspectedTabId: number | undefined;
   readonly notSupported = signal<boolean>(false);
   readonly notSupportedReason = signal<string | null>(null);
+  readonly stateReceived = signal(false);
 
   constructor() {
     const chrome = (globalThis as { chrome?: { runtime?: { onMessage?: { addListener: (cb: (msg: unknown) => void) => void } }; devtools?: { inspectedWindow?: { tabId?: number } } } }).chrome;
@@ -49,6 +50,7 @@ export class ExtensionMessageService {
     } else if (msg.type === 'angular-ai:record' && msg.cycle) {
       this.causeService.recordCycle(msg.cycle as any);
     } else if (msg.type === 'angular-ai:state') {
+      this.stateReceived.set(true);
       if (msg.supported === false) {
         this.notSupported.set(true);
         this.notSupportedReason.set(msg.reason ?? 'not supported');
