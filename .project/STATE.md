@@ -164,3 +164,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-29 — plan — build recovery: {"base": "04d1b73711b6d70a0197d73083dbd9a9d6e3986f", "branch": "gsd-path/M009", "kind": "plan", "source": "build"}
 - 2026-10-29 — plan — plan approved
 - 2026-10-29 — build — build started
+- 2026-10-29 — build — build blocked: T007 needs re-slicing into one task per pair plus an assembly task
+- 2026-10-29 — build — build started
