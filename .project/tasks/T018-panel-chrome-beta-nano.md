@@ -3,9 +3,9 @@ id: T018
 title: Verify N1/N2/N3 panel flows on chrome-beta-nano
 wave: 6
 deps: [T006, T008, T011, T012, T016]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T018
+base: 8cd64a1f153b2a76fa84a9239c900337dd885a91
 worktree: null
 task_branch: null
 files:
@@ -55,3 +55,73 @@ Heavy: yes
 ## Log
 
 - created by planner
+- N2 verdict: verified (.commandcode/worktrees/tmp/verdict-signal-provenance-chrome-beta-nano/verdict.json); N3 verdict: verified (.commandcode/worktrees/tmp/verdict-di-doctor-chrome-beta-nano/verdict.json); N1 lint verified. All three verdict.json files lint exit 0. Fragment and held-out test written. Specs deleted.- RESULT: ready
+- 2026-10-29 — orchestrator Verify (sidecar gsd-path-verify/task-t018-verify): fail, exit 1; output tail:
+  ```
+        at Test.postRun (node:internal/test_runner/test:1542:19)
+        at Test.run (node:internal/test_runner/test:1467:12)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+      generatedMessage: false,
+      code: 'ERR_ASSERTION',
+      actual: false,
+      expected: true,
+      operator: '==',
+      diff: 'simple'
+    }
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```
+- 2026-10-29 — orchestrator Verify (sidecar gsd-path-verify/task-t018-verify): pass, exit 0; output tail:
+  ```
+  ✔ N2: cited verdict exists and is verified, or fragment records unverifiable with reason and route (208.9445ms)
+  ✔ N3: cited verdict exists and is verified, or fragment records unverifiable with reason and route (41.168ms)
+  ℹ tests 4
+  ℹ suites 0
+  ℹ pass 4
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 456.0503
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```
+- 2026-10-29 — orchestrator Verify (sidecar gsd-path-verify/task-t018-verify): pass, exit 0; output tail:
+  ```
+  ✔ N2: cited verdict exists and is verified, or fragment records unverifiable with reason and route (35.64ms)
+  ✔ N3: cited verdict exists and is verified, or fragment records unverifiable with reason and route (34.6808ms)
+  ℹ tests 4
+  ℹ suites 0
+  ℹ pass 4
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 247.9326
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```
