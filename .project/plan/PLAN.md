@@ -71,4 +71,5 @@ Walkthrough:
 - T007 depends on T003: it repairs the type errors in the module T003 landed, so it starts from a tree that contains that module.
 - T008 depends on T005 and T006 depends on T008: the panel driver must expose a `stale-view` feature before the four-instance verification can drive it; without that path every pair is could-not-run.
 - T009 is the fixture route the owner authorized on 2026-10-30, and T006 depends on it: the counter app had no `subscribe(` write, so SC1 could not be produced until that route exists.
+- T010 depends on T004 and T009 and T006 depends on T010: the drive reaches the fixture route but the scan returns zero findings, so the four-instance verdict cannot exist until the scan produces a finding there.
 - T002 (doc fixes) is independent of the N24 chain and runs in wave 1 alongside the ledger repair.

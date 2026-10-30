@@ -2,7 +2,7 @@
 id: T006
 title: Verify the stale-view claim across all four model instances and the portal
 wave: 4
-deps: [T005, T007, T008, T009]
+deps: [T005, T007, T008, T009, T010]
 status: pending
 agent: null
 base: null
