@@ -3,33 +3,48 @@
 Wave verdict: pass
 Cycle: 1
 Depth: verify-only
-Tasks reviewed: 3
+Tasks reviewed: 6
 
 ## T006 — Verify the stale-view claim across all four model instances and the portal: pass
 
-- ✅ AC1 a `lars-verify` verdict of `verified` exists for the stale-view claim across the four named pairs — live run recorded in `.commandcode/worktrees/tmp/verify-ai-browsers/evidence/stale-view-run3/stale-view.json`: all four entries carry `panel.exit: 0`, `field: "lastLogged"`, `hedged: "the template may show a stale value"`; the check process exited 0 (no CLAIM error) with the four instances named as positionals.
-- ✅ AC2 could-not-run handling — no instance was could-not-run in the recorded run, and the check's own tests assert the two could-not-run paths (`panel exit 2 or no JSON is could-not-run` and `an instance that serves the build of another checkout is could-not-run`), so a future could-not-run is recorded rather than counted as a passing pair (E9, N7). Its Verify is `node --test …/stale-view.test.mjs`, 6/6 pass at landing.
-- ✅ AC3 portal (SC6, E10, N8) — `stale-view.json` records `"exercised": false` with the reason that no insurance-portal route in this checkout can produce a subscribe write; the claim records the dependency as not exercised and claims nothing further.
-- ✅ Mirror parity — `.commandcode` and `.claude` copies of both check files are in the landing diff and are byte-identical.
-- ✅ Teardown — all four instances were brought down after the run (`closed over CDP`, ports 9334/9335/9337/9338 free, state files removed).
+- ✅ AC1 a `lars-verify` verdict of `verified` exists across the four named pairs — `.commandcode/worktrees/tmp/verify-ai-browsers/evidence/stale-view-run3/stale-view.json`: chrome-stable-nano, chrome-beta-gemma4, edge-phi4mini and edge-dev-aion each `panel.exit: 0`, `field: "lastLogged"`, `hedged: "the template may show a stale value"`; the check exited 0.
+- ✅ AC2 could-not-run is recorded, never counted as a pair — no instance was could-not-run in the recorded run, and the check's own tests cover both could-not-run paths (E9, N7); its Verify `node --test …/stale-view.test.mjs` was 6/6 at landing.
+- ✅ AC3 portal (SC6, E10, N8) — `stale-view.json` records `"exercised": false` with the reason that no insurance-portal route in this checkout can produce a subscribe write; no stronger claim is made.
+- ✅ Mirror parity and teardown — both skill trees carry byte-identical check files; all four instances were brought down after the run.
 
-## T010 — Enumerate real component instances so the fixture route produces a finding: pass
+## T007 — Fix the extension-build type errors in the stale-view scan module: pass
 
-- ✅ AC1 measurement recorded — the task Log carries the graph measurement (0 nodes) and the enumeration result.
-- ✅ AC2 exactly one finding for the fixture route with the hedged wording, and every node backed by a real instance — live drive `chrome-stable-nano` on `http://localhost:4222/stale-view` returned `field: "lastLogged"`, `component: "_Counter"`, `hedged: "the template may show a stale value"` and a model answer (evidence `.commandcode/worktrees/tmp/control-ai-browsers/evidence/20261030-200030/chrome-stable-nano-panel-1793390456666.json`); the scan serializes `ng.getComponent` instances and de-duplicates against graph nodes, with no synthesised node.
-- ✅ AC3 `stale-view-fixture-graph.test.mjs` 5/5 at landing, including "graph recorded from the real fixture page yields exactly one finding naming value" and "an element with no component yields no node".
-- ✅ AC4 the panel drive returned a finding, not the empty state (evidence above); all four pairs answered in the T006 run.
-- ✅ AC5 no page-side instrumentation added, no generalisation beyond the direct write, and the shipped N1/N2/N3/N4 message routes still parse — the regression Verifies of T003 (7/7), T004 (4/4) and T005 (2/2 + `npm run check` exit 0) ran green on landing.
+- ✅ AC the extension build compiles — `build-extension` exit 0 after narrowing the `RegExpExecArray` capture in `matchDirectWrites`; its Verify `build-extension && node --test tests/held-out/stale-view-write-regex.test.mjs` was exit 0 at landing, and the four stale-view held-out tests stayed green (7/7 on the later regression run).
+- ✅ No behaviour change beyond the type narrowing; no other file touched.
+
+## T008 — Add the stale-view drive to the control-ai-browsers panel driver: pass
+
+- ✅ AC the `stale-view` feature exists in both driver copies, declares the three claim fields and is exercised — later proven end to end in T006's live run (all four pairs returned the finding through this driver).
+- ✅ AC its feature doc and the `## Full sweep` list carry the new feature — the maintenance contract check now reports no failure (`check-skill.mjs`, `full-sweep` clean).
+- ✅ AC driver tests pass — 7/7 at landing, including the mirror-parity test.
+
+## T009 — Add the dev-only stale-view route to the counter fixture: pass
+
+- ✅ AC the fixture serves `/stale-view` with a plain field written inside `subscribe(...)` — `spikes/ng222-app/src/app/stale-view-fixture.ts` (`value = 0`, `this.updates.subscribe((next) => { this.value = next; })`, `{{ value }}`), route added to `app.routes.ts`; the route answered HTTP 200 in the live runs.
+- ✅ AC the existing counter behaviour is untouched — the route table was empty before, so nothing was replaced; the spec and the static check were 2/2 at landing.
+- ✅ Charter amendment respected — only that route was added, and the insurance portal was not touched.
+
+## T010 — Make the stale-view scan produce a finding on the counter fixture route: pass
+
+- ✅ AC1 the measurement is recorded — the Log carries the empty-graph measurement and the instance-enumeration result.
+- ✅ AC2 a real finding with no synthesised node — live drive `chrome-stable-nano` on `http://localhost:4222/stale-view` returned `field: "lastLogged"`, `component: "_Counter"` and the hedged wording (evidence `20261030-200030/chrome-stable-nano-panel-1793390456666.json`); the scan serializes instances found by `ng.getComponent` and de-duplicates against graph nodes.
+- ✅ AC3 `stale-view-fixture-graph.test.mjs` 5/5 at landing, including "an element with no component yields no node".
+- ✅ AC4 the panel drive returned a finding, not the empty state; all four pairs repeated it in the T006 run.
+- ✅ AC5 no page-side instrumentation, no generalisation, and the shipped message routes still parse — T003 7/7, T004 4/4 and T005 2/2 with `npm run check` exit 0 ran green on landing.
 
 ## T011 — Narrow the stale-view panel driver types: pass
 
-- ✅ AC1 `npm run check` exits 0 in both trees; the three TS2345 at `panel.mjs:289-291` are gone (destructuring defaults matching the literals already assigned in the `isErrors || isStale` branch).
-- ✅ AC2 behaviour unchanged — `stale-view-fact-list-escaping.test.mjs` 2/2 at landing; T005's regression Verify passed with the change in place.
-- ✅ AC3 the two `panel.mjs` copies are byte-identical (`fc /b` reported no differences when the change was made; the landing diff touches both).
-- ✅ AC4 nothing outside the two declared files changed.
+- ✅ AC1 `npm run check` exits 0 with no TS2345 in either copy (destructuring defaults at the point of use).
+- ✅ AC2 behaviour unchanged — the fact-list escaping test 2/2 at landing and T005's regression Verify passed with the change in place.
+- ✅ AC3 the two `panel.mjs` copies are byte-identical; AC4 nothing outside the two declared files changed.
 
 Warnings (non-blocking):
-- The T006 check drives instances and does not start them; its header states the prerequisite. Worth a line in the verify skill's usage, not a blocker.
+- The T006 check drives instances and does not start them; its header states the prerequisite, and the task Log records it.
 
 Contract violations (blocking):
 - none
@@ -37,16 +52,16 @@ Contract violations (blocking):
 ## Intent coverage
 
 ### SC1 — On the counter app's `stale-view` route in `spikes/ng222-app`, a plain field written in a subscribe callback is flagged with "the template may show a stale value" in the DevTools panel.: pass
-- ✅ Live panel drive on `chrome-stable-nano` returned the hedged wording for field `lastLogged` (evidence `20261030-200030/chrome-stable-nano-panel-1793390456666.json`); the same finding repeated on all four pairs in the T006 run.
+- ✅ Live drive returned the hedged wording for field `lastLogged` (evidence `20261030-200030/chrome-stable-nano-panel-1793390456666.json`), repeated on all four pairs in the T006 run.
 
 ### SC5 — `lars-verify` verdict of `verified` for the stale-view claim, with end-to-end coverage across Gemini Nano, Gemma 4, Phi-4-mini and Aion-1.1-Instruct.: pass
-- ✅ `stale-view-run3/stale-view.json`: chrome-stable-nano, chrome-beta-gemma4, edge-phi4mini and edge-dev-aion each `panel.exit: 0` with a non-empty answer, the field name and the hedged wording; the check exited 0.
+- ✅ `stale-view-run3/stale-view.json`: all four pairs `panel.exit: 0` with a non-empty answer, the field name and the hedged wording; the check exited 0.
 
 ### SC6 — Where meaningful, the stale-view finding is also verified on the insurance-portal fixture, and the claim records that external dependency.: pass
-- ✅ The claim records `"exercised": false` with the reason that no portal route in this checkout can produce a subscribe write, which is what E10 and N8 require when the dependency cannot be exercised.
+- ✅ The claim records `"exercised": false` with the reason no portal route in this checkout can produce a subscribe write — exactly what E10 and N8 require when the dependency cannot be exercised.
 
 ## Summary for orchestrator
 
 - blocked findings: none
 - repeat offenders: none
-- warnings worth a human eye: the T006 check's instance-start prerequisite (documented in its header and the task Log)
+- warnings worth a human eye: the T006 check's instance-start prerequisite
