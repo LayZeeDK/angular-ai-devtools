@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: n4-error-explainer
-phase: build
+phase: ship
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
@@ -195,3 +195,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-30 — build — build started
 - 2026-10-30 — build — build blocked: SC5 unproven - N4 panel surface unreachable on chrome-beta-nano (no [data-testid=explain] within 30s, wrong code none, no digest entry); SC6 has no insurance-portal record
 - 2026-10-30 — build — build resumed: history rewritten so T011 and T012 each have a task-record commit before their landing; verify-landed proves all twelve tasks
+- 2026-10-30 — ship — build done; final review pending
