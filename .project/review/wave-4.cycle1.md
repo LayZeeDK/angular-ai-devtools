@@ -51,9 +51,6 @@ Contract violations (blocking):
 
 ## Intent coverage
 
-### SC1 — On the counter app's `stale-view` route in `spikes/ng222-app`, a plain field written in a subscribe callback is flagged with "the template may show a stale value" in the DevTools panel.: pass
-- ✅ Live drive returned the hedged wording for field `lastLogged` (evidence `20261030-200030/chrome-stable-nano-panel-1793390456666.json`), repeated on all four pairs in the T006 run.
-
 ### SC5 — `lars-verify` verdict of `verified` for the stale-view claim, with end-to-end coverage across Gemini Nano, Gemma 4, Phi-4-mini and Aion-1.1-Instruct.: pass
 - ✅ `stale-view-run3/stale-view.json`: all four pairs `panel.exit: 0` with a non-empty answer, the field name and the hedged wording; the check exited 0.
 
