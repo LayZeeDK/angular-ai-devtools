@@ -374,8 +374,8 @@ Open questions
 Goal: Build the Angular error explainer (N4): capture NG0xxx and uncaught console errors, map them to the owning component, and explain them from a bundled offline digest in the DevTools panel.
 Depends on: []
 Surfaces: DevTools panel
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/010-n4-error-explainer
 Integrated: null
 
 Scope: in

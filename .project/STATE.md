@@ -2,14 +2,14 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: n4-error-explainer
-phase: ship
+phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M010
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: null
+archive: .project/archive/010-n4-error-explainer
 integration_default: direct
 integration: direct
 integration_source: default
@@ -198,3 +198,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-30 — ship — build done; final review pending
 - 2026-10-30 — ship — ship blocked: project Verify failed in the verify sidecar with TS2688 Cannot find type definition file for node - the sidecar ships without node_modules and the repo bridge is not invoked; evidence .project/review/final-gap-1.md
 - 2026-10-30 — ship — ship resumed: project Verify now bridges the sidecar dependencies, proven by a passing npm run check in a node_modules-free worktree
+- 2026-10-30 — shipped — archive preflight passed; shipment recorded
