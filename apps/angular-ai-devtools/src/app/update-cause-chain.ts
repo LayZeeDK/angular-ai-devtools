@@ -22,6 +22,7 @@ export interface GraphNode {
   label?: string | null;
   epoch?: number | null;
   debuggableFn?: string | null;
+  value?: unknown;
 }
 
 export interface GraphEdge {
