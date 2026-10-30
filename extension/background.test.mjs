@@ -25,6 +25,7 @@ const TYPES = [
   { type: "angular-ai:record", msg: { type: "angular-ai:record", cycle: 1 } },
   { type: "angular-ai:state", msg: { type: "angular-ai:state" } },
   { type: "angular-ai:di-graph", msg: { type: "angular-ai:di-graph" } },
+  { type: "angular-ai:error-capture", msg: { type: "angular-ai:error-capture" } },
   { type: "angular-detected", msg: { type: "angular-detected" } },
 ];
 
@@ -49,7 +50,7 @@ describe("background.js", () => {
     assert.equal(sent.length, before, "host:pick should not be re-broadcast");
   });
 
-  for (const type of ["angular-ai:record", "angular-ai:state", "angular-ai:di-graph"]) {
+  for (const type of ["angular-ai:record", "angular-ai:state", "angular-ai:di-graph", "angular-ai:error-capture"]) {
     it(`re-broadcasts ${type} even when sender.tab is undefined (tabId: undefined)`, () => {
       const { listener, sent } = boot();
       const before = sent.length;

@@ -3,9 +3,9 @@ id: T003
 title: Panel error-explainer UI and Prompt API explanation
 wave: 2
 deps: [T001, T002]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: a49cebd171d036413047f8399a95210e8b52252c
 worktree: null
 task_branch: null
 files:
@@ -81,3 +81,18 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-30 — implemented panel surface (component, route, message path, view, tests); Verify exit 0 — ready
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T003): pass, exit 0; output tail:
+  ```
+  ✔ buildErrorExplainFacts produces fact list (0.9889ms)
+  ✔ empty state text (0.0942ms)
+  ✔ no digest entry marker (0.0767ms)
+  ℹ tests 3
+  ℹ suites 0
+  ℹ pass 3
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 153.3202
+  ```
