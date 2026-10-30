@@ -248,7 +248,14 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000, featur
     const selectors = isErrors
       ? { explain: '[data-testid="explain"]', answer: '[data-testid="ai-answer"]', error: '[data-testid="empty-state"]', code: '[data-testid="error-code"]', component: '[data-testid="owning-component"]', digest: '[data-testid="digest-entry"]', captured: '[data-testid="captured-error"]' }
       : SELECTORS;
-    const button = `document.querySelector(${JSON.stringify(selectors.explain)})`;
+    const N4 = { code: '[data-testid="error-code"]', component: '[data-testid="owning-component"]', digest: '[data-testid="digest-entry"]' };
+    // An app can log its own console errors, so read the row whose code is the NG one rather than the first row.
+    const row = isErrors
+      ? `(Array.from(document.querySelectorAll('[data-testid="captured-error"]')).find((r) => /NG0\\d+/.test(r.querySelector('[data-testid="error-code"]')?.textContent || '')) || null)`
+      : null;
+    /** @param {string} sel @returns {string} */
+    const field = (sel) => (row ? `${row}?.querySelector(${JSON.stringify(sel)})?.textContent?.trim() ?? null` : `document.querySelector(${JSON.stringify(sel)})?.textContent?.trim() ?? null`);
+    const button = row ? `${row}?.querySelector('[data-testid="explain"]')` : `document.querySelector(${JSON.stringify(selectors.explain)})`;
     let found = await poll(() => panel.evaluate(`!!${button}`), isErrors ? 3000 : 30000);
     // The capture relay starts at document_idle, which can land after load; re-inject until the panel shows the row.
     for (let attempt = 0; isErrors && !found && attempt < 8; attempt++) {
@@ -266,15 +273,15 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000, featur
 
     if (isErrors) {
       // Read the observed N4 facts before clicking Explain.
-      run.code = /** @type {string | null} */ ((await panel.evaluate(`document.querySelector(${JSON.stringify(selectors.code)})?.textContent?.trim() ?? null`)) ?? null);
-      run.component = /** @type {string | null} */ ((await panel.evaluate(`document.querySelector(${JSON.stringify(selectors.component)})?.textContent?.trim() ?? null`)) ?? null);
-      run.digest = /** @type {string | null} */ ((await panel.evaluate(`document.querySelector(${JSON.stringify(selectors.digest)})?.textContent?.trim() ?? null`)) ?? null);
+      run.code = /** @type {string | null} */ ((await panel.evaluate(field(N4['code']))) ?? null);
+      run.component = /** @type {string | null} */ ((await panel.evaluate(field(N4['component']))) ?? null);
+      run.digest = /** @type {string | null} */ ((await panel.evaluate(field(N4['digest']))) ?? null);
       run.digestPresent = !!run.digest && run.digest !== 'no digest entry';
       note('n4', { code: run.code, component: run.component, digestPresent: run.digestPresent });
     }
 
     const clickedAt = Date.now();
-    await panel.evaluate(`${button}.click()`);
+    await panel.evaluate(`${button}?.click()`);
     /** @type {{ answer?: string, error?: string } | undefined} */
     const out = await poll(() => panel.evaluate(`(() => { const a = document.querySelector(${JSON.stringify(selectors.answer)})?.textContent?.trim(); const e = document.querySelector(${JSON.stringify(selectors.error)})?.textContent?.trim(); return a ? { answer: a } : e ? { error: e } : null; })()`), answerTimeoutMs, 500);
     run.answerMs = Date.now() - clickedAt;

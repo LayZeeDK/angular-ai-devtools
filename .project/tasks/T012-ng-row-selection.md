@@ -2,14 +2,14 @@
 id: T012
 title: Pick the NG error row when the inspected app logs its own console errors
 wave: 2
-status: pending
-agent: null
+status: done
+agent: build_T012
 deps: [T011]
 files:
   - .commandcode/skills/control-ai-browsers/scripts/panel.mjs
   - .claude/skills/control-ai-browsers/scripts/panel.mjs
   - .commandcode/skills/verify-ai-browsers/checks/error-explainer.test.mjs
-base: null
+base: d859d340c22f64316f8caa919e491901a29fcca6
 worktree: null
 task_branch: null
 ---
