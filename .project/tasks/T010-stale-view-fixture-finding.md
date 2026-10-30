@@ -58,3 +58,5 @@ Heavy: no
 ## Log
 
 - created by build repair (2026-10-30): the panel reaches the fixture route but the scan returns zero findings; the cause must be measured, not guessed
+- 2026-10-30 measurement (kept): on the fixture page the signal graph had 0 nodes, so no template node reached the scan; the agent attaches after the initial render and the fixture never re-renders, so `ng.ɵgetSignalGraph` records nothing for it.
+- 2026-10-30 rejected: the accompanying fix manufactured a synthetic template node from the component constructor. That fabricates graph data, is not a measurement of the page, and the live drive still returned the empty state. The fix and its hollow graph test were not landed; the isolate is left for the next attempt.
