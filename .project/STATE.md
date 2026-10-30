@@ -215,3 +215,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-30 — build — plan defect repaired: T005 could not reach the DevTools panel surface from its declared files; added app.routes.ts and the compile check to its Verify, and named the stale-view route in AC1
 - 2026-10-30 — build — build finding: build-extension fails with three TS2345 errors in src/main-world/stale-view-scan.ts (T003 module), blocking T006 browser verification and the project Verify; fix task T007 added in wave 5
 - 2026-10-30 — build — plan repaired: T007 moved into wave 4 and T006 now depends on it, because a later-wave fix cannot unblock the current wave's verification
+- 2026-10-30 — build — build finding: T006 rerun proves build-extension works and every pair is could-not-run because control-ai-browsers panel has no stale-view feature; T008 added to extend the panel driver and T006 now depends on it
