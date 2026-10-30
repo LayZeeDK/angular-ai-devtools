@@ -13,6 +13,8 @@ files:
   - .claude/skills/control-ai-browsers/scripts/panel.mjs
   - .commandcode/skills/control-ai-browsers/features/stale-view.md
   - .claude/skills/control-ai-browsers/features/stale-view.md
+  - .commandcode/skills/control-ai-browsers/features/README.md
+  - .claude/skills/control-ai-browsers/features/README.md
   - scripts/stale-view-panel-drive.test.mjs
 ---
 
@@ -44,6 +46,7 @@ None
 2. The `.claude` copy is byte-identical to the `.commandcode` copy, proven by `node --test scripts/skills-mirror.test.mjs`.
 3. `features/stale-view.md` documents the drive in both trees, matching the structure of `features/error-explainer.md`.
 4. `node --test scripts/stale-view-panel-drive.test.mjs` proves the new feature is registered and its selector and wording are wired.
+5. `features/README.md` (both copies) lists `stale-view.md` in its `## Features` index and its `## Full sweep` order, and — from the maintenance contract check of 2026-10-30 — also lists `di-doctor.md`, `error-explainer.md` and `signal-provenance.md` in `## Full sweep`, so `check-skill.mjs` reports no `full-sweep` failure.
 
 ## Verify
 
