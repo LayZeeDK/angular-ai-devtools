@@ -20,7 +20,7 @@ Review depth: full
 
 ## Wave 2 — walking skeleton
 
-Goal: Thinnest end-to-end N4 slice in the DevTools panel — renders a captured error with its owning component and explains it via the panel-local Prompt API, sending only the shaped fact list — and make the extension build regenerate the offline digest, closing the wave-1 review finding.
+Goal: Thinnest end-to-end N4 slice in the DevTools panel — renders a captured error with its owning component and explains it via the panel-local Prompt API, sending only the shaped fact list — and make the extension build regenerate the offline digest, closing the wave-1 review finding. T011 then repairs the panel drive and moves `edge-dev-aion` onto the model pair Edge Dev 158 serves, so the wave-2 gate can prove SC5 on all four pairs.
 Review depth: full
 
 ## Wave 3 — verification gate (SC7)
@@ -56,12 +56,16 @@ Gate proof: the task-level Verify is the unit slice only, because a read-only si
 | SC4 | T003 | AC1 |
 | SC4 | T008 | AC1 |
 | SC4 | T009 | AC1 |
+| SC4 | T011 | AC1 |
+| SC4 | T012 | AC1 |
 | SC5 | T003 | AC5 |
 | SC5 | T006 | AC1 |
 | SC5 | T008 | AC4 |
 | SC5 | T010 | AC1 |
+| SC5 | T011 | AC2 |
 | SC6 | T003 | AC6 |
 | SC6 | T008 | AC4 |
+| SC6 | T012 | AC2 |
 | SC7 | T004 | AC1 |
 | SC7 | T005 | AC1 |
 

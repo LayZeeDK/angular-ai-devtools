@@ -40,7 +40,7 @@ dev page served (the counter fixture below).
 - **Start an Angular page.** `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter`
   prints the URL (`http://localhost:4222/` in the main checkout).
 - **Drive N1.** `C panel <name> --url=http://localhost:4222/`. It logs
-  `[OK] <name> panel answered in <ms> ms (Angular 22.2.2, extension mgkfgkdgobahfcgkdlokpoehblpbkfok): <answer>`
+  `[OK] <name> panel answered in <ms> ms (Angular ~22.1.0, extension mgkfgkdgobahfcgkdlokpoehblpbkfok): <answer>`
   and exits 0. With `--json` the result has `answer`, `error`, `status`, `answerMs`, `ngVersion`, `extensionId`
   and `steps`. Exit 1 means the panel showed an error or no answer; the line names it.
 - **Proof across every pair.** Run `verify-ai-browsers/checks/extension-panel.mjs --evidence <dir> --url <app>`.

@@ -14,6 +14,11 @@
  * @property {string | null} answer
  * @property {string | null} error  what the panel showed instead, or why the run stopped
  * @property {string | null} status  the panel's "Prompt API: ..." line
+ * @property {string} feature  which panel flow ran: `version` or `error-explainer`
+ * @property {string | null} code  N4: the captured error code the panel showed
+ * @property {string | null} component  N4: the owning component the panel showed
+ * @property {string | null} digest  N4: the digest entry the panel showed
+ * @property {boolean} digestPresent  N4: whether the digest entry resolved
  * @property {number} answerMs  from the click to the rendered answer or error
  * @property {Step[]} steps
  */
@@ -136,7 +141,7 @@ async function connect(wsUrl) {
 /**
  * @param {string} cdp  http://127.0.0.1:<port>
  * @param {string} appUrl  a page of an Angular app (an [ng-version] element)
- * @param {{ answerTimeoutMs?: number }} [options]
+ * @param {{ answerTimeoutMs?: number, feature?: string }} [options]
  * @returns {Promise<PanelRun>}
  */
 export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000, feature = 'version' } = {}) {
@@ -228,8 +233,8 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000, featur
     const panel = await attach(panelTarget.webSocketDebuggerUrl);
     const isErrors = feature === 'error-explainer' || feature === 'errors';
     if (isErrors) {
-      // Reach the N4 route inside the panel app.
-      await panel.send('Page.navigate', { url: `chrome-extension://${run.extensionId}/panel/error-explainer` });
+      // A file-based extension origin serves no deep link, so route the loaded panel document in place.
+      await panel.evaluate(`(() => { history.pushState({}, '', '/panel/error-explainer'); window.dispatchEvent(new PopStateEvent('popstate')); return location.href; })()`);
     }
     note('panel', await poll(() => panel.evaluate(`document.body && document.body.innerText.length > 0`), 15000));
     // The panel loads when shown, after the page announced Angular; a reload announces it again.
@@ -239,15 +244,22 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000, featur
     if (isErrors) {
       await page.evaluate(`console.error('NG0100: ExpressionChangedAfterItHasBeenCheckedError: Expression has changed after it was checked.')`);
     }
+    /** @type {Record<string, string>} */
     const selectors = isErrors
       ? { explain: '[data-testid="explain"]', answer: '[data-testid="ai-answer"]', error: '[data-testid="empty-state"]', code: '[data-testid="error-code"]', component: '[data-testid="owning-component"]', digest: '[data-testid="digest-entry"]', captured: '[data-testid="captured-error"]' }
       : SELECTORS;
     const button = `document.querySelector(${JSON.stringify(selectors.explain)})`;
-    const found = await poll(() => panel.evaluate(`!!${button}`), 30000);
+    let found = await poll(() => panel.evaluate(`!!${button}`), isErrors ? 3000 : 30000);
+    // The capture relay starts at document_idle, which can land after load; re-inject until the panel shows the row.
+    for (let attempt = 0; isErrors && !found && attempt < 8; attempt++) {
+      await page.evaluate(`console.error('NG0100: ExpressionChangedAfterItHasBeenCheckedError: Expression has changed after it was checked.')`);
+      found = await poll(() => panel.evaluate(`!!${button}`), 4000);
+    }
     note('button', found ?? false);
 
     if (!found) {
-      run.error = `the panel shows no ${selectors.explain} within 30 s: no Angular detection was recorded, or the panel build predates the data-testid attributes (rebuild with build-extension and open DevTools again)`;
+      const seen = await panel.evaluate(`JSON.stringify({ url: location.pathname, text: (document.body.innerText || '').slice(0, 200), ids: ['empty-state', 'captured-error', 'error-code', 'owning-component', 'digest-entry', 'explain', 'ai-answer'].filter((id) => !!document.querySelector('[data-testid="' + id + '"]')) })`);
+      run.error = `the panel shows no ${selectors.explain} within 30 s: no Angular detection was recorded, or the panel build predates the data-testid attributes (rebuild with build-extension and open DevTools again); panel: ${seen}`;
 
       return run;
     }

@@ -2,8 +2,8 @@
 id: T011
 title: Restore the N4 panel drive and the Aion model pair
 wave: 2
-status: pending
-agent: null
+status: done
+agent: build_T011
 deps: [T010]
 files:
   - .project/plan/PLAN.md
@@ -17,7 +17,7 @@ files:
   - references/ai-browsers-verification.md
   - references/edge-dev-aion-model.md
   - .commandcode/skills/verify-ai-browsers/checks/error-explainer.test.mjs
-base: null
+base: d859d340c22f64316f8caa919e491901a29fcca6
 worktree: null
 task_branch: null
 ---

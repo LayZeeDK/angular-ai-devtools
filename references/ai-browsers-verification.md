@@ -6,8 +6,11 @@ what a run costs and what has gone wrong.
 
 ## What a run does and costs
 
-- Setup starts every registry instance through `control-ai-browsers up`: `chrome-beta-nano`, `chrome-beta-gemma4`,
-  `edge-dev-aion`, `edge-phi4mini` and `chrome-stable-nano`. The instances belong to the primary checkout. A
+- Setup starts the verified registry instances through `control-ai-browsers up`, one model per pair with the stable
+  channel preferred: `chrome-stable-nano` (Gemini Nano), `chrome-beta-gemma4` (Gemma 4), `edge-phi4mini`
+  (Phi-4-mini) and `edge-dev-aion` (Aion-1.1-Instruct). `chrome-beta-nano` serves the same `v3Nano` model as
+  `chrome-stable-nano`, so it stays registered as a spare driver and unit-test fixture but is not part of the
+  verified set (Lars, 2026-10-30). The instances belong to the primary checkout. A
   worktree or GSD Path sidecar reaches the same running instances, so its setup finds them running
   (`alreadyRunning`) and downloads nothing.
 - `state` runs `doctor`, `flags` and `model info` per instance and checks that Broker State serves the registry

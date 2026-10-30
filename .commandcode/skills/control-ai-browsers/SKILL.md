@@ -354,6 +354,10 @@ Measured 2026-10-11/12 unless marked inferred.
   `--disable-component-update` (it also stops "Check for update"; the components still load) and keeps a pin that
   `up` restores; see `features/model-lifecycle.md`. The Chrome instances and `edge-phi4mini` run without the switch:
   nothing measured calls for it there, and on Chrome it would also stop the model download (inferred).
+- The manifest eventually catches up (measured 2026-10-30 on Edge Dev 158.0.4357.0): with the switch off for one
+  launch the manifest advanced to 2026.10.19.1 and `model download` installed model 2026.10.15.1 with runtime
+  2026.10.12.1, which doctor passes with 2-3 s canaries. The pin now holds that triple. The 2026.10.2.1 pair hangs
+  the canary renderer on 158, so never restore it.
 - `up` checks that the instance is not running, then restores the pin, then starts it, with no lock between the
   steps. One instance runs once per checkout; a second `up` of the same instance started at the same moment (or a
   browser started by hand on its profile) could run while the pin is being copied. Do not start one instance twice
