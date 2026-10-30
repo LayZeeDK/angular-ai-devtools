@@ -46,6 +46,21 @@ sidecars, including worktree and branch).
 - Running the `state` and `extension-panel` verdicts (cost, timeouts, known hangs, coordinating with other sessions):
   `references/ai-browsers-verification.md`.
 
+## Verification fixtures
+
+- Panel verification runs against pages served by `control-angular-dev-app`. The counter app (`spikes/ng222-app`)
+  carries a dev-only `stale-view` route (`src/app/stale-view-fixture.ts`, owner ruling 2026-10-30) so N24's claim is
+  producible; adding another such route is a fixture change and needs a ruling of the same kind.
+- N25 (M012) names the portal fixture. Measured 2026-10-30 on the portal checkout at
+  `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools` (Angular 22.2.2): `toSignal(this.#x$)`
+  is used in `libs/claim/feature-create`, `libs/complaint/feature-create`, `libs/contract/feature-create` and
+  `libs/contract/feature-edit`, but `libs` and `apps` hold **no** `Subject` and **no** `subject.error`, so N25's
+  "unlabelled effect whose `debuggableFn` contains `subject.error`" half has no source there. The charter forbids
+  portal source changes beyond a dev-only provider file, so that half needs a ruling before SC1 is claimable.
+- N25's verification artifacts are prepared and unproven: `control-ai-browsers/features/interop.md`,
+  `panel --feature=interop`, and `verify-ai-browsers/checks/interop.mjs` (8 tests). The check exits 2 with
+  "the app has no interop panel route yet (served /panel/)" until the panel ships `/panel/interop`.
+
 ## Control skills
 
 - Every `control-*` skill stops processes through its byte copy of `proctree.mjs`; never kill by process name.
