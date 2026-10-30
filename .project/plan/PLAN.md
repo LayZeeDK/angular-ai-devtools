@@ -26,13 +26,8 @@ Review depth: full
 
 ## Wave 4 — verification
 
-Goal: The stale-view claim carries `lars-verify` verdicts across all four model instances and the portal check.
+Goal: The stale-view claim carries `lars-verify` verdicts across all four model instances and the portal check, over an extension that builds.
 Review depth: verify-only
-
-## Wave 5 — build repair
-
-Goal: Remove the `TS2345` type errors that block `build-extension` (and therefore the project Verify and T006's browser runs) without changing the scan's behavior.
-Review depth: full
 
 ## Surface contract
 
@@ -72,5 +67,6 @@ Walkthrough:
 
 - T004 depends on T003: the worker consumes the scan result shape (`StaleViewFinding[]`) and the Angular-version gate outcome defined by T003; no worker work can start before that seam is settled.
 - T005 depends on T003 and T004: the panel renders findings from the worker output and shapes the three-fact list from `StaleViewFinding`, so both upstream seams must land first.
-- T006 depends on T005: verification walks the panel surface delivered by T005.
+- T006 depends on T005 and T007: verification walks the panel surface delivered by T005, and the browser drive needs an extension that builds — T007 removes the `TS2345` errors that made `build-extension` fail, so T006 cannot produce a verdict before T007 lands.
+- T007 depends on T003: it repairs the type errors in the module T003 landed, so it starts from a tree that contains that module.
 - T002 (doc fixes) is independent of the N24 chain and runs in wave 1 alongside the ledger repair.

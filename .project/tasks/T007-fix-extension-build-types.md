@@ -1,7 +1,7 @@
 ---
 id: T007
 title: Fix the extension-build type errors in the stale-view scan module
-wave: 5
+wave: 4
 deps: [T003]
 status: pending
 agent: null
