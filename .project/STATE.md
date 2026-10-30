@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: n24-stale-view-finder
-phase: shipped
+milestone: null
+phase: inspect
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
-branch: gsd-path/M011
+status: active
+branch: gsd-path/M012
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/011-n24-stale-view-finder
+archive: null
 integration_default: direct
 integration: direct
 integration_source: default
@@ -230,3 +230,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-30 — build — build started
 - 2026-10-30 — ship — build done; final review pending
 - 2026-10-30 — shipped — archive preflight passed; shipment recorded
+- 2026-10-30 — inspect — router bound next milestone: M012 n25-rxjs-interop-explainer; previous M011 n24-stale-view-finder shipped on gsd-path/M011 (ship db10b1ec3076feb63591b54ba6fc1dc7d0f9edff, integration 9206a64468d9434f5691d3dcb670d083c894a6ff, archive .project/archive/011-n24-stale-view-finder); base f61a23d1abe69605958e04c953ca24bcf112540d; gsd report blocker carried: T001, T002, T007, T008 have no passing entry in the archived verify ledger
