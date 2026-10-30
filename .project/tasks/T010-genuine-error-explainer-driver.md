@@ -3,9 +3,9 @@ id: T010
 title: Make the error-explainer check drive the N4 panel flow
 wave: 2
 deps: [T009]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T010
+base: c2cfc243ee8794fa0b18314a33113dbdaad5039e
 worktree: null
 task_branch: null
 files:
@@ -74,3 +74,21 @@ Heavy: no
 ## Log
 
 - created by build repair after review of the T006 check's actual driver
+- implemented feature selector and N4 drive path; Verify exit 0 — ready
+- 2026-10-30 — orchestrator Verify (sidecar gsd-path-verify/task-t010-verify): pass, exit 0; output tail:
+  ```
+  ✔ passes when every named instance answers in the panel and passes the state claim (2.1896ms)
+  ✔ a panel error, an empty answer or a state failure fails the claim and names the instance (1.0313ms)
+  ✔ panel exit 2 or no JSON is could-not-run, not a failed claim (0.4551ms)
+  ✔ an instance that serves the build of another checkout is could-not-run, and no panel runs on it (0.2806ms)
+  ✔ main: all instances by default, 1 on a failed claim, 2 without --url or for an unknown instance (1.5881ms)
+  ✔ samePath matches a folder across its short and long spellings and the case of the drive letter (1.3855ms)
+  ℹ tests 6
+  ℹ suites 0
+  ℹ pass 6
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 133.0797
+  ```

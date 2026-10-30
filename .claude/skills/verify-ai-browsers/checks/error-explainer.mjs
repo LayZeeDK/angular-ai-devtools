@@ -71,10 +71,14 @@ export function check({ evidence, url, names, extension = CHECKOUT_EXTENSION }, 
       results[name] = { loaded };
       continue;
     }
-    const panel = deps.control(['panel', name, `--url=${url}`]);
+    const panel = deps.control(['panel', name, `--url=${url}`, '--feature=error-explainer']);
     const state = instanceState(name, want, deps);
     const answer = typeof panel.json?.['answer'] === 'string' ? panel.json['answer'] : null;
-    results[name] = { panel: { exit: panel.code, answer, error: panel.json?.['error'] ?? null, answerMs: panel.json?.['answerMs'] ?? null, ngVersion: panel.json?.['ngVersion'] ?? null, extensionId: panel.json?.['extensionId'] ?? null }, state };
+    const code = typeof panel.json?.['code'] === 'string' ? panel.json['code'] : null;
+    const component = typeof panel.json?.['component'] === 'string' ? panel.json['component'] : null;
+    const digest = typeof panel.json?.['digest'] === 'string' ? panel.json['digest'] : null;
+    const digestPresent = panel.json?.['digestPresent'] === true;
+    results[name] = { panel: { exit: panel.code, feature: panel.json?.['feature'] ?? null, answer, code, component, digest, digestPresent, error: panel.json?.['error'] ?? null, answerMs: panel.json?.['answerMs'] ?? null, ngVersion: panel.json?.['ngVersion'] ?? null, extensionId: panel.json?.['extensionId'] ?? null }, state };
 
     if (panel.json === null || panel.code === 2 || panel.code === null) {
       couldNotRun.push(`panel ${name} exited ${panel.code}: ${String(panel.json?.['reason'] ?? panel.text.trim().slice(-300))}`);
@@ -88,6 +92,14 @@ export function check({ evidence, url, names, extension = CHECKOUT_EXTENSION }, 
 
     if (panel.code !== 0 || !answer?.trim()) {
       failed.push(`${name}: the panel showed no answer (${String(panel.json['error'] ?? `exit ${panel.code}`)})`);
+    }
+
+    if (code !== 'NG0100') {
+      failed.push(`${name}: the panel showed the wrong code (${code ?? 'none'})`);
+    }
+
+    if (!digestPresent) {
+      failed.push(`${name}: the panel showed no digest entry`);
     }
 
     failed.push(...state.failed.map((f) => `${name}: ${f}`));

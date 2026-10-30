@@ -32,7 +32,7 @@ function fake(patch = {}) {
       /** @type {Record<string, { code: number | null, json: Record<string, unknown> | null }>} */
       const healthy = {
         info: { code: 0, json: { ok: true, extensionDir: EXT } },
-        panel: { code: 0, json: { ok: true, answer: 'NG0100 ...', answerMs: 9000, ngVersion: '22.2.2', extensionId: 'mgkfgkdgobahfcgkdlokpoehblpbkfok' } },
+        panel: { code: 0, json: { ok: true, feature: 'error-explainer', answer: 'NG0100 ...', code: 'NG0100', component: 'AppComponent', digest: 'digest body', digestPresent: true, answerMs: 9000, ngVersion: '22.2.2', extensionId: 'mgkfgkdgobahfcgkdlokpoehblpbkfok' } },
         doctor: { code: 0, json: { ok: true, checks: [] } },
         flags: { code: 0, json: { ok: true } },
         'model info': { code: 0, json: { disk: [{ name: model }], serving: model, backend: { backendType: 'GPU' } } },
@@ -52,7 +52,7 @@ function fake(patch = {}) {
 test('passes when every named instance answers in the panel and passes the state claim', () => {
   const f = fake();
   check({ evidence: 'D:\\ev', url: URL, names: Object.keys(REGISTRY), extension: EXT }, REGISTRY, f.deps);
-  assert.deepEqual(f.calls.filter((a) => a[0] === 'panel'), [['panel', 'chrome-beta-gemma4', `--url=${URL}`], ['panel', 'edge-phi4mini', `--url=${URL}`]]);
+  assert.deepEqual(f.calls.filter((a) => a[0] === 'panel'), [['panel', 'chrome-beta-gemma4', `--url=${URL}`, '--feature=error-explainer'], ['panel', 'edge-phi4mini', `--url=${URL}`, '--feature=error-explainer']]);
   const saved = JSON.parse(f.files.get(join('D:\\ev', 'error-explainer.json')) ?? '{}');
   assert.equal(saved.results['edge-phi4mini'].panel.answer, 'NG0100 ...');
 });
@@ -60,7 +60,7 @@ test('passes when every named instance answers in the panel and passes the state
 test('a panel error, an empty answer or a state failure fails the claim and names the instance', () => {
   assert.throws(
     () => check({ evidence: 'e', url: URL, names: Object.keys(REGISTRY), extension: EXT }, REGISTRY, fake({ 'edge-phi4mini': { panel: { code: 1, json: { ok: false, answer: null, error: 'Prompt API unavailable on this page (availability: unavailable)' } } } }).deps),
-    /^Error: CLAIM: edge-phi4mini: the panel showed no answer \(Prompt API unavailable on this page \(availability: unavailable\)\)$/,
+    /CLAIM: edge-phi4mini: the panel showed no answer \(Prompt API unavailable on this page \(availability: unavailable\)\); edge-phi4mini: the panel showed the wrong code \(none\); edge-phi4mini: the panel showed no digest entry/,
   );
   assert.throws(() => check({ evidence: 'e', url: URL, names: ['chrome-beta-gemma4'], extension: EXT }, REGISTRY, fake({ 'chrome-beta-gemma4': { panel: { code: 0, json: { answer: '  ' } } } }).deps), /CLAIM: chrome-beta-gemma4: the panel showed no answer/);
   assert.throws(() => check({ evidence: 'e', url: URL, names: ['chrome-beta-gemma4'], extension: EXT }, REGISTRY, fake({ 'chrome-beta-gemma4': { doctor: { code: 1, json: { ok: false } } } }).deps), /CLAIM: chrome-beta-gemma4: doctor/);

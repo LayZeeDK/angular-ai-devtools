@@ -25,10 +25,9 @@ dev page served (the counter fixture below).
 - **Build the panel.** `npx nx run angular-ai-devtools:build-extension` writes `extension/panel/`.
 - **Start an Angular page.** `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter`
   prints the URL (`http://localhost:4222/` in the main checkout).
-- **Drive N4.** Open the panel on the instance with `C panel <name> --url=http://localhost:4222/`, then select the
-  "Error Explainer" tab and read the captured error, its owning component and the digest entry; "Explain" answers
-  through the instance's model. The proof across every pair is
-  `verify-ai-browsers/checks/error-explainer.mjs`.
+- **Drive N4.** Open the panel on the instance with `C panel <name> --url=http://localhost:4222/ --feature=error-explainer`;
+  the driver injects a captured `NG0100` error, reads its code, owning component and digest entry, then clicks
+  "Explain". The proof across every pair is `verify-ai-browsers/checks/error-explainer.mjs`.
 - Implementation: `apps/angular-ai-devtools/src/app/error-explainer.service.ts`,
   `n4-error-explainer.component.ts`; message types `angular-ai:error-capture` / `angular-ai:error-explain`.
 

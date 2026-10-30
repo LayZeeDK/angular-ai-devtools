@@ -2298,7 +2298,7 @@ async function cmdPanel(inst) {
     refuse(`${inst.name} has no "extension" in instances.json`);
   }
 
-  const r = await drivePanel(inst.cdp, url, { answerTimeoutMs: positiveFlag('timeout-min', opts['timeout-min'], 4) * 60000 });
+  const r = await drivePanel(inst.cdp, url, { answerTimeoutMs: positiveFlag('timeout-min', opts['timeout-min'], 4) * 60000, feature: typeof opts['feature'] === 'string' ? opts['feature'] : undefined });
   log(r.ok ? 'OK' : 'ERROR', r.ok ? `${inst.name} panel answered in ${r.answerMs} ms (Angular ${r.ngVersion}, extension ${r.extensionId}): ${printable(String(r.answer).slice(0, 160))}` : `${inst.name} panel: ${printable(String(r.error))}`);
 
   return { ...r, model: inst.model.name };
