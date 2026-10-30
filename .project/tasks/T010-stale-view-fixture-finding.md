@@ -24,11 +24,10 @@ With T009 landed, `http://localhost:4222/stale-view` renders `StaleViewFixture`,
 ## Approach
 
 - Measure first: on a served fixture (`spikes/ng222-app`, `npm start -- --port 4222`) with `chrome-stable-nano` up, capture the graph the agent hands the panel for that page — whether any `template` node exists, whether `debuggableFnSource` is populated, and what `scanGraph` returns for it. Record the measurement in the Log; do not guess.
-- Fix the cause the measurement names, inside this task's files only:
-  - no template node in the graph → the profiler/signal-graph path needs the page to record a change-detection cycle, or the scan needs a component-node source the graph already has;
-  - `debuggableFnSource` empty → extend the agent's serialization to carry the constructor body (it already carries the name);
-  - source present but no match → fix the matcher in `stale-view-scan.ts` so it recognises the write inside `subscribe(...)` exactly as the fixture writes it.
-- Add `tests/held-out/stale-view-fixture-graph.test.mjs`: a recorded-graph test that feeds a serialized graph shaped like the fixture's (a `template` node whose `debuggableFnSource` contains the fixture constructor body) into the scan and asserts exactly one finding naming `value`.
+- The measurement is already in the Log: the fixture page's signal graph has **0 nodes**, because the agent attaches at `document_idle` (after the initial render) and the fixture never re-renders. Do not re-measure that; build on it.
+- Fix it by giving the scan a source of truth that does not depend on the graph recording a change-detection cycle: enumerate the real component instances on the page with `ng.getComponent(element)` over the inspected document, take each instance's real constructor source, and serialize those as `template` nodes carrying `debuggableFnSource`. Every node must correspond to a real instance found in that document; keep the existing graph-derived nodes when the graph has any, and de-duplicate by component.
+- Never synthesise a node that no instance or graph entry backs. A fabricated node is not evidence and is rejected on review, whatever the test says.
+- Add `tests/held-out/stale-view-fixture-graph.test.mjs`: feed a serialized graph recorded from the real fixture page (component instances enumerated from the DOM, constructor source included) into the scan and assert exactly one finding naming `value`; include a case asserting that an element with no component yields no node.
 - Re-run the drive and require a finding: `panel chrome-stable-nano --feature=stale-view --url=http://localhost:4222/stale-view` must return `field: "value"` and a rendered "the template may show a stale value" line, not the empty state.
 
 ## Interface contract
@@ -42,8 +41,8 @@ None
 ## Acceptance criteria
 
 1. The Log records the measurement: template-node presence, `debuggableFnSource` presence, and the scan's output for the fixture page.
-2. The scan returns exactly one finding for the fixture route, naming field `value` and the owning component, with the hedged wording intact (SC1, SC2).
-3. `node --experimental-strip-types --test tests/held-out/stale-view-fixture-graph.test.mjs` passes and pins the recorded-graph case.
+2. The scan returns exactly one finding for the fixture route, naming field `value` and the owning component, with the hedged wording intact (SC1, SC2), and every serialized node it scanned corresponds to a real component instance or graph entry on that page — no synthesised nodes.
+3. `node --experimental-strip-types --test tests/held-out/stale-view-fixture-graph.test.mjs` passes and pins the recorded-from-the-page case, including the no-component-yields-no-node case.
 4. `panel chrome-stable-nano --feature=stale-view --url=http://localhost:4222/stale-view` exits 0 with a finding for field `value` — not the empty state.
 5. No new page-side instrumentation (N5), no generalization beyond the direct write, and the shipped N1/N2/N3/N4 message contract still parses.
 
