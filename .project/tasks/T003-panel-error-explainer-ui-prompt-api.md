@@ -11,10 +11,16 @@ task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/error-explainer.component.ts
   - apps/angular-ai-devtools/src/app/app.routes.ts
+  - apps/angular-ai-devtools/src/app/extension-message.service.ts
+  - apps/angular-ai-devtools/src/app/extension-message.service.spec.ts
   - src/panel/error-explainer-view.ts
   - src/panel/error-explainer-view.spec.ts
   - scripts/error-explainer.test.mjs
   - scripts/error-explainer-panel.test.mjs
+  - extension/relay.js
+  - extension/relay.test.mjs
+  - extension/background.js
+  - extension/background.test.mjs
 ---
 
 # T003 — Panel error-explainer UI and Prompt API explanation
@@ -26,6 +32,7 @@ M010 (N4) must render a captured error with its owning component and explain it 
 ## Approach
 
 - Add an error-explainer component and route following the existing N1/N2/N3 panel pattern; register the route in `apps/angular-ai-devtools/src/app/app.routes.ts`.
+- Carry the captured errors from the page to the panel: `extension/agent-main.js` already dispatches the page event T002 landed, so add the relay listener and the service-worker re-broadcast alongside the existing record/state/di-graph types, keeping the tab-id filtering, and extend the panel message service and its spec. Update the relay and background tests that enumerate the forwarded types.
 - Render the captured error, its owning component, the digest entry, and the model answer; explicit empty state when there are no captured errors.
 - Explain only on explicit user action ("Explain" click); capture alone never calls the model (N2).
 - Build the prompt from only the error code, owning component name and digest entry; never send page or user data beyond that fact list (N1).
