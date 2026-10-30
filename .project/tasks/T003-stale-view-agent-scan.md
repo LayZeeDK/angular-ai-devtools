@@ -3,9 +3,9 @@ id: T003
 title: Agent-side debuggableFn source scan, Angular 22.1.3 gate, and plain-field confirmation
 wave: 2
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: d70f96169ff10b1a1eae2952658abc9db4f7569c
 worktree: null
 task_branch: null
 files:
@@ -70,3 +70,22 @@ Heavy: no
 ## Log
 
 - created by planner
+- T003 implemented: added src/main-world/stale-view-scan.ts, wired agent-main.js serializeGraph/debuggableFnSource + version gate; held-out tests pass; npm run check green.
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T003): pass, exit 0; output tail:
+  ```
+  ✔ one callback writing the same field twice yields one finding (2.0212ms)
+  ✔ findings follow template-node traversal order (1.934ms)
+  ✔ Angular 22.1.2 or older is unsupported and names the version (0.9175ms)
+  ✔ Angular 22.1.3 and newer are supported (0.1319ms)
+  ✔ matches this.field = with arbitrary whitespace and newlines (1.5439ms)
+  ✔ matches .set( and .update( forms (0.0692ms)
+  ✔ identifier is whole, never substring (0.0694ms)
+  ℹ tests 7
+  ℹ suites 0
+  ℹ pass 7
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 459.9074
+  ```

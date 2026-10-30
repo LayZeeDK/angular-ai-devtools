@@ -123,9 +123,33 @@
     });
   }
 
+  function angularVersionString(ng) {
+    try {
+      if (ng && ng.VERSION && (ng.VERSION.full || ng.VERSION.major != null)) {
+        if (ng.VERSION.full) return String(ng.VERSION.full);
+        return String(ng.VERSION.major) + "." + String(ng.VERSION.minor) + "." + String(ng.VERSION.patch);
+      }
+      if (ng && ng.version) return String(ng.version);
+    } catch (e) {}
+    return null;
+  }
+  function versionOlderThan(v, minMajor, minMinor, minPatch) {
+    if (!v) return false;
+    var m = String(v).match(/(\d+)\.(\d+)\.(\d+)/);
+    if (!m) return false;
+    var maj = Number(m[1]), min = Number(m[2]), pat = Number(m[3]);
+    if (maj !== minMajor) return maj < minMajor;
+    if (min !== minMinor) return min < minMinor;
+    return pat < minPatch;
+  }
   function tryInstall() {
     ngObj = readNg();
     if (!ngObj) return "waiting";
+    var detectedVersion = angularVersionString(ngObj);
+    if (detectedVersion && versionOlderThan(detectedVersion, 22, 1, 3)) {
+      announceState(false, "Angular " + detectedVersion + " is not supported; requires 22.1.3 or newer");
+      return "notsupported";
+    }
     var setProfiler = typeof ngObj.ɵsetProfiler === "function" ? ngObj.ɵsetProfiler : (typeof ngObj.setProfiler === "function" ? ngObj.setProfiler : null);
     if (!setProfiler) {
       announceState(false, "ng.ɵsetProfiler not found (production build or not an Angular page)");
@@ -266,7 +290,8 @@
         kind: n.kind,
         label: n.label != null ? String(n.label) : null,
         epoch: n.epoch != null ? n.epoch : null,
-        debuggableFn: n.debuggableFn && n.debuggableFn.name ? n.debuggableFn.name : null,
+      debuggableFn: n.debuggableFn && n.debuggableFn.name ? n.debuggableFn.name : null,
+      debuggableFnSource: n.debuggableFn ? String(n.debuggableFn) : null,
       });
     }
     // Resolve edges from raw indices to global node ids.
