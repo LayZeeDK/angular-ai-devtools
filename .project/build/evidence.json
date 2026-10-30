@@ -1,7 +1,7 @@
 {
   "canonical_project_dir": ".project",
   "command": "verify-landed",
-  "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+  "head": "0cbae2bb18b03591ff80a558fb5f413fd4dfb19c",
   "project_dir": ".project",
   "tasks": [
     {
@@ -16,7 +16,7 @@
             "valid": true
           }
         ],
-        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "head": "0cbae2bb18b03591ff80a558fb5f413fd4dfb19c",
         "subject": "T001: Re-prove the M010 Verifies for archived tasks 002 005 011 012 at the current head"
       },
       "landed_commit": "a9ada2461638db774b35251719840ad9b05584ac",
@@ -40,7 +40,7 @@
             "valid": true
           }
         ],
-        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "head": "0cbae2bb18b03591ff80a558fb5f413fd4dfb19c",
         "subject": "T002: Apply the accepted doc-fix alignment rows from DOCS-AUDIT"
       },
       "landed_commit": "8ef0b51eb479251aebad336f8892b4b25066d7d0",
@@ -64,7 +64,7 @@
             "valid": true
           }
         ],
-        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "head": "0cbae2bb18b03591ff80a558fb5f413fd4dfb19c",
         "subject": "T003: Agent-side debuggableFn source scan, Angular 22.1.3 gate, and plain-field confirmation"
       },
       "landed_commit": "11b883c156da740f769353010aa2d6d5ae2dc0c5",
@@ -88,7 +88,7 @@
             "valid": true
           }
         ],
-        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "head": "0cbae2bb18b03591ff80a558fb5f413fd4dfb19c",
         "subject": "T004: Per-page scan worker with supersession of in-flight scans"
       },
       "landed_commit": "0d409c491fc156e7de192507587dd5f723b0ea09",
@@ -112,7 +112,7 @@
             "valid": true
           }
         ],
-        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "head": "0cbae2bb18b03591ff80a558fb5f413fd4dfb19c",
         "subject": "T005: Panel UI rendering the hedged finding and panel-local Prompt API explanation"
       },
       "landed_commit": "4cad23a76c6aad2ec4c34919c53e897b4d063ef4",
@@ -136,7 +136,7 @@
             "valid": true
           }
         ],
-        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "head": "0cbae2bb18b03591ff80a558fb5f413fd4dfb19c",
         "subject": "T006: Verify the stale-view claim across all four model instances and the portal"
       },
       "landed_commit": "46085666f000471c5eff9ee9740cd88e08c1d369",
@@ -160,7 +160,7 @@
             "valid": true
           }
         ],
-        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "head": "0cbae2bb18b03591ff80a558fb5f413fd4dfb19c",
         "subject": "T007: Fix the extension-build type errors in the stale-view scan module"
       },
       "landed_commit": "c300e90a10ddcd45ca7e0ef73a4eaa030c440cd0",
@@ -184,7 +184,7 @@
             "valid": true
           }
         ],
-        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "head": "0cbae2bb18b03591ff80a558fb5f413fd4dfb19c",
         "subject": "T008: Add the stale-view drive to the control-ai-browsers panel driver"
       },
       "landed_commit": "6ec553d979c02a7b44e0eb5167d697325c3d71c5",
@@ -208,7 +208,7 @@
             "valid": true
           }
         ],
-        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "head": "0cbae2bb18b03591ff80a558fb5f413fd4dfb19c",
         "subject": "T009: Add the dev-only stale-view route to the counter fixture"
       },
       "landed_commit": "0aa69fad1d8bbe38c6d71d4e567eabeecd925f7a",
@@ -232,7 +232,7 @@
             "valid": true
           }
         ],
-        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "head": "0cbae2bb18b03591ff80a558fb5f413fd4dfb19c",
         "subject": "T010: Make the stale-view scan produce a finding on the counter fixture route"
       },
       "landed_commit": "32ce0b6b2e367142dfbaa785b90bb62c6078f244",
@@ -256,7 +256,7 @@
             "valid": true
           }
         ],
-        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "head": "0cbae2bb18b03591ff80a558fb5f413fd4dfb19c",
         "subject": "T011: Narrow the stale-view panel driver types"
       },
       "landed_commit": "f855ce476e388e1167f19343821b5472e9d59ade",
@@ -266,6 +266,30 @@
         "id": "T011",
         "status": "done",
         "task_file": ".project/tasks/T011-panel-driver-stale-view-types.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M011",
+        "candidates": [
+          {
+            "base": "990d528d8a8156c66a67c35cbe5f6a58f4961bf0",
+            "commit": "82d5218e1389c303e56923ea837d45a97cccd356",
+            "valid": true
+          }
+        ],
+        "head": "0cbae2bb18b03591ff80a558fb5f413fd4dfb19c",
+        "subject": "T012: Type the stale-view check modules so the repository type check passes"
+      },
+      "landed_commit": "82d5218e1389c303e56923ea837d45a97cccd356",
+      "reasons": [],
+      "task": {
+        "base": "990d528d8a8156c66a67c35cbe5f6a58f4961bf0",
+        "id": "T012",
+        "status": "done",
+        "task_file": ".project/tasks/T012-stale-view-check-types.md"
       }
     }
   ]
