@@ -3,9 +3,9 @@ id: T002
 title: Capture errors, map to owning component, bounded ring buffer
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002
+base: 6f053b159793d4cee097f82a3a9e062ac78f7fe8
 worktree: null
 task_branch: null
 files:
@@ -60,3 +60,27 @@ Heavy: no
 ## Log
 
 - created by planner
+- implemented error-capture module, tests, and agent-main hooks; Verify exit 0; ready
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T002): pass, exit 0; output tail:
+  ```
+  ✔ error-capture E3 ring buffer (1.3676ms)
+  ▶ error-capture E1 no owning component
+    ✔ reports no owning component and never attributes unrelated component (0.2205ms)
+  ✔ error-capture E1 no owning component (0.3159ms)
+  ▶ error-capture E2 empty state
+    ✔ empty buffer renders explicit empty state (0.0852ms)
+  ✔ error-capture E2 empty state (0.1714ms)
+  ▶ error-capture N5 mapping path
+    ✔ maps ng.getOwningComponent to displayed component name (0.1858ms)
+    ✔ extractErrorCode finds NG0xxx (0.129ms)
+    ✔ resolveOwningComponent returns null when ng missing (0.0618ms)
+  ✔ error-capture N5 mapping path (0.5541ms)
+  ℹ tests 7
+  ℹ suites 4
+  ℹ pass 7
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 158.9104
+  ```

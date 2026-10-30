@@ -13,6 +13,7 @@
   var STATE_EVENT = NS + ":state";
   var DI_QUERY_EVENT = NS + ":di-query";
   var DI_GRAPH_EVENT = NS + ":di-graph";
+  var ERROR_CAPTURE_EVENT = NS + ":error-capture";
 
   // ProfilerEvent enum values (packages/core/primitives/devtools/src/profiler_types.ts).
   // The enum is not published on the page's `ng` global, so the values are hard-coded for
@@ -501,6 +502,7 @@
     STATE_EVENT: STATE_EVENT,
     DI_QUERY_EVENT: DI_QUERY_EVENT,
     DI_GRAPH_EVENT: DI_GRAPH_EVENT,
+    ERROR_CAPTURE_EVENT: ERROR_CAPTURE_EVENT,
     getSubscriber: function () {
       return subscriber;
     },
@@ -513,6 +515,56 @@
   if (typeof globalThis !== "undefined" && typeof globalThis.addEventListener === "function") {
     try { globalThis.addEventListener(DI_QUERY_EVENT, handleDiQuery); } catch (e) {}
   }
+
+  // N4: error capture hooks at document_start (console.error, window.onerror,
+  // unhandledrejection). Wired alongside N1/N2/N3 without changing their events.
+  function captureErrorPayload(message) {
+    try {
+      var ng = ngObj || readNg();
+      var text = message instanceof Error ? (message.message || String(message)) : String(message);
+      var codeMatch = text.match(/NG0\d{3,}/);
+      var code = codeMatch ? codeMatch[0] : null;
+      var component = null;
+      if (ng && typeof ng.getOwningComponent === "function") {
+        try {
+          var el = (typeof document !== "undefined" && document)
+            ? (document.activeElement || document.querySelector("app-root") || document.body || document.documentElement)
+            : null;
+          var instance = ng.getOwningComponent(el);
+          if (instance && instance.constructor && instance.constructor.name) component = instance.constructor.name;
+          else if (typeof instance === "string") component = instance;
+        } catch (e) { component = null; }
+      }
+      dispatch(ERROR_CAPTURE_EVENT, {
+        code: code,
+        message: text,
+        component: component,
+        timestamp: (typeof Date !== "undefined") ? Date.now() : 0,
+      });
+    } catch (e) { /* never throw */ }
+  }
+
+  try {
+    if (typeof console !== "undefined" && typeof console.error === "function") {
+      var originalConsoleError = console.error;
+      console.error = function () {
+        try { captureErrorPayload(Array.prototype.slice.call(arguments).join(" ")); } catch (e) {}
+        return originalConsoleError.apply(this, arguments);
+      };
+    }
+  } catch (e) {}
+
+  try {
+    if (typeof globalThis !== "undefined" && typeof globalThis.addEventListener === "function") {
+      globalThis.addEventListener("error", function (ev) {
+        try { captureErrorPayload(ev && ev.error ? ev.error : (ev && ev.message ? ev.message : ev)); } catch (e) {}
+      });
+      globalThis.addEventListener("unhandledrejection", function (ev) {
+        try { captureErrorPayload(ev && ev.reason ? ev.reason : ev); } catch (e) {}
+      });
+    }
+  } catch (e) {}
+
   // Auto-run when loaded as a content script.
   start();
 })(typeof globalThis !== "undefined" ? globalThis : this);
