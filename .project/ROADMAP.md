@@ -376,7 +376,7 @@ Depends on: []
 Surfaces: DevTools panel
 Status: shipped
 Archive: .project/archive/010-n4-error-explainer
-Integrated: null
+Integrated: 2556ed86b8c3bb62e0a23a26953dd7b709878adf
 
 Scope: in
 - Page-agent hooks at document_start for console.error, window.onerror and unhandledrejection.
@@ -413,8 +413,8 @@ Open questions
 Goal: Build the zoneless stale-view finder (N24): detect a plain field written outside change detection that leaves the template showing a stale value, and name the modern Angular pattern, in the DevTools panel.
 Depends on: []
 Surfaces: DevTools panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/011-n24-stale-view-finder
 Integrated: null
 
 Scope: in

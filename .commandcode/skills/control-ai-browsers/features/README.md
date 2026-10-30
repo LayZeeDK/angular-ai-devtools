@@ -56,6 +56,10 @@ to get to it (user POV)`, `Driving it with control-ai-browsers`, `Gotchas`.
 - [Model lifecycle](./model-lifecycle.md): info, download, init, clear.
 - [Probes and benchmarks](./probes.md): run a probe script, the model benchmark.
 - [Extension panel](./extension-panel.md): the unpacked extension each instance loads, and its N1 panel feature driven end to end.
+- [DI doctor](./di-doctor.md): the N3 panel feature driven end to end.
+- [Error explainer](./error-explainer.md): the N4 panel feature driven end to end.
+- [Signal provenance](./signal-provenance.md): the N2 panel feature driven end to end.
+- [Stale view](./stale-view.md): the stale-view panel feature driven end to end.
 
 ## Full sweep
 
@@ -66,6 +70,10 @@ A full pass drives the features in this order.
 3. [Model lifecycle](./model-lifecycle.md)
 4. [Probes and benchmarks](./probes.md)
 5. [Extension panel](./extension-panel.md)
+6. [DI doctor](./di-doctor.md)
+7. [Error explainer](./error-explainer.md)
+8. [Signal provenance](./signal-provenance.md)
+9. [Stale view](./stale-view.md)
 
 ## Manual only
 

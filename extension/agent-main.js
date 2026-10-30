@@ -123,9 +123,33 @@
     });
   }
 
+  function angularVersionString(ng) {
+    try {
+      if (ng && ng.VERSION && (ng.VERSION.full || ng.VERSION.major != null)) {
+        if (ng.VERSION.full) return String(ng.VERSION.full);
+        return String(ng.VERSION.major) + "." + String(ng.VERSION.minor) + "." + String(ng.VERSION.patch);
+      }
+      if (ng && ng.version) return String(ng.version);
+    } catch (e) {}
+    return null;
+  }
+  function versionOlderThan(v, minMajor, minMinor, minPatch) {
+    if (!v) return false;
+    var m = String(v).match(/(\d+)\.(\d+)\.(\d+)/);
+    if (!m) return false;
+    var maj = Number(m[1]), min = Number(m[2]), pat = Number(m[3]);
+    if (maj !== minMajor) return maj < minMajor;
+    if (min !== minMinor) return min < minMinor;
+    return pat < minPatch;
+  }
   function tryInstall() {
     ngObj = readNg();
     if (!ngObj) return "waiting";
+    var detectedVersion = angularVersionString(ngObj);
+    if (detectedVersion && versionOlderThan(detectedVersion, 22, 1, 3)) {
+      announceState(false, "Angular " + detectedVersion + " is not supported; requires 22.1.3 or newer");
+      return "notsupported";
+    }
     var setProfiler = typeof ngObj.ɵsetProfiler === "function" ? ngObj.ɵsetProfiler : (typeof ngObj.setProfiler === "function" ? ngObj.setProfiler : null);
     if (!setProfiler) {
       announceState(false, "ng.ɵsetProfiler not found (production build or not an Angular page)");
@@ -150,6 +174,11 @@
     installed = true;
     zoneMode = zone;
     announceState(true, null);
+    try {
+      globalThis.setTimeout(function () { dispatchInitialRecord(); }, 500);
+    } catch (e) {
+      dispatchInitialRecord();
+    }
     return "installed";
   }
 
@@ -256,18 +285,64 @@
     }
   }
 
-  function serializeGraph(graph) {
-    if (!graph || !graph.nodes) return null;
-    var nodes = [];
-    for (var i = 0; i < graph.nodes.length; i++) {
-      var n = graph.nodes[i];
-      nodes.push({
-        id: String(n.id),
-        kind: n.kind,
-        label: n.label != null ? String(n.label) : null,
-        epoch: n.epoch != null ? n.epoch : null,
-        debuggableFn: n.debuggableFn && n.debuggableFn.name ? n.debuggableFn.name : null,
+  function enumerateComponentNodes() {
+    var ng = ngObj || readNg();
+    var getComponent = ng && (typeof ng.getComponent === "function" ? ng.getComponent : (typeof ng.ɵgetComponent === "function" ? ng.ɵgetComponent : (typeof ng.getOwningComponent === "function" ? ng.getOwningComponent : null)));
+    if (!getComponent) return [];
+    if (typeof document === "undefined" || !document || typeof document.querySelectorAll !== "function") return [];
+    var seen = new Set();
+    var out = [];
+    var els = null;
+    try { els = document.querySelectorAll("*"); } catch (e) { els = null; }
+    if (!els) return out;
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      var inst = null;
+      try { inst = getComponent(el); } catch (e) { inst = null; }
+      if (!inst || !inst.constructor) continue;
+      var cls = inst.constructor.name;
+      if (!cls || seen.has(cls)) continue;
+      seen.add(cls);
+      var src = "";
+      try { src = String(inst.constructor); } catch (e) { src = ""; }
+      out.push({
+        id: "cmp:" + cls,
+        kind: "template",
+        label: (el && typeof el.tagName === "string") ? el.tagName.toLowerCase() : cls.toLowerCase(),
+        epoch: null,
+        debuggableFn: cls,
+        debuggableFnSource: src,
+        component: cls,
       });
+    }
+    return out;
+  }
+
+  function serializeGraph(graph) {
+    if (!graph || !graph.nodes) graph = { nodes: [], edges: [] };
+    var nodes = [];
+    var seenClasses = new Set();
+    if (graph.nodes) {
+      for (var i = 0; i < graph.nodes.length; i++) {
+        var n = graph.nodes[i];
+        if (n && n.debuggableFn && n.debuggableFn.name) seenClasses.add(String(n.debuggableFn.name));
+        nodes.push({
+          id: String(n.id),
+          kind: n.kind,
+          label: n.label != null ? String(n.label) : null,
+          epoch: n.epoch != null ? n.epoch : null,
+        debuggableFn: n.debuggableFn && n.debuggableFn.name ? n.debuggableFn.name : null,
+        debuggableFnSource: n.debuggableFn ? String(n.debuggableFn) : (typeof n.debuggableFnSource === "string" ? n.debuggableFnSource : null),
+        });
+      }
+    }
+    // Augment with real component instances enumerated from the document.
+    var extra = enumerateComponentNodes();
+    for (var e = 0; e < extra.length; e++) {
+      var en = extra[e];
+      if (seenClasses.has(en.component)) continue;
+      seenClasses.add(en.component);
+      nodes.push(en);
     }
     // Resolve edges from raw indices to global node ids.
     var edges = [];
@@ -463,6 +538,28 @@
     } else if (typeof global.dispatchEvent === "function") {
       global.dispatchEvent(ev);
     }
+  }
+
+  function dispatchInitialRecord() {
+    try {
+      var nodes = enumerateComponentNodes();
+      if (!nodes || !nodes.length) return;
+      var check = {
+        componentName: nodes[0].component,
+        className: nodes[0].component,
+        changeDetection: "onpush",
+        events: [],
+        graph: { nodes: nodes, edges: [] },
+        changedNodeIds: [],
+      };
+      dispatch(RECORD_EVENT, {
+        cycleId: ++cycleId,
+        startedAt: (typeof globalThis.performance !== "undefined" && typeof globalThis.performance.now === "function") ? globalThis.performance.now() : Date.now(),
+        trigger: { kind: "unknown", listenerName: null },
+        zoneMode: zoneMode,
+        checks: [check],
+      });
+    } catch (e) { /* never throw */ }
   }
 
   function start() {

@@ -202,3 +202,8 @@ questions, answered in the panel, on the developer's machine.
   orchestrated by the less capable and reliable Poolside Laguna S 2.1 model."
 - 2026-10-28: "We shouldn't use Laguna as coder, we should use Beam 1.0 Free."
   Coders run `reflection/beam:free`; Laguna is never dispatched as a child.
+- 2026-10-30: "Option 1 but don't change insurance-portal except for example to
+  add our runtime providers. Prefer a new small app or route in the app with the
+  counter." The counter fixture may carry one dev-only route that exhibits a
+  plain field written in a subscribe callback, for verification only; the
+  insurance portal gains nothing beyond runtime providers.

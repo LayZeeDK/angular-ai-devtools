@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: n4-error-explainer
+milestone: n24-stale-view-finder
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M010
+branch: gsd-path/M011
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/010-n4-error-explainer
+archive: .project/archive/011-n24-stale-view-finder
 integration_default: direct
 integration: direct
 integration_source: default
@@ -198,4 +198,35 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-30 — ship — build done; final review pending
 - 2026-10-30 — ship — ship blocked: project Verify failed in the verify sidecar with TS2688 Cannot find type definition file for node - the sidecar ships without node_modules and the repo bridge is not invoked; evidence .project/review/final-gap-1.md
 - 2026-10-30 — ship — ship resumed: project Verify now bridges the sidecar dependencies, proven by a passing npm run check in a node_modules-free worktree
+- 2026-10-30 — shipped — archive preflight passed; shipment recorded
+- 2026-10-30 — inspect — router bound next milestone: M011 n24-stale-view-finder; previous M010 n4-error-explainer shipped on gsd-path/M010 (ship 50b443676dba6e7c567c2332c180d27250b64432, integration 2556ed86b8c3bb62e0a23a26953dd7b709878adf, archive .project/archive/010-n4-error-explainer); base 79c845517e2cf944f8377922d46d289e00b0fa85; gsd report blocker carried: T002, T005, T011, T012 have no passing entry in the archived verify ledger
+- 2026-10-30 — inspect — inspection artifacts passed
+- 2026-10-30 — define — definition started
+- 2026-10-30 — define — milestone intent approved
+- 2026-10-30 — research — research started
+- 2026-10-30 — research — research complete; manifest .project/research/RESEARCH.md; dispatched domain, pitfalls; skipped similar, stack; 1 question
+- 2026-10-30 — decide — decision synthesis started
+- 2026-10-30 — decide — decision synthesis complete; synthesis .project/research/SYNTHESIS.md
+- 2026-10-30 — plan — planning started
+- 2026-10-30 — plan — plan approved
+- 2026-10-30 — build — build started
+- 2026-10-30 — build — plan defect repaired: T001 declared .project/STATE.md as the ledger target; repaired to .project/build/verify-ledger.jsonl so only the helpers write STATE.md
+- 2026-10-30 — build — plan defect repaired: T002 named control-ai-browsers for the 1.22.0 rows (they live in control-angular-devtools) and targeted docs/design/tutor.md for row 220 (it lives in the taste tree, which build must not edit); files and acceptance criteria repaired to the ruling's documents, row 220 deferred to a post-ship commit
+- 2026-10-30 — build — plan defect repaired: T005 could not reach the DevTools panel surface from its declared files; added app.routes.ts and the compile check to its Verify, and named the stale-view route in AC1
+- 2026-10-30 — build — build finding: build-extension fails with three TS2345 errors in src/main-world/stale-view-scan.ts (T003 module), blocking T006 browser verification and the project Verify; fix task T007 added in wave 5
+- 2026-10-30 — build — plan repaired: T007 moved into wave 4 and T006 now depends on it, because a later-wave fix cannot unblock the current wave's verification
+- 2026-10-30 — build — build finding: T006 rerun proves build-extension works and every pair is could-not-run because control-ai-browsers panel has no stale-view feature; T008 added to extend the panel driver and T006 now depends on it
+- 2026-10-30 — build — maintenance finding: check-skill FULL SWEEP drift on control-ai-browsers (di-doctor, error-explainer, signal-provenance missing from ## Full sweep); folded into T008 together with the stale-view drive and features index entry; proof manifest shows all eight features stale or unproven, so a live re-record pass is still owed
+- 2026-10-30 — build — T008 landed (panel driver stale-view feature, 7/7 tests + mirror parity); T006 third attempt wrote the check (6/6 unit tests) but recorded all four pairs could-not-run for a fixture-serving reason that is measurably wrong: spikes/ng222-app ships its own ng CLI and a start script, so SC5 remains unproven and the next run must serve the fixture from its own folder first
+- 2026-10-30 — build — evidence run (measured): served spikes/ng222-app from its own ng CLI on :4222, built the panel, and drove panel --feature=stale-view on chrome-stable-nano; the panel route renders the explicit empty state (no stale-view findings, data-testid=empty-state) and no Explain control, so E2 is real. SC1/SC5 are unsatisfiable as specified: the counter fixture has no subscribe( anywhere in spikes/ng222-app/src, and the charter vetoes modifying the fixture, so no plain-field-in-subscribe write can be produced there. Needs an owner ruling (intent correction or a named fixture that exhibits the pattern); recorded, not fabricated
+- 2026-10-30 — build — owner ruling recorded (INTENT and CHARTER Corrections): SC1 narrowed to a dev-only stale-view route in the counter app; counter-fixture veto amended for that route only; insurance portal unchanged beyond runtime providers. T009 added to build the route and T006 now depends on it
+- 2026-10-30 — build — T009 landed: counter app serves a dev-only stale-view route that writes a plain field inside subscribe. Re-run against it: fixture served (both URLs 200), instance up, panel reached /panel/stale-view, but the panel reports no Angular detection for the inspected page (text: Stale View, no stale-view findings), so no finding and no Explain control. SC5 still unproven; next diagnosable gap is Angular detection on http://localhost:4222/stale-view
+- 2026-10-30 — build — diagnosis (measured): manifest matches <all_urls> so injection is fine; fixture app.config provides the router and app.ts renders <router-outlet />, so the stale-view route does render; the panel still returns zero findings. Remaining gap is the agent's serialized debuggableFn source on the inspected page, not routing, injection or build
+- 2026-10-30 — build — diagnostic task T010 added: measure the serialized graph on the fixture route, then fix the agent serialization or the matcher until the scan yields a finding; T006 depends on it
+- 2026-10-30 — ship — build done; final review pending
+- 2026-10-30 — ship — final review blocked: project Verify fails with 21 implicit-any errors in the two stale-view check modules
+- 2026-10-30 — plan — patch plan reopened
+- 2026-10-30 — plan — plan approved
+- 2026-10-30 — build — build started
+- 2026-10-30 — ship — build done; final review pending
 - 2026-10-30 — shipped — archive preflight passed; shipment recorded
