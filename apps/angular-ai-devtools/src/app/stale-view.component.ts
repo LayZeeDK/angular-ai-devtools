@@ -1,8 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { StaleViewScanService } from './stale-view-scan.service';
 import { StaleViewService } from './stale-view.service';
 import { ExtensionMessageService } from './extension-message.service';
 import { ExtensionPromptService } from './extension-prompt.service';
+import { UpdateCauseService } from './n1-update-cause.service';
 
 @Component({
   selector: 'app-stale-view',
@@ -38,7 +39,17 @@ export class StaleViewComponent {
   protected readonly svc = inject(StaleViewService);
   protected readonly ext = inject(ExtensionMessageService);
   protected readonly prompt = inject(ExtensionPromptService);
+  protected readonly cause = inject(UpdateCauseService);
   protected readonly answer = signal<string | null>(null);
+
+  constructor() {
+    effect(() => {
+      const cycles = this.cause.recordedCycles();
+      const last = cycles.length ? cycles[cycles.length - 1] : null;
+      const graph = last?.checks?.length ? (last.checks[0] as { graph?: unknown }).graph : null;
+      if (graph) this.scan.startScan(graph);
+    });
+  }
 
   protected async explain(f: any): Promise<void> {
     const res = await this.svc.explain(f);

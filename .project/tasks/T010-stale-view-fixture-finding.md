@@ -3,9 +3,9 @@ id: T010
 title: Make the stale-view scan produce a finding on the counter fixture route
 wave: 4
 deps: [T004, T007, T009]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T010
+base: 760e3b354c081e6a82c717fa456745828ff71a79
 worktree: null
 task_branch: null
 files:
@@ -64,3 +64,71 @@ Heavy: no
 - 2026-10-30 wiring: apps/angular-ai-devtools/src/app/stale-view.component.ts now starts a scan on recorded cycles (added to this task's declared files); without it the panel never populated findings.
 - 2026-10-30 orchestrator Verify: pass, exit 0 (5/5). Regression Verifies in the same isolate: T003 7/7, T004 4/4, T005 2/2 with npm run check exit 0 after the T011 type fix.
 - 2026-10-30 landing: the isolate was created before this task's file list gained stale-view.component.ts, so the allow-list refused the landing. The five changed files were transferred onto a base that carries the repaired contract.
+
+- 2026-10-30 orchestrator transfer: the five files from the proven isolate were moved onto base 760e3b3, whose contract declares the panel wiring file. No content change was made in the transfer.
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T010): pass, exit 0; output tail:
+  ```
+  ✔ graph recorded from the real fixture page yields exactly one finding naming value (1.2405ms)
+  ✔ an element with no component yields no node (0.1188ms)
+  ✔ matches this.field = with arbitrary whitespace and newlines (1.7301ms)
+  ✔ matches .set( and .update( forms (0.0786ms)
+  ✔ identifier is whole, never substring (0.0782ms)
+  ℹ tests 5
+  ℹ suites 0
+  ℹ pass 5
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 188.0821
+  ```
+- 2026-10-30 — orchestrator regression Verify of T003 (isolate gsd-path-task/T010): pass, exit 0; output tail:
+  ```
+  ✔ one callback writing the same field twice yields one finding (1.1468ms)
+  ✔ findings follow template-node traversal order (1.9741ms)
+  ✔ Angular 22.1.2 or older is unsupported and names the version (0.9819ms)
+  ✔ Angular 22.1.3 and newer are supported (0.1312ms)
+  ✔ matches this.field = with arbitrary whitespace and newlines (1.8242ms)
+  ✔ matches .set( and .update( forms (0.0827ms)
+  ✔ identifier is whole, never substring (0.0816ms)
+  ℹ tests 7
+  ℹ suites 0
+  ℹ pass 7
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 230.1042
+  ```
+- 2026-10-30 — orchestrator regression Verify of T004 (isolate gsd-path-task/T010): pass, exit 0; output tail:
+  ```
+  ✔ worker echoes token and returns scan findings (1.7545ms)
+  ✔ superseded scan result is discarded (token mismatch) (0.5437ms)
+  ✔ worker request shape {token,graph} yields {token,findings} (1.8316ms)
+  ✔ service terminates worker on close (source check) (0.3276ms)
+  ℹ tests 4
+  ℹ suites 0
+  ℹ pass 4
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 114.7175
+  ```
+- 2026-10-30 — orchestrator regression Verify of T005 (isolate gsd-path-task/T010): pass, exit 0; output tail:
+  ```
+  ✔ field name needing escaping stays one plain-text value (1.8365ms)
+  ✔ missing owning component is named and not shaped (0.0911ms)
+  ℹ tests 2
+  ℹ suites 0
+  ℹ pass 2
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 112.3665
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  ```
