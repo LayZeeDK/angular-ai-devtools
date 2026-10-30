@@ -241,8 +241,9 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000, featur
     const isInterop = feature === 'interop';
     if (isErrors || isStale || isInterop) {
       // A file-based extension origin serves no deep link, so route the loaded panel document in place.
-      const route = isErrors ? 'error-explainer' : isStale ? 'stale-view' : 'interop';
-      await panel.evaluate(`(() => { history.pushState({}, '', '/panel/${route}'); window.dispatchEvent(new PopStateEvent('popstate')); return location.href; })()`);
+      const route = isErrors ? 'error-explainer' : 'stale-view';
+      const panelPath = isInterop ? 'interop' : route;
+      await panel.evaluate(`(() => { history.pushState({}, '', '/panel/${panelPath}'); window.dispatchEvent(new PopStateEvent('popstate')); return location.href; })()`);
       // An app that has no route for this feature falls back to another panel; record what it served.
       run.route = /** @type {string | null} */ ((await panel.evaluate(`location.pathname`)) ?? null);
       note('route', run.route);
