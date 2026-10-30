@@ -29,6 +29,11 @@ Review depth: full
 Goal: The stale-view claim carries `lars-verify` verdicts across all four model instances and the portal check.
 Review depth: verify-only
 
+## Wave 5 — build repair
+
+Goal: Remove the `TS2345` type errors that block `build-extension` (and therefore the project Verify and T006's browser runs) without changing the scan's behavior.
+Review depth: full
+
 ## Surface contract
 
 ### DevTools panel — T005
