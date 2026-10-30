@@ -1,0 +1,325 @@
+{
+  "version": "22.2.x",
+  "entries": [
+    {
+      "code": "NG0100",
+      "title": "Expression Changed After Checked",
+      "body": "Expression Changed After Checked edit Angular throws an ExpressionChangedAfterItHasBeenCheckedError when an expression value has been changed after change detection has completed. Angular only throws this error in development mode. In development mode, Angular performs an additional check after each change detection run, to ensure the bindings haven't changed. This catches errors where the view is left in an inconsistent state. This can occur, for example, if a method or getter returns a different value each time it is called, or if a child component changes values on its parent. If either of these occurs, this is a sign that change detection is not stabilized. Angular throws the error to ensure data is always reflected correctly in the view, which prevents erratic UI behavior or a possible infinite loop. This error commonly occurs when you've added template expressions or have begun to implement lifecycle hooks like ngAfterViewInit or ngOnChanges . …"
+    },
+    {
+      "code": "NG01002",
+      "title": "Missing Control Value",
+      "body": "Missing Control Value edit This error occurs when you call setValue on a FormGroup or FormArray but the value you pass is missing an entry for one of the registered controls. setValue is strict — it expects a value for every control. If you want to update only some controls, use patchValue instead. Debugging the error Check which control is named in the error message, then make sure your value object includes it. A common source of this error is spreading an object that doesn't have all the keys: const someValue = {first: 'Nancy' }; // 'last' is missing form. setValue ({ ... someValue}); // throws NG01002 This can happen if someValue comes from an API response, a partial state update, or a type that doesn't fully match the form structure. In those cases, either fill in the missing keys explicitly or switch to patchValue . FormGroup const form …"
+    },
+    {
+      "code": "NG01055",
+      "title": "Missing control for `formControlName`",
+      "body": "Missing control for formControlName edit A formControlName in the template points at a control that the FormGroup does not have. The directive looks the control up by its path and finds nothing. This can happen when the template and the form group are built from the same data but use different filters. One item is rendered in the template but was never given a control in the form group, so its formControlName has nothing to bind to. @ Component ({ template: ` &lt; form [ formGroup ] = \"form\" &gt; &lt; ng-container formGroupName = \"options\" &gt; @for ( id of visibleIds; track id) { &lt; input [ formControlName ] = \"id\" /&gt; } &lt;/ ng-container &gt; &lt;/ form &gt; ` , }) class App { // The template renders an input for both ids... visibleIds = [ 1 , 2 ]; // ...but the form group only has a …"
+    },
+    {
+      "code": "NG01101",
+      "title": "Wrong Async Validator Return Type",
+      "body": "Wrong Async Validator Return Type edit Async validators must return a promise or an observable, and emit/resolve them whether the validation fails or succeeds. In particular, they must implement the AsyncValidatorFn API export function isTenAsync ( control : AbstractControl ) : Observable &lt; ValidationErrors | null &gt; { const v : number = control.value; if (v !== 10 ) { // Emit an object with a validation error. return of ({ 'notTen' : true , 'requiredValue' : 10 }); } // Emit null, to indicate no error occurred. return of ( null ); } Debugging the error Did you mistakenly use a synchronous validator instead of an async validator?"
+    },
+    {
+      "code": "NG01203",
+      "title": "Missing value accessor",
+      "body": "Missing value accessor edit For all custom form controls, you must register a value accessor. Here's an example of how to provide one: providers : [ { provide: NG_VALUE_ACCESSOR , useExisting: forwardRef (() =&gt; MyInputField), multi: true , }, ]; Debugging the error As described above, your control was expected to have a value accessor, but was missing one. However, there are many different reasons this can happen in practice. Here's a listing of some known problems leading to this error. If you defined a custom form control, did you remember to provide a value accessor? Did you put ngModel on an element with no value, or an invalid element (e.g. &lt;div [(ngModel)]=&quot;foo&quot;&gt; )? Are you using a custom form control declared inside an NgModule ? if so, make sure you are importing the NgModule . Are you using ngModel with a third-party custom form control? Check whether that …"
+    },
+    {
+      "code": "NG01354",
+      "title": "NgModel in child component cannot reach parent form",
+      "body": "NgModel in child component cannot reach parent form edit This warning is emitted when ngModel (or any template-driven form control) is placed inside a child component whose parent component hosts a form directive ( NgForm or FormGroupDirective ), but the control cannot register with that form. The root cause is that NgModel injects ControlContainer with @Host() , which stops the injector from crossing component boundaries. The form directive in the parent component's template is invisible to NgModel in the child's template. As a result, the child's controls silently act as standalone — they do not participate in the parent form's value, validity, or submission state. Fixing the warning Option 1: Bridge the ControlContainer with viewProviders Add viewProviders to the child component so it re-exports the parent form into its own view. Use the same class that the warning names — NgForm for template-driven forms ( &lt;form&gt; ), or FormGroupDirective …"
+    },
+    {
+      "code": "NG01902",
+      "title": "Orphan field in signal forms",
+      "body": "Orphan field in signal forms edit This error indicates that a Field instance is no longer connected to the current model structure. Angular signal forms throw NG01902 when a field path that previously existed can no longer be resolved as the same property in the parent object. A common trigger is unintentionally setting a field's value to undefined . In signal forms, undefined means \"field does not exist\", so an existing field can become orphaned. Why this happens Signal forms keep field instances in sync with your model shape. If code still references an older field instance after the model shape changed, Angular detects the mismatch and throws this error. This can happen when: a property is removed from the model object a property becomes undefined instead of remaining present code holds a stale field reference across structural updates How to fix it Avoid writing undefined to model fields. …"
+    },
+    {
+      "code": "NG0200",
+      "title": "Circular Dependency in DI",
+      "body": "Circular Dependency in DI edit A cyclic dependency exists when a dependency of a service directly or indirectly depends on the service itself. For example, if UserService depends on EmployeeService , which also depends on UserService . Angular will have to instantiate EmployeeService to create UserService , which depends on UserService , itself. Debugging the error Use the call stack to determine where the cyclical dependency exists. You will be able to see if any child dependencies rely on the original file by mapping out the component, module, or service's dependencies, and identifying the loop causing the problem. Break this loop (or circle) of dependency to resolve this error. This most commonly means removing or refactoring the dependencies to not be reliant on one another."
+    },
+    {
+      "code": "NG0201",
+      "title": "No Provider Found",
+      "body": "No Provider Found edit You see this error when you try to inject a service but have not declared a corresponding provider. A provider is a mapping that supplies a value that you can inject into the constructor of a class in your application. Read more on providers in our Dependency Injection guide . Debugging the error Work backwards from the object where the error states that a provider is missing: No provider for &lt;token&gt; found . This is commonly thrown in services, which require non-existing providers. To fix the error ensure that your service is registered in the list of providers of an NgModule or has the @Service decorator at top. The most common solution is to add a provider in @Service @ Service ()"
+    },
+    {
+      "code": "NG0203",
+      "title": "`inject()` must be called from an injection context",
+      "body": "inject() must be called from an injection context edit You see this error when you try to use the inject function outside of the allowed injection context . The injection context is available during the class creation and initialization. It is also available to functions used with runInInjectionContext . In practice the inject() calls are allowed in a constructor, a constructor parameter and a field initializer: @ Service () export class Car { radio : Radio | undefined ; // OK: field initializer spareTyre = inject (Tyre); constructor () { // OK: constructor body this .radio = inject (Radio); } } It is also legal to call inject from a provider's factory: providers : [ { provide: Car, useFactory : () =&gt; { // OK: a class factory const engine = inject (Engine); return new Car (engine); }, }, ]; Calls to the inject function outside of the class …"
+    },
+    {
+      "code": "NG0204",
+      "title": "Invalid Injection Token",
+      "body": "Invalid Injection Token edit This error occurs when Angular cannot resolve a dependency for a class during dependency injection. This most commonly affects classes using constructor injection, where Angular relies on TypeScript metadata to determine parameter types. The most common causes are: A service class is missing the @Service() or the @Injectable decorator An InjectionToken lacks a proper provider definition A constructor parameter cannot be resolved NOTE: The inject() function takes an explicit token, so the \"unresolvable parameter\" scenario does not apply to it directly. However, if the injected class itself is missing @Service() and has its own constructor dependencies, the error can still occur. Common scenarios Missing @Service() decorator When a class has constructor dependencies but lacks the @Service() decorator, Angular cannot resolve its parameters: Missing @Service() decorator export class UserClient { constructor ( private http : HttpClient ) {} // Angular can't resolve this } Add the …"
+    },
+    {
+      "code": "NG0205",
+      "title": "Injector has already been destroyed",
+      "body": "Injector has already been destroyed edit This error occurs when you attempt to retrieve a service from an injector that has already been destroyed. This typically happens when code tries to access dependencies after a component, directive, or module has been destroyed. Common scenarios Accessing services in callbacks after destruction When a component is destroyed, its injector is also destroyed. If an async callback later tries to access services, this error occurs: @ Component ( /* ... */ ) export class UserProfile implements OnInit { private userClient = inject (UserClient); ngOnInit () { setTimeout (() =&gt; { // ERROR: If component was destroyed before timeout fires, // the injector is no longer available this .userClient. fetchData (); }, 5000 ); } } Accessing services after unsubscribing Similar issues occur with observables if cleanup happens in the wrong order: @ Component ( /* ... */ ) export class DataView implements …"
+    },
+    {
+      "code": "NG0207",
+      "title": "EnvironmentProviders in wrong context",
+      "body": "EnvironmentProviders in wrong context edit This error occurs when EnvironmentProviders are used in a context that only accepts regular providers, such as a component's providers array. Environment providers are designed for application-wide configuration and can only be used in environment injectors (like the root injector configured in bootstrapApplication or route configurations). Common scenarios Using provideHttpClient() in component providers Functions like provideHttpClient() return EnvironmentProviders , which cannot be used at the component level: @ Component ({ providers: [ provideHttpClient (), // ERROR: EnvironmentProviders can't be used here ], }) export class UserProfile {} Using importProvidersFrom() in component providers The importProvidersFrom() function also returns EnvironmentProviders : @ Component ({ providers: [ importProvidersFrom (SomeModule), // ERROR: can't be used for component providers ], }) export class DataView {} Debugging the error Move the environment providers to an appropriate location: For application-wide providers Configure environment providers in bootstrapApplication : bootstrapApplication (App, { providers: …"
+    },
+    {
+      "code": "NG0209",
+      "title": "Invalid multi provider",
+      "body": "Invalid multi provider edit The Angular runtime will throw this error when it injects a token intended to be used with multi: true but a non-Array was found instead. For example, ENVIRONMENT_INITIALIZER should be provided like {provide: ENVIRONMENT_INITIALIZER, multi: true, useValue: () =&gt; {...}} ."
+    },
+    {
+      "code": "NG02200",
+      "title": "Missing Iterable Differ",
+      "body": "Missing Iterable Differ edit NgFor could not find an iterable differ for the value passed in. Make sure it's an iterable, like an Array . Debugging the error When using ngFor in a template, you must use some type of Iterable, like Array or Set . If you're trying to iterate over the keys in an object or the entries of a Map , you should look at the KeyValue pipe instead."
+    },
+    {
+      "code": "NG02800",
+      "title": "JSONP support in HttpClient configuration",
+      "body": "JSONP support in HttpClient configuration edit Angular produces this error when you attempt a JSONP request without providing the necessary support for it in the HttpClient configuration. To enable JSONP support, you can do one of the following: add the withJsonpSupport() as an argument during the provideHttpClient function call (e.g. provideHttpClient(withJsonpSupport()) ) when bootstrapApplication is useddocs import the HttpClientJsonpModule in your root AppModule, when NgModule-based bootstrap is used. Debugging the error Make sure that the JSONP support is added into your application either by calling the withJsonpSupport function (when provideHttpClient is used) or importing the HttpClientJsonpModule module as described above."
+    },
+    {
+      "code": "NG02802",
+      "title": "Headers not transferred by HttpTransferCache",
+      "body": "Headers not transferred by HttpTransferCache edit Angular produces this warning when code attempts to access an HTTP header that was not transferred from the server to the client by the HttpTransferCache . By default, HttpTransferCache does not transfer any headers to avoid potential security issues or unnecessary data transfer. When a header is accessed on the client that wasn't included, Angular logs this warning to help you identify missing headers. Fixing the error To include specific headers in the transfer cache, use the includeHeaders option. At the request level Add the transferCache parameter to your HTTP request: this .http. get ( '/api/data' , { transferCache: { includeHeaders: [ 'cache-control' , 'etag' ], }, }); At the application level Configure includeHeaders when providing the transfer cache: provideClientHydration ( withHttpTransferCacheOptions ({ includeHeaders: [ 'cache-control' , 'etag' ], }), ); Only include headers that are necessary for your application logic. Be cautious …"
+    },
+    {
+      "code": "NG02825",
+      "title": "Fetch response body exceeds the configured limit",
+      "body": "Fetch response body exceeds the configured limit edit Angular produces this error when HttpClient uses the fetch backend during server-side rendering and the bytes buffered for a response body exceed the configured maxResponseBodySize limit. By default, Angular limits each buffered response body to 1 MB to prevent the server from buffering unexpectedly large responses during rendering. Fixing the error Set maxResponseBodySize in the provideServerRendering options to increase the limit: import {provideServerRendering, withRoutes } from '@angular/ssr' ; import { ApplicationConfig } from '@angular/core' ; import {serverRoutes} from './app.routes.server' ; const serverConfig : ApplicationConfig = { providers: [ provideServerRendering ( { maxResponseBodySize: 5 * 1024 * 1024 , // 5MB }, withRoutes (serverRoutes), ), ], }; maxResponseBodySize configures the maximum number of response body bytes Angular buffers for each server-side HttpClient request that uses the fetch backend. The value is configured in bytes and applies globally. IMPORTANT: Keep this limit as …"
+    },
+    {
+      "code": "NG0300",
+      "title": "Selector Collision",
+      "body": "Selector Collision edit Two or more components use the same element selector. Because there can only be a single component associated with an element, selectors must be unique strings to prevent ambiguity for Angular. This error occurs at runtime when you apply two selectors to a single node, each of which matches a different component, or when you apply a single selector to a node and it matches more than one component. import { Component } from '@angular/core' ; @ Component ({ selector: '[stroked-button]' , templateUrl: './stroked-button.html' , }) export class StrokedBtn {} @ Component ({ selector: '[raised-button]' , templateUrl: './raised-button.html' , }) export class RaisedBtn {} @ Component ({ selector: 'app-root' , template: ` &lt;!-- This node has 2 selectors: stroked-button and raised-button, and both match a different component: StrokedBtnComponent, and RaisedBtnComponent , so NG0300 will be raised --&gt; &lt; button stroked-button raised-button &gt;&lt;/ button &gt; ` , …"
+    },
+    {
+      "code": "NG0301",
+      "title": "Export Not Found",
+      "body": "Export Not Found edit Angular can't find a directive with {{ PLACEHOLDER }} export name. The export name is specified in the exportAs property of the directive decorator. This is common when using FormsModule or Material modules in templates and you've forgotten to import the corresponding modules. HELPFUL: This is the runtime equivalent of a common compiler error NG8003: No directive found with export . Debugging the error Use the export name to trace the templates or modules using this export. Ensure that all dependencies are properly imported and declared in your NgModules. For example, if the export not found is ngForm , we need to import FormsModule and declare it in the list of imports in *.module.ts to resolve the error. import { FormsModule } from '@angular/forms' ; @ NgModule ({ … imports: [ FormsModule , … If you recently added an import, you may need to restart …"
+    },
+    {
+      "code": "NG0302",
+      "title": "Pipe Not Found",
+      "body": "Pipe Not Found edit Angular can't find a pipe with this name. The pipe referenced in the template has not been named or declared properly. To use the pipe: Ensure the name used in a template matches the name defined in the pipe decorator. Add the pipe to your component's imports array or, if the pipe sets standalone: false , add the NgModule to which the pipe belongs. Debugging the error Use the pipe name to trace where the pipe is declared and used. To resolve this error: If the pipe is local to the NgModule , give it a unique name in the pipe's decorator and declared it in the NgModule . If the pipe is standalone or is declared in another NgModule , add it to the imports field of the standalone component or the current NgModule . If you recently added an import or declaration, you …"
+    },
+    {
+      "code": "NG0318",
+      "title": "Invalid style property binding value",
+      "body": "Invalid style property binding value edit Angular detected a value with an unsupported type in a style property binding. This can occur in an individual binding such as [style.width] or in a property of a [style] map. Style property values accept strings, numbers, style SafeValue objects, null , and undefined . Other values, including SafeValue objects created for a non-style security context, produce this warning in development mode. For example, the following binding passes a boolean instead of a CSS value: &lt; div [style.display] = \"isVisible\" &gt;&lt;/ div &gt; Debugging the error Use the property name and value in the error message to locate the binding. Convert the value to a valid CSS string or number, or use null or undefined to remove the style. When using a unit suffix such as [style.width.px] , bind the numeric portion of the value: &lt; div [style.width.px] = \"width\" &gt;&lt;/ div &gt; …"
+    },
+    {
+      "code": "NG0401",
+      "title": "Missing Platform",
+      "body": "Missing Platform edit Angular requires a platform to be initialized. This error is thrown when bootstrapApplication is used on the server without providing a BootstrapContext . When using server-side rendering, bootstrapApplication requires a BootstrapContext to be passed as an argument. Debugging the error To resolve this error, ensure that your main.server.ts file correctly passes a BootstrapContext to the bootstrapApplication function. import { bootstrapApplication , BootstrapContext } from '@angular/platform-browser' ; import {App} from './app/app' ; import {config} from './app/app.config.server' ; const bootstrap = ( context : BootstrapContext ) =&gt; bootstrapApplication (App, config, context); export default bootstrap;"
+    },
+    {
+      "code": "NG0403",
+      "title": "Bootstrapped NgModule doesn't specify which component to initialize",
+      "body": "Bootstrapped NgModule doesn't specify which component to initialize edit This error means that an NgModule that was used for bootstrapping an application is missing key information for Angular to proceed with the bootstrap process. The error happens when the NgModule bootstrap property is missing (or is an empty array) in the @NgModule annotation and there is no ngDoBootstrap lifecycle hook defined on that NgModule class. More information about the bootstrapping process can be found in this guide . The following examples will trigger the error. @ NgModule ({ declarations: [App], imports: [ BrowserModule , AppRoutingModule], providers: [], }) export class AppModule {} // The `AppModule` is used for bootstrapping, but the `@NgModule.bootstrap` field is missing. platformBrowser (). bootstrapModule (AppModule); @ NgModule ({ declarations: [App], imports: [ BrowserModule , AppRoutingModule], providers: [], bootstrap: [], }) export class AppModule {} // The `AppModule` is used for bootstrapping, but the `@NgModule.bootstrap` field …"
+    },
+    {
+      "code": "NG0500",
+      "title": "Hydration Node Mismatch",
+      "body": "Hydration Node Mismatch edit This error means that during the hydration process, Angular expected a DOM structure as rendered and annotated during server-side rendering. However, on the client, the DOM tree was different than the server rendered DOM tree. This error typically happens due to direct DOM manipulation using native browser APIs that alter the DOM structure outside of what Angular produced. It will also occur if you use innerHTML or outerHTML to set HTML content, which similarly alters the DOM structure outside of what Angular produced. You can resolve this by refactoring the component to use native Angular APIs instead of native APIs. If that's not possible, you can add the ngSkipHydration attribute to your component's host node, which will disable hydration for the component and its children. ngSkipHydration should only be used as a last resort and should be considered a bug that needs to be fixed. …"
+    },
+    {
+      "code": "NG05000",
+      "title": "Hydration with unsupported Zone.js instance",
+      "body": "Hydration with unsupported Zone.js instance edit This warning means that the hydration was enabled for an application that was configured to use an unsupported version of Zone.js: either a custom or a \"noop\" one (see more info here ). Hydration relies on a signal from Zone.js when it becomes stable inside an application, so that Angular can start the serialization process on the server or post-hydration cleanup on the client (to remove DOM nodes that remained unclaimed). Providing a custom or a \"noop\" Zone.js implementation may lead to a different timing of the \"stable\" event, thus triggering the serialization or the cleanup too early or too late. This is not yet a fully supported configuration. If you use a custom Zone.js implementation, make sure that the \"onStable\" event is emitted at the right time and does not result in incorrect application behavior with hydration. More information about hydration can …"
+    },
+    {
+      "code": "NG0501",
+      "title": "Hydration Missing Siblings",
+      "body": "Hydration Missing Siblings edit This error is similar to the error NG0500 , but it means Angular's hydration process expected more sibling nodes at a specific spot in the DOM and did not find them. Check the error NG0500 page for causes related to direct DOM manipulation. A common cause: conditional content that differs between server and client Besides direct DOM manipulation, this error often happens when content inside @if or @for renders differently on the server than it does when the client hydrates. If the server rendered a condition as true (or a list with more items), but the client sees it as false (or a shorter list) when hydration runs, the client ends up expecting fewer sibling nodes than the server actually sent. Hydration then fails while walking through the siblings. A common way this happens is when a value comes from an input() , but instead …"
+    },
+    {
+      "code": "NG0502",
+      "title": "Hydration Missing Node",
+      "body": "Hydration Missing Node edit This error is similar to the error NG0500 , but it indicates that Angular hydration process expected a node to be present in the DOM structure at a particular location and none was found. Please refer to the error NG0500 page for additional information. Debugging the error See the error NG0500 for more information on how to debug this error."
+    },
+    {
+      "code": "NG0503",
+      "title": "Hydration Unsupported Projection of DOM Nodes",
+      "body": "Hydration Unsupported Projection of DOM Nodes edit This error means that during the server-side serialization process, Angular encountered nodes that were created outside of Angular's context (i.e. using native DOM APIs) and found those nodes were provided as projectable nodes. They were likely provided using ViewContainerRef.createComponent or createComponent APIs. Angular hydration does not support this use case. More information about hydration can be found in this guide . The following examples will trigger the error. @ Component ({ selector: 'dynamic' , template: ` &lt; ng-content /&gt; ` , }) class CardWrapper {} @ Component ({ selector: 'app' , template: ` &lt; div #target &gt;&lt;/ div &gt; ` , }) class DynamicCard { @ ViewChild ( 'target' , {read: ViewContainerRef }) vcr !: ViewContainerRef ; envInjector = inject ( EnvironmentInjector ); ngAfterViewInit () { const div = document. createElement ( 'div' ); const p = document. createElement ( 'p' ); …"
+    },
+    {
+      "code": "NG0504",
+      "title": "Skip hydration flag is applied to an invalid node",
+      "body": "Skip hydration flag is applied to an invalid node edit This error occurs when the ngSkipHydration attribute was added to an inappropriate DOM node. The ngSkipHydration attribute can only be applied to component host nodes either directly in the template or via a host binding. It cannot be applied to other DOM nodes and will have no effect if done so other than causing this error. More information about hydration can be found in this guide . The following examples will trigger the error. Example 1 In this example, the ngSkipHydration attribute is applied to a &lt;div&gt; using host bindings of a directive. Since the &lt;div&gt; doesn't act as a component host node, Angular will throw an error. @ Directive ({ selector: '[dir]' , host: {ngSkipHydration: 'true' }, }) class Dir {} @ Component ({ selector: 'app' , imports: [Dir], template: ` &lt; div dir &gt;&lt;/ div &gt; ` …"
+    },
+    {
+      "code": "NG0505",
+      "title": "No hydration info in server response",
+      "body": "No hydration info in server response edit This error occurs when hydration is enabled on the client, but the server response doesn't contain special serialized information about the application that hydration logic relies on. This can happen when the provideClientHydration() function is included in the client part of the application configuration, but is missing in the server part of the configuration. In applications with the default project structure (generated by the ng new ), the provideClientHydration() call is added either into the providers array of the main AppModule (which is imported into the server module) or into a set of providers that are included into both client and server configurations. If you have a custom setup where client and server configuration are independent and do not share common set of providers, make sure that the provideClientHydration() is also included into the set of providers used to bootstrap an application …"
+    },
+    {
+      "code": "NG0506",
+      "title": "Application remains unstable",
+      "body": "Application remains unstable edit This warning only appears in the browser during the hydration process when it's enabled on the client but the application remains unstable for an extended period of time (over 10 seconds). Typically that happens when there are some pending microtasks or macrotasks on a page. Angular Hydration relies on a signal from ApplicationRef.isStable when it becomes stable inside an application: during the server-side rendering (SSR) to start the serialization process in a browser this signal is used to start the post-hydration cleanup to remove DOM nodes that remained unclaimed This warning is displayed when ApplicationRef.isStable does not emit true within 10 seconds. If this behavior is intentional and your application stabilizes later, you could choose to ignore this warning. Applications that use zone.js Applications that use zone.js may have various factors contributing to delays in stability. These may include pending HTTP requests, timers ( setInterval …"
+    },
+    {
+      "code": "NG0507",
+      "title": "HTML content was altered after server-side rendering",
+      "body": "HTML content was altered after server-side rendering edit Angular throws this error when it detects that the content generated by server-side rendering (SSR) was altered after the rendering. The process of hydration relies on the content to be untouched after SSR, which also includes whitespaces and comment nodes. Those whitespaces and comment nodes must be retained in the HTML generated by the SSR process. Learn more in the Hydration guide. Debugging the error Typically this happens in the following cases: Some CDN providers have a built-in feature to remove whitespaces and comment nodes from HTML as an optimization. Please verify if there is such an option in CDN configuration and turn it off. If you use custom post-processing of HTML generated by SSR (as a build step), make sure that this process doesn't remove whitespaces and comment nodes."
+    },
+    {
+      "code": "NG05101",
+      "title": "No event manager plugin found for event",
+      "body": "No event manager plugin found for event edit This error occurs when Angular tries to set up a listener for an event but none of the registered event manager plugins recognizes the event name. Debugging the error The error message includes the unrecognized event name. It occurs only when no registered plugin supports the event, for example when an EventManager is created with a custom plugin list that does not include DomEventsPlugin , as in unit tests or custom setups. If the event name is intentional and belongs to a third-party plugin (for example, a Hammer.js gesture event), make sure the plugin is provided via the EVENT_MANAGER_PLUGINS token: import { ApplicationConfig } from '@angular/core' ; import { EVENT_MANAGER_PLUGINS } from '@angular/platform-browser' ; export const appConfig : ApplicationConfig = { providers: [{provide: EVENT_MANAGER_PLUGINS , useClass: MyCustomPlugin, multi: true }], };"
+    },
+    {
+      "code": "NG05102",
+      "title": "Unsupported event target",
+      "body": "Unsupported event target edit Angular only recognizes three string values as global event targets: &#39;window&#39; , &#39;document&#39; , and &#39;body&#39; . If you pass anything else as a string target when registering a global event listener, Angular can't resolve it and throws this error. Debugging the error Check for a typo in the target name used with @HostListener or Renderer2.listen() . A small mistake like &#39;windw&#39; instead of &#39;window&#39; is enough to trigger this: @ Component ({ selector: 'app-example' , template: ' &lt; button &gt;Click me&lt;/ button &gt; ' , }) export class Example { @ HostListener ( 'windw:resize' ) // typo — should be 'window' onResize () {} } The same applies when calling Renderer2.listen() directly with a string that Angular doesn't know about: this .renderer. listen ( 'global' , 'click' , handler); // 'global' is not supported Fixing the error Correct the target to one of the …"
+    },
+    {
+      "code": "NG05104",
+      "title": "Root element was not found",
+      "body": "Root element was not found edit Bootstrapped components are defined in the bootstrap property of an @NgModule decorator or as the first parameter of bootstrapApplication for standalone components. This error happens when Angular tries to bootstrap one of these components but cannot find its corresponding node in the DOM. Debugging the error This issue occurs when the selector mismatches the tag @ Component ({ selector: 'my-app' , ... }) export class App {} &lt; html &gt; &lt; app-root &gt;&lt;/ app-root &gt; &lt;!-- Doesn't match the selector --&gt; &lt;/ html &gt; Replace the tag with the correct one: &lt; html &gt; &lt; my-app &gt;&lt;/ my-app &gt; &lt;!-- OK --&gt; &lt;/ html &gt;"
+    },
+    {
+      "code": "NG05106",
+      "title": "Insertion reference node not found",
+      "body": "Insertion reference node not found edit Angular threw this error because it tried to insert a DOM node next to another node it was tracking, and that node isn't where Angular expects it to be anymore. Angular keeps track of the DOM nodes it renders so it knows where to insert, move, or remove things later, for example when a @for block re-renders. If something outside Angular changes that part of the DOM (removes a node, moves it somewhere else), Angular's internal record goes stale. The next time it tries to insert next to that node, you get this error instead of a confusing native NotFoundError . This can happen because of: App code touching the DOM directly ( ElementRef.nativeElement , document.querySelector , innerHTML , etc.) instead of going through Angular. A browser extension messing with the page, like a translation tool, a grammar checker, or a password manager. …"
+    },
+    {
+      "code": "NG05201",
+      "title": "Unsafe resource URL passed to DomSanitizer",
+      "body": "Unsafe resource URL passed to DomSanitizer edit Angular throws this error, with the message unsafe value used in a resource URL context , when DomSanitizer.sanitize() is called with SecurityContext.RESOURCE_URL and a value that hasn't been explicitly marked as trusted. Resource URLs are treated differently from regular URLs. Angular can sanitize a plain URL, but it can't make an arbitrary resource URL safe because resource URL attributes, like &lt;iframe src&gt; or &lt;link href&gt; , cause the browser to fetch and execute external content. So sanitize() rejects untrusted values rather than trying to sanitize them. Binding an untrusted value to one of these attributes in a template or host binding throws NG0904 instead. Debugging the error Look for a sanitize() call that uses SecurityContext.RESOURCE_URL . The error is thrown for any plain string, even a static-looking URL: @ Component ({ selector: 'app-root' , template: ` &lt; iframe [src] = \"url\" &gt;&lt;/ …"
+    },
+    {
+      "code": "NG05703",
+      "title": "Suspicious URL Origin Change",
+      "body": "Suspicious URL Origin Change edit This error occurs in Server-Side Rendering (SSR) environments when a URL resolution results in an unexpected origin change. This check is a security feature in @angular/platform-server designed to protect your application from Server-Side Request Forgery (SSRF) and security bypasses. Description To perform HTTP requests and process route states during SSR, Angular must resolve relative URLs to absolute URLs. During this resolution process, Angular validates that the resolved URL does not unexpectedly point to an external or untrusted origin. If a URL behaves like a relative path but resolves to a different origin, Angular throws NG05703 and blocks the request/navigation. Common causes Backslash-prefixed hijack attempts (open redirects / SSRF bypass): Relative paths beginning with slashes and backslashes (such as /\\\\attacker.com/path or \\\\\\\\attacker.com/path ) can be interpreted differently by browsers and server-side URL parsers. In some parser implementations, these resolve to an absolute URL pointing to …"
+    },
+    {
+      "code": "NG0600",
+      "title": "Signal write in a disallowed context",
+      "body": "Signal write in a disallowed context edit Angular throws this error when a signal is written to (with set or update ) while a computed or a template is being evaluated. Both are expected to only read signals, so writing to one there would change state in the middle of computing it. The error message says which of the two cases it is. Writing to signals is not allowed in a computed A computed should derive its value from other signals without side effects: count = signal ( 1 ); total = signal ( 0 ); doubled = computed (() =&gt; { this .total. set ( this . count () * 2 ); // not allowed return this . count () * 2 ; }); If the value only depends on other signals, make it a computed itself instead of storing it: count = signal ( 1 ); total …"
+    },
+    {
+      "code": "NG0602",
+      "title": "Disallowed function call inside reactive context",
+      "body": "Disallowed function call inside reactive context edit A function that is not allowed to run inside a reactive context was called from within a reactive context. For example, an effect cannot be scheduled from within a computed or an actively executing effect. Avoid calling functions like effect as part of template expressions, as those execute in their own reactive context. Computed expressions are expected to be pure. Pure means that expression do not trigger any side effects. Side effects are operations like scheduling afterNextRender / afterEveryRender , creating a new effect , or subscribing to observables. Some operations are explicitly banned inside reactive contexts in order to avoid common pitfalls. As an example, using afterNextRender / afterEveryRender inside a computed will schedule new render hooks every time the computed expression evaluates. This is likely not intended and could degrade application performance. Fixing the error This error guide is non-exhaustive. …"
+    },
+    {
+      "code": "NG0750",
+      "title": "@defer dependencies failed to load",
+      "body": "@defer dependencies failed to load edit This error occurs when loading dependencies for a @defer block fails (typically due to poor network conditions) and no @error block has been configured to handle the failure state. Having no @error block in this scenario may create a poor user experience. Debugging the error Verify that you added @error blocks to your @defer blocks to handle failure states."
+    },
+    {
+      "code": "NG0751",
+      "title": "@defer behavior when HMR is enabled",
+      "body": "@defer behavior when HMR is enabled edit Hot Module Replacement (HMR) is a technique used by development servers to avoid reloading the entire page when only part of an application is changed. When the HMR is enabled in Angular, all @defer block dependencies are loaded eagerly, instead of waiting for configured trigger conditions (both for client-only and incremental hydration triggers). This is needed for the HMR to function properly, replacing components in an application at runtime without the need to reload the entire page. NOTE: the actual rendering of defer blocks respects trigger conditions in the HMR mode. If you want to test @defer block behavior in development mode and ensure that the necessary dependencies are loaded when a triggering condition is met, you can disable the HMR mode as described in this document ."
+    },
+    {
+      "code": "NG0904",
+      "title": "Unsafe value used in a resource URL context",
+      "body": "Unsafe value used in a resource URL context edit Angular throws this error, with the message unsafe value used in a resource URL context , when a template or host binding sets an attribute that loads an external resource — like &lt;iframe src&gt; or &lt;link href&gt; — to a value that hasn't been explicitly marked as trusted. Resource URLs are treated differently from regular URLs. Angular can sanitize a plain URL, but it can't make an arbitrary resource URL safe because these attributes cause the browser to fetch and execute external content. So Angular rejects untrusted values rather than trying to sanitize them. The attributes that trigger this check are: Element Attribute(s) &lt;base&gt; href &lt;embed&gt; src &lt;frame&gt; src &lt;iframe&gt; src &lt;link&gt; href &lt;object&gt; codebase , data Debugging the error The error is thrown when any plain string is bound to one of the attributes above, even a static-looking URL: …"
+    },
+    {
+      "code": "NG0910",
+      "title": "Unsafe bindings on an element",
+      "body": "Unsafe bindings on an element edit You see this error when Angular detects a property binding or an attribute binding to a security-sensitive attribute. Angular requires these attributes to be set as static attributes, so their values are set when the element is created and remain the same throughout its lifetime. The error message names the attribute and the element. This applies to: &lt;iframe&gt; attributes that set up its security model: sandbox , allow , allowFullscreen , referrerPolicy , csp , fetchPriority and credentialless . They must be applied before the src or srcdoc attributes. SVG animation attributes that could change the href of another element, such as attributeName on &lt;animate&gt; and &lt;set&gt; . For example, the error is thrown when a property binding is used: &lt; iframe [sandbox] = \"'allow-scripts'\" src = \"...\" &gt;&lt;/ iframe &gt; or when it's an attribute bindings: &lt; iframe [attr.sandbox] = \"'allow-scripts'\" src …"
+    },
+    {
+      "code": "NG0912",
+      "title": "Component ID generation collision",
+      "body": "Component ID generation collision edit When creating components, Angular generates a unique component ID for each component. This is generated using the Angular component metadata, including but not limited: selectors, the number of host bindings, class property names, view and content queries. When two components metadata are identical (often times sharing the same selector), an ID generation collision will occur. Component IDs are used in Angular internally: for extra annotations of DOM nodes for style encapsulation during hydration to restore an application state after server-side rendering . To avoid issues that might be caused by the component ID collision, it's recommended to resolve them as described below. Example of a Component ID collision @ Component ({ selector: 'my-component' , template: 'complex-template' , }) class Some {} @ Component ({ selector: 'my-component' , template: 'empty-template' , }) class SomeMocked {} Having these two components defined will trigger an ID generation …"
+    },
+    {
+      "code": "NG0913",
+      "title": "Runtime Performance Warnings",
+      "body": "Runtime Performance Warnings edit Oversized images When images are loaded, the intrinsic size of the downloaded file is checked against the actual size of the image on the page. The actual size is calculated using the rendered size of the image with CSS applied, multiplied by the pixel device ratio . If the downloaded image is much larger (more than 1200px too large in either dimension), this warning is triggered. Downloading oversized images can slow down page loading and have a negative effect on Core Web Vitals . Lazy-loaded LCP element The largest contentful element on a page during load is considered the \"LCP Element\", which relates to Largest Contentful Paint , one of the Core Web Vitals. Lazy loading an LCP element will have a strong negative effect on page performance. With this strategy, the browser has to complete layout calculations to determine whether the element is in …"
+    },
+    {
+      "code": "NG0919",
+      "title": "Circular Dependency Detected",
+      "body": "Circular Dependency Detected edit Angular detected a circular dependency between components, directives, or pipes. This error occurs when component A imports component B, and component B (directly or indirectly) imports component A, creating a cycle. This circular reference prevents Angular from properly initializing the components, resulting in an error like: NG0919: Cannot read @ Component metadata . This can indicate a runtime circular dependency in your app that needs to be resolved. In older Angular versions, you might instead see an error like: Cannot read properties of undefined (reading 'ɵcmp') Common Causes Mutual Component Imports The most common cause is when two components import each other: parent.ts import { Component } from '@angular/core' ; import {Child} from './child' ; @ Component ({ selector: 'app-parent' , imports: [Child], template: ' &lt; app-child /&gt; ' , }) export class Parent {} child.ts import { Component } from '@angular/core' ; import {Parent} …"
+    },
+    {
+      "code": "NG0950",
+      "title": "Required input is accessed before a value is set.",
+      "body": "Required input is accessed before a value is set. edit A required input was accessed but no value was bound. This can happen when a required input is accessed too early in your directive or component. This is commonly happening when the input is read as part of class construction. Inputs are guaranteed to be available in the ngOnInit lifecycle hook and afterwards. Fixing the error Access the required input in reactive contexts. For example, in the template itself, inside a computed , or inside an effect. Alternatively, access the input inside the ngOnInit lifecycle hook, or later."
+    },
+    {
+      "code": "NG0951",
+      "title": "Child query result is required but no value is available.",
+      "body": "Child query result is required but no value is available. edit Required child query ( contentChild.required or viewChild.required ) result was accessed before query results were calculated or query has no matches. This can happen in two distinct situations: query results were accessed before a given query could collect results; a query was executed but didn't match any nodes and has no results as a consequence. Content queries and view queries each calculate their results at different points in time: contentChild results are available after a host view (template where a directive declaring a query is used) is created; viewChild results are available after a template of a component declaring a query is created. Accessing query results before they're available results in the error described on this page. Most notably, query results are never available in a constructor of the component or directive declaring a query. Fixing the error …"
+    },
+    {
+      "code": "NG0955",
+      "title": "Track expression resulted in duplicated keys for a given collection.",
+      "body": "Track expression resulted in duplicated keys for a given collection. edit A track expression specified in the @for loop evaluated to duplicated keys for a given collection, ex.: @ Component ({ template: ` @for ( item of items; track item.value) { {{ item.value }} } ` , }) class Test { items = [ {key: 1 , value: 'a' }, {key: 2 , value: 'b' }, {key: 3 , value: 'a' }, ]; } In the provided example the item.value tracking expression will find two duplicate keys a (at index 0 and 2). Duplicate keys are problematic from the correctness point of view: since the @for loop can't uniquely identify items it might choose DOM nodes corresponding to another item (with the same key) when performing DOM moves or destroy. There is also performance penalty associated with duplicated keys - internally Angular must use more sophisticated and slower data …"
+    },
+    {
+      "code": "NG0956",
+      "title": "Tracking expression caused re-creation of the DOM structure.",
+      "body": "Tracking expression caused re-creation of the DOM structure. edit The identity track expression specified in the @for loop caused re-creation of the DOM corresponding to all items. This is a very expensive operation that commonly occurs when working with immutable data structures. For example: @ Component ({ template: ` &lt; button (click) = \"toggleAllDone()\" &gt;All done!&lt;/ button &gt; &lt; ul &gt; @for ( todo of todos; track todo) { &lt; li &gt;{{ todo.task }}&lt;/ li &gt; } &lt;/ ul &gt; ` , }) export class App { todos = [ {id: 0 , task: 'understand trackBy' , done: false }, {id: 1 , task: 'use proper tracking expression' , done: false }, ]; toggleAllDone () { this .todos = this .todos. map (( todo ) =&gt; ({ ... todo, done: true })); } } In the provided example, the entire list with all the views (DOM nodes, Angular directives, …"
+    },
+    {
+      "code": "NG0991",
+      "title": "Resource completed before producing a value",
+      "body": "Resource completed before producing a value edit This error happens when an Observable -backed resource — rxResource or httpResource — finishes (completes) without ever sending a value or an error. A resource always needs to end up with something : a value it loaded, or an error explaining what went wrong. An Observable that just completes silently doesn't give Angular either of those, so Angular doesn't know what to put in the resource — and it throws this error instead. With httpResource httpResource doesn't give you an Observable to write yourself — it makes the HTTP call internally through HttpClient and completes once the response comes back. So if you're seeing this error from httpResource , the request itself isn't the problem; something sitting in front of it is swallowing the response before it gets there. The usual suspect is an HttpInterceptor that catches an error and doesn't re-emit …"
+    },
+    {
+      "code": "NG1001",
+      "title": "Argument Not Literal",
+      "body": "Argument Not Literal edit To make the metadata extraction in the Angular compiler faster, the decorators @NgModule , @Pipe , @Component , @Directive , and @Injectable accept only object literals as arguments. This is an intentional change in Ivy , which enforces stricter argument requirements for decorators than View Engine. Ivy requires this approach because it compiles decorators by moving the expressions into other locations in the class output. Debugging the error Move all declarations: const moduleDefinition = {…} @ NgModule (moduleDefinition) export class AppModule { constructor () {} } into the decorator: @ NgModule ({…}) export class AppModule { constructor () {} }"
+    },
+    {
+      "code": "NG2003",
+      "title": "Missing Token",
+      "body": "Missing Token edit There is no injection token for a constructor parameter at compile time. InjectionTokens are tokens that can be used in a Dependency Injection Provider. Debugging the error Look at the parameter that throws the error, and all uses of the class. This error is commonly thrown when a constructor defines parameters with primitive types such as string , number , boolean , and Object . Use the @Injectable method or @Inject decorator from @angular/core to ensure that the type you are injecting is reified (has a runtime representation). Make sure to add a provider to this decorator so that you do not throw NG0201: No Provider Found ."
+    },
+    {
+      "code": "NG2009",
+      "title": "Invalid Shadow DOM selector",
+      "body": "Invalid Shadow DOM selector edit The selector of a component using ViewEncapsulation.ShadowDom doesn't match the custom element tag name requirements. In order for a tag name to be considered a valid custom element name, it has to: Be in lower case. Contain a hyphen. Start with a letter (a-z). Debugging the error Rename your component's selector so that it matches the requirements. Before: @ Component ({ selector: 'comp' , encapsulation: ViewEncapsulation .ShadowDom … }) After: @ Component ({ selector: 'app-comp' , encapsulation: ViewEncapsulation .ShadowDom … })"
+    },
+    {
+      "code": "NG3003",
+      "title": "Import Cycle Detected",
+      "body": "Import Cycle Detected edit A component, directive, or pipe that is referenced by this component would require the compiler to add an import that would lead to a cycle of imports. For example, consider a scenario where a Parent references a Child in its template: parent.ts import { Component } from '@angular/core' ; import {Child} from './child' ; @ Component ({ selector: 'app-parent' , imports: [Child], template: ' &lt; app-child /&gt; ' , }) export class Parent {} child.ts import { Component , inject} from '@angular/core' ; import {Parent} from './parent' ; @ Component ({ selector: 'app-child' , template: ' The child! ' , }) export class Child { private parent = inject (Parent); } There is already an import from child.ts to parent.ts since the Child references the Parent in its constructor. HELPFUL: The parent component's template contains &lt;child&gt;&lt;/child&gt; . The generated code for this template must therefore …"
+    },
+    {
+      "code": "NG6100",
+      "title": "NgModule.id Set to module.id anti-pattern",
+      "body": "NgModule.id Set to module.id anti-pattern edit Using module.id as an NgModule id is a common anti-pattern and is likely not serving a useful purpose in your code. NgModules can be declared with an id : @ NgModule ({ id: 'my_module' , }) export class MyModule {} Declaring an id makes the NgModule available for lookup via the getNgModuleById() operation. This functionality is rarely used, mainly in very specific bundling scenarios when lazily loading NgModules without obtaining direct references to them. In most Angular code, ES dynamic import() ( import(&#39;./path/to/module&#39;) ) should be used instead, as this provides a direct reference to the NgModule being loaded without the need for a global registration side effect. If you are not using getNgModuleById , you do not need to provide id s for your NgModules. Providing one has a significant drawback: it makes the NgModule non-tree-shakable, which can have an impact on …"
+    },
+    {
+      "code": "NG8001",
+      "title": "Invalid Element",
+      "body": "Invalid Element edit One or more elements cannot be resolved during compilation because the element is not defined by the HTML spec, or there is no component or directive with such element selector. HELPFUL: This is the compiler equivalent of a common runtime error NG0304: &#39;${tagName}&#39; is not a known element: ... . Debugging the error Use the element name in the error to find the file(s) where the element is being used. Check that the name and selector are correct. Make sure that the component is correctly imported inside your NgModule or standalone component, by checking its presence in the imports field. If the component is declared in an NgModule (meaning that it is not standalone) make sure that it is exported correctly from it, by checking its presence in the exports field. When using custom elements or web components, ensure that you add CUSTOM_ELEMENTS_SCHEMA to the application …"
+    },
+    {
+      "code": "NG8002",
+      "title": "Invalid Attribute",
+      "body": "Invalid Attribute edit An attribute or property cannot be resolved during compilation. This error arises when attempting to bind to a property that does not exist. Any property binding must correspond to either: A native property on the HTML element, or An input() / @Input() property of a component or directive applied to the element. The runtime error for this is NG0303: Can&#39;t bind to &#39;${propName}&#39; since it isn&#39;t a known property of &#39;${tagName}&#39; . Debugging the error Look at documentation for the specific binding syntax used. This is usually a typo or incorrect import. There may also be a missing direction with property selector 'name' or missing input."
+    },
+    {
+      "code": "NG8003",
+      "title": "Missing Reference Target",
+      "body": "Missing Reference Target edit Angular can't find a directive with {{ PLACEHOLDER }} export name. This is common with a missing import or a missing exportAs on a directive. HELPFUL: This is the compiler equivalent of a common runtime error NG0301: Export Not Found . Debugging the error Use the string name of the export not found to trace the templates or modules using this export. Ensure that all dependencies are properly imported and declared in our Modules. For example, if the export not found is ngForm , we will need to import FormsModule and declare it in our list of imports in *.module.ts to resolve the missing export error. import { FormsModule } from '@angular/forms' ; @ NgModule ({ … imports: [ FormsModule , … If you recently added an import, you will need to restart your server to see these changes."
+    },
+    {
+      "code": "NG8011",
+      "title": "Control flow preventing content projection",
+      "body": "Control flow preventing content projection edit An element or &lt;ng-template&gt; inside a control flow block would be projected into a specific &lt;ng-content&gt; slot, but isn't because the block has more than one root node. import { Component } from '@angular/core' ; @ Component ({ selector: 'app-card' , template: ` &lt; ng-content select = \"[card-title]\" /&gt; &lt; ng-content /&gt; ` , }) class Card {} @ Component ({ imports: [Card], // NG8011: &lt;h2 card-title&gt; is not projected into the \"[card-title]\" slot because the @if // block has two root nodes (the h2 and the p). template: ` &lt; app-card &gt; @if (showTitle) { &lt; h2 card-title &gt; Title &lt;/ h2 &gt; &lt; p &gt;Subtitle&lt;/ p &gt; } &lt;/ app-card &gt; ` , }) class MyComponent { showTitle = true ; } Debugging the error Control flow blocks emulate the content projection behavior of *ngIf and *ngFor , which project the …"
+    },
+    {
+      "code": "NG8023",
+      "title": "Multiple Components Match Same Element",
+      "body": "Multiple Components Match Same Element edit Two or more components in the compilation scope match the same element in a template. Because Angular can associate only one component with a given element, selectors must be unique enough to prevent ambiguity. NOTE: This is the build-time equivalent of the runtime error NG0300: Selector Collision . Detecting this at compile time means the error surfaces immediately. import { Component } from '@angular/core' ; @ Component ({ selector: '[stroked-button]' , template: '' , }) export class StrokedBtn {} @ Component ({ selector: '[raised-button]' , template: '' , }) export class RaisedBtn {} @ Component ({ selector: 'app-root' , // NG8023: StrokedBtn and RaisedBtn both match this element. template: ` &lt; button stroked-button raised-button &gt;&lt;/ button &gt; ` , imports: [StrokedBtn, RaisedBtn], }) export class App {} Debugging the error Use the element name from the error message to search for places where …"
+    },
+    {
+      "code": "NG8024",
+      "title": "Conflicting Host Directive Binding",
+      "body": "Conflicting Host Directive Binding edit Two or more host directive declarations expose the same input or output under different aliases , making it impossible for Angular to merge the duplicate host directive instances. This error arises from the diamond composition pattern : two directives both declare the same shared directive in their hostDirectives , but each exposes one of its bindings under a different alias name. @ Directive () export class Shared { readonly value = input ( '' ); } @ Directive ({ selector: '[dirA]' , hostDirectives: [{directive: Shared, inputs: [ 'value: aliasA' ]}], }) export class DirA {} @ Directive ({ selector: '[dirB]' , hostDirectives: [{directive: Shared, inputs: [ 'value: aliasB' ]}], // different alias! }) export class DirB {} @ Component ({ selector: 'app-root' , // NG8024: Shared.value is exposed as both \"aliasA\" (via DirA) and \"aliasB\" (via DirB). template: ` &lt; div dirA dirB &gt;&lt;/ …"
+    }
+  ]
+}

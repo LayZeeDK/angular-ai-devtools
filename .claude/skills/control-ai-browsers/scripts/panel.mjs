@@ -14,6 +14,11 @@
  * @property {string | null} answer
  * @property {string | null} error  what the panel showed instead, or why the run stopped
  * @property {string | null} status  the panel's "Prompt API: ..." line
+ * @property {string} feature  which panel flow ran: `version` or `error-explainer`
+ * @property {string | null} code  N4: the captured error code the panel showed
+ * @property {string | null} component  N4: the owning component the panel showed
+ * @property {string | null} digest  N4: the digest entry the panel showed
+ * @property {boolean} digestPresent  N4: whether the digest entry resolved
  * @property {number} answerMs  from the click to the rendered answer or error
  * @property {Step[]} steps
  */
@@ -136,10 +141,10 @@ async function connect(wsUrl) {
 /**
  * @param {string} cdp  http://127.0.0.1:<port>
  * @param {string} appUrl  a page of an Angular app (an [ng-version] element)
- * @param {{ answerTimeoutMs?: number }} [options]
+ * @param {{ answerTimeoutMs?: number, feature?: string }} [options]
  * @returns {Promise<PanelRun>}
  */
-export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000 } = {}) {
+export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000, feature = 'version' } = {}) {
   const t0 = Date.now();
   /** @type {Step[]} */
   const steps = [];
@@ -147,7 +152,7 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000 } = {})
   const note = (step, value) => steps.push({ at: Date.now() - t0, step, value });
   const targets = async () => /** @type {Target[]} */ (await (await fetch(`${cdp}/json/list`, { signal: AbortSignal.timeout(5000) })).json());
   /** @type {PanelRun} */
-  const run = { ok: false, ngVersion: null, extensionId: null, answer: null, error: null, status: null, answerMs: 0, steps };
+  const run = { ok: false, feature, ngVersion: null, extensionId: null, code: null, component: null, digest: null, digestPresent: false, answer: null, error: null, status: null, answerMs: 0, steps };
   /** @type {Session[]} */
   const open = [];
   /** @param {string} url */
@@ -226,25 +231,61 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000 } = {})
     }
 
     const panel = await attach(panelTarget.webSocketDebuggerUrl);
-    note('panel', await poll(() => panel.evaluate(`document.body.innerText.includes('Why did this update?')`), 15000));
+    const isErrors = feature === 'error-explainer' || feature === 'errors';
+    if (isErrors) {
+      // A file-based extension origin serves no deep link, so route the loaded panel document in place.
+      await panel.evaluate(`(() => { history.pushState({}, '', '/panel/error-explainer'); window.dispatchEvent(new PopStateEvent('popstate')); return location.href; })()`);
+    }
+    note('panel', await poll(() => panel.evaluate(`document.body && document.body.innerText.length > 0`), 15000));
     // The panel loads when shown, after the page announced Angular; a reload announces it again.
     await page.send('Page.reload');
-    const button = `document.querySelector(${JSON.stringify(SELECTORS.explain)})`;
-    const found = await poll(() => panel.evaluate(`!!${button}`), 30000);
+    // Wait for the inspected page to finish reloading before injecting the captured error.
+    await poll(() => page.evaluate(`document.readyState === 'complete'`), 30000);
+    if (isErrors) {
+      await page.evaluate(`console.error('NG0100: ExpressionChangedAfterItHasBeenCheckedError: Expression has changed after it was checked.')`);
+    }
+    /** @type {Record<string, string>} */
+    const selectors = isErrors
+      ? { explain: '[data-testid="explain"]', answer: '[data-testid="ai-answer"]', error: '[data-testid="empty-state"]', code: '[data-testid="error-code"]', component: '[data-testid="owning-component"]', digest: '[data-testid="digest-entry"]', captured: '[data-testid="captured-error"]' }
+      : SELECTORS;
+    const N4 = { code: '[data-testid="error-code"]', component: '[data-testid="owning-component"]', digest: '[data-testid="digest-entry"]' };
+    // An app can log its own console errors, so read the row whose code is the NG one rather than the first row.
+    const row = isErrors
+      ? `(Array.from(document.querySelectorAll('[data-testid="captured-error"]')).find((r) => /NG0\\d+/.test(r.querySelector('[data-testid="error-code"]')?.textContent || '')) || null)`
+      : null;
+    /** @param {string} sel @returns {string} */
+    const field = (sel) => (row ? `${row}?.querySelector(${JSON.stringify(sel)})?.textContent?.trim() ?? null` : `document.querySelector(${JSON.stringify(sel)})?.textContent?.trim() ?? null`);
+    const button = row ? `${row}?.querySelector('[data-testid="explain"]')` : `document.querySelector(${JSON.stringify(selectors.explain)})`;
+    let found = await poll(() => panel.evaluate(`!!${button}`), isErrors ? 3000 : 30000);
+    // The capture relay starts at document_idle, which can land after load; re-inject until the panel shows the row.
+    for (let attempt = 0; isErrors && !found && attempt < 8; attempt++) {
+      await page.evaluate(`console.error('NG0100: ExpressionChangedAfterItHasBeenCheckedError: Expression has changed after it was checked.')`);
+      found = await poll(() => panel.evaluate(`!!${button}`), 4000);
+    }
     note('button', found ?? false);
 
     if (!found) {
-      run.error = `the panel shows no ${SELECTORS.explain} within 30 s: no Angular detection was recorded, or the panel build predates the data-testid attributes (rebuild with build-extension and open DevTools again)`;
+      const seen = await panel.evaluate(`JSON.stringify({ url: location.pathname, text: (document.body.innerText || '').slice(0, 200), ids: ['empty-state', 'captured-error', 'error-code', 'owning-component', 'digest-entry', 'explain', 'ai-answer'].filter((id) => !!document.querySelector('[data-testid="' + id + '"]')) })`);
+      run.error = `the panel shows no ${selectors.explain} within 30 s: no Angular detection was recorded, or the panel build predates the data-testid attributes (rebuild with build-extension and open DevTools again); panel: ${seen}`;
 
       return run;
     }
 
+    if (isErrors) {
+      // Read the observed N4 facts before clicking Explain.
+      run.code = /** @type {string | null} */ ((await panel.evaluate(field(N4['code']))) ?? null);
+      run.component = /** @type {string | null} */ ((await panel.evaluate(field(N4['component']))) ?? null);
+      run.digest = /** @type {string | null} */ ((await panel.evaluate(field(N4['digest']))) ?? null);
+      run.digestPresent = !!run.digest && run.digest !== 'no digest entry';
+      note('n4', { code: run.code, component: run.component, digestPresent: run.digestPresent });
+    }
+
     const clickedAt = Date.now();
-    await panel.evaluate(`${button}.click()`);
+    await panel.evaluate(`${button}?.click()`);
     /** @type {{ answer?: string, error?: string } | undefined} */
-    const out = await poll(() => panel.evaluate(`(() => { const a = document.querySelector(${JSON.stringify(SELECTORS.answer)})?.textContent?.trim(); const e = document.querySelector(${JSON.stringify(SELECTORS.error)})?.textContent?.trim(); return a ? { answer: a } : e ? { error: e } : null; })()`), answerTimeoutMs, 500);
+    const out = await poll(() => panel.evaluate(`(() => { const a = document.querySelector(${JSON.stringify(selectors.answer)})?.textContent?.trim(); const e = document.querySelector(${JSON.stringify(selectors.error)})?.textContent?.trim(); return a ? { answer: a } : e ? { error: e } : null; })()`), answerTimeoutMs, 500);
     run.answerMs = Date.now() - clickedAt;
-    run.status = /** @type {string | null} */ ((await panel.evaluate(`document.querySelector(${JSON.stringify(SELECTORS.status)})?.textContent?.trim() ?? null`)) ?? null);
+    run.status = SELECTORS.status ? /** @type {string | null} */ ((await panel.evaluate(`document.querySelector(${JSON.stringify(SELECTORS.status)})?.textContent?.trim() ?? null`)) ?? null) : null;
     run.answer = out?.answer ?? null;
     run.error = out?.error ?? (out ? null : `no answer or error in the panel within ${answerTimeoutMs / 1000} s`);
     run.ok = run.answer !== null;

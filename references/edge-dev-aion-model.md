@@ -34,6 +34,21 @@ Aion works only when the model and runtime on disk match the version the manifes
 - The `state` verdict over the four instances of the time, on that setup: verified, 2/2 runs
   (`tmp/control-ai-browsers/verify/health-check/20261017T1430Z-state-rerun2`).
 
+## What changed (measured 2026-10-30, Edge Dev 158.0.4357.0)
+
+The 2026.10.2.1 pin stopped serving when Edge Dev moved to 158. Doctor reached every row through `api.availability`
+and then hung on the canary prompt: 17 minutes with no answer, and `down` reported `run-code failed: playwright-cli
+run-code timed out after 90000 ms; a tab renderer may be hung`, so the renderer wedged rather than ran slowly.
+
+With `--disable-component-update` removed for one launch, the updater advanced the manifest to 2026.10.19.1, and
+`model download` installed model 2026.10.15.1 and runtime 2026.10.12.1 alongside the old folders. Doctor then exited
+0 on that pair (`model.broker` Ready 100%, `model.contextWindow` 7168, `canary.structured` 2.5 s, `canary.tools`
+2.0 s answering 42 components), and it kept passing across a `down`/`up` from a fresh pin.
+
+The pin now holds 2026.10.15.1 / 2026.10.12.1 / 2026.10.19.1 and `--disable-component-update` stays on, so the
+updater cannot replace it again. The 2026.10.2.1 folders are still on disk and in
+`tmp/control-ai-browsers/pins/edge-dev-aion.2026.10.2.1`, but they do not serve on 158.
+
 Measured: `down` and the skill do not cause the break. The command line and features were the same in the broken
 and the working state (doctor's `flags` row passed in both); only the model folders differed. A broken download
 leaves the same wrong folders, and the restore on `up` covers both.

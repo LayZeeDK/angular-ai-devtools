@@ -8,6 +8,7 @@ Read a reference only when the task touches it.
 - TypeScript is pinned to 6.0.x (`package.json`). If `npm run check` fails with errors no change explains, check
   `node_modules/typescript/package.json`: a 7.x there means a stale install; run `npm ci`.
 - Checks: `npm run check` (type check, root and skills) and `npm test` (node:test, root and skills).
+- Nx CLI entry for this install: `node_modules/nx/dist/bin/nx.js` (Nx 23); invoke via `node` or `npx nx`.
 
 ### Verify sidecar dependencies
 
@@ -38,9 +39,10 @@ sidecars, including worktree and branch).
   `verify-ai-browsers` drive shared instances, so `.claude/skills/` holds byte copies of them; after changing one,
   copy its `.commandcode` folder over the `.claude` one (`scripts/skills-mirror.test.mjs` fails until you do). The
   other `.claude/skills/` folders are older copies, not kept in step. `npm test` and `npm run check` cover both trees.
-- `edge-dev-aion` is pinned to Aion model and runtime 2026.10.2.1 on purpose. Do not remove
-  `--disable-component-update` or replace the pinned folders until a newer pair is proven to serve, and test that
-  only on a throwaway copy of the profile: `references/edge-dev-aion-model.md`.
+- `edge-dev-aion` runs with `--disable-component-update` and a pin of model 2026.10.15.1, runtime 2026.10.12.1 and
+  manifest 2026.10.19.1 (measured 2026-10-30 on Edge Dev 158.0.4357.0: doctor exit 0, canaries 2-4 s). The earlier
+  2026.10.2.1 pin could not generate on 158 and wedged a renderer, so do not restore it. Keep the switch, and prove a
+  newer pair on a throwaway copy of the profile first: `references/edge-dev-aion-model.md`.
 - Running the `state` and `extension-panel` verdicts (cost, timeouts, known hangs, coordinating with other sessions):
   `references/ai-browsers-verification.md`.
 

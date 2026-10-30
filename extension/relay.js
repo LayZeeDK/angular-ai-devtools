@@ -12,6 +12,11 @@ window.addEventListener('angular-ai:di-graph', (e) => {
   chrome.runtime.sendMessage({ type: 'angular-ai:di-graph', ...d });
 });
 
+window.addEventListener('angular-ai:error-capture', (e) => {
+  const d = e.detail || {};
+  chrome.runtime.sendMessage({ type: 'angular-ai:error-capture', ...d });
+});
+
 // Forward supported / not-supported state from the MAIN-world agent
 window.addEventListener('angular-ai:state', (e) => {
   const d = e.detail || {};

@@ -331,7 +331,7 @@ Depends on: []
 Surfaces: DevTools panel
 Status: shipped
 Archive: .project/archive/009-consolidation-hardening
-Integrated: null
+Integrated: 7354c107aa977ca68de24b959e714efba8238e26
 
 Scope: in
 - Defect review and fixes across the extension contexts, panel components, MAIN-world tracers, prompt/fact-list plumbing and their tests.
@@ -374,8 +374,8 @@ Open questions
 Goal: Build the Angular error explainer (N4): capture NG0xxx and uncaught console errors, map them to the owning component, and explain them from a bundled offline digest in the DevTools panel.
 Depends on: []
 Surfaces: DevTools panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/010-n4-error-explainer
 Integrated: null
 
 Scope: in

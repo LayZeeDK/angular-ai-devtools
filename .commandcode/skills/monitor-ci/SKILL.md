@@ -40,7 +40,7 @@ Before starting the monitoring loop, verify the workspace is connected to Nx Clo
 
 ### Step 0: Verify Nx Cloud Connection
 
-1. **Check `nx.json`** at workspace root for `nxCloudId` or `nxCloudAccessToken`
+1. **Check `nx.json`** at workspace root for Nx Cloud connection keys (`nxCloudId`/`nxCloudAccessToken`) — note: this repository's `nx.json` contains neither, so it is treated as not connected unless configured elsewhere
 2. **If `nx.json` missing OR neither property exists** → exit with:
 
    ```

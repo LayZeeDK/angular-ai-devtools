@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: consolidation-hardening
+milestone: n4-error-explainer
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M009
+branch: gsd-path/M010
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/009-consolidation-hardening
+archive: .project/archive/010-n4-error-explainer
 integration_default: direct
 integration: direct
 integration_source: default
@@ -181,3 +181,21 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-29 — build — build complete
 - 2026-10-29 — ship — build done; final review pending
 - 2026-10-29 — shipped — archive preflight passed; shipment recorded
+- 2026-10-30 — inspect — router bound next milestone: M010 n4-error-explainer; base 7354c107aa977ca68de24b959e714efba8238e26, integration 7354c107aa977ca68de24b959e714efba8238e26
+- 2026-10-30 — inspect — inspection artifacts passed
+- 2026-10-30 — define — definition started
+- 2026-10-30 — define — milestone intent approved
+- 2026-10-30 — plan — planning started
+- 2026-10-30 — plan — plan approved
+- 2026-10-30 — build — build started
+- 2026-10-30 — build — build blocked: wave 1 review found T001 AC4 unmet - the build-extension target never runs the digest generator, and the fix site apps/angular-ai-devtools/project.json is outside the task's declared files
+- 2026-10-30 — plan — build plan repair requested
+- 2026-10-30 — plan — build recovery: {"base": "89f5fe8b076573341bb05cd58c00e1eb15e1918b", "branch": "gsd-path/M010", "kind": "plan", "source": "build"}
+- 2026-10-30 — plan — plan approved
+- 2026-10-30 — build — build started
+- 2026-10-30 — build — build blocked: SC5 unproven - N4 panel surface unreachable on chrome-beta-nano (no [data-testid=explain] within 30s, wrong code none, no digest entry); SC6 has no insurance-portal record
+- 2026-10-30 — build — build resumed: history rewritten so T011 and T012 each have a task-record commit before their landing; verify-landed proves all twelve tasks
+- 2026-10-30 — ship — build done; final review pending
+- 2026-10-30 — ship — ship blocked: project Verify failed in the verify sidecar with TS2688 Cannot find type definition file for node - the sidecar ships without node_modules and the repo bridge is not invoked; evidence .project/review/final-gap-1.md
+- 2026-10-30 — ship — ship resumed: project Verify now bridges the sidecar dependencies, proven by a passing npm run check in a node_modules-free worktree
+- 2026-10-30 — shipped — archive preflight passed; shipment recorded

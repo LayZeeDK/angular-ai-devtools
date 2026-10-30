@@ -56,6 +56,7 @@
 - AFK mode runs with a 4-agent cap; use subagents for all tasks (not just where applicable). Confidence: 0.85
 - Human-only gates: force-push, filing issues/PRs, and deleting anything not created by the agent require explicit user approval. Confidence: 0.9
 - Stage files by name (never blanket `git add`); commit with `git commit -F <file>` and no AI attribution. Confidence: 0.85
+- Permits rewriting Git history (rebase/amend) when needed to make it GSD Path-compliant, as long as the rewritten result remains compliant. Confidence: 0.85
 - Sync all branches and commits to the local remote as a backup. Confidence: 0.85
 - Gitignore `.playwright-cli/` and scrub any `.playwright-cli/` files from Git history. Confidence: 0.8
 - Use `/thermos` to review code, scripts, tests, docs, and other artifacts when asked. Confidence: 0.7

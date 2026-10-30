@@ -4,7 +4,7 @@
 // git blob hash of every file a feature depends on in the control skill's features/.proven.json, and compares.
 // The manifest shape and the doctor's map-fresh line: lars-create-verification references/generated-skill.md.
 // A control skill carries a byte copy at scripts/fingerprint.mjs; edit only
-// ~/.claude/skills/lars-create-verification/scripts/fingerprint.mjs (check-skill.mjs fails a copy that differs).
+// ~/.commandcode/skills/lars-create-verification/scripts/fingerprint.mjs (check-skill.mjs fails a copy that differs).
 // Usage, from anywhere; the skill is this file's parent folder, the repository the checkout that holds it:
 //   node fingerprint.mjs record --feature <id> [--entries <path>... | --external <reason>] [--json]
 //     Entries are relative to the repository root; without --entries the recorded ones are reused.

@@ -51,6 +51,9 @@
     },
     "build-extension": {
       "executor": "@angular/build:application",
+      "dependsOn": [
+        "generate-error-digest"
+      ],
       "outputs": [
         "{workspaceRoot}/extension/panel"
       ],
@@ -85,6 +88,13 @@
             "maximumError": "8kb"
           }
         ]
+      }
+    },
+    "generate-error-digest": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node scripts/generate-error-digest.mjs",
+        "cwd": "{workspaceRoot}"
       }
     },
     "serve": {

@@ -1,5 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { UpdateCauseService } from './n1-update-cause.service';
+import { CAPACITY } from '../../../../src/main-world/error-capture';
+import type { CapturedError } from '../../../../src/main-world/error-capture';
 
 interface ExtensionMessage {
   type?: string;
@@ -14,6 +16,10 @@ interface ExtensionMessage {
   };
   supported?: boolean;
   reason?: string;
+  code?: string | null;
+  message?: string;
+  component?: string | null;
+  timestamp?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -23,6 +29,7 @@ export class ExtensionMessageService {
   readonly notSupported = signal<boolean>(false);
   readonly notSupportedReason = signal<string | null>(null);
   readonly stateReceived = signal(false);
+  readonly capturedErrors = signal<CapturedError[]>([]);
 
   constructor() {
     const chrome = (globalThis as { chrome?: { runtime?: { onMessage?: { addListener: (cb: (msg: unknown) => void) => void } }; devtools?: { inspectedWindow?: { tabId?: number } } } }).chrome;
@@ -55,6 +62,18 @@ export class ExtensionMessageService {
         this.notSupported.set(true);
         this.notSupportedReason.set(msg.reason ?? 'not supported');
       }
+    } else if (msg.type === 'angular-ai:error-capture') {
+      const err: CapturedError = {
+        code: msg.code ?? null,
+        message: msg.message ?? '',
+        component: msg.component ?? null,
+        timestamp: typeof msg.timestamp === 'number' ? msg.timestamp : Date.now(),
+      };
+      this.capturedErrors.update((list) => {
+        const next = [...list, err];
+        while (next.length > CAPACITY) next.shift();
+        return next;
+      });
     }
   }
 }

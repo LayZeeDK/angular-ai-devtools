@@ -7,7 +7,7 @@ const hostCapabilities = new Map();
 
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   // The tab id lets each DevTools panel keep only its inspected tab's messages.
-  if (msg?.type === 'angular-ai:record' || msg?.type === 'angular-ai:state' || msg?.type === 'angular-ai:di-graph') {
+  if (msg?.type === 'angular-ai:record' || msg?.type === 'angular-ai:state' || msg?.type === 'angular-ai:di-graph' || msg?.type === 'angular-ai:error-capture') {
     chrome.runtime.sendMessage({ ...msg, tabId: sender.tab?.id });
     reply({ ok: true });
     return true;
