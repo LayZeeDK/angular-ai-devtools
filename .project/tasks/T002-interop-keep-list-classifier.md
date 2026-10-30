@@ -3,9 +3,9 @@ id: T002
 title: Implement interop keep-list classifier (label + subject.error source rules)
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002
+base: 7f4339f5a06a43b5071de96422934a6ed37ee836
 worktree: null
 task_branch: null
 files:
@@ -64,3 +64,27 @@ Heavy: no
 ## Log
 
 - pending
+- build_T002: created src/main-world/interop-keep-list.ts with isInteropNode/keepInteropNodes/nodeText; spec passes (8/8); npm run check passes
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T002): pass, exit 0; output tail:
+  ```
+  ✔ label toSignal.source kept (1.0009ms)
+  ✔ label toSignal.state kept (0.0722ms)
+  ✔ no label but debuggableFnSource contains subject.error kept (E5) (0.1314ms)
+  ✔ library-internal node matching neither rule filtered (E5) (0.1214ms)
+  ✔ whole-token: subject.errorHandler does not match (0.0828ms)
+  ✔ whole-token: xsubject.error does not match (0.0653ms)
+  ✔ keepInteropNodes returns kept subset in input order (0.0849ms)
+  ✔ nodeText preference order: debuggableFnSource first (0.0651ms)
+  ℹ tests 8
+  ℹ suites 0
+  ℹ pass 8
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 183.9944
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  ```
