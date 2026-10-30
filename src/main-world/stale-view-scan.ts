@@ -106,6 +106,7 @@ export function matchDirectWrites(source: unknown): string[] {
   let m: RegExpExecArray | null;
   while ((m = re.exec(text)) !== null) {
     const field = m[1];
+    if (field === undefined) continue;
     if (!seen.has(field)) {
       seen.add(field);
       out.push(field);

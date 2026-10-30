@@ -3,9 +3,9 @@ id: T007
 title: Fix the extension-build type errors in the stale-view scan module
 wave: 4
 deps: [T003]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T007
+base: ae89ebb9360b9fa92539d2ac0e5855ad1cee5948
 worktree: null
 task_branch: null
 files:
@@ -51,3 +51,53 @@ Heavy: no
 ## Log
 
 - created by build repair (2026-10-30): the extension build fails with three TS2345 errors in the T003 module, blocking T006's browser verification and the project Verify
+- 2026-10-30 - narrowed the RegExpExecArray capture in matchDirectWrites (const field = m[1]; if (field === undefined) continue;); build-extension exits 0 and the four stale-view held-out tests pass; ready
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T007): fail, exit 1; output tail:
+  ```
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:build-extension
+  
+  [7m[1m[31m NX [39m[22m[27m  [31mCould not find Nx modules at "C:\Users\LarsGyrupBrinkNielse\.gsd-path\projects\d10fb97cec6c7ac7\8919d4cefeb4a7e5\task\T007".[39m
+  
+  Have you run [1m[37mnpm/yarn install[39m[22m?
+  ```
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T007): pass, exit 0; output tail:
+  ```
+  ✔ matches this.field = with arbitrary whitespace and newlines (1.8597ms)
+  ✔ matches .set( and .update( forms (0.0925ms)
+  ✔ identifier is whole, never substring (0.0967ms)
+  ℹ tests 3
+  ℹ suites 0
+  ℹ pass 3
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 181.9301
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:build-extension
+  
+  [7m[1m[33m NX [39m[22m[27m  [33mNx detected a flaky task[39m
+  
+    angular-ai-devtools:build-extension
+  
+  Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud. Learn more at https://nx.dev/ci/features/flaky-tasks
+  ```
+- 2026-10-30 — orchestrator regression Verify of T003 (isolate gsd-path-task/T007): pass, exit 0; output tail:
+  ```
+  ✔ one callback writing the same field twice yields one finding (1.2571ms)
+  ✔ findings follow template-node traversal order (3.2083ms)
+  ✔ Angular 22.1.2 or older is unsupported and names the version (1.0002ms)
+  ✔ Angular 22.1.3 and newer are supported (0.1489ms)
+  ✔ matches this.field = with arbitrary whitespace and newlines (1.9196ms)
+  ✔ matches .set( and .update( forms (0.0906ms)
+  ✔ identifier is whole, never substring (0.0883ms)
+  ℹ tests 7
+  ℹ suites 0
+  ℹ pass 7
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 399.2172
+  ```
