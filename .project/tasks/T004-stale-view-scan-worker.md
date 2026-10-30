@@ -3,9 +3,9 @@ id: T004
 title: Per-page scan worker with supersession of in-flight scans
 wave: 2
 deps: [T003]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T004
+base: 39169b9d31bd8636f1901b969ba93ddac9ee8e75
 worktree: null
 task_branch: null
 files:
@@ -59,3 +59,19 @@ Heavy: no
 ## Log
 
 - created by planner
+- implemented worker + service + held-out test; verify passed (4/4), npm run check green
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T004): pass, exit 0; output tail:
+  ```
+  ✔ worker echoes token and returns scan findings (1.6599ms)
+  ✔ superseded scan result is discarded (token mismatch) (1.0477ms)
+  ✔ worker request shape {token,graph} yields {token,findings} (1.5818ms)
+  ✔ service terminates worker on close (source check) (0.2975ms)
+  ℹ tests 4
+  ℹ suites 0
+  ℹ pass 4
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 115.7582
+  ```
