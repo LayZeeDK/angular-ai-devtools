@@ -11,6 +11,8 @@ task_branch: null
 files:
   - .commandcode/skills/verify-ai-browsers/checks/stale-view.test.mjs
   - .claude/skills/verify-ai-browsers/checks/stale-view.test.mjs
+  - .commandcode/skills/verify-ai-browsers/checks/stale-view.mjs
+  - .claude/skills/verify-ai-browsers/checks/stale-view.mjs
   - .project/plan/PLAN.md
 ---
 
