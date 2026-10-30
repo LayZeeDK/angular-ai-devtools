@@ -3,9 +3,9 @@ id: T008
 title: Repair the error-explainer panel answer path and prove the claim
 wave: 2
 deps: [T003]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T008
+base: 34b31bd804ceb352800c06c15515cbf9b0954cc7
 worktree: null
 task_branch: null
 files:
@@ -116,3 +116,20 @@ Heavy: no
 ## Log
 
 - created by build fix-task batching from the wave 2 cycle 1 review
+- 2026-10-30 — fixed component answer path, template digest entry, import; extended node:test; Verify exit 0 — ready
+- 2026-10-30 — orchestrator Verify (sidecar gsd-path-verify/task-t008-verify): pass, exit 0; output tail:
+  ```
+  ✔ buildErrorExplainFacts produces fact list (0.9691ms)
+  ✔ empty state text (0.0881ms)
+  ✔ no digest entry marker (0.0547ms)
+  ✔ resolved digest entry path (0.1089ms)
+  ✔ explicit answer path only calls model when a digest entry exists (0.0705ms)
+  ℹ tests 5
+  ℹ suites 0
+  ℹ pass 5
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 159.9757
+  ```

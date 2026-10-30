@@ -1,8 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { ExtensionMessageService } from './extension-message.service';
 import { ExtensionPromptService } from './extension-prompt.service';
-import { buildErrorExplainFacts } from '../../../../src/panel/error-explainer-view';
-import { NO_DIGEST_ENTRY, NO_OWN_COMPONENT, EMPTY_STATE } from '../../../../src/main-world/error-capture';
+import { buildErrorExplainFacts, resolveDigest, shouldCallModel } from '../../../../src/panel/error-explainer-view';
+import { NO_OWN_COMPONENT, EMPTY_STATE } from '../../../../src/main-world/error-capture';
+import { NO_DIGEST_ENTRY } from '../../../../src/main-world/error-digest';
+import errorDigest from '../../../../extension/error-digest.json';
 
 @Component({
   selector: 'app-error-explainer',
@@ -15,6 +17,7 @@ import { NO_DIGEST_ENTRY, NO_OWN_COMPONENT, EMPTY_STATE } from '../../../../src/
         <div class="error" data-testid="captured-error">
           <span class="code" data-testid="error-code">{{ err.code }}</span>
           <span class="component" data-testid="owning-component">{{ err.component ?? '${NO_OWN_COMPONENT}' }}</span>
+          <span class="digest" data-testid="digest-entry">{{ digestBody(err) }}</span>
           <button (click)="explain(err)" data-testid="explain">Explain</button>
         </div>
       }
@@ -30,10 +33,13 @@ export class ErrorExplainerComponent {
   protected readonly prompt = inject(ExtensionPromptService);
   protected readonly answer = signal<string | null>(null);
 
+  protected digestBody(err: any): string {
+    return resolveDigest(errorDigest as any, err?.code ?? null);
+  }
+
   protected async explain(err: any): Promise<void> {
-    const digest = NO_DIGEST_ENTRY; // no digest loaded in panel demo; explicit no-digest path
-    // If a digest entry existed, we'd resolve it here; without one, answer explicitly.
-    if (digest === NO_DIGEST_ENTRY) {
+    const digest = errorDigest as any;
+    if (!shouldCallModel(digest, err?.code ?? null)) {
       this.answer.set(NO_DIGEST_ENTRY);
       return;
     }
