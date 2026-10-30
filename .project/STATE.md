@@ -211,3 +211,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-30 — plan — plan approved
 - 2026-10-30 — build — build started
 - 2026-10-30 — build — plan defect repaired: T001 declared .project/STATE.md as the ledger target; repaired to .project/build/verify-ledger.jsonl so only the helpers write STATE.md
+- 2026-10-30 — build — plan defect repaired: T002 named control-ai-browsers for the 1.22.0 rows (they live in control-angular-devtools) and targeted docs/design/tutor.md for row 220 (it lives in the taste tree, which build must not edit); files and acceptance criteria repaired to the ruling's documents, row 220 deferred to a post-ship commit
