@@ -3,9 +3,9 @@ id: T009
 title: Add the dev-only stale-view route to the counter fixture
 wave: 4
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T009
+base: bbeac7b56b2aa466af04fc5f25c3761b05b43431
 worktree: null
 task_branch: null
 files:
@@ -56,3 +56,16 @@ Heavy: no
 ## Log
 
 - created by build repair (2026-10-30): the counter fixture has no subscribe write, so SC1 could not be produced; the owner authorized one dev-only route
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T009): pass, exit 0; output tail:
+  ```
+  ✔ component contains a this.<field> = write inside a subscribe callback on a non-signal field (1.0545ms)
+  ✔ app.routes.ts declares original routes plus stale-view (0.1648ms)
+  ℹ tests 2
+  ℹ suites 0
+  ℹ pass 2
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 116.0737
+  ```
