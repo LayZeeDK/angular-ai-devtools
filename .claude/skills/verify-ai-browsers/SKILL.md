@@ -18,10 +18,12 @@ both skills read: read that skill for every command, flag and gotcha.
 | `extension-panel` | On each named instance (every registry instance when none is named), `panel --url=<app>` exits 0 with a non-empty answer: the extension's DevTools panel ran "Explain version with AI" through the Prompt API. The instance then passes `state` (which includes doctor's `extension` check), so the answer came from its registry model. | `extension-panel.md` `extension-panel`, `extension-check` | every named instance, the panel built (`npx nx run angular-ai-devtools:build-extension`) before `up`, and an Angular dev page (control-angular-dev-app `up --target counter`) |
 | `signal-provenance` | On each named instance (every registry instance when none is named), the extension's DevTools panel "Signal Provenance" tab (N2) renders the provenance chain from `angular-ai:record` facts and "Explain" returns a non-empty answer through the panel-local Prompt API. The instance then passes `state`. | `signal-provenance.md` `signal-provenance` | every named instance, the panel built, and an Angular dev page |
 | `di-doctor` | On each named instance (every registry instance when none is named), the extension's DevTools panel "DI Doctor" tab (N3) queries an injector, receives `angular-ai:di-graph` with a `DiResolutionPath`, renders the resolution path / diff, and "Explain" returns a non-empty answer through the panel-local Prompt API. The instance then passes `state`. | `di-doctor.md` `di-doctor` | every named instance, the panel built, and an Angular dev page |
+| `error-explainer` | On each named instance (every registry instance when none is named), the extension's DevTools panel "Error Explainer" tab (N4) captures an `NG0xxx` error with its owning component and the matching digest entry, and "Explain" returns a non-empty answer through the panel-local Prompt API. The instance then passes `state`. | `error-explainer.md` `error-explainer` | every named instance, the panel built, and an Angular dev page |
 Each check's header comment holds its claim, the feature it covers, its usage and the files it writes. `state` records each instance's
 backend, requested backend and performance class in `state.json`; `model-init` records the init timings and
 answer in `model-init.json`; `extension-panel` records each instance's panel result and state in
-`extension-panel.json`.
+`extension-panel.json`; `error-explainer` records each instance's panel result and state in
+`error-explainer.json`.
 
 ## Run
 
@@ -57,7 +59,8 @@ Standalone, against instances started by hand:
 `node .commandcode/skills/verify-ai-browsers/checks/model-init.mjs --evidence <dir> <instance>` or
 `node .commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs --evidence <dir> --url <app url> [<instance>...]` or
 `node .commandcode/skills/verify-ai-browsers/checks/signal-provenance.mjs --evidence <dir> --url <app url> [<instance>...]` or
-`node .commandcode/skills/verify-ai-browsers/checks/di-doctor.mjs --evidence <dir> --url <app url> [<instance>...]`.
+`node .commandcode/skills/verify-ai-browsers/checks/di-doctor.mjs --evidence <dir> --url <app url> [<instance>...]` or
+`node .commandcode/skills/verify-ai-browsers/checks/error-explainer.mjs --evidence <dir> --url <app url> [<instance>...]`.
 ## Gotchas
 
 - `state` takes about a minute per instance (doctor, flags, model info; doctor 10-60 s), longer while another

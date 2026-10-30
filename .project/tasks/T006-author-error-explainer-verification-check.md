@@ -3,9 +3,9 @@ id: T006
 title: Author the error-explainer verification check and feature map entry
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T006
+base: 6f053b159793d4cee097f82a3a9e062ac78f7fe8
 worktree: null
 task_branch: null
 files:
@@ -80,3 +80,21 @@ Heavy: no
 ## Log
 
 - created by planner (plan revision: verification-skill usage)
+- 2026-10-30 — authored error-explainer check, test, SKILL.md row, feature file, and byte-identical mirrors; Verify exit 0 (6 tests pass) ready
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T006): pass, exit 0; output tail:
+  ```
+  ✔ passes when every named instance answers in the panel and passes the state claim (2.2784ms)
+  ✔ a panel error, an empty answer or a state failure fails the claim and names the instance (1.0374ms)
+  ✔ panel exit 2 or no JSON is could-not-run, not a failed claim (0.4688ms)
+  ✔ an instance that serves the build of another checkout is could-not-run, and no panel runs on it (0.3322ms)
+  ✔ main: all instances by default, 1 on a failed claim, 2 without --url or for an unknown instance (1.6859ms)
+  ✔ samePath matches a folder across its short and long spellings and the case of the drive letter (1.3617ms)
+  ℹ tests 6
+  ℹ suites 0
+  ℹ pass 6
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 127.0559
+  ```
