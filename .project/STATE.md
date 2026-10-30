@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: n4-error-explainer
-phase: shipped
+milestone: n24-stale-view-finder
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M010
+branch: gsd-path/M011
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/010-n4-error-explainer
+archive: null
 integration_default: direct
 integration: direct
 integration_source: default
@@ -199,3 +199,13 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-30 — ship — ship blocked: project Verify failed in the verify sidecar with TS2688 Cannot find type definition file for node - the sidecar ships without node_modules and the repo bridge is not invoked; evidence .project/review/final-gap-1.md
 - 2026-10-30 — ship — ship resumed: project Verify now bridges the sidecar dependencies, proven by a passing npm run check in a node_modules-free worktree
 - 2026-10-30 — shipped — archive preflight passed; shipment recorded
+- 2026-10-30 — inspect — router bound next milestone: M011 n24-stale-view-finder; previous M010 n4-error-explainer shipped on gsd-path/M010 (ship 50b443676dba6e7c567c2332c180d27250b64432, integration 2556ed86b8c3bb62e0a23a26953dd7b709878adf, archive .project/archive/010-n4-error-explainer); base 79c845517e2cf944f8377922d46d289e00b0fa85; gsd report blocker carried: T002, T005, T011, T012 have no passing entry in the archived verify ledger
+- 2026-10-30 — inspect — inspection artifacts passed
+- 2026-10-30 — define — definition started
+- 2026-10-30 — define — milestone intent approved
+- 2026-10-30 — research — research started
+- 2026-10-30 — research — research complete; manifest .project/research/RESEARCH.md; dispatched domain, pitfalls; skipped similar, stack; 1 question
+- 2026-10-30 — decide — decision synthesis started
+- 2026-10-30 — decide — decision synthesis complete; synthesis .project/research/SYNTHESIS.md
+- 2026-10-30 — plan — planning started
+- 2026-10-30 — plan — plan approved
