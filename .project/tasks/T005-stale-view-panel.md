@@ -3,9 +3,9 @@ id: T005
 title: Panel UI rendering the hedged finding and panel-local Prompt API explanation
 wave: 3
 deps: [T003, T004]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T005
+base: 80611cefcb84bc2b9b353917a8ee18929a4dee91
 worktree: null
 task_branch: null
 files:
@@ -65,3 +65,22 @@ Heavy: no
 ## Log
 
 - created by planner
+- implemented component, service, route, held-out test; verify passed (2/2), npm run check green
+- ready
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T005): pass, exit 0; output tail:
+  ```
+  ✔ field name needing escaping stays one plain-text value (1.3609ms)
+  ✔ missing owning component is named and not shaped (0.0675ms)
+  ℹ tests 2
+  ℹ suites 0
+  ℹ pass 2
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 103.3541
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  ```
