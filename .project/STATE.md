@@ -1,11 +1,11 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: null
-phase: inspect
+milestone: n25-rxjs-interop-explainer
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M012
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -231,3 +231,13 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-30 — ship — build done; final review pending
 - 2026-10-30 — shipped — archive preflight passed; shipment recorded
 - 2026-10-30 — inspect — router bound next milestone: M012 n25-rxjs-interop-explainer; previous M011 n24-stale-view-finder shipped on gsd-path/M011 (ship db10b1ec3076feb63591b54ba6fc1dc7d0f9edff, integration 9206a64468d9434f5691d3dcb670d083c894a6ff, archive .project/archive/011-n24-stale-view-finder); base f61a23d1abe69605958e04c953ca24bcf112540d; gsd report blocker carried: T001, T002, T007, T008 have no passing entry in the archived verify ledger
+- 2026-10-30 — inspect — pre-approval: {"kinds": ["intent", "plan"]}
+- 2026-10-30 — inspect — inspection artifacts passed
+- 2026-10-30 — define — definition started
+- 2026-10-31 — define — milestone intent approved
+- 2026-10-31 — research — research started
+- 2026-10-31 — research — research complete; manifest .project/research/RESEARCH.md; dispatched pitfalls, similar; skipped domain, stack; 2 questions
+- 2026-10-31 — decide — decision synthesis started
+- 2026-10-31 — decide — decision synthesis complete; synthesis .project/research/SYNTHESIS.md validated (5 decisions)
+- 2026-10-31 — plan — planning started
+- 2026-10-31 — plan — plan approved
