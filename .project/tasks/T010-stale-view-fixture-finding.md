@@ -12,6 +12,7 @@ files:
   - extension/agent-main.js
   - src/main-world/stale-view-scan.ts
   - extension/stale-view-worker.js
+  - apps/angular-ai-devtools/src/app/stale-view.component.ts
   - tests/held-out/stale-view-fixture-graph.test.mjs
 ---
 
