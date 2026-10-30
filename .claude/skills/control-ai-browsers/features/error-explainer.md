@@ -28,8 +28,8 @@ dev page served (the counter fixture below).
 - **Drive N4.** Open the panel on the instance with `C panel <name> --url=http://localhost:4222/ --feature=error-explainer`;
   the driver injects a captured `NG0100` error, reads its code, owning component and digest entry, then clicks
   "Explain". The proof across every pair is `verify-ai-browsers/checks/error-explainer.mjs`.
-- Implementation: `apps/angular-ai-devtools/src/app/error-explainer.service.ts`,
-  `n4-error-explainer.component.ts`; message types `angular-ai:error-capture` / `angular-ai:error-explain`.
+- Implementation: `apps/angular-ai-devtools/src/app/error-explainer.component.ts`;
+  message types `angular-ai:error-capture` / `angular-ai:error-explain`.
 
 ## Gotchas
 

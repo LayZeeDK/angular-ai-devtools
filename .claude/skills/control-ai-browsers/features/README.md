@@ -56,6 +56,9 @@ to get to it (user POV)`, `Driving it with control-ai-browsers`, `Gotchas`.
 - [Model lifecycle](./model-lifecycle.md): info, download, init, clear.
 - [Probes and benchmarks](./probes.md): run a probe script, the model benchmark.
 - [Extension panel](./extension-panel.md): the unpacked extension each instance loads, and its N1 panel feature driven end to end.
+- [DI doctor](./di-doctor.md): the N3 panel feature driven end to end.
+- [Error explainer](./error-explainer.md): the N4 panel feature driven end to end.
+- [Signal provenance](./signal-provenance.md): the N2 panel feature driven end to end.
 
 ## Full sweep
 

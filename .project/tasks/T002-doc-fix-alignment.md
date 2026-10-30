@@ -3,9 +3,9 @@ id: T002
 title: Apply the accepted doc-fix alignment rows from DOCS-AUDIT
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002
+base: e1bdc96caa764d330a3d27d9b0d7529bde368f5b
 worktree: null
 task_branch: null
 files:
@@ -62,3 +62,26 @@ Heavy: no
 ## Log
 
 - created by planner
+- T002 coder: applied fix-doc rows (#4,#5,#32,#36,#82,#83,#84,#183); #220 deferred (taste tree untouched). Files updated per contract. Verify command: `node --test scripts/doc-fix-alignment.test.mjs` (cwd worktree). Output tail:
+  ✔ error-explainer.md (both copies) names error-explainer.component.ts, not stale names
+  ✔ control-angular-devtools SKILL.md (both copies) states Angular DevTools 1.22.1
+  ✔ control-angular-devtools features/install.md (both copies) states Angular DevTools 1.22.1
+  ✔ control-ai-browsers features/README.md (both copies) lists di-doctor.md, error-explainer.md, signal-provenance.md
+  ✔ nx-generate SKILL.md states nx format:write, not nx format --fix
+  tests 5, pass 5, fail 0
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T002): pass, exit 0; output tail:
+  ```
+  ✔ error-explainer.md (both copies) names error-explainer.component.ts, not stale names (1.5677ms)
+  ✔ control-angular-devtools SKILL.md (both copies) states Angular DevTools 1.22.1 (0.3251ms)
+  ✔ control-angular-devtools features/install.md (both copies) states Angular DevTools 1.22.1 (0.8643ms)
+  ✔ control-ai-browsers features/README.md (both copies) lists di-doctor.md, error-explainer.md, signal-provenance.md (0.2075ms)
+  ✔ nx-generate SKILL.md states nx format:write, not nx format --fix (0.1668ms)
+  ℹ tests 5
+  ℹ suites 0
+  ℹ pass 5
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 130.702
+  ```

@@ -149,7 +149,7 @@ Generators provide a starting point. Modify the output as needed to:
 Format all generated/modified files:
 
 ```bash
-nx format --fix
+nx format:write
 ```
 
 This example is for built-in nx formatting with prettier. There might be other formatting tools for this workspace, use these when appropriate.
