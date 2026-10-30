@@ -11,6 +11,7 @@ task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/stale-view.component.ts
   - apps/angular-ai-devtools/src/app/stale-view.service.ts
+  - apps/angular-ai-devtools/src/app/app.routes.ts
   - tests/held-out/stale-view-fact-list-escaping.test.mjs
 ---
 
@@ -46,7 +47,7 @@ Shared N24 shapes (identical in every task that exchanges them):
 
 ## Acceptance criteria
 
-1. The panel renders the finding worded "the template may show a stale value" with the field name and owning component, and the Explain button triggers the panel-local Prompt API using only the three-fact list (SC4).
+1. The panel renders the finding worded "the template may show a stale value" with the field name and owning component at the `stale-view` route, and the Explain button triggers the panel-local Prompt API using only the three-fact list (SC4).
 2. An empty scan renders an explicit "no stale-view findings" state, never an empty panel region or a fabricated row (Edge E2).
 3. When no fact list can be shaped, the panel names the missing fact and does not call the Prompt API (Edge E7).
 4. The fact list carries the field name, owning component and pattern label as plain text with no page markup, and a field name needing escaping never breaks the fact-list shape (Edge E8, held-out).
@@ -56,7 +57,7 @@ Shared N24 shapes (identical in every task that exchanges them):
 ## Verify
 
 ```bash
-node --experimental-strip-types --test tests/held-out/stale-view-fact-list-escaping.test.mjs
+npm run check && node --experimental-strip-types --test tests/held-out/stale-view-fact-list-escaping.test.mjs
 ```
 
 Heavy: no
