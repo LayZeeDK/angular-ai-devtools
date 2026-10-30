@@ -423,12 +423,17 @@ Scope: in
 - Per-page scan running in a worker.
 - Finding worded "the template may show a stale value".
 - Panel UI rendering the finding and model explanation.
+- A static portal relevance map for N24 naming the insurance-portal routes and components that produce its facts; the portal gains no features, so the map does not chase new ones.
+- One `verify-ai-browsers` portal check driven by that map, and a `lars-verify` verdict from it, written per the lars-create-verification, lars-maintain-verification and lars-verify contracts.
+- `control-angular-dev-app up --target portal --with-ai-devtools`, which adds a dev-only provider file and the dev build configuration that loads it, so the portal runs the extension and panel without a source change.
+- A test that fails when a portal-relevant feature has no portal check, or when a check names a portal route that does not resolve.
 
 Scope: out
 - Generalization beyond direct this.field = in subscribe (helper methods, other objects, minified code).
 - Checking whether the template actually reads the field.
 - No code generation of app code; findings may name a modern Angular pattern and an official schematic only.
 - No page or user data beyond the shaped fact list in prompts.
+- Any insurance-portal source change beyond the dev-only provider file and the dev build configuration that loads it.
 
 Success criteria
 1. On spikes/ng222-app, a plain field written in a subscribe callback is flagged with "the template may show a stale value" in the DevTools panel.
@@ -436,7 +441,8 @@ Success criteria
 3. The per-page scan runs in a worker.
 4. The panel explains the finding using the panel-local Prompt API, sending only a short fact list.
 5. lars-verify verdict of verified for the stale-view claim, with end-to-end coverage across Gemini Nano, Gemma 4, Phi-4-mini and Aion-1.1-Instruct.
-6. Where meaningful, the stale-view finding is also verified on the insurance-portal fixture, and the claim records that external dependency.
+6. The portal relevance map names N24's portal routes and components, and the portal check drives that route with the extension and panel active to a lars-verify verdict of verified over two runs.
+7. The coverage test fails when a portal-relevant feature lacks a portal check, and the insurance-portal diff contains no file other than the dev-only provider and its dev build configuration.
 
 Risks
 - The source-text scan is a heuristic and can miss writes through helper methods, other objects, or minified code.

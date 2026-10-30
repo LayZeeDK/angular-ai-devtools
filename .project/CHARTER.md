@@ -77,10 +77,18 @@ questions, answered in the panel, on the developer's machine.
   supported inspected apps are Angular 22.2 dev builds. One Angular app is
   emitted as the extension panel (MV3; `background.js`, `relay.js`,
   MAIN-world `agent-main.js`, DevTools page).
-- Supported browser/model pairs: `chrome-beta-nano` (Gemini Nano),
+- Supported browser/model pairs: `chrome-stable-nano` (Gemini Nano),
   `chrome-beta-gemma4` (Gemma 4), `edge-dev-aion` (Aion-1.1-Instruct) and
-  `edge-phi4mini` (Phi-4-mini), each in its own profile under `.browsers/` on
-  D:. Edge Dev stays pinned to Aion model/runtime 2026.10.2.1.
+  `edge-phi4mini` (Phi-4-mini), one pair per model with the stable channel
+  preferred, each in its own profile under `.browsers/` on D:. Edge Dev stays
+  pinned to Aion model 2026.10.15.1, runtime 2026.10.12.1 and manifest
+  2026.10.19.1, the pair measured serving on Edge Dev 158.
+- Portal verification: every feature whose facts an insurance-portal route can
+  produce gets a portal-backed `lars-verify` verdict at the wave gate, driven
+  through `control-angular-dev-app` with the extension and panel active. The
+  portal gains no new features, so its relevance map is static. Never change
+  insurance-portal source; the only permitted setup is a dev-only provider file
+  and the dev build configuration that loads it.
 - Architecture: deterministic code computes the facts; the panel-local Prompt
   API explains a short fact list (no tool calling in the core loop). The panel
   uses its own `LanguageModel.availability()`, never the page's.
