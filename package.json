@@ -6,8 +6,9 @@
   "scripts": {
     "check": "tsc -p tsconfig.json && npm run check:skills",
     "check:skills": "tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json",
-    "test": "node --experimental-strip-types --test \"scripts/**/*.test.mjs\" \"extension/**/*.test.mjs\" && node scripts/run-user-scope-tests.mjs && npm run test:skills",
-    "test:skills": "node --experimental-strip-types --test \".claude/skills/**/*.test.mjs\" \".commandcode/skills/**/*.test.mjs\""
+    "test": "node --experimental-strip-types --test \"scripts/**/*.test.mjs\" \"extension/**/*.test.mjs\" && node scripts/run-user-scope-tests.mjs && npm run test:skills && npm run test:app",
+    "test:skills": "node --experimental-strip-types --test \".claude/skills/**/*.test.mjs\" \".commandcode/skills/**/*.test.mjs\"",
+    "test:app": "npx nx run angular-ai-devtools:test"
   },
   "devDependencies": {
     "@angular-devkit/core": "~22.1.0",

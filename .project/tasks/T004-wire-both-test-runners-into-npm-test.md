@@ -3,9 +3,9 @@ id: T004
 title: Wire both test runners into npm test
 wave: 3
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T004
+base: 5183252a1a204248caf811a3356b609f40e2c979
 worktree: null
 task_branch: null
 files:
@@ -51,3 +51,17 @@ Heavy: no
 ## Log
 
 - created by planner
+- implemented package.json test:app + chained into test; guard test passed exit 0 — ready
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T004): pass, exit 0; output tail:
+  ```
+  ✔ test script invokes test:app (0.9489ms)
+  ✔ test:app script invokes the Nx unit-test target for angular-ai-devtools (0.153ms)
+  ℹ tests 2
+  ℹ suites 0
+  ℹ pass 2
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 115.961
+  ```
