@@ -196,3 +196,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-30 — build — build blocked: SC5 unproven - N4 panel surface unreachable on chrome-beta-nano (no [data-testid=explain] within 30s, wrong code none, no digest entry); SC6 has no insurance-portal record
 - 2026-10-30 — build — build resumed: history rewritten so T011 and T012 each have a task-record commit before their landing; verify-landed proves all twelve tasks
 - 2026-10-30 — ship — build done; final review pending
+- 2026-10-30 — ship — ship blocked: project Verify failed in the verify sidecar with TS2688 Cannot find type definition file for node - the sidecar ships without node_modules and the repo bridge is not invoked; evidence .project/review/final-gap-1.md
+- 2026-10-30 — ship — ship resumed: project Verify now bridges the sidecar dependencies, proven by a passing npm run check in a node_modules-free worktree
