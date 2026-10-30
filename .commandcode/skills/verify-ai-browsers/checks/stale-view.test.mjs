@@ -7,6 +7,7 @@ import { mkdtempSync, realpathSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { CHECKOUT_EXTENSION, check, main, samePath } from './stale-view.mjs';
 
+/** @type {Record<string, import('./state.mjs').RegistryInstance>} */
 const REGISTRY = {
   'chrome-stable-nano': { model: { name: 'v3Nano', contextWindow: 9216 } },
   'chrome-beta-gemma4': { model: { name: 'gemma4-2b-it', contextWindow: 9216 } },
@@ -16,15 +17,22 @@ const REGISTRY = {
 const URL = 'http://localhost:4222/stale-view';
 const EXT = CHECKOUT_EXTENSION;
 
+/**
+ * @param {Record<string, Record<string, { code: number | null, json: Record<string, unknown> | null }>>} [patch]  instance -> command -> answer
+ */
 function fake(patch = {}) {
+  /** @type {string[][]} */
   const calls = [];
+  /** @type {Map<string, string>} */
   const files = new Map();
+  /** @type {import('./state.mjs').Deps} */
   const deps = {
     control: (args) => {
       calls.push(args);
       const key = args[0] === 'model' ? `model ${args[1]}` : (args[0] ?? '');
       const name = args[0] === 'model' ? (args[2] ?? '') : (args[1] ?? '');
       const model = REGISTRY[name]?.model.name;
+      /** @type {Record<string, { code: number | null, json: Record<string, unknown> | null }>} */
       const healthy = {
         info: { code: 0, json: { ok: true, extensionDir: EXT } },
         panel: { code: 0, json: { ok: true, feature: 'stale-view', answer: 'model answer', field: 'lastLogged', component: '_Counter', hedged: 'the template may show a stale value', answerMs: 9000, ngVersion: '22.2.2', extensionId: 'mgkfgkdgobahfcgkdlokpoehblpbkfok' } },

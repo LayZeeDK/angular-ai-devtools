@@ -16,26 +16,45 @@ import { parseArgs } from 'node:util';
 import { printable } from '../../control-ai-browsers/scripts/fingerprint.mjs';
 import { instanceState, loadRegistry, realDeps } from './state.mjs';
 
+/** @typedef {import('./state.mjs').Deps} Deps */
+/** @typedef {import('./state.mjs').RegistryInstance} RegistryInstance */
+/** @typedef {import('./state.mjs').InstanceState} InstanceState */
+
 export const CHECKOUT_EXTENSION = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', 'extension').replace(/^[a-z]:/, (d) => d.toUpperCase());
 
+/**
+ * @param {unknown} a
+ * @param {string} b
+ * @returns {boolean}
+ */
 export function samePath(a, b) {
   if (typeof a !== 'string') return false;
+  /** @param {string} p */
   const real = (p) => (existsSync(p) ? realpathSync.native(p) : p).toLowerCase();
   return real(a) === real(b);
 }
 
+/**
+ * @param {{ evidence: string, url: string, names: string[], extension?: string }} options
+ * @param {Record<string, RegistryInstance>} registry
+ * @param {Deps} deps
+ * @returns {void}
+ */
 export function check({ evidence, url, names, extension = CHECKOUT_EXTENSION }, registry, deps) {
   const unknown = names.filter((n) => !Object.hasOwn(registry, n));
   if (unknown.length > 0) {
     throw new Error(`unknown instance ${unknown.join(', ')}; instances: ${Object.keys(registry).join(', ')}`);
   }
 
+  /** @type {Record<string, unknown>} */
   const results = {};
+  /** @type {string[]} */
   const failed = [];
+  /** @type {string[]} */
   const couldNotRun = [];
 
   for (const name of names) {
-    const want = registry[name];
+    const want = /** @type {RegistryInstance} */ (registry[name]);
     const loaded = deps.control(['info', name]).json?.['extensionDir'];
     if (!samePath(loaded, extension)) {
       couldNotRun.push(`${name} serves the extension from ${String(loaded)}, not this checkout's ${extension}: run "down ${name}", then "up ${name} --extension=extension" here`);
@@ -49,8 +68,14 @@ export function check({ evidence, url, names, extension = CHECKOUT_EXTENSION }, 
     const component = typeof panel.json?.['component'] === 'string' ? panel.json['component'] : null;
     let hedged = typeof panel.json?.['hedged'] === 'string' ? panel.json['hedged'] : null;
     if (!hedged && Array.isArray(panel.json?.['steps'])) {
-      const step = panel.json['steps'].find((s) => s && s.step === 'stale-view');
-      if (step && step.value && typeof step.value.hedged === 'string') hedged = step.value.hedged;
+      const steps = /** @type {Record<string, unknown>[]} */ (panel.json['steps']);
+      const step = steps.find((s) => s !== null && typeof s === 'object' && !Array.isArray(s) && /** @type {Record<string, unknown>} */ (s)['step'] === 'stale-view');
+      if (step) {
+        const value = step['value'];
+        if (value && typeof value === 'object' && !Array.isArray(value) && typeof /** @type {Record<string, unknown>} */ (value)['hedged'] === 'string') {
+          hedged = /** @type {string} */ (/** @type {Record<string, unknown>} */ (value)['hedged']);
+        }
+      }
     }
     results[name] = { panel: { exit: panel.code, feature: panel.json?.['feature'] ?? null, answer, field, component, hedged, error: panel.json?.['error'] ?? null, answerMs: panel.json?.['answerMs'] ?? null, ngVersion: panel.json?.['ngVersion'] ?? null, extensionId: panel.json?.['extensionId'] ?? null }, state };
 
@@ -90,6 +115,12 @@ export function check({ evidence, url, names, extension = CHECKOUT_EXTENSION }, 
   }
 }
 
+/**
+ * @param {string[]} argv
+ * @param {(evidence: string) => Deps} makeDeps
+ * @param {() => Record<string, RegistryInstance>} load
+ * @returns {number}
+ */
 export function main(argv, makeDeps, load) {
   try {
     const { values, positionals } = parseArgs({ args: argv, options: { evidence: { type: 'string' }, url: { type: 'string' } }, allowPositionals: true, strict: true });
