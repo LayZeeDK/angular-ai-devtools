@@ -1,5 +1,5 @@
-import { NO_DIGEST_ENTRY, digestForCode, findEntry } from '../main-world/error-digest.ts';
-import { NO_OWN_COMPONENT, EMPTY_STATE, componentLabel } from '../main-world/error-capture.ts';
+import { NO_DIGEST_ENTRY, digestForCode, findEntry } from '../main-world/error-digest';
+import { NO_OWN_COMPONENT, EMPTY_STATE, componentLabel } from '../main-world/error-capture';
 
 export { NO_DIGEST_ENTRY, NO_OWN_COMPONENT, EMPTY_STATE, componentLabel };
 
@@ -40,13 +40,13 @@ export function resolveDigest(digest: unknown, code: string | null): string {
       }
     }
   }
-  return code ? NO_DIGEST_ENTRY : NO_DIGEST_ENTRY;
+  return NO_DIGEST_ENTRY;
 }
 
 export function hasDigestEntry(digest: unknown, code: string | null): boolean {
   if (!code) return false;
   if (digest && typeof digest === 'object') {
-    const e = findEntry ? safeFind(digest, code) : null;
+    const e = safeFind(digest, code);
     if (e) return true;
   }
   return false;
@@ -73,14 +73,6 @@ export function buildErrorExplainFacts(error: CapturedErrorLike, digest?: unknow
   return facts;
 }
 
-// Aliases for possible test/import names.
-export const buildErrorFacts = buildErrorExplainFacts;
-export const buildFacts = buildErrorExplainFacts;
-export const errorExplainFacts = buildErrorExplainFacts;
-export const toFactList = buildPanelFactList;
-export const buildFactList = buildPanelFactList;
-export const factList = buildPanelFactList;
-
 export function shouldCallModel(digest: unknown, code: string | null): boolean {
   return hasDigestEntry(digest, code);
 }
@@ -88,22 +80,3 @@ export function shouldCallModel(digest: unknown, code: string | null): boolean {
 export function emptyStateText(): string {
   return EMPTY_STATE;
 }
-
-export default {
-  NO_DIGEST_ENTRY,
-  NO_OWN_COMPONENT,
-  EMPTY_STATE,
-  componentLabel,
-  resolveDigest,
-  hasDigestEntry,
-  buildPanelFactList,
-  buildErrorExplainFacts,
-  buildErrorFacts,
-  buildFacts,
-  errorExplainFacts,
-  toFactList,
-  buildFactList,
-  factList,
-  shouldCallModel,
-  emptyStateText,
-};

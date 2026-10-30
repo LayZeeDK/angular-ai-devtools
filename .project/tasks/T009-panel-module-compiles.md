@@ -3,9 +3,9 @@ id: T009
 title: Make the error-explainer panel module compile in the extension build
 wave: 2
 deps: [T008]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T009
+base: 075e54b47bf8705fe1193cd79274ffba8c5402d8
 worktree: null
 task_branch: null
 files:
@@ -58,3 +58,20 @@ Heavy: no
 ## Log
 
 - created by build repair after the gate build failed on the panel module
+- T009 implemented: imports without .ts, real lookup, collapsed ternary, removed aliases/default export; verify node test exit 0 and build exit 0. ready
+- 2026-10-30 — orchestrator Verify (sidecar gsd-path-verify/task-t009-verify): pass, exit 0; output tail:
+  ```
+  ✔ buildErrorExplainFacts produces fact list (0.6479ms)
+  ✔ empty state text (0.0759ms)
+  ✔ no digest entry marker (0.0569ms)
+  ✔ resolved digest entry path (0.1104ms)
+  ✔ explicit answer path only calls model when a digest entry exists (0.06ms)
+  ℹ tests 5
+  ℹ suites 0
+  ℹ pass 5
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 182.9765
+  ```
