@@ -35,7 +35,7 @@ Contract violations (blocking):
 
 ## Intent coverage
 
-### SC1 — On `spikes/ng222-app`, a plain field written in a subscribe callback is flagged with "the template may show a stale value" in the DevTools panel.: pass
+### SC1 — On the counter app's `stale-view` route in `spikes/ng222-app`, a plain field written in a subscribe callback is flagged with "the template may show a stale value" in the DevTools panel.: pass
 - ✅ evidence: T003 scan sourced from ng.ɵgetSignalGraph + debuggableFn source (extension/agent-main.js serializeGraph debuggableFnSource; src/main-world/stale-view-scan.ts); held-out 7/7 pass; Verify exit 0 per T003 landing Log.
 
 ### SC2 — The finding is produced from `ng.ɵgetSignalGraph` plus the `debuggableFn` source scan without new page-side instrumentation.: pass
