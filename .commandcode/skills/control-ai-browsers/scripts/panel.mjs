@@ -286,9 +286,11 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000, featur
     }
     if (isStale) {
       // Read the observed stale-view facts before clicking Explain.
-      run.field = /** @type {string | null} */ ((await panel.evaluate(field(selectors.field))) ?? null);
-      run.component = /** @type {string | null} */ ((await panel.evaluate(field(selectors.component))) ?? null);
-      const hedged = /** @type {string | null} */ ((await panel.evaluate(field(selectors.hedged))) ?? null);
+      // `selectors` is a Record, so its index reads are `string | undefined`; the stale selectors are always declared above, so default to the same literals.
+      const { field: staleField = '[data-testid="field-name"]', component: staleComponent = '[data-testid="owning-component"]', hedged: staleHedged = '[data-testid="hedged"]' } = selectors;
+      run.field = /** @type {string | null} */ ((await panel.evaluate(field(staleField))) ?? null);
+      run.component = /** @type {string | null} */ ((await panel.evaluate(field(staleComponent))) ?? null);
+      const hedged = /** @type {string | null} */ ((await panel.evaluate(field(staleHedged))) ?? null);
       note('stale-view', { hedged, field: run.field, component: run.component });
     }
 

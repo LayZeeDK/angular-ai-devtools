@@ -3,9 +3,9 @@ id: T011
 title: Narrow the stale-view panel driver types
 wave: 4
 deps: [T008]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T011
+base: cb7c70ce3d2664fdde54d2902f0c6ee99b697fd6
 worktree: null
 task_branch: null
 files:
@@ -61,3 +61,11 @@ Heavy: no
 ## Log
 
 - created by build repair (2026-10-30): T010's landing surfaced three TS2345 errors in the T008 driver that its own Verify never ran
+- fixed (2026-10-30): `selectors` is annotated `Record<string, string>` and the root tsconfig sets `noUncheckedIndexedAccess`, so `selectors.field`/`.component`/`.hedged` read as `string | undefined` at panel.mjs:289-291; restored `field`'s JSDoc to `@param {string} sel` and narrowed at the point of use — `const { field: staleField = '[data-testid="field-name"]', component: staleComponent = '[data-testid="owning-component"]', hedged: staleHedged = '[data-testid="hedged"]' } = selectors;` then passed those three locals (defaults equal the literals already in `selectors`, so runtime behaviour is unchanged); mirrored to `.claude` with `copy /y` (byte-identical, `fc /b` clean); `node --check ... && npm run check` exit 0; `node --experimental-strip-types --test tests/held-out/stale-view-fact-list-escaping.test.mjs` pass 2 / fail 0
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T011): pass, exit 0; output tail:
+  ```
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  ```
