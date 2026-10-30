@@ -210,3 +210,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-30 — plan — planning started
 - 2026-10-30 — plan — plan approved
 - 2026-10-30 — build — build started
+- 2026-10-30 — build — plan defect repaired: T001 declared .project/STATE.md as the ledger target; repaired to .project/build/verify-ledger.jsonl so only the helpers write STATE.md
