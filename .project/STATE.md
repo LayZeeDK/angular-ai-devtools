@@ -5,7 +5,7 @@ milestone: n4-error-explainer
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M010
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -188,3 +188,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-30 — plan — planning started
 - 2026-10-30 — plan — plan approved
 - 2026-10-30 — build — build started
+- 2026-10-30 — build — build blocked: wave 1 review found T001 AC4 unmet - the build-extension target never runs the digest generator, and the fix site apps/angular-ai-devtools/project.json is outside the task's declared files
