@@ -5,7 +5,7 @@ milestone: n4-error-explainer
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: active
 branch: gsd-path/M010
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -194,3 +194,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-30 — plan — plan approved
 - 2026-10-30 — build — build started
 - 2026-10-30 — build — build blocked: SC5 unproven - N4 panel surface unreachable on chrome-beta-nano (no [data-testid=explain] within 30s, wrong code none, no digest entry); SC6 has no insurance-portal record
+- 2026-10-30 — build — build resumed: history rewritten so T011 and T012 each have a task-record commit before their landing; verify-landed proves all twelve tasks
