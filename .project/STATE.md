@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: n24-stale-view-finder
-phase: ship
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M011
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -224,3 +224,6 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-30 — build — diagnosis (measured): manifest matches <all_urls> so injection is fine; fixture app.config provides the router and app.ts renders <router-outlet />, so the stale-view route does render; the panel still returns zero findings. Remaining gap is the agent's serialized debuggableFn source on the inspected page, not routing, injection or build
 - 2026-10-30 — build — diagnostic task T010 added: measure the serialized graph on the fixture route, then fix the agent serialization or the matcher until the scan yields a finding; T006 depends on it
 - 2026-10-30 — ship — build done; final review pending
+- 2026-10-30 — ship — final review blocked: project Verify fails with 21 implicit-any errors in the two stale-view check modules
+- 2026-10-30 — plan — patch plan reopened
+- 2026-10-30 — plan — plan approved
