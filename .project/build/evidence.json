@@ -1,0 +1,272 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M011",
+        "candidates": [
+          {
+            "base": "5ad6e019eaa9ea60e4f8b1b6e11b6a95aaeb82e1",
+            "commit": "a9ada2461638db774b35251719840ad9b05584ac",
+            "valid": true
+          }
+        ],
+        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "subject": "T001: Re-prove the M010 Verifies for archived tasks 002 005 011 012 at the current head"
+      },
+      "landed_commit": "a9ada2461638db774b35251719840ad9b05584ac",
+      "reasons": [],
+      "task": {
+        "base": "5ad6e019eaa9ea60e4f8b1b6e11b6a95aaeb82e1",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-repair-m010-ledger.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M011",
+        "candidates": [
+          {
+            "base": "e1bdc96caa764d330a3d27d9b0d7529bde368f5b",
+            "commit": "8ef0b51eb479251aebad336f8892b4b25066d7d0",
+            "valid": true
+          }
+        ],
+        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "subject": "T002: Apply the accepted doc-fix alignment rows from DOCS-AUDIT"
+      },
+      "landed_commit": "8ef0b51eb479251aebad336f8892b4b25066d7d0",
+      "reasons": [],
+      "task": {
+        "base": "e1bdc96caa764d330a3d27d9b0d7529bde368f5b",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-doc-fix-alignment.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M011",
+        "candidates": [
+          {
+            "base": "d70f96169ff10b1a1eae2952658abc9db4f7569c",
+            "commit": "11b883c156da740f769353010aa2d6d5ae2dc0c5",
+            "valid": true
+          }
+        ],
+        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "subject": "T003: Agent-side debuggableFn source scan, Angular 22.1.3 gate, and plain-field confirmation"
+      },
+      "landed_commit": "11b883c156da740f769353010aa2d6d5ae2dc0c5",
+      "reasons": [],
+      "task": {
+        "base": "d70f96169ff10b1a1eae2952658abc9db4f7569c",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-stale-view-agent-scan.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M011",
+        "candidates": [
+          {
+            "base": "39169b9d31bd8636f1901b969ba93ddac9ee8e75",
+            "commit": "0d409c491fc156e7de192507587dd5f723b0ea09",
+            "valid": true
+          }
+        ],
+        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "subject": "T004: Per-page scan worker with supersession of in-flight scans"
+      },
+      "landed_commit": "0d409c491fc156e7de192507587dd5f723b0ea09",
+      "reasons": [],
+      "task": {
+        "base": "39169b9d31bd8636f1901b969ba93ddac9ee8e75",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-stale-view-scan-worker.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M011",
+        "candidates": [
+          {
+            "base": "80611cefcb84bc2b9b353917a8ee18929a4dee91",
+            "commit": "4cad23a76c6aad2ec4c34919c53e897b4d063ef4",
+            "valid": true
+          }
+        ],
+        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "subject": "T005: Panel UI rendering the hedged finding and panel-local Prompt API explanation"
+      },
+      "landed_commit": "4cad23a76c6aad2ec4c34919c53e897b4d063ef4",
+      "reasons": [],
+      "task": {
+        "base": "80611cefcb84bc2b9b353917a8ee18929a4dee91",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-stale-view-panel.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M011",
+        "candidates": [
+          {
+            "base": "0e0f0bf8855d69e726f7557a264ce28ba3727de6",
+            "commit": "46085666f000471c5eff9ee9740cd88e08c1d369",
+            "valid": true
+          }
+        ],
+        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "subject": "T006: Verify the stale-view claim across all four model instances and the portal"
+      },
+      "landed_commit": "46085666f000471c5eff9ee9740cd88e08c1d369",
+      "reasons": [],
+      "task": {
+        "base": "0e0f0bf8855d69e726f7557a264ce28ba3727de6",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-stale-view-verification.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M011",
+        "candidates": [
+          {
+            "base": "ae89ebb9360b9fa92539d2ac0e5855ad1cee5948",
+            "commit": "c300e90a10ddcd45ca7e0ef73a4eaa030c440cd0",
+            "valid": true
+          }
+        ],
+        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "subject": "T007: Fix the extension-build type errors in the stale-view scan module"
+      },
+      "landed_commit": "c300e90a10ddcd45ca7e0ef73a4eaa030c440cd0",
+      "reasons": [],
+      "task": {
+        "base": "ae89ebb9360b9fa92539d2ac0e5855ad1cee5948",
+        "id": "T007",
+        "status": "done",
+        "task_file": ".project/tasks/T007-fix-extension-build-types.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M011",
+        "candidates": [
+          {
+            "base": "0544af3d08cd4df441ec959082655591545b48c1",
+            "commit": "6ec553d979c02a7b44e0eb5167d697325c3d71c5",
+            "valid": true
+          }
+        ],
+        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "subject": "T008: Add the stale-view drive to the control-ai-browsers panel driver"
+      },
+      "landed_commit": "6ec553d979c02a7b44e0eb5167d697325c3d71c5",
+      "reasons": [],
+      "task": {
+        "base": "0544af3d08cd4df441ec959082655591545b48c1",
+        "id": "T008",
+        "status": "done",
+        "task_file": ".project/tasks/T008-panel-driver-stale-view.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M011",
+        "candidates": [
+          {
+            "base": "bbeac7b56b2aa466af04fc5f25c3761b05b43431",
+            "commit": "0aa69fad1d8bbe38c6d71d4e567eabeecd925f7a",
+            "valid": true
+          }
+        ],
+        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "subject": "T009: Add the dev-only stale-view route to the counter fixture"
+      },
+      "landed_commit": "0aa69fad1d8bbe38c6d71d4e567eabeecd925f7a",
+      "reasons": [],
+      "task": {
+        "base": "bbeac7b56b2aa466af04fc5f25c3761b05b43431",
+        "id": "T009",
+        "status": "done",
+        "task_file": ".project/tasks/T009-counter-stale-view-route.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M011",
+        "candidates": [
+          {
+            "base": "760e3b354c081e6a82c717fa456745828ff71a79",
+            "commit": "32ce0b6b2e367142dfbaa785b90bb62c6078f244",
+            "valid": true
+          }
+        ],
+        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "subject": "T010: Make the stale-view scan produce a finding on the counter fixture route"
+      },
+      "landed_commit": "32ce0b6b2e367142dfbaa785b90bb62c6078f244",
+      "reasons": [],
+      "task": {
+        "base": "760e3b354c081e6a82c717fa456745828ff71a79",
+        "id": "T010",
+        "status": "done",
+        "task_file": ".project/tasks/T010-stale-view-fixture-finding.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M011",
+        "candidates": [
+          {
+            "base": "cb7c70ce3d2664fdde54d2902f0c6ee99b697fd6",
+            "commit": "f855ce476e388e1167f19343821b5472e9d59ade",
+            "valid": true
+          }
+        ],
+        "head": "866c12d94de05cdbe7f64896309a31477143bae9",
+        "subject": "T011: Narrow the stale-view panel driver types"
+      },
+      "landed_commit": "f855ce476e388e1167f19343821b5472e9d59ade",
+      "reasons": [],
+      "task": {
+        "base": "cb7c70ce3d2664fdde54d2902f0c6ee99b697fd6",
+        "id": "T011",
+        "status": "done",
+        "task_file": ".project/tasks/T011-panel-driver-stale-view-types.md"
+      }
+    }
+  ]
+}
