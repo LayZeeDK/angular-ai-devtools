@@ -3,9 +3,9 @@ id: T001
 title: Generate the offline angular.dev/errors digest at extension build time
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: 6f053b159793d4cee097f82a3a9e062ac78f7fe8
 worktree: null
 task_branch: null
 files:
@@ -62,3 +62,36 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-30 — implemented generator with committed 64-entry source snapshot, generated digest (64 entries, <=150 tokens), typed loader, node:test; Verify exit 0 — ready
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T001): pass, exit 0; output tail:
+  ```
+  ✔ digest has top-level shape (0.7712ms)
+  ✔ one entry per code, unique codes (0.1ms)
+  ✔ each body at most 150 tokens (0.5958ms)
+  ✔ no MIT license or Google LLC copyright text anywhere (0.282ms)
+  ✔ trimmed entries end with a marker (0.4316ms)
+  ℹ tests 5
+  ℹ suites 0
+  ℹ pass 5
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 108.0542
+  ```
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T001): pass, exit 0; output tail:
+  ```
+  ✔ digest has top-level shape (0.7807ms)
+  ✔ one entry per code, unique codes (0.0965ms)
+  ✔ each body at most 150 tokens (0.6054ms)
+  ✔ no MIT license or Google LLC copyright text anywhere (0.2904ms)
+  ✔ trimmed entries end with a marker (0.42ms)
+  ℹ tests 5
+  ℹ suites 0
+  ℹ pass 5
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 107.5833
+  ```
