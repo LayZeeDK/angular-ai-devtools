@@ -20,7 +20,7 @@ Review depth: full
 
 ## Wave 2 — walking skeleton
 
-Goal: Thinnest end-to-end N4 slice in the DevTools panel — renders a captured error with its owning component and explains it via the panel-local Prompt API, sending only the shaped fact list.
+Goal: Thinnest end-to-end N4 slice in the DevTools panel — renders a captured error with its owning component and explains it via the panel-local Prompt API, sending only the shaped fact list — and make the extension build regenerate the offline digest, closing the wave-1 review finding.
 Review depth: full
 
 ## Wave 3 — verification gate (SC7)
@@ -50,6 +50,7 @@ Gate proof: the task-level Verify is the unit slice only, because a read-only si
 | SC1 | T003 | AC1 |
 | SC2 | T001 | AC1 |
 | SC2 | T003 | AC2 |
+| SC2 | T007 | AC1 |
 | SC3 | T001 | AC2 |
 | SC3 | T003 | AC2 |
 | SC4 | T003 | AC1 |
@@ -97,3 +98,4 @@ rather than silently passing.
 - T003 depends on T001 and T002: it consumes the digest entry shape (T001 Interface contract) and the captured-error/ring-buffer shape (T002 Interface contract); without both, the panel has nothing to render or explain.
 - T004 and T005 are independent of the product tasks and of each other: they touch `package.json`/docs only and share no files with T001–T003.
 - T006 is independent of T001–T005: it touches only the two skill folders and their `.claude` mirrors, and it is authored in wave 1 so the check exists before the wave-2 gate runs it against the panel T003 lands.
+- T007 depends on T001: it wires the generator T001 landed into the `build-extension` target, and its dependency is the generator's invocation contract (the script path and its output file) rather than narrative order. Its files are disjoint from T003's, so both run in wave 2.
