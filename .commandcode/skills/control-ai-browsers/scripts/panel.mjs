@@ -14,9 +14,13 @@
  * @property {string | null} answer
  * @property {string | null} error  what the panel showed instead, or why the run stopped
  * @property {string | null} status  the panel's "Prompt API: ..." line
- * @property {string} feature  which panel flow ran: `version`, `error-explainer`, or `stale-view`
+ * @property {string} feature  which panel flow ran: `version`, `error-explainer`, `stale-view`, or `interop`
  * @property {string | null} code  N4: the captured error code the panel showed
  * @property {string | null} field  the field name the panel showed (stale-view)
+ * @property {string | null} limits  the panel's statement of what it cannot name (interop)
+ * @property {string | null} inferred  the panel's field-to-node attribution wording (interop)
+ * @property {number} nodes  interop: how many slice nodes the panel rendered
+ * @property {string | null} route  the panel path the app actually served after routing
  * @property {string | null} component  N4: the owning component the panel showed
  * @property {string | null} digest  N4: the digest entry the panel showed
  * @property {boolean} digestPresent  N4: whether the digest entry resolved
@@ -153,7 +157,7 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000, featur
   const note = (step, value) => steps.push({ at: Date.now() - t0, step, value });
   const targets = async () => /** @type {Target[]} */ (await (await fetch(`${cdp}/json/list`, { signal: AbortSignal.timeout(5000) })).json());
   /** @type {PanelRun} */
-  const run = { ok: false, feature, ngVersion: null, extensionId: null, code: null, field: null, component: null, digest: null, digestPresent: false, answer: null, error: null, status: null, answerMs: 0, steps };
+  const run = { ok: false, feature, ngVersion: null, extensionId: null, code: null, field: null, component: null, digest: null, digestPresent: false, limits: null, inferred: null, nodes: 0, route: null, answer: null, error: null, status: null, answerMs: 0, steps };
   /** @type {Session[]} */
   const open = [];
   /** @param {string} url */
@@ -234,10 +238,14 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000, featur
     const panel = await attach(panelTarget.webSocketDebuggerUrl);
     const isErrors = feature === 'error-explainer' || feature === 'errors';
     const isStale = feature === 'stale-view';
-    if (isErrors || isStale) {
+    const isInterop = feature === 'interop';
+    if (isErrors || isStale || isInterop) {
       // A file-based extension origin serves no deep link, so route the loaded panel document in place.
-      const route = isErrors ? 'error-explainer' : 'stale-view';
+      const route = isErrors ? 'error-explainer' : isStale ? 'stale-view' : 'interop';
       await panel.evaluate(`(() => { history.pushState({}, '', '/panel/${route}'); window.dispatchEvent(new PopStateEvent('popstate')); return location.href; })()`);
+      // An app that has no route for this feature falls back to another panel; record what it served.
+      run.route = /** @type {string | null} */ ((await panel.evaluate(`location.pathname`)) ?? null);
+      note('route', run.route);
     }
     note('panel', await poll(() => panel.evaluate(`document.body && document.body.innerText.length > 0`), 15000));
     // The panel loads when shown, after the page announced Angular; a reload announces it again.
@@ -248,8 +256,8 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000, featur
       await page.evaluate(`console.error('NG0100: ExpressionChangedAfterItHasBeenCheckedError: Expression has changed after it was checked.')`);
     }
     /** @type {Record<string, string>} */
-    const selectors = (isErrors || isStale)
-      ? { explain: '[data-testid="explain"]', answer: '[data-testid="ai-answer"]', error: '[data-testid="empty-state"]', code: '[data-testid="error-code"]', component: '[data-testid="owning-component"]', digest: '[data-testid="digest-entry"]', captured: '[data-testid="captured-error"]', field: '[data-testid="field-name"]', hedged: '[data-testid="hedged"]', stale: '[data-testid="stale-finding"]' }
+    const selectors = (isErrors || isStale || isInterop)
+      ? { explain: '[data-testid="explain"]', answer: '[data-testid="ai-answer"]', error: '[data-testid="empty-state"]', code: '[data-testid="error-code"]', component: '[data-testid="owning-component"]', digest: '[data-testid="digest-entry"]', captured: '[data-testid="captured-error"]', field: '[data-testid="field-name"]', hedged: '[data-testid="hedged"]', stale: '[data-testid="stale-finding"]', slice: '[data-testid="interop-slice"]', limit: '[data-testid="interop-limit"]', inferred: '[data-testid="interop-inferred"]', node: '[data-testid="interop-node"]' }
       : SELECTORS;
     const N4 = { code: '[data-testid="error-code"]', component: '[data-testid="owning-component"]', digest: '[data-testid="digest-entry"]' };
     // An app can log its own console errors, so read the row whose code is the NG one rather than the first row.
@@ -257,6 +265,8 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000, featur
       ? `(Array.from(document.querySelectorAll('[data-testid="captured-error"]')).find((r) => /NG0\\d+/.test(r.querySelector('[data-testid="error-code"]')?.textContent || '')) || null)`
       : isStale
       ? `(document.querySelector('[data-testid="stale-finding"]'))`
+      : isInterop
+      ? `(document.querySelector('[data-testid="interop-slice"]'))`
       : null;
     /** @param {string} sel @returns {string} */
     const field = (sel) => (row ? `${row}?.querySelector(${JSON.stringify(sel)})?.textContent?.trim() ?? null` : `document.querySelector(${JSON.stringify(sel)})?.textContent?.trim() ?? null`);
@@ -292,6 +302,16 @@ export async function drivePanel(cdp, appUrl, { answerTimeoutMs = 240000, featur
       run.component = /** @type {string | null} */ ((await panel.evaluate(field(staleComponent))) ?? null);
       const hedged = /** @type {string | null} */ ((await panel.evaluate(field(staleHedged))) ?? null);
       note('stale-view', { hedged, field: run.field, component: run.component });
+    }
+    if (isInterop) {
+      // Read the observed interop slice and the panel's stated limits before clicking Explain.
+      // `selectors` is a Record, so its index reads are `string | undefined`; the interop selectors are always declared above.
+      const { limit: interopLimit = '[data-testid="interop-limit"]', inferred: interopInferred = '[data-testid="interop-inferred"]', node: interopNode = '[data-testid="interop-node"]', component: interopComponent = '[data-testid="owning-component"]' } = selectors;
+      run.limits = /** @type {string | null} */ ((await panel.evaluate(field(interopLimit))) ?? null);
+      run.inferred = /** @type {string | null} */ ((await panel.evaluate(field(interopInferred))) ?? null);
+      run.component = /** @type {string | null} */ ((await panel.evaluate(field(interopComponent))) ?? null);
+      run.nodes = Number((await panel.evaluate(`document.querySelectorAll(${JSON.stringify(interopNode)}).length`)) ?? 0);
+      note('interop', { limits: run.limits, inferred: run.inferred, nodes: run.nodes, component: run.component });
     }
 
     const clickedAt = Date.now();

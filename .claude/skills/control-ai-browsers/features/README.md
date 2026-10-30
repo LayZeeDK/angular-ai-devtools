@@ -60,6 +60,7 @@ to get to it (user POV)`, `Driving it with control-ai-browsers`, `Gotchas`.
 - [Error explainer](./error-explainer.md): the N4 panel feature driven end to end.
 - [Signal provenance](./signal-provenance.md): the N2 panel feature driven end to end.
 - [Stale view](./stale-view.md): the stale-view panel feature driven end to end.
+- [RxJS interop](./interop.md): the N25 panel feature driven end to end.
 
 ## Full sweep
 
@@ -74,6 +75,7 @@ A full pass drives the features in this order.
 7. [Error explainer](./error-explainer.md)
 8. [Signal provenance](./signal-provenance.md)
 9. [Stale view](./stale-view.md)
+10. [RxJS interop](./interop.md)
 
 ## Manual only
 
