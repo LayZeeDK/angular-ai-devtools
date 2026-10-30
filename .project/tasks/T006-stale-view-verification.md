@@ -52,3 +52,4 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-30 rejected attempt (superseded by the T007 build repair): stale-view check created and `node --test` passed 6/6; chrome-stable-nano, chrome-beta-gemma4, edge-phi4mini and edge-dev-aion each could-not-run because `build-extension` fails TS2345 in `src/main-world/stale-view-scan.ts`; portal not exercised (extension build blocked); claim not verified.
