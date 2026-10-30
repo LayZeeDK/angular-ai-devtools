@@ -54,9 +54,12 @@ Gate proof: the task-level Verify is the unit slice only, because a read-only si
 | SC3 | T001 | AC2 |
 | SC3 | T003 | AC2 |
 | SC4 | T003 | AC1 |
+| SC4 | T008 | AC1 |
 | SC5 | T003 | AC5 |
 | SC5 | T006 | AC1 |
+| SC5 | T008 | AC4 |
 | SC6 | T003 | AC6 |
+| SC6 | T008 | AC4 |
 | SC7 | T004 | AC1 |
 | SC7 | T005 | AC1 |
 
