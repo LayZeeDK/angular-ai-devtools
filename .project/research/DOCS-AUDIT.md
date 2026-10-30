@@ -1024,8 +1024,8 @@ Alignment mode: no
 | 46 | accept-drift | "Leave the Claude skills as-is but fix the Command Code skills' docs (fix-doc)." — 2026-10-29 | n/a (accept-drift) |
 | 53 | accept-drift | "Leave the Claude skills as-is but fix the Command Code skills' docs (fix-doc)." — 2026-10-29 | n/a (accept-drift) |
 | 54 | accept-drift | "Leave the Claude skills as-is but fix the Command Code skills' docs (fix-doc)." — 2026-10-29 | n/a (accept-drift) |
-| 60 | fix-doc | "Leave the Claude skills as-is but fix the Command Code skills' docs (fix-doc)." — 2026-10-29 | no |
-| 105 | fix-doc | "Leave the Claude skills as-is but fix the Command Code skills' docs (fix-doc)." — 2026-10-29 | no |
+| 60 | fix-doc | "Leave the Claude skills as-is but fix the Command Code skills' docs (fix-doc)." — 2026-10-29 | T005 |
+| 105 | fix-doc | "Leave the Claude skills as-is but fix the Command Code skills' docs (fix-doc)." — 2026-10-29 | T005 |
 
 ## Remediation queue
 
