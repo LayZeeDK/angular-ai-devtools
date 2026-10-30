@@ -3,9 +3,9 @@ id: T003
 title: Extend stale-view-fixture.ts with toSignal and subject.error effect
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: 7f4339f5a06a43b5071de96422934a6ed37ee836
 worktree: null
 task_branch: null
 files:
@@ -53,3 +53,4 @@ Heavy: no
 ## Log
 
 - pending
+- done: extended stale-view-fixture.ts with toSignal field and effect calling updates.error; npm run check passed

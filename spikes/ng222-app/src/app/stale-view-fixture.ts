@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, effect } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 
 @Component({
@@ -10,9 +11,15 @@ export class StaleViewFixture {
 
   private readonly updates = new Subject<number>();
 
+  readonly signal = toSignal(this.updates);
+
   constructor() {
     this.updates.subscribe((next) => {
       this.value = next;
+    });
+
+    effect(() => {
+      this.updates.error(new Error('interop'));
     });
   }
 
