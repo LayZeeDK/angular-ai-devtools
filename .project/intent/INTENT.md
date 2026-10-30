@@ -26,7 +26,7 @@ The Angular developers using this extension in dev mode against a zoneless Angul
 
 ## Success criteria
 
-1. On `spikes/ng222-app`, a plain field written in a subscribe callback is flagged with "the template may show a stale value" in the DevTools panel.
+1. On the counter app's `stale-view` route in `spikes/ng222-app`, a plain field written in a subscribe callback is flagged with "the template may show a stale value" in the DevTools panel.
 2. The finding is produced from `ng.ɵgetSignalGraph` plus the `debuggableFn` source scan without new page-side instrumentation.
 3. The per-page scan runs in a worker.
 4. The panel explains the finding using the panel-local Prompt API, sending only a short fact list.
@@ -79,7 +79,7 @@ The Angular developers using this extension in dev mode against a zoneless Angul
 - Do not break the shipped N1 (update cause), N2 (signal provenance), N3 (DI doctor) or N4 (error explainer) panel flows — Lars's standing veto on regressing existing panel behavior.
 - No support for NgModule apps, Zone.js change detection or `@angular/upgrade` hybrids; supported apps are zoneless, standalone Angular 22.2 dev builds.
 - No Firefox or Safari; they ship no Prompt API.
-- No Tier 2 (app opt-in `globalThis` export) features, and the counter fixture is never modified to help a feature.
+- No Tier 2 (app opt-in `globalThis` export) features. The counter fixture gains exactly one dev-only `stale-view` route that demonstrates a plain field written in a subscribe callback, under the owner's 2026-10-30 ruling; no other change to it is permitted, and the insurance portal gains nothing beyond the runtime providers already allowed.
 - No automatic model calls, and no model-download flow for `downloadable` models.
 - No usage of `angular:di_graph` or `getViewContainerRef()` on component hosts.
 - No push, pull request, or filing without Lars's explicit yes.
@@ -127,3 +127,4 @@ The Angular developers using this extension in dev mode against a zoneless Angul
 - 2026-10-30: "1: Approve" — this milestone intent approved as drafted.
 - 2026-10-30: "2: Accept." — the seven proposed doc-vs-code rulings accepted as drafted.
 - 2026-10-30: "3: Repair first." — the M010 ledger repair for T002, T005, T011 and T012 runs before N24 feature work in this milestone.
+- 2026-10-30: "Option 1 but don't change insurance-portal except for example to add our runtime providers. Prefer a new small app or route in the app with the counter." — the counter fixture gains one dev-only `stale-view` route that exhibits a plain field written in a subscribe callback, so SC1 and SC5 can be produced; the insurance portal is not changed beyond runtime providers. This amends the earlier "counter fixture is never modified" veto for that route only.
