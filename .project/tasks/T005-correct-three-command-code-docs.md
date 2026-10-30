@@ -3,9 +3,9 @@ id: T005
 title: Correct three misstated Command Code documents
 wave: 3
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T005
+base: 5183252a1a204248caf811a3356b609f40e2c979
 worktree: null
 task_branch: null
 files:
@@ -54,3 +54,18 @@ Heavy: no
 ## Log
 
 - created by planner
+- T005: corrected AGENTS.md, extension-panel.md, monitor-ci SKILL.md; added scripts/docs-correction.test.mjs; verify exit 0 — ready
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T005): pass, exit 0; output tail:
+  ```
+  ✔ AGENTS.md uses the Nx 23 dist/bin entry path (1.0692ms)
+  ✔ extension-panel.md states the code Angular version (0.1537ms)
+  ✔ monitor-ci SKILL.md no longer claims nx.json contains nxCloudId/nxCloudAccessToken (0.1712ms)
+  ℹ tests 3
+  ℹ suites 0
+  ℹ pass 3
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 104.5033
+  ```

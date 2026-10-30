@@ -8,6 +8,7 @@ Read a reference only when the task touches it.
 - TypeScript is pinned to 6.0.x (`package.json`). If `npm run check` fails with errors no change explains, check
   `node_modules/typescript/package.json`: a 7.x there means a stale install; run `npm ci`.
 - Checks: `npm run check` (type check, root and skills) and `npm test` (node:test, root and skills).
+- Nx CLI entry for this install: `node_modules/nx/dist/bin/nx.js` (Nx 23); invoke via `node` or `npx nx`.
 
 ### Verify sidecar dependencies
 
