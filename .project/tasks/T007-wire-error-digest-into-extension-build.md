@@ -3,9 +3,9 @@ id: T007
 title: Wire the error digest generator into the extension build
 wave: 2
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T007
+base: a49cebd171d036413047f8399a95210e8b52252c
 worktree: null
 task_branch: null
 files:
@@ -63,3 +63,18 @@ Heavy: no
 ## Log
 
 - created by plan build-repair after the wave 1 T001 AC4 finding
+- 2026-10-30 — added generate-error-digest target (nx:run-commands, node scripts/generate-error-digest.mjs, cwd {workspaceRoot}) and dependsOn on build-extension; guard test added; Verify exit 0 — ready
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T007): pass, exit 0; output tail:
+  ```
+  ✔ build-extension depends on generate-error-digest (0.8982ms)
+  ✔ generate-error-digest target runs the generator via nx:run-commands (0.1843ms)
+  ✔ build target is unchanged (still @angular/build:application) (0.1172ms)
+  ℹ tests 3
+  ℹ suites 0
+  ℹ pass 3
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 104.9017
+  ```
