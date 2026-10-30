@@ -10,6 +10,7 @@ worktree: null
 task_branch: null
 files:
   - .commandcode/skills/verify-ai-browsers/checks/stale-view.test.mjs
+  - .claude/skills/verify-ai-browsers/checks/stale-view.test.mjs
   - .project/plan/PLAN.md
 ---
 
