@@ -1,6 +1,6 @@
 ## Turborepo
 
-- Nx replaces Turborepo task orchestration, but a clean migration requires handling Turborepo's config packages.
+- The migration replaces Turborepo task orchestration with Nx targets, but a clean migration requires handling Turborepo's config packages.
 - Migration guide: https://nx.dev/docs/guides/adopting-nx/from-turborepo#easy-automated-migration-example
 - Since Nx replaces Turborepo, all turbo config files and config packages become dead code and should be removed.
 

@@ -3,9 +3,9 @@ id: T003
 title: Correct .commandcode/skills/nx-import/references/TURBOREPO.md (row 465)
 wave: 2
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: 1444d1e44b20313732458349adbd4b5c90079026
 worktree: null
 task_branch: null
 files:
@@ -47,3 +47,8 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-31 — implementation: restated the Turborepo claim as what the migration does; Verify: python -c ... → exit 0
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T003): pass, exit 0; output tail:
+  ```
+  ok
+  ```
