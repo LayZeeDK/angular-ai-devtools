@@ -3,9 +3,9 @@ id: T013
 title: Let the interop check assert an explicit extension directory
 wave: 3
 deps: [T005]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T013
+base: f22873eed84c65a52e7d374aee90c0af8482ce31
 worktree: null
 task_branch: null
 files:
@@ -61,3 +61,27 @@ Held-out: none
 ## Log
 
 - pending
+- build_T013: interop.mjs accepts --extension <dir>; 9/9 check tests pass; skills mirror parity holds; the control feature contract documents the flag
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T013): pass, exit 0; output tail:
+  ```
+  ✔ missingLimitTerms names every limit the panel left out, case-insensitively (0.1515ms)
+  ℹ tests 9
+  ℹ suites 0
+  ℹ pass 9
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 428.3887
+  ✔ .claude/skills/control-ai-browsers mirrors .commandcode/skills/control-ai-browsers (11.4288ms)
+  ✔ .claude/skills/verify-ai-browsers mirrors .commandcode/skills/verify-ai-browsers (4.0702ms)
+  ℹ tests 2
+  ℹ suites 0
+  ℹ pass 2
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 231.8997
+  retained .project/tasks/T013-explicit-extension-check.md
+  ```

@@ -111,6 +111,22 @@ test('main: all instances by default, 1 on a failed claim, 2 without --url or fo
   assert.equal(main(['--evidence', 'e', '--url', URL, 'nope'], () => fake().deps, () => REGISTRY), 2);
 });
 
+test('--extension names the checkout an instance must serve, so a sidecar can verify it', (t) => {
+  t.mock.method(console, 'error', () => {});
+  // A verify sidecar is a different directory than the instance's checkout; without the flag the
+  // guard refuses the run (exit 2), and with it the same instance passes.
+  const elsewhere = join('D:\\elsewhere', 'checkout', 'extension');
+  const patch = { 'chrome-stable-nano': { info: { code: 0, json: { ok: true, extensionDir: EXT } } } };
+  assert.equal(
+    main(['--evidence', 'e', '--url', URL, '--extension', elsewhere, 'chrome-stable-nano'], () => fake(patch).deps, () => REGISTRY),
+    2,
+  );
+  assert.equal(
+    main(['--evidence', 'e', '--url', URL, '--extension', EXT, 'chrome-stable-nano'], () => fake(patch).deps, () => REGISTRY),
+    0,
+  );
+});
+
 test('missingLimitTerms names every limit the panel left out, case-insensitively', () => {
   assert.deepEqual(missingLimitTerms(LIMITS), []);
   assert.deepEqual(missingLimitTerms('CANNOT NAME THE OBSERVABLE'), ['operator', 'emission']);

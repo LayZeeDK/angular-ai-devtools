@@ -29,6 +29,10 @@ dev page served whose route exercises `toSignal` (the insurance-portal fixture, 
 - **Drive interop.** Open the panel on the instance with `C panel <name> --url=<app url> --feature=interop`; the
   driver routes the panel to `interop`, waits for the slice or its explicit empty state, reads the slice node count,
   the stated limits and the "inferred, untested" wording, then clicks "Explain".
+- **Verifying from a sidecar.** The check asserts that the instance serves the extension at the
+  check's own checkout path. A verify sidecar is a different path, so pass
+  `--extension <absolute path of the checkout the instance runs>`:
+  `node .commandcode/skills/verify-ai-browsers/checks/interop.mjs --evidence <dir> --url <app url> --extension <checkout>/extension <instance>`.
 - Required panel test ids: `interop-slice` (container), `interop-node` (one per sliced node), `interop-limit` (the
   cannot-name statement), `interop-inferred` (the attribution wording), plus the shared `explain`, `ai-answer`,
   `empty-state` and `owning-component`.
