@@ -3,9 +3,9 @@ id: T011
 title: Name the fixture subject so the interop effect serialises the subject.error token
 wave: 3
 deps: [T003]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T011
+base: 65f48ff17bbd6840e7e23aec6b855f3d7a5822cf
 worktree: null
 task_branch: null
 files:
@@ -62,3 +62,18 @@ Heavy: no
 ## Log
 
 - pending
+- renamed `updates` field to `subject` in stale-view-fixture.ts; verify passes.
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T011): pass, exit 0; output tail:
+  ```
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  ```
+- 2026-10-31 — orchestrator regression Verify of T003 (isolate gsd-path-task/T011): pass, exit 0; output tail:
+  ```
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  ```
