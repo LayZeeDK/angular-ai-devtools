@@ -3,9 +3,9 @@ id: T014
 title: Give the interop panel readable structure
 wave: 3
 deps: [T004, T012]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T014
+base: 352572adae099a270b47d0110ad54d4150ef1105
 worktree: null
 task_branch: null
 files:
@@ -56,3 +56,49 @@ Held-out: none
 ## Log
 
 - pending
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T014): pass, exit 0; output tail:
+  ```
+  [37mOutput location: C:\Users\LarsGyrupBrinkNielse\.gsd-path\projects\d10fb97cec6c7ac7\8919d4cefeb4a7e5\task\T014\extension\panel
+  [39m
+  
+  [2m[32m[39m[22m
+  
+  [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mbuild-extension[22m for project angular-ai-devtools and [1m1[22m task it depends on[39m
+  
+  [2mNx read the output from the cache instead of running the command for 1 out of 2 tasks.[22m
+  
+    Run duration:      349ms
+    Cache:             1/2 hit (50%)
+    Critical path:     297ms (2 tasks)
+    Recoverable time:  <1ms
+  retained apps/angular-ai-devtools/src/app/interop.component.ts
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:build-extension
+  ```
+- 2026-10-31 — orchestrator regression Verify of T004 (isolate gsd-path-task/T014): pass, exit 0; output tail:
+  ```
+  [39m[22m
+  [37mOutput location: C:\Users\LarsGyrupBrinkNielse\.gsd-path\projects\d10fb97cec6c7ac7\8919d4cefeb4a7e5\task\T014\extension\panel
+  [39m
+  
+  [2m[32m[39m[22m
+  
+  [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mbuild-extension[22m for project angular-ai-devtools and [1m1[22m task it depends on[39m
+  
+  [2mNx read the output from the cache instead of running the command for 1 out of 2 tasks.[22m
+  
+    Run duration:      226ms
+    Cache:             1/2 hit (50%)
+    Critical path:     179ms (2 tasks)
+    Recoverable time:  <1ms
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:build-extension
+  ```

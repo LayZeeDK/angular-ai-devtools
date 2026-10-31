@@ -17,12 +17,12 @@ import { ExtensionPromptService } from './extension-prompt.service';
     } @else {
       @for (s of svc.slices(); track s.sourceId) {
         <div class="slice" data-testid="interop-slice">
-          <span class="limitation" data-testid="interop-limit">{{ limitation }}</span>
-          <span class="node" data-testid="interop-node">{{ s.sourceId }}</span>
-          <span class="source" data-testid="source-node">{{ s.sourceLabel ?? s.sourceId }}</span>
-          <span class="producer" data-testid="producer">{{ s.producers.join(',') }}</span>
-          <span class="consumer" data-testid="consumer">{{ s.consumers.join(',') }}</span>
-          <span class="attribution" data-testid="interop-inferred">{{ inferred }}</span>
+          <p data-testid="interop-limit">limit: {{ limitation }}</p>
+          <p data-testid="interop-node">node: {{ s.sourceId }}</p>
+          <p data-testid="source-node">source: {{ s.sourceLabel ?? s.sourceId }}</p>
+          <p data-testid="producer">producers: {{ s.producers.join(', ') }}</p>
+          <p data-testid="consumer">consumers: {{ s.consumers.join(', ') }}</p>
+          <p data-testid="interop-inferred">attribution: {{ inferred }}</p>
           <button (click)="explain(s)" data-testid="explain">Explain</button>
         </div>
       }
