@@ -29,6 +29,15 @@ Review depth: verify-only
 Goal: regenerate the docs audit at the shipped head with the delta rule, run the audit gate, and run the project Verify plus the skills-mirror test.
 Review depth: verify-only
 
+## Wave 5 — audit reconciliation (patch)
+
+Goal: reconcile the `docs/design/tutor.md` section of the regenerated audit with the corrected document, so no claim row quotes a sentence the document no longer makes, and the docs-audit gate passes.
+Review depth: verify-only
+
+| Task | Title | Builds | Status |
+|------|-------|--------|--------|
+| T010 | Reconcile the tutor audit section with the corrected document | `.project/research/DOCS-AUDIT.md` | pending |
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
@@ -51,3 +60,4 @@ Review depth: verify-only
 - T005 depends on T001 (consumes the re-derived verdict classification for the alignment rows).
 - T007 depends on T002, T003, T004, T005 (all corrections must land before regeneration).
 - T008 depends on T007 (project Verify runs after the audit gate passes).
+- T010 has no deps; it reconciles the tutor section of `.project/research/DOCS-AUDIT.md` after T007 and T009 landed, and edits no document.
