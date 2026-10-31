@@ -11,7 +11,7 @@ Alignment mode: no
 | verified | 253 |
 | stale | 0 |
 | aspirational | 0 |
-| unverifiable | 92 |
+| unverifiable | 91 |
 | descriptive docs (no testable claims) | 7 |
 
 ## Doc: .claude/skills/control-ai-browsers/SKILL.md
@@ -848,7 +848,6 @@ Alignment mode: no
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "No shipped framework devtools panel uses an on-device model" | feature | unverifiable | no survey evidence checked in this audit |
 | "The proposed tutor can run with no model" | feature | verified | docs/design/tutor.md:64 — "The proposed tutor can run with no model" |
 | "The design calls for 27 lessons across five phases" | feature | verified | docs/design/tutor.md:238 — "The design calls for 27 lessons across five phases" |
 | "The planned storage shapes live in `chrome.storage.local`" | config | verified | docs/design/tutor.md:399 — "The planned storage shapes live in `chrome.storage.local`" |
@@ -1130,7 +1129,6 @@ Alignment mode: no
 | 633 | .commandcode/skills/control-vitest-browser-angular/features/held-counter.md | "Clicks: 3 (double 6, cart 2)" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 639 | .commandcode/skills/verify-ai-browsers/SKILL.md | "`state` takes about a minute per instance" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
 | 640 | .commandcode/skills/verify-pangular-inspector/SKILL.md | "Exact pin 0.0.7 declared and installed" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
-| 644 | docs/design/tutor.md | "No shipped framework devtools panel uses an on-device model" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
 | 652 | references/ai-browsers-verification.md | "`state` runs about 3 minutes for four instances" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
 | 653 | research/00-browser-probe.md | "WebMCP is live in both browsers: typeof document.modelContext === 'object'" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 654 | research/01-built-in-ai-apis.md | "Chrome ships LanguageModel to extensions (138+) and the web (148+)" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
