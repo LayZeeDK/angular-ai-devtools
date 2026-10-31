@@ -459,7 +459,7 @@ Depends on: []
 Surfaces: DevTools panel
 Status: shipped
 Archive: .project/archive/012-n25-rxjs-interop-explainer
-Integrated: null
+Integrated: cf637a6ffbb28f30863e2782fd69d1c031536dc9
 
 Scope: in
 - Identification of toSignal.source / toSignal.state nodes and the unlabelled effect whose debuggableFn contains subject.error.
@@ -496,8 +496,8 @@ Open questions
 Goal: Make the docs audit show no stale or aspirational claim about a shipped feature, and leave no remediation-queue row classified NEEDS-USER without a recorded ruling.
 Depends on: []
 Surfaces: none
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/013-docs-audit-closure
 Integrated: null
 
 Scope: in

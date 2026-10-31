@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: n25-rxjs-interop-explainer
+milestone: docs-audit-closure
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M012
+branch: gsd-path/M013
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/012-n25-rxjs-interop-explainer
+archive: .project/archive/013-docs-audit-closure
 integration_default: direct
 integration: direct
 integration_source: default
@@ -244,3 +244,26 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-31 — build — build started
 - 2026-10-31 — ship — build done; final review pending
 - 2026-10-31 — shipped — archive preflight passed; shipment recorded
+- 2026-10-31 — inspect — router bound next milestone: M013 docs-audit-closure; previous M012 shipped (ship 5c32957e9da23b6bb4e8a3f7dcd2040d1593ab4d, integration cf637a6ffbb28f30863e2782fd69d1c031536dc9, archive .project/archive/012-n25-rxjs-interop-explainer); base d59d2a155dba0484f2b06d2c8bee61a1379e5352
+- 2026-10-31 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-10-31 — inspect — inspection artifacts passed
+- 2026-10-31 — define — definition started
+- 2026-10-31 — define — pre-authorized approval: intent
+- 2026-10-31 — define — milestone intent approved
+- 2026-10-31 — research — research started
+- 2026-10-31 — research — research complete; manifest .project/research/RESEARCH.md; dispatched pitfalls, audit-verifiability; skipped domain, stack, similar; 1 question
+- 2026-10-31 — decide — decision synthesis started
+- 2026-10-31 — decide — decision synthesis complete; validated .project/research/SYNTHESIS.md (5 decisions)
+- 2026-10-31 — plan — planning started
+- 2026-10-31 — plan — pre-authorized approval: plan
+- 2026-10-31 — plan — plan approved
+- 2026-10-31 — build — build started
+- 2026-10-31 — build — plan defect repaired: T001 Verify replaced a vacuous or-assertion with a 45-row re-derive check (proven to fail at base), T008 Verify reordered so it is not a copy of Project verify, PLAN.md Intent coverage gained T006 to SC3
+- 2026-10-31 — ship — build done; final review pending
+- 2026-10-31 — ship — final gate blocked: gap 2 found the audit quoting a claim docs/design/tutor.md no longer makes
+- 2026-10-31 — plan — patch plan reopened
+- 2026-10-31 — plan — patch plan approved
+- 2026-10-31 — build — build started
+- 2026-10-31 — ship — build done; final review pending
+- 2026-10-31 — ship — final gate passed; shipping approval pending
+- 2026-10-31 — shipped — archive preflight passed; shipment recorded; program complete

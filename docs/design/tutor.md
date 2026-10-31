@@ -1,5 +1,7 @@
 # Angular AI DevTools Tutor (N27): design
 
+> Status: proposal — the tutor is not implemented; this document describes planned design, not shipped behaviour.
+
 Date: 2026-10-12. Author: a design subagent of Claude, for Lars. Status: design only, nothing built or run.
 
 Labels, as in `docs/feature-proposals.md`:
@@ -59,7 +61,7 @@ From Lars's rulings in proposals section 8 and the brief:
 ### 1.3 The three rules this design follows for the model
 
 1. **Code finds, chooses and grades; the model words.** Every fact the learner sees is computed by code: which components were checked, which signals changed, which injector provides a token, whether the prediction was right. The model rewords shipped text to the learner's level and explains a gap that code already measured **[inferred design]**.
-2. **The tutor works with no model.** Every card has shipped text, and every grade has a templated feedback text filled from the measured facts. The model's text replaces them when it is ready and passes the output checks (4.5). So an unsupported model (Nano on the CPU backend, 3.3) gives a complete tutor in text-only mode, and a slow model never blocks a card **[inferred design]**. This matters because a single structured-output question measured 25-34 s median on Gemma 4 CPU and 11-14 s on Gemma 4 GPU **[measured, 2.1 benchmark table]**.
+2. **The proposed tutor can run with no model.** Every card has shipped text, and every grade has a templated feedback text filled from the measured facts. The model's text replaces them when it is ready and passes the output checks (4.5). So an unsupported model (Nano on the CPU backend, 3.3) gives a complete tutor in text-only mode, and a slow model never blocks a card **[inferred design]**. This matters because a single structured-output question measured 25-34 s median on Gemma 4 CPU and 11-14 s on Gemma 4 GPU **[measured, 2.1 benchmark table]**.
 3. **The core loop needs no tool calling.** Code knows which data each step needs before it calls the model, so the model gets a pre-computed fact sheet in one structured-output prompt with no tools. Tool calling is used only by "Ask the tutor" (section 7), which is the chat loop of 3.3 **[inferred design]**.
 
 ---
@@ -233,7 +235,7 @@ The scan also records, per route path, which lessons were eligible there, so the
 
 ### 3.3 Lessons
 
-27 lessons in five phases, plus an orientation lesson (O0, the app tour, T3 in section 9) and the lessons made from findings (T2, section 9), which reuse the anti-pattern lessons below. The phase names are the CLI tutor's **[documented, 02 section 4.4]**; the lessons are this design's **[inferred design]**.
+The design calls for 27 lessons across five phases, plus an orientation lesson (O0, the app tour, T3 in section 9) and the lessons made from findings (T2, section 9), which reuse the anti-pattern lessons below. The phase names are the CLI tutor's **[documented, 02 section 4.4]**; the lessons are this design's **[inferred design]**.
 
 Phase 1, fundamentals:
 
@@ -394,7 +396,7 @@ A rejected output is not retried: Aion decodes greedily, so the same input gives
 
 ### 5.1 Storage
 
-All tutor state is in `chrome.storage.local`, written by the panel **[inferred design]**. Nothing is read from project files, and nothing leaves the device (3.5). Shapes:
+All tutor state is in `chrome.storage.local`, written by the panel **[inferred design]**. Nothing is read from project files, and nothing leaves the device (3.5). The planned storage shapes live in `chrome.storage.local`:
 
 ```ts
 interface TutorProfile {          // key 'tutor:profile'

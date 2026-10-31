@@ -1,0 +1,248 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "b74bff3bac3cd928fad7f2fccc1a28efdcf8ff40",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M013",
+        "candidates": [
+          {
+            "base": "0f461a456b9adf1178c433b399095f225ec83d78",
+            "commit": "4bb29928fa4588eaf618042b05113fba618ebfd2",
+            "valid": true
+          }
+        ],
+        "head": "b74bff3bac3cd928fad7f2fccc1a28efdcf8ff40",
+        "subject": "T001: Re-derive the 45 settleable unverifiable audit rows"
+      },
+      "landed_commit": "4bb29928fa4588eaf618042b05113fba618ebfd2",
+      "reasons": [],
+      "task": {
+        "base": "0f461a456b9adf1178c433b399095f225ec83d78",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-rederive-settleable-rows.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M013",
+        "candidates": [
+          {
+            "base": "1444d1e44b20313732458349adbd4b5c90079026",
+            "commit": "8a3cb0bea0c243fffd8a47a6150c12e921d87af2",
+            "valid": true
+          }
+        ],
+        "head": "b74bff3bac3cd928fad7f2fccc1a28efdcf8ff40",
+        "subject": "T002: Correct plans/angular-ai-devtools-proposals.handoff.md (rows 649, 650)"
+      },
+      "landed_commit": "8a3cb0bea0c243fffd8a47a6150c12e921d87af2",
+      "reasons": [],
+      "task": {
+        "base": "1444d1e44b20313732458349adbd4b5c90079026",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-correct-handoff-doc.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M013",
+        "candidates": [
+          {
+            "base": "1444d1e44b20313732458349adbd4b5c90079026",
+            "commit": "6927f70feefb02e6cff3349c9f79ec3fa605c231",
+            "valid": true
+          }
+        ],
+        "head": "b74bff3bac3cd928fad7f2fccc1a28efdcf8ff40",
+        "subject": "T003: Correct .commandcode/skills/nx-import/references/TURBOREPO.md (row 465)"
+      },
+      "landed_commit": "6927f70feefb02e6cff3349c9f79ec3fa605c231",
+      "reasons": [],
+      "task": {
+        "base": "1444d1e44b20313732458349adbd4b5c90079026",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-correct-turborepo-md.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M013",
+        "candidates": [
+          {
+            "base": "1444d1e44b20313732458349adbd4b5c90079026",
+            "commit": "e9e701f52617a135048889cc95e8b4037174486c",
+            "valid": true
+          }
+        ],
+        "head": "b74bff3bac3cd928fad7f2fccc1a28efdcf8ff40",
+        "subject": "T004: Correct docs/design/tutor.md (rows 645-647)"
+      },
+      "landed_commit": "e9e701f52617a135048889cc95e8b4037174486c",
+      "reasons": [],
+      "task": {
+        "base": "1444d1e44b20313732458349adbd4b5c90079026",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-correct-tutor-md.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M013",
+        "candidates": [
+          {
+            "base": "07c942ce7722d9ef061c059c43958edd2c4788c6",
+            "commit": "860ac0fbabb901b7192087a797edc9070877fc2f",
+            "valid": true
+          }
+        ],
+        "head": "b74bff3bac3cd928fad7f2fccc1a28efdcf8ff40",
+        "subject": "T005: Apply the eleven ruled alignment-queue fix-doc rows"
+      },
+      "landed_commit": "860ac0fbabb901b7192087a797edc9070877fc2f",
+      "reasons": [],
+      "task": {
+        "base": "07c942ce7722d9ef061c059c43958edd2c4788c6",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-apply-alignment-queue-fixdocs.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M013",
+        "candidates": [
+          {
+            "base": "211d951431d318cd908f861a4604e08c9d213892",
+            "commit": "9e6f412bc3376b541088253626bd33ab2550e429",
+            "valid": true
+          }
+        ],
+        "head": "b74bff3bac3cd928fad7f2fccc1a28efdcf8ff40",
+        "subject": "T006: Record honest missing-evidence wording for the 92 not-settleable rows"
+      },
+      "landed_commit": "9e6f412bc3376b541088253626bd33ab2550e429",
+      "reasons": [],
+      "task": {
+        "base": "211d951431d318cd908f861a4604e08c9d213892",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-record-not-settleable-wording.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M013",
+        "candidates": [
+          {
+            "base": "46caca061ee2b2393bb4f99298cfab5e81137901",
+            "commit": "aa538165e1e4b3fbc24aee5360b048190bc66dd8",
+            "valid": true
+          }
+        ],
+        "head": "b74bff3bac3cd928fad7f2fccc1a28efdcf8ff40",
+        "subject": "T007: Regenerate the docs audit at shipped head with the delta rule and run the audit gate"
+      },
+      "landed_commit": "aa538165e1e4b3fbc24aee5360b048190bc66dd8",
+      "reasons": [],
+      "task": {
+        "base": "46caca061ee2b2393bb4f99298cfab5e81137901",
+        "id": "T007",
+        "status": "done",
+        "task_file": ".project/tasks/T007-regenerate-audit-delta.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M013",
+        "candidates": [
+          {
+            "base": "6a69bdbfedd060dae49167ceb1ac39e0e78092d6",
+            "commit": "4fac97cf66a24499030f322edafb66a61697b9d9",
+            "valid": true
+          }
+        ],
+        "head": "b74bff3bac3cd928fad7f2fccc1a28efdcf8ff40",
+        "subject": "T008: Run the project Verify and the skills-mirror test"
+      },
+      "landed_commit": "4fac97cf66a24499030f322edafb66a61697b9d9",
+      "reasons": [],
+      "task": {
+        "base": "6a69bdbfedd060dae49167ceb1ac39e0e78092d6",
+        "id": "T008",
+        "status": "done",
+        "task_file": ".project/tasks/T008-project-verify-and-skills-mirror.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M013",
+        "candidates": [
+          {
+            "base": "9c0b5816f7e6c7d6709f0900d924871d15b867c2",
+            "commit": "181a39a9a1eb9cd4de38889d7a1f7dbf56293116",
+            "valid": true
+          }
+        ],
+        "head": "b74bff3bac3cd928fad7f2fccc1a28efdcf8ff40",
+        "subject": "T009: Reconcile the audit's claim rows with its Summary and rule the dated-measurement rows"
+      },
+      "landed_commit": "181a39a9a1eb9cd4de38889d7a1f7dbf56293116",
+      "reasons": [],
+      "task": {
+        "base": "9c0b5816f7e6c7d6709f0900d924871d15b867c2",
+        "id": "T009",
+        "status": "done",
+        "task_file": ".project/tasks/T009-reconcile-audit-rows.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M013",
+        "candidates": [
+          {
+            "base": "16acafafad7d197685e30695b35ef43b9b6037ca",
+            "commit": "a96183c5e3023e2a5f2a8e8d35af26ede485e743",
+            "valid": true
+          }
+        ],
+        "head": "b74bff3bac3cd928fad7f2fccc1a28efdcf8ff40",
+        "subject": "T010: Reconcile the tutor audit section with the corrected document"
+      },
+      "landed_commit": "a96183c5e3023e2a5f2a8e8d35af26ede485e743",
+      "reasons": [],
+      "task": {
+        "base": "16acafafad7d197685e30695b35ef43b9b6037ca",
+        "id": "T010",
+        "status": "done",
+        "task_file": ".project/tasks/T010-correct-tutor-claim-row.md"
+      }
+    }
+  ]
+}
