@@ -9,7 +9,17 @@ base: 73dfd7b3228de26c6a92089cfea0c8afb2b56403
 worktree: null
 task_branch: null
 files:
-  - .project/plan/evidence/T007
+  - .project/plan/evidence/T007/chrome-beta-gemma4-doctor-1793410908881.json
+  - .project/plan/evidence/T007/chrome-beta-gemma4-doctor-1793410999525.json
+  - .project/plan/evidence/T007/chrome-beta-gemma4-flags-1793410912887.json
+  - .project/plan/evidence/T007/chrome-beta-gemma4-flags-1793411003999.json
+  - .project/plan/evidence/T007/chrome-beta-gemma4-info-1793410853441.json
+  - .project/plan/evidence/T007/chrome-beta-gemma4-info-1793410947018.json
+  - .project/plan/evidence/T007/chrome-beta-gemma4-model-info-1793410919882.json
+  - .project/plan/evidence/T007/chrome-beta-gemma4-model-info-1793411009884.json
+  - .project/plan/evidence/T007/chrome-beta-gemma4-panel-1793410876168.json
+  - .project/plan/evidence/T007/chrome-beta-gemma4-panel-1793410958048.json
+  - .project/plan/evidence/T007/interop.json
 ---
 
 # T007 — Verify interop claim on chrome-beta-gemma4

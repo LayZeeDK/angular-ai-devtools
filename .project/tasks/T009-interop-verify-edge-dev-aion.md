@@ -9,7 +9,17 @@ base: 908831b46ec7191b36e8afc8bb72ac2e4dd8fc97
 worktree: null
 task_branch: null
 files:
-  - .project/plan/evidence/T009
+  - .project/plan/evidence/T009/edge-dev-aion-doctor-1793410475572.json
+  - .project/plan/evidence/T009/edge-dev-aion-doctor-1793410535398.json
+  - .project/plan/evidence/T009/edge-dev-aion-flags-1793410480642.json
+  - .project/plan/evidence/T009/edge-dev-aion-flags-1793410543522.json
+  - .project/plan/evidence/T009/edge-dev-aion-info-1793410451958.json
+  - .project/plan/evidence/T009/edge-dev-aion-info-1793410514551.json
+  - .project/plan/evidence/T009/edge-dev-aion-model-info-1793410485845.json
+  - .project/plan/evidence/T009/edge-dev-aion-model-info-1793410551849.json
+  - .project/plan/evidence/T009/edge-dev-aion-panel-1793410460281.json
+  - .project/plan/evidence/T009/edge-dev-aion-panel-1793410520201.json
+  - .project/plan/evidence/T009/interop.json
 ---
 
 # T009 — Verify interop claim on edge-dev-aion

@@ -9,7 +9,17 @@ base: 02fcd9508730e13f05e3dfc8fce2d95555b7ada9
 worktree: null
 task_branch: null
 files:
-  - .project/plan/evidence/T006
+  - .project/plan/evidence/T006/chrome-stable-nano-doctor-1793410135219.json
+  - .project/plan/evidence/T006/chrome-stable-nano-doctor-1793410206046.json
+  - .project/plan/evidence/T006/chrome-stable-nano-flags-1793410145250.json
+  - .project/plan/evidence/T006/chrome-stable-nano-flags-1793410212689.json
+  - .project/plan/evidence/T006/chrome-stable-nano-info-1793410088849.json
+  - .project/plan/evidence/T006/chrome-stable-nano-info-1793410180969.json
+  - .project/plan/evidence/T006/chrome-stable-nano-model-info-1793410152773.json
+  - .project/plan/evidence/T006/chrome-stable-nano-model-info-1793410218568.json
+  - .project/plan/evidence/T006/chrome-stable-nano-panel-1793410116751.json
+  - .project/plan/evidence/T006/chrome-stable-nano-panel-1793410191337.json
+  - .project/plan/evidence/T006/interop.json
 ---
 
 # T006 — Verify interop claim on chrome-stable-nano

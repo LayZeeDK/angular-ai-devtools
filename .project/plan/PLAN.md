@@ -56,8 +56,8 @@ Walkthrough:
 
 | Edge | Task | Test |
 |------|------|------|
-| E2 | T004 | apps/angular-ai-devtools/src/app/interop-slice.spec.ts |
-| E4 | T004 | apps/angular-ai-devtools/src/app/interop-attribution.spec.ts |
+| E2 | T004 | apps/angular-ai-devtools/src/app/interop-slice.node.test.ts |
+| E4 | T004 | apps/angular-ai-devtools/src/app/interop-attribution.node.test.ts |
 | E5 | T002 | src/main-world/interop-keep-list.spec.ts |
 
 ## Dependency notes
