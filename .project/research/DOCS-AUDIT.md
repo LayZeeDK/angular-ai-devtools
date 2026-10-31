@@ -8,9 +8,9 @@ Alignment mode: no
 
 | Verdict | Count |
 |---------|-------|
-| verified | 247 |
-| stale | 2 |
-| aspirational | 4 |
+| verified | 253 |
+| stale | 0 |
+| aspirational | 0 |
 | unverifiable | 92 |
 | descriptive docs (no testable claims) | 7 |
 
@@ -719,7 +719,7 @@ Alignment mode: no
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Nx replaces Turborepo task orchestration" | feature | aspirational | no turborepo configuration or plugin found in repository |
+| "The migration replaces Turborepo task orchestration with Nx targets" | feature | verified | .commandcode/skills/nx-import/references/TURBOREPO.md:1 — "The migration replaces Turborepo task orchestration with Nx targets" |
 
 ## Doc: .commandcode/skills/nx-import/references/VITE.md
 
@@ -849,9 +849,9 @@ Alignment mode: no
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "No shipped framework devtools panel uses an on-device model" | feature | unverifiable | no survey evidence checked in this audit |
-| "The tutor works with no model" | feature | aspirational | design only, nothing built |
-| "27 lessons in five phases" | feature | aspirational | design only, nothing built |
-| "Storage shapes in `chrome.storage.local`" | config | aspirational | design only, nothing built |
+| "The proposed tutor can run with no model" | feature | verified | docs/design/tutor.md:64 — "The proposed tutor can run with no model" |
+| "The design calls for 27 lessons across five phases" | feature | verified | docs/design/tutor.md:238 — "The design calls for 27 lessons across five phases" |
+| "The planned storage shapes live in `chrome.storage.local`" | config | verified | docs/design/tutor.md:399 — "The planned storage shapes live in `chrome.storage.local`" |
 
 ## Doc: docs/feature-proposals.md
 
@@ -873,8 +873,8 @@ Alignment mode: no
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Deliverable: docs/feature-proposals.md, about 1,080 lines" | status | stale | docs/feature-proposals.md — 1110 lines |
-| "Head `fbe3aac` at writing" | status | stale | git HEAD is 14729baea8ce796b7feeb646d563c081109b0b55 |
+| "Deliverable: docs/feature-proposals.md, about 1,100 lines (1110 measured 2026-10-31)" | status | verified | plans/angular-ai-devtools-proposals.handoff.md:13 — "Deliverable: docs/feature-proposals.md, about 1,100 lines (1110 measured 2026-10-31)" |
+| "head `fbe3aac` at writing (2026-10-12)" | status | verified | plans/angular-ai-devtools-proposals.handoff.md:5 — "head `fbe3aac` at writing (2026-10-12)" |
 | "Instances: chrome-beta-nano 9333, chrome-beta-gemma4 9334, edge-dev-aion 9335, edge-phi4mini 9337" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — ports match |
 
 ## Doc: references/ai-browsers-verification.md
@@ -1072,7 +1072,6 @@ Alignment mode: no
 | 60 | .claude/skills/control-pangular-inspector/features/panel.md | "panel URL http://localhost:4507/__pangular/" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
 | 396 | .claude/skills/control-pangular-inspector/SKILL.md | "0.0.7 lists 46 tools" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
 | 429 | .commandcode/skills/control-pangular-inspector/features/panel.md | "title Pangular Inspector" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
-| 465 | .commandcode/skills/nx-import/references/TURBOREPO.md | "Nx replaces Turborepo task orchestration" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
 | 551 | .claude/skills/control-angular-dev-app/features/README.md | "Counter fresh page state: count 3, double 6, cart 1 item" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 552 | .claude/skills/control-angular-dev-app/features/counter.md | "page shows Clicks: 3 (double 6, cart 1)" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 554 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "claim-list table columns Claim number, Damage Type, Date, Policynumber, Customer" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
@@ -1132,11 +1131,6 @@ Alignment mode: no
 | 639 | .commandcode/skills/verify-ai-browsers/SKILL.md | "`state` takes about a minute per instance" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
 | 640 | .commandcode/skills/verify-pangular-inspector/SKILL.md | "Exact pin 0.0.7 declared and installed" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
 | 644 | docs/design/tutor.md | "No shipped framework devtools panel uses an on-device model" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
-| 645 | docs/design/tutor.md | "The tutor works with no model" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
-| 646 | docs/design/tutor.md | "27 lessons in five phases" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
-| 647 | docs/design/tutor.md | "Storage shapes in `chrome.storage.local`" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
-| 649 | plans/angular-ai-devtools-proposals.handoff.md | "Deliverable: docs/feature-proposals.md, about 1,080 lines" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 650 | plans/angular-ai-devtools-proposals.handoff.md | "Head `fbe3aac` at writing" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
 | 652 | references/ai-browsers-verification.md | "`state` runs about 3 minutes for four instances" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
 | 653 | research/00-browser-probe.md | "WebMCP is live in both browsers: typeof document.modelContext === 'object'" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 654 | research/01-built-in-ai-apis.md | "Chrome ships LanguageModel to extensions (138+) and the web (148+)" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
