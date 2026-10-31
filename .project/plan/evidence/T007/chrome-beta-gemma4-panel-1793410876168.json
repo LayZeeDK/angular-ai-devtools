@@ -1,0 +1,72 @@
+{
+  "cmd": "panel",
+  "instance": "chrome-beta-gemma4",
+  "at": "2026-10-31T01:40:54.059Z",
+  "ok": true,
+  "feature": "interop",
+  "ngVersion": "22.2.2",
+  "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok",
+  "code": null,
+  "field": null,
+  "component": null,
+  "digest": null,
+  "digestPresent": false,
+  "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+  "inferred": "attribution: inferred, untested",
+  "nodes": 1,
+  "route": "/panel/interop",
+  "answer": "These facts appear to be metadata or diagnostic information related to a change detection mechanism within a system, likely involving RxJS Observables or similar reactive programming patterns. The terms like `StaleViewFixture` and `app-stale-view-fixture` suggest specific fixtures or view modes being assessed. The final statement indicates a limitation: the system is unable to provide specific details regarding the observable's feeding, operator chain, or emission timing.",
+  "error": null,
+  "status": null,
+  "answerMs": 18982,
+  "steps": [
+    {
+      "at": 679,
+      "step": "app",
+      "value": "22.2.2"
+    },
+    {
+      "at": 1520,
+      "step": "extension",
+      "value": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+    },
+    {
+      "at": 1935,
+      "step": "panel key",
+      "value": "extension-panel-1c5a55f5-3b55-4aef-bb45-2e4154f313e6_1"
+    },
+    {
+      "at": 1985,
+      "step": "route",
+      "value": "/panel/interop"
+    },
+    {
+      "at": 2249,
+      "step": "panel",
+      "value": true
+    },
+    {
+      "at": 3103,
+      "step": "button",
+      "value": true
+    },
+    {
+      "at": 3108,
+      "step": "interop",
+      "value": {
+        "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "attribution: inferred, untested",
+        "nodes": 1,
+        "component": null
+      }
+    },
+    {
+      "at": 22092,
+      "step": "result",
+      "value": {
+        "answer": "These facts appear to be metadata or diagnostic information related to a change detection mechanism within a system, likely involving RxJS Observables or similar reactive programming patterns. The terms like `StaleViewFixture` and `app-stale-view-fixture` suggest specific fixtures or view modes being assessed. The final statement indicates a limitation: the system is unable to provide specific details regarding the observable's feeding, operator chain, or emission timing."
+      }
+    }
+  ],
+  "model": "gemma4-2b-it"
+}

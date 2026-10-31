@@ -1,0 +1,175 @@
+{
+  "cmd": "doctor",
+  "instance": "chrome-beta-gemma4",
+  "at": "2026-10-31T01:42:38.394Z",
+  "ok": true,
+  "backend": "gpu",
+  "checks": [
+    {
+      "id": "map-fresh",
+      "pass": true,
+      "warn": true,
+      "detail": "stale: extension-panel (since cb70071950b1, 10 files changed), health-check (since cb70071950b1, 2 files changed), instances (since cb70071950b1, 2 files changed), model-lifecycle (since cb70071950b1, 2 files changed), probes (since cb70071950b1, 2 files changed); unproven: di-doctor, error-explainer, interop, signal-provenance, stale-view"
+    },
+    {
+      "id": "process",
+      "pass": true,
+      "warn": false,
+      "detail": "PID 9508 C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe --user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4"
+    },
+    {
+      "id": "tree",
+      "pass": true,
+      "warn": false,
+      "detail": "11 process(es) recorded for down"
+    },
+    {
+      "id": "commandLine",
+      "pass": true,
+      "warn": false,
+      "detail": "matches the registry, backend gpu"
+    },
+    {
+      "id": "ports",
+      "pass": true,
+      "warn": false,
+      "detail": "cdp 9334 (derived), bench app 4222 (external: control-angular-dev-app counter fixture in the main checkout; spikes/probes/bench.js:4 hard-codes it); http://127.0.0.1:9334 answers as Chrome/158.0.8127.2"
+    },
+    {
+      "id": "tabs",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "count": 1,
+        "urls": [
+          "about:blank"
+        ]
+      }
+    },
+    {
+      "id": "account",
+      "pass": true,
+      "warn": false,
+      "detail": "no signed-in account, sync not set up"
+    },
+    {
+      "id": "extension",
+      "pass": true,
+      "warn": false,
+      "detail": "Angular AI DevTools 0.3.0 loaded as mgkfgkdgobahfcgkdlokpoehblpbkfok from D:\\projects\\sandbox\\angular-ai-devtools\\extension"
+    },
+    {
+      "id": "model.disk",
+      "pass": true,
+      "warn": true,
+      "detail": "gemma4-2b-it 2026.06.10.0000 (2374 MiB) at D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\\OptGuideManifestModel\\7feacbfe693922f1d6422391a2fec1202689398bbd985d3f0aa13bd765cabeda\\2026.8.7.929"
+    },
+    {
+      "id": "model.broker",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "asset": {
+          "name": "gemma4_component",
+          "version": "2026.8.7.929",
+          "state": "Ready",
+          "progress": 100
+        },
+        "useCase": "prompt_api_gemma4",
+        "state": "Available",
+        "manifestLoaded": "true"
+      }
+    },
+    {
+      "id": "backend",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "requested": "gpu",
+        "broker": "GPU (fastest inference)",
+        "row": "gemma4_gpu_low_tier_model"
+      }
+    },
+    {
+      "id": "performanceClass",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "localState": 4,
+        "broker": "Medium"
+      }
+    },
+    {
+      "id": "disk.free",
+      "pass": true,
+      "warn": true,
+      "detail": "18262 MiB free on D:, browser minimum 22528 MiB (Broker State: false (18554 MiB available, 20480 MiB required))"
+    },
+    {
+      "id": "api.availability",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "LanguageModel": "available",
+        "LanguageModelTools": "available",
+        "Summarizer": "available",
+        "Writer": "available",
+        "Rewriter": "available",
+        "Proofreader": "undefined",
+        "LanguageDetector": "available",
+        "Translator(en->da)": "downloadable",
+        "webmcp": {
+          "documentModelContext": "object",
+          "navigatorModelContext": "undefined"
+        },
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+      }
+    },
+    {
+      "id": "model.contextWindow",
+      "pass": true,
+      "warn": false,
+      "detail": "contextWindow 9216, expected 9216"
+    },
+    {
+      "id": "canary.structured",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "pass": true,
+        "raw": "{\n  \"hook\": \"ngOnInit\"\n}",
+        "ms": 5999
+      }
+    },
+    {
+      "id": "canary.tools",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "pass": true,
+        "calls": [
+          {
+            "name": "get_component_count",
+            "callID": "855c70bb1c1d5efb",
+            "arguments": {
+              "scope": "page"
+            }
+          }
+        ],
+        "answer": "I found 42 Angular components on the page.",
+        "ms": 11540,
+        "contextUsage": 144,
+        "attempt": 1
+      }
+    },
+    {
+      "id": "canary.webmcp",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "pass": true,
+        "documentModelContext": "object"
+      }
+    }
+  ]
+}

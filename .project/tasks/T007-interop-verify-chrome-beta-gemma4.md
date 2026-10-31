@@ -3,9 +3,9 @@ id: T007
 title: Verify interop claim on chrome-beta-gemma4
 wave: 3
 deps: [T004, T011, T012, T013, T014]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T007
+base: 73dfd7b3228de26c6a92089cfea0c8afb2b56403
 worktree: null
 task_branch: null
 files:
@@ -52,3 +52,8 @@ Heavy: no
 ## Log
 
 - pending
+- evidence run (measured): chrome-beta-gemma4, Angular 22.2.2, nodes=1, limits stated, attribution stated, model answer in 18982 ms; retained .project/plan/evidence/T007/interop.json
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T007): pass, exit 0; output tail:
+  ```
+  retained .project/plan/evidence/T007/interop.json
+  ```

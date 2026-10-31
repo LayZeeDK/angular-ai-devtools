@@ -1,0 +1,34 @@
+{
+  "url": "http://localhost:4222/stale-view",
+  "results": {
+    "chrome-beta-gemma4": {
+      "panel": {
+        "exit": 0,
+        "feature": "interop",
+        "route": "/panel/interop",
+        "answer": "These facts appear to be metadata or diagnostic information related to a change detection process. They indicate specific fixture names (`cmp:_StaleViewFixture`, `app-stale-view-fixture`) and a state of \"none\" for other parameters. Crucially, the last line states a limitation: the system cannot determine the identity of the observable, its operator chain, or when it emits a value.",
+        "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "attribution: inferred, untested",
+        "nodes": 1,
+        "error": null,
+        "answerMs": 8663,
+        "ngVersion": "22.2.2",
+        "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+      },
+      "state": {
+        "instance": "chrome-beta-gemma4",
+        "pass": true,
+        "failed": [],
+        "couldNotRun": null,
+        "readings": {
+          "expected": "gemma4-2b-it",
+          "disk": true,
+          "serving": "gemma4-2b-it",
+          "backend": "GPU (fastest inference)",
+          "requestedBackend": "gpu",
+          "performanceClass": 4
+        }
+      }
+    }
+  }
+}

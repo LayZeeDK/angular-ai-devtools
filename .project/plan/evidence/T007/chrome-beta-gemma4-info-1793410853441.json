@@ -1,0 +1,132 @@
+{
+  "cmd": "info",
+  "instance": "chrome-beta-gemma4",
+  "at": "2026-10-31T01:40:53.440Z",
+  "ok": true,
+  "port": 9334,
+  "slot": 0,
+  "ports": [
+    {
+      "name": "cdp",
+      "port": 9334,
+      "kind": "derived"
+    },
+    {
+      "name": "bench app",
+      "port": 4222,
+      "kind": "external",
+      "reason": "control-angular-dev-app counter fixture in the main checkout; spikes/probes/bench.js:4 hard-codes it"
+    }
+  ],
+  "cdp": "http://127.0.0.1:9334",
+  "session": "ai-chrome-beta-gemma4-9334",
+  "profile": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4",
+  "extensionDir": "D:\\projects\\sandbox\\angular-ai-devtools\\extension",
+  "statePath": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\state-chrome-beta-gemma4.json",
+  "state": {
+    "instance": "chrome-beta-gemma4",
+    "pid": 9508,
+    "port": 9334,
+    "slot": 0,
+    "ports": [
+      {
+        "name": "cdp",
+        "port": 9334,
+        "kind": "derived"
+      },
+      {
+        "name": "bench app",
+        "port": 4222,
+        "kind": "external",
+        "reason": "control-angular-dev-app counter fixture in the main checkout; spikes/probes/bench.js:4 hard-codes it"
+      }
+    ],
+    "cdp": "http://127.0.0.1:9334",
+    "session": "ai-chrome-beta-gemma4-9334",
+    "profile": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4",
+    "backend": "gpu",
+    "extensionDir": "D:\\projects\\sandbox\\angular-ai-devtools\\extension",
+    "at": "2026-10-31T01:40:37.703Z"
+  },
+  "tree": [
+    {
+      "pid": 9508,
+      "ppid": 18876,
+      "start": 1793408800365,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe\" --user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4 --remote-debugging-port=9334 --no-first-run --no-default-browser-check --remote-debugging-pipe --enable-unsafe-extension-debugging --enable-features=AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,OnDeviceModelConversationBackend,AIApiFoundationalModel:model_version/v4,OptimizationGuideManifestBroker,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP about:blank"
+    },
+    {
+      "pid": 34640,
+      "ppid": 9508,
+      "start": 1793408800507,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe\" --type=crashpad-handler --user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4 /prefetch:4 --monitor-self-annotation=ptype=crashpad-handler --user-stream-region=228,65568 --database=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\\Crashpad --url=https://clients2.google.com/cr/report --annotation=channel=beta --annotation=prod=Chrome --annotation=ver=158.0.8127.2 --initial-client-data=0x130,0x134,0x138,0x10c,0x13c,0x7ffebb905a60,0x7ffebb905a70,0x7ffebb905a80"
+    },
+    {
+      "pid": 32080,
+      "ppid": 9508,
+      "start": 1793408800818,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe\" --type=gpu-process --gpu-recent-crash-count=0 --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\" --no-pre-read-main-dll --subproc-heap-profiling --gpu-preferences=WAAAAAAAAABgAACBAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --metrics-shmem-handle=1876,i,14288906437631074507,12572247732622190937,262144 --field-trial-handle=2060,i,12026853924075289737,9814129068395417255,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,OnDeviceModelConversationBackend,OptimizationGuideManifestBroker,WebMCP --variations-seed-version=20261030-080522.609000-production --pseudonymization-salt-handle=2080,i,13604929562065020233,14250514220251452670,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=2056 /prefetch:2"
+    },
+    {
+      "pid": 32752,
+      "ppid": 9508,
+      "start": 1793408800821,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=da --service-sandbox-type=none --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\" --no-pre-read-main-dll --subproc-heap-profiling --metrics-shmem-handle=2308,i,18270108140467529368,15525096715826516654,524288 --field-trial-handle=2060,i,12026853924075289737,9814129068395417255,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,OnDeviceModelConversationBackend,OptimizationGuideManifestBroker,WebMCP --variations-seed-version=20261030-080522.609000-production --pseudonymization-salt-handle=2080,i,13604929562065020233,14250514220251452670,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2304 /prefetch:11"
+    },
+    {
+      "pid": 39328,
+      "ppid": 9508,
+      "start": 1793408800837,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe\" --type=utility --utility-sub-type=storage.mojom.StorageService --lang=da --service-sandbox-type=service --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\" --no-pre-read-main-dll --subproc-heap-profiling --metrics-shmem-handle=2296,i,2249812583767164587,3648491131724933361,524288 --field-trial-handle=2060,i,12026853924075289737,9814129068395417255,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,OnDeviceModelConversationBackend,OptimizationGuideManifestBroker,WebMCP --variations-seed-version=20261030-080522.609000-production --pseudonymization-salt-handle=2080,i,13604929562065020233,14250514220251452670,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=3864 /prefetch:13"
+    },
+    {
+      "pid": 36048,
+      "ppid": 9508,
+      "start": 1793408800841,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe\" --type=renderer --top-chrome-webui --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\" --no-pre-read-main-dll --subproc-heap-profiling --remote-debugging-pipe --remote-debugging-port=9334 --video-capture-use-gpu-memory-buffer --lang=da --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --launch-time-ticks=547317983135 --metrics-shmem-handle=3632,i,329826525429735065,11240386997988536042,1572864 --field-trial-handle=2060,i,12026853924075289737,9814129068395417255,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,OnDeviceModelConversationBackend,OptimizationGuideManifestBroker,WebMCP --variations-seed-version=20261030-080522.609000-production --pseudonymization-salt-handle=2080,i,13604929562065020233,14250514220251452670,4 --trace-process-track-uuid=3190708990997080739 --mojo-platform-channel-handle=3892 /prefetch:1"
+    },
+    {
+      "pid": 22648,
+      "ppid": 9508,
+      "start": 1793409266914,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe\" --type=renderer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\" --extension-process --no-pre-read-main-dll --remote-debugging-pipe --remote-debugging-port=9334 --video-capture-use-gpu-memory-buffer --lang=da --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=37 --launch-time-ticks=547784058911 --metrics-shmem-handle=7352,i,13185357282173799918,10871521670986608840,1572864 --field-trial-handle=2060,i,12026853924075289737,9814129068395417255,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,OnDeviceModelConversationBackend,OptimizationGuideManifestBroker,WebMCP --variations-seed-version=20261030-080522.609000-production --pseudonymization-salt-handle=2080,i,13604929562065020233,14250514220251452670,4 --trace-process-track-uuid=3190709020982419907 --mojo-platform-channel-handle=5688 /prefetch:9"
+    },
+    {
+      "pid": 32060,
+      "ppid": 9508,
+      "start": 1793409267172,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe\" --type=renderer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\" --no-pre-read-main-dll --subproc-heap-profiling --remote-debugging-pipe --remote-debugging-port=9334 --video-capture-use-gpu-memory-buffer --lang=da --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=38 --launch-time-ticks=547784160124 --metrics-shmem-handle=7160,i,17164940374472777062,17380803913833473613,1572864 --field-trial-handle=2060,i,12026853924075289737,9814129068395417255,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,OnDeviceModelConversationBackend,OptimizationGuideManifestBroker,WebMCP --variations-seed-version=20261030-080522.609000-production --pseudonymization-salt-handle=2080,i,13604929562065020233,14250514220251452670,4 --trace-process-track-uuid=3190709021919461756 --mojo-platform-channel-handle=2064 /prefetch:1"
+    },
+    {
+      "pid": 17484,
+      "ppid": 9508,
+      "start": 1793409295554,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe\" --type=renderer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\" --no-pre-read-main-dll --subproc-heap-profiling --remote-debugging-pipe --remote-debugging-port=9334 --video-capture-use-gpu-memory-buffer --lang=da --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=47 --launch-time-ticks=547812701087 --metrics-shmem-handle=7076,i,3633411770954266152,8257822646678522529,1572864 --field-trial-handle=2060,i,12026853924075289737,9814129068395417255,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,OnDeviceModelConversationBackend,OptimizationGuideManifestBroker,WebMCP --variations-seed-version=20261030-080522.609000-production --pseudonymization-salt-handle=2080,i,13604929562065020233,14250514220251452670,4 --trace-process-track-uuid=3190709030352838397 --mojo-platform-channel-handle=7420 /prefetch:1"
+    },
+    {
+      "pid": 11004,
+      "ppid": 9508,
+      "start": 1793409282809,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe\" --type=utility --utility-sub-type=passage_embeddings.mojom.PassageEmbeddingsService --lang=da --service-sandbox-type=on_device_model_execution --video-capture-use-gpu-memory-buffer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\" --no-pre-read-main-dll --subproc-heap-profiling --metrics-shmem-handle=5228,i,11027355445114314302,4978361000644610982,524288 --field-trial-handle=2060,i,12026853924075289737,9814129068395417255,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,OnDeviceModelConversationBackend,OptimizationGuideManifestBroker,WebMCP --variations-seed-version=20261030-080522.609000-production --pseudonymization-salt-handle=2080,i,13604929562065020233,14250514220251452670,4 --trace-process-track-uuid=3190709023793545454 --mojo-platform-channel-handle=7736 /prefetch:14"
+    },
+    {
+      "pid": 7940,
+      "ppid": 9508,
+      "start": 1793408875536,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe\" --type=renderer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\" --no-pre-read-main-dll --subproc-heap-profiling --remote-debugging-pipe --remote-debugging-port=9334 --video-capture-use-gpu-memory-buffer --lang=da --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=30 --launch-time-ticks=547392463402 --metrics-shmem-handle=7092,i,2045645034740951340,14442096587936713201,1572864 --field-trial-handle=2060,i,12026853924075289737,9814129068395417255,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,OnDeviceModelConversationBackend,OptimizationGuideManifestBroker,WebMCP --variations-seed-version=20261030-080522.609000-production --pseudonymization-salt-handle=2080,i,13604929562065020233,14250514220251452670,4 --trace-process-track-uuid=3190709014423126964 --mojo-platform-channel-handle=7844 /prefetch:1"
+    },
+    {
+      "pid": 18876,
+      "ppid": 32792,
+      "start": 1793408800212,
+      "commandLine": "C:\\Users\\LarsGyrupBrinkNielse\\AppData\\Local\\fnm_multishells\\37124_1793203915659\\node.exe D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\skills\\control-ai-browsers\\scripts\\pipe-keeper.mjs D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\extension-chrome-beta-gemma4-1793408799632.json \"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe\" D:\\projects\\sandbox\\angular-ai-devtools\\extension --user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4 --remote-debugging-port=9334 --no-first-run --no-default-browser-check --remote-debugging-pipe --enable-unsafe-extension-debugging --enable-features=AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,OnDeviceModelConversationBackend,AIApiFoundationalModel:model_version/v4,OptimizationGuideManifestBroker,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP about:blank"
+    },
+    {
+      "pid": 33112,
+      "ppid": 9508,
+      "start": 1793409269099,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe\" --type=utility --utility-sub-type=on_device_model.mojom.OnDeviceModelService --lang=da --service-sandbox-type=on_device_model_execution --video-capture-use-gpu-memory-buffer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\" --no-pre-read-main-dll --subproc-heap-profiling --metrics-shmem-handle=5500,i,17716215074343070125,2094661487044794276,524288 --field-trial-handle=2060,i,12026853924075289737,9814129068395417255,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,OnDeviceModelConversationBackend,OptimizationGuideManifestBroker,WebMCP --variations-seed-version=20261030-080522.609000-production --pseudonymization-salt-handle=2080,i,13604929562065020233,14250514220251452670,4 --trace-process-track-uuid=3190709022856503605 --mojo-platform-channel-handle=7944 /prefetch:14"
+    }
+  ],
+  "evidenceDir": "C:\\Users\\LarsGyrupBrinkNielse\\.gsd-path\\projects\\d10fb97cec6c7ac7\\8919d4cefeb4a7e5\\task\\T007\\.project\\plan\\evidence\\T007"
+}
