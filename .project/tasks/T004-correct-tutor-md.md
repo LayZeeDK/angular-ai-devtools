@@ -3,9 +3,9 @@ id: T004
 title: Correct docs/design/tutor.md (rows 645-647)
 wave: 2
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T004
+base: 1444d1e44b20313732458349adbd4b5c90079026
 worktree: null
 task_branch: null
 files:
@@ -48,3 +48,9 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-31 — implementation: marked the tutor document a proposal and reworded the three aspirational claims; Verify: python -c ... docs/design/tutor.md -> exit 0
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T004): pass, exit 0; output tail:
+  ```
+  ok
+  /usr/bin/bash: line 1: chrome.storage.local: command not found
+  ```
