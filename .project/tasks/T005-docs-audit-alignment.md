@@ -3,9 +3,9 @@ id: T005
 title: Docs-audit alignment rows 386 and 540 (fix-doc)
 wave: 3
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T005
+base: 9a098b35086c147d5d15c39c8dae7de90cac8067
 worktree: null
 task_branch: null
 files:
@@ -55,3 +55,17 @@ Heavy: no
 ## Log
 
 - pending
+- T005 done: control.mjs citation 66→69; mirror updated; portal audit copied to .project/research with Signal Forms present.
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T005): pass, exit 0; output tail:
+  ```
+  ✔ .claude/skills/control-ai-browsers mirrors .commandcode/skills/control-ai-browsers (23.9375ms)
+  ✔ .claude/skills/verify-ai-browsers mirrors .commandcode/skills/verify-ai-browsers (12.884ms)
+  ℹ tests 2
+  ℹ suites 0
+  ℹ pass 2
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 397.9578
+  ```

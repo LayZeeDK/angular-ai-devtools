@@ -34,7 +34,7 @@ slot, 10 slots in all, and records the slot and the ports it used (`info --json`
 | counter app | derived | 4222 | `--port`, passed to `ng serve --port` (measured: listened on 4336, and on its fallback 4337 while a throwaway listener held 4336) |
 | SSR app | derived | 4223 | `--port`, passed to `ng serve --port` (measured: listened on 4464) |
 | portal app | derived | 4200 | `--port`, passed to `nx run insurance-portal:serve --port=` (measured: listened on 4507) |
-| portal api | fixed | 3000 | `.commandcode/skills/control-angular-dev-app/scripts/control.mjs:66` keeps it at 3000 because the portal checkout (outside this repository) hardcodes `http://localhost:3000/api/` at `libs/shared/utils/src/lib/injection-tokens.ts:5`; the API itself takes `PORT`. One portal per machine |
+| portal api | fixed | 3000 | `.commandcode/skills/control-angular-dev-app/scripts/control.mjs:69` keeps it at 3000 because the portal checkout (outside this repository) hardcodes `http://localhost:3000/api/` at `libs/shared/utils/src/lib/injection-tokens.ts:5`; the API itself takes `PORT`. One portal per machine |
 | portal pangular | external | 9999 | control-pangular-inspector starts it; the portal proxies `/__pangular` to it. This skill never starts or stops it |
 | `--url` app | external | the URL's port | whatever runs it; this skill never starts or stops it |
 
