@@ -3,9 +3,9 @@ id: T016
 title: Split node:test suites from the Angular unit-test pattern
 wave: 4
 deps: [T004, T012]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T016
+base: b055aef863733de92f7a98af6ac00d7a409e02e3
 worktree: null
 task_branch: null
 files:
@@ -60,3 +60,30 @@ Held-out: none
 ## Log
 
 - pending
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T016): pass, exit 0; output tail:
+  ```
+  
+    Run duration:      813ms
+    Cache:             1/2 hit (50%)
+    Critical path:     767ms (2 tasks)
+    Recoverable time:  <1ms
+  retained apps/angular-ai-devtools/project.json
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  npm notice run test
+  npm notice run node --experimental-strip-types --test "scripts/**/*.test.mjs" "extension/**/*.test.mjs" && node scripts/run-user-scope-tests.mjs && npm run test:skills && npm run test:app
+  npm notice run test:skills
+  npm notice run node --experimental-strip-types --test ".claude/skills/**/*.test.mjs" ".commandcode/skills/**/*.test.mjs"
+  npm notice run test:app
+  npm notice run npx nx run angular-ai-devtools:test
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:test
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:build-extension
+  ```
+- 2026-10-31 — orchestrator regression Verify of T004, T012 (isolate gsd-path-task/T016): fail, exit 1; output tail:
+  ```
+  Could not find 'apps/angular-ai-devtools/src/app/interop-slice.spec.ts, apps/angular-ai-devtools/src/app/interop-attribution.spec.ts'
+  ```

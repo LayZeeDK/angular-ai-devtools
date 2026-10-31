@@ -113,7 +113,13 @@
     "test": {
       "executor": "@angular/build:unit-test",
       "options": {
-        "watch": false
+        "watch": false,
+        "include": [
+          "**/*.spec.ts"
+        ],
+        "exclude": [
+          "**/*.node.test.ts"
+        ]
       }
     },
     "serve-static": {
