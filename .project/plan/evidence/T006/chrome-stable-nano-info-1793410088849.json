@@ -1,0 +1,132 @@
+{
+  "cmd": "info",
+  "instance": "chrome-stable-nano",
+  "at": "2026-10-31T01:28:08.848Z",
+  "ok": true,
+  "port": 9338,
+  "slot": 0,
+  "ports": [
+    {
+      "name": "cdp",
+      "port": 9338,
+      "kind": "derived"
+    },
+    {
+      "name": "bench app",
+      "port": 4222,
+      "kind": "external",
+      "reason": "control-angular-dev-app counter fixture in the main checkout; spikes/probes/bench.js:4 hard-codes it"
+    }
+  ],
+  "cdp": "http://127.0.0.1:9338",
+  "session": "ai-chrome-stable-nano-9338",
+  "profile": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano",
+  "extensionDir": "D:\\projects\\sandbox\\angular-ai-devtools\\extension",
+  "statePath": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\state-chrome-stable-nano.json",
+  "state": {
+    "instance": "chrome-stable-nano",
+    "pid": 42716,
+    "port": 9338,
+    "slot": 0,
+    "ports": [
+      {
+        "name": "cdp",
+        "port": 9338,
+        "kind": "derived"
+      },
+      {
+        "name": "bench app",
+        "port": 4222,
+        "kind": "external",
+        "reason": "control-angular-dev-app counter fixture in the main checkout; spikes/probes/bench.js:4 hard-codes it"
+      }
+    ],
+    "cdp": "http://127.0.0.1:9338",
+    "session": "ai-chrome-stable-nano-9338",
+    "profile": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano",
+    "backend": "gpu",
+    "extensionDir": "D:\\projects\\sandbox\\angular-ai-devtools\\extension",
+    "at": "2026-10-31T01:28:01.192Z"
+  },
+  "tree": [
+    {
+      "pid": 42716,
+      "ppid": 12132,
+      "start": 1793407923581,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano --remote-debugging-port=9338 --no-first-run --no-default-browser-check --remote-debugging-pipe --enable-unsafe-extension-debugging --enable-features=AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP,OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/2%2C3%2C4%2C5%2C6/compatible_low_tier_on_device_performance_classes/2%2C3%2C4 about:blank"
+    },
+    {
+      "pid": 15728,
+      "ppid": 42716,
+      "start": 1793407923617,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=crashpad-handler --user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano /prefetch:4 --monitor-self-annotation=ptype=crashpad-handler --user-stream-region=232,65568 --database=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano\\Crashpad --metrics-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano --url=https://clients2.google.com/cr/report --annotation=channel= --annotation=prod=Chrome --annotation=ver=156.0.8078.74 --initial-client-data=0x12c,0x130,0x134,0x108,0x138,0x7ffebbc98a80,0x7ffebbc98a90,0x7ffebbc98aa0"
+    },
+    {
+      "pid": 32844,
+      "ppid": 42716,
+      "start": 1793407923969,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=gpu-process --gpu-recent-crash-count=0 --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano\" --no-pre-read-main-dll --subproc-heap-profiling --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --metrics-shmem-handle=1836,i,11529058686639334365,6189575456786718593,262144 --field-trial-handle=2140,i,16428173351628725362,5131971410662094418,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,WebMCP --variations-seed-version=20261030-090037.398000-production --pseudonymization-salt-handle=2156,i,14135079627774332902,16918217603359098185,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=2116 /prefetch:2"
+    },
+    {
+      "pid": 8100,
+      "ppid": 42716,
+      "start": 1793407923971,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=da --service-sandbox-type=none --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano\" --no-pre-read-main-dll --subproc-heap-profiling --metrics-shmem-handle=2292,i,11131084539343372389,5485728445646011185,524288 --field-trial-handle=2140,i,16428173351628725362,5131971410662094418,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,WebMCP --variations-seed-version=20261030-090037.398000-production --pseudonymization-salt-handle=2156,i,14135079627774332902,16918217603359098185,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2328 /prefetch:11"
+    },
+    {
+      "pid": 16080,
+      "ppid": 42716,
+      "start": 1793407923982,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=utility --utility-sub-type=storage.mojom.StorageService --lang=da --service-sandbox-type=service --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano\" --no-pre-read-main-dll --subproc-heap-profiling --metrics-shmem-handle=2612,i,4293998095595858993,7420056071845012584,524288 --field-trial-handle=2140,i,16428173351628725362,5131971410662094418,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,WebMCP --variations-seed-version=20261030-090037.398000-production --pseudonymization-salt-handle=2156,i,14135079627774332902,16918217603359098185,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=4036 /prefetch:13"
+    },
+    {
+      "pid": 42200,
+      "ppid": 42716,
+      "start": 1793407923984,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=renderer --top-chrome-webui --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano\" --no-pre-read-main-dll --subproc-heap-profiling --remote-debugging-pipe --remote-debugging-port=9338 --video-capture-use-gpu-memory-buffer --lang=da --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --launch-time-ticks=546441128391 --metrics-shmem-handle=3608,i,11288822135055995896,6158365576220275542,1572864 --field-trial-handle=2140,i,16428173351628725362,5131971410662094418,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,WebMCP --variations-seed-version=20261030-090037.398000-production --pseudonymization-salt-handle=2156,i,14135079627774332902,16918217603359098185,4 --trace-process-track-uuid=3190708990997080739 --mojo-platform-channel-handle=4028 /prefetch:1"
+    },
+    {
+      "pid": 10436,
+      "ppid": 42716,
+      "start": 1793409998882,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=renderer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano\" --no-pre-read-main-dll --subproc-heap-profiling --remote-debugging-pipe --remote-debugging-port=9338 --video-capture-use-gpu-memory-buffer --lang=da --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=141 --launch-time-ticks=548515515159 --metrics-shmem-handle=8152,i,5932890036869650438,7726162537559695461,1572864 --field-trial-handle=2140,i,16428173351628725362,5131971410662094418,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,WebMCP --variations-seed-version=20261030-090037.398000-production --pseudonymization-salt-handle=2156,i,14135079627774332902,16918217603359098185,4 --trace-process-track-uuid=3190709118434772203 --mojo-platform-channel-handle=7184 /prefetch:1"
+    },
+    {
+      "pid": 3856,
+      "ppid": 42716,
+      "start": 1793410007158,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=renderer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano\" --no-pre-read-main-dll --subproc-heap-profiling --remote-debugging-pipe --remote-debugging-port=9338 --video-capture-use-gpu-memory-buffer --lang=da --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=144 --launch-time-ticks=548524303830 --metrics-shmem-handle=8476,i,2128675121404376517,2417541091116445283,1572864 --field-trial-handle=2140,i,16428173351628725362,5131971410662094418,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,WebMCP --variations-seed-version=20261030-090037.398000-production --pseudonymization-salt-handle=2156,i,14135079627774332902,16918217603359098185,4 --trace-process-track-uuid=3190709121245897750 --mojo-platform-channel-handle=8436 /prefetch:1"
+    },
+    {
+      "pid": 12132,
+      "ppid": 29904,
+      "start": 1793407923452,
+      "commandLine": "C:\\Users\\LarsGyrupBrinkNielse\\AppData\\Local\\fnm_multishells\\37124_1793203915659\\node.exe D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\skills\\control-ai-browsers\\scripts\\pipe-keeper.mjs D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\extension-chrome-stable-nano-1793407923435.json \"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" D:\\projects\\sandbox\\angular-ai-devtools\\extension --user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano --remote-debugging-port=9338 --no-first-run --no-default-browser-check --remote-debugging-pipe --enable-unsafe-extension-debugging --enable-features=AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP,OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/2%2C3%2C4%2C5%2C6/compatible_low_tier_on_device_performance_classes/2%2C3%2C4 about:blank"
+    },
+    {
+      "pid": 20712,
+      "ppid": 42716,
+      "start": 1793409890329,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=renderer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano\" --no-pre-read-main-dll --subproc-heap-profiling --remote-debugging-pipe --remote-debugging-port=9338 --video-capture-use-gpu-memory-buffer --lang=da --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=123 --launch-time-ticks=548407475283 --metrics-shmem-handle=7732,i,2134214414100443111,9174558116186011932,1572864 --field-trial-handle=2140,i,16428173351628725362,5131971410662094418,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,WebMCP --variations-seed-version=20261030-090037.398000-production --pseudonymization-salt-handle=2156,i,14135079627774332902,16918217603359098185,4 --trace-process-track-uuid=3190709101568018921 --mojo-platform-channel-handle=4784 /prefetch:1"
+    },
+    {
+      "pid": 37544,
+      "ppid": 42716,
+      "start": 1793409958555,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=renderer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano\" --extension-process --no-pre-read-main-dll --remote-debugging-pipe --remote-debugging-port=9338 --video-capture-use-gpu-memory-buffer --lang=da --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=129 --launch-time-ticks=548475700922 --metrics-shmem-handle=8212,i,5160959917202429754,18244664928906843380,1572864 --field-trial-handle=2140,i,16428173351628725362,5131971410662094418,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,WebMCP --variations-seed-version=20261030-090037.398000-production --pseudonymization-salt-handle=2156,i,14135079627774332902,16918217603359098185,4 --trace-process-track-uuid=3190709107190270015 --mojo-platform-channel-handle=9200 /prefetch:9"
+    },
+    {
+      "pid": 28028,
+      "ppid": 42716,
+      "start": 1793409958702,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=renderer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano\" --no-pre-read-main-dll --subproc-heap-profiling --remote-debugging-pipe --remote-debugging-port=9338 --video-capture-use-gpu-memory-buffer --lang=da --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=130 --launch-time-ticks=548475846397 --metrics-shmem-handle=7816,i,418991448382904225,177698258746120406,1572864 --field-trial-handle=2140,i,16428173351628725362,5131971410662094418,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,WebMCP --variations-seed-version=20261030-090037.398000-production --pseudonymization-salt-handle=2156,i,14135079627774332902,16918217603359098185,4 --trace-process-track-uuid=3190709108127311864 --mojo-platform-channel-handle=7896 /prefetch:1"
+    },
+    {
+      "pid": 31868,
+      "ppid": 42716,
+      "start": 1793409961381,
+      "commandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=utility --utility-sub-type=on_device_model.mojom.OnDeviceModelService --lang=da --service-sandbox-type=on_device_model_execution --video-capture-use-gpu-memory-buffer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-stable-nano\" --no-pre-read-main-dll --subproc-heap-profiling --metrics-shmem-handle=8568,i,4238476469993942631,18263132386518324661,524288 --field-trial-handle=2140,i,16428173351628725362,5131971410662094418,262144 --enable-features=AIPromptAPI,AIPromptAPIMultimodalInput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,OnDeviceAiDefaultEnabled,WebMCP --variations-seed-version=20261030-090037.398000-production --pseudonymization-salt-handle=2156,i,14135079627774332902,16918217603359098185,4 --trace-process-track-uuid=3190709109064353713 --mojo-platform-channel-handle=7932 /prefetch:14"
+    }
+  ],
+  "evidenceDir": "C:\\Users\\LarsGyrupBrinkNielse\\.gsd-path\\projects\\d10fb97cec6c7ac7\\8919d4cefeb4a7e5\\task\\T006\\.project\\plan\\evidence\\T006"
+}

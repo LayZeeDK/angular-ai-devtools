@@ -3,9 +3,9 @@ id: T006
 title: Verify interop claim on chrome-stable-nano
 wave: 3
 deps: [T004, T011, T012, T013, T014]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T006
+base: 02fcd9508730e13f05e3dfc8fce2d95555b7ada9
 worktree: null
 task_branch: null
 files:
@@ -52,3 +52,8 @@ Heavy: no
 ## Log
 
 - pending
+- evidence run (measured): chrome-stable-nano, Angular 22.2.2, nodes=1, limits stated, attribution stated, model answer in 25469 ms; retained .project/plan/evidence/T006/interop.json
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T006): pass, exit 0; output tail:
+  ```
+  retained .project/plan/evidence/T006/interop.json
+  ```

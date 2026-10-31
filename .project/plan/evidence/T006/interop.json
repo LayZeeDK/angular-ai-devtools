@@ -1,0 +1,34 @@
+{
+  "url": "http://localhost:4222/stale-view",
+  "results": {
+    "chrome-stable-nano": {
+      "panel": {
+        "exit": 0,
+        "feature": "interop",
+        "route": "/panel/interop",
+        "answer": "The provided facts indicate a specific scenario where certain elements are missing during change detection, potentially hindering the identification of stale views.  Specifically, a component named `StaleViewFixture` is being tested within an `app-stale-view-fixture`, and a `none` value is associated with the feeding observable, operator chain, and emission timing - meaning these factors are undefined or unavailable.  This lack of information makes it difficult to accurately determine if the view is stale based on the expected data flow and updates to the component.",
+        "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "attribution: inferred, untested",
+        "nodes": 1,
+        "error": null,
+        "answerMs": 7167,
+        "ngVersion": "22.2.2",
+        "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+      },
+      "state": {
+        "instance": "chrome-stable-nano",
+        "pass": true,
+        "failed": [],
+        "couldNotRun": null,
+        "readings": {
+          "expected": "v3Nano",
+          "disk": true,
+          "serving": "v3Nano",
+          "backend": "GPU (fastest inference)",
+          "requestedBackend": "gpu",
+          "performanceClass": 4
+        }
+      }
+    }
+  }
+}
