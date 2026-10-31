@@ -34,7 +34,6 @@ Review depth: verify-only
 | Criterion | Task | Acceptance |
 |-----------|------|------------|
 | SC1 | T007 | AC1 |
-| SC1 | T009 | AC1 |
 | SC2 | T002 | AC1 |
 | SC2 | T003 | AC1 |
 | SC2 | T004 | AC1 |

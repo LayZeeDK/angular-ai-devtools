@@ -46,7 +46,6 @@ None
 
 ## Intent coverage
 
-- SC1
 - SC3
 
 ## Acceptance criteria
