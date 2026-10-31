@@ -2,7 +2,7 @@
 id: T009
 title: Verify interop claim on edge-dev-aion
 wave: 3
-deps: [T004, T011, T012]
+deps: [T004, T011, T012, T013]
 status: pending
 agent: null
 base: null
@@ -44,7 +44,7 @@ SC6 requires a `lars-verify` verdict of verified for the interop claim across fo
 ## Verify
 
 ```bash
-node --test .commandcode/skills/verify-ai-browsers/checks/interop.test.mjs && echo retained .project/plan/evidence/T009/interop.json
+node .commandcode/skills/verify-ai-browsers/checks/interop.mjs --evidence .project/plan/evidence/T009 --url http://localhost:4222/stale-view --extension D:\projects\sandbox\angular-ai-devtools\extension edge-dev-aion && echo retained .project/plan/evidence/T009/interop.json
 ```
 
 Heavy: no
