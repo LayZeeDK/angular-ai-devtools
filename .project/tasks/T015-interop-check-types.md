@@ -3,9 +3,9 @@ id: T015
 title: Type the interop check options so npm run check passes
 wave: 3
 deps: [T013]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T015
+base: 3d5da76b313e155eead166e5d8db4d3f1ad30a3d
 worktree: null
 task_branch: null
 files:
@@ -54,3 +54,28 @@ Held-out: none
 ## Log
 
 - pending
+- Added JSDoc @type annotation to targets in both copies of interop.mjs; copied .commandcode over .claude.
+- evidence: Verify passed: 9 interop tests, 2 mirror tests, npm run check (tsc) clean.
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T015): pass, exit 0; output tail:
+  ```
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 235.4006
+  ✔ .claude/skills/control-ai-browsers mirrors .commandcode/skills/control-ai-browsers (9.2417ms)
+  ✔ .claude/skills/verify-ai-browsers mirrors .commandcode/skills/verify-ai-browsers (2.9333ms)
+  ℹ tests 2
+  ℹ suites 0
+  ℹ pass 2
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 154.9695
+  retained .commandcode/skills/verify-ai-browsers/checks/interop.mjs
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  ```

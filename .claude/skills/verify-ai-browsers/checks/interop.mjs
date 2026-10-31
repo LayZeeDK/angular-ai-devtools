@@ -150,6 +150,7 @@ export function main(argv, makeDeps, load) {
     // --extension names the extension directory the running instance must serve. A verify
     // sidecar is a different checkout path, so the default (this file's checkout) cannot match
     // an instance loaded from the primary; the caller states the expected directory instead.
+    /** @type {{ evidence: string, url: string, names: string[], extension?: string }} */
     const targets = { evidence, url: values.url, names: positionals.length > 0 ? positionals : Object.keys(registry) };
     if (values.extension) targets.extension = resolve(values.extension);
     check(targets, registry, makeDeps(evidence));
