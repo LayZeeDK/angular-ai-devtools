@@ -9,17 +9,7 @@ base: 2639b9d7b25defebf4b08ab25229802e613ebc50
 worktree: null
 task_branch: null
 files:
-  - .project/plan/evidence/T008/edge-phi4mini-doctor-1793411460303.json
-  - .project/plan/evidence/T008/edge-phi4mini-doctor-1793411709877.json
-  - .project/plan/evidence/T008/edge-phi4mini-flags-1793411464807.json
-  - .project/plan/evidence/T008/edge-phi4mini-flags-1793411714890.json
-  - .project/plan/evidence/T008/edge-phi4mini-info-1793411388700.json
-  - .project/plan/evidence/T008/edge-phi4mini-info-1793411671150.json
-  - .project/plan/evidence/T008/edge-phi4mini-model-info-1793411468833.json
-  - .project/plan/evidence/T008/edge-phi4mini-model-info-1793411720195.json
-  - .project/plan/evidence/T008/edge-phi4mini-panel-1793411404638.json
-  - .project/plan/evidence/T008/edge-phi4mini-panel-1793411682404.json
-  - .project/plan/evidence/T008/interop.json
+  - .project/plan/evidence/T008
 ---
 
 # T008 — Verify interop claim on edge-phi4mini

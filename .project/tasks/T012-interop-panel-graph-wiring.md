@@ -11,8 +11,8 @@ task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/interop.component.ts
   - apps/angular-ai-devtools/src/app/interop.service.ts
-  - apps/angular-ai-devtools/src/app/interop-slice.node.test.ts
-  - apps/angular-ai-devtools/src/app/interop-attribution.node.test.ts
+  - apps/angular-ai-devtools/src/app/interop-slice.spec.ts
+  - apps/angular-ai-devtools/src/app/interop-attribution.spec.ts
   - extension/panel/index.html
 ---
 
@@ -66,7 +66,7 @@ N24 (stale view); those panels show data on the same page. Use their path, not t
 ## Verify
 
 ```bash
-node --experimental-strip-types --test apps/angular-ai-devtools/src/app/interop-slice.node.test.ts apps/angular-ai-devtools/src/app/interop-attribution.node.test.ts && npm run check && npx nx run angular-ai-devtools:build-extension
+node --experimental-strip-types --test apps/angular-ai-devtools/src/app/interop-slice.spec.ts apps/angular-ai-devtools/src/app/interop-attribution.spec.ts && npm run check && npx nx run angular-ai-devtools:build-extension
 ```
 
 Heavy: no

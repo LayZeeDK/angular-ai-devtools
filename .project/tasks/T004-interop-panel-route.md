@@ -12,8 +12,8 @@ files:
   - apps/angular-ai-devtools/src/app/app.routes.ts
   - apps/angular-ai-devtools/src/app/interop.component.ts
   - apps/angular-ai-devtools/src/app/interop.service.ts
-  - apps/angular-ai-devtools/src/app/interop-slice.node.test.ts
-  - apps/angular-ai-devtools/src/app/interop-attribution.node.test.ts
+  - apps/angular-ai-devtools/src/app/interop-slice.spec.ts
+  - apps/angular-ai-devtools/src/app/interop-attribution.spec.ts
   - extension/panel/index.html
 ---
 
@@ -30,8 +30,8 @@ The verify-ai-browsers interop check requires the served route to match `/\/pane
 - Create `interop.service.ts` modelled on `stale-view.service.ts`: fetch graph, classify kept nodes (T002), slice direct producers/consumers via the provenance tracer edge walk, value-based attribution returning all candidates on collision, shape the short fact list, call Prompt API only on explicit Explain.
 - Limitation wording must be present on every explanation including empty/truncated slices (E3); never drop "inferred, untested" even for a single candidate (Prohibition N6).
 - Do not present the unlabelled effect as the feeding Observable (Prohibition N5); the slice ends at the interop node.
-- Write `interop-slice.node.test.ts` (E2 held-out): two `toSignal` nodes produce two independent slices, never merged; one entry per source node; two nodes with equal labels stay separate.
-- Write `interop-attribution.node.test.ts` (E4 held-out): when two fields hold the same value, the row stays "inferred, untested" and lists every candidate; pin wording and multi-candidate case.
+- Write `interop-slice.spec.ts` (E2 held-out): two `toSignal` nodes produce two independent slices, never merged; one entry per source node; two nodes with equal labels stay separate.
+- Write `interop-attribution.spec.ts` (E4 held-out): when two fields hold the same value, the row stays "inferred, untested" and lists every candidate; pin wording and multi-candidate case.
 - Run `npm run check` and `npx nx run angular-ai-devtools:build-extension`.
 
 ## Interface contract
@@ -64,7 +64,7 @@ The verify-ai-browsers interop check requires the served route to match `/\/pane
 ## Verify
 
 ```bash
-node --experimental-strip-types --test apps/angular-ai-devtools/src/app/interop-slice.node.test.ts apps/angular-ai-devtools/src/app/interop-attribution.node.test.ts && npm run check && npx nx run angular-ai-devtools:build-extension
+node --experimental-strip-types --test apps/angular-ai-devtools/src/app/interop-slice.spec.ts apps/angular-ai-devtools/src/app/interop-attribution.spec.ts && npm run check && npx nx run angular-ai-devtools:build-extension
 ```
 
 Heavy: no
