@@ -34,12 +34,14 @@ Review depth: verify-only
 | Criterion | Task | Acceptance |
 |-----------|------|------------|
 | SC1 | T007 | AC1 |
+| SC1 | T009 | AC1 |
 | SC2 | T002 | AC1 |
 | SC2 | T003 | AC1 |
 | SC2 | T004 | AC1 |
 | SC3 | T001 | AC1 |
 | SC3 | T006 | AC1 |
 | SC3 | T005 | AC1 |
+| SC3 | T009 | AC3 |
 | SC4 | T008 | AC1 |
 
 ## Dependency notes
