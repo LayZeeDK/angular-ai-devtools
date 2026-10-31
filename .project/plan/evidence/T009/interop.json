@@ -1,0 +1,34 @@
+{
+  "url": "http://localhost:4222/stale-view",
+  "results": {
+    "edge-dev-aion": {
+      "panel": {
+        "exit": 0,
+        "feature": "interop",
+        "route": "/panel/interop",
+        "answer": "The change-detection facts indicate that no observable, operator chain, or emission timing is specified, so the system cannot determine which part of the application is stale. This suggests that the detection logic relies on external configuration or assumptions rather than explicit data.",
+        "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "attribution: inferred, untested",
+        "nodes": 1,
+        "error": null,
+        "answerMs": 2536,
+        "ngVersion": "22.2.2",
+        "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+      },
+      "state": {
+        "instance": "edge-dev-aion",
+        "pass": true,
+        "failed": [],
+        "couldNotRun": null,
+        "readings": {
+          "expected": "Aion-1.1-Instruct",
+          "disk": true,
+          "serving": "Aion-1.1-Instruct",
+          "backend": "GPU (highest quality)",
+          "requestedBackend": "gpu",
+          "performanceClass": 5
+        }
+      }
+    }
+  }
+}

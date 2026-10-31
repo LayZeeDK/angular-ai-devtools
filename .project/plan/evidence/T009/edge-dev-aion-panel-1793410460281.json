@@ -1,0 +1,72 @@
+{
+  "cmd": "panel",
+  "instance": "edge-dev-aion",
+  "at": "2026-10-31T01:34:12.182Z",
+  "ok": true,
+  "feature": "interop",
+  "ngVersion": "22.2.2",
+  "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok",
+  "code": null,
+  "field": null,
+  "component": null,
+  "digest": null,
+  "digestPresent": false,
+  "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+  "inferred": "attribution: inferred, untested",
+  "nodes": 1,
+  "route": "/panel/interop",
+  "answer": "The change-detection facts indicate that no observable, operator chain, or emission timing is specified, so the system cannot determine which part of the application is stale. This suggests that the detection logic relies on external configuration or assumptions rather than explicit data.",
+  "error": null,
+  "status": null,
+  "answerMs": 5092,
+  "steps": [
+    {
+      "at": 552,
+      "step": "app",
+      "value": "22.2.2"
+    },
+    {
+      "at": 1114,
+      "step": "extension",
+      "value": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+    },
+    {
+      "at": 1141,
+      "step": "panel key",
+      "value": "extension-panel-b3eff9eb-360e-4a17-8ac1-998a9762b961_1"
+    },
+    {
+      "at": 2183,
+      "step": "route",
+      "value": "/panel/interop"
+    },
+    {
+      "at": 2184,
+      "step": "panel",
+      "value": true
+    },
+    {
+      "at": 3001,
+      "step": "button",
+      "value": true
+    },
+    {
+      "at": 3003,
+      "step": "interop",
+      "value": {
+        "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "attribution: inferred, untested",
+        "nodes": 1,
+        "component": null
+      }
+    },
+    {
+      "at": 8095,
+      "step": "result",
+      "value": {
+        "answer": "The change-detection facts indicate that no observable, operator chain, or emission timing is specified, so the system cannot determine which part of the application is stale. This suggests that the detection logic relies on external configuration or assumptions rather than explicit data."
+      }
+    }
+  ],
+  "model": "Aion-1.1-Instruct"
+}

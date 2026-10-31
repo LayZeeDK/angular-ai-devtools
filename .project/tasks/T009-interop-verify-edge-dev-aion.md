@@ -3,9 +3,9 @@ id: T009
 title: Verify interop claim on edge-dev-aion
 wave: 3
 deps: [T004, T011, T012, T013, T014]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T009
+base: 908831b46ec7191b36e8afc8bb72ac2e4dd8fc97
 worktree: null
 task_branch: null
 files:
@@ -52,3 +52,8 @@ Heavy: no
 ## Log
 
 - pending
+- evidence run (measured): edge-dev-aion, Angular 22.2.2, nodes=1, limits stated, attribution stated, model answer in 5092 ms; retained .project/plan/evidence/T009/interop.json
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T009): pass, exit 0; output tail:
+  ```
+  retained .project/plan/evidence/T009/interop.json
+  ```
