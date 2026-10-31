@@ -1,7 +1,8 @@
 # Review — wave 1, cycle 2
-Wave verdict: pass
+Wave verdict: blocked
 Cycle: 2
 Depth: full
+Note: superseded by wave-1.cycle3.md. The wave gate rejected this artifact because it omitted the SC1 block that T009 Intent coverage owns; the per-task sections below are unchanged.
 Lens: 
 Tasks reviewed: 3
 
