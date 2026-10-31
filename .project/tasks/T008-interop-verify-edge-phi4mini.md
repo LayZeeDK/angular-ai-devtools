@@ -53,4 +53,4 @@ Heavy: no
 
 - pending
 - evidence run (measured): edge-phi4mini, Angular 22.2.2, nodes=1, limits stated, attribution stated, model answer in 12246 ms; retained .project/plan/evidence/T008/interop.json
-- evidence run (measured): edge-phi4mini, Angular 22.2.2, nodes=1, limits stated, attribution stated, model answer in 8694 ms; retained .project/plan/evidence/T008/interop.json
+- evidence run (measured): ?, Angular None, nodes=None, limits missing, attribution missing, model answer in None ms, state None; retained .project/plan/evidence/T008/interop.json
