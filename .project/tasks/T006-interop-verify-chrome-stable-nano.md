@@ -2,7 +2,7 @@
 id: T006
 title: Verify interop claim on chrome-stable-nano
 wave: 3
-deps: [T004, T011, T012, T013]
+deps: [T004, T011, T012, T013, T014]
 status: pending
 agent: null
 base: null
@@ -52,8 +52,3 @@ Heavy: no
 ## Log
 
 - pending
-- 2026-10-31 — orchestrator Verify (sidecar gsd-path-verify/task-t006-verify): fail, exit 2; output tail:
-  ```
-  [ERROR] could not run: chrome-beta-nano serves the extension from D:\projects\sandbox\angular-ai-devtools\extension, not this checkout's C:\Users\LarsGyrupBrinkNielse\.gsd-path\projects\d10fb97cec6c7ac7\8919d4cefeb4a7e5\verify\task-t006-verify\extension: run "down chrome-beta-nano", then "up chrome-beta-nano --extension=extension" here; chrome-beta-gemma4 serves the extension from D:\projects\sandbox\angular-ai-devtools\extension, not this checkout's C:\Users\LarsGyrupBrinkNielse\.gsd-path\projects\d10fb97cec6c7ac7\8919d4cefeb4a7e5\verify\task-t006-verify\extension: run "down chrome-beta-gemma4", then "up chrome-beta-gemma4 --extension=extension" here; edge-dev-aion serves the extension from D:\projects\sandbox\angular-ai-devtools\extension, not this checkout's C:\Users\LarsGyrupBrinkNielse\.gsd-path\projects\d10fb97cec6c7ac7\8919d4cefeb4a7e5\verify\task-t006-verify\extension: run "down edge-dev-aion", then "up edge-dev-aion --extension=extension" here; edge-phi4mini serves the extension from D:\projects\sandbox\angular-ai-devtools\extension, not this checkout's C:\Users\LarsGyrupBrinkNielse\.gsd-path\projects\d10fb97cec6c7ac7\8919d4cefeb4a7e5\verify\task-t006-verify\extension: run "down edge-phi4mini", then "up edge-phi4mini --extension=extension" here; chrome-stable-nano serves the extension from D:\projects\sandbox\angular-ai-devtools\extension, not this checkout's C:\Users\LarsGyrupBrinkNielse\.gsd-path\projects\d10fb97cec6c7ac7\8919d4cefeb4a7e5\verify\task-t006-verify\extension: run "down chrome-stable-nano", then "up chrome-stable-nano --extension=extension" here
-  ```
-- evidence run (measured): chrome-stable-nano, Angular 22.2.2, nodes=1, limits rendered, "inferred, untested" rendered, model answer in 22.9 s; retained `.project/plan/evidence/T006/interop.json`

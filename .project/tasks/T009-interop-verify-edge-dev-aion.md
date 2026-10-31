@@ -2,7 +2,7 @@
 id: T009
 title: Verify interop claim on edge-dev-aion
 wave: 3
-deps: [T004, T011, T012, T013]
+deps: [T004, T011, T012, T013, T014]
 status: pending
 agent: null
 base: null
