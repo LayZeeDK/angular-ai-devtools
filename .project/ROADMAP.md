@@ -496,8 +496,8 @@ Open questions
 Goal: Make the docs audit show no stale or aspirational claim about a shipped feature, and leave no remediation-queue row classified NEEDS-USER without a recorded ruling.
 Depends on: []
 Surfaces: none
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/013-docs-audit-closure
 Integrated: null
 
 Scope: in
