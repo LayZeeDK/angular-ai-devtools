@@ -8,10 +8,10 @@ Alignment mode: no
 
 | Verdict | Count |
 |---------|-------|
-| verified | 202 |
+| verified | 247 |
 | stale | 2 |
 | aspirational | 4 |
-| unverifiable | 137 |
+| unverifiable | 92 |
 | descriptive docs (no testable claims) | 7 |
 
 ## Doc: .claude/skills/control-ai-browsers/SKILL.md
@@ -1069,20 +1069,20 @@ Alignment mode: no
 |---|-----|-------|---------|-------|------------------|
 | 31 | .claude/skills/control-angular-devtools/SKILL.md | "Chrome for Testing 154.0.8037.0" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 60 | .claude/skills/control-pangular-inspector/features/panel.md | "panel URL http://localhost:4507/__pangular/" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 369 | .claude/skills/control-ai-browsers/features/di-doctor.md | "message types angular-ai:di-query / angular-ai:di-graph" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 371 | .claude/skills/control-ai-browsers/features/error-explainer.md | "message types angular-ai:error-capture / angular-ai:error-explain" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 380 | .claude/skills/control-ai-browsers/features/interop.md | "message types angular-ai:interop" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 369 | .claude/skills/control-ai-browsers/features/di-doctor.md | "message types angular-ai:di-query / angular-ai:di-graph" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 371 | .claude/skills/control-ai-browsers/features/error-explainer.md | "message types angular-ai:error-capture / angular-ai:error-explain" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 380 | .claude/skills/control-ai-browsers/features/interop.md | "message types angular-ai:interop" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 396 | .claude/skills/control-pangular-inspector/SKILL.md | "0.0.7 lists 46 tools" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 415 | .commandcode/skills/control-ai-browsers/features/interop.md | "message type angular-ai:interop" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 415 | .commandcode/skills/control-ai-browsers/features/interop.md | "message type angular-ai:interop" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 429 | .commandcode/skills/control-pangular-inspector/features/panel.md | "title Pangular Inspector" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 465 | .commandcode/skills/nx-import/references/TURBOREPO.md | "Nx replaces Turborepo task orchestration" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
-| 547 | .claude/skills/control-ai-browsers/SKILL.md | "v3Nano CPU variant 2025.8.21.1028" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 548 | .claude/skills/control-ai-browsers/features/README.md | "panel built via npx nx run angular-ai-devtools:build-extension" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 549 | .claude/skills/control-ai-browsers/features/extension-panel.md | "panel frame URL chrome-extension://<id>/panel/" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 550 | .claude/skills/control-ai-browsers/features/health-check.md | "nineteen check lines" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 547 | .claude/skills/control-ai-browsers/SKILL.md | "v3Nano CPU variant 2025.8.21.1028" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 548 | .claude/skills/control-ai-browsers/features/README.md | "panel built via npx nx run angular-ai-devtools:build-extension" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 549 | .claude/skills/control-ai-browsers/features/extension-panel.md | "panel frame URL chrome-extension://<id>/panel/" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 550 | .claude/skills/control-ai-browsers/features/health-check.md | "nineteen check lines" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 551 | .claude/skills/control-angular-dev-app/features/README.md | "Counter fresh page state: count 3, double 6, cart 1 item" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 552 | .claude/skills/control-angular-dev-app/features/counter.md | "page shows Clicks: 3 (double 6, cart 1)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 553 | .claude/skills/control-angular-dev-app/features/counter.md | "component is OnPush by default (no changeDetection declared)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 553 | .claude/skills/control-angular-dev-app/features/counter.md | "component is OnPush by default (no changeDetection declared)" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 554 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "claim-list table columns Claim number, Damage Type, Date, Policynumber, Customer" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 555 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "5 rows measured" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 556 | .claude/skills/control-angular-dev-app/features/portal-complaints-customers.md | "complaint-list columns Type, Customer, Date, Description; 2 seeded rows" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
@@ -1092,11 +1092,11 @@ Alignment mode: no
 | 560 | .claude/skills/control-angular-dev-app/features/portal-navigation.md | "header 'Insurance Portal' with ng-journal logo" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 561 | .claude/skills/control-angular-dev-app/features/portal-navigation.md | "unknown URLs show Page Not Found" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 562 | .claude/skills/control-angular-dev-app/features/ssr.md | "hydratedComponents 4, hydratedNodes 40" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 563 | .claude/skills/control-angular-dev-app/features/ssr.md | "transfer cache off with ?transfer=0" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 564 | .claude/skills/control-angular-devtools/SKILL.md | "extension id ienfalfjdbdpebioblfackkekamfmbnh" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 563 | .claude/skills/control-angular-dev-app/features/ssr.md | "transfer cache off with ?transfer=0" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 564 | .claude/skills/control-angular-devtools/SKILL.md | "extension id ienfalfjdbdpebioblfackkekamfmbnh" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 565 | .claude/skills/control-angular-devtools/SKILL.md | "install copies newest version folder from Edge Dev profile" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 566 | .claude/skills/control-angular-devtools/features/attach.md | "window.__NG_DEVTOOLS_CONNECTED__ === true" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 567 | .claude/skills/control-angular-devtools/features/install.md | "Web Store extension id ienfalfjdbdpebioblfackkekamfmbnh" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 566 | .claude/skills/control-angular-devtools/features/attach.md | "window.__NG_DEVTOOLS_CONNECTED__ === true" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 567 | .claude/skills/control-angular-devtools/features/install.md | "Web Store extension id ienfalfjdbdpebioblfackkekamfmbnh" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 568 | .claude/skills/control-angular-devtools/features/install.md | "branded install proven in Chrome Beta 2026-10-11" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 569 | .claude/skills/control-angular-devtools/features/profiler.md | "ng.ɵsetProfiler keeps a list of subscribers in Angular 22" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 570 | .claude/skills/control-angular-devtools/features/signal-graph.md | "before: template:app-counter, signal:title, signal:count, computed:double, signal:items, effect:Effect" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
@@ -1115,33 +1115,33 @@ Alignment mode: no
 | 583 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "Tests 2 passed \| 2 skipped (4) without flags" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 584 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "timing demo fails expected Clicks: 3 to contain Clicks: 4" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 585 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "touching counter.spec.ts reruns suite" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 586 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | "s1-vitest content scripts on http://127.0.0.1/* and http://localhost/*" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 586 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | "s1-vitest content scripts on http://127.0.0.1/* and http://localhost/*" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 587 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | "LanguageModel available in attach mode" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 588 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | "isolated world sees typeof window.ng undefined" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 589 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | "held Counter shows Clicks: 3 (double 6, cart 2)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 590 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | "ng.ɵgetSignalGraph returns template div -> title,count,double" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 591 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | "CartService overridden to pear, plum" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 591 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | "CartService overridden to pear, plum" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 592 | .claude/skills/verify-pangular-inspector/SKILL.md | "setup check exits 0 with setup facts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 593 | .commandcode/pstack-models.md | "default effort sets the level for a value without one" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 594 | .commandcode/skills/control-ai-browsers/features/README.md | "panel is built before up" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 595 | .commandcode/skills/control-ai-browsers/features/di-doctor.md | "message types angular-ai:di-query / angular-ai:di-graph" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 596 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | "captures NG0xxx and uncaught console errors" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 597 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | "Implementation error-explainer.component.ts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 598 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | "message types angular-ai:error-capture / angular-ai:error-explain" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 599 | .commandcode/skills/control-ai-browsers/features/extension-panel.md | "extension id mgkfgkdgobahfcgkdlokpoehblpbkfok" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 600 | .commandcode/skills/control-ai-browsers/features/extension-panel.md | "build writes extension/panel files" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 601 | .commandcode/skills/control-ai-browsers/features/health-check.md | "nineteen check lines" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 593 | .commandcode/pstack-models.md | "default effort sets the level for a value without one" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 594 | .commandcode/skills/control-ai-browsers/features/README.md | "panel is built before up" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 595 | .commandcode/skills/control-ai-browsers/features/di-doctor.md | "message types angular-ai:di-query / angular-ai:di-graph" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 596 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | "captures NG0xxx and uncaught console errors" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 597 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | "Implementation error-explainer.component.ts" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 598 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | "message types angular-ai:error-capture / angular-ai:error-explain" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 599 | .commandcode/skills/control-ai-browsers/features/extension-panel.md | "extension id mgkfgkdgobahfcgkdlokpoehblpbkfok" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 600 | .commandcode/skills/control-ai-browsers/features/extension-panel.md | "build writes extension/panel files" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 601 | .commandcode/skills/control-ai-browsers/features/health-check.md | "nineteen check lines" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 602 | .commandcode/skills/control-ai-browsers/features/health-check.md | "Proofreader is not defined" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 603 | .commandcode/skills/control-ai-browsers/features/interop.md | "Implementation interop.component.ts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 604 | .commandcode/skills/control-ai-browsers/features/interop.md | "required panel test ids" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 603 | .commandcode/skills/control-ai-browsers/features/interop.md | "Implementation interop.component.ts" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 604 | .commandcode/skills/control-ai-browsers/features/interop.md | "required panel test ids" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 605 | .commandcode/skills/control-ai-browsers/features/model-lifecycle.md | "C model clear bytesRemoved 4269934855" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 606 | .commandcode/skills/control-ai-browsers/features/probes.md | "probe10.js tool round trip" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 607 | .commandcode/skills/control-ai-browsers/features/probes.md | "bench records cpuBefore/cpuAfter" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 608 | .commandcode/skills/control-ai-browsers/features/signal-provenance.md | "tracer extension/agent-main.js" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 609 | .commandcode/skills/control-ai-browsers/features/signal-provenance.md | "message angular-ai:record" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 610 | .commandcode/skills/control-ai-browsers/features/stale-view.md | "hedged wording the template may show a stale value" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 611 | .commandcode/skills/control-ai-browsers/features/stale-view.md | "Implementation stale-view.component.ts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 612 | .commandcode/skills/control-ai-browsers/features/stale-view.md | "message type angular-ai:stale-view" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 606 | .commandcode/skills/control-ai-browsers/features/probes.md | "probe10.js tool round trip" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 607 | .commandcode/skills/control-ai-browsers/features/probes.md | "bench records cpuBefore/cpuAfter" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 608 | .commandcode/skills/control-ai-browsers/features/signal-provenance.md | "tracer extension/agent-main.js" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 609 | .commandcode/skills/control-ai-browsers/features/signal-provenance.md | "message angular-ai:record" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 610 | .commandcode/skills/control-ai-browsers/features/stale-view.md | "hedged wording the template may show a stale value" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 611 | .commandcode/skills/control-ai-browsers/features/stale-view.md | "Implementation stale-view.component.ts" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 612 | .commandcode/skills/control-ai-browsers/features/stale-view.md | "message type angular-ai:stale-view" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 613 | .commandcode/skills/control-angular-dev-app/features/counter.md | "count 3" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 614 | .commandcode/skills/control-angular-dev-app/features/counter.md | "double 6" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 615 | .commandcode/skills/control-angular-dev-app/features/counter.md | "Angular DevTools panels (Manual only)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
@@ -1152,9 +1152,9 @@ Alignment mode: no
 | 620 | .commandcode/skills/control-angular-dev-app/features/portal-contracts.md | "20 rows" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 621 | .commandcode/skills/control-angular-dev-app/features/portal-contracts.md | "PUT /api/contracts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 622 | .commandcode/skills/control-angular-dev-app/features/portal-navigation.md | "Page Not Found" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 623 | .commandcode/skills/control-angular-dev-app/features/ssr.md | "RenderMode.Server" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 623 | .commandcode/skills/control-angular-dev-app/features/ssr.md | "RenderMode.Server" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 624 | .commandcode/skills/control-angular-devtools/SKILL.md | "Chrome for Testing 154.0.8037.0" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 625 | .commandcode/skills/control-angular-devtools/features/attach.md | "window.__NG_DEVTOOLS_CONNECTED__" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 625 | .commandcode/skills/control-angular-devtools/features/attach.md | "window.__NG_DEVTOOLS_CONNECTED__" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 626 | .commandcode/skills/control-angular-devtools/features/install.md | "Angular DevTools 1.22.1" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 627 | .commandcode/skills/control-angular-devtools/features/profiler.md | "ng.ɵsetProfiler" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 628 | .commandcode/skills/control-angular-devtools/features/signal-graph.md | "ng.ɵgetSignalGraph" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
@@ -1163,24 +1163,24 @@ Alignment mode: no
 | 631 | .commandcode/skills/control-vitest-browser-angular/features/counter-tests.md | "Tests 2 passed \| 2 skipped (4)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 632 | .commandcode/skills/control-vitest-browser-angular/features/extension-in-tester.md | "extension service worker target exists" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 633 | .commandcode/skills/control-vitest-browser-angular/features/held-counter.md | "Clicks: 3 (double 6, cart 2)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 634 | .commandcode/skills/nx-import/references/ESLINT.md | "`@nx/eslint/plugin`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 635 | .commandcode/skills/nx-import/references/GRADLE.md | "`@nx/gradle` plugin" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 636 | .commandcode/skills/nx-import/references/JEST.md | "`@nx/jest/plugin`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 637 | .commandcode/skills/nx-import/references/NEXT.md | "`@nx/next/plugin`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 638 | .commandcode/skills/nx-import/references/VITE.md | "`@nx/vite/plugin`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 634 | .commandcode/skills/nx-import/references/ESLINT.md | "`@nx/eslint/plugin`" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 635 | .commandcode/skills/nx-import/references/GRADLE.md | "`@nx/gradle` plugin" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 636 | .commandcode/skills/nx-import/references/JEST.md | "`@nx/jest/plugin`" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 637 | .commandcode/skills/nx-import/references/NEXT.md | "`@nx/next/plugin`" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 638 | .commandcode/skills/nx-import/references/VITE.md | "`@nx/vite/plugin`" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 639 | .commandcode/skills/verify-ai-browsers/SKILL.md | "`state` takes about a minute per instance" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 640 | .commandcode/skills/verify-pangular-inspector/SKILL.md | "Exact pin 0.0.7 declared and installed" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 641 | .commandcode/taste/angular/taste.md | "Never put a `node:test` suite under `*.spec.ts` — the builder compiles it and the app test target fails with TS2591" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 642 | .commandcode/taste/tooling/taste.md | "Keep browser profiles and downloaded AI models ... on `D:/`, never `C:/`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 643 | docs/afk-run-2026-10-12.md | "Tree clean: `git status` shows nothing but ignored paths" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 641 | .commandcode/taste/angular/taste.md | "Never put a `node:test` suite under `*.spec.ts` — the builder compiles it and the app test target fails with TS2591" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 642 | .commandcode/taste/tooling/taste.md | "Keep browser profiles and downloaded AI models ... on `D:/`, never `C:/`" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
+| 643 | docs/afk-run-2026-10-12.md | "Tree clean: `git status` shows nothing but ignored paths" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 644 | docs/design/tutor.md | "No shipped framework devtools panel uses an on-device model" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 645 | docs/design/tutor.md | "The tutor works with no model" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
 | 646 | docs/design/tutor.md | "27 lessons in five phases" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
 | 647 | docs/design/tutor.md | "Storage shapes in `chrome.storage.local`" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
-| 648 | docs/feature-proposals.md | "Angular 22.2 in development mode" supported apps | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 648 | docs/feature-proposals.md | "Angular 22.2 in development mode" supported apps | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 649 | plans/angular-ai-devtools-proposals.handoff.md | "Deliverable: docs/feature-proposals.md, about 1,080 lines" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
 | 650 | plans/angular-ai-devtools-proposals.handoff.md | "Head `fbe3aac` at writing" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 651 | references/ai-browsers-verification.md | "Check that port 9992 is free" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 651 | references/ai-browsers-verification.md | "Check that port 9992 is free" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 652 | references/ai-browsers-verification.md | "`state` runs about 3 minutes for four instances" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 653 | research/00-browser-probe.md | "WebMCP is live in both browsers: typeof document.modelContext === 'object'" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 654 | research/01-built-in-ai-apis.md | "Chrome ships LanguageModel to extensions (138+) and the web (148+)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |

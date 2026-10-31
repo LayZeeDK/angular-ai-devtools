@@ -3,9 +3,9 @@ id: T001
 title: Re-derive the 45 settleable unverifiable audit rows
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: 0f461a456b9adf1178c433b399095f225ec83d78
 worktree: null
 task_branch: null
 files:
@@ -49,3 +49,8 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-31 — implementation: re-derived 45 settleable rows to verified with triage evidence; Verify: python ... → exit 0
+- 2026-10-31 — orchestrator Verify (sidecar gsd-path-verify/task-t001-verify): pass, exit 0; output tail:
+  ```
+  ok 45
+  ```
