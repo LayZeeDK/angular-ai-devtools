@@ -3,9 +3,9 @@ id: T010
 title: Assemble lars-verify claim record for the interop claim
 wave: 4
 deps: [T006, T007, T008, T009]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T010
+base: bf26258ae5b05b43209f9929f819e1b5a60d25b2
 worktree: null
 task_branch: null
 files:
@@ -57,3 +57,16 @@ Heavy: no
 ## Log
 
 - pending
+- Read the four retained per-pair results (T006-T009).
+- Run `lars-verify` over the four per-pair results to produce one verdict.
+- Write the claim record citing every retained per-pair result and the recorded verdict.
+- Do not re-drive any model instance; this task assembles rather than re-verifies.
+- Keep the N2 prohibition: one retained verdict per pair, read from the recorded result rather than the summary line.
+- Each pair task retains a per-pair result at `<evidence>/interop.json` produced by `.commandcode/skills/verify-ai-browsers/checks/interop.mjs` for its single instance.
+- The assembler cites all four retained per-pair results and writes the `lars-verify` claim record.
+- SC6
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T010): pass, exit 0
+- 2026-10-31 — orchestrator regression Verify of T006 (isolate gsd-path-task/T010): fail, exit 2; output tail:
+- 2026-10-31 — orchestrator regression Verify of T007 (isolate gsd-path-task/T010): fail, exit 2; output tail:
+- 2026-10-31 — orchestrator regression Verify of T008 (isolate gsd-path-task/T010): fail, exit 2; output tail:
+- 2026-10-31 — orchestrator regression Verify of T009 (isolate gsd-path-task/T010): fail, exit 2; output tail:
