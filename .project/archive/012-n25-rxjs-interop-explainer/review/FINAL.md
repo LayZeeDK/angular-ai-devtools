@@ -1,6 +1,6 @@
 # Final Review — angular-ai-devtools
 
-Reviewed HEAD: 854ae34f351fd5e9e2987f95094095534fb4c7b5
+Reviewed HEAD: e240d4a5f53656507d7605d0b1f5bdf600f39cfa
 Overall verdict: pass
 
 ## Success criteria
@@ -75,3 +75,4 @@ Overall verdict: pass
 
 - T008's task Log records its readings as missing. That line was written by an orchestrator helper that read the wrong JSON key; the retained evidence and `wave-3.cycle1.md` carry the true readings (edge-phi4mini, Angular 22.2.2, nodes=1, limits stated, attribution stated, 8694 ms). The landed body is left untouched so the landing proof holds.
 - Wave 2 noted that the panel renders the attribution wording but not the candidate list; `interop-attribution.spec.ts` covers the candidates in the service, and SC3 is about wording. No criterion is affected.
+- T016 split the node:test suites from the Angular unit-test pattern: the project Verify was red at 42de761 because the unit-test builder compiled them (TS2591), and T016 renamed both to `*.node.test.ts`, pinned the builder to `**/*.spec.ts` and excluded them from the test compilation unit. Gap 1 re-ran the project Verify at the shipped head and it exits 0.

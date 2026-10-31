@@ -1,6 +1,6 @@
 # Gap Review — 3: check and extension coupling
 
-Reviewed HEAD: HEAD_SHA
+Reviewed HEAD: e240d4a5f53656507d7605d0b1f5bdf600f39cfa
 Gap verdict: pass
 Risk: check and extension coupling
 Waves checked: 2, 3

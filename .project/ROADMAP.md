@@ -457,8 +457,8 @@ Open questions
 Goal: Build the RxJS interop explainer (N25): identify the interop call behind a toSignal source and the effects the signal graph cannot label, slice their direct producers/consumers, and explain the chain, stating that it cannot name the feeding Observable, the operator chain, or emission timing.
 Depends on: []
 Surfaces: DevTools panel
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/012-n25-rxjs-interop-explainer
 Integrated: null
 
 Scope: in

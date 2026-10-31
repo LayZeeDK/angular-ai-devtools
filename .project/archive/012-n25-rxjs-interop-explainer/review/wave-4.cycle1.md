@@ -3,7 +3,7 @@
 Cycle: 1
 Depth: verify-only
 Wave verdict: pass
-Tasks reviewed: 1
+Tasks reviewed: 2
 Reviewed HEAD: 28b5ad7a1e34d343ce72010f4c5c006259dc9000
 
 ## T010 — Assemble lars-verify claim record for the interop claim: pass
@@ -12,6 +12,12 @@ Reviewed HEAD: 28b5ad7a1e34d343ce72010f4c5c006259dc9000
 - ✅ Verdict `verified` justified by the four panel records: nodes=1 on T006/T007/T008/T009; limits `"limit: Cannot name the feeding Observable, the operator chain, or emission timing."`; inferred `"attribution: inferred, untested"`; non-empty `answer` on all four; `state.pass true`, `couldNotRun null`, `panel.exit 0`, shared extensionId `mgkfgkdgobahfcgkdlokpoehblpbkfok`.
 - ✅ Rule recorded: verified only when all four pairs answered with nodes>=1, the limit sentence, the attribution wording and a non-empty model answer; a partial run is not verified (E6). — `CLAIM.md` "Rule applied" line.
 - ✅ `.project/plan/CLAIM.md` written; `node -e "require('fs').readFileSync(...)"` reads it.
+
+## T016 — Split node:test suites from the Angular unit-test pattern: pass
+
+- ✅ `npx nx run angular-ai-devtools:test` collects only `*.spec.ts` and passes 10/10 at the T016 landing (26cf0ae); before the patch it exited 1 on TS2591 `node:test` because the builder compiled both suites.
+- ✅ `node --experimental-strip-types --test apps/angular-ai-devtools/src/app/interop-slice.node.test.ts apps/angular-ai-devtools/src/app/interop-attribution.node.test.ts` stays green, so the rename keeps the held-out E2/E4 coverage T004 owns.
+- ✅ The project Verify `npm run check && npm test && npx nx run angular-ai-devtools:build-extension` exits 0 at 26cf0ae (final-gap-1.md re-ran it at the shipped head).
 
 ## Intent coverage
 

@@ -1,6 +1,6 @@
 # Gap Review — 2: serialised graph node shape across waves
 
-Reviewed HEAD: HEAD_SHA
+Reviewed HEAD: e240d4a5f53656507d7605d0b1f5bdf600f39cfa
 Gap verdict: pass
 Risk: serialised graph node shape across waves
 Waves checked: 1, 2, 3
