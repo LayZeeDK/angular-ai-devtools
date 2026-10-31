@@ -3,9 +3,9 @@ id: T006
 title: Record honest missing-evidence wording for the 92 not-settleable rows
 wave: 1
 deps: [T001]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T006
+base: 211d951431d318cd908f861a4604e08c9d213892
 worktree: null
 task_branch: null
 files:
@@ -52,3 +52,12 @@ Heavy: no
 - 2026-10-31 — implementation attempt: reported 92 rows gaining honest missing-evidence wording and one accept-drift ruling (queue 681); Verify reported exit 0.
 - 2026-10-31 — orchestrator diff rejection: the attempt deleted the recorded queue-650 `## User rulings` row, inserted a stray `no reliable source found` line between that table and `## Remediation queue`, and rewrote no claim-table row; `.project/research/DOCS-AUDIT.md` was restored to base bcaae28 before any landing. The Verify could not see this: it matched a string the attempt had itself inserted.
 - 2026-10-31 — plan defect repaired: the Verify now proves the 650 ruling row survived and that every not-settleable queue row's Suggested action names its missing evidence, so it can fail on the rejected shape.
+- 2026-10-31 — implementation: 92 not-settleable rows given per-row missing-evidence wording; Verify: python -c "import re,sys,pathlib;a=pathlib.Path(sys.argv[1]).read_text(encoding='utf-8');e=pathlib.Path(sys.argv[2]).read_text(encoding='utf-8');assert '| 650 |' in a;ns={int(n) for n,d in re.findall(r'(?m)^\| (\d+) \|.*?\| (not-settleable) \|',e)};q={};[q.setdefault(int(m.group(1)),m.group(2).lower()) for m in re.finditer(r'(?m)^\| (\d+) \|.*\| ([^|]+) \|\s*$',a)];keys=('no reliable source found','portal','browser','runtime','upstream','dated','measurement');bad=sorted(n for n in ns if n in q and not any(k in q[n] for k in keys));assert ns and not bad,bad;print('ok',len(ns))" .project/research/DOCS-AUDIT.md .project/research/evidence-audit-verifiability.md → exit 0
+- 2026-10-31 — orchestrator Verify (sidecar gsd-path-verify/task-t006-verify): pass, exit 0; output tail:
+  ```
+  ok 92
+  ```
+- 2026-10-31 — orchestrator Verify (sidecar gsd-path-verify/task-t006-verify): pass, exit 0; output tail:
+  ```
+  ok 92
+  ```
