@@ -13,6 +13,7 @@ files:
   - apps/angular-ai-devtools/src/app/interop.service.ts
   - apps/angular-ai-devtools/src/app/interop-slice.spec.ts
   - apps/angular-ai-devtools/src/app/interop-attribution.spec.ts
+  - extension/panel/index.html
 ---
 
 # T012 — Fetch the signal graph for the interop panel and render the required test ids
