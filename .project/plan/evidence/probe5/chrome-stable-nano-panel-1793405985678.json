@@ -1,0 +1,72 @@
+{
+  "cmd": "panel",
+  "instance": "chrome-stable-nano",
+  "at": "2026-10-31T00:19:19.334Z",
+  "ok": true,
+  "feature": "interop",
+  "ngVersion": "22.2.2",
+  "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok",
+  "code": null,
+  "field": null,
+  "component": null,
+  "digest": null,
+  "digestPresent": false,
+  "limits": null,
+  "inferred": null,
+  "nodes": 0,
+  "route": "/panel/interop",
+  "answer": "The change detection workflow for a component named `StaleViewFixture` appears to be configured using `cmp:_StaleViewFixture` and related aliases like `app-stale-view-fixture`.  However, crucial details related to how change detection operates are missing: specifically, the Observable feeding data to the component, the order of operators within any operator chain, and the timing of emissions. This lack of information suggests a potentially incomplete or undefined change detection setup, meaning that the framework may struggle to efficiently update the component's view based on incoming data changes.",
+  "error": null,
+  "status": null,
+  "answerMs": 24145,
+  "steps": [
+    {
+      "at": 375,
+      "step": "app",
+      "value": "22.2.2"
+    },
+    {
+      "at": 920,
+      "step": "extension",
+      "value": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+    },
+    {
+      "at": 993,
+      "step": "panel key",
+      "value": "extension-panel-19f85cf2-fa4d-433d-a8c5-f5f72b69d3c1_1"
+    },
+    {
+      "at": 1214,
+      "step": "route",
+      "value": "/panel/interop"
+    },
+    {
+      "at": 1226,
+      "step": "panel",
+      "value": true
+    },
+    {
+      "at": 2183,
+      "step": "button",
+      "value": true
+    },
+    {
+      "at": 2186,
+      "step": "interop",
+      "value": {
+        "limits": null,
+        "inferred": null,
+        "nodes": 0,
+        "component": null
+      }
+    },
+    {
+      "at": 26333,
+      "step": "result",
+      "value": {
+        "answer": "The change detection workflow for a component named `StaleViewFixture` appears to be configured using `cmp:_StaleViewFixture` and related aliases like `app-stale-view-fixture`.  However, crucial details related to how change detection operates are missing: specifically, the Observable feeding data to the component, the order of operators within any operator chain, and the timing of emissions. This lack of information suggests a potentially incomplete or undefined change detection setup, meaning that the framework may struggle to efficiently update the component's view based on incoming data changes."
+      }
+    }
+  ],
+  "model": "v3Nano"
+}

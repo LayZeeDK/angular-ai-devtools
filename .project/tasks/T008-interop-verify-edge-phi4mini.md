@@ -2,7 +2,7 @@
 id: T008
 title: Verify interop claim on edge-phi4mini
 wave: 3
-deps: [T004, T011]
+deps: [T004, T011, T012]
 status: pending
 agent: null
 base: null

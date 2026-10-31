@@ -1,0 +1,34 @@
+{
+  "url": "http://localhost:4222/stale-view",
+  "results": {
+    "chrome-stable-nano": {
+      "panel": {
+        "exit": 0,
+        "feature": "interop",
+        "route": "/panel/interop",
+        "answer": "The change detection workflow for a component named `StaleViewFixture` appears to be configured using `cmp:_StaleViewFixture` and related aliases like `app-stale-view-fixture`.  However, crucial details related to how change detection operates are missing: specifically, the Observable feeding data to the component, the order of operators within any operator chain, and the timing of emissions. This lack of information suggests a potentially incomplete or undefined change detection setup, meaning that the framework may struggle to efficiently update the component's view based on incoming data changes.",
+        "limits": null,
+        "inferred": null,
+        "nodes": 0,
+        "error": null,
+        "answerMs": 24145,
+        "ngVersion": "22.2.2",
+        "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+      },
+      "state": {
+        "instance": "chrome-stable-nano",
+        "pass": true,
+        "failed": [],
+        "couldNotRun": null,
+        "readings": {
+          "expected": "v3Nano",
+          "disk": true,
+          "serving": "v3Nano",
+          "backend": "GPU (fastest inference)",
+          "requestedBackend": "gpu",
+          "performanceClass": 4
+        }
+      }
+    }
+  }
+}

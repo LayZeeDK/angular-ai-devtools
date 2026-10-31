@@ -2,7 +2,7 @@
 id: T007
 title: Verify interop claim on chrome-beta-gemma4
 wave: 3
-deps: [T004, T011]
+deps: [T004, T011, T012]
 status: pending
 agent: null
 base: null
