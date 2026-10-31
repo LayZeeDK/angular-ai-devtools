@@ -3,9 +3,9 @@ id: T004
 title: Add /panel/interop route, component, and value-based attribution
 wave: 2
 deps: [T001, T002]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T004
+base: 7f5d15886e6feceffa8382e625a6cb2171f55cb2
 worktree: null
 task_branch: null
 files:
@@ -72,3 +72,28 @@ Heavy: no
 ## Log
 
 - pending
+- T004 implemented: added /panel/interop route, component, service, specs; Verify passed (node tests 5/5, npm run check, build-extension). ready
+- 2026-10-30 — orchestrator Verify (isolate gsd-path-task/T004): pass, exit 0; output tail:
+  ```
+  [39m[22m
+  [37mOutput location: C:\Users\LarsGyrupBrinkNielse\.gsd-path\projects\d10fb97cec6c7ac7\8919d4cefeb4a7e5\task\T004\extension\panel
+  [39m
+  
+  [2m[32m[39m[22m
+  
+  [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mbuild-extension[22m for project angular-ai-devtools and [1m1[22m task it depends on[39m
+  
+  [2mNx read the output from the cache instead of running the command for 1 out of 2 tasks.[22m
+  
+    Run duration:      223ms
+    Cache:             1/2 hit (50%)
+    Critical path:     176ms (2 tasks)
+    Recoverable time:  <1ms
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:build-extension
+  ```
+
