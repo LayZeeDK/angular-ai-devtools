@@ -9,7 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
-  - .project/plan/evidence/T009/interop.json
+  - .project/plan/evidence/T009
 ---
 
 # T009 — Verify interop claim on edge-dev-aion

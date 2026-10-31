@@ -9,7 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
-  - .project/plan/evidence/T006/interop.json
+  - .project/plan/evidence/T006
 ---
 
 # T006 — Verify interop claim on chrome-stable-nano

@@ -9,7 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
-  - .project/plan/evidence/T007/interop.json
+  - .project/plan/evidence/T007
 ---
 
 # T007 — Verify interop claim on chrome-beta-gemma4

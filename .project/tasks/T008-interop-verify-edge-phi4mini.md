@@ -9,7 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
-  - .project/plan/evidence/T008/interop.json
+  - .project/plan/evidence/T008
 ---
 
 # T008 — Verify interop claim on edge-phi4mini
