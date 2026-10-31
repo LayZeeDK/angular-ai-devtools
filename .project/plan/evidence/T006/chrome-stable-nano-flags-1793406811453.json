@@ -1,0 +1,32 @@
+{
+  "cmd": "flags",
+  "instance": "chrome-stable-nano",
+  "at": "2026-10-31T00:33:22.970Z",
+  "ok": true,
+  "backend": "gpu",
+  "effective": [
+    "AIPromptAPI",
+    "OnDeviceAiDefaultEnabled",
+    "AIPromptAPIToolUse",
+    "AIPromptAPIMultimodalInput",
+    "AISummarizationAPI",
+    "AIWriterAPI",
+    "AIRewriterAPI",
+    "WebMCP",
+    "OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/2%2C3%2C4%2C5%2C6/compatible_low_tier_on_device_performance_classes/2%2C3%2C4"
+  ],
+  "registry": [
+    "AIPromptAPI",
+    "OnDeviceAiDefaultEnabled",
+    "AIPromptAPIToolUse",
+    "AIPromptAPIMultimodalInput",
+    "AISummarizationAPI",
+    "AIWriterAPI",
+    "AIRewriterAPI",
+    "WebMCP",
+    "OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/2%2C3%2C4%2C5%2C6/compatible_low_tier_on_device_performance_classes/2%2C3%2C4"
+  ],
+  "missing": [],
+  "extra": [],
+  "drift": []
+}

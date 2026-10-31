@@ -1,0 +1,72 @@
+{
+  "cmd": "panel",
+  "instance": "chrome-stable-nano",
+  "at": "2026-10-31T00:32:24.189Z",
+  "ok": true,
+  "feature": "interop",
+  "ngVersion": "22.2.2",
+  "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok",
+  "code": null,
+  "field": null,
+  "component": null,
+  "digest": null,
+  "digestPresent": false,
+  "limits": "Cannot name the feeding Observable, the operator chain, or emission timing.",
+  "inferred": "inferred, untested",
+  "nodes": 1,
+  "route": "/panel/interop",
+  "answer": "The data indicates a fixture named `cmp:_StaleViewFixture` and a corresponding application component `app-stale-view-fixture`.  Furthermore, the system is unable to determine crucial aspects of the change detection process, explicitly stating it cannot identify a feeding Observable, the operator chain involved, or precisely when the emission occurs. This suggests a potentially problematic configuration or a lack of necessary data for effective change detection analysis.",
+  "error": null,
+  "status": null,
+  "answerMs": 25949,
+  "steps": [
+    {
+      "at": 404,
+      "step": "app",
+      "value": "22.2.2"
+    },
+    {
+      "at": 954,
+      "step": "extension",
+      "value": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+    },
+    {
+      "at": 1599,
+      "step": "panel key",
+      "value": "extension-panel-1381e69f-bf9e-4831-9dae-c70b16b326d8_1"
+    },
+    {
+      "at": 2630,
+      "step": "route",
+      "value": "/panel/interop"
+    },
+    {
+      "at": 2631,
+      "step": "panel",
+      "value": true
+    },
+    {
+      "at": 3446,
+      "step": "button",
+      "value": true
+    },
+    {
+      "at": 3448,
+      "step": "interop",
+      "value": {
+        "limits": "Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "inferred, untested",
+        "nodes": 1,
+        "component": null
+      }
+    },
+    {
+      "at": 29398,
+      "step": "result",
+      "value": {
+        "answer": "The data indicates a fixture named `cmp:_StaleViewFixture` and a corresponding application component `app-stale-view-fixture`.  Furthermore, the system is unable to determine crucial aspects of the change detection process, explicitly stating it cannot identify a feeding Observable, the operator chain involved, or precisely when the emission occurs. This suggests a potentially problematic configuration or a lack of necessary data for effective change detection analysis."
+      }
+    }
+  ],
+  "model": "v3Nano"
+}

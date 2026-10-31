@@ -1,0 +1,34 @@
+{
+  "url": "http://localhost:4222/stale-view",
+  "results": {
+    "chrome-stable-nano": {
+      "panel": {
+        "exit": 0,
+        "feature": "interop",
+        "route": "/panel/interop",
+        "answer": "The data indicates a fixture named `cmp:_StaleViewFixture` and a corresponding application component `app-stale-view-fixture`.  Furthermore, the system is unable to determine crucial aspects of the change detection process, explicitly stating it cannot identify a feeding Observable, the operator chain involved, or precisely when the emission occurs. This suggests a potentially problematic configuration or a lack of necessary data for effective change detection analysis.",
+        "limits": "Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "inferred, untested",
+        "nodes": 1,
+        "error": null,
+        "answerMs": 25949,
+        "ngVersion": "22.2.2",
+        "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+      },
+      "state": {
+        "instance": "chrome-stable-nano",
+        "pass": true,
+        "failed": [],
+        "couldNotRun": null,
+        "readings": {
+          "expected": "v3Nano",
+          "disk": true,
+          "serving": "v3Nano",
+          "backend": "GPU (fastest inference)",
+          "requestedBackend": "gpu",
+          "performanceClass": 4
+        }
+      }
+    }
+  }
+}

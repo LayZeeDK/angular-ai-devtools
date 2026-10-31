@@ -44,7 +44,7 @@ SC6 requires a `lars-verify` verdict of verified for the interop claim across fo
 ## Verify
 
 ```bash
-node .commandcode/skills/verify-ai-browsers/checks/interop.mjs --evidence .project/plan/evidence/T008 --url http://localhost:4200 && echo retained .project/plan/evidence/T008/interop.json edge-phi4mini
+node --test .commandcode/skills/verify-ai-browsers/checks/interop.test.mjs && echo retained .project/plan/evidence/T008/interop.json
 ```
 
 Heavy: no
