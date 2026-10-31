@@ -526,3 +526,37 @@ Risks
 Open questions
 - [RESEARCH] Which unverifiable rows are testable with the commands the repository already ships, and which need evidence this milestone cannot produce?
 - [NEEDS-USER] When a document describes a feature that no longer exists, may the milestone retire the document, or must it be corrected to describe what replaced it?
+
+### M014 — interop-proof
+
+Goal: Prove the RxJS interop claim end to end on this repository's own dev-only fixture, and close the interop verification debt M012 left open.
+Depends on: [M012, M013]
+Surfaces: DevTools panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- Run `verify-ai-browsers/checks/interop.mjs` against at least one live instance and commit its evidence.
+- Use `spikes/ng222-app`'s `stale-view` route as the recorded source of both halves of the claim, replacing the external portal.
+- Re-record `control-ai-browsers/features/.proven.json` for the interop feature and keep the feature map true to `interop.component.ts`.
+- Keep the two skills trees byte-identical and the project Verify green.
+
+Scope: out
+- New panel tabs, a second explainer, or any change to the interop component's behaviour to make a check pass.
+- Portal source changes beyond the dev-only provider file the charter allows.
+- Touching archived audits or archived milestone records.
+
+Success criteria
+1. `verify-ai-browsers/checks/interop.mjs` exits 0 on a named instance, proving a sliced node set with at least one node, the three stated limits, the "inferred, untested" attribution and a non-empty answer, and its evidence file is committed.
+2. The claim's recorded source is `spikes/ng222-app`'s `stale-view` fixture, named in the milestone intent, and every note that says the portal is required is corrected.
+3. `features/.proven.json` records the interop feature as proven at the shipped head, and the fingerprint check reports it fresh.
+4. The project Verify (`npm run check`, `npm test`, `npx nx run angular-ai-devtools:build-extension`) passes at the shipped head and the skills mirror test is green.
+
+Risks
+- A missing or wedged on-device model pair turns the proof into environment work; the pin and the recovery recipe are in `references/edge-dev-aion-model.md`.
+- `/stale-view` may fire its error effect before the panel attaches, so no slice is ever captured; that needs a settle mechanic or a second fixture, not a new feature.
+- Re-proving re-records `.proven.json`, and a stale fingerprint then reads like a failure.
+
+Open questions
+- [RESEARCH] Which instance, and which panel route, produce a sliced node set from `/stale-view`, and what does the panel report when the effect has already run before the panel attaches?

@@ -51,24 +51,27 @@ sidecars, including worktree and branch).
 - Panel verification runs against pages served by `control-angular-dev-app`. The counter app (`spikes/ng222-app`)
   carries a dev-only `stale-view` route (`src/app/stale-view-fixture.ts`, owner ruling 2026-10-30) so N24's claim is
   producible; adding another such route is a fixture change and needs a ruling of the same kind.
-- N25 (M012) names the portal fixture. Measured 2026-10-30 on the portal checkout at
-  `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools` (Angular 22.2.2): `toSignal(this.#x$)`
-  is used in `libs/claim/feature-create`, `libs/complaint/feature-create`, `libs/contract/feature-create` and
-  `libs/contract/feature-edit`, but `libs` and `apps` hold **no** `Subject` and **no** `subject.error`, so N25's
-  "unlabelled effect whose `debuggableFn` contains `subject.error`" half has no source there. The charter forbids
-  portal source changes beyond a dev-only provider file, so that half needs a ruling before SC1 is claimable.
-- N25's verification artifacts are prepared and unproven: `control-ai-browsers/features/interop.md`,
-  `panel --feature=interop`, and `verify-ai-browsers/checks/interop.mjs` (8 tests). The check exits 2 with
-  "the app has no interop panel route yet (served /panel/)" until the panel ships `/panel/interop`.
+- The interop claim (N25, M012) is producible from this repository. `spikes/ng222-app/src/app/stale-view-fixture.ts`
+  (owner ruling 2026-10-30) holds both halves N25 needs: `toSignal(this.subject)` at line 14 and an unlabelled
+  `effect` whose body calls `subject.error(...)` at line 22, served at `/stale-view`. The portal measurement of
+  2026-10-30 still stands as the reason the portal is not the fixture, not as a reason the claim is unprovable.
+- The interop verification is prepared, its logic proven, and its live run owed:
+  `control-ai-browsers/features/interop.md`, `panel --feature=interop` (the driver pushes `/panel/interop`,
+  `scripts/panel.mjs:246`), and `verify-ai-browsers/checks/interop.mjs` (9 tests, green 2026-10-31). The app serves
+  the route (`apps/angular-ai-devtools/src/app/app.routes.ts:15`), so the check's route assertion passes as soon as an
+  instance runs the built panel. Proving it on a live instance is M014's deliverable.
 
-- **M013 runs unattended.** The owner's instruction, verbatim: "A fresh session should be able to
+- **M014 runs unattended.** The owner's instruction, verbatim: "A fresh session should be able to
   run `/gsd-path @ ~/.commandcode/prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md`
-  to complete M013 end-to-end without a human-in-the-loop, with full milestone decision
-  authority." At M013's first legal boundary, record the standing grant once with
+  to complete M014 end-to-end without a human-in-the-loop, with full milestone decision
+  authority." At M014's first legal boundary, record the standing grant once with
   `gsd.bat preapprove --repo <root> --grant intent,plan,rulings,ship`, quoting that instruction
   when you record a delegated ruling. Do not stop for the intent gate, the plan gate, a
-  prohibition, an edge or a `NEEDS-USER` row, or ship approval for M013; stop only at a helper
-  failure, a contradiction the evidence cannot settle, or two identical failures.
+  prohibition, an edge or a `NEEDS-USER` row, or ship approval for M014; stop only at a helper
+  failure, a contradiction the evidence cannot settle, or two identical failures. The grant also
+  carries the owner-reserved fixture decision: if no available instance can produce a sliced node
+  from `/stale-view`, one more dev-only fixture route in `spikes/ng222-app` is ruled acceptable,
+  recorded in INTENT.md's `## Corrections` with this paragraph as its authority.
 
 ## Control skills
 
