@@ -16,9 +16,13 @@ try { _ng = await import('@angular/core'); } catch { _ng = {}; }
 const Injectable = _ng.Injectable ?? ((..._a: any[]) => (t: any) => t);
 const inject = _ng.inject ?? ((..._a: any[]) => null);
 const signal = _ng.signal ?? ((v: any) => ({ set() {}, update() {} }));
+const effect = _ng.effect ?? ((fn: any) => { try { fn(); } catch {} });
 
 let ExtensionPromptService: any = null;
 try { ExtensionPromptService = (await import('./extension-prompt.service')).ExtensionPromptService; } catch { ExtensionPromptService = null; }
+
+let UpdateCauseService: any = null;
+try { UpdateCauseService = (await import('./n1-update-cause.service')).UpdateCauseService; } catch { UpdateCauseService = null; }
 
 export const INTEROP_LIMITATION =
   'Cannot name the feeding Observable, the operator chain, or emission timing.';
@@ -221,11 +225,39 @@ export const canShapeFactList = (f: unknown) => missingInteropFact(f) === null;
 
 export class InteropService {
   private readonly prompt: any = inject(ExtensionPromptService);
+  private readonly cause: any = UpdateCauseService ? inject(UpdateCauseService) : null;
   readonly slices = signal([] as InteropSlice[]);
   readonly missingFact = signal(null as string | null);
   readonly answer = signal(null as string | null);
   readonly unavailable = signal(false);
   readonly limitation = INTEROP_LIMITATION;
+
+  constructor() {
+    if (this.cause) {
+      effect(() => {
+        const cycles = this.cause.recordedCycles();
+        const nodes: any[] = [];
+        const edges: any[] = [];
+        const seen = new Set();
+        for (const c of (Array.isArray(cycles) ? cycles : [])) {
+          for (const ch of (c?.checks ?? [])) {
+            const g = ch?.graph;
+            if (!g) continue;
+            const gn = Array.isArray(g?.nodes) ? g.nodes : [];
+            const ge = Array.isArray(g?.edges) ? g.edges : [];
+            for (const n of gn) {
+              const key = n?.id ?? n;
+              if (seen.has(key)) continue;
+              seen.add(key);
+              nodes.push(n);
+            }
+            for (const e of ge) edges.push(e);
+          }
+        }
+        if (nodes.length) this.processGraph({ nodes, edges });
+      });
+    }
+  }
 
   processGraph(graph: unknown): void {
     const g = normalizeGraph(graph);

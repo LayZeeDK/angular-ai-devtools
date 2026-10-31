@@ -1,8 +1,7 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { InteropService, INTEROP_LIMITATION, INFERRED_UNTESTED } from './interop.service';
 import { ExtensionMessageService } from './extension-message.service';
 import { ExtensionPromptService } from './extension-prompt.service';
-import { UpdateCauseService } from './n1-update-cause.service';
 
 @Component({
   selector: 'app-interop',
@@ -18,11 +17,12 @@ import { UpdateCauseService } from './n1-update-cause.service';
     } @else {
       @for (s of svc.slices(); track s.sourceId) {
         <div class="slice" data-testid="interop-slice">
-          <span class="limitation" data-testid="limitation">{{ limitation }}</span>
+          <span class="limitation" data-testid="interop-limit">{{ limitation }}</span>
+          <span class="node" data-testid="interop-node">{{ s.sourceId }}</span>
           <span class="source" data-testid="source-node">{{ s.sourceLabel ?? s.sourceId }}</span>
           <span class="producer" data-testid="producer">{{ s.producers.join(',') }}</span>
           <span class="consumer" data-testid="consumer">{{ s.consumers.join(',') }}</span>
-          <span class="attribution" data-testid="attribution">{{ inferred }}</span>
+          <span class="attribution" data-testid="interop-inferred">{{ inferred }}</span>
           <button (click)="explain(s)" data-testid="explain">Explain</button>
         </div>
       }
@@ -40,19 +40,9 @@ export class InteropComponent {
   protected readonly svc = inject(InteropService);
   protected readonly ext = inject(ExtensionMessageService);
   protected readonly prompt = inject(ExtensionPromptService);
-  protected readonly cause = inject(UpdateCauseService);
   protected readonly answer = signal<string | null>(null);
   protected readonly limitation = INTEROP_LIMITATION;
   protected readonly inferred = INFERRED_UNTESTED;
-
-  constructor() {
-    effect(() => {
-      const cycles = this.cause.recordedCycles();
-      const last = cycles.length ? cycles[cycles.length - 1] : null;
-      const graph = last?.checks?.length ? (last.checks[0] as { graph?: unknown }).graph : null;
-      if (graph) this.svc.processGraph(graph);
-    });
-  }
 
   protected async explain(s: any): Promise<void> {
     const res = await this.svc.explain(s);

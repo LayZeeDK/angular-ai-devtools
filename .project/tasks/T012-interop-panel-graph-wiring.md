@@ -3,9 +3,9 @@ id: T012
 title: Fetch the signal graph for the interop panel and render the required test ids
 wave: 3
 deps: [T004]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T012
+base: 670aa0598c6a87608083d148e449a0a6e36558f9
 worktree: null
 task_branch: null
 files:
@@ -74,3 +74,51 @@ Heavy: no
 ## Log
 
 - pending
+- T012 implemented: moved signal-graph ingestion into InteropService (reads recorded cycles internally), merged graphs across checks, rendered interop-limit/interop-inferred/interop-node/empty-state test ids, removed recordedCycles from component. Verify passed (5/5 specs, npm run check, build-extension). ready
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T012): pass, exit 0; output tail:
+  ```
+  [39m[22m
+  [37mOutput location: C:\Users\LarsGyrupBrinkNielse\.gsd-path\projects\d10fb97cec6c7ac7\8919d4cefeb4a7e5\task\T012\extension\panel
+  [39m
+  
+  [2m[32m[39m[22m
+  
+  [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mbuild-extension[22m for project angular-ai-devtools and [1m1[22m task it depends on[39m
+  
+  [2mNx read the output from the cache instead of running the command for 1 out of 2 tasks.[22m
+  
+    Run duration:      362ms
+    Cache:             1/2 hit (50%)
+    Critical path:     312ms (2 tasks)
+    Recoverable time:  <1ms
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:build-extension
+  ```
+
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T012): pass, exit 0; output tail:
+  ```
+  [39m[22m
+  [37mOutput location: C:\Users\LarsGyrupBrinkNielse\.gsd-path\projects\d10fb97cec6c7ac7\8919d4cefeb4a7e5\task\T012\extension\panel
+  [39m
+  
+  [2m[32m[39m[22m
+  
+  [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mbuild-extension[22m for project angular-ai-devtools and [1m1[22m task it depends on[39m
+  
+  [2mNx read the output from the cache instead of running the command for 1 out of 2 tasks.[22m
+  
+    Run duration:      245ms
+    Cache:             1/2 hit (50%)
+    Critical path:     193ms (2 tasks)
+    Recoverable time:  <1ms
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:build-extension
+  ```
