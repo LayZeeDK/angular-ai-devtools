@@ -141,13 +141,19 @@ export function check({ evidence, url, names, extension = CHECKOUT_EXTENSION }, 
  */
 export function main(argv, makeDeps, load) {
   try {
-    const { values, positionals } = parseArgs({ args: argv, options: { evidence: { type: 'string' }, url: { type: 'string' } }, allowPositionals: true, strict: true });
+    const { values, positionals } = parseArgs({ args: argv, options: { evidence: { type: 'string' }, url: { type: 'string' }, extension: { type: 'string' } }, allowPositionals: true, strict: true });
     if (!values.evidence || !values.url) {
-      throw new Error('usage: interop.mjs --evidence <dir> --url <app url> [instance...]');
+      throw new Error('usage: interop.mjs --evidence <dir> --url <app url> [--extension <dir>] [instance...]');
     }
     const registry = load();
     const evidence = resolve(values.evidence);
-    check({ evidence, url: values.url, names: positionals.length > 0 ? positionals : Object.keys(registry) }, registry, makeDeps(evidence));
+    // --extension names the extension directory the running instance must serve. A verify
+    // sidecar is a different checkout path, so the default (this file's checkout) cannot match
+    // an instance loaded from the primary; the caller states the expected directory instead.
+    /** @type {{ evidence: string, url: string, names: string[], extension?: string }} */
+    const targets = { evidence, url: values.url, names: positionals.length > 0 ? positionals : Object.keys(registry) };
+    if (values.extension) targets.extension = resolve(values.extension);
+    check(targets, registry, makeDeps(evidence));
     return 0;
   } catch (e) {
     if (e instanceof Error && e.message.startsWith('CLAIM:')) {

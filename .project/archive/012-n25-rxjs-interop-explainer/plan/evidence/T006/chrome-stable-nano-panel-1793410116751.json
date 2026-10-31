@@ -1,0 +1,72 @@
+{
+  "cmd": "panel",
+  "instance": "chrome-stable-nano",
+  "at": "2026-10-31T01:28:09.133Z",
+  "ok": true,
+  "feature": "interop",
+  "ngVersion": "22.2.2",
+  "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok",
+  "code": null,
+  "field": null,
+  "component": null,
+  "digest": null,
+  "digestPresent": false,
+  "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+  "inferred": "attribution: inferred, untested",
+  "nodes": 1,
+  "route": "/panel/interop",
+  "answer": "Here's an explanation of the provided facts as data points:\n\n`cmp:_StaleViewFixture` indicates that a component named \"_StaleViewFixture\" is being used for change detection, likely as a test setup or a pre-rendering process.  `app-stale-view-fixture` further reinforces this, possibly indicating an Angular-specific fixture setup related to stale views. The fact that 'none' values are listed suggests the absence of specific configuration details, meaning there's currently little information regarding how change detection is being applied or what observable events might trigger updates.  The final point specifies a constraint – the lack of discernible details pertains to the observable stream being used for change detection, a limitation in providing definitive insight into how updates are occurring.",
+  "error": null,
+  "status": null,
+  "answerMs": 25469,
+  "steps": [
+    {
+      "at": 371,
+      "step": "app",
+      "value": "22.2.2"
+    },
+    {
+      "at": 934,
+      "step": "extension",
+      "value": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+    },
+    {
+      "at": 1298,
+      "step": "panel key",
+      "value": "extension-panel-c7a61e98-ff72-4a55-8c20-871a964042b7_1"
+    },
+    {
+      "at": 1326,
+      "step": "route",
+      "value": "/panel/interop"
+    },
+    {
+      "at": 1331,
+      "step": "panel",
+      "value": true
+    },
+    {
+      "at": 2136,
+      "step": "button",
+      "value": true
+    },
+    {
+      "at": 2139,
+      "step": "interop",
+      "value": {
+        "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "attribution: inferred, untested",
+        "nodes": 1,
+        "component": null
+      }
+    },
+    {
+      "at": 27609,
+      "step": "result",
+      "value": {
+        "answer": "Here's an explanation of the provided facts as data points:\n\n`cmp:_StaleViewFixture` indicates that a component named \"_StaleViewFixture\" is being used for change detection, likely as a test setup or a pre-rendering process.  `app-stale-view-fixture` further reinforces this, possibly indicating an Angular-specific fixture setup related to stale views. The fact that 'none' values are listed suggests the absence of specific configuration details, meaning there's currently little information regarding how change detection is being applied or what observable events might trigger updates.  The final point specifies a constraint – the lack of discernible details pertains to the observable stream being used for change detection, a limitation in providing definitive insight into how updates are occurring."
+      }
+    }
+  ],
+  "model": "v3Nano"
+}

@@ -1,0 +1,72 @@
+{
+  "cmd": "panel",
+  "instance": "chrome-beta-gemma4",
+  "at": "2026-10-31T01:42:27.386Z",
+  "ok": true,
+  "feature": "interop",
+  "ngVersion": "22.2.2",
+  "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok",
+  "code": null,
+  "field": null,
+  "component": null,
+  "digest": null,
+  "digestPresent": false,
+  "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+  "inferred": "attribution: inferred, untested",
+  "nodes": 1,
+  "route": "/panel/interop",
+  "answer": "These facts appear to be metadata or diagnostic information related to a change detection process. They indicate specific fixture names (`cmp:_StaleViewFixture`, `app-stale-view-fixture`) and a state of \"none\" for other parameters. Crucially, the last line states a limitation: the system cannot determine the identity of the observable, its operator chain, or when it emits a value.",
+  "error": null,
+  "status": null,
+  "answerMs": 8663,
+  "steps": [
+    {
+      "at": 346,
+      "step": "app",
+      "value": "22.2.2"
+    },
+    {
+      "at": 884,
+      "step": "extension",
+      "value": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+    },
+    {
+      "at": 929,
+      "step": "panel key",
+      "value": "extension-panel-05ab576f-6e69-44d4-af82-953526b4d216_1"
+    },
+    {
+      "at": 1088,
+      "step": "route",
+      "value": "/panel/interop"
+    },
+    {
+      "at": 1127,
+      "step": "panel",
+      "value": true
+    },
+    {
+      "at": 1971,
+      "step": "button",
+      "value": true
+    },
+    {
+      "at": 1973,
+      "step": "interop",
+      "value": {
+        "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "attribution: inferred, untested",
+        "nodes": 1,
+        "component": null
+      }
+    },
+    {
+      "at": 10641,
+      "step": "result",
+      "value": {
+        "answer": "These facts appear to be metadata or diagnostic information related to a change detection process. They indicate specific fixture names (`cmp:_StaleViewFixture`, `app-stale-view-fixture`) and a state of \"none\" for other parameters. Crucially, the last line states a limitation: the system cannot determine the identity of the observable, its operator chain, or when it emits a value."
+      }
+    }
+  ],
+  "model": "gemma4-2b-it"
+}

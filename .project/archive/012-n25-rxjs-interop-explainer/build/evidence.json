@@ -1,0 +1,368 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "7f4339f5a06a43b5071de96422934a6ed37ee836",
+            "commit": "a598ef1e5a512315144d873969dbd0acec934eec",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T001: Add optional `value` field to serialised graph nodes and TS interfaces"
+      },
+      "landed_commit": "a598ef1e5a512315144d873969dbd0acec934eec",
+      "reasons": [],
+      "task": {
+        "base": "7f4339f5a06a43b5071de96422934a6ed37ee836",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-interop-value-field.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "7f4339f5a06a43b5071de96422934a6ed37ee836",
+            "commit": "a444e6771a7e79cf9ce45972d94e9fe0ef201a9b",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T002: Implement interop keep-list classifier (label + subject.error source rules)"
+      },
+      "landed_commit": "a444e6771a7e79cf9ce45972d94e9fe0ef201a9b",
+      "reasons": [],
+      "task": {
+        "base": "7f4339f5a06a43b5071de96422934a6ed37ee836",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-interop-keep-list-classifier.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "7f4339f5a06a43b5071de96422934a6ed37ee836",
+            "commit": "fe222784d97431a3eb0d9afdef31ab6be9c8da1f",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T003: Extend stale-view-fixture.ts with toSignal and subject.error effect"
+      },
+      "landed_commit": "fe222784d97431a3eb0d9afdef31ab6be9c8da1f",
+      "reasons": [],
+      "task": {
+        "base": "7f4339f5a06a43b5071de96422934a6ed37ee836",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-interop-fixture-extension.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "7f5d15886e6feceffa8382e625a6cb2171f55cb2",
+            "commit": "56883bf54a2a0bbed2b946bdc9792244194033b4",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T004: Add /panel/interop route, component, and value-based attribution"
+      },
+      "landed_commit": "56883bf54a2a0bbed2b946bdc9792244194033b4",
+      "reasons": [],
+      "task": {
+        "base": "7f5d15886e6feceffa8382e625a6cb2171f55cb2",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-interop-panel-route.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "9a098b35086c147d5d15c39c8dae7de90cac8067",
+            "commit": "df5319a478ad296a1506e99419619519a904883a",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T005: Docs-audit alignment rows 386 and 540 (fix-doc)"
+      },
+      "landed_commit": "df5319a478ad296a1506e99419619519a904883a",
+      "reasons": [],
+      "task": {
+        "base": "9a098b35086c147d5d15c39c8dae7de90cac8067",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-docs-audit-alignment.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "02fcd9508730e13f05e3dfc8fce2d95555b7ada9",
+            "commit": "7f9189246c604a62eed6170d1b099b2eae7547f0",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T006: Verify interop claim on chrome-stable-nano"
+      },
+      "landed_commit": "7f9189246c604a62eed6170d1b099b2eae7547f0",
+      "reasons": [],
+      "task": {
+        "base": "02fcd9508730e13f05e3dfc8fce2d95555b7ada9",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-interop-verify-chrome-stable-nano.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "73dfd7b3228de26c6a92089cfea0c8afb2b56403",
+            "commit": "502d5c7c0d273a68c6c4e37859242f6af9dd798b",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T007: Verify interop claim on chrome-beta-gemma4"
+      },
+      "landed_commit": "502d5c7c0d273a68c6c4e37859242f6af9dd798b",
+      "reasons": [],
+      "task": {
+        "base": "73dfd7b3228de26c6a92089cfea0c8afb2b56403",
+        "id": "T007",
+        "status": "done",
+        "task_file": ".project/tasks/T007-interop-verify-chrome-beta-gemma4.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "2639b9d7b25defebf4b08ab25229802e613ebc50",
+            "commit": "fab48f9b7c3b4dbe3f5f94814b6dc7127be0dff1",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T008: Verify interop claim on edge-phi4mini"
+      },
+      "landed_commit": "fab48f9b7c3b4dbe3f5f94814b6dc7127be0dff1",
+      "reasons": [],
+      "task": {
+        "base": "2639b9d7b25defebf4b08ab25229802e613ebc50",
+        "id": "T008",
+        "status": "done",
+        "task_file": ".project/tasks/T008-interop-verify-edge-phi4mini.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "908831b46ec7191b36e8afc8bb72ac2e4dd8fc97",
+            "commit": "978138d77cbf98a82f9b71cd41824eaccb732dfc",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T009: Verify interop claim on edge-dev-aion"
+      },
+      "landed_commit": "978138d77cbf98a82f9b71cd41824eaccb732dfc",
+      "reasons": [],
+      "task": {
+        "base": "908831b46ec7191b36e8afc8bb72ac2e4dd8fc97",
+        "id": "T009",
+        "status": "done",
+        "task_file": ".project/tasks/T009-interop-verify-edge-dev-aion.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "bf26258ae5b05b43209f9929f819e1b5a60d25b2",
+            "commit": "854ae34f351fd5e9e2987f95094095534fb4c7b5",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T010: Assemble lars-verify claim record for the interop claim"
+      },
+      "landed_commit": "854ae34f351fd5e9e2987f95094095534fb4c7b5",
+      "reasons": [],
+      "task": {
+        "base": "bf26258ae5b05b43209f9929f819e1b5a60d25b2",
+        "id": "T010",
+        "status": "done",
+        "task_file": ".project/tasks/T010-interop-verify-assemble-claim.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "65f48ff17bbd6840e7e23aec6b855f3d7a5822cf",
+            "commit": "d8fca70b06b6c49ecbb9a97e26966218c041c2d3",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T011: Name the fixture subject so the interop effect serialises the subject.error token"
+      },
+      "landed_commit": "d8fca70b06b6c49ecbb9a97e26966218c041c2d3",
+      "reasons": [],
+      "task": {
+        "base": "65f48ff17bbd6840e7e23aec6b855f3d7a5822cf",
+        "id": "T011",
+        "status": "done",
+        "task_file": ".project/tasks/T011-interop-fixture-subject-token.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "670aa0598c6a87608083d148e449a0a6e36558f9",
+            "commit": "ecbfbb2191f97d1b1ef5f0d4d914833695291506",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T012: Fetch the signal graph for the interop panel and render the required test ids"
+      },
+      "landed_commit": "ecbfbb2191f97d1b1ef5f0d4d914833695291506",
+      "reasons": [],
+      "task": {
+        "base": "670aa0598c6a87608083d148e449a0a6e36558f9",
+        "id": "T012",
+        "status": "done",
+        "task_file": ".project/tasks/T012-interop-panel-graph-wiring.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "f22873eed84c65a52e7d374aee90c0af8482ce31",
+            "commit": "4790165f757a7487ef48703ee3e2703205e8425c",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T013: Let the interop check assert an explicit extension directory"
+      },
+      "landed_commit": "4790165f757a7487ef48703ee3e2703205e8425c",
+      "reasons": [],
+      "task": {
+        "base": "f22873eed84c65a52e7d374aee90c0af8482ce31",
+        "id": "T013",
+        "status": "done",
+        "task_file": ".project/tasks/T013-explicit-extension-check.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "352572adae099a270b47d0110ad54d4150ef1105",
+            "commit": "8c84d24216abc21386352cd317c2b33b3e02b8a0",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T014: Give the interop panel readable structure"
+      },
+      "landed_commit": "8c84d24216abc21386352cd317c2b33b3e02b8a0",
+      "reasons": [],
+      "task": {
+        "base": "352572adae099a270b47d0110ad54d4150ef1105",
+        "id": "T014",
+        "status": "done",
+        "task_file": ".project/tasks/T014-interop-panel-readability.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M012",
+        "candidates": [
+          {
+            "base": "3d5da76b313e155eead166e5d8db4d3f1ad30a3d",
+            "commit": "ad718e44075c2b0f958831d5b147a60127aa26b7",
+            "valid": true
+          }
+        ],
+        "head": "7b4550d9f26a92db082c7ad46afb67b5c4de73d2",
+        "subject": "T015: Type the interop check options so npm run check passes"
+      },
+      "landed_commit": "ad718e44075c2b0f958831d5b147a60127aa26b7",
+      "reasons": [],
+      "task": {
+        "base": "3d5da76b313e155eead166e5d8db4d3f1ad30a3d",
+        "id": "T015",
+        "status": "done",
+        "task_file": ".project/tasks/T015-interop-check-types.md"
+      }
+    }
+  ]
+}

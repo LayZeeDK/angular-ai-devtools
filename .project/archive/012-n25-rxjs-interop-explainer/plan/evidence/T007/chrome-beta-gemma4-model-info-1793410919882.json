@@ -1,0 +1,184 @@
+{
+  "cmd": "model info",
+  "instance": "chrome-beta-gemma4",
+  "at": "2026-10-31T01:41:53.384Z",
+  "ok": true,
+  "expected": "gemma4-2b-it",
+  "running": true,
+  "disk": [
+    {
+      "name": "gemma4-2b-it",
+      "modelVersion": "2026.06.10.0000",
+      "componentVersion": "2026.8.7.929",
+      "performanceHints": [
+        3,
+        2,
+        1
+      ],
+      "dir": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\\OptGuideManifestModel\\7feacbfe693922f1d6422391a2fec1202689398bbd985d3f0aa13bd765cabeda\\2026.8.7.929",
+      "bytes": 2489663176,
+      "mib": 2374
+    },
+    {
+      "name": "v3Nano",
+      "modelVersion": "2025.06.30.1229",
+      "componentVersion": "2025.8.8.1141",
+      "performanceHints": [
+        2,
+        1
+      ],
+      "dir": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\\OptGuideOnDeviceModel\\2025.8.8.1141",
+      "bytes": 4269934855,
+      "mib": 4072
+    }
+  ],
+  "performanceClass": 4,
+  "free": {
+    "bytes": 19154317312,
+    "mib": 18266,
+    "minMib": 22528,
+    "volume": "D:"
+  },
+  "requestedBackend": "gpu",
+  "broker": {
+    "manifestPath": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\\OptimizationGuideModelsManifest\\1.20261025.2",
+    "manifestLoaded": "true",
+    "perfClass": "Medium",
+    "diskInstall": "false (18554 MiB available, 20480 MiB required)",
+    "assets": [
+      {
+        "name": "laya_en_s512_wfp16_component",
+        "version": "2026.10.1.1331",
+        "state": "Not Installed",
+        "progress": 0
+      },
+      {
+        "name": "laya_ml_s256_wfp16_component",
+        "version": "2026.10.1.1331",
+        "state": "Not Installed",
+        "progress": 0
+      },
+      {
+        "name": "nano_v3_gpu_component",
+        "version": "2025.8.8.1141",
+        "state": "Ready",
+        "progress": 100
+      },
+      {
+        "name": "proofreader_small_expert_model_component",
+        "version": "2026.6.3.1603",
+        "state": "Not Installed",
+        "progress": 0
+      },
+      {
+        "name": "gemma4_component",
+        "version": "2026.8.7.929",
+        "state": "Ready",
+        "progress": 100
+      },
+      {
+        "name": "summarizer_small_expert_model_component",
+        "version": "2026.6.3.1604",
+        "state": "Not Installed",
+        "progress": 0
+      },
+      {
+        "name": "laya_en_s256_wint8_component",
+        "version": "2026.10.1.1331",
+        "state": "Not Installed",
+        "progress": 0
+      },
+      {
+        "name": "speech_recognition_small_expert_model_component",
+        "version": "2026.7.23.1621",
+        "state": "Not Installed",
+        "progress": 0
+      }
+    ],
+    "useCases": {
+      "true": "Enough disk space to install",
+      "compose": "Not Supported",
+      "history_query_intent": "Not Supported",
+      "history_search": "Not Supported",
+      "laya_en_s256_wint8": "Pending Usage",
+      "laya_en_s512_wfp16": "Pending Usage",
+      "laya_ml_s256_wfp16": "Pending Usage",
+      "permissions_ai": "Not Supported",
+      "prompt_api": "Available",
+      "prompt_api_gemma4": "Available",
+      "proofreader_api": "Pending Usage",
+      "scam_detection": "Available",
+      "speech_recognition": "Not Supported",
+      "speech_recognition_small_expert_model": "Pending Usage",
+      "summarizer_api": "Available",
+      "summarizer_gemma4": "Available",
+      "summarizer_small_expert_model": "Pending Usage",
+      "test": "Not Supported",
+      "writing_assistance_api": "Available",
+      "writing_assistance_api_gemma4": "Available"
+    },
+    "models": [
+      {
+        "name": "gemma4_gpu_low_tier_model",
+        "mib": 2374.33,
+        "weights": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\\OptGuideManifestModel\\7feacbfe693922f1d6422391a2fec1202689398bbd985d3f0aa13bd765cabeda\\2026.8.7.929\\weights.bin",
+        "backend": "GPU (fastest inference)"
+      },
+      {
+        "name": "laya_en_s256_wint8",
+        "mib": 0,
+        "weights": null,
+        "backend": "CPU"
+      },
+      {
+        "name": "laya_en_s512_wfp16",
+        "mib": 0,
+        "weights": null,
+        "backend": "CPU"
+      },
+      {
+        "name": "laya_ml_s256_wfp16",
+        "mib": 0,
+        "weights": null,
+        "backend": "CPU"
+      },
+      {
+        "name": "nano_v3_gpu_low_tier_model",
+        "mib": 4072.13,
+        "weights": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\\OptGuideOnDeviceModel\\2025.8.8.1141\\weights.bin",
+        "backend": "GPU (fastest inference)"
+      },
+      {
+        "name": "proofreader_small_expert_model",
+        "mib": 0,
+        "weights": null,
+        "backend": "CPU"
+      },
+      {
+        "name": "speech_recognition_small_expert_model",
+        "mib": 0,
+        "weights": null,
+        "backend": "GPU (fastest inference)"
+      },
+      {
+        "name": "summarizer_small_expert_model",
+        "mib": 0,
+        "weights": null,
+        "backend": "CPU"
+      }
+    ]
+  },
+  "backend": {
+    "kind": "gpu",
+    "row": "gemma4_gpu_low_tier_model",
+    "backendType": "GPU (fastest inference)",
+    "weights": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\chrome-beta-gemma4\\OptGuideManifestModel\\7feacbfe693922f1d6422391a2fec1202689398bbd985d3f0aa13bd765cabeda\\2026.8.7.929\\weights.bin"
+  },
+  "asset": {
+    "name": "gemma4_component",
+    "version": "2026.8.7.929",
+    "state": "Ready",
+    "progress": 100
+  },
+  "serving": "gemma4-2b-it"
+}

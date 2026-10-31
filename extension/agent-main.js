@@ -326,14 +326,32 @@
       for (var i = 0; i < graph.nodes.length; i++) {
         var n = graph.nodes[i];
         if (n && n.debuggableFn && n.debuggableFn.name) seenClasses.add(String(n.debuggableFn.name));
-        nodes.push({
+        var nodeValue = null;
+        try {
+          var v = n.value !== undefined ? n.value : (typeof n.getValue === "function" ? n.getValue() : undefined);
+          if (v === undefined) {
+            try { v = n.value; } catch (e2) { v = undefined; }
+          }
+        } catch (e1) { v = undefined; }
+        var valueSummary = undefined;
+        try {
+          if (v === null) valueSummary = null;
+          else if (typeof v === "string") valueSummary = v.length > 64 ? (v.slice(0, 64) + "...") : v;
+          else if (typeof v === "number" || typeof v === "boolean") valueSummary = v;
+          else if (Array.isArray(v)) valueSummary = { type: "array", length: v.length };
+          else if (typeof v === "object") valueSummary = { type: (v && v.constructor && v.constructor.name) || "object", keys: Object.keys(v).length };
+          else if (v !== undefined) valueSummary = String(v).slice(0, 64);
+        } catch (e3) { valueSummary = undefined; }
+        var pushedNode = {
           id: String(n.id),
           kind: n.kind,
           label: n.label != null ? String(n.label) : null,
           epoch: n.epoch != null ? n.epoch : null,
         debuggableFn: n.debuggableFn && n.debuggableFn.name ? n.debuggableFn.name : null,
         debuggableFnSource: n.debuggableFn ? String(n.debuggableFn) : (typeof n.debuggableFnSource === "string" ? n.debuggableFnSource : null),
-        });
+        };
+        if (valueSummary !== undefined) pushedNode.value = valueSummary;
+        nodes.push(pushedNode);
       }
     }
     // Augment with real component instances enumerated from the document.

@@ -1,0 +1,36 @@
+{
+  "cmd": "flags",
+  "instance": "chrome-beta-gemma4",
+  "at": "2026-10-31T01:43:19.878Z",
+  "ok": true,
+  "backend": "gpu",
+  "effective": [
+    "AIPromptAPI",
+    "OnDeviceAiDefaultEnabled",
+    "AIPromptAPIToolUse",
+    "OnDeviceModelConversationBackend",
+    "AIApiFoundationalModel:model_version/v4",
+    "OptimizationGuideManifestBroker",
+    "AIPromptAPIMultimodalInput",
+    "AISummarizationAPI",
+    "AIWriterAPI",
+    "AIRewriterAPI",
+    "WebMCP"
+  ],
+  "registry": [
+    "AIPromptAPI",
+    "OnDeviceAiDefaultEnabled",
+    "AIPromptAPIToolUse",
+    "OnDeviceModelConversationBackend",
+    "AIApiFoundationalModel:model_version/v4",
+    "OptimizationGuideManifestBroker",
+    "AIPromptAPIMultimodalInput",
+    "AISummarizationAPI",
+    "AIWriterAPI",
+    "AIRewriterAPI",
+    "WebMCP"
+  ],
+  "missing": [],
+  "extra": [],
+  "drift": []
+}

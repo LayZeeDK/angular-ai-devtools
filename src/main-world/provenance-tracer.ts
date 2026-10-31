@@ -13,6 +13,7 @@ export interface SignalGraphNode {
   readonly dependents?: readonly string[];
   readonly producers?: readonly string[];
   readonly consumers?: readonly string[];
+  readonly value?: unknown;
 }
 
 export interface SignalGraphEdge {

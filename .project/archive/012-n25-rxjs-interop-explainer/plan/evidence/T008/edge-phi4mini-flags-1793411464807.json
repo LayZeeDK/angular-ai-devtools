@@ -1,0 +1,28 @@
+{
+  "cmd": "flags",
+  "instance": "edge-phi4mini",
+  "at": "2026-10-31T01:51:00.968Z",
+  "ok": true,
+  "backend": "gpu",
+  "effective": [
+    "AIPromptAPI",
+    "AIPromptAPIStructuredOutput",
+    "AIPromptAPIToolUse",
+    "AIRewriterAPI",
+    "AISummarizationAPI",
+    "AIWriterAPI",
+    "WebMCP"
+  ],
+  "registry": [
+    "AIPromptAPI",
+    "AIPromptAPIStructuredOutput",
+    "AIPromptAPIToolUse",
+    "AIRewriterAPI",
+    "AISummarizationAPI",
+    "AIWriterAPI",
+    "WebMCP"
+  ],
+  "missing": [],
+  "extra": [],
+  "drift": []
+}

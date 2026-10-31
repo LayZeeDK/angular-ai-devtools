@@ -1,0 +1,72 @@
+{
+  "cmd": "panel",
+  "instance": "edge-phi4mini",
+  "at": "2026-10-31T01:49:49.041Z",
+  "ok": true,
+  "feature": "interop",
+  "ngVersion": "22.2.2",
+  "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok",
+  "code": null,
+  "field": null,
+  "component": null,
+  "digest": null,
+  "digestPresent": false,
+  "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+  "inferred": "attribution: inferred, untested",
+  "nodes": 1,
+  "route": "/panel/interop",
+  "answer": "The `cmp:_StaleViewFixture` indicates that there is no observable being compared to the `_StaleViewFixture`. The `app-stale-view-fixture` likely refers to a component or test fixture in the application, but there is no observable associated with it. Lastly, the statements `none` and `Cannot name the feeding Observable, the operator chain, or emission timing` imply that there is no observable being fed into the operator chain, and its emission timing is unspecified.",
+  "error": null,
+  "status": null,
+  "answerMs": 12246,
+  "steps": [
+    {
+      "at": 392,
+      "step": "app",
+      "value": "22.2.2"
+    },
+    {
+      "at": 1205,
+      "step": "extension",
+      "value": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+    },
+    {
+      "at": 1279,
+      "step": "panel key",
+      "value": "extension-panel-d188798f-a0d7-43d3-88e5-574366392b79_1"
+    },
+    {
+      "at": 2471,
+      "step": "route",
+      "value": "/panel/interop"
+    },
+    {
+      "at": 2472,
+      "step": "panel",
+      "value": true
+    },
+    {
+      "at": 3334,
+      "step": "button",
+      "value": true
+    },
+    {
+      "at": 3339,
+      "step": "interop",
+      "value": {
+        "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "attribution: inferred, untested",
+        "nodes": 1,
+        "component": null
+      }
+    },
+    {
+      "at": 15586,
+      "step": "result",
+      "value": {
+        "answer": "The `cmp:_StaleViewFixture` indicates that there is no observable being compared to the `_StaleViewFixture`. The `app-stale-view-fixture` likely refers to a component or test fixture in the application, but there is no observable associated with it. Lastly, the statements `none` and `Cannot name the feeding Observable, the operator chain, or emission timing` imply that there is no observable being fed into the operator chain, and its emission timing is unspecified."
+      }
+    }
+  ],
+  "model": "Phi-4-mini-instruct"
+}
