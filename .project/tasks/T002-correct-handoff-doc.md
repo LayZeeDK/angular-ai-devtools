@@ -3,9 +3,9 @@ id: T002
 title: Correct plans/angular-ai-devtools-proposals.handoff.md (rows 649, 650)
 wave: 2
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002
+base: 1444d1e44b20313732458349adbd4b5c90079026
 worktree: null
 task_branch: null
 files:
@@ -49,3 +49,12 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-31 — implementation: measured 1110 lines and recorded it; dated the head and marked the handoff superseded; Verify: python -c "import sys,pathlib;t=pathlib.Path(sys.argv[1]).read_text(); assert '1110' in t; assert 'superseded' in t.lower(); print('ok')" plans/angular-ai-devtools-proposals.handoff.md → exit 0
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T002): pass, exit 0; output tail:
+  ```
+  ok
+  ```
+- 2026-10-31 — orchestrator Verify (isolate gsd-path-task/T002): pass, exit 0; output tail:
+  ```
+  ok
+  ```

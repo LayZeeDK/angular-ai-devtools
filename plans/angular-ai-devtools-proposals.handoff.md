@@ -1,6 +1,8 @@
 # Handoff: Angular AI DevTools feature proposals
 
-Written by Claude for a fresh session, 2026-10-12. Repository: `D:\projects\sandbox\angular-ai-devtools` (local git, `main`, head `fbe3aac` at writing; never pushed).
+Status: superseded historical record (dated 2026-10-31); not a live statement.
+
+Written by Claude for a fresh session, 2026-10-12. Repository: `D:\projects\sandbox\angular-ai-devtools` (local git, `main`, head `fbe3aac` at writing (2026-10-12); never pushed).
 
 ## What this project is
 
@@ -8,7 +10,7 @@ Research and design for an AI-assisted Angular DevTools browser extension (Chrom
 
 ## Where everything is
 
-- **Deliverable:** `docs/feature-proposals.md`, about 1,080 lines.
+- **Deliverable:** `docs/feature-proposals.md`, about 1,100 lines (1110 measured 2026-10-31).
   - Sections: 1 summary, 2 facts, 3 architecture (3.7 "Deterministic code first"), 4 features N1-N37, 5 promptified Angular DevTools, 6 ecosystem (NgRx, Storybook, Vitest, Analog, RxAngular), 7 spikes S1-S23, 8 decisions plus "Rulings from Lars", 9 not checked.
   - **Section 8's "Rulings from Lars" is the binding record of every product decision.** Read it before changing anything.
 - **Design doc:** `docs/design/tutor.md` (N27, Angular AI DevTools Tutor).
