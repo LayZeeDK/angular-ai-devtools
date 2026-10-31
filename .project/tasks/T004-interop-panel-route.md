@@ -14,6 +14,7 @@ files:
   - apps/angular-ai-devtools/src/app/interop.service.ts
   - apps/angular-ai-devtools/src/app/interop-slice.spec.ts
   - apps/angular-ai-devtools/src/app/interop-attribution.spec.ts
+  - extension/panel/index.html
 ---
 
 # T004 — Add /panel/interop route, component, and value-based attribution
