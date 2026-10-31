@@ -10,6 +10,7 @@ worktree: null
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/interop.component.ts
+  - extension/panel/index.html
 ---
 
 # T014 — Give the interop panel readable structure
