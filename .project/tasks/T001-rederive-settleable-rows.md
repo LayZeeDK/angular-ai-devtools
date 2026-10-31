@@ -41,7 +41,7 @@ None
 ## Verify
 
 ```bash
-python -c "import sys,pathlib;t=pathlib.Path(sys.argv[1]).read_text(); assert t.count('settleable')>=45 or 'unverifiable' in t; print('ok')" .project/research/DOCS-AUDIT.md
+python -c "import re,sys,pathlib;a=pathlib.Path(sys.argv[1]).read_text(encoding='utf-8');e=pathlib.Path(sys.argv[2]).read_text(encoding='utf-8');ns={int(n) for n,d in re.findall(r'(?m)^\| (\d+) \|.*?\| (settleable) \|',e)};rows={int(n):v for n,v in re.findall(r'(?m)^\| (\d+) \|.*?\| (verified|stale|aspirational|unverifiable) \|',a)};bad=sorted(n for n in ns if rows.get(n)=='unverifiable');assert ns and not bad, bad;print('ok',len(ns))" .project/research/DOCS-AUDIT.md .project/research/evidence-audit-verifiability.md
 ```
 
 Heavy: no
