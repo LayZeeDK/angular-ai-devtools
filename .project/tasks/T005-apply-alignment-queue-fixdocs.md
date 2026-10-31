@@ -3,9 +3,9 @@ id: T005
 title: Apply the eleven ruled alignment-queue fix-doc rows
 wave: 3
 deps: [T001, T006]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T005
+base: 07c942ce7722d9ef061c059c43958edd2c4788c6
 worktree: null
 task_branch: null
 files:
@@ -62,3 +62,6 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-31 - verification: the eleven ruled rows were already satisfied in the documents (evidence per row recorded in this Log); no document edit was required; Verify: node --test scripts/doc-fix-alignment.test.mjs -> exit 0 (5 tests pass)
+- 2026-10-31 - per-row evidence: row 4 — .commandcode/.claude skills/control-ai-browsers/features/error-explainer.md names error-explainer.component.ts — satisfied; row 5 — same file names error-explainer.component.ts — satisfied; row 32 — .commandcode/.claude skills/control-angular-devtools/SKILL.md line 103 states 1.22.1 — satisfied; row 36 — .commandcode/.claude skills/control-angular-devtools/features/install.md states 1.22.1 — satisfied; row 82 — .commandcode/.claude skills/control-ai-browsers/features/README.md lists di-doctor.md, error-explainer.md, signal-provenance.md — satisfied; row 83 — error-explainer.md names error-explainer.component.ts — satisfied; row 84 — error-explainer.md names error-explainer.component.ts — satisfied; row 183 — .commandcode/skills/nx-generate/SKILL.md line 152 states nx format:write — satisfied; row 220 — .commandcode/taste/angular/taste.md states panel is built Angular app (vanilla files legacy) — satisfied; row 386 — .commandcode/skills/control-angular-dev-app/SKILL.md cites control.mjs:69 — satisfied; row 540 — .project/research/13-portal-legacy-audit.md reflects Signal Forms superseding Reactive Forms — satisfied
+- 2026-10-31 — orchestrator Verify (sidecar gsd-path-verify/task-t005-verify): pass, exit 0; output tail:
