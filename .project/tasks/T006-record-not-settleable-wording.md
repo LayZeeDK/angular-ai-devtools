@@ -41,7 +41,7 @@ None
 ## Verify
 
 ```bash
-python -c "import sys,pathlib;t=pathlib.Path(sys.argv[1]).read_text(); assert 'no reliable source found' in t or 'not-settleable' in t or 'not settleable' in t; print('ok')" .project/research/DOCS-AUDIT.md
+python -c "import re,sys,pathlib;a=pathlib.Path(sys.argv[1]).read_text(encoding='utf-8');e=pathlib.Path(sys.argv[2]).read_text(encoding='utf-8');assert '| 650 |' in a;ns={int(n) for n,d in re.findall(r'(?m)^\| (\d+) \|.*?\| (not-settleable) \|',e)};q={};[q.setdefault(int(m.group(1)),m.group(2).lower()) for m in re.finditer(r'(?m)^\| (\d+) \|.*\| ([^|]+) \|\s*$',a)];keys=('no reliable source found','portal','browser','runtime','upstream','dated','measurement');bad=sorted(n for n in ns if n in q and not any(k in q[n] for k in keys));assert ns and not bad,bad;print('ok',len(ns))" .project/research/DOCS-AUDIT.md .project/research/evidence-audit-verifiability.md
 ```
 
 Heavy: no
@@ -51,3 +51,4 @@ Heavy: no
 - created by planner
 - 2026-10-31 — implementation attempt: reported 92 rows gaining honest missing-evidence wording and one accept-drift ruling (queue 681); Verify reported exit 0.
 - 2026-10-31 — orchestrator diff rejection: the attempt deleted the recorded queue-650 `## User rulings` row, inserted a stray `no reliable source found` line between that table and `## Remediation queue`, and rewrote no claim-table row; `.project/research/DOCS-AUDIT.md` was restored to base bcaae28 before any landing. The Verify could not see this: it matched a string the attempt had itself inserted.
+- 2026-10-31 — plan defect repaired: the Verify now proves the 650 ruling row survived and that every not-settleable queue row's Suggested action names its missing evidence, so it can fail on the rejected shape.
