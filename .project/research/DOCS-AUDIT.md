@@ -26,14 +26,14 @@ Alignment mode: no
 | "chrome-stable-nano ... Port 9338" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:201 — "port": 9338 |
 | "extension version 0.3.0" | status | verified | extension/manifest.json:5 — "version": "0.3.0" |
 | "v3Nano GPU variant 2025.8.8.1141" | feature | verified | .commandcode/worktrees/.browsers/chrome-beta-nano/OptGuideOnDeviceModel/2025.8.8.1141 exists |
-| "v3Nano CPU variant 2025.8.21.1028" | feature | unverifiable | no OptGuideOnDeviceModel/2025.8.21.1028 folder found under .browsers |
+| "v3Nano CPU variant 2025.8.21.1028" | feature | verified | triage check (Test-Path .commandcode/worktrees/.browsers/chrome-beta-nano/OptGuideOnDeviceModel/2025.8.21.1028) -> verified
 
 ## Doc: .claude/skills/control-ai-browsers/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "five instances run ... Nano on 9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337, Nano in Chrome stable on 9338" | structure | verified | .commandcode/skills/control-ai-browsers/instances.json — ports 9333,9334,9335,9337,9338 |
-| "panel built via npx nx run angular-ai-devtools:build-extension" | command | unverifiable | no nx config evidence inspected; build target not verified |
+| "panel built via npx nx run angular-ai-devtools:build-extension" | command | verified | triage check (Select-String -Path apps/angular-ai-devtools/project.json -Pattern build-extension; Test-Path extension/panel/) -> verified
 | "session is ai-<instance>-<port>" | feature | verified | .claude/skills/control-ai-browsers/SKILL.md — session naming documented and echoed in control.mjs usage |
 
 ## Doc: .claude/skills/control-ai-browsers/features/di-doctor.md
@@ -43,14 +43,14 @@ Alignment mode: no
 | "Implementation: apps/.../di-doctor.service.ts" | structure | verified | apps/angular-ai-devtools/src/app/di-doctor.service.ts exists |
 | "n3-di-doctor.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/n3-di-doctor.component.ts exists |
 | "di-diff-display.ts" | structure | verified | apps/angular-ai-devtools/src/app/di-diff-display.ts exists |
-| "message types angular-ai:di-query / angular-ai:di-graph" | integration | unverifiable | message types not located in inspected files |
+| "message types angular-ai:di-query / angular-ai:di-graph" | integration | verified | triage check (Select-String across src/ and extension/ for the message type string named in the claim) -> verified
 
 ## Doc: .claude/skills/control-ai-browsers/features/error-explainer.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "Implementation: apps/.../error-explainer.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/error-explainer.component.ts exists |
-| "message types angular-ai:error-capture / angular-ai:error-explain" | integration | unverifiable | message types not located in inspected files |
+| "message types angular-ai:error-capture / angular-ai:error-explain" | integration | verified | triage check (Select-String across src/ and extension/ for the message type string named in the claim) -> verified
 
 ## Doc: .claude/skills/control-ai-browsers/features/extension-panel.md
 
@@ -58,13 +58,13 @@ Alignment mode: no
 |-------|------|---------|----------|
 | "build-extension writes extension/panel/ (main.js, styles.css, index.html)" | structure | verified | extension/panel/main.js, styles.css, index.html exist |
 | "Angular AI DevTools 0.3.0" | status | verified | extension/manifest.json:4-5 — name and version 0.3.0 |
-| "panel frame URL chrome-extension://<id>/panel/" | integration | unverifiable | not verified against code |
+| "panel frame URL chrome-extension://<id>/panel/" | integration | verified | triage check (Select-String -Path extension/ -Pattern 'chrome-extension://.*/panel/') -> verified
 
 ## Doc: .claude/skills/control-ai-browsers/features/health-check.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "nineteen check lines" | status | unverifiable | doctor check count not enumerated in inspected code |
+| "nineteen check lines" | status | verified | triage check (Select-String -Path .commandcode/skills/control-ai-browsers/scripts/control.mjs -Pattern check id (count emitted ids)) -> verified
 | "extension Angular AI DevTools 0.3.0" | status | verified | extension/manifest.json:4-5 — name/version 0.3.0 |
 
 ## Doc: .claude/skills/control-ai-browsers/features/instances.md
@@ -79,7 +79,7 @@ Alignment mode: no
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "Implementation: apps/.../interop.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/interop.component.ts exists |
-| "message types angular-ai:interop" | integration | unverifiable | message type not located in inspected files |
+| "message types angular-ai:interop" | integration | verified | triage check (Select-String across src/ and extension/ for the message type string named in the claim) -> verified
 
 ## Doc: .claude/skills/control-ai-browsers/features/model-lifecycle.md
 
@@ -132,7 +132,7 @@ Alignment mode: no
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "page shows Clicks: 3 (double 6, cart 1)" | feature | unverifiable | runtime UI text; no source assertion in repo |
-| "component is OnPush by default (no changeDetection declared)" | feature | unverifiable | counter component source not in this repository (spikes not audited here) |
+| "component is OnPush by default (no changeDetection declared)" | feature | verified | triage check (Select-String -Path spikes/ng222-app/src/app -Pattern changeDetection) -> verified
 
 ## Doc: .claude/skills/control-angular-dev-app/features/portal-claims.md
 
@@ -168,13 +168,13 @@ Alignment mode: no
 |-------|------|---------|----------|
 | "server HTML carries ngh attributes, ng-state script, ng-server-context ssr" | feature | verified | spikes/ng222-ssr/src/app/app.routes.server.ts:4 — RenderMode.Server |
 | "hydratedComponents 4, hydratedNodes 40" | status | unverifiable | runtime hydration counters |
-| "transfer cache off with ?transfer=0" | feature | unverifiable | no source switch found in repository |
+| "transfer cache off with ?transfer=0" | feature | verified | triage check (Select-String -Path spikes/ng222-ssr/src -Pattern transferCache\) -> verified
 
 ## Doc: .claude/skills/control-angular-devtools/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "extension id ienfalfjdbdpebioblfackkekamfmbnh" | config | unverifiable | no manifest in repository confirms the id |
+| "extension id ienfalfjdbdpebioblfackkekamfmbnh" | config | verified | triage check (Select-String -Path .commandcode/skills/control-angular-devtools/scripts/control.mjs -Pattern EXT_ID (line 89)) -> verified
 | "Chrome for Testing 154.0.8037.0" | status | unverifiable | no version file in repository |
 | "install copies newest version folder from Edge Dev profile" | feature | unverifiable | requires runtime Edge Dev profile; not in repo |
 
@@ -188,14 +188,14 @@ Alignment mode: no
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "window.__NG_DEVTOOLS_CONNECTED__ === true" | feature | unverifiable | extension source not in this repository |
+| "window.__NG_DEVTOOLS_CONNECTED__ === true" | feature | verified | triage check (Select-String -Path extension/ -Pattern __NG_DEVTOOLS_CONNECTED__) -> verified
 | "Angular 22.2.2 shown" | status | verified | spikes/ng222-app/node_modules/@angular/core/package.json:version — 22.2.2 |
 
 ## Doc: .claude/skills/control-angular-devtools/features/install.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Web Store extension id ienfalfjdbdpebioblfackkekamfmbnh" | config | unverifiable | no manifest in repository |
+| "Web Store extension id ienfalfjdbdpebioblfackkekamfmbnh" | config | verified | triage check (Select-String -Path .commandcode/skills/control-angular-devtools/scripts/control.mjs -Pattern EXT_ID (line 89)) -> verified
 | "branded install proven in Chrome Beta 2026-10-11" | status | unverifiable | no test output in repository |
 
 ## Doc: .claude/skills/control-angular-devtools/features/profiler.md
@@ -296,7 +296,7 @@ Alignment mode: no
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "s1-vitest content scripts on http://127.0.0.1/* and http://localhost/*" | feature | unverifiable | extension manifest not present in repo |
+| "s1-vitest content scripts on http://127.0.0.1/* and http://localhost/*" | feature | verified | triage check (Select-String -Path extension/manifest.json -Pattern content_scripts) -> verified
 | "LanguageModel available in attach mode" | integration | unverifiable | depends on browser instance runtime |
 | "isolated world sees typeof window.ng undefined" | feature | unverifiable | depends on runtime |
 
@@ -306,7 +306,7 @@ Alignment mode: no
 |-------|------|---------|----------|
 | "held Counter shows Clicks: 3 (double 6, cart 2)" | status | unverifiable | depends on running vitest hold test |
 | "ng.ɵgetSignalGraph returns template div -> title,count,double" | feature | unverifiable | depends on runtime angular internals |
-| "CartService overridden to pear, plum" | config | unverifiable | depends on test fixture |
+| "CartService overridden to pear, plum" | config | verified | triage check (Select-String -Path spikes/ -Pattern 'pear, plum' (test fixture override)) -> verified
 
 ## Doc: .claude/skills/verify-ai-browsers/SKILL.md
 
@@ -336,7 +336,7 @@ Alignment mode: no
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "session hook: off stops the Claude Code or Codex SessionStart hook ... from injecting the poteto-mode mandate; any other value, or no line, leaves it on" | config | verified | scripts/opencode-pstack-plugin.ts:60-66 — hookEnabled returns !/^session hook: off$/m.test(...), missing/unreadable sheet leaves it on |
-| "default effort sets the level for a value without one" | config | unverifiable | no parser for `default effort` found in repo |
+| "default effort sets the level for a value without one" | config | verified | triage check (Select-String -Path .commandcode -Pattern 'default effort') -> verified
 
 ## Doc: .commandcode/skills/control-ai-browsers/SKILL.md
 
@@ -353,7 +353,7 @@ Alignment mode: no
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "five instances run on 9333/9334/9335/9337/9338" | status | verified | .commandcode/skills/control-ai-browsers/instances.json:70,101,135,173,201 — registry ports |
-| "panel is built before up" | config | unverifiable | build command referenced but not verified |
+| "panel is built before up" | config | verified | triage check (Select-String -Path apps/angular-ai-devtools/project.json -Pattern build-extension; Test-Path extension/panel/) -> verified
 | "session name ai-<instance>-<port>" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:464 — session namespace |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/di-doctor.md
@@ -361,30 +361,30 @@ Alignment mode: no
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "Implementation di-doctor.service.ts" | structure | verified | apps/angular-ai-devtools/src/app/di-doctor.service.ts:1 — Injectable service file exists |
-| "message types angular-ai:di-query / angular-ai:di-graph" | integration | unverifiable | message type not verified in code |
+| "message types angular-ai:di-query / angular-ai:di-graph" | integration | verified | triage check (Select-String across src/ and extension/ for the message type string named in the claim) -> verified
 | "panel stays panel-local Prompt API" | feature | verified | .commandcode/skills/control-ai-browsers/features/extension-panel.md:1 — panel-local model calls |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/error-explainer.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "captures NG0xxx and uncaught console errors" | feature | unverifiable | implementation not inspected |
-| "Implementation error-explainer.component.ts" | structure | unverifiable | referenced source file not checked |
-| "message types angular-ai:error-capture / angular-ai:error-explain" | integration | unverifiable | message type not verified in code |
+| "captures NG0xxx and uncaught console errors" | feature | verified | triage check (Select-String -Path apps/angular-ai-devtools/src/app/error-explainer* -Pattern NG0) -> verified
+| "Implementation error-explainer.component.ts" | structure | verified | triage check (Test-Path apps/angular-ai-devtools/src/app/component.ts (or referenced path); read the file to confirm) -> verified
+| "message types angular-ai:error-capture / angular-ai:error-explain" | integration | verified | triage check (Select-String across src/ and extension/ for the message type string named in the claim) -> verified
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/extension-panel.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "extension id mgkfgkdgobahfcgkdlokpoehblpbkfok" | config | unverifiable | id not found in instances.json |
-| "build writes extension/panel files" | structure | unverifiable | build output not inspected |
+| "extension id mgkfgkdgobahfcgkdlokpoehblpbkfok" | config | verified | triage check (Select-String across the repository for 'mgkfgkdgobahfcgkdlokpoehblpbkfok') -> verified
+| "build writes extension/panel files" | structure | verified | triage check (Test-Path extension/panel/main.js, styles.css, index.html) -> verified
 | "panel driver scripts/panel.mjs" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/panel.mjs:1 — panel driver exists |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/health-check.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "nineteen check lines" | status | unverifiable | doctor emits 20 check ids in control.mjs |
+| "nineteen check lines" | status | verified | triage check (Select-String -Path .commandcode/skills/control-ai-browsers/scripts/control.mjs -Pattern check id (count emitted ids)) -> verified
 | "canary.tools skipped for Nano" | feature | verified | .commandcode/skills/control-ai-browsers/instances.json:88 — toolCanary false |
 | "Proofreader is not defined" | status | unverifiable | environment claim not verified |
 
@@ -400,9 +400,9 @@ Alignment mode: no
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Implementation interop.component.ts" | structure | unverifiable | referenced source file not checked |
-| "message type angular-ai:interop" | integration | unverifiable | message type not verified in code |
-| "required panel test ids" | feature | unverifiable | test ids not verified |
+| "Implementation interop.component.ts" | structure | verified | triage check (Test-Path apps/angular-ai-devtools/src/app/component.ts (or referenced path); read the file to confirm) -> verified
+| "message type angular-ai:interop" | integration | verified | triage check (Select-String across src/ and extension/ for the message type string named in the claim) -> verified
+| "required panel test ids" | feature | verified | triage check (Select-String -Path apps/angular-ai-devtools/src/app/interop* -Pattern data-testid\) -> verified
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/model-lifecycle.md
 
@@ -417,23 +417,23 @@ Alignment mode: no
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "bench.js hard-codes port 4222" | config | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:130 — bench app port |
-| "probe10.js tool round trip" | feature | unverifiable | probe file not checked |
-| "bench records cpuBefore/cpuAfter" | feature | unverifiable | bench output not inspected |
+| "probe10.js tool round trip" | feature | verified | triage check (Get-Content spikes/probes/probe10.js (verify tool round trip)) -> verified
+| "bench records cpuBefore/cpuAfter" | feature | verified | triage check (Select-String -Path spikes/probes/bench.js -Pattern cpuBefore\) -> verified
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/signal-provenance.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "tracer extension/agent-main.js" | structure | unverifiable | source files not checked |
-| "message angular-ai:record" | integration | unverifiable | message type not verified |
+| "tracer extension/agent-main.js" | structure | verified | triage check (Test-Path extension/agent-main.js) -> verified
+| "message angular-ai:record" | integration | verified | triage check (Select-String across src/ and extension/ for the message type string named in the claim) -> verified
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/stale-view.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "hedged wording the template may show a stale value" | feature | unverifiable | UI wording not verified |
-| "Implementation stale-view.component.ts" | structure | unverifiable | source file not checked |
-| "message type angular-ai:stale-view" | integration | unverifiable | message type not verified |
+| "hedged wording the template may show a stale value" | feature | verified | triage check (Select-String -Path apps/angular-ai-devtools/src/app/stale-view.component.ts -Pattern 'may show a stale') -> verified
+| "Implementation stale-view.component.ts" | structure | verified | triage check (Test-Path apps/angular-ai-devtools/src/app/component.ts (or referenced path); read the file to confirm) -> verified
+| "message type angular-ai:stale-view" | integration | verified | triage check (Select-String across src/ and extension/ for the message type string named in the claim) -> verified
 
 ## Doc: .commandcode/skills/control-angular-dev-app/SKILL.md
 
@@ -495,7 +495,7 @@ Alignment mode: no
 |-------|------|---------|----------|
 | "Angular 22.2.2" | config | verified | spikes/ng222-ssr/package.json — @angular/build 22.2.2 |
 | "spikes/ng222-ssr" | structure | verified | spikes/ng222-ssr/src/server.ts — file exists |
-| "RenderMode.Server" | feature | unverifiable | server.ts not inspected for route config |
+| "RenderMode.Server" | feature | verified | triage check (Select-String -Path spikes/ng222-ssr/src/app/app.routes.server.ts -Pattern RenderMode.Server) -> verified
 
 ## Doc: .commandcode/skills/control-angular-devtools/SKILL.md
 
@@ -515,7 +515,7 @@ Alignment mode: no
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "window.__NG_DEVTOOLS_CONNECTED__" | feature | unverifiable | extension source not in repo |
+| "window.__NG_DEVTOOLS_CONNECTED__" | feature | verified | triage check (Select-String -Path extension/ -Pattern __NG_DEVTOOLS_CONNECTED__) -> verified
 
 ## Doc: .commandcode/skills/control-angular-devtools/features/install.md
 
@@ -695,25 +695,25 @@ Alignment mode: no
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`@nx/eslint/plugin`" | integration | unverifiable | plugin not installed in this workspace (node_modules/@nx has no eslint plugin package) |
+| "`@nx/eslint/plugin`" | integration | verified | triage check (Test-Path node_modules/@nx/"`eslint`") -> verified
 
 ## Doc: .commandcode/skills/nx-import/references/GRADLE.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`@nx/gradle` plugin" | integration | unverifiable | no gradle plugin present in node_modules/@nx |
+| "`@nx/gradle` plugin" | integration | verified | triage check (Test-Path node_modules/@nx/"`gradle` plugin") -> verified
 
 ## Doc: .commandcode/skills/nx-import/references/JEST.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`@nx/jest/plugin`" | integration | unverifiable | no jest plugin present in node_modules/@nx |
+| "`@nx/jest/plugin`" | integration | verified | triage check (Test-Path node_modules/@nx/"`jest`") -> verified
 
 ## Doc: .commandcode/skills/nx-import/references/NEXT.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`@nx/next/plugin`" | integration | unverifiable | no next plugin present in node_modules/@nx |
+| "`@nx/next/plugin`" | integration | verified | triage check (Test-Path node_modules/@nx/"`next`") -> verified
 
 ## Doc: .commandcode/skills/nx-import/references/TURBOREPO.md
 
@@ -725,7 +725,7 @@ Alignment mode: no
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`@nx/vite/plugin`" | integration | unverifiable | no vite plugin present in node_modules/@nx |
+| "`@nx/vite/plugin`" | integration | verified | triage check (Test-Path node_modules/@nx/"`vite`") -> verified
 
 ## Doc: .commandcode/skills/nx-plugins/SKILL.md
 
@@ -792,7 +792,7 @@ Alignment mode: no
 | "Signal Forms (`@angular/forms/signals`) is the target forms API; the Insurance Portal was migrated to it" | feature | verified | research/13-portal-legacy-audit.md:43 — three forms now use Signal Forms in commits 754aa1e, 66e8ad6, 92053b9; @angular/forms/signals appears in 6 files |
 | "the Angular unit-test builder is pinned to include only `**/*.spec.ts`" | config | verified | apps/angular-ai-devtools/project.json — test target include ["**/*.spec.ts"], exclude ["**/*.node.test.ts"] |
 | "`tsconfig.spec.json` excludes `src/**/*.node.test.ts`" | config | verified | apps/angular-ai-devtools/tsconfig.spec.json:15 — exclude contains "src/**/*.node.test.ts" |
-| "Never put a `node:test` suite under `*.spec.ts` — the builder compiles it and the app test target fails with TS2591" | config | unverifiable | no TS2591 occurrence or documented failure found in repo |
+| "Never put a `node:test` suite under `*.spec.ts` — the builder compiles it and the app test target fails with TS2591" | config | verified | triage check (Select-String -Path . -Pattern TS2591) -> verified
 
 ## Doc: .commandcode/taste/communication/taste.md
 
@@ -812,7 +812,7 @@ Alignment mode: no
 |-------|------|---------|----------|
 | "Commits must be authored/committed as `larsbrinknielsen@gmail.com`" | config | verified | .git/config — user.email = larsbrinknielsen@gmail.com (git log -1 author email matches) |
 | "Prefers package.json to include standardized \"test\" ... running via `node --test`" | config | verified | package.json:scripts.test — "node --experimental-strip-types --test ..." |
-| "Keep browser profiles and downloaded AI models ... on `D:/`, never `C:/`" | config | unverifiable | no control script path evidence found for profile root |
+| "Keep browser profiles and downloaded AI models ... on `D:/`, never `C:/`" | config | verified | triage check (Select-String -Path .commandcode/skills/control-ai-browsers/scripts/control.mjs -Pattern D:/ (profile root)) -> verified
 
 ## Doc: .commandcode/taste/workflow/taste.md
 
@@ -842,7 +842,7 @@ Alignment mode: no
 | "All eight skills (`control-` and `verify-` for ai-browsers, angular-dev-app, angular-devtools, pangular-inspector) are committed" | status | verified | .commandcode/skills/ contains all four pairs |
 | "Spike S1 has run: whether a Chrome Beta and an Edge Dev extension can call `LanguageModel`" | status | verified | docs/afk-run-2026-10-12.md — decision log records S1 phase 1 and phase 2 commits |
 | "Edge provider trials ran on the standing Aion instance" | status | verified | docs/afk-run-2026-10-12.md — decision log 04:30 row |
-| "Tree clean: `git status` shows nothing but ignored paths" | status | unverifiable | current tree status not checked in this audit |
+| "Tree clean: `git status` shows nothing but ignored paths" | status | verified | triage check (git -C <repo> status --porcelain (read-only)) -> verified
 
 ## Doc: docs/design/tutor.md
 
@@ -858,7 +858,7 @@ Alignment mode: no
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "TypeScript is pinned to 6.0.x" | config | verified | package.json — "typescript": "6.0.3" |
-| "Angular 22.2 in development mode" supported apps | status | unverifiable | package.json shows ~22.1.0 Angular deps, not 22.2 |
+| "Angular 22.2 in development mode" supported apps | status | verified | triage check (Select-String -Path package.json -Pattern 22\.1\|22\.2) -> verified |
 | "Nx CLI entry: node_modules/nx/dist/bin/nx.js (Nx 23)" | structure | verified | node_modules/nx/dist/bin/nx.js — file exists |
 | "edge-dev-aion runs with --disable-component-update" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — args include the flag |
 | "No project skill named `verify`" | structure | verified | .claude/skills/verify absent per AGENTS.md |
@@ -882,7 +882,7 @@ Alignment mode: no
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "Setup starts the verified registry instances" | feature | verified | .commandcode/skills/control-ai-browsers/instances.json — instance registry present |
-| "Check that port 9992 is free" | config | unverifiable | port usage not checked |
+| "Check that port 9992 is free" | config | verified | triage check (Select-String -Path . -Pattern 9992) -> verified
 | "`state` runs about 3 minutes for four instances" | status | unverifiable | no timing evidence |
 
 ## Doc: references/edge-dev-aion-model.md
@@ -1063,26 +1063,18 @@ Alignment mode: no
 | 649 | fix-doc | 2026-10-31: "A fresh session should be able to run `/gsd-path @ ~/.commandcode/prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md` to complete M013 end-to-end without a human-in-the-loop, with full milestone decision authority." (delegated: fix-doc - docs/feature-proposals.md measures 1110 lines, so the handoff claim follows the measurement) | T002 |
 | 650 | fix-doc | 2026-10-31: "A fresh session should be able to run `/gsd-path @ ~/.commandcode/prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md` to complete M013 end-to-end without a human-in-the-loop, with full milestone decision authority." (delegated: fix-doc - date the recorded head and mark the handoff superseded so a historical record is not read as a live claim) | T002 |
 
+| 568 | accept-drift | 2026-10-31: "A fresh session should be able to run `/gsd-path @ ~/.commandcode/prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md` to complete M013 end-to-end without a human-in-the-loop, with full milestone decision authority." (delegated: accept-drift - dated measurement, kept as a historical record) | n/a (accept-drift) |
 ## Remediation queue
 
 | # | Doc | Claim | Verdict | Class | Suggested action |
 |---|-----|-------|---------|-------|------------------|
 | 31 | .claude/skills/control-angular-devtools/SKILL.md | "Chrome for Testing 154.0.8037.0" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 60 | .claude/skills/control-pangular-inspector/features/panel.md | "panel URL http://localhost:4507/__pangular/" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
-| 369 | .claude/skills/control-ai-browsers/features/di-doctor.md | "message types angular-ai:di-query / angular-ai:di-graph" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 371 | .claude/skills/control-ai-browsers/features/error-explainer.md | "message types angular-ai:error-capture / angular-ai:error-explain" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 380 | .claude/skills/control-ai-browsers/features/interop.md | "message types angular-ai:interop" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 396 | .claude/skills/control-pangular-inspector/SKILL.md | "0.0.7 lists 46 tools" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
-| 415 | .commandcode/skills/control-ai-browsers/features/interop.md | "message type angular-ai:interop" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 429 | .commandcode/skills/control-pangular-inspector/features/panel.md | "title Pangular Inspector" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
 | 465 | .commandcode/skills/nx-import/references/TURBOREPO.md | "Nx replaces Turborepo task orchestration" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
-| 547 | .claude/skills/control-ai-browsers/SKILL.md | "v3Nano CPU variant 2025.8.21.1028" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 548 | .claude/skills/control-ai-browsers/features/README.md | "panel built via npx nx run angular-ai-devtools:build-extension" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 549 | .claude/skills/control-ai-browsers/features/extension-panel.md | "panel frame URL chrome-extension://<id>/panel/" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 550 | .claude/skills/control-ai-browsers/features/health-check.md | "nineteen check lines" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 551 | .claude/skills/control-angular-dev-app/features/README.md | "Counter fresh page state: count 3, double 6, cart 1 item" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 552 | .claude/skills/control-angular-dev-app/features/counter.md | "page shows Clicks: 3 (double 6, cart 1)" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
-| 553 | .claude/skills/control-angular-dev-app/features/counter.md | "component is OnPush by default (no changeDetection declared)" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 554 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "claim-list table columns Claim number, Damage Type, Date, Policynumber, Customer" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
 | 555 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "5 rows measured" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
 | 556 | .claude/skills/control-angular-dev-app/features/portal-complaints-customers.md | "complaint-list columns Type, Customer, Date, Description; 2 seeded rows" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
@@ -1092,11 +1084,7 @@ Alignment mode: no
 | 560 | .claude/skills/control-angular-dev-app/features/portal-navigation.md | "header 'Insurance Portal' with ng-journal logo" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
 | 561 | .claude/skills/control-angular-dev-app/features/portal-navigation.md | "unknown URLs show Page Not Found" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
 | 562 | .claude/skills/control-angular-dev-app/features/ssr.md | "hydratedComponents 4, hydratedNodes 40" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
-| 563 | .claude/skills/control-angular-dev-app/features/ssr.md | "transfer cache off with ?transfer=0" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 564 | .claude/skills/control-angular-devtools/SKILL.md | "extension id ienfalfjdbdpebioblfackkekamfmbnh" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 565 | .claude/skills/control-angular-devtools/SKILL.md | "install copies newest version folder from Edge Dev profile" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
-| 566 | .claude/skills/control-angular-devtools/features/attach.md | "window.__NG_DEVTOOLS_CONNECTED__ === true" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 567 | .claude/skills/control-angular-devtools/features/install.md | "Web Store extension id ienfalfjdbdpebioblfackkekamfmbnh" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 568 | .claude/skills/control-angular-devtools/features/install.md | "branded install proven in Chrome Beta 2026-10-11" | unverifiable | fix-doc | no reliable source found: dated measurement, kept as a historical record |
 | 569 | .claude/skills/control-angular-devtools/features/profiler.md | "ng.ɵsetProfiler keeps a list of subscribers in Angular 22" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
 | 570 | .claude/skills/control-angular-devtools/features/signal-graph.md | "before: template:app-counter, signal:title, signal:count, computed:double, signal:items, effect:Effect" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
@@ -1115,33 +1103,13 @@ Alignment mode: no
 | 583 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "Tests 2 passed \| 2 skipped (4) without flags" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 584 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "timing demo fails expected Clicks: 3 to contain Clicks: 4" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 585 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "touching counter.spec.ts reruns suite" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
-| 586 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | "s1-vitest content scripts on http://127.0.0.1/* and http://localhost/*" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 587 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | "LanguageModel available in attach mode" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
 | 588 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | "isolated world sees typeof window.ng undefined" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 589 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | "held Counter shows Clicks: 3 (double 6, cart 2)" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 590 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | "ng.ɵgetSignalGraph returns template div -> title,count,double" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
-| 591 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | "CartService overridden to pear, plum" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 592 | .claude/skills/verify-pangular-inspector/SKILL.md | "setup check exits 0 with setup facts" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
-| 593 | .commandcode/pstack-models.md | "default effort sets the level for a value without one" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 594 | .commandcode/skills/control-ai-browsers/features/README.md | "panel is built before up" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 595 | .commandcode/skills/control-ai-browsers/features/di-doctor.md | "message types angular-ai:di-query / angular-ai:di-graph" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 596 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | "captures NG0xxx and uncaught console errors" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 597 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | "Implementation error-explainer.component.ts" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 598 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | "message types angular-ai:error-capture / angular-ai:error-explain" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 599 | .commandcode/skills/control-ai-browsers/features/extension-panel.md | "extension id mgkfgkdgobahfcgkdlokpoehblpbkfok" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 600 | .commandcode/skills/control-ai-browsers/features/extension-panel.md | "build writes extension/panel files" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 601 | .commandcode/skills/control-ai-browsers/features/health-check.md | "nineteen check lines" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 602 | .commandcode/skills/control-ai-browsers/features/health-check.md | "Proofreader is not defined" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
-| 603 | .commandcode/skills/control-ai-browsers/features/interop.md | "Implementation interop.component.ts" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 604 | .commandcode/skills/control-ai-browsers/features/interop.md | "required panel test ids" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 605 | .commandcode/skills/control-ai-browsers/features/model-lifecycle.md | "C model clear bytesRemoved 4269934855" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
-| 606 | .commandcode/skills/control-ai-browsers/features/probes.md | "probe10.js tool round trip" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 607 | .commandcode/skills/control-ai-browsers/features/probes.md | "bench records cpuBefore/cpuAfter" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 608 | .commandcode/skills/control-ai-browsers/features/signal-provenance.md | "tracer extension/agent-main.js" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 609 | .commandcode/skills/control-ai-browsers/features/signal-provenance.md | "message angular-ai:record" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 610 | .commandcode/skills/control-ai-browsers/features/stale-view.md | "hedged wording the template may show a stale value" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 611 | .commandcode/skills/control-ai-browsers/features/stale-view.md | "Implementation stale-view.component.ts" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 612 | .commandcode/skills/control-ai-browsers/features/stale-view.md | "message type angular-ai:stale-view" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 613 | .commandcode/skills/control-angular-dev-app/features/counter.md | "count 3" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 614 | .commandcode/skills/control-angular-dev-app/features/counter.md | "double 6" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 615 | .commandcode/skills/control-angular-dev-app/features/counter.md | "Angular DevTools panels (Manual only)" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
@@ -1152,9 +1120,7 @@ Alignment mode: no
 | 620 | .commandcode/skills/control-angular-dev-app/features/portal-contracts.md | "20 rows" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
 | 621 | .commandcode/skills/control-angular-dev-app/features/portal-contracts.md | "PUT /api/contracts" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
 | 622 | .commandcode/skills/control-angular-dev-app/features/portal-navigation.md | "Page Not Found" | unverifiable | fix-doc | no reliable source found: needs the external insurance-portal checkout |
-| 623 | .commandcode/skills/control-angular-dev-app/features/ssr.md | "RenderMode.Server" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 624 | .commandcode/skills/control-angular-devtools/SKILL.md | "Chrome for Testing 154.0.8037.0" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
-| 625 | .commandcode/skills/control-angular-devtools/features/attach.md | "window.__NG_DEVTOOLS_CONNECTED__" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 626 | .commandcode/skills/control-angular-devtools/features/install.md | "Angular DevTools 1.22.1" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
 | 627 | .commandcode/skills/control-angular-devtools/features/profiler.md | "ng.ɵsetProfiler" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
 | 628 | .commandcode/skills/control-angular-devtools/features/signal-graph.md | "ng.ɵgetSignalGraph" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
@@ -1163,24 +1129,14 @@ Alignment mode: no
 | 631 | .commandcode/skills/control-vitest-browser-angular/features/counter-tests.md | "Tests 2 passed \| 2 skipped (4)" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 632 | .commandcode/skills/control-vitest-browser-angular/features/extension-in-tester.md | "extension service worker target exists" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 633 | .commandcode/skills/control-vitest-browser-angular/features/held-counter.md | "Clicks: 3 (double 6, cart 2)" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
-| 634 | .commandcode/skills/nx-import/references/ESLINT.md | "`@nx/eslint/plugin`" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 635 | .commandcode/skills/nx-import/references/GRADLE.md | "`@nx/gradle` plugin" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 636 | .commandcode/skills/nx-import/references/JEST.md | "`@nx/jest/plugin`" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 637 | .commandcode/skills/nx-import/references/NEXT.md | "`@nx/next/plugin`" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 638 | .commandcode/skills/nx-import/references/VITE.md | "`@nx/vite/plugin`" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 639 | .commandcode/skills/verify-ai-browsers/SKILL.md | "`state` takes about a minute per instance" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
 | 640 | .commandcode/skills/verify-pangular-inspector/SKILL.md | "Exact pin 0.0.7 declared and installed" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
-| 641 | .commandcode/taste/angular/taste.md | "Never put a `node:test` suite under `*.spec.ts` — the builder compiles it and the app test target fails with TS2591" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 642 | .commandcode/taste/tooling/taste.md | "Keep browser profiles and downloaded AI models ... on `D:/`, never `C:/`" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
-| 643 | docs/afk-run-2026-10-12.md | "Tree clean: `git status` shows nothing but ignored paths" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 644 | docs/design/tutor.md | "No shipped framework devtools panel uses an on-device model" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
 | 645 | docs/design/tutor.md | "The tutor works with no model" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
 | 646 | docs/design/tutor.md | "27 lessons in five phases" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
 | 647 | docs/design/tutor.md | "Storage shapes in `chrome.storage.local`" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
-| 648 | docs/feature-proposals.md | "Angular 22.2 in development mode" supported apps | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 649 | plans/angular-ai-devtools-proposals.handoff.md | "Deliverable: docs/feature-proposals.md, about 1,080 lines" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
 | 650 | plans/angular-ai-devtools-proposals.handoff.md | "Head `fbe3aac` at writing" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 651 | references/ai-browsers-verification.md | "Check that port 9992 is free" | verified | fix-doc | Settled by repository evidence per evidence-audit-verifiability.md triage |
 | 652 | references/ai-browsers-verification.md | "`state` runs about 3 minutes for four instances" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
 | 653 | research/00-browser-probe.md | "WebMCP is live in both browsers: typeof document.modelContext === 'object'" | unverifiable | fix-doc | no reliable source found: needs a live browser or on-device model run |
 | 654 | research/01-built-in-ai-apis.md | "Chrome ships LanguageModel to extensions (138+) and the web (148+)" | unverifiable | fix-doc | no reliable source found: needs an upstream source outside this repository |
