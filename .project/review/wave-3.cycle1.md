@@ -55,12 +55,6 @@ Reviewed HEAD: 854ae34f351fd5e9e2987f95094095534fb4c7b5
 
 - ✅ JSDoc `@type` annotation added to `targets` in both copies; `npm run check` clean, interop tests 9 pass, mirror tests 2 pass. — Verify ledger tail at ad718e4.
 
-## Intent coverage
-
-### SC2 — The panel states that it cannot name the feeding Observable, the operator chain, or emission timing.: pass
-
-- ✅ T014 renders `interop-limit` with `limit: Cannot name the feeding Observable, the operator chain, or emission timing.` on every slice; all four retained per-pair results (T006–T009) record the same limitation string and pass.
-- ✅ T004 (prior wave) ships `INTEROP_LIMITATION` and includes it in every shaped fact list.
 
 ## Held-out and prohibition checks
 
