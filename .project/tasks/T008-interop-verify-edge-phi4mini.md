@@ -3,9 +3,9 @@ id: T008
 title: Verify interop claim on edge-phi4mini
 wave: 3
 deps: [T004, T011, T012, T013, T014]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T008
+base: 2639b9d7b25defebf4b08ab25229802e613ebc50
 worktree: null
 task_branch: null
 files:
@@ -52,3 +52,5 @@ Heavy: no
 ## Log
 
 - pending
+- evidence run (measured): edge-phi4mini, Angular 22.2.2, nodes=1, limits stated, attribution stated, model answer in 12246 ms; retained .project/plan/evidence/T008/interop.json
+- evidence run (measured): ?, Angular None, nodes=None, limits missing, attribution missing, model answer in None ms, state None; retained .project/plan/evidence/T008/interop.json

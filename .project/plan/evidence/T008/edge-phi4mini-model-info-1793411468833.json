@@ -1,0 +1,80 @@
+{
+  "cmd": "model info",
+  "instance": "edge-phi4mini",
+  "at": "2026-10-31T01:51:05.189Z",
+  "ok": true,
+  "expected": "Phi-4-mini-instruct",
+  "running": true,
+  "disk": [
+    {
+      "name": "Phi-4-mini-instruct",
+      "modelVersion": "2026.8.19.1",
+      "componentVersion": "2026.8.19.1",
+      "performanceHints": [
+        2,
+        1
+      ],
+      "dir": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\\EdgeLLMOnDeviceModel\\2026.8.19.1",
+      "bytes": 2507654538,
+      "mib": 2391
+    }
+  ],
+  "performanceClass": 5,
+  "free": {
+    "bytes": 19152289792,
+    "mib": 18265,
+    "minMib": 20480,
+    "volume": "D:"
+  },
+  "requestedBackend": "gpu",
+  "broker": {
+    "manifestPath": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\\EdgeOptimizationGuideModelsManifest\\2026.9.18.5\\variants\\webgpu-fp16",
+    "manifestLoaded": "true",
+    "perfClass": "High",
+    "diskInstall": "false (18530 MiB available, 20480 MiB required)",
+    "assets": [
+      {
+        "name": "edge_base_model",
+        "version": "2026.8.19.1",
+        "state": "Ready",
+        "progress": 100
+      }
+    ],
+    "useCases": {
+      "true": "Enough disk space to install",
+      "compose": "Not Supported",
+      "history_query_intent": "Not Supported",
+      "history_search": "Not Supported",
+      "permissions_ai": "Not Supported",
+      "prompt_api": "Available",
+      "proofreader_api": "Available",
+      "scam_detection": "Not Supported",
+      "speech_recognition": "Not Supported",
+      "speech_recognition_small_expert_model": "Not Supported",
+      "summarizer_api": "Available",
+      "test": "Not Supported",
+      "writing_assistance_api": "Available"
+    },
+    "models": [
+      {
+        "name": "edge_base_model_gpu",
+        "mib": 2391.49,
+        "weights": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\\EdgeLLMOnDeviceModel\\2026.8.19.1\\model.onnx",
+        "backend": "GPU (highest quality)"
+      }
+    ]
+  },
+  "backend": {
+    "kind": "gpu",
+    "row": "edge_base_model_gpu",
+    "backendType": "GPU (highest quality)",
+    "weights": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\\EdgeLLMOnDeviceModel\\2026.8.19.1\\model.onnx"
+  },
+  "asset": {
+    "name": "edge_base_model",
+    "version": "2026.8.19.1",
+    "state": "Ready",
+    "progress": 100
+  },
+  "serving": "Phi-4-mini-instruct"
+}

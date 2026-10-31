@@ -1,0 +1,120 @@
+{
+  "cmd": "info",
+  "instance": "edge-phi4mini",
+  "at": "2026-10-31T01:54:31.149Z",
+  "ok": true,
+  "port": 9337,
+  "slot": 0,
+  "ports": [
+    {
+      "name": "cdp",
+      "port": 9337,
+      "kind": "derived"
+    },
+    {
+      "name": "bench app",
+      "port": 4222,
+      "kind": "external",
+      "reason": "control-angular-dev-app counter fixture in the main checkout; spikes/probes/bench.js:4 hard-codes it"
+    }
+  ],
+  "cdp": "http://127.0.0.1:9337",
+  "session": "ai-edge-phi4mini-9337",
+  "profile": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini",
+  "extensionDir": "D:\\projects\\sandbox\\angular-ai-devtools\\extension",
+  "statePath": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\state-edge-phi4mini.json",
+  "state": {
+    "instance": "edge-phi4mini",
+    "pid": 5828,
+    "port": 9337,
+    "slot": 0,
+    "ports": [
+      {
+        "name": "cdp",
+        "port": 9337,
+        "kind": "derived"
+      },
+      {
+        "name": "bench app",
+        "port": 4222,
+        "kind": "external",
+        "reason": "control-angular-dev-app counter fixture in the main checkout; spikes/probes/bench.js:4 hard-codes it"
+      }
+    ],
+    "cdp": "http://127.0.0.1:9337",
+    "session": "ai-edge-phi4mini-9337",
+    "profile": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini",
+    "backend": "gpu",
+    "extensionDir": "D:\\projects\\sandbox\\angular-ai-devtools\\extension",
+    "at": "2026-10-31T01:49:40.276Z"
+  },
+  "tree": [
+    {
+      "pid": 5828,
+      "ppid": 22476,
+      "start": 1793408937509,
+      "commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini --remote-debugging-port=9337 --no-first-run --no-default-browser-check --disable-sync --disable-features=msImplicitSignin,msImplicitSignInNetworkRetry,msProfileSignIn,msForceBrowserSignIn,msOneAuthWAM,msLoadOneAuthInBackground,msSeamlessWebToBrowserSignIn,msEnableWebToBrowserSignIn,msEnableAADWebToBrowserSignIn,msEnableProfileAADAccountSSO,msQuickAuthToBrowserSignIn,msEdgeOSAccountInfoSubstrate,msPrimaryOSAccountInfoCache,msEdgeOSAccountInfoManagerCache,msEdgeSignInAccountPicker,msWAMSovereigntySignIn,msWAMAdminModeSignIn --auth-schemes=basic,digest --password-store=basic --remote-debugging-pipe --enable-unsafe-extension-debugging --enable-features=AIPromptAPI,AIPromptAPIStructuredOutput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,WebMCP about:blank"
+    },
+    {
+      "pid": 16560,
+      "ppid": 5828,
+      "start": 1793408937727,
+      "commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=crashpad-handler --user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini /prefetch:4 --monitor-self-annotation=ptype=crashpad-handler --user-stream-region=620,65568 --database=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\\Crashpad --annotation=IsOfficialBuild=1 --annotation=channel= --annotation=chromium-version=156.0.8078.49 \"--annotation=exe=C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --annotation=prod=Edge --annotation=ver=156.0.4314.50 --initial-client-data=0x2a4,0x2a8,0x2ac,0x2a0,0x2b4,0x7ffe6c8bb630,0x7ffe6c8bb640,0x7ffe6c8bb650"
+    },
+    {
+      "pid": 30756,
+      "ppid": 5828,
+      "start": 1793408937742,
+      "commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=gpu-process --gpu-recent-crash-count=0 --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\" --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --startup-read-main-dll --metrics-shmem-handle=2056,i,1102135827331586474,3357251708715681700,262144 --field-trial-handle=2104,i,9114930886962416884,2821969741532973970,262144 --enable-features=AIPromptAPI,AIPromptAPIStructuredOutput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,WebMCP --disable-features=msEdgeOSAccountInfoManagerCache,msEdgeOSAccountInfoSubstrate,msEdgeSignInAccountPicker,msEnableAADWebToBrowserSignIn,msEnableProfileAADAccountSSO,msEnableWebToBrowserSignIn,msForceBrowserSignIn,msImplicitSignInNetworkRetry,msImplicitSignin,msLoadOneAuthInBackground,msOneAuthWAM,msPrimaryOSAccountInfoCache,msProfileSignIn,msQuickAuthToBrowserSignIn,msSeamlessWebToBrowserSignIn,msWAMAdminModeSignIn,msWAMSovereigntySignIn --variations-seed-version --pseudonymization-salt-handle=2060,i,1183892950907815082,10336458498019693035,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=2064 /prefetch:2"
+    },
+    {
+      "pid": 25616,
+      "ppid": 5828,
+      "start": 1793408937954,
+      "commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=da --service-sandbox-type=none --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\" --startup-read-main-dll --metrics-shmem-handle=2272,i,17471113769554231309,8075644686360395878,524288 --field-trial-handle=2104,i,9114930886962416884,2821969741532973970,262144 --enable-features=AIPromptAPI,AIPromptAPIStructuredOutput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,WebMCP --disable-features=msEdgeOSAccountInfoManagerCache,msEdgeOSAccountInfoSubstrate,msEdgeSignInAccountPicker,msEnableAADWebToBrowserSignIn,msEnableProfileAADAccountSSO,msEnableWebToBrowserSignIn,msForceBrowserSignIn,msImplicitSignInNetworkRetry,msImplicitSignin,msLoadOneAuthInBackground,msOneAuthWAM,msPrimaryOSAccountInfoCache,msProfileSignIn,msQuickAuthToBrowserSignIn,msSeamlessWebToBrowserSignIn,msWAMAdminModeSignIn,msWAMSovereigntySignIn --variations-seed-version --pseudonymization-salt-handle=2060,i,1183892950907815082,10336458498019693035,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2276 /prefetch:11"
+    },
+    {
+      "pid": 40356,
+      "ppid": 5828,
+      "start": 1793408938148,
+      "commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=utility --utility-sub-type=storage.mojom.StorageService --lang=da --service-sandbox-type=service --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\" --startup-read-main-dll --metrics-shmem-handle=2860,i,4405872615449550221,8877069191919923726,524288 --field-trial-handle=2104,i,9114930886962416884,2821969741532973970,262144 --enable-features=AIPromptAPI,AIPromptAPIStructuredOutput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,WebMCP --disable-features=msEdgeOSAccountInfoManagerCache,msEdgeOSAccountInfoSubstrate,msEdgeSignInAccountPicker,msEnableAADWebToBrowserSignIn,msEnableProfileAADAccountSSO,msEnableWebToBrowserSignIn,msForceBrowserSignIn,msImplicitSignInNetworkRetry,msImplicitSignin,msLoadOneAuthInBackground,msOneAuthWAM,msPrimaryOSAccountInfoCache,msProfileSignIn,msQuickAuthToBrowserSignIn,msSeamlessWebToBrowserSignIn,msWAMAdminModeSignIn,msWAMSovereigntySignIn --variations-seed-version --pseudonymization-salt-handle=2060,i,1183892950907815082,10336458498019693035,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=4616 /prefetch:13"
+    },
+    {
+      "pid": 30964,
+      "ppid": 5828,
+      "start": 1793408998301,
+      "commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=utility --utility-sub-type=edge_search_indexer.mojom.SearchIndexerInterfaceBroker --lang=da --service-sandbox-type=search_indexer --message-loop-type-ui --video-capture-use-gpu-memory-buffer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\" --skip-read-main-dll --metrics-shmem-handle=8044,i,12956610988719170786,14150662303808676963,524288 --field-trial-handle=2104,i,9114930886962416884,2821969741532973970,262144 --enable-features=AIPromptAPI,AIPromptAPIStructuredOutput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,WebMCP --disable-features=msEdgeOSAccountInfoManagerCache,msEdgeOSAccountInfoSubstrate,msEdgeSignInAccountPicker,msEnableAADWebToBrowserSignIn,msEnableProfileAADAccountSSO,msEnableWebToBrowserSignIn,msForceBrowserSignIn,msImplicitSignInNetworkRetry,msImplicitSignin,msLoadOneAuthInBackground,msOneAuthWAM,msPrimaryOSAccountInfoCache,msProfileSignIn,msQuickAuthToBrowserSignIn,msSeamlessWebToBrowserSignIn,msWAMAdminModeSignIn,msWAMSovereigntySignIn --variations-seed-version --pseudonymization-salt-handle=2060,i,1183892950907815082,10336458498019693035,4 --trace-process-track-uuid=3190709014423126964 --mojo-platform-channel-handle=8448 /prefetch:14"
+    },
+    {
+      "pid": 41924,
+      "ppid": 5828,
+      "start": 1793409415843,
+      "commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=renderer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\" --extension-process --renderer-sub-type=extension --pdf-upsell-enabled --remote-debugging-pipe --remote-debugging-port=9337 --video-capture-use-gpu-memory-buffer --lang=da --js-flags=--ms-user-locale=da_DK --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=42 --skip-read-main-dll --launch-time-ticks=547932988168 --metrics-shmem-handle=8836,i,10129050946711761563,11692875073476151432,1048576 --field-trial-handle=2104,i,9114930886962416884,2821969741532973970,262144 --enable-features=AIPromptAPI,AIPromptAPIStructuredOutput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,WebMCP --disable-features=msEdgeOSAccountInfoManagerCache,msEdgeOSAccountInfoSubstrate,msEdgeSignInAccountPicker,msEnableAADWebToBrowserSignIn,msEnableProfileAADAccountSSO,msEnableWebToBrowserSignIn,msForceBrowserSignIn,msImplicitSignInNetworkRetry,msImplicitSignin,msLoadOneAuthInBackground,msOneAuthWAM,msPrimaryOSAccountInfoCache,msProfileSignIn,msQuickAuthToBrowserSignIn,msSeamlessWebToBrowserSignIn,msWAMAdminModeSignIn,msWAMSovereigntySignIn --variations-seed-version --pseudonymization-salt-handle=2060,i,1183892950907815082,10336458498019693035,4 --trace-process-track-uuid=3190709025667629152 --mojo-platform-channel-handle=8872 /prefetch:9"
+    },
+    {
+      "pid": 20028,
+      "ppid": 5828,
+      "start": 1793409416021,
+      "commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=renderer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\" --pdf-upsell-enabled --remote-debugging-pipe --remote-debugging-port=9337 --video-capture-use-gpu-memory-buffer --lang=da --js-flags=--ms-user-locale=da_DK --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=43 --skip-read-main-dll --launch-time-ticks=547933167531 --metrics-shmem-handle=5560,i,16239036370530334213,10819516683235616902,1048576 --field-trial-handle=2104,i,9114930886962416884,2821969741532973970,262144 --enable-features=AIPromptAPI,AIPromptAPIStructuredOutput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,WebMCP --disable-features=msEdgeOSAccountInfoManagerCache,msEdgeOSAccountInfoSubstrate,msEdgeSignInAccountPicker,msEnableAADWebToBrowserSignIn,msEnableProfileAADAccountSSO,msEnableWebToBrowserSignIn,msForceBrowserSignIn,msImplicitSignInNetworkRetry,msImplicitSignin,msLoadOneAuthInBackground,msOneAuthWAM,msPrimaryOSAccountInfoCache,msProfileSignIn,msQuickAuthToBrowserSignIn,msSeamlessWebToBrowserSignIn,msWAMAdminModeSignIn,msWAMSovereigntySignIn --variations-seed-version --pseudonymization-salt-handle=2060,i,1183892950907815082,10336458498019693035,4 --trace-process-track-uuid=3190709026604671001 --mojo-platform-channel-handle=8920 /prefetch:1"
+    },
+    {
+      "pid": 22476,
+      "ppid": 17120,
+      "start": 1793408937267,
+      "commandLine": "C:\\Users\\LarsGyrupBrinkNielse\\AppData\\Local\\fnm_multishells\\37124_1793203915659\\node.exe D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\skills\\control-ai-browsers\\scripts\\pipe-keeper.mjs D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\extension-edge-phi4mini-1793408937255.json \"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" D:\\projects\\sandbox\\angular-ai-devtools\\extension --user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini --remote-debugging-port=9337 --no-first-run --no-default-browser-check --disable-sync --disable-features=msImplicitSignin,msImplicitSignInNetworkRetry,msProfileSignIn,msForceBrowserSignIn,msOneAuthWAM,msLoadOneAuthInBackground,msSeamlessWebToBrowserSignIn,msEnableWebToBrowserSignIn,msEnableAADWebToBrowserSignIn,msEnableProfileAADAccountSSO,msQuickAuthToBrowserSignIn,msEdgeOSAccountInfoSubstrate,msPrimaryOSAccountInfoCache,msEdgeOSAccountInfoManagerCache,msEdgeSignInAccountPicker,msWAMSovereigntySignIn,msWAMAdminModeSignIn --auth-schemes=basic,digest --password-store=basic --remote-debugging-pipe --enable-unsafe-extension-debugging --enable-features=AIPromptAPI,AIPromptAPIStructuredOutput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,WebMCP about:blank"
+    },
+    {
+      "pid": 24404,
+      "ppid": 5828,
+      "start": 1793411389442,
+      "commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=renderer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\" --pdf-upsell-enabled --remote-debugging-pipe --remote-debugging-port=9337 --video-capture-use-gpu-memory-buffer --lang=da --js-flags=--ms-user-locale=da_DK --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=69 --skip-read-main-dll --launch-time-ticks=549906588019 --metrics-shmem-handle=4880,i,9642233809677125452,3398625048054101932,1048576 --field-trial-handle=2104,i,9114930886962416884,2821969741532973970,262144 --enable-features=AIPromptAPI,AIPromptAPIStructuredOutput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,WebMCP --disable-features=msEdgeOSAccountInfoManagerCache,msEdgeOSAccountInfoSubstrate,msEdgeSignInAccountPicker,msEnableAADWebToBrowserSignIn,msEnableProfileAADAccountSSO,msEnableWebToBrowserSignIn,msForceBrowserSignIn,msImplicitSignInNetworkRetry,msImplicitSignin,msLoadOneAuthInBackground,msOneAuthWAM,msPrimaryOSAccountInfoCache,msProfileSignIn,msQuickAuthToBrowserSignIn,msSeamlessWebToBrowserSignIn,msWAMAdminModeSignIn,msWAMSovereigntySignIn --variations-seed-version --pseudonymization-salt-handle=2060,i,1183892950907815082,10336458498019693035,4 --trace-process-track-uuid=3190709050967759075 --mojo-platform-channel-handle=1312 /prefetch:1"
+    },
+    {
+      "pid": 18328,
+      "ppid": 5828,
+      "start": 1793411392388,
+      "commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=utility --utility-sub-type=on_device_model.mojom.OnDeviceModelService --lang=da --service-sandbox-type=on_device_model_execution --video-capture-use-gpu-memory-buffer --user-data-dir=\"D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\" --skip-read-main-dll --metrics-shmem-handle=7664,i,13441834485059331387,3680198052278695315,524288 --field-trial-handle=2104,i,9114930886962416884,2821969741532973970,262144 --enable-features=AIPromptAPI,AIPromptAPIStructuredOutput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,WebMCP --disable-features=msEdgeOSAccountInfoManagerCache,msEdgeOSAccountInfoSubstrate,msEdgeSignInAccountPicker,msEnableAADWebToBrowserSignIn,msEnableProfileAADAccountSSO,msEnableWebToBrowserSignIn,msForceBrowserSignIn,msImplicitSignInNetworkRetry,msImplicitSignin,msLoadOneAuthInBackground,msOneAuthWAM,msPrimaryOSAccountInfoCache,msProfileSignIn,msQuickAuthToBrowserSignIn,msSeamlessWebToBrowserSignIn,msWAMAdminModeSignIn,msWAMSovereigntySignIn --variations-seed-version --pseudonymization-salt-handle=2060,i,1183892950907815082,10336458498019693035,4 --trace-process-track-uuid=3190709052841842773 --mojo-platform-channel-handle=6412 /prefetch:14"
+    }
+  ],
+  "evidenceDir": "C:\\Users\\LarsGyrupBrinkNielse\\.gsd-path\\projects\\d10fb97cec6c7ac7\\8919d4cefeb4a7e5\\task\\T008\\.project\\plan\\evidence\\T008"
+}

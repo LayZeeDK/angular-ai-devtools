@@ -1,0 +1,72 @@
+{
+  "cmd": "panel",
+  "instance": "edge-phi4mini",
+  "at": "2026-10-31T01:54:31.579Z",
+  "ok": true,
+  "feature": "interop",
+  "ngVersion": "22.2.2",
+  "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok",
+  "code": null,
+  "field": null,
+  "component": null,
+  "digest": null,
+  "digestPresent": false,
+  "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+  "inferred": "attribution: inferred, untested",
+  "nodes": 1,
+  "route": "/panel/interop",
+  "answer": "The change-detection fact labeled `cmp:_StaleViewFixture`, `app-stale-view-fixture`, and `none` indicates that there was no observable changes detected. The final fact, \"Cannot name the feeding Observable, the operator chain, or emission timing,\" suggests that the specific details regarding the source and timing of emissions were not identified during the change detection process.",
+  "error": null,
+  "status": null,
+  "answerMs": 8694,
+  "steps": [
+    {
+      "at": 369,
+      "step": "app",
+      "value": "22.2.2"
+    },
+    {
+      "at": 914,
+      "step": "extension",
+      "value": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+    },
+    {
+      "at": 1249,
+      "step": "panel key",
+      "value": "extension-panel-76288911-6002-4b60-b0b9-459352777760_1"
+    },
+    {
+      "at": 1300,
+      "step": "route",
+      "value": "/panel/interop"
+    },
+    {
+      "at": 1306,
+      "step": "panel",
+      "value": true
+    },
+    {
+      "at": 2121,
+      "step": "button",
+      "value": true
+    },
+    {
+      "at": 2124,
+      "step": "interop",
+      "value": {
+        "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "attribution: inferred, untested",
+        "nodes": 1,
+        "component": null
+      }
+    },
+    {
+      "at": 10819,
+      "step": "result",
+      "value": {
+        "answer": "The change-detection fact labeled `cmp:_StaleViewFixture`, `app-stale-view-fixture`, and `none` indicates that there was no observable changes detected. The final fact, \"Cannot name the feeding Observable, the operator chain, or emission timing,\" suggests that the specific details regarding the source and timing of emissions were not identified during the change detection process."
+      }
+    }
+  ],
+  "model": "Phi-4-mini-instruct"
+}

@@ -1,0 +1,168 @@
+{
+  "cmd": "doctor",
+  "instance": "edge-phi4mini",
+  "at": "2026-10-31T01:50:05.233Z",
+  "ok": true,
+  "backend": "gpu",
+  "checks": [
+    {
+      "id": "map-fresh",
+      "pass": true,
+      "warn": true,
+      "detail": "stale: extension-panel (since cb70071950b1, 10 files changed), health-check (since cb70071950b1, 2 files changed), instances (since cb70071950b1, 2 files changed), model-lifecycle (since cb70071950b1, 2 files changed), probes (since cb70071950b1, 2 files changed); unproven: di-doctor, error-explainer, interop, signal-provenance, stale-view"
+    },
+    {
+      "id": "process",
+      "pass": true,
+      "warn": false,
+      "detail": "PID 5828 C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe --user-data-dir=D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini"
+    },
+    {
+      "id": "tree",
+      "pass": true,
+      "warn": false,
+      "detail": "11 process(es) recorded for down"
+    },
+    {
+      "id": "commandLine",
+      "pass": true,
+      "warn": false,
+      "detail": "matches the registry, backend gpu"
+    },
+    {
+      "id": "ports",
+      "pass": true,
+      "warn": false,
+      "detail": "cdp 9337 (derived), bench app 4222 (external: control-angular-dev-app counter fixture in the main checkout; spikes/probes/bench.js:4 hard-codes it); http://127.0.0.1:9337 answers as Edg/156.0.4314.50"
+    },
+    {
+      "id": "tabs",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "count": 1,
+        "urls": [
+          "about:blank"
+        ]
+      }
+    },
+    {
+      "id": "account",
+      "pass": true,
+      "warn": false,
+      "detail": "no signed-in account, sync not set up"
+    },
+    {
+      "id": "extension",
+      "pass": true,
+      "warn": false,
+      "detail": "Angular AI DevTools 0.3.0 loaded as mgkfgkdgobahfcgkdlokpoehblpbkfok from D:\\projects\\sandbox\\angular-ai-devtools\\extension"
+    },
+    {
+      "id": "model.disk",
+      "pass": true,
+      "warn": false,
+      "detail": "Phi-4-mini-instruct 2026.8.19.1 (2391 MiB) at D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\.browsers\\edge-phi4mini\\EdgeLLMOnDeviceModel\\2026.8.19.1"
+    },
+    {
+      "id": "model.broker",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "asset": {
+          "name": "edge_base_model",
+          "version": "2026.8.19.1",
+          "state": "Ready",
+          "progress": 100
+        },
+        "useCase": "prompt_api",
+        "state": "Available",
+        "manifestLoaded": "true"
+      }
+    },
+    {
+      "id": "backend",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "requested": "gpu",
+        "broker": "GPU (highest quality)",
+        "row": "edge_base_model_gpu"
+      }
+    },
+    {
+      "id": "performanceClass",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "localState": 5,
+        "broker": "High"
+      }
+    },
+    {
+      "id": "disk.free",
+      "pass": true,
+      "warn": true,
+      "detail": "18262 MiB free on D:, browser minimum 20480 MiB (Broker State: false (18530 MiB available, 20480 MiB required))"
+    },
+    {
+      "id": "api.availability",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "LanguageModel": "available",
+        "LanguageModelTools": "available",
+        "Summarizer": "available",
+        "Writer": "available",
+        "Rewriter": "available",
+        "Proofreader": "undefined",
+        "LanguageDetector": "available",
+        "Translator(en->da)": "downloadable",
+        "webmcp": {
+          "documentModelContext": "object",
+          "navigatorModelContext": "undefined"
+        },
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0"
+      }
+    },
+    {
+      "id": "model.contextWindow",
+      "pass": true,
+      "warn": false,
+      "detail": "contextWindow 9216, expected 9216"
+    },
+    {
+      "id": "canary.structured",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "pass": true,
+        "raw": "{\n  \"hook\": \"ngOnInit\"\n}",
+        "ms": 2860
+      }
+    },
+    {
+      "id": "canary.tools",
+      "pass": null,
+      "warn": false,
+      "detail": {
+        "reportedOnly": true,
+        "pass": false,
+        "calls": [],
+        "answer": "To determine the number of Angular components on the page, I would use the following tool call:\n\n```\n{ \"name\": \"get_component_count\", \"parameters\": { \"scope\": \"document\" } }\n```\n\nThis tool invocation will return the count of Angular components present on the current page within the scope of the entire document.",
+        "ms": 5553,
+        "contextUsage": 143,
+        "attempt": 3
+      }
+    },
+    {
+      "id": "canary.webmcp",
+      "pass": true,
+      "warn": false,
+      "detail": {
+        "pass": true,
+        "documentModelContext": "object"
+      }
+    }
+  ]
+}
