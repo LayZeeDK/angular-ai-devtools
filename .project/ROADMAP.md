@@ -490,3 +490,39 @@ Risks
 Open questions
 - [RESEARCH] Whether the interop keep-list classifier can be recognised by label or debuggableFn source.
 - [RESEARCH] Which N25 detections beyond the measured cases need new instrumentation?
+
+### M013 — docs-audit-closure
+
+Goal: Make the docs audit show no stale or aspirational claim about a shipped feature, and leave no remediation-queue row classified NEEDS-USER without a recorded ruling.
+Depends on: []
+Surfaces: none
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- Regenerate the docs audit over every document the frozen inventory covers.
+- Fix or retire every claim the audit marks stale or aspirational, in the document that makes it.
+- Re-derive a verdict for each unverifiable row whose claim a shipped command can actually test, and state why the rest cannot be tested.
+- Keep the two skills trees byte-identical and the project Verify green.
+
+Scope: out
+- New product features, new panel surfaces, or new checks whose only purpose is to make a document pass.
+- Changing shipped behaviour so that a document becomes true.
+- Rewriting a document whose claims are already verified.
+- Touching archived audits or archived milestone records.
+
+Success criteria
+1. The regenerated audit records zero stale and zero aspirational claims.
+2. Every stale or aspirational claim the audit finds is corrected in its document, or the document is retired under the recorded retirement ruling, with the path named in the task that did it.
+3. The remediation queue has no NEEDS-USER row without a recorded ruling.
+4. The project Verify (`npm run check`, `npm test`, `npx nx run angular-ai-devtools:build-extension`) passes at the shipped head and the skills mirror test is green.
+
+Risks
+- 182 unverifiable rows may contain claims that are testable with shipped commands; triage can grow the milestone.
+- A document may describe behaviour the code no longer has, so a correction can look like a product change; the milestone's scope forbids that, and the ruling decides correction versus retirement.
+- A full re-audit over ~141 documents is the heaviest part and needs chunked audit workers.
+
+Open questions
+- [RESEARCH] Which unverifiable rows are testable with the commands the repository already ships, and which need evidence this milestone cannot produce?
+- [NEEDS-USER] When a document describes a feature that no longer exists, may the milestone retire the document, or must it be corrected to describe what replaced it?

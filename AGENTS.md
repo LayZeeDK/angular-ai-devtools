@@ -61,6 +61,15 @@ sidecars, including worktree and branch).
   `panel --feature=interop`, and `verify-ai-browsers/checks/interop.mjs` (8 tests). The check exits 2 with
   "the app has no interop panel route yet (served /panel/)" until the panel ships `/panel/interop`.
 
+- **M013 runs unattended.** The owner's instruction, verbatim: "A fresh session should be able to
+  run `/gsd-path @ ~/.commandcode/prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md`
+  to complete M013 end-to-end without a human-in-the-loop, with full milestone decision
+  authority." At M013's first legal boundary, record the standing grant once with
+  `gsd.bat preapprove --repo <root> --grant intent,plan,rulings,ship`, quoting that instruction
+  when you record a delegated ruling. Do not stop for the intent gate, the plan gate, a
+  prohibition, an edge or a `NEEDS-USER` row, or ship approval for M013; stop only at a helper
+  failure, a contradiction the evidence cannot settle, or two identical failures.
+
 ## Control skills
 
 - Every `control-*` skill stops processes through its byte copy of `proctree.mjs`; never kill by process name.
