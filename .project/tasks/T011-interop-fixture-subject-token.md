@@ -40,7 +40,7 @@ identifier the classifier cannot see.
 
 ## Intent coverage
 
-- SC1
+- None
 
 ## Acceptance criteria
 
