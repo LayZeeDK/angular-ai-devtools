@@ -62,33 +62,6 @@ sidecars, including worktree and branch).
   instance runs the built panel. Measured (M014): check exits 0 on `edge-dev-aion` with `nodes: 1`, verdict `verified`
   (2/2), evidence `.project/build/verify/interop/`.
 
-- **M014 runs unattended.** The owner's instruction, verbatim: "A fresh session should be able to
-  run `/gsd-path @ ~/.commandcode/prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md`
-  to complete M014 end-to-end without a human-in-the-loop, with full milestone decision
-  authority." At M014's first legal boundary, record the standing grant once with
-  `gsd.bat preapprove --repo <root> --grant intent,plan,rulings,ship`, quoting that instruction
-  when you record a delegated ruling. Do not stop for the intent gate, the plan gate, a
-  prohibition, an edge or a `NEEDS-USER` row, or ship approval for M014; stop only at a helper
-  failure, a contradiction the evidence cannot settle, or two identical failures. The grant also
-  carries the owner-reserved fixture decision: if no available instance can produce a sliced node
-  from `/stale-view`, one more dev-only fixture route in `spikes/ng222-app` is ruled acceptable,
-  recorded in INTENT.md's `## Corrections` with this paragraph as its authority.
-
-- **M015 runs unattended.** The owner's instruction, verbatim: "A fresh session should be able to
-  run `/gsd-path @ ~/.commandcode/prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md`
-  to complete M015 end-to-end without a human-in-the-loop, with full milestone decision
-  authority." At M015's first legal boundary, record the standing grant once with
-  `gsd.bat preapprove --repo <root> --grant intent,plan,rulings,ship`, quoting that instruction
-  when you record a delegated ruling. `STATE.milestone` must still be null at that moment: the
-  next-milestone transition leaves it null and only `milestone intent approved` names it, so
-  never set it in that transition. Do not stop for the intent gate, the plan gate, a prohibition,
-  an edge or a `NEEDS-USER` row, or ship approval for M015; stop only at a helper failure, a
-  contradiction the evidence cannot settle, or two identical failures. The grant also carries the
-  owner-reserved budget decision: if the panel bundle cannot be trimmed without a behaviour
-  change, raising the budget in `apps/angular-ai-devtools/project.json` with the measured size
-  and a one-line reason is ruled acceptable, recorded in INTENT.md's `## Corrections` with this
-  paragraph as its authority.
-
 - **Every milestone runs unattended.** The owner's standing instruction: "A fresh session should
   be able to run `/gsd-path @ ~/.commandcode/prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md`
   to complete the next milestone end-to-end without a human-in-the-loop, with full milestone
