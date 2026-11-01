@@ -2,6 +2,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideRouter } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { provideAppFactsTool } from './tool-registry/app-facts';
+import { provideReadTools } from './tool-registry/read-tools';
 import { provideToolRegistry } from './tool-registry/tool-registry';
 
 export const appConfig: ApplicationConfig = {
@@ -9,6 +10,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(appRoutes),
     provideToolRegistry(),
-    provideAppFactsTool()
+    provideAppFactsTool(),
+    provideReadTools()
   ]
 };
