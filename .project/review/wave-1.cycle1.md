@@ -22,6 +22,10 @@ Edge/prohibition coverage (wave 1):
 - E3 (ordering): deferral keeps `subject.error` from running on construction, so the Subject is alive at panel-attach time; the check will report observed state rather than a smoothed slice. Evidence: stale-view-deferred-fixture.ts:16,23-27.
 - N2 (no interop component/keep-list behaviour change): interop-keep-list.ts and the interop component are not in commit 5c30b77's changed-file set (stat lists only the task file and the three declared spike files); no portal change, no new panel tab, and the existing `/stale-view` route remains (app.routes.ts:6).
 
+## Intent coverage
+
+- None — T001 owns no INTENT success criterion (`- None` in its Intent coverage). It delivers the dev-only deferred fixture route that the SC1 live proof in wave 2 drives.
+
 ## Summary for orchestrator
 
 - blocked findings: none
