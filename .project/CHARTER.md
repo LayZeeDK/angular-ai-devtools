@@ -216,3 +216,47 @@ questions, answered in the panel, on the developer's machine.
   `395d1c7` (`build: pin paid model policy per role`) is the change this records;
   the Constraints paragraph stays as written because charter text is amended only
   here.
+- 2026-11-01, programme 1 opens. The following rulings were approved in session and
+  are recorded here for the first time; the milestone backlog and delivery
+  structure they govern are persisted at
+  `plans/angular-ai-devtools-program-backlog.md` (commit `8827469`).
+- 2026-11-01 (A1): the veto "No Tier 2 (app opt-in `globalThis` export) features in
+  this program" is lifted. Owner: "All tiers are on the table." Tier 2 features are
+  permitted, including an app-installed `provide*()` instrument.
+- 2026-11-01 (A2): the verification fixtures may be modified for the Vitest Browser
+  work — the attach configuration and a timing-demo route. This narrows the
+  "the counter fixture is never modified to help a feature" clause to everything
+  except those declared verification surfaces.
+- 2026-11-01 (A3): programme order is core, Storybook, angular/components,
+  Angular SSR (+ Analog.js), NgRx, RxAngular.
+- 2026-11-01 (A4): N34-N37 count as first-party because `@angular/build:unit-test`
+  ships them. Owner: "I don't mean 3rd-party tooling like Vitest in Browser mode,
+  especially not when it's officially supported by `@angular/build`, a 1st-party
+  package."
+- 2026-11-01 (A5): Angular SSR and `angular/components` are out of the core
+  programme; SSR moves to programme 4 and components to programme 3.
+- 2026-11-01 (A6): tool calling in the core loop is permitted, as required by the
+  tool-registry envelope.
+- 2026-11-01 (A7): the `debugger` permission is granted, for the CDP trace and the
+  accessibility tree.
+- 2026-11-01 (A8): `@angular/cdk` component harnesses are excepted from the
+  `angular/components` exclusion, for the testing feature suite.
+- 2026-11-01 (AR-1): the panel is already an Angular application
+  (`apps/angular-ai-devtools`, `projectType: application`, `build-extension` to
+  `extension/panel`, `baseHref: /panel/`). No migration milestone exists; the panel
+  adopts the design system in place. The initial-bundle budget of 520 KB is binding.
+- 2026-11-01 (AR-2): in-page UI is a named exception to "implemented in Angular":
+  plain DOM, closed Shadow DOM, isolated world, no Angular in the inspected page.
+  The in-page surface is one widget — a rect/label overlay plus an element picker.
+- 2026-11-01 (AR-3): the overlay is the only DOM the tool adds to an inspected page.
+- 2026-11-01 (AR-4): every `MutationObserver` the tool owns excludes the tool's host
+  subtree; the host attaches once at `document_start`.
+- 2026-11-01 (AR-5): cross-frame outlining is a non-goal for v1.
+- 2026-11-01 (AR-6): confirmations, toasts, inputs and navigation live in the panel,
+  never in the page.
+- 2026-11-01 (AR-7): the panel doubles as a self-inspection fixture, served at
+  `/panel/`.
+- 2026-11-01 (delivery): programmes are charter labels and roadmap `Programme:`
+  labels, not separate project roots. One `.project/`, one roadmap, grown by
+  successive re-slices in generations of at most 12 entries, with pending entries
+  never reaching zero before the final programme ends.
