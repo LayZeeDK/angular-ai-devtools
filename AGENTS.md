@@ -89,29 +89,29 @@ sidecars, including worktree and branch).
   and a one-line reason is ruled acceptable, recorded in INTENT.md's `## Corrections` with this
   paragraph as its authority.
 
-- **M017 runs unattended.** The owner's instruction, verbatim: "A fresh session should be able to
-  run `/gsd-path @ ~/.commandcode/prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md`
-  to complete M017 end-to-end without a human-in-the-loop, with full milestone decision
-  authority." At M017's first legal boundary, record the standing grant once with
-  `gsd.bat preapprove --repo <root> --grant intent,plan,rulings,ship`, quoting that instruction
-  when you record a delegated ruling. `STATE.milestone` must still be null at that moment: the
-  next-milestone transition leaves it null and only `milestone intent approved` names it, so
-  never set it in that transition. Do not stop for the intent gate, the plan gate, a prohibition,
-  an edge or a `NEEDS-USER` row, or ship approval for M017; stop only at a helper failure, a
+- **Every milestone runs unattended.** The owner's standing instruction: "A fresh session should
+  be able to run `/gsd-path @ ~/.commandcode/prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md`
+  to complete the next milestone end-to-end without a human-in-the-loop, with full milestone
+  decision authority." It applies to every milestone in this program, not to one of them. At each
+  milestone's first legal boundary — `inspect/active` or `define/active` with `STATE.milestone:
+  null` — record the grant once with `gsd.bat preapprove --repo <root> --grant
+  intent,plan,rulings,ship`, quoting that instruction whenever a ruling is recorded as delegated.
+  `STATE.milestone` must still be null at that moment: only `milestone intent approved` names it,
+  so never set it in the next-milestone transition. Do not stop for the intent gate, the plan gate,
+  a prohibition, an edge, a `NEEDS-USER` row, or ship approval; stop only at a helper failure, a
   contradiction the evidence cannot settle, or two identical failures.
 
-- **M017 dispatches on paid routes.** The owner's instruction, verbatim: "Use paid-* subagents
-  instead of free-* for M016" and "Plan the most cost-effective paid model for each subagent
-  task." `.project/model-policy.json` carries the resulting per-role table and
-  `~/.commandcode/references/paid-model-plan.md` carries the arithmetic behind it: DeepSeek V4.1
-  Flash for every tool-loop role because its cache read is ten times cheaper, GLM-5.3 Flash for
-  `reviewer`, `skeptic` and `review_panel` because an independent verdict may not share the
-  DeepSeek parent's family. Re-read that plan before changing a role's model; a free route that
-  answers with a zero-token run is a quota event and never a task failure.
+- **Subagent dispatch uses the paid ladder, never the free one.** The owner's instruction: "Use
+  paid-* subagents instead of free-*" and "Plan the most cost-effective paid model for each
+  subagent task." `.project/model-policy.json` carries the per-role table; the cost arithmetic and
+  the role mapping are in `~/.commandcode/references/paid-model-plan.md`. DeepSeek V4.1 Flash for
+  every tool-loop role, because its cache read is ten times cheaper; GLM-5.3 Flash for `reviewer`,
+  `skeptic` and `review_panel`, because an independent verdict may not share the parent's family.
+  Re-read that plan before changing a role's model.
 
-- **M017 skill timing is recorded.** `~/.commandcode/references/gsd-path-skill-timing.md` names
-  when each user-scope `lars-*` skill and each pstack skill runs in a milestone and what artifact
-  it must leave. `lars-verify` before a wave review, `lars-review` after the canonical review,
+- **Skill timing is recorded, not discovered.** `~/.commandcode/references/gsd-path-skill-timing.md`
+  is authoritative for when a `lars-*` or pstack skill runs in a milestone and what artifact it
+  must leave: `lars-verify` before a wave review, `lars-review` after the canonical review,
   `lars-maintain-verification` only on drift and as a declared task, `lars-create-verification`
   only at define.
 
