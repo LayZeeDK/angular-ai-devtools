@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: interop-proof
-phase: shipped
+milestone: null
+phase: inspect
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
-branch: gsd-path/M014
+status: active
+branch: gsd-path/M015
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/014-interop-proof
+archive: null
 integration_default: direct
 integration: direct
 integration_source: default
@@ -283,3 +283,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-01 — build — build started
 - 2026-11-01 — ship — build done; final review pending
 - 2026-11-01 — shipped — archive preflight passed; shipment recorded; program complete
+- 2026-11-01 — inspect — router bound next milestone
