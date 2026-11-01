@@ -498,7 +498,7 @@ Depends on: []
 Surfaces: none
 Status: shipped
 Archive: .project/archive/013-docs-audit-closure
-Integrated: null
+Integrated: fc97c8aca5f99520daf21da100ea537131b5319a
 
 Scope: in
 - Regenerate the docs audit over every document the frozen inventory covers.
@@ -532,8 +532,8 @@ Open questions
 Goal: Prove the RxJS interop claim end to end on this repository's own dev-only fixture, and close the interop verification debt M012 left open.
 Depends on: [M012, M013]
 Surfaces: DevTools panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/014-interop-proof
 Integrated: null
 
 Scope: in

@@ -1,0 +1,474 @@
+{
+  "verdict": "verified",
+  "reasons": [
+    "head passed all 2 runs"
+  ],
+  "spec": {
+    "claim": "The interop check exits 0 on edge-dev-aion for the deferred /stale-view-deferred fixture: the panel renders at least one sliced toSignal/effect node, states the three limits, words attribution 'inferred, untested', and answers with a non-empty on-device explanation",
+    "kind": "new",
+    "sides": {
+      "head": {
+        "dir": "D:\\projects\\sandbox\\angular-ai-devtools"
+      },
+      "baseline": null
+    },
+    "runs": 2,
+    "timeoutMs": 300000,
+    "steps": {
+      "setup": [
+        {
+          "argv": [
+            "node",
+            ".commandcode/skills/control-angular-dev-app/scripts/control.mjs",
+            "up",
+            "--target",
+            "counter",
+            "--json"
+          ],
+          "as": "app"
+        },
+        {
+          "argv": [
+            "node",
+            ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+            "up",
+            "edge-dev-aion",
+            "--json"
+          ],
+          "as": "browser"
+        },
+        {
+          "argv": [
+            "node",
+            ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+            "doctor",
+            "edge-dev-aion"
+          ],
+          "as": null
+        }
+      ],
+      "condition": [
+        "node",
+        ".commandcode/skills/verify-ai-browsers/checks/interop.mjs",
+        "--evidence",
+        "{app.evidenceDir}",
+        "--url",
+        "{app.url}stale-view-deferred",
+        "--extension",
+        "{dir}\\extension",
+        "edge-dev-aion"
+      ],
+      "teardown": [
+        [
+          "node",
+          ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+          "info",
+          "edge-dev-aion",
+          "--json"
+        ],
+        [
+          "node",
+          ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+          "down",
+          "edge-dev-aion"
+        ],
+        [
+          "node",
+          "C:\\Users\\LarsGyrupBrinkNielse\\.commandcode\\skills\\lars-create-verification\\scripts\\check-teardown.mjs",
+          "{runDir}/steps/teardown-1.out",
+          "--no-artifact",
+          "the browser instance is supporting; the check captures nothing from it"
+        ],
+        [
+          "node",
+          ".commandcode/skills/control-angular-dev-app/scripts/control.mjs",
+          "info",
+          "--target",
+          "counter",
+          "--json"
+        ],
+        [
+          "node",
+          ".commandcode/skills/control-angular-dev-app/scripts/control.mjs",
+          "down",
+          "--target",
+          "counter"
+        ],
+        [
+          "node",
+          "C:\\Users\\LarsGyrupBrinkNielse\\.commandcode\\skills\\lars-create-verification\\scripts\\check-teardown.mjs",
+          "{runDir}/steps/teardown-4.out",
+          "--artifact",
+          "interop.json"
+        ]
+      ]
+    },
+    "artifacts": [
+      "{app.evidenceDir}/interop.json"
+    ]
+  },
+  "git": {
+    "head": {
+      "sha": "b4faa07c0ca490c91e537027557209a002321a34",
+      "dirty": true
+    },
+    "baseline": null,
+    "patchId": null
+  },
+  "runs": [
+    {
+      "side": "head",
+      "run": 1,
+      "steps": [
+        {
+          "phase": "setup",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-angular-dev-app/scripts/control.mjs",
+            "up",
+            "--target",
+            "counter",
+            "--json"
+          ],
+          "exit": 0,
+          "ms": 6881,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-1\\steps\\setup-1.out",
+          "stderr": "head\\run-1\\steps\\setup-1.err"
+        },
+        {
+          "phase": "setup",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+            "up",
+            "edge-dev-aion",
+            "--json"
+          ],
+          "exit": 0,
+          "ms": 12867,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-1\\steps\\setup-2.out",
+          "stderr": "head\\run-1\\steps\\setup-2.err"
+        },
+        {
+          "phase": "setup",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+            "doctor",
+            "edge-dev-aion"
+          ],
+          "exit": 0,
+          "ms": 23971,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-1\\steps\\setup-3.out",
+          "stderr": "head\\run-1\\steps\\setup-3.err"
+        },
+        {
+          "phase": "condition",
+          "argv": [
+            "node",
+            ".commandcode/skills/verify-ai-browsers/checks/interop.mjs",
+            "--evidence",
+            "D:\\projects\\sandbox\\angular-ai-devtools\\tmp\\control-angular-dev-app\\counter-2026-11-01T01-38-28-397Z",
+            "--url",
+            "http://localhost:4222/stale-view-deferred",
+            "--extension",
+            "D:\\projects\\sandbox\\angular-ai-devtools\\extension",
+            "edge-dev-aion"
+          ],
+          "exit": 0,
+          "ms": 34331,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-1\\steps\\condition-1.out",
+          "stderr": "head\\run-1\\steps\\condition-1.err"
+        },
+        {
+          "phase": "teardown",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+            "info",
+            "edge-dev-aion",
+            "--json"
+          ],
+          "exit": 0,
+          "ms": 235,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-1\\steps\\teardown-1.out",
+          "stderr": "head\\run-1\\steps\\teardown-1.err"
+        },
+        {
+          "phase": "teardown",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+            "down",
+            "edge-dev-aion"
+          ],
+          "exit": 0,
+          "ms": 10619,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-1\\steps\\teardown-2.out",
+          "stderr": "head\\run-1\\steps\\teardown-2.err"
+        },
+        {
+          "phase": "teardown",
+          "argv": [
+            "node",
+            "C:\\Users\\LarsGyrupBrinkNielse\\.commandcode\\skills\\lars-create-verification\\scripts\\check-teardown.mjs",
+            "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\verify\\interop\\20261101T013800Z-interop\\head\\run-1/steps/teardown-1.out",
+            "--no-artifact",
+            "the browser instance is supporting; the check captures nothing from it"
+          ],
+          "exit": 0,
+          "ms": 6149,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-1\\steps\\teardown-3.out",
+          "stderr": "head\\run-1\\steps\\teardown-3.err"
+        },
+        {
+          "phase": "teardown",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-angular-dev-app/scripts/control.mjs",
+            "info",
+            "--target",
+            "counter",
+            "--json"
+          ],
+          "exit": 0,
+          "ms": 137,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-1\\steps\\teardown-4.out",
+          "stderr": "head\\run-1\\steps\\teardown-4.err"
+        },
+        {
+          "phase": "teardown",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-angular-dev-app/scripts/control.mjs",
+            "down",
+            "--target",
+            "counter"
+          ],
+          "exit": 0,
+          "ms": 6234,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-1\\steps\\teardown-5.out",
+          "stderr": "head\\run-1\\steps\\teardown-5.err"
+        },
+        {
+          "phase": "teardown",
+          "argv": [
+            "node",
+            "C:\\Users\\LarsGyrupBrinkNielse\\.commandcode\\skills\\lars-create-verification\\scripts\\check-teardown.mjs",
+            "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\verify\\interop\\20261101T013800Z-interop\\head\\run-1/steps/teardown-4.out",
+            "--artifact",
+            "interop.json"
+          ],
+          "exit": 0,
+          "ms": 3389,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-1\\steps\\teardown-6.out",
+          "stderr": "head\\run-1\\steps\\teardown-6.err"
+        }
+      ],
+      "found": [
+        "D:\\projects\\sandbox\\angular-ai-devtools\\tmp\\control-angular-dev-app\\counter-2026-11-01T01-38-28-397Z\\interop.json"
+      ],
+      "missing": [],
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "side": "head",
+      "run": 2,
+      "steps": [
+        {
+          "phase": "setup",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-angular-dev-app/scripts/control.mjs",
+            "up",
+            "--target",
+            "counter",
+            "--json"
+          ],
+          "exit": 0,
+          "ms": 4933,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-2\\steps\\setup-1.out",
+          "stderr": "head\\run-2\\steps\\setup-1.err"
+        },
+        {
+          "phase": "setup",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+            "up",
+            "edge-dev-aion",
+            "--json"
+          ],
+          "exit": 0,
+          "ms": 9489,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-2\\steps\\setup-2.out",
+          "stderr": "head\\run-2\\steps\\setup-2.err"
+        },
+        {
+          "phase": "setup",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+            "doctor",
+            "edge-dev-aion"
+          ],
+          "exit": 0,
+          "ms": 18302,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-2\\steps\\setup-3.out",
+          "stderr": "head\\run-2\\steps\\setup-3.err"
+        },
+        {
+          "phase": "condition",
+          "argv": [
+            "node",
+            ".commandcode/skills/verify-ai-browsers/checks/interop.mjs",
+            "--evidence",
+            "D:\\projects\\sandbox\\angular-ai-devtools\\tmp\\control-angular-dev-app\\counter-2026-11-01T01-40-13-196Z",
+            "--url",
+            "http://localhost:4222/stale-view-deferred",
+            "--extension",
+            "D:\\projects\\sandbox\\angular-ai-devtools\\extension",
+            "edge-dev-aion"
+          ],
+          "exit": 0,
+          "ms": 37172,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-2\\steps\\condition-1.out",
+          "stderr": "head\\run-2\\steps\\condition-1.err"
+        },
+        {
+          "phase": "teardown",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+            "info",
+            "edge-dev-aion",
+            "--json"
+          ],
+          "exit": 0,
+          "ms": 314,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-2\\steps\\teardown-1.out",
+          "stderr": "head\\run-2\\steps\\teardown-1.err"
+        },
+        {
+          "phase": "teardown",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-ai-browsers/scripts/control.mjs",
+            "down",
+            "edge-dev-aion"
+          ],
+          "exit": 0,
+          "ms": 14765,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-2\\steps\\teardown-2.out",
+          "stderr": "head\\run-2\\steps\\teardown-2.err"
+        },
+        {
+          "phase": "teardown",
+          "argv": [
+            "node",
+            "C:\\Users\\LarsGyrupBrinkNielse\\.commandcode\\skills\\lars-create-verification\\scripts\\check-teardown.mjs",
+            "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\verify\\interop\\20261101T013800Z-interop\\head\\run-2/steps/teardown-1.out",
+            "--no-artifact",
+            "the browser instance is supporting; the check captures nothing from it"
+          ],
+          "exit": 0,
+          "ms": 5042,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-2\\steps\\teardown-3.out",
+          "stderr": "head\\run-2\\steps\\teardown-3.err"
+        },
+        {
+          "phase": "teardown",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-angular-dev-app/scripts/control.mjs",
+            "info",
+            "--target",
+            "counter",
+            "--json"
+          ],
+          "exit": 0,
+          "ms": 138,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-2\\steps\\teardown-4.out",
+          "stderr": "head\\run-2\\steps\\teardown-4.err"
+        },
+        {
+          "phase": "teardown",
+          "argv": [
+            "node",
+            ".commandcode/skills/control-angular-dev-app/scripts/control.mjs",
+            "down",
+            "--target",
+            "counter"
+          ],
+          "exit": 0,
+          "ms": 6683,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-2\\steps\\teardown-5.out",
+          "stderr": "head\\run-2\\steps\\teardown-5.err"
+        },
+        {
+          "phase": "teardown",
+          "argv": [
+            "node",
+            "C:\\Users\\LarsGyrupBrinkNielse\\.commandcode\\skills\\lars-create-verification\\scripts\\check-teardown.mjs",
+            "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\verify\\interop\\20261101T013800Z-interop\\head\\run-2/steps/teardown-4.out",
+            "--artifact",
+            "interop.json"
+          ],
+          "exit": 0,
+          "ms": 3634,
+          "error": null,
+          "claim": false,
+          "stdout": "head\\run-2\\steps\\teardown-6.out",
+          "stderr": "head\\run-2\\steps\\teardown-6.err"
+        }
+      ],
+      "found": [
+        "D:\\projects\\sandbox\\angular-ai-devtools\\tmp\\control-angular-dev-app\\counter-2026-11-01T01-40-13-196Z\\interop.json"
+      ],
+      "missing": [],
+      "outcome": "pass",
+      "reason": ""
+    }
+  ],
+  "startedAt": "2026-11-01T01:38:27.090Z",
+  "ms": 206480
+}

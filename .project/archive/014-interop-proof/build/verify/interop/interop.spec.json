@@ -1,0 +1,54 @@
+{
+  "claim": "The interop check exits 0 on edge-dev-aion for the deferred /stale-view-deferred fixture: the panel renders at least one sliced toSignal/effect node, states the three limits, words attribution 'inferred, untested', and answers with a non-empty on-device explanation",
+  "kind": "new",
+  "sides": {
+    "head": { "dir": "D:\\projects\\sandbox\\angular-ai-devtools" }
+  },
+  "runs": 2,
+  "timeoutMs": 300000,
+  "steps": {
+    "setup": [
+      {
+        "argv": ["node", ".commandcode/skills/control-angular-dev-app/scripts/control.mjs", "up", "--target", "counter", "--json"],
+        "as": "app"
+      },
+      {
+        "argv": ["node", ".commandcode/skills/control-ai-browsers/scripts/control.mjs", "up", "edge-dev-aion", "--json"],
+        "as": "browser"
+      },
+      ["node", ".commandcode/skills/control-ai-browsers/scripts/control.mjs", "doctor", "edge-dev-aion"]
+    ],
+    "condition": [
+      "node",
+      ".commandcode/skills/verify-ai-browsers/checks/interop.mjs",
+      "--evidence",
+      "{app.evidenceDir}",
+      "--url",
+      "{app.url}stale-view-deferred",
+      "--extension",
+      "{dir}\\extension",
+      "edge-dev-aion"
+    ],
+    "teardown": [
+      ["node", ".commandcode/skills/control-ai-browsers/scripts/control.mjs", "info", "edge-dev-aion", "--json"],
+      ["node", ".commandcode/skills/control-ai-browsers/scripts/control.mjs", "down", "edge-dev-aion"],
+      [
+        "node",
+        "C:\\Users\\LarsGyrupBrinkNielse\\.commandcode\\skills\\lars-create-verification\\scripts\\check-teardown.mjs",
+        "{runDir}/steps/teardown-1.out",
+        "--no-artifact",
+        "the browser instance is supporting; the check captures nothing from it"
+      ],
+      ["node", ".commandcode/skills/control-angular-dev-app/scripts/control.mjs", "info", "--target", "counter", "--json"],
+      ["node", ".commandcode/skills/control-angular-dev-app/scripts/control.mjs", "down", "--target", "counter"],
+      [
+        "node",
+        "C:\\Users\\LarsGyrupBrinkNielse\\.commandcode\\skills\\lars-create-verification\\scripts\\check-teardown.mjs",
+        "{runDir}/steps/teardown-4.out",
+        "--artifact",
+        "interop.json"
+      ]
+    ]
+  },
+  "artifacts": ["{app.evidenceDir}/interop.json"]
+}

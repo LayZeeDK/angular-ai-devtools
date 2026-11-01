@@ -1,0 +1,72 @@
+{
+  "cmd": "panel",
+  "instance": "edge-dev-aion",
+  "at": "2026-11-01T01:36:52.213Z",
+  "ok": true,
+  "feature": "interop",
+  "ngVersion": "22.2.2",
+  "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok",
+  "code": null,
+  "field": null,
+  "component": null,
+  "digest": null,
+  "digestPresent": false,
+  "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+  "inferred": "attribution: inferred, untested",
+  "nodes": 1,
+  "route": "/panel/interop",
+  "answer": "These facts indicate that the change detection mechanism is currently unable to identify or name the feeding Observable, the operator chain, or the emission timing—suggesting a limitation in the current detection logic. This prevents accurate tracking of how changes propagate through the system, which is critical for maintaining consistency in the application.",
+  "error": null,
+  "status": null,
+  "answerMs": 5086,
+  "steps": [
+    {
+      "at": 352,
+      "step": "app",
+      "value": "22.2.2"
+    },
+    {
+      "at": 881,
+      "step": "extension",
+      "value": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+    },
+    {
+      "at": 943,
+      "step": "panel key",
+      "value": "extension-panel-c37c365f-9c2a-45ea-89eb-1d7b21ef773d_1"
+    },
+    {
+      "at": 1041,
+      "step": "route",
+      "value": "/panel/interop"
+    },
+    {
+      "at": 1307,
+      "step": "panel",
+      "value": true
+    },
+    {
+      "at": 2108,
+      "step": "button",
+      "value": true
+    },
+    {
+      "at": 2110,
+      "step": "interop",
+      "value": {
+        "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "attribution: inferred, untested",
+        "nodes": 1,
+        "component": null
+      }
+    },
+    {
+      "at": 7197,
+      "step": "result",
+      "value": {
+        "answer": "These facts indicate that the change detection mechanism is currently unable to identify or name the feeding Observable, the operator chain, or the emission timing—suggesting a limitation in the current detection logic. This prevents accurate tracking of how changes propagate through the system, which is critical for maintaining consistency in the application."
+      }
+    }
+  ],
+  "model": "Aion-1.1-Instruct"
+}

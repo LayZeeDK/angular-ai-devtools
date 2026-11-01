@@ -1,0 +1,32 @@
+{
+  "cmd": "flags",
+  "instance": "edge-dev-aion",
+  "at": "2026-11-01T01:37:16.319Z",
+  "ok": true,
+  "backend": "gpu",
+  "effective": [
+    "AIPromptAPI",
+    "AIPromptAPIStructuredOutput",
+    "AIPromptAPIToolUse",
+    "AIRewriterAPI",
+    "AISummarizationAPI",
+    "AIWriterAPI",
+    "WebMCP",
+    "msEdgeLLMOnDeviceModelMuffinToolUseWorkaround",
+    "msEdgeLLMOnDeviceModelPrerelease"
+  ],
+  "registry": [
+    "AIPromptAPI",
+    "AIPromptAPIStructuredOutput",
+    "AIPromptAPIToolUse",
+    "AIRewriterAPI",
+    "AISummarizationAPI",
+    "AIWriterAPI",
+    "WebMCP",
+    "msEdgeLLMOnDeviceModelMuffinToolUseWorkaround",
+    "msEdgeLLMOnDeviceModelPrerelease"
+  ],
+  "missing": [],
+  "extra": [],
+  "drift": []
+}

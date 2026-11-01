@@ -1,0 +1,34 @@
+{
+  "url": "http://localhost:4222/stale-view-deferred",
+  "results": {
+    "edge-dev-aion": {
+      "panel": {
+        "exit": 0,
+        "feature": "interop",
+        "route": "/panel/interop",
+        "answer": "These facts indicate that the change detection mechanism is currently unable to identify or name the feeding Observable, the operator chain, or the emission timing—suggesting a limitation in the current detection logic. This prevents accurate tracking of how changes propagate through the system, which is critical for maintaining consistency in the application.",
+        "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "attribution: inferred, untested",
+        "nodes": 1,
+        "error": null,
+        "answerMs": 5086,
+        "ngVersion": "22.2.2",
+        "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok"
+      },
+      "state": {
+        "instance": "edge-dev-aion",
+        "pass": true,
+        "failed": [],
+        "couldNotRun": null,
+        "readings": {
+          "expected": "Aion-1.1-Instruct",
+          "disk": true,
+          "serving": "Aion-1.1-Instruct",
+          "backend": "GPU (highest quality)",
+          "requestedBackend": "gpu",
+          "performanceClass": 5
+        }
+      }
+    }
+  }
+}

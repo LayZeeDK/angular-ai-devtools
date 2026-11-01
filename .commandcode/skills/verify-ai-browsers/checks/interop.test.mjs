@@ -12,7 +12,7 @@ const REGISTRY = {
   'edge-phi4mini': { model: { name: 'Phi-4-mini-instruct', contextWindow: 9216 } },
   'edge-dev-aion': { model: { name: 'Aion-1.1-Instruct', contextWindow: 7168 } },
 };
-const URL = 'http://localhost:4222/portal';
+const URL = 'http://localhost:4222/stale-view-deferred';
 const EXT = CHECKOUT_EXTENSION;
 const LIMITS = 'it cannot name the feeding Observable, the operator chain or emission timing';
 
@@ -124,6 +124,14 @@ test('--extension names the checkout an instance must serve, so a sidecar can ve
   assert.equal(
     main(['--evidence', 'e', '--url', URL, '--extension', EXT, 'chrome-stable-nano'], () => fake(patch).deps, () => REGISTRY),
     0,
+  );
+});
+
+test('an empty slice (nodes: 0) is a CLAIM failure, never a pass (held-out E1)', () => {
+  const deps = fake({ 'edge-phi4mini': { panel: { code: 0, json: { ok: true, feature: 'interop', route: '/panel/interop', answer: 'model answer', nodes: 0, limits: LIMITS, inferred: 'inferred, untested' } } } }).deps;
+  assert.throws(
+    () => check({ evidence: 'e', url: URL, names: ['edge-phi4mini'], extension: EXT }, REGISTRY, deps),
+    (e) => e instanceof Error && e.message.startsWith('CLAIM:') && /the panel rendered no interop slice node/.test(e.message),
   );
 });
 
