@@ -1,0 +1,104 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "48340754a040124aaa539aea93ac555f57dcfc1f",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M014",
+        "candidates": [
+          {
+            "base": "6a2bf18b3a0ee6a34b339283965c662a144f6d38",
+            "commit": "5c30b77fada84b87a9e1b1ce2b3e4c188dd9808d",
+            "valid": true
+          }
+        ],
+        "head": "48340754a040124aaa539aea93ac555f57dcfc1f",
+        "subject": "T001: Add a deferred-error stale-view fixture route in spikes/ng222-app"
+      },
+      "landed_commit": "5c30b77fada84b87a9e1b1ce2b3e4c188dd9808d",
+      "reasons": [],
+      "task": {
+        "base": "6a2bf18b3a0ee6a34b339283965c662a144f6d38",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-deferred-stale-view-fixture-route.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M014",
+        "candidates": [
+          {
+            "base": "c25d4e5d56c3632b2b00487f351c4dbbeb290f4f",
+            "commit": "f397ae01a871f347c3173fffcb5e6080436f2458",
+            "valid": true
+          }
+        ],
+        "head": "48340754a040124aaa539aea93ac555f57dcfc1f",
+        "subject": "T002: Align the interop check with the deferred fixture route"
+      },
+      "landed_commit": "f397ae01a871f347c3173fffcb5e6080436f2458",
+      "reasons": [],
+      "task": {
+        "base": "c25d4e5d56c3632b2b00487f351c4dbbeb290f4f",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-interop-check-alignment.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M014",
+        "candidates": [
+          {
+            "base": "5f161259962150908d76de9f8b66ceea6e2ea567",
+            "commit": "4031a668a9413d464c41cade64a5607008c5405e",
+            "valid": true
+          }
+        ],
+        "head": "48340754a040124aaa539aea93ac555f57dcfc1f",
+        "subject": "T003: Re-record interop provenance and correct portal-required notes"
+      },
+      "landed_commit": "4031a668a9413d464c41cade64a5607008c5405e",
+      "reasons": [],
+      "task": {
+        "base": "5f161259962150908d76de9f8b66ceea6e2ea567",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-proven-and-doc-corrections.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M014",
+        "candidates": [
+          {
+            "base": "f0fae2cd7101d2f6e307d943e71fa07213dbd487",
+            "commit": "be06f32bfb281ad7e2374d59d5a1ee346c9e760e",
+            "valid": true
+          }
+        ],
+        "head": "48340754a040124aaa539aea93ac555f57dcfc1f",
+        "subject": "T004: Run project Verify and the skills mirror test"
+      },
+      "landed_commit": "be06f32bfb281ad7e2374d59d5a1ee346c9e760e",
+      "reasons": [],
+      "task": {
+        "base": "f0fae2cd7101d2f6e307d943e71fa07213dbd487",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-project-verify-and-skills-mirror.md"
+      }
+    }
+  ]
+}
