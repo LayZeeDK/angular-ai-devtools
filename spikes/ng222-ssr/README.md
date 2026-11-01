@@ -38,7 +38,7 @@ This will compile your project and store the build artifacts in the `dist/` dire
 
 ## Running unit tests
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+This fixture was generated with `--skip-tests` and tracks no `*.spec.ts`, so it has no unit tests to run. The Angular CLI keeps the section below in its generated README; it does not apply here.
 
 ```bash
 ng test

@@ -560,3 +560,42 @@ Risks
 
 Open questions
 - [RESEARCH] Which instance, and which panel route, produce a sliced node set from `/stale-view`, and what does the panel report when the effect has already run before the panel attaches?
+
+### M015 — program-closeout
+
+Goal: Close the verification, documentation and test-precision debt the first release left open, so every shipped claim, document and check agrees at M014's shipped head and no deferred alignment row remains.
+Depends on: [M014]
+Surfaces: DevTools panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- Discharge the four M014-deferred `fix-doc` rows (research/10 grader regex and port list, research/11 S1 runner, spikes/ng222-ssr README Vitest) so no released note states a retired fact.
+- Keep the `verify-ai-browsers` map row for `interop` true to the in-repo `/stale-view-deferred` fixture and re-record its provenance at the milestone head.
+- Tighten `spikes/ng222-app/src/app/app.routes.test.mjs` so the `/stale-view` assertion cannot match the deferred route.
+- Decide and record the panel bundle budget (518.80 kB against a 500 kB budget) so `build-extension` emits no unexplained warning.
+- Regenerate the docs audit at the new head and drive the alignment queue to zero.
+- Keep the two skills trees byte-identical and the project Verify green.
+
+Scope: out
+- New panel features, new tabs, or any behaviour change to a shipped explainer.
+- Portal source changes beyond the dev-only provider file the charter allows.
+- Touching archived audits or archived milestone records.
+- Loosening a check or a test so it passes.
+
+Success criteria
+1. A regenerated docs audit at the milestone head records zero `stale` and zero `aspirational` claims, and no M014 `fix-doc` row is left `planned: no`.
+2. `verify-ai-browsers`' `interop` row names `spikes/ng222-app`'s `/stale-view-deferred` fixture, its fingerprint reads fresh at the milestone head, and `checks/interop.mjs` still exits 0 on a named instance with the committed lars-verify verdict of `verified`.
+3. `spikes/ng222-app/src/app/app.routes.test.mjs` fails when the `/stale-view` assertion is given the deferred route's name, and passes as written.
+4. `npx nx run angular-ai-devtools:build-extension` emits no bundle-budget warning, or the accepted overage is recorded with its measured size and reason.
+5. The project Verify (`npm run check`, `npm test`, `npx nx run angular-ai-devtools:build-extension`) passes at the shipped head and the skills mirror test is green.
+
+Risks
+- A doc correction can look like a product change; the audit's own claim check decides which side is wrong.
+- The bundle budget lives in `apps/angular-ai-devtools/project.json`, a build configuration with its own doc coverage.
+- Re-recording provenance before the final doc edit leaves the entry stale at the shipped head.
+- The M014 audit marked many claims `unverifiable`; re-deriving them can grow this milestone beyond closeout.
+
+Open questions
+- [RESEARCH] Which `unverifiable` M014 audit rows are now decidable with the commands the repository already ships, and which need evidence this milestone cannot produce?

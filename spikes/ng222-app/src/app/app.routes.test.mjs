@@ -16,7 +16,7 @@ test('app.routes.ts registers the deferred stale-view fixture route', () => {
 
 test('app.routes.ts retains the existing /stale-view route', () => {
   const src = readFileSync(routesPath, 'utf8');
-  assert.match(src, /stale-view/);
+  assert.match(src, /['"]stale-view['"]/);
   assert.match(src, /StaleViewFixture/);
 });
 
