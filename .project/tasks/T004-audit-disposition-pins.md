@@ -3,9 +3,9 @@ id: T004
 title: Pin the docs-audit disposition rules E5, E6 and E7 in a repository test
 wave: 3
 deps: [T003]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T004
+base: 767868e01ceb7a8220b886bf1f81244e88149ec4
 worktree: null
 task_branch: null
 files:
@@ -97,3 +97,88 @@ Heavy: no
 ## Log
 
 - 2026-11-01 — created by planner
+- 2026-11-01 — wrote `scripts/docs-audit-disposition.test.mjs` (three cases, titled exactly as PLAN.md's
+  `## Held-out checks`). The gate resolves through `resolveRulesRoot()` to
+  `~/.commandcode/skills/gsd-path/scripts/check_docs_audit.py` and is asserted against, never edited; an
+  absent install or script fails naming the absolute path, and no case spawns the installed helper suite.
+  E5 builds a zero-disposition audit from a copy of the head audit (every non-verified claim dropped, the
+  queue emptied, the Summary retallied) and requires exit 0 with `queue: 0`; the same copy with one
+  `unverifiable` claim and an empty queue is refused, so the empty pass is a pass of the same gate. E6
+  reads the head audit's numbers (unique, strictly increasing, 64 retired and not reused, 99 and 100
+  anchored in `## User rulings`), gates the head audit against a reconstructed pre-re-cut prior, then
+  makes three temp-copy mutations fail with the persisting-item, retired-number and above-the-maximum
+  refusals, and a pristine copy pass. E7 walks every `unverifiable` row and requires a literal settling
+  check in both its Evidence and its Suggested action, requires exactly the seven undecidable rows to
+  carry `no command in this checkout` plus their external artifact, and proves the matcher bites when one
+  row's action or evidence is restored to `re-measure` / `needs a portal run`. The audit itself needed no
+  source fix and is copied into `os.tmpdir()` for every case. Verify: `node --experimental-strip-types
+  --test scripts/docs-audit-disposition.test.mjs` → tests 3, pass 3, fail 0 (two consecutive runs, and a
+  plain `node --test` run); `git status --porcelain` adds only this test file.
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t004-verify): fail, exit 1; output tail:
+  ```
+  ✖ E6 queue numbers stay unique, increasing and bound to their items (65.7139ms)
+    AssertionError [ERR_ASSERTION]: the head audit must pass the gate at C:\Users\LarsGyrupBrinkNielse\.commandcode\skills\gsd-path\scripts\check_docs_audit.py; output: docs audit validation failed: Repo root does not match --primary (default --repo)
+    
+    
+    1 !== 0
+    
+        at TestContext.<anonymous> (file:///C:/Users/LarsGyrupBrinkNielse/.gsd-path/projects/d10fb97cec6c7ac7/8919d4cefeb4a7e5/verify/task-t004-verify/scripts/docs-audit-disposition.test.mjs:475:10)
+        at Test.runInAsyncScope (node:async_hooks:227:14)
+        at Test.run (node:internal/test_runner/test:1402:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+        at Test.postRun (node:internal/test_runner/test:1542:19)
+        at Test.run (node:internal/test_runner/test:1467:12)
+        at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+      generatedMessage: false,
+      code: 'ERR_ASSERTION',
+      actual: 1,
+      expected: 0,
+      operator: 'strictEqual',
+      diff: 'simple'
+    }
+  ```
+- 2026-11-01 — corrective redispatch: the E6 positive half was worktree-bound, not rule-bound. Cause, measured
+  rather than assumed: `check_docs_audit.py` resolves its `Repo root:` header against `--primary`, defaulting
+  to `--repo` (`validate()`, "Repo root does not match --primary (default --repo)"). The audit declares
+  `Repo root: D:\projects\sandbox\angular-ai-devtools`, so `runGate(repoRoot)` passed only where that literal
+  path was the checkout running the test — the primary. In the authoritative isolate worktree the same call
+  was refused at the header, before the coverage, tally or queue rules were reached. The two other suspects
+  were tested and cleared: `--emit-inventory` from the primary and from a clean worktree of base
+  `767868e01ceb7a8220b886bf1f81244e88149ec4` produced byte-identical inventories (`fc`: no differences), so
+  untracked-but-not-ignored Markdown was not the cause, and no case read installed helpers through the wrong
+  root. Fix, in `scripts/docs-audit-disposition.test.mjs` only: parse `declaredRepoRoot` from the head audit
+  (pinned to exactly one `Repo root:` line holding an absolute path), and route both real-tree gate calls
+  through a `runGateAtHead()` wrapper that passes that declared primary as `--primary` while `--repo` stays
+  this checkout — the documented sidecar invocation, so the inventory still derives from the root the gate
+  reads. A `gateInventory()` helper runs `--emit-inventory` and asserts the derived set deep-equals the paths
+  the audit covers, so coverage is asserted explicitly instead of inferred from an exit code. Scope note: the
+  positive half no longer proves the header names the checkout that runs the test — in a sidecar it must not;
+  the header's shape still is, and the coverage, tally, queue-number and prior-history rules run unbranched.
+  All three mutations, the pre-re-cut prior pass and the pristine pass are untouched. The three held-out case
+  titles are unchanged. Verify in the primary: `node --experimental-strip-types --test
+  scripts/docs-audit-disposition.test.mjs` → tests 3, pass 3, fail 0. Verify for worktree independence: the
+  same file copied into a clean `git worktree add ... 767868e01ceb7a8220b886bf1f81244e88149ec4` (no
+  `node_modules`) → tests 3, pass 3, fail 0; worktree removed with `git worktree remove --force`.
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t004-verify): pass, exit 0; output tail:
+  ```
+  E6: a persisting row renumbered -> gate exited 1 over C:\Users\LARSGY~1\AppData\Local\Temp\docs-audit-e6-Ejvbpz\mutation-0
+  E6: a retired number reused by a new item -> gate exited 1 over C:\Users\LARSGY~1\AppData\Local\Temp\docs-audit-e6-Ejvbpz\mutation-1
+  E6: a new item at or below the prior maximum -> gate exited 1 over C:\Users\LARSGY~1\AppData\Local\Temp\docs-audit-e6-Ejvbpz\mutation-2
+  E6: pristine copy -> gate exited 0
+  E7: resolved docs-audit gate at C:\Users\LarsGyrupBrinkNielse\.commandcode\skills\gsd-path\scripts\check_docs_audit.py
+  E7: 72 unverifiable row(s) name a settling check; the undecidable rows are ["68","69","71","74","76","86","89"]
+  E7: queue row #1 suggested action restored to "re-measure the numbers and record the result" -> 1 issue(s)
+  E7: queue row #1 suggested action restored to "needs a portal run before this row can be decided" -> 1 issue(s)
+  E7: queue row #1 evidence restored to "needs a portal run before this row can be decided" -> 1 issue(s)
+  ✔ E5 an audit with zero unverifiable rows is a pass (170.042ms)
+  ✔ E6 queue numbers stay unique, increasing and bound to their items (699.2693ms)
+  ✔ E7 every remaining row names a shipped command, never a prose verb (22.2635ms)
+  ℹ tests 3
+  ℹ suites 0
+  ℹ pass 3
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 1043.1693
+  ```
