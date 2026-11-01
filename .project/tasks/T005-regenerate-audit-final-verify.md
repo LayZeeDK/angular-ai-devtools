@@ -7,10 +7,10 @@ deps:
   - T002
   - T003
   - T004
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T005
+base: 21b03420ee3a40e48a342dd0cf48d037a82620a8
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - .project/research/DOCS-AUDIT.md
@@ -60,7 +60,7 @@ This task does not re-audit all 141 documents — the delta rule re-derives only
 ## Verify
 
 ```bash
-node -e "const fs=require('fs');const {execSync}=require('child_process');const auditPath=process.argv[1];const verdictPath=process.argv[2];const t=fs.readFileSync(auditPath,'utf8');const stale=/\\|\\s*stale\\s*\\|\\s*(\\d+)\\s*\\|/.exec(t);const asp=/\\|\\s*aspirational\\s*\\|\\s*(\\d+)\\s*\\|/.exec(t);if(!stale||stale[1]!=='0')throw new Error(auditPath+': summary still reports stale claims: '+(stale?stale[1]:'missing'));if(!asp||asp[1]!=='0')throw new Error(auditPath+': summary still reports aspirational claims: '+(asp?asp[1]:'missing'));const head=/^Audited HEAD:\\s*([0-9a-f]{40})\\s*$/m.exec(t);if(!head)throw new Error(auditPath+': no 40-hex Audited HEAD');execSync('git merge-base --is-ancestor '+head[1]+' HEAD',{stdio:'inherit'});const rulings=(t.split('## User rulings')[1]||'').split('## Remediation queue')[0];if(/\\|\\s*planned: no\\s*\\|/i.test(rulings))throw new Error(auditPath+': a User ruling still reads planned: no');const v=JSON.parse(fs.readFileSync(verdictPath,'utf8'));if(v.exitCode!==0)throw new Error(verdictPath+': closeout verdict records exit code '+v.exitCode);console.log('audit regenerated at',head[1].slice(0,12),'with',stale[1],'stale and',asp[1],'aspirational')" .project/research/DOCS-AUDIT.md .project/build/verify/closeout/verdict.json && node --experimental-strip-types --test scripts/skills-mirror.test.mjs
+node -e "const fs=require('fs'),{execSync}=require('child_process');const a=process.argv[1],v=process.argv[2];const t=fs.readFileSync(a,'utf8');const row=(k)=>{const l=t.split('\n').find((s)=>s.trim().startsWith('| '+k+' |'));return l?l.split('|')[2].trim():null;};if(row('stale')!=='0')throw new Error('stale count is '+row('stale'));if(row('aspirational')!=='0')throw new Error('aspirational count is '+row('aspirational'));const head=t.split('\n').map((s)=>s.trim()).find((s)=>s.startsWith('Audited HEAD:'));if(!head)throw new Error('no Audited HEAD line');const sha=head.slice(13).trim();if(!/^[0-9a-f]{40}$/.test(sha))throw new Error('Audited HEAD is not a 40-hex commit: '+sha);execSync('git merge-base --is-ancestor '+sha+' HEAD',{stdio:'inherit'});const rulings=(t.split('## User rulings')[1]||'').split('## Remediation queue')[0];if(!rulings.trim())throw new Error('no User rulings section');if(rulings.indexOf('planned: no')>=0)throw new Error('a User ruling still reads planned: no');const verdict=JSON.parse(fs.readFileSync(v,'utf8'));if(verdict.exitCode!==0)throw new Error('closeout verdict records exit '+verdict.exitCode);console.log('audit regenerated at',sha.slice(0,12),'with 0 stale and 0 aspirational')" .project/research/DOCS-AUDIT.md .project/build/verify/closeout/verdict.json && node --experimental-strip-types --test scripts/skills-mirror.test.mjs
 ```
 
 Heavy: yes
@@ -69,3 +69,18 @@ Heavy: yes
 
 - 2026-11-01 — created by planner
 - 2026-11-01 — orchestrator plan repair: the planner's T005 was 865 bytes with no Approach, Interface contract, Intent coverage, Acceptance criteria or Verify at all, and wired held-out E1/E3 to a `path::test` value that cannot appear in a file list. Wrote the delta-rule procedure, made this task own SC1 and SC5, and gave it a Verify that reads the audit, asserts the counts, the ancestor condition and the rulings, and runs the project Verify.
+- 2026-11-01 — corrected the stale portal-commit pin in both `control-pangular-inspector` `features/setup.md` trees (the setup is not committed in the portal checkout; no `f102b97` survives in either), regenerated `.project/research/DOCS-AUDIT.md` at `21b0342` with verified 330 / stale 0 / aspirational 0 / unverifiable 111 / descriptive 0 and 111 queue rows, moved the portal-pin claim to `verified` with both `setup.md:31` citations plus commit `215eb10`, removed queue row 237, and recorded rows 155/156/158 and 205 as discharged in `2c97f69` and row 237 as landed in T002 in `## User rulings` (Planned takes only `no` or a T### id, so the commits are named in the ruling text); docs-audit gate exit 0, `npm run check` exit 0, `npm test` exit 0 (first attempt exit 1 on a Windows `%TEMP%` rmSync EPERM, 590/590 on rerun), `npx nx run angular-ai-devtools:build-extension` exit 0, and this task's Verify line exit 0 under Git bash (the line is bash-escaped: under cmd.exe its doubled backslashes make the Summary regex match a bare `\` and fail on any audit content) — ready
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t005-verify): pass, exit 0; output tail:
+  ```
+  audit regenerated at 21b03420ee3a with 0 stale and 0 aspirational
+  ✔ .claude/skills/control-ai-browsers mirrors .commandcode/skills/control-ai-browsers (7.2897ms)
+  ✔ .claude/skills/verify-ai-browsers mirrors .commandcode/skills/verify-ai-browsers (2.7397ms)
+  ℹ tests 2
+  ℹ suites 0
+  ℹ pass 2
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 137.0458
+  ```
