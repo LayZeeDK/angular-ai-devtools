@@ -16,9 +16,9 @@ Alignment mode: no
 | stale | 4 |
 | aspirational | 0 |
 | unverifiable | 72 |
-| descriptive docs (no testable claims) | 24 |
+| descriptive docs (no testable claims) | 25 |
 
-Claim rows audited: 501 across 117 documents; with the 24 descriptive documents, the 141 frozen
+Claim rows audited: 501 across 117 documents; with the 25 descriptive documents, the 142 frozen
 inventory paths are all accounted for exactly once.
 
 Verdict and evidence rules for this pass. A row that keeps `unverifiable` names, in its Evidence cell
@@ -1264,6 +1264,7 @@ Vendored Nx skill about linking workspace packages.
 - .commandcode/skills/nx-workspace/SKILL.md
 - .commandcode/skills/nx-workspace/references/AFFECTED.md
 - .commandcode/taste/taste.md
+- docs/autonomy-gaps.md
 - research/03-prior-art.md
 - research/04-ecosystem.md
 - research/06-angular-skills.md
@@ -1284,6 +1285,10 @@ surveys: `03` and `14` describe third-party devtools and prior art, `04` describ
 Storybook, Vitest Browser Mode and RxAngular as ecosystems, and `06` describes the official
 `angular/skills` repository. Their own claims are about those dependencies, and the product
 decisions they informed are audited in `docs/feature-proposals.md` section 8 and in the skills.
+`docs/autonomy-gaps.md` narrates one run: the stops M017 met, the installed user-scope change each
+one produced and the repository pin that fails without it. Its statements are about that session and
+about files outside this checkout, which no commit here can confirm, so it is descriptive rather than
+a claim section — and the pins it cites are held by `node --test scripts/autonomy-gaps.test.mjs`.
 
 ## User rulings
 
