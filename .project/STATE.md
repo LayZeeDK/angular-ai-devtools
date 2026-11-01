@@ -1,11 +1,11 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: null
-phase: inspect
+milestone: verification-coverage
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M017
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -317,3 +317,15 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-01 — shipped — archive preflight passed; shipment recorded; program complete
 - 2026-11-01 — inspect — router bound next milestone: M017 verification-coverage; previous M016 orchestration-autonomy shipped on gsd-path/M016 (ship 0f4cb81b7081091a673cb3a366680d5339cfd092, integration b93fef506351f176fa78695cd04d9fce555dd6e0, archive .project/archive/016-orchestration-autonomy); base 4faddca6635bd56aeb027e0edce67b225792658e
 - 2026-11-01 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-01 — inspect — inspection artifacts passed
+- 2026-11-01 — define — definition started
+- 2026-11-01 — define — pre-authorized approval: intent
+- 2026-11-01 — define — pre-authorized approval: intent
+- 2026-11-01 — define — milestone intent approved
+- 2026-11-01 — research — research started
+- 2026-11-01 — research — research complete; manifest .project/research/RESEARCH.md; dispatched audit-verifiability; skipped domain, stack, pitfalls, similar; 1 question
+- 2026-11-01 — decide — decision synthesis started
+- 2026-11-01 — decide — decision synthesis complete; synthesis .project/research/SYNTHESIS.md validated (5 decisions)
+- 2026-11-01 — plan — planning started
+- 2026-11-01 — plan — pre-authorized approval: plan
+- 2026-11-01 — plan — plan approved

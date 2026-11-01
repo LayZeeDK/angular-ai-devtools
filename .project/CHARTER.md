@@ -207,3 +207,12 @@ questions, answered in the panel, on the developer's machine.
   counter." The counter fixture may carry one dev-only route that exhibits a
   plain field written in a subscribe callback, for verification only; the
   insurance portal gains nothing beyond runtime providers.
+- 2026-11-01: the `Model policy: free routes only` paragraph under Constraints is
+  superseded. Owner's instruction, verbatim: "paid-* subagents only (the free-*
+  models have reached their daily quota except for Poolside Laguna S 2.1)". The
+  binding policy is `.project/model-policy.json`: `deepseek/deepseek-v4.1-flash`
+  for every tool-loop role and `z-ai/glm-5.3-flash` for `reviewer`, `skeptic` and
+  `review_panel`, so a paid verdict never shares the producer's family. Commit
+  `395d1c7` (`build: pin paid model policy per role`) is the change this records;
+  the Constraints paragraph stays as written because charter text is amended only
+  here.
