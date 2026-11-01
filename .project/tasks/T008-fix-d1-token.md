@@ -52,7 +52,7 @@ Evidence: `.project/review/wave-2.cycle1.md`, locators `sc1` and `t002_ac2`; `sc
 
 ## Interface contract
 
-- The `DISPATCH_PINS` row shape is unchanged: `{ id: string, name: string, file: string[], tokens: string[], probe: Box }`, and a pin's citable identity remains `<repo path>::<exact case title>`.
+None
 
 ## Intent coverage
 
