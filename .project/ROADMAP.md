@@ -609,7 +609,7 @@ Depends on: [M015]
 Surfaces: none
 Status: shipped
 Archive: .project/archive/016-orchestration-autonomy
-Integrated: null
+Integrated: b93fef506351f176fa78695cd04d9fce555dd6e0
 
 Scope: in
 - A conformance suite inside this repository that reads the installed user-scope tooling and fails
@@ -645,3 +645,50 @@ Risks
 
 Open questions
 - None
+
+### M017 — verification-coverage
+
+Goal: Turn M016's autonomy lessons into enforced, project-scope verification, so a future milestone
+cannot dispatch on a broken helper, an unverifiable claim, or an exhausted route without a named
+check failing first.
+Depends on: [M016]
+Surfaces: none
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- A project-scope check that fails when a user-scope `gsd` helper regresses on any defect M016 found:
+  `brief-check`'s effort ladder for paid types, `plan-lint`'s `path::test_name` Held-out form,
+  `check_handoffs`'s unreadable Intent-coverage row, and the serial-retry refusal that leaves a
+  rejected attempt unparkable.
+- Drive the docs-audit alignment queue to zero decidable rows: every `unverifiable` row that the
+  repository's own shipped commands can settle is re-derived, and every remaining row names the
+  check that would settle it.
+- Keep the two skills trees byte-identical and the project Verify green.
+
+Scope: out
+- Product behaviour, panel features, or any shipped explainer.
+- Editing `.project/archive/**`.
+- Weakening a gate, check or test to make the check pass.
+
+Success criteria
+1. `npm test` runs a check that fails when the installed `gsd` helper regresses on paid-type brief
+   effort, the `path::test_name` Held-out form, an unreadable Intent-coverage row, or the serial
+   retry path, and it passes at the shipped head.
+2. The docs audit at the milestone head carries no `unverifiable` row that the repository's shipped
+   commands can decide, and every remaining row names the check that would settle it.
+3. The project Verify (`npm run check`, `npm test`, `npx nx run angular-ai-devtools:build-extension`)
+   passes at the shipped head and the skills mirror test stays green.
+
+Risks
+- The helper check reads files outside the checkout, so it inherits M016's absent-install rule: fail
+  loudly with the path, never pass vacuously.
+- Re-deriving audit rows can grow past the milestone; a row that needs evidence this milestone cannot
+  produce is recorded with its settling check rather than guessed.
+- The user-scope `gsd` suite is an installed bundle, so an installer re-run can revert the very
+  behaviour the check protects; assert behaviour, not wording.
+
+Open questions
+- [RESEARCH] Which of the 111 `unverifiable` audit rows are decidable with the commands this
+  repository already ships, and which need evidence this milestone cannot produce?
