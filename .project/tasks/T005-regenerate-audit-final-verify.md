@@ -7,10 +7,10 @@ deps:
   - T002
   - T003
   - T004
-status: in-progress
-agent: build_T005
-base: 21b03420ee3a40e48a342dd0cf48d037a82620a8
-worktree: D:\projects\sandbox\angular-ai-devtools
+status: pending
+agent: null
+base: null
+worktree: null
 task_branch: null
 files:
   - .project/research/DOCS-AUDIT.md
