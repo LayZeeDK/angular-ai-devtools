@@ -3,9 +3,9 @@ id: T001
 title: Extend the user-scope conformance suite with the four helper-regression pins
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: c7d82a4f4e74e571222a54bdaee950885a85a6a0
 worktree: null
 task_branch: null
 files:
@@ -129,3 +129,27 @@ Heavy: no
 ## Log
 
 - 2026-11-01 — created by planner
+- build_T001: added a `HELPER_PINS` table (P1 brief-check paid effort ladder, P2 plan-lint `path::test_name` Held-out cell, P3 check_handoffs Intent-coverage row, P4 serial-retry parkable) plus `checkHelpers()`, `resolvePinPaths()` and `runPinProbe()` to `scripts/user-scope-autonomy.mjs`, called `checkHelpers()` after `check()`'s RULES loop and exported all of them, and added seven cases to `scripts/user-scope-autonomy.test.mjs` (one per pin plus the E1/E2/E3 hardening cases). Measured before authoring: the shared temp `.project` fixture (STATE at plan/active, one-criterion INTENT, one wave, one task) answers `gsd plan-lint --repo <fixture> --json` in 319 ms with `ok: true` and 0 blockers/0 warns/1 info, and `python -B check_handoffs.py plan --repo <fixture>` exits 0 in 295 ms once the fixture carries the full plan contract — the successive demands that proved it were STATE `integration_default` and `integration` appearing together, `pipeline: gsd-path/v2`, a slug `milestone`, a `branch` matching `gsd-path/M<NNN>`, `## Wave N — <title>` with `Goal:` and `Review depth:`, explicit `agent/base/worktree/task_branch: null` on the task, and INTENT `Surfaces:` plus a PLAN `Project verify:` line — so the Approach's module-level `_coverage_rows` fallback was not needed and AC4's two public-subcommand runs stand as written. The serial-retry static token pair is `skills/gsd-path/scripts/dispatch_driver.py` lines 1042-1058 (`def isolate_live`), serial branch at 1052-1058: `state.get("mode") == "serial"` at 1053, `fields.get("status") == "blocked"` at 1054, `fields.get("task_branch") == "null"` at 1057; the metadata-clearing side is `build_state.py` `_validate_ready_metadata` lines 433-445 (a `pending` task retaining any of `agent`/`base`/`worktree`/`task_branch` is `invalid-task-state`) with `isolation.py` `_activated_task_text` lines 2039-2046 requiring exactly those four cleared before activation. Behaviour at this head: P1 two brief-check runs (paid route yields no `missing effort ladder mention`, no route token yields it), P2 one plan-lint run reporting `ok: true` and no `held-out-test`/`held-out-verify` finding over the `::` cell, P3 check_handoffs exit 0 listing SC1 then exit 1 printing `Intent coverage row is unreadable`, P4 `build_state.py ready` exit 0 listing the parked serial task then exit 1 with `invalid-task-state` for the same task retaining dispatch metadata. Shortfalls recorded rather than papered over: (a) the installed refusal reads `T001: pending task retains dispatch metadata` and names no individual retained field, so AC5's "naming the retained field" is only partly provable — the pin asserts the exit code, the error code, the task id and that clause, and claims nothing more; (b) `makeFixtureInstall()` now also copies `skills/gsd-path/scripts`, because `check()` runs `checkHelpers()` and the existing E4 pristine-fixture assertion `deepEqual(check(installRoot), [])` needs those pin files present — no existing case, assertion or matcher was changed; (c) all four installed helpers already carry the fix at this head, so the red side was proven by mutation instead — the new E1 case removes each pin's token from a copied install, gets a failure naming the absolute file and the pin id, then rewords around the kept token and goes green — and no user-scope edit was made or claimed (nothing under `~/.commandcode` was written: the newest file mtime there is 14:56, before this session's runs). Timing: no `runGsdTests()` call was added (still exactly the two at lines 120 and 149), the pins spawn three helper programs (gsd.ts for P1/P2, check_handoffs.py, build_state.py) in nine child processes costing about 7.3 s, and the seven new cases alone ran in 7323 ms. Verify `node --experimental-strip-types --test scripts/user-scope-autonomy.test.mjs` exits 0 with tests 14, pass 14, fail 0, duration_ms 79605.95 (79.6 s wall) — ready
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t001-verify): pass, exit 0; output tail:
+  ```
+  ✔ health: the real installed helper suite exits 0 (28858.5165ms)
+  ✔ E2: a copied suite with one injected failing test exits non-zero naming that test (29342.9917ms)
+  ✔ E4: removing a rule token fails naming that file; rewording with the token kept passes (5600.936ms)
+  ✔ E5: a rules file holding none of the five rules is reported per file and rule (234.7257ms)
+  ✔ E3: repeated runs give the same verdict and write nothing into the checkout (495.4617ms)
+  ✔ P1 brief-check pin: a paid route yields no missing-effort warning and a bare brief yields it (601.0861ms)
+  ✔ P2 plan-lint pin: a :: held-out Test cell yields ok and no held-out finding (288.8009ms)
+  ✔ P3 check_handoffs pin: a readable coverage row exits 0 and a three-cell row is unreadable (558.3634ms)
+  ✔ P4 serial-retry pin: a parked serial task is ready and a pending task retaining metadata fails (3281.926ms)
+  ✔ E1 helper pin: a removed token fails naming the absolute file and the rule id, and a reworded copy passes (498.6561ms)
+  ✔ E2 helper pin: an absent install or helper dir fails naming the resolved absolute path (123.9181ms)
+  ✔ E3 helper pin: two runs agree and write nothing into the checkout (1045.309ms)
+  ℹ tests 14
+  ℹ suites 0
+  ℹ pass 14
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 71274.9621
+  ```
