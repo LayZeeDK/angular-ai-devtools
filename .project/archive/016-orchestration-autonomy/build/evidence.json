@@ -1,0 +1,32 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "2a7ec280b6473e92ba09434dfb5471d02a92d3ee",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M016",
+        "candidates": [
+          {
+            "base": "eef6eb5ea2616e8088519cc55a8f93d1b13d33a6",
+            "commit": "6256a0879c694ad97fdb3831b506ef16572daef7",
+            "valid": true
+          }
+        ],
+        "head": "2a7ec280b6473e92ba09434dfb5471d02a92d3ee",
+        "subject": "T001: Add user-scope autonomy conformance suite"
+      },
+      "landed_commit": "6256a0879c694ad97fdb3831b506ef16572daef7",
+      "reasons": [],
+      "task": {
+        "base": "eef6eb5ea2616e8088519cc55a8f93d1b13d33a6",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-orchestration-autonomy-conformance.md"
+      }
+    }
+  ]
+}
