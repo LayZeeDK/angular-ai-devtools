@@ -15,6 +15,8 @@ task_branch: null
 files:
   - .project/research/DOCS-AUDIT.md
   - .project/build/verify/closeout/verdict.json
+  - .claude/skills/control-pangular-inspector/features/setup.md
+  - .commandcode/skills/control-pangular-inspector/features/setup.md
 ---
 
 # T005 — Regenerate the docs audit at this head and prove the project Verify
@@ -33,6 +35,7 @@ This task does not re-audit all 141 documents — the delta rule re-derives only
 - In the `## Doc: .claude/skills/control-pangular-inspector/SKILL.md` section, change the portal-commit claim from `stale` to `verified` and give it evidence outside the audited document — the correcting commit from `git log -1 --format=%H -- .claude/skills/control-pangular-inspector/SKILL.md` — not the document itself (N2).
 - Delete queue row 237 from `## Remediation queue` (a verified claim is not queued) and renumber nothing else. In `## User rulings`, set row 237's Planned to the task that landed it and keep the M014 rows 155/156/158 at `planned: yes (2c97f69)`.
 - Append one `## User rulings` row for the panel budget decision, quoting T004's measured size, the previous and new budget, the boundary rule and its one-line reason (N5), and one row for the interop verdict from T003.
+- Correct the same stale pin where it survives outside the two `SKILL.md` files: `.claude/skills/control-pangular-inspector/features/setup.md` and its `.commandcode` counterpart still assert the portal setup is committed at `f102b97`. Wave 1's review found it after T002 had landed. Replace the pin with the same checkout-history-independent wording, keep the setup instruction, and give the regenerated audit a `verified` row for that claim with the correcting commit as evidence (N1, N2).
 - Recompute `## Summary` so the five counts match the rows exactly. Then re-run the gate with the inventory you emitted: a non-zero exit names the rule that failed.
 - Write `.project/build/verify/closeout/verdict.json` recording the audit's counts, the head it describes, and the project Verify command with its exit code.
 
@@ -52,6 +55,7 @@ This task does not re-audit all 141 documents — the delta rule re-derives only
 3. `.project/research/DOCS-AUDIT.md` `## User rulings` contains no row whose Planned value is `planned: no`, and it records the panel budget decision and the interop verdict.
 4. `Audited HEAD:` resolves to a commit that is an ancestor of `HEAD`.
 5. `.project/build/verify/closeout/verdict.json` records the project Verify (`npm run check`, `npm test`, `npx nx run angular-ai-devtools:build-extension`) with exit code 0, and `node --experimental-strip-types --test scripts/skills-mirror.test.mjs` passes.
+6. Neither `features/setup.md` in the two `control-pangular-inspector` trees contains `f102b97`, and each still tells the reader how to run the portal with the dev-only provider (N1), so no stale pin survives anywhere in the inventory.
 
 ## Verify
 
