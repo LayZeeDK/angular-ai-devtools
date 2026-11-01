@@ -6,8 +6,10 @@
 // (checks/state.mjs), so the answer came from the instance's own model.
 // Covers: control-ai-browsers features/interop.md `interop`.
 // Needs: every named instance running with this checkout's extension, its panel built, and an Angular dev page
-// serving a route that uses toSignal (the portal, or a dev-only route).
+// serving the deferred fixture route `/stale-view-deferred` (spikes/ng222-app), which uses toSignal and defers
+// its error effect so the panel can capture a sliced node set.
 // Usage: node .commandcode/skills/verify-ai-browsers/checks/interop.mjs --evidence <dir> --url <app url> [instance...]
+//   where <app url> serves `/stale-view-deferred` (e.g. http://localhost:<port>/stale-view-deferred); no port is hard-coded.
 // Writes: <dir>/interop.json, plus each control step's own evidence JSON in <dir>.
 // Exit 0 pass; 1 with `Error: CLAIM: ...` when the claim fails; 2 when it could not run.
 import { existsSync, realpathSync } from 'node:fs';

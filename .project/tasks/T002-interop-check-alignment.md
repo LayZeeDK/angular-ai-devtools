@@ -3,9 +3,9 @@ id: T002
 title: Align the interop check with the deferred fixture route
 wave: 2
 deps: [T001]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002
+base: c25d4e5d56c3632b2b00487f351c4dbbeb290f4f
 worktree: null
 task_branch: null
 files:
@@ -57,3 +57,25 @@ Heavy: no
 ## Log
 
 - created by planner
+- T002: aligned interop check/test with deferred fixture route; touched .commandcode and .claude copies of interop.mjs and interop.test.mjs. Verify: node --experimental-strip-types --test interop.test.mjs -> 10/10 pass; node --experimental-strip-types --test scripts/skills-mirror.test.mjs -> 2/2 pass. RESULT: ready
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t002-verify): pass, exit 0; output tail:
+  ```
+  ✔ passes when every named instance renders a slice, states the limits and explains (3.2189ms)
+  ✔ an empty slice, a missing limit or an unhedged attribution fails the claim and names the instance (1.3461ms)
+  ✔ a state failure is a failed claim, and panel exit 2 is could-not-run (0.5972ms)
+  ✔ a panel without the interop tab is could-not-run, so a prepared check reads honestly (0.322ms)
+  ✔ an app without the interop route is could-not-run and names the panel it served instead (0.5377ms)
+  ✔ an instance built from another checkout is could-not-run and is never driven (0.2228ms)
+  ✔ main: all instances by default, 1 on a failed claim, 2 without --url or for an unknown instance (1.9219ms)
+  ✔ --extension names the checkout an instance must serve, so a sidecar can verify it (0.5162ms)
+  ✔ an empty slice (nodes: 0) is a CLAIM failure, never a pass (held-out E1) (1.2343ms)
+  ✔ missingLimitTerms names every limit the panel left out, case-insensitively (0.1821ms)
+  ℹ tests 10
+  ℹ suites 0
+  ℹ pass 10
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 135.1834
+  ```
