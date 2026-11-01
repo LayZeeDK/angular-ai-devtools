@@ -151,3 +151,10 @@ remembered lesson.
   prompt." Recorded with `gsd.bat preapprove --grant intent,plan,rulings,ship` at the first legal
   boundary (`STATE.milestone` null, `define/active`). It delegates the intent, plan, edge,
   prohibition and `NEEDS-USER` decisions for M016, and pre-approves the ship gate for M016.
+- 2026-11-01: owner ruling on the free-route exhaustion that blocked `T001` at attempt 2, verbatim:
+  "1: Approve one paid rung." The milestone's coder dispatch runs once on
+  `paid-glm-5-3-flash-high` — the charter's approved pairing for a DeepSeek parent — instead of
+  the free routes, whose four rungs all answered with zero-token runs with the reset 10.1 h away.
+  The route is recorded in the `T001` Log. The second answer, "2: Document only", settles that
+  `isolation.py deactivate-task` keeps its task-branch guard and the serial-retry recipe stays
+  documented in `gsd-path-autonomy-playbook.md` §31 rather than becoming a helper change.

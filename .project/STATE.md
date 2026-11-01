@@ -5,7 +5,7 @@ milestone: orchestration-autonomy
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: active
 branch: gsd-path/M016
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -311,3 +311,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-01 — plan — plan approved
 - 2026-11-01 — build — build started
 - 2026-11-01 — build — build blocked: every free route returns zero-token runs; T001 attempt 3 needs an owner decision (wait for the 00:00 UTC reset or approve a paid rung)
+- 2026-11-01 — build — build resumed: owner approved one paid rung (paid-glm-5-3-flash-high) for T001; recording the ruling in INTENT.md Corrections
