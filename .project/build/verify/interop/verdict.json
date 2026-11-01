@@ -1,0 +1,8 @@
+{
+  "claim": "On chrome-beta-gemma4 the Angular AI DevTools panel's Interop tab renders a toSignal slice with at least one node, states the Observable/operator/emission limits, words the field-to-node attribution \"inferred, untested\" and Explain returns a non-empty answer through the panel-local Prompt API for spikes/ng222-app's /stale-view-deferred fixture, and the instance passes state.",
+  "instance": "chrome-beta-gemma4",
+  "command": "node .commandcode/skills/verify-ai-browsers/checks/interop.mjs --evidence .project/build/verify/interop --url http://localhost:4300/stale-view-deferred chrome-beta-gemma4",
+  "exitCode": 0,
+  "verdict": "verified",
+  "evidence": ".project/build/verify/interop/interop.json"
+}

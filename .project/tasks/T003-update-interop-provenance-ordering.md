@@ -4,9 +4,9 @@ title: Prove the interop claim live and record its provenance at this head
 wave: 2
 deps:
   - T001
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: ca73bb18c758626e24416d7e7e7534d7616972e9
 worktree: null
 task_branch: null
 files:
@@ -62,3 +62,9 @@ Heavy: yes
 
 - 2026-11-01 — created by planner
 - 2026-11-01 — orchestrator plan repair: the planner declared `.commandcode/skills/verify-ai-browsers/features/.proven.json`, which does not exist — the manifest lives beside the `control-ai-browsers` feature map, as `fingerprint.mjs` documents. Rewrote the task around the measured fingerprint result and the check's real usage line, and made the Verify assert the verdict and the row instead of running `node --check` on a JavaScript file the task does not own.
+- 2026-11-01 — live interop proof at this head: both `verify-ai-browsers` trees already named `spikes/ng222-app`'s `/stale-view-deferred` for the `interop` row and stayed byte-identical (sha256 4df6cbb7bd85f053a949581843a67d0a79c0d9987a90dc52523ab6b241a8a412), and `fingerprint.mjs check --feature interop` reported `[OK] interop: fresh since 5f1612599621`, so `.proven.json` was left untouched. Bridged `node_modules` with `scripts/sidecar-deps-bridge.mjs`, built the panel with `npx nx run angular-ai-devtools:build-extension`, served `spikes/ng222-app` from its own folder with `npm start -- --port 4300 --host 127.0.0.1`, brought `chrome-beta-gemma4` up through `control-ai-browsers` with `--extension=<this worktree>/extension` (extension id `akmbadfffoafkmnbdbjjcfhkadfenmnb`), and ran `node .commandcode/skills/verify-ai-browsers/checks/interop.mjs --evidence .project/build/verify/interop --url http://localhost:4300/stale-view-deferred chrome-beta-gemma4`: exit 0, `interop.json` recording route `/panel/interop`, 1 slice node, the Observable/operator/emission limits, "inferred, untested", an answer in 10.2 s on gemma4-2b-it (GPU) and `state` pass. `verdict.json` written with `exitCode: 0`, `verdict: verified` and the evidence path; the instance was brought `down` (port free) and the app server stopped (port 4300 free). Verify exit 0 — ready
+- 2026-11-01 — orchestrator Verify (isolate gsd-path-task/T003): pass, exit 0; output tail:
+  ```
+  interop verified on chrome-beta-gemma4
+  [OK] interop: fresh since 5f1612599621
+  ```
