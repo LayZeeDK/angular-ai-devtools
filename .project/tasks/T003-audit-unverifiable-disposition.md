@@ -100,7 +100,7 @@ number may be reused.
 ## Verify
 
 ```bash
-python -B "$HOME/.commandcode/skills/gsd-path/scripts/check_docs_audit.py" --repo . --primary "D:/projects/sandbox/angular-ai-devtools" --audit .project/research/DOCS-AUDIT.md
+python -B "%USERPROFILE%\.commandcode\skills\gsd-path\scripts\check_docs_audit.py" --repo . --primary "D:/projects/sandbox/angular-ai-devtools" --audit .project/research/DOCS-AUDIT.md
 ```
 
 Heavy: no
