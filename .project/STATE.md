@@ -5,7 +5,7 @@ milestone: null
 phase: inspect
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M016
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -301,3 +301,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-01 — ship — ship approval recorded under the owner's standing grant (intent,plan,rulings,ship) quoted in INTENT.md Corrections
 - 2026-11-01 — shipped — archive preflight passed; shipment recorded
 - 2026-11-01 — inspect — router bound next milestone
+- 2026-11-01 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-01 — inspect — re-inspection complete: carried docs audit at this head with 0 stale and 0 aspirational, codebase map regenerated

@@ -599,3 +599,49 @@ Risks
 
 Open questions
 - [RESEARCH] Which `unverifiable` M014 audit rows are now decidable with the commands the repository already ships, and which need evidence this milestone cannot produce?
+
+### M016 — orchestration-autonomy
+
+Goal: Make a GSD Path milestone completable end to end with no human in the loop from one
+`/gsd-path` invocation, by pinning the mechanical stops this repository's free-model orchestrator
+actually hit, so a later session cannot lose the same days to them.
+Depends on: [M015]
+Surfaces: none
+Status: active
+Archive: null
+Integrated: null
+
+Scope: in
+- A conformance suite inside this repository that reads the installed user-scope tooling and fails
+  when the autonomy rules regress: milestone-scoped pre-approval, `handoff` creating its own branch
+  at the remote default, the chunk brief's incremental-write and byte-proof rules, the fragment
+  repair command, and the free-route quota signature.
+- A test entry point the project Verify runs, so the conformance suite is part of `npm test` rather
+  than a document someone must remember to read.
+
+Scope: out
+- Product behaviour, panel features, or any shipped explainer.
+- Editing `.project/archive/**`.
+- Weakening a gate, check or test to make the suite pass.
+
+Success criteria
+1. `npm test` runs a conformance suite that fails when the installed `~/.commandcode/scripts/gsd`
+   suite is red, or when any of these is absent from the user-scope rules: the milestone-scoped
+   pre-approval boundary, the `handoff` branch-creation rule, the free-route zero-token quota
+   signature, the incremental-write and byte-length-proof rules for a written artifact, and the
+   fragment repair command.
+2. The conformance suite names the exact file and rule it failed on, and passes against the
+   tooling as installed at this head.
+3. The project Verify (`npm run check`, `npm test`, `npx nx run angular-ai-devtools:build-extension`)
+   passes at the shipped head and the skills mirror test stays green.
+
+Risks
+- The suite reads files outside the checkout, so a machine without the user-scope install must fail
+  it loudly with the missing path rather than pass vacuously.
+- A suite that asserts prose becomes a change-detector. Assert the presence of a named rule and the
+  behaviour of a named helper, not a paragraph's wording.
+- The user-scope scripts are an installed bundle, so an installer re-run could revert the fixes the
+  suite protects; the suite must therefore test behaviour, not only text.
+
+Open questions
+- None
