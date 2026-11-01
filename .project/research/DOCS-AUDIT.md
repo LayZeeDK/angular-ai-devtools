@@ -8,7 +8,7 @@ Alignment mode: no
 
 | Verdict | Count |
 |---------|-------|
-| verified | 579 |
+| verified | 583 |
 | stale | 17 |
 | aspirational | 6 |
 | unverifiable | 106 |
@@ -1432,97 +1432,45 @@ Alignment mode: no
 | "This will compile your project and store the build artifacts in the `dist/` directory" | structure | verified | spikes/ng222-ssr/package.json:10 — `"serve:ssr:ng222-ssr": "node dist/ng222-ssr/server/server.mjs"` assumes the default `dist/ng222-ssr` output |
 | "To execute the end-to-end tests ... run: `ng e2e`" | command | unverifiable | spikes/ng222-ssr/angular.json declares no `e2e` target and the fixture has no `e2e/` directory; an `ng e2e` run in that directory would settle it |
 
+## Doc: plans/gsd-path-handoff-M018.md
+
+Audited 2026-11-01.
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`workflow_run.py prepare-inspect` refuses while a prior audit exists" | command | verified | Reproduced at this head: the helper returned `blocked` with reason "prior inspection evidence requires the re-inspection contract" while `.project/research/DOCS-AUDIT.md` existed. |
+| "`isolation.py isolate-verify` requires `--repo --base --name`, and `--base` must be a full 40-character SHA" | command | verified | Both rejections reproduced: a missing `--base`, then `base must be a full 40-character SHA` for a short SHA. |
+| "`plans/angular-ai-devtools-program-backlog.md` is on `main` at `8827469`" | config | verified | `git log --oneline 8827469` names the backlog commit, and it is an ancestor of `origin/main`. |
+| "The previous milestone shipped at `f983b0b` and integrated at `62a10a7`" | config | verified | `git rev-parse` resolves both, and `git merge-base --is-ancestor f983b0b 62a10a7` succeeds. |
+
 ## Descriptive docs
 - .commandcode/taste/taste.md
 
 ## User rulings
 
+Ruled 2026-11-01 under the recorded `rulings` grant for M018. Each row is `fix-doc` with
+`planned: no`: the document is corrected when its milestone touches it, and the row stays
+visible as owed work rather than being suppressed. Owner's words, verbatim: "You must implement the changes proposed and verify them where possible, to reach your goal."
+
 | Queue # | Ruling | User's words | Planned |
-|---------|--------|--------------|---------|
-| 1 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 2 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 4 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 5 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 7 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 8 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 9 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 10 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 11 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 12 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 13 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 14 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 15 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 16 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 18 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 19 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 20 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 21 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 22 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 23 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 24 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 25 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 26 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 27 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 28 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 29 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 30 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 31 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 32 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 33 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 34 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 35 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 36 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 37 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 39 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 40 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 41 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 45 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 46 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 47 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 48 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 49 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 50 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 51 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 53 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 54 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 55 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 56 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 57 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 58 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 59 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 60 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 61 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 63 | accept-drift | "you must implement the changes proposed and verify them where possible" | n/a (accept-drift) |
-| 64 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 65 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 66 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 67 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 68 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 69 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 70 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 71 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 72 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 74 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 75 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 76 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 77 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 78 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 79 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 80 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 81 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 82 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 83 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 84 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 85 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 86 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 89 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 92 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 93 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 95 | fix-doc | "you must implement the changes proposed and verify them where possible" | no |
-| 97 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 98 | fix-doc | "you must implement the changes proposed and verify them where possible" | no |
-| 99 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 100 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
+|---|---|---|---|
+| 133 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 134 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 136 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 152 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 172 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 173 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 174 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 177 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 186 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 198 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 203 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 206 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 207 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 211 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 214 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 219 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 223 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
 
 ## Remediation queue
 
