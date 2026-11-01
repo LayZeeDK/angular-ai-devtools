@@ -3,10 +3,10 @@ id: T001
 title: Add user-scope autonomy conformance suite
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T001
+base: 6525e3b35bc364812191426519abe057382d561f
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - scripts/user-scope-autonomy.mjs
@@ -64,3 +64,7 @@ Heavy: no
 ## Log
 
 - 2026-11-01 — created by planner
+- 2026-11-01 — build_T001 rejected (attempt 1): the child errored with no `RESULT:` after 148 turns and 6 685 224 tokens. Rejected path set: `scripts/user-scope-autonomy.mjs`, `scripts/user-scope-autonomy.test.mjs`, plus undeclared `check-now.mjs`, `quick.mjs`, `run.ps1`, `scripts/test-gsd.mjs` (removed before the retry). Verify at that state: 5 tests, 3 pass, 2 fail, exit 1. Exact problem lines:
+  - `AssertionError [ERR_ASSERTION]: Expected "actual" to be strictly unequal to: 0` at `scripts/user-scope-autonomy.test.mjs:34:10`
+  - `Error: ENOENT: no such file or directory, lstat 'C:\Users\LarsGyrupBrinkNielse\.commandcode\scripts\AGENTS.md'` at `cpSync (file:///D:/projects/sandbox/angular-ai-devtools/scripts/user-scope-autonomy.test.mjs:57:3)`
+- 2026-11-01 — orchestrator fix brief for attempt 2: (a) `resolveScanDir()` returns `<home>/.commandcode/scripts`; the rules files live one level up at `<home>/.commandcode`, so the library must derive the rules root from the scripts directory instead of joining `AGENTS.md` onto it; (b) the suite must assert `check()` on the real install returns zero issues and `runGsdTests()` on the real install exits 0, so a green suite cannot mean "all five rules missing"; (c) `runGsdTests` returned exit 0 for a copied suite with an injected failing test in 241 ms, so the relative `test/**/*.test.ts` pattern matched nothing — resolve the test files explicitly; (d) E4 must remove every occurrence of the token, not the first.
