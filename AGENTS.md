@@ -53,13 +53,14 @@ sidecars, including worktree and branch).
   producible; adding another such route is a fixture change and needs a ruling of the same kind.
 - The interop claim (N25, M012) is producible from this repository. `spikes/ng222-app/src/app/stale-view-fixture.ts`
   (owner ruling 2026-10-30) holds both halves N25 needs: `toSignal(this.subject)` at line 14 and an unlabelled
-  `effect` whose body calls `subject.error(...)` at line 22, served at `/stale-view`. The portal measurement of
-  2026-10-30 still stands as the reason the portal is not the fixture, not as a reason the claim is unprovable.
+  `effect` whose body calls `subject.error(...)` at line 22, served at `/stale-view` (and `/stale-view-deferred`
+  for the capturable slice). The recorded source is `spikes/ng222-app`; the portal is not required.
 - The interop verification is prepared, its logic proven, and its live run owed:
   `control-ai-browsers/features/interop.md`, `panel --feature=interop` (the driver pushes `/panel/interop`,
   `scripts/panel.mjs:246`), and `verify-ai-browsers/checks/interop.mjs` (9 tests, green 2026-10-31). The app serves
   the route (`apps/angular-ai-devtools/src/app/app.routes.ts:15`), so the check's route assertion passes as soon as an
-  instance runs the built panel. Proving it on a live instance is M014's deliverable.
+  instance runs the built panel. Measured (M014): check exits 0 on `edge-dev-aion` with `nodes: 1`, verdict `verified`
+  (2/2), evidence `.project/build/verify/interop/`.
 
 - **M014 runs unattended.** The owner's instruction, verbatim: "A fresh session should be able to
   run `/gsd-path @ ~/.commandcode/prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md`

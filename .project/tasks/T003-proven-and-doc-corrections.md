@@ -3,9 +3,9 @@ id: T003
 title: Re-record interop provenance and correct portal-required notes
 wave: 3
 deps: [T002]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: 5f161259962150908d76de9f8b66ceea6e2ea567
 worktree: null
 task_branch: null
 files:
@@ -60,3 +60,8 @@ Heavy: no
 ## Log
 
 - created by planner
+- T003: touched `.commandcode/skills/control-ai-browsers/features/.proven.json`, `.claude/skills/control-ai-browsers/features/.proven.json`, `.commandcode/skills/control-ai-browsers/features/interop.md`, `.claude/skills/control-ai-browsers/features/interop.md`, `AGENTS.md`. Re-recorded interop fingerprint (written, typescript, 10 files, since 5f1612599621); corrected portal-as-required wording to `spikes/ng222-app` fixture routes. Verify: `fingerprint.mjs check --feature interop` -> `[OK] interop: fresh since 5f1612599621` (exit 0); `node --experimental-strip-types --test scripts/skills-mirror.test.mjs` -> 2 pass, 0 fail (exit 0). RESULT: ready
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t003-verify): pass, exit 0; output tail:
+  ```
+  [OK] interop: fresh since 5f1612599621
+  ```

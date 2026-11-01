@@ -21,11 +21,11 @@ an AI summary of the chain.
 ## Driving it with control-ai-browsers
 
 Preconditions: the README baseline; the panel built (`npx nx run angular-ai-devtools:build-extension`); an Angular
-dev page served whose route exercises `toSignal` (the insurance-portal fixture, or a dev-only route).
+dev page served whose route exercises `toSignal` (the `spikes/ng222-app` fixture at `/stale-view`, or the deferred `/stale-view-deferred` route that makes the slice capturable).
 
 - **Build the panel.** `npx nx run angular-ai-devtools:build-extension` writes `extension/panel/`.
 - **Start an Angular page.** `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter`
-  prints the URL; use a portal page for the interop routes.
+  prints the URL; use the `spikes/ng222-app` fixture routes (`/stale-view`, `/stale-view-deferred`) for the interop routes.
 - **Drive interop.** Open the panel on the instance with `C panel <name> --url=<app url> --feature=interop`; the
   driver routes the panel to `interop`, waits for the slice or its explicit empty state, reads the slice node count,
   the stated limits and the "inferred, untested" wording, then clicks "Explain".
@@ -33,6 +33,7 @@ dev page served whose route exercises `toSignal` (the insurance-portal fixture, 
   check's own checkout path. A verify sidecar is a different path, so pass
   `--extension <absolute path of the checkout the instance runs>`:
   `node .commandcode/skills/verify-ai-browsers/checks/interop.mjs --evidence <dir> --url <app url> --extension <checkout>/extension <instance>`.
+- Measured result: the check exits 0 on `edge-dev-aion` with `nodes: 1`; verdict `verified` (2/2); evidence `.project/build/verify/interop/`.
 - Required panel test ids: `interop-slice` (container), `interop-node` (one per sliced node), `interop-limit` (the
   cannot-name statement), `interop-inferred` (the attribution wording), plus the shared `explain`, `ai-answer`,
   `empty-state` and `owning-component`.
