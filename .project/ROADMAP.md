@@ -532,8 +532,8 @@ Open questions
 Goal: Prove the RxJS interop claim end to end on this repository's own dev-only fixture, and close the interop verification debt M012 left open.
 Depends on: [M012, M013]
 Surfaces: DevTools panel
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/014-interop-proof
 Integrated: null
 
 Scope: in
