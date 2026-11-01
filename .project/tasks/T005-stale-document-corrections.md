@@ -3,9 +3,9 @@ id: T005
 title: Correct the stale doc claims the audit rules fix-doc in the tree the decision names
 wave: 4
 deps: [T003]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T005
+base: 053cda208de7079e87cebe046d93e3209f7120f9
 worktree: null
 task_branch: null
 files:
@@ -119,3 +119,51 @@ Heavy: no
 ## Log
 
 - 2026-11-01 — created by planner
+- 2026-11-01 — build: corrected the ruled `stale` claims in the tree each ruling names (rows 3, 6, 17, 38, 42, 43, 44, 52, 62, 73, 87, 88, 90, 91, 92, 94 and the count half of retired row 64 as row 99) and appended 12 cases, one per correction, to `scripts/docs-correction.test.mjs`. Reads: 15/15 docs-correction, 2/2 skills-mirror, 5/5 doc-fix-alignment; the 12 new cases fail on the base blobs of the same files.
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t005-verify): fail, exit 1; output tail:
+  ```
+  ✖ failing tests:
+  
+  test at scripts\docs-correction.test.mjs:77:1
+  ✖ control-angular-devtools SKILL.md (both trees) states the Chromium build the installed Playwright pins (0.269ms)
+    Error: ENOENT: no such file or directory, open 'C:\Users\LarsGyrupBrinkNielse\.gsd-path\projects\d10fb97cec6c7ac7\8919d4cefeb4a7e5\verify\task-t005-verify\node_modules\playwright-core\browsers.json'
+        at readFileSync (node:fs:483:20)
+        at read (file:///C:/Users/LarsGyrupBrinkNielse/.gsd-path/projects/d10fb97cec6c7ac7/8919d4cefeb4a7e5/verify/task-t005-verify/scripts/docs-correction.test.mjs:38:10)
+        at readJson (file:///C:/Users/LarsGyrupBrinkNielse/.gsd-path/projects/d10fb97cec6c7ac7/8919d4cefeb4a7e5/verify/task-t005-verify/scripts/docs-correction.test.mjs:42:21)
+        at TestContext.<anonymous> (file:///C:/Users/LarsGyrupBrinkNielse/.gsd-path/projects/d10fb97cec6c7ac7/8919d4cefeb4a7e5/verify/task-t005-verify/scripts/docs-correction.test.mjs:78:20)
+        at Test.runInAsyncScope (node:async_hooks:227:14)
+        at Test.run (node:internal/test_runner/test:1402:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+        at Test.postRun (node:internal/test_runner/test:1542:19)
+        at Test.run (node:internal/test_runner/test:1467:12)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+      errno: -4058,
+      code: 'ENOENT',
+      syscall: 'open',
+      path: 'C:\\Users\\LarsGyrupBrinkNielse\\.gsd-path\\projects\\d10fb97cec6c7ac7\\8919d4cefeb4a7e5\\verify\\task-t005-verify\\node_modules\\playwright-core\\browsers.json'
+    }
+  ```
+  - 2026-11-01 — fix (FIX round 1, T005 redispatch): the case `control-angular-devtools SKILL.md (both trees) states the Chromium build the installed Playwright pins` in `scripts/docs-correction.test.mjs` no longer requires `node_modules/playwright-core/browsers.json` to exist, and no other file changed. It resolves the pin from the strongest in-repo source that carries it and says which one answered with a `t.diagnostic`: (1) a `playwright-core` install whose own `package.json` version equals the `node_modules/playwright-core` pin in `package-lock.json` — the root install, or `spikes/ng222-app/node_modules/playwright-core` only when the spike pins the same version, because that install is 1.63.0 and carries Chromium 153.0.8010.12, a different fact whose build the document must not state; (2) the recorded 2026-11-01 reading for the pinned playwright-core 1.64.1 (`156.0.8078.4`, revision 1248, read from `node_modules/playwright-core/browsers.json` in the primary checkout); (3) with no install and no recorded reading for the pin, the documented token only, held to the `Chrome for Testing <build>, revision <n>` shape and to the same build in both trees. The stale `154.0.8037.0` / `Chrome for Testing 154` assertions and the `node_modules/playwright-core/browsers.json` citation hold in all three modes, so the case still fails on a revert. Live cross-check unavailable in a worktree without `node_modules` (the authoritative isolate): that run used the recorded reading for the playwright-core 1.64.1 pin. Reads: primary `node --experimental-strip-types --test scripts/docs-correction.test.mjs` 15/15 (cross-check: live `node_modules/playwright-core/browsers.json`); clean worktree at 053cda20 with no `node_modules` 15/15 (cross-check: recorded reading); the task Verify command `scripts/docs-correction.test.mjs scripts/skills-mirror.test.mjs scripts/doc-fix-alignment.test.mjs` 22/22. Revert and divergence probes in the clean worktree: restoring `154.0.8037.0, revision 1241` fails the case, and an unknown pin with the two trees stating different builds fails on the agreement assertion.
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t005-verify): pass, exit 0; output tail:
+  ```
+  ✔ control-angular-devtools SKILL.md (both trees) states the Chromium build the installed Playwright pins (4.4159ms)
+  ℹ cross-check: recorded 2026-11-01 reading for playwright-core 1.64.1; no such install in this worktree
+  ✔ verify-ai-browsers SKILL.md (both trees) gives every shipped check a standalone command (0.4522ms)
+  ✔ the maintained control-angular-dev-app SKILL.md carries the maintain rationale verbatim (0.3339ms)
+  ✔ docs/feature-proposals.md states the built extension and the eleven-draft ledger (1.2051ms)
+  ✔ plans/angular-ai-devtools-proposals.handoff.md counts eleven drafts and all five instances (0.2877ms)
+  ✔ references/ai-browsers-verification.md attributes the 600 s to the check, not the spec (0.3715ms)
+  ✔ references/edge-dev-aion-model.md calls the .claude skills copy byte-identical, not older (0.2927ms)
+  ✔ research/10-model-capabilities.md names the edge-phi4mini profile path (0.2543ms)
+  ✔ AGENTS.md states the shipped interop suite test count (0.2112ms)
+  ✔ .claude/skills/control-ai-browsers mirrors .commandcode/skills/control-ai-browsers (7.2906ms)
+  ✔ .claude/skills/verify-ai-browsers mirrors .commandcode/skills/verify-ai-browsers (2.7814ms)
+  ℹ tests 22
+  ℹ suites 0
+  ℹ pass 22
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 178.8051
+  ```

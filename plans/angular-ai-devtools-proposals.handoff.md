@@ -24,7 +24,7 @@ Research and design for an AI-assisted Angular DevTools browser extension (Chrom
     - 15, deterministic code plus AI;
     - 16, SSR runtime;
     - 17, Vitest Browser runtime.
-- **Upstream reports:** `docs/filing-ledger.md`, ten drafts. **None is filed**, and filing needs Lars's explicit yes.
+- **Upstream reports:** `docs/filing-ledger.md`, eleven drafts (the eleventh, the `LanguageDetector`/`Translator` worker crash, is at `docs/filing-ledger.md:230`; read 2026-11-01). **None is filed**, and filing needs Lars's explicit yes.
 - **Run log:** `docs/afk-run-2026-10-12.md`, which holds every decision Claude made and every ruling, with times. Its "Decision log" table is the place to append.
 - **Probes and fixtures:**
   - `spikes/probes/`: bench.js, regrade.mjs, arg-repair-replay.mjs, and the zone-mode, effect-writes, tosignal, ssr-* and vitest-* probes.
@@ -39,7 +39,7 @@ Research and design for an AI-assisted Angular DevTools browser extension (Chrom
   - `control-` / `verify-pangular-inspector`;
   - `control-vitest-browser-angular` (claims about it are proven with `lars-verify`).
 
-  The browser instance registry is `.claude/skills/control-ai-browsers/instances.json`. Instances: chrome-beta-nano 9333, chrome-beta-gemma4 9334, edge-dev-aion 9335, edge-phi4mini 9337. Profiles are on D: under `.browsers/`.
+  The browser instance registry is `.claude/skills/control-ai-browsers/instances.json`. Instances: chrome-beta-nano 9333, chrome-beta-gemma4 9334, edge-dev-aion 9335, edge-phi4mini 9337, chrome-stable-nano 9338 (read 2026-11-01 from the registry's `port` fields). Profiles are on D: under `.browsers/`.
 - **Review history:** `tmp/review/` (gitignored), with round 1-10 findings and triage, plus every agent brief.
 
 ## State at handoff

@@ -11,6 +11,10 @@ session; reads Angular state through `window.ng` helpers; captures evidence; tea
 Skip it for production builds (no `window.ng`), for unit tests, and for Lars's own browsers: never attach to
 Chrome Beta or Edge Dev (`--cdp`, `--extension`), and never use the sessions `cb`, `ed`, `ai-cb`, `ai-ed`.
 
+One skill covers all three targets on purpose (Lars, 2026-10-18): they share the dev-build check, the `window.ng`
+helpers, playwright-cli and the port handling, and control-angular-devtools and control-pangular-inspector start
+their apps through `up --target counter|portal`. A maintain pass keeps it whole rather than splitting it per app.
+
 All commands below run from the root of the checkout you drive (the main checkout or a worktree); playwright-cli
 sessions are looked up from there. `S` stands for `.commandcode/skills/control-angular-dev-app/scripts/control.mjs`.
 
@@ -18,7 +22,7 @@ sessions are looked up from there. `S` stands for `.commandcode/skills/control-a
 
 | Flow | Command | Notes |
 |---|---|---|
-| Counter fixture | `node $S up --target counter` | `spikes/ng222-app`, Angular 22.2.2, zoneless, `provideRouter` with no routes |
+| Counter fixture | `node $S up --target counter` | `spikes/ng222-app`, Angular 22.2.2, zoneless, `provideRouter(routes)` over the two routes `src/app/app.routes.ts:5-8` declares, `/stale-view` and `/stale-view-deferred` (read 2026-11-01) |
 | SSR fixture | `node $S up --target ssr` | `spikes/ng222-ssr`, Angular 22.2.2, `@angular/ssr`, zoneless, `provideClientHydration()`; routes `/` (`RenderMode.Server`), `/prerender` (`RenderMode.Prerender`), `/client` (`RenderMode.Client`); local data at `/api/items` from `src/server.ts` |
 | Insurance Portal | `node $S up --target portal` | The portal checkout `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools` (a git worktree of the portal repository); override it with `--dir <path>` or `CONTROL_NG_PORTAL_DIR` |
 | Any dev-mode app | `node $S up --url http://localhost:<port>/` | Nothing is launched or stopped; process and port checks report skipped |

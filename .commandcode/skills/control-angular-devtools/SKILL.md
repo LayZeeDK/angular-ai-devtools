@@ -24,7 +24,7 @@ agent restarts them; never use the playwright-cli sessions `cb`, `ed`, `ai-cb`, 
 
 | Flow | Browser | Session, ports, profile |
 |---|---|---|
-| Test harness, main checkout (`.git` is a directory) | Playwright's bundled Chromium (Chrome for Testing 154.0.8037.0 measured), headed | session `ngdt`, CDP port 9420, profile `tmp/control-angular-devtools/profile/main` |
+| Test harness, main checkout (`.git` is a directory) | Playwright's bundled Chromium (Chrome for Testing 156.0.8078.4, revision 1248, read 2026-11-01 from `node_modules/playwright-core/browsers.json`), headed | session `ngdt`, CDP port 9420, profile `tmp/control-angular-devtools/profile/main` |
 | Test harness, worktree (`.git` is a file) | same | session `ngdt-wt-<hash>`, CDP port `9420 + slot` (9421-9499, slot 1-79 from a hash of the worktree path), profile `.../profile/wt-<hash>`; port 9420 is refused |
 | Branded | `--browser chrome|chrome-beta|edge|edge-dev` | Lars's own profile (`--profile Default` by default); nothing launched or stopped by `up`/`down` |
 
@@ -73,7 +73,7 @@ node $S up --app-url=<that url, for example http://localhost:4336/>
 the source it was proven against, from `scripts/fingerprint.mjs`; `[WARN]` names stale and unproven features and
 never fails doctor), `process` (the playwright-cli PID is alive and its start
 time and command line match the state), `tree` (adds the live processes below it to the recorded tree, for
-`down`), `ports` (the CDP port listens, every holder is in the playwright-cli session's process tree, and `/json/version` answers; the app port is listed as external: `[OK] ports: cdp 9431 (derived: fell back from 9430: held by PID 32396), app 4336 (external: ...); CDP answers (Chrome/154.0.8037.0), recorded browser PID 59044`), `extension`
+`down`), `ports` (the CDP port listens, every holder is in the playwright-cli session's process tree, and `/json/version` answers; the app port is listed as external: `[OK] ports: cdp 9431 (derived: fell back from 9430: held by PID 32396), app 4336 (external: ...); CDP answers (Chrome/156.0.8078.4), recorded browser PID 59044`), `extension`
 (`chrome.developerPrivate.getExtensionInfo` on `chrome://extensions/?id=...`: name, version, `ENABLED`,
 `UNPACKED`, path, error counts; plus the service worker), `app` (`[ng-version]` and `window.ng`, which only a
 development build has), `connected-flag`, `devtools-window`. Exit 0 healthy, 1 a check failed, 2 no state. It has no console-errors
@@ -136,7 +136,7 @@ Feature recipes: `features/README.md`.
   `Secure Preferences` -> `extensions.settings.<id>` (version, `disable_reasons`, `from_webstore`). Read only.
 
 Not covered by script: the panel inside branded browsers (`onShowPanel` and `UI.panels` are DevTools
-frontend internals, proven only in Chrome for Testing 154); opening the panel page directly as
+frontend internals, proven only in Chrome for Testing 156.0.8078.4); opening the panel page directly as
 `chrome-extension://<id>/index.html` in a tab (fails: `chrome.devtools` is undefined, `TypeError: Cannot
 read properties of undefined (reading 'inspectedWindow')` from `bundle/main.js`); Playwright
 `connectOverCDP` reaches the DevTools page but lists the extension frames with empty URLs, so it is not used.
