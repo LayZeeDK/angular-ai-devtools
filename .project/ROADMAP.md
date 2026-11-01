@@ -566,8 +566,8 @@ Open questions
 Goal: Close the verification, documentation and test-precision debt the first release left open, so every shipped claim, document and check agrees at M014's shipped head and no deferred alignment row remains.
 Depends on: [M014]
 Surfaces: DevTools panel
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/015-program-closeout
 Integrated: null
 
 Scope: in
