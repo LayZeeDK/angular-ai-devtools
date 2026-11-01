@@ -16,6 +16,10 @@ interface ExtensionMessage {
   };
   supported?: boolean;
   reason?: string;
+  // The page's app-facts record (`extension/agent-main.js`): a per-API support map and the
+  // change-detection mode it measured. Both are page-published facts, never the panel's own.
+  features?: Readonly<Record<string, boolean>>;
+  zoneMode?: string;
   code?: string | null;
   message?: string;
   component?: string | null;
@@ -28,6 +32,10 @@ export class ExtensionMessageService {
   private readonly inspectedTabId: number | undefined;
   readonly notSupported = signal<boolean>(false);
   readonly notSupportedReason = signal<string | null>(null);
+  // The `angular-ai:state` payloads the page already publishes and this service used to drop:
+  // `null` means the page published no such record, which is not the same as an empty one.
+  readonly features = signal<Readonly<Record<string, boolean>> | null>(null);
+  readonly zoneMode = signal<string | null>(null);
   readonly stateReceived = signal(false);
   readonly capturedErrors = signal<CapturedError[]>([]);
 
@@ -58,6 +66,10 @@ export class ExtensionMessageService {
       this.causeService.recordCycle(msg.cycle as any);
     } else if (msg.type === 'angular-ai:state') {
       this.stateReceived.set(true);
+      // The page publishes its app-facts record with every state message; keep what it measured
+      // instead of dropping it at the wire boundary. No probe is re-run here.
+      this.features.set(readFeatureBits(msg.features));
+      this.zoneMode.set(typeof msg.zoneMode === 'string' ? msg.zoneMode : null);
       if (msg.supported === false) {
         this.notSupported.set(true);
         this.notSupportedReason.set(msg.reason ?? 'not supported');
@@ -76,4 +88,22 @@ export class ExtensionMessageService {
       });
     }
   }
+}
+
+/**
+ * Copies the page's per-API support map, keeping only the bits that are booleans. A payload that
+ * carries no map answers `null` — "the page published no features record" — rather than an empty
+ * record, so a missing map is never read as "every API is absent".
+ */
+function readFeatureBits(value: unknown): Readonly<Record<string, boolean>> | null {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return null;
+  }
+  const bits: Record<string, boolean> = {};
+  for (const [name, bit] of Object.entries(value)) {
+    if (typeof bit === 'boolean') {
+      bits[name] = bit;
+    }
+  }
+  return bits;
 }

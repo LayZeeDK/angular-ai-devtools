@@ -71,4 +71,31 @@ describe('ExtensionMessageService', () => {
     expect(causes.recordedCycles().length).toBe(0);
     expect(ext.stateReceived()).toBe(false);
   });
+
+  it('keeps the features map and zone mode the page publishes with angular-ai:state', () => {
+    // A TestBed of this test's own, so the assertions below start from a service nothing has
+    // delivered to yet regardless of what earlier cases published.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const ext = TestBed.inject(ExtensionMessageService);
+    expect(ext.features()).toBeNull();
+    expect(ext.zoneMode()).toBeNull();
+    expect(ext.notSupported()).toBe(false);
+    const features = {
+      setProfiler: true,
+      getSignalGraph: false,
+      getHostElement: true,
+      getInjector: true,
+      getDirectiveMetadata: true,
+      getInjectorResolutionPath: false,
+      getInjectorMetadata: true,
+      getInjectorProviders: false,
+    };
+    deliver({ type: 'angular-ai:state', supported: true, zoneMode: 'noop', features, tabId: 5 });
+    expect(ext.features()).toEqual(features);
+    expect(ext.zoneMode()).toBe('noop');
+    // The existing behaviour is untouched: a supported page still flips neither negative signal.
+    expect(ext.notSupported()).toBe(false);
+    expect(ext.notSupportedReason()).toBeNull();
+  });
 });

@@ -3,9 +3,9 @@ id: T003
 title: Ship app_facts with its support checks through the registry
 wave: 2
 deps: [T001]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: 505964f550e22bd2288725cbb56d409754e015e8
 worktree: null
 task_branch: null
 files:
@@ -99,3 +99,50 @@ Heavy: no
 ## Log
 
 - 2026-11-01 — created by planner
+- 2026-11-01 — `app_facts` shipped through the envelope. `app-facts.ts` declares `app_facts` (`read` / `['panel', 'extension-API']` / `result` / `publish: 'model'`) with `defineTool` + `provideTools` behind `provideAppFactsTool()`; the backing reads the page's `{supported, reason, zoneMode, features}` record out of `ToolContext.facts` (no second probe, no page-realm global), answers `{kind: 'error', code: 'host-unavailable', toolId: 'app_facts'}` while no record has been published — never an empty result, never a `supported: false` claim — and otherwise returns the eight feature bits, `zoneMode`, `provenance: 'page-published'` on the outcome and in the value whatever provenance the caller claims, the two `devModeCaveats` for `getComponent`/`getDirectiveMetadata`, and the per-id `supportChecks`. `supportCheck(toolId, snapshot?)` is pure, never defaults to supported, and every `false` answer names the missing fact or the dev-mode restriction plus "the page channel (angular-ai:state)" as the source. `extension-message.service.ts` now keeps `features` and `zoneMode` as signals (boolean bits only, `null` when unpublished) beside the untouched `supported`/`notSupported` pair; `app.config.ts` gains the one `provideAppFactsTool()` line; no `*.component.ts` touched. Evidence: `node node_modules/nx/dist/bin/nx.js run angular-ai-devtools:test --skip-nx-cache --include=…/app-facts.spec.ts --include=…/extension-message.service.spec.ts` → exit 0, 27 tests in 2 files, Nx run duration 3.1 s (vitest 727 ms); the full uncached suite is also green at 99 tests in 13 files (4.6 s). `npm ci` was not re-run: `node_modules` is already installed and the environment note prefers not installing (the shell exports `NODE_ENV=production`), and the test half of the Verify was run uncached instead.
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t003-verify): pass, exit 0; output tail:
+  ```
+  
+  [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mtest[22m for project angular-ai-devtools[39m
+  
+  
+    Run duration:      6.3s
+    Cache:             0/1 hit (0%)
+    Critical path:     6.1s (1 task)
+    Recoverable time:  <1ms
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:test --include=apps/angular-ai-devtools/src/app/tool-registry/app-facts.spec.ts --include=apps/angular-ai-devtools/src/app/extension-message.service.spec.ts
+  ```
+- 2026-11-01 — orchestrator regression Verify of T001 (sidecar gsd-path-verify/task-t003-verify): pass, exit 0; output tail:
+  ```
+  
+  [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mtest[22m for project angular-ai-devtools[39m
+  
+  
+    Run duration:      4.6s
+    Cache:             0/1 hit (0%)
+    Critical path:     4.6s (1 task)
+    Recoverable time:  <1ms
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:test --include=apps/angular-ai-devtools/src/app/tool-registry/tool-registry.spec.ts
+  ```
