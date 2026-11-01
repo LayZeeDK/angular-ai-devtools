@@ -3,9 +3,9 @@ id: T004
 title: Settle the panel bundle budget with its measured size recorded
 wave: 2
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T004
+base: 8a9e19ad8589a5b286e97f27b53b799efc926211
 worktree: null
 task_branch: null
 files:
@@ -53,3 +53,8 @@ Heavy: yes
 
 - 2026-11-01 — created by planner
 - 2026-11-01 — orchestrator plan repair: removed `.project/research/DOCS-AUDIT.md` from this task's files (T005 owns the audit, and a same-file overlap across waves without a dependency is a land-check failure), and replaced the planner's `node --check` on a JSON file with a Verify that reads the budget, asserts the boundary, and runs the build.
+- 2026-11-01 - measured initial bundle 518.80 kB; raised maximumWarning 500kb to 520kb; product change re-applied after the isolate was rebuilt at 8a9e19a
+- 2026-11-01 — orchestrator Verify (isolate gsd-path-task/T004): pass, exit 0; output tail:
+  ```
+  budget settled at 520kb
+  ```
