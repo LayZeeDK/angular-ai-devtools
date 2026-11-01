@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: docs-audit-closure
-phase: shipped
+milestone: interop-proof
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M013
+branch: gsd-path/M014
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/013-docs-audit-closure
+archive: null
 integration_default: direct
 integration: direct
 integration_source: default
@@ -267,3 +267,16 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-10-31 — ship — build done; final review pending
 - 2026-10-31 — ship — final gate passed; shipping approval pending
 - 2026-10-31 — shipped — archive preflight passed; shipment recorded; program complete
+- 2026-11-01 — inspect — router bound next milestone: M014 interop-proof; previous M013 docs-audit-closure shipped on gsd-path/M013 (ship 13bc1fedb626bc8939b8636130ff1541c76a88e8, integration fc97c8aca5f99520daf21da100ea537131b5319a, archive .project/archive/013-docs-audit-closure); base ff8246c32054521b10c2342b0a648541ad27eca7
+- 2026-11-01 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-01 — inspect — inspection artifacts passed
+- 2026-11-01 — define — definition started
+- 2026-11-01 — define — pre-authorized approval: intent
+- 2026-11-01 — define — milestone intent approved
+- 2026-11-01 — research — research started
+- 2026-11-01 — research — research complete; manifest .project/research/RESEARCH.md; dispatched pitfalls; skipped domain, stack, similar; 1 question
+- 2026-11-01 — decide — decision synthesis started
+- 2026-11-01 — decide — decision synthesis complete; validated .project/research/SYNTHESIS.md (4 decisions)
+- 2026-11-01 — plan — planning started
+- 2026-11-01 — plan — pre-authorized approval: plan
+- 2026-11-01 — plan — plan approved
