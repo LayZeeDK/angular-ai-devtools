@@ -3,9 +3,9 @@ id: T002
 title: Pin the dispatch documents the owner named against the same conformance suite
 wave: 2
 deps: [T001]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002
+base: 7a996f8b71615cd031c04261fef9d6dfdc8628cf
 worktree: null
 task_branch: null
 files:
@@ -101,3 +101,27 @@ Heavy: no
 ## Log
 
 - 2026-11-01 — created by planner
+- build_T002: added a second pin table `DISPATCH_PINS` (exported with `ALL_PINS`) and ran `checkHelpers()` over both tables, seven rows, each two-mutation tested per token on a `makeFixtureInstall()` copy (that fixture now also copies the dispatch documents); tokens asserted per document — D1 `prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md`: `paid-deepseek-v4-1-flash-*`, `GLM-5.3 Flash` (shortfall recorded: the prompt carries no `paid-glm-5-3-flash` route token at this head, so its dispatch-section paid-child marker is pinned instead and the GLM route token is pinned where it is authoritative, D2); D2 `references/paid-model-plan.md`: `paid-deepseek-v4-1-flash-*`, `paid-glm-5-3-flash-*`, `paid-deepseek-v4-1-flash-high`, `paid-glm-5-3-flash-high`, `` `reviewer`, `skeptic`, `review_panel` ``; D3 `references/gsd-path-subagent-briefs.md`: `ROLE:`, `REPO/WORKTREE:`, `DECLARED FILES`, `VERIFY (run it yourself and paste the exit code):`, `INPUTS:`, `<<<DOC`, `RULES:`, `RESULT: ready`, `RESULT: blocked`; D4 `skills/gsd-path/templates/task.md`: `## Context`, `## Approach`, `## Interface contract`, `## Intent coverage`, `## Acceptance criteria`, `## Verify`, `Heavy: no`, `## Log`; D5 `skills/gsd-path/templates/wave-review.md`: `Wave verdict:`, `<pass | blocked`, `<pass | fail>`, `Warnings (non-blocking):`, `Contract violations (blocking):`, `## Intent coverage`, `## Summary for orchestrator`; D6 `skills/gsd-path/templates/final-review.md`: `Overall verdict:`, `## Success criteria`, `- **Verdict**:`, `- **Reference**:`, `- **Fix direction**:`; D7 `references/gsd-path-coder-brief.md`: `## Worked example`, `Result: 22 turns`; one behavioural probe, not wave 1's, via `gsd brief-check --json --max-lines 5` on a temp fixture brief — the parsed warning names `<<<DOC` and the run exits 0, and no warning names it once the INPUTS marker is added, still exit 0; new cases D0 (paths named on green), D1 (two-mutation per token), D2 (absent install and absent document), D3 (the probe), with nothing existing removed or weakened except the fixture builder's file list, which grew; no `runGsdTests()` added, the installed 273-test suite still spawns exactly twice; Verify `node --experimental-strip-types --test scripts/user-scope-autonomy.test.mjs` exit 0 — tests 18, pass 18, fail 0, skipped 0, duration_ms 82723.3027, wall 82.8 s — ready
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t002-verify): pass, exit 0; output tail:
+  ```
+  ✔ E3: repeated runs give the same verdict and write nothing into the checkout (501.3302ms)
+  ✔ P1 brief-check pin: a paid route yields no missing-effort warning and a bare brief yields it (419.7211ms)
+  ✔ P2 plan-lint pin: a :: held-out Test cell yields ok and no held-out finding (292.8647ms)
+  ✔ P3 check_handoffs pin: a readable coverage row exits 0 and a three-cell row is unreadable (552.5191ms)
+  ✔ P4 serial-retry pin: a parked serial task is ready and a pending task retaining metadata fails (3282.8025ms)
+  ✔ E1 helper pin: a removed token fails naming the absolute file and the rule id, and a reworded copy passes (561.3616ms)
+  ✔ E2 helper pin: an absent install or helper dir fails naming the resolved absolute path (118.2255ms)
+  ✔ E3 helper pin: two runs agree and write nothing into the checkout (1043.6638ms)
+  ✔ D0 dispatch pin: every dispatch document resolves under the rules root and carries its named tokens (1.9234ms)
+  ✔ D1 dispatch pin: removing any named token fails naming the absolute file and the pin id, and a reworded copy passes (1293.7517ms)
+  ✔ D2 dispatch pin: an absent install or a missing dispatch document fails naming the resolved absolute path (128.0541ms)
+  ✔ D3 dispatch pin: brief-check names the missing brief-contract field and stops naming it once the field is present (406.8662ms)
+  ℹ tests 18
+  ℹ suites 0
+  ℹ pass 18
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 71370.1095
+  ```

@@ -100,6 +100,115 @@ export const HELPER_PINS = [
   },
 ];
 
+/** The dispatch-document pins: the user-scope prompts, briefs, templates and
+ * worked example the owner named, which decide whether a brief is usable and
+ * which an installer re-run can revert. Same row shape as HELPER_PINS — one
+ * row per document family, `file` split into segments under the resolved rules
+ * root, `tokens` matched literally, and `probe` the public subcommand that
+ * enforces the same contract (relative to the helper dir or the skill scripts
+ * dir). Token-vs-wording only: no row quotes a sentence, so ordinary rewording
+ * of a document still passes and only a removed token fails.
+ *
+ * Recorded shortfall, M017 T002: the orchestrator prompt carries the paid
+ * DeepSeek route token and the dispatch section's `GLM-5.3 Flash` paid-child
+ * marker, but it does not carry the paid GLM route token itself, so D1 pins
+ * the two markers that are really there. The route token is pinned where it is
+ * authoritative, in the paid model plan (D2). */
+export const DISPATCH_PINS = [
+  {
+    id: 'D1',
+    name: 'orchestrator prompt keeps its paid route ladder',
+    file: ['prompts', 'deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md'],
+    tokens: ['paid-deepseek-v4-1-flash-*', 'GLM-5.3 Flash'],
+    probe: { tool: 'gsd', script: ['gsd.ts'], args: ['brief-check', '--json'] },
+  },
+  {
+    id: 'D2',
+    name: 'paid model plan keeps both paid families and the reviewer row',
+    file: ['references', 'paid-model-plan.md'],
+    tokens: [
+      'paid-deepseek-v4-1-flash-*',
+      'paid-glm-5-3-flash-*',
+      'paid-deepseek-v4-1-flash-high',
+      'paid-glm-5-3-flash-high',
+      '`reviewer`, `skeptic`, `review_panel`',
+    ],
+    probe: { tool: 'python', script: ['path_config.py'], args: ['show'] },
+  },
+  {
+    id: 'D3',
+    name: 'subagent brief contract keeps its required fields',
+    file: ['references', 'gsd-path-subagent-briefs.md'],
+    tokens: [
+      'ROLE:',
+      'REPO/WORKTREE:',
+      'DECLARED FILES',
+      'VERIFY (run it yourself and paste the exit code):',
+      'INPUTS:',
+      '<<<DOC',
+      'RULES:',
+      'RESULT: ready',
+      'RESULT: blocked',
+    ],
+    probe: { tool: 'gsd', script: ['gsd.ts'], args: ['brief-check', '--json'] },
+  },
+  {
+    id: 'D4',
+    name: 'task template keeps its required section headings',
+    file: ['skills', 'gsd-path', 'templates', 'task.md'],
+    tokens: [
+      '## Context',
+      '## Approach',
+      '## Interface contract',
+      '## Intent coverage',
+      '## Acceptance criteria',
+      '## Verify',
+      'Heavy: no',
+      '## Log',
+    ],
+    probe: { tool: 'python', script: ['check_task_briefs.py'], args: ['--repo'] },
+  },
+  {
+    id: 'D5',
+    name: 'wave-review template keeps its verdict vocabulary',
+    file: ['skills', 'gsd-path', 'templates', 'wave-review.md'],
+    tokens: [
+      'Wave verdict:',
+      '<pass | blocked',
+      '<pass | fail>',
+      'Warnings (non-blocking):',
+      'Contract violations (blocking):',
+      '## Intent coverage',
+      '## Summary for orchestrator',
+    ],
+    probe: { tool: 'python', script: ['check_handoffs.py'], args: ['wave'] },
+  },
+  {
+    id: 'D6',
+    name: 'final-review template keeps its verdict vocabulary',
+    file: ['skills', 'gsd-path', 'templates', 'final-review.md'],
+    tokens: [
+      'Overall verdict:',
+      '## Success criteria',
+      '- **Verdict**:',
+      '- **Reference**:',
+      '- **Fix direction**:',
+    ],
+    probe: { tool: 'gsd', script: ['gsd.ts'], args: ['final-check'] },
+  },
+  {
+    id: 'D7',
+    name: 'coder brief keeps its worked example',
+    file: ['references', 'gsd-path-coder-brief.md'],
+    tokens: ['## Worked example', 'Result: 22 turns'],
+    probe: { tool: 'gsd', script: ['gsd.ts'], args: ['brief-check', '--json'] },
+  },
+];
+
+/** Both pin tables in one list, so `checkHelpers()` reports the helper and the
+ * dispatch-document pins in the same pass and neither can be skipped. */
+export const ALL_PINS = [...HELPER_PINS, ...DISPATCH_PINS];
+
 /** Child node processes spawned from inside a test run inherit the runner's
  * NODE_TEST_CONTEXT/NODE_TEST_WORKER_ID, which makes a spawned `node --test`
  * exit 0 immediately without running anything. Strip them. */
@@ -211,10 +320,12 @@ export function resolvePinPaths(pin, input) {
   };
 }
 
-/** Static half of every helper pin: the named tokens in the resolved absolute
- * file, plus the presence of the probe script the pin runs. Returns a list of
- * issues built like `check()`'s, so a reviewer sees every resolved path. Fails
- * loudly (never vacuously) when the rules root or a helper script is absent. */
+/** Static half of every pin: the named tokens in the resolved absolute file,
+ * plus the presence of the probe script the pin runs. Returns a list of issues
+ * built like `check()`'s, so a reviewer sees every resolved path. Fails loudly
+ * (never vacuously) when the rules root or a helper script is absent. Runs both
+ * tables — HELPER_PINS and DISPATCH_PINS — so `check()` reports them in one
+ * pass and no pin table can be dropped silently. */
 export function checkHelpers(input) {
   const issues = [];
   const { rulesRoot, scriptsDir } = resolveRulesRoot(input);
@@ -226,7 +337,7 @@ export function checkHelpers(input) {
     });
     return issues;
   }
-  for (const pin of HELPER_PINS) {
+  for (const pin of ALL_PINS) {
     const paths = resolvePinPaths(pin, input);
     for (const token of pin.tokens) {
       checkOneFile(paths.file, pin.id, pin.name, token, issues);
@@ -369,6 +480,8 @@ export function check(input) {
 export default {
   RULES,
   HELPER_PINS,
+  DISPATCH_PINS,
+  ALL_PINS,
   resolveRulesRoot,
   runGsdHelp,
   listGsdTestFiles,

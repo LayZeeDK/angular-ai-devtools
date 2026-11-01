@@ -22,6 +22,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import {
+  DISPATCH_PINS,
   HELPER_PINS,
   RULES,
   check,
@@ -42,6 +43,19 @@ const RULE_FILES = [
   join('references', 'gsd-path-orchestrator.md'),
 ];
 
+/** The dispatch documents the dispatch-document pins read. The orchestrator
+ * prompt is already copied through RULE_FILES (rule R3 reads it); these are the
+ * references and templates the DISPATCH_PINS table names, so a fixture install
+ * satisfies both pin tables and a mutation can be applied to a copy. */
+const DISPATCH_FILES = [
+  join('references', 'paid-model-plan.md'),
+  join('references', 'gsd-path-subagent-briefs.md'),
+  join('references', 'gsd-path-coder-brief.md'),
+  join('skills', 'gsd-path', 'templates', 'task.md'),
+  join('skills', 'gsd-path', 'templates', 'wave-review.md'),
+  join('skills', 'gsd-path', 'templates', 'final-review.md'),
+];
+
 /** The skill-owned helper scripts under the rules root; a pin's probe script and
  * the two python pins' static files live here. */
 const SKILL_SCRIPTS_REL = join('skills', 'gsd-path', 'scripts');
@@ -56,7 +70,7 @@ function makeFixtureInstall() {
   assert.ok(readdirSync(join(gsdDir, 'test')).length > 0, 'source gsd test dir must not be empty');
   const tmp = mkdtempSync(join(tmpdir(), 'usa-fixture-'));
   const dst = join(tmp, '.commandcode');
-  for (const rel of RULE_FILES) {
+  for (const rel of [...RULE_FILES, ...DISPATCH_FILES]) {
     const src = join(rulesRoot, rel);
     const out = join(dst, rel);
     mkdirSync(dirname(out), { recursive: true });
@@ -805,4 +819,255 @@ test('E3 helper pin: two runs agree and write nothing into the checkout', () => 
 
   const after = git();
   assert.equal(after, before, 'the pins must leave git status --porcelain unchanged');
+});
+
+// ---------------------------------------------------------------------------
+// Dispatch-document pins — M017 T002
+//
+// One pin per user-scope document the owner named as a deliverable: the
+// orchestrator prompt's paid route ladder, the paid model plan's per-role
+// table, the subagent brief contract, the task and both reviewer templates,
+// and the coder brief's worked example. Same discipline as the helper pins:
+// a named token in the resolved absolute file (token, never wording), with the
+// absolute path and the pin id in every failure. Nothing here spawns the
+// installed helper suite; the one behavioural probe runs `gsd brief-check`
+// twice over a temp fixture brief.
+// ---------------------------------------------------------------------------
+
+/** The brief-contract field this task's one behavioural probe adds and
+ * removes: the `<<<DOC` boundary marker the brief contract requires once a
+ * brief outgrows its line budget. The probe asserts the marker's own token in
+ * the parsed warnings and the exit code — never a sentence. */
+const CONTRACT_FIELD_TOKEN = '<<<DOC';
+const CONTRACT_FIELD_MAX_LINES = 5;
+
+/** Find a dispatch pin row by id; a missing row is a defect, not an empty pass. */
+function dispatchPin(id) {
+  const row = DISPATCH_PINS.find((entry) => entry.id === id);
+  assert.ok(
+    row,
+    `DISPATCH_PINS must declare ${id}: ${JSON.stringify(DISPATCH_PINS.map((p) => p.id))}`,
+  );
+  return row;
+}
+
+/** Write the task file plus a short brief for the brief-contract field probe.
+ * The brief names the declared file, quotes the Verify verbatim and carries
+ * both `RESULT:` tokens, so it holds no problem; it outgrows
+ * CONTRACT_FIELD_MAX_LINES either way. `withField` adds the `<<<DOC` marker
+ * around the brief's INPUTS block and changes nothing else. */
+function writeContractFieldBrief(root, withField) {
+  mkdirSync(root, { recursive: true });
+  const declared = 'scripts/contract-field-fixture.mjs';
+  const verify = `node --experimental-strip-types --test ${declared}`;
+  const taskFile = join(root, 'T001-contract-field-fixture.md');
+  const briefFile = join(root, 'brief.md');
+  writeFileSync(
+    taskFile,
+    [
+      '---',
+      'id: T001',
+      'title: contract field fixture',
+      'wave: 1',
+      'status: pending',
+      'deps: []',
+      'files:',
+      `  - ${declared}`,
+      '---',
+      '',
+      '# T001 — contract field fixture',
+      '',
+      '## Verify',
+      '',
+      '```bash',
+      verify,
+      '```',
+      '',
+    ].join('\n'),
+  );
+  const lines = [
+    'ROLE: fixture coder brief.',
+    `DECLARED FILES: ${declared}`,
+    `VERIFY: ${verify}`,
+    'RESULT: ready',
+    'RESULT: blocked',
+  ];
+  if (withField) lines.push('INPUTS:', CONTRACT_FIELD_TOKEN, 'none', 'DOC>>>');
+  else lines.push('INPUTS: none');
+  writeFileSync(briefFile, lines.join('\n'));
+  return { taskFile, briefFile };
+}
+
+test('D0 dispatch pin: every dispatch document resolves under the rules root and carries its named tokens', () => {
+  const { rulesRoot } = resolveRulesRoot();
+  const read = [];
+  for (const row of DISPATCH_PINS) {
+    const paths = assertPinTokens(row);
+    assert.ok(
+      paths.file.startsWith(rulesRoot),
+      `${row.id} must resolve under the rules root ${rulesRoot}: ${paths.file}`,
+    );
+    assert.ok(
+      existsSync(paths.script),
+      `${row.id} probe script must exist at ${paths.script} (${row.probe.tool} ${row.probe.script.join(' ')})`,
+    );
+    read.push(`${row.id} -> ${paths.file}`);
+  }
+  assert.equal(
+    read.length,
+    DISPATCH_PINS.length,
+    `every dispatch pin must name the document it read: ${read.join(' | ')}`,
+  );
+  console.log(`D0 dispatch pins read (${DISPATCH_PINS.length}): ${read.join(' | ')}`);
+});
+
+test('D1 dispatch pin: removing any named token fails naming the absolute file and the pin id, and a reworded copy passes', () => {
+  for (const row of DISPATCH_PINS) {
+    const { tmp, installRoot } = makeFixtureInstall();
+    try {
+      const target = resolvePinPaths(row, installRoot).file;
+      assert.ok(
+        target.startsWith(installRoot),
+        `${row.id} must mutate a copy inside the fixture: ${target}`,
+      );
+      const original = readFileSync(target, 'utf8');
+
+      // The pristine fixture itself must be green under both pin tables.
+      assert.deepEqual(
+        checkHelpers(installRoot),
+        [],
+        `fixture before mutation should be clean: ${JSON.stringify(checkHelpers(installRoot))}`,
+      );
+
+      for (const token of row.tokens) {
+        // Remove EVERY occurrence of the token -> fails naming that file+rule.
+        writeFileSync(target, removeToken(original, token));
+        const removed = checkHelpers(installRoot);
+        const removedHit = removed.find(
+          (i) => i.rule === row.id && i.file === target && i.reason.includes(`"${token}"`),
+        );
+        assert.ok(
+          removedHit,
+          `removing "${token}" from ${target} must fail that file+rule ${row.id}; got ${JSON.stringify(removed)}`,
+        );
+
+        // Reword around the token, token kept -> no issue for that rule+file.
+        writeFileSync(target, rewordAroundToken(original, token));
+        const reworded = checkHelpers(installRoot);
+        const rewordedHit = reworded.find((i) => i.rule === row.id && i.file === target);
+        assert.ok(
+          !rewordedHit,
+          `rewording around "${token}" in ${target} must still pass; got ${JSON.stringify(reworded)}`,
+        );
+
+        // Restore before mutating the next token of the same document.
+        writeFileSync(target, original);
+        console.log(
+          `${row.id} two-mutation: ${target} — "${token}" removed was named ${row.id}, reworded was clean`,
+        );
+      }
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  }
+});
+
+test('D2 dispatch pin: an absent install or a missing dispatch document fails naming the resolved absolute path', () => {
+  const empty = mkdtempSync(join(tmpdir(), 'usa-dispatch-empty-'));
+  try {
+    const issues = checkHelpers(empty);
+    assert.ok(issues.length > 0, 'an absent install must not pass with zero assertions');
+    for (const row of DISPATCH_PINS) {
+      const expected = resolvePinPaths(row, empty).file;
+      const hit = issues.find((i) => i.rule === row.id && i.file === expected);
+      assert.ok(
+        hit,
+        `an absent install must fail naming ${expected} under ${row.id}: ${JSON.stringify(issues)}`,
+      );
+    }
+    assert.ok(check(empty).length > 0, 'check() must never exit zero over an absent install');
+    console.log(
+      `D2 absent install: resolved ${resolveRulesRoot(empty).rulesRoot}; named ${JSON.stringify([
+        ...new Set(issues.filter((i) => String(i.rule).startsWith('D')).map((i) => i.file)),
+      ])}`,
+    );
+  } finally {
+    rmSync(empty, { recursive: true, force: true });
+  }
+
+  const { tmp, installRoot } = makeFixtureInstall();
+  try {
+    const row = dispatchPin('D5');
+    const target = resolvePinPaths(row, installRoot).file;
+    rmSync(target, { force: true });
+    const issues = checkHelpers(installRoot);
+    const named = issues.find(
+      (i) => i.rule === row.id && i.file === target && String(i.reason).includes(target),
+    );
+    assert.ok(
+      named,
+      `a missing dispatch document must fail naming ${target} under ${row.id}: ${JSON.stringify(issues)}`,
+    );
+    console.log(`D2 absent dispatch document: ${target} named by ${row.id}`);
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('D3 dispatch pin: brief-check names the missing brief-contract field and stops naming it once the field is present', () => {
+  const row = dispatchPin('D3');
+  assertPinTokens(row);
+  const tmp = mkdtempSync(join(tmpdir(), 'usa-dispatch-field-'));
+  try {
+    const absent = writeContractFieldBrief(tmp, false);
+    const runBrief = () =>
+      runPinProbe(row, undefined, [
+        '--repo',
+        tmp,
+        '--task-file',
+        absent.taskFile,
+        '--brief',
+        absent.briefFile,
+        '--max-lines',
+        String(CONTRACT_FIELD_MAX_LINES),
+      ]);
+
+    const missing = runBrief();
+    console.log(
+      `D3 probe: ${missing.script} exited ${missing.status} (${CONTRACT_FIELD_TOKEN} absent)`,
+    );
+    assert.equal(
+      missing.status,
+      0,
+      `a brief holding no problem must exit 0 over ${tmp}; stderr: ${missing.stderr}`,
+    );
+    const missingReport = JSON.parse(missing.stdout);
+    const namedWarnings = (missingReport.warnings ?? []).filter((w) =>
+      String(w).includes(CONTRACT_FIELD_TOKEN),
+    );
+    assert.equal(
+      namedWarnings.length,
+      1,
+      `the parsed warnings must name ${CONTRACT_FIELD_TOKEN} exactly once over ${tmp}: ${JSON.stringify(missingReport.warnings)}`,
+    );
+
+    writeContractFieldBrief(tmp, true);
+    const present = runBrief();
+    console.log(
+      `D3 probe: ${present.script} exited ${present.status} (${CONTRACT_FIELD_TOKEN} present)`,
+    );
+    assert.equal(
+      present.status,
+      0,
+      `a brief holding the field must exit 0 over ${tmp}; stderr: ${present.stderr}`,
+    );
+    const presentReport = JSON.parse(present.stdout);
+    assert.deepEqual(
+      (presentReport.warnings ?? []).filter((w) => String(w).includes(CONTRACT_FIELD_TOKEN)),
+      [],
+      `no warning may name ${CONTRACT_FIELD_TOKEN} once the field is present over ${tmp}: ${JSON.stringify(presentReport.warnings)}`,
+    );
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
 });
