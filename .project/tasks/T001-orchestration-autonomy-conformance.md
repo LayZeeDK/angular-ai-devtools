@@ -3,9 +3,9 @@ id: T001
 title: Add user-scope autonomy conformance suite
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: eef6eb5ea2616e8088519cc55a8f93d1b13d33a6
 worktree: null
 task_branch: null
 files:
@@ -69,3 +69,21 @@ Heavy: no
   - `Error: ENOENT: no such file or directory, lstat 'C:\Users\LarsGyrupBrinkNielse\.commandcode\scripts\AGENTS.md'` at `cpSync (file:///D:/projects/sandbox/angular-ai-devtools/scripts/user-scope-autonomy.test.mjs:57:3)`
 - 2026-11-01 — orchestrator fix brief for attempt 2: (a) `resolveScanDir()` returns `<home>/.commandcode/scripts`; the rules files live one level up at `<home>/.commandcode`, so the library must derive the rules root from the scripts directory instead of joining `AGENTS.md` onto it; (b) the suite must assert `check()` on the real install returns zero issues and `runGsdTests()` on the real install exits 0, so a green suite cannot mean "all five rules missing"; (c) `runGsdTests` returned exit 0 for a copied suite with an injected failing test in 241 ms, so the relative `test/**/*.test.ts` pattern matched nothing — resolve the test files explicitly; (d) E4 must remove every occurrence of the token, not the first.
 - build_T001: implementation blocked on free-route quota exhaustion at 2026-11-01 13:5x UTC. All four free routes (beam, glyph, ling, and laguna reserved) answer with a zero-token run; the reset is 00:00 UTC, 10.1 h away. An explicit owner approval for a paid rung (paid-glm-5-3-flash-high) or a wait is required before attempt 3. Work already parked: tmp/rejected-T001/ holds attempt 1 as REFERENCE only.
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t001-verify): pass, exit 0; output tail:
+  ```
+  ✔ E1: an absent install fails naming the resolved directory, never vacuously (3.9304ms)
+  ✔ health: check() on the real resolved install reports no issues (347.6451ms)
+  ✔ health: the real installed helper suite exits 0 (31776.8128ms)
+  ✔ E2: a copied suite with one injected failing test exits non-zero naming that test (48811.2638ms)
+  ✔ E4: removing a rule token fails naming that file; rewording with the token kept passes (6463.7662ms)
+  ✔ E5: a rules file holding none of the five rules is reported per file and rule (243.3174ms)
+  ✔ E3: repeated runs give the same verdict and write nothing into the checkout (509.584ms)
+  ℹ tests 7
+  ℹ suites 0
+  ℹ pass 7
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 88428.096
+  ```
