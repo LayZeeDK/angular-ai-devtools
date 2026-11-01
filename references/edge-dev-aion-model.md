@@ -2,7 +2,8 @@
 
 How to use the pin (`model pin`, the restore on `up`, doctor's `model.pin` row) is in
 `.commandcode/skills/control-ai-browsers/features/model-lifecycle.md` (Command Code's copy, which Command Code and
-its GSD Path skills drive; `.claude/skills/` holds Claude Code's older copy). This file records why the pin exists, what was
+its GSD Path skills drive; `.claude/skills/` holds a byte-identical copy of it, which
+`node --test scripts/skills-mirror.test.mjs` enforces; read 2026-11-01). This file records why the pin exists, what was
 measured, and when to drop it.
 
 ## What Edge ships

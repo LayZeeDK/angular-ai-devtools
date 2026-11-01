@@ -1,6 +1,6 @@
 # AI-assisted Angular DevTools: feature proposals
 
-Date: 2026-10-11, updated 2026-10-12. Author: Claude, for Lars. Status: research and design, nothing built.
+Date: 2026-10-11, updated 2026-11-01. Author: Claude, for Lars. Status: built and shipped; the extension is at version 0.3.0 (`extension/manifest.json:4`) with the panel explainers N1-N4, N24 and N25 implemented, tested and driven by the control and verify skills (`apps/angular-ai-devtools/src/app/app.routes.ts:9-16`, read 2026-11-01), so the items below that name no shipped file are proposals, not a description of the tree.
 
 Target: a Chrome and Edge MV3 extension that inspects any Angular 22.2 application running in development mode and answers questions about it with the browser's built-in on-device model. Lars accepted Chrome Beta or Edge Dev as a prerequisite browser.
 
@@ -24,7 +24,7 @@ Evidence files (in `research/`, plus the filing ledger in `docs/`):
 - `15-deterministic-and-ai.md`: which extension context runs which deterministic work and whether it has the built-in AI, the patterns that keep the model's input small (section 3.7), where chunking fails, and the probes S14 and S15.
 - `16-ssr-runtime.md`: the SSR spike on the fixture `spikes/ng222-ssr` (commit `c5030a6`): what a server-rendered 22.2 page in development mode exposes (hydration counters and mismatches, transfer state, the event replay queue, the render mode, `@defer` blocks, `Server-Timing`), a verdict per SSR feature candidate, and what a browser extension cannot reach. Raw files `research/raw/ssr-*.json`.
 - `17-vitest-browser-runtime.md`: the Vitest Browser Mode spike on the counter fixture (commit `c929050`): whether the extension can be present in a Vitest Browser run with Playwright, by attaching to a running Chrome Beta instance or by loading it into Playwright's bundled Chromium, what the tester iframe exposes (`window.ng`, the signal graph, the profiler, the injector, `LanguageModel`), and a verdict per section 6.3 candidate. Raw files `research/raw/vitest-*.json`.
-- `../docs/filing-ledger.md`: ten draft upstream reports, none filed: one for Angular found in spike S2, two for Pangular Inspector found while building the Pangular control skill, two for Chromium from the 09 root-cause reading and spike S1 (11), two for `@openng/optimus-ui` found while moving the portal's forms to Signal Forms (`research/13`), and three from the prior-art survey in `research/14` (one for Angular's WebMCP annotations, one for the Chrome developer docs, one for Playwright MCP's README).
+- `../docs/filing-ledger.md`: eleven draft upstream reports, none filed: one for Angular found in spike S2, two for Pangular Inspector found while building the Pangular control skill, two for Chromium from the 09 root-cause reading and spike S1 (11), two for `@openng/optimus-ui` found while moving the portal's forms to Signal Forms (`research/13`), three from the prior-art survey in `research/14` (one for Angular's WebMCP annotations, one for the Chrome developer docs, one for Playwright MCP's README), and one for Chromium from the dedicated-worker crash in `research/20` (`LanguageDetector`/`Translator`; `docs/filing-ledger.md:230`, read 2026-11-01).
 
 Labels:
 - **[measured]** means read in source or run in Lars's browsers.

@@ -1,0 +1,200 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "a5384ed8237d8c911d1a65cac98a64c014b49d23",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M017",
+        "candidates": [
+          {
+            "base": "c7d82a4f4e74e571222a54bdaee950885a85a6a0",
+            "commit": "db614e7011470622c02aabfb2292a9a0fcd81228",
+            "valid": true
+          }
+        ],
+        "head": "a5384ed8237d8c911d1a65cac98a64c014b49d23",
+        "subject": "T001: Extend the user-scope conformance suite with the four helper-regression pins"
+      },
+      "landed_commit": "db614e7011470622c02aabfb2292a9a0fcd81228",
+      "reasons": [],
+      "task": {
+        "base": "c7d82a4f4e74e571222a54bdaee950885a85a6a0",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-helper-regression-pins.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M017",
+        "candidates": [
+          {
+            "base": "7a996f8b71615cd031c04261fef9d6dfdc8628cf",
+            "commit": "4e4c8df7013c4b600394bcaaf0ce64457c73cb09",
+            "valid": true
+          }
+        ],
+        "head": "a5384ed8237d8c911d1a65cac98a64c014b49d23",
+        "subject": "T002: Pin the dispatch documents the owner named against the same conformance suite"
+      },
+      "landed_commit": "4e4c8df7013c4b600394bcaaf0ce64457c73cb09",
+      "reasons": [],
+      "task": {
+        "base": "7a996f8b71615cd031c04261fef9d6dfdc8628cf",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-brief-contract-pins.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M017",
+        "candidates": [
+          {
+            "base": "8d534466d7647abf0167da9d7a6d138a5570cbdf",
+            "commit": "1e36c3393503fb2fdffcc276ac7f489472858cb9",
+            "valid": true
+          }
+        ],
+        "head": "a5384ed8237d8c911d1a65cac98a64c014b49d23",
+        "subject": "T003: Dispose of the 79 unverifiable docs-audit rows and re-cut the queue"
+      },
+      "landed_commit": "1e36c3393503fb2fdffcc276ac7f489472858cb9",
+      "reasons": [],
+      "task": {
+        "base": "8d534466d7647abf0167da9d7a6d138a5570cbdf",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-audit-unverifiable-disposition.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M017",
+        "candidates": [
+          {
+            "base": "767868e01ceb7a8220b886bf1f81244e88149ec4",
+            "commit": "8b2d08a9e82d7636502e04919e5c0b402ea380d9",
+            "valid": true
+          }
+        ],
+        "head": "a5384ed8237d8c911d1a65cac98a64c014b49d23",
+        "subject": "T004: Pin the docs-audit disposition rules E5, E6 and E7 in a repository test"
+      },
+      "landed_commit": "8b2d08a9e82d7636502e04919e5c0b402ea380d9",
+      "reasons": [],
+      "task": {
+        "base": "767868e01ceb7a8220b886bf1f81244e88149ec4",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-audit-disposition-pins.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M017",
+        "candidates": [
+          {
+            "base": "053cda208de7079e87cebe046d93e3209f7120f9",
+            "commit": "e7219f45b0b6f8248469eb13699e1e7d985ee06a",
+            "valid": true
+          }
+        ],
+        "head": "a5384ed8237d8c911d1a65cac98a64c014b49d23",
+        "subject": "T005: Correct the stale doc claims the audit rules fix-doc in the tree the decision names"
+      },
+      "landed_commit": "e7219f45b0b6f8248469eb13699e1e7d985ee06a",
+      "reasons": [],
+      "task": {
+        "base": "053cda208de7079e87cebe046d93e3209f7120f9",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-stale-document-corrections.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M017",
+        "candidates": [
+          {
+            "base": "6c7379baeb9dcb1b68100a54188510605795e2f7",
+            "commit": "39bfed9d92ff293d4d09c705a6fdbf599b7719e5",
+            "valid": true
+          }
+        ],
+        "head": "a5384ed8237d8c911d1a65cac98a64c014b49d23",
+        "subject": "T006: Re-derive the audit rows for the documents the corrections changed"
+      },
+      "landed_commit": "39bfed9d92ff293d4d09c705a6fdbf599b7719e5",
+      "reasons": [],
+      "task": {
+        "base": "6c7379baeb9dcb1b68100a54188510605795e2f7",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-audit-stale-row-rederivation.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M017",
+        "candidates": [
+          {
+            "base": "e642ca29c61fc49c388e0dd307eaddf6d2eb387c",
+            "commit": "d5dbb5674da7f1dd4b49abb5dc108203bc64bb6e",
+            "valid": true
+          }
+        ],
+        "head": "a5384ed8237d8c911d1a65cac98a64c014b49d23",
+        "subject": "T007: Record the autonomy-gaps analysis and run the project Verify at the milestone head"
+      },
+      "landed_commit": "d5dbb5674da7f1dd4b49abb5dc108203bc64bb6e",
+      "reasons": [],
+      "task": {
+        "base": "e642ca29c61fc49c388e0dd307eaddf6d2eb387c",
+        "id": "T007",
+        "status": "done",
+        "task_file": ".project/tasks/T007-autonomy-gaps-analysis.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M017",
+        "candidates": [
+          {
+            "base": "6e942fe3b4fc5f7b05f7685cf17e858be72d63ae",
+            "commit": "c6cce8349de71eed2329bf460e8a4189e1f57a41",
+            "valid": true
+          }
+        ],
+        "head": "a5384ed8237d8c911d1a65cac98a64c014b49d23",
+        "subject": "T008: Re-pin the prompt-side paid route token to the route slug"
+      },
+      "landed_commit": "c6cce8349de71eed2329bf460e8a4189e1f57a41",
+      "reasons": [],
+      "task": {
+        "base": "6e942fe3b4fc5f7b05f7685cf17e858be72d63ae",
+        "id": "T008",
+        "status": "done",
+        "task_file": ".project/tasks/T008-fix-d1-token.md"
+      }
+    }
+  ]
+}

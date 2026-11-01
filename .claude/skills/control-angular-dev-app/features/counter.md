@@ -14,7 +14,8 @@ raises the count by one and the doubled value follows. Behind it sit a `title` i
 
 ## How to get to it (user POV)
 
-- Open `<url>` (`http://localhost:4222/`). There are no routes; the counter is the whole page.
+- Open `<url>` (`http://localhost:4222/`). The counter is the whole page at `/`; the fixture's two other
+  routes, `/stale-view` and `/stale-view-deferred`, belong to the stale-view fixtures (`src/app/app.routes.ts:5-8`, read 2026-11-01).
 - Press the `Increment` button with the mouse or with keyboard focus plus Enter.
 
 ## Driving it with control-angular-dev-app
@@ -45,5 +46,6 @@ Preconditions:
 
 - A reload resets the count to 3; there is no persistence.
 - The effect node has an empty label, so `dependenciesOf` cannot name it; read it from `signals()`.
-- `router()` returns `present: true` with an empty route list: `provideRouter(routes)` with `routes = []`.
+- `router()` returns `present: true` and lists the two routes `src/app/app.routes.ts:5-8` declares,
+  `/stale-view` and `/stale-view-deferred`, not an empty list (read 2026-11-01).
 - Do not fix the effect that writes a signal; other tools use it as a fixture.

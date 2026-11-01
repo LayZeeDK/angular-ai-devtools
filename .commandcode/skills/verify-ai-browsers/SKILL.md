@@ -62,7 +62,9 @@ Standalone, against instances started by hand:
 `node .commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs --evidence <dir> --url <app url> [<instance>...]` or
 `node .commandcode/skills/verify-ai-browsers/checks/signal-provenance.mjs --evidence <dir> --url <app url> [<instance>...]` or
 `node .commandcode/skills/verify-ai-browsers/checks/di-doctor.mjs --evidence <dir> --url <app url> [<instance>...]` or
-`node .commandcode/skills/verify-ai-browsers/checks/error-explainer.mjs --evidence <dir> --url <app url> [<instance>...]`.
+`node .commandcode/skills/verify-ai-browsers/checks/error-explainer.mjs --evidence <dir> --url <app url> [<instance>...]` or
+`node .commandcode/skills/verify-ai-browsers/checks/stale-view.mjs --evidence <dir> --url <app url> [<instance>...]` or
+`node .commandcode/skills/verify-ai-browsers/checks/interop.mjs --evidence <dir> --url <app url> [<instance>...]`.
 ## Gotchas
 
 - `state` takes about a minute per instance (doctor, flags, model info; doctor 10-60 s), longer while another

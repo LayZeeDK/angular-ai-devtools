@@ -653,8 +653,8 @@ cannot dispatch on a broken helper, an unverifiable claim, or an exhausted route
 check failing first.
 Depends on: [M016]
 Surfaces: none
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/017-verification-coverage
 Integrated: null
 
 Scope: in

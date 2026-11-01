@@ -61,6 +61,172 @@ export const RULES = [
 /** The helper commands a healthy install's `gsd.ts --help` must list. */
 const HELPER_TOKENS = ['preapprove', 'handoff', 'fragment-fix'];
 
+/** The four helper-regression pins the run that shipped M016 hit by hand. Each
+ * row names one installed helper file (`file`, split into segments under the
+ * resolved rules root), the tokens that file must still carry (`tokens`), and
+ * the public subcommand that proves the same behaviour (`probe`, with `script`
+ * relative to the helper directory or the skill scripts directory).
+ *
+ * Token-vs-wording only: no row quotes a sentence. `args` is the fixed part of
+ * the command; a caller appends the fixture arguments it needs. */
+export const HELPER_PINS = [
+  {
+    id: 'P1',
+    name: 'brief-check applies the paid effort ladder',
+    file: ['scripts', 'gsd', 'lib', 'brief-check.ts'],
+    tokens: ['paid-deepseek-v4-1-flash', 'paid-glm-5-3-flash'],
+    probe: { tool: 'gsd', script: ['gsd.ts'], args: ['brief-check', '--json'] },
+  },
+  {
+    id: 'P2',
+    name: 'plan-lint accepts a path::test_name Held-out Test cell',
+    file: ['scripts', 'gsd', 'lib', 'plan-lint.ts'],
+    tokens: ['check.test.split("::")[0]'],
+    probe: { tool: 'gsd', script: ['gsd.ts'], args: ['plan-lint', '--json'] },
+  },
+  {
+    id: 'P3',
+    name: 'check_handoffs reads an Intent-coverage row',
+    file: ['skills', 'gsd-path', 'scripts', 'check_handoffs.py'],
+    tokens: ['Intent coverage row is unreadable'],
+    probe: { tool: 'python', script: ['check_handoffs.py'], args: ['plan'] },
+  },
+  {
+    id: 'P4',
+    name: 'a serial retry stays parkable',
+    file: ['skills', 'gsd-path', 'scripts', 'dispatch_driver.py'],
+    tokens: ['state.get("mode") == "serial"', 'fields.get("task_branch") == "null"'],
+    probe: { tool: 'python', script: ['build_state.py'], args: ['ready'] },
+  },
+];
+
+/** The dispatch-document pins: the user-scope prompts, briefs, templates and
+ * worked example the owner named, which decide whether a brief is usable and
+ * which an installer re-run can revert. Same row shape as HELPER_PINS — one
+ * row per document family, `file` split into segments under the resolved rules
+ * root, `tokens` matched literally, and `probe` the public subcommand that
+ * enforces the same contract (relative to the helper dir or the skill scripts
+ * dir). Token-vs-wording only: no row quotes a sentence, so ordinary rewording
+ * of a document still passes and only a removed token fails.
+ *
+ * Token class: every pinned token must be an IDENTIFIER the document carries
+ * verbatim — a route slug, a field name, a heading — never a display marker
+ * such as a model's human-readable name. A marker is prose: rewording the
+ * sentence around it, or replacing it with the route slug it names, is exactly
+ * the edit the pin has to catch, and a row that pins one goes red the moment an
+ * operator prefers the other spelling. `tokens` are matched with
+ * String.includes, so no glob is ever expanded — a `...-*` family token passes
+ * only where the document literally writes that glob, and where a document
+ * names only the concrete slug the row pins the concrete slug.
+ *
+ * Why a document that was green at landing can be red here: these documents
+ * live OUTSIDE this checkout, under the resolved rules root
+ * (<home>/.commandcode), so no commit in this repository shows what they say.
+ * An operator editing one after a landing is precisely what the pin exists to
+ * catch, and when a pin reads like a bad test the Log records which side was
+ * wrong rather than the token being quietly dropped. M017 T008 is that record:
+ * the orchestrator prompt carries the paid-deepseek family glob and the paid
+ * GLM route slug, and its paid-child display marker — the human-readable
+ * `GLM-5.3 Flash` — is prose that an out-of-checkout edit can replace with the
+ * slug at any time, so D1 pins the slug `paid-glm-5-3-flash-high` the prompt
+ * carries verbatim and leaves the marker to this comment. The paid model plan
+ * still pins both families' globs and concrete slugs (D2), where that document
+ * is authoritative for them. */
+export const DISPATCH_PINS = [
+  {
+    id: 'D1',
+    name: 'orchestrator prompt keeps its paid route ladder',
+    file: ['prompts', 'deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md'],
+    tokens: ['paid-deepseek-v4-1-flash-*', 'paid-glm-5-3-flash-high'],
+    probe: { tool: 'gsd', script: ['gsd.ts'], args: ['brief-check', '--json'] },
+  },
+  {
+    id: 'D2',
+    name: 'paid model plan keeps both paid families and the reviewer row',
+    file: ['references', 'paid-model-plan.md'],
+    tokens: [
+      'paid-deepseek-v4-1-flash-*',
+      'paid-glm-5-3-flash-*',
+      'paid-deepseek-v4-1-flash-high',
+      'paid-glm-5-3-flash-high',
+      '`reviewer`, `skeptic`, `review_panel`',
+    ],
+    probe: { tool: 'python', script: ['path_config.py'], args: ['show'] },
+  },
+  {
+    id: 'D3',
+    name: 'subagent brief contract keeps its required fields',
+    file: ['references', 'gsd-path-subagent-briefs.md'],
+    tokens: [
+      'ROLE:',
+      'REPO/WORKTREE:',
+      'DECLARED FILES',
+      'VERIFY (run it yourself and paste the exit code):',
+      'INPUTS:',
+      '<<<DOC',
+      'RULES:',
+      'RESULT: ready',
+      'RESULT: blocked',
+    ],
+    probe: { tool: 'gsd', script: ['gsd.ts'], args: ['brief-check', '--json'] },
+  },
+  {
+    id: 'D4',
+    name: 'task template keeps its required section headings',
+    file: ['skills', 'gsd-path', 'templates', 'task.md'],
+    tokens: [
+      '## Context',
+      '## Approach',
+      '## Interface contract',
+      '## Intent coverage',
+      '## Acceptance criteria',
+      '## Verify',
+      'Heavy: no',
+      '## Log',
+    ],
+    probe: { tool: 'python', script: ['check_task_briefs.py'], args: ['--repo'] },
+  },
+  {
+    id: 'D5',
+    name: 'wave-review template keeps its verdict vocabulary',
+    file: ['skills', 'gsd-path', 'templates', 'wave-review.md'],
+    tokens: [
+      'Wave verdict:',
+      '<pass | blocked',
+      '<pass | fail>',
+      'Warnings (non-blocking):',
+      'Contract violations (blocking):',
+      '## Intent coverage',
+      '## Summary for orchestrator',
+    ],
+    probe: { tool: 'python', script: ['check_handoffs.py'], args: ['wave'] },
+  },
+  {
+    id: 'D6',
+    name: 'final-review template keeps its verdict vocabulary',
+    file: ['skills', 'gsd-path', 'templates', 'final-review.md'],
+    tokens: [
+      'Overall verdict:',
+      '## Success criteria',
+      '- **Verdict**:',
+      '- **Reference**:',
+      '- **Fix direction**:',
+    ],
+    probe: { tool: 'gsd', script: ['gsd.ts'], args: ['final-check'] },
+  },
+  {
+    id: 'D7',
+    name: 'coder brief keeps its worked example',
+    file: ['references', 'gsd-path-coder-brief.md'],
+    tokens: ['## Worked example', 'Result: 22 turns'],
+    probe: { tool: 'gsd', script: ['gsd.ts'], args: ['brief-check', '--json'] },
+  },
+];
+
+/** Both pin tables in one list, so `checkHelpers()` reports the helper and the
+ * dispatch-document pins in the same pass and neither can be skipped. */
+export const ALL_PINS = [...HELPER_PINS, ...DISPATCH_PINS];
+
 /** Child node processes spawned from inside a test run inherit the runner's
  * NODE_TEST_CONTEXT/NODE_TEST_WORKER_ID, which makes a spawned `node --test`
  * exit 0 immediately without running anything. Strip them. */
@@ -155,6 +321,91 @@ export function runGsdTests(root) {
   };
 }
 
+/** Resolve a pin's static file and its probe script to absolute paths. The
+ * static file is under the rules root; the probe script is under the helper
+ * directory (`gsd`) or the skill scripts directory, chosen by `probe.tool`. */
+export function resolvePinPaths(pin, input) {
+  const { rulesRoot, gsdDir } = resolveRulesRoot(input);
+  const skillScriptsDir = join(rulesRoot, 'skills', 'gsd-path', 'scripts');
+  const scriptDir = pin.probe.tool === 'gsd' ? gsdDir : skillScriptsDir;
+  return {
+    rulesRoot,
+    gsdDir,
+    skillScriptsDir,
+    file: join(rulesRoot, ...pin.file),
+    scriptDir,
+    script: join(scriptDir, ...pin.probe.script),
+  };
+}
+
+/** Static half of every pin: the named tokens in the resolved absolute file,
+ * plus the presence of the probe script the pin runs. Returns a list of issues
+ * built like `check()`'s, so a reviewer sees every resolved path. Fails loudly
+ * (never vacuously) when the rules root or a helper script is absent. Runs both
+ * tables — HELPER_PINS and DISPATCH_PINS — so `check()` reports them in one
+ * pass and no pin table can be dropped silently. */
+export function checkHelpers(input) {
+  const issues = [];
+  const { rulesRoot, scriptsDir } = resolveRulesRoot(input);
+  if (!existsSync(rulesRoot)) {
+    issues.push({
+      rule: 'INSTALL',
+      file: rulesRoot,
+      reason: `INSTALL helper pin: rules root ${rulesRoot} does not exist (resolved scripts dir ${scriptsDir})`,
+    });
+    return issues;
+  }
+  for (const pin of ALL_PINS) {
+    const paths = resolvePinPaths(pin, input);
+    for (const token of pin.tokens) {
+      checkOneFile(paths.file, pin.id, pin.name, token, issues);
+    }
+    if (!existsSync(paths.script)) {
+      issues.push({
+        rule: pin.id,
+        file: paths.script,
+        reason: `${pin.id} ${pin.name}: probe script ${paths.script} is absent (${pin.probe.tool} ${pin.probe.script.join(' ')})`,
+      });
+    }
+  }
+  return issues;
+}
+
+/** Run one pin's declared public subcommand with the fixture arguments the
+ * caller supplies. Returns { pin, script, status, stdout, stderr } naming the
+ * absolute script it ran, so a green run still prints the path it read and the
+ * exit status it propagated. */
+export function runPinProbe(pin, input, extraArgs = []) {
+  const { scriptDir, script } = resolvePinPaths(pin, input);
+  if (!existsSync(script)) {
+    return {
+      pin: pin.id,
+      script,
+      status: 1,
+      stdout: '',
+      stderr: `user-scope-autonomy: probe script is absent: ${script}`,
+    };
+  }
+  const args =
+    pin.probe.tool === 'gsd'
+      ? ['--experimental-strip-types', script, ...pin.probe.args, ...extraArgs]
+      : ['-B', script, ...pin.probe.args, ...extraArgs];
+  const res = spawnSync(pin.probe.tool === 'gsd' ? process.execPath : 'python', args, {
+    cwd: scriptDir,
+    encoding: 'utf8',
+    timeout: 120_000,
+    maxBuffer: 32 * 1024 * 1024,
+    env: childEnv(),
+  });
+  return {
+    pin: pin.id,
+    script,
+    status: res.status ?? (res.signal ? 1 : 0),
+    stdout: String(res.stdout || ''),
+    stderr: String(res.stderr || ''),
+  };
+}
+
 function checkOneFile(absFile, ruleId, label, token, issues) {
   let text = null;
   try {
@@ -239,7 +490,23 @@ export function check(input) {
     }
   }
 
+  issues.push(...checkHelpers(input));
+
   return issues;
 }
 
-export default { RULES, resolveRulesRoot, runGsdHelp, listGsdTestFiles, resolveGsdDir, runGsdTests, check };
+export default {
+  RULES,
+  HELPER_PINS,
+  DISPATCH_PINS,
+  ALL_PINS,
+  resolveRulesRoot,
+  runGsdHelp,
+  listGsdTestFiles,
+  resolveGsdDir,
+  runGsdTests,
+  resolvePinPaths,
+  checkHelpers,
+  runPinProbe,
+  check,
+};

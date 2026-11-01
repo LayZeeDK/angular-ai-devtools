@@ -55,5 +55,5 @@ A full pass drives the features in this order.
   internals proven only in the test harness.
 - The Web Store "Add" confirmation and the Remove confirmation on the extensions page: browser UI.
 - Injector Tree, Router Tree and Transfer State tabs: reachable by the same panel driver, not yet mapped.
-  Router Tree shows only when the app provides the router, even with an empty route list as in the counter
-  (`devtools-tabs.component.ts`); Transfer State only for a hydrated (SSR) app.
+  Router Tree shows only when the app provides the router (`devtools-tabs.component.ts`); Transfer State only
+  for a hydrated (SSR) app.

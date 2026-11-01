@@ -28,8 +28,10 @@ what a run costs and what has gone wrong.
   defect, re-run it with that instance alone.
 - Browsers with on-device models are heavy. One verdict was stopped by Claude Code for low memory (15 GB of 32 GB
   free after cleanup). Start with at least about 10 GB free, and nothing else heavy running.
-- Limits: the checks give each `control.mjs` call 600 s (`spawnSync` timeout). The spec gives `state` 900 s and
-  `extension-panel` 1800 s.
+- Limits: each check gives its own `control.mjs` call 600 s (`spawnSync` `timeout: 600000` at
+  `.commandcode/skills/verify-ai-browsers/checks/state.mjs:253`; read 2026-11-01). The verification spec's own
+  per-step timeouts are larger and are recorded in the skill, not in a user-scope file: `timeoutMs` 1800000 for the
+  `extension-panel` step and 900000 for `state` (`.commandcode/skills/verify-ai-browsers/SKILL.md:49,71`).
 
 ## Before starting
 
