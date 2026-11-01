@@ -4,9 +4,9 @@ title: Re-pin the prompt-side paid route token to the route slug
 wave: 2
 deps:
   - T002
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T008
+base: 6e942fe3b4fc5f7b05f7685cf17e858be72d63ae
 worktree: null
 task_branch: null
 files:
@@ -90,3 +90,27 @@ Criterion: The paid-route pin asserts both paid route tokens in the orchestrator
 ## Log
 
 - 2026-11-01 — created by the build orchestrator from `review_findings.py collect --wave 2 --cycle 1`
+- 2026-11-01 18:02 — build_T008: D1's second token is now `paid-glm-5-3-flash-high` instead of the display marker `GLM-5.3 Flash` (`scripts/user-scope-autonomy.mjs:140`), and the module comment above `DISPATCH_PINS` (`scripts/user-scope-autonomy.mjs:103-134`) now records the token class (an identifier the document carries verbatim, never a display marker such as a model's human name), that these pinned documents live OUTSIDE this checkout under the resolved rules root (`<home>/.commandcode`) so no commit in this repository shows what they say, that an operator edit after a landing is exactly what the pin exists to catch (with the Log recording which side was wrong rather than the token being dropped), and that `tokens` are matched with `String.includes` so a `...-*` family token passes only where the document writes that glob verbatim. Recorded deviation from the task text, with evidence: the installed prompt `C:\Users\LarsGyrupBrinkNielse\.commandcode\prompts\deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md` (17213 bytes, LastWriteTime 2026-11-01 17:55, i.e. after the 17:52:09 landing) carries `paid-deepseek-v4-1-flash-*` once (line 190), `paid-glm-5-3-flash-high` twice (line 52), `paid-deepseek-v4-1-flash-high` once (line 53) and `GLM-5.3 Flash` twice (lines 50, 54), and carries ZERO occurrences of the literal token `paid-glm-5-3-flash-*` (read-only probe over the real install: `includes=false occurrences=0`). `checkOneFile` matches with `String.includes`, so a glob token must appear verbatim — pinning `paid-glm-5-3-flash-*` would have turned `check()` red over the real install (`health`, D0 and D1 all fail) and D1's pristine-fixture assertion would fail too. The concrete route slug is the identifier the prompt carries and the one the wave-2 review's fix direction accepted (`paid-glm-5-3-flash-*` or the concrete `paid-glm-5-3-flash-high`); widening the pin to the family glob requires the installed prompt to carry the glob first, which is an out-of-checkout edit this task may not make (N5). `scripts/user-scope-autonomy.test.mjs` needed no change: D1's two-mutation loop already removes every occurrence of every token of every row and re-checks the reworded copy, no case was added, and no assertion, matcher or case was weakened, skipped or deleted. No new `runGsdTests()` call; the installed suite is still spawned exactly twice. Verify `node --experimental-strip-types --test scripts/user-scope-autonomy.test.mjs`: exit 0, tests 18, pass 18, fail 0, cancelled 0, skipped 0, todo 0, duration_ms 83271.9964, wall 83.4 s; the D1 two-mutation lines name both tokens (`"paid-deepseek-v4-1-flash-*" removed was named D1, reworded was clean`; `"paid-glm-5-3-flash-high" removed was named D1, reworded was clean`) and D0 prints the absolute path it read for all seven dispatch rows.
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t008-verify): pass, exit 0; output tail:
+  ```
+  ✔ E3: repeated runs give the same verdict and write nothing into the checkout (680.3179ms)
+  ✔ P1 brief-check pin: a paid route yields no missing-effort warning and a bare brief yields it (408.4256ms)
+  ✔ P2 plan-lint pin: a :: held-out Test cell yields ok and no held-out finding (285.7894ms)
+  ✔ P3 check_handoffs pin: a readable coverage row exits 0 and a three-cell row is unreadable (557.2705ms)
+  ✔ P4 serial-retry pin: a parked serial task is ready and a pending task retaining metadata fails (3260.1269ms)
+  ✔ E1 helper pin: a removed token fails naming the absolute file and the rule id, and a reworded copy passes (518.8444ms)
+  ✔ E2 helper pin: an absent install or helper dir fails naming the resolved absolute path (127.6355ms)
+  ✔ E3 helper pin: two runs agree and write nothing into the checkout (1039.8314ms)
+  ✔ D0 dispatch pin: every dispatch document resolves under the rules root and carries its named tokens (1.6159ms)
+  ✔ D1 dispatch pin: removing any named token fails naming the absolute file and the pin id, and a reworded copy passes (1263.3722ms)
+  ✔ D2 dispatch pin: an absent install or a missing dispatch document fails naming the resolved absolute path (124.4928ms)
+  ✔ D3 dispatch pin: brief-check names the missing brief-contract field and stops naming it once the field is present (401.5515ms)
+  ℹ tests 18
+  ℹ suites 0
+  ℹ pass 18
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 72159.8212
+  ```

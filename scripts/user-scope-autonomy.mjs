@@ -109,17 +109,35 @@ export const HELPER_PINS = [
  * dir). Token-vs-wording only: no row quotes a sentence, so ordinary rewording
  * of a document still passes and only a removed token fails.
  *
- * Recorded shortfall, M017 T002: the orchestrator prompt carries the paid
- * DeepSeek route token and the dispatch section's `GLM-5.3 Flash` paid-child
- * marker, but it does not carry the paid GLM route token itself, so D1 pins
- * the two markers that are really there. The route token is pinned where it is
- * authoritative, in the paid model plan (D2). */
+ * Token class: every pinned token must be an IDENTIFIER the document carries
+ * verbatim — a route slug, a field name, a heading — never a display marker
+ * such as a model's human-readable name. A marker is prose: rewording the
+ * sentence around it, or replacing it with the route slug it names, is exactly
+ * the edit the pin has to catch, and a row that pins one goes red the moment an
+ * operator prefers the other spelling. `tokens` are matched with
+ * String.includes, so no glob is ever expanded — a `...-*` family token passes
+ * only where the document literally writes that glob, and where a document
+ * names only the concrete slug the row pins the concrete slug.
+ *
+ * Why a document that was green at landing can be red here: these documents
+ * live OUTSIDE this checkout, under the resolved rules root
+ * (<home>/.commandcode), so no commit in this repository shows what they say.
+ * An operator editing one after a landing is precisely what the pin exists to
+ * catch, and when a pin reads like a bad test the Log records which side was
+ * wrong rather than the token being quietly dropped. M017 T008 is that record:
+ * the orchestrator prompt carries the paid-deepseek family glob and the paid
+ * GLM route slug, and its paid-child display marker — the human-readable
+ * `GLM-5.3 Flash` — is prose that an out-of-checkout edit can replace with the
+ * slug at any time, so D1 pins the slug `paid-glm-5-3-flash-high` the prompt
+ * carries verbatim and leaves the marker to this comment. The paid model plan
+ * still pins both families' globs and concrete slugs (D2), where that document
+ * is authoritative for them. */
 export const DISPATCH_PINS = [
   {
     id: 'D1',
     name: 'orchestrator prompt keeps its paid route ladder',
     file: ['prompts', 'deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md'],
-    tokens: ['paid-deepseek-v4-1-flash-*', 'GLM-5.3 Flash'],
+    tokens: ['paid-deepseek-v4-1-flash-*', 'paid-glm-5-3-flash-high'],
     probe: { tool: 'gsd', script: ['gsd.ts'], args: ['brief-check', '--json'] },
   },
   {
