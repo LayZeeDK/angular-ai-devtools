@@ -7,9 +7,9 @@ deps:
   - T002
   - T003
   - T004
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T005
+base: 8659cca6750aace5fccef8c9fd37146712e7ab6c
 worktree: null
 task_branch: null
 files:
@@ -83,4 +83,18 @@ Heavy: yes
   ℹ skipped 0
   ℹ todo 0
   ℹ duration_ms 137.0458
+  ```
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t005-verify): pass, exit 0; output tail:
+  ```
+  audit regenerated at 21b03420ee3a with 0 stale and 0 aspirational
+  ✔ .claude/skills/control-ai-browsers mirrors .commandcode/skills/control-ai-browsers (11.0945ms)
+  ✔ .claude/skills/verify-ai-browsers mirrors .commandcode/skills/verify-ai-browsers (3.5544ms)
+  ℹ tests 2
+  ℹ suites 0
+  ℹ pass 2
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 199.237
   ```

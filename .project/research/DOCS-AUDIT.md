@@ -1,15 +1,15 @@
 # Docs Audit
 Repo root: D:\projects\sandbox\angular-ai-devtools
 Audited: 2026-11-01
-Audited HEAD: 01bffa9f291688c44261a67847b14dcda42b0867
+Audited HEAD: 21b03420ee3a40e48a342dd0cf48d037a82620a8
 Alignment mode: no
 
 ## Summary
 
 | Verdict | Count |
 |---------|-------|
-| verified | 329 |
-| stale | 1 |
+| verified | 330 |
+| stale | 0 |
 | aspirational | 0 |
 | unverifiable | 111 |
 | descriptive docs (no testable claims) | 0 |
@@ -260,7 +260,7 @@ Alignment mode: no
 | "`scripts/control.mjs` installs and removes the dependency" | structure | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs — exists (1579 lines) |
 | "fingerprint.mjs keeps the proof manifest" | structure | verified | .claude/skills/control-pangular-inspector/scripts/fingerprint.mjs — exists |
 | "proctree.mjs records and stops the server's process tree" | structure | verified | .claude/skills/control-pangular-inspector/scripts/proctree.mjs — exists |
-| "portal worktree has this setup committed (f102b97)" | status | stale | D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools git log has no f102b97 |
+| "portal worktree has this setup committed (f102b97)" | status | verified | pin removed from the audited documents: `.claude/skills/control-pangular-inspector/features/setup.md:31` and `.commandcode/skills/control-pangular-inspector/features/setup.md:31` now read "The setup is not committed in the portal checkout"; T002 corrected the same claim in both `SKILL.md` trees in commit 215eb109f86e9939ee7afc804fa214abae33e519 (`git show --stat 215eb10` touches this doc) and T005 corrected both `features/setup.md` |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/README.md
 
@@ -1167,11 +1167,11 @@ Alignment mode: no
 | Queue # | Ruling | User's words | Planned |
 |---------|--------|--------------|---------|
 | 143 | accept-drift | delegated under the 2026-10-31 grant ("with full milestone decision authority"): a dated handoff record naming head `fbe3aac` "at writing" is history, not a current claim; no correction owed | n/a (accept-drift) |
-| 155 | fix-doc | delegated under the 2026-10-31 grant: the quoted grader regex is superseded; `bench.js:64` now matches `\bdouble\b`/`\bcount\b`, so the research note needs a dated correction | yes (2c97f69) |
-| 156 | fix-doc | delegated under the 2026-10-31 grant: `instances.json` serves Phi-4-mini on 9337 and 9336 is retired, so the research note's port list needs a correction | yes (2c97f69) |
-| 158 | fix-doc | delegated under the 2026-10-31 grant: `spikes/s1-extension` was retired in M009 and is absent from the tree, so the note's run command needs a correction | yes (2c97f69) |
-| 237 | fix-doc | delegated under the 2026-11-01 standing grant ("with full milestone decision authority"): `.claude/skills/control-pangular-inspector/SKILL.md` claims the portal worktree has its setup committed at `f102b97`; `git log` in the portal checkout holds no such commit, so reality is authoritative and the document is corrected in place | no |
-| 205 | fix-doc | delegated under the 2026-10-31 grant: the fixture tracks no `*.spec.ts`, so its README's Vitest instruction needs a correction | no |
+| 155 | fix-doc | delegated under the 2026-10-31 grant: the quoted grader regex is superseded; `bench.js:64` now matches `\bdouble\b`/`\bcount\b`, so the research note needs a dated correction; already discharged in commit `2c97f69` ("docs(gsd): prepare M015 and close the M014 deferred items"), and T005 re-derives the row `verified` | T005 |
+| 156 | fix-doc | delegated under the 2026-10-31 grant: `instances.json` serves Phi-4-mini on 9337 and 9336 is retired, so the research note's port list needs a correction; already discharged in commit `2c97f69`, and T005 re-derives the row `verified` | T005 |
+| 158 | fix-doc | delegated under the 2026-10-31 grant: `spikes/s1-extension` was retired in M009 and is absent from the tree, so the note's run command needs a correction; already discharged in commit `2c97f69`, and T005 re-derives the row `verified` | T005 |
+| 237 | fix-doc | delegated under the 2026-11-01 standing grant ("with full milestone decision authority"): `.claude/skills/control-pangular-inspector/SKILL.md` claims the portal worktree has its setup committed at `f102b97`; `git log` in the portal checkout holds no such commit, so reality is authoritative and the document is corrected in place; landed by T002 in commit `215eb10`, and T005 corrects the same pin in both `features/setup.md` files and re-derives the claim `verified` | T002 |
+| 205 | fix-doc | delegated under the 2026-10-31 grant: the fixture tracks no `*.spec.ts`, so its README's Vitest instruction needs a correction; already discharged in commit `2c97f69` (which edits `spikes/ng222-ssr/README.md`), and T005 re-derives the row `verified` | T005 |
 
 ## Remediation queue
 
@@ -1211,7 +1211,6 @@ Alignment mode: no
 | 234 | .claude/skills/control-angular-devtools/features/signal-graph.md | "before: template:app-counter, signal:title, signal:count, computed:double, signal:items, effect:Effect" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 235 | .claude/skills/control-angular-devtools/features/signal-graph.md | "after angular:di_graph: pane signal:count, effect:Effect" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 236 | .claude/skills/control-angular-devtools/features/signal-graph.md | "node kinds include linked-signal, child-signal-prop, resource, unknown" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 237 | .claude/skills/control-pangular-inspector/SKILL.md | "portal worktree has this setup committed (f102b97)" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
 | 238 | .claude/skills/control-pangular-inspector/features/README.md | "App: `node $D up --target portal` (API 3000, app 4507)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 239 | .claude/skills/control-pangular-inspector/features/README.md | "Never drive an instance this run did not start" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 240 | .claude/skills/control-pangular-inspector/features/live-inspection.md | "`live.tree`: `AppComponent <ng-journal-root>`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |

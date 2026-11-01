@@ -28,10 +28,10 @@ changes; no server from this skill running (`remove` changes files a running dev
 - Type check: `npm exec -- nx run insurance-portal:typecheck` in the worktree exits 0 with the overlay import.
 - Remove: `node $S remove --json` -> exit 0, `gitStatus: []`, `gitDiffStat: ""`; `node $S check` then exits 1
   only where `HEAD` has no Pangular setup.
-- The portal worktree has the setup committed (`f102b97`), so there `check` exits 0 with no install (measured),
-  `install` finds the package pinned, and `remove` restores `HEAD`, which keeps Pangular: it removes only an
-  uncommitted install (read from `remove` in `scripts/control.mjs`, not run in this pass). Taking Pangular out
-  of the portal means reverting that commit, a product change for Lars.
+- The setup is not committed in the portal checkout (its `git log` holds no commit for it), so `check` there
+  exits 0 where the worktree carries it with no install (measured), `install` finds the package pinned, and
+  `remove` restores `HEAD`, undoing an uncommitted install only (read from `remove` in `scripts/control.mjs`,
+  not run in this pass). Taking Pangular out of the portal is a product change for Lars.
 
 ## Gotchas
 
