@@ -3,9 +3,9 @@ id: T001
 title: Add a deferred-error stale-view fixture route in spikes/ng222-app
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: 6a2bf18b3a0ee6a34b339283965c662a144f6d38
 worktree: null
 task_branch: null
 files:
@@ -53,3 +53,18 @@ Heavy: no
 ## Log
 
 - created by planner
+- 2026-10-31 — T001 — touched: spikes/ng222-app/src/app/stale-view-deferred-fixture.ts, spikes/ng222-app/src/app/app.routes.ts, spikes/ng222-app/src/app/app.routes.test.mjs — Verify: `node --experimental-strip-types --test spikes/ng222-app/src/app/app.routes.test.mjs` → 3 tests, 3 pass, 0 fail — RESULT: ready
+- 2026-11-01 — orchestrator Verify (sidecar gsd-path-verify/task-t001-verify): pass, exit 0; output tail:
+  ```
+  ✔ app.routes.ts registers the deferred stale-view fixture route (1.5141ms)
+  ✔ app.routes.ts retains the existing /stale-view route (0.2669ms)
+  ✔ app.routes.ts exports routes (0.1727ms)
+  ℹ tests 3
+  ℹ suites 0
+  ℹ pass 3
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 297.7925
+  ```
