@@ -534,7 +534,7 @@ Depends on: [M012, M013]
 Surfaces: DevTools panel
 Status: shipped
 Archive: .project/archive/014-interop-proof
-Integrated: null
+Integrated: bf9251578ec0c9c8954022521a7cbe16d06df20a
 
 Scope: in
 - Run `verify-ai-browsers/checks/interop.mjs` against at least one live instance and commit its evidence.
@@ -566,8 +566,8 @@ Open questions
 Goal: Close the verification, documentation and test-precision debt the first release left open, so every shipped claim, document and check agrees at M014's shipped head and no deferred alignment row remains.
 Depends on: [M014]
 Surfaces: DevTools panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/015-program-closeout
 Integrated: null
 
 Scope: in

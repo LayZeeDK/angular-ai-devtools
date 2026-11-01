@@ -1,0 +1,34 @@
+{
+  "url": "http://localhost:4300/stale-view-deferred",
+  "results": {
+    "chrome-beta-gemma4": {
+      "panel": {
+        "exit": 0,
+        "feature": "interop",
+        "route": "/panel/interop",
+        "answer": "This dataset appears to be related to change detection within a system, likely involving reactive programming or state management, as suggested by terms like \"fixture\" and \"Observable.\" The entries indicate specific internal identifiers or states (\"cmp:_StaleViewDeferredFixture\") and a definitive lack of detailed operational information, stating that the feeding Observable, operator chain, or emission timing cannot be identified.",
+        "limits": "limit: Cannot name the feeding Observable, the operator chain, or emission timing.",
+        "inferred": "attribution: inferred, untested",
+        "nodes": 1,
+        "error": null,
+        "answerMs": 10173,
+        "ngVersion": "22.2.2",
+        "extensionId": "akmbadfffoafkmnbdbjjcfhkadfenmnb"
+      },
+      "state": {
+        "instance": "chrome-beta-gemma4",
+        "pass": true,
+        "failed": [],
+        "couldNotRun": null,
+        "readings": {
+          "expected": "gemma4-2b-it",
+          "disk": true,
+          "serving": "gemma4-2b-it",
+          "backend": "GPU (fastest inference)",
+          "requestedBackend": "gpu",
+          "performanceClass": 4
+        }
+      }
+    }
+  }
+}

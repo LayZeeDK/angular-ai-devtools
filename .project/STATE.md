@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: interop-proof
+milestone: program-closeout
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M014
+branch: gsd-path/M015
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/014-interop-proof
+archive: .project/archive/015-program-closeout
 integration_default: direct
 integration: direct
 integration_source: default
@@ -283,3 +283,20 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-01 — build — build started
 - 2026-11-01 — ship — build done; final review pending
 - 2026-11-01 — shipped — archive preflight passed; shipment recorded; program complete
+- 2026-11-01 — inspect — router bound next milestone
+- 2026-11-01 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-01 — inspect — inspection artifacts passed
+- 2026-11-01 — define — definition started
+- 2026-11-01 — define — pre-authorized approval: intent
+- 2026-11-01 — define — milestone intent approved
+- 2026-11-01 — research — research started
+- 2026-11-01 — research — research complete; manifest .project/research/RESEARCH.md; dispatched pitfalls, audit-verifiability; skipped domain, stack, similar; 1 question
+- 2026-11-01 — decide — decision synthesis started
+- 2026-11-01 — decide — decision synthesis complete; synthesis .project/research/SYNTHESIS.md validated (5 decisions)
+- 2026-11-01 — plan — planning started
+- 2026-11-01 — plan — pre-authorized approval: plan
+- 2026-11-01 — plan — plan approved
+- 2026-11-01 — build — build started
+- 2026-11-01 — ship — build done; final review pending
+- 2026-11-01 — ship — ship approval recorded under the owner's standing grant (intent,plan,rulings,ship) quoted in INTENT.md Corrections
+- 2026-11-01 — shipped — archive preflight passed; shipment recorded

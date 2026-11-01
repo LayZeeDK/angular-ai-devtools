@@ -1,0 +1,119 @@
+{
+  "task": "T005",
+  "claim": "the docs audit at this head has zero stale and zero aspirational claims, and no M014 fix-doc row is left planned: no",
+  "repo": "D:\\projects\\sandbox\\angular-ai-devtools",
+  "branch": "gsd-path/M015",
+  "auditedHead": "21b03420ee3a40e48a342dd0cf48d037a82620a8",
+  "headAtRun": "21b03420ee3a40e48a342dd0cf48d037a82620a8",
+  "headIsAncestor": true,
+  "auditPath": ".project/research/DOCS-AUDIT.md",
+  "summary": {
+    "verified": 330,
+    "stale": 0,
+    "aspirational": 0,
+    "unverifiable": 111,
+    "descriptive docs (no testable claims)": 0,
+    "claimRows": 441,
+    "docSections": 141,
+    "remediationQueueRows": 111,
+    "userRulingRows": 6
+  },
+  "inventory": {
+    "command": "python -B \"C:\\Users\\LarsGyrupBrinkNielse\\.commandcode\\skills\\gsd-path\\scripts\\check_docs_audit.py\" --repo . --emit-inventory > <session-temp>\\inventory.txt",
+    "exitCode": 0,
+    "paths": 141,
+    "note": "emitted to the session temp directory, never into .project/, per the task approach"
+  },
+  "checks": [
+    {
+      "name": "docs audit gate",
+      "command": "python -B \"C:\\Users\\LarsGyrupBrinkNielse\\.commandcode\\skills\\gsd-path\\scripts\\check_docs_audit.py\" --repo . --inventory <session-temp>\\inventory.txt",
+      "exitCode": 0,
+      "note": "441 claim rows, 141 doc sections, 111 queue rows, 6 ruling rows, stale 0, aspirational 0"
+    },
+    {
+      "name": "docs audit gate rerun (E3: no document change between runs)",
+      "command": "python -B \"C:\\Users\\LarsGyrupBrinkNielse\\.commandcode\\skills\\gsd-path\\scripts\\check_docs_audit.py\" --repo . --inventory <session-temp>\\inventory.txt",
+      "exitCode": 0,
+      "note": "second run over the unchanged audit reported the identical five Summary counts and no doubled unchanged: prefix"
+    },
+    {
+      "name": "npm run check",
+      "command": "npm run check",
+      "exitCode": 0
+    },
+    {
+      "name": "npm test",
+      "command": "npm test",
+      "exitCode": 0,
+      "note": "590/590 node:test assertions pass and the nx test target is green (tests 590, pass 590, fail 0)"
+    },
+    {
+      "name": "build-extension",
+      "command": "npx nx run angular-ai-devtools:build-extension",
+      "exitCode": 0,
+      "note": "no budget warning at the settled 520kb maximumWarning; output written to extension/panel"
+    },
+    {
+      "name": "skills mirror",
+      "command": "node --experimental-strip-types --test scripts/skills-mirror.test.mjs",
+      "exitCode": 0,
+      "note": "2/2 pass: control-ai-browsers and verify-ai-browsers mirror byte-identically"
+    },
+    {
+      "name": "task Verify (verbatim, task-authored shell)",
+      "command": "\"C:\\Program Files\\Git\\bin\\bash.exe\" scripts/verify.sh — the T005 `## Verify` line extracted verbatim from .project/tasks/T005-regenerate-audit-final-verify.md and run from the repository root",
+      "exitCode": 0,
+      "note": "printed 'audit regenerated at 21b03420ee3a with 0 stale and 0 aspirational'; the ancestor assertion (git merge-base --is-ancestor 21b03420ee3a40e48a342dd0cf48d037a82620a8 HEAD), the planned: no assertion and the verdict.json exitCode assertion all held, and scripts/skills-mirror.test.mjs passed 2/2"
+    }
+  ],
+  "retries": [
+    {
+      "name": "npm test (first attempt)",
+      "command": "npm test",
+      "exitCode": 1,
+      "reason": "Windows temp-dir flake, not an assertion failure: the after hook of 'scan refuses an --out outside its evidence directory' in .commandcode/skills/control-pangular-inspector/scripts/control.test.mjs threw EPERM on rmSync of %TEMP%\\control-pangular-REghgo. 589 of 590 node:test assertions passed in that run; the immediate rerun recorded above passes 590/590 with exit 0."
+    },
+    {
+      "name": "task Verify (same line under cmd.exe)",
+      "command": "cmd /c <verbatim T005 Verify line>",
+      "exitCode": 1,
+      "reason": "shell mismatch, not an audit failure: the task's Verify line is escaped for bash, where \\\\ inside double quotes collapses to \\; cmd.exe does not collapse it, so /\\\\|\\\\s*stale/ becomes an alternation whose first branch matches any bare backslash (the Windows Repo root) and the Summary assertion fails on unchanged content. It passes verbatim under bash as recorded above; no audit content can satisfy it under cmd.exe."
+    }
+  ],
+  "verdict": "verified",
+  "exitCode": 0,
+  "auditEdits": {
+    "auditedHeadUpdated": true,
+    "portalPinClaim": {
+      "doc": ".claude/skills/control-pangular-inspector/SKILL.md",
+      "claim": "\"portal worktree has this setup committed (f102b97)\"",
+      "verdictBefore": "stale",
+      "verdictAfter": "verified",
+      "evidence": "the pin is corrected in both setup.md files (.claude/skills/control-pangular-inspector/features/setup.md:31, .commandcode/skills/control-pangular-inspector/features/setup.md:31) and the same claim was corrected in both SKILL.md trees by T002 in commit 215eb109f86e9939ee7afc804fa214abae33e519"
+    },
+    "queueRow237Removed": true,
+    "userRulings": {
+      "rowsPreservedInOrder": 6,
+      "planned": {
+        "155": "T005 (discharged in 2c97f69, cited in the ruling text)",
+        "156": "T005 (discharged in 2c97f69, cited in the ruling text)",
+        "158": "T005 (discharged in 2c97f69, cited in the ruling text)",
+        "237": "T002 (landed 215eb10, cited in the ruling text; T005 extends the correction to both setup.md files)",
+        "143": "n/a (accept-drift), unchanged",
+        "205": "T005 (discharged in 2c97f69, cited in the ruling text; the fourth M014 fix-doc row, left at 'no' it would have falsified the zero-planned-no claim)"
+      },
+      "note": "the gate accepts only 'no' or a T### task id in Planned, so the discharging commit for rows 155/156/158/205 and 237 is named in the ruling text cell instead of the Planned cell"
+    },
+    "descriptiveDocs": "section kept with zero entries, matching the frozen inventory's zero claimless docs"
+  },
+  "setupCorrections": {
+    "files": [
+      ".claude/skills/control-pangular-inspector/features/setup.md",
+      ".commandcode/skills/control-pangular-inspector/features/setup.md"
+    ],
+    "pinRemoved": true,
+    "filesByteIdentical": true,
+    "portalInstructionsKept": true
+  }
+}
