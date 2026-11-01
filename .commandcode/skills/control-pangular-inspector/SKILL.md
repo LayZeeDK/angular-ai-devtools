@@ -65,7 +65,7 @@ or Lars's own) is never stopped.
      entries (`remove` deletes an untracked proxy file), and a tracked one whose other entries differ from HEAD
      (`remove` restores it from HEAD). Formatted with the repo's prettier when
      `node_modules/prettier` exists.
-   - The portal worktree has this setup committed (`f102b97`); `check` exits 0 there and `install` is not needed.
+   - The setup for running the portal with the dev-only provider is prepared in this repository; `check` exits 0 there and `install` is not needed.
 2. Start the app: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`
    (17-20 s to ready, measured). Its `info` prints the URL (`http://localhost:4507/`).
 3. Start the devtools server: `node $S up --app-url http://localhost:4507/`. It runs
@@ -160,8 +160,8 @@ Removing Pangular from the app: `node $S remove` restores every file `install` c
 deletes `proxy.conf.json` when git does not track it, prunes `node_modules` with `npm install`, restores the
 lockfile once more (npm's unrelated drift), and exits 0 only when `git status --porcelain` and `git diff HEAD`
 are empty. It refuses (exit 2) when the worktree has changes in files it does not manage. Stop the servers
-first. `HEAD` of the portal worktree holds the setup (`f102b97`), so `remove` there undoes only an uncommitted
-install and leaves Pangular in place; reverting that commit is a product change for Lars.
+first. The setup for running the portal with the dev-only provider is prepared in this repository, so `remove` there undoes only an uncommitted
+install and leaves Pangular in place.
 
 ## Helpers
 

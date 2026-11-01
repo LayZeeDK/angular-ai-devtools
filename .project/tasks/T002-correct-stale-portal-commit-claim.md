@@ -3,9 +3,9 @@ id: T002
 title: Correct the stale portal-commit claim in both pangular-inspector skill trees
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002
+base: 67ef91215ce98c1fa3c972fccebb49f25b96aa72
 worktree: null
 task_branch: null
 files:
@@ -56,3 +56,8 @@ Heavy: no
 
 - 2026-11-01 — created by planner
 - 2026-11-01 — orchestrator plan repair: replaced the planner's `node --check` on a Markdown file (which cannot fail on the claim) with an assertion that reads both documents, fails on the stale pin, and fails if the section was deleted.
+- 2026-11-01 — replaced stale portal commit pin 102b97 with repository-prepared setup wording (keeping portal dev-only provider instructions) in both .claude/skills/control-pangular-inspector/SKILL.md and .commandcode/skills/control-pangular-inspector/SKILL.md; Verify: exit code 0 (portal claim corrected in both trees)
+- 2026-11-01 — orchestrator Verify (isolate gsd-path-task/T002): pass, exit 0; output tail:
+  ```
+  portal claim corrected in both trees
+  ```
