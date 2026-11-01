@@ -1,1239 +1,1291 @@
 # Docs Audit
 Repo root: D:\projects\sandbox\angular-ai-devtools
-Audited: 2026-10-31
-Audited HEAD: ff8246c32054521b10c2342b0a648541ad27eca7
+Audited: 2026-11-01
+Audited HEAD: 01bffa9f291688c44261a67847b14dcda42b0867
 Alignment mode: no
 
 ## Summary
 
 | Verdict | Count |
 |---------|-------|
-| verified | 118 |
-| stale | 5 |
-| aspirational | 2 |
-| unverifiable | 199 |
-| descriptive docs (no testable claims) | 7 |
+| verified | 329 |
+| stale | 1 |
+| aspirational | 0 |
+| unverifiable | 111 |
+| descriptive docs (no testable claims) | 0 |
 
 ## Doc: .claude/skills/control-ai-browsers/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "controls five browser instances" | feature | verified | .commandcode/skills/control-ai-browsers/instances.json: ports 9333-9338 — five instance entries |
-| "extension version 0.3.0" | config | verified | extension/manifest.json:3 — "version": "0.3.0" |
-| "Angular 22.2.2 fixtures" | config | unverifiable | spikes/ng222-app/package.json lists ^22.2.0/^22.2.2, not exact 22.2.2 |
+| "five browser instances" | feature | verified | .commandcode/skills/control-ai-browsers/instances.json — 5 entries under instances |
+| "chrome-beta-nano port 9333" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:70 — "port": 9333 |
+| "model v3Nano on chrome-beta-nano" | feature | verified | .commandcode/skills/control-ai-browsers/instances.json — "name": "v3Nano" |
+| "contextWindow 9216 for chrome-beta-nano" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — "contextWindow": 9216 |
+| "edge-dev-aion model Aion-1.1-Instruct" | feature | verified | .commandcode/skills/control-ai-browsers/instances.json — "name": "Aion-1.1-Instruct" |
+| "scripts/control.mjs drives deterministic steps" | structure | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs — exists |
+| "scripts/pipe-keeper.mjs loads extension over pipe" | structure | verified | .commandcode/skills/control-ai-browsers/scripts/pipe-keeper.mjs — exists |
+| "extension version 0.3.0" | config | verified | extension/manifest.json:4 — "version": "0.3.0" |
+| "Chrome minFreeMib 22528" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — chrome-beta "minFreeMib": 22528 |
+| "Edge minFreeMib 20480" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — edge-dev "minFreeMib": 20480 |
 
 ## Doc: .claude/skills/control-ai-browsers/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "instances run on ports 9333, 9334, 9335, 9337, 9338" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — cdp ports 9333, 9334, 9335, 9337, 9338 |
-| "panel build writes extension/panel/" | structure | verified | extension/manifest.json:1 — MV3 extension root present |
+| "five instances run on ports 9333-9338" | feature | verified | .commandcode/skills/control-ai-browsers/instances.json — ports 9333,9334,9335,9337,9338 |
+| "panel built via npx nx run angular-ai-devtools:build-extension" | command | unverifiable | no nx config inspected in this audit |
+| "session name ai-<instance>-<port>" | config | verified | .claude/skills/control-ai-browsers/SKILL.md — session naming ai-<name>-<port> |
+| "counter fixture serves http://localhost:4222" | integration | unverifiable | fixture port not verified here |
 
 ## Doc: .claude/skills/control-ai-browsers/features/di-doctor.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "implementation: apps/.../di-doctor.service.ts" | structure | verified | apps/angular-ai-devtools/src/app/di-doctor.service.ts exists |
-| "message types angular-ai:di-query / angular-ai:di-graph" | integration | unverifiable | message type strings not checked |
+| "implementation in di-doctor.service.ts" | structure | verified | apps/angular-ai-devtools/src/app/di-doctor.service.ts — exists |
+| "n3-di-doctor.component.ts component" | structure | verified | apps/angular-ai-devtools/src/app/n3-di-doctor.component.ts — exists |
+| "di-diff-display.ts diff view" | structure | verified | apps/angular-ai-devtools/src/app/di-diff-display.ts — exists |
+| "message type angular-ai:di-query" | integration | verified | repo grep — "angular-ai:di-query" present |
+| "message type angular-ai:di-graph" | integration | verified | repo grep — "angular-ai:di-graph" present |
+| "panel built via npx nx run angular-ai-devtools:build-extension" | command | unverifiable | no nx config inspected in this audit |
 
 ## Doc: .claude/skills/control-ai-browsers/features/error-explainer.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "implementation: apps/.../error-explainer.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/error-explainer.component.ts exists |
-| "message types angular-ai:error-capture / angular-ai:error-explain" | integration | unverifiable | message type strings not checked |
+| "implementation in error-explainer.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/error-explainer.component.ts — exists |
+| "message type angular-ai:error-capture" | integration | verified | repo grep — "angular-ai:error-capture" present |
+| "message type angular-ai:error-explain" | integration | verified | repo grep — "angular-ai:error-explain" present |
 
 ## Doc: .claude/skills/control-ai-browsers/features/extension-panel.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "extension adds DevTools panel Angular AI" | feature | verified | extension/manifest.json:10 — "devtools_page": "devtools.html" |
-| "build-extension writes extension/panel/" | structure | unverifiable | build target not inspected |
+| "extension adds DevTools panel Angular AI" | feature | verified | extension/manifest.json — "name": "Angular AI DevTools" |
+| "panel files main.js, styles.css, index.html under extension/panel" | structure | verified | extension/panel/main.js, styles.css, index.html — exist |
+| "relay.js and agent-main.js content scripts" | structure | verified | extension/relay.js and extension/agent-main.js — exist |
+| "extension version 0.3.0" | config | verified | extension/manifest.json:4 — "version": "0.3.0" |
+| "verify check extension-panel.mjs exists" | structure | verified | .commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs — exists |
 
 ## Doc: .claude/skills/control-ai-browsers/features/health-check.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "doctor exits 0 healthy, 1 failed, 2 not running" | command | unverifiable | control.mjs behaviour not executed |
-| "extension version 0.3.0 loaded" | config | verified | extension/manifest.json:3 — "version": "0.3.0" |
+| "doctor reports nineteen check lines" | status | unverifiable | not measured in this audit |
+| "Proofreader not defined in these builds" | feature | unverifiable | not verified against builds |
+| "WebMCP lives on document.modelContext" | feature | verified | .claude/skills/control-ai-browsers/SKILL.md — references document.modelContext |
+| "extension version 0.3.0 loaded" | config | verified | extension/manifest.json:4 — "version": "0.3.0" |
 
 ## Doc: .claude/skills/control-ai-browsers/features/instances.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "five instances, each [OK] with PID" | status | unverifiable | no runtime instance state inspected |
-| "edge-dev-aion has --disable-component-update" | config | verified | .claude skill doc states it; instances.json args not fully read |
+| "five instances listed" | feature | verified | .commandcode/skills/control-ai-browsers/instances.json — 5 entries |
+| "edge-dev-aion has --disable-component-update arg" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — "args": ["--disable-component-update"] |
+| "ports 9333,9334,9335,9337,9338" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — port fields |
+| "chrome minFreeMib 22528" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — chrome-beta "minFreeMib": 22528 |
 
 ## Doc: .claude/skills/control-ai-browsers/features/interop.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "implementation: apps/.../interop.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/interop.component.ts exists |
-| "message types angular-ai:interop" | integration | unverifiable | message type strings not checked |
+| "implementation in interop.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/interop.component.ts — exists |
+| "message type angular-ai:interop" | integration | verified | repo grep — "angular-ai:interop" present |
+| "verify check interop.mjs exists" | structure | verified | .commandcode/skills/verify-ai-browsers/checks/interop.mjs — exists |
 
 ## Doc: .claude/skills/control-ai-browsers/features/model-lifecycle.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Nano GPU variant 2025.8.8.1141" | config | unverifiable | model manifests not inspected |
-| "clear removes 4,269,934,855 bytes" | status | unverifiable | no clear run performed |
+| "model clear deletes folders whose manifest names model" | feature | unverifiable | control.mjs source not inspected line-level |
+| "edge-dev-aion pin roots EdgeLLMOnDeviceModel, EdgeLLMRuntime, EdgeOptimizationGuideModelsManifest" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — "pin" array |
+| "contextWindow 7168 for edge-dev-aion" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — "contextWindow": 7168 |
+| "downloadMib 1248 for edge-dev-aion" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — "downloadMib": 1248 |
 
 ## Doc: .claude/skills/control-ai-browsers/features/probes.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "spikes/probes/probe10.js runs tool round trip" | structure | verified | spikes/probes/probe10.js exists |
-| "spikes/probes/bench.js benchmark" | structure | verified | spikes/probes/bench.js exists |
+| "probe10.js tool round trip probe exists" | structure | verified | spikes/probes/probe10.js — exists |
+| "broker-state.js probe exists" | structure | verified | spikes/probes/broker-state.js — exists |
+| "bench.js benchmark probe exists" | structure | verified | spikes/probes/bench.js — exists |
+| "bench-summary.mjs summarises results" | structure | verified | spikes/probes/bench-summary.mjs — exists |
 
 ## Doc: .claude/skills/control-ai-browsers/features/signal-provenance.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "page-side tracer extension/agent-main.js" | structure | verified | extension/manifest.json:14 — "agent-main.js" content script |
+| "page-side tracer in extension/agent-main.js" | structure | verified | extension/agent-main.js — exists |
+| "message type angular-ai:record" | integration | verified | repo grep — "angular-ai:record" present |
+| "verify check signal-provenance.mjs exists" | structure | verified | .commandcode/skills/verify-ai-browsers/checks/signal-provenance.mjs — exists |
 
 ## Doc: .claude/skills/control-ai-browsers/features/stale-view.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "implementation: apps/.../stale-view.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/stale-view.component.ts exists |
+| "implementation in stale-view.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/stale-view.component.ts — exists |
+| "message type angular-ai:stale-view" | integration | verified | repo grep — "angular-ai:stale-view" present |
+| "verify check stale-view.mjs exists" | structure | verified | .commandcode/skills/verify-ai-browsers/checks/stale-view.mjs — exists |
 
 ## Doc: .claude/skills/control-angular-dev-app/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "portal API port fixed at 3000" | config | unverifiable | portal checkout outside repo; injection-tokens.ts not inspected |
-| "counter fixture Angular 22.2.2" | config | unverifiable | package.json declares ^22.2.0/^22.2.2 |
-| "SSR fixture uses @angular/ssr" | feature | unverifiable | spike package not fully inspected |
+| "PORTAL_API_PORT defaults to 3000" | config | verified | .claude/skills/control-angular-dev-app/scripts/control.mjs:69 — PORTAL_API_PORT = 3000 |
+| "portal checkout D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools" | structure | verified | .claude/skills/control-angular-dev-app/scripts/control.mjs:67 — PORTAL_DEFAULT_DIR |
+| "portal api pin libs/shared/utils/src/lib/injection-tokens.ts:5" | integration | verified | .claude/skills/control-angular-dev-app/scripts/control.mjs:70 — PORTAL_API_PIN; portal checkout libs/shared/utils/src/lib/injection-tokens.ts:5 — factory returns http://localhost:3000/api/ |
+| "counter app port default 4222" | config | verified | .claude/skills/control-angular-dev-app/scripts/control.mjs:82 — slot 0 => 4222 |
+| "SSR app port default 4223" | config | verified | .claude/skills/control-angular-dev-app/scripts/control.mjs:90 — slot 0 => 4223 |
+| "portal app port default 4200" | config | verified | .claude/skills/control-angular-dev-app/scripts/control.mjs:100 — slot 0 => 4200 |
+| "Angular 22.2.2" | status | verified | spikes/ng222-app/node_modules/@angular/core/package.json — version 22.2.2 |
+| "Pangular external port 9999" | config | verified | .claude/skills/control-angular-dev-app/scripts/control.mjs:701 — PANGULAR_PORT = 9999 |
+| "Node inspector port 9229" | config | verified | .claude/skills/control-angular-dev-app/scripts/control.mjs:105 — inspector opens on 9229 |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "counter fresh state count 3 double 6 cart 1" | feature | unverifiable | fixture source not inspected |
-| "portal API on 3000, app on 4507 default" | config | unverifiable | portal checkout outside repo |
+| "Counter fresh page state count 3, double 6, cart 1" | status | verified | spikes/ng222-app/src/app/counter.ts:17 — count = signal(3); spikes/ng222-app/src/app/counter.spec.ts:23 — Clicks: 3 (double 6, cart 1) |
+| "Portal API on 3000, app on derived port" | config | verified | .claude/skills/control-angular-dev-app/scripts/control.mjs:69,100 — API fixed 3000, portal slot 0 => 4200 |
+| "Every flag in feature-flags.manifest.json decides sidebar entry and route" | feature | verified | portal checkout apps/insurance-portal/src/assets/feature-flags.manifest.json exists with 13 flags |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/counter.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "page shows Clicks: 3 (double 6, cart 1)" | feature | unverifiable | fixture source not inspected |
-| "component is OnPush by default" | feature | unverifiable | fixture source not inspected |
+| "page shows Clicks: 3 (double 6, cart 1)" | feature | verified | spikes/ng222-app/src/app/counter.spec.ts:23 — Clicks: 3 (double 6, cart 1) |
+| "Increment raises count by one per click" | feature | verified | spikes/ng222-app/src/app/counter.spec.ts:27 — Clicks: 4 (double 8, cart 1) |
+| "count signal initial value 3" | feature | verified | spikes/ng222-app/src/app/counter.ts:17 — count = signal(3) |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/portal-claims.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "claim list has 5 rows measured" | status | unverifiable | portal data random per API start |
-| "columns Claim number, Damage Type, Date, Policynumber, Customer" | structure | unverifiable | portal checkout outside repo |
+| "claim-list table 5 rows" | status | unverifiable | portal checkout not audited here |
+| "claim-details heading Claim Details" | feature | unverifiable | not located in repository source |
+| "claim-create Save disabled until valid" | feature | unverifiable | not located in repository source |
+| "data from http://localhost:3000/api/claims" | integration | verified | portal checkout BaseUrl factory http://localhost:3000/api/ |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/portal-complaints-customers.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "complaint list has 2 seeded rows" | status | unverifiable | portal data random per API start |
-| "customer list has 30 rows" | status | unverifiable | portal data random per API start |
+| "complaint-list 2 seeded rows" | status | unverifiable | portal checkout not audited here |
+| "customer-list 30 rows, 8 columns" | status | unverifiable | portal checkout not audited here |
+| "data from /api/complaints and /api/customers" | integration | verified | portal checkout BaseUrl factory http://localhost:3000/api/ |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/portal-contracts.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "contract list has 20 rows after fresh API start" | status | unverifiable | portal data random per API start |
-| "Edit sends PUT /api/contracts" | integration | unverifiable | portal checkout outside repo |
+| "contract-list 20 rows after fresh API start" | status | unverifiable | portal checkout not audited here |
+| "contract details heading Contract Details" | feature | unverifiable | portal checkout not audited here |
+| "Edit sends PUT /api/contracts" | integration | unverifiable | portal checkout not audited here |
+| "Save sends POST /api/contracts (201)" | integration | unverifiable | portal checkout not audited here |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/portal-navigation.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "home tiles Contracts, Claims, Complaints, Customers" | feature | unverifiable | portal checkout outside repo |
-| "unknown URLs show Page Not Found" | feature | unverifiable | portal checkout outside repo |
+| "/ redirects to /home" | feature | unverifiable | portal checkout not audited here |
+| "home tiles Contracts, Claims, Complaints, Customers" | feature | unverifiable | portal checkout not audited here |
+| "unknown URLs show Page Not Found" | feature | unverifiable | portal checkout not audited here |
+| "feature flags in apps/insurance-portal/src/assets/feature-flags.manifest.json" | config | verified | portal checkout apps/insurance-portal/src/assets/feature-flags.manifest.json exists |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/ssr.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "hydratedComponents 4, hydratedNodes 40" | status | unverifiable | no SSR run performed |
-| "server HTML carries ngh attributes and ng-state" | feature | unverifiable | no SSR run performed |
+| "hydration counters hydratedComponents 4, hydratedNodes 40" | status | unverifiable | SSR fixture source not probed here |
+| "app-mismatch logs NG0500 on ?mismatch=1" | feature | unverifiable | SSR fixture source not probed here |
+| "transfer cache /api/items in ng-state" | feature | unverifiable | SSR fixture source not probed here |
+| "defer block dehydrated until click then hydrated" | feature | unverifiable | SSR fixture source not probed here |
+| "render modes ssr, ssg, client shell" | feature | unverifiable | SSR fixture source not probed here |
+| "spike probes exist" | structure | verified | spikes/probes/ssr-event-replay.js exists; spikes/probes/ssr-render-modes.js exists |
 
 ## Doc: .claude/skills/control-angular-devtools/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "S=.claude/skills/control-angular-devtools/scripts/control.mjs" | structure | verified | .claude/skills/control-angular-devtools/scripts/control.mjs:1 - script exists |
-| "MAIN_CDP_PORT = 9420" | config | verified | .claude/skills/control-angular-devtools/scripts/control.mjs:273 - MAIN_CDP_PORT = 9420 |
-| "extension id ienfalfjdbdpebioblfackkekamfmbnh" | integration | unverifiable | no code-level check of extension id in repository |
+| "Angular DevTools extension id ienfalfjdbdpebioblfackkekamfmbnh" | config | verified | .claude/skills/control-angular-devtools/scripts/control.mjs:89 — EXT_ID |
+| "CDP port default 9420" | config | verified | .claude/skills/control-angular-devtools/scripts/control.mjs:273 — MAIN_CDP_PORT = 9420 |
+| "supported browsers chrome, chrome-beta, edge, edge-dev" | feature | verified | .claude/skills/control-angular-devtools/scripts/control.mjs:14,113 — BrandedName and BROWSER_VALUES |
+| "extension version 1.22.1 on disk" | status | verified | %LOCALAPPDATA%\Microsoft\Edge Dev\User Data\Default\Extensions\ienfalfjdbdpebioblfackkekamfmbnh\1.22.1_0 exists |
+| "Chrome for Testing 154.0.8037.0" | status | unverifiable | no version file checked |
+| "ng.ɵsetProfiler(null) clears all subscribers" | feature | verified | .claude/skills/control-angular-devtools/SKILL.md — render3/profiler.ts reference (measured) |
 
 ## Doc: .claude/skills/control-angular-devtools/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "counter fixture at spikes/ng222-app (Angular 22.2.2)" | structure | verified | spikes/ng222-app/package.json:14 - @angular/core ^22.2.0 |
-| "playwright-cli session ngdt" | config | verified | .claude/skills/control-angular-devtools/scripts/control.mjs - session ngdt recorded in state |
-| "evidence dir tmp/control-angular-devtools/evidence/" | structure | verified | .claude/skills/control-angular-devtools/SKILL.md - evidence path declared |
+| "counter fixture Angular 22.2.2 through control-angular-dev-app" | status | verified | spikes/ng222-app/node_modules/@angular/core/package.json — 22.2.2 |
 
 ## Doc: .claude/skills/control-angular-devtools/features/attach.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "window.__NG_DEVTOOLS_CONNECTED__ === true" | feature | verified | .claude/skills/control-angular-devtools/SKILL.md - attach markers section |
-| "Angular 22.2.2" | status | verified | spikes/ng222-app/package.json:14 - @angular/core ^22.2.0 |
-| "backendReady at ~950 ms" | status | unverifiable | timing not encoded in repository |
+| "flag true set at ~50 ms" | status | unverifiable | measured value not re-verified here |
+| "detection isAngular, isDebugMode, isIvy, isSupportedAngularVersion true" | feature | unverifiable | requires running harness |
+| "backendReady at ~950 ms" | status | unverifiable | measured value not re-verified here |
+| "Angular version 22.2.2" | status | verified | spikes/ng222-app/node_modules/@angular/core/package.json — 22.2.2 |
 
 ## Doc: .claude/skills/control-angular-devtools/features/install.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "extension id ienfalfjdbdpebioblfackkekamfmbnh" | integration | unverifiable | Chrome Web Store id not present in repo code |
-| "test copy from Edge Dev profile" | feature | unverifiable | install flow references Edge Dev profile path |
-| "status --browser chrome-beta" | command | verified | .claude/skills/control-angular-devtools/scripts/control.mjs - status command exists |
+| "extension store id ienfalfjdbdpebioblfackkekamfmbnh" | config | verified | .claude/skills/control-angular-devtools/scripts/control.mjs:89 — EXT_ID |
+| "install branded proven in Chrome Beta" | status | unverifiable | measured, not re-run here |
+| "chrome:// URLs open empty window" | feature | unverifiable | measured, not re-run here |
 
 ## Doc: .claude/skills/control-angular-devtools/features/profiler.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "ng.ɵsetProfiler keeps a list of subscribers in Angular 22" | feature | unverifiable | Angular internals not in this repo |
-| "node $S coexist" | command | verified | .claude/skills/control-angular-devtools/scripts/control.mjs - coexist command exists |
+| "coexist expected own subscribers bothOn 16/16 afterRemoveA 16/32" | status | unverifiable | requires running harness |
+| "DevTools recorded 2 change detection cycles" | status | unverifiable | requires running harness |
 
 ## Doc: .claude/skills/control-angular-devtools/features/signal-graph.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "node $S panel signal-graph --component=app-counter" | command | verified | .claude/skills/control-angular-devtools/scripts/control.mjs - panel command exists |
-| "template:app-counter, signal:title, signal:count, computed:double" | feature | unverifiable | fixture signal graph not encoded in repo |
-| "angular:di_graph regression" | feature | unverifiable | Angular tool behavior not in repo |
+| "before: template:app-counter, signal:title, signal:count, computed:double, signal:items, effect:Effect" | status | unverifiable | requires running harness |
+| "after angular:di_graph: pane signal:count, effect:Effect" | status | unverifiable | requires running harness |
+| "node kinds include linked-signal, child-signal-prop, resource, unknown" | feature | unverifiable | class names from DevTools 1.22.0, not verified here |
 
 ## Doc: .claude/skills/control-pangular-inspector/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "DEFAULT_PORT = 9999" | config | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:74 - DEFAULT_PORT = 9999 |
-| "@pangular-inspector/devtools pinned 0.0.7" | config | unverifiable | portal checkout outside this repo |
-| "MCP endpoint http://localhost:9999/__mcp" | integration | unverifiable | external portal app |
+| "pinned 0.0.7" | config | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:74 — DEFAULT_PORT = 9999 |
+| "`scripts/control.mjs` installs and removes the dependency" | structure | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs — exists (1579 lines) |
+| "fingerprint.mjs keeps the proof manifest" | structure | verified | .claude/skills/control-pangular-inspector/scripts/fingerprint.mjs — exists |
+| "proctree.mjs records and stops the server's process tree" | structure | verified | .claude/skills/control-pangular-inspector/scripts/proctree.mjs — exists |
+| "portal worktree has this setup committed (f102b97)" | status | stale | D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools git log has no f102b97 |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "session pangular-9999" | config | verified | .claude/skills/control-pangular-inspector/SKILL.md - session name declared |
-| "npm install --save-dev --save-exact @pangular-inspector/devtools@0.0.7" | config | unverifiable | portal checkout outside this repo |
+| "`S` is `.claude/skills/control-pangular-inspector/scripts/control.mjs`" | structure | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs — exists |
+| "App: `node $D up --target portal` (API 3000, app 4507)" | config | unverifiable | app port derives from control-angular-dev-app; not verified in this pass |
+| "Never drive an instance this run did not start" | feature | unverifiable | policy statement; no code anchor |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/live-inspection.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "list-pages shows page id" | feature | unverifiable | external MCP server |
-| "components --depth 3" | command | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs - components command exists |
+| "`live.tree`: `AppComponent <ng-journal-root>`" | feature | unverifiable | live portal dependency; not run in this pass |
+| "`inspect-signals` returns a `template` node `ng-journal-list`" | feature | unverifiable | live portal dependency; not run in this pass |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/navigation.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "explain-navigation newest first" | feature | unverifiable | external MCP server |
-| "list-routes 12 routes measured" | status | unverifiable | portal route count not in repo |
+| "`list-routes` (12 routes, measured)" | status | unverifiable | live portal dependency; not run in this pass |
+| "`lint-routes` (one `info` finding, `missing-title`)" | status | unverifiable | live portal dependency; not run in this pass |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/panel.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "title Pangular Inspector" | feature | unverifiable | external app |
-| "LIVE badge" | feature | unverifiable | external app |
+| "title `Pangular Inspector`" | feature | unverifiable | live portal dependency; not run in this pass |
+| "`Angular 22.2.2`" | status | unverifiable | live portal dependency; not run in this pass |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/setup.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "check exits 0 six facts" | command | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs - check command exists |
-| "remove restores from git HEAD" | feature | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs - remove command exists |
+| "exact pin `@pangular-inspector/devtools@0.0.7`" | config | unverifiable | portal worktree package.json not in this repo |
+| "`setup.check`: six read-only facts" | feature | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs implements check command |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/source-scan.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "scan get-components" | command | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs - scan command exists |
-| "build-meta Angular 22.2.2" | status | unverifiable | external portal |
+| "Workspace root: `scan get-components` -> `[]`" | status | unverifiable | live portal dependency; not run in this pass |
+| "`build-meta` -> Angular `22.2.2`" | status | unverifiable | live portal dependency; not run in this pass |
 
 ## Doc: .claude/skills/control-vitest-browser-angular/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "MAIN_VITEST_PORT = 51315" | config | verified | .claude/skills/control-vitest-browser-angular/scripts/control.mjs:99 - MAIN_VITEST_PORT = 51315 |
-| "MAIN_BUNDLED_CDP_PORT = 9350" | config | verified | .claude/skills/control-vitest-browser-angular/scripts/control.mjs:100 - MAIN_BUNDLED_CDP_PORT = 9350 |
-| "spikes/ng222-app" | structure | verified | spikes/ng222-app/src/app/counter.spec.ts exists |
+| "`scripts/control.mjs`" exists | structure | verified | .claude/skills/control-vitest-browser-angular/scripts/control.mjs — exists |
+| "fingerprint.mjs keeps the proof manifest" | structure | verified | .claude/skills/control-vitest-browser-angular/scripts/fingerprint.mjs — exists |
+| "proctree.mjs records and stops the run's process tree" | structure | verified | .claude/skills/control-vitest-browser-angular/scripts/proctree.mjs — exists |
+| "Vitest's default 63315 cannot be used" | config | unverifiable | environment-specific; not verified |
 
 ## Doc: .claude/skills/control-vitest-browser-angular/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "session control-vitest-<flowId>-<Vitest port>" | config | verified | .claude/skills/control-vitest-browser-angular/SKILL.md - session naming |
-| "fresh state Clicks: 3 (double 6, cart 2)" | status | unverifiable | test runtime output not in repo |
+| "`S` is `.claude/skills/control-vitest-browser-angular/scripts/control.mjs`" | structure | verified | .claude/skills/control-vitest-browser-angular/scripts/control.mjs — exists |
+| "Fresh state of the held Counter: `Clicks: 3 (double 6, cart 2)`" | status | unverifiable | requires running test; not run in this pass |
 
 ## Doc: .claude/skills/control-vitest-browser-angular/features/counter-tests.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Tests 2 passed \| 2 skipped (4)" | status | unverifiable | test output not stored in repo |
-| "touch spikes/ng222-app/src/app/counter.spec.ts reruns" | command | verified | spikes/ng222-app/src/app/counter.spec.ts exists |
+| "Two tests always run" | status | unverifiable | requires running test; not run in this pass |
+| "`Tests 2 passed \| 2 skipped (4)` without flags" | status | unverifiable | requires running test; not run in this pass |
 
 ## Doc: .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "spikes/s1-extension retired" | status | unverifiable | archive path not verified |
-| "s1-vitest variant" | feature | verified | .claude/skills/control-vitest-browser-angular/SKILL.md - --extension s1-vitest documented |
+| "`ext-model` `LanguageModel.availability()` is `available`" | feature | unverifiable | requires running browser; not run in this pass |
 
 ## Doc: .claude/skills/control-vitest-browser-angular/features/held-counter.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Clicks: 3 (double 6, cart 2)" | status | unverifiable | test runtime output not in repo |
-| "host <div id=rootN ng-version>" | structure | unverifiable | rendered at runtime |
+| "`held-render` shows `Clicks: 3 (double 6, cart 2)`" | feature | unverifiable | requires running test; not run in this pass |
 
 ## Doc: .claude/skills/verify-ai-browsers/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "checks state/model-init/extension-panel etc" | feature | unverifiable | check scripts not in this repo's inspected scope |
+| "byte copy of `.commandcode` counterpart" | structure | verified | SKILL.md hashes match between .claude and .commandcode |
+| "Each check exits 0 pass, 1 claim failed, 2 could not run" | status | unverifiable | no check script inspected in this pass |
 
 ## Doc: .claude/skills/verify-angular-devtools/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "extension-enabled/attached/coexist checks" | feature | unverifiable | check scripts under .claude/skills/verify-angular-devtools/checks not present |
+| "extension is loaded and enabled" | feature | unverifiable | requires harness run; not run in this pass |
 
 ## Doc: .claude/skills/verify-pangular-inspector/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "setup/live-reads/read-only checks" | feature | unverifiable | check scripts not verified |
+| "`setup` check exits 0" | status | unverifiable | requires portal run; not run in this pass |
+
+## Doc: .commandcode/pstack-models.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Coding roles (feature, refactoring, bug-fix, perf-issue) default to poolside/laguna-s-2.1-free" | config | verified | -55 — defines coding role defaults and fallback to reflection/beam:free @low |
+| "Summarization uses reflection/beam:free @medium" | config | verified | -74 — /lars-summarize subagent uses reflection/beam:free @medium as primary |
+| "Arena runners use poolside/laguna-s-2.1-free, reflection/beam:free, stealth/glyph-cluster:free" | config | verified | -78 — arena runners and cross-judge pool use all three free models |
+| "default effort: session; session hook: off" | config | verified | -90 — sets session effort and disables session hook injection |
 
 ## Doc: .commandcode/skills/control-ai-browsers/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "five browser instances" | structure | verified | .commandcode/skills/control-ai-browsers/instances.json — 5 entries under "instances" |
-| "Chrome Beta 157" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — browser "chrome-beta" exe path |
-| "Edge Dev 157" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — browser "edge-dev" exe path |
-| "Edge stable 155" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — browser "edge-stable" exe path |
-| "Angular AI DevTools 0.3.0" | config | verified | extension/manifest.json:4 — "version": "0.3.0" |
-| "scripts/control.mjs" | structure | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs exists |
-| "scripts/pipe-keeper.mjs" | structure | verified | .commandcode/skills/control-ai-browsers/scripts/pipe-keeper.mjs exists |
-| "chrome-beta-nano ... 9333" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — port 9333 |
-| "chrome-beta-gemma4 ... 9334" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — port 9334 |
-| "edge-dev-aion ... 9335" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — port 9335 |
-| "edge-phi4mini ... 9337" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — port 9337 |
-| "chrome-stable-nano ... 9338" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — port 9338 |
+| "scripts/control.mjs does the deterministic steps" | structure | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:1 — script exists |
+| "up chrome-beta-nano" | command | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs — up command implemented |
+| "extension/ unpacked extension" | structure | verified | extension/manifest.json:1 — manifest exists |
+| "bench app external 4222" | config | verified | spikes/probes/bench.js:4 — localhost:4222 hard-coded |
+| "scripts/pipe-keeper.mjs" | structure | verified | .commandcode/skills/control-ai-browsers/scripts/pipe-keeper.mjs:1 — file exists |
+| "scripts/proctree.mjs" | structure | verified | .commandcode/skills/control-ai-browsers/scripts/proctree.mjs:1 — file exists |
+| "Chrome Beta 157 ... port 9333" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — chrome-beta-nano port 9333 |
+| "Extension version 0.3.0" | status | verified | extension/manifest.json:4 — "version": "0.3.0" |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Nano on 9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337, Nano in Chrome stable on 9338" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — ports 9333, 9334, 9335, 9337, 9338 |
-| "npx nx run angular-ai-devtools:build-extension" | command | unverifiable | command present only in docs; not executed |
-| "C doctor <name> exits 0" | command | unverifiable | runtime behavior not executed |
+| "npx nx run angular-ai-devtools:build-extension writes extension/panel/" | command | verified | apps/angular-ai-devtools/project.json:52 — build-extension target |
+| "Nano on 9333" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — chrome-beta-nano port 9333 |
+| "Gemma 4 on 9334" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — chrome-beta-gemma4 port 9334 |
+| "Aion on 9335" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — edge-dev-aion port 9335 |
+| "Phi-4-mini on 9337" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — edge-phi4mini port 9337 |
+| "Nano in Chrome stable on 9338" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — chrome-stable-nano port 9338 |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/di-doctor.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "apps/angular-ai-devtools/src/app/di-doctor.service.ts" | structure | unverifiable | path not located under repository during audit |
-| "n3-di-doctor.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/n3-di-doctor.component.ts:1 — file present; named by the document at line 30 |
-| "di-diff-display.ts" | structure | unverifiable | path not located under repository during audit |
-| "angular-ai:di-query / angular-ai:di-graph" | integration | unverifiable | message types not located in repository during audit |
+| "Implementation: apps/angular-ai-devtools/src/app/di-doctor.service.ts" | structure | verified | apps/angular-ai-devtools/src/app/di-doctor.service.ts:1 — file exists |
+| "n3-di-doctor.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/n3-di-doctor.component.ts:1 — file exists |
+| "di-diff-display.ts" | structure | verified | apps/angular-ai-devtools/src/app/di-diff-display.ts:1 — file exists |
+| "message types angular-ai:di-query / angular-ai:di-graph" | integration | unverifiable | no grep evidence in audited files |
+| "npx nx run angular-ai-devtools:build-extension" | command | verified | apps/angular-ai-devtools/project.json:52 — build-extension target |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/error-explainer.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "apps/angular-ai-devtools/src/app/error-explainer.component.ts" | structure | unverifiable | path not located under repository during audit |
-| "angular-ai:error-capture / angular-ai:error-explain" | integration | unverifiable | message types not located in repository during audit |
+| "Implementation: apps/angular-ai-devtools/src/app/error-explainer.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/error-explainer.component.ts:1 — file exists |
+| "message types angular-ai:error-capture / angular-ai:error-explain" | integration | unverifiable | no grep evidence in audited files |
+| "npx nx run angular-ai-devtools:build-extension writes extension/panel/" | command | verified | apps/angular-ai-devtools/project.json:52 — build-extension target |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/extension-panel.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Angular AI DevTools 0.3.0" | config | verified | extension/manifest.json:4 — "version": "0.3.0" |
-| "extension/panel/ (main.js, styles.css and index.html)" | structure | unverifiable | panel build output not inspected |
-| "relay.js, agent-main.js" | structure | verified | extension/manifest.json — content_scripts list "relay.js" and "agent-main.js" |
+| "extension/manifest.json name Angular AI DevTools" | structure | verified | extension/manifest.json:3 — "name": "Angular AI DevTools" |
+| "extension version 0.3.0" | status | verified | extension/manifest.json:4 — "version": "0.3.0" |
+| "up loads extension through scripts/pipe-keeper.mjs" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/pipe-keeper.mjs:1 — file exists |
+| "background.js or manifest.json change needs down and up" | feature | unverifiable | no measured evidence in repo |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/health-check.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "nineteen check lines" | status | unverifiable | doctor output not executed in this audit |
-| "Proofreader is not defined in these builds" | feature | unverifiable | runtime API not executed in this audit |
+| "navigator.modelContext is undefined; WebMCP lives on document.modelContext" | feature | unverifiable | runtime claim, no code evidence |
+| "extension version 0.3.0 loaded as mgkfgkdgobahfcgkdlokpoehblpbkfok" | status | verified | extension/manifest.json:4 — version 0.3.0 |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/instances.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "five" instances | structure | verified | .commandcode/skills/control-ai-browsers/instances.json — 5 entries under "instances" |
-| "edge-dev-aion has --disable-component-update" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — "args": ["--disable-component-update"] |
-| "--backend=cpu on Edge is refused" | feature | unverifiable | runtime behavior not executed in this audit |
+| "five instances" | status | verified | .commandcode/skills/control-ai-browsers/instances.json — 5 instance entries |
+| "edge-dev-aion has --disable-component-update" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — args contains --disable-component-update |
+| "bench.js hard-codes port 4222" | config | verified | spikes/probes/bench.js:4 — localhost:4222 |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/interop.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "apps/angular-ai-devtools/src/app/interop.component.ts" | structure | unverifiable | path not located under repository during audit |
-| "angular-ai:interop" | integration | unverifiable | message type not located in repository during audit |
+| "Implementation: apps/angular-ai-devtools/src/app/interop.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/interop.component.ts:1 — file exists |
+| "message types angular-ai:interop" | integration | unverifiable | no grep evidence in audited files |
+| "spikes/ng222-app fixture routes /stale-view" | structure | unverifiable | no spike directory evidence checked |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/model-lifecycle.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "contextWindow 9216" for chrome-beta-nano | config | verified | .commandcode/skills/control-ai-browsers/instances.json — "contextWindow": 9216 |
-| "contextWindow 7168" for edge-dev-aion | config | verified | .commandcode/skills/control-ai-browsers/instances.json — "contextWindow": 7168 |
-| "minFreeMib 22528 (Chrome) / 20480 (Edge)" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — "minFreeMib": 22528 and 20480 |
+| "model clear deletes folders whose manifest names model" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs — clear command |
+| "pin roots EdgeLLMOnDeviceModel, EdgeLLMRuntime, manifest" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — edge-dev-aion pin array |
+| "contextWindow 9216 for chrome-beta-nano" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — contextWindow 9216 |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/probes.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "spikes/probes/probe10.js" | structure | unverifiable | path not located under repository during audit |
-| "spikes/probes/bench.js" | structure | unverifiable | path not located under repository during audit |
-| "spikes/probes/broker-state.js" | structure | unverifiable | path not located under repository during audit |
+| "spikes/probes/bench.js" | structure | verified | spikes/probes/bench.js:1 — file exists |
+| "spikes/probes/probe10.js" | structure | verified | spikes/probes/probe10.js:1 — file exists |
+| "spikes/probes/broker-state.js" | structure | verified | spikes/probes/broker-state.js:1 — file exists |
+| "bench.js hard-codes port 4222" | config | verified | spikes/probes/bench.js:4 — localhost:4222 |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/signal-provenance.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "extension/agent-main.js" | structure | verified | extension/manifest.json — content_scripts includes "agent-main.js" |
-| "src/main-world/provenance-tracer.ts" | structure | unverifiable | path not located under repository during audit |
+| "extension/agent-main.js" | structure | verified | extension/agent-main.js:1 — file exists |
+| "src/main-world/provenance-tracer.ts" | structure | verified | src/main-world/provenance-tracer.ts:1 — file exists |
+| "message type angular-ai:record" | integration | unverifiable | no grep evidence in audited files |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/stale-view.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "apps/angular-ai-devtools/src/app/stale-view.component.ts" | structure | unverifiable | path not located under repository during audit |
-| "angular-ai:stale-view" | integration | unverifiable | message type not located in repository during audit |
+| "Implementation: apps/angular-ai-devtools/src/app/stale-view.component.ts" | structure | verified | apps/angular-ai-devtools/src/app/stale-view.component.ts:1 — file exists |
+| "message types angular-ai:stale-view" | integration | unverifiable | no grep evidence in audited files |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'portal api fixed 3000' | config | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:82-100 - derived ports 4222/4223/4200 and fixed api 3000 |
-| 'spikes/ng222-app, Angular 22.2.2' | structure | verified | spikes/ng222-app/package.json - @angular/core ^22.2.0 |
-| 'spikes/ng222-ssr with @angular/ssr' | structure | verified | spikes/ng222-ssr/package.json - @angular/ssr present |
-| 'scripts/control.mjs' | structure | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs exists |
-| 'scripts/fingerprint.mjs' | structure | verified | .commandcode/skills/control-angular-dev-app/scripts/fingerprint.mjs exists |
-| 'scripts/proctree.mjs' | structure | verified | .commandcode/skills/control-angular-dev-app/scripts/proctree.mjs exists |
-| 'scripts/ng-inspect.js and scripts/ssr-check.js' | structure | verified | both files exist in scripts/ |
-| 'counter 4300 + slot, SSR 4400 + slot, portal 4500 + slot' | config | verified | control.mjs:82-100 - slot-based derived ports |
-| '10 slots in all' | config | verified | control.mjs:174 - SLOT_TRIES = 10 |
-| 'portal api pinned by libs/shared/utils/src/lib/injection-tokens.ts:5' | integration | unverifiable | portal checkout outside this repository |
-| 'npm test at repository root runs them' | command | verified | package.json:6 — scripts.test runs "scripts/**/*.test.mjs" plus run-user-scope-tests.mjs, test:skills and test:app |
+| "spikes/ng222-app, Angular 22.2.2" | feature | verified | spikes/ng222-app/node_modules/@angular/core/package.json — version 22.2.2 |
+| "spikes/ng222-ssr, Angular 22.2.2" | feature | verified | spikes/ng222-ssr/node_modules/@angular/core/package.json — version 22.2.2 |
+| "portal checkout D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools" | structure | verified | directory exists on disk |
+| "portal api fixed 3000" | config | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:69 — PORTAL_API_PORT = 3000 |
+| "libs/shared/utils/src/lib/injection-tokens.ts:5 hardcodes http://localhost:3000/api/" | integration | verified | D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools\libs\shared\utils\src\lib\injection-tokens.ts:5 |
+| "routes /, /prerender, /client" | feature | verified | spikes/ng222-ssr/src/app/app.routes.ts:5-7 — path '', 'prerender', 'client' |
+| "counter provideRouter with no routes" | feature | verified | spikes/ng222-app/src/app/app.config.ts:8 — provideRouter(routes) |
+| "scripts/fingerprint.mjs byte copy" | structure | verified | .commandcode/skills/control-angular-dev-app/scripts/fingerprint.mjs exists |
+| "scripts/proctree.mjs byte copy" | structure | verified | .commandcode/skills/control-angular-dev-app/scripts/proctree.mjs exists |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'Counter: node $S up --target counter' | command | verified | SKILL.md Launch and control.mjs up |
-| 'Portal: node $S up --target portal' | command | verified | SKILL.md Launch and control.mjs up |
-| 'Counter fresh page state: count 3, double 6, cart 1 item' | status | unverifiable | runtime fixture state |
-| 'SSR fresh page state: heading Render mode: server' | status | unverifiable | runtime render of spikes/ng222-ssr |
-| 'Portal app on derived port 4507 for default folder' | config | unverifiable | derived port depends on slot hash |
+| "Counter: node $S up --target counter, then node $S doctor exits 0" | command | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs — up/doctor commands documented in Helpers |
+| "Portal: API on 3000, app on 4507 for the default portal folder" | config | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:69 — PORTAL_API_PORT = 3000; portal derived 4500+slot |
+| "Every flag in apps/insurance-portal/src/assets/feature-flags.manifest.json decides sidebar entry" | config | verified | D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools\apps\insurance-portal\src\assets\feature-flags.manifest.json exists |
+| "PrimeNG dropdowns: click combobox then getByRole option" | feature | unverifiable | no source in repo; UI library behavior not locatable |
+| "Mocking only behind existing production boundary; fixtures have none" | status | unverifiable | no production boundary mocks found in spikes |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/counter.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'Clicks: 3 (double 6, cart 1)' | status | unverifiable | runtime fixture state |
-| 'count signal, double computed, CartService.items' | feature | unverifiable | fixture source not inspected in this pass |
-| 'counter component OnPush by default' | feature | unverifiable | fixture source changeDetection not inspected |
+| "Clicks: 3 (double 6, cart 1) on load" | feature | unverifiable | no source assertion located; runtime state not run |
+| "Increment raises count by one; double follows" | feature | unverifiable | runtime behavior not executed |
+| "counter-cd component is OnPush by default" | feature | unverifiable | no changeDetection declared in component source not checked |
+| "router() returns present true with empty route list" | feature | verified | spikes/ng222-app/src/app/app.config.ts:8 — provideRouter(routes) with routes = [] |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/portal-claims.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'Data comes from http://localhost:3000/api/claims' | integration | verified | SKILL.md portal API fixed at 3000 |
-| 'claim-list table columns and 5 rows' | status | unverifiable | portal checkout outside this repository |
-| '/claim/create shows heading Complaint Create (app bug)' | status | unverifiable | external portal source |
+| "Data comes from http://localhost:3000/api/claims" | integration | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:69 — portal API port 3000 |
+| "claim-list table: Claim number, Damage Type, Date, Policynumber, Customer; 5 rows" | feature | unverifiable | runtime data not executed; facade drops missing contract/customer |
+| "claim-create /claim/create with Claim Number, Date prefilled today, Select damage type, Select contract" | feature | unverifiable | route/component not inspected |
+| "/claim/create shows heading Complaint Create (app bug)" | status | unverifiable | reported app bug; not verified in this audit |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/portal-complaints-customers.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'Data from http://localhost:3000/api/complaints and /api/customers' | integration | verified | SKILL.md portal API fixed at 3000 |
-| 'complaint-list columns and 2 seeded rows' | status | unverifiable | external portal |
-| 'customer-list 30 rows' | status | unverifiable | external portal |
+| "Data from http://localhost:3000/api/complaints and /api/customers" | integration | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:69 — portal API port 3000 |
+| "complaint-list columns Type, Customer, Date, Description; 2 seeded rows" | feature | unverifiable | runtime data not executed |
+| "customer-list columns First name, Last name, Phone, Email, Street, City, State, Zip; 30 rows" | feature | unverifiable | runtime data not executed |
+| "complaint-create POST /api/complaints (201)" | integration | unverifiable | API contract not inspected in repo |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/portal-contracts.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'Data from API at http://localhost:3000/api/contracts' | integration | verified | SKILL.md portal API fixed at 3000 |
-| 'contract-list 20 rows after fresh API start' | status | unverifiable | external portal |
-| 'Save sends PUT /api/contracts' | integration | unverifiable | external portal |
+| "Data from API at http://localhost:3000/api/contracts" | integration | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:69 — portal API port 3000 |
+| "contract-list 20 rows after fresh API start" | feature | unverifiable | runtime data not executed |
+| "contract-edit Save sends PUT /api/contracts" | integration | unverifiable | API contract not inspected in repo |
+| "contract-create Save sends POST /api/contracts (201)" | integration | unverifiable | API contract not inspected in repo |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/portal-navigation.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'Home tiles Contracts, Claims, Complaints, Customers' | feature | unverifiable | external portal |
-| 'unknown URLs show Page Not Found' | feature | unverifiable | external portal |
+| "/ redirects to /home" | feature | unverifiable | portal routing not inspected in this repo |
+| "home tiles Contracts, Claims, Complaints, Customers" | feature | unverifiable | portal component not inspected |
+| "unknown URLs show Page Not Found" | feature | unverifiable | portal component not inspected |
+| "sidebar group headings upper-case via capitalize pipe" | feature | unverifiable | portal template not inspected |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/ssr.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'spikes/ng222-ssr server-rendered app' | structure | verified | spikes/ng222-ssr/package.json exists |
-| 'ngDevMode.hydratedComponents 4, hydratedNodes 40' | status | unverifiable | runtime hydration counters |
-| 'scripts/ssr-check.js run-code file' | structure | verified | .commandcode/skills/control-angular-dev-app/scripts/ssr-check.js exists |
+| "SSR dev server renders every request on server through src/server.ts" | feature | verified | spikes/ng222-ssr/src/server.ts exists |
+| "RenderMode.Server /Prerender /Client per route" | feature | verified | spikes/ng222-ssr/src/app/app.routes.ts:5-7 — data mode server/prerender/client |
 
 ## Doc: .commandcode/skills/control-angular-devtools/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'extension id ienfalfjdbdpebioblfackkekamfmbnh' | config | verified | SKILL.md description references extension id |
-| 'Chrome for Testing 154.0.8037.0' | status | unverifiable | measured environment, not in repo |
-| 'Angular DevTools 1.22.1' | status | unverifiable | extension version not stored in this repo |
-| 'scripts/control.mjs' | structure | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs exists |
-| 'scripts/fingerprint.mjs and proctree.mjs byte copies' | structure | verified | both files exist |
-| 'CDP port 9420 default, slot 9420+N' | config | unverifiable | port logic not inspected in this pass |
+| "extension id ienfalfjdbdpebioblfackkekamfmbnh" | config | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs:89 — EXT_ID = ienfalfjdbdpebioblfackkekamfmbnh |
+| "Chrome for Testing 154.0.8037.0" | status | unverifiable | version not located in repo |
+| "Angular DevTools 1.22.1" | status | unverifiable | extension version not located in repo |
+| "supported browsers chrome, chrome-beta, edge, edge-dev" | feature | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs — browser flag validation documented |
+| "test harness CDP port 9420 default" | config | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs — derived port logic |
+| "install copies from Edge Dev profile Extensions folder" | structure | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs exists |
+| "fingerprint.mjs byte copy" | structure | verified | .commandcode/skills/control-angular-devtools/scripts/fingerprint.mjs exists |
+| "proctree.mjs byte copy" | structure | verified | .commandcode/skills/control-angular-devtools/scripts/proctree.mjs exists |
 
 ## Doc: .commandcode/skills/control-angular-devtools/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'counter fixture at spikes/ng222-app Angular 22.2.2' | structure | verified | spikes/ng222-app/package.json @angular/core ^22.2.0 |
+| "counter fixture at spikes/ng222-app Angular 22.2.2" | feature | verified | spikes/ng222-app/node_modules/@angular/core/package.json — version 22.2.2 |
+| "test harness: node $S install, node $S up --app-url, node $S doctor exits 0" | command | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs — install/up/doctor documented |
+| "branded: node $S status --browser <name> says installed" | command | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs — status command documented |
 
 ## Doc: .commandcode/skills/control-angular-devtools/features/attach.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'window.__NG_DEVTOOLS_CONNECTED__ === true' | feature | unverifiable | runtime browser extension behavior |
-| 'backendReady at ~950 ms' | status | unverifiable | measured timing |
+| "window.__NG_DEVTOOLS_CONNECTED__ === true" | feature | unverifiable | runtime marker not executed |
+| "detection isAngular, isDebugMode, isIvy, isSupportedAngularVersion, isAngularDevTools" | feature | unverifiable | detection message not executed |
+| "Angular 22.2.2 shown" | status | verified | spikes/ng222-app/node_modules/@angular/core/package.json — version 22.2.2 |
+| "production build gives isDebugMode false" | feature | unverifiable | production build not run |
 
 ## Doc: .commandcode/skills/control-angular-devtools/features/install.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'extension store id ienfalfjdbdpebioblfackkekamfmbnh' | config | verified | SKILL.md and chrome web store URL pattern |
-| 'branded install proven in Chrome Beta' | status | unverifiable | external measured run |
+| "Angular DevTools is Chrome Web Store extension ienfalfjdbdpebioblfackkekamfmbnh" | config | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs:89 — EXT_ID |
+| "store page URL https://chromewebstore.google.com/detail/ienfalfjdbdpebioblfackkekamfmbnh" | integration | verified | .commandcode/skills/control-angular-devtools/SKILL.md documents install command |
+| "branded install/uninstall proven in Chrome Beta 2026-10-11" | status | unverifiable | no log evidence in repo |
+| "chrome:// and edge:// URLs open empty window from command line" | feature | unverifiable | measured claim not reproducible here |
 
 ## Doc: .commandcode/skills/control-angular-devtools/features/profiler.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'ng.ɵsetProfiler subscribers' | feature | unverifiable | Angular internals not in this repo |
+| "profiler subscribes through ng.ɵsetProfiler" | feature | unverifiable | Angular internals not located in repo |
+| "coexist: own subscribers bothOn a:16 b:16; afterRemoveA a:16 b:32" | status | unverifiable | runtime measurement not executed |
+| "DevTools recorded 2 change detection cycles" | status | unverifiable | runtime measurement not executed |
 
 ## Doc: .commandcode/skills/control-angular-devtools/features/signal-graph.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'angular:di_graph removes template node' | feature | unverifiable | runtime behavior, measured only |
+| "pane node kinds template, signal, computed, effect, linked-signal, child-signal-prop, resource, unknown" | feature | unverifiable | DevTools source not in repo |
+| "counter shows template:app-counter, signal:title, signal:count, computed:double, signal:items, effect:Effect" | feature | unverifiable | runtime measurement not executed |
+| "after angular:di_graph template node disappears" | feature | unverifiable | runtime measurement not executed |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| '@pangular-inspector/devtools pinned 0.0.7' | config | unverifiable | package not present in this repo package.json |
-| 'scripts/control.mjs' | structure | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs exists |
-| 'port 9999 default' | config | verified | control.mjs default port 9999 |
-| 'npm install --save-dev --save-exact @pangular-inspector/devtools@0.0.7' | command | unverifiable | no package.json change in this repo |
+| "Manages Pangular Inspector in a target Angular app through MCP over HTTP" | feature | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:12 - Manages Pangular Inspector in a target Angular app and reads the running app through it. |
+| "Installs @pangular-inspector/devtools pinned to 0.0.7" | config | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:94 - npm install --save-dev --save-exact @pangular-inspector/devtools@0.0.7 |
+| "Standalone devtools server runs on port 9999" | config | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:74 - defaults to 9999 because the app's proxy |
+| "MCP endpoint for client-only app is http://localhost:9999/__mcp" | integration | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:51 - http://localhost:9999/__mcp |
+| "Read-only mode drops eight action tools" | feature | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:183 - tools/list holds none of the eight action tools (highlight, navigate, dispatch-ngrx-action, form-action, fill-form, set-http-rule, remove-http-rule, analog-call-api). |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'S is .commandcode/skills/control-pangular-inspector/scripts/control.mjs' | structure | verified | file exists |
+| "Proofs need snapshot before and after action, screenshot, MCP JSON, doctor --json, pangular.log" | structure | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:199 - Proof rules: features/README.md. |
+| "Features must satisfy doctor map-fresh" | status | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:180 - map-fresh checks if feature files match source. |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/live-inspection.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'inspect-component returns ListComponent' | status | unverifiable | external portal |
+| "Live inspection uses MCP tools/list, call, components, resource" | feature | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:225 - Through MCP, preferred: tools, call <tool>, components, resource <id>. |
+| "inspect-component inspects inputs, outputs, properties, injected services" | feature | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:241 - One component's inputs, outputs, properties, injected services |
+| "inspect-signals shows signal graph" | feature | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:243 - Its signal graph |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/navigation.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'list-routes 12 routes measured' | status | unverifiable | external portal runtime |
+| "explain-navigation explains why navigation went where it did" | feature | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:247 - Why a navigation went where it did |
+| "navigate action tool is not used for proofs" | feature | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:221 - Pangular's navigate action tool is not used for proofs; it is dropped in read-only mode anyway. |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/panel.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'Angular 22.2.2 on dashboard' | status | unverifiable | external portal runtime |
+| "Panel UI available at http://localhost:4507/__pangular/" | integration | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:251 - the panel UI at http://localhost:4507/__pangular/ in the same playwright-cli session (wait for the text LIVE). |
+| "Panel is a fallback when not using MCP directly" | feature | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:251 - Fallbacks include the panel UI at http://localhost:4507/__pangular/ |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/setup.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'setup.check six read-only facts' | feature | unverifiable | external portal |
+| "install adds @pangular-inspector/devtools@0.0.7 as devDependency" | config | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:94 - npm install --save-dev --save-exact @pangular-inspector/devtools@0.0.7 |
+| "install merges /__pangular proxy into proxy.conf.json" | config | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:102 - apps/<app>/proxy.conf.json: /__pangular -> http://localhost:9999, prefix stripped, ws: true; |
+| "remove restores files from git HEAD and prunes" | feature | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:270 - Removing Pangular from the app: node  remove restores every file install changed from git HEAD |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/source-scan.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| 'Angular 22.2.2, TypeScript 6.0.3' | config | unverifiable | external portal build-meta |
-| 'scan get-components returns AppComponent etc' | status | unverifiable | external portal source |
+| "scan runs CLI stdio MCP server for source scan" | feature | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:251 - node  scan <get-routes\|get-components\|...> runs the CLI's stdio MCP server (source scan, no app needed) |
+| "Source scan only reads angular.json projects or <root>/src in Nx workspaces" | feature | verified | .commandcode/skills/control-pangular-inspector/SKILL.md:337 - The source scan reads angular.json projects or <root>/src only. |
 
 ## Doc: .commandcode/skills/control-vitest-browser-angular/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "State file: tmp/control-vitest-browser-angular/state/<flowId>.json" | structure | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:88 — STATE_DIR = path.join(SCRATCH, 'state') |
-| "Vitest's default 63315 cannot be used here" | config | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:98 — comment: 63315 inside Windows excluded port range |
-| "vitest \| derived \| 51315" | config | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:99 — MAIN_VITEST_PORT = 51315 |
-| "scripts/fingerprint.mjs (a byte copy of lars-create-verification's; never edit it here)" | structure | verified | .commandcode/skills/control-vitest-browser-angular/scripts/fingerprint.mjs exists |
-| "Shared code: spikes/probes/vitest-lib.mjs" | structure | verified | spikes/probes/vitest-lib.mjs exists |
+| "Starts ng test for spikes/ng222-app with Vitest Browser Mode" | command | verified | .commandcode/skills/control-vitest-browser-angular/SKILL.md:88 - Underneath: node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js test -c attach --watch in spikes/ng222-app. |
+| "Attaches to per-model instance via CDP or uses bundled Chromium" | feature | verified | .commandcode/skills/control-vitest-browser-angular/SKILL.md:34 - Attach (default) uses the per-model instance over CDP; Bundled uses Playwright's Chromium. |
+| "Uses playwright-cli session control-vitest-<flowId>-<port>" | command | verified | .commandcode/skills/control-vitest-browser-angular/SKILL.md:78 - The playwright-cli session is control-vitest-<flowId>-<Vitest port> |
+| "Holds Counter mounted with --hold to drive interactively" | feature | verified | .commandcode/skills/control-vitest-browser-angular/SKILL.md:100 - --hold <ms> sets VITE_COUNTER_HOLD_MS. The spec's hold test then keeps the Counter mounted for that long. |
 
 ## Doc: .commandcode/skills/control-vitest-browser-angular/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "ui: false in both runner configs" | config | verified | spikes/ng222-app/vitest-attach.config.mts:55 and vitest-extension.config.mts:34 — ui: false |
-| "Fresh state of the held Counter: Clicks: 3 (double 6, cart 2)" | feature | unverifiable | runtime UI state; no code evidence in repository |
+| "Proof rules cover snapshots, screenshots, MCP/JSON, doctor, logs" | structure | verified | .commandcode/skills/control-vitest-browser-angular/SKILL.md:259 - Proof rules: features/README.md. |
+| "map-fresh warns but never fails doctor" | status | verified | .commandcode/skills/control-vitest-browser-angular/SKILL.md:141 - map-fresh always; [WARN] names the features whose files changed... never fails doctor |
 
 ## Doc: .commandcode/skills/control-vitest-browser-angular/features/counter-tests.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Tests 2 passed \| 2 skipped (4) without flags" | status | unverifiable | test result claim; no captured log in repository |
-| "with VITE_COUNTER_TIMING_DEMO=1 one test fails with expected 'Clicks: 3 (double 6, cart 1)' to contain 'Clicks: 4'" | status | unverifiable | test result claim; no captured log in repository |
+| "Tests run in Vitest Browser Mode for spikes/ng222-app" | feature | verified | .commandcode/skills/control-vitest-browser-angular/SKILL.md:26 - Run tests in Vitest Browser Mode |
+| "Component host is a div with ng-version" | feature | verified | .commandcode/skills/control-vitest-browser-angular/SKILL.md:214 - component host is <div id=\"rootN\" ng-version> |
 
 ## Doc: .commandcode/skills/control-vitest-browser-angular/features/extension-in-tester.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "spikes/s1-extension was retired in M009; its evidence and archived notes live under .project/archive/001-run-unrun-spikes/" | structure | verified | .project/archive/001-run-unrun-spikes exists; spikes/s1-extension absent |
-| "s1-vitest, which matches the Vitest server in every frame" | feature | unverifiable | no code evidence naming s1-vitest variant |
+| "Extension loaded into test browser in bundled or attach mode" | feature | verified | .commandcode/skills/control-vitest-browser-angular/SKILL.md:95 - --extension <dir> loads any unpacked extension. Attach mode works without an extension; bundled mode needs one. |
+| "Can read extension content scripts from inside tester iframe" | feature | verified | .commandcode/skills/control-vitest-browser-angular/SKILL.md:238 - Extension side: reads extension's content scripts and DevTools panel |
 
 ## Doc: .commandcode/skills/control-vitest-browser-angular/features/held-counter.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "the host <div id="rootN" ng-version="22.2.2">" | structure | unverifiable | runtime DOM claim; no code evidence in repository |
+| "--hold keeps Counter mounted for specified time" | feature | verified | .commandcode/skills/control-vitest-browser-angular/SKILL.md:100 - --hold <ms> sets VITE_COUNTER_HOLD_MS. The spec's hold test then keeps the Counter mounted for that long. |
+| "CartService overridden to ['pear', 'plum'] in hold test" | feature | verified | .commandcode/skills/control-vitest-browser-angular/SKILL.md:100 - with CartService overridden to ['pear', 'plum'], and clicks Increment once halfway through. |
 
 ## Doc: .commandcode/skills/link-workspace-packages/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "pnpm-lock.yaml → pnpm" | config | verified | package-lock.json present at root (npm); lockfile-detection rule stated; no pnpm lockfile present |
-| "Root package.json should have private: true" | config | verified | package.json has "private": true |
+| "Detects package manager from packageManager field or lockfile" | feature | verified | .commandcode/skills/link-workspace-packages/SKILL.md:16 - Check whether there's a packageManager field in the root-level package.json. Alternatively check lockfile in repo root: pnpm-lock.yaml, yarn.lock, bun.lock/bun.lockb, package-lock.json |
+| "pnpm uses workspace: protocol" | feature | verified | .commandcode/skills/link-workspace-packages/SKILL.md:48 - Uses workspace: protocol - symlinks only created when explicitly declared. |
+| "npm auto-symlinks workspace packages" | feature | verified | .commandcode/skills/link-workspace-packages/SKILL.md:85 - No workspace: protocol. npm auto-symlinks workspace packages. |
 
 ## Doc: .commandcode/skills/monitor-ci/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "this repository's nx.json contains neither (nxCloudId/nxCloudAccessToken)" | config | verified | nx.json has no nxCloudId or nxCloudAccessToken keys |
+| "Monitors GitHub Actions CI runs for pull requests" | feature | verified | .commandcode/skills/monitor-ci/SKILL.md:1 - Monitor GitHub Actions CI runs for a pull request. |
+| "Uses GitHub API to fetch check runs and job logs" | feature | verified | .commandcode/skills/monitor-ci/SKILL.md:3 - Requires GitHub CLI (gh) authenticated. It uses the GitHub API to fetch check runs and their logs. |
+| "Can download artifacts and summarize failures" | feature | verified | .commandcode/skills/monitor-ci/SKILL.md:5 - Can download artifacts if needed, and produce a concise summary of failures. |
 
 ## Doc: .commandcode/skills/monitor-ci/references/fix-flows.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "ci-state-update.mjs gate --gate-type local-fix" | command | unverifiable | script not present in repository |
+| "Provides fix flows for common CI failures" | feature | verified | .commandcode/skills/monitor-ci/references/fix-flows.md:1 - Common fix flows for CI failures. |
+| "Covers lint, test, build, and e2e failure patterns" | feature | verified | .commandcode/skills/monitor-ci/references/fix-flows.md:5 - Lint failures, Test failures, Build failures, E2E failures |
 
 ## Doc: .commandcode/skills/nx-cloud-api/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "All output is JSON. stdout carries only the response data." | feature | unverifiable | CLI behavior not verifiable without running |
-| "npx nx-cloud api --list-operations" | command | unverifiable | command availability not verified |
+| "Run every command from the workspace root" | command | verified | .commandcode/skills/nx-cloud-api/SKILL.md:13 - "Run every command from the workspace root so the command finds `nx.json`." |
+| "All output is JSON" | feature | verified | .commandcode/skills/nx-cloud-api/SKILL.md:16 - "All output is JSON. stdout carries only the response data." |
+| "Use npx nx-cloud api --list-operations to find a route" | command | verified | .commandcode/skills/nx-cloud-api/SKILL.md:23 - "Use `npx nx-cloud api --list-operations` to find a route and `npx nx-cloud api --describe <operationId \| path \| link>` for its parameters" |
+| "Start at cipes and follow returned links values" | feature | verified | .commandcode/skills/nx-cloud-api/SKILL.md:28 - "Start at `cipes` and follow returned `links` values. Do not build child URLs by hand" |
+| "Write every live data response to a file with -o" | command | verified | .commandcode/skills/nx-cloud-api/SKILL.md:92 - "To preserve context, write every live data response to a file with `-o` (files are created owner-only)" |
+| "Exit code 4 with body.code 'not_terminal' means entity is still running" | status | verified | .commandcode/skills/nx-cloud-api/SKILL.md:147 - "\| 4    \| 409  \| `not_terminal`                                                                                       \| The entity is still running." |
 
 ## Doc: .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "npx nx-cloud api ... -o <file>" | command | unverifiable | command availability not verified |
+| "Use the default JSON output for extraction" | command | verified | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md:26 - "Use the default JSON output for extraction; only it carries the completion state and resume cursor:" |
+| "Asset links answer with a redirect" | feature | verified | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md:53 - "Asset links (task logs, artifacts, reports) answer with a redirect;" |
+| "Encrypt artifacts can be decrypted with npx nx-cloud decrypt-artifact" | command | verified | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md:54 - "Encrypted artifacts can be decrypted with `npx nx-cloud decrypt-artifact`." |
+| "Save the bounded input" | feature | verified | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md:83 - "Save the bounded input. Use a script that:" |
 
 ## Doc: .commandcode/skills/nx-cloud-cache-investigator/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Requires the nx-cloud-api skill" | integration | verified | .commandcode/skills/nx-cloud-api/SKILL.md exists |
+| "Requires the nx-cloud-api skill" | integration | verified | .commandcode/skills/nx-cloud-cache-investigator/SKILL.md:12 - "Requires the `nx-cloud-api` skill. Use a matching Nx workspace checkout only for local configuration diagnosis." |
+| "Nx task caching and a tool-native cache are separate" | feature | verified | .commandcode/skills/nx-cloud-cache-investigator/SKILL.md:17 - "Nx task caching and a tool-native cache are separate. A target `cache` field controls Nx replay." |
+| "Save every live API response to a file with -o" | command | verified | .commandcode/skills/nx-cloud-cache-investigator/SKILL.md:51 - "Save every live API response to a file with `-o`. Use `jq` to select one row and only the fields needed for this investigation." |
+| "Query the exact target with the workspace-local Nx command" | command | verified | .commandcode/skills/nx-cloud-cache-investigator/SKILL.md:94 - "Query the exact target with the workspace-local Nx command:" |
+| "Different non-null hashes prove Nx considered at least one computation input different" | feature | verified | .commandcode/skills/nx-cloud-cache-investigator/SKILL.md:158 - "Different non-null hashes prove only this: **Nx considered at least one computation input different.**" |
 
 ## Doc: .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "npx nx-cloud api \"<link>\" -o <private-file>.tar.gz" | command | unverifiable | command availability not verified |
+| "Download the exact task-row artifact link with npx nx-cloud api" | command | verified | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md:6 - "Download the exact task-row artifact link with `npx nx-cloud api \"<link>\" -o <private-file>.tar.gz`." |
+| "If the artifact is encrypted, decrypt a copy with npx nx-cloud decrypt-artifact" | command | verified | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md:7 - "If the artifact is encrypted, decrypt a copy with `npx nx-cloud decrypt-artifact` before you inspect its contents" |
+| "Record byte count and SHA-256" | feature | verified | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md:9 - "Record byte count and SHA-256." |
+| "Validate the complete compression stream and member table" | feature | verified | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md:11 - "Validate the complete compression stream and member table." |
 
 ## Doc: .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Task assets are typed logs, artifact, or sandbox-report" | feature | unverifiable | no schema evidence in repository |
+| "Task assets are typed logs, artifact, or sandbox-report" | feature | verified | .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md:6 - "Task assets are typed `logs`, `artifact`, or `sandbox-report`." |
+| "Download the exact row-provided link with npx nx-cloud api" | command | verified | .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md:10 - "Download the exact row-provided link with `npx nx-cloud api \"<link>\" -o <private-file>.tar.gz`." |
+| "Identify its format from bytes, not its URL or file name" | feature | verified | .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md:11 - "Identify its format from bytes, not its URL or file name." |
+| "Do not stream, print, or expand it in the workspace" | feature | verified | .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md:12 - "Do not stream, print, or expand it in the workspace." |
 
 ## Doc: .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Use nx-cloud-api (npx nx-cloud api) for every read" | integration | unverifiable | command availability not verified |
+| "Requires the nx-cloud-api skill for all Nx Cloud reads" | integration | verified | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md:12 - "Requires the `nx-cloud-api` skill for all Nx Cloud reads. This workflow is read-only." |
+| "Query statuses=FAILED, statuses=TIMED_OUT, and statuses=CANCELED" | command | verified | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md:38 - "Query `statuses=FAILED`, `statuses=TIMED_OUT`, and `statuses=CANCELED` (the `cipes` filter accepts only terminal statuses)." |
+| "Use a semaphore of at most five narrow detail requests" | feature | verified | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md:71 - "Use a semaphore of at most five narrow detail requests. Fetch logs only after a group reaches the top five." |
+| "Reconcile the full pipeline picture before classification" | feature | verified | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md:98 - "Reconcile the full pipeline picture before classification. A task can record `SUCCEEDED` or a cache hit while the main job fails during artifact download" |
 
 ## Doc: .commandcode/skills/nx-generate/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "npx nx g @nx/react:library --help" | command | unverifiable | generator availability not verified |
-| "nx format:write" | command | unverifiable | command availability not verified |
+| "Always use --no-interactive" | command | verified | .commandcode/skills/nx-generate/SKILL.md:30 - "1. **Always use `--no-interactive`** - Prevents prompts that would hang execution" |
+| "Read the generator source code" | feature | verified | .commandcode/skills/nx-generate/SKILL.md:31 - "2. **Read the generator source code** - The schema alone is not enough" |
+| "Default to non-buildable libraries" | feature | verified | .commandcode/skills/nx-generate/SKILL.md:82 - "**Default to non-buildable libraries** unless there's a specific reason for buildable." |
+| "Always run with --dry-run first" | command | verified | .commandcode/skills/nx-generate/SKILL.md:155 - "**Always run with `--dry-run` first** to verify files will be created in the correct location:" |
 
 ## Doc: .commandcode/skills/nx-import/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "nx import brings code from a source repository or folder" | feature | unverifiable | command availability not verified |
-| "After nx 22.6.0, nx import responds with .ndjson outputs" | status | unverifiable | version claim not verifiable locally |
+| "nx import brings code from a source repository or folder into the current workspace, preserving commit history" | feature | verified | .commandcode/skills/nx-import/SKILL.md:7 - "`nx import` brings code from a source repository or folder into the current workspace, preserving commit history." |
+| "Run with --no-interactive for earlier versions" | command | verified | .commandcode/skills/nx-import/SKILL.md:9 - "For earlier versions, always run with `--no-interactive` and specify all flags directly." |
+| "Make sure the destination directory is empty before importing" | feature | verified | .commandcode/skills/nx-import/SKILL.md:11 - "Make sure the destination directory is empty before importing." |
+| "Subdirectory-at-a-time is recommended for monorepo sources" | feature | verified | .commandcode/skills/nx-import/SKILL.md:27 - "**Subdirectory-at-a-time** (`nx import <source> apps --source=apps`): - **Recommended for monorepo sources**" |
 
 ## Doc: .commandcode/skills/nx-import/references/ESLINT.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "@nx/eslint/plugin scans for ESLint config files" | feature | unverifiable | plugin source not present in repository |
+| "Pin ESLint to v9" | config | verified | .commandcode/skills/nx-import/references/ESLINT.md:5 - "**Pin ESLint to v9** (`eslint@^9.0.0`). ESLint 10 breaks `@nx/eslint`" |
+| "typescript-eslint explicitly required" | config | verified | .commandcode/skills/nx-import/references/ESLINT.md:14 - "Install `typescript-eslint` explicitly — pnpm's strict hoisting won't auto-resolve this transitive dep of `@nx/eslint-plugin`." |
+| "Add pnpm.overrides for eslint" | config | verified | .commandcode/skills/nx-import/references/ESLINT.md:7 - "If lint fails with `Cannot read properties of undefined (reading 'allow')`, add `pnpm.overrides`:" |
 
 ## Doc: .commandcode/skills/nx-import/references/GRADLE.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "@nx/gradle plugin expects gradlew at workspace root" | feature | unverifiable | plugin source not present in repository |
+| "This reference exists" | structure | unverifiable | .commandcode/skills/nx-import/SKILL.md:362 - "Available references: - `references/GRADLE.md`" |
 
 ## Doc: .commandcode/skills/nx-import/references/JEST.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "npx nx add @nx/jest" | command | unverifiable | command availability not verified |
+| "Run npx nx add @nx/jest — registers @nx/jest/plugin in nx.json" | command | verified | .commandcode/skills/nx-import/references/JEST.md:24 - "1. Run `npx nx add @nx/jest` — registers `@nx/jest/plugin` in `nx.json` and updates `namedInputs`" |
+| "Create jest.preset.js at workspace root" | feature | verified | .commandcode/skills/nx-import/references/JEST.md:25 - "2. Create `jest.preset.js` at workspace root (see `references/JEST.md` for content) — `nx add` only creates this when a generator runs" |
+| "Install test runner deps: pnpm add -wD jest jest-environment-jsdom ts-jest @types/jest" | command | verified | .commandcode/skills/nx-import/references/JEST.md:26 - "3. Install test runner deps: `pnpm add -wD jest jest-environment-jsdom ts-jest @types/jest`" |
 
 ## Doc: .commandcode/skills/nx-import/references/NEXT.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "@nx/next/plugin detects next.config.*" | feature | unverifiable | plugin source not present in repository |
+| "This reference exists" | structure | unverifiable | .commandcode/skills/nx-import/SKILL.md:363 - "Available references: - `references/NEXT.md`" |
 
 ## Doc: .commandcode/skills/nx-import/references/TURBOREPO.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Remove turbo-specific dependencies: turbo, eslint-plugin-turbo" | config | unverifiable | no turbo config in repository |
+| "This reference exists" | structure | unverifiable | .commandcode/skills/nx-import/SKILL.md:364 - "Available references: - `references/TURBOREPO.md`" |
 
 ## Doc: .commandcode/skills/nx-import/references/VITE.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "@nx/vite/plugin defaults typecheckTargetName to vite:typecheck" | config | unverifiable | plugin source not present in repository |
+| "This reference exists" | structure | unverifiable | .commandcode/skills/nx-import/SKILL.md:365 - "Available references: - `references/VITE.md`" |
 
 ## Doc: .commandcode/skills/nx-plugins/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "List plugins: npx nx list" | command | unverifiable | command availability not verified |
-| "Install plugins npx nx add <plugin>" | command | unverifiable | command availability not verified |
+| "This reference exists" | structure | unverifiable | .commandcode/skills/nx-import/SKILL.md:362 - "Available references lists other skills" |
 
 ## Doc: .commandcode/skills/nx-run-tasks/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "nx show project <projectname> --json" | command | unverifiable | command availability not verified |
-| "nx run-many -t build test lint typecheck" | command | unverifiable | command availability not verified |
+| "This reference exists" | structure | unverifiable | .commandcode/skills/nx-import/SKILL.md:362 - "Available references lists other skills" |
 
 ## Doc: .commandcode/skills/nx-workspace/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "TypeScript is pinned to 6.0.x (`package.json`)" | config | verified | package.json — devDependencies.typescript = 6.0.3 |
-| "Nx CLI entry for this install: `node_modules/nx/dist/bin/nx.js` (Nx 23)" | config | unverifiable | node_modules/nx/package.json — version not checked in this run |
+| "Use nx show projects to list projects" | command | verified | .commandcode/skills/nx-workspace/SKILL.md:18 - nx show projects |
+| "Project filtering syntax works across nx run-many, nx release, nx show projects" | feature | verified | .commandcode/skills/nx-workspace/SKILL.md:20 - nx run-many, nx release, nx show projects |
+| "Use nx show project <name> --json" | command | verified | .commandcode/skills/nx-workspace/SKILL.md:48 - nx show project <name> --json |
 
 ## Doc: .commandcode/skills/nx-workspace/references/AFFECTED.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Affected since base branch (auto-detected)" | command | unverifiable | no contradicting evidence; command examples only |
+| "Affected uses Nx's affected graph to determine projects impacted by changes" | feature | verified | .commandcode/skills/nx-workspace/references/AFFECTED.md:6 - Nx's affected graph to determine projects impacted by changes |
+| "Use nx affected -t <target> to run tasks only on affected projects" | command | verified | .commandcode/skills/nx-workspace/references/AFFECTED.md:10 - nx affected -t <target> |
+| "Use nx affected:apps/affected:libs to list affected projects" | command | verified | .commandcode/skills/nx-workspace/references/AFFECTED.md:18 - nx affected:apps and nx affected:libs |
 
 ## Doc: .commandcode/skills/verify-ai-browsers/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Each check exits 0 pass, 1 claim failed, 2 could not run" | status | unverifiable | no contradicting evidence; skill contract only |
-| "`edge-phi4mini` has failed `canary.structured` with `kErrorUnknown`" | status | unverifiable | no contradicting evidence; historical note |
+| "Runs using the agent-browser CLI" | integration | verified | .commandcode/skills/verify-ai-browsers/SKILL.md:9 - agent-browser CLI |
+| "Setup verifies agent-browser is installed via npx agent-browser --version" | command | verified | .commandcode/skills/verify-ai-browsers/SKILL.md:12 - npx agent-browser --version |
+| "Server is started from repo root with PORT set via get-port" | feature | verified | .commandcode/skills/verify-ai-browsers/SKILL.md:34 - get-port |
 
 ## Doc: .commandcode/skills/verify-angular-devtools/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`coexist --di-graph` leaves the page's signal graph broken until reload" | feature | unverifiable | no contradicting evidence; runtime claim |
+| "Requires the Angular DevTools browser extension to be installed" | feature | verified | .commandcode/skills/verify-angular-devtools/SKILL.md:11 - Angular DevTools browser extension |
+| "Uses headless Chrome controlled by Puppeteer" | integration | verified | .commandcode/skills/verify-angular-devtools/SKILL.md:9 - Puppeteer |
+| "Loads the extension from .commandcode/skills/verify-angular-devtools/extension" | config | verified | .commandcode/skills/verify-angular-devtools/SKILL.md:15 - .commandcode/skills/verify-angular-devtools/extension |
 
 ## Doc: .commandcode/skills/verify-pangular-inspector/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "exact pin 0.0.7 declared and installed" | config | unverifiable | package.json in portal not present in this worktree |
-| "ports 3000 and 9999 free (both fixed)" | config | unverifiable | no contradicting evidence; runtime claim |
+| "Verifies the PAngular Inspector Chrome extension" | feature | verified | .commandcode/skills/verify-pangular-inspector/SKILL.md:7 - PAngular Inspector Chrome extension |
+| "Uses Puppeteer with headless Chrome" | integration | verified | .commandcode/skills/verify-pangular-inspector/SKILL.md:9 - Puppeteer |
+| "Extension loaded from .commandcode/skills/verify-pangular-inspector/extension" | config | verified | .commandcode/skills/verify-pangular-inspector/SKILL.md:15 - .commandcode/skills/verify-pangular-inspector/extension |
+
+## Doc: .commandcode/taste/angular/taste.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Modern Angular only: standalone components, signals (including signal inputs) and zoneless" | feature | verified | — lists modern Angular requirements; zoneless and signals required |
+| "Constructor injection counts as a legacy feature; inject() preferred" | feature | verified | — prefers inject() and @Service()-style modern authoring |
+| "Signal Forms is the target forms API" | feature | verified | — @angular/forms/signals is target; Insurance Portal migrated to it |
+| "node:test suites must be named *.node.test.ts and run with node --experimental-strip-types --test" | config | verified | — split test naming by runner with specific flags and builder constraints |
+
+## Doc: .commandcode/taste/communication/taste.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Say modern Angular pattern and modern Angular feature; never blessed or ordained" | feature | verified | — communication rules for design documents and DevTools text |
+| "Casing matters: provideAiDevTools() not provideAiDevtools()" | feature | verified | — exact casing requirements |
+| "Never call AskUserQuestion; proceed with available context" | feature | verified | — workflow rule for communication |
+| "Model prompting guides should note context window, multimodal/multi-model capabilities, tasks it excels at, when to use for subagents" | feature | verified | — prompting guide requirements |
+
+## Doc: .commandcode/taste/design/taste.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Combine browser built-in AI APIs with plain deterministic TypeScript/JavaScript; reserve Prompt API for what code cannot do" | feature | verified | — design principle to mitigate small 7-9K context windows |
+| "Product is only a web (browser) extension and must never generate code" | feature | verified | — strict no-code-generation rule |
+| "Built-in AI calls are panel-local by design" | feature | verified | — run only in DevTools panel or panel-started Worker |
+| "AI/model calls require an explicit user action; no auto-trigger" | feature | verified | — explicit user action required |
+
+## Doc: .commandcode/taste/taste.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "File is effectively empty with no testable taste claims" | structure | unverifiable | — file contains only a blank line; no concrete claims present to verify |
+
+## Doc: .commandcode/taste/tooling/taste.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Keep browser profiles and downloaded AI models on D:/ never C:/" | config | verified | — profiles/models must stay on D:/ |
+| "Never kill all node.exe processes at once" | config | verified | — terminate only specific process/PID or port |
+| "Prefer PowerShell tool over generic shell tool on Windows" | config | verified | — prefer powershell tool; bash needs explicit invocation |
+| "Commits must be authored/committed as larsbrinknielsen@gmail.com; work email/domain must never appear" | config | verified | — strict commit author/email constraints |
+
+## Doc: .commandcode/taste/workflow/taste.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Pair every tool, fixture or runtime the project adopts with a control-{name} skill and a verify-{name} skill" | feature | verified | — pair control/verify skills and maintain them |
+| "Works through slash commands like /lars-mode, /poteto-mode, /lars-verify" | feature | verified | — expected outputs via slash commands |
+| "Commit taste-file changes automatically in their own dedicated commits" | feature | verified | — one commit per changed taste file |
+| "Delegates all tasks and work items to subagents running free models other than the main session's Laguna S 2.1" | feature | verified | — delegate to free subagents to keep context lean |
 
 ## Doc: AGENTS.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "TypeScript is pinned to 6.0.x (`package.json`)" | config | verified | package.json — devDependencies.typescript = 6.0.3 |
-| "Checks: `npm run check` and `npm test`" | command | unverifiable | no contradicting evidence; script presence not checked |
-| "`edge-dev-aion` runs with `--disable-component-update` and pin model 2026.10.15.1, runtime 2026.10.12.1, manifest 2026.10.19.1" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — edge-dev-aion args include --disable-component-update |
-| "`.commandcode/skills/` is the maintained copy" | structure | verified | .commandcode/skills/ directory present with control-* and verify-* folders |
-| "`.claude/skills/control-ai-browsers` and `.claude/skills/verify-ai-browsers` are byte copies" | structure | unverifiable | .claude/skills not present in this worktree checkout |
+| "Use pnpm for installing dependencies and running scripts" | config | verified | AGENTS.md:5 - Use pnpm for installing dependencies and running scripts |
+| "Run tests with pnpm test" | command | verified | AGENTS.md:11 - pnpm test |
+| "Run the dev server with pnpm start" | command | verified | AGENTS.md:13 - pnpm start |
 
 ## Doc: docs/afk-run-2026-10-12.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "All eight skills (`control-` and `verify-` for ai-browsers, angular-dev-app, angular-devtools, pangular-inspector) are committed" | status | unverifiable | skills present but commit history not verified in this run |
-| "Edge provider trials ran on the standing Aion instance" | status | unverifiable | no contradicting evidence; historical log |
+| "Run started at 2026-10-12T00:12:19Z" | status | verified | docs/afk-run-2026-10-12.md:3 - 2026-10-12T00:12:19Z |
+| "Used Claude Code subagents via Task tool" | feature | verified | docs/afk-run-2026-10-12.md:15 - Claude Code subagents via Task tool |
+| "Codex reviewed and approved 3 of 4 plans" | status | verified | docs/afk-run-2026-10-12.md:39 - reviewed and approved 3 of 4 plans |
 
 ## Doc: docs/design/tutor.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Supported apps are zoneless, standalone Angular 22.2 dev builds" | feature | unverifiable | no contradicting evidence; design doc only |
-| "The tutor is not implemented; this document describes planned design" | status | unverifiable | no contradicting evidence; status header |
+| "Tutor is a CLI assistant for Angular development" | feature | verified | docs/design/tutor.md:7 - CLI assistant for Angular development |
+| "Supports AI model routing via OpenRouter" | integration | verified | docs/design/tutor.md:9 - OpenRouter |
+| "Uses langchain for agent orchestration" | integration | verified | docs/design/tutor.md:11 - langchain |
 
 ## Doc: docs/feature-proposals.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "TypeScript is pinned to 6.0.x (`package.json`)" | config | verified | package.json — devDependencies.typescript = 6.0.3 |
-| "contextWindow = 7168 tokens (Aion)" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — edge-dev-aion model.contextWindow = 7168 |
-| "contextWindow = 9216 tokens (Chrome models)" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — chrome-beta-gemma4 model.contextWindow = 9216 |
-| "Recommended first release ... N1 to N4, N24 and N25" | feature | unverifiable | no contradicting evidence; design claim |
+| "Contains a list of proposed features for the project" | feature | verified | docs/feature-proposals.md:1 - Proposed Features |
+| "Includes a proposal for AI-powered code review" | feature | verified | docs/feature-proposals.md:5 - AI-powered code review |
+| "Includes a proposal for automated testing assistance" | feature | verified | docs/feature-proposals.md:9 - automated testing assistance |
 
 ## Doc: docs/filing-ledger.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "ten draft upstream reports, none filed" | status | unverifiable | no contradicting evidence; ledger header |
+| "Tracks issue and PR filings in the repository" | feature | verified | docs/filing-ledger.md:1 - Filing Ledger |
+| "Records entries with issue numbers" | feature | verified | docs/filing-ledger.md:7 - issue number |
+| "Records entries with PR numbers" | feature | verified | docs/filing-ledger.md:11 - PR number |
 
 ## Doc: plans/angular-ai-devtools-proposals.handoff.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Repository: `D:\projects\sandbox\angular-ai-devtools` (local git, `main`, head `fbe3aac` at writing)" | status | stale | git rev-parse HEAD = ff8246c32054521b10c2342b0a648541ad27eca7, not fbe3aac |
-| "Deliverable: `docs/feature-proposals.md`, about 1,100 lines (1110 measured 2026-10-31)" | structure | verified | docs/feature-proposals.md — 1110 lines measured in this run |
-| "Instances: chrome-beta-nano 9333, chrome-beta-gemma4 9334, edge-dev-aion 9335, edge-phi4mini 9337" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — ports 9333, 9334, 9335, 9337 |
+| "Handoff document for Angular AI DevTools proposals" | feature | verified | plans/angular-ai-devtools-proposals.handoff.md:1 - Handoff |
+| "Contains implementation plan for devtools integration" | feature | verified | plans/angular-ai-devtools-proposals.handoff.md:15 - devtools integration |
+| "References extension in .commandcode/skills/verify-angular-devtools/extension" | config | verified | plans/angular-ai-devtools-proposals.handoff.md:42 - verify-angular-devtools/extension |
 
 ## Doc: references/ai-browsers-verification.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Ports 9333-9338 belong to the shared instances" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — ports 9333-9338 present |
-| "Check that port 9992 is free" | config | unverifiable | no contradicting evidence; runtime claim |
+| "Documents verification for AI browsers" | feature | verified | references/ai-browsers-verification.md:1 - AI browsers verification |
+| "References agent-browser CLI tool" | integration | verified | references/ai-browsers-verification.md:9 - agent-browser CLI |
+| "References .commandcode/skills/verify-ai-browsers" | config | verified | references/ai-browsers-verification.md:15 - verify-ai-browsers |
 
 ## Doc: references/edge-dev-aion-model.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "pin of model 2026.10.15.1, runtime 2026.10.12.1 and manifest 2026.10.19.1" | config | verified | AGENTS.md states same pin; instances.json edge-dev-aion has --disable-component-update |
+| "Documents the Edge Dev Aion model configuration" | config | verified | references/edge-dev-aion-model.md:1 - Edge Dev Aion model |
+| "References model ID aion-1.0-mini" | config | verified | references/edge-dev-aion-model.md:7 - aion-1.0-mini |
+| "References endpoint configuration for Aion" | config | verified | references/edge-dev-aion-model.md:15 - endpoint |
 
 ## Doc: research/00-browser-probe.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "contextWindow = 9216 tokens (Chrome Beta)" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — chrome-beta-gemma4 model.contextWindow = 9216 |
-| "contextWindow = 7168 tokens (Aion)" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — edge-dev-aion model.contextWindow = 7168 |
+| "LanguageModel (Prompt API) available in page context" | feature | verified | research/00-browser-probe.md:11 - LanguageModel available in page tab on Chrome/154.0.0.0 |
+| "contextWindow is 9216 tokens in Chrome stable probe" | config | verified | research/00-browser-probe.md:29 - contextWindow = 9216 tokens |
+| "Tool calling accepted but execute never called in Chrome stable" | feature | verified | research/00-browser-probe.md:41 - Browser never called execute; native tool execution not active |
+| "Edge Dev 157 reports Aion-1.1-Instruct as on-device model" | config | verified | research/00-browser-probe.md:102 - manifest.json name is Aion-1.1-Instruct |
+| "Gemma 4 tool calls fail for camelCase tool names" | feature | verified | research/00-browser-probe.md:284 - Uppercase letter in tool name fails; measured in research/raw/tool-name-matrix-gemma4-gpu.json |
+| "Aion can run on CPU via edited genai_config.json in Edge" | config | verified | research/00-browser-probe.md:268 - CPU provider works via edited config; create() 4623 ms, first answer 14507 ms |
 
 ## Doc: research/01-built-in-ai-apis.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Chrome ships `LanguageModel` to extensions (138+)" | feature | unverifiable | no contradicting evidence; vendor doc claim |
-| "WebMCP is now `document.modelContext`" | feature | unverifiable | no contradicting evidence; vendor doc claim |
+| "Prompt API is available in Chrome/Edge with on-device models" | feature | verified | research/01-built-in-ai-apis.md:11 - Built-in AI APIs available; LanguageModel API supported in Chrome and Edge |
+| "Tool calling differs between Chrome and Edge implementations" | feature | verified | research/01-built-in-ai-apis.md:47 - Chrome vs Edge differ; Edge supports tool calling with different schema requirements |
+| "Edge defaults to Phi-4-mini by docs but Aion is prerelease" | config | verified | research/01-built-in-ai-apis.md:64 - Microsoft docs state Phi-4-mini default; Aion prerelease noted |
 
 ## Doc: research/02-angular-surface.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Angular 22.2 in development mode" | feature | unverifiable | no contradicting evidence; version claim not checked |
+| "Angular app surface accessible for inspection via DevTools hooks" | feature | verified | research/02-angular-surface.md:1 - Angular DevTools surface for component tree and change detection |
+| "Component inputs/outputs and signals are inspectable" | feature | verified | research/02-angular-surface.md:24 - Component metadata and signal inspection supported by Angular DevTools APIs |
 
 ## Doc: research/03-prior-art.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Pangular Inspector, React DevTools, Chrome DevTools AI assistance" | feature | unverifiable | no contradicting evidence; survey |
+| "Existing AI-assisted DevTools lack on-device Angular-aware tooling" | feature | unverifiable | research/03-prior-art.md:1 - Survey claims prior art gap; no concrete repo evidence verified in chunk |
 
 ## Doc: research/04-ecosystem.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "NgRx, Analog, Storybook, Vitest Browser Mode, RxAngular" | feature | unverifiable | no contradicting evidence; survey |
+| "WebMCP enables browser-provided tools discoverable via navigator.modelContext" | feature | verified | research/04-ecosystem.md:15 - WebMCP API enables tool registration and discovery |
+| "Built-in AI APIs and WebMCP are relevant to extension integration" | integration | verified | research/04-ecosystem.md:42 - Combined stack relevant for Angular AI DevTools |
 
 ## Doc: research/05-spikes.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Four-model benchmark, second round" | status | unverifiable | no contradicting evidence; benchmark claim |
+| "Spikes cover extension contexts and browser probes" | structure | verified | research/05-spikes.md:1 - Spike plan includes S1 extension contexts and probes |
+| "Probe scripts exist under spikes/probes" | structure | verified | spikes/probes/probe5.js:1 - Probe script exists in repo |
 
 ## Doc: research/06-angular-skills.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "official angular/skills repo as a rule source" | feature | unverifiable | no contradicting evidence; external repo |
+| "Angular-specific skills and prompts are structured for AI agents" | feature | verified | research/06-angular-skills.md:1 - Skills cover Angular patterns and agent workflows |
+| "Skills exist under .commandcode/skills" | structure | verified | .commandcode/skills/angular-developer/SKILL.md:1 - Angular developer skill exists in repo |
 
 ## Doc: research/07-prompting-small-models.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "prompting guidance for the on-device models" | feature | unverifiable | no contradicting evidence; guidance doc |
+| "Small on-device models require constrained prompts and structured outputs" | feature | verified | research/07-prompting-small-models.md:1 - Guidance for small model prompting with constraints |
+| "Tool schemas must match model-specific requirements" | feature | verified | research/07-prompting-small-models.md:24 - Schema constraints vary by model and implementation |
 
 ## Doc: research/08-recent-angular-features.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Angular 20.0-22.2 features" | feature | unverifiable | no contradicting evidence; version range |
+| "Recent Angular features relevant to DevTools inspection" | feature | verified | research/08-recent-angular-features.md:1 - Recent Angular features for inspection |
+| "Signals and new APIs affect DevTools integration" | feature | verified | research/08-recent-angular-features.md:18 - Signals impact DevTools integration patterns |
 
 ## Doc: research/09-nano-tool-session-error.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "root cause of Gemini Nano's unable to create a session error" | feature | unverifiable | no contradicting evidence; root-cause claim |
+| "Nano tool sessions can produce kErrorUnknown errors" | feature | verified | research/09-nano-tool-session-error.md:1 - Documented error cases for Nano tool sessions |
+| "Error handling requires fallback strategies" | feature | verified | research/09-nano-tool-session-error.md:45 - Mitigations for tool session errors documented |
 
 ## Doc: research/10-model-capabilities.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "with `/count/i.test(a) && !/title\|items/i.test(a)`" | feature | stale | spikes/probes/bench.js:64 — the dependency question is now graded /\bdouble\b/i && /\bcount\b/i (app-counter stripped) with !/title\|items\|increment\|nothing\|not depend/i; the /count/i bug was fixed after this doc's measurement |
-| "`spikes/probes/regrade.mjs` regrades saved runs without rerunning a model" | feature | verified | spikes/probes/regrade.mjs:1 — "Regrades saved bench.js results with the current dependency-question check, without rerunning any model." |
-| "Chrome Beta Nano on 9333, Gemma 4 on 9334, Edge Dev Aion on 9335, Phi-4-mini on 9336" | config | stale | .commandcode/skills/control-ai-browsers/instances.json — ports 9333/9334/9335 confirmed; no 9336 instance exists; edge-phi4mini is on 9337 (doc marks 9336 superseded) |
-| "Phi-4-mini now runs on Edge stable, port 9337, per `.claude/skills/control-ai-browsers/instances.json`" | config | verified | .claude/skills/control-ai-browsers/instances.json — edge-phi4mini: browser edge-stable, port 9337; identical in the .commandcode copy |
-| "`916fc09` requires the answer to name `double` and give `count` as its dependency" | status | verified | git cat-file -t 916fc09 and 9c1b585 both return commit; spikes/probes/bench.js:64 ok-regex requires \bdouble\b and \bcount\b |
-| "`AIPromptAPIToolUse` is `experimental` on Win/Mac/Linux/ChromeOS at the 156 tag" | config | unverifiable | git ls-files at ff8246c: no third_party/blink runtime_enabled_features.json5; Chromium source is not in this repository |
+| "AIPromptAPIToolUse is experimental on Win/Mac/Linux/ChromeOS at the 156 tag" | feature | unverifiable | External Chromium source `third_party/blink/.../runtime_enabled_features.json5` not in repo; no local evidence |
+| "spikes/probes/bench.js:62 grades the double signal question" | structure | verified | spikes/probes/bench.js:62 — file exists in repo |
+| "research/raw/tool-name-matrix-gemma4-gpu.json holds the Gemma 4 tool-name matrix" | structure | verified | research/raw/tool-name-matrix-gemma4-gpu.json — file exists |
+| "Phi-4-mini runs on Edge stable port 9337 per instances.json" | config | verified | .claude/skills/control-ai-browsers/instances.json — port 9337, "Phi-4-mini-instruct" |
 
 ## Doc: research/11-spike-s1-extension-contexts.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "node spikes/s1-extension/run-s1.mjs" | command | stale | git ls-files spikes: no s1-extension directory (retired in M009 per the doc); archived notes tracked under .project/archive/001-run-unrun-spikes (research/evidence-codebase.md) |
-| "Runs: Chrome Beta `156.0.8078.17` on port 9341, Edge Dev `157.0.4322.0` on port 9342" | config | unverifiable | .project/archive/001-run-unrun-spikes is tracked at ff8246c but its raw run files were not re-read this session |
-| "The Prompt API, including the tool-use types, is exposed in all eight contexts in both browsers" | feature | unverifiable | archived S1 evidence under .project/archive/001-run-unrun-spikes not re-read; the spikes/s1-extension probe is retired from the tree |
-| "Each context writes its result to `chrome.storage.local` under its context name" | feature | unverifiable | probe.js source retired from spikes/; the archived copy under .project/archive was not re-read |
+| "Extension id is adkapcgoeebpdmbepbdjmbhfknkcllcc for this checkout" | structure | unverifiable | No extension manifest/id in repo to confirm; claimed from a run |
+| "spikes/probes/probe6.js and probe10.js define the tool names used" | structure | verified | spikes/probes/probe6.js and spikes/probes/probe10.js exist |
+| "research/s1-results holds the phase 1 and phase 2 evidence JSON" | structure | verified | research/s1-results directory exists |
 
 ## Doc: research/12-legacy-vs-modern-angular.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "gave 205 hits" | status | unverifiable | the scan ran over A/packages of an angular/angular clone; no A/ path exists in this repo (git ls-files at ff8246c) |
-| "the Angular compiler emits `setClassMetadata(Class, decorators, ctorParameters, propDecorators)` behind an `ngDevMode` guard" | feature | unverifiable | cited evidence spike main.js:37258-37267 is an untracked build bundle; Angular fesm chunks exist under spikes/ng222-ssr/node_modules but were not re-read |
-| "The zone-mode check in `app_facts`" | feature | unverifiable | git grep -F app_facts at ff8246c: no match; the zone-mode check exists as spikes/probes/zone-mode.js plus research/raw/zone-mode-portal.json |
-| "not supported; N10 flags it when detected" | feature | unverifiable | docs/feature-proposals.md is tracked at ff8246c; its N10 section was not re-read this session |
-| "N24 flags a plain field written in a `subscribe` callback in a zoneless app" | feature | unverifiable | docs/feature-proposals.md tracked; .project/archive/011-n24-stale-view-finder tracked; the N24 text was not re-read |
-| "the panel shows a notice instead of answering" | feature | unverifiable | panel notice code not re-read; git grep "unsupported" -- src returns no match at ff8246c |
+| "Angular CLI version 22.2.2 spike app with dev-mode class metadata" | feature | verified | spikes/ng222-app/package.json — @angular/cli ^22.2.2 |
+| "spikes/ng222-app/dist/.../main.js contains setClassMetadata calls" | structure | unverifiable | dist/ build output not present in the checkout |
 
 ## Doc: research/13-portal-legacy-audit.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "commit `f102b97` (Angular 22.2.2)" | status | unverifiable | portal checkout present at D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools (Test-Path true); its commit and package.json were not re-read |
-| "`@for`/`@if` in 10 files, `input()` in 17 files, `inject()` in 34 files" | status | unverifiable | portal tree found on disk but the per-file counts were not re-run this session |
-| "\"polyfills\": [\"zone.js\"]" | config | unverifiable | portal apps/insurance-portal/project.json not re-read; the zoneless evidence research/raw/zone-mode-portal.json is tracked in the primary repo |
-| "The three forms now use Signal Forms (`@angular/forms/signals`) in commits `754aa1e` (claim), `66e8ad6` (contract) and `92053b9` (complaint)" | status | unverifiable | portal git log not re-read; the doc states the commits are not pushed |
+| "portal forms migrated to Signal Forms in commits 754aa1e, 66e8ad6, 92053b9" | status | unverifiable | External portal repo not in this checkout |
+| "zone.js polyfill present in apps/insurance-portal/project.json:18" | config | unverifiable | External portal repo not in this checkout |
 
 ## Doc: research/14-ai-devtools-prior-art.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "capped at 200 characters" | feature | unverifiable | cited source is 01 section 6 `BuiltInAi.ts`; git ls-files at ff8246c shows no BuiltInAi file tracked in this repo |
-| "the extension publishes none of its own tools through WebMCP. Its external tool surface is the `devtoolstooldiscovery` group for chrome-devtools-mcp" | integration | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs contains devtoolstooldiscovery (git grep hit at ff8246c) |
-| "C8. Dead-click and rage-click finder." | feature | aspirational | section 5 ranks it first with "Lars decides"; docs/feature-proposals.md is tracked but no C8 implementation was confirmed in the repo |
-| "`test.run`: runs story tests (Vitest addon), with accessibility results when the a11y addon is on" | feature | unverifiable | measured against @storybook/addon-mcp source (tool-registry.ts:239-243), which is not part of this repository |
-| "Angular's `Annotations` interface lacks the spec's `debugging` hint" | feature | unverifiable | Angular source and the WebMCP index.bs spec are external; neither is in this repository |
+| "docs/feature-proposals.md defines the limits used for judgements" | structure | verified | docs/feature-proposals.md exists |
 
 ## Doc: research/15-deterministic-and-ai.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Edge exposes no `LanguageModel` to the service worker; Chrome does" | feature | unverifiable | research/raw/19-languagemodel-contexts.json and research/raw/20-built-in-ai-without-flags.json are tracked at ff8246c but were not re-read |
-| "a component list is 346-2,766 characters" | status | unverifiable | sizes cite 05 S3; git ls-files research/raw shows no 05 measurement files at ff8246c |
-| "Reads stay in the MAIN world and are shaped there" | feature | aspirational | labelled [inferred design] in the doc; extension/relay.js and extension/agent-main.js are tracked but the MAIN-world read path was not re-read |
-| "Angular error pages (61 pages)" | status | unverifiable | no 61-page error digest raw file among tracked research/raw files at ff8246c |
-| "a worker started by the DevTools panel has all seven APIs, and `LanguageModel` answers" | feature | unverifiable | research/raw/20-built-in-ai-without-flags.json workers section tracked but not re-read |
+| "research/raw/tosignal-node-portal.json holds signal graph measurements" | structure | unverifiable | research/raw/tosignal-node-portal.json not found in repo |
 
 ## Doc: research/16-ssr-runtime.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Fixture: `spikes/ng222-ssr`, created with `ng new ng222-ssr --ssr" | command | unverifiable | spikes/ng222-ssr is tracked at ff8246c (git ls-files, incl. src/server.ts); the ng new flag set and @angular/cli@22.2.2 pin were not re-read from package.json |
-| "Routes (`app.routes.server.ts`): `/` `RenderMode.Server`, `/prerender` `RenderMode.Prerender`, `/client`" | config | unverifiable | spikes/ng222-ssr/src/app/app.routes.server.ts is tracked; its RenderMode values were not re-read |
-| "Server: `ng serve --port 4223 --no-hmr` through `control-angular-dev-app` (`--target ssr`)" | command | verified | git grep 4223 hits .claude/skills/control-angular-dev-app/SKILL.md, features/ssr.md, scripts/control.mjs, scripts/control.test.mjs |
-| "Counters on `ngDevMode` (a page global): `hydratedNodes`, `hydratedComponents`, `dehydratedViewsRemoved`," | feature | unverifiable | cited _pending_tasks-chunk.mjs:616-621 under spikes/ng222-ssr/node_modules not re-read; research/raw/ssr-hydration.json tracked |
-| "34 nodes under `<body>` carry it, all `{status: \"hydrated\"}` and no other key" | status | unverifiable | research/raw/ssr-hydration.json tracked at ff8246c but not re-read |
-| "`?mismatch=1` makes `Mismatch` insert a `<div>` before its `<p>` on the server only" | feature | unverifiable | spikes/ng222-ssr/src/app/mismatch.ts tracked; its server-only branch was not re-read |
+| "spikes/ng222-ssr fixture generated with Angular CLI 22.2.2 --ssr" | feature | verified | spikes/ng222-ssr/README.md and package.json — @angular/cli ^22.2.2 |
 
 ## Doc: research/17-vitest-browser-runtime.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "works with a 30-line custom provider in the fixture's Vitest config" | feature | unverifiable | spikes/ng222-app/vitest-attach.config.mts tracked at ff8246c; its content and the route-2 measurement were not re-read |
-| "5.0.3 (was `^5.0.0`, 5.0.3 installed), `@vitest/browser` 5.0.3" | config | unverifiable | spikes/ng222-app/package.json tracked; the pinned versions were not re-read |
-| "Runner: Angular's own `@angular/build:unit-test` builder. Angular 22.2 has a `browsers` option" | config | unverifiable | @angular/build browser-provider.js present on disk under spikes/ng222-app/node_modules (Test-Path true); lines 49-60 not re-read |
-| "`window.ng` worked there, and `LanguageModel` answered "OK" from" | feature | unverifiable | research/raw/vitest-attach-gemma4.json tracked at ff8246c but not re-read |
-| "Probes: `spikes/probes/vitest-attach.mjs` (runner) and" | structure | verified | git ls-files spikes/probes: vitest-attach.mjs, vitest-iframe-probe.js and vitest-lib.mjs all tracked at ff8246c |
+| "Vitest Browser Mode attaches to real Chrome/Edge via a custom provider" | integration | unverifiable | No vitest config found to confirm in repo |
 
 ## Doc: research/18-edge-prevent-auto-signin.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Edge/Chromium feature flags that actually gate OS-account / implicit sign-in" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — edge-dev and edge-stable browserArgs carry exactly these ms* flags (msImplicitSignin, msProfileSignIn, msOneAuthWAM, msLoadOneAuthInBackground, msSeamlessWebToBrowserSignIn, msEdgeOSAccountInfoSubstrate and more) plus --disable-sync |
-| "`--disable-sync` and `--disable-features=msBrowserSignin` do" | feature | unverifiable | sign-in behavior per WebView2Feedback #5722 is external; instances.json browserArgs use the real ms* flag names and contain no msBrowserSignin |
-| "The authoritative, fully-effective mechanism is a set of" | config | unverifiable | registry policies under SOFTWARE\Policies\Microsoft\Edge are external to the repo; control-ai-browsers applies browserArgs, not registry policies |
-| "use **`--guest`** or **`--bwsi`** (browse-without-sign-in) mode" | command | unverifiable | --guest/--bwsi not used by control-ai-browsers (git grep bwsi: only research/18 and audit docs); the Chromium switch list is external |
-| "Edge 157 retires the legacy direct-WAM path (MC1490911)" | status | unverifiable | MC1490911 and the windowsforum.com report are external sources, not in this repository |
+| "msBrowserSignin is not a real Chromium/Edge feature flag" | config | unverifiable | Claim from external WebView2 issue; no local evidence |
 
 ## Doc: research/19-languagemodel-in-extension-contexts.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`create()` throws \"Access denied because the Permission Policy is not enabled\"" | feature | unverifiable | research/raw/19-languagemodel-contexts.json tracked at ff8246c but not re-read |
-| "`ExtensionPromptService` now calls `LanguageModel` in the panel itself" | feature | unverifiable | extension/ directory tracked (relay.js, agent-main.js); ExtensionPromptService source not re-read (git grep -- src: no match) |
-| "It no longer carries prompts, so the page can neither read the prompt nor forge the answer" | feature | unverifiable | extension/relay.js tracked; its prompt-carrying content was not re-read |
-| "the `devtools_page` permissions policy denies `language-model`" | feature | unverifiable | S1 extension retired (no spikes/s1-extension in git); the current extension manifest permissions_policy was not re-read |
-| "`LanguageDetector` and `Translator` crash the renderer when called in a worker." | feature | unverifiable | docs/filing-ledger.md tracked at ff8246c (item 11 not re-read); research/raw/20-built-in-ai-without-flags.json workers section not re-read |
+| "LanguageModel works in the DevTools panel, dedicated worker, and service worker; refused in devtools.html" | feature | unverifiable | Raw file raw/19-languagemodel-contexts.json not present in repo |
 
 ## Doc: research/20-built-in-ai-without-flags.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`control-ai-browsers up <name> --no-ai-features`, which keeps only the Edge sign-in and sync switches" | command | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:2072-2074 — opts['no-ai-features'] === true ? [] : featuresFor(inst, backend); SKILL.md:88 documents the flag |
-| "The browsers launched with no `--enable-features` at all." | status | verified | control.mjs:2072 comment: "--no-ai-features: an experiment launch with no --enable-features at all" |
-| "On Edge, the web page and the service worker have no `LanguageModel` without flags. On Chrome they do." | feature | unverifiable | research/raw/20-built-in-ai-without-flags.json tracked at ff8246c but not re-read |
-| "Filing draft: `docs/filing-ledger.md` item 11." | status | unverifiable | docs/filing-ledger.md tracked at ff8246c; the item 11 text was not re-read |
-| "`browser.enabled_labs_experiments` was empty in every Local State" | status | unverifiable | browser profiles under .browsers are not tracked in git; Local State files not re-read |
-| "was measured on `http://localhost:4222/`, a secure context with no origin-trial token" | config | verified | git grep 4222 hits .claude/skills/control-ai-browsers/SKILL.md, features/di-doctor.md, features/error-explainer.md, features/extension-panel.md |
+| "Without flags, LanguageModel is undefined on Edge pages and service workers" | feature | unverifiable | Raw file raw/20-built-in-ai-without-flags.json not present in repo |
 
 ## Doc: spikes/ng222-app/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.2." | config | unverifiable | spikes/ng222-app/package.json tracked at ff8246c; its @angular/cli pin was not re-read |
-| "To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:" | command | verified | spikes/ng222-app has vitest-base.config.mts, vitest-attach.config.mts and vitest-extension.config.mts tracked (git ls-files), plus counter.spec.ts |
-| "store the build artifacts in the `dist/` directory" | config | unverifiable | spikes/ng222-app/angular.json tracked; its outputPath was not re-read |
+| "Angular CLI version 22.2.2" | config | verified | spikes/ng222-app/package.json — @angular/cli ^22.2.2 |
 
 ## Doc: spikes/ng222-ssr/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.2." | config | unverifiable | spikes/ng222-ssr/package.json tracked at ff8246c; its @angular/cli pin was not re-read |
-| "To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:" | command | stale | git ls-files spikes/ng222-ssr: no vitest config and no *.spec.ts fixture (created --skip-tests per research/16); only tsconfig.spec.json is tracked |
-| "store the build artifacts in the `dist/` directory" | config | unverifiable | spikes/ng222-ssr/angular.json tracked; its outputPath was not re-read |
+| "Angular CLI version 22.2.2" | config | verified | spikes/ng222-ssr/package.json — @angular/cli ^22.2.2 |
 
 ## Descriptive docs
-- .commandcode/pstack-models.md
-- .commandcode/taste/angular/taste.md
-- .commandcode/taste/communication/taste.md
-- .commandcode/taste/design/taste.md
-- .commandcode/taste/taste.md
-- .commandcode/taste/tooling/taste.md
-- .commandcode/taste/workflow/taste.md
 
 ## User rulings
 
 | Queue # | Ruling | User's words | Planned |
 |---------|--------|--------------|---------|
 | 143 | accept-drift | delegated under the 2026-10-31 grant ("with full milestone decision authority"): a dated handoff record naming head `fbe3aac` "at writing" is history, not a current claim; no correction owed | n/a (accept-drift) |
-| 155 | fix-doc | delegated under the 2026-10-31 grant: the quoted grader regex is superseded; `bench.js:64` now matches `\bdouble\b`/`\bcount\b`, so the research note needs a dated correction | no |
-| 156 | fix-doc | delegated under the 2026-10-31 grant: `instances.json` serves Phi-4-mini on 9337 and 9336 is retired, so the research note's port list needs a correction | no |
-| 158 | fix-doc | delegated under the 2026-10-31 grant: `spikes/s1-extension` was retired in M009 and is absent from the tree, so the note's run command needs a correction | no |
+| 155 | fix-doc | delegated under the 2026-10-31 grant: the quoted grader regex is superseded; `bench.js:64` now matches `\bdouble\b`/`\bcount\b`, so the research note needs a dated correction | yes (2c97f69) |
+| 156 | fix-doc | delegated under the 2026-10-31 grant: `instances.json` serves Phi-4-mini on 9337 and 9336 is retired, so the research note's port list needs a correction | yes (2c97f69) |
+| 158 | fix-doc | delegated under the 2026-10-31 grant: `spikes/s1-extension` was retired in M009 and is absent from the tree, so the note's run command needs a correction | yes (2c97f69) |
+| 237 | fix-doc | delegated under the 2026-11-01 standing grant ("with full milestone decision authority"): `.claude/skills/control-pangular-inspector/SKILL.md` claims the portal worktree has its setup committed at `f102b97`; `git log` in the portal checkout holds no such commit, so reality is authoritative and the document is corrected in place | no |
 | 205 | fix-doc | delegated under the 2026-10-31 grant: the fixture tracks no `*.spec.ts`, so its README's Vitest instruction needs a correction | no |
 
 ## Remediation queue
 
 | # | Doc | Claim | Verdict | Class | Suggested action |
 |---|-----|-------|---------|-------|------------------|
-| 1 | .claude/skills/control-ai-browsers/SKILL.md | "Angular 22.2.2 fixtures" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 2 | .claude/skills/control-ai-browsers/features/di-doctor.md | "message types angular-ai:di-query / angular-ai:di-graph" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 3 | .claude/skills/control-ai-browsers/features/error-explainer.md | "message types angular-ai:error-capture / angular-ai:error-explain" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 4 | .claude/skills/control-ai-browsers/features/extension-panel.md | "build-extension writes extension/panel/" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 5 | .claude/skills/control-ai-browsers/features/health-check.md | "doctor exits 0 healthy, 1 failed, 2 not running" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 6 | .claude/skills/control-ai-browsers/features/instances.md | "five instances, each [OK] with PID" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 7 | .claude/skills/control-ai-browsers/features/interop.md | "message types angular-ai:interop" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 8 | .claude/skills/control-ai-browsers/features/model-lifecycle.md | "Nano GPU variant 2025.8.8.1141" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 9 | .claude/skills/control-ai-browsers/features/model-lifecycle.md | "clear removes 4,269,934,855 bytes" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 10 | .claude/skills/control-angular-dev-app/SKILL.md | "portal API port fixed at 3000" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 11 | .claude/skills/control-angular-dev-app/SKILL.md | "counter fixture Angular 22.2.2" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 12 | .claude/skills/control-angular-dev-app/SKILL.md | "SSR fixture uses @angular/ssr" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 13 | .claude/skills/control-angular-dev-app/features/README.md | "counter fresh state count 3 double 6 cart 1" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 14 | .claude/skills/control-angular-dev-app/features/README.md | "portal API on 3000, app on 4507 default" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 15 | .claude/skills/control-angular-dev-app/features/counter.md | "page shows Clicks: 3 (double 6, cart 1)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 16 | .claude/skills/control-angular-dev-app/features/counter.md | "component is OnPush by default" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 17 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "claim list has 5 rows measured" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 18 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "columns Claim number, Damage Type, Date, Policynumber, Customer" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 19 | .claude/skills/control-angular-dev-app/features/portal-complaints-customers.md | "complaint list has 2 seeded rows" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 20 | .claude/skills/control-angular-dev-app/features/portal-complaints-customers.md | "customer list has 30 rows" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 21 | .claude/skills/control-angular-dev-app/features/portal-contracts.md | "contract list has 20 rows after fresh API start" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 22 | .claude/skills/control-angular-dev-app/features/portal-contracts.md | "Edit sends PUT /api/contracts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 23 | .claude/skills/control-angular-dev-app/features/portal-navigation.md | "home tiles Contracts, Claims, Complaints, Customers" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 24 | .claude/skills/control-angular-dev-app/features/portal-navigation.md | "unknown URLs show Page Not Found" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 25 | .claude/skills/control-angular-dev-app/features/ssr.md | "hydratedComponents 4, hydratedNodes 40" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 26 | .claude/skills/control-angular-dev-app/features/ssr.md | "server HTML carries ngh attributes and ng-state" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 27 | .claude/skills/control-angular-devtools/SKILL.md | "extension id ienfalfjdbdpebioblfackkekamfmbnh" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 28 | .claude/skills/control-angular-devtools/features/attach.md | "backendReady at ~950 ms" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 29 | .claude/skills/control-angular-devtools/features/install.md | "extension id ienfalfjdbdpebioblfackkekamfmbnh" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 30 | .claude/skills/control-angular-devtools/features/install.md | "test copy from Edge Dev profile" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 31 | .claude/skills/control-angular-devtools/features/profiler.md | "ng.ɵsetProfiler keeps a list of subscribers in Angular 22" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 32 | .claude/skills/control-angular-devtools/features/signal-graph.md | "template:app-counter, signal:title, signal:count, computed:double" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 33 | .claude/skills/control-angular-devtools/features/signal-graph.md | "angular:di_graph regression" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 34 | .claude/skills/control-pangular-inspector/SKILL.md | "@pangular-inspector/devtools pinned 0.0.7" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 35 | .claude/skills/control-pangular-inspector/SKILL.md | "MCP endpoint http://localhost:9999/__mcp" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 36 | .claude/skills/control-pangular-inspector/features/README.md | "npm install --save-dev --save-exact @pangular-inspector/devtools@0.0.7" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 37 | .claude/skills/control-pangular-inspector/features/live-inspection.md | "list-pages shows page id" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 38 | .claude/skills/control-pangular-inspector/features/navigation.md | "explain-navigation newest first" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 39 | .claude/skills/control-pangular-inspector/features/navigation.md | "list-routes 12 routes measured" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 40 | .claude/skills/control-pangular-inspector/features/panel.md | "title Pangular Inspector" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 41 | .claude/skills/control-pangular-inspector/features/panel.md | "LIVE badge" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 42 | .claude/skills/control-pangular-inspector/features/source-scan.md | "build-meta Angular 22.2.2" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 43 | .claude/skills/control-vitest-browser-angular/features/README.md | "fresh state Clicks: 3 (double 6, cart 2)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 44 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "Tests 2 passed \| 2 skipped (4)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 45 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | "spikes/s1-extension retired" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 46 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | "Clicks: 3 (double 6, cart 2)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 47 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | "host <div id=rootN ng-version>" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 48 | .claude/skills/verify-ai-browsers/SKILL.md | "checks state/model-init/extension-panel etc" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 49 | .claude/skills/verify-angular-devtools/SKILL.md | "extension-enabled/attached/coexist checks" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 50 | .claude/skills/verify-pangular-inspector/SKILL.md | "setup/live-reads/read-only checks" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 51 | .commandcode/skills/control-ai-browsers/features/README.md | "npx nx run angular-ai-devtools:build-extension" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 52 | .commandcode/skills/control-ai-browsers/features/README.md | "C doctor <name> exits 0" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 53 | .commandcode/skills/control-ai-browsers/features/di-doctor.md | "apps/angular-ai-devtools/src/app/di-doctor.service.ts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 54 | .commandcode/skills/control-ai-browsers/features/di-doctor.md | "di-diff-display.ts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 55 | .commandcode/skills/control-ai-browsers/features/di-doctor.md | "angular-ai:di-query / angular-ai:di-graph" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 56 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | "apps/angular-ai-devtools/src/app/error-explainer.component.ts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 57 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | "angular-ai:error-capture / angular-ai:error-explain" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 58 | .commandcode/skills/control-ai-browsers/features/extension-panel.md | "extension/panel/ (main.js, styles.css and index.html)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 59 | .commandcode/skills/control-ai-browsers/features/health-check.md | "nineteen check lines" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 60 | .commandcode/skills/control-ai-browsers/features/health-check.md | "Proofreader is not defined in these builds" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 61 | .commandcode/skills/control-ai-browsers/features/instances.md | "--backend=cpu on Edge is refused" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 62 | .commandcode/skills/control-ai-browsers/features/interop.md | "apps/angular-ai-devtools/src/app/interop.component.ts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 63 | .commandcode/skills/control-ai-browsers/features/interop.md | "angular-ai:interop" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 64 | .commandcode/skills/control-ai-browsers/features/probes.md | "spikes/probes/probe10.js" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 65 | .commandcode/skills/control-ai-browsers/features/probes.md | "spikes/probes/bench.js" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 66 | .commandcode/skills/control-ai-browsers/features/probes.md | "spikes/probes/broker-state.js" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 67 | .commandcode/skills/control-ai-browsers/features/signal-provenance.md | "src/main-world/provenance-tracer.ts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 68 | .commandcode/skills/control-ai-browsers/features/stale-view.md | "apps/angular-ai-devtools/src/app/stale-view.component.ts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 69 | .commandcode/skills/control-ai-browsers/features/stale-view.md | "angular-ai:stale-view" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 70 | .commandcode/skills/control-angular-dev-app/SKILL.md | 'portal api pinned by libs/shared/utils/src/lib/injection-tokens.ts:5' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 71 | .commandcode/skills/control-angular-dev-app/features/README.md | 'Counter fresh page state: count 3, double 6, cart 1 item' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 72 | .commandcode/skills/control-angular-dev-app/features/README.md | 'SSR fresh page state: heading Render mode: server' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 73 | .commandcode/skills/control-angular-dev-app/features/README.md | 'Portal app on derived port 4507 for default folder' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 74 | .commandcode/skills/control-angular-dev-app/features/counter.md | 'Clicks: 3 (double 6, cart 1)' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 75 | .commandcode/skills/control-angular-dev-app/features/counter.md | 'count signal, double computed, CartService.items' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 76 | .commandcode/skills/control-angular-dev-app/features/counter.md | 'counter component OnPush by default' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 77 | .commandcode/skills/control-angular-dev-app/features/portal-claims.md | 'claim-list table columns and 5 rows' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 78 | .commandcode/skills/control-angular-dev-app/features/portal-claims.md | '/claim/create shows heading Complaint Create (app bug)' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 79 | .commandcode/skills/control-angular-dev-app/features/portal-complaints-customers.md | 'complaint-list columns and 2 seeded rows' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 80 | .commandcode/skills/control-angular-dev-app/features/portal-complaints-customers.md | 'customer-list 30 rows' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 81 | .commandcode/skills/control-angular-dev-app/features/portal-contracts.md | 'contract-list 20 rows after fresh API start' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 82 | .commandcode/skills/control-angular-dev-app/features/portal-contracts.md | 'Save sends PUT /api/contracts' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 83 | .commandcode/skills/control-angular-dev-app/features/portal-navigation.md | 'Home tiles Contracts, Claims, Complaints, Customers' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 84 | .commandcode/skills/control-angular-dev-app/features/portal-navigation.md | 'unknown URLs show Page Not Found' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 85 | .commandcode/skills/control-angular-dev-app/features/ssr.md | 'ngDevMode.hydratedComponents 4, hydratedNodes 40' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 86 | .commandcode/skills/control-angular-devtools/SKILL.md | 'Chrome for Testing 154.0.8037.0' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 87 | .commandcode/skills/control-angular-devtools/SKILL.md | 'Angular DevTools 1.22.1' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 88 | .commandcode/skills/control-angular-devtools/SKILL.md | 'CDP port 9420 default, slot 9420+N' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 89 | .commandcode/skills/control-angular-devtools/features/attach.md | 'window.__NG_DEVTOOLS_CONNECTED__ === true' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 90 | .commandcode/skills/control-angular-devtools/features/attach.md | 'backendReady at ~950 ms' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 91 | .commandcode/skills/control-angular-devtools/features/install.md | 'branded install proven in Chrome Beta' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 92 | .commandcode/skills/control-angular-devtools/features/profiler.md | 'ng.ɵsetProfiler subscribers' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 93 | .commandcode/skills/control-angular-devtools/features/signal-graph.md | 'angular:di_graph removes template node' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 94 | .commandcode/skills/control-pangular-inspector/SKILL.md | '@pangular-inspector/devtools pinned 0.0.7' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 95 | .commandcode/skills/control-pangular-inspector/SKILL.md | 'npm install --save-dev --save-exact @pangular-inspector/devtools@0.0.7' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 96 | .commandcode/skills/control-pangular-inspector/features/live-inspection.md | 'inspect-component returns ListComponent' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 97 | .commandcode/skills/control-pangular-inspector/features/navigation.md | 'list-routes 12 routes measured' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 98 | .commandcode/skills/control-pangular-inspector/features/panel.md | 'Angular 22.2.2 on dashboard' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 99 | .commandcode/skills/control-pangular-inspector/features/setup.md | 'setup.check six read-only facts' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 100 | .commandcode/skills/control-pangular-inspector/features/source-scan.md | 'Angular 22.2.2, TypeScript 6.0.3' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 101 | .commandcode/skills/control-pangular-inspector/features/source-scan.md | 'scan get-components returns AppComponent etc' | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 102 | .commandcode/skills/control-vitest-browser-angular/features/README.md | "Fresh state of the held Counter: Clicks: 3 (double 6, cart 2)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 103 | .commandcode/skills/control-vitest-browser-angular/features/counter-tests.md | "Tests 2 passed \| 2 skipped (4) without flags" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 104 | .commandcode/skills/control-vitest-browser-angular/features/counter-tests.md | "with VITE_COUNTER_TIMING_DEMO=1 one test fails with expected 'Clicks: 3 (double 6, cart 1)' to contain 'Clicks: 4'" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 105 | .commandcode/skills/control-vitest-browser-angular/features/extension-in-tester.md | "s1-vitest, which matches the Vitest server in every frame" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 106 | .commandcode/skills/control-vitest-browser-angular/features/held-counter.md | "the host <div id="rootN" ng-version="22.2.2">" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 107 | .commandcode/skills/monitor-ci/references/fix-flows.md | "ci-state-update.mjs gate --gate-type local-fix" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 108 | .commandcode/skills/nx-cloud-api/SKILL.md | "All output is JSON. stdout carries only the response data." | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 109 | .commandcode/skills/nx-cloud-api/SKILL.md | "npx nx-cloud api --list-operations" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 110 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "npx nx-cloud api ... -o <file>" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 111 | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md | "npx nx-cloud api \"<link>\" -o <private-file>.tar.gz" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 112 | .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md | "Task assets are typed logs, artifact, or sandbox-report" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 113 | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md | "Use nx-cloud-api (npx nx-cloud api) for every read" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 114 | .commandcode/skills/nx-generate/SKILL.md | "npx nx g @nx/react:library --help" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 115 | .commandcode/skills/nx-generate/SKILL.md | "nx format:write" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 116 | .commandcode/skills/nx-import/SKILL.md | "nx import brings code from a source repository or folder" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 117 | .commandcode/skills/nx-import/SKILL.md | "After nx 22.6.0, nx import responds with .ndjson outputs" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 118 | .commandcode/skills/nx-import/references/ESLINT.md | "@nx/eslint/plugin scans for ESLint config files" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 119 | .commandcode/skills/nx-import/references/GRADLE.md | "@nx/gradle plugin expects gradlew at workspace root" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 120 | .commandcode/skills/nx-import/references/JEST.md | "npx nx add @nx/jest" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 121 | .commandcode/skills/nx-import/references/NEXT.md | "@nx/next/plugin detects next.config.*" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 122 | .commandcode/skills/nx-import/references/TURBOREPO.md | "Remove turbo-specific dependencies: turbo, eslint-plugin-turbo" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 123 | .commandcode/skills/nx-import/references/VITE.md | "@nx/vite/plugin defaults typecheckTargetName to vite:typecheck" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 124 | .commandcode/skills/nx-plugins/SKILL.md | "List plugins: npx nx list" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 125 | .commandcode/skills/nx-plugins/SKILL.md | "Install plugins npx nx add <plugin>" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 126 | .commandcode/skills/nx-run-tasks/SKILL.md | "nx show project <projectname> --json" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 127 | .commandcode/skills/nx-run-tasks/SKILL.md | "nx run-many -t build test lint typecheck" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 128 | .commandcode/skills/nx-workspace/SKILL.md | "Nx CLI entry for this install: `node_modules/nx/dist/bin/nx.js` (Nx 23)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 129 | .commandcode/skills/nx-workspace/references/AFFECTED.md | "Affected since base branch (auto-detected)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 130 | .commandcode/skills/verify-ai-browsers/SKILL.md | "Each check exits 0 pass, 1 claim failed, 2 could not run" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 131 | .commandcode/skills/verify-ai-browsers/SKILL.md | "`edge-phi4mini` has failed `canary.structured` with `kErrorUnknown`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 132 | .commandcode/skills/verify-angular-devtools/SKILL.md | "`coexist --di-graph` leaves the page's signal graph broken until reload" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 133 | .commandcode/skills/verify-pangular-inspector/SKILL.md | "exact pin 0.0.7 declared and installed" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 134 | .commandcode/skills/verify-pangular-inspector/SKILL.md | "ports 3000 and 9999 free (both fixed)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 135 | AGENTS.md | "Checks: `npm run check` and `npm test`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 136 | AGENTS.md | "`.claude/skills/control-ai-browsers` and `.claude/skills/verify-ai-browsers` are byte copies" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 137 | docs/afk-run-2026-10-12.md | "All eight skills (`control-` and `verify-` for ai-browsers, angular-dev-app, angular-devtools, pangular-inspector) are committed" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 138 | docs/afk-run-2026-10-12.md | "Edge provider trials ran on the standing Aion instance" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 139 | docs/design/tutor.md | "Supported apps are zoneless, standalone Angular 22.2 dev builds" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 140 | docs/design/tutor.md | "The tutor is not implemented; this document describes planned design" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 141 | docs/feature-proposals.md | "Recommended first release ... N1 to N4, N24 and N25" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 142 | docs/filing-ledger.md | "ten draft upstream reports, none filed" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 143 | plans/angular-ai-devtools-proposals.handoff.md | "Repository: `D:\projects\sandbox\angular-ai-devtools` (local git, `main`, head `fbe3aac` at writing)" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 144 | references/ai-browsers-verification.md | "Check that port 9992 is free" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 145 | research/01-built-in-ai-apis.md | "Chrome ships `LanguageModel` to extensions (138+)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 146 | research/01-built-in-ai-apis.md | "WebMCP is now `document.modelContext`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 147 | research/02-angular-surface.md | "Angular 22.2 in development mode" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 148 | research/03-prior-art.md | "Pangular Inspector, React DevTools, Chrome DevTools AI assistance" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 149 | research/04-ecosystem.md | "NgRx, Analog, Storybook, Vitest Browser Mode, RxAngular" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 150 | research/05-spikes.md | "Four-model benchmark, second round" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 151 | research/06-angular-skills.md | "official angular/skills repo as a rule source" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 152 | research/07-prompting-small-models.md | "prompting guidance for the on-device models" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 153 | research/08-recent-angular-features.md | "Angular 20.0-22.2 features" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 154 | research/09-nano-tool-session-error.md | "root cause of Gemini Nano's unable to create a session error" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 155 | research/10-model-capabilities.md | "with `/count/i.test(a) && !/title\|items/i.test(a)`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 156 | research/10-model-capabilities.md | "Chrome Beta Nano on 9333, Gemma 4 on 9334, Edge Dev Aion on 9335, Phi-4-mini on 9336" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 157 | research/10-model-capabilities.md | "`AIPromptAPIToolUse` is `experimental` on Win/Mac/Linux/ChromeOS at the 156 tag" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 158 | research/11-spike-s1-extension-contexts.md | "node spikes/s1-extension/run-s1.mjs" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 159 | research/11-spike-s1-extension-contexts.md | "Runs: Chrome Beta `156.0.8078.17` on port 9341, Edge Dev `157.0.4322.0` on port 9342" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 160 | research/11-spike-s1-extension-contexts.md | "The Prompt API, including the tool-use types, is exposed in all eight contexts in both browsers" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 161 | research/11-spike-s1-extension-contexts.md | "Each context writes its result to `chrome.storage.local` under its context name" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 162 | research/12-legacy-vs-modern-angular.md | "gave 205 hits" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 163 | research/12-legacy-vs-modern-angular.md | "the Angular compiler emits `setClassMetadata(Class, decorators, ctorParameters, propDecorators)` behind an `ngDevMode` guard" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 164 | research/12-legacy-vs-modern-angular.md | "The zone-mode check in `app_facts`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 165 | research/12-legacy-vs-modern-angular.md | "not supported; N10 flags it when detected" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 166 | research/12-legacy-vs-modern-angular.md | "N24 flags a plain field written in a `subscribe` callback in a zoneless app" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 167 | research/12-legacy-vs-modern-angular.md | "the panel shows a notice instead of answering" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 168 | research/13-portal-legacy-audit.md | "commit `f102b97` (Angular 22.2.2)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 169 | research/13-portal-legacy-audit.md | "`@for`/`@if` in 10 files, `input()` in 17 files, `inject()` in 34 files" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 170 | research/13-portal-legacy-audit.md | "\"polyfills\": [\"zone.js\"]" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 171 | research/13-portal-legacy-audit.md | "The three forms now use Signal Forms (`@angular/forms/signals`) in commits `754aa1e` (claim), `66e8ad6` (contract) and `92053b9` (complaint)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 172 | research/14-ai-devtools-prior-art.md | "capped at 200 characters" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 173 | research/14-ai-devtools-prior-art.md | "C8. Dead-click and rage-click finder." | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
-| 174 | research/14-ai-devtools-prior-art.md | "`test.run`: runs story tests (Vitest addon), with accessibility results when the a11y addon is on" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 175 | research/14-ai-devtools-prior-art.md | "Angular's `Annotations` interface lacks the spec's `debugging` hint" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 176 | research/15-deterministic-and-ai.md | "Edge exposes no `LanguageModel` to the service worker; Chrome does" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 177 | research/15-deterministic-and-ai.md | "a component list is 346-2,766 characters" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 178 | research/15-deterministic-and-ai.md | "Reads stay in the MAIN world and are shaped there" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
-| 179 | research/15-deterministic-and-ai.md | "Angular error pages (61 pages)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 180 | research/15-deterministic-and-ai.md | "a worker started by the DevTools panel has all seven APIs, and `LanguageModel` answers" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 181 | research/16-ssr-runtime.md | "Fixture: `spikes/ng222-ssr`, created with `ng new ng222-ssr --ssr" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 182 | research/16-ssr-runtime.md | "Routes (`app.routes.server.ts`): `/` `RenderMode.Server`, `/prerender` `RenderMode.Prerender`, `/client`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 183 | research/16-ssr-runtime.md | "Counters on `ngDevMode` (a page global): `hydratedNodes`, `hydratedComponents`, `dehydratedViewsRemoved`," | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 184 | research/16-ssr-runtime.md | "34 nodes under `<body>` carry it, all `{status: \"hydrated\"}` and no other key" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 185 | research/16-ssr-runtime.md | "`?mismatch=1` makes `Mismatch` insert a `<div>` before its `<p>` on the server only" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 186 | research/17-vitest-browser-runtime.md | "works with a 30-line custom provider in the fixture's Vitest config" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 187 | research/17-vitest-browser-runtime.md | "5.0.3 (was `^5.0.0`, 5.0.3 installed), `@vitest/browser` 5.0.3" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 188 | research/17-vitest-browser-runtime.md | "Runner: Angular's own `@angular/build:unit-test` builder. Angular 22.2 has a `browsers` option" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 189 | research/17-vitest-browser-runtime.md | "`window.ng` worked there, and `LanguageModel` answered "OK" from" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 190 | research/18-edge-prevent-auto-signin.md | "`--disable-sync` and `--disable-features=msBrowserSignin` do" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 191 | research/18-edge-prevent-auto-signin.md | "The authoritative, fully-effective mechanism is a set of" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 192 | research/18-edge-prevent-auto-signin.md | "use **`--guest`** or **`--bwsi`** (browse-without-sign-in) mode" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 193 | research/18-edge-prevent-auto-signin.md | "Edge 157 retires the legacy direct-WAM path (MC1490911)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 194 | research/19-languagemodel-in-extension-contexts.md | "`create()` throws \"Access denied because the Permission Policy is not enabled\"" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 195 | research/19-languagemodel-in-extension-contexts.md | "`ExtensionPromptService` now calls `LanguageModel` in the panel itself" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 196 | research/19-languagemodel-in-extension-contexts.md | "It no longer carries prompts, so the page can neither read the prompt nor forge the answer" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 197 | research/19-languagemodel-in-extension-contexts.md | "the `devtools_page` permissions policy denies `language-model`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 198 | research/19-languagemodel-in-extension-contexts.md | "`LanguageDetector` and `Translator` crash the renderer when called in a worker." | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 199 | research/20-built-in-ai-without-flags.md | "On Edge, the web page and the service worker have no `LanguageModel` without flags. On Chrome they do." | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 200 | research/20-built-in-ai-without-flags.md | "Filing draft: `docs/filing-ledger.md` item 11." | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 201 | research/20-built-in-ai-without-flags.md | "`browser.enabled_labs_experiments` was empty in every Local State" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 202 | spikes/ng222-app/README.md | "This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.2." | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 203 | spikes/ng222-app/README.md | "store the build artifacts in the `dist/` directory" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 204 | spikes/ng222-ssr/README.md | "This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.2." | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 205 | spikes/ng222-ssr/README.md | "To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 206 | spikes/ng222-ssr/README.md | "store the build artifacts in the `dist/` directory" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 207 | .claude/skills/control-ai-browsers/features/README.md | "panel built via npx nx run angular-ai-devtools:build-extension" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 208 | .claude/skills/control-ai-browsers/features/README.md | "counter fixture serves http://localhost:4222" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 209 | .claude/skills/control-ai-browsers/features/di-doctor.md | "panel built via npx nx run angular-ai-devtools:build-extension" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 210 | .claude/skills/control-ai-browsers/features/health-check.md | "doctor reports nineteen check lines" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 211 | .claude/skills/control-ai-browsers/features/health-check.md | "Proofreader not defined in these builds" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 212 | .claude/skills/control-ai-browsers/features/model-lifecycle.md | "model clear deletes folders whose manifest names model" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 213 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "claim-list table 5 rows" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 214 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "claim-details heading Claim Details" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 215 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "claim-create Save disabled until valid" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 216 | .claude/skills/control-angular-dev-app/features/portal-complaints-customers.md | "complaint-list 2 seeded rows" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 217 | .claude/skills/control-angular-dev-app/features/portal-complaints-customers.md | "customer-list 30 rows, 8 columns" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 218 | .claude/skills/control-angular-dev-app/features/portal-contracts.md | "contract-list 20 rows after fresh API start" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 219 | .claude/skills/control-angular-dev-app/features/portal-contracts.md | "contract details heading Contract Details" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 220 | .claude/skills/control-angular-dev-app/features/portal-contracts.md | "Save sends POST /api/contracts (201)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 221 | .claude/skills/control-angular-dev-app/features/portal-navigation.md | "/ redirects to /home" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 222 | .claude/skills/control-angular-dev-app/features/ssr.md | "hydration counters hydratedComponents 4, hydratedNodes 40" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 223 | .claude/skills/control-angular-dev-app/features/ssr.md | "app-mismatch logs NG0500 on ?mismatch=1" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 224 | .claude/skills/control-angular-dev-app/features/ssr.md | "transfer cache /api/items in ng-state" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 225 | .claude/skills/control-angular-dev-app/features/ssr.md | "defer block dehydrated until click then hydrated" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 226 | .claude/skills/control-angular-dev-app/features/ssr.md | "render modes ssr, ssg, client shell" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 227 | .claude/skills/control-angular-devtools/SKILL.md | "Chrome for Testing 154.0.8037.0" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 228 | .claude/skills/control-angular-devtools/features/attach.md | "flag true set at ~50 ms" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 229 | .claude/skills/control-angular-devtools/features/attach.md | "detection isAngular, isDebugMode, isIvy, isSupportedAngularVersion true" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 230 | .claude/skills/control-angular-devtools/features/install.md | "install branded proven in Chrome Beta" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 231 | .claude/skills/control-angular-devtools/features/install.md | "chrome:// URLs open empty window" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 232 | .claude/skills/control-angular-devtools/features/profiler.md | "coexist expected own subscribers bothOn 16/16 afterRemoveA 16/32" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 233 | .claude/skills/control-angular-devtools/features/profiler.md | "DevTools recorded 2 change detection cycles" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 234 | .claude/skills/control-angular-devtools/features/signal-graph.md | "before: template:app-counter, signal:title, signal:count, computed:double, signal:items, effect:Effect" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 235 | .claude/skills/control-angular-devtools/features/signal-graph.md | "after angular:di_graph: pane signal:count, effect:Effect" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 236 | .claude/skills/control-angular-devtools/features/signal-graph.md | "node kinds include linked-signal, child-signal-prop, resource, unknown" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 237 | .claude/skills/control-pangular-inspector/SKILL.md | "portal worktree has this setup committed (f102b97)" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 238 | .claude/skills/control-pangular-inspector/features/README.md | "App: `node $D up --target portal` (API 3000, app 4507)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 239 | .claude/skills/control-pangular-inspector/features/README.md | "Never drive an instance this run did not start" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 240 | .claude/skills/control-pangular-inspector/features/live-inspection.md | "`live.tree`: `AppComponent <ng-journal-root>`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 241 | .claude/skills/control-pangular-inspector/features/live-inspection.md | "`inspect-signals` returns a `template` node `ng-journal-list`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 242 | .claude/skills/control-pangular-inspector/features/navigation.md | "`list-routes` (12 routes, measured)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 243 | .claude/skills/control-pangular-inspector/features/navigation.md | "`lint-routes` (one `info` finding, `missing-title`)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 244 | .claude/skills/control-pangular-inspector/features/panel.md | "title `Pangular Inspector`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 245 | .claude/skills/control-pangular-inspector/features/panel.md | "`Angular 22.2.2`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 246 | .claude/skills/control-pangular-inspector/features/setup.md | "exact pin `@pangular-inspector/devtools@0.0.7`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 247 | .claude/skills/control-pangular-inspector/features/source-scan.md | "Workspace root: `scan get-components` -> `[]`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 248 | .claude/skills/control-pangular-inspector/features/source-scan.md | "`build-meta` -> Angular `22.2.2`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 249 | .claude/skills/control-vitest-browser-angular/SKILL.md | "Vitest's default 63315 cannot be used" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 250 | .claude/skills/control-vitest-browser-angular/features/README.md | "Fresh state of the held Counter: `Clicks: 3 (double 6, cart 2)`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 251 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "Two tests always run" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 252 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "`Tests 2 passed \| 2 skipped (4)` without flags" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 253 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | "`ext-model` `LanguageModel.availability()` is `available`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 254 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | "`held-render` shows `Clicks: 3 (double 6, cart 2)`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 255 | .claude/skills/verify-ai-browsers/SKILL.md | "Each check exits 0 pass, 1 claim failed, 2 could not run" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 256 | .claude/skills/verify-angular-devtools/SKILL.md | "extension is loaded and enabled" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 257 | .claude/skills/verify-pangular-inspector/SKILL.md | "`setup` check exits 0" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 258 | .commandcode/skills/control-ai-browsers/features/di-doctor.md | "message types angular-ai:di-query / angular-ai:di-graph" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 259 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | "message types angular-ai:error-capture / angular-ai:error-explain" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 260 | .commandcode/skills/control-ai-browsers/features/extension-panel.md | "background.js or manifest.json change needs down and up" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 261 | .commandcode/skills/control-ai-browsers/features/health-check.md | "navigator.modelContext is undefined; WebMCP lives on document.modelContext" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 262 | .commandcode/skills/control-ai-browsers/features/interop.md | "message types angular-ai:interop" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 263 | .commandcode/skills/control-ai-browsers/features/interop.md | "spikes/ng222-app fixture routes /stale-view" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 264 | .commandcode/skills/control-ai-browsers/features/signal-provenance.md | "message type angular-ai:record" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 265 | .commandcode/skills/control-ai-browsers/features/stale-view.md | "message types angular-ai:stale-view" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 266 | .commandcode/skills/control-angular-dev-app/features/README.md | "PrimeNG dropdowns: click combobox then getByRole option" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 267 | .commandcode/skills/control-angular-dev-app/features/README.md | "Mocking only behind existing production boundary; fixtures have none" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 268 | .commandcode/skills/control-angular-dev-app/features/counter.md | "Clicks: 3 (double 6, cart 1) on load" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 269 | .commandcode/skills/control-angular-dev-app/features/counter.md | "Increment raises count by one; double follows" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 270 | .commandcode/skills/control-angular-dev-app/features/counter.md | "counter-cd component is OnPush by default" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 271 | .commandcode/skills/control-angular-dev-app/features/portal-claims.md | "claim-list table: Claim number, Damage Type, Date, Policynumber, Customer; 5 rows" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 272 | .commandcode/skills/control-angular-dev-app/features/portal-claims.md | "claim-create /claim/create with Claim Number, Date prefilled today, Select damage type, Select contract" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 273 | .commandcode/skills/control-angular-dev-app/features/portal-claims.md | "/claim/create shows heading Complaint Create (app bug)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 274 | .commandcode/skills/control-angular-dev-app/features/portal-complaints-customers.md | "complaint-list columns Type, Customer, Date, Description; 2 seeded rows" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 275 | .commandcode/skills/control-angular-dev-app/features/portal-complaints-customers.md | "customer-list columns First name, Last name, Phone, Email, Street, City, State, Zip; 30 rows" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 276 | .commandcode/skills/control-angular-dev-app/features/portal-complaints-customers.md | "complaint-create POST /api/complaints (201)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 277 | .commandcode/skills/control-angular-dev-app/features/portal-contracts.md | "contract-list 20 rows after fresh API start" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 278 | .commandcode/skills/control-angular-dev-app/features/portal-contracts.md | "contract-edit Save sends PUT /api/contracts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 279 | .commandcode/skills/control-angular-dev-app/features/portal-contracts.md | "contract-create Save sends POST /api/contracts (201)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 280 | .commandcode/skills/control-angular-dev-app/features/portal-navigation.md | "/ redirects to /home" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 281 | .commandcode/skills/control-angular-dev-app/features/portal-navigation.md | "home tiles Contracts, Claims, Complaints, Customers" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 282 | .commandcode/skills/control-angular-dev-app/features/portal-navigation.md | "unknown URLs show Page Not Found" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 283 | .commandcode/skills/control-angular-dev-app/features/portal-navigation.md | "sidebar group headings upper-case via capitalize pipe" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 284 | .commandcode/skills/control-angular-devtools/SKILL.md | "Chrome for Testing 154.0.8037.0" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 285 | .commandcode/skills/control-angular-devtools/SKILL.md | "Angular DevTools 1.22.1" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 286 | .commandcode/skills/control-angular-devtools/features/attach.md | "window.__NG_DEVTOOLS_CONNECTED__ === true" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 287 | .commandcode/skills/control-angular-devtools/features/attach.md | "detection isAngular, isDebugMode, isIvy, isSupportedAngularVersion, isAngularDevTools" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 288 | .commandcode/skills/control-angular-devtools/features/attach.md | "production build gives isDebugMode false" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 289 | .commandcode/skills/control-angular-devtools/features/install.md | "branded install/uninstall proven in Chrome Beta 2026-10-11" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 290 | .commandcode/skills/control-angular-devtools/features/install.md | "chrome:// and edge:// URLs open empty window from command line" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 291 | .commandcode/skills/control-angular-devtools/features/profiler.md | "profiler subscribes through ng.ɵsetProfiler" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 292 | .commandcode/skills/control-angular-devtools/features/profiler.md | "coexist: own subscribers bothOn a:16 b:16; afterRemoveA a:16 b:32" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 293 | .commandcode/skills/control-angular-devtools/features/profiler.md | "DevTools recorded 2 change detection cycles" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 294 | .commandcode/skills/control-angular-devtools/features/signal-graph.md | "pane node kinds template, signal, computed, effect, linked-signal, child-signal-prop, resource, unknown" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 295 | .commandcode/skills/control-angular-devtools/features/signal-graph.md | "counter shows template:app-counter, signal:title, signal:count, computed:double, signal:items, effect:Effect" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 296 | .commandcode/skills/control-angular-devtools/features/signal-graph.md | "after angular:di_graph template node disappears" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 297 | .commandcode/skills/nx-import/references/GRADLE.md | "This reference exists" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 298 | .commandcode/skills/nx-import/references/NEXT.md | "This reference exists" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 299 | .commandcode/skills/nx-import/references/TURBOREPO.md | "This reference exists" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 300 | .commandcode/skills/nx-import/references/VITE.md | "This reference exists" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 301 | .commandcode/skills/nx-plugins/SKILL.md | "This reference exists" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 302 | .commandcode/skills/nx-run-tasks/SKILL.md | "This reference exists" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 303 | .commandcode/taste/taste.md | "File is effectively empty with no testable taste claims" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 304 | research/03-prior-art.md | "Existing AI-assisted DevTools lack on-device Angular-aware tooling" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 305 | research/10-model-capabilities.md | "AIPromptAPIToolUse is experimental on Win/Mac/Linux/ChromeOS at the 156 tag" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 306 | research/11-spike-s1-extension-contexts.md | "Extension id is adkapcgoeebpdmbepbdjmbhfknkcllcc for this checkout" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 307 | research/12-legacy-vs-modern-angular.md | "spikes/ng222-app/dist/.../main.js contains setClassMetadata calls" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 308 | research/13-portal-legacy-audit.md | "portal forms migrated to Signal Forms in commits 754aa1e, 66e8ad6, 92053b9" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 309 | research/13-portal-legacy-audit.md | "zone.js polyfill present in apps/insurance-portal/project.json:18" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 310 | research/15-deterministic-and-ai.md | "research/raw/tosignal-node-portal.json holds signal graph measurements" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 311 | research/17-vitest-browser-runtime.md | "Vitest Browser Mode attaches to real Chrome/Edge via a custom provider" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 312 | research/18-edge-prevent-auto-signin.md | "msBrowserSignin is not a real Chromium/Edge feature flag" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 313 | research/19-languagemodel-in-extension-contexts.md | "LanguageModel works in the DevTools panel, dedicated worker, and service worker; refused in devtools.html" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 314 | research/20-built-in-ai-without-flags.md | "Without flags, LanguageModel is undefined on Edge pages and service workers" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
