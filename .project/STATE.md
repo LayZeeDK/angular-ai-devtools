@@ -334,3 +334,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-01 — ship — ship approval exercised under the recorded grant (ship) quoted in INTENT.md Corrections
 - 2026-11-01 — shipped — archive preflight passed; shipment recorded
 - 2026-11-01 — inspect — M017 shipped and integrated on 62a10a7; bound gsd-path/M018 at 8827469; programme 1 open
+- 2026-11-01 — inspect — router bound next milestone: M018 instrument-core
+- 2026-11-01 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}

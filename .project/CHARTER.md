@@ -163,8 +163,10 @@ questions, answered in the panel, on the developer's machine.
 
 ## Open questions
 
-- [NEEDS-USER] If a paid or non-DeepSeek session later makes independent review
-  families available, which families should form the optional panel?
+- [RESOLVED 2026-11-01: the optional review panel stays off. The paid per-role split
+  in `.project/model-policy.json` is the binding policy — DeepSeek V4.1 Flash for
+  tool-loop roles, GLM-5.3 Flash for `reviewer`, `skeptic` and `review_panel` — so a
+  verdict never shares the producer's family. Recorded under Corrections.]
 - [RESEARCH] Which N24 and N25 detections are provable from `ng.ɵgetSignalGraph` and the source-text write scan on the counter fixture, and which need new instrumentation?
 
 ## Corrections
@@ -260,3 +262,31 @@ questions, answered in the panel, on the developer's machine.
   labels, not separate project roots. One `.project/`, one roadmap, grown by
   successive re-slices in generations of at most 12 entries, with pending entries
   never reaching zero before the final programme ends.
+- 2026-11-01 (programme 1 scope): the `Full scope: in` bullets above are satisfied
+  in full by M001-M017 and remain closed. This ruling **extends** `Full scope: in`
+  with programme 1 ("core"), so the roadmap gate's charter-to-milestone bijection
+  holds for the new generation. Programme 1's admitted scope, in roadmap order:
+  - a tool registry with an app-facts support check, six hostile tool shapes, and
+    the DOM role/name computation (`instrument-core`);
+  - the context budget, worker, ring buffer and background-job machinery;
+  - N18 feature fingerprint and the context chip;
+  - the Tier-2 opt-in package and its vetted symbol table;
+  - the in-page overlay — the only DOM the tool adds to an inspected page;
+  - Aria/CDK/Material surfaces in the verification fixtures, including a
+    deliberately ambiguous harness target;
+  - project Verify breadth: type-check the panel and the extension in
+    `npm run check`;
+  - the core explainer families N5, N7-N23, N27-N37 and the COM, COR, RTR, FRM,
+    PBR, PSR, SWK, ELM, DEF, HYD, ANI, CF, FOR, SUB and BND feature prefixes, with
+    N34-N37 admitted under A4 and `@angular/cdk/testing` under A8;
+  - the opt-in instrument taps, each landing with the milestone it upgrades.
+  The ordered milestone list, the family prefix registry and the spike ledger are
+  `plans/angular-ai-devtools-program-backlog.md` (commit `8827469`). Angular SSR
+  belongs to programme 4 and `angular/components` to programme 3 (A5); neither is
+  in programme 1's scope.
+- 2026-11-01 (standing autonomy grant): owner's instruction, verbatim: "Prepare
+  the repo so that the next, fresh session just needs to run `/gsd-path @
+  C:\Users\LarsGyrupBrinkNielse\.commandcode\prompts\deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md`
+  to run all the way through shipping the next milestone." This grants the intent,
+  plan, rulings and ship gates for the next milestone; recorded with
+  `preapprove --grant intent,plan,rulings,ship` while `STATE.milestone` is null.
