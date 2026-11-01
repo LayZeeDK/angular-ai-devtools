@@ -44,7 +44,7 @@ Decision taken in `SYNTHESIS.md`: raise `maximumWarning` to `520kb` rather than 
 ## Verify
 
 ```bash
-node -e "const fs=require('fs');const d=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));const init=(d.targets['build-extension'].options.budgets||[]).find((b)=>b.type==='initial');if(!init)throw new Error('build-extension has no initial budget');const warn=parseFloat(String(init.maximumWarning));const err=parseFloat(String(init.maximumError));if(!(warn>=519))throw new Error('initial maximumWarning '+init.maximumWarning+' is still below the measured 518.80 kB');if(!(warn<err))throw new Error('maximumWarning is not below maximumError');console.log('budget settled at',init.maximumWarning)" apps/angular-ai-devtools/project.json
+node -e "const fs=require('fs');const d=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));const init=(d.targets['build-extension'].options.budgets||[]).find((b)=>b.type==='initial');if(!init)throw new Error('build-extension has no initial budget');const kb=(v)=>{const m=/^([0-9.]+)\s*(kb|mb|gb)?$/i.exec(String(v));if(!m)return NaN;const n=parseFloat(m[1]);const u=(m[2]||'kb').toLowerCase();return u==='kb'?n:u==='mb'?n*1024:n*1048576;};const warn=kb(init.maximumWarning);const err=kb(init.maximumError);if(!(warn>=519))throw new Error('initial maximumWarning '+init.maximumWarning+' is still below the measured 518.80 kB');if(!(warn<err))throw new Error('maximumWarning is not below maximumError');console.log('budget settled at',init.maximumWarning)" apps/angular-ai-devtools/project.json
 ```
 
 Heavy: yes
