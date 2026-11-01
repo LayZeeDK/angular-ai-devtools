@@ -607,8 +607,8 @@ Goal: Make a GSD Path milestone completable end to end with no human in the loop
 actually hit, so a later session cannot lose the same days to them.
 Depends on: [M015]
 Surfaces: none
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/016-orchestration-autonomy
 Integrated: null
 
 Scope: in

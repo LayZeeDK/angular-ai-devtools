@@ -2,14 +2,14 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: orchestration-autonomy
-phase: ship
+phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M016
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: null
+archive: .project/archive/016-orchestration-autonomy
 integration_default: direct
 integration: direct
 integration_source: default
@@ -313,3 +313,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-01 — build — build blocked: every free route returns zero-token runs; T001 attempt 3 needs an owner decision (wait for the 00:00 UTC reset or approve a paid rung)
 - 2026-11-01 — build — build resumed: owner approved one paid rung (paid-glm-5-3-flash-high) for T001; recording the ruling in INTENT.md Corrections
 - 2026-11-01 — ship — build done; final review pending
+- 2026-11-01 — ship — final gate passed; shipping approval exercised under the recorded grant (ship) quoted in INTENT.md Corrections
+- 2026-11-01 — shipped — archive preflight passed; shipment recorded; program complete
