@@ -3,10 +3,10 @@ id: T001
 title: Add user-scope autonomy conformance suite
 wave: 1
 deps: []
-status: in-progress
-agent: build_T001
-base: 6525e3b35bc364812191426519abe057382d561f
-worktree: D:\projects\sandbox\angular-ai-devtools
+status: pending
+agent: null
+base: null
+worktree: null
 task_branch: null
 files:
   - scripts/user-scope-autonomy.mjs
