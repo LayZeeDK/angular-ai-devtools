@@ -3,9 +3,9 @@ id: T001
 title: Tighten the /stale-view route assertion against its prefix-sibling
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: 67ef91215ce98c1fa3c972fccebb49f25b96aa72
 worktree: null
 task_branch: null
 files:
@@ -53,3 +53,19 @@ Heavy: no
 
 - 2026-11-01 — created by planner
 - 2026-11-01 — orchestrator plan repair: rewrote the task so the held-out edge E6 is owned here (SC3) with a fenced, runnable Verify; the planner's round-two output had mangled the code fence to a single backtick and had wired E6 to a task that did not exist.
+- 2026-11-01 — Hoisted `/['"]stale-view['"]/` into `staleViewRoutePattern`, asserted it matches `'stale-view'`, added test "app.routes.ts /stale-view is adjacent to /stale-view-deferred and does not match the deferred route" asserting no match for `'stale-view-deferred'`; all existing assertions unchanged, no route/fixture sources modified. Verify: exit code 0 — `node --check spikes/ng222-app/src/app/app.routes.test.mjs && node --test spikes/ng222-app/src/app/app.routes.test.mjs` passed (4/4). If loosened to `/stale-view/`, the adjacency test asserting `assert.doesNotMatch("'stale-view-deferred'", /stale-view/)` would fail (substring match would accept the prefix-sibling). ready
+- 2026-11-01 — orchestrator Verify (isolate gsd-path-task/T001): pass, exit 0; output tail:
+  ```
+  ✔ app.routes.ts registers the deferred stale-view fixture route (1.0995ms)
+  ✔ app.routes.ts retains the existing /stale-view route (0.2188ms)
+  ✔ app.routes.ts /stale-view is adjacent to /stale-view-deferred and does not match the deferred route (0.0725ms)
+  ✔ app.routes.ts exports routes (0.116ms)
+  ℹ tests 4
+  ℹ suites 0
+  ℹ pass 4
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 133.0918
+  ```
