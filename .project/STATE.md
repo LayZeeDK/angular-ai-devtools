@@ -1,11 +1,11 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: null
-phase: inspect
+milestone: instrument-core
+phase: roadmap
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M018
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -336,3 +336,7 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-01 — inspect — M017 shipped and integrated on 62a10a7; bound gsd-path/M018 at 8827469; programme 1 open
 - 2026-11-01 — inspect — router bound next milestone: M018 instrument-core
 - 2026-11-01 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-01 — inspect — inspection artifacts passed
+- 2026-11-01 — define — definition started
+- 2026-11-01 — roadmap — roadmap re-slice started
+- 2026-11-01 — roadmap — program roadmap approved
