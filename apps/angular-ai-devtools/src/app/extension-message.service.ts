@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { UpdateCauseService } from './n1-update-cause.service';
+import type { ReplayOutcome } from './panel-context';
 import { CAPACITY } from '../../../../src/main-world/error-capture';
 import type { CapturedError } from '../../../../src/main-world/error-capture';
 
@@ -26,6 +27,16 @@ interface ExtensionMessage {
   timestamp?: number;
 }
 
+interface ExtensionRuntime {
+  onMessage?: { addListener: (cb: (msg: unknown) => void) => void };
+  sendMessage?: (msg: unknown, callback?: (reply: unknown) => void) => void;
+}
+
+interface ExtensionChrome {
+  runtime?: ExtensionRuntime;
+  devtools?: { inspectedWindow?: { tabId?: number } };
+}
+
 @Injectable({ providedIn: 'root' })
 export class ExtensionMessageService {
   private readonly causeService = inject(UpdateCauseService);
@@ -37,16 +48,55 @@ export class ExtensionMessageService {
   readonly features = signal<Readonly<Record<string, boolean>> | null>(null);
   readonly zoneMode = signal<string | null>(null);
   readonly stateReceived = signal(false);
+  // The `[ng-version]` the relay read, whether it arrived live or in the replay. A group gate and
+  // the fingerprint chip read this; `null` is "the panel has not been told a version".
+  readonly appVersion = signal<string | null>(null);
+  // What became of the one replay request below. `stateReceived === false` alone cannot tell "the
+  // page never announced" from "the answer is still coming", so the panel keeps the request's own
+  // outcome: `outstanding` until the background replies, `answered` for any reply that is not
+  // `{ ok: false }`, and `failed` when no relay or no transport answered.
+  readonly replayOutcome = signal<ReplayOutcome>('outstanding');
   readonly capturedErrors = signal<CapturedError[]>([]);
 
   constructor() {
-    const chrome = (globalThis as { chrome?: { runtime?: { onMessage?: { addListener: (cb: (msg: unknown) => void) => void } }; devtools?: { inspectedWindow?: { tabId?: number } } } }).chrome;
+    const chrome = (globalThis as { chrome?: ExtensionChrome }).chrome;
     const runtime = chrome?.runtime;
     this.inspectedTabId = chrome?.devtools?.inspectedWindow?.tabId;
     if (runtime?.onMessage) {
       runtime.onMessage.addListener((msg: unknown) => {
         this.handleMessage(msg as ExtensionMessage);
       });
+    }
+    this.requestReplay(runtime);
+  }
+
+  /**
+   * Asks the relay for the last state and version it latched, exactly once per construction.
+   * The page announces `angular-ai:state` when its content script runs — before this panel
+   * document exists — so without the replay `stateReceived()` would stay `false` for a normal
+   * DevTools session. There is deliberately no retry: a routing failure must stay visible.
+   *
+   * The reply is the only evidence that separates "no answer yet" from "answered, nothing
+   * latched", so it is read into `replayOutcome` instead of being discarded. The background
+   * answers `{ ok: false, reason }` when no relay answered for the tab (or nothing named a tab),
+   * and re-emits the latched `angular-ai:state` / `angular-detected` messages before answering
+   * `{ ok: true }`; writing the outcome in the callback keeps it behind those messages.
+   */
+  private requestReplay(runtime: ExtensionRuntime | undefined) {
+    if (typeof runtime?.sendMessage !== 'function') {
+      // No transport to ask through, so nothing will ever answer: record the failure rather than
+      // leaving the panel waiting on a reply that cannot come.
+      this.replayOutcome.set('failed');
+      return;
+    }
+    try {
+      runtime.sendMessage({ type: 'angular-ai:state-request', tabId: this.inspectedTabId }, (reply) => {
+        this.replayOutcome.set(isFailedReply(reply) ? 'failed' : 'answered');
+      });
+    } catch {
+      // No extension context to ask (a plain page load): the signals keep their "cannot tell"
+      // values rather than throwing out of construction, and the failed replay stays visible.
+      this.replayOutcome.set('failed');
     }
   }
 
@@ -56,6 +106,8 @@ export class ExtensionMessageService {
       return;
     }
     if (msg.type === 'angular-detected') {
+      // Replayed or live, the version lands in the signal the gate and the chip read.
+      this.appVersion.set(typeof msg.version === 'string' ? msg.version : null);
       this.causeService.record('Angular', `v${msg.version ?? '?'} detected`);
     } else if (msg.type === 'host:capability') {
       const info = msg.capability?.availability
@@ -88,6 +140,17 @@ export class ExtensionMessageService {
       });
     }
   }
+}
+
+/**
+ * Whether the background's replay reply is its refusal (`background.js`): `{ ok: false, reason }`
+ * when no relay answered for the tab or the request named no tab. Anything else — including no
+ * reply at all in a callback that never fires — is not this service's to diagnose.
+ */
+function isFailedReply(reply: unknown): boolean {
+  return (
+    typeof reply === 'object' && reply !== null && (reply as { ok?: unknown }).ok === false
+  );
 }
 
 /**

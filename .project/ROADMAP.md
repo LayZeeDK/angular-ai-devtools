@@ -741,7 +741,7 @@ Depends on: [M018]
 Surfaces: none
 Status: shipped
 Archive: .project/archive/019-context-and-jobs
-Integrated: null
+Integrated: 44e4f9b5aa5d0ce6223fbc0a8b5b7e763fd756ca
 
 Scope: in
 - The 3.6 context caps and the chunking rule that keeps a fact list inside them.
@@ -782,8 +782,8 @@ Open questions
 Goal: N18 opens a chat with only the tool groups the app's version gates allow, plus a context chip naming the features it detected.
 Depends on: [M019]
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/020-feature-fingerprint
 Integrated: null
 
 Scope: in

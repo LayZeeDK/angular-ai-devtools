@@ -1,0 +1,200 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "d1a57f0a4be1bcff0cd5fb006332825ed475a15c",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M020",
+        "candidates": [
+          {
+            "base": "81c19d0e1ea92bcb14adef6920e7180e44546e35",
+            "commit": "cb300c54d52321956328646d201548b02ac90000",
+            "valid": true
+          }
+        ],
+        "head": "d1a57f0a4be1bcff0cd5fb006332825ed475a15c",
+        "subject": "T001: Repair the docs-audit base state so both documentation pins pass at the head"
+      },
+      "landed_commit": "cb300c54d52321956328646d201548b02ac90000",
+      "reasons": [],
+      "task": {
+        "base": "81c19d0e1ea92bcb14adef6920e7180e44546e35",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-docs-audit-base-repair.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M020",
+        "candidates": [
+          {
+            "base": "81c19d0e1ea92bcb14adef6920e7180e44546e35",
+            "commit": "231a02ce8fdfc5c2cc08eaaa16db1a7ec7a2a330",
+            "valid": true
+          }
+        ],
+        "head": "d1a57f0a4be1bcff0cd5fb006332825ed475a15c",
+        "subject": "T002: Replay the inspected page's state and version to the panel on one request"
+      },
+      "landed_commit": "231a02ce8fdfc5c2cc08eaaa16db1a7ec7a2a330",
+      "reasons": [],
+      "task": {
+        "base": "81c19d0e1ea92bcb14adef6920e7180e44546e35",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-replay-state-and-version.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M020",
+        "candidates": [
+          {
+            "base": "f22a2f713efbbf5dd83a4a2534c673a946867e92",
+            "commit": "5c5c754451a0cf4aaa0d592dde91517508387296",
+            "valid": true
+          }
+        ],
+        "head": "d1a57f0a4be1bcff0cd5fb006332825ed475a15c",
+        "subject": "T003: Convert one explainer route to a lazy load and measure the initial-bundle headroom"
+      },
+      "landed_commit": "5c5c754451a0cf4aaa0d592dde91517508387296",
+      "reasons": [],
+      "task": {
+        "base": "f22a2f713efbbf5dd83a4a2534c673a946867e92",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-lazy-route-headroom.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M020",
+        "candidates": [
+          {
+            "base": "9e749bd3fd79d34b2b7699c80811c85659c57d11",
+            "commit": "de4cb2074a1b68b6a1137ed2711ae8e5beb4e4a9",
+            "valid": true
+          }
+        ],
+        "head": "d1a57f0a4be1bcff0cd5fb006332825ed475a15c",
+        "subject": "T004: Build the panel context from the announced state and render the feature fingerprint"
+      },
+      "landed_commit": "de4cb2074a1b68b6a1137ed2711ae8e5beb4e4a9",
+      "reasons": [],
+      "task": {
+        "base": "9e749bd3fd79d34b2b7699c80811c85659c57d11",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-facts-adapter-and-chip.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M020",
+        "candidates": [
+          {
+            "base": "1c39a07349ce4918c762793b9c299b9a17c3dc12",
+            "commit": "0f7b865a2c0dade34cda886a5d3f8571970658d3",
+            "valid": true
+          }
+        ],
+        "head": "d1a57f0a4be1bcff0cd5fb006332825ed475a15c",
+        "subject": "T005: Project the registered declarations into version-gated tool groups beside the pinned envelope"
+      },
+      "landed_commit": "0f7b865a2c0dade34cda886a5d3f8571970658d3",
+      "reasons": [],
+      "task": {
+        "base": "1c39a07349ce4918c762793b9c299b9a17c3dc12",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-tool-group-projection.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M020",
+        "candidates": [
+          {
+            "base": "e5a41cf45b57adf8691063f2191b18530a6517d2",
+            "commit": "932f116adcb77d05483cb7c2df8642353362e1b6",
+            "valid": true
+          }
+        ],
+        "head": "d1a57f0a4be1bcff0cd5fb006332825ed475a15c",
+        "subject": "T006: Add the panel's lazy chat entry point with the context chip and the permitted group list"
+      },
+      "landed_commit": "932f116adcb77d05483cb7c2df8642353362e1b6",
+      "reasons": [],
+      "task": {
+        "base": "e5a41cf45b57adf8691063f2191b18530a6517d2",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-chat-entry-point.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M020",
+        "candidates": [
+          {
+            "base": "0ff715b2955834ecba7037d8fe340522baeb62e6",
+            "commit": "cc12be0b578dd218254dbcffd9e89320686d4af9",
+            "valid": true
+          }
+        ],
+        "head": "d1a57f0a4be1bcff0cd5fb006332825ed475a15c",
+        "subject": "T007: Measure the panel's initial total with the chat route and hold it to the byte-exact baseline"
+      },
+      "landed_commit": "cc12be0b578dd218254dbcffd9e89320686d4af9",
+      "reasons": [],
+      "task": {
+        "base": "0ff715b2955834ecba7037d8fe340522baeb62e6",
+        "id": "T007",
+        "status": "done",
+        "task_file": ".project/tasks/T007-budget-head-measurement.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M020",
+        "candidates": [
+          {
+            "base": "8189ee07121fb2734de745eccbf5fbe0af214626",
+            "commit": "8a62c441e4501034ec12f4fb79cfcb2b051ba0ab",
+            "valid": true
+          }
+        ],
+        "head": "d1a57f0a4be1bcff0cd5fb006332825ed475a15c",
+        "subject": "T008: Separate an outstanding or failed replay from the non-Angular refusal"
+      },
+      "landed_commit": "8a62c441e4501034ec12f4fb79cfcb2b051ba0ab",
+      "reasons": [],
+      "task": {
+        "base": "8189ee07121fb2734de745eccbf5fbe0af214626",
+        "id": "T008",
+        "status": "done",
+        "task_file": ".project/tasks/T008-replay-outcome-waiting-state.md"
+      }
+    }
+  ]
+}
