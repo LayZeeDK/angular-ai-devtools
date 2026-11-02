@@ -67,7 +67,7 @@ This milestone ships a Tier-2 opt-in package: app-visible code in someone else's
 ## Verify
 
 ```bash
-npm ci --include=dev && npm --prefix spikes/ng222-app ci --include=dev && node --test packages/ai-devtools-companion/test/facade.test.mjs scripts/facade-dev-build.test.mjs
+npm ci --include=dev && npm --prefix spikes/ng222-app ci && node --test packages/ai-devtools-companion/test/facade.test.mjs scripts/facade-dev-build.test.mjs
 ```
 <!-- Runs in a fresh sidecar worktree at the landed commit with nothing
      installed: the root install is provisioned, the fixture's own install is
@@ -107,4 +107,3 @@ Heavy: yes
   npm warn install-scripts
   npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
   ```
-- 2026-11-02 — orchestrator repair (wave-1 review finding): the Verify now provisions the fixture with `--include=dev`. At `e640292`, with `NODE_ENV=development`, `node --test scripts/facade-dev-build.test.mjs` reported 7 tests, 7 pass, 0 skipped — including AC5, AC6 and the two-copy negative control.
