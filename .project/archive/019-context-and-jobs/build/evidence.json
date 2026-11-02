@@ -1,0 +1,200 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "5f2fb7e25654f2116df9c8d41e01751bb4e46ca4",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M019",
+        "candidates": [
+          {
+            "base": "f8a93e80245d14d724842f389522252adb062a01",
+            "commit": "6c39ae6463edf7b09bc4835b117605680345e920",
+            "valid": true
+          }
+        ],
+        "head": "5f2fb7e25654f2116df9c8d41e01751bb4e46ca4",
+        "subject": "T001: Ship provisional context-budget constants and the chunking rule"
+      },
+      "landed_commit": "6c39ae6463edf7b09bc4835b117605680345e920",
+      "reasons": [],
+      "task": {
+        "base": "f8a93e80245d14d724842f389522252adb062a01",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-context-budget-constants-and-chunking.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M019",
+        "candidates": [
+          {
+            "base": "f8a93e80245d14d724842f389522252adb062a01",
+            "commit": "fa8cdaf6577cf8d1f953e35fc73fe525111793da",
+            "valid": true
+          }
+        ],
+        "head": "5f2fb7e25654f2116df9c8d41e01751bb4e46ca4",
+        "subject": "T002: Add the 200-message ring buffer keyed by pageKey"
+      },
+      "landed_commit": "fa8cdaf6577cf8d1f953e35fc73fe525111793da",
+      "reasons": [],
+      "task": {
+        "base": "f8a93e80245d14d724842f389522252adb062a01",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-ring-buffer-page-key-scoping.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M019",
+        "candidates": [
+          {
+            "base": "f8a93e80245d14d724842f389522252adb062a01",
+            "commit": "1ff4a99206393737511df167417c13493449bc28",
+            "valid": true
+          }
+        ],
+        "head": "5f2fb7e25654f2116df9c8d41e01751bb4e46ca4",
+        "subject": "T003: Add a reusable worker read path"
+      },
+      "landed_commit": "1ff4a99206393737511df167417c13493449bc28",
+      "reasons": [],
+      "task": {
+        "base": "f8a93e80245d14d724842f389522252adb062a01",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-worker-read-path.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M019",
+        "candidates": [
+          {
+            "base": "9b4514ec35182e214e0a211416730752a670832c",
+            "commit": "9f7c9b0c8311c5d73821036959bbb1a636168c6d",
+            "valid": true
+          }
+        ],
+        "head": "5f2fb7e25654f2116df9c8d41e01751bb4e46ca4",
+        "subject": "T004: Add job handles with progress and cancellation"
+      },
+      "landed_commit": "9f7c9b0c8311c5d73821036959bbb1a636168c6d",
+      "reasons": [],
+      "task": {
+        "base": "9b4514ec35182e214e0a211416730752a670832c",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-job-handles-progress-cancellation.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M019",
+        "candidates": [
+          {
+            "base": "5178b187da9c863c097b2d54880d02f95d572bb7",
+            "commit": "39d962dc375cc3ec535772c131b47a29ad6f57bc",
+            "valid": true
+          }
+        ],
+        "head": "5f2fb7e25654f2116df9c8d41e01751bb4e46ca4",
+        "subject": "T005: Add the Summarizer path with a cannot-tell state"
+      },
+      "landed_commit": "39d962dc375cc3ec535772c131b47a29ad6f57bc",
+      "reasons": [],
+      "task": {
+        "base": "5178b187da9c863c097b2d54880d02f95d572bb7",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-summarizer-cannot-tell.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M019",
+        "candidates": [
+          {
+            "base": "1a93f0add19dff335857968b861d6338c26633e5",
+            "commit": "7793f07ec9d9299049e8b5018f847f1b022f31a4",
+            "valid": true
+          }
+        ],
+        "head": "5f2fb7e25654f2116df9c8d41e01751bb4e46ca4",
+        "subject": "T006: Commit the clone measurement artifact"
+      },
+      "landed_commit": "7793f07ec9d9299049e8b5018f847f1b022f31a4",
+      "reasons": [],
+      "task": {
+        "base": "1a93f0add19dff335857968b861d6338c26633e5",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-clone-measurement-artifact.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M019",
+        "candidates": [
+          {
+            "base": "f39830ea5b71f13c72e3e1fda5abd309cffc2ba8",
+            "commit": "e3a5ebc6ab2faa080c294efb4785c84e376eb671",
+            "valid": true
+          }
+        ],
+        "head": "5f2fb7e25654f2116df9c8d41e01751bb4e46ca4",
+        "subject": "T007: Verify held-out edges E1-E6"
+      },
+      "landed_commit": "e3a5ebc6ab2faa080c294efb4785c84e376eb671",
+      "reasons": [],
+      "task": {
+        "base": "f39830ea5b71f13c72e3e1fda5abd309cffc2ba8",
+        "id": "T007",
+        "status": "done",
+        "task_file": ".project/tasks/T007-held-out-edge-verification-and-gates.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M019",
+        "candidates": [
+          {
+            "base": "adccfe6e48e440c0dcd61921d3099cdfc432547e",
+            "commit": "e0a76d798f24cd641be8c9560110703f0d92d9a6",
+            "valid": true
+          }
+        ],
+        "head": "5f2fb7e25654f2116df9c8d41e01751bb4e46ca4",
+        "subject": "T008: Hold the SC5 gates with a pinned initial-bundle budget"
+      },
+      "landed_commit": "e0a76d798f24cd641be8c9560110703f0d92d9a6",
+      "reasons": [],
+      "task": {
+        "base": "adccfe6e48e440c0dcd61921d3099cdfc432547e",
+        "id": "T008",
+        "status": "done",
+        "task_file": ".project/tasks/T008-sc5-gates-bundle-budget.md"
+      }
+    }
+  ]
+}

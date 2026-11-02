@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: instrument-core
+milestone: context-and-jobs
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M018
+branch: gsd-path/M019
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/018-instrument-core
+archive: .project/archive/019-context-and-jobs
 integration_default: direct
 integration: direct
 integration_source: default
@@ -347,4 +347,27 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-01 — plan — plan approved
 - 2026-11-01 — build — build started
 - 2026-11-02 — ship — build done; final review pending
+- 2026-11-02 — shipped — archive preflight passed; shipment recorded
+- 2026-11-02 — inspect — router bound next milestone: M019 context-and-jobs at base 3dfdcf0 landing 3dfdcf0
+- 2026-11-02 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-02 — inspect — inspection artifacts passed
+- 2026-11-02 — define — definition started
+- 2026-11-02 — define — pre-authorized approval: intent
+- 2026-11-02 — define — milestone intent approved
+- 2026-11-02 — research — research started
+- 2026-11-02 — research — research complete
+- 2026-11-02 — decide — decision synthesis started
+- 2026-11-02 — decide — decision synthesis complete
+- 2026-11-02 — plan — planning started
+- 2026-11-02 — plan — plan approved
+- 2026-11-02 — build — build started
+- 2026-11-02 — build — build blocked: verify-weight returns CHUNK for T007 (10 acceptance criteria over the 8 ceiling); plan repair requested
+- 2026-11-02 — plan — build plan repair requested
+- 2026-11-02 — plan — build recovery: {"base": "ab331f554a6af39c224f0ba50f564e0e9ff74f1c", "branch": "gsd-path/M019", "kind": "plan", "source": "build"}
+- 2026-11-02 — plan — plan approved
+- 2026-11-02 — build — build started
+- 2026-11-02 — build — plan defect repaired: T008 extended to the regenerated docs audit that makes npm test red at base
+- 2026-11-02 — ship — build done; final review pending
+- 2026-11-02 — ship — final gate passed; shipping approval pending
+- 2026-11-02 — ship — ship approval exercised under the recorded grant (ship) quoted in INTENT.md Corrections
 - 2026-11-02 — shipped — archive preflight passed; shipment recorded

@@ -1,0 +1,15 @@
+{
+  "metric": "fresh language-model sessions per prompt",
+  "observed": 1,
+  "method": "One prompt assembly: a single service.explain(['fact one','fact two']) through the real ExtensionPromptService (Angular TestBed, globalThis.LanguageModel mocked). Counting spies on every primitive that could constitute a clone: lm.create wraps the mocked LanguageModel.create and counts the fresh language-model sessions the prompt path opens; session.prompt and session.destroy wrap the methods of the session that lm.create returns; session.clone is a counting method on that same session object (the panel's session interface declares no clone, so the spy counts any clone the path might make); globalThis.structuredClone is replaced by a counting wrapper for the duration of the single explain() call and restored afterwards. Each sample is the number of invocations its spy saw over that one explain(); the fresh-session count is the lm.create sample. Per the Orchestrator ruling recorded in the T006 task Log, 'one fresh clone per prompt' means one fresh language-model session per prompt, so observed is the lm.create count.",
+  "command": "npm ci --include=dev && npx nx run angular-ai-devtools:test --include=apps/angular-ai-devtools/src/app/jobs/clone-measurement.spec.ts",
+  "samples": {
+    "lm.create": 1,
+    "session.prompt": 1,
+    "session.destroy": 1,
+    "structuredClone": 0,
+    "session.clone": 0
+  },
+  "measuredAt": "2026-11-02",
+  "base": "1b1a396"
+}
