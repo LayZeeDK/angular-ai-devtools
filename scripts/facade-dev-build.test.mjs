@@ -211,7 +211,7 @@ function buildFixture({ configuration, outputDirectory, extraArguments = [] }) {
   );
   assert.ok(
     existsSync(FIXTURE_NG_CLI),
-    `the fixture must carry its own install for ${displayPath(FIXTURE_NG_CLI)} — run npm ci in ${displayPath(FIXTURE_ROOT)}`,
+    `the fixture must carry its own install for ${displayPath(FIXTURE_NG_CLI)} — run npm --prefix spikes/ng222-app ci --include=dev`,
   );
 
   const args = [
@@ -284,17 +284,27 @@ function buildPackage() {
 /**
  * Whether this checkout can take the measurements at all. The root install provides the Nx CLI, the
  * fixture's own install provides `@angular/cli` and the linked package. This file's Verify
- * provisions both, so the measurement tests never skip there; a checkout without them skips them
- * loudly instead of failing, which is the convention `scripts/panel-bundle-budget.test.mjs` sets
- * for a git-ignored build output. The declaration, wiring, source and recording-shape assertions
- * run either way.
+ * provisions both. A checkout without them **fails** the tests below and names the command that
+ * provisions the missing install: a test that carries an acceptance criterion may not pass by not
+ * running, so a missing prerequisite is red here, never green-by-skip. The fixture install needs
+ * `--include=dev` because this host exports `NODE_ENV=production`, which otherwise drops the
+ * fixture's devDependencies and with them `@angular/cli`.
  */
 const MISSING_ROOT_INSTALL = existsSync(NX_CLI) ? false : `the root install is absent (${displayPath(NX_CLI)}); run npm ci --include=dev`;
 const MISSING_FIXTURE_INSTALL =
   existsSync(FIXTURE_NG_CLI) && existsSync(join(FIXTURE_ROOT, 'node_modules', 'ai-devtools-companion'))
     ? false
-    : `the fixture install is absent (${displayPath(join(FIXTURE_ROOT, 'node_modules'))}); run npm ci in ${displayPath(FIXTURE_ROOT)}`;
+    : `the fixture install is absent (${displayPath(join(FIXTURE_ROOT, 'node_modules'))}); run npm --prefix spikes/ng222-app ci --include=dev`;
 const MISSING_MEASUREMENT_ENVIRONMENT = MISSING_ROOT_INSTALL || MISSING_FIXTURE_INSTALL;
+
+/**
+ * The precondition every measurement test opens with: `false` means the prerequisite is satisfied.
+ * One definition, so the missing install is named once, in one wording, and the test fails
+ * visibly instead of being skipped.
+ */
+function requirePrerequisite(missing) {
+  assert.equal(missing, false, `the development-build proof cannot run: ${missing}`);
+}
 
 let developmentBuildCache = null;
 
@@ -337,7 +347,7 @@ function peerResolution() {
   const installedLink = join(FIXTURE_ROOT, 'node_modules', 'ai-devtools-companion');
   assert.ok(
     existsSync(installedLink),
-    `the fixture must install the package; missing ${displayPath(installedLink)} — run npm ci in ${displayPath(FIXTURE_ROOT)}`,
+    `the fixture must install the package; missing ${displayPath(installedLink)} — run npm --prefix spikes/ng222-app ci --include=dev`,
   );
 
   const installedRealPath = realpathSync(installedLink);
@@ -381,7 +391,9 @@ function rootAngularVersion() {
 // AC1 — the project exists beside the panel's project
 // ---------------------------------------------------------------------------
 
-test('nx lists the companion project beside the panel project (AC1)', { skip: MISSING_ROOT_INSTALL }, () => {
+test('nx lists the companion project beside the panel project (AC1)', () => {
+  requirePrerequisite(MISSING_ROOT_INSTALL);
+
   const result = run(process.execPath, [NX_CLI, 'show', 'projects', '--json']);
   assert.equal(result.status, 0, `nx show projects must succeed: ${result.output}`);
   const json = result.output.slice(result.output.indexOf('['), result.output.lastIndexOf(']') + 1);
@@ -462,7 +474,8 @@ test('the fixture loads the package only through the dev-only provider and exact
 // AC5 — the package resolves the fixture's own Angular copy
 // ---------------------------------------------------------------------------
 
-test("the package's peers resolve to the fixture's own copy, and preserveSymlinks is what buys it (AC5)", { skip: MISSING_MEASUREMENT_ENVIRONMENT }, () => {
+test("the package's peers resolve to the fixture's own copy, and preserveSymlinks is what buys it (AC5)", () => {
+  requirePrerequisite(MISSING_MEASUREMENT_ENVIRONMENT);
   const peers = peerResolution();
 
   // The outcome AC5 asks for: anchored where the builder resolves from, the peers are the files the
@@ -521,7 +534,8 @@ test("the package's peers resolve to the fixture's own copy, and preserveSymlink
 // AC6 — the development build keeps the entry and the class it carries
 // ---------------------------------------------------------------------------
 
-test('the development build keeps the entry name and the Router class, and it is one Angular copy (AC6)', { skip: MISSING_MEASUREMENT_ENVIRONMENT }, () => {
+test('the development build keeps the entry name and the Router class, and it is one Angular copy (AC6)', () => {
+  requirePrerequisite(MISSING_MEASUREMENT_ENVIRONMENT);
   const build = developmentBuild();
 
   assert.equal(build.unminified, true, 'the development bundle must be unminified for the search to mean anything');
@@ -540,7 +554,8 @@ test('the development build keeps the entry name and the Router class, and it is
   );
 });
 
-test('with preserveSymlinks off the same build carries two Angular copies, so the option is load-bearing (AC5, AC6)', { skip: MISSING_MEASUREMENT_ENVIRONMENT }, () => {
+test('with preserveSymlinks off the same build carries two Angular copies, so the option is load-bearing (AC5, AC6)', () => {
+  requirePrerequisite(MISSING_MEASUREMENT_ENVIRONMENT);
   const build = counterExampleBuild();
 
   // The entry survives either way — the write is not what the option changes — but the class it
@@ -564,7 +579,8 @@ test('with preserveSymlinks off the same build carries two Angular copies, so th
 // AC7 — the recording agrees with the measurements and with itself
 // ---------------------------------------------------------------------------
 
-test('the served development-build recording is present, development-only and consistent (AC7)', { skip: MISSING_MEASUREMENT_ENVIRONMENT }, () => {
+test('the served development-build recording is present, development-only and consistent (AC7)', () => {
+  requirePrerequisite(MISSING_MEASUREMENT_ENVIRONMENT);
   assert.ok(existsSync(RECORDING_PATH), `the served reading must be recorded at ${displayPath(RECORDING_PATH)}`);
   const recording = readJson(RECORDING_PATH);
 

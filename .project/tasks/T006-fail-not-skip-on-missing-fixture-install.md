@@ -3,9 +3,9 @@ id: T006
 title: Fail the development-build proof when the fixture install is absent, instead of skipping it
 wave: 1
 deps: [T002]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T006b
+base: 00aac43187669f0defb7dfa74f8408afb5ccfd83
 worktree: null
 task_branch: null
 files:
@@ -57,3 +57,5 @@ npm ci --include=dev && npm --prefix spikes/ng222-app ci --include=dev && node -
 ## Log
 
 - 2026-11-02 — created from the wave-1 review finding (T002 vacuous pass)
+- build_T006: replaced every skip option in scripts/facade-dev-build.test.mjs with a failing precondition (requirePrerequisite); the four AC5/AC6/AC7 tests and AC1 now fail and name the provisioning command instead of passing by not running. AC3 proof, with spikes/ng222-app/node_modules moved aside and restored in finally: exit 1, tests 7 / pass 3 / fail 4 / skipped 0, failure line: AssertionError [ERR_ASSERTION]: the development-build proof cannot run: the fixture install is absent (spikes/ng222-app/node_modules); run npm --prefix spikes/ng222-app ci --include=dev. Restored Verify npm ci --include=dev && npm --prefix spikes/ng222-app ci --include=dev && node --test scripts/facade-dev-build.test.mjs: exit 0, tests 7 / pass 7 / fail 0 / skipped 0.
+- build_T006: ready
