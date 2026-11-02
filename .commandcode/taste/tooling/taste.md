@@ -37,7 +37,7 @@
 - Edge instance profiles must never sign in or sync his Windows work account: start AI browser instances only through `control-ai-browsers up`, which adds the Edge sign-in and sync switches, never by launching `msedge.exe` or `pipe-keeper.mjs` by hand (a hand launch on 2026-10-19 signed the account in, showed him a sync prompt and synced his extensions); a profile that ever holds an account is deleted and recreated with `up`. Confidence: 0.95
 - Edit text that contains backslashes (Windows paths, regexes) with the file-editing tool, not with a shell heredoc or an inline `node -e` replacement, which silently drops the backslashes; when a scripted replacement is unavoidable, make it fail when the search text is missing and print the changed lines. Confidence: 0.8
 - Command Code is the primary AI coding agent for this project; OpenCode is used occasionally and Claude Code rarely. Confidence: 0.9
-- Keep the `chrome-stable-nano` browser instance in the AI browser test matrix. Confidence: 0.8
+- Only one browser-model pair per model is needed in the AI browser test matrix; Stable precedes Beta/Dev, so when the same model runs on both channels, keep the Stable instance and drop the Beta/Dev one. Confidence: 0.85
 - Do not set HKCU Edge policies (they would change his everyday Edge); use browser launch switches instead. Confidence: 0.9
 - Run AI browser instances one or two at a time; running all five in parallel causes resource contention. Confidence: 0.85
 - Close all unused Edge/Chrome windows after use; when he states he has no own browser windows open, the agent may close all of them. Confidence: 0.75
