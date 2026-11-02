@@ -366,3 +366,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-02 — plan — build recovery: {"base": "ab331f554a6af39c224f0ba50f564e0e9ff74f1c", "branch": "gsd-path/M019", "kind": "plan", "source": "build"}
 - 2026-11-02 — plan — plan approved
 - 2026-11-02 — build — build started
+- 2026-11-02 — build — plan defect repaired: T008 extended to the regenerated docs audit that makes npm test red at base
