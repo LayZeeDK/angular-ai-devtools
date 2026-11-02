@@ -3,9 +3,9 @@ id: T006
 title: Add the panel_environment tool in a commit that touches no envelope file
 wave: 4
 deps: [T001]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T006
+base: 97b8fcda3eaf55d3d5f5f1b4e5316bd0c78d6f05
 worktree: null
 task_branch: null
 files:
@@ -95,3 +95,96 @@ Heavy: no
 ## Log
 
 - 2026-11-01 — created by planner
+- 2026-11-02 — build_T006 landed the first added tool and the envelope pin. `panel-environment.tool.ts` declares `panel_environment` as `read` / `['panel','extension-API']` / `result` / `publish: 'panel'` with an empty input schema; it reports `extension`, `inspectedTabId`, `chromeRuntime` and `routeBase` (derived from its own `location.pathname`) with `provenance: 'panel'`, and answers `{ kind: 'error', code: 'host-unavailable' }` naming itself when neither the extension API nor a location is readable. `app.config.ts` gained one provider line (`providePanelEnvironmentTool()`) plus its import; no envelope file was touched — `git diff --stat` is empty for `tool-registry.ts`, `page-reads.ts`, `read-tools.ts`, `app-facts.ts` and `hostile-tools.ts`. The pin `scripts/registry-envelope-pin.test.mjs` records `PINNED_ENVELOPE_SHA256 = 20859b889b727679929e7c927cf2abeb3c4920cea190d31a69bb08bac080407e` (20,180 bytes), measured to match at this head, and proves it can fail by flipping one byte of a copy in `os.tmpdir()` (the untouched copy still passes, so the failure is the byte and not the path; the checkout is only read). Verify (with `npm ci --include=dev`): pin 1/1 pass (0.13 s); `npm ci --include=dev` exit 0 (994 packages, 11 s); `nx run angular-ai-devtools:test --include=apps/angular-ai-devtools/src/app/tool-registry/panel-environment.tool.spec.ts --skip-nx-cache` 7/7 pass (4.9 s); whole chain exit 0 in ~25 s. Full app suite also re-run at this head: 16 files / 138 tests, all passing. Note for later waves: `Injector.get(token, { optional: true })` is unusable here — Angular's R3Injector treats that object as the not-found *value*, so the token resolution in this module passes `null` and checks `typeof provided === 'function'`.
+- 2026-11-02 — orchestrator Verify (sidecar gsd-path-verify/task-t006-verify): pass, exit 0; output tail:
+  ```
+  
+  [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mtest[22m for project angular-ai-devtools[39m
+  
+  
+    Run duration:      5.8s
+    Cache:             0/1 hit (0%)
+    Critical path:     5.5s (1 task)
+    Recoverable time:  <1ms
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:test --include=apps/angular-ai-devtools/src/app/tool-registry/panel-environment.tool.spec.ts
+  ```
+- 2026-11-02 — orchestrator regression Verify of T001 (sidecar gsd-path-verify/task-t006-verify): pass, exit 0; output tail:
+  ```
+  
+  [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mtest[22m for project angular-ai-devtools[39m
+  
+  
+    Run duration:      5.1s
+    Cache:             0/1 hit (0%)
+    Critical path:     5.1s (1 task)
+    Recoverable time:  <1ms
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:test --include=apps/angular-ai-devtools/src/app/tool-registry/tool-registry.spec.ts
+  ```
+- 2026-11-02 — orchestrator regression Verify of T003 (sidecar gsd-path-verify/task-t006-verify): pass, exit 0; output tail:
+  ```
+  
+  [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mtest[22m for project angular-ai-devtools[39m
+  
+  
+    Run duration:      7.1s
+    Cache:             0/1 hit (0%)
+    Critical path:     6.8s (1 task)
+    Recoverable time:  <1ms
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:test --include=apps/angular-ai-devtools/src/app/tool-registry/app-facts.spec.ts --include=apps/angular-ai-devtools/src/app/extension-message.service.spec.ts
+  ```
+- 2026-11-02 — orchestrator regression Verify of T004 (sidecar gsd-path-verify/task-t006-verify): pass, exit 0; output tail:
+  ```
+  
+  [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mtest[22m for project angular-ai-devtools[39m
+  
+  
+    Run duration:      11.2s
+    Cache:             0/1 hit (0%)
+    Critical path:     10.4s (1 task)
+    Recoverable time:  <1ms
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:test --include=apps/angular-ai-devtools/src/app/tool-registry/read-tools.spec.ts
+  ```
