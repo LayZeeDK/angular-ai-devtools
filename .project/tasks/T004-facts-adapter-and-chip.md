@@ -3,9 +3,9 @@ id: T004
 title: Build the panel context from the announced state and render the feature fingerprint
 wave: 2
 deps: [T002]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T004
+base: 9e749bd3fd79d34b2b7699c80811c85659c57d11
 worktree: null
 task_branch: null
 files:
@@ -65,3 +65,28 @@ Heavy: yes
 ## Log
 
 - 2026-11-02 — created by planner
+- build_T004: added panel-context.ts (PanelSignals/PanelContext/buildPanelContext: silent page yields facts {} with no supported key so app_facts keeps host-unavailable; received state carries the page's supported/reason/bracket zoneMode and features only when non-null; version trimmed or null) and feature-fingerprint.ts (no-angular-root / cannot-tell / fingerprint over the caller-supplied eight names, entries in given order with present = facts.features[name] === true, text joined by a middle dot, a map with no boolean is cannot-tell, supported:false renders the page's reason verbatim with zoneMode null), both with type-only imports only, plus panel-context.spec.ts (9), feature-fingerprint.spec.ts (11) and tests/held-out/feature-fingerprint-chip.test.mjs (7: E1 two present/six absent by name, E2 order + byte-identical text, E3 eight absent names). Verify passed exit 0: npm ci --include=dev, npm run check clean, held-out suite 7/7 pass, nx feature-fingerprint.spec.ts 11/11 pass.
+- ready
+- 2026-11-02 — orchestrator Verify (sidecar gsd-path-verify/task-t004-verify): pass, exit 0; output tail:
+  ```
+    Critical path:     <1ms (1 task)
+    Recoverable time:  <1ms
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills && npm run check:panel
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  npm notice run check:panel
+  npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:test --include=apps/angular-ai-devtools/src/app/feature-fingerprint.spec.ts
+  ```
