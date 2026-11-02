@@ -1,4 +1,4 @@
-# Review — M018 instrument-core, Wave 4, Cycle 1
+# Review — wave 4, cycle 1
 
 Wave: 4
 Cycle: 1
