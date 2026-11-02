@@ -386,3 +386,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-02 — plan — plan approved
 - 2026-11-02 — build — build started
 - 2026-11-02 — ship — build done; final review pending
+- 2026-11-02 — ship — ship approval exercised under the recorded grant (ship) quoted in INTENT.md Corrections
