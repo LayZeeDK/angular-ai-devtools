@@ -194,4 +194,84 @@ describe('MessageRingBuffer', () => {
     expect(buffer.neighbours(3)).toEqual({ previous: buffer.at(2), next: null });
     expect(buffer.factNeighbours(2)).toEqual({ previous: buffer.at(1), next: buffer.at(3) });
   });
+
+  // E1 / SC1: the filled buffer survives a navigation and its oldest surviving entry is read back
+  // and compared to the entry that was written first.
+  it('E1 the 200-message buffer is filled, the panel navigates, and the oldest surviving entry is read back and compared to the entry written first', () => {
+    const buffer = new MessageRingBuffer();
+    buffer.navigate(7, 1);
+
+    // Exactly the cap, so the entry written first is still the oldest survivor: the comparison
+    // below reads the very entry it is compared against, not a neighbour that replaced it.
+    const writtenFirst = buffer.push('m0');
+    expect(writtenFirst.position).toBe(1);
+    fill(buffer, RING_BUFFER_CAPACITY - 1);
+    expect(buffer.size()).toBe(200);
+    expect(buffer.newest()!.message).toBe(`m${RING_BUFFER_CAPACITY - 1}`);
+
+    const livePageKey = buffer.navigate(7, 2);
+
+    // Read back by position after the panel navigated: the same entry, still the oldest.
+    const readBack = buffer.at(writtenFirst.position);
+    expect(readBack).not.toBeNull();
+    expect(readBack).toEqual(writtenFirst);
+    expect(readBack).toBe(buffer.oldest());
+    expect(buffer.entries()[0]).toBe(writtenFirst);
+    expect(buffer.oldest()!.message).toBe('m0');
+    expect(buffer.oldest()!.position).toBe(writtenFirst.position);
+    expect(buffer.size()).toBe(200);
+    // History only: the live key moved, so the same entry does not answer as a live fact (N3).
+    expect(writtenFirst.pageKey).toBe(pageKeyFor(7, 1));
+    expect(livePageKey).toBe(pageKeyFor(7, 2));
+    expect(buffer.factAt(writtenFirst.position)).toBeNull();
+
+    // Filled past the cap the entry written first is gone, and the same comparison now separates
+    // the oldest survivor from it — so the equality above is not an assertion about nothing.
+    const overflowing = new MessageRingBuffer();
+    overflowing.navigate(7, 1);
+    const evictedFirst = overflowing.push('first');
+    fill(overflowing, RING_BUFFER_CAPACITY + 1);
+
+    expect(overflowing.size()).toBe(200);
+    expect(overflowing.at(evictedFirst.position)).toBeNull();
+    expect(overflowing.oldest()).not.toEqual(evictedFirst);
+    expect(overflowing.oldest()!.position).toBeGreaterThan(evictedFirst.position);
+    expect(overflowing.oldest()!.message).toBe('m2');
+  });
+
+  // E2 / SC1: neither a buffer that never reached its cap nor a single-entry buffer invents a
+  // neighbour it does not hold.
+  it('E2 a buffer that has never filled and a buffer with exactly one entry both answer without inventing a missing neighbour', () => {
+    const partial = new MessageRingBuffer();
+    partial.navigate(2, 1);
+    fill(partial, 3);
+
+    // Never filled: three of two hundred positions are written, so every position past the newest
+    // one is empty rather than borrowed from an imagined successor.
+    expect(partial.size()).toBe(3);
+    expect(partial.size()).toBeLessThan(partial.capacity);
+    expect(partial.neighbours(1)).toEqual({ previous: null, next: partial.at(2) });
+    expect(partial.neighbours(3)).toEqual({ previous: partial.at(2), next: null });
+    expect(partial.neighbours(4)).toEqual({ previous: null, next: null });
+    expect(partial.neighbours(partial.capacity)).toEqual({ previous: null, next: null });
+    expect(partial.at(4)).toBeNull();
+    expect(partial.at(partial.capacity)).toBeNull();
+    expect(partial.factNeighbours(3)).toEqual({ previous: partial.at(2), next: null });
+    expect(partial.newest()!.message).toBe('m3');
+    expect(partial.currentPageEntries()).toHaveLength(3);
+
+    const single = new MessageRingBuffer();
+    single.navigate(2, 1);
+    const only = single.push('only');
+
+    expect(single.size()).toBe(1);
+    expect(single.oldest()).toBe(single.newest());
+    expect(single.neighbours(only.position)).toEqual({ previous: null, next: null });
+    expect(single.factNeighbours(only.position)).toEqual({ previous: null, next: null });
+    // Neither side of the only entry is invented, and neither is a position it does not hold.
+    expect(single.neighbours(only.position - 1)).toEqual({ previous: null, next: null });
+    expect(single.neighbours(only.position + 1)).toEqual({ previous: null, next: null });
+    expect(single.factNeighbours(only.position + 1)).toEqual({ previous: null, next: null });
+    expect(single.at(only.position + 1)).toBeNull();
+  });
 });

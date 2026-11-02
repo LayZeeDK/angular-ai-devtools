@@ -219,4 +219,79 @@ describe('ChunkedFactListJob', () => {
       expect(malformed.message).toContain(CHUNKED_FACT_LIST_JOB_ID);
     }
   });
+
+  // E4 / AC5 / SC2: the cancel arrives while the job is suspended between chunk 1 and chunk 2, and
+  // the chunk it had already completed is not handed on as the whole list.
+  it('E4 cancellation lands between two chunks and the last completed chunk is not presented as a complete list', async () => {
+    const { registry, job } = newJob();
+    const handle = `${CHUNKED_FACT_LIST_JOB_ID}#e4`;
+    const facts = overCapFacts();
+    const plan = chunkFacts(facts);
+    const early = registry.progress(handle);
+
+    const running = job.execute({ handle, facts });
+
+    // Between two chunks, not before the first and not after the last: exactly one chunk emitted
+    // and at least one still to come, with the job suspended on that boundary.
+    const doneAtCancel = early().chunksDone;
+    expect(early()).toEqual({ handle, chunksDone: 1, chunksTotal: plan.chunkCount, cancelled: false });
+    expect(doneAtCancel).toBeGreaterThan(0);
+    expect(doneAtCancel).toBeLessThan(plan.chunkCount);
+    expect(plan.chunkCount - doneAtCancel).toBeGreaterThan(1);
+
+    registry.cancel(handle);
+    const outcome = await running;
+    const payload = cancelledPayload(outcome);
+
+    // The chunk it had completed is not the answer: the payload carries no list at all, so neither
+    // the last completed chunk nor a prefix of the list can be read as the complete fact list.
+    expect(payload).toEqual({ status: 'cancelled', chunksDone: doneAtCancel, chunksTotal: plan.chunkCount });
+    expect('chunks' in payload).toBe(false);
+    expect(Object.keys(payload).sort()).toEqual(['chunksDone', 'chunksTotal', 'status']);
+    expect(JSON.stringify(payload)).not.toContain(plan.chunks[0]![0]!.slice(0, 8));
+    expect(JSON.stringify(payload)).not.toContain(plan.chunks[1]![0]!.slice(0, 8));
+
+    // And no further chunk was emitted after the cancel: a job that drained the remaining chunks
+    // would reach chunksTotal instead of stopping at the boundary it was cancelled on (N1).
+    await new Promise<void>((resolve) => setTimeout(resolve, 5));
+    expect(early()).toEqual({ handle, chunksDone: doneAtCancel, chunksTotal: plan.chunkCount, cancelled: true });
+  });
+
+  // E6 / AC6 / SC4: an over-cap list is chunked, and the count the panel receives is the number of
+  // chunks the job actually emitted — counted from the payload it holds, at two list sizes.
+  it('E6 a fact list over the cap is chunked and the chunk count the panel receives equals the number of chunks the job emitted', async () => {
+    const { registry, job } = newJob();
+    const runs = [
+      { handle: `${CHUNKED_FACT_LIST_JOB_ID}#e6a`, facts: overCapFacts() },
+      { handle: `${CHUNKED_FACT_LIST_JOB_ID}#e6b`, facts: [...overCapFacts(), fact(5), fact(6)] },
+    ];
+    const received: number[] = [];
+    const planned: number[] = [];
+
+    for (const { handle, facts } of runs) {
+      const plan = chunkFacts(facts);
+      // Chunked rather than truncated: the fixture is over the cap before the job ever runs.
+      expect(plan.chunkCount).toBeGreaterThan(1);
+      planned.push(plan.chunkCount);
+
+      const payload = completePayload(await job.execute({ handle, facts }));
+      received.push(payload.chunkCount);
+
+      // Every chunk the plan produced arrives whole and in order, so nothing was dropped to fit.
+      expect(payload.chunks).toEqual(plan.chunks);
+      expect(payload.chunks.flat()).toEqual(facts);
+      // The count the panel receives is the number of chunks it also received, and the same number
+      // the job reported through the registry as its total and its completed work.
+      expect(payload.chunkCount).toBe(payload.chunks.length);
+      expect(payload.chunkCount).toBe(plan.chunkCount);
+      expect(registry.progress(handle)().chunksTotal).toBe(payload.chunkCount);
+      expect(registry.progress(handle)().chunksDone).toBe(payload.chunkCount);
+      expect(payload.tokenCap).toBe(CHUNK_TOKEN_CAP);
+      expect(payload.chunkTokens).toHaveLength(payload.chunkCount);
+    }
+
+    // Two list sizes, so the equality is not one fixture agreeing with itself.
+    expect(received).toEqual(planned);
+    expect(received[1]).toBeGreaterThan(received[0]!);
+  });
 });

@@ -17,6 +17,8 @@
  */
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it } from 'vitest';
+import { chunkFacts } from '../context-budget';
+import { CHUNKED_FACT_LIST_JOB_ID, ChunkedFactListJob, type ChunkedFactListPayload } from './chunked-fact-list-job';
 import { JobHandleRegistry, type JobProgress } from './job-handles';
 
 /** A fresh registry per test, resolved the way the panel resolves it. */
@@ -31,6 +33,16 @@ const HANDLE = 'chunked_fact_list#1';
 /** The progress a handle reports before anything has happened to it. */
 function idle(handle: string): JobProgress {
   return { handle, chunksDone: 0, chunksTotal: 0, cancelled: false };
+}
+
+/** A fact of `length` characters, unique per index, so a lost or reordered fact is visible. */
+function fact(index: number, length = 3990): string {
+  return `${String(index).padStart(4, '0')}${'x'.repeat(length - 4)}`;
+}
+
+/** Five facts of 3,990 characters, which is three chunks: two facts, two facts, one fact. */
+function overCapFacts(): string[] {
+  return [fact(0), fact(1), fact(2), fact(3), fact(4)];
 }
 
 describe('JobHandleRegistry', () => {
@@ -137,5 +149,58 @@ describe('JobHandleRegistry', () => {
       chunksTotal: 5,
       cancelled: false,
     });
+  });
+
+  // E3 / SC2: the same cancel issued twice, for a job that is mid-flight, reports one cancellation
+  // and leaves nothing partial behind in the store the panel reads.
+  it('E3 cancelling the same job twice reports one cancellation and leaves no partial fact list in the panel store', async () => {
+    const registry = newRegistry();
+    const job = TestBed.inject(ChunkedFactListJob);
+    const handle = `${CHUNKED_FACT_LIST_JOB_ID}#e3`;
+    const facts = overCapFacts();
+    const chunksTotal = chunkFacts(facts).chunkCount;
+    expect(chunksTotal).toBeGreaterThan(1);
+
+    // The panel's store is the progress signal it captured before the job ran, plus the fact list
+    // it keeps — and a fact list is kept only from a payload the job completed.
+    const store = registry.progress(handle);
+    const keptFacts: (readonly string[])[] = [];
+    const keep = (payload: ChunkedFactListPayload): void => {
+      if (payload.status === 'complete') {
+        keptFacts.push(...payload.chunks);
+      }
+    };
+
+    let cancellations = 0;
+    registry.start(handle).signal.addEventListener('abort', () => {
+      cancellations += 1;
+    });
+
+    const running = job.execute({ handle, facts });
+    // One chunk done, two still to come: the job is mid-flight, so its partial work is real.
+    expect(store()).toEqual({ handle, chunksDone: 1, chunksTotal, cancelled: false });
+
+    registry.cancel(handle);
+    registry.cancel(handle);
+    const outcome = await running;
+
+    expect(outcome.kind).toBe('result');
+    if (outcome.kind !== 'result') {
+      throw new Error(`expected a result outcome, got "${outcome.kind}"`);
+    }
+    const payload = outcome.value as ChunkedFactListPayload;
+    keep(payload);
+
+    // One cancellation, reported once, on the store the panel already held.
+    expect(cancellations).toBe(1);
+    expect(registry.progress(handle)).toBe(store);
+    expect(store()).toEqual({ handle, chunksDone: 1, chunksTotal, cancelled: true });
+
+    // No partial fact list: nothing reached the panel's store, and the payload it would have kept
+    // from carries no chunk list at all — only how far the job got.
+    expect(keptFacts).toEqual([]);
+    expect(payload).toEqual({ status: 'cancelled', chunksDone: 1, chunksTotal });
+    expect('chunks' in payload).toBe(false);
+    expect(Object.keys(payload).sort()).toEqual(['chunksDone', 'chunksTotal', 'status']);
   });
 });

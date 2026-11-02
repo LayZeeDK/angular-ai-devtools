@@ -45,6 +45,10 @@ interface CloneMeasurementArtifact {
   method: string;
   command: string;
   samples: Record<string, number>;
+  /** The day the measurement was taken, `YYYY-MM-DD`. */
+  measuredAt: string;
+  /** The commit the measurement was taken at. */
+  base: string;
 }
 
 /** The spied primitives, keyed exactly as the artifact's `samples` are. */
@@ -115,6 +119,25 @@ function readArtifact(): CloneMeasurementArtifact {
   return JSON.parse(raw) as CloneMeasurementArtifact;
 }
 
+/**
+ * The committed artifact's raw text, read the same way `readArtifact` reads it. E5 asserts against
+ * the bytes on disk — the number is in the committed file, not in this spec's prose.
+ */
+function readArtifactText(): string {
+  const modules = import.meta.glob('../../../../../research/raw/clone-measurement-m019.json', {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  });
+  const entry: unknown = Object.values(modules)[0];
+  const raw =
+    typeof entry === 'string' ? entry : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof raw !== 'string') {
+    throw new Error('research/raw/clone-measurement-m019.json was not inlined above this spec file');
+  }
+  return raw;
+}
+
 describe('clone measurement artifact (M019 / T006)', () => {
   // E5 / SC3: the title is the acceptance row verbatim — the artifact carries the observed
   // count; prose does not.
@@ -161,5 +184,60 @@ describe('clone measurement artifact (M019 / T006)', () => {
     expect(artifact.samples).toEqual(counts);
     expect(artifact.command).toContain('npx nx run angular-ai-devtools:test');
     expect(artifact.command).toContain('apps/angular-ai-devtools/src/app/jobs/clone-measurement.spec.ts');
+  });
+
+  // E5 / SC3 / N4: the count is evidence because it sits in the committed artifact and re-runs to
+  // itself — the spec reads the number out of the file instead of restating it in prose.
+  it('E5 the clone measurement is a committed artifact with the observed count, not a number restated in prose', async () => {
+    const counts = zeroCounts();
+    const globalLm = globalThis as unknown as { LanguageModel?: unknown; structuredClone?: unknown };
+    const originalStructuredClone = globalLm.structuredClone;
+    globalLm.LanguageModel = countingLanguageModel(counts);
+    globalLm.structuredClone = (...args: unknown[]): unknown => {
+      counts['structuredClone'] += 1;
+      return typeof originalStructuredClone === 'function'
+        ? (originalStructuredClone as (...cloneArgs: unknown[]) => unknown)(...args)
+        : undefined;
+    };
+
+    // Re-measure the fresh-session count on the real prompt path, so the committed number is
+    // checked against a measurement taken now rather than against a sentence about one.
+    let observedNow = -1;
+    try {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({});
+      const service = TestBed.inject(ExtensionPromptService);
+      const result = await service.explain(['fact one', 'fact two']);
+      expect(result.ok).toBe(true);
+      observedNow = counts['lm.create'];
+    } finally {
+      globalLm.LanguageModel = undefined;
+      globalLm.structuredClone = originalStructuredClone;
+    }
+
+    // The committed bytes are the evidence: the artifact on disk parses, and its `observed` value
+    // is the count measured above — present in the file as a JSON number, not as prose.
+    const raw = readArtifactText();
+    const artifact = JSON.parse(raw) as CloneMeasurementArtifact;
+
+    expect(observedNow).toBe(1);
+    expect(artifact.observed).toBe(observedNow);
+    expect(raw).toMatch(/"observed"\s*:\s*1(?![\d.])/);
+    expect(artifact.metric).toBe('fresh language-model sessions per prompt');
+
+    // The count is one of the artifact's own samples, so a reader can audit it against the raw
+    // primitive counts instead of taking the headline number on trust.
+    expect(artifact.samples['lm.create']).toBe(artifact.observed);
+    expect(artifact.samples).toEqual(counts);
+
+    // And it is attributable and reproducible: the artifact names the method the count was taken
+    // with and the command that re-runs it, with the base it was taken at.
+    expect(artifact.method).toContain('lm.create');
+    expect(artifact.method).toContain('clone');
+    expect(artifact.method.length).toBeGreaterThan(200);
+    expect(artifact.command).toContain('npm ci --include=dev');
+    expect(artifact.command).toContain('apps/angular-ai-devtools/src/app/jobs/clone-measurement.spec.ts');
+    expect(artifact.measuredAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(artifact.base).toMatch(/^[0-9a-f]{7,40}$/);
   });
 });
