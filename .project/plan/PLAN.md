@@ -25,7 +25,7 @@ Review depth: full
 
 ## Wave 3 — held-out verification and gates
 
-Goal: T007 owns E1–E6 end-to-end, runs npm run check, npm test and the 520 KB bundle gate (SC5, E7).
+Goal: T007 owns the held-out edges E1–E6 end-to-end (SC1–SC4). T008 owns the SC5 gates: npm run check, npm test, the 520 KB initial-budget policy as a pinned test, and the untouched registry (E7).
 
 Review depth: full
 
@@ -57,11 +57,11 @@ Review depth: full
 | SC2 | T007 | AC1 |
 | SC3 | T007 | AC1 |
 | SC4 | T007 | AC1 |
-| SC5 | T007 | AC1 |
-| SC5 | T007 | AC2 |
-| SC5 | T007 | AC3 |
-| SC5 | T007 | AC4 |
-| SC5 | T007 | AC5 |
+| SC5 | T008 | AC1 |
+| SC5 | T008 | AC2 |
+| SC5 | T008 | AC3 |
+| SC5 | T008 | AC4 |
+| SC5 | T008 | AC5 |
 
 ## Held-out checks
 
