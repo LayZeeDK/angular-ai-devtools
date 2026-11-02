@@ -692,3 +692,484 @@ Risks
 Open questions
 - [RESEARCH] Which of the 111 `unverifiable` audit rows are decidable with the commands this
   repository already ships, and which need evidence this milestone cannot produce?
+### M018 — instrument-core
+
+Goal: Ship one tool registry that every explainer reads through — the declaration and backing records with their `kind`, `host`, `outcome` and `publish` fields — together with `app_facts`, the component and signal read wrappers, and the DOM role/name computation.
+Depends on: [M017]
+Surfaces: none
+Status: shipped
+Archive: .project/archive/018-instrument-core
+Integrated: null
+
+Scope: in
+- The registry envelope: a declaration record plus a backing record, carrying `kind` (read, write, confirm), `host` (page, iframe, panel, worker, extension-API, tester), `outcome` (result, confirm-required, async-handle, image, error) and `publish`.
+- `app_facts`, and the support checks a later explainer reads to decide whether a capability exists before it offers it.
+- The wrappers `find_components`, `inspect_component`, `list_signals`, `getDirectiveMetadata` and `getComponent`, each registered through the envelope and reachable only through it.
+- The DOM role and accessible-name computation in the panel, so a later Aria explainer can name what it observed.
+- Six hostile tools as registry conformance: one write with confirm, one async handle, one image result, one two-host read, one wrapped third-party tool and one page-state-dependent schema.
+- Two further tools added in two separate commits without touching the envelope, as the registry's own regression proof.
+
+Scope: out
+- Any explainer, panel tab or chat flow; this milestone ships the registry and the read primitives only.
+- Code generation of app code; a tool may report a fact and name a modern Angular pattern, never emit source.
+- NgModule, `*ngIf`, `*ngFor`, decorator inputs or Zone.js assumptions in any capability check or declared schema.
+- `@angular/animations`, Angular SSR and `angular/components`; all three are outside programme 1, so no declaration may name a host or schema that requires them.
+- Any DOM added to an inspected page; the overlay arrives in M022 and is the only one there will ever be (AR-3).
+- A worker boundary, a ring buffer or a chunked context budget; both are M019's plumbing.
+
+Success criteria
+1. Six hostile tools pass through the envelope: one write with confirm, one async handle, one image result, one two-host read, one wrapped third-party tool and one page-state-dependent schema.
+2. Two tools are added in two separate commits without touching the envelope, proving the declaration record is the only extension point.
+3. `app_facts`, `find_components`, `inspect_component`, `list_signals`, `getDirectiveMetadata` and `getComponent` are reachable through the registry, and no caller reaches around it.
+4. The DOM role/name computation returns a role and an accessible name for a labelled control and for a control named only by its content.
+5. `npm run check` type-checks the registry and the extension sources, and `npm test` passes at the head.
+
+Risks
+- The envelope is fixed here, so a wrong envelope is expensive everywhere: every later generation-1 explainer inherits it.
+- The six hostile shapes are the only defence available at this point; a shape no hostile tool exercises is discovered by the first explainer that needs it.
+- A page-state-dependent schema means a declaration can be right while its result is wrong; the registry must surface that difference rather than hide it behind an empty list.
+- `getComponent` and `getDirectiveMetadata` are Tier 0 debug APIs, so a page outside dev mode answers nothing and the registry must say so.
+- The registry sits on the panel's initial-bundle path, and the budget is a hard 520 KB (AR-1).
+
+Open questions
+- None
+
+### M019 — context-and-jobs
+
+Goal: Ship the prompt-context budget, the worker boundary and ring buffer, and background jobs with progress and cancellation, on top of M018's registry.
+Depends on: [M018]
+Surfaces: none
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The 3.6 context caps and the chunking rule that keeps a fact list inside them.
+- One fresh clone per prompt, measured rather than assumed.
+- The worker boundary: what crosses it, what shape it carries, and the `host` the registry declares for a worker-side tool.
+- The ring buffer and its cap, surviving a navigation.
+- Job progress and cancellation, reported through the registry's async-handle outcome.
+- The Summarizer path, and the named "cannot tell" state when it is unavailable.
+
+Scope: out
+- Any panel surface or explainer; this milestone ships plumbing with no new user-facing answer.
+- Raising the caps to make a fact list fit: an oversized fact list is chunked, never silently truncated.
+- Moving work into the page or into the panel to avoid the worker boundary.
+- Code generation of app code; a summarised fact list is prompt text, never source.
+- `@angular/animations`, Angular SSR and `angular/components`.
+- DOM added to an inspected page; the overlay is M022's.
+- Job types beyond the chunked fact list and the summariser; a second job kind arrives with the explainer that needs it.
+
+Success criteria
+1. A 200-message ring buffer survives a navigation, and its oldest entry is still readable after it.
+2. A chunked job reports progress and cancels, and a cancelled job leaves no partial fact list behind.
+3. One fresh clone per prompt is measured, with the measurement committed.
+4. A fact list that exceeds the cap is chunked rather than silently truncated, and the chunk count the panel sees is truthful.
+5. `npm run check` and `npm test` pass at the head, and the panel stays inside the 520 KB initial-bundle budget.
+
+Risks
+- Spikes S7, S14, S15 and S19 are unrun, and they set the chunk size and the prompt cap; until they are measured both numbers are provisional, and a wrong chunk size shows up as a model answer that ignores the second half of the facts.
+- The worker boundary sits on the panel's initial-bundle path, so crossing it wrongly breaks the 520 KB budget (AR-1) silently instead of failing a test.
+- A 200-message ring buffer over a navigation is the first place a stale page identity can leak into a live panel.
+- A Summarizer path that summarises the tool declaration rather than the tool result is a plausible and quiet failure.
+- Cancellation is the one job outcome no fixture produces on its own, so it needs a deliberate test rather than a browser run.
+
+Open questions
+- [RESEARCH] What chunk size and prompt cap do S7, S14, S15 and S19 actually measure, and does any of them change the 3.6 caps?
+
+### M020 — feature-fingerprint
+
+Goal: N18 opens a chat with only the tool groups the app's version gates allow, plus a context chip naming the features it detected.
+Depends on: [M019]
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The feature fingerprint from `app_facts` and the `[ng-version]` root enumeration.
+- Tool groups keyed to a version gate, so a group whose gate fails is absent rather than offered and empty.
+- The context chip in the panel naming the detected features, including the ones the app does not have.
+- The chat entry point that opens with the permitted groups only.
+
+Scope: out
+- Any tool implementation; this milestone selects and filters the groups M018 registered and adds no registry shape.
+- Guessing a feature from a version alone when `app_facts` disagrees; a silent fallback makes the chip lie.
+- Opt-in instrumentation (M021) and therefore anything that requires the app to install a package.
+- A page-side widget prompting the user what to inspect; confirmations, toasts, inputs and navigation live in the panel (AR-6).
+- Code generation of app code; `@angular/animations`; Angular SSR; `angular/components`.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. The context chip names the features detected for the inspected app, including the features it does not have.
+2. A tool group whose `[ng-version]` gate fails is absent from the chat's group list, not present and empty.
+3. A non-Angular page produces a named refusal rather than a chip claiming features.
+4. `npm run check` and `npm test` pass at the head, and the panel stays inside the 520 KB initial-bundle budget.
+
+Risks
+- The chip can over-claim: naming a feature the app lacks is worse than naming none, so a "cannot tell" state is part of the surface.
+- The `[ng-version]` root enumeration is dev-mode behaviour and can be absent on a production build.
+- The chip and the group filter add to the initial bundle, which is already the tightening point of the 520 KB budget (AR-1).
+- A version gate tuned on one fixture can exclude a group that works on another.
+
+Open questions
+- [RESEARCH] Which feature fingerprints `app_facts` can distinguish on the fixtures at this head, and which need a per-feature probe instead?
+
+### M021 — optin-companion
+
+Goal: Ship the Tier-2 opt-in companion package and its vetted symbol table, so an app can be asked to expose more than page inspection can see.
+Depends on: [M020]
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The companion package and the vetted symbol table it publishes.
+- The detection path that tells an app with the package from one without.
+- The panel's request for the extra surface, with a named reason when the app cannot answer.
+- The facade, shown to survive a development build's tree-shaking.
+
+Scope: out
+- `cdpAttach`, which moves to M030, and every attach path built on it.
+- Anything that mutates `globalThis` beyond the package's table entry.
+- A page-side prompt, confirm or toast; AR-6 keeps every confirmation in the panel.
+- Code generation of app code; a vetted symbol may be read, never written back.
+- `@angular/animations`, Angular SSR and `angular/components`.
+- Any insurance-portal change beyond the dev-only provider file and the dev build configuration the charter allows.
+
+Success criteria
+1. An app that installs the package is detected, and the panel names the extra surface it exposes.
+2. An app without the package is refused with a named reason rather than an empty result.
+3. The package adds nothing to `globalThis` beyond its table entry.
+4. The facade survives a development build's tree-shaking, proven on the fixture rather than on `buildOptimizer`.
+5. `npm run check` and `npm test` pass at the head.
+
+Risks
+- Spike S16 gates the milestone: the companion package has never existed, so the whole detection path rests on a verdict taken before any package did.
+- The facade must survive a development build's tree-shaking, not `buildOptimizer`; proving it on the wrong configuration proves nothing.
+- A vetted symbol table is a compatibility promise to every app that installs it, fixed here before any app exists.
+- Detection that falls back to page inspection when the package is absent hides the difference the milestone ships.
+- A Tier-2 package is app-visible code in someone else's build, which is a larger blast radius than any panel change in this generation.
+
+Open questions
+- [RESEARCH] Does the S16 verdict recorded against an exported provider carry over to a package that exports a facade at the table entry, or does the lookup need measuring again?
+- [NEEDS-USER] Should the package be published under the programme's own name or stay unpublished until a consumer asks for it?
+
+### M022 — in-page-overlay
+
+Goal: Ship the only DOM the tool adds to an inspected page — a rect/label overlay plus an element picker in one closed Shadow DOM host attached once at `document_start`.
+Depends on: [M019]
+Surfaces: inspected page
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- One host element with a closed Shadow DOM, attached once at `document_start`.
+- Rect tracking through scroll, zoom, CSS transforms and device pixel ratio.
+- The `elementFromPoint` picker and its hover, lock and cancel states, driven from the panel.
+- `__ngContext__` and `getOwningComponent` resolution from a picked element to its owning component.
+- The AR-4 exclusion rule: every `MutationObserver` the tool owns excludes the host subtree.
+- A plain-DOM implementation of roughly 400 lines with no Angular in the inspected page (AR-2).
+
+Scope: out
+- A second widget, a second host element, an injected panel, a toast, an input or a navigation control in the page; AR-3 makes the overlay the only DOM and AR-6 keeps the rest in the panel.
+- Angular, Angular Elements or any framework runtime in the inspected page; AR-2's reason is that the tool's own Angular corrupts the profiler list, the feature fingerprint and the dev-mode counters.
+- Cross-frame outlining (AR-5) and therefore a host per frame.
+- Rewriting the page's styles, moving its nodes or wrapping its elements.
+- Code generation of app code; `@angular/animations`; Angular SSR; `angular/components`.
+
+Success criteria
+1. The box tracks a picked element through scroll, zoom and a CSS transform, and the label names the element and its component.
+2. Picking an element resolves to its owning component in the panel, including an element inside a component's view rather than at its host.
+3. No `MutationObserver` owned by the tool observes the host subtree, asserted by a test that fails when the exclusion is removed.
+4. The host is inserted exactly once per page load, asserted across a re-injection attempt.
+5. The inspected page carries no Angular of the tool's own: the `ɵsetProfiler` list and the feature fingerprint read the same with and without the overlay installed.
+6. `npm run check` and `npm test` pass at the head.
+
+Risks
+- AR-4 is a correctness dependency for N7, FOR-1 and CF-1, so an observer that sees its own host makes three features silently wrong in a way that reads as a page defect.
+- A closed Shadow DOM keeps the page's CSS out and the tool's own debugging in; the picker needs a panel-visible state for what it cannot see.
+- `__ngContext__` is present on a dev build and absent on a production one, so resolution must report the difference rather than return nothing.
+- Device pixel ratio and CSS transforms are where a rect overlay is usually off by a few pixels, and a few pixels is indistinguishable from picking the wrong element.
+- The overlay is the only programme-1 code an inspected page can observe, so its footprint is a compatibility surface rather than an implementation detail.
+
+Open questions
+- [RESEARCH] Which `MutationObserver` call sites the tool owns today would observe a host subtree if the exclusion were dropped, and which of them are in this generation's scope?
+- [NEEDS-USER] Should the picker lock on click, or require a confirm in the panel before the panel navigates to the picked component?
+
+### M023 — fixture-components
+
+Goal: Add Aria, CDK and Material surfaces to the verification fixtures, so the harness and Aria features have subjects to be right about.
+Depends on: [M019]
+Surfaces: none
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- `@angular/aria`, `@angular/cdk` and `@angular/material` in the verification fixture.
+- One overlay surface, one list, one tabs and one menu, each written against modern APIs.
+- A harness target that is deliberately ambiguous, with two matching hosts, and action-observable.
+- The fixture's declaration as a verification surface, with the panel left on its own package versions.
+
+Scope: out
+- Promoting a spike into a fixture; a new fixture must be a declared verification surface.
+- The panel adopting these packages; the panel's design system is programme 2 and starts no work here.
+- `@angular/animations` and Angular SSR; NgModule-based Material entry points.
+- Changing a shipped explainer to suit the fixture.
+- Code generation of app code.
+- `@angular/cdk/testing` for any purpose beyond the harness family the A8 ruling excepts.
+
+Success criteria
+1. The harness target gives HAR-1 a root-boundary case with content outside the component root, HAR-2 a predicate case, HAR-3 an ambiguity case with two matching hosts, and HAR-4 an action case whose effect the harness observes.
+2. The menu surface supplies the listbox and menu rules N23 needs, including at least one rule that fails when the attribute it reads is removed.
+3. The fixture builds and serves, and the four shipped explainers still answer on it.
+4. `npm run check` and `npm test` pass at the head.
+
+Risks
+- A fixture that is too clean makes every later check pass for the wrong reason, so the ambiguity case must stay deliberately ambiguous.
+- The Material and CDK version lines can drift from the fixture's Angular version, and a drifted fixture reads as a product defect.
+- The panel must not adopt these packages from this milestone, so the fixture and the panel diverge on purpose.
+- A harness that cannot observe an action is indistinguishable from a harness whose action never landed (HAR-4).
+- A second set of component packages in the repository widens the dependency surface that `npm run check` and the sidecar bridge must carry offline.
+
+Open questions
+- None
+
+### M024 — panel-verify-breadth
+
+Goal: Close the gap that `npm run check` never type-checks the panel, by adding the panel and the extension sources to the check and fixing what the first run reveals.
+Depends on: [M019]
+Surfaces: none
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- `tsc -p apps/angular-ai-devtools/tsconfig.app.json` in `npm run check`, together with the extension sources.
+- Fixing the errors the first run reveals, or recording each accepted one with a written reason.
+- Keeping the check offline and free of a dev server.
+
+Scope: out
+- New panel features, redesigns or refactors not needed to make the check pass.
+- Weakening a type, adding an `any` or suppressing a diagnostic without a written reason.
+- Making the check depend on a dev server, a network fetch or a built artifact it does not already need.
+- Changing a shipped explainer's behaviour.
+- Code generation of app code; `@angular/animations`; Angular SSR; `angular/components`.
+
+Success criteria
+1. A deliberate type error in a panel source file fails `npm run check`, proven by introducing one and reverting it.
+2. The extension sources are covered by the same check.
+3. The check stays offline and needs no dev server.
+4. `npm run check` and `npm test` pass at the head.
+
+Risks
+- The first run surfaces a backlog of errors; that is the point, and the milestone is sized to the backlog rather than to a number chosen now.
+- An error fixed by widening a type leaves the panel no safer than before, so every accepted suppression needs its written reason.
+- Adding the extension sources can require a second tsconfig whose paths disagree with the app's.
+- The check also runs in the verify sidecar, where a project reference can fail for a reason that is not a type error.
+- A check that only compiles the panel can pass while the panel's runtime contract with the extension has already drifted.
+
+Open questions
+- None
+
+### M025 — image-budget-audit
+
+Goal: Build COM-1, why an image is slow and why the console warned about it, filling N4's missing image codes from NG02200 through NG02800.
+Depends on: [M020]
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The image half of the offline error digest: one entry per code from NG02200 through NG02800, generated at extension build time and capped at 150 tokens an entry.
+- The COM-1 evidence path: which image, what the console said, and which binding produced the attribute.
+- The panel surface rendering the finding and its explanation from a short fact list.
+- The license and copyright strip on every new digest entry before any text reaches a prompt.
+
+Scope: out
+- Rewriting N4's existing entries or its capture path; COM-1 fills a gap and does not reopen M010.
+- Guessing a code's meaning when the digest has no entry; an unknown code is reported as unknown.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components`.
+- `@angular/cdk/testing`, beyond the harness family the A8 ruling excepts; COM-1 needs no harness.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, an image with no width or height produces a COM-1 finding naming the image, the console warning and the binding behind the attribute.
+2. The offline digest carries one entry per code from NG02200 through NG02800, each capped at 150 tokens, generated at extension build time.
+3. The license and copyright notice is stripped from every new entry before any digest text reaches a prompt.
+4. The panel explains the finding from a short fact list, with no tool calling outside the registry envelope.
+5. `npm run check` and `npm test` pass at the head, and the panel stays inside the 520 KB initial-bundle budget.
+
+Risks
+- Spike COM-S1 gates the milestone and is unrun: what the console actually reports for an unbudgeted image decides whether COM-1 has an evidence path at all.
+- The digest source tracks the 22.2.x branch, so a new code range can arrive between planning and the check.
+- A warning a browser emits once per page makes a re-run look like a regression.
+- The 150-token cap over a new code range grows the panel's data, and its budget is the initial bundle, not the total.
+- An image finding that names a binding can read as a layout recommendation, which the panel's wording must not become.
+
+Open questions
+- [RESEARCH] What does COM-S1 measure for an image with no width and height on the fixture, and which console warning does the browser emit for it?
+
+### M026 — after-render-ordering
+
+Goal: Build COR-1, why `afterNextRender` read `offsetWidth` as 0, from the ordered profiler after-render events.
+Depends on: [M020]
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- Ordering the profiler after-render events within the single `ɵsetProfiler` list the page agent already records.
+- The COR-1 evidence: the read that saw 0, the render phase it ran in, and the event that moved it.
+- The panel surface rendering the ordered chain and its explanation.
+- A named "cannot tell" state when the profiler list holds no after-render event for the read.
+
+Scope: out
+- A second profiler tap or a second append-only list; COR-1 reads the one list N20 and N30 will also read.
+- Attributing a zero width to layout when only the read order was observed.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations` and its lifecycle hooks; Angular SSR; `angular/components`.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, a component whose `afterNextRender` reads `offsetWidth` before layout produces a COR-1 finding naming the read, its phase and the event order around it.
+2. The finding is produced from the ordered profiler after-render events alone, with no new page-side instrumentation.
+3. A page with no after-render event for the read reports "cannot tell" rather than inferring an order.
+4. The panel explains the ordering from a short fact list.
+5. `npm run check` and `npm test` pass at the head.
+
+Risks
+- Spike COR-S1 gates the milestone and is unrun: which profiler event identifies an after-render read is its central unknown.
+- The `ɵsetProfiler` list is single and append-only, so a second tap anywhere in the tool corrupts this feature and N20 together.
+- The profiler callback's shape is internal API, so a point release can change it without notice.
+- Ordering evidence and layout evidence are easy to confuse, and that difference decides whether the finding is true.
+- A read that happens once at mount leaves nothing to observe on a re-run, so the fixture needs a repeatable trigger.
+
+Open questions
+- [RESEARCH] What does COR-S1 measure for the ordered after-render events of a component reading `offsetWidth`, and which event marks the read?
+
+### M027 — trust-bypass-triage
+
+Goal: Build PBR-1, what the sanitizer stripped and which binding did it.
+Depends on: [M020]
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The sanitizer-decision evidence: what was stripped, from which binding, on which element.
+- The join from a stripped value to the template binding that carried it.
+- The panel surface rendering the finding and its explanation from a short fact list.
+- The vetted path for a deliberate bypass, reported as deliberate when the app used one.
+
+Scope: out
+- Recommending `bypassSecurityTrust*` as a fix; a finding may name the API and the risk it carries, never prescribe the bypass.
+- Reproducing the stripped value in the panel's answer beyond the fact list a prompt carries.
+- A page-side protocol for reporting the decision; the evidence travels over the existing message channel.
+- Code generation of app code; `@angular/animations`; Angular SSR; `angular/components`.
+- DOM added to an inspected page (AR-3).
+- Reopening N4's digest or N2's signal graph.
+
+Success criteria
+1. On the fixture, a binding the sanitizer stripped produces a PBR-1 finding naming the element, the binding and the category of what was stripped.
+2. A deliberate bypass in the fixture is reported as deliberate rather than as a silent strip.
+3. A page with no strip event reports "none seen" rather than an empty finding.
+4. The panel explains the finding from a short fact list.
+5. `npm run check` and `npm test` pass at the head.
+
+Risks
+- Spike PBR-S1 gates the milestone and is unrun: whether the runtime exposes a stripped-value event at all decides the evidence path.
+- A security finding that names a bypass API reads as advice, and the panel's wording is the only thing between a diagnosis and a recommendation.
+- A stripped value can carry page data, so the prompt's fact list is the only place it may appear.
+- Sanitizer behaviour differs between a development and a production build, and the fixture is a development build.
+- A report that says only "stripped" is true and useless; the binding join is what the milestone actually ships.
+
+Open questions
+- [RESEARCH] What does PBR-S1 measure for a stripped binding, and does the runtime expose the stripped value or only its category?
+
+### M028 — redirect-chain
+
+Goal: Build RTR-1, why `/settings` lands on `/login`, walked from `Router.config` with a cycle guard.
+Depends on: [M020]
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The redirect walk from `Router.config`, following guards, resolvers and redirect functions in the order the router runs them.
+- The cycle guard, with the repeated route named when a configuration can loop.
+- The panel surface rendering the walked chain, with the first route that changed the destination marked.
+- The lazy-route case, walked as far as the configuration is known before the chunk loads.
+
+Scope: out
+- Naming a guard's internal reason; RTR-1 reports the verdict, not the guard's body.
+- A recorded navigation history or a page-side navigation control; AR-6 keeps navigation in the panel.
+- Reopening N2's signal graph or N24's stale-view scan.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components`.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, a route that lands somewhere other than where it was asked to produces an RTR-1 chain naming every route the walk crossed and the first route that changed the destination.
+2. A configuration that can loop is reported as a cycle with the repeated route named, not as a walk that did not terminate.
+3. A guard that returns false is reported as the reason, without claiming to know why.
+4. The panel explains the chain from a short fact list.
+5. `npm run check` and `npm test` pass at the head.
+
+Risks
+- `Router.config` is the pre-navigation configuration, so a guard that redirects at runtime can make the walked chain disagree with the observed destination.
+- The cycle guard is the difference between a hung panel and a named finding, and it is the one part of the walk that cannot be tuned per fixture.
+- A lazy route's configuration is incomplete before its chunk loads, so a walk can stop short and still look complete.
+- Redirect functions are modern router API, and their order relative to guards is the milestone's central assumption.
+- A destination that changes twice hides the first change unless the walk keeps its own order.
+
+Open questions
+- [RESEARCH] Which parts of `Router.config` are complete before a lazy chunk loads, and in what order does 22.x run a redirect function against a guard?
+
+### M029 — cross-field-validation
+
+Goal: Build FRM-1, why fixing one field does not enable submit, from the Signal Forms field states.
+Depends on: [M020]
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The Signal Forms field-state read: each field's validity, its errors, and the cross-field rule that keeps submit disabled.
+- The join from a disabled submit to the field state that disables it.
+- The panel surface rendering the field set and its explanation from a short fact list.
+- A named "cannot tell" state for a form whose validity is computed outside Signal Forms.
+
+Scope: out
+- NgModel, `FormGroup` and every template-driven path; programme 1 is modern APIs only (A9).
+- Reproducing a field's value in the panel's answer beyond the fact list a prompt carries.
+- A page-side form control, input or validation widget; AR-6 keeps inputs in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components`.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, a form whose submit stays disabled after one field is corrected produces an FRM-1 finding naming the cross-field rule and the field state that keeps it disabled.
+2. The finding is produced from the Signal Forms field states alone, with no new page-side instrumentation.
+3. A form whose validity does not come from Signal Forms reports "cannot tell" rather than naming a wrong field.
+4. The panel explains the finding from a short fact list.
+5. `npm run check` and `npm test` pass at the head, and the panel stays inside the 520 KB initial-bundle budget.
+
+Risks
+- Spike FRM-S1, the spike known as S9, gates the milestone and is unrun: which field states Signal Forms exposes for a cross-field rule is its central unknown.
+- Forms is the family where a wrong answer is acted on immediately, so a "cannot tell" state matters more here than anywhere else in the generation.
+- Signal Forms is newer than the rest of programme 1, so its line can move under the milestone.
+- A disabled submit can be disabled by a template expression outside the field states, and that case must report as unknown rather than as a rule.
+- A field-state read that misses a deferred or async validator reports a form as valid when submit says otherwise.
+
+Open questions
+- [RESEARCH] What does FRM-S1 (S9) measure for the field states of a cross-field rule in Signal Forms, and which state explains a disabled submit?

@@ -1,0 +1,200 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "50cfa9d36c1578ad6ba5b9b84cdbeb65ff6f1df8",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M018",
+        "candidates": [
+          {
+            "base": "ed6e45db69aaf3adcd7543d021e9b1664bdbe79f",
+            "commit": "9f4cb743c7125525ad734c02a124ed5f8327d426",
+            "valid": true
+          }
+        ],
+        "head": "50cfa9d36c1578ad6ba5b9b84cdbeb65ff6f1df8",
+        "subject": "T001: Build the tool-registry envelope and its declaration and backing records"
+      },
+      "landed_commit": "9f4cb743c7125525ad734c02a124ed5f8327d426",
+      "reasons": [],
+      "task": {
+        "base": "ed6e45db69aaf3adcd7543d021e9b1664bdbe79f",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-tool-registry-envelope.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M018",
+        "candidates": [
+          {
+            "base": "9f4cb743c7125525ad734c02a124ed5f8327d426",
+            "commit": "677b6da15866a6efc533f59241e48f23220983de",
+            "valid": true
+          }
+        ],
+        "head": "50cfa9d36c1578ad6ba5b9b84cdbeb65ff6f1df8",
+        "subject": "T002: Prove the envelope with six hostile tools and pin each shape's kind, host and outcome"
+      },
+      "landed_commit": "677b6da15866a6efc533f59241e48f23220983de",
+      "reasons": [],
+      "task": {
+        "base": "9f4cb743c7125525ad734c02a124ed5f8327d426",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-hostile-tools-envelope-proof.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M018",
+        "candidates": [
+          {
+            "base": "505964f550e22bd2288725cbb56d409754e015e8",
+            "commit": "8235badec4ea1ab93247dfab9745273ccd09b9b8",
+            "valid": true
+          }
+        ],
+        "head": "50cfa9d36c1578ad6ba5b9b84cdbeb65ff6f1df8",
+        "subject": "T003: Ship app_facts with its support checks through the registry"
+      },
+      "landed_commit": "8235badec4ea1ab93247dfab9745273ccd09b9b8",
+      "reasons": [],
+      "task": {
+        "base": "505964f550e22bd2288725cbb56d409754e015e8",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-app-facts-support-checks.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M018",
+        "candidates": [
+          {
+            "base": "c68122e2b8991699352c78cb6429598c899da90d",
+            "commit": "8504846810dc5c83496ae440cf2c7683a87d9b9b",
+            "valid": true
+          }
+        ],
+        "head": "50cfa9d36c1578ad6ba5b9b84cdbeb65ff6f1df8",
+        "subject": "T004: Register the five read wrappers behind one page-read port and guard their reach"
+      },
+      "landed_commit": "8504846810dc5c83496ae440cf2c7683a87d9b9b",
+      "reasons": [],
+      "task": {
+        "base": "c68122e2b8991699352c78cb6429598c899da90d",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-read-tools-page-port.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M018",
+        "candidates": [
+          {
+            "base": "8504846810dc5c83496ae440cf2c7683a87d9b9b",
+            "commit": "860d2305c6ed055197ef8a3854d06c3d874da79f",
+            "valid": true
+          }
+        ],
+        "head": "50cfa9d36c1578ad6ba5b9b84cdbeb65ff6f1df8",
+        "subject": "T005: Compute the DOM role and accessible name at read time"
+      },
+      "landed_commit": "860d2305c6ed055197ef8a3854d06c3d874da79f",
+      "reasons": [],
+      "task": {
+        "base": "8504846810dc5c83496ae440cf2c7683a87d9b9b",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-role-name-computation.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M018",
+        "candidates": [
+          {
+            "base": "97b8fcda3eaf55d3d5f5f1b4e5316bd0c78d6f05",
+            "commit": "5044c2b3e42e04144c36954feea71c805bb07a72",
+            "valid": true
+          }
+        ],
+        "head": "50cfa9d36c1578ad6ba5b9b84cdbeb65ff6f1df8",
+        "subject": "T006: Add the panel_environment tool in a commit that touches no envelope file"
+      },
+      "landed_commit": "5044c2b3e42e04144c36954feea71c805bb07a72",
+      "reasons": [],
+      "task": {
+        "base": "97b8fcda3eaf55d3d5f5f1b4e5316bd0c78d6f05",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-first-added-tool-and-envelope-pin.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M018",
+        "candidates": [
+          {
+            "base": "5044c2b3e42e04144c36954feea71c805bb07a72",
+            "commit": "4076ec6588a3667c06bc0ff541872e8766912063",
+            "valid": true
+          }
+        ],
+        "head": "50cfa9d36c1578ad6ba5b9b84cdbeb65ff6f1df8",
+        "subject": "T007: Add the error_digest_lookup tool in a second commit that touches no envelope file"
+      },
+      "landed_commit": "4076ec6588a3667c06bc0ff541872e8766912063",
+      "reasons": [],
+      "task": {
+        "base": "5044c2b3e42e04144c36954feea71c805bb07a72",
+        "id": "T007",
+        "status": "done",
+        "task_file": ".project/tasks/T007-second-added-tool.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M018",
+        "candidates": [
+          {
+            "base": "4076ec6588a3667c06bc0ff541872e8766912063",
+            "commit": "7af17cb0fe2b03583a0a9f142cd996731bbd9a7a",
+            "valid": true
+          }
+        ],
+        "head": "50cfa9d36c1578ad6ba5b9b84cdbeb65ff6f1df8",
+        "subject": "T008: Make npm run check type-check the panel and leave npm test green at the head"
+      },
+      "landed_commit": "7af17cb0fe2b03583a0a9f142cd996731bbd9a7a",
+      "reasons": [],
+      "task": {
+        "base": "4076ec6588a3667c06bc0ff541872e8766912063",
+        "id": "T008",
+        "status": "done",
+        "task_file": ".project/tasks/T008-project-verify-breadth.md"
+      }
+    }
+  ]
+}

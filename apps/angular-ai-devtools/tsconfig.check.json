@@ -1,0 +1,42 @@
+{
+  // The panel type-check config — M018 T008.
+  //
+  // `npm run check` used to compile three files and nothing under `apps/`, `src/` or
+  // `extension/`, because `@angular/build:application` compiles the panel with its own
+  // transform pipeline and never reports a type error. This config is what closes that gap:
+  // it type-checks the panel's own sources plus everything the panel imports, which is how
+  // the M018 registry (`src/app/tool-registry/*`), the page-read port and the panel-side
+  // modules under `../../src/main-world/` and `../../src/panel/` are covered without a second
+  // include list to keep in sync.
+  //
+  // It extends `./tsconfig.spec.json` so the panel's real compiler options (strict,
+  // `noUncheckedIndexedAccess`, ES2022 + DOM, bundler resolution) are inherited rather than
+  // restated, and so the specs — which `npm test` runs through Vitest — are type-checked by the
+  // same stage.
+  //
+  // Two settings exist to defeat the TS6059 `rootDir` errors a plain `-p tsconfig.app.json`
+  // produces at this head (the panel imports `../../../../src/main-world/*`, which sits
+  // outside the `apps/angular-ai-devtools` tree the app config's `outDir` implies):
+  //
+  // - `outDir: null` removes the `outDir` inheritance that makes TypeScript infer a rootDir.
+  //   Nothing is emitted (`noEmit`), so there is no output tree to name.
+  // - `allowImportingTsExtensions` keeps the `.ts`-extension import specifiers this repository
+  //   writes in `src/panel/` compilable, so a panel module that reaches one is checked rather
+  //   than refused. With `noEmit` it costs nothing.
+  //
+  // The include is deliberately `src/**/*.ts` and nothing narrower: a check over an
+  // allow-list of files that already pass is the defect N4 forbids. It is not widened to
+  // `../../src/main-world/**/*.ts` either — that would drag in `provenance-tracer.ts` (a
+  // pre-existing TS4104) and its `node:test` spec, which the panel imports neither of;
+  // TypeScript already follows the imports the panel actually has, which is the coverage
+  // that matters. Neither `skipLibCheck` nor an `exclude` of panel code is used to reach
+  // green.
+  "extends": "./tsconfig.spec.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "outDir": null,
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
+  "exclude": ["src/**/*.node.test.ts", "src/**/*.node.spec.ts"]
+}

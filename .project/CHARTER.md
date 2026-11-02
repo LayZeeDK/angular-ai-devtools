@@ -163,8 +163,10 @@ questions, answered in the panel, on the developer's machine.
 
 ## Open questions
 
-- [NEEDS-USER] If a paid or non-DeepSeek session later makes independent review
-  families available, which families should form the optional panel?
+- [RESOLVED 2026-11-01: the optional review panel stays off. The paid per-role split
+  in `.project/model-policy.json` is the binding policy — DeepSeek V4.1 Flash for
+  tool-loop roles, GLM-5.3 Flash for `reviewer`, `skeptic` and `review_panel` — so a
+  verdict never shares the producer's family. Recorded under Corrections.]
 - [RESEARCH] Which N24 and N25 detections are provable from `ng.ɵgetSignalGraph` and the source-text write scan on the counter fixture, and which need new instrumentation?
 
 ## Corrections
@@ -216,3 +218,75 @@ questions, answered in the panel, on the developer's machine.
   `395d1c7` (`build: pin paid model policy per role`) is the change this records;
   the Constraints paragraph stays as written because charter text is amended only
   here.
+- 2026-11-01, programme 1 opens. The following rulings were approved in session and
+  are recorded here for the first time; the milestone backlog and delivery
+  structure they govern are persisted at
+  `plans/angular-ai-devtools-program-backlog.md` (commit `8827469`).
+- 2026-11-01 (A1): the veto "No Tier 2 (app opt-in `globalThis` export) features in
+  this program" is lifted. Owner: "All tiers are on the table." Tier 2 features are
+  permitted, including an app-installed `provide*()` instrument.
+- 2026-11-01 (A2): the verification fixtures may be modified for the Vitest Browser
+  work — the attach configuration and a timing-demo route. This narrows the
+  "the counter fixture is never modified to help a feature" clause to everything
+  except those declared verification surfaces.
+- 2026-11-01 (A3): programme order is core, Storybook, angular/components,
+  Angular SSR (+ Analog.js), NgRx, RxAngular.
+- 2026-11-01 (A4): N34-N37 count as first-party because `@angular/build:unit-test`
+  ships them. Owner: "I don't mean 3rd-party tooling like Vitest in Browser mode,
+  especially not when it's officially supported by `@angular/build`, a 1st-party
+  package."
+- 2026-11-01 (A5): Angular SSR and `angular/components` are out of the core
+  programme; SSR moves to programme 4 and components to programme 3.
+- 2026-11-01 (A6): tool calling in the core loop is permitted, as required by the
+  tool-registry envelope.
+- 2026-11-01 (A7): the `debugger` permission is granted, for the CDP trace and the
+  accessibility tree.
+- 2026-11-01 (A8): `@angular/cdk` component harnesses are excepted from the
+  `angular/components` exclusion, for the testing feature suite.
+- 2026-11-01 (AR-1): the panel is already an Angular application
+  (`apps/angular-ai-devtools`, `projectType: application`, `build-extension` to
+  `extension/panel`, `baseHref: /panel/`). No migration milestone exists; the panel
+  adopts the design system in place. The initial-bundle budget of 520 KB is binding.
+- 2026-11-01 (AR-2): in-page UI is a named exception to "implemented in Angular":
+  plain DOM, closed Shadow DOM, isolated world, no Angular in the inspected page.
+  The in-page surface is one widget — a rect/label overlay plus an element picker.
+- 2026-11-01 (AR-3): the overlay is the only DOM the tool adds to an inspected page.
+- 2026-11-01 (AR-4): every `MutationObserver` the tool owns excludes the tool's host
+  subtree; the host attaches once at `document_start`.
+- 2026-11-01 (AR-5): cross-frame outlining is a non-goal for v1.
+- 2026-11-01 (AR-6): confirmations, toasts, inputs and navigation live in the panel,
+  never in the page.
+- 2026-11-01 (AR-7): the panel doubles as a self-inspection fixture, served at
+  `/panel/`.
+- 2026-11-01 (delivery): programmes are charter labels and roadmap `Programme:`
+  labels, not separate project roots. One `.project/`, one roadmap, grown by
+  successive re-slices in generations of at most 12 entries, with pending entries
+  never reaching zero before the final programme ends.
+- 2026-11-01 (programme 1 scope): the `Full scope: in` bullets above are satisfied
+  in full by M001-M017 and remain closed. This ruling **extends** `Full scope: in`
+  with programme 1 ("core"), so the roadmap gate's charter-to-milestone bijection
+  holds for the new generation. Programme 1's admitted scope, in roadmap order:
+  - a tool registry with an app-facts support check, six hostile tool shapes, and
+    the DOM role/name computation (`instrument-core`);
+  - the context budget, worker, ring buffer and background-job machinery;
+  - N18 feature fingerprint and the context chip;
+  - the Tier-2 opt-in package and its vetted symbol table;
+  - the in-page overlay — the only DOM the tool adds to an inspected page;
+  - Aria/CDK/Material surfaces in the verification fixtures, including a
+    deliberately ambiguous harness target;
+  - project Verify breadth: type-check the panel and the extension in
+    `npm run check`;
+  - the core explainer families N5, N7-N23, N27-N37 and the COM, COR, RTR, FRM,
+    PBR, PSR, SWK, ELM, DEF, HYD, ANI, CF, FOR, SUB and BND feature prefixes, with
+    N34-N37 admitted under A4 and `@angular/cdk/testing` under A8;
+  - the opt-in instrument taps, each landing with the milestone it upgrades.
+  The ordered milestone list, the family prefix registry and the spike ledger are
+  `plans/angular-ai-devtools-program-backlog.md` (commit `8827469`). Angular SSR
+  belongs to programme 4 and `angular/components` to programme 3 (A5); neither is
+  in programme 1's scope.
+- 2026-11-01 (standing autonomy grant): owner's instruction, verbatim: "Prepare
+  the repo so that the next, fresh session just needs to run `/gsd-path @
+  C:\Users\LarsGyrupBrinkNielse\.commandcode\prompts\deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md`
+  to run all the way through shipping the next milestone." This grants the intent,
+  plan, rulings and ship gates for the next milestone; recorded with
+  `preapprove --grant intent,plan,rulings,ship` while `STATE.milestone` is null.

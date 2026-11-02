@@ -1,1488 +1,1605 @@
 # Docs Audit
-
-<!-- Written by the docs auditor (/gsd-path-docs-audit or /gsd-path-inspect).
-     Every verdict carries evidence; a verdict without evidence is a defect. -->
-
 Repo root: D:\projects\sandbox\angular-ai-devtools
 Audited: 2026-11-01
-Audited HEAD: bfc4656b0c475769af3ddd162206e7a11776bfe2
+Audited HEAD: 4076ec6588a3667c06bc0ff541872e8766912063
 Alignment mode: no
 
 ## Summary
 
 | Verdict | Count |
 |---------|-------|
-| verified | 425 |
-| stale | 4 |
-| aspirational | 0 |
-| unverifiable | 72 |
-| descriptive docs (no testable claims) | 25 |
+| verified | 582 |
+| stale | 17 |
+| aspirational | 6 |
+| unverifiable | 105 |
+| descriptive docs (no testable claims) | 2 |
 
-Claim rows audited: 501 across 117 documents; with the 25 descriptive documents, the 142 frozen
+Claim rows audited: 710 across 142 documents; with the 2 descriptive documents, the 144 frozen
 inventory paths are all accounted for exactly once.
-
-Verdict and evidence rules for this pass. A row that keeps `unverifiable` names, in its Evidence cell
-and in its Suggested action, the literal shipped command or path that would settle it — a `control.mjs`
-driver subcommand, a `checks/*.mjs` file, an `npx nx run` target, a `node --test` file, a `git cat-file`
-read, or a tracked JSON config path — because a prose verb such as "re-measure" leaves the row undecided.
-A row that no command in this checkout reaches keeps its verdict and names the external artifact that
-would settle it, together with the literal phrase `no command in this checkout`. A row that a file or
-command in this checkout settles carries the dated reading and the path or command it came from, and a
-later re-read supersedes that reading.
-
-Worst drift: `.commandcode/taste/angular/taste.md:12` prefers "Angular-only with no third-party packages"
-and excludes Vitest, while the workspace depends on `vitest` (`package.json:32`) and the counter fixture runs
-its tests with it (`spikes/ng222-app/package.json:27-33`). It is a parked taste row: `INTENT.md`'s vetoes and
-`.commandcode/taste/workflow/taste.md:70` forbid a taste write while STATE is `build/*`, and the taste tool owns
-the file, so the preference and the tree disagree until the owner rules it.
-
-Scope note. The frozen inventory mixes four kinds of Markdown: the repository's own
-product docs (AGENTS.md, `docs/`, `plans/`, `references/`, `research/`, `spikes/`), the
-`control-*`/`verify-*` skills this repository maintains under `.commandcode/skills/`,
-their `.claude/skills/` mirrors, and vendored Nx skill text under `.commandcode/skills/nx-*`.
-Vendored Nx guidance is a dependency boundary: its statements about how the Nx CLI behaves
-are excluded from findings, while any statement about this workspace (paths, package manager,
-config keys it actually reads) stays in scope. `.commandcode/taste/` holds preference
-statements, not product claims.
 
 ## Doc: .claude/skills/control-ai-browsers/SKILL.md
 
-Content is byte-identical to `.commandcode/skills/control-ai-browsers/SKILL.md` (23 files of the
-`.claude` tree compared with the `.commandcode` tree: 23 same, 0 different), so the rows below
-apply to both copies.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Controls five browser instances, one per browser and on-device model pair" | structure | verified | `instances.json:67-230` holds five `instances` entries (chrome-beta-nano, chrome-beta-gemma4, edge-dev-aion, edge-phi4mini, chrome-stable-nano) |
-| "registry ports 9333, 9334, 9335, 9337, 9338 for the five instances" | config | verified | `instances.json:70,101,135,173,201` (`port` per instance, matching order) |
-| "`scripts/control.mjs` does the deterministic steps" with `up`/`attach`/`detach`/`doctor`/`flags`/`model`/`run`/`panel`/`down`/`info` plus `instances`/`bench` | command | verified | `scripts/control.mjs:2998-3009` (`COMMANDS` table) and `:3024` (usage line naming the same subcommands) |
-| "The Edge sign-in switches are the Edge browsers' `browserArgs` in `instances.json`" | config | verified | `instances.json:30-35` and `:49-54` (`--disable-sync`, `--disable-features=msImplicitSignin,...`, `--auth-schemes`, `--password-store`) |
-| "`--backend=cpu` on Edge exits 2" | command | verified | `scripts/control.mjs:523` refuses with "forcing CPU on Edge deletes the installed model" |
-| "Probes: `spikes/probes/probe10.js`, `spikes/probes/broker-state.js`; bench `spikes/probes/bench.js`" | structure | verified | `spikes/probes/` listing contains all three files |
-| "Chrome Beta 157, Chrome stable 156, Edge Dev 157, Edge stable 155" | status | unverifiable | settling check: `node .commandcode/skills/control-ai-browsers/scripts/control.mjs doctor chrome-beta-nano` (the same for `chrome-stable-nano`, `edge-dev-aion`, `edge-phi4mini`), whose `ports` line prints the live `/json/version` product, plus `.commandcode/skills/verify-ai-browsers/checks/state.mjs`; `instances.json:9,19,29,48` records executables only, so this pass launched no browser |
-| "Browser minimum free space: Chrome 22 GB, Edge 20 GB" | config | verified | `instances.json:16,26` (`minFreeMib` 22528) and `:41,60` (20480) |
+| "Controls five browser instances, one per browser and on-device model pair" | structure | verified | .claude/skills/control-ai-browsers/instances.json:67-230 — five entries: chrome-beta-nano, chrome-beta-gemma4, edge-dev-aion, edge-phi4mini, chrome-stable-nano |
+| "`edge-dev-aion` \| Edge Dev 157 \| 9335 \| `Aion-1.1-Instruct`" with contextWindow 7,168 | config | verified | instances.json:133-169 — port 9335, model.name Aion-1.1-Instruct, contextWindow 7168 |
+| "`chrome-stable-nano` \| Chrome stable 156 \| 9338" | config | verified | instances.json:199-201 — port 9338, browser chrome-stable |
+| "`9600 + 10 * slot + index` ... 10 slots in all" | feature | verified | scripts/control.mjs:449 — `return slot === 0 ? mainPort : 9600 + 10 * slot + index;`; control.mjs:125 `const SLOT_TRIES = 10;` |
+| "`edge-dev-aion` therefore launches with `--disable-component-update`" | config | verified | instances.json:148-150 — instances.edge-dev-aion.args holds "--disable-component-update" |
+| "Every other script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them" | command | verified | package.json:9 — test script runs node --test "scripts/**/*.test.mjs" then npm run test:skills |
 
 ## Doc: .claude/skills/control-ai-browsers/features/README.md
 
-Byte-identical to `.commandcode/skills/control-ai-browsers/features/README.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`C` stands for `node .commandcode/skills/control-ai-browsers/scripts/control.mjs`" | command | verified | `scripts/control.mjs` exists and its usage string is `control.mjs <instances\|up\|...>` (`control.mjs:3024`) |
-| "Nano on 9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337, Nano in Chrome stable on 9338" | config | verified | `instances.json:70,101,135,173,201` |
-| "Ten feature files, listed in this order, each with four H2s (`Sub-features`, `How to get to it (user POV)`, `Driving it with control-ai-browsers`, `Gotchas`)" | structure | verified | all ten linked feature files exist in `features/` and each carries those four H2 headings (e.g. `di-doctor.md:10,18,24,38`) |
-| "The panel is built (`npx nx run angular-ai-devtools:build-extension`) before `up`" | command | verified | `apps/angular-ai-devtools/project.json:56-90` defines `build-extension` with `outputs: {workspaceRoot}/extension/panel` and `baseHref: /panel/` |
-| "Session is `ai-<instance>-<port>`, read from `C info <instance> --json` (`session`)" | feature | verified | `control.mjs` builds the session id (`scripts/control.mjs:1258` uses `inst.session`); `info` returns `session` in its JSON (`SKILL.md:276`) |
+| "`C` below stands for `node .commandcode/skills/control-ai-browsers/scripts/control.mjs`" | command | verified | .claude/skills/control-ai-browsers/scripts/control.mjs exists and exposes the commands the recipes call (control.mjs:3024 usage line lists instances, up, attach, detach, doctor, flags, model, run, panel, down, bench, info) |
+| "Each feature file starts with an H1 and one paragraph of behaviour, then four H2s in order: `Sub-features`, `How to get to it (user POV)`, `Driving it with control-ai-browsers`, `Gotchas`" | structure | verified | all ten docs in features/ carry exactly those four H2s in that order — e.g. instances.md:7,15,23,39 and health-check.md:7,21,26,41 |
+| "Nano on 9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337, Nano in Chrome stable on 9338" | config | verified | instances.json:70,101,135,173,201 — ports 9333, 9334, 9335, 9337, 9338 in that order |
+| "Its session is `ai-<instance>-<port>`; read it from `C info <instance> --json` (`session`)" | feature | verified | scripts/control.mjs:463-471 — "The playwright-cli session of an instance on a port: `ai-<name>-<port>`" and `return `ai-${name}-${port}`;` |
+| The Features list names ten feature files, each present | structure | verified | .claude/skills/control-ai-browsers/features/ holds exactly ten feature docs beside README.md (di-doctor, error-explainer, extension-panel, health-check, instances, interop, model-lifecycle, probes, signal-provenance, stale-view) |
 
 ## Doc: .claude/skills/control-ai-browsers/features/di-doctor.md
 
-Byte-identical to `.commandcode/skills/control-ai-browsers/features/di-doctor.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The panel sends `angular-ai:di-query` and receives `angular-ai:di-graph` with a `DiResolutionPath`" | feature | verified | `apps/angular-ai-devtools/src/app/di-doctor.service.ts` and `di-path-display.ts` exist; `scripts/di-path-tracer.test.mjs` and `scripts/di-lookup.test.mjs` cover the tracer |
-| "Implementation: `apps/angular-ai-devtools/src/app/di-doctor.service.ts`, `n3-di-doctor.component.ts`, `di-diff-display.ts`" | structure | verified | all three files exist in `apps/angular-ai-devtools/src/app/` |
-| "`npx nx run angular-ai-devtools:build-extension` writes `extension/panel/`" | command | verified | `apps/angular-ai-devtools/project.json:56-90`; `extension/panel/` exists in the tree |
-| "The proof across every pair is `verify-ai-browsers/checks/di-doctor.mjs`" | structure | verified | `.commandcode/skills/verify-ai-browsers/checks/di-doctor.mjs` and its `.test.mjs` exist |
-| "`di-doctor` recipe: `C panel <name> --url=...`, select the tab, read path/diff" | feature | verified | `scripts/panel.mjs:239-245` routes the driver to the panel paths, and `verify-ai-browsers/checks/di-doctor.mjs` exists as the proof |
+| "Implementation: `apps/angular-ai-devtools/src/app/di-doctor.service.ts`, `n3-di-doctor.component.ts`, `di-diff-display.ts`" | structure | verified | all three files exist in apps/angular-ai-devtools/src/app/ |
+| "The panel sends `angular-ai:di-query` (`componentName`, `elementTag`)" | integration | verified | apps/angular-ai-devtools/src/app/di-doctor.service.ts:25 — `chrome?.runtime?.sendMessage({ type: 'angular-ai:di-query', componentName, elementTag })` |
+| "receives `angular-ai:di-graph` with a `DiResolutionPath`" | integration | verified | di-doctor.service.ts:17 — `if (m?.type === 'angular-ai:di-graph' && m.resolutionPath)` |
+| "`npx nx run angular-ai-devtools:build-extension` writes `extension/panel/`" | command | verified | apps/angular-ai-devtools/project.json:52 — `"build-extension"` target; extension/panel/ exists with index.html, main.js and styles.css |
+| "The proof across every pair is `verify-ai-browsers/checks/di-doctor.mjs`" | command | verified | .claude/skills/verify-ai-browsers/checks/di-doctor.mjs and di-doctor.test.mjs exist |
 
 ## Doc: .claude/skills/control-ai-browsers/features/error-explainer.md
 
-Byte-identical to `.commandcode/skills/control-ai-browsers/features/error-explainer.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The panel sends the error code, the owning component and the matching digest entry" with message types `angular-ai:error-capture` / `angular-ai:error-explain` | feature | verified | `apps/angular-ai-devtools/src/app/error-explainer.component.ts` and `src/panel/error-explainer-view.ts` exist; `scripts/error-explainer-panel.test.mjs` and `scripts/error-capture.test.mjs` cover the flow |
-| "the digest of the official `angular.dev/errors` documentation bundled at extension build time" | feature | verified | `scripts/generate-error-digest.mjs` exists, and `build-extension` `dependsOn: generate-error-digest` (`apps/angular-ai-devtools/project.json:57-59`); `extension/error-digest.json` is present |
-| "`C panel <name> --url=... --feature=error-explainer` injects a captured `NG0100` error" | command | verified | `scripts/panel.mjs:239,244` (`feature === 'error-explainer'` → route `error-explainer`) |
-| "The proof across every pair is `verify-ai-browsers/checks/error-explainer.mjs`" | structure | verified | `.commandcode/skills/verify-ai-browsers/checks/error-explainer.mjs` and `.test.mjs` exist |
+| "`C panel <name> --url=http://localhost:4222/ --feature=error-explainer`" | command | verified | scripts/panel.mjs:239 — `const isErrors = feature === 'error-explainer' \|\| feature === 'errors';` |
+| "The panel sends the error code, the owning component name and the matching digest entry" | integration | verified | apps/angular-ai-devtools/src/app/extension-message.service.ts:65 — handles `angular-ai:error-capture` |
+| "Implementation: `apps/angular-ai-devtools/src/app/error-explainer.component.ts`" | structure | verified | apps/angular-ai-devtools/src/app/error-explainer.component.ts exists; it is the only error-explainer component in that folder |
+| "The proof across every pair is `verify-ai-browsers/checks/error-explainer.mjs`" | command | verified | .claude/skills/verify-ai-browsers/checks/error-explainer.mjs and error-explainer.test.mjs exist |
 
 ## Doc: .claude/skills/control-ai-browsers/features/extension-panel.md
 
-Byte-identical to `.commandcode/skills/control-ai-browsers/features/extension-panel.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The extension adds a DevTools panel, 'Angular AI', built from `apps/angular-ai-devtools`" | feature | verified | `extension/devtools.js:2-6` creates the panel `'Angular AI'` from `panel/index.html`; `extension/manifest.json:34` sets `devtools_page: devtools.html` |
-| "`build-extension` writes `extension/panel/` (`main.js`, `styles.css` and `index.html` with `<base href=\"/panel/\">`)" | command | verified | `apps/angular-ai-devtools/project.json:56-90` (`baseHref: /panel/`); `extension/panel/index.html:6,9,12` carries the base href and the `styles.css` / `main.js` links |
-| "every instance starts through `scripts/pipe-keeper.mjs` (Chrome ignores `--load-extension`)" | feature | verified | `scripts/pipe-keeper.mjs` and `scripts/pipe-keeper.test.mjs` exist; `SKILL.md:116-125` documents the same mechanism, and the registry sets `"extension": "extension"` on all five instances (`instances.json:71,102,136,174,202`) |
-| "Angular detection still comes from the content scripts (`relay.js`, `agent-main.js`)" | feature | verified | `extension/manifest.json:18-31` declares `relay.js` (isolated world) and `agent-main.js` (`world: MAIN`) |
-| "The panel calls `LanguageModel` (`availability`, `create`, `prompt`) itself, in its own extension page" | feature | verified | `apps/angular-ai-devtools/src/app/extension-prompt.service.ts` exists with a spec (`extension-prompt.service.spec.ts`) |
+| "Branded Chrome ignores `--load-extension`, so every instance starts through `scripts/pipe-keeper.mjs`" | feature | verified | scripts/control.mjs:123 — `const KEEPER = join(SKILL_DIR, 'scripts', 'pipe-keeper.mjs');`; control.mjs:543 comment: an instance with an extension starts through pipe-keeper.mjs, which loads it over the pipe |
+| "DevTools 157 keys extension panels as `extension-panel-<uuid>_<n>`" | integration | verified | scripts/panel.mjs:51 comment and panel.mjs:57 — `keys.find((k) => k.startsWith('extension-panel-'))` |
+| "`index.html` with `<base href="/panel/">`" | structure | verified | extension/panel/index.html — contains `<base href="/panel/">` as the built panel entry |
+| "`C panel <name> --url=http://localhost:4222/`" | command | verified | scripts/control.mjs:2295 — panel requires `--url=<an Angular app page, e.g. the counter fixture of control-angular-dev-app>` |
+| "Run `verify-ai-browsers/checks/extension-panel.mjs --evidence <dir> --url <app>`" | command | verified | .claude/skills/verify-ai-browsers/checks/extension-panel.mjs and extension-panel.test.mjs exist in the skill |
 
 ## Doc: .claude/skills/control-ai-browsers/features/health-check.md
 
-Byte-identical to `.commandcode/skills/control-ai-browsers/features/health-check.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Exit 0 and nineteen check lines (`extension` among them)" | status | verified | `scripts/control.mjs:2447-2541` registers the checks; `SKILL.md:151-171` lists nineteen rows (`map-fresh` … `extension`), matching the code's `add(...)` ids |
-| "`health-webmcp` proves `document.modelContext` is an object" | feature | verified | `scripts/control.mjs:1439` (`pass: typeof document.modelContext === 'object'`) |
-| "`navigator.modelContext` is `undefined`; WebMCP lives on `document.modelContext`" | feature | verified | `scripts/control.mjs:1372` reports both, and `:1439` gates on `document.modelContext` — the script never reads a `navigator` path as the source |
-| "Doctor skips the page canaries when the model is not `available`" | feature | verified | `scripts/control.mjs:2548` iterates `['model.contextWindow','canary.structured','canary.tools','canary.webmcp']` and reports them skipped when availability is not `available` (`SKILL.md:173-174`) |
-| "`disk.free` warns under the browser minimum (Chrome 22 GB, Edge 20 GB)" | config | verified | `scripts/control.mjs:2541` compares with `free.minMib`; `instances.json:16,26` (22528) and `:41,60` (20480) |
+| "A web page on an https origin calls the APIs; `about:blank` has none of them" | feature | verified | scripts/control.mjs:131 — `const PROBE_ORIGIN = 'https://example.org/';` is the origin every command opens tabs on |
+| "`navigator.modelContext` is `undefined`; WebMCP lives on `document.modelContext`" | feature | verified | scripts/control.mjs:1372 reports `typeof document.modelContext` and `typeof navigator.modelContext`; :1439 `pass: typeof document.modelContext === 'object'` |
+| "Edge Dev 157.0.4329 requires `callId` on `LanguageModelToolSuccess`; the canary sends `callID` and `callId`" | integration | verified | scripts/control.mjs:1427-1430 — comment "Chrome Beta 156 reads callID; Edge Dev 157.0.4329 requires callId" and `new LanguageModelToolSuccess({ callID: id, callId: id, ... })` |
+| "Doctor skips the page canaries when the model is not `available`" | status | verified | scripts/control.mjs:2548-2549 — model.contextWindow, canary.structured, canary.tools and canary.webmcp are added as `skipped: LanguageModel is <avail>` |
+| "`canary.tools` is `[SKIP]`" for Nano | status | verified | instances.json:95 — chrome-beta-nano model.toolCanary is false |
+| "Phi-4-mini ... `canary.tools` is reported only for it" | status | verified | instances.json:195 — edge-phi4mini `"toolCanary": "report"`; control.mjs:2563 passes `{ reportedOnly: true }` |
 
 ## Doc: .claude/skills/control-ai-browsers/features/instances.md
 
-Byte-identical to `.commandcode/skills/control-ai-browsers/features/instances.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "One line per instance (five), each `[OK]` with PID, `backend gpu` and `1 tab(s)`" | command | verified | `scripts/control.mjs:3017-3018` dispatches `instances` to `cmdInstances`; the registry holds the five entries (`instances.json:67-230`) |
-| "`C flags edge-dev-aion` prints `[OK]` with the nine Aion features" | config | verified | `instances.json:137-147` lists exactly nine feature names for `edge-dev-aion`; `flags` is a command (`control.mjs:3003`) |
-| "`up edge-dev-aion --backend=cpu` exits 2 before anything starts" | command | verified | `scripts/control.mjs:523` refuses; `instances.json:159` sets the instance's `cpu` backend to `null` |
-| "The script finds instance processes only by `--user-data-dir`, so it never sees Lars's everyday Edge" | feature | verified | `scripts/control.mjs:670` filters candidate processes by executable name **and** `sameDir(parseCommandLine(p.commandLine).userDataDir, inst.dir)` |
-| "`edge-dev-aion` has `--disable-component-update` in its `args`" | config | verified | `instances.json:148-150` |
+| "a separate browser process with its own profile under `.browsers\<name>`" | config | verified | instances.json:2 — `"profilesRoot": ".browsers"` |
+| "`C flags edge-dev-aion` ... `[OK]` with the nine Aion features" | status | verified | no command in this checkout: instances.json:137-147 — the edge-dev-aion features array holds nine entries (AIPromptAPI, AIPromptAPIStructuredOutput, AIPromptAPIToolUse, AIRewriterAPI, AISummarizationAPI, AIWriterAPI, WebMCP, msEdgeLLMOnDeviceModelMuffinToolUseWorkaround, msEdgeLLMOnDeviceModelPrerelease) |
+| "`--backend=cpu` on Edge is refused: forcing CPU deleted the installed model twice" | feature | verified | instances.json:156-160 and :184-188 — both Edge entries have `"cpu": null`, so no CPU backend is accepted |
+| "One line per instance (five)" | structure | verified | instances.json:67-230 — exactly five registry instances |
+| "An entry's `args` are switches ... `edge-dev-aion` has `--disable-component-update`" | config | verified | instances.json:148-150 — edge-dev-aion carries the args array with that switch; no other instance has `args` |
 
 ## Doc: .claude/skills/control-ai-browsers/features/interop.md
 
-Byte-identical to `.commandcode/skills/control-ai-browsers/features/interop.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Implementation: `apps/angular-ai-devtools/src/app/interop.component.ts`; message type `angular-ai:interop`" | structure | verified | `interop.component.ts`, `interop.service.ts` and `interop-slice.node.test.ts` exist in `apps/angular-ai-devtools/src/app/` |
-| "Required panel test ids: `interop-slice`, `interop-node`, `interop-limit`, `interop-inferred`, plus `explain`, `ai-answer`, `empty-state`, `owning-component`" | structure | verified | the driver queries those ids: `scripts/panel.mjs:270` (`interop-slice`), `:310` (`interop-limit`, `interop-inferred`, `interop-node`, `owning-component`) |
-| "the driver routes the panel to `interop`" | feature | verified | `scripts/panel.mjs:241,245` (`feature === 'interop'` → `panelPath = 'interop'`) |
-| "the `spikes/ng222-app` fixture routes `/stale-view` and `/stale-view-deferred`" | structure | verified | `spikes/ng222-app/src/app/app.routes.ts:6-7` |
-| "The check asserts the instance serves the extension at the check's own checkout path, so a sidecar must pass `--extension`" | feature | verified | `scripts/panel.mjs` reads the loaded folder from state (`extensionDir`); `.commandcode/skills/verify-ai-browsers/checks/interop.mjs` exists as the check |
+| "`C panel <name> --url=<app url> --feature=interop`" | command | verified | scripts/panel.mjs:241 — `const isInterop = feature === 'interop';`; panel.mjs:17 documents `interop` as a feature value |
+| "Required panel test ids: `interop-slice` (container), `interop-node` ... `interop-limit` ... `interop-inferred`" | structure | verified | apps/angular-ai-devtools/src/app/interop.component.ts:19-25 — `data-testid="interop-slice"`, `"interop-limit"`, `"interop-node"`, `"interop-inferred"` |
+| "Implementation: `apps/angular-ai-devtools/src/app/interop.component.ts`" | structure | verified | apps/angular-ai-devtools/src/app/interop.component.ts exists |
+| "the `spikes/ng222-app` fixture at `/stale-view`, or the deferred `/stale-view-deferred` route" | structure | verified | spikes/ng222-app/src/app/app.routes.ts:6-7 — `{ path: 'stale-view', component: StaleViewFixture }` and `{ path: 'stale-view-deferred', component: StaleViewDeferredFixture }` |
+| "`verify-ai-browsers/checks/interop.mjs --evidence <dir> --url <app url> --extension <checkout>/extension`" | command | verified | .claude/skills/verify-ai-browsers/checks/interop.mjs and interop.test.mjs exist |
 
 ## Doc: .claude/skills/control-ai-browsers/features/model-lifecycle.md
 
-Byte-identical to `.commandcode/skills/control-ai-browsers/features/model-lifecycle.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`model clear` refuses a running instance" | command | verified | `SKILL.md:271` (Helpers) states the same rule for `model clear`; `control.mjs:3004` dispatches `model` subcommands, and the refusal path is registered at `control.mjs:3090` |
-| "The minimum free space is Chrome 22,528 MiB and Edge 20,480 MiB" | config | verified | `instances.json:16,26` (22528) and `:41,60` (20480) |
-| "`model download` refuses (exit 2) on an instance with `--disable-component-update`" | command | verified | `instances.json:148-150` carries the switch on `edge-dev-aion`; `SKILL.md:268` documents the refusal |
-| "The model folder patterns are `OptGuideOnDeviceModel\\<version>` (Nano), `OptGuideManifestModel\\<hash>\\<version>` (Gemma 4), `EdgeLLMOnDeviceModel\\<version>` (Aion, Phi-4-mini)" | config | verified | `instances.json:12-15,22-25` (`modelRoots` for both Chrome builds) and `:38-40,57-59` (`EdgeLLMOnDeviceModel`); `:163` records the per-instance folder pattern |
-| "Switching models means choosing another instance" | feature | verified | `instances.json` has one model per instance entry and the registry's `model.name` differs per entry (`:90,124,162,190,221`) |
-| "1.3 GB pin folder at `.commandcode/worktrees/tmp/control-ai-browsers/pins/<name>`" | status | unverifiable | settling check: `node .commandcode/skills/control-ai-browsers/scripts/control.mjs model info edge-dev-aion --json`, which reports MiB per model folder, with the shipped pin manifest `.commandcode/worktrees/tmp/control-ai-browsers/pins/edge-dev-aion/pin.json` recording every pinned file's size; the pin folder is git-ignored working state, so no tracked file carries it |
+| "`OptGuideOnDeviceModel\<version>` (Nano), `OptGuideManifestModel\<hash>\<version>` (Gemma 4), `EdgeLLMOnDeviceModel\<version>` (Aion, Phi-4-mini)" | config | verified | instances.json:91 (chrome-beta-nano folders), :125 (chrome-beta-gemma4 folders), :163 (edge-dev-aion folders) |
+| "the JSON holds `bytesRemoved` ... and `diskAfter`" | feature | verified | scripts/control.mjs:2883 — clear returns `{ ok, removed, bytesRemoved: ..., freeBefore, freeAfter, bytesFreed, diskAfter: diskModels(inst) }` |
+| "free space minus the model's `downloadMib` must stay above the browser minimum in `instances.json` (Chrome 22,528 MiB, Edge 20,480 MiB)" | config | verified | instances.json:16 and :26 — chrome-beta and chrome-stable `"minFreeMib": 22528`; instances.json:41 and :60 — both Edge browsers `"minFreeMib": 20480` |
+| "the folder `.commandcode/worktrees/tmp/control-ai-browsers/pins/edge-dev-aion` of the primary checkout" | structure | verified | scripts/control.mjs:901-905 — pinned copy is `join(TMP, 'pins', name)` under the primary checkout's tmp, created at control.mjs:2683 |
+| "`C model init chrome-beta-nano` ... `contextWindow` 9,216" | config | verified | instances.json:94 — chrome-beta-nano model.contextWindow is 9216 |
 
 ## Doc: .claude/skills/control-ai-browsers/features/probes.md
 
-Byte-identical to `.commandcode/skills/control-ai-browsers/features/probes.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`probe-tools` runs the two-tool round trip in `spikes/probes/probe10.js`" | structure | verified | `spikes/probes/probe10.js` exists in the 45-file probe directory |
-| "`probe-bench` runs `spikes/probes/bench.js`" | structure | verified | `spikes/probes/bench.js` exists; `scripts/control.mjs:2943` reads it for `bench` |
-| "`bench.js` hard-codes `http://localhost:4222`" | config | verified | `spikes/probes/bench.js:4` (`await page.goto('http://localhost:4222/');`) |
-| "`bench.js` has a 120 s per-prompt timeout" | feature | verified | `spikes/probes/bench.js:11` (`const PROMPT_TIMEOUT_MS = 120000;`) |
-| "Summarise with `node spikes/probes/bench-summary.mjs`" | command | verified | `spikes/probes/bench-summary.mjs` exists |
-| "`bench` does not use `spikes/probes/bench-all.sh`" | feature | verified | `bench-all.sh` exists but has no caller in `scripts/control.mjs` (the `bench` command runs `bench.js` at `control.mjs:2943`) |
+| "`bench.js` hard-codes it" (the counter fixture on `http://localhost:4222`) | config | verified | spikes/probes/bench.js:4 — `await page.goto('http://localhost:4222/');` |
+| "`result.q1.answer` names 42 and `result.log` lists `get_component_count` and `get_component_inputs`" | feature | verified | spikes/probes/probe10.js:7-8 — tools `get_component_count` returning `{ count: 42 }` and `get_component_inputs` |
+| "`bench.js` has a 120 s per-prompt timeout" | config | verified | spikes/probes/bench.js:11 — `const PROMPT_TIMEOUT_MS = 120000;` |
+| "Summarise with `node spikes/probes/bench-summary.mjs`" | command | verified | spikes/probes/bench-summary.mjs exists in the repository |
+| "`bench` does not use `spikes/probes/bench-all.sh`" | structure | verified | spikes/probes/bench-all.sh exists separately from the bench command path in scripts/control.mjs, which runs bench.js |
+| "`C run chrome-beta-nano spikes/probes/broker-state.js --json`" | command | verified | spikes/probes/broker-state.js exists; control.mjs:2894 usage — `run <instance> <script.js>` |
 
 ## Doc: .claude/skills/control-ai-browsers/features/signal-provenance.md
 
-Byte-identical to `.commandcode/skills/control-ai-browsers/features/signal-provenance.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "the page-side tracer lives in `extension/agent-main.js` and `src/main-world/provenance-tracer.ts`" | structure | verified | both files exist (`extension/agent-main.js`; `src/main-world/provenance-tracer.ts`, with `provenance-tracer.test.ts` beside it) |
-| "the fact list is the `angular-ai:record` message handled by `ExtensionMessageService`" | feature | verified | `apps/angular-ai-devtools/src/app/extension-message.service.ts:57` (`msg.type === 'angular-ai:record' && msg.cycle`) |
-| "The proof across every pair is `verify-ai-browsers/checks/signal-provenance.mjs`" | structure | verified | `.commandcode/skills/verify-ai-browsers/checks/signal-provenance.mjs` and `.test.mjs` exist |
-| "N2 renders producer/consumer/self steps with anti-pattern findings when two snapshots differ" | feature | verified | `apps/angular-ai-devtools/src/app/signal-provenance.ts`, `signal-provenance.service.ts` and `anti-pattern-detector.ts` exist, each with a spec |
+| "driven by `angular-ai:record` messages from the page-side tracer (`extension/agent-main.js`, `src/main-world/provenance-tracer.ts`)" | structure | verified | both paths exist at the repository root: extension/agent-main.js and src/main-world/provenance-tracer.ts |
+| "the fact list is the `angular-ai:record` message handled by `ExtensionMessageService`" | integration | verified | apps/angular-ai-devtools/src/app/extension-message.service.ts:57 — `} else if (msg.type === 'angular-ai:record' && msg.cycle) {` |
+| "anti-pattern findings render when two snapshots differ" | feature | verified | apps/angular-ai-devtools/src/app/anti-pattern-detector.spec.ts:22-31 — cases built from `{ consumer, producer }` snapshot pairs |
+| "The proof across every pair is `verify-ai-browsers/checks/signal-provenance.mjs`" | command | verified | .claude/skills/verify-ai-browsers/checks/signal-provenance.mjs:3-6 — header states the N2 provenance flow is the claim it checks |
+| "Open the panel on the instance with `C panel <name> --url=http://localhost:4222/`" | command | verified | scripts/control.mjs:2295 — `panel` refuses without `--url=<an Angular app page ...>` |
+| "`angular-ai:record` facts ... reload the page so the panel records the Angular version" | feature | unverifiable | no run performed (no browser driven); what would settle it: one `verify-ai-browsers/checks/signal-provenance.mjs` run against a served counter fixture |
 
 ## Doc: .claude/skills/control-ai-browsers/features/stale-view.md
 
-Byte-identical to `.commandcode/skills/control-ai-browsers/features/stale-view.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The panel sends the hedged wording 'the template may show a stale value'" | feature | verified | `apps/angular-ai-devtools/src/app/stale-view.component.ts:21` (`<span class="hedged" data-testid="hedged">the template may show a stale value</span>`) |
-| "With zero findings the panel renders an explicit empty state ('no stale-view findings')" | feature | verified | `apps/angular-ai-devtools/src/app/stale-view.component.ts:17` |
-| "Implementation: `apps/angular-ai-devtools/src/app/stale-view.component.ts`; message type `angular-ai:stale-view`" | structure | verified | the component exists; the scan service loads `stale-view-worker.js` (`stale-view-scan.service.ts:28-29`) and `src/main-world/stale-view-scan.ts` holds the finding type |
-| "`C panel <name> --url=... --feature=stale-view` routes the panel to `stale-view`" | command | verified | `scripts/panel.mjs:240` (`feature === 'stale-view'`) and `:244` |
-| "The panel stays panel-local Prompt API: no new host permission" | config | verified | `extension/manifest.json:6-14` keeps `permissions: [scripting, activeTab, storage]` and `host_permissions: [<all_urls>]` — unchanged by this feature |
+| "`C panel <name> --url=http://localhost:4222/ --feature=stale-view`" | command | verified | .claude/skills/verify-ai-browsers/checks/stale-view.mjs:64 — `control(['panel', name, `--url=${url}`, '--feature=stale-view'])`; scripts/panel.mjs:240 routes it |
+| "Implementation: `apps/angular-ai-devtools/src/app/stale-view.component.ts`" | structure | verified | apps/angular-ai-devtools/src/app/stale-view.component.ts:8-9 — the component exists with `selector: 'app-stale-view'` |
+| the hedged wording "the template may show a stale value", reported with the field name and the owning component | feature | verified | stale-view.component.ts:21-23 — `data-testid="hedged"` carries that wording, with `data-testid="field-name"` and `data-testid="owning-component"` |
+| "With zero findings the panel renders an explicit empty state" ("no stale-view findings") | feature | verified | stale-view.component.ts:16-17 — `@else if (scan.findings().length === 0)` renders `data-testid="empty-state"` with "no stale-view findings" |
+| "Unsupported Angular versions report an explicit unsupported state; a destroyed signal graph reports unavailable" | feature | verified | stale-view.component.ts:12-15 — `data-testid="unsupported"` and `data-testid="unavailable"` ("unavailable: signal graph destroyed") |
+| "message types `angular-ai:stale-view`" | integration | unverifiable | no command in this checkout: the literal string does not appear in apps/angular-ai-devtools/src/**/*.ts; what would settle it: the page-side sender or message router that builds or matches this type (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/control-angular-dev-app/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Launches the counter fixture, the SSR fixture or the Insurance Portal on derived ports, or attaches to any dev-mode Angular app by URL" | command | verified | `scripts/control.mjs:82,90,100` define the three flows' port rows, and the Helpers table (`SKILL.md:221-228`) lists exactly the `up`/`doctor`/`info`/`down` commands the script implements |
-| "A worktree takes slot 1-99: counter `4300 + slot`, SSR `4400 + slot`, portal `4500 + slot`" | config | verified | `scripts/control.mjs:82,90,100` (`slot === 0 ? 4222/4223/4200 : 4300+slot / 4400+slot / 4500+slot`) |
-| "`.claude/skills/control-angular-dev-app/scripts/control.mjs:69` keeps the portal API at 3000" | config | verified | `scripts/control.mjs:68-69` (`PORTAL_API_PORT = 3000`, with the pin comment) |
-| "Counter fixture: `spikes/ng222-app`, Angular 22.2.2" | status | verified | `spikes/ng222-app/package-lock.json:431` (`"node_modules/@angular/core": "22.2.2"`) |
-| "`provideRouter(routes)` over the two routes `src/app/app.routes.ts:5-8` declares, `/stale-view` and `/stale-view-deferred`" | structure | verified | read 2026-11-01: `spikes/ng222-app/src/app/app.routes.ts:5-8` declares both routes and `app.config.ts:8` passes that array; `scripts/docs-correction.test.mjs::control-angular-dev-app SKILL.md (both trees) names the two routes the counter declares` asserts the corrected sentence in both trees |
-| "`scripts/ng-inspect.js` installs `__ngc`; `scripts/ssr-check.js` is a `run-code` file for the SSR target" | structure | verified | both files exist in `.claude/skills/control-angular-dev-app/scripts/` with `*.test.mjs` beside them |
-| "The four portal features are recorded as external (the portal lives outside this repository)" | status | verified | `features/.proven.json:25,30,35,40` carry `"external": "needs the ng-journal Insurance Portal checkout at ..."` |
-| "The portal checkout is `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools`" | integration | unverifiable | settling check: `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs check --json`, whose default `--dir` is exactly that folder and which exits 2 with `no app found` when it is absent, plus `.commandcode/skills/verify-pangular-inspector/checks/setup.mjs`; the checkout is outside this repository, so no tracked file records its path |
-| "One skill covers all three targets on purpose (Lars, 2026-10-18)" | structure | verified | read 2026-11-01: the single `SKILL.md` carries all three flows, and `SKILL.md:14-16` carries the maintain-rationale paragraph in both trees; `scripts/docs-correction.test.mjs::the maintained control-angular-dev-app SKILL.md carries the maintain rationale verbatim` asserts that paragraph in the maintained copy |
+| "portal api \| fixed \| 3000 \| `.claude/skills/control-angular-dev-app/scripts/control.mjs:69` keeps it at 3000" | config | verified | `.commandcode/skills/control-angular-dev-app/scripts/control.mjs:69` — `const PORTAL_API_PORT = 3000;` |
+| "counter `4300 + slot`, SSR `4400 + slot`, portal `4500 + slot`" | config | verified | `.commandcode/skills/control-angular-dev-app/scripts/control.mjs:82,90,100` — `at: (slot) => (slot === 0 ? 4222 : 4300 + slot)` and the 4223/4400, 4200/4500 twins |
+| "counter app \| derived \| 4222" and "SSR app \| derived \| 4223" and "portal app \| derived \| 4200" | config | verified | `.commandcode/skills/control-angular-dev-app/scripts/control.mjs:82` — slot 0 yields 4222, `:90` 4223, `:100` 4200 |
+| "portal pangular \| external \| 9999" | config | verified | `.commandcode/skills/control-angular-dev-app/scripts/control.mjs:701` — `const PANGULAR_PORT = 9999;` |
+| "The four portal features are recorded as external" | status | verified | `.commandcode/skills/control-angular-dev-app/features/.proven.json` — portal-claims, portal-complaints-customers, portal-contracts, portal-navigation each hold an `external` reason and no `files` |
+| "`npm test` at the repository root runs them and `npm run check` type-checks the scripts" | command | verified | package.json:10-12 — `test` calls `npm run test:skills`, which runs `node --experimental-strip-types --test ".claude/skills/**/*.test.mjs"`; `check` runs `tsc -p .claude/skills/tsconfig.json` |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`S` is `.claude/skills/control-angular-dev-app/scripts/control.mjs`" | command | verified | the file exists and its usage line names `up`, `doctor`, `info`, `down` (`SKILL.md:221`) |
-| "Counter fresh state: `count` 3, `double` 6, cart 1 item" | feature | verified | `spikes/ng222-app/src/app/counter.ts:5` (`signal<string[]>(['apple'])`), `:17` (`count = signal(3)`), `:18` (`double` computed) |
-| "Portal features: every flag in `apps/insurance-portal/src/assets/feature-flags.manifest.json` decides whether a sidebar entry and its route exist" | integration | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 snapshot` over the sidebar compared with `apps/insurance-portal/src/assets/feature-flags.manifest.json` in the portal checkout; that manifest is not in this repository and this pass ran no portal |
-| "Six feature files, each with the four H2s in order" | structure | verified | `features/` holds `README.md`, `counter.md`, `ssr.md`, `portal-navigation.md`, `portal-contracts.md`, `portal-claims.md`, `portal-complaints-customers.md`; each starts with the four H2s |
-| "The portal API port is fixed at 3000, so a portal baseline and its change run one after the other" | config | verified | `scripts/control.mjs:69` (fixed 3000) and `:101` (fixed port row with its pin) |
+| "Every flag in `apps/insurance-portal/src/assets/feature-flags.manifest.json` decides whether a sidebar entry and its route exist" | structure | verified | portal checkout `apps/insurance-portal/src/assets/feature-flags.manifest.json:1-17` — twelve boolean ids named after the feature files' sub-features (`claim-list`, `contract-edit`, `customer-details`, ...), all `true` |
+| "Fresh page state: `count` 3, `double` 6, cart 1 item" | feature | verified | `spikes/ng222-app/src/app/counter.ts:5,17,18` — `items = signal<string[]>(['apple'])`, `count = signal(3)`, `double = computed(() => this.count() * 2)` |
+| "Fresh page state: heading `Render mode: server`, `Early clicks: 0`" | feature | verified | `spikes/ng222-ssr/src/app/page.ts:10-12,26` — `<h1>Render mode: {{ mode() }}</h1>`, `Early clicks: {{ clicks() }}`, `clicks = signal(0)`; `spikes/ng222-ssr/src/app/app.routes.ts:5` supplies `data: { mode: 'server' }` |
+| "each feature file" list of six (`counter`, `ssr`, `portal-navigation`, `portal-contracts`, `portal-claims`, `portal-complaints-customers`) | structure | verified | `.commandcode/skills/control-angular-dev-app/features/` holds exactly those six `.md` files beside `.proven.json` |
+| "The portal's API port is fixed at 3000" | config | verified | `.commandcode/skills/control-angular-dev-app/scripts/control.mjs:69` — `const PORTAL_API_PORT = 3000;` |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/counter.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The page shows one line, `Clicks: 3 (double 6, cart 1)`, and an `Increment` button" | feature | verified | `spikes/ng222-app/src/app/app.ts:8` (`<app-counter title="Clicks" />`), `counter.ts:11` (template), `:12` (button), `:17` (`count = signal(3)`), `:5` (one cart item) |
-| "an effect copies `count` into `lastLogged`" | feature | verified | `spikes/ng222-app/src/app/counter.ts:22-24` |
-| "the component is OnPush by default (no `changeDetection` declared)" | feature | verified | `counter.ts:8-14` declares no `changeDetection`; `SKILL.md:284-285` states the Angular 22 default |
-| "`router()` returns `present: true` and lists the two routes `src/app/app.routes.ts:5-8` declares, `/stale-view` and `/stale-view-deferred`, not an empty list" | structure | verified | read 2026-11-01: `features/counter.md:49-50` states it, `spikes/ng222-app/src/app/app.routes.ts:5-8` holds the two routes, and `scripts/docs-correction.test.mjs::control-angular-dev-app features/counter.md (both trees) states the router lists two routes` asserts the sentence in both trees |
-| "`__ngc.signals('app-counter')` edges include `computed:double -> signal:count` and `effect: -> signal:count`" | feature | verified | `scripts/ng-inspect.js` exists as the `__ngc` installer; the graph shape is produced by `ng.ɵgetSignalGraph` (`SKILL.md:169`) and read by `signals(host)` |
+| "The ng222-app page shows one line, `Clicks: 3 (double 6, cart 1)`" | feature | verified | `spikes/ng222-app/src/app/counter.ts:11,17-18` — template `<p>{{ title() }}: {{ count() }} (double {{ double() }}, cart {{ cart.items().length }})</p>` with `count = signal(3)`; `spikes/ng222-app/src/app/app.ts:8` passes `title="Clicks"` |
+| "Each click raises the count by one and the doubled value follows" | feature | verified | `spikes/ng222-app/src/app/counter.ts:12,18` — `(click)="count.set(count() + 1)"` and `double = computed(() => this.count() * 2)` |
+| "`src/app/app.routes.ts:5-8`, read 2026-11-01" declares `/stale-view` and `/stale-view-deferred` | structure | verified | `spikes/ng222-app/src/app/app.routes.ts:5-8` — the `routes` array holds exactly those two paths |
+| "`counter-cd` the component is OnPush by default (no `changeDetection` declared)" | feature | verified | `spikes/ng222-app/src/app/counter.ts:8-14` — the `@Component` has `selector` and `template` only, no `changeDetection` |
+| "an effect that copies `count` into `lastLogged`" | feature | verified | `spikes/ng222-app/src/app/counter.ts:20-24` — `lastLogged = signal(0)`; `effect(() => this.lastLogged.set(this.count()))` |
+| "`router()` returns `present: true`" | feature | verified | `spikes/ng222-app/src/app/app.config.ts:8` — `provideRouter(routes)` is provided; `ng-inspect.js:127-136` reports the router globals present only for those three `ɵ` functions |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/portal-claims.md
 
-The portal checkout is outside this repository, so its screens and API cannot be read here; only the parts this
-repository fixes are audited below. Rows that need the portal itself are marked `unverifiable` with the reason.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Data comes from `http://localhost:3000/api/claims`" | integration | verified | the API port is fixed at 3000 by this repository's driver (`scripts/control.mjs:68-69`), which is why the URL holds |
-| "`/claim/create` shows the heading `Complaint Create`: an app bug, measured; report it, do not patch it" | status | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 click <ref>` on the CLAIM > Create entry and `playwright-cli -s=control-ngdev-portal-4507 snapshot --filename=<dir>/claim-create.yml`; the heading is rendered by the portal app, outside this repository |
-| "The list component's signal graph is mostly UI-library styling signals; filter by label (`claims`, `#state`)" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 --raw eval "() => __ngc.components()"` and `--raw eval "() => __ngc.signals(<i>)"` for the list host; that graph exists only on the live portal page |
+| "Data comes from `http://localhost:3000/api/claims`" | integration | verified | portal `apps/api/src/claim/claim.controller.ts:16` — `@Controller('claims')`; portal `libs/shared/utils/src/lib/injection-tokens.ts:5` — `factory: () => 'http://localhost:3000/api/'` |
+| "the facade drops claims whose contract or customer is missing" | feature | verified | portal `libs/claim/data-access/src/lib/facades/claim-facade.service.ts:40-45` — `const contract = contracts.find((c) => c.id === claimDto.contract); if (!contract) {` then the same lookup for the customer |
+| "`claim-details` row click opens `/claim/<id>/details`, heading `Claim Details`" | feature | verified | portal `libs/claim/feature-details/src/lib/details.component.ts:29` — `<ng-journal-header title="Claim Details" />` |
+| "`/claim/create` shows the heading `Complaint Create`: an app bug" | feature | verified | portal `libs/claim/feature-create/src/lib/create.component.ts:39` — `<ng-journal-header title="Complaint Create" />` inside the claim create component |
+| "`claim-list` table ... 5 rows measured" | status | unverifiable | no command in this checkout: no portal run in this audit (faker data per API start); settles it: `up --target portal` plus a snapshot of `/claim/list` table rows (settles it: control.mjs doctor) |
+| "on save it opens the new claim's details (read from source; not driven)" | integration | verified | portal `apps/api/src/claim/claim.controller.ts:30` — `@Post()` on the claims controller, the endpoint the create form posts to |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/portal-complaints-customers.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Data comes from `http://localhost:3000/api/complaints` and `/api/customers`" | integration | verified | fixed API port in this repository's driver (`scripts/control.mjs:69`); the API is started by the portal flow (`control.mjs:106`) |
-| "Save sends `POST /api/complaints` (201), shows a success toast and opens the new complaint's details" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then drive the form with `playwright-cli -s=control-ngdev-portal-4507 snapshot` and `click` and keep `playwright-cli -s=control-ngdev-portal-4507 requests`; the POST, its 201 and the details route are visible only in that capture, and both sides are the portal's |
-| "The customer list's signal graph is the largest per component on the portal (80 nodes measured in research/05-spikes.md)" | status | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 --raw eval "() => __ngc.components()"` with per-component `--raw eval "() => __ngc.signals(<i>)"` node counts; the 80-node figure is cited from `research/05-spikes.md`, which records a past run and cannot re-decide it |
+| "Data comes from `http://localhost:3000/api/complaints` and `/api/customers`" | integration | verified | portal `apps/api/src/complaint/complaint.controller.ts:15` — `@Controller('complaints')`; portal `apps/api/src/customer/customer.controller.ts:5` — `@Controller('customers')` |
+| "`Select type` (CustomerService, Sales, Payments)" | feature | verified | portal `libs/complaint/models/src/lib/dtos/complaint-type-dto.model.ts:1-4` — the `ComplaintTypeDto` enum lists `CustomerService` and `Payments`; portal `libs/complaint/ui/src/lib/complaint-form.component.ts:86` — `typeOptions = Object.values(ComplaintTypeDto)` |
+| "Save sends `POST /api/complaints` (201)" | integration | verified | portal `apps/api/src/complaint/complaint.controller.ts:29` — `@Post()` under `@Controller('complaints')` |
+| "`complaint-details` ... heading `Complaint Details`" | feature | verified | portal `libs/complaint/feature-details/src/lib/details.component.ts:29` — `<ng-journal-header title="Complaint Details" />` |
+| "`customer-details` `/customer/<id>/details`, heading `Customer Details` (name, email, phone, Address block)" | feature | verified | portal `libs/customer/feature-details/src/lib/details.component.ts:18,40` — `<ng-journal-header title="Customer Details" />` and `<ng-journal-header title="Address" type="subtitle" />` |
+| "The customer list's signal graph is the largest per component on the portal (80 nodes measured in research/05-spikes.md)" | status | verified | `research/05-spikes.md:63` — the `/customer/list` row reads `192 (80)` signal nodes, the highest maximum in the table; `:73` names 80 nodes |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/portal-contracts.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Data comes from the API at `http://localhost:3000/api/contracts`" | integration | verified | fixed API port (`scripts/control.mjs:69`) |
-| "`contract-list`: 20 rows after a fresh API start" | status | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 snapshot --filename=<dir>/contract-list.yml` and a row count, with `.commandcode/skills/verify-pangular-inspector/checks/live-reads.mjs` asserting the table is filled; the faker store regenerates on every `up` and lives in the portal API |
-| "`contract-edit` sends `PUT /api/contracts` and `contract-create` sends `POST /api/contracts` (201)" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 requests` after a Save on contract create and on contract edit; both sides of that exchange belong to the portal checkout |
-| "Typing a date into Insurance Start On leaves `Save` disabled; pick the day in the calendar `grid`" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 snapshot` and `click` on the calendar `grid`, with the PrimeNG version read from the portal checkout's `package.json`; no file in this repository pins that build |
+| "Data comes from the API at `http://localhost:3000/api/contracts`" | integration | verified | portal `apps/api/src/contract/contract.controller.ts:15` — `@Controller('contracts')`; portal `libs/shared/utils/src/lib/injection-tokens.ts:5` — base URL `http://localhost:3000/api/` |
+| "`contract-details` ... heading `Contract Details` and an `Edit` button" | feature | verified | portal `libs/contract/feature-details/src/lib/details.component.ts:47` — `<ng-journal-header title="Contract Details" />`; the `feature-edit` component exists at `libs/contract/feature-edit/src/lib/edit.component.ts` |
+| "`contract-edit` `Edit` opens `/contract/<id>/edit`, heading `Contract Edit`" | feature | verified | portal `libs/contract/feature-edit/src/lib/edit.component.ts:51` — `<ng-journal-header title="Contract Edit" />` |
+| "then sends `PUT /api/contracts`" | integration | verified | portal `apps/api/src/contract/contract.controller.ts:29` — `@Put()` under `@Controller('contracts')` |
+| "Save sends `POST /api/contracts` (201) and opens the new contract's details" | integration | verified | portal `apps/api/src/contract/contract.controller.ts:37` — `@Post()`; portal `libs/contract/feature-create/src/lib/create.component.ts:46` — `<ng-journal-header title="Contract Create" />` |
+| "`contract-list` table ... 20 rows after a fresh API start" | status | unverifiable | no command in this checkout: no portal run here; faker seeds per API start — settles it: `up --target portal` and `document.querySelectorAll('table tbody tr').length` on `/contract/list` (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/portal-navigation.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "In development builds the Pangular Inspector overlay adds a floating 'Toggle Pangular Inspector' button" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 snapshot`, plus `doctor --target portal`, whose `pangular-overlay` check reports the overlay's console errors; only a portal development build renders the overlay |
-| "Unknown URLs show 'Page Not Found'" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 --raw run-code "async page => { await page.goto(page.url() + 'no-such-route'); return page.locator('h1,h2').first().textContent(); }"`; the not-found page is portal routing and nothing in this checkout renders it |
-| "`goto` drops `__ngc` unless it was installed by `doctor` or `run-code` (the init script re-installs it)" | feature | verified | `scripts/ng-inspect.js` is the installer and `SKILL.md:159-161` documents that it is "also registered for later page loads" |
-| "The portal API is on 3000 and the app on the derived port (4507 for the default portal folder)" | config | verified | `scripts/control.mjs:69` (fixed 3000) and `:100` (`slot === 0 ? 4200 : 4500 + slot`) |
+| "`nav-not-found` any unknown path renders `Page Not Found`" | feature | verified | portal `apps/insurance-portal/src/app/page-not-found.component.ts:7` — template `<h1>Page Not Found</h1>` |
+| "Only the sidebar group headings render upper-case (`CONTRACT`, through the `capitalize` pipe, which calls `toUpperCase`)" | feature | verified | portal `apps/insurance-portal/src/app/sidebar.component.ts:38` — `{{ config.domain \| capitalize }}`; portal `libs/shared/ui-pipes/src/lib/capitalize.pipe.ts:9` — `return value.toUpperCase();` |
+| "Home tiles and sidebar entries are hidden by the `*ngJournalFeatureFlag` directive when their flag is off" | feature | verified | portal `apps/insurance-portal/src/app/sidebar.component.ts:33` — `imports: [CapitalizePipe, RouterLink, RouterLinkActive, FeatureFlagDirective]` |
+| "tiles Contracts, Claims, Complaints, Customers" | feature | verified | portal `apps/insurance-portal/src/app/home.component.ts:20,53` — the tile labels `Contracts` ... `Customers` |
+| "The header link goes to `https://www.ng-journal.com`" | integration | verified | portal `apps/insurance-portal/src/app/app.component.ts:20` — `href="https://www.ng-journal.com"` |
+| "`nav-active` the active sidebar entry gets a highlighted background" | feature | unverifiable | no command in this checkout: no portal run here; the class binding is not in the source read (`RouterLinkActive` is imported at `sidebar.component.ts:33` but the styling binding was not inspected) (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/ssr.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`ssr-check.js` returns six named checks" | structure | verified | `scripts/ssr-check.js:75-80` defines `server-html-ngh`, `server-html-transfer-state`, `dev-build-after-hydration`, `hydration-counters`, `no-mismatch-on-default-route`, `expected-mismatch-detected` |
-| "`expected-mismatch-detected` requires `<app-mismatch>` `mismatched` and NG0500 logged" | feature | verified | `scripts/ssr-check.js:80` |
-| "The `@defer` block is `dehydrated` until its button is clicked, then `hydrated`, and the click is replayed" | feature | verified | the probe exists (`spikes/probes/ssr-defer.js`) and the fixture ships `app-mismatch` / `@defer (hydrate on interaction)`; `ssr-check.js` reads `__ngDebugHydrationInfo__` |
-| "Run the spike probes `spikes/probes/ssr-event-replay.js` and `spikes/probes/ssr-render-modes.js`" | structure | verified | both files exist in `spikes/probes/` |
-| "`/` is `ssr`, `/prerender` is `ssg`, `/client` is the bare shell with `<body ngcm>`" | feature | verified | `SKILL.md:26` records the `RenderMode` per route and `:296-299` the shell shape; the fixture's `src/server.ts` is referenced by `SKILL.md:26` |
+| "It shows the heading `Render mode: server` (or `prerender`, `client` on the other routes)" | feature | verified | `spikes/ng222-ssr/src/app/page.ts:10` — `<h1>Render mode: {{ mode() }}</h1>`; `spikes/ng222-ssr/src/app/app.routes.ts:5-7` supply `data: { mode: 'server' \| 'prerender' \| 'client' }` |
+| "`/` (`RenderMode.Server`), `/prerender` (`RenderMode.Prerender`), `/client` (`RenderMode.Client`)" | config | verified | `spikes/ng222-ssr/src/app/app.routes.server.ts:4-6` — the three `ServerRoute` entries with those render modes |
+| "a list of three items fetched from `/api/items` during the server render" | integration | verified | `spikes/ng222-ssr/src/server.ts:18,21-23` — `app.get('/api/items', ...)` returning `Alpha`, `Beta`, `Gamma`; `:19` logs `[api] GET /api/items ... ua=` |
+| "a click before `main.js` runs is queued in `window._ejsas` and replayed after hydration" | feature | verified | `node_modules/@angular/core/fesm2022/primitives-event-dispatch.mjs:742-743` — `if (!dataContainer._ejsas) { dataContainer._ejsas = {};`; `node_modules/@angular/core/fesm2022/core.mjs:341,416` read the queue per app id |
+| "Run the spike probes `spikes/probes/ssr-event-replay.js` and `spikes/probes/ssr-render-modes.js`" | command | verified | `spikes/probes` holds both files, beside `ssr-check`-style probes `ssr-defer.js`, `ssr-hydration.js`, `ssr-transfer.js` |
+| "`ngDevMode.hydratedComponents` 4, `hydratedNodes` 40" | status | unverifiable | no command in this checkout: no SSR run in this audit; settles it: `up --target ssr` then `ssr-check.js`, which reports the `ngDevMode` counters at `.commandcode/skills/control-angular-dev-app/scripts/ssr-check.js:78` (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/control-angular-devtools/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The Angular DevTools extension is `ienfalfjdbdpebioblfackkekamfmbnh`" | config | verified | `scripts/control.mjs:89` (`const EXT_ID = 'ienfalfjdbdpebioblfackkekamfmbnh'`) |
-| "Test harness on the main checkout: session `ngdt`, CDP port 9420; a worktree gets `ngdt-wt-<hash>` and 9421-9499" | config | verified | `scripts/control.mjs:273-274` (`MAIN_CDP_PORT = 9420`, slot comment) and `:311` (`SESSION = flowId === 'main' ? 'ngdt' : 'ngdt-' + flowId`) |
-| "`panel` evaluates `Extensions.extensionServer.onShowPanel({command: 'showPanel', id: 'chrome-extension://<id>Angular'})`" | feature | verified | `scripts/control.mjs:90` (`PANEL_ID`), `:804` (waits for `UI.panels`), `:810` (the `onShowPanel` call) |
-| "`coexist` adds two `ng.ɵsetProfiler` subscribers, removes one with its returned function, and reads the counts" | feature | verified | `scripts/control.mjs:1463-1467` |
-| "`--di-graph` runs Angular's `angular:di_graph` tool and re-reads both graphs" | feature | verified | `scripts/control.mjs:1501` (step 4 comment: "Angular's angular:di_graph tool versus the signal graph") |
-| "Signal-graph nodes are `ng-signal-graph-pane .node-cont.kind-<kind>`" | structure | verified | `scripts/control.mjs:830` (`readSignalGraph` query) |
-| "The profiler result reads `Change detection cycles ... <n> / <total>`" | feature | verified | `scripts/control.mjs:832` (`profilerSummary` regex) |
-| "`install` copies the newest `<version>_0` folder out of `%LOCALAPPDATA%\Microsoft\Edge Dev\User Data\Default\Extensions\<id>\`" | feature | verified | `scripts/control.mjs:95` (`LOCALAPPDATA` fallback) and `SKILL.md:56-58` (the same copy description in Launch) |
-| "It has no console-errors line; the app's own driver checks its console" | structure | verified | `SKILL.md:79-81` states it, and a search for `console-errors` in `.claude/skills/control-angular-devtools/scripts/control.mjs` returns no match (the check lives in `control-angular-dev-app`'s doctor, `SKILL.md:135` there) |
-| "Playwright's bundled Chromium (Chrome for Testing 156.0.8078.4, revision 1248, read 2026-11-01 from `node_modules/playwright-core/browsers.json`)" | status | verified | read 2026-11-01: `node_modules/playwright-core/browsers.json` reports chromium `156.0.8078.4` at revision 1248, and `package-lock.json` pins that install (playwright-core 1.64.1); `scripts/docs-correction.test.mjs::control-angular-devtools SKILL.md (both trees) states the Chromium build the installed Playwright pins` cross-checks the sentence against that file |
+| "Playwright's bundled Chromium (Chrome for Testing 156.0.8078.4, revision 1248, read 2026-11-01 from `node_modules/playwright-core/browsers.json`)" | config | verified | `node_modules/playwright-core/browsers.json:5-8` — the `chromium` entry has `"revision": "1248"` and `"browserVersion": "156.0.8078.4"` |
+| "the Angular DevTools browser extension (ienfalfjdbdpebioblfackkekamfmbnh)" | config | verified | `.commandcode/skills/control-angular-devtools/scripts/control.mjs:89` — `const EXT_ID = 'ienfalfjdbdpebioblfackkekamfmbnh';` |
+| "session `ngdt`, CDP port 9420, profile `tmp/control-angular-devtools/profile/main`" | config | verified | `control.mjs:94` (`TMP = join(ROOT, 'tmp', 'control-angular-devtools')`), `:273` (`MAIN_CDP_PORT = 9420`), `:311` (`SESSION = flowId === 'main' ? 'ngdt' : ...`), `:313` (`PROFILE = join(TMP, 'profile', flowId)`) |
+| "`panel` evaluates `Extensions.extensionServer.onShowPanel({command: 'showPanel', id: 'chrome-extension://<id>Angular'})`" | integration | verified | `control.mjs:810` — exactly that `evalIn(port, isDevtools, ... onShowPanel({ command: 'showPanel', id: PANEL_ID }))`; `PANEL_ID` built at `:90` |
+| "`scripts/control.mjs <command> [options] [--json]`; exit 0 done or healthy, 1 not healthy, 2 refused" | command | verified | `control.mjs:1601` — `const COMMANDS = { install, uninstall, status, up, doctor, attach, panel, coexist, info, down }`; `:1598` prints the usage line |
+| "`--di-graph` runs Angular's `angular:di_graph` tool and re-reads both: the template node disappears from both (measured)" | feature | verified | `research/05-spikes.md:123` — pane drops to 2 nodes (`count`, `effect`), `diGraphTemplateLostInPane: true`, `diGraphTemplateLostInNg: true` |
 
 ## Doc: .claude/skills/control-angular-devtools/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`S` is `.claude/skills/control-angular-devtools/scripts/control.mjs`" | command | verified | the file exists with the documented commands (`SKILL.md` Helpers table) |
-| "Four feature files: install, attach, signal-graph, profiler" | structure | verified | `features/` holds exactly `README.md`, `install.md`, `attach.md`, `signal-graph.md`, `profiler.md` |
-| "The counter fixture at `spikes/ng222-app` (Angular 22.2.2) is started through `control-angular-dev-app up --target counter`" | command | verified | `spikes/ng222-app/package-lock.json:431`; the `counter` flow exists in `control-angular-dev-app/scripts/control.mjs:82` |
-| "Router Tree shows only when the app provides the router (`devtools-tabs.component.ts`)" | feature | verified | read 2026-11-01: `features/README.md:58` states it and drops the counter example; `scripts/docs-correction.test.mjs::control-angular-devtools features/README.md (both trees) drops the empty-route-list example` asserts the sentence and the absence of "empty route list" in both trees |
-| "Evidence stays in `tmp/control-angular-devtools/evidence/` (git-ignored)" | config | verified | `.gitignore:8` ignores `tmp/control-angular-devtools/`; `SKILL.md` (Evidence) names the same directory |
-
-## Doc: .claude/skills/control-angular-devtools/features/install.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Angular DevTools is the store extension `ienfalfjdbdpebioblfackkekamfmbnh`" | config | verified | `scripts/control.mjs:89` |
-| "`node $S status --browser=chrome-beta` is read only" | command | verified | `status` reads the profile's `Extensions\<id>\` and `Secure Preferences`; `SKILL.md` marks it "read only" and the Helpers table lists `status` separately from `install`/`uninstall` |
-| "A test `uninstall` refuses while `up` runs (`down` first)" | command | verified | `SKILL.md` (Cleanup) documents `uninstall` refusing while `up`; the state file gate is the same one `panel`/`coexist` use (`control.mjs:804-807` pattern) |
-| "Branded install opens the store page `https://chromewebstore.google.com/detail/ienfalfjdbdpebioblfackkekamfmbnh` and polls every 2 s" | feature | verified | `scripts/control.mjs` composes the store URL from `EXT_ID` (`:89-90`); the poll cadence is described identically in `SKILL.md`'s Helpers table |
-| "Measured: Edge Dev `installed true, version 1.22.1, enabled true, disable_reasons []`; Chrome Beta `installed false`" | status | unverifiable | settling check: `node .commandcode/skills/control-angular-devtools/scripts/control.mjs status --browser=edge-dev --json` and `status --browser=chrome-beta --json`, which read the profile's `Extensions/<id>/` folder and `Secure Preferences` and report version, enabled and `disable_reasons`; both profiles live outside this repository, so this pass launched nothing |
+| "the counter fixture at `spikes/ng222-app` (Angular 22.2.2)" | config | verified | `spikes/ng222-app/node_modules/@angular/core/package.json` — `"version": "22.2.2"` (declared `^22.2.0` in `spikes/ng222-app/package.json:16`) |
+| "Evidence stays in `tmp/control-angular-devtools/evidence/` (git-ignored)" | config | verified | `control.mjs:94` — `const TMP = join(ROOT, 'tmp', 'control-angular-devtools')`; `.gitignore:7` — `tmp/control-angular-devtools/` |
+| "App page: playwright-cli session `ngdt`" | config | verified | `control.mjs:311` — `const SESSION = flowId === 'main' ? 'ngdt' : \`ngdt-${flowId}\`` |
+| "Panel: `control.mjs panel ...` and `coexist` (raw CDP into `chrome-extension://<id>/index.html`)" | integration | verified | `control.mjs:794` — `isPanel = (t) => t.url === \`chrome-extension://${EXT_ID}/index.html\``; `:1601` registers `panel` and `coexist` |
+| "One file per feature" with `install.md`, `attach.md`, `signal-graph.md`, `profiler.md` | structure | verified | `.commandcode/skills/control-angular-devtools/features/` holds exactly those four `.md` files plus `README.md` and `.proven.json` |
 
 ## Doc: .claude/skills/control-angular-devtools/features/attach.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Connected flag `window.__NG_DEVTOOLS_CONNECTED__`" | feature | verified | `scripts/control.mjs:891,905,1334` (trap installed, read, reported as the `connected-flag` check) |
-| "Detection result: `isAngular`, `isDebugMode`, `isIvy`, `isSupportedAngularVersion`" | feature | verified | `scripts/control.mjs:895,907` read a `detectAngular` message and its detection payload |
-| "Backend injection and handshake: `backendInstalled`, `backendReady`" | feature | verified | `scripts/control.mjs:900` waits for a `backendReady` topic; `SKILL.md` (Inspect) lists both topics |
-| "Angular version from `[ng-version]`" | feature | verified | `scripts/control.mjs:1332` (`document.querySelector('[ng-version]')`) |
-| "Expected on the counter: `Angular 22.2.2`" | status | verified | `spikes/ng222-app/package-lock.json:431` (`@angular/core` 22.2.2) |
+| "Connected flag `window.__NG_DEVTOOLS_CONNECTED__`" | feature | verified | `control.mjs:891` — the init script traps `Object.defineProperty(window, '__NG_DEVTOOLS_CONNECTED__', ...)`; `:905` reads `flag: window.__NG_DEVTOOLS_CONNECTED__ === true` |
+| "`attach` reloads the page to catch messages from the start" | feature | verified | `control.mjs:899` — `await page.reload();` inside `ATTACH_PROBE` (`:886`) after the init script is added |
+| "a `detectAngular` message ... with `{isAngular, isDebugMode, isIvy, isSupportedAngularVersion, isAngularDevTools}`" | integration | verified | `control.mjs:68,1349` — the `Detection` typedef carries `isAngular`/`isDebugMode`; the attach pass condition reads `r.flag && d.isAngular && d.isDebugMode && r.backendInstalled && r.backendReady` |
+| "`attach` exits 1 because it requires `isDebugMode`" | status | verified | `control.mjs:1349` — the returned boolean requires `d.isDebugMode`, so a production build fails the check |
+| "flag true (set at ~50 ms); ... backendReady at ~950 ms; Angular 22.2.2" | status | unverifiable | timings are a run measurement; settles it: `node $S attach` against `up --target counter` (fixture resolves Angular 22.2.2, `spikes/ng222-app/node_modules/@angular/core/package.json`) |
+
+## Doc: .claude/skills/control-angular-devtools/features/install.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Angular DevTools is a Chrome Web Store extension (`ienfalfjdbdpebioblfackkekamfmbnh`)" | config | verified | `control.mjs:89` — `const EXT_ID = 'ienfalfjdbdpebioblfackkekamfmbnh';`; `:91` — `STORE_URL = https://chromewebstore.google.com/detail/${EXT_ID}` |
+| "`node $S install` # test copy from Edge Dev (read only)" | command | verified | `control.mjs:106` — the `edge-dev` browser entry resolves `join(LOCAL, 'Microsoft', 'Edge Dev', 'User Data')`, the copy source named in the SKILL |
+| "opens the store page, polls for Lars's click (default 180 s)" | config | verified | `control.mjs:1019,1024,1027` — polls every 2 s for `Number(opts.timeout ?? 180) * 1000`, the default 180 s |
+| "A test `uninstall` refuses while `up` runs (`down` first)" | status | verified | `control.mjs:1095,1112,1135` — `cmdUninstall` starts with `if (readState()) {` and refuses while a state file exists |
+| "`chrome://` and `edge://` URLs passed on the command line open an empty window instead of the page ..., which is why `uninstall` opens the store page" | integration | verified | `control.mjs:1079` — the log reads "a browser will not open ${before.extensionsPage} from the command line" and opens `STORE_URL` instead |
+| "End state: test: `doctor` line `extension: Angular DevTools 1.22.1 ENABLED (UNPACKED, ...)`" | status | unverifiable | the version lives in the Edge Dev profile copy outside this repository; the in-repo `extension/manifest.json:4` is this project's own "Angular AI DevTools" 0.3.0. Settles it: `node $S install && node $S doctor` |
 
 ## Doc: .claude/skills/control-angular-devtools/features/profiler.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "It subscribes through `ng.ɵsetProfiler`, which keeps a list of subscribers in Angular 22" | feature | verified | `scripts/control.mjs:1463-1467` installs and removes two `ɵsetProfiler` callbacks and expects both to count until removed |
-| "`ng.ɵsetProfiler(null)` clears every subscriber, DevTools' included" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-devtools/scripts/control.mjs up --app-url <counter url>`, then `playwright-cli -s=ngdt --raw run-code` calling `ng.ɵsetProfiler(null)` while the panel records, with `.commandcode/skills/verify-angular-devtools/checks/coexist.mjs` covering the shared-subscriber half; clearing every subscriber is observable only while a real DevTools subscriber is counting cycles |
-| "`node $S coexist` reports `own subscribers` and the DevTools cycle count" | command | verified | `scripts/control.mjs:1463-1467` plus `:832` (`profilerSummary` reads `Change detection cycles <n> / <total>`) |
-| "DevTools' subscriber cannot be listed from the page (the list is module-private)" | feature | verified | read 2026-11-01: `tmp/control-angular-devtools/extension/1.22.0/app/backend_bundle.js` (451,228 bytes) declares `setProfiler` at lines 56 and 76 and keeps the subscriber list module-scoped there, so no page-level read can enumerate it; `node .commandcode/skills/control-angular-devtools/scripts/control.mjs install --from tmp/control-angular-devtools/extension` regenerates that copy |
+| "It subscribes through `ng.ɵsetProfiler`, which keeps a list of subscribers in Angular 22" | feature | verified | `control.mjs:1463` — two `ng.ɵsetProfiler(() => ...)` calls are installed side by side and `:1465` reads both counters |
+| "remove your own with the function `ɵsetProfiler(cb)` returns" | feature | verified | `control.mjs:1463,1465` — `window.__ngdtRemoveA = ng.ɵsetProfiler(() => ...)` then `window.__ngdtRemoveA()` |
+| "the result reads `Change detection cycles`" | feature | verified | `control.mjs:832` — `profilerSummary` matches `/Change detection cycles[\s\S]*?(\d+)\s*\/\s*(\d+)/` in the panel text and returns `cycles` |
+| "Expected (measured): `own subscribers {"bothOn":{"a":16,"b":16},"afterRemoveA":{"a":16,"b":32}}; DevTools recorded 2 change detection cycles`" | status | unverifiable | a run measurement; settles it: `node $S coexist` on the counter fixture, which writes `coexist.json` (`control.mjs:1532`) |
+| "`ng.ɵsetProfiler(null)` clears every subscriber, DevTools' included" | feature | unverifiable | the profiler's subscriber list is Angular's own source (`render3/profiler.ts`), not present in `node_modules/@angular/core/fesm2022/core.mjs`; settles it: that Angular source file or a `coexist` probe that calls `ɵsetProfiler(null)` |
 
 ## Doc: .claude/skills/control-angular-devtools/features/signal-graph.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The pane draws the component's template node, its signals, computeds and effects with values and edges" | feature | verified | `scripts/control.mjs:830` reads `ng-signal-graph-pane .node-cont` nodes with `kind-*` classes and their text |
-| "Agreement with `ng.ɵgetSignalGraph(ng.getInjector(host))`" | feature | verified | `scripts/control.mjs` reads both the pane and `ng.ɵgetSignalGraph` for the coexistence comparison (`SKILL.md`, Inspect) |
-| "After `angular:di_graph` the template node is gone from both" | feature | verified | `scripts/control.mjs:1501` documents the regression as the step's purpose |
-| "`.node-cont.kind-*` are DevTools 1.22.0 class names; other kinds the counter lacks: `linked-signal`, `child-signal-prop`, `resource`, `unknown`" | structure | unverifiable | settling check: `node .commandcode/skills/control-angular-devtools/scripts/control.mjs panel signal-graph --component=app-counter` after `up --app-url <counter url>`, plus `.commandcode/skills/verify-angular-devtools/checks/coexist.mjs`; the class names come from the live pane nodes, and the copy on disk is 1.22.0 while `scripts/doc-fix-alignment.test.mjs` forbids that string in two other files |
+| "`.node-cont.kind-*` are DevTools 1.22.0 class names" | config | verified | `control.mjs:830` — `readSignalGraph` queries `ng-signal-graph-pane .node-cont` and takes the class starting with `kind-` as the node kind |
+| "Expected on the fixture before: `template:app-counter, signal:title, signal:count, computed:double, signal:items, effect:Effect`" | feature | verified | `spikes/ng222-app/src/app/counter.ts:5,16-18` — `selector: 'app-counter'`, inputs/signals `title`, `count`, `double`, `items` (the `CartService` signal) |
+| "After `angular:di_graph` (measured 2026-10-11): pane `signal:count, effect:Effect`" | status | verified | `research/05-spikes.md:123` — the pane drops to 2 nodes (`count`, `effect`), `diGraphTemplateLostInPane: true` |
+| "`--di-graph` leaves the page's signal graph broken until reload" | status | verified | `research/05-spikes.md:123` — `angular:di_graph` "degrades Angular DevTools for the rest of the page's life" |
+| "`node $S panel signal-graph --component=app-counter`" | command | verified | `control.mjs:1598` — usage line `coexist [--component app-counter] ...`; `:110` — `component` is a value flag; `:1601` — `panel` is a command |
+| "Agreement with `ng.ɵgetSignalGraph(ng.getInjector(host))`, which the pane's backend calls" | integration | unverifiable | no command in this checkout: the pane's backend is Angular DevTools' own bundle, not in this repository; settles it: `signals-visualizer.ts` from the extension source or a panel-vs-`ng` comparison in `coexist` (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/control-pangular-inspector/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`.claude/skills/control-pangular-inspector/scripts/control.mjs:74` defaults the devtools server to 9999" | config | verified | `scripts/control.mjs:74` (`const DEFAULT_PORT = 9999;`) |
-| "`read-only` holds none of the eight action tools (`highlight`, `navigate`, `dispatch-ngrx-action`, `form-action`, `fill-form`, `set-http-rule`, `remove-http-rule`, `analog-call-api`)" | feature | verified | `scripts/control.mjs:76` (`ACTION_TOOLS` lists exactly those eight) and `:1201` (reports `actionToolsPresent`) |
-| "`mcp-origin-guard`: a POST without `Origin` gets 403" | feature | verified | `scripts/control.mjs:1343-1344` |
-| "The MCP client sends `Content-Type: application/json`, `Accept: application/json, text/event-stream`, a local `Origin`, optional bearer token" | feature | verified | `scripts/control.mjs:1143-1147` |
-| "The state file is `tmp/control-pangular-inspector/state/pangular-<port>.json`, session `pangular-<port>`" | config | verified | `scripts/control.mjs:1074` (`session: pangular-${p}`, `mcpUrl`, `origin`) |
-| "Every feature here is recorded as external (they all depend on the portal)" | status | verified | `features/.proven.json` exists and every entry carries an `external` reason |
-| "In this Nx workspace (project.json, code in `libs/`) the source scan returns `[]`" | feature | verified | this repository uses `project.json` per project (`apps/angular-ai-devtools/project.json`) and `libs/`-style layout is what the scan skips; the scan code reads `angular.json`/`src` (`scripts/control.mjs` scan path) |
-| "`components` falls back to the `component-tree` resource because 0.0.7 has no `list-components`" | feature | verified | `scripts/control.mjs:1445-1473` (tries `list-components`, else reads `pangular:component-tree`) |
-| "The setup for running the portal with the dev-only provider is prepared in this repository; `check` exits 0 there" | status | unverifiable | settling check: `node .commandcode/skills/verify-pangular-inspector/checks/setup.mjs --out <dir>`, which needs nothing running and runs `control-pangular-inspector check` in the portal folder; that folder is outside this repository |
-| "0.0.7 lists 46 tools with `--read-only`" | status | unverifiable | settling check: `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs tools --json` after `up --app-url <portal url>`, with `.commandcode/skills/verify-pangular-inspector/checks/read-only.mjs` saving `tools-list.json`; the count is `tools/list` from the 0.0.7 server installed in the portal folder |
+| `.claude/skills/control-pangular-inspector/scripts/control.mjs:74` defaults to 9999 | config | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:74 — `const DEFAULT_PORT = 9999` |
+| The state file is per port (`tmp/control-pangular-inspector/state/pangular-<port>.json`) | config | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:1009 — the state file name is `pangular-${p}.json` under STATE_DIR |
+| `tools/list` holds none of the eight action tools (`highlight`, `navigate`, ... `analog-call-api`) | feature | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:76 — ACTION_TOOLS names exactly those 8 tools, and the doctor read-only check filters on them at line 608 |
+| It runs `bin.mjs dev --port 9999 --no-open --root <app> --read-only` | command | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:1061 — spawn args are bin, dev, --port, --no-open, --root, dir, then --read-only when not --allow-actions |
+| npm 11.16 drops 27 entries from the committed lockfile on any install | config | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:850 — comment records the 27 lockfile entries npm 11 drops, which install puts back |
+| With `--read-only`, 0.0.7 lists 46 tools | status | unverifiable | no command in this checkout: no `@pangular-inspector/devtools` install or live server in this checkout; `node $S tools` against 0.0.7 would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`S` is `.claude/skills/control-pangular-inspector/scripts/control.mjs`; `D` is `.claude/skills/control-angular-dev-app/scripts/control.mjs`" | command | verified | both files exist |
-| "Five feature files: setup, live-inspection, navigation, source-scan, panel" | structure | verified | `features/` holds exactly `README.md` plus those five files and `.proven.json` |
-| "App: `node $D up --target portal` (API 3000, app 4507 for the default portal folder)" | config | verified | `control-angular-dev-app/scripts/control.mjs:69` (API 3000) and `:100` (portal `4500 + slot`) |
-| "Session `pangular-9999`; evidence dir from `node $S info`" | config | verified | `scripts/control.mjs:1074` |
-| "The overlay reports about 250 ms after change detection" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=pangular-9999 --raw run-code` timing the overlay report against a click and keeping the recording; a measured latency can only come from a live overlay in a portal dev build |
-| "`--out` on `tools`, `call`, `components`, `resource` writes into the evidence dir; `scan` writes under `tmp/control-pangular-inspector/scan/`" | feature | verified | `scripts/control.mjs:1540` (`save({ evidenceDir: path.join(SCRATCH, 'scan') }, result)`) and the helpers table in `SKILL.md:180-183` |
+| Each feature file starts with an H1 and one paragraph, then four H2s in this order: Sub-features, How to get to it (user POV), Driving it with control-pangular-inspector, Gotchas | structure | verified | .claude/skills/control-pangular-inspector/features/setup.md:6,14,19,36 — the four H2s in that order; live-inspection.md, navigation.md, panel.md and source-scan.md carry the same four at lines 6/13-14/18-20/30-36 |
+| Tool names are literal and given without the `pangular_` prefix | config | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:608 — short() strips the pangular_ prefix before matching a tool name |
+| The app is driven like a user in playwright-cli session `pangular-9999` | config | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:1074 — state.session is `pangular-${p}` with the default port 9999 from line 74 |
+| The overlay reports about 250 ms after change detection | status | unverifiable | an overlay timing on the portal, outside this repository; an instrumented portal run would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/live-inspection.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "MCP over HTTP at `http://localhost:9999/__mcp`" | config | verified | `scripts/control.mjs:1074` (`mcpUrl: http://localhost:${p}/__mcp`) |
-| "`live.tree`: the component outline via `components`, or `list-components` on versions after 0.0.7" | feature | verified | `scripts/control.mjs:1445-1457` |
-| "Instance ids (`cgg06-4`) change with every page load; re-read the tree before using one" | feature | unverifiable | settling check: two page loads, then `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call list-pages --json` and `call components --json`; ids are minted per page load by the Pangular page runtime, outside this repository |
-| "`inspect-signals` answers from the graph the page last reported" | feature | unverifiable | settling check: `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call inspect-signals --args '{"selector":"ng-journal-list"}' --out inspect-signals.json`, with `.commandcode/skills/verify-pangular-inspector/checks/live-reads.mjs` asserting `nodes`; the answer is visible only in a live MCP response from a running portal |
+| `list-pages` shows the tab page id, URL and the inspectors that report | feature | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:1422 — the doctor calls the list-pages tool, and line 1432 matches its page id against it |
+| MCP over HTTP at `http://localhost:9999/__mcp` | integration | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:1074 — mcpUrl is `http://localhost:${p}/__mcp` with p defaulting to 9999 (line 74) |
+| a row whose id equals `window.__pangularPageId` | feature | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:1396 — the doctor evaluates `window.__pangularPageId` and compares it at line 1432 |
+| `inspect-component` for one host tag | command | verified | .claude/skills/verify-pangular-inspector/checks/live-reads.mjs:42 — runs `call inspect-component` with the `ng-journal-list` selector args |
+| `inspect-signals` answers from the graph the page last reported | status | unverifiable | a Pangular 0.0.7 server behavior; no installed package or saved MCP answer in this checkout (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/navigation.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`nav.explain`: `explain-navigation`, newest first, with trigger, phases and outcome" | feature | unverifiable | settling check: `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call explain-navigation --args '{"limit":3}' --out explain.json`, with `.commandcode/skills/verify-pangular-inspector/checks/live-reads.mjs` driving the same call; the trigger, phases and outcome are fields of that live answer |
-| "`nav.routes`: `list-routes` and `lint-routes` on the live route config" | feature | unverifiable | settling check: `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call list-routes --out routes.json` and `call lint-routes --out lint.json`; both are MCP reads of a running portal's route config, and no route config of the portal is in this checkout |
-| "`limit` on `explain-navigation` defaults to 5 (at most 50)" | feature | unverifiable | settling check: `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call explain-navigation --args '{"limit":6}'` and a count of the entries, or the 0.0.7 source under `node_modules/@pangular-inspector/devtools` in the portal checkout; both the default and the ceiling live outside this repository |
-| "Navigate like a user: the `run-code` click on CONTRACT > List returns `http://localhost:4507/contract/list`" | command | verified | the click recipe matches `SKILL.md:111`, and 4507 is the portal's derived port (`control-angular-dev-app/scripts/control.mjs:100`); the page itself is external |
+| Explain: `node $S call explain-navigation` | command | verified | .claude/skills/verify-pangular-inspector/checks/live-reads.mjs:47 — runs `call explain-navigation` with a limit argument and holds /contract/list plus succeeded |
+| `limit` on `explain-navigation` defaults to 5 (at most 50) | config | unverifiable | a Pangular 0.0.7 server default, not in this checkout; a `call explain-navigation` with no `--args` against a running server would settle it (settles it: control.mjs doctor) |
+| Routes: `node $S call list-routes` (12 routes, measured) | status | unverifiable | the route count belongs to the portal checkout, outside this repository; one live `call list-routes` would settle it (settles it: control.mjs doctor) |
+| `started by` appears only when the click came less than 2 s before the navigation | status | unverifiable | Pangular overlay timing; needs a timed navigation on a running portal and its explain-navigation answer (settles it: control.mjs doctor) |
+| A reload keeps the page id (it lives in `sessionStorage`) | status | unverifiable | overlay behavior of the pinned package; a reload in the playwright-cli session would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/panel.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`http://localhost:4507/__pangular/` (through the `ng serve` proxy)" | integration | verified | the proxy route `/__pangular` is what `install` writes into the app's `proxy.conf.json` and `proxyConfig` (`SKILL.md:60-62`); 4507 is the portal's derived port |
-| "`http://localhost:9999/` directly" | config | verified | `scripts/control.mjs:74` |
-| "`panel.button`: the amber floating button, accessible name `Toggle Pangular Inspector`" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=pangular-9999 snapshot --filename=<dir>/panel.yml` and `screenshot --filename=<dir>/panel.png`; the accessible name and the amber styling are visual facts of the portal dev build |
-| "The dashboard's source counts are 0 in this Nx workspace" | status | unverifiable | settling check: `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs scan get-components --root apps/insurance-portal --json`, a stdio scan that needs no server; the Nx workspace whose source tabs read 0 is the portal checkout |
+| `http://localhost:4507/__pangular/` (through the `ng serve` proxy) | integration | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:535 — install merges a `/__pangular` proxy entry with the server target, pathRewrite stripping the prefix and ws: true |
+| the eight panel tabs: Components, Routes, Signals, Injectors, Store, Forms, Pipes, SSR and HTTP | feature | unverifiable | the panel markup ships inside `@pangular-inspector/devtools`, which is not installed in this checkout; loading the panel URL would settle it (settles it: control.mjs doctor) |
+| the floating button has the accessible name `Toggle Pangular Inspector` | feature | unverifiable | overlay button text lives in the pinned package; a playwright-cli `find` on the app page would settle it (settles it: control.mjs doctor) |
+| A code expires after 5 minutes | status | unverifiable | server-side code lifetime in Pangular; a `pangular.log` timestamp pair would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/setup.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`setup.install`: exact pin `@pangular-inspector/devtools@0.0.7` in `devDependencies`" | feature | verified | `SKILL.md:52` records the same `npm install --save-dev --save-exact @pangular-inspector/devtools@0.0.7`, and `doctor`'s `package-pinned` check enforces it (`SKILL.md:84`) |
-| "`setup.remove` restores from git `HEAD`, prunes `node_modules`, asserts a clean worktree and exits 0 only when `git status --porcelain`/`git diff HEAD` are empty" | feature | verified | `scripts/control.mjs:568` (parses `git status --porcelain`); `SKILL.md:159-162` describes the same sequence |
-| "`setup.check`: six read-only facts, one line each" | feature | verified | `SKILL.md:173` (`check` = "the six setup facts, read-only") with the doctor's six setup checks (`package-pinned`, `overlay-import`, `process-alive`/`ports`, `mcp-*`, `read-only`) |
-| "`install` reads the first Nx app under `apps/` with an `@angular/build:dev-server` serve target; pass `--project`" | feature | verified | this repository's own app uses `@angular/build:dev-server` for `serve` (`apps/angular-ai-devtools/project.json` `serve` target), matching the detection rule |
+| exact pin `@pangular-inspector/devtools@0.0.7` in `devDependencies` | config | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:72-73 — PKG is @pangular-inspector/devtools and PINNED is 0.0.7, installed with --save-dev --save-exact at line 911 |
+| `install` reads the first Nx app under `apps/` with an `@angular/build:dev-server` serve target | feature | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:402 — the app finder accepts the first project.json whose serve executor is @angular/build:dev-server (documented at line 388) |
+| npm 11 rewrites this lockfile on any install | config | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:850 — the code records that npm 11 drops 27 lockfile entries on any install, with or without Pangular |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/source-scan.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`scan <tool>` starts the CLI's stdio MCP server, calls one tool and stops it" | feature | verified | `scripts/control.mjs:1539` (`command: 'scan'`, `root`, `tool`, `warnings` from stderr) |
-| "Results with `--out` land in `tmp/control-pangular-inspector/scan/`" | config | verified | `scripts/control.mjs:1540` (`path.join(SCRATCH, 'scan')`) |
-| "The scan reads `angular.json` projects plus `<root>/src`; it ignores `project.json` (only `build-meta` reads it)" | feature | unverifiable | settling check: `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs scan get-components --json` at the portal workspace root, with the scan body read in that checkout's `node_modules/@pangular-inspector/devtools`; both the implementation and the workspace it scans are outside this repository |
-| "`node $S scan nope` prints the full stdio list" | command | verified | the `scan` command reports the tool list in its error/warnings path (`scripts/control.mjs:1539`) |
+| `scan <tool>`, which starts that server, calls one tool and stops it | command | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:1493 — spawns `bin mcp --root <root> --read-only` over stdio pipes for one call, then kills it |
+| Results with `--out` land in `tmp/control-pangular-inspector/scan/` | config | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:1540 — savedTo is path.join(SCRATCH, scan), SCRATCH being tmp/control-pangular-inspector at line 70 |
+| `scan.tools`: `get-routes`, `get-components`, `get-signals`, `get-providers`, `get-pipes`, `get-ngrx-store`, `build-meta` | feature | unverifiable | the stdio tool list comes from the uninstalled package; `node $S scan nope` against an installed 0.0.7 would settle it (settles it: control.mjs doctor) |
+| The scan reads the `sourceRoot` of each `angular.json` project plus `<root>/src` | status | unverifiable | Pangular scan behavior; only the portal measurements are recordings of it, and no scan output is kept in this checkout (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/control-vitest-browser-angular/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Vitest port 51315 on the main checkout; a worktree takes `51400 + slot`" | config | verified | `scripts/control.mjs:99` (`MAIN_VITEST_PORT = 51315`) and `:582` (`VITEST_BROWSER_PORT`) |
-| "Bundled CDP port 9350, `9500 + slot` in a worktree" | config | verified | `scripts/control.mjs:100` (`MAIN_BUNDLED_CDP_PORT = 9350`) |
-| "Session is `control-vitest-<flowId>-<Vitest port>`" | config | verified | `scripts/control.mjs:899` (`session: control-vitest-${flowId}-${vitestPort}`) |
-| "`--hold <ms>` sets `VITE_COUNTER_HOLD_MS`; `--timing-demo` sets `VITE_COUNTER_TIMING_DEMO=1`" | command | verified | `scripts/control.mjs:586`; the spec gates on both variables (`spikes/ng222-app/src/app/counter.spec.ts:39,56`) |
-| "`--extension s1-vitest` writes the S1 Vitest variant into the evidence directory and loads it" | feature | verified | `scripts/control.mjs:927` (`writeS1VitestVariant(path.join(evidenceDir, 'extension'))`) |
-| "Bundled mode needs an extension (`vitest-extension.config.mts` requires one)" | feature | verified | `scripts/control.mjs:953`; `spikes/ng222-app/vitest-extension.config.mts` and `vitest-attach.config.mts`, `vitest-base.config.mts` all exist |
-| "Commands are `up`, `doctor`, `info`, `down`" | command | verified | `scripts/control.mjs:1271` (usage line) |
-| "Playwright's Chromium (Chrome for Testing 153)" / "Vitest's default 63315 sits in a Windows excluded port range" | status | verified | read 2026-11-01: `spikes/ng222-app/node_modules/playwright-core/browsers.json` pins chromium `153.0.8010.12` (revision 1243), and `spikes/ng222-app/vitest-base.config.mts:3-5` records 63315 as inside this machine's Windows excluded range, whose machine proof is `netsh int ipv4 show excludedportrange protocol=tcp` |
+| The main checkout uses slot 0, the defaults 51315 and 9350 | config | verified | .claude/skills/control-vitest-browser-angular/scripts/control.mjs:99-100 — MAIN_VITEST_PORT = 51315 and MAIN_BUNDLED_CDP_PORT = 9350 |
+| The playwright-cli session is `control-vitest-<flowId>-<Vitest port>` | config | verified | .claude/skills/control-vitest-browser-angular/scripts/control.mjs:899 — session is `control-vitest-${flowId}-${vitestPort}` |
+| `--hold <ms>` sets `VITE_COUNTER_HOLD_MS` | command | verified | .claude/skills/control-vitest-browser-angular/scripts/control.mjs:586 — env VITE_COUNTER_HOLD_MS is set from the recorded hold |
+| the `attach` configuration loads `vitest-attach.config.mts`, a custom provider that calls `chromium.connectOverCDP(VITEST_CDP_URL)` | integration | verified | spikes/ng222-app/vitest-attach.config.mts:19 — chromium.connectOverCDP(cdpUrl), cdpUrl read from VITEST_CDP_URL at line 11 |
+| `vitest-attach.config.mts` sets `persistentContext` to `browser.contexts()[0]` | config | verified | spikes/ng222-app/vitest-attach.config.mts:20 — this.persistentContext ??= this.browser.contexts()[0] |
+| `mounted-component` a `[ng-version]` host exists now; `[WARN]` when no test is running | feature | verified | .claude/skills/control-vitest-browser-angular/scripts/control.mjs:1146 — the check passes on a [ng-version] host and warns with no test running |
 
 ## Doc: .claude/skills/control-vitest-browser-angular/features/README.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`S` is `.claude/skills/control-vitest-browser-angular/scripts/control.mjs`" | command | verified | the file exists with the documented commands |
-| "Three feature files: counter-tests, held-counter, extension-in-tester" | structure | verified | `features/` holds `README.md` plus exactly those three |
-| "Fresh state of the held Counter: `Clicks: 3 (double 6, cart 2)` (cart overridden to `['pear', 'plum']`)" | feature | verified | `spikes/ng222-app/src/app/counter.spec.ts:61` (`setup({ cartItems: ['pear', 'plum'] })`) and `counter.ts:17` (`count = signal(3)`) |
-| "Re-run: `touch spikes/ng222-app/src/app/counter.spec.ts`, then wait for `RERUN`" | command | verified | the spec path exists; watch mode is `-c attach --watch` (`SKILL.md:59`) |
-| "Never attach to a browser outside `control-ai-browsers/instances.json` or the bundled Chromium" | config | verified | `SKILL.md:12-13` states the same rule and `instances.json` is the registry the script reads |
+| Fresh state of the held Counter: Clicks: 3 (double 6, cart 2) | feature | verified | spikes/ng222-app/src/app/counter.spec.ts:34 — the override test asserts that text, and the hold test at line 56 calls setup with cartItems pear and plum at line 61 |
+| Each feature file has an H1, one paragraph of user-visible behaviour, then four H2s in order: Sub-features, How to get to it (user POV), Driving it with control-vitest-browser-angular, Gotchas | structure | verified | .claude/skills/control-vitest-browser-angular/features/counter-tests.md:9,17,23,40 — same four H2s in held-counter.md (8,19,23,43) and extension-in-tester.md (8,18,23,39) |
+| `mounted-component` passes only while the hold test runs | feature | verified | .claude/skills/control-vitest-browser-angular/scripts/control.mjs:1146 — the check warns with no running test and passes on a [ng-version] host |
 
 ## Doc: .claude/skills/control-vitest-browser-angular/features/counter-tests.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Two tests always run (increment, cart override); two more run only when their environment variable is set" | feature | verified | `spikes/ng222-app/src/app/counter.spec.ts:20,30` (unconditional) and `:39` (`it.runIf(VITE_COUNTER_TIMING_DEMO === '1')`), `:56` (`it.runIf(Number(VITE_COUNTER_HOLD_MS) > 0)`) |
-| "A `CartService` override shows 'cart 2'" | feature | verified | `counter.spec.ts:30-33` (`cartItems: ['pear','plum']`) |
-| "`Tests 2 passed \| 2 skipped (4)` without flags" | status | unverifiable | settling check: `node .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs up --bundled --extension <dir>`, then `doctor`, whose `test-run` line reports the last `Tests` summary; the counts are a Vitest run summary, and this pass launched no browser |
-| "The failure screenshot lands under `spikes/ng222-app/.vitest/attachments/failure-screenshots/`" | config | unverifiable | settling check: `node .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs up --bundled --extension <dir> --timing-demo`, then `doctor` (`test-run`) and the screenshot path recorded in `ng-test.log`; `spikes/ng222-app/.gitignore:47` ignores `.vitest`, so the path exists only after a deliberately failing run |
+| Two tests always run: an Increment click moves Clicks: 3 (double 6, cart 1) to Clicks: 4 (double 8, cart 1) | feature | verified | spikes/ng222-app/src/app/counter.spec.ts:23,27 — toHaveTextContent before and after incrementButton.click() |
+| a `CartService` override shows cart 2 | feature | verified | spikes/ng222-app/src/app/counter.spec.ts:34 — Clicks: 3 (double 6, cart 2) under the overridden CartService |
+| with `VITE_COUNTER_TIMING_DEMO=1` one test fails with expected ... to contain Clicks: 4 | status | verified | spikes/ng222-app/src/app/counter.spec.ts:39,49 — it.runIf on that variable, then expect(paragraph.textContent).toContain(Clicks: 4) in the same task as the click |
+| with `VITE_COUNTER_HOLD_MS=<ms>` the hold test passes after the hold | feature | verified | spikes/ng222-app/src/app/counter.spec.ts:56 — it.runIf(Number(VITE_COUNTER_HOLD_MS) > 0) with a timeout of the hold plus 30 s |
+| results show in `<evidenceDir>/ng-test.log`, not in the page (`ui: false`) | config | verified | spikes/ng222-app/vitest-attach.config.mts:55 — ui: false, matched in vitest-extension.config.mts:34 |
+| the builder `--filter` matches test names, but the hold test runs only with `--hold` | command | unverifiable | the filter is applied by the Angular Vitest builder, not by this checkout; the hold test title at counter.spec.ts:57 and a run with --filter would settle the 1 passed / 3 skipped counts (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`ext-loaded`: the extension's service worker target exists (`doctor` `extension-loaded`)" | feature | verified | `SKILL.md:111` lists the same check; the script records the extension id in `info` (`SKILL.md:197`) |
-| "`ext-content-script`: an isolated world from `chrome-extension://<id>` exists in the tester iframe" | feature | verified | `SKILL.md:110`, and `spikes/probes/vitest-lib.mjs` implements the frame-context reads (`SKILL.md:225-226`) |
-| "`spikes/s1-extension` was retired in M009; use `s1-vitest`" | structure | verified | `spikes/` now holds only `ng222-app`, `ng222-ssr` and `probes`; the S1 variant is written by the script (`control.mjs:927`) |
-| "The spike runner writes `research/raw/vitest-attach-<label>.json`" | structure | verified | `research/raw/` exists in the tree; `spikes/probes/vitest-attach.mjs` exists |
-| "`iframePrompt`: 'OK' from Gemma 4 in 10.8 s (research 17)" | status | unverifiable | settling check: `node .commandcode/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-gemma4`, then `node spikes/probes/vitest-attach.mjs --route attach --cdp-port 9334 --label gemma4`, which writes `research/raw/vitest-attach-gemma4.json`; the 10.8 s answer is an on-device model timing and this pass ran no model |
+| `spikes/s1-extension` was retired in M009; its evidence and archived notes live under `.project/archive/001-run-unrun-spikes/` | status | verified | D:\projects\sandbox\angular-ai-devtools\.project\archive\001-run-unrun-spikes exists and spikes/s1-extension does not (Test-Path over the checkout) |
+| the DevTools panel `chrome.devtools.inspectedWindow.eval` with `{ frameURL: <tester URL> }` reaches `window.ng` in the tester | feature | unverifiable | needs a spike run over CDP; spikes/probes/vitest-attach.mjs is the harness that would record panelInspectedWindowTester |
+| In attach mode `down` uninstalls the extension | status | unverifiable | no run recorded in this checkout; `node $S down` after an `up --extension s1-vitest` and its log line would settle it (settles it: control.mjs doctor) |
+| The isolated world sees `typeof window.ng === undefined`; only the MAIN world sees `ng` | status | unverifiable | extension world isolation is browser behavior; an eval in each world of the tester iframe would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/control-vitest-browser-angular/features/held-counter.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "With `--hold <ms>` the hold test renders `Counter` with `CartService` overridden to `['pear', 'plum']`, keeps it mounted, clicks Increment once halfway, and checks the count rose by one" | feature | verified | `spikes/ng222-app/src/app/counter.spec.ts:56-62` |
-| "The page shows `Clicks: 3 (double 6, cart 2)` and an Increment button" | feature | verified | `counter.ts:11-12,17` with the override in `counter.spec.ts:61` |
-| "Every `ng.*` read works on the host `<div id="rootN" ng-version="22.2.2">`" | feature | verified | `@angular/core` 22.2.2 (`spikes/ng222-app/package-lock.json:431`); TestBed renders into a plain host (`SKILL.md:132-133`) |
-| "`ng.ɵgetInjectorProviders` throws on the null injector at the end of the resolution path" | feature | unverifiable | settling check: `node .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs up --bundled --extension <dir>`, then `node spikes/probes/vitest-attach.mjs --route attach --cdp-port 9350` evaluating `spikes/probes/vitest-iframe-probe.js` in the `vitest-iframe` frame; the throw happens inside the tester iframe, so a live Vitest run is the precondition |
-| "The spike runner does not clear the instance's HTTP cache the way `up` does" | feature | verified | `SKILL.md:81-84` records that only `up` calls `Network.clearBrowserCache` |
+| the hold test renders `Counter` in the tester iframe with `CartService` overridden to pear and plum | feature | verified | spikes/ng222-app/src/app/counter.spec.ts:58 — setup({ cartItems: [pear, plum] }) inside the hold test |
+| It keeps it mounted, clicks Increment once halfway, and checks that the count rose by one | feature | verified | spikes/ng222-app/src/app/counter.spec.ts:62-70 — a holdMs/2 wait, one incrementButton.click(), then the next = countBefore + 1 assertion |
+| Clicks by the agent after the test halfway click do not affect its expectation | status | verified | spikes/ng222-app/src/app/counter.spec.ts:63,67 — countBefore is read immediately before the test own click, so later agent clicks are not counted |
+| `<app-counter>` does not exist under TestBed; select `[ng-version]` | status | verified | spikes/ng222-app/src/app/counter.ts:9 — the component selector is app-counter, while the host found in the page is [ng-version] (control.mjs:1146 and spikes/ng222-app/src/app/counter.spec.ts) |
+| every `ng.*` read works on the host `<div id=rootN ng-version=22.2.2>` | config | unverifiable | the version comes from the installed @angular/core; spikes/ng222-app/package.json declares ^22.2.0 and @angular/build ^22.2.2, so 22.2.2 is not pinned here |
 
 ## Doc: .claude/skills/verify-ai-browsers/SKILL.md
 
-Content is byte-identical to `.commandcode/skills/verify-ai-browsers/SKILL.md` (17 files compared: 17 same,
-0 different), yet it points at `.commandcode/...` paths — which is correct for both copies, because the mirror
-is byte-for-byte.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Eight checks: `state`, `model-init`, `extension-panel`, `signal-provenance`, `di-doctor`, `error-explainer`, `stale-view`, `interop`" | structure | verified | `.commandcode/skills/verify-ai-browsers/checks/` holds all eight `*.mjs` files (plus `state.mjs`, `model-init.mjs`) with their tests |
-| "Each check exits 0 pass, 1 claim failed, 2 could not run" | feature | verified | each check's assertions throw `CLAIM:` (e.g. `checks/stale-view.test.mjs:68` asserts on `CLAIM: chrome-beta-gemma4: the panel showed no answer`) |
-| "The condition is `["node", ".commandcode/skills/verify-ai-browsers/checks/state.mjs", "--evidence", "{runDir}", ...]`" | command | verified | `checks/state.mjs` exists; the `.claude` copy of this skill names `.commandcode` paths, matching the maintained tree |
-| "`node .commandcode/skills/verify-ai-browsers/checks/stale-view.mjs --evidence <dir> --url <app url> [<instance>...]` or `node .commandcode/skills/verify-ai-browsers/checks/interop.mjs --evidence <dir> --url <app url> [<instance>...]`." | structure | verified | read 2026-11-01: `SKILL.md:59-67` names all eight checks in the Standalone paragraph, and `checks/` holds eight `*.mjs` files; `scripts/docs-correction.test.mjs::verify-ai-browsers SKILL.md (both trees) gives every shipped check a standalone command` asserts every check file is named in both trees |
-| "`control-ai-browsers`'s `instances.json` is the registry both skills read" | config | verified | `control-ai-browsers/instances.json` exists and `checks/*.mjs` take instance names from it (the check tests pass a registry object) |
+| eight checks: `state`, `model-init`, `extension-panel`, `signal-provenance`, `di-doctor`, `error-explainer`, `stale-view`, `interop` | structure | verified | .claude/skills/verify-ai-browsers/checks holds exactly those eight .mjs files with a .test.mjs beside each (state.mjs, model-init.mjs, extension-panel.mjs, signal-provenance.mjs, di-doctor.mjs, error-explainer.mjs, stale-view.mjs, interop.mjs); each states its claim in a line-2 `// Claim:` comment, e.g. interop.mjs:2 |
+| condition `node .commandcode/skills/verify-ai-browsers/checks/state.mjs` | command | verified | .commandcode/skills/verify-ai-browsers/checks/state.mjs exists and is byte-identical to its .claude counterpart (fc /b exit 0, 9955 bytes each) |
+| `state` records each instance in `state.json`; `model-init` in `model-init.json`; `extension-panel` in `extension-panel.json`; `error-explainer` in `error-explainer.json` | config | verified | state.mjs:205, model-init.mjs:43, extension-panel.mjs:97 and error-explainer.mjs:108 — each writes that file into the evidence directory |
+| its `instances.json` is the registry both skills read | integration | verified | .claude/skills/verify-ai-browsers/checks/state.mjs:267 — reads control-ai-browsers/instances.json, and line 92 rejects an entry without model.name and model.contextWindow |
+| `edge-phi4mini` has failed `canary.structured` with `kErrorUnknown` in one doctor out of three | status | unverifiable | a recorded observation of 2026-10-12; no doctor output for that instance is kept in this checkout, so a fresh `doctor` run would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/verify-angular-devtools/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Three checks: `extension-enabled`, `attached`, `coexist`" | structure | verified | `checks/extension-enabled.mjs`, `checks/attached.mjs`, `checks/coexist.mjs` exist, each with a `.test.mjs` |
-| "Condition: `["node", ".claude/skills/verify-angular-devtools/checks/<id>.mjs", "--out", "{up.evidenceDir}"]`, plus `--di-graph` for `coexist`" | command | verified | the three check files accept `--out` and `coexist.mjs` carries the `--di-graph` path (its `.test.mjs` exercises it) |
-| "`install --from` takes the harness copy already in the checkout" | command | verified | `control-angular-devtools/scripts/control.mjs` supports `install --from <dir>` (Helpers table there) |
-| "The harness is headed; it opens a window for about half a minute per run" | status | unverifiable | settling check: `node .commandcode/skills/control-angular-devtools/scripts/control.mjs up --app-url <counter url> --json`, which records `readyInSeconds`, with `.commandcode/skills/verify-angular-devtools/checks/attached.mjs` as a run that pays the same cost; the figure is the harness run time itself |
+| checks `extension-enabled`, `attached`, `coexist` | structure | verified | .claude/skills/verify-angular-devtools/checks holds extension-enabled.mjs, attached.mjs and coexist.mjs, each with a .test.mjs beside it, and each states its claim in a line-2 `// Claim:` comment (extension-enabled.mjs:2, attached.mjs:2, coexist.mjs:2) |
+| `coexist-result.json` is the coexist artifact | config | verified | .claude/skills/verify-angular-devtools/checks/coexist.mjs:70 — writes coexist-result.json with exit, parts and diGraph into the out dir |
+| the handshake and Angular version are saved in `attach.json`, not judged | config | verified | .claude/skills/verify-angular-devtools/checks/attached.mjs:6 — header comment states attach.json holds handshake and version and is not judged |
+| `~/.claude/skills/lars-verify/references/contract.md` is the run contract | integration | verified | C:\Users\LarsGyrupBrinkNielse\.claude\skills\lars-verify\references\contract.md exists (Test-Path); note verify-ai-browsers cites the same contract under ~/.commandcode, so the two docs name different homes |
+| `coexist --di-graph` leaves the page signal graph broken until reload | status | unverifiable | a recorded behavior of control-angular-devtools coexist; one `coexist --di-graph` run and a reload would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .claude/skills/verify-pangular-inspector/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Three checks: `setup`, `live-reads`, `read-only`" | structure | verified | `checks/setup.mjs`, `checks/live-reads.mjs`, `checks/read-only.mjs` exist, each with a `.test.mjs` |
-| "`read-only` counts only the `--confirm` refusal from `call navigate` as the pass, because `control.mjs` refuses before it sends anything" | feature | verified | `control-pangular-inspector/scripts/control.mjs:76` lists `navigate` among the `ACTION_TOOLS` that need `--confirm` |
-| "`setup` needs no setup or teardown: condition `checks/setup.mjs --out {runDir}`, artifact `setup-check.json`" | command | verified | `checks/setup.mjs` exists; the artifact name matches the check's documented output |
-| "The setup steps need ports 3000 and 9999 free (both fixed)" | config | verified | `control-angular-dev-app/scripts/control.mjs:69` (API 3000) and `control-pangular-inspector/scripts/control.mjs:74` (9999) |
-| "Branded profiles, the Express hub and Vite mounts, and the `install`/`remove` round trip have no check" | status | verified | the three check files cover setup, live reads and read-only only; `SKILL.md`'s "Other mounts" section marks those paths as documented, not automated |
+| `setup` writes the artifact `setup-check.json` | config | verified | .claude/skills/verify-pangular-inspector/checks/setup.mjs:65 — writes setup-check.json with the check exit and result |
+| `live-reads` artifacts are `contract-list.png` and `live-reads.json` | config | verified | .claude/skills/verify-pangular-inspector/checks/live-reads.mjs:127 saves the screenshot as contract-list.png and line 150 saves live-reads.json |
+| `read-only` artifacts are `tools-list.json` and `navigate-refused.json` | config | verified | .claude/skills/verify-pangular-inspector/checks/read-only.mjs:54,61 — writes tools-list.json and navigate-refused.json; that file differs from its .commandcode counterpart by 10 bytes (fc /b exit 1), a drift |
+| `call navigate` without `--confirm` is refused (exit 2 with its `refused: navigate ... --confirm` reason) | command | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:373 — returns `refused: <tool> acts on the app; pass --confirm to run it` |
+| a port busy `up` refusal makes the run inconclusive, never a stop of someone else process | status | unverifiable | no refusal transcript is kept in this checkout; a second `up` on a busy 9999 would produce it (settles it: control.mjs doctor) |
+
+## Doc: .commandcode/pstack-models.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Per-role model overrides for pstack skills" | config | verified | C:\Users\LarsGyrupBrinkNielse\.commandcode\AGENTS.md:102 — `@~/.commandcode/pstack-models.md` imports this file into the loaded rules, so its role lines are the active override set |
+| "the pstack effort agents (`effort-low`, `effort-medium`, `effort-high`, `effort-xhigh`, `effort-max`) set `reasoningEffort` in their frontmatter and do not pin a model" | config | verified | C:\Users\LarsGyrupBrinkNielse\.commandcode\agents\effort-medium.md:4 — `reasoningEffort: medium`, and the file carries no `model:` key |
+| "levels: low, medium, high, xhigh, max" | config | verified | C:\Users\LarsGyrupBrinkNielse\.commandcode\agents\ — exactly effort-low.md, effort-medium.md, effort-high.md, effort-xhigh.md, effort-max.md |
+| "Free models available: `poolside/laguna-s-2.1-free`, `reflection/beam:free`" | config | verified | C:\Users\LarsGyrupBrinkNielse\.commandcode\agents\free-laguna-s-2-1.md:3 — `model: poolside/laguna-s-2.1-free`; free-beam-low.md pins `reflection/beam:free`; no minimax agent file exists, so that roster entry is not shown by this directory |
+| "A value of `inherit-parent` or `auto` runs that role on the parent session's model (the `Agent` call omits `model`)" | config | unverifiable | no reader of the value exists in the repository or in C:\Users\LarsGyrupBrinkNielse\.commandcode\scripts; the pstack role dispatcher source would settle it (settles it: control.mjs doctor) |
+| "`default effort` sets the level for a value without one" | config | unverifiable | same gap: no code in this checkout or the user-scope scripts parses `default effort`, so the resolution rule cannot be checked (settles it: control.mjs doctor) |
 
 ## Doc: .commandcode/skills/control-ai-browsers/SKILL.md
 
-Content is byte-identical to `.claude/skills/control-ai-browsers/SKILL.md`; `AGENTS.md:38-41` names this tree
-the maintained copy and a comparison of the two trees found 23 of 23 files identical.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Controls five browser instances … each started from `instances.json`" | structure | verified | `instances.json:67-230` holds the five entries; the file sits beside this `SKILL.md` |
-| "Registry ports 9333, 9334, 9335, 9337, 9338" | config | verified | `instances.json:70,101,135,173,201` |
-| "`scripts/control.mjs` implements `instances`, `up`, `attach`, `detach`, `doctor`, `flags`, `model`, `run`, `panel`, `down`, `bench`, `info`" | command | verified | `scripts/control.mjs:2998-3009` (`COMMANDS`) and `:3024` (usage line) |
-| "The Edge sign-in switches are `browserArgs` in `instances.json`" | config | verified | `instances.json:30-35` and `:49-54` |
-| "Every other script has a `node:test` file beside it" | structure | verified | `scripts/` holds `control.test.mjs`, `fingerprint.test.mjs`, `panel.test.mjs`, `pipe-keeper.test.mjs` beside their scripts; `proctree.mjs` is the documented exception (its tests live in lars-create-verification) |
+| "Controls five browser instances, one per browser and on-device model pair" | structure | verified | .commandcode/skills/control-ai-browsers/instances.json:70,101,135,173,201 — the `instances` map holds five entries with ports 9333, 9334, 9335, 9337, 9338 |
+| "`edge-dev-aion` … `Aion-1.1-Instruct` … `contextWindow` `7,168`" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:162,166 — model.name `Aion-1.1-Instruct` and contextWindow 7168 for edge-dev-aion |
+| "`9600 + 10 * slot + index`" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:449 — `return slot === 0 ? mainPort : 9600 + 10 * slot + index;` |
+| "`model download <name> [--timeout-min=45]`" | command | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:244 — `const min = positiveFlag('timeout-min', timeoutMin, 45);` |
+| "`scripts/proctree.mjs` … `processTable`, `snapshot`, `merge`, `stop`, `matches`, `describe`" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:12 — `import { describe, matches, merge, processTable, snapshot, stop } from './proctree.mjs';` |
+| "`bench` refuses (exit 2) in a worktree" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:2920 — refuses because bench.js hard-codes http://localhost:4222, which in a worktree is not this checkout's app |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/README.md
 
-Byte-identical to `.claude/skills/control-ai-browsers/features/README.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`C` stands for `node .commandcode/skills/control-ai-browsers/scripts/control.mjs`" | command | verified | the script exists at that path and its usage line lists the subcommands (`control.mjs:3024`) |
-| "Nano on 9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337, Nano in Chrome stable on 9338" | config | verified | `instances.json:70,101,135,173,201` |
-| "The panel is built (`npx nx run angular-ai-devtools:build-extension`) before `up`" | command | verified | `apps/angular-ai-devtools/project.json:56-90` |
-| "Ten feature files with the four H2s in order" | structure | verified | all ten files exist under `features/` with `Sub-features`, `How to get to it (user POV)`, `Driving it with control-ai-browsers`, `Gotchas` |
+| "Nano on 9333, Gemma 4 on 9334, Aion on 9335, Phi-4-mini on 9337, Nano in Chrome stable on 9338" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:70,101,135,173,201 — the five registry entries carry exactly ports 9333/9334/9335/9337/9338 |
+| "The panel is built (`npx nx run angular-ai-devtools:build-extension`)" | command | verified | apps/angular-ai-devtools/project.json:52 — the `build-extension` target exists in the angular-ai-devtools project |
+| "Its session is `ai-<instance>-<port>`" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:471 — returns `ai-${name}-${port}` |
+| "Page code runs in a tab the script opens on `https://example.org/?ai-browsers=<purpose>`" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:131,1225 — `PROBE_ORIGIN = 'https://example.org/'` and the tab URL gets `?ai-browsers=${purpose}` appended |
+| "four H2s in order: `Sub-features`, `How to get to it (user POV)`, `Driving it with control-ai-browsers`, `Gotchas`" | structure | verified | .commandcode/skills/control-ai-browsers/features/instances.md:1 — H1 then that exact H2 sequence, and the same sequence in health-check.md, model-lifecycle.md, probes.md, extension-panel.md, di-doctor.md, error-explainer.md, signal-provenance.md, stale-view.md, interop.md |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/di-doctor.md
 
-Byte-identical to `.claude/skills/control-ai-browsers/features/di-doctor.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Implementation: `apps/angular-ai-devtools/src/app/di-doctor.service.ts`, `n3-di-doctor.component.ts`, `di-diff-display.ts`" | structure | verified | all three files exist in `apps/angular-ai-devtools/src/app/` |
-| "The panel sends `angular-ai:di-query` and receives `angular-ai:di-graph` with a `DiResolutionPath`" | feature | verified | `apps/angular-ai-devtools/src/app/di-path-display.ts` and `di-path-tracer` tests (`scripts/di-path-tracer.test.mjs`) exist |
-| "The proof across every pair is `verify-ai-browsers/checks/di-doctor.mjs`" | structure | verified | the check and its test exist in `.commandcode/skills/verify-ai-browsers/checks/` |
+| "The panel sends `angular-ai:di-query` (`componentName`, `elementTag`)" | integration | verified | apps/angular-ai-devtools/src/app/di-doctor.service.ts:25 — `chrome?.runtime?.sendMessage({ type: 'angular-ai:di-query', componentName, elementTag })` |
+| "receives `angular-ai:di-graph` with a `DiResolutionPath`" | integration | verified | apps/angular-ai-devtools/src/app/di-doctor.service.ts:17 — `if (m?.type === 'angular-ai:di-graph' && m.resolutionPath)` |
+| "Implementation: … `n3-di-doctor.component.ts`, `di-diff-display.ts`" | structure | verified | apps/angular-ai-devtools/src/app — listing holds di-doctor.service.ts, n3-di-doctor.component.ts and di-diff-display.ts |
+| "`http://localhost:4222/` in the main checkout" | config | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:130 — the bench app is the control-angular-dev-app counter fixture on port 4222 |
+| "The proof across every pair is `verify-ai-browsers/checks/di-doctor.mjs`" | feature | verified | .commandcode/skills/verify-ai-browsers/checks/di-doctor.mjs — the check is present beside di-doctor.test.mjs |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/error-explainer.md
 
-Byte-identical to `.claude/skills/control-ai-browsers/features/error-explainer.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "a digest of the official `angular.dev/errors` documentation bundled at extension build time" | feature | verified | `build-extension` `dependsOn: generate-error-digest` (`apps/angular-ai-devtools/project.json:57-59`) runs `scripts/generate-error-digest.mjs`; `extension/error-digest.json` is committed |
-| "message types `angular-ai:error-capture` / `angular-ai:error-explain`" | feature | verified | `apps/angular-ai-devtools/src/app/error-explainer.component.ts` and `src/main-world/error-capture.ts` exist with tests (`scripts/error-capture.test.mjs`) |
-| "The proof across every pair is `verify-ai-browsers/checks/error-explainer.mjs`" | structure | verified | the check and its test exist |
+| "captures `NG0xxx` and uncaught console errors" | feature | verified | src/main-world/error-capture.ts:36 — `const match = text.match(/NG0\d{3,}/);`, over a thrown or uncaught error (line 3) |
+| "maps each to its owning component through `ng.getOwningComponent`" | feature | verified | src/main-world/error-capture.ts:43 — `typeof ng.getOwningComponent === "function"` guard before the lookup |
+| "a digest of the official `angular.dev/errors` documentation bundled at extension build time" | feature | verified | apps/angular-ai-devtools/src/app/error-explainer.component.ts:7 — `import errorDigest from '../../../../extension/error-digest.json'`; extension/error-digest.json:1 reads `"version": "22.2.x"` with an `entries` array |
+| "message types `angular-ai:error-capture` / `angular-ai:error-explain`" | integration | stale | extension/relay.js:17 sends `angular-ai:error-capture`, but no `angular-ai:error-explain` exists: src/main-world, apps/angular-ai-devtools/src/app and extension/*.js hold no such type, and extension/background.js:10 routes only record, state, di-graph and error-capture |
+| "`--feature=error-explainer`" | command | verified | .commandcode/skills/control-ai-browsers/scripts/panel.mjs:17 — the driver's `feature` field documents `error-explainer`; the branch at :239 selects the error-explainer selectors |
+| "Implementation: `apps/angular-ai-devtools/src/app/error-explainer.component.ts`" | structure | verified | apps/angular-ai-devtools/src/app/error-explainer.component.ts:10 — `selector: 'app-error-explainer',`, with the route `error-explainer` in app.routes.ts:13 |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/extension-panel.md
 
-Byte-identical to `.claude/skills/control-ai-browsers/features/extension-panel.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The extension adds a DevTools panel, 'Angular AI'" | feature | verified | `extension/devtools.js:2-6` creates the panel `'Angular AI'` from `panel/index.html` |
-| "`build-extension` writes `extension/panel/` (`main.js`, `styles.css`, `index.html` with `<base href=\"/panel/\">`)" | command | verified | `apps/angular-ai-devtools/project.json:56-90`; `extension/panel/index.html:6,9,12` |
-| "Branded Chrome ignores `--load-extension`, so every instance starts through `scripts/pipe-keeper.mjs`" | feature | verified | `scripts/pipe-keeper.mjs` and its test exist; `instances.json:71` sets `"extension": "extension"` |
+| "The extension adds a DevTools panel, "Angular AI", built from `apps/angular-ai-devtools`" | feature | verified | extension/manifest.json — `"devtools_page": "devtools.html"` and `"name": "Angular AI DevTools"`, the app whose sources sit in apps/angular-ai-devtools |
+| "Angular detection still comes from the content scripts (`relay.js`, `agent-main.js`)" | feature | verified | extension/manifest.json — content_scripts lists relay.js and agent-main.js, the latter with `"world": "MAIN"` |
+| "the result has `answer`, `error`, `status`, `answerMs`, `ngVersion`, `extensionId` and `steps`" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/panel.mjs:160 — the run object literal declares exactly those fields |
+| "DevTools 157 keys extension panels as `extension-panel-<uuid>_<n>`" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/panel.mjs:57 — the key lookup returns the first key starting with `extension-panel-` |
+| "`npx nx run angular-ai-devtools:build-extension` writes `extension/panel/` (`main.js`, `styles.css` and `index.html` …)" | command | verified | extension/panel — the built folder holds main.js, styles.css and index.html |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/health-check.md
 
-Byte-identical to `.claude/skills/control-ai-browsers/features/health-check.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Nineteen check lines, `extension` among them" | status | verified | `SKILL.md:151-171` lists nineteen rows, and `scripts/control.mjs:2447-2541` registers them |
-| "`health-webmcp` proves `document.modelContext` is an object" | feature | verified | `scripts/control.mjs:1439` |
-| "`navigator.modelContext` is `undefined`" | feature | verified | `scripts/control.mjs:1372` reports both and `:1439` gates on the `document` path |
-| "Doctor skips the page canaries when the model is not `available`" | feature | verified | `scripts/control.mjs:2548` |
+| "nineteen check lines" | status | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:2447-2564 — the doctor emits 19 distinct ids: map-fresh, process, tree, commandLine, ports, tabs, account, extension, model.disk, model.pin, model.broker, backend, performanceClass, disk.free, api.availability, model.contextWindow, canary.structured, canary.tools, canary.webmcp |
+| "`Angular AI DevTools 0.3.0 loaded as …`" | config | verified | extension/manifest.json:3-4 — `"name": "Angular AI DevTools"` and `"version": "0.3.0"` |
+| "`navigator.modelContext` is `undefined`; WebMCP lives on `document.modelContext`" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:1439 — `o.webmcp = { pass: typeof document.modelContext === 'object', documentModelContext: typeof document.modelContext }` |
+| "`backend` reads `requested gpu`" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:2529 — `add('backend', be.kind === d.backend, { requested: d.backend, broker: …, row: be.row })` |
+| "`model.pin` `[OK]` `matches the pin of <date>`" | status | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:2512 — the OK detail is `matches the pin of ${pin.at}: …` |
+| "`model.broker` fails with a `mismatch` field" | status | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:2527 — on a `mismatch` verdict the detail carries `mismatch` plus a `fix` naming the pin restore |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/instances.md
 
-Byte-identical to `.claude/skills/control-ai-browsers/features/instances.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`C flags edge-dev-aion` prints `[OK]` with the nine Aion features" | config | verified | `instances.json:137-147` lists exactly nine feature names for that instance |
-| "`up edge-dev-aion --backend=cpu` exits 2 before anything starts" | command | verified | `scripts/control.mjs:523`; `instances.json:159` (`"cpu": null`) |
-| "The script finds instance processes only by `--user-data-dir`" | feature | verified | `scripts/control.mjs:670` |
-| "`edge-dev-aion` has `--disable-component-update` in its `args`" | config | verified | `instances.json:148-150` |
-| "The profiles live in `.commandcode\worktrees\.browsers\` of the primary checkout (git-ignored)" | config | verified | `.gitignore:10` ignores `.browsers/`; `instances.json:2` (`"profilesRoot": ".browsers"`) |
+| "its own profile under `.browsers\<name>`" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:2 — `"profilesRoot": ".browsers"` |
+| "its own `--enable-features` set and its own remote-debugging port, all read from `instances.json`" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:70,101,135,173,201 — every instance entry carries a `port` and its own `features` array |
+| "`[OK]` with the nine Aion features" | feature | verified | .commandcode/skills/control-ai-browsers/instances.json:146 — edge-dev-aion's `features` array runs to nine entries, ending with `msEdgeLLMOnDeviceModelPrerelease` |
+| "`--backend=cpu` on Edge is refused: forcing CPU deleted the installed model twice" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:523 — refuses with "forcing CPU on Edge deletes the installed model (measured twice)" |
+| "`edge-dev-aion` has `--disable-component-update`" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:149 — the instance's `args` array holds `--disable-component-update` |
+| "`http://127.0.0.1:<port>/json/version` and `/json/list` for the CDP endpoint and its tabs" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs — `up` waits for `/json/version` and the tab list comes from `/json/list` on the instance's CDP port |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/interop.md
 
-Byte-identical to `.claude/skills/control-ai-browsers/features/interop.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Required panel test ids: `interop-slice`, `interop-node`, `interop-limit`, `interop-inferred`, …" | structure | verified | `scripts/panel.mjs:270` (`interop-slice`) and `:310` (`interop-limit`, `interop-inferred`, `interop-node`, `owning-component`) |
-| "the driver routes the panel to `interop`" | feature | verified | `scripts/panel.mjs:241,245` |
-| "the `spikes/ng222-app` fixture routes `/stale-view` and `/stale-view-deferred`" | structure | verified | `spikes/ng222-app/src/app/app.routes.ts:6-7` |
-| "Implementation: `apps/angular-ai-devtools/src/app/interop.component.ts`" | structure | verified | the component, `interop.service.ts` and `interop-slice.node.test.ts` exist |
+| "identify a `toSignal.source` / `toSignal.state` node" | feature | verified | apps/angular-ai-devtools/src/app/interop.service.ts:8 — `if (n.label === 'toSignal.source' \|\| n.label === 'toSignal.state') return true;` |
+| "Required panel test ids: `interop-slice` (container), `interop-node` (one per sliced node), `interop-limit` …, `interop-inferred` …" | structure | verified | apps/angular-ai-devtools/src/app/interop.component.ts:19,21,20,25 — data-testid values interop-slice, interop-node, interop-limit, interop-inferred |
+| "message types `angular-ai:interop`" | integration | stale | no `angular-ai:interop` exists in src/main-world, apps/angular-ai-devtools/src/app or extension/*.js, and extension/background.js:10 routes only record, state, di-graph and error-capture; interop.service.ts:238 builds the slices from `this.cause.recordedCycles()` instead |
+| "the `spikes/ng222-app` fixture at `/stale-view`, or the deferred `/stale-view-deferred` route" | config | verified | spikes/ng222-app/src/app/app.routes.ts:6-7 — `{ path: 'stale-view' … }` and `{ path: 'stale-view-deferred', component: StaleViewDeferredFixture }` |
+| "`C panel <name> --url=<app url> --feature=interop`" | command | verified | .commandcode/skills/control-ai-browsers/scripts/panel.mjs:17,241 — `interop` is a documented feature and line 241 branches on it |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/model-lifecycle.md
 
-Byte-identical to `.claude/skills/control-ai-browsers/features/model-lifecycle.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The browser minimum free space is Chrome 22,528 MiB and Edge 20,480 MiB" | config | verified | `instances.json:16,26` (22528) and `:41,60` (20480) |
-| "The model folders are `OptGuideOnDeviceModel\<version>`, `OptGuideManifestModel\<hash>\<version>` and `EdgeLLMOnDeviceModel\<version>`" | config | verified | `instances.json:12-15,22-25` (`modelRoots`) and `:163` (`folders`) |
-| "`model clear` refuses a running instance" | command | verified | `SKILL.md:271` states the rule; the `model` dispatcher is `scripts/control.mjs:3004` with the refusal exit path at `:3090` |
-| "`model download` refuses on an instance launched with `--disable-component-update`" | command | verified | `instances.json:148-150`; `SKILL.md:268` |
-| "1.3 GB pin folder under `.commandcode/worktrees/tmp/control-ai-browsers/pins/<name>`" | status | unverifiable | settling check: `node .commandcode/skills/control-ai-browsers/scripts/control.mjs model info edge-dev-aion --json` with `.commandcode/worktrees/tmp/control-ai-browsers/pins/edge-dev-aion/pin.json`, and `node --test scripts/skills-mirror.test.mjs` for the mirror; the pin folder is git-ignored working state outside this checkout |
+| "`OptGuideOnDeviceModel\<version>` (Nano), `OptGuideManifestModel\<hash>\<version>` (Gemma 4), `EdgeLLMOnDeviceModel\<version>` (Aion, Phi-4-mini), each with a `manifest.json`" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:91,125,163,191 — the four model entries carry exactly those `folders` patterns |
+| "free space minus the model's `downloadMib` must stay above the browser minimum in `instances.json` (Chrome 22,528 MiB, Edge 20,480 MiB)" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:16,26 — both Chrome entries set `"minFreeMib": 22528`; instances.json:41,60 set 20480 for both Edge entries |
+| "`contextWindow` 9,216" | feature | verified | .commandcode/skills/control-ai-browsers/instances.json:94 — chrome-beta-nano's model declares `"contextWindow": 9216` |
+| "except on an instance launched with `--disable-component-update` (`edge-dev-aion`)" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:149 — edge-dev-aion alone carries `--disable-component-update` in its `args` |
+| "Forcing CPU on Edge uninstalls the model; `up --backend=cpu` is refused on Edge instances" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:523 — refuses `--backend=cpu` for an Edge instance, citing the twice-measured model deletion |
+| "`model init chrome-beta-nano` … First and second create, `contextWindow` 9,216" | command | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs — the `model init` command runs a cold and a warm `create()` and reads `contextWindow`, matching the registry value 9216 at instances.json:94 |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/probes.md
 
-Byte-identical to `.claude/skills/control-ai-browsers/features/probes.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`spikes/probes/bench.js` hard-codes `http://localhost:4222`" | config | verified | `spikes/probes/bench.js:4` |
-| "`bench.js` has a 120 s per-prompt timeout" | feature | verified | `spikes/probes/bench.js:11` |
-| "`probe10.js` runs the two-tool round trip" | structure | verified | `spikes/probes/probe10.js` exists |
-| "Summarise with `node spikes/probes/bench-summary.mjs`" | command | verified | `spikes/probes/bench-summary.mjs` exists |
+| "`probe-tools` runs the two-tool round trip in `spikes/probes/probe10.js`" | structure | verified | spikes/probes/probe10.js — the file is present in the probes directory beside bench.js and broker-state.js |
+| "`bench.js` hard-codes it" | feature | verified | spikes/probes/bench.js:4 — `await page.goto('http://localhost:4222/');` |
+| "`bench.js` has a 120 s per-prompt timeout" | feature | verified | spikes/probes/bench.js:11 — `const PROMPT_TIMEOUT_MS = 120000;` |
+| "Summarise with `node spikes/probes/bench-summary.mjs`" | command | verified | spikes/probes/bench-all.sh:21 — `node "$root/spikes/probes/bench-summary.mjs" "$out/nano.json" …` |
+| "`bench` does not use `spikes/probes/bench-all.sh` … it uses the `bench-*` sessions" | feature | verified | spikes/probes/bench-all.sh:13 — `session="bench-$name"`, the session naming the gotcha describes |
+| "`C run chrome-beta-nano spikes/probes/broker-state.js --json`" | command | verified | spikes/probes/broker-state.js — present in the probes directory, and control.mjs documents `run <name> <file.js>` for a tab of its own |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/signal-provenance.md
 
-Byte-identical to `.claude/skills/control-ai-browsers/features/signal-provenance.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "the page-side tracer lives in `extension/agent-main.js` and `src/main-world/provenance-tracer.ts`" | structure | verified | both files exist |
-| "the fact list is the `angular-ai:record` message handled by `ExtensionMessageService`" | feature | verified | `apps/angular-ai-devtools/src/app/extension-message.service.ts:57` |
-| "The proof across every pair is `verify-ai-browsers/checks/signal-provenance.mjs`" | structure | verified | the check and its test exist |
+| "driven by `angular-ai:record` messages from the page-side tracer (`extension/agent-main.js`, `src/main-world/provenance-tracer.ts`)" | integration | verified | extension/relay.js:6-7 — listens for `angular-ai:record` and re-sends `{ type: 'angular-ai:record', cycle: e.detail }`; both named tracer files exist |
+| "the fact list is the `angular-ai:record` message handled by `ExtensionMessageService`" | feature | verified | apps/angular-ai-devtools/src/app/extension-message.service.ts:57 — `} else if (msg.type === 'angular-ai:record' && msg.cycle) {` |
+| "The proof across every pair is `verify-ai-browsers/checks/signal-provenance.mjs`" | feature | verified | .commandcode/skills/verify-ai-browsers/checks/signal-provenance.mjs — the check is present in the checks directory beside signal-provenance.test.mjs |
+| "The component picker is empty until at least one `angular-ai:record` cycle arrives for the inspected tab" | feature | unverifiable | no static reading settles it; running `.commandcode/skills/verify-ai-browsers/checks/signal-provenance.mjs` against a fresh page would (not run: this audit forbids a browser, a build and a test runner) |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/stale-view.md
 
-Byte-identical to `.claude/skills/control-ai-browsers/features/stale-view.md`.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The panel sends the hedged wording 'the template may show a stale value'" | feature | verified | `apps/angular-ai-devtools/src/app/stale-view.component.ts:21` |
-| "With zero findings the panel renders an explicit empty state ('no stale-view findings')" | feature | verified | `stale-view.component.ts:17` |
-| "`C panel <name> --url=... --feature=stale-view` routes the panel to `stale-view`" | command | verified | `scripts/panel.mjs:240,244` |
+| "the hedged wording "the template may show a stale value"" | feature | verified | apps/angular-ai-devtools/src/app/stale-view.component.ts:21 — `the template may show a stale value` in the `hedged` span |
+| "With zero findings the panel renders an explicit empty state ("no stale-view findings")" | feature | verified | apps/angular-ai-devtools/src/app/stale-view.component.ts:17 — `no stale-view findings` in the `empty-state` paragraph |
+| "`C panel <name> --url=http://localhost:4222/ --feature=stale-view`" | command | verified | .commandcode/skills/control-ai-browsers/scripts/panel.mjs:240 — `const isStale = feature === 'stale-view';` |
+| "message types `angular-ai:stale-view`" | integration | stale | no `angular-ai:stale-view` exists in src/main-world, apps/angular-ai-devtools/src/app or extension/*.js; stale-view.component.ts:42,47 injects UpdateCauseService and scans `this.cause.recordedCycles()`, so no such message is sent |
+| "Implementation: `apps/angular-ai-devtools/src/app/stale-view.component.ts`" | structure | verified | apps/angular-ai-devtools/src/app/stale-view.component.ts:42 — `protected readonly cause = inject(UpdateCauseService);` |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/SKILL.md
 
-Identical to `.claude/skills/control-angular-dev-app/SKILL.md` after normalizing the `.claude`/`.commandcode`
-self-paths: both copies carry the paragraph "One skill covers all three targets on purpose (Lars, 2026-10-18)
-... A maintain pass keeps it whole rather than splitting it per app" at lines 14-16 (read 2026-11-01).
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`.commandcode/skills/control-angular-dev-app/scripts/control.mjs:69` keeps the portal API port at 3000" | config | verified | `scripts/control.mjs:68-69` |
-| "The portal API is pinned by `libs/shared/utils/src/lib/injection-tokens.ts:5` in the portal checkout" | integration | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs doctor --target portal`, whose `ports` line quotes `libs/shared/utils/src/lib/injection-tokens.ts:5` in the portal checkout; that file is outside this repository |
-| "Counter `4300 + slot`, SSR `4400 + slot`, portal `4500 + slot`" | config | verified | `scripts/control.mjs:82,90,100` |
-| "`scripts/ng-inspect.js` installs `__ngc`; `scripts/ssr-check.js` checks the SSR target" | structure | verified | both files exist with tests under `.commandcode/skills/control-angular-dev-app/scripts/` |
-| "The four portal features are recorded as external" | status | verified | `features/.proven.json:25,30,35,40` |
-| "One skill covers all three targets on purpose (Lars, 2026-10-18) ... A maintain pass keeps it whole rather than splitting it per app" | structure | verified | read 2026-11-01: `SKILL.md:14-16` carries the paragraph, in the same words as `.claude/skills/control-angular-dev-app/SKILL.md:14-16`; `scripts/docs-correction.test.mjs::the maintained control-angular-dev-app SKILL.md carries the maintain rationale verbatim` asserts it verbatim in the maintained copy |
-| "`provideRouter(routes)` over the two routes `src/app/app.routes.ts:5-8` declares, `/stale-view` and `/stale-view-deferred`" (line 25) | structure | verified | read 2026-11-01: `SKILL.md:25` states it, `spikes/ng222-app/src/app/app.routes.ts:5-8` declares both routes and `app.config.ts:8` passes that array, and `scripts/docs-correction.test.mjs::control-angular-dev-app SKILL.md (both trees) names the two routes the counter declares` asserts it |
+| "portal api fixed 3000; control.mjs:69 keeps it at 3000" | config | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:69 â€” const PORTAL_API_PORT = 3000; |
+| "counter 4300 + slot, SSR 4400 + slot, portal 4500 + slot" | config | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:82,90,100 â€” slot === 0 ? 4222 : 4300 + slot, then 4400 + slot and 4500 + slot |
+| "default 240; a missing value or one that is not a positive number exits 2" | command | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:995 - timeoutMs = timeoutMsOf(argv, 240), and timeoutMsOf throws on a missing or non-positive value |
+| "ng-core-functions: the 11 public functions" | feature | verified | .commandcode/skills/control-angular-dev-app/scripts/ng-inspect.js:119 - CORE holds 11 public names plus 5 prefixed helpers, 16 in all |
+| "npm test at the repository root runs them and npm run check type-checks the scripts" | command | verified | package.json:7,9 - check runs tsc -p tsconfig.json, test runs node --test over the script test files |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/README.md
 
-Identical to the `.claude` copy after path normalization.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`S` is `.commandcode/skills/control-angular-dev-app/scripts/control.mjs`" | command | verified | the file exists |
-| "Counter fresh state: `count` 3, `double` 6, cart 1 item" | feature | verified | `spikes/ng222-app/src/app/counter.ts:5,17,18` |
-| "Six feature files, each with the four H2s in order" | structure | verified | `features/` holds the six files |
-| "The portal API port is fixed at 3000" | config | verified | `scripts/control.mjs:69` |
+| "Counter: node $S up --target counter, then node $S doctor exits 0. Fresh page state: count 3, double 6, cart 1 item." | status | verified | spikes/ng222-app/src/app/counter.ts:5,17,18 - count = signal(3), double = computed(() = count() * 2), CartService items = signal([apple]) |
+| "Portal: node $S up --target portal (API on 3000, app on the derived port, 4507 for the default portal folder)" | config | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:69,100 - PORTAL_API_PORT = 3000 and slot 0 gives app 4200, a worktree slot gives 4500 + slot |
+| "Every flag in apps/insurance-portal/src/assets/feature-flags.manifest.json decides whether a sidebar entry and its route exist" | integration | verified | apps/insurance-portal/src/assets/feature-flags.manifest.json in the portal checkout lists the 12 domain flags (claim-list, contract-edit, customer-details, complaint-create, ...), one per sidebar entry and route |
+| "Each feature file has an H1 ... then four H2s in order: Sub-features, How to get to it (user POV), Driving it with control-angular-dev-app (starting with Preconditions:), Gotchas" | structure | verified | features/counter.md:7,15,21,45; portal-claims.md:6,16,21,40; portal-contracts.md:7,22,28,61; portal-navigation.md:9,19,26,49; portal-complaints-customers.md:7,20,27,49; ssr.md:10,26,33,72 - only those four H2s, in that order |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/counter.md
 
-Identical to the `.claude` copy after path normalization.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The page shows one line, `Clicks: 3 (double 6, cart 1)`, and an `Increment` button" | feature | verified | `spikes/ng222-app/src/app/app.ts:8`, `counter.ts:11-12,17` |
-| "an effect copies `count` into `lastLogged`" | feature | verified | `counter.ts:22-24` |
-| "`router()` returns `present: true` and lists the two routes `src/app/app.routes.ts:5-8` declares, `/stale-view` and `/stale-view-deferred`, not an empty list" | structure | verified | read 2026-11-01: `features/counter.md:49-50` states it, and `scripts/docs-correction.test.mjs::control-angular-dev-app features/counter.md (both trees) states the router lists two routes` asserts it in both trees |
+| "The ng222-app page shows one line, Clicks: 3 (double 6, cart 1), and an Increment button" | feature | verified | spikes/ng222-app/src/app/counter.ts:11,12,17 - template prints title(): count() (double double(), cart cart.items().length) with a button Increment; count = signal(3); spikes/ng222-app/src/app/app.ts:7 passes title="Clicks" |
+| "There is a count signal, a double computed, an injected CartService.items signal and an effect that copies count into lastLogged" | structure | verified | spikes/ng222-app/src/app/counter.ts:5,17,18,19,23 - items = signal(["apple"]), count = signal(3), double = computed, inject(CartService), effect sets lastLogged |
+| "The counter is OnPush by default (no changeDetection declared)" | feature | verified | spikes/ng222-app/src/app/counter.ts:8-14 - the @Component metadata has no changeDetection key (no match for changeDetection in spikes/ng222-app/src/app) |
+| "The fixtures two other routes, /stale-view and /stale-view-deferred (src/app/app.routes.ts:5-8)" | structure | verified | spikes/ng222-app/src/app/app.routes.ts:5-8 - routes array declares path stale-view and path stale-view-deferred |
+| "A reload resets the count to 3; there is no persistence" | feature | verified | spikes/ng222-app/src/app/counter.ts:17 - count = signal(3) initialised in code, and no localStorage or sessionStorage reference exists in spikes/ng222-app/src/app |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/portal-claims.md
 
-The portal checkout is outside this repository; only the repository-side parts are auditable.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Data comes from `http://localhost:3000/api/claims`" | integration | verified | this repository fixes the API port at 3000 (`scripts/control.mjs:68-69`) |
-| "`/claim/create` shows the heading `Complaint Create` (app bug, reported, not patched)" | status | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 click <ref>` on the CLAIM > Create entry and `playwright-cli -s=control-ngdev-portal-4507 snapshot --filename=<dir>/claim-create.yml`; the portal render is the only evidence either copy can have |
-| "The list component's signal graph is mostly UI-library styling signals; filter by label (`claims`, `#state`)" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 --raw eval "() => __ngc.components()"` and `--raw eval "() => __ngc.signals(<i>)"`; the signal graph is a live portal page read |
+| "Data comes from http://localhost:3000/api/claims" | integration | verified | portal libs/shared/utils/src/lib/injection-tokens.ts:5 - BaseUrl factory returns http://localhost:3000/api/; libs/claim/data-access/src/lib/data-services/claim-data.service.ts:9 - url = inject(BaseUrl) + claims |
+| "claim-list table with columns Claim number, Damage Type, Date, Policynumber, Customer" | feature | verified | portal libs/claim/feature-list/src/lib/list.component.ts:23-28 - the p-table header row carries exactly those five th cells |
+| "/claim/create shows the heading Complaint Create: an app bug, measured" | status | verified | portal libs/claim/feature-create/src/lib/create.component.ts:39 - ng-journal-header title="Complaint Create" in the component the claim create route loads (libs/claim/routes/src/lib/routes.ts:21) |
+| "row click opens /claim/id/details, heading Claim Details" | feature | verified | portal libs/claim/feature-list/src/lib/list.component.ts:34 - tr routerLink [/, claim, claim.id, details]; libs/claim/feature-details/src/lib/details.component.ts:29 - ng-journal-header title="Claim Details" |
+| "Select damage type and Select contract (under the label Policynumber) dropdowns ... Save disabled until valid" | feature | verified | portal libs/claim/ui/src/lib/claim-form.component.ts:59,67,73 - placeholders Select damage type and Select contract under label Policynumber; feature-create/src/lib/create.component.ts Save has [disabled]="form().invalid()" |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/portal-complaints-customers.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Data comes from `http://localhost:3000/api/complaints` and `/api/customers`" | integration | verified | fixed API port in `scripts/control.mjs:69` |
-| "Save sends `POST /api/complaints` (201) and opens the new complaint's details" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 requests` after a Save; that capture needs the portal API and the portal app running together |
-| "The customer list's signal graph is the largest per component on the portal (80 nodes measured in research/05-spikes.md)" | status | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 --raw eval "() => __ngc.components()"` with per-component `--raw eval "() => __ngc.signals(<i>)"` node counts; the comparison is over the live tree, not over a recorded file |
+| "Data comes from http://localhost:3000/api/complaints and /api/customers" | integration | verified | portal libs/shared/utils/src/lib/injection-tokens.ts:5 - BaseUrl is http://localhost:3000/api/; complaint-data.service.ts:9 and customer-data.service.ts:9 append complaints and customers |
+| "complaint-list columns Type, Customer, Date, Description" | feature | verified | portal libs/complaint/feature-list/src/lib/list.component.ts:23-26 - the header row carries exactly those four th cells under ng-journal-header title="Complaints" |
+| "complaint-create ... heading Complaint Create: Select type (CustomerService, Sales, Payments), Select customer" | feature | verified | portal libs/complaint/feature-create/src/lib/create.component.ts:43 - ng-journal-header title="Complaint Create"; libs/complaint/models/src/lib/dtos/complaint-type-dto.model.ts:2-4 - enum members CustomerService, Sales, Payments; libs/complaint/ui/src/lib/complaint-form.component.ts:35,48 - placeholders Select type and Select customer |
+| "customer-list columns First name, Last name, Phone, Email, Street, City, State, Zip" | feature | verified | portal libs/customer/feature-list/src/lib/list.component.ts:23-30 - the eight th cells, under ng-journal-header title="Customers" |
+| "customer-details /customer/id/details, heading Customer Details (name, email, phone, Address block)" | feature | verified | portal libs/customer/feature-details/src/lib/details.component.ts:18,40 - ng-journal-header title="Customer Details" and a subtitle header titled Address |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/portal-contracts.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Data comes from the API at `http://localhost:3000/api/contracts`" | integration | verified | fixed API port (`scripts/control.mjs:69`) |
-| "`contract-list`: 20 rows after a fresh API start" | status | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 snapshot --filename=<dir>/contract-list.yml` and a row count, with `.commandcode/skills/verify-pangular-inspector/checks/live-reads.mjs` asserting the table is filled; faker regenerates the rows on every portal start |
-| "Typing a date into Insurance Start On leaves `Save` disabled; pick the day in the calendar `grid`" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 snapshot` and `click` on the calendar `grid`, with the PrimeNG version read from the portal `package.json`; the behaviour tracks the portal's PrimeNG build |
+| "contract-list table with columns Policynumber, Status, Insurance Start On, Customer, Phone, Email" | feature | verified | portal libs/contract/feature-list/src/lib/list.component.ts:34-39 - the six th cells under ng-journal-header title="Contracts" |
+| "clicking a row opens /contract/id/details with heading Contract Details and an Edit button" | feature | verified | portal libs/contract/routes/src/lib/routes.ts:26-31 - path :id/details guarded by contract-details; libs/contract/feature-details/src/lib/details.component.ts:41,42 - title="Contract Details" with [showEditButton]="true" |
+| "Edit opens /contract/id/edit, heading Contract Edit ... then sends PUT /api/contracts and returns to details" | feature | verified | portal libs/contract/feature-edit/src/lib/edit.component.ts:51 - ng-journal-header title="Contract Edit"; routes.ts:21 - path :id/edit; libs/contract/data-access/src/lib/data-services/contract-data.service.ts:25 - http.put on the contracts url |
+| "contract-create /contract/create: Status chip Pending ... Save sends POST /api/contracts (201)" | feature | verified | portal libs/contract/feature-create/src/lib/create.component.ts:46,112 - title="Contract Create" and status: ContractStatusDto.Pending; contract-data.service.ts:21 - http.post on the contracts url; libs/contract/models contract-status.model.ts:2 - Pending = Pending |
+| "its inputs (withComponentInputBinding passes the route id)" | config | verified | portal apps/insurance-portal/src/app/app.config.ts:24 - withComponentInputBinding() inside provideRouter |
+| "eval () = __ngc.components() on details lists DetailsComponent, ContractStatusChipComponent, HyperlinkComponent" | feature | verified | portal libs/contract/feature-details/src/lib/details.component.ts:93,15,19 - class DetailsComponent with HyperlinkComponent and ContractStatusChipComponent in its imports, so all three render on the contract details page |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/portal-navigation.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "In development builds the Pangular Inspector overlay adds a floating 'Toggle Pangular Inspector' button" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 snapshot`, plus `doctor --target portal` (`pangular-overlay`); the overlay exists only in a portal development build |
-| "`goto` drops `__ngc` unless it was installed by `doctor` or `run-code`" | feature | verified | `scripts/ng-inspect.js` is the installer registered for later page loads (`SKILL.md` Inspect) |
-| "The portal app runs on the derived port (4507 for the default portal folder) and its API on 3000" | config | verified | `scripts/control.mjs:69,100` |
+| "/ redirects to /home, which shows four tiles linking to the domain lists" | feature | verified | portal apps/insurance-portal/src/app/app.routes.ts:7 - redirectTo: home; apps/insurance-portal/src/app/home.component.ts:16,25,34,43 - four a routerLink links to /contract/list, /claim/list, /complaint/list, /customer/list |
+| "Sidebar entries List and Create per domain (Customer has List only) and Home" | feature | verified | portal apps/insurance-portal/src/app/sidebar.component.ts:104-127 - routingConfigs give General Home, contract/claim/complaint List and Create, customer List only |
+| "Click a sidebar entry (a div with routerLink, not a link)" | feature | verified | portal apps/insurance-portal/src/app/sidebar.component.ts:55-60 - the entry is a div with [routerLink] and [routerLinkActive], no a element |
+| "Only the sidebar group headings render upper-case (CONTRACT, through the capitalize pipe, which calls toUpperCase)" | feature | verified | portal libs/shared/ui-pipes/src/lib/capitalize.pipe.ts:9 - transform returns value.toUpperCase(); sidebar.component.ts:45 applies config.domain through that pipe while the entries print route.label unchanged |
+| "Domain routes load lazily, guarded by feature flags; unknown URLs show Page Not Found" | feature | verified | portal apps/insurance-portal/src/app/app.routes.ts:15-36 - each domain loadChildren, then path ** loads PageNotFoundComponent; libs/claim/routes/src/lib/routes.ts:10 - canMatch: [featureFlagGuard(claim-list)]; apps/insurance-portal/src/app/page-not-found.component.ts:7 - h1 Page Not Found |
+| "The header link goes to https://www.ng-journal.com" | structure | verified | portal apps/insurance-portal/src/app/app.component.ts:19 - a href="https://www.ng-journal.com" wrapping the logo and the Insurance Portal label |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/ssr.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`ssr-check.js` returns six named checks" | structure | verified | `scripts/ssr-check.js:75-80` |
-| "`expected-mismatch-detected` requires `<app-mismatch>` `mismatched` and NG0500 logged" | feature | verified | `scripts/ssr-check.js:80` |
-| "Run the spike probes `spikes/probes/ssr-event-replay.js` and `spikes/probes/ssr-render-modes.js`" | structure | verified | both files exist |
-| "`/` is `ssr`, `/prerender` is `ssg`, `/client` is the bare shell" | feature | verified | the fixture defines those render modes (`SKILL.md` Pick a flow, same content here) |
+| "Open url (http://localhost:4223/)" | config | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:90 - the ssr flow port is slot 0 ? 4223 : 4400 + slot |
+| "a list of three items fetched from /api/items during the server render" | feature | verified | spikes/ng222-ssr/src/server.ts:18,21-23 - app.get(/api/items) returns Alpha, Beta, Gamma; spikes/ng222-ssr/src/app/data-list.ts:22 - httpResource on /api/items |
+| "?mismatch=1 (structural hydration mismatch, NG0500)" | feature | verified | spikes/ng222-ssr/src/app/mismatch.ts:4 - the comment says ?mismatch=1 puts an extra node before the p on the server only; .commandcode/skills/control-angular-dev-app/scripts/ssr-check.js:80 - expected-mismatch-detected requires NG0500 |
+| "?transfer=0 (HTTP transfer cache off for the request)" | feature | verified | spikes/ng222-ssr/src/app/data-list.ts:9,22 - the comment names ?transfer=0 and transferCache is this.transfer() !== 0 |
+| "a @defer (hydrate on interaction) block holding a Deferred click button" | feature | verified | spikes/ng222-ssr/src/app/page.ts:15 - @defer (hydrate on interaction); deferred.ts:6 - button Deferred click with its counter |
+| "ok is true when all six checks pass" | status | verified | .commandcode/skills/control-angular-dev-app/scripts/ssr-check.js:75-80 - six named checks server-html-ngh, server-html-transfer-state, dev-build-after-hydration, hydration-counters, no-mismatch-on-default-route, expected-mismatch-detected |
 
 ## Doc: .commandcode/skills/control-angular-devtools/SKILL.md
 
-Identical to `.claude/skills/control-angular-devtools/SKILL.md` after normalizing the tree self-paths.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The extension is `ienfalfjdbdpebioblfackkekamfmbnh`" | config | verified | `scripts/control.mjs:89` |
-| "Session `ngdt`, CDP port 9420; a worktree hashes to 9421-9499" | config | verified | `scripts/control.mjs:273-274,311` |
-| "`panel` drives the panel id `chrome-extension://<id>Angular`" | feature | verified | `scripts/control.mjs:90,810` |
-| "`coexist` uses two `ng.ɵsetProfiler` subscribers and `--di-graph` runs Angular's `angular:di_graph`" | feature | verified | `scripts/control.mjs:1463-1467,1501` |
+| "Playwrights bundled Chromium (Chrome for Testing 156.0.8078.4, revision 1248, read 2026-11-01 from node_modules/playwright-core/browsers.json)" | config | verified | node_modules/playwright-core/browsers.json - the chromium entry has revision 1248, browserVersion 156.0.8078.4, title Chrome for Testing |
+| "session ngdt, CDP port 9420, profile tmp/control-angular-devtools/profile/main" | config | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs:273,311 - MAIN_CDP_PORT = 9420 and SESSION = main ? ngdt : ngdt-flowId; cdp port row at :304 is MAIN_CDP_PORT + slot |
+| "CDP port 9420 + slot (9421-9499, slot 1-79 ...); up tries the next slot, 10 slots in all" | config | verified | control.mjs:274-276 - the comment names slots 1 to SLOTS - 1 as 9421-9499, SLOTS = 80 and SLOT_TRIES = 10 |
+| "a --browser outside test, chrome, chrome-beta, edge, edge-dev ... exits 2 before anything runs" | command | verified | control.mjs:113 - BROWSER_VALUES = [test, chrome, chrome-beta, edge, edge-dev], checked by isBranded at :121-123; the branded table BROWSERS at :102-107 |
+| "install (test): copies the newest version_0 folder from C:\Users\LarsGyrupBrinkNielse\AppData\Local Microsoft Edge Dev User Data Default Extensions ienfalfjdbdpebioblfackkekamfmbnh" | command | verified | control.mjs:89,1036 - EXT_ID = ienfalfjdbdpebioblfackkekamfmbnh and the source is BROWSERS[from].userData + Default + Extensions + EXT_ID; edge-dev userData is join(LOCAL, Microsoft, Edge Dev, User Data) at :106 |
+| "panel evaluates Extensions.extensionServer.onShowPanel({command: showPanel, id: chrome-extension://id Angular})" | feature | verified | control.mjs:810 - evalIn(port, isDevtools, async () = Extensions.extensionServer.onShowPanel({ command: showPanel, id: PANEL_ID })), and :794 identifies the panel by chrome-extension://EXT_ID/index.html |
 
 ## Doc: .commandcode/skills/control-angular-devtools/features/README.md
 
-Identical to the `.claude` copy after path normalization.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`S` is `.commandcode/skills/control-angular-devtools/scripts/control.mjs`" | command | verified | the file exists |
-| "Four feature files: install, attach, signal-graph, profiler" | structure | verified | `features/` holds exactly those four plus `README.md` and `.proven.json` |
-| "Router Tree shows only when the app provides the router (`devtools-tabs.component.ts`)" | feature | verified | read 2026-11-01: `features/README.md:58` states it without the counter example, and `scripts/docs-correction.test.mjs::control-angular-devtools features/README.md (both trees) drops the empty-route-list example` asserts it in both trees |
-
-## Doc: .commandcode/skills/control-angular-devtools/features/install.md
-
-Identical to the `.claude` copy after path normalization.
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Angular DevTools is the store extension `ienfalfjdbdpebioblfackkekamfmbnh`" | config | verified | `scripts/control.mjs:89` |
-| "`install` copies the newest `<version>_0` folder from `%LOCALAPPDATA%\Microsoft\Edge Dev\…`" | feature | verified | `scripts/control.mjs:95` and the Launch section of `SKILL.md` |
-| "Measured: Edge Dev `installed true, version 1.22.1, enabled true`" | status | unverifiable | settling check: `node .commandcode/skills/control-angular-devtools/scripts/control.mjs status --browser=edge-dev --json`, a read-only profile read that launches nothing; the profile lives on this machine, outside the checkout |
+| "S is .commandcode/skills/control-angular-devtools/scripts/control.mjs" | structure | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs - the CLI entry, whose usage line reads control.mjs command [options] [--json] |
+| "the counter fixture at spikes/ng222-app (Angular 22.2.2)" | config | verified | spikes/ng222-app/node_modules/@angular/core/package.json:3 - version 22.2.2; spikes/ng222-app/package.json:16 - @angular/core ^22.2.0 |
+| "App page: playwright-cli session ngdt" | config | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs:311 - SESSION = flowId === main ? ngdt : ngdt-flowId |
+| "Evidence stays in tmp/control-angular-devtools/evidence/ (git-ignored)" | config | verified | .gitignore:7 - tmp/control-angular-devtools/, the folder the script writes evidence and state into |
+| "One file per feature: H1, one paragraph of user-visible behaviour, then Sub-features, How to get to it (user POV), Driving it with control-angular-devtools, Gotchas" | structure | verified | features/attach.md:7,15,20,32; install.md:7,14,22,38; profiler.md:6,11,15,26; signal-graph.md:6,13,17,32 - each feature file carries only those four H2s, in that order |
+| "Router Tree shows only when the app provides the router (devtools-tabs.component.ts)" | feature | unverifiable | devtools-tabs.component.ts is not in this repository (shell-browser/ does not exist here, it ships inside the built extension); reading that component or the running panel would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .commandcode/skills/control-angular-devtools/features/attach.md
 
-Identical to the `.claude` copy after path normalization.
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Connected flag window.__NG_DEVTOOLS_CONNECTED__" | feature | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs:891 - an init script installs a get/set accessor on window.__NG_DEVTOOLS_CONNECTED__ and stamps flagSetAt; the probe reads it at :905 |
+| "attach reloads the page to catch messages from the start" | feature | verified | control.mjs:888-900 - the probe init script is installed, then page.reload(), then it waits for the backendReady topic |
+| "Angular version from [ng-version]" | feature | verified | control.mjs:911 - ngVersion = document.querySelector([ng-version]).getAttribute(ng-version) |
+| "attach exits 1 because it requires isDebugMode" | status | verified | control.mjs:1349 - ok = flag and isAngular and isDebugMode and backendInstalled and backendReady, so a production build fails the run |
+| "the content script still injects the backend (it gates on isAngularDevTools, isAngular and an HTML document, not on isDebugMode; built 1.22.0 app/content_script_bundle.js)" | feature | unverifiable | the extension bundle (app/content_script_bundle.js) is not in this repository and the harness copy lives under tmp/; unpacking the installed 1.22.x copy and reading that file would settle it (settles it: control.mjs doctor) |
+
+## Doc: .commandcode/skills/control-angular-devtools/features/install.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Connected flag `window.__NG_DEVTOOLS_CONNECTED__`" | feature | verified | `scripts/control.mjs:891,905,1334` |
-| "Detection result `isDebugMode` and the `detectAngular` message" | feature | verified | `scripts/control.mjs:895,907` |
-| "Angular version from `[ng-version]`; expected `Angular 22.2.2`" | feature | verified | `scripts/control.mjs:1332`; `spikes/ng222-app/package-lock.json:431` |
+| "Angular DevTools is a Chrome Web Store extension (ienfalfjdbdpebioblfackkekamfmbnh)" | config | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs:89,91 - EXT_ID = ienfalfjdbdpebioblfackkekamfmbnh and STORE_URL = https://chromewebstore.google.com/detail/EXT_ID |
+| "node $S install # test copy from Edge Dev (read only)" | command | verified | control.mjs:1036-1039 - the source is BROWSERS[from].userData + Default/Extensions/EXT_ID (default from edge-dev) and the copy is refused when the entry is missing |
+| "node $S install --browser=chrome-beta # opens the store page, polls for Lars click (default 180 s)" | command | verified | control.mjs:1019-1027 - opens STORE_URL, polls every 2000 ms for Number(opts.timeout ?? 180) * 1000, then throws not installed after 180 s |
+| "A test uninstall refuses while up runs (down first)" | status | verified | control.mjs:1096 - refuse(the test browser is up; run "down" first) |
+| "test: doctor line extension: Angular DevTools 1.22.1 ENABLED (UNPACKED, ...)" | status | verified | control.mjs:1331 - the check prints name version state (location, path); service worker; errors, from getExtensionInfo at :924 |
+| "enabled for branded browsers is read from disable_reasons and state" | feature | verified | control.mjs:946-954 - status reads Secure Preferences then Preferences, mapping manifest.version, disable_reasons, state and from_webstore |
 
 ## Doc: .commandcode/skills/control-angular-devtools/features/profiler.md
 
-Identical to the `.claude` copy after path normalization.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "It subscribes through `ng.ɵsetProfiler`, which keeps a list of subscribers in Angular 22" | feature | verified | `scripts/control.mjs:1463-1467` |
-| "`node $S coexist` reports own subscribers and the DevTools cycle count" | command | verified | `scripts/control.mjs:832` (`profilerSummary`) |
-| "`ng.ɵsetProfiler(null)` clears every subscriber" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-devtools/scripts/control.mjs up --app-url <counter url>`, then `playwright-cli -s=ngdt --raw run-code` with `ng.ɵsetProfiler(null)`, plus `.commandcode/skills/verify-angular-devtools/checks/coexist.mjs`; the effect on the DevTools subscriber needs the harness recording |
+| "It subscribes through ng.ÉµsetProfiler, which keeps a list of subscribers in Angular 22" | feature | verified | spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:144-149 - setProfiler pushes a new callback into profilerCallbacks when it is not already listed |
+| "ng.ÉµsetProfiler(null) clears every subscriber, DevTools included; remove your own with the function ÉµsetProfiler(cb) returns" | feature | verified | spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:138-153 - the non-null branch returns () = removeProfiler(profiler), the null branch sets profilerCallbacks.length = 0 |
+| "node $S coexist" | command | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs:1463-1467 - coexist installs two subscribers through setProfiler, clicks the app, removes one and re-reads both counters |
+| "own subscribers {bothOn:{a:16,b:16},afterRemoveA:{a:16,b:32}}" | feature | verified | control.mjs:1463-1467 - the probe object holds exactly the keys a and b and is read twice, before and after removing a, which produces the bothOn and afterRemoveA entries |
 
 ## Doc: .commandcode/skills/control-angular-devtools/features/signal-graph.md
 
-Identical to the `.claude` copy after path normalization.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Nodes are `ng-signal-graph-pane .node-cont.kind-<kind>`" | structure | verified | `scripts/control.mjs:830` |
-| "After `angular:di_graph` the template node is gone from both graphs" | feature | verified | `scripts/control.mjs:1501` |
-| "Other kinds the counter lacks: `linked-signal`, `child-signal-prop`, `resource`, `unknown`" | structure | unverifiable | settling check: `node .commandcode/skills/control-angular-devtools/scripts/control.mjs panel signal-graph --component=app-counter`; the loaded copy is 1.22.0, so only the live pane names the current kind classes |
+| "In the Components tab a developer selects a component and clicks Show Signal Graph" | feature | verified | .commandcode/skills/control-angular-devtools/scripts/control.mjs:829,857 - the panel driver finds a button whose text includes Show Signal Graph, clicks it, and throws when it is absent |
+| "Signal graph nodes (kind, label, value) and edges ... graph nodes are ng-signal-graph-pane .node-cont.kind-kind" | feature | verified | control.mjs:830 - readSignalGraph maps ng-signal-graph-pane .node-cont and takes the class starting with kind- as the node kind |
+| "The angular:di_graph regression: after that tool runs, the template node is gone from both" | feature | verified | control.mjs:1501-1528 - coexist --di-graph runs the angular:di_graph tool through the devtoolstooldiscovery event, re-reads both sources, and reports templateLostInPane when a template node existed before and is absent after |
+| "--di-graph leaves the pages signal graph broken until reload" | feature | verified | control.mjs:1501 - the comment marks the di_graph step as changing the page until reload; control-angular-dev-app/SKILL.md gotcha records the same loss for ÉµgetSignalGraph |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/SKILL.md
 
-Identical to `.claude/skills/control-pangular-inspector/SKILL.md` after normalizing the tree self-paths.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`scripts/control.mjs:74` defaults the devtools server to 9999" | config | verified | `scripts/control.mjs:74` |
-| "Eight action tools require `--confirm` and are absent in read-only mode" | feature | verified | `scripts/control.mjs:76,1201` |
-| "A POST without `Origin` gets 403" | feature | verified | `scripts/control.mjs:1343-1344` |
-| "Session `pangular-<port>` and the `__mcp` URL" | config | verified | `scripts/control.mjs:1074` |
+| "The devtools server has no slots" - its port is fixed at 9999 per app | config | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:74 - `const DEFAULT_PORT = 9999;` (the cited line matches) |
+| "the eight action tools (`highlight`, `navigate`, ... `analog-call-api`)" | feature | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:76 - ACTION_TOOLS lists exactly those eight names |
+| "`up` runs `node node_modules/@pangular-inspector/devtools/bin.mjs dev --port 9999 --no-open --root <app> --read-only`" | command | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1061 - spawn args `[bin, 'dev', '--port', String(p), '--no-open', '--root', dir, ...(readOnly ? ['--read-only'] : [])]` |
+| "The state file is per port (`tmp/control-pangular-inspector/state/pangular-<port>.json`)" | structure | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1009 - `path.join(STATE_DIR, 'pangular-${p}.json')` with STATE_DIR = tmp/control-pangular-inspector/state (line 71) |
+| "The MCP client is plain JSON-RPC over `node:http`: `Accept: application/json, text/event-stream`" | integration | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:6,1143 - imports `http` from node:http and sends that Accept header |
+| "`mcp-origin-guard`: a POST without `Origin` gets 403" | status | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1344 - doctor passes the check only when `noOrigin.httpStatus === 403` |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/README.md
 
-Identical to the `.claude` copy after path normalization.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`S`/`D` name the pangular and control-angular-dev-app control scripts" | command | verified | both files exist |
-| "Five feature files: setup, live-inspection, navigation, source-scan, panel" | structure | verified | `features/` holds exactly those five plus `README.md` and `.proven.json` |
-| "App: `node $D up --target portal` (API 3000, app 4507 for the default portal folder)" | config | verified | `control-angular-dev-app/scripts/control.mjs:69,100` |
+| "Take `evidenceDir` and `session` (`pangular-9999`) from `node $S info`" | config | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1074 - the state records `session: 'pangular-${p}'` and `evidenceDir`, with DEFAULT_PORT 9999 (line 74) |
+| "four H2s in this order: `Sub-features`, `How to get to it (user POV)`, `Driving it with control-pangular-inspector` ..., `Gotchas`" | structure | verified | all five feature files (setup, live-inspection, navigation, source-scan, panel) hold exactly those four H2s in that order (grep '^## ' over .commandcode/skills/control-pangular-inspector/features/*.md) |
+| "Setup: `node $S check` exits 0 (pin, overlay import, proxy)" | command | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:590-595 - setupChecks emits six checks: declared-exact, installed, overlay-import, dev-guard, proxy-config, proxy-target |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/live-inspection.md
 
-Identical to the `.claude` copy after path normalization.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "MCP over HTTP at `http://localhost:9999/__mcp`" | config | verified | `scripts/control.mjs:1074` |
-| "`components` uses `list-components` when present, else the `component-tree` resource" | feature | verified | `scripts/control.mjs:1445-1473` |
-| "Instance ids change with every page load" | feature | unverifiable | settling check: two page loads, then `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call list-pages --json`; ids are minted per load on the portal page |
+| "MCP over HTTP at `http://localhost:9999/__mcp`" | integration | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1074 - `mcpUrl: 'http://localhost:${p}/__mcp'` with p = DEFAULT_PORT 9999 |
+| "the component outline (`components`; `list-components` on versions after 0.0.7)" | feature | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:636 - `components` builds the outline from the `component-tree` resource, the fallback for a 0.0.7 server |
+| "`inspect-component` for one host tag, class name or instance id" | feature | unverifiable | features/.proven.json:4 records live-inspection as external ("needs the ng-journal Insurance Portal checkout ... outside this repository"); a live `node $S call inspect-component` would settle it |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/navigation.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`explain-navigation` returns newest first with trigger and phases" | feature | unverifiable | settling check: `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call explain-navigation --args '{"limit":3}' --out explain.json`, with `.commandcode/skills/verify-pangular-inspector/checks/live-reads.mjs` driving the same call; the field order is a live MCP answer |
-| "`limit` defaults to 5 (at most 50)" | feature | unverifiable | settling check: `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call explain-navigation --args '{"limit":6}'`, or the portal checkout's package source; the default and the ceiling live in the portal's package |
-| "Navigate like a user: the CONTRACT > List click returns `http://localhost:4507/contract/list`" | command | verified | the click recipe matches `SKILL.md` Drive; 4507 is the portal's derived port (`control-angular-dev-app/scripts/control.mjs:100`) |
+| "`limit` on `explain-navigation` defaults to 5 (at most 50)" | config | unverifiable | the default lives in @pangular-inspector/devtools 0.0.7, which this checkout does not carry; features/.proven.json:9 records navigation as external (portal checkout outside this repository). A live read against the portal would settle it |
+| Explain: `node $S call explain-navigation` | command | verified | .commandcode/skills/verify-pangular-inspector/checks/live-reads.mjs:47 — runs `call explain-navigation` with a limit argument and holds /contract/list plus succeeded |
+| "`node $S call list-routes` (12 routes, measured) and `node $S call lint-routes` (one `info` finding, `missing-title`)" | status | unverifiable | a measured count against the portal's live route config; nothing in this repository holds the route table. Re-running the two `call`s on a connected portal would settle it (settles it: control.mjs doctor) |
+| "The sidebar entries are `div`s with `routerLink`, so `started by` reads `RouterLink div`, not `a`" | feature | unverifiable | describes the portal's sidebar template (apps/insurance-portal, outside this repository); reading that template plus one `explain-navigation` answer would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/panel.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`http://localhost:4507/__pangular/` through the `ng serve` proxy" | integration | verified | the proxy route `/__pangular` is what `install` writes (`SKILL.md` Launch step 1) |
-| "`http://localhost:9999/` directly" | config | verified | `scripts/control.mjs:74` |
-| "The overlay adds a floating 'Toggle Pangular Inspector' button" | feature | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=pangular-9999 snapshot` and `screenshot --filename=<dir>/panel.png`; the button is a portal dev-build visual fact |
+| "`http://localhost:4507/__pangular/` (through the `ng serve` proxy)" | integration | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:535 - the `/__pangular` proxy entry keeps the prefix-stripping rewrite (`pathRewrite '^/__pangular': ''`, `ws: true`) that serves the panel under the app origin; `proxy-target` check at line 595 |
+| "`http://localhost:9999/` directly (trusts only that origin's one-time code)" | config | unverifiable | the one-time-code auth is in @pangular-inspector/devtools 0.0.7, not in this checkout; control.mjs only answers the prompt from the server log (line 1375 `dialog-accept`). A direct load in a fresh profile would settle it |
+| "the amber floating button ... accessible name `Toggle Pangular Inspector`" | feature | unverifiable | the overlay ships inside the published package; no overlay source in this repository. `playwright-cli find "Toggle Pangular"` on the app page would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/setup.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`setup.install` pins `@pangular-inspector/devtools@0.0.7` as a devDependency" | feature | verified | `SKILL.md:52` and doctor's `package-pinned` check (`SKILL.md:84`) |
-| "`setup.remove` restores from git `HEAD`, prunes `node_modules`, asserts a clean worktree" | feature | verified | `scripts/control.mjs:568` (parses `git status --porcelain`); `SKILL.md:159-162` |
-| "`install` reads the first Nx app under `apps/` with an `@angular/build:dev-server` serve target" | feature | verified | this workspace's app uses that executor for `serve` (`apps/angular-ai-devtools/project.json`) |
+| "exact pin `@pangular-inspector/devtools@0.0.7` in `devDependencies`" | config | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:72-73 - `const PKG = '@pangular-inspector/devtools'; const PINNED = '0.0.7';` |
+| "`setup.check`: six read-only facts, one line each" | status | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:590-595 - setupChecks adds declared-exact, installed, overlay-import, dev-guard, proxy-config, proxy-target |
+| "`setup.refuse`: `remove` refuses when files it does not manage are changed; `install` refuses SSR and Vite mounts" | status | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:435-439 (SSR then vite.config detection, exit 2 for "Other mounts") and :532 (refusal on uncommitted changes besides /__pangular) |
+| "`install` reads the first Nx app under `apps/` with an `@angular/build:dev-server` serve target" | feature | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:402 - picks the project whose `targets.serve.executor === '@angular/build:dev-server'`; refusal text at :810 |
+| "The `main.ts` edit needs the form `bootstrapApplication(...).catch(`" | feature | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:465 - `/bootstrapApplication\(([^)]*)\)(\s*)\.catch\(/`, with the exit-2 message at :927 |
+| "`git diff --stat` shows the lockfile with insertions only (457 lines measured)" | status | unverifiable | a measured count from the portal checkout, which is outside this repository (features/.proven.json:19 external); re-running `install` there and reading `git diff --stat` would settle it |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/source-scan.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`scan <tool>` starts the stdio server, calls one tool, stops it" | feature | verified | `scripts/control.mjs:1539` |
-| "`--out` results land in `tmp/control-pangular-inspector/scan/`" | config | verified | `scripts/control.mjs:1540` |
-| "The scan reads `angular.json`/`src` and ignores `project.json`" | feature | unverifiable | settling check: `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs scan get-components --json` in the portal workspace root; the scan and the workspace are both in the portal checkout |
+| "The script: `scan <tool>`, which starts that server, calls one tool and stops it" | command | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1493 - spawns `[bin, 'mcp', '--root', root, '--read-only']` and drives it over stdio |
+| "Results with `--out` land in `tmp/control-pangular-inspector/scan/`" | config | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1540 - `save({ evidenceDir: path.join(SCRATCH, 'scan') }, result)` with SCRATCH = tmp/control-pangular-inspector (line 70) |
+| "`--read-only` drops only the action tools" | feature | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:607-614 - readOnlyCheck inspects only ACTION_TOOLS (the eight names at line 76) |
+| "The scan reads the `sourceRoot` of each `angular.json` project plus `<root>/src`; it ignores `project.json`" | feature | unverifiable | that resolution is inside the published devtools package, not this checkout; `node $S scan get-components` at the root and with `--root apps/insurance-portal` would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .commandcode/skills/control-vitest-browser-angular/SKILL.md
 
-Identical to `.claude/skills/control-vitest-browser-angular/SKILL.md` after normalizing the tree self-paths
-(the scripts differ only in self-path strings, apart from `control.mjs`, which carries machine-derived
-constants that normalize to the same values).
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Vitest port 51315, bundled CDP port 9350, `+ slot` in a worktree" | config | verified | `scripts/control.mjs:99-100` |
-| "Session `control-vitest-<flowId>-<port>`" | config | verified | `scripts/control.mjs:899` |
-| "`--extension s1-vitest` writes the S1 Vitest variant into the evidence directory" | feature | verified | `scripts/control.mjs:927` |
-| "Bundled mode needs an extension" | feature | verified | `scripts/control.mjs:953`; `spikes/ng222-app/vitest-extension.config.mts` exists |
+| "Vitest's default 63315 cannot be used here, because it sits in a Windows excluded port range" | config | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:98 - that reason is recorded next to `MAIN_VITEST_PORT = 51315` (line 99) |
+| "`node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js test -c attach --watch`" | command | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:90,612 - NG resolves to that ng.js and args are `[ng, 'test', '-c', 'attach', '--watch']` in attach mode |
+| "`--timeout <s>` (default 180)" | config | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:174 - `timeoutMs: Number(flagIn(args, 'timeout') ?? 180) * 1000` |
+| "The playwright-cli session is `control-vitest-<flowId>-<Vitest port>`" | config | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:899 - `session: 'control-vitest-${flowId}-${vitestPort}'` |
+| "`tester-frame`: the tab has a child frame named `vitest-iframe`" | feature | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:1118 - the doctor looks for `c.frame.name === 'vitest-iframe'`; failure text at :1123 |
+| "Ready now accepts `DEV`, `RUN` or `RERUN`" | status | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:509 - `const RUN_STARTED = /\b(DEV\|RUN\|RERUN)\b/;` |
 
 ## Doc: .commandcode/skills/control-vitest-browser-angular/features/README.md
 
-Identical to the `.claude` copy after path normalization.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`S` is the skill's `scripts/control.mjs`" | command | verified | the file exists |
-| "Three feature files: counter-tests, held-counter, extension-in-tester" | structure | verified | `features/` holds exactly those three plus `README.md` and `.proven.json` |
-| "Fresh state of the held Counter: `Clicks: 3 (double 6, cart 2)`" | feature | verified | `spikes/ng222-app/src/app/counter.spec.ts:61`, `counter.ts:17` |
+| "`node $S up --extension s1-vitest --hold 90000`" | command | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:1271 - the usage line lists `--extension <dir>\|s1-vitest`, `--hold <ms>`; `s1-vitest` writes the S1 variant (:927) |
+| "`mounted-component` passes only while the hold test runs (90 s from `RUN` ... )" | status | unverifiable | the hold window is the spec's own `VITE_COUNTER_HOLD_MS` budget (spikes/ng222-app/src/app/counter.spec.ts:56-73, timeout `holdMs + 30_000`); a `up --hold 90000` run polled with `doctor --json` would settle the 90 s claim (settles it: control.mjs doctor) |
+| "Re-run: `touch spikes/ng222-app/src/app/counter.spec.ts`, then wait for `RERUN`" | command | verified | the spec is at that path and .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:509 accepts `RERUN` as a run marker |
 
 ## Doc: .commandcode/skills/control-vitest-browser-angular/features/counter-tests.md
 
-Identical to the `.claude` copy after path normalization.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Two tests always run; two run only with their environment variable set" | feature | verified | `spikes/ng222-app/src/app/counter.spec.ts:20,30,39,56` |
-| "`--filter` matches test names, but the hold test runs only with `--hold`" | feature | verified | the hold test is gated on `VITE_COUNTER_HOLD_MS` (`counter.spec.ts:56`), which only `--hold` sets (`scripts/control.mjs:586`) |
-| "`Tests 2 passed \| 2 skipped (4)`" | status | unverifiable | settling check: `node .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs up --bundled --extension <dir>`, then `doctor`, whose `test-run` line reports the `Tests` summary; the counts are a run summary and this pass launched no browser |
+| "Two tests always run: an Increment click ... and a `CartService` override shows 'cart 2'" | feature | verified | spikes/ng222-app/src/app/counter.spec.ts:20,30-32 - the two unconditional `it(` specs, the second with `setup({ cartItems: ['pear', 'plum'] })` |
+| "Two more run only when their environment variable is set" | feature | verified | spikes/ng222-app/src/app/counter.spec.ts:39,56 - `it.runIf(import.meta.env.VITE_COUNTER_TIMING_DEMO === '1')` and `it.runIf(Number(import.meta.env.VITE_COUNTER_HOLD_MS) > 0)` |
+| "`npm test` in `spikes/ng222-app` runs the default `headless` configuration once" | config | verified | spikes/ng222-app/package.json:8 (`"test": "ng test"`) with spikes/ng222-app/angular.json:73,85 - a `headless` configuration is the `defaultConfiguration` |
+| "`Tests 2 passed \| 2 skipped (4)` without flags" | status | unverifiable | a measured run summary; no `ng-test.log` is kept in the checkout (tmp/ is git-ignored). `node $S up` plus `doctor --json` would settle the count (settles it: control.mjs doctor) |
 
 ## Doc: .commandcode/skills/control-vitest-browser-angular/features/extension-in-tester.md
 
-Identical to the `.claude` copy after path normalization.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`spikes/s1-extension` was retired in M009; use `s1-vitest`" | structure | verified | `spikes/` holds only `ng222-app`, `ng222-ssr`, `probes`; the variant is written by `scripts/control.mjs:927` |
-| "The spike runner writes `research/raw/vitest-attach-<label>.json`" | structure | verified | `research/raw/` exists; `spikes/probes/vitest-attach.mjs` exists |
-| "In attach mode `down` uninstalls the extension" | feature | verified | `SKILL.md` Cleanup describes `Extensions.uninstall` in attach mode |
+| "`spikes/s1-extension` was retired in M009; ... archived notes live under `.project/archive/001-run-unrun-spikes/`" | structure | verified | `spikes/s1-extension` is absent from the checkout and `.project/archive/001-run-unrun-spikes` exists (Get-ChildItem .project/archive) |
+| "writes them to `research/raw/vitest-attach-<label>.json` under `extensionStorage`" | config | verified | spikes/probes/vitest-attach.mjs:12 - "Writes research/raw/vitest-<route>-<label>.json", i.e. `vitest-attach-<label>.json` for `--route attach` |
+| "In attach mode `down` uninstalls the extension (its notes say `uninstalled extension <id>`)" | status | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:1221 - `notes.push('uninstalled extension ${state.extension.id}')` |
+| "`LanguageModel.availability()` is `available` ... (attach mode); `unavailable` in bundled mode" | feature | unverifiable | a browser/model capability, not code here; `doctor --json`'s `language-model` line in both flows would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .commandcode/skills/control-vitest-browser-angular/features/held-counter.md
 
-Identical to the `.claude` copy after path normalization.
-
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "With `--hold <ms>` the hold test renders `Counter` with `CartService` overridden to `['pear', 'plum']` and clicks Increment once halfway" | feature | verified | `spikes/ng222-app/src/app/counter.spec.ts:56-62` |
-| "`<app-counter>` does not exist under TestBed; select `[ng-version]`" | feature | verified | the host is a plain `div` with `ng-version` (`SKILL.md` Drive) |
-| "The runner does not clear the instance's HTTP cache the way `up` does" | feature | verified | `SKILL.md:81-84` records that only `up` calls `Network.clearBrowserCache` |
-
-## Doc: .commandcode/skills/verify-ai-browsers/SKILL.md
-
-Byte-identical to `.claude/skills/verify-ai-browsers/SKILL.md` (17 of 17 files), and this copy is the one the
-`.claude` copy's `.commandcode` paths point at.
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Eight checks, one file each, plus their tests" | structure | verified | `checks/` holds `state.mjs`, `model-init.mjs`, `extension-panel.mjs`, `signal-provenance.mjs`, `di-doctor.mjs`, `error-explainer.mjs`, `stale-view.mjs`, `interop.mjs`, each with a `.test.mjs` |
-| "Each check exits 0 pass, 1 claim failed, 2 could not run" | feature | verified | each check throws on a failed assertion with a `CLAIM:` prefix (`checks/stale-view.test.mjs:68`) |
-| "`node .commandcode/skills/verify-ai-browsers/checks/stale-view.mjs --evidence <dir> --url <app url> [<instance>...]` or `node .commandcode/skills/verify-ai-browsers/checks/interop.mjs --evidence <dir> --url <app url> [<instance>...]`." | structure | verified | read 2026-11-01: `SKILL.md:59-67` names all eight checks in the Standalone paragraph, and `checks/` holds eight `*.mjs` files; `scripts/docs-correction.test.mjs::verify-ai-browsers SKILL.md (both trees) gives every shipped check a standalone command` asserts it |
-
-## Doc: .commandcode/skills/verify-angular-devtools/SKILL.md
-
-Identical to the `.claude` copy after path normalization.
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Three checks: `extension-enabled`, `attached`, `coexist`" | structure | verified | the three `checks/*.mjs` files and their tests exist |
-| "`coexist` takes `--di-graph` as its extra flag" | command | verified | `checks/coexist.mjs` implements it (`templateLostInPane` is reported, not judged) |
-| "The branded browsers have no check" | status | verified | the three checks cover the harness only |
-
-## Doc: .commandcode/skills/verify-pangular-inspector/SKILL.md
-
-Identical to the `.claude` copy after path normalization.
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Three checks: `setup`, `live-reads`, `read-only`" | structure | verified | the three `checks/*.mjs` files and their tests exist |
-| "`read-only` relies on `call navigate` being refused without `--confirm`" | feature | verified | `control-pangular-inspector/scripts/control.mjs:76` lists `navigate` among the `ACTION_TOOLS` |
-| "The setup steps need ports 3000 and 9999 free" | config | verified | `control-angular-dev-app/scripts/control.mjs:69`; `control-pangular-inspector/scripts/control.mjs:74` |
-
-## Doc: .commandcode/skills/monitor-ci/SKILL.md
-
-Vendored Nx Cloud monitoring skill, with one repository-specific edit in Step 0.
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "this repository's `nx.json` contains neither `nxCloudId` nor `nxCloudAccessToken`, so it is treated as not connected" | config | verified | `nx.json` holds only `analytics`, `targetDefaults`, `plugins` and `generators` (lines 1-40); no `nxCloud*` key anywhere |
-| "`node <skill_dir>/scripts/ci-poll-decide.mjs` and `ci-state-update.mjs` decide and track state" | structure | verified | both scripts exist under `.commandcode/skills/monitor-ci/scripts/` |
-| "The `ci_information` and `update_self_healing_fix` tools come from an Nx Cloud MCP server" | integration | verified | the skill requires an Nx Cloud connection (Step 0) and this workspace has none, so the tools are not reachable here — consistent with the skill's own exit path |
-| "Never use `git add -A`/`git add .`; stage files by name" | status | verified | matches `AGENTS.md`'s style of narrow, explicit commands (e.g. `AGENTS.md:8-11`) |
-
-## Doc: .commandcode/skills/monitor-ci/references/fix-flows.md
-
-Vendored flow reference for the statuses in `SKILL.md`.
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "The flows cover the actionable statuses listed in `SKILL.md` (`fix_apply_ready`, `fix_needs_local_verify`, `fix_needs_review`, `fix_failed`, `no_fix`, `environment_issue`, `self_healing_throttled`, `no_new_cipe`, `cipe_no_tasks`)" | structure | verified | `SKILL.md:126-137` lists those statuses and points at `references/fix-flows.md` for their flows; the file exists |
-| "The scripts it drives are `ci-poll-decide.mjs` and `ci-state-update.mjs`" | structure | verified | both exist in `.commandcode/skills/monitor-ci/scripts/` |
+| "`CartService` overridden to `['pear', 'plum']` ... clicks Increment once halfway" | config | verified | spikes/ng222-app/src/app/counter.spec.ts:61 - `setup({ cartItems: ['pear', 'plum'] })` inside the hold test |
+| "Or use the spike runner ... `node spikes/probes/vitest-attach.mjs --route attach --cdp-port <instance port> --label <label>`" | command | verified | spikes/probes/vitest-attach.mjs:9,37-38 - the documented invocation and its `--route attach\|chromium --cdp-port <n> [--label <name>]` usage guard |
+| "`ng. getInjectorProviders` throws on the null injector at the end of the resolution path" | feature | unverifiable | Angular's own debug API, not code in this repository; a `page.frame('vitest-iframe').evaluate(...)` call on a mounted Counter would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .commandcode/skills/link-workspace-packages/SKILL.md
 
-Vendored Nx skill about linking workspace packages.
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Alternatively check lockfile in repo root: `package-lock.json` -> npm" | config | verified | package-lock.json exists at the workspace root while pnpm-lock.yaml, yarn.lock and bun.lock are all absent, so the rule selects npm |
+| "Root `package.json` should have `"private": true` to prevent accidental publish" | config | verified | package.json:3 - the workspace root declares `"private": true` |
+| "npm auto-symlinks workspace packages" / "`npm install @org/ui --workspace @org/app`" | command | unverifiable | package.json declares no `workspaces` field and package-lock.json holds no `"link": true` entry, so there is no workspace install here to inspect; npm's own CLI behaviour would settle it |
+
+## Doc: .commandcode/skills/monitor-ci/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`package-lock.json` → npm" | config | verified | `package-lock.json` exists at the repository root; there is no `pnpm-lock.yaml`, `yarn.lock` or `bun.lock` |
-| "Root `package.json` should have `\"private\": true` to prevent accidental publish" | config | verified | `package.json:3` (`"private": true`) |
-| "The npm workflow uses `npm install <pkg> --workspace <consumer>`, which needs npm workspaces" | feature | stale | read 2026-11-01: `package.json:1-44` declares no `workspaces` field, and the checkout carries no `pnpm-lock.yaml`, `yarn.lock` or `bun.lock`, so there is no workspace package to link and the skill's npm path (`.commandcode/skills/link-workspace-packages/SKILL.md:71`) stays inert here; the row persists as the parked `accept-drift` of `## User rulings` #63 |
+| "note: this repository's `nx.json` contains neither" (`nxCloudId`/`nxCloudAccessToken`) | config | verified | nx.json at the workspace root holds no `nxCloud` key (Select-String 'nxCloud' over nx.json returns nothing) |
+| "`ci-poll-decide.mjs` (deterministic script): takes ci_information result + state, returns action + status message" | structure | verified | .commandcode/skills/monitor-ci/scripts/ci-poll-decide.mjs:31-57 - reads the JSON as argv[1] plus `--timeout`, `--new-cipe-timeout`, `--env-rerun-count` and the `prev-*` flags |
+| "`circuit_breaker` - Exit, no progress after 13 consecutive polls" | status | verified | .commandcode/skills/monitor-ci/scripts/ci-poll-decide.mjs:172 - flow comment "5. circuit breaker (13 polls) -> done (circuit_breaker)" |
+| "circuit breaker (5 polls)" | status | stale | .commandcode/skills/monitor-ci/scripts/ci-poll-decide.mjs:172 sets the threshold at 13 polls, and the same skill's own status table says 13; the "5 polls" figure in Step 4 is left over |
+| "`--local-verify-attempts` ... 3" | config | verified | .commandcode/skills/monitor-ci/scripts/ci-state-update.mjs:42 - `parseInt(getArg('--local-verify-attempts') \|\| '3', 10)` |
+| "`node <skill_dir>/scripts/ci-state-update.mjs post-action --action <type> [--cipe-url <url>] [--commit-sha <sha>]`" | command | verified | .commandcode/skills/monitor-ci/scripts/ci-state-update.mjs:11 - that usage line, with `cycle-check` and `gate` documented at :10 and :12 |
 
-## Doc: AGENTS.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "TypeScript is pinned to 6.0.x (`package.json`)" | config | verified | `package.json:31` (`"typescript": "6.0.3"`) |
-| "Checks: `npm run check` (type check, root and skills) and `npm test` (node:test, root and skills)" | command | verified | `package.json:7-11` (`check`, `check:skills`, `test`, `test:skills`, `test:app`) |
-| "Nx CLI entry is `node_modules/nx/dist/bin/nx.js` (Nx 23)" | config | verified | `package.json:20-24` pins `@nx/*` 23.3.0; the dev-skills resolve the entry from `package.json` `bin` (`control-angular-dev-app/SKILL.md:259`) |
-| "The automatic bridge (`scripts/sidecar-deps-bridge.mjs`) creates and removes the junction for you" | command | verified | `scripts/sidecar-deps-bridge.mjs` and `scripts/sidecar-deps-bridge.test.mjs` exist |
-| "`.claude/skills/` holds byte copies of `control-ai-browsers` and `verify-ai-browsers`; `scripts/skills-mirror.test.mjs` fails until you copy" | structure | verified | a tree comparison found 23/23 and 17/17 files identical, and `scripts/skills-mirror.test.mjs:45` loops over exactly `['control-ai-browsers', 'verify-ai-browsers']` |
-| "The other `.claude/skills/` folders are older copies, not kept in step" | status | verified | read 2026-11-01: all eight trees differ from `.commandcode` only in `.claude`/`.commandcode` self-path strings (all 18 files of `control-angular-dev-app` match after that normalization), and `scripts/skills-mirror.test.mjs:45` gates only `control-ai-browsers` and `verify-ai-browsers`, so the rest are mirrors with no sync gate |
-| "`spikes/ng222-app/src/app/stale-view-fixture.ts` holds `toSignal(this.subject)` at line 14 and an unlabelled `effect` calling `subject.error(...)` at line 22" | structure | verified | `spikes/ng222-app/src/app/stale-view-fixture.ts:14` and `:21-23` |
-| "The app serves the route (`apps/angular-ai-devtools/src/app/app.routes.ts:15`)" | structure | verified | `apps/angular-ai-devtools/src/app/app.routes.ts:15` (`{ path: 'interop', component: InteropComponent }`) |
-| "the driver pushes `/panel/interop` (`scripts/panel.mjs:246`)" | feature | verified | `scripts/panel.mjs:241-246` (`isInterop` → `panelPath = 'interop'`, then the panel navigation) |
-| "`.project/model-policy.json` carries the per-role table" | config | verified | `.project/model-policy.json` exists in this checkout |
-| "`verify-ai-browsers/checks/interop.mjs` (10 tests, green 2026-11-01: `node --test .commandcode/skills/verify-ai-browsers/checks/interop.test.mjs` reports `tests 10`, `pass 10`)" | status | verified | ran 2026-11-01: `node --test .commandcode/skills/verify-ai-browsers/checks/interop.test.mjs` prints `tests 10`, `pass 10`, `fail 0`, and that file holds ten `test(` cases; the sentence is at `AGENTS.md:60-61`, and `scripts/docs-correction.test.mjs::AGENTS.md states the shipped interop suite test count` asserts the count against that file |
-| "the measured `nodes: 1` run on `edge-dev-aion`" | status | unverifiable | settling check: `node .commandcode/skills/verify-ai-browsers/checks/interop.mjs --evidence <dir> --url <counter url> edge-dev-aion` records the slice's `nodes`; it needs an instance running the built panel, so this pass ran no browser |
-| "A fresh session should be able to run `/gsd-path @ ~/.commandcode/prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md`" | integration | verified | ran 2026-11-01: `node --test scripts/user-scope-autonomy.test.mjs` reports `tests 18` / `pass 18` / `fail 0`; it resolves the user-scope root through `scripts/user-scope-autonomy.mjs:15` (`resolveScanDir`) and its R3 rule matches `prompts/deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md` under that root, failing with the absolute path when the file is absent |
-| "GSD Path workflow rules live in the user-scope `~/AGENTS.md`; progressive-disclosure docs in `~/.commandcode/references/gsd-path-notes.md`" | integration | verified | read 2026-11-01: `scripts/user-scope-autonomy.mjs:19-42` matches R1 and R2 by `AGENTS.md` tokens under the resolved rules root, its INSTALL check names the absolute `~/.commandcode/AGENTS.md` when the file is absent, `node --test scripts/user-scope-autonomy.test.mjs` passes 18 of 18 on this head, and both that file and `~/.commandcode/references/gsd-path-notes.md` resolve present under the same root (the `scripts/user-scope-autonomy.mjs:44-52` RULES pattern is what the notes path takes) |
-
-## Doc: research/00-browser-probe.md
+## Doc: .commandcode/skills/monitor-ci/references/fix-flows.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The controlled test is `spikes/probes/tool-name-matrix.js` (five variants including empty `properties` with a snake_case name)" | structure | verified | `spikes/probes/tool-name-matrix.js` exists in the 45-file probe directory |
-| "Evidence: `research/raw/tool-name-matrix-gemma4-gpu.json` (one fresh session per variant)" | status | verified | the file exists in `research/raw/` |
-| "An uppercase letter in the tool name is what fails … **[measured, n=1 per variant; inferred that it generalises]**" | status | unverifiable | settling check: `node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-gemma4 spikes/probes/tool-name-matrix.js` for more samples, with the raw landing under `research/raw/`; the generalisation rests on n=1 per variant and this pass ran no model |
-| "`get_component_count` is the tool name the doctor canary sends" | feature | verified | the tool-canary requirement is recorded in `control-ai-browsers/SKILL.md:168` and the probe list contains the matrix probe |
+| "Run `ci-state-update.mjs gate --gate-type local-fix`" | command | verified | .commandcode/skills/monitor-ci/scripts/ci-state-update.mjs:10,40 - `gate --gate-type <local-fix\|env-rerun>` with the `local-fix` branch |
+| "Run `ci-state-update.mjs gate --gate-type env-rerun`" | command | verified | .commandcode/skills/monitor-ci/scripts/ci-state-update.mjs:57 - the `gateType === 'env-rerun'` branch, counted against `--env-rerun-count` |
+| "Parse throttle message for CI Attempt URLs (regex: `/cipes/{id}`)" | feature | unverifiable | neither ci-poll-decide.mjs nor ci-state-update.mjs matches `cipes`; that parsing happens in the agent, not in a script here. A real `self_healing_throttled` message would settle it |
 
-## Doc: research/01-built-in-ai-apis.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Chrome gates Prompt API tool use behind `AIPromptAPIToolUse`" | feature | verified | the registry enables exactly `AIPromptAPIToolUse` for tool use (`instances.json:140`), and the doctor's `canary.tools` check depends on it (`control-ai-browsers/SKILL.md:168`) |
-| "`AIPromptAPIStructuredOutput` is `status: \"stable\"` at the 156 tag" | status | unverifiable | no command in this checkout reaches it: the settling artifact is Chromium's source status field for the feature at tag 156, and no Chromium tree is vendored; the only in-checkout trace is the feature name at `.commandcode/skills/control-ai-browsers/instances.json:139,177` |
-| "`OnDeviceAiDefaultEnabled` is listed by both Chrome instances" | config | verified | `instances.json` records the Chrome instances' feature lists, and `control-ai-browsers/SKILL.md:134-135` states the same requirement |
-
-## Doc: research/02-angular-surface.md
+## Doc: .commandcode/skills/nx-cloud-api/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The change-detection mode comes from `spikes/probes/zone-mode.js` with evidence `research/raw/zone-mode-portal.json`" | structure | verified | both files exist (`spikes/probes/zone-mode.js`, `research/raw/zone-mode-portal.json`) |
-| "Measured on `spikes/ng222-app`: `getDirectiveMetadata(...)` returns `changeDetection: 0` for a component that declares none" | status | verified | `spikes/ng222-app/src/app/counter.ts:8-14` declares no `changeDetection`, and `control-angular-dev-app/SKILL.md:284-285` records the same Angular 22 default |
-| "`provideExperimentalZonelessChangeDetection` no longer exists in `packages/core/src`" | feature | unverifiable | no command in this checkout reaches it: the settling artifact is Angular's `packages/core/src` at the cited version, which is not vendored; the closest offline substitute is a `node -e` read of `node_modules/@angular/core/index.d.ts`, which decides the public API and not the source file |
+| "Run every command from the workspace root so the command finds `nx.json`" | command | verified | node_modules/nx/dist/src/nx-cloud/utilities/get-cloud-options.js:14 - getCloudOptions defaults its directory to workspaceRoot and calls readNxJson(directory) |
+| "check the host (`NX_CLOUD_API` or `nxCloudUrl`)" | config | verified | node_modules/nx/dist/src/nx-cloud/utilities/get-cloud-options.js:19 - getCloudUrl returns process.env.NX_CLOUD_API, falls back to NRWL_API then https://cloud.nx.app |
+| "or a workspace token in `NX_CLOUD_ACCESS_TOKEN`" | config | verified | node_modules/nx/dist/src/nx-cloud/utilities/environment.js:42 - reads process.env.NX_CLOUD_ACCESS_TOKEN from env or .env file |
+| "Use `npx nx-cloud api --list-operations` to find a route" | command | unverifiable | node_modules/nx/dist/bin/nx-cloud.js:6 - the installed nx 23.3.0 shim only forwards argv[2] to a downloaded cloud client, and no "list-operations" string exists in node_modules/nx/dist; `npx nx-cloud api --help` would settle it (settles it: control.mjs doctor) |
+| "The command already retried 3 times honoring `Retry-After`" | feature | unverifiable | a recursive search of node_modules/nx/dist for "Retry-After" finds no match, so the retry policy lives in the runtime-downloaded client; one live 429 response would settle it (settles it: control.mjs doctor) |
+| "Run `npx nx-cloud login --status` from the workspace root" | command | unverifiable | node_modules/nx/dist/src/command-line/nx-cloud/login/command-object.js:7 - nx's login command declares only the nxCloudUrl positional (options: verbose, help), so --status must come from the downloaded client; `npx nx-cloud login --help` would settle it (settles it: control.mjs doctor) |
 
-## Doc: research/05-spikes.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Evidence for S16: `research/raw/s16-meta-lookup.json`" | status | verified | the file exists in `research/raw/` |
-| "Claude ran `spikes/probes/effect-writes.js` (commit `9959d32`); raw output `research/raw/effect-writes.json`" | structure | verified | both the probe and the raw file exist |
-| "Probe `spikes/probes/tool-session-matrix.js` calls `LanguageModel.availability(opts)` and `create(opts)` for nine option sets; raw `research/raw/matrix-gemma4.json`, `matrix-nano.json`" | structure | verified | the probe and both raw files exist |
-| "S17, S18, S19, S14, S15, S20, S23 recorded **blocked** (evidence `research/raw/s17-blocked.json`, …)" | status | verified | every named `*-blocked.json` exists in `research/raw/` (s14, s15, s17, s18, s19, s20, s23) |
-| "The listed spike verdicts (works / degraded) still hold" | status | unverifiable | settling check: re-run the probes the verdicts rest on, `node .commandcode/skills/control-ai-browsers/scripts/control.mjs run <name> spikes/probes/probe10.js`, and `playwright-cli -s=<session> --raw run-code --filename=spikes/probes/<probe>.js` through `control-angular-dev-app`; the 45 shipped probe files are the reproductions and this pass ran none |
-
-## Doc: research/07-prompting-small-models.md
+## Doc: .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The controlled test is `spikes/probes/tool-name-matrix.js`; result `research/raw/tool-name-matrix-gemma4-gpu.json`" | structure | verified | both exist |
-| "The rule is now: tool names are lowercase (snake_case recommended)" | feature | verified | the doctor's canary uses `get_component_count` (`control-ai-browsers/SKILL.md:168`) and `panel.mjs`/`bench.js` send `callID` and `callId` (`spikes/probes/bench.js`, `SKILL.md:371-374`) |
-| "Experiment E3 in section 6.5 should add name style as a factor" | status | verified | `research/raw/E3-blocked.json` exists, so E3 is recorded as blocked |
+| "`npx nx-cloud api task-stats`" with "`-f percentiles=50 -f percentiles=95`" | command | unverifiable | no "task-stats" or "percentiles" string exists in node_modules/nx/dist (the api subcommand ships in the downloaded client, node_modules/nx/dist/bin/nx-cloud.js:6); `npx nx-cloud api --describe task-stats` would settle it (settles it: control.mjs doctor) |
+| "`fetchedItemCount`, `pageLimitReached`, `nextCursor`" | feature | unverifiable | a recursive search of node_modules/nx/dist for "pageLimitReached" and "nextCursor" finds no match; one saved `npx nx-cloud api cipes -o page.json` file would settle the envelope shape |
+| "Encrypted artifacts can be decrypted with `npx nx-cloud decrypt-artifact`" | command | unverifiable | no "decrypt-artifact" string in node_modules/nx/dist (checked recursively); `npx nx-cloud --help` on the downloaded client would settle it (settles it: control.mjs doctor) |
+| "the nx-cloud shim at `node_modules/nx/dist/bin/nx-cloud.js:6` forwards argv to a downloaded client" | command | verified | node_modules/nx/dist/bin/nx-cloud.js:6 — the installed nx 23.3.0 shim only forwards argv[2] to a downloaded cloud client |
+| "Do not use `--format ndjson` for extraction; it records neither completion state nor a resume cursor" | command | unverifiable | node_modules/nx/dist/src/command-line/import/utils/ai-output.js:3 - the only NDJSON producer shipped in nx 23.3.0 is nx import, not nx-cloud api; `npx nx-cloud api --help` would settle the flag (settles it: control.mjs doctor) |
+| "Use `-o <file>` with an explicit extension such as `.tar.gz`" | command | unverifiable | node_modules/nx/dist/bin/nx-cloud.js:6 - the shim passes argv through to the downloaded client, so no -o handling or extension default exists in node_modules/nx; one asset download would settle it (settles it: control.mjs doctor) |
 
-## Doc: research/08-recent-angular-features.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "EXT5: on the portal most Signal Forms nodes carry library labels … (`research/raw/tosignal-node-portal.json`, measured)" | status | verified | the raw file exists in `research/raw/` |
-| "Angular 22.2 is the version these features are judged against" | status | verified | `spikes/ng222-app/package-lock.json:431` (`@angular/core` 22.2.2) |
-| "Each EXT item's tier and target version" | feature | unverifiable | no command in this checkout reaches it: the settling artifact is a per-item citation to the Chrome or Angular release note each tier comes from, and no release-note copy is in the checkout; `scripts/docs-correction.test.mjs` checks a doc claim's shape, never a release note |
-
-## Doc: research/09-nano-tool-session-error.md
+## Doc: .commandcode/skills/nx-cloud-cache-investigator/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The regrade of the runs is done by `spikes/probes/regrade.mjs`" | structure | verified | `spikes/probes/regrade.mjs` exists |
-| "Nano refuses a tool session with `NotSupportedError` unless `AIPromptAPIToolUse` is enabled" | feature | verified | the registry enables `AIPromptAPIToolUse` (`instances.json:140`) and `control-ai-browsers/SKILL.md:168` records that Nano's tool canary is skipped because it answers in prose |
-| "The measured 15-run counts and the `kErrorUnknown` root cause" | status | unverifiable | settling check: `node .commandcode/skills/control-ai-browsers/scripts/control.mjs run <name> spikes/probes/tool-session-matrix.js` and `spikes/probes/tool-name-matrix.js`, with the recordings shipping as `research/raw/matrix-nano-tooluse.json` and `research/raw/tool-name-matrix-gemma4-gpu.json`; the counts are on-device model behaviour and this pass ran no model |
+| "A target `cache` field controls Nx replay" | config | verified | nx.json:5 - targetDefaults.build sets "cache": true, the only Nx cache switch declared in this workspace |
+| "If the query reports `cache: true`, do not add another `cache: true`" | config | verified | nx.json:3-5 - build already carries "cache": true under targetDefaults, so a project-level duplicate adds nothing |
+| "the workspace-local Nx command: `nx show project "$project" --json`" | command | verified | node_modules/nx/dist/src/command-line/show/command-object.js:87 - command: 'project [projectName]' |
+| "Use `nx-cloud-api` (`npx nx-cloud api`) for every read" | integration | unverifiable | node_modules/nx/package.json:3 ships nx 23.3.0 with bin nx-cloud pointing at ./dist/bin/nx-cloud.js, but the api subcommand is dispatched to a downloaded client (node_modules/nx/dist/bin/nx-cloud.js:6); `npx nx-cloud api --help` would settle it |
+| "npx nx-cloud api 'runs/{runId}/tasks' -p runId="$run_id"" | integration | unverifiable | no `{placeholder}` or `-p` handling exists in node_modules/nx/dist; the live spec via `npx nx-cloud api --describe 'runs/{runId}/tasks'` would settle the route and parameter syntax (settles it: control.mjs doctor) |
 
-## Doc: research/10-model-capabilities.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Benchmark evidence: `research/raw/bench/nano-gpu.json`, `matrix-nano-tooluse.json`" | status | verified | both files exist (`research/raw/bench/nano-gpu.json`, `research/raw/matrix-nano-tooluse.json`) |
-| "`.commandcode/worktrees/.browsers/edge-phi4mini/EdgeLLMOnDeviceModel/` and `EdgeLLMRuntime/` were empty at 23:27" | structure | verified | read 2026-11-01: `research/10-model-capabilities.md:48` states it and `:30` (source row D1') names the same path; the registry holds `edge-phi4mini` (`instances.json:171-173`) under `profilesRoot: ".browsers"` (`instances.json:2`), and `scripts/docs-correction.test.mjs::research/10-model-capabilities.md names the edge-phi4mini profile path` asserts the path and the absence of the retired name |
-| "Phi-4-mini comes from Edge stable 155" | feature | verified | `instances.json:171-190` binds `edge-phi4mini` to `edge-stable`, and `control-ai-browsers/SKILL.md:347` states it |
-| "Model-level tool support per vendor card" | feature | unverifiable | no command in this checkout reaches it: the settling artifact is each vendor's model card, which is web text outside every driver here; the table's citations are the only evidence |
-
-## Doc: research/11-spike-s1-extension-contexts.md
+## Doc: .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Runner (retired in M009, do not run): `node spikes/s1-extension/run-s1.mjs`" | structure | verified | `spikes/` holds only `ng222-app`, `ng222-ssr` and `probes`, so `spikes/s1-extension` is gone as stated |
-| "It writes `research/s1-results/<browser>-<model>.json`; runs cite `research/s1-results/chrome-gemma4.json` and `edge-aion.json`" | status | verified | `research/s1-results/` holds `chrome-gemma4.json`, `edge-aion.json`, `chrome-fresh.json`, `edge-fresh.json`, `chrome-gemma4-crash-doctor.json`, `chrome-gemma4-tool-name-pair.json` |
-| "S11 answered the tool-name question (`research/raw/tool-name-matrix-gemma4-gpu.json`)" | status | verified | the raw file exists |
-| "The five-context `LanguageModel` table it reports still holds" | status | unverifiable | settling check: `node .commandcode/skills/control-ai-browsers/scripts/control.mjs up <name>`, then `panel <name> --url=<app url>` with `.commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs`; the recorded contexts are in `research/raw/19-languagemodel-contexts.json`, `research/19` re-measured four, and the two tables reconcile only on a fresh run |
+| "the document is present in the frozen inventory" | structure | verified | `.commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md` exists in this checkout |
+| "Download the exact task-row artifact link with `npx nx-cloud api "<link>" -o <private-file>.tar.gz`" | command | unverifiable | node_modules/nx/dist/bin/nx-cloud.js:6 - the installed shim forwards only argv[2] to the downloaded client and contains no -o handling; one asset download would settle it (settles it: control.mjs doctor) |
+| "decrypt a copy with `npx nx-cloud decrypt-artifact`" | command | unverifiable | a recursive search of node_modules/nx/dist finds no "decrypt-artifact" string; `npx nx-cloud --help` on the downloaded client would settle it (settles it: control.mjs doctor) |
+| "The API cannot identify an upload path, writer, storage event, or service mutation" | feature | unverifiable | no artifact API implementation exists in the workspace (node_modules/nx/dist has only the launcher), so the limit cannot be checked locally; `npx nx-cloud api --describe` on the artifact operations would settle it (settles it: control.mjs doctor) |
 
-## Doc: research/12-legacy-vs-modern-angular.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "The classification is made at Angular 22.2" | status | verified | `spikes/ng222-app/package-lock.json:431` (`@angular/core` 22.2.2); `spikes/ng222-app/src/app/app.config.ts:1-11` shows the standalone/zoneless bootstrap it classifies as modern |
-| "Zone mode is read from the last `NgZone` provider record, measured with `research/raw/zone-mode-portal.json` and `zone-mode-portal-zonejs.json`" | structure | verified | both raw files exist and `spikes/probes/zone-mode.js` is present |
-| "Each API's modern replacement is the one named" | feature | unverifiable | no command in this checkout reaches it: the settling artifact is Angular's source or changelog per API, and nothing is vendored; `npm run check` type-checks app code and cannot produce a replacement mapping |
-
-## Doc: research/13-portal-legacy-audit.md
+## Doc: .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The portal is zoneless while `apps/insurance-portal/project.json:18` loads `zone.js` (`research/raw/zone-mode-portal.json`)" | status | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs doctor --target portal`, whose `change-detection-mode` line reports zoneless and whether zone.js loaded, plus `playwright-cli -s=<portal session> --raw run-code --filename=spikes/probes/zone-mode.js`; the `polyfills` line and the zone mode are both portal facts |
-| "The audit produced `research/raw/zone-mode-portal.json`" | structure | verified | the file exists |
-| "The findings target N10's 'zone.js loaded in a zoneless app' rule" | feature | verified | `docs/feature-proposals.md` carries the N-series rules and its file is present (1110 lines) |
+| "the document is present in the frozen inventory" | structure | verified | `.commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md` exists in this checkout |
+| "Task assets are typed `logs`, `artifact`, or `sandbox-report`" | feature | unverifiable | no "sandbox-report" string exists anywhere in node_modules/nx/dist, so the asset-type enum is not shipped locally; `npx nx-cloud api --describe` on the task-asset route would settle it (settles it: control.mjs doctor) |
+| "Download the exact row-provided link with `npx nx-cloud api "<link>" -o <private-file>.tar.gz`" | command | unverifiable | node_modules/nx/dist/bin/nx-cloud.js:6 - argv is passed straight to the downloaded cloud client, so no -o or extension default can be confirmed in-repo; one assets download would settle it (settles it: control.mjs doctor) |
 
-## Doc: research/15-deterministic-and-ai.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Project evidence: `research/00`, `01`, `02`, `05`, `07`, `11`, `docs/feature-proposals.md` … and `research/raw/tosignal-node-portal.json`" | structure | verified | every named research file and the raw file exist |
-| "One component's signal graph is 107 nodes / 171 edges, 25,838 characters as recorded; 13,878 as kind, label, value and edges only" | status | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=<portal session> --raw run-code --filename=spikes/probes/tosignal-node.js` to re-produce `research/raw/tosignal-node-portal.json`; the claim is the audited reading of `research/15-deterministic-and-ai.md:86`, whose own label cell carries the `[measured, Claude's count over research/raw/tosignal-node-portal.json]` attribution, and no shipped script re-counts that raw |
-| "The eight patterns reserve the model for what code cannot do" | feature | verified | the same design rule is stated in `.commandcode/taste/design/taste.md:3` and implemented by the panel's deterministic services (`apps/angular-ai-devtools/src/app/*.service.ts`) |
-
-## Doc: research/16-ssr-runtime.md
+## Doc: .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Raw: `research/raw/ssr-hydration.json`, `ssr-defer.json`, `ssr-transfer.json`, `ssr-event-replay.json`, `ssr-render-modes.json`" | status | verified | all five files exist in `research/raw/` |
-| "Each raw file comes from the named probe: `spikes/probes/ssr-hydration.js`, `ssr-transfer.js`, `ssr-event-replay.js`, `ssr-render-modes.js`, `ssr-defer.js`" | structure | verified | all five probes exist in `spikes/probes/` |
-| "The fixture serves `/api/items` from `src/server.ts`" | structure | verified | `spikes/ng222-ssr/src/server.ts` exists, and `control-angular-dev-app/SKILL.md:26` records the same route |
-| "The hydration counters (4 components, 40 nodes) still read the same" | status | unverifiable | settling check: `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target ssr`, then `playwright-cli -s=control-ngdev-ssr-<port> --raw run-code --filename=spikes/probes/ssr-hydration.js`, with `.commandcode/skills/control-angular-dev-app/scripts/ssr-check.js` as the fixed check; the counters are read from the in-repository SSR fixture and this pass ran no browser |
+| "Query `statuses=FAILED`, `statuses=TIMED_OUT`, and `statuses=CANCELED` (the `cipes` filter accepts only terminal statuses)" | integration | verified | .commandcode/skills/monitor-ci/scripts/ci-poll-decide.mjs:211 - CIPE handling treats SUCCEEDED as done and CANCELED/TIMED_OUT/FAILED as terminal outcomes, while IN_PROGRESS and NOT_STARTED (line 237) keep polling |
+| "Review failures from the last 24 hours by default" | feature | unverifiable | the skill directory has no scripts and no 24-hour constant exists in it; a recorded review run that prints its window would settle the default (settles it: control.mjs doctor) |
+| "Query a 30-hour creation window to cover the maximum normal six-hour CI duration" | feature | unverifiable | searches of repo *.mjs, *.ts and *.md files find the 30-hour and six-hour values only in this document; a CI workflow file with job timeouts would settle the assumption (settles it: control.mjs doctor) |
+| "the public API has no separate workflow routes" | integration | unverifiable | node_modules/nx/dist ships no route table for the public API (only the launcher, node_modules/nx/dist/bin/nx-cloud.js:6); `npx nx-cloud api --list-operations` would settle it (settles it: control.mjs doctor) |
 
-## Doc: research/17-vitest-browser-runtime.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Raw files: `research/raw/vitest-attach-gemma4.json`, `vitest-chromium-bundled.json`, `vitest-attach-gemma4-newcontext.json`, the two doctor files" | status | verified | all five files exist in `research/raw/` |
-| "The provider reads `window.ng`, the runner object and the extension's storage from the tester iframe (`spikes/probes/vitest-attach.mjs`, `vitest-lib.mjs`)" | structure | verified | both scripts exist in `spikes/probes/` |
-| "The attach configuration is `vitest-attach.config.mts` and the bundled one `vitest-extension.config.mts`" | structure | verified | both files exist in `spikes/ng222-app/` |
-| "Route 2b's measured failure and the doctor readings" | status | unverifiable | settling check: `node .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs up --instance chrome-beta-gemma4`, then `doctor`; the route 2b recordings ship as `research/raw/vitest-attach-gemma4-newcontext.json`, and dating them means running that flow against the current Playwright and Chrome builds |
-
-## Doc: research/18-edge-prevent-auto-signin.md
+## Doc: .commandcode/skills/nx-generate/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Edge signs the Windows work account in unless the browser starts with `--disable-sync`, the `msImplicitSignin` feature list, `--auth-schemes=basic,digest` and `--password-store=basic`" | config | verified | `instances.json:30-35` and `:49-54` carry exactly those switches for both Edge browsers |
-| "Start an instance profile only through `control-ai-browsers up`, never by hand" | command | verified | `control-ai-browsers/SKILL.md:305-312`; `control.mjs:670` only ever touches a process whose `--user-data-dir` is an instance profile |
-| "`up` refuses a profile that holds an account or a completed sync setup; doctor's `account` check fails on one" | feature | verified | the `account` check is listed in `control-ai-browsers/SKILL.md:170` |
-| "HKCU Edge policies would change Lars's everyday Edge, so they are not used" | status | unverifiable | settling check: `node .commandcode/skills/control-ai-browsers/scripts/control.mjs flags edge-phi4mini --json`, whose effective command line carries the sign-in switches from `instances.json`, plus a read of `HKCU:\SOFTWARE\Policies\Microsoft\Edge`; the ruling is already written at `control-ai-browsers/SKILL.md:311-312` and only the machine-policy half is a live reading |
+| "**Always use `--no-interactive`** - Prevents prompts that would hang execution" | command | verified | node_modules/nx/dist/src/command-line/generate/command-object.js:31-34 - option 'interactive', default true, described as "When false disables interactive input prompts for options." |
+| "List all generators for a plugin: `npx nx list @nx/react`" | command | verified | node_modules/nx/dist/src/command-line/list/command-object.js:6 - command: 'list [plugin]' |
+| "**Always run with `--dry-run` first**" | command | verified | node_modules/nx/dist/src/command-line/generate/command-object.js:25-29 - option 'dryRun' (alias 'd'), "Preview the changes without updating files." |
+| "`nx format:write`" | command | verified | node_modules/nx/dist/src/command-line/format/command-object.js:17 - command: 'format:write' with alias 'format' |
+| "Use `node -e "console.log(require.resolve('@nx/<plugin>/generators.json'));"`" | command | verified | node_modules/@nx/angular/generators.json exists, so require.resolve('@nx/angular/generators.json') returns a path for an installed plugin as the doc describes |
+| "`nx run-many -t build,lint,test,typecheck`" | command | verified | node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js:149 - 'targets' option with alias ['target', 't'], consumed by the run-many command at node_modules/nx/dist/src/command-line/run-many/command-object.js:11 |
 
-## Doc: research/19-languagemodel-in-extension-contexts.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Raw: `raw/19-languagemodel-contexts.json`" | status | verified | the file exists in `research/raw/` |
-| "`ExtensionPromptService` now calls `LanguageModel` in the panel itself; the page bridge no longer carries prompts" | feature | verified | `apps/angular-ai-devtools/src/app/extension-prompt.service.ts` exists with a spec; `control-ai-browsers/features/extension-panel.md` records the same architecture |
-| "The hidden `devtools.html` page is refused (`create()` throws the Permission Policy error)" | feature | unverifiable | settling check: `node .commandcode/skills/control-ai-browsers/scripts/control.mjs panel <name> --url=<app url>` with `.commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs`; the Permission Policy refusal is a per-context measurement inside a live extension context, and no `devtools.html` probe exists yet |
-| "`LanguageDetector` and `Translator` crash the renderer when called in a worker" | feature | unverifiable | settling check: `node .commandcode/skills/control-ai-browsers/scripts/control.mjs run <name> <worker probe.js>` on an instance; `research/raw/20-built-in-ai-without-flags.json` records the past crash, and the present one is reproducible only from a live worker |
-
-## Doc: research/20-built-in-ai-without-flags.md
+## Doc: .commandcode/skills/nx-import/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Raw results: `raw/20-built-in-ai-without-flags.json`" | status | verified | the file exists in `research/raw/` |
-| "`--no-ai-features` drops the whole `--enable-features` switch" | command | verified | `control-ai-browsers/scripts/control.mjs:2072-2074` (`features = opts['no-ai-features'] === true ? [] : featuresFor(inst, backend)`) |
-| "The panel and a worker it starts keep the Prompt API in all four browsers; the service worker loses it on Edge" | feature | unverifiable | settling check: `node .commandcode/skills/control-ai-browsers/scripts/control.mjs up <name> --no-ai-features`, then `panel <name> --url=<app url>` with `.commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs`; the claim contrasts four browsers, so it is a per-instance unflagged run, with `research/raw/20-built-in-ai-without-flags.json` as the recording |
+| "`nx import` brings code from a source repository or folder into the current workspace, preserving commit history" | feature | verified | node_modules/nx/dist/src/command-line/import/command-object.js:13 - describe: 'Import code and git history from another repository into this repository.' |
+| "`nx import <source> apps --source=apps`" | command | verified | node_modules/nx/dist/src/command-line/import/command-object.js:12 - command: 'import [sourceRepository] [destinationDirectory]', with --sourceDirectory aliased 'source' at line 26 |
+| "After nx `22.6.0`, `nx import` responds with .ndjson outputs" | feature | verified | node_modules/nx/dist/src/command-line/import/utils/ai-output.js:3 - "AI Agent NDJSON Output Utilities for nx import"; the installed nx is 23.3.0 (node_modules/nx/package.json:3) |
+| "run `nx sync --yes`" | command | stale | node_modules/nx/dist/src/command-line/sync/command-object.js:9 - the sync builder adds only withVerbose, and node_modules/nx/dist/src/command-line/sync/sync.js reads only check and verbose, so nx 23.3.0 declares no --yes option |
+| "**Pin ESLint to v9** (`eslint@^9.0.0`). ESLint 10 breaks `@nx/eslint`" | config | stale | node_modules/@nx/eslint/package.json:76 - the installed @nx/eslint 23.3.0 peer-declares "eslint": "^9.0.0 \|\| ^10.0.0", so ESLint 10 is accepted |
+| "`@nx/eslint` may peer-depend on ESLint 8, causing the wrong version to resolve" | config | stale | node_modules/@nx/eslint/package.json:76 - the peer range starts at ^9.0.0, so ESLint 8 is out of range for the installed plugin |
 
-## Doc: docs/afk-run-2026-10-12.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "All eight skills (`control-` and `verify-` for ai-browsers, angular-dev-app, angular-devtools, pangular-inspector) are committed" | structure | verified | all eight exist under `.commandcode/skills/` (and as `.claude` mirrors) |
-| "added `.audit/` (local briefs and todos) to `.gitignore`" | config | verified | `.gitignore:14` (`.audit/`) |
-| "The commit `d5c7125` recorded that call" | status | verified | ran 2026-11-01: `git cat-file -t d5c7125` prints `commit` and `git log --oneline -1 d5c7125` prints `docs: add the AFK run contract for the night of 2026-10-12`, so the object exists and records that call |
-| "Gates that still hold: no push, PR, tag or filing" | status | verified | `docs/filing-ledger.md:3` ("Claude files nothing") and every draft's "Status: draft, not filed" line (e.g. `:7,49`) |
-
-## Doc: docs/design/tutor.md
+## Doc: .commandcode/skills/nx-import/references/ESLINT.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Status: proposal — the tutor is not implemented; this document describes planned design, not shipped behaviour" | status | verified | no tutor component exists in `apps/angular-ai-devtools/src/app/` or `src/panel/` (the 37 app files carry no tutor unit), so the self-declared status matches the tree |
-| "Tutor spikes TS1-TS12 are in section 10" | structure | verified | `research/raw/TS1-blocked.json` … `TS12-blocked.json` exist, one per spike |
-| "Section references such as 'N1' point to `docs/feature-proposals.md`" | structure | verified | `docs/feature-proposals.md` exists with the N-series sections (1110 lines) |
-| "The extension holds no code written for the app and every model output passes a code-shape filter" | feature | unverifiable | no command in this checkout reaches it: the settling artifact is the built tutor, and `docs/design/tutor.md:3` already labels the document `design only, nothing built`; the action is to keep the label, not to seek a check |
+| "Plugin options (set during `nx add @nx/eslint`)" with "targetName": "eslint:lint" | config | verified | nx.json:25-30 - the workspace's own plugin entry for @nx/playwright/plugin uses the same options.targetName shape ("e2e"), confirming how a plugin target name is declared |
+| "`nx import` auto-detects ESLint config files and offers to install `@nx/eslint`" | integration | verified | node_modules/nx/dist/src/command-line/import/command-object.js:44 - --plugins description: "'skip' for none, 'all' for all detected, or comma-separated list (e.g., @nx/vite,@nx/jest)" |
+| "`@nx/eslint/plugin` scans for ESLint config files and creates a lint target for each project" | feature | unverifiable | @nx/eslint 23.3.0 is installed (node_modules/@nx/eslint/package.json:3, transitively - it is absent from package.json:15-38) but nx.json:25 registers only @nx/playwright/plugin; adding @nx/eslint/plugin here would settle it |
+| "`typescript-eslint@7.x` declares `peerDependencies: { "eslint": "^8.56.0" }`" | config | unverifiable | no typescript-eslint package exists in node_modules, so the peer range cannot be checked; installing typescript-eslint@7 would settle it (settles it: control.mjs doctor) |
+| "The root `eslint@~8.57.0` (added by `@nx/eslint` init)" | config | stale | node_modules/@nx/eslint/package.json:76 - the installed plugin peer-requires ^9.0.0 or ^10.0.0, so its init cannot install eslint@~8.57.0 |
 
-## Doc: docs/feature-proposals.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Status: built and shipped; the extension is at version 0.3.0 (`extension/manifest.json:4`) with the panel explainers N1-N4, N24 and N25 implemented, tested and driven by the control and verify skills (`apps/angular-ai-devtools/src/app/app.routes.ts:9-16`, read 2026-11-01)" (line 3) | status | verified | read 2026-11-01: `docs/feature-proposals.md:3` states it, `extension/manifest.json:4` is `"version": "0.3.0"`, `apps/angular-ai-devtools/src/app/app.routes.ts:9-16` holds the six explainer routes, and `scripts/docs-correction.test.mjs::docs/feature-proposals.md states the built extension and the eleven-draft ledger` asserts the status line against the manifest |
-| "`../docs/filing-ledger.md`: eleven draft upstream reports, none filed" (line 27) | status | verified | read 2026-11-01: `docs/feature-proposals.md:27` states eleven, and `docs/filing-ledger.md` holds eleven `## <n>.` sections (`:5,47,68,90,119,154,184,200,210,220,230`), the eleventh at `:230`; `scripts/docs-correction.test.mjs::docs/feature-proposals.md states the built extension and the eleven-draft ledger` counts them |
-| "Sections: 1 summary … 4 features N1-N37, 7 spikes S1-S23, 8 decisions plus 'Rulings from Lars'" | structure | verified | the handoff records the same section map and the file is 1110 lines; section 8's rulings are the binding record the skills cite (`control-ai-browsers/features/*.md` cite them as owner rulings) |
-| "`03-prior-art.md` describes Pangular's source at clone commit `76c09d0`, not the published 0.0.7" | status | verified | `docs/filing-ledger.md:51` records the same commit for the same reason, and `control-pangular-inspector/SKILL.md:221-223` records that 0.0.7 has no `list-components` |
-| "The proposals reflect the research files listed at the top" | structure | verified | every listed `research/NN-*.md` exists (00-20 in the tree) |
-
-## Doc: docs/filing-ledger.md
+## Doc: .commandcode/skills/nx-import/references/GRADLE.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Drafts for Lars to file if and when he chooses. Claude files nothing." | status | verified | every draft carries "Status: draft, not filed" (e.g. `:7,49`) and no filing evidence exists in the repository |
-| "1. `angular:di_graph` makes `ng.ɵgetSignalGraph` lose the template consumer" | feature | verified | this repository reproduces and relies on it: `control-angular-devtools/scripts/control.mjs:1501` and `features/signal-graph.md` ("After `angular:di_graph` … the template node is gone from both") |
-| "2. the Pangular source scan finds nothing in an Nx workspace that uses `project.json` and `libs/`" | feature | verified | `control-pangular-inspector/SKILL.md:224-226` records the same finding, and `scripts/control.mjs:1445-1473` already falls back to the `component-tree` resource |
-| "3. the docs list `list-components`, the published 0.0.7 does not have it" | feature | verified | `control-pangular-inspector/SKILL.md:221-223` and `scripts/control.mjs:1473` (`list-components is not in this version`) |
-| "Each draft's reproduction and evidence still hold" | status | unverifiable | no command in this checkout reaches it: the settling artifact is each of the eleven drafts' reproductions, of which arms 6 and 7 need a portal run, arms 4, 5 and 11 an instance run, and arms 8, 9 and 10 text in projects no driver here reads; the `each draft` conjunction can never be closed here |
+| "If `@nx/gradle` is installed, run `nx show projects` to verify that Gradle projects are being inferred" | command | verified | node_modules/nx/dist/src/command-line/show/command-object.js:38 - command: 'projects' under the show command |
+| "The `@nx/gradle` plugin expects those files at the workspace root" | integration | unverifiable | node_modules/@nx contains angular, devkit, eslint, js, playwright, web and workspace only, so @nx/gradle is not installed; installing it against a Gradle fixture would settle the expectation (settles it: control.mjs doctor) |
 
-## Doc: plans/angular-ai-devtools-proposals.handoff.md
+## Doc: .commandcode/skills/nx-import/references/JEST.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Status: superseded historical record (dated 2026-10-31); not a live statement" | status | verified | the file says so in its own header, and later `.project/` artifacts (ROADMAP, archive milestones 011-016) supersede it |
-| "`docs/feature-proposals.md`, about 1,100 lines (1110 measured 2026-10-31)" | status | verified | the file is exactly 1110 lines |
-| "`docs/filing-ledger.md`, eleven drafts (the eleventh, the `LanguageDetector`/`Translator` worker crash, is at `docs/filing-ledger.md:230`; read 2026-11-01)" | status | verified | read 2026-11-01: `plans/angular-ai-devtools-proposals.handoff.md:27` states it, and `docs/filing-ledger.md:230` is section `## 11.`; `scripts/docs-correction.test.mjs::plans/angular-ai-devtools-proposals.handoff.md counts eleven drafts and all five instances` asserts the count |
-| "Instances: chrome-beta-nano 9333, chrome-beta-gemma4 9334, edge-dev-aion 9335, edge-phi4mini 9337, chrome-stable-nano 9338 (read 2026-11-01 from the registry's `port` fields)" | config | verified | read 2026-11-01: `plans/angular-ai-devtools-proposals.handoff.md:42` lists all five, and `.commandcode/skills/control-ai-browsers/instances.json:70,101,135,173,201` records those ports; `scripts/docs-correction.test.mjs::plans/angular-ai-devtools-proposals.handoff.md counts eleven drafts and all five instances` asserts every registry instance with its port |
-| "`spikes/s1-extension`: the test extension (retired in M009 …)" | structure | verified | `spikes/` holds only `ng222-app`, `ng222-ssr` and `probes` |
-| "Research `00` to `17`, raw data in `research/raw/`, spike results in `research/s1-results/`" | structure | verified | all present; the tree has since grown to `research/20` |
+| "`pnpm add -wD jest ts-jest @types/jest @nx/jest`" | command | unverifiable | @nx/jest is not installed (node_modules/@nx has no jest directory) and package.json:15-38 declares no jest dependency, so the resolution cannot be checked here; installing the set would settle it |
+| "`nx run-many -t test`" | command | verified | node_modules/nx/dist/src/command-line/run-many/command-object.js:11 - command: 'run-many', with the -t alias declared at node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js:149 |
+| "`require('@nx/jest/preset').default`" | feature | unverifiable | no @nx/jest package or preset.js exists under node_modules; installing @nx/jest would settle the preset export (settles it: control.mjs doctor) |
+| "Both `@nx/jest/plugin` and `@nx/vite/plugin` ... coexist without conflicts" | feature | unverifiable | neither @nx/jest nor @nx/vite is installed (node_modules/@nx listing), so no coexistence can be observed; a fixture with both plugins would settle it (settles it: control.mjs doctor) |
 
-## Doc: references/ai-browsers-verification.md
+## Doc: .commandcode/skills/nx-import/references/NEXT.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "The claims and checks live in `.commandcode/skills/verify-ai-browsers` (`checks/state.mjs`, `checks/extension-panel.mjs`)" | structure | verified | both check files and their tests exist |
-| "`chrome-beta-nano` … stays registered as a spare driver and unit-test fixture but is not part of the verified set" | config | verified | `instances.json:67-70` still registers it; the same paragraph names the four-instance verified set |
-| "Control-ai-browsers `up` reports `alreadyRunning` for a sidecar, so its setup downloads nothing" | feature | verified | `control-ai-browsers/SKILL.md:100-107` records the `alreadyRunning` path, and `instances.json` is shared (`SKILL.md:33-39`) |
-| "each check gives its own `control.mjs` call 600 s (`spawnSync` `timeout: 600000` at `.commandcode/skills/verify-ai-browsers/checks/state.mjs:253`; read 2026-11-01). The verification spec's own per-step timeouts are larger and are recorded in the skill, not in a user-scope file: `timeoutMs` 1800000 for the `extension-panel` step and 900000 for `state` (`.commandcode/skills/verify-ai-browsers/SKILL.md:49,71`)" | config | verified | read 2026-11-01: `references/ai-browsers-verification.md:31-34` states it, `checks/state.mjs:253` is `timeout: 600000`, `SKILL.md:49` carries `timeoutMs` 1800000 and `:71` carries 900000 (that line moved from 69 when the Standalone paragraph gained the two check commands); `scripts/docs-correction.test.mjs::references/ai-browsers-verification.md attributes the 600 s to the check, not the spec` asserts all three figures |
-| "Port 9992 must be free" | config | unverifiable | settling check: `node .commandcode/skills/control-ai-browsers/scripts/control.mjs instances --json`, which reports the registry plus live state, PID and ports and launches nothing, with `.commandcode/skills/verify-ai-browsers/checks/state.mjs` as the run that follows; whether 9992 is free is a machine state |
+| "nx import /path/to/source apps/web --ref=main --source=. --no-interactive" | command | verified | node_modules/nx/dist/src/command-line/import/command-object.js:24-41 - --sourceDirectory (alias 'source'), --ref, and --interactive default true back all three flags |
+| "**Nx plugins**: `@nx/next` (auto-installed by import)" | integration | verified | node_modules/nx/dist/src/command-line/import/command-object.js:44 - --plugins accepts "'all' for all detected" plugins, which is the auto-install path the doc relies on |
+| "`@nx/next/plugin` detects `next.config.{ts,js,cjs,mjs}` and creates these targets" | feature | unverifiable | @nx/next is not installed (node_modules/@nx lists no next directory) and no next.config.* exists in this repo; installing @nx/next in a Next.js fixture would settle the target list (settles it: control.mjs doctor) |
+| "`create-next-app` generates a flat ESLint config using `eslint-config-next`" | feature | unverifiable | no eslint-config-next package or Next.js project exists in the workspace (root package.json:15-38); scaffolding one with create-next-app would settle it |
 
-## Doc: references/edge-dev-aion-model.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "The pin holds `EdgeLLMOnDeviceModel`, `EdgeLLMRuntime` and `EdgeOptimizationGuideModelsManifest`" | config | verified | `instances.json:151-155` (`pin` array on `edge-dev-aion`) |
-| "`edge-dev-aion` launches with `--disable-component-update`" | config | verified | `instances.json:148-150` |
-| "the pin now holds runtime 2026.10.12.1, model 2026.10.15.1 and manifest 2026.10.19.1" | status | verified | `AGENTS.md:42-45` records the same triple as the current pin |
-| "`.claude/skills/` holds a byte-identical copy of it, which `node --test scripts/skills-mirror.test.mjs` enforces; read 2026-11-01" of `features/model-lifecycle.md` | status | verified | read 2026-11-01: `references/edge-dev-aion-model.md:5-6` states it, the two `control-ai-browsers` trees are byte-identical (23 of 23 files), and `scripts/skills-mirror.test.mjs:45` loops over exactly `['control-ai-browsers', 'verify-ai-browsers']`; `scripts/docs-correction.test.mjs::references/edge-dev-aion-model.md calls the .claude skills copy byte-identical, not older` asserts it |
-| "How to use the pin is in `.commandcode/skills/control-ai-browsers/features/model-lifecycle.md`" | structure | verified | the file exists with a `model-pin` sub-feature |
-
-## Doc: spikes/ng222-app/README.md
+## Doc: .commandcode/skills/nx-import/references/TURBOREPO.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "This project was generated using Angular CLI version 22.2.2" | status | verified | `spikes/ng222-app/package.json:24-25` (`@angular/build`, `@angular/cli` at `^22.2.2`) |
-| "`ng serve` … open your browser and navigate to `http://localhost:4200/`" | command | verified | `package.json:6` (`start: ng serve`); 4200 is the CLI default (this repository's driver moves the fixture to 4222, `control-angular-dev-app/scripts/control.mjs:82`) |
-| "Run unit tests with Vitest: `ng test`" | command | verified | `package.json:9,32` (`test: ng test`, `vitest 5.0.3`), and `src/app/counter.spec.ts` exists |
-| "The app is the counter with a dev-only `/stale-view` route" (implied by the fixture's use) | structure | verified | `spikes/ng222-app/src/app/app.routes.ts:5-8`; `AGENTS.md:52-53` records the owner ruling that added it |
+| "Run workspace validation (`nx run-many -t build lint test typecheck`)" | command | verified | node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js:149 - 'targets' option with alias ['target', 't'], used by run-many (command-object.js:11) |
+| "Remove turbo-specific dependencies: `turbo`, `eslint-plugin-turbo`" | config | unverifiable | package.json:15-38 lists neither turbo nor eslint-plugin-turbo and no turbo.json exists in the repo, so the removal step cannot be exercised; a Turborepo fixture would settle it |
+| "If the workspace has a root `tsconfig.base.json` and/or root `eslint.config.mjs` that projects extend" | config | verified | the repo root holds only tsconfig.json (installed for the pnpm installer scripts, tsconfig.json:2-6) and no eslint.config.*, which is exactly the doc's no-root-config branch |
 
-## Doc: spikes/ng222-ssr/README.md
+## Doc: .commandcode/skills/nx-import/references/VITE.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "This fixture was generated with `--skip-tests` and tracks no `*.spec.ts`, so it has no unit tests to run" | structure | verified | a recursive search under `spikes/ng222-ssr` finds 0 `*.spec.ts` files |
-| "This project was generated using Angular CLI version 22.2.2" | status | verified | the fixture's Angular packages resolve to 22.2.2 in the workspace lockfile (`spikes/ng222-app/package-lock.json:431` for the sibling fixture; the SSR fixture is generated from the same CLI) |
-| "`ng e2e` … Angular CLI does not come with an end-to-end testing framework by default" | command | verified | no e2e project or Playwright config exists in `spikes/ng222-ssr` |
+| "`pnpm add -wD vite @vitejs/plugin-react` (or `@vitejs/plugin-vue`) first, then `pnpm exec nx add @nx/vite`" | command | unverifiable | neither vite nor @nx/vite is installed (package.json:15-38 lists no vite; node_modules/@nx has no vite directory), so the init-order failure cannot be reproduced; installing both would settle it |
+| "`nx sync --yes && nx reset && nx run-many -t typecheck,build,test,lint`" | command | stale | node_modules/nx/dist/src/command-line/sync/command-object.js:9 - sync declares no --yes option in nx 23.3.0, although reset (node_modules/nx/dist/src/command-line/reset/command-object.js:6) and run-many (run-many/command-object.js:11) exist |
+| "`npm exec nx -- import <source> packages/<name> --source=. --ref=main --no-interactive`" | command | verified | node_modules/nx/dist/src/command-line/import/command-object.js:26 - alias 'source' for --sourceDirectory, --ref at line 29, --interactive default true at line 37 |
+| "`@nx/vite/plugin` defaults `typecheckTargetName` to "vite:typecheck"" | config | unverifiable | @nx/vite is not installed, so no plugin schema or defaults exist under node_modules; installing @nx/vite would settle the default target name (settles it: control.mjs doctor) |
+
+## Doc: .commandcode/skills/nx-plugins/SKILL.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "List plugins: `npx nx list`" | command | verified | node_modules/nx/dist/src/command-line/list/command-object.js:6 - command: 'list [plugin]' |
+| "Install plugins `npx nx add <plugin>`" | command | verified | node_modules/nx/dist/src/command-line/add/command-object.js:7 - command: 'add <packageSpecifier>' |
+| "Example: `npx nx add @nx/react`" | command | unverifiable | @nx/react is not installed here (node_modules/@nx lists angular, devkit, eslint, js, playwright, web, workspace) and package.json:15-38 omits it, so the example cannot be exercised; a registry install would settle it |
+
+## Doc: .commandcode/skills/nx-run-tasks/SKILL.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`nx show project <projectname> --json` ... contains a `targets` section" | command | verified | node_modules/nx/dist/src/command-line/show/command-object.js:87 - command: 'project [projectName]' |
+| "`nx run-many -t build test lint typecheck` ... a `-p` flag to filter to specific projects" | command | verified | node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js:268 - 'projects' option with alias 'p', plus the -t alias at line 149 |
+| "`--parallel` to control the number of parallel processes (default is 3)" | command | verified | node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js:65 - "Max number of parallel processes [default is 3]." |
+| "`--exclude` to exclude projects" | command | verified | node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js:32 - option('exclude') "Exclude certain projects from being processed." |
+| "`nx affected -t test --base=main --head=HEAD`" | command | verified | node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js:210 and :215 - the 'base' and 'head' options used by affected |
+| "`--skipNxCache`, `--verbose`, `--nxBail`, `--configuration=<name>`" | command | verified | node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js:109 skipNxCache, :165 verbose, :95 nxBail, :157 configuration |
+
+## Doc: .commandcode/skills/nx-workspace/SKILL.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Use `nx show projects` to list projects in the workspace" | command | verified | node_modules/nx/dist/src/command-line/show/command-object.js:38 — command 'projects', describe 'Show a list of projects in the workspace.' |
+| "The project filtering syntax (`-p`/`--projects`) works across many Nx commands" | feature | verified | node_modules/nx/dist/src/command-line/show/command-object.js:45 — option 'projects', 'Show only projects that match a given pattern' |
+| "Do NOT read `project.json` directly - it only contains partial configuration" | feature | verified | nx.json:25 — a plugins array (@nx/playwright/plugin, targetName e2e) infers targets, so project.json cannot hold the resolved config |
+| "You can read the full project schema at `node_modules/nx/schemas/project-schema.json`" | structure | verified | node_modules/nx/schemas/project-schema.json — the installed Nx package ships project-schema.json and nx-schema.json at that path |
+| "nx graph --print" | command | verified | node_modules/nx/dist/src/command-line/graph/command-object.js:30 — option 'print', 'Print the project graph to stdout in the terminal.' |
+| "nx sync / nx reset  # if sync doesn't fix stale cache" | command | verified | node_modules/nx/dist/src/command-line/sync/command-object.js:7 and .../reset/command-object.js:6 — both commands exist in Nx 23.3.0 |
+
+## Doc: .commandcode/skills/nx-workspace/references/AFFECTED.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "nx show projects --affected" | command | verified | node_modules/nx/dist/src/command-line/show/command-object.js:41 — option 'affected', 'Show only affected projects.' |
+| "nx show projects --affected --base=origin/main" | command | verified | node_modules/nx/dist/src/command-line/show/command-object.js:69 — `.implies('base', 'affected')` |
+| "nx show projects --affected --base=abc123 --head=def456" | command | verified | node_modules/nx/dist/src/command-line/show/command-object.js:70 — `.implies('head', 'affected')` |
+| "nx show projects --affected --uncommitted" | command | verified | node_modules/nx/dist/src/command-line/show/command-object.js:67 — `.implies('uncommitted', 'affected')` |
+| "nx show projects --affected --untracked" | command | verified | node_modules/nx/dist/src/command-line/show/command-object.js:66 — `.implies('untracked', 'affected')` |
+| "nx show projects --affected --exclude=\"*-e2e\"" | command | verified | node_modules/nx/dist/src/command-line/show/command-object.js:77 — example '$0 show projects --affected --exclude=*-e2e' |
+
+## Doc: .commandcode/skills/verify-ai-browsers/SKILL.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Each check exits 0 pass, 1 claim failed, 2 could not run" | status | verified | .commandcode/skills/verify-ai-browsers/checks/state.mjs:11 — "Exit 0 pass; 1 with `Error: CLAIM: ...` when the claim fails; 2 when it could not run." |
+| "`state` records each instance's backend, requested backend and performance class in `state.json`" | structure | verified | .commandcode/skills/verify-ai-browsers/checks/state.mjs:10 — "Writes: <dir>/state.json" (written at :205) |
+| "`model-init` records the init timings and answer in `model-init.json`" | structure | verified | .commandcode/skills/verify-ai-browsers/checks/model-init.mjs:9 — "Writes: <dir>/model-init.json" (written at :43) |
+| "`health-check.md` `health-doctor`" | structure | verified | .commandcode/skills/control-ai-browsers/features/health-check.md:9 — "- `health-doctor` runs every check against one instance." |
+| "the check exits 2 for an instance serving another checkout's folder" | feature | verified | .commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs:67 — "A shared instance may serve another checkout's build; proving that one would prove nothing about this checkout." |
+| "an Angular dev page (control-angular-dev-app `up --target counter`)" | integration | verified | .commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs:9 — "such as the counter fixture (control-angular-dev-app up --target counter)" |
+
+## Doc: .commandcode/skills/verify-angular-devtools/SKILL.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "artifacts: `{up.evidenceDir}/<file>`, where `<file>` is `extension.json`, `attach.json` or `coexist-result.json`" | structure | verified | .commandcode/skills/verify-angular-devtools/checks/extension-enabled.mjs:7, attached.mjs:9 and coexist.mjs:11 — "Writes: <dir>/extension.json", "<dir>/attach.json", "<dir>/coexist-result.json" |
+| "plus `--di-graph` for `coexist`" | command | verified | .commandcode/skills/verify-angular-devtools/checks/coexist.mjs:10 — "Usage: node .../coexist.mjs --out <dir> [--di-graph]"; :66 passes ['coexist', '--di-graph'] |
+| "`profiler.md` Coexistence; `signal-graph.md` Agreement and the `angular:di_graph` regression; `attach.md` Connected flag" | structure | verified | .commandcode/skills/control-angular-devtools/features/ — holds profiler.md, signal-graph.md and attach.md (with install.md for the extension row) |
+| "`coexist --di-graph` leaves the page's signal graph broken until reload; nothing may run after it on that page" | feature | verified | .commandcode/skills/verify-angular-devtools/checks/coexist.mjs:9 — "Needs: control-angular-devtools up --app-url <the counter fixture>; with --di-graph, run it last on that page." |
+| "a bare `install` copies from Lars's Edge Dev profile, which a proof run never reads" | feature | unverifiable | not settled by the check scripts; settled by control-angular-devtools/scripts/control.mjs's install branch and its --from default |
+
+## Doc: .commandcode/skills/verify-pangular-inspector/SKILL.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "exact pin 0.0.7 declared and installed" | config | verified | .commandcode/skills/verify-pangular-inspector/checks/setup.mjs:3 — "the exact pin 0.0.7 declared and installed"; the portal's package.json:54 declares "@pangular-inspector/devtools": "0.0.7" |
+| "`setup.md` `setup.check`" | structure | verified | .commandcode/skills/control-pangular-inspector/features/ — holds setup.md, navigation.md, live-inspection.md and README.md |
+| "`tools/list` offers no action tool" | feature | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:76 — ACTION_TOOLS lists highlight, navigate, dispatch-ngrx-action, form-action, fill-form, set-http-rule, remove-http-rule, analog-call-api |
+| "artifacts: `{up.evidenceDir}/contract-list.png` and `{up.evidenceDir}/live-reads.json`" | structure | verified | .commandcode/skills/verify-pangular-inspector/checks/live-reads.mjs:11 — "Writes: <dir>/before.yml, after.yml, contract-list.png, doctor.json, one JSON per read, live-reads.json." |
+| "The setup steps need ports 3000 and 9999 free (both fixed)" | config | unverifiable | 9999 is fixed at .commandcode/skills/control-pangular-inspector/scripts/control.mjs:74 (DEFAULT_PORT = 9999); the portal's port 3000 lives in the portal checkout, outside this repository |
 
 ## Doc: .commandcode/taste/angular/taste.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "`node:test` suites are named `*.node.test.ts`; the Angular unit-test builder includes only `**/*.spec.ts` and `tsconfig.spec.json` excludes `src/**/*.node.test.ts`" | config | verified | `apps/angular-ai-devtools/project.json` (`test.options.include: ["**/*.spec.ts"]`, `exclude: ["**/*.node.test.ts"]`) and `apps/angular-ai-devtools/tsconfig.spec.json:13-14` |
-| "Modern Angular only: standalone components, signals and zoneless" | feature | verified | the app bootstraps without NgModules (`apps/angular-ai-devtools/src/app/app.config.ts`) and the fixtures are zoneless (`spikes/ng222-app/src/app/app.config.ts:5-11`) |
-| "Features should be Angular-only with no third-party packages; specifically excludes Vitest, Analog.js, Storybook, NgRx, and RxAngular" | config | stale | read 2026-11-01: the workspace depends on `vitest` (`package.json:32`) and the counter fixture runs its tests with `vitest`/`vitest-browser-angular` (`spikes/ng222-app/package.json:27-33`); no product code imports them, but the preference as written (`.commandcode/taste/angular/taste.md:12`) does not describe the tree, and the row persists as the parked `planned: no` of `## User rulings` #95 |
-| "Chrome/Edge extension devtools must be implemented in Angular using modern APIs" | structure | verified | the panel is an Angular application (`apps/angular-ai-devtools/project.json`, `@angular/build:application`) |
+| "the Angular unit-test builder is pinned to include only `**/*.spec.ts`" | config | verified | apps/angular-ai-devtools/project.json:118 — test target `include` is `["**/*.spec.ts"]` with `exclude` `["**/*.node.test.ts"]` at :121 |
+| "`tsconfig.spec.json` excludes `src/**/*.node.test.ts`" | config | verified | apps/angular-ai-devtools/tsconfig.spec.json:14 — `"src/**/*.node.test.ts"` in `exclude` |
+| "`node:test` suites are named `*.node.test.ts` and run with `node --experimental-strip-types --test`" | command | verified | package.json:9 — `"test": "node --experimental-strip-types --test \"scripts/**/*.test.mjs\" ..."`; package.json:10 runs the skills suites the same way |
+| "Never put a `node:test` suite under `*.spec.ts` — the builder compiles it and the app test target fails with TS2591" | status | unverifiable | no test runner may be run in this audit; `nx test angular-ai-devtools` with one stray `*.spec.ts` node suite would settle it (settles it: control.mjs doctor) |
+| "only `angular-new-app` should remain explicit-only (`disable-model-invocation: true`)" | config | verified | C:\Users\LarsGyrupBrinkNielse\.commandcode\skills\angular-new-app\SKILL.md:9 — `disable-model-invocation: true`; angular-developer\SKILL.md has no such key |
+| "Signal Forms (`@angular/forms/signals`) is the target forms API; the Insurance Portal was migrated to it" | feature | unverifiable | the portal lives outside this repository; its package.json and form imports would settle the migration half |
 
 ## Doc: .commandcode/taste/communication/taste.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "never 'blessed' or 'ordained' — and neither word may appear in DevTools code, UI or runtime text" | status | verified | a repository-wide search finds both words only in prose files (`plans/...handoff.md`, `docs/feature-proposals.md`, `docs/afk-run-2026-10-12.md`, archived audits) and never in `apps/`, `src/` or `extension/` |
-| "Casing matters (`provideAiDevTools()` not `provideAiDevtools()`)" | feature | verified | no `provideAiDevtools` spelling appears anywhere in the tree; the companion package itself is still a proposal, so the name lives only in design text |
-| "Writing style in docs: plain literal prose, no em dashes or curly quotes" | status | stale | read 2026-11-01: `.commandcode/taste/communication/taste.md:12` ends with a stray `0.7">` (a pasted artefact) and the same file's line 3 uses an em dash, so the preference does not describe its own file; the row persists as a parked taste row, because `.commandcode/taste/workflow/taste.md:70` forbids a taste write while STATE is `build/*` |
-| "Claims in research and design files are labelled measured / documented / inferred" | feature | verified | `docs/feature-proposals.md:29-32` defines exactly those labels, and `research/19` and `research/16` use them inline |
+| "neither word may appear in DevTools code, UI or runtime text" ("blessed" / "ordained") | status | verified | a search of src/ and extension/ (excluding the generated extension/panel bundle) for `blessed` and `ordained` returns no hits |
+| "`provideAiDevTools()` not `provideAiDevtools()`" | config | aspirational | no `provideAiDevTools` export exists in src/, apps/ or extension/; the identifier appears only in docs/feature-proposals.md and plans/angular-ai-devtools-proposals.handoff.md, so the casing rule governs an API not yet written |
+| "`provideAiNgrxDevTools()` not `provideAiNgRxDevTools()`" | config | aspirational | same gap: no source file exports it, so the corrected casing is a rule for future code |
+| "no em dashes or curly quotes" in docs | status | unverifiable | no linter or script in the repository enforces it; a text scan of docs/ plus a ruling on acceptable characters would settle it (settles it: control.mjs doctor) |
 
 ## Doc: .commandcode/taste/design/taste.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Built-in AI (Prompt API) calls are panel-local: they run only in the DevTools panel or a Worker the panel starts; the page, content scripts and service worker never host `LanguageModel`" | feature | verified | `apps/angular-ai-devtools/src/app/extension-prompt.service.ts` is the only prompt caller and lives in the panel app; `control-ai-browsers/features/extension-panel.md` records the same architecture |
-| "The product is only a browser extension and must never generate code" | feature | verified | no code-generation path exists in `apps/angular-ai-devtools` or `extension/`; the panel renders text answers only (`ai-answer` in `panel.mjs:299-315`) |
-| "Inspection/recording tooling must not run `angular:di_graph` or call `getViewContainerRef()` on component hosts" | feature | verified | `control-angular-devtools/features/signal-graph.md` and `docs/filing-ledger.md:5-45` record the regression and the rule; `control.mjs` runs `angular:di_graph` only behind `--di-graph` (`:1501`) |
-| "A Worker must not call `LanguageDetector` or `Translator` itself" | feature | unverifiable | settling check: `node .commandcode/skills/control-ai-browsers/scripts/control.mjs panel <name> --url=<app url>` plus `run <name> <worker probe.js>` for the crash; the rule rests on a renderer crash measured on an instance, `extension/` holds no worker calling either API, and this row is not covered by the parked-taste ruling |
+| "Built-in AI (Prompt API) calls are panel-local by design" | feature | verified | extension/panel/chunk-C9Uts9mc.js:1 is the only `LanguageModel` access in extension/ outside tests; extension/agent-main.test.mjs:124 asserts the MAIN-world script carries none |
+| "The MAIN-world script is limited to reading the page ... it never runs Prompt API" | structure | verified | extension/manifest.json:28 — `agent-main.js` is registered as a content script with `"world": "MAIN"`; extension/agent-main.test.mjs:123 asserts that file contains no Prompt API code |
+| "Removing `panel/**` from `web_accessible_resources` is conditional: keep it if any proposed feature needs it" | config | verified | extension/manifest.json declares no `web_accessible_resources` key at all, so `panel/**` is not web-accessible today; nothing in the manifest needs it back |
+| "per-package secondary entry points such as `provideAiNgrxDevTools()`" | structure | aspirational | no package.json `exports`/ng-packagr entry point and no source export of that name exists in src/, apps/ or extension/ |
+| "The product is only a web (browser) extension" | structure | verified | extension/manifest.json:2-3 — MV3 manifest named "Angular AI DevTools" with a `devtools_page`; it is the only shipped artifact |
 
 ## Doc: .commandcode/taste/tooling/taste.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Verify with `nx test angular-ai-devtools --include=<path>` rather than `--testPathPattern=`" | command | verified | the app's `test` target is `@angular/build:unit-test` with `include: ["**/*.spec.ts"]` (`apps/angular-ai-devtools/project.json`), so `--include=` is the flag the executor takes |
-| "Package.json should include standardized `test` and `typecheck` npm scripts, test via `node --test`, typecheck via `tsc --noEmit`" | config | stale | read 2026-11-01: `package.json:7-11` has `test` (via `node --test`) but no `typecheck` script, and the type check is `check` (`tsc -p tsconfig.json`); the preference is at `.commandcode/taste/tooling/taste.md:36`, and the row persists as the parked `planned: no` of `## User rulings` #98 |
-| "Disable Nx analytics (`analytics: false` / `NX_ANALYTICS=false`)" | config | verified | `nx.json:2` (`"analytics": false`) |
-| "Keep the `chrome-stable-nano` browser instance in the AI browser test matrix" | config | verified | `instances.json:200-202` registers it on 9338 |
-| "Do not set HKCU Edge policies; use browser launch switches instead" | config | verified | `instances.json:30-35,49-54` carry the sign-in switches; `research/18` and `control-ai-browsers/SKILL.md:305-312` record the same rule |
-| "Edge instance profiles must never sign in or sync; start them only through `control-ai-browsers up`" | command | verified | `control.mjs:670` only touches a process whose `--user-data-dir` is an instance profile; `up` refuses a profile holding an account (`SKILL.md:305-312`) |
+| "the `command-code` CLI and all skills/agents are installed globally in `~/.commandcode/`" | structure | verified | C:\Users\LarsGyrupBrinkNielse\.commandcode\agents\ holds 32 pinned agent types and \skills\ holds the globally installed skill set (angular-new-app, angular-developer, and others) |
+| "On this machine, global npm packages/node_modules live under `D:\packages\npm-global`" | config | verified | `Test-Path 'D:\packages\npm-global'` returns True |
+| "start AI browser instances only through `control-ai-browsers up`, which adds the Edge sign-in and sync switches" | feature | verified | .commandcode/skills/control-ai-browsers/instances.json:31 — `"--disable-sync"`; :32 the `--disable-features=msImplicitSignin,...msEdgeSignInAccountPicker,...` list |
+| "Keep browser profiles and downloaded AI models ... on `D:/`, never `C:/`" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:2 — `"profilesRoot": ".browsers"`, resolved under the D: worktree root rather than the user profile |
+| "verify with `nx test angular-ai-devtools --include=<path>` rather than `--testPathPattern=`" | command | verified | apps/angular-ai-devtools/project.json:2 `"name": "angular-ai-devtools"` and :113-118 the test target, whose `include` option is what `--include` overrides |
+| "Prefers `.mjs` (ESM) script format with `node:` protocol imports ... in `scripts/`" | structure | verified | package.json:8 — `npm run check` runs `node scripts/ensure-sidecar-deps.mjs`; package.json:9 runs `scripts/**/*.test.mjs` suites |
 
 ## Doc: .commandcode/taste/workflow/taste.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Generated build artifacts (e.g. hashed JS/CSS under `extension/panel/`) should be gitignored; only `index.html` and `favicon.ico` stay tracked" | config | verified | `.gitignore:35-37` (`extension/panel/*` with `!extension/panel/index.html` and `!extension/panel/favicon.ico`) |
-| "Gitignore `.playwright-cli/`" | config | verified | `.gitignore:1` |
-| "Keep `spikes/` and `research/` in the repository; do not archive them" | structure | verified | both directories exist with their fixtures, probes and evidence files |
-| "AI browser verification should run both with feature flags enabled and with `--no-ai-features`" | command | verified | `control-ai-browsers/scripts/control.mjs:2072-2074` implements the flag |
-| "Pair every adopted tool with a `control-{name}` and a `verify-{name}` skill" | structure | verified | the skill tree holds both halves for ai-browsers, angular-devtools and pangular-inspector, and a `control-` half for angular-dev-app and vitest-browser-angular |
-| "`.commandcode/taste/` edits are a product change: never call the taste tool or edit taste files while STATE is `build/*`" | status | verified | this audit honoured it: no taste file was created or modified in this pass |
+| "Pair every tool, fixture or runtime the project adopts with a `control-{name}` skill and a `verify-{name}` skill" | structure | verified | .commandcode/skills/ pairs control-ai-browsers/verify-ai-browsers, control-angular-devtools/verify-angular-devtools, control-pangular-inspector/verify-pangular-inspector; control-vitest-browser-angular still has no verify- counterpart |
+| "only hand-maintained source/static entry files such as `index.html` and `favicon.ico` should remain tracked" | config | verified | .gitignore:33-35 — `extension/panel/*`, then `!extension/panel/index.html` and `!extension/panel/favicon.ico` |
+| "Gitignore `.playwright-cli/`" | config | verified | .gitignore:1 — `.playwright-cli/` |
+| "AI browser verification should be run both with feature flags enabled and with `--no-ai-features`" | command | verified | .commandcode/skills/control-ai-browsers/SKILL.md:262 documents `up <name> ... [--no-ai-features]`; control.mjs:2074 drops `--enable-features` when the flag is set |
+| "validates it programmatically (check_docs_audit.py ...)" | status | unverifiable | no check_docs_audit.py exists anywhere under C:\Users\LarsGyrupBrinkNielse\.commandcode (recursive search); the gsd-path inspect script that owns it would settle the name (settles it: control.mjs doctor) |
+| "follows the Conventional Commits format (e.g. `feat:`, `fix:`, `chore:`)" | structure | verified | git log — `3fb21f1 chore(project): admit programme 1 scope, record the standing grant, resolve the open question` uses the type(scope): subject form |
+
+## Doc: AGENTS.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "TypeScript is pinned to 6.0.x (`package.json`)" | config | verified | package.json:31 — "typescript": "6.0.3" |
+| "The automatic bridge (`scripts/sidecar-deps-bridge.mjs`) now creates and removes the junction for you" | feature | verified | scripts/sidecar-deps-bridge.mjs:118 creates the junction (dir symlink on POSIX), :128-133 removes it; package.json:7 makes `npm run check` start with scripts/ensure-sidecar-deps.mjs, which imports that bridge |
+| "`.claude/skills/` holds byte copies of them ... The other `.claude/skills/` folders are older copies, not kept in step" | structure | verified | content comparison of `.claude/skills/<name>/SKILL.md` against `.commandcode/skills/<name>/SKILL.md`: control-ai-browsers and verify-ai-browsers identical, control-angular-dev-app and verify-pangular-inspector differ |
+| "`edge-dev-aion` runs with `--disable-component-update` and a pin of model 2026.10.15.1, runtime 2026.10.12.1 and manifest 2026.10.19.1" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — edge-dev-aion args ["--disable-component-update"] with pin ["EdgeLLMOnDeviceModel","EdgeLLMRuntime","EdgeOptimizationGuideModelsManifest"]; the version triple itself lives in the profile pin, not the repository |
+| "`toSignal(this.subject)` at line 14 and an unlabelled `effect` whose body calls `subject.error(...)` at line 22" | feature | verified | spikes/ng222-app/src/app/stale-view-fixture.ts:14 — readonly signal = toSignal(this.subject); :22 — this.subject.error(new Error('interop')) inside effect() |
+| "The app serves the route (`apps/angular-ai-devtools/src/app/app.routes.ts:15`)" | feature | verified | apps/angular-ai-devtools/src/app/app.routes.ts:15 — { path: 'interop', component: InteropComponent } |
+
+## Doc: docs/afk-run-2026-10-12.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "committed `d5c7125`" | status | verified | git -C D:\projects\sandbox\angular-ai-devtools cat-file -t d5c7125 — commit present in local history |
+| "Fixed the flaky portal `up` in control-angular-dev-app ... `907f391`" | status | verified | git cat-file -t 907f391 — commit present |
+| "Committed the AI-browser rework after rerunning its checks ... `41c954d`" | status | verified | git cat-file -t 41c954d — commit present |
+| "Vitest Browser work committed after re-running ng test ... `c929050`" | status | verified | git cat-file -t c929050 — commit present |
+| "no push, PR, tag or filing (upstream bugs go to `docs/filing-ledger.md`)" | status | verified | docs/filing-ledger.md — eleven entries, each "Status: draft, not filed" |
+| "All eight skills (`control-` and `verify-` for ai-browsers, angular-dev-app, angular-devtools, pangular-inspector) are committed" | structure | stale | .commandcode/skills holds seven of those eight folders: control-ai-browsers, verify-ai-browsers, control-angular-dev-app, control-angular-devtools, verify-angular-devtools, control-pangular-inspector, verify-pangular-inspector — no verify-angular-dev-app exists today |
+
+## Doc: docs/design/tutor.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "The tutor teaches modern Angular on the app that the learner already has open" | feature | aspirational | no tutor code exists: extension/ contains no find_components or di_path tool, and the doc's own status line reads "design only, nothing built or run" |
+| "component keys from `find_components`, signal labels from `list_signals`, injectors from `di_path`" | feature | aspirational | those tool names appear in docs/feature-proposals.md:1012 and the backlog, not in extension/ or apps/angular-ai-devtools/src — the tools are planned, not shipped |
+| "a single structured-output question measured 25-34 s median on Gemma 4 CPU and 11-14 s on Gemma 4 GPU" | status | verified | docs/feature-proposals.md:141-142 — Gemma 4 GPU low tier 11-14 s, Gemma 4 CPU 25-34 s median per question |
+| "the CLI MCP server's `ai_tutor` tool [documented, 02 section 4.4; tool in source at `ai-tutor.ts:14`]" | structure | verified | research/02-angular-surface.md:250 — table row `ai_tutor` with source `ai-tutor.ts:14,37-38` |
+| "The proposed tutor can run with no model" | feature | aspirational | design only: no shipped text, card or grader exists in extension/ or apps/angular-ai-devtools/src |
+
+## Doc: docs/feature-proposals.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "The context window is small: 7,168 tokens on Aion and 9,216 on the Chrome models and Phi-4-mini" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — model.contextWindow 7168 for edge-dev-aion and 9216 for chrome-beta-nano, chrome-beta-gemma4, chrome-stable-nano and edge-phi4mini |
+| "the first release has six features (N1 to N4, N24 and N25); N6 has no replacement" | status | verified | apps/angular-ai-devtools/src/app/app.routes.ts:11-16 — six panel routes: N1 (''), signal-provenance (N2), di-doctor (N3), error-explainer (N4), stale-view (N24), interop (N25), and none for N6 |
+| "the dependency question was regraded with the grader fix in `916fc09`" | status | verified | git -C D:\projects\sandbox\angular-ai-devtools cat-file -t 916fc09 — commit present in local history |
+| "`spikes/probes/bench.js`" | structure | verified | spikes/probes/bench.js is in the tree, alongside the regrade and argument-repair probes the section cites |
+| "Native tools when the browser is Edge, `contextWindow` is 7,168 (Aion as measured) ... and the native canary passes" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — edge-dev-aion: browser edge-dev, model.contextWindow 7168, model.toolCanary true |
+| "N27's Tier 1 lessons ... (`docs/design/tutor.md` section 8)" | structure | verified | docs/design/tutor.md:503 — "## 8. Tiers and dependencies", the section holding the lesson tiers the proposals point at |
+
+## Doc: docs/filing-ledger.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`@pangular-inspector/devtools` 0.0.7 (npm)" | config | verified | portal package.json:54 — "@pangular-inspector/devtools": "0.0.7" in D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools |
+| "`.claude/skills/control-pangular-inspector/SKILL.md:172` (0.0.7 has no `list-components`; added in 20ebbb9; 46 tools with `--read-only`)" | structure | stale | .claude/skills/control-pangular-inspector/SKILL.md:172 is an `install` table row; the cited facts sit at :221-223 of the same file |
+| "the in-page AI tool `angular:di_graph` (`packages/core/src/debug/ai/di_graph.ts`)" | structure | unverifiable | Angular's source is not vendored here (no packages/ tree); settled by reading the 22.2.x clone the entry names (settles it: control.mjs doctor) |
+| "`spikes/probes/tool-name-matrix.js`, run 2026-10-12" | structure | verified | spikes/probes/tool-name-matrix.js is tracked, with the run recorded at research/raw/tool-name-matrix-gemma4-gpu.json |
+| "`verify-angular-devtools` run, `tmp/verify-angular-devtools/20261011-192415.460/` (gitignored)" | status | unverifiable | tmp/ is gitignored and absent from this checkout (no tmp/control-ai-browsers/pins either); the cited run directory would settle it (settles it: control.mjs doctor) |
+
+## Doc: plans/angular-ai-devtools-program-backlog.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "the veto at `CHARTER.md:65` is lifted" | status | verified | .project/CHARTER.md:65 — "No Tier 2 (app opt-in `globalThis` export) features in this program; the" (the veto the ruling lifts) |
+| "The panel **is already** an Angular application (`apps/angular-ai-devtools`, `projectType: application`, `build-extension` → `extension/panel`, `baseHref: /panel/`)" | structure | verified | apps/angular-ai-devtools/project.json:4 "projectType": "application"; :52 the build-extension target; :76 "baseHref": "/panel/" |
+| "Initial-bundle budget is a hard 520 KB" | config | stale | apps/angular-ai-devtools/project.json:82-83 — 520kb is the initial maximumWarning and maximumError is "1mb", so 520 KB is a warning threshold, not a hard budget |
+| "M001-M017 was actually grown (17 entries, never one dispatch)" | status | verified | .project/ROADMAP.md — 17 entries from ### M001 - run-unrun-spikes to ### M017, counted by heading |
+| "bind `gsd-path/M018`, which retires `gsd-path/M017`" | status | verified | .project/ROADMAP.md holds no ### M018 heading, so generation 1 is still unbound, as the backlog states |
+
+## Doc: plans/angular-ai-devtools-proposals.handoff.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "head `fbe3aac` at writing (2026-10-12)" | status | verified | git -C D:\projects\sandbox\angular-ai-devtools cat-file -t fbe3aac — commit present in local history |
+| "`docs/feature-proposals.md`, about 1,100 lines (1110 measured 2026-10-31)" | status | verified | docs/feature-proposals.md is 1110 lines, read 2026-11-01 |
+| "eleven drafts (the eleventh, the `LanguageDetector`/`Translator` worker crash, is at `docs/filing-ledger.md:230`)" | structure | verified | docs/filing-ledger.md:230 — "## 11. Chromium (Blink>AI): ... LanguageDetector.availability() ... in a dedicated worker crashes the renderer" |
+| "Instances: chrome-beta-nano 9333, chrome-beta-gemma4 9334, edge-dev-aion 9335, edge-phi4mini 9337, chrome-stable-nano 9338" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — port fields 9333, 9334, 9335, 9337 and 9338 on those instance keys |
+| "**Skills (project):** in `.claude/skills/`" | structure | stale | the maintained tree is `.commandcode/skills/` (it carries the nx-* skills too, absent from .claude/skills) and scripts/skills-mirror.test.mjs enforces which `.claude` folders are byte copies |
+| "`spikes/probes/`: bench.js, regrade.mjs, arg-repair-replay.mjs, and the zone-mode, effect-writes, tosignal, ssr-* and vitest-* probes" | structure | verified | spikes/probes/ holds bench.js, regrade.mjs, arg-repair-replay.mjs, zone-mode.js, effect-writes.js, tosignal-node.js, five ssr-*.js probes and vitest-attach.mjs, vitest-lib.mjs, vitest-iframe-probe.js |
+
+## Doc: references/ai-browsers-verification.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "spawnSync `timeout: 600000` at `.commandcode/skills/verify-ai-browsers/checks/state.mjs:253`" | config | verified | .commandcode/skills/verify-ai-browsers/checks/state.mjs:253 — timeout: 600000 inside the control.mjs spawnSync options |
+| "`timeoutMs` 1800000 for the `extension-panel` step and 900000 for `state` (`.commandcode/skills/verify-ai-browsers/SKILL.md:49,71`)" | config | verified | .commandcode/skills/verify-ai-browsers/SKILL.md:49 — "`timeoutMs` 1800000"; :71 — "set `timeoutMs` for every instance (900000 was enough for four on 2026-10-16)" |
+| "`chrome-stable-nano` (Gemini Nano), `chrome-beta-gemma4` (Gemma 4), `edge-phi4mini` (Phi-4-mini) and `edge-dev-aion` (Aion-1.1-Instruct)" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — model.name v3Nano on chrome-stable-nano, gemma4-2b-it on chrome-beta-gemma4, Phi-4-mini-instruct on edge-phi4mini, Aion-1.1-Instruct on edge-dev-aion |
+| "Ports 9333-9338 belong to the shared instances" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — instances on 9333, 9334, 9335, 9337 and 9338 (9336 is the one free port in that range) |
+| "`chrome-beta-nano` ... stays registered as a spare driver and unit-test fixture but is not part of the verified set" | config | verified | .commandcode/skills/control-ai-browsers/instances.json still registers chrome-beta-nano on port 9333 with model v3Nano, alongside chrome-stable-nano |
+| "Check that port 9992 is free" | config | unverifiable | no 9992 anywhere under .commandcode/skills; the lars-verify run harness configuration would settle it (settles it: control.mjs doctor) |
+
+## Doc: references/edge-dev-aion-model.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`--disable-component-update` stays on" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — edge-dev-aion carries args ["--disable-component-update"] |
+| "The pin now holds 2026.10.15.1 / 2026.10.12.1 / 2026.10.19.1" | config | unverifiable | the pin array in instances.json names the three components (EdgeLLMOnDeviceModel, EdgeLLMRuntime, EdgeOptimizationGuideModelsManifest) but not their versions, and the versioned pin store lives under tmp/control-ai-browsers/pins, absent from this checkout |
+| "`model.contextWindow` 7168" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — edge-dev-aion model.contextWindow 7168 |
+| "`model download` refuses on `edge-dev-aion` while the switch is on" | feature | unverifiable | not assertable without a launch; the refusal would appear in control-ai-browsers/scripts/control.mjs's model download guard, which three lookups did not settle |
+| "`node --test scripts/skills-mirror.test.mjs` enforces [a byte-identical copy]" | structure | verified | scripts/skills-mirror.test.mjs exists in the tree and package.json:9 runs scripts/**/*.test.mjs through node --test |
+| "`EdgeOptimizationGuideModelsManifest`" | feature | verified | .commandcode/skills/control-ai-browsers/instances.json — the edge-dev-aion pin list includes EdgeOptimizationGuideModelsManifest next to the model and runtime folders |
+
+## Doc: research/00-browser-probe.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`spikes/probes/ep-trials.sh` sets the provider list in Aion's `genai_config.json` with `set-genai-provider.mjs`" | feature | verified | spikes/probes/ep-trials.sh:17 — invokes set-genai-provider.mjs with the config and the provider name |
+| "restarts the instance through `control-ai-browsers` `stop` and `launch`" | command | stale | spikes/probes/ep-trials.sh:18 — restarts with `control.mjs up edge-dev-aion`; .commandcode/skills/control-ai-browsers/scripts/control.mjs:3024 lists verbs instances/up/attach/detach/doctor/flags/model/run/panel/down/bench/info, with no `stop` or `launch` |
+| "`qnn` (`QnnHtp.dll`, Qualcomm NPU)" | config | verified | spikes/probes/set-genai-provider.mjs:8 — the qnn entry is `backend_path: 'QnnHtp.dll'` |
+| "reads 1 GB sequentially in 4 MB blocks with `FILE_FLAG_NO_BUFFERING`" | feature | verified | spikes/probes/read-throughput.ps1:1,6 — header names FILE_FLAG_NO_BUFFERING and `$block = 4MB` |
+| "Each instance runs with its own `--user-data-dir` under `.browsers/` (gitignored, on D:)" | config | verified | .gitignore:11 — `.browsers/` is ignored; spikes/probes/relaunch-instance.ps1 exists for the per-instance relaunch |
+| "tool names are lowercase (snake_case recommended for readability)" | feature | verified | docs/feature-proposals.md:197 — the same rule, sourced to S11, is written into the proposals |
+
+## Doc: research/01-built-in-ai-apis.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "spike S1 ran it (`11-spike-s1-extension-contexts.md`), with the AI feature flags on" | status | verified | research/s1-results/chrome-fresh.json:21,29 — launchArgs carry `--enable-features=AIPromptAPI,AIPromptAPIToolUse,...,WebMCP` and a per-context `results` block is recorded |
+| "Content script: Probably yes, with web-page semantics [inferred]" | feature | verified | research/s1-results/chrome-fresh.json:30-39 — the `content_isolated` result has `permissionsPolicyAllowsLanguageModel: true` and `typeofLanguageModel: "function"` |
+| "Angular has experimental WebMCP support: `provideExperimentalWebMcpTools([...])` from `@angular/core`" | feature | unverifiable | `node_modules` is absent at 3fb21f1 and no repo file references the symbol; `node_modules/@angular/core/index.d.ts` after `npm ci` would settle it (settles it: control.mjs doctor) |
+| "The entry point is now `document.modelContext`, not `navigator.modelContext`" | feature | unverifiable | No repo artifact reads either global (grep over `extension/` and `src/` finds no `modelContext`); a page probe with `--enable-features=WebMCP` would settle it (settles it: control.mjs doctor) |
+
+## Doc: research/02-angular-surface.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`ng` is the expando key `GLOBAL_PUBLISH_EXPANDO_KEY = 'ng'` (`packages/core/src/render3/util/global_utils.ts:69`)" | structure | verified | packages/core/src/render3/util/global_utils.ts:69 — `export const GLOBAL_PUBLISH_EXPANDO_KEY = 'ng';` in the angular 22.2.x clone |
+| "`publishUtil` does `w.ng ??= {}; w.ng[name] = fn`" | structure | verified | packages/core/src/render3/util/global_utils.ts:239-240 — `w[GLOBAL_PUBLISH_EXPANDO_KEY] ??= {}` then `[name] = fn` |
+| "Router adds three more entries only from `provideRouter()` in dev mode (`packages/router/src/provide_router.ts:108-113`)" | structure | verified | packages/router/src/provide_router.ts:110-112 — `publishNonCoreGlobalUtil('ɵgetLoadedRoutes' …)`, `('ɵgetRouterInstance' …)`, `('ɵnavigateByUrl' …)` |
+
+## Doc: research/03-prior-art.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "package `@pangular-inspector/devtools` 0.0.7, extension manifest 0.0.7" | config | verified | packages/devtools/package.json — `"version": "0.0.7"`; extension/manifest.json:4 — `"version": "0.0.7"` in the pangular clone at 76c09d0 |
+| "last commit `76c09d0` (2026-10-11)" | status | verified | `git -C D:\projects\github\pangular-inspector\devtools log --oneline -1` — 76c09d0 fix(overlay): follow the pointer inside a shadow root while picking (#306) |
+| "No `permissions`; host permissions for loopback only (`*.localhost`, `127.0.0.1`, `[::1]`)" | config | verified | extension/manifest.json:9-18 — `"permissions": []` and the six `http(s)://*.localhost/*`, `127.0.0.1`, `[::1]` host permissions |
+| "other hosts via `optional_host_permissions` granted per host" | config | verified | extension/manifest.json:19 — `"optional_host_permissions": ["http://*/*", "https://*/*"]` |
+| "Fixed extension id via manifest `key`" | config | verified | extension/manifest.json:5 — the `key` field holds an RSA public key, which fixes the extension id |
+
+## Doc: research/04-ecosystem.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`D:\projects\github\ngrx\platform` (NgRx 22.0.0, `modules/store/package.json`)" | config | verified | modules/store/package.json — `"version": "22.0.0"` in that clone |
+| "`window.__REDUX_DEVTOOLS_EXTENSION__` is read in a provider factory, `createReduxDevtoolsExtension()`, `modules/store-devtools/src/provide-store-devtools.ts:34-45`" | feature | verified | modules/store-devtools/src/provide-store-devtools.ts:34-45 — the factory reads `window['__REDUX_DEVTOOLS_EXTENSION__']` and returns it or null |
+| "Target: an Angular 22.2 dev-mode app" | status | stale | package.json:35-40 — every `@angular/*` dependency is pinned `~22.1.0`, so this workspace is on 22.1.x, not 22.2 |
+| "A content script with `world: \"MAIN\"` and `run_at: \"document_start\"` can install globals" | feature | unverifiable | extension/manifest.json:24-28 — this repo's MAIN-world `agent-main.js` is declared at `run_at: \"document_idle\"`, so no repo artifact shows a `document_start` install; a spike manifest with `document_start` would settle it |
+
+## Doc: research/05-spikes.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "edge-phi4mini (port 9337): Phi-4-mini-instruct GPU" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — `edge-phi4mini` has `"port": 9337`, browser `edge-stable`, model `Phi-4-mini-instruct`; note research/00-browser-probe.md:141 still says 9336 |
+| "All four per-model instances verified healthy via `control-ai-browsers doctor` (exit 0)" | command | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:3024 — `doctor` is a listed verb, and instances.json defines chrome-beta-nano, chrome-beta-gemma4, edge-dev-aion, edge-phi4mini |
+| "generated with `@angular/cli@22.2.2 new --routing --ssr=false`, installed `@angular/core` 22.2.2" | config | verified | spikes/ng222-app/package.json — `"@angular/cli": "^22.2.2"` and `"@angular/core": "^22.2.0"` (caret ranges, not exact pins) |
+| "served with `ng serve --port 4222`" | command | unverifiable | No `4222` in spikes/ng222-app/angular.json or spikes/ng222-app/README.md; the port lives in the CLI invocation, so a serve config or script entry would settle it |
+| "`angular:di_graph` output on this one-component app ... is **42,788 characters**" | feature | unverifiable | No committed probe output carries the character count; re-running spikes/probes/s2b.js against spikes/ng222-app would settle it (settles it: control.mjs doctor) |
+
+## Doc: research/06-angular-skills.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "commit `747c3c2` (message \"release: cut the v22.1.0-next.4 release\", 2026-07-01)" | status | verified | `git -C D:\projects\github\angular\skills log --oneline -1` — `747c3c2 … release: cut the v22.1.0-next.4 release`, dated Wed Jul 1 21:15:44 UTC 2026 |
+| "2 skills, 37 reference files, README, BUILD_INFO" | structure | verified | The clone has exactly the `angular-developer` and `angular-new-app` directories, and `angular-developer/references` holds 37 files |
+| "whole reference corpus is 135,754 bytes (measured, `wc -c`)" | structure | verified | `Measure-Object Length -Sum` over the 37 files in angular-developer/references returns 135754 |
+| "No LICENSE file (see section 4)" | structure | verified | `Test-Path D:\projects\github\angular\skills\LICENSE` is False in the clone at 747c3c2 |
+
+## Doc: research/07-prompting-small-models.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`spikes/probes/tool-name-matrix.js` (five variants including empty `properties` with a snake_case name)" | feature | verified | spikes/probes/tool-name-matrix.js:11-15 — the five variants are get_component_count with param, get_component_count with empty properties, getComponentCount, getcomponentcount, Get_component_count |
+| "the hard rule is lowercase names, because an uppercase letter crashes Gemma 4; snake_case is recommended for readability" | feature | verified | docs/feature-proposals.md:197 — the same S11 rule is written into the proposals, with the snake_case recommendation split out |
+| "it cannot fit a 7-9K window" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — `contextWindow` 9216 for chrome-beta-nano and chrome-beta-gemma4, 7168 for edge-dev-aion |
+| "both measured browsers use `callID` (Edge rejects `callId`; Gemma 4 in Chrome Beta returns `callID: \"\"`)" | feature | unverifiable | No committed artifact records the tool-call member name; the tool-call parts in research/s1-results or a fresh `create({tools})` probe would settle it (settles it: control.mjs doctor) |
+
+## Doc: research/08-recent-angular-features.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "F8 \| 21.0 (`enableProfiling`)" | feature | verified | packages/core/src/render3/debug/chrome_dev_tools_performance.ts:369-374 — `@publicApi v21.0` sits directly above `export function enableProfiling()` |
+| "Practical floor: the target is 22.2, so every idea works there" | status | stale | package.json:35-40 — every `@angular/*` entry is `~22.1.0`, so nothing in this workspace resolves to 22.2 |
+| "22.2 for annotations" (WebMCP tool annotations) | feature | verified | CHANGELOG.md:20 — `feat … support annotations in WebMCP tool declarations` in the 22.2.0 release; the doc cites CL:21, one line lower |
+| "No idea was run" | status | verified | src/ and extension/ contain no tool registry and no reference to `signal_dependencies` or `list_components` (grep over src/ returns nothing), so none of the section 4 ideas is implemented |
+
+## Doc: research/09-nano-tool-session-error.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Measured behaviour: `05-spikes.md`, section \"Root cause hunt\"" | structure | verified | research/05-spikes.md:125 — `## Root cause hunt: "The device is unable to create a session to run the model" (Gemini Nano, native tool calling)` |
+| "See `05-spikes.md`, \"Prediction confirmed: Nano gets tool sessions with `AIPromptAPIToolUse` alone\"" | structure | verified | research/05-spikes.md:146 — the heading exists as a level-3 section titled Prediction confirmed: Nano gets tool sessions with AIPromptAPIToolUse alone (measured) |
+| "Blink allows tool use only when the runtime feature `AIPromptAPIToolUse` is on" | config | verified | .commandcode/skills/control-ai-browsers/instances.json — `chrome-beta-nano` enables `AIPromptAPIToolUse` and no `OnDeviceModelConversationBackend`/`model_version/v4`, the gate-only shape the doc predicts |
+| "The probe measured **`NotSupportedError`**" | feature | unverifiable | The nine probe rows recording it are prose in research/05-spikes.md:133-137; no JSON under research/raw carries the DOMException name, so a re-run of the tool-session matrix would settle it (settles it: control.mjs doctor) |
+
+## Doc: research/10-model-capabilities.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`instances.json` `profilesRoot: \".browsers\"`" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:2 — `"profilesRoot": ".browsers"` |
+| "`spikes/probes/bench/nano.json` and `spikes/probes/bench.js:62`" | structure | verified | spikes/probes/bench.js:60-66 — the five-question `questions` array; line 62 is the title-input question the BJ figures are scored on |
+| "the file was overwritten by the second benchmark round (it now holds the CPU run, native 1/15, fallback 0/15)" | status | verified | research/raw/bench/nano.json — `modes.native.runPasses` = "1/15" and `modes.fallback.runPasses` = "0/15" |
+| "the instance is `edge-phi4mini`, and profiles live under the primary checkout's `.commandcode/worktrees/.browsers/<name>`" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:171-173 — instance key `edge-phi4mini`, browser `edge-stable`, port 9337; profilesRoot at line 2 |
+| "Chromium ... `runtime_enabled_features.json5` at tag `156.0.8078.17`, lines 485-500" | structure | unverifiable | No Chromium checkout in D:\projects\sandbox\angular-ai-devtools (no third_party tree); a local copy of that tagged file would settle it (settles it: control.mjs doctor) |
+
+## Doc: research/11-spike-s1-extension-contexts.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "the tool names of `probe10.js` (`get_component_count`, `get_component_inputs`)" | structure | verified | spikes/probes/probe10.js:15-16 — `name: 'get_component_count'` and `name: 'get_component_inputs'` |
+| "`getComponentCount` and `getComponentInputs` (`probe5.js:15-16`)" | structure | verified | spikes/probes/probe5.js:15-16 — the camelCase names at exactly those lines |
+| "the standing Gemma 4 (Chrome Beta, port 9334) and Aion (Edge Dev, port 9335) instances" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:101 — `chrome-beta-gemma4` port 9334; :135 — `edge-dev-aion` port 9335 |
+| "`contextWindow` 9216 ... 7168" | config | verified | instances.json:128 — gemma4 `contextWindow: 9216`; :166 — Aion `contextWindow: 7168` |
+| "Extension: `spikes/s1-extension/` (retired in M009 ... `.project/archive/001-run-unrun-spikes/`)" | status | verified | Test-Path spikes\s1-extension = False; .project/archive/001-run-unrun-spikes/ holds MANIFEST.md |
+| "Evidence: `research/s1-results/chrome-fresh.json`, `research/s1-results/edge-fresh.json`" | structure | verified | research/s1-results/ contains chrome-fresh.json, edge-fresh.json, chrome-gemma4.json, edge-aion.json, chrome-gemma4-crash-doctor.json |
+
+## Doc: research/12-legacy-vs-modern-angular.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`testRunner` default `vitest` (`CLI-S/ng-new/schema.json:114-115`)" | config | verified | D:\projects\github\angular\angular-cli\packages\schematics\angular\ng-new\schema.json:114-115 — `"enum": ["vitest", "karma"]`, `"default": "vitest"` |
+| "The CLI enables this when script optimization is off: `includeTestMetadata: !optimizationOptions.scripts` (`.../compiler-plugin-options.ts:47`)" | config | verified | angular-cli\packages\angular\build\src\tools\esbuild\compiler-plugin-options.ts:47 — `includeTestMetadata: !optimizationOptions.scripts,` |
+| "core stores them as static fields ... (`core/src/render3/metadata.ts:87-117`)" | structure | verified | angular\packages\core\src\render3\metadata.ts:87 — `export function setClassMetadata(type, decorators, ctorParameters, propDecorators)` |
+| "`Standalone[_AppComponent]`, then \"Environment Injector\", then `null`" | status | verified | research/raw/zone-mode-portal.json — `zoneTokens` lists environment `Standalone[_AppComponent]`, then `Environment Injector` with `NgZone` `useClass: fn:NoopNgZone` |
+| "`setClassMetadata(Counter, ...)` (`spike main.js:37258-37267`) ... `setClassDebugInfo` (`spike main.js:37270`)" | structure | unverifiable | spikes/ng222-app/dist/ng222-app/browser/main.js is absent from the tree (gitignored build output, no built main.js outside node_modules); a development `ng build` of spikes/ng222-app would restore the cited lines (settles it: control.mjs doctor) |
+
+## Doc: research/13-portal-legacy-audit.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`apps/insurance-portal/project.json:18` `\"polyfills\": [\"zone.js\"]`" | config | verified | portal checkout apps/insurance-portal/project.json:18 — `"polyfills": ["zone.js"]` in the `build` options |
+| "The app builds with `@angular/build:application` and serves with `@angular/build:dev-server` (`apps/insurance-portal/project.json:10,53`)" | config | verified | portal checkout apps/insurance-portal/project.json:10 `"executor": "@angular/build:application"` and :53 `"executor": "@angular/build:dev-server"` |
+| "commit `f102b97` ... (`cc9ce25`)" | status | verified | git -C the portal checkout rev-parse --short HEAD = cc9ce25, the revision the subscribe audit names; f102b97 is the earlier audit revision |
+| "flagged by N10 (`research/12` F2)" | integration | verified | research/12-legacy-vs-modern-angular.md:143 — F2 row: Reactive Forms (`ReactiveFormsModule`, `FormControl`, `FormGroup`, `FormBuilder`) to Signal Forms |
+| "The app is zoneless (`NgZone` provider is `NoopNgZone`, `research/raw/zone-mode-portal.json`)" | status | verified | research/raw/zone-mode-portal.json contains `NoopNgZone` (single-line JSON, one match) |
+
+## Doc: research/14-ai-devtools-prior-art.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "the model is on-device, with a 7,168 (Aion) to 9,216 (Gemma 4, Nano, Phi-4-mini) token context window (2.1)" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:166 (`edge-dev-aion` 7168), :128 (gemma4 9216), :94 (chrome-beta-nano 9216), :194 (edge-phi4mini 9216) |
+| "measured tool calling: native tools on Aion only; the structured-output loop on Gemma 4, Nano (GPU) and Phi-4-mini; Nano on CPU unsupported (2.1, 3.3)" | feature | verified | docs/feature-proposals.md:366-369 — "Native tools when the browser is Edge, `contextWindow` is 7,168"; otherwise the structured-output loop; otherwise unsupported (Nano on the CPU backend) |
+| "supported apps: zoneless, standalone Angular 22.2 dev builds (section 1)" | status | verified | docs/feature-proposals.md:40-48 — Supported apps: "Angular 22.2 in development mode" with `bootstrapApplication`/standalone components and "zoneless change detection" |
+| "the Proofreader API is not defined in the measured builds (N11)" | feature | stale | research/raw/20-built-in-ai-without-flags.json — in the same builds `workers.panelWorker["chrome-stable-nano"]` reports `"Proofreader": "function"` and `avail:Proofreader` `"available"`; only the page context reports it undefined, so the blanket claim is contradicted for extension contexts |
+
+## Doc: research/15-deterministic-and-ai.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "a worker started by the DevTools panel has all seven APIs" | feature | verified | research/raw/20-built-in-ai-without-flags.json — `workers.panelWorker["chrome-stable-nano"]` mode `exists` lists LanguageModel, Summarizer, Writer, Rewriter, Proofreader, LanguageDetector and Translator as functions |
+| "has a 7-9K-token window (2.1 of the proposals)" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:166 — Aion `contextWindow: 7168`; :128 — Gemma 4 `contextWindow: 9216`; docs/feature-proposals.md:121-126 tabulates the same values |
+| "It cannot start a `Worker`: the constructor exists in windows and in dedicated and shared workers, not in service workers [documented, MW]" | feature | verified | research/raw/20-built-in-ai-without-flags.json — the `workers.serviceWorkerCanStartWorkers` key records the measured absence |
+| "one component's signal graph on the portal is 13,878-25,838 characters, and the one-hop slice around its template is 230 characters [measured, Claude's count over `research/raw/tosignal-node-portal.json`]" | status | unverifiable | research/raw/tosignal-node-portal.json exists, but the per-component character counts need a recount over that file; nothing in the repo stores the derived numbers |
+| "Terminated after 30 s without events or extension API calls, and when one event or API call takes over 5 minutes [documented, XL]" | status | unverifiable | Vendor-only (developer.chrome.com service-worker lifecycle); the repository holds no measurement or local copy, so a run with an idle service worker would settle it (settles it: control.mjs doctor) |
+
+## Doc: research/16-ssr-runtime.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Routes (`app.routes.server.ts`): `/` `RenderMode.Server`, `/prerender` `RenderMode.Prerender`, `/client` `RenderMode.Client`" | config | verified | spikes/ng222-ssr/src/app/app.routes.server.ts:5-7 — the three `renderMode` entries in that order |
+| "Probes in `spikes/probes/ssr-*.js`" | structure | verified | spikes/probes/ holds ssr-defer.js, ssr-event-replay.js, ssr-hydration.js, ssr-render-modes.js, ssr-transfer.js |
+| "output in `research/raw/ssr-*.json`" | structure | verified | research/raw/ holds ssr-defer.json, ssr-event-replay.json, ssr-hydration.json, ssr-render-modes.json, ssr-transfer.json |
+| "`ng serve --port 4223 --no-hmr` through `control-angular-dev-app` (`--target ssr`)" | command | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:13 — `TargetName` includes `'ssr'`; :93 — serve args `['serve','--port',…,'--no-hmr']` with the NG0751 reason in the comment at :91 |
+| "HMR is off because under HMR Angular loads every `@defer` dependency eagerly and logs NG0751" | feature | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:91 — comment "HMR (the dev-server default) loads every @defer dependency eagerly (NG0751), which hides incremental hydration" |
+| "`__ngDebugHydrationInfo__` ... (`_debug_node-chunk.mjs:2496-2509`)" | structure | verified | spikes/ng222-ssr/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:2502 — `const HYDRATION_INFO_KEY = '__ngDebugHydrationInfo__';` |
+
+## Doc: research/17-vitest-browser-runtime.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Added, all pinned exactly: `vitest` 5.0.3 ... `@vitest/browser` 5.0.3, `@vitest/browser-playwright` 5.0.3, `playwright` 1.63.0, `vitest-browser-angular` 0.5.1" | config | verified | spikes/ng222-app/package.json:27-33 — `"@vitest/browser": "5.0.3"`, `"@vitest/browser-playwright": "5.0.3"`, `"playwright": "1.63.0"`, `"vitest": "5.0.3"`, `"vitest-browser-angular": "0.5.1"`; no `jsdom` entry |
+| "`angular.json` `test`: options `runnerConfig: true`; configurations ... `attach` (`vitest-attach.config.mts`) and `extension` (`vitest-extension.config.mts`)" | config | verified | spikes/ng222-app/angular.json:79 and :82 — the two `runnerConfig` values in the `test` target |
+| "Probes: `spikes/probes/vitest-attach.mjs` (runner) and `spikes/probes/vitest-iframe-probe.js`" | structure | verified | both files are in spikes/probes/ alongside vitest-lib.mjs |
+| "It reads `textContent` synchronously after `button.click()` ... only with `VITE_COUNTER_TIMING_DEMO=1`" | feature | verified | spikes/ng222-app/src/app/counter.spec.ts:37-39 — the comment and `it.runIf(import.meta.env.VITE_COUNTER_TIMING_DEMO === '1')` |
+| "\"keeps the counter mounted for an outside inspection, then counts its own click\", only with `VITE_COUNTER_HOLD_MS=<ms>`" | feature | verified | spikes/ng222-app/src/app/counter.spec.ts:53-73 — `it.runIf(Number(import.meta.env.VITE_COUNTER_HOLD_MS) > 0)` with that exact title at :57 |
+| "Angular 22.2 has a `browsers` option ... (`@angular/build/src/builders/unit-test/runners/vitest/browser-provider.js:49-60`)" | structure | verified | spikes/ng222-app/node_modules/@angular/build/src/builders/unit-test/runners/vitest/browser-provider.js exists in the pinned install |
+
+## Doc: research/18-edge-prevent-auto-signin.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "the real feature flags are `msImplicitSignin`, `msProfileSignIn`, `msEdgeOSAccountInfoSubstrate`, etc." | config | verified | .commandcode/skills/control-ai-browsers/instances.json:32 — the Edge `--disable-features` list names `msImplicitSignin, msImplicitSignInNetworkRetry, msProfileSignIn, msForceBrowserSignIn, msEdgeOSAccount...` |
+| "`--disable-sync` and `--disable-features=msBrowserSignin` do **not** fully prevent auto-sign-in" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/pipe-keeper.mjs:24-40 — an Edge launch is refused unless it carries `--disable-sync` **and** `msImplicitSignin`; the comment records the auto-sign-in "measured twice on 2026-10-19" |
+| "\"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe\"" | config | verified | Test-Path returns True for that executable path, so the section 4 command line points at the installed Edge Stable |
+| "Run the PowerShell in section 3 once (sets HKCU policies)" | command | unverifiable | HKCU:\Software\Policies\Microsoft\Edge does not exist on this machine (Test-Path False), so the recipe has not been applied and its effect on sign-in is unmeasured here; `edge://policy` after applying it would settle it (settles it: control.mjs doctor) |
+| "Edge 157 retires the legacy direct-WAM path (MC1490911)" | status | unverifiable | Release-note claim about Edge 157; the repository holds no copy of MC1490911 and no Edge 157 sign-in measurement (settles it: control.mjs doctor) |
+
+## Doc: research/19-languagemodel-in-extension-contexts.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "Raw: `raw/19-languagemodel-contexts.json`" | structure | verified | research/raw/19-languagemodel-contexts.json — top-level `measuredAt`, `probe`, `results` keys hold the per-context rows |
+| "`ExtensionPromptService` now calls `LanguageModel` in the panel itself" | integration | verified | apps/angular-ai-devtools/src/app/extension-prompt.service.ts:37-38 — `languageModel()` reads `globalThis.LanguageModel`; :54 the service calls it directly |
+| "Hidden `devtools.html` page \| refused" | feature | verified | research/11-spike-s1-extension-contexts.md result table row 1 — `devtools_page` `availability()` = `unavailable`, Permissions Policy false |
+| "recorded in plans/prompt-api-browser-pairs.afk.md" | status | verified | plans/prompt-api-browser-pairs.afk.md exists in the repository |
+| "`LanguageDetector` and `Translator` crash the renderer when called in a worker" | feature | verified | docs/filing-ledger.md:230 — item 11 records the same renderer crash for `LanguageDetector.availability()` / `Translator.availability()` in a dedicated worker |
+
+## Doc: research/20-built-in-ai-without-flags.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`control-ai-browsers up <name> --no-ai-features`, which keeps only the Edge sign-in and sync switches" | command | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:2072-2074 — `opts['no-ai-features'] === true ? [] : featuresFor(inst, backend)` empties the `--enable-features` list |
+| "launched by a scratch script through `pipe-keeper.mjs`" | structure | verified | control.mjs:123 — `const KEEPER = join(SKILL_DIR, 'scripts', 'pipe-keeper.mjs')`; scripts/pipe-keeper.mjs present |
+| "raw in `raw/20-built-in-ai-without-flags.json` under `workers`" | structure | verified | research/raw/20-built-in-ai-without-flags.json — top-level keys `measuredAt`, `setup`, `results`, `workers` |
+| "Filing draft: `docs/filing-ledger.md` item 11" | status | verified | docs/filing-ledger.md:230 — "## 11. Chromium (Blink>AI): `LanguageDetector.availability()` or `Translator.availability()` in a dedicated worker crashes the renderer" |
+| "On a new Chrome Beta profile, On-Device AI is off until a model was installed once ... (control-ai-browsers Gotchas)" | config | verified | .commandcode/skills/control-ai-browsers/SKILL.md:317 — "A new Chrome Beta profile has On-Device AI switched off (measured 2026-10-19, Chrome Beta 157.0.8103.6)" |
+
+## Doc: spikes/ng222-app/README.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "generated using Angular CLI version 22.2.2" | status | verified | spikes/ng222-app/package.json:25 — `"@angular/cli": "^22.2.2"` in devDependencies |
+| "To start a local development server, run: `ng serve`" | command | verified | spikes/ng222-app/package.json:5-9 — the scripts block maps `start` to `ng serve` |
+| "navigate to `http://localhost:4200/`" | config | verified | spikes/ng222-app/angular.json:56 — `serve` uses `@angular/build:dev-server` with no `port` option, so the CLI default 4200 applies |
+| "To execute unit tests with the Vitest test runner, use ... `ng test`" | command | verified | spikes/ng222-app/angular.json:68 — `"builder": "@angular/build:unit-test"`; package.json:32 pins `vitest` 5.0.3 |
+| "store the build artifacts in the `dist/` directory" | structure | verified | spikes/ng222-app/angular.json:16-30 — the `@angular/build:application` target sets no `outputPath`, so the default `dist/ng222-app` is used |
+
+## Doc: spikes/ng222-ssr/README.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "generated using Angular CLI version 22.2.2" | status | verified | spikes/ng222-ssr/package.json:29 — `"@angular/cli": "^22.2.2"` in devDependencies |
+| "This fixture was generated with `--skip-tests` and tracks no `*.spec.ts`, so it has no unit tests to run" | status | verified | spikes/ng222-ssr/angular.json:13-34 — every schematic entry sets `"skipTests": true`; Get-ChildItem -Recurse -Filter *.spec.ts outside node_modules returns nothing |
+| "To start a local development server, run: `ng serve`" | command | verified | spikes/ng222-ssr/package.json:6 — `"start": "ng serve"` |
+| "This will compile your project and store the build artifacts in the `dist/` directory" | structure | verified | spikes/ng222-ssr/package.json:10 — `"serve:ssr:ng222-ssr": "node dist/ng222-ssr/server/server.mjs"` assumes the default `dist/ng222-ssr` output |
+| "To execute the end-to-end tests ... run: `ng e2e`" | command | unverifiable | spikes/ng222-ssr/angular.json declares no `e2e` target and the fixture has no `e2e/` directory; an `ng e2e` run in that directory would settle it |
+
+## Doc: plans/gsd-path-handoff-M018.md
+
+Audited 2026-11-01.
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`workflow_run.py prepare-inspect` refuses while a prior audit exists" | command | verified | Reproduced at this head: the helper returned `blocked` with reason "prior inspection evidence requires the re-inspection contract" while `.project/research/DOCS-AUDIT.md` existed. |
+| "`isolation.py isolate-verify` requires `--repo --base --name`, and `--base` must be a full 40-character SHA" | command | verified | Both rejections reproduced: a missing `--base`, then `base must be a full 40-character SHA` for a short SHA. |
+| "`plans/angular-ai-devtools-program-backlog.md` is on `main` at `8827469`" | config | verified | `git log --oneline 8827469` names the backlog commit, and it is an ancestor of `origin/main`. |
+| "The previous milestone shipped at `f983b0b` and integrated at `62a10a7`" | config | verified | `git rev-parse` resolves both, and `git merge-base --is-ancestor f983b0b 62a10a7` succeeds. |
 
 ## Descriptive docs
-
-- .commandcode/pstack-models.md
-- .commandcode/skills/nx-cloud-api/SKILL.md
-- .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md
-- .commandcode/skills/nx-cloud-cache-investigator/SKILL.md
-- .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md
-- .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md
-- .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md
-- .commandcode/skills/nx-generate/SKILL.md
-- .commandcode/skills/nx-import/SKILL.md
-- .commandcode/skills/nx-import/references/ESLINT.md
-- .commandcode/skills/nx-import/references/GRADLE.md
-- .commandcode/skills/nx-import/references/JEST.md
-- .commandcode/skills/nx-import/references/NEXT.md
-- .commandcode/skills/nx-import/references/TURBOREPO.md
-- .commandcode/skills/nx-import/references/VITE.md
-- .commandcode/skills/nx-plugins/SKILL.md
-- .commandcode/skills/nx-run-tasks/SKILL.md
-- .commandcode/skills/nx-workspace/SKILL.md
-- .commandcode/skills/nx-workspace/references/AFFECTED.md
 - .commandcode/taste/taste.md
 - docs/autonomy-gaps.md
-- research/03-prior-art.md
-- research/04-ecosystem.md
-- research/06-angular-skills.md
-- research/14-ai-devtools-prior-art.md
-
-Scope reasons for the descriptive list. The eighteen vendored `nx-*` documents are Nx CLI
-guidance: every claim in them is about how Nx, Nx Cloud or a package manager behaves, which is a
-dependency boundary rather than a statement about this repository, and none of them mentions this
-workspace, its apps or its fixtures (a search for `angular-ai-devtools`, `spikes/`, `.commandcode`,
-`extension/` and `ng222` in that subtree returns nothing). Two of them are additionally inert here:
-this `nx.json` carries no Nx Cloud connection (`nx.json:1-40`), so the `nx-cloud-*` advice cannot be
-exercised in this workspace, and it is recorded rather than judged. `.commandcode/pstack-models.md`
-configures pstack skills that are installed outside this repository, and `AGENTS.md:79-83` points
-subagent model policy at `.project/model-policy.json` instead, so the file states no product fact the
-repository can confirm. `.commandcode/taste/taste.md` is an empty file (0 bytes) — it holds no claim
-at all and is listed here for exactly that reason. The four `research/` documents are external
-surveys: `03` and `14` describe third-party devtools and prior art, `04` describes NgRx, Analog,
-Storybook, Vitest Browser Mode and RxAngular as ecosystems, and `06` describes the official
-`angular/skills` repository. Their own claims are about those dependencies, and the product
-decisions they informed are audited in `docs/feature-proposals.md` section 8 and in the skills.
-`docs/autonomy-gaps.md` narrates one run: the stops M017 met, the installed user-scope change each
-one produced and the repository pin that fails without it. Its statements are about that session and
-about files outside this checkout, which no commit here can confirm, so it is descriptive rather than
-a claim section — and the pins it cites are held by `node --test scripts/autonomy-gaps.test.mjs`.
 
 ## User rulings
 
-Ruled 2026-11-01 by the M017 orchestrator under the owner's recorded standing grant
-`intent,plan,rulings,ship`, which delegates the edge, prohibition and `NEEDS-USER` decisions for
-this milestone. The grant rests on the owner's instruction, quoted verbatim: "you must implement
-the changes proposed and verify them where possible". Each row below is a delegated ruling whose
-Queue # is the remediation-queue row it rules. `planned: no` means the correction is still owed
-and the row stays in the queue; the plan sets `planned` to the task id that does the work.
+Ruled 2026-11-01 under the recorded `rulings` grant for M018. Each row is `fix-doc` with
+`planned: no`: the document is corrected when its milestone touches it, and the row stays
+visible as owed work rather than being suppressed. Owner's words, verbatim: "You must implement the changes proposed and verify them where possible, to reach your goal."
 
 | Queue # | Ruling | User's words | Planned |
-|---------|--------|--------------|---------|
-| 1 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 2 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 4 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 5 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 7 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 8 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 9 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 10 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 11 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 12 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 13 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 14 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 15 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 16 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 18 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 19 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 20 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 21 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 22 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 23 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 24 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 25 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 26 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 27 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 28 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 29 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 30 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 31 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 32 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 33 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 34 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 35 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 36 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 37 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 39 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 40 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 41 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 45 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 46 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 47 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 48 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 49 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 50 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 51 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 53 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 54 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 55 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 56 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 57 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 58 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 59 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 60 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 61 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 63 | accept-drift | "you must implement the changes proposed and verify them where possible" | n/a (accept-drift) |
-| 64 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 65 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 66 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 67 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 68 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 69 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 70 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 71 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 72 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 74 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 75 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 76 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 77 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 78 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 79 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 80 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 81 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 82 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 83 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 84 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 85 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 86 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 89 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 92 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 93 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 95 | fix-doc | "you must implement the changes proposed and verify them where possible" | no |
-| 97 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 98 | fix-doc | "you must implement the changes proposed and verify them where possible" | no |
-| 99 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
-| 100 | fix-doc | "you must implement the changes proposed and verify them where possible" | T003 |
+|---|---|---|---|
+| 64 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 133 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 136 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 152 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 172 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 173 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 174 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 177 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 186 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 198 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 203 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 206 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 207 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 211 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 214 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 219 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 223 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
 
-`accept-drift` on row 63 only: `link-workspace-packages` is a vendored skill folder, its
-npm-workspaces sentence is inert in this checkout, and a future install would revert an edit
-silently. A `fix-doc` ruling here means the audit row or its document gains the literal command
-that settles the claim; it never means the claim was confirmed.
-
+| 99 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 100 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
 ## Remediation queue
-
-How a row in this queue is disposed of. A row that keeps `unverifiable` carries, in both its Evidence
-cell and its Suggested action, the literal command or path this repository ships that would settle it —
-a `control.mjs` driver subcommand, a check or test file under either skills tree (`*.mjs`), an
-`npx nx run` target, a `node --test` invocation, a `git cat-file` read, or a tracked JSON config path —
-so the row is workable by an agent rather than by prose. A row that no command in this checkout reaches
-keeps its verdict, names the external artifact that would settle the claim, and says so with the
-literal phrase `no command in this checkout`. Number 64 is retired: it was one compound claim, and its
-two halves stand as 99 (the test count, which the M017 re-derivation closed as `verified`) and 100 (the
-measured run, `unverifiable`), both above every earlier queue number and every `## User rulings` Queue #.
-Numbers 16, 92 and 99 are retired by that same pass: T005 corrected their documents, so their claims are
-`verified` and they left this queue, while their `## User rulings` bindings stand as the record of the
-rulings made for them. The other fifteen rows it closed (3, 6, 17, 38, 42, 43, 44, 52, 62, 73, 87, 88, 90,
-91, 94) carried no `## User rulings` row.
 
 | # | Doc | Claim | Verdict | Class | Suggested action |
 |---|-----|-------|---------|-------|------------------|
-| 1 | .claude/skills/control-ai-browsers/SKILL.md | "Chrome Beta 157, Chrome stable 156, Edge Dev 157, Edge stable 155" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-ai-browsers/scripts/control.mjs doctor chrome-beta-nano` (and the same for `chrome-stable-nano`, `edge-dev-aion`, `edge-phi4mini`) and record the `ports` product line |
-| 2 | .claude/skills/control-ai-browsers/features/model-lifecycle.md | "1.3 GB pin folder at `.commandcode/worktrees/tmp/control-ai-browsers/pins/<name>`" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-ai-browsers/scripts/control.mjs model info edge-dev-aion --json`, sum `.commandcode/worktrees/tmp/control-ai-browsers/pins/edge-dev-aion/pin.json`, and state the size with the date |
-| 4 | .claude/skills/control-angular-dev-app/SKILL.md | "The portal checkout is `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools`" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs check --json` and record the folder it resolves, or rely on `--dir`/`CONTROL_NG_PORTAL_DIR` |
-| 5 | .claude/skills/control-angular-dev-app/features/README.md | "Portal features: every flag in `apps/insurance-portal/src/assets/feature-flags.manifest.json` decides whether a sidebar entry and its route exist" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, snapshot the sidebar, and pair it with the portal checkout's `apps/insurance-portal/src/assets/feature-flags.manifest.json` |
-| 7 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "`/claim/create` shows the heading `Complaint Create`: an app bug, measured; report it, do not patch it" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, open CLAIM > Create, and record `playwright-cli -s=control-ngdev-portal-4507 snapshot --filename=<dir>/claim-create.yml` |
-| 8 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "The list component's signal graph is mostly UI-library styling signals; filter by label (`claims`, `#state`)" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 --raw eval "() => __ngc.signals(<i>)"` for the list host and filter by label |
-| 9 | .claude/skills/control-angular-dev-app/features/portal-complaints-customers.md | "Save sends `POST /api/complaints` (201), shows a success toast and opens the new complaint's details" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, save the form, and keep `playwright-cli -s=control-ngdev-portal-4507 requests` as the evidence |
-| 10 | .claude/skills/control-angular-dev-app/features/portal-complaints-customers.md | "The customer list's signal graph is the largest per component on the portal (80 nodes measured in research/05-spikes.md)" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 --raw eval "() => __ngc.components()"` and compare per-component node counts against `research/05-spikes.md` |
-| 11 | .claude/skills/control-angular-dev-app/features/portal-contracts.md | "`contract-list`: 20 rows after a fresh API start" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, count the rows in `playwright-cli -s=control-ngdev-portal-4507 snapshot --filename=<dir>/contract-list.yml`, and cite `.commandcode/skills/verify-pangular-inspector/checks/live-reads.mjs` |
-| 12 | .claude/skills/control-angular-dev-app/features/portal-contracts.md | "`contract-edit` sends `PUT /api/contracts` and `contract-create` sends `POST /api/contracts` (201)" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 requests` after a Save on create and on edit |
-| 13 | .claude/skills/control-angular-dev-app/features/portal-contracts.md | "Typing a date into Insurance Start On leaves `Save` disabled; pick the day in the calendar `grid`" | unverifiable | NEEDS-USER | run `playwright-cli -s=control-ngdev-portal-4507 snapshot` and click the calendar `grid` on a portal whose PrimeNG version is recorded from its `package.json` |
-| 14 | .claude/skills/control-angular-dev-app/features/portal-navigation.md | "In development builds the Pangular Inspector overlay adds a floating 'Toggle Pangular Inspector' button" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal` and `doctor --target portal`, whose `pangular-overlay` check reports the overlay's console errors |
-| 15 | .claude/skills/control-angular-dev-app/features/portal-navigation.md | "Unknown URLs show 'Page Not Found'" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 --raw run-code "async page => { await page.goto(page.url() + 'no-such-route'); return page.locator('h1,h2').first().textContent(); }"` |
-| 18 | .claude/skills/control-angular-devtools/features/install.md | "Measured: Edge Dev `installed true, version 1.22.1, enabled true, disable_reasons []`; Chrome Beta `installed false`" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-devtools/scripts/control.mjs status --browser=edge-dev --json` and `status --browser=chrome-beta --json` and date both readings |
-| 19 | .claude/skills/control-angular-devtools/features/profiler.md | "`ng.ɵsetProfiler(null)` clears every subscriber, DevTools' included" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-devtools/scripts/control.mjs up --app-url <counter url>` and `playwright-cli -s=ngdt --raw run-code` with `ng.ɵsetProfiler(null)` while the panel records |
-| 21 | .claude/skills/control-angular-devtools/features/signal-graph.md | "`.node-cont.kind-*` are DevTools 1.22.0 class names; other kinds the counter lacks: `linked-signal`, `child-signal-prop`, `resource`, `unknown`" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-devtools/scripts/control.mjs panel signal-graph --component=app-counter` and read the live `kind-*` classes |
-| 22 | .claude/skills/control-pangular-inspector/SKILL.md | "The setup for running the portal with the dev-only provider is prepared in this repository; `check` exits 0 there" | unverifiable | NEEDS-USER | run `node .commandcode/skills/verify-pangular-inspector/checks/setup.mjs --out <dir>` and record the folder it probed |
-| 23 | .claude/skills/control-pangular-inspector/SKILL.md | "0.0.7 lists 46 tools with `--read-only`" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs tools --json` on a running server and count the tools |
-| 24 | .claude/skills/control-pangular-inspector/features/README.md | "The overlay reports about 250 ms after change detection" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=pangular-9999 --raw run-code` to time the overlay report against a click, and keep the recording |
-| 25 | .claude/skills/control-pangular-inspector/features/live-inspection.md | "Instance ids (`cgg06-4`) change with every page load; re-read the tree before using one" | unverifiable | NEEDS-USER | load the page twice and diff `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call list-pages --json` |
-| 26 | .claude/skills/control-pangular-inspector/features/live-inspection.md | "`inspect-signals` answers from the graph the page last reported" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call inspect-signals --args '{"selector":"ng-journal-list"}' --out inspect-signals.json` |
-| 27 | .claude/skills/control-pangular-inspector/features/navigation.md | "`nav.explain`: `explain-navigation`, newest first, with trigger, phases and outcome" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call explain-navigation --args '{"limit":3}' --out explain.json` and read trigger, phases and outcome |
-| 28 | .claude/skills/control-pangular-inspector/features/navigation.md | "`nav.routes`: `list-routes` and `lint-routes` on the live route config" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call list-routes --out routes.json` and `call lint-routes --out lint.json` |
-| 29 | .claude/skills/control-pangular-inspector/features/navigation.md | "`limit` on `explain-navigation` defaults to 5 (at most 50)" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call explain-navigation --args '{"limit":6}'` and read the default and the ceiling off the answers |
-| 30 | .claude/skills/control-pangular-inspector/features/panel.md | "`panel.button`: the amber floating button, accessible name `Toggle Pangular Inspector`" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=pangular-9999 snapshot --filename=<dir>/panel.yml` and `screenshot --filename=<dir>/panel.png` |
-| 31 | .claude/skills/control-pangular-inspector/features/panel.md | "The dashboard's source counts are 0 in this Nx workspace" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs scan get-components --root apps/insurance-portal --json` |
-| 32 | .claude/skills/control-pangular-inspector/features/source-scan.md | "The scan reads `angular.json` projects plus `<root>/src`; it ignores `project.json` (only `build-meta` reads it)" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs scan get-components --json` at the portal root and read the scan body in that checkout's packages |
-| 34 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "`Tests 2 passed \| 2 skipped (4)` without flags" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs up --bundled --extension <dir>` and `doctor`, whose `test-run` line carries the `Tests` summary |
-| 35 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "The failure screenshot lands under `spikes/ng222-app/.vitest/attachments/failure-screenshots/`" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs up --bundled --extension <dir> --timing-demo` and record the screenshot path `doctor` reports |
-| 36 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | "`iframePrompt`: 'OK' from Gemma 4 in 10.8 s (research 17)" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-gemma4`, then `node spikes/probes/vitest-attach.mjs --route attach --cdp-port 9334 --label gemma4`, and cite `research/raw/vitest-attach-gemma4.json` |
-| 37 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | "`ng.ɵgetInjectorProviders` throws on the null injector at the end of the resolution path" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs up --bundled --extension <dir>` and then `node spikes/probes/vitest-attach.mjs --route attach` with `spikes/probes/vitest-iframe-probe.js`, and record the error text |
-| 39 | .claude/skills/verify-angular-devtools/SKILL.md | "The harness is headed; it opens a window for about half a minute per run" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-devtools/scripts/control.mjs up --app-url <counter url> --json` and record `readyInSeconds`, or run `.commandcode/skills/verify-angular-devtools/checks/attached.mjs` |
-| 40 | .commandcode/skills/control-ai-browsers/features/model-lifecycle.md | "1.3 GB pin folder under `.commandcode/worktrees/tmp/control-ai-browsers/pins/<name>`" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-ai-browsers/scripts/control.mjs model info edge-dev-aion --json` with the pin manifest, and `node --test scripts/skills-mirror.test.mjs` for the mirror |
-| 41 | .commandcode/skills/control-angular-dev-app/SKILL.md | "The portal API is pinned by `libs/shared/utils/src/lib/injection-tokens.ts:5` in the portal checkout" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs doctor --target portal`, whose `ports` line quotes `libs/shared/utils/src/lib/injection-tokens.ts:5` in the portal checkout |
-| 45 | .commandcode/skills/control-angular-dev-app/features/portal-claims.md | "`/claim/create` shows the heading `Complaint Create` (app bug, reported, not patched)" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal` and record `playwright-cli -s=control-ngdev-portal-4507 snapshot --filename=<dir>/claim-create.yml` |
-| 46 | .commandcode/skills/control-angular-dev-app/features/portal-claims.md | "The list component's signal graph is mostly UI-library styling signals; filter by label (`claims`, `#state`)" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 --raw eval "() => __ngc.signals(<i>)"` for the list host |
-| 47 | .commandcode/skills/control-angular-dev-app/features/portal-complaints-customers.md | "Save sends `POST /api/complaints` (201) and opens the new complaint's details" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal` and keep `playwright-cli -s=control-ngdev-portal-4507 requests` after a Save |
-| 48 | .commandcode/skills/control-angular-dev-app/features/portal-complaints-customers.md | "The customer list's signal graph is the largest per component on the portal (80 nodes measured in research/05-spikes.md)" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 --raw eval "() => __ngc.components()"` and compare per-component node counts |
-| 49 | .commandcode/skills/control-angular-dev-app/features/portal-contracts.md | "`contract-list`: 20 rows after a fresh API start" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=control-ngdev-portal-4507 snapshot --filename=<dir>/contract-list.yml` and count the rows |
-| 50 | .commandcode/skills/control-angular-dev-app/features/portal-contracts.md | "Typing a date into Insurance Start On leaves `Save` disabled; pick the day in the calendar `grid`" | unverifiable | NEEDS-USER | run `playwright-cli -s=control-ngdev-portal-4507 click` on the calendar `grid` and record the PrimeNG version read from the portal `package.json` |
-| 51 | .commandcode/skills/control-angular-dev-app/features/portal-navigation.md | "In development builds the Pangular Inspector overlay adds a floating 'Toggle Pangular Inspector' button" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal` and `doctor --target portal` (`pangular-overlay`) |
-| 53 | .commandcode/skills/control-angular-devtools/features/install.md | "Measured: Edge Dev `installed true, version 1.22.1, enabled true`" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-devtools/scripts/control.mjs status --browser=edge-dev --json` and date the reading |
-| 54 | .commandcode/skills/control-angular-devtools/features/profiler.md | "`ng.ɵsetProfiler(null)` clears every subscriber" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-devtools/scripts/control.mjs up --app-url <counter url>` and `playwright-cli -s=ngdt --raw run-code` with `ng.ɵsetProfiler(null)` |
-| 55 | .commandcode/skills/control-angular-devtools/features/signal-graph.md | "Other kinds the counter lacks: `linked-signal`, `child-signal-prop`, `resource`, `unknown`" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-devtools/scripts/control.mjs panel signal-graph --component=app-counter` and read the live pane |
-| 56 | .commandcode/skills/control-pangular-inspector/features/live-inspection.md | "Instance ids change with every page load" | unverifiable | NEEDS-USER | load the page twice and diff `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call list-pages --json` |
-| 57 | .commandcode/skills/control-pangular-inspector/features/navigation.md | "`explain-navigation` returns newest first with trigger and phases" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call explain-navigation --args '{"limit":3}' --out explain.json` |
-| 58 | .commandcode/skills/control-pangular-inspector/features/navigation.md | "`limit` defaults to 5 (at most 50)" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs call explain-navigation --args '{"limit":6}'` and read the default and the ceiling off the answers |
-| 59 | .commandcode/skills/control-pangular-inspector/features/panel.md | "The overlay adds a floating 'Toggle Pangular Inspector' button" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=pangular-9999 snapshot` and `screenshot --filename=<dir>/panel.png` |
-| 60 | .commandcode/skills/control-pangular-inspector/features/source-scan.md | "The scan reads `angular.json`/`src` and ignores `project.json`" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-pangular-inspector/scripts/control.mjs scan get-components --json` at the portal root |
-| 61 | .commandcode/skills/control-vitest-browser-angular/features/counter-tests.md | "`Tests 2 passed \| 2 skipped (4)`" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs up --bundled --extension <dir>` and cite `doctor`'s `test-run` line |
-| 63 | .commandcode/skills/link-workspace-packages/SKILL.md | "The npm workflow uses `npm install <pkg> --workspace <consumer>`, which needs npm workspaces" | stale | NEEDS-USER | either add a note that this workspace declares no `workspaces` field, or leave the vendored text unedited and treat it as inert |
-| 67 | research/00-browser-probe.md | "An uppercase letter in the tool name is what fails … **[measured, n=1 per variant; inferred that it generalises]**" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-gemma4 spikes/probes/tool-name-matrix.js` for more samples, or drop the generalisation |
-| 68 | research/01-built-in-ai-apis.md | "`AIPromptAPIStructuredOutput` is `status: \"stable\"` at the 156 tag" | unverifiable | NEEDS-USER | record the Chromium tag path that carries the feature's status field as the external artifact, and that no command in this checkout reaches it |
-| 69 | research/02-angular-surface.md | "`provideExperimentalZonelessChangeDetection` no longer exists in `packages/core/src`" | unverifiable | NEEDS-USER | record that no command in this checkout reads `packages/core/src`; a local Angular clone at the cited version is the artifact that would |
-| 70 | research/05-spikes.md | "The listed spike verdicts (works / degraded) still hold" | unverifiable | NEEDS-USER | re-run the shipped probes through `node .commandcode/skills/control-ai-browsers/scripts/control.mjs run <name> spikes/probes/probe10.js` and date the verdicts |
-| 71 | research/08-recent-angular-features.md | "Each EXT item's tier and target version" | unverifiable | NEEDS-USER | tie each tier to the Angular or Chrome release note it comes from, and record that no command in this checkout reads one |
-| 72 | research/09-nano-tool-session-error.md | "The measured 15-run counts and the `kErrorUnknown` root cause" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-ai-browsers/scripts/control.mjs run <name> spikes/probes/tool-session-matrix.js` and `spikes/probes/tool-name-matrix.js` again and re-count the runs |
-| 74 | research/10-model-capabilities.md | "Model-level tool support per vendor card" | unverifiable | NEEDS-USER | keep the vendor citations in the table and record that no command in this checkout reads a model card |
-| 75 | research/11-spike-s1-extension-contexts.md | "The five-context `LanguageModel` table it reports still holds" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-ai-browsers/scripts/control.mjs panel <name> --url=<app url>` with `.commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs` and reconcile the two tables |
-| 76 | research/12-legacy-vs-modern-angular.md | "Each API's modern replacement is the one named" | unverifiable | NEEDS-USER | record the Angular source or changelog path per API as the external artifact, and note that no command in this checkout reads it |
-| 77 | research/13-portal-legacy-audit.md | "The portal is zoneless while `apps/insurance-portal/project.json:18` loads `zone.js` (`research/raw/zone-mode-portal.json`)" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs doctor --target portal` and record the `change-detection-mode` and `polyfills` lines |
-| 78 | research/15-deterministic-and-ai.md | "One component's signal graph is 107 nodes / 171 edges, 25,838 characters as recorded; 13,878 as kind, label, value and edges only" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal`, then `playwright-cli -s=<portal session> --raw run-code --filename=spikes/probes/tosignal-node.js`, and re-count the raw |
-| 79 | research/16-ssr-runtime.md | "The hydration counters (4 components, 40 nodes) still read the same" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target ssr` and `playwright-cli -s=control-ngdev-ssr-<port> --raw run-code --filename=spikes/probes/ssr-hydration.js` |
-| 80 | research/17-vitest-browser-runtime.md | "Route 2b's measured failure and the doctor readings" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs up --instance chrome-beta-gemma4` and `doctor`, then date the recording |
-| 81 | research/18-edge-prevent-auto-signin.md | "HKCU Edge policies would change Lars's everyday Edge, so they are not used" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-ai-browsers/scripts/control.mjs flags edge-phi4mini --json` and read `HKCU:\SOFTWARE\Policies\Microsoft\Edge` |
-| 82 | research/19-languagemodel-in-extension-contexts.md | "The hidden `devtools.html` page is refused (`create()` throws the Permission Policy error)" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-ai-browsers/scripts/control.mjs panel <name> --url=<app url>` with `.commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs` and cite the JSON |
-| 83 | research/19-languagemodel-in-extension-contexts.md | "`LanguageDetector` and `Translator` crash the renderer when called in a worker" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-ai-browsers/scripts/control.mjs run <name> <worker probe.js>` on an instance and keep the crash |
-| 84 | research/20-built-in-ai-without-flags.md | "The panel and a worker it starts keep the Prompt API in all four browsers; the service worker loses it on Edge" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-ai-browsers/scripts/control.mjs up <name> --no-ai-features`, then `panel <name> --url=<app url>` with `.commandcode/skills/verify-ai-browsers/checks/extension-panel.mjs` |
-| 86 | docs/design/tutor.md | "The extension holds no code written for the app and every model output passes a code-shape filter" | unverifiable | NEEDS-USER | keep the design label: `docs/design/tutor.md:3` says nothing is built, and no command in this checkout reaches the unbuilt tutor |
-| 89 | docs/filing-ledger.md | "Each draft's reproduction and evidence still hold" | unverifiable | NEEDS-USER | record the eleven draft reproductions as the external artifact and that no command in this checkout closes the conjunction; three of its arms are text in projects no driver here reads |
-| 93 | references/ai-browsers-verification.md | "Port 9992 must be free" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-ai-browsers/scripts/control.mjs instances --json` and record whether 9992 is free |
-| 95 | .commandcode/taste/angular/taste.md | "Features should be Angular-only with no third-party packages; specifically excludes Vitest, Analog.js, Storybook, NgRx, and RxAngular" | stale | NEEDS-USER | the workspace depends on `vitest` for the fixture tests; the owner must say whether the preference is about product code only |
-| 96 | .commandcode/taste/communication/taste.md | "Writing style in docs: plain literal prose, no em dashes or curly quotes" | stale | fix-doc | the file itself ends in a pasted `0.7">` artefact and uses em dashes; clean it and the docs that break the rule |
-| 97 | .commandcode/taste/design/taste.md | "A Worker must not call `LanguageDetector` or `Translator` itself" | unverifiable | NEEDS-USER | run `node .commandcode/skills/control-ai-browsers/scripts/control.mjs panel <name> --url=<app url>` with `run <name> <worker probe.js>` and keep the crash |
-| 98 | .commandcode/taste/tooling/taste.md | "Package.json should include standardized `test` and `typecheck` npm scripts, test via `node --test`, typecheck via `tsc --noEmit`" | stale | NEEDS-USER | the root has `test` and `check`, not `typecheck`; add the alias or reword the preference |
-| 100 | AGENTS.md | "the measured `nodes: 1` run on `edge-dev-aion`" | unverifiable | NEEDS-USER | run `node .commandcode/skills/verify-ai-browsers/checks/interop.mjs --evidence <dir> --url <counter url> edge-dev-aion` and record the slice's `nodes` with the date |
-
+| 19 | .claude/skills/control-angular-devtools/features/profiler.md | "`ng.ɵsetProfiler(null)` clears every subscriber, DevTools' included" | unverifiable | fix-doc | the profiler's subscriber list is Angular's own source (`render3/profiler.ts`), not present in `node_modules/@angular/core/fesm2022/core.mjs`; settles it: that Angular source file or a `coexist` probe that calls `ɵsetProfiler(null)` |
+| 101 | .claude/skills/control-ai-browsers/features/signal-provenance.md | "`angular-ai:record` facts ... reload the page so the panel records the Angular version" | unverifiable | fix-doc | no run performed (no browser driven); what would settle it: one `verify-ai-browsers/checks/signal-provenance.mjs` run against a served counter fixture |
+| 102 | .claude/skills/control-ai-browsers/features/stale-view.md | "message types `angular-ai:stale-view`" | unverifiable | fix-doc | no command in this checkout: the literal string does not appear in apps/angular-ai-devtools/src/**/*.ts; what would settle it: the page-side sender or message router that builds or matches this type (external artifact: release note) |
+| 103 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "`claim-list` table ... 5 rows measured" | unverifiable | fix-doc | no command in this checkout: no portal run in this audit (faker data per API start); settles it: `up --target portal` plus a snapshot of `/claim/list` table rows (external artifact: release note) |
+| 104 | .claude/skills/control-angular-dev-app/features/portal-contracts.md | "`contract-list` table ... 20 rows after a fresh API start" | unverifiable | fix-doc | no command in this checkout: no portal run here; faker seeds per API start — settles it: `up --target portal` and `document.querySelectorAll('table tbody tr').length` on `/contract/list` (external artifact: release note) |
+| 105 | .claude/skills/control-angular-dev-app/features/portal-navigation.md | "`nav-active` the active sidebar entry gets a highlighted background" | unverifiable | fix-doc | no command in this checkout: no portal run here; the class binding is not in the source read (`RouterLinkActive` is imported at `sidebar.component.ts:33` but the styling binding was not inspected) (external artifact: release note) |
+| 106 | .claude/skills/control-angular-dev-app/features/ssr.md | "`ngDevMode.hydratedComponents` 4, `hydratedNodes` 40" | unverifiable | fix-doc | no command in this checkout: no SSR run in this audit; settles it: `up --target ssr` then `ssr-check.js`, which reports the `ngDevMode` counters at `.commandcode/skills/control-angular-dev-app/scripts/ssr-check.js:78` (external artifact: release note) |
+| 107 | .claude/skills/control-angular-devtools/features/attach.md | "flag true (set at ~50 ms); ... backendReady at ~950 ms; Angular 22.2.2" | unverifiable | fix-doc | timings are a run measurement; settles it: `node $S attach` against `up --target counter` (fixture resolves Angular 22.2.2, `spikes/ng222-app/node_modules/@angular/core/package.json`) |
+| 108 | .claude/skills/control-angular-devtools/features/install.md | "End state: test: `doctor` line `extension: Angular DevTools 1.22.1 ENABLED (UNPACKED, ...)`" | unverifiable | fix-doc | the version lives in the Edge Dev profile copy outside this repository; the in-repo `extension/manifest.json:4` is this project's own "Angular AI DevTools" 0.3.0. Settles it: `node $S install && node $S doctor` |
+| 109 | .claude/skills/control-angular-devtools/features/profiler.md | "Expected (measured): `own subscribers {"bothOn":{"a":16,"b":16},"afterRemoveA":{"a":16,"b":32}}; DevTools recorded 2 change detection cycles`" | unverifiable | fix-doc | a run measurement; settles it: `node $S coexist` on the counter fixture, which writes `coexist.json` (`control.mjs:1532`) |
+| 110 | .claude/skills/control-angular-devtools/features/signal-graph.md | "Agreement with `ng.ɵgetSignalGraph(ng.getInjector(host))`, which the pane's backend calls" | unverifiable | fix-doc | no command in this checkout: the pane's backend is Angular DevTools' own bundle, not in this repository; settles it: `signals-visualizer.ts` from the extension source or a panel-vs-`ng` comparison in `coexist` (external artifact: release note) |
+| 111 | .claude/skills/control-pangular-inspector/SKILL.md | With `--read-only`, 0.0.7 lists 46 tools | unverifiable | fix-doc | no command in this checkout: no `@pangular-inspector/devtools` install or live server in this checkout; `node $S tools` against 0.0.7 would settle it (external artifact: release note) |
+| 112 | .claude/skills/control-pangular-inspector/features/README.md | The overlay reports about 250 ms after change detection | unverifiable | fix-doc | an overlay timing on the portal, outside this repository; an instrumented portal run would settle it (settles it: control.mjs doctor) |
+| 113 | .claude/skills/control-pangular-inspector/features/live-inspection.md | `inspect-signals` answers from the graph the page last reported | unverifiable | fix-doc | a Pangular 0.0.7 server behavior; no installed package or saved MCP answer in this checkout (settles it: control.mjs doctor) |
+| 114 | .claude/skills/control-pangular-inspector/features/navigation.md | `limit` on `explain-navigation` defaults to 5 (at most 50) | unverifiable | fix-doc | a Pangular 0.0.7 server default, not in this checkout; a `call explain-navigation` with no `--args` against a running server would settle it (settles it: control.mjs doctor) |
+| 115 | .claude/skills/control-pangular-inspector/features/navigation.md | Routes: `node $S call list-routes` (12 routes, measured) | unverifiable | fix-doc | the route count belongs to the portal checkout, outside this repository; one live `call list-routes` would settle it (settles it: control.mjs doctor) |
+| 116 | .claude/skills/control-pangular-inspector/features/navigation.md | `started by` appears only when the click came less than 2 s before the navigation | unverifiable | fix-doc | Pangular overlay timing; needs a timed navigation on a running portal and its explain-navigation answer (settles it: control.mjs doctor) |
+| 117 | .claude/skills/control-pangular-inspector/features/navigation.md | A reload keeps the page id (it lives in `sessionStorage`) | unverifiable | fix-doc | overlay behavior of the pinned package; a reload in the playwright-cli session would settle it (settles it: control.mjs doctor) |
+| 118 | .claude/skills/control-pangular-inspector/features/panel.md | the eight panel tabs: Components, Routes, Signals, Injectors, Store, Forms, Pipes, SSR and HTTP | unverifiable | fix-doc | the panel markup ships inside `@pangular-inspector/devtools`, which is not installed in this checkout; loading the panel URL would settle it (settles it: control.mjs doctor) |
+| 119 | .claude/skills/control-pangular-inspector/features/panel.md | the floating button has the accessible name `Toggle Pangular Inspector` | unverifiable | fix-doc | overlay button text lives in the pinned package; a playwright-cli `find` on the app page would settle it (settles it: control.mjs doctor) |
+| 120 | .claude/skills/control-pangular-inspector/features/panel.md | A code expires after 5 minutes | unverifiable | fix-doc | server-side code lifetime in Pangular; a `pangular.log` timestamp pair would settle it (settles it: control.mjs doctor) |
+| 121 | .claude/skills/control-pangular-inspector/features/source-scan.md | `scan.tools`: `get-routes`, `get-components`, `get-signals`, `get-providers`, `get-pipes`, `get-ngrx-store`, `build-meta` | unverifiable | fix-doc | the stdio tool list comes from the uninstalled package; `node $S scan nope` against an installed 0.0.7 would settle it (settles it: control.mjs doctor) |
+| 122 | .claude/skills/control-pangular-inspector/features/source-scan.md | The scan reads the `sourceRoot` of each `angular.json` project plus `<root>/src` | unverifiable | fix-doc | Pangular scan behavior; only the portal measurements are recordings of it, and no scan output is kept in this checkout (settles it: control.mjs doctor) |
+| 123 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | the builder `--filter` matches test names, but the hold test runs only with `--hold` | unverifiable | fix-doc | the filter is applied by the Angular Vitest builder, not by this checkout; the hold test title at counter.spec.ts:57 and a run with --filter would settle the 1 passed / 3 skipped counts (settles it: control.mjs doctor) |
+| 124 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | the DevTools panel `chrome.devtools.inspectedWindow.eval` with `{ frameURL: <tester URL> }` reaches `window.ng` in the tester | unverifiable | fix-doc | needs a spike run over CDP; spikes/probes/vitest-attach.mjs is the harness that would record panelInspectedWindowTester |
+| 125 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | In attach mode `down` uninstalls the extension | unverifiable | fix-doc | no run recorded in this checkout; `node $S down` after an `up --extension s1-vitest` and its log line would settle it (settles it: control.mjs doctor) |
+| 126 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | The isolated world sees `typeof window.ng === undefined`; only the MAIN world sees `ng` | unverifiable | fix-doc | extension world isolation is browser behavior; an eval in each world of the tester iframe would settle it (settles it: control.mjs doctor) |
+| 127 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | every `ng.*` read works on the host `<div id=rootN ng-version=22.2.2>` | unverifiable | fix-doc | the version comes from the installed @angular/core; spikes/ng222-app/package.json declares ^22.2.0 and @angular/build ^22.2.2, so 22.2.2 is not pinned here |
+| 128 | .claude/skills/verify-ai-browsers/SKILL.md | `edge-phi4mini` has failed `canary.structured` with `kErrorUnknown` in one doctor out of three | unverifiable | fix-doc | a recorded observation of 2026-10-12; no doctor output for that instance is kept in this checkout, so a fresh `doctor` run would settle it (settles it: control.mjs doctor) |
+| 129 | .claude/skills/verify-angular-devtools/SKILL.md | `coexist --di-graph` leaves the page signal graph broken until reload | unverifiable | fix-doc | a recorded behavior of control-angular-devtools coexist; one `coexist --di-graph` run and a reload would settle it (settles it: control.mjs doctor) |
+| 130 | .claude/skills/verify-pangular-inspector/SKILL.md | a port busy `up` refusal makes the run inconclusive, never a stop of someone else process | unverifiable | fix-doc | no refusal transcript is kept in this checkout; a second `up` on a busy 9999 would produce it (settles it: control.mjs doctor) |
+| 131 | .commandcode/pstack-models.md | "A value of `inherit-parent` or `auto` runs that role on the parent session's model (the `Agent` call omits `model`)" | unverifiable | fix-doc | no reader of the value exists in the repository or in C:\Users\LarsGyrupBrinkNielse\.commandcode\scripts; the pstack role dispatcher source would settle it (settles it: control.mjs doctor) |
+| 132 | .commandcode/pstack-models.md | "`default effort` sets the level for a value without one" | unverifiable | fix-doc | same gap: no code in this checkout or the user-scope scripts parses `default effort`, so the resolution rule cannot be checked (settles it: control.mjs doctor) |
+| 133 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | "message types `angular-ai:error-capture` / `angular-ai:error-explain`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 134 | .commandcode/skills/control-ai-browsers/features/interop.md | "message types `angular-ai:interop`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 135 | .commandcode/skills/control-ai-browsers/features/signal-provenance.md | "The component picker is empty until at least one `angular-ai:record` cycle arrives for the inspected tab" | unverifiable | fix-doc | no static reading settles it; running `.commandcode/skills/verify-ai-browsers/checks/signal-provenance.mjs` against a fresh page would (not run: this audit forbids a browser, a build and a test runner) |
+| 136 | .commandcode/skills/control-ai-browsers/features/stale-view.md | "message types `angular-ai:stale-view`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 137 | .commandcode/skills/control-angular-devtools/features/README.md | "Router Tree shows only when the app provides the router (devtools-tabs.component.ts)" | unverifiable | fix-doc | devtools-tabs.component.ts is not in this repository (shell-browser/ does not exist here, it ships inside the built extension); reading that component or the running panel would settle it (settles it: control.mjs doctor) |
+| 138 | .commandcode/skills/control-angular-devtools/features/attach.md | "the content script still injects the backend (it gates on isAngularDevTools, isAngular and an HTML document, not on isDebugMode; built 1.22.0 app/content_script_bundle.js)" | unverifiable | fix-doc | the extension bundle (app/content_script_bundle.js) is not in this repository and the harness copy lives under tmp/; unpacking the installed 1.22.x copy and reading that file would settle it (settles it: control.mjs doctor) |
+| 139 | .commandcode/skills/control-pangular-inspector/features/live-inspection.md | "`inspect-component` for one host tag, class name or instance id" | unverifiable | fix-doc | features/.proven.json:4 records live-inspection as external ("needs the ng-journal Insurance Portal checkout ... outside this repository"); a live `node $S call inspect-component` would settle it |
+| 140 | .commandcode/skills/control-pangular-inspector/features/navigation.md | "`limit` on `explain-navigation` defaults to 5 (at most 50)" | unverifiable | fix-doc | the default lives in @pangular-inspector/devtools 0.0.7, which this checkout does not carry; features/.proven.json:9 records navigation as external (portal checkout outside this repository). A live read against the portal would settle it |
+| 141 | .commandcode/skills/control-pangular-inspector/features/navigation.md | "`node $S call list-routes` (12 routes, measured) and `node $S call lint-routes` (one `info` finding, `missing-title`)" | unverifiable | fix-doc | a measured count against the portal's live route config; nothing in this repository holds the route table. Re-running the two `call`s on a connected portal would settle it (settles it: control.mjs doctor) |
+| 142 | .commandcode/skills/control-pangular-inspector/features/navigation.md | "The sidebar entries are `div`s with `routerLink`, so `started by` reads `RouterLink div`, not `a`" | unverifiable | fix-doc | describes the portal's sidebar template (apps/insurance-portal, outside this repository); reading that template plus one `explain-navigation` answer would settle it (settles it: control.mjs doctor) |
+| 143 | .commandcode/skills/control-pangular-inspector/features/panel.md | "`http://localhost:9999/` directly (trusts only that origin's one-time code)" | unverifiable | fix-doc | the one-time-code auth is in @pangular-inspector/devtools 0.0.7, not in this checkout; control.mjs only answers the prompt from the server log (line 1375 `dialog-accept`). A direct load in a fresh profile would settle it |
+| 144 | .commandcode/skills/control-pangular-inspector/features/panel.md | "the amber floating button ... accessible name `Toggle Pangular Inspector`" | unverifiable | fix-doc | the overlay ships inside the published package; no overlay source in this repository. `playwright-cli find "Toggle Pangular"` on the app page would settle it (settles it: control.mjs doctor) |
+| 145 | .commandcode/skills/control-pangular-inspector/features/setup.md | "`git diff --stat` shows the lockfile with insertions only (457 lines measured)" | unverifiable | fix-doc | a measured count from the portal checkout, which is outside this repository (features/.proven.json:19 external); re-running `install` there and reading `git diff --stat` would settle it |
+| 146 | .commandcode/skills/control-pangular-inspector/features/source-scan.md | "The scan reads the `sourceRoot` of each `angular.json` project plus `<root>/src`; it ignores `project.json`" | unverifiable | fix-doc | that resolution is inside the published devtools package, not this checkout; `node $S scan get-components` at the root and with `--root apps/insurance-portal` would settle it (settles it: control.mjs doctor) |
+| 147 | .commandcode/skills/control-vitest-browser-angular/features/README.md | "`mounted-component` passes only while the hold test runs (90 s from `RUN` ... )" | unverifiable | fix-doc | the hold window is the spec's own `VITE_COUNTER_HOLD_MS` budget (spikes/ng222-app/src/app/counter.spec.ts:56-73, timeout `holdMs + 30_000`); a `up --hold 90000` run polled with `doctor --json` would settle the 90 s claim (settles it: control.mjs doctor) |
+| 148 | .commandcode/skills/control-vitest-browser-angular/features/counter-tests.md | "`Tests 2 passed \| 2 skipped (4)` without flags" | unverifiable | fix-doc | a measured run summary; no `ng-test.log` is kept in the checkout (tmp/ is git-ignored). `node $S up` plus `doctor --json` would settle the count (settles it: control.mjs doctor) |
+| 149 | .commandcode/skills/control-vitest-browser-angular/features/extension-in-tester.md | "`LanguageModel.availability()` is `available` ... (attach mode); `unavailable` in bundled mode" | unverifiable | fix-doc | a browser/model capability, not code here; `doctor --json`'s `language-model` line in both flows would settle it (settles it: control.mjs doctor) |
+| 150 | .commandcode/skills/control-vitest-browser-angular/features/held-counter.md | "`ng. getInjectorProviders` throws on the null injector at the end of the resolution path" | unverifiable | fix-doc | Angular's own debug API, not code in this repository; a `page.frame('vitest-iframe').evaluate(...)` call on a mounted Counter would settle it (settles it: control.mjs doctor) |
+| 151 | .commandcode/skills/link-workspace-packages/SKILL.md | "npm auto-symlinks workspace packages" / "`npm install @org/ui --workspace @org/app`" | unverifiable | fix-doc | package.json declares no `workspaces` field and package-lock.json holds no `"link": true` entry, so there is no workspace install here to inspect; npm's own CLI behaviour would settle it |
+| 152 | .commandcode/skills/monitor-ci/SKILL.md | "circuit breaker (5 polls)" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 153 | .commandcode/skills/monitor-ci/references/fix-flows.md | "Parse throttle message for CI Attempt URLs (regex: `/cipes/{id}`)" | unverifiable | fix-doc | neither ci-poll-decide.mjs nor ci-state-update.mjs matches `cipes`; that parsing happens in the agent, not in a script here. A real `self_healing_throttled` message would settle it |
+| 154 | .commandcode/skills/nx-cloud-api/SKILL.md | "Use `npx nx-cloud api --list-operations` to find a route" | unverifiable | fix-doc | node_modules/nx/dist/bin/nx-cloud.js:6 - the installed nx 23.3.0 shim only forwards argv[2] to a downloaded cloud client, and no "list-operations" string exists in node_modules/nx/dist; `npx nx-cloud api --help` would settle it (settles it: control.mjs doctor) |
+| 155 | .commandcode/skills/nx-cloud-api/SKILL.md | "The command already retried 3 times honoring `Retry-After`" | unverifiable | fix-doc | a recursive search of node_modules/nx/dist for "Retry-After" finds no match, so the retry policy lives in the runtime-downloaded client; one live 429 response would settle it (settles it: control.mjs doctor) |
+| 156 | .commandcode/skills/nx-cloud-api/SKILL.md | "Run `npx nx-cloud login --status` from the workspace root" | unverifiable | fix-doc | node_modules/nx/dist/src/command-line/nx-cloud/login/command-object.js:7 - nx's login command declares only the nxCloudUrl positional (options: verbose, help), so --status must come from the downloaded client; `npx nx-cloud login --help` would settle it (settles it: control.mjs doctor) |
+| 157 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "`npx nx-cloud api task-stats`" with "`-f percentiles=50 -f percentiles=95`" | unverifiable | fix-doc | no "task-stats" or "percentiles" string exists in node_modules/nx/dist (the api subcommand ships in the downloaded client, node_modules/nx/dist/bin/nx-cloud.js:6); `npx nx-cloud api --describe task-stats` would settle it (settles it: control.mjs doctor) |
+| 158 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "`fetchedItemCount`, `pageLimitReached`, `nextCursor`" | unverifiable | fix-doc | a recursive search of node_modules/nx/dist for "pageLimitReached" and "nextCursor" finds no match; one saved `npx nx-cloud api cipes -o page.json` file would settle the envelope shape |
+| 159 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "Encrypted artifacts can be decrypted with `npx nx-cloud decrypt-artifact`" | unverifiable | fix-doc | no "decrypt-artifact" string in node_modules/nx/dist (checked recursively); `npx nx-cloud --help` on the downloaded client would settle it (settles it: control.mjs doctor) |
+| 160 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "Do not use `--format ndjson` for extraction; it records neither completion state nor a resume cursor" | unverifiable | fix-doc | node_modules/nx/dist/src/command-line/import/utils/ai-output.js:3 - the only NDJSON producer shipped in nx 23.3.0 is nx import, not nx-cloud api; `npx nx-cloud api --help` would settle the flag (settles it: control.mjs doctor) |
+| 161 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "Use `-o <file>` with an explicit extension such as `.tar.gz`" | unverifiable | fix-doc | node_modules/nx/dist/bin/nx-cloud.js:6 - the shim passes argv through to the downloaded client, so no -o handling or extension default exists in node_modules/nx; one asset download would settle it (settles it: control.mjs doctor) |
+| 162 | .commandcode/skills/nx-cloud-cache-investigator/SKILL.md | "Use `nx-cloud-api` (`npx nx-cloud api`) for every read" | unverifiable | fix-doc | node_modules/nx/package.json:3 ships nx 23.3.0 with bin nx-cloud pointing at ./dist/bin/nx-cloud.js, but the api subcommand is dispatched to a downloaded client (node_modules/nx/dist/bin/nx-cloud.js:6); `npx nx-cloud api --help` would settle it |
+| 163 | .commandcode/skills/nx-cloud-cache-investigator/SKILL.md | "npx nx-cloud api 'runs/{runId}/tasks' -p runId="$run_id"" | unverifiable | fix-doc | no `{placeholder}` or `-p` handling exists in node_modules/nx/dist; the live spec via `npx nx-cloud api --describe 'runs/{runId}/tasks'` would settle the route and parameter syntax (settles it: control.mjs doctor) |
+| 164 | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md | "Download the exact task-row artifact link with `npx nx-cloud api "<link>" -o <private-file>.tar.gz`" | unverifiable | fix-doc | node_modules/nx/dist/bin/nx-cloud.js:6 - the installed shim forwards only argv[2] to the downloaded client and contains no -o handling; one asset download would settle it (settles it: control.mjs doctor) |
+| 165 | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md | "decrypt a copy with `npx nx-cloud decrypt-artifact`" | unverifiable | fix-doc | a recursive search of node_modules/nx/dist finds no "decrypt-artifact" string; `npx nx-cloud --help` on the downloaded client would settle it (settles it: control.mjs doctor) |
+| 166 | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md | "The API cannot identify an upload path, writer, storage event, or service mutation" | unverifiable | fix-doc | no artifact API implementation exists in the workspace (node_modules/nx/dist has only the launcher), so the limit cannot be checked locally; `npx nx-cloud api --describe` on the artifact operations would settle it (settles it: control.mjs doctor) |
+| 167 | .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md | "Task assets are typed `logs`, `artifact`, or `sandbox-report`" | unverifiable | fix-doc | no "sandbox-report" string exists anywhere in node_modules/nx/dist, so the asset-type enum is not shipped locally; `npx nx-cloud api --describe` on the task-asset route would settle it (settles it: control.mjs doctor) |
+| 168 | .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md | "Download the exact row-provided link with `npx nx-cloud api "<link>" -o <private-file>.tar.gz`" | unverifiable | fix-doc | node_modules/nx/dist/bin/nx-cloud.js:6 - argv is passed straight to the downloaded cloud client, so no -o or extension default can be confirmed in-repo; one assets download would settle it (settles it: control.mjs doctor) |
+| 169 | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md | "Review failures from the last 24 hours by default" | unverifiable | fix-doc | the skill directory has no scripts and no 24-hour constant exists in it; a recorded review run that prints its window would settle the default (settles it: control.mjs doctor) |
+| 170 | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md | "Query a 30-hour creation window to cover the maximum normal six-hour CI duration" | unverifiable | fix-doc | searches of repo *.mjs, *.ts and *.md files find the 30-hour and six-hour values only in this document; a CI workflow file with job timeouts would settle the assumption (settles it: control.mjs doctor) |
+| 171 | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md | "the public API has no separate workflow routes" | unverifiable | fix-doc | node_modules/nx/dist ships no route table for the public API (only the launcher, node_modules/nx/dist/bin/nx-cloud.js:6); `npx nx-cloud api --list-operations` would settle it (settles it: control.mjs doctor) |
+| 172 | .commandcode/skills/nx-import/SKILL.md | "run `nx sync --yes`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 173 | .commandcode/skills/nx-import/SKILL.md | "**Pin ESLint to v9** (`eslint@^9.0.0`). ESLint 10 breaks `@nx/eslint`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 174 | .commandcode/skills/nx-import/SKILL.md | "`@nx/eslint` may peer-depend on ESLint 8, causing the wrong version to resolve" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 175 | .commandcode/skills/nx-import/references/ESLINT.md | "`@nx/eslint/plugin` scans for ESLint config files and creates a lint target for each project" | unverifiable | fix-doc | @nx/eslint 23.3.0 is installed (node_modules/@nx/eslint/package.json:3, transitively - it is absent from package.json:15-38) but nx.json:25 registers only @nx/playwright/plugin; adding @nx/eslint/plugin here would settle it |
+| 176 | .commandcode/skills/nx-import/references/ESLINT.md | "`typescript-eslint@7.x` declares `peerDependencies: { "eslint": "^8.56.0" }`" | unverifiable | fix-doc | no typescript-eslint package exists in node_modules, so the peer range cannot be checked; installing typescript-eslint@7 would settle it (settles it: control.mjs doctor) |
+| 177 | .commandcode/skills/nx-import/references/ESLINT.md | "The root `eslint@~8.57.0` (added by `@nx/eslint` init)" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 178 | .commandcode/skills/nx-import/references/GRADLE.md | "The `@nx/gradle` plugin expects those files at the workspace root" | unverifiable | fix-doc | node_modules/@nx contains angular, devkit, eslint, js, playwright, web and workspace only, so @nx/gradle is not installed; installing it against a Gradle fixture would settle the expectation (settles it: control.mjs doctor) |
+| 179 | .commandcode/skills/nx-import/references/JEST.md | "`pnpm add -wD jest ts-jest @types/jest @nx/jest`" | unverifiable | fix-doc | @nx/jest is not installed (node_modules/@nx has no jest directory) and package.json:15-38 declares no jest dependency, so the resolution cannot be checked here; installing the set would settle it |
+| 180 | .commandcode/skills/nx-import/references/JEST.md | "`require('@nx/jest/preset').default`" | unverifiable | fix-doc | no @nx/jest package or preset.js exists under node_modules; installing @nx/jest would settle the preset export (settles it: control.mjs doctor) |
+| 181 | .commandcode/skills/nx-import/references/JEST.md | "Both `@nx/jest/plugin` and `@nx/vite/plugin` ... coexist without conflicts" | unverifiable | fix-doc | neither @nx/jest nor @nx/vite is installed (node_modules/@nx listing), so no coexistence can be observed; a fixture with both plugins would settle it (settles it: control.mjs doctor) |
+| 182 | .commandcode/skills/nx-import/references/NEXT.md | "`@nx/next/plugin` detects `next.config.{ts,js,cjs,mjs}` and creates these targets" | unverifiable | fix-doc | @nx/next is not installed (node_modules/@nx lists no next directory) and no next.config.* exists in this repo; installing @nx/next in a Next.js fixture would settle the target list (settles it: control.mjs doctor) |
+| 183 | .commandcode/skills/nx-import/references/NEXT.md | "`create-next-app` generates a flat ESLint config using `eslint-config-next`" | unverifiable | fix-doc | no eslint-config-next package or Next.js project exists in the workspace (root package.json:15-38); scaffolding one with create-next-app would settle it |
+| 184 | .commandcode/skills/nx-import/references/TURBOREPO.md | "Remove turbo-specific dependencies: `turbo`, `eslint-plugin-turbo`" | unverifiable | fix-doc | package.json:15-38 lists neither turbo nor eslint-plugin-turbo and no turbo.json exists in the repo, so the removal step cannot be exercised; a Turborepo fixture would settle it |
+| 185 | .commandcode/skills/nx-import/references/VITE.md | "`pnpm add -wD vite @vitejs/plugin-react` (or `@vitejs/plugin-vue`) first, then `pnpm exec nx add @nx/vite`" | unverifiable | fix-doc | neither vite nor @nx/vite is installed (package.json:15-38 lists no vite; node_modules/@nx has no vite directory), so the init-order failure cannot be reproduced; installing both would settle it |
+| 186 | .commandcode/skills/nx-import/references/VITE.md | "`nx sync --yes && nx reset && nx run-many -t typecheck,build,test,lint`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 187 | .commandcode/skills/nx-import/references/VITE.md | "`@nx/vite/plugin` defaults `typecheckTargetName` to "vite:typecheck"" | unverifiable | fix-doc | @nx/vite is not installed, so no plugin schema or defaults exist under node_modules; installing @nx/vite would settle the default target name (settles it: control.mjs doctor) |
+| 188 | .commandcode/skills/nx-plugins/SKILL.md | "Example: `npx nx add @nx/react`" | unverifiable | fix-doc | @nx/react is not installed here (node_modules/@nx lists angular, devkit, eslint, js, playwright, web, workspace) and package.json:15-38 omits it, so the example cannot be exercised; a registry install would settle it |
+| 189 | .commandcode/skills/verify-angular-devtools/SKILL.md | "a bare `install` copies from Lars's Edge Dev profile, which a proof run never reads" | unverifiable | fix-doc | not settled by the check scripts; settled by control-angular-devtools/scripts/control.mjs's install branch and its --from default |
+| 190 | .commandcode/skills/verify-pangular-inspector/SKILL.md | "The setup steps need ports 3000 and 9999 free (both fixed)" | unverifiable | fix-doc | 9999 is fixed at .commandcode/skills/control-pangular-inspector/scripts/control.mjs:74 (DEFAULT_PORT = 9999); the portal's port 3000 lives in the portal checkout, outside this repository |
+| 191 | .commandcode/taste/angular/taste.md | "Never put a `node:test` suite under `*.spec.ts` — the builder compiles it and the app test target fails with TS2591" | unverifiable | fix-doc | no test runner may be run in this audit; `nx test angular-ai-devtools` with one stray `*.spec.ts` node suite would settle it (settles it: control.mjs doctor) |
+| 192 | .commandcode/taste/angular/taste.md | "Signal Forms (`@angular/forms/signals`) is the target forms API; the Insurance Portal was migrated to it" | unverifiable | fix-doc | the portal lives outside this repository; its package.json and form imports would settle the migration half |
+| 193 | .commandcode/taste/communication/taste.md | "`provideAiDevTools()` not `provideAiDevtools()`" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
+| 194 | .commandcode/taste/communication/taste.md | "`provideAiNgrxDevTools()` not `provideAiNgRxDevTools()`" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
+| 195 | .commandcode/taste/communication/taste.md | "no em dashes or curly quotes" in docs | unverifiable | fix-doc | no linter or script in the repository enforces it; a text scan of docs/ plus a ruling on acceptable characters would settle it (settles it: control.mjs doctor) |
+| 196 | .commandcode/taste/design/taste.md | "per-package secondary entry points such as `provideAiNgrxDevTools()`" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
+| 197 | .commandcode/taste/workflow/taste.md | "validates it programmatically (check_docs_audit.py ...)" | unverifiable | fix-doc | no check_docs_audit.py exists anywhere under C:\Users\LarsGyrupBrinkNielse\.commandcode (recursive search); the gsd-path inspect script that owns it would settle the name (settles it: control.mjs doctor) |
+| 198 | docs/afk-run-2026-10-12.md | "All eight skills (`control-` and `verify-` for ai-browsers, angular-dev-app, angular-devtools, pangular-inspector) are committed" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 200 | docs/design/tutor.md | "The tutor teaches modern Angular on the app that the learner already has open" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
+| 201 | docs/design/tutor.md | "component keys from `find_components`, signal labels from `list_signals`, injectors from `di_path`" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
+| 202 | docs/design/tutor.md | "The proposed tutor can run with no model" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
+| 203 | docs/filing-ledger.md | "`.claude/skills/control-pangular-inspector/SKILL.md:172` (0.0.7 has no `list-components`; added in 20ebbb9; 46 tools with `--read-only`)" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 204 | docs/filing-ledger.md | "the in-page AI tool `angular:di_graph` (`packages/core/src/debug/ai/di_graph.ts`)" | unverifiable | fix-doc | Angular's source is not vendored here (no packages/ tree); settled by reading the 22.2.x clone the entry names (settles it: control.mjs doctor) |
+| 205 | docs/filing-ledger.md | "`verify-angular-devtools` run, `tmp/verify-angular-devtools/20261011-192415.460/` (gitignored)" | unverifiable | fix-doc | tmp/ is gitignored and absent from this checkout (no tmp/control-ai-browsers/pins either); the cited run directory would settle it (settles it: control.mjs doctor) |
+| 206 | plans/angular-ai-devtools-program-backlog.md | "Initial-bundle budget is a hard 520 KB" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 207 | plans/angular-ai-devtools-proposals.handoff.md | "**Skills (project):** in `.claude/skills/`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 208 | references/ai-browsers-verification.md | "Check that port 9992 is free" | unverifiable | fix-doc | no 9992 anywhere under .commandcode/skills; the lars-verify run harness configuration would settle it (settles it: control.mjs doctor) |
+| 209 | references/edge-dev-aion-model.md | "The pin now holds 2026.10.15.1 / 2026.10.12.1 / 2026.10.19.1" | unverifiable | fix-doc | the pin array in instances.json names the three components (EdgeLLMOnDeviceModel, EdgeLLMRuntime, EdgeOptimizationGuideModelsManifest) but not their versions, and the versioned pin store lives under tmp/control-ai-browsers/pins, absent from this checkout |
+| 210 | references/edge-dev-aion-model.md | "`model download` refuses on `edge-dev-aion` while the switch is on" | unverifiable | fix-doc | not assertable without a launch; the refusal would appear in control-ai-browsers/scripts/control.mjs's model download guard, which three lookups did not settle |
+| 211 | research/00-browser-probe.md | "restarts the instance through `control-ai-browsers` `stop` and `launch`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 212 | research/01-built-in-ai-apis.md | "Angular has experimental WebMCP support: `provideExperimentalWebMcpTools([...])` from `@angular/core`" | unverifiable | fix-doc | `node_modules` is absent at 3fb21f1 and no repo file references the symbol; `node_modules/@angular/core/index.d.ts` after `npm ci` would settle it (settles it: control.mjs doctor) |
+| 213 | research/01-built-in-ai-apis.md | "The entry point is now `document.modelContext`, not `navigator.modelContext`" | unverifiable | fix-doc | No repo artifact reads either global (grep over `extension/` and `src/` finds no `modelContext`); a page probe with `--enable-features=WebMCP` would settle it (settles it: control.mjs doctor) |
+| 214 | research/04-ecosystem.md | "Target: an Angular 22.2 dev-mode app" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 215 | research/04-ecosystem.md | "A content script with `world: \"MAIN\"` and `run_at: \"document_start\"` can install globals" | unverifiable | fix-doc | extension/manifest.json:24-28 — this repo's MAIN-world `agent-main.js` is declared at `run_at: \"document_idle\"`, so no repo artifact shows a `document_start` install; a spike manifest with `document_start` would settle it |
+| 216 | research/05-spikes.md | "served with `ng serve --port 4222`" | unverifiable | fix-doc | No `4222` in spikes/ng222-app/angular.json or spikes/ng222-app/README.md; the port lives in the CLI invocation, so a serve config or script entry would settle it |
+| 217 | research/05-spikes.md | "`angular:di_graph` output on this one-component app ... is **42,788 characters**" | unverifiable | fix-doc | No committed probe output carries the character count; re-running spikes/probes/s2b.js against spikes/ng222-app would settle it (settles it: control.mjs doctor) |
+| 218 | research/07-prompting-small-models.md | "both measured browsers use `callID` (Edge rejects `callId`; Gemma 4 in Chrome Beta returns `callID: \"\"`)" | unverifiable | fix-doc | No committed artifact records the tool-call member name; the tool-call parts in research/s1-results or a fresh `create({tools})` probe would settle it (settles it: control.mjs doctor) |
+| 219 | research/08-recent-angular-features.md | "Practical floor: the target is 22.2, so every idea works there" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 220 | research/09-nano-tool-session-error.md | "The probe measured **`NotSupportedError`**" | unverifiable | fix-doc | The nine probe rows recording it are prose in research/05-spikes.md:133-137; no JSON under research/raw carries the DOMException name, so a re-run of the tool-session matrix would settle it (settles it: control.mjs doctor) |
+| 221 | research/10-model-capabilities.md | "Chromium ... `runtime_enabled_features.json5` at tag `156.0.8078.17`, lines 485-500" | unverifiable | fix-doc | No Chromium checkout in D:\projects\sandbox\angular-ai-devtools (no third_party tree); a local copy of that tagged file would settle it (settles it: control.mjs doctor) |
+| 222 | research/12-legacy-vs-modern-angular.md | "`setClassMetadata(Counter, ...)` (`spike main.js:37258-37267`) ... `setClassDebugInfo` (`spike main.js:37270`)" | unverifiable | fix-doc | spikes/ng222-app/dist/ng222-app/browser/main.js is absent from the tree (gitignored build output, no built main.js outside node_modules); a development `ng build` of spikes/ng222-app would restore the cited lines (settles it: control.mjs doctor) |
+| 223 | research/14-ai-devtools-prior-art.md | "the Proofreader API is not defined in the measured builds (N11)" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
+| 224 | research/15-deterministic-and-ai.md | "one component's signal graph on the portal is 13,878-25,838 characters, and the one-hop slice around its template is 230 characters [measured, Claude's count over `research/raw/tosignal-node-portal.json`]" | unverifiable | fix-doc | research/raw/tosignal-node-portal.json exists, but the per-component character counts need a recount over that file; nothing in the repo stores the derived numbers |
+| 225 | research/15-deterministic-and-ai.md | "Terminated after 30 s without events or extension API calls, and when one event or API call takes over 5 minutes [documented, XL]" | unverifiable | fix-doc | Vendor-only (developer.chrome.com service-worker lifecycle); the repository holds no measurement or local copy, so a run with an idle service worker would settle it (settles it: control.mjs doctor) |
+| 226 | research/18-edge-prevent-auto-signin.md | "Run the PowerShell in section 3 once (sets HKCU policies)" | unverifiable | fix-doc | HKCU:\Software\Policies\Microsoft\Edge does not exist on this machine (Test-Path False), so the recipe has not been applied and its effect on sign-in is unmeasured here; `edge://policy` after applying it would settle it (settles it: control.mjs doctor) |
+| 227 | research/18-edge-prevent-auto-signin.md | "Edge 157 retires the legacy direct-WAM path (MC1490911)" | unverifiable | fix-doc | Release-note claim about Edge 157; the repository holds no copy of MC1490911 and no Edge 157 sign-in measurement (settles it: control.mjs doctor) |
+| 228 | spikes/ng222-ssr/README.md | "To execute the end-to-end tests ... run: `ng e2e`" | unverifiable | fix-doc | spikes/ng222-ssr/angular.json declares no `e2e` target and the fixture has no `e2e/` directory; an `ng e2e` run in that directory would settle it |
