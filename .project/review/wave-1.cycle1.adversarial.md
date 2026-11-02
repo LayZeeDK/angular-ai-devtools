@@ -1,4 +1,4 @@
-# Review — M018 instrument-core, Wave 1, Cycle 1
+# Review — M018 instrument-core, Wave 1, Cycle 1 — adversarial
 
 Wave: 1
 Cycle: 1
