@@ -3,9 +3,9 @@ id: T006
 title: Add the panel's lazy chat entry point with the context chip and the permitted group list
 wave: 2
 deps: [T003, T004, T005]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T006
+base: e5a41cf45b57adf8691063f2191b18530a6517d2
 worktree: null
 task_branch: null
 files:
@@ -64,3 +64,51 @@ Heavy: yes
 ## Log
 
 - 2026-11-02 — created by planner
+- build_T006: added chat-entry.component.ts - one computed PanelContext from buildPanelContext over the six ExtensionMessageService signals, shared by featureFingerprint(context, APP_FACT_FEATURES), projectToolGroups(registry.tools(), context) and an effect that calls registry.execute('app_facts', undefined, {facts: context.facts, provenance: 'page-published'}) with that same context before any answer, so a live page renders a result and only a silent page host-unavailable; the three states render distinctly (eight chip-entry rows in APP_FACT_FEATURES order with present/absent, data-testid cannot-tell, data-testid no-angular-root with 'No Angular root found on this page'); supported:false renders the page's reason verbatim with no chip-zone; a gated-out group renders no header and an empty projection renders only the projection's emptyReason; no page-reads import, no DOM added to the page. Added chat-entry.component.spec.ts (10 cases: two present/six absent with the execute context asserted, all-false, supported:false reason verbatim plus no header, cannot-tell naming the version and window.ng, no-angular-root, E5 empty list, feature-gated group header absent plus panel_environment never offered, real provideAppFactsTool() answering result on a live context and host-unavailable only on a silent page, and the chat route appended lazy after interop with the six explainer routes unchanged), and appended the single lazy chat route in app.routes.ts. Verify exit 0: npm ci --include=dev, npm run check clean, nx test chat-entry.component.spec.ts 10/10 pass (cached hit in the Verify run, re-run uncached with --skip-nx-cache 10/10); extra checks: full panel suite 28 files / 265 tests pass, registry-reach 3/3 pass. Build and bundle measurement left to T007; extension/panel and its pins untouched.
+- ready
+- 2026-11-02 — orchestrator Verify (sidecar gsd-path-verify/task-t006-verify): pass, exit 0; output tail:
+  ```
+    Critical path:     <1ms (1 task)
+    Recoverable time:  <1ms
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills && npm run check:panel
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  npm notice run check:panel
+  npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:test --include=apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts
+  ```
+- 2026-11-02 — orchestrator regression Verify of T003 (sidecar gsd-path-verify/task-t006-verify): pass, exit 0; output tail:
+  ```
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills && npm run check:panel
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  npm notice run check:panel
+  npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:build-extension
+  [1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mbundle initial exceeded maximum budget. Budget 520.00 kB was not met by 9.72 kB with a total of 529.72 kB.[0m
+  [39m[22m
+  ```

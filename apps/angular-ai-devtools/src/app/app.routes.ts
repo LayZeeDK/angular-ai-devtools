@@ -12,4 +12,5 @@ export const appRoutes: Route[] = [
   { path: 'error-explainer', component: ErrorExplainerComponent },
   { path: 'stale-view', component: StaleViewComponent },
   { path: 'interop', loadComponent: () => import('./interop.component').then((m) => m.InteropComponent) },
+  { path: 'chat', loadComponent: () => import('./chat-entry.component').then((m) => m.ChatEntryComponent) },
 ];
