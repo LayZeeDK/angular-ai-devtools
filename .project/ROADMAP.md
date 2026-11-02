@@ -699,7 +699,7 @@ Depends on: [M017]
 Surfaces: none
 Status: shipped
 Archive: .project/archive/018-instrument-core
-Integrated: null
+Integrated: 3dfdcf03b0dd3f34a0097a5b1ffd4818d0b9ab29
 
 Scope: in
 - The registry envelope: a declaration record plus a backing record, carrying `kind` (read, write, confirm), `host` (page, iframe, panel, worker, extension-API, tester), `outcome` (result, confirm-required, async-handle, image, error) and `publish`.
@@ -739,7 +739,7 @@ Open questions
 Goal: Ship the prompt-context budget, the worker boundary and ring buffer, and background jobs with progress and cancellation, on top of M018's registry.
 Depends on: [M018]
 Surfaces: none
-Status: pending
+Status: active
 Archive: null
 Integrated: null
 
