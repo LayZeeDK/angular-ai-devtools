@@ -3,9 +3,9 @@ id: T003
 title: Convert one explainer route to a lazy load and measure the initial-bundle headroom
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: f22a2f713efbbf5dd83a4a2534c673a946867e92
 worktree: null
 task_branch: null
 files:
@@ -57,3 +57,28 @@ Heavy: yes
 ## Log
 
 - 2026-11-02 — created by planner
+- build_T003: converted the interop route in apps/angular-ai-devtools/src/app/app.routes.ts to loadComponent (the InteropComponent import dropped; the other five routes, all six paths and every component/service/project.json/budget-pin byte unchanged; interop.component.ts 2,279 B + interop.service.ts 11,358 B was the largest exclusively-eager graph of the four candidates, so the measurement picked it). Base measured 535,695 B (already 255 B over the pin); after the conversion the built panel measures 529,544 B over 6 eager files, i.e. -5,896 B against the 535,440 B baseline, 5,896 B of headroom and -6,151 B base-to-head. Verify exit 0: npm ci --include=dev, npm run check, npx nx run angular-ai-devtools:build-extension and node --test scripts/panel-bundle-budget.test.mjs all passed (4/4), printing 'measured initial total 529.54 kB (529544 B over 6 eager files) against the 535.44 kB baseline'. Note: the build regenerates the tracked, un-ignored extension/panel/index.html (one added modulepreload link for chunk-ClDaaW9w.js); restored to base bytes because this task's files list and AC5 allow app.routes.ts only - re-commit it at landing if the tracked artifact should stay in sync, as T012 did.
+- ready
+- 2026-11-02 — orchestrator Verify (sidecar gsd-path-verify/task-t003-verify): pass, exit 0; output tail:
+  ```
+  ℹ todo 0
+  ℹ duration_ms 170.0181
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills && npm run check:panel
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  npm notice run check:panel
+  npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:build-extension
+  ```

@@ -4,7 +4,6 @@ import { N2SignalProvenanceComponent } from './n2-signal-provenance.component';
 import { N3DiDoctorComponent } from './n3-di-doctor.component';
 import { ErrorExplainerComponent } from './error-explainer.component';
 import { StaleViewComponent } from './stale-view.component';
-import { InteropComponent } from './interop.component';
 
 export const appRoutes: Route[] = [
   { path: '', component: N1UpdateCauseComponent },
@@ -12,5 +11,5 @@ export const appRoutes: Route[] = [
   { path: 'di-doctor', component: N3DiDoctorComponent },
   { path: 'error-explainer', component: ErrorExplainerComponent },
   { path: 'stale-view', component: StaleViewComponent },
-  { path: 'interop', component: InteropComponent },
+  { path: 'interop', loadComponent: () => import('./interop.component').then((m) => m.InteropComponent) },
 ];
