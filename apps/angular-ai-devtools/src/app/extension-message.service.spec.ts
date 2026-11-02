@@ -134,6 +134,103 @@ describe('ExtensionMessageService', () => {
     expect(ext.appVersion()).toBe('22.1.4');
   });
 
+  it('records the replay as answered from a reply that is not { ok: false }', () => {
+    // This suite's chrome answers `{ ok: true }` from the one request, once per construction.
+    const ext = TestBed.inject(ExtensionMessageService);
+    expect(requests).toEqual([{ type: 'angular-ai:state-request', tabId: 5 }]);
+    expect(ext.replayOutcome()).toBe('answered');
+  });
+
+  it('starts at outstanding and stays there when the reply never arrives', () => {
+    TestBed.resetTestingModule();
+    const pending: Array<(reply: unknown) => void> = [];
+    globalChrome.chrome = {
+      devtools: { inspectedWindow: { tabId: 5 } },
+      runtime: {
+        onMessage: {
+          addListener(cb: (msg: unknown) => void): void {
+            deliver = cb;
+          },
+        },
+        // A background that has not answered yet: the callback is kept, never called.
+        sendMessage(msg: SentRequest, callback?: (reply: unknown) => void): void {
+          requests.push(msg);
+          if (callback) pending.push(callback);
+        },
+      },
+    };
+    TestBed.configureTestingModule({});
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    // Exactly one request per construction (the `beforeEach` service asked once, this one asks once
+    // more), and the panel waits: "no answer yet" is a state of its own.
+    expect(requests.length).toBe(2);
+    expect(requests[1]).toEqual({ type: 'angular-ai:state-request', tabId: 5 });
+    expect(ext.replayOutcome()).toBe('outstanding');
+    expect(ext.stateReceived()).toBe(false);
+
+    // When the answer lands, it is recorded — and still exactly one request was ever sent.
+    pending[0]?.({ ok: true });
+    expect(ext.replayOutcome()).toBe('answered');
+    expect(requests.length).toBe(2);
+  });
+
+  it('records a failed replay from the background { ok: false } refusal, without a retry', () => {
+    TestBed.resetTestingModule();
+    globalChrome.chrome = {
+      devtools: { inspectedWindow: { tabId: 5 } },
+      runtime: {
+        onMessage: {
+          addListener(cb: (msg: unknown) => void): void {
+            deliver = cb;
+          },
+        },
+        sendMessage(msg: SentRequest, callback?: (reply: unknown) => void): void {
+          requests.push(msg);
+          // What `background.js` answers when no relay responded for the tab.
+          callback?.({ ok: false, reason: 'angular-ai:state-request: no relay answered for tab 5' });
+        },
+      },
+    };
+    TestBed.configureTestingModule({});
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    // A visible named failure, not a silent wait and not a retry loop: one request per
+    // construction, so the `beforeEach` one plus this one and nothing more.
+    expect(ext.replayOutcome()).toBe('failed');
+    expect(requests.length).toBe(2);
+    expect(requests[1]).toEqual({ type: 'angular-ai:state-request', tabId: 5 });
+    expect(ext.stateReceived()).toBe(false);
+  });
+
+  it('records a failed replay when the transport throws instead of leaving the panel waiting', () => {
+    TestBed.resetTestingModule();
+    globalChrome.chrome = {
+      devtools: { inspectedWindow: { tabId: 5 } },
+      runtime: {
+        onMessage: {
+          addListener(cb: (msg: unknown) => void): void {
+            deliver = cb;
+          },
+        },
+        sendMessage(msg: SentRequest): void {
+          requests.push(msg);
+          throw new Error('Extension context invalidated');
+        },
+      },
+    };
+    TestBed.configureTestingModule({});
+
+    let ext: ExtensionMessageService | undefined;
+    expect(() => {
+      ext = TestBed.inject(ExtensionMessageService);
+    }).not.toThrow();
+    // No throw, an exactly-once request, and a named failure instead of an endless wait.
+    expect(requests.length).toBe(2);
+    expect(requests[1]).toEqual({ type: 'angular-ai:state-request', tabId: 5 });
+    expect(ext?.replayOutcome()).toBe('failed');
+  });
+
   it('writes a live angular-detected into appVersion without a replay', () => {
     const ext = TestBed.inject(ExtensionMessageService);
     expect(ext.appVersion()).toBeNull();
@@ -143,9 +240,12 @@ describe('ExtensionMessageService', () => {
     expect(ext.stateReceived()).toBe(false);
   });
 
-  it('leaves appVersion null and stateReceived false when no reply arrives', () => {
+  it('leaves appVersion null and stateReceived false when the replay latched nothing', () => {
+    // The background answered `{ ok: true }` with nothing latched: the page was reached and had no
+    // state to give, which is `answered` — a conclusion, not a wait.
     const ext = TestBed.inject(ExtensionMessageService);
     expect(requests.length).toBe(1);
+    expect(ext.replayOutcome()).toBe('answered');
     expect(ext.appVersion()).toBeNull();
     expect(ext.stateReceived()).toBe(false);
     expect(ext.features()).toBeNull();
@@ -168,5 +268,8 @@ describe('ExtensionMessageService', () => {
     expect(() => TestBed.inject(ExtensionMessageService)).not.toThrow();
     // Nothing was asked of a chrome that cannot ask, and nothing was invented in its place.
     expect(requests.length).toBe(1);
+    // A transport that cannot ask will never answer, so the replay is named failed rather than
+    // left outstanding forever.
+    expect(TestBed.inject(ExtensionMessageService).replayOutcome()).toBe('failed');
   });
 });

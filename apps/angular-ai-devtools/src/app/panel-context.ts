@@ -16,7 +16,10 @@
  *    `supported` key at all — because `appFactsSnapshot` reads a record without a boolean
  *    `supported` as `null`, which keeps `app_facts`' `host-unavailable` answer honest. Writing
  *    `supported: false` for a page that never spoke would turn silence into a claim the page never
- *    made (N1, N4), and writing `supported: true` would be worse.
+ *    made (N1, N4), and writing `supported: true` would be worse. Silence is also not one state:
+ *    a context with `stateReceived === false` carries the replay's own outcome (`T008`), so the
+ *    chip can name "the page has not answered yet" instead of concluding "no Angular root" while
+ *    the one-shot reply is still in flight.
  * 2. **The page's words travel unchanged.** When the page announced state, its own `supported` and
  *    its own `reason` go into the facts verbatim; the adapter classifies nothing and names no
  *    feature. `zoneMode` is narrowed to the two measured values (`zone` / `noop`) with `unknown`
@@ -29,7 +32,18 @@
  */
 import type { Signal } from '@angular/core';
 
-/** The four page-published signals plus the page's own refusal, as the service exposes them. */
+/**
+ * What became of the panel's one-shot `angular-ai:state-request` (M020 T008).
+ *
+ * `outstanding` is the initial value and means "asked, no answer yet"; `answered` means the
+ * background replied (whether or not the page had anything latched); `failed` means no relay or no
+ * transport answered. It is the only evidence that separates "the page has not answered yet" from
+ * "the page has no Angular root", which is why it travels beside `stateReceived` rather than
+ * replacing it: `stateReceived === false` alone says nothing about whether a reply is still coming.
+ */
+export type ReplayOutcome = 'outstanding' | 'answered' | 'failed';
+
+/** The page-published signals plus the page's own refusal and the replay's outcome. */
 export type PanelSignals = {
   /** The page's per-API support map, or `null` when it published no map at all. */
   readonly features: Signal<Readonly<Record<string, boolean>> | null>;
@@ -39,6 +53,8 @@ export type PanelSignals = {
   readonly stateReceived: Signal<boolean>;
   /** The `[ng-version]` the relay read, live or replayed. `null` is "not told a version". */
   readonly appVersion: Signal<string | null>;
+  /** The one-shot replay: still outstanding, answered, or failed to be delivered. */
+  readonly replayOutcome: Signal<ReplayOutcome>;
   /** The page's own `supported: false`, mirrored by the service. */
   readonly notSupported: boolean;
   /** The page's own reason for `supported: false`, verbatim, or `null` when it gave none. */
@@ -47,12 +63,18 @@ export type PanelSignals = {
 
 /**
  * One page's state as the panel hands it to a tool, a group gate or the chip: the facts a
- * `ToolContext` would read, the version the gates compare, and whether the page ever spoke.
+ * `ToolContext` would read, the version the gates compare, whether the page ever spoke, and what
+ * became of the replay that would have told the panel more.
+ *
+ * `replayOutcome` is optional for one reason only: a context written by hand — a spec fixture, a
+ * caller with no replay of its own — predates the field and must keep compiling. `buildPanelContext`
+ * always writes it, so every context built from the service's signals carries a real outcome.
  */
 export type PanelContext = {
   readonly facts: Readonly<Record<string, unknown>>;
   readonly version: string | null;
   readonly stateReceived: boolean;
+  readonly replayOutcome?: ReplayOutcome;
 };
 
 /**
@@ -64,11 +86,15 @@ export type PanelContext = {
  */
 export function buildPanelContext(signals: PanelSignals): PanelContext {
   const version = readVersion(signals.appVersion());
+  // Read only to be carried: the adapter classifies nothing, and reading the outcome here (rather
+  // than inside the silent branch below) keeps "each signal is read exactly once" true.
+  const replayOutcome = signals.replayOutcome();
 
   if (!signals.stateReceived()) {
     // No `supported` key, deliberately: `{}` reads as "the page has not spoken" downstream, while
-    // a boolean would read as the page's answer.
-    return { facts: {}, version, stateReceived: false };
+    // a boolean would read as the page's answer. The outcome rides along so the chip can tell a
+    // page that has not answered yet from a page that answered with nothing.
+    return { facts: {}, version, stateReceived: false, replayOutcome };
   }
 
   const features = signals.features();
@@ -84,7 +110,7 @@ export function buildPanelContext(signals: PanelSignals): PanelContext {
     facts['features'] = features;
   }
 
-  return { facts, version, stateReceived: true };
+  return { facts, version, stateReceived: true, replayOutcome };
 }
 
 /** The version a gate compares: the trimmed `[ng-version]`, or `null` when none was read. */

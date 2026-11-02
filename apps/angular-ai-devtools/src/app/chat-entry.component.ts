@@ -7,7 +7,7 @@
  * exactly one of it:
  *
  * 1. **One page context, built once and shared.** `panel-context.ts`'s `buildPanelContext` reads
- *    the six signals once inside one `computed`, and the chip, the group projection and the
+ *    the seven signals once inside one `computed`, and the chip, the group projection and the
  *    `app_facts` call all read that one cached value. A second, subtly different context is how a
  *    chip and a group list come to disagree about the same page — and how `app_facts` reports
  *    silence while the chip reports eight absences.
@@ -16,10 +16,12 @@
  *    the facts handed over here are the same record the chip renders, so a live page answers a
  *    `result`. `provenance: 'page-published'` is what the values are: the page computed them itself
  *    and published them over `angular-ai:state`.
- * 3. **The component decides nothing.** The fingerprint's three page classes (`no-angular-root`,
- *    `cannot-tell`, `fingerprint`) and the group gates are the pure modules' decisions; this
- *    component renders what they answer. No feature is inferred, no version is guessed, no model is
- *    called: a chip entry exists only where the page published that exact bit (N1, N3).
+ * 3. **The component decides nothing.** The fingerprint's page states (`awaiting-page`,
+ *    `transport-failed`, `no-angular-root`, `cannot-tell`) and its `fingerprint`, plus the group
+ *    gates, are the pure modules' decisions; this component renders what they answer through one
+ *    `data-testid` branch, so a new state costs a line in the model and none here. No feature is
+ *    inferred, no version is guessed, no model is called: a chip entry exists only where the page
+ *    published that exact bit (N1, N3).
  * 4. **A withheld group has no header.** The list is `projectToolGroups(...).groups`, which holds
  *    only the groups whose gates passed, so an excluded group cannot appear as an empty section;
  *    when nothing passes, the projection's own `emptyReason` is rendered and no header is (SC2, E5).
@@ -112,11 +114,11 @@ export class ChatEntryComponent {
   /**
    * The one `PanelContext` this render uses. A `computed`, so every reader — the chip, the group
    * projection and the `app_facts` call — gets the same object built from one instant of the page,
-   * and the six signals are read once per change, not once per reader.
+   * and the seven signals are read once per change, not once per reader.
    */
   private readonly context = computed<PanelContext>(() => buildPanelContext(this.panelSignals()));
 
-  /** The chip model: eight `APP_FACT_FEATURES` entries, or one of the two named page states. */
+  /** The chip model: eight `APP_FACT_FEATURES` entries, or one of the four named page states. */
   protected readonly chip = computed(() => featureFingerprint(this.context(), APP_FACT_FEATURES));
 
   /** The groups whose gates passed. An excluded group is absent here, so it has no header. */
@@ -124,13 +126,17 @@ export class ChatEntryComponent {
     projectToolGroups(this.registry.tools(), this.context()),
   );
 
-  /** The fingerprint branch, or `null` when the page is in one of the two named states. */
+  /** The fingerprint branch, or `null` when the page is in one of the four named states. */
   protected readonly fingerprint = computed(() => {
     const chip = this.chip();
     return chip.kind === 'fingerprint' ? chip : null;
   });
 
-  /** The named page state (`no-angular-root` / `cannot-tell`), or `null` for a fingerprint. */
+  /**
+   * The named page state (`awaiting-page` / `transport-failed` / `no-angular-root` /
+   * `cannot-tell`), or `null` for a fingerprint. Rendered as itself by the one `data-testid`
+   * branch: the component adds no per-state wording of its own.
+   */
   protected readonly chipState = computed(() => {
     const chip = this.chip();
     return chip.kind === 'fingerprint' ? null : chip;
@@ -170,6 +176,7 @@ export class ChatEntryComponent {
       zoneMode: this.ext.zoneMode,
       stateReceived: this.ext.stateReceived,
       appVersion: this.ext.appVersion,
+      replayOutcome: this.ext.replayOutcome,
       notSupported: this.ext.notSupported(),
       notSupportedReason: this.ext.notSupportedReason(),
     };

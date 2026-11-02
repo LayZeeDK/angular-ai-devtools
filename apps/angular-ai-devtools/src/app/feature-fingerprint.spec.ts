@@ -32,6 +32,7 @@ function context(overrides: Partial<PanelContext> = {}): PanelContext {
     },
     version: '22.2.4',
     stateReceived: true,
+    replayOutcome: 'answered',
     ...overrides,
   };
 }
@@ -124,7 +125,7 @@ describe('featureFingerprint', () => {
 
   it('names the refusal for a page with neither a version nor a state (SC3)', () => {
     const fingerprint = featureFingerprint(
-      { facts: {}, version: null, stateReceived: false },
+      { facts: {}, version: null, stateReceived: false, replayOutcome: 'answered' },
       FEATURE_NAMES,
     );
 
@@ -134,9 +135,69 @@ describe('featureFingerprint', () => {
     });
   });
 
+  it('waits instead of refusing while the replay is outstanding (AC3, SC1)', () => {
+    for (const version of [null, '22.2.4']) {
+      const fingerprint = featureFingerprint(
+        { facts: {}, version, stateReceived: false, replayOutcome: 'outstanding' },
+        FEATURE_NAMES,
+      );
+
+      // The Surface contract's loading line: the page has not answered yet, so nothing is concluded.
+      expect(fingerprint.kind).toBe('awaiting-page');
+      if (fingerprint.kind !== 'awaiting-page') {
+        return;
+      }
+      expect(fingerprint.message).toContain('has not answered yet');
+      // The false claim this state exists to prevent, and no eight absences either.
+      expect(fingerprint.message).not.toBe('No Angular root found on this page');
+      expect(fingerprint.message).not.toContain('No Angular root found');
+      expect('entries' in fingerprint).toBe(false);
+    }
+  });
+
+  it('names the transport, not the page, when the replay failed (AC4)', () => {
+    const fingerprint = featureFingerprint(
+      { facts: {}, version: null, stateReceived: false, replayOutcome: 'failed' },
+      FEATURE_NAMES,
+    );
+
+    expect(fingerprint.kind).toBe('transport-failed');
+    if (fingerprint.kind !== 'transport-failed') {
+      return;
+    }
+    // A broken channel is never read as "this app has no Angular".
+    expect(fingerprint.message).toContain('extension message transport');
+    expect(fingerprint.message).not.toBe('No Angular root found on this page');
+    expect('entries' in fingerprint).toBe(false);
+  });
+
+  it('lets the refusal render only for an answered replay, never for the other outcomes (AC5)', () => {
+    const kindOf = (replayOutcome: PanelContext['replayOutcome']): string =>
+      featureFingerprint(
+        { facts: {}, version: null, stateReceived: false, replayOutcome },
+        FEATURE_NAMES,
+      ).kind;
+
+    expect(kindOf('answered')).toBe('no-angular-root');
+    expect(kindOf('outstanding')).toBe('awaiting-page');
+    expect(kindOf('failed')).toBe('transport-failed');
+  });
+
+  it('lets a received state decide before the outcome, so no feature waits on a stale replay (SC1)', () => {
+    for (const replayOutcome of ['outstanding', 'failed', 'answered'] as const) {
+      const fingerprint = featureFingerprint(context({ replayOutcome }), FEATURE_NAMES);
+
+      expect(fingerprint.kind, replayOutcome).toBe('fingerprint');
+      if (fingerprint.kind !== 'fingerprint') {
+        return;
+      }
+      expect(fingerprint.entries).toHaveLength(8);
+    }
+  });
+
   it('names the version and the absent debug surface when a version arrived with no state (SC3)', () => {
     const fingerprint = featureFingerprint(
-      { facts: {}, version: '22.2.4', stateReceived: false },
+      { facts: {}, version: '22.2.4', stateReceived: false, replayOutcome: 'answered' },
       FEATURE_NAMES,
     );
 

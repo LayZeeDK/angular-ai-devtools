@@ -1,25 +1,31 @@
 import { type Signal, signal } from '@angular/core';
 import { describe, expect, it } from 'vitest';
-import { type PanelSignals, buildPanelContext } from './panel-context';
+import { type PanelSignals, type ReplayOutcome, buildPanelContext } from './panel-context';
 import { appFactsSnapshot } from './tool-registry/app-facts';
 
-/** The plain values a case varies; each becomes one of the four signals. */
+/** The plain values a case varies; each becomes one of the signals. */
 interface SignalValues {
   readonly features?: Readonly<Record<string, boolean>> | null;
   readonly zoneMode?: string | null;
   readonly stateReceived?: boolean;
   readonly appVersion?: string | null;
+  readonly replayOutcome?: ReplayOutcome;
   readonly notSupported?: boolean;
   readonly notSupportedReason?: string | null;
 }
 
-/** The service's signals as this spec builds them: real signals, defaulted to the silent page. */
+/**
+ * The service's signals as this spec builds them: real signals, defaulted to the silent page.
+ * The replay default is `'answered'` on purpose — a page nothing is waiting on — and every case
+ * that is about the outcome names it instead of inheriting it.
+ */
 function panelSignals(values: SignalValues = {}): PanelSignals {
   return {
     features: signal<Readonly<Record<string, boolean>> | null>(values.features ?? null),
     zoneMode: signal<string | null>(values.zoneMode ?? null),
     stateReceived: signal(values.stateReceived ?? false),
     appVersion: signal<string | null>(values.appVersion ?? null),
+    replayOutcome: signal<ReplayOutcome>(values.replayOutcome ?? 'answered'),
     notSupported: values.notSupported ?? false,
     notSupportedReason: values.notSupportedReason ?? null,
   };
@@ -43,10 +49,11 @@ const PUBLISHED = {
 
 describe('buildPanelContext', () => {
   it('returns facts with no supported key for a page that never announced state', () => {
-    const context = buildPanelContext(panelSignals());
+    const context = buildPanelContext(panelSignals({ replayOutcome: 'answered' }));
 
     expect(context.stateReceived).toBe(false);
     expect(context.version).toBeNull();
+    expect(context.replayOutcome).toBe('answered');
     expect(context.facts).toEqual({});
     expect('supported' in context.facts).toBe(false);
     // The downstream half of AC1: `app_facts` reads `{}` as silence, not as an unsupported app.
@@ -77,7 +84,11 @@ describe('buildPanelContext', () => {
       facts: { supported: true, reason: null, zoneMode: 'noop', features: PUBLISHED },
       version: '22.2.4',
       stateReceived: true,
+      replayOutcome: 'answered',
     });
+    // The outcome is carried, never narrowed or re-derived: a received state reports the replay's
+    // own value whatever it was.
+    expect(context.replayOutcome).toBe('answered');
     const snapshot = appFactsSnapshot(context.facts);
     expect(snapshot).not.toBeNull();
     expect(snapshot?.supported).toBe(true);
@@ -86,6 +97,23 @@ describe('buildPanelContext', () => {
     expect(snapshot?.features.setProfiler).toBe(true);
     expect(snapshot?.features.getSignalGraph).toBe(false);
     expect(snapshot?.features.getInjector).toBeNull();
+  });
+
+  it('copies the replay outcome unchanged at every value, and keeps a silent page silent', () => {
+    const outcomes: readonly ReplayOutcome[] = ['outstanding', 'answered', 'failed'];
+
+    for (const replayOutcome of outcomes) {
+      const context = buildPanelContext(panelSignals({ replayOutcome }));
+
+      // AC2: the adapter carries the outcome as it arrived and adds no `supported` key for a page
+      // that announced nothing, so `app_facts` keeps answering `host-unavailable` at every outcome.
+      expect(context.replayOutcome, replayOutcome).toBe(replayOutcome);
+      expect(context.stateReceived).toBe(false);
+      expect(context.version).toBeNull();
+      expect(context.facts).toEqual({});
+      expect('supported' in context.facts).toBe(false);
+      expect(appFactsSnapshot(context.facts)).toBeNull();
+    }
   });
 
   it('reports the page own refusal verbatim when it said not supported', () => {
@@ -136,21 +164,25 @@ describe('buildPanelContext', () => {
     const zoneMode = counted<string | null>('noop');
     const stateReceived = counted(true);
     const appVersion = counted<string | null>('22.2.4');
+    const replayOutcome = counted<ReplayOutcome>('answered');
 
     const context = buildPanelContext({
       features: features.signal,
       zoneMode: zoneMode.signal,
       stateReceived: stateReceived.signal,
       appVersion: appVersion.signal,
+      replayOutcome: replayOutcome.signal,
       notSupported: false,
       notSupportedReason: null,
     });
 
     expect(context.stateReceived).toBe(true);
+    expect(context.replayOutcome).toBe('answered');
     expect(features.reads()).toBe(1);
     expect(zoneMode.reads()).toBe(1);
     expect(stateReceived.reads()).toBe(1);
     expect(appVersion.reads()).toBe(1);
+    expect(replayOutcome.reads()).toBe(1);
   });
 
   it('is pure: equal signals give deep-equal contexts and neither input nor facts is mutated', () => {

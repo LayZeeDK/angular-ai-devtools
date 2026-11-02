@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { UpdateCauseService } from './n1-update-cause.service';
+import type { ReplayOutcome } from './panel-context';
 import { CAPACITY } from '../../../../src/main-world/error-capture';
 import type { CapturedError } from '../../../../src/main-world/error-capture';
 
@@ -50,6 +51,11 @@ export class ExtensionMessageService {
   // The `[ng-version]` the relay read, whether it arrived live or in the replay. A group gate and
   // the fingerprint chip read this; `null` is "the panel has not been told a version".
   readonly appVersion = signal<string | null>(null);
+  // What became of the one replay request below. `stateReceived === false` alone cannot tell "the
+  // page never announced" from "the answer is still coming", so the panel keeps the request's own
+  // outcome: `outstanding` until the background replies, `answered` for any reply that is not
+  // `{ ok: false }`, and `failed` when no relay or no transport answered.
+  readonly replayOutcome = signal<ReplayOutcome>('outstanding');
   readonly capturedErrors = signal<CapturedError[]>([]);
 
   constructor() {
@@ -69,19 +75,28 @@ export class ExtensionMessageService {
    * The page announces `angular-ai:state` when its content script runs — before this panel
    * document exists — so without the replay `stateReceived()` would stay `false` for a normal
    * DevTools session. There is deliberately no retry: a routing failure must stay visible.
+   *
+   * The reply is the only evidence that separates "no answer yet" from "answered, nothing
+   * latched", so it is read into `replayOutcome` instead of being discarded. The background
+   * answers `{ ok: false, reason }` when no relay answered for the tab (or nothing named a tab),
+   * and re-emits the latched `angular-ai:state` / `angular-detected` messages before answering
+   * `{ ok: true }`; writing the outcome in the callback keeps it behind those messages.
    */
   private requestReplay(runtime: ExtensionRuntime | undefined) {
     if (typeof runtime?.sendMessage !== 'function') {
+      // No transport to ask through, so nothing will ever answer: record the failure rather than
+      // leaving the panel waiting on a reply that cannot come.
+      this.replayOutcome.set('failed');
       return;
     }
     try {
-      // The reply comes back as the `angular-ai:state` and `angular-detected` messages below;
-      // the callback only keeps this a callback-style send, so no promise is left unhandled
-      // when no service worker is listening.
-      runtime.sendMessage({ type: 'angular-ai:state-request', tabId: this.inspectedTabId }, () => {});
+      runtime.sendMessage({ type: 'angular-ai:state-request', tabId: this.inspectedTabId }, (reply) => {
+        this.replayOutcome.set(isFailedReply(reply) ? 'failed' : 'answered');
+      });
     } catch {
-      // No extension context to ask (a plain page load, a spec): the signals keep their
-      // "cannot tell" values rather than throwing out of construction.
+      // No extension context to ask (a plain page load): the signals keep their "cannot tell"
+      // values rather than throwing out of construction, and the failed replay stays visible.
+      this.replayOutcome.set('failed');
     }
   }
 
@@ -125,6 +140,17 @@ export class ExtensionMessageService {
       });
     }
   }
+}
+
+/**
+ * Whether the background's replay reply is its refusal (`background.js`): `{ ok: false, reason }`
+ * when no relay answered for the tab or the request named no tab. Anything else — including no
+ * reply at all in a callback that never fires — is not this service's to diagnose.
+ */
+function isFailedReply(reply: unknown): boolean {
+  return (
+    typeof reply === 'object' && reply !== null && (reply as { ok?: unknown }).ok === false
+  );
 }
 
 /**

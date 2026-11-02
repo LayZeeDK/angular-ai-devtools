@@ -10,9 +10,9 @@
  *
  * Three page classes, three states, and they never blur (N4):
  *
- * 1. **`no-angular-root`** — neither a version nor a state. The refusal names the evidence with a
- *    sentence, because the detector also misses a root created through
- *    `ViewContainerRef.createComponent`, which carries no `ng-version` either.
+ * 1. **`no-angular-root`** — the page answered the replay and announced neither a version nor a
+ *    state. The refusal names the evidence with a sentence, because the detector also misses a root
+ *    created through `ViewContainerRef.createComponent`, which carries no `ng-version` either.
  * 2. **`cannot-tell`** — a version arrived and no usable state did (a production build with
  *    `ngDevMode` off, or a page that never announced), or a state arrived whose feature map held
  *    no boolean at all. The message says which of the two it was; it never renders zero entries
@@ -20,6 +20,13 @@
  * 3. **`fingerprint`** — a state arrived carrying at least one boolean bit. Every name asked for
  *    is rendered, present or absent, so a feature the app does not have is named as absent rather
  *    than dropped.
+ *
+ * Silence alone cannot tell 1 from "asked, no answer yet" (`T008`): a page that announced nothing
+ * is the same pair — `stateReceived === false`, `version === null` — whether the replay is still
+ * outstanding, failed, or came back empty. So a page that announced nothing is classified by the
+ * replay's outcome first: `outstanding` is **`awaiting-page`**, failed is **`transport-failed`**,
+ * and only an `answered` replay reaches 1 or 2. A received state never consults the outcome: the
+ * page's own announcement is the stronger evidence and decides first.
  *
  * The context's own `stateReceived` decides between 2 and a fingerprint, never
  * `notSupported()` — that signal's default is "not negative", so it cannot tell silence from
@@ -33,16 +40,18 @@
  * so the caller keeps one vocabulary and this module keeps no runtime import at all — the
  * held-out suite loads it with `node --experimental-strip-types`.
  */
-import type { PanelContext } from './panel-context';
+import type { PanelContext, ReplayOutcome } from './panel-context';
 
 /** One feature name and what the page published for it. */
 export type FeatureFingerprintEntry = { readonly name: string; readonly present: boolean };
 
 /**
  * What the chip renders. `entries` is present only in the fingerprint state, so a caller cannot
- * mistake "cannot tell" for eight measured absences.
+ * mistake any of the page states for eight measured absences.
  */
 export type FeatureFingerprint =
+  | { kind: 'awaiting-page'; message: string }
+  | { kind: 'transport-failed'; message: string }
   | { kind: 'no-angular-root'; message: string }
   | { kind: 'cannot-tell'; message: string; version: string | null }
   | {
@@ -55,11 +64,33 @@ export type FeatureFingerprint =
     };
 
 /**
- * The refusal for a page with no Angular root. It names the evidence rather than guessing at a
- * cause: a root built through `ViewContainerRef.createComponent` also carries no `ng-version`,
- * so "no root found" is the honest sentence.
+ * The refusal for a page that answered the replay with no Angular root. It names the evidence
+ * rather than guessing at a cause: a root built through `ViewContainerRef.createComponent` also
+ * carries no `ng-version`, so "no root found" is the honest sentence.
  */
 const NO_ANGULAR_ROOT_MESSAGE = 'No Angular root found on this page';
+
+/**
+ * The waiting line the Surface contract asks for: the page has not answered the one request yet,
+ * so there is nothing to conclude. It never borrows the refusal's sentence.
+ */
+const AWAITING_PAGE_MESSAGE =
+  'The page has not answered yet: the panel asked once for the state and version the page latched, and that reply is still outstanding, so no feature can be named';
+
+/**
+ * The failure line for a replay that no transport delivered: no relay was listening for the tab,
+ * or the runtime had no way to ask. It names the transport, not the page, so a broken channel is
+ * never read as "this app has no Angular".
+ */
+const TRANSPORT_FAILED_MESSAGE =
+  'The extension message transport delivered no answer for this page: the panel asked once for the state and version the page latched and that request failed, so no feature can be named';
+
+/**
+ * The outcome a context without one is read as: `buildPanelContext` always writes the field, so a
+ * context that omits it was written by hand and predates the replay outcome — the pre-repair answer
+ * is the conservative reading, and it never invents a waiting state nothing is waiting on.
+ */
+const ASSUMED_OUTCOME: ReplayOutcome = 'answered';
 
 /** The `<name>: present` / `<name>: absent` separator. One middle dot, deterministically. */
 const ENTRY_SEPARATOR = ' · ';
@@ -81,6 +112,16 @@ export function featureFingerprint(
   const version = readVersion(context.version);
 
   if (!context.stateReceived) {
+    // A page that announced nothing is the shape both "no root" and "no answer yet" take, so the
+    // replay's outcome decides before the refusal does (`T008`, the Surface contract's loading
+    // line). `outstanding` and `failed` come first: neither is a conclusion about the page.
+    const outcome = context.replayOutcome ?? ASSUMED_OUTCOME;
+    if (outcome === 'outstanding') {
+      return { kind: 'awaiting-page', message: AWAITING_PAGE_MESSAGE };
+    }
+    if (outcome === 'failed') {
+      return { kind: 'transport-failed', message: TRANSPORT_FAILED_MESSAGE };
+    }
     if (version === null) {
       return { kind: 'no-angular-root', message: NO_ANGULAR_ROOT_MESSAGE };
     }

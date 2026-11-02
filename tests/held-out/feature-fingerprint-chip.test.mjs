@@ -34,17 +34,24 @@ function received(features, overrides = {}) {
     facts: { supported: true, reason: null, zoneMode: "noop", features },
     version: "22.2.4",
     stateReceived: true,
+    replayOutcome: "answered",
     ...overrides,
   };
 }
 
-/** The panel's signals as plain getters, so the adapter runs without Angular. */
+/**
+ * The panel's signals as plain getters, so the adapter runs without Angular.
+ *
+ * The replay default is an explicit `answered` — a page nothing is waiting on — never inherited:
+ * every case about the waiting or failed state names its own outcome.
+ */
 function signals(values) {
   return {
     features: () => values.features ?? null,
     zoneMode: () => values.zoneMode ?? null,
     stateReceived: () => values.stateReceived ?? false,
     appVersion: () => values.appVersion ?? null,
+    replayOutcome: () => values.replayOutcome ?? "answered",
     notSupported: values.notSupported ?? false,
     notSupportedReason: values.notSupportedReason ?? null,
   };
@@ -170,9 +177,10 @@ test("the adapter and the chip agree end to end on a state the page announced", 
   );
 });
 
-test("a page that never announced state renders the named refusal, not a chip", () => {
-  const silent = buildPanelContext(signals({}));
+test("a page that never announced state renders the named refusal once the replay answered, not a chip", () => {
+  const silent = buildPanelContext(signals({ replayOutcome: "answered" }));
   assert.equal(silent.stateReceived, false);
+  assert.equal(silent.replayOutcome, "answered");
   assert.deepEqual(silent.facts, {});
 
   const refusal = featureFingerprint(silent, FEATURE_NAMES);
@@ -181,8 +189,65 @@ test("a page that never announced state renders the named refusal, not a chip", 
   assert.equal("entries" in refusal, false);
 });
 
+test("an outstanding replay renders the waiting line and never the refusal", () => {
+  const pending = buildPanelContext(signals({ replayOutcome: "outstanding" }));
+  assert.equal(pending.stateReceived, false);
+  assert.equal(pending.replayOutcome, "outstanding");
+  // Carried unchanged, and still silent: no `supported` key is invented for a page mid-answer.
+  assert.deepEqual(pending.facts, {});
+
+  const waiting = featureFingerprint(pending, FEATURE_NAMES);
+  assert.equal(waiting.kind, "awaiting-page");
+  assert.ok(
+    waiting.message.includes("has not answered yet"),
+    `the waiting line must name that the page has not answered yet — got: ${waiting.message}`,
+  );
+  assert.notEqual(waiting.message, "No Angular root found on this page");
+  assert.equal(waiting.message.includes("No Angular root found"), false);
+  assert.equal("entries" in waiting, false);
+  assert.equal("version" in waiting, false);
+});
+
+test("a failed replay names the transport, not the page", () => {
+  const failed = buildPanelContext(signals({ replayOutcome: "failed" }));
+  assert.equal(failed.replayOutcome, "failed");
+  assert.deepEqual(failed.facts, {});
+
+  const state = featureFingerprint(failed, FEATURE_NAMES);
+  assert.equal(state.kind, "transport-failed");
+  assert.ok(
+    state.message.includes("extension message transport"),
+    `the failure line must name the extension message transport — got: ${state.message}`,
+  );
+  assert.notEqual(state.message, "No Angular root found on this page");
+  assert.equal("entries" in state, false);
+});
+
+test("only an answered replay reaches the refusal; the other outcomes never do", () => {
+  const kindOf = (replayOutcome) =>
+    featureFingerprint(
+      { facts: {}, version: null, stateReceived: false, replayOutcome },
+      FEATURE_NAMES,
+    ).kind;
+
+  assert.equal(kindOf("answered"), "no-angular-root");
+  assert.equal(kindOf("outstanding"), "awaiting-page");
+  assert.equal(kindOf("failed"), "transport-failed");
+});
+
+test("a received state decides before the replay outcome, so no feature waits or fails", () => {
+  for (const replayOutcome of ["outstanding", "failed", "answered"]) {
+    const fingerprint = featureFingerprint(
+      received(ALL_ABSENT, { replayOutcome }),
+      FEATURE_NAMES,
+    );
+    assert.equal(fingerprint.kind, "fingerprint", replayOutcome);
+    assert.equal(fingerprint.entries.length, 8);
+  }
+});
+
 test("a version with no state cannot be told, and never renders eight absences", () => {
-  const versioned = buildPanelContext(signals({ appVersion: "22.2.4" }));
+  const versioned = buildPanelContext(signals({ appVersion: "22.2.4", replayOutcome: "answered" }));
 
   const fingerprint = featureFingerprint(versioned, FEATURE_NAMES);
   assert.equal(fingerprint.kind, "cannot-tell");

@@ -3,12 +3,14 @@
  *
  * One case per render state the task names: a fingerprint with two present and six absent, the
  * all-false payload, `supported: false` with the page's reason verbatim and no zone claim, the
- * `cannot-tell` state, the `no-angular-root` refusal, a group a feature bit withholds (no header),
- * and an empty projection (no header, the projection's own `emptyReason`). Two cases drive the
- * calling convention instead of the pixels: the same `PanelContext` reaches `registry.execute`,
- * so `app_facts` answers a `result` on a live page and `host-unavailable` only on a silent one.
+ * `cannot-tell` state, the `no-angular-root` refusal, the `awaiting-page` waiting line before the
+ * replay answers, the `transport-failed` state when it never does, a group a feature bit withholds
+ * (no header), and an empty projection (no header, the projection's own `emptyReason`). Two cases
+ * drive the calling convention instead of the pixels: the same `PanelContext` reaches
+ * `registry.execute`, so `app_facts` answers a `result` on a live page and `host-unavailable` only
+ * on a silent one.
  *
- * The page channel is a fake exposing the four signals `panel-context.ts` reads, because the real
+ * The page channel is a fake exposing the signals `panel-context.ts` reads, because the real
  * `ExtensionMessageService` talks to `chrome.runtime` in its constructor and this suite is about
  * what the component does with the signals. The registry is either a stub that records the
  * `execute` call, or the real one built by `provideAppFactsTool()`, so the `host-unavailable` claim
@@ -20,6 +22,7 @@ import { describe, expect, it } from 'vitest';
 import { ChatEntryComponent } from './chat-entry.component';
 import { appRoutes } from './app.routes';
 import { ExtensionMessageService } from './extension-message.service';
+import type { ReplayOutcome } from './panel-context';
 import { InteropComponent } from './interop.component';
 import {
   APP_FACT_FEATURES,
@@ -62,6 +65,7 @@ interface Page {
   readonly zoneMode?: string | null;
   readonly stateReceived?: boolean;
   readonly appVersion?: string | null;
+  readonly replayOutcome?: ReplayOutcome;
   readonly notSupported?: boolean;
   readonly notSupportedReason?: string | null;
 }
@@ -72,6 +76,7 @@ interface FakeExtension {
   readonly zoneMode: WritableSignal<string | null>;
   readonly stateReceived: WritableSignal<boolean>;
   readonly appVersion: WritableSignal<string | null>;
+  readonly replayOutcome: WritableSignal<ReplayOutcome>;
   readonly notSupported: WritableSignal<boolean>;
   readonly notSupportedReason: WritableSignal<string | null>;
 }
@@ -104,6 +109,8 @@ function fakeExtension(page: Page = {}): FakeExtension {
     zoneMode: signal<string | null>(page.zoneMode ?? null),
     stateReceived: signal(page.stateReceived ?? false),
     appVersion: signal<string | null>(page.appVersion ?? null),
+    // A page nothing is waiting on; the cases about the replay name their outcome.
+    replayOutcome: signal<ReplayOutcome>(page.replayOutcome ?? 'answered'),
     notSupported: signal(page.notSupported ?? false),
     notSupportedReason: signal<string | null>(page.notSupportedReason ?? null),
   };
@@ -275,7 +282,9 @@ describe('ChatEntryComponent', () => {
   });
 
   it('names the cannot-tell state with the version and the absent debug surface (N4)', () => {
-    const { fixture } = renderChat({ page: { stateReceived: false, appVersion: '22.2.2' } });
+    const { fixture } = renderChat({
+      page: { stateReceived: false, appVersion: '22.2.2', replayOutcome: 'answered' },
+    });
 
     expect(has(fixture, 'cannot-tell')).toBe(true);
     expect(has(fixture, 'no-angular-root')).toBe(false);
@@ -288,7 +297,7 @@ describe('ChatEntryComponent', () => {
   });
 
   it('refuses by name on a page with no Angular root and renders no chip entry (SC3)', () => {
-    const { fixture } = renderChat();
+    const { fixture } = renderChat({ page: { replayOutcome: 'answered' } });
 
     expect(has(fixture, 'no-angular-root')).toBe(true);
     expect(text(fixture, 'no-angular-root')).toBe('No Angular root found on this page');
@@ -299,6 +308,35 @@ describe('ChatEntryComponent', () => {
     // The list explains itself instead of offering a group it cannot gate.
     expect(all(fixture, 'group-title')).toHaveLength(0);
     expect(text(fixture, 'empty-groups')).toContain('cannot be compared');
+  });
+
+  it('waits by name before the replay answers, and never shows the refusal (AC3, SC1)', () => {
+    const { fixture, calls } = renderChat({ page: { replayOutcome: 'outstanding' } });
+
+    // The Surface contract's loading line, through the state's own test id.
+    expect(has(fixture, 'awaiting-page')).toBe(true);
+    expect(text(fixture, 'awaiting-page')).toContain('has not answered yet');
+    // The defect this repair fixes: no refusal, and no invented absences, while the reply is out.
+    expect(has(fixture, 'no-angular-root')).toBe(false);
+    expect(all(fixture, 'chip-entry')).toHaveLength(0);
+
+    // The list still explains itself rather than offering a group it cannot gate, and the one
+    // `app_facts` call still ran over the silent facts — silence is never read as a claim.
+    expect(all(fixture, 'group-title')).toHaveLength(0);
+    expect(text(fixture, 'empty-groups')).toContain('cannot be compared');
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.context?.facts).toEqual({});
+  });
+
+  it('names the failed transport instead of the page when the replay failed (AC4)', () => {
+    const { fixture } = renderChat({ page: { replayOutcome: 'failed' } });
+
+    expect(has(fixture, 'transport-failed')).toBe(true);
+    expect(text(fixture, 'transport-failed')).toContain('extension message transport');
+    // A broken channel is never read as a non-Angular page, and never as a wait.
+    expect(has(fixture, 'no-angular-root')).toBe(false);
+    expect(has(fixture, 'awaiting-page')).toBe(false);
+    expect(all(fixture, 'chip-entry')).toHaveLength(0);
   });
 
   it('renders no group header at all and the projection emptyReason when every gate fails (E5)', () => {
@@ -357,7 +395,7 @@ describe('ChatEntryComponent', () => {
   });
 
   it('lets app_facts answer host-unavailable only for a page that never announced state', async () => {
-    const { fixture } = renderChat({ registry: 'app-facts' });
+    const { fixture } = renderChat({ registry: 'app-facts', page: { replayOutcome: 'answered' } });
 
     await settle(fixture);
     const line = text(fixture, 'app-facts');
