@@ -67,6 +67,7 @@ function page(values: {
     facts,
     version: values.version === undefined ? '22.2.2' : values.version,
     stateReceived: true,
+    replayOutcome: 'answered',
   };
 }
 
@@ -307,6 +308,7 @@ describe('projectToolGroups', () => {
       facts: {},
       version: '22.2.2',
       stateReceived: false,
+      replayOutcome: 'answered',
     });
 
     // No `supported` boolean is not a contradicting fact, so the version still decides: the groups

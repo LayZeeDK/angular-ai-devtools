@@ -183,6 +183,17 @@ describe('featureFingerprint', () => {
     expect(kindOf('failed')).toBe('transport-failed');
   });
 
+  it('concludes nothing about a context that names no replay outcome at all (P001 hardening)', () => {
+    // The field is required, so only an untyped caller can omit it. The omitted reading must never
+    // be `answered`: that is the one value that would let a silent page be called "no Angular root".
+    const unnamed = { facts: {}, version: null, stateReceived: false } as unknown as PanelContext;
+
+    const fingerprint = featureFingerprint(unnamed, FEATURE_NAMES);
+
+    expect(fingerprint.kind).toBe('awaiting-page');
+    expect(fingerprint.kind).not.toBe('no-angular-root');
+  });
+
   it('lets a received state decide before the outcome, so no feature waits on a stale replay (SC1)', () => {
     for (const replayOutcome of ['outstanding', 'failed', 'answered'] as const) {
       const fingerprint = featureFingerprint(context({ replayOutcome }), FEATURE_NAMES);

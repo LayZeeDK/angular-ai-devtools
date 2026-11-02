@@ -85,13 +85,6 @@ const AWAITING_PAGE_MESSAGE =
 const TRANSPORT_FAILED_MESSAGE =
   'The extension message transport delivered no answer for this page: the panel asked once for the state and version the page latched and that request failed, so no feature can be named';
 
-/**
- * The outcome a context without one is read as: `buildPanelContext` always writes the field, so a
- * context that omits it was written by hand and predates the replay outcome — the pre-repair answer
- * is the conservative reading, and it never invents a waiting state nothing is waiting on.
- */
-const ASSUMED_OUTCOME: ReplayOutcome = 'answered';
-
 /** The `<name>: present` / `<name>: absent` separator. One middle dot, deterministically. */
 const ENTRY_SEPARATOR = ' · ';
 
@@ -114,13 +107,15 @@ export function featureFingerprint(
   if (!context.stateReceived) {
     // A page that announced nothing is the shape both "no root" and "no answer yet" take, so the
     // replay's outcome decides before the refusal does (`T008`, the Surface contract's loading
-    // line). `outstanding` and `failed` come first: neither is a conclusion about the page.
-    const outcome = context.replayOutcome ?? ASSUMED_OUTCOME;
-    if (outcome === 'outstanding') {
-      return { kind: 'awaiting-page', message: AWAITING_PAGE_MESSAGE };
-    }
+    // line). Only `answered` may conclude anything about the page: `failed` has its own state, and
+    // `outstanding` — or any value that is not a known outcome — concludes nothing, because
+    // `answered` is the one reading that would let the chip claim a page has no Angular root (N4).
+    const outcome: ReplayOutcome | undefined = context.replayOutcome;
     if (outcome === 'failed') {
       return { kind: 'transport-failed', message: TRANSPORT_FAILED_MESSAGE };
+    }
+    if (outcome !== 'answered') {
+      return { kind: 'awaiting-page', message: AWAITING_PAGE_MESSAGE };
     }
     if (version === null) {
       return { kind: 'no-angular-root', message: NO_ANGULAR_ROOT_MESSAGE };

@@ -66,15 +66,17 @@ export type PanelSignals = {
  * `ToolContext` would read, the version the gates compare, whether the page ever spoke, and what
  * became of the replay that would have told the panel more.
  *
- * `replayOutcome` is optional for one reason only: a context written by hand — a spec fixture, a
- * caller with no replay of its own — predates the field and must keep compiling. `buildPanelContext`
- * always writes it, so every context built from the service's signals carries a real outcome.
+ * `replayOutcome` is required: a context that does not know the replay's outcome has to say so,
+ * because `answered` is the one value that lets the chip conclude something about the page. Making
+ * it optional let a hand-built context silently read as `answered`, which is the false claim the
+ * T008 repair removed from production (`final-gap-3` P001); `buildPanelContext` always writes the
+ * outcome it read, so every context built from the service's signals carries a real one.
  */
 export type PanelContext = {
   readonly facts: Readonly<Record<string, unknown>>;
   readonly version: string | null;
   readonly stateReceived: boolean;
-  readonly replayOutcome?: ReplayOutcome;
+  readonly replayOutcome: ReplayOutcome;
 };
 
 /**
