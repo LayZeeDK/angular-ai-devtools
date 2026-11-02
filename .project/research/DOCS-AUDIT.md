@@ -1005,27 +1005,17 @@ Alignment mode: no
 
 ## User rulings
 
+
+Ruled 2026-11-02 under the recorded `rulings` grant. Every row below is
+`fix-doc`: the document keeps its claim and the audit row records the shipped
+check that would settle it. `Planned: no` means the row stays in the alignment
+queue and is owed, not drained.
+
 | Queue # | Ruling | User's words | Planned |
-|---------|--------|--------------|---------|
-| 64 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 133 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 136 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 152 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 172 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 173 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 174 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 177 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 186 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 198 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 203 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 206 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 207 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 211 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 214 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 219 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 223 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 99 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 100 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+|---|---|---|---|
+| 284 | fix-doc | "A fresh session should be able to run /gsd-path to complete the next milestone end-to-end without a human-in-the-loop, with full milestone decision authority." | no |
+| 319 | fix-doc | "A fresh session should be able to run /gsd-path to complete the next milestone end-to-end without a human-in-the-loop, with full milestone decision authority." | no |
+| 320 | fix-doc | "A fresh session should be able to run /gsd-path to complete the next milestone end-to-end without a human-in-the-loop, with full milestone decision authority." | no |
 
 ## Remediation queue
 

@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: context-and-jobs
-phase: inspect
+phase: define
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
@@ -350,3 +350,6 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-02 — shipped — archive preflight passed; shipment recorded
 - 2026-11-02 — inspect — router bound next milestone: M019 context-and-jobs at base 3dfdcf0 landing 3dfdcf0
 - 2026-11-02 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-02 — inspect — inspection artifacts passed
+- 2026-11-02 — define — definition started
+- 2026-11-02 — define — pre-authorized approval: intent
