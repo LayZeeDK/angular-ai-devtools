@@ -138,7 +138,7 @@ Lars asked: "Could we manage multiple Chrome Beta instances - one with Nano and 
 | `.browsers/chrome-beta-nano` | 9333 | `AIPromptAPIToolUse` | `v3Nano` 4.0 GB | available |
 | `.browsers/chrome-beta-gemma4` | 9334 | `AIPromptAPIToolUse`, `OnDeviceModelConversationBackend`, `AIApiFoundationalModel:model_version/v4`, `OptimizationGuideManifestBroker` | `gemma4-2b-it` 2.4 GB | available |
 | `.browsers/edge-dev-aion` | 9335 | `msEdgeLLMOnDeviceModelMuffinToolUseWorkaround`, `msEdgeLLMOnDeviceModelPrerelease` | Aion 1.3 GB | available |
-| `.browsers/edge-dev-phi4mini` | 9336 | none (base set) | nothing | available on GPU (Edge stable 155) |
+| `.browsers/edge-phi4mini` | 9337 | none (base set) | nothing | available on GPU (Edge stable 155) |
 
 Base sets: Chrome `AIPromptAPI,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP`; Edge `AIPromptAPI,AIPromptAPIStructuredOutput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,WebMCP`. The Edge names were read from Lars's Edge Dev `edge://version` command line.
 

@@ -36,7 +36,7 @@ Preconditions:
   `20`; snapshot shows the six column headers.
 - **Details.** `playwright-cli -s=<session> click "getByRole('row').nth(1)"`, then `run-code "async page => {
   await page.waitForURL(/\/contract\/.+\/details/); await page.waitForLoadState('networkidle'); return
-  page.url(); }"`. Snapshot shows `heading "Contract Details Edit"`, the policy number of the clicked row and
+  page.url(); }"`. Snapshot shows the `Contract Details` title with a separate `Edit` button, the policy number of the clicked row and
   `link "<customer name>"` with `/url: /customer/<id>/details`.
 - **API side effect.** `playwright-cli -s=<session> requests` lists `GET http://localhost:3000/api/contracts/<id>`.
 - **Angular state.** `eval "() => __ngc.components()"` on details lists `DetailsComponent`,

@@ -116,7 +116,7 @@ Install `typescript-eslint` explicitly — pnpm's strict hoisting won't auto-res
 
 ### ESLint Version Pinning (Critical)
 
-**Pin ESLint to v9** (`eslint@^9.0.0`). ESLint 10 breaks `@nx/eslint` and many plugins with cryptic errors like `Cannot read properties of undefined (reading 'version')`.
+**Pin ESLint to v9 or v10** (`eslint@^9.0.0` or `eslint@^10.0.0`). `@nx/eslint` 23.3.0 peer-depends on `eslint@^9.0.0 || ^10.0.0`, so ESLint 10 is supported; the cryptic `Cannot read properties of undefined (reading 'version')` error comes from an ESLint 8 install, not from 10.
 
 `@nx/eslint` may peer-depend on ESLint 8, causing the wrong version to resolve. If lint fails with `Cannot read properties of undefined (reading 'allow')`, add `pnpm.overrides`:
 

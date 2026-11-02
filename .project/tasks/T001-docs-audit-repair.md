@@ -3,9 +3,9 @@ id: T001
 title: Repair the regenerated docs audit so both documentation pins are green at the base
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: 6f9998937a248b3ca9cc76eee14888b63495ae0e
 worktree: null
 task_branch: null
 files:
@@ -82,3 +82,51 @@ Heavy: no
 ## Log
 
 - 2026-11-02 — created by planner
+- build_T001: repaired .project/research/DOCS-AUDIT.md (124 unverifiable rows now name a settling check in both cells; seven carry no command in this checkout plus their external artifact; docs/autonomy-gaps.md moved to Descriptive docs with the S6 sentence and tally 2; Summary 648 verified / 2 stale / 3 aspirational / 124 unverifiable / 2 descriptive = 777 rows across 142 documents; rulings 99 and 100 sit last so E6 prior-prefix holds; the 17 ruled corrections applied in their documents and recorded as Planned T001) and the 17 documents they name (both control-ai-browsers mirror trees byte-identical). Verify npm ci --include=dev && node --test scripts/docs-audit-disposition.test.mjs scripts/autonomy-gaps.test.mjs exit 0: 18 tests, 18 pass, 0 fail (E5, E6, E7 green with the seven exemptions 422/531/536/537/578/584/595; S1-S6 green); adjacent docs-correction + doc-fix-alignment 20/20 green; pins under scripts/ unmodified.
+- ready
+- 2026-11-02 — orchestrator Verify (isolate gsd-path-task/T001): pass, exit 0; output tail:
+  ```
+  ✔ E6 queue numbers stay unique, increasing and bound to their items (877.3268ms)
+  ✔ E7 every remaining row names a shipped command, never a prose verb (27.2727ms)
+  ℹ tests 18
+  ℹ suites 0
+  ℹ pass 18
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 1321.1089
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```
+- 2026-11-02 — orchestrator Verify (isolate gsd-path-task/T001): pass, exit 0; output tail:
+  ```
+  ✔ E6 queue numbers stay unique, increasing and bound to their items (1086.2584ms)
+  ✔ E7 every remaining row names a shipped command, never a prose verb (32.681ms)
+  ℹ tests 18
+  ℹ suites 0
+  ℹ pass 18
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 1611.6257
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```

@@ -37,7 +37,9 @@ dev page served whose route exercises `toSignal` (the `spikes/ng222-app` fixture
 - Required panel test ids: `interop-slice` (container), `interop-node` (one per sliced node), `interop-limit` (the
   cannot-name statement), `interop-inferred` (the attribution wording), plus the shared `explain`, `ai-answer`,
   `empty-state` and `owning-component`.
-- Implementation: `apps/angular-ai-devtools/src/app/interop.component.ts`; message types `angular-ai:interop`.
+- Implementation: `apps/angular-ai-devtools/src/app/interop.component.ts`; no runtime message type.
+  The component sends no message and reads the slices through `ExtensionMessageService`, so
+  `angular-ai:interop` does not exist.
 
 ## Gotchas
 
