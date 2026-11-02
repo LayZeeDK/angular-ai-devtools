@@ -147,3 +147,17 @@ Ground truth for this milestone, from `.project/research/evidence-codebase.md`:
 - No doc-vs-code ruling is taken here; the `NEEDS-USER` rows of
   `.project/research/DOCS-AUDIT.md` are ruled in that file's `## User rulings`
   table, which is the durable queue.
+- SC3 clone target (delegated ruling, 2026-11-02, under the recorded grant
+  `intent,plan,rulings,ship` quoted above): "one fresh clone per prompt" means
+  one fresh language-model session per prompt, which is what the panel's prompt
+  path already does; it does not require a `LanguageModelSession.clone()` call,
+  which research/01 §7 records only as an inferred optimisation ("keep one
+  long-lived base session ... and `clone()` per question") and which no M019
+  task owns. Measured on the real prompt path at T006's base: `lm.create` 1,
+  `session.prompt` 1, `session.destroy` 1, `structuredClone` 0,
+  `session.clone` 0 per prompt assembly. T006 therefore commits the observed
+  fresh-session count (1) together with those raw primitive counts, the method
+  and the command, and inventing a `clone()` count would violate N4. Marked
+  delegated: the owner's standing instruction
+  "complete the next milestone end-to-end without a human-in-the-loop, with full
+  milestone decision authority" is the granting instruction.
