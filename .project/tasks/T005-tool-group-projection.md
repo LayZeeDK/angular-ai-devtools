@@ -3,9 +3,9 @@ id: T005
 title: Project the registered declarations into version-gated tool groups beside the pinned envelope
 wave: 2
 deps: [T004]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T005
+base: 1c39a07349ce4918c762793b9c299b9a17c3dc12
 worktree: null
 task_branch: null
 files:
@@ -61,3 +61,28 @@ Heavy: yes
 ## Log
 
 - 2026-11-02 — created by planner
+- build_T005: added tool-groups.ts - TOOL_GROUPS with six groups, every minVersion 22.1.3 because that is the floor the extension hard-blocks below, membership by id, requiredFeature on the three groups that read a page bit; projectToolGroups gates version first (absent or unparseable version withholds every group with the cannot-tell reason and opens none, never angularVersionGate's permissive answer), then the facts (supported: false quoted verbatim, a requiredFeature that is not true named by its bit, unpublished counting as not true), then membership and publish, counting only publish === 'model' so panel_environment reaches no group and its group is withheld with a reason naming publish; emptyReason is non-null exactly when groups is empty and names every withheld group with its own reason; membership resolves against the declarations handed in and drops ids that are not declared; type-only imports, so the module loads under plain node and calls no provideTools, declare or attach; tool-registry.ts untouched. Added tool-groups.spec.ts (14 cases: publish filter measured against the real registry declarations, undeclared ids dropped, E4 boundary pair, E5 all-fail, cannot-tell versions, N2 facts-win both ways, purity and the emptyReason rule) and tests/held-out/tool-group-gates.test.mjs (7 cases: E4 at-minimum versus one patch below, E5 empty list with every reason and the emptyReason, three unreadable versions, and that angularVersionGate's permissive unknown answer is not reused). Verify exit 0: npm ci --include=dev, npm run check clean, held-out suite 7/7 pass, nx tool-groups.spec.ts 14/14 pass uncached; registry-envelope-pin still green at 20859b88...0407e with tool-registry.ts unmodified.
+- ready
+- 2026-11-02 — orchestrator Verify (sidecar gsd-path-verify/task-t005-verify): pass, exit 0; output tail:
+  ```
+    Critical path:     1ms (1 task)
+    Recoverable time:  <1ms
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills && npm run check:panel
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  npm notice run check:panel
+  npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+  npm notice run npx
+  npm notice run nx run angular-ai-devtools:test --include=apps/angular-ai-devtools/src/app/tool-groups.spec.ts
+  ```
