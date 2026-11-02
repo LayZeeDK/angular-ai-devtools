@@ -697,8 +697,8 @@ Open questions
 Goal: Ship one tool registry that every explainer reads through — the declaration and backing records with their `kind`, `host`, `outcome` and `publish` fields — together with `app_facts`, the component and signal read wrappers, and the DOM role/name computation.
 Depends on: [M017]
 Surfaces: none
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/018-instrument-core
 Integrated: null
 
 Scope: in
