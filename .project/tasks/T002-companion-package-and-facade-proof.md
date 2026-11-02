@@ -3,9 +3,9 @@ id: T002
 title: Create the companion package and prove the facade survives a development build of the fixture
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002
+base: 6f9998937a248b3ca9cc76eee14888b63495ae0e
 worktree: null
 task_branch: null
 files:
@@ -81,3 +81,29 @@ Heavy: yes
 ## Log
 
 - 2026-11-02 — created by planner
+- build_T002: created packages/ai-devtools-companion (private ESM project, own tsc build target emitting its own dist, peer-only @angular deps) with the one globalThis.ngAiDevTools entry written inside provideAiDevTools under isDevMode from a writer module that imports no Angular, the vetted table 0.2202.0 vetted against 22.2.2 carrying Router and Meta as real classes, the facade test, and the dev-build proof; wired the fixture through a dev-only provider file with exactly one fileReplacements entry plus preserveSymlinks in the development configuration, the file: dependency and its lock entry, and recorded research/raw/companion-dev-build.json. Verify exit 0: npm ci --include=dev, npm --prefix spikes/ng222-app ci, node --test both files = 14 tests pass, 0 skipped. Proved E4 (own-string delta exactly ngAiDevTools, no symbol change, nothing removed), E5 (Object.is-identical second install, no throw), the probe rejecting three mutants, nx listing the project, symlink-anchored peers 22.2.2 matching the fixture own resolution while realpath-anchored is the root 22.1.8, and ng build --configuration development emitting main.js with ngAiDevTools and a single Router class under only the 22.2.2 banner versus both banners and Router2 with --preserve-symlinks false; the recording matches that build and the served page (isDevMode true, identity true, delta ngAiDevTools, Router declared 1 resolved 1, Meta declared 1 resolved 0).
+- build_T002: notes — the served reading was taken by a static server over the emitted development output through control-angular-dev-app session control-ngdev-url-4455, with the extension not loaded because building its panel is an optimized build outside N5, and none of the four recorded fields is written by the extension; Angular ɵgetRouterInstance takes the injector, so identity was measured with it and the niladic forms throw is recorded instead; Verify was run with NODE_ENV cleared because this host exports NODE_ENV=production, which makes npm ci omit the fixture devDependencies and leave no @angular/cli.
+- ready
+- 2026-11-02 — orchestrator Verify (isolate gsd-path-task/T002): pass, exit 0; output tail:
+  ```
+  ﹣ the served development-build recording is present, development-only and consistent (AC7) (0.0796ms) # the fixture install is absent (spikes/ng222-app/node_modules); run npm ci in spikes/ng222-app
+  ✔ no file this task writes names the removed bundle-optimizer option (N5) (3.2418ms)
+  ℹ tests 14
+  ℹ suites 0
+  ℹ pass 10
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 4
+  ℹ todo 0
+  ℹ duration_ms 6365.7875
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```

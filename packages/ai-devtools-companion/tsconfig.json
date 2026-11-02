@@ -1,0 +1,23 @@
+{
+  // The companion package's own type check and build config. `noEmit` is the default state so
+  // `npm run check:companion` (T003's fifth stage) compiles and writes nothing; the `build` target
+  // in `project.json` turns emit back on and writes the package's own git-ignored `dist`.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "types": [],
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"]
+}

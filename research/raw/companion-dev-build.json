@@ -1,0 +1,110 @@
+{
+  "probe": "M021 T002 companion facade: the development build of the counter fixture, and the served page",
+  "date": "2026-11-02",
+  "app": "spikes/ng222-app",
+  "angular": "22.2.2",
+  "package": {
+    "name": "ai-devtools-companion",
+    "version": "0.2202.0",
+    "vettedAgainst": "22.2.2"
+  },
+  "configuration": "development",
+  "buildCommand": "node node_modules/@angular/cli/bin/ng.js build --configuration development --output-path ../../tmp/facade-dev-build",
+  "outputPath": "tmp/facade-dev-build",
+  "build": {
+    "browserBundles": ["main.js"],
+    "unminified": true,
+    "entryName": "ngAiDevTools",
+    "entryPresent": true,
+    "devModeGuardPresent": true,
+    "routerClassBindingName": "Router",
+    "routerClassBoundOnce": true,
+    "angularVersionBanners": ["22.2.2"],
+    "angularCopies": 1
+  },
+  "peerResolution": {
+    "installedAs": "symlink",
+    "lockfileLinkEntry": true,
+    "installedRealPath": "../../packages/ai-devtools-companion",
+    "symlinkAnchoredVersions": {
+      "@angular/router": "22.2.2",
+      "@angular/platform-browser": "22.2.2"
+    },
+    "realPathAnchoredVersions": {
+      "@angular/router": "22.1.8",
+      "@angular/platform-browser": "22.1.8"
+    },
+    "fixtureOwnVersions": {
+      "@angular/router": "22.2.2",
+      "@angular/platform-browser": "22.2.2"
+    },
+    "rootOwnVersions": {
+      "@angular/router": "22.1.8",
+      "@angular/platform-browser": "22.1.8"
+    },
+    "chosenMechanism": "preserveSymlinks: true in the fixture's development configuration",
+    "why": "npm installs a directory file: specifier as a symlink (the fixture's lock records \"link\": true), so the builder's default realpath resolution anchors the package's @angular/* imports at the package root and pulls the root checkout's 22.1.8 into the same bundle as the fixture's 22.2.2. preserveSymlinks keeps the fixture's node_modules as the anchor, so the package resolves the fixture's own files and the entry's Router is the app's class."
+  },
+  "counterExample": {
+    "mechanism": "the same file: dependency with preserveSymlinks unset",
+    "angularVersionBanners": ["22.1.8", "22.2.2"],
+    "routerClassBindingName": "Router2",
+    "routerClassBindings": 2,
+    "meaning": "the entry's Router was the root checkout's class, so the identity comparison could not hold: declared, no resolved"
+  },
+  "served": {
+    "url": "http://localhost:4455/",
+    "how": "a static server over the emitted development output; read in the page's main world through control-angular-dev-app's playwright-cli session control-ngdev-url-4455",
+    "extensionLoaded": false,
+    "extensionNote": "the extension's panel is an optimized build and building it is outside this task (N5); none of the four fields below is written by the extension, and the entry-scoped key difference excludes the page's own bootstrap keys",
+    "isDevMode": true,
+    "isDevModeEvidence": "globalThis.ng is published only when ngDevMode is true, and the entry exists at all only because provideAiDevTools() writes it inside if (isDevMode())",
+    "ngGlobal": true,
+    "ngVersionAttribute": "22.2.2",
+    "identity": true,
+    "identityExpression": "ng.ɵgetRouterInstance(ng.getInjector(document.querySelector('app-root'))) === ng.getInjector(document.querySelector('app-root')).get(globalThis.ngAiDevTools['@angular/router'].Router)",
+    "identityWithoutInjectorArgument": "throws: Cannot read properties of undefined (reading 'get'); Angular's ɵgetRouterInstance takes the injector, which the niladic form omits",
+    "entry": {
+      "typeof": "object",
+      "version": "0.2202.0",
+      "ownKeys": ["@angular/platform-browser", "@angular/router", "version"],
+      "routerIsFunction": true,
+      "metaIsFunction": true
+    },
+    "ownKeys": {
+      "ownStringKeysAtDocumentStart": 1235,
+      "addedByBootstrap": ["devtoolsFormatters", "ng", "ngAiDevTools", "ngDevMode"],
+      "ownStringKeysWithEntry": 1239,
+      "ownStringKeysWithoutEntry": 1238,
+      "ownStringKeyDelta": ["ngAiDevTools"],
+      "ownStringKeysRemoved": [],
+      "ownSymbolKeysWithEntry": [],
+      "ownSymbolKeysWithoutEntry": [],
+      "ownSymbolKeysChanged": false,
+      "entryRestoredAfterSnapshot": true
+    },
+    "symbols": [
+      {
+        "pkg": "@angular/router",
+        "name": "Router",
+        "declared": 1,
+        "resolved": 1,
+        "matchedRecords": 1
+      },
+      {
+        "pkg": "@angular/platform-browser",
+        "name": "Meta",
+        "declared": 1,
+        "resolved": 0,
+        "matchedRecords": 0
+      }
+    ],
+    "injectorPath": [
+      { "type": "element", "providers": 6, "routerMatches": 0, "metaMatches": 0 },
+      { "type": "environment", "providers": 59, "routerMatches": 1, "metaMatches": 0 },
+      { "type": "environment", "providers": 8, "routerMatches": 0, "metaMatches": 0 },
+      { "type": "null", "providers": null }
+    ]
+  },
+  "verdict": "works: the one entry survives the development build, and its Router is the app's own class"
+}

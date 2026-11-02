@@ -47,7 +47,14 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "preserveSymlinks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/app/app.config.ts",
+                  "with": "src/app/app.config.dev.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"

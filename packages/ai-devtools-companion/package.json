@@ -1,0 +1,19 @@
+{
+  "name": "ai-devtools-companion",
+  "version": "0.2202.0",
+  "private": true,
+  "type": "module",
+  "description": "Opt-in companion package: one own globalThis table entry, written from provideAiDevTools() in development builds, carrying the Angular classes the panel compares provider records against by identity.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "peerDependencies": {
+    "@angular/core": "^22.2.0",
+    "@angular/platform-browser": "^22.2.0",
+    "@angular/router": "^22.2.0"
+  }
+}
