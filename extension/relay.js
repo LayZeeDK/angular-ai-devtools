@@ -1,6 +1,11 @@
 // relay.js — runs in ISOLATED world
 // Bridges between extension (chrome.runtime) and the MAIN-world agent
 let angularDetected = false;
+// Last-known state, latched. The page announces `angular-ai:state` once, when its content script
+// runs, which is before the DevTools panel document exists — so the panel cannot hear it live and
+// asks for this latch instead. Same shape `angularDetected` already uses.
+let lastState = null;
+let lastVersion = null;
 
 // Forward cycle records from the MAIN-world agent
 window.addEventListener('angular-ai:record', (e) => {
@@ -20,7 +25,16 @@ window.addEventListener('angular-ai:error-capture', (e) => {
 // Forward supported / not-supported state from the MAIN-world agent
 window.addEventListener('angular-ai:state', (e) => {
   const d = e.detail || {};
+  // Latch verbatim — the payload is carried as received, never reinterpreted here.
+  lastState = d;
   chrome.runtime.sendMessage({ type: 'angular-ai:state', ...d });
+});
+
+// Answer the panel's one replay request (routed here by the background) from the latch above.
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (!msg || msg.type !== 'angular-ai:replay-request') return false;
+  sendResponse({ state: lastState, version: lastVersion });
+  return true;
 });
 
 // Detect Angular and inject marker
@@ -30,6 +44,8 @@ function checkAngular() {
     if (!angularDetected) {
       angularDetected = true;
       const version = el.getAttribute('ng-version') || 'unknown';
+      // Latch the version this relay announced, so the panel can gate and display it later.
+      lastVersion = version;
       // Inject marker
       const marker = document.createElement('div');
       marker.id = 'angular-ai-devtools-marker';

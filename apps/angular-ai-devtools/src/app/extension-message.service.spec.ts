@@ -2,12 +2,19 @@ import { TestBed } from '@angular/core/testing';
 import { ExtensionMessageService } from './extension-message.service';
 import { UpdateCauseService } from './n1-update-cause.service';
 
+interface SentRequest {
+  type?: string;
+  tabId?: number;
+}
+
 const globalChrome = globalThis as unknown as { chrome?: unknown };
 
 describe('ExtensionMessageService', () => {
   let deliver: (msg: unknown) => void;
+  let requests: SentRequest[];
 
   beforeEach(() => {
+    requests = [];
     globalChrome.chrome = {
       devtools: { inspectedWindow: { tabId: 5 } },
       runtime: {
@@ -15,6 +22,11 @@ describe('ExtensionMessageService', () => {
           addListener(cb: (msg: unknown) => void): void {
             deliver = cb;
           },
+        },
+        // The panel asks the background (which asks the relay) once, at construction.
+        sendMessage(msg: SentRequest, callback?: (reply: unknown) => void): void {
+          requests.push(msg);
+          callback?.({ ok: true });
         },
       },
     };
@@ -97,5 +109,64 @@ describe('ExtensionMessageService', () => {
     // The existing behaviour is untouched: a supported page still flips neither negative signal.
     expect(ext.notSupported()).toBe(false);
     expect(ext.notSupportedReason()).toBeNull();
+  });
+
+  it('sends exactly one replay request per construction, naming the inspected tab', () => {
+    expect(requests).toEqual([{ type: 'angular-ai:state-request', tabId: 5 }]);
+    // A second construction asks once more — one request each, never a retry loop.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    TestBed.inject(ExtensionMessageService);
+    expect(requests.length).toBe(2);
+    expect(requests[1]).toEqual({ type: 'angular-ai:state-request', tabId: 5 });
+  });
+
+  it('writes a replayed state and version through all four signals', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+    expect(requests.length).toBe(1);
+    const features = { setProfiler: true, getSignalGraph: false, getInjector: true };
+    // What the background re-emits for a latched state, then for a latched version.
+    deliver({ type: 'angular-ai:state', supported: true, zoneMode: 'zone.js', features, tabId: 5 });
+    deliver({ type: 'angular-detected', version: '22.1.4', tabId: 5 });
+    expect(ext.features()).toEqual(features);
+    expect(ext.zoneMode()).toBe('zone.js');
+    expect(ext.stateReceived()).toBe(true);
+    expect(ext.appVersion()).toBe('22.1.4');
+  });
+
+  it('writes a live angular-detected into appVersion without a replay', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+    expect(ext.appVersion()).toBeNull();
+    deliver({ type: 'angular-detected', version: '22.2.2', tabId: 5 });
+    expect(ext.appVersion()).toBe('22.2.2');
+    // A detection alone is not a state record: the "cannot tell" state stays its own answer.
+    expect(ext.stateReceived()).toBe(false);
+  });
+
+  it('leaves appVersion null and stateReceived false when no reply arrives', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+    expect(requests.length).toBe(1);
+    expect(ext.appVersion()).toBeNull();
+    expect(ext.stateReceived()).toBe(false);
+    expect(ext.features()).toBeNull();
+    expect(ext.zoneMode()).toBeNull();
+  });
+
+  it('does not throw when chrome.runtime.sendMessage is absent', () => {
+    TestBed.resetTestingModule();
+    globalChrome.chrome = {
+      devtools: { inspectedWindow: { tabId: 5 } },
+      runtime: {
+        onMessage: {
+          addListener(cb: (msg: unknown) => void): void {
+            deliver = cb;
+          },
+        },
+      },
+    };
+    TestBed.configureTestingModule({});
+    expect(() => TestBed.inject(ExtensionMessageService)).not.toThrow();
+    // Nothing was asked of a chrome that cannot ask, and nothing was invented in its place.
+    expect(requests.length).toBe(1);
   });
 });

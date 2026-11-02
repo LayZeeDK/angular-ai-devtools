@@ -26,6 +26,16 @@ interface ExtensionMessage {
   timestamp?: number;
 }
 
+interface ExtensionRuntime {
+  onMessage?: { addListener: (cb: (msg: unknown) => void) => void };
+  sendMessage?: (msg: unknown, callback?: (reply: unknown) => void) => void;
+}
+
+interface ExtensionChrome {
+  runtime?: ExtensionRuntime;
+  devtools?: { inspectedWindow?: { tabId?: number } };
+}
+
 @Injectable({ providedIn: 'root' })
 export class ExtensionMessageService {
   private readonly causeService = inject(UpdateCauseService);
@@ -37,16 +47,41 @@ export class ExtensionMessageService {
   readonly features = signal<Readonly<Record<string, boolean>> | null>(null);
   readonly zoneMode = signal<string | null>(null);
   readonly stateReceived = signal(false);
+  // The `[ng-version]` the relay read, whether it arrived live or in the replay. A group gate and
+  // the fingerprint chip read this; `null` is "the panel has not been told a version".
+  readonly appVersion = signal<string | null>(null);
   readonly capturedErrors = signal<CapturedError[]>([]);
 
   constructor() {
-    const chrome = (globalThis as { chrome?: { runtime?: { onMessage?: { addListener: (cb: (msg: unknown) => void) => void } }; devtools?: { inspectedWindow?: { tabId?: number } } } }).chrome;
+    const chrome = (globalThis as { chrome?: ExtensionChrome }).chrome;
     const runtime = chrome?.runtime;
     this.inspectedTabId = chrome?.devtools?.inspectedWindow?.tabId;
     if (runtime?.onMessage) {
       runtime.onMessage.addListener((msg: unknown) => {
         this.handleMessage(msg as ExtensionMessage);
       });
+    }
+    this.requestReplay(runtime);
+  }
+
+  /**
+   * Asks the relay for the last state and version it latched, exactly once per construction.
+   * The page announces `angular-ai:state` when its content script runs — before this panel
+   * document exists — so without the replay `stateReceived()` would stay `false` for a normal
+   * DevTools session. There is deliberately no retry: a routing failure must stay visible.
+   */
+  private requestReplay(runtime: ExtensionRuntime | undefined) {
+    if (typeof runtime?.sendMessage !== 'function') {
+      return;
+    }
+    try {
+      // The reply comes back as the `angular-ai:state` and `angular-detected` messages below;
+      // the callback only keeps this a callback-style send, so no promise is left unhandled
+      // when no service worker is listening.
+      runtime.sendMessage({ type: 'angular-ai:state-request', tabId: this.inspectedTabId }, () => {});
+    } catch {
+      // No extension context to ask (a plain page load, a spec): the signals keep their
+      // "cannot tell" values rather than throwing out of construction.
     }
   }
 
@@ -56,6 +91,8 @@ export class ExtensionMessageService {
       return;
     }
     if (msg.type === 'angular-detected') {
+      // Replayed or live, the version lands in the signal the gate and the chip read.
+      this.appVersion.set(typeof msg.version === 'string' ? msg.version : null);
       this.causeService.record('Angular', `v${msg.version ?? '?'} detected`);
     } else if (msg.type === 'host:capability') {
       const info = msg.capability?.availability

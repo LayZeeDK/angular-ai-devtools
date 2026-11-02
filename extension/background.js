@@ -25,6 +25,33 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     return true;
   }
 
+  // The panel asks once for the state and version the relay latched before the panel loaded.
+  // Route it to the tab the request names; the relay in that tab answers with its latch.
+  if (msg?.type === 'angular-ai:state-request') {
+    const tabId = msg.tabId;
+    if (typeof tabId !== 'number') {
+      reply({ ok: false, reason: 'angular-ai:state-request: no inspected tab named' });
+      return true;
+    }
+    chrome.tabs.sendMessage(tabId, { type: 'angular-ai:replay-request' }, (replay) => {
+      // A named refusal, not silence: the panel must be able to tell "no relay here" from "nothing latched".
+      const lastError = chrome.runtime.lastError;
+      if (lastError || !replay) {
+        reply({ ok: false, reason: 'angular-ai:state-request: no relay answered for tab ' + tabId });
+        return;
+      }
+      // Re-emit to the panel as the two messages it already understands.
+      if (replay.state && typeof replay.state === 'object') {
+        chrome.runtime.sendMessage({ type: 'angular-ai:state', ...replay.state, tabId });
+      }
+      if (typeof replay.version === 'string' && replay.version !== '') {
+        chrome.runtime.sendMessage({ type: 'angular-detected', version: replay.version, tabId });
+      }
+      reply({ ok: true });
+    });
+    return true;
+  }
+
   if (msg?.type === 'angular-detected') {
     // Relay to all extension contexts; the tab id lets each DevTools panel keep only its inspected tab's detection.
     chrome.runtime.sendMessage({ ...msg, tabId: sender.tab?.id });
