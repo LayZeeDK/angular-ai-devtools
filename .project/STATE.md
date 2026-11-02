@@ -5,7 +5,7 @@ milestone: context-and-jobs
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M019
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -361,3 +361,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-02 — plan — planning started
 - 2026-11-02 — plan — plan approved
 - 2026-11-02 — build — build started
+- 2026-11-02 — build — build blocked: verify-weight returns CHUNK for T007 (10 acceptance criteria over the 8 ceiling); plan repair requested
