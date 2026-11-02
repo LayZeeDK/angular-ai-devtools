@@ -8,11 +8,13 @@ Alignment mode: no
 
 | Verdict | Count |
 |---------|-------|
-| verified | 620 |
+| verified | 619 |
 | stale | 14 |
 | aspirational | 5 |
-| unverifiable | 129 |
-| descriptive docs (no testable claims) | 1 |
+| unverifiable | 128 |
+| descriptive docs (no testable claims) | 2 |
+
+Claim rows audited: 766 across 142 documents; with the 2 descriptive documents, the 144 frozen inventory paths.
 
 ## Doc: .claude/skills/control-ai-browsers/SKILL.md
 
@@ -100,7 +102,7 @@ Alignment mode: no
 | "Zero interop nodes renders an explicit empty state ("no interop nodes")" | status | stale | apps/angular-ai-devtools/src/app/interop.component.ts:16 - the empty state renders "no interop findings", not "no interop nodes" |
 | "the driver routes the panel to `interop`" | command | verified | .claude/skills/control-ai-browsers/scripts/panel.mjs:241 - isInterop is feature === interop, and control.mjs:2301 passes opts.feature through to drivePanel |
 | "The check asserts that the instance serves the extension at the check's own checkout path" | feature | verified | .commandcode/skills/verify-ai-browsers/checks/interop.mjs:75,148,152 - a mismatch is could-not-run naming the loaded folder, and the usage documents --extension for a sidecar |
-| "the check exits 0 on `edge-dev-aion` with `nodes: 1`" | status | unverifiable | .project/build/verify/interop/ does not exist in this checkout; the run's own evidence JSON named in the doc is what would settle it |
+| "the check exits 0 on `edge-dev-aion` with `nodes: 1`" | status | unverifiable | .project/build/verify/interop/ does not exist in this checkout; the run's own evidence JSON named in the doc is what would settle it — Settling check: `.commandcode/skills/verify-ai-browsers/checks/interop.mjs` — the check writes the run JSON in .project/build/verify/interop/. |
 
 ## Doc: .claude/skills/control-ai-browsers/features/model-lifecycle.md
 
@@ -182,7 +184,7 @@ Alignment mode: no
 | "Deep links `/claim/list`, `/claim/create`, `/claim/<id>/details`" | structure | verified | portal libs/claim/routes/src/lib/routes.ts - child paths `list`, `create`, `:id/details`, each behind featureFlagGuard(claim-list/claim-create/claim-details) |
 | "Data comes from `http://localhost:3000/api/claims`" | integration | verified | portal apps/api/src/claim/claim.controller.ts - `@Controller(claims)` with @Get, @Get(:id) and @Post; port 3000 fixed by .claude/skills/control-angular-dev-app/scripts/control.mjs:69 |
 | "the customer as a link to `/customer/<id>/details`" | structure | verified | portal libs/customer/routes/src/lib/routes.ts - child path `:id/details` behind featureFlagGuard(customer-details) |
-| "`Select damage type` and `Select contract` (under the label Policynumber) dropdowns" | config | unverifiable | needs the claim form template text at run time; portal libs/claim/ui/src/lib/claim-form.component.ts would settle the labels |
+| "`Select damage type` and `Select contract` (under the label Policynumber) dropdowns" | config | unverifiable | needs the claim form template text at run time; portal libs/claim/ui/src/lib/claim-form.component.ts would settle the labels — Settling check: `control.mjs up --target portal` — the portal clone's claim-form template renders in a driven run. |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/portal-complaints-customers.md
 
@@ -193,7 +195,7 @@ Alignment mode: no
 | "`Select type` (CustomerService, Sales, Payments)" | config | verified | portal libs/complaint/models/src/lib/dtos/complaint-type-dto.model.ts - enum ComplaintTypeDto has CustomerService, Sales, Payments |
 | "Save sends `POST /api/complaints` (201)" | integration | verified | portal apps/api/src/complaint/complaint.controller.ts - `@Controller(complaints)` with @Post (Nest returns 201) and @Get(:id) |
 | "Deep links `/complaint/list`, `/complaint/create`, `/customer/list`, `/customer/<id>/details`" | structure | verified | portal libs/complaint/routes/src/lib/routes.ts (list, create, :id/details) and libs/customer/routes/src/lib/routes.ts (list, :id/details) |
-| "contract details also link to the customer details page" | structure | unverifiable | needs the contract details template; portal libs/contract/feature-details/src/lib/details.component.ts would settle whether the customer name is rendered as a routerLink |
+| "contract details also link to the customer details page" | structure | unverifiable | needs the contract details template; portal libs/contract/feature-details/src/lib/details.component.ts would settle whether the customer name is rendered as a routerLink — Settling check: `control.mjs up --target portal` — the portal clone's contract details template renders in a driven run. |
 
 ## Doc: .claude/skills/control-angular-dev-app/features/portal-contracts.md
 
@@ -224,7 +226,7 @@ Alignment mode: no
 | "`?mismatch=text` (different text on server and client, no error)" | feature | verified | spikes/ng222-ssr/src/app/mismatch.ts:9 - template renders `server text` on the server and `client text` in the browser when mode is text |
 | "`ssr-render-modes` `/` is `ssr`, `/prerender` is `ssg`, `/client` is the bare shell with `<body ngcm>`" | structure | verified | spikes/ng222-ssr/src/app/app.routes.server.ts:4-6 - RenderMode.Server for path empty, RenderMode.Prerender for prerender, RenderMode.Client for client |
 | "`ok` is `true` when all six checks pass" | structure | verified | .claude/skills/control-angular-dev-app/scripts/ssr-check.js:75-82 - six checks: server-html-ngh, server-html-transfer-state, dev-build-after-hydration, hydration-counters, no-mismatch-on-default-route, expected-mismatch-detected |
-| "`ngDevMode.hydratedComponents` 4, `hydratedNodes` 40" | status | unverifiable | runtime counters only; ssr-check.js:57 reports them but the values need `node $S up --target ssr` plus a live ssr-check.js run |
+| "`ngDevMode.hydratedComponents` 4, `hydratedNodes` 40" | status | unverifiable | runtime counters only; ssr-check.js:57 reports them but the values need `node $S up --target ssr` plus a live ssr-check.js run — Settling check: `control.mjs up --target ssr` — the counters are read from a live dev-mode page. |
 | "Run the spike probes `spikes/probes/ssr-event-replay.js` and `spikes/probes/ssr-render-modes.js`" | command | verified | both probe files exist under spikes/probes/ in the repository |
 
 ## Doc: .claude/skills/control-angular-devtools/SKILL.md
@@ -247,7 +249,7 @@ Alignment mode: no
 | "Test harness: `node $S install`, `node $S up --app-url=<app url>`, `node $S doctor` exits 0" | command | verified | .claude/skills/control-angular-devtools/scripts/control.mjs - cmdInstall (:1006), the up state records appUrl (:1216), doctor checks; usage lists install, uninstall, status, up, doctor, attach, info, down, panel, coexist |
 | "Desktop session available (the harness is headed)" | config | verified | .claude/skills/control-angular-devtools/scripts/control.mjs:1192 - the playwright-cli config sets `headless: false` |
 | "Evidence stays in `tmp/control-angular-devtools/evidence/` (git-ignored)" | config | verified | .claude/skills/control-angular-devtools/scripts/control.mjs:1172 - `join(TMP, evidence, evidenceStamp(...))`; .gitignore:7 ignores tmp/control-angular-devtools/ |
-| "Router Tree shows only when the app provides the router (`devtools-tabs.component.ts`)" | feature | unverifiable | that file is Angular DevTools frontend source, not vendored in this repository; a live `panel show` on the counter fixture would settle it |
+| "Router Tree shows only when the app provides the router (`devtools-tabs.component.ts`)" | feature | unverifiable | that file is Angular DevTools frontend source, not vendored in this repository; a live `panel show` on the counter fixture would settle it — Settling check: `control.mjs panel` — the live panel's Router Tree tab is the only local reader. |
 
 ## Doc: .claude/skills/control-angular-devtools/features/attach.md
 
@@ -256,9 +258,9 @@ Alignment mode: no
 | "Connected flag `window.__NG_DEVTOOLS_CONNECTED__`" | feature | verified | .claude/skills/control-angular-devtools/scripts/control.mjs:891 defines the property on window; :905 reads `window.__NG_DEVTOOLS_CONNECTED__ === true` as the flag marker |
 | "Angular version from `[ng-version]`" | feature | verified | .claude/skills/control-angular-devtools/scripts/control.mjs:1332 - `document.querySelector([ng-version])?.getAttribute(ng-version)` |
 | "`attach` exits 1 because it requires `isDebugMode`" | status | verified | .claude/skills/control-angular-devtools/scripts/control.mjs:1349 - attached requires `d.isAngular && d.isDebugMode && r.backendInstalled && r.backendReady` |
-| "Detection result: `isAngular`, `isDebugMode` (development build), `isIvy`, `isSupportedAngularVersion` (major 12+ or 0)" | feature | unverifiable | the detect-angular message is produced by the extension bundle, not vendored here; a live `node $S attach` prints the five booleans |
-| "Expected (measured on the counter fixture): `flag true (set at ~50 ms)` ... `backendReady at ~950 ms`" | status | unverifiable | timing measurements need a live harness run (`node $S up --app-url=...` then `node $S attach`) |
-| "the popup shows `production.html`" | feature | unverifiable | extension UI asset, not in this repository; the extension package under tmp/control-angular-devtools/extension/<version>/ would settle it |
+| "Detection result: `isAngular`, `isDebugMode` (development build), `isIvy`, `isSupportedAngularVersion` (major 12+ or 0)" | feature | unverifiable | the detect-angular message is produced by the extension bundle, not vendored here; a live `node $S attach` prints the five booleans — Settling check: `control.mjs attach` — a live attach prints the five detection booleans. |
+| "Expected (measured on the counter fixture): `flag true (set at ~50 ms)` ... `backendReady at ~950 ms`" | status | unverifiable | timing measurements need a live harness run (`node $S up --app-url=...` then `node $S attach`) — Settling check: `control.mjs attach` — the timings come from a live attach run. |
+| "the popup shows `production.html`" | feature | unverifiable | extension UI asset, not in this repository; the extension package under tmp/control-angular-devtools/extension/<version>/ would settle it — Settling check: `tmp/control-angular-devtools/extension/1.22.0/manifest.json` — the popup asset ships inside that packaged extension. |
 
 ## Doc: .claude/skills/control-angular-devtools/features/install.md
 
@@ -280,7 +282,7 @@ Alignment mode: no
 | "remove your own with the function `setProfiler(cb)` returns" | feature | verified | same file :150-152 - returns `() => removeProfiler(profiler)`, which splices that one callback out |
 | "DevTools subscriber cannot be listed from the page (the list is module-private)" | feature | verified | same file :134 - profilerCallbacks is a module-scope const, not exported; types/core.d.ts:8776 declares only `ng.setProfiler(profiler \| null)` |
 | "`node $S coexist`" | command | verified | .claude/skills/control-angular-devtools/scripts/control.mjs - `coexist` command with `--component`, `--click` and `--di-graph` flags; it screenshots signal-graph before and after (:1497) |
-| "Expected (measured): `own subscribers ...; DevTools recorded 2 change detection cycles`" | status | unverifiable | counters need a live `node $S coexist` run against the counter fixture |
+| "Expected (measured): `own subscribers ...; DevTools recorded 2 change detection cycles`" | status | unverifiable | counters need a live `node $S coexist` run against the counter fixture — Settling check: `control.mjs coexist` — the profiler counters come from a live run. |
 
 ## Doc: .claude/skills/control-angular-devtools/features/signal-graph.md
 
@@ -290,8 +292,8 @@ Alignment mode: no
 | "Signal graph nodes (kind, label, value) and edges." | structure | verified | .claude/skills/control-angular-devtools/scripts/control.mjs:830 - the pane reader maps `ng-signal-graph-pane .node-cont` elements to their label and value |
 | "Agreement with `ng.getSignalGraph(ng.getInjector(host))`, which the pane's backend calls." | feature | verified | spikes/ng222-app/node_modules/@angular/core/fesm2022/core.mjs:2290 - the dev-mode global exposes `getSignalGraph(injector)` over the same signal graph |
 | "`--di-graph` runs Angular's `angular:di_graph` tool" | feature | verified | .claude/skills/control-angular-devtools/scripts/control.mjs:1501-1507 - dispatches `devtoolstooldiscovery` and executes the tool named `angular:di_graph` |
-| "After `angular:di_graph` (measured 2026-10-11): pane `signal:count, effect:Effect`, `ng.getSignalGraph` `effect, signal:count`." | status | unverifiable | a measured pane read; `node $S panel signal-graph --component=app-counter` then `node $S coexist --di-graph` on the counter fixture would settle it |
-| "`.node-cont.kind-*` are DevTools 1.22.0 class names; re-read them from the live panel after an update." | config | unverifiable | the class names live in the DevTools bundle under tmp/control-angular-devtools/extension/1.22.0/bundle, which was not grepped; the live panel shows them |
+| "After `angular:di_graph` (measured 2026-10-11): pane `signal:count, effect:Effect`, `ng.getSignalGraph` `effect, signal:count`." | status | unverifiable | a measured pane read; `node $S panel signal-graph --component=app-counter` then `node $S coexist --di-graph` on the counter fixture would settle it — Settling check: `control.mjs coexist` — the pane read and the ng.getSignalGraph read come from a driven run. |
+| "`.node-cont.kind-*` are DevTools 1.22.0 class names; re-read them from the live panel after an update." | config | unverifiable | the class names live in the DevTools bundle under tmp/control-angular-devtools/extension/1.22.0/bundle, which was not grepped; the live panel shows them — Settling check: `control.mjs panel` — the live panel renders the kind classes. |
 
 ## Doc: .claude/skills/control-pangular-inspector/SKILL.md
 
@@ -323,7 +325,7 @@ Alignment mode: no
 | "`list-components` on versions after 0.0.7" | status | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:1445 — comment: list-components when the server has it (unreleased after 0.0.7) |
 | "`node $S components --depth 3`" | command | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:643 — componentOutline(tree, filter, depth) drops nodes at or below depth |
 | "`inspect-providers` ... by selector or by `token`" | feature | unverifiable | only the selector form is exercised in this repository (verify-pangular-inspector/checks/live-reads.mjs); the token lookup lives in the pinned 0.0.7 server, one `call inspect-providers` with a token settles it |
-| "the answer starts `No signal graph for <selector>`" | status | unverifiable | that message is produced by the pinned 0.0.7 server in the portal checkout's node_modules, outside this repository; one live `inspect-signals` settles it |
+| "the answer starts `No signal graph for <selector>`" | status | unverifiable | that message is produced by the pinned 0.0.7 server in the portal checkout's node_modules, outside this repository; one live `inspect-signals` settles it — Settling check: `control.mjs call` — one `call inspect-signals` prints the message. |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/navigation.md
 
@@ -331,8 +333,8 @@ Alignment mode: no
 |-------|------|---------|----------|
 | "`node $S call inspect-route`" | command | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:1279 — `call` resolves any tool name from tools/list and fails 2 only for an unknown one |
 | "`limit` on `explain-navigation` defaults to 5 (at most 50)" | config | unverifiable | the default lives in the pinned 0.0.7 server schema, not in this repository (control.mjs:1276 passes --args through unchanged); one call without limit settles it |
-| "The sidebar entries are `div`s with `routerLink`" | feature | unverifiable | the portal templates are in the external checkout (control-angular-dev-app/scripts/control.mjs:67); a snapshot of the sidebar settles it |
-| "the first navigation before the overlay connected shows no details" | status | unverifiable | overlay behaviour of the pinned package in the portal checkout; one drive with a fresh page settles it |
+| "The sidebar entries are `div`s with `routerLink`" | feature | unverifiable | the portal templates are in the external checkout (control-angular-dev-app/scripts/control.mjs:67); a snapshot of the sidebar settles it — Settling check: the portal clone — no command in this checkout reaches the portal templates, so a read of that clone is the external artifact. |
+| "the first navigation before the overlay connected shows no details" | status | unverifiable | overlay behaviour of the pinned package in the portal checkout; one drive with a fresh page settles it — Settling check: `control.mjs up --target portal` — overlay behaviour needs a driven portal page. |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/panel.md
 
@@ -340,9 +342,9 @@ Alignment mode: no
 |-------|------|---------|----------|
 | "`http://localhost:4507/__pangular/` (through the `ng serve` proxy)" | config | unverifiable | .claude/skills/control-angular-dev-app/scripts/control.mjs:100,700 — the portal app port is slot-derived (4200 at slot 0, else 4500+slot) and it proxies /__pangular; 4507 needs `info --target portal` |
 | "`playwright-cli -s=pangular-9999 goto`" | command | verified | .claude/skills/control-pangular-inspector/scripts/control.mjs:1074 — the session is named pangular-<port> |
-| "the eight tab names, `LIVE`, `Angular 22.2.2`, and `Agent` then `Read-only`" | feature | unverifiable | the dashboard HTML ships in @pangular-inspector/devtools 0.0.7 inside the portal checkout's node_modules; one panel load settles it |
+| "the eight tab names, `LIVE`, `Angular 22.2.2`, and `Agent` then `Read-only`" | feature | unverifiable | the dashboard HTML ships in @pangular-inspector/devtools 0.0.7 inside the portal checkout's node_modules; one panel load settles it — Settling check: `control.mjs up` — one driven panel load renders the tab names. |
 | "A code expires after 5 minutes" | status | unverifiable | the one-time code is minted and expired by the standalone server; control.mjs:1378 only reads it from pangular.log |
-| "`find` with `Toggle Pangular` on the app page finds the button" | feature | unverifiable | the overlay button's accessible name comes from the pinned package bundle; one snapshot of the app page settles it |
+| "`find` with `Toggle Pangular` on the app page finds the button" | feature | unverifiable | the overlay button's accessible name comes from the pinned package bundle; one snapshot of the app page settles it — Settling check: `control.mjs up` — the overlay button renders only on a driven app page. |
 
 ## Doc: .claude/skills/control-pangular-inspector/features/setup.md
 
@@ -384,14 +386,14 @@ Alignment mode: no
 | "Fresh state of the held Counter: `Clicks: 3 (double 6, cart 2)` (cart overridden to ['pear', 'plum'])" | status | verified | spikes/ng222-app/src/app/counter.spec.ts:61,70 — setup({cartItems:['pear','plum']}) and the expectation `Clicks: ${next} (double ${next*2}, cart 2)` |
 | "`mounted-component` passes only while the hold test runs (90 s from `RUN`)" | feature | verified | .claude/skills/control-vitest-browser-angular/scripts/control.mjs:1146 — mounted-component warns with no [ng-version] host, so only a hold keeps one mounted |
 | "`node $S up --extension s1-vitest --hold 90000`" | command | verified | .claude/skills/control-vitest-browser-angular/scripts/control.mjs:927 — `--extension s1-vitest` writes the generated variant; :586 sets the hold |
-| "the tab titled Vitest Browser Runner" | feature | unverifiable | the title is rendered by Vitest's browser runner at run time; no repository file sets it, one tab-list settles it |
+| "the tab titled Vitest Browser Runner" | feature | unverifiable | the title is rendered by Vitest's browser runner at run time; no repository file sets it, one tab-list settles it — Settling check: `control.mjs up` — the Vitest tab title renders only in a driven run. |
 | "`S` is `.claude/skills/control-vitest-browser-angular/scripts/control.mjs`" | structure | verified | .claude/skills/control-vitest-browser-angular/scripts/control.mjs:1271 — the usage line names up, doctor, info and down |
 
 ## Doc: .claude/skills/control-vitest-browser-angular/features/counter-tests.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Tests 2 passed \| 2 skipped (4) without flags" | status | unverifiable | a run prints that line; the spec has 2 unconditional tests and 2 `it.runIf` tests (spikes/ng222-app/src/app/counter.spec.ts:39,56), so one `node $S up` settles it |
+| "Tests 2 passed \| 2 skipped (4) without flags" | status | unverifiable | a run prints that line; the spec has 2 unconditional tests and 2 `it.runIf` tests (spikes/ng222-app/src/app/counter.spec.ts:39,56), so one `node $S up` settles it — Settling check: `control.mjs up` — the run prints the tests line. |
 | "a test that fails on purpose because it reads the DOM in the same task as the click" | feature | verified | counter.spec.ts:37-39 — the comment plus `it.runIf(import.meta.env.VITE_COUNTER_TIMING_DEMO === '1')` |
 | "an Increment click moves 'Clicks: 3 (double 6, cart 1)' to 'Clicks: 4 (double 8, cart 1)'" | feature | verified | counter.spec.ts:23,25,27 — the two toHaveTextContent assertions around incrementButton.click() |
 | "a `CartService` override shows 'cart 2'" | feature | verified | counter.spec.ts:30,32,34 — setup({cartItems:['pear','plum']}) then 'Clicks: 3 (double 6, cart 2)' |
@@ -416,7 +418,7 @@ Alignment mode: no
 | "keeps it mounted, clicks Increment once halfway, and checks that the count rose by one" | feature | verified | counter.spec.ts:62,65,70 — wait holdMs/2, incrementButton.click(), expect `Clicks: ${next}` with next = before+1 |
 | "The runner starts its own `ng test` and needs no run from this skill" | feature | verified | spikes/probes/vitest-attach.mjs:99 — spawns node_modules/@angular/cli/bin/ng.js test -c <config> --watch=false --filter 'keeps the counter mounted' |
 | "`<app-counter>` does not exist under TestBed; select `[ng-version]`" | feature | verified | .claude/skills/control-vitest-browser-angular/scripts/control.mjs:1146 — doctor looks for a [ng-version] host, never app-counter |
-| "`ng.ɵgetInjectorProviders` throws on the null injector ..." | status | unverifiable | an Angular run-time behaviour at the end of the resolution path; nothing in this repository asserts it, one probe run in the frame settles it |
+| "`ng.ɵgetInjectorProviders` throws on the null injector ..." | status | unverifiable | an Angular run-time behaviour at the end of the resolution path; nothing in this repository asserts it, one probe run in the frame settles it — Settling check: `control.mjs up` — a held run reads the injector providers in the frame. |
 | "`Run spikes/probes/vitest-iframe-probe.js` in the frame" | command | verified | spikes/probes/vitest-iframe-probe.js exists beside vitest-lib.mjs, which control.mjs imports (control.mjs:96) |
 
 ## Doc: .claude/skills/verify-ai-browsers/SKILL.md
@@ -461,7 +463,7 @@ Alignment mode: no
 | "A model may carry a reasoning effort" | config | verified | C:/Users/LarsGyrupBrinkNielse/.commandcode/agents/effort-high.md:3 - dispatched in place of general-purpose when a pstack role override names @high |
 | "means the parent model, so omit model" | feature | verified | C:/Users/LarsGyrupBrinkNielse/.commandcode/skills/arena/SKILL.md:31 - an auto or inherit-parent entry means the parent model, so omit model for it |
 | "Command Code has no SessionStart hook; the session hook line here is inert" | status | verified | C:/Users/LarsGyrupBrinkNielse/.commandcode/skills/setup-pstack/SKILL.md:14 - The session hook line is inert on Command Code |
-| "Free models available: poolside/laguna-s-2.1-free, reflection/beam:free, minimax/minimax-m3.1-flash:free, stealth/glyph-cluster:free" | config | unverifiable | C:/Users/LarsGyrupBrinkNielse/.commandcode/agents/ lists free-laguna-s-2-1.md, free-beam-*.md and free-glyph-cluster-*.md but has free-ling-3-1-flash-* instead of a minimax entry; model availability is not in the repo, settle with a Command Code model listing |
+| "Free models available: poolside/laguna-s-2.1-free, reflection/beam:free, minimax/minimax-m3.1-flash:free, stealth/glyph-cluster:free" | config | unverifiable | C:/Users/LarsGyrupBrinkNielse/.commandcode/agents/ lists free-laguna-s-2-1.md, free-beam-*.md and free-glyph-cluster-*.md but has free-ling-3-1-flash-* instead of a minimax entry; model availability is not in the repo, settle with a Command Code model listing — Settling check: the Command Code model listing — no command in this checkout reaches model availability, so that listing is the external artifact. |
 
 ## Doc: .commandcode/skills/control-ai-browsers/SKILL.md
 
@@ -502,7 +504,7 @@ Alignment mode: no
 | maps each to its owning component through `ng.getOwningComponent` | feature | verified | src/main-world/error-capture.ts:43 - calls ng.getOwningComponent(target) when it is a function and reports no owning component otherwise |
 | a digest of the official `angular.dev/errors` documentation bundled at extension build time | config | verified | apps/angular-ai-devtools/project.json - the generate-error-digest target runs `node scripts/generate-error-digest.mjs` |
 | message types `angular-ai:error-capture` | integration | verified | apps/angular-ai-devtools/src/app/extension-message.service.ts:77 - branches on msg.type angular-ai:error-capture |
-| `angular-ai:error-explain` | integration | unverifiable | no occurrence of the string angular-ai:error-explain under apps/angular-ai-devtools/src, src/main-world or extension; finding the panel code that sends it would settle the row |
+| `angular-ai:error-explain` | integration | unverifiable | no occurrence of the string angular-ai:error-explain under apps/angular-ai-devtools/src, src/main-world or extension; finding the panel code that sends it would settle the row — Settling check: `git cat-file -p HEAD:apps/angular-ai-devtools/src/app/extension-message.service.ts` — the message service is where a runtime type would be handled. |
 | `--feature=error-explainer` | command | verified | .commandcode/skills/control-ai-browsers/scripts/panel.mjs:17 - the drivePanel feature union names error-explainer among version, stale-view and interop |
 | The proof across every pair is `verify-ai-browsers/checks/error-explainer.mjs` | structure | verified | .commandcode/skills/verify-ai-browsers/checks/error-explainer.mjs - the check exists beside error-explainer.test.mjs |
 
@@ -546,7 +548,7 @@ Alignment mode: no
 | the `spikes/ng222-app` fixture at `/stale-view`, or the deferred `/stale-view-deferred` route | structure | verified | spikes/ng222-app/src/app/app.routes.ts:6-7 - the router declares path stale-view with StaleViewFixture and path stale-view-deferred with StaleViewDeferredFixture |
 | pass `--extension <absolute path of the checkout the instance runs>` | command | verified | .commandcode/skills/verify-ai-browsers/checks/interop.mjs:58,73-75 - check() takes an `extension` option defaulting to this checkout and reports couldNotRun when the instance serves a different path |
 | Implementation: `apps/angular-ai-devtools/src/app/interop.component.ts` | structure | verified | apps/angular-ai-devtools/src/app/interop.component.ts - the component file exists and holds the interop template and its test ids |
-| message types `angular-ai:interop` | integration | unverifiable | no occurrence of the string angular-ai:interop under apps/angular-ai-devtools/src, src/main-world or extension; the panel code that posts it would settle the row |
+| message types `angular-ai:interop` | integration | unverifiable | no occurrence of the string angular-ai:interop under apps/angular-ai-devtools/src, src/main-world or extension; the panel code that posts it would settle the row — Settling check: `git cat-file -p HEAD:apps/angular-ai-devtools/src/app/extension-message.service.ts` — the message service is where a runtime type would be handled. |
 
 ## Doc: .commandcode/skills/control-ai-browsers/features/model-lifecycle.md
 
@@ -586,7 +588,7 @@ Alignment mode: no
 | With zero findings the panel renders an explicit empty state (`no stale-view findings`) | feature | verified | apps/angular-ai-devtools/src/app/stale-view.component.ts:17 - the empty-state element renders exactly `no stale-view findings` on data-testid empty-state |
 | `--feature=stale-view` | command | verified | .commandcode/skills/control-ai-browsers/scripts/panel.mjs:17 - stale-view is one of the drivePanel features (version, error-explainer, stale-view, interop) |
 | Implementation: `apps/angular-ai-devtools/src/app/stale-view.component.ts` | structure | verified | apps/angular-ai-devtools/src/app/stale-view.component.ts - the component exists and imports StaleViewScanService and StaleViewService (lines 2-3) |
-| message types `angular-ai:stale-view` | integration | unverifiable | no occurrence of the string angular-ai:stale-view under apps/angular-ai-devtools/src, src/main-world or extension; the panel service that posts it would settle the row |
+| message types `angular-ai:stale-view` | integration | unverifiable | no occurrence of the string angular-ai:stale-view under apps/angular-ai-devtools/src, src/main-world or extension; the panel service that posts it would settle the row — Settling check: `git cat-file -p HEAD:apps/angular-ai-devtools/src/app/extension-message.service.ts` — the message service is where a runtime type would be handled. |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/SKILL.md
 
@@ -651,7 +653,7 @@ Alignment mode: no
 | "contract-edit Edit opens /contract/id/edit, heading Contract Edit" | structure | verified | libs/contract/feature-edit/src/lib/edit.component.ts:51 - header title Contract Edit |
 | "contract-create /contract/create: Status chip Pending" | feature | verified | libs/contract/feature-create/src/lib/create.component.ts:46 header Contract Create and :112 status ContractStatusDto.Pending; libs/contract/ui/src/lib/contract-form.component.ts:45 label Pending |
 | "Data comes from the API at http://localhost:3000/api/contracts" | integration | verified | libs/contract/data-access/src/lib/data-services/contract-data.service.ts:9 (url = BaseUrl + contracts) with libs/shared/utils/src/lib/injection-tokens.ts:5 |
-| "20 rows after a fresh API start" | status | unverifiable | the row count comes from the portal API faker seed at runtime; only a live contract/list read would settle it |
+| "20 rows after a fresh API start" | status | unverifiable | the row count comes from the portal API faker seed at runtime; only a live contract/list read would settle it — Settling check: `control.mjs up --target portal` — the row count comes from a driven portal API. |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/portal-navigation.md
 
@@ -729,7 +731,7 @@ Alignment mode: no
 | "DevTools subscriber cannot be listed from the page (the list is module-private)" | feature | verified | _debug_node-chunk.mjs:12563-12564 - only setProfiler and getSignalGraph are exported on the ng object, no subscriber accessor |
 | "node $S coexist" | command | verified | control.mjs:1601 - COMMANDS maps coexist to cmdCoexist; control.mjs:1598 documents the usage line |
 | "coexist adds two setProfiler subscribers, clicks the app, removes one with its returned function" | feature | verified | control.mjs:1463 - two setProfiler calls stored as __ngdtRemoveA and __ngdtRemoveB; :1465 removes A and reads the counts |
-| "own subscribers bothOn a 16 b 16; afterRemoveA a 16 b 32; DevTools recorded 2 change detection cycles" | status | unverifiable | a measured run result; nothing in the repository records those counters, so only a live coexist run would settle it |
+| "own subscribers bothOn a 16 b 16; afterRemoveA a 16 b 32; DevTools recorded 2 change detection cycles" | status | unverifiable | a measured run result; nothing in the repository records those counters, so only a live coexist run would settle it — Settling check: `control.mjs coexist` — the counters come from a live coexist run. |
 
 ## Doc: .commandcode/skills/control-angular-devtools/features/signal-graph.md
 
@@ -740,7 +742,7 @@ Alignment mode: no
 | "node $S panel signal-graph --component=app-counter" | command | verified | control.mjs:18 - the Opts typedef declares component; control.mjs:1601 maps panel to cmdPanel; :830 is the panel signal-graph read |
 | "node $S coexist --di-graph" | command | verified | control.mjs:111 - BOOL_FLAGS includes di-graph; control.mjs:1598 usage line reads coexist [--component app-counter] [--click ...] [--di-graph] |
 | ".node-cont.kind-* are DevTools 1.22.0 class names; re-read them from the live panel after an update" | config | unverifiable | the class names come from the extension bundle (shell-browser is absent, Test-Path False); control.mjs:830 just reads whatever kind- classes the panel renders |
-| "Other kinds the counter lacks: linked-signal, child-signal-prop, resource, unknown" | feature | unverifiable | the kind vocabulary is defined in the DevTools panel bundle, which is not in this repository; only a live panel read on an app with those nodes would settle it |
+| "Other kinds the counter lacks: linked-signal, child-signal-prop, resource, unknown" | feature | unverifiable | the kind vocabulary is defined in the DevTools panel bundle, which is not in this repository; only a live panel read on an app with those nodes would settle it — Settling check: `control.mjs panel` — the kind vocabulary renders only in a live panel. |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/SKILL.md
 
@@ -751,7 +753,7 @@ Alignment mode: no
 | "none of the eight action tools" | config | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:76 - ACTION_TOOLS holds highlight, navigate, dispatch-ngrx-action, form-action, fill-form, set-http-rule, remove-http-rule, analog-call-api |
 | "a POST without `Origin` gets 403" | feature | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1344 - mcp-origin-guard passes only when the POST answers httpStatus 403 |
 | "The MCP client is plain JSON-RPC over `node:http`" | integration | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:6 - import http from node:http; :1074 sets mcpUrl to http://localhost:<port>/__mcp |
-| "With `--read-only`, 0.0.7 lists 46 tools" | status | unverifiable | needs a live read-only devtools server; `node $S tools` against one would settle the count, no file in this checkout records it |
+| "With `--read-only`, 0.0.7 lists 46 tools" | status | unverifiable | needs a live read-only devtools server; `node $S tools` against one would settle the count, no file in this checkout records it — Settling check: `control.mjs tools` — tools lists the server's tool names. |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/README.md
 
@@ -762,7 +764,7 @@ Alignment mode: no
 | "Take `evidenceDir` and `session` (`pangular-9999`) from `node $S info`" | integration | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1074 - the state holds session pangular-<port> and evidenceDir |
 | "Action tools (`navigate`, `fill-form`, `form-action`, `highlight`, ...) need `up --allow-actions` and `call ... --confirm`" | config | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:373 refuses an action tool without --confirm; :1061 passes --read-only unless allow-actions |
 | "then four H2s in this order" | structure | verified | .commandcode/skills/control-pangular-inspector/features/setup.md - H1, Sub-features, How to get to it (user POV), Driving it with control-pangular-inspector (Preconditions first), Gotchas, in that order |
-| "the overlay reports about 250 ms after change detection" | status | unverifiable | a live-run timing; no file in this checkout records it, only a driven overlay on the portal would settle it |
+| "the overlay reports about 250 ms after change detection" | status | unverifiable | a live-run timing; no file in this checkout records it, only a driven overlay on the portal would settle it — Settling check: `control.mjs up --target portal` — the overlay timing needs a driven portal page. |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/live-inspection.md
 
@@ -772,18 +774,18 @@ Alignment mode: no
 | "node $S components --depth 3 --out list-components.json" | command | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1450,1462 - components reads the depth flag and forwards it; :1221 refuses an --out outside the evidence dir |
 | "`window.__pangularPageId`" | feature | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1417 - the overlay-page-id check reads window.__pangularPageId from the page |
 | "the component outline (`components`; `list-components` on versions after 0.0.7)" | status | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1472 - components falls back to componentOutline of the component-tree resource |
-| "Instance ids (`cgg06-4`) change with every page load" | status | unverifiable | needs two live page loads of the portal; no file in this checkout records instance id churn |
-| "`inspect-providers` lookup path, by selector or by `token`" | integration | unverifiable | the tool arguments belong to the external @pangular-inspector/devtools package, which this checkout does not pin, so no local line names them |
+| "Instance ids (`cgg06-4`) change with every page load" | status | unverifiable | needs two live page loads of the portal; no file in this checkout records instance id churn — Settling check: `control.mjs call` — two `call list-pages` reads show the instance id churn. |
+| "`inspect-providers` lookup path, by selector or by `token`" | integration | unverifiable | the tool arguments belong to the external @pangular-inspector/devtools package, which this checkout does not pin, so no local line names them — Settling check: `control.mjs call` — `call inspect-providers` with a token settles the argument form. |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/navigation.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "Explain: `node $S call explain-navigation --args" | command | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1574 - call takes --args <json> and --out <file> |
-| "`limit` on `explain-navigation` defaults to 5 (at most 50)" | config | unverifiable | the default lives in the external @pangular-inspector/devtools tool schema; a live call with no limit would settle it, no local file records it |
-| "`list-routes` (12 routes, measured) and `node $S call lint-routes`" | status | unverifiable | measured against the portal app, which lives outside this checkout; a live call would settle the count and the info finding |
-| "`nav.route`: `inspect-route`, the current URL, document title and active route tree" | integration | unverifiable | tool names and fields come from the external devtools package; nothing in this checkout enumerates them |
-| "`started by` appears only when the click came less than 2 s before the navigation" | status | unverifiable | a threshold in the external overlay code; a driven navigation would settle it, no local file records it |
+| "`limit` on `explain-navigation` defaults to 5 (at most 50)" | config | unverifiable | the default lives in the external @pangular-inspector/devtools tool schema; a live call with no limit would settle it, no local file records it — Settling check: `control.mjs call` — one `call explain-navigation` with no limit prints the default. |
+| "`list-routes` (12 routes, measured) and `node $S call lint-routes`" | status | unverifiable | measured against the portal app, which lives outside this checkout; a live call would settle the count and the info finding — Settling check: `control.mjs call` — `call list-routes` against the portal prints the route count. |
+| "`nav.route`: `inspect-route`, the current URL, document title and active route tree" | integration | unverifiable | tool names and fields come from the external devtools package; nothing in this checkout enumerates them — Settling check: `control.mjs call` — `call inspect-route` prints the nav.route fields. |
+| "`started by` appears only when the click came less than 2 s before the navigation" | status | unverifiable | a threshold in the external overlay code; a driven navigation would settle it, no local file records it — Settling check: `control.mjs call` — a driven click then `call inspect-route` shows the started-by window. |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/panel.md
 
@@ -792,9 +794,9 @@ Alignment mode: no
 | "`http://localhost:4507/__pangular/` (through the `ng serve` proxy)" | integration | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:595 - proxy-target passes only when /__pangular maps to http://localhost:<port> |
 | "`playwright-cli -s=pangular-9999 goto http://localhost:4507/__pangular/`" | command | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1074 - the recorded session is pangular-<port>, so pangular-9999 on the default port |
 | "the doctor has answered the one-time-code prompt in this session" | feature | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1378 - the auth-code check answers the overlay prompt with the newest code from the server log |
-| "Components, Routes, Signals, Injectors, Store, Forms, Pipes, SSR & HTTP" | status | unverifiable | the panel markup ships in the external devtools package; a rendered dashboard would settle the tab list |
-| "A code expires after 5 minutes" | status | unverifiable | an overlay constant in the external package; the server log and a second load would settle it, no local file records it |
-| "The dashboard source counts are 0 in this Nx workspace" | status | unverifiable | it describes the portal app, which lives outside this checkout; its panel would settle it |
+| "Components, Routes, Signals, Injectors, Store, Forms, Pipes, SSR & HTTP" | status | unverifiable | the panel markup ships in the external devtools package; a rendered dashboard would settle the tab list — Settling check: `control.mjs up` — one driven dashboard load renders the tab list. |
+| "A code expires after 5 minutes" | status | unverifiable | an overlay constant in the external package; the server log and a second load would settle it, no local file records it — Settling check: `control.mjs call` — the code's expiry is read from pangular.log after a call. |
+| "The dashboard source counts are 0 in this Nx workspace" | status | unverifiable | it describes the portal app, which lives outside this checkout; its panel would settle it — Settling check: `control.mjs components` — components prints the source counts the dashboard shows. |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/setup.md
 
@@ -803,9 +805,9 @@ Alignment mode: no
 | "exact pin `@pangular-inspector/devtools@0.0.7` in `devDependencies`" | config | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:73 - PINNED is 0.0.7; :590 fails a declaration that is not exactly that |
 | "`setup.check`: six read-only facts, one line each" | feature | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:590-595 - check adds declared-exact, installed, overlay-import, dev-guard, proxy-config, proxy-target, six in all |
 | "`install` reads the first Nx app under `apps/` with an `@angular/build:dev-server` serve target" | feature | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:402 - findApp takes the first project.json whose serve executor is @angular/build:dev-server |
-| "`changed` lists `package.json`, `package-lock.json`" | status | unverifiable | the remaining paths are files of the portal checkout outside this repository; a run of node $S install --json would settle the list |
-| "the lockfile with insertions only (457 lines measured)" | status | unverifiable | a measurement of the portal checkout from an earlier run; no lockfile in this repository holds it |
-| "`remove` refuses when files it does not manage are changed" | feature | unverifiable | the refusal path needs a dirty app checkout outside this repository; a run of node $S remove --json there would settle it |
+| "`changed` lists `package.json`, `package-lock.json`" | status | unverifiable | the remaining paths are files of the portal checkout outside this repository; a run of node $S install --json would settle the list — Settling check: `control.mjs install` — install --json prints the changed file list. |
+| "the lockfile with insertions only (457 lines measured)" | status | unverifiable | a measurement of the portal checkout from an earlier run; no lockfile in this repository holds it — Settling check: `control.mjs install` — install --json prints the lockfile insertion count. |
+| "`remove` refuses when files it does not manage are changed" | feature | unverifiable | the refusal path needs a dirty app checkout outside this repository; a run of node $S remove --json there would settle it — Settling check: `control.mjs remove` — remove on a dirty checkout prints the refusal. |
 
 ## Doc: .commandcode/skills/control-pangular-inspector/features/source-scan.md
 
@@ -814,8 +816,8 @@ Alignment mode: no
 | "`scan <tool>`, which starts that server, calls one tool and stops it" | command | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1493 - spawns bin.mjs mcp --root <root> --read-only on stdio and calls the one tool |
 | "`npx pangular mcp --root <dir>` in an MCP client config (stdio)" | command | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1493 - the script runs the same package bin with mcp --root and keeps the stdio pipes |
 | "Results with `--out` land in `tmp/control-pangular-inspector/scan/`" | structure | verified | .commandcode/skills/control-pangular-inspector/scripts/control.mjs:1540 - save is called with evidenceDir path.join(SCRATCH, scan), and SCRATCH is tmp/control-pangular-inspector (:70) |
-| "`get-routes`, `get-components`, `get-signals`, `get-providers`, `get-pipes`, `get-ngrx-store`" | status | unverifiable | the stdio tool list comes from the external devtools package; node $S scan nope against an install prints it, no local file lists it |
-| "The scan reads the `sourceRoot` of each `angular.json` project plus `<root>/src`" | structure | unverifiable | the walking code lives in the external package; a scan of the portal at its root and at apps/insurance-portal would settle it |
+| "`get-routes`, `get-components`, `get-signals`, `get-providers`, `get-pipes`, `get-ngrx-store`" | status | unverifiable | the stdio tool list comes from the external devtools package; node $S scan nope against an install prints it, no local file lists it — Settling check: `control.mjs scan` — scan starts the stdio server and prints its tool list. |
+| "The scan reads the `sourceRoot` of each `angular.json` project plus `<root>/src`" | structure | unverifiable | the walking code lives in the external package; a scan of the portal at its root and at apps/insurance-portal would settle it — Settling check: `control.mjs scan` — a scan at the portal root shows which sourceRoots it reads. |
 
 ## Doc: .commandcode/skills/control-vitest-browser-angular/SKILL.md
 
@@ -826,7 +828,7 @@ Alignment mode: no
 | "The playwright-cli session is `control-vitest-<flowId>-<Vitest port>`" | integration | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:899 - session is built as control-vitest-<flowId>-<vitestPort> |
 | "`--timeout <s>` (default 180)" | config | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:174 - the timeout flag falls back to 180 and is multiplied by 1000 |
 | "`--bundled` runs `-c extension` (`vitest-extension.config.mts`) instead" | config | verified | spikes/ng222-app/angular.json - the extension configuration sets runnerConfig to vitest-extension.config.mts |
-| "Chrome 137+ branded builds ignore `--load-extension`" | status | unverifiable | a browser behaviour recorded in research 11 and 17; no file in this checkout tests it |
+| "Chrome 137+ branded builds ignore `--load-extension`" | status | unverifiable | a browser behaviour recorded in research 11 and 17; no file in this checkout tests it — Settling check: `control.mjs doctor` — doctor reports the loaded-extension state per instance. |
 
 ## Doc: .commandcode/skills/control-vitest-browser-angular/features/README.md
 
@@ -856,10 +858,10 @@ Alignment mode: no
 |-------|------|---------|----------|
 | "`node $S up --extension s1-vitest --hold 90000`" | command | verified | .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs:927 - --extension s1-vitest writes the S1 Vitest variant into the evidence dir extension/ folder |
 | "`spikes/s1-extension` was retired in M009" | status | verified | spikes/s1-extension does not exist, while .project/archive/001-run-unrun-spikes does, so the archived notes are where the doc says |
-| "keyed `content_isolated\|frame\|/`, `content_main\|frame\|/`" | status | unverifiable | the storage keys are written by the extension at run time; a driven extension run with chrome.storage.local read would settle them |
+| "keyed `content_isolated\|frame\|/`, `content_main\|frame\|/`" | status | unverifiable | the storage keys are written by the extension at run time; a driven extension run with chrome.storage.local read would settle them — Settling check: `control.mjs doctor` — doctor reads the injected content-script state on a driven run. |
 | "`node spikes/probes/vitest-attach.mjs --route attach --cdp-port <port> --label <label>`" | structure | verified | spikes/probes/vitest-attach.mjs and its shared spikes/probes/vitest-lib.mjs both exist, and research/raw exists for its output |
-| "In attach mode `down` uninstalls the extension" | feature | unverifiable | needs a live attach run with a loaded extension; the notes it quotes come from a run, not from a file in this checkout |
-| "`LanguageModel.availability()` is `available` in the tester iframe" | status | unverifiable | a browser model state; research/17-vitest-browser-runtime.md records it but only a live instance settles it |
+| "In attach mode `down` uninstalls the extension" | feature | unverifiable | needs a live attach run with a loaded extension; the notes it quotes come from a run, not from a file in this checkout — Settling check: `control.mjs down` — an attach-mode down followed by doctor shows the uninstall. |
+| "`LanguageModel.availability()` is `available` in the tester iframe" | status | unverifiable | a browser model state; research/17-vitest-browser-runtime.md records it but only a live instance settles it — Settling check: `control.mjs doctor` — doctor reads LanguageModel.availability in the tester iframe. |
 
 ## Doc: .commandcode/skills/control-vitest-browser-angular/features/held-counter.md
 
@@ -869,8 +871,8 @@ Alignment mode: no
 | "It keeps it mounted, clicks Increment once halfway, and checks that the count rose by one" | feature | verified | spikes/ng222-app/src/app/counter.spec.ts:62-70 - waits holdMs/2, reads the count, clicks once and expects count + 1 |
 | "the page shows Clicks: 3 (double 6, cart 2) and an Increment button" | status | verified | spikes/ng222-app/src/app/counter.spec.ts:34,61 - the overridden cart renders cart 2 from a count of 3, and the spec clicks incrementButton |
 | "`spikes/probes/vitest-iframe-probe.js`" | structure | verified | spikes/probes/vitest-iframe-probe.js exists beside spikes/probes/vitest-attach.mjs |
-| "every `ng.*` read works on the host `<div id=rootN ng-version=22.2.2>`" | status | unverifiable | the host markup comes from TestBed at run time; only a driven hold run reports the div id and version |
-| "`ng.getInjectorProviders` throws on the null injector at the end of the resolution path" | status | unverifiable | a behaviour of the Angular global inside the tester iframe; no file in this checkout asserts it |
+| "every `ng.*` read works on the host `<div id=rootN ng-version=22.2.2>`" | status | unverifiable | the host markup comes from TestBed at run time; only a driven hold run reports the div id and version — Settling check: `control.mjs up` — a held run prints the TestBed host div id and version. |
+| "`ng.getInjectorProviders` throws on the null injector at the end of the resolution path" | status | unverifiable | a behaviour of the Angular global inside the tester iframe; no file in this checkout asserts it — Settling check: `control.mjs up` — the injector throw surfaces only in a held frame. |
 
 ## Doc: .commandcode/skills/link-workspace-packages/SKILL.md
 
@@ -879,8 +881,8 @@ Alignment mode: no
 | "Root `package.json` should have `private: true` to prevent accidental publish" | config | verified | package.json:3 - the root manifest sets private true |
 | "`package-lock.json`" | config | verified | package-lock.json is the only lockfile at the repository root (Get-ChildItem finds no pnpm-lock.yaml, yarn.lock or bun.lock), so the npm branch is the one that applies here |
 | "npm install @org/ui --workspace @org/app" | command | unverifiable | the root package.json declares no workspaces field and no npm run was made; a workspace install would settle the syntax |
-| "Symlinks appear in `<consumer>/node_modules/@org/<package>`" | structure | unverifiable | no linked workspace packages exist in this checkout, so no such symlink can be inspected |
-| "pnpm: no hoisting (strict isolation, prevents phantom deps)" | status | unverifiable | a claim about pnpm behaviour; this repository has no pnpm-lock.yaml, so nothing here exercises it |
+| "Symlinks appear in `<consumer>/node_modules/@org/<package>`" | structure | unverifiable | no linked workspace packages exist in this checkout, so no such symlink can be inspected — Settling check: `git cat-file -p HEAD:package.json` — no workspaces field, so no linked symlink exists. |
+| "pnpm: no hoisting (strict isolation, prevents phantom deps)" | status | unverifiable | a claim about pnpm behaviour; this repository has no pnpm-lock.yaml, so nothing here exercises it — Settling check: `git cat-file -p HEAD:package.json` — the manifest records npm, not pnpm. |
 
 ## Doc: .commandcode/skills/monitor-ci/SKILL.md
 
@@ -899,29 +901,30 @@ Alignment mode: no
 |-------|------|---------|----------|
 | "Run `ci-state-update.mjs gate --gate-type local-fix`" | command | verified | .commandcode/skills/monitor-ci/scripts/ci-state-update.mjs:38-40 - the gate subcommand branches on gateType local-fix |
 | "Run `ci-state-update.mjs gate --gate-type env-rerun`" | command | verified | .commandcode/skills/monitor-ci/scripts/ci-state-update.mjs:57-58 - the gate subcommand branches on gateType env-rerun and the env-rerun-count flag |
-| "`nx-cloud apply-locally <shortLink>` (sets state to `APPLIED_LOCALLY`)" | command | unverifiable | nx-cloud is not installed in this checkout and no file here mentions APPLIED_LOCALLY or shortLink, so the state name cannot be checked locally |
-| "`git commit --allow-empty -m` with ci: rerun after rejecting throttled fixes" | command | unverifiable | the message exists only in this skill prose; no script under monitor-ci/scripts emits it |
+| "`nx-cloud apply-locally <shortLink>` (sets state to `APPLIED_LOCALLY`)" | command | unverifiable | nx-cloud is not installed in this checkout and no file here mentions APPLIED_LOCALLY or shortLink, so the state name cannot be checked locally — Settling check: `git cat-file -p HEAD:package.json` — no nx-cloud dependency, so the state name is prose only. |
+| "`git commit --allow-empty -m` with ci: rerun after rejecting throttled fixes" | command | unverifiable | the message exists only in this skill prose; no script under monitor-ci/scripts emits it — Settling check: `git cat-file -p HEAD:.commandcode/skills/monitor-ci/references/fix-flows.md` — the message exists only in that prose. |
 | "otherwise `npx nx`" | config | verified | package.json - test:app runs npx nx run angular-ai-devtools:test, and only package-lock.json sits at the root, so this repository takes the npx nx branch |
-| "Spawn FETCH_HEAVY subagent for `selfHealingSkipMessage`" | integration | unverifiable | subagent types and MCP field sets live in the Nx Cloud MCP server; nothing in this checkout defines FETCH_HEAVY or selfHealingSkipMessage |
+| "Spawn FETCH_HEAVY subagent for `selfHealingSkipMessage`" | integration | unverifiable | subagent types and MCP field sets live in the Nx Cloud MCP server; nothing in this checkout defines FETCH_HEAVY or selfHealingSkipMessage — Settling check: `git cat-file -p HEAD:.commandcode/skills/monitor-ci/references/fix-flows.md` — the message exists only in that prose. |
 
 ## Doc: .commandcode/skills/nx-cloud-api/SKILL.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "npx nx-cloud api, the read-only Nx Cloud Public API command" | command | unverifiable | node_modules/nx/dist/src/command-line/nx-commands.js:59-93 - installed nx 23.3.0 registers no api command and node_modules/nx-cloud is absent, so the CLI cannot be inspected here; the nx-cloud package source would settle it |
+| "npx nx-cloud api, the read-only Nx Cloud Public API command" | command | unverifiable | node_modules/nx/dist/src/command-line/nx-commands.js:59-93 - installed nx 23.3.0 registers no api command and node_modules/nx-cloud is absent, so the CLI cannot be inspected here; the nx-cloud package source would settle it — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
 | "use `nx-cloud-cache-investigator`" for cache causes | integration | verified | .commandcode/skills/nx-cloud-cache-investigator/SKILL.md:2 - the named sibling skill is installed next to this one under .commandcode/skills |
 | "references/extraction-and-calculation.md" as the next read for multi-range extraction | structure | verified | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md:1 - the relative link resolves inside the skill directory |
-| "with `-i` or `NX_VERBOSE_LOGGING`" extra stderr records | config | unverifiable | node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js:170 - NX_VERBOSE_LOGGING is a real Nx variable, but the extra response and log records come from the absent nx-cloud client |
-| "`--page-size` (which sets `limit`, max 500)" | command | unverifiable | no nx-cloud client under node_modules; `npx nx-cloud api --describe` output would name the server limit |
+| "with `-i` or `NX_VERBOSE_LOGGING`" extra stderr records | config | unverifiable | node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js:170 - NX_VERBOSE_LOGGING is a real Nx variable, but the extra response and log records come from the absent nx-cloud client — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| "`--page-size` (which sets `limit`, max 500)" | command | unverifiable | no nx-cloud client under node_modules; `npx nx-cloud api --describe` output would name the server limit — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
 
 ## Doc: .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "npx nx-cloud api task-stats -f dateAfter=... -f percentiles=50 --pages 3 -o" | command | unverifiable | active npm tree has no nx-cloud package (node_modules/nx-cloud absent) and nx-commands.js registers no api command; `npx nx-cloud api --describe task-stats` would confirm the filter names |
-| "A non-null `nextCursor` means the range is incomplete" | status | unverifiable | the wrapped list shape is defined only by the absent nx-cloud client; one live list response would settle it |
-| "Encrypted artifacts can be decrypted with `npx nx-cloud decrypt-artifact`" | command | unverifiable | node_modules/.bin has no nx-cloud binary; the nx-cloud package manifest would name the subcommand |
-| "Do not use `--format ndjson` for extraction; it records neither completion state nor a resume cursor" | status | unverifiable | needs the nx-cloud CLI source or an ndjson response; nothing in this repo produces either |
+| "the skill links `references/extraction-and-calculation.md` at `SKILL.md:165`" | structure | verified | git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/SKILL.md - line 165 carries the Markdown link [references/extraction-and-calculation.md](references/extraction-and-calculation.md) |
+| "npx nx-cloud api task-stats -f dateAfter=... -f percentiles=50 --pages 3 -o" | command | unverifiable | active npm tree has no nx-cloud package (node_modules/nx-cloud absent) and nx-commands.js registers no api command; `npx nx-cloud api --describe task-stats` would confirm the filter names — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| "A non-null `nextCursor` means the range is incomplete" | status | unverifiable | the wrapped list shape is defined only by the absent nx-cloud client; one live list response would settle it — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| "Encrypted artifacts can be decrypted with `npx nx-cloud decrypt-artifact`" | command | unverifiable | node_modules/.bin has no nx-cloud binary; the nx-cloud package manifest would name the subcommand — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| "Do not use `--format ndjson` for extraction; it records neither completion state nor a resume cursor" | status | unverifiable | needs the nx-cloud CLI source or an ndjson response; nothing in this repo produces either — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
 | "Nx Cloud log and report assets are compressed binary payloads" | status | unverifiable | no Nx Cloud asset exists for this workspace (nx.json has no nxCloudId); a downloaded -o asset would settle the format |
 
 ## Doc: .commandcode/skills/nx-cloud-cache-investigator/SKILL.md
@@ -933,23 +936,25 @@ Alignment mode: no
 | "Query the exact target with the workspace-local Nx command: nx show project ... --json" | command | verified | node_modules/nx/dist/src/command-line/show/command-object.js:87 declares the project subcommand and :17 the --json option; node_modules/nx/schemas/project-schema.json:41,48,65,137 declare executor, outputs, inputs and cache as target properties |
 | "A target `cache` field controls Nx replay" | feature | verified | node_modules/nx/schemas/project-schema.json:137 declares cache on a target and nx.json:5-7 sets targetDefaults.build.cache true for this workspace |
 | "If `cacheEnabled: false`, that run did not use the Nx task cache" | status | unverifiable | no Nx Cloud run record exists for this workspace (nx.json has no nxCloudId, node_modules/nx-cloud absent); one api run record would settle it |
-| "Arrange one same-session wake only when a known task is non-terminal" | status | unverifiable | procedural retry policy with no repo artifact; an api 409 not_terminal response would be the test |
+| "Arrange one same-session wake only when a known task is non-terminal" | status | unverifiable | procedural retry policy with no repo artifact; an api 409 not_terminal response would be the test — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
 
 ## Doc: .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Download the exact task-row artifact link with `npx nx-cloud api <link> -o <private-file>.tar.gz`" | command | unverifiable | node_modules/nx-cloud is absent and nx-commands.js:59-93 registers no api command; the nx-cloud CLI source would settle the download behaviour |
-| "If the artifact is encrypted, decrypt a copy with `npx nx-cloud decrypt-artifact`" | command | unverifiable | node_modules/.bin contains no nx-cloud binary; the nx-cloud package manifest would name the subcommand |
-| "Byte-identical malformed downloads across retries support a persistent bad cache object" | feature | unverifiable | needs a real Nx Cloud artifact download; this workspace has no cloud connection to produce one |
-| "The API cannot identify an upload path, writer, storage event, or service mutation" | status | unverifiable | requires the live API schema (`npx nx-cloud api --describe`); no nx-cloud client is installed here |
+| "the skill links `references/artifact-integrity.md` at `SKILL.md:126`" | structure | verified | git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/SKILL.md - line 126 carries the Markdown link [references/artifact-integrity.md](references/artifact-integrity.md) |
+| "Download the exact task-row artifact link with `npx nx-cloud api <link> -o <private-file>.tar.gz`" | command | unverifiable | node_modules/nx-cloud is absent and nx-commands.js:59-93 registers no api command; the nx-cloud CLI source would settle the download behaviour — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| "If the artifact is encrypted, decrypt a copy with `npx nx-cloud decrypt-artifact`" | command | unverifiable | node_modules/.bin contains no nx-cloud binary; the nx-cloud package manifest would name the subcommand — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| "Byte-identical malformed downloads across retries support a persistent bad cache object" | feature | unverifiable | needs a real Nx Cloud artifact download; this workspace has no cloud connection to produce one — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| "The API cannot identify an upload path, writer, storage event, or service mutation" | status | unverifiable | requires the live API schema (`npx nx-cloud api --describe`); no nx-cloud client is installed here — Settling check: a live Nx Cloud response — no command in this checkout reaches the live API schema, so that response is the external artifact. |
 
 ## Doc: .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "Task assets are typed `logs`, `artifact`, or `sandbox-report`" | config | unverifiable | no Nx Cloud task row or asset schema in this repo; a task-list JSON row would name the asset types |
-| "Download the exact row-provided link with `npx nx-cloud api <link> -o <private-file>.tar.gz`" | command | unverifiable | nx-cloud client missing (node_modules/nx-cloud absent, no api command in nx-commands.js:59-93) |
+| "the skill links `references/log-and-report-assets.md` at `SKILL.md:78`" | structure | verified | git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/SKILL.md - line 78 carries the Markdown link [references/log-and-report-assets.md](references/log-and-report-assets.md) |
+| "Task assets are typed `logs`, `artifact`, or `sandbox-report`" | config | unverifiable | no Nx Cloud task row or asset schema in this repo; a task-list JSON row would name the asset types — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| "Download the exact row-provided link with `npx nx-cloud api <link> -o <private-file>.tar.gz`" | command | unverifiable | nx-cloud client missing (node_modules/nx-cloud absent, no api command in nx-commands.js:59-93) — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
 | "A downloaded asset proves only that it resolves now. A 404 does not prove that it never existed" | status | unverifiable | requires a live asset download; nx.json records no Nx Cloud workspace, so no asset URL exists to test |
 
 ## Doc: .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md
@@ -957,9 +962,9 @@ Alignment mode: no
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "Requires the `nx-cloud-api` skill for all Nx Cloud reads" | integration | verified | .commandcode/skills/nx-cloud-api/SKILL.md:2 - the required skill is installed in the same .commandcode/skills tree |
-| "Query `statuses=FAILED`, `statuses=TIMED_OUT`, and `statuses=CANCELED`" | command | unverifiable | needs `npx nx-cloud api --describe cipes`; no nx-cloud client exists under node_modules |
-| "the public API has no separate workflow routes" | integration | unverifiable | requires the live operation list from --list-operations, which the absent nx-cloud client would print |
-| "inspect `CODEOWNERS` and project ownership metadata at the recorded commit" | structure | unverifiable | no CODEOWNERS or .github/CODEOWNERS exists in this checkout and no recorded failed-run commit is supplied; either would settle it |
+| "Query `statuses=FAILED`, `statuses=TIMED_OUT`, and `statuses=CANCELED`" | command | unverifiable | needs `npx nx-cloud api --describe cipes`; no nx-cloud client exists under node_modules — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-ci-failure-review/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| "the public API has no separate workflow routes" | integration | unverifiable | requires the live operation list from --list-operations, which the absent nx-cloud client would print — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-ci-failure-review/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| "inspect `CODEOWNERS` and project ownership metadata at the recorded commit" | structure | unverifiable | no CODEOWNERS or .github/CODEOWNERS exists in this checkout and no recorded failed-run commit is supplied; either would settle it — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-cloud-ci-failure-review/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
 
 ## Doc: .commandcode/skills/nx-generate/SKILL.md
 
@@ -989,8 +994,8 @@ Alignment mode: no
 |-------|------|---------|----------|
 | "`@nx/eslint/plugin` scans for ESLint config files and creates a lint target for each project" | integration | unverifiable | @nx/eslint 23.3.0 is installed but nx.json:25-31 registers only @nx/playwright/plugin and no eslint.config.* exists at the root; an inferred lint target listing would settle it |
 | "Plugin options ... set during `nx add @nx/eslint` ... options: { targetName: eslint:lint }" | config | verified | nx.json:27-29 uses exactly that plugins[].options.targetName shape for @nx/playwright/plugin, and add/command-object.js:22 shows nx add runs the package init generator |
-| "`nx import` auto-detects ESLint config files and offers to install `@nx/eslint`" | feature | unverifiable | requires an import run; import/command-object.js declares no ESLint-specific option |
-| "`typescript-eslint@7.x` declares peerDependencies: { eslint: ^8.56.0 }" | config | unverifiable | node_modules/typescript-eslint is absent and no v7 manifest exists here; the published package would settle it |
+| "`nx import` auto-detects ESLint config files and offers to install `@nx/eslint`" | feature | unverifiable | requires an import run; import/command-object.js declares no ESLint-specific option — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-import/references/ESLINT.md` — the doc is the only local source; an import run would settle the offer. |
+| "`typescript-eslint@7.x` declares peerDependencies: { eslint: ^8.56.0 }" | config | unverifiable | node_modules/typescript-eslint is absent and no v7 manifest exists here; the published package would settle it — Settling check: `git cat-file -p HEAD:package-lock.json` — no typescript-eslint v7 entry, so the published manifest is the only source. |
 | "Pin ESLint to v9 (`eslint@^9.0.0`). ESLint 10 breaks `@nx/eslint`" | config | stale | node_modules/@nx/eslint/package.json:76 - peer range is `^9.0.0 \|\| ^10.0.0`, and node_modules/eslint/package.json holds 10.13.0, so v10 is supported rather than broken |
 
 ## Doc: .commandcode/skills/nx-import/references/GRADLE.md
@@ -999,7 +1004,7 @@ Alignment mode: no
 |-------|------|---------|----------|
 | "The `@nx/gradle` plugin expects those files at the workspace root to infer Gradle projects/tasks automatically" | integration | unverifiable | node_modules/@nx/gradle is absent and package.json lists no @nx/gradle devDependency; the plugin source would settle the wrapper expectation |
 | "If `@nx/gradle` is installed, run `nx show projects`" | command | verified | node_modules/nx/dist/src/command-line/show/command-object.js:38 - the projects subcommand is registered |
-| "files like `gradlew`, `gradlew.bat`, and `gradle/wrapper`" | structure | unverifiable | this workspace has no Gradle files at all (no gradlew, gradlew.bat or gradle/), so nothing here confirms the expected layout |
+| "files like `gradlew`, `gradlew.bat`, and `gradle/wrapper`" | structure | unverifiable | this workspace has no Gradle files at all (no gradlew, gradlew.bat or gradle/), so nothing here confirms the expected layout — Settling check: `git cat-file -p HEAD:package.json` — no Gradle files exist, so nothing local confirms the layout. |
 
 ## Doc: .commandcode/skills/nx-import/references/JEST.md
 
@@ -1008,7 +1013,7 @@ Alignment mode: no
 | "`@nx/jest/plugin` scans for `jest.config.{ts,js,cjs,mjs,cts,mts}` and creates a `test` target for each project" | integration | unverifiable | node_modules/@nx/jest is absent, nx.json registers no jest plugin, and the workspace has zero jest.config.* files |
 | "`npx nx add @nx/jest` ... Registers `@nx/jest/plugin` in `nx.json`" | command | verified | node_modules/nx/dist/src/command-line/add/command-object.js:7 and :22 - add <packageSpecifier> installs the package and runs its init generator |
 | "Both `@nx/jest/plugin` and `@nx/vite/plugin` (which infers Vitest targets) coexist without conflicts" | integration | unverifiable | neither plugin is registered in nx.json; this workspace runs vitest through the @angular/build:unit-test target (nx.json:16-19, package.json:33) |
-| "`ciTargetName`: `test-ci` ... creates `test-ci--src/lib/foo.spec.ts` targets" | config | unverifiable | needs the @nx/jest plugin source, which is not installed here |
+| "`ciTargetName`: `test-ci` ... creates `test-ci--src/lib/foo.spec.ts` targets" | config | unverifiable | needs the @nx/jest plugin source, which is not installed here — Settling check: `git cat-file -p HEAD:nx.json` — no jest plugin, so the ciTargetName shape has no local instance. |
 | "Jest vs Vitest coexistence" across config files | integration | unverifiable | this workspace generates vitest-angular tests via nx.json:34-36 and has no Jest config; a mixed workspace would be needed |
 
 ## Doc: .commandcode/skills/nx-import/references/NEXT.md
@@ -1016,9 +1021,9 @@ Alignment mode: no
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
 | "`@nx/next/plugin` detects `next.config.{ts,js,cjs,mjs}` and creates these targets" | integration | unverifiable | node_modules/@nx/next is absent, nx.json registers only @nx/playwright/plugin, and both workspace projects are Angular (apps/angular-ai-devtools, apps/angular-ai-devtools-e2e) |
-| "No separate typecheck target - Next.js runs TypeScript checking as part of `next build`" | feature | unverifiable | requires the @nx/next plugin source or a Next.js project; neither exists in this workspace |
+| "No separate typecheck target - Next.js runs TypeScript checking as part of `next build`" | feature | unverifiable | requires the @nx/next plugin source or a Next.js project; neither exists in this workspace — Settling check: `git cat-file -p HEAD:nx.json` — no @nx/next plugin is registered. |
 | "`nx reset && nx sync --yes && nx run-many -t typecheck,build,test,lint`" | command | verified | node_modules/nx/dist/src/command-line/nx-commands.js:89, :91 and :93 register reset, run-many and sync; yargs-utils/shared-options.js:360 gives -t the targets alias |
-| "`@nx/next:init` rewrites all npm scripts (Whole-Repo Import)" | feature | unverifiable | needs an import run with @nx/next installed; no generator or script of that name exists here |
+| "`@nx/next:init` rewrites all npm scripts (Whole-Repo Import)" | feature | unverifiable | needs an import run with @nx/next installed; no generator or script of that name exists here — Settling check: `git cat-file -p HEAD:package.json` — no @nx/next dependency is listed. |
 
 ## Doc: .commandcode/skills/nx-import/references/TURBOREPO.md
 
@@ -1036,8 +1041,8 @@ Alignment mode: no
 | "`@nx/vite/plugin` defaults `typecheckTargetName` to `vite:typecheck`" | config | unverifiable | node_modules/@nx/vite is absent and nx.json registers no vite plugin; the plugin source would name the default |
 | "Shared Vite deps (both frameworks): `vite`, `vitest`, `jsdom`, `@types/node`, `typescript` (dev)" | config | verified | package.json:30-33 declares @types/node ^26.6.5, jsdom ^27.1.0, typescript 6.0.3 and vitest ^4.0.8; vite itself is not a declared dependency |
 | "`nx sync --yes && nx reset && nx run-many -t typecheck,build,test,lint`" | command | verified | node_modules/nx/dist/src/command-line/nx-commands.js:89, :91 and :93 register reset, run-many and sync |
-| "React Router 7 outputs to `build/` (not `dist/`)" | feature | unverifiable | no React Router project exists in this workspace; a react-router build would settle it |
-| "Vite 6 to 7: Typecheck fails (`Plugin<any>` type mismatch)" | status | unverifiable | needs the @nx/vite plugin source or an upgrade run; it is not installed here |
+| "React Router 7 outputs to `build/` (not `dist/`)" | feature | unverifiable | no React Router project exists in this workspace; a react-router build would settle it — Settling check: `git cat-file -p HEAD:package.json` — no react-router dependency, so no build output can be inspected. |
+| "Vite 6 to 7: Typecheck fails (`Plugin<any>` type mismatch)" | status | unverifiable | needs the @nx/vite plugin source or an upgrade run; it is not installed here — Settling check: `git cat-file -p HEAD:package-lock.json` — the lock records the installed Vite range, not the 6-to-7 upgrade. |
 
 ## Doc: .commandcode/skills/nx-plugins/SKILL.md
 
@@ -1066,7 +1071,7 @@ Alignment mode: no
 | Key nx.json sections: targetDefaults, namedInputs, plugins | config | stale | nx.json:2,3,25,33 — top-level keys are analytics, targetDefaults, plugins, generators; namedInputs is absent |
 | Do NOT read project.json directly - it only contains partial configuration | feature | verified | nx.json:25-32 — @nx/playwright/plugin infers the e2e target (targetName e2e), so apps/angular-ai-devtools/project.json is not the resolved config |
 | nx show projects --withTarget e2e | command | verified | nx.json:27-30 — plugin option targetName e2e defines that target for the workspace |
-| nx sync then nx reset if sync does not fix stale cache | command | unverifiable | no nx invocation is allowed in this audit; a captured run of nx sync exit code would settle it |
+| nx sync then nx reset if sync does not fix stale cache | command | unverifiable | no nx invocation is allowed in this audit; a captured run of nx sync exit code would settle it — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-workspace/SKILL.md` — the doc is the only local source; a captured sync run would settle the exit code. |
 
 ## Doc: .commandcode/skills/nx-workspace/references/AFFECTED.md
 
@@ -1076,7 +1081,7 @@ Alignment mode: no
 | Affected between two commits --base=abc123 --head=def456 | command | verified | node_modules/nx/dist/src/command-line/graph/command-object.js:21 — .implies(head, affected) |
 | Affected by uncommitted changes --uncommitted | command | verified | node_modules/nx/dist/src/command-line/graph/command-object.js:18 — .implies(uncommitted, affected) |
 | Affected by untracked files --untracked | command | verified | node_modules/nx/dist/src/command-line/graph/command-object.js:17 — .implies(untracked, affected) |
-| Affected excluding e2e projects --exclude=*-e2e | command | unverifiable | no nx invocation allowed in this audit; the exclude option is not in node_modules/nx/dist/src/command-line/graph/command-object.js:13-21, so a captured nx show projects --affected run would settle it |
+| Affected excluding e2e projects --exclude=*-e2e | command | unverifiable | no nx invocation allowed in this audit; the exclude option is not in node_modules/nx/dist/src/command-line/graph/command-object.js:13-21, so a captured nx show projects --affected run would settle it — Settling check: `git cat-file -p HEAD:.commandcode/skills/nx-workspace/references/AFFECTED.md` — the doc is the only local source; a captured affected run would settle the exclude option. |
 
 ## Doc: .commandcode/skills/verify-ai-browsers/SKILL.md
 
@@ -1160,7 +1165,7 @@ Alignment mode: no
 | "Keep spikes/ and research/ in the repository; do not archive them" | structure | verified | git ls-files counts 105 tracked files under spikes/ and 96 under research/ |
 | "Gitignore .playwright-cli/ and scrub any .playwright-cli/ files from Git history" | config | verified | .gitignore:1 - .playwright-cli/ ignored; git ls-files .playwright-cli returns 0 paths |
 | "the finish-inspect gate (--expected-head, --inspection, --mapper-reviewed)" | command | verified | C:/Users/LarsGyrupBrinkNielse/.commandcode/skills/gsd-path-inspect/SKILL.md:70-72 - finish-inspect takes those three flags plus the repo root |
-| "AFK mode runs with a 4-agent cap" | status | unverifiable | no agent-cap setting in the repo; the cap is user-scope, so settle with the AFK section of C:/Users/LarsGyrupBrinkNielse/.commandcode/AGENTS.md |
+| "AFK mode runs with a 4-agent cap" | status | unverifiable | no agent-cap setting in the repo; the cap is user-scope, so settle with the AFK section of C:/Users/LarsGyrupBrinkNielse/.commandcode/AGENTS.md — Settling check: `git cat-file -p HEAD:.commandcode/taste/workflow/taste.md` — the cap is recorded only in that taste line. |
 
 ## Doc: AGENTS.md
 
@@ -1180,19 +1185,9 @@ Alignment mode: no
 | All eight skills (control- and verify- for ai-browsers, angular-dev-app, angular-devtools, pangular-inspector) are committed | structure | verified | .commandcode/skills — control-ai-browsers, control-angular-dev-app, control-angular-devtools, control-pangular-inspector, verify-ai-browsers, verify-angular-devtools, verify-pangular-inspector plus control-vitest-browser-angular make eight |
 | Lars rulings, verbatim: docs/feature-proposals.md section 8, Rulings from Lars | structure | verified | docs/feature-proposals.md:1001 — section 8, and :1042 — heading Rulings from Lars (2026-10-11 to 2026-10-12) |
 | Spike S1: its table is in research/ | structure | verified | research/s1-results/ — the spike result folder is present |
-| The lars-create-control-skill contract (references/generated-skill.md) | structure | unverifiable | references/generated-skill.md is absent from the checkout and from ~/.commandcode/references; the lars-create-control-skill skill folder would settle where the contract lives |
-| Briefs: .audit/maintain-brief.md, .audit/ai-browsers-rework.md | structure | unverifiable | neither .audit path exists at base 44e4f9b5 (never committed or removed); git log of .audit would settle it |
-| Tree clean: git status shows nothing but ignored paths | status | unverifiable | a snapshot of 2026-10-12 that no later tree state can confirm; the run log itself is the only record |
-
-## Doc: docs/autonomy-gaps.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| Pin: scripts/autonomy-gaps.test.mjs rule G1 — the orchestrator prompt forbids reading 0 and names the helper JSON and $LASTEXITCODE | feature | verified | scripts/autonomy-gaps.test.mjs:95 — test named G1 prompt pin: the orchestrator prompt forbids reading 0 ... |
-| rule G2 — the orchestrator prompt names the milestone event and the pre-authorized approval transition | feature | verified | scripts/autonomy-gaps.test.mjs:103 — test named G2 prompt pin: the orchestrator prompt names the milestone event ... |
-| rule G3 — the orchestrator prompt states the DOCS-AUDIT ruling numbering and the escaped pipe trap | feature | verified | scripts/autonomy-gaps.test.mjs:111 — test named G3 prompt pin: the orchestrator prompt states the DOCS-AUDIT ruling numbering ... |
-| scripts/user-scope-autonomy.mjs resolves the exact segments the pins read | structure | verified | scripts/user-scope-autonomy.mjs:243,265,281 — exports resolveRulesRoot, listGsdTestFiles and resolveGsdDir, the path resolution the pins read |
-| Verified: node --experimental-strip-types --test scripts/autonomy-gaps.test.mjs exit 0 — tests 15 / pass 15 | status | unverifiable | no test runner may run in this audit; a grep counts 15 test() calls in scripts/autonomy-gaps.test.mjs (G1-G6 among them), so only the run itself would prove pass 15 |
+| The lars-create-control-skill contract (references/generated-skill.md) | structure | unverifiable | references/generated-skill.md is absent from the checkout and from ~/.commandcode/references; the lars-create-control-skill skill folder would settle where the contract lives — Settling check: `git cat-file -p HEAD:docs/afk-run-2026-10-12.md` — the run log is the only local record of where the contract lives. |
+| Briefs: .audit/maintain-brief.md, .audit/ai-browsers-rework.md | structure | unverifiable | neither .audit path exists at base 44e4f9b5 (never committed or removed); git log of .audit would settle it — Settling check: `git cat-file -e HEAD:.audit/maintain-brief.md` — an existence read at HEAD settles whether the briefs were ever committed. |
+| Tree clean: git status shows nothing but ignored paths | status | unverifiable | a snapshot of 2026-10-12 that no later tree state can confirm; the run log itself is the only record — Settling check: `git cat-file -p HEAD:docs/afk-run-2026-10-12.md` — the run log is the only record of that tree state. |
 
 ## Doc: docs/design/tutor.md
 
@@ -1202,7 +1197,7 @@ Alignment mode: no
 | Availability answered 2026-10-19 without flags (research/20) | feature | verified | research/20-built-in-ai-without-flags.md — present, the file the row cites |
 | T1-T12: tutor features beyond the initial sketch | structure | verified | docs/design/tutor.md:559-636 — headings T1, T2, T5, T3, T6, T4, T8, T7, T9, T10, T11 and T12 under section 9 |
 | All tutor state is in chrome.storage.local, written by the panel | feature | aspirational | no tutor: key or tutor module exists in apps/, extension/ or libs/ at base 44e4f9b5, so the storage design has no implementation to check it against |
-| /contract/list (47 components, repeated classes) | config | unverifiable | the Insurance Portal checkout lives outside this repository (D:\projects\github\LayZeeDK\...); counting its components would settle it |
+| /contract/list (47 components, repeated classes) | config | unverifiable | the Insurance Portal checkout lives outside this repository (D:\projects\github\LayZeeDK\...); counting its components would settle it — Settling check: `control.mjs up --target portal` — the portal clone must serve /contract/list before its components can be counted. |
 
 ## Doc: docs/feature-proposals.md
 
@@ -1235,7 +1230,7 @@ Alignment mode: no
 | Initial-bundle budget is a hard 520 KB | config | verified | apps/angular-ai-devtools/project.json:82 — maximumWarning 520kb inside the build-extension budgets at :79 |
 | the way M001-M017 was actually grown (17 entries, never one dispatch) | status | verified | .project/archive — seventeen milestone archives from 001-run-unrun-spikes to 017-verification-coverage |
 | Milestone: ROADMAP.md entry M###, never renumbered, ids never restart | structure | verified | .project/archive — ids 001 to 019 present once each, the series continuing at 019-context-and-jobs |
-| Generation: at most 12 entries, fully specified | config | unverifiable | a planning rule with no machine check in this repository; the milestone count in .project/ROADMAP.md for the open generation would settle it |
+| Generation: at most 12 entries, fully specified | config | unverifiable | a planning rule with no machine check in this repository; the milestone count in .project/ROADMAP.md for the open generation would settle it — Settling check: `git cat-file -p HEAD:plans/angular-ai-devtools-program-backlog.md` — the planning rule is prose; its milestone rows are what could settle the count. |
 
 ## Doc: plans/angular-ai-devtools-proposals.handoff.md
 
@@ -1256,7 +1251,7 @@ Alignment mode: no
 | The next milestone, M019 context-and-jobs, is prepared to plan/done on gsd-path/M019 and is ready for build | status | stale | .project/archive/019-context-and-jobs — M019 is already archived (shipped), so it is not waiting for build |
 | Frozen inventory: 143 documents | status | stale | C:\Users\LARSGY~1\AppData\Local\Temp\m020-inventory.txt — the frozen inventory at base 44e4f9b5 lists 144 .md paths, not 143 |
 | Panel initial-bundle budget is 520 KB (project.json, build-extension) | config | verified | apps/angular-ai-devtools/project.json:82 — maximumWarning 520kb under the budgets of the build-extension target at line 79 |
-| isolation.py isolate-verify requires --repo --base --name, and --base must be a full 40-character SHA | command | unverifiable | isolation.py sits in user scope (~/.commandcode/skills/gsd-path/scripts), outside this repository; its argv parsing or a rejected short-SHA run would settle it |
+| isolation.py isolate-verify requires --repo --base --name, and --base must be a full 40-character SHA | command | unverifiable | isolation.py sits in user scope (~/.commandcode/skills/gsd-path/scripts), outside this repository; its argv parsing or a rejected short-SHA run would settle it — Settling check: `git cat-file -p HEAD:plans/gsd-path-handoff-M018.md` — the handoff is the only local record; the user-scope isolation.py argv parsing would settle it. |
 
 ## Doc: references/ai-browsers-verification.md
 
@@ -1267,7 +1262,7 @@ Alignment mode: no
 | chrome-stable-nano (Gemini Nano), chrome-beta-gemma4 (Gemma 4), edge-phi4mini (Phi-4-mini) and edge-dev-aion (Aion-1.1-Instruct) | config | verified | .commandcode/skills/control-ai-browsers/instances.json:67-198 — the four instance keys with model names v3Nano, gemma4-2b-it, Phi-4-mini-instruct and Aion-1.1-Instruct |
 | chrome-beta-nano serves the same v3Nano model as chrome-stable-nano, so it is not part of the verified set | config | verified | .commandcode/skills/control-ai-browsers/instances.json:90,221 — both instances declare model name v3Nano with downloadMib 4073 |
 | Ports 9333-9338 belong to the shared instances | config | verified | .commandcode/skills/control-ai-browsers/instances.json:70,101,135,173,201 — ports 9333, 9334, 9335, 9337, 9338 assigned; 9336 is unassigned inside the quoted range |
-| Check that port 9992 is free | config | unverifiable | no 9992 reference in .commandcode/skills or scripts (a recursive sweep of .commandcode found only browser-profile noise); a playwright-cli session port listing would settle it |
+| Check that port 9992 is free | config | unverifiable | no 9992 reference in .commandcode/skills or scripts (a recursive sweep of .commandcode found only browser-profile noise); a playwright-cli session port listing would settle it — Settling check: `control.mjs info` — the session port list shows whether 9992 is in use. |
 
 ## Doc: references/edge-dev-aion-model.md
 
@@ -1298,7 +1293,7 @@ Alignment mode: no
 | "in the browsers the member is spelled callID; callId throws Required member is undefined" | feature | verified | .commandcode/skills/control-ai-browsers/scripts/control.mjs:1424 - tool-call handling reads c.callID first and only then falls back to c.callId |
 | "Enabling it turns on AIPromptAPIToolUse,OnDeviceModelConversationBackend,AIApiFoundationalModel:model_version/v4" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:106-108 - the Gemma 4 instance enables exactly those three features |
 | "Edge Dev 157 manifest names Aion-1.1-Instruct" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:162 - the edge-dev-aion model entry is named Aion-1.1-Instruct |
-| "Angular ships `provideExperimentalWebMcpTools`" | feature | unverifiable | no @angular/core sources are installed in this checkout; settle by reading the Angular release notes or node_modules/@angular/core |
+| "Angular ships `provideExperimentalWebMcpTools`" | feature | unverifiable | no @angular/core sources are installed in this checkout; settle by reading the Angular release notes or node_modules/@angular/core — Settling check: the Angular release notes — no command in this checkout reaches the Angular package, so that artifact is what settles it. |
 
 ## Doc: research/02-angular-surface.md
 
@@ -1374,7 +1369,7 @@ Alignment mode: no
 | "availability() returns available for the same options" while create fails | status | verified | research/raw/matrix-nano.json:1 - same variant reports availability available although create errors |
 | "Measured behaviour: `05-spikes.md`, section Root cause hunt (Chrome Beta 156.0.8078.17, Nano profile serving `v3Nano`)" | structure | verified | research/05-spikes.md:125 - the Root cause hunt section exists at that line under that title |
 | "--enable-features=AIPromptAPIToolUse,OnDeviceModelConversationBackend,AIApiFoundationalModel:model_version/v4" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:106-108 - the Gemma 4 instance enables exactly those three features |
-| "The message is `kExceptionMessageUnableToCreateSession` in exception_helpers.cc#L68-L70" | feature | unverifiable | the Chromium source at tag 156.0.8078.17 is not vendored in this checkout; settle by fetching third_party/blink/renderer/modules/ai/exception_helpers.cc at that tag |
+| "The message is `kExceptionMessageUnableToCreateSession` in exception_helpers.cc#L68-L70" | feature | unverifiable | the Chromium source at tag 156.0.8078.17 is not vendored in this checkout; settle by fetching third_party/blink/renderer/modules/ai/exception_helpers.cc at that tag — Settling check: the Chromium source checkout at tag 156.0.8078.17 — no command in this checkout reaches it, so that artifact is what settles the message. |
 
 ## Doc: research/10-model-capabilities.md
 
@@ -1384,7 +1379,7 @@ Alignment mode: no
 | "the instance is edge-phi4mini" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:171 - instance key edge-phi4mini is defined |
 | "the file was overwritten by the second benchmark round (it now holds the CPU run, native 1/15, fallback 0/15)" | status | verified | research/raw/bench/nano.json:1 - modes.native.runPasses 1/15, modes.fallback.runPasses 0/15 |
 | "spikes/probes/bench/nano.json and spikes/probes/bench.js:62" | structure | unverifiable | spikes/probes/bench.js exists, spikes/probes/bench/nano.json does not (Test-Path false); only research/raw/bench/nano.json holds the figures |
-| "Chrome and Edge both ship llguidance, a grammar-constrained decoder" | feature | unverifiable | no llguidance source in this checkout; needs the Chromium and Edge build reads cited in research/07 (B2, B3) |
+| "Chrome and Edge both ship llguidance, a grammar-constrained decoder" | feature | unverifiable | no llguidance source in this checkout; needs the Chromium and Edge build reads cited in research/07 (B2, B3) — Settling check: the recorded Chromium and Edge build reads — no command in this checkout reaches them, so that artifact is what settles it. |
 
 ## Doc: research/11-spike-s1-extension-contexts.md
 
@@ -1400,7 +1395,7 @@ Alignment mode: no
 
 | Claim | Type | Verdict | Evidence |
 |-------|------|---------|----------|
-| "spike main.js:n = spikes/ng222-app/dist/ng222-app/browser/main.js line n in this repo" | structure | unverifiable | that path is absent in the checkout and in the sidecar (Test-Path false); the bundle would have to be rebuilt to count its 968 ngDevMode references |
+| "spike main.js:n = spikes/ng222-app/dist/ng222-app/browser/main.js line n in this repo" | structure | unverifiable | that path is absent in the checkout and in the sidecar (Test-Path false); the bundle would have to be rebuilt to count its 968 ngDevMode references — Settling check: `npx nx run angular-ai-devtools:build` — the bundle has to be rebuilt before its ngDevMode lines can be counted. |
 | "rg -c @deprecated A/goldens/public-api: core 23, common 44" | config | verified | D:\projects\github\angular\angular\goldens\public-api\core\index.api.md and common\index.api.md - 23 and 44 @deprecated matches; clone on branch 22.2.x at 5db6fc4453 |
 | "N10 flags it when detected" | feature | verified | docs/feature-proposals.md:57-58 - Reactive and template-driven forms and decorator @Input() fields are listed as flagged by N10 |
 | "docs/feature-proposals.md N24 flags a plain field written in a subscribe callback" | feature | verified | docs/feature-proposals.md:97 - N24 row: finds the plain field written in a subscribe callback in a zoneless app |
@@ -1460,7 +1455,7 @@ Alignment mode: no
 | "The correct feature flags (not msBrowserSignin)" | config | verified | .commandcode/skills/control-ai-browsers/instances.json:32,51 - Edge browserArgs use --disable-features=msImplicitSignin,msProfileSignIn,msOneAuthWAM,msForceBrowserSignIn; msBrowserSignin appears nowhere |
 | "--disable-sync is redundant with SyncDisabled=1 policy but harmless" | command | verified | .commandcode/skills/control-ai-browsers/instances.json:31,50 - both Edge instances pass --disable-sync in browserArgs |
 | "For a single ad-hoc launch with no persistence/account, use --guest or --bwsi" | command | unverifiable | no --guest or --bwsi switch in this repo (grep of control.mjs and instances.json finds none); needs an Edge launch to confirm behaviour |
-| "apply the policies via the Windows Registry (HKCU or HKLM) under SOFTWARE\Policies\Microsoft\Edge" | config | unverifiable | registry state is outside the repository; .commandcode/skills/control-ai-browsers/SKILL.md:306-308 only describes the switches, so a registry read is needed to settle it |
+| "apply the policies via the Windows Registry (HKCU or HKLM) under SOFTWARE\Policies\Microsoft\Edge" | config | unverifiable | registry state is outside the repository; .commandcode/skills/control-ai-browsers/SKILL.md:306-308 only describes the switches, so a registry read is needed to settle it — Settling check: an exported registry key set — no command in this checkout reaches the Windows registry, so that artifact is what settles it. |
 
 ## Doc: research/19-languagemodel-in-extension-contexts.md
 
@@ -1499,6 +1494,7 @@ Alignment mode: no
 
 ## Descriptive docs
 - .commandcode/taste/taste.md
+- docs/autonomy-gaps.md
 
 ## User rulings
 
@@ -1524,8 +1520,6 @@ Alignment mode: no
 | 284 | fix-doc | "A fresh session should be able to run /gsd-path to complete the next milestone end-to-end without a human-in-the-loop, with full milestone decision authority." | no |
 | 319 | fix-doc | "A fresh session should be able to run /gsd-path to complete the next milestone end-to-end without a human-in-the-loop, with full milestone decision authority." | no |
 | 320 | fix-doc | "A fresh session should be able to run /gsd-path to complete the next milestone end-to-end without a human-in-the-loop, with full milestone decision authority." | no |
-| 99 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
-| 100 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
 
 | 308 | fix-doc | Delegated under the recorded grant "complete the next milestone end-to-end without a human-in-the-loop, with full milestone decision authority": `node_modules/@nx/eslint/package.json:76` declares `eslint: ^9.0.0 \|\| ^10.0.0` and the workspace resolves eslint 10.13.0, so the doc's \"ESLint 10 breaks @nx/eslint\" pin is wrong; the code is authoritative. | no |
 | 329 | fix-doc | Delegated under the recorded grant "complete the next milestone end-to-end without a human-in-the-loop, with full milestone decision authority": no `angular-ai:error-explain` string exists in apps/, src/, extension/, scripts/ or tests/; the explain step is panel-local (`src/panel/error-explainer-view.ts`), so the doc names a message type that was never built. | no |
@@ -1541,156 +1535,157 @@ Alignment mode: no
 | 462 | accept-drift | Delegated under the recorded grant "complete the next milestone end-to-end without a human-in-the-loop, with full milestone decision authority": same dated handoff: its 143-document inventory was correct when written and the frozen inventory is now 144; a snapshot is not a live count. | n/a (accept-drift) |
 | 465 | fix-doc | Delegated under the recorded grant "complete the next milestone end-to-end without a human-in-the-loop, with full milestone decision authority": `.commandcode/skills/control-ai-browsers/instances.json:173` gives `edge-dev-phi4mini` port 9337 and `bench-all.sh` agrees, so the research note's 9336 is stale. | no |
 | 471 | fix-doc | Delegated under the recorded grant "complete the next milestone end-to-end without a human-in-the-loop, with full milestone decision authority": `docs/filing-ledger.md:200,210,220` (items 8, 9 and 10) are exactly the three observations the note says were never filed, so the status claim is stale. | no |
+| 99 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
+| 100 | fix-doc | "You must implement the changes proposed and verify them where possible, to reach your goal." | no |
 
 ## Remediation queue
 
 | # | Doc | Claim | Verdict | Class | Suggested action |
 |---|-----|-------|---------|-------|------------------|
-| 284 | .commandcode/pstack-models.md | "Free models available: poolside/laguna-s-2.1-free, reflection/beam:free, minimax/minimax-m3.1-flash:free, stealth/glyph-cluster:free" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 284 | .commandcode/pstack-models.md | "Free models available: poolside/laguna-s-2.1-free, reflection/beam:free, minimax/minimax-m3.1-flash:free, stealth/glyph-cluster:free" | unverifiable | fix-doc | Record the exemption: no command in this checkout reaches model availability — the Command Code model listing is the external artifact that settles it. |
 | 308 | .commandcode/skills/nx-import/references/ESLINT.md | "Pin ESLint to v9 (`eslint@^9.0.0`). ESLint 10 breaks `@nx/eslint`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 313 | .commandcode/skills/nx-import/references/VITE.md | "`@nx/vite/plugin` defaults `typecheckTargetName` to `vite:typecheck`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 313 | .commandcode/skills/nx-import/references/VITE.md | "`@nx/vite/plugin` defaults `typecheckTargetName` to `vite:typecheck`" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:package.json` and `git cat-file -p HEAD:package-lock.json` — neither records @nx/vite, so the default can only come from the plugin package. |
 | 329 | .claude/skills/control-ai-browsers/features/error-explainer.md | "message types `angular-ai:error-capture` / `angular-ai:error-explain`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 330 | .claude/skills/control-ai-browsers/features/health-check.md | "Nineteen check lines" for `C doctor` � the count is asserted nowhere in the scripts | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 330 | .claude/skills/control-ai-browsers/features/health-check.md | "Nineteen check lines" for `C doctor` � the count is asserted nowhere in the scripts | unverifiable | fix-doc | Settle it with `control.mjs doctor` on the counter instance — a live run prints the check lines and no script totals them. |
 | 331 | .claude/skills/control-ai-browsers/features/interop.md | "`apps/angular-ai-devtools/src/app/interop.component.ts`; message types `angular-ai:interop`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
 | 332 | .claude/skills/control-ai-browsers/features/interop.md | "Zero interop nodes renders an explicit empty state ("no interop nodes")" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 333 | .claude/skills/control-ai-browsers/features/interop.md | "the check exits 0 on `edge-dev-aion` with `nodes: 1`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 333 | .claude/skills/control-ai-browsers/features/interop.md | "the check exits 0 on `edge-dev-aion` with `nodes: 1`" | unverifiable | fix-doc | Settle it with `.commandcode/skills/verify-ai-browsers/checks/interop.mjs` on edge-dev-aion — the check writes the run JSON the doc quotes. |
 | 334 | .claude/skills/control-ai-browsers/features/stale-view.md | "`apps/angular-ai-devtools/src/app/stale-view.component.ts`; message types `angular-ai:stale-view`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 335 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "`Select damage type` and `Select contract` (under the label Policynumber) dropdowns" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 336 | .claude/skills/control-angular-dev-app/features/portal-complaints-customers.md | "contract details also link to the customer details page" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 337 | .claude/skills/control-angular-dev-app/features/ssr.md | "`ngDevMode.hydratedComponents` 4, `hydratedNodes` 40" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 338 | .claude/skills/control-angular-devtools/SKILL.md | "never use the playwright-cli sessions `cb`, `ed`, `ai-cb`, `ai-ed`, `ng-dev`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 339 | .claude/skills/control-angular-devtools/features/README.md | "Router Tree shows only when the app provides the router (`devtools-tabs.component.ts`)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 340 | .claude/skills/control-angular-devtools/features/attach.md | "Detection result: `isAngular`, `isDebugMode` (development build), `isIvy`, `isSupportedAngularVersion` (major 12+ or 0)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 341 | .claude/skills/control-angular-devtools/features/attach.md | "Expected (measured on the counter fixture): `flag true (set at ~50 ms)` ... `backendReady at ~950 ms`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 342 | .claude/skills/control-angular-devtools/features/attach.md | "the popup shows `production.html`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 335 | .claude/skills/control-angular-dev-app/features/portal-claims.md | "`Select damage type` and `Select contract` (under the label Policynumber) dropdowns" | unverifiable | fix-doc | Settle it with `control.mjs up --target portal` — the claim-form labels render only in a driven portal run. |
+| 336 | .claude/skills/control-angular-dev-app/features/portal-complaints-customers.md | "contract details also link to the customer details page" | unverifiable | fix-doc | Settle it with `control.mjs up --target portal` — the contract details template renders only in a driven portal run. |
+| 337 | .claude/skills/control-angular-dev-app/features/ssr.md | "`ngDevMode.hydratedComponents` 4, `hydratedNodes` 40" | unverifiable | fix-doc | Settle it with `control.mjs up --target ssr` — the hydrated counters are read from a live dev-mode page. |
+| 338 | .claude/skills/control-angular-devtools/SKILL.md | "never use the playwright-cli sessions `cb`, `ed`, `ai-cb`, `ai-ed`, `ng-dev`" | unverifiable | fix-doc | Settle it with `control.mjs info` on the sibling control-ai-browsers skill — it prints the session that skill owns. |
+| 339 | .claude/skills/control-angular-devtools/features/README.md | "Router Tree shows only when the app provides the router (`devtools-tabs.component.ts`)" | unverifiable | fix-doc | Settle it with `control.mjs panel` on the counter fixture — the scripted panel path is the only local reader of the Router Tree tab. |
+| 340 | .claude/skills/control-angular-devtools/features/attach.md | "Detection result: `isAngular`, `isDebugMode` (development build), `isIvy`, `isSupportedAngularVersion` (major 12+ or 0)" | unverifiable | fix-doc | Settle it with `control.mjs attach` — a live attach prints the detection booleans. |
+| 341 | .claude/skills/control-angular-devtools/features/attach.md | "Expected (measured on the counter fixture): `flag true (set at ~50 ms)` ... `backendReady at ~950 ms`" | unverifiable | fix-doc | Settle it with `control.mjs attach` — the timings come from a live attach run. |
+| 342 | .claude/skills/control-angular-devtools/features/attach.md | "the popup shows `production.html`" | unverifiable | fix-doc | Settle it with `tmp/control-angular-devtools/extension/1.22.0/manifest.json` — the popup asset ships inside that packaged extension. |
 | 343 | .claude/skills/control-angular-devtools/features/install.md | "End state: test: `doctor` line `extension: Angular DevTools 1.22.1 ENABLED (UNPACKED, ...)`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 344 | .claude/skills/control-angular-devtools/features/profiler.md | "Expected (measured): `own subscribers ...; DevTools recorded 2 change detection cycles`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 345 | .claude/skills/control-angular-devtools/features/signal-graph.md | "After `angular:di_graph` (measured 2026-10-11): pane `signal:count, effect:Effect`, `ng.getSignalGraph` `effect, signal:count`." | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 346 | .claude/skills/control-angular-devtools/features/signal-graph.md | "`.node-cont.kind-*` are DevTools 1.22.0 class names; re-read them from the live panel after an update." | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 347 | .claude/skills/control-pangular-inspector/features/README.md | "App: `node $D up --target portal` (API 3000, app 4507 for the default portal folder)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 348 | .claude/skills/control-pangular-inspector/features/live-inspection.md | "`inspect-providers` ... by selector or by `token`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 349 | .claude/skills/control-pangular-inspector/features/live-inspection.md | "the answer starts `No signal graph for <selector>`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 350 | .claude/skills/control-pangular-inspector/features/navigation.md | "`limit` on `explain-navigation` defaults to 5 (at most 50)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 351 | .claude/skills/control-pangular-inspector/features/navigation.md | "The sidebar entries are `div`s with `routerLink`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 352 | .claude/skills/control-pangular-inspector/features/navigation.md | "the first navigation before the overlay connected shows no details" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 353 | .claude/skills/control-pangular-inspector/features/panel.md | "`http://localhost:4507/__pangular/` (through the `ng serve` proxy)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 354 | .claude/skills/control-pangular-inspector/features/panel.md | "the eight tab names, `LIVE`, `Angular 22.2.2`, and `Agent` then `Read-only`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 355 | .claude/skills/control-pangular-inspector/features/panel.md | "A code expires after 5 minutes" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 356 | .claude/skills/control-pangular-inspector/features/panel.md | "`find` with `Toggle Pangular` on the app page finds the button" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 357 | .claude/skills/control-pangular-inspector/features/setup.md | "`check` there exits 0 where the worktree carries it with no install (measured)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 358 | .claude/skills/control-pangular-inspector/features/source-scan.md | "the stdio list of `get-routes`, `get-components`, ... `analog-*` tools" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 359 | .claude/skills/control-vitest-browser-angular/features/README.md | "the tab titled Vitest Browser Runner" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 360 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "Tests 2 passed \| 2 skipped (4) without flags" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 361 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "`--filter` ... `up --hold <ms> --filter keeps the counter mounted` runs it alone (1 passed \| 3 skipped (4))" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 362 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | "`LanguageModel.availability()` ... `unavailable` in bundled mode" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 363 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | "`ng.ɵgetInjectorProviders` throws on the null injector ..." | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 364 | .claude/skills/verify-ai-browsers/SKILL.md | "`check-teardown.mjs {runDir}/steps/teardown-<n>.out`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 365 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | `angular-ai:error-explain` | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 344 | .claude/skills/control-angular-devtools/features/profiler.md | "Expected (measured): `own subscribers ...; DevTools recorded 2 change detection cycles`" | unverifiable | fix-doc | Settle it with `control.mjs coexist` — the profiler counters come from a live coexist run. |
+| 345 | .claude/skills/control-angular-devtools/features/signal-graph.md | "After `angular:di_graph` (measured 2026-10-11): pane `signal:count, effect:Effect`, `ng.getSignalGraph` `effect, signal:count`." | unverifiable | fix-doc | Settle it with `control.mjs coexist` — the pane read and the ng.getSignalGraph read come from a driven panel plus coexist run. |
+| 346 | .claude/skills/control-angular-devtools/features/signal-graph.md | "`.node-cont.kind-*` are DevTools 1.22.0 class names; re-read them from the live panel after an update." | unverifiable | fix-doc | Settle it with `control.mjs panel` — the live panel renders the kind classes. |
+| 347 | .claude/skills/control-pangular-inspector/features/README.md | "App: `node $D up --target portal` (API 3000, app 4507 for the default portal folder)" | unverifiable | fix-doc | Settle it with `control.mjs info` — `info --target portal --json` prints the derived port. |
+| 348 | .claude/skills/control-pangular-inspector/features/live-inspection.md | "`inspect-providers` ... by selector or by `token`" | unverifiable | fix-doc | Settle it with `control.mjs call` — one `call inspect-providers` with a token settles the token form. |
+| 349 | .claude/skills/control-pangular-inspector/features/live-inspection.md | "the answer starts `No signal graph for <selector>`" | unverifiable | fix-doc | Settle it with `control.mjs call` — one `call inspect-signals` prints the answer the doc quotes. |
+| 350 | .claude/skills/control-pangular-inspector/features/navigation.md | "`limit` on `explain-navigation` defaults to 5 (at most 50)" | unverifiable | fix-doc | Settle it with `control.mjs call` — one `call explain-navigation` with no limit prints the default. |
+| 351 | .claude/skills/control-pangular-inspector/features/navigation.md | "The sidebar entries are `div`s with `routerLink`" | unverifiable | fix-doc | Record the exemption: no command in this checkout reaches the portal templates — the portal clone is the external artifact that settles it. |
+| 352 | .claude/skills/control-pangular-inspector/features/navigation.md | "the first navigation before the overlay connected shows no details" | unverifiable | fix-doc | Settle it with `control.mjs up --target portal` — the overlay behaviour needs a driven portal page. |
+| 353 | .claude/skills/control-pangular-inspector/features/panel.md | "`http://localhost:4507/__pangular/` (through the `ng serve` proxy)" | unverifiable | fix-doc | Settle it with `control.mjs info` — `info --target portal --json` prints the derived port the claim names. |
+| 354 | .claude/skills/control-pangular-inspector/features/panel.md | "the eight tab names, `LIVE`, `Angular 22.2.2`, and `Agent` then `Read-only`" | unverifiable | fix-doc | Settle it with `control.mjs up` — one driven panel load renders the tab names. |
+| 355 | .claude/skills/control-pangular-inspector/features/panel.md | "A code expires after 5 minutes" | unverifiable | fix-doc | Settle it with `control.mjs call` — the code is minted by a call and read from pangular.log. |
+| 356 | .claude/skills/control-pangular-inspector/features/panel.md | "`find` with `Toggle Pangular` on the app page finds the button" | unverifiable | fix-doc | Settle it with `control.mjs up` — the overlay button renders only on a driven app page. |
+| 357 | .claude/skills/control-pangular-inspector/features/setup.md | "`check` there exits 0 where the worktree carries it with no install (measured)" | unverifiable | fix-doc | Settle it with `control.mjs check` in the portal clone — the exit code is what the claim records. |
+| 358 | .claude/skills/control-pangular-inspector/features/source-scan.md | "the stdio list of `get-routes`, `get-components`, ... `analog-*` tools" | unverifiable | fix-doc | Settle it with `control.mjs scan` — scan starts the server and prints the stdio tool list. |
+| 359 | .claude/skills/control-vitest-browser-angular/features/README.md | "the tab titled Vitest Browser Runner" | unverifiable | fix-doc | Settle it with `control.mjs up` — the Vitest tab title renders only in a driven run. |
+| 360 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "Tests 2 passed \| 2 skipped (4) without flags" | unverifiable | fix-doc | Settle it with `control.mjs up` — the run prints the tests line. |
+| 361 | .claude/skills/control-vitest-browser-angular/features/counter-tests.md | "`--filter` ... `up --hold <ms> --filter keeps the counter mounted` runs it alone (1 passed \| 3 skipped (4))" | unverifiable | fix-doc | Settle it with `control.mjs up` — the filtered hold run prints the counts. |
+| 362 | .claude/skills/control-vitest-browser-angular/features/extension-in-tester.md | "`LanguageModel.availability()` ... `unavailable` in bundled mode" | unverifiable | fix-doc | Settle it with `control.mjs doctor` — doctor reads LanguageModel.availability per mode. |
+| 363 | .claude/skills/control-vitest-browser-angular/features/held-counter.md | "`ng.ɵgetInjectorProviders` throws on the null injector ..." | unverifiable | fix-doc | Settle it with `control.mjs up` — a held run reads the injector providers in the frame. |
+| 364 | .claude/skills/verify-ai-browsers/SKILL.md | "`check-teardown.mjs {runDir}/steps/teardown-<n>.out`" | unverifiable | fix-doc | Settle it with `~/.commandcode/skills/lars-verify/scripts/verdict.mjs` — the verdict script is the consumer that names the teardown files. |
+| 365 | .commandcode/skills/control-ai-browsers/features/error-explainer.md | `angular-ai:error-explain` | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:apps/angular-ai-devtools/src/app/extension-message.service.ts` — the message service is where a runtime type would be handled. |
 | 366 | .commandcode/skills/control-ai-browsers/features/health-check.md | Exit 0 and nineteen check lines (`extension` among them) | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 367 | .commandcode/skills/control-ai-browsers/features/interop.md | message types `angular-ai:interop` | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 368 | .commandcode/skills/control-ai-browsers/features/stale-view.md | message types `angular-ai:stale-view` | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 369 | .commandcode/skills/control-angular-dev-app/SKILL.md | "scripts/fingerprint.mjs (a byte copy of lars-create-verification, never edit it here)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 370 | .commandcode/skills/control-angular-dev-app/features/README.md | "Portal: API on 3000, app on the derived port, 4507 for the default portal folder" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 371 | .commandcode/skills/control-angular-dev-app/features/portal-contracts.md | "20 rows after a fresh API start" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 372 | .commandcode/skills/control-angular-dev-app/features/ssr.md | "ngDevMode.hydratedComponents 4, hydratedNodes 40" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 373 | .commandcode/skills/control-angular-devtools/SKILL.md | "scripts/fingerprint.mjs (a byte copy of lars-create-verification, never edit it here)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 374 | .commandcode/skills/control-angular-devtools/features/README.md | "The panel in branded browsers (press F12, pick the Angular tab) is manual only" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 375 | .commandcode/skills/control-angular-devtools/features/attach.md | "Detection result: isAngular, isDebugMode (development build), isIvy, isSupportedAngularVersion (major 12+ or 0)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 376 | .commandcode/skills/control-angular-devtools/features/attach.md | "backendInstalled true; backendReady at ~950 ms; Angular 22.2.2" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 377 | .commandcode/skills/control-angular-devtools/features/profiler.md | "own subscribers bothOn a 16 b 16; afterRemoveA a 16 b 32; DevTools recorded 2 change detection cycles" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 378 | .commandcode/skills/control-angular-devtools/features/signal-graph.md | ".node-cont.kind-* are DevTools 1.22.0 class names; re-read them from the live panel after an update" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 379 | .commandcode/skills/control-angular-devtools/features/signal-graph.md | "Other kinds the counter lacks: linked-signal, child-signal-prop, resource, unknown" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 380 | .commandcode/skills/control-pangular-inspector/SKILL.md | "With `--read-only`, 0.0.7 lists 46 tools" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 381 | .commandcode/skills/control-pangular-inspector/features/README.md | "the overlay reports about 250 ms after change detection" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 382 | .commandcode/skills/control-pangular-inspector/features/live-inspection.md | "Instance ids (`cgg06-4`) change with every page load" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 383 | .commandcode/skills/control-pangular-inspector/features/live-inspection.md | "`inspect-providers` lookup path, by selector or by `token`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 384 | .commandcode/skills/control-pangular-inspector/features/navigation.md | "`limit` on `explain-navigation` defaults to 5 (at most 50)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 385 | .commandcode/skills/control-pangular-inspector/features/navigation.md | "`list-routes` (12 routes, measured) and `node $S call lint-routes`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 386 | .commandcode/skills/control-pangular-inspector/features/navigation.md | "`nav.route`: `inspect-route`, the current URL, document title and active route tree" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 387 | .commandcode/skills/control-pangular-inspector/features/navigation.md | "`started by` appears only when the click came less than 2 s before the navigation" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 388 | .commandcode/skills/control-pangular-inspector/features/panel.md | "Components, Routes, Signals, Injectors, Store, Forms, Pipes, SSR & HTTP" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 389 | .commandcode/skills/control-pangular-inspector/features/panel.md | "A code expires after 5 minutes" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 390 | .commandcode/skills/control-pangular-inspector/features/panel.md | "The dashboard source counts are 0 in this Nx workspace" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 391 | .commandcode/skills/control-pangular-inspector/features/setup.md | "`changed` lists `package.json`, `package-lock.json`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 392 | .commandcode/skills/control-pangular-inspector/features/setup.md | "the lockfile with insertions only (457 lines measured)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 393 | .commandcode/skills/control-pangular-inspector/features/setup.md | "`remove` refuses when files it does not manage are changed" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 394 | .commandcode/skills/control-pangular-inspector/features/source-scan.md | "`get-routes`, `get-components`, `get-signals`, `get-providers`, `get-pipes`, `get-ngrx-store`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 395 | .commandcode/skills/control-pangular-inspector/features/source-scan.md | "The scan reads the `sourceRoot` of each `angular.json` project plus `<root>/src`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 396 | .commandcode/skills/control-vitest-browser-angular/SKILL.md | "Chrome 137+ branded builds ignore `--load-extension`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 397 | .commandcode/skills/control-vitest-browser-angular/features/extension-in-tester.md | "keyed `content_isolated\|frame\|/`, `content_main\|frame\|/`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 398 | .commandcode/skills/control-vitest-browser-angular/features/extension-in-tester.md | "In attach mode `down` uninstalls the extension" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 399 | .commandcode/skills/control-vitest-browser-angular/features/extension-in-tester.md | "`LanguageModel.availability()` is `available` in the tester iframe" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 400 | .commandcode/skills/control-vitest-browser-angular/features/held-counter.md | "every `ng.*` read works on the host `<div id=rootN ng-version=22.2.2>`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 401 | .commandcode/skills/control-vitest-browser-angular/features/held-counter.md | "`ng.getInjectorProviders` throws on the null injector at the end of the resolution path" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 402 | .commandcode/skills/link-workspace-packages/SKILL.md | "npm install @org/ui --workspace @org/app" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 403 | .commandcode/skills/link-workspace-packages/SKILL.md | "Symlinks appear in `<consumer>/node_modules/@org/<package>`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 404 | .commandcode/skills/link-workspace-packages/SKILL.md | "pnpm: no hoisting (strict isolation, prevents phantom deps)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 367 | .commandcode/skills/control-ai-browsers/features/interop.md | message types `angular-ai:interop` | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:apps/angular-ai-devtools/src/app/extension-message.service.ts` — the message service is where a runtime type would be handled. |
+| 368 | .commandcode/skills/control-ai-browsers/features/stale-view.md | message types `angular-ai:stale-view` | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:apps/angular-ai-devtools/src/app/extension-message.service.ts` — the message service is where a runtime type would be handled. |
+| 369 | .commandcode/skills/control-angular-dev-app/SKILL.md | "scripts/fingerprint.mjs (a byte copy of lars-create-verification, never edit it here)" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/control-angular-dev-app/scripts/fingerprint.mjs` — the copy's own header names the skill it was copied from. |
+| 370 | .commandcode/skills/control-angular-dev-app/features/README.md | "Portal: API on 3000, app on the derived port, 4507 for the default portal folder" | unverifiable | fix-doc | Settle it with `control.mjs info` — `info --target portal --json` prints the derived port. |
+| 371 | .commandcode/skills/control-angular-dev-app/features/portal-contracts.md | "20 rows after a fresh API start" | unverifiable | fix-doc | Settle it with `control.mjs up --target portal` — the row count comes from a driven portal API. |
+| 372 | .commandcode/skills/control-angular-dev-app/features/ssr.md | "ngDevMode.hydratedComponents 4, hydratedNodes 40" | unverifiable | fix-doc | Settle it with `control.mjs up --target ssr` — the counters need a live dev-mode page. |
+| 373 | .commandcode/skills/control-angular-devtools/SKILL.md | "scripts/fingerprint.mjs (a byte copy of lars-create-verification, never edit it here)" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/control-angular-devtools/scripts/fingerprint.mjs` — the copy's own header names the skill it was copied from. |
+| 374 | .commandcode/skills/control-angular-devtools/features/README.md | "The panel in branded browsers (press F12, pick the Angular tab) is manual only" | unverifiable | fix-doc | Settle it with `control.mjs panel` — the scripted panel path is the only local reader, so the branded F12 path stays manual. |
+| 375 | .commandcode/skills/control-angular-devtools/features/attach.md | "Detection result: isAngular, isDebugMode (development build), isIvy, isSupportedAngularVersion (major 12+ or 0)" | unverifiable | fix-doc | Settle it with `control.mjs attach` — a live attach prints the detection fields. |
+| 376 | .commandcode/skills/control-angular-devtools/features/attach.md | "backendInstalled true; backendReady at ~950 ms; Angular 22.2.2" | unverifiable | fix-doc | Settle it with `control.mjs attach` — the timings come from a live attach run. |
+| 377 | .commandcode/skills/control-angular-devtools/features/profiler.md | "own subscribers bothOn a 16 b 16; afterRemoveA a 16 b 32; DevTools recorded 2 change detection cycles" | unverifiable | fix-doc | Settle it with `control.mjs coexist` — the counters come from a live coexist run. |
+| 378 | .commandcode/skills/control-angular-devtools/features/signal-graph.md | ".node-cont.kind-* are DevTools 1.22.0 class names; re-read them from the live panel after an update" | unverifiable | fix-doc | Settle it with `control.mjs panel` — the live panel renders the kind classes. |
+| 379 | .commandcode/skills/control-angular-devtools/features/signal-graph.md | "Other kinds the counter lacks: linked-signal, child-signal-prop, resource, unknown" | unverifiable | fix-doc | Settle it with `control.mjs panel` — the kind vocabulary renders only in a live panel. |
+| 380 | .commandcode/skills/control-pangular-inspector/SKILL.md | "With `--read-only`, 0.0.7 lists 46 tools" | unverifiable | fix-doc | Settle it with `control.mjs tools` — tools lists the server's tool names. |
+| 381 | .commandcode/skills/control-pangular-inspector/features/README.md | "the overlay reports about 250 ms after change detection" | unverifiable | fix-doc | Settle it with `control.mjs up --target portal` — the overlay timing needs a driven portal page. |
+| 382 | .commandcode/skills/control-pangular-inspector/features/live-inspection.md | "Instance ids (`cgg06-4`) change with every page load" | unverifiable | fix-doc | Settle it with `control.mjs call` — two `call list-pages` reads show the instance id churn. |
+| 383 | .commandcode/skills/control-pangular-inspector/features/live-inspection.md | "`inspect-providers` lookup path, by selector or by `token`" | unverifiable | fix-doc | Settle it with `control.mjs call` — `call inspect-providers` with a token settles the argument form. |
+| 384 | .commandcode/skills/control-pangular-inspector/features/navigation.md | "`limit` on `explain-navigation` defaults to 5 (at most 50)" | unverifiable | fix-doc | Settle it with `control.mjs call` — one `call explain-navigation` with no limit prints the default. |
+| 385 | .commandcode/skills/control-pangular-inspector/features/navigation.md | "`list-routes` (12 routes, measured) and `node $S call lint-routes`" | unverifiable | fix-doc | Settle it with `control.mjs call` — `call list-routes` against the portal prints the route count. |
+| 386 | .commandcode/skills/control-pangular-inspector/features/navigation.md | "`nav.route`: `inspect-route`, the current URL, document title and active route tree" | unverifiable | fix-doc | Settle it with `control.mjs call` — `call inspect-route` prints the nav.route fields. |
+| 387 | .commandcode/skills/control-pangular-inspector/features/navigation.md | "`started by` appears only when the click came less than 2 s before the navigation" | unverifiable | fix-doc | Settle it with `control.mjs call` — a driven click then `call inspect-route` shows the started-by window. |
+| 388 | .commandcode/skills/control-pangular-inspector/features/panel.md | "Components, Routes, Signals, Injectors, Store, Forms, Pipes, SSR & HTTP" | unverifiable | fix-doc | Settle it with `control.mjs up` — one driven dashboard load renders the tab list. |
+| 389 | .commandcode/skills/control-pangular-inspector/features/panel.md | "A code expires after 5 minutes" | unverifiable | fix-doc | Settle it with `control.mjs call` — the code's expiry is read from pangular.log after a call. |
+| 390 | .commandcode/skills/control-pangular-inspector/features/panel.md | "The dashboard source counts are 0 in this Nx workspace" | unverifiable | fix-doc | Settle it with `control.mjs components` — components prints the source counts the dashboard shows. |
+| 391 | .commandcode/skills/control-pangular-inspector/features/setup.md | "`changed` lists `package.json`, `package-lock.json`" | unverifiable | fix-doc | Settle it with `control.mjs install` — install --json prints the changed file list. |
+| 392 | .commandcode/skills/control-pangular-inspector/features/setup.md | "the lockfile with insertions only (457 lines measured)" | unverifiable | fix-doc | Settle it with `control.mjs install` — install --json prints the lockfile insertion count. |
+| 393 | .commandcode/skills/control-pangular-inspector/features/setup.md | "`remove` refuses when files it does not manage are changed" | unverifiable | fix-doc | Settle it with `control.mjs remove` — remove on a dirty checkout prints the refusal. |
+| 394 | .commandcode/skills/control-pangular-inspector/features/source-scan.md | "`get-routes`, `get-components`, `get-signals`, `get-providers`, `get-pipes`, `get-ngrx-store`" | unverifiable | fix-doc | Settle it with `control.mjs scan` — scan starts the stdio server and prints its tool list. |
+| 395 | .commandcode/skills/control-pangular-inspector/features/source-scan.md | "The scan reads the `sourceRoot` of each `angular.json` project plus `<root>/src`" | unverifiable | fix-doc | Settle it with `control.mjs scan` — a scan at the portal root shows which sourceRoots it reads. |
+| 396 | .commandcode/skills/control-vitest-browser-angular/SKILL.md | "Chrome 137+ branded builds ignore `--load-extension`" | unverifiable | fix-doc | Settle it with `control.mjs doctor` — doctor reports the loaded-extension state per instance. |
+| 397 | .commandcode/skills/control-vitest-browser-angular/features/extension-in-tester.md | "keyed `content_isolated\|frame\|/`, `content_main\|frame\|/`" | unverifiable | fix-doc | Settle it with `control.mjs doctor` — doctor reads the injected content-script state on a driven run. |
+| 398 | .commandcode/skills/control-vitest-browser-angular/features/extension-in-tester.md | "In attach mode `down` uninstalls the extension" | unverifiable | fix-doc | Settle it with `control.mjs down` — an attach-mode down followed by doctor shows the uninstall. |
+| 399 | .commandcode/skills/control-vitest-browser-angular/features/extension-in-tester.md | "`LanguageModel.availability()` is `available` in the tester iframe" | unverifiable | fix-doc | Settle it with `control.mjs doctor` — doctor reads LanguageModel.availability in the tester iframe. |
+| 400 | .commandcode/skills/control-vitest-browser-angular/features/held-counter.md | "every `ng.*` read works on the host `<div id=rootN ng-version=22.2.2>`" | unverifiable | fix-doc | Settle it with `control.mjs up` — a held run prints the TestBed host div id and version. |
+| 401 | .commandcode/skills/control-vitest-browser-angular/features/held-counter.md | "`ng.getInjectorProviders` throws on the null injector at the end of the resolution path" | unverifiable | fix-doc | Settle it with `control.mjs up` — the injector throw surfaces only in a held frame. |
+| 402 | .commandcode/skills/link-workspace-packages/SKILL.md | "npm install @org/ui --workspace @org/app" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:package.json` — the root manifest declares no workspaces field. |
+| 403 | .commandcode/skills/link-workspace-packages/SKILL.md | "Symlinks appear in `<consumer>/node_modules/@org/<package>`" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:package.json` — no workspaces field, so no linked symlink exists to inspect. |
+| 404 | .commandcode/skills/link-workspace-packages/SKILL.md | "pnpm: no hoisting (strict isolation, prevents phantom deps)" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:package.json` — the manifest records npm, not pnpm. |
 | 405 | .commandcode/skills/monitor-ci/SKILL.md | "circuit breaker (5 polls)" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 406 | .commandcode/skills/monitor-ci/SKILL.md | "`--timeout`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 407 | .commandcode/skills/monitor-ci/references/fix-flows.md | "`nx-cloud apply-locally <shortLink>` (sets state to `APPLIED_LOCALLY`)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 408 | .commandcode/skills/monitor-ci/references/fix-flows.md | "`git commit --allow-empty -m` with ci: rerun after rejecting throttled fixes" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 409 | .commandcode/skills/monitor-ci/references/fix-flows.md | "Spawn FETCH_HEAVY subagent for `selfHealingSkipMessage`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 410 | .commandcode/skills/nx-cloud-api/SKILL.md | "npx nx-cloud api, the read-only Nx Cloud Public API command" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 411 | .commandcode/skills/nx-cloud-api/SKILL.md | "with `-i` or `NX_VERBOSE_LOGGING`" extra stderr records | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 412 | .commandcode/skills/nx-cloud-api/SKILL.md | "`--page-size` (which sets `limit`, max 500)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 413 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "npx nx-cloud api task-stats -f dateAfter=... -f percentiles=50 --pages 3 -o" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 414 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "A non-null `nextCursor` means the range is incomplete" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 415 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "Encrypted artifacts can be decrypted with `npx nx-cloud decrypt-artifact`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 416 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "Do not use `--format ndjson` for extraction; it records neither completion state nor a resume cursor" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 417 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "Nx Cloud log and report assets are compressed binary payloads" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 418 | .commandcode/skills/nx-cloud-cache-investigator/SKILL.md | "If `cacheEnabled: false`, that run did not use the Nx task cache" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 419 | .commandcode/skills/nx-cloud-cache-investigator/SKILL.md | "Arrange one same-session wake only when a known task is non-terminal" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 420 | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md | "Download the exact task-row artifact link with `npx nx-cloud api <link> -o <private-file>.tar.gz`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 421 | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md | "If the artifact is encrypted, decrypt a copy with `npx nx-cloud decrypt-artifact`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 422 | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md | "Byte-identical malformed downloads across retries support a persistent bad cache object" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 423 | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md | "The API cannot identify an upload path, writer, storage event, or service mutation" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 424 | .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md | "Task assets are typed `logs`, `artifact`, or `sandbox-report`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 425 | .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md | "Download the exact row-provided link with `npx nx-cloud api <link> -o <private-file>.tar.gz`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 426 | .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md | "A downloaded asset proves only that it resolves now. A 404 does not prove that it never existed" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 427 | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md | "Query `statuses=FAILED`, `statuses=TIMED_OUT`, and `statuses=CANCELED`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 428 | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md | "the public API has no separate workflow routes" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 429 | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md | "inspect `CODEOWNERS` and project ownership metadata at the recorded commit" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 406 | .commandcode/skills/monitor-ci/SKILL.md | "`--timeout`" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/monitor-ci/scripts/ci-poll-decide.mjs` — the script falls back to 0 minutes, so the 120 default lives only in the prompt. |
+| 407 | .commandcode/skills/monitor-ci/references/fix-flows.md | "`nx-cloud apply-locally <shortLink>` (sets state to `APPLIED_LOCALLY`)" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:package.json` — no nx-cloud dependency, so the state name is prose only. |
+| 408 | .commandcode/skills/monitor-ci/references/fix-flows.md | "`git commit --allow-empty -m` with ci: rerun after rejecting throttled fixes" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/monitor-ci/references/fix-flows.md` — the message exists only in that prose. |
+| 409 | .commandcode/skills/monitor-ci/references/fix-flows.md | "Spawn FETCH_HEAVY subagent for `selfHealingSkipMessage`" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/monitor-ci/references/fix-flows.md` — the message exists only in that prose. |
+| 410 | .commandcode/skills/nx-cloud-api/SKILL.md | "npx nx-cloud api, the read-only Nx Cloud Public API command" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 411 | .commandcode/skills/nx-cloud-api/SKILL.md | "with `-i` or `NX_VERBOSE_LOGGING`" extra stderr records | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 412 | .commandcode/skills/nx-cloud-api/SKILL.md | "`--page-size` (which sets `limit`, max 500)" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 413 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "npx nx-cloud api task-stats -f dateAfter=... -f percentiles=50 --pages 3 -o" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 414 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "A non-null `nextCursor` means the range is incomplete" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 415 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "Encrypted artifacts can be decrypted with `npx nx-cloud decrypt-artifact`" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 416 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "Do not use `--format ndjson` for extraction; it records neither completion state nor a resume cursor" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 417 | .commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md | "Nx Cloud log and report assets are compressed binary payloads" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-api/references/extraction-and-calculation.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 418 | .commandcode/skills/nx-cloud-cache-investigator/SKILL.md | "If `cacheEnabled: false`, that run did not use the Nx task cache" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 419 | .commandcode/skills/nx-cloud-cache-investigator/SKILL.md | "Arrange one same-session wake only when a known task is non-terminal" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 420 | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md | "Download the exact task-row artifact link with `npx nx-cloud api <link> -o <private-file>.tar.gz`" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 421 | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md | "If the artifact is encrypted, decrypt a copy with `npx nx-cloud decrypt-artifact`" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 422 | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md | "Byte-identical malformed downloads across retries support a persistent bad cache object" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 423 | .commandcode/skills/nx-cloud-cache-investigator/references/artifact-integrity.md | "The API cannot identify an upload path, writer, storage event, or service mutation" | unverifiable | fix-doc | Record the exemption: no command in this checkout reaches the live Nx Cloud API schema — a live Nx Cloud response is the external artifact that settles it. |
+| 424 | .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md | "Task assets are typed `logs`, `artifact`, or `sandbox-report`" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 425 | .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md | "Download the exact row-provided link with `npx nx-cloud api <link> -o <private-file>.tar.gz`" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 426 | .commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md | "A downloaded asset proves only that it resolves now. A 404 does not prove that it never existed" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-cache-investigator/references/log-and-report-assets.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 427 | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md | "Query `statuses=FAILED`, `statuses=TIMED_OUT`, and `statuses=CANCELED`" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-ci-failure-review/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 428 | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md | "the public API has no separate workflow routes" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-ci-failure-review/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
+| 429 | .commandcode/skills/nx-cloud-ci-failure-review/SKILL.md | "inspect `CODEOWNERS` and project ownership metadata at the recorded commit" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-cloud-ci-failure-review/SKILL.md` and `node_modules/nx/package.json` — the doc is the claim's only source and the installed Nx package records no nx-cloud client. |
 | 430 | .commandcode/skills/nx-import/SKILL.md | "Pin ESLint to v9 (`eslint@^9.0.0`). ESLint 10 breaks `@nx/eslint`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 431 | .commandcode/skills/nx-import/references/ESLINT.md | "`@nx/eslint/plugin` scans for ESLint config files and creates a lint target for each project" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 432 | .commandcode/skills/nx-import/references/ESLINT.md | "`nx import` auto-detects ESLint config files and offers to install `@nx/eslint`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 433 | .commandcode/skills/nx-import/references/ESLINT.md | "`typescript-eslint@7.x` declares peerDependencies: { eslint: ^8.56.0 }" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 434 | .commandcode/skills/nx-import/references/GRADLE.md | "The `@nx/gradle` plugin expects those files at the workspace root to infer Gradle projects/tasks automatically" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 435 | .commandcode/skills/nx-import/references/GRADLE.md | "files like `gradlew`, `gradlew.bat`, and `gradle/wrapper`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 436 | .commandcode/skills/nx-import/references/JEST.md | "`@nx/jest/plugin` scans for `jest.config.{ts,js,cjs,mjs,cts,mts}` and creates a `test` target for each project" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 437 | .commandcode/skills/nx-import/references/JEST.md | "Both `@nx/jest/plugin` and `@nx/vite/plugin` (which infers Vitest targets) coexist without conflicts" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 438 | .commandcode/skills/nx-import/references/JEST.md | "`ciTargetName`: `test-ci` ... creates `test-ci--src/lib/foo.spec.ts` targets" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 439 | .commandcode/skills/nx-import/references/JEST.md | "Jest vs Vitest coexistence" across config files | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 440 | .commandcode/skills/nx-import/references/NEXT.md | "`@nx/next/plugin` detects `next.config.{ts,js,cjs,mjs}` and creates these targets" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 441 | .commandcode/skills/nx-import/references/NEXT.md | "No separate typecheck target - Next.js runs TypeScript checking as part of `next build`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 442 | .commandcode/skills/nx-import/references/NEXT.md | "`@nx/next:init` rewrites all npm scripts (Whole-Repo Import)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 443 | .commandcode/skills/nx-import/references/VITE.md | "React Router 7 outputs to `build/` (not `dist/`)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 444 | .commandcode/skills/nx-import/references/VITE.md | "Vite 6 to 7: Typecheck fails (`Plugin<any>` type mismatch)" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 431 | .commandcode/skills/nx-import/references/ESLINT.md | "`@nx/eslint/plugin` scans for ESLint config files and creates a lint target for each project" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:nx.json` — the workspace registers only @nx/playwright/plugin, so no lint inference exists here. |
+| 432 | .commandcode/skills/nx-import/references/ESLINT.md | "`nx import` auto-detects ESLint config files and offers to install `@nx/eslint`" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-import/references/ESLINT.md` — the doc is the only local source; an import run would settle the offer. |
+| 433 | .commandcode/skills/nx-import/references/ESLINT.md | "`typescript-eslint@7.x` declares peerDependencies: { eslint: ^8.56.0 }" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:package-lock.json` — no typescript-eslint v7 entry, so the published manifest is the only source. |
+| 434 | .commandcode/skills/nx-import/references/GRADLE.md | "The `@nx/gradle` plugin expects those files at the workspace root to infer Gradle projects/tasks automatically" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:package.json` — no @nx/gradle dependency is listed. |
+| 435 | .commandcode/skills/nx-import/references/GRADLE.md | "files like `gradlew`, `gradlew.bat`, and `gradle/wrapper`" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:package.json` — no Gradle files exist, so nothing local confirms the layout. |
+| 436 | .commandcode/skills/nx-import/references/JEST.md | "`@nx/jest/plugin` scans for `jest.config.{ts,js,cjs,mjs,cts,mts}` and creates a `test` target for each project" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:nx.json` — no jest plugin is registered. |
+| 437 | .commandcode/skills/nx-import/references/JEST.md | "Both `@nx/jest/plugin` and `@nx/vite/plugin` (which infers Vitest targets) coexist without conflicts" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:nx.json` — neither plugin is registered; vitest runs through the Angular unit-test target. |
+| 438 | .commandcode/skills/nx-import/references/JEST.md | "`ciTargetName`: `test-ci` ... creates `test-ci--src/lib/foo.spec.ts` targets" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:nx.json` — no jest plugin, so the ciTargetName shape has no local instance. |
+| 439 | .commandcode/skills/nx-import/references/JEST.md | "Jest vs Vitest coexistence" across config files | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:nx.json` — no jest plugin is registered to coexist. |
+| 440 | .commandcode/skills/nx-import/references/NEXT.md | "`@nx/next/plugin` detects `next.config.{ts,js,cjs,mjs}` and creates these targets" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:nx.json` — only @nx/playwright/plugin is registered. |
+| 441 | .commandcode/skills/nx-import/references/NEXT.md | "No separate typecheck target - Next.js runs TypeScript checking as part of `next build`" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:nx.json` — no @nx/next plugin is registered. |
+| 442 | .commandcode/skills/nx-import/references/NEXT.md | "`@nx/next:init` rewrites all npm scripts (Whole-Repo Import)" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:package.json` — no @nx/next dependency is listed. |
+| 443 | .commandcode/skills/nx-import/references/VITE.md | "React Router 7 outputs to `build/` (not `dist/`)" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:package.json` — no react-router dependency, so no build output can be inspected. |
+| 444 | .commandcode/skills/nx-import/references/VITE.md | "Vite 6 to 7: Typecheck fails (`Plugin<any>` type mismatch)" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:package-lock.json` — the lock records the installed Vite range, not the 6-to-7 upgrade. |
 | 445 | .commandcode/skills/nx-workspace/SKILL.md | Key nx.json sections: targetDefaults, namedInputs, plugins | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 446 | .commandcode/skills/nx-workspace/SKILL.md | nx sync then nx reset if sync does not fix stale cache | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 447 | .commandcode/skills/nx-workspace/references/AFFECTED.md | Affected excluding e2e projects --exclude=*-e2e | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 448 | .commandcode/skills/verify-pangular-inspector/SKILL.md | The setup steps need ports 3000 and 9999 free (both fixed) | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 446 | .commandcode/skills/nx-workspace/SKILL.md | nx sync then nx reset if sync does not fix stale cache | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-workspace/SKILL.md` — the doc is the only local source; a captured sync run would settle the exit code. |
+| 447 | .commandcode/skills/nx-workspace/references/AFFECTED.md | Affected excluding e2e projects --exclude=*-e2e | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/skills/nx-workspace/references/AFFECTED.md` — the doc is the only local source; a captured affected run would settle the exclude option. |
+| 448 | .commandcode/skills/verify-pangular-inspector/SKILL.md | The setup steps need ports 3000 and 9999 free (both fixed) | unverifiable | fix-doc | Settle it with `control.mjs doctor` — doctor reports the fixed ports it needs. |
 | 449 | .commandcode/taste/communication/taste.md | "provideAiDevTools() not provideAiDevtools()" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
 | 450 | .commandcode/taste/design/taste.md | "Companion-package naming: provideAiDevTools() with per-package secondary entry points" | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
-| 451 | .commandcode/taste/workflow/taste.md | "AFK mode runs with a 4-agent cap" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 452 | docs/afk-run-2026-10-12.md | The lars-create-control-skill contract (references/generated-skill.md) | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 453 | docs/afk-run-2026-10-12.md | Briefs: .audit/maintain-brief.md, .audit/ai-browsers-rework.md | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 454 | docs/afk-run-2026-10-12.md | Tree clean: git status shows nothing but ignored paths | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 455 | docs/autonomy-gaps.md | Verified: node --experimental-strip-types --test scripts/autonomy-gaps.test.mjs exit 0 — tests 15 / pass 15 | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 451 | .commandcode/taste/workflow/taste.md | "AFK mode runs with a 4-agent cap" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:.commandcode/taste/workflow/taste.md` — the cap is recorded only in that taste line, with no setting in this checkout. |
+| 452 | docs/afk-run-2026-10-12.md | The lars-create-control-skill contract (references/generated-skill.md) | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:docs/afk-run-2026-10-12.md` — the run log is the only local record of where the contract lives. |
+| 453 | docs/afk-run-2026-10-12.md | Briefs: .audit/maintain-brief.md, .audit/ai-browsers-rework.md | unverifiable | fix-doc | Settle it with `git cat-file -e HEAD:.audit/maintain-brief.md` — an existence read at HEAD settles whether the briefs were ever committed. |
+| 454 | docs/afk-run-2026-10-12.md | Tree clean: git status shows nothing but ignored paths | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:docs/afk-run-2026-10-12.md` — the run log is the only record of that tree state. |
 | 456 | docs/design/tutor.md | All tutor state is in chrome.storage.local, written by the panel | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
-| 457 | docs/design/tutor.md | /contract/list (47 components, repeated classes) | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 457 | docs/design/tutor.md | /contract/list (47 components, repeated classes) | unverifiable | fix-doc | Settle it with `control.mjs up --target portal` — the portal clone must serve /contract/list before its components can be counted. |
 | 458 | docs/feature-proposals.md | The project publishes a companion npm package ... globalThis.ngAiDevTools = { ... } | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
 | 459 | docs/feature-proposals.md | The primary entry point provideAiDevTools() adds version and rule tables | aspirational | fix-doc | Update the doc to current behavior or land the described behavior |
-| 460 | plans/angular-ai-devtools-program-backlog.md | Generation: at most 12 entries, fully specified | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 460 | plans/angular-ai-devtools-program-backlog.md | Generation: at most 12 entries, fully specified | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:plans/angular-ai-devtools-program-backlog.md` — the planning rule is prose; its milestone rows are what could settle the count. |
 | 461 | plans/gsd-path-handoff-M018.md | The next milestone, M019 context-and-jobs, is prepared to plan/done on gsd-path/M019 and is ready for build | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
 | 462 | plans/gsd-path-handoff-M018.md | Frozen inventory: 143 documents | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 463 | plans/gsd-path-handoff-M018.md | isolation.py isolate-verify requires --repo --base --name, and --base must be a full 40-character SHA | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 464 | references/ai-browsers-verification.md | Check that port 9992 is free | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 463 | plans/gsd-path-handoff-M018.md | isolation.py isolate-verify requires --repo --base --name, and --base must be a full 40-character SHA | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:plans/gsd-path-handoff-M018.md` — the handoff is the only local record; the user-scope isolation.py argv parsing would settle it. |
+| 464 | references/ai-browsers-verification.md | Check that port 9992 is free | unverifiable | fix-doc | Settle it with `control.mjs info` — the session port list shows whether 9992 is in use. |
 | 465 | research/00-browser-probe.md | "`.browsers/edge-dev-phi4mini` port 9336" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 466 | research/01-built-in-ai-apis.md | "Angular ships `provideExperimentalWebMcpTools`" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 467 | research/09-nano-tool-session-error.md | "The message is `kExceptionMessageUnableToCreateSession` in exception_helpers.cc#L68-L70" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 468 | research/10-model-capabilities.md | "spikes/probes/bench/nano.json and spikes/probes/bench.js:62" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 469 | research/10-model-capabilities.md | "Chrome and Edge both ship llguidance, a grammar-constrained decoder" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 470 | research/12-legacy-vs-modern-angular.md | "spike main.js:n = spikes/ng222-app/dist/ng222-app/browser/main.js line n in this repo" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 466 | research/01-built-in-ai-apis.md | "Angular ships `provideExperimentalWebMcpTools`" | unverifiable | fix-doc | Record the exemption: no command in this checkout reaches the Angular package — the Angular release notes are the external artifact that settles it. |
+| 467 | research/09-nano-tool-session-error.md | "The message is `kExceptionMessageUnableToCreateSession` in exception_helpers.cc#L68-L70" | unverifiable | fix-doc | Record the exemption: no command in this checkout reaches the Chromium source at tag 156.0.8078.17 — that source checkout is the external artifact that settles it. |
+| 468 | research/10-model-capabilities.md | "spikes/probes/bench/nano.json and spikes/probes/bench.js:62" | unverifiable | fix-doc | Settle it with `git cat-file -p HEAD:research/raw/bench/nano.json` — that file holds the figures; the cited spikes/probes/bench/nano.json does not exist. |
+| 469 | research/10-model-capabilities.md | "Chrome and Edge both ship llguidance, a grammar-constrained decoder" | unverifiable | fix-doc | Record the exemption: no command in this checkout reaches the Chromium and Edge builds — the recorded build reads are the external artifact that settles it. |
+| 470 | research/12-legacy-vs-modern-angular.md | "spike main.js:n = spikes/ng222-app/dist/ng222-app/browser/main.js line n in this repo" | unverifiable | fix-doc | Settle it with `npx nx run angular-ai-devtools:build` — the bundle has to be rebuilt before its ngDevMode lines can be counted. |
 | 471 | research/14-ai-devtools-prior-art.md | "these are not added to docs/filing-ledger.md" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 472 | research/18-edge-prevent-auto-signin.md | "For a single ad-hoc launch with no persistence/account, use --guest or --bwsi" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 473 | research/18-edge-prevent-auto-signin.md | "apply the policies via the Windows Registry (HKCU or HKLM) under SOFTWARE\Policies\Microsoft\Edge" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
+| 472 | research/18-edge-prevent-auto-signin.md | "For a single ad-hoc launch with no persistence/account, use --guest or --bwsi" | unverifiable | fix-doc | Settle it with `control.mjs up` — a launch with the switch on a throwaway profile shows whether the account stays signed out. |
+| 473 | research/18-edge-prevent-auto-signin.md | "apply the policies via the Windows Registry (HKCU or HKLM) under SOFTWARE\Policies\Microsoft\Edge" | unverifiable | fix-doc | Record the exemption: no command in this checkout reaches the Windows registry — an exported registry key set is the external artifact that settles it. |

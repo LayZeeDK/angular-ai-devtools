@@ -3,9 +3,9 @@ id: T001
 title: Repair the docs-audit base state so both documentation pins pass at the head
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T001
+base: 81c19d0e1ea92bcb14adef6920e7180e44546e35
 worktree: null
 task_branch: null
 files:
@@ -64,3 +64,28 @@ Heavy: no
 ## Log
 
 - 2026-11-02 — created by planner
+- build_T001: repaired .project/research/DOCS-AUDIT.md only — every one of the 128 remaining unverifiable queue rows now names a shipped settling check in its Suggested action and in the matching claim Evidence (control.mjs subcommand, git cat-file read, node --test or a .json path), exactly seven rows carry the no-command-in-this-checkout exemption with their external artifact (284 model listing, 351 portal clone, 423 live Nx Cloud response, 466 Angular release notes, 467 Chromium source, 469 Chromium and Edge build reads, 473 Windows registry), rulings 99 and 100 moved unchanged to the end of ## User rulings so the prior is an ordered prefix, docs/autonomy-gaps.md deleted as a claim section and listed under ## Descriptive docs with queue row 455 removed, one verified structure claim added to each of the three Nx Cloud reference sections (SKILL.md:165, :126, :78), and the Summary retallied (619 verified, 14 stale, 5 aspirational, 128 unverifiable, 2 descriptive) with the 766-across-142 sentence. Verify ran verbatim: npm ci --include=dev exit 0; node --test scripts/docs-audit-disposition.test.mjs scripts/autonomy-gaps.test.mjs exit 0, tests 18 pass 18 fail 0 (E5, E6, E7 green and all fifteen autonomy-gaps cases); the installed check_docs_audit.py exits 0 over the head audit; both pins keep their base bytes (git diff empty).
+- ready
+- 2026-11-02 — orchestrator Verify (isolate gsd-path-task/T001): pass, exit 0; output tail:
+  ```
+  ✔ E6 queue numbers stay unique, increasing and bound to their items (738.1078ms)
+  ✔ E7 every remaining row names a shipped command, never a prose verb (27.4915ms)
+  ℹ tests 18
+  ℹ suites 0
+  ℹ pass 18
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 1326.71
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```
