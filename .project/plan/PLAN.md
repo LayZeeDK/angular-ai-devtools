@@ -2,7 +2,7 @@
 
 <!-- Written by the planner role. Executed wave-by-wave by /gsd-path-build. -->
 
-Project verify: `npm ci --include=dev && npm run check && npm test && node --test packages/ai-devtools-companion/test/facade.test.mjs && npx nx run angular-ai-devtools:build-extension && node --test scripts/panel-bundle-budget.test.mjs`
+Project verify: `npm ci --include=dev && npm --prefix spikes/ng222-app ci --include=dev && npm run check && npm test && node --test packages/ai-devtools-companion/test/facade.test.mjs scripts/facade-dev-build.test.mjs && npx nx run angular-ai-devtools:build-extension && node --test scripts/panel-bundle-budget.test.mjs`
 <!-- Run once at ship, in a fresh sidecar checked out at the reviewed commit: no
      node_modules, no fixture install and no build output exist there. The package
      test is named explicitly because `npm test` globs only `scripts/**`,
