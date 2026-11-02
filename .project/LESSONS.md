@@ -14,3 +14,11 @@
 - 016-orchestration-autonomy — A serial dispatch leaves its declared files in the primary worktree, so a rejected attempt cannot be checkpointed or re-prepared until they are parked outside the tree; the playbook's §31 carries the whole recipe.
 - 016-orchestration-autonomy — An Intent-coverage acceptance cell holding `AC1, AC2, AC3` used to be skipped silently and reported as `Intent coverage omits SC1`; write one row per acceptance item.
 - 016-orchestration-autonomy — A coder child left four undeclared scratch files in the repo root because the brief never forbade it; every coder brief now names the declared files and forbids scratch files, and the repository-root diff is inspected before landing.
+
+- 019-context-and-jobs — A free coder claimed "exit 0, 7/7 tests passed"; the authoritative finish Verify found 4 failures. A coder's test claim is never evidence: only the isolate Verify is.
+- 019-context-and-jobs — verify-weight returned CHUNK for a gate task with ten acceptance criteria; split edge verification from gate verification so each task stays at or under eight.
+- 019-context-and-jobs — A milestone that re-inspects documents must own the DOCS-AUDIT remediation in its plan; a regenerated audit made `npm test` red at the build base and cost a plan repair.
+- 019-context-and-jobs — Two stale `stage: complete` collect-artifact journals carrying a short-SHA `expected_destination` blocked validate, status and route for every later phase; a completed journal is never pruned by the helper.
+- 019-context-and-jobs — The Nx daemon refuses a junction alias of the same worktree ("received a message from a different workspace"); run Nx from the canonical path and never set NX_DAEMON=false.
+- 019-context-and-jobs — A child wrote its task's files into the primary worktree; only the pre-finish clean check caught it. Every coder brief must open with the branch proof.
+- 019-context-and-jobs — The gap-review template allows exactly one Check/Observed/Reference triple; two gap artifacts were rejected for repeating it, costing two redispatches.

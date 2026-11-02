@@ -739,8 +739,8 @@ Open questions
 Goal: Ship the prompt-context budget, the worker boundary and ring buffer, and background jobs with progress and cancellation, on top of M018's registry.
 Depends on: [M018]
 Surfaces: none
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/019-context-and-jobs
 Integrated: null
 
 Scope: in
