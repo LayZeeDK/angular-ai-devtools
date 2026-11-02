@@ -3,9 +3,9 @@ id: T003
 title: Add the companion package's type check to the check chain as an authorised re-pin
 wave: 1
 deps: [T002]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: 92a2619f54d046c7e12d3bf97cb8fd26e693cd82
 worktree: null
 task_branch: null
 files:
@@ -57,3 +57,28 @@ Heavy: no
 ## Log
 
 - 2026-11-02 — created by planner
+- build_T003: package.json gained exactly the chain entry and one script — check is now node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills && npm run check:panel && npm run check:companion, and check:companion is tsc -p packages/ai-devtools-companion/tsconfig.json; no dependency, workspace, publish or @angular field touched. scripts/panel-typecheck-scope.test.mjs re-pinned deliberately: CHECK_STAGES names the five stages exactly (no wildcard, no some()), the red half replays the same assert.deepEqual over four mutated lists (companion dropped, panel dropped with companion present, panel and companion swapped, an extra stage appended) and asserts each is refused; the panel config include/exclude assertion, the check:panel script assertion and the root tsconfig three-entry assertion keep their base bytes. Two new companion properties: the config the stage names exists, is noEmit (the stage writes no build output) and carries no @ts-ignore, and tsc -p packages/ai-devtools-companion/tsconfig.json --listFiles shows all 3 package sources inside a 272-file program; then a fixture under the git-ignored tmp/ extends the real config with one probe file (rootDir restated to the checkout — the only edit, because a probe outside the package rootDir cannot share one rootDir with it across drives and the Approach forbids a paths bridge) and fails with exactly one TS2322 naming deliberate-type-error.ts(1,14), exit 0 once the probe is fixed, nothing tracked written. Verify (npm ci --include=dev && npm run check && node --test scripts/panel-typecheck-scope.test.mjs) exit 0 at this head: npm ci 994 packages, npm run check green through all five stages including the new tsc -p packages/ai-devtools-companion/tsconfig.json, pin 7/7 tests pass. npm test also run at this head, exit 0: 176/176 scripts+extension tests, 60/60 user-scope, 590/590 skills, test:app 28 files / 277 tests. No scratch left in the checkout (only package.json and the pin modified).
+- ready
+- 2026-11-02 — orchestrator Verify (sidecar gsd-path-verify/task-t003-verify): pass, exit 0; output tail:
+  ```
+  ℹ todo 0
+  ℹ duration_ms 4785.8148
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm notice run check
+  npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills && npm run check:panel && npm run check:companion
+  npm notice run check:skills
+  npm notice run tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+  npm notice run check:panel
+  npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+  npm notice run check:companion
+  npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+  ```
