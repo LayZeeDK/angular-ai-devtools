@@ -63,6 +63,8 @@ Walkthrough:
 | SC4 | T003 | AC2 |
 | SC4 | T007 | AC1 |
 | SC4 | T007 | AC2 |
+| SC1 | T008 | AC6 |
+| SC3 | T008 | AC5 |
 
 ## Held-out checks
 
@@ -81,4 +83,9 @@ Walkthrough:
 - **T004 → T005.** `PanelContext` and `buildPanelContext` are defined in `panel-context.ts` (T004) and consumed as the projection's second argument; the shape is written identically in both task files. T005 is in the same wave and depends on T004, so the wave executes in two layers.
 - **T004, T005 → T006.** The component renders exactly the two models and adds no third decision: `featureFingerprint(context, APP_FACT_FEATURES)` and `projectToolGroups(registry.tools(), context)`. The eight feature names are passed in from `APP_FACT_FEATURES` (`tool-registry/app-facts.ts:45`) rather than imported by the pure module, because a plain-node held-out test cannot resolve an extensionless relative import through `app-facts.ts` → `tool-registry.ts` → `@angular/core`.
 - **T006 → T007.** Both name `apps/angular-ai-devtools/src/app/app.routes.ts`: T007 may convert one further explainer route to `loadComponent` if the measurement with the chat route present comes out above 535,440 B, and it measures nothing until T006's route entry exists. The reviewer sees the byte figure printed by `scripts/panel-bundle-budget.test.mjs` only in T007's Verify, because that pin skips its only real assertion when `extension/panel/` holds no build output.
+
+## Wave 3 — final-review repair
+
+Goal: close P001 from the final gap review, the one finding that blocked this milestone. `featureFingerprint` decides between its three states from `stateReceived` and `version` alone, and `ExtensionMessageService` throws the replay's answer away — `requestReplay` sends its one request with an empty callback — so an Angular page is shown "No Angular root found on this page" before the reply lands and permanently if it never does. This wave gives the classifier a fourth input, the replay's outcome, and the two states the Surface contract already promises: a waiting line while the answer is outstanding, a transport-named state when the reply fails, and `no-angular-root` only after an answered replay carried no version. The eight-entry fingerprint, `cannot-tell`, the group projection, the route entry and the pinned bundle are unchanged.
+Review depth: full
 

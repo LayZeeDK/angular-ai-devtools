@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: feature-fingerprint
-phase: ship
+phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
@@ -387,3 +387,7 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-02 — build — build started
 - 2026-11-02 — ship — build done; final review pending
 - 2026-11-02 — ship — ship approval exercised under the recorded grant (ship) quoted in INTENT.md Corrections
+- 2026-11-02 — ship — final gate blocked: gap 3 found a person-visible false claim - an Angular page shows the non-Angular refusal before the replay answers
+- 2026-11-02 — plan — patch plan reopened
+- 2026-11-02 — plan — patch plan approved
+- 2026-11-02 — build — build started
