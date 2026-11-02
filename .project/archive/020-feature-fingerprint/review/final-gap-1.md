@@ -1,15 +1,15 @@
 # Gap Review — 1: project Verify
 
-Reviewed HEAD: 48b9d321365efac6377873c1babcea0d8b6badb8
+Reviewed HEAD: b16ecf1ab396376af610f6a0d0ebc2e6cd7323b8
 Gap verdict: pass
 Risk: project Verify
-Waves checked: 1, 2
+Waves checked: 1, 2, 3
 
 ## Checked evidence
 
 - **Check**: `npm ci --include=dev && npm run check && npm test && npx nx run angular-ai-devtools:build-extension && node --test scripts/panel-bundle-budget.test.mjs`
 - **Observed**: Exit 0; exact stdout and stderr are in the command/commit ledger entry.
-- **Reference**: .project/build/verify-ledger.jsonl — 48b9d321365efac6377873c1babcea0d8b6badb8, command above
+- **Reference**: .project/build/verify-ledger.jsonl — b16ecf1ab396376af610f6a0d0ebc2e6cd7323b8, command above
 
 ## Finding
 

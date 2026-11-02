@@ -782,8 +782,8 @@ Open questions
 Goal: N18 opens a chat with only the tool groups the app's version gates allow, plus a context chip naming the features it detected.
 Depends on: [M019]
 Surfaces: panel
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/020-feature-fingerprint
 Integrated: null
 
 Scope: in

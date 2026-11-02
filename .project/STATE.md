@@ -2,14 +2,14 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: feature-fingerprint
-phase: ship
+phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M020
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: null
+archive: .project/archive/020-feature-fingerprint
 integration_default: direct
 integration: direct
 integration_source: default
@@ -392,3 +392,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-02 — plan — patch plan approved
 - 2026-11-02 — build — build started
 - 2026-11-02 — ship — build done; final review pending
+- 2026-11-02 — shipped — archive preflight passed; shipment recorded
