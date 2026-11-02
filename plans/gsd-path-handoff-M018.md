@@ -1,5 +1,13 @@
 # Handoff — resume M018 (instrument-core)
 
+> **Superseded.** This note describes the state before M018 shipped. The
+> pipeline's live position is `.project/STATE.md` and is reported by
+> `gsd report` / `pipeline_state.py route`; nothing below should be acted on.
+> M018 `instrument-core` shipped and is archived at
+> `.project/archive/018-instrument-core`. The next milestone, M019
+> `context-and-jobs`, is prepared to `plan/done` on `gsd-path/M019` and is
+> ready for `build`.
+
 Written 2026-11-01 at the point where the previous session ran out of context.
 The pipeline is in a clean, resumable state: **no sidecars exist, no worktrees are
 stranded, nothing is half-written.**
