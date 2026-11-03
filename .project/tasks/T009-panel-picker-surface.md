@@ -9,6 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
+  - apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts
   - apps/angular-ai-devtools/src/app/extension-message.service.spec.ts
   - apps/angular-ai-devtools/src/app/extension-message.service.ts
   - apps/angular-ai-devtools/src/app/page-picker.component.ts
@@ -68,3 +69,7 @@ Heavy: no
 - 2026-11-03 — created by planner
 
 - The panel's two senders live in `extension-message.service.ts` and are added by **this** task: `sendPickerCommand(action: 'arm' | 'cancel')` and the `tabId` it needs. T007 shipped the typed readers (`pickerState`, `picked`) and the message transport; the sender half was homeless, and this task now declares the file so the command path has an owner.
+
+- 2026-11-03 — T009 — NEEDS-ORCHESTRATOR: may `files` gain `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`? Adding the one lazy picker route to `app.routes.ts` reddens that spec's exact route-list assertion at `:601-616` — proved by inserting one extra lazy route and running the file (`chat-entry.component.spec.ts:603` `expected [ '', 'signal-provenance', …(6) ] to deeply equal [ '', 'signal-provenance', …(5) ]`, 17 passed | 1 failed), then restoring the file byte-for-byte — so AC7's "the panel's existing specs still pass" is unreachable inside the declared paths, and the aggregate `npm test` T010 gates on runs that same spec; readings: (a) `files` gains that spec and Approach/AC7 name the one-line repair (its expected route list learns the lazy `picker` route), (b) AC7 covers only the specs this task does not touch and the red route-shape assertion belongs to a later task — blocked
+
+- **This task owns one line of `chat-entry.component.spec.ts`**: its exact route list and its lazy-route list are the two assertions that redden the moment the picker route exists (proven at T009's first preflight: `Tests 1 failed | 17 passed`), so AC7's "the panel's existing specs still pass" holds only if the expected lists learn the lazy `picker` route in the same change.
