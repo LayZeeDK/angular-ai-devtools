@@ -3,10 +3,10 @@ id: T012
 title: Verdict claims follow the milestone
 wave: 3
 deps: [T006]
-status: in-progress
-agent: build_T012
-base: 44116f43db49a521ed305ea4c4235c7159789458
-worktree: D:\projects\sandbox\angular-ai-devtools
+status: pending
+agent: null
+base: null
+worktree: null
 task_branch: null
 files:
   - scripts/overlay-verdict-claims.test.mjs
