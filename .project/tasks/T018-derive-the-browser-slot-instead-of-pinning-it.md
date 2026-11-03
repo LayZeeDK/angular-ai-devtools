@@ -55,7 +55,7 @@ None
 ## Verify
 
 ```bash
-npm ci --include=dev; node --test .commandcode/skills/control-vitest-browser-angular/scripts/control.test.mjs; node --test scripts/skills-mirror.test.mjs
+npm ci --include=dev; node --test .commandcode/skills/control-vitest-browser-angular/scripts/control.test.mjs scripts/skills-mirror.test.mjs
 ```
 
 ## Log
