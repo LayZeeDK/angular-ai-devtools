@@ -3,9 +3,9 @@ id: T011
 title: Rebuild idempotency, for real
 wave: 3
 deps: [T005]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T011
+base: 200a014ff2e75753319218b2a307184f8ddc02e4
 worktree: null
 task_branch: null
 files:
@@ -51,3 +51,5 @@ npm ci --include=dev; node --test tests/held-out/fixture-rebuild-idempotent.test
 ## Log
 
 - opened by orchestrator (final review blocked: the suite could not fail)
+- implemented two production build cycles, byte-compared served entry documents, and asserted component-package install set unchanged; mutant (nested duplicate @angular/cdk) failed with '@angular/cdk must be installed exactly once before the first build, found 2'; unmodified tree passes (1/1)
+- T011 ready
