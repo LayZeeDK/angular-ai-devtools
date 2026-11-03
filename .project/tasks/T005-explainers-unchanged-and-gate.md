@@ -3,9 +3,9 @@ id: T005
 title: Prove the shipped explainers unchanged, the fixture rebuild idempotent, and gate the head
 wave: 2
 deps: [T004]
-status: in-progress
+status: done
 agent: build_T005c
-base: null
+base: ce31bc13dbbbefc17c1552d19bc43c1eabfb3548
 worktree: null
 task_branch: null
 files:
