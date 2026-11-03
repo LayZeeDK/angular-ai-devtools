@@ -3,9 +3,9 @@ id: T008
 title: Draw the tracked rect and label in the overlay, and make hover, lock and cancel work
 wave: 2
 deps: [T002, T005, T006, T007]
-status: in-progress
-agent: null
-base: null
+status: done
+agent: build_T008
+base: d9a5a91fb5515bc5f079de419c66e5c33c858b66
 worktree: null
 task_branch: null
 files:

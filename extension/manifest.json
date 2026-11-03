@@ -29,7 +29,7 @@
     },
     {
       "matches": ["<all_urls>"],
-      "js": ["observer-filter.js", "overlay.js"],
+      "js": ["observer-filter.js", "overlay-geometry.js", "overlay.js"],
       "run_at": "document_start"
     }
   ],
