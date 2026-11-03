@@ -861,8 +861,8 @@ Open questions
 Goal: Ship the only DOM the tool adds to an inspected page — a rect/label overlay plus an element picker in one closed Shadow DOM host attached once at `document_start`.
 Depends on: [M019]
 Surfaces: inspected page
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/022-in-page-overlay
 Integrated: null
 
 Scope: in
