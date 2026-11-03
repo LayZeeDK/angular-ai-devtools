@@ -3,12 +3,13 @@ id: T008
 title: Draw the tracked rect and label in the overlay, and make hover, lock and cancel work
 wave: 2
 deps: [T002, T005, T006, T007]
-status: pending
+status: in-progress
 agent: null
 base: null
 worktree: null
 task_branch: null
 files:
+  - extension/manifest.json
   - extension/overlay-geometry.js
   - extension/overlay-geometry.test.mjs
   - extension/overlay.js
@@ -71,3 +72,8 @@ Heavy: no
 ## Log
 
 - 2026-11-03 — created by planner
+- coder: extension/overlay-geometry.js is the pure geometry — no document, window, matrix or computed style; getBoundingClientRect read verbatim in CSS pixels; the device pixel ratio accepted and never used; a zero-size rect drawn as a 1 px box at its point; the label clamped against the visual viewport's box and offsets when present and the document element's client box otherwise — proven as arithmetic in extension/overlay-geometry.test.mjs (E1: a translate/scale ancestor's reading passes through unchanged and a rotated ancestor's axis-aligned box is the box the label documents, with a rebuilt-box mutant failing; E2: the label stays inside the viewport at both extreme scroll positions, for a zero-size element and against visual-viewport offsets, with the unclamped mutant escaping; E3: the box is identical at device pixel ratio 1 and 2, with the device-pixel mutant exactly the ratio too wide). extension/overlay.js extends T005's host: the rect and label are created lazily into the closed root on arm with one stylesheet node and per-frame transform/width/height writes on those two nodes only, hover resolves through document.elementFromPoint with a hit on the host read as the tool and visualViewport.scale read for nothing, a click locks the pick (preventDefault and stopPropagation, angular-ai:pick dispatched on the element with bubbles true, composed false and no detail), the five inputs of decision 6 (capture-phase scroll, resize, visualViewport resize and scroll, a resolution media query re-registered on every fire, one animation-frame loop over one dirty flag that recomputes at most once per frame and keeps framing while a selection exists for ancestor transforms) are recorded and detached on cancel, the three named outcomes are three different labels, 1500 ms without an answer emits unavailable with a reason and keeps the rect, cancel removes the drawing, detaches the inputs, disconnects the observer and reports cancelled while the host stays, and a missing overlay-geometry.js is a named unavailable state rather than a throw at document_start. research/raw/m022-pick-hop.json is a measured recording on chrome-stable-nano (Chrome 156.0.8078.80, http://localhost:4222/ counter fixture, picked tag p, resolved app-counter/_Counter, listener read event.target rather than a payload object, dispatch bubbles true/composed false/on the element) and the box measured over CDP through the closed root equals the reading verbatim at device pixel ratio 1.75 and after a 5203 px scroll, with the label clamped inside the viewport. PLAN DEFECT: the overlay's document_start declaration did not load overlay-geometry.js, so extension/manifest.json carries one line that is outside this task's files list (js: observer-filter.js, overlay-geometry.js, overlay.js) — no manifest.test.mjs assertion needed changing, every existing pin still holds, and overlay.test.mjs now pins the ordering so the wiring cannot silently regress; without that line the picker reports unavailable by name and the page keeps its host. Verify: npm ci --include=dev and node --test extension/overlay-geometry.test.mjs extension/overlay.test.mjs extension/observer-filter.test.mjs extension/relay.test.mjs extension/manifest.test.mjs exit 0, tests 87, pass 87, fail 0 — ready
+
+- The geometry module is a third file in the overlay's `document_start` declaration (`extension/manifest.json`): `overlay.js` cannot reach `overlay-geometry.js` in a shipped build otherwise, and `overlay.test.mjs` pins the ordering so the wiring cannot regress. Found by T008's own live drive and declared here rather than landed as an undeclared change.
+
+- The geometry module is a third file in the overlay's `document_start` declaration (`extension/manifest.json`): `overlay.js` cannot reach `overlay-geometry.js` in a shipped build otherwise, and `overlay.test.mjs` pins the ordering so the wiring cannot regress. Found by T008's own live drive and declared here rather than landed as an undeclared change.
