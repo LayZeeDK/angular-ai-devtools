@@ -55,6 +55,16 @@ measurement taken rather than skipped. If T005 reddens, the wave 1 surface is ch
 the pin.
 Review depth: full
 
+## Wave 5 — fix wave 3 cycle 1 review findings
+
+Goal: Repair the blocking findings of the wave 3 cycle 1 review without changing source task contracts.
+Review depth: full
+
+| Task | Title | Deps | Files |
+|------|-------|------|-------|
+| T015 | Fix wave 3 cycle 1 review findings in T009 | T009 | tests/held-out/fixture-harness-action.test.mjs, tests/held-out/fixture-harness-ambiguity.test.mjs, tests/held-out/fixture-harness-predicate.test.mjs, tests/held-out/fixture-harness-root-boundary.test.mjs |
+| T016 | Fix wave 3 cycle 1 review findings in T010 | T010 | tests/held-out/aria-rules.mjs, tests/held-out/fixture-aria-order.test.mjs, tests/held-out/fixture-aria-rule-mutation.test.mjs |
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
