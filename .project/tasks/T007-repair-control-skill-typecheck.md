@@ -3,7 +3,7 @@ id: T007
 title: Repair the type-check break in the control skill's tests
 wave: 2
 deps: [T004]
-status: pending
+status: in-progress
 agent: null
 base: null
 worktree: null
@@ -11,6 +11,7 @@ task_branch: null
 files:
   - .commandcode/skills/control-angular-dev-app/scripts/control.test.mjs
   - .claude/skills/control-angular-dev-app/scripts/control.test.mjs
+  - .claude/skills/control-angular-dev-app/scripts/control.mjs
 ---
 
 # T007 — Repair the type-check break in the control skill's tests
