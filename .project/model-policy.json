@@ -1,38 +1,34 @@
 {
   "roles": {
-    "coder": {
-      "effort": "high",
-      "model": "reflection/beam:free"
-    },
-    "decide": {
-      "effort": "high",
-      "model": "reflection/beam:free"
-    },
-    "docs_audit": {
-      "effort": "medium",
-      "model": "reflection/beam:free"
-    },
     "inspect_codebase": {
       "effort": "high",
       "model": "reflection/beam:free"
     },
     "inspect_docs": {
       "effort": "medium",
-      "model": "reflection/beam:free"
+      "model": "stealth/glyph-cluster:free"
+    },
+    "docs_audit": {
+      "effort": "medium",
+      "model": "stealth/glyph-cluster:free"
     },
     "plan": {
-      "effort": "high",
-      "model": "reflection/beam:free"
+      "effort": "medium",
+      "model": "stealth/glyph-cluster:free"
     },
     "plan_patch": {
-      "effort": "high",
-      "model": "reflection/beam:free"
+      "effort": "medium",
+      "model": "stealth/glyph-cluster:free"
+    },
+    "decide": {
+      "effort": "medium",
+      "model": "inclusionai/ling-3.1-flash-1019:free"
     },
     "research": {
-      "effort": "high",
-      "model": "reflection/beam:free"
+      "effort": "medium",
+      "model": "inclusionai/ling-3.1-flash-1019:free"
     },
-    "review_panel": {
+    "coder": {
       "effort": "high",
       "model": "reflection/beam:free"
     },
@@ -40,13 +36,17 @@
       "effort": "high",
       "model": "reflection/beam:free"
     },
-    "roadmap": {
-      "effort": "high",
-      "model": "reflection/beam:free"
+    "review_panel": {
+      "effort": "medium",
+      "model": "stealth/glyph-cluster:free"
     },
     "skeptic": {
-      "effort": "high",
-      "model": "reflection/beam:free"
+      "effort": "medium",
+      "model": "stealth/glyph-cluster:free"
+    },
+    "roadmap": {
+      "effort": "medium",
+      "model": "stealth/glyph-cluster:free"
     }
   }
 }
