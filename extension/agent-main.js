@@ -114,13 +114,277 @@
     return "noop";
   }
 
+  // --- Companion opt-in: the page's own `globalThis.ngAiDevTools` entry (T004) ----------------
+  //
+  // The package the app installs writes exactly one own string key on the page's global object,
+  // first-write-wins, whose value is `{ version, '@angular/platform-browser': { Meta },
+  // '@angular/router': { Router } }`. Detection runs here, in the MAIN world, because the panel is
+  // a devtools document and a `globalThis` read there reads the panel's own absent property.
+  //
+  // The probe answers one of four named states, never a boolean and never a ninth `features` name:
+  //   absent              no entry at all
+  //   foreign-entry       the key is there but is not the package's shape — a stub or a stale copy
+  //   version-unsupported right shape, unfamiliar version
+  //   declared            the entry passed validation; carries the accepted symbols
+  // Presence alone is deliberately not detection (N1): `featuresOf` is eight `typeof` checks and
+  // the panel renders any published bit as present, so a bit set from a `typeof` read would read
+  // to the user as a full opt-in (N1, N2). Nothing is added to the `features` map either: an extra
+  // name there would reach the group gate but neither `app_facts`' closed tuple nor the chip.
+  var COMPANION_KEY = "ngAiDevTools";
+
+  // The accepted vocabulary, spelled once in the page realm. The panel keeps its own closed copy of
+  // the same literal (T005); the identical interface-contract bullet is what makes them one promise.
+  var COMPANION_ACCEPTED_VERSION = "0.2202.0";
+  var COMPANION_SYMBOLS = [
+    { pkg: "@angular/platform-browser", name: "Meta" },
+    { pkg: "@angular/router", name: "Router" },
+  ];
+
+  // The bounded re-check: a handful of attempts on a timer, then it stops. No new event type, no
+  // new message type and no panel-to-page request — the entry is read from the page's own global.
+  var COMPANION_RECHECK_ATTEMPTS = 5;
+  var COMPANION_RECHECK_INTERVAL_MS = 250;
+
+  var lastState = null; // { supported, reason }: the record `tryInstall` published, re-emitted as-is
+  var companionRecheck = null; // { handle, remaining } | null
+
+  function isVettedPackage(pkg) {
+    for (var i = 0; i < COMPANION_SYMBOLS.length; i++) {
+      if (COMPANION_SYMBOLS[i].pkg === pkg) return true;
+    }
+    return false;
+  }
+
+  function isVettedSymbol(pkg, name) {
+    for (var i = 0; i < COMPANION_SYMBOLS.length; i++) {
+      if (COMPANION_SYMBOLS[i].pkg === pkg && COMPANION_SYMBOLS[i].name === name) return true;
+    }
+    return false;
+  }
+
+  // Reads the entry. A read only: this is the one global name the extension looks at besides
+  // `__ngRecorder`, and it never writes it (N3).
+  function readCompanionEntry() {
+    try {
+      return typeof globalThis !== "undefined" ? globalThis[COMPANION_KEY] : undefined;
+    } catch (e) {
+      return undefined;
+    }
+  }
+
+  // A named answer carrying no accepted symbol, so `declared` always equals `symbols.length` and an
+  // `absent` answer is a state, never an empty symbol list.
+  function companionRefusal(state, version) {
+    return { state: state, version: typeof version === "string" && version.length ? version : null, symbols: [] };
+  }
+
+  // Validates the entry against the package's own facade shape before believing anything: a
+  // non-null object, a non-empty string `version`, every group an object, every symbol name on the
+  // vetted table — with a class as its value, because the whole contribution to the lookup is a
+  // class object compared by identity. A name on the table whose value is not a function is still
+  // `foreign-entry`: a stale copy that kept the key and lost the class is not a partial opt-in. A
+  // group this vocabulary does not name is refused for the same reason: the shape the contract
+  // fixes is these groups and no others, and an extra one is surface no version of the package
+  // promised. The shape walk runs first so an unfamiliar version on a well-formed entry keeps its
+  // own answer, and a missing symbol is not a refusal but the honest "declared, no symbols".
+  function probeCompanion() {
+    var entry = readCompanionEntry();
+    if (typeof entry === "undefined") return companionRefusal("absent", null);
+    if (entry === null || typeof entry !== "object" || isArrayValue(entry)) return companionRefusal("foreign-entry", null);
+    var version;
+    try {
+      version = entry.version;
+    } catch (e) {
+      return companionRefusal("foreign-entry", null);
+    }
+    if (typeof version !== "string" || version.length === 0) return companionRefusal("foreign-entry", null);
+    var accepted = [];
+    var keys;
+    try {
+      keys = Object.keys(entry);
+    } catch (e) {
+      return companionRefusal("foreign-entry", version);
+    }
+    for (var i = 0; i < keys.length; i++) {
+      var pkg = keys[i];
+      if (pkg === "version") continue;
+      if (!isVettedPackage(pkg)) return companionRefusal("foreign-entry", version);
+      var group;
+      try {
+        group = entry[pkg];
+      } catch (e) {
+        return companionRefusal("foreign-entry", version);
+      }
+      if (group === null || typeof group !== "object" || isArrayValue(group)) return companionRefusal("foreign-entry", version);
+      var names;
+      try {
+        names = Object.keys(group);
+      } catch (e) {
+        return companionRefusal("foreign-entry", version);
+      }
+      for (var j = 0; j < names.length; j++) {
+        var name = names[j];
+        if (!isVettedSymbol(pkg, name)) return companionRefusal("foreign-entry", version);
+        var value;
+        try {
+          value = group[name];
+        } catch (e) {
+          return companionRefusal("foreign-entry", version);
+        }
+        if (typeof value !== "function") return companionRefusal("foreign-entry", version);
+        accepted.push({ pkg: pkg, name: name, value: value });
+      }
+    }
+    if (version !== COMPANION_ACCEPTED_VERSION) return companionRefusal("version-unsupported", version);
+    return { state: "declared", version: version, symbols: accepted };
+  }
+
+  function isArrayValue(value) {
+    try {
+      return typeof Array.isArray === "function" ? Array.isArray(value) : false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // The page's injector, reached the way the rest of this file reaches it: `getInjector` (or the
+  // compiler-private alias) on the app's root element. No `injector.get` is ever called with a
+  // vetted token, because a lookup would instantiate someone else's class (N4).
+  function companionInjector(ng) {
+    var getInjector = ng && (typeof ng.getInjector === "function" ? ng.getInjector : (typeof ng.ɵgetInjectorFromNode === "function" ? ng.ɵgetInjectorFromNode : null));
+    if (!getInjector) return null;
+    var root = null;
+    try {
+      if (typeof document !== "undefined" && document && typeof document.querySelector === "function") {
+        root = document.querySelector("app-root") || document.body || document.documentElement;
+      }
+    } catch (e) {
+      root = null;
+    }
+    if (!root) return null;
+    try {
+      return getInjector(root);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Identity against the shipped walk: each provider record's token is compared with the class read
+  // from the entry, over `ɵgetInjectorResolutionPath` + `ɵgetInjectorProviders`, with every `ɵ`
+  // function feature-detected and every call guarded. A second Angular copy produces a well-formed
+  // entry and a walk that matches no record, so `declared` and `resolved` are counted apart and the
+  // honest "N declared, 0 resolved" is what the panel receives.
+  function countCompanionResolved(ng, symbols) {
+    if (!symbols.length) return 0;
+    var injector = companionInjector(ng);
+    if (!injector) return 0;
+    var getProviders = ng && typeof ng.ɵgetInjectorProviders === "function" ? ng.ɵgetInjectorProviders : null;
+    if (!getProviders) return 0;
+    var getPath = ng && typeof ng.ɵgetInjectorResolutionPath === "function" ? ng.ɵgetInjectorResolutionPath : null;
+    var injectors = [];
+    if (getPath) {
+      try {
+        injectors = getPath(injector) || [];
+      } catch (e) {
+        injectors = [];
+      }
+    }
+    if (!isArrayValue(injectors) || !injectors.length) injectors = [injector];
+    var resolved = 0;
+    for (var i = 0; i < symbols.length; i++) {
+      var matched = false;
+      for (var j = 0; j < injectors.length && !matched; j++) {
+        var providers = null;
+        try {
+          providers = getProviders(injectors[j]);
+        } catch (e) {
+          providers = null;
+        }
+        if (!isArrayValue(providers)) continue;
+        for (var k = 0; k < providers.length; k++) {
+          var record = providers[k];
+          if (record && record.token === symbols[i].value) {
+            matched = true;
+            break;
+          }
+        }
+      }
+      if (matched) resolved++;
+    }
+    return resolved;
+  }
+
+  // The fifth top-level field: the state, the version the entry declares, the two counts kept
+  // apart, and the accepted symbols by `pkg`/`name` only — a vetted symbol is a lookup token, never
+  // app content, so its class never reaches the payload (N4).
+  function companionField(ng) {
+    var probe = probeCompanion();
+    var symbols = [];
+    for (var i = 0; i < probe.symbols.length; i++) {
+      symbols.push({ pkg: probe.symbols[i].pkg, name: probe.symbols[i].name });
+    }
+    return {
+      state: probe.state,
+      version: probe.version,
+      declared: symbols.length,
+      resolved: probe.state === "declared" ? countCompanionResolved(ng, probe.symbols) : 0,
+      symbols: symbols,
+    };
+  }
+
+  function stopCompanionRecheck() {
+    if (!companionRecheck) return;
+    var handle = companionRecheck.handle;
+    companionRecheck = null;
+    try {
+      globalThis.clearInterval(handle);
+    } catch (e) {}
+  }
+
+  // Armed only when the answer is `absent`: an entry the app writes after its bootstrap would
+  // otherwise be invisible, because the record is one-shot and no panel-to-page ask exists.
+  function armCompanionRecheck(answering) {
+    stopCompanionRecheck();
+    if (answering !== "absent" || !lastState) return;
+    var handle;
+    try {
+      handle = globalThis.setInterval(recheckCompanion, COMPANION_RECHECK_INTERVAL_MS);
+    } catch (e) {
+      return;
+    }
+    companionRecheck = { handle: handle, remaining: COMPANION_RECHECK_ATTEMPTS };
+  }
+
+  // Finite: the timer is cleared on the first non-absent answer and on the last attempt, and the
+  // re-emission goes through `announceState` so the payload is the same record `tryInstall` builds.
+  function recheckCompanion() {
+    if (!companionRecheck) return;
+    try {
+      companionRecheck.remaining -= 1;
+      var probe = probeCompanion();
+      if (probe.state !== "absent") {
+        stopCompanionRecheck();
+        if (lastState) announceState(lastState.supported, lastState.reason);
+        return;
+      }
+      if (companionRecheck.remaining <= 0) stopCompanionRecheck();
+    } catch (e) {
+      /* a timer must never throw into the page */
+    }
+  }
+
   function announceState(supported, reason) {
+    var ng = readNg();
+    lastState = { supported: supported, reason: reason || null };
+    var companion = companionField(ng);
     dispatch(STATE_EVENT, {
       supported: supported,
       reason: reason || null,
       zoneMode: zoneMode,
-      features: featuresOf(readNg()),
+      features: featuresOf(ng),
+      companion: companion,
     });
+    armCompanionRecheck(companion.state);
   }
 
   function angularVersionString(ng) {
@@ -602,6 +866,8 @@
     pendingTrigger = null;
     cycle = null;
     prevEpochs = new WeakMap();
+    stopCompanionRecheck();
+    lastState = null;
   }
 
   var api = {

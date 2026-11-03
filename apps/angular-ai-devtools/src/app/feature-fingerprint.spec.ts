@@ -33,6 +33,9 @@ function context(overrides: Partial<PanelContext> = {}): PanelContext {
     version: '22.2.4',
     stateReceived: true,
     replayOutcome: 'answered',
+    // The chip reads none of this: the companion answer is the extra surface's record, and the two
+    // surfaces keep their own sources (M021 T005, N2).
+    companion: null,
     ...overrides,
   };
 }
@@ -125,7 +128,7 @@ describe('featureFingerprint', () => {
 
   it('names the refusal for a page with neither a version nor a state (SC3)', () => {
     const fingerprint = featureFingerprint(
-      { facts: {}, version: null, stateReceived: false, replayOutcome: 'answered' },
+      { facts: {}, version: null, stateReceived: false, companion: null, replayOutcome: 'answered' },
       FEATURE_NAMES,
     );
 
@@ -138,7 +141,7 @@ describe('featureFingerprint', () => {
   it('waits instead of refusing while the replay is outstanding (AC3, SC1)', () => {
     for (const version of [null, '22.2.4']) {
       const fingerprint = featureFingerprint(
-        { facts: {}, version, stateReceived: false, replayOutcome: 'outstanding' },
+        { facts: {}, version, stateReceived: false, companion: null, replayOutcome: 'outstanding' },
         FEATURE_NAMES,
       );
 
@@ -157,7 +160,7 @@ describe('featureFingerprint', () => {
 
   it('names the transport, not the page, when the replay failed (AC4)', () => {
     const fingerprint = featureFingerprint(
-      { facts: {}, version: null, stateReceived: false, replayOutcome: 'failed' },
+      { facts: {}, version: null, stateReceived: false, companion: null, replayOutcome: 'failed' },
       FEATURE_NAMES,
     );
 
@@ -174,7 +177,7 @@ describe('featureFingerprint', () => {
   it('lets the refusal render only for an answered replay, never for the other outcomes (AC5)', () => {
     const kindOf = (replayOutcome: PanelContext['replayOutcome']): string =>
       featureFingerprint(
-        { facts: {}, version: null, stateReceived: false, replayOutcome },
+        { facts: {}, version: null, stateReceived: false, companion: null, replayOutcome },
         FEATURE_NAMES,
       ).kind;
 
@@ -208,7 +211,7 @@ describe('featureFingerprint', () => {
 
   it('names the version and the absent debug surface when a version arrived with no state (SC3)', () => {
     const fingerprint = featureFingerprint(
-      { facts: {}, version: '22.2.4', stateReceived: false, replayOutcome: 'answered' },
+      { facts: {}, version: '22.2.4', stateReceived: false, companion: null, replayOutcome: 'answered' },
       FEATURE_NAMES,
     );
 

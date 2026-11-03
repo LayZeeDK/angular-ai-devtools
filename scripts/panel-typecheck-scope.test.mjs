@@ -8,11 +8,13 @@
  * check is the defect restated", so the breadth must be an assertion that fails when the scope
  * regresses.
  *
- * Five properties, each one a way the scope could quietly shrink:
+ * Seven properties, each one a way the scope could quietly shrink:
  *
  * 1. The `check` chain still runs every stage it ran before — `ensure-sidecar-deps`, the root
- *    `tsc -p tsconfig.json`, `check:skills` — and ends with `check:panel`. A dropped stage is a
- *    narrowed check even when the new stage is present.
+ *    `tsc -p tsconfig.json`, `check:skills` — then `check:panel`, then `check:companion` (M021's
+ *    authorised re-pin). The list is asserted by deep equality and every stage is named exactly,
+ *    never matched by a wildcard, so a dropped, reordered or extra stage fails; the red half
+ *    replays the same comparison over mutated stage lists to prove the re-pin still bites.
  * 2. `check:panel` names the panel config, so the stage cannot be pointed at a file that happens
  *    to type-check.
  * 3. That config's `include` is the panel's whole source tree (`src/**\/*.ts`), its only
@@ -27,17 +29,24 @@
  *    modules, the page-read port, and the modules the panel imports from `src/main-world/` and
  *    `src/panel/`. This is measured by running the real config with `--listFiles`, not by
  *    trusting the config's prose — a registry outside the program cannot appear in that list.
+ * 6. The companion config `check:companion` names emits nothing and carries no suppression of its
+ *    own, and every `.ts` under the package's source root appears in the program `--listFiles`
+ *    reports for it. A stage over a path that does not resolve is a check over nothing, which is
+ *    the defect the M018 pin's own comment forbids.
+ * 7. The companion stage bites too: a temp config that extends the real companion config and also
+ *    carries one deliberately broken file exits non-zero on that file alone, and passes once the
+ *    file is fixed — the same pair the panel stage is put through below.
  *
- * Then the stage is made to bite: a temp config under `os.tmpdir()` that extends the real one and
- * adds a single file holding a deliberate type error must exit non-zero, and the same config with
- * that file fixed must exit zero. Without that pair, every assertion above could be satisfied by
- * a compile that reports nothing. Nothing is ever written into the checkout: the temp config and
- * its probe file live in a `mkdtempSync` directory removed in a `finally`, and the repository
- * files are only read.
+ * Both pairs are what keep the assertions above from being vacuous: without them a compile that
+ * reports nothing would satisfy every one. The panel fixture's config and probe live in an
+ * `os.tmpdir()` `mkdtempSync` directory; the companion fixture's live under this checkout's
+ * git-ignored `tmp/`, because the companion config sets a `rootDir` and no single `rootDir` spans
+ * a probe on another drive. Both directories are removed in a `finally`, and no tracked file is
+ * ever written.
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, isAbsolute, join, resolve, sep } from 'node:path';
 import test from 'node:test';
@@ -53,9 +62,36 @@ const ROOT_TSCONFIG_PATH = join(REPO_ROOT, 'tsconfig.json');
 const PANEL_PROJECT_ROOT = join(REPO_ROOT, 'apps', 'angular-ai-devtools');
 const PANEL_CHECK_CONFIG_PATH = join(PANEL_PROJECT_ROOT, 'tsconfig.check.json');
 const PANEL_SOURCE_ROOT = join(PANEL_PROJECT_ROOT, 'src');
+const COMPANION_PROJECT_ROOT = join(REPO_ROOT, 'packages', 'ai-devtools-companion');
+const COMPANION_CONFIG_PATH = join(COMPANION_PROJECT_ROOT, 'tsconfig.json');
+const COMPANION_SOURCE_ROOT = join(COMPANION_PROJECT_ROOT, 'src');
+
+/** The repository's git-ignored scratch root (`tmp/` in `.gitignore`), which is already the output
+ * root of `facade-dev-build.test.mjs`. The companion fixture lives here rather than under
+ * `os.tmpdir()` for one reason: the companion config sets a `rootDir`, and on a host whose temp
+ * directory sits on a different drive from the checkout no single `rootDir` contains both the
+ * package's sources and a probe outside them — TypeScript answers TS6059 instead of the deliberate
+ * error. Inside `tmp/` both are under the checkout, so the fixture proves the real stage's
+ * options rather than the drive layout. */
+const SCRATCH_ROOT = join(REPO_ROOT, 'tmp');
 
 /** The panel config, relative to the panel project — the form `check:panel` must name. */
 const PANEL_CHECK_CONFIG_RELATIVE = 'apps/angular-ai-devtools/tsconfig.check.json';
+
+/** The companion config, relative to the repository root — the form `check:companion` must name. */
+const COMPANION_CONFIG_RELATIVE = 'packages/ai-devtools-companion/tsconfig.json';
+
+/** The `check` chain M021 re-pins: the three stages that predate M018, the panel stage M018 added,
+ * and the companion stage M021 adds, in that order. Every entry is spelled out. A wildcard or a
+ * `some(...)` here would accept a chain that dropped or reordered a stage, which is exactly the
+ * narrowed check N4 and N6 forbid. */
+const CHECK_STAGES = [
+  'node scripts/ensure-sidecar-deps.mjs',
+  'tsc -p tsconfig.json',
+  'npm run check:skills',
+  'npm run check:panel',
+  'npm run check:companion',
+];
 
 /** The TypeScript entry point the npm scripts resolve through `node_modules/.bin`. Driving the
  * same package directly keeps the test independent of PATH and of the shell. */
@@ -181,14 +217,15 @@ function posixPath(absolutePath) {
 // Walking and driving TypeScript
 // ---------------------------------------------------------------------------
 
-/** Every `.ts` file under a directory, sorted, with the `node:test` shapes dropped — the set the
- * panel config promises to cover. */
-function panelSourceFiles(directory = PANEL_SOURCE_ROOT) {
+/** Every `.ts` file under a directory, sorted, with the `node:test` shapes dropped — the set a
+ * check config promises to cover. Used for the panel's source tree and for the companion
+ * package's. */
+function sourceFilesUnder(directory) {
   const found = [];
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name);
     if (entry.isDirectory()) {
-      found.push(...panelSourceFiles(path));
+      found.push(...sourceFilesUnder(path));
       continue;
     }
     if (!entry.isFile() || !entry.name.endsWith('.ts')) {
@@ -243,34 +280,70 @@ function programFiles(configPath) {
 }
 
 // ---------------------------------------------------------------------------
-// The package scripts — the stage exists, runs last and names the panel config
+// The package scripts — the stage exists, runs last and names its own config
 // ---------------------------------------------------------------------------
 
-test('the check chain runs every stage it ran before and ends with the panel stage', () => {
+/** Splits a `check` script into the stages it runs, in order. */
+function checkStages(script) {
+  return script.split('&&').map((stage) => stage.trim());
+}
+
+/** The pin itself, callable with a mutated stage list so the red half below can prove the re-cut
+ * expectation list still refuses a dropped or reordered stage. */
+function assertStageChain(script, expected = CHECK_STAGES) {
+  assert.deepEqual(
+    checkStages(script),
+    expected,
+    'check must run its five stages in order — the root type check, the skills stage, the panel stage and then the companion stage — and nothing else',
+  );
+}
+
+test('the check chain runs every stage it ran before and ends with the companion stage', () => {
   const pkg = JSON.parse(readFileSync(PACKAGE_PATH, 'utf8'));
   const script = pkg.scripts?.check;
   assert.equal(typeof script, 'string', 'package.json must carry a check script');
 
-  // N4 in one assertion: the three pre-existing stages, in order, and the new stage last. A
-  // dropped stage fails here even though `check:panel` is present.
-  const stages = script.split('&&').map((stage) => stage.trim());
-  assert.deepEqual(
-    stages,
-    [
-      'node scripts/ensure-sidecar-deps.mjs',
-      'tsc -p tsconfig.json',
-      'npm run check:skills',
-      'npm run check:panel',
-    ],
-    'check must keep its three pre-existing stages and end with check:panel',
-  );
+  // The M021 re-pin in one assertion: the three pre-existing stages, the panel stage and the
+  // companion stage, named exactly and in order. A dropped, reordered or extra stage fails here
+  // even though both named stage scripts are present.
+  assertStageChain(script);
 
   assert.equal(
     pkg.scripts['check:panel'],
     `tsc -p ${PANEL_CHECK_CONFIG_RELATIVE}`,
     'check:panel must run tsc against the panel check config and nothing else',
   );
-  console.log(`panel-typecheck-scope: check chain is ${JSON.stringify(stages)}`);
+  assert.equal(
+    pkg.scripts['check:companion'],
+    `tsc -p ${COMPANION_CONFIG_RELATIVE}`,
+    'check:companion must run tsc against the companion package config and nothing else',
+  );
+
+  // The red half, re-cut to the new list: the same comparison must still fail when a stage is
+  // dropped, reordered or added. Without it the re-pin could have been widened into a list that
+  // passes unconditionally, which is the weakened pin N6 forbids.
+  const refused = {
+    'a dropped companion stage': CHECK_STAGES.slice(0, -1),
+    'a dropped panel stage with the companion stage still present': [
+      ...CHECK_STAGES.slice(0, 3),
+      CHECK_STAGES[4],
+    ],
+    'the panel and companion stages swapped': [
+      ...CHECK_STAGES.slice(0, 3),
+      CHECK_STAGES[4],
+      CHECK_STAGES[3],
+    ],
+    'an extra stage appended after the companion stage': [...CHECK_STAGES, 'npm run check:extra'],
+  };
+  for (const [what, stages] of Object.entries(refused)) {
+    assert.throws(
+      () => assertStageChain(stages.join(' && ')),
+      /check must run/,
+      `${what} must fail the pin: ${JSON.stringify(stages)}`,
+    );
+  }
+
+  console.log(`panel-typecheck-scope: check chain is ${JSON.stringify(checkStages(script))}`);
 });
 
 // ---------------------------------------------------------------------------
@@ -364,7 +437,7 @@ test('the panel program contains every panel source, the registry and the milest
 
   // Breadth over the source tree: every `.ts` the panel owns is in the program, so a file added
   // later is covered without editing this list.
-  const sources = panelSourceFiles();
+  const sources = sourceFilesUnder(PANEL_SOURCE_ROOT);
   assert.ok(sources.length > 0, 'the panel source walk must find at least one file');
   const uncovered = sources.filter((file) => !program.includes(posixPath(file)));
   assert.deepEqual(
@@ -474,6 +547,136 @@ test('the panel stage fails on a deliberate type error and passes once the file 
     console.log(
       `panel-typecheck-scope: temp config ${displayPath(configPath)} exited ${red.status} with the deliberate ` +
         `error and ${green.status} once fixed`,
+    );
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// The companion stage — the package's own program, not a check over nothing
+// ---------------------------------------------------------------------------
+
+test('the companion config emits nothing and its program holds the package source tree', () => {
+  // A stage over a path that does not resolve is a check over nothing: the config `check:companion`
+  // names (asserted above) must exist, and it is the one the program below is read from.
+  assert.ok(
+    existsSync(COMPANION_CONFIG_PATH),
+    `check:companion names ${COMPANION_CONFIG_RELATIVE}, which must resolve inside the checkout`,
+  );
+  const config = readJsonc(COMPANION_CONFIG_PATH);
+  const options = config.compilerOptions ?? {};
+
+  // The stage writes no build output: `noEmit` is the config's own state, and the package's build
+  // target is what turns emit back on. Without this, a verify sidecar would gain a `dist/`.
+  assert.equal(
+    options.noEmit,
+    true,
+    'the companion config must not emit: the check stage writes no build output',
+  );
+  // And no suppression of its own, the same rule the panel config is held to.
+  assert.ok(
+    !/@ts-ignore|@ts-expect-error/.test(executableText(COMPANION_CONFIG_PATH)),
+    'the companion config must not carry a @ts-ignore or @ts-expect-error',
+  );
+
+  // Breadth, measured rather than trusted: every `.ts` under the package's source root appears in
+  // the program `--listFiles` reports. A package outside the program cannot appear there, and an
+  // `include` that resolves to nothing leaves the expected list empty below.
+  const sources = sourceFilesUnder(COMPANION_SOURCE_ROOT);
+  assert.ok(sources.length > 0, 'the companion source walk must find at least one file');
+  const program = programFiles(COMPANION_CONFIG_PATH);
+  const uncovered = sources.filter((file) => !program.includes(posixPath(file)));
+  assert.deepEqual(
+    uncovered.map((file) => displayPath(file)),
+    [],
+    'every companion source file must be in the program the companion stage builds',
+  );
+  assert.ok(
+    program.includes(posixPath(join(COMPANION_SOURCE_ROOT, 'index.ts'))),
+    'the companion program must contain the package entry point that calls the app-side provider',
+  );
+
+  console.log(
+    `panel-typecheck-scope: companion program holds ${program.length} files and covers ` +
+      `${sources.length} package sources`,
+  );
+});
+
+// ---------------------------------------------------------------------------
+// The companion stage bites — a deliberate error in its program fails it
+// ---------------------------------------------------------------------------
+
+test('the companion stage fails on a deliberate type error in its program and passes once fixed', () => {
+  mkdirSync(SCRATCH_ROOT, { recursive: true });
+  const temp = mkdtempSync(join(SCRATCH_ROOT, 'companion-typecheck-scope-'));
+  try {
+    assert.ok(
+      temp.startsWith(SCRATCH_ROOT),
+      `the fixture must live under the git-ignored ${displayPath(SCRATCH_ROOT)}: ${temp}`,
+    );
+    const probePath = join(temp, 'deliberate-type-error.ts');
+    // Extending the real config is what makes this a proof about the real stage: `strict`,
+    // `noUncheckedIndexedAccess`, `isolatedModules`, `verbatimModuleSyntax` and module resolution
+    // are the package's own, inherited from it, and the package's real sources are in the program.
+    //
+    // One thing is restated, because the probe lives outside the package's `rootDir`: `rootDir`
+    // itself, widened to the checkout so both the package's sources and the probe are inside it.
+    // The alternative — copying the sources to a directory whose `rootDir` holds them — would move
+    // the `@angular/*` imports away from the install that resolves them, and a `paths` mapping is
+    // exactly the bridge this task may not add.
+    const configPath = join(temp, 'tsconfig.probe.json');
+    writeFileSync(
+      configPath,
+      `${JSON.stringify(
+        {
+          extends: posixPath(COMPANION_CONFIG_PATH),
+          compilerOptions: { rootDir: posixPath(REPO_ROOT) },
+          include: [posixPath(join(COMPANION_SOURCE_ROOT, '**', '*.ts')), posixPath(probePath)],
+        },
+        null,
+        2,
+      )}\n`,
+      'utf8',
+    );
+
+    writeFileSync(probePath, "export const deliberateTypeError: number = 'not a number';\n", 'utf8');
+    const red = runTsc(configPath);
+    assert.notEqual(
+      red.status,
+      0,
+      `a file carrying a deliberate type error must fail the companion stage; got exit ${red.status} with: ${red.output}`,
+    );
+    const errorLines = red.output.split(/\r?\n/).filter((line) => /error TS\d+/.test(line));
+    assert.equal(
+      errorLines.length,
+      1,
+      `the deliberate error must be the only error the stage reports, so the package's own sources stay clean in the same program: ${JSON.stringify(errorLines)}`,
+    );
+    assert.ok(
+      errorLines[0].includes('TS2322'),
+      `the failure must be the deliberate assignment error (TS2322): ${errorLines[0]}`,
+    );
+    // The message names the file and the line, which is what proves the file was compiled rather
+    // than skipped by an `include` that resolved to nothing.
+    assert.ok(
+      errorLines[0].includes('deliberate-type-error.ts(1,14)'),
+      `the failure must name the probe file and its line: ${errorLines[0]}`,
+    );
+
+    // The same config, the probe fixed: now it must pass. Without this the red half would prove
+    // only that the temp config is broken.
+    writeFileSync(probePath, 'export const deliberateTypeError: number = 42;\n', 'utf8');
+    const green = runTsc(configPath);
+    assert.equal(
+      green.status,
+      0,
+      `the fixed file must pass the same config; the stage fails for the error alone: ${green.output}`,
+    );
+
+    console.log(
+      `panel-typecheck-scope: companion probe ${displayPath(probePath)} exited ${red.status} with the ` +
+        `deliberate error on line 1 and ${green.status} once fixed`,
     );
   } finally {
     rmSync(temp, { recursive: true, force: true });

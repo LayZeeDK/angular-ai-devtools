@@ -111,6 +111,108 @@ describe('ExtensionMessageService', () => {
     expect(ext.notSupportedReason()).toBeNull();
   });
 
+  it('exposes no companion answer until a state arrives (AC1)', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    // `null` is "the panel has not been told", which is not the record's `absent` state: a page
+    // that never spoke must never be read as a page without the package.
+    expect(ext.companion()).toBeNull();
+    expect(ext.stateReceived()).toBe(false);
+  });
+
+  it('writes the companion member of angular-ai:state into the one signal (AC1)', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+    const companion = {
+      state: 'declared',
+      version: '0.2202.0',
+      declared: 2,
+      resolved: 1,
+      symbols: [
+        { pkg: '@angular/router', name: 'Router' },
+        { pkg: '@angular/platform-browser', name: 'Meta' },
+      ],
+    };
+
+    deliver({ type: 'angular-ai:state', supported: true, companion, tabId: 5 });
+
+    expect(ext.companion()).toEqual(companion);
+    // The counts stay apart: "2 declared, 1 resolved" is the honest second-Angular-copy answer.
+    expect(ext.companion()?.declared).toBe(2);
+    expect(ext.companion()?.resolved).toBe(1);
+  });
+
+  it('keeps the record absent answer as its own state, not as a missing answer (E2)', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+    const absent = { state: 'absent', version: null, declared: 0, resolved: 0, symbols: [] };
+
+    deliver({ type: 'angular-ai:state', supported: true, companion: absent, tabId: 5 });
+
+    // The page answered, and its answer is "no entry": that is a state the surface names, not the
+    // `null` that renders as "the panel has not been told".
+    expect(ext.companion()).toEqual(absent);
+    expect(ext.companion()).not.toBeNull();
+  });
+
+  it('answers null for a payload whose companion member is missing or names no known state', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    // A state record with no fifth field: the panel has no companion answer, so it says so rather
+    // than inventing `absent` for a page that simply did not carry the field.
+    deliver({ type: 'angular-ai:state', supported: true, tabId: 5 });
+    expect(ext.companion()).toBeNull();
+    expect(ext.stateReceived()).toBe(true);
+
+    // An answer that is not one of the four named states is not an answer.
+    for (const companion of [
+      { state: 'present', version: '0.2202.0' },
+      { state: 42 },
+      { version: '0.2202.0' },
+      'absent',
+      null,
+      [1, 2, 3],
+    ]) {
+      deliver({ type: 'angular-ai:state', supported: true, companion, tabId: 5 });
+      expect(ext.companion(), JSON.stringify(companion)).toBeNull();
+    }
+  });
+
+  it('keeps only the well-formed parts of a companion record', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    deliver({
+      type: 'angular-ai:state',
+      supported: true,
+      companion: {
+        state: 'declared',
+        version: ' 0.2202.0 ',
+        declared: 3.9,
+        resolved: -1,
+        symbols: [
+          { pkg: '@angular/router', name: 'Router' },
+          { pkg: '@angular/router' },
+          { pkg: '', name: 'Meta' },
+          { pkg: 42, name: 'Meta' },
+          null,
+          { pkg: '@angular/platform-browser', name: 'Meta' },
+        ],
+      },
+      tabId: 5,
+    });
+
+    // The shape is rebuilt at the boundary: a symbol entry that is not a `pkg`/`name` pair is not
+    // reported, and a count that is not a non-negative whole number reads zero.
+    expect(ext.companion()).toEqual({
+      state: 'declared',
+      version: '0.2202.0',
+      declared: 3,
+      resolved: 0,
+      symbols: [
+        { pkg: '@angular/router', name: 'Router' },
+        { pkg: '@angular/platform-browser', name: 'Meta' },
+      ],
+    });
+  });
+
   it('sends exactly one replay request per construction, naming the inspected tab', () => {
     expect(requests).toEqual([{ type: 'angular-ai:state-request', tabId: 5 }]);
     // A second construction asks once more — one request each, never a retry loop.

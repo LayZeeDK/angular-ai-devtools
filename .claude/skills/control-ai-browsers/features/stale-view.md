@@ -27,8 +27,9 @@ dev page served.
   the driver routes the panel to `stale-view`, waits for the finding list or its explicit empty state, reads the
   hedged wording "the template may show a stale value", the field name and the owning component, then clicks
   "Explain".
-- Implementation: `apps/angular-ai-devtools/src/app/stale-view.component.ts`;
-  message types `angular-ai:stale-view`.
+- Implementation: `apps/angular-ai-devtools/src/app/stale-view.component.ts`; no runtime message type.
+  The scan runs through `StaleViewScanService` (which loads `extension/stale-view-worker.js`) and the
+  component sends no message, so `angular-ai:stale-view` does not exist.
 
 ## Gotchas
 

@@ -29,7 +29,9 @@ dev page served (the counter fixture below).
   the driver injects a captured `NG0100` error, reads its code, owning component and digest entry, then clicks
   "Explain". The proof across every pair is `verify-ai-browsers/checks/error-explainer.mjs`.
 - Implementation: `apps/angular-ai-devtools/src/app/error-explainer.component.ts`;
-  message types `angular-ai:error-capture` / `angular-ai:error-explain`.
+  message type `angular-ai:error-capture` only. The explain step runs in the panel
+  (`src/panel/error-explainer-view.ts` calls `shouldCallModel`) and sends no message, so
+  `angular-ai:error-explain` does not exist.
 
 ## Gotchas
 

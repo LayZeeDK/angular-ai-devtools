@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { UpdateCauseService } from './n1-update-cause.service';
+import type { CompanionRecord, CompanionRecordState, CompanionSymbol } from './companion';
 import type { ReplayOutcome } from './panel-context';
 import { CAPACITY } from '../../../../src/main-world/error-capture';
 import type { CapturedError } from '../../../../src/main-world/error-capture';
@@ -21,6 +22,10 @@ interface ExtensionMessage {
   // change-detection mode it measured. Both are page-published facts, never the panel's own.
   features?: Readonly<Record<string, boolean>>;
   zoneMode?: string;
+  // The page's companion answer (`extension/agent-main.js`, `companionField`), carried verbatim by
+  // the relay and the background and read here into a typed record. Its shape is checked by
+  // `readCompanionRecord`; the message boundary is untyped, so nothing else is believed.
+  companion?: unknown;
   code?: string | null;
   message?: string;
   component?: string | null;
@@ -48,6 +53,10 @@ export class ExtensionMessageService {
   readonly features = signal<Readonly<Record<string, boolean>> | null>(null);
   readonly zoneMode = signal<string | null>(null);
   readonly stateReceived = signal(false);
+  // The `companion` member of the same record: the page's opt-in answer, or `null` until a state
+  // arrives. `null` is "the panel has not been told", never "the page has no package" — the
+  // `absent` answer is a state of its own inside the record (M021 SC1, E2).
+  readonly companion = signal<CompanionRecord | null>(null);
   // The `[ng-version]` the relay read, whether it arrived live or in the replay. A group gate and
   // the fingerprint chip read this; `null` is "the panel has not been told a version".
   readonly appVersion = signal<string | null>(null);
@@ -122,6 +131,9 @@ export class ExtensionMessageService {
       // instead of dropping it at the wire boundary. No probe is re-run here.
       this.features.set(readFeatureBits(msg.features));
       this.zoneMode.set(typeof msg.zoneMode === 'string' ? msg.zoneMode : null);
+      // The fifth field, read into the one signal the extra surface consumes. A payload without a
+      // usable answer leaves the signal `null`: unknown is never rewritten as `absent`.
+      this.companion.set(readCompanionRecord(msg.companion));
       if (msg.supported === false) {
         this.notSupported.set(true);
         this.notSupportedReason.set(msg.reason ?? 'not supported');
@@ -169,4 +181,75 @@ function readFeatureBits(value: unknown): Readonly<Record<string, boolean>> | nu
     }
   }
   return bits;
+}
+
+/** The four states `extension/agent-main.js` publishes; anything else is not an answer. */
+const COMPANION_STATES: ReadonlySet<string> = new Set<string>([
+  'absent',
+  'foreign-entry',
+  'version-unsupported',
+  'declared',
+]);
+
+/**
+ * Reads the page's `companion` member into the record the extra surface consumes, or `null` when
+ * the payload carried no usable answer.
+ *
+ * The message boundary is untyped, so the shape is rebuilt here rather than trusted: an unknown
+ * `state` is not one of the four answers and reads as `null` (the surface then says the panel has
+ * no answer, never that the page has no package); `version` is kept only as a non-empty string;
+ * the two counts are kept only as non-negative whole numbers; and the symbol list keeps only
+ * `pkg`/`name` string pairs, because a vetted symbol is a lookup token and its class never reaches
+ * the panel (N4). Nothing is defaulted to `absent`.
+ */
+function readCompanionRecord(value: unknown): CompanionRecord | null {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return null;
+  }
+  const record = value as Record<string, unknown>;
+  const state = record['state'];
+  if (typeof state !== 'string' || !COMPANION_STATES.has(state)) {
+    return null;
+  }
+  const symbols: CompanionSymbol[] = [];
+  const rawSymbols = record['symbols'];
+  if (Array.isArray(rawSymbols)) {
+    for (const raw of rawSymbols) {
+      const symbol = readCompanionSymbol(raw);
+      if (symbol !== null) {
+        symbols.push(symbol);
+      }
+    }
+  }
+  return {
+    state: state as CompanionRecordState,
+    version: readCompanionVersion(record['version']),
+    declared: readCompanionCount(record['declared']),
+    resolved: readCompanionCount(record['resolved']),
+    symbols,
+  };
+}
+
+/** One `{ pkg, name }` entry, or `null` when the entry is not a pair of non-empty strings. */
+function readCompanionSymbol(value: unknown): CompanionSymbol | null {
+  if (typeof value !== 'object' || value === null) {
+    return null;
+  }
+  const symbol = value as Record<string, unknown>;
+  const pkg = symbol['pkg'];
+  const name = symbol['name'];
+  if (typeof pkg !== 'string' || pkg.length === 0 || typeof name !== 'string' || name.length === 0) {
+    return null;
+  }
+  return { pkg, name };
+}
+
+/** The version the entry declared, or `null` when the payload carried no usable one. */
+function readCompanionVersion(value: unknown): string | null {
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
+}
+
+/** A declared/resolved count, or `0` when the payload carried no non-negative whole number. */
+function readCompanionCount(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? Math.trunc(value) : 0;
 }

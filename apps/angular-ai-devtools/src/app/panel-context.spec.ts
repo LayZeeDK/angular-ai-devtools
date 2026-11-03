@@ -1,5 +1,6 @@
 import { type Signal, signal } from '@angular/core';
 import { describe, expect, it } from 'vitest';
+import type { CompanionRecord } from './companion';
 import { type PanelSignals, type ReplayOutcome, buildPanelContext } from './panel-context';
 import { appFactsSnapshot } from './tool-registry/app-facts';
 
@@ -10,6 +11,7 @@ interface SignalValues {
   readonly stateReceived?: boolean;
   readonly appVersion?: string | null;
   readonly replayOutcome?: ReplayOutcome;
+  readonly companion?: CompanionRecord | null;
   readonly notSupported?: boolean;
   readonly notSupportedReason?: string | null;
 }
@@ -17,7 +19,8 @@ interface SignalValues {
 /**
  * The service's signals as this spec builds them: real signals, defaulted to the silent page.
  * The replay default is `'answered'` on purpose — a page nothing is waiting on — and every case
- * that is about the outcome names it instead of inheriting it.
+ * that is about the outcome names it instead of inheriting it. The companion default is `null`
+ * ("no answer"), never the record's `absent` state.
  */
 function panelSignals(values: SignalValues = {}): PanelSignals {
   return {
@@ -26,6 +29,7 @@ function panelSignals(values: SignalValues = {}): PanelSignals {
     stateReceived: signal(values.stateReceived ?? false),
     appVersion: signal<string | null>(values.appVersion ?? null),
     replayOutcome: signal<ReplayOutcome>(values.replayOutcome ?? 'answered'),
+    companion: signal<CompanionRecord | null>(values.companion ?? null),
     notSupported: values.notSupported ?? false,
     notSupportedReason: values.notSupportedReason ?? null,
   };
@@ -47,6 +51,27 @@ const PUBLISHED = {
   getHostElement: true,
 };
 
+/** The companion answer a page that installed the package publishes, as the reader hands it on. */
+const DECLARED: CompanionRecord = {
+  state: 'declared',
+  version: '0.2202.0',
+  declared: 2,
+  resolved: 2,
+  symbols: [
+    { pkg: '@angular/router', name: 'Router' },
+    { pkg: '@angular/platform-browser', name: 'Meta' },
+  ],
+};
+
+/** The companion answer a page without the package publishes: a state, never an empty list. */
+const NO_PACKAGE: CompanionRecord = {
+  state: 'absent',
+  version: null,
+  declared: 0,
+  resolved: 0,
+  symbols: [],
+};
+
 describe('buildPanelContext', () => {
   it('returns facts with no supported key for a page that never announced state', () => {
     const context = buildPanelContext(panelSignals({ replayOutcome: 'answered' }));
@@ -54,6 +79,8 @@ describe('buildPanelContext', () => {
     expect(context.stateReceived).toBe(false);
     expect(context.version).toBeNull();
     expect(context.replayOutcome).toBe('answered');
+    // No answer, never the record's `absent` state: silence is not a page without the package.
+    expect(context.companion).toBeNull();
     expect(context.facts).toEqual({});
     expect('supported' in context.facts).toBe(false);
     // The downstream half of AC1: `app_facts` reads `{}` as silence, not as an unsupported app.
@@ -77,6 +104,7 @@ describe('buildPanelContext', () => {
         features: PUBLISHED,
         zoneMode: 'noop',
         appVersion: ' 22.2.4 ',
+        companion: DECLARED,
       }),
     );
 
@@ -85,6 +113,7 @@ describe('buildPanelContext', () => {
       version: '22.2.4',
       stateReceived: true,
       replayOutcome: 'answered',
+      companion: DECLARED,
     });
     // The outcome is carried, never narrowed or re-derived: a received state reports the replay's
     // own value whatever it was.
@@ -110,10 +139,41 @@ describe('buildPanelContext', () => {
       expect(context.replayOutcome, replayOutcome).toBe(replayOutcome);
       expect(context.stateReceived).toBe(false);
       expect(context.version).toBeNull();
+      expect(context.companion).toBeNull();
       expect(context.facts).toEqual({});
       expect('supported' in context.facts).toBe(false);
       expect(appFactsSnapshot(context.facts)).toBeNull();
     }
+  });
+
+  it('carries the companion answer as a member, never as a key on the facts record (AC2)', () => {
+    const context = buildPanelContext(
+      panelSignals({ stateReceived: true, features: PUBLISHED, companion: NO_PACKAGE }),
+    );
+
+    // The page's opt-in answer travels beside the page-inspection record, not inside it: one
+    // record carrying both is the defect N2 names.
+    expect(context.companion).toEqual(NO_PACKAGE);
+    expect('companion' in context.facts).toBe(false);
+    // The facts are untouched by it — `app_facts` still reads the page's own record and nothing else.
+    expect(context.facts).toEqual({
+      supported: true,
+      reason: null,
+      zoneMode: 'unknown',
+      features: PUBLISHED,
+    });
+  });
+
+  it('writes the companion member only after the early return, so silence carries no answer (AC2)', () => {
+    // A contradictory pair, and the only way to observe the ordering: the signal holds an answer
+    // the panel could present, and the page never announced state. A `companion` written before the
+    // early return would surface it here — that is the silence-turned-into-a-claim defect.
+    const context = buildPanelContext(panelSignals({ stateReceived: false, companion: NO_PACKAGE }));
+
+    expect(context.stateReceived).toBe(false);
+    expect(context.companion).toBeNull();
+    expect(context.facts).toEqual({});
+    expect(appFactsSnapshot(context.facts)).toBeNull();
   });
 
   it('reports the page own refusal verbatim when it said not supported', () => {
@@ -165,6 +225,7 @@ describe('buildPanelContext', () => {
     const stateReceived = counted(true);
     const appVersion = counted<string | null>('22.2.4');
     const replayOutcome = counted<ReplayOutcome>('answered');
+    const companion = counted<CompanionRecord | null>(DECLARED);
 
     const context = buildPanelContext({
       features: features.signal,
@@ -172,17 +233,20 @@ describe('buildPanelContext', () => {
       stateReceived: stateReceived.signal,
       appVersion: appVersion.signal,
       replayOutcome: replayOutcome.signal,
+      companion: companion.signal,
       notSupported: false,
       notSupportedReason: null,
     });
 
     expect(context.stateReceived).toBe(true);
     expect(context.replayOutcome).toBe('answered');
+    expect(context.companion).toEqual(DECLARED);
     expect(features.reads()).toBe(1);
     expect(zoneMode.reads()).toBe(1);
     expect(stateReceived.reads()).toBe(1);
     expect(appVersion.reads()).toBe(1);
     expect(replayOutcome.reads()).toBe(1);
+    expect(companion.reads()).toBe(1);
   });
 
   it('is pure: equal signals give deep-equal contexts and neither input nor facts is mutated', () => {

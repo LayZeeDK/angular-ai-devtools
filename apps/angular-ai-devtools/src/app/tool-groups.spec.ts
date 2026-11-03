@@ -68,6 +68,8 @@ function page(values: {
     version: values.version === undefined ? '22.2.2' : values.version,
     stateReceived: true,
     replayOutcome: 'answered',
+    // No group gate reads the companion answer: it is the extra surface's own record (M021 T005).
+    companion: null,
   };
 }
 
@@ -309,6 +311,7 @@ describe('projectToolGroups', () => {
       version: '22.2.2',
       stateReceived: false,
       replayOutcome: 'answered',
+      companion: null,
     });
 
     // No `supported` boolean is not a contradicting fact, so the version still decides: the groups

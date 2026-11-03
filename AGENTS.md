@@ -61,7 +61,7 @@ sidecars, including worktree and branch).
   `control-ai-browsers/features/interop.md`, `panel --feature=interop` (the driver pushes `/panel/interop`,
   `scripts/panel.mjs:246`), and `verify-ai-browsers/checks/interop.mjs` (10 tests, green 2026-11-01:
   `node --test .commandcode/skills/verify-ai-browsers/checks/interop.test.mjs` reports `tests 10`, `pass 10`). The app serves
-  the route (`apps/angular-ai-devtools/src/app/app.routes.ts:15`), so the check's route assertion passes as soon as an
+  the route (`apps/angular-ai-devtools/src/app/app.routes.ts:14`), so the check's route assertion passes as soon as an
   instance runs the built panel. Measured 2026-10-31: check exits 0 on `edge-dev-aion` with `nodes: 1`, verdict `verified`
   (2/2), evidence `.project/build/verify/interop/`.
 

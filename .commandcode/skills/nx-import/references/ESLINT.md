@@ -6,7 +6,7 @@ ESLint-specific guidance for `nx import`. For generic import issues (root deps, 
 
 ### How `@nx/eslint/plugin` Works
 
-`@nx/eslint/plugin` scans for ESLint config files and creates a lint target for each project. It detects **both** flat config files (`eslint.config.{js,mjs,cjs,ts,mts,cts}`) and legacy config files (`.eslintrc.{json,js,cjs,mjs,yml,yaml}`).
+`@nx/eslint/plugin` scans for ESLint config files and creates a lint target for each project. It detects **both** flat config files (`eslint.config.{js,mjs,cjs,ts,mts,cts}`) and legacy config files (`.eslintrc.{json,js,cjs,yml,yaml}`).
 
 **Plugin options (set during `nx add @nx/eslint`):**
 
@@ -85,7 +85,7 @@ The same applies to `eslint.config.js` in a CJS project (no `"type": "module"`) 
 
 `typescript-eslint@7.x` declares `peerDependencies: { "eslint": "^8.56.0" }`, but it is commonly used alongside `"eslint": "^9.0.0"`. npm treats this as a hard peer dep conflict and refuses to install.
 
-**Root cause**: `@nx/eslint` init adds `eslint@~8.57.0` at the workspace root (for its own peer deps). Workspace packages that request `eslint@^9.0.0` + `typescript-eslint@^7.0.0` trigger the conflict when npm resolves their deps.
+**Root cause**: `@nx/eslint` init adds `eslint@^9.8.0` at the workspace root (for its own peer deps). Workspace packages that request `eslint@^9.0.0` + `typescript-eslint@^7.0.0` trigger the conflict when npm resolves their deps.
 
 **Fix**: Upgrade `typescript-eslint` from `^7.0.0` to `^8.0.0` directly in the affected workspace package's `package.json`. The `tseslint.config()` API and `tseslint.configs.recommended` are identical between v7 and v8 — no config changes needed.
 
@@ -104,6 +104,6 @@ The same applies to `eslint.config.js` in a CJS project (no `"type": "module"`) 
 
 ### Mixed ESLint v8 and v9 in One Workspace
 
-Legacy v8 and flat-config v9 packages can coexist in the same workspace. Each package resolves its own `eslint` version. The root `eslint@~8.57.0` (added by `@nx/eslint` init) is used by legacy v8 packages; v9 packages get their own hoisted `eslint@9`.
+Legacy v8 and flat-config v9 packages can coexist in the same workspace. Each package resolves its own `eslint` version. The root `eslint@^9.8.0` (added by `@nx/eslint` init) serves the flat-config packages; a legacy v8 package resolves its own `eslint@8`.
 
 `@nx/eslint/plugin` infers `eslint:lint` targets for **both** config formats. Legacy packages run ESLint v8 with `.eslintrc.*`; flat-config packages run ESLint v9 with `eslint.config.*`. No special nx.json configuration is needed to support both simultaneously.

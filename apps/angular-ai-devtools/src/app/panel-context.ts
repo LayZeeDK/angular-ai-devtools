@@ -27,10 +27,14 @@
  *    that printed the raw string beside `supported: false` would describe a Zone.js app as
  *    zoneless.
  *
- * The module carries no runtime import: `Signal` is imported as a type only, so the held-out suite
- * can load it with `node --experimental-strip-types` and the panel's bundle gains no dependency.
+ * The module carries no runtime import: `Signal` and the companion record are imported as types
+ * only, so the held-out suite can load it with `node --experimental-strip-types` and the panel's
+ * bundle gains no dependency. `companion.ts` is the fifth member below rather than one more key on
+ * `facts`: the page's opt-in answer and the page-inspection record stay two records, read by two
+ * surfaces (M021 T005, INTENT.md N2).
  */
 import type { Signal } from '@angular/core';
+import type { CompanionRecord } from './companion';
 
 /**
  * What became of the panel's one-shot `angular-ai:state-request` (M020 T008).
@@ -55,6 +59,11 @@ export type PanelSignals = {
   readonly appVersion: Signal<string | null>;
   /** The one-shot replay: still outstanding, answered, or failed to be delivered. */
   readonly replayOutcome: Signal<ReplayOutcome>;
+  /**
+   * The page's companion answer (`companion` on `angular-ai:state`), or `null` until a state
+   * arrives — a page that never spoke is never read as a page with no package (M021 SC1).
+   */
+  readonly companion: Signal<CompanionRecord | null>;
   /** The page's own `supported: false`, mirrored by the service. */
   readonly notSupported: boolean;
   /** The page's own reason for `supported: false`, verbatim, or `null` when it gave none. */
@@ -77,6 +86,14 @@ export type PanelContext = {
   readonly version: string | null;
   readonly stateReceived: boolean;
   readonly replayOutcome: ReplayOutcome;
+  /**
+   * The page's companion answer, as the record carried it — a required member with no optional
+   * marker and no default, so a hand-built context has to state its answer instead of inheriting
+   * one (M021 T005, AC2). `null` is "no answer", which the extra surface renders as
+   * `awaiting-page`; it is never `absent`, because a `?? 'absent'` default would make every
+   * production path report a page without the package while the suites stayed green.
+   */
+  readonly companion: CompanionRecord | null;
 };
 
 /**
@@ -96,10 +113,15 @@ export function buildPanelContext(signals: PanelSignals): PanelContext {
     // No `supported` key, deliberately: `{}` reads as "the page has not spoken" downstream, while
     // a boolean would read as the page's answer. The outcome rides along so the chip can tell a
     // page that has not answered yet from a page that answered with nothing.
-    return { facts: {}, version, stateReceived: false, replayOutcome };
+    //
+    // `companion: null` is written as a literal and the companion signal is not read here at all:
+    // the member is written only after this early return, so a silent page can never carry a
+    // companion answer — and `null` is "no answer", not the `absent` state (M021 AC2).
+    return { facts: {}, version, stateReceived: false, replayOutcome, companion: null };
   }
 
   const features = signals.features();
+  const companion = signals.companion();
   const facts: Record<string, unknown> = {
     // The page's own boolean, kept as the negative only when the page said so.
     supported: !signals.notSupported,
@@ -112,7 +134,7 @@ export function buildPanelContext(signals: PanelSignals): PanelContext {
     facts['features'] = features;
   }
 
-  return { facts, version, stateReceived: true, replayOutcome };
+  return { facts, version, stateReceived: true, replayOutcome, companion };
 }
 
 /** The version a gate compares: the trimmed `[ng-version]`, or `null` when none was read. */

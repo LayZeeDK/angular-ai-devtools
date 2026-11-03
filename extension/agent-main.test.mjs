@@ -103,6 +103,11 @@ function counterGraph() {
 
 describe("agent-main.js (recorder)", () => {
   afterEach(() => {
+    // Clear any timer the boot armed (the companion re-check): a leaked page timer would keep this
+    // process alive and turn a regression into a hang instead of a failed assertion.
+    if (globalThis.__ngRecorder && typeof globalThis.__ngRecorder.reset === "function") {
+      globalThis.__ngRecorder.reset();
+    }
     // Restore originals to avoid leaking mocks across tests.
     globalThis.ng = ORIGINALS.ng;
     globalThis.Zone = ORIGINALS.Zone;
@@ -381,6 +386,9 @@ describe("agent-main.js (DI doctor)", () => {
   });
 
   afterEach(() => {
+    if (globalThis.__ngRecorder && typeof globalThis.__ngRecorder.reset === "function") {
+      globalThis.__ngRecorder.reset();
+    }
     globalThis.addEventListener = origAddEventListener;
     if (origDocument !== undefined) {
       globalThis.document = origDocument;
@@ -506,5 +514,517 @@ describe("agent-main.js (DI doctor)", () => {
     var diGraph = dispatched.find(function (e) { return e.type === "angular-ai:di-graph"; });
     assert.ok(diGraph);
     assert.equal(diGraph.detail.resolutionPath.available, true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Companion opt-in probe (T004) — the page realm is a sandbox, never this process
+// ---------------------------------------------------------------------------
+//
+// Two properties decide the shape of this block.
+//
+// 1. **The entry is injected into a stubbed page, never into this process's own global.** The
+//    script is booted inside `vm.createContext`, so `globalThis.ngAiDevTools` is the sandbox's
+//    property: a stub that would make detection true in the test but false in production cannot
+//    pass here, and a boot leaves this process's global untouched (asserted).
+// 2. **Time is driven through the sandbox's own timer.** The bounded re-check is asserted by
+//    ticking a fake clock, never by waiting, so "re-emits once per change and then stops" is a
+//    counted observation rather than a timing assumption.
+const COMPANION_ENTRY_KEY = "ngAiDevTools";
+
+/** The accepted vocabulary this milestone fixes (INTENT.md § Interface contract). */
+const COMPANION_VERSION = "0.2202.0";
+const VETTED_SYMBOLS = [
+  { pkg: "@angular/platform-browser", name: "Meta" },
+  { pkg: "@angular/router", name: "Router" },
+];
+
+/** The classes the page's entry carries, and a second Angular copy's lookalikes. */
+class VettedRouter {}
+class VettedMeta {}
+class SecondCopyRouter {}
+class SecondCopyMeta {}
+
+/** The eight `features` names, in the order `featuresOf` writes them. */
+const FEATURE_NAMES = [
+  "setProfiler",
+  "getSignalGraph",
+  "getHostElement",
+  "getInjector",
+  "getDirectiveMetadata",
+  "getInjectorResolutionPath",
+  "getInjectorMetadata",
+  "getInjectorProviders",
+];
+
+/** A well-formed entry; `overrides` mutate one part of it per case. */
+function vettedEntry(overrides = {}) {
+  return {
+    version: COMPANION_VERSION,
+    "@angular/platform-browser": { Meta: VettedMeta },
+    "@angular/router": { Router: VettedRouter },
+    ...overrides,
+  };
+}
+
+/** A deep copy into this realm, so `assert.deepEqual` compares values and not prototypes. */
+function plain(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+/** True when any leaf of `value` is a function — a class object in the payload would be N4. */
+function containsFunction(value) {
+  if (typeof value === "function") return true;
+  if (value === null || typeof value !== "object") return false;
+  return Object.keys(value).some((key) => containsFunction(value[key]));
+}
+
+/** A deterministic clock: `tick()` fires the earliest due task, `tickMany()` drains the queue. */
+function makeClock() {
+  let now = 0;
+  let nextId = 1;
+  let intervalFires = 0;
+  const tasks = new Map();
+  return {
+    get pending() {
+      return tasks.size;
+    },
+    get repeating() {
+      return [...tasks.values()].filter((task) => task.period !== null).length;
+    },
+    get intervalFires() {
+      return intervalFires;
+    },
+    setTimeout(fn, ms) {
+      const id = nextId++;
+      tasks.set(id, { fn, due: now + Math.max(0, Number(ms) || 0), period: null });
+      return id;
+    },
+    setInterval(fn, ms) {
+      const id = nextId++;
+      const period = Math.max(1, Number(ms) || 1);
+      tasks.set(id, { fn, due: now + period, period });
+      return id;
+    },
+    clearTimeout(id) {
+      tasks.delete(id);
+    },
+    clearInterval(id) {
+      tasks.delete(id);
+    },
+    tick() {
+      let next = null;
+      for (const [id, task] of tasks) {
+        if (next === null || task.due < next.task.due || (task.due === next.task.due && id < next.id)) {
+          next = { id, task };
+        }
+      }
+      if (next === null) return false;
+      now = next.task.due;
+      if (next.task.period === null) {
+        tasks.delete(next.id);
+      } else {
+        intervalFires += 1;
+        next.task.due = now + next.task.period;
+      }
+      next.task.fn();
+      return true;
+    },
+    tickMany(limit = 200) {
+      let fired = 0;
+      while (fired < limit && this.tick()) fired += 1;
+      return fired;
+    },
+  };
+}
+
+/**
+ * The page's `ng`, with the shipped identity walk: a root injector reached from `getInjector`, the
+ * resolution path from `ɵgetInjectorResolutionPath`, and provider records from
+ * `ɵgetInjectorProviders`. `injector.get` records every token it is asked for, so a lookup on a
+ * vetted symbol is observable rather than inferred.
+ */
+function pageNg(options = {}) {
+  const getCalls = [];
+  const injector = {
+    get(token) {
+      getCalls.push(token);
+      return null;
+    },
+  };
+  const path = options.path ?? [injector];
+  const providersFor = options.providersFor ?? (() => []);
+  const ng = {
+    ɵsetProfiler: () => () => {},
+    ɵgetSignalGraph: () => ({ nodes: [], edges: [] }),
+    getHostElement: () => ({ tagName: "APP-COUNTER" }),
+    getDirectiveMetadata: () => ({ changeDetection: 1 }),
+    getInjector: () => injector,
+    ɵgetInjectorResolutionPath: () => path,
+    ɵgetInjectorProviders: (candidate) => providersFor(candidate),
+  };
+  for (const [key, value] of Object.entries(options.resolve ?? {})) {
+    if (value === undefined) delete ng[key];
+    else ng[key] = value;
+  }
+  return { ng, injector, getCalls };
+}
+
+/** A page document stub: `detectZone` and the companion walk both need a root element. */
+function pageDocument() {
+  const root = { tagName: "APP-ROOT" };
+  return { querySelector: () => root, body: root, documentElement: root };
+}
+
+/**
+ * Boots the real content script inside a fresh sandbox. `options.entry` is injected into the page
+ * realm before the script runs; nothing is written to this process's global.
+ */
+function bootSandbox(options = {}) {
+  const clock = makeClock();
+  const dispatched = [];
+  const sandbox = {
+    performance: { now: () => 4242 },
+    CustomEvent: function (type, eventOptions) {
+      return { type, detail: eventOptions && eventOptions.detail };
+    },
+    dispatchEvent: (event) => {
+      dispatched.push(event);
+    },
+    setTimeout: clock.setTimeout,
+    clearTimeout: clock.clearTimeout,
+    setInterval: clock.setInterval,
+    clearInterval: clock.clearInterval,
+  };
+  if (options.ng !== undefined) sandbox.ng = options.ng;
+  if (options.document !== undefined) sandbox.document = options.document;
+  if (options.entry !== undefined) sandbox[COMPANION_ENTRY_KEY] = options.entry;
+  if (options.Zone !== undefined) sandbox.Zone = options.Zone;
+
+  const context = vm.createContext(sandbox);
+  // Snapshot after contextification and before the script runs: the difference is exactly what the
+  // content script itself adds to the page's global object.
+  const keysBefore = Object.getOwnPropertyNames(sandbox);
+  vm.runInContext(SRC, context, { filename: "agent-main.js" });
+  const keysAfter = Object.getOwnPropertyNames(sandbox);
+
+  return {
+    sandbox,
+    context,
+    clock,
+    dispatched,
+    keysBefore,
+    keysAfter,
+    states: () => dispatched.filter((event) => event.type === "angular-ai:state"),
+    /** Injects the entry into the page realm after bootstrap, the way a late install would. */
+    install: (entry) => {
+      sandbox[COMPANION_ENTRY_KEY] = entry;
+    },
+  };
+}
+
+describe("agent-main.js (companion probe)", () => {
+  it("answers `absent` for a page with no entry, and never writes the key itself (N1, N3)", () => {
+    const { ng } = pageNg();
+    const page = bootSandbox({ ng, document: pageDocument() });
+
+    const states = page.states();
+    assert.equal(states.length, 1, "the page announces its state once at install");
+    const companion = plain(states[0].detail.companion);
+
+    assert.equal(companion.state, "absent");
+    assert.equal(companion.version, null);
+    assert.equal(companion.declared, 0);
+    assert.equal(companion.resolved, 0);
+    assert.deepEqual(companion.symbols, []);
+    // A named state, not a boolean: no member of the answer is `true`/`false`.
+    assert.deepEqual(
+      Object.values(companion).filter((value) => typeof value === "boolean"),
+      [],
+      "the answer is one of four names, not a presence boolean (N1)",
+    );
+    // The probe reads the page's key and never writes it.
+    assert.equal(Object.hasOwn(page.sandbox, COMPANION_ENTRY_KEY), false, "the extension must not write the package's key");
+    // ...and the stub stayed in the sandbox: this process's global was never touched (AC8).
+    assert.equal(Object.hasOwn(globalThis, COMPANION_ENTRY_KEY), false);
+  });
+
+  it("answers `declared` with the accepted symbols and counts declared and resolved apart (SC1)", () => {
+    const entry = vettedEntry();
+    const { ng, getCalls } = pageNg({
+      providersFor: (injector) => [
+        { token: VettedRouter, provider: {}, source: "AppModule", importPath: "@angular/router" },
+        { token: VettedMeta, provider: {}, source: "AppModule", importPath: "@angular/platform-browser" },
+      ],
+    });
+    const page = bootSandbox({ ng, document: pageDocument(), entry });
+
+    const companion = plain(page.states()[0].detail.companion);
+    assert.equal(companion.state, "declared");
+    assert.equal(companion.version, COMPANION_VERSION);
+    assert.equal(companion.declared, 2);
+    assert.equal(companion.resolved, 2);
+    assert.deepEqual(companion.symbols, VETTED_SYMBOLS);
+    assert.equal(companion.declared, companion.symbols.length, "declared counts exactly the symbols the answer carries");
+
+    // Resolution came from the provider records, never from a lookup on a vetted token (N4).
+    assert.deepEqual(
+      getCalls.filter((token) => token === VettedRouter || token === VettedMeta),
+      [],
+      "no `injector.get` may be issued for a vetted symbol",
+    );
+
+    // A well-formed entry is answered once, so no re-check is left running.
+    assert.equal(page.clock.repeating, 0, "a non-absent answer is never re-checked");
+  });
+
+  it("reports a second Angular copy as declared symbols with no resolved record (SC1)", () => {
+    const entry = vettedEntry();
+    const { ng } = pageNg({
+      // The app's providers carry a *different* class object: a second copy of @angular/router.
+      providersFor: () => [{ token: SecondCopyRouter, provider: {} }, { token: SecondCopyMeta, provider: {} }],
+    });
+    const page = bootSandbox({ ng, document: pageDocument(), entry });
+
+    const companion = plain(page.states()[0].detail.companion);
+    assert.equal(companion.state, "declared");
+    assert.equal(companion.declared, 2, "the entry declared both symbols");
+    assert.equal(companion.resolved, 0, "identity matched no provider record");
+    assert.deepEqual(companion.symbols, VETTED_SYMBOLS, "a wiring defect must not read as an empty symbol list");
+  });
+
+  it("counts one resolved symbol when only one identity matches, across the whole resolution path", () => {
+    const entry = vettedEntry();
+    const outer = { get: () => null };
+    const inner = { get: () => null };
+    const { ng } = pageNg({
+      path: [outer, inner],
+      providersFor: (injector) => (injector === inner ? [{ token: VettedMeta, provider: {} }] : []),
+    });
+    const page = bootSandbox({ ng, document: pageDocument(), entry });
+
+    const companion = plain(page.states()[0].detail.companion);
+    assert.equal(companion.declared, 2);
+    assert.equal(companion.resolved, 1, "the walk reached the injector that holds the record");
+  });
+
+  it("answers `declared` with zero symbols for an empty table, not a refusal (E1)", () => {
+    const page = bootSandbox({ ng: pageNg().ng, document: pageDocument(), entry: { version: COMPANION_VERSION } });
+
+    const companion = plain(page.states()[0].detail.companion);
+    assert.equal(companion.state, "declared", "an empty table is the honest declared state, not `foreign-entry`");
+    assert.equal(companion.declared, 0);
+    assert.equal(companion.resolved, 0);
+    assert.deepEqual(companion.symbols, []);
+  });
+
+  it("refuses every entry that fails the package's own shape as `foreign-entry` (N1)", () => {
+    const mutants = [
+      ["a string stub", "ngAiDevTools", null],
+      ["a number stub", 42, null],
+      ["null", null, null],
+      ["an array", [], null],
+      ["an object with no version", { "@angular/router": { Router: VettedRouter } }, null],
+      ["an empty version string", { ...vettedEntry(), version: "" }, null],
+      ["a non-string version", { ...vettedEntry(), version: 2202 }, null],
+      ["a group that is not an object", vettedEntry({ "@angular/router": "Router" }), COMPANION_VERSION],
+      ["a group that is null", vettedEntry({ "@angular/platform-browser": null }), COMPANION_VERSION],
+      ["an unvetted symbol name", vettedEntry({ "@angular/router": { Router: VettedRouter, NotVetted: () => {} } }), COMPANION_VERSION],
+      ["an unvetted package group", vettedEntry({ "@angular/common": {} }), COMPANION_VERSION],
+      ["a symbol whose value is not a function", vettedEntry({ "@angular/router": { Router: {} } }), COMPANION_VERSION],
+      ["a symbol whose value is a string", vettedEntry({ "@angular/platform-browser": { Meta: "Meta" } }), COMPANION_VERSION],
+    ];
+
+    for (const [label, entry, version] of mutants) {
+      const page = bootSandbox({ ng: pageNg().ng, document: pageDocument(), entry });
+      const companion = plain(page.states()[0].detail.companion);
+      assert.equal(companion.state, "foreign-entry", `${label} must be refused as foreign-entry`);
+      assert.equal(companion.version, version, `${label} reports the version it could read, or null`);
+      assert.equal(companion.declared, 0, `${label} declares nothing`);
+      assert.equal(companion.resolved, 0, `${label} resolves nothing`);
+      assert.deepEqual(companion.symbols, [], `${label} carries no accepted symbol`);
+      assert.equal(Object.hasOwn(page.sandbox, COMPANION_ENTRY_KEY), true, `${label} stays where the page put it`);
+    }
+  });
+
+  it("answers `version-unsupported` for a well-formed entry at an unfamiliar version", () => {
+    const page = bootSandbox({ ng: pageNg().ng, document: pageDocument(), entry: { ...vettedEntry(), version: "0.0.1" } });
+
+    const companion = plain(page.states()[0].detail.companion);
+    assert.equal(companion.state, "version-unsupported");
+    assert.equal(companion.version, "0.0.1", "the panel names the version the entry declares");
+    assert.equal(companion.declared, 0);
+    assert.equal(companion.resolved, 0);
+    assert.deepEqual(companion.symbols, []);
+  });
+
+  it("accepts an entry that passes every check and publishes no class object (N4)", () => {
+    const entry = vettedEntry();
+    const { ng } = pageNg({ providersFor: () => [{ token: VettedRouter, provider: {} }] });
+    const page = bootSandbox({ ng, document: pageDocument(), entry });
+
+    const detail = page.states()[0].detail;
+    const companion = plain(detail.companion);
+    assert.equal(companion.state, "declared");
+    assert.deepEqual(companion.symbols, VETTED_SYMBOLS, "the accepted symbols by pkg and name only");
+    for (const symbol of companion.symbols) {
+      assert.deepEqual(Object.keys(symbol).sort(), ["name", "pkg"]);
+    }
+    assert.equal(containsFunction(detail), false, "a vetted class is a lookup token, never payload content (N4)");
+  });
+
+  it("survives missing ɵ helpers: a declared answer with no resolvable record, and no throw", () => {
+    const entry = vettedEntry();
+    const { ng } = pageNg({ resolve: { ɵgetInjectorProviders: undefined } });
+    const page = bootSandbox({ ng, document: pageDocument(), entry });
+    const withoutProviders = plain(page.states()[0].detail.companion);
+    assert.equal(withoutProviders.state, "declared");
+    assert.equal(withoutProviders.declared, 2);
+    assert.equal(withoutProviders.resolved, 0);
+
+    const noPath = pageNg({ resolve: { ɵgetInjectorResolutionPath: undefined }, providersFor: () => [{ token: VettedRouter, provider: {} }] });
+    const fallback = bootSandbox({ ng: noPath.ng, document: pageDocument(), entry });
+    const withoutPath = plain(fallback.states()[0].detail.companion);
+    assert.equal(withoutPath.declared, 2);
+    assert.equal(withoutPath.resolved, 1, "with no resolution path the root injector is walked directly");
+  });
+
+  it("survives a page with no document and no injector: declared, zero resolved", () => {
+    const page = bootSandbox({ ng: pageNg().ng, entry: vettedEntry() });
+    const companion = plain(page.states()[0].detail.companion);
+    assert.equal(companion.state, "declared");
+    assert.equal(companion.declared, 2);
+    assert.equal(companion.resolved, 0);
+  });
+});
+
+describe("agent-main.js (companion field on the state record)", () => {
+  it("carries `companion` as the fifth top-level field and keeps the four existing ones (SC2)", () => {
+    const entry = vettedEntry();
+    const page = bootSandbox({ ng: pageNg().ng, document: pageDocument(), entry });
+    const detail = plain(page.states()[0].detail);
+
+    assert.deepEqual(Object.keys(detail), ["supported", "reason", "zoneMode", "features", "companion"], "the fifth field is additive");
+    assert.equal(detail.supported, true);
+    assert.equal(detail.reason, null);
+    assert.equal(detail.zoneMode, "noop");
+    assert.deepEqual(Object.keys(detail.features), FEATURE_NAMES, "the eight `features` names are untouched, with no ninth");
+    for (const name of FEATURE_NAMES) {
+      assert.equal(typeof detail.features[name], "boolean", `${name} keeps its boolean`);
+    }
+    assert.equal(detail.companion.state, "declared");
+  });
+
+  it("keeps the absent answer beside an unsupported page, without changing any other field", () => {
+    // No ng on the page at all: the record is the shipped `supported:false` one, plus the named
+    // absent companion answer.
+    const page = bootSandbox({ ng: {}, document: pageDocument() });
+    const detail = plain(page.states()[0].detail);
+    assert.equal(detail.supported, false);
+    assert.match(String(detail.reason), /ɵsetProfiler/);
+    assert.deepEqual(Object.keys(detail.features), FEATURE_NAMES);
+    assert.equal(detail.companion.state, "absent");
+  });
+});
+
+describe("agent-main.js (bounded companion re-check)", () => {
+  it("re-emits the same record once when the answer changes away from absent, then stops (AC5, AC6)", () => {
+    const entry = vettedEntry();
+    const { ng } = pageNg({ providersFor: () => [{ token: VettedRouter, provider: {} }] });
+    const page = bootSandbox({ ng, document: pageDocument() });
+
+    assert.equal(page.states().length, 1, "the shipped one-shot record");
+    assert.equal(page.clock.repeating, 1, "exactly one re-check timer is armed for an absent answer");
+
+    // The app installs the package after bootstrap, where only the page can see it.
+    page.install(entry);
+    assert.equal(page.clock.tick(), true, "the timer fires");
+    assert.equal(page.states().length, 2, "the answer changed, so the record is re-emitted");
+
+    const [first, second] = page.states().map((state) => plain(state.detail));
+    assert.equal(first.companion.state, "absent");
+    assert.equal(second.companion.state, "declared");
+    assert.equal(second.companion.declared, 2);
+    assert.equal(second.companion.resolved, 1);
+    // The same record `tryInstall` publishes for the same page state: identical but for the answer.
+    assert.deepEqual({ ...second, companion: null }, { ...first, companion: null }, "the four existing fields are unchanged");
+
+    assert.equal(page.clock.repeating, 0, "the re-check is cleared on the first non-absent answer");
+    page.clock.tickMany(); // drains only the shipped 500 ms initial-record timeout
+    assert.equal(page.clock.pending, 0, "nothing is left scheduled");
+    assert.equal(page.states().length, 2, "and no third record is emitted");
+    assert.ok(page.dispatched.every((event) => event.type === "angular-ai:state"), "no new event type");
+  });
+
+  it("stops on the last attempt while the answer stays absent, emitting no second record (AC5)", () => {
+    const page = bootSandbox({ ng: pageNg().ng, document: pageDocument() });
+
+    assert.equal(page.states().length, 1);
+    assert.equal(page.clock.repeating, 1);
+
+    // Each call to `tick` advances to the next due task; a live interval would never let this end.
+    const fired = page.clock.tickMany();
+    assert.ok(fired < 200, `the attempt budget must be finite; the queue drained after ${fired} ticks`);
+    assert.ok(page.clock.intervalFires >= 2, `a handful of attempts, not one; saw ${page.clock.intervalFires}`);
+    assert.ok(page.clock.intervalFires <= 10, `a handful of attempts, not a loop; saw ${page.clock.intervalFires}`);
+    assert.equal(page.clock.repeating, 0, "the timer is cleared on the last attempt");
+    assert.equal(page.clock.pending, 0, "nothing is left scheduled");
+    assert.equal(page.states().length, 1, "an unchanged absent answer is never re-emitted");
+  });
+
+  it("ends the re-check on the first foreign answer it sees, without a third attempt", () => {
+    const page = bootSandbox({ ng: pageNg().ng, document: pageDocument() });
+    page.install({ version: COMPANION_VERSION, "@angular/router": { Router: "not-a-class" } });
+
+    assert.equal(page.clock.tick(), true);
+    assert.equal(page.states().length, 2);
+    assert.equal(plain(page.states()[1].detail.companion).state, "foreign-entry");
+    assert.equal(page.clock.repeating, 0);
+    page.clock.tickMany(); // drains only the shipped 500 ms initial-record timeout
+    assert.equal(page.clock.pending, 0);
+    assert.equal(page.states().length, 2);
+  });
+});
+
+describe("agent-main.js (page blast radius)", () => {
+  it("adds exactly `__ngRecorder` to the page's own globals and touches no other name (N3, N7)", () => {
+    const page = bootSandbox({ ng: pageNg().ng, document: pageDocument() });
+    const added = page.keysAfter.filter((key) => !page.keysBefore.includes(key));
+    const removed = page.keysBefore.filter((key) => !page.keysAfter.includes(key));
+
+    assert.deepEqual(added, ["__ngRecorder"], "the only page global the extension owns is the shipped one");
+    assert.deepEqual(removed, [], "no name is removed");
+    assert.equal(Object.hasOwn(page.sandbox, COMPANION_ENTRY_KEY), false, "the entry name is never written by the extension");
+  });
+
+  it("writes no DOM node and raises no page prompt, confirm or toast (AR-3, AR-6, N7)", () => {
+    const code = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+    for (const [what, pattern] of [
+      ["a page alert", /\balert\s*\(/],
+      ["a page confirm", /\bconfirm\s*\(/],
+      ["a page prompt", /\bprompt\s*\(/],
+      ["an element creation", /\bcreateElement\s*\(/],
+      ["a node insertion", /\bappendChild\s*\(/],
+      ["an innerHTML write", /\binnerHTML\b/],
+      ["a storage write", /\b(localStorage|sessionStorage)\b/],
+    ]) {
+      assert.equal(pattern.test(code), false, `the page realm must contain no ${what}: ${pattern}`);
+    }
+    // One global property assignment in the whole script, and it is the shipped recorder handle.
+    const writes = [...code.matchAll(/\bglobalThis\s*(?:\.\s*([A-Za-z_$][\w$]*)|\[\s*['"]([^'"]+)['"]\s*\])\s*=[^=]/g)].map(
+      (match) => match[1] ?? match[2],
+    );
+    assert.deepEqual([...new Set(writes)], ["__ngRecorder"], `the script writes one global name; wrote ${JSON.stringify(writes)}`);
+  });
+
+  it("spells the accepted vocabulary once: one version, the two vetted symbols, no third", () => {
+    const code = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+    assert.equal((code.match(/0\.2202\.0/g) ?? []).length, 1, "the accepted version appears exactly once");
+    const packages = [...new Set([...code.matchAll(/["'](@angular\/[a-z-]+)["']/g)].map((match) => match[1]))].sort();
+    assert.deepEqual(packages, VETTED_SYMBOLS.map((symbol) => symbol.pkg).sort(), "exactly the two vetted packages");
+    assert.equal(code.includes(`"${COMPANION_ENTRY_KEY}"`), true, "the entry name is spelled as the package writes it");
+    for (const symbol of VETTED_SYMBOLS) {
+      assert.ok(code.includes(`"${symbol.name}"`), `the table must carry ${symbol.pkg}#${symbol.name}`);
+    }
   });
 });

@@ -21,6 +21,7 @@ import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { describe, expect, it } from 'vitest';
 import { ChatEntryComponent } from './chat-entry.component';
 import { appRoutes } from './app.routes';
+import type { CompanionRecord } from './companion';
 import { ExtensionMessageService } from './extension-message.service';
 import type { ReplayOutcome } from './panel-context';
 import { InteropComponent } from './interop.component';
@@ -66,6 +67,7 @@ interface Page {
   readonly stateReceived?: boolean;
   readonly appVersion?: string | null;
   readonly replayOutcome?: ReplayOutcome;
+  readonly companion?: CompanionRecord | null;
   readonly notSupported?: boolean;
   readonly notSupportedReason?: string | null;
 }
@@ -77,6 +79,7 @@ interface FakeExtension {
   readonly stateReceived: WritableSignal<boolean>;
   readonly appVersion: WritableSignal<string | null>;
   readonly replayOutcome: WritableSignal<ReplayOutcome>;
+  readonly companion: WritableSignal<CompanionRecord | null>;
   readonly notSupported: WritableSignal<boolean>;
   readonly notSupportedReason: WritableSignal<string | null>;
 }
@@ -103,6 +106,58 @@ function featuresWith(present: readonly string[]): Readonly<Record<string, boole
 /** Every bit the page can publish, `true`: a dev-mode fixture page. */
 const ALL_PRESENT: readonly string[] = [...APP_FACT_FEATURES];
 
+/**
+ * The five companion answers the record can carry, plus `null` for the page that never spoke. The
+ * records are the page realm's own shape (`extension/agent-main.js`, `companionField`); this suite
+ * never re-derives them from page inspection.
+ */
+const DECLARED_RECORD: CompanionRecord = {
+  state: 'declared',
+  version: '0.2202.0',
+  declared: 2,
+  resolved: 2,
+  symbols: [
+    { pkg: '@angular/router', name: 'Router' },
+    { pkg: '@angular/platform-browser', name: 'Meta' },
+  ],
+};
+
+/** A declared entry that carried no symbol: the honest "declared, no symbols" answer (E1). */
+const EMPTY_TABLE_RECORD: CompanionRecord = {
+  state: 'declared',
+  version: '0.2202.0',
+  declared: 0,
+  resolved: 0,
+  symbols: [],
+};
+
+/** A page without the package: a named absence, never an empty list (E2). */
+const NO_PACKAGE_RECORD: CompanionRecord = {
+  state: 'absent',
+  version: null,
+  declared: 0,
+  resolved: 0,
+  symbols: [],
+};
+
+/** A key that is not the package's shape: a stub or a stale copy. */
+const FOREIGN_RECORD: CompanionRecord = {
+  state: 'foreign-entry',
+  version: null,
+  declared: 0,
+  resolved: 0,
+  symbols: [],
+};
+
+/** The right shape at a version this panel does not accept. */
+const OLD_VERSION_RECORD: CompanionRecord = {
+  state: 'version-unsupported',
+  version: '0.2101.0',
+  declared: 0,
+  resolved: 0,
+  symbols: [],
+};
+
 function fakeExtension(page: Page = {}): FakeExtension {
   return {
     features: signal<Readonly<Record<string, boolean>> | null>(page.features ?? null),
@@ -111,6 +166,7 @@ function fakeExtension(page: Page = {}): FakeExtension {
     appVersion: signal<string | null>(page.appVersion ?? null),
     // A page nothing is waiting on; the cases about the replay name their outcome.
     replayOutcome: signal<ReplayOutcome>(page.replayOutcome ?? 'answered'),
+    companion: signal<CompanionRecord | null>(page.companion ?? null),
     notSupported: signal(page.notSupported ?? false),
     notSupportedReason: signal<string | null>(page.notSupportedReason ?? null),
   };
@@ -202,6 +258,11 @@ async function settle(fixture: ComponentFixture<ChatEntryComponent>): Promise<vo
 /** The eight chip entries as `'<name>: present'` / `'<name>: absent'` lines. */
 function chipEntries(fixture: ComponentFixture<ChatEntryComponent>): readonly string[] {
   return all(fixture, 'chip-entry').map((entry) => (entry.textContent ?? '').trim());
+}
+
+/** The companion rendering's own name, read from the section's `data-state`. */
+function surfaceState(fixture: ComponentFixture<ChatEntryComponent>): string | null {
+  return all(fixture, 'companion-surface')[0]?.getAttribute('data-state') ?? null;
 }
 
 describe('ChatEntryComponent', () => {
@@ -337,6 +398,138 @@ describe('ChatEntryComponent', () => {
     expect(has(fixture, 'no-angular-root')).toBe(false);
     expect(has(fixture, 'awaiting-page')).toBe(false);
     expect(all(fixture, 'chip-entry')).toHaveLength(0);
+  });
+
+  it('refuses by name on a page without the package while the chip and the groups are unchanged (E3, AC5)', () => {
+    const { fixture } = renderChat({
+      page: {
+        stateReceived: true,
+        appVersion: '22.2.2',
+        features: featuresWith(ALL_PRESENT),
+        companion: NO_PACKAGE_RECORD,
+      },
+    });
+
+    // The extra surface: a named absence that names the missing entry, and no count beside it.
+    expect(surfaceState(fixture)).toBe('absent');
+    const message = text(fixture, 'companion-absent');
+    expect(message).toContain('no companion package');
+    expect(message).toContain('ngAiDevTools');
+    expect(message).toContain("page's global object");
+    // E2: it never reads as "no data yet", and never as the waiting line.
+    expect(message).not.toContain('no data');
+    expect(message.toLowerCase()).not.toContain('yet');
+    expect(has(fixture, 'companion-awaiting-page')).toBe(false);
+    expect(has(fixture, 'companion-declared-count')).toBe(false);
+    expect(all(fixture, 'companion-symbol')).toHaveLength(0);
+
+    // E3: nothing that already worked degrades. The eight-bit chip is exactly what M020 renders…
+    expect(chipEntries(fixture)).toEqual(APP_FACT_FEATURES.map((name) => `${name}: present`));
+    // …and the version-gated group list still offers the five groups the gates allow.
+    expect(all(fixture, 'group-title').map((element) => (element.textContent ?? '').trim())).toEqual([
+      'The app-facts support record',
+      'Component reads',
+      'Signal reads',
+      'Tier-0 debug reads (dev mode only)',
+      'The Angular error reference',
+    ]);
+  });
+
+  it('waits by name before any companion answer arrives, and never calls that a missing package (SC1)', () => {
+    const { fixture } = renderChat({ page: { replayOutcome: 'answered' } });
+
+    // Nothing has arrived: `awaiting-page`, and it says so without borrowing the absence sentence.
+    expect(surfaceState(fixture)).toBe('awaiting-page');
+    expect(text(fixture, 'companion-awaiting-page')).toContain('no companion answer has arrived');
+    expect(text(fixture, 'companion-awaiting-page')).not.toContain('no ngAiDevTools entry');
+    expect(has(fixture, 'companion-absent')).toBe(false);
+    // The chip's own page state is untouched by the extra surface.
+    expect(has(fixture, 'no-angular-root')).toBe(true);
+  });
+
+  it('names a foreign entry as a key without the package, not as a missing entry (E2)', () => {
+    const { fixture } = renderChat({
+      page: {
+        stateReceived: true,
+        appVersion: '22.2.2',
+        features: featuresWith(ALL_PRESENT),
+        companion: FOREIGN_RECORD,
+      },
+    });
+
+    expect(surfaceState(fixture)).toBe('foreign-entry');
+    const message = text(fixture, 'companion-foreign-entry');
+    expect(message).toContain('ngAiDevTools entry');
+    expect(message).toContain("not the companion package's shape");
+    // Present-but-foreign is its own sentence: not the missing-entry one and not the wait.
+    expect(message).not.toContain('no ngAiDevTools entry was found');
+    expect(has(fixture, 'companion-absent')).toBe(false);
+  });
+
+  it('names both versions for an entry version the panel does not accept (AC3)', () => {
+    const { fixture } = renderChat({
+      page: {
+        stateReceived: true,
+        appVersion: '22.2.2',
+        features: featuresWith(ALL_PRESENT),
+        companion: OLD_VERSION_RECORD,
+      },
+    });
+
+    expect(surfaceState(fixture)).toBe('version-unsupported');
+    const message = text(fixture, 'companion-version-unsupported');
+    // Both versions, in one sentence: the version the entry declares and the version the panel takes.
+    expect(message).toContain('0.2101.0');
+    expect(message).toContain('0.2202.0');
+    expect(all(fixture, 'companion-symbol')).toHaveLength(0);
+  });
+
+  it('names each declared symbol and both counts for a declared entry (SC1, AC6)', () => {
+    const { fixture } = renderChat({
+      page: {
+        stateReceived: true,
+        appVersion: '22.2.2',
+        features: featuresWith(ALL_PRESENT),
+        companion: DECLARED_RECORD,
+      },
+    });
+
+    expect(surfaceState(fixture)).toBe('declared');
+    expect(all(fixture, 'companion-symbol').map((element) => (element.textContent ?? '').trim())).toEqual([
+      '@angular/router#Router',
+      '@angular/platform-browser#Meta',
+    ]);
+    expect(text(fixture, 'companion-declared-count')).toBe('declared: 2');
+    expect(text(fixture, 'companion-resolved-count')).toBe('resolved: 2');
+    expect(has(fixture, 'companion-declared-no-symbols')).toBe(false);
+
+    // N2: the extra surface names the record's symbols and nothing from page inspection, even
+    // though every one of the eight bits is present on this page.
+    const section = text(fixture, 'companion-surface');
+    for (const name of APP_FACT_FEATURES) {
+      expect(section, name).not.toContain(name);
+    }
+  });
+
+  it('renders declared, no symbols as its own state with both counts and no empty list (E1, AC4)', () => {
+    const { fixture } = renderChat({
+      page: {
+        stateReceived: true,
+        appVersion: '22.2.2',
+        features: featuresWith(ALL_PRESENT),
+        companion: EMPTY_TABLE_RECORD,
+      },
+    });
+
+    // Its own state, not a refusal and not an empty list where the answer should be.
+    expect(surfaceState(fixture)).toBe('declared');
+    expect(text(fixture, 'companion-declared')).toContain('declared, no symbols');
+    expect(text(fixture, 'companion-declared-no-symbols')).toBe('declared, no symbols');
+    expect(text(fixture, 'companion-declared-count')).toBe('declared: 0');
+    expect(text(fixture, 'companion-resolved-count')).toBe('resolved: 0');
+    expect(all(fixture, 'companion-symbol')).toHaveLength(0);
+    expect(has(fixture, 'companion-absent')).toBe(false);
+    expect(has(fixture, 'companion-awaiting-page')).toBe(false);
   });
 
   it('renders no group header at all and the projection emptyReason when every gate fails (E5)', () => {

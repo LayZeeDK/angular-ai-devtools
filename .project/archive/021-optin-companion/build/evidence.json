@@ -1,0 +1,152 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "515257d796c457ef053acf78541e3483cd68d943",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M021",
+        "candidates": [
+          {
+            "base": "6f9998937a248b3ca9cc76eee14888b63495ae0e",
+            "commit": "b9409796b24ac9e85bb270032b2724e75783a81f",
+            "valid": true
+          }
+        ],
+        "head": "515257d796c457ef053acf78541e3483cd68d943",
+        "subject": "T001: Repair the regenerated docs audit so both documentation pins are green at the base"
+      },
+      "landed_commit": "b9409796b24ac9e85bb270032b2724e75783a81f",
+      "reasons": [],
+      "task": {
+        "base": "6f9998937a248b3ca9cc76eee14888b63495ae0e",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-docs-audit-repair.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M021",
+        "candidates": [
+          {
+            "base": "6f9998937a248b3ca9cc76eee14888b63495ae0e",
+            "commit": "672491971599d13ab93311dbc31006df2cc6b86e",
+            "valid": true
+          }
+        ],
+        "head": "515257d796c457ef053acf78541e3483cd68d943",
+        "subject": "T002: Create the companion package and prove the facade survives a development build of the fixture"
+      },
+      "landed_commit": "672491971599d13ab93311dbc31006df2cc6b86e",
+      "reasons": [],
+      "task": {
+        "base": "6f9998937a248b3ca9cc76eee14888b63495ae0e",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-companion-package-and-facade-proof.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M021",
+        "candidates": [
+          {
+            "base": "92a2619f54d046c7e12d3bf97cb8fd26e693cd82",
+            "commit": "e64029286aeb1a4aee8cc1885441026e87cf6a7d",
+            "valid": true
+          }
+        ],
+        "head": "515257d796c457ef053acf78541e3483cd68d943",
+        "subject": "T003: Add the companion package's type check to the check chain as an authorised re-pin"
+      },
+      "landed_commit": "e64029286aeb1a4aee8cc1885441026e87cf6a7d",
+      "reasons": [],
+      "task": {
+        "base": "92a2619f54d046c7e12d3bf97cb8fd26e693cd82",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-companion-typecheck-repin.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M021",
+        "candidates": [
+          {
+            "base": "5e8a22bbcd5b265639ff0363758527401c52a1ed",
+            "commit": "88152e269d5cb13a47f2afcaf5c61825eb421af4",
+            "valid": true
+          }
+        ],
+        "head": "515257d796c457ef053acf78541e3483cd68d943",
+        "subject": "T004: Detect, validate and re-announce the companion entry in the page realm"
+      },
+      "landed_commit": "88152e269d5cb13a47f2afcaf5c61825eb421af4",
+      "reasons": [],
+      "task": {
+        "base": "5e8a22bbcd5b265639ff0363758527401c52a1ed",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-page-realm-companion-detection.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M021",
+        "candidates": [
+          {
+            "base": "8cbe96e32ddf389e9f476a82c8f1802ce11d58b3",
+            "commit": "d9c211662ea17eff93d14b2e810bcf6548c992ab",
+            "valid": true
+          }
+        ],
+        "head": "515257d796c457ef053acf78541e3483cd68d943",
+        "subject": "T005: Carry the companion answer into the panel and render the extra surface with its named refusal"
+      },
+      "landed_commit": "d9c211662ea17eff93d14b2e810bcf6548c992ab",
+      "reasons": [],
+      "task": {
+        "base": "8cbe96e32ddf389e9f476a82c8f1802ce11d58b3",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-panel-companion-surface.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M021",
+        "candidates": [
+          {
+            "base": "00aac43187669f0defb7dfa74f8408afb5ccfd83",
+            "commit": "ac400a7944e17f0ed29d9d0ae9c576577f784e16",
+            "valid": true
+          }
+        ],
+        "head": "515257d796c457ef053acf78541e3483cd68d943",
+        "subject": "T006: Fail the development-build proof when the fixture install is absent, instead of skipping it"
+      },
+      "landed_commit": "ac400a7944e17f0ed29d9d0ae9c576577f784e16",
+      "reasons": [],
+      "task": {
+        "base": "00aac43187669f0defb7dfa74f8408afb5ccfd83",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-fail-not-skip-on-missing-fixture-install.md"
+      }
+    }
+  ]
+}

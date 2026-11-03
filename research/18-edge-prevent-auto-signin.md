@@ -5,7 +5,7 @@ Research date: 2026. Target: Microsoft Edge Stable 155 on Windows, launching wit
 ## TL;DR
 
 - `--disable-sync` and `--disable-features=msBrowserSignin` do **not** fully prevent auto-sign-in. `msBrowserSignin` is **not** a real Chromium/Edge feature flag — the real policy is `BrowserSignin` and the real feature flags are `msImplicitSignin`, `msProfileSignIn`, `msEdgeOSAccountInfoSubstrate`, etc.
-- The authoritative, fully-effective mechanism is a set of **Edge policies** applied via the Windows Registry (HKCU or HKLM) under `SOFTWARE\Policies\Microsoft\Edge`. These take effect on the next browser start.
+- ~~The authoritative, fully-effective mechanism is a set of **Edge policies** applied via the Windows Registry (HKCU or HKLM) under `SOFTWARE\Policies\Microsoft\Edge`. These take effect on the next browser start.~~ **Superseded in this program (measured 2026-10-19):** HKCU Edge policies are deliberately *not* used — the `control-ai-browsers` skill relies on the `ms*` switches alone (`.commandcode/skills/control-ai-browsers/SKILL.md:311-312`). The registry route documented below is what Microsoft documents, not what this repository's instances apply.
 - For a single ad-hoc launch with no persistence/account, use **`--guest`** or **`--bwsi`** (browse-without-sign-in) mode — these never touch the OS account.
 - For a fresh `--user-data-dir` profile that must still be a normal profile, combine the registry policies with the `ms*` feature flags below.
 

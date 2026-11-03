@@ -784,7 +784,7 @@ Depends on: [M019]
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/020-feature-fingerprint
-Integrated: null
+Integrated: 57441651f2fe1da35e21be09e4bd6bb12688249d
 
 Scope: in
 - The feature fingerprint from `app_facts` and the `[ng-version]` root enumeration.
@@ -820,8 +820,8 @@ Open questions
 Goal: Ship the Tier-2 opt-in companion package and its vetted symbol table, so an app can be asked to expose more than page inspection can see.
 Depends on: [M020]
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/021-optin-companion
 Integrated: null
 
 Scope: in
