@@ -3,10 +3,10 @@ id: T012
 title: Verdict claims follow the milestone
 wave: 3
 deps: [T006]
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T012
+base: 44116f43db49a521ed305ea4c4235c7159789458
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - scripts/overlay-verdict-claims.test.mjs
@@ -48,12 +48,6 @@ None
 ```bash
 npm ci --include=dev; node --test scripts/overlay-verdict-claims.test.mjs
 ```
-
-## Log
-
-- opened by orchestrator (final review blocked: the suite could not fail)
-- T012 blocked: current intent M023 fixture-components has no verdict-claims recording (research/raw/m023-verdict-claims.json absent); suite now resolves milestone/criteria from current intent and fails on unresolved/missing claims; mutant proof text: "SC99 is not a criterion ...INTENT.md declares (resolved milestone M023)"
-- T012 blocked: current intent M023 has no verdict-claims recording; suite resolves milestone/criteria from current intent; mutant fail text: SC99 is not a criterion INTENT.md declares (resolved milestone M023)
 
 ## Attempt 2 — why attempt 1 blocked
 
@@ -131,3 +125,11 @@ Two honest ways forward, and they are a plan decision rather than a coding one:
 Option 1 is the smaller change and matches what the charter clause actually says. Either way the task contract,
 not the code, is what has been wrong.
 
+## Log
+
+- opened by orchestrator (final review blocked: the suite could not fail)
+- T012 blocked: current intent M023 fixture-components has no verdict-claims recording (research/raw/m023-verdict-claims.json absent); suite now resolves milestone/criteria from current intent and fails on unresolved/missing claims; mutant proof text: "SC99 is not a criterion ...INTENT.md declares (resolved milestone M023)"
+- T012 blocked: current intent M023 has no verdict-claims recording; suite resolves milestone/criteria from current intent; mutant fail text: SC99 is not a criterion INTENT.md declares (resolved milestone M023)
+- resolved the milestone from STATE's branch; recording rules SC1-SC4 not-required because the portal clause does not reach the counter fixture
+- mutants: missing recording -> exit 1; SC99 row -> SC99 is not a criterion the intent declares; restored -> 10 pass 0 fail
+- landed: 10 pass 0 fail; both mutants proven red
