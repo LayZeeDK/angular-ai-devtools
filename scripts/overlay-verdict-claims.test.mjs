@@ -1,35 +1,39 @@
 /**
- * The M022 verdict claim list: which of SC1 and SC2 needs a `lars-verify` verdict, which page
- * produces its facts, and the driver that produces them.
+ * Every milestone's verdict claim list: which of its success criteria need a `lars-verify` verdict, which
+ * page produces a criterion's facts, and the driver that produces them.
  *
  * CHARTER's portal clause ("every feature whose facts an insurance-portal route can produce gets a
- * portal-backed `lars-verify` verdict at the wave gate") leaves the claim list to the plan, and the
- * plan leaves the verdict itself to the wave gate. This file is the seam between the two: it reads
- * `research/raw/m022-verdict-claims.json` and refuses a list that names a criterion the milestone
- * does not declare, rules a row without a reason, or names a driver that does not exist, is not a
+ * portal-backed `lars-verify` verdict at the wave gate") leaves the claim list to the plan, and the plan
+ * leaves the verdict itself to the wave gate. This file is the seam between the two: it reads the
+ * highest-numbered `research/raw/mNNN-verdict-claims.json`, resolves that milestone's own intent, and
+ * refuses a list that names a criterion the milestone does not declare, rules a required row without a
+ * source page, driver, instance or verdict path, or names a driver that does not exist, is not a
  * `control-ai-browsers run` driver, or writes into the page it reads.
  *
- * The check fails and never skips: a missing recording, a missing field or an absent driver is a
- * failing assertion, because a claim list that is absent at the gate is the defect this file exists
- * to name. It drives no browser - the gate runs the driver the list names.
+ * The check fails and never skips: a missing recording, a missing field or an absent driver is a failing
+ * assertion, because a claim list that is absent at the gate is the defect this file exists to name. It
+ * drives no browser - the gate runs the driver the list names.
+ *
+ * The list follows the milestone. The recording is discovered by its number, and its intent is resolved
+ * from the archive when that milestone has been archived and from `.project/intent` when it has not, so a
+ * finished milestone keeps resolving against its own criteria and a new one is never checked against a
+ * finished milestone's list. A milestone the portal clause does not reach rules its criteria
+ * `not-required` with a reason, and owes no driver: the rules that only apply to required rows are
+ * exercised against a synthetic recording, so a milestone that owes nothing cannot weaken them.
  */
 
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const RECORDING = join(ROOT, 'research', 'raw', 'm022-verdict-claims.json');
-const INTENT = join(ROOT, '.project', 'archive', '022-in-page-overlay', 'intent', 'INTENT.md');
-const DRIVER = 'spikes/probes/overlay-pick.js';
+const RAW = join(ROOT, 'research', 'raw');
 
-const MILESTONE = 'M022';
 const RULINGS = ['required', 'not-required'];
 const SOURCES = ['insurance-portal', 'counter-fixture'];
 const READINGS = ['toolElements', 'drawnRect', 'descriptor', 'noDevContext'];
-const CRITERIA = ['SC1', 'SC2'];
 const VERDICT_PATH = /^\.project\/build\/verify\/[a-z0-9]+(-[a-z0-9]+)*\/verdict\.json$/;
 // Tokens a driver that only reads the page cannot carry; a page global, storage or a second element
 // would each change the page the milestone is trying to leave untouched.
@@ -51,13 +55,64 @@ function stripBom(text) {
 }
 
 /**
- * The numbered success criteria of INTENT.md, read as `SC1`, `SC2`, ... so a row cannot cite a
- * criterion the milestone does not declare and cannot paraphrase the one it does.
+ * The milestone under work is the one STATE.md's branch names, so the list this file reads is that
+ * milestone's own. Resolving by the highest-numbered file instead would silently fall back to a
+ * finished milestone's recording the moment the current one went missing - which is precisely the
+ * absence this check exists to catch.
  *
+ * @returns {{ path: string, milestone: string }}
+ */
+function currentRecording() {
+  const state = join(ROOT, '.project', 'STATE.md');
+  const text = existsSync(state) ? stripBom(readFileSync(state, 'utf8')) : '';
+  const branch = text.match(/^branch:\s*(\S+)\s*$/m)?.[1] ?? '';
+  const number = branch.match(/^gsd-path\/M(\d{3})$/)?.[1];
+
+  assert.ok(number, `STATE.md must name the milestone under work by branch; the check fails rather than skipping`);
+
+  const milestone = `M${number}`;
+  const path = join(RAW, `m${number}-verdict-claims.json`);
+
+  if (!existsSync(path)) {
+    throw new Error(`the claim list ${path} cannot be read (ENOENT); the check fails rather than skipping`);
+  }
+
+  return { path, milestone };
+}
+
+/**
+ * An archived milestone reads its own archive; a live one reads the project's current intent.
+ *
+ * @param {string} milestone
+ * @returns {string}
+ */
+function intentPath(milestone) {
+  const number = milestone.slice(1);
+  const archives = join(ROOT, '.project', 'archive');
+  const archived = existsSync(archives)
+    ? readdirSync(archives).filter((name) => name.startsWith(`${number}-`)).sort().pop()
+    : undefined;
+
+  if (archived) {
+    return join(archives, archived, 'intent', 'INTENT.md');
+  }
+
+  const current = join(ROOT, '.project', 'intent', 'INTENT.md');
+
+  assert.ok(existsSync(current), `${milestone} is neither archived nor the current milestone`);
+
+  return current;
+}
+
+/**
+ * The numbered success criteria of an intent, read as `SC1`, `SC2`, ... so a row cannot cite a criterion
+ * the milestone does not declare and cannot paraphrase the one it does.
+ *
+ * @param {string} path
  * @returns {Record<string, string>}
  */
-function intentCriteria() {
-  const source = stripBom(readFileSync(INTENT, 'utf8'));
+function intentCriteria(path) {
+  const source = stripBom(readFileSync(path, 'utf8'));
   const heading = '## Success criteria';
   const at = source.indexOf(heading);
 
@@ -149,34 +204,28 @@ function assertDriverShape(source) {
 
 /**
  * @param {unknown} recording
- * @param {{ criteria: Record<string, string>, readDriver: (path: string) => string }} deps
+ * @param {{ milestone: string, criteria: Record<string, string>, readDriver: (path: string) => string }} deps
  * @returns {void}
  */
 function validate(recording, deps) {
   assert.ok(recording && typeof recording === 'object' && !Array.isArray(recording), 'the recording must be one JSON object');
-  assert.equal(recording.milestone, MILESTONE, 'the recording must name this milestone');
-  assert.equal(recording.driver, DRIVER, 'the recording must name the one driver that produces the readings');
-  assert.ok(filled(recording.instance), 'the recording must name the instance the claims are driven on');
-  assert.ok(Array.isArray(recording.gateReadings) && recording.gateReadings.includes('toolElements'), 'the recording must name the tool-element count the wave gate cites');
+  assert.equal(recording.milestone, deps.milestone, 'the recording must name the milestone its file is numbered for');
 
   const claims = recording.claims;
 
-  assert.ok(Array.isArray(claims), 'the recording must carry a claims array');
-  assert.equal(claims.length, CRITERIA.length, 'exactly one row for SC1 and one for SC2, and no other row');
-  assert.deepEqual(
-    claims.map((claim) => claim.criterion).sort(),
-    CRITERIA,
-    'the rows must be SC1 and SC2 and no criterion the milestone does not declare',
-  );
+  assert.ok(Array.isArray(claims) && claims.length > 0, 'the recording must carry a claims array');
 
+  const seen = new Set();
   const sources = new Set();
   const cited = new Set();
+  let required = 0;
 
   for (const row of claims) {
     const where = row?.criterion ?? 'a row';
-    const declared = Object.hasOwn(deps.criteria, row?.criterion ?? '');
 
-    assert.ok(declared, `${where} is not a criterion INTENT.md declares`);
+    assert.ok(Object.hasOwn(deps.criteria, row?.criterion ?? ''), `${where} is not a criterion the intent declares`);
+    assert.ok(!seen.has(row.criterion), `${where} appears more than once`);
+    seen.add(row.criterion);
     assert.equal(row.criterionText, deps.criteria[row.criterion], `${where} must quote the INTENT criterion character for character`);
     assert.ok(RULINGS.includes(row.ruling), `${where} must rule required or not-required`);
     assert.ok(filled(row.reason), `${where} must state a reason rather than leave the cell empty`);
@@ -187,11 +236,12 @@ function validate(recording, deps) {
       continue;
     }
 
+    required += 1;
     assert.ok(SOURCES.includes(row.source), `${where} must name the insurance portal or the counter fixture as its source page`);
     assert.match(row.sourcePage ?? '', /^https?:\/\//, `${where} must name the page or route that produces its facts`);
     assert.ok(filled(row.route), `${where} must name the route that produces its facts`);
     assert.ok(filled(row.serve), `${where} must name the command that serves that page`);
-    assert.equal(row.driver, DRIVER, `${where} must name the driver the wave gate runs`);
+    assert.ok(filled(row.driver), `${where} must name the driver the wave gate runs`);
     assert.ok(filled(row.instance), `${where} must name the instance it is driven on`);
     assert.match(row.verdictPath ?? '', VERDICT_PATH, `${where} must name the verdict path the wave gate cites`);
     assert.ok(Array.isArray(row.readings) && row.readings.length > 0, `${where} must name the readings that produce its facts`);
@@ -204,6 +254,17 @@ function validate(recording, deps) {
     sources.add(row.source);
   }
 
+  if (required === 0) {
+    // A milestone the portal clause does not reach owes no driver and no readings; it says so with reasons
+    // rather than naming a driver it would have to invent.
+    assert.equal(recording.driver ?? null, null, 'a list with no required row must not name a driver');
+
+    return;
+  }
+
+  assert.ok(filled(recording.driver), 'a list with a required row must name the one driver that produces the readings');
+  assert.ok(filled(recording.instance), 'a list with a required row must name the instance the claims are driven on');
+  assert.ok(Array.isArray(recording.gateReadings) && recording.gateReadings.includes('toolElements'), 'the recording must name the tool-element count the wave gate cites');
   assert.ok(sources.has('insurance-portal'), "the charter requires a portal-backed verdict wherever a route produces the facts");
 
   for (const needed of ['drawnRect', 'descriptor', 'noDevContext']) {
@@ -214,35 +275,97 @@ function validate(recording, deps) {
 }
 
 /**
- * @returns {{ recording: any, deps: { criteria: Record<string, string>, readDriver: (path: string) => string } }}
+ * The milestone's own recording, resolved with its own intent.
+ *
+ * @returns {{ recording: any, deps: { milestone: string, criteria: Record<string, string>, readDriver: (path: string) => string } }}
  */
 function load() {
+  const { path, milestone } = currentRecording();
+  const criteria = intentCriteria(intentPath(milestone));
+
   return {
-    recording: structuredClone(readRecording(RECORDING)),
-    deps: { criteria: intentCriteria(), readDriver },
+    recording: structuredClone(readRecording(path)),
+    deps: { milestone, criteria, readDriver },
   };
 }
 
-test('SC1 and SC2 each carry one row, and every required row names its source page, driver, instance and verdict path', () => {
+/**
+ * A synthetic recording with one required row, independent of what the current milestone happens to owe,
+ * so the rules that only bind required rows can never be weakened by a milestone that owes nothing.
+ *
+ * @returns {{ recording: any, deps: { milestone: string, criteria: Record<string, string>, readDriver: (path: string) => string } }}
+ */
+function requiredFixture() {
+  const milestone = 'M999';
+  const criteria = { SC1: 'A synthetic criterion.' };
+  const driver = 'spikes/probes/synthetic.js';
+
+  return {
+    recording: {
+      milestone,
+      driver,
+      instance: 'edge-dev-aion',
+      gateReadings: ['toolElements'],
+      claims: [
+        {
+          criterion: 'SC1',
+          criterionText: criteria.SC1,
+          ruling: 'required',
+          source: 'insurance-portal',
+          sourcePage: 'http://localhost:4200/synthetic',
+          route: '/synthetic',
+          serve: 'npm start',
+          driver,
+          instance: 'edge-dev-aion',
+          verdictPath: '.project/build/verify/synthetic/verdict.json',
+          readings: ['toolElements', 'drawnRect', 'descriptor', 'noDevContext'],
+          reason: 'the portal route produces the facts the criterion cites',
+        },
+      ],
+    },
+    deps: {
+      milestone,
+      criteria,
+      readDriver: () =>
+        'async page => {\n  const data = await page.evaluate(() => 1);\n  return { toolElements: 1, drawnRect: 1, descriptor: 1, noDevContext: 1, data };\n}\n',
+    },
+  };
+}
+
+test("the milestone's recording rules each criterion it names and quotes its own intent", () => {
   const { recording, deps } = load();
 
   validate(recording, deps);
 });
 
-test('the driver the rows name is a control-ai-browsers run driver that returns the four readings', () => {
-  assertDriverShape(readDriver(DRIVER));
+test('the recording follows the milestone its file is numbered for, not an archived one', () => {
+  const { recording, deps } = load();
+
+  assert.equal(recording.milestone, deps.milestone, 'the resolved recording must name the resolved milestone');
+
+  const mismatched = structuredClone(recording);
+  mismatched.milestone = 'M999';
+
+  assert.throws(() => validate(mismatched, deps), /milestone/, 'a recording that names another milestone must fail');
+});
+
+test('a required row is checked against a synthetic list, so a milestone that owes nothing cannot weaken it', () => {
+  const { recording, deps } = requiredFixture();
+
+  validate(recording, deps);
+  assertDriverShape(deps.readDriver(recording.driver));
 });
 
 test('a missing recording fails rather than skipping', () => {
   assert.throws(
-    () => readRecording(join(ROOT, 'research', 'raw', 'm022-verdict-claims-absent.json')),
+    () => readRecording(join(ROOT, 'research', 'raw', 'm000-verdict-claims-absent.json')),
     /fails rather than skipping/,
   );
 });
 
 test('a required row that leaves a source, driver, instance or verdict path empty is refused', () => {
   for (const field of ['source', 'sourcePage', 'route', 'serve', 'driver', 'instance', 'verdictPath', 'readings']) {
-    const { recording, deps } = load();
+    const { recording, deps } = requiredFixture();
     delete recording.claims[0][field];
 
     assert.throws(() => validate(recording, deps), /SC1/, `a row without ${field} must fail`);
@@ -250,7 +373,7 @@ test('a required row that leaves a source, driver, instance or verdict path empt
 });
 
 test("a row ruled not-required that does not answer the charter's portal clause is refused", () => {
-  const { recording, deps } = load();
+  const { recording, deps } = requiredFixture();
   recording.claims[0].ruling = 'not-required';
   recording.claims[0].reason = 'not needed';
 
@@ -258,21 +381,19 @@ test("a row ruled not-required that does not answer the charter's portal clause 
 });
 
 test('a criterion the milestone does not declare is refused', () => {
-  const replaced = load();
-
-  replaced.recording.claims[0].criterion = 'SC3';
+  const replaced = requiredFixture();
+  replaced.recording.claims[0].criterion = 'SC99';
 
   assert.throws(() => validate(replaced.recording, replaced.deps), /criterion/);
 
-  const added = load();
+  const added = requiredFixture();
+  added.recording.claims.push({ ...added.recording.claims[0], criterion: 'SC98', criterionText: 'anything' });
 
-  added.recording.claims.push({ ...added.recording.claims[0], criterion: 'SC3', criterionText: 'anything' });
-
-  assert.throws(() => validate(added.recording, added.deps), /one row for SC1 and one for SC2/);
+  assert.throws(() => validate(added.recording, added.deps), /declares/);
 });
 
 test('a row that paraphrases the criterion instead of quoting it is refused', () => {
-  const { recording, deps } = load();
+  const { recording, deps } = requiredFixture();
   recording.claims[0].criterionText = 'The box tracks a picked element.';
 
   assert.throws(() => validate(recording, deps), /character for character/);
@@ -280,7 +401,7 @@ test('a row that paraphrases the criterion instead of quoting it is refused', ()
 
 test('a driver that writes into the page is refused', () => {
   for (const token of ['localStorage.setItem("a", "b");', 'document.createElement("div");', 'window.__overlay = 1;']) {
-    const { recording, deps } = load();
+    const { recording, deps } = requiredFixture();
     const writing = {
       ...deps,
       readDriver: () =>
@@ -292,7 +413,7 @@ test('a driver that writes into the page is refused', () => {
 });
 
 test('a driver that is not a run expression, or is absent, is refused', () => {
-  const { recording, deps } = load();
+  const { recording, deps } = requiredFixture();
 
   assert.throws(
     () => validate(recording, { ...deps, readDriver: () => 'const page = 1;\n' }),

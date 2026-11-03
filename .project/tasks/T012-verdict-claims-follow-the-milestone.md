@@ -3,9 +3,9 @@ id: T012
 title: Verdict claims follow the milestone
 wave: 3
 deps: [T006]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T012
+base: c3005c8da0bb9a70ce972197801b57e400787e9a
 worktree: null
 task_branch: null
 files:
