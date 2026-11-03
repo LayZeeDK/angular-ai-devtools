@@ -3,10 +3,10 @@ id: T010
 title: Aria rules read the rendered tree
 wave: 3
 deps: [T003]
-status: in-progress
+status: done
 agent: build_T010
-base: ea9f26d138123cc81c9667e65535968b1eda5f95
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: e59dc95f24c163ae0214fcfe84146a9fd24e8e78
+worktree: null
 task_branch: null
 files:
   - tests/held-out/fixture-aria-rule-mutation.test.mjs

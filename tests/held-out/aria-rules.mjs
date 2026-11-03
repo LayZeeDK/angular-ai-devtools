@@ -33,10 +33,13 @@ export const ariaRules = [
     id: 'listbox-accessible-name',
     surface: 'listbox',
     attribute: 'aria-label',
+    expectedName: 'Components listbox',
     evaluate(surface) {
       const el = surface.elements.find((e) => e.attrs.ngListbox !== undefined || e.raw.includes('ngListbox'));
-      const ok = !!el && (el.attrs['aria-label'] || el.attrs['aria-labelledby']);
-      return { pass: !!ok, detail: ok ? 'aria-label present' : 'missing aria-label' };
+      const expectedName = 'Components listbox';
+      const name = el && (el.attrs['aria-label'] || el.attrs['aria-labelledby']);
+      const ok = !!el && (el.attrs['aria-label'] === expectedName || !!el.attrs['aria-labelledby']);
+      return { pass: !!ok, detail: ok ? `aria-label="${name}"` : `expected aria-label="${expectedName}", got "${name}"` };
     },
   },
   {
@@ -55,8 +58,10 @@ export const ariaRules = [
     attribute: 'aria-label',
     evaluate(surface) {
       const el = surface.elements.find((e) => e.raw.includes('ngMenuTrigger'));
-      const ok = !!el && (el.attrs['aria-label'] || el.attrs['aria-labelledby']);
-      return { pass: !!ok, detail: ok ? 'aria-label present' : 'missing aria-label' };
+      const expectedName = 'Open components menu';
+      const name = el && (el.attrs['aria-label'] || el.attrs['aria-labelledby']);
+      const ok = !!el && (el.attrs['aria-label'] === expectedName || !!el.attrs['aria-labelledby']);
+      return { pass: !!ok, detail: ok ? `aria-label="${name}"` : `expected aria-label="${expectedName}", got "${name}"` };
     },
   },
   {

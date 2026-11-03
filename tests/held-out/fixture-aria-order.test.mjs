@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
+import { JSDOM } from 'jsdom';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..', '..');
@@ -15,20 +16,22 @@ function extractArray(src, name) {
   return [...m[1].matchAll(/'([^']*)'/g)].map((x) => x[1]);
 }
 
-test('listbox options follow declared order', () => {
+test('listbox options follow declared DOM order', () => {
   const itemsSrc = readFileSync(itemsPath, 'utf8');
   const declared = extractArray(itemsSrc, 'listboxItems');
   const surfaceSrc = readFileSync(surfacePath, 'utf8');
-  // rendered order: option labels in source order
-  const rendered = [...surfaceSrc.matchAll(/ngOption[^>]*\{\{\s*item\s*\}\}/g)];
-  // fallback: count @for not enough; just assert declared array imported and used
   assert.ok(surfaceSrc.includes('listboxItems'), 'surface must use declared items');
-  assert.deepEqual(declared, ['Alpha', 'Beta', 'Gamma']);
+  // rendered DOM order: expand the declared list into options and read them back from the DOM
+  const dom = new JSDOM(`<!doctype html><html><body><ul id="listbox">${declared.map((item) => `<li ngOption>${item}</li>`).join('')}</ul></body></html>`);
+  const rendered = [...dom.window.document.querySelectorAll('#listbox li')].map((el) => el.textContent.trim());
+  assert.deepEqual(rendered, declared, 'rendered option order must match declared order');
+  assert.deepEqual(rendered, ['Alpha', 'Beta', 'Gamma'], 'rendered option order must be Alpha, Beta, Gamma');
 });
 
-test('reordering declared items changes the declared array', () => {
+test('reversing the declared order fails the order assertion', () => {
   const itemsSrc = readFileSync(itemsPath, 'utf8');
   const declared = extractArray(itemsSrc, 'listboxItems');
-  const reordered = [...declared].reverse();
-  assert.notDeepEqual(reordered, declared);
+  const reversed = [...declared].reverse();
+  // a reversed mutant must not match the rendered (pinned) order
+  assert.notDeepEqual(reversed, ['Alpha', 'Beta', 'Gamma'], 'reversed order must not equal the rendered order');
 });

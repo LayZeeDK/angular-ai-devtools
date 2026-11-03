@@ -43,3 +43,21 @@ test('removing one rule attribute reddens only that rule', () => {
     }
   }
 });
+
+test('a wrong accessible name reddens the accessible-name rule', () => {
+  const src = readFileSync(surfacePath, 'utf8');
+  for (const id of ['listbox-accessible-name', 'menu-trigger-accessible-name']) {
+    const rule = ariaRules.find((r) => r.id === id);
+    const needle = rule.surface === 'listbox' ? 'ngListbox' : 'ngMenuTrigger';
+    const tagRe = new RegExp(`<[^>]*${needle}[^>]*>`);
+    const tagMatch = src.match(tagRe);
+    assert.ok(tagMatch, `surface tag for ${id}`);
+    const originalTag = tagMatch[0];
+    const mutatedTag = originalTag.replace(/aria-label="[^"]*"/, 'aria-label="Wrong name"');
+    assert.notEqual(mutatedTag, originalTag, `mutation for ${id} must change aria-label`);
+    const mutated = src.replace(originalTag, mutatedTag);
+    const surface = parseSurface(mutated);
+    const verdict = rule.evaluate(surface);
+    assert.equal(verdict.pass, false, `${id} should fail on a wrong accessible name: ${verdict.detail}`);
+  }
+});
