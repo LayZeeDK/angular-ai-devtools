@@ -2,51 +2,51 @@
   "roles": {
     "coder": {
       "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "model": "reflection/beam:free"
     },
     "decide": {
       "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "model": "reflection/beam:free"
     },
     "docs_audit": {
-      "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "effort": "medium",
+      "model": "reflection/beam:free"
     },
     "inspect_codebase": {
       "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "model": "reflection/beam:free"
     },
     "inspect_docs": {
-      "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "effort": "medium",
+      "model": "reflection/beam:free"
     },
     "plan": {
       "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "model": "reflection/beam:free"
     },
     "plan_patch": {
       "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "model": "reflection/beam:free"
     },
     "research": {
       "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "model": "reflection/beam:free"
     },
     "review_panel": {
       "effort": "high",
-      "model": "z-ai/glm-5.3-flash"
+      "model": "reflection/beam:free"
     },
     "reviewer": {
       "effort": "high",
-      "model": "z-ai/glm-5.3-flash"
+      "model": "reflection/beam:free"
     },
     "roadmap": {
       "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "model": "reflection/beam:free"
     },
     "skeptic": {
       "effort": "high",
-      "model": "z-ai/glm-5.3-flash"
+      "model": "reflection/beam:free"
     }
   }
 }

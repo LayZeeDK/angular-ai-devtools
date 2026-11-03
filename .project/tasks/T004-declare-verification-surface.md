@@ -18,6 +18,7 @@ files:
   - .commandcode/skills/control-angular-devtools/features/.proven.json
   - .project/research/DOCS-AUDIT.md
   - scripts/fixture-proof-fresh.test.mjs
+  - scripts/docs-correction.test.mjs
 ---
 
 # T004 — Declare the components page as a verification surface and record its proofs
