@@ -3,9 +3,9 @@ id: T016
 title: The second cycle serves
 wave: 5
 deps: [T011]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T016
+base: 49360bc9507e5c9534dc6f872cb79e46d59949f1
 worktree: null
 task_branch: null
 files:
@@ -51,3 +51,4 @@ npm ci --include=dev; node --test tests/held-out/fixture-rebuild-idempotent.test
 ## Log
 
 - opened by orchestrator (final review blocked: the gap reviewers probed three checks that cannot fail)
+- T016 coder: both cycles now serve - a node:http static server over each build output binds an ephemeral 127.0.0.1 port, GETs / and the entry's own bundle, and asserts a byte-identical entry (sha256 5b715c2f...) after both cycles; install set measured before, BETWEEN the cycles (after cycle 1, before cycle 2's build) and after cycle 2; mutant (duplicate @angular/cdk installed during cycle 1) reddens at the between-cycles measurement naming 2 occurrences; Verify exit 0 (tests 1, pass 1, fail 0) - ready
