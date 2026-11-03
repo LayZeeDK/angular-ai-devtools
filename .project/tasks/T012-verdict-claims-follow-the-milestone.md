@@ -100,3 +100,34 @@ Per the free-model rules a zero-token run is a quota limit and does not count as
 cannot succeed on retry. Every free route is exhausted for the day (Beam and Glyph reset at 00:00 UTC, Ling at
 its 100-request cap). This task resumes on the next day's quota, with the schema already named above.
 
+## Attempt 4 finding — the task as scoped is under-specified, and that is why it kept failing
+
+Reading `validate()` and `assertDriverShape()` in full (lines 125-179) shows the recording is not a list of
+rows but one object:
+
+```json
+{ "milestone": "M022", "driver": "spikes/probes/overlay-pick.js", "instance": "<browser instance>",
+  "gateReadings": ["toolElements", ...],
+  "claims": [ { "criterion": "SC1", "ruling": "required|not-required", "source": "...", "reason": "..." } ] }
+```
+
+and the named driver must **exist**, be one `async page => { ... }` expression, contain `page.evaluate(`, and
+carry all four readings (`toolElements`, `drawnRect`, `descriptor`, `noDevContext`) with none of the six
+write-tokens.
+
+M023 has no such probe. Writing one is product work — a components-page driver for the counter fixture — and
+the contract's `files:` names neither it nor the plan entry that would authorise it. That is why four attempts
+either blocked for "no recording" or burned their budget: Part B silently requires a fifth artifact.
+
+Two honest ways forward, and they are a plan decision rather than a coding one:
+
+1. **M023 records `not-required` rulings with reasons for all four criteria.** CHARTER's portal clause is
+   scoped to features whose facts a portal route can produce; the components fixture is `counter-fixture`, so
+   no portal-backed verdict is owed. The schema must then tolerate a recording with no driver, which means
+   `driver`, `instance` and `gateReadings` become conditional on at least one `required` row.
+2. **M023 authors a fixture probe** (`spikes/probes/components-aria.js`) and a `required` ruling for the
+   criterion it serves, making the recording real. This is a genuine task with a genuine Verify, not a repair.
+
+Option 1 is the smaller change and matches what the charter clause actually says. Either way the task contract,
+not the code, is what has been wrong.
+
