@@ -23,6 +23,7 @@ sessions are looked up from there. `S` stands for `.commandcode/skills/control-a
 | Flow | Command | Notes |
 |---|---|---|
 | Counter fixture | `node $S up --target counter` | `spikes/ng222-app`, Angular 22.2.2, zoneless, `provideRouter(routes)` over the two routes `src/app/app.routes.ts:5-8` declares, `/stale-view` and `/stale-view-deferred` (read 2026-11-01) |
+| Components fixture | `node $S up --target components` | `spikes/ng222-app`, Angular 22.2.2, zoneless, `/components` page with the Aria listbox, tabs, menu and overlay surfaces |
 | SSR fixture | `node $S up --target ssr` | `spikes/ng222-ssr`, Angular 22.2.2, `@angular/ssr`, zoneless, `provideClientHydration()`; routes `/` (`RenderMode.Server`), `/prerender` (`RenderMode.Prerender`), `/client` (`RenderMode.Client`); local data at `/api/items` from `src/server.ts` |
 | Insurance Portal | `node $S up --target portal` | The portal checkout `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools` (a git worktree of the portal repository); override it with `--dir <path>` or `CONTROL_NG_PORTAL_DIR` |
 | Any dev-mode app | `node $S up --url http://localhost:<port>/` | Nothing is launched or stopped; process and port checks report skipped |
@@ -36,6 +37,7 @@ slot, 10 slots in all, and records the slot and the ports it used (`info --json`
 | Port | Kind | Default | How it moves |
 |---|---|---|---|
 | counter app | derived | 4222 | `--port`, passed to `ng serve --port` (measured: listened on 4336, and on its fallback 4337 while a throwaway listener held 4336) |
+| components app | derived | 4224 | `--port`, passed to `ng serve --port` (slot n: 4600 + n) |
 | SSR app | derived | 4223 | `--port`, passed to `ng serve --port` (measured: listened on 4464) |
 | portal app | derived | 4200 | `--port`, passed to `nx run insurance-portal:serve --port=` (measured: listened on 4507) |
 | portal api | fixed | 3000 | `.commandcode/skills/control-angular-dev-app/scripts/control.mjs:69` keeps it at 3000 because the portal checkout (outside this repository) hardcodes `http://localhost:3000/api/` at `libs/shared/utils/src/lib/injection-tokens.ts:5`; the API itself takes `PORT`. One portal per machine |

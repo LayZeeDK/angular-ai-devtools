@@ -91,13 +91,13 @@ test('slotOrder tries 10 slots and from a worktree wraps within 1-99, never onto
 test('the ports table keeps every slot of every target apart, and no worktree slot reaches a main checkout port', () => {
   /** @type {Map<number, string>} */
   const seen = new Map();
-  const targets = /** @type {const} */ (['counter', 'ssr', 'portal']);
+  const targets = /** @type {const} */ (['counter', 'components', 'ssr', 'portal']);
   const mains = targets.map((name) => {
     const row = portRowsOf(name, 'D:\\portal')[0];
 
     return row?.kind === 'derived' ? row.at(0) : NaN;
   });
-  assert.deepEqual(mains, [4222, 4223, 4200]);
+  assert.deepEqual(mains, [4222, 4224, 4223, 4200]);
 
   for (const name of targets) {
     for (const row of portRowsOf(name, 'D:\\portal')) {
@@ -113,6 +113,31 @@ test('the ports table keeps every slot of every target apart, and no worktree sl
   }
 
   assert.deepEqual(portRowsOf('portal', 'D:\\portal').map((r) => `${r.name}:${r.kind}`), ['app:derived', 'api:fixed', 'pangular:external']);
+});
+
+test('portRowsOf("components") returns the components row', () => {
+  const rows = portRowsOf('components');
+  assert.deepEqual(rows.map((r) => `${r.name}:${r.kind}`), ['app:derived']);
+  const row = rows[0];
+  assert.ok(row && row.kind === 'derived');
+  assert.equal(row.at(0), 4224);
+  assert.equal(row.at(3), 4603);
+});
+
+test('no slot-0 port collides with another target or a reserved port', () => {
+  const forbidden = new Set([3000, 9999]);
+  const slot0 = ['counter', 'components', 'ssr', 'portal'].map((name) => {
+    const row = portRowsOf(name)[0];
+    return row?.kind === 'derived' ? row.at(0) : row?.port;
+  });
+  assert.equal(new Set(slot0).size, slot0.length, 'every slot-0 port is distinct');
+  for (const port of slot0) {
+    if (port !== 4222 && port !== 4223 && port !== 4200) {
+      assert.ok(!forbidden.has(port), `slot-0 port ${port} is reserved`);
+    }
+  }
+  assert.equal(portRowsOf('components')[0]?.kind === 'derived' ? portRowsOf('components')[0].at(0) : NaN, 4224);
+  assert.ok(![4200, 4222, 4223, 3000, 9999].includes(portRowsOf('components')[0].at(0)));
 });
 
 test('pinOf names the line that holds the value, or the bare path', (t) => {
