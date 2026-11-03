@@ -66,3 +66,24 @@ This attempt also produces the recording. It is derived data: one entry per crit
 reviews recorded a verdict for, naming the criterion, the wave review file and the verdict. It is produced
 from `.project/review/wave-*.cycle*.md`, not written by hand from memory.
 
+## Attempt 3 — the recording's schema, read off the suite
+
+Attempts 1 and 2 failed differently: attempt 1 blocked correctly (no recording existed), and attempts 2 and 3
+on `free-beam-medium` and `free-glyph-cluster-medium` both errored without writing a file. Neither touched the
+tree, so nothing is being repaired in place here.
+
+The suite reads a JSON list whose rows carry, at minimum, the fields it validates (lines 24-43 of
+`scripts/overlay-verdict-claims.test.mjs`):
+
+| Field | Allowed values |
+|---|---|
+| `criterion` | a criterion the milestone's intent declares: `SC1`..`SC4` for M023 |
+| `ruling` | `required` or `not-required` |
+| `source` | `insurance-portal` or `counter-fixture` |
+| `readings` | drawn from `toolElements`, `drawnRect`, `descriptor`, `noDevContext` |
+| `verdict` | a path matching `.project/build/verify/<slug>/verdict.json` |
+| driver | a `control-ai-browsers run` driver that exists and reads the page without writing to it (no `localStorage`, `sessionStorage`, `document.createElement`, `appendChild(`, `innerHTML`, `window.__`) |
+
+A row without a reason is refused. Read the rest of the suite before writing the file: it decides the exact
+key names, and the file must satisfy it rather than the table above.
+
