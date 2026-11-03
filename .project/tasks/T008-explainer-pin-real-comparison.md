@@ -42,7 +42,6 @@ None
 ## Intent coverage
 
 - SC3
-- N2 — a shipped explainer's question, answer or selector is unchanged.
 
 ## Acceptance criteria
 
