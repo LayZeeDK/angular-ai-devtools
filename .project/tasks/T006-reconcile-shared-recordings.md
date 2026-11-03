@@ -3,7 +3,7 @@ id: T006
 title: Reconcile the shared recordings M023 invalidated
 wave: 2
 deps: [T001, T003, T004]
-status: pending
+status: in-progress
 agent: null
 base: null
 worktree: null
@@ -56,10 +56,80 @@ None
 
 ## Verify
 
-```powershell
-npm ci --include=dev; node --test scripts/autonomy-gaps.test.mjs scripts/ng-context-dev-build.test.mjs scripts/overlay-verdict-claims.test.mjs scripts/docs-audit-disposition.test.mjs
+```bash
+npm ci --include=dev; npm --prefix spikes/ng222-app ci --include=dev; node --test scripts/autonomy-gaps.test.mjs scripts/ng-context-dev-build.test.mjs scripts/overlay-verdict-claims.test.mjs scripts/docs-audit-disposition.test.mjs
 ```
 
 ## Log
 
 - created by orchestrator (T005 gate: three shared recordings invalidated)
+- T006 ready: autonomy-gaps, ng-context, overlay, docs-audit-disposition green; dev 1899687 B, prod 383132 B
+- 2026-11-03 — orchestrator Verify (sidecar gsd-path-verify/task-t006-verify): fail, exit 1; output tail:
+  ```
+        at Test.postRun (node:internal/test_runner/test:1542:19)
+        at Test.run (node:internal/test_runner/test:1467:12)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+      generatedMessage: false,
+      code: 'ERR_ASSERTION',
+      actual: 'the fixture install is absent (spikes/ng222-app/node_modules); run npm --prefix spikes/ng222-app ci --include=dev',
+      expected: false,
+      operator: 'strictEqual',
+      diff: 'simple'
+    }
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```
+- 2026-11-03 — orchestrator Verify (sidecar gsd-path-verify/task-t006-verify): pass, exit 0; output tail:
+  ```
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 21933.9154
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```
+- 2026-11-03 — orchestrator regression Verify of T001 (sidecar gsd-path-verify/task-t006-verify): pass, exit 0; output tail:
+  ```
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 22984.3866
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```
