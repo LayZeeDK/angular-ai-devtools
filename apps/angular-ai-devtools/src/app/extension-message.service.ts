@@ -5,6 +5,45 @@ import type { ReplayOutcome } from './panel-context';
 import { CAPACITY } from '../../../../src/main-world/error-capture';
 import type { CapturedError } from '../../../../src/main-world/error-capture';
 
+/**
+ * The picker's three named states, carried out of the page as `CustomEvent('angular-ai:picker-state')`,
+ * forwarded by `extension/relay.js`, given the sender's tab id by `extension/background.js`, and read
+ * here. `armed` is a pick still outstanding, `cancelled` the page confirming it stopped, and
+ * `unavailable` the page's bounded answer that no descriptor arrived within its 1500 ms window. They
+ * are never collapsed: an outstanding pick never reads as a cancellation.
+ */
+export type PickerStatus = 'armed' | 'cancelled' | 'unavailable';
+
+export interface PickerState {
+  readonly status: PickerStatus;
+  /** The page's own words when it had to explain itself; `null` when the payload carried none. */
+  readonly reason: string | null;
+}
+
+/**
+ * The descriptor the page realm resolved for a locked pick (`extension/agent-main.js`,
+ * `pickDescriptorFor`), as plain data. No element, instance, function or `__ngContext__` value is
+ * ever carried, and nothing here is re-derived in the panel (N2).
+ */
+export interface ResolvedPick {
+  readonly status: 'resolved';
+  readonly elementTag: string | null;
+  readonly componentName: string | null;
+  readonly className: string | null;
+  readonly componentPath: readonly string[];
+}
+
+export interface NoDevApiPick {
+  readonly status: 'no-dev-api';
+  readonly reason: string | null;
+}
+
+export interface NoComponentPick {
+  readonly status: 'no-component';
+}
+
+export type PickedDescriptor = ResolvedPick | NoDevApiPick | NoComponentPick;
+
 interface ExtensionMessage {
   type?: string;
   version?: string;
@@ -30,6 +69,11 @@ interface ExtensionMessage {
   message?: string;
   component?: string | null;
   timestamp?: number;
+  // The picker's two answers (`extension/relay.js` forwards them, `extension/background.js` adds the
+  // tab id). Both members are `unknown` on purpose: the message boundary is untyped, so the values
+  // are rebuilt by the readers below rather than believed.
+  status?: unknown;
+  descriptor?: unknown;
 }
 
 interface ExtensionRuntime {
@@ -66,6 +110,12 @@ export class ExtensionMessageService {
   // `{ ok: false }`, and `failed` when no relay or no transport answered.
   readonly replayOutcome = signal<ReplayOutcome>('outstanding');
   readonly capturedErrors = signal<CapturedError[]>([]);
+  // The picker's state as the page last reported it, and the descriptor of the last locked pick.
+  // `null` on either is "the panel has not been told" — never "the page said nothing to pick" and
+  // never a state inferred from the absence of messages (T007 AC6). One signal each, because the
+  // page can report a state without a pick and a pick without a fresh state.
+  readonly pickerState = signal<PickerState | null>(null);
+  readonly picked = signal<PickedDescriptor | null>(null);
 
   constructor() {
     const chrome = (globalThis as { chrome?: ExtensionChrome }).chrome;
@@ -150,6 +200,14 @@ export class ExtensionMessageService {
         while (next.length > CAPACITY) next.shift();
         return next;
       });
+    } else if (msg.type === 'angular-ai:picker-state') {
+      // Read into one of the page's three named statuses. A payload that names none of them is not
+      // an answer, so the signal stays `null` rather than becoming a state the panel invented.
+      this.pickerState.set(readPickerState(msg));
+    } else if (msg.type === 'angular-ai:picked') {
+      // Same discipline for the descriptor: only one of the three shapes the page realm publishes
+      // becomes a value, and its members are rebuilt rather than trusted.
+      this.picked.set(readPickedDescriptor(msg.descriptor));
     }
   }
 }
@@ -252,4 +310,79 @@ function readCompanionVersion(value: unknown): string | null {
 /** A declared/resolved count, or `0` when the payload carried no non-negative whole number. */
 function readCompanionCount(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? Math.trunc(value) : 0;
+}
+
+/** The three states the page's overlay publishes; anything else is not an answer (T007). */
+const PICKER_STATUSES: ReadonlySet<string> = new Set<string>(['armed', 'cancelled', 'unavailable']);
+
+/**
+ * Reads an `angular-ai:picker-state` payload into one of the three named statuses, or `null` when it
+ * names none of them.
+ *
+ * The three stay three distinguishable values: an outstanding pick (`armed`) is never read as a
+ * cancelled one, and a bounded "no descriptor arrived" (`unavailable`) is never read as either. A
+ * payload that names none of them is not an answer, so it leaves the signal `null` — "the panel has
+ * not been told" — instead of a state the panel chose for the page.
+ */
+function readPickerState(msg: ExtensionMessage): PickerState | null {
+  const status = msg.status;
+  if (typeof status !== 'string' || !PICKER_STATUSES.has(status)) {
+    return null;
+  }
+  return { status: status as PickerStatus, reason: readPickText(msg.reason) };
+}
+
+/**
+ * Reads the `descriptor` member of `angular-ai:picked` into one of the three shapes the page realm
+ * publishes — `resolved`, `no-dev-api`, `no-component` — and answers `null` for anything else.
+ *
+ * A payload that is not an object, or that names a fourth status, is not one of the three shapes and
+ * never becomes a value. The members are rebuilt the way `readCompanionRecord` rebuilds its record:
+ * a member the payload did not carry as a usable value reads `null` (or an empty path), never a
+ * plausible-looking default, and nothing is re-derived from the page.
+ */
+function readPickedDescriptor(value: unknown): PickedDescriptor | null {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return null;
+  }
+  const record = value as Record<string, unknown>;
+  const status = record['status'];
+  if (status === 'resolved') {
+    return {
+      status: 'resolved',
+      elementTag: readPickText(record['elementTag']),
+      componentName: readPickText(record['componentName']),
+      className: readPickText(record['className']),
+      componentPath: readPickPath(record['componentPath']),
+    };
+  }
+  if (status === 'no-dev-api') {
+    // The named outcome for a page that publishes no dev API: its reason names the possibility of a
+    // production build, and it is rendered as a state, never as an error.
+    return { status: 'no-dev-api', reason: readPickText(record['reason']) };
+  }
+  if (status === 'no-component') {
+    // A dev context with no owning instance: the one outcome that carries nothing but its name.
+    return { status: 'no-component' };
+  }
+  return null;
+}
+
+/** A member the page sent, kept only as a non-empty string; `null` when it carried none. */
+function readPickText(value: unknown): string | null {
+  return typeof value === 'string' && value.trim().length > 0 ? value : null;
+}
+
+/** The distinct constructor names the page walked, keeping only the non-empty strings it sent. */
+function readPickPath(value: unknown): readonly string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  const path: string[] = [];
+  for (const entry of value) {
+    if (typeof entry === 'string' && entry.length > 0) {
+      path.push(entry);
+    }
+  }
+  return path;
 }

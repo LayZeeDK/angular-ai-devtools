@@ -47,6 +47,9 @@ function boot({ version = null, host = false, readyState = "complete" } = {}) {
   const listeners = {};
   const documentListeners = {};
   const observers = [];
+  // The window events the relay re-dispatches. The overlay would be the listener; recording the
+  // dispatched event makes its name and its detail assertable from this side of the hop.
+  const events = [];
   let messageListener = null;
   let currentVersion = version;
   const windowObj = {
@@ -54,12 +57,27 @@ function boot({ version = null, host = false, readyState = "complete" } = {}) {
       (listeners[type] = listeners[type] || []).push(cb);
     },
     removeEventListener() {},
+    dispatchEvent(event) {
+      events.push(event);
+      // Deliver to whoever registered for it, the way the platform would.
+      for (const cb of listeners[event.type] || []) cb(event);
+      return true;
+    },
   };
+  // The relay builds the command's window event with the platform constructor; this realm's copy
+  // keeps `type` and `detail`, which are the only members either side of the hop reads.
+  class SandboxCustomEvent {
+    constructor(type, init) {
+      this.type = type;
+      this.detail = init && init.detail !== undefined ? init.detail : null;
+    }
+  }
   const hostNode = host ? makeNode("div") : null;
   if (hostNode) hostNode.id = HOST_ID;
   const body = makeNode("body");
   const sandbox = {
     window: windowObj,
+    CustomEvent: SandboxCustomEvent,
     chrome: {
       runtime: {
         sendMessage: (msg) => { sent.push(msg); },
@@ -133,7 +151,7 @@ function boot({ version = null, host = false, readyState = "complete" } = {}) {
     for (const cb of cbs) cb();
   }
   return {
-    listeners, sent, window: windowObj, request, deliver, fireDocument,
+    listeners, sent, window: windowObj, events, request, deliver, fireDocument,
     document: sandbox.document, observers, created, probes,
     filter: sandbox.angularAiObserverFilter,
     setVersion: (next) => { currentVersion = next; },
@@ -205,6 +223,107 @@ describe("relay.js replay", () => {
   });
 });
 
+describe("relay.js picker transport (SC2)", () => {
+  it("re-dispatches the panel's picker command as the window event the overlay listens for", () => {
+    const { events, request, sent } = boot();
+    const { handled, answer } = request({ type: "angular-ai:picker-command", action: "arm" });
+
+    assert.ok(handled, "the command must be handled, or the background sees no relay");
+    assert.deepEqual({ ...answer }, { ok: true }, "the relay answers, so the background can name a missing relay");
+    assert.equal(events.length, 1, "exactly one window event per command");
+    assert.equal(events[0].type, "angular-ai:picker-command");
+    assert.deepEqual({ ...events[0].detail }, { action: "arm" }, "the action is carried as the event's detail");
+    assert.equal(sent.length, 0, "a panel-bound command is not forwarded back up to the background");
+  });
+
+  it("carries cancel verbatim and dispatches it the same way", () => {
+    const { events, request } = boot();
+    request({ type: "angular-ai:picker-command", action: "cancel" });
+    assert.equal(events.length, 1);
+    assert.deepEqual({ ...events[0].detail }, { action: "cancel" });
+  });
+
+  it("keeps the replay answer unchanged for every other message type", () => {
+    const { events, listeners, request } = boot();
+    listeners["angular-ai:state"][0]({ detail: { supported: true, zoneMode: "noop" } });
+
+    // A command goes past the latch without touching it...
+    request({ type: "angular-ai:picker-command", action: "arm" });
+    const replay = request({ type: "angular-ai:replay-request" });
+    assert.ok(replay.handled);
+    assert.deepEqual(replay.answer.state, { supported: true, zoneMode: "noop" }, "the replay still answers the latch");
+    assert.equal(replay.answer.version, null);
+
+    // ...and the types that were never the relay's are still left to the rest of the extension.
+    for (const type of ["angular-ai:di-graph", "host:pick", "angular-ai:state-request"]) {
+      assert.equal(request({ type }).handled, false, `${type} must not be answered by the relay`);
+    }
+    assert.equal(events.length, 1, "only the command dispatched a window event");
+  });
+
+  it("forwards the picker state in the shipped forwarding shape", () => {
+    const { listeners, sent } = boot();
+    const cbs = listeners["angular-ai:picker-state"];
+    assert.ok(Array.isArray(cbs) && cbs.length === 1, "one picker-state listener, as the shipped four have");
+
+    cbs[0]({ detail: { status: "armed" } });
+    assert.equal(sent.length, 1);
+    assert.deepEqual({ ...sent[0] }, { type: "angular-ai:picker-state", status: "armed" });
+
+    cbs[0]({ detail: { status: "unavailable", reason: "no descriptor within 1500 ms" } });
+    assert.deepEqual({ ...sent[1] }, {
+      type: "angular-ai:picker-state",
+      status: "unavailable",
+      reason: "no descriptor within 1500 ms",
+    });
+  });
+
+  it("forwards a picker-state payload it cannot read as received, without interpreting it", () => {
+    const { listeners, sent } = boot();
+    const cbs = listeners["angular-ai:picker-state"];
+
+    // A status the page should never publish is still carried: this hop is a forwarder, and the panel
+    // is what refuses an unnamed status.
+    cbs[0]({ detail: { status: 42 } });
+    assert.deepEqual({ ...sent[0] }, { type: "angular-ai:picker-state", status: 42 });
+
+    // No detail at all is a message with no payload, not an invented `cancelled`.
+    cbs[0]({});
+    assert.deepEqual({ ...sent[1] }, { type: "angular-ai:picker-state" });
+  });
+
+  it("forwards the picked payload as the message's descriptor member", () => {
+    const { listeners, sent } = boot();
+    const cbs = listeners["angular-ai:picked"];
+    assert.ok(Array.isArray(cbs) && cbs.length === 1, "one picked listener");
+
+    const descriptor = {
+      status: "resolved",
+      elementTag: "app-counter",
+      componentName: "app-counter",
+      className: "CounterComponent",
+      componentPath: ["CounterComponent", "AppComponent"],
+    };
+    cbs[0]({ detail: descriptor });
+    assert.equal(sent.length, 1);
+    assert.equal(sent[0].type, "angular-ai:picked");
+    assert.deepEqual(sent[0].descriptor, descriptor, "the descriptor is the event's whole detail, carried verbatim");
+  });
+
+  it("forwards a picked payload it cannot read as received rather than reinterpreting it", () => {
+    const { listeners, sent } = boot();
+    const cbs = listeners["angular-ai:picked"];
+
+    // Not one of the three descriptor shapes: still forwarded, so the panel — not this hop — refuses it.
+    cbs[0]({ detail: "not-a-descriptor" });
+    assert.equal(sent[0].descriptor, "not-a-descriptor");
+
+    cbs[0]({});
+    assert.equal(sent[1].type, "angular-ai:picked");
+    assert.equal(sent[1].descriptor, undefined, "an absent detail travels as an absent descriptor, never an invented one");
+  });
+});
+
 describe("relay.js observer (AR-4 / SC3)", () => {
   it("boots the shipped filter first, so the relay calls the one published predicate", () => {
     const { filter } = boot();
@@ -273,6 +392,11 @@ describe("relay.js observer (AR-4 / SC3)", () => {
     const booted = boot({ version: "22.2.2" });
     const observing = boot();
     observing.deliver(0, [record(observing.document.body, { added: [makeNode("span")] })]);
+    // The picker paths add a branch and two listeners, not a node: the command hop and both answers
+    // are driven here so a `createElement` smuggled into either is caught as a page-visible element.
+    observing.request({ type: "angular-ai:picker-command", action: "arm" });
+    observing.listeners["angular-ai:picker-state"][0]({ detail: { status: "armed" } });
+    observing.listeners["angular-ai:picked"][0]({ detail: { status: "no-component" } });
     for (const { created, document } of [booted, observing]) {
       assert.equal(created.length, 0, "the relay must create no element on either load path");
       assert.equal(document.body.children.length, 0, "the relay must append nothing to the page");

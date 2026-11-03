@@ -374,4 +374,154 @@ describe('ExtensionMessageService', () => {
     // left outstanding forever.
     expect(TestBed.inject(ExtensionMessageService).replayOutcome()).toBe('failed');
   });
+
+  // The picker's transport (T007). The page's overlay publishes the state and the resolved
+  // descriptor, the relay forwards them, the background adds the tab id, and this service reads
+  // each into one signal — refusing to invent a state the page never said.
+
+  it('exposes no picker state and no picked descriptor until the page speaks (AC5)', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    // `null` is "the panel has not been told": it is never "the page said nothing to pick".
+    expect(ext.pickerState()).toBeNull();
+    expect(ext.picked()).toBeNull();
+  });
+
+  it("keeps the picker's three named states apart, and an outstanding pick is not a cancellation (AC6)", () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    deliver({ type: 'angular-ai:picker-state', status: 'armed', tabId: 5 });
+    expect(ext.pickerState()).toEqual({ status: 'armed', reason: null });
+
+    deliver({ type: 'angular-ai:picker-state', status: 'cancelled', reason: 'cancelled from the panel', tabId: 5 });
+    expect(ext.pickerState()).toEqual({ status: 'cancelled', reason: 'cancelled from the panel' });
+
+    deliver({ type: 'angular-ai:picker-state', status: 'unavailable', reason: 'no descriptor within 1500 ms', tabId: 5 });
+    expect(ext.pickerState()).toEqual({ status: 'unavailable', reason: 'no descriptor within 1500 ms' });
+
+    // A page that explains itself in whitespace has not explained anything: the reason is null, not
+    // a blank string the surface would render as an explanation.
+    deliver({ type: 'angular-ai:picker-state', status: 'unavailable', reason: '   ', tabId: 5 });
+    expect(ext.pickerState()).toEqual({ status: 'unavailable', reason: null });
+  });
+
+  it('refuses a picker state that names none of the three statuses, instead of inventing one (AC5)', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    for (const status of ['pending', 'ARMED', 'outstanding', 'resolved', 'no-dev-api', 42, null, undefined, ['armed']]) {
+      deliver({ type: 'angular-ai:picker-state', status, tabId: 5 });
+      expect(ext.pickerState(), String(JSON.stringify(status))).toBeNull();
+    }
+    // A message carrying no status member at all is not an answer either.
+    deliver({ type: 'angular-ai:picker-state', tabId: 5 });
+    expect(ext.pickerState()).toBeNull();
+  });
+
+  it('writes a resolved descriptor exactly as the page carried it (AC5)', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+    const descriptor = {
+      status: 'resolved',
+      elementTag: 'app-counter',
+      componentName: 'app-counter',
+      className: 'CounterComponent',
+      componentPath: ['CounterComponent', 'AppComponent'],
+    };
+
+    deliver({ type: 'angular-ai:picked', descriptor, tabId: 5 });
+
+    // Displayed, never re-derived: the field values are the payload's, not the panel's guess.
+    expect(ext.picked()).toEqual(descriptor);
+    // No page object crosses the boundary, so a descriptor is plain data by construction.
+    expect(JSON.parse(JSON.stringify(ext.picked()))).toEqual(descriptor);
+  });
+
+  it('keeps the three descriptor shapes apart, never collapsing them into one (AC5)', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+    const noDevApi = { status: 'no-dev-api', reason: 'the picked element carries no __ngContext__; this page may be a production build' };
+
+    deliver({ type: 'angular-ai:picked', descriptor: noDevApi, tabId: 5 });
+    expect(ext.picked()).toEqual(noDevApi);
+    // The named production-build outcome is not the "no owning component" one.
+    expect(ext.picked()?.status).not.toBe('no-component');
+
+    deliver({ type: 'angular-ai:picked', descriptor: { status: 'no-component' }, tabId: 5 });
+    expect(ext.picked()).toEqual({ status: 'no-component' });
+    expect(ext.picked()?.status).not.toBe('no-dev-api');
+
+    // The status is the outcome; a reason that did not arrive as a usable string reads null rather
+    // than turning the named outcome into no answer at all.
+    deliver({ type: 'angular-ai:picked', descriptor: { status: 'no-dev-api', reason: 42 }, tabId: 5 });
+    expect(ext.picked()).toEqual({ status: 'no-dev-api', reason: null });
+  });
+
+  it('keeps only the well-formed parts of a resolved descriptor', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    deliver({
+      type: 'angular-ai:picked',
+      descriptor: {
+        status: 'resolved',
+        elementTag: '   ',
+        componentName: 42,
+        className: 'CounterComponent',
+        componentPath: ['CounterComponent', '', 7, null, 'AppComponent'],
+      },
+      tabId: 5,
+    });
+
+    // A member that did not arrive as a usable string reads null rather than a plausible default, and
+    // the path keeps only the constructor names the page actually carried.
+    expect(ext.picked()).toEqual({
+      status: 'resolved',
+      elementTag: null,
+      componentName: null,
+      className: 'CounterComponent',
+      componentPath: ['CounterComponent', 'AppComponent'],
+    });
+
+    // A path that is not a list is an empty path, never a single-entry one invented from a string.
+    deliver({
+      type: 'angular-ai:picked',
+      descriptor: { status: 'resolved', elementTag: 'button', componentName: 'app-counter', className: 'C', componentPath: 'CounterComponent' },
+      tabId: 5,
+    });
+    expect(ext.picked()).toEqual({
+      status: 'resolved',
+      elementTag: 'button',
+      componentName: 'app-counter',
+      className: 'C',
+      componentPath: [],
+    });
+  });
+
+  it('answers null for a picked payload that is not one of the three descriptor shapes (AC5)', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    for (const descriptor of [
+      'resolved',
+      42,
+      null,
+      undefined,
+      [1, 2, 3],
+      {},
+      { status: 'no-dev-context' },
+      { status: 'RESOLVED' },
+    ]) {
+      deliver({ type: 'angular-ai:picked', descriptor, tabId: 5 });
+      expect(ext.picked(), String(JSON.stringify(descriptor))).toBeNull();
+    }
+    // A picked message that carries no descriptor member at all is not a pick.
+    deliver({ type: 'angular-ai:picked', tabId: 5 });
+    expect(ext.picked()).toBeNull();
+  });
+
+  it('ignores picker messages for another tab', () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    deliver({ type: 'angular-ai:picker-state', status: 'armed', tabId: 6 });
+    deliver({ type: 'angular-ai:picked', descriptor: { status: 'no-component' }, tabId: 6 });
+
+    expect(ext.pickerState()).toBeNull();
+    expect(ext.picked()).toBeNull();
+  });
 });

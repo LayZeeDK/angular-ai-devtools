@@ -30,11 +30,39 @@ window.addEventListener('angular-ai:state', (e) => {
   chrome.runtime.sendMessage({ type: 'angular-ai:state', ...d });
 });
 
-// Answer the panel's one replay request (routed here by the background) from the latch above.
+// The picker's two answers ride the shape above: the overlay dispatches them on `window`, this relay
+// sends one runtime message per event, and the background attaches the sender's tab id. Nothing is
+// read here on purpose — a payload this relay cannot interpret is carried as received, because
+// reading it is the panel's job and a state invented at this hop would be a state the page never said.
+window.addEventListener('angular-ai:picker-state', (e) => {
+  const d = e.detail || {};
+  chrome.runtime.sendMessage({ type: 'angular-ai:picker-state', ...d });
+});
+
+// A locked pick arrives as the event's whole detail (the descriptor the page realm resolved), and the
+// message names it, so the panel reads one member instead of guessing which field is the payload.
+window.addEventListener('angular-ai:picked', (e) => {
+  chrome.runtime.sendMessage({ type: 'angular-ai:picked', descriptor: e.detail });
+});
+
+// Answer the panel's one replay request (routed here by the background) from the latch above, and
+// carry the panel's picker command into the page as the window event the overlay listens for. Every
+// other message type is still left to the rest of the extension, by returning false.
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (!msg || msg.type !== 'angular-ai:replay-request') return false;
-  sendResponse({ state: lastState, version: lastVersion });
-  return true;
+  if (!msg) return false;
+  if (msg.type === 'angular-ai:replay-request') {
+    sendResponse({ state: lastState, version: lastVersion });
+    return true;
+  }
+  if (msg.type === 'angular-ai:picker-command') {
+    // The command crosses the world boundary as a DOM event, never as a page object, and its action is
+    // carried verbatim: the background is what validates it by name before anything is forwarded.
+    window.dispatchEvent(new CustomEvent('angular-ai:picker-command', { detail: { action: msg.action } }));
+    // Answering lets the background tell "the relay carried it" from "no relay here".
+    sendResponse({ ok: true });
+    return true;
+  }
+  return false;
 });
 
 // AR-4: the tool's own DOM never drives this relay. The one exclusion rule lives in

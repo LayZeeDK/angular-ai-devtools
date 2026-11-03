@@ -3,9 +3,9 @@ id: T007
 title: Carry the picker command and its outcomes between the panel and the page
 wave: 2
 deps: [T004]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T007
+base: 5621cfb27523bb6c6bb085d54bb6a0e7e9c71c6b
 worktree: null
 task_branch: null
 files:
@@ -69,3 +69,4 @@ Heavy: no
 ## Log
 
 - 2026-11-03 — created by planner
+- coder: three runtime message types carry the picker; background validates the command's numeric tabId and its arm/cancel action, refuses by name when no tab is named or no relay answers, forwards with chrome.tabs.sendMessage and re-broadcasts picker-state and picked with the sender's tabId beside the four shipped types while host:* stays untouched; relay re-dispatches the command as CustomEvent angular-ai:picker-command with detail.action on window and keeps the replay answer unchanged for every other type, and two sibling window listeners forward the state spread and the picked descriptor member in the shipped shape without reading either; ExtensionMessageService gains pickerState and picked signals whose readers accept only armed/cancelled/unavailable and the three descriptor shapes, so silence stays null and no state is invented; Verify npm ci --include=dev and node --test extension/observer-filter.test.mjs extension/relay.test.mjs extension/manifest.test.mjs extension/background.test.mjs and npx nx run angular-ai-devtools:test --include=apps/angular-ai-devtools/src/app/extension-message.service.spec.ts exit 0, extension tests 62 pass 62 fail 0, panel spec 29 passed; plan note T009 needs a picker-command send path in ExtensionMessageService, whose file only T007 declares - ready
