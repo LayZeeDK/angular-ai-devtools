@@ -80,6 +80,21 @@ The fixture is `spikes/ng222-app` — Angular 22.2.2 behind a caret range, a cou
 ## Open questions
 
 None. The seven questions the codebase mapper raised are ruled in `## Corrections` below under the recorded grant.
+- **2026-11-03 — E1's evidence is a structural assertion on the fixture, plus the browser check for the
+  rendered page** (orchestrator ruling, delegated under the owner's standing grant `intent,plan,rulings,ship`;
+  granting instructions: "You have full program decision authority" and the AFK instruction "Do not block on a
+  human. Do not defer any decisions to a human. Your goal is to complete the program.").
+
+  The final review of M023 recorded SC1 `not-met` partly because `tests/held-out/fixture-harness-root-boundary.test.mjs`
+  read source text rather than a rendered tree. The suite now asserts that the projection point sits before the
+  probe's own list, and that exactly two projected blocks fall inside the probe roots while one falls outside. That
+  assertion reddens when the boundary moves, which is what E1 requires, but it does not render.
+
+  Ruling: the structural assertion is E1's held-out evidence; the rendered boundary is evidenced by the browser
+  check that drives the real page. Rendering the Angular fixture inside a root-level held-out test would need an SS
+  or TestBed harness the repository does not have, and adding one for a single edge costs more than the edge is
+  worth. This records the scope rather than leaving the criterion looking unproven.
+
 
 ## Corrections
 
