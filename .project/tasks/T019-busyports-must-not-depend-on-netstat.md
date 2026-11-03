@@ -3,10 +3,10 @@ id: T019
 title: busyPorts must not depend on netstat
 wave: 7
 deps: [T018]
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T019
+base: 840d11bdee5e908adb6ac9325fc116661a040ae1
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - .commandcode/skills/control-ai-browsers/scripts/control.mjs
@@ -79,3 +79,10 @@ npm ci --include=dev; node --test .commandcode/skills/control-ai-browsers/script
 ## Log
 
 - opened by orchestrator (the ship Verify fails on the same netstat blindness T018 found, one skill over)
+- replaced the netstat busy check in the four control.mjs with a bind probe: heldOnLoopback binds each port on 127.0.0.1 then ::1 (EADDRINUSE is busy, a bind that succeeds is closed at once and free), busyPorts(ports) probes them, and candidatePorts lists every port planPorts may look at
+- planPorts and portsCheck now read the busy map by presence, so busyness needs no PID: an unnamed holder refuses with 'held by a process the OS did not name'; netstat survives only as namedHolders/portOwner, which name a holder and never decide whether a port is busy
+- old probe on this host, test holding port 65193: busyPorts() returned keys [29678,135,2179,49665] (the host table only) and planPorts answered {ok:true,slot:0}, the control-pangular-inspector:118 failure; the new probe returned [65193] and planPorts refused, and after the release the probe returned [] and planPorts answered ok slot 0 again
+- the old rule fed the new probe map (port 65193 held, no PID) still answered ok slot 0: requiring a holder PID to decide busyness was the second half of the defect, and each suite now pins both halves with injected maps that carry no host data
+- suites: control-ai-browsers 52 pass, control-angular-dev-app 33, control-angular-devtools 33, control-pangular-inspector 32 (150 tests, 0 fail), and the same 150 pass from a temp worktree-shaped copy of the four skills
+- each .claude copy recopied from its .commandcode counterpart and compared with fc /b (all 8 files identical), skills-mirror.test.mjs 2 pass, tsc -p for both skills trees and both run-code configs clean, and the task Verify ran with exit code 0
+- ready
