@@ -3,9 +3,9 @@ id: T010
 title: Measure the page footprint with and without the overlay and gate the milestone at the head
 wave: 3
 deps: [T005, T008, T009]
-status: in-progress
-agent: null
-base: null
+status: done
+agent: build_T010
+base: 2c477277bc518b048fdad82e87392e219261fc48
 worktree: null
 task_branch: null
 files:
