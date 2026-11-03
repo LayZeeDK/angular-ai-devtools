@@ -1,0 +1,42 @@
+{
+  "milestone": "M022",
+  "task": "T003",
+  "driver": "spikes/probes/overlay-pick.js",
+  "instance": "edge-dev-aion",
+  "driverPorts": "The driver reads control-angular-dev-app's slot 0, the main checkout it is landed in: the insurance portal on 4200, the counter fixture on 4222, and the counter's production output served on 4280. A worktree derives other ports, so the gate serves all three pages from the main checkout.",
+  "gateReadings": ["toolElements"],
+  "gateReadingNote": "The page-DOM count is taken by the same driver for the wave gate's SC4 reading, as one count per page load and one after a reload; a page-side probe cannot re-run a content script inside the same document, so the same-document second injection stays with the jsdom pin in extension/overlay.test.mjs (E7). It is not a claim row because the milestone declares no verdict for SC4.",
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "The box tracks a picked element through scroll, zoom and a CSS transform, and the label names the element and its component.",
+      "ruling": "required",
+      "reason": "The charter's portal clause reaches this criterion, so the verdict is portal-backed: a portal route renders routed components with their own views and scrolling lists, so a picked element, the rect the overlay draws over it through scroll and zoom, and a label naming the element and its component are all producible on a real inspected page. The portal is also where verifying a claim about an installed tool on a production-shaped app is meaningful, and nothing in the criterion needs a production build or a fixture-only state, so the counter fixture is not the source page.",
+      "source": "insurance-portal",
+      "sourcePage": "http://localhost:4200/contract/list",
+      "route": "/contract/list",
+      "serve": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal",
+      "driver": "spikes/probes/overlay-pick.js",
+      "instance": "edge-dev-aion",
+      "readings": ["drawnRect"],
+      "verdictPath": ".project/build/verify/sc1-overlay-rect/verdict.json"
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "Picking an element resolves to its owning component in the panel, including an element inside a component's view rather than at its host.",
+      "ruling": "required",
+      "reason": "Required. The owning-component half is producible on a portal route, where a table cell inside the list component's view resolves to that component, but the criterion's named no-dev-context outcome is a page without a dev context, and the charter forbids changing insurance-portal source or its build configuration beyond a dev-only provider file, so the portal cannot be served as a production build and the charter's portal clause does not reach this criterion. The counter fixture is the page that produces both halves: its development build for the descriptor inside a component's view, and its production output for the no-dev-context outcome, so it is the source page and the verdict is cited from there.",
+      "source": "counter-fixture",
+      "sourcePage": "http://localhost:4222/",
+      "route": "/",
+      "serve": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter",
+      "productionPage": "http://localhost:4280/",
+      "productionBuild": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js build --configuration production",
+      "productionServe": "a static server over the emitted browser output on http://localhost:4280/",
+      "driver": "spikes/probes/overlay-pick.js",
+      "instance": "edge-dev-aion",
+      "readings": ["descriptor", "noDevContext"],
+      "verdictPath": ".project/build/verify/sc2-picker-descriptor/verdict.json"
+    }
+  ]
+}
