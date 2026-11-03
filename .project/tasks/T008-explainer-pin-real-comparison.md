@@ -41,7 +41,8 @@ None
 
 ## Intent coverage
 
-- SC3
+- SC3 — the fixture builds and serves, and the four shipped explainers still answer on it.
+- N2 — a shipped explainer's question, answer or selector is unchanged.
 
 ## Acceptance criteria
 

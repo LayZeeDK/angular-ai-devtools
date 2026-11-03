@@ -45,7 +45,7 @@ None
 
 ## Intent coverage
 
-- SC4
+- SC4 — `npm run check` and `npm test` pass at the head.
 
 ## Acceptance criteria
 
