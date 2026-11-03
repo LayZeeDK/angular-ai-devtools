@@ -3,10 +3,10 @@ id: T009
 title: Harness family proofs
 wave: 3
 deps: [T002]
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T009
+base: de2912dc3d5e35c82cec4cdfb71fcab76ff255b7
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - tests/held-out/fixture-harness-root-boundary.test.mjs
