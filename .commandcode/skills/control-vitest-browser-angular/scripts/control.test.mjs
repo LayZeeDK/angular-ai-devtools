@@ -65,6 +65,25 @@ async function freePort() {
 }
 
 /**
+ * The busy map `planPorts` reads, built from listeners this test holds: those ports really are busy, and the only
+ * process that can hold them is this one. `planPorts` takes the map as an argument, so a test that read it from
+ * `busyPorts` instead would assert on netstat's view of the machine rather than on the code, and netstat reports
+ * nothing for a listener in another network namespace.
+ * @param {number[]} ports
+ * @returns {Map<number, number[]>}
+ */
+function heldBy(ports) {
+  /** @type {Map<number, number[]>} */
+  const busy = new Map();
+
+  for (const port of ports) {
+    busy.set(port, [process.pid]);
+  }
+
+  return busy;
+}
+
+/**
  * @param {import('node:test').TestContext} t
  * @returns {string}
  */
@@ -149,17 +168,30 @@ test('isWorktree tells a .git file from a .git folder, from below the top too', 
   assert.equal(isWorktree(join(worktree, 'sub')), true);
 });
 
-test('slotOf keeps slot 0 for a main checkout and hashes a worktree to a stable slot in 1-99', () => {
-  assert.equal(slotOf('D:\\any', false), 0);
-  const slot = slotOf('D:\\wt\\spikes\\ng222-app', true);
-  assert.ok(slot >= 1 && slot <= 99, `slot ${slot}`);
-  assert.equal(slotOf('d:\\WT\\spikes\\ng222-app', true), slot, 'the hash ignores letter case');
-  assert.notEqual(slotOf('D:\\other\\spikes\\ng222-app', true), slot);
+test('slotOf keeps slot 0 for a main checkout and derives a worktree slot in 1-99 from the path', (t) => {
+  const root = tempDir(t);
+  const dir = join(root, 'sidecar-0', 'spikes', 'ng222-app');
+  const worktrees = [dir, ...Array.from({ length: 7 }, (_, i) => join(root, `sidecar-${i + 1}`, 'spikes', 'ng222-app'))];
+
+  assert.equal(slotOf(dir, false), 0, 'a main checkout is slot 0, whatever its path');
+  const slot = slotOf(dir, true);
+  assert.ok(Number.isInteger(slot) && slot >= 1 && slot <= 99, `a worktree path gives a slot in 1-99, not ${slot}`);
+  assert.equal(slotOf(dir, true), slot, 'the same path gives the same slot on every call');
+  assert.equal(slotOf(dir.toUpperCase(), true), slot, 'the hash ignores letter case');
+  const slots = new Set(worktrees.map((wt) => slotOf(wt, true)));
+  assert.ok(slots.size > 1, `the slot comes from the path, so different paths land apart: ${[...slots].join(', ')}`);
+  assert.ok([...slots].every((s) => s >= 1 && s <= 99), `every worktree slot is in 1-99: ${[...slots].join(', ')}`);
 });
 
 test('slotOrder tries 10 slots and from a worktree wraps within 1-99, never onto slot 0', () => {
   assert.deepEqual(slotOrder(0), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   assert.deepEqual(slotOrder(97), [97, 98, 99, 1, 2, 3, 4, 5, 6, 7]);
+
+  for (let first = 1; first < 100; first++) {
+    const slots = slotOrder(first);
+    assert.equal(new Set(slots).size, 10, `slot ${first} tries 10 different slots`);
+    assert.ok(slots.every((s) => s >= 1 && s <= 99), `slot ${first} keeps its 10 tries in 1-99: ${slots.join(', ')}`);
+  }
 });
 
 test('portRows keeps the Vitest and bundled CDP ports of every slot apart, and off the main checkout ports', () => {
@@ -187,7 +219,7 @@ test('planPorts falls back to the next slot when a throwaway listener holds one 
     { name: 'vitest', kind: 'derived', at: (slot) => (slot === 0 ? Number(free[0]) : Number(free[1])) },
     { name: 'bundled-cdp', kind: 'derived', at: (slot) => (slot === 0 ? held : Number(free[2])) },
   ];
-  assert.deepEqual(planPorts(rows, [0, 1], busyPorts()), {
+  assert.deepEqual(planPorts(rows, [0, 1], heldBy([held])), {
     ok: true,
     slot: 1,
     ports: [
@@ -201,7 +233,7 @@ test('planPorts refuses after 10 busy slots and names each port and its holder',
   const held = await Promise.all(Array.from({ length: 10 }, () => listen(t)));
   /** @type {import('./control.mjs').PortRow[]} */
   const rows = [{ name: 'vitest', kind: 'derived', at: (slot) => Number(held[slot - 1]) }];
-  const plan = planPorts(rows, slotOrder(1), busyPorts());
+  const plan = planPorts(rows, slotOrder(1), heldBy(held));
   assert.equal(plan.ok, false);
   assert.match(plan.ok ? '' : plan.reason, /^no free slot in 10 tries \(slots 1, 2, 3, 4, 5, 6, 7, 8, 9, 10\): /);
 
@@ -218,7 +250,7 @@ test('planPorts keeps a free --port in every slot while the bundled CDP port fal
     { name: 'vitest', kind: 'derived', at: () => 1 },
     { name: 'bundled-cdp', kind: 'derived', at: (slot) => (slot === 0 ? held : cdp1) },
   ];
-  assert.deepEqual(planPorts(rows, [0, 1], busyPorts(), forced), {
+  assert.deepEqual(planPorts(rows, [0, 1], heldBy([held]), forced), {
     ok: true,
     slot: 1,
     ports: [
@@ -233,7 +265,7 @@ test('planPorts refuses a busy --port with its holder and never falls back from 
   const free = await freePort();
   /** @type {import('./control.mjs').PortRow[]} */
   const rows = [{ name: 'vitest', kind: 'derived', at: () => free }];
-  assert.deepEqual(planPorts(rows, [0, 1], busyPorts(), held), { ok: false, reason: `port ${held} (--port) is held by PID ${process.pid}; --port has no fallback` });
+  assert.deepEqual(planPorts(rows, [0, 1], heldBy([held]), held), { ok: false, reason: `port ${held} (--port) is held by PID ${process.pid}; --port has no fallback` });
 });
 
 test('planPorts refuses a busy fixed port with its holder and pin', async (t) => {
@@ -244,7 +276,7 @@ test('planPorts refuses a busy fixed port with its holder and pin', async (t) =>
     { name: 'vitest', kind: 'derived', at: () => free },
     { name: 'pinned', kind: 'fixed', port: held, pin: 'src/x.ts:1' },
   ];
-  assert.deepEqual(planPorts(rows, [0, 1], busyPorts()), { ok: false, reason: `fixed port pinned ${held} held by PID ${process.pid}; pinned by src/x.ts:1` });
+  assert.deepEqual(planPorts(rows, [0, 1], heldBy([held])), { ok: false, reason: `fixed port pinned ${held} held by PID ${process.pid}; pinned by src/x.ts:1` });
 });
 
 test('takenPort finds a derived port a process outside the tree holds, and ignores external and own ones', () => {
@@ -282,9 +314,27 @@ test('listeners maps each LISTENING port to its PID, IPv4 or IPv6, and nothing e
   assert.deepEqual([...listeners(text)], [[15131, [7]], [51315, [4242]]]);
 });
 
-test('busyPorts sees a throwaway listener with this process as its holder', async (t) => {
-  const port = await listen(t);
-  assert.deepEqual(busyPorts().get(port), [process.pid]);
+test('busyPorts names the holder it observes for a listener of its own, and reports nothing for a free port', async (t) => {
+  const held = await listen(t);
+  const freed = await freePort();
+  const busy = busyPorts();
+
+  assert.equal(busy.has(freed), false, `nothing listens on ${freed} any more`);
+
+  for (const [port, pids] of busy) {
+    assert.ok(Number.isInteger(port) && port > 0 && port < 65536, `port ${port}`);
+    assert.ok(pids.length > 0 && pids.every((pid) => Number.isInteger(pid) && pid >= 0), `the holders of ${port}: ${pids}`);
+  }
+
+  const holders = busy.get(held);
+
+  // netstat reports the host's namespace, which need not hold a listener this process holds; where it is reported
+  // the holder can only be this test process. The freed port above is the half that holds in every environment.
+  if (holders === undefined) {
+    t.diagnostic(`netstat does not report ${held}, a listener this process holds: this environment hides it`);
+  } else {
+    assert.deepEqual(holders, [process.pid], `${held} is held by this test process and nothing else`);
+  }
 });
 
 test('playwrightCliJs takes the script beside the first absolute shim folder and skips relative PATH entries', (t) => {

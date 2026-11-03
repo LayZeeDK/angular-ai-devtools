@@ -3,10 +3,10 @@ id: T018
 title: Derive the browser slot instead of pinning it
 wave: 6
 deps: [T013]
-status: in-progress
+status: done
 agent: build_T018
-base: 51cb53655050cdf03c7574910f5b1c5b23fcb34c
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 0bb14de03244cfbebf72146e78b121cf2e026d8a
+worktree: null
 task_branch: null
 files:
   - .commandcode/skills/control-vitest-browser-angular/scripts/control.test.mjs
