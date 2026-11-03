@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: optin-companion
-phase: shipped
+milestone: in-page-overlay
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M021
+branch: gsd-path/M022
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/021-optin-companion
+archive: null
 integration_default: direct
 integration: direct
 integration_source: default
@@ -408,3 +408,15 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-02 — build — build started
 - 2026-11-03 — ship — build done; final review pending
 - 2026-11-03 — shipped — archive preflight passed; shipment recorded
+- 2026-11-03 — inspect — router bound next milestone: M022 in-page-overlay at base 867f563 landing 867f563
+- 2026-11-03 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-03 — inspect — inspection complete; 143 docs re-audited (755 claims, 126 queue rows), codebase mapped (16 findings)
+- 2026-11-03 — define — definition started
+- 2026-11-03 — define — pre-authorized approval: intent
+- 2026-11-03 — define — milestone intent approved
+- 2026-11-03 — research — research started
+- 2026-11-03 — research — research complete; 2 dimensions dispatched, 1 question answered
+- 2026-11-03 — decide — decision synthesis started
+- 2026-11-03 — decide — decision synthesis complete; 8 settled decisions, 3 still unknown
+- 2026-11-03 — plan — planning started
+- 2026-11-03 — plan — plan approved
