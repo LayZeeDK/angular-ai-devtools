@@ -12,6 +12,7 @@ const MANIFEST = JSON.parse(readFileSync(join(EXTENSION_DIR, "manifest.json"), "
 const FILTER = "observer-filter.js";
 const RELAY = "relay.js";
 const AGENT_MAIN = "agent-main.js";
+const OVERLAY = "overlay.js";
 
 /** Every file the manifest names, whichever declaration names it. */
 function namedFiles(manifest) {
@@ -52,6 +53,31 @@ describe("extension/manifest.json", () => {
     const agentDeclaration = declarationFor(AGENT_MAIN);
     assert.equal(agentDeclaration.run_at, "document_idle", "the agent keeps its shipped run_at");
     assert.equal(agentDeclaration.world, "MAIN", "the agent is the MAIN-world declaration");
+  });
+
+  it("runs the overlay host at document_start, in the default world, after the shared filter", () => {
+    const overlayDeclaration = declarationFor(OVERLAY);
+    assert.equal(overlayDeclaration.js[0], FILTER, "the overlay calls the shared predicate, so the filter is listed first");
+    assert.ok(
+      overlayDeclaration.js.indexOf(FILTER) < overlayDeclaration.js.indexOf(OVERLAY),
+      "the filter must be declared before the script that calls it"
+    );
+    assert.equal(overlayDeclaration.run_at, "document_start", "the host must exist before the page's own scripts run");
+    assert.ok(!("world" in overlayDeclaration), "no world key: the overlay is the default ISOLATED-world script (AR-2)");
+    assert.deepEqual(overlayDeclaration.matches, ["<all_urls>"], "the overlay matches the pages the other declarations match");
+  });
+
+  it("declares each content-script unit exactly once, and the shared filter in both declarations that use it", () => {
+    const declarations = MANIFEST.content_scripts || [];
+    for (const unit of [RELAY, AGENT_MAIN, OVERLAY]) {
+      const count = declarations.filter((declaration) => (declaration.js || []).includes(unit)).length;
+      assert.equal(count, 1, `${unit} must be named by exactly one declaration, or it runs twice in a page`);
+    }
+    const withFilter = declarations.filter((declaration) => (declaration.js || []).includes(FILTER));
+    assert.equal(withFilter.length, 2, "both isolated-world declarations call the predicate, so both load the filter");
+    for (const declaration of withFilter) {
+      assert.equal(declaration.js[0], FILTER, "and in each of them the filter is listed before the script that calls it");
+    }
   });
 
   it("sets neither all_frames nor match_about_blank anywhere", () => {

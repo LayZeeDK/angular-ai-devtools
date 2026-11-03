@@ -26,6 +26,11 @@
       "js": ["agent-main.js"],
       "run_at": "document_idle",
       "world": "MAIN"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["observer-filter.js", "overlay.js"],
+      "run_at": "document_start"
     }
   ],
   "devtools_page": "devtools.html",

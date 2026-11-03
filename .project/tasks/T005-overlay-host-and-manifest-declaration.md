@@ -3,9 +3,9 @@ id: T005
 title: Attach the one closed-shadow host once at document_start through a new manifest declaration
 wave: 2
 deps: [T004]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T005
+base: 96fbf616c0e1ddd2b4dbd57762fd9715d2837feb
 worktree: null
 task_branch: null
 files:
@@ -67,3 +67,50 @@ Heavy: no
 ## Log
 
 - 2026-11-03 — created by planner
+- coder: overlay.js attaches the one host (id angular-ai-devtools-host, closed shadow root, position fixed and pointer-events none, on the document element) behind a first-statement guard that makes a re-injection a no-op, refuses by name when observer-filter.js is absent rather than dropping the exclusion silently, and registers one observer on document.documentElement with childList/subtree whose callback passes every record through the shared predicate first; manifest.json gains the third declaration (observer-filter.js before overlay.js, document_start, no world, no all_frames, no match_about_blank) and manifest.test.mjs pins it per declaration without rewriting its existing assertions; overlay.test.mjs pins the AR-3 count (one tool-created element and the retired marker id null, after both content scripts boot and after a second injection), E7 (a re-injection creates no host, root, observer, listener or node and does not throw), the corrected SC3 shape on the host's light tree with the raw pre-filter list and the host's own insertion record absent from the passed list, and proves both bites by booting the module with the predicate call deleted (host half reddens) and with observe() deleted (page half reddens); source pins cover one attachShadow( call site with mode closed, no innerHTML, no document.body, no @angular/LanguageModel/setPrompt, no storage/alert/confirm/prompt/eval/new Function, the host id spelled once in the overlay and once in the filter with the relay carrying no second copy (decision 7 names relay.js, but T004 moved the id into the filter and the relay resolves it through the published namespace), and the only inline style writes being the host's position and pointer-events; Verify npm ci --include=dev and node --test extension/observer-filter.test.mjs extension/relay.test.mjs extension/manifest.test.mjs extension/overlay.test.mjs exit 0, tests 45 pass 45 fail 0 - ready
+- 2026-11-03 — orchestrator Verify (sidecar gsd-path-verify/task-t005-verify): pass, exit 0; output tail:
+  ```
+    ✔ creates no element at all, so the retired marker id never reappears (1.2498ms)
+  ✔ relay.js observer (AR-4 / SC3) (9.4611ms)
+  ℹ tests 45
+  ℹ suites 10
+  ℹ pass 45
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 1418.8964
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```
+- 2026-11-03 — orchestrator regression Verify of T004 (sidecar gsd-path-verify/task-t005-verify): pass, exit 0; output tail:
+  ```
+    ✔ creates no element at all, so the retired marker id never reappears (1.1268ms)
+  ✔ relay.js observer (AR-4 / SC3) (6.4038ms)
+  ℹ tests 32
+  ℹ suites 7
+  ℹ pass 32
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 965.4227
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```
