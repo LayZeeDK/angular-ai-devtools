@@ -37,7 +37,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   return true;
 });
 
-// Detect Angular and inject marker
+// AR-4: the tool's own DOM never drives this relay. The one exclusion rule lives in
+// observer-filter.js, which this content script's declaration loads first in the same isolated
+// world; a missing filter drops nothing rather than throwing into a page we are inspecting.
+function isToolRecord(record) {
+  const filter = globalThis.angularAiObserverFilter;
+  return filter ? filter.isToolRecord(record) : false;
+}
+
+// Detect Angular and latch its version
 function checkAngular() {
   const el = document.querySelector('[ng-version]');
   if (el) {
@@ -46,12 +54,6 @@ function checkAngular() {
       const version = el.getAttribute('ng-version') || 'unknown';
       // Latch the version this relay announced, so the panel can gate and display it later.
       lastVersion = version;
-      // Inject marker
-      const marker = document.createElement('div');
-      marker.id = 'angular-ai-devtools-marker';
-      marker.textContent = 'Angular ' + version + ' detected';
-      marker.style.cssText = 'position:fixed;top:0;right:0;background:#4caf50;color:#fff;padding:4px 8px;font-size:12px;z-index:999999;';
-      document.body.appendChild(marker);
       console.log('[Angular AI DevTools] Angular detected, version:', version);
       // Notify the background (which relays to the devtools panel)
       chrome.runtime.sendMessage({ type: 'angular-detected', version });
@@ -64,7 +66,10 @@ function checkAngular() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     if (!checkAngular()) {
-      const observer = new MutationObserver(() => {
+      const observer = new MutationObserver((records) => {
+        // The shared predicate runs first, before the [ng-version] probe: a batch of records that
+        // the tool itself caused never drives detection.
+        if (records.filter((record) => !isToolRecord(record)).length === 0) return;
         if (checkAngular()) observer.disconnect();
       });
       observer.observe(document.documentElement, { childList: true, subtree: true });
@@ -72,7 +77,10 @@ if (document.readyState === 'loading') {
   });
 } else {
   if (!checkAngular()) {
-    const observer = new MutationObserver(() => {
+    const observer = new MutationObserver((records) => {
+      // The shared predicate runs first, before the [ng-version] probe: a batch of records that
+      // the tool itself caused never drives detection.
+      if (records.filter((record) => !isToolRecord(record)).length === 0) return;
       if (checkAngular()) observer.disconnect();
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });

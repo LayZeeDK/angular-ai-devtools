@@ -3,9 +3,9 @@ id: T004
 title: Publish the one observer exclusion predicate, filter the relay's two observers and retire the marker node
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T004
+base: 2b986a2d690f5a561c10860bd409e44fa3a1bd50
 worktree: null
 task_branch: null
 files:
@@ -67,3 +67,27 @@ Heavy: no
 ## Log
 
 - 2026-11-03 — created by planner
+- coder: observer-filter.js publishes the one exclusion predicate in the isolated world, host looked up at call time and target plus added/removed nodes, and both relay branches call it before the [ng-version] probe while observe targets, options and disconnect keep their shipped values; the marker node is retired, no element created and no body append, version latch and angular-detected unchanged; relay.test.mjs boots the shipped filter first and its stub records target, options and callback so a deleted filter call reddens its branch and a deleted observe call reddens the registration pin; observer-filter.test.mjs measures jsdom delivery, page record passes while host insertion and host light-tree record arrive raw and are dropped and nothing crosses a shadow boundary, and a target-only rule is refused; manifest.json lists the filter first and manifest.test.mjs is its first pin; Verify npm ci --include=dev and node --test extension/observer-filter.test.mjs extension/relay.test.mjs extension/manifest.test.mjs exit 0, tests 30 pass 30 fail 0 - ready
+- 2026-11-03 — orchestrator Verify (sidecar gsd-path-verify/task-t004-verify): pass, exit 0; output tail:
+  ```
+    ✔ creates no element at all, so the retired marker id never reappears (1.33ms)
+  ✔ relay.js observer (AR-4 / SC3) (7.5235ms)
+  ℹ tests 30
+  ℹ suites 7
+  ℹ pass 30
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 1058.1776
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```
