@@ -4,9 +4,11 @@
 //
 // The one change each case applies, named so the Log can quote it:
 //   - removing one rule's attribute from the parsed tag (E4's mutant, one per attribute-reading rule)
-//   - `@for (item of [...listboxItems].reverse(); track item)` in
-//     `spikes/ng222-app/src/app/components/aria-surfaces.ts` — applied here in memory, to the real
-//     template text, against the scope the component binds (E5's rendered-order mutant)
+//   - `aria-controls="components-listbox"` on the `ngMenuTrigger` in
+//     `spikes/ng222-app/src/app/components/aria-surfaces.ts` — the listbox's id where the menu's panel id
+//     belongs, so the trigger names an element that exists but is not the element it controls
+//   - `@for (item of [...listboxItems].reverse(); track item)` in the same file — applied here in memory,
+//     to the real template text, against the scope the component binds (E5's rendered-order mutant)
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -23,7 +25,9 @@ const SUITE = 'fixture-aria-rule-mutation.test.mjs';
 const SURFACE_FILE = 'spikes/ng222-app/src/app/components/aria-surfaces.ts';
 const ITEMS_FILE = 'spikes/ng222-app/src/app/components/aria-items.ts';
 const ORDER_RULE = 'listbox-option-order';
+const CONTROLS_RULE = 'menu-trigger-controls';
 const LISTBOX_MUTANT = '@for (item of [...listboxItems].reverse(); track item)';
+const CONTROLS_MUTANT = 'aria-controls="components-listbox" on the ngMenuTrigger';
 
 function readFixture() {
   return {
@@ -167,6 +171,95 @@ test('a wrong accessible name reddens the accessible-name rule', () => {
       verdict.pass,
       false,
       `${SUITE}: mutant (aria-label="Wrong name" in ${SURFACE_FILE}) — ${id} should fail on a wrong accessible name: ${verdict.detail}`,
+    );
+  }
+});
+
+test('pointing the trigger at the listbox reddens the controls rule', () => {
+  const fixture = readFixture();
+
+  // Control: the mutant below only means something against a trigger whose controls the rule accepts.
+  const control = verdictsFor(fixture).find((v) => v.id === CONTROLS_RULE);
+  assert.ok(
+    control,
+    `${SUITE}: aria-rules.mjs declares no ${CONTROLS_RULE} rule, so nothing reads the ngMenuTrigger's aria-controls in ${SURFACE_FILE}`,
+  );
+  assert.equal(
+    control.pass,
+    true,
+    `${SUITE}: ${CONTROLS_RULE} already fails on the unmutated ${SURFACE_FILE} (${control.detail}), so this suite cannot tell the ` +
+      `mutant (${CONTROLS_MUTANT}) from the fixture as it stands`,
+  );
+
+  // The id the mutant points at must exist elsewhere in the same file, or "it exists" would be all the mutant shows.
+  assert.match(
+    fixture.surfaceSrc,
+    /id="components-listbox"/,
+    `${SUITE}: ${SURFACE_FILE} no longer gives its listbox id="components-listbox", so the mutant (${CONTROLS_MUTANT}) proves nothing`,
+  );
+
+  const triggerTag = fixture.surfaceSrc.match(/<[^>]*ngMenuTrigger[^>]*>/);
+  assert.ok(
+    triggerTag,
+    `${SUITE}: ${SURFACE_FILE} has no tag carrying ngMenuTrigger, so the mutant (${CONTROLS_MUTANT}) has nothing to retarget`,
+  );
+  const originalTag = triggerTag[0];
+  const mutatedTag = originalTag.replace(/aria-controls="[^"]*"/, 'aria-controls="components-listbox"');
+  assert.notEqual(
+    mutatedTag,
+    originalTag,
+    `${SUITE}: mutant (${CONTROLS_MUTANT} in ${SURFACE_FILE}) did not change the trigger tag, so ${CONTROLS_RULE} was never exercised`,
+  );
+  const mutatedSrc = fixture.surfaceSrc.replace(originalTag, () => mutatedTag);
+  assert.notEqual(
+    mutatedSrc,
+    fixture.surfaceSrc,
+    `${SUITE}: mutant (${CONTROLS_MUTANT} in ${SURFACE_FILE}) was not applied to the component source`,
+  );
+
+  const verdicts = verdictsFor({ ...fixture, surfaceSrc: mutatedSrc });
+  const target = verdicts.find((v) => v.id === CONTROLS_RULE);
+  assert.ok(target, `${SUITE}: aria-rules.mjs no longer declares ${CONTROLS_RULE}, which ${SURFACE_FILE} is mutated for`);
+  assert.equal(
+    target.pass,
+    false,
+    `${SUITE}: mutant (${CONTROLS_MUTANT} in ${SURFACE_FILE}) — ${CONTROLS_RULE} should redden when the trigger's aria-controls ` +
+      `names the listbox instead of the menu it controls, but it passed: ${target.detail}`,
+  );
+
+  // The verdict has to name the id it resolved and the id it should have resolved, read from the surface itself.
+  const panelTag = fixture.surfaceSrc.match(/<[^>]*\sngMenu(?=[\s#>])[^>]*>/);
+  assert.ok(
+    panelTag,
+    `${SUITE}: ${SURFACE_FILE} has no tag carrying ngMenu, so the element the mutant (${CONTROLS_MUTANT}) should have named cannot be read`,
+  );
+  const expectedId = panelTag[0].match(/\sid="([^"]+)"/)?.[1];
+  assert.ok(
+    expectedId,
+    `${SUITE}: the ngMenu tag in ${SURFACE_FILE} carries no id="...", so the id the mutant (${CONTROLS_MUTANT}) should have resolved to is unknown`,
+  );
+  for (const id of ['components-listbox', expectedId]) {
+    assert.ok(
+      target.detail.includes(id),
+      `${SUITE}: mutant (${CONTROLS_MUTANT} in ${SURFACE_FILE}) — ${CONTROLS_RULE}'s failure must name ${id}, but its detail was: ${target.detail}`,
+    );
+  }
+
+  for (const v of verdicts) {
+    if (v.id === CONTROLS_RULE) continue;
+    assert.equal(
+      v.pass,
+      true,
+      `${SUITE}: mutant (${CONTROLS_MUTANT} in ${SURFACE_FILE}) should redden only ${CONTROLS_RULE}, but ${v.id} also failed: ${v.detail}`,
+    );
+  }
+
+  // Restoring the trigger: the unmutated fixture is green on every rule again.
+  for (const v of verdictsFor(readFixture())) {
+    assert.equal(
+      v.pass,
+      true,
+      `${SUITE}: after restoring the ngMenuTrigger's aria-controls in ${SURFACE_FILE}, ${v.id} should pass again: ${v.detail}`,
     );
   }
 });

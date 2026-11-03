@@ -9,6 +9,9 @@
 // The order rule must redden for this mutant, applied to `spikes/ng222-app/src/app/components/aria-surfaces.ts`:
 //   - `@for (item of [...listboxItems].reverse(); track item)` — the listbox's rendered order reversed,
 //     which leaves the declared `listboxItems` array in `aria-items.ts` untouched.
+// The controls rule must redden for this one, applied to the same file:
+//   - `aria-controls="components-listbox"` on the `ngMenuTrigger` — an id the file really contains, but the
+//     listbox's, not the menu panel's the trigger controls.
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
 
@@ -257,6 +260,28 @@ function renderedListboxOptions(surface) {
   return host ? [...host.querySelectorAll('[ngoption]')] : [];
 }
 
+/** Escape a template reference name so it can be matched literally inside a RegExp. */
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * The element a `ngMenuTrigger` controls, read off the surface rather than off a flat list of ids: the
+ * trigger's `[menu]` binding names the template reference its menu panel declares as `#ref`, and that
+ * panel's own `id` attribute is the only id the trigger's `aria-controls` may carry. An id that merely
+ * appears somewhere else in the same file is a different element, not the one this trigger controls.
+ */
+function controlledMenu(elements) {
+  const trigger = elements.find((e) => e.raw.includes('ngMenuTrigger'));
+  if (!trigger) return { trigger: null, ref: null, id: null };
+  const binding = /\[menu\]\s*=\s*"([^"]*)"/.exec(trigger.raw);
+  const ref = binding ? binding[1].trim() : null;
+  const refPattern = ref ? new RegExp(`#${escapeRegExp(ref)}(?![\\w-])`) : null;
+  const panel = refPattern ? elements.find((e) => refPattern.test(e.raw)) : undefined;
+  const id = panel && typeof panel.attrs.id === 'string' ? panel.attrs.id : null;
+  return { trigger, ref, id };
+}
+
 export const ariaRules = [
   {
     id: 'listbox-accessible-name',
@@ -294,15 +319,42 @@ export const ariaRules = [
     },
   },
   {
+    // `aria-controls` has to name the element this trigger controls — the panel its `[menu]` binding
+    // references — not any id the surface file happens to contain (the listbox's id passes no longer).
     id: 'menu-trigger-controls',
     surface: 'menu',
     attribute: 'aria-controls',
     evaluate(surface) {
-      const el = surface.elements.find((e) => e.raw.includes('ngMenuTrigger'));
-      const ctrl = el && el.attrs['aria-controls'];
-      const ids = surface.elements.map((e) => e.attrs.id).filter(Boolean);
-      const ok = !!ctrl && ids.includes(ctrl);
-      return { pass: !!ok, detail: ok ? `aria-controls="${ctrl}" resolves` : 'missing or unresolved aria-controls' };
+      const { trigger, ref, id: expectedId } = controlledMenu(surface.elements);
+      if (!trigger) {
+        return { pass: false, detail: 'missing the ngMenuTrigger itself, so there is no aria-controls to resolve to a menu' };
+      }
+      if (!ref) {
+        return {
+          pass: false,
+          detail: 'the ngMenuTrigger declares no [menu]="..." binding, so the element it controls cannot be resolved',
+        };
+      }
+      if (!expectedId) {
+        return {
+          pass: false,
+          detail: `the trigger's [menu]="${ref}" names no #${ref} panel carrying an id, so the element it controls cannot be resolved`,
+        };
+      }
+      const ctrl = typeof trigger.attrs['aria-controls'] === 'string' ? trigger.attrs['aria-controls'] : null;
+      if (!ctrl) {
+        return {
+          pass: false,
+          detail: `missing aria-controls; the trigger's [menu]="${ref}" controls the panel id="${expectedId}", so aria-controls must be "${expectedId}"`,
+        };
+      }
+      const ok = ctrl === expectedId;
+      return {
+        pass: ok,
+        detail: ok
+          ? `aria-controls="${ctrl}" is the id of the #${ref} panel the trigger's [menu]="${ref}" controls`
+          : `aria-controls="${ctrl}" is not the menu this trigger controls: expected "${expectedId}" (the id of its #${ref} panel), got "${ctrl}"`,
+      };
     },
   },
   {
