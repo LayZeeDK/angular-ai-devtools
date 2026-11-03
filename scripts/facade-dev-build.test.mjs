@@ -76,10 +76,13 @@ const PEER_SPECIFIERS = ['@angular/router', '@angular/platform-browser'];
 /** The fixture's declared @angular packages at the base, frozen: the resolution may not be bought
  * with a new dependency (AC5). */
 const FIXTURE_ANGULAR_DEPENDENCIES = [
+  '@angular/aria',
+  '@angular/cdk',
   '@angular/common',
   '@angular/compiler',
   '@angular/core',
   '@angular/forms',
+  '@angular/material',
   '@angular/platform-browser',
   '@angular/router',
 ];
