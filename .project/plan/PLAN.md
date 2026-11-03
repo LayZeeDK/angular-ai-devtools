@@ -88,6 +88,7 @@ Review depth: full
 | SC2 | T015 | AC1 |
 | SC3 | T016 | AC1 |
 | SC3 | T017 | AC1 |
+| SC4 | T018 | AC1 |
 
 ## Held-out checks
 
@@ -194,5 +195,16 @@ that today leaves its check green.
 | T015 | `menu-trigger-controls` resolving to any id rather than its element |
 | T016 | the second rebuild cycle, which is never served and measures its install set against itself |
 | T017 | the explainers, never asked a question |
+
+Review depth: full
+
+## Wave 6 — the gate's own test
+
+Goal: the project Verify must pass from a worktree, not only from the primary checkout. The ship gate at
+`f1115f6` failed on a control-skill test that pins a hashed slot value.
+
+| Task | Repairs |
+|---|---|
+| T018 | `slotOf` and `busyPorts` expectations derived rather than pinned |
 
 Review depth: full
