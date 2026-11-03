@@ -10,6 +10,7 @@ worktree: null
 task_branch: null
 files:
   - scripts/overlay-verdict-claims.test.mjs
+  - research/raw/m023-verdict-claims.json
 ---
 
 # T012 — Verdict claims follow the milestone
@@ -51,3 +52,17 @@ npm ci --include=dev; node --test scripts/overlay-verdict-claims.test.mjs
 ## Log
 
 - opened by orchestrator (final review blocked: the suite could not fail)
+- T012 blocked: current intent M023 fixture-components has no verdict-claims recording (research/raw/m023-verdict-claims.json absent); suite now resolves milestone/criteria from current intent and fails on unresolved/missing claims; mutant proof text: "SC99 is not a criterion ...INTENT.md declares (resolved milestone M023)"
+- T012 blocked: current intent M023 has no verdict-claims recording; suite resolves milestone/criteria from current intent; mutant fail text: SC99 is not a criterion INTENT.md declares (resolved milestone M023)
+
+## Attempt 2 — why attempt 1 blocked
+
+Attempt 1 made the suite resolve M023 correctly, then failed 7 of 10 tests because **M023 has no
+`research/raw/m023-verdict-claims.json`**. That failure is the correct behaviour under *fail, never skip*:
+a milestone with recorded verdict claims and no recording is exactly what the suite exists to catch. The
+contract was therefore incomplete, not the code.
+
+This attempt also produces the recording. It is derived data: one entry per criterion the milestone's wave
+reviews recorded a verdict for, naming the criterion, the wave review file and the verdict. It is produced
+from `.project/review/wave-*.cycle*.md`, not written by hand from memory.
+
