@@ -39,10 +39,10 @@ the suite green — which is precisely what INTENT N2 forbids and what SC3 exist
 
 None
 
+
 ## Intent coverage
 
-- SC3 — the fixture builds and serves, and the four shipped explainers still answer on it.
-- N2 — a shipped explainer's question, answer or selector is unchanged.
+- SC3
 
 ## Acceptance criteria
 

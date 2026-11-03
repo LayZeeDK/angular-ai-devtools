@@ -1,7 +1,7 @@
 ---
 id: T011
 title: Rebuild idempotency, for real
-wave: 4
+wave: 3
 deps: [T005]
 status: pending
 agent: null
@@ -30,10 +30,10 @@ cycle serves against the first, and never asserts that no duplicate component-pa
 
 None
 
+
 ## Intent coverage
 
-- SC3 — the fixture builds and serves, and the four shipped explainers still answer on it.
-- E7 — a second build and serve cycle leaves the same entry served and adds no duplicate component-package install.
+- SC3
 
 ## Acceptance criteria
 

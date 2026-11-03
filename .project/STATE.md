@@ -5,7 +5,7 @@ milestone: fixture-components
 phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M023
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -434,3 +434,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-03 — ship — build done; final review pending
 - 2026-11-03 — ship — blocked
 - 2026-11-03 — plan — patch plan reopened
+- 2026-11-03 — plan — plan approved

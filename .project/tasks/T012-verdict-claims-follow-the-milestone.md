@@ -1,7 +1,7 @@
 ---
 id: T012
 title: Verdict claims follow the milestone
-wave: 4
+wave: 3
 deps: [T006]
 status: pending
 agent: null
@@ -31,9 +31,10 @@ do with M022 any more.
 
 None
 
+
 ## Intent coverage
 
-- SC4 — the gate aggregates and passes at the head, without a test pinned to a finished milestone.
+- SC4
 
 ## Acceptance criteria
 

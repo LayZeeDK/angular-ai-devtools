@@ -76,6 +76,13 @@ Review depth: full
 | SC4 | T005 | AC2 |
 | SC4 | T005 | AC4 |
 | SC4 | T005 | AC5 |
+| SC4 | T006 | AC1 |
+| SC4 | T007 | AC1 |
+| SC3 | T008 | AC1 |
+| SC1 | T009 | AC1 |
+| SC2 | T010 | AC1 |
+| SC3 | T011 | AC1 |
+| SC4 | T012 | AC1 |
 
 ## Held-out checks
 
@@ -145,7 +152,7 @@ Review depth: full
   cache; the feature file's preconditions name one target at a time in a checkout, and the
   wave 2 review reads that line rather than discovering a cache race during a proof run.
 
-## Wave 4 — the proof repair
+## Wave 3 — the proof repair
 
 Goal: make the held-out proofs able to fail. The final review of M023 recorded SC1, SC2 and SC3 as `not-met`
 because eight suites could not detect the defect they were named for. Each task here replaces one such suite

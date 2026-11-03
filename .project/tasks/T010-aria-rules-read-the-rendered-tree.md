@@ -1,7 +1,7 @@
 ---
 id: T010
 title: Aria rules read the rendered tree
-wave: 4
+wave: 3
 deps: [T003]
 status: pending
 agent: null
@@ -31,9 +31,10 @@ compares a reversed copy of a list against itself, so it passes for any declared
 
 None
 
+
 ## Intent coverage
 
-- SC2 — the menu surface supplies the listbox and menu rules, including one that fails when its attribute is removed.
+- SC2
 
 ## Acceptance criteria
 

@@ -1,7 +1,7 @@
 ---
 id: T009
 title: Harness family proofs
-wave: 4
+wave: 3
 deps: [T002]
 status: pending
 agent: null
@@ -36,11 +36,10 @@ never drives a non-matching predicate to its named no-match. `fixture-harness-ac
 
 None
 
+
 ## Intent coverage
 
-- SC1 — the four harness cases exist and are provable.
-- N1 — the ambiguity stays ambiguous.
-- N7 — the effect, not the implementation state, is asserted.
+- SC1
 
 ## Acceptance criteria
 
