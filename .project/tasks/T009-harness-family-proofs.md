@@ -6,7 +6,7 @@ deps: [T002]
 status: pending
 agent: null
 base: null
-worktree: D:\projects\sandbox\angular-ai-devtools
+worktree: null
 task_branch: null
 files:
   - tests/held-out/fixture-harness-root-boundary.test.mjs
