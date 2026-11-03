@@ -9,6 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
+  - extension/panel/index.html
   - extension/page-footprint.test.mjs
   - research/raw/m022-page-footprint.json
 ---
@@ -62,3 +63,5 @@ Heavy: yes
 ## Log
 
 - 2026-11-03 — created by planner
+
+- **This task owns `extension/panel/index.html`**: it is a tracked build artifact that is stale at the base, so `scripts/panel-bundle-budget.test.mjs` reports the build as incomplete until `build-extension` runs. The gate half of this task runs that build, so the rewritten artifact is this task's to commit; T009 declared it out of its own diff rather than smuggle it in.
