@@ -3,9 +3,9 @@ id: T006
 title: Resolve a picked page element to its owning component in the page realm
 wave: 2
 deps: [T001]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T006
+base: c91fb02a50e976b6a415e063b426be65ccbc8483
 worktree: null
 task_branch: null
 files:
@@ -64,3 +64,27 @@ Heavy: no
 ## Log
 
 - 2026-11-03 — created by planner
+- 2026-11-03 — implementation: one capture-phase `angular-ai:pick` listener beside the shipped ones reads `event.target`, resolves through `ng.getOwningComponent` with a depth-bounded distinct-class path walk, and answers `angular-ai:picked` with a plain descriptor or the named `no-dev-api` / `no-component` outcome (INTENT § Corrections 2026-11-03 vocabulary — the task's `no-dev-context` text is stale); 11 new sandbox cases; Verify `npm ci --include=dev && node --test extension/agent-main.test.mjs` exit 0 (tests 50, pass 50, fail 0) — ready
+- 2026-11-03 — orchestrator Verify (sidecar gsd-path-verify/task-t006-verify): pass, exit 0; output tail:
+  ```
+    ✔ falls back to the class name lowercased when the host element cannot be read (AC5) (0.157ms)
+  ✔ agent-main.js (page-realm pick resolution) (5.7968ms)
+  ℹ tests 50
+  ℹ suites 13
+  ℹ pass 50
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 755.0559
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```
