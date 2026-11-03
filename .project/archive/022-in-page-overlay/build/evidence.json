@@ -1,0 +1,248 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "ef30d2c908028b955144e704ebb2950b20fef246",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M022",
+        "candidates": [
+          {
+            "base": "6f4cef7202f5ba2a5ebf52f95500d307e6db8207",
+            "commit": "3ef30c0b790ecbf2766a0b54fc77b44003480ac9",
+            "valid": true
+          }
+        ],
+        "head": "ef30d2c908028b955144e704ebb2950b20fef246",
+        "subject": "T001: Measure __ngContext__ and window.ng presence on the fixture, in a development and a production build"
+      },
+      "landed_commit": "3ef30c0b790ecbf2766a0b54fc77b44003480ac9",
+      "reasons": [],
+      "task": {
+        "base": "6f4cef7202f5ba2a5ebf52f95500d307e6db8207",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-ng-context-dev-build-probe.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M022",
+        "candidates": [
+          {
+            "base": "86ba21432e7deca0975eb9757d968a8c44502565",
+            "commit": "980929fcf6dd14dcac1206d8b8f40706ad772ac8",
+            "valid": true
+          }
+        ],
+        "head": "ef30d2c908028b955144e704ebb2950b20fef246",
+        "subject": "T002: Measure elementFromPoint over the tool's closed, pointer-events-none host and record the ruling"
+      },
+      "landed_commit": "980929fcf6dd14dcac1206d8b8f40706ad772ac8",
+      "reasons": [],
+      "task": {
+        "base": "86ba21432e7deca0975eb9757d968a8c44502565",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-hit-test-probe.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M022",
+        "candidates": [
+          {
+            "base": "74d0875ce86c68fd780312b39cbc2508525e59b3",
+            "commit": "1ee7d116fce1ed985eb2c19928bcbdeefbdec7e8",
+            "valid": true
+          }
+        ],
+        "head": "ef30d2c908028b955144e704ebb2950b20fef246",
+        "subject": "T003: Rule which SC1 and SC2 claims need a lars-verify verdict and leave the driver that produces it"
+      },
+      "landed_commit": "1ee7d116fce1ed985eb2c19928bcbdeefbdec7e8",
+      "reasons": [],
+      "task": {
+        "base": "74d0875ce86c68fd780312b39cbc2508525e59b3",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-verdict-claim-list.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M022",
+        "candidates": [
+          {
+            "base": "2b986a2d690f5a561c10860bd409e44fa3a1bd50",
+            "commit": "e0d5708dc043c70210f505e475c4487d81204494",
+            "valid": true
+          }
+        ],
+        "head": "ef30d2c908028b955144e704ebb2950b20fef246",
+        "subject": "T004: Publish the one observer exclusion predicate, filter the relay's two observers and retire the marker node"
+      },
+      "landed_commit": "e0d5708dc043c70210f505e475c4487d81204494",
+      "reasons": [],
+      "task": {
+        "base": "2b986a2d690f5a561c10860bd409e44fa3a1bd50",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-observer-exclusion-and-marker-retirement.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M022",
+        "candidates": [
+          {
+            "base": "96fbf616c0e1ddd2b4dbd57762fd9715d2837feb",
+            "commit": "df1ff0225544f09e301bd747d0091317fc356523",
+            "valid": true
+          }
+        ],
+        "head": "ef30d2c908028b955144e704ebb2950b20fef246",
+        "subject": "T005: Attach the one closed-shadow host once at document_start through a new manifest declaration"
+      },
+      "landed_commit": "df1ff0225544f09e301bd747d0091317fc356523",
+      "reasons": [],
+      "task": {
+        "base": "96fbf616c0e1ddd2b4dbd57762fd9715d2837feb",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-overlay-host-and-manifest-declaration.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M022",
+        "candidates": [
+          {
+            "base": "c91fb02a50e976b6a415e063b426be65ccbc8483",
+            "commit": "52b9a6ef598f55ac3f5ac273de48bd29a8dbbe4c",
+            "valid": true
+          }
+        ],
+        "head": "ef30d2c908028b955144e704ebb2950b20fef246",
+        "subject": "T006: Resolve a picked page element to its owning component in the page realm"
+      },
+      "landed_commit": "52b9a6ef598f55ac3f5ac273de48bd29a8dbbe4c",
+      "reasons": [],
+      "task": {
+        "base": "c91fb02a50e976b6a415e063b426be65ccbc8483",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-page-realm-resolution.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M022",
+        "candidates": [
+          {
+            "base": "5621cfb27523bb6c6bb085d54bb6a0e7e9c71c6b",
+            "commit": "5922854ba44d686da7620f923c7050f950de6fed",
+            "valid": true
+          }
+        ],
+        "head": "ef30d2c908028b955144e704ebb2950b20fef246",
+        "subject": "T007: Carry the picker command and its outcomes between the panel and the page"
+      },
+      "landed_commit": "5922854ba44d686da7620f923c7050f950de6fed",
+      "reasons": [],
+      "task": {
+        "base": "5621cfb27523bb6c6bb085d54bb6a0e7e9c71c6b",
+        "id": "T007",
+        "status": "done",
+        "task_file": ".project/tasks/T007-picker-transport.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M022",
+        "candidates": [
+          {
+            "base": "d9a5a91fb5515bc5f079de419c66e5c33c858b66",
+            "commit": "a1a716aa18047a8cf1b9acae854df31f90276120",
+            "valid": true
+          }
+        ],
+        "head": "ef30d2c908028b955144e704ebb2950b20fef246",
+        "subject": "T008: Draw the tracked rect and label in the overlay, and make hover, lock and cancel work"
+      },
+      "landed_commit": "a1a716aa18047a8cf1b9acae854df31f90276120",
+      "reasons": [],
+      "task": {
+        "base": "d9a5a91fb5515bc5f079de419c66e5c33c858b66",
+        "id": "T008",
+        "status": "done",
+        "task_file": ".project/tasks/T008-overlay-rect-picker-and-lock.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M022",
+        "candidates": [
+          {
+            "base": "e8eb661805e616473d838676d49f81c007d0a835",
+            "commit": "fe2c835580ceceed991742cb5547496a55156bf2",
+            "valid": true
+          }
+        ],
+        "head": "ef30d2c908028b955144e704ebb2950b20fef246",
+        "subject": "T009: Render the picker's named states and its two commands in a lazy panel route"
+      },
+      "landed_commit": "fe2c835580ceceed991742cb5547496a55156bf2",
+      "reasons": [],
+      "task": {
+        "base": "e8eb661805e616473d838676d49f81c007d0a835",
+        "id": "T009",
+        "status": "done",
+        "task_file": ".project/tasks/T009-panel-picker-surface.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M022",
+        "candidates": [
+          {
+            "base": "2c477277bc518b048fdad82e87392e219261fc48",
+            "commit": "105e04be9571ab659210cf01a65c71eac7b71236",
+            "valid": true
+          }
+        ],
+        "head": "ef30d2c908028b955144e704ebb2950b20fef246",
+        "subject": "T010: Measure the page footprint with and without the overlay and gate the milestone at the head"
+      },
+      "landed_commit": "105e04be9571ab659210cf01a65c71eac7b71236",
+      "reasons": [],
+      "task": {
+        "base": "2c477277bc518b048fdad82e87392e219261fc48",
+        "id": "T010",
+        "status": "done",
+        "task_file": ".project/tasks/T010-page-footprint-and-gates.md"
+      }
+    }
+  ]
+}

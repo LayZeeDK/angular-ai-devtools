@@ -1,0 +1,104 @@
+{
+  "probe": "M022 T008 — the ISOLATED→MAIN pick hop and the drawn rect, end to end",
+  "milestone": "M022",
+  "date": "2026-11-03",
+  "recordedAt": "2026-11-03T05:45:42.960Z",
+  "profile": "chrome-stable-nano",
+  "browserVersion": "156.0.8078.80",
+  "runCommand": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-stable-nano <probe.js> --timeout-min=3",
+  "page": "http://localhost:4222/ — spikes/ng222-app, the counter fixture in its development configuration (Angular 22.2.2), served by control-angular-dev-app and loaded in a new tab the probe opens and closes",
+  "extension": {
+    "dir": "D:\\projects\\sandbox\\angular-ai-devtools\\extension",
+    "declaration": "observer-filter.js, overlay-geometry.js, overlay.js at document_start (ISOLATED), relay.js at document_idle (ISOLATED), agent-main.js at document_idle (MAIN)",
+    "loadedBy": "control-ai-browsers up chrome-stable-nano, after the declaration change; content scripts are read once at extension load, so the instance was restarted for this reading"
+  },
+  "pageRealm": {
+    "ngGlobal": "object",
+    "getOwningComponent": "function",
+    "recorder": "object",
+    "handlePick": "function"
+  },
+  "pickedElementTag": "p",
+  "descriptor": {
+    "status": "resolved",
+    "elementTag": "p",
+    "componentName": "app-counter",
+    "className": "_Counter",
+    "componentPath": ["_Counter", "_App"]
+  },
+  "listenerRead": "event.target",
+  "dispatch": {
+    "type": "angular-ai:pick",
+    "bubbles": true,
+    "composed": false,
+    "dispatchedOn": "the picked element",
+    "detail": null,
+    "targetIsElementNode": true,
+    "observedTargetTag": "p",
+    "emittedBy": "extension/overlay.js, on the element document.elementFromPoint answered for the click's point"
+  },
+  "answer": {
+    "type": "angular-ai:picked",
+    "on": "window",
+    "readBy": "extension/agent-main.js handlePick, the capture listener registered on globalThis",
+    "arrivedMs": "under the 1500 ms bound; no `unavailable` state was emitted on this reading"
+  },
+  "statesBeforeAnswer": [{ "status": "armed" }],
+  "whyEventTargetIsProven": "The MAIN-world listener is handed the event and calls `handlePick`, which reads `event.target` and never `event.detail`. The descriptor it answered names the tag of the element the click landed on (`p`), and the same descriptor resolves to that element's owning component (`app-counter`, `_Counter`, path `_Counter → _App`) — a payload object could carry neither, and the pick event's `detail` was observed as `null` from a capture listener beside the shipped one. The target was also observed as an element node (`nodeType === 1`) by that listener, so what crossed the world boundary was a DOM node, not a serialized copy of one.",
+  "hitTest": {
+    "point": { "x": 551, "y": 25 },
+    "elementFromPoint": "p",
+    "hostPointerEvents": "none",
+    "hostId": "angular-ai-devtools-host",
+    "hostShadowRoot": "closed",
+    "toolElementsInPage": 1,
+    "note": "The hover path resolved the candidate through document.elementFromPoint at the pointer's point; the host is pointer-events: none, so the answer is the page element on this profile, exactly as T002 measured. A hit that returned the host would be the tool and not a candidate, and the picker never depends on an engine retargeting an inner node of the closed root (reliesOnEngineRetargeting: false)."
+  },
+  "drawnBox": {
+    "devicePixelRatio": 1.75,
+    "viewport": { "width": 1102, "height": 876, "visualViewport": { "width": 1087.4285888671875, "height": 876, "offsetLeft": 0, "offsetTop": 0 } },
+    "lockedAtTheTop": {
+      "reading": { "left": 8, "top": 16, "width": 1071.4285888671875, "height": 18.285715103149414 },
+      "drawn": "transform: translate(8px, 16px); width: 1071.43px; height: 18.2857px",
+      "label": "transform: translate(8px, 40.2857px) — below the box, inside the viewport",
+      "measuredBy": "DOM.getBoxModel through DOM.getDocument({pierce: true}), which reaches the closed root: border box left 8.571, top 16.571, width 1071, height 18"
+    },
+    "scrolledToTheBottom": {
+      "scrollY": 5203.4287109375,
+      "reading": { "left": 8, "top": -5187.4287109375, "width": 1071.4285888671875, "height": 18.285715103149414 },
+      "drawn": "transform: translate(8px, -5187.43px); width: 1071.43px; height: 18.2857px",
+      "label": "transform: translate(8px, 0px) — the box is above the viewport, the label is clamped to its top edge",
+      "measuredBy": "DOM.getBoxModel: label border box left 14, top 2, width 184, height 21 — inside the viewport"
+    },
+    "statement": "The drawn box is the getBoundingClientRect() reading verbatim, in CSS pixels, at a device pixel ratio of 1.75 and after a 5203 px scroll: no ratio is multiplied in and no matrix is rebuilt, and the label stays inside the viewport at the extreme scroll position."
+  },
+  "method": {
+    "arm": "the probe dispatched CustomEvent('angular-ai:picker-command', { detail: { action: 'arm' } }) on window, the event the relay re-dispatches for the panel's command",
+    "hover": "a pointermove with the picked element's own centre as clientX/clientY; the overlay resolves the candidate with document.elementFromPoint",
+    "lock": "a click dispatched on the element elementFromPoint answers for that point, so the overlay's capture listener locks the pick and dispatches angular-ai:pick on that element",
+    "answer": "the probe awaited the angular-ai:picked event on window, the page realm's own answer; it timed out at 6000 ms and did not",
+    "drawing": "read out of the closed root over CDP: DOM.getDocument({ depth: -1, pierce: true }) then DOM.getBoxModel and DOM.getOuterHTML for the two nodes the picker created",
+    "cleanup": "the tab the probe opened is closed by the control script's tab wrapper; the fixture server and the instance are the shared ones",
+    "picked element": "the first element under app-root whose own centre hit-tests to itself or to one of its children, so the click and the picker cannot disagree about the point"
+  },
+  "evidence": [
+    ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261103-054458/chrome-stable-nano-run-1793684706601.json — the hop, the descriptor and the drawn box at the top of the page",
+    ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261103-054542/chrome-stable-nano-run-1793684748596.json — the same pick at the document's extreme scroll positions, with the label clamped inside the viewport",
+    ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261103-053908/chrome-stable-nano-run-1793684354779.json — the first reading of the hop on this build"
+  ],
+  "doesNotSettle": [
+    {
+      "question": "does the hop carry event.target on profiles other than chrome-stable-nano?",
+      "settledFor": "Chrome 156 (chrome-stable-nano) only: the four charter profiles were not driven for this reading, because the hop's mechanism is the DOM's shared node and T002 already measured the hit-test side on all four.",
+      "stillOpen": "a reading on chrome-beta, edge-dev and edge-stable before claiming the hop on those builds",
+      "probeThatWouldSettleIt": "run the same probe against each profile with `control.mjs run <profile> <probe.js>`"
+    },
+    {
+      "question": "what does the drawn box do through a CSS transform on an ancestor and through a CSS zoom change in a live page?",
+      "settledFor": "the arithmetic: E1's transformed and rotated readings and E3's ratio independence are proven in extension/overlay-geometry.test.mjs, and the verbatim pass-through is measured here at devicePixelRatio 1.75.",
+      "stillOpen": "a live reading with a transform on an ancestor and with page zoom on the counter fixture",
+      "probeThatWouldSettleIt": "set `transform: translate(40px, 25px) scale(1.5)` on a fixture wrapper (and the page zoom) with a pick locked, then re-read the two boxes over CDP"
+    }
+  ],
+  "verdict": "measured: on chrome-stable-nano (Chrome 156) a click on a page element crosses from the isolated-world overlay to the MAIN-world listener as a DOM node, the listener reads event.target and never a payload object, and the page realm answers with the resolved descriptor for that element (elementTag p, componentName app-counter, className _Counter); the drawn box equals getBoundingClientRect() verbatim at devicePixelRatio 1.75 and after a 5203 px scroll, with the label clamped inside the viewport"
+}

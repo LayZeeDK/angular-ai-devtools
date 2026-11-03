@@ -812,6 +812,120 @@
     }
   }
 
+  // --- Picker: resolve a picked page element to its owning component (T006) ---------------------
+  //
+  // The overlay lives in the ISOLATED world and cannot read the page's `ng`, so the only thing that
+  // can cross the world boundary is a DOM node: the overlay dispatches the pick event on the picked
+  // element and this MAIN-world listener reads `event.target`. `event.detail` is never read — its
+  // cross-world semantics are unverified in this tree, while a DOM node is shared by construction.
+  //
+  // The resolver is `getOwningComponent` and not `getComponent`: an element inside a component's
+  // template resolves to that component, which is the case a picker exists to get right, while
+  // `getComponent` answers null there and would fail it.
+  //
+  // The answer is plain data only — strings and a string array — because the message boundary is
+  // JSON (N2). No instance, element or function is carried, and `__ngContext__` is read as a
+  // presence test, never serialized: its absence is a named state, not an error, and per T001's
+  // measurement it is written in production builds too, so the state is named for the debug API
+  // (`no-dev-api`) with a reason that names the possibility of a production build rather than
+  // asserting one.
+  var PICK_EVENT = NS + ":pick";
+  var PICKED_EVENT = NS + ":picked";
+
+  // The ancestor bound of the path walk: a picked element's depth in its own document, never a
+  // document-wide query.
+  var PICK_MAX_ANCESTORS = 64;
+
+  var PICK_NO_API_REASON = "ng.getOwningComponent not found; this page may be a production build";
+  var PICK_NO_CONTEXT_REASON = "the picked element carries no __ngContext__; this page may be a production build";
+
+  function lowerTagName(el) {
+    try {
+      var tag = el && el.tagName;
+      return typeof tag === "string" && tag.length ? tag.toLowerCase() : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // The identifier the panel already lists components by: the owning instance's host tag name
+  // lowercased, with the class name lowercased as the fallback the shipped records use.
+  function pickComponentName(instance, ng) {
+    var gh = ng && typeof ng.getHostElement === "function" ? ng.getHostElement : (ng && typeof ng.ɵgetHostElement === "function" ? ng.ɵgetHostElement : null);
+    if (gh) {
+      try {
+        var tag = lowerTagName(gh(instance));
+        if (tag) return tag;
+      } catch (e) {}
+    }
+    var cls = classNameFor(instance);
+    return cls ? cls.toLowerCase() : null;
+  }
+
+  // The owning instance of the picked element, plus the distinct constructor names from that element
+  // upward. A getter that throws resolves as "no instance here" instead of stopping the walk, and the
+  // walk is bounded by ancestor depth.
+  function walkOwningComponents(el, getOwning) {
+    var owning = null;
+    var path = [];
+    var seen = new Set();
+    var node = el;
+    var depth = 0;
+    while (node && depth < PICK_MAX_ANCESTORS) {
+      depth += 1;
+      var instance = null;
+      try { instance = getOwning(node); } catch (e) { instance = null; }
+      if (instance) {
+        if (!owning) owning = instance;
+        var cls = classNameFor(instance);
+        if (cls && !seen.has(cls)) {
+          seen.add(cls);
+          path.push(cls);
+        }
+      }
+      var parent = null;
+      try { parent = node.parentElement; } catch (e) { parent = null; }
+      node = parent;
+    }
+    return { owning: owning, path: path };
+  }
+
+  // One of three named outcomes, never collapsed: `no-dev-api` (the page publishes no component
+  // getter, or this element carries no dev context), `no-component` (a dev context with no owning
+  // instance) and the resolved descriptor.
+  function pickDescriptorFor(el) {
+    if (!el) return null;
+    var ng = null;
+    try { ng = readNg(); } catch (e) { ng = null; }
+    var getOwning = ng && typeof ng.getOwningComponent === "function" ? ng.getOwningComponent : null;
+    if (!getOwning) return { status: "no-dev-api", reason: PICK_NO_API_REASON };
+    var context;
+    try { context = el.__ngContext__; } catch (e) { context = undefined; }
+    if (context === undefined) return { status: "no-dev-api", reason: PICK_NO_CONTEXT_REASON };
+    var walk = walkOwningComponents(el, getOwning);
+    if (!walk.owning) return { status: "no-component" };
+    return {
+      status: "resolved",
+      elementTag: lowerTagName(el),
+      componentName: pickComponentName(walk.owning, ng),
+      className: classNameFor(walk.owning),
+      componentPath: walk.path,
+    };
+  }
+
+  // Capture phase, registered on the global object: the overlay dispatches the pick event on the
+  // picked element itself, so a page bubble-phase listener cannot swallow it first.
+  function handlePick(e) {
+    try {
+      var target = e && e.target ? e.target : null;
+      if (!target) return;
+      var descriptor = pickDescriptorFor(target);
+      if (descriptor) dispatch(PICKED_EVENT, descriptor);
+    } catch (err) {
+      /* a page event listener must never throw into the page's own loop */
+    }
+  }
+
   function dispatch(type, detail) {
     var CustomEventCtor = typeof globalThis.CustomEvent === "function" ? globalThis.CustomEvent : (typeof global.CustomEvent === "function" ? global.CustomEvent : null);
     var ev = CustomEventCtor ? new CustomEventCtor(type, { detail: detail }) : { type: type, detail: detail };
@@ -878,6 +992,7 @@
     extractTriggerName: extractTriggerName,
     reset: reset,
     handleDiQuery: handleDiQuery,
+    handlePick: handlePick,
     PROFILER_EVENT: ProfilerEvent,
     RECORD_EVENT: RECORD_EVENT,
     STATE_EVENT: STATE_EVENT,
@@ -895,6 +1010,9 @@
   if (typeof globalThis !== "undefined") globalThis.__ngRecorder = api;
   if (typeof globalThis !== "undefined" && typeof globalThis.addEventListener === "function") {
     try { globalThis.addEventListener(DI_QUERY_EVENT, handleDiQuery); } catch (e) {}
+    // The pick hop: registered beside the shipped listener, in the capture phase, and it writes no
+    // global and no DOM — the answer leaves as one plain-data event on the same global object.
+    try { globalThis.addEventListener(PICK_EVENT, handlePick, true); } catch (e) {}
   }
 
   // N4: error capture hooks at document_start (console.error, window.onerror,

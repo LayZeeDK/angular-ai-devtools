@@ -13,4 +13,7 @@ export const appRoutes: Route[] = [
   { path: 'stale-view', component: StaleViewComponent },
   { path: 'interop', loadComponent: () => import('./interop.component').then((m) => m.InteropComponent) },
   { path: 'chat', loadComponent: () => import('./chat-entry.component').then((m) => m.ChatEntryComponent) },
+  // The picker's surface is lazy for the same reason the two above are: the panel's initial bundle
+  // is measured from the eager references in the built index, and nothing eager may import it.
+  { path: 'picker', loadComponent: () => import('./page-picker.component').then((m) => m.PagePickerComponent) },
 ];

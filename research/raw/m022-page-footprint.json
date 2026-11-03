@@ -1,0 +1,123 @@
+{
+  "probe": "M022 T010 — the inspected page's footprint with and without the overlay, and the tool-element count across a second boot",
+  "milestone": "M022",
+  "task": "T010",
+  "date": "2026-11-03",
+  "recordedAt": "2026-11-03T06:31:07.000Z",
+  "criterion": "SC5 (the ɵsetProfiler list and the feature fingerprint read the same with and without the overlay installed) and SC4's page-visible half (exactly one tool-created element across a second boot)",
+  "harness": "extension/page-footprint.test.mjs — jsdom under node:test; this file is compared with the measurement on every run, so a stale or hand-written recording fails instead of being quoted",
+  "mechanism": {
+    "arms": "Two arms, one page shape. Each arm boots the two ISOLATED-world modules the overlay's own content_scripts declaration shares with it (observer-filter.js, then overlay-geometry.js) and then the MAIN-world recorder (agent-main.js). The withOverlay arm boots overlay.js between them, in the manifest's document_start → document_idle order, so overlay.js is the only variable between the arms.",
+    "profilerList": "The page's `ng` is a stub whose `ɵsetProfiler` records every subscriber it is handed instead of calling it. A second subscriber is a second array entry, so 'the overlay subscribed' is a count and not a claim.",
+    "featureRecord": "The recorder dispatches `angular-ai:state` on the page's own window; the test captures it through a platform listener and compares the `features` object, which is eight `typeof` reads on that same `ng`.",
+    "pageGlobals": "The own property names of `window` added over a baseline taken after the page's `ng` and console exist and before any content script boots.",
+    "pageNodes": "Every element node outside the tool's host subtree, as tag#id.class. The one element the overlay creates is the host, and the host subtree is excluded by construction; the AR-3 count is the separate second-boot reading below.",
+    "biteProof": "Four mutations of overlay.js — a profiler subscription, a deleted `ɵgetSignalGraph`, a written page global, a node appended outside the host subtree — each redden the surface it should, and each test first asserts the same comparison is green without the bite."
+  },
+  "angularVersion": "22.2.2",
+  "commands": {
+    "arms": "node --test extension/page-footprint.test.mjs",
+    "check": "npm run check",
+    "test": "npm test",
+    "build": "npx nx run angular-ai-devtools:build-extension"
+  },
+  "arms": {
+    "sharedModules": [
+      "observer-filter.js",
+      "overlay-geometry.js"
+    ],
+    "withoutOverlay": {
+      "modules": [
+        "observer-filter.js",
+        "overlay-geometry.js",
+        "agent-main.js"
+      ],
+      "profilerSubscriberCount": 1,
+      "profilerSubscribers": [
+        "subscriber"
+      ],
+      "featureRecord": {
+        "setProfiler": true,
+        "getSignalGraph": true,
+        "getHostElement": true,
+        "getInjector": true,
+        "getDirectiveMetadata": true,
+        "getInjectorResolutionPath": false,
+        "getInjectorMetadata": false,
+        "getInjectorProviders": false
+      },
+      "pageGlobals": [
+        "__ngRecorder",
+        "angularAiObserverFilter",
+        "angularAiOverlayGeometry"
+      ],
+      "pageNodes": [
+        "html",
+        "head",
+        "title",
+        "body",
+        "app-root#page"
+      ],
+      "createdElementTags": []
+    },
+    "withOverlay": {
+      "modules": [
+        "observer-filter.js",
+        "overlay-geometry.js",
+        "overlay.js",
+        "agent-main.js"
+      ],
+      "profilerSubscriberCount": 1,
+      "profilerSubscribers": [
+        "subscriber"
+      ],
+      "featureRecord": {
+        "setProfiler": true,
+        "getSignalGraph": true,
+        "getHostElement": true,
+        "getInjector": true,
+        "getDirectiveMetadata": true,
+        "getInjectorResolutionPath": false,
+        "getInjectorMetadata": false,
+        "getInjectorProviders": false
+      },
+      "pageGlobals": [
+        "__ngRecorder",
+        "angularAiObserverFilter",
+        "angularAiOverlayGeometry"
+      ],
+      "pageNodes": [
+        "html",
+        "head",
+        "title",
+        "body",
+        "app-root#page"
+      ],
+      "createdElementTags": [
+        "div"
+      ]
+    }
+  },
+  "differential": {
+    "identical": true,
+    "surfaces": [
+      "profilerSubscribers",
+      "featureRecord",
+      "pageGlobals",
+      "pageNodes"
+    ],
+    "differences": []
+  },
+  "secondBoot": {
+    "toolElements": 1,
+    "markerIdResolvesTo": null,
+    "closedRootReadable": false,
+    "createdBySecondBoot": 0
+  },
+  "doesNotSettle": [
+    "The realm boundary itself. jsdom has one realm, so the two ISOLATED-world namespace objects (angularAiObserverFilter, angularAiOverlayGeometry) appear as page globals here; in the shipped extension the page's MAIN world cannot read an isolated-world global. Both arms load those two modules, so the differential charges them to neither arm, and the boundary is proven where it exists: the browser check reads the tool-element count on a served page (spikes/probes/overlay-pick.js, toolElements per load and after a reload).",
+    "Angular's own dev-mode counters. The stub `ng` carries `ɵsetProfiler` and the seven `typeof` surfaces `featuresOf` reads and nothing else, so 'the dev-mode counters read the same' is a browser reading, not this one; the profiler list and the feature fingerprint are the two halves SC5 names.",
+    "Memory, timing and listener-count footprint. The overlay's cost to the page is measured here only as observable state (globals, DOM nodes, profiler subscribers, features).",
+    "A live extension re-injection. The second boot here is a second evaluation of overlay.js in the same document, which is the shape a content-script re-run takes; a `chrome.scripting.executeScript` injection over a running extension cannot be driven from jsdom and is the wave-gate browser check's reading."
+  ]
+}

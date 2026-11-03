@@ -822,7 +822,7 @@ Depends on: [M020]
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/021-optin-companion
-Integrated: null
+Integrated: 867f563e47fcf21dc0468ed44b2417e648a992cd
 
 Scope: in
 - The companion package and the vetted symbol table it publishes.
@@ -861,8 +861,8 @@ Open questions
 Goal: Ship the only DOM the tool adds to an inspected page — a rect/label overlay plus an element picker in one closed Shadow DOM host attached once at `document_start`.
 Depends on: [M019]
 Surfaces: inspected page
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/022-in-page-overlay
 Integrated: null
 
 Scope: in

@@ -1,0 +1,171 @@
+{
+  "probe": "M022 T001 — __ngContext__ and window.ng on the fixture, in a development build and a production build",
+  "date": "2026-11-03",
+  "app": "spikes/ng222-app",
+  "angular": "22.2.2",
+  "packageBuild": {
+    "command": "npx nx run ai-devtools-companion:build",
+    "equivalentInvocation": "node node_modules/nx/dist/bin/nx.js run ai-devtools-companion:build",
+    "cwd": ".",
+    "why": "the development configuration carries a fileReplacement to src/app/app.config.dev.ts, which imports ai-devtools-companion, so the development build resolves the package's exported dist; the production configuration loads no package and does not need it."
+  },
+  "builds": {
+    "development": {
+      "configuration": "development",
+      "bundles": [
+        "main.js"
+      ],
+      "bytes": 1357558,
+      "unminified": true,
+      "ngContextWrite": {
+        "present": true,
+        "binding": "var MONKEY_PATCH_KEY_NAME = \"__ngContext__\"",
+        "identifier": "MONKEY_PATCH_KEY_NAME",
+        "writeSites": 2,
+        "writeSnippets": [
+          "ted\");\n  if (isLView(data)) {\n    target[MONKEY_PATCH_KEY_NAME] = data[ID];\n    registerLView(data);",
+          "gisterLView(data);\n  } else {\n    target[MONKEY_PATCH_KEY_NAME] = data;\n  }\n}\nfunction readPatchedDa"
+        ]
+      },
+      "ngGlobalSurface": {
+        "present": true,
+        "markers": {
+          "expandKeyIsNg": true,
+          "globalTableCreated": true,
+          "helperWritten": true,
+          "devModeGuardedCall": true,
+          "publishGlobalUtilDefined": true,
+          "getOwningComponentDefined": true
+        },
+        "evidence": "var GLOBAL_PUBLISH_EXPANDO_KEY = \"ng\"; ... w[GLOBAL_PUBLISH_EXPANDO_KEY][name] = fn;"
+      },
+      "command": "node node_modules/@angular/cli/bin/ng.js build --configuration development --output-path ../../tmp/ng-context/dev",
+      "cwd": "spikes/ng222-app",
+      "outputPath": "tmp/ng-context/dev"
+    },
+    "production": {
+      "configuration": "production",
+      "bundles": [
+        "main-BKDFOLBT.js"
+      ],
+      "bytes": 197575,
+      "unminified": false,
+      "ngContextWrite": {
+        "present": true,
+        "binding": "var od=\"__ngContext__\"",
+        "identifier": "od",
+        "writeSites": 2,
+        "writeSnippets": [
+          "__ngContext__\";function Sr(e,t){at(t)?(e[od]=t[cr],wm(t)):e[od]=t}function Wd(e){return Qd(e[Dn])}fu",
+          "tion Sr(e,t){at(t)?(e[od]=t[cr],wm(t)):e[od]=t}function Wd(e){return Qd(e[Dn])}function Gd(e){return"
+        ]
+      },
+      "ngGlobalSurface": {
+        "present": false,
+        "markers": {
+          "expandKeyIsNg": false,
+          "globalTableCreated": false,
+          "helperWritten": false,
+          "devModeGuardedCall": false,
+          "publishGlobalUtilDefined": false,
+          "getOwningComponentDefined": false
+        },
+        "evidence": null
+      },
+      "command": "node node_modules/@angular/cli/bin/ng.js build --configuration production --output-path ../../tmp/ng-context/prod",
+      "cwd": "spikes/ng222-app",
+      "outputPath": "tmp/ng-context/prod"
+    }
+  },
+  "differential": {
+    "ngContextWrite": "present in both configurations",
+    "ngGlobalSurface": "development only",
+    "meaning": "attachPatchData writes __ngContext__ in both configurations — the development bundle names the property through MONKEY_PATCH_KEY_NAME, the production bundle through the minified alias od — while the surface that would read it, window.ng, is published only in the development build. The property is not dev-only; the debug API is."
+  },
+  "served": {
+    "driver": "spikes/probes/ng-context.js",
+    "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-stable-nano spikes/probes/ng-context.js",
+    "instance": "chrome-stable-nano",
+    "instanceNote": "the instance loads this checkout's extension; the extension's panel is not built by this task, no reading below depends on it, and the probe reads the page realm directly through CDP.",
+    "extensionLoaded": true,
+    "servers": {
+      "development": {
+        "url": "http://127.0.0.1:4461/",
+        "directory": "tmp/ng-context/dev/browser",
+        "command": "python -m http.server 4461 --bind 127.0.0.1 --directory tmp/ng-context/dev/browser"
+      },
+      "production": {
+        "url": "http://127.0.0.1:4462/",
+        "directory": "tmp/ng-context/prod/browser",
+        "command": "python -m http.server 4462 --bind 127.0.0.1 --directory tmp/ng-context/prod/browser"
+      }
+    },
+    "how": "two static servers over the two emitted browser outputs, read in the page's main world in one new tab that the control-ai-browsers run command closes afterwards; the probe navigates to the development output, reads, then navigates to the production output and reads the same selectors, so the only variable between the two readings is the configuration.",
+    "note": "the development build renames the fixture's App class to _App (Angular's dev-mode class alias), which is why the development reading names it and why the name itself is not the measurement; the production page publishes no window.ng, so no component name is readable there and the reading is null.",
+    "reading": {
+      "development": {
+        "url": "http://127.0.0.1:4461/",
+        "ngVersionAttribute": "22.2.2",
+        "templateElement": {
+          "tag": "button",
+          "hasNgContext": true,
+          "ngContextType": "number"
+        },
+        "componentHost": {
+          "tag": "app-counter",
+          "hasNgContext": true,
+          "ngContextType": "number"
+        },
+        "ngGlobalType": "object",
+        "ngOwningComponentType": "function",
+        "appRootComponentName": "_App"
+      },
+      "production": {
+        "url": "http://127.0.0.1:4462/",
+        "ngVersionAttribute": "22.2.2",
+        "templateElement": {
+          "tag": "button",
+          "hasNgContext": true,
+          "ngContextType": "number"
+        },
+        "componentHost": {
+          "tag": "app-counter",
+          "hasNgContext": true,
+          "ngContextType": "number"
+        },
+        "ngGlobalType": "undefined",
+        "ngOwningComponentType": "undefined",
+        "appRootComponentName": null
+      },
+      "differential": {
+        "contextOnTemplateElement": "same",
+        "contextOnComponentHost": "same",
+        "ngGlobal": "development-only"
+      }
+    }
+  },
+  "ruling": {
+    "productionPage": "no-dev-api",
+    "developmentPage": "debug-api available",
+    "contextOnATemplateElement": "present in both configurations",
+    "supersededOutcome": "no-dev-context",
+    "supersededBecause": "the production build writes __ngContext__ — measured in the emitted bundle and on the served production page, where app-counter's button carries a numeric __ngContext__ — so a pick on a production page is not a pick without a context.",
+    "statement": "__ngContext__ is written in production builds too, so a picked element on a production page carries an Angular context; what a production page lacks is the debug API — window.ng, and with it getOwningComponent and getComponent — that the page realm would use to read that context. The named outcome for a pick the tool cannot resolve on a production page is therefore no-dev-api, not no-dev-context, and the two outcomes must stay distinct: a development page whose element genuinely carries no context can still answer no-dev-context.",
+    "descriptorConsequence": "the page realm resolves a picked element through window.ng when the page publishes it, and reports the named outcome no-dev-api when it does not; __ngContext__ itself never crosses the JSON boundary (N2), so its presence is a fact the page realm reads, not a field the descriptor carries."
+  },
+  "doesNotSettle": [
+    {
+      "question": "does an element that sits inside a component's template — not a component host — carry a dev context that no bundle search can see?",
+      "settledFor": "the fixture's own app-counter button, read on both served pages: hasNgContext true with a numeric context in development and in production (served.reading.development.templateElement, served.reading.production.templateElement).",
+      "stillOpen": "one rendered sample on one fixture is not a per-element guarantee: an element Angular creates after the probe's snapshot (an @if branch that is still false, a @for item added later, a node a directive inserts) and every element of every other app were not read, and a bundle search can see neither.",
+      "probeThatWouldSettleIt": "extend spikes/probes/ng-context.js with a second read after the page mutates a view — click app-counter's Increment, then re-read the same selector and a node an @if branch adds — and re-run it against both static outputs; the same read against another app settles it there."
+    },
+    {
+      "question": "does an app built with another Angular version, another optimizer setting or another builder write the property and the surface the same way?",
+      "settledFor": "Angular 22.2.2 as spikes/ng222-app installs it, with the fixture's frozen development and production configurations (pinned in scripts/ng-context-dev-build.test.mjs).",
+      "stillOpen": "the two bundles above are two samples: a different Angular patch level or a bundle optimizer that folds the constant differently can move a marker without moving the behavior, so the markers are a description of these bytes, not of Angular as a whole.",
+      "probeThatWouldSettleIt": "re-run scripts/ng-context-dev-build.test.mjs after the Angular upgrade reads the new bytes, and spikes/probes/ng-context.js on the served output answers the runtime question for the same pair."
+    }
+  ],
+  "verdict": "measured: both configurations write __ngContext__, and only the development build publishes window.ng; a production page therefore answers no-dev-api, not no-dev-context"
+}

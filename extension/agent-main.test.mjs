@@ -1028,3 +1028,354 @@ describe("agent-main.js (page blast radius)", () => {
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// Picker: resolve a picked page element in the MAIN world (T006, SC2)
+// ---------------------------------------------------------------------------
+//
+// The sandbox is the page. Every case below drives the listener the script itself registers, with a
+// fabricated element tree and a fabricated `ng`, so what is asserted is this file's behaviour and
+// not a real component's. The three named outcomes are driven apart and compared apart, because
+// collapsing two of them is the failure E4 exists to prevent. The vocabulary is INTENT
+// § Corrections (2026-11-03): `__ngContext__` is written in production builds too, so a page with no
+// debug API is `no-dev-api`, never the superseded `no-dev-context`.
+const PICK_EVENT = "angular-ai:pick";
+const PICKED_EVENT = "angular-ai:picked";
+
+/** A fabricated DOM node: the listener reads exactly `tagName`, `parentElement`, `__ngContext__`. */
+function pageNode(tagName, parent = null, context = {}) {
+  return { tagName: String(tagName).toUpperCase(), parentElement: parent, __ngContext__: context };
+}
+
+/**
+ * Boots the script with the pick registration captured instead of attached to this process, so the
+ * test drives the listener the shipped code registered rather than a copy of its body. Every boot
+ * handle is collected, because a test boots more than one page and a leaked companion re-check timer
+ * would turn a regression into a hang instead of a failed assertion.
+ */
+const PICK_BOOTS = [];
+
+function bootPickPage(ng = {}) {
+  const registered = [];
+  const capAdd = globalThis.addEventListener;
+  globalThis.addEventListener = function (type, callback, options) {
+    if (type === PICK_EVENT) {
+      registered.push({ callback, options });
+      return;
+    }
+    if (capAdd) capAdd.call(globalThis, type, callback, options);
+  };
+  // `ng` is always an object here: a boot with no `ng` at all arms the shipped retry interval, which
+  // is that feature's polling and not this one's — the no-`ng` case is driven by deleting the global
+  // after boot instead.
+  const booted = boot({ ng });
+  globalThis.addEventListener = capAdd;
+  PICK_BOOTS.push(booted.recorder);
+  return {
+    ...booted,
+    registered,
+    handler() {
+      assert.equal(registered.length, 1, "exactly one pick listener is registered");
+      return registered[0].callback;
+    },
+    picked: () => booted.dispatched.filter((event) => event.type === PICKED_EVENT),
+  };
+}
+
+class ShellComponent {}
+class CardComponent {}
+
+/**
+ * `app-shell` (host of Shell) > `my-card` (host of Card) > `button` (inside Card's view).
+ * `getOwningComponent` answers the component whose view holds the node, so the picked button belongs
+ * to Card; `getComponent` deliberately answers the outer component, which is what a resolver chosen
+ * for the wrong reason would report.
+ */
+function pageComponentTree() {
+  const shell = pageNode("app-shell");
+  const card = pageNode("my-card", shell);
+  const button = pageNode("button", card);
+  const shellInstance = new ShellComponent();
+  const cardInstance = new CardComponent();
+  const owningFor = new Map([
+    [button, cardInstance],
+    [card, shellInstance],
+    [shell, shellInstance],
+  ]);
+  const hostTagFor = new Map([
+    [cardInstance, "MY-CARD"],
+    [shellInstance, "APP-SHELL"],
+  ]);
+  const calls = { owning: 0, getComponent: 0 };
+  const ng = {
+    getOwningComponent(node) {
+      calls.owning += 1;
+      return owningFor.get(node) ?? null;
+    },
+    getComponent() {
+      calls.getComponent += 1;
+      return shellInstance;
+    },
+    getHostElement(instance) {
+      return { tagName: hostTagFor.get(instance) };
+    },
+  };
+  return { button, card, shell, cardInstance, shellInstance, ng, calls };
+}
+
+describe("agent-main.js (page-realm pick resolution)", () => {
+  let origAddEventListener;
+  let origDocument;
+
+  before(() => {
+    origAddEventListener = globalThis.addEventListener;
+    origDocument = globalThis.document;
+  });
+
+  afterEach(() => {
+    if (globalThis.__ngRecorder && typeof globalThis.__ngRecorder.reset === "function") {
+      globalThis.__ngRecorder.reset();
+    }
+    // A test may boot more than one page; each boot armed its own bounded re-check timer, and a
+    // leaked interval would keep this process alive after the last assertion.
+    for (const recorder of PICK_BOOTS.splice(0)) {
+      if (recorder && typeof recorder.reset === "function") recorder.reset();
+    }
+    globalThis.addEventListener = origAddEventListener;
+    if (origDocument === undefined) delete globalThis.document;
+    else globalThis.document = origDocument;
+    globalThis.ng = ORIGINALS.ng;
+    globalThis.Zone = ORIGINALS.Zone;
+    globalThis.CustomEvent = ORIGINALS.CustomEvent;
+    globalThis.dispatchEvent = ORIGINALS.dispatchEvent;
+    globalThis.performance = ORIGINALS.performance;
+    delete globalThis.__ngRecorder;
+  });
+
+  it("registers one capture-phase pick listener and adds no page global (AC1, AC6)", () => {
+    const { button, ng } = pageComponentTree();
+    const page = bootPickPage(ng);
+
+    assert.equal(page.registered.length, 1, "one listener, beside the shipped ones");
+    const { options } = page.registered[0];
+    const capture = options === true || (options && options.capture === true);
+    assert.equal(capture, true, "the listener must run in the capture phase to see a bubbled pick");
+
+    const before = Object.getOwnPropertyNames(globalThis);
+    page.handler()({ target: button });
+    assert.equal(page.picked().length, 1, "the answer is one event");
+    assert.deepEqual(
+      Object.getOwnPropertyNames(globalThis).filter((key) => !before.includes(key)),
+      [],
+      "resolving a pick writes no page global",
+    );
+  });
+
+  it("resolves an element inside a component's view to that component, not to its host's parent (E5, AC2)", () => {
+    const { button, ng, calls } = pageComponentTree();
+    const page = bootPickPage(ng);
+
+    page.handler()({ target: button });
+
+    const [answer] = page.picked();
+    assert.ok(answer, "a pick is always answered");
+    assert.deepEqual(answer.detail, {
+      status: "resolved",
+      elementTag: "button",
+      componentName: "my-card",
+      className: "CardComponent",
+      componentPath: ["CardComponent", "ShellComponent"],
+    });
+    assert.equal(calls.getComponent, 0, "getComponent answers the outer component and is never consulted");
+    assert.ok(calls.owning >= 2, "the resolver is the owning-component walk");
+  });
+
+  it("names the element, the owning component and the distinct class path as the panel lists them (AC5)", () => {
+    const { button, ng } = pageComponentTree();
+    const page = bootPickPage(ng);
+
+    page.handler()({ target: button });
+    const descriptor = page.picked()[0].detail;
+
+    assert.equal(descriptor.elementTag, "button", "the element's tag, lowercased");
+    assert.equal(descriptor.componentName, "my-card", "the owning instance's host tag, lowercased");
+    assert.equal(descriptor.className, "CardComponent", "the constructor name, not a lowercased copy");
+    assert.deepEqual(descriptor.componentPath, ["CardComponent", "ShellComponent"], "innermost first, distinct");
+    assert.deepEqual(Object.keys(descriptor), ["status", "elementTag", "componentName", "className", "componentPath"]);
+  });
+
+  it("bounds the path by ancestor depth and never queries the document (AC5)", () => {
+    // A 200-deep chain: picked at the bottom, so a walk that trusted the document would run past the
+    // bound this file sets on itself.
+    const chain = [];
+    let parent = null;
+    for (let index = 0; index < 200; index += 1) {
+      const el = pageNode("div", parent);
+      chain.push(el);
+      parent = el;
+    }
+    const picked = chain[chain.length - 1];
+    const owningFor = new Map(chain.map((el, index) => [el, new (namedFn("Layer" + index))()]));
+    const calls = { owning: 0 };
+    let queries = 0;
+    globalThis.document = {
+      querySelector() {
+        queries += 1;
+        return null;
+      },
+      querySelectorAll() {
+        queries += 1;
+        return [];
+      },
+      body: null,
+      documentElement: null,
+    };
+
+    const page = bootPickPage({
+      getOwningComponent(node) {
+        calls.owning += 1;
+        return owningFor.get(node) ?? null;
+      },
+      getHostElement: () => ({ tagName: "DIV" }),
+    });
+    const afterBoot = queries;
+
+    page.handler()({ target: picked });
+    const descriptor = page.picked()[0].detail;
+
+    assert.equal(descriptor.status, "resolved");
+    assert.equal(descriptor.componentPath[0], "Layer199", "the path starts at the picked element's own component");
+    assert.equal(descriptor.componentPath.length, calls.owning, "one distinct name per consulted ancestor");
+    assert.ok(calls.owning <= 64, `the walk stops at a fixed depth, not at the document root; asked ${calls.owning} nodes`);
+    assert.ok(calls.owning < chain.length, "the deep ancestors above the bound are never consulted");
+    assert.equal(new Set(descriptor.componentPath).size, descriptor.componentPath.length, "the path carries distinct names");
+    assert.equal(queries, afterBoot, "resolution reads the picked node and its ancestors, never a document query");
+  });
+
+  it("answers no-dev-api for an element with no __ngContext__, and never no-component (E4, AC3)", () => {
+    for (const context of [undefined, null]) {
+      const { button, ng, calls } = pageComponentTree();
+      if (context === null) delete button.__ngContext__;
+      else button.__ngContext__ = undefined;
+      const page = bootPickPage(ng);
+
+      page.handler()({ target: button });
+      const descriptor = page.picked()[0].detail;
+
+      assert.equal(descriptor.status, "no-dev-api");
+      assert.notEqual(descriptor.status, "no-dev-context", "INTENT § Corrections 2026-11-03 supersedes that name");
+      assert.notEqual(descriptor.status, "no-component", "a missing dev context is never collapsed into no-component");
+      assert.deepEqual(Object.keys(descriptor), ["status", "reason"], "the state is named and carries its reason");
+      assert.match(String(descriptor.reason), /may be a production build/, "the possibility is named, not asserted");
+      assert.equal(calls.owning, 0, "no resolver call is made without a dev context");
+    }
+  });
+
+  it("answers no-dev-api for a page with a partial debug API, and for a page with no ng at all (E4)", () => {
+    const partial = bootPickPage({ getHostElement: () => ({ tagName: "APP-ROOT" }) });
+    partial.handler()({ target: pageNode("div") });
+    const [partialAnswer] = partial.picked();
+    assert.ok(partialAnswer, "a page with a partial debug API is still answered");
+    assert.equal(partialAnswer.detail.status, "no-dev-api", "the absent component getter is the dev-API state");
+    assert.match(String(partialAnswer.detail.reason), /may be a production build/, "the possibility is named");
+
+    const bare = bootPickPage({});
+    delete globalThis.ng;
+    assert.doesNotThrow(() => bare.handler()({ target: pageNode("div") }));
+    const [bareAnswer] = bare.picked();
+    assert.ok(bareAnswer, "a page with no ng at all is still answered, not left to the overlay's timer");
+    assert.equal(bareAnswer.detail.status, "no-dev-api");
+    assert.match(String(bareAnswer.detail.reason), /may be a production build/);
+  });
+
+  it("answers no-component for a dev context with no owning instance (AC4)", () => {
+    const page = bootPickPage({ getOwningComponent: () => null, getHostElement: () => ({ tagName: "DIV" }) });
+
+    page.handler()({ target: pageNode("span") });
+    const descriptor = page.picked()[0].detail;
+
+    assert.deepEqual(descriptor, { status: "no-component" }, "no reason and no element are invented for this state");
+  });
+
+  it("keeps the three named outcomes distinguishable in the dispatched payload (AC4)", () => {
+    const tree = pageComponentTree();
+    const resolvedPage = bootPickPage(tree.ng);
+    resolvedPage.handler()({ target: tree.button });
+
+    const noDevApiPage = bootPickPage({ getHostElement: () => ({ tagName: "APP-ROOT" }) });
+    noDevApiPage.handler()({ target: pageNode("div") });
+
+    const noComponentPage = bootPickPage({ getOwningComponent: () => null });
+    noComponentPage.handler()({ target: pageNode("div") });
+
+    const statuses = [resolvedPage, noDevApiPage, noComponentPage].map((page) => page.picked()[0].detail.status);
+    assert.deepEqual(statuses, ["resolved", "no-dev-api", "no-component"]);
+    assert.equal(new Set(statuses).size, 3, "three outcomes, never one collapsed state");
+  });
+
+  it("carries plain data only: a JSON round-trip equals itself and no __ngContext__ value escapes (N2, AC6)", () => {
+    const { button, ng } = pageComponentTree();
+    button.__ngContext__ = { secretSentinel: "CONTEXT-SENTINEL" };
+    const page = bootPickPage(ng);
+
+    page.handler()({ target: button });
+    const descriptor = page.picked()[0].detail;
+
+    assert.deepEqual(JSON.parse(JSON.stringify(descriptor)), descriptor, "the payload round-trips unchanged");
+    assert.equal(containsFunction(descriptor), false, "no function crosses the boundary");
+    assert.equal(Object.hasOwn(descriptor, "__ngContext__"), false, "the dev context is read, never carried");
+    const json = JSON.stringify(descriptor);
+    assert.equal(json.includes("CONTEXT-SENTINEL"), false, "no value out of the dev context crosses");
+    assert.equal(json.includes("__ngContext__"), false);
+    for (const [key, value] of Object.entries(descriptor)) {
+      const plainLeaf = Array.isArray(value)
+        ? value.every((entry) => typeof entry === "string")
+        : typeof value === "string";
+      assert.ok(plainLeaf, `${key} is a string or an array of strings`);
+    }
+  });
+
+  it("throws nothing into the page, and never reads a pick payload object (AC6)", () => {
+    const page = bootPickPage({
+      getOwningComponent() {
+        throw new Error("page defect: the resolver threw");
+      },
+      getHostElement() {
+        throw new Error("page defect: the host element threw");
+      },
+    });
+    const event = { target: pageNode("section") };
+    Object.defineProperty(event, "detail", {
+      get() {
+        throw new Error("the pick payload must not be read; event.target is the carrier");
+      },
+    });
+
+    assert.doesNotThrow(() => page.handler()(event));
+    assert.deepEqual(page.picked()[0].detail, { status: "no-component" }, "a throwing resolver answers, never throws");
+
+    const quiet = bootPickPage({ getOwningComponent: () => null });
+    assert.doesNotThrow(() => quiet.handler()({}));
+    assert.equal(quiet.picked().length, 0, "an event with no target claims nothing");
+  });
+
+  it("falls back to the class name lowercased when the host element cannot be read (AC5)", () => {
+    const { button } = pageComponentTree();
+    const page = bootPickPage({
+      getOwningComponent: (node) => (node === button ? new CardComponent() : null),
+      getHostElement() {
+        throw new Error("page defect");
+      },
+    });
+
+    page.handler()({ target: button });
+
+    assert.deepEqual(page.picked()[0].detail, {
+      status: "resolved",
+      elementTag: "button",
+      componentName: "cardcomponent",
+      className: "CardComponent",
+      componentPath: ["CardComponent"],
+    });
+  });
+});

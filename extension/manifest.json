@@ -18,7 +18,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["relay.js"],
+      "js": ["observer-filter.js", "relay.js"],
       "run_at": "document_idle"
     },
     {
@@ -26,6 +26,11 @@
       "js": ["agent-main.js"],
       "run_at": "document_idle",
       "world": "MAIN"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["observer-filter.js", "overlay-geometry.js", "overlay.js"],
+      "run_at": "document_start"
     }
   ],
   "devtools_page": "devtools.html",
