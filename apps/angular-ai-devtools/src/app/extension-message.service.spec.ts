@@ -5,6 +5,7 @@ import { UpdateCauseService } from './n1-update-cause.service';
 interface SentRequest {
   type?: string;
   tabId?: number;
+  action?: string;
 }
 
 const globalChrome = globalThis as unknown as { chrome?: unknown };
@@ -523,5 +524,134 @@ describe('ExtensionMessageService', () => {
 
     expect(ext.pickerState()).toBeNull();
     expect(ext.picked()).toBeNull();
+  });
+
+  // The picker's two commands (T009). The panel names the inspected tab and the action; the
+  // background validates both, forwards the command into the tab, and its refusal is a failed send.
+
+  it('sends the picker command with the inspected tab id and the action (AC6)', async () => {
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    const arm = await ext.sendPickerCommand('arm');
+    const cancel = await ext.sendPickerCommand('cancel');
+
+    expect(arm).toEqual({ status: 'sent' });
+    expect(cancel).toEqual({ status: 'sent' });
+    // The construction's one replay, then exactly one message per command: no retry and no poll.
+    expect(requests).toEqual([
+      { type: 'angular-ai:state-request', tabId: 5 },
+      { type: 'angular-ai:picker-command', tabId: 5, action: 'arm' },
+      { type: 'angular-ai:picker-command', tabId: 5, action: 'cancel' },
+    ]);
+  });
+
+  it('reports a refused picker command by the background\'s own reason, without a retry (AC6)', async () => {
+    TestBed.resetTestingModule();
+    globalChrome.chrome = {
+      devtools: { inspectedWindow: { tabId: 5 } },
+      runtime: {
+        onMessage: {
+          addListener(cb: (msg: unknown) => void): void {
+            deliver = cb;
+          },
+        },
+        sendMessage(msg: SentRequest, callback?: (reply: unknown) => void): void {
+          requests.push(msg);
+          if (msg.type === 'angular-ai:picker-command') {
+            // What `background.js` answers when no content script received the forwarded command.
+            callback?.({ ok: false, reason: 'angular-ai:picker-command: no relay answered for tab 5' });
+            return;
+          }
+          callback?.({ ok: true });
+        },
+      },
+    };
+    TestBed.configureTestingModule({});
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    const refused = await ext.sendPickerCommand('arm');
+
+    // A visible failure carrying the background's words, not a swallowed one and not an armed state.
+    expect(refused).toEqual({
+      status: 'failed',
+      reason: 'angular-ai:picker-command: no relay answered for tab 5',
+    });
+    // Exactly one command message: the refusal is not retried.
+    expect(requests.filter((request) => request.type === 'angular-ai:picker-command')).toEqual([
+      { type: 'angular-ai:picker-command', tabId: 5, action: 'arm' },
+    ]);
+
+    // A refusal that names no reason still reads as a sentence rather than as a blank line.
+    TestBed.resetTestingModule();
+    globalChrome.chrome = {
+      devtools: { inspectedWindow: { tabId: 5 } },
+      runtime: {
+        onMessage: {
+          addListener(cb: (msg: unknown) => void): void {
+            deliver = cb;
+          },
+        },
+        sendMessage(msg: SentRequest, callback?: (reply: unknown) => void): void {
+          requests.push(msg);
+          callback?.(msg.type === 'angular-ai:picker-command' ? { ok: false } : { ok: true });
+        },
+      },
+    };
+    TestBed.configureTestingModule({});
+    const unreasoned = await TestBed.inject(ExtensionMessageService).sendPickerCommand('cancel');
+    expect(unreasoned.status).toBe('failed');
+    expect(unreasoned.status === 'failed' ? unreasoned.reason : '').toContain('angular-ai:picker-command');
+  });
+
+  it('reports a picker command whose transport throws as a failed send (AC6)', async () => {
+    TestBed.resetTestingModule();
+    globalChrome.chrome = {
+      devtools: { inspectedWindow: { tabId: 5 } },
+      runtime: {
+        onMessage: {
+          addListener(cb: (msg: unknown) => void): void {
+            deliver = cb;
+          },
+        },
+        sendMessage(msg: SentRequest, callback?: (reply: unknown) => void): void {
+          requests.push(msg);
+          if (msg.type === 'angular-ai:picker-command') {
+            // An invalidated extension context is the shipped case (`requestReplay` names it too).
+            throw new Error('Extension context invalidated');
+          }
+          callback?.({ ok: true });
+        },
+      },
+    };
+    TestBed.configureTestingModule({});
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    const thrown = await ext.sendPickerCommand('cancel');
+
+    expect(thrown.status).toBe('failed');
+    expect(thrown.status === 'failed' ? thrown.reason : '').toContain('Extension context invalidated');
+    // The command was attempted once and never retried.
+    expect(requests.filter((request) => request.type === 'angular-ai:picker-command')).toHaveLength(1);
+  });
+
+  it('reports a picker command it has no transport for, without throwing (AC6)', async () => {
+    TestBed.resetTestingModule();
+    globalChrome.chrome = {
+      devtools: { inspectedWindow: { tabId: 5 } },
+      runtime: {
+        onMessage: {
+          addListener(cb: (msg: unknown) => void): void {
+            deliver = cb;
+          },
+        },
+      },
+    };
+    TestBed.configureTestingModule({});
+    const ext = TestBed.inject(ExtensionMessageService);
+
+    const outcome = await ext.sendPickerCommand('arm');
+
+    expect(outcome.status).toBe('failed');
+    expect(outcome.status === 'failed' ? outcome.reason : '').toContain('angular-ai:picker-command');
   });
 });

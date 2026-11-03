@@ -44,6 +44,26 @@ export interface NoComponentPick {
 
 export type PickedDescriptor = ResolvedPick | NoDevApiPick | NoComponentPick;
 
+/**
+ * The picker's two commands. They are the panel's only words to the page: `arm` asks the overlay to
+ * take the next click, `cancel` asks it to stop. Nothing else is sent — there is no "confirm", no
+ * retry and no page read (T009).
+ */
+export type PickerAction = 'arm' | 'cancel';
+
+/**
+ * What became of one picker command. `sent` means the background accepted the command and forwarded
+ * it to the tab the panel names; `failed` carries the reason it did not, in the words of whoever
+ * refused it (the background's own, or this panel's when there was no transport to send through).
+ *
+ * The failure is a value rather than an exception so the surface can say what failed instead of
+ * showing an armed state it never managed to request (T009 AC6). There is no retry: a command that
+ * was refused stays visible until the next command.
+ */
+export type PickerCommandOutcome =
+  | { readonly status: 'sent' }
+  | { readonly status: 'failed'; readonly reason: string };
+
 interface ExtensionMessage {
   type?: string;
   version?: string;
@@ -90,6 +110,9 @@ interface ExtensionChrome {
 export class ExtensionMessageService {
   private readonly causeService = inject(UpdateCauseService);
   private readonly inspectedTabId: number | undefined;
+  // Kept from construction so the picker's two commands can be sent later; the replay is asked once
+  // and the commands are asked on a click, both through this same `chrome.runtime`.
+  private readonly runtime: ExtensionRuntime | undefined;
   readonly notSupported = signal<boolean>(false);
   readonly notSupportedReason = signal<string | null>(null);
   // The `angular-ai:state` payloads the page already publishes and this service used to drop:
@@ -120,6 +143,7 @@ export class ExtensionMessageService {
   constructor() {
     const chrome = (globalThis as { chrome?: ExtensionChrome }).chrome;
     const runtime = chrome?.runtime;
+    this.runtime = runtime;
     this.inspectedTabId = chrome?.devtools?.inspectedWindow?.tabId;
     if (runtime?.onMessage) {
       runtime.onMessage.addListener((msg: unknown) => {
@@ -157,6 +181,55 @@ export class ExtensionMessageService {
       // values rather than throwing out of construction, and the failed replay stays visible.
       this.replayOutcome.set('failed');
     }
+  }
+
+  /**
+   * Sends one picker command to the inspected tab, the way the replay request is sent: the panel
+   * names the tab, `extension/background.js` validates `tabId` and `action` and forwards the command
+   * through `chrome.tabs.sendMessage` to the relay in that tab, and the relay re-dispatches it inside
+   * the page for the overlay to consume.
+   *
+   * The outcome is answered, never thrown: a panel with no runtime to send through, a transport that
+   * throws (an invalidated extension context) and a background refusal (`{ ok: false, reason }`) all
+   * resolve `{ status: 'failed', reason }` so the surface can say what failed. Only a reply that is
+   * not the background's refusal counts as sent — and the surface still renders no armed state, because
+   * `armed` is the page's word and it arrives as `angular-ai:picker-state`, not as this reply.
+   *
+   * There is deliberately no retry: a refused command stays visible until the next one (T009 AC6).
+   */
+  sendPickerCommand(action: PickerAction): Promise<PickerCommandOutcome> {
+    const runtime = this.runtime;
+    // Captured once: a property read would lose its narrowing inside the reply closure below, and
+    // the runtime is the receiver `chrome.runtime.sendMessage` expects.
+    const send = runtime?.sendMessage;
+    if (runtime === undefined || typeof send !== 'function') {
+      // Nothing to send through, so nothing will ever answer: named, not swallowed.
+      return Promise.resolve({
+        status: 'failed',
+        reason: `the panel has no extension runtime to send angular-ai:picker-command through, so the ${action} command never left it`,
+      });
+    }
+    return new Promise<PickerCommandOutcome>((resolve) => {
+      try {
+        send.call(
+          runtime,
+          { type: 'angular-ai:picker-command', tabId: this.inspectedTabId, action },
+          (reply) => {
+            resolve(
+              isFailedReply(reply)
+                ? { status: 'failed', reason: refusalReason(reply) }
+                : { status: 'sent' },
+            );
+          },
+        );
+      } catch (error) {
+        // A transport that throws is a failed send, not an armed picker.
+        resolve({
+          status: 'failed',
+          reason: `angular-ai:picker-command could not be sent: ${describeError(error)}`,
+        });
+      }
+    });
   }
 
   private handleMessage(msg: ExtensionMessage) {
@@ -221,6 +294,25 @@ function isFailedReply(reply: unknown): boolean {
   return (
     typeof reply === 'object' && reply !== null && (reply as { ok?: unknown }).ok === false
   );
+}
+
+/**
+ * The words a refusal is reported in: the background's own `reason` when it gave one, and this
+ * panel's plain statement when it refused without one. A refusal must never read as a blank line.
+ */
+function refusalReason(reply: unknown): string {
+  const reason =
+    typeof reply === 'object' && reply !== null ? (reply as { reason?: unknown }).reason : undefined;
+  return typeof reason === 'string' && reason.trim().length > 0
+    ? reason
+    : 'the background refused angular-ai:picker-command without naming a reason';
+}
+
+/** A thrown transport failure as one sentence fragment, whatever the host threw. */
+function describeError(error: unknown): string {
+  return error instanceof Error && error.message.trim().length > 0
+    ? error.message
+    : String(error);
 }
 
 /**

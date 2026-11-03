@@ -1,0 +1,426 @@
+/**
+ * `PagePickerComponent` — M022 T009 (INTENT.md SC2; prohibitions N2).
+ *
+ * One case per rendering the task names, plus the decisions behind them: `awaiting-page` before the
+ * page speaks, `armed`, `locked` with the descriptor carried field by field, `cancelled`,
+ * `unavailable`, `no-dev-api` with its reason verbatim, and `no-component` — then that exactly one of
+ * the seven renders at a time, that `null` never renders as an empty or cancelled pick, that
+ * `no-dev-api` and `no-component` stay apart on screen, that every state, command and descriptor
+ * field carries its own `picker-` test id and none is the shipped `component-picker`, that arming and
+ * cancelling go through the service one command per click, that a failed send says what failed
+ * instead of showing an armed state, and that the route stays lazy.
+ *
+ * The page channel is a stub exposing the two signals the surface reads plus the one sender it
+ * calls: the real `ExtensionMessageService` talks to `chrome.runtime` in its constructor, and the
+ * command payloads it sends are asserted in `extension-message.service.spec.ts` instead. The
+ * projection's decisions are asserted directly on `pickerSurface`, so the spec reads a decision
+ * rather than a template's punctuation.
+ */
+import { type WritableSignal, signal } from '@angular/core';
+import { TestBed, type ComponentFixture } from '@angular/core/testing';
+import { describe, expect, it } from 'vitest';
+import { appRoutes } from './app.routes';
+import { ExtensionMessageService } from './extension-message.service';
+import type {
+  PickedDescriptor,
+  PickerAction,
+  PickerCommandOutcome,
+  PickerState,
+} from './extension-message.service';
+import { PagePickerComponent, pickerSurface } from './page-picker.component';
+import type { PickerSurfaceKind } from './page-picker.component';
+
+/** The seven names, in the order the task lists them. */
+const STATE_KINDS: readonly PickerSurfaceKind[] = [
+  'awaiting-page',
+  'armed',
+  'locked',
+  'cancelled',
+  'unavailable',
+  'no-dev-api',
+  'no-component',
+];
+
+/**
+ * A resolved descriptor whose four fields are deliberately four different strings, so a surface that
+ * re-derived any of them — from the tag, or from the path — would render something else (AC4).
+ */
+const RESOLVED: PickedDescriptor = {
+  status: 'resolved',
+  elementTag: 'button',
+  componentName: 'app-counter',
+  className: 'CounterButtonComponent',
+  componentPath: ['CounterButtonComponent', 'AppComponent', 'AppRootComponent'],
+};
+
+/** The named no-dev-API outcome, with the page's own reason (E4). */
+const NO_DEV_API = {
+  status: 'no-dev-api',
+  reason:
+    'the picked element carries no __ngContext__; this page may be a production build',
+} as const satisfies PickedDescriptor;
+
+/** A dev context that owns no component: a named outcome of its own (E4). */
+const NO_COMPONENT: PickedDescriptor = { status: 'no-component' };
+
+/** The service standing in for `ExtensionMessageService`: the same member names, real signals. */
+interface FakeExtension {
+  readonly pickerState: WritableSignal<PickerState | null>;
+  readonly picked: WritableSignal<PickedDescriptor | null>;
+  readonly outcome: WritableSignal<PickerCommandOutcome>;
+  sendPickerCommand(action: PickerAction): Promise<PickerCommandOutcome>;
+}
+
+/** What a case varies: the page's two answers, and what the send answers. */
+interface Page {
+  readonly state?: PickerState | null;
+  readonly picked?: PickedDescriptor | null;
+  readonly outcome?: PickerCommandOutcome;
+}
+
+interface Rendered {
+  readonly fixture: ComponentFixture<PagePickerComponent>;
+  readonly ext: FakeExtension;
+  /** Every action the surface asked the service to send, in order. */
+  readonly commands: PickerAction[];
+}
+
+function renderPicker(page: Page = {}): Rendered {
+  TestBed.resetTestingModule();
+  const commands: PickerAction[] = [];
+  const ext: FakeExtension = {
+    pickerState: signal<PickerState | null>(page.state ?? null),
+    picked: signal<PickedDescriptor | null>(page.picked ?? null),
+    outcome: signal<PickerCommandOutcome>(page.outcome ?? { status: 'sent' }),
+    sendPickerCommand(action: PickerAction): Promise<PickerCommandOutcome> {
+      commands.push(action);
+      return Promise.resolve(ext.outcome());
+    },
+  };
+  TestBed.configureTestingModule({
+    imports: [PagePickerComponent],
+    providers: [{ provide: ExtensionMessageService, useValue: ext }],
+  });
+  const fixture = TestBed.createComponent(PagePickerComponent);
+  fixture.detectChanges();
+  return { fixture, ext, commands };
+}
+
+/** Every element carrying a test id, in document order. */
+function all(
+  fixture: ComponentFixture<PagePickerComponent>,
+  testId: string,
+): readonly HTMLElement[] {
+  const found: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll(
+    `[data-testid="${testId}"]`,
+  );
+  return Array.from(found);
+}
+
+/** Whether an element with that test id rendered at all. */
+function has(fixture: ComponentFixture<PagePickerComponent>, testId: string): boolean {
+  return all(fixture, testId).length > 0;
+}
+
+/** The trimmed text of the first element with that test id, or `''` when none rendered. */
+function text(fixture: ComponentFixture<PagePickerComponent>, testId: string): string {
+  return (all(fixture, testId)[0]?.textContent ?? '').trim();
+}
+
+/** The one state's own name, read from the surface's `data-state`. */
+function surfaceState(fixture: ComponentFixture<PagePickerComponent>): string | null {
+  return all(fixture, 'picker-surface')[0]?.getAttribute('data-state') ?? null;
+}
+
+/** Which of the seven state test ids rendered — the "exactly one state per render" reading. */
+function renderedStates(fixture: ComponentFixture<PagePickerComponent>): readonly string[] {
+  return STATE_KINDS.filter((kind) => has(fixture, `picker-state-${kind}`));
+}
+
+/** Clicks a command button and renders the click. */
+function click(fixture: ComponentFixture<PagePickerComponent>, testId: string): void {
+  const button = all(fixture, testId)[0];
+  if (button === undefined) {
+    throw new Error(`no ${testId} to click`);
+  }
+  button.click();
+  fixture.detectChanges();
+}
+
+/** Lets the command's promise settle, then renders the outcome it wrote. */
+async function settle(fixture: ComponentFixture<PagePickerComponent>): Promise<void> {
+  for (let turn = 0; turn < 4; turn += 1) {
+    await Promise.resolve();
+  }
+  fixture.detectChanges();
+}
+
+describe('PagePickerComponent', () => {
+  it('renders the wait, not an empty or cancelled pick, before the page speaks (AC2)', () => {
+    const { fixture } = renderPicker();
+
+    expect(surfaceState(fixture)).toBe('awaiting-page');
+    expect(renderedStates(fixture)).toEqual(['awaiting-page']);
+    expect(text(fixture, 'picker-state-awaiting-page')).toContain('has not answered');
+    // A panel with no news is not a cancelled pick and not a pick with nothing in it.
+    expect(has(fixture, 'picker-state-cancelled')).toBe(false);
+    expect(has(fixture, 'picker-element-tag')).toBe(false);
+    expect(has(fixture, 'picker-component-path')).toBe(false);
+  });
+
+  it('renders the page\'s armed state as itself', () => {
+    const { fixture } = renderPicker({ state: { status: 'armed', reason: null } });
+
+    expect(surfaceState(fixture)).toBe('armed');
+    expect(renderedStates(fixture)).toEqual(['armed']);
+    expect(text(fixture, 'picker-state-armed')).toContain('armed');
+    // Armed is the page's word, so it is never the descriptor rendering and never the wait.
+    expect(has(fixture, 'picker-state-awaiting-page')).toBe(false);
+    expect(has(fixture, 'picker-element-tag')).toBe(false);
+  });
+
+  it('renders the locked descriptor exactly as the payload carried it (AC4)', () => {
+    const { fixture } = renderPicker({ picked: RESOLVED });
+
+    expect(surfaceState(fixture)).toBe('locked');
+    expect(renderedStates(fixture)).toEqual(['locked']);
+    // Four carried fields, four different strings: nothing here is re-derived from the tag or the path.
+    expect(text(fixture, 'picker-element-tag')).toBe('button');
+    expect(text(fixture, 'picker-component-name')).toBe('app-counter');
+    expect(text(fixture, 'picker-class-name')).toBe('CounterButtonComponent');
+    expect(all(fixture, 'picker-path-entry').map((entry) => (entry.textContent ?? '').trim())).toEqual([
+      'CounterButtonComponent',
+      'AppComponent',
+      'AppRootComponent',
+    ]);
+  });
+
+  it('renders the page\'s cancellation with its reason, and retires an earlier descriptor (AC2)', () => {
+    const { fixture } = renderPicker({
+      state: { status: 'cancelled', reason: 'cancelled from the panel' },
+      picked: RESOLVED,
+    });
+
+    expect(surfaceState(fixture)).toBe('cancelled');
+    expect(renderedStates(fixture)).toEqual(['cancelled']);
+    // The reason is the page's own words, verbatim.
+    expect(text(fixture, 'picker-cancelled-reason')).toBe('cancelled from the panel');
+    // A terminal state says the pick produced no descriptor, so the held one is not shown.
+    expect(has(fixture, 'picker-element-tag')).toBe(false);
+    expect(has(fixture, 'picker-state-armed')).toBe(false);
+  });
+
+  it('renders unavailable with the page\'s bounded reason, and it is not a cancel (AC2)', () => {
+    const { fixture } = renderPicker({
+      state: { status: 'unavailable', reason: 'no descriptor within 1500 ms of the lock' },
+    });
+
+    expect(surfaceState(fixture)).toBe('unavailable');
+    expect(renderedStates(fixture)).toEqual(['unavailable']);
+    expect(text(fixture, 'picker-unavailable-reason')).toBe('no descriptor within 1500 ms of the lock');
+    expect(has(fixture, 'picker-cancelled-reason')).toBe(false);
+    expect(has(fixture, 'picker-state-cancelled')).toBe(false);
+  });
+
+  it('renders no-dev-api with its reason verbatim, as a state and not as an error (AC5)', () => {
+    const { fixture } = renderPicker({ picked: NO_DEV_API });
+
+    expect(surfaceState(fixture)).toBe('no-dev-api');
+    expect(renderedStates(fixture)).toEqual(['no-dev-api']);
+    // Rendered as the state's own sentence, and the reason as the page wrote it.
+    expect(text(fixture, 'picker-no-dev-api-reason')).toBe(NO_DEV_API.reason);
+    expect(text(fixture, 'picker-state-no-dev-api')).toContain('no Angular dev API');
+    expect(has(fixture, 'picker-element-tag')).toBe(false);
+    expect(has(fixture, 'picker-state-no-component')).toBe(false);
+  });
+
+  it('keeps no-dev-api and no-component apart on screen (AC5)', () => {
+    const devApi = renderPicker({ picked: NO_DEV_API });
+    const devApiMessage = text(devApi.fixture, 'picker-state-no-dev-api');
+    const devApiReason = text(devApi.fixture, 'picker-no-dev-api-reason');
+
+    const noComponent = renderPicker({ picked: NO_COMPONENT });
+    const noComponentMessage = text(noComponent.fixture, 'picker-state-no-component');
+
+    expect(surfaceState(noComponent.fixture)).toBe('no-component');
+    expect(renderedStates(noComponent.fixture)).toEqual(['no-component']);
+    // Two different sentences, and only one of the two carries a reason: the collapsed state the
+    // intent forbids (E4) would give both the same rendering.
+    expect(noComponentMessage).not.toBe(devApiMessage);
+    expect(noComponentMessage).toContain('no component instance owns it');
+    expect(devApiReason).toBe(NO_DEV_API.reason);
+    expect(has(noComponent.fixture, 'picker-no-dev-api-reason')).toBe(false);
+  });
+
+  it('renders exactly one of the seven named states per render (AC2)', () => {
+    const cases: ReadonlyArray<{ readonly kind: PickerSurfaceKind; readonly page: Page }> = [
+      { kind: 'awaiting-page', page: {} },
+      { kind: 'armed', page: { state: { status: 'armed', reason: null } } },
+      { kind: 'locked', page: { picked: RESOLVED } },
+      { kind: 'cancelled', page: { state: { status: 'cancelled', reason: null } } },
+      { kind: 'unavailable', page: { state: { status: 'unavailable', reason: null } } },
+      { kind: 'no-dev-api', page: { picked: NO_DEV_API } },
+      { kind: 'no-component', page: { picked: NO_COMPONENT } },
+    ];
+
+    for (const { kind, page } of cases) {
+      const { fixture } = renderPicker(page);
+      expect(renderedStates(fixture), kind).toEqual([kind]);
+      expect(surfaceState(fixture), kind).toBe(kind);
+    }
+    // All seven names are covered by the table above: none was left unrendered or invented.
+    expect(cases.map((entry) => entry.kind)).toEqual([...STATE_KINDS]);
+  });
+
+  it('gives every state, command and descriptor field its own picker- test id (AC3)', () => {
+    const { fixture } = renderPicker({ picked: RESOLVED });
+    const ids = Array.from(
+      fixture.nativeElement.querySelectorAll('[data-testid]') as NodeListOf<HTMLElement>,
+    ).map((element) => element.getAttribute('data-testid') ?? '');
+
+    // `component-picker` is the shipped selects' test id; a driver would hit whichever route loaded.
+    expect(ids).not.toContain('component-picker');
+    for (const id of ids) {
+      expect(id.startsWith('picker-'), id).toBe(true);
+    }
+    // The commands and every descriptor field each have their own.
+    for (const id of [
+      'picker-arm',
+      'picker-cancel',
+      'picker-surface',
+      'picker-state-locked',
+      'picker-element-tag',
+      'picker-component-name',
+      'picker-class-name',
+      'picker-component-path',
+      'picker-path-entry',
+    ]) {
+      expect(ids, id).toContain(id);
+    }
+  });
+
+  it('sends arm and cancel through the service, one command per click (AC6)', async () => {
+    const { fixture, commands } = renderPicker();
+
+    click(fixture, 'picker-arm');
+    await settle(fixture);
+    click(fixture, 'picker-cancel');
+    await settle(fixture);
+
+    expect(commands).toEqual(['arm', 'cancel']);
+    // No optimistic armed state: the surface still waits, because the page has said nothing.
+    expect(has(fixture, 'picker-state-armed')).toBe(false);
+    expect(surfaceState(fixture)).toBe('awaiting-page');
+    expect(has(fixture, 'picker-command-failure')).toBe(false);
+  });
+
+  it('says what failed instead of showing an armed state when the send fails (AC6)', async () => {
+    const { fixture, commands } = renderPicker({
+      outcome: {
+        status: 'failed',
+        reason: 'angular-ai:picker-command: no relay answered for tab 5',
+      },
+    });
+
+    click(fixture, 'picker-arm');
+    await settle(fixture);
+
+    // The failure is visible, with the refusal's own words.
+    expect(text(fixture, 'picker-command-failure')).toContain('Arming the picker failed');
+    expect(text(fixture, 'picker-command-failure')).toContain(
+      'angular-ai:picker-command: no relay answered for tab 5',
+    );
+    // And it is not presented as an armed picker.
+    expect(has(fixture, 'picker-state-armed')).toBe(false);
+    expect(surfaceState(fixture)).toBe('awaiting-page');
+    // One attempt, no retry loop.
+    expect(commands).toEqual(['arm']);
+  });
+
+  it('clears a stale failure when a later command is sent (AC6)', async () => {
+    const { fixture, ext } = renderPicker({
+      outcome: { status: 'failed', reason: 'no extension runtime to send through' },
+    });
+
+    click(fixture, 'picker-arm');
+    await settle(fixture);
+    expect(has(fixture, 'picker-command-failure')).toBe(true);
+
+    ext.outcome.set({ status: 'sent' });
+    click(fixture, 'picker-cancel');
+    await settle(fixture);
+
+    expect(has(fixture, 'picker-command-failure')).toBe(false);
+    expect(surfaceState(fixture)).toBe('awaiting-page');
+  });
+
+  it('stays a lazy route, so the initial bundle gains no surface byte (AC1)', async () => {
+    const route = appRoutes.find((candidate) => candidate.path === 'picker');
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the picker route must exist and load lazily');
+    }
+
+    // Lazy and only lazy: no eager `component`, and the chunk resolves to this component.
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PagePickerComponent);
+    expect(appRoutes.filter((candidate) => candidate.loadComponent !== undefined).map((candidate) => candidate.path)).toContain(
+      'picker',
+    );
+  });
+});
+
+describe('pickerSurface', () => {
+  it('answers the wait for a panel the page has not spoken to, never a cancel (AC2)', () => {
+    const surface = pickerSurface(null, null);
+
+    expect(surface.kind).toBe('awaiting-page');
+    // The wait is not an empty pick and not a cancellation: its own name, and no descriptor.
+    expect(surface.kind === 'awaiting-page' ? surface.message : '').toContain('has not answered');
+    expect('elementTag' in surface).toBe(false);
+  });
+
+  it('keeps a held descriptor as the more specific answer while the page reports armed', () => {
+    // `armed` is followed by a lock, so the descriptor the page resolved is what the surface shows.
+    expect(pickerSurface({ status: 'armed', reason: null }, RESOLVED).kind).toBe('locked');
+  });
+
+  it('retires a held descriptor when the page reports a terminal state', () => {
+    expect(pickerSurface({ status: 'cancelled', reason: 'stopped' }, RESOLVED).kind).toBe(
+      'cancelled',
+    );
+    expect(pickerSurface({ status: 'unavailable', reason: 'no answer' }, RESOLVED).kind).toBe(
+      'unavailable',
+    );
+  });
+
+  it('carries the descriptor\'s fields unchanged, including what the payload did not carry (AC4)', () => {
+    const locked = pickerSurface(null, {
+      status: 'resolved',
+      elementTag: 'div',
+      componentName: null,
+      className: 'PanelComponent',
+      componentPath: [],
+    });
+
+    expect(locked.kind).toBe('locked');
+    if (locked.kind !== 'locked') {
+      throw new Error('a resolved descriptor must render the locked state');
+    }
+    expect(locked.elementTag).toBe('div');
+    // A member the payload did not carry stays null; nothing is filled in from the page.
+    expect(locked.componentName).toBeNull();
+    expect(locked.className).toBe('PanelComponent');
+    expect(locked.componentPath).toEqual([]);
+  });
+
+  it('keeps no-dev-api, no-component and unavailable as three different renderings', () => {
+    const kinds = [
+      pickerSurface(null, NO_DEV_API).kind,
+      pickerSurface(null, NO_COMPONENT).kind,
+      pickerSurface({ status: 'unavailable', reason: 'no answer' }, null).kind,
+    ];
+
+    expect(kinds).toEqual(['no-dev-api', 'no-component', 'unavailable']);
+    expect(new Set(kinds).size).toBe(3);
+  });
+});
