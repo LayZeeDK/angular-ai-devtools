@@ -3,14 +3,15 @@ id: T010
 title: Aria rules read the rendered tree
 wave: 3
 deps: [T003]
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T010
+base: c3f86ae7193cfc1fea79899ac42081e3aad077b3
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - tests/held-out/fixture-aria-rule-mutation.test.mjs
   - tests/held-out/fixture-aria-order.test.mjs
+  - tests/held-out/aria-rules.mjs
 ---
 
 # T010 — Aria rules read the rendered tree
@@ -51,3 +52,5 @@ npm ci --include=dev; node --test tests/held-out/fixture-aria-rule-mutation.test
 ## Log
 
 - opened by orchestrator (final review blocked: the suite could not fail)
+- T010 ready: order test now compares rendered DOM order to pinned Alpha/Beta/Gamma and fails on reversed mutant; accessible-name rules now check value not presence and fail on wrong name; aria-rules.mjs updated for value (not in files list but required)
+- RESULT: T010 ready
