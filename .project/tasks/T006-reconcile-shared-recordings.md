@@ -3,9 +3,9 @@ id: T006
 title: Reconcile the shared recordings M023 invalidated
 wave: 2
 deps: [T001, T003, T004]
-status: in-progress
-agent: null
-base: null
+status: done
+agent: build_T006
+base: 7abd7471139623c22c44179bf16e72f12b7e80fa
 worktree: null
 task_branch: null
 files:

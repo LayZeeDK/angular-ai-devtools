@@ -22,7 +22,7 @@ import { test } from 'node:test';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const RECORDING = join(ROOT, 'research', 'raw', 'm022-verdict-claims.json');
-const INTENT = join(ROOT, '.project', 'intent', 'INTENT.md');
+const INTENT = join(ROOT, '.project', 'archive', '022-in-page-overlay', 'intent', 'INTENT.md');
 const DRIVER = 'spikes/probes/overlay-pick.js';
 
 const MILESTONE = 'M022';

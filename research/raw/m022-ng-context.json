@@ -15,7 +15,7 @@
       "bundles": [
         "main.js"
       ],
-      "bytes": 1357558,
+      "bytes": 1899687,
       "unminified": true,
       "ngContextWrite": {
         "present": true,
@@ -46,18 +46,18 @@
     "production": {
       "configuration": "production",
       "bundles": [
-        "main-BKDFOLBT.js"
+        "main-WEHNWX7A.js"
       ],
-      "bytes": 197575,
+      "bytes": 383132,
       "unminified": false,
       "ngContextWrite": {
         "present": true,
-        "binding": "var od=\"__ngContext__\"",
-        "identifier": "od",
+        "binding": "var _m=\"__ngContext__\"",
+        "identifier": "_m",
         "writeSites": 2,
         "writeSnippets": [
-          "__ngContext__\";function Sr(e,t){at(t)?(e[od]=t[cr],wm(t)):e[od]=t}function Wd(e){return Qd(e[Dn])}fu",
-          "tion Sr(e,t){at(t)?(e[od]=t[cr],wm(t)):e[od]=t}function Wd(e){return Qd(e[Dn])}function Gd(e){return"
+          "__ngContext__\";function so(e,t){tn(t)?(e[_m]=t[ei],wS(t)):e[_m]=t}function pg(e){return mg(e[Zr])}fu",
+          "tion so(e,t){tn(t)?(e[_m]=t[ei],wS(t)):e[_m]=t}function pg(e){return mg(e[Zr])}function hg(e){return"
         ]
       },
       "ngGlobalSurface": {

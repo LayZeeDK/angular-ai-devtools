@@ -4,15 +4,17 @@ Audited: 2026-11-03
 Audited HEAD: 9d3c711dd030d23b5647a2b2cb46df96f225abe3
 Alignment mode: no
 
+Claim rows audited: 760 across 143 documents; with the 2 descriptive documents, the 145 frozen inventory paths.
+
 ## Summary
 
 | Verdict | Count |
 |---------|-------|
-| verified | 638 |
+| verified | 634 |
 | stale | 14 |
 | aspirational | 2 |
 | unverifiable | 110 |
-| descriptive docs (no testable claims) | 1 |
+| descriptive docs (no testable claims) | 2 |
 
 ## Doc: .claude/skills/control-ai-browsers/SKILL.md
 
@@ -1182,15 +1184,6 @@ Alignment mode: no
 | "The `lars-create-control-skill` contract (`references/generated-skill.md`)." | structure | unverifiable | references/ now holds only ai-browsers-verification.md and edge-dev-aion-model.md; the contract itself is user-scope, so `~/.commandcode/skills/lars-create-control-skill` is what settles this row; scripts/docs-audit-disposition.test.mjs |
 | "Lars's rulings, verbatim: `docs/feature-proposals.md` section 8, 'Rulings from Lars'." | integration | verified | .project/CHARTER.md:225 - the 2026-11-01 (A1) correction cites the same ruling that feature-proposals.md section 8 records verbatim |
 
-## Doc: docs/autonomy-gaps.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Pin: `scripts/autonomy-gaps.test.mjs` rule `G1`" | structure | verified | scripts/autonomy-gaps.test.mjs names the G1 rule in four places and holds 15 top-level `test(` calls, the count the doc's own Verified line quotes |
-| "`node --experimental-strip-types --test scripts/autonomy-gaps.test.mjs` exit 0 - `tests 15 / pass 15 / fail 0`" | status | verified | package.json:11 - the `test` script runs `node --experimental-strip-types --test "scripts/**/*.test.mjs"`, the runner quoted, and the file holds 15 tests |
-| "`scripts/user-scope-autonomy.mjs` resolves the exact segments the pins read" | structure | verified | package.json:11 runs scripts/run-user-scope-tests.mjs alongside the root suites, and scripts/user-scope-autonomy.mjs is the module in the checkout that does that resolution |
-| "Every user-scope edit it describes was made outside this checkout, under `C:\Users\LarsGyrupBrinkNielse\.commandcode\`" | integration | verified | ~/.commandcode/skills/gsd-path/scripts/workflow_run.py:107 - the pipeline helper that refuses on prior inspection evidence lives in that user-scope tree, not in the checkout |
-
 ## Doc: docs/design/tutor.md
 
 | Claim | Type | Verdict | Evidence |
@@ -1500,6 +1493,7 @@ Alignment mode: no
 
 ## Descriptive docs
 - .commandcode/taste/taste.md
+- docs/autonomy-gaps.md
 
 ## User rulings
 
