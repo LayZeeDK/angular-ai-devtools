@@ -1,0 +1,185 @@
+{
+  "probe": "M022 T002 — document.elementFromPoint over the tool's closed, pointer-events: none host",
+  "milestone": "M022",
+  "date": "2026-11-03",
+  "driver": "spikes/probes/hit-test.js",
+  "runCommand": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run <profile> spikes/probes/hit-test.js",
+  "method": {
+    "page": "about:blank, in a tab the control script opens and closes: the probe builds the page element and the host it measures, so the reading does not depend on a server, a fixture or a build",
+    "host": "the probe creates the host the product will create — id angular-ai-devtools-host, position: fixed, attachShadow({ mode: 'closed' }), pointer-events: none, appended to document.documentElement (SYNTHESIS decision 5) — and one page element under it, at one known point",
+    "point": "the centre of a 200 x 80 px fixed box at viewport point (140, 80), the same point on every profile",
+    "readings": [
+      "baseline — document.elementFromPoint before the host exists, proving the point is over the page element and the measurement is not vacuous",
+      "measured — the product configuration: the host with pointer-events: none",
+      "comparison — the same probe host with pointer-events: auto, for comparison only; never the product configuration"
+    ],
+    "identity": "the answer is classified by node reference as the tool's host (node probe-host, or probe-host-inner-node when an inner node of the closed root is returned unretargeted), a page element, nothing, or other",
+    "cleanup": "the probe removes the host and the page element in a finally block and re-counts document.querySelectorAll('[id^=\"angular-ai-devtools\"]'); every row reports toolElementsAfter 0, so nothing was left in the page and no page global was written",
+    "version": "the page's user agent is reduced to <major>.0.0.0, so the build that answered was read over one CDP session with Browser.getVersion (a read)"
+  },
+  "profiles": [
+    {
+      "profile": "chrome-stable-nano",
+      "browser": "Chrome stable",
+      "browserVersion": "156.0.8078.80",
+      "buildProduct": "Chrome/156.0.8078.80",
+      "host": {
+        "id": "angular-ai-devtools-host",
+        "mode": "closed",
+        "pointerEvents": "none",
+        "rootBoxPointerEvents": "none",
+        "position": "fixed",
+        "parent": "documentElement"
+      },
+      "point": { "x": 140, "y": 80 },
+      "measured": {
+        "at": "2026-11-03T04:12:00.198Z",
+        "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-stable-nano spikes/probes/hit-test.js",
+        "page": "about:blank",
+        "viewport": { "width": 1100, "height": 874, "devicePixelRatio": 1.75 },
+        "baseline": { "kind": "page-element", "node": "page-element", "tag": "div", "id": "angular-ai-devtools-hit-test-page-element" },
+        "returned": { "kind": "page-element", "node": "page-element", "tag": "div", "id": "angular-ai-devtools-hit-test-page-element" },
+        "stack": ["div#angular-ai-devtools-hit-test-page-element", "body", "html"],
+        "cleanup": { "hostRemoved": true, "pageElementRemoved": true, "toolElementsAfter": 0 },
+        "evidence": ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261103-041200/chrome-stable-nano-run-1793679125204.json"
+      },
+      "comparison": {
+        "why": "not the product configuration: the same probe host with pointer-events: auto, taken to show how a hit-testable host answers and whether the engine retargets an inner node of the closed root",
+        "hostPointerEvents": "auto",
+        "returned": { "kind": "tool-host", "node": "probe-host", "tag": "div", "id": "angular-ai-devtools-host" },
+        "restored": { "kind": "page-element", "node": "page-element", "tag": "div", "id": "angular-ai-devtools-hit-test-page-element" }
+      }
+    },
+    {
+      "profile": "chrome-beta-gemma4",
+      "browser": "Chrome Beta",
+      "browserVersion": "158.0.8127.2",
+      "buildProduct": "Chrome/158.0.8127.2",
+      "host": {
+        "id": "angular-ai-devtools-host",
+        "mode": "closed",
+        "pointerEvents": "none",
+        "rootBoxPointerEvents": "none",
+        "position": "fixed",
+        "parent": "documentElement"
+      },
+      "point": { "x": 140, "y": 80 },
+      "measured": {
+        "at": "2026-11-03T04:06:25.580Z",
+        "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-gemma4 spikes/probes/hit-test.js",
+        "page": "about:blank",
+        "viewport": { "width": 1092, "height": 863, "devicePixelRatio": 1.75 },
+        "baseline": { "kind": "page-element", "node": "page-element", "tag": "div", "id": "angular-ai-devtools-hit-test-page-element" },
+        "returned": { "kind": "page-element", "node": "page-element", "tag": "div", "id": "angular-ai-devtools-hit-test-page-element" },
+        "stack": ["div#angular-ai-devtools-hit-test-page-element", "body", "html"],
+        "cleanup": { "hostRemoved": true, "pageElementRemoved": true, "toolElementsAfter": 0 },
+        "evidence": ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261103-040625/chrome-beta-gemma4-run-1793678790456.json"
+      },
+      "comparison": {
+        "why": "not the product configuration: the same probe host with pointer-events: auto, taken to show how a hit-testable host answers and whether the engine retargets an inner node of the closed root",
+        "hostPointerEvents": "auto",
+        "returned": { "kind": "tool-host", "node": "probe-host", "tag": "div", "id": "angular-ai-devtools-host" },
+        "restored": { "kind": "page-element", "node": "page-element", "tag": "div", "id": "angular-ai-devtools-hit-test-page-element" }
+      }
+    },
+    {
+      "profile": "edge-dev-aion",
+      "browser": "Edge Dev",
+      "browserVersion": "158.0.4357.0",
+      "buildProduct": "Edg/158.0.4357.0",
+      "host": {
+        "id": "angular-ai-devtools-host",
+        "mode": "closed",
+        "pointerEvents": "none",
+        "rootBoxPointerEvents": "none",
+        "position": "fixed",
+        "parent": "documentElement"
+      },
+      "point": { "x": 140, "y": 80 },
+      "measured": {
+        "at": "2026-11-03T04:06:49.748Z",
+        "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run edge-dev-aion spikes/probes/hit-test.js",
+        "page": "about:blank",
+        "viewport": { "width": 1068, "height": 832, "devicePixelRatio": 1.75 },
+        "baseline": { "kind": "page-element", "node": "page-element", "tag": "div", "id": "angular-ai-devtools-hit-test-page-element" },
+        "returned": { "kind": "page-element", "node": "page-element", "tag": "div", "id": "angular-ai-devtools-hit-test-page-element" },
+        "stack": ["div#angular-ai-devtools-hit-test-page-element", "body", "html"],
+        "cleanup": { "hostRemoved": true, "pageElementRemoved": true, "toolElementsAfter": 0 },
+        "evidence": ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261103-040649/edge-dev-aion-run-1793678814958.json"
+      },
+      "comparison": {
+        "why": "not the product configuration: the same probe host with pointer-events: auto, taken to show how a hit-testable host answers and whether the engine retargets an inner node of the closed root",
+        "hostPointerEvents": "auto",
+        "returned": { "kind": "tool-host", "node": "probe-host", "tag": "div", "id": "angular-ai-devtools-host" },
+        "restored": { "kind": "page-element", "node": "page-element", "tag": "div", "id": "angular-ai-devtools-hit-test-page-element" }
+      }
+    },
+    {
+      "profile": "edge-phi4mini",
+      "browser": "Edge stable",
+      "browserVersion": "156.0.4314.58",
+      "buildProduct": "Edg/156.0.4314.58",
+      "host": {
+        "id": "angular-ai-devtools-host",
+        "mode": "closed",
+        "pointerEvents": "none",
+        "rootBoxPointerEvents": "none",
+        "position": "fixed",
+        "parent": "documentElement"
+      },
+      "point": { "x": 140, "y": 80 },
+      "measured": {
+        "at": "2026-11-03T04:07:12.841Z",
+        "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run edge-phi4mini spikes/probes/hit-test.js",
+        "page": "about:blank",
+        "viewport": { "width": 1061, "height": 825, "devicePixelRatio": 1.75 },
+        "baseline": { "kind": "page-element", "node": "page-element", "tag": "div", "id": "angular-ai-devtools-hit-test-page-element" },
+        "returned": { "kind": "page-element", "node": "page-element", "tag": "div", "id": "angular-ai-devtools-hit-test-page-element" },
+        "stack": ["div#angular-ai-devtools-hit-test-page-element", "body", "html"],
+        "cleanup": { "hostRemoved": true, "pageElementRemoved": true, "toolElementsAfter": 0 },
+        "evidence": ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261103-040712/edge-phi4mini-run-1793678838178.json"
+      },
+      "comparison": {
+        "why": "not the product configuration: the same probe host with pointer-events: auto, taken to show how a hit-testable host answers and whether the engine retargets an inner node of the closed root",
+        "hostPointerEvents": "auto",
+        "returned": { "kind": "tool-host", "node": "probe-host", "tag": "div", "id": "angular-ai-devtools-host" },
+        "restored": { "kind": "page-element", "node": "page-element", "tag": "div", "id": "angular-ai-devtools-hit-test-page-element" }
+      }
+    }
+  ],
+  "ruling": {
+    "hitOnTheToolHost": "the tool, not a candidate",
+    "hitOnAPageElement": "the candidate",
+    "hitOnNothing": "no candidate at that point",
+    "reliesOnEngineRetargeting": false,
+    "statement": "The hover path maps a hit that returns the tool's own host — or any node inside its closed root — to \"the tool, not a candidate\", and never to a picked element, while a hit that returns a page element is used as the candidate. The mapping is correct whether or not an engine retargets an inner node of a closed root to its host, so the picker does not lean on the 2026 CSSWG retargeting resolution or on any engine's behaviour: the four measured readings return the page element, and the comparison reading, which does return the host, is recorded to show how a hit-testable host answers, never to be depended on.",
+    "pointerEvents": "the host's product value is pointer-events: none on every profile and inside its closed root, so the host cannot swallow a pick; a value that made the host hit-testable would turn every hover over the drawn rect into the tool instead of the element beneath it",
+    "visualViewport": {
+      "scaleIsARectInputFor": "nothing",
+      "statement": "`visualViewport.scale` is read for nothing: pinch zoom moves no layout coordinate, so no rect input depends on it and pinch zoom is out of scope (INTENT § Scope, Out). `visualViewport.width`/`height`/`offsetLeft`/`offsetTop` are read only to clamp the label inside the viewport.",
+      "pinchZoom": "out of scope"
+    },
+    "rectInputs": [
+      "window scroll (capture)",
+      "window resize",
+      "visualViewport resize and scroll",
+      "matchMedia('(resolution: <devicePixelRatio>dppx)') change",
+      "requestAnimationFrame while a selection exists"
+    ]
+  },
+  "doesNotSettle": [
+    {
+      "question": "what does elementFromPoint answer over the product's live overlay on an inspected Angular page, rather than over a probe-built host on about:blank?",
+      "settledFor": "the shape the overlay will build — closed root, pointer-events: none, appended to documentElement — measured on all four charter profiles; the answer there is the page element on every profile.",
+      "stillOpen": "the probe host carries no rect, label or per-frame style writes, and the measured page is about:blank; a page element that is itself pointer-events: none, a transformed ancestor or a nested shadow root of the page was not measured.",
+      "probeThatWouldSettleIt": "run the same three readings inside the armed picker on the counter fixture once T008 draws a rect: hover a page element under the drawn rect and record what the hover path resolves."
+    },
+    {
+      "question": "do engines other than these four retarget a closed root's inner node to its host?",
+      "settledFor": "Chrome 156, Chrome 158, Edge 156 and Edge 158 — the four charter profiles — each return the host in the comparison reading, so retargeting is observable there.",
+      "stillOpen": "Firefox and Safari ship no Prompt API and sit outside the charter, so neither was driven; the comparison reading is evidence about these four builds, not a platform guarantee.",
+      "probeThatWouldSettleIt": "re-run spikes/probes/hit-test.js on any added profile before claiming the mapping holds there."
+    }
+  ],
+  "verdict": "measured: on all four charter profiles a point over a closed, pointer-events: none host returns the page element beneath it, and the same host with pointer-events: auto returns the host — so the picker maps a host hit to the tool and a page-element hit to the candidate, never leaning on retargeting"
+}
