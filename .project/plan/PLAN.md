@@ -83,6 +83,8 @@ Review depth: full
 | SC2 | T010 | AC1 |
 | SC3 | T011 | AC1 |
 | SC4 | T012 | AC1 |
+| SC1 | T013 | AC1 |
+| SC2 | T014 | AC1 |
 
 ## Held-out checks
 
@@ -164,5 +166,17 @@ with an assertion whose named mutant reddens it.
 | T010 | E5 and the Aria rules reading rendered DOM, not source |
 | T011 | E7 — rebuild idempotency |
 | T012 | the milestone-coupled verdict-claims test |
+
+Review depth: full
+
+## Wave 4 — the review's findings
+
+Goal: close the three suites the wave-3 review found still able to pass for the wrong reason. Each task names
+its mutant in the acceptance criteria, so a restated assertion cannot pass as a repair.
+
+| Task | Repairs |
+|---|---|
+| T013 | predicate and action suites — E3 and E4 |
+| T014 | aria order compared against the real render — E5 |
 
 Review depth: full
