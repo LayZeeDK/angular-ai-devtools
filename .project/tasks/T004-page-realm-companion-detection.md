@@ -3,9 +3,9 @@ id: T004
 title: Detect, validate and re-announce the companion entry in the page realm
 wave: 2
 deps: [T002]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T004
+base: 5e8a22bbcd5b265639ff0363758527401c52a1ed
 worktree: null
 task_branch: null
 files:
@@ -65,3 +65,28 @@ Heavy: no
 ## Log
 
 - 2026-11-02 — created by planner
+- build_T004: extension/agent-main.js now reads globalThis.ngAiDevTools in the MAIN world and publishes a fifth companion field on angular-ai:state with exactly the four named answers (absent, foreign-entry, version-unsupported, declared), validating the package's own shape first (non-null object, non-empty version string, vetted groups only, vetted symbol names carrying function values), then comparing each provider record's token with the class read from the entry over the shipped feature-detected walk (getInjectorResolutionPath plus getInjectorProviders, never injector.get on a vetted token) so declared and resolved are counted apart and a second Angular copy reads 2 declared, 0 resolved; a bounded re-check of 5 attempts at 250ms re-emits the same record through announceState when the answer changes away from absent and clears on the first non-absent answer or on the last attempt, with no new event, no new message type and no page request, and features keeps its eight names with the four existing fields unchanged; the only page global added stays __ngRecorder. extension/agent-main.test.mjs boots the real script in a vm sandbox with the entry injected into the page realm and a fake clock driving the timers: 20 new cases cover the four states, thirteen shape mutants, the empty table as the honest declared-with-zero answer, a second Angular copy, missing ɵ helpers, a page with no document, the fifth field beside the four existing ones, the re-check re-emitting once and then stopping, and the page blast radius. Verify exit 0: npm ci --include=dev and node --test extension/agent-main.test.mjs = 39 tests, 39 pass, 0 fail, 0 skipped. Mutation-checked the new suite separately and all 7 mutants were killed (presence-only detection, resolved conflated with declared, unbounded re-check, re-emit on every attempt, a ninth features name, a self-re-arming timer, the version gate dropped); a leaked re-check timer is cleared in teardown so a future regression fails instead of hanging.
+- ready
+- 2026-11-03 — orchestrator Verify (sidecar gsd-path-verify/task-t004-verify): pass, exit 0; output tail:
+  ```
+    ✔ spells the accepted vocabulary once: one version, the two vetted symbols, no third (0.4066ms)
+  ✔ agent-main.js (page blast radius) (4.0282ms)
+  ℹ tests 39
+  ℹ suites 12
+  ℹ pass 39
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 787.0144
+  npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+  npm warn install-scripts   @parcel/watcher@2.6.0 (install: node scripts/build-from-source.js)
+  npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn install-scripts   lmdb@3.5.6 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts   msgpackr-extract@3.0.4 (install: node-gyp-build-optional-packages)
+  npm warn install-scripts
+  npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+  ```
