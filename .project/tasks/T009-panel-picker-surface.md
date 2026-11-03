@@ -9,6 +9,8 @@ base: null
 worktree: null
 task_branch: null
 files:
+  - apps/angular-ai-devtools/src/app/extension-message.service.spec.ts
+  - apps/angular-ai-devtools/src/app/extension-message.service.ts
   - apps/angular-ai-devtools/src/app/page-picker.component.ts
   - apps/angular-ai-devtools/src/app/page-picker.component.spec.ts
   - apps/angular-ai-devtools/src/app/app.routes.ts
@@ -64,3 +66,5 @@ Heavy: no
 ## Log
 
 - 2026-11-03 — created by planner
+
+- The panel's two senders live in `extension-message.service.ts` and are added by **this** task: `sendPickerCommand(action: 'arm' | 'cancel')` and the `tabId` it needs. T007 shipped the typed readers (`pickerState`, `picked`) and the message transport; the sender half was homeless, and this task now declares the file so the command path has an owner.
