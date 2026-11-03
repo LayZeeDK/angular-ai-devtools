@@ -3,10 +3,10 @@ id: T018
 title: Derive the browser slot instead of pinning it
 wave: 6
 deps: [T013]
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T018
+base: 51cb53655050cdf03c7574910f5b1c5b23fcb34c
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - .commandcode/skills/control-vitest-browser-angular/scripts/control.test.mjs
@@ -61,3 +61,11 @@ npm ci --include=dev; node --test .commandcode/skills/control-vitest-browser-ang
 ## Log
 
 - opened by orchestrator (the ship gate at f1115f6 failed on path-dependent slot expectations)
+- the six failures are not path-derived: netstat -ano here sees only the host table, and a listener this process binds (probed 127.0.0.1, 0.0.0.0, ::1 and ::, TCP and TCPv6) never appears in it, so busyPorts() returned an empty map and planPorts never fell back - slot 0 with no reason
+- slot assertions now state the property: a main checkout is slot 0 at any path, a worktree path gives an integer in 1-99, the same path repeats its slot from call to call, letter case does not matter, and eight sibling worktree paths do not all land on one slot; slotOrder for first 1-99 tries 10 distinct slots, every one in 1-99
+- planPorts now reads heldBy([...]) - the busy map it is handed, built from listeners the test holds, whose only possible holder is process.pid - instead of busyPorts(); busyPorts is asserted for a port the test bound and then released (absent), for integer port numbers and non-empty integer holder lists, and for [process.pid] on an own listener where netstat reports it, with a t.diagnostic where it does not
+- bite proof on mutant copies of control.mjs in the scratch temp dir: a worktree slot forced to 0 fails the slotOf test on a worktree path giving a slot in 1-99 rather than 0; a slot forced to 50 fails on different paths landing apart, 50 alone; planPorts blind to its busy map fails the same five planPorts tests with slot 0 and no reason; busyPorts returning an empty holder list fails on the holders of 1
+- Verify: npm ci --include=dev exit 0, then node --test control.test.mjs scripts/skills-mirror.test.mjs gives tests 33, pass 33, fail 0, exit 0; the .claude copy is byte-identical (26373 bytes, readFileSync equals) and runs 31/31 alone; the same suite copied to a worktree-shaped checkout (slot 79 there, not 0) runs 31/31; tsc for .commandcode and .claude skills tsconfig and tsconfig.run-code all clean
+- no assertion in the file now pins a slot from the checkout path, a literal PID, or a port held outside the test: ready
+- correction to the Verify line: the copies are 26421 bytes (the tsc fix grew the file after the first copy), and byte-identity per criterion 4 means the .claude copy Run header names the .commandcode path instead of its own
+- both copies readFileSync-equal at 26421 bytes, Verify 33/33 in 0 fail at exit 0, tsc clean: ready
