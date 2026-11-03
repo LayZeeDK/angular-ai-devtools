@@ -85,6 +85,9 @@ Review depth: full
 | SC4 | T012 | AC1 |
 | SC1 | T013 | AC1 |
 | SC2 | T014 | AC1 |
+| SC2 | T015 | AC1 |
+| SC3 | T016 | AC1 |
+| SC3 | T017 | AC1 |
 
 ## Held-out checks
 
@@ -178,5 +181,18 @@ its mutant in the acceptance criteria, so a restated assertion cannot pass as a 
 |---|---|
 | T013 | predicate and action suites — E3 and E4 |
 | T014 | aria order compared against the real render — E5 |
+
+Review depth: full
+
+## Wave 5 — the checks that could not fail
+
+Goal: close the three high-severity findings the final gap reviews made by probe, each of which named a change
+that today leaves its check green.
+
+| Task | Repairs |
+|---|---|
+| T015 | `menu-trigger-controls` resolving to any id rather than its element |
+| T016 | the second rebuild cycle, which is never served and measures its install set against itself |
+| T017 | the explainers, never asked a question |
 
 Review depth: full
