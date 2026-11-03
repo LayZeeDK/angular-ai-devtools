@@ -89,6 +89,7 @@ Review depth: full
 | SC3 | T016 | AC1 |
 | SC3 | T017 | AC1 |
 | SC4 | T018 | AC1 |
+| SC4 | T019 | AC5 |
 
 ## Held-out checks
 
@@ -206,5 +207,16 @@ Goal: the project Verify must pass from a worktree, not only from the primary ch
 | Task | Repairs |
 |---|---|
 | T018 | `slotOf` and `busyPorts` expectations derived rather than pinned |
+
+Review depth: full
+
+## Wave 7 — the probe, not the expectation
+
+Goal: the port probe must answer the same on every host. T018 repaired one suite's expectations; this repairs
+the probe the remaining four skills share, so the gate stops failing one skill at a time.
+
+| Task | Repairs |
+|---|---|
+| T019 | `busyPorts` without `netstat`, across the four remaining control skills |
 
 Review depth: full
