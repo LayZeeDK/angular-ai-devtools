@@ -41,10 +41,9 @@ The `.claude` copy is byte-identical by rule, so both trees must end up the same
 
 None
 
-
 ## Intent coverage
 
-- SC4
+- SC4 — `npm run check` and `npm test` pass at the head.
 
 ## Acceptance criteria
 
