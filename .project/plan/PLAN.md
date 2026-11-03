@@ -145,3 +145,17 @@ Review depth: full
   cache; the feature file's preconditions name one target at a time in a checkout, and the
   wave 2 review reads that line rather than discovering a cache race during a proof run.
 
+## Wave 4 — the proof repair
+
+Goal: make the held-out proofs able to fail. The final review of M023 recorded SC1, SC2 and SC3 as `not-met`
+because eight suites could not detect the defect they were named for. Each task here replaces one such suite
+with an assertion whose named mutant reddens it.
+
+| Task | Repairs |
+|---|---|
+| T009 | E1, E2, E3, E4 — the four harness-family cases |
+| T010 | E5 and the Aria rules reading rendered DOM, not source |
+| T011 | E7 — rebuild idempotency |
+| T012 | the milestone-coupled verdict-claims test |
+
+Review depth: full

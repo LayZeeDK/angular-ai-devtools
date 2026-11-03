@@ -1,0 +1,52 @@
+---
+id: T012
+title: Verdict claims follow the milestone
+wave: 4
+deps: [T006]
+status: pending
+agent: null
+base: null
+worktree: null
+task_branch: null
+files:
+  - scripts/overlay-verdict-claims.test.mjs
+---
+
+# T012 — Verdict claims follow the milestone
+
+## Context
+
+T006 pointed `overlay-verdict-claims.test.mjs` at the archived M022 intent with `MILESTONE = 'M022'` and
+criteria `SC1`/`SC2` hard-coded, so it cannot track the current milestone's criteria: a future milestone that
+records a verdict claim would not be caught, and an M022 intent change would break a test that has nothing to
+do with M022 any more.
+
+## Approach
+
+1. Read the suite and name the single change that would leave it green today.
+2. Replace the assertion so that change reddens it, naming the file and the mutant in the failure.
+3. Prove the mutant: make the change, watch the suite fail, restore, watch it pass.
+
+## Interface contract
+
+None
+
+## Intent coverage
+
+- SC4 — the gate aggregates and passes at the head, without a test pinned to a finished milestone.
+
+## Acceptance criteria
+
+1. The suite resolves its milestone and criteria from the project's current intent rather than a hard-coded `M022` path, and names what it resolved in the failure message.
+2. It reddens when a recorded verdict claim names a criterion the resolved intent does not contain, proving it still tracks the right thing.
+3. The archived M022 intent is read only if and when the resolved milestone is M022.
+
+## Verify
+
+```bash
+npm ci --include=dev; node --test scripts/overlay-verdict-claims.test.mjs
+```
+
+## Log
+
+- opened by orchestrator (final review blocked: the suite could not fail)
