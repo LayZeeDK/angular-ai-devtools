@@ -40,13 +40,16 @@ const ALL_FEATURES_TRUE = {
 /**
  * A page the panel heard from, with the values a case varies. The facts default to a dev-mode page
  * that published every bit, so a case testing the version gate is testing only the version gate.
+ *
+ * `companion` is stated explicitly because the context's closed shape requires it (M021 T005): no
+ * group gate reads it, and `null` is the page that gave no companion answer.
  */
 function page({ version, supported = true, features = ALL_FEATURES_TRUE } = {}) {
   const facts = { supported };
   if (features !== null) {
     facts.features = features;
   }
-  return { facts, version, stateReceived: true };
+  return { facts, version, stateReceived: true, companion: null };
 }
 
 /** A declaration fixture: a group's id published where the case wants it. */

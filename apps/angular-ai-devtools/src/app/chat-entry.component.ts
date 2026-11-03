@@ -29,8 +29,14 @@
  *    modules ride in a chunk `index.html` never references and only the route literal lands in the
  *    eager `main.js`. Nothing here reaches a page reader — page data arrives through `TOOL_REGISTRY`
  *    — and nothing is added to the inspected page (AR-3, AR-6).
+ * 6. **Two surfaces, two sources (M021 T005).** The fingerprint chip renders the eight
+ *    page-published bits from `context.facts`; the extra surface beside it renders only the record's
+ *    `companion` member, through `companion.ts`'s five named renderings. The extra surface never
+ *    reads `facts.features` and the chip never reads the companion answer, so a page without the
+ *    package refuses by name while the chip renders exactly as it did at M020 (SC2, E3, N2).
  */
 import { Component, computed, effect, inject, signal } from '@angular/core';
+import { companionSurface, type CompanionSymbol } from './companion';
 import { ExtensionMessageService } from './extension-message.service';
 import { featureFingerprint } from './feature-fingerprint';
 import { buildPanelContext, type PanelContext, type PanelSignals } from './panel-context';
@@ -69,6 +75,34 @@ import { TOOL_REGISTRY, type ToolContext, type ToolOutcome } from './tool-regist
       }
     </section>
 
+    <section class="companion" data-testid="companion-surface" [attr.data-state]="companionKind()">
+      <h3 class="companion-title" data-testid="companion-title">Companion package (opt-in)</h3>
+      <p class="companion-state" [attr.data-testid]="'companion-' + companionKind()">
+        {{ companionMessage() }}
+      </p>
+      @if (companionKind() === 'declared') {
+        <p class="companion-count" data-testid="companion-declared-count">
+          declared: {{ companionDeclaredCount() }}
+        </p>
+        <p class="companion-count" data-testid="companion-resolved-count">
+          resolved: {{ companionResolvedCount() }}
+        </p>
+        @if (companionNoSymbols()) {
+          <p class="companion-none" data-testid="companion-declared-no-symbols">
+            declared, no symbols
+          </p>
+        } @else {
+          <ul class="companion-symbols">
+            @for (symbol of companionSymbols(); track symbol.pkg + '#' + symbol.name) {
+              <li class="companion-symbol" data-testid="companion-symbol">
+                {{ symbol.pkg }}#{{ symbol.name }}
+              </li>
+            }
+          </ul>
+        }
+      }
+    </section>
+
     <section class="groups" data-testid="group-list">
       @if (projection().groups.length === 0) {
         <p class="empty" data-testid="empty-groups">{{ projection().emptyReason }}</p>
@@ -98,6 +132,17 @@ import { TOOL_REGISTRY, type ToolContext, type ToolOutcome } from './tool-regist
       .chip-entry[data-present='false'] { color: #999; }
       .chip-reason { color: #c62828; margin: 4px 0; }
       .chip-state { color: #b26a00; font-style: italic; margin: 0; }
+      .companion { font-size: 12px; padding: 8px; margin-top: 12px; background: #f7f7fb; border-radius: 4px; }
+      .companion-title { font-size: 12px; margin: 0; }
+      .companion-state { margin: 4px 0; color: #333; }
+      .companion[data-state='absent'] .companion-state,
+      .companion[data-state='foreign-entry'] .companion-state,
+      .companion[data-state='version-unsupported'] .companion-state { color: #c62828; }
+      .companion[data-state='awaiting-page'] .companion-state { color: #b26a00; font-style: italic; }
+      .companion-count { font-family: monospace; font-size: 11px; color: #555; margin: 2px 0; }
+      .companion-none { color: #b26a00; font-style: italic; margin: 2px 0; }
+      .companion-symbols { list-style: none; margin: 2px 0 0; padding: 0; }
+      .companion-symbol { font-family: monospace; font-size: 11px; color: #333; }
       .groups { margin-top: 12px; }
       .group { margin-bottom: 8px; }
       .group-title { font-size: 12px; margin: 0; }
@@ -125,6 +170,42 @@ export class ChatEntryComponent {
   protected readonly projection = computed(() =>
     projectToolGroups(this.registry.tools(), this.context()),
   );
+
+  /**
+   * The extra surface: `companion.ts`'s five named renderings over the context's one companion
+   * member. It reads nothing else — not `facts.features`, not the eight `app_facts` names — so a
+   * page without the package refuses here while the chip beside it stays unchanged (SC2, E3, N2).
+   */
+  private readonly companion = computed(() => companionSurface(this.context().companion));
+
+  /** The rendering's own name, rendered as `data-state` and inside each per-state test id. */
+  protected readonly companionKind = computed(() => this.companion().kind);
+
+  /** The one sentence this rendering shows; the component adds no per-state wording of its own. */
+  protected readonly companionMessage = computed(() => this.companion().message);
+
+  /** The declared symbols the surface may name, and no symbol the record did not carry. */
+  protected readonly companionSymbols = computed<readonly CompanionSymbol[]>(() => {
+    const surface = this.companion();
+    return surface.kind === 'declared' ? surface.symbols : [];
+  });
+
+  /** Whether this is the honest "declared, no symbols" state rather than a list (E1). */
+  protected readonly companionNoSymbols = computed(() => {
+    const surface = this.companion();
+    return surface.kind === 'declared' && surface.noSymbols;
+  });
+
+  /** The two counts, kept apart, and `null` for every rendering that is not `declared`. */
+  protected readonly companionDeclaredCount = computed<number | null>(() => {
+    const surface = this.companion();
+    return surface.kind === 'declared' ? surface.declared : null;
+  });
+
+  protected readonly companionResolvedCount = computed<number | null>(() => {
+    const surface = this.companion();
+    return surface.kind === 'declared' ? surface.resolved : null;
+  });
 
   /** The fingerprint branch, or `null` when the page is in one of the four named states. */
   protected readonly fingerprint = computed(() => {
@@ -177,6 +258,7 @@ export class ChatEntryComponent {
       stateReceived: this.ext.stateReceived,
       appVersion: this.ext.appVersion,
       replayOutcome: this.ext.replayOutcome,
+      companion: this.ext.companion,
       notSupported: this.ext.notSupported(),
       notSupportedReason: this.ext.notSupportedReason(),
     };

@@ -3,10 +3,10 @@ id: T005
 title: Carry the companion answer into the panel and render the extra surface with its named refusal
 wave: 2
 deps: [T004]
-status: in-progress
+status: done
 agent: build_T005b
-base: d650e82c4ff9910efe8f092e44e3fde0c8b3e198
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 8cbe96e32ddf389e9f476a82c8f1802ce11d58b3
+worktree: null
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/feature-fingerprint.spec.ts
