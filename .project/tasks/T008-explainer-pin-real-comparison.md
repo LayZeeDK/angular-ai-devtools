@@ -1,7 +1,7 @@
 ---
 id: T008
 title: Make the explainer-unchanged pin a real comparison
-wave: 3
+wave: 2
 deps: [T005]
 status: done
 agent: build_T008

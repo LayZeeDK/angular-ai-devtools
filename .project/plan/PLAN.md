@@ -145,10 +145,3 @@ Review depth: full
   cache; the feature file's preconditions name one target at a time in a checkout, and the
   wave 2 review reads that line rather than discovering a cache race during a proof run.
 
-## Wave 3 — repair wave for wave 2
-
-Goal: close the one blocking finding the wave-2 review raised, without reopening wave 2's own tasks.
-`T008` makes the explainer pin compare its digests and prove itself live; wave 2 then re-reviews at the
-next cycle.
-
-Review depth: full.
