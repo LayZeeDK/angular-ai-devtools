@@ -88,3 +88,4 @@ Heavy: no
   npm warn install-scripts
   npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
   ```
+- 2026-11-03 - the implemented outcome is no-dev-api per INTENT Corrections; the AC text still spelled no-dev-context, and T007-T009 were repaired to the corrected word in the same commit
