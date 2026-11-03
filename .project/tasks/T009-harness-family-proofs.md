@@ -3,9 +3,9 @@ id: T009
 title: Harness family proofs
 wave: 3
 deps: [T002]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T009
+base: f00f6271896e621904ce39abdfedfc8109aaaee2
 worktree: null
 task_branch: null
 files:
@@ -58,3 +58,4 @@ npm ci --include=dev; node --test tests/held-out/fixture-harness-root-boundary.t
 ## Log
 
 - opened by orchestrator (final review blocked: the suite could not fail)
+- T009: strengthened four harness held-out tests; mutants proven (move ng-content, add distinguishing attr, add absent item, remove count effect)

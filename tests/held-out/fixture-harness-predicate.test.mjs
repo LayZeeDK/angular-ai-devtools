@@ -7,11 +7,12 @@ import { test } from 'node:test';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..', '..');
 const probePath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'components', 'harness-probe.ts');
+const SUITE = 'fixture-harness-predicate.test.mjs';
 
-test('probe has exactly one alpha item and no absent item', () => {
+test('probe has exactly one alpha item and no absent item (named no-match)', () => {
   const src = readFileSync(probePath, 'utf8');
   const alpha = [...src.matchAll(/data-kind="alpha"/g)].length;
   const absent = [...src.matchAll(/data-kind="absent"/g)].length;
-  assert.equal(alpha, 1);
-  assert.equal(absent, 0);
+  assert.equal(alpha, 1, `${SUITE}: mutant (silent empty pass) — expected exactly 1 alpha match, got ${alpha}`);
+  assert.equal(absent, 0, `${SUITE}: mutant (silent empty pass) — expected 0 absent matches (named no-match), got ${absent}`);
 });
