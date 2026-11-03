@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: in-page-overlay
-phase: plan
+phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M022
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -420,3 +420,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-03 — decide — decision synthesis complete; 8 settled decisions, 3 still unknown
 - 2026-11-03 — plan — planning started
 - 2026-11-03 — plan — plan approved
+- 2026-11-03 — build — build started
