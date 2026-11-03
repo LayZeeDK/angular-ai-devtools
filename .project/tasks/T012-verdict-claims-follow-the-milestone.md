@@ -87,3 +87,16 @@ The suite reads a JSON list whose rows carry, at minimum, the fields it validate
 A row without a reason is refused. Read the rest of the suite before writing the file: it decides the exact
 key names, and the file must satisfy it rather than the table above.
 
+## Route log for this task
+
+- attempt 1, `free-beam-high`: **blocked correctly** — the suite resolved M023 and then failed, because M023 had
+  no recording. The contract was extended to produce one.
+- attempt 2, `free-beam-medium`: errored after 28 k tokens, no file written.
+- attempt 3, `free-glyph-cluster-medium`: errored after 45 turns and 1.6 M tokens, no file written.
+- attempt 4, `free-beam-high`: **zero tokens, 1 turn, 343 ms** — quota event, not a task failure.
+- attempt 5, `free-ling-3-1-flash-1019-medium`: **zero tokens, 1 turn, 230 ms** — quota event.
+
+Per the free-model rules a zero-token run is a quota limit and does not count as a failed attempt; it also
+cannot succeed on retry. Every free route is exhausted for the day (Beam and Glyph reset at 00:00 UTC, Ling at
+its 100-request cap). This task resumes on the next day's quota, with the schema already named above.
+
