@@ -4,9 +4,9 @@ title: Prove the shipped explainers unchanged, the fixture rebuild idempotent, a
 wave: 2
 deps: [T004]
 status: in-progress
-agent: build_T005b
-base: ec8eec0620c5a8aef3942bce52ff5138722a6c10
-worktree: D:\projects\sandbox\angular-ai-devtools
+agent: build_T005c
+base: null
+worktree: null
 task_branch: null
 files:
   - tests/held-out/fixture-explainers-unchanged.test.mjs
