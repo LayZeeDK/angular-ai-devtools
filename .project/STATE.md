@@ -1,15 +1,15 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: in-page-overlay
-phase: shipped
+milestone: fixture-components
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M022
+branch: gsd-path/M023
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
-archive: .project/archive/022-in-page-overlay
+archive: null
 integration_default: direct
 integration: direct
 integration_source: default
@@ -423,3 +423,10 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-03 — build — build started
 - 2026-11-03 — ship — build done; final review pending
 - 2026-11-03 — shipped — archive preflight passed; shipment recorded
+- 2026-11-03 — inspect — router bound next milestone: M023 fixture-components at base 9d3c711 landing 9d3c711
+- 2026-11-03 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-03 — inspect — inspection complete: 143 docs re-audited, evidence-codebase written
+- 2026-11-03 — define — definition started
+- 2026-11-03 — define — milestone intent approved
+- 2026-11-03 — plan — planning started
+- 2026-11-03 — plan — plan approved
