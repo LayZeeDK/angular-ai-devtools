@@ -3,9 +3,9 @@ id: T013
 title: Predicate and action suites learn to fail
 wave: 4
 deps: [T009]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T013
+base: e102307d5d378c52b9b70508668f6938d4fe23ae
 worktree: null
 task_branch: null
 files:
@@ -53,3 +53,8 @@ npm ci --include=dev; node --test tests/held-out/fixture-harness-predicate.test.
 ## Log
 
 - opened by orchestrator (wave-3 review blocked: the repair restated the assertions without changing them)
+- T013: action suite compiles the real HarnessProbe out of spikes/ng222-app/src/app/components/harness-probe.ts, mounts the component's own template in jsdom, binds its (click) and {{ }} nodes to that instance, and asserts the rendered text before and after a click (N7: count() is never read). Mutant advance(): void {} reddened it with: fixture-harness-action.test.mjs: mutant (advance() made a no-op) — clicking [data-action="advance"] did not change the text [data-state="count"] renders: it stayed "0", so the action's effect never landed. Reverted: 3/3 pass.
+- T013: second action mutant this.count.set(1) (advance sets a constant) reddened it with: fixture-harness-action.test.mjs: mutant (advance() sets a constant instead of advancing) — the second click on [data-action="advance"] left [data-state="count"] at "1", so the action does not advance on every click. Reverted: 3/3 pass.
+- T013: predicate suite parses the probe template's [data-kind] items into jsdom and drives the planned harness match semantics over them, so data-kind=absent must report a named no-match. Silent-empty-pass mutant (matchItems returns { matched, noMatch: null }) reddened it with: fixture-harness-predicate.test.mjs: mutant (silent empty pass) — a non-matching predicate must report a named no-match naming the selector and the items examined, got null. Reverted: 3/3 pass.
+- T013: predicate mutant items.filter(() => true) (selector ignored) reddened all three with: fixture-harness-predicate.test.mjs: mutant (predicate ignores its selector) — [data-kind="absent"] must match no item, matched 3; and (deepEqual) matched ["li:alpha item","li:beta item","li:gamma item"]. Reverted: 3/3 pass.
+- T013: Verify npm ci --include=dev; node --test tests/held-out/fixture-harness-predicate.test.mjs tests/held-out/fixture-harness-action.test.mjs exited 0 with 6/6 pass, 0 fail; only tests/held-out/fixture-harness-action.test.mjs and tests/held-out/fixture-harness-predicate.test.mjs changed, harness-probe.ts restored byte-identical to HEAD after each mutant — ready
