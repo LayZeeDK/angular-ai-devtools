@@ -3,9 +3,9 @@ id: T007
 title: Repair the type-check break in the control skill's tests
 wave: 2
 deps: [T004]
-status: in-progress
-agent: null
-base: null
+status: done
+agent: build_T007
+base: e2dacea8ca1ccca7346903ef94d52ec2d90ba2f2
 worktree: null
 task_branch: null
 files:

@@ -126,9 +126,9 @@ test('portRowsOf("components") returns the components row', () => {
 
 test('no slot-0 port collides with another target or a reserved port', () => {
   const forbidden = new Set([3000, 9999]);
-  const slot0 = ['counter', 'components', 'ssr', 'portal'].map((name) => {
+  const slot0 = (/** @type {const} */ (['counter', 'components', 'ssr', 'portal'])).map((name) => {
     const row = portRowsOf(name)[0];
-    return row?.kind === 'derived' ? row.at(0) : row?.port;
+    return row?.kind === 'derived' ? row.at(0) : (row?.port ?? 0);
   });
   assert.equal(new Set(slot0).size, slot0.length, 'every slot-0 port is distinct');
   for (const port of slot0) {
@@ -136,8 +136,9 @@ test('no slot-0 port collides with another target or a reserved port', () => {
       assert.ok(!forbidden.has(port), `slot-0 port ${port} is reserved`);
     }
   }
-  assert.equal(portRowsOf('components')[0]?.kind === 'derived' ? portRowsOf('components')[0].at(0) : NaN, 4224);
-  assert.ok(![4200, 4222, 4223, 3000, 9999].includes(portRowsOf('components')[0].at(0)));
+  const componentsRow = portRowsOf('components')[0];
+  assert.equal(componentsRow?.kind === 'derived' ? componentsRow.at(0) : NaN, 4224);
+  assert.ok(![4200, 4222, 4223, 3000, 9999].includes(componentsRow?.kind === 'derived' ? componentsRow.at(0) : NaN));
 });
 
 test('pinOf names the line that holds the value, or the bare path', (t) => {

@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { mapFresh, printable } from './fingerprint.mjs';
 import { describe, merge, processTable, snapshot, stop } from './proctree.mjs';
 
-/** @typedef {'counter' | 'ssr' | 'portal'} TargetName */
+/** @typedef {'counter' | 'ssr' | 'portal' | 'components'} TargetName */
 /** @typedef {{ name: string, bin: string | null, args: string[], env: Record<string, string | undefined>, port: number, readyPath: string }} ProcSpec */
 /** @typedef {'derived' | 'fixed' | 'external'} PortKind */
 /** @typedef {{ name: string, port: number, kind: PortKind, reason?: string }} PortEntry */
@@ -82,6 +82,14 @@ const TARGETS = {
     ports: () => [{ name: 'app', kind: 'derived', at: (slot) => (slot === 0 ? 4222 : 4300 + slot) }],
     procs: (dir, ports) => [
       { name: 'app', bin: binOf(dir, '@angular/cli', 'ng'), args: ['serve', '--port', String(ports['app'])], env: {}, port: Number(ports['app']), readyPath: '/' },
+    ],
+  },
+  components: {
+    dir: path.join(REPO_ROOT, 'spikes', 'ng222-app'),
+    marker: 'app-root',
+    ports: () => [{ name: 'app', kind: 'derived', at: (slot) => (slot === 0 ? 4224 : 4600 + slot) }],
+    procs: (dir, ports) => [
+      { name: 'app', bin: binOf(dir, '@angular/cli', 'ng'), args: ['serve', '--port', String(ports['app'])], env: {}, port: Number(ports['app']), readyPath: '/components' },
     ],
   },
   ssr: {
@@ -636,7 +644,7 @@ export function flowIdFor(args) {
 
   if (typeof target === 'string' && target !== '') {
     if (!isTarget(target)) {
-      throw new Error(`unknown target "${target}"; use counter, ssr or portal`);
+      throw new Error(`unknown target "${target}"; use counter, components, ssr or portal`);
     }
 
     return target;
@@ -958,7 +966,7 @@ async function up() {
   const targetName = flag('target');
 
   if (typeof targetName !== 'string' || !isTarget(targetName)) {
-    return fail(2, 'up needs --target counter|ssr|portal, or --url <dev-server URL> to attach to a running app');
+    return fail(2, 'up needs --target counter|components|ssr|portal, or --url <dev-server URL> to attach to a running app');
   }
 
   const t = TARGETS[targetName];
