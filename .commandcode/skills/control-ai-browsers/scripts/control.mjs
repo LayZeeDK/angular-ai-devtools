@@ -5,6 +5,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statfsSync, statSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:net';
 import path, { delimiter, dirname, isAbsolute, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mapFresh, printable } from './fingerprint.mjs';
@@ -303,7 +304,8 @@ export function slotOrder(first) {
 }
 
 /**
- * The PIDs listening on each port in `netstat -ano` output, IPv4 and IPv6: a port can have one holder per address.
+ * The PIDs `netstat -ano` names for each listening port, IPv4 and IPv6: a port can have one holder per address. This
+ * only ever says who; which table a host exposes is its business and may hide the holder (see `busyPorts`).
  * @param {string} text
  * @returns {Map<number, number[]>}
  */
@@ -331,34 +333,52 @@ export function listeners(text) {
 }
 
 /**
+ * The ports `planPorts` may look at, and so exactly what `busyPorts` must probe: every fixed and external port, each
+ * derived port of the slots in `order` and of the slot the run fell back from (`first`), and `--port`.
+ * @param {PortRow[]} rows
+ * @param {number[]} order
+ * @param {number} [forced]
+ * @param {number} [first]
+ * @returns {number[]}
+ */
+export function candidatePorts(rows, order, forced, first = order[0]) {
+  const slots = first === undefined ? order : [...order, first];
+  const ports = rows.flatMap((r) => (r.kind === 'derived' ? slots.map((slot) => r.at(slot)) : [r.port]));
+
+  return [...new Set([...ports, ...(forced === undefined ? [] : [forced])])];
+}
+
+/**
  * Picks the ports of one run. A busy fixed port is a refusal. `forced` (`--port`) is the main port in every slot,
  * with no fallback for it. Otherwise the first slot in `order` whose derived ports are all free. A derived entry
  * of a slot other than `first` (the run's own slot, `order[0]` unless a retry already used it) says what it fell
  * back from.
  * @param {PortRow[]} rows
  * @param {number[]} order
- * @param {Map<number, number[]>} busy  the PIDs listening on each port
+ * @param {Map<number, number[]>} busy  the ports a listener holds; the values name the holder where the OS names it
  * @param {number} [forced]
  * @param {number} [first]
  * @returns {{ ok: true, slot: number, ports: PortEntry[] } | { ok: false, reason: string }}
  */
 export function planPorts(rows, order, busy, forced, first = order[0]) {
+  /** @param {number[]} pids */
+  const heldBy = (pids) => (pids.length === 0 ? 'held by a process the OS did not name' : `held by PID ${pids.join(', ')}`);
   /** @param {number} port */
-  const holder = (port) => busy.get(port)?.[0];
+  const holder = (port) => busy.get(port);
 
   for (const r of rows) {
-    const pid = r.kind === 'fixed' ? holder(r.port) : undefined;
+    const pids = r.kind === 'fixed' ? holder(r.port) : undefined;
 
-    if (r.kind === 'fixed' && pid !== undefined) {
-      return { ok: false, reason: `fixed port ${r.name} ${r.port} held by PID ${pid}; pinned by ${r.pin}` };
+    if (r.kind === 'fixed' && pids !== undefined) {
+      return { ok: false, reason: `fixed port ${r.name} ${r.port} ${heldBy(pids)}; pinned by ${r.pin}` };
     }
   }
 
   const main = rows.findIndex((r) => r.kind === 'derived');
-  const forcedPid = forced === undefined ? undefined : holder(forced);
+  const forcedPids = forced === undefined ? undefined : holder(forced);
 
-  if (forced !== undefined && forcedPid !== undefined) {
-    return { ok: false, reason: `port ${forced} (--port) is held by PID ${forcedPid}; --port has no fallback` };
+  if (forced !== undefined && forcedPids !== undefined) {
+    return { ok: false, reason: `port ${forced} (--port) is ${heldBy(forcedPids)}; --port has no fallback` };
   }
 
   /** @type {(r: PortRow, i: number, slot: number) => number} */
@@ -368,9 +388,9 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
 
   for (const slot of order) {
     const taken = rows.flatMap((r, i) => {
-      const pid = r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
+      const pids = r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
 
-      return pid === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} held by PID ${pid}`];
+      return pids === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} ${heldBy(pids)}`];
     });
 
     if (taken.length === 0) {
@@ -391,8 +411,8 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
         }
 
         const from = portAt(r, i, first);
-        const pid = holder(from);
-        const why = pid !== undefined ? `held by PID ${pid}` : order[0] === first ? `slot ${first} had ${tried[0]}` : 'taken after the check';
+        const pids = holder(from);
+        const why = pids !== undefined ? heldBy(pids) : order[0] === first ? `slot ${first} had ${tried[0]}` : 'taken after the check';
 
         return { name: r.name, port, kind: r.kind, reason: `fell back from ${from}: ${why}` };
       });
@@ -407,8 +427,9 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
 }
 
 /**
- * The doctor's `ports` line: every derived and fixed port answers and every holder of it is in the recorded process
- * tree; every port is listed.
+ * The doctor's `ports` line: every derived and fixed port is held and every holder the OS names is in the recorded
+ * process tree; every port is listed. Naming the holder is the OS's option, so an unnamed holder passes: which
+ * process holds a busy port never decides whether the port is busy.
  * @param {PortEntry[]} ports
  * @param {Map<number, number[]>} busy
  * @param {Set<number>} tree
@@ -416,16 +437,17 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
  */
 export function portsCheck(ports, busy, tree) {
   const problems = ports.flatMap((p) => {
-    const pids = busy.get(p.port) ?? [];
-    const foreign = pids.filter((pid) => !tree.has(pid));
+    const pids = busy.get(p.port);
 
     if (p.kind === 'external') {
       return [];
     }
 
-    if (pids.length === 0) {
+    if (pids === undefined) {
       return [`${p.name} ${p.port} not listening`];
     }
+
+    const foreign = pids.filter((pid) => !tree.has(pid));
 
     return foreign.length === 0 ? [] : [`${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`];
   });
@@ -449,14 +471,70 @@ export function portAt(index, mainPort, slot) {
   return slot === 0 ? mainPort : 9600 + 10 * slot + index;
 }
 
+/** The loopback addresses a browser's CDP endpoint is reached on; the bind probe tries each. */
+const LOOPBACKS = ['127.0.0.1', '::1'];
+
 /**
- * The PIDs listening on each port now (netstat, IPv4 and IPv6).
+ * Whether a listener holds `port` on a loopback address, decided by binding it: EADDRINUSE is a listener, and a bind
+ * that succeeds is closed at once and means free. Any other error (a host without that address) holds nothing.
+ * @param {number} port
+ * @returns {Promise<boolean>}
+ */
+async function heldOnLoopback(port) {
+  for (const host of LOOPBACKS) {
+    /** @type {boolean} */
+    const held = await new Promise((resolve) => {
+      const server = createServer();
+
+      server.once('error', (error) => resolve(/** @type {NodeJS.ErrnoException} */ (error).code === 'EADDRINUSE'));
+      server.listen({ host, port, exclusive: true }, () => server.close(() => resolve(false)));
+    });
+
+    if (held) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * The PIDs `netstat` names for the listening ports it reports (IPv4 and IPv6). Naming only: which table a host exposes
+ * is its business, and a host whose netstat reports only the host table names none of them, so this may say nothing.
  * @returns {Map<number, number[]>}
  */
-export function busyPorts() {
+function namedHolders() {
   const netstat = join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32', 'netstat.exe');
 
   return listeners(['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n'));
+}
+
+/**
+ * Which of `ports` a listener holds now, decided by binding each on the loopback addresses. Presence in the map is the
+ * answer; the values are the PIDs `netstat` names, and it may name none: a port held by a process the OS will not name
+ * is still busy.
+ * @param {number[]} ports
+ * @returns {Promise<Map<number, number[]>>}
+ */
+export async function busyPorts(ports) {
+  /** @type {Map<number, number[]>} */
+  const busy = new Map();
+
+  for (const port of new Set(ports)) {
+    if (await heldOnLoopback(port)) {
+      busy.set(port, []);
+    }
+  }
+
+  if (busy.size > 0) {
+    for (const [port, pids] of namedHolders()) {
+      if (busy.has(port)) {
+        busy.set(port, pids);
+      }
+    }
+  }
+
+  return busy;
 }
 
 /**
@@ -754,11 +832,13 @@ function anyAlive(records) {
 }
 
 /**
+ * The PID `netstat` names as the holder of `port`, or null. Naming only: `busyPorts` decides whether the port is
+ * held, so a listener the OS does not name is a null here and not a free port.
  * @param {number} port
  * @returns {number | null}
  */
 function portOwner(port) {
-  return busyPorts().get(port)?.[0] ?? null;
+  return namedHolders().get(port)?.[0] ?? null;
 }
 
 // Which registry backend a command line matches, or null when it matches none (drift).
@@ -2118,7 +2198,7 @@ async function cmdUp(registered) {
   const first = order[0];
 
   for (;;) {
-    const plan = planPorts(rows, order, busyPorts(), forced, first);
+    const plan = planPorts(rows, order, await busyPorts(candidatePorts(rows, order, forced, first)), forced, first);
 
     if (!plan.ok) {
       return refuse(plan.reason);
@@ -2407,7 +2487,7 @@ async function cmdDown(inst) {
   }
 
   rmSync(statePath(inst.name), { force: true });
-  const portFree = !portOwner(inst.port);
+  const portFree = !(await busyPorts([inst.port])).has(inst.port);
   log(portFree ? 'OK' : 'ERROR', `${inst.name} PID ${st.pid} closed over CDP; no process uses ${inst.dir}; port ${inst.port} ${portFree ? 'free' : 'still owned'}; state file removed`);
 
   return { ok: portFree, pid: st.pid, portFree, model, notes: outcome.notes };
@@ -2477,7 +2557,8 @@ async function cmdDoctor(inst) {
   add('commandLine', d.problems.length === 0, d.problems.length ? { drift: d.problems } : `matches the registry, backend ${d.backend}`);
 
   const version = /** @type {CdpVersion | null} */ (await cdpJson(inst, '/json/version'));
-  const ports = portsCheck(readState(inst.name)?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }], busyPorts(), new Set(live.map((r) => r.pid)));
+  const recordedPorts = readState(inst.name)?.ports ?? [{ name: 'cdp', port: inst.port, kind: /** @type {PortKind} */ ('derived') }];
+  const ports = portsCheck(recordedPorts, await busyPorts(recordedPorts.map((p) => p.port)), new Set(live.map((r) => r.pid)));
   add('ports', ports.status === 'pass' && !!version && new RegExp(inst.product).test(version.Browser), `${ports.detail}; ${inst.cdp} answers as ${version?.Browser ?? 'nothing'}`);
 
   const tabs = await pageTabs(inst);

@@ -6,7 +6,7 @@ import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, cdMode, checkLine, consoleErrors, currentTabUrl, downOutcome, flagIn, flowIdFor, isWorktree, listeners, markerCheck, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder, stopRun, takenBy, timeoutMsOf, urlPort } from './control.mjs';
+import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, candidatePorts, cdMode, checkLine, consoleErrors, currentTabUrl, downOutcome, flagIn, flowIdFor, isWorktree, listeners, markerCheck, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder, stopRun, takenBy, timeoutMsOf, urlPort } from './control.mjs';
 
 /** @typedef {import('./proctree.mjs').ProcRecord} ProcRecord */
 /** @typedef {Parameters<typeof stopRun>[0]} State */
@@ -155,21 +155,23 @@ test('planPorts falls back to the next slot when a throwaway listener holds the 
   const free = await freePort();
   /** @type {import('./control.mjs').PortRow[]} */
   const rows = [{ name: 'app', kind: 'derived', at: (slot) => (slot === 0 ? held : free) }];
-  const plan = planPorts(rows, [0, 1], busyPorts());
-  assert.deepEqual(plan, { ok: true, slot: 1, ports: [{ name: 'app', port: free, kind: 'derived', reason: `fell back from ${held}: held by PID ${process.pid}` }] });
-  assert.deepEqual(planPorts(rows, [1, 2], busyPorts()), { ok: true, slot: 1, ports: [{ name: 'app', port: free, kind: 'derived' }] }, 'a free first slot carries no reason');
+  assert.deepEqual(planPorts(rows, [0, 1], new Map([[held, []]])), { ok: true, slot: 1, ports: [{ name: 'app', port: free, kind: 'derived', reason: `fell back from ${held}: held by a process the OS did not name` }] }, 'a busy first slot falls back without a PID');
+  const planned = planPorts(rows, [0, 1], await busyPorts(candidatePorts(rows, [0, 1])));
+  assert.ok(planned.ok && planned.slot === 1 && planned.ports[0]?.reason?.startsWith(`fell back from ${held}: held by `), JSON.stringify(planned));
+  assert.deepEqual(planPorts(rows, [1, 2], await busyPorts(candidatePorts(rows, [1, 2]))), { ok: true, slot: 1, ports: [{ name: 'app', port: free, kind: 'derived' }] }, 'a free first slot carries no reason');
 });
 
 test('planPorts refuses after 10 busy slots and names each port and its holder', async (t) => {
   const held = await Promise.all(Array.from({ length: 10 }, () => listen(t)));
   /** @type {import('./control.mjs').PortRow[]} */
   const rows = [{ name: 'app', kind: 'derived', at: (slot) => /** @type {number} */ (held[slot]) }];
-  const plan = planPorts(rows, slotOrder(0), busyPorts());
+  const order = slotOrder(0);
+  const plan = planPorts(rows, order, await busyPorts(candidatePorts(rows, order)));
   assert.equal(plan.ok, false);
   assert.match(plan.ok ? '' : plan.reason, /^no free slot in 10 tries \(slots 0, 1, 2, 3, 4, 5, 6, 7, 8, 9\): /);
 
   for (const port of held) {
-    assert.ok(!plan.ok && plan.reason.includes(`app ${port} held by PID ${process.pid}`), `names ${port}`);
+    assert.ok(!plan.ok && plan.reason.includes(`app ${port} held by `), `names ${port}`);
   }
 });
 
@@ -178,8 +180,8 @@ test('planPorts refuses a busy --port with its holder and never falls back from 
   const free = await freePort();
   /** @type {import('./control.mjs').PortRow[]} */
   const rows = [{ name: 'app', kind: 'derived', at: () => free }];
-  assert.deepEqual(planPorts(rows, [0, 1, 2], busyPorts(), held), { ok: false, reason: `port ${held} (--port) is held by PID ${process.pid}; --port has no fallback` });
-  assert.deepEqual(planPorts(rows, [0, 1, 2], busyPorts(), free), { ok: true, slot: 0, ports: [{ name: 'app', port: free, kind: 'derived' }] });
+  assert.deepEqual(planPorts(rows, [0, 1, 2], new Map([[held, []]]), held), { ok: false, reason: `port ${held} (--port) is held by a process the OS did not name; --port has no fallback` }, 'a busy --port refuses without a PID');
+  assert.deepEqual(planPorts(rows, [0, 1, 2], await busyPorts([held, free]), free), { ok: true, slot: 0, ports: [{ name: 'app', port: free, kind: 'derived' }] });
 });
 
 test('planPorts refuses a busy fixed port with its holder and pin, whatever the slots', async (t) => {
@@ -191,8 +193,10 @@ test('planPorts refuses a busy fixed port with its holder and pin, whatever the 
     { name: 'api', kind: 'fixed', port: held, pin: 'libs/x.ts:5 in the portal checkout D:\\p' },
     { name: 'pangular', kind: 'external', port: held, owner: 'someone else' },
   ];
-  assert.deepEqual(planPorts(rows, [0, 1], busyPorts()), { ok: false, reason: `fixed port api ${held} held by PID ${process.pid}; pinned by libs/x.ts:5 in the portal checkout D:\\p` });
-  const external = planPorts([rows[0], rows[2]].filter((r) => r !== undefined), [0], busyPorts());
+  assert.deepEqual(planPorts(rows, [0, 1], new Map([[held, []]])), { ok: false, reason: `fixed port api ${held} held by a process the OS did not name; pinned by libs/x.ts:5 in the portal checkout D:\\p` }, 'a busy fixed port refuses without a PID');
+  const refused = planPorts(rows, [0, 1], await busyPorts(candidatePorts(rows, [0, 1])));
+  assert.ok(!refused.ok && refused.reason.startsWith(`fixed port api ${held} held by `), JSON.stringify(refused));
+  const external = planPorts([rows[0], rows[2]].filter((r) => r !== undefined), [0], await busyPorts([held, free]));
   assert.deepEqual(external, { ok: true, slot: 0, ports: [{ name: 'app', port: free, kind: 'derived' }, { name: 'pangular', port: held, kind: 'external', reason: 'someone else' }] }, 'a busy external port is not checked');
 });
 
@@ -201,10 +205,13 @@ test('planPorts keeps the fallback reason when a retry has already used the firs
   const free = await freePort();
   /** @type {import('./control.mjs').PortRow[]} */
   const rows = [{ name: 'app', kind: 'derived', at: (slot) => (slot === 5 ? held : free) }];
-  assert.deepEqual(planPorts(rows, [6], busyPorts(), undefined, 5), { ok: true, slot: 6, ports: [{ name: 'app', port: free, kind: 'derived', reason: `fell back from ${held}: held by PID ${process.pid}` }] });
+  const probe = await busyPorts(candidatePorts(rows, [6], undefined, 5));
+  assert.equal(probe.has(held), true, `the probe finds the listener this process holds on ${held}`);
+  const planned = planPorts(rows, [6], probe, undefined, 5);
+  assert.ok(planned.ok && planned.slot === 6 && planned.ports[0]?.reason?.startsWith(`fell back from ${held}: held by `), JSON.stringify(planned));
   /** @type {import('./control.mjs').PortRow[]} */
   const gone = [{ name: 'app', kind: 'derived', at: () => free }];
-  assert.deepEqual(planPorts(gone, [6], busyPorts(), undefined, 5), { ok: true, slot: 6, ports: [{ name: 'app', port: free, kind: 'derived', reason: `fell back from ${free}: taken after the check` }] });
+  assert.deepEqual(planPorts(gone, [6], probe, undefined, 5), { ok: true, slot: 6, ports: [{ name: 'app', port: free, kind: 'derived', reason: `fell back from ${free}: taken after the check` }] });
 });
 
 test('takenBy sees a foreign holder even while the probe answers, and a port error only in an exited run', () => {
@@ -225,7 +232,9 @@ test('portsCheck passes owned ports, fails a missing or foreign one, and ignores
     { name: 'pangular', port: 9999, kind: 'external', reason: 'control-pangular-inspector' },
   ];
   const tree = new Set([10, 11]);
-  assert.deepEqual(portsCheck(ports, new Map([[4501, [10]], [3000, [11]]]), tree), { status: 'pass', detail: 'app 4501 (derived), api 3000 (fixed: libs/x.ts:5), pangular 9999 (external: control-pangular-inspector)' });
+  const detail = 'app 4501 (derived), api 3000 (fixed: libs/x.ts:5), pangular 9999 (external: control-pangular-inspector)';
+  assert.deepEqual(portsCheck(ports, new Map([[4501, [10]], [3000, [11]]]), tree), { status: 'pass', detail });
+  assert.deepEqual(portsCheck(ports, new Map([[4501, []], [3000, []]]), tree), { status: 'pass', detail }, 'listeners the OS does not name are still listening');
   assert.deepEqual(portsCheck(ports, new Map([[3000, [99]]]), tree), { status: 'fail', detail: 'app 4501 not listening; api 3000 held by PID 99, not the recorded tree' });
   assert.deepEqual(portsCheck(ports, new Map([[4501, [10, 98]], [3000, [11]]]), tree), { status: 'fail', detail: 'app 4501 held by PID 98, not the recorded tree' }, 'a second holder on another address is not ours');
 });
@@ -242,9 +251,13 @@ test('listeners maps each LISTENING port to its PID, IPv4 or IPv6, and nothing e
   assert.deepEqual([...listeners(text)], [[14222, [7]], [4222, [4242, 77]]]);
 });
 
-test('busyPorts sees a throwaway listener with this process as its holder', async (t) => {
-  const port = await listen(t);
-  assert.deepEqual(busyPorts().get(port), [process.pid]);
+test('busyPorts decides by binding a port: the one this process holds is busy, the same port is free once released', async () => {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  const port = /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+  assert.equal((await busyPorts([port])).has(port), true, `a listener this process holds on ${port} is busy`);
+  await new Promise((resolve) => server.close(() => resolve(undefined)));
+  assert.deepEqual([...((await busyPorts([port])).keys())], [], `nothing holds ${port} once the release ran: it is free`);
 });
 
 test('authCodeIn takes the latest code and ignores colour codes', () => {

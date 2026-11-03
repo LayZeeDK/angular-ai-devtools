@@ -3,10 +3,10 @@ id: T019
 title: busyPorts must not depend on netstat
 wave: 7
 deps: [T018]
-status: in-progress
+status: done
 agent: build_T019
-base: 840d11bdee5e908adb6ac9325fc116661a040ae1
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: aceec453a376ee48d56f72abd38b1d850d535445
+worktree: null
 task_branch: null
 files:
   - .commandcode/skills/control-ai-browsers/scripts/control.mjs
