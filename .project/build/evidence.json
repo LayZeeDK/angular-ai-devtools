@@ -1,0 +1,200 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "f73edb68680d10adea3401dca9f143bb78a4ffcb",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M023",
+        "candidates": [
+          {
+            "base": "ea1e5dc9466efe6bd5e09eed5fff4a896eb89984",
+            "commit": "0a24a56269e4cd0660a7f1ffba1e5b0314441cc0",
+            "valid": true
+          }
+        ],
+        "head": "f73edb68680d10adea3401dca9f143bb78a4ffcb",
+        "subject": "T001: Land Aria, CDK and Material in the counter fixture and re-pin its frozen build proof"
+      },
+      "landed_commit": "0a24a56269e4cd0660a7f1ffba1e5b0314441cc0",
+      "reasons": [],
+      "task": {
+        "base": "ea1e5dc9466efe6bd5e09eed5fff4a896eb89984",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-component-packages-and-repin.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M023",
+        "candidates": [
+          {
+            "base": "ea1e5dc9466efe6bd5e09eed5fff4a896eb89984",
+            "commit": "01a3821e462f1f2262adfd1f320f93fd4d8b1719",
+            "valid": true
+          }
+        ],
+        "head": "f73edb68680d10adea3401dca9f143bb78a4ffcb",
+        "subject": "T002: Add the deliberately ambiguous harness target page to the counter fixture"
+      },
+      "landed_commit": "01a3821e462f1f2262adfd1f320f93fd4d8b1719",
+      "reasons": [],
+      "task": {
+        "base": "ea1e5dc9466efe6bd5e09eed5fff4a896eb89984",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-harness-target-page.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M023",
+        "candidates": [
+          {
+            "base": "5af0d81e4430b2aeff151874ce371e02b84d019d",
+            "commit": "d7036e33f40107b827d701b6837487f2787c4b93",
+            "valid": true
+          }
+        ],
+        "head": "f73edb68680d10adea3401dca9f143bb78a4ffcb",
+        "subject": "T003: Add the overlay, listbox, tabs and menu surfaces with the Aria rules they must satisfy"
+      },
+      "landed_commit": "d7036e33f40107b827d701b6837487f2787c4b93",
+      "reasons": [],
+      "task": {
+        "base": "5af0d81e4430b2aeff151874ce371e02b84d019d",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-aria-cdk-material-surfaces.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M023",
+        "candidates": [
+          {
+            "base": "62301add6beec94343099bec1643dd97e99d6c4e",
+            "commit": "4ff0ea05663734ae1cc3394817b65b348e0ba16d",
+            "valid": true
+          }
+        ],
+        "head": "f73edb68680d10adea3401dca9f143bb78a4ffcb",
+        "subject": "T004: Declare the components page as a verification surface and record its proofs"
+      },
+      "landed_commit": "4ff0ea05663734ae1cc3394817b65b348e0ba16d",
+      "reasons": [],
+      "task": {
+        "base": "62301add6beec94343099bec1643dd97e99d6c4e",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-declare-verification-surface.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M023",
+        "candidates": [
+          {
+            "base": "ce31bc13dbbbefc17c1552d19bc43c1eabfb3548",
+            "commit": "d44b1cd02a61d0ef9968bfaca613f5e7563d78c7",
+            "valid": true
+          }
+        ],
+        "head": "f73edb68680d10adea3401dca9f143bb78a4ffcb",
+        "subject": "T005: Prove the shipped explainers unchanged, the fixture rebuild idempotent, and gate the head"
+      },
+      "landed_commit": "d44b1cd02a61d0ef9968bfaca613f5e7563d78c7",
+      "reasons": [],
+      "task": {
+        "base": "ce31bc13dbbbefc17c1552d19bc43c1eabfb3548",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-explainers-unchanged-and-gate.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M023",
+        "candidates": [
+          {
+            "base": "7abd7471139623c22c44179bf16e72f12b7e80fa",
+            "commit": "ec8eec0620c5a8aef3942bce52ff5138722a6c10",
+            "valid": true
+          }
+        ],
+        "head": "f73edb68680d10adea3401dca9f143bb78a4ffcb",
+        "subject": "T006: Reconcile the shared recordings M023 invalidated"
+      },
+      "landed_commit": "ec8eec0620c5a8aef3942bce52ff5138722a6c10",
+      "reasons": [],
+      "task": {
+        "base": "7abd7471139623c22c44179bf16e72f12b7e80fa",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-reconcile-shared-recordings.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M023",
+        "candidates": [
+          {
+            "base": "e2dacea8ca1ccca7346903ef94d52ec2d90ba2f2",
+            "commit": "3a1de104dbf24d8c53013149e06ce18ce2450167",
+            "valid": true
+          }
+        ],
+        "head": "f73edb68680d10adea3401dca9f143bb78a4ffcb",
+        "subject": "T007: Repair the type-check break in the control skill's tests"
+      },
+      "landed_commit": "3a1de104dbf24d8c53013149e06ce18ce2450167",
+      "reasons": [],
+      "task": {
+        "base": "e2dacea8ca1ccca7346903ef94d52ec2d90ba2f2",
+        "id": "T007",
+        "status": "done",
+        "task_file": ".project/tasks/T007-repair-control-skill-typecheck.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M023",
+        "candidates": [
+          {
+            "base": "09b789201bb60bab7d37963a47efd610f966781a",
+            "commit": "50901327be0fa8f0fd21d1a51cf3d203c6f3af70",
+            "valid": true
+          }
+        ],
+        "head": "f73edb68680d10adea3401dca9f143bb78a4ffcb",
+        "subject": "T008: Make the explainer-unchanged pin a real comparison"
+      },
+      "landed_commit": "50901327be0fa8f0fd21d1a51cf3d203c6f3af70",
+      "reasons": [],
+      "task": {
+        "base": "09b789201bb60bab7d37963a47efd610f966781a",
+        "id": "T008",
+        "status": "done",
+        "task_file": ".project/tasks/T008-explainer-pin-real-comparison.md"
+      }
+    }
+  ]
+}
