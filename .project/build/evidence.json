@@ -1,7 +1,7 @@
 {
   "canonical_project_dir": ".project",
   "command": "verify-landed",
-  "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+  "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
   "project_dir": ".project",
   "tasks": [
     {
@@ -16,7 +16,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T001: Land Aria, CDK and Material in the counter fixture and re-pin its frozen build proof"
       },
       "landed_commit": "0a24a56269e4cd0660a7f1ffba1e5b0314441cc0",
@@ -40,7 +40,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T002: Add the deliberately ambiguous harness target page to the counter fixture"
       },
       "landed_commit": "01a3821e462f1f2262adfd1f320f93fd4d8b1719",
@@ -64,7 +64,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T003: Add the overlay, listbox, tabs and menu surfaces with the Aria rules they must satisfy"
       },
       "landed_commit": "d7036e33f40107b827d701b6837487f2787c4b93",
@@ -88,7 +88,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T004: Declare the components page as a verification surface and record its proofs"
       },
       "landed_commit": "4ff0ea05663734ae1cc3394817b65b348e0ba16d",
@@ -112,7 +112,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T005: Prove the shipped explainers unchanged, the fixture rebuild idempotent, and gate the head"
       },
       "landed_commit": "d44b1cd02a61d0ef9968bfaca613f5e7563d78c7",
@@ -136,7 +136,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T006: Reconcile the shared recordings M023 invalidated"
       },
       "landed_commit": "ec8eec0620c5a8aef3942bce52ff5138722a6c10",
@@ -160,7 +160,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T007: Repair the type-check break in the control skill's tests"
       },
       "landed_commit": "3a1de104dbf24d8c53013149e06ce18ce2450167",
@@ -184,7 +184,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T008: Make the explainer-unchanged pin a real comparison"
       },
       "landed_commit": "50901327be0fa8f0fd21d1a51cf3d203c6f3af70",
@@ -208,7 +208,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T009: Harness family proofs"
       },
       "landed_commit": "c3f86ae7193cfc1fea79899ac42081e3aad077b3",
@@ -232,7 +232,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T010: Aria rules read the rendered tree"
       },
       "landed_commit": "200a014ff2e75753319218b2a307184f8ddc02e4",
@@ -256,7 +256,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T011: Rebuild idempotency, for real"
       },
       "landed_commit": "b4692549bde86b86d4e9ea651104b8c81e8cb060",
@@ -280,7 +280,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T012: Verdict claims follow the milestone"
       },
       "landed_commit": "96282674092a03e7efd64c384cbafbd598e6b8d4",
@@ -304,7 +304,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T013: Predicate and action suites learn to fail"
       },
       "landed_commit": "d5b983a0f7a071a5d6e7afe3ffed2b273883533f",
@@ -328,7 +328,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T014: Aria order compares the real render"
       },
       "landed_commit": "d655aacf273bfaa74fddce310cb2cc1a81f61410",
@@ -352,7 +352,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T015: Controls resolves to its element"
       },
       "landed_commit": "49360bc9507e5c9534dc6f872cb79e46d59949f1",
@@ -376,7 +376,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T016: The second cycle serves"
       },
       "landed_commit": "71c84ed62b1c80f10d5a09ebf5ef55276b4f0099",
@@ -400,7 +400,7 @@
             "valid": true
           }
         ],
-        "head": "85ef54395a926c0531d1cd736db0d3c2c7f90162",
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
         "subject": "T017: An explainer answers on the fixture"
       },
       "landed_commit": "98cceaee9d5f1b75ef387e61d4f73b83f2ccfb1d",
@@ -410,6 +410,30 @@
         "id": "T017",
         "status": "done",
         "task_file": ".project/tasks/T017-an-explainer-answers-on-the-fixture.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M023",
+        "candidates": [
+          {
+            "base": "0bb14de03244cfbebf72146e78b121cf2e026d8a",
+            "commit": "83374f432c27253a8507626308911f806c5ebecf",
+            "valid": true
+          }
+        ],
+        "head": "d65b2f03c8e29fb9bd76efb4b8ef6b5b10a2f06a",
+        "subject": "T018: Derive the browser slot instead of pinning it"
+      },
+      "landed_commit": "83374f432c27253a8507626308911f806c5ebecf",
+      "reasons": [],
+      "task": {
+        "base": "0bb14de03244cfbebf72146e78b121cf2e026d8a",
+        "id": "T018",
+        "status": "done",
+        "task_file": ".project/tasks/T018-derive-the-browser-slot-instead-of-pinning-it.md"
       }
     }
   ]
