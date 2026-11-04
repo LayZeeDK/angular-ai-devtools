@@ -5,12 +5,13 @@ wave: 1
 deps: [T001]
 status: in-progress
 agent: build_T002
-base: 273409dc6b61f4c8928e8eed7c093605dd5babc4
+base: 620c996f70f4c8663def667402fbfef8eda4c06b
 worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - package.json
   - scripts/held-out-corpus.mjs
+  - research/raw/m024-verdict-claims.json
 ---
 
 # T002 — The corpus gets a script the gate reaches
@@ -61,3 +62,4 @@ npm ci --include=dev; node scripts/held-out-corpus.mjs
 - Verify npm ci --include=dev then node scripts/held-out-corpus.mjs: exit 1 - 22 suite(s), 20 passed, 2 failed, 85 test(s), 83 passed, 3m 38s; the two reds are e3-zero-skipped and e4-idempotent-checks, which assert npm test exits 0 and report 'E3: expected at least 3 pass summary blocks, got 1' and 'E4: first npm test failed'
 - measured at this head, outside T002's files: npm test is red at base on two counts. One was host state: 7 build tests in facade-dev-build and ng-context-dev-build died in 'Debug Failure. Expected D:/...spikes/ng222-app/.angular/cache/22.2.2/ng222-app/.tsbuildinfo === D:\...' from a stale git-ignored fixture build cache; cleared that cache (no tracked change, git status clean) and both suites now pass 7/7 and 9/9, and the corpus rebuild suite passes. The remaining red is product state: scripts/overlay-verdict-claims.test.mjs fails twice with 'the claim list D:\projects\sandbox\angular-ai-devtools\research\raw\m024-verdict-claims.json cannot be read (ENOENT); the check fails rather than skipping' - M024's own verdict claim list, which the M024 plan gives no task and which no declared file of mine may create
 - blocked: both declared files are written and proven, but the Verify command exits 1 and the cause is outside them - held-out e3 and e4 assert npm test exits 0, npm test is red at base only because research/raw/m024-verdict-claims.json is absent, and that recording may not be created from package.json or scripts/held-out-corpus.mjs; unblock by extending T002 files: to research/raw/m024-verdict-claims.json, or by adding a wave-1 task that writes it as M023 T012 did, then re-dispatch - blocked
+- attempt 2: wrote research/raw/m024-verdict-claims.json (the brief extends the declared files to it; the contract carries no '## Attempt 2' heading and did not list it) with milestone M024 and SC1-SC4 all ruled not-required, each quoting INTENT.md Success criteria verbatim and each reason naming the charter's portal clause and why no portal route produces the fact M024 changes; no driver field, since a list with no required row may not name one; scripts/overlay-verdict-claims.test.mjs 10 pass 0 fail (was red on ENOENT); Verify npm ci --include=dev then node scripts/held-out-corpus.mjs exit 0 - 22 suite(s), 22 passed, 0 failed, 85 test(s), 85 passed in 5m 22s, e3-zero-skipped and e4-idempotent-checks both PASS against the now-green npm test; package.json and scripts/held-out-corpus.mjs untouched - ready
