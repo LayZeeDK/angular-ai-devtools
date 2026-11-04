@@ -1,56 +1,58 @@
 # Final Review — M023 fixture-components
 
-Reviewed HEAD: 18f0f37dc0fef56930b7453f8789c682f09e1bb0
-Overall verdict: blocked
+Reviewed HEAD: dba2de80cf8e06a8755f20f7a23984cdc6f48d5a
+Overall verdict: pass
 
-<!-- Evidence reuse: the project Verify passed at this head (exit 0). The fixture proof pins are fresh.
-     Two gap reviewers ran in isolated sidecars at this head; both returned `gaps`, and this round judge the
-     seven repair waves rather than the original build. Four of the previous round's gaps are closed by
-     repair; three were re-scoped rather than closed, and two new high-severity holes were found in the
-     harness proofs. Verdicts below are read from the suites, not from the task Logs. -->
+<!-- Evidence reuse: the project Verify passed at this head (exit 0). Two gap reviewers ran in isolated
+     sidecars; the intent lens found every criterion satisfied and no new high gap, the risk lens found one
+     high programme-level defect outside this milestone's criteria. Eight repair waves preceded this review,
+     each closing what the previous one found. Verdicts below are read from the suites, and every named
+     mutant was run by a reviewer rather than taken from a Log. -->
 
 ## Success criteria
 
 ### SC1 — The harness target gives HAR-1 a root-boundary case with content outside the component root, HAR-2 a predicate case, HAR-3 an ambiguity case with two matching hosts, and HAR-4 an action case whose effect the harness observes.
 
-- **Verdict**: not-met
-- **Check**: E1 is green for a projection point that projects nothing — `<ng-content select=".none">` passes all three cases, because they assert the tag, its position and the caller's literal text, never what is projected. E2's `readAttrs` sees only `name="value"` literals, so `[attr.data-slot]` on one host and `'two'` on the other is a live N1 violation the suite cannot see; the same reader reddens on a harmless literal attribute added to one host, so it is both blind and brittle. E3 drives a `matchItems` the suite itself defines. E4 is genuinely behavioural (a no-op `advance()` reddens it), but its only observable is the component's own `{{ count() }}` interpolation, and its header claims the workspace core is the same `signal()` implementation the fixture ships when the workspace is on `~22.1.0` against the fixture's 22.2.2.
-- **Observed**: the criterion-named mutants for the two new high gaps were run by a reviewer, not taken from a Log: `select=".none"` passes, and `[attr.data-slot]` passes.
-- **Reference**: `tests/held-out/fixture-harness-root-boundary.test.mjs`; `fixture-harness-ambiguity.test.mjs`; `fixture-harness-predicate.test.mjs`; `fixture-harness-action.test.mjs:73-74`; `.project/review/final-gap-1.md`; `.project/review/final-gap-2.md`
-- **Finding**: two high-severity holes, both of the shape this milestone keeps finding — the assertion matches a representation of the thing rather than the thing.
-- **Fix direction**: E1 must assert what is projected (a marker inside and one outside the root, read from the rendered result), and E2 must read attribute bindings as well as literals while tolerating an attribute the harness does not match on.
+- **Verdict**: met
+- **Check**: E1 now renders: T020 mounts the fixture's own element as the root, offers the caller's child nodes to each `<ng-content>` slot, and asserts the rendered markers — inclusion (each root renders the one caller marker, before its own list) and exclusion (the page's third marker stays outside every root). `<ng-content select=".none">` fails 2 of 6, naming 0 markers projected. E2 reads attribute **bindings** as well as literals: `[attr.data-slot]="'one'"` against `"'two'"` fails with `(prohibition N1)`, while `aria-label` on one host — outside the declared match set — stays green, and the `id` exclusion is asserted from T002's pinned declaration rather than assumed. E3 drives a predicate to its named no-match. E4 observes a real click changing the rendered count 0→1→2; a no-op `advance()` reddens it.
+- **Observed**: the four criterion-named mutants were applied by a reviewer in the wave-8 review and again in this round's intent read; all four redden and all restore green.
+- **Reference**: `tests/held-out/fixture-harness-root-boundary.test.mjs`; `fixture-harness-ambiguity.test.mjs`; `fixture-harness-predicate.test.mjs`; `fixture-harness-action.test.mjs`; `.project/review/wave-8.cycle1.md`; `.project/review/final-gap-1.md`
+- **Finding**: one carried caveat, accepted rather than hidden: T020's mount is a hand-rolled jsdom simulation of Angular's projection semantics, so E1's rendered half rests on the 2026-11-03 ruling and the browser proof, not on a real Angular run. The ruling carries its re-derivation condition. The risk lens separately found that the exclusion clause's mutant is not reachable — the assertion re-applies the predicate that defined its own input — so exclusion is carried by the mount's construction rather than by a failing case; recorded below.
+- **Fix direction**: re-derive E1 against a real mount when the harness milestone provides one, and give the exclusion clause a reachable mutant.
 
 ### SC2 — The menu surface supplies the listbox and menu rules N23 needs, including at least one rule that fails when the attribute it reads is removed.
 
 - **Verdict**: met
-- **Check**: the removal half holds — a per-attribute mutant reddens exactly one rule and leaves its siblings green. The order half now bites for real: reversing the fixture's on-disk `@for` iteration reddens both the order suite and the rule `listbox-option-order`, and the reviewer ran that mutant rather than reading the Log. The rule that accepted any id was repaired by T015 and now names the expected and the actual id.
-- **Observed**: five rules green, each with a mutant that reddens it; the any-id defect is closed.
+- **Check**: a per-attribute mutant reddens exactly one rule and leaves its siblings green. Order is asserted for real: reversing the fixture's on-disk `@for` reddens both the order suite and the rule `listbox-option-order`. `menu-trigger-controls` resolves `aria-controls` to the element the trigger controls, naming both ids when they differ — the any-id defect T015 was opened for.
+- **Observed**: five rules, each with a mutant that reddens it; the reviewer ran the reversal rather than reading the Log.
 - **Reference**: `tests/held-out/aria-rules.mjs`; `fixture-aria-order.test.mjs`; `fixture-aria-rule-mutation.test.mjs`; `.project/review/wave-5.cycle1.md`
-- **Finding**: none against the criterion. Two carried warnings: the rules live only in the held-out corpus with nothing linking N23's shipped rules to them, and the attribute rules still read parsed source rather than the rendered tree, which is latent while the fixture's attributes are static.
-- **Fix direction**: none for the criterion; record a ruling for the source-reading scope if it is to stand.
+- **Finding**: two carried warnings — the rules live only in the held-out corpus with no product home and a two-valued removal loop, and the attribute-reading rules still read parsed source, which is latent while the fixture's attributes are static.
+- **Fix direction**: give the rules a product home when N23 ships; record the source-reading scope as a ruling if it is to stand.
 
 ### SC3 — The fixture builds and serves, and the four shipped explainers still answer on it.
 
 - **Verdict**: met
-- **Check**: T016 made the second cycle actually serve — an ephemeral `127.0.0.1` port, the entry fetched and byte-compared across cycles, the install set measured **between** the cycles rather than beside them, and a duplicate-package mutant reddens at that measurement. T017 asks each of the four explainers a pinned question through the panel's own route table and asserts the answer; deleting the `di-doctor` route reddens it, naming the explainer that can no longer be reached. The hash pins remain as N2's anti-tamper guard.
-- **Observed**: both halves now observe behaviour a user could observe: a document served, an answer given.
+- **Check**: T016 serves the built entry on an ephemeral loopback port and byte-compares what is fetched across two cycles, with the install-set measured **between** the cycles; a duplicate package left by the first build reddens at that measurement. T017 asks each of the four explainers a pinned question through the panel's own route table and asserts the answer; deleting the `di-doctor` route reddens it, naming the explainer that can no longer be reached. The hash pins remain as N2's anti-tamper guard.
+- **Observed**: both halves observe something a user could observe — a document served, an answer given.
 - **Reference**: `tests/held-out/fixture-rebuild-idempotent.test.mjs`; `tests/held-out/fixture-explainers-unchanged.test.mjs`; `.project/review/wave-5.cycle1.md`
-- **Finding**: two carried risks, neither criterion-failing: a fresh clone cannot run E7 until `packages/ai-devtools-companion/dist` is built (it fails as `TS2307`, i.e. as a product defect), and three E6 cases mutate `apps/angular-ai-devtools/src/app/` in place.
-- **Fix direction**: make E7 provision what it needs or fail with a named cause; move the in-place mutations to a copy.
+- **Finding**: the "serves" half is a static server inside the test, and nothing starts the `components` target; a fresh clone cannot run E7 until the companion `dist` is built, where it fails as `TS2307` — a product-shaped error for an artefact gap.
+- **Fix direction**: have E7 provision what it needs or fail with a named cause; start the real target when the harness milestone owns it.
 
 ### SC4 — `npm run check` and `npm test` pass at the head.
 
 - **Verdict**: met
-- **Check**: the project Verify at this head exits 0. Three gate attempts preceded it, each failing on a control-skill test that depended on its environment: a slot hashed from a checkout path, then a port probe blind because `netstat` exposes only the host table. T018 derived the slot; T019 replaced the probe with a loopback bind. The suite now passes 150/150 from the primary and from a worktree-shaped copy.
-- **Observed**: green, with the three failures that preceded it recorded rather than smoothed.
-- **Reference**: `.project/build/verify-ledger.jsonl`; `.project/review/wave-6.cycle1.md`; `wave-7.cycle1.md`
-- **Finding**: the probe has a second shape the reviewer measured — only the `127.0.0.1` leg is asserted, so a listener bound only on `::1` reads free, and every non-`EADDRINUSE` bind error is read as "free". A warning against this criterion, since no criterion binds it.
-- **Fix direction**: assert both legs, and separate "free" from "cannot tell".
+- **Check**: the project Verify at this head exits 0. Three earlier attempts failed on control-skill tests that depended on their environment — a slot hashed from a checkout path, then a port probe blind because `netstat` exposes only the host table. T018 derived the slot; T019 replaced the probe with a loopback bind; T022 made it three-valued across both legs. 196 tests across five skills, 196 pass.
+- **Observed**: green, with all three failures recorded rather than smoothed.
+- **Reference**: `.project/build/verify-ledger.jsonl`; `.project/review/wave-6.cycle1.md`, `wave-7.cycle1.md`, `wave-8.cycle1.md`
+- **Finding**: none against the criterion.
+- **Fix direction**: none
 
 ## Gaps carried into the record
 
-Both gap reviewers returned `gaps`. Beyond the two above: the attribute Aria rules read source with no recorded ruling; the `22.2.5`/`22.2.2` skew is recorded but no test pins the component-package line; E6's pins are a tripwire with no owner for a re-pin; and the repaired suites are over-tight in places a legitimate later change reddens (`@if (false)` keeps both order cases green because only `@for` is expanded, `readScope` asserts on an unresolvable `readonly`, a count is pinned in a failure message).
+The risk lens found one **high** defect that is not this milestone's criterion failure but is serious: **ten of the thirty-two held-out suites are red at this head and no npm script reaches `tests/held-out`.** `e1`, `e5`, `e6`, `e10`, `e11`, `e12` and the four panel suites read `.project/review/rounds/` and `.project/review/specs/`, which do not exist and were never in git, so 39 assertions fail on `ENOENT`. Five of them also resolve `verdict.json` through `--git-common-dir`, i.e. in the primary checkout rather than the reviewed HEAD, and one bakes an absolute host path into a committed assertion. The consequence is that the corpus has never had a green baseline, the gate cannot see it, and a reader would mistake it for coverage. This does not fail any M023 criterion; it is carried as the first task of the next milestone.
+
+Also carried: the version skew recorded but unasserted; E6's pins with no re-pin owner and three in-place product mutations; `expandControlFlow` handling only `@for`, so `@if (false)` keeps an empty listbox green; `jsdom` as an undeclared prerequisite of six suites; and the action suite's provenance comment being false about the workspace's Angular version.
 
 ## The shape of this milestone
 
-Seven repair waves, each closing what the previous review found. Four of the previous round's gaps are genuinely closed; three were re-scoped. The reviewers name the pattern precisely: when a gap cannot be fixed in-process, the exit has been a comment, a warning or an open question rather than a recorded ruling — honest documentation, but not closure. The two high findings this round are the same shape as the ones before them: an assertion matching a representation of the thing rather than the thing.
+Eight repair waves. The first found eight suites that could not fail; each later wave closed what its reviewer proved by mutant. Three of the last four waves were opened by a reviewer naming the single change that would leave a check green — `<ng-content select=".none">`, `[attr.data-slot]`, `LOOPBACKS = ['127.0.0.1']` — and each was closed by making that change redden. The two instruments that did the most work were the mutant and the honest receipt.

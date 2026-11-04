@@ -93,6 +93,7 @@ Review depth: full
 | SC1 | T020 | AC1 |
 | SC1 | T021 | AC1 |
 | SC4 | T022 | AC1 |
+| SC1 | T023 | AC1 |
 
 ## Held-out checks
 
@@ -234,5 +235,16 @@ one file or one small family, and each was found by naming the change that leave
 | T020 | E1 asserts what is projected, not that a projection tag is present |
 | T021 | E2 reads attribute bindings, and tolerates attributes the harness ignores |
 | T022 | the port probe answers for `::1` and distinguishes unknown from free |
+
+Review depth: full
+
+## Wave 9 — a test may not read the milestone's bookkeeping
+
+Goal: the ambiguity suite must survive the ship flow that archives `.project/tasks/`. The fix is to own the
+declaration rather than read it.
+
+| Task | Repairs |
+|---|---|
+| T023 | the harness match-set declaration moves into the suite, with its origin as provenance |
 
 Review depth: full
