@@ -3,10 +3,10 @@ id: T002
 title: The corpus gets a script the gate reaches
 wave: 1
 deps: [T001]
-status: in-progress
+status: done
 agent: build_T002
-base: 620c996f70f4c8663def667402fbfef8eda4c06b
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: e66a34e62af4de40de4cd70e6e5129f5b1456942
+worktree: null
 task_branch: null
 files:
   - package.json

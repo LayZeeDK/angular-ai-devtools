@@ -1,0 +1,29 @@
+{
+  "milestone": "M024",
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "A named script runs every suite under `tests/held-out/`, and it is reachable from the project gate so a red suite fails the build.",
+      "ruling": "not-required",
+      "reason": "The charter's portal clause reaches a feature whose facts an insurance-portal route can produce. This criterion's fact is that a named npm script runs every suite under `tests/held-out/` and that the gate reaches it: a fact about this repository's own scripts and corpus, produced by running the corpus, with no page to read and no route that renders it. No insurance-portal route produces it, so the portal clause does not reach it and the wave gate cites the recorded corpus run instead."
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "Every suite in `tests/held-out/` passes under that script in a fresh checkout with no `.project/` directory present.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is that every suite under `tests/held-out/` passes under the corpus script in a fresh checkout with no `.project/` directory present. It is produced by running the corpus against a fresh checkout, not by reading a page; no insurance-portal route produces it, so the charter's portal clause does not reach it and the recorded corpus run is the evidence the wave gate cites."
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "No suite under `tests/held-out/` reads any path under `.project/`, demonstrated by running the corpus with that directory moved aside.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is that no suite under `tests/held-out/` reads a path under `.project/`, demonstrated by running the corpus with that directory moved aside. Running the corpus produces it; no insurance-portal route renders it, so the charter's portal clause does not reach the criterion and the recorded run with `.project/` moved aside is the evidence the gate cites."
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "The ten suites that read `.project/review/rounds/` or `.project/review/specs/` are either deleted with their claim recorded, or re-homed so their claim is asserted from data the suite carries.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is which of the ten suites reading `.project/review/rounds/` or `.project/review/specs/` were deleted with their claim recorded or re-homed so the claim is asserted from data the suite carries. It is produced by reading the corpus and its retirement record; no insurance-portal route produces it, so the charter's portal clause does not reach this criterion and the retired-suite check with the recorded corpus run is the evidence the wave gate cites."
+    }
+  ]
+}

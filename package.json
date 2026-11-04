@@ -8,9 +8,10 @@
     "check:skills": "tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json",
     "check:panel": "tsc -p apps/angular-ai-devtools/tsconfig.check.json",
     "check:companion": "tsc -p packages/ai-devtools-companion/tsconfig.json",
-    "test": "node --experimental-strip-types --test \"scripts/**/*.test.mjs\" \"extension/**/*.test.mjs\" && node scripts/run-user-scope-tests.mjs && npm run test:skills && npm run test:app",
+    "test": "node --experimental-strip-types --test \"scripts/**/*.test.mjs\" \"extension/**/*.test.mjs\" && node scripts/run-user-scope-tests.mjs && npm run test:skills && npm run test:app && npm run test:held-out",
     "test:skills": "node --experimental-strip-types --test \".claude/skills/**/*.test.mjs\" \".commandcode/skills/**/*.test.mjs\"",
-    "test:app": "npx nx run angular-ai-devtools:test"
+    "test:app": "npx nx run angular-ai-devtools:test",
+    "test:held-out": "node scripts/held-out-corpus.mjs"
   },
   "devDependencies": {
     "@angular-devkit/core": "~22.1.0",
