@@ -1,0 +1,128 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "1ba0b4057528fdddd857155c1eafa9b39646410a",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M029",
+        "candidates": [
+          {
+            "base": "f4fd11d6c93c913611009c43a72cca76573b09bb",
+            "commit": "3dfce5c1e7b95ab8e0d30e3bb8b14b392e4042ec",
+            "valid": true
+          }
+        ],
+        "head": "1ba0b4057528fdddd857155c1eafa9b39646410a",
+        "subject": "T001: Record what the sanitizer warning and the profiler actually contain"
+      },
+      "landed_commit": "3dfce5c1e7b95ab8e0d30e3bb8b14b392e4042ec",
+      "reasons": [],
+      "task": {
+        "base": "f4fd11d6c93c913611009c43a72cca76573b09bb",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-record-what-the-sanitizer-warning-and-the-profiler-actually-contain.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M029",
+        "candidates": [
+          {
+            "base": "ed3d532ffc58af2dc8c79860f528a08e4a68edbc",
+            "commit": "4da06353b1e6f6e6a68846487034399f086e90b3",
+            "valid": true
+          }
+        ],
+        "head": "1ba0b4057528fdddd857155c1eafa9b39646410a",
+        "subject": "T002: Join the warning to the component that wrote the element"
+      },
+      "landed_commit": "4da06353b1e6f6e6a68846487034399f086e90b3",
+      "reasons": [],
+      "task": {
+        "base": "ed3d532ffc58af2dc8c79860f528a08e4a68edbc",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-join-the-warning-to-the-binding-that-wrote-the-element.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M029",
+        "candidates": [
+          {
+            "base": "4da06353b1e6f6e6a68846487034399f086e90b3",
+            "commit": "a9d844a24735164304ff002afe8c61e459ffc23e",
+            "valid": true
+          }
+        ],
+        "head": "1ba0b4057528fdddd857155c1eafa9b39646410a",
+        "subject": "T003: Render the fact list and the unattributable state on the panel"
+      },
+      "landed_commit": "a9d844a24735164304ff002afe8c61e459ffc23e",
+      "reasons": [],
+      "task": {
+        "base": "4da06353b1e6f6e6a68846487034399f086e90b3",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-render-the-fact-list-and-the-unattributable-state-on-the-panel.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M029",
+        "candidates": [
+          {
+            "base": "027e28671ea48898569b3d779358f9051434770f",
+            "commit": "68abbb22ee23a814a56a63ab83f6d18931b07303",
+            "valid": true
+          }
+        ],
+        "head": "1ba0b4057528fdddd857155c1eafa9b39646410a",
+        "subject": "T004: Prove the vetted bypass as an absence"
+      },
+      "landed_commit": "68abbb22ee23a814a56a63ab83f6d18931b07303",
+      "reasons": [],
+      "task": {
+        "base": "027e28671ea48898569b3d779358f9051434770f",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-prove-the-vetted-bypass-as-an-absence.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M029",
+        "candidates": [
+          {
+            "base": "68abbb22ee23a814a56a63ab83f6d18931b07303",
+            "commit": "00e7631e4b502bfc14cea03eaa87044d9d406910",
+            "valid": true
+          }
+        ],
+        "head": "1ba0b4057528fdddd857155c1eafa9b39646410a",
+        "subject": "T005: Re-record what the new page invalidated"
+      },
+      "landed_commit": "00e7631e4b502bfc14cea03eaa87044d9d406910",
+      "reasons": [],
+      "task": {
+        "base": "68abbb22ee23a814a56a63ab83f6d18931b07303",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-re-record-what-the-new-page-invalidated.md"
+      }
+    }
+  ]
+}
