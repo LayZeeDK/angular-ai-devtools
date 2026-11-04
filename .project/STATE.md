@@ -5,7 +5,7 @@ milestone: image-budget-audit
 phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M026
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -501,3 +501,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-04 — define — define started
 - 2026-11-04 — define — define complete
 - 2026-11-04 — plan — planning started
+- 2026-11-04 — plan — plan approved
