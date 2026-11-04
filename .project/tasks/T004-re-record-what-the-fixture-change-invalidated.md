@@ -2,10 +2,10 @@
 id: T004
 title: Re-record what the fixture change invalidated
 wave: 2
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T004
+base: b5a66ce7cf9ee4de1cea41f77fbcd8c594044e88
 worktree: null
 task_branch: null
 files:
@@ -63,3 +63,4 @@ npm ci --include=dev; node --test scripts/fixture-proof-fresh.test.mjs scripts/o
 ## Log
 
 - dispatched
+- Re-recorded through each artefact's own tooling at b5a66ce7: fingerprint.mjs wrote 5 stale entries (dev-app components/counter, devtools attach/profiler/signal-graph, now naming after-render-page.ts and the new app.routes.ts blob), the m022 builds were re-measured by the suite's own ng build commands (dev 1902757B within the 2000B path-independent bound, prod main-4KL4US2I.js 389645B aliasing __ngContext__ as Mm) and m028-verdict-claims.json generated with gsd verdict-record --apply; mutants: old app.routes.ts hash reddens each manifest suite, production bytes 389015 reddens the ng-context recording check, a paraphrased SC1 reddens the claim list; Verify 21/21, npm run check and npm test green
