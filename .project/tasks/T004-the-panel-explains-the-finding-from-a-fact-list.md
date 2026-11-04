@@ -2,10 +2,10 @@
 id: T004
 title: The panel explains the finding from a fact list
 wave: 3
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T004
+base: 70139451e34eb5f8de5e4d25578892d353e68c6c
 worktree: null
 task_branch: null
 files:
@@ -54,3 +54,4 @@ held-out E5 — an unknown code renders unknown.
 ## Log
 
 - created
+- T004 ready: image-budget surface with empty/loading/unknown/success states
