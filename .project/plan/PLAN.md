@@ -47,7 +47,7 @@ appearing; every recording the new page staled is re-recorded with a mutant.
 | SC2 | T002 | AC2 |
 | SC3 | T002 | AC3 |
 | SC4 | T003 | AC4 |
-| SC5 | T005 | AC5 |
+| SC5 | T005 | AC4 |
 
 ## Prohibitions
 
