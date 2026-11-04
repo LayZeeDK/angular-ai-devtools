@@ -29,9 +29,9 @@ who cites a held-out suite as evidence; the next milestone's coder, who needs a 
 
 | Edge | Criterion | Category | Disposition | Test |
 | --- | --- | --- | --- | --- |
-| E1 | SC2 | dependency | held-out | `scripts/held-out-corpus.test.mjs` — a suite whose prerequisite is absent fails naming the prerequisite, never skips |
-| E2 | SC1 | environment | held-out | `scripts/held-out-corpus.test.mjs` — a suite that needs a browser or a served page is excluded by a named condition in the gate, not by an inner return that reports pass |
-| E3 | SC3 | stale | held-out | `scripts/held-out-corpus.test.mjs` — deleting the subject a suite cites reddens that suite rather than leaving it green on a stale path |
+| E1 | SC2 | boundary | held-out | `scripts/held-out-corpus.test.mjs` — a suite whose prerequisite is absent fails naming the prerequisite, never skips |
+| E2 | SC1 | adjacency | held-out | `scripts/held-out-corpus.test.mjs` — a suite that needs a browser or a served page is excluded by a named condition in the gate, not by an inner return that reports pass |
+| E3 | SC3 | empty | held-out | `scripts/held-out-corpus.test.mjs` — deleting the subject a suite cites reddens that suite rather than leaving it green on a stale path |
 | E4 | SC2 | empty | held-out | `scripts/held-out-corpus.test.mjs` — the corpus runs and passes with no `.project/` directory present, and an empty corpus is an error |
 
 ## Prohibitions
