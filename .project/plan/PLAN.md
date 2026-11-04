@@ -31,8 +31,6 @@ Review depth: full
 | E2 | T003 | scripts/extension-typecheck.test.mjs |
 | E3 | T003 | scripts/extension-typecheck.test.mjs |
 | E4 | T003 | scripts/extension-typecheck.test.mjs |
-| E5 | T001 | scripts/extension-typecheck.test.mjs |
-| E6 | T002 | scripts/extension-typecheck.test.mjs |
 
 ## Intent coverage
 
