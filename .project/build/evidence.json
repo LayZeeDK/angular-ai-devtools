@@ -1,7 +1,7 @@
 {
   "canonical_project_dir": ".project",
   "command": "verify-landed",
-  "head": "877fc22a1a20333288455b734c2a65fdd2d7e01a",
+  "head": "1cb8d43e436f3b140711451e0fa6c31641ec036b",
   "project_dir": ".project",
   "tasks": [
     {
@@ -16,7 +16,7 @@
             "valid": true
           }
         ],
-        "head": "877fc22a1a20333288455b734c2a65fdd2d7e01a",
+        "head": "1cb8d43e436f3b140711451e0fa6c31641ec036b",
         "subject": "T001: Remove the ten suites that cannot pass"
       },
       "landed_commit": "273409dc6b61f4c8928e8eed7c093605dd5babc4",
@@ -40,7 +40,7 @@
             "valid": true
           }
         ],
-        "head": "877fc22a1a20333288455b734c2a65fdd2d7e01a",
+        "head": "1cb8d43e436f3b140711451e0fa6c31641ec036b",
         "subject": "T002: The corpus gets a script the gate reaches"
       },
       "landed_commit": "05f8ed4ed79ccd3810e053d795ded5b7701b5125",
@@ -64,7 +64,7 @@
             "valid": true
           }
         ],
-        "head": "877fc22a1a20333288455b734c2a65fdd2d7e01a",
+        "head": "1cb8d43e436f3b140711451e0fa6c31641ec036b",
         "subject": "T003: Prove the corpus gate bites"
       },
       "landed_commit": "0bcf644172baa2d9590aef5e40776e73dd7790c7",
@@ -88,7 +88,7 @@
             "valid": true
           }
         ],
-        "head": "877fc22a1a20333288455b734c2a65fdd2d7e01a",
+        "head": "1cb8d43e436f3b140711451e0fa6c31641ec036b",
         "subject": "T004: The corpus runs with no project directory"
       },
       "landed_commit": "abe0981e755986f2a0f2fc81ae9010a7e4f427ec",
@@ -98,6 +98,30 @@
         "id": "T004",
         "status": "done",
         "task_file": ".project/tasks/T004-the-corpus-runs-with-no-project-directory.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M024",
+        "candidates": [
+          {
+            "base": "0cf151f7084dc18dbbfa3982e5a9886f841d984d",
+            "commit": "44896c3b0e49a7deba417f4b0ccde677419ed932",
+            "valid": true
+          }
+        ],
+        "head": "1cb8d43e436f3b140711451e0fa6c31641ec036b",
+        "subject": "T005: The ship verify runs in a fresh sidecar"
+      },
+      "landed_commit": "44896c3b0e49a7deba417f4b0ccde677419ed932",
+      "reasons": [],
+      "task": {
+        "base": "0cf151f7084dc18dbbfa3982e5a9886f841d984d",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-the-ship-verify-runs-in-a-fresh-sidecar.md"
       }
     }
   ]
