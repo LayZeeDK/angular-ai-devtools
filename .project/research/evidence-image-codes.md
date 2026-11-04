@@ -78,3 +78,47 @@ fixture change the milestone's scope does not declare.
 M026 cannot be planned as written. It is re-scoped onto what is measurable: the thirteen real codes, an
 `NgOptimizedImage` page added to the fixture that provokes a **real** runtime warning, and the panel explaining it.
 The browser-console path is a separate capability and is not claimed here.
+
+## Authoritative enumeration, from the local clone at the installed tag
+
+Measured against `D:\projects\github\angular\angular` at **`v22.1.8`** — the tag matching the installed
+`@angular/core` and `@angular/common` (`22.1.8`). Read with `git grep`/`git show` at the tag, so the clone's own
+checkout (`22.2.x`) is undisturbed.
+
+`packages/common/src/errors.ts` lines 46–63, verbatim:
+
+```
+  // Image directive errors
+  UNEXPECTED_SRC_ATTR = 2950,
+  UNEXPECTED_SRCSET_ATTR = 2951,
+  INVALID_INPUT = 2952,
+  UNEXPECTED_INPUT_CHANGE = 2953,
+  REQUIRED_INPUT_MISSING = 2954,
+  LCP_IMG_MISSING_PRIORITY = 2955,
+  PRIORITY_IMG_MISSING_PRECONNECT_TAG = 2956,
+  UNEXPECTED_DEV_MODE_CHECK_IN_PROD_MODE = 2958,
+  INVALID_LOADER_ARGUMENTS = 2959,
+  OVERSIZED_IMAGE = 2960,
+  TOO_MANY_PRELOADED_IMAGES = 2961,
+  MISSING_BUILTIN_LOADER = 2962,
+  MISSING_NECESSARY_LOADER = 2963,
+  LCP_IMG_NGSRC_MODIFIED = 2964,
+  OVERSIZED_PLACEHOLDER = 2965,
+  TOO_MANY_PRIORITY_ATTRIBUTES = 2966,
+  PLACEHOLDER_DIMENSION_LIMIT_EXCEEDED = 2967,
+```
+
+Plus `packages/core/src/errors.ts:130` — `IMAGE_PERFORMANCE_WARNING = -913`, referenced as `NG0913` in
+`packages/core/src/image_performance_warning.ts:217` and `:229`.
+
+### The set is eighteen codes, not thirteen
+
+**Seventeen** in the image directive's own enum block (2957 does not exist) plus `NG0913` from core.
+
+The earlier "thirteen" was an artefact of grep: it matched only messages containing `image`, `ngSrc`, LCP, width,
+height or priority, so five codes whose messages use other wording were silently missed —
+`NG2950` (`UNEXPECTED_SRC_ATTR`), `NG2951` (`UNEXPECTED_SRCSET_ATTR`), `NG2953` (`UNEXPECTED_INPUT_CHANGE`),
+`NG2954` (`REQUIRED_INPUT_MISSING`), `NG2958` (`UNEXPECTED_DEV_MODE_CHECK_IN_PROD_MODE`).
+
+The enum block is authoritative in a way a message grep is not: it is the directive's own declaration of which codes
+belong to it, and a reviewer can count it.

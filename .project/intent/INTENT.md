@@ -37,7 +37,7 @@ no text reaches a prompt before the licence strip.
 
 ## Success criteria
 
-1. The offline digest carries exactly one entry for each of the thirteen measured image codes — `NG0913`, `NG2952`, `NG2955`, `NG2956`, `NG2959`, `NG2960`, `NG2961`, `NG2962`, `NG2963`, `NG2964`, `NG2965`, `NG2966`, `NG2967` — and no entry for a code outside the measured set.
+1. The offline digest carries exactly one entry for each of the eighteen image codes the installed Angular declares — the seventeen in `RuntimeErrorCode`'s image block (`NG2950`–`NG2967`, with no `NG2957`) plus `NG0913` from core — and no entry for a code outside that set.
 2. Every digest entry is at most 150 tokens, and the digest is generated at extension build time rather than hand-written at runtime.
 3. A fixture page uses `NgOptimizedImage` in a way that provokes a real runtime warning, and COM-1 names the image, the code and the binding that produced the offending attribute.
 4. The licence and copyright notice is stripped from every entry before any digest text reaches a prompt.
@@ -94,5 +94,11 @@ Out:
 - None. COM-S1 was answered from the runtime source; the browser-console path is out of scope and said so.
 
 ## Corrections
+
+- **2026-11-04, code set corrected to eighteen (delegated ruling).** SC1 named thirteen codes, derived by
+  grepping the installed bundles for image wording. The local clone at `v22.1.8` shows the image directive's
+  own `RuntimeErrorCode` block spans `NG2950`-`NG2967` (seventeen, no `NG2957`), plus `NG0913` from core. Five
+  codes were missed by the grep: `NG2950`, `NG2951`, `NG2953`, `NG2954`, `NG2958`. The set is eighteen, and
+  `research/evidence-image-codes.md` carries the enum verbatim with line numbers.
 
 - **2026-11-04, budget figure corrected (delegated ruling).** SC5 said the initial bundle stays inside 520 KB. `scripts/panel-bundle-budget.test.mjs` shows 520 kB is the build's `maximumWarning`, and the enforced baseline is 535.44 kB, which the panel already exceeded before this milestone. SC5 now names the enforced baseline.
