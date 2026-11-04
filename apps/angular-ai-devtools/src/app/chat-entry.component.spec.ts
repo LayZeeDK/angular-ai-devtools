@@ -609,12 +609,14 @@ describe('the chat route', () => {
       'interop',
       'chat',
       'picker',
+      'image-budget', // M026 COM-1 surface
     ]);
     // T003's conversion stayed the only other lazy route: five explainers are still eager.
     expect(appRoutes.filter((route) => route.loadComponent !== undefined).map((route) => route.path)).toEqual([
       'interop',
       'chat',
       'picker',
+      'image-budget', // M026 COM-1 surface
     ]);
     for (const path of ['', 'signal-provenance', 'di-doctor', 'error-explainer', 'stale-view']) {
       const route = appRoutes.find((candidate) => candidate.path === path);

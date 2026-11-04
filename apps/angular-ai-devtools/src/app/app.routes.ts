@@ -16,4 +16,5 @@ export const appRoutes: Route[] = [
   // The picker's surface is lazy for the same reason the two above are: the panel's initial bundle
   // is measured from the eager references in the built index, and nothing eager may import it.
   { path: 'picker', loadComponent: () => import('./page-picker.component').then((m) => m.PagePickerComponent) },
+  { path: 'image-budget', loadComponent: () => import('./image-budget').then((m) => m.imageBudget as any) },
 ];

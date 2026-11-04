@@ -84,6 +84,17 @@ const OUTPUT_DIRECTORIES = {
   development: join(REPO_ROOT, 'tmp', 'ng-context', 'dev'),
   production: join(REPO_ROOT, 'tmp', 'ng-context', 'prod'),
 };
+
+/**
+ * The development build embeds absolute paths (the output path and the checkout path), so its total byte count
+ * varies by where it is built: 1,900,983 bytes in `tmp/ng-context/dev` in this checkout, 1,901,023 bytes in
+ * `tmp/probe-dev` (+40 bytes from the output directory alone), and 1,899,687 bytes in the ship Verify's sidecar
+ * checkout (-1,296 bytes from the checkout). The observed spread is therefore about 1,336 bytes, so a tolerance of
+ * 2,000 bytes is large enough to absorb a different checkout or output path and small enough that a real regression
+ * — which changes the bundle by far more than that — still fails. The structural fields below are still compared
+ * exactly, so only the volatile size is relaxed.
+ */
+const DEV_BYTES_TOLERANCE = 2000;
 const OUTPUT_PATHS = { development: 'tmp/ng-context/dev', production: 'tmp/ng-context/prod' };
 const SERVED_URLS = { development: 'http://127.0.0.1:4461/', production: 'http://127.0.0.1:4462/' };
 const SERVE_COMMANDS = {
@@ -512,8 +523,26 @@ test('the recording is present, names both configurations and matches the bytes 
     assert.equal(recorded.command, buildCommand(configuration));
     assert.equal(recorded.cwd, 'spikes/ng222-app');
     assert.equal(recorded.outputPath, OUTPUT_PATHS[configuration]);
-    // The build half, compared whole with the bytes this file just produced.
-    assert.deepEqual(recorded, measurement(configuration), `the recorded ${configuration} build must match the emitted bytes`);
+    const actual = measurement(configuration);
+    if (configuration === 'development') {
+      // Structural fields identify the build exactly; only the volatile byte count is bounded, because the
+      // development build embeds absolute paths (see DEV_BYTES_TOLERANCE).
+      assert.deepEqual(recorded.bundles, actual.bundles, `the recorded development bundles must match the emitted bytes`);
+      assert.equal(recorded.unminified, actual.unminified, 'the recorded development bundle must match minification');
+      assert.deepEqual(recorded.ngContextWrite, actual.ngContextWrite, 'the recorded development __ngContext__ write must match');
+      assert.deepEqual(recorded.ngGlobalSurface, actual.ngGlobalSurface, 'the recorded development window.ng surface must match');
+      assert.equal(recorded.command, actual.command, 'the recorded development command must match');
+      assert.equal(recorded.configuration, actual.configuration, 'the recorded development configuration must match');
+      assert.equal(recorded.cwd, actual.cwd, 'the recorded development cwd must match');
+      assert.equal(recorded.outputPath, actual.outputPath, 'the recorded development output path must match');
+      assert.ok(
+        Math.abs(actual.bytes - recorded.bytes) <= DEV_BYTES_TOLERANCE,
+        `the recorded development build bytes must be within ${DEV_BYTES_TOLERANCE} of the emitted bytes: actual ${actual.bytes}, expected ${recorded.bytes}`,
+      );
+    } else {
+      // The build half, compared whole with the bytes this file just produced.
+      assert.deepEqual(recorded, actual, `the recorded ${configuration} build must match the emitted bytes`);
+    }
   }
 
   assert.equal(recording.builds.development.ngContextWrite.present, true);

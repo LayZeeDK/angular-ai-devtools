@@ -1,0 +1,8 @@
+{
+  "code": "NG2952",
+  "message": "NG02952: The NgOptimizedImage directive has detected that `sizes` was set to a string including pixel values. For automatic `srcset` generation, `sizes` must only include responsive values, such as `sizes=\"50vw\"` or `sizes=\"(min-width: 768px) 50vw, 100vw\"`. To fix this, modify the `sizes` attribute, or provide your own `ngSrcset` value directly.",
+  "image": "https://placehold.co/400x300",
+  "binding": "sizes",
+  "source": "transcribed from node_modules/@angular/common/fesm2022/common.mjs line 1193 (_formatRuntimeError(2952, ...)); no browser capture performed"
+}
+

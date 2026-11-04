@@ -1,0 +1,35 @@
+{
+ "milestone": "M026",
+ "claims": [
+  {
+   "criterion": "SC1",
+   "criterionText": "The offline digest carries exactly one entry for each of the eighteen image codes the installed Angular declares — the seventeen in `RuntimeErrorCode`'s image block (`NG2950`–`NG2967`, with no `NG2957`) plus `NG0913` from core — and no entry for a code outside that set.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for image-budget-audit."
+  },
+  {
+   "criterion": "SC2",
+   "criterionText": "Every digest entry is at most 150 tokens, and the digest is generated at extension build time rather than hand-written at runtime.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for image-budget-audit."
+  },
+  {
+   "criterion": "SC3",
+   "criterionText": "A fixture page uses `NgOptimizedImage` in a way that provokes a real runtime warning, and COM-1 names the image, the code and the binding that produced the offending attribute.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for image-budget-audit."
+  },
+  {
+   "criterion": "SC4",
+   "criterionText": "The licence and copyright notice is stripped from every entry before any digest text reaches a prompt.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for image-budget-audit."
+  },
+  {
+   "criterion": "SC5",
+   "criterionText": "The panel renders the finding and its explanation from a short fact list with no tool calling outside the registry envelope, and `npm run check` and `npm test` pass at the head while the initial bundle stays inside the recorded baseline of 535.44 kB (520 kB is the build's warning threshold, not the enforced bound — the panel already sat above it before this milestone).",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for image-budget-audit."
+  }
+ ]
+}

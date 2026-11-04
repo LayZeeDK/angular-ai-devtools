@@ -1,52 +1,60 @@
 {
-  "roles": {
-    "inspect_codebase": {
-      "effort": "high",
-      "model": "reflection/beam:free"
-    },
-    "inspect_docs": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    },
-    "docs_audit": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    },
-    "plan": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    },
-    "plan_patch": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    },
-    "decide": {
-      "effort": "medium",
-      "model": "inclusionai/ling-3.1-flash-1019:free"
-    },
-    "research": {
-      "effort": "medium",
-      "model": "inclusionai/ling-3.1-flash-1019:free"
-    },
-    "coder": {
-      "effort": "high",
-      "model": "reflection/beam:free"
-    },
-    "reviewer": {
-      "effort": "high",
-      "model": "reflection/beam:free"
-    },
-    "review_panel": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    },
-    "skeptic": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    },
-    "roadmap": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    }
+ "roles": {
+  "inspect_codebase": {
+   "effort": "high",
+   "model": "reflection/beam:free"
+  },
+  "inspect_docs": {
+   "effort": "medium",
+   "model": "stealth/glyph-cluster:free"
+  },
+  "docs_audit": {
+   "effort": "medium",
+   "model": "stealth/glyph-cluster:free"
+  },
+  "plan": {
+   "effort": "medium",
+   "model": "stealth/glyph-cluster:free"
+  },
+  "plan_patch": {
+   "effort": "medium",
+   "model": "stealth/glyph-cluster:free"
+  },
+  "decide": {
+   "model": "stealth/glyph-cluster:free",
+   "effort": "medium"
+  },
+  "research": {
+   "model": "stealth/glyph-cluster:free",
+   "effort": "medium"
+  },
+  "coder": {
+   "effort": "high",
+   "model": "reflection/beam:free"
+  },
+  "reviewer": {
+   "effort": "high",
+   "model": "reflection/beam:free"
+  },
+  "review_panel": {
+   "effort": "medium",
+   "model": "stealth/glyph-cluster:free"
+  },
+  "skeptic": {
+   "effort": "medium",
+   "model": "stealth/glyph-cluster:free"
+  },
+  "roadmap": {
+   "effort": "medium",
+   "model": "stealth/glyph-cluster:free"
+  },
+  "vision": {
+   "model": "stealth/crouton-alpha",
+   "effort": "medium"
+  },
+  "long_form": {
+   "model": "stealth/crouton-alpha",
+   "effort": "medium"
   }
+ }
 }
