@@ -33,6 +33,7 @@ who cites a held-out suite as evidence; the next milestone's coder, who needs a 
 | E2 | SC1 | adjacency | held-out | `scripts/held-out-corpus.test.mjs` — a suite that needs a browser or a served page is excluded by a named condition in the gate, not by an inner return that reports pass |
 | E3 | SC3 | empty | held-out | `scripts/held-out-corpus.test.mjs` — deleting the subject a suite cites reddens that suite rather than leaving it green on a stale path |
 | E4 | SC2 | empty | held-out | `scripts/held-out-corpus.test.mjs` — the corpus runs and passes with no `.project/` directory present, and an empty corpus is an error |
+| E5 | SC4 | boundary | held-out | scripts/held-out-corpus.test.mjs — a retired suite whose claim is not recorded in RETIRED-SUITES.md is named by the corpus check, so deleting to reach green is refused |
 
 ## Prohibitions
 
