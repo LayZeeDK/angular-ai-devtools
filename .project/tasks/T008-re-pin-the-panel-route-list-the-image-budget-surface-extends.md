@@ -2,10 +2,10 @@
 id: T008
 title: Re-pin the panel route list the image-budget surface extends
 wave: 6
-status: pending
+status: done
 deps: [T004]
-agent: null
-base: null
+agent: build_T008
+base: f04184cfa2838d188d78a9ba23e9b0c5e0034643
 worktree: null
 task_branch: null
 files:
@@ -69,3 +69,4 @@ No intent edge: this task re-pins a guard. The proof is the two ordering mutants
 ## Log
 
 - created
+- Re-pinned route list with image-budget (M026 COM-1); suite 331/331 pass; mutants reddened both ways
