@@ -2,10 +2,10 @@
 id: T006
 title: The digest carries all eighteen image codes
 wave: 4
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T006
+base: cb2bc6ddc71e7c25e0f2f2237b64396ccf764d55
 worktree: null
 task_branch: null
 files:
@@ -67,3 +67,4 @@ held-out E1 and held-out E2 — an omitted code, an extra code and an over-cap e
 ## Log
 
 - created
+- implemented: added 5 codes (NG2950,NG2951,NG2953,NG2954,NG2958); 18 entries; tests pass; ready

@@ -5,9 +5,14 @@ export const TOKEN_LIMIT = 150;
 export const TRIM_MARKER = ' …';
 export const MEASURED_CODES = [
   'NG0913',
+  'NG2950',
+  'NG2951',
   'NG2952',
+  'NG2953',
+  'NG2954',
   'NG2955',
   'NG2956',
+  'NG2958',
   'NG2959',
   'NG2960',
   'NG2961',
@@ -23,9 +28,19 @@ export const IMAGE_CODES = MEASURED_CODES;
 
 export const ENTRIES_SOURCE = [
   { code: 'NG0913', meaning: 'An image that is the LCP element was given loading="lazy".', fix: 'Change its loading value to eager or use NgOptimizedImage prioritization.' },
-  { code: 'NG2952', meaning: 'NgOptimizedImage reported an image aspect-ratio, fill, or loading attribute problem.', fix: 'Correct the width, height, fill, or loading attribute per the warning.' },
+  // packages/common/src/directives/ng_optimized_image/ng_optimized_image.ts:805 (RuntimeErrorCode.UNEXPECTED_SRC_ATTR)
+  { code: 'NG2950', meaning: 'Both src and ngSrc were set on the same image.', fix: 'Remove the src attribute; the directive sets src from ngSrc.' },
+  // packages/common/src/directives/ng_optimized_image/ng_optimized_image.ts:820 (RuntimeErrorCode.UNEXPECTED_SRCSET_ATTR)
+  { code: 'NG2951', meaning: 'Both srcset and ngSrcset were set on the same image.', fix: 'Remove the srcset attribute; the directive sets srcset from ngSrcset.' },
+  { code: 'NG2952', meaning: 'NgOptimizedImage reported an invalid input (aspect ratio, fill, or dimensions).', fix: 'Correct the width, height, fill, or loading attribute per the warning.' },
+  // packages/common/src/directives/ng_optimized_image/ng_optimized_image.ts:1028 (RuntimeErrorCode.UNEXPECTED_INPUT_CHANGE)
+  { code: 'NG2953', meaning: 'An NgOptimizedImage input was updated after initialization.', fix: 'Use a static value or wrap the image in an @if gated on the value.' },
+  // packages/common/src/directives/ng_optimized_image/ng_optimized_image.ts:1212 (RuntimeErrorCode.REQUIRED_INPUT_MISSING)
+  { code: 'NG2954', meaning: 'Required width and height attributes are missing.', fix: 'Add width and height or enable fill mode.' },
   { code: 'NG2955', meaning: 'An image is the LCP element but was not marked priority.', fix: 'Add the priority attribute to that image.' },
   { code: 'NG2956', meaning: 'A priority image has no preconnect tag for its origin.', fix: 'Add a preconnect link for the image origin in the document head.' },
+  // packages/common/src/directives/ng_optimized_image/asserts.ts:21 (RuntimeErrorCode.UNEXPECTED_DEV_MODE_CHECK_IN_PROD_MODE)
+  { code: 'NG2958', meaning: 'A dev-mode check ran in production mode.', fix: 'Ensure production mode is enabled for production builds.' },
   { code: 'NG2959', meaning: 'The Netlify image loader saw an unsupported attribute.', fix: 'Remove the unsupported attribute from the img tag.' },
   { code: 'NG2960', meaning: 'The intrinsic image is significantly larger than necessary.', fix: 'Resize the image or use ngSrcset and sizes.' },
   { code: 'NG2961', meaning: 'More than the default preloaded image limit were marked priority.', fix: 'Remove priority from less important images.' },

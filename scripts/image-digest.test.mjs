@@ -11,10 +11,10 @@ import {
   TRIM_MARKER,
 } from './image-digest.mjs';
 
-const MEASURED = ['NG0913', 'NG2952', 'NG2955', 'NG2956', 'NG2959', 'NG2960', 'NG2961', 'NG2962', 'NG2963', 'NG2964', 'NG2965', 'NG2966', 'NG2967'];
+const MEASURED = ['NG0913', 'NG2950', 'NG2951', 'NG2952', 'NG2953', 'NG2954', 'NG2955', 'NG2956', 'NG2958', 'NG2959', 'NG2960', 'NG2961', 'NG2962', 'NG2963', 'NG2964', 'NG2965', 'NG2966', 'NG2967'];
 
-test('exactly thirteen entries with measured codes', () => {
-  assert.equal(entries.length, 13);
+test('exactly eighteen entries with measured codes', () => {
+  assert.equal(entries.length, 18);
   assert.deepEqual(entries.map((e) => e.code), MEASURED);
   assert.deepEqual([...MEASURED_CODES].sort(), [...MEASURED].sort());
 });

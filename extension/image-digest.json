@@ -10,12 +10,44 @@
       "tokens": 44
     },
     {
+      "code": "NG2950",
+      "title": "Both src and ngSrc were set on the same image.",
+      "body": "Both src and ngSrc were set on the same image. Remove the src attribute; the directive sets src from ngSrc.",
+      "meaning": "Both src and ngSrc were set on the same image.",
+      "fix": "Remove the src attribute; the directive sets src from ngSrc.",
+      "tokens": 36
+    },
+    {
+      "code": "NG2951",
+      "title": "Both srcset and ngSrcset were set on the same image.",
+      "body": "Both srcset and ngSrcset were set on the same image. Remove the srcset attribute; the directive sets srcset from ngSrcset.",
+      "meaning": "Both srcset and ngSrcset were set on the same image.",
+      "fix": "Remove the srcset attribute; the directive sets srcset from ngSrcset.",
+      "tokens": 41
+    },
+    {
       "code": "NG2952",
-      "title": "NgOptimizedImage reported an image aspect-ratio, fill, or loading attribute problem.",
-      "body": "NgOptimizedImage reported an image aspect-ratio, fill, or loading attribute problem. Correct the width, height, fill, or loading attribute per the warning.",
-      "meaning": "NgOptimizedImage reported an image aspect-ratio, fill, or loading attribute problem.",
+      "title": "NgOptimizedImage reported an invalid input (aspect ratio, fill, or dimensions).",
+      "body": "NgOptimizedImage reported an invalid input (aspect ratio, fill, or dimensions). Correct the width, height, fill, or loading attribute per the warning.",
+      "meaning": "NgOptimizedImage reported an invalid input (aspect ratio, fill, or dimensions).",
       "fix": "Correct the width, height, fill, or loading attribute per the warning.",
-      "tokens": 52
+      "tokens": 50
+    },
+    {
+      "code": "NG2953",
+      "title": "An NgOptimizedImage input was updated after initialization.",
+      "body": "An NgOptimizedImage input was updated after initialization. Use a static value or wrap the image in an @if gated on the value.",
+      "meaning": "An NgOptimizedImage input was updated after initialization.",
+      "fix": "Use a static value or wrap the image in an @if gated on the value.",
+      "tokens": 42
+    },
+    {
+      "code": "NG2954",
+      "title": "Required width and height attributes are missing.",
+      "body": "Required width and height attributes are missing. Add width and height or enable fill mode.",
+      "meaning": "Required width and height attributes are missing.",
+      "fix": "Add width and height or enable fill mode.",
+      "tokens": 31
     },
     {
       "code": "NG2955",
@@ -32,6 +64,14 @@
       "meaning": "A priority image has no preconnect tag for its origin.",
       "fix": "Add a preconnect link for the image origin in the document head.",
       "tokens": 40
+    },
+    {
+      "code": "NG2958",
+      "title": "A dev-mode check ran in production mode.",
+      "body": "A dev-mode check ran in production mode. Ensure production mode is enabled for production builds.",
+      "meaning": "A dev-mode check ran in production mode.",
+      "fix": "Ensure production mode is enabled for production builds.",
+      "tokens": 33
     },
     {
       "code": "NG2959",
