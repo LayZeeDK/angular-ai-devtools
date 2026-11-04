@@ -1,0 +1,152 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M026",
+        "candidates": [
+          {
+            "base": "17769173ecf6f2a38f091d13e634166a0904671a",
+            "commit": "783c8179e9b9d276f355524338717b2e150a5584",
+            "valid": true
+          }
+        ],
+        "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+        "subject": "T001: The digest carries thirteen measured image codes"
+      },
+      "landed_commit": "783c8179e9b9d276f355524338717b2e150a5584",
+      "reasons": [],
+      "task": {
+        "base": "17769173ecf6f2a38f091d13e634166a0904671a",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-the-digest-carries-thirteen-measured-image-codes.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M026",
+        "candidates": [
+          {
+            "base": "95fa7dd8fc342aeb3172fdd9776de2cd1a93e979",
+            "commit": "d6d313da51108680b111c877bc3189fa629e32c8",
+            "valid": true
+          }
+        ],
+        "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+        "subject": "T002: No licence text reaches a prompt"
+      },
+      "landed_commit": "d6d313da51108680b111c877bc3189fa629e32c8",
+      "reasons": [],
+      "task": {
+        "base": "95fa7dd8fc342aeb3172fdd9776de2cd1a93e979",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-no-licence-text-reaches-a-prompt.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M026",
+        "candidates": [
+          {
+            "base": "954b39b48572bc7a97acb3a1b64f3a771ac655ee",
+            "commit": "d162c9de650a519cdcc2b1a1da301aa2723b5e11",
+            "valid": true
+          }
+        ],
+        "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+        "subject": "T003: The fixture provokes a real image warning"
+      },
+      "landed_commit": "d162c9de650a519cdcc2b1a1da301aa2723b5e11",
+      "reasons": [],
+      "task": {
+        "base": "954b39b48572bc7a97acb3a1b64f3a771ac655ee",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-the-fixture-provokes-a-real-image-warning.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M026",
+        "candidates": [
+          {
+            "base": "70139451e34eb5f8de5e4d25578892d353e68c6c",
+            "commit": "790680004539b0a30007fbe0679c4e1aac22d303",
+            "valid": true
+          }
+        ],
+        "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+        "subject": "T004: The panel explains the finding from a fact list"
+      },
+      "landed_commit": "790680004539b0a30007fbe0679c4e1aac22d303",
+      "reasons": [],
+      "task": {
+        "base": "70139451e34eb5f8de5e4d25578892d353e68c6c",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-the-panel-explains-the-finding-from-a-fact-list.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M026",
+        "candidates": [
+          {
+            "base": "1c6c781028e72540cdb5a22f32e53652f0a399a4",
+            "commit": "283b3c43fae0a18e3909b3dd6c1f8693e073c6af",
+            "valid": true
+          }
+        ],
+        "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+        "subject": "T005: The bundle stays inside its budget"
+      },
+      "landed_commit": "283b3c43fae0a18e3909b3dd6c1f8693e073c6af",
+      "reasons": [],
+      "task": {
+        "base": "1c6c781028e72540cdb5a22f32e53652f0a399a4",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-the-bundle-stays-inside-its-budget.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M026",
+        "candidates": [
+          {
+            "base": "cb2bc6ddc71e7c25e0f2f2237b64396ccf764d55",
+            "commit": "23239c66125fae692810e7fb97b2f7552399586e",
+            "valid": true
+          }
+        ],
+        "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+        "subject": "T006: The digest carries all eighteen image codes"
+      },
+      "landed_commit": "23239c66125fae692810e7fb97b2f7552399586e",
+      "reasons": [],
+      "task": {
+        "base": "cb2bc6ddc71e7c25e0f2f2237b64396ccf764d55",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-the-digest-carries-all-eighteen-image-codes.md"
+      }
+    }
+  ]
+}
