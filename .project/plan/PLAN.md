@@ -26,13 +26,13 @@ Review depth: full
 
 ## Held-out checks
 
-| Edge | Suite |
-| --- | --- |
-| E1 | `scripts/held-out-corpus.test.mjs` |
-| E2 | `scripts/held-out-corpus.test.mjs` |
-| E3 | `scripts/held-out-corpus.test.mjs` |
-| E4 | `scripts/held-out-corpus.test.mjs` |
-| E5 | `scripts/held-out-corpus.test.mjs` |
+| Edge | Task | Test |
+|------|------|------|
+| E1 | T003 | scripts/held-out-corpus.test.mjs |
+| E2 | T003 | scripts/held-out-corpus.test.mjs |
+| E3 | T003 | scripts/held-out-corpus.test.mjs |
+| E4 | T003 | scripts/held-out-corpus.test.mjs |
+| E5 | T003 | scripts/held-out-corpus.test.mjs |
 
 ## Intent coverage
 
