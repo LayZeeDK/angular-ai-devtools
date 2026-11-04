@@ -3,10 +3,10 @@ id: T001
 title: Remove the ten suites that cannot pass
 wave: 1
 deps: []
-status: in-progress
+status: done
 agent: build_T001
-base: 62807efd890ffbb576d5df21b551e768f5daf49c
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 84a140127884836a0011c5791ab9a148c4188a62
+worktree: null
 task_branch: null
 files:
   - .project/plan/RETIRED-SUITES.md
