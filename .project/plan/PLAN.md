@@ -24,13 +24,20 @@ a pass, and the script runs with no `.project/` directory anywhere under its roo
 condition the ship flow creates.
 Review depth: full
 
+## Wave 2 — the corpus runs in the state the ship flow creates
+
+Goal: The wave-1 review blocked SC3 because `tests/held-out/e7-archive-order.test.mjs` reads
+`.project/archive/`, so the corpus is red exactly when the milestone ships. T004 re-homes that claim into the
+suite and adds the corpus-level proof T003 was missing: the real corpus, run with `.project/` moved aside.
+Review depth: full
+
 ## Held-out checks
 
 | Edge | Task | Test |
 |------|------|------|
 | E1 | T002 | scripts/held-out-corpus.mjs |
 | E2 | T003 | scripts/held-out-corpus.test.mjs |
-| E3 | T003 | scripts/held-out-corpus.test.mjs |
+| E3 | T004 | scripts/held-out-corpus.test.mjs |
 | E4 | T003 | scripts/held-out-corpus.test.mjs |
 | E5 | T001 | scripts/retired-suites.test.mjs |
 
