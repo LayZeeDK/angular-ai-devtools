@@ -17,7 +17,7 @@ Interface contract (blocking):
 
 ## Intent coverage
 
-### SC3 — No suite under `tests/held-out/` reads any path under `.project/`, demonstrated by running the corpus with that directory moved aside.
+### SC3 — No suite under `tests/held-out/` reads any path under `.project/`, demonstrated by running the corpus with that directory moved aside.: pass
 - ✅ Exact grep hits for `.project` in `tests/held-out/` (checked, not taken from any receipt): `e7-archive-order.test.mjs:11` (provenance comment naming `.project/archive/001-run-unrun-spikes`), `:15` ("wherever `.project/` happens to live" — comment), `:26` ("it holds no `.project` path" — comment); `fixture-harness-root-boundary.test.mjs:12` and `:34` match only the string `.projected`, not a path. No executable read. Demonstrated by run: the real-corpus fixture run (this review) executes 19 real suites with `.project/` deleted from the root — exit 0, no `FAIL` lines, and no `.project` directory created by the run. The wave-1 cycle-1 blocker (e7's `existsSync` read) is gone.
 
 ## Summary for orchestrator
