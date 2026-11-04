@@ -37,7 +37,7 @@ Reviewed HEAD: e50cb499531736cbf6a3dba66d041c2f1dce57d5
 - ✅ `package.json` chains `npm run check:extension` = `tsc -p extension/tsconfig.json` into `check`; the re-run `--listFiles` shows exactly the 9 authored sources in the program and 0 files under `extension/panel/` — no authored file excluded (N2 holds).
 - ✅ the exclusion is stated where the config lives: the `extension/tsconfig.json` header names `exclude: ["panel/**"]` as the only exclusion, names it build output, and quantifies it (187 of 220 non-strict errors) — asserted textually by the T003 suite's E4.
 
-### SC2 — That check reports zero errors, and every one of the thirteen non-global defects the probe found is fixed at source rather than suppressed.: pass
+### SC2 — That check reports zero errors, and every non-global defect the probe found — fourteen, not the thirteen estimated in the plan — is fixed at source rather than suppressed.: pass
 
 - ✅ re-run `npx tsc -p extension/tsconfig.json` at e50cb49 after `npm ci --include=dev`: exit 0, no diagnostics.
 - ✅ every error site fixed at source and read back: relay.js listeners typed `CustomEvent`, panel.js `status` → `statusEl` rename, agent-main.js real-`Event` fallback, stale-view-worker.js `Object.assign` publication — no suppression anywhere (N1 holds; grep: zero hits).

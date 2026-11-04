@@ -28,7 +28,7 @@ script, who needs a compiler to catch a wrong property; the reviewer citing a gr
 ## Success criteria
 
 1. `npm run check` type-checks every authored file under `extension/`, with the generated `extension/panel/` bundle output excluded and the exclusion stated where the config lives.
-2. That check reports zero errors, and every one of the thirteen non-global defects the probe found is fixed at source rather than suppressed.
+2. That check reports zero errors, and every non-global defect the probe found — fourteen, not the thirteen estimated in the plan — is fixed at source rather than suppressed.
 3. A deliberately wrong property introduced into an extension source makes `npm run check` exit non-zero; an error placed inside `extension/panel/` does not, because that directory is generated.
 4. The strict-mode gap is recorded: the check runs at `strict: false`, and the reason (hand-written JS with implicit-any throughout) is stated in the config header.
 
@@ -84,3 +84,5 @@ errors over the sources and 220 including the generated bundle.
 - Whether the strict gap should be a follow-up milestone or a recorded constraint. This intent records it (SC4).
 
 ## Corrections
+
+- **2026-11-04, count corrected (delegated ruling).** The initial probe report estimated thirteen non-global defects; the compiler found fourteen once `@types/chrome` resolved the global class. SC2 now records the measured count. No scope change: all fourteen were fixed at source and none suppressed.
