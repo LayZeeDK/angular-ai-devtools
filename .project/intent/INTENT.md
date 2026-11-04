@@ -39,9 +39,10 @@ who cites a held-out suite as evidence; the next milestone's coder, who needs a 
 
 | Prohibition | Criterion | Must not | Disposition | Why |
 | --- | --- | --- | --- | --- |
-| N1 | SC3 | Read any path under `.project/` from a suite in `tests/held-out/` | criterion SC3 | the toolbar archive moves `.project/` out of the working tree, so such a suite is red exactly when the milestone ships |
+| N1 | SC3 | Read any path under `.project/` from a suite in `tests/held-out/` | criterion SC3 | the ship flow moves `.project/` out of the working tree, so such a suite is red exactly when the milestone ships |
 | N2 | SC1 | Exclude a suite from the corpus by a mechanism that also hides its failure | criterion SC1 | a skip that reports pass is the defect this milestone exists to repair |
 | N3 | SC4 | Delete a suite to reach green without recording the claim it made | judgment | the claim is the asset; deleting it silently loses the reason the suite existed |
+| N4 | SC2 | Let a suite count as passing when the corpus script could not run it | criterion SC2 | a suite the script never ran must fail the gate, or the green means nothing |
 
 ## Scope
 
