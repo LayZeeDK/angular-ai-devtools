@@ -2,10 +2,10 @@
 id: T007
 title: Take the opt-in capture out of the default test glob
 wave: 3
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T007
+base: b13d250dd6e382d48b41754c590414d9934ec95a
 worktree: null
 task_branch: null
 files:
@@ -68,3 +68,4 @@ node --test scripts/sanitizer-warning-capture.test.mjs && node scripts/held-out-
 ## Log
 
 - dispatched
+- T007: split the live capture out of the default test glob into scripts/capture/sanitizer-warning.live.mjs (named *.live.mjs, so scripts/**/*.test.mjs never collects it; starts the fixture dev server, writes the recording, --out/--port, records capture: node scripts/capture/sanitizer-warning.live.mjs); the suite now only reads and polices the recording, 13 tests 13 pass 0 skipped 0 todo, no test.skip and no { skip } left; the provenance check now proves commands.capture names a file that exists (it still names the old test-file invocation, so research/raw/m029-sanitizer-warning.json's commands.capture needs an out-of-contract update to node scripts/capture/sanitizer-warning.live.mjs); mutant = fabricated warning injected into both console channels of a copy, refused with '3 sanitizer warning(s) for 2 stripped write(s)', copy deleted and the recording byte-identical; verify node --test scripts/sanitizer-warning-capture.test.mjs && node scripts/held-out-corpus.mjs green, E3 PASS 1 test 0 skipped, corpus 22/22 suites 85/85 tests, port 4271 free
