@@ -52,21 +52,21 @@ const PANEL_PROJECT_PATH = join(REPO_ROOT, 'apps', 'angular-ai-devtools', 'proje
 /** The `initial` budget the panel's `build-extension` target must keep, verbatim. 520kb is the
  * milestone's stated maximum and 1mb the error ceiling; both are pinned exactly, so raising the
  * warning to hide a regression fails here rather than only failing to warn. */
-const EXPECTED_INITIAL_BUDGET = { maximumWarning: '520kb', maximumError: '1mb' };
+export const EXPECTED_INITIAL_BUDGET = { maximumWarning: '520kb', maximumError: '1mb' };
 
 /** The `build-extension` output directory, relative to the repository root, as `project.json`
  * declares it and as the measurement below reads it. */
-const PANEL_OUTPUT_RELATIVE = 'extension/panel';
-const PANEL_OUTPUT_DIR = join(REPO_ROOT, 'extension', 'panel');
+export const PANEL_OUTPUT_RELATIVE = 'extension/panel';
+export const PANEL_OUTPUT_DIR = join(REPO_ROOT, 'extension', 'panel');
 
 /** The initial total measured before this milestone — 535.44 kB, as the build's own `Initial total`
  * row printed it. Kept as a named constant, not prose: INTENT says the milestone must not make the
  * budget worse, so this number is the ceiling a later build is held to. */
-const PRE_MILESTONE_INITIAL_KB = 535.44;
+export const PRE_MILESTONE_INITIAL_KB = 535.44;
 
 /** The `link` relations the browser fetches as part of the initial load. `icon` and the other
  * asset relations are not in it: the build's budget arithmetic does not count them either. */
-const EAGER_LINK_RELS = new Set(['stylesheet', 'modulepreload']);
+export const EAGER_LINK_RELS = new Set(['stylesheet', 'modulepreload']);
 
 /** A reference that is not a file in the output directory. */
 const EXTERNAL_REFERENCE = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
@@ -79,7 +79,7 @@ const EXTERNAL_REFERENCE = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
  * Drops `//` and block comments while leaving string contents verbatim, so the config Nx reads
  * still parses here even with comments in it.
  */
-function stripJsonComments(text) {
+export function stripJsonComments(text) {
   let output = '';
   let index = 0;
   let quote = null;
@@ -125,7 +125,7 @@ function stripJsonComments(text) {
   return output;
 }
 
-function readJsonc(path) {
+export function readJsonc(path) {
   return JSON.parse(stripJsonComments(readFileSync(path, 'utf8')).replace(/^\uFEFF/, ''));
 }
 
@@ -134,7 +134,7 @@ function readJsonc(path) {
 // ---------------------------------------------------------------------------
 
 /** The attributes of one tag, in the double- and single-quoted forms a build may emit. */
-function attributesOf(source) {
+export function attributesOf(source) {
   const attributes = {};
   for (const match of source.matchAll(/([:\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g)) {
     attributes[match[1].toLowerCase()] = match[2] ?? match[3] ?? '';
@@ -148,7 +148,7 @@ function attributesOf(source) {
  * — the target builds with `outputHashing: none` but the shared chunks still carry a content hash,
  * so a name list would drift on the next build while this parse does not.
  */
-function eagerReferencesFromIndex(html) {
+export function eagerReferencesFromIndex(html) {
   const references = [];
   for (const match of html.matchAll(/<link\b([^>]*)>/gi)) {
     const attributes = attributesOf(match[1]);
@@ -178,7 +178,7 @@ function eagerReferencesFromIndex(html) {
  * and there is no total to hold to the baseline. `incomplete` is a build that stopped part-way: the
  * index references files that are not on disk, so their sizes would under-count the initial load.
  */
-function measureInitialTotal(outputDir) {
+export function measureInitialTotal(outputDir) {
   const indexPath = join(outputDir, 'index.html');
   if (!existsSync(indexPath)) {
     return { state: 'absent', reason: `no ${PANEL_OUTPUT_RELATIVE}/index.html — the build has not run in this checkout` };
@@ -203,13 +203,13 @@ function measureInitialTotal(outputDir) {
 }
 
 /** The decimal kB the build's budget arithmetic uses: 535,440 bytes is 535.44 kB, not 522.89. */
-function formatKb(kilobytes) {
+export function formatKb(kilobytes) {
   return `${kilobytes.toFixed(2)} kB`;
 }
 
 /** The comparison the whole file exists for. Above the baseline is a regression, at or below it is
  * unchanged or better. */
-function assertWithinBaseline(totalKb, label, files = []) {
+export function assertWithinBaseline(totalKb, label, files = []) {
   const listed = files.map((entry) => `${entry.file} ${entry.bytes} B`).join(', ');
   assert.ok(
     totalKb <= PRE_MILESTONE_INITIAL_KB,

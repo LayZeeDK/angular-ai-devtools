@@ -2,10 +2,10 @@
 id: T005
 title: The bundle stays inside its budget
 wave: 3
-status: pending
+status: done
 deps: [T004]
-agent: null
-base: null
+agent: build_T005
+base: 1c6c781028e72540cdb5a22f32e53652f0a399a4
 worktree: null
 task_branch: null
 files:
@@ -69,3 +69,4 @@ This attempt therefore:
 ## Log
 
 - created
+- T005 ready: initial total 532.56 kB (532561 B) margin 2.88 kB vs 535.44 kB; reddening proof captured; verify exit 0

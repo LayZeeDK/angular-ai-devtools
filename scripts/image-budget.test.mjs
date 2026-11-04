@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { entries, findEntry } from './image-digest.mjs';
+import {
+  PRE_MILESTONE_INITIAL_KB,
+  measureInitialTotal,
+  assertWithinBaseline,
+  PANEL_OUTPUT_DIR,
+  PANEL_OUTPUT_RELATIVE,
+  formatKb,
+} from './panel-bundle-budget.test.mjs';
 
 const { imageBudget, imageBudgetSurface } = await import('../apps/angular-ai-devtools/src/app/image-budget.ts');
 
@@ -69,4 +77,31 @@ test('unknown when digest lacks the code even with a finding', () => {
   const result = imageBudget({ code: 'NG1234', binding: 'b' }, entries);
   assert.equal(result.kind, 'unknown');
   assert.equal(result.code, 'NG1234');
+});
+
+// ---------------------------------------------------------------------------
+// Bundle budget — image-budget surface/route added; initial total must not grow
+// ---------------------------------------------------------------------------
+test('image-budget: the initial total stays inside the 535.44 kB baseline', () => {
+  const measurement = measureInitialTotal(PANEL_OUTPUT_DIR);
+  if (measurement.state !== 'measured') {
+    console.log(`image-budget: skip — ${measurement.reason}`);
+    return;
+  }
+  assertWithinBaseline(measurement.kb, PANEL_OUTPUT_RELATIVE, measurement.files);
+  const margin = PRE_MILESTONE_INITIAL_KB - measurement.kb;
+  console.log(
+    `image-budget: measured initial total ${formatKb(measurement.kb)} (${measurement.bytes} B over ` +
+      `${measurement.files.length} eager files) against ${formatKb(PRE_MILESTONE_INITIAL_KB)} baseline; ` +
+      `margin ${formatKb(margin)}`,
+  );
+  console.log(`image-budget: eager files: ${measurement.files.map((f) => `${f.file} ${f.bytes} B`).join(', ')}`);
+});
+
+test('image-budget: the budget assertion reddens when the total exceeds the baseline', () => {
+  assert.throws(
+    () => assertWithinBaseline(PRE_MILESTONE_INITIAL_KB + 0.001, 'image-budget mutant', []),
+    /exceeds the pre-milestone baseline/,
+    'a total above the baseline must fail the comparison',
+  );
 });
