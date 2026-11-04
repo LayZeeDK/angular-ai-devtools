@@ -1,7 +1,7 @@
 {
   "canonical_project_dir": ".project",
   "command": "verify-landed",
-  "head": "62f87ad0c9b06d509c299b70735082b27f1d8cec",
+  "head": "337c698ff6f1b1546645fddcdc9c90ae8b4ef54d",
   "project_dir": ".project",
   "tasks": [
     {
@@ -16,7 +16,7 @@
             "valid": true
           }
         ],
-        "head": "62f87ad0c9b06d509c299b70735082b27f1d8cec",
+        "head": "337c698ff6f1b1546645fddcdc9c90ae8b4ef54d",
         "subject": "T001: Record what the sanitizer warning and the profiler actually contain"
       },
       "landed_commit": "3dfce5c1e7b95ab8e0d30e3bb8b14b392e4042ec",
@@ -40,7 +40,7 @@
             "valid": true
           }
         ],
-        "head": "62f87ad0c9b06d509c299b70735082b27f1d8cec",
+        "head": "337c698ff6f1b1546645fddcdc9c90ae8b4ef54d",
         "subject": "T002: Join the warning to the component that wrote the element"
       },
       "landed_commit": "4da06353b1e6f6e6a68846487034399f086e90b3",
@@ -64,7 +64,7 @@
             "valid": true
           }
         ],
-        "head": "62f87ad0c9b06d509c299b70735082b27f1d8cec",
+        "head": "337c698ff6f1b1546645fddcdc9c90ae8b4ef54d",
         "subject": "T003: Render the fact list and the unattributable state on the panel"
       },
       "landed_commit": "a9d844a24735164304ff002afe8c61e459ffc23e",
@@ -88,7 +88,7 @@
             "valid": true
           }
         ],
-        "head": "62f87ad0c9b06d509c299b70735082b27f1d8cec",
+        "head": "337c698ff6f1b1546645fddcdc9c90ae8b4ef54d",
         "subject": "T004: Prove the vetted bypass as an absence"
       },
       "landed_commit": "68abbb22ee23a814a56a63ab83f6d18931b07303",
@@ -112,7 +112,7 @@
             "valid": true
           }
         ],
-        "head": "62f87ad0c9b06d509c299b70735082b27f1d8cec",
+        "head": "337c698ff6f1b1546645fddcdc9c90ae8b4ef54d",
         "subject": "T005: Re-record what the new page invalidated"
       },
       "landed_commit": "00e7631e4b502bfc14cea03eaa87044d9d406910",
@@ -136,7 +136,7 @@
             "valid": true
           }
         ],
-        "head": "62f87ad0c9b06d509c299b70735082b27f1d8cec",
+        "head": "337c698ff6f1b1546645fddcdc9c90ae8b4ef54d",
         "subject": "T006: Re-record the dev build the new page outgrew"
       },
       "landed_commit": "f82c80136461996e25847822fe065a8401684f3e",
@@ -160,7 +160,7 @@
             "valid": true
           }
         ],
-        "head": "62f87ad0c9b06d509c299b70735082b27f1d8cec",
+        "head": "337c698ff6f1b1546645fddcdc9c90ae8b4ef54d",
         "subject": "T007: Take the opt-in capture out of the default test glob"
       },
       "landed_commit": "41a7be3674f80a1217d330eeb7f453ad6f45f4b9",
