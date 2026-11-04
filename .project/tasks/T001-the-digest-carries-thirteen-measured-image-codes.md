@@ -5,13 +5,14 @@ wave: 1
 status: in-progress
 deps: []
 agent: build_T001
-base: 9bdb87c47bac95e1e3f164aaae01e2a76807903b
+base: bc95ae0de341581c10bff78cf74a955777621a09
 worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - scripts/image-digest.mjs
   - scripts/build-image-digest.mjs
   - extension/image-digest.json
+  - package.json
   - scripts/image-digest.test.mjs
 ---
 
@@ -79,3 +80,4 @@ Everything else from attempt 1 stands: the thirteen measured codes, their meanin
 
 - created
 - implemented image-digest.mjs with 13 measured codes, token cap, unknown handling; Verify exit 0 — ready
+- attempt 2: countTokens upper bound ceil(len/3); long-entry trim proof; build-image-digest.mjs + extension/image-digest.json; Verify exit 0 — ready
