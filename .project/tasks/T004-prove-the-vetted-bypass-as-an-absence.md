@@ -2,11 +2,11 @@
 id: T004
 title: Prove the vetted bypass as an absence
 wave: 2
-status: in-progress
+status: pending
 deps: [T002]
-agent: build_T004
-base: dfa39567a32b13e22ff8f855f0259ced1e06a129
-worktree: D:\projects\sandbox\angular-ai-devtools
+agent: null
+base: null
+worktree: null
 task_branch: null
 files:
   - spikes/ng222-app/src/app/trust-bypass-page.ts
