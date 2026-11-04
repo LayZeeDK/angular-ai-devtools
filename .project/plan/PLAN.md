@@ -77,6 +77,7 @@ Review depth: full
 | SC1 | T001 | AC1 |
 | SC1 | T006 | AC1 |
 | SC2 | T001 | AC2 |
+| SC2 | T006 | AC3 |
 | SC3 | T003 | AC1 |
 | SC4 | T002 | AC1 |
 | SC5 | T004 | AC1 |
