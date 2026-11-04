@@ -41,8 +41,8 @@ None
 1. The ten files are gone and `.project/plan/RETIRED-SUITES.md` names each one with its claim and the thing that now carries it.
 2. `scripts/retired-suites.test.mjs` greps the repository for each retired basename and finds it nowhere outside the record.
 3. `node --test` over the remaining corpus has no suite failing for a missing `.project/` path.
+5. Acceptance is held-out E5: a retired suite with no recorded claim is named by `scripts/retired-suites.test.mjs`.
 
-## Verify
 
 ```bash
 npm ci --include=dev; node --test scripts/retired-suites.test.mjs

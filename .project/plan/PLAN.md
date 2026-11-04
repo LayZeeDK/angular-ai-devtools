@@ -28,11 +28,11 @@ Review depth: full
 
 | Edge | Task | Test |
 |------|------|------|
-| E1 | T003 | scripts/held-out-corpus.test.mjs |
+| E1 | T002 | scripts/held-out-corpus.mjs |
 | E2 | T003 | scripts/held-out-corpus.test.mjs |
 | E3 | T003 | scripts/held-out-corpus.test.mjs |
 | E4 | T003 | scripts/held-out-corpus.test.mjs |
-| E5 | T003 | scripts/held-out-corpus.test.mjs |
+| E5 | T001 | scripts/retired-suites.test.mjs |
 
 ## Intent coverage
 

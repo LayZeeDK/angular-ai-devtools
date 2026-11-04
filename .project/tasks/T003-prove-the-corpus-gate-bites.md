@@ -33,6 +33,7 @@ None
 ## Intent coverage
 
 - SC2
+- SC3
 
 ## Acceptance criteria
 
@@ -40,8 +41,8 @@ None
 2. The script exits 0 with no `.project/` directory anywhere under its root.
 3. An empty corpus is reported as an error and exits non-zero.
 4. Each of the three behaviours has a mutant that reddens it, with the failure text recorded.
+5. Acceptance is held-out E2, E3 and E4: the named gate condition, the run with no project directory, and the absent-prerequisite failure.
 
-## Verify
 
 ```bash
 npm ci --include=dev; node --test scripts/held-out-corpus.test.mjs
