@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: proof-corpus-repair
-phase: ship
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
@@ -473,3 +473,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-04 — plan — plan approved
 - 2026-11-04 — build — build started
 - 2026-11-04 — ship — build done; final review pending
+- 2026-11-04 — ship — blocked
+- 2026-11-04 — plan — patch plan reopened

@@ -31,6 +31,14 @@ Goal: The wave-1 review blocked SC3 because `tests/held-out/e7-archive-order.tes
 suite and adds the corpus-level proof T003 was missing: the real corpus, run with `.project/` moved aside.
 Review depth: full
 
+## Wave 3 — the ship verify runs in a fresh sidecar
+
+Goal: The project Verify failed at `3b2eacb` for two reasons that were both mine. `PLAN.md`'s Project verify
+line omitted the fixture install M023 carried, so a fresh sidecar fails with `the fixture install is absent`;
+and `scripts/retired-suites.test.mjs` scanned `.project/review`, whose artifacts legitimately quote the suites
+they reviewed. T005 fixes both, and keeps the walk able to catch a naming outside every exempt prefix.
+Review depth: full
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -50,6 +58,7 @@ Review depth: full
 | SC3 | T003 | AC2 |
 | SC3 | T004 | AC2 |
 | SC4 | T001 | AC1 |
+| SC4 | T005 | AC1 |
 
 ## Ordering
 
