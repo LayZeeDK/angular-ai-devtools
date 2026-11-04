@@ -1,49 +1,288 @@
+// Held-out proof for SC1 / E2 (HAR-3): the two `app-harness-probe` hosts are identical in every attribute
+// the harness matches on, so neither can be told from the other and HAR-3's ambiguity case stays ambiguous.
+//
+// Prohibition N1 binds here: giving one host an attribute the harness matches on makes the case resolvable,
+// and a resolvable fixture passes for the wrong reason.
+//
+// The gap review (`.project/review/final-gap-2.md`, finding 2) proved both halves of the defect this suite
+// used to carry. Its `readAttrs` matched only bare `name="value"` literals, so:
+//   - a distinguishing *binding* — `[attr.data-slot]="'one'"` on probe-a against `[attr.data-slot]="'two'"`
+//     on probe-b — left the suite green, a live prohibition-N1 violation it could not see; and
+//   - a *harmless* literal on one host (`aria-label="probe a"`, an attribute the harness does not match on)
+//     reddened it, forbidding the fixture work E2 never forbade.
+// So the old reader was blind where it had to see and brittle where it had to not care.
+//
+// This suite parses the hosts with jsdom (the parser its sibling harness suites already use), reads literals
+// and bindings alike, and compares only the attributes the declared match set covers — never every
+// attribute present.
+//
+// Mutants this suite must redden for, each seen failing and passing again (see the task Log):
+//   - `[attr.data-slot]="'one'"` on probe-a against `[attr.data-slot]="'two'"` on probe-b — a distinguishing
+//     binding, the live prohibition-N1 violation the gap review proved this suite could not see;
+//   - `data-slot="extra"` on probe-a only — a distinguishing literal;
+//   - both hosts given the same `id` — the one attribute the hosts are allowed to differ in;
+//   - the reader reverted to literals only, and the declared match set widened to cover `id`.
+// And it must stay green for:
+//   - `aria-label="probe a"` on probe-a only — a literal the harness does not match on.
+//
+// RULING — the match set, and why `id` is outside it.
+//
+// What: the attributes a HAR-3 predicate can match on are `class` and `data-*` on the host element. Every
+// other attribute the page writes on a host — `id`, `aria-*`, `style`, an interpolation, an `(event)`
+// binding, a template reference — is outside the set, so a difference in one of those cannot make the case
+// resolvable and must not redden this suite.
+//
+// Why: the fixture's authoring contract (`.project/tasks/T002-harness-target-page.md`) declares the hosts
+// "rendered twice with the same class list and the same data attributes; only the DOM `id` differs, because
+// duplicate ids are invalid markup and an `id` is not an attribute a harness matches on." That is the only
+// written declaration of the harness surface in this repository: the harness itself does not exist (the A8
+// ruling defers `@angular/cdk/testing` to the harness family), so there is no shipped match set to derive
+// from. The suite therefore asserts that declaration — the second test reads the contract and fails if the
+// declaration moves or is deleted — and records here, as a ruling, the one thing a declaration cannot pin.
+//
+// Recorded as a ruling rather than an assertion because it is not yet true of any code: when HAR-3 ships,
+// replace `isMatchedName` with the harness's own match set, keep the `id` row only if the harness keeps `id`
+// outside it, and keep the mutants above. Until then this is the assumption, stated with its reason and its
+// re-derivation condition, instead of an unexplained `!== 'id'` in the comparison.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
+import { JSDOM } from 'jsdom';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..', '..');
 const pagePath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'components', 'components-page.ts');
+const contractPath = join(root, '.project', 'tasks', 'T002-harness-target-page.md');
 const SUITE = 'fixture-harness-ambiguity.test.mjs';
+const PROBE_HOST = 'app-harness-probe';
 
-function readAttrs(tag) {
-  const attrs = {};
-  const re = /([A-Za-z_:][\w:.-]*)\s*=\s*"([^"]*)"/g;
-  let m;
-  while ((m = re.exec(tag)) !== null) {
-    attrs[m[1]] = m[2];
-  }
-  return attrs;
+/** The declared match set of the ruling above: `class` and `data-*`, and nothing else. */
+function isMatchedName(name) {
+  return name === 'class' || name.startsWith('data-');
 }
 
-function hostStartTags(src) {
-  const tags = [];
-  const re = /<app-harness-probe\b[^>]*>/g;
-  let m;
-  while ((m = re.exec(src)) !== null) tags.push(m[0]);
-  return tags;
+/** An attribute name the HTML parser keeps verbatim, i.e. a literal the page wrote as `name="value"`. */
+const LITERAL_NAME = /^[A-Za-z_:][\w:.-]*$/;
+
+function label(host) {
+  const id = host.getAttribute('id');
+  return id ? `<${PROBE_HOST} id="${id}">` : `<${PROBE_HOST}>`;
+}
+
+/** The template literal the page component declares, mounted the way the page would render it. */
+function probeHosts() {
+  const source = readFileSync(pagePath, 'utf8');
+  const template = /template:\s*`([\s\S]*?)`/.exec(source);
+  assert.ok(template, `${SUITE}: ${pagePath} declares no template literal, so the probe hosts cannot be read`);
+  const dom = new JSDOM(`<!doctype html><html><body>${template[1]}</body></html>`);
+  return [...dom.window.document.querySelectorAll(PROBE_HOST)];
+}
+
+/**
+ * Every attribute a host start tag writes, in source order, with the name the harness would match on.
+ *
+ * `[attr.x]` and `[x]` bind an attribute the DOM carries once Angular renders, so they are read like a
+ * literal. `(event)` bindings, two-way `[(x)]` bindings and `#ref` template references set no DOM
+ * attribute at all — an attribute-matching harness cannot see them — so they are read and set aside.
+ * A form this reader cannot classify fails loudly rather than becoming a blind spot.
+ */
+function readAttributes(host) {
+  const who = label(host);
+  const records = [];
+  for (const written of host.getAttributeNames()) {
+    const value = host.getAttribute(written) ?? '';
+
+    if (/^\([\s\S]*\)$/.test(written) || written.startsWith('on-')) {
+      records.push({ written, kind: 'event', name: null, value });
+      continue;
+    }
+    if (written.startsWith('#') || written.startsWith('let-') || written.startsWith('ref-')) {
+      records.push({ written, kind: 'reference', name: null, value });
+      continue;
+    }
+
+    const binding = /^\[([\s\S]*)\]$/.exec(written) ?? /^bind-([\s\S]*)$/.exec(written);
+    if (binding) {
+      const target = binding[1].trim();
+      if (/^\([\s\S]*\)$/.test(target)) {
+        records.push({ written, kind: 'event', name: null, value });
+      } else if (target.startsWith('attr.')) {
+        records.push({ written, kind: 'binding', name: target.slice('attr.'.length).trim(), value });
+      } else {
+        // `[class.active]` and `[style.width.px]` add to the attribute named before the first dot.
+        const name = (target.includes('.') ? target.split('.')[0] : target).trim();
+        records.push({ written, kind: 'binding', name, value });
+      }
+      continue;
+    }
+
+    if (!LITERAL_NAME.test(written)) {
+      assert.fail(
+        `${SUITE}: ${who} carries ${written}, a template form this suite cannot classify, so it cannot tell whether the hosts differ in an attribute the harness matches on — teach readAttributes this form, or record it in the ruling above`,
+      );
+    }
+    records.push({ written, kind: 'literal', name: written, value });
+  }
+  return records;
+}
+
+/**
+ * The value a host writes for one matched attribute, reduced to what two hosts can be compared on: a
+ * literal's own text, or a binding's value when the binding is a single quoted string
+ * (`[attr.data-slot]="'two'"` renders as `data-slot="two"`, so it must compare equal to that literal).
+ * Any other expression is compared as written, because only the source exists.
+ */
+function describe(record) {
+  if (record.kind === 'literal') return record.value;
+  const quoted = /^(['"])([\s\S]*)\1$/.exec(record.value.trim());
+  return quoted ? quoted[2] : `${record.written}="${record.value}"`;
+}
+
+/** The attributes of one host the declared match set covers, names sorted, values in source order. */
+function matchedOf(host) {
+  const records = readAttributes(host).filter((record) => record.name !== null && isMatchedName(record.name));
+  const names = [...new Set(records.map((record) => record.name))].sort();
+  const values = new Map(names.map((name) => [name, records.filter((record) => record.name === name).map(describe)]));
+  const writtenFor = (name) =>
+    records
+      .filter((record) => record.name === name)
+      .map((record) => `${record.written}="${record.value}"`)
+      .join(' and ');
+  return { records, names, values, writtenFor };
 }
 
 test('components page renders two app-harness-probe hosts', () => {
-  const src = readFileSync(pagePath, 'utf8');
-  const tags = hostStartTags(src);
-  assert.equal(tags.length, 2, `${SUITE}: expected 2 probe hosts`);
+  const hosts = probeHosts();
+  assert.equal(
+    hosts.length,
+    2,
+    `${SUITE}: expected 2 probe hosts, found ${hosts.length} — HAR-3's ambiguity case needs two hosts to be ambiguous between`,
+  );
 });
 
-test('the two probe hosts match in every attribute the harness matches on (id excluded)', () => {
-  const src = readFileSync(pagePath, 'utf8');
-  const [a, b] = hostStartTags(src).map(readAttrs);
-  // id is NOT part of the harness match set, so it is excluded from comparison.
-  const matchedA = Object.fromEntries(Object.entries(a).filter(([k]) => k !== 'id'));
-  const matchedB = Object.fromEntries(Object.entries(b).filter(([k]) => k !== 'id'));
-  assert.deepEqual(Object.keys(matchedA).sort(), Object.keys(matchedB).sort(), `${SUITE}: mutant (distinguishing attribute added to one host) — matched attribute key sets differ`);
-  for (const k of Object.keys(matchedA)) {
-    assert.equal(matchedA[k], matchedB[k], `${SUITE}: mutant (distinguishing attribute added to one host) — matched attribute ${k} differs`);
+test('the declared match set is class and data-*, and id stays outside it, as the fixture contract declares', () => {
+  const contract = readFileSync(contractPath, 'utf8').replace(/\s+/g, ' ');
+  assert.ok(
+    contract.includes('same class list and the same data attributes'),
+    `${SUITE}: mutant (the declared match set lost its declaration) — ${contractPath} no longer declares the hosts' harness surface as "the same class list and the same data attributes", so comparing class and data-* would rest on an assumption: re-derive the match set from HAR-3's own and update the ruling`,
+  );
+  assert.ok(
+    contract.includes('is not an attribute a harness matches on'),
+    `${SUITE}: mutant (the id exclusion lost its declaration) — ${contractPath} no longer declares that an id is not an attribute a harness matches on, so excluding id would be an assumption: re-derive it from HAR-3's own match set`,
+  );
+  assert.ok(
+    isMatchedName('class') && isMatchedName('data-probe'),
+    `${SUITE}: the declared match set must cover class and data-*, the attributes both hosts carry and a HAR-3 predicate would name`,
+  );
+  assert.ok(
+    !isMatchedName('id'),
+    `${SUITE}: mutant (id inside the declared match set) — id is the one attribute the hosts are allowed to differ in; with id inside the match set the fixture's own markup is a prohibition-N1 violation`,
+  );
+  assert.ok(
+    !isMatchedName('aria-label'),
+    `${SUITE}: mutant (declared match set widened to every attribute present) — an attribute outside class and data-* must stay out, or a harmless literal added to one host reddens the suite again`,
+  );
+});
+
+test('the reader reads bindings as well as literals, and compares only what the match set covers', () => {
+  const dom = new JSDOM(
+    `<!doctype html><html><body><app-harness-probe id="reader" class="harness-probe" data-probe="host" [attr.data-slot]="'two'" [data-role]="role" (click)="go()" disabled aria-label="probe a"></app-harness-probe></body></html>`,
+  );
+  const host = dom.window.document.querySelector(PROBE_HOST);
+  assert.ok(host, `${SUITE}: the reader check could not build a probe host to parse`);
+
+  const records = readAttributes(host);
+
+  const bound = records.find((record) => record.written === '[attr.data-slot]');
+  assert.ok(
+    bound,
+    `${SUITE}: mutant (reader blind to [attr.x] bindings) — the reader did not read [attr.data-slot], so a distinguishing binding is invisible to it`,
+  );
+  assert.equal(bound.name, 'data-slot', `${SUITE}: mutant (binding target misread) — [attr.data-slot] is matched as "${bound.name}", not "data-slot"`);
+  assert.equal(
+    describe(bound),
+    'two',
+    `${SUITE}: mutant (binding value not resolved) — [attr.data-slot]="'two'" is read as "${describe(bound)}", so a literal and the binding that renders the same value would not compare equal`,
+  );
+
+  const matched = matchedOf(host);
+  assert.deepEqual(
+    matched.names,
+    ['class', 'data-probe', 'data-role', 'data-slot'],
+    `${SUITE}: mutant (match set wrong) — the reader matched ${JSON.stringify(matched.names)}; only class and data-* are in the declared match set, and every form that binds one of them must be read`,
+  );
+  assert.equal(
+    records.length,
+    host.getAttributeNames().length,
+    `${SUITE}: mutant (the reader drops an attribute it cannot classify) — the reader returned ${records.length} of the ${host.getAttributeNames().length} attributes written on the host, so an attribute could hide from the comparison`,
+  );
+  for (const outside of ['id', 'disabled', 'aria-label']) {
+    assert.ok(
+      !matched.names.includes(outside),
+      `${SUITE}: ${outside} is outside the declared match set and must not be compared, so a harmless ${outside} on one host leaves the suite green`,
+    );
   }
-  // id is excluded: the hosts legitimately differ only in id.
-  assert.ok('id' in a && 'id' in b, `${SUITE}: both hosts must carry an id`);
-  assert.notEqual(a.id, b.id, `${SUITE}: hosts must differ in id (the excluded attribute)`);
+});
+
+test('the two probe hosts match in every attribute the harness matches on, bindings included (id excluded)', () => {
+  const [a, b] = probeHosts();
+  assert.ok(a && b, `${SUITE}: the page must render two probe hosts, so one host has another to be ambiguous with`);
+  const left = matchedOf(a);
+  const right = matchedOf(b);
+
+  // A comparison over nothing passes for the wrong reason: the reader must find the harness surface.
+  for (const [host, matched] of [
+    [a, left],
+    [b, right],
+  ]) {
+    for (const required of ['class', 'data-probe']) {
+      assert.ok(
+        matched.names.includes(required),
+        `${SUITE}: mutant (reader blind to ${required} on a host) — the reader found no ${required} attribute on ${label(host)}, so the comparison below cannot see a distinguishing attribute`,
+      );
+    }
+  }
+
+  const onlyLeft = left.names.filter((name) => !right.names.includes(name));
+  const onlyRight = right.names.filter((name) => !left.names.includes(name));
+  const oneSided = [
+    ...onlyLeft.map((name) => `${left.writtenFor(name)} on ${label(a)} only`),
+    ...onlyRight.map((name) => `${right.writtenFor(name)} on ${label(b)} only`),
+  ];
+  assert.deepEqual(
+    oneSided,
+    [],
+    `${SUITE}: mutant (distinguishing attribute added to one host) — a HAR-3 predicate can tell the hosts apart: ${oneSided.join('; ')}; the matched attribute sets are [${left.names.join(', ')}] and [${right.names.join(', ')}]. Prohibition N1 forbids a resolvable ambiguity case.`,
+  );
+
+  for (const name of left.names) {
+    const mine = left.values.get(name).join(' + ');
+    const theirs = (right.values.get(name) ?? []).join(' + ');
+    assert.equal(
+      theirs,
+      mine,
+      `${SUITE}: mutant (distinguishing attribute value on the two hosts) — matched attribute ${name} differs: ${label(a)} writes ${left.writtenFor(name)} and ${label(b)} writes ${right.writtenFor(name)}, so a HAR-3 predicate on ${name} tells the hosts apart (prohibition N1)`,
+    );
+  }
+
+  // The excluded attribute, read and not assumed: the reader sees `id` on both hosts, and the declared match
+  // set is what keeps it out of the comparison — the exclusion is the declaration's, not the reader's
+  // blindness (see the ruling in the header).
+  assert.ok(
+    !left.names.includes('id') && !right.names.includes('id'),
+    `${SUITE}: id must stay outside the declared match set, or the hosts' own markup is a prohibition-N1 violation`,
+  );
+  const idLeft = readAttributes(a).find((record) => record.written === 'id');
+  const idRight = readAttributes(b).find((record) => record.written === 'id');
+  assert.ok(
+    idLeft && idRight,
+    `${SUITE}: mutant (a host lost its id) — both hosts must carry an id, because id is the only attribute it is legitimate for them to differ in`,
+  );
+  assert.notEqual(
+    idLeft.value,
+    idRight.value,
+    `${SUITE}: mutant (the hosts share an id) — ${label(a)} and ${label(b)} both carry id="${idLeft.value}", so the one difference HAR-3's ambiguity case is allowed has gone: either the case lost one of its two hosts' identity or the exclusion must be re-derived`,
+  );
 });
