@@ -3,10 +3,10 @@ id: T001
 title: The extension gets a type check that runs
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T001
+base: f57a417292b81fcea7932a421db71596fabc8a77
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - extension/tsconfig.json
