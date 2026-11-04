@@ -44,6 +44,10 @@ who cites a held-out suite as evidence; the next milestone's coder, who needs a 
 | N3 | SC4 | Delete a suite to reach green without recording the claim it made | judgment | the claim is the asset; deleting it silently loses the reason the suite existed |
 | N4 | SC2 | Let a suite count as passing when the corpus script could not run it | criterion SC2 | a suite the script never ran must fail the gate, or the green means nothing |
 
+## Surfaces
+
+none
+
 ## Scope
 
 In: `tests/held-out/`, the npm scripts, and whatever the ten dead suites need to become honest.
