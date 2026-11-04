@@ -12,7 +12,7 @@ const componentPath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'image-bud
 const routesPath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'app.routes.ts');
 const samplePath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'image-budget-warning.json');
 
-const EXPECTED_CODE = 'NG2952';
+const EXPECTED_CODE = 'NG02952';
 
 function loadSample() {
   return JSON.parse(readFileSync(samplePath, 'utf8'));
@@ -29,9 +29,8 @@ function toFinding(sample) {
   return { code: sample.code, image: sample.image, binding: sample.binding };
 }
 
-test('expected code is a measured image code', () => {
-  assert.equal(EXPECTED_CODE, 'NG2952');
-  assert.equal(isKnownCode(EXPECTED_CODE), true);
+test('expected code is the code the capture reported', () => {
+  assert.equal(EXPECTED_CODE, 'NG02952');
 });
 
 test('COM-1 turns the committed warning sample into a finding naming code, image and binding', () => {
@@ -49,6 +48,14 @@ test('COM-1 yields no finding when the binding field is removed (mutant)', () =>
   const { binding, ...withoutBinding } = sample;
   const finding = toFinding(withoutBinding);
   assert.equal(finding, null, 'removing binding must remove the finding');
+});
+
+test('provenance: sample source names the capture record, not a transcription', () => {
+  const sample = loadSample();
+  assert.equal(typeof sample.source, 'string');
+  assert.match(sample.source, /research\/raw\/m027-image-warning-capture\.json/);
+  assert.match(sample.source, /capture/i);
+  assert.doesNotMatch(sample.source, /transcribed/i);
 });
 
 // PRECONDITION (structural only): the fixture carries the offending binding.

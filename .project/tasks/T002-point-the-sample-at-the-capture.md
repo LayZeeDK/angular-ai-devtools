@@ -2,10 +2,10 @@
 id: T002
 title: Point the sample at the capture
 wave: 1
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: 3cb457432fd60926a142245e856d4c6c132942e5
 worktree: null
 task_branch: null
 files:
@@ -61,3 +61,4 @@ held-out E3 — the reverted-provenance mutant is named by the suite.
 ## Log
 
 - created
+- T002 ready: sample source now names capture record and code NG02952; provenance mutant reddens
