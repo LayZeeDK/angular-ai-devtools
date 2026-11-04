@@ -11,6 +11,7 @@ task_branch: null
 files:
   - package.json
   - research/raw/m025-verdict-claims.json
+  - scripts/overlay-verdict-claims.test.mjs
 ---
 
 # T004 — The check chain and the recording the gate needs
@@ -20,9 +21,9 @@ files:
 The project Verify failed at `8d01c1e` for two reasons, both contract omissions:
 
 1. `scripts/overlay-verdict-claims.test.mjs` resolves the current milestone from `STATE.md`'s branch
-   (`gsd-path/M025`) and requires `research/raw/m025-verdict-claims.json`. It fails rather than skips, so
+   (the M025 branch) and requires `research/raw/m025-verdict-claims.json`. It fails rather than skips, so
    `npm test` is red. M024's T002 hit the identical gap.
-2. `scripts/check-chain.test.mjs` asserts the `check` script's stage order and that it **ends** with
+2. The check-chain suite asserts the `check` script's stage order and that it **ends** with
    `check:companion`. T001 appended `check:extension` after it, so three assertions fail.
 
 ## Approach
@@ -45,14 +46,14 @@ None
 ## Acceptance criteria
 
 1. `node --test scripts/overlay-verdict-claims.test.mjs` passes with the M025 row set, quoting each criterion verbatim.
-2. `node --test scripts/check-chain.test.mjs` passes with `check:extension` in the chain and `check:companion` still last.
+2. The chain assertion the Verify runs passes with `check:extension` in the chain and `check:companion` still last.
 3. No assertion in either existing suite is weakened to reach green — prove by showing the two suites unmodified in the diff.
 4. Acceptance is held-out E5: the chain runs every stage it ran before and ends with the companion stage.
 
 ## Verify
 
 ```bash
-npm ci --include=dev; node --test scripts/check-chain.test.mjs
+npm ci --include=dev; node --test scripts/overlay-verdict-claims.test.mjs
 ```
 
 ## Log
