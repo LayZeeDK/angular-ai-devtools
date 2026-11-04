@@ -5,7 +5,7 @@ wave: 2
 status: pending
 deps: [T002]
 agent: null
-base: null
+base: 983f429270dd527b417047c51630314d2026ebbd
 worktree: null
 task_branch: null
 files:
