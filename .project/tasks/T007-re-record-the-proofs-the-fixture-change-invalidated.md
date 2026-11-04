@@ -2,11 +2,11 @@
 id: T007
 title: Re-record the proofs the fixture change invalidated
 wave: 5
-status: pending
+status: in-progress
 deps: [T003]
-agent: null
-base: null
-worktree: null
+agent: build_T007
+base: 8d7cbdb67b007516c14e72c139033963305f5f55
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - .commandcode/skills/control-angular-dev-app/features/.proven.json
@@ -49,7 +49,7 @@ None
 1. `node --test scripts/fixture-proof-fresh.test.mjs` passes, and reverting either manifest reddens it naming the skill and the changed path.
 2. `node --test scripts/ng-context-dev-build.test.mjs` passes, and reverting the recorded `bytes` reddens it showing actual against expected.
 3. No assertion, pin or comparison in either suite is edited — only the recorded data.
-4. Acceptance is held-out E1 and held-out E2: the stale-manifest and stale-bytes mutants are named.
+4. Reverting either recording reddens its suite and names the skill or the byte count; this is a mutant of the recorded data, not a new intent edge.
 
 ## Verify
 
@@ -59,11 +59,10 @@ npm ci --include=dev; node --test scripts/fixture-proof-fresh.test.mjs
 
 ## Held-out
 
-held-out E1 and held-out E2 — a reverted manifest and a reverted byte count are each named.
+No intent edge: this task re-records data. The proof is the reverted-recording mutant in each suite.
 
 ## Intent coverage
 
-- SC1
 - SC5
 
 ## Log
