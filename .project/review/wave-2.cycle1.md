@@ -20,6 +20,10 @@ Reviewed HEAD: 00e7631e4b502bfc14cea03eaa87044d9d406910
 
 ## Intent coverage
 
+### SC3 — A page where no strip occurred produces no finding, and a warning with no binding record it can be joined to produces a "cannot tell" state naming that absence, rather than a guessed binding.: pass
+
+- ✅ `node --test scripts/sanitizer-bypass.test.mjs` and T004's capture: a page where no strip occurred produces no finding, and the one warning with no covering record yields `cannot-tell` (`reason: "no-covering-profiler-record"`) rather than the nearest component. The bypass binding produced no warning at all and is reported as `deliberate`, not as a strip.
+
 ### SC4 — The panel renders the finding and its explanation from a short fact list, and shows the "cannot tell" state when the warning cannot be attributed.: pass
 
 - ✅ `apps/angular-ai-devtools/src/app/panel-sanitizer.ts` renders from fact list only (no console/profiler reads), six states with distinct messages; `cannot-tell` names absence with no component/binding, never borrows nearest component; `scripts/panel-sanitizer.test.mjs` validates E4 including mutants.
