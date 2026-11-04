@@ -11,10 +11,12 @@
  * Seven properties, each one a way the scope could quietly shrink:
  *
  * 1. The `check` chain still runs every stage it ran before — `ensure-sidecar-deps`, the root
- *    `tsc -p tsconfig.json`, `check:skills` — then `check:panel`, then `check:companion` (M021's
- *    authorised re-pin). The list is asserted by deep equality and every stage is named exactly,
- *    never matched by a wildcard, so a dropped, reordered or extra stage fails; the red half
- *    replays the same comparison over mutated stage lists to prove the re-pin still bites.
+ *    `tsc -p tsconfig.json`, `check:skills` — then `check:panel`, then `check:extension` (M025's
+ *    insertion) and last `check:companion` (M021's authorised re-pin). The list is asserted by
+ *    deep equality and every stage is named exactly, never matched by a wildcard, so a dropped,
+ *    reordered or extra stage fails; the red half replays the same comparison over mutated stage
+ *    lists to prove the re-pin still bites. Each new stage is added to that ordered list in the
+ *    change that adds it — the pin is meant to be re-cut, never widened.
  * 2. `check:panel` names the panel config, so the stage cannot be pointed at a file that happens
  *    to type-check.
  * 3. That config's `include` is the panel's whole source tree (`src/**\/*.ts`), its only
@@ -81,15 +83,25 @@ const PANEL_CHECK_CONFIG_RELATIVE = 'apps/angular-ai-devtools/tsconfig.check.jso
 /** The companion config, relative to the repository root — the form `check:companion` must name. */
 const COMPANION_CONFIG_RELATIVE = 'packages/ai-devtools-companion/tsconfig.json';
 
-/** The `check` chain M021 re-pins: the three stages that predate M018, the panel stage M018 added,
- * and the companion stage M021 adds, in that order. Every entry is spelled out. A wildcard or a
- * `some(...)` here would accept a chain that dropped or reordered a stage, which is exactly the
- * narrowed check N4 and N6 forbid. */
+/** The `check` chain, re-pinned stage by stage: the three stages that predate M018, the panel stage
+ * M018 added, the extension stage M025 adds, and the companion stage M021 added last, in that
+ * order. Every entry is spelled out.
+ *
+ * This ordered list is a deliberate pin, and adding a stage to `check` on purpose is exactly the
+ * change it has to be told about. M025's SC1 extends `npm run check` to `extension/`, so T004 added
+ * the sixth entry — `npm run check:extension`, before `check:companion` — here, in the same change
+ * that moved the chain; the list and the chain are re-cut together.
+ *
+ * What did *not* change is the strength: still a deep equal against the whole ordered list, still
+ * "and nothing else". A wildcard, a `some(...)` or an `includes` here would accept a chain that
+ * dropped or reordered a stage, which is exactly the narrowed check N4 and N6 forbid. So the next
+ * stage is added by naming it in position, not by loosening the comparison. */
 const CHECK_STAGES = [
   'node scripts/ensure-sidecar-deps.mjs',
   'tsc -p tsconfig.json',
   'npm run check:skills',
   'npm run check:panel',
+  'npm run check:extension',
   'npm run check:companion',
 ];
 
@@ -294,7 +306,7 @@ function assertStageChain(script, expected = CHECK_STAGES) {
   assert.deepEqual(
     checkStages(script),
     expected,
-    'check must run its five stages in order — the root type check, the skills stage, the panel stage and then the companion stage — and nothing else',
+    'check must run its six stages in order — the root type check, the skills stage, the panel stage, the extension stage and then the companion stage — and nothing else',
   );
 }
 
@@ -303,9 +315,9 @@ test('the check chain runs every stage it ran before and ends with the companion
   const script = pkg.scripts?.check;
   assert.equal(typeof script, 'string', 'package.json must carry a check script');
 
-  // The M021 re-pin in one assertion: the three pre-existing stages, the panel stage and the
-  // companion stage, named exactly and in order. A dropped, reordered or extra stage fails here
-  // even though both named stage scripts are present.
+  // The pin in one assertion: the three pre-existing stages, the panel stage, the extension stage
+  // and the companion stage, named exactly and in order. A dropped, reordered or extra stage fails
+  // here even though every named stage script is present.
   assertStageChain(script);
 
   assert.equal(
@@ -319,19 +331,31 @@ test('the check chain runs every stage it ran before and ends with the companion
     'check:companion must run tsc against the companion package config and nothing else',
   );
 
-  // The red half, re-cut to the new list: the same comparison must still fail when a stage is
-  // dropped, reordered or added. Without it the re-pin could have been widened into a list that
-  // passes unconditionally, which is the weakened pin N6 forbids.
+  // The red half, re-cut to the six-stage list: the same comparison must still fail when a stage is
+  // dropped, reordered or added — including the extension stage M025 inserted, so the insertion is
+  // pinned rather than tolerated. Without this half the re-pin could have been widened into a list
+  // that passes unconditionally, which is the weakened pin N6 forbids.
   const refused = {
     'a dropped companion stage': CHECK_STAGES.slice(0, -1),
-    'a dropped panel stage with the companion stage still present': [
+    'a dropped extension stage with the companion stage still present': [
+      ...CHECK_STAGES.slice(0, 4),
+      CHECK_STAGES[5],
+    ],
+    'a dropped panel stage with the extension and companion stages still present': [
       ...CHECK_STAGES.slice(0, 3),
       CHECK_STAGES[4],
+      CHECK_STAGES[5],
     ],
-    'the panel and companion stages swapped': [
+    'the extension and companion stages swapped': [
+      ...CHECK_STAGES.slice(0, 4),
+      CHECK_STAGES[5],
+      CHECK_STAGES[4],
+    ],
+    'the panel and extension stages swapped': [
       ...CHECK_STAGES.slice(0, 3),
       CHECK_STAGES[4],
       CHECK_STAGES[3],
+      CHECK_STAGES[5],
     ],
     'an extra stage appended after the companion stage': [...CHECK_STAGES, 'npm run check:extra'],
   };

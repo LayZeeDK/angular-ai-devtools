@@ -7,23 +7,26 @@ let angularDetected = false;
 let lastState = null;
 let lastVersion = null;
 
+// Every listener below is registered for one of the agent's window events, which the agent
+// dispatches as a `CustomEvent`; the payload travels in `detail`, so that is the parameter's type.
+
 // Forward cycle records from the MAIN-world agent
-window.addEventListener('angular-ai:record', (e) => {
+window.addEventListener('angular-ai:record', (/** @type {CustomEvent} */ e) => {
   chrome.runtime.sendMessage({ type: 'angular-ai:record', cycle: e.detail });
 });
 
-window.addEventListener('angular-ai:di-graph', (e) => {
+window.addEventListener('angular-ai:di-graph', (/** @type {CustomEvent} */ e) => {
   const d = e.detail || {};
   chrome.runtime.sendMessage({ type: 'angular-ai:di-graph', ...d });
 });
 
-window.addEventListener('angular-ai:error-capture', (e) => {
+window.addEventListener('angular-ai:error-capture', (/** @type {CustomEvent} */ e) => {
   const d = e.detail || {};
   chrome.runtime.sendMessage({ type: 'angular-ai:error-capture', ...d });
 });
 
 // Forward supported / not-supported state from the MAIN-world agent
-window.addEventListener('angular-ai:state', (e) => {
+window.addEventListener('angular-ai:state', (/** @type {CustomEvent} */ e) => {
   const d = e.detail || {};
   // Latch verbatim — the payload is carried as received, never reinterpreted here.
   lastState = d;
@@ -34,14 +37,14 @@ window.addEventListener('angular-ai:state', (e) => {
 // sends one runtime message per event, and the background attaches the sender's tab id. Nothing is
 // read here on purpose — a payload this relay cannot interpret is carried as received, because
 // reading it is the panel's job and a state invented at this hop would be a state the page never said.
-window.addEventListener('angular-ai:picker-state', (e) => {
+window.addEventListener('angular-ai:picker-state', (/** @type {CustomEvent} */ e) => {
   const d = e.detail || {};
   chrome.runtime.sendMessage({ type: 'angular-ai:picker-state', ...d });
 });
 
 // A locked pick arrives as the event's whole detail (the descriptor the page realm resolved), and the
 // message names it, so the panel reads one member instead of guessing which field is the payload.
-window.addEventListener('angular-ai:picked', (e) => {
+window.addEventListener('angular-ai:picked', (/** @type {CustomEvent} */ e) => {
   chrome.runtime.sendMessage({ type: 'angular-ai:picked', descriptor: e.detail });
 });
 

@@ -1,0 +1,44 @@
+{
+  // The extension type check — M025 T001.
+  //
+  // `npm run check` used to cover the root scripts, the skill trees, the panel and the
+  // companion package, and nothing checked `extension/` — the content scripts, the overlay,
+  // the relay and the picker agent, the code that runs inside a user's inspected page. This
+  // config is what closes that gap; `check:extension` runs it from `npm run check`.
+  //
+  // Two settings are deliberate and must not be read as sloppiness:
+  //
+  // - `exclude: ["panel/**"]` is the only exclusion, and it is not a source tree. `extension/
+  //   panel/` holds build output — `main.js`, `worker-*.js` and the `chunk-*.js` files — written
+  //   by the panel build (`npx nx run angular-ai-devtools:build-extension`). It contributes 187
+  //   of the 220 non-strict errors in the directory, and every one of them measures the
+  //   bundler's output, not the source anyone edits. A check over it would be red forever for
+  //   a tree that cannot be fixed at source. No authored file is excluded: `include` is the
+  //   whole `extension/` tree, as N2 requires.
+  // - `strict: false` is deliberate, not an oversight. `strict: true` over the same sources
+  //   reports 7308 errors, almost all implicit-any in hand-written JavaScript that has never
+  //   been annotated; making the extension strict-clean is a rewrite, not a milestone step. The
+  //   gap is recorded here rather than hidden, and the check still catches the real defects a
+  //   wrong property access produces (N4: the extension is not claimed strict-clean).
+  //
+  // `@types/chrome` supplies the extension API globals (`chrome.runtime`, `chrome.devtools`, …)
+  // so `TS2304 Cannot find name 'chrome'` is not among the reported errors. It is a
+  // devDependency: it types the check and never enters the built extension.
+  //
+  // `types: ["chrome"]` keeps the ambient set to exactly that: without it every `@types`
+  // package installed for the workspace (node, ws, …) would leak into content-script scope and
+  // report errors the browser would never raise.
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": false,
+    "target": "ES2022",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "types": ["chrome"],
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["**/*.js"],
+  "exclude": ["panel/**"]
+}

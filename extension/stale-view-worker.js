@@ -154,10 +154,15 @@
       const result = handleRequest(e && e.data);
       try { self.postMessage(result); } catch (err) { /* ignore */ }
     };
-    // Expose for direct (non-worker) callers / tests.
-    self.scanGraph = scanGraph;
-    self.matchDirectWrites = matchDirectWrites;
-    self.handleScanRequest = handleRequest;
+    // Expose for direct (non-worker) callers / tests. These three names are this file's own
+    // additions to the worker scope, and the platform's `self` type declares none of them; the
+    // property set is handed over with `Object.assign`, which defines exactly those three own
+    // properties on the scope, as the assignments it replaces did.
+    Object.assign(self, {
+      scanGraph: scanGraph,
+      matchDirectWrites: matchDirectWrites,
+      handleScanRequest: handleRequest,
+    });
   }
 
   // CommonJS / Node module support for tests.
@@ -165,8 +170,12 @@
     module.exports = { scanGraph: scanGraph, matchDirectWrites: matchDirectWrites, handleRequest: handleRequest, angularVersionGate: angularVersionGate };
   }
 
-  // Browser global fallback.
+  // Browser global fallback: the same one name, defined on the scope object the file was called
+  // with. `globalThis` — and the test harness's plain object — declare no `staleViewScan`, so the
+  // property is defined through `Object.assign` rather than written onto the platform's type.
   if (typeof global !== "undefined") {
-    global.staleViewScan = { scanGraph: scanGraph, matchDirectWrites: matchDirectWrites, handleRequest: handleRequest };
+    Object.assign(global, {
+      staleViewScan: { scanGraph: scanGraph, matchDirectWrites: matchDirectWrites, handleRequest: handleRequest },
+    });
   }
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -955,11 +955,12 @@ Scope: out
 
 ### M025 — panel-verify-breadth
 
-Goal: Close the gap that `npm run check` never type-checks the panel, by adding the panel and the extension sources to the check and fixing what the first run reveals.
+Goal: Bring `extension/` under `npm run check`. The panel gap this milestone was written for was closed by M018 T008; what is unchecked is the extension's plain JavaScript, and its first real run finds thirteen genuine defects behind twenty missing-global errors.
 Depends on: [M019]
 Surfaces: none
-Status: pending
-Archive: null
+Status: shipped
+Shipped: 2026-11-04 — `extension/` is type-checked by a sixth `check` stage; the roadmap's panel premise was already closed by M018 and the intent records the re-scope.
+Archive: .project/archive/025-panel-verify-breadth
 Integrated: null
 
 Scope: in
