@@ -2,10 +2,10 @@
 id: T007
 title: Re-record the proofs the fixture change invalidated
 wave: 5
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T007
+base: 3be74e3077db528b7ebf66a7261bb5233b0ee9fa
 worktree: null
 task_branch: null
 files:
@@ -102,3 +102,5 @@ passes here and fails in any sidecar. Nudging the recorded number is the same de
 
 - created
 - Re-recorded both manifests and dev bytes; suites pass
+- T007 attempt 2: bounded dev bytes tolerance 2000; manifests re-recorded; suites pass
+- T007 ready
