@@ -23,3 +23,7 @@ Reviewed HEAD: d6d313da51108680b111c877bc3189fa629e32c8
 ### SC2 — Every digest entry is at most 150 tokens, and the digest is generated at extension build time rather than hand-written at runtime.: pass
 
 - ✅ countTokens upper bound ceil(len/3); trimToTokens <= 450 chars ending with marker; build-image-digest.mjs writes extension/image-digest.json byte-identically; deleting the builder fails.
+
+### SC4 — The licence and copyright notice is stripped from every entry before any digest text reaches a prompt.: pass
+
+- ✅ stripLicense applied to meaning and fix in buildEntry before counting; assertNoLicense/guardNoLicense throw on surviving licence text; licence mutants redden the suite.
