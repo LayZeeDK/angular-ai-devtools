@@ -65,6 +65,13 @@ manifests and the ng-context recording stopped matching. T007 re-records them wi
 re-measures the bundle, changing data rather than assertions, and proves each re-record reddens when reverted.
 Review depth: full
 
+## Wave 6 — the panel's own suite pins the route list
+
+Goal: The ship Verify's app suite deep-equals the panel's route list against six entries, and T004 added a seventh.
+T008 re-pins that list in the declared order, keeping the assertion a full ordered comparison, and proves it reddens
+for a removed and for an unlisted route.
+Review depth: full
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -88,6 +95,7 @@ Review depth: full
 | SC5 | T004 | AC1 |
 | SC5 | T005 | AC2 |
 | SC5 | T007 | AC3 |
+| SC5 | T008 | AC1 |
 
 ## Waves at a glance
 
