@@ -2,7 +2,7 @@
 
 <!-- Written by the orchestrator. Executed wave-by-wave by /gsd-path-build. -->
 
-Project verify: `npm ci --include=dev && npm run check && npm test`
+Project verify: `npm ci --include=dev && npm --prefix spikes/ng222-app ci --include=dev && npm run check && npm test` <!-- the fixture install is not optional: the development-build suites assert on the bytes `spikes/ng222-app` emits, so a fresh sidecar must provision it before `npm test` -->
 
 ## Config
 

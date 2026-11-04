@@ -3,10 +3,10 @@ id: T005
 title: The ship verify runs in a fresh sidecar
 wave: 3
 deps: [T004]
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T005
+base: 018c919cba70a6215ce962de7a6062e76d9382cc
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - .project/plan/PLAN.md
@@ -58,3 +58,4 @@ npm ci --include=dev; node --test scripts/retired-suites.test.mjs
 ## Log
 
 - opened by orchestrator after the ship Verify failed at `3b2eacb` on the fixture install and the review prefix
+- T005: PLAN.md's Project verify now runs npm ci --include=dev && npm --prefix spikes/ng222-app ci --include=dev && npm run check && npm test with an inline why-comment the helper strips, and scripts/retired-suites.test.mjs exempts .project/review with its reason beside the others; a planted e10-spec-present in scripts/ outside every exempt prefix reddened the walk (scripts/zz-planted-retired-naming-probe.txt: e10-spec-present) and its removal returned 4/4 pass; contract Verify exit 0, npm run check exit 0 - ready
