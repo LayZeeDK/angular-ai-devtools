@@ -2,11 +2,11 @@
 id: T007
 title: Re-record the proofs the fixture change invalidated
 wave: 5
-status: in-progress
+status: pending
 deps: [T003]
-agent: build_T007
-base: 8d7cbdb67b007516c14e72c139033963305f5f55
-worktree: D:\projects\sandbox\angular-ai-devtools
+agent: null
+base: null
+worktree: null
 task_branch: null
 files:
   - .commandcode/skills/control-angular-dev-app/features/.proven.json
