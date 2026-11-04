@@ -12,6 +12,8 @@ files:
   - .commandcode/skills/control-angular-dev-app/features/.proven.json
   - .commandcode/skills/control-angular-devtools/features/.proven.json
   - research/raw/m022-ng-context.json
+  - scripts/fixture-proof-fresh.test.mjs
+  - scripts/ng-context-dev-build.test.mjs
 ---
 
 # T007 — Re-record the proofs the fixture change invalidated
@@ -61,6 +63,9 @@ held-out E1 and held-out E2 — a reverted manifest and a reverted byte count ar
 
 ## Intent coverage
 
+- SC1
 - SC5
 
 ## Log
+
+- created
