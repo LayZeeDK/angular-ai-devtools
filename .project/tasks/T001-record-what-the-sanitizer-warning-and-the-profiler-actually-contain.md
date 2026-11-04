@@ -2,10 +2,10 @@
 id: T001
 title: Record what the sanitizer warning and the profiler actually contain
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: f4fd11d6c93c913611009c43a72cca76573b09bb
 worktree: null
 task_branch: null
 files:

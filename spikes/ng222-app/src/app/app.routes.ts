@@ -4,6 +4,7 @@ import { StaleViewDeferredFixture } from './stale-view-deferred-fixture';
 import { ComponentsPage } from './components/components-page';
 import { ImageBudgetPage } from './image-budget-page';
 import { AfterRenderPage } from './after-render-page';
+import { TrustBypassPage } from './trust-bypass-page';
 
 export const routes: Routes = [
   { path: 'stale-view', component: StaleViewFixture },
@@ -11,4 +12,5 @@ export const routes: Routes = [
   { path: 'components', component: ComponentsPage },
   { path: 'image-budget', component: ImageBudgetPage },
   { path: 'after-render', component: AfterRenderPage },
+  { path: 'trust-bypass', component: TrustBypassPage },
 ];

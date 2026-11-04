@@ -1,0 +1,380 @@
+{
+  "probe": "M029 T001 — one page load of the two-binding sanitizer fixture: the browser console list, the profiler events the page agent records, and the relative order of the strip warning against those events",
+  "milestone": "M029",
+  "task": "T001",
+  "capturedAt": "2026-11-04T20:59:47.592Z",
+  "browser": "headless Playwright Chromium (build 153.0.8010.12)",
+  "browserBuild": "153.0.8010.12",
+  "instance": "headless",
+  "playwright": "1.63.0",
+  "angularVersion": "22.2.2",
+  "url": "http://127.0.0.1:4271/trust-bypass",
+  "pageUrl": "http://127.0.0.1:4271/trust-bypass",
+  "commands": {
+    "install": "npm ci --include=dev",
+    "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
+    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 4271 --host 127.0.0.1  (cwd spikes/ng222-app)",
+    "capture": "set M029_CAPTURE=1&& node --test scripts/sanitizer-warning-capture.test.mjs",
+    "check": "node --test scripts/sanitizer-warning-capture.test.mjs",
+    "mutants": "set M029_RECORD=<path to a mutant recording>& node --test scripts/sanitizer-warning-capture.test.mjs"
+  },
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0"
+  },
+  "fixture": {
+    "route": "/trust-bypass",
+    "source": "spikes/ng222-app/src/app/trust-bypass-page.ts",
+    "routeTable": "spikes/ng222-app/src/app/app.routes.ts",
+    "pageLoads": 1,
+    "documentLoads": 1,
+    "documentLoadsNote": "one `load` event per document; a reload inside the measurement would add a second",
+    "loads": [
+      "http://127.0.0.1:4271/trust-bypass"
+    ],
+    "framenavigated": [
+      "http://127.0.0.1:4271/trust-bypass",
+      "http://127.0.0.1:4271/trust-bypass"
+    ],
+    "framenavigatedNote": "framenavigated also fires for the router’s own same-document history write, so two identical URLs here are one document",
+    "strippedScriptRan": false,
+    "bindings": [
+      {
+        "id": "unsafe",
+        "host": "#unsafe",
+        "attribute": "[innerHTML]",
+        "writes": [
+          {
+            "version": 1,
+            "value": "<p>kept paragraph 1</p><script>window.__m029StrippedScriptRan = true;</script>",
+            "rendered": "<p>kept paragraph 1</p>",
+            "expectedRender": "<p>kept paragraph 1</p>",
+            "scriptInValue": true,
+            "scriptInRendered": false,
+            "stripped": true,
+            "when": "initial render"
+          },
+          {
+            "version": 2,
+            "value": "<p>kept paragraph 2</p><script>window.__m029StrippedScriptRan = true;</script>",
+            "rendered": "<p>kept paragraph 2</p>",
+            "expectedRender": "<p>kept paragraph 2</p>",
+            "scriptInValue": true,
+            "scriptInRendered": false,
+            "stripped": true,
+            "when": "the page’s own rewrite button"
+          }
+        ]
+      },
+      {
+        "id": "safe",
+        "host": "#safe",
+        "attribute": "[innerHTML]",
+        "writes": [
+          {
+            "version": 1,
+            "value": "<b>kept in full 1</b>",
+            "rendered": "<b>kept in full 1</b>",
+            "expectedRender": "<b>kept in full 1</b>",
+            "scriptInValue": false,
+            "scriptInRendered": false,
+            "stripped": false,
+            "when": "initial render"
+          },
+          {
+            "version": 2,
+            "value": "<b>kept in full 2</b>",
+            "rendered": "<b>kept in full 2</b>",
+            "expectedRender": "<b>kept in full 2</b>",
+            "scriptInValue": false,
+            "scriptInRendered": false,
+            "stripped": false,
+            "when": "the page’s own rewrite button"
+          }
+        ]
+      }
+    ]
+  },
+  "console": {
+    "channel": "CDP Runtime.consoleAPICalled on the measured page load, one event per console call, arguments joined with a space",
+    "mainWorldContexts": 1,
+    "count": 5,
+    "messages": [
+      {
+        "order": 0,
+        "type": "debug",
+        "text": "[vite] connecting...",
+        "code": null,
+        "timestamp": 1793825985777.594,
+        "executionContextId": 3
+      },
+      {
+        "order": 1,
+        "type": "log",
+        "text": "Angular is running in development mode.",
+        "code": null,
+        "timestamp": 1793825985852.724,
+        "executionContextId": 3
+      },
+      {
+        "order": 2,
+        "type": "warning",
+        "text": "WARNING: sanitizing HTML stripped some content, see https://angular.dev/best-practices/security#preventing-cross-site-scripting-xss",
+        "code": null,
+        "timestamp": 1793825985888.833,
+        "executionContextId": 3
+      },
+      {
+        "order": 3,
+        "type": "debug",
+        "text": "[vite] connected.",
+        "code": null,
+        "timestamp": 1793825985915.499,
+        "executionContextId": 3
+      },
+      {
+        "order": 4,
+        "type": "warning",
+        "text": "WARNING: sanitizing HTML stripped some content, see https://angular.dev/best-practices/security#preventing-cross-site-scripting-xss",
+        "code": null,
+        "timestamp": 1793825986913.518,
+        "executionContextId": 3
+      }
+    ]
+  },
+  "pageTap": {
+    "channel": "in-page tap on console.* at document_start, same page clock (performance.now) as the profiler records",
+    "count": 5,
+    "messages": [
+      {
+        "order": 0,
+        "t": 1288.5999999940395,
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "order": 1,
+        "t": 1365.5999999940395,
+        "type": "log",
+        "text": "Angular is running in development mode."
+      },
+      {
+        "order": 2,
+        "t": 1401,
+        "type": "warn",
+        "text": "WARNING: sanitizing HTML stripped some content, see https://angular.dev/best-practices/security#preventing-cross-site-scripting-xss"
+      },
+      {
+        "order": 3,
+        "t": 1428.2999999970198,
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "order": 4,
+        "t": 2426.2999999970198,
+        "type": "warn",
+        "text": "WARNING: sanitizing HTML stripped some content, see https://angular.dev/best-practices/security#preventing-cross-site-scripting-xss"
+      }
+    ]
+  },
+  "profiler": {
+    "channel": "the page agent’s own records: extension/agent-main.js injected as a MAIN-world init script at document_start, subscribing ng.ɵsetProfiler and dispatching angular-ai:record; each record kept with its component checks and their ProfilerEvent numbers (2 TemplateUpdateStart, 3 TemplateUpdateEnd, 6 OutputStart, 7 OutputEnd), the signal graph dropped",
+    "installedAt": 1426.699999988079,
+    "count": 2,
+    "records": [
+      {
+        "order": 0,
+        "t": 1931,
+        "cycleId": 1,
+        "startedAt": 1930.7999999970198,
+        "trigger": {
+          "kind": "unknown",
+          "listenerName": null
+        },
+        "zoneMode": "noop",
+        "checks": [
+          {
+            "componentName": "_App",
+            "className": "_App",
+            "changeDetection": "onpush",
+            "events": [],
+            "changedNodeIds": [],
+            "graphNodeCount": 3
+          }
+        ]
+      },
+      {
+        "order": 1,
+        "t": 2430.5999999940395,
+        "cycleId": 2,
+        "startedAt": 2424.699999988079,
+        "trigger": {
+          "kind": "output",
+          "listenerName": "click"
+        },
+        "zoneMode": "noop",
+        "checks": [
+          {
+            "componentName": "app-root",
+            "className": "_App",
+            "changeDetection": "onpush",
+            "events": [
+              2,
+              3
+            ],
+            "changedNodeIds": [],
+            "graphNodeCount": 3
+          },
+          {
+            "componentName": "app-trust-bypass-page",
+            "className": "_TrustBypassPage",
+            "changeDetection": "onpush",
+            "events": [
+              2,
+              3
+            ],
+            "changedNodeIds": [],
+            "graphNodeCount": 5
+          }
+        ]
+      }
+    ]
+  },
+  "contains": {
+    "console": {
+      "messages": 5,
+      "warnings": 2,
+      "sanitizerWarnings": 2,
+      "messagesCarryingAnNgCode": 0,
+      "distinctSanitizerWarningTexts": [
+        "WARNING: sanitizing HTML stripped some content, see https://angular.dev/best-practices/security#preventing-cross-site-scripting-xss"
+      ]
+    },
+    "pageTap": {
+      "messages": 5,
+      "warnings": 2
+    },
+    "profiler": {
+      "records": 2,
+      "recordsCarryingTemplateUpdateEvents": 1,
+      "checksCarryingTemplateUpdateEvents": 2,
+      "eventNumbers": [
+        2,
+        3
+      ],
+      "checkFields": [
+        "componentName",
+        "className",
+        "changeDetection",
+        "events",
+        "changedNodeIds",
+        "graphNodeCount"
+      ],
+      "namesTheBinding": false,
+      "identifiesTheWrittenElement": false,
+      "syntheticRecords": 1
+    },
+    "ordering": {
+      "occurrences": 2,
+      "occurrencesWithACoveringRecord": 1,
+      "occurrencesWithoutACoveringRecord": 1,
+      "firstWritePrecededTheSubscription": true,
+      "sharesPosition": true
+    }
+  },
+  "ordering": {
+    "clock": "performance.now() of the measured document; the console tap and the record listener run in that document, so the interleaved sequence is measured on one clock rather than compared across two",
+    "definition": "An occurrence shares a position with a profiler event when (a) its page-clock time falls inside the template-update window [record.startedAt, record.t] of a record carrying TemplateUpdateStart (2) and TemplateUpdateEnd (3), and (b) no other console message or record was observed between the warning and that record’s dispatch. A record carries component checks and event numbers only, so a shared position is with the record, never with a single binding.",
+    "sequence": [
+      {
+        "order": 0,
+        "source": "console",
+        "ref": 0,
+        "t": 1288.5999999940395,
+        "name": "console:debug"
+      },
+      {
+        "order": 1,
+        "source": "console",
+        "ref": 1,
+        "t": 1365.5999999940395,
+        "name": "console:log"
+      },
+      {
+        "order": 2,
+        "source": "console",
+        "ref": 2,
+        "t": 1401,
+        "name": "console:warn"
+      },
+      {
+        "order": 3,
+        "source": "console",
+        "ref": 3,
+        "t": 1428.2999999970198,
+        "name": "console:debug"
+      },
+      {
+        "order": 4,
+        "source": "profiler",
+        "ref": 0,
+        "t": 1931,
+        "name": "record:cycle-1"
+      },
+      {
+        "order": 5,
+        "source": "console",
+        "ref": 4,
+        "t": 2426.2999999970198,
+        "name": "console:warn"
+      },
+      {
+        "order": 6,
+        "source": "profiler",
+        "ref": 1,
+        "t": 2430.5999999940395,
+        "name": "record:cycle-2"
+      }
+    ],
+    "occurrences": [
+      {
+        "id": "unsafe-write-1",
+        "binding": "unsafe",
+        "writeVersion": 1,
+        "warningConsole": 2,
+        "warningTap": 2,
+        "warningTapTime": 1401,
+        "coveringRecord": null,
+        "coveringCycleId": null,
+        "coveringRecordTapTime": null,
+        "insideTemplateUpdateWindow": false,
+        "positionsBetween": null,
+        "sharesPositionWithBindingEvent": false,
+        "reading": "the warning at page-clock 1401 has no covering profiler record in this load: the agent's profiler subscription came up at 1426.699999988079, after this write; the first record of the load is cycle 1 with events []"
+      },
+      {
+        "id": "unsafe-write-2",
+        "binding": "unsafe",
+        "writeVersion": 2,
+        "warningConsole": 4,
+        "warningTap": 4,
+        "warningTapTime": 2426.2999999970198,
+        "coveringRecord": 1,
+        "coveringCycleId": 2,
+        "coveringRecordTapTime": 2430.5999999940395,
+        "insideTemplateUpdateWindow": true,
+        "positionsBetween": 0,
+        "sharesPositionWithBindingEvent": true,
+        "reading": "the warning at page-clock 2426.2999999970198 falls inside cycle 2's template-update window [2424.699999988079, 2430.5999999940395], which records app-root events [2,3], app-trust-bypass-page events [2,3] and names no binding, so the warning shares a position with the record and with no single event"
+      }
+    ],
+    "sharesPosition": {
+      "any": true,
+      "occurrences": [
+        "unsafe-write-2"
+      ]
+    }
+  }
+}
