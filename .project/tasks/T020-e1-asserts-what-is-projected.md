@@ -3,10 +3,10 @@ id: T020
 title: E1 asserts what is projected
 wave: 8
 deps: [T009]
-status: in-progress
+status: done
 agent: build_T020
-base: 2bde30d46a5295e4e178f9a77a63aa552b1b8260
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 2eb0bdacaa16136dab499246a2bdb5715725ca98
+worktree: null
 task_branch: null
 files:
   - tests/held-out/fixture-harness-root-boundary.test.mjs
