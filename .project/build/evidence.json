@@ -1,7 +1,7 @@
 {
   "canonical_project_dir": ".project",
   "command": "verify-landed",
-  "head": "8d01c1e7b8fb52e44a7d3c29000c16b1753d42a3",
+  "head": "524a679a525734eda8299671d2c5309d1fe97d9b",
   "project_dir": ".project",
   "tasks": [
     {
@@ -16,7 +16,7 @@
             "valid": true
           }
         ],
-        "head": "8d01c1e7b8fb52e44a7d3c29000c16b1753d42a3",
+        "head": "524a679a525734eda8299671d2c5309d1fe97d9b",
         "subject": "T001: The extension gets a type check that runs"
       },
       "landed_commit": "edd0740d179166774674a9ce1c9443118faca249",
@@ -40,7 +40,7 @@
             "valid": true
           }
         ],
-        "head": "8d01c1e7b8fb52e44a7d3c29000c16b1753d42a3",
+        "head": "524a679a525734eda8299671d2c5309d1fe97d9b",
         "subject": "T002: Fix the thirteen real defects"
       },
       "landed_commit": "00f105be61dc381382fa7d276aa817435dce01c3",
@@ -64,7 +64,7 @@
             "valid": true
           }
         ],
-        "head": "8d01c1e7b8fb52e44a7d3c29000c16b1753d42a3",
+        "head": "524a679a525734eda8299671d2c5309d1fe97d9b",
         "subject": "T003: Prove the extension check bites"
       },
       "landed_commit": "e50cb499531736cbf6a3dba66d041c2f1dce57d5",
@@ -74,6 +74,30 @@
         "id": "T003",
         "status": "done",
         "task_file": ".project/tasks/T003-prove-the-extension-check-bites.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M025",
+        "candidates": [
+          {
+            "base": "80f915db2217f44a438ddce13e3c67503dda8a4a",
+            "commit": "65c7f4efb7f9e6e230f69042223f7ded033d2a63",
+            "valid": true
+          }
+        ],
+        "head": "524a679a525734eda8299671d2c5309d1fe97d9b",
+        "subject": "T004: The check chain and the recording the gate needs"
+      },
+      "landed_commit": "65c7f4efb7f9e6e230f69042223f7ded033d2a63",
+      "reasons": [],
+      "task": {
+        "base": "80f915db2217f44a438ddce13e3c67503dda8a4a",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-the-check-chain-and-the-recording-the-gate-needs.md"
       }
     }
   ]
