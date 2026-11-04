@@ -21,8 +21,8 @@ files:
 T001 built the digest over a set of thirteen codes derived by grepping the installed bundles for image wording.
 Reverified against the local clone at the installed tag (`D:\projects\github\angular\angular`, tag `v22.1.8`,
 read with `git grep`/`git show` so the clone's own checkout is undisturbed), the image directive declares **seventeen**
-codes in its own `RuntimeErrorCode` block — `packages/common/src/errors.ts` lines 46–63 — and core adds `NG0913`
-(`packages/core/src/errors.ts:130`, `IMAGE_PERFORMANCE_WARNING = -913`).
+codes in its own `RuntimeErrorCode` block — the clone's packages/common/src/errors.ts lines 46–63 — and core adds `NG0913`
+(the clone's packages/core/src/errors.ts line 130, `IMAGE_PERFORMANCE_WARNING = -913`).
 
 Five codes were missed because their messages do not contain the words the grep looked for: `NG2950`
 (`UNEXPECTED_SRC_ATTR`), `NG2951` (`UNEXPECTED_SRCSET_ATTR`), `NG2953` (`UNEXPECTED_INPUT_CHANGE`), `NG2954`
@@ -32,7 +32,7 @@ Five codes were missed because their messages do not contain the words the grep 
 
 1. Add the five missing codes, so the digest carries eighteen entries and no others.
 2. Take each new meaning from the clone at `v22.1.8` — the enum name gives the subject, and the `formatRuntimeError`
-   call site under `packages/common/src/directives/ng_optimized_image/ng_optimized_image.ts` gives the wording. Name
+   call site under the clone's ng_optimized_image.ts gives the wording. Name
    the file and line in a comment for each new entry; do not paraphrase from memory.
 3. Regenerate `extension/image-digest.json` so the artefact stays byte-identical to a rebuild.
 4. Keep the 150-token upper bound (`ceil(len/3)`) and the licence strip unchanged; every new entry passes both.
@@ -65,3 +65,5 @@ held-out E1 and held-out E2 — an omitted code, an extra code and an over-cap e
 - SC2
 
 ## Log
+
+- created
