@@ -2,10 +2,10 @@
 id: T004
 title: Prove the vetted bypass as an absence
 wave: 2
-status: pending
+status: done
 deps: [T002]
-agent: null
-base: null
+agent: build_T004
+base: 027e28671ea48898569b3d779358f9051434770f
 worktree: null
 task_branch: null
 files:
