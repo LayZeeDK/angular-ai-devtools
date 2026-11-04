@@ -30,16 +30,16 @@ Tasks reviewed: 3
 
 ## Intent coverage
 
-### SC1 — A named script runs every suite under `tests/held-out/`, and it is reachable from the project gate so a red suite fails the build.: pass
+### SC1 — A named script runs every suite under `tests/held-out/`, and it is reachable from the project gate so a red suite fails the build.
 - ✅ `package.json` chains `npm run test:held-out` (`node scripts/held-out-corpus.mjs`) into `npm test` after `test:app`; the script enumerates every `tests/held-out/**/*.test.mjs` (19 real suites enumerated and passed in this review's fixture run) and exits 1 naming any failing file, which the `&&` chain propagates to the build.
 
-### SC2 — Every suite in `tests/held-out/` passes under that script in a fresh checkout with no `.project/` directory present.: pass
+### SC2 — Every suite in `tests/held-out/` passes under that script in a fresh checkout with no `.project/` directory present.
 - ✅ On the reading sanctioned by the orchestrator's ruling on T004 AC1 (see warning): this review ran the real corpus (19 of 22 suites, `node_modules` linked) with no `.project/` directory anywhere under the root — exit 0, every suite named PASS. The two suites the fixture proof excludes (`e3-zero-skipped`, `e4-idempotent-checks`) drive `npm test` by design and redden only through the project gate, which reads `.project/` legitimately; the third exclusion (`fixture-rebuild-idempotent`, `ng build`) runs in the corpus proper and is named with its reason in `scripts/held-out-corpus.test.mjs:361-365`.
 
-### SC3 — No suite under `tests/held-out/` reads any path under `.project/`, demonstrated by running the corpus with that directory moved aside.: pass
+### SC3 — No suite under `tests/held-out/` reads any path under `.project/`, demonstrated by running the corpus with that directory moved aside.
 - ✅ Grep of `tests/held-out/` for `.project` finds only comments: `e7-archive-order.test.mjs:11,15,26` (provenance text, never read) and `fixture-harness-root-boundary.test.mjs:12,34` (the string `.projected`, not a path). No executable read remains — the wave-1 cycle-1 blocker is gone. Demonstrated by run: the real-corpus fixture run (this review, 10/10) executes 19 real suites with `.project/` deleted from the root and asserts no `FAIL` lines and no `.project` directory created.
 
-### SC4 — The ten suites that read `.project/review/rounds/` or `.project/review/specs/` are either deleted with their claim recorded, or re-homed so their claim is asserted from data the suite carries.: pass
+### SC4 — The ten suites that read `.project/review/rounds/` or `.project/review/specs/` are either deleted with their claim recorded, or re-homed so their claim is asserted from data the suite carries.
 - ✅ The ten are deleted and each claim recorded in `.project/plan/RETIRED-SUITES.md` (present, guarded by `scripts/retired-suites.test.mjs`, 4/4 on this review's re-run); the guard refuses a missing row, a blanked claim, a recreated file and a dangling basename.
 
 ## Fixed since last cycle
