@@ -1,0 +1,109 @@
+{
+  "version": "22.2.x",
+  "entries": [
+    {
+      "code": "NG0913",
+      "title": "An image that is the LCP element was given loading=\"lazy\".",
+      "body": "An image that is the LCP element was given loading=\"lazy\". Change its loading value to eager or use NgOptimizedImage prioritization.",
+      "meaning": "An image that is the LCP element was given loading=\"lazy\".",
+      "fix": "Change its loading value to eager or use NgOptimizedImage prioritization.",
+      "tokens": 44
+    },
+    {
+      "code": "NG2952",
+      "title": "NgOptimizedImage reported an image aspect-ratio, fill, or loading attribute problem.",
+      "body": "NgOptimizedImage reported an image aspect-ratio, fill, or loading attribute problem. Correct the width, height, fill, or loading attribute per the warning.",
+      "meaning": "NgOptimizedImage reported an image aspect-ratio, fill, or loading attribute problem.",
+      "fix": "Correct the width, height, fill, or loading attribute per the warning.",
+      "tokens": 52
+    },
+    {
+      "code": "NG2955",
+      "title": "An image is the LCP element but was not marked priority.",
+      "body": "An image is the LCP element but was not marked priority. Add the priority attribute to that image.",
+      "meaning": "An image is the LCP element but was not marked priority.",
+      "fix": "Add the priority attribute to that image.",
+      "tokens": 33
+    },
+    {
+      "code": "NG2956",
+      "title": "A priority image has no preconnect tag for its origin.",
+      "body": "A priority image has no preconnect tag for its origin. Add a preconnect link for the image origin in the document head.",
+      "meaning": "A priority image has no preconnect tag for its origin.",
+      "fix": "Add a preconnect link for the image origin in the document head.",
+      "tokens": 40
+    },
+    {
+      "code": "NG2959",
+      "title": "The Netlify image loader saw an unsupported attribute.",
+      "body": "The Netlify image loader saw an unsupported attribute. Remove the unsupported attribute from the img tag.",
+      "meaning": "The Netlify image loader saw an unsupported attribute.",
+      "fix": "Remove the unsupported attribute from the img tag.",
+      "tokens": 35
+    },
+    {
+      "code": "NG2960",
+      "title": "The intrinsic image is significantly larger than necessary.",
+      "body": "The intrinsic image is significantly larger than necessary. Resize the image or use ngSrcset and sizes.",
+      "meaning": "The intrinsic image is significantly larger than necessary.",
+      "fix": "Resize the image or use ngSrcset and sizes.",
+      "tokens": 35
+    },
+    {
+      "code": "NG2961",
+      "title": "More than the default preloaded image limit were marked priority.",
+      "body": "More than the default preloaded image limit were marked priority. Remove priority from less important images.",
+      "meaning": "More than the default preloaded image limit were marked priority.",
+      "fix": "Remove priority from less important images.",
+      "tokens": 37
+    },
+    {
+      "code": "NG2962",
+      "title": "Images look hosted on a CDN but no matching loader is configured.",
+      "body": "Images look hosted on a CDN but no matching loader is configured. Provide the built-in loader or define a custom IMAGE_LOADER.",
+      "meaning": "Images look hosted on a CDN but no matching loader is configured.",
+      "fix": "Provide the built-in loader or define a custom IMAGE_LOADER.",
+      "tokens": 42
+    },
+    {
+      "code": "NG2963",
+      "title": "ngSrcset or loaderParams is present but no image loader is configured.",
+      "body": "ngSrcset or loaderParams is present but no image loader is configured. Provide a loader or remove ngSrcset and loaderParams.",
+      "meaning": "ngSrcset or loaderParams is present but no image loader is configured.",
+      "fix": "Provide a loader or remove ngSrcset and loaderParams.",
+      "tokens": 42
+    },
+    {
+      "code": "NG2964",
+      "title": "An LCP image had its ngSrc modified after render.",
+      "body": "An LCP image had its ngSrc modified after render. Do not modify ngSrc on an LCP image.",
+      "meaning": "An LCP image had its ngSrc modified after render.",
+      "fix": "Do not modify ngSrc on an LCP image.",
+      "tokens": 29
+    },
+    {
+      "code": "NG2965",
+      "title": "A placeholder data URL is longer than the recommended limit.",
+      "body": "A placeholder data URL is longer than the recommended limit. Use a smaller data URL placeholder.",
+      "meaning": "A placeholder data URL is longer than the recommended limit.",
+      "fix": "Use a smaller data URL placeholder.",
+      "tokens": 32
+    },
+    {
+      "code": "NG2966",
+      "title": "The priority attribute is set more than the threshold number of times.",
+      "body": "The priority attribute is set more than the threshold number of times. Reserve priority for the LCP image only.",
+      "meaning": "The priority attribute is set more than the threshold number of times.",
+      "fix": "Reserve priority for the LCP image only.",
+      "tokens": 37
+    },
+    {
+      "code": "NG2967",
+      "title": "A placeholder image exceeds the dimension limit.",
+      "body": "A placeholder image exceeds the dimension limit. Use a smaller image as the placeholder.",
+      "meaning": "A placeholder image exceeds the dimension limit.",
+      "fix": "Use a smaller image as the placeholder.",
+      "tokens": 30
+    }
+  ]
+}

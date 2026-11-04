@@ -2,11 +2,11 @@
 id: T001
 title: The digest carries thirteen measured image codes
 wave: 1
-status: in-progress
+status: done
 deps: []
 agent: build_T001
-base: bc95ae0de341581c10bff78cf74a955777621a09
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 17769173ecf6f2a38f091d13e634166a0904671a
+worktree: null
 task_branch: null
 files:
   - scripts/image-digest.mjs
