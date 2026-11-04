@@ -996,8 +996,10 @@ Open questions
 Goal: Build COM-1, why an image is slow and why the console warned about it, filling N4's missing image codes from NG02200 through NG02800.
 Depends on: [M020]
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Re-scope: the roadmap asked for codes NG02200-NG02800; Angular 22.1.8 declares none in that range, so the digest covers the eighteen codes the image directive and core actually emit.
+Shipped: 2026-11-04 — the image digest covers the eighteen codes Angular 22.1.8 declares, generated at build time, with COM-1 proven on a transcribed sample; the browser capture is carried to the next milestone.
+Archive: .project/archive/026-image-budget-audit
 Integrated: null
 
 Scope: in
