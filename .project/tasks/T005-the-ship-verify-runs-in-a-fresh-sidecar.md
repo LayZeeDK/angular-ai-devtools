@@ -3,10 +3,10 @@ id: T005
 title: The ship verify runs in a fresh sidecar
 wave: 3
 deps: [T004]
-status: in-progress
+status: done
 agent: build_T005
-base: 018c919cba70a6215ce962de7a6062e76d9382cc
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 0cf151f7084dc18dbbfa3982e5a9886f841d984d
+worktree: null
 task_branch: null
 files:
   - .project/plan/PLAN.md

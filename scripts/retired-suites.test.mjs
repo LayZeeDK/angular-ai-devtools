@@ -88,6 +88,9 @@ const NAMING_ALLOWED = [
   // this milestone's own task files, which name the ten because retiring them is the task, and which the ship
   // flow moves into the archive above.
   ['.project', 'tasks'],
+  // this milestone's review artifacts, which name the ten because a review records what it reviewed: quoting a
+  // retired suite there is the record working, not a live reference, and the ship flow moves it into the archive.
+  ['.project', 'review'],
 ];
 
 /**
