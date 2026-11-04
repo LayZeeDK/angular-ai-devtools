@@ -10,6 +10,7 @@ worktree: null
 task_branch: null
 files:
   - spikes/ng222-app/src/app/image-budget-page.ts
+  - spikes/ng222-app/src/app/app.routes.ts
   - scripts/image-finding.test.mjs
 ---
 
