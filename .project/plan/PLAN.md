@@ -38,7 +38,7 @@ Review depth: full
 
 ## Surface contract
 
-### image-budget finding surface — T004
+### panel — T004
 
 Criteria: SC5
 Entry: open the panel's feature list and select the image-budget finding produced by the fixture page added in T003; the same surface is reachable from the finding's row in the panel.
