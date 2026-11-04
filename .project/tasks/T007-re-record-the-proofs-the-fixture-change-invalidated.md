@@ -33,8 +33,7 @@ These suites are doing their job: a recording that quietly stopped matching woul
 ## Approach
 
 1. Re-record both skills' `features/.proven.json` with the skills' own recorder — `fingerprint.mjs`'s `record`
-   command, not an edit by hand. Read `scripts/fingerprint.mjs` for the invocation; it exposes `record`, `main` and
-   `MANIFEST = 'features/.proven.json'`.
+   command, not an edit by hand. Read the skill's own scripts/fingerprint.mjs for the invocation; it exposes record, main and MANIFEST = 'features/.proven.json'.
 2. Re-measure the development build and update `research/raw/m022-ng-context.json` so its `bytes` equals the emitted
    size, leaving every other recorded field as it is. Change the measurement, never the assertion that compares it.
 3. Prove each re-record bites: revert the recording to its pre-task value and watch the suite redden naming the file
