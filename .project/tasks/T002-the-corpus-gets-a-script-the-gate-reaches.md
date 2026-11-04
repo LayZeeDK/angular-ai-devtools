@@ -45,6 +45,8 @@ None
 5. Acceptance is held-out E1: the script runs every suite under the corpus, and `npm test` reaches it.
 
 
+## Verify
+
 ```bash
 npm ci --include=dev; node scripts/held-out-corpus.mjs
 ```

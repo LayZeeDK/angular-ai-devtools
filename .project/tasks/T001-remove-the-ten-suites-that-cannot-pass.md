@@ -44,6 +44,8 @@ None
 5. Acceptance is held-out E5: a retired suite with no recorded claim is named by `scripts/retired-suites.test.mjs`.
 
 
+## Verify
+
 ```bash
 npm ci --include=dev; node --test scripts/retired-suites.test.mjs
 ```

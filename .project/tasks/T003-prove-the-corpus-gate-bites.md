@@ -44,6 +44,8 @@ None
 5. Acceptance is held-out E2, E3 and E4: the named gate condition, the run with no project directory, and the absent-prerequisite failure.
 
 
+## Verify
+
 ```bash
 npm ci --include=dev; node --test scripts/held-out-corpus.test.mjs
 ```
