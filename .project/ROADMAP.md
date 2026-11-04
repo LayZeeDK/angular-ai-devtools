@@ -1071,8 +1071,8 @@ Risks
 Goal: Build COR-1, why `afterNextRender` read `offsetWidth` as 0, from the ordered profiler after-render events.
 Depends on: [M020]
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/028-after-render-ordering
 Integrated: null
 
 Scope: in

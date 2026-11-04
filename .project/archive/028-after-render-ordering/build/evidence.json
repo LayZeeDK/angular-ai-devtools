@@ -1,0 +1,104 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "c708f6529ff39d03bd8a10ea575793d9e325090d",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M028",
+        "candidates": [
+          {
+            "base": "fb5717a997eb05dd654449cd3b1b6a8d2fa95c59",
+            "commit": "c55790f0ca317230fa9c200f022dbaf679996d22",
+            "valid": true
+          }
+        ],
+        "head": "c708f6529ff39d03bd8a10ea575793d9e325090d",
+        "subject": "T001: Give the fixture an after-render read"
+      },
+      "landed_commit": "c55790f0ca317230fa9c200f022dbaf679996d22",
+      "reasons": [],
+      "task": {
+        "base": "fb5717a997eb05dd654449cd3b1b6a8d2fa95c59",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-give-the-fixture-an-after-render-read.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M028",
+        "candidates": [
+          {
+            "base": "c55790f0ca317230fa9c200f022dbaf679996d22",
+            "commit": "d2a48e42ef3ddd19ade24ffb77d3666e85245c3a",
+            "valid": true
+          }
+        ],
+        "head": "c708f6529ff39d03bd8a10ea575793d9e325090d",
+        "subject": "T002: Order the after-render events around the read"
+      },
+      "landed_commit": "d2a48e42ef3ddd19ade24ffb77d3666e85245c3a",
+      "reasons": [],
+      "task": {
+        "base": "c55790f0ca317230fa9c200f022dbaf679996d22",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-order-the-after-render-events-around-the-read.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M028",
+        "candidates": [
+          {
+            "base": "14d06228d4484db16bc98af41a25f518475754c6",
+            "commit": "b5a66ce7cf9ee4de1cea41f77fbcd8c594044e88",
+            "valid": true
+          }
+        ],
+        "head": "c708f6529ff39d03bd8a10ea575793d9e325090d",
+        "subject": "T003: Render the ordered chain on the panel"
+      },
+      "landed_commit": "b5a66ce7cf9ee4de1cea41f77fbcd8c594044e88",
+      "reasons": [],
+      "task": {
+        "base": "14d06228d4484db16bc98af41a25f518475754c6",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-render-the-ordered-chain-on-the-panel.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M028",
+        "candidates": [
+          {
+            "base": "b5a66ce7cf9ee4de1cea41f77fbcd8c594044e88",
+            "commit": "da1aff0a13512b0f77e9a556faee7aa2c962ef6d",
+            "valid": true
+          }
+        ],
+        "head": "c708f6529ff39d03bd8a10ea575793d9e325090d",
+        "subject": "T004: Re-record what the fixture change invalidated"
+      },
+      "landed_commit": "da1aff0a13512b0f77e9a556faee7aa2c962ef6d",
+      "reasons": [],
+      "task": {
+        "base": "b5a66ce7cf9ee4de1cea41f77fbcd8c594044e88",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-re-record-what-the-fixture-change-invalidated.md"
+      }
+    }
+  ]
+}

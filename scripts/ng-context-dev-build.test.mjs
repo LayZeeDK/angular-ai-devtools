@@ -87,12 +87,14 @@ const OUTPUT_DIRECTORIES = {
 
 /**
  * The development build embeds absolute paths (the output path and the checkout path), so its total byte count
- * varies by where it is built: 1,900,983 bytes in `tmp/ng-context/dev` in this checkout, 1,901,023 bytes in
- * `tmp/probe-dev` (+40 bytes from the output directory alone), and 1,899,687 bytes in the ship Verify's sidecar
- * checkout (-1,296 bytes from the checkout). The observed spread is therefore about 1,336 bytes, so a tolerance of
- * 2,000 bytes is large enough to absorb a different checkout or output path and small enough that a real regression
- * — which changes the bundle by far more than that — still fails. The structural fields below are still compared
- * exactly, so only the volatile size is relaxed.
+ * varies by where it is built: re-measured for the recording compared below, 1,902,757 bytes in `tmp/ng-context/dev`
+ * in this checkout, and 1,902,797 bytes on another run of the same command at the same path (+40 bytes without
+ * moving anything). When the bound was sized the spread across locations was about 1,336 bytes: 1,901,023 bytes in
+ * `tmp/probe-dev` (+40 bytes from the output directory alone) and 1,899,687 bytes in the ship Verify's sidecar
+ * checkout (-1,296 bytes from the checkout). A tolerance of 2,000 bytes is therefore large enough to absorb a
+ * different checkout, a different output path or a plain rebuild, and small enough that a real regression — which
+ * changes the bundle by far more than that — still fails. The structural fields below are still compared exactly, so
+ * only the volatile size is relaxed.
  */
 const DEV_BYTES_TOLERANCE = 2000;
 const OUTPUT_PATHS = { development: 'tmp/ng-context/dev', production: 'tmp/ng-context/prod' };

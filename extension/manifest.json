@@ -31,6 +31,11 @@
       "matches": ["<all_urls>"],
       "js": ["observer-filter.js", "overlay-geometry.js", "overlay.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["after-render.js"],
+      "run_at": "document_start"
     }
   ],
   "devtools_page": "devtools.html",

@@ -15,7 +15,7 @@
       "bundles": [
         "main.js"
       ],
-      "bytes": 1900983,
+      "bytes": 1902757,
       "unminified": true,
       "ngContextWrite": {
         "present": true,
@@ -46,18 +46,18 @@
     "production": {
       "configuration": "production",
       "bundles": [
-        "main-T6CUO5XO.js"
+        "main-4KL4US2I.js"
       ],
-      "bytes": 389015,
+      "bytes": 389645,
       "unminified": false,
       "ngContextWrite": {
         "present": true,
-        "binding": "var Im=\"__ngContext__\"",
-        "identifier": "Im",
+        "binding": "var Mm=\"__ngContext__\"",
+        "identifier": "Mm",
         "writeSites": 2,
         "writeSnippets": [
-          "__ngContext__\";function lo(e,t){on(t)?(e[Im]=t[ri],NS(t)):e[Im]=t}function vg(e){return yg(e[Xr])}fu",
-          "tion lo(e,t){on(t)?(e[Im]=t[ri],NS(t)):e[Im]=t}function vg(e){return yg(e[Xr])}function bg(e){return"
+          "__ngContext__\";function lo(e,t){on(t)?(e[Mm]=t[ri],LS(t)):e[Mm]=t}function wg(e){return Eg(e[Xr])}fu",
+          "tion lo(e,t){on(t)?(e[Mm]=t[ri],LS(t)):e[Mm]=t}function wg(e){return Eg(e[Xr])}function Sg(e){return"
         ]
       },
       "ngGlobalSurface": {
@@ -80,7 +80,7 @@
   "differential": {
     "ngContextWrite": "present in both configurations",
     "ngGlobalSurface": "development only",
-    "meaning": "attachPatchData writes __ngContext__ in both configurations — the development bundle names the property through MONKEY_PATCH_KEY_NAME, the production bundle through the minified alias od — while the surface that would read it, window.ng, is published only in the development build. The property is not dev-only; the debug API is."
+    "meaning": "attachPatchData writes __ngContext__ in both configurations — the development bundle names the property through MONKEY_PATCH_KEY_NAME, the production bundle through the minified alias Mm — while the surface that would read it, window.ng, is published only in the development build. The property is not dev-only; the debug API is."
   },
   "served": {
     "driver": "spikes/probes/ng-context.js",

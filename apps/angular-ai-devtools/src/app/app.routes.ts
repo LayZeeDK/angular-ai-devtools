@@ -17,4 +17,7 @@ export const appRoutes: Route[] = [
   // is measured from the eager references in the built index, and nothing eager may import it.
   { path: 'picker', loadComponent: () => import('./page-picker.component').then((m) => m.PagePickerComponent) },
   { path: 'image-budget', loadComponent: () => import('./image-budget').then((m) => m.imageBudget as any) },
+  // The M028 SC4 surface: the ordered after-render chain, or the state that names its absence.
+  // Lazy for the same reason as the three above it — the panel's eager bundle is measured.
+  { path: 'after-render', loadComponent: () => import('./after-render').then((m) => m.afterRenderPanel as any) },
 ];

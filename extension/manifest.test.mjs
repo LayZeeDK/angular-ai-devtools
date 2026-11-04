@@ -1,6 +1,10 @@
 // Tests for extension/manifest.json — the first pin this manifest has had.
 // Written to survive the third declaration the overlay task adds: every assertion is about a named
 // declaration or about every declaration, never about how many there are.
+//
+// M028 T003 adds the fourth declaration: `after-render.js` at `document_start`, which executes the
+// ordering module T002 shipped but nothing loaded. The new pins below assert that declaration and
+// its position, and every pin written before it is kept as it was.
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { existsSync, readFileSync } from "node:fs";
@@ -13,6 +17,7 @@ const FILTER = "observer-filter.js";
 const RELAY = "relay.js";
 const AGENT_MAIN = "agent-main.js";
 const OVERLAY = "overlay.js";
+const AFTER_RENDER = "after-render.js";
 
 /** Every file the manifest names, whichever declaration names it. */
 function namedFiles(manifest) {
@@ -67,9 +72,31 @@ describe("extension/manifest.json", () => {
     assert.deepEqual(overlayDeclaration.matches, ["<all_urls>"], "the overlay matches the pages the other declarations match");
   });
 
+  it("declares the after-render ordering module at document_start, in its own ISOLATED-world declaration", () => {
+    const declarations = MANIFEST.content_scripts || [];
+    const afterRenderDeclaration = declarationFor(AFTER_RENDER);
+    assert.equal(afterRenderDeclaration.run_at, "document_start", "the ordering module must exist before the page's own scripts run");
+    assert.deepEqual(afterRenderDeclaration.js, [AFTER_RENDER], "the module imports nothing and calls no shipped predicate, so it is listed alone");
+    assert.ok(!("world" in afterRenderDeclaration), "no world key: the module publishes its export in the ISOLATED world and adds nothing to the page's (N1)");
+    assert.deepEqual(afterRenderDeclaration.matches, ["<all_urls>"], "it matches the pages the other declarations match");
+
+    // Position: the new declaration is the last one, and it follows the overlay's document_start
+    // declaration, so the two document_start units keep the order the manifest states.
+    assert.equal(
+      declarations.indexOf(afterRenderDeclaration),
+      declarations.length - 1,
+      "the after-render declaration is appended after the declarations that shipped before it",
+    );
+    const overlayDeclaration = declarationFor(OVERLAY);
+    assert.ok(
+      declarations.indexOf(overlayDeclaration) < declarations.indexOf(afterRenderDeclaration),
+      "the overlay host is declared before the ordering module",
+    );
+  });
+
   it("declares each content-script unit exactly once, and the shared filter in both declarations that use it", () => {
     const declarations = MANIFEST.content_scripts || [];
-    for (const unit of [RELAY, AGENT_MAIN, OVERLAY]) {
+    for (const unit of [RELAY, AGENT_MAIN, OVERLAY, AFTER_RENDER]) {
       const count = declarations.filter((declaration) => (declaration.js || []).includes(unit)).length;
       assert.equal(count, 1, `${unit} must be named by exactly one declaration, or it runs twice in a page`);
     }
