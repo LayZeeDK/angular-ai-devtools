@@ -64,6 +64,41 @@ No intent edge: this task re-records data. The proof is the reverted-recording m
 
 - SC5
 
+## Attempt 1 — the byte count is path-dependent, so re-recording fixes nothing
+
+Re-recording set the development `bytes` to 1,900,983, which matches the suite's own output path
+(`tmp/ng-context/dev`) in this checkout. It does **not** fix the ship Verify, and here is the measurement:
+
+| Where the build ran | Bytes |
+|---|---|
+| `tmp/ng-context/dev` in this checkout | 1,900,983 |
+| `tmp/probe-dev` in this checkout | 1,901,023 |
+| the ship Verify's sidecar checkout | 1,899,687 |
+
+A 40-byte difference from changing only the output directory, and 1,296 bytes from changing the checkout. The
+development build embeds absolute paths, so **exact byte equality on this artefact is not portable** — the suite
+passes here and fails in any sidecar. Nudging the recorded number is the same defect as pinning a port.
+
+### What attempt 2 must do
+
+1. Make the development-bundle comparison **path-independent**, and say why in a comment beside the assertion. Name
+   the cause: the development build embeds absolute paths, so its size varies with the checkout and output path.
+   Prefer a bounded comparison — `Math.abs(actual - recorded) <= TOLERANCE` with a named constant and a stated
+   reason — and keep **every structural field** compared exactly as it is today (`bundles`, `unminified`,
+   `ngContextWrite`, `ngGlobalSurface`, `command`, `configuration`, `outputPath`). The size is evidence of "roughly
+   the same build"; the structure is evidence of the same build.
+2. Prove the bound from both sides and report what each printed: a recording differing by **more** than the tolerance
+   reddens; a recording differing by **less** than it stays green. A tolerance with only one direction proven is not
+   a fix.
+3. Keep the rest of attempt 1: both `features/.proven.json` files re-recorded with the skills' own recorder, proven
+   by reverting each.
+
+### What this task must not do
+
+- Widen the tolerance until everything passes; state the number and justify it from the measurements above.
+- Stop comparing the structural fields, which are what actually identify the build.
+
 ## Log
 
 - created
+- Re-recorded both manifests and dev bytes; suites pass
