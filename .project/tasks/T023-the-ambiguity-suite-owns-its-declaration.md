@@ -3,10 +3,10 @@ id: T023
 title: The ambiguity suite owns its declaration
 wave: 9
 deps: [T021]
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T023
+base: f13092b688d0a7e2da23d12d17269677d984303b
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - tests/held-out/fixture-harness-ambiguity.test.mjs
@@ -57,3 +57,8 @@ npm ci --include=dev; node --test tests/held-out/fixture-harness-ambiguity.test.
 ## Log
 
 - opened by orchestrator (the final panel proved the suite goes ENOENT once `.project/tasks/` is archived)
+- T023: the suite owns its declaration — DECLARED_HARNESS_SURFACE holds matched ["class","data-*"], excluded ["id"] with both reasons, and provenance (task T002, commit 7f54505baf516adf52f56c9fb8a2c72ff55937c1, the two sentences it quoted); isMatchedName now derives from matched, and the contract read plus contractPath are gone — grep of the file for '.project' returns no matches and its only readFileSync is components-page.ts.
+- T023: archive proof — with .project/tasks moved aside, the pre-change suite (git show HEAD:tests/held-out/fixture-harness-ambiguity.test.mjs) failed with "Error: ENOENT: no such file or directory, open 'D:\projects\sandbox\angular-ai-devtools\.project\tasks\T002-harness-target-page.md'" at fixture-harness-ambiguity.test.mjs:166 (3 pass, 1 fail); the fixed suite passes 4/4 with the directory still absent; .project/tasks restored and git status shows it untouched.
+- T023: binding mutant — [attr.data-slot]="'one'" on probe-a against [attr.data-slot]="'two'" on probe-b reddens with "fixture-harness-ambiguity.test.mjs: mutant (distinguishing attribute value on the two hosts) — matched attribute data-slot differs: <app-harness-probe id="probe-a"> writes [attr.data-slot]="'one'" and <app-harness-probe id="probe-b"> writes [attr.data-slot]="'two'", so a HAR-3 predicate on data-slot tells the hosts apart (prohibition N1)"; restored -> 4 pass, 0 fail and components-page.ts back to HEAD.
+- T023: harmless out-of-set mutant — aria-label="probe a" on probe-a only stays green (4 pass, 0 fail); declaration mutants seen red then restored: matched widened to ["class","data-*","id"] -> "mutant (the declared match set lost its declaration) — the suite's declaration of the hosts' harness surface is ["class","data-*","id"], not class and data-*", excluded [] -> "mutant (the id exclusion lost its declaration) — the suite's declaration no longer keeps id outside the match set", isMatchedName re-hardcoded -> "mutant (isMatchedName disagrees with the declaration) — the declaration matches "data-*" but isMatchedName("data-probe") does not".
+- T023: Verify (npm ci --include=dev; node --test tests/held-out/fixture-harness-ambiguity.test.mjs) exit 0, tests 4, pass 4, fail 0, both with .project/tasks present and absent — ready
