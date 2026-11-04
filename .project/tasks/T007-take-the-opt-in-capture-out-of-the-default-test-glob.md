@@ -58,7 +58,7 @@ None
 ## Verify
 
 ```bash
-node scripts/held-out-corpus.mjs
+node --test scripts/sanitizer-warning-capture.test.mjs && node scripts/held-out-corpus.mjs
 ```
 
 ## Intent coverage
