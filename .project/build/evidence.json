@@ -1,0 +1,80 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "8d01c1e7b8fb52e44a7d3c29000c16b1753d42a3",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M025",
+        "candidates": [
+          {
+            "base": "7b04e06bbaba98433458254113a5be8865487a1e",
+            "commit": "edd0740d179166774674a9ce1c9443118faca249",
+            "valid": true
+          }
+        ],
+        "head": "8d01c1e7b8fb52e44a7d3c29000c16b1753d42a3",
+        "subject": "T001: The extension gets a type check that runs"
+      },
+      "landed_commit": "edd0740d179166774674a9ce1c9443118faca249",
+      "reasons": [],
+      "task": {
+        "base": "7b04e06bbaba98433458254113a5be8865487a1e",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-the-extension-gets-a-type-check-that-runs.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M025",
+        "candidates": [
+          {
+            "base": "edd0740d179166774674a9ce1c9443118faca249",
+            "commit": "00f105be61dc381382fa7d276aa817435dce01c3",
+            "valid": true
+          }
+        ],
+        "head": "8d01c1e7b8fb52e44a7d3c29000c16b1753d42a3",
+        "subject": "T002: Fix the thirteen real defects"
+      },
+      "landed_commit": "00f105be61dc381382fa7d276aa817435dce01c3",
+      "reasons": [],
+      "task": {
+        "base": "edd0740d179166774674a9ce1c9443118faca249",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-fix-the-thirteen-real-defects.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M025",
+        "candidates": [
+          {
+            "base": "00f105be61dc381382fa7d276aa817435dce01c3",
+            "commit": "e50cb499531736cbf6a3dba66d041c2f1dce57d5",
+            "valid": true
+          }
+        ],
+        "head": "8d01c1e7b8fb52e44a7d3c29000c16b1753d42a3",
+        "subject": "T003: Prove the extension check bites"
+      },
+      "landed_commit": "e50cb499531736cbf6a3dba66d041c2f1dce57d5",
+      "reasons": [],
+      "task": {
+        "base": "00f105be61dc381382fa7d276aa817435dce01c3",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-prove-the-extension-check-bites.md"
+      }
+    }
+  ]
+}
