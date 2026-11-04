@@ -13,6 +13,8 @@ files:
   - apps/angular-ai-devtools/src/app/app.routes.ts
   - apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts
   - scripts/panel-after-render.test.mjs
+  - extension/manifest.json
+  - extension/manifest.test.mjs
 ---
 
 # T003 — Render the ordered chain on the panel
@@ -37,6 +39,8 @@ None
 - `apps/angular-ai-devtools/src/app/app.routes.ts`
 - `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`
 - `scripts/panel-after-render.test.mjs`
+- `extension/manifest.json`
+- `extension/manifest.test.mjs`
 
 ## Acceptance criteria
 
@@ -53,6 +57,15 @@ npm ci --include=dev; node --test scripts/panel-after-render.test.mjs
 ## Intent coverage
 
 - SC4
+
+## Attempt 1
+
+T002 left `extension/after-render.js` loaded by nothing: it publishes a global, but no manifest declaration executes it, so the ordering module would never run in the product. This pass wires it in as an additional `document_start` declaration and updates the manifest's per-declaration pins.
+
+Acceptance additions:
+
+- `extension/manifest.json` declares `after-render.js` at `document_start`, and `extension/manifest.test.mjs` asserts the declaration and its position while keeping every existing pin.
+- No new page-side instrumentation is added: the declaration only makes the existing module available (N1).
 
 ## Log
 
