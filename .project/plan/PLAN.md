@@ -90,6 +90,9 @@ Review depth: full
 | SC3 | T017 | AC1 |
 | SC4 | T018 | AC1 |
 | SC4 | T019 | AC5 |
+| SC1 | T020 | AC1 |
+| SC1 | T021 | AC1 |
+| SC4 | T022 | AC1 |
 
 ## Held-out checks
 
@@ -218,5 +221,18 @@ the probe the remaining four skills share, so the gate stops failing one skill a
 | Task | Repairs |
 |---|---|
 | T019 | `busyPorts` without `netstat`, across the four remaining control skills |
+
+Review depth: full
+
+## Wave 8 — matching the thing, not its representation
+
+Goal: the two high-severity holes the final gap reviews proved by mutant, plus the probe's second leg. Each is
+one file or one small family, and each was found by naming the change that leaves the check green.
+
+| Task | Repairs |
+|---|---|
+| T020 | E1 asserts what is projected, not that a projection tag is present |
+| T021 | E2 reads attribute bindings, and tolerates attributes the harness ignores |
+| T022 | the port probe answers for `::1` and distinguishes unknown from free |
 
 Review depth: full
