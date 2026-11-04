@@ -1,0 +1,29 @@
+{
+  "milestone": "M025",
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "`npm run check` type-checks every authored file under `extension/`, with the generated `extension/panel/` bundle output excluded and the exclusion stated where the config lives.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is that `npm run check` type-checks every authored file under `extension/` while excluding the generated `extension/panel/` bundle, and that the exclusion is stated in `extension/tsconfig.json`. It is produced by `tsc -p extension/tsconfig.json` over this repository's own sources, which no insurance-portal route serves or renders: the portal's pages carry the Angular panel, never the extension's content scripts. No portal route produces it, so the charter's portal clause does not reach this criterion and the wave gate cites the recorded `npm run check` run instead."
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "That check reports zero errors, and every one of the thirteen non-global defects the probe found is fixed at source rather than suppressed.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is a compiler result: the extension type check reports zero errors and each of the thirteen non-global defects was fixed at source rather than suppressed. A `tsc` diagnostic count over `extension/` is produced by running the compiler on this checkout; no insurance-portal route produces it, because no portal page executes an extension content script or reports its type errors. The portal clause therefore does not reach the criterion, and the recorded check run and extension-tree digest are the evidence the wave gate cites."
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "A deliberately wrong property introduced into an extension source makes `npm run check` exit non-zero; an error placed inside `extension/panel/` does not, because that directory is generated.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is which tree makes the check exit non-zero: a wrong property in an authored extension source reddens it, and the same error inside the generated `extension/panel/` does not. It is a property of the compiler's program over files in this repository, measured by `scripts/extension-typecheck.test.mjs` in a temp fixture; no insurance-portal route renders that exit status, and the portal carries no extension `include` or `exclude` to read. The portal clause does not reach it, so the wave gate cites the held-out extension suite instead."
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "The strict-mode gap is recorded: the check runs at `strict: false`, and the reason (hand-written JS with implicit-any throughout) is stated in the config header.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is a recorded decision inside `extension/tsconfig.json`: the check runs at `strict: false` and the header states the reason, hand-written JavaScript with implicit-any throughout. Both the setting and the prose live in this repository's config file, read by `scripts/extension-typecheck.test.mjs`; no insurance-portal route can produce them, since no portal page carries the extension's compiler options or its header. The portal clause does not reach the criterion, and the recorded suite reading the config is what the wave gate cites."
+    }
+  ]
+}
