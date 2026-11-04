@@ -31,3 +31,7 @@ Reviewed HEAD: 81850a92c1bdd1173bda5cc3ba18beb5fc610cd5
 ### SC4 — If the browser emits no warning, that negative result is recorded and M026's final review is corrected; the sample is never fabricated to look captured.: pass
 
 - ✅ emitted true only because an NG message exists (validated); capture tests enforce emitted<->messages agreement (held-out E4); no fabricated capture present.
+
+### SC5 — `npm run check` and `npm test` pass at the head.: pass
+
+- ✅ spikes/ng222-app/src/app/image-budget-warning.json points source to capture referencing research/raw/m027-image-warning-capture.json, code NG02952, binding sizes; provenance no longer transcribed.
