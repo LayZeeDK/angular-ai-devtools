@@ -2,10 +2,10 @@
 id: T005
 title: Re-record what the new page invalidated
 wave: 2
-status: pending
+status: done
 deps: [T001, T003]
-agent: null
-base: null
+agent: build_T005
+base: 68abbb22ee23a814a56a63ab83f6d18931b07303
 worktree: null
 task_branch: null
 files:
