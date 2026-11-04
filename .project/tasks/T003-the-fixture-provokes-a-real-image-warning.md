@@ -2,11 +2,11 @@
 id: T003
 title: The fixture provokes a real image warning
 wave: 2
-status: in-progress
+status: done
 deps: []
 agent: build_T003
-base: 482196a60672740a0e9726a1e703cdd1c322f7ce
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 954b39b48572bc7a97acb3a1b64f3a771ac655ee
+worktree: null
 task_branch: null
 files:
   - spikes/ng222-app/src/app/image-budget-page.ts
@@ -87,3 +87,4 @@ Split capture from processing, and be explicit about which half is proven:
 
 - created
 - implemented image-budget page provoking NG2952 via sizes px binding; test passes; ready
+- attempt 2: committed transcribed NG2952 sample; rewrote image-finding.test.mjs with COM-1 finding + binding-removal mutant; tests pass
