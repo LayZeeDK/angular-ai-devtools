@@ -928,7 +928,13 @@
 
   function dispatch(type, detail) {
     var CustomEventCtor = typeof globalThis.CustomEvent === "function" ? globalThis.CustomEvent : (typeof global.CustomEvent === "function" ? global.CustomEvent : null);
-    var ev = CustomEventCtor ? new CustomEventCtor(type, { detail: detail }) : { type: type, detail: detail };
+    // `dispatchEvent` takes a DOM `Event`, and a bare `{ type, detail }` is not one — it has none of
+    // an event's members and a DOM dispatcher refuses it. The fallback for a realm with no
+    // `CustomEvent` constructor is therefore that realm's base `Event` of the requested type, with
+    // the same `detail` attached, so the relay reads the same two members on either path.
+    var ev = CustomEventCtor
+      ? new CustomEventCtor(type, { detail: detail })
+      : Object.assign(new Event(type), { detail: detail });
     if (typeof globalThis.dispatchEvent === "function") {
       globalThis.dispatchEvent(ev);
     } else if (typeof global.dispatchEvent === "function") {

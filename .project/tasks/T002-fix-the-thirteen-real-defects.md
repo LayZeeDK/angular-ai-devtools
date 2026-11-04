@@ -3,9 +3,9 @@ id: T002
 title: Fix the thirteen real defects
 wave: 1
 deps: [T001]
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002
+base: edd0740d179166774674a9ce1c9443118faca249
 worktree: null
 task_branch: null
 files:
@@ -56,3 +56,7 @@ npm ci --include=dev; npx tsc -p extension/tsconfig.json
 ## Log
 
 - opened by orchestrator in wave 1
+- implemented, 14 sites at source: relay.js 12/16/21/27/38/45 — each listener parameter annotated `(/** @type {CustomEvent} */ e)`, because the agent dispatches these window events as CustomEvents and the payload is in `detail`, so the runtime argument is a CustomEvent and not the plain `Event` the DOM signature declares; panel.js 2 TS2451 + 5 TS2339 — the element binding is renamed `status` -> `statusEl` (the old name was shadowed by the lib.dom `window.status: string`, which is exactly why `.textContent` resolved on a string), so it now names and types as the HTMLElement `document.getElementById('status')` returns; agent-main.js 933/935 TS2345 — the no-CustomEvent fallback is `Object.assign(new Event(type), { detail: detail })` instead of a bare `{ type, detail }` literal, which was never an `Event` and would be refused by a DOM dispatcher; the same `type` and `detail` still reach the relay and the CustomEvent path is untouched; stale-view-worker.js 158/159/160/170 TS2339 — the three worker-scope entry points and the `staleViewScan` namespace are published with `Object.assign` on `self` / `global`, because those names are this file's own additions and `lib.dom` types `self` as a `Window` that declares none of them (same own properties, same values, same order)
+- no suppression introduced: grep -E "@ts-ignore|@ts-expect-error|@ts-nocheck|as unknown|as any|@type \{any\}" over extension/**/*.js returns zero matches; the only type-level additions are the six JSDoc parameter annotations and the two Object.assign property sets
+- verify: `npm ci --include=dev; npx tsc -p extension/tsconfig.json` exit 0, 14 errors -> 0 (was agent-main.js 933,935 TS2345; panel.js 2 TS2451 + 5 TS2339; relay.js 12,16,21,27,38,45 TS2339; stale-view-worker.js 158,159,160,170 TS2339); behaviour: `node --test extension/*.test.mjs` 177 tests / 177 pass / 0 fail (before and after npm ci), `npm run test:skills` 628 tests / 628 pass / 0 fail, `node --test tests/held-out/stale-view-worker-supersession.test.mjs` 4/4 pass; changed paths extension/agent-main.js, extension/panel.js, extension/relay.js, extension/stale-view-worker.js; no scratch files, no commit
+- T002 ready
