@@ -74,8 +74,8 @@ could not be read, naming that it could not be read; success shows the element, 
 and a bypass state naming a deliberate bypass where a `bypassSecurityTrust*` binding produced no warning. No state names
 a tag, an attribute, a removed substring, or a cause.
 Walkthrough:
-1. Load the fixture's trust-bypass route, open the panel, and confirm the finding names the element, the binding and the time of the strip.
-2. Confirm the surface names nothing about what was removed, and that its fact list matches the capture.
+1. Load the fixture's trust-bypass route, open the panel, and confirm the finding names the component the covering record carries and the time of the strip, and names a binding only when the fact list carries one.
+2. Confirm the surface names nothing about what was removed, and that its fact list matches the capture; a first-render strip shows the cannot-tell state rather than a component.
 3. Point the surface at a warning with no binding record and confirm it shows the cannot-tell state naming that absence, rather than the nearest binding.
 4. Confirm the bypass binding is reported as deliberate, and that a page with no warning at all is reported as neither stripped nor clean.
 5. Confirm the panel adds no DOM to the inspected page.
