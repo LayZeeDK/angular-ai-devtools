@@ -2,10 +2,10 @@
 id: T001
 title: Capture what the browser says about an unbudgeted image
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: ecde95752c628902f8e9945cebe433941f9cc570
 worktree: null
 task_branch: null
 files:
@@ -88,3 +88,4 @@ If neither route can run, block and name what is missing.
 ## Log
 
 - created
+- T001 ready: headless Playwright Chromium 156.0.8078.4 captured NG02952 from /image-budget; 7 tests pass

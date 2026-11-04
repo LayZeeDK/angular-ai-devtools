@@ -1,0 +1,33 @@
+{
+  "profile": null,
+  "browser": "headless Playwright Chromium (build 156.0.8078.4)",
+  "instance": "headless",
+  "capturedAt": "2026-11-04T16:38:48.887Z",
+  "browserBuild": "156.0.8078.4",
+  "build": "156.0.8078.4",
+  "url": "http://localhost:4200/image-budget",
+  "pageUrl": "http://localhost:4200/image-budget",
+  "emitted": true,
+  "messages": [
+    {
+      "type": "debug",
+      "text": "[vite] connecting...",
+      "code": null
+    },
+    {
+      "type": "debug",
+      "text": "[vite] connected.",
+      "code": null
+    },
+    {
+      "type": "log",
+      "text": "Angular is running in development mode.",
+      "code": null
+    },
+    {
+      "type": "error",
+      "text": "ERROR RuntimeError: NG02952: The NgOptimizedImage directive has detected that `sizes` was set to a string including pixel values. For automatic `srcset` generation, `sizes` must only include responsive values, such as `sizes=\"50vw\"` or `sizes=\"(min-width: 768px) 50vw, 100vw\"`. To fix this, modify the `sizes` attribute, or provide your own `ngSrcset` value directly.\n    at assertNoComplexSizes (http://localhost:4200/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/common-BXxfsXCN.js?v=6ebef3e4:4235:51)\n    at NgOptimizedImage.ngOnInit (http://localhost:4200/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/common-BXxfsXCN.js?v=6ebef3e4:3924:24)\n    at callHookInternal (http://localhost:4200/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=6ebef3e4:221:8)\n    at callHook (http://localhost:4200/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=6ebef3e4:234:4)\n    at callHooks (http://localhost:4200/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=6ebef3e4:211:4)\n    at executeInitAndCheckHooks (http://localhost:4200/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=6ebef3e4:188:36)\n    at refreshView (http://localhost:4200/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=6ebef3e4:4934:33)\n    at detectChangesInView (http://localhost:4200/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=6ebef3e4:5061:25)\n    at detectChangesInViewIfAttached (http://localhost:4200/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=6ebef3e4:5047:2)\n    at detectChangesInComponent (http://localhost:4200/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=6ebef3e4:5040:3)",
+      "code": "NG02952"
+    }
+  ]
+}
