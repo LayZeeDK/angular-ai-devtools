@@ -65,18 +65,20 @@ appearing; every recording the new page staled is re-recorded with a mutant.
 
 ### panel — T003
 
-The panel detects an Angular page rendering content the sanitizer stripped through the extension and renders a **PBR-1
-finding**: a fact list naming the element, the binding that wrote it, and the time of the strip. It is consumed by the
-panel's feature pane through `apps/angular-ai-devtools/src/app/panel-sanitizer.ts`, registered in the route table.
-
-Four states:
-
-1. `loading` — the finding is still being assembled; the pane shows that, never an empty fact list.
-2. `stripped` — the element, the binding, and the time, and nothing about what was removed.
-3. `cannot-tell` — a warning was captured but no binding record it can be joined to; names that absence.
-4. `deliberate` — a binding used a `bypassSecurityTrust*` path and no warning appeared, reported as a deliberate bypass.
-
-No state names a tag, an attribute, a removed substring, or a cause (N2, N4).
+Criteria: SC4
+Entry: open the panel, select the sanitizer finding produced for the fixture route added in T001; the same surface
+is reachable from the tool group's sanitizer row.
+States: empty shows an explicit "cannot tell" state naming that a warning was captured but no binding record it could
+be joined to; loading shows the finding being assembled rather than an empty fact list; error shows that the capture
+could not be read, naming that it could not be read; success shows the element, the binding and the time of the strip,
+and a bypass state naming a deliberate bypass where a `bypassSecurityTrust*` binding produced no warning. No state names
+a tag, an attribute, a removed substring, or a cause.
+Walkthrough:
+1. Load the fixture's trust-bypass route, open the panel, and confirm the finding names the element, the binding and the time of the strip.
+2. Confirm the surface names nothing about what was removed, and that its fact list matches the capture.
+3. Point the surface at a warning with no binding record and confirm it shows the cannot-tell state naming that absence, rather than the nearest binding.
+4. Confirm the bypass binding is reported as deliberate, and that a page with no warning at all is reported as neither stripped nor clean.
+5. Confirm the panel adds no DOM to the inspected page.
 
 ## Dependencies
 
