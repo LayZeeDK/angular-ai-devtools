@@ -1,10 +1,12 @@
 /**
  * The corpus runner's own proof, driven against fixture corpora under the temp directory.
  *
- * `scripts/held-out-corpus.mjs` accepts `--root <dir>`, so this suite never runs the repository's own
- * `tests/held-out/`: every corpus it judges is built fresh from the fixture texts below, and removed in
- * `finally`. That keeps the proof cheap and makes each behaviour falsifiable — the mutant that reddens a
- * test is a one-line change to one fixture.
+ * `scripts/held-out-corpus.mjs` accepts `--root <dir>`, so the runner is never pointed at the repository it
+ * ships in: every corpus it judges is built fresh under the temp directory and removed in `finally`. Eight of
+ * the tests below build their corpus from the fixture texts in this file, so each behaviour is falsifiable
+ * with a one-line change to one fixture. The last two build their corpus from copies of the *real* suites —
+ * the repository's history and working tree with `.project` taken out — because INTENT SC3 is a claim about
+ * `tests/held-out/` itself, and a claim about the real corpus may only be judged on the real corpus.
  *
  * A runner that reports pass after running nothing is the defect this milestone exists to repair (INTENT
  * prohibition N2: a skip that reports pass is the silence the corpus may not accept), so every test judges
@@ -16,7 +18,7 @@
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -120,10 +122,14 @@ function writeCorpus(root, suites) {
  * Run the corpus script against `root` and return its exit code with the output it printed. The child gets
  * a clean environment: this test runs under `node --test`, and an inherited nested-run marker would make the
  * script report a nested run instead of judging the fixture corpus.
+ *
+ * `budgetMs` bounds the whole run. The hand-written corpora below are one or two suites and finish in well
+ * under the default; a corpus of the real suites runs each of them in its own process and needs more.
  * @param {string} root
+ * @param {number} [budgetMs]
  * @returns {{ status: number, output: string }}
  */
-function runCorpus(root) {
+function runCorpus(root, budgetMs = 3 * 60 * 1000) {
   /** @type {NodeJS.ProcessEnv} */
   const env = { ...process.env };
   for (const key of INHERITED) {
@@ -133,7 +139,7 @@ function runCorpus(root) {
   const result = spawnSync(process.execPath, [CORPUS, '--root', root], {
     cwd: root,
     encoding: 'utf8',
-    timeout: 3 * 60 * 1000,
+    timeout: budgetMs,
     maxBuffer: 64 * 1024 * 1024,
     env,
   });
@@ -320,5 +326,215 @@ test('the corpus exits 0 with no .project directory anywhere under its root', ()
     assert.equal(run.status, 0, `the corpus must run green with no .project directory present\n${run.output}`);
     assert.match(run.output, /2 suite\(s\), 2 passed, 0 failed/, `both suites must have run, not been excused\n${run.output}`);
     assert.deepEqual(projectDirectories(root), [], `the corpus run must not create a .project directory under its root`);
+  });
+});
+
+/* ================================================================================================
+ * The real corpus, in the state the ship flow leaves the tree: no `.project` directory.
+ *
+ * Every test above judges the runner against suites written by hand in this file. INTENT SC3 is a claim
+ * about `tests/held-out/` itself — no suite under it reads any path under `.project` — and a claim about the
+ * real corpus can only be judged on the real corpus. So the two tests below build a root that is this
+ * repository: its history, its working tree, and copies of its real held-out suites, with `.project` taken
+ * out. That is the state `ship` leaves behind, and the state in which a suite that reached for `.project`
+ * must fail.
+ * ==============================================================================================*/
+
+/** The repository this suite ships in: `scripts/` is one level below its root, and the separator it ends on is not part of the name. */
+const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url)).replace(/[\\/]$/, '');
+
+/** Where the real corpus lives: the directory SC3 is written about. */
+const REAL_CORPUS = join(REPO_ROOT, 'tests', 'held-out');
+
+/**
+ * The held-out suites this proof does not run, and why. Nothing else under `tests/held-out/` is excused:
+ * the test below asserts a PASS line for every other suite in the real corpus.
+ *
+ * - `e3-zero-skipped` and `e4-idempotent-checks` drive `npm test` by design. `npm test` runs the project
+ *   gate, and three root script suites (`docs-audit-disposition`, `overlay-verdict-claims`,
+ *   `retired-suites`) read `.project/` legitimately, so these two are red with `.project/` absent through
+ *   the gate rather than through a read of their own. T004's ruling on AC1 excludes exactly these two.
+ * - `fixture-rebuild-idempotent` drives `ng build` over `spikes/ng222-app` from that fixture's own nested
+ *   install, which a copy of this repository does not carry; it is a build-idempotence proof, not a read of
+ *   `.project`, and it runs in the corpus proper.
+ */
+const NOT_RUN_HERE = new Map([
+  ['e3-zero-skipped.test.mjs', 'drives `npm test`, and the project gate reads `.project/` — excluded by the AC1 ruling'],
+  ['e4-idempotent-checks.test.mjs', 'drives `npm test`, and the project gate reads `.project/` — excluded by the AC1 ruling'],
+  ['fixture-rebuild-idempotent.test.mjs', 'drives `ng build` from `spikes/ng222-app`\'s own nested install, which a copy does not carry'],
+]);
+
+/**
+ * The read the wave-1 review caught, restored: until T004 `e7-archive-order` asserted that the archived
+ * milestone record was on disk at `.project/archive/001-run-unrun-spikes`, so it was red exactly when the
+ * ship flow moved that directory out of the tree. Appended to a copy of the suite, in the fixture root only,
+ * this is the mutation that must redden the corpus-level proof — otherwise SC3 is only true today.
+ */
+const RESTORED_PROJECT_READ = [
+  '',
+  'test("E7 mutant: the archive record is present on disk", () => {',
+  '  assert.ok(existsSync(resolve(ROOT, ".project", "archive", "001-run-unrun-spikes")), "E7: archive path missing");',
+  '});',
+  '',
+].join('\n');
+
+/**
+ * Build, under `root`, the corpus the ship flow leaves behind: this repository's history and working tree
+ * with no `.project` directory, and `tests/held-out/` holding copies of the real suites.
+ * @param {string} root an existing empty directory
+ * @param {{ only?: readonly string[] | null, extraSuites?: Record<string, string> }} [options] `only` limits
+ *   the copied suites to the names given (helpers are always copied); `extraSuites` adds suites the fixture
+ *   carries and the repository does not
+ * @returns {string} the fixture's corpus directory
+ */
+function buildRealCorpusRoot(root, options = {}) {
+  const only = options.only ?? null;
+  const extraSuites = options.extraSuites ?? {};
+
+  // History first. `e7-archive-order` asks git about two commits rather than about a path, and a root with
+  // no repository behind it would fail that suite for the wrong reason — the fixture must be able to judge
+  // what the suite actually claims. A clone reads this repository and writes nothing into it.
+  const clone = spawnSync('git', ['clone', '--quiet', REPO_ROOT, root], { encoding: 'utf8' });
+  assert.equal(
+    clone.status,
+    0,
+    `the fixture root must carry this repository's history, or a suite that asks git would fail for the wrong reason (git clone exited ${clone.status})\n${clone.stderr ?? ''}`,
+  );
+
+  // The ship flow's state. `.project` is tracked, so the clone checks it out; removing it is what makes
+  // this root the state AC1 is about, and `projectDirectories` below proves the removal took.
+  rmSync(join(root, '.project'), { recursive: true, force: true });
+
+  // The working tree, not just HEAD: a suite must be judged against the sources as they are on disk, or an
+  // uncommitted change would redden this proof for a reason it does not describe. `.project` stays out.
+  const listed = spawnSync('git', ['-C', REPO_ROOT, 'ls-files', '-z'], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+  assert.equal(listed.status, 0, `the working tree's file list must be readable (git ls-files exited ${listed.status})\n${listed.stderr ?? ''}`);
+  for (const path of listed.stdout.split('\0')) {
+    if (path === '' || path === '.project' || path.startsWith(`.project/`)) continue;
+    const from = join(REPO_ROOT, path);
+    if (!existsSync(from)) continue; // a tracked file deleted in the working tree is not part of it
+    const to = join(root, path);
+    mkdirSync(dirname(to), { recursive: true });
+    copyFileSync(from, to);
+  }
+
+  // Dependencies are installed for this repository, not for a copy of it. Linking them keeps the fixture's
+  // jsdom and typescript suites resolvable without a second install, and the link carries no project data.
+  const installed = join(REPO_ROOT, 'node_modules');
+  assert.ok(existsSync(installed), `the fixture root links this repository's installed dependencies, so they must be installed first: run npm ci --include=dev\n(root: ${root})`);
+  symlinkSync(installed, join(root, 'node_modules'), 'junction');
+
+  // The corpus: copies of the real suites, the helpers beside them, minus the suites named above. The clone
+  // checked out HEAD's corpus, so it is cleared first: what this root runs is exactly what was copied from
+  // the working tree, and nothing else survives in it by inheritance.
+  const corpus = join(root, 'tests', 'held-out');
+  rmSync(corpus, { recursive: true, force: true });
+  mkdirSync(corpus, { recursive: true });
+  for (const entry of readdirSync(REAL_CORPUS, { withFileTypes: true })) {
+    if (!entry.isFile()) continue;
+    if (only !== null && entry.name.endsWith('.test.mjs') && !only.includes(entry.name)) continue;
+    copyFileSync(join(REAL_CORPUS, entry.name), join(corpus, entry.name));
+  }
+  for (const name of NOT_RUN_HERE.keys()) {
+    rmSync(join(corpus, name), { force: true });
+  }
+  for (const [name, text] of Object.entries(extraSuites)) {
+    writeFileSync(join(corpus, name), text);
+  }
+
+  assert.deepEqual(
+    projectDirectories(root),
+    [],
+    `the fixture root must carry no .project directory anywhere, or nothing it proves is about the ship flow's state\n(root: ${root})`,
+  );
+  return corpus;
+}
+
+/** Escape a file name so it may be matched literally inside a regular expression. */
+function escapeForRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+test('the real corpus exits 0 with no .project directory anywhere under its root', () => {
+  withTempRoot('real-corpus-no-project', (root) => {
+    buildRealCorpusRoot(root);
+
+    // Every suite the real corpus holds, except the two the AC1 ruling excludes and the build suite named
+    // above. The proof is only worth its runtime if it ran the corpus, not a token entry from it.
+    const expected = readdirSync(REAL_CORPUS)
+      .filter((name) => name.endsWith('.test.mjs') && !NOT_RUN_HERE.has(name))
+      .sort((left, right) => left.localeCompare(right, 'en'));
+    assert.ok(
+      expected.length >= 18,
+      `the fixture must carry the real corpus, not a handful of suites — found ${expected.length}: ${expected.join(', ')}`,
+    );
+
+    const run = runCorpus(root, 10 * 60 * 1000);
+
+    assert.equal(
+      run.status,
+      0,
+      `every held-out suite but the two that drive the project gate must pass with the project directory gone\n${run.output}`,
+    );
+    for (const name of expected) {
+      assert.match(
+        run.output,
+        new RegExp(`PASS tests/held-out/${escapeForRegExp(name)}`),
+        `${name} must have run and passed with no .project directory present\n${run.output}`,
+      );
+    }
+    assert.ok(
+      !/^FAIL /m.test(run.output),
+      `no suite may fail in the ship flow's state — a failure here is a suite reading .project\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      new RegExp(`held-out corpus: ${expected.length} suite\\(s\\), ${expected.length} passed, 0 failed`),
+      `the total must count every real suite as passing\n${run.output}`,
+    );
+
+    // The suite the wave-1 review caught, named on its own line: it now asks git about the ordering of two
+    // commits rather than reading `.project`, so the tree without a project directory is where it passes.
+    assert.match(
+      run.output,
+      /PASS tests\/held-out\/e7-archive-order\.test\.mjs — 1 test\(s\), 1 passed/,
+      `e7-archive-order must pass with no .project directory, on data it carries\n${run.output}`,
+    );
+    assert.deepEqual(projectDirectories(root), [], `the corpus run must not create a .project directory under its root`);
+  });
+});
+
+test('a held-out suite that reads .project reddens the corpus and is named', () => {
+  withTempRoot('restored-project-read', (root) => {
+    // `e7-archive-order` with its old read put back, in the fixture root and nowhere else. This is the
+    // mutation AC3 asks for: a held-out suite reaching for `.project` must redden the run that judges it.
+    const restored = `${readFileSync(join(REAL_CORPUS, 'e7-archive-order.test.mjs'), 'utf8')}\n${RESTORED_PROJECT_READ}\n`;
+    buildRealCorpusRoot(root, {
+      only: ['stale-view-ordering.test.mjs', 'stale-view-version-gate.test.mjs'],
+      extraSuites: { 'e7-archive-order-restored-read.test.mjs': restored },
+    });
+
+    const run = runCorpus(root);
+    const named = 'tests/held-out/e7-archive-order-restored-read.test.mjs';
+
+    assert.notEqual(run.status, 0, `a suite that reads .project must not pass in a root without one\n${run.output}`);
+    assert.match(
+      run.output,
+      new RegExp(`FAIL ${escapeForRegExp(named)} — exited 1`),
+      `the per-suite line must name ${named} and why it failed\n${run.output}`,
+    );
+    assert.ok(
+      run.output.includes('E7: archive path missing'),
+      `the failure must echo the read that could not be made, so the reason is the read and not the runner\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      new RegExp(`held-out corpus: FAILED ${escapeForRegExp(named)}`),
+      `the closing summary must name the suite that read .project\n${run.output}`,
+    );
+    // One reading suite reddens the run and is named; the clean suites beside it are not blamed.
+    assert.match(run.output, /PASS tests\/held-out\/stale-view-ordering\.test\.mjs/, `the clean suites must still pass\n${run.output}`);
+    assert.match(run.output, /PASS tests\/held-out\/stale-view-version-gate\.test\.mjs/, `the clean suites must still pass\n${run.output}`);
+    assert.match(run.output, /3 suite\(s\), 2 passed, 1 failed/, `the total must count exactly one failure\n${run.output}`);
   });
 });
