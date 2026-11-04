@@ -1,0 +1,77 @@
+---
+id: T004
+title: The corpus runs with no project directory
+wave: 2
+deps: [T003]
+status: done
+agent: build_T004
+base: 8e52e7fe7f7355796991830dd6c934de67230b8d
+worktree: null
+task_branch: null
+files:
+  - tests/held-out/e7-archive-order.test.mjs
+  - scripts/held-out-corpus.mjs
+  - scripts/held-out-corpus.test.mjs
+---
+
+# T004 — The corpus runs with no project directory
+
+## Context
+
+The wave-1 review found the criterion violated by a suite the measurement missed.
+`tests/held-out/e7-archive-order.test.mjs` reads `.project/archive/001-run-unrun-spikes`, so with `.project/`
+moved aside it exits 1 with `E7: archive path missing`. SC3 says no suite under `tests/held-out/` reads any path
+under `.project/`, and prohibitions N1 repeats it.
+
+T003 proved the *script* runs without `.project/`; nothing yet proves the *corpus* does. That is the gap: the
+script's proof used fixture roots, and the real corpus was never run in the state the ship flow creates.
+
+## Approach
+
+1. Re-home E7's claim so the suite carries what it needs: the archive-order fact becomes data the suite owns
+   (as an earlier milestone re-homed a declaration into its suite), with the archived path recorded as provenance rather than read.
+2. Add a corpus-level proof: run `scripts/held-out-corpus.mjs` over the real `tests/held-out/` with `.project/`
+   moved aside, and assert exit 0. Restore in a `finally`.
+3. Keep every existing T003 assertion.
+
+## Interface contract
+
+None
+
+## Intent coverage
+
+- SC3
+
+## Acceptance criteria
+
+1. `node scripts/held-out-corpus.mjs` runs with `.project/` moved aside; every failure it reports is one of the two suites that drive `npm test` (`e3-zero-skipped`, `e4-idempotent-checks`), named as such, and no failure is a held-out suite reading `.project/` itself.
+2. `tests/held-out/e7-archive-order.test.mjs` reads no path under `.project/`, and still asserts its ordering claim from data it carries.
+3. The corpus-level proof reddens when a held-out suite reads `.project/`: reintroduce such a read temporarily, capture the failure, restore.
+4. Acceptance is held-out E3: the corpus runs with no project directory present.
+
+## Verify
+
+```bash
+npm ci --include=dev; node --test scripts/held-out-corpus.test.mjs
+```
+
+## Ruling on AC1 (delegated, `rulings` grant)
+
+AC1 as first written — *the whole corpus exits 0 with `.project/` moved aside* — is unreachable and was stronger
+than the criterion. Evidence from attempt 1: two corpus suites, `e3-zero-skipped` and `e4-idempotent-checks`,
+drive `npm test` by design, and three root script suites (`docs-audit-disposition`, `overlay-verdict-claims`,
+`retired-suites`) legitimately read `.project/`. With `.project/` absent the corpus therefore reports 20/22 with
+those two red, each naming the gate stage that read `.project/`.
+
+SC3's letter is what governs: **no suite under `tests/held-out/` reads any path under `.project/`.** That is now
+true and provable by grep. So AC1 becomes: the corpus runs with `.project/` moved aside, and **every** failure it
+reports is a suite that invokes the project gate, named as such — no failure may be a held-out suite reading
+`.project/` itself.
+
+## Log
+
+- opened by orchestrator after the wave-1 review blocked SC3 on `e7-archive-order`
+- E7 re-homed: the ordering claim now rides on archive commit a24cedb6 and retirement commit c3e8f57 as data the suite carries, with .project/archive/001-run-unrun-spikes recorded only as a provenance comment and never read; it passes with .project/ absent and reddens on swapped-commit, nonexistent-commit and restored-spike mutants. Real corpus with .project/ moved aside: 22 suites, 20 passed, 2 failed (e3, e4) - 85 tests, 83 passed, exit 1, 7m35s. Reintroducing a .project/ read in e7 makes that same run report FAIL tests/held-out/e7-archive-order.test.mjs (archive path missing): 22 suites, 19 passed, 3 failed, 86 tests, exit 1.
+- NEEDS-ORCHESTRATOR: held-out e3 and e4 shell out to npm test, which reddens with .project/ absent through 17 tests in scripts/docs-audit-disposition.test.mjs, scripts/overlay-verdict-claims.test.mjs and scripts/retired-suites.test.mjs, and none of those paths is in T004 files:, so AC1 and AC3 cannot be met here while the contract Verify stays green (8 tests, exit 0) - readings: (a) a new task makes those three suites .project-independent and T004 is re-dispatched for the corpus-level proof, (b) held-out e3 and e4 are narrowed to the stages that do not read .project/, (c) AC1 is restated to exclude the suites that drive the project gate blocked
+- Corpus-level proof added to scripts/held-out-corpus.test.mjs (attempt 2): the fixture root is a clone of this repo with .project removed and asserted absent (projectDirectories == []) and tests/held-out replaced by copies of the real suites, node_modules linked; node scripts/held-out-corpus.mjs --root <fixture> exits 0 - 19 suite(s), 19 passed, 0 failed, 82 test(s), 82 passed, E7 named as PASS. Only e3-zero-skipped and e4-idempotent-checks are excluded (they drive npm test, whose project gate reads .project/ - per the AC1 ruling) plus fixture-rebuild-idempotent, which drives ng build from spikes/ng222-app's own nested install (22s; proven in the corpus proper) - NOT_RUN_HERE names all three with reasons. Suite: 10 tests, 10 pass, exit 0 (17s).
+- Reddening proof (AC3) in the same file: a copy of e7-archive-order with its old existsSync(resolve(ROOT,'.project','archive','001-run-unrun-spikes')) read re-appended, as tests/held-out/e7-archive-order-restored-read.test.mjs in the fixture root only, exits 1 and is named - 'FAIL tests/held-out/e7-archive-order-restored-read.test.mjs - exited 1', 'AssertionError [ERR_ASSERTION]: E7: archive path missing', 'held-out corpus: FAILED tests/held-out/e7-archive-order-restored-read.test.mjs', 3 suite(s), 2 passed, 1 failed - 5 test(s), 4 passed. Mutants captured then restored: M1 .project left in the fixture root -> 'the fixture root must carry no .project directory anywhere' (actual ['.project']); M2 stale-view-ordering broken in the working tree -> 'every held-out suite but the two that drive the project gate must pass', 'FAIL tests/held-out/stale-view-ordering.test.mjs - exited 1', 19 suite(s), 18 passed; M3 injected suite omitted -> 'a suite that reads .project must not pass in a root without one' (2 suite(s), 2 passed); M4 the injected read swapped to package.json, which exists -> same assertion reddens with 3 suite(s), 3 passed, 0 failed, so the red is the missing .project path and not the injection. E7 still holds: baseline exit 0, nonexistent commit -> 'fatal: git cat-file: could not get object info', swapped commits -> 'E7: archive commit a24cedb6... does not precede the retirement c3e8f57...', and its restored .project read reddens only where .project is absent, which is the new fixture test. Verify: npm ci --include=dev; node --test scripts/held-out-corpus.test.mjs -> 10 tests, 10 pass, exit 0.
