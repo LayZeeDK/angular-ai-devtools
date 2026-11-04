@@ -1,6 +1,6 @@
 ---
 id: T002
-title: Join the warning to the binding that wrote the element
+title: Join the warning to the component that wrote the element
 wave: 1
 status: pending
 deps: [T001]
@@ -13,7 +13,7 @@ files:
   - scripts/sanitizer-triage.test.mjs
 ---
 
-# T002 — Join the warning to the binding that wrote the element
+# T002 — Join the warning to the component that wrote the element
 
 ## Context
 
@@ -22,10 +22,12 @@ the join against that measurement rather than against an assumed ordering.
 
 ## Approach
 
-Pure module. The warning supplies the occurrence and its time; the profiler's binding and template events
-supply the element and the binding. It reads the lists it is given and adds no reader of its own (N1). A
-warning with no binding record inside its window yields `cannot-tell` naming the absence, never a guessed
-binding (N2, N3). No output names a tag, attribute or substring.
+Pure module. The warning supplies the occurrence and its time; the profiler record supplies the component. T001
+measured that the record names no binding and no element, and that a first-render strip has no record at all, so
+the module reports a component-level occurrence and **`cannot-tell` is the expected result for a first-render
+strip**, not a fallback. It reads the lists it is given and adds no reader of its own (N1). A binding is named
+only when the element's record carries it; otherwise the finding says it cannot attribute one (N2). No output
+names a tag, attribute or substring (N3).
 
 ## Interface contract
 
@@ -38,10 +40,10 @@ None
 
 ## Acceptance criteria
 
-1. A warning inside a binding's write window yields the element, the binding and the time (held-out E1).
+1. A warning inside a profiler record's window yields the component and the time, and names the binding only when the element's record carries it (held-out E1).
 2. With the console capture removed, no finding is produced, so nothing else supplied the occurrence (held-out E2).
-3. A warning with no adjacent binding record yields `cannot-tell` and never a binding (held-out E3).
-4. Mutants redden: naming a stripped tag, guessing the nearest binding across a window boundary, and reporting an absence as clean.
+3. A first-render warning with no profiler record yields `cannot-tell` naming that absence, and never a component or a binding (held-out E3).
+4. Mutants redden: naming a stripped tag, guessing the nearest component for a first-render warning, and reporting an absence as clean.
 
 ## Verify
 

@@ -28,8 +28,9 @@ to know which binding lost it, rather than being told that "the sanitizer stripp
 
 ## Success criteria
 
-1. On the fixture, a template binding whose value the sanitizer strips produces a PBR-1 finding naming the element and
-   the binding that wrote it, and the time the strip occurred.
+1. On the fixture, a template binding whose value the sanitizer strips produces a PBR-1 finding naming the element
+   the strip occurred on, the component whose template wrote it, and the time of the strip, and names the binding
+   only when the element's own record carries it — otherwise the finding says it cannot attribute the binding.
 2. The finding is produced from the console warning the sanitizer already emits, joined to the profiler's binding and
    template events, with no new page-side instrumentation and no patch of the sanitizer.
 3. A page where no strip occurred produces no finding, and a warning with no binding record it can be joined to
@@ -70,6 +71,13 @@ to an inspected page (AR-3).
 
 ## Corrections
 
+- **SC1 was narrowed after T001's measurement.** SC1 originally promised the element, the binding and the time.
+  The recorded capture (`research/raw/m029-sanitizer-warning.json`) shows the profiler record names no binding
+  (`namesTheBinding: false`), identifies no written element (`identifiesTheWrittenElement: false`), and that a strip
+  during a page's first render has **no profiler record at all** — the page agent's subscription lands after the
+  write (subscription 1426.7 ms, warning 1401 ms). SC1 now promises the element, the component and the time, with the
+  binding named only where the element's record carries it. N2 governs the rest: a binding the record does not name
+  is reported as unattributable, never guessed.
 - **The roadmap's sentence overstates the signal.** It asks for "what the sanitizer stripped and which binding did it";
   the measured warning supplies only *that* a strip occurred. SC1 was written for element, binding and time, and N2
   forbids naming the payload. Recorded at `.project/research/m029-sanitizer-evidence.md`.
