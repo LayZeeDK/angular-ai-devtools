@@ -9,7 +9,8 @@ base: null
 worktree: null
 task_branch: null
 files:
-  - apps/angular-ai-devtools/src/app/features/image-budget.ts
+  - apps/angular-ai-devtools/src/app/image-budget.ts
+  - apps/angular-ai-devtools/src/app/app.routes.ts
   - scripts/image-budget.test.mjs
 ---
 
