@@ -57,7 +57,6 @@ npm ci --include=dev; node --test scripts/sanitizer-warning-capture.test.mjs
 ## Intent coverage
 
 - SC1
-- SC3
 
 ## Log
 

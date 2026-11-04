@@ -51,7 +51,6 @@ npm ci --include=dev; node --test scripts/sanitizer-bypass.test.mjs
 
 ## Intent coverage
 
-- SC1
 - SC3
 
 ## Log
