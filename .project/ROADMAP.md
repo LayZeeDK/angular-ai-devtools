@@ -943,8 +943,8 @@ Open questions
 Goal: Make the held-out proof corpus load-bearing: every suite passes in a fresh checkout under a script the project gate runs, or it does not exist.
 Depends on: [M023]
 Surfaces: none
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/024-proof-corpus-repair
 Integrated: null
 
 Scope: in
