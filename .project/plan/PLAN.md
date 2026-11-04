@@ -37,6 +37,8 @@ Goal: The ship Verify found the development bundle has grown past what `research
 Review depth: full
 
 T006. The dev and prod bundle recordings are re-measured at this head, and the suite that compares them passes.
+T007 then moves the opt-in capture out of the default glob, because a skipped case makes the held-out edge E3 fail
+the very gate SC5 names.
 
 ## Held-out checks
 
@@ -59,6 +61,7 @@ T006. The dev and prod bundle recordings are re-measured at this head, and the s
 | SC4 | T003 | AC4 |
 | SC5 | T005 | AC4 |
 | SC5 | T006 | AC3 |
+| SC5 | T007 | AC3 |
 
 ## Prohibitions
 
@@ -70,6 +73,7 @@ T006. The dev and prod bundle recordings are re-measured at this head, and the s
 | N4 | T003 | the surface renders the fact list and the absence state only |
 | N5 | T005 | the gate runs at the head, unweakened |
 | N5 | T006 | the 2,000-byte tolerance is kept; a stale recording is re-measured, never widened |
+| N5 | T007 | no case is skipped to reach a green gate; the opt-in part moves out of the glob instead |
 
 ## Surface contract
 
