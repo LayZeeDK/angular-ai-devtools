@@ -5,7 +5,7 @@ wave: 1
 status: in-progress
 deps: []
 agent: build_T001
-base: 90d19604560f6d468c255c490de1ac0620b5e748
+base: 213f00ea5861940edf430ca2187267396ee3b5bc
 worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
@@ -55,11 +55,6 @@ npm ci --include=dev; node --test scripts/after-render-fixture.test.mjs
 
 - SC1
 
-## Log
-
-- dispatched
-- Added after-render fixture page, route, and test with mutants verified
-
 ## Attempt 2
 
 Attempt 1 delivered the page, the route and a three-test suite, but every test asserts **source text** —
@@ -80,3 +75,9 @@ Do this instead:
    make it throw and confirm the zero case reddens. Restore both.
 5. The suite must contain **no** assertion whose only content is a substring of another file, other than the two
    labelled preconditions.
+
+## Log
+
+- dispatched
+- Added after-render fixture page, route, and test with mutants verified
+- T001 attempt 2: read extracted to `readTargetWidth()`, executed against stub elements (0 and 640) with @angular/core stubbed; attempt 1 had left a `setProfiler` import and a broken route, both removed. 5/5 pass; both mutants redden.
