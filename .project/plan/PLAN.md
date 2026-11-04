@@ -30,6 +30,14 @@ Review depth: full
 T003, T004 and T005. The panel shows the facts and the absence state; the bypass is proved by the warning not
 appearing; every recording the new page staled is re-recorded with a mutant.
 
+## Wave 3 — the recording the new page outgrew
+
+Goal: The ship Verify found the development bundle has grown past what `research/raw/m022-ng-context.json` records, because T001 added a fixture page. T006 re-records it through the suite's own build and measurement commands, keeping the 2,000-byte tolerance that exists to catch exactly this.
+
+Review depth: full
+
+T006. The dev and prod bundle recordings are re-measured at this head, and the suite that compares them passes.
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -50,6 +58,7 @@ appearing; every recording the new page staled is re-recorded with a mutant.
 | SC3 | T004 | AC2 |
 | SC4 | T003 | AC4 |
 | SC5 | T005 | AC4 |
+| SC5 | T006 | AC3 |
 
 ## Prohibitions
 
@@ -60,6 +69,7 @@ appearing; every recording the new page staled is re-recorded with a mutant.
 | N3 | T002 | no production claim from a dev-mode warning; the absence of a warning is not reported as clean |
 | N4 | T003 | the surface renders the fact list and the absence state only |
 | N5 | T005 | the gate runs at the head, unweakened |
+| N5 | T006 | the 2,000-byte tolerance is kept; a stale recording is re-measured, never widened |
 
 ## Surface contract
 
