@@ -50,12 +50,22 @@ Walkthrough:
 4. Introduce a code the digest does not carry and confirm the surface renders the unknown state rather than invented text.
 Accessibility: the finding is reachable by keyboard, its code and binding are read as text rather than conveyed by colour, and the unknown state is announced rather than only styled.
 
+## Wave 4 — the set corrected against the clone
+
+Goal: T001's thirteen codes came from grepping bundles. The clone at `v22.1.8` shows the image directive declares
+seventeen in its own enum block, plus `NG0913` in core: eighteen. Five codes were missed because their messages use
+other wording. T006 adds them, taking each meaning from the clone's enum name and call site rather than from memory,
+and regenerates the artefact.
+Review depth: full
+
 ## Held-out checks
 
 | Edge | Task | Test |
 | --- | --- | --- |
 | E1 | T001 | scripts/image-digest.test.mjs |
+| E1 | T006 | scripts/image-digest.test.mjs |
 | E2 | T001 | scripts/image-digest.test.mjs |
+| E2 | T006 | scripts/image-digest.test.mjs |
 | E3 | T003 | scripts/image-finding.test.mjs |
 | E4 | T002 | scripts/image-digest.test.mjs |
 | E5 | T005 | scripts/image-budget.test.mjs |
@@ -65,6 +75,7 @@ Accessibility: the finding is reachable by keyboard, its code and binding are re
 | Criterion | Task | Acceptance |
 | --- | --- | --- |
 | SC1 | T001 | AC1 |
+| SC1 | T006 | AC1 |
 | SC2 | T001 | AC2 |
 | SC3 | T003 | AC1 |
 | SC4 | T002 | AC1 |
