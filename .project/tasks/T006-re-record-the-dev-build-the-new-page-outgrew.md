@@ -2,10 +2,10 @@
 id: T006
 title: Re-record the dev build the new page outgrew
 wave: 3
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T006
+base: 4052fd406a300a73f5f75a82c2f7a7b8f069003b
 worktree: null
 task_branch: null
 files:
@@ -61,3 +61,4 @@ node --test scripts/ng-context-dev-build.test.mjs
 ## Log
 
 - dispatched
+- T006: re-recorded m022 ng-context with the suite's own analyseBundle - dev 1,907,107B (+4,350, the trust-bypass-page fixture page) and prod 400,764B (main-K3ADZXL3.js, alias dg); 2,000-byte tolerance unchanged; node --test scripts/ng-context-dev-build.test.mjs 9/9; a mutated byte count reddens naming the field; npm run check green; npm test fails only on the pre-existing M029_CAPTURE skip that held-out E3 counts, outside this task's files
