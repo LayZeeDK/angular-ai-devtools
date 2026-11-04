@@ -58,12 +58,20 @@ other wording. T006 adds them, taking each meaning from the clone's enum name an
 and regenerates the artefact.
 Review depth: full
 
+## Wave 5 — the recordings the fixture change invalidated
+
+Goal: Adding the image-budget page changed `app.routes.ts` and the development bundle, so two control-skill feature
+manifests and the ng-context recording stopped matching. T007 re-records them with the skills' own recorder and
+re-measures the bundle, changing data rather than assertions, and proves each re-record reddens when reverted.
+Review depth: full
+
 ## Held-out checks
 
 | Edge | Task | Test |
 | --- | --- | --- |
 | E1 | T001 | scripts/image-digest.test.mjs |
 | E1 | T006 | scripts/image-digest.test.mjs |
+| E1 | T007 | scripts/fixture-proof-fresh.test.mjs |
 | E2 | T001 | scripts/image-digest.test.mjs |
 | E2 | T006 | scripts/image-digest.test.mjs |
 | E3 | T003 | scripts/image-finding.test.mjs |
@@ -82,6 +90,7 @@ Review depth: full
 | SC4 | T002 | AC1 |
 | SC5 | T004 | AC1 |
 | SC5 | T005 | AC2 |
+| SC5 | T007 | AC3 |
 
 ## Waves at a glance
 
