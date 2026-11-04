@@ -938,7 +938,22 @@ Risks
 Open questions
 - None
 
-### M024 — panel-verify-breadth
+### M024 — proof-corpus-repair
+
+Goal: Make the held-out proof corpus load-bearing: every suite passes in a fresh checkout under a script the project gate runs, or it does not exist.
+Depends on: [M023]
+Surfaces: none
+Status: active
+Archive: null
+Integrated: null
+
+Scope: in
+- `tests/held-out/`, the npm scripts, and whatever the ten dead suites need to become honest.
+
+Scope: out
+- Adding new held-out suites for new features; changing the product to satisfy a suite.
+
+### M025 — panel-verify-breadth
 
 Goal: Close the gap that `npm run check` never type-checks the panel, by adding the panel and the extension sources to the check and fixing what the first run reveals.
 Depends on: [M019]
@@ -975,7 +990,7 @@ Risks
 Open questions
 - None
 
-### M025 — image-budget-audit
+### M026 — image-budget-audit
 
 Goal: Build COM-1, why an image is slow and why the console warned about it, filling N4's missing image codes from NG02200 through NG02800.
 Depends on: [M020]
@@ -1015,7 +1030,7 @@ Risks
 Open questions
 - [RESEARCH] What does COM-S1 measure for an image with no width and height on the fixture, and which console warning does the browser emit for it?
 
-### M026 — after-render-ordering
+### M027 — after-render-ordering
 
 Goal: Build COR-1, why `afterNextRender` read `offsetWidth` as 0, from the ordered profiler after-render events.
 Depends on: [M020]
@@ -1054,7 +1069,7 @@ Risks
 Open questions
 - [RESEARCH] What does COR-S1 measure for the ordered after-render events of a component reading `offsetWidth`, and which event marks the read?
 
-### M027 — trust-bypass-triage
+### M028 — trust-bypass-triage
 
 Goal: Build PBR-1, what the sanitizer stripped and which binding did it.
 Depends on: [M020]
@@ -1094,7 +1109,7 @@ Risks
 Open questions
 - [RESEARCH] What does PBR-S1 measure for a stripped binding, and does the runtime expose the stripped value or only its category?
 
-### M028 — redirect-chain
+### M029 — redirect-chain
 
 Goal: Build RTR-1, why `/settings` lands on `/login`, walked from `Router.config` with a cycle guard.
 Depends on: [M020]
@@ -1134,7 +1149,7 @@ Risks
 Open questions
 - [RESEARCH] Which parts of `Router.config` are complete before a lazy chunk loads, and in what order does 22.x run a redirect function against a guard?
 
-### M029 — cross-field-validation
+### M030 — cross-field-validation
 
 Goal: Build FRM-1, why fixing one field does not enable submit, from the Signal Forms field states.
 Depends on: [M020]
