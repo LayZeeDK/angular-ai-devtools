@@ -1,0 +1,29 @@
+{
+  "milestone": "M023",
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "The harness target gives HAR-1 a root-boundary case with content outside the component root, HAR-2 a predicate case, HAR-3 an ambiguity case with two matching hosts, and HAR-4 an action case whose effect the harness observes.",
+      "ruling": "not-required",
+      "reason": "The charter's portal clause reaches a feature whose facts an insurance-portal route can produce. The harness target is served only by the counter fixture at spikes/ng222-app, no portal route produces its facts, and the held-out suites assert the family directly, so no portal-backed verdict is owed for this criterion."
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "The menu surface supplies the listbox and menu rules N23 needs, including at least one rule that fails when the attribute it reads is removed.",
+      "ruling": "not-required",
+      "reason": "The listbox and menu surface exists only in the counter fixture, not on an insurance-portal route, so the portal clause does not reach it. The per-attribute mutation already proves the rule bites, and a portal-backed verdict would need a portal page the fixture does not have."
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "The fixture builds and serves, and the four shipped explainers still answer on it.",
+      "ruling": "not-required",
+      "reason": "This criterion is about the counter fixture's own build and its four shipped explainers. No insurance-portal route produces those facts and the portal clause therefore does not reach the criterion; the recorded project Verify and the explainer pin produce the evidence the gate cites."
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "`npm run check` and `npm test` pass at the head.",
+      "ruling": "not-required",
+      "reason": "An aggregate gate over the repository's own type check and test run has no page of its own, so no insurance-portal route can produce its facts and the portal clause does not reach it. The recorded project Verify at the reviewed head is the evidence the wave gate cites."
+    }
+  ]
+}

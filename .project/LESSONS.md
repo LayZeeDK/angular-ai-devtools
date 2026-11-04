@@ -27,3 +27,24 @@
 - 021-optin-companion — A retired task worktree leaves a directory whose `.git` is gone, and `isolation.py recover` then blocks the next landing with "not a git repository". `git worktree prune` plus deleting that directory is the repair, safe once the landing commit exists.
 - 021-optin-companion — Never open a file for writing before reading it: `open(p, 'w').write(open(p).read())` truncates before the read, and emptied every artifact under `.project/review` in one command. Read to a variable first, then write.
 - 022-in-page-overlay — Never repair an activated task's contract in place: the landing proof binds the commit subject, the base SHA and the frontmatter to the task file *at the dispatch base*, so editing the title or the acceptance criteria mid-flight produces an unwinnable chain of subject / base / agent / worktree mismatches. Reset the task to pending, copy its artifacts out, retire its isolate, and re-dispatch from a base whose committed contract is already correct.
+- 023-fixture-components - A pre-approval grant recorded while `STATE.milestone` is null is indistinguishable from the previous milestone's consumed grant: `pre-approve --use intent` answers "used or out of scope" and `--grant` answers "already recorded", so the gate deadlocks with no flag to reset it. The grant's substance holds, so approve through the transition and record the anomaly; the real fix is for the record to carry the milestone or a sequence number.
+
+## M023 — a test that cannot fail is worse than a missing test
+
+Three separate held-out suites in one milestone passed while unable to detect the defect they were named for.
+`fixture-rebuild-idempotent` ends `assert.ok(true)` and never builds twice; `fixture-aria-order` compares a
+reversed list against itself; `fixture-harness-root-boundary` asserts source text rather than the rendered
+boundary. The explainer pin was a fourth, caught and repaired in-flight by T008 (`5090132`) after a reviewer
+read the file.
+
+The rule that would have caught all four: **read the artifact, never the receipt.** A coder's summary is a
+claim about a file. Twice the summary disagreed with the file — once recording `skipped 4`, once claiming a
+SHA-256 pin whose digests were computed and never compared. Both were accepted on the summary.
+
+The mechanical form of the rule, to be checked before a held-out task is accepted: name the one-character
+change to the product that would leave the test green. If you can name it, the test is not a proof.
+
+Second lesson, from the same milestone's bookkeeping: **a helper that refuses must be read by exit code, not by
+output filter.** `review.ps1 -Action close` failed four times in a row while the orchestrator's `Select-String`
+matched nothing and reported progress. The stub path was also wrong — stubs written into `.project/review` are
+rejected by the completion gate, which cost three cycles.

@@ -108,10 +108,13 @@ const NG_GLOBAL_REQUIRED = NG_GLOBAL_MARKERS.slice(0, 5).map(([name]) => name);
 
 /** The fixture's declared dependencies, frozen: the measurement may not be bought with a new one. */
 const FIXTURE_DEPENDENCIES = [
+  '@angular/aria',
+  '@angular/cdk',
   '@angular/common',
   '@angular/compiler',
   '@angular/core',
   '@angular/forms',
+  '@angular/material',
   '@angular/platform-browser',
   '@angular/router',
   'ai-devtools-companion',

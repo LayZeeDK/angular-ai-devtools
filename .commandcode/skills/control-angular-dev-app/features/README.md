@@ -54,6 +54,7 @@ Each feature file has an H1, one paragraph of user-visible behaviour, then four 
 ## Features
 
 - [Counter](./counter.md): the ng222-app counter, its signals and its effect.
+- [Components](./components.md): the `/components` page's two harness probes, listbox, tabs, menu and overlay surfaces.
 - [SSR and hydration](./ssr.md): server HTML, hydration counters and mismatches, transfer cache, `@defer`
   hydrate triggers, event replay, render mode per route.
 - [Portal navigation](./portal-navigation.md): header, sidebar, home tiles, lazy routes, not-found page.
@@ -67,11 +68,12 @@ Each feature file has an H1, one paragraph of user-visible behaviour, then four 
 A full pass drives the features in this order.
 
 1. [Counter](./counter.md)
-2. [SSR and hydration](./ssr.md)
-3. [Portal navigation](./portal-navigation.md)
-4. [Portal contracts](./portal-contracts.md)
-5. [Portal claims](./portal-claims.md)
-6. [Portal complaints and customers](./portal-complaints-customers.md)
+2. [Components](./components.md)
+3. [SSR and hydration](./ssr.md)
+4. [Portal navigation](./portal-navigation.md)
+5. [Portal contracts](./portal-contracts.md)
+6. [Portal claims](./portal-claims.md)
+7. [Portal complaints and customers](./portal-complaints-customers.md)
 
 ## Manual only
 

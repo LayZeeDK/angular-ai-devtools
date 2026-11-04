@@ -1,52 +1,52 @@
 {
   "roles": {
-    "coder": {
-      "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
-    },
-    "decide": {
-      "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
-    },
-    "docs_audit": {
-      "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
-    },
     "inspect_codebase": {
       "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "model": "reflection/beam:free"
     },
     "inspect_docs": {
-      "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "effort": "medium",
+      "model": "stealth/glyph-cluster:free"
+    },
+    "docs_audit": {
+      "effort": "medium",
+      "model": "stealth/glyph-cluster:free"
     },
     "plan": {
-      "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "effort": "medium",
+      "model": "stealth/glyph-cluster:free"
     },
     "plan_patch": {
-      "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "effort": "medium",
+      "model": "stealth/glyph-cluster:free"
+    },
+    "decide": {
+      "effort": "medium",
+      "model": "inclusionai/ling-3.1-flash-1019:free"
     },
     "research": {
-      "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+      "effort": "medium",
+      "model": "inclusionai/ling-3.1-flash-1019:free"
     },
-    "review_panel": {
+    "coder": {
       "effort": "high",
-      "model": "z-ai/glm-5.3-flash"
+      "model": "reflection/beam:free"
     },
     "reviewer": {
       "effort": "high",
-      "model": "z-ai/glm-5.3-flash"
+      "model": "reflection/beam:free"
     },
-    "roadmap": {
-      "effort": "high",
-      "model": "deepseek/deepseek-v4.1-flash"
+    "review_panel": {
+      "effort": "medium",
+      "model": "stealth/glyph-cluster:free"
     },
     "skeptic": {
-      "effort": "high",
-      "model": "z-ai/glm-5.3-flash"
+      "effort": "medium",
+      "model": "stealth/glyph-cluster:free"
+    },
+    "roadmap": {
+      "effort": "medium",
+      "model": "stealth/glyph-cluster:free"
     }
   }
 }

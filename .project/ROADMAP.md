@@ -862,8 +862,8 @@ Goal: Ship the only DOM the tool adds to an inspected page — a rect/label over
 Depends on: [M019]
 Surfaces: inspected page
 Status: shipped
-Archive: .project/archive/022-in-page-overlay
-Integrated: null
+Archive: 022-in-page-overlay
+Integrated: 9d3c711
 
 Scope: in
 - One host element with a closed Shadow DOM, attached once at `document_start`.
@@ -904,9 +904,9 @@ Open questions
 Goal: Add Aria, CDK and Material surfaces to the verification fixtures, so the harness and Aria features have subjects to be right about.
 Depends on: [M019]
 Surfaces: none
-Status: pending
-Archive: null
-Integrated: null
+Status: shipped
+Archive: .project/archive/023-fixture-components
+Integrated: 6ea8aff4af2a162a30753c9b2eecd96c8cca97f1
 
 Scope: in
 - `@angular/aria`, `@angular/cdk` and `@angular/material` in the verification fixture.

@@ -1,5 +1,5 @@
 // @ts-check
-// Run: node --test .claude/skills/control-pangular-inspector/scripts/control.test.mjs
+// Run: node --test .commandcode/skills/control-pangular-inspector/scripts/control.test.mjs
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -13,6 +13,7 @@ import {
   authCodeIn,
   busyPorts,
   callRefusal,
+  candidatePorts,
   checkLine,
   componentOutline,
   consoleCheck,
@@ -32,6 +33,7 @@ import {
   porcelainPaths,
   portRows,
   portsCheck,
+  probePort,
   proxyPlan,
   readOnlyCheck,
   setupChecks,
@@ -74,6 +76,19 @@ async function listen(t) {
   return /** @type {import('node:net').AddressInfo} */ (server.address()).port;
 }
 
+/**
+ * A port nothing holds: the OS picks it for a listener that is closed again.
+ * @returns {Promise<number>}
+ */
+async function freePort() {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  const { port } = /** @type {import('node:net').AddressInfo} */ (server.address());
+  await new Promise((resolve) => server.close(() => resolve(undefined)));
+
+  return port;
+}
+
 const devServer = (/** @type {string} */ name, /** @type {Record<string, unknown>} */ build = {}) =>
   JSON.stringify({ name, targets: { build: { options: build }, serve: { executor: '@angular/build:dev-server' } } });
 
@@ -111,14 +126,75 @@ test('portRows pins the devtools port to the line of the app proxy that names it
   assert.equal(pinOf(dir, 'missing.json', 'x'), 'missing.json');
 });
 
-test('a busy fixed devtools port is a refusal naming the throwaway listener and the pin; a free one passes', async (t) => {
+/**
+ * A throwaway listener on `host` at a port the OS picks; closed after the test.
+ * @param {import('node:test').TestContext} t
+ * @param {string} host
+ * @returns {Promise<number>}
+ */
+async function listenOn(t, host) {
+  const server = createServer();
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, host, () => resolve(undefined));
+  });
+  t.after(() => server.close());
+
+  return /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+}
+
+/** An address no host has: TEST-NET-1 (RFC 5737) is never assigned to an interface, so a bind on it fails with EADDRNOTAVAIL. */
+const UNBINDABLE = '192.0.2.1';
+
+/** A port nothing listens on: the probe is asked about it on `UNBINDABLE` only, so only the unknown answer is in reach. */
+const UNDECIDED_PORT = 45000;
+
+test('probePort reads a listener bound on ::1 alone as busy, and the leg that holds nothing as free', async (t) => {
+  const port = await listenOn(t, '::1');
+  assert.equal(await probePort(port, ['127.0.0.1']), 'free', `${port} holds nothing on 127.0.0.1: the listener is on ::1 only`);
+  assert.equal(await probePort(port), 'busy', `${port} is busy: the probe binds both loopback legs, and a listener on ::1 alone is still a listener`);
+  assert.equal((await busyPorts([port])).has(port), true, `${port} is busy, so the planner is told and never offers it`);
+});
+
+test('probePort answers unknown, never free, for a bind that fails for any reason but EADDRINUSE', async (t) => {
+  const port = await listenOn(t, '127.0.0.1');
+  assert.equal(await probePort(port, [UNBINDABLE]), 'unknown', `no host has ${UNBINDABLE}, so nothing was learned about ${port}: not free`);
+  assert.equal(await probePort(port, ['::1', UNBINDABLE]), 'unknown', 'one address the probe could not bind is enough: free needs every address to answer free');
+  assert.equal(await probePort(port, ['127.0.0.1', UNBINDABLE]), 'busy', 'a busy address outranks one the probe could not bind');
+});
+
+test('a port the probe could not decide is refused, never selected as free', async () => {
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'probe', kind: 'derived', at: () => UNDECIDED_PORT }];
+  const busy = await busyPorts([UNDECIDED_PORT], [UNBINDABLE]);
+
+  assert.deepEqual([...busy.keys()], [UNDECIDED_PORT], 'an undecided port is in the map: what is not known to be free is not offered');
+  assert.deepEqual(planPorts(rows, [0], busy), { ok: false, reason: `no free slot in 1 tries (slots 0): probe ${UNDECIDED_PORT} held by a process the OS did not name` });
+});
+
+test('busyPorts decides by binding a port: the one this process holds is busy, the same port is free once released', async () => {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  const port = /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+  const held = await busyPorts([port]);
+  assert.equal(held.has(port), true, `a listener this process holds on ${port} is busy`);
+  await new Promise((resolve) => server.close(() => resolve(undefined)));
+  assert.deepEqual([...((await busyPorts([port])).keys())], [], `nothing holds ${port} once the release ran: it is free`);
+});
+
+test('a busy fixed devtools port is a refusal whatever names the holder, and a free one passes', async (t) => {
   const held = await listen(t);
+  const spare = await freePort();
+  const pin = 'apps/portal/proxy.conf.json:3 in the app checkout D:\\p';
   /** @type {import('./control.mjs').PortRow[]} */
-  const rows = [{ name: 'pangular', kind: 'fixed', port: held, pin: 'apps/portal/proxy.conf.json:3 in the app checkout D:\\p' }];
-  assert.deepEqual(planPorts(rows, [0], busyPorts()), { ok: false, reason: `fixed port pangular ${held} held by PID ${process.pid}; pinned by apps/portal/proxy.conf.json:3 in the app checkout D:\\p` });
+  const rows = [{ name: 'pangular', kind: 'fixed', port: held, pin }];
+  assert.deepEqual([...((await busyPorts(candidatePorts(rows, [0]))).keys())], [held], 'the probe finds the listener this process holds');
+  assert.deepEqual(planPorts(rows, [0], new Map([[held, []]])), { ok: false, reason: `fixed port pangular ${held} held by a process the OS did not name; pinned by ${pin}` }, 'a busy port is a refusal without a PID');
+  const refused = planPorts(rows, [0], await busyPorts(candidatePorts(rows, [0])));
+  assert.ok(!refused.ok && refused.reason.startsWith(`fixed port pangular ${held} held by `) && refused.reason.endsWith(`; pinned by ${pin}`), JSON.stringify(refused));
   /** @type {import('./control.mjs').PortRow[]} */
-  const free = [{ name: 'pangular', kind: 'fixed', port: 1, pin: 'p:1' }, { name: 'app', kind: 'external', port: held, owner: 'o' }];
-  assert.deepEqual(planPorts(free, [0], busyPorts()), { ok: true, slot: 0, ports: [{ name: 'pangular', port: 1, kind: 'fixed', reason: 'p:1' }, { name: 'app', port: held, kind: 'external', reason: 'o' }] }, 'a busy external app port is not checked');
+  const free = [{ name: 'pangular', kind: 'fixed', port: spare, pin: 'p:1' }, { name: 'app', kind: 'external', port: held, owner: 'o' }];
+  assert.deepEqual(planPorts(free, [0], await busyPorts(candidatePorts(free, [0]))), { ok: true, slot: 0, ports: [{ name: 'pangular', port: spare, kind: 'fixed', reason: 'p:1' }, { name: 'app', port: held, kind: 'external', reason: 'o' }] }, 'a busy external app port is not checked');
 });
 
 test('portsCheck passes an owned devtools port, fails a missing or foreign one, and ignores the app', () => {
@@ -127,7 +203,9 @@ test('portsCheck passes an owned devtools port, fails a missing or foreign one, 
     { name: 'pangular', port: 9999, kind: 'fixed', reason: 'apps/portal/proxy.conf.json:3' },
     { name: 'app', port: 4507, kind: 'external', reason: 'control-angular-dev-app' },
   ];
-  assert.deepEqual(portsCheck(ports, new Map([[9999, [10]]]), new Set([10])), { status: 'pass', detail: 'pangular 9999 (fixed: apps/portal/proxy.conf.json:3), app 4507 (external: control-angular-dev-app)' });
+  const detail = 'pangular 9999 (fixed: apps/portal/proxy.conf.json:3), app 4507 (external: control-angular-dev-app)';
+  assert.deepEqual(portsCheck(ports, new Map([[9999, [10]]]), new Set([10])), { status: 'pass', detail });
+  assert.deepEqual(portsCheck(ports, new Map([[9999, []]]), new Set()), { status: 'pass', detail }, 'a listener the OS does not name is still listening');
   assert.deepEqual(portsCheck(ports, new Map([[9999, [10, 99]]]), new Set([10])), { status: 'fail', detail: 'pangular 9999 held by PID 99, not the recorded tree' });
   assert.deepEqual(portsCheck(ports, new Map(), new Set([10])), { status: 'fail', detail: 'pangular 9999 not listening' });
 });

@@ -1,5 +1,5 @@
 // @ts-check
-// Run: node --test .claude/skills/control-angular-devtools/scripts/control.test.mjs
+// Run: node --test .commandcode/skills/control-angular-devtools/scripts/control.test.mjs
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -16,6 +16,7 @@ import {
   isExtensionVersion,
   brandedStatusIn,
   busyPorts,
+  candidatePorts,
   checkOf,
   downOutcome,
   evaluated,
@@ -34,6 +35,7 @@ import {
   planPorts,
   portRows,
   portsCheck,
+  probePort,
   profilerOk,
   signalGraphMatch,
   stopRun,
@@ -159,18 +161,23 @@ test('planPorts falls back to the next slot when a throwaway listener holds the 
   const free = await freePort();
   /** @type {import('./control.mjs').PortRow[]} */
   const rows = [{ name: 'cdp', kind: 'derived', at: (slot) => (slot === 5 ? held : free) }];
-  assert.deepEqual(planPorts(rows, [5, 6], busyPorts()), { ok: true, slot: 6, ports: [{ name: 'cdp', port: free, kind: 'derived', reason: `fell back from ${held}: held by PID ${process.pid}` }] });
+  assert.deepEqual(planPorts(rows, [5, 6], new Map([[held, []]])), { ok: true, slot: 6, ports: [{ name: 'cdp', port: free, kind: 'derived', reason: `fell back from ${held}: held by a process the OS did not name` }] }, 'a busy first slot falls back without a PID');
+  const probe = await busyPorts(candidatePorts(rows, [5, 6]));
+  assert.equal(probe.has(held), true, `the probe finds the listener this process holds on ${held}`);
+  const planned = planPorts(rows, [5, 6], probe);
+  assert.ok(planned.ok && planned.slot === 6 && planned.ports[0]?.reason?.startsWith(`fell back from ${held}: held by `), JSON.stringify(planned));
 });
 
 test('planPorts refuses after 10 busy slots and names each port and its holder', async (t) => {
   const held = await Promise.all(Array.from({ length: 10 }, () => listen(t)));
   /** @type {import('./control.mjs').PortRow[]} */
   const rows = [{ name: 'cdp', kind: 'derived', at: (slot) => Number(held[slot]) }];
-  const plan = planPorts(rows, slotOrder(0), busyPorts());
+  const order = slotOrder(0);
+  const plan = planPorts(rows, order, await busyPorts(candidatePorts(rows, order)));
   assert.equal(plan.ok, false);
 
   for (const port of held) {
-    assert.ok(!plan.ok && plan.reason.includes(`cdp ${port} held by PID ${process.pid}`), `names ${port}`);
+    assert.ok(!plan.ok && plan.reason.includes(`cdp ${port} held by `), `names ${port}`);
   }
 });
 
@@ -179,8 +186,11 @@ test('planPorts refuses a busy --port with its holder, and a busy fixed port wit
   const free = await freePort();
   /** @type {import('./control.mjs').PortRow[]} */
   const rows = [{ name: 'cdp', kind: 'derived', at: () => free }];
-  assert.deepEqual(planPorts(rows, [0, 1], busyPorts(), held), { ok: false, reason: `port ${held} (--port) is held by PID ${process.pid}; --port has no fallback` });
-  assert.deepEqual(planPorts([...rows, { name: 'x', kind: 'fixed', port: held, pin: 'a.ts:1' }], [0], busyPorts()), { ok: false, reason: `fixed port x ${held} held by PID ${process.pid}; pinned by a.ts:1` });
+  const busy = new Map([[held, []]]);
+  assert.deepEqual(planPorts(rows, [0, 1], busy, held), { ok: false, reason: `port ${held} (--port) is held by a process the OS did not name; --port has no fallback` }, 'a busy --port refuses without a PID');
+  assert.deepEqual(planPorts([...rows, { name: 'x', kind: 'fixed', port: held, pin: 'a.ts:1' }], [0], busy), { ok: false, reason: `fixed port x ${held} held by a process the OS did not name; pinned by a.ts:1` });
+  const refused = planPorts([...rows, { name: 'x', kind: 'fixed', port: held, pin: 'a.ts:1' }], [0], await busyPorts([held]));
+  assert.ok(!refused.ok && refused.reason.startsWith(`fixed port x ${held} held by `) && refused.reason.endsWith('; pinned by a.ts:1'), JSON.stringify(refused));
 });
 
 test('portsCheck passes a CDP port the recorded browser holds and fails a foreign or missing one', () => {
@@ -189,14 +199,66 @@ test('portsCheck passes a CDP port the recorded browser holds and fails a foreig
     { name: 'cdp', port: 9437, kind: 'derived' },
     { name: 'app', port: 4336, kind: 'external', reason: 'control-angular-dev-app' },
   ];
-  assert.deepEqual(portsCheck(ports, new Map([[9437, [10]]]), new Set([10])), { status: 'pass', detail: 'cdp 9437 (derived), app 4336 (external: control-angular-dev-app)' });
+  const detail = 'cdp 9437 (derived), app 4336 (external: control-angular-dev-app)';
+  assert.deepEqual(portsCheck(ports, new Map([[9437, [10]]]), new Set([10])), { status: 'pass', detail });
+  assert.deepEqual(portsCheck(ports, new Map([[9437, []]]), new Set()), { status: 'pass', detail }, 'a listener the OS does not name is still listening');
   assert.deepEqual(portsCheck(ports, new Map([[9437, [10, 99]]]), new Set([10])), { status: 'fail', detail: 'cdp 9437 held by PID 99, not the recorded tree' });
   assert.deepEqual(portsCheck(ports, new Map(), new Set([10])), { status: 'fail', detail: 'cdp 9437 not listening' });
 });
 
-test('busyPorts sees a throwaway listener with this process as its holder', async (t) => {
-  const port = await listen(t);
-  assert.deepEqual(busyPorts().get(port), [process.pid]);
+/**
+ * A throwaway listener on `host` at a port the OS picks; closed after the test.
+ * @param {import('node:test').TestContext} t
+ * @param {string} host
+ * @returns {Promise<number>}
+ */
+async function listenOn(t, host) {
+  const server = createServer();
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, host, () => resolve(undefined));
+  });
+  t.after(() => server.close());
+
+  return /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+}
+
+/** An address no host has: TEST-NET-1 (RFC 5737) is never assigned to an interface, so a bind on it fails with EADDRNOTAVAIL. */
+const UNBINDABLE = '192.0.2.1';
+
+/** A port nothing listens on: the probe is asked about it on `UNBINDABLE` only, so only the unknown answer is in reach. */
+const UNDECIDED_PORT = 45000;
+
+test('probePort reads a listener bound on ::1 alone as busy, and the leg that holds nothing as free', async (t) => {
+  const port = await listenOn(t, '::1');
+  assert.equal(await probePort(port, ['127.0.0.1']), 'free', `${port} holds nothing on 127.0.0.1: the listener is on ::1 only`);
+  assert.equal(await probePort(port), 'busy', `${port} is busy: the probe binds both loopback legs, and a listener on ::1 alone is still a listener`);
+  assert.equal((await busyPorts([port])).has(port), true, `${port} is busy, so the planner is told and never offers it`);
+});
+
+test('probePort answers unknown, never free, for a bind that fails for any reason but EADDRINUSE', async (t) => {
+  const port = await listenOn(t, '127.0.0.1');
+  assert.equal(await probePort(port, [UNBINDABLE]), 'unknown', `no host has ${UNBINDABLE}, so nothing was learned about ${port}: not free`);
+  assert.equal(await probePort(port, ['::1', UNBINDABLE]), 'unknown', 'one address the probe could not bind is enough: free needs every address to answer free');
+  assert.equal(await probePort(port, ['127.0.0.1', UNBINDABLE]), 'busy', 'a busy address outranks one the probe could not bind');
+});
+
+test('a port the probe could not decide is refused, never selected as free', async () => {
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'probe', kind: 'derived', at: () => UNDECIDED_PORT }];
+  const busy = await busyPorts([UNDECIDED_PORT], [UNBINDABLE]);
+
+  assert.deepEqual([...busy.keys()], [UNDECIDED_PORT], 'an undecided port is in the map: what is not known to be free is not offered');
+  assert.deepEqual(planPorts(rows, [0], busy), { ok: false, reason: `no free slot in 1 tries (slots 0): probe ${UNDECIDED_PORT} held by a process the OS did not name` });
+});
+
+test('busyPorts decides by binding a port: the one this process holds is busy, the same port is free once released', async () => {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  const port = /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+  assert.equal((await busyPorts([port])).has(port), true, `a listener this process holds on ${port} is busy`);
+  await new Promise((resolve) => server.close(() => resolve(undefined)));
+  assert.deepEqual([...((await busyPorts([port])).keys())], [], `nothing holds ${port} once the release ran: it is free`);
 });
 
 test('parseRunCode unwraps the JSON string the run-code wrapper prints', () => {
