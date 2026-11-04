@@ -3,7 +3,7 @@
 Milestone: trust-bypass-triage
 Branch: gsd-path/M029
 
-Project verify: `npm ci --include=dev && npm --prefix spikes/ng222-app ci --include=dev && npm run check && npm test`
+Project verify: `npm ci --include=dev && npm --prefix spikes/ng222-app ci --include=dev && npx nx run ai-devtools-companion:build && npm run check && npm test`
 
 ## Config
 
