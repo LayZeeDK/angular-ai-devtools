@@ -2,11 +2,11 @@
 id: T001
 title: Give the fixture an after-render read
 wave: 1
-status: in-progress
+status: done
 deps: []
 agent: build_T001
-base: 213f00ea5861940edf430ca2187267396ee3b5bc
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: fb5717a997eb05dd654449cd3b1b6a8d2fa95c59
+worktree: null
 task_branch: null
 files:
   - spikes/ng222-app/src/app/after-render-page.ts
