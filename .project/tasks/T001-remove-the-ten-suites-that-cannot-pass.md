@@ -3,13 +3,23 @@ id: T001
 title: Remove the ten suites that cannot pass
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T001
+base: 62807efd890ffbb576d5df21b551e768f5daf49c
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - .project/plan/RETIRED-SUITES.md
+  - tests/held-out/e1-zero-defects-recorded.test.mjs
+  - tests/held-out/e5-unverifiable-recorded.test.mjs
+  - tests/held-out/e6-portal-dependency.test.mjs
+  - tests/held-out/e10-spec-present.test.mjs
+  - tests/held-out/e11-rerun-stable.test.mjs
+  - tests/held-out/e12-clean-worktree.test.mjs
+  - tests/held-out/chrome-beta-gemma4-panel.test.mjs
+  - tests/held-out/chrome-beta-nano-panel.test.mjs
+  - tests/held-out/chrome-stable-nano-panel.test.mjs
+  - tests/held-out/edge-phi4mini-panel.test.mjs
   - scripts/retired-suites.test.mjs
 ---
 
@@ -53,3 +63,8 @@ npm ci --include=dev; node --test scripts/retired-suites.test.mjs
 ## Log
 
 - opened by orchestrator in wave 1
+- deleted the ten suites: six eN-* that read the untracked .project/review record and four *-panel that need a live browser and model; git status shows the ten deletions and no other product change
+- wrote .project/plan/RETIRED-SUITES.md with 10 rows, each carrying the claim, the subject it read or drove, why it could not pass in a fresh checkout, and the successor: the review grammar (gsd review-check / gsd final-check) for the six, verify-ai-browsers check extension-panel plus state for the four; the record resolves from .project/archive/<NNN>/plan after the ship flow moves it
+- decision on AC2 scope: the dangling-name check covers every file the walk reaches except .project/plan (the record itself and MEASUREMENT.md), .project/archive (append-only provenance of these suites) and .project/tasks (this task names the ten by construction); MEASUREMENT.md names all ten, so a literal whole-repository scan cannot pass and the exemption is named in the source with its reason
+- four mutants captured then restored: a record row removed fails with the row set naming e6-portal-dependency missing; a retired file recreated fails with 'a suite the record lists as retired is still in the corpus'; a scripts/ probe naming e11-rerun-stable fails naming scripts/mutant-probe.mjs; a blanked claim cell fails with 'e12-clean-worktree: no claim', which is held-out E5
+- Verify: npm ci --include=dev && node --test scripts/retired-suites.test.mjs -> exit 0, tests 4, pass 4, fail 0; a suite recreated, a row dropped, a claim blanked or a live file naming a retired basename each fails it. ready
