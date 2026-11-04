@@ -65,6 +65,26 @@ held-out E1, held-out E2 and held-out E4 — the three shape mutants above are n
 - SC2
 - SC4
 
+## Attempt 1 — capture route
+
+The four shared browser instances are all stopped, and starting one loads a shared profile and its on-device model,
+which this task does not need: the deliverable is a console message, not a model answer.
+
+Prefer a **reproducible headless capture**:
+
+1. Start the fixture's dev server for the counter target (the `control-angular-dev-app` skill's `up` names the
+   command), or `npx nx run angular-ai-devtools:...` if that is what serves `/image-budget` on the fixture.
+2. Drive a headless Chromium through Playwright (the repo already depends on `playwright-core`), navigate to
+   `/image-budget`, and collect `console` messages and page errors verbatim.
+3. Record the browser build string the capture used, in place of a profile name, and say in the record that it was a
+   headless Playwright Chromium rather than a shared instance.
+
+If Playwright's browser binary is absent and cannot be installed offline, fall back to a shared instance started with
+the control skill's `up`, and record the profile and instance as the provenance instead. Either route is acceptable;
+what is **not** acceptable is recording a provenance you did not use.
+
+If neither route can run, block and name what is missing.
+
 ## Log
 
 - created
