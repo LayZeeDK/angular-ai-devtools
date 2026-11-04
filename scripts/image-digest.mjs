@@ -56,11 +56,13 @@ const LICENSE_PATTERN = /MIT License|Google LLC|licensed under/i;
 
 export function stripLicense(text) {
   return String(text)
-    .split('\n')
-    .filter((line) => !/MIT License/i.test(line) && !/Google LLC/i.test(line) && !/licensed under/i.test(line))
-    .join('\n')
     .replace(/MIT License/gi, '')
     .replace(/Google LLC/gi, '')
+    .replace(/licensed under/gi, '')
+    .split('\n')
+    .map((line) => line.replace(/\s{2,}/g, ' ').trim())
+    .filter((line) => line.length > 0)
+    .join('\n')
     .replace(/\s{2,}/g, ' ')
     .trim();
 }

@@ -2,10 +2,10 @@
 id: T002
 title: No licence text reaches a prompt
 wave: 1
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: 95fa7dd8fc342aeb3172fdd9776de2cd1a93e979
 worktree: null
 task_branch: null
 files:
@@ -53,3 +53,5 @@ held-out E4 — the licence-string mutant names the code whose entry carried it.
 ## Log
 
 - created
+- implemented licence tests (11 total pass); mutants verified
+- RESULT: T002 ready
