@@ -20,7 +20,7 @@ Reviewed HEAD: 41a7be3674f80a1217d330eeb7f453ad6f45f4b9
 
 ## Intent coverage
 
-### SC5 — 5. `npm run check` and `npm test` pass at the head.: pass
+### SC5 — `npm run check` and `npm test` pass at the head.: pass
 
 - ✅ `scripts/sanitizer-warning-capture.test.mjs` passes fully at head (13/13) with 0 skipped.
 - ✅ `scripts/ng-context-dev-build.test.mjs` fails due to missing environment prerequisites (not suite weakening/skipping) — gate enforces `requirePrerequisite` (fails rather than skips), provisioning commands named. Build-dependent measurements cannot run in this checkout without `npm ci --include=dev` (root) and `npm --prefix spikes/ng222-app ci --include=dev` (fixture); this matches the test’s “fail rather than skip” design.
