@@ -9,6 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
+  - extension/tsconfig.json
   - extension/agent-main.js
   - extension/relay.js
   - extension/panel.js

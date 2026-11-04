@@ -36,10 +36,12 @@ script, who needs a compiler to catch a wrong property; the reviewer citing a gr
 
 | Edge | Criterion | Category | Disposition | Test |
 | --- | --- | --- | --- | --- |
-| E1 | SC3 | boundary | held-out | `scripts/extension-typecheck.test.mjs` — a wrong property in a source file reddens the check and names the file |
-| E2 | SC1 | adjacency | held-out | `scripts/extension-typecheck.test.mjs` — an error placed inside `extension/panel/` leaves the check green, proving the exclusion is the generated directory and nothing wider |
-| E3 | SC2 | empty | held-out | `scripts/extension-typecheck.test.mjs` — the check over a directory with no JavaScript reports no errors rather than failing to start |
-| E4 | SC4 | boundary | held-out | `scripts/extension-typecheck.test.mjs` — the config's `strict` setting is asserted to be `false` and the header must state the gap |
+| E1 | SC3 | boundary | held-out | `scripts/extension-typecheck.test.mjs` — a wrong property in an authored source reddens the check and names the file |
+| E2 | SC3 | adjacency | held-out | `scripts/extension-typecheck.test.mjs` — an error inside `extension/panel/` leaves the check green, proving the exclusion is the generated directory and nothing wider |
+| E3 | SC3 | empty | held-out | `scripts/extension-typecheck.test.mjs` — a tree with no JavaScript reports no errors rather than failing to start |
+| E4 | SC4 | boundary | held-out | `scripts/extension-typecheck.test.mjs` — the config's `strict` is asserted `false` and its header must state the gap |
+| E5 | SC1 | boundary | gate | `package.json` — `check:extension` is chained into `check`, and the config's only exclude is `panel/**` |
+| E6 | SC2 | precision | gate | `extension/tsconfig.json` — the check over the sources reports zero errors |
 
 ## Prohibitions
 
