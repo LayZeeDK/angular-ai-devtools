@@ -1038,8 +1038,8 @@ Open questions
 Goal: Capture the console warning a real browser emits for an unbudgeted image on the fixture, so the gap M026 shipped with is closed by measurement rather than transcription.
 Depends on: [M026]
 Surfaces: none
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/027-image-warning-capture
 Integrated: null
 
 Scope: in
