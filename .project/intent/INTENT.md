@@ -41,7 +41,7 @@ no text reaches a prompt before the licence strip.
 2. Every digest entry is at most 150 tokens, and the digest is generated at extension build time rather than hand-written at runtime.
 3. A fixture page uses `NgOptimizedImage` in a way that provokes a real runtime warning, and COM-1 names the image, the code and the binding that produced the offending attribute.
 4. The licence and copyright notice is stripped from every entry before any digest text reaches a prompt.
-5. The panel renders the finding and its explanation from a short fact list with no tool calling outside the registry envelope, and `npm run check` and `npm test` pass at the head while the initial bundle stays inside 520 KB.
+5. The panel renders the finding and its explanation from a short fact list with no tool calling outside the registry envelope, and `npm run check` and `npm test` pass at the head while the initial bundle stays inside the recorded baseline of 535.44 kB (520 kB is the build's warning threshold, not the enforced bound — the panel already sat above it before this milestone).
 
 ## Edge coverage
 
@@ -92,3 +92,7 @@ Out:
 ## Open questions
 
 - None. COM-S1 was answered from the runtime source; the browser-console path is out of scope and said so.
+
+## Corrections
+
+- **2026-11-04, budget figure corrected (delegated ruling).** SC5 said the initial bundle stays inside 520 KB. `scripts/panel-bundle-budget.test.mjs` shows 520 kB is the build's `maximumWarning`, and the enforced baseline is 535.44 kB, which the panel already exceeded before this milestone. SC5 now names the enforced baseline.
