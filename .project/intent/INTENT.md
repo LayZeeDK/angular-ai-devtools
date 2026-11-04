@@ -1,5 +1,9 @@
 # Intent — M024 `proof-corpus-repair`
 
+Lane: milestone
+Review panel: off
+Finding skeptics: off
+Surfaces: none
 ## Summary
 
 Make the held-out proof corpus load-bearing: every suite either passes in a fresh checkout under a script that
@@ -43,10 +47,6 @@ who cites a held-out suite as evidence; the next milestone's coder, who needs a 
 | N2 | SC1 | Exclude a suite from the corpus by a mechanism that also hides its failure | criterion SC1 | a skip that reports pass is the defect this milestone exists to repair |
 | N3 | SC4 | Delete a suite to reach green without recording the claim it made | judgment | the claim is the asset; deleting it silently loses the reason the suite existed |
 | N4 | SC2 | Let a suite count as passing when the corpus script could not run it | criterion SC2 | a suite the script never ran must fail the gate, or the green means nothing |
-
-## Surfaces
-
-none
 
 ## Scope
 
