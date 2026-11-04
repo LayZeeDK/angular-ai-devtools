@@ -2,16 +2,17 @@
 id: T004
 title: Prove the vetted bypass as an absence
 wave: 2
-status: pending
+status: in-progress
 deps: [T002]
-agent: null
-base: null
-worktree: null
+agent: build_T004
+base: dfa39567a32b13e22ff8f855f0259ced1e06a129
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - spikes/ng222-app/src/app/trust-bypass-page.ts
   - extension/sanitizer-triage.js
   - scripts/sanitizer-bypass.test.mjs
+  - research/raw/m029-sanitizer-bypass.json
 ---
 
 # T004 — Prove the vetted bypass as an absence
@@ -56,3 +57,4 @@ npm ci --include=dev; node --test scripts/sanitizer-bypass.test.mjs
 ## Log
 
 - dispatched
+- pair captured in one page load: 2 sanitizer warnings for unsafe@1,unsafe@2 and none for bypassed@1/2 (bypassSecurityTrustHtml carries the byte-identical value and writes it whole, script retained); fourth state deliberate -> {state:deliberate,binding:bypassSecurityTrustHtml,contrast:{binding:unsafe,writeVersion:1,bypassWriteVersion:1,warnings:2}} beside the load's stripped/cannot-tell findings, and the same bindings with no warning stay none (neither clean nor deliberate); 3 mutants redden (bypass-as-stripped, no-warning-as-clean, deliberate-without-a-bypass); node --test scripts/sanitizer-bypass.test.mjs 10/10 pass after npm ci --include=dev; contract defect: files: declares no path under research/raw, so the recording lives in the run (M029_BYPASS_RECORD=<path> writes it) and research/raw/m029-sanitizer-bypass.json was deliberately not written
