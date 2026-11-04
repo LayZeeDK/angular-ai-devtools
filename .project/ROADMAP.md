@@ -1033,7 +1033,40 @@ Risks
 Open questions
 - [RESEARCH] What does COM-S1 measure for an image with no width and height on the fixture, and which console warning does the browser emit for it?
 
-### M027 — after-render-ordering
+### M027 — image-warning-capture
+
+Goal: Capture the console warning a real browser emits for an unbudgeted image on the fixture, so the gap M026 shipped with is closed by measurement rather than transcription.
+Depends on: [M026]
+Surfaces: none
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- One browser run against `/image-budget` on the fixture in development mode, with the console captured as evidence.
+- Reading the captured message for text, code and the image it names.
+- Replacing the transcribed `source` in the warning sample with a captured one, naming profile, instance and time.
+- Recording a negative result plainly if the browser emits no warning.
+
+Scope: out
+- Mapping a browser message onto an `NG` code it does not carry.
+- A second warning sample or a second capture path.
+- Changing the digest, COM-1's processing or the panel surface that M026 shipped.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A browser instance loads `/image-budget` in development mode and the console output is committed as evidence naming the profile, the instance and the time.
+2. The captured message is recorded with its text and, if it carries one, its code; a message carrying no `NG` code is recorded as carrying none rather than mapped onto one.
+3. `spikes/ng222-app/src/app/image-budget-warning.json` records `source` as captured, replacing the transcribed provenance, and the COM-1 suite still passes.
+4. If no warning is emitted, that negative result is recorded and M026's final review is corrected, never the sample fabricated.
+5. `npm run check` and `npm test` pass at the head.
+
+Risks
+- The warning may be emitted once per page load, so a second run can look like a regression.
+- A browser profile shared with other checkouts may hold a stale extension build.
+- The console message may name the element rather than the binding, in which case SC2 records that and COR-style attribution is not claimed.
+
+### M028 — after-render-ordering
 
 Goal: Build COR-1, why `afterNextRender` read `offsetWidth` as 0, from the ordered profiler after-render events.
 Depends on: [M020]
@@ -1072,7 +1105,7 @@ Risks
 Open questions
 - [RESEARCH] What does COR-S1 measure for the ordered after-render events of a component reading `offsetWidth`, and which event marks the read?
 
-### M028 — trust-bypass-triage
+### M029 — trust-bypass-triage
 
 Goal: Build PBR-1, what the sanitizer stripped and which binding did it.
 Depends on: [M020]
@@ -1112,7 +1145,7 @@ Risks
 Open questions
 - [RESEARCH] What does PBR-S1 measure for a stripped binding, and does the runtime expose the stripped value or only its category?
 
-### M029 — redirect-chain
+### M030 — redirect-chain
 
 Goal: Build RTR-1, why `/settings` lands on `/login`, walked from `Router.config` with a cycle guard.
 Depends on: [M020]
@@ -1152,7 +1185,7 @@ Risks
 Open questions
 - [RESEARCH] Which parts of `Router.config` are complete before a lazy chunk loads, and in what order does 22.x run a redirect function against a guard?
 
-### M030 — cross-field-validation
+### M031 — cross-field-validation
 
 Goal: Build FRM-1, why fixing one field does not enable submit, from the Signal Forms field states.
 Depends on: [M020]
