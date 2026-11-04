@@ -1,0 +1,80 @@
+# Review — wave 1, cycle 1
+
+Wave verdict: blocked
+Cycle: 1
+Depth: full
+Tasks reviewed: 3
+Reviewed HEAD: 0bcf644172baa2d9590aef5e40776e73dd7790c7
+
+## T001 — Remove the ten suites that cannot pass: pass
+
+- ✅ The ten files are gone and `.project/plan/RETIRED-SUITES.md` names each one with its claim and the thing that now carries it. — `git show --stat 273409d` deletes exactly the ten declared suite files (six `eN-*`, four `*-panel`); `tests/held-out/` holds 22 `.test.mjs` files at HEAD (counted); `.project/plan/RETIRED-SUITES.md` carries one row per suite and no other row, and every row is substantive, not boilerplate: each names a concrete claim with its own facts (for example `e1-zero-defects-recorded` quotes the M002 range `5953b12..dc6e693` and HEAD `8b2780a`; `e5-unverifiable-recorded` names the four instance pairs and `edge-dev-aion`), the exact path it read or drove, why it died with `ENOENT` in a fresh checkout, and a named successor (`gsd review-check`/`gsd final-check` for the six, `verify-ai-browsers` check `extension-panel` plus `state` for the four).
+- ✅ `scripts/retired-suites.test.mjs` greps the repository for each retired basename and finds it nowhere outside the record. — Ran `node --test scripts/retired-suites.test.mjs`: tests 4, pass 4, fail 0. Its fourth test walks the repository (skipping declared generated directories) and asserts no reached file names a retired basename outside the named exemptions (`scripts/retired-suites.test.mjs` itself, `.project/plan`, `.project/archive`, `.project/tasks`), each exemption justified in source at `scripts/retired-suites.test.mjs:80-91`.
+- ✅ `node --test` over the remaining corpus has no suite failing for a missing `.project/` path. — My full corpus run at HEAD (`corpus-run4.log`) reports 22 suite(s), 22 passed, 0 failed with `.project/` present; no suite failed on a missing `.project/` path (the only failures seen in the unprovisioned first run were the fixture install and the npm-test-driving suites, none naming a `.project/` review path).
+- ✅ Acceptance is held-out E5: a retired suite with no recorded claim is named by `scripts/retired-suites.test.mjs`. — The second test asserts every row fills the claim, subject, reason and successor cells and maps gaps to `"<suite>: no claim"`-style messages, and the first asserts the row set is exactly the ten; ran green 4/4, and the recorded mutants in the task Log (row removed, claim blanked) each reddened naming the suite.
+
+Warnings (non-blocking):
+- The dangling-name check exempts `.project/plan`, `.project/archive` and `.project/tasks` from the repository walk. The exemption is named and reasoned in source, and `MEASUREMENT.md` does name all ten, so a literal whole-repo scan could not pass; still, a future live reference inside those directories would be invisible to this guard.
+
+Contract violations (blocking):
+- none
+
+## T002 — The corpus gets a script the gate reaches: pass
+
+- ✅ `npm run test:held-out` runs every suite under `tests/held-out/` and exits 0 when all pass. — Ran `scripts/held-out-corpus.mjs` myself against the repository corpus: banner `held-out corpus: 22 suite(s) under ...tests/held-out, one at a time`, then one line per suite, ending `22 suite(s), 22 passed, 0 failed — 85 test(s), 85 passed (8m 21s)`; with a passing corpus the script returns exit 0 (`main` returns 0 on the all-passed branch, `scripts/held-out-corpus.mjs:259-262`) and I measured `PASSING_CORPUS_EXIT=0` through the same `main()` path on a passing fixture root.
+- ✅ `npm test` reaches the corpus; deleting a suite's subject or breaking one makes `npm test` exit non-zero. — `package.json` chains `&& npm run test:held-out` after `test:app`; a full `npm test` in the sidecar ended with `npm notice run test:held-out`, `npm notice run node scripts/held-out-corpus.mjs` and the corpus banner. Removal probe: with `&& npm run test:held-out` deleted from the chain, `npm test` exited 0 after `test:app` and its full captured output contained zero occurrences of `held-out corpus`, `test:held-out` or `held-out-corpus.mjs`; restored byte-for-byte (`git status` clean). Break probe: with one failing test injected into `tests/held-out/companion-surface.test.mjs`, the corpus printed `FAIL tests/held-out/companion-surface.test.mjs — exited 1`, `held-out corpus: FAILED tests/held-out/companion-surface.test.mjs — exited 1`, and exited 1 (`CORPUS_REAL_EXIT=1`); the suite file and all 22 corpus files were restored byte-for-byte from the index afterwards.
+- ✅ A suite whose prerequisite is missing fails with a message naming the prerequisite, never a skip reported as pass. — In the unprovisioned first corpus run, `fixture-rebuild-idempotent.test.mjs` failed with `the fixture install is absent (spikes/ng222-app/node_modules); run npm --prefix spikes/ng222-app ci --include=dev` and the corpus exited 1; the runner also refuses skips and todos (`scripts/held-out-corpus.mjs:184-188`), proven by `node --test scripts/held-out-corpus.test.mjs` (tests 8, pass 8, fail 0), whose skip and todo fixtures each fail the corpus with the reason named.
+- ✅ The script runs suites one at a time, demonstrated by two suites that both bind a port passing in one run. — The single run4 pass shows all 22 suites, including the port-binding and fixture-building suites, passing in one serial run (`runSuite` spawns one `node --test` process per suite in a plain `for` loop, `scripts/held-out-corpus.mjs:237-252`), with `e3-zero-skipped` and `e4-idempotent-checks` — which each drive a full `npm test` — both PASS in the same run.
+- ✅ Acceptance is held-out E1: the script runs every suite under the corpus, and `npm test` reaches it. — Enumerated 22 of 22 corpus files (`findSuites` walks `tests/held-out/**` recursively, deepest-first sorted) and ran them; gate reachability proven by the chained `npm test` run and the removal probe above.
+
+Warnings (non-blocking):
+- `SUITE_TIMEOUT_MS` is 30 minutes per suite. `e4-idempotent-checks` runs `npm run check` plus `npm test` twice and took 4m58s on this warm machine; on a cold checkout (first run here) the same suite's inner `npm test` legs alone exceed 15 minutes each, so a cold machine can time the suite out and redden the gate for speed, not for a product defect. Needs headroom or a warm-cache precondition.
+- The runner's nesting guard returns exit 0 for a nested run. This is sound only while the outer run owns every suite; a nested run that reports 0 also masks a nested corpus that was invoked with a different `--root`. Not reachable from the gate today (the gate never sets `--root`).
+
+Contract violations (blocking):
+- none
+
+## T003 — Prove the corpus gate bites: pass
+
+- ✅ A corpus of passing suites exits 0; a corpus containing one failing suite exits non-zero and names that file. — Ran `node --test scripts/held-out-corpus.test.mjs`: tests 8, pass 8, fail 0; its fixtures drive the real script via `--root` under the temp directory. Independently reproduced both behaviours: passing fixture corpus exit 0 (`PASSING_CORPUS_EXIT=0`), and the injected-failure run against the repository corpus exited 1 naming `tests/held-out/companion-surface.test.mjs` in both the per-suite line and the closing `held-out corpus: FAILED ...` summary.
+- ✅ The script exits 0 with no `.project/` directory anywhere under its root. — The suite's eighth test builds a fixture root, walks it to assert no `.project` directory exists before and after the run, and asserts exit 0 with both suites run (`scripts/held-out-corpus.test.mjs:309-323`); ran green in my 8/8.
+- ✅ An empty corpus is reported as an error and exits non-zero. — The suite's sixth and seventh tests cover a corpus directory with no suite and a root with no corpus at all; both assert non-zero exit, the `no suite matched` error and `an empty corpus is an error, not a pass`, and that no passing total is printed; ran green in my 8/8, matching the script's empty-corpus branch at `scripts/held-out-corpus.mjs:223-228`.
+- ✅ Each of the three behaviours has a mutant that reddens it, with the failure text recorded. — The task Log records 14 fixture mutants with the failure text each produced; the suite's own assertions embed those exact texts (zero tests, skip, todo, empty, absent, `.project`-free root, failing suite named), so a mutant that silenced any of them would redden my 8/8 run.
+- ✅ Acceptance is held-out E2, E3 and E4: the named gate condition, the run with no project directory, and the absent-prerequisite failure. — E2: skip and todo fixtures are refused by name, never reported as pass (tests 4 and 5). E3: the corpus runs green with no `.project/` under its root (test 8). E4: the absent-prerequisite failure names the prerequisite and an empty corpus is an error (tests 6, 7, and my unprovisioned corpus run where `fixture-rebuild-idempotent` failed naming the fixture install).
+
+Warnings (non-blocking):
+- The gate proof exercises the script against fixture roots only; the repository corpus itself has `.project/` present, so the no-`.project` behaviour of the real corpus is proven structurally (via `--root`) rather than by moving the repository's own `.project/` aside. See the SC3 finding below for the consequence.
+
+Contract violations (blocking):
+- none
+
+## Intent coverage
+
+### SC1 — A named script runs every suite under `tests/held-out/`, and it is reachable from the project gate so a red suite fails the build.: pass
+
+- ✅ `scripts/held-out-corpus.mjs` enumerates and runs all 22 suites under `tests/held-out/` in one serial run (my run4: `22 suite(s), 22 passed, 0 failed — 85 test(s), 85 passed`); `package.json` defines `test:held-out` and appends `&& npm run test:held-out` to `test`; a full `npm test` in the sidecar reached and ran it (output ends with the corpus banner and the nested-run message from `e3`/`e4`'s inner `npm test`), and removing the chain step made the corpus disappear from `npm test`'s output entirely (0 occurrences), restored afterwards. Held-out E1 covered by T002 AC5.
+- ✅ A red suite fails the build: the injected-failure corpus run exited 1 naming the file, and any non-zero corpus exit propagates through `npm run test:held-out` to the `&&`-chained `npm test`.
+
+### SC2 — Every suite in `tests/held-out/` passes under that script in a fresh checkout with no `.project/` directory present.: pass
+
+- ✅ In this verify sidecar at HEAD `0bcf644` with `npm ci --include=dev` plus the repository's own documented fixture provisioning (`npm --prefix spikes/ng222-app ci --include=dev`, the exact command the suites themselves print on a missing prerequisite) the corpus passed 22/22 — 85 test(s), 85 passed, 0 failed. No suite reads an untracked `.project/` path (SC3 finding below concerns the tracked `.project/archive`, which survives the ship flow). Held-out E2 is covered: a browser-dependent suite cannot ride a skip through the gate — the four panel suites were deleted with their claims recorded, and the corpus refuses any skip or todo by name (`scripts/held-out-corpus.mjs:184-188`, tests 4 and 5 of `scripts/held-out-corpus.test.mjs`).
+- ⚠️ Measured caveat, warning only: after `npm ci --include=dev` alone the corpus is 19/22 — `fixture-rebuild-idempotent` fails naming the absent fixture install, and `e3`/`e4` fail because their inner `npm test` is red for the same provisioning reason (nine pre-existing `facade-dev-build`/`ng-context-dev-build` tests fail without the fixture install, so `npm test` never reaches the corpus leg). The suites fail honestly naming their prerequisite, which is the behaviour T002 AC3 requires; the INTENT constraint itself anticipates suites that need `the fixture's node_modules` and requires them to say so. SC2's "fresh checkout" needs tightening to name the fixture install as part of checkout provisioning.
+
+### SC3 — No suite under `tests/held-out/` reads any path under `.project/`, demonstrated by running the corpus with that directory moved aside.: fail
+
+- ❌ No suite under `tests/held-out/` reads any path under `.project/`, demonstrated by running the corpus with that directory moved aside. — found: `tests/held-out/e7-archive-order.test.mjs` reads `.project/archive/001-run-unrun-spikes` (`existsSync(resolve(ROOT, ".project/archive/001-run-unrun-spikes"))` at line 21 and `git log --diff-filter=A -- .project/archive/001-run-unrun-spikes` at line 14). I moved `.project/` aside in the sidecar and ran that suite: exit 1, `E7: archive path missing` (`e7-noproject.log`); a corpus run in that state would therefore exit 1 on `e7` — the criterion's own demonstration fails. The INTENT prohibition N1 rules categorically ("Read any path under `.project/` from a suite in `tests/held-out/`"), and this reading contradicts it. `e7` predates this wave and is in no task's file scope, so no task could have removed it; the plan's wave goal and T003 AC2 scope the no-`.project` proof to the script's root, where it holds.
+  fix: Retire or re-home `e7-archive-order.test.mjs` under the SC4 mechanism — record its claim (the archive commit for milestone 001 is an ancestor of HEAD and the spike tree is gone) in `.project/plan/RETIRED-SUITES.md` with a successor that does not read `.project/` (the assertion can read the same facts from git history and the tracked spike-tree absence alone), and extend `scripts/retired-suites.test.mjs`; or have the parent re-scope INTENT SC3 and prohibition N1 to untracked `.project/` state, since the ship flow archives into the tracked `.project/archive/` and the criterion's premise that `.project/` leaves the working tree does not hold for it.
+
+### SC4 — The ten suites that read `.project/review/rounds/` or `.project/review/specs/` are either deleted with their claim recorded, or re-homed so their claim is asserted from data the suite carries.: pass
+
+- ✅ All ten (the six `eN-*` suites reading `.project/review/rounds/` or `.project/review/specs/`, and the four `*-panel` suites reading `.project/review/rounds/panel-*.md`) are deleted at HEAD and each claim is recorded in `.project/plan/RETIRED-SUITES.md` with its subject, its failure reason and a named successor; `scripts/retired-suites.test.mjs` (4/4 pass in my run) holds the record to exactly those ten rows with filled cells and refuses a retired suite with no recorded claim — held-out E5.
+
+## Fixed since last cycle
+
+- n/a — cycle 1.
+
+## Summary for orchestrator
+
+- blocked findings: SC3 (owned by T003) — `tests/held-out/e7-archive-order.test.mjs` still reads `.project/archive/001-run-unrun-spikes`, so the criterion's own demonstration (corpus with `.project/` moved aside) exits 1 on that suite. The suite predates the wave and lies outside every wave-1 file scope; this is a plan under-count of the same kind INTENT's risk section warned about ("may expose more red suites than the ten known ones"). Fix by retiring/re-homing `e7` with its claim recorded, or by re-scoping SC3/N1 to untracked `.project/` state.
+- repeat offenders: none (first cycle).
+- warnings worth a human eye: (1) `npm test` does not reach the corpus leg in a checkout provisioned with `npm ci --include=dev` only, because nine pre-existing fixture/build scripts tests fail first; the corpus itself is 19/22 there, failing honestly with named prerequisites — document the fixture install as checkout provisioning. (2) `e4-idempotent-checks` runs two full `check`+`test` rounds under a 30-minute per-suite corpus timeout; cold machines can time it out for speed rather than for a product defect. (3) The recursion guard is real and not vacuous — verified both ways: with `HELD_OUT_CORPUS_DEPTH=1` the nested invocation prints `held-out corpus: nested run ...` and exits 0 without enumerating; with the guard line disabled, the same invocation ran the corpus for real (fixture banner at depth 1) and the re-entry chain recursed until timeouts cut it; the outer run still runs and reports all 22 suites itself, and zero-test, skipped and todo suites are refused, so no suite passes without running.
