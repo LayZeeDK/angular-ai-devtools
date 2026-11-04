@@ -2,10 +2,10 @@
 id: T002
 title: Join the warning to the component that wrote the element
 wave: 1
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: ed3d532ffc58af2dc8c79860f528a08e4a68edbc
 worktree: null
 task_branch: null
 files:
@@ -60,3 +60,4 @@ npm ci --include=dev; node --test scripts/sanitizer-triage.test.mjs
 ## Log
 
 - dispatched
+- implementation: built extension/sanitizer-triage.js (pure join over the recording: stripped names the covering record's components + the warning's time and the binding only when the record carries one; cannot-tell for a warning no record covers, naming no component; none is an absence, never clean) with scripts/sanitizer-triage.test.mjs run in node:vm over research/raw/m029-sanitizer-warning.json and four mutants (tag name, nearest component, clean absence, uncarried binding) all reddening; Verify: npm ci --include=dev; node --test scripts/sanitizer-triage.test.mjs -> ok 23, fail 0, and npm run check:extension green; no commit
