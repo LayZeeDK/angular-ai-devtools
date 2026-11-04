@@ -20,4 +20,8 @@ export const appRoutes: Route[] = [
   // The M028 SC4 surface: the ordered after-render chain, or the state that names its absence.
   // Lazy for the same reason as the three above it — the panel's eager bundle is measured.
   { path: 'after-render', loadComponent: () => import('./after-render').then((m) => m.afterRenderPanel as any) },
+  // The M029 SC4 surface: the sanitizer finding from a fact list, or the state that names the
+  // absence it renders. Lazy for the same reason as the five above it — the panel's eager bundle is
+  // measured, and its eager graph is unchanged by this route.
+  { path: 'sanitizer', loadComponent: () => import('./panel-sanitizer').then((m) => m.sanitizerPanel as any) },
 ];

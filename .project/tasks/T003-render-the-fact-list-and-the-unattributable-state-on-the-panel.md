@@ -2,10 +2,10 @@
 id: T003
 title: Render the fact list and the unattributable state on the panel
 wave: 2
-status: pending
+status: done
 deps: [T002]
-agent: null
-base: null
+agent: build_T003
+base: 4da06353b1e6f6e6a68846487034399f086e90b3
 worktree: null
 task_branch: null
 files:
@@ -57,3 +57,4 @@ npm ci --include=dev; node --test scripts/panel-sanitizer.test.mjs
 ## Log
 
 - dispatched
+- panel-sanitizer.ts renders all six states (loading, none, stripped, cannot-tell, deliberate, error) from the fact list it is given, naming no tag/attribute/substring/cause; route 'sanitizer' registered lazily and the route-list pin re-cut to 11 ordered paths (proved by renaming, which reddened exactly that pin); scripts/panel-sanitizer.test.mjs 13/13, three mutants (tag in stripped, blank cannot-tell, none called clean) each reddening its pin.

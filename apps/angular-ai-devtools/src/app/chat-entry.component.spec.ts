@@ -25,6 +25,7 @@ import type { CompanionRecord } from './companion';
 import { ExtensionMessageService } from './extension-message.service';
 import type { ReplayOutcome } from './panel-context';
 import { InteropComponent } from './interop.component';
+import { sanitizerPanel } from './panel-sanitizer';
 import {
   APP_FACT_FEATURES,
   APP_FACTS_TOOL_ID,
@@ -611,6 +612,7 @@ describe('the chat route', () => {
       'picker',
       'image-budget', // M026 COM-1 surface
       'after-render', // M028 SC4 surface: the ordered chain or the state that names its absence
+      'sanitizer', // M029 SC4 surface: the sanitizer finding from a fact list, or its absence state
     ]);
     // T003's conversion stayed the only other lazy route: five explainers are still eager.
     expect(appRoutes.filter((route) => route.loadComponent !== undefined).map((route) => route.path)).toEqual([
@@ -619,6 +621,7 @@ describe('the chat route', () => {
       'picker',
       'image-budget', // M026 COM-1 surface
       'after-render', // M028 SC4 surface
+      'sanitizer', // M029 SC4 surface
     ]);
     for (const path of ['', 'signal-provenance', 'di-doctor', 'error-explainer', 'stale-view']) {
       const route = appRoutes.find((candidate) => candidate.path === path);
@@ -639,5 +642,13 @@ describe('the chat route', () => {
       throw new Error("T003's interop route must stay lazy");
     }
     expect(await interop.loadComponent()).toBe(InteropComponent);
+
+    // The M029 SC4 route resolves to T003's surface itself, so a route that stays registered but
+    // points at nothing would fail here rather than in the browser.
+    const sanitizer = appRoutes.find((route) => route.path === 'sanitizer');
+    if (sanitizer?.loadComponent === undefined) {
+      throw new Error('M029 T003: the sanitizer surface must load lazily');
+    }
+    expect(await sanitizer.loadComponent()).toBe(sanitizerPanel);
   });
 });
