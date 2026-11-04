@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: panel-verify-breadth
-phase: define
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
@@ -484,3 +484,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-04 — define — define started
 - 2026-11-04 — define — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
 - 2026-11-04 — define — STATE repair: milestone named panel-verify-breadth (was null)
+- 2026-11-04 — define — define complete
+- 2026-11-04 — plan — planning started
