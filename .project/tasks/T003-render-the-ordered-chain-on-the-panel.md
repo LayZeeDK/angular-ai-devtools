@@ -2,10 +2,10 @@
 id: T003
 title: Render the ordered chain on the panel
 wave: 2
-status: pending
+status: done
 deps: [T002]
-agent: null
-base: null
+agent: build_T003
+base: 14d06228d4484db16bc98af41a25f518475754c6
 worktree: null
 task_branch: null
 files:
@@ -70,3 +70,4 @@ Acceptance additions:
 ## Log
 
 - dispatched
+- Attempt 2: apps/angular-ai-devtools/src/app/after-render.ts renders the chain it is handed in four states (loading, ordered with the read/phase/before/after in the order supplied, cannot-tell naming no-after-render-event, unknown naming the unreadable event); route 'after-render' registered lazily and the chat-entry route-list pin re-cut to include it (proved red by renaming the route: 1 failed at chat-entry.component.spec.ts:603); extension/manifest.json declares after-render.js at document_start as its own ISOLATED-world entry, manifest.test.mjs pins that declaration and its position with every existing pin kept; scripts/panel-after-render.test.mjs executes the surface over chains from the shipped ordering module and reddens three mutants (reversed order, blank cannot-tell pane, throwing on an unknown event). node --test scripts/panel-after-render.test.mjs: 12 pass / 0 fail; extension/manifest.test.mjs 7/7; extension suites 178/178; panel vitest 331/331; check:panel and check:extension clean.
