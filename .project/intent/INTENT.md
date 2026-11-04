@@ -27,16 +27,20 @@ who cites a held-out suite as evidence; the next milestone's coder, who needs a 
 
 ## Edge coverage
 
-- **E1 — a suite that cannot run for a missing install.** It must fail loudly, never skip, and the failure must name the install it needs.
-- **E2 — a suite that needs a browser or a served page.** It must be skipped by a named condition in the gate, not by an `if` inside the file that silently returns.
-- **E3 — a suite whose subject was deleted.** Deleting a proof's subject must redden the suite that cites it, not leave it green on a stale path.
-- **E4 — the corpus script under a partial checkout.** With `.project/` absent entirely, the corpus still runs and still passes.
+| Edge | Criterion | Category | Disposition | Test |
+| --- | --- | --- | --- | --- |
+| E1 | SC2 | dependency | held-out | `scripts/held-out-corpus.test.mjs` — a suite whose prerequisite is absent fails naming the prerequisite, never skips |
+| E2 | SC1 | environment | held-out | `scripts/held-out-corpus.test.mjs` — a suite that needs a browser or a served page is excluded by a named condition in the gate, not by an inner return that reports pass |
+| E3 | SC3 | stale | held-out | `scripts/held-out-corpus.test.mjs` — deleting the subject a suite cites reddens that suite rather than leaving it green on a stale path |
+| E4 | SC2 | empty | held-out | `scripts/held-out-corpus.test.mjs` — the corpus runs and passes with no `.project/` directory present, and an empty corpus is an error |
 
 ## Prohibitions
 
-- **N1** — no suite under `tests/held-out/` may read a path under `.project/`.
-- **N2** — no suite may be excluded from the corpus script by a mechanism that also hides its failure (a skip that reports pass is forbidden).
-- **N3** — deleting a suite is allowed only with its claim recorded in the milestone's record; deleting to reach green is forbidden.
+| Prohibition | Criterion | Must not | Disposition | Why |
+| --- | --- | --- | --- | --- |
+| N1 | SC3 | Read any path under `.project/` from a suite in `tests/held-out/` | held-out | `.project/` is moved into the archive by the ship flow, so such a suite is red exactly when the milestone ships |
+| N2 | SC1 | Exclude a suite from the corpus by a mechanism that also hides its failure | held-out | a skip that reports pass is the defect this milestone exists to repair |
+| N3 | SC4 | Delete a suite to reach green without recording the claim it made | judgment | the claim is the asset; deleting it silently loses the reason the suite existed |
 
 ## Scope
 
