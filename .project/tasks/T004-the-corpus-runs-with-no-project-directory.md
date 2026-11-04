@@ -3,13 +3,14 @@ id: T004
 title: The corpus runs with no project directory
 wave: 2
 deps: [T003]
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T004
+base: 47e1a38959de64ab953d872c6f6f5a34c0620c9d
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - tests/held-out/e7-archive-order.test.mjs
+  - scripts/held-out-corpus.mjs
   - scripts/held-out-corpus.test.mjs
 ---
 
@@ -28,7 +29,7 @@ script's proof used fixture roots, and the real corpus was never run in the stat
 ## Approach
 
 1. Re-home E7's claim so the suite carries what it needs: the archive-order fact becomes data the suite owns
-   (as T023 did for the ambiguity declaration), with the archived path recorded as provenance rather than read.
+   (as an earlier milestone re-homed a declaration into its suite), with the archived path recorded as provenance rather than read.
 2. Add a corpus-level proof: run `scripts/held-out-corpus.mjs` over the real `tests/held-out/` with `.project/`
    moved aside, and assert exit 0. Restore in a `finally`.
 3. Keep every existing T003 assertion.
@@ -51,7 +52,7 @@ None
 ## Verify
 
 ```bash
-npm ci --include=dev; node scripts/held-out-corpus.mjs
+npm ci --include=dev; node --test scripts/held-out-corpus.test.mjs
 ```
 
 ## Log
