@@ -4,7 +4,7 @@
 // Prohibition N1 binds here: giving one host an attribute the harness matches on makes the case resolvable,
 // and a resolvable fixture passes for the wrong reason.
 //
-// The gap review (`.project/review/final-gap-2.md`, finding 2) proved both halves of the defect this suite
+// The M023 final gap review (`final-gap-2.md`, finding 2) proved both halves of the defect this suite
 // used to carry. Its `readAttrs` matched only bare `name="value"` literals, so:
 //   - a distinguishing *binding* — `[attr.data-slot]="'one'"` on probe-a against `[attr.data-slot]="'two'"`
 //     on probe-b — left the suite green, a live prohibition-N1 violation it could not see; and
@@ -21,29 +21,48 @@
 //     binding, the live prohibition-N1 violation the gap review proved this suite could not see;
 //   - `data-slot="extra"` on probe-a only — a distinguishing literal;
 //   - both hosts given the same `id` — the one attribute the hosts are allowed to differ in;
-//   - the reader reverted to literals only, and the declared match set widened to cover `id`.
+//   - the reader reverted to literals only, and the declared match set widened to cover `id`;
+//   - the `id` exclusion dropped from the declaration, and `isMatchedName` re-hardcoded so it no longer
+//     agrees with the declaration it derives from.
 // And it must stay green for:
 //   - `aria-label="probe a"` on probe-a only — a literal the harness does not match on.
 //
-// RULING — the match set, and why `id` is outside it.
+// It must also pass with the milestone's own bookkeeping absent, which is why nothing below reads it.
+//
+// RULING — the match set, and why `id` is outside it. The suite owns this declaration; it does not read it.
 //
 // What: the attributes a HAR-3 predicate can match on are `class` and `data-*` on the host element. Every
 // other attribute the page writes on a host — `id`, `aria-*`, `style`, an interpolation, an `(event)`
 // binding, a template reference — is outside the set, so a difference in one of those cannot make the case
 // resolvable and must not redden this suite.
 //
-// Why: the fixture's authoring contract (`.project/tasks/T002-harness-target-page.md`) declares the hosts
-// "rendered twice with the same class list and the same data attributes; only the DOM `id` differs, because
-// duplicate ids are invalid markup and an `id` is not an attribute a harness matches on." That is the only
-// written declaration of the harness surface in this repository: the harness itself does not exist (the A8
-// ruling defers `@angular/cdk/testing` to the harness family), so there is no shipped match set to derive
-// from. The suite therefore asserts that declaration — the second test reads the contract and fails if the
-// declaration moves or is deleted — and records here, as a ruling, the one thing a declaration cannot pin.
+// Why: the fixture's authoring contract declares the hosts "rendered twice with the same class list and the
+// same data attributes; only the DOM `id` differs, because duplicate ids are invalid markup and an `id` is
+// not an attribute a harness matches on." That is the only written declaration of the harness surface in
+// this repository: the harness itself does not exist (the A8 ruling defers `@angular/cdk/testing` to the
+// harness family), so there is no shipped match set to derive from. The suite therefore states that
+// declaration as constants it owns — `DECLARED_HARNESS_SURFACE` below — and asserts against them.
 //
-// Recorded as a ruling rather than an assertion because it is not yet true of any code: when HAR-3 ships,
-// replace `isMatchedName` with the harness's own match set, keep the `id` row only if the harness keeps `id`
-// outside it, and keep the mutants above. Until then this is the assumption, stated with its reason and its
-// re-derivation condition, instead of an unexplained `!== 'id'` in the comparison.
+// PROVENANCE — recorded here, not read from where it was written. The declaration belongs to task T002,
+// "Add the deliberately ambiguous harness target page to the counter fixture", and is the source text of
+// commit 7f54505baf516adf52f56c9fb8a2c72ff55937c1 (M023 plan approval), which created that task file. The
+// sentences it quoted are:
+//   "`HarnessProbe` (`app-harness-probe`) is rendered twice with the same class list and the same data
+//    attributes; only the DOM `id` differs, because duplicate ids are invalid markup and an `id` is not an
+//    attribute a harness matches on."
+// They live in `DECLARED_HARNESS_SURFACE.provenance.quoted`, so the next reader can re-derive the match set
+// without a file that may no longer be there.
+//
+// Why provenance and not a read: this suite is held-out, and the milestone's own bookkeeping is not stable
+// across the milestone's lifecycle — the ship flow archives `tasks/`, every review cycle regenerates
+// `review/`, and both move under the archive tree. A suite that read them for its contract went ENOENT the
+// moment the milestone shipped; the M023 final panel reproduced exactly that. So the contract sits with the
+// fixture's tests, and the origin is named in words.
+//
+// Recorded as a ruling rather than derived from code because it is not yet true of any code: when HAR-3
+// ships, replace `isMatchedName` with the harness's own match set, keep the `id` row only if the harness
+// keeps `id` outside it, and keep the mutants above. Until then this is the assumption, stated with its
+// reason and its re-derivation condition, instead of an unexplained `!== 'id'` in the comparison.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -54,13 +73,46 @@ import { JSDOM } from 'jsdom';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..', '..');
 const pagePath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'components', 'components-page.ts');
-const contractPath = join(root, '.project', 'tasks', 'T002-harness-target-page.md');
 const SUITE = 'fixture-harness-ambiguity.test.mjs';
 const PROBE_HOST = 'app-harness-probe';
 
-/** The declared match set of the ruling above: `class` and `data-*`, and nothing else. */
+/**
+ * The declared harness surface — the whole fixture contract this suite rests on, held here rather than read
+ * from the milestone's own bookkeeping (the ruling at the top of this file names the origin: task T002,
+ * commit 7f54505baf516adf52f56c9fb8a2c72ff55937c1, and the sentences quoted).
+ *
+ * `matched` is the source of truth and `isMatchedName` derives from it, so widening the set to `id` — the
+ * prohibition-N1 self-violation this suite exists to catch — changes the predicate every comparison below
+ * runs on, and the declaration test reddens.
+ */
+const DECLARED_HARNESS_SURFACE = {
+  matched: ['class', 'data-*'],
+  excluded: ['id'],
+  whyMatched:
+    'a HAR-3 predicate names an attribute on the host element, and the hosts are rendered with the same class list and the same data attributes, so class and data-* are the whole of what such a predicate can tell them apart by',
+  whyExcluded: [
+    'duplicate ids are invalid markup, so two hosts cannot share an id and the fixture is allowed to differ there',
+    'an id is not an attribute a harness matches on, so a difference in it cannot make the ambiguity case resolvable',
+  ],
+  provenance: {
+    task: 'T002 — Add the deliberately ambiguous harness target page to the counter fixture',
+    commit: '7f54505baf516adf52f56c9fb8a2c72ff55937c1',
+    quoted: [
+      'rendered twice with the same class list and the same data attributes',
+      'only the DOM `id` differs, because duplicate ids are invalid markup and an `id` is not an attribute a harness matches on',
+    ],
+  },
+};
+
+/**
+ * The declared match set of the ruling above: `class` and `data-*`, and nothing else. One entry ending in
+ * `*` covers its prefix; every other entry is an exact name, so `class.active` binds `class` and no entry
+ * can match `id` by accident.
+ */
 function isMatchedName(name) {
-  return name === 'class' || name.startsWith('data-');
+  return DECLARED_HARNESS_SURFACE.matched.some((entry) =>
+    entry.endsWith('*') ? name.startsWith(entry.slice(0, -1)) : name === entry,
+  );
 }
 
 /** An attribute name the HTML parser keeps verbatim, i.e. a literal the page wrote as `name="value"`. */
@@ -162,16 +214,58 @@ test('components page renders two app-harness-probe hosts', () => {
   );
 });
 
-test('the declared match set is class and data-*, and id stays outside it, as the fixture contract declares', () => {
-  const contract = readFileSync(contractPath, 'utf8').replace(/\s+/g, ' ');
-  assert.ok(
-    contract.includes('same class list and the same data attributes'),
-    `${SUITE}: mutant (the declared match set lost its declaration) — ${contractPath} no longer declares the hosts' harness surface as "the same class list and the same data attributes", so comparing class and data-* would rest on an assumption: re-derive the match set from HAR-3's own and update the ruling`,
+test('the declared match set is class and data-*, and id stays outside it, as this suite declares', () => {
+  const { matched, excluded, whyMatched, whyExcluded, provenance } = DECLARED_HARNESS_SURFACE;
+
+  // The declaration is pinned, not assumed: narrowing or widening it is a contract change that has to be
+  // made here, with its reason, rather than drifting with an edit the rest of the suite would follow.
+  assert.deepEqual(
+    matched,
+    ['class', 'data-*'],
+    `${SUITE}: mutant (the declared match set lost its declaration) — the suite's declaration of the hosts' harness surface is ${JSON.stringify(matched)}, not class and data-*, so comparing class and data-* would rest on an assumption: re-derive the match set from HAR-3's own and update the ruling`,
+  );
+  assert.deepEqual(
+    excluded,
+    ['id'],
+    `${SUITE}: mutant (the id exclusion lost its declaration) — the suite's declaration no longer keeps id outside the match set, so excluding id would be an assumption: re-derive it from HAR-3's own match set`,
   );
   assert.ok(
-    contract.includes('is not an attribute a harness matches on'),
-    `${SUITE}: mutant (the id exclusion lost its declaration) — ${contractPath} no longer declares that an id is not an attribute a harness matches on, so excluding id would be an assumption: re-derive it from HAR-3's own match set`,
+    whyMatched.trim().length > 0 &&
+      whyExcluded.length > 0 &&
+      whyExcluded.every((reason) => reason.trim().length > 0),
+    `${SUITE}: mutant (the declaration lost its reasoning) — the match set and the id exclusion must carry why they hold, or the next reader cannot tell a declaration from a blind spot`,
   );
+
+  // Provenance, asserted as shape and as the sentences themselves: without it the match set is an
+  // unexplained `!== 'id'`, and a quoted sentence that disappears is a rationale gone.
+  assert.match(
+    provenance.task,
+    /\bT002\b/,
+    `${SUITE}: mutant (the declaration lost its provenance) — the match set must name the task it came from (T002), so it can be re-derived from that task's own words`,
+  );
+  assert.match(
+    provenance.commit,
+    /^[0-9a-f]{40}$/,
+    `${SUITE}: mutant (the declaration lost its provenance) — the commit that wrote the declaration is recorded as "${provenance.commit}", not a full 40-character SHA, so no reader can resolve it`,
+  );
+  assert.ok(
+    provenance.quoted.some((sentence) => sentence.includes('same class list and the same data attributes')),
+    `${SUITE}: mutant (the declared match set lost its declaration) — the quoted sentence the match set derives from ("the same class list and the same data attributes") is gone, so comparing class and data-* rests on nothing written`,
+  );
+  assert.ok(
+    provenance.quoted.some((sentence) => sentence.includes('is not an attribute a harness matches on')),
+    `${SUITE}: mutant (the id exclusion lost its declaration) — the quoted sentence the exclusion derives from ("an id is not an attribute a harness matches on") is gone, so excluding id rests on nothing written`,
+  );
+
+  // The predicate is the declaration's, not a second copy of it: change one and the other is wrong.
+  for (const entry of matched) {
+    const sample = entry.endsWith('*') ? `${entry.slice(0, -1)}probe` : entry;
+    assert.ok(
+      isMatchedName(sample),
+      `${SUITE}: mutant (isMatchedName disagrees with the declaration) — the declaration matches "${entry}" but isMatchedName("${sample}") does not, so the comparison below runs on a set the declaration does not describe`,
+    );
+  }
+
   assert.ok(
     isMatchedName('class') && isMatchedName('data-probe'),
     `${SUITE}: the declared match set must cover class and data-*, the attributes both hosts carry and a HAR-3 predicate would name`,

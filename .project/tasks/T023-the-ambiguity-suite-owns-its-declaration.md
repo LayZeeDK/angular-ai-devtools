@@ -3,10 +3,10 @@ id: T023
 title: The ambiguity suite owns its declaration
 wave: 9
 deps: [T021]
-status: in-progress
+status: done
 agent: build_T023
-base: f13092b688d0a7e2da23d12d17269677d984303b
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: b06fbcf19c5c234a0f28a4ac7fc268cd12b7d46f
+worktree: null
 task_branch: null
 files:
   - tests/held-out/fixture-harness-ambiguity.test.mjs
