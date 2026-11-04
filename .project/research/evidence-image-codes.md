@@ -122,3 +122,23 @@ height or priority, so five codes whose messages use other wording were silently
 
 The enum block is authoritative in a way a message grep is not: it is the directive's own declaration of which codes
 belong to it, and a reviewer can count it.
+
+## What the official docs cover, and what they do not
+
+Checked against the clone's own docs at `v22.1.8` — `adev/src/content/reference/errors` holds **63** pages, and of
+the eighteen image codes only **`NG0913`** has one (`NG0913.md`). The `NG29xx` family has no adev page at all.
+
+So the authority differs by code:
+
+- `NG0913` — documented (`adev/src/content/reference/errors/NG0913.md`) and declared in
+  `packages/core/src/errors.ts:130` as `IMAGE_PERFORMANCE_WARNING = -913`.
+- `NG2950`–`NG2967` — **not documented**; the authoritative record is the directive's own enum block
+  (`packages/common/src/errors.ts` lines 46–63) together with the `formatRuntimeError` call site that emits each one.
+
+This is why the digest's entries for the `NG29xx` family cite a clone `file:line` each: there is no prose page to
+cite instead, and a meaning invented without one would be exactly the fabrication the digest's "unknown" rule exists
+to prevent.
+
+Sources the owner has allowed for this: `angular.dev/llms.txt`, `angular.dev/errors`,
+`angular.dev/extended-diagnostics`, and the local clone at `D:\projects\github\angular\angular` — read at the
+tag matching the installed version (`v22.1.8`), not at the branch head.
