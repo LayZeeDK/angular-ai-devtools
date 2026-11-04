@@ -36,6 +36,20 @@ that an unknown code reports unknown rather than guessed, then re-runs the gate 
 fabricated entry.
 Review depth: full
 
+## Surface contract
+
+### image-budget finding surface — T004
+
+Criteria: SC5
+Entry: open the panel's feature list and select the image-budget finding produced by the fixture page added in T003; the same surface is reachable from the finding's row in the panel.
+States: empty (no image finding recorded) shows an explicit "no image finding" state rather than a blank pane; loading shows the fact list being assembled; error shows the unknown-code state, naming the code and saying the digest has no entry for it; success shows the finding, the code, the binding and the one-line fix taken from the digest entry.
+Walkthrough:
+1. Start the fixture with `control-angular-dev-app up --target counter`, open the image-budget page, and confirm the panel renders the finding with its code and binding.
+2. Select the finding and confirm the explanation comes from the digest entry, not from a model call, and that the fact list is short enough to read.
+3. Remove the offending attribute and confirm the surface returns to the empty state rather than showing a stale finding.
+4. Introduce a code the digest does not carry and confirm the surface renders the unknown state rather than invented text.
+Accessibility: the finding is reachable by keyboard, its code and binding are read as text rather than conveyed by colour, and the unknown state is announced rather than only styled.
+
 ## Held-out checks
 
 | Edge | Task | Test |
