@@ -32,23 +32,23 @@ Reviewed HEAD: e50cb499531736cbf6a3dba66d041c2f1dce57d5
 
 ## Intent coverage
 
-### SC1 — `npm run check` type-checks every authored file under `extension/`, with the generated `extension/panel/` bundle output excluded and the exclusion stated where the config lives: pass
+### SC1 — `npm run check` type-checks every authored file under `extension/`, with the generated `extension/panel/` bundle output excluded and the exclusion stated where the config lives.: pass
 
 - ✅ `package.json` chains `npm run check:extension` = `tsc -p extension/tsconfig.json` into `check`; the re-run `--listFiles` shows exactly the 9 authored sources in the program and 0 files under `extension/panel/` — no authored file excluded (N2 holds).
 - ✅ the exclusion is stated where the config lives: the `extension/tsconfig.json` header names `exclude: ["panel/**"]` as the only exclusion, names it build output, and quantifies it (187 of 220 non-strict errors) — asserted textually by the T003 suite's E4.
 
-### SC2 — That check reports zero errors, and every one of the thirteen non-global defects the probe found is fixed at source rather than suppressed: pass
+### SC2 — That check reports zero errors, and every one of the thirteen non-global defects the probe found is fixed at source rather than suppressed.: pass
 
 - ✅ re-run `npx tsc -p extension/tsconfig.json` at e50cb49 after `npm ci --include=dev`: exit 0, no diagnostics.
 - ✅ every error site fixed at source and read back: relay.js listeners typed `CustomEvent`, panel.js `status` → `statusEl` rename, agent-main.js real-`Event` fallback, stale-view-worker.js `Object.assign` publication — no suppression anywhere (N1 holds; grep: zero hits).
 - ✅ behaviour: 108/108 extension suite tests and 4/4 held-out stale-view-worker tests re-run green.
 
-### SC3 — A deliberately wrong property introduced into an extension source makes `npm run check` exit non-zero; an error placed inside `extension/panel/` does not, because that directory is generated: pass
+### SC3 — A deliberately wrong property introduced into an extension source makes `npm run check` exit non-zero; an error placed inside `extension/panel/` does not, because that directory is generated.: pass
 
 - ✅ E1 (held-out) re-run: a `noSuchProperty` probe appended to a copy of `panel.js` makes the check exit 2 naming only `extension/panel.js(14,11): error TS2339`; the stage is chained into `check`, so a red `check:extension` reddens `npm run check`.
 - ✅ E2 (held-out) re-run: the same probe inside `extension/panel/` leaves the check green with 0 diagnostics, and the green dies (exit 2 naming the panel probe) the moment the exclusion is dropped — the exclusion, not luck, keeps it green.
 
-### SC4 — The strict-mode gap is recorded: the check runs at `strict: false`, and the reason (hand-written JS with implicit-any throughout) is stated in the config header: pass
+### SC4 — The strict-mode gap is recorded: the check runs at `strict: false`, and the reason (hand-written JS with implicit-any throughout) is stated in the config header.: pass
 
 - ✅ `extension/tsconfig.json` read: `"strict": false` with a header stating it is deliberate, the 7308-error strict measurement over the same sources, implicit-any in hand-written JavaScript, and that the gap is recorded rather than hidden (N4 holds: no strict-clean claim anywhere).
 - ✅ E4 re-run asserts the setting and 8 header sentences from the config text, with mutants (strict flipped, header stripped, only-exclusion sentence dropped, exclusion widened) each reddening — the record is held by a test, not by prose.
