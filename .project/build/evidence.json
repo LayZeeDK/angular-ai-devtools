@@ -1,7 +1,7 @@
 {
   "canonical_project_dir": ".project",
   "command": "verify-landed",
-  "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+  "head": "6572f6bc67f536ef0e402600a61104129941ab65",
   "project_dir": ".project",
   "tasks": [
     {
@@ -16,7 +16,7 @@
             "valid": true
           }
         ],
-        "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+        "head": "6572f6bc67f536ef0e402600a61104129941ab65",
         "subject": "T001: The digest carries thirteen measured image codes"
       },
       "landed_commit": "783c8179e9b9d276f355524338717b2e150a5584",
@@ -40,7 +40,7 @@
             "valid": true
           }
         ],
-        "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+        "head": "6572f6bc67f536ef0e402600a61104129941ab65",
         "subject": "T002: No licence text reaches a prompt"
       },
       "landed_commit": "d6d313da51108680b111c877bc3189fa629e32c8",
@@ -64,7 +64,7 @@
             "valid": true
           }
         ],
-        "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+        "head": "6572f6bc67f536ef0e402600a61104129941ab65",
         "subject": "T003: The fixture provokes a real image warning"
       },
       "landed_commit": "d162c9de650a519cdcc2b1a1da301aa2723b5e11",
@@ -88,7 +88,7 @@
             "valid": true
           }
         ],
-        "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+        "head": "6572f6bc67f536ef0e402600a61104129941ab65",
         "subject": "T004: The panel explains the finding from a fact list"
       },
       "landed_commit": "790680004539b0a30007fbe0679c4e1aac22d303",
@@ -112,7 +112,7 @@
             "valid": true
           }
         ],
-        "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+        "head": "6572f6bc67f536ef0e402600a61104129941ab65",
         "subject": "T005: The bundle stays inside its budget"
       },
       "landed_commit": "283b3c43fae0a18e3909b3dd6c1f8693e073c6af",
@@ -136,7 +136,7 @@
             "valid": true
           }
         ],
-        "head": "2f1e40d414f48a9374a7daf39ba9a990db637a7d",
+        "head": "6572f6bc67f536ef0e402600a61104129941ab65",
         "subject": "T006: The digest carries all eighteen image codes"
       },
       "landed_commit": "23239c66125fae692810e7fb97b2f7552399586e",
@@ -146,6 +146,30 @@
         "id": "T006",
         "status": "done",
         "task_file": ".project/tasks/T006-the-digest-carries-all-eighteen-image-codes.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M026",
+        "candidates": [
+          {
+            "base": "3be74e3077db528b7ebf66a7261bb5233b0ee9fa",
+            "commit": "d7cbfaa7e994fed36b40869e0fb1191a94af1c2f",
+            "valid": true
+          }
+        ],
+        "head": "6572f6bc67f536ef0e402600a61104129941ab65",
+        "subject": "T007: Re-record the proofs the fixture change invalidated"
+      },
+      "landed_commit": "d7cbfaa7e994fed36b40869e0fb1191a94af1c2f",
+      "reasons": [],
+      "task": {
+        "base": "3be74e3077db528b7ebf66a7261bb5233b0ee9fa",
+        "id": "T007",
+        "status": "done",
+        "task_file": ".project/tasks/T007-re-record-the-proofs-the-fixture-change-invalidated.md"
       }
     }
   ]
