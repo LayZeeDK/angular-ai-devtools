@@ -6,7 +6,7 @@ import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, candidatePorts, cdMode, checkLine, consoleErrors, currentTabUrl, downOutcome, flagIn, flowIdFor, isWorktree, listeners, markerCheck, pinOf, planPorts, portRowsOf, portsCheck, slotOf, slotOrder, stopRun, takenBy, timeoutMsOf, urlPort } from './control.mjs';
+import { authCheck, authCodeIn, authReply, buildLogErrors, busyPorts, candidatePorts, cdMode, checkLine, consoleErrors, currentTabUrl, downOutcome, flagIn, flowIdFor, isWorktree, listeners, markerCheck, pinOf, planPorts, portRowsOf, portsCheck, probePort, slotOf, slotOrder, stopRun, takenBy, timeoutMsOf, urlPort } from './control.mjs';
 
 /** @typedef {import('./proctree.mjs').ProcRecord} ProcRecord */
 /** @typedef {Parameters<typeof stopRun>[0]} State */
@@ -249,6 +249,52 @@ test('listeners maps each LISTENING port to its PID, IPv4 or IPv6, and nothing e
     '  TCP    [::]:14222             [::]:0                 LISTENING       7',
   ].join('\r\n');
   assert.deepEqual([...listeners(text)], [[14222, [7]], [4222, [4242, 77]]]);
+});
+
+/**
+ * A throwaway listener on `host` at a port the OS picks; closed after the test.
+ * @param {import('node:test').TestContext} t
+ * @param {string} host
+ * @returns {Promise<number>}
+ */
+async function listenOn(t, host) {
+  const server = createServer();
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, host, () => resolve(undefined));
+  });
+  t.after(() => server.close());
+
+  return /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+}
+
+/** An address no host has: TEST-NET-1 (RFC 5737) is never assigned to an interface, so a bind on it fails with EADDRNOTAVAIL. */
+const UNBINDABLE = '192.0.2.1';
+
+/** A port nothing listens on: the probe is asked about it on `UNBINDABLE` only, so only the unknown answer is in reach. */
+const UNDECIDED_PORT = 45000;
+
+test('probePort reads a listener bound on ::1 alone as busy, and the leg that holds nothing as free', async (t) => {
+  const port = await listenOn(t, '::1');
+  assert.equal(await probePort(port, ['127.0.0.1']), 'free', `${port} holds nothing on 127.0.0.1: the listener is on ::1 only`);
+  assert.equal(await probePort(port), 'busy', `${port} is busy: the probe binds both loopback legs, and a listener on ::1 alone is still a listener`);
+  assert.equal((await busyPorts([port])).has(port), true, `${port} is busy, so the planner is told and never offers it`);
+});
+
+test('probePort answers unknown, never free, for a bind that fails for any reason but EADDRINUSE', async (t) => {
+  const port = await listenOn(t, '127.0.0.1');
+  assert.equal(await probePort(port, [UNBINDABLE]), 'unknown', `no host has ${UNBINDABLE}, so nothing was learned about ${port}: not free`);
+  assert.equal(await probePort(port, ['::1', UNBINDABLE]), 'unknown', 'one address the probe could not bind is enough: free needs every address to answer free');
+  assert.equal(await probePort(port, ['127.0.0.1', UNBINDABLE]), 'busy', 'a busy address outranks one the probe could not bind');
+});
+
+test('a port the probe could not decide is refused, never selected as free', async () => {
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'probe', kind: 'derived', at: () => UNDECIDED_PORT }];
+  const busy = await busyPorts([UNDECIDED_PORT], [UNBINDABLE]);
+
+  assert.deepEqual([...busy.keys()], [UNDECIDED_PORT], 'an undecided port is in the map: what is not known to be free is not offered');
+  assert.deepEqual(planPorts(rows, [0], busy), { ok: false, reason: `no free slot in 1 tries (slots 0): probe ${UNDECIDED_PORT} held by a process the OS did not name` });
 });
 
 test('busyPorts decides by binding a port: the one this process holds is busy, the same port is free once released', async () => {

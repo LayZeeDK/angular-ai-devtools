@@ -22,6 +22,7 @@ import {
   planPorts,
   portRows,
   portsCheck,
+  probePort,
   profileOutside,
   playwrightCliJs,
   slotOf,
@@ -66,9 +67,8 @@ async function freePort() {
 
 /**
  * The busy map `planPorts` reads, built from listeners this test holds: those ports really are busy, and the only
- * process that can hold them is this one. `planPorts` takes the map as an argument, so a test that read it from
- * `busyPorts` instead would assert on netstat's view of the machine rather than on the code, and netstat reports
- * nothing for a listener in another network namespace.
+ * process that can hold them is this one. `planPorts` takes the map as an argument, so a plan is decided by the map
+ * the test wrote and not by whatever else this machine happens to be listening on.
  * @param {number[]} ports
  * @returns {Map<number, number[]>}
  */
@@ -314,27 +314,59 @@ test('listeners maps each LISTENING port to its PID, IPv4 or IPv6, and nothing e
   assert.deepEqual([...listeners(text)], [[15131, [7]], [51315, [4242]]]);
 });
 
-test('busyPorts names the holder it observes for a listener of its own, and reports nothing for a free port', async (t) => {
-  const held = await listen(t);
-  const freed = await freePort();
-  const busy = busyPorts();
+/**
+ * A throwaway listener on `host` at a port the OS picks; closed after the test.
+ * @param {import('node:test').TestContext} t
+ * @param {string} host
+ * @returns {Promise<number>}
+ */
+async function listenOn(t, host) {
+  const server = createServer();
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, host, () => resolve(undefined));
+  });
+  t.after(() => server.close());
 
-  assert.equal(busy.has(freed), false, `nothing listens on ${freed} any more`);
+  return /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+}
 
-  for (const [port, pids] of busy) {
-    assert.ok(Number.isInteger(port) && port > 0 && port < 65536, `port ${port}`);
-    assert.ok(pids.length > 0 && pids.every((pid) => Number.isInteger(pid) && pid >= 0), `the holders of ${port}: ${pids}`);
-  }
+/** An address no host has: TEST-NET-1 (RFC 5737) is never assigned to an interface, so a bind on it fails with EADDRNOTAVAIL. */
+const UNBINDABLE = '192.0.2.1';
 
-  const holders = busy.get(held);
+/** A port nothing listens on: the probe is asked about it on `UNBINDABLE` only, so only the unknown answer is in reach. */
+const UNDECIDED_PORT = 45000;
 
-  // netstat reports the host's namespace, which need not hold a listener this process holds; where it is reported
-  // the holder can only be this test process. The freed port above is the half that holds in every environment.
-  if (holders === undefined) {
-    t.diagnostic(`netstat does not report ${held}, a listener this process holds: this environment hides it`);
-  } else {
-    assert.deepEqual(holders, [process.pid], `${held} is held by this test process and nothing else`);
-  }
+test('probePort reads a listener bound on ::1 alone as busy, and the leg that holds nothing as free', async (t) => {
+  const port = await listenOn(t, '::1');
+  assert.equal(await probePort(port, ['127.0.0.1']), 'free', `${port} holds nothing on 127.0.0.1: the listener is on ::1 only`);
+  assert.equal(await probePort(port), 'busy', `${port} is busy: the probe binds both loopback legs, and a listener on ::1 alone is still a listener`);
+  assert.equal((await busyPorts([port])).has(port), true, `${port} is busy, so the planner is told and never offers it`);
+});
+
+test('probePort answers unknown, never free, for a bind that fails for any reason but EADDRINUSE', async (t) => {
+  const port = await listenOn(t, '127.0.0.1');
+  assert.equal(await probePort(port, [UNBINDABLE]), 'unknown', `no host has ${UNBINDABLE}, so nothing was learned about ${port}: not free`);
+  assert.equal(await probePort(port, ['::1', UNBINDABLE]), 'unknown', 'one address the probe could not bind is enough: free needs every address to answer free');
+  assert.equal(await probePort(port, ['127.0.0.1', UNBINDABLE]), 'busy', 'a busy address outranks one the probe could not bind');
+});
+
+test('a port the probe could not decide is refused, never selected as free', async () => {
+  /** @type {import('./control.mjs').PortRow[]} */
+  const rows = [{ name: 'probe', kind: 'derived', at: () => UNDECIDED_PORT }];
+  const busy = await busyPorts([UNDECIDED_PORT], [UNBINDABLE]);
+
+  assert.deepEqual([...busy.keys()], [UNDECIDED_PORT], 'an undecided port is in the map: what is not known to be free is not offered');
+  assert.deepEqual(planPorts(rows, [0], busy), { ok: false, reason: `no free slot in 1 tries (slots 0): probe ${UNDECIDED_PORT} held by a process the OS did not name` });
+});
+
+test('busyPorts decides by binding a port: the one this process holds is busy, the same port is free once released', async () => {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+  const port = /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+  assert.equal((await busyPorts([port])).has(port), true, `a listener this process holds on ${port} is busy`);
+  await new Promise((resolve) => server.close(() => resolve(undefined)));
+  assert.deepEqual([...((await busyPorts([port])).keys())], [], `nothing holds ${port} once the release ran: it is free`);
 });
 
 test('playwrightCliJs takes the script beside the first absolute shim folder and skips relative PATH entries', (t) => {

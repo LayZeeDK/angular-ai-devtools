@@ -700,27 +700,55 @@ function binOf(dir, pkg, binName) {
 const LOOPBACKS = ['127.0.0.1', '::1'];
 
 /**
- * Whether a listener holds `port` on a loopback address, decided by binding it: EADDRINUSE is a listener, and a bind
- * that succeeds is closed at once and means free. Any other error (a host without that address) holds nothing.
- * @param {number} port
- * @returns {Promise<boolean>}
+ * What one address answered when the probe bound it: a listener holds the port, nothing does, or the bind failed for a
+ * reason other than EADDRINUSE and the probe learned nothing about the port. The third answer is not free: a port this
+ * host will not let the probe bind is a port a server cannot bind either.
+ * @typedef {'busy' | 'free' | 'unknown'} PortAnswer
  */
-async function heldOnLoopback(port) {
-  for (const host of LOOPBACKS) {
-    /** @type {boolean} */
-    const held = await new Promise((resolve) => {
-      const server = createServer();
 
-      server.once('error', (error) => resolve(/** @type {NodeJS.ErrnoException} */ (error).code === 'EADDRINUSE'));
-      server.listen({ host, port, exclusive: true }, () => server.close(() => resolve(false)));
-    });
+/**
+ * The answer of binding `port` on `host`: EADDRINUSE is a listener, a bind that succeeds is closed at once and means
+ * free, and every other error is unknown — a port the OS reserves (`EACCES`), an address this host does not have
+ * (`EADDRNOTAVAIL`). Folding those into free is how a port no server can bind was offered as available, to fail in
+ * the spawn with an error nothing expected.
+ * @param {number} port
+ * @param {string} host
+ * @returns {Promise<PortAnswer>}
+ */
+async function bindAnswer(port, host) {
+  return new Promise((resolve) => {
+    const server = createServer();
 
-    if (held) {
-      return true;
+    server.once('error', (error) => resolve(/** @type {NodeJS.ErrnoException} */ (error).code === 'EADDRINUSE' ? 'busy' : 'unknown'));
+    server.listen({ host, port, exclusive: true }, () => server.close(() => resolve('free')));
+  });
+}
+
+/**
+ * Whether a listener holds `port` on a loopback address, decided by binding each of `hosts` (both by default). Busy on
+ * any address is busy; free needs every address to answer free; one address that answered neither is unknown, never
+ * free, because a listener on that leg is exactly what a free answer would hide.
+ * @param {number} port
+ * @param {string[]} [hosts]
+ * @returns {Promise<PortAnswer>}
+ */
+export async function probePort(port, hosts = LOOPBACKS) {
+  /** @type {PortAnswer} */
+  let answer = 'free';
+
+  for (const host of hosts) {
+    const leg = await bindAnswer(port, host);
+
+    if (leg === 'busy') {
+      return 'busy';
+    }
+
+    if (leg === 'unknown') {
+      answer = 'unknown';
     }
   }
 
-  return false;
+  return answer;
 }
 
 /**
@@ -735,18 +763,20 @@ function namedHolders() {
 }
 
 /**
- * Which of `ports` a listener holds now, decided by binding each on the loopback addresses. Presence in the map is the
- * answer; the values are the PIDs `netstat` names, and it may name none: a port held by a process the OS will not name
- * is still busy.
+ * Which of `ports` a listener holds now, decided by binding each on the loopback addresses (`hosts`, both by default).
+ * Presence in the map is the answer, and the values are the PIDs `netstat` names, and it may name none: a port held by
+ * a process the OS will not name is still busy. A port `probePort` could not decide is in the map too, with no PIDs,
+ * so the planner refuses it: what the probe could not decide is never selected as if it were free.
  * @param {number[]} ports
+ * @param {string[]} [hosts]
  * @returns {Promise<Map<number, number[]>>}
  */
-export async function busyPorts(ports) {
+export async function busyPorts(ports, hosts = LOOPBACKS) {
   /** @type {Map<number, number[]>} */
   const busy = new Map();
 
   for (const port of new Set(ports)) {
-    if (await heldOnLoopback(port)) {
+    if ((await probePort(port, hosts)) !== 'free') {
       busy.set(port, []);
     }
   }

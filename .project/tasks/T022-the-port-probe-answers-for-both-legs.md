@@ -3,10 +3,10 @@ id: T022
 title: The port probe answers for both legs
 wave: 8
 deps: [T019]
-status: in-progress
+status: done
 agent: build_T022
-base: 489867da49bdf5616b8fb198e30e01127e99d929
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: a4830769e276c594015ae82d8b7fe85d7fd45581
+worktree: null
 task_branch: null
 files:
   - .commandcode/skills/control-ai-browsers/scripts/control.mjs
