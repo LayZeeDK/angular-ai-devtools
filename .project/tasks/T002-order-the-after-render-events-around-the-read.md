@@ -2,10 +2,10 @@
 id: T002
 title: Order the after-render events around the read
 wave: 1
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: c55790f0ca317230fa9c200f022dbaf679996d22
 worktree: null
 task_branch: null
 files:
@@ -56,3 +56,4 @@ npm ci --include=dev; node --test scripts/after-render-ordering.test.mjs
 ## Log
 
 - dispatched
+- extension/after-render.js joins a read to the recorded profiler list: ordered with the read's phase and the before/after events in emission order, cannot-tell naming no-after-render-event (no layout attribution), unknown for a type the enum does not carry; 16 vm-executed tests, 3 mutants red (reversed after, dropped phase, layout attribution), extension typecheck clean
