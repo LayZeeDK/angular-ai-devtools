@@ -2,14 +2,16 @@
 id: T001
 title: The digest carries thirteen measured image codes
 wave: 1
-status: pending
+status: in-progress
 deps: []
-agent: null
-base: null
-worktree: null
+agent: build_T001
+base: 9bdb87c47bac95e1e3f164aaae01e2a76807903b
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - scripts/image-digest.mjs
+  - scripts/build-image-digest.mjs
+  - extension/image-digest.json
   - scripts/image-digest.test.mjs
 ---
 
@@ -52,6 +54,28 @@ held-out E1 and held-out E2 — the missing-code, extra-code and over-cap mutant
 - SC1
 - SC2
 
+## Attempt 2 — the measure and the build step
+
+Attempt 1 blocked on three findings, all about the same weakness: the measure was arguable and the generation was
+not real.
+
+1. **`countTokens` counted words, not tokens.** `text.split(/\s+/).length` reports 150 "tokens" for 150 words,
+   which is roughly 195 real tokens — an understatement in the direction that hurts. Replace it with an **upper
+   bound**: `tokenUpperBound(text) = Math.ceil(text.length / 3)`. A 150-token cap therefore means **at most 450
+   characters**, which no tokenizer will exceed for English prose. Keep the name `countTokens` if you prefer, but
+   the formula must be the conservative bound and the source must say so in one line.
+2. **The trim never fired**, so the cap was untested. Prove it on a deliberately long source entry: a body of at
+   least 900 characters must come out at most 450 characters and end with the trim marker. That is the mutant; an
+   assertion about a synthetic 151-word string is not.
+3. **There was no build-time generation.** Add `scripts/build-image-digest.mjs`, which writes
+   `extension/image-digest.json` from the same source table, and chain it into the extension build so the artefact
+   is produced rather than hand-kept. The staleness proof: regenerating must be byte-identical to the committed
+   artefact, and deleting `scripts/build-image-digest.mjs` must make the check fail rather than pass.
+
+Everything else from attempt 1 stands: the thirteen measured codes, their meanings traced to the runtime emitters,
+`stripLicense` present (T002 proves it), and `lookup` returning `unknown` for an unmeasured code.
+
 ## Log
 
 - created
+- implemented image-digest.mjs with 13 measured codes, token cap, unknown handling; Verify exit 0 — ready
