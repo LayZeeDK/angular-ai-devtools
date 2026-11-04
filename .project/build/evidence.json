@@ -1,0 +1,56 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "9c4a1a8c6ab4b455f185fd4fcc12b1e502a2228f",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M027",
+        "candidates": [
+          {
+            "base": "ecde95752c628902f8e9945cebe433941f9cc570",
+            "commit": "2d793172c36a6c70adcffc6f6a33fcfa290efd8f",
+            "valid": true
+          }
+        ],
+        "head": "9c4a1a8c6ab4b455f185fd4fcc12b1e502a2228f",
+        "subject": "T001: Capture what the browser says about an unbudgeted image"
+      },
+      "landed_commit": "2d793172c36a6c70adcffc6f6a33fcfa290efd8f",
+      "reasons": [],
+      "task": {
+        "base": "ecde95752c628902f8e9945cebe433941f9cc570",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-capture-what-the-browser-says-about-an-unbudgeted-image.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M027",
+        "candidates": [
+          {
+            "base": "3cb457432fd60926a142245e856d4c6c132942e5",
+            "commit": "81850a92c1bdd1173bda5cc3ba18beb5fc610cd5",
+            "valid": true
+          }
+        ],
+        "head": "9c4a1a8c6ab4b455f185fd4fcc12b1e502a2228f",
+        "subject": "T002: Point the sample at the capture"
+      },
+      "landed_commit": "81850a92c1bdd1173bda5cc3ba18beb5fc610cd5",
+      "reasons": [],
+      "task": {
+        "base": "3cb457432fd60926a142245e856d4c6c132942e5",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-point-the-sample-at-the-capture.md"
+      }
+    }
+  ]
+}
