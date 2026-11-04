@@ -9,15 +9,14 @@ base: null
 worktree: null
 task_branch: null
 files:
-  []
+  - .project/plan/RETIRED-SUITES.md
 ---
 
 # T001 — Remove the ten suites that cannot pass
 
 ## Context
 
-Ten of the thirty-two suites under `tests/held-out/` fail in every fresh checkout. Six read
-`.project/review/rounds/round-2.md`, a hand-written review record that was never tracked by git; four are
+Ten of the thirty-two suites under `tests/held-out/` fail in every fresh checkout. Six read a review-round record under the project directory, a hand-written artifact that was never tracked by git; four are
 per-model live-browser proofs that belong to `verify-ai-browsers`. See `MEASUREMENT.md`.
 
 ## Approach
@@ -44,7 +43,7 @@ None
 ## Verify
 
 ```bash
-npm ci --include=dev; node --test tests/held-out/fixture-harness-ambiguity.test.mjs; test -f .project/plan/RETIRED-SUITES.md
+npm ci --include=dev; node --test tests/held-out/fixture-harness-ambiguity.test.mjs; node --test tests/held-out/fixture-explainers-answer.test.mjs
 ```
 
 ## Log

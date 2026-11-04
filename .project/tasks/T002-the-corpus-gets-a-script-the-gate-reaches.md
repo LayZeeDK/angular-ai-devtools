@@ -46,7 +46,7 @@ None
 ## Verify
 
 ```bash
-npm ci --include=dev; npm run test:held-out
+npm ci --include=dev; node scripts/held-out-corpus.mjs
 ```
 
 ## Log
