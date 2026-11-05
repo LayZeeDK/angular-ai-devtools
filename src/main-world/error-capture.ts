@@ -16,12 +16,9 @@
 export const CAPACITY = 50;
 
 export const NO_OWN_COMPONENT = 'no owning component';
-export const NO_OWN_COMPONENT_MESSAGE = NO_OWN_COMPONENT;
-export const NO_OWNING_COMPONENT = NO_OWN_COMPONENT;
 
 export const EMPTY_STATE = 'No captured errors';
 export const EMPTY_MESSAGE = EMPTY_STATE;
-export const NO_CAPTURED_ERRORS = EMPTY_STATE;
 
 export interface CapturedError {
   code: string | null;
@@ -79,8 +76,6 @@ export function resolveOwningComponent(ng: any, target?: any): string | null {
     return null;
   }
 }
-
-export const getOwningComponentName = resolveOwningComponent;
 
 function makeCapturedError(
   message: unknown,
@@ -209,11 +204,6 @@ export function pushToRingBuffer<T>(
   return next;
 }
 
-export const pushRing = pushToRingBuffer;
-export const pushRingBuffer = pushToRingBuffer;
-export const addToRingBuffer = pushToRingBuffer;
-export const appendToRingBuffer = pushToRingBuffer;
-
 export function isEmpty(value: any): boolean {
   if (value == null) return true;
   if (Array.isArray(value)) return value.length === 0;
@@ -234,14 +224,10 @@ export function isEmptyState(value: any): boolean {
 export const defaultExport = {
   CAPACITY,
   NO_OWN_COMPONENT,
-  NO_OWN_COMPONENT_MESSAGE,
-  NO_OWNING_COMPONENT,
   EMPTY_STATE,
   EMPTY_MESSAGE,
-  NO_CAPTURED_ERRORS,
   extractErrorCode,
   resolveOwningComponent,
-  getOwningComponentName: resolveOwningComponent,
   captureError,
   captureConsoleError,
   captureWindowError,
@@ -249,10 +235,6 @@ export const defaultExport = {
   RingBuffer,
   createRingBuffer,
   pushToRingBuffer,
-  pushRing,
-  pushRingBuffer,
-  addToRingBuffer,
-  appendToRingBuffer,
   isEmpty,
   componentLabel,
   isEmptyState,
