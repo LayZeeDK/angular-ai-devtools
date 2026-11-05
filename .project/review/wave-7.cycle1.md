@@ -16,7 +16,7 @@ Reviewed HEAD: a16292dccd33c5049c8254670eacbddcb9a31a0d
 
 ## Intent coverage
 
-### SC5 — `npm run check` and `npm test` pass at the head: pass
+### SC5 — `npm run check` and `npm test` pass at the head.: pass
 
 - ✅ T009's acceptance gates are met: teardown retries instead of failing on transient EPERM, both copies carry the same change, the suite passes twice in a row, and the temp directory is gone afterwards. The remaining gap (no automated parity check catches copy drift) is recorded as a finding above, not a red gate.
-```
+
