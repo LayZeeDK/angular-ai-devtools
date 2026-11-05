@@ -8,7 +8,7 @@
 Review panel: off   <!-- off | detected | claude,gpt,grok,composer,gemini,
                       deepseek,kimi,qwen — durable program default. Recorded
                       off until the installer's guarded family patch lands; it
-                      adds beam, glyph, laguna and glm, which this host's routes
+                      adds beam, glyph, crouton and glm, which this host's routes
                       need. deepseek is already a known family. See Constraints. -->
 
 ## Vision
@@ -42,7 +42,7 @@ questions, answered in the panel, on the developer's machine.
 - Tooling (program infrastructure): move every `install-*` script and its tests
   from `scripts/` to `~/.commandcode/scripts/`, update the `package.json`,
   `tsconfig.json` and `AGENTS.md` references, and extend the installer's guarded
-  adaptation to add the `beam`, `glyph`, `laguna` and `glm` review-panel families
+  adaptation to add the `beam`, `glyph`, `crouton` and `glm` review-panel families
   so `detected` and named panels can express this host's routes.
 - Consolidation and hardening of M001-M007: review the shipped product code
   (extension contexts, panel components, MAIN-world tracers, prompt/fact-list
@@ -137,14 +137,19 @@ questions, answered in the panel, on the developer's machine.
   written anywhere.
 - Cross-model review: `Review panel:` stays `off` until the installer's guarded
   patch adds the free and paid families; then `detected` and named panels work.
-  Free default: measure and evaluate every Beam 1.0 and Glyph Cluster effort for
-  the review at hand and use the measured winner, with an optional attempt at
-  stable Poolside Laguna S 2.1 subagent orchestration (it is often rate-limited
-  and its output is slow), never as the default. Paid, only on opt-in or explicit
-  approval, and never the parent's family: DeepSeek V4.1 Flash as parent uses
-  GLM-5.3 Flash; GLM-5.3 Flash as parent uses DeepSeek V4.1 Flash; Poolside
-  Laguna S 2.1 as parent uses DeepSeek V4.1 Flash. A panel names at most three
-  families, and the resolver always skips the parent's family.
+  Free default: measure and evaluate the free routes available at the time -- Beam
+  1.0, Glyph Cluster and Crouton Alpha -- for the review at hand and use the
+  measured winner. Crouton Alpha is the only free route with image input and is
+  used for rendered-pixel checks and bounded sub-tasks, never as the planning
+  seat. Paid, only on opt-in or explicit approval, and never the parent's family:
+  DeepSeek V4.1 Flash as parent uses GLM-5.3 Flash; GLM-5.3 Flash as parent uses
+  DeepSeek V4.1 Flash. A panel names at most three families, and the resolver
+  always skips the parent's family.
+- 2026-11-05: Poolside Laguna S 2.1 free was withdrawn by the provider and is
+  removed from the roster, the free-route ladders and the subagent types. The free
+  routes are now Beam 1.0, Glyph Cluster and Crouton Alpha (the only free route with
+  image input). The paid ladder and the "never the parent's family" rule are
+  unchanged. The dated entries above that name Laguna are kept as written.
 
 ## Program success criteria
 
