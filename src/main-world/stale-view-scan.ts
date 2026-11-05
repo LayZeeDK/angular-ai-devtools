@@ -79,14 +79,8 @@ export function angularVersionGate(version: unknown): AngularVersionGateResult {
   return { supported, version: v };
 }
 
-// Aliases for version gate.
-export const checkAngularVersion = angularVersionGate;
-export const checkVersion = angularVersionGate;
-export const versionGate = angularVersionGate;
 export const isAngularVersionSupported = (version: unknown) =>
   angularVersionGate(version).supported;
-export const gateAngularVersion = angularVersionGate;
-export const angularVersionSupported = isAngularVersionSupported;
 
 // Whole-identifier matching for the write target. `\b` is not enough for all
 // JS identifier boundaries, so we anchor on identifier char classes.
@@ -94,19 +88,12 @@ const IDENT = '[A-Za-z_$][A-Za-z0-9_$]*';
 
 // Matches `this.<identifier>` followed by `=`, `.set(`, or `.update(` with
 // arbitrary whitespace/newlines between tokens. Captures the identifier.
-const WRITE_PATTERN = new RegExp(
+export const WRITE_PATTERN = new RegExp(
   'this\\s*\\.\\s*(' +
     IDENT +
     ')\\s*(?:=|\\.\\s*set\\s*\\(|\\.\\s*update\\s*\\()',
   'g',
 );
-
-export const directWriteRegex = WRITE_PATTERN;
-export const directWritePattern = WRITE_PATTERN;
-export const writeRegex = WRITE_PATTERN;
-export const staleViewWriteRegex = WRITE_PATTERN;
-export const STALE_VIEW_WRITE_REGEX = WRITE_PATTERN;
-export const DIRECT_WRITE_REGEX = WRITE_PATTERN;
 
 export function matchDirectWrites(source: unknown): string[] {
   const text = source == null ? '' : String(source);
@@ -126,13 +113,6 @@ export function matchDirectWrites(source: unknown): string[] {
   }
   return out;
 }
-
-// Back-compat aliases for the matcher.
-export const findDirectWrites = matchDirectWrites;
-export const scanDirectWrites = matchDirectWrites;
-export const extractFields = matchDirectWrites;
-export const extractDirectWrites = matchDirectWrites;
-export const findWrites = matchDirectWrites;
 
 // Regex test helper: returns true if source contains any direct write.
 export function hasDirectWrite(source: unknown): boolean {
@@ -260,13 +240,7 @@ export function scanGraph(
   return findings;
 }
 
-// Aliases for the scan entry point.
-export const scanStaleView = scanGraph;
 export const scan = scanGraph;
-export const runScan = scanGraph;
-export const collectFindings = scanGraph;
-export const findStaleViews = scanGraph;
-export const analyzeGraph = scanGraph;
 
 // Plain-field confirmation helper.
 export function confirmPlainField(
@@ -282,36 +256,14 @@ export function confirmPlainField(
     return false;
   }
 }
-export const isPlainField = confirmPlainField;
 
 export default {
   angularVersionGate,
-  checkAngularVersion,
-  checkVersion,
-  versionGate,
   isAngularVersionSupported,
-  gateAngularVersion,
-  angularVersionSupported,
-  directWriteRegex: WRITE_PATTERN,
-  directWritePattern: WRITE_PATTERN,
-  writeRegex: WRITE_PATTERN,
-  staleViewWriteRegex: WRITE_PATTERN,
-  STALE_VIEW_WRITE_REGEX: WRITE_PATTERN,
-  DIRECT_WRITE_REGEX: WRITE_PATTERN,
+  WRITE_PATTERN,
   matchDirectWrites,
-  findDirectWrites,
-  scanDirectWrites,
-  extractFields,
-  extractDirectWrites,
-  findWrites,
   hasDirectWrite,
   scanGraph,
-  scanStaleView,
   scan,
-  runScan,
-  collectFindings,
-  findStaleViews,
-  analyzeGraph,
   confirmPlainField,
-  isPlainField,
 };
