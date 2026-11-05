@@ -102,3 +102,72 @@ intent,plan,rulings,ship`, quoting that instruction whenever a ruling is recorde
 GSD Path workflow rules and lessons learned live in the user-scope
 `~/AGENTS.md` (`## GSD Path` section). Detailed progressive-disclosure
 docs are in `~/.commandcode/references/gsd-path-notes.md`.
+
+## Programmes
+
+The product is a backlog of **seven programmes** (generations), defined in
+`plans/angular-ai-devtools-program-backlog.md`. That document is the durable record of the
+owner's rulings and the milestone backlog; `.project/ROADMAP.md` is the authoritative roadmap
+and holds only the generation currently admitted. Read the backlog before planning any
+programme; do not invent milestones it does not list.
+
+- **One root, never one root per programme.** A programme is a `CHARTER.md` section plus a
+  `Programme:` label on each roadmap entry. GSD Path has no programme layer.
+- **A roadmap approval admits at most twelve entries.** A larger scope splits: the overflow
+  becomes the head of the next generation. Generation 2 listed thirteen, so `console-read`
+  is carried rather than packed in.
+- **Ids never restart and are never renumbered.** Insertions during a generation shift every
+  later id, so map backlog ids to shipped ids by slug, not by number. Generation 1 ran
+  M018–M031 for twelve backlog milestones because `proof-corpus-repair` and
+  `image-warning-capture` were inserted in flight.
+- **The backlog's fields are copied, then expanded.** A `Goal:` line and a `Gate:` become
+  `Goal`, `Scope: in`/`out`, `Success criteria`, `Risks` and `Open questions`. A spike gate
+  belongs in its entry's `Open questions`, not only in the backlog.
+
+### Closing a generation and opening the next
+
+Each helper refuses an argument it is not given, one at a time, so run these in order rather
+than batched. `<sha>` is a full 40-character SHA wherever one is taken.
+
+1. **Bind the new branch first.** `git checkout -b gsd-path/M0NN`. Until the branch matches
+   `STATE.branch`, every `pipeline_state.py route` call blocks with
+   `current branch main != STATE.branch …`.
+2. **Close the old programme:** `pipeline_state.py transition` from `shipped/done` to
+   `inspect/active`, setting `--set-phase inspect --set-status active --set-branch <new> ---set-milestone null --set-archive null`. Pass **every** `--expect-*` field including
+   `--expect-archive`; an omitted expectation is an error, not a default.
+3. **Inspect is the chunked re-inspection.** `workflow_run.py prepare-inspect` refuses once
+   `research/DOCS-AUDIT.md` exists, which is every programme after the first. Freeze the
+   inventory, create the docs sidecar, chunk with `gsd inspect chunks`, dispatch one brief per
+   chunk, then `gsd inspect lint`. Expect `chunk-NN.brief.md` for the briefs and `chunk-NN.md`
+   for the fragments — telling a reviewer to read `chunk-NN.md` gets a correct refusal.
+4. **`gsd inspect assemble` needs five arguments:** `--head`, `--inventory`, `--parts`,
+   `--audited` and `--prior-audit`. It asks for them one at a time.
+5. **Delete `<sidecar>/.project/research/parts/` before collecting.** The collector treats
+   anything beyond the assigned artifact as an unexpected path.
+6. **Collecting over an existing artifact needs proof:** `isolation.py collect-artifact …
+--expected-destination base` asserts the file being replaced still matches the base commit.
+   Without it the collector refuses, which is right — it stops a hand-edited artifact being
+   discarded silently.
+7. **Close the inspection**, then **open the roadmap:** from `define/active` the event must be
+   exactly `roadmap re-slice started`. Any other wording is refused.
+8. **Write the entries and the charter Correction together.** The roadmap gate checks a
+   charter-to-milestone bijection, so a generation that is not admitted into `Full scope: in`
+   as a dated Correction fails it.
+9. **Approve the roadmap with the generation's first milestone:**
+   `pipeline_state.py approve --kind roadmap --milestone <first-slug> --expected-head <sha>`.
+   The approval itself records `roadmap/done` and names the milestone, so do not transition
+   after it.
+10. **Open define:** `roadmap/done → define/active` with `--expect-archive null` and
+    `--expect-milestone <first-slug>`.
+
+### Checking the state
+
+`gsd loop-guard --repo <root>` reports `terminal`, `remaining` and whether the programme is
+complete. A roadmap with `remaining: 0` returns `STOP: programme complete`; a fresh generation
+puts a positive `remaining` back.
+
+### What a programme open costs, measured
+
+Generation 1 to Generation 2 took one docs audit of 145 documents in **11 chunks**
+(~5.5 M tokens on free Glyph), five argument refusals from `assemble`, two from `collect`, and
+four from `transition`. Budget a session, not an iteration.
