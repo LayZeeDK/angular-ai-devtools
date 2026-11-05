@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: redirect-chain
-phase: define
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M030
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -562,3 +562,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-05 — inspect — premise checked
 - 2026-11-05 — define — define started
 - 2026-11-05 — define — milestone intent approved
+- 2026-11-05 — plan — planning started
