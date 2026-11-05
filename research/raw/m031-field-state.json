@@ -1,0 +1,65 @@
+{
+  "capturedAt": "2026-11-05T06:03:59.044Z",
+  "browser": "headless Playwright Chromium (build 153.0.8010.12)",
+  "browserBuild": "153.0.8010.12",
+  "instance": "headless",
+  "playwright": "1.63.0",
+  "angularVersion": "22.2.2",
+  "url": "http://127.0.0.1:54968/field-form",
+  "pageUrl": "http://127.0.0.1:54968/field-form",
+  "commands": {
+    "install": "npm ci --include=dev",
+    "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
+    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 54968 --host 127.0.0.1  (cwd spikes/ng222-app)",
+    "capture": "node --test scripts/field-state-capture.test.mjs",
+    "check": "node --test scripts/field-state-capture.test.mjs"
+  },
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0"
+  },
+  "fixture": {
+    "route": "/field-form",
+    "routeTable": "spikes/ng222-app/src/app/app.routes.ts"
+  },
+  "ngGetComponentExposedFieldTree": true,
+  "componentHostTag": "app-field-form-page",
+  "fields": {
+    "name": {
+      "valid": false,
+      "invalid": true,
+      "errors": [
+        {
+          "kind": "required"
+        }
+      ]
+    },
+    "age": {
+      "valid": false,
+      "invalid": true,
+      "errors": [
+        {
+          "kind": "min"
+        }
+      ]
+    }
+  },
+  "root": {
+    "valid": false,
+    "invalid": true,
+    "errors": []
+  },
+  "crossField": {
+    "probe": "fields individually valid, root cross-field invalid",
+    "available": true,
+    "fieldsIndividuallyValid": true,
+    "rootInvalid": true,
+    "rootErrors": [
+      {
+        "kind": "name-too-short-for-age"
+      }
+    ],
+    "observable": true
+  }
+}

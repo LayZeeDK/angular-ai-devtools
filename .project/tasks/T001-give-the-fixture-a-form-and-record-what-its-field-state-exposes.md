@@ -2,10 +2,10 @@
 id: T001
 title: Give the fixture a form and record what its field state exposes
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: c283ca58839e7163f019457ab13f7a4e8804739c
 worktree: null
 task_branch: null
 files:

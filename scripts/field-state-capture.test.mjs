@@ -1,0 +1,293 @@
+// @ts-check
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
+import { createServer } from 'node:net';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { test } from 'node:test';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, '..');
+const APP = join(ROOT, 'spikes', 'ng222-app');
+async function choosePort() {
+  if (process.env.M031_FIELD_PORT) return Number(process.env.M031_FIELD_PORT);
+  const srv = createServer();
+  await new Promise((resolve, reject) => {
+    srv.once('error', reject);
+    srv.listen(0, '127.0.0.1', resolve);
+  });
+  const port = srv.address().port;
+  await new Promise((resolve) => srv.close(resolve));
+  return port;
+}
+const PORT = await choosePort();
+const ORIGIN = `http://127.0.0.1:${PORT}`;
+const ROUTE_PATH = '/field-form';
+const PAGE_URL = `${ORIGIN}${ROUTE_PATH}`;
+const RECORD_PATH = process.env.M031_FIELD_RECORD ?? join(ROOT, 'research', 'raw', 'm031-field-state.json');
+
+const CAPTURE_COMMAND = 'node --test scripts/field-state-capture.test.mjs';
+const SERVE_COMMAND = `node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port ${PORT} --host 127.0.0.1  (cwd spikes/ng222-app)`;
+
+async function runCapture() {
+  const requireApp = createRequire(join(APP, 'package.json'));
+  let chromium;
+  try { ({ chromium } = requireApp('playwright')); } catch (e) {
+    throw new Error(`playwright missing: ${e}`);
+  }
+  const playwrightVersion = requireApp('playwright/package.json').version;
+  const angularVersion = JSON.parse(readFileSync(join(APP, 'node_modules', '@angular', 'core', 'package.json'), 'utf8')).version;
+
+  const server = spawn(process.execPath, [join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'), 'serve', '--port', String(PORT), '--host', '127.0.0.1'], { cwd: APP, stdio: ['ignore', 'pipe', 'pipe'] });
+  capturedServerPid = server.pid;
+  let serverOutput = '';
+  server.stdout.on('data', (c) => { serverOutput = (serverOutput + c).slice(-4000); });
+  server.stderr.on('data', (c) => { serverOutput = (serverOutput + c).slice(-4000); });
+
+  let browser;
+  try {
+    await waitForServer(server, () => serverOutput);
+    await new Promise((r) => setTimeout(r, 1200));
+    browser = await chromium.launch({ headless: true });
+    const browserBuild = browser.version();
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.goto(PAGE_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.waitForFunction(() => document.querySelectorAll('[ng-version]').length > 0, null, { timeout: 60000 });
+    await page.waitForTimeout(1500);
+
+    const initial = await page.evaluate(() => {
+      const ng = window.ng;
+      let comp = null; let host = null;
+      for (const el of document.querySelectorAll('*')) {
+        try { const c = ng.getComponent(el); if (c && c.fieldForm) { comp = c; host = el; break; } } catch {}
+      }
+      if (!comp) return { found: false };
+      const f = comp.fieldForm;
+      const rootState = f();
+      const nameState = f.name();
+      const ageState = f.age();
+      const shape = (st) => ({ valid: !!st.valid(), invalid: !!st.invalid(), errors: (st.errors() || []).map((e) => ({ kind: e.kind })) });
+      return {
+        found: true,
+        hostTag: host ? host.tagName.toLowerCase() : null,
+        ngGetComponentExposedFieldTree: true,
+        root: shape(rootState),
+        name: shape(nameState),
+        age: shape(ageState),
+      };
+    });
+
+    const probe = await page.evaluate(() => {
+      const ng = window.ng;
+      let comp = null;
+      for (const el of document.querySelectorAll('*')) {
+        try { const c = ng.getComponent(el); if (c && c.fieldForm) { comp = c; break; } } catch {}
+      }
+      if (!comp) return { available: false };
+      comp.model.set({ name: 'ab', age: 5 });
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const f = comp.fieldForm;
+          const rootState = f();
+          const nameState = f.name();
+          const ageState = f.age();
+          resolve({
+            available: true,
+            fieldsIndividuallyValid: !!(nameState.valid() && ageState.valid()),
+            rootInvalid: !!rootState.invalid(),
+            rootErrors: (rootState.errors() || []).map((e) => ({ kind: e.kind })),
+          });
+        }, 300);
+      });
+    });
+
+    await browser.close();
+    browser = undefined;
+
+    const record = {
+      capturedAt: new Date().toISOString(),
+      browser: `headless Playwright Chromium (build ${browserBuild})`,
+      browserBuild,
+      instance: 'headless',
+      playwright: playwrightVersion,
+      angularVersion,
+      url: PAGE_URL,
+      pageUrl: PAGE_URL,
+      commands: {
+        install: 'npm ci --include=dev',
+        installApp: 'npm --prefix spikes/ng222-app ci --include=dev',
+        serve: SERVE_COMMAND,
+        capture: CAPTURE_COMMAND,
+        check: CAPTURE_COMMAND,
+      },
+      environment: { platform: process.platform, shell: 'cmd.exe', node: process.version },
+      fixture: { route: ROUTE_PATH, routeTable: 'spikes/ng222-app/src/app/app.routes.ts' },
+      ngGetComponentExposedFieldTree: !!initial.ngGetComponentExposedFieldTree,
+      componentHostTag: initial.hostTag,
+      fields: (initial.found ? { name: initial.name, age: initial.age } : {}),
+      root: initial.found ? initial.root : null,
+      crossField: {
+        probe: 'fields individually valid, root cross-field invalid',
+        available: !!probe.available,
+        fieldsIndividuallyValid: !!probe.fieldsIndividuallyValid,
+        rootInvalid: !!probe.rootInvalid,
+        rootErrors: probe.rootErrors || [],
+        observable: !!(probe.available && probe.fieldsIndividuallyValid && probe.rootInvalid && (probe.rootErrors || []).some((e) => e.kind === 'name-too-short-for-age')),
+      },
+    };
+    return record;
+  } finally {
+    if (browser) await browser.close().catch(() => {});
+    await stopServer(server);
+  }
+}
+
+async function waitForServer(server, output) {
+  const started = Date.now();
+  let exit = null;
+  server.on('exit', (code, signal) => { exit = { code, signal }; });
+  while (Date.now() - started < 180000) {
+    if (exit) throw new Error(`server exited: ${JSON.stringify(exit)}\n${output()}`);
+    try {
+      const res = await fetch(`${ORIGIN}/`, { signal: AbortSignal.timeout(2000) });
+      if (res.ok) return;
+    } catch {}
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  throw new Error(`server not answering: ${output()}`);
+}
+
+function killProcessTree(pid) {
+  if (process.platform === 'win32') {
+    const killer = spawn('taskkill', ['/PID', String(pid), '/T', '/F'], { stdio: 'ignore' });
+    return new Promise((resolve) => killer.on('exit', resolve).on('error', resolve));
+  } else {
+    try { process.kill(-pid, 'SIGTERM'); } catch { try { process.kill(pid, 'SIGTERM'); } catch {} }
+    return Promise.resolve();
+  }
+}
+
+function waitForPortFree(port, timeout = 30000) {
+  const started = Date.now();
+  return new Promise((resolve, reject) => {
+    const tick = () => {
+      if (Date.now() - started >= timeout) return reject(new Error(`port ${port} not free after ${timeout}ms`));
+      const srv = createServer();
+      srv.once('error', () => setTimeout(tick, 250));
+      srv.listen(port, '127.0.0.1', () => { srv.close(() => resolve()); });
+    };
+    tick();
+  });
+}
+
+async function stopServer(server) {
+  if (server.exitCode === null && server.signalCode === null) {
+    try { await killProcessTree(server.pid); } catch {}
+    server.kill();
+    const timer = setTimeout(() => { try { server.kill('SIGKILL'); } catch {} }, 5000);
+    timer.unref?.();
+    try { await once(server, 'exit'); } catch {}
+    clearTimeout(timer);
+  }
+  await waitForPortFree(PORT);
+}
+
+function isPidAlive(pid) {
+  if (!pid) return false;
+  try { process.kill(pid, 0); return true; }
+  catch (e) { return !!(e && e.code === 'EPERM'); }
+}
+
+async function assertTeardownClean(pid, port) {
+  if (isPidAlive(pid)) throw new Error(`server PID ${pid} survived teardown`);
+  await new Promise((resolve, reject) => {
+    const srv = createServer();
+    srv.once('error', reject);
+    srv.listen(port, '127.0.0.1', () => { srv.close(() => resolve()); });
+  });
+}
+
+function loadRecord() {
+  return JSON.parse(readFileSync(RECORD_PATH, 'utf8'));
+}
+
+function clone(record) {
+  return JSON.parse(JSON.stringify(record));
+}
+
+function validate(record) {
+  assert.ok(record, 'record present');
+  assert.ok(record.ngGetComponentExposedFieldTree === true, 'ng.getComponent must expose field tree');
+  assert.ok(record.fields && typeof record.fields === 'object', 'fields present');
+  assert.ok(record.fields.name, 'name field present');
+  assert.ok(record.fields.age, 'age field present');
+  for (const key of ['name', 'age']) {
+    const f = record.fields[key];
+    assert.equal(typeof f.valid, 'boolean', `${key}.valid boolean`);
+    assert.equal(typeof f.invalid, 'boolean', `${key}.invalid boolean`);
+    assert.ok(Array.isArray(f.errors), `${key}.errors array`);
+  }
+  assert.ok(record.root, 'root present');
+  assert.equal(typeof record.root.valid, 'boolean', 'root.valid boolean');
+  assert.equal(typeof record.root.invalid, 'boolean', 'root.invalid boolean');
+  assert.ok(Array.isArray(record.root.errors), 'root.errors array');
+  assert.ok(record.crossField, 'crossField present');
+  assert.equal(record.crossField.observable, true, 'cross-field verdict observable');
+  assert.equal(record.crossField.fieldsIndividuallyValid, true, 'probe fields valid');
+  assert.equal(record.crossField.rootInvalid, true, 'probe root invalid');
+  assert.ok((record.crossField.rootErrors || []).some((e) => e.kind === 'name-too-short-for-age'), 'cross-field error recorded');
+  assert.match(record.browserBuild, /^\d+\.\d+\.\d+\.\d+$/);
+  assert.match(record.url, /^http:\/\/127\.0\.0\.1:\d+\/field-form$/);
+  assert.match(record.capturedAt, /^\d{4}-\d{2}-\d{2}T/);
+  assert.ok(record.commands && record.commands.capture, 'commands present');
+}
+
+let capturePromise = null;
+let capturedServerPid = null;
+function captured() { capturePromise ??= runCapture(); return capturePromise; }
+
+// ---------------- read-only checks ----------------
+
+test('the recording validates against its own fixture and clocks', () => {
+  const record = loadRecord();
+  assert.doesNotThrow(() => validate(record));
+});
+
+test('the recording exposes the field tree via ng.getComponent', () => {
+  const record = loadRecord();
+  assert.equal(record.ngGetComponentExposedFieldTree, true);
+});
+
+test('the recording has both fields with validity and errors', () => {
+  const record = loadRecord();
+  assert.ok(record.fields.name, 'name present');
+  assert.ok(record.fields.age, 'age present');
+});
+
+test('mutant: removing the required field is refused', () => {
+  const mutant = clone(loadRecord());
+  delete mutant.fields.name;
+  assert.throws(() => validate(mutant), /name field present/);
+});
+
+test('mutant: an unreachable field tree is refused', () => {
+  const mutant = clone(loadRecord());
+  mutant.ngGetComponentExposedFieldTree = false;
+  assert.throws(() => validate(mutant), /ng\.getComponent must expose field tree/);
+});
+
+// ---------------- opt-in capture ----------------
+
+if (process.env.M031_CAPTURE === '1') {
+  test('capture field state via ng.getComponent', async (t) => {
+    const record = await captured();
+    if (RECORD_PATH) writeFileSync(RECORD_PATH, `${JSON.stringify(record, null, 2)}\n`);
+    validate(record);
+    await assertTeardownClean(capturedServerPid, PORT);
+    t.diagnostic(`fields: ${Object.keys(record.fields).join(',')}, crossField observable: ${record.crossField.observable}`);
+  });
+}

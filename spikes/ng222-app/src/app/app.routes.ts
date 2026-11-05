@@ -5,6 +5,7 @@ import { ComponentsPage } from './components/components-page';
 import { ImageBudgetPage } from './image-budget-page';
 import { AfterRenderPage } from './after-render-page';
 import { TrustBypassPage } from './trust-bypass-page';
+import { FieldFormPage } from './field-form-page';
 import { LandingPage, LazyPage } from './redirect-page';
 import { redirectGuard } from './redirect-guard';
 
@@ -15,6 +16,7 @@ export const routes: Routes = [
   { path: 'image-budget', component: ImageBudgetPage },
   { path: 'after-render', component: AfterRenderPage },
   { path: 'trust-bypass', component: TrustBypassPage },
+  { path: 'field-form', component: FieldFormPage },
   { path: 'redirect', redirectTo: 'landing' },
   { path: 'landing', component: LandingPage },
   { path: 'gated', component: LandingPage, canActivate: [redirectGuard] },
