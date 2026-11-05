@@ -8,13 +8,13 @@
     "cause": "spikes/ng222-app/src/app/trust-bypass-page.ts — the fixture page T001 added (commit 3dfce5c) and T004 extended (commit 68abbb2), routed at /trust-bypass. The growth is that page's emitted code, a real change in both bundles, not measurement noise; both builds are therefore re-recorded rather than the development byte bound widened.",
     "development": {
       "was": 1902757,
-      "now": 1907107,
-      "delta": 4350
+      "now": 1917315,
+      "delta": 14558
     },
     "production": {
       "was": 389645,
-      "now": 400764,
-      "delta": 11119
+      "now": 403906,
+      "delta": 14261
     },
     "tolerance": "the development byte tolerance stays 2000 bytes (DEV_BYTES_TOLERANCE in scripts/ng-context-dev-build.test.mjs); it was not widened to cover this change"
   },
@@ -28,9 +28,11 @@
     "development": {
       "configuration": "development",
       "bundles": [
+        "chunk-5CQ6O73V.js",
+        "chunk-KDTDSBO7.js",
         "main.js"
       ],
-      "bytes": 1907107,
+      "bytes": 1917315,
       "unminified": true,
       "ngContextWrite": {
         "present": true,
@@ -61,18 +63,20 @@
     "production": {
       "configuration": "production",
       "bundles": [
-        "main-K3ADZXL3.js"
+        "chunk-L3462FYA.js",
+        "chunk-U56XEYZR.js",
+        "main-6BRLCUA6.js"
       ],
-      "bytes": 400764,
+      "bytes": 403906,
       "unminified": false,
       "ngContextWrite": {
         "present": true,
-        "binding": "var dg=\"__ngContext__\"",
-        "identifier": "dg",
+        "binding": "var ou=\"__ngContext__\"",
+        "identifier": "ou",
         "writeSites": 2,
         "writeSnippets": [
-          "__ngContext__\";function bo(e,t){un(t)?(e[dg]=t[fi],TE(t)):e[dg]=t}function av(e){return lv(e[ao])}fu",
-          "tion bo(e,t){un(t)?(e[dg]=t[fi],TE(t)):e[dg]=t}function av(e){return lv(e[ao])}function cv(e){return"
+          "__ngContext__\";function ln(e,t){Be(t)?(e[ou]=t[Hn],Zg(t)):e[ou]=t}function td(e){return rd(e[Jt])}fu",
+          "tion ln(e,t){Be(t)?(e[ou]=t[Hn],Zg(t)):e[ou]=t}function td(e){return rd(e[Jt])}function nd(e){return"
         ]
       },
       "ngGlobalSurface": {

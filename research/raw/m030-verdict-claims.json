@@ -1,0 +1,35 @@
+{
+ "milestone": "M030",
+ "claims": [
+  {
+   "criterion": "SC1",
+   "criterionText": "On the fixture, a route that redirects produces an RTR-1 finding naming the requested path, each route the walk entered, and the destination, in the order the configuration declares them.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for redirect-chain."
+  },
+  {
+   "criterion": "SC2",
+   "criterionText": "The walk reads `Router.config` through `window.ng`'s injector, with no new page-side instrumentation, no router event subscription and no patch of the router.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for redirect-chain."
+  },
+  {
+   "criterion": "SC3",
+   "criterionText": "A configuration whose walk revisits a route produces a cycle finding naming the repeated route, rather than walking forever; a route whose entry is gated is reported as gated, without naming what the guard decided.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for redirect-chain."
+  },
+  {
+   "criterion": "SC4",
+   "criterionText": "The panel renders the walked chain and marks the first route that changed the destination, and shows the cycle and gated states.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for redirect-chain."
+  },
+  {
+   "criterion": "SC5",
+   "criterionText": "`npm run check` and `npm test` pass at the head.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for redirect-chain."
+  }
+ ]
+}

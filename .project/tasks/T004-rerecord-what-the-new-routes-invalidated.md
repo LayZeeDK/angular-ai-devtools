@@ -2,10 +2,10 @@
 id: T004
 title: Re-record what the new routes invalidated
 wave: 2
-status: pending
+status: done
 deps: [T001, T003]
-agent: null
-base: null
+agent: build_T004
+base: f64b7713f0807c3ab958c896e4ad15276180f655
 worktree: null
 task_branch: null
 files:
@@ -63,3 +63,4 @@ node --test scripts/fixture-proof-fresh.test.mjs scripts/ng-context-dev-build.te
 ## Log
 
 - dispatched
+- T004 re-recorded: 5 fingerprints, m022 ng-context (dev 1917315B, prod 403906B), m030 verdict claims; all 3 suites green (21 pass)

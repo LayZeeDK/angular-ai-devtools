@@ -2,8 +2,8 @@
   "version": 1,
   "features": {
     "components": {
-      "provenAt": "2026-11-04T21:55:26.830Z",
-      "commit": "68abbb22ee23a814a56a63ab83f6d18931b07303",
+      "provenAt": "2026-11-05T01:20:34.507Z",
+      "commit": "f64b7713f0807c3ab958c896e4ad15276180f655",
       "method": "typescript",
       "entries": [
         "spikes/ng222-app/src/main.ts",
@@ -12,7 +12,7 @@
       "files": {
         "spikes/ng222-app/src/app/after-render-page.ts": "4b2ce57bc083634287cac27fbcdb1a7f9911480f",
         "spikes/ng222-app/src/app/app.config.ts": "e60fc79fa4a0a0dcd99d4d06a82ff642f45e0d16",
-        "spikes/ng222-app/src/app/app.routes.ts": "927a88f7c050cf07f35413ea485398adbc875d22",
+        "spikes/ng222-app/src/app/app.routes.ts": "65795bfc02d6801a9c3ef3dd9f74a200c00c4362",
         "spikes/ng222-app/src/app/app.ts": "7090c0cd7276b21a637542c2845e925a22b910a4",
         "spikes/ng222-app/src/app/components/aria-items.ts": "0dfe1cd31809c061cf01d9f43d647f0defac2464",
         "spikes/ng222-app/src/app/components/aria-surfaces.ts": "b88d109b98499503613c1b876cc06cd38e547082",
@@ -20,6 +20,8 @@
         "spikes/ng222-app/src/app/components/harness-probe.ts": "7eb4ff134c582dca634f674888dd10a6b8254611",
         "spikes/ng222-app/src/app/counter.ts": "c2690d09d1c7c67319c587c11a9fed08ee41d63e",
         "spikes/ng222-app/src/app/image-budget-page.ts": "ac73b34f1aaf657410769357e63cf7eb6e19b44a",
+        "spikes/ng222-app/src/app/redirect-guard.ts": "c2a3a442d50e3ee92f396ddeec76846e7fd5f42f",
+        "spikes/ng222-app/src/app/redirect-page.ts": "43e370ffc3d8a7a277adfeecdec0e72b83f7eddd",
         "spikes/ng222-app/src/app/stale-view-deferred-fixture.ts": "3ec5491f916a8769aee98b0334a60cc54932ce6a",
         "spikes/ng222-app/src/app/stale-view-fixture.ts": "007556c4e5ca72c09bce5ec7f50f54b5ed666cc8",
         "spikes/ng222-app/src/app/trust-bypass-page.ts": "0e426bd55f745bf1f44f01068d6a65524809f84e",
@@ -29,8 +31,8 @@
       }
     },
     "counter": {
-      "provenAt": "2026-11-04T21:55:27.404Z",
-      "commit": "68abbb22ee23a814a56a63ab83f6d18931b07303",
+      "provenAt": "2026-11-05T01:20:37.928Z",
+      "commit": "f64b7713f0807c3ab958c896e4ad15276180f655",
       "method": "typescript",
       "entries": [
         "spikes/ng222-app/src/main.ts",
@@ -39,7 +41,7 @@
       "files": {
         "spikes/ng222-app/src/app/after-render-page.ts": "4b2ce57bc083634287cac27fbcdb1a7f9911480f",
         "spikes/ng222-app/src/app/app.config.ts": "e60fc79fa4a0a0dcd99d4d06a82ff642f45e0d16",
-        "spikes/ng222-app/src/app/app.routes.ts": "927a88f7c050cf07f35413ea485398adbc875d22",
+        "spikes/ng222-app/src/app/app.routes.ts": "65795bfc02d6801a9c3ef3dd9f74a200c00c4362",
         "spikes/ng222-app/src/app/app.ts": "7090c0cd7276b21a637542c2845e925a22b910a4",
         "spikes/ng222-app/src/app/components/aria-items.ts": "0dfe1cd31809c061cf01d9f43d647f0defac2464",
         "spikes/ng222-app/src/app/components/aria-surfaces.ts": "b88d109b98499503613c1b876cc06cd38e547082",
@@ -47,6 +49,8 @@
         "spikes/ng222-app/src/app/components/harness-probe.ts": "7eb4ff134c582dca634f674888dd10a6b8254611",
         "spikes/ng222-app/src/app/counter.ts": "c2690d09d1c7c67319c587c11a9fed08ee41d63e",
         "spikes/ng222-app/src/app/image-budget-page.ts": "ac73b34f1aaf657410769357e63cf7eb6e19b44a",
+        "spikes/ng222-app/src/app/redirect-guard.ts": "c2a3a442d50e3ee92f396ddeec76846e7fd5f42f",
+        "spikes/ng222-app/src/app/redirect-page.ts": "43e370ffc3d8a7a277adfeecdec0e72b83f7eddd",
         "spikes/ng222-app/src/app/stale-view-deferred-fixture.ts": "3ec5491f916a8769aee98b0334a60cc54932ce6a",
         "spikes/ng222-app/src/app/stale-view-fixture.ts": "007556c4e5ca72c09bce5ec7f50f54b5ed666cc8",
         "spikes/ng222-app/src/app/trust-bypass-page.ts": "0e426bd55f745bf1f44f01068d6a65524809f84e",
