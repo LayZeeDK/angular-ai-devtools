@@ -5,6 +5,8 @@ import { ComponentsPage } from './components/components-page';
 import { ImageBudgetPage } from './image-budget-page';
 import { AfterRenderPage } from './after-render-page';
 import { TrustBypassPage } from './trust-bypass-page';
+import { LandingPage, LazyPage } from './redirect-page';
+import { redirectGuard } from './redirect-guard';
 
 export const routes: Routes = [
   { path: 'stale-view', component: StaleViewFixture },
@@ -13,4 +15,10 @@ export const routes: Routes = [
   { path: 'image-budget', component: ImageBudgetPage },
   { path: 'after-render', component: AfterRenderPage },
   { path: 'trust-bypass', component: TrustBypassPage },
+  { path: 'redirect', redirectTo: 'landing' },
+  { path: 'landing', component: LandingPage },
+  { path: 'gated', component: LandingPage, canActivate: [redirectGuard] },
+  { path: 'lazy', loadChildren: () => import('./redirect-page').then(() => [{ path: '', component: LazyPage }]) },
+  { path: 'loop-a', redirectTo: 'loop-b' },
+  { path: 'loop-b', redirectTo: 'loop-a' },
 ];

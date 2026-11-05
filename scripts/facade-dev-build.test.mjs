@@ -33,7 +33,7 @@
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, realpathSync, rmSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import test from 'node:test';
@@ -217,6 +217,7 @@ function buildFixture({ configuration, outputDirectory, extraArguments = [] }) {
     `the fixture must carry its own install for ${displayPath(FIXTURE_NG_CLI)} — run npm --prefix spikes/ng222-app ci --include=dev`,
   );
 
+  rmSync(outputDirectory, { recursive: true, force: true });
   const args = [
     FIXTURE_NG_CLI,
     'build',

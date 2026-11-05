@@ -27,6 +27,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
+import { createServer } from 'node:net';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
@@ -42,7 +43,18 @@ const MODULE_PATH = join(ROOT, 'extension', 'sanitizer-triage.js');
 const SRC = readFileSync(MODULE_PATH, 'utf8');
 
 const ROUTE_PATH = '/trust-bypass';
-const PORT = Number(process.env.M029_BYPASS_PORT ?? 4272);
+async function choosePort() {
+  if (process.env.M029_BYPASS_PORT) return Number(process.env.M029_BYPASS_PORT);
+  const srv = createServer();
+  await new Promise((resolve, reject) => {
+    srv.once('error', reject);
+    srv.listen(0, '127.0.0.1', resolve);
+  });
+  const port = srv.address().port;
+  await new Promise((resolve) => srv.close(resolve));
+  return port;
+}
+const PORT = await choosePort();
 const ORIGIN = `http://127.0.0.1:${PORT}`;
 const PAGE_URL = `${ORIGIN}${ROUTE_PATH}`;
 const RECORD_PATH = process.env.M029_BYPASS_RECORD ?? null;
@@ -275,23 +287,49 @@ async function waitForServer(server, output) {
   throw new Error(`the fixture dev server did not answer on ${ORIGIN} within 180s:\n${output()}`);
 }
 
-async function stopServer(server) {
-  if (server.exitCode !== null || server.signalCode !== null) return;
-  server.kill();
-  const timer = setTimeout(() => {
-    try {
-      server.kill('SIGKILL');
-    } catch {
-      /* gone */
-    }
-  }, 5000);
-  timer.unref?.();
-  try {
-    await once(server, 'exit');
-  } catch {
-    /* already gone */
+async function killProcessTree(pid) {
+  if (process.platform === 'win32') {
+    const killer = spawn('taskkill', ['/PID', String(pid), '/T', '/F'], { stdio: 'ignore' });
+    await new Promise((resolve) => killer.on('exit', resolve).on('error', resolve));
+  } else {
+    try { process.kill(-pid, 'SIGTERM'); } catch { try { process.kill(pid, 'SIGTERM'); } catch {} }
   }
-  clearTimeout(timer);
+}
+
+async function waitForPortFree(port, timeout = 30000) {
+  const started = Date.now();
+  while (Date.now() - started < timeout) {
+    const free = await new Promise((resolve) => {
+      const srv = createServer();
+      srv.once('error', () => resolve(false));
+      srv.listen(port, '127.0.0.1', () => { srv.close(() => resolve(true)); });
+    });
+    if (free) return;
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  throw new Error(`port ${port} not free after ${timeout}ms`);
+}
+
+async function stopServer(server) {
+  if (server.exitCode === null && server.signalCode === null) {
+    try { await killProcessTree(server.pid); } catch {}
+    server.kill();
+    const timer = setTimeout(() => {
+      try {
+        server.kill('SIGKILL');
+      } catch {
+        /* gone */
+      }
+    }, 5000);
+    timer.unref?.();
+    try {
+      await once(server, 'exit');
+    } catch {
+      /* already gone */
+    }
+    clearTimeout(timer);
+  }
+  await waitForPortFree(PORT);
 }
 
 /**
@@ -716,7 +754,7 @@ test('provenance names the build, the URL, the time and the exact commands', asy
   assert.match(record.browserBuild, /^\d+\.\d+\.\d+\.\d+$/, `browserBuild is not a Chromium build: ${record.browserBuild}`);
   assert.ok(record.browser.includes(record.browserBuild), 'browser must name the build in browserBuild');
   assert.equal(record.instance, 'headless');
-  assert.match(record.url, new RegExp(`^http://127\\.0\\.0\\.1:${PORT}/trust-bypass$`), `url is not the fixture route: ${record.url}`);
+  assert.match(record.url, /^http:\/\/127\.0\.0\.1:\d+\/trust-bypass$/, `url is not the fixture route: ${record.url}`);
   assert.equal(record.url, record.pageUrl);
   assert.match(record.capturedAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/, 'capturedAt must be an ISO timestamp');
   assert.match(record.capturedAt, /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/, 'capturedAt must be the capture time, in UTC');

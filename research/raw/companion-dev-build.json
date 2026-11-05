@@ -12,7 +12,8 @@
   "buildCommand": "node node_modules/@angular/cli/bin/ng.js build --configuration development --output-path ../../tmp/facade-dev-build",
   "outputPath": "tmp/facade-dev-build",
   "build": {
-    "browserBundles": ["main.js"],
+    "browserBundles": ["chunk-5CQ6O73V.js", "chunk-KDTDSBO7.js", "main.js"],
+    "outputClearedFirst": true,
     "unminified": true,
     "entryName": "ngAiDevTools",
     "entryPresent": true,
@@ -105,6 +106,13 @@
       { "type": "environment", "providers": 8, "routerMatches": 0, "metaMatches": 0 },
       { "type": "null", "providers": null }
     ]
+  },
+  "reconciliation": {
+    "comparedWith": "research/raw/m022-ng-context.json",
+    "developmentBundles": ["chunk-5CQ6O73V.js", "chunk-KDTDSBO7.js", "main.js"],
+    "agrees": true,
+    "leftoverHypothesis": "refuted",
+    "note": "A clean build (output directory deleted first) emits three development bundles, matching m022-ng-context; the earlier single-bundle recording was stale. T004's three bundles are genuine, not leftovers from a reused output directory."
   },
   "verdict": "works: the one entry survives the development build, and its Router is the app's own class"
 }

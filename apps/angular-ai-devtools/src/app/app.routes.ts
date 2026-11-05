@@ -24,4 +24,7 @@ export const appRoutes: Route[] = [
   // absence it renders. Lazy for the same reason as the five above it — the panel's eager bundle is
   // measured, and its eager graph is unchanged by this route.
   { path: 'sanitizer', loadComponent: () => import('./panel-sanitizer').then((m) => m.sanitizerPanel as any) },
+  // The M030 SC4 surface: the walked redirect chain, or the state that names its absence.
+  // Lazy for the same reason as the surfaces above it — the panel's eager bundle is measured.
+  { path: 'redirect', loadComponent: () => import('./panel-redirect').then((m) => m.redirectPanel as any) },
 ];

@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: trust-bypass-triage
+milestone: redirect-chain
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M029
-archive: .project/archive/029-trust-bypass-triage
+branch: gsd-path/M030
+archive: .project/archive/030-redirect-chain
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -553,6 +553,35 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-05 — build — build started
 - 2026-11-05 — ship — build done; final review pending
 - 2026-11-05 — ship — ship verify red: the fixture build needs the companion
+- 2026-11-05 — plan — patch plan reopened
+- 2026-11-05 — plan — plan approved
+- 2026-11-05 — build — build started
+- 2026-11-05 — ship — build done; final review pending
+- 2026-11-05 — shipped — archive preflight passed; shipment recorded
+- 2026-11-05 — inspect — router bound next milestone
+- 2026-11-05 — inspect — premise checked
+- 2026-11-05 — define — define started
+- 2026-11-05 — define — milestone intent approved
+- 2026-11-05 — plan — planning started
+- 2026-11-05 — plan — plan approved
+- 2026-11-05 — build — build started
+- 2026-11-05 — ship — build done; final review pending
+- 2026-11-05 — ship — ship verify red: two dev-build recordings disagree
+- 2026-11-05 — plan — patch plan reopened
+- 2026-11-05 — plan — plan approved
+- 2026-11-05 — build — build started
+- 2026-11-05 — ship — build done; final review pending
+- 2026-11-05 — ship — ship verify red: npm test rewrites a tracked recording
+- 2026-11-05 — plan — patch plan reopened
+- 2026-11-05 — plan — plan approved
+- 2026-11-05 — build — build started
+- 2026-11-05 — ship — build done; final review pending
+- 2026-11-05 — ship — ship verify red: nested capture suites collide on a fixed port
+- 2026-11-05 — plan — patch plan reopened
+- 2026-11-05 — plan — plan approved
+- 2026-11-05 — build — build started
+- 2026-11-05 — ship — build done; final review pending
+- 2026-11-05 — ship — ship verify red: a temp-dir teardown raises EPERM under load
 - 2026-11-05 — plan — patch plan reopened
 - 2026-11-05 — plan — plan approved
 - 2026-11-05 — build — build started

@@ -1,0 +1,90 @@
+{
+  "capturedAt": "2026-11-05T00:53:15.018Z",
+  "browser": "headless Playwright Chromium (build 153.0.8010.12)",
+  "browserBuild": "153.0.8010.12",
+  "instance": "headless",
+  "playwright": "1.63.0",
+  "angularVersion": "22.2.2",
+  "url": "http://127.0.0.1:4273/landing",
+  "pageUrl": "http://127.0.0.1:4273/landing",
+  "commands": {
+    "install": "npm ci --include=dev",
+    "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
+    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 4273 --host 127.0.0.1  (cwd spikes/ng222-app)",
+    "capture": "node --test scripts/router-config-capture.test.mjs",
+    "check": "node --test scripts/router-config-capture.test.mjs"
+  },
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0"
+  },
+  "fixture": {
+    "route": "/landing",
+    "routeTable": "spikes/ng222-app/src/app/app.routes.ts"
+  },
+  "injectorResolvedOnRoutedElement": true,
+  "injectorError": null,
+  "routedElementTag": "app-landing-page",
+  "routerUrl": "/landing",
+  "fieldsPresent": [
+    "path",
+    "component",
+    "redirectTo",
+    "canActivate",
+    "loadChildren"
+  ],
+  "config": [
+    {
+      "path": "stale-view",
+      "component": "[fn _StaleViewFixture]"
+    },
+    {
+      "path": "stale-view-deferred",
+      "component": "[fn _StaleViewDeferredFixture]"
+    },
+    {
+      "path": "components",
+      "component": "[fn _ComponentsPage]"
+    },
+    {
+      "path": "image-budget",
+      "component": "[fn _ImageBudgetPage]"
+    },
+    {
+      "path": "after-render",
+      "component": "[fn _AfterRenderPage]"
+    },
+    {
+      "path": "trust-bypass",
+      "component": "[fn _TrustBypassPage]"
+    },
+    {
+      "path": "redirect",
+      "redirectTo": "landing"
+    },
+    {
+      "path": "landing",
+      "component": "[fn _LandingPage]"
+    },
+    {
+      "path": "gated",
+      "component": "[fn _LandingPage]",
+      "canActivate": [
+        "[fn redirectGuard]"
+      ]
+    },
+    {
+      "path": "lazy",
+      "loadChildren": "[fn loadChildren]"
+    },
+    {
+      "path": "loop-a",
+      "redirectTo": "loop-b"
+    },
+    {
+      "path": "loop-b",
+      "redirectTo": "loop-a"
+    }
+  ]
+}
