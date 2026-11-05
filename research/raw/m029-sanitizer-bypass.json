@@ -1,0 +1,352 @@
+{
+  "probe": "M029 T004 — one page load of the three-binding sanitizer fixture: the stripped binding’s warning and the bypassed binding’s silence, measured in the same capture",
+  "milestone": "M029",
+  "task": "T004",
+  "capturedAt": "2026-11-04T21:41:20.521Z",
+  "browser": "headless Playwright Chromium (build 153.0.8010.12)",
+  "browserBuild": "153.0.8010.12",
+  "instance": "headless",
+  "playwright": "1.63.0",
+  "angularVersion": "22.2.2",
+  "url": "http://127.0.0.1:4272/trust-bypass",
+  "pageUrl": "http://127.0.0.1:4272/trust-bypass",
+  "commands": {
+    "install": "npm ci --include=dev",
+    "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
+    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 4272 --host 127.0.0.1  (cwd spikes/ng222-app)",
+    "capture": "node --test scripts/sanitizer-bypass.test.mjs",
+    "check": "node --test scripts/sanitizer-bypass.test.mjs",
+    "record": "set M029_BYPASS_RECORD=<path>&& node --test scripts/sanitizer-bypass.test.mjs",
+    "mutants": "set M029_BYPASS_MUTANT=<name>&& node --test scripts/sanitizer-bypass.test.mjs"
+  },
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0"
+  },
+  "fixture": {
+    "route": "/trust-bypass",
+    "source": "spikes/ng222-app/src/app/trust-bypass-page.ts",
+    "routeTable": "spikes/ng222-app/src/app/app.routes.ts",
+    "pageLoads": 1,
+    "documentLoads": 1,
+    "loads": [
+      "http://127.0.0.1:4272/trust-bypass"
+    ],
+    "hosts": [
+      "unsafe",
+      "safe",
+      "bypassed"
+    ],
+    "bindings": [
+      {
+        "id": "unsafe",
+        "bypass": null,
+        "writes": [
+          {
+            "version": 1,
+            "value": "<p>kept paragraph 1</p><script>window.__m029ScriptRan = true;</script>",
+            "rendered": "<p>kept paragraph 1</p>",
+            "keptWhole": false,
+            "lostContent": true,
+            "scriptInValue": true,
+            "scriptInRendered": false,
+            "when": "initial render"
+          },
+          {
+            "version": 2,
+            "value": "<p>kept paragraph 2</p><script>window.__m029ScriptRan = true;</script>",
+            "rendered": "<p>kept paragraph 2</p>",
+            "keptWhole": false,
+            "lostContent": true,
+            "scriptInValue": true,
+            "scriptInRendered": false,
+            "when": "the page’s own rewrite button"
+          }
+        ]
+      },
+      {
+        "id": "safe",
+        "bypass": null,
+        "writes": [
+          {
+            "version": 1,
+            "value": "<b>kept in full 1</b>",
+            "rendered": "<b>kept in full 1</b>",
+            "keptWhole": true,
+            "lostContent": false,
+            "scriptInValue": false,
+            "scriptInRendered": false,
+            "when": "initial render"
+          },
+          {
+            "version": 2,
+            "value": "<b>kept in full 2</b>",
+            "rendered": "<b>kept in full 2</b>",
+            "keptWhole": true,
+            "lostContent": false,
+            "scriptInValue": false,
+            "scriptInRendered": false,
+            "when": "the page’s own rewrite button"
+          }
+        ]
+      },
+      {
+        "id": "bypassed",
+        "bypass": "bypassSecurityTrustHtml",
+        "writes": [
+          {
+            "version": 1,
+            "value": "<p>kept paragraph 1</p><script>window.__m029ScriptRan = true;</script>",
+            "rendered": "<p>kept paragraph 1</p><script>window.__m029ScriptRan = true;</script>",
+            "keptWhole": true,
+            "lostContent": false,
+            "scriptInValue": true,
+            "scriptInRendered": true,
+            "when": "initial render"
+          },
+          {
+            "version": 2,
+            "value": "<p>kept paragraph 2</p><script>window.__m029ScriptRan = true;</script>",
+            "rendered": "<p>kept paragraph 2</p><script>window.__m029ScriptRan = true;</script>",
+            "keptWhole": true,
+            "lostContent": false,
+            "scriptInValue": true,
+            "scriptInRendered": true,
+            "when": "the page’s own rewrite button"
+          }
+        ]
+      }
+    ]
+  },
+  "console": {
+    "channel": "CDP Runtime.consoleAPICalled on the measured page load, one event per console call, arguments joined with a space",
+    "mainWorldContexts": 1,
+    "count": 5,
+    "messages": [
+      {
+        "order": 0,
+        "type": "debug",
+        "text": "[vite] connecting...",
+        "code": null,
+        "timestamp": 1793828478747.731,
+        "executionContextId": 3
+      },
+      {
+        "order": 1,
+        "type": "log",
+        "text": "Angular is running in development mode.",
+        "code": null,
+        "timestamp": 1793828478812.805,
+        "executionContextId": 3
+      },
+      {
+        "order": 2,
+        "type": "warning",
+        "text": "WARNING: sanitizing HTML stripped some content, see https://angular.dev/best-practices/security#preventing-cross-site-scripting-xss",
+        "code": null,
+        "timestamp": 1793828478842.129,
+        "executionContextId": 3
+      },
+      {
+        "order": 3,
+        "type": "debug",
+        "text": "[vite] connected.",
+        "code": null,
+        "timestamp": 1793828478863.862,
+        "executionContextId": 3
+      },
+      {
+        "order": 4,
+        "type": "warning",
+        "text": "WARNING: sanitizing HTML stripped some content, see https://angular.dev/best-practices/security#preventing-cross-site-scripting-xss",
+        "code": null,
+        "timestamp": 1793828479847.503,
+        "executionContextId": 3
+      }
+    ]
+  },
+  "pageTap": {
+    "channel": "in-page tap on console.* at document_start, same page clock (performance.now) as the profiler records",
+    "count": 5,
+    "messages": [
+      {
+        "order": 0,
+        "t": 1121.7000000029802,
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "order": 1,
+        "t": 1188.5,
+        "type": "log",
+        "text": "Angular is running in development mode."
+      },
+      {
+        "order": 2,
+        "t": 1217.300000011921,
+        "type": "warn",
+        "text": "WARNING: sanitizing HTML stripped some content, see https://angular.dev/best-practices/security#preventing-cross-site-scripting-xss"
+      },
+      {
+        "order": 3,
+        "t": 1239.5,
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "order": 4,
+        "t": 2223.4000000059605,
+        "type": "warn",
+        "text": "WARNING: sanitizing HTML stripped some content, see https://angular.dev/best-practices/security#preventing-cross-site-scripting-xss"
+      }
+    ]
+  },
+  "profiler": {
+    "channel": "the page agent’s own records: extension/agent-main.js injected as a MAIN-world init script at document_start, subscribing ng.ɵsetProfiler and dispatching angular-ai:record; each record kept with its component checks and their ProfilerEvent numbers, the signal graph dropped",
+    "installedAt": 1241.5,
+    "count": 2,
+    "records": [
+      {
+        "order": 0,
+        "t": 1749.5,
+        "cycleId": 1,
+        "startedAt": 1749.4000000059605,
+        "trigger": {
+          "kind": "unknown",
+          "listenerName": null
+        },
+        "zoneMode": "noop",
+        "checks": [
+          {
+            "componentName": "_App",
+            "className": "_App",
+            "changeDetection": "onpush",
+            "events": [],
+            "changedNodeIds": [],
+            "graphNodeCount": 3
+          }
+        ]
+      },
+      {
+        "order": 1,
+        "t": 2226.5,
+        "cycleId": 2,
+        "startedAt": 2221.9000000059605,
+        "trigger": {
+          "kind": "output",
+          "listenerName": "click"
+        },
+        "zoneMode": "noop",
+        "checks": [
+          {
+            "componentName": "app-root",
+            "className": "_App",
+            "changeDetection": "onpush",
+            "events": [
+              2,
+              3
+            ],
+            "changedNodeIds": [],
+            "graphNodeCount": 3
+          },
+          {
+            "componentName": "app-trust-bypass-page",
+            "className": "_TrustBypassPage",
+            "changeDetection": "onpush",
+            "events": [
+              2,
+              3
+            ],
+            "changedNodeIds": [],
+            "graphNodeCount": 7
+          }
+        ]
+      }
+    ]
+  },
+  "pair": {
+    "reading": "one page load; each binding wrote twice (the initial render and the page’s own rewrite) and the browser’s console list holds one sanitizer warning per write that lost content, and none for the writes that kept their value whole",
+    "pageLoads": 1,
+    "documentLoads": 1,
+    "sanitizerWarnings": 2,
+    "warningsInThePageTap": 2,
+    "writes": 6,
+    "writesThatLostContent": 2,
+    "writesThatKeptTheirValueWhole": 4,
+    "lostWrites": [
+      "unsafe@1",
+      "unsafe@2"
+    ],
+    "wholeWrites": [
+      "safe@1",
+      "safe@2",
+      "bypassed@1",
+      "bypassed@2"
+    ],
+    "everyWarningIsAccountedForByALostWrite": true,
+    "bypassBindings": 1,
+    "bypassedKeptItsValueWhole": true,
+    "bypassedValueIsTheValueAStrippedWriteLost": true,
+    "sameValue": {
+      "stripped": "unsafe@1",
+      "bypassed": "bypassed@1",
+      "identical": true
+    },
+    "scriptRan": false
+  },
+  "order": {
+    "clock": "performance.now() of the measured document; the console tap and the record listener run in that document",
+    "sequence": [
+      {
+        "order": 0,
+        "source": "console",
+        "ref": 0,
+        "t": 1121.7000000029802,
+        "name": "console:debug"
+      },
+      {
+        "order": 1,
+        "source": "console",
+        "ref": 1,
+        "t": 1188.5,
+        "name": "console:log"
+      },
+      {
+        "order": 2,
+        "source": "console",
+        "ref": 2,
+        "t": 1217.300000011921,
+        "name": "console:warn"
+      },
+      {
+        "order": 3,
+        "source": "console",
+        "ref": 3,
+        "t": 1239.5,
+        "name": "console:debug"
+      },
+      {
+        "order": 4,
+        "source": "profiler",
+        "ref": 0,
+        "t": 1749.5,
+        "name": "record:cycle-1"
+      },
+      {
+        "order": 5,
+        "source": "console",
+        "ref": 4,
+        "t": 2223.4000000059605,
+        "name": "console:warn"
+      },
+      {
+        "order": 6,
+        "source": "profiler",
+        "ref": 1,
+        "t": 2226.5,
+        "name": "record:cycle-2"
+      }
+    ]
+  }
+}

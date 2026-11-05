@@ -123,14 +123,35 @@ function intentCriteria(path) {
   const section = end >= 0 ? rest.slice(0, end) : rest;
   /** @type {Record<string, string>} */
   const criteria = {};
+  /** @type {string[] | null} */
+  let current = null;
+  let currentId = '';
+
+  const flush = () => {
+    if (current) criteria[currentId] = current.join(' ').replace(/\s+/g, ' ').trim();
+    current = null;
+    currentId = '';
+  };
 
   for (const line of section.split(/\r?\n/)) {
     const match = line.match(/^(\d+)\.\s+(.+?)\s*$/);
 
     if (match) {
-      criteria[`SC${match[1]}`] = match[2];
+      flush();
+      currentId = `SC${match[1]}`;
+      current = [match[2] ?? ''];
+      continue;
     }
+
+    if (current && line.trim() !== '' && /^\s/.test(line)) {
+      current.push(line.trim());
+      continue;
+    }
+
+    flush();
   }
+
+  flush();
 
   assert.ok(Object.keys(criteria).length > 0, 'INTENT.md must list its success criteria as a numbered list');
 

@@ -3,6 +3,21 @@
   "date": "2026-11-03",
   "app": "spikes/ng222-app",
   "angular": "22.2.2",
+  "growth": {
+    "reRecordedOn": "2026-11-04",
+    "cause": "spikes/ng222-app/src/app/trust-bypass-page.ts — the fixture page T001 added (commit 3dfce5c) and T004 extended (commit 68abbb2), routed at /trust-bypass. The growth is that page's emitted code, a real change in both bundles, not measurement noise; both builds are therefore re-recorded rather than the development byte bound widened.",
+    "development": {
+      "was": 1902757,
+      "now": 1907107,
+      "delta": 4350
+    },
+    "production": {
+      "was": 389645,
+      "now": 400764,
+      "delta": 11119
+    },
+    "tolerance": "the development byte tolerance stays 2000 bytes (DEV_BYTES_TOLERANCE in scripts/ng-context-dev-build.test.mjs); it was not widened to cover this change"
+  },
   "packageBuild": {
     "command": "npx nx run ai-devtools-companion:build",
     "equivalentInvocation": "node node_modules/nx/dist/bin/nx.js run ai-devtools-companion:build",
@@ -15,7 +30,7 @@
       "bundles": [
         "main.js"
       ],
-      "bytes": 1902757,
+      "bytes": 1907107,
       "unminified": true,
       "ngContextWrite": {
         "present": true,
@@ -46,18 +61,18 @@
     "production": {
       "configuration": "production",
       "bundles": [
-        "main-4KL4US2I.js"
+        "main-K3ADZXL3.js"
       ],
-      "bytes": 389645,
+      "bytes": 400764,
       "unminified": false,
       "ngContextWrite": {
         "present": true,
-        "binding": "var Mm=\"__ngContext__\"",
-        "identifier": "Mm",
+        "binding": "var dg=\"__ngContext__\"",
+        "identifier": "dg",
         "writeSites": 2,
         "writeSnippets": [
-          "__ngContext__\";function lo(e,t){on(t)?(e[Mm]=t[ri],LS(t)):e[Mm]=t}function wg(e){return Eg(e[Xr])}fu",
-          "tion lo(e,t){on(t)?(e[Mm]=t[ri],LS(t)):e[Mm]=t}function wg(e){return Eg(e[Xr])}function Sg(e){return"
+          "__ngContext__\";function bo(e,t){un(t)?(e[dg]=t[fi],TE(t)):e[dg]=t}function av(e){return lv(e[ao])}fu",
+          "tion bo(e,t){un(t)?(e[dg]=t[fi],TE(t)):e[dg]=t}function av(e){return lv(e[ao])}function cv(e){return"
         ]
       },
       "ngGlobalSurface": {
@@ -80,7 +95,7 @@
   "differential": {
     "ngContextWrite": "present in both configurations",
     "ngGlobalSurface": "development only",
-    "meaning": "attachPatchData writes __ngContext__ in both configurations — the development bundle names the property through MONKEY_PATCH_KEY_NAME, the production bundle through the minified alias Mm — while the surface that would read it, window.ng, is published only in the development build. The property is not dev-only; the debug API is."
+    "meaning": "attachPatchData writes __ngContext__ in both configurations — the development bundle names the property through MONKEY_PATCH_KEY_NAME, the production bundle through the minified alias dg — while the surface that would read it, window.ng, is published only in the development build. The property is not dev-only; the debug API is."
   },
   "served": {
     "driver": "spikes/probes/ng-context.js",
