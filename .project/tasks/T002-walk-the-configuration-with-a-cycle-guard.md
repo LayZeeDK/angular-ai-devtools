@@ -2,10 +2,10 @@
 id: T002
 title: Walk the configuration with a cycle guard
 wave: 1
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: 0895a7ffbb837decd0469871b70ca0c43796b543
 worktree: null
 task_branch: null
 files:
@@ -58,3 +58,4 @@ npm ci --include=dev; node --test scripts/redirect-chain.test.mjs
 ## Log
 
 - dispatched
+- T002 redirect-chain module and tests added; suite 5/5 pass
