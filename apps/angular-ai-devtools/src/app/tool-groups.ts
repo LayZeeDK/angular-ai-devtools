@@ -43,7 +43,15 @@
  */
 import type { PanelContext } from './panel-context';
 import type { ToolDeclaration } from './tool-registry/tool-registry';
-import { isRecord } from './record-guard';
+
+// This module is loaded directly by Node (`tests/held-out/tool-group-gates.test.mjs`
+// imports it under `--experimental-strip-types`), and Node resolves relative specifiers
+// only with an explicit extension. The app build cannot carry a `.ts` specifier because
+// it emits, so this file keeps its own copy of the guard rather than importing the shared
+// one. Body identical to `record-guard.ts`; the parity test pins that.
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
 
 /**
  * One declared group: the ids it lists, the `[ng-version]` floor it needs, and — when the page

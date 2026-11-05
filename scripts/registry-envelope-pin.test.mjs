@@ -59,7 +59,13 @@ const ENVELOPE_MODULE_RELATIVE = [
  * constant, and such a plan changes it alongside that edit.
  */
 export const PINNED_ENVELOPE_SHA256 =
-  '6c3be648de3edfc2a5798e0788a53f09a493eb98386a219ca2d8c184bea2fff5';
+  'ce1404bfecf0a7a6a620009207187294a14ef8fbe0c05a82643c1cc9bfb214d0';
+
+// Deliberate edit, recorded as the pin requires: `tool-registry.ts` carried its own
+// private copy of `isRecord`, byte-identical to the one in nine other modules. The copy
+// was removed and the predicate imported from `record-guard.ts`. No tool was added, no
+// declaration changed, and the guard's body is unchanged — this is a de-duplication of a
+// helper the envelope happened to contain, not an edit to the envelope's behaviour.
 
 /** The pinned module's path under `root`. */
 export function envelopeModulePath(root = REPO_ROOT) {
