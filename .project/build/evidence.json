@@ -1,7 +1,7 @@
 {
   "canonical_project_dir": ".project",
   "command": "verify-landed",
-  "head": "03f096ab380507af3bbe5b4d1c74f6e08f98cd92",
+  "head": "2c9ad3b0c3acf485b96df361f4d503e3cb8ff2a6",
   "project_dir": ".project",
   "tasks": [
     {
@@ -16,7 +16,7 @@
             "valid": true
           }
         ],
-        "head": "03f096ab380507af3bbe5b4d1c74f6e08f98cd92",
+        "head": "2c9ad3b0c3acf485b96df361f4d503e3cb8ff2a6",
         "subject": "T001: Give the fixture a redirect, a gate, a lazy boundary and a cycle"
       },
       "landed_commit": "0895a7ffbb837decd0469871b70ca0c43796b543",
@@ -40,7 +40,7 @@
             "valid": true
           }
         ],
-        "head": "03f096ab380507af3bbe5b4d1c74f6e08f98cd92",
+        "head": "2c9ad3b0c3acf485b96df361f4d503e3cb8ff2a6",
         "subject": "T002: Walk the configuration with a cycle guard"
       },
       "landed_commit": "b68cb564d917bc9c1e7e08b6e66e5103437a8b18",
@@ -64,7 +64,7 @@
             "valid": true
           }
         ],
-        "head": "03f096ab380507af3bbe5b4d1c74f6e08f98cd92",
+        "head": "2c9ad3b0c3acf485b96df361f4d503e3cb8ff2a6",
         "subject": "T003: Render the walked chain and its marked change on the panel"
       },
       "landed_commit": "f64b7713f0807c3ab958c896e4ad15276180f655",
@@ -88,7 +88,7 @@
             "valid": true
           }
         ],
-        "head": "03f096ab380507af3bbe5b4d1c74f6e08f98cd92",
+        "head": "2c9ad3b0c3acf485b96df361f4d503e3cb8ff2a6",
         "subject": "T004: Re-record what the new routes invalidated"
       },
       "landed_commit": "fd1142b76a4799e8968bbc1e67078d0d23b39c01",
@@ -98,6 +98,30 @@
         "id": "T004",
         "status": "done",
         "task_file": ".project/tasks/T004-rerecord-what-the-new-routes-invalidated.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M030",
+        "candidates": [
+          {
+            "base": "ef764b246f7c5ac3988a0178661bc807e719c79a",
+            "commit": "056716e9db8f6c0d4c68c89d019714e720073dd8",
+            "valid": true
+          }
+        ],
+        "head": "2c9ad3b0c3acf485b96df361f4d503e3cb8ff2a6",
+        "subject": "T005: Reconcile the two development-build recordings"
+      },
+      "landed_commit": "056716e9db8f6c0d4c68c89d019714e720073dd8",
+      "reasons": [],
+      "task": {
+        "base": "ef764b246f7c5ac3988a0178661bc807e719c79a",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-reconcile-the-two-development-build-recordings.md"
       }
     }
   ]
