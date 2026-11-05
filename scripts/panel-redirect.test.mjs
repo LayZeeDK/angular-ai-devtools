@@ -136,8 +136,8 @@ describe('mutants', () => {
   });
   it('M2 cycle empty pane reddens', async () => {
     const m = await loadMutant(
-      "  return { kind: 'cycle', state: 'cycle', route: named, ...pane(message, [`route ${named}`]) };",
-      "  return { kind: 'cycle', state: 'cycle', route: named, ...pane('', []) };",
+      '...pane(message, [`route ${named}`]),',
+      '...pane(message, []),',
     );
     const s = m.redirectPanel(CYCLE);
     assert.equal(s.lines.length, 0);

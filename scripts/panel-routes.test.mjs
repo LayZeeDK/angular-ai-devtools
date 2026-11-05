@@ -15,26 +15,33 @@ const ROUTES = join(
 
 const surfaces = ['after-render', 'sanitizer', 'redirect', 'fields'];
 
-function routeLine(source, surface) {
+function routeBlock(source, surface) {
   const needle = "path: '" + surface + "'";
-  return source.split('\n').find((line) => line.includes(needle));
+  const at = source.indexOf(needle);
+  if (at < 0) return null;
+  const next = source.indexOf("path: '", at + needle.length);
+  return source.slice(at, next < 0 ? undefined : next);
 }
 
 test('E1: a panel route installs a component, never a surface function', () => {
   const source = readFileSync(ROUTES, 'utf8');
   for (const surface of surfaces) {
-    const line = routeLine(source, surface);
-    assert.ok(line, 'route ' + surface + ' must exist');
+    const block = routeBlock(source, surface);
+    assert.ok(block, 'route ' + surface + ' must exist');
     assert.ok(
-      !line.includes('as any)'),
+      !block.includes('as any)'),
       'route ' +
         surface +
         ' must not install a surface function as a component: ' +
-        line,
+        block,
     );
     assert.ok(
-      line.includes('PanelDemoComponent'),
-      'route ' + surface + ' must install PanelDemoComponent: ' + line,
+      block.includes('PanelDemoComponent'),
+      'route ' + surface + ' must install PanelDemoComponent: ' + block,
+    );
+    assert.ok(
+      block.includes("surface: '" + surface + "'"),
+      'route ' + surface + ' must name its surface in route data: ' + block,
     );
   }
 });

@@ -69,14 +69,27 @@ function host(value) {
 
 /**
  * A mutant: one textual change to an in-memory copy of the module. The anchor must change the
- * source, or the mutation would be vacuous and the case would prove nothing.
+ * source, or the mutation would be vacuous and the case would prove nothing. String anchors are
+ * matched with whitespace tolerance and optional trailing commas, so the same semantic mutation
+ * applies whether or not the module has been reformatted.
  */
+function whitespaceTolerantAnchor(anchor) {
+  if (anchor instanceof RegExp) return anchor;
+  return new RegExp(
+    anchor
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/ /g, '\\s+')
+      .replace(/,/g, ',?'),
+    'u',
+  );
+}
+
 function mutant(anchor, replacement) {
-  const source = SRC.replace(anchor, replacement);
+  const source = SRC.replace(whitespaceTolerantAnchor(anchor), replacement);
   assert.notEqual(
     source,
     SRC,
-    `the mutation must change the module: ${JSON.stringify(anchor)}`,
+    `the mutation must change the module: ${String(anchor)}`,
   );
   return loadBare(source).api;
 }
@@ -453,10 +466,7 @@ const CANNOT_TELL_RETURN =
 
 describe('mutants — each applied to a copy, then the module restored', () => {
   it('M1: reversing `after` reddens the emission-order pin (E1)', (t) => {
-    const api = mutant(
-      ORDERED_RETURN,
-      ORDERED_RETURN.replace('after: after', 'after: after.slice().reverse()'),
-    );
+    const api = mutant('after: after', 'after: after.slice().reverse()');
     const result = host(api.order(READ_INSIDE_OUTPUT, RECORDED));
     assert.notDeepEqual(
       result.after.map((entry) => entry.type),

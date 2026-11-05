@@ -140,12 +140,8 @@ describe('the mutants each redden the pin they must', () => {
 
   it('M3 — recursing on a cycle reddens the cycle pin', async (t) => {
     const mutant = loadMutant(
-      `      if (visited.has(current)) {
-        return { state: "cycle", route: current, chain: chain, destination: destination };
-      }`,
-      `      if (false && visited.has(current)) {
-        return { state: "cycle", route: current, chain: chain, destination: destination };
-      }`,
+      'if (visited.has(current))',
+      'if (false && visited.has(current))',
     );
     const failure = reddens(() => {
       const r = mutant.walk(CONFIG, 'loop-a');
