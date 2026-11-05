@@ -27,4 +27,7 @@ export const appRoutes: Route[] = [
   // The M030 SC4 surface: the walked redirect chain, or the state that names its absence.
   // Lazy for the same reason as the surfaces above it — the panel's eager bundle is measured.
   { path: 'redirect', loadComponent: () => import('./panel-redirect').then((m) => m.redirectPanel as any) },
+  // The M031 SC4 surface: the field set, or the state that names its absence.
+  // Lazy for the same reason as the surfaces above it — the panel's eager bundle is measured.
+  { path: 'fields', loadComponent: () => import('./panel-fields').then((m) => m.fieldsPanel as any) },
 ];

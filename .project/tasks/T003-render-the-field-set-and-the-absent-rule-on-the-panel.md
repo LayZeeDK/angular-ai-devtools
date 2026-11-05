@@ -2,10 +2,10 @@
 id: T003
 title: Render the field set and the absent rule on the panel
 wave: 2
-status: pending
+status: done
 deps: [T002]
-agent: null
-base: null
+agent: build_T003
+base: bb8688a87ec9f45ff4db26934fbd3985b88893b9
 worktree: null
 task_branch: null
 files:
