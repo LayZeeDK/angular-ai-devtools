@@ -37,6 +37,17 @@ Review depth: full
 
 T005. The panel typechecks under `noUncheckedIndexedAccess`, and its task Verify runs that typecheck rather than the suite alone.
 
+## Wave 4 — the recording that only describes one machine
+
+Goal: the final panel found four failures in `ng-context-dev-build` in a checkout whose path differs, because the recording pins literal
+chunk hashes and Angular derives those from content that embeds the absolute output path. T006 records the bundle shape and asserts
+cross-path stability instead of pinning a directory layout.
+
+Review depth: full
+
+T006. Both development-build recordings describe the bundle's shape, and both suites pass in a checkout whose path differs from the one
+that recorded them.
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -57,6 +68,7 @@ T005. The panel typechecks under `noUncheckedIndexedAccess`, and its task Verify
 | SC4 | T003 | AC1 |
 | SC4 | T005 | AC2 |
 | SC5 | T004 | AC4 |
+| SC5 | T006 | AC2 |
 
 ## Prohibitions
 
