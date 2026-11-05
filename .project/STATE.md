@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: lint-core
-phase: build
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: done
 branch: gsd-path/M032
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -619,3 +619,6 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-06 — build — T003 landed missing its demo loader; patch a task rather than hand-edit product code
 - 2026-11-06 — build — settle landed dispatches before reopening the plan
 - 2026-11-06 — build — plan a patch task for the missing demo loader
+- 2026-11-06 — plan — build plan repair requested
+- 2026-11-06 — plan — build recovery: {"base": "9a1c4da2ec24bf3e0cdf43a3f39156714ff3eeeb", "branch": "gsd-path/M032", "kind": "plan", "source": "build"}
+- 2026-11-06 — plan — plan approved

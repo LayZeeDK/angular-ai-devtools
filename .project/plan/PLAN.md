@@ -35,6 +35,22 @@ Review depth: full
 T003 and T004. The panel shows the construct and the absence state; every recording the change staled is re-recorded
 from a cleared output path and proved by reverting one recorded value.
 
+## Wave 3 — the demo registration
+
+Goal: T005 makes the surface reachable. T003 installed the route, but the demo owns the loader map and has no `lint` key, so the page renders the demo's error branch. The same gap was fixed by hand for four earlier surfaces, so this wave adds the check that generalises instead of patching one key.
+
+Review depth: verify-only
+
+### T005 — Register the lint surface in the panel demo
+
+- Deps: T003
+- Files: `apps/angular-ai-devtools/src/app/panel-demo.ts`, `scripts/panel-routes.test.mjs`
+- Approach: add the `lint` loader and a sample fact list, and compare every `data.surface` in
+  `app.routes.ts` against the demo's `LOADERS` keys so a surface without a loader fails a check
+  instead of rendering the demo's error branch.
+- Acceptance: AC1 a real state renders; AC2 E4 the surfaces-versus-loaders check; AC3 a mutant that
+  drops the `lint` key reddens naming `lint`; AC4 the route pins stay green.
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -45,6 +61,7 @@ from a cleared output path and proved by reverting one recorded value.
 | E4 | T003 | scripts/panel-lint.test.mjs |
 
 ## Intent coverage
+| SC4 | T005 | AC2 |
 
 | Criterion | Task | Acceptance |
 |---|---|---|
