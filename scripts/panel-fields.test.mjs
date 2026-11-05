@@ -102,6 +102,34 @@ describe('panel-fields states', () => {
     assert.ok(s.lines.length > 0);
     assert.ok(s.text.toLowerCase().includes('cannot tell'));
   });
+  it('cannot-tell renders the submit state it was given instead of claiming one', () => {
+    // The reader reaches cannot-tell on the root alone, so a real reading can carry
+    // invalid fields and an enabled submit. The pane previously said "every field is
+    // valid while submit stays disabled" — both clauses false for this shape.
+    const s = SURFACE.fieldsPanel({
+      state: 'cannot-tell',
+      reason: 'root-invalid-without-error-kind',
+      fields: {
+        name: { valid: false, invalid: true, errors: [{ kind: 'required' }] },
+        age: { valid: false, invalid: true, errors: [{ kind: 'min' }] },
+      },
+      submit: 'enabled',
+      submitState: 'enabled',
+    });
+    assert.equal(s.state, 'cannot-tell');
+    assert.ok(
+      s.text.includes('submit: enabled'),
+      'the submit state that was read must be rendered',
+    );
+    assert.ok(
+      !/every field is valid/.test(s.text),
+      'the pane must not assert field validity it never checked',
+    );
+    assert.ok(
+      !/stays disabled/.test(s.text),
+      'the pane must not assert a submit state it never checked',
+    );
+  });
   it('error', () => {
     const s = SURFACE.fieldsPanel(ERROR);
     assert.equal(s.state, 'error');
@@ -112,7 +140,7 @@ describe('panel-fields states', () => {
 describe('mutants', () => {
   it('M1 cannot-tell empty pane reddens', async () => {
     const m = await loadMutant(
-      '    ...pane(message, [message, named]),',
+      '    ...pane(message, rootLines),',
       "    ...pane('', []),",
     );
     const s = m.fieldsPanel(CANNOT_TELL);

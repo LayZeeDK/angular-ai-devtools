@@ -3,7 +3,7 @@
  *
  * The read itself lives in `extension/field-state.js` (T002, `globalThis.angularAiFieldState`):
  * it reports each field's validity and its own errors, the submit state, and yields
- * `cannot-tell` when every field is valid while submit stays disabled. This module is the
+ * `cannot-tell` when the form's root is invalid and carries no error kind. This module is the
  * display half and nothing else — it is handed the result the read produced (or the fact
  * that the read is still running, or that the form could not be read) and renders it. It
  * reads no form and installs no hook (N1): every fact in the pane arrived through the
@@ -14,8 +14,10 @@
  *   loading      the field set is being read. Never an empty list: a result that has not
  *                arrived yet is a read on its way, not a read that found nothing.
  *   fields       each field's validity, its own errors, and the submit state.
- *   cannot-tell  every field is valid while submit stays disabled: a rule outside the
- *                field states is holding it. The absence is named, and nothing else.
+ *   cannot-tell  the root is invalid and carries no error kind: a rule outside the
+ *                field states has no name here. The absence is named, and nothing else —
+ *                the fields and submit state that were read are shown as data, never as a
+ *                claim about why the form will not submit.
  *   error        the form could not be read. That is said, and nothing else.
  *
  * No rendered string names the cross-field rule, a field's value, or a reason beyond a
@@ -157,8 +159,13 @@ function cannotTell(
     typeof reason === 'string' && reason.length > 0
       ? reason
       : 'root-invalid-without-error-kind';
+  // The reader reaches `cannot-tell` on the root alone — `rootInvalid && rootKind === null`
+  // (`extension/field-state.js`) — and never consults field validity or the submit state to
+  // decide. Saying "every field is valid while submit stays disabled" therefore asserted two
+  // things the reader had not checked, and both can be false. State only what was read.
   const message =
-    'cannot tell: every field is valid while submit stays disabled';
+    'cannot tell: the form root is invalid and carries no error kind';
+  const rootLines = [message, `reason: ${named}`, `submit: ${submit}`];
   return {
     kind: 'cannot-tell',
     state: 'cannot-tell',
@@ -166,7 +173,7 @@ function cannotTell(
     fields,
     submit,
     submitState: submit,
-    ...pane(message, [message, named]),
+    ...pane(message, rootLines),
   };
 }
 
