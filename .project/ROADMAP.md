@@ -1110,8 +1110,8 @@ Open questions
 Goal: Build PBR-1, what the sanitizer stripped and which binding did it.
 Depends on: [M020]
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/029-trust-bypass-triage
 Integrated: null
 
 Scope: in
