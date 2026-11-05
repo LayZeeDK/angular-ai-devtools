@@ -1,7 +1,7 @@
 {
   "canonical_project_dir": ".project",
   "command": "verify-landed",
-  "head": "28b2c5bd61c6ab1024a7440b85ddb1c9530675c2",
+  "head": "0776dc510aff49e59fb7f4e3a971d2e24826a93a",
   "project_dir": ".project",
   "tasks": [
     {
@@ -16,7 +16,7 @@
             "valid": true
           }
         ],
-        "head": "28b2c5bd61c6ab1024a7440b85ddb1c9530675c2",
+        "head": "0776dc510aff49e59fb7f4e3a971d2e24826a93a",
         "subject": "T001: Give the fixture a redirect, a gate, a lazy boundary and a cycle"
       },
       "landed_commit": "0895a7ffbb837decd0469871b70ca0c43796b543",
@@ -40,7 +40,7 @@
             "valid": true
           }
         ],
-        "head": "28b2c5bd61c6ab1024a7440b85ddb1c9530675c2",
+        "head": "0776dc510aff49e59fb7f4e3a971d2e24826a93a",
         "subject": "T002: Walk the configuration with a cycle guard"
       },
       "landed_commit": "b68cb564d917bc9c1e7e08b6e66e5103437a8b18",
@@ -64,7 +64,7 @@
             "valid": true
           }
         ],
-        "head": "28b2c5bd61c6ab1024a7440b85ddb1c9530675c2",
+        "head": "0776dc510aff49e59fb7f4e3a971d2e24826a93a",
         "subject": "T003: Render the walked chain and its marked change on the panel"
       },
       "landed_commit": "f64b7713f0807c3ab958c896e4ad15276180f655",
@@ -88,7 +88,7 @@
             "valid": true
           }
         ],
-        "head": "28b2c5bd61c6ab1024a7440b85ddb1c9530675c2",
+        "head": "0776dc510aff49e59fb7f4e3a971d2e24826a93a",
         "subject": "T004: Re-record what the new routes invalidated"
       },
       "landed_commit": "fd1142b76a4799e8968bbc1e67078d0d23b39c01",
@@ -112,7 +112,7 @@
             "valid": true
           }
         ],
-        "head": "28b2c5bd61c6ab1024a7440b85ddb1c9530675c2",
+        "head": "0776dc510aff49e59fb7f4e3a971d2e24826a93a",
         "subject": "T005: Reconcile the two development-build recordings"
       },
       "landed_commit": "056716e9db8f6c0d4c68c89d019714e720073dd8",
@@ -136,7 +136,7 @@
             "valid": true
           }
         ],
-        "head": "28b2c5bd61c6ab1024a7440b85ddb1c9530675c2",
+        "head": "0776dc510aff49e59fb7f4e3a971d2e24826a93a",
         "subject": "T006: Stop the capture suite rewriting a tracked recording"
       },
       "landed_commit": "86142ea32be8372eaabf410f2fc36aa953ae95bd",
@@ -146,6 +146,54 @@
         "id": "T006",
         "status": "done",
         "task_file": ".project/tasks/T006-stop-the-capture-suite-rewriting-a-tracked-recording.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M030",
+        "candidates": [
+          {
+            "base": "c31e49cec8921503f33f30dab5824d85f39fcb5c",
+            "commit": "db4c226228f85e40afc5d1bb5abedb36924c19d1",
+            "valid": true
+          }
+        ],
+        "head": "0776dc510aff49e59fb7f4e3a971d2e24826a93a",
+        "subject": "T007: Bind a free port and prove the server is released"
+      },
+      "landed_commit": "db4c226228f85e40afc5d1bb5abedb36924c19d1",
+      "reasons": [],
+      "task": {
+        "base": "c31e49cec8921503f33f30dab5824d85f39fcb5c",
+        "id": "T007",
+        "status": "done",
+        "task_file": ".project/tasks/T007-bind-a-free-port-and-prove-the-server-is-released.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M030",
+        "candidates": [
+          {
+            "base": "0dd4b04e79dddb6014172d3130a02696ad8d52c9",
+            "commit": "c4d0c2a917e591bc196bb143943b5ce9255fbd4e",
+            "valid": true
+          }
+        ],
+        "head": "0776dc510aff49e59fb7f4e3a971d2e24826a93a",
+        "subject": "T008: Make the capture teardown observable"
+      },
+      "landed_commit": "c4d0c2a917e591bc196bb143943b5ce9255fbd4e",
+      "reasons": [],
+      "task": {
+        "base": "0dd4b04e79dddb6014172d3130a02696ad8d52c9",
+        "id": "T008",
+        "status": "done",
+        "task_file": ".project/tasks/T008-make-the-capture-teardown-observable.md"
       }
     }
   ]
