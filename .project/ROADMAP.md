@@ -1150,8 +1150,8 @@ Open questions
 Goal: Build RTR-1, why `/settings` lands on `/login`, walked from `Router.config` with a cycle guard.
 Depends on: [M020]
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/030-redirect-chain
 Integrated: null
 
 Scope: in
