@@ -1190,8 +1190,8 @@ Open questions
 Goal: Build FRM-1, why fixing one field does not enable submit, from the Signal Forms field states.
 Depends on: [M020]
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/031-cross-field-validation
 Integrated: null
 
 Scope: in
