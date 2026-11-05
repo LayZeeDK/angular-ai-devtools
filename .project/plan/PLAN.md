@@ -54,6 +54,14 @@ Review depth: full
 
 T007. Both capture suites bind a free port, tear down their server in a `finally`, and pass when run twice in a row.
 
+## Wave 6 — the teardown must be observable
+
+Goal: the wave-5 reviewer disabled T007's teardown and the suite passed anyway, so the kill-and-wait is correct but unenforced. T008 asserts after each capture that the server is gone and the port is bindable, and proves the assertion reddens when the teardown is disabled.
+
+Review depth: full
+
+T008. The capture asserts its own cleanup, and a disabled teardown fails that assertion instead of passing quietly.
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -76,6 +84,7 @@ T007. Both capture suites bind a free port, tear down their server in a `finally
 | SC5 | T005 | AC3 |
 | SC5 | T006 | AC3 |
 | SC5 | T007 | AC3 |
+| SC5 | T008 | AC2 |
 
 ## Prohibitions
 
@@ -89,6 +98,7 @@ T007. Both capture suites bind a free port, tear down their server in a `finally
 | N5 | T005 | each build is measured from a cleared output path; leftovers are never recorded as build output |
 | N5 | T006 | a default test run never writes to a tracked file |
 | N5 | T007 | no case is skipped or hung to reach green; a suite that cannot re-run is a defect, not a flake |
+| N5 | T008 | a guarantee no test can observe is not a guarantee; it is stated as one or not claimed |
 
 ## Surface contract
 
