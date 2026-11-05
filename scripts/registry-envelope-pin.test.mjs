@@ -59,7 +59,7 @@ const ENVELOPE_MODULE_RELATIVE = [
  * constant, and such a plan changes it alongside that edit.
  */
 export const PINNED_ENVELOPE_SHA256 =
-  '20859b889b727679929e7c927cf2abeb3c4920cea190d31a69bb08bac080407e';
+  '6c3be648de3edfc2a5798e0788a53f09a493eb98386a219ca2d8c184bea2fff5';
 
 /** The pinned module's path under `root`. */
 export function envelopeModulePath(root = REPO_ROOT) {

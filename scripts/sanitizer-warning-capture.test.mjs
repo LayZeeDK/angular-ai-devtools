@@ -626,7 +626,10 @@ test('the live capture that starts a dev server sits outside the default test gl
   const source = readFileSync(LIVE_CAPTURE, 'utf8');
   // It is the part that captures, not a check that reads the recording: the dev server and the browser
   // are started there, and the recording is written before anything checks it.
-  assert.match(source, /'cli', 'bin', 'ng\.js'\), 'serve', '--port'/);
+  assert.match(
+    source,
+    /['"]cli['"]\s*,\s*['"]bin['"]\s*,\s*['"]ng\.js['"]\s*\)\s*,\s*['"]serve['"]\s*,\s*['"]--port['"]/,
+  );
   assert.match(source, /writeFileSync\(out,/);
   assert.match(source, /capture: CAPTURE_COMMAND/);
   assert.match(

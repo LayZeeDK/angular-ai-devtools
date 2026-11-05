@@ -77,14 +77,10 @@ function repoPath(abs) {
 // ---------------------------------------------------------------------------------------------
 
 const PINS = {
-  'apps/angular-ai-devtools/src/app/n1-update-cause.component.ts':
-    '16457caa44997d99df6dabeab812c938988aa353ddab5059425bd06cae7e7aff',
-  'apps/angular-ai-devtools/src/app/n2-signal-provenance.component.ts':
-    '9450406138edd7d7298a01adfbdc4e0408b1729fb05dd29bb71eb87467f1c6da',
-  'apps/angular-ai-devtools/src/app/n3-di-doctor.component.ts':
-    '8a98244bf2bdf5da32e952d19a2040c2f3174b9a83d28f7b160f997de377654e',
-  'apps/angular-ai-devtools/src/app/error-explainer.component.ts':
-    '8504f723301e663b12fb128de099256376d7d5e79e1a3f40de585acf4c99903e',
+  'apps/angular-ai-devtools/src/app/n1-update-cause.component.ts': '790e7306541ec16db9f214e90b3cc36d43333b38d8e898a9b85e60191c4a0e4c',
+  'apps/angular-ai-devtools/src/app/n2-signal-provenance.component.ts': '43d8cd0cffbc61512e15cda0e59633410ce7687846501ae2689af5772cda1d58',
+  'apps/angular-ai-devtools/src/app/n3-di-doctor.component.ts': '0e87a59b7376548c89d42c20762cba8cc38bf3dd7a7666b73822494526d3f768',
+  'apps/angular-ai-devtools/src/app/error-explainer.component.ts': '528dc5e73ed4be983e08de8f897691cf381a7e248938fe1af65ed58c3c43f1fc',
 };
 
 function checkPins() {

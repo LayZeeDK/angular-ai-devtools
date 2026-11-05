@@ -12,7 +12,8 @@ const source = readFileSync(
   'utf8',
 );
 /** @type {RunCode} */
-const runCode = new Function(`return (${source}\n);`)();
+const runCode = new Function(`return (${source.replace(/;\s*$/, '')}
+);`)();
 
 class FakeNode {}
 

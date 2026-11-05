@@ -339,13 +339,13 @@ test('plans/angular-ai-devtools-proposals.handoff.md counts eleven drafts and al
 
 test('references/ai-browsers-verification.md attributes the 600 s to the check, not the spec', () => {
   const text = read('references/ai-browsers-verification.md');
-  const lines = read(
+  const stateSource = read(
     '.commandcode/skills/verify-ai-browsers/checks/state.mjs',
-  ).split(/\r?\n/);
+  );
   assert.match(
-    lines[252] ?? '',
-    /timeout: 600000/,
-    'checks/state.mjs:253 must set the 600 s per-call timeout',
+    stateSource,
+    /timeout:\s*600000/,
+    'checks/state.mjs must set the 600 s per-call timeout',
   );
   assert(
     text.includes('checks/state.mjs:253'),

@@ -737,8 +737,8 @@ describe('overlay.js observer (SC3)', () => {
   it('deleting the observe() call reddens the page half: no page record reaches the callback at all', async () => {
     const unobserved = mutate(
       SRC,
-      'observer.observe(document.documentElement, { childList: true, subtree: true });',
-      '',
+      'observer.observe(document.documentElement,',
+      'void (',
       'observe() call',
     );
     const harness = bootOk({ source: unobserved });

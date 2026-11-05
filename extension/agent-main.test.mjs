@@ -1367,13 +1367,14 @@ describe('agent-main.js (page blast radius)', () => {
       'exactly the two vetted packages',
     );
     assert.equal(
-      code.includes(`"${COMPANION_ENTRY_KEY}"`),
+      code.includes(`"${COMPANION_ENTRY_KEY}"`) ||
+        code.includes(`'${COMPANION_ENTRY_KEY}'`),
       true,
       'the entry name is spelled as the package writes it',
     );
     for (const symbol of VETTED_SYMBOLS) {
       assert.ok(
-        code.includes(`"${symbol.name}"`),
+        code.includes(`"${symbol.name}"`) || code.includes(`'${symbol.name}'`),
         `the table must carry ${symbol.pkg}#${symbol.name}`,
       );
     }

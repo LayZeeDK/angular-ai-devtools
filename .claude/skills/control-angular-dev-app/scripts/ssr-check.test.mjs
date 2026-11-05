@@ -12,7 +12,8 @@ import { test } from 'node:test';
 
 const source = readFileSync(new URL('./ssr-check.js', import.meta.url), 'utf8');
 /** @type {(page: object) => Promise<Result>} */
-const runCode = new Function(`return (${source}\n);`)();
+const runCode = new Function(`return (${source.replace(/;\s*$/, '')}
+);`)();
 
 const HYDRATED =
   '<app-root ng-server-context="ssr" ngh="0"><p ngh="1">x</p></app-root><script id="ng-state" type="application/json">{}</script>';
