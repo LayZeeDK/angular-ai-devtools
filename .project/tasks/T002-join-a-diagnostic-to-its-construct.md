@@ -2,10 +2,10 @@
 id: T002
 title: Join a captured diagnostic to the construct it names
 wave: 1
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: paid-deepseek-v4-1-flash-high
+base: 2cb68f7824437e6427f96dcd7cd0f2726ac164ef
 worktree: null
 task_branch: null
 files:
