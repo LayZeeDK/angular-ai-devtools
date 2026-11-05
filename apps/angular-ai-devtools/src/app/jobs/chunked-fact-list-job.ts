@@ -40,7 +40,7 @@ import type {
   ToolOutcome,
 } from '../tool-registry/tool-registry';
 import { JobHandleRegistry } from './job-handles';
-import { isRecord } from '../record-guard';
+import { describeFailure, isRecord } from '../record-guard';
 
 /** The job's id. Named here so a failure names the job without the caller supplying it. */
 export const CHUNKED_FACT_LIST_JOB_ID = 'chunked_fact_list';
@@ -86,17 +86,6 @@ function betweenChunks(): Promise<void> {
   return new Promise<void>((resolve) => {
     setTimeout(resolve, 0);
   });
-}
-
-function describeFailure(failure: unknown): string {
-  if (failure instanceof Error) {
-    return failure.message;
-  }
-  try {
-    return String(failure);
-  } catch {
-    return 'an unprintable failure';
-  }
 }
 
 /**

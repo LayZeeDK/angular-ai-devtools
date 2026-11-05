@@ -37,7 +37,7 @@ import type {
   WorkerReadReply,
   WorkerReadRequest,
 } from '../worker-read.worker';
-import { isRecord } from './record-guard';
+import { describeFailure, isRecord } from './record-guard';
 
 /** Why a read could not cross the boundary. Named once so a spec asserts it instead of re-typing. */
 export const NO_WORKER_REASON =
@@ -134,17 +134,6 @@ function readReply(data: unknown): WorkerReadReply | null {
     };
   }
   return null;
-}
-
-function describeFailure(failure: unknown): string {
-  if (failure instanceof Error) {
-    return failure.message;
-  }
-  try {
-    return String(failure);
-  } catch {
-    return 'an unprintable failure';
-  }
 }
 
 /**

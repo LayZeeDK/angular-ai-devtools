@@ -47,7 +47,7 @@ import {
   type ToolInputSchema,
   type ToolOutcome,
 } from './tool-registry';
-import { isRecord } from '../record-guard';
+import { describeFailure, isRecord } from '../record-guard';
 
 const OPTIONAL_NAME_FILTER: ToolInputSchema = {
   type: 'object',
@@ -142,17 +142,6 @@ function pageFailure(
     toolId,
     message: `the page read "${toolId}" answered with ${code}: ${detail}`,
   };
-}
-
-function describeFailure(failure: unknown): string {
-  if (failure instanceof Error) {
-    return failure.message;
-  }
-  try {
-    return String(failure);
-  } catch {
-    return 'an unprintable failure';
-  }
 }
 
 /**

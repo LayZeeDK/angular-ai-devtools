@@ -36,7 +36,7 @@ import {
   type Provider,
   type Signal,
 } from '@angular/core';
-import { isRecord } from '../record-guard';
+import { describeFailure, isRecord } from '../record-guard';
 
 /** What the tool does to the inspected application. */
 export type ToolKind = 'read' | 'write' | 'confirm';
@@ -658,17 +658,6 @@ function failureOutcome(toolId: string, failure: unknown): ToolOutcome {
     toolId,
     `the backing for tool "${toolId}" failed instead of returning an outcome: ${describeFailure(failure)}`,
   );
-}
-
-function describeFailure(failure: unknown): string {
-  if (failure instanceof Error) {
-    return failure.message;
-  }
-  try {
-    return String(failure);
-  } catch {
-    return 'unknown failure';
-  }
 }
 
 function isOneOf<T extends string>(

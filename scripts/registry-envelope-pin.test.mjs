@@ -59,13 +59,13 @@ const ENVELOPE_MODULE_RELATIVE = [
  * constant, and such a plan changes it alongside that edit.
  */
 export const PINNED_ENVELOPE_SHA256 =
-  'ce1404bfecf0a7a6a620009207187294a14ef8fbe0c05a82643c1cc9bfb214d0';
+  '2d265053816060f8bdd669877975366fe6c826ed395aab29d36bb2bbfcfe4de3';
 
-// Deliberate edit, recorded as the pin requires: `tool-registry.ts` carried its own
-// private copy of `isRecord`, byte-identical to the one in nine other modules. The copy
-// was removed and the predicate imported from `record-guard.ts`. No tool was added, no
-// declaration changed, and the guard's body is unchanged — this is a de-duplication of a
-// helper the envelope happened to contain, not an edit to the envelope's behaviour.
+// Deliberate edit, recorded as the pin requires: `tool-registry.ts` carried private copies of
+// `isRecord` and `describeFailure` that were byte-identical (apart from one fallback string) to
+// the ones in six other modules. Both are now imported from `record-guard.ts`, and the envelope
+// lost one string: its unreachable `String()` fallback said 'unknown failure' where the six
+// others said 'an unprintable failure'. No tool was added and no declaration changed.
 
 /** The pinned module's path under `root`. */
 export function envelopeModulePath(root = REPO_ROOT) {

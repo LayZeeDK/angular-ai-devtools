@@ -1,4 +1,4 @@
-import { isRecord } from './app/record-guard';
+import { describeFailure, isRecord } from './app/record-guard';
 
 /**
  * The worker read path — worker side (M019 / T003).
@@ -180,17 +180,6 @@ function yieldToMessageQueue(): Promise<void> {
   return new Promise<void>((resolve) => {
     setTimeout(resolve, 0);
   });
-}
-
-function describeFailure(failure: unknown): string {
-  if (failure instanceof Error) {
-    return failure.message;
-  }
-  try {
-    return String(failure);
-  } catch {
-    return 'an unprintable failure';
-  }
 }
 
 function isWorkerReadName(value: string): value is WorkerReadName {

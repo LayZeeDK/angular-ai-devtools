@@ -20,7 +20,7 @@ import {
   type ToolInputSchema,
   type ToolOutcome,
 } from './tool-registry';
-import { isRecord } from '../record-guard';
+import { describeFailure, isRecord } from '../record-guard';
 
 /** A failure that names the tool it belongs to. `execute` never throws, so every failure is this. */
 function failure(
@@ -32,16 +32,6 @@ function failure(
 }
 
 /** A wrapped third-party throw or rejection is reported, not rethrown. */
-function describeFailure(failureValue: unknown): string {
-  if (failureValue instanceof Error) {
-    return failureValue.message;
-  }
-  try {
-    return String(failureValue);
-  } catch {
-    return 'an unprintable failure';
-  }
-}
 
 /**
  * `confirm_write` — a write that must not happen until a confirmation presents its token.
