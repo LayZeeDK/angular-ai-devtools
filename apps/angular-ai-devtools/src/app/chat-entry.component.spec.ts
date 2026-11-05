@@ -27,6 +27,7 @@ import type { ReplayOutcome } from './panel-context';
 import { InteropComponent } from './interop.component';
 import { sanitizerPanel } from './panel-sanitizer';
 import { redirectPanel } from './panel-redirect';
+import { fieldsPanel } from './panel-fields';
 import {
   APP_FACT_FEATURES,
   APP_FACTS_TOOL_ID,
@@ -615,6 +616,7 @@ describe('the chat route', () => {
       'after-render', // M028 SC4 surface: the ordered chain or the state that names its absence
       'sanitizer', // M029 SC4 surface: the sanitizer finding from a fact list, or its absence state
       'redirect', // M030 SC4 surface: the walked redirect chain, or its absence state
+      'fields', // M031 SC4 surface: the field set, or its absence state
     ]);
     // T003's conversion stayed the only other lazy route: five explainers are still eager.
     expect(appRoutes.filter((route) => route.loadComponent !== undefined).map((route) => route.path)).toEqual([
@@ -625,6 +627,7 @@ describe('the chat route', () => {
       'after-render', // M028 SC4 surface
       'sanitizer', // M029 SC4 surface
       'redirect', // M030 SC4 surface
+      'fields', // M031 SC4 surface
     ]);
     for (const path of ['', 'signal-provenance', 'di-doctor', 'error-explainer', 'stale-view']) {
       const route = appRoutes.find((candidate) => candidate.path === path);
@@ -659,5 +662,11 @@ describe('the chat route', () => {
       throw new Error('M030 T003: the redirect surface must load lazily');
     }
     expect(await redirect.loadComponent()).toBe(redirectPanel);
+
+    const fields = appRoutes.find((route) => route.path === 'fields');
+    if (fields?.loadComponent === undefined) {
+      throw new Error('M031 T003: the fields surface must load lazily');
+    }
+    expect(await fields.loadComponent()).toBe(fieldsPanel);
   });
 });

@@ -12,7 +12,11 @@
   "buildCommand": "node node_modules/@angular/cli/bin/ng.js build --configuration development --output-path ../../tmp/facade-dev-build",
   "outputPath": "tmp/facade-dev-build",
   "build": {
-    "browserBundles": ["chunk-5CQ6O73V.js", "chunk-KDTDSBO7.js", "main.js"],
+    "entry": "main.js",
+    "lazyChunkCount": 2,
+    "chunkPattern": "^chunk-[A-Z0-9]+\\.js$",
+    "sample": ["chunk-4GZTSCME.js", "chunk-BC3BGO77.js", "main.js"],
+    "sampleNote": "sample is an observation, not an assertion.",
     "outputClearedFirst": true,
     "unminified": true,
     "entryName": "ngAiDevTools",

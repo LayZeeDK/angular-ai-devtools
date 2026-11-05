@@ -533,8 +533,22 @@ test('the recording is present, names both configurations and matches the bytes 
     const actual = measurement(configuration);
     if (configuration === 'development') {
       // Structural fields identify the build exactly; only the volatile byte count is bounded, because the
-      // development build embeds absolute paths (see DEV_BYTES_TOLERANCE).
-      assert.deepEqual(recorded.bundles, actual.bundles, `the recorded development bundles must match the emitted bytes`);
+      // development build embeds absolute paths (see DEV_BYTES_TOLERANCE). The bundle list is recorded as
+      // a shape (entry, lazyChunkCount, chunkPattern) plus a sample observation, because the chunk names
+      // themselves move with the output path.
+      assert.equal(recorded.entry, 'main.js', 'the recorded development entry must be main.js');
+      const chunkPattern = new RegExp(recorded.chunkPattern);
+      const actualEntry = actual.bundles.find((name) => name === recorded.entry);
+      assert.equal(actualEntry, recorded.entry, `the development entry must be ${recorded.entry}`);
+      const actualLazyChunks = actual.bundles.filter((name) => name !== recorded.entry);
+      assert.equal(
+        actualLazyChunks.length,
+        recorded.lazyChunkCount,
+        `the development lazy chunk count must match: ${actualLazyChunks.length} vs ${recorded.lazyChunkCount}`,
+      );
+      for (const name of actualLazyChunks) {
+        assert.match(name, chunkPattern, `${name} must match chunkPattern ${recorded.chunkPattern}`);
+      }
       assert.equal(recorded.unminified, actual.unminified, 'the recorded development bundle must match minification');
       assert.deepEqual(recorded.ngContextWrite, actual.ngContextWrite, 'the recorded development __ngContext__ write must match');
       assert.deepEqual(recorded.ngGlobalSurface, actual.ngGlobalSurface, 'the recorded development window.ng surface must match');
@@ -749,6 +763,18 @@ test('the fixture is untouched: its dependencies and both build configurations a
   );
 
   console.log('ng-context-dev-build: fixture dependencies, both configurations and the artifact paths are pinned');
+});
+
+// ---------------------------------------------------------------------------
+// Stability — two builds at the same output path emit identical bundle name lists
+// ---------------------------------------------------------------------------
+test('the development build is name-stable across two builds at the same output path', () => {
+  requirePrerequisite(MISSING_MEASUREMENT_ENVIRONMENT);
+  buildPackage();
+  const first = buildFixture('development');
+  const second = buildFixture('development');
+  assert.deepEqual(first.bundles, second.bundles, 'two builds at the same output path must emit identical bundle name lists');
+  console.log(`ng-context-dev-build: stability ${JSON.stringify(first.bundles)} === ${JSON.stringify(second.bundles)}`);
 });
 
 // ---------------------------------------------------------------------------

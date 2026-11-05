@@ -596,7 +596,19 @@ test('the served development-build recording is present, development-only and co
 
   // The build half: compared with the build this file just made.
   const build = developmentBuild();
-  assert.deepEqual(recording.build.browserBundles, build.bundles);
+  assert.equal(recording.build.entry, 'main.js', 'the recorded development entry must be main.js');
+  const chunkPattern = new RegExp(recording.build.chunkPattern);
+  const actualEntry = build.bundles.find((name) => name === recording.build.entry);
+  assert.equal(actualEntry, recording.build.entry, `the development entry must be ${recording.build.entry}`);
+  const actualLazyChunks = build.bundles.filter((name) => name !== recording.build.entry);
+  assert.equal(
+    actualLazyChunks.length,
+    recording.build.lazyChunkCount,
+    `the development lazy chunk count must match: ${actualLazyChunks.length} vs ${recording.build.lazyChunkCount}`,
+  );
+  for (const name of actualLazyChunks) {
+    assert.match(name, chunkPattern, `${name} must match chunkPattern ${recording.build.chunkPattern}`);
+  }
   assert.equal(recording.build.entryName, ENTRY_NAME);
   assert.equal(recording.build.entryPresent, build.entryPresent);
   assert.equal(recording.build.unminified, build.unminified);
@@ -664,6 +676,18 @@ test('the served development-build recording is present, development-only and co
       `own-key delta ${JSON.stringify(served.ownKeys.ownStringKeyDelta)}, ` +
       `symbols ${JSON.stringify(served.symbols.map((symbol) => `${symbol.pkg}#${symbol.name} declared ${symbol.declared} resolved ${symbol.resolved}`))}`,
   );
+});
+
+// ---------------------------------------------------------------------------
+// Stability — two builds at the same output path emit identical bundle name lists
+// ---------------------------------------------------------------------------
+test('the development build is name-stable across two builds at the same output path', () => {
+  requirePrerequisite(MISSING_MEASUREMENT_ENVIRONMENT);
+  buildPackage();
+  const first = buildFixture({ configuration: 'development', outputDirectory: OUTPUT_DIR });
+  const second = buildFixture({ configuration: 'development', outputDirectory: OUTPUT_DIR });
+  assert.deepEqual(first.bundles, second.bundles, 'two builds at the same output path must emit identical bundle name lists');
+  console.log(`facade-dev-build: stability ${JSON.stringify(first.bundles)} === ${JSON.stringify(second.bundles)}`);
 });
 
 // ---------------------------------------------------------------------------
