@@ -329,6 +329,26 @@ describe('agent-main.js (recorder)', () => {
       assert.equal(graph.edges[2].producer, 'n0');
     });
 
+    it('serializes a graph that carries nodes but no edges instead of losing the record', async () => {
+      const counter = new Counter();
+      // The guard in serializeGraph substitutes { nodes: [], edges: [] } only
+      // when `nodes` is missing. A graph with nodes and no edges passes that
+      // guard, so `graph.edges.length` threw inside the record dispatch and
+      // the whole record was lost.
+      const { ng } = makeNg({ graph: { nodes: counterGraph().nodes } });
+      const { recorder, dispatched } = boot({ ng });
+      const sub = recorder.getSubscriber();
+      sub(PE.TemplateUpdateStart, counter);
+      sub(PE.TemplateUpdateEnd, counter);
+      await flushMicrotasks();
+      const record = dispatched.find((e) => e.type === 'angular-ai:record');
+      assert.ok(record, 'a graph without edges must not lose the record');
+      const graph = record.detail.checks[0].graph;
+      assert.ok(graph, 'the graph must still be reported');
+      assert.deepEqual(graph.edges, [], 'edges must default to an empty list');
+      assert.ok(graph.nodes.length > 0, 'the nodes must survive');
+    });
+
     it('marks graph as unavailable when no template node exists', async () => {
       const counter = new Counter();
       const noTemplateGraph = {

@@ -833,10 +833,13 @@
       seenClasses.add(en.component);
       nodes.push(en);
     }
-    // Resolve edges from raw indices to global node ids.
+    // Resolve edges from raw indices to global node ids. `edges` is optional:
+    // a graph that carries only nodes must serialize as a graph with no
+    // edges, not throw inside the record dispatch and lose the whole record.
+    var rawEdges = graph.edges || [];
     var edges = [];
-    for (var j = 0; j < graph.edges.length; j++) {
-      var e2 = graph.edges[j];
+    for (var j = 0; j < rawEdges.length; j++) {
+      var e2 = rawEdges[j];
       var consumerIdx = typeof e2.consumer === 'number' ? e2.consumer : -1;
       var producerIdx = typeof e2.producer === 'number' ? e2.producer : -1;
       var consumerId =
