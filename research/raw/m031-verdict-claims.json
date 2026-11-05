@@ -1,0 +1,35 @@
+{
+ "milestone": "M031",
+ "claims": [
+  {
+   "criterion": "SC1",
+   "criterionText": "On the fixture, a form with two validatable fields and a cross-field rule produces a FRM-1 finding naming each field's validity, the field's own errors, and whether submit is disabled.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for cross-field-validation."
+  },
+  {
+   "criterion": "SC2",
+   "criterionText": "The field state is read through the page agent's existing `window.ng` surface, with no second instrumentation path and no patch of the form.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for cross-field-validation."
+  },
+  {
+   "criterion": "SC3",
+   "criterionText": "A form whose fields are all individually valid while submit stays disabled reports the form's own cross-field error kind when it carries one, and produces a \"cannot tell\" state when it carries none — never a rule the finding invents.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for cross-field-validation."
+  },
+  {
+   "criterion": "SC4",
+   "criterionText": "The panel renders the field set, each field's state and the submit state from a short fact list, and shows the \"cannot tell\" state.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for cross-field-validation."
+  },
+  {
+   "criterion": "SC5",
+   "criterionText": "`npm run check` and `npm test` pass at the head.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Recorded by gsd verdict-record from the milestone's own intent for cross-field-validation."
+  }
+ ]
+}

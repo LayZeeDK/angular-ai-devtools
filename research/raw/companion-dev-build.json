@@ -12,7 +12,7 @@
   "buildCommand": "node node_modules/@angular/cli/bin/ng.js build --configuration development --output-path ../../tmp/facade-dev-build",
   "outputPath": "tmp/facade-dev-build",
   "build": {
-    "browserBundles": ["chunk-5CQ6O73V.js", "chunk-KDTDSBO7.js", "main.js"],
+    "browserBundles": ["chunk-4GZTSCME.js", "chunk-BC3BGO77.js", "main.js"],
     "outputClearedFirst": true,
     "unminified": true,
     "entryName": "ngAiDevTools",

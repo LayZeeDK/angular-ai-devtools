@@ -2,10 +2,10 @@
 id: T004
 title: Re-record what the form invalidated
 wave: 2
-status: pending
+status: done
 deps: [T001, T003]
-agent: null
-base: null
+agent: build_T004
+base: a3f707ae06596cb81390e4438a11612064c72cb8
 worktree: null
 task_branch: null
 files:

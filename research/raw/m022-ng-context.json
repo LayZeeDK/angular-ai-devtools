@@ -28,11 +28,11 @@
     "development": {
       "configuration": "development",
       "bundles": [
-        "chunk-5CQ6O73V.js",
-        "chunk-KDTDSBO7.js",
+        "chunk-4GZTSCME.js",
+        "chunk-BC3BGO77.js",
         "main.js"
       ],
-      "bytes": 1917315,
+      "bytes": 2171168,
       "unminified": true,
       "ngContextWrite": {
         "present": true,
@@ -64,20 +64,20 @@
     "production": {
       "configuration": "production",
       "bundles": [
-        "chunk-L3462FYA.js",
-        "chunk-U56XEYZR.js",
-        "main-6BRLCUA6.js"
+        "chunk-7NHODFAA.js",
+        "chunk-S3ZOYCGE.js",
+        "main-KLCJ35EZ.js"
       ],
-      "bytes": 403906,
+      "bytes": 470868,
       "unminified": false,
       "ngContextWrite": {
         "present": true,
-        "binding": "var ou=\"__ngContext__\"",
-        "identifier": "ou",
+        "binding": "var cu=\"__ngContext__\"",
+        "identifier": "cu",
         "writeSites": 2,
         "writeSnippets": [
-          "__ngContext__\";function ln(e,t){Be(t)?(e[ou]=t[Hn],Zg(t)):e[ou]=t}function td(e){return rd(e[Jt])}fu",
-          "tion ln(e,t){Be(t)?(e[ou]=t[Hn],Zg(t)):e[ou]=t}function td(e){return rd(e[Jt])}function nd(e){return"
+          "__ngContext__\";function fn(e,t){Be(t)?(e[cu]=t[Gn],om(t)):e[cu]=t}function cd(e){return ud(e[en])}fu",
+          "tion fn(e,t){Be(t)?(e[cu]=t[Gn],om(t)):e[cu]=t}function cd(e){return ud(e[en])}function ld(e){return"
         ]
       },
       "ngGlobalSurface": {
