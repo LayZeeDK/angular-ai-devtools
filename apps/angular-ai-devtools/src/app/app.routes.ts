@@ -19,15 +19,15 @@ export const appRoutes: Route[] = [
   { path: 'image-budget', loadComponent: () => import('./image-budget').then((m) => m.imageBudget as any) },
   // The M028 SC4 surface: the ordered after-render chain, or the state that names its absence.
   // Lazy for the same reason as the three above it — the panel's eager bundle is measured.
-  { path: 'after-render', loadComponent: () => import('./after-render').then((m) => m.afterRenderPanel as any) },
+  { path: 'after-render', loadComponent: () => import('./panel-demo').then((m) => m.PanelDemoComponent) , data: { surface: 'after-render' } },
   // The M029 SC4 surface: the sanitizer finding from a fact list, or the state that names the
   // absence it renders. Lazy for the same reason as the five above it — the panel's eager bundle is
   // measured, and its eager graph is unchanged by this route.
-  { path: 'sanitizer', loadComponent: () => import('./panel-sanitizer').then((m) => m.sanitizerPanel as any) },
+  { path: 'sanitizer', loadComponent: () => import('./panel-demo').then((m) => m.PanelDemoComponent) , data: { surface: 'sanitizer' } },
   // The M030 SC4 surface: the walked redirect chain, or the state that names its absence.
   // Lazy for the same reason as the surfaces above it — the panel's eager bundle is measured.
-  { path: 'redirect', loadComponent: () => import('./panel-redirect').then((m) => m.redirectPanel as any) },
+  { path: 'redirect', loadComponent: () => import('./panel-demo').then((m) => m.PanelDemoComponent) , data: { surface: 'redirect' } },
   // The M031 SC4 surface: the field set, or the state that names its absence.
   // Lazy for the same reason as the surfaces above it — the panel's eager bundle is measured.
-  { path: 'fields', loadComponent: () => import('./panel-fields').then((m) => m.fieldsPanel as any) },
+  { path: 'fields', loadComponent: () => import('./panel-demo').then((m) => m.PanelDemoComponent) , data: { surface: 'fields' } },
 ];

@@ -25,9 +25,7 @@ import type { CompanionRecord } from './companion';
 import { ExtensionMessageService } from './extension-message.service';
 import type { ReplayOutcome } from './panel-context';
 import { InteropComponent } from './interop.component';
-import { sanitizerPanel } from './panel-sanitizer';
-import { redirectPanel } from './panel-redirect';
-import { fieldsPanel } from './panel-fields';
+import { PanelDemoComponent } from './panel-demo';
 import {
   APP_FACT_FEATURES,
   APP_FACTS_TOOL_ID,
@@ -649,24 +647,16 @@ describe('the chat route', () => {
     }
     expect(await interop.loadComponent()).toBe(InteropComponent);
 
-    // The M029 SC4 route resolves to T003's surface itself, so a route that stays registered but
-    // points at nothing would fail here rather than in the browser.
-    const sanitizer = appRoutes.find((route) => route.path === 'sanitizer');
-    if (sanitizer?.loadComponent === undefined) {
-      throw new Error('M029 T003: the sanitizer surface must load lazily');
+    // The four panel surfaces are installed through PanelDemoComponent, which is a component.
+    // Registering the surface function itself would satisfy a route-shape pin while rendering
+    // nothing in the browser, so the pin asserts both the component and the surface it is given.
+    for (const surface of ['after-render', 'sanitizer', 'redirect', 'fields']) {
+      const route = appRoutes.find((candidate) => candidate.path === surface);
+      if (route?.loadComponent === undefined) {
+        throw new Error('the ' + surface + ' surface must load lazily');
+      }
+      expect(await route.loadComponent()).toBe(PanelDemoComponent);
+      expect(route.data?.['surface']).toBe(surface);
     }
-    expect(await sanitizer.loadComponent()).toBe(sanitizerPanel);
-
-    const redirect = appRoutes.find((route) => route.path === 'redirect');
-    if (redirect?.loadComponent === undefined) {
-      throw new Error('M030 T003: the redirect surface must load lazily');
-    }
-    expect(await redirect.loadComponent()).toBe(redirectPanel);
-
-    const fields = appRoutes.find((route) => route.path === 'fields');
-    if (fields?.loadComponent === undefined) {
-      throw new Error('M031 T003: the fields surface must load lazily');
-    }
-    expect(await fields.loadComponent()).toBe(fieldsPanel);
   });
 });
