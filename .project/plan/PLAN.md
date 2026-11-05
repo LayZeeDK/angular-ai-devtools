@@ -46,6 +46,14 @@ Review depth: full
 
 T006. The capture suite reads by default and captures only on request, and two consecutive runs leave the tree clean.
 
+## Wave 5 — the capture suites must be re-runnable
+
+Goal: E4 runs the whole suite nested, and the capture suites bind fixed port defaults, so a server that outlives its suite makes the next nested run collide. T007 makes each suite choose a free port at run time and prove in a `finally` that the port is free before it ends, so a suite can run twice back to back and beside another suite.
+
+Review depth: full
+
+T007. Both capture suites bind a free port, tear down their server in a `finally`, and pass when run twice in a row.
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -67,6 +75,7 @@ T006. The capture suite reads by default and captures only on request, and two c
 | SC5 | T004 | AC4 |
 | SC5 | T005 | AC3 |
 | SC5 | T006 | AC3 |
+| SC5 | T007 | AC3 |
 
 ## Prohibitions
 
@@ -79,6 +88,7 @@ T006. The capture suite reads by default and captures only on request, and two c
 | N5 | T004 | the gate runs at the head, unweakened |
 | N5 | T005 | each build is measured from a cleared output path; leftovers are never recorded as build output |
 | N5 | T006 | a default test run never writes to a tracked file |
+| N5 | T007 | no case is skipped or hung to reach green; a suite that cannot re-run is a defect, not a flake |
 
 ## Surface contract
 
