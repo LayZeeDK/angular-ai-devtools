@@ -73,7 +73,7 @@ export const RULES = [
 ];
 
 /** The helper commands a healthy install's `gsd.ts --help` must list. */
-const HELPER_TOKENS = ['preapprove', 'handoff', 'fragment-fix'];
+const HELPER_TOKENS = RULES.map((rule) => rule.helper).filter(Boolean);
 
 /** The four helper-regression pins the run that shipped M016 hit by hand. Each
  * row names one installed helper file (`file`, split into segments under the
