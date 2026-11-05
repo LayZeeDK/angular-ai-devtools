@@ -11,6 +11,8 @@ task_branch: null
 files:
   - research/raw/companion-dev-build.json
   - research/raw/m022-ng-context.json
+  - scripts/facade-dev-build.test.mjs
+  - scripts/ng-context-dev-build.test.mjs
 ---
 
 # T005 — Reconcile the two development-build recordings
@@ -30,8 +32,8 @@ Two suites record the same fixture's **development** build and now disagree. `fa
 T004 wrote `research/raw/m022-ng-context.json` with three bundles (`chunk-5CQ6O73V.js`, `chunk-KDTDSBO7.js`,
 `main.js`). Both cannot be right about the same configuration.
 
-The likely cause: T004 built into a reused output directory (`tmp/ng-context/dev`), so files left by an earlier build were
-counted alongside the new one. A recording that captures leftovers is stale the moment it is written, and it is the
+The likely cause: T004 built into a reused output directory under the ignored scratch area, so files left by an earlier
+build were counted alongside the new one. A recording that captures leftovers is stale the moment it is written, and it is the
 mirror image of the defect this milestone was designed to avoid.
 
 ## Approach
