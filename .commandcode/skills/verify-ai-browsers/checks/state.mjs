@@ -189,6 +189,10 @@ export function instanceState(name, want, deps) {
   }
 
   const backend = info.json['backend'];
+  const backendRecord =
+    backend !== null && typeof backend === 'object'
+      ? /** @type {Record<string, unknown>} */ (backend)
+      : null;
 
   return {
     instance: name,
@@ -199,11 +203,7 @@ export function instanceState(name, want, deps) {
       expected: want.model.name,
       disk: onDisk,
       serving,
-      backend:
-        backend !== null && typeof backend === 'object'
-          ? (/** @type {Record<string, unknown>} */ (backend)['backendType'] ??
-            null)
-          : null,
+      backend: backendRecord ? (backendRecord['backendType'] ?? null) : null,
       requestedBackend: info.json['requestedBackend'] ?? null,
       performanceClass: info.json['performanceClass'] ?? null,
     },

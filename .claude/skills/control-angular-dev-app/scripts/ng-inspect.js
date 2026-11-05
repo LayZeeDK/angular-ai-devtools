@@ -47,7 +47,9 @@ async (page) => {
     /** @type {(x: unknown) => string} */
     const name = (x) => {
       const holder =
-        /** @type {{ constructor?: { name?: string } } | null | undefined} */ (x);
+        /** @type {{ constructor?: { name?: string } } | null | undefined} */ (
+          x
+        );
       const resolved = holder?.constructor?.name ?? String(x);
       return String(resolved).replace(/^_/, '');
     };
