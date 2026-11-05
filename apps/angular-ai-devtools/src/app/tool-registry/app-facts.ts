@@ -34,6 +34,7 @@ import {
   type ToolFacts,
   type ToolOutcome,
 } from './tool-registry';
+import { isRecord } from '../record-guard';
 
 /** The tool id this module declares. */
 export const APP_FACTS_TOOL_ID = 'app_facts';
@@ -331,8 +332,4 @@ export const appFactsTool = defineTool(
 /** Registers `app_facts` through the envelope. The only line `app.config.ts` gains. */
 export function provideAppFactsTool(): EnvironmentProviders {
   return provideTools(appFactsTool);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

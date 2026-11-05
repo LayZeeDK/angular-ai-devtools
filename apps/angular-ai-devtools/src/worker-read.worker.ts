@@ -1,3 +1,5 @@
+import { isRecord } from './app/record-guard';
+
 /**
  * The worker read path — worker side (M019 / T003).
  *
@@ -144,10 +146,6 @@ export type WorkerReadScope = {
  * counter would make the second scope's first request look stale.
  */
 const latestTokens = new WeakMap<WorkerReadScope, number>();
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function isComponentRecord(value: unknown): value is PageComponentRecord {
   return (

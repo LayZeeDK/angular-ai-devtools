@@ -40,6 +40,7 @@ import type {
   ToolOutcome,
 } from '../tool-registry/tool-registry';
 import { JobHandleRegistry } from './job-handles';
+import { isRecord } from '../record-guard';
 
 /** The job's id. Named here so a failure names the job without the caller supplying it. */
 export const CHUNKED_FACT_LIST_JOB_ID = 'chunked_fact_list';
@@ -85,10 +86,6 @@ function betweenChunks(): Promise<void> {
   return new Promise<void>((resolve) => {
     setTimeout(resolve, 0);
   });
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function describeFailure(failure: unknown): string {

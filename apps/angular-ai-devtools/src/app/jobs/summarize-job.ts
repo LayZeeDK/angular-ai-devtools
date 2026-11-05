@@ -42,6 +42,7 @@ import type {
   ToolOutcome,
 } from '../tool-registry/tool-registry';
 import { JobHandleRegistry } from './job-handles';
+import { isRecord } from '../record-guard';
 
 /** The job's id. Named here so a failure names the job without the caller supplying it. */
 export const SUMMARIZE_JOB_ID = 'summarize';
@@ -129,10 +130,6 @@ interface SummarizerApi {
 /** The Summarizer global, or `undefined` when the browser does not have it. */
 function readSummarizer(): SummarizerApi | undefined {
   return (globalThis as { Summarizer?: SummarizerApi }).Summarizer;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function readString(

@@ -36,6 +36,7 @@ import {
   type Provider,
   type Signal,
 } from '@angular/core';
+import { isRecord } from '../record-guard';
 
 /** What the tool does to the inspected application. */
 export type ToolKind = 'read' | 'write' | 'confirm';
@@ -668,10 +669,6 @@ function describeFailure(failure: unknown): string {
   } catch {
     return 'unknown failure';
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function isOneOf<T extends string>(

@@ -43,6 +43,7 @@
  */
 import type { PanelContext } from './panel-context';
 import type { ToolDeclaration } from './tool-registry/tool-registry';
+import { isRecord } from './record-guard';
 
 /**
  * One declared group: the ids it lists, the `[ng-version]` floor it needs, and — when the page
@@ -369,8 +370,4 @@ function isBelow(version: ParsedVersion, minimum: ParsedVersion): boolean {
     return version.minor < minimum.minor;
   }
   return version.patch < minimum.patch;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

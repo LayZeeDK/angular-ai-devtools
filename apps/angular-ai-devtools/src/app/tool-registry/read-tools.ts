@@ -47,6 +47,7 @@ import {
   type ToolInputSchema,
   type ToolOutcome,
 } from './tool-registry';
+import { isRecord } from '../record-guard';
 
 const OPTIONAL_NAME_FILTER: ToolInputSchema = {
   type: 'object',
@@ -152,10 +153,6 @@ function describeFailure(failure: unknown): string {
   } catch {
     return 'an unprintable failure';
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /**

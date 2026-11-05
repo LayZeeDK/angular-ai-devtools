@@ -43,6 +43,7 @@ import {
   type ToolBacking,
   type ToolOutcome,
 } from './tool-registry';
+import { isRecord } from '../record-guard';
 
 /** The tool id this module declares. */
 export const PANEL_ENVIRONMENT_TOOL_ID = 'panel_environment';
@@ -84,10 +85,6 @@ function readSafely<T>(read: () => T, absent: T): T {
   } catch {
     return absent;
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /** One named child record, or `null` when the parent is absent or the child is not a record. */

@@ -237,12 +237,6 @@ function stripJsonComments(text) {
   return output;
 }
 
-function readJsonc(path) {
-  return JSON.parse(
-    stripJsonComments(readFileSync(path, 'utf8')).replace(/^\uFEFF/, ''),
-  );
-}
-
 // ---------------------------------------------------------------------------
 // The fixture: a temporary copy of the tree, never the checkout
 // ---------------------------------------------------------------------------

@@ -37,6 +37,7 @@ import type {
   WorkerReadReply,
   WorkerReadRequest,
 } from '../worker-read.worker';
+import { isRecord } from './record-guard';
 
 /** Why a read could not cross the boundary. Named once so a spec asserts it instead of re-typing. */
 export const NO_WORKER_REASON =
@@ -82,10 +83,6 @@ export type WorkerReadPort = {
   read(request: WorkerReadRequest): Promise<WorkerReadReply>;
   terminate(): void;
 };
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function isWorkerReadErrorCode(value: unknown): value is WorkerReadErrorCode {
   return (

@@ -20,6 +20,7 @@ import {
   type ToolInputSchema,
   type ToolOutcome,
 } from './tool-registry';
+import { isRecord } from '../record-guard';
 
 /** A failure that names the tool it belongs to. `execute` never throws, so every failure is this. */
 function failure(
@@ -40,10 +41,6 @@ function describeFailure(failureValue: unknown): string {
   } catch {
     return 'an unprintable failure';
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /**
