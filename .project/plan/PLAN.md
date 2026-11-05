@@ -80,6 +80,6 @@ Walkthrough:
 2. A captured message whose code the digest does not carry renders "cannot tell" with its reason, and no construct.
 3. An empty fact list renders the loading state, never an empty table that reads as "nothing was wrong".
 
-Criteria: SC4.
+Criteria: SC4
 
 Project verify: `npm ci --include=dev && npm --prefix spikes/ng222-app ci --include=dev && npx nx run ai-devtool-companion:build && npm run check && npm test`

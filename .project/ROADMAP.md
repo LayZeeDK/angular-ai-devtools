@@ -1229,7 +1229,8 @@ Open questions
 
 Goal: Build the core lint explainers: why the compiler reported this template, lifecycle or configuration problem, and what the app should do instead.
 Depends on: [M020]
-Programme: core · Batch: 3 · Group: @angular/core · Surfaces: panel
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
 Status: active
 Archive: null
 Integrated: null
@@ -1258,7 +1259,8 @@ Open questions: none
 
 Goal: Build the router lint explainers: why a route declaration is flagged, and which configured route the finding belongs to.
 Depends on: [M020]
-Programme: core · Batch: 3 · Group: @angular/router · Surfaces: panel
+Programme: core · Batch: 3 · Group: @angular/router
+Surfaces: panel
 Status: pending
 Archive: null
 Integrated: null
@@ -1287,7 +1289,8 @@ Open questions: none
 
 Goal: Build the legacy-API explainers: why a construct is flagged as legacy and what the modern equivalent is.
 Depends on: [M020]
-Programme: core · Batch: 3 · Group: cross-package · Surfaces: panel
+Programme: core · Batch: 3 · Group: cross-package
+Surfaces: panel
 Status: pending
 Archive: null
 Integrated: null
@@ -1316,7 +1319,8 @@ Open questions: none
 
 Goal: Build the change-detection explainer: why this component could adopt OnPush, and what blocks it.
 Depends on: [M020]
-Programme: core · Batch: 3 · Group: @angular/core · Surfaces: panel
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
 Status: pending
 Archive: null
 Integrated: null
@@ -1345,7 +1349,8 @@ Open questions: none
 
 Goal: Build the resource explainer: why this resource is still loading, errored, or never settled.
 Depends on: [M020]
-Programme: core · Batch: 3 · Group: @angular/core · Surfaces: panel
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
 Status: pending
 Archive: null
 Integrated: null
@@ -1374,7 +1379,8 @@ Open questions: none
 
 Goal: Build the Signal Forms doctor: why this form is invalid, field by field and at the root.
 Depends on: [M020]
-Programme: core · Batch: 3 · Group: @angular/forms · Surfaces: panel
+Programme: core · Batch: 3 · Group: @angular/forms
+Surfaces: panel
 Gate: S9.
 Status: pending
 Archive: null
@@ -1404,7 +1410,8 @@ Open questions: S9: what does a Signal Forms root expose beyond a boolean and an
 
 Goal: Build the explainer for state that resets itself: why this linked signal or state value returned to its source value.
 Depends on: [M020]
-Programme: core · Batch: 3 · Group: @angular/core · Surfaces: panel
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
 Status: pending
 Archive: null
 Integrated: null
@@ -1433,7 +1440,8 @@ Open questions: none
 
 Goal: Build the render-phase explainer: why this effect ran during rendering, and what it touched.
 Depends on: [M020]
-Programme: core · Batch: 3 · Group: @angular/core · Surfaces: panel
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
 Status: pending
 Archive: null
 Integrated: null
@@ -1462,7 +1470,8 @@ Open questions: none
 
 Goal: Build the performance narrator: which component did the work in this frame, and what it cost.
 Depends on: [M020]
-Programme: core · Batch: 3 · Group: cross-package · Surfaces: panel
+Programme: core · Batch: 3 · Group: cross-package
+Surfaces: panel
 Status: pending
 Archive: null
 Integrated: null
@@ -1491,7 +1500,8 @@ Open questions: none
 
 Goal: Build the navigation explainer: what is holding this navigation, and at which stage.
 Depends on: [M020]
-Programme: core · Batch: 3 · Group: @angular/router · Surfaces: panel
+Programme: core · Batch: 3 · Group: @angular/router
+Surfaces: panel
 Status: pending
 Archive: null
 Integrated: null
@@ -1520,7 +1530,8 @@ Open questions: none
 
 Goal: Build the error-boundary explainer: why this error reached the boundary that caught it, and what it replaced.
 Depends on: [M020]
-Programme: core · Batch: 3 · Group: @angular/core · Surfaces: panel
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
 Gate: S10.
 Status: pending
 Archive: null
@@ -1550,7 +1561,8 @@ Open questions: S10: does an Angular error boundary expose the error it caught t
 
 Goal: Build the stability explainer: why the app is not stable, and what is still outstanding.
 Depends on: [M020]
-Programme: core · Batch: 3 · Group: @angular/core · Surfaces: panel
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
 Status: pending
 Archive: null
 Integrated: null

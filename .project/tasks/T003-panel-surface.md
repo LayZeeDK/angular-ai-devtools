@@ -28,7 +28,7 @@ A surface taking a short fact list and rendering the four states the plan's surf
 
 ## Interface contract
 
-`lintPanel(result?) -> { state, message, lines, text }` — pure, rendering only what the fact list carries.
+`lintCore(messages, facts) -> { state: "finding" | "cannot-tell", construct?: string, code?: string, message?: string, reason?: string }` — pure, no DOM, no `window`; T003 renders exactly these fields and adds none.
 
 ## Files
 

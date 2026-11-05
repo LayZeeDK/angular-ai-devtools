@@ -25,7 +25,7 @@ One pure module taking the captured messages and the app facts, returning either
 
 ## Interface contract
 
-`lintCore(messages, facts) -> { state: "finding" | "cannot-tell", construct?: string, code?: string, message?: string, reason?: string }` — pure, no DOM, no `window`.
+`lintCore(messages, facts) -> { state: "finding" | "cannot-tell", construct?: string, code?: string, message?: string, reason?: string }` — pure, no DOM, no `window`; T003 renders exactly these fields and adds none.
 
 ## Files
 
