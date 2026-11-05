@@ -1,0 +1,104 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "03f096ab380507af3bbe5b4d1c74f6e08f98cd92",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M030",
+        "candidates": [
+          {
+            "base": "3e1fddfe6d335a521692bbc826dee380d2aa1e75",
+            "commit": "0895a7ffbb837decd0469871b70ca0c43796b543",
+            "valid": true
+          }
+        ],
+        "head": "03f096ab380507af3bbe5b4d1c74f6e08f98cd92",
+        "subject": "T001: Give the fixture a redirect, a gate, a lazy boundary and a cycle"
+      },
+      "landed_commit": "0895a7ffbb837decd0469871b70ca0c43796b543",
+      "reasons": [],
+      "task": {
+        "base": "3e1fddfe6d335a521692bbc826dee380d2aa1e75",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-give-the-fixture-a-redirect-a-gate-a-lazy-boundary-and-a-cycle.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M030",
+        "candidates": [
+          {
+            "base": "0895a7ffbb837decd0469871b70ca0c43796b543",
+            "commit": "b68cb564d917bc9c1e7e08b6e66e5103437a8b18",
+            "valid": true
+          }
+        ],
+        "head": "03f096ab380507af3bbe5b4d1c74f6e08f98cd92",
+        "subject": "T002: Walk the configuration with a cycle guard"
+      },
+      "landed_commit": "b68cb564d917bc9c1e7e08b6e66e5103437a8b18",
+      "reasons": [],
+      "task": {
+        "base": "0895a7ffbb837decd0469871b70ca0c43796b543",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-walk-the-configuration-with-a-cycle-guard.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M030",
+        "candidates": [
+          {
+            "base": "b68cb564d917bc9c1e7e08b6e66e5103437a8b18",
+            "commit": "f64b7713f0807c3ab958c896e4ad15276180f655",
+            "valid": true
+          }
+        ],
+        "head": "03f096ab380507af3bbe5b4d1c74f6e08f98cd92",
+        "subject": "T003: Render the walked chain and its marked change on the panel"
+      },
+      "landed_commit": "f64b7713f0807c3ab958c896e4ad15276180f655",
+      "reasons": [],
+      "task": {
+        "base": "b68cb564d917bc9c1e7e08b6e66e5103437a8b18",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-render-the-walked-chain-and-its-marked-change-on-the-panel.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M030",
+        "candidates": [
+          {
+            "base": "f64b7713f0807c3ab958c896e4ad15276180f655",
+            "commit": "fd1142b76a4799e8968bbc1e67078d0d23b39c01",
+            "valid": true
+          }
+        ],
+        "head": "03f096ab380507af3bbe5b4d1c74f6e08f98cd92",
+        "subject": "T004: Re-record what the new routes invalidated"
+      },
+      "landed_commit": "fd1142b76a4799e8968bbc1e67078d0d23b39c01",
+      "reasons": [],
+      "task": {
+        "base": "f64b7713f0807c3ab958c896e4ad15276180f655",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-rerecord-what-the-new-routes-invalidated.md"
+      }
+    }
+  ]
+}
