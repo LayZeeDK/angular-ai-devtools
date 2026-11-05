@@ -6,7 +6,7 @@ status: pending
 deps: []
 agent: null
 base: null
-worktree: D:\projects\sandbox\angular-ai-devtools
+worktree: null
 task_branch: null
 files:
   - spikes/ng222-app/src/app/redirect-page.ts
