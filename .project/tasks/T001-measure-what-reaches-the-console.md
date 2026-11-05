@@ -2,10 +2,10 @@
 id: T001
 title: Measure which NG-coded diagnostics reach the page console
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: paid-deepseek-v4-1-flash-high
+base: d621a3fb793c3a49979e08721f03ddc698848e9c
 worktree: null
 task_branch: null
 files:

@@ -120,6 +120,33 @@ test('PRECONDITION: the after-render route is registered with AfterRenderPage', 
   );
 });
 
+// The route table this fixture lives in, in declaration order. M032 T001 added
+// the `lint-observability` measurement page as the eighth route; pinning the
+// whole table keeps a route from being dropped, reordered or shadowed silently
+// while the fixture above is what the other suites navigate.
+test('PRECONDITION: the route table declares all fourteen routes in order', () => {
+  const routesSrc = readFileSync(routesPath, 'utf8');
+  const paths = [...routesSrc.matchAll(/path:\s*'([^']+)'/g)].map(
+    (match) => match[1],
+  );
+  assert.deepEqual(paths, [
+    'stale-view',
+    'stale-view-deferred',
+    'components',
+    'image-budget',
+    'after-render',
+    'trust-bypass',
+    'field-form',
+    'lint-observability',
+    'redirect',
+    'landing',
+    'gated',
+    'lazy',
+    'loop-a',
+    'loop-b',
+  ]);
+});
+
 test('PRECONDITION: the fixture adds no profiler instrumentation', () => {
   const routesSrc = readFileSync(routesPath, 'utf8');
   const pageSrc = readFileSync(pagePath, 'utf8');

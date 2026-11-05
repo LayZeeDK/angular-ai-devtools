@@ -1,16 +1,16 @@
 {
-  "capturedAt": "2026-11-05T00:53:15.018Z",
+  "capturedAt": "2026-11-05T22:59:57.794Z",
   "browser": "headless Playwright Chromium (build 153.0.8010.12)",
   "browserBuild": "153.0.8010.12",
   "instance": "headless",
   "playwright": "1.63.0",
   "angularVersion": "22.2.2",
-  "url": "http://127.0.0.1:4273/landing",
-  "pageUrl": "http://127.0.0.1:4273/landing",
+  "url": "http://127.0.0.1:57260/landing",
+  "pageUrl": "http://127.0.0.1:57260/landing",
   "commands": {
     "install": "npm ci --include=dev",
     "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
-    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 4273 --host 127.0.0.1  (cwd spikes/ng222-app)",
+    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 57260 --host 127.0.0.1  (cwd spikes/ng222-app)",
     "capture": "node --test scripts/router-config-capture.test.mjs",
     "check": "node --test scripts/router-config-capture.test.mjs"
   },
@@ -58,6 +58,14 @@
     {
       "path": "trust-bypass",
       "component": "[fn _TrustBypassPage]"
+    },
+    {
+      "path": "field-form",
+      "component": "[fn _FieldFormPage]"
+    },
+    {
+      "path": "lint-observability",
+      "component": "[fn _LintObservabilityPage]"
     },
     {
       "path": "redirect",
