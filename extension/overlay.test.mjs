@@ -338,11 +338,18 @@ function mentionsHost(record, host) {
  * rather than silently: a pin that no longer deletes anything proves nothing about its failing half.
  */
 function mutate(source, target, replacement, label) {
+  const pattern = new RegExp(
+    target
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/ /g, '\\s+')
+      .replace(/,/g, ',?'),
+    'u'
+  );
   assert.ok(
-    source.includes(target),
+    pattern.test(source),
     `the "${label}" mutation target is gone from overlay.js — restate the bite in overlay.test.mjs instead of deleting it`
   );
-  return source.replace(target, replacement);
+  return source.replace(pattern, replacement);
 }
 
 /** Arms the picker and returns the three drawing nodes it created into the closed root. */
@@ -981,7 +988,7 @@ describe("overlay.js blast radius (source pins)", () => {
     const body = code(SRC);
     const geometryBody = code(GEOMETRY_SRC);
     assert.equal((body.match(/devicePixelRatio/g) ?? []).length, 1, "overlay.js reads the ratio exactly once");
-    assert.match(body, /matchMedia\('\(resolution: '/, "and that one read builds the resolution query decision 6 fixes");
+    assert.match(body, /matchMedia\(\s*["']\(resolution: /, "and that one read builds the resolution query decision 6 fixes");
     assert.equal(/devicePixelRatio/.test(geometryBody), false, "the geometry module never reads the ratio at all");
     for (const [what, pattern] of [
       ["a ratio multiplication", /\*\s*(window\.)?devicePixelRatio|devicePixelRatio\s*\*/],
