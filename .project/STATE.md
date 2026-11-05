@@ -5,7 +5,7 @@ milestone: cross-field-validation
 phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M031
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -602,3 +602,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-05 — ship — build done; final review pending
 - 2026-11-05 — ship — gap panel found a path-dependent recording
 - 2026-11-05 — plan — patch plan reopened
+- 2026-11-05 — plan — plan approved
