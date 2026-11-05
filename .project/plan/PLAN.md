@@ -62,6 +62,14 @@ Review depth: full
 
 T008. The capture asserts its own cleanup, and a disabled teardown fails that assertion instead of passing quietly.
 
+## Wave 7 — a teardown that fails under load
+
+Goal: the ship Verify failed in a control-skill suite whose temp-directory teardown calls `rmSync` with `force: true` but no retry, which on Windows fails with `EPERM` while a spawned child still holds the directory. T009 gives the removal the retry the platform needs, in both copies of the skill.
+
+Review depth: full
+
+T009. The workspace teardown waits out a held handle instead of failing the test, and the suite passes twice in a row.
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -85,6 +93,7 @@ T008. The capture asserts its own cleanup, and a disabled teardown fails that as
 | SC5 | T006 | AC3 |
 | SC5 | T007 | AC3 |
 | SC5 | T008 | AC2 |
+| SC5 | T009 | AC3 |
 
 ## Prohibitions
 
