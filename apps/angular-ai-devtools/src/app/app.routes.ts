@@ -66,4 +66,13 @@ export const appRoutes: Route[] = [
       import('./panel-demo').then((m) => m.PanelDemoComponent),
     data: { surface: 'fields' },
   },
+  // The M032 SC4 surface: the diagnostic joined to the input its own text names, or the state
+  // that names why it could not be joined. Lazy for the same reason as the surfaces above it —
+  // the panel's eager bundle is measured.
+  {
+    path: 'lint',
+    loadComponent: () =>
+      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    data: { surface: 'lint' },
+  },
 ];
