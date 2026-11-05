@@ -1,7 +1,7 @@
 {
   "canonical_project_dir": ".project",
   "command": "verify-landed",
-  "head": "d438bf263585093d3a119867a18f6d008e53042b",
+  "head": "a4e47fb1f1e2ec25fee32fb8a3ae63332b4e4d32",
   "project_dir": ".project",
   "tasks": [
     {
@@ -16,7 +16,7 @@
             "valid": true
           }
         ],
-        "head": "d438bf263585093d3a119867a18f6d008e53042b",
+        "head": "a4e47fb1f1e2ec25fee32fb8a3ae63332b4e4d32",
         "subject": "T001: Give the fixture a form and record what its field state exposes"
       },
       "landed_commit": "79489451a781fe298356896e39715bde4203066b",
@@ -40,7 +40,7 @@
             "valid": true
           }
         ],
-        "head": "d438bf263585093d3a119867a18f6d008e53042b",
+        "head": "a4e47fb1f1e2ec25fee32fb8a3ae63332b4e4d32",
         "subject": "T002: Read the field states and name the absence"
       },
       "landed_commit": "bb8688a87ec9f45ff4db26934fbd3985b88893b9",
@@ -64,7 +64,7 @@
             "valid": true
           }
         ],
-        "head": "d438bf263585093d3a119867a18f6d008e53042b",
+        "head": "a4e47fb1f1e2ec25fee32fb8a3ae63332b4e4d32",
         "subject": "T003: Render the field set and the absent rule on the panel"
       },
       "landed_commit": "a3f707ae06596cb81390e4438a11612064c72cb8",
@@ -88,7 +88,7 @@
             "valid": true
           }
         ],
-        "head": "d438bf263585093d3a119867a18f6d008e53042b",
+        "head": "a4e47fb1f1e2ec25fee32fb8a3ae63332b4e4d32",
         "subject": "T004: Re-record what the form invalidated"
       },
       "landed_commit": "7c484804f6c92c7c5eca010a6bea09721bf268fc",
@@ -112,7 +112,7 @@
             "valid": true
           }
         ],
-        "head": "d438bf263585093d3a119867a18f6d008e53042b",
+        "head": "a4e47fb1f1e2ec25fee32fb8a3ae63332b4e4d32",
         "subject": "T005: Guard the indexed field the panel typecheck rejects"
       },
       "landed_commit": "b57eede9f709605114c1c00747ad2eb5d1eb8652",
@@ -122,6 +122,30 @@
         "id": "T005",
         "status": "done",
         "task_file": ".project/tasks/T005-guard-the-indexed-field-the-panel-typecheck-rejects.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M031",
+        "candidates": [
+          {
+            "base": "82541344d19136e6d6e9800eb0a699dd2959d358",
+            "commit": "78b08caadc46ee1c5026244bd6d6ba98def91495",
+            "valid": true
+          }
+        ],
+        "head": "a4e47fb1f1e2ec25fee32fb8a3ae63332b4e4d32",
+        "subject": "T006: Record the bundle shape, not hashes that move with the output path"
+      },
+      "landed_commit": "78b08caadc46ee1c5026244bd6d6ba98def91495",
+      "reasons": [],
+      "task": {
+        "base": "82541344d19136e6d6e9800eb0a699dd2959d358",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-record-the-bundle-shape-not-hashes-that-move-with-the-output-path.md"
       }
     }
   ]
