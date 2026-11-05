@@ -29,8 +29,8 @@ cannot submit, and needs to know which field or which rule is holding the button
    validity, the field's own errors, and whether submit is disabled.
 2. The field state is read through the page agent's existing `window.ng` surface, with no second instrumentation path and
    no patch of the form.
-3. A form whose fields are all individually valid while submit stays disabled produces a "cannot tell" state naming that a
-   rule outside the field states is holding it, rather than naming a rule the finding cannot see.
+3. A form whose fields are all individually valid while submit stays disabled reports the form's own cross-field error
+   kind when it carries one, and produces a "cannot tell" state when it carries none — never a rule the finding invents.
 4. The panel renders the field set, each field's state and the submit state from a short fact list, and shows the
    "cannot tell" state.
 5. `npm run check` and `npm test` pass at the head.
@@ -66,6 +66,12 @@ generation; `@angular/animations`, SSR and `angular/components`; DOM added to an
 
 ## Corrections
 
+- **SC3 was upgraded after T001's measurement.** SC3 originally promised a "cannot tell" state whenever every field was
+  valid while submit stayed disabled. T001 recorded that the form's **root** carries the cross-field error itself
+  (`{ kind: 'name-too-short-for-age' }`), while both fields remain individually valid — so the rule's verdict *is*
+  observable as a value the form sets. SC3 now reports that kind when it is present, and reserves the "cannot tell"
+  state for a root that is invalid while carrying no error. N2 still forbids naming the rule's function: the kind is a
+  fact the form states, the rule's identity is not.
 - **The roadmap's premise is half false.** It cites "the Signal Forms field states" as though a form existed; the fixture
   has none, and the page agent reads no form. SC1 is written for a subject this milestone creates, measured at
   `.project/research/m031-forms-evidence.md`.
