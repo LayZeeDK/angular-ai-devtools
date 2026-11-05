@@ -1230,7 +1230,7 @@ Open questions
 Goal: Build the core lint explainers: why the compiler reported this template, lifecycle or configuration problem, and what the app should do instead.
 Depends on: [M020]
 Programme: core · Batch: 3 · Group: @angular/core · Surfaces: panel
-Status: pending
+Status: active
 Archive: null
 Integrated: null
 
