@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: lint-core
-phase: roadmap
+phase: define
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M032
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -611,3 +611,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-05 — define — define opened for programme 2: Generation 2 (twelve milestones) admitted through the roadmap phase
 - 2026-11-05 — roadmap — roadmap re-slice started
 - 2026-11-05 — roadmap — program roadmap approved
+- 2026-11-05 — define — define opened for lint-core
