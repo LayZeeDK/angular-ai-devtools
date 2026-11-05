@@ -299,6 +299,39 @@ describe('ExtensionMessageService', () => {
     expect(ext.appVersion()).toBe('22.1.4');
   });
 
+  it('records the replay as failed when the callback fires with no reply', () => {
+    // The outer `beforeEach` already injected the service, so TestBed is
+    // instantiated; reset it before configuring this scenario's chrome.
+    TestBed.resetTestingModule();
+    // The `beforeEach` service already asked once; this scenario counts its own.
+    requests.length = 0;
+    // `chrome.runtime.sendMessage` invokes the callback with `undefined` when no
+    // listener answers the request. An absent reply means nobody answered: it is
+    // a failed replay, not an answered one.
+    globalChrome.chrome = {
+      devtools: { inspectedWindow: { tabId: 5 } },
+      runtime: {
+        onMessage: {
+          addListener(): void {
+            /* nothing listens in this scenario */
+          },
+        },
+        sendMessage(
+          msg: SentRequest,
+          callback?: (reply: unknown) => void,
+        ): void {
+          requests.push(msg);
+          if (callback) callback(undefined);
+        },
+      },
+    };
+    TestBed.configureTestingModule({});
+    const ext = TestBed.inject(ExtensionMessageService);
+    expect(requests).toEqual([{ type: 'angular-ai:state-request', tabId: 5 }]);
+    expect(ext.replayOutcome()).toBe('failed');
+    expect(ext.stateReceived()).toBe(false);
+  });
+
   it('records the replay as answered from a reply that is not { ok: false }', () => {
     // This suite's chrome answers `{ ok: true }` from the one request, once per construction.
     const ext = TestBed.inject(ExtensionMessageService);

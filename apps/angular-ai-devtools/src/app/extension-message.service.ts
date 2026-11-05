@@ -311,11 +311,13 @@ export class ExtensionMessageService {
  * reply at all in a callback that never fires — is not this service's to diagnose.
  */
 function isFailedReply(reply: unknown): boolean {
-  return (
-    typeof reply === 'object' &&
-    reply !== null &&
-    (reply as { ok?: unknown }).ok === false
-  );
+  // A callback that fires with no reply means nobody answered the request:
+  // `chrome.runtime.sendMessage` invokes the callback with `undefined` and sets
+  // `runtime.lastError` when no listener exists. That is a failed replay, not an
+  // answered one. A callback that never fires is a different case and never
+  // reaches this function — the panel keeps its "outstanding" state.
+  if (reply === undefined || reply === null) return true;
+  return typeof reply === 'object' && (reply as { ok?: unknown }).ok === false;
 }
 
 /**
