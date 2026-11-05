@@ -30,6 +30,14 @@ Review depth: full
 T003 and T004. The panel shows the chain and its marked change; every recording the fixture change staled is re-recorded
 through its own tooling and proved by reverting one field.
 
+## Wave 3 — the two recordings that disagree
+
+Goal: The ship Verify found `facade-dev-build` and `ng-context-dev-build` recording the same development build with different bundle lists. T005 rebuilds both from cleared output paths and either reconciles the lists or records why they differ.
+
+Review depth: full
+
+T005. Both development-build recordings are re-measured from clean output, and the two suites that read them both pass.
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -49,6 +57,7 @@ through its own tooling and proved by reverting one field.
 | SC3 | T002 | AC3 |
 | SC4 | T003 | AC1 |
 | SC5 | T004 | AC4 |
+| SC5 | T005 | AC3 |
 
 ## Prohibitions
 
@@ -59,6 +68,7 @@ through its own tooling and proved by reverting one field.
 | N3 | T001 | a lazy boundary ends the walk; nothing describes what the unloaded chunk declares |
 | N4 | T003 | the surface renders the chain and the marked change only |
 | N5 | T004 | the gate runs at the head, unweakened |
+| N5 | T005 | each build is measured from a cleared output path; leftovers are never recorded as build output |
 
 ## Surface contract
 
