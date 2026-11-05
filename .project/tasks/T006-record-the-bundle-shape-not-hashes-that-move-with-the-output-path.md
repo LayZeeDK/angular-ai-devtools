@@ -2,10 +2,10 @@
 id: T006
 title: Record the bundle shape, not hashes that move with the output path
 wave: 4
-status: pending
+status: done
 deps: [T004]
-agent: null
-base: null
+agent: build_T006
+base: 82541344d19136e6d6e9800eb0a699dd2959d358
 worktree: null
 task_branch: null
 files:
@@ -74,3 +74,4 @@ node --test scripts/ng-context-dev-build.test.mjs scripts/facade-dev-build.test.
 ## Log
 
 - dispatched
+- completed|bundle shape recorded; suites pass (18/0)

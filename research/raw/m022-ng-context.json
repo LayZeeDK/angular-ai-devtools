@@ -27,12 +27,16 @@
   "builds": {
     "development": {
       "configuration": "development",
-      "bundles": [
+      "entry": "main.js",
+      "lazyChunkCount": 2,
+      "chunkPattern": "^chunk-[A-Z0-9]+\\.js$",
+      "sample": [
         "chunk-4GZTSCME.js",
         "chunk-BC3BGO77.js",
         "main.js"
       ],
-      "bytes": 2171168,
+      "sampleNote": "sample is an observation, not an assertion.",
+      "bytes": 2171440,
       "unminified": true,
       "ngContextWrite": {
         "present": true,
