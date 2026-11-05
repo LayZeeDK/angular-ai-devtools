@@ -2,10 +2,10 @@
 id: T001
 title: Give the fixture a redirect, a gate, a lazy boundary and a cycle
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: 3e1fddfe6d335a521692bbc826dee380d2aa1e75
 worktree: null
 task_branch: null
 files:
@@ -63,3 +63,4 @@ npm ci --include=dev; node --test scripts/router-config-capture.test.mjs
 ## Log
 
 - dispatched
+- T001 complete: fixture routes added, router config captured
