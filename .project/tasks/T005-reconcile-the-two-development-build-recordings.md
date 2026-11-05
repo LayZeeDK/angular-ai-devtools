@@ -2,10 +2,10 @@
 id: T005
 title: Reconcile the two development-build recordings
 wave: 3
-status: pending
+status: done
 deps: [T004]
-agent: null
-base: null
+agent: build_T005
+base: ef764b246f7c5ac3988a0178661bc807e719c79a
 worktree: null
 task_branch: null
 files:
@@ -74,3 +74,4 @@ node --test scripts/facade-dev-build.test.mjs scripts/ng-context-dev-build.test.
 ## Log
 
 - dispatched
+- T005 ready: clean builds emit 3 dev bundles; hypothesis refuted; both recordings reconciled; mutants reddened

@@ -45,7 +45,7 @@
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import test from 'node:test';
@@ -311,6 +311,7 @@ function buildFixture(configuration) {
   );
 
   const outputDirectory = OUTPUT_DIRECTORIES[configuration];
+  rmSync(outputDirectory, { recursive: true, force: true });
   const result = run(
     process.execPath,
     [
@@ -345,6 +346,7 @@ function buildFixture(configuration) {
     command: buildCommand(configuration),
     cwd: 'spikes/ng222-app',
     outputPath: OUTPUT_PATHS[configuration],
+    outputClearedFirst: true,
   };
 }
 

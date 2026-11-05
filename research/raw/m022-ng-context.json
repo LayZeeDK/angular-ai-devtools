@@ -58,7 +58,8 @@
       },
       "command": "node node_modules/@angular/cli/bin/ng.js build --configuration development --output-path ../../tmp/ng-context/dev",
       "cwd": "spikes/ng222-app",
-      "outputPath": "tmp/ng-context/dev"
+      "outputPath": "tmp/ng-context/dev",
+      "outputClearedFirst": true
     },
     "production": {
       "configuration": "production",
@@ -93,7 +94,8 @@
       },
       "command": "node node_modules/@angular/cli/bin/ng.js build --configuration production --output-path ../../tmp/ng-context/prod",
       "cwd": "spikes/ng222-app",
-      "outputPath": "tmp/ng-context/prod"
+      "outputPath": "tmp/ng-context/prod",
+      "outputClearedFirst": true
     }
   },
   "differential": {
@@ -186,5 +188,12 @@
       "probeThatWouldSettleIt": "re-run scripts/ng-context-dev-build.test.mjs after the Angular upgrade reads the new bytes, and spikes/probes/ng-context.js on the served output answers the runtime question for the same pair."
     }
   ],
+  "reconciliation": {
+    "comparedWith": "research/raw/companion-dev-build.json",
+    "developmentBundles": ["chunk-5CQ6O73V.js", "chunk-KDTDSBO7.js", "main.js"],
+    "agrees": true,
+    "leftoverHypothesis": "refuted",
+    "note": "A clean build (output directory deleted first) emits the same three development bundles as companion-dev-build; T004's three bundles are genuine, not leftovers from a reused output directory."
+  },
   "verdict": "measured: both configurations write __ngContext__, and only the development build publishes window.ng; a production page therefore answers no-dev-api, not no-dev-context"
 }
