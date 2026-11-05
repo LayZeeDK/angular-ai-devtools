@@ -20,6 +20,8 @@ const RECORD_PATH = process.env.M030_ROUTER_RECORD ?? join(ROOT, 'research', 'ra
 const CAPTURE_COMMAND = 'node --test scripts/router-config-capture.test.mjs';
 const SERVE_COMMAND = `node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port ${PORT} --host 127.0.0.1  (cwd spikes/ng222-app)`;
 
+const FIVE_FIELDS = ['canActivate', 'component', 'loadChildren', 'path', 'redirectTo'];
+
 async function runCapture() {
   const requireApp = createRequire(join(APP, 'package.json'));
   let chromium;
@@ -58,7 +60,6 @@ async function runCapture() {
         injectorResolved = true;
         routerInstance = (typeof ng.ɵgetRouterInstance === 'function') ? ng.ɵgetRouterInstance(inj) : null;
       } catch (e) { injectorError = String(e); }
-      // fallback to root injector if routed did not resolve
       if (!routerInstance) {
         try {
           const rootEl = document.querySelector('[ng-version]');
@@ -148,40 +149,89 @@ async function stopServer(server) {
   clearTimeout(timer);
 }
 
-let capturePromise = null;
-function captured() { capturePromise ??= runCapture(); return capturePromise; }
+function loadRecord() {
+  return JSON.parse(readFileSync(RECORD_PATH, 'utf8'));
+}
 
-test('capture router config via ng.getInjector', async (t) => {
-  const record = await captured();
-  if (RECORD_PATH) writeFileSync(RECORD_PATH, `${JSON.stringify(record, null, 2)}\n`);
+function clone(record) {
+  return JSON.parse(JSON.stringify(record));
+}
+
+function validate(record) {
   assert.ok(record.injectorResolvedOnRoutedElement, 'injector must resolve');
-  assert.ok(Array.isArray(record.config) && record.config.length > 0, 'config must be non-empty');
+  assert.ok(Array.isArray(record.config), 'config must be an array');
   const redirectEntry = record.config.find((e) => e.path === 'redirect');
   assert.ok(redirectEntry, 'redirect route present');
   assert.equal(redirectEntry.redirectTo, 'landing', 'redirect target');
-  // cycle entries
+  assert.equal(record.config.length, 12, 'config must have 12 entries');
+  const fields = [...new Set(record.config.flatMap((e) => Object.keys(e)))].sort();
+  assert.deepEqual(fields, FIVE_FIELDS, 'the five fields');
+  assert.deepEqual([...record.fieldsPresent].sort(), FIVE_FIELDS, 'fieldsPresent lists the five fields');
   const loopA = record.config.find((e) => e.path === 'loop-a');
   const loopB = record.config.find((e) => e.path === 'loop-b');
   assert.ok(loopA && loopA.redirectTo === 'loop-b', 'loop-a redirects');
   assert.ok(loopB && loopB.redirectTo === 'loop-a', 'loop-b redirects');
-  // gated route has canActivate
   const gated = record.config.find((e) => e.path === 'gated');
   assert.ok(gated, 'gated route present');
   assert.ok(Array.isArray(gated.canActivate) || gated.canActivate !== undefined, 'canActivate present');
-  // lazy route has loadChildren
   const lazy = record.config.find((e) => e.path === 'lazy');
   assert.ok(lazy, 'lazy route present');
   assert.ok(lazy.loadChildren !== undefined, 'loadChildren present');
-  // provenance
   assert.match(record.browserBuild, /^\d+\.\d+\.\d+\.\d+$/);
   assert.match(record.url, new RegExp(`^http://127\\.0\\.0\\.1:${PORT}/landing$`));
   assert.match(record.capturedAt, /^\d{4}-\d{2}-\d{2}T/);
-  t.diagnostic(`config entries: ${record.config.length}, fields: ${record.fieldsPresent.join(',')}`);
+}
+
+let capturePromise = null;
+function captured() { capturePromise ??= runCapture(); return capturePromise; }
+
+// ---------------------------------------------------------------- read-only checks ----------------
+
+test('the recording validates against its own fixture and clocks', () => {
+  const record = loadRecord();
+  assert.doesNotThrow(() => validate(record));
 });
 
-test('mutant: removing redirect leaves no redirectTo', async () => {
-  // This test documents the mutant expectation; the capture above includes redirectTo.
-  const record = await captured();
-  const redirectEntry = record.config.find((e) => e.path === 'redirect');
-  assert.ok(redirectEntry, 'redirect route must exist in current fixture');
+test('the recording holds 12 config entries with the five fields', () => {
+  const record = loadRecord();
+  assert.equal(record.config.length, 12);
+  const fields = [...new Set(record.config.flatMap((e) => Object.keys(e)))].sort();
+  assert.deepEqual(fields, FIVE_FIELDS);
 });
+
+test('the redirect entry is present', () => {
+  const record = loadRecord();
+  const redirectEntry = record.config.find((e) => e.path === 'redirect');
+  assert.ok(redirectEntry, 'redirect route present');
+  assert.equal(redirectEntry.redirectTo, 'landing', 'redirect target');
+});
+
+test('the cycle pair is present', () => {
+  const record = loadRecord();
+  const loopA = record.config.find((e) => e.path === 'loop-a');
+  const loopB = record.config.find((e) => e.path === 'loop-b');
+  assert.ok(loopA && loopA.redirectTo === 'loop-b', 'loop-a redirects');
+  assert.ok(loopB && loopB.redirectTo === 'loop-a', 'loop-b redirects');
+});
+
+test('the injector-resolved note is present', () => {
+  const record = loadRecord();
+  assert.ok(record.injectorResolvedOnRoutedElement, 'injector must resolve');
+});
+
+test('mutant: removing the redirect entry is refused', () => {
+  const mutant = clone(loadRecord());
+  mutant.config = mutant.config.filter((e) => e.path !== 'redirect');
+  assert.throws(() => validate(mutant), /redirect route present/);
+});
+
+// ---------------------------------------------------------------- opt-in capture ----------------
+
+if (process.env.M030_CAPTURE === '1') {
+  test('capture router config via ng.getInjector', async (t) => {
+    const record = await captured();
+    if (RECORD_PATH) writeFileSync(RECORD_PATH, `${JSON.stringify(record, null, 2)}\n`);
+    validate(record);
+    t.diagnostic(`config entries: ${record.config.length}, fields: ${record.fieldsPresent.join(',')}`);
+  });
+}

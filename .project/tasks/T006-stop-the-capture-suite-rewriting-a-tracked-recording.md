@@ -2,10 +2,10 @@
 id: T006
 title: Stop the capture suite rewriting a tracked recording
 wave: 4
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T006
+base: e9f5da227576a8446993bfd6f53a31d3d512cfbd
 worktree: null
 task_branch: null
 files:
