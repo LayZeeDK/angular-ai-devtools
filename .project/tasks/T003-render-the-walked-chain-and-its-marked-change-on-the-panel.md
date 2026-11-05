@@ -2,10 +2,10 @@
 id: T003
 title: Render the walked chain and its marked change on the panel
 wave: 2
-status: pending
+status: done
 deps: [T002]
-agent: null
-base: null
+agent: build_T003
+base: b68cb564d917bc9c1e7e08b6e66e5103437a8b18
 worktree: null
 task_branch: null
 files:
