@@ -105,8 +105,20 @@ test('E7: archive commit is an ancestor of HEAD and spike tree is gone', () => {
     deleted.length > 0,
     `E7: ${RETIRE_COMMIT} deleted no file under ${RETIRED_SPIKE}`,
   );
+  // Ask for every deletion in the commit, unscoped. The query above is limited by the
+  // `-- <spike>` pathspec, so filtering its output for paths outside the spike could never
+  // return anything: the pathspec had already excluded them. This query can fail.
+  const deletedAnywhere = git([
+    'show',
+    '--format=',
+    '--name-only',
+    '--diff-filter=D',
+    RETIRE_COMMIT,
+  ])
+    .split('\n')
+    .filter(Boolean);
   assert.deepEqual(
-    deleted.filter((path) => !path.startsWith(`${RETIRED_SPIKE}/`)),
+    deletedAnywhere.filter((path) => !path.startsWith(`${RETIRED_SPIKE}/`)),
     [],
     `E7: ${RETIRE_COMMIT} deleted files outside ${RETIRED_SPIKE}`,
   );
