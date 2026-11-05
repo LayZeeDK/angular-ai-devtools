@@ -116,6 +116,9 @@ function fieldsSurface(
   const lines: string[] = [];
   for (const name of Object.keys(fields)) {
     const field = fields[name];
+
+    if (!field) continue;
+
     lines.push(`${name}: ${field.valid ? 'valid' : 'invalid'}`);
     for (const err of field.errors) {
       lines.push(`${name}: error ${err.kind}`);

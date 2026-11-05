@@ -2,10 +2,10 @@
 id: T005
 title: Guard the indexed field the panel typecheck rejects
 wave: 3
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: orchestrator
+base: 6bd13dc221ef4561dcb0dbccc71f45a7bd231279
 worktree: null
 task_branch: null
 files:
