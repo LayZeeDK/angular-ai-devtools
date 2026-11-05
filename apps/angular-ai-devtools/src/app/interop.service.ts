@@ -1,6 +1,6 @@
 import type { Injectable as InjectableType } from '@angular/core';
-// @ts-ignore
 const _keepModule: any =
+  // @ts-ignore
   await import('../../../../src/main-world/interop-keep-list.ts').catch(
     () => null,
   );
