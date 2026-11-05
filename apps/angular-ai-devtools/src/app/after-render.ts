@@ -1,7 +1,6 @@
 /**
  * The after-render panel surface — M028 T003 (INTENT.md SC4; prohibitions N1, N2, N4).
  *
- * The ordering itself lives in `extension/after-render.js` (`globalThis.angularAiAfterRender`,
  * T002): one read joined to the profiler events the page agent records, in emission order. This
  * module is the display half and nothing else — it is handed the chain the ordering module
  * produced and renders it. There is no second reader of the profiler list here, no subscriber, no

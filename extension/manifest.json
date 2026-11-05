@@ -17,24 +17,34 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["observer-filter.js", "relay.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "observer-filter.js",
+        "relay.js"
+      ],
       "run_at": "document_idle"
     },
     {
-      "matches": ["<all_urls>"],
-      "js": ["agent-main.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "agent-main.js"
+      ],
       "run_at": "document_idle",
       "world": "MAIN"
     },
     {
-      "matches": ["<all_urls>"],
-      "js": ["observer-filter.js", "overlay-geometry.js", "overlay.js"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["after-render.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "observer-filter.js",
+        "overlay-geometry.js",
+        "overlay.js"
+      ],
       "run_at": "document_start"
     }
   ],
