@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: null
-phase: inspect
+phase: roadmap
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M032
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -608,3 +608,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-05 — shipped — archive preflight passed; shipment recorded
 - 2026-11-05 — inspect — programme 1 closed: Generation 1 (M018-M031) shipped and integrated; bound gsd-path/M032; programme 2 open
 - 2026-11-05 — inspect — inspection complete: docs audit re-run over 145 documents (144 audited, 533 claims, gate passed) and collected; programme 2 opened by the owner
+- 2026-11-05 — define — define opened for programme 2: Generation 2 (twelve milestones) admitted through the roadmap phase
+- 2026-11-05 — roadmap — roadmap re-slice started
