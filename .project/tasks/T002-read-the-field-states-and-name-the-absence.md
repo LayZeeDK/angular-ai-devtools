@@ -2,10 +2,10 @@
 id: T002
 title: Read the field states and name the absence
 wave: 1
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: 7266091ee0e7b2abf60a5fe80f93105bb120df25
 worktree: null
 task_branch: null
 files:
