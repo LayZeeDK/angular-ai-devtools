@@ -12,7 +12,7 @@ Reviewed HEAD: b57eede9f709605114c1c00747ad2eb5d1eb8652
 
 ## Intent coverage
 
-### SC4 — The panel renders the field set, each field's state and the submit state from a short fact list, and shows the
+### SC4 — The panel renders the field set, each field's state and the submit state from a short fact list, and shows the "cannot tell" state.: pass
    "cannot tell" state.: pass
 
 - ✅ `panel-fields.test.mjs` exercises loading, fields (validity/own errors/submit), root-kind rendering, cannot-tell, and error states; all 9 tests pass; `npm run check:panel` passes with no TS18048. Hole case: a fact list with `fields: { name, ghost: undefined, age }` rendered without throwing (state `fields`; text `name: valid`, `ghost: invalid`, `age: invalid`/`age: error required`, `submit: disabled`).
