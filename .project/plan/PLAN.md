@@ -38,6 +38,14 @@ Review depth: full
 
 T005. Both development-build recordings are re-measured from clean output, and the two suites that read them both pass.
 
+## Wave 4 — the suite that rewrites its own recording
+
+Goal: The ship Verify's E4 edge found `npm test` mutating a tracked artifact: T001's capture rewrites `research/raw/m030-router-config.json` on every run, changing its `capturedAt`. T006 makes the suite read-only by default and keeps the capture behind an explicit opt-in, so a normal run leaves the tree untouched.
+
+Review depth: full
+
+T006. The capture suite reads by default and captures only on request, and two consecutive runs leave the tree clean.
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -58,6 +66,7 @@ T005. Both development-build recordings are re-measured from clean output, and t
 | SC4 | T003 | AC1 |
 | SC5 | T004 | AC4 |
 | SC5 | T005 | AC3 |
+| SC5 | T006 | AC3 |
 
 ## Prohibitions
 
@@ -69,6 +78,7 @@ T005. Both development-build recordings are re-measured from clean output, and t
 | N4 | T003 | the surface renders the chain and the marked change only |
 | N5 | T004 | the gate runs at the head, unweakened |
 | N5 | T005 | each build is measured from a cleared output path; leftovers are never recorded as build output |
+| N5 | T006 | a default test run never writes to a tracked file |
 
 ## Surface contract
 
