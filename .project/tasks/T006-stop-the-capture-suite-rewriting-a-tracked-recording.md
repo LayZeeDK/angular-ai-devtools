@@ -31,8 +31,8 @@ The cause, measured: running `node --test scripts/router-config-capture.test.mjs
 +  "capturedAt": "2026-11-05T02:48:07.041Z",
 ```
 
-So a normal test run mutates a tracked artifact. That is the defect M029's T007 fixed for the sanitizer
-capture — an opt-in capture inside the default glob — and T001 reintroduced it here.
+So a normal test run mutates a tracked artifact. That is the defect the previous milestone fixed for the sanitizer
+capture — an opt-in capture inside the default glob, and it was reintroduced here.
 
 ## Approach
 
