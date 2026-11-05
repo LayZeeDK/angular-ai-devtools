@@ -79,7 +79,11 @@ function asList(value: unknown): readonly unknown[] {
 function asField(raw: unknown): FieldEntry {
   if (isObject(raw)) {
     const errors = asList(raw['errors'])
-      .map((e) => (isObject(e) && typeof e['kind'] === 'string' ? { kind: String(e['kind']) } : null))
+      .map((e) =>
+        isObject(e) && typeof e['kind'] === 'string'
+          ? { kind: String(e['kind']) }
+          : null,
+      )
       .filter((e): e is { kind: string } => e !== null);
     return {
       valid: raw['valid'] === true,
@@ -105,7 +109,11 @@ function pane(message: string, lines: readonly string[]): Pane {
 }
 
 function loading(): FieldsSurface {
-  return { kind: 'loading', state: 'loading', ...pane(LOADING_MESSAGE, [LOADING_MESSAGE]) };
+  return {
+    kind: 'loading',
+    state: 'loading',
+    ...pane(LOADING_MESSAGE, [LOADING_MESSAGE]),
+  };
 }
 
 function fieldsSurface(
@@ -145,8 +153,12 @@ function cannotTell(
   fields: Record<string, FieldEntry>,
   submit: string,
 ): FieldsSurface {
-  const named = typeof reason === 'string' && reason.length > 0 ? reason : 'root-invalid-without-error-kind';
-  const message = 'cannot tell: every field is valid while submit stays disabled';
+  const named =
+    typeof reason === 'string' && reason.length > 0
+      ? reason
+      : 'root-invalid-without-error-kind';
+  const message =
+    'cannot tell: every field is valid while submit stays disabled';
   return {
     kind: 'cannot-tell',
     state: 'cannot-tell',
@@ -159,9 +171,15 @@ function cannotTell(
 }
 
 function error(reason: unknown): FieldsSurface {
-  const named = typeof reason === 'string' && reason.length > 0 ? reason : UNREADABLE_FORM;
+  const named =
+    typeof reason === 'string' && reason.length > 0 ? reason : UNREADABLE_FORM;
   const message = 'error: the form could not be read';
-  return { kind: 'error', state: 'error', reason: named, ...pane(message, [message, named]) };
+  return {
+    kind: 'error',
+    state: 'error',
+    reason: named,
+    ...pane(message, [message, named]),
+  };
 }
 
 export function fieldsPanel(result?: unknown): FieldsSurface {
@@ -183,7 +201,9 @@ export function fieldsPanel(result?: unknown): FieldsSurface {
     const root = result['root'] as Record<string, unknown>;
     const rootErrors = Array.isArray(root['errors']) ? root['errors'] : [];
     const rootKind =
-      rootErrors.length > 0 && isObject(rootErrors[0]) && typeof rootErrors[0]['kind'] === 'string'
+      rootErrors.length > 0 &&
+      isObject(rootErrors[0]) &&
+      typeof rootErrors[0]['kind'] === 'string'
         ? String(rootErrors[0]['kind'])
         : null;
     const rootInvalid = root['invalid'] === true || root['valid'] === false;
@@ -215,7 +235,9 @@ export function fieldsPanel(result?: unknown): FieldsSurface {
   }
 
   if (state === 'error') {
-    return error(typeof result['reason'] === 'string' ? result['reason'] : UNREADABLE_FORM);
+    return error(
+      typeof result['reason'] === 'string' ? result['reason'] : UNREADABLE_FORM,
+    );
   }
 
   if (state === 'fields' || isObject(result['fields'])) {
@@ -226,7 +248,12 @@ export function fieldsPanel(result?: unknown): FieldsSurface {
         : typeof result['submit'] === 'string'
           ? String(result['submit'])
           : 'unknown';
-    const rootError = typeof result['rootError'] === 'string' ? result['rootError'] : typeof result['rootErrorKind'] === 'string' ? result['rootErrorKind'] : null;
+    const rootError =
+      typeof result['rootError'] === 'string'
+        ? result['rootError']
+        : typeof result['rootErrorKind'] === 'string'
+          ? result['rootErrorKind']
+          : null;
     return fieldsSurface(fields, submit, rootError);
   }
 

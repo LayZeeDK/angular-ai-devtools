@@ -1,7 +1,11 @@
 import { type Signal, signal } from '@angular/core';
 import { describe, expect, it } from 'vitest';
 import type { CompanionRecord } from './companion';
-import { type PanelSignals, type ReplayOutcome, buildPanelContext } from './panel-context';
+import {
+  type PanelSignals,
+  type ReplayOutcome,
+  buildPanelContext,
+} from './panel-context';
 import { appFactsSnapshot } from './tool-registry/app-facts';
 
 /** The plain values a case varies; each becomes one of the signals. */
@@ -24,7 +28,9 @@ interface SignalValues {
  */
 function panelSignals(values: SignalValues = {}): PanelSignals {
   return {
-    features: signal<Readonly<Record<string, boolean>> | null>(values.features ?? null),
+    features: signal<Readonly<Record<string, boolean>> | null>(
+      values.features ?? null,
+    ),
     zoneMode: signal<string | null>(values.zoneMode ?? null),
     stateReceived: signal(values.stateReceived ?? false),
     appVersion: signal<string | null>(values.appVersion ?? null),
@@ -36,7 +42,10 @@ function panelSignals(values: SignalValues = {}): PanelSignals {
 }
 
 /** A signal that counts its reads, so "each signal is read once" is checkable, not asserted. */
-function counted<T>(value: T): { readonly signal: Signal<T>; readonly reads: () => number } {
+function counted<T>(value: T): {
+  readonly signal: Signal<T>;
+  readonly reads: () => number;
+} {
   let reads = 0;
   const callable = (): T => {
     reads += 1;
@@ -74,7 +83,9 @@ const NO_PACKAGE: CompanionRecord = {
 
 describe('buildPanelContext', () => {
   it('returns facts with no supported key for a page that never announced state', () => {
-    const context = buildPanelContext(panelSignals({ replayOutcome: 'answered' }));
+    const context = buildPanelContext(
+      panelSignals({ replayOutcome: 'answered' }),
+    );
 
     expect(context.stateReceived).toBe(false);
     expect(context.version).toBeNull();
@@ -109,7 +120,12 @@ describe('buildPanelContext', () => {
     );
 
     expect(context).toEqual({
-      facts: { supported: true, reason: null, zoneMode: 'noop', features: PUBLISHED },
+      facts: {
+        supported: true,
+        reason: null,
+        zoneMode: 'noop',
+        features: PUBLISHED,
+      },
       version: '22.2.4',
       stateReceived: true,
       replayOutcome: 'answered',
@@ -129,7 +145,11 @@ describe('buildPanelContext', () => {
   });
 
   it('copies the replay outcome unchanged at every value, and keeps a silent page silent', () => {
-    const outcomes: readonly ReplayOutcome[] = ['outstanding', 'answered', 'failed'];
+    const outcomes: readonly ReplayOutcome[] = [
+      'outstanding',
+      'answered',
+      'failed',
+    ];
 
     for (const replayOutcome of outcomes) {
       const context = buildPanelContext(panelSignals({ replayOutcome }));
@@ -148,7 +168,11 @@ describe('buildPanelContext', () => {
 
   it('carries the companion answer as a member, never as a key on the facts record (AC2)', () => {
     const context = buildPanelContext(
-      panelSignals({ stateReceived: true, features: PUBLISHED, companion: NO_PACKAGE }),
+      panelSignals({
+        stateReceived: true,
+        features: PUBLISHED,
+        companion: NO_PACKAGE,
+      }),
     );
 
     // The page's opt-in answer travels beside the page-inspection record, not inside it: one
@@ -168,7 +192,9 @@ describe('buildPanelContext', () => {
     // A contradictory pair, and the only way to observe the ordering: the signal holds an answer
     // the panel could present, and the page never announced state. A `companion` written before the
     // early return would surface it here — that is the silence-turned-into-a-claim defect.
-    const context = buildPanelContext(panelSignals({ stateReceived: false, companion: NO_PACKAGE }));
+    const context = buildPanelContext(
+      panelSignals({ stateReceived: false, companion: NO_PACKAGE }),
+    );
 
     expect(context.stateReceived).toBe(false);
     expect(context.companion).toBeNull();
@@ -178,7 +204,11 @@ describe('buildPanelContext', () => {
 
   it('reports the page own refusal verbatim when it said not supported', () => {
     const context = buildPanelContext(
-      panelSignals({ stateReceived: true, notSupported: true, notSupportedReason: 'no profiler here' }),
+      panelSignals({
+        stateReceived: true,
+        notSupported: true,
+        notSupportedReason: 'no profiler here',
+      }),
     );
 
     expect(context.facts['supported']).toBe(false);
@@ -188,7 +218,9 @@ describe('buildPanelContext', () => {
 
   it('narrows the zone mode to the two measured values and unknown for anything else', () => {
     const zoneOf = (zoneMode: string | null): unknown =>
-      buildPanelContext(panelSignals({ stateReceived: true, zoneMode })).facts['zoneMode'];
+      buildPanelContext(panelSignals({ stateReceived: true, zoneMode })).facts[
+        'zoneMode'
+      ];
 
     expect(zoneOf('zone')).toBe('zone');
     expect(zoneOf('noop')).toBe('noop');
@@ -199,7 +231,9 @@ describe('buildPanelContext', () => {
 
   it('omits the features key when the page published no map, and keeps an empty map when it did', () => {
     const noMap = buildPanelContext(panelSignals({ stateReceived: true }));
-    const emptyMap = buildPanelContext(panelSignals({ stateReceived: true, features: {} }));
+    const emptyMap = buildPanelContext(
+      panelSignals({ stateReceived: true, features: {} }),
+    );
 
     expect('features' in noMap.facts).toBe(false);
     expect('features' in emptyMap.facts).toBe(true);
@@ -220,7 +254,9 @@ describe('buildPanelContext', () => {
   });
 
   it('reads every signal exactly once, so one context describes one instant of the page', () => {
-    const features = counted<Readonly<Record<string, boolean>> | null>(PUBLISHED);
+    const features = counted<Readonly<Record<string, boolean>> | null>(
+      PUBLISHED,
+    );
     const zoneMode = counted<string | null>('noop');
     const stateReceived = counted(true);
     const appVersion = counted<string | null>('22.2.4');
@@ -250,12 +286,20 @@ describe('buildPanelContext', () => {
   });
 
   it('is pure: equal signals give deep-equal contexts and neither input nor facts is mutated', () => {
-    const values: SignalValues = { stateReceived: true, features: PUBLISHED, zoneMode: 'zone' };
+    const values: SignalValues = {
+      stateReceived: true,
+      features: PUBLISHED,
+      zoneMode: 'zone',
+    };
     const first = buildPanelContext(panelSignals(values));
     const second = buildPanelContext(panelSignals(values));
 
     expect(second).toEqual(first);
     expect(second).not.toBe(first);
-    expect(PUBLISHED).toEqual({ setProfiler: true, getSignalGraph: false, getHostElement: true });
+    expect(PUBLISHED).toEqual({
+      setProfiler: true,
+      getSignalGraph: false,
+      getHostElement: true,
+    });
   });
 });

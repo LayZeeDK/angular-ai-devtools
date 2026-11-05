@@ -117,7 +117,13 @@ export function buildPanelContext(signals: PanelSignals): PanelContext {
     // `companion: null` is written as a literal and the companion signal is not read here at all:
     // the member is written only after this early return, so a silent page can never carry a
     // companion answer — and `null` is "no answer", not the `absent` state (M021 AC2).
-    return { facts: {}, version, stateReceived: false, replayOutcome, companion: null };
+    return {
+      facts: {},
+      version,
+      stateReceived: false,
+      replayOutcome,
+      companion: null,
+    };
   }
 
   const features = signals.features();

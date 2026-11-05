@@ -26,12 +26,12 @@ Preconditions:
 
 - **List.** `playwright-cli -s=<session> click "getByRole('link', { name: 'Claims' })"`, wait with
   `run-code "async page => { await page.waitForURL('**/claim/list'); await page.locator('table tbody
-  tr').first().waitFor(); return page.url(); }"`. Snapshot shows `heading "Claims"` and the five column
+tr').first().waitFor(); return page.url(); }"`. Snapshot shows `heading "Claims"` and the five column
   headers.
 - **Signals.** `eval "() => __ngc.signals('ng-journal-list').edges.filter(e => /claims|#state/.test(e))"`
   returns `template:ng-journal-list -> computed:claims` and `computed:claims -> signal:#state`.
 - **Details.** `click "getByRole('row').nth(1)"`, then `run-code "async page => { await
-  page.waitForURL(/\/claim\/.+\/details/); await page.waitForLoadState('networkidle'); return page.url(); }"`;
+page.waitForURL(/\/claim\/.+\/details/); await page.waitForLoadState('networkidle'); return page.url(); }"`;
   snapshot shows `heading "Claim Details"` and a customer `link` with `/url: /customer/<id>/details`.
 - **Create form.** Sidebar Claim `Create`; snapshot shows `combobox "Select damage type"`,
   `combobox "Select contract"` and the Date field with today's date.

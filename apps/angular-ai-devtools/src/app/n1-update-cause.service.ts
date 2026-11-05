@@ -16,18 +16,24 @@ export class UpdateCauseService {
   readonly recordedCycles = this.cycles.asReadonly();
 
   record(component: string, reason: string): void {
-    this.causes.update((prev) => [...prev, { component, reason, timestamp: Date.now() }]);
+    this.causes.update((prev) => [
+      ...prev,
+      { component, reason, timestamp: Date.now() },
+    ]);
   }
 
   recordCycle(cycle: RecordedCycle): void {
-    this.cycles.update((prev) => prev.some((c) => c.cycleId === cycle.cycleId) ? prev : [...prev, cycle]);
+    this.cycles.update((prev) =>
+      prev.some((c) => c.cycleId === cycle.cycleId) ? prev : [...prev, cycle],
+    );
   }
 
   lastCycleForComponent(componentName: string): RecordedCycle | undefined {
     const cycles = this.cycles();
     for (let i = cycles.length - 1; i >= 0; i--) {
       const c = cycles[i];
-      if (c && c.checks.some((ch) => ch.componentName === componentName)) return c;
+      if (c && c.checks.some((ch) => ch.componentName === componentName))
+        return c;
     }
     return undefined;
   }

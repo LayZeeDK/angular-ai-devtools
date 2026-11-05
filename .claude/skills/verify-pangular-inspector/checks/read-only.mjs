@@ -16,7 +16,14 @@ import { parseArgs } from 'node:util';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..', '..', '..');
-const CONTROL = join(ROOT, '.claude', 'skills', 'control-pangular-inspector', 'scripts', 'control.mjs');
+const CONTROL = join(
+  ROOT,
+  '.claude',
+  'skills',
+  'control-pangular-inspector',
+  'scripts',
+  'control.mjs',
+);
 
 /** @typedef {{ code: number | null, json: Record<string, unknown> | null, text: string }} StepResult */
 /** @typedef {{ control: (args: string[]) => StepResult, write: (file: string, data: string) => void }} Deps */
@@ -37,7 +44,9 @@ export function jsonOf(stdout) {
     /** @type {unknown} */
     const value = JSON.parse(stdout.slice(at));
 
-    return value !== null && typeof value === 'object' && !Array.isArray(value) ? /** @type {Record<string, unknown>} */ (value) : null;
+    return value !== null && typeof value === 'object' && !Array.isArray(value)
+      ? /** @type {Record<string, unknown>} */ (value)
+      : null;
   } catch {
     return null;
   }
@@ -51,17 +60,44 @@ export function jsonOf(stdout) {
  */
 export function check({ out }, deps) {
   const tools = deps.control(['tools']);
-  deps.write(join(out, 'tools-list.json'), JSON.stringify({ exit: tools.code, result: tools.json ?? tools.text }, null, 2));
+  deps.write(
+    join(out, 'tools-list.json'),
+    JSON.stringify(
+      { exit: tools.code, result: tools.json ?? tools.text },
+      null,
+      2,
+    ),
+  );
 
-  if (tools.code !== 0 || tools.json === null || !Array.isArray(tools.json['actionToolsPresent'])) {
-    throw new Error(`control.mjs tools exited ${tools.code}: ${tools.text.trim().slice(-400)}`);
+  if (
+    tools.code !== 0 ||
+    tools.json === null ||
+    !Array.isArray(tools.json['actionToolsPresent'])
+  ) {
+    throw new Error(
+      `control.mjs tools exited ${tools.code}: ${tools.text.trim().slice(-400)}`,
+    );
   }
 
-  const navigate = deps.control(['call', 'navigate', '--args', '{"action":"navigate","url":"/home"}']);
-  deps.write(join(out, 'navigate-refused.json'), JSON.stringify({ exit: navigate.code, result: navigate.json ?? navigate.text }, null, 2));
+  const navigate = deps.control([
+    'call',
+    'navigate',
+    '--args',
+    '{"action":"navigate","url":"/home"}',
+  ]);
+  deps.write(
+    join(out, 'navigate-refused.json'),
+    JSON.stringify(
+      { exit: navigate.code, result: navigate.json ?? navigate.text },
+      null,
+      2,
+    ),
+  );
 
   if (navigate.code === null) {
-    throw new Error(`control.mjs call navigate did not finish: ${navigate.text.trim().slice(-300)}`);
+    throw new Error(
+      `control.mjs call navigate did not finish: ${navigate.text.trim().slice(-300)}`,
+    );
   }
 
   /** @type {unknown[]} */
@@ -76,7 +112,9 @@ export function check({ out }, deps) {
   const reason = String(navigate.json?.['reason'] ?? '');
 
   if (navigate.code !== 2 || !reason.startsWith('refused: navigate')) {
-    failed.push(`call navigate without --confirm exited ${navigate.code}, not 2 with its --confirm refusal: ${(reason || navigate.text.trim()).slice(-300)}`);
+    failed.push(
+      `call navigate without --confirm exited ${navigate.code}, not 2 with its --confirm refusal: ${(reason || navigate.text.trim()).slice(-300)}`,
+    );
   }
 
   if (failed.length > 0) {
@@ -91,7 +129,11 @@ export function check({ out }, deps) {
  */
 export function main(argv, deps) {
   try {
-    const { values } = parseArgs({ args: argv, options: { out: { type: 'string' } }, strict: true });
+    const { values } = parseArgs({
+      args: argv,
+      options: { out: { type: 'string' } },
+      strict: true,
+    });
 
     if (!values.out) {
       throw new Error('usage: read-only.mjs --out <dir>');
@@ -107,7 +149,9 @@ export function main(argv, deps) {
       return 1;
     }
 
-    console.error(`[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`);
+    console.error(
+      `[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`,
+    );
 
     return 2;
   }
@@ -116,9 +160,19 @@ export function main(argv, deps) {
 /** @type {Deps} */
 const realDeps = {
   control: (args) => {
-    const r = spawnSync(process.execPath, [CONTROL, ...args, '--json'], { cwd: ROOT, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024, timeout: 600000 });
+    const r = spawnSync(process.execPath, [CONTROL, ...args, '--json'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      windowsHide: true,
+      maxBuffer: 64 * 1024 * 1024,
+      timeout: 600000,
+    });
 
-    return { code: r.status, json: jsonOf(r.stdout ?? ''), text: (r.stdout ?? '') + (r.stderr ?? '') };
+    return {
+      code: r.status,
+      json: jsonOf(r.stdout ?? ''),
+      text: (r.stdout ?? '') + (r.stderr ?? ''),
+    };
   },
   write: (file, data) => {
     mkdirSync(dirname(file), { recursive: true });
@@ -126,6 +180,10 @@ const realDeps = {
   },
 };
 
-if (process.argv[1] && realpathSync.native(resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+if (
+  process.argv[1] &&
+  realpathSync.native(resolve(process.argv[1])) ===
+    realpathSync.native(fileURLToPath(import.meta.url))
+) {
   process.exitCode = main(process.argv.slice(2), realDeps);
 }

@@ -4,8 +4,16 @@ import { findProviderInjector } from '../src/main-world/di-lookup.ts';
 
 describe('findProviderInjector', () => {
   const path = [
-    { id: 0, metadata: { type: 'environment', source: 'root' }, providers: [{ token: 'CartService' }] },
-    { id: 1, metadata: { type: 'element', source: 'App' }, providers: [{ token: 'Counter' }] },
+    {
+      id: 0,
+      metadata: { type: 'environment', source: 'root' },
+      providers: [{ token: 'CartService' }],
+    },
+    {
+      id: 1,
+      metadata: { type: 'element', source: 'App' },
+      providers: [{ token: 'Counter' }],
+    },
   ];
   test('returns injector where token provided', () => {
     const r = findProviderInjector(path, 'CartService');

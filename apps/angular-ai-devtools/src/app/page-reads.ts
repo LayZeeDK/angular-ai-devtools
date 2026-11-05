@@ -67,7 +67,11 @@ export type PageReadErrorCode = 'host-unavailable' | 'invalid-input';
  */
 export type PageResponse =
   | { readonly status: 'result'; readonly value: unknown }
-  | { readonly status: 'error'; readonly code: PageReadErrorCode; readonly message: string };
+  | {
+      readonly status: 'error';
+      readonly code: PageReadErrorCode;
+      readonly message: string;
+    };
 
 /** Whatever carries a request to the page. One method: ask, and answer with a `PageResponse`. */
 export type PageHost = {
@@ -105,10 +109,13 @@ export const UNAVAILABLE_PAGE_HOST: PageHost = {
  * `host-unavailable` host above; a transport landing later provides this token and no reader,
  * declaration or backing changes.
  */
-export const PAGE_HOST = new InjectionToken<PageHost>('angular-ai-devtools:page-host', {
-  providedIn: 'root',
-  factory: () => UNAVAILABLE_PAGE_HOST,
-});
+export const PAGE_HOST = new InjectionToken<PageHost>(
+  'angular-ai-devtools:page-host',
+  {
+    providedIn: 'root',
+    factory: () => UNAVAILABLE_PAGE_HOST,
+  },
+);
 
 function ask(
   host: PageHost,

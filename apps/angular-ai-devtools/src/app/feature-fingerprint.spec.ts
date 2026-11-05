@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { type FeatureFingerprint, featureFingerprint } from './feature-fingerprint';
+import {
+  type FeatureFingerprint,
+  featureFingerprint,
+} from './feature-fingerprint';
 import type { PanelContext } from './panel-context';
 
 /**
@@ -18,9 +21,9 @@ const FEATURE_NAMES = [
 ] as const;
 
 /** A received-state context with all eight bits false, as a fixture app publishes them. */
-const ALL_ABSENT = Object.fromEntries(FEATURE_NAMES.map((name) => [name, false])) as Readonly<
-  Record<string, boolean>
->;
+const ALL_ABSENT = Object.fromEntries(
+  FEATURE_NAMES.map((name) => [name, false]),
+) as Readonly<Record<string, boolean>>;
 
 function context(overrides: Partial<PanelContext> = {}): PanelContext {
   return {
@@ -48,7 +51,11 @@ describe('featureFingerprint', () => {
           supported: true,
           reason: null,
           zoneMode: 'noop',
-          features: { setProfiler: true, getInjector: true, getHostElement: false },
+          features: {
+            setProfiler: true,
+            getInjector: true,
+            getHostElement: false,
+          },
         },
       }),
       FEATURE_NAMES,
@@ -60,7 +67,9 @@ describe('featureFingerprint', () => {
     }
 
     // All eight, in the caller's order, with no entry dropped: an absent bit is named, not hidden.
-    expect(fingerprint.entries.map((entry) => entry.name)).toEqual([...FEATURE_NAMES]);
+    expect(fingerprint.entries.map((entry) => entry.name)).toEqual([
+      ...FEATURE_NAMES,
+    ]);
     expect(fingerprint.entries.map((entry) => entry.present)).toEqual([
       true,
       false,
@@ -97,7 +106,9 @@ describe('featureFingerprint', () => {
       return;
     }
     expect(fingerprint.entries.map((entry) => entry.name)).toEqual(reversed);
-    expect(fingerprint.text.split(' · ').map((entry) => entry.split(':')[0])).toEqual(reversed);
+    expect(
+      fingerprint.text.split(' · ').map((entry) => entry.split(':')[0]),
+    ).toEqual(reversed);
   });
 
   it('renders byte-identical text for two calls over equal contexts (E2)', () => {
@@ -121,14 +132,22 @@ describe('featureFingerprint', () => {
       return;
     }
     expect(fingerprint.entries).toHaveLength(8);
-    expect(fingerprint.entries.every((entry) => entry.present === false)).toBe(true);
+    expect(fingerprint.entries.every((entry) => entry.present === false)).toBe(
+      true,
+    );
     expect(fingerprint.text).not.toContain('present');
     expect(fingerprint.text.match(/absent/g)).toHaveLength(8);
   });
 
   it('names the refusal for a page with neither a version nor a state (SC3)', () => {
     const fingerprint = featureFingerprint(
-      { facts: {}, version: null, stateReceived: false, companion: null, replayOutcome: 'answered' },
+      {
+        facts: {},
+        version: null,
+        stateReceived: false,
+        companion: null,
+        replayOutcome: 'answered',
+      },
       FEATURE_NAMES,
     );
 
@@ -141,7 +160,13 @@ describe('featureFingerprint', () => {
   it('waits instead of refusing while the replay is outstanding (AC3, SC1)', () => {
     for (const version of [null, '22.2.4']) {
       const fingerprint = featureFingerprint(
-        { facts: {}, version, stateReceived: false, companion: null, replayOutcome: 'outstanding' },
+        {
+          facts: {},
+          version,
+          stateReceived: false,
+          companion: null,
+          replayOutcome: 'outstanding',
+        },
         FEATURE_NAMES,
       );
 
@@ -152,7 +177,9 @@ describe('featureFingerprint', () => {
       }
       expect(fingerprint.message).toContain('has not answered yet');
       // The false claim this state exists to prevent, and no eight absences either.
-      expect(fingerprint.message).not.toBe('No Angular root found on this page');
+      expect(fingerprint.message).not.toBe(
+        'No Angular root found on this page',
+      );
       expect(fingerprint.message).not.toContain('No Angular root found');
       expect('entries' in fingerprint).toBe(false);
     }
@@ -160,7 +187,13 @@ describe('featureFingerprint', () => {
 
   it('names the transport, not the page, when the replay failed (AC4)', () => {
     const fingerprint = featureFingerprint(
-      { facts: {}, version: null, stateReceived: false, companion: null, replayOutcome: 'failed' },
+      {
+        facts: {},
+        version: null,
+        stateReceived: false,
+        companion: null,
+        replayOutcome: 'failed',
+      },
       FEATURE_NAMES,
     );
 
@@ -177,7 +210,13 @@ describe('featureFingerprint', () => {
   it('lets the refusal render only for an answered replay, never for the other outcomes (AC5)', () => {
     const kindOf = (replayOutcome: PanelContext['replayOutcome']): string =>
       featureFingerprint(
-        { facts: {}, version: null, stateReceived: false, companion: null, replayOutcome },
+        {
+          facts: {},
+          version: null,
+          stateReceived: false,
+          companion: null,
+          replayOutcome,
+        },
         FEATURE_NAMES,
       ).kind;
 
@@ -189,7 +228,11 @@ describe('featureFingerprint', () => {
   it('concludes nothing about a context that names no replay outcome at all (P001 hardening)', () => {
     // The field is required, so only an untyped caller can omit it. The omitted reading must never
     // be `answered`: that is the one value that would let a silent page be called "no Angular root".
-    const unnamed = { facts: {}, version: null, stateReceived: false } as unknown as PanelContext;
+    const unnamed = {
+      facts: {},
+      version: null,
+      stateReceived: false,
+    } as unknown as PanelContext;
 
     const fingerprint = featureFingerprint(unnamed, FEATURE_NAMES);
 
@@ -198,8 +241,15 @@ describe('featureFingerprint', () => {
   });
 
   it('lets a received state decide before the outcome, so no feature waits on a stale replay (SC1)', () => {
-    for (const replayOutcome of ['outstanding', 'failed', 'answered'] as const) {
-      const fingerprint = featureFingerprint(context({ replayOutcome }), FEATURE_NAMES);
+    for (const replayOutcome of [
+      'outstanding',
+      'failed',
+      'answered',
+    ] as const) {
+      const fingerprint = featureFingerprint(
+        context({ replayOutcome }),
+        FEATURE_NAMES,
+      );
 
       expect(fingerprint.kind, replayOutcome).toBe('fingerprint');
       if (fingerprint.kind !== 'fingerprint') {
@@ -211,7 +261,13 @@ describe('featureFingerprint', () => {
 
   it('names the version and the absent debug surface when a version arrived with no state (SC3)', () => {
     const fingerprint = featureFingerprint(
-      { facts: {}, version: '22.2.4', stateReceived: false, companion: null, replayOutcome: 'answered' },
+      {
+        facts: {},
+        version: '22.2.4',
+        stateReceived: false,
+        companion: null,
+        replayOutcome: 'answered',
+      },
       FEATURE_NAMES,
     );
 
@@ -230,7 +286,9 @@ describe('featureFingerprint', () => {
   it('answers cannot-tell for a received state whose map is null or holds no boolean (AC6)', () => {
     for (const features of [null, {}, { setProfiler: 'yes' }, [] as unknown]) {
       const fingerprint: FeatureFingerprint = featureFingerprint(
-        context({ facts: { supported: true, reason: null, zoneMode: 'noop', features } }),
+        context({
+          facts: { supported: true, reason: null, zoneMode: 'noop', features },
+        }),
         FEATURE_NAMES,
       );
 
@@ -266,7 +324,14 @@ describe('featureFingerprint', () => {
   it('shows the measured zone mode only for a supported page, and null for an unmeasured one', () => {
     const zoneOf = (zoneMode: unknown): 'zone' | 'noop' | null => {
       const fingerprint = featureFingerprint(
-        context({ facts: { supported: true, reason: null, zoneMode, features: ALL_ABSENT } }),
+        context({
+          facts: {
+            supported: true,
+            reason: null,
+            zoneMode,
+            features: ALL_ABSENT,
+          },
+        }),
         FEATURE_NAMES,
       );
       return fingerprint.kind === 'fingerprint' ? fingerprint.zoneMode : null;
@@ -296,7 +361,9 @@ describe('featureFingerprint', () => {
     if (fingerprint.kind !== 'fingerprint') {
       return;
     }
-    expect(fingerprint.entries.map((entry) => entry.name)).toEqual([...FEATURE_NAMES]);
+    expect(fingerprint.entries.map((entry) => entry.name)).toEqual([
+      ...FEATURE_NAMES,
+    ]);
     expect(fingerprint.text).not.toContain('diGraph');
     expect(fingerprint.entries.filter((entry) => entry.present)).toEqual([
       { name: 'setProfiler', present: true },

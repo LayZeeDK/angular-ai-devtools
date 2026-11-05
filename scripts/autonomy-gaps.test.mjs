@@ -28,7 +28,13 @@
 // writes into the user-scope tree or leaves a file in the checkout.
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -44,14 +50,23 @@ const CORRECTION_SUITE = join('scripts', 'docs-correction.test.mjs');
 /** The installed orchestrator prompt, split into segments under the resolved
  * rules root. The prompt's file name is the route-named one the install ships;
  * the document itself never spells it, so no route slug reaches the analysis. */
-const PROMPT_FILE = ['prompts', 'deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md'];
+const PROMPT_FILE = [
+  'prompts',
+  'deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md',
+];
 
 /** The installed autonomy playbook: the reference the orchestrator prompt's
  * Resume map tells the orchestrator to load before rerunning a helper. */
 const PLAYBOOK_FILE = ['references', 'gsd-path-autonomy-playbook.md'];
 
 /** The five fixed fields every `## Gap — ` section carries, in order. */
-const FIELDS = ['Met:', 'User-scope change:', 'Pin:', 'Verified:', 'Remaining:'];
+const FIELDS = [
+  'Met:',
+  'User-scope change:',
+  'Pin:',
+  'Verified:',
+  'Remaining:',
+];
 
 /** How many gaps M017 recorded first-hand. A new gap is a deliberate edit here
  * as well as in the document, so the count cannot drift silently. */
@@ -172,13 +187,21 @@ test('G8 Verify pin: a shell variable is not interpreter-visible while an absolu
         ],
         { encoding: 'utf8' },
       );
-      assert.equal(res.status, 0, `the probe interpreter must exit 0 for ${argument}: ${res.stderr}`);
+      assert.equal(
+        res.status,
+        0,
+        `the probe interpreter must exit 0 for ${argument}: ${res.stderr}`,
+      );
       const [received, exists] = JSON.parse(res.stdout);
       return { received, exists };
     };
 
     const visible = probe(absolute);
-    assert.equal(visible.exists, true, `an absolute path must be visible to the interpreter: ${absolute}`);
+    assert.equal(
+      visible.exists,
+      true,
+      `an absolute path must be visible to the interpreter: ${absolute}`,
+    );
 
     for (const variable of ['%USERPROFILE%\\probe.txt', '$HOME/probe.txt']) {
       const result = probe(variable);
@@ -222,7 +245,9 @@ test('G9 static pin: the chromium reading survives a checkout with no playwright
         'case cannot pass in a clean sidecar that carries no node_modules',
     );
   }
-  console.log(`G9 static: read ${file} — the recorded reading and its absent-install branch are present`);
+  console.log(
+    `G9 static: read ${file} — the recorded reading and its absent-install branch are present`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -249,7 +274,9 @@ function splitSections(text) {
 }
 
 function gapSections(chunks) {
-  return chunks.filter((chunk) => chunk.title !== null && chunk.title.startsWith('Gap — '));
+  return chunks.filter(
+    (chunk) => chunk.title !== null && chunk.title.startsWith('Gap — '),
+  );
 }
 
 /** One field of a gap section: exactly one line, and a non-empty value. */
@@ -262,7 +289,10 @@ function field(section, label) {
       `${JSON.stringify(section.lines.filter((line) => line.trim().length > 0).slice(0, 8))}`,
   );
   const value = hits[0].slice(label.length).trim();
-  assert.ok(value.length > 0, `## ${section.title} "${label}" must carry a value, found an empty one`);
+  assert.ok(
+    value.length > 0,
+    `## ${section.title} "${label}" must carry a value, found an empty one`,
+  );
   return value;
 }
 
@@ -286,7 +316,9 @@ test('S1 shape: the document carries the scope note and the closing section', ()
     );
   }
 
-  const closing = chunks.find((chunk) => chunk.title === 'What this document does not prove');
+  const closing = chunks.find(
+    (chunk) => chunk.title === 'What this document does not prove',
+  );
   assert.ok(
     closing,
     'the document must close with a `## What this document does not prove` section: ' +
@@ -300,9 +332,14 @@ test('S1 shape: the document carries the scope note and the closing section', ()
     'no model name',
     'no domain',
   ]) {
-    assert.ok(body.includes(token), `the closing section must state "${token}"`);
+    assert.ok(
+      body.includes(token),
+      `the closing section must state "${token}"`,
+    );
   }
-  console.log(`S1 shape: scope note and closing section present; ${gapSections(chunks).length} gap section(s)`);
+  console.log(
+    `S1 shape: scope note and closing section present; ${gapSections(chunks).length} gap section(s)`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -318,11 +355,17 @@ test('S2 shape: every gap section carries the five fields with non-empty values'
       `${JSON.stringify(gaps.map((gap) => gap.title))}`,
   );
   const titles = gaps.map((gap) => gap.title);
-  assert.equal(new Set(titles).size, titles.length, `gap titles must be unique: ${JSON.stringify(titles)}`);
+  assert.equal(
+    new Set(titles).size,
+    titles.length,
+    `gap titles must be unique: ${JSON.stringify(titles)}`,
+  );
   for (const gap of gaps) {
     for (const label of FIELDS) field(gap, label);
   }
-  console.log(`S2 shape: ${gaps.length} gap section(s), each with ${FIELDS.length} non-empty fields`);
+  console.log(
+    `S2 shape: ${gaps.length} gap section(s), each with ${FIELDS.length} non-empty fields`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -346,7 +389,10 @@ test('S3 shape: every Pin names a test file, a rule id and a case title that fil
       );
       const [, relative, ruleId, title] = match;
       const file = join(repoRoot, relative);
-      assert.ok(existsSync(file), `## ${gap.title} "Pin:" names ${relative}, which does not exist at ${file}`);
+      assert.ok(
+        existsSync(file),
+        `## ${gap.title} "Pin:" names ${relative}, which does not exist at ${file}`,
+      );
       const text = readFileSync(file, 'utf8');
       assert.ok(
         new RegExp(`^${ruleId}\\b`).test(title),
@@ -357,11 +403,16 @@ test('S3 shape: every Pin names a test file, a rule id and a case title that fil
         `## ${gap.title} "Pin:" names the case ${JSON.stringify(title)}, which ${relative} does not define: ` +
           'a cited title that does not exist is a defect, not an empty pass',
       );
-      assert.ok(text.includes(ruleId), `## ${gap.title} "Pin:" rule id ${ruleId} must appear in ${relative}`);
+      assert.ok(
+        text.includes(ruleId),
+        `## ${gap.title} "Pin:" rule id ${ruleId} must appear in ${relative}`,
+      );
       citations += 1;
     }
   }
-  console.log(`S3 shape: ${citations} pin citation(s) across ${gaps.length} gap section(s) all resolve`);
+  console.log(
+    `S3 shape: ${citations} pin citation(s) across ${gaps.length} gap section(s) all resolve`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -388,8 +439,12 @@ test('S4 shape: every Verified carries an exit status with a tail or a reasoned 
       );
     }
   }
-  const ranCount = gaps.filter((gap) => RAN.test(field(gap, 'Verified:'))).length;
-  console.log(`S4 shape: ${ranCount} gap(s) carry a run with its exit status, ${gaps.length - ranCount} read not-run`);
+  const ranCount = gaps.filter((gap) =>
+    RAN.test(field(gap, 'Verified:')),
+  ).length;
+  console.log(
+    `S4 shape: ${ranCount} gap(s) carry a run with its exit status, ${gaps.length - ranCount} read not-run`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -399,7 +454,10 @@ test('S4 shape: every Verified carries an exit status with a tail or a reasoned 
 test('S5 shape: the document names no model route slug, e-mail address or web domain', () => {
   const text = docText();
   const forbidden = [
-    { name: 'a model route slug', pattern: /(?:^|[^\w-])(?:paid|free)-[a-z0-9]/i },
+    {
+      name: 'a model route slug',
+      pattern: /(?:^|[^\w-])(?:paid|free)-[a-z0-9]/i,
+    },
     { name: 'a web URL', pattern: /https?:\/\//i },
     { name: 'a web host prefix', pattern: /\bwww\./i },
     { name: 'an e-mail address', pattern: /\b[\w.+-]+@[\w-]+\.[a-z]{2,}\b/i },
@@ -418,7 +476,9 @@ test('S5 shape: the document names no model route slug, e-mail address or web do
         `${JSON.stringify(text.slice(Math.max(0, (hit?.index ?? 0) - 60), (hit?.index ?? 0) + 60))}`,
     );
   }
-  console.log('S5 shape: no route slug, URL, e-mail address or model family name in the document');
+  console.log(
+    'S5 shape: no route slug, URL, e-mail address or model family name in the document',
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -426,12 +486,20 @@ test('S5 shape: the document names no model route slug, e-mail address or web do
 // ---------------------------------------------------------------------------
 
 test('S6 shape: the audit lists the document as descriptive and the tally agrees', () => {
-  assert.ok(existsSync(AUDIT_PATH), `the docs audit must exist at ${AUDIT_PATH}`);
+  assert.ok(
+    existsSync(AUDIT_PATH),
+    `the docs audit must exist at ${AUDIT_PATH}`,
+  );
   const audit = readFileSync(AUDIT_PATH, 'utf8');
   const chunks = splitSections(audit);
 
-  const descriptive = chunks.find((chunk) => chunk.title === 'Descriptive docs');
-  assert.ok(descriptive, `the audit must carry a \`## Descriptive docs\` section at ${AUDIT_PATH}`);
+  const descriptive = chunks.find(
+    (chunk) => chunk.title === 'Descriptive docs',
+  );
+  assert.ok(
+    descriptive,
+    `the audit must carry a \`## Descriptive docs\` section at ${AUDIT_PATH}`,
+  );
   const entries = descriptive.lines
     .map((line) => line.trim())
     .filter((line) => line.startsWith('- '))
@@ -463,14 +531,28 @@ test('S6 shape: the audit lists the document as descriptive and the tally agrees
       `${rows.get('descriptive docs (no testable claims)')} versus ${entries.length}`,
   );
 
-  const claimDocs = chunks.filter((chunk) => chunk.title !== null && chunk.title.startsWith('Doc: ')).length;
+  const claimDocs = chunks.filter(
+    (chunk) => chunk.title !== null && chunk.title.startsWith('Doc: '),
+  ).length;
   const flat = audit.replace(/\s+/g, ' ');
-  const prose = /Claim rows audited: (\d+) across (\d+) documents; with the (\d+) descriptive documents, the (\d+) frozen inventory paths/.exec(
-    flat,
+  const prose =
+    /Claim rows audited: (\d+) across (\d+) documents; with the (\d+) descriptive documents, the (\d+) frozen inventory paths/.exec(
+      flat,
+    );
+  assert.ok(
+    prose,
+    'the audit must state its claim rows, its document count and its frozen inventory total',
   );
-  assert.ok(prose, 'the audit must state its claim rows, its document count and its frozen inventory total');
-  assert.equal(Number(prose[2]), claimDocs, `the audit states ${prose[2]} documents but carries ${claimDocs} claim sections`);
-  assert.equal(Number(prose[3]), entries.length, `the audit states ${prose[3]} descriptive documents but lists ${entries.length}`);
+  assert.equal(
+    Number(prose[2]),
+    claimDocs,
+    `the audit states ${prose[2]} documents but carries ${claimDocs} claim sections`,
+  );
+  assert.equal(
+    Number(prose[3]),
+    entries.length,
+    `the audit states ${prose[3]} descriptive documents but lists ${entries.length}`,
+  );
   assert.equal(
     Number(prose[4]),
     claimDocs + entries.length,

@@ -1,6 +1,6 @@
 ---
 name: nx-import
-description: "`nx import` brings code from a source repository or folder into the current workspace, preserving commit history."
+description: '`nx import` brings code from a source repository or folder into the current workspace, preserving commit history.'
 ---
 
 ## Quick Start

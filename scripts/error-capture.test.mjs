@@ -18,7 +18,12 @@ describe('error-capture E3 ring buffer', () => {
     const buf = new RingBuffer(CAPACITY);
     const total = CAPACITY + 5;
     for (let i = 0; i < total; i++) {
-      buf.push({ code: null, message: `msg-${i}`, component: null, timestamp: i });
+      buf.push({
+        code: null,
+        message: `msg-${i}`,
+        component: null,
+        timestamp: i,
+      });
     }
     assert.equal(buf.size, CAPACITY);
     const arr = buf.toArray();
@@ -36,7 +41,11 @@ describe('error-capture E3 ring buffer', () => {
 describe('error-capture E1 no owning component', () => {
   test('reports no owning component and never attributes unrelated component', () => {
     const ng = { getOwningComponent: () => null };
-    const err = captureError('NG0100: ExpressionChangedAfterItHasBeenCheckedError', ng, {});
+    const err = captureError(
+      'NG0100: ExpressionChangedAfterItHasBeenCheckedError',
+      ng,
+      {},
+    );
     assert.equal(err.code, 'NG0100');
     assert.equal(err.component, null);
     assert.equal(componentLabel(err.component), NO_OWN_COMPONENT);
@@ -61,7 +70,10 @@ describe('error-capture N5 mapping path', () => {
   });
 
   test('extractErrorCode finds NG0xxx', () => {
-    assert.equal(extractErrorCode(new Error('NG0300: Multiple instances')), 'NG0300');
+    assert.equal(
+      extractErrorCode(new Error('NG0300: Multiple instances')),
+      'NG0300',
+    );
   });
 
   test('resolveOwningComponent returns null when ng missing', () => {

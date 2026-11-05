@@ -1,6 +1,6 @@
 ---
 name: monitor-ci
-description: "Monitor CI Command"
+description: 'Monitor CI Command'
 ---
 
 # Monitor CI Command

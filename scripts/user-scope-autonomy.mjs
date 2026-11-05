@@ -36,7 +36,10 @@ export const RULES = [
     fileTokens: [
       { file: ['AGENTS.md'], tokens: ['zero-token run'] },
       {
-        file: ['prompts', 'deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md'],
+        file: [
+          'prompts',
+          'deepseek-v4_1-flash-gsd-path-orchestrator.prompt.md',
+        ],
         tokens: ['zero-token run'],
       },
     ],
@@ -46,15 +49,26 @@ export const RULES = [
     name: 'incremental-write and byte-length-proof rules',
     helper: null,
     fileTokens: [
-      { file: ['references', 'gsd-path-skill-roster.md'], tokens: ['Add-Content', 'byte-length'] },
-      { file: ['references', 'prompting-glyph-cluster.md'], tokens: ['byte-length proof'] },
+      {
+        file: ['references', 'gsd-path-skill-roster.md'],
+        tokens: ['Add-Content', 'byte-length'],
+      },
+      {
+        file: ['references', 'prompting-glyph-cluster.md'],
+        tokens: ['byte-length proof'],
+      },
     ],
   },
   {
     id: 'R5',
     name: 'fragment repair command',
     helper: 'fragment-fix',
-    fileTokens: [{ file: ['references', 'gsd-path-orchestrator.md'], tokens: ['fragment-fix'] }],
+    fileTokens: [
+      {
+        file: ['references', 'gsd-path-orchestrator.md'],
+        tokens: ['fragment-fix'],
+      },
+    ],
   },
 ];
 
@@ -95,7 +109,10 @@ export const HELPER_PINS = [
     id: 'P4',
     name: 'a serial retry stays parkable',
     file: ['skills', 'gsd-path', 'scripts', 'dispatch_driver.py'],
-    tokens: ['state.get("mode") == "serial"', 'fields.get("task_branch") == "null"'],
+    tokens: [
+      'state.get("mode") == "serial"',
+      'fields.get("task_branch") == "null"',
+    ],
     probe: { tool: 'python', script: ['build_state.py'], args: ['ready'] },
   },
 ];
@@ -184,7 +201,11 @@ export const DISPATCH_PINS = [
       'Heavy: no',
       '## Log',
     ],
-    probe: { tool: 'python', script: ['check_task_briefs.py'], args: ['--repo'] },
+    probe: {
+      tool: 'python',
+      script: ['check_task_briefs.py'],
+      args: ['--repo'],
+    },
   },
   {
     id: 'D5',
@@ -242,7 +263,8 @@ function childEnv() {
  * Returns { scriptsDir, rulesRoot, gsdDir } with absolute paths. */
 export function resolveRulesRoot(input) {
   const scriptsDir = resolve(String(resolveScanDir(input)));
-  const rulesRoot = basename(scriptsDir) === 'scripts' ? dirname(scriptsDir) : scriptsDir;
+  const rulesRoot =
+    basename(scriptsDir) === 'scripts' ? dirname(scriptsDir) : scriptsDir;
   return { scriptsDir, rulesRoot, gsdDir: join(rulesRoot, 'scripts', 'gsd') };
 }
 
@@ -250,12 +272,16 @@ export function resolveRulesRoot(input) {
  * when the gsd dir is absent (the structural issue already names it). */
 export function runGsdHelp(gsdDir) {
   if (!existsSync(gsdDir)) return null;
-  const res = spawnSync(process.execPath, ['--experimental-strip-types', 'gsd.ts', '--help'], {
-    cwd: gsdDir,
-    encoding: 'utf8',
-    timeout: 60_000,
-    env: childEnv(),
-  });
+  const res = spawnSync(
+    process.execPath,
+    ['--experimental-strip-types', 'gsd.ts', '--help'],
+    {
+      cwd: gsdDir,
+      encoding: 'utf8',
+      timeout: 60_000,
+      env: childEnv(),
+    },
+  );
   const output = String(res.stdout || '') + String(res.stderr || '');
   return { ok: res.status === 0, status: res.status, output };
 }
@@ -265,7 +291,9 @@ export function runGsdHelp(gsdDir) {
 export function listGsdTestFiles(gsdDir) {
   const testDir = join(gsdDir, 'test');
   if (!existsSync(testDir)) {
-    throw new Error(`user-scope-autonomy: helper test dir is absent: ${testDir}`);
+    throw new Error(
+      `user-scope-autonomy: helper test dir is absent: ${testDir}`,
+    );
   }
   const files = readdirSync(testDir)
     .filter((f) => f.endsWith('.test.ts'))
@@ -303,13 +331,24 @@ export function runGsdTests(root) {
   const res = spawnSync(
     process.execPath,
     ['--experimental-strip-types', '--test', ...files],
-    { cwd: gsdDir, encoding: 'utf8', timeout: 240_000, maxBuffer: 256 * 1024 * 1024, env: childEnv() },
+    {
+      cwd: gsdDir,
+      encoding: 'utf8',
+      timeout: 240_000,
+      maxBuffer: 256 * 1024 * 1024,
+      env: childEnv(),
+    },
   );
   const output = String(res.stdout || '') + String(res.stderr || '');
   const failing = output
     .split(/\r?\n/)
     .filter((l) => l.includes('✖'))
-    .map((l) => l.replace(/^.*✖\s*/, '').replace(/\s*\([\d.]+ms\)\s*$/, '').trim())
+    .map((l) =>
+      l
+        .replace(/^.*✖\s*/, '')
+        .replace(/\s*\([\d.]+ms\)\s*$/, '')
+        .trim(),
+    )
     .filter(Boolean);
   return {
     gsdDir,
@@ -390,13 +429,17 @@ export function runPinProbe(pin, input, extraArgs = []) {
     pin.probe.tool === 'gsd'
       ? ['--experimental-strip-types', script, ...pin.probe.args, ...extraArgs]
       : ['-B', script, ...pin.probe.args, ...extraArgs];
-  const res = spawnSync(pin.probe.tool === 'gsd' ? process.execPath : 'python', args, {
-    cwd: scriptDir,
-    encoding: 'utf8',
-    timeout: 120_000,
-    maxBuffer: 32 * 1024 * 1024,
-    env: childEnv(),
-  });
+  const res = spawnSync(
+    pin.probe.tool === 'gsd' ? process.execPath : 'python',
+    args,
+    {
+      cwd: scriptDir,
+      encoding: 'utf8',
+      timeout: 120_000,
+      maxBuffer: 32 * 1024 * 1024,
+      env: childEnv(),
+    },
+  );
   return {
     pin: pin.id,
     script,

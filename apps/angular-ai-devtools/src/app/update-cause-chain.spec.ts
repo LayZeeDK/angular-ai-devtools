@@ -9,15 +9,36 @@ describe('walkChain', () => {
       changeDetection: 0,
       graph: {
         nodes: [
-          { id: 't', kind: 'template', label: 'app-counter template', epoch: 1, debuggableFn: 'CounterComponent' },
-          { id: 'count', kind: 'signal', label: 'count', epoch: 2, debuggableFn: null },
-          { id: 'double', kind: 'computed', label: 'double', epoch: 2, debuggableFn: null },
+          {
+            id: 't',
+            kind: 'template',
+            label: 'app-counter template',
+            epoch: 1,
+            debuggableFn: 'CounterComponent',
+          },
+          {
+            id: 'count',
+            kind: 'signal',
+            label: 'count',
+            epoch: 2,
+            debuggableFn: null,
+          },
+          {
+            id: 'double',
+            kind: 'computed',
+            label: 'double',
+            epoch: 2,
+            debuggableFn: null,
+          },
         ],
         edges: [],
       },
       changedNodeIds: ['count', 'double'],
     };
-    const res: ChainResult = walkChain({ check, trigger: { kind: 'output', listenerName: 'click' } });
+    const res: ChainResult = walkChain({
+      check,
+      trigger: { kind: 'output', listenerName: 'click' },
+    });
     expect(res.chain).toBe('click -> count -> double -> app-counter template');
     expect(res.trigger).toBe('output');
   });
@@ -28,12 +49,23 @@ describe('walkChain', () => {
       className: 'CounterComponent',
       changeDetection: 0,
       graph: {
-        nodes: [{ id: 't', kind: 'template', label: 'app-counter template', epoch: 1, debuggableFn: 'CounterComponent' }],
+        nodes: [
+          {
+            id: 't',
+            kind: 'template',
+            label: 'app-counter template',
+            epoch: 1,
+            debuggableFn: 'CounterComponent',
+          },
+        ],
         edges: [],
       },
       changedNodeIds: [],
     };
-    const res = walkChain({ check, trigger: { kind: 'unknown', listenerName: null } });
+    const res = walkChain({
+      check,
+      trigger: { kind: 'unknown', listenerName: null },
+    });
     expect(res.noSignalCause).toBe(true);
     expect(res.chain).toBe('no signal cause');
   });
@@ -46,7 +78,10 @@ describe('walkChain', () => {
       graph: { nodes: [], edges: [] },
       changedNodeIds: [],
     };
-    const res = walkChain({ check, trigger: { kind: 'unknown', listenerName: null } });
+    const res = walkChain({
+      check,
+      trigger: { kind: 'unknown', listenerName: null },
+    });
     expect(res.graphUnavailable).toBe(true);
     expect(res.chain).toBe('signal graph unavailable');
   });
@@ -57,12 +92,23 @@ describe('walkChain', () => {
       className: 'CounterComponent',
       changeDetection: 1,
       graph: {
-        nodes: [{ id: 't', kind: 'template', label: 'app-counter template', epoch: 1, debuggableFn: 'CounterComponent' }],
+        nodes: [
+          {
+            id: 't',
+            kind: 'template',
+            label: 'app-counter template',
+            epoch: 1,
+            debuggableFn: 'CounterComponent',
+          },
+        ],
         edges: [],
       },
       changedNodeIds: [],
     };
-    const res = walkChain({ check, trigger: { kind: 'unknown', listenerName: null } });
+    const res = walkChain({
+      check,
+      trigger: { kind: 'unknown', listenerName: null },
+    });
     expect(res.trigger).toBe('eager');
     expect(res.chain).toBe('checked because Eager');
   });

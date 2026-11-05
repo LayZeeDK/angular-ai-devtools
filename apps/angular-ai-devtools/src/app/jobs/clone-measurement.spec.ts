@@ -31,10 +31,10 @@ import { ExtensionPromptService } from '../extension-prompt.service';
 declare global {
   /** The vite `import.meta.glob` surface this spec uses (not typed by vitest/globals). */
   interface ImportMeta {
-    glob(pattern: string, options: { query: '?raw'; import: 'default'; eager: true }): Record<
-      string,
-      unknown
-    >;
+    glob(
+      pattern: string,
+      options: { query: '?raw'; import: 'default'; eager: true },
+    ): Record<string, unknown>;
   }
 }
 
@@ -53,13 +53,23 @@ interface CloneMeasurementArtifact {
 
 /** The spied primitives, keyed exactly as the artifact's `samples` are. */
 type PrimitiveCounts = Record<
-  'lm.create' | 'session.prompt' | 'session.destroy' | 'structuredClone' | 'session.clone',
+  | 'lm.create'
+  | 'session.prompt'
+  | 'session.destroy'
+  | 'structuredClone'
+  | 'session.clone',
   number
 >;
 
 /** Zeroed counts for the five primitives the measurement spies on. */
 function zeroCounts(): PrimitiveCounts {
-  return { 'lm.create': 0, 'session.prompt': 0, 'session.destroy': 0, structuredClone: 0, 'session.clone': 0 };
+  return {
+    'lm.create': 0,
+    'session.prompt': 0,
+    'session.destroy': 0,
+    structuredClone: 0,
+    'session.clone': 0,
+  };
 }
 
 /** The mocked session, with a `clone` the real panel session interface does not declare. */
@@ -103,18 +113,25 @@ function countingLanguageModel(counts: PrimitiveCounts): unknown {
  * anchored there so the repo root — not the runner's cwd — resolves the file.
  */
 function readArtifact(): CloneMeasurementArtifact {
-  const modules = import.meta.glob('../../../../../research/raw/clone-measurement-m019.json', {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-  });
+  const modules = import.meta.glob(
+    '../../../../../research/raw/clone-measurement-m019.json',
+    {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    },
+  );
   const entry: unknown = Object.values(modules)[0];
   // The builder's glob inlines a `?raw` match as the file's text directly; the `{ default }`
   // wrapper the vite docs describe is accepted too, so the read works on either shape.
   const raw =
-    typeof entry === 'string' ? entry : (entry as { default?: unknown } | undefined)?.default;
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
   if (typeof raw !== 'string') {
-    throw new Error('research/raw/clone-measurement-m019.json was not inlined above this spec file');
+    throw new Error(
+      'research/raw/clone-measurement-m019.json was not inlined above this spec file',
+    );
   }
   return JSON.parse(raw) as CloneMeasurementArtifact;
 }
@@ -124,16 +141,23 @@ function readArtifact(): CloneMeasurementArtifact {
  * the bytes on disk — the number is in the committed file, not in this spec's prose.
  */
 function readArtifactText(): string {
-  const modules = import.meta.glob('../../../../../research/raw/clone-measurement-m019.json', {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-  });
+  const modules = import.meta.glob(
+    '../../../../../research/raw/clone-measurement-m019.json',
+    {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    },
+  );
   const entry: unknown = Object.values(modules)[0];
   const raw =
-    typeof entry === 'string' ? entry : (entry as { default?: unknown } | undefined)?.default;
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
   if (typeof raw !== 'string') {
-    throw new Error('research/raw/clone-measurement-m019.json was not inlined above this spec file');
+    throw new Error(
+      'research/raw/clone-measurement-m019.json was not inlined above this spec file',
+    );
   }
   return raw;
 }
@@ -145,17 +169,23 @@ describe('clone measurement artifact (M019 / T006)', () => {
     const counts = zeroCounts();
 
     // The same measurement the artifact records: one prompt assembly through the real service.
-    const globalLm = globalThis as unknown as { LanguageModel?: unknown; structuredClone?: unknown };
+    const globalLm = globalThis as unknown as {
+      LanguageModel?: unknown;
+      structuredClone?: unknown;
+    };
     const originalStructuredClone = globalLm.structuredClone;
     globalLm.LanguageModel = countingLanguageModel(counts);
     globalLm.structuredClone = (...args: unknown[]): unknown => {
       counts['structuredClone'] += 1;
       return typeof originalStructuredClone === 'function'
-        ? (originalStructuredClone as (...cloneArgs: unknown[]) => unknown)(...args)
+        ? (originalStructuredClone as (...cloneArgs: unknown[]) => unknown)(
+            ...args,
+          )
         : undefined;
     };
 
-    let result: Awaited<ReturnType<ExtensionPromptService['explain']>> | undefined;
+    let result:
+      Awaited<ReturnType<ExtensionPromptService['explain']>> | undefined;
     try {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({});
@@ -183,20 +213,27 @@ describe('clone measurement artifact (M019 / T006)', () => {
     expect(artifact.observed).toBe(1);
     expect(artifact.samples).toEqual(counts);
     expect(artifact.command).toContain('npx nx run angular-ai-devtools:test');
-    expect(artifact.command).toContain('apps/angular-ai-devtools/src/app/jobs/clone-measurement.spec.ts');
+    expect(artifact.command).toContain(
+      'apps/angular-ai-devtools/src/app/jobs/clone-measurement.spec.ts',
+    );
   });
 
   // E5 / SC3 / N4: the count is evidence because it sits in the committed artifact and re-runs to
   // itself — the spec reads the number out of the file instead of restating it in prose.
   it('E5 the clone measurement is a committed artifact with the observed count, not a number restated in prose', async () => {
     const counts = zeroCounts();
-    const globalLm = globalThis as unknown as { LanguageModel?: unknown; structuredClone?: unknown };
+    const globalLm = globalThis as unknown as {
+      LanguageModel?: unknown;
+      structuredClone?: unknown;
+    };
     const originalStructuredClone = globalLm.structuredClone;
     globalLm.LanguageModel = countingLanguageModel(counts);
     globalLm.structuredClone = (...args: unknown[]): unknown => {
       counts['structuredClone'] += 1;
       return typeof originalStructuredClone === 'function'
-        ? (originalStructuredClone as (...cloneArgs: unknown[]) => unknown)(...args)
+        ? (originalStructuredClone as (...cloneArgs: unknown[]) => unknown)(
+            ...args,
+          )
         : undefined;
     };
 
@@ -236,7 +273,9 @@ describe('clone measurement artifact (M019 / T006)', () => {
     expect(artifact.method).toContain('clone');
     expect(artifact.method.length).toBeGreaterThan(200);
     expect(artifact.command).toContain('npm ci --include=dev');
-    expect(artifact.command).toContain('apps/angular-ai-devtools/src/app/jobs/clone-measurement.spec.ts');
+    expect(artifact.command).toContain(
+      'apps/angular-ai-devtools/src/app/jobs/clone-measurement.spec.ts',
+    );
     expect(artifact.measuredAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(artifact.base).toMatch(/^[0-9a-f]{7,40}$/);
   });

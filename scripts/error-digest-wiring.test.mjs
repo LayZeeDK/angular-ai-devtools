@@ -5,7 +5,13 @@ import { dirname, join } from 'node:path';
 import test from 'node:test';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const projectPath = join(here, '..', 'apps', 'angular-ai-devtools', 'project.json');
+const projectPath = join(
+  here,
+  '..',
+  'apps',
+  'angular-ai-devtools',
+  'project.json',
+);
 
 test('build-extension depends on generate-error-digest', () => {
   const project = JSON.parse(readFileSync(projectPath, 'utf8'));
@@ -18,7 +24,7 @@ test('build-extension depends on generate-error-digest', () => {
       : [];
   assert.ok(
     dependsOn.includes('generate-error-digest'),
-    'build-extension must depend on generate-error-digest'
+    'build-extension must depend on generate-error-digest',
   );
 });
 
@@ -30,7 +36,9 @@ test('generate-error-digest target runs the generator via nx:run-commands', () =
   const command =
     target.options?.command ??
     (Array.isArray(target.options?.commands)
-      ? target.options.commands.map((c) => (typeof c === 'string' ? c : c.command)).join(' ')
+      ? target.options.commands
+          .map((c) => (typeof c === 'string' ? c : c.command))
+          .join(' ')
       : '');
   assert.match(command, /generate-error-digest\.mjs/);
 });

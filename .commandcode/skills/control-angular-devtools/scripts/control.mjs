@@ -3,14 +3,31 @@
 // Angular DevTools control script. Run with --help for commands.
 
 import { spawn, spawnSync } from 'node:child_process';
-import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { createHash } from 'node:crypto';
 import { createServer } from 'node:net';
 import { homedir } from 'node:os';
 import path, { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mapFresh, printable } from './fingerprint.mjs';
-import { describe, matches, merge, processTable, snapshot, stop } from './proctree.mjs';
+import {
+  describe,
+  matches,
+  merge,
+  processTable,
+  snapshot,
+  stop,
+} from './proctree.mjs';
 
 /** @typedef {'chrome' | 'chrome-beta' | 'edge' | 'edge-dev'} BrandedName */
 /** @typedef {'test' | BrandedName} BrowserValue */
@@ -93,7 +110,8 @@ const STORE_URL = `https://chromewebstore.google.com/detail/${EXT_ID}`;
 const SKILL_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = resolve(SKILL_DIR, '..', '..', '..');
 const TMP = join(ROOT, 'tmp', 'control-angular-devtools');
-const LOCAL = process.env['LOCALAPPDATA'] ?? join(homedir(), 'AppData', 'Local');
+const LOCAL =
+  process.env['LOCALAPPDATA'] ?? join(homedir(), 'AppData', 'Local');
 const SYSTEM32 = join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32');
 // Windows reads this from the looking process, not the child's env, when Node looks up a bare program name: set,
 // the current directory is skipped. The processes this script starts inherit it.
@@ -101,14 +119,40 @@ process.env['NoDefaultCurrentDirectoryInExePath'] = '1';
 
 /** @type {Record<BrandedName, Browser>} */
 const BROWSERS = {
-  chrome: { exe: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', userData: join(LOCAL, 'Google', 'Chrome', 'User Data'), scheme: 'chrome' },
-  'chrome-beta': { exe: 'C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe', userData: join(LOCAL, 'Google', 'Chrome Beta', 'User Data'), scheme: 'chrome' },
-  edge: { exe: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe', userData: join(LOCAL, 'Microsoft', 'Edge', 'User Data'), scheme: 'edge' },
-  'edge-dev': { exe: 'C:\\Program Files (x86)\\Microsoft\\Edge Dev\\Application\\msedge.exe', userData: join(LOCAL, 'Microsoft', 'Edge Dev', 'User Data'), scheme: 'edge' },
+  chrome: {
+    exe: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    userData: join(LOCAL, 'Google', 'Chrome', 'User Data'),
+    scheme: 'chrome',
+  },
+  'chrome-beta': {
+    exe: 'C:\\Program Files\\Google\\Chrome Beta\\Application\\chrome.exe',
+    userData: join(LOCAL, 'Google', 'Chrome Beta', 'User Data'),
+    scheme: 'chrome',
+  },
+  edge: {
+    exe: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+    userData: join(LOCAL, 'Microsoft', 'Edge', 'User Data'),
+    scheme: 'edge',
+  },
+  'edge-dev': {
+    exe: 'C:\\Program Files (x86)\\Microsoft\\Edge Dev\\Application\\msedge.exe',
+    userData: join(LOCAL, 'Microsoft', 'Edge Dev', 'User Data'),
+    scheme: 'edge',
+  },
 };
 
 // ---------- args ----------
-const VALUE_FLAGS = ['browser', 'from', 'profile', 'timeout', 'app-url', 'port', 'component', 'click', 'file'];
+const VALUE_FLAGS = [
+  'browser',
+  'from',
+  'profile',
+  'timeout',
+  'app-url',
+  'port',
+  'component',
+  'click',
+  'file',
+];
 const BOOL_FLAGS = ['json', 'di-graph'];
 /** @type {readonly string[]} */
 const BROWSER_VALUES = ['test', 'chrome', 'chrome-beta', 'edge', 'edge-dev'];
@@ -155,22 +199,30 @@ export function parseArgs(argv) {
       opts[name] = true;
     } else if (VALUE_FLAGS.includes(name)) {
       const next = rest[i + 1];
-      const value = inline ?? (next !== undefined && !next.startsWith('--') ? rest[++i] : undefined);
+      const value =
+        inline ??
+        (next !== undefined && !next.startsWith('--') ? rest[++i] : undefined);
 
       if (value === undefined || value === '') {
-        throw new UsageError(`--${name} needs a value (--${name} <value> or --${name}=<value>)`);
+        throw new UsageError(
+          `--${name} needs a value (--${name} <value> or --${name}=<value>)`,
+        );
       }
 
       opts[name] = value;
     } else {
-      throw new UsageError(`unknown flag --${name}; flags: ${[...VALUE_FLAGS, ...BOOL_FLAGS].map((f) => '--' + f).join(', ')}`);
+      throw new UsageError(
+        `unknown flag --${name}; flags: ${[...VALUE_FLAGS, ...BOOL_FLAGS].map((f) => '--' + f).join(', ')}`,
+      );
     }
   }
 
   const browser = opts['browser'];
 
   if (typeof browser === 'string' && !BROWSER_VALUES.includes(browser)) {
-    throw new UsageError(`--browser ${browser} is not one of ${BROWSER_VALUES.join(', ')}`);
+    throw new UsageError(
+      `--browser ${browser} is not one of ${BROWSER_VALUES.join(', ')}`,
+    );
   }
 
   for (const n of ['timeout', 'port']) {
@@ -268,7 +320,9 @@ export function isWorktreeRoot(root) {
  * @returns {string}
  */
 export function flowIdOf(root, worktree) {
-  return worktree ? `wt-${createHash('sha1').update(root.toLowerCase()).digest('hex').slice(0, 6)}` : 'main';
+  return worktree
+    ? `wt-${createHash('sha1').update(root.toLowerCase()).digest('hex').slice(0, 6)}`
+    : 'main';
 }
 
 const MAIN_CDP_PORT = 9420;
@@ -282,7 +336,9 @@ const SLOT_TRIES = 10;
  * @returns {number}
  */
 export function slotOfFlow(flowId) {
-  return flowId === 'main' ? 0 : 1 + (parseInt(flowId.slice(3), 16) % (SLOTS - 1));
+  return flowId === 'main'
+    ? 0
+    : 1 + (parseInt(flowId.slice(3), 16) % (SLOTS - 1));
 }
 
 /**
@@ -292,7 +348,9 @@ export function slotOfFlow(flowId) {
  * @returns {number[]}
  */
 export function slotOrder(first) {
-  return Array.from({ length: SLOT_TRIES }, (_, i) => (first === 0 ? i : 1 + ((first - 1 + i) % (SLOTS - 1))));
+  return Array.from({ length: SLOT_TRIES }, (_, i) =>
+    first === 0 ? i : 1 + ((first - 1 + i) % (SLOTS - 1)),
+  );
 }
 
 /**
@@ -303,7 +361,13 @@ export function slotOrder(first) {
 export function portRows(appUrl) {
   return [
     { name: 'cdp', kind: 'derived', at: (slot) => MAIN_CDP_PORT + slot },
-    { name: 'app', kind: 'external', port: Number(new URL(appUrl).port || 80), owner: 'control-angular-dev-app (or whatever serves --app-url); this skill never starts or stops it' },
+    {
+      name: 'app',
+      kind: 'external',
+      port: Number(new URL(appUrl).port || 80),
+      owner:
+        'control-angular-dev-app (or whatever serves --app-url); this skill never starts or stops it',
+    },
   ];
 }
 
@@ -328,7 +392,9 @@ export function listeners(text) {
     const m = l.trim().split(/\s+/);
 
     if (m[0] === 'TCP' && m[3] === 'LISTENING') {
-      const port = Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1));
+      const port = Number(
+        (m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1),
+      );
       const pid = Number(m[4]);
       const pids = map.get(port) ?? [];
 
@@ -354,7 +420,9 @@ export function listeners(text) {
  */
 export function candidatePorts(rows, order, forced, first = order[0]) {
   const slots = first === undefined ? order : [...order, first];
-  const ports = rows.flatMap((r) => (r.kind === 'derived' ? slots.map((slot) => r.at(slot)) : [r.port]));
+  const ports = rows.flatMap((r) =>
+    r.kind === 'derived' ? slots.map((slot) => r.at(slot)) : [r.port],
+  );
 
   return [...new Set([...ports, ...(forced === undefined ? [] : [forced])])];
 }
@@ -373,7 +441,10 @@ export function candidatePorts(rows, order, forced, first = order[0]) {
  */
 export function planPorts(rows, order, busy, forced, first = order[0]) {
   /** @param {number[]} pids */
-  const heldBy = (pids) => (pids.length === 0 ? 'held by a process the OS did not name' : `held by PID ${pids.join(', ')}`);
+  const heldBy = (pids) =>
+    pids.length === 0
+      ? 'held by a process the OS did not name'
+      : `held by PID ${pids.join(', ')}`;
   /** @param {number} port */
   const holder = (port) => busy.get(port);
 
@@ -381,7 +452,10 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
     const pids = r.kind === 'fixed' ? holder(r.port) : undefined;
 
     if (r.kind === 'fixed' && pids !== undefined) {
-      return { ok: false, reason: `fixed port ${r.name} ${r.port} ${heldBy(pids)}; pinned by ${r.pin}` };
+      return {
+        ok: false,
+        reason: `fixed port ${r.name} ${r.port} ${heldBy(pids)}; pinned by ${r.pin}`,
+      };
     }
   }
 
@@ -389,19 +463,30 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
   const forcedPids = forced === undefined ? undefined : holder(forced);
 
   if (forced !== undefined && forcedPids !== undefined) {
-    return { ok: false, reason: `port ${forced} (--port) is ${heldBy(forcedPids)}; --port has no fallback` };
+    return {
+      ok: false,
+      reason: `port ${forced} (--port) is ${heldBy(forcedPids)}; --port has no fallback`,
+    };
   }
 
   /** @type {(r: PortRow, i: number, slot: number) => number} */
-  const portAt = (r, i, slot) => (r.kind !== 'derived' ? r.port : i === main && forced !== undefined ? forced : r.at(slot));
+  const portAt = (r, i, slot) =>
+    r.kind !== 'derived'
+      ? r.port
+      : i === main && forced !== undefined
+        ? forced
+        : r.at(slot);
   /** @type {string[]} */
   const tried = [];
 
   for (const slot of order) {
     const taken = rows.flatMap((r, i) => {
-      const pids = r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
+      const pids =
+        r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
 
-      return pids === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} ${heldBy(pids)}`];
+      return pids === undefined
+        ? []
+        : [`${r.name} ${portAt(r, i, slot)} ${heldBy(pids)}`];
     });
 
     if (taken.length === 0) {
@@ -423,9 +508,19 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
 
         const from = portAt(r, i, first);
         const pids = holder(from);
-        const why = pids !== undefined ? heldBy(pids) : order[0] === first ? `slot ${first} had ${tried[0]}` : 'taken after the check';
+        const why =
+          pids !== undefined
+            ? heldBy(pids)
+            : order[0] === first
+              ? `slot ${first} had ${tried[0]}`
+              : 'taken after the check';
 
-        return { name: r.name, port, kind: r.kind, reason: `fell back from ${from}: ${why}` };
+        return {
+          name: r.name,
+          port,
+          kind: r.kind,
+          reason: `fell back from ${from}: ${why}`,
+        };
       });
 
       return { ok: true, slot, ports };
@@ -434,7 +529,10 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
     tried.push(...taken);
   }
 
-  return { ok: false, reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}` };
+  return {
+    ok: false,
+    reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}`,
+  };
 }
 
 /**
@@ -460,14 +558,26 @@ export function portsCheck(ports, busy, tree) {
 
     const foreign = pids.filter((pid) => !tree.has(pid));
 
-    return foreign.length === 0 ? [] : [`${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`];
+    return foreign.length === 0
+      ? []
+      : [
+          `${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`,
+        ];
   });
 
   if (problems.length > 0) {
     return { status: 'fail', detail: problems.join('; ') };
   }
 
-  return { status: 'pass', detail: ports.map((p) => `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`).join(', ') };
+  return {
+    status: 'pass',
+    detail: ports
+      .map(
+        (p) =>
+          `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`,
+      )
+      .join(', '),
+  };
 }
 
 /** The loopback addresses this skill's servers are reached on; the bind probe tries each. */
@@ -493,8 +603,16 @@ async function bindAnswer(port, host) {
   return new Promise((resolve) => {
     const server = createServer();
 
-    server.once('error', (error) => resolve(/** @type {NodeJS.ErrnoException} */ (error).code === 'EADDRINUSE' ? 'busy' : 'unknown'));
-    server.listen({ host, port, exclusive: true }, () => server.close(() => resolve('free')));
+    server.once('error', (error) =>
+      resolve(
+        /** @type {NodeJS.ErrnoException} */ (error).code === 'EADDRINUSE'
+          ? 'busy'
+          : 'unknown',
+      ),
+    );
+    server.listen({ host, port, exclusive: true }, () =>
+      server.close(() => resolve('free')),
+    );
   });
 }
 
@@ -531,7 +649,12 @@ export async function probePort(port, hosts = LOOPBACKS) {
  * @returns {Map<number, number[]>}
  */
 function namedHolders() {
-  return listeners(spawnSync(join(SYSTEM32, 'netstat.exe'), ['-ano'], { encoding: 'utf8', windowsHide: true }).stdout);
+  return listeners(
+    spawnSync(join(SYSTEM32, 'netstat.exe'), ['-ano'], {
+      encoding: 'utf8',
+      windowsHide: true,
+    }).stdout,
+  );
 }
 
 /**
@@ -604,7 +727,10 @@ export function liveTree(st, table = processTable) {
  * @param {{ table?: () => ProcRecord[], stop?: (records: ProcRecord[]) => StopResult }} [deps]
  * @returns {{ records: ProcRecord[], result: StopResult }}
  */
-export function stopRun(st, { table = processTable, stop: stopRecords = stop } = {}) {
+export function stopRun(
+  st,
+  { table = processTable, stop: stopRecords = stop } = {},
+) {
   const records = merge(st.tree ?? [], liveTree(st, table));
 
   return { records, result: stopRecords(records) };
@@ -620,25 +746,49 @@ export function stopRun(st, { table = processTable, stop: stopRecords = stop } =
 export function downOutcome(st, result) {
   // A state file written before proctree.mjs records no tree: stopping nothing and removing it would lose the run.
   if (st.tree === undefined) {
-    return { code: 2, notes: [], reason: `refused: the state file records no process tree (written before proctree.mjs); nothing stopped: check PID ${st.pid} by hand, then delete the state file` };
+    return {
+      code: 2,
+      notes: [],
+      reason: `refused: the state file records no process tree (written before proctree.mjs); nothing stopped: check PID ${st.pid} by hand, then delete the state file`,
+    };
   }
 
   const root = rootOf(st);
   /** @type {string[]} */
   const reasons = [];
-  const notes = [...result.stopped.map((r) => `stopped ${describe(r)}`), ...result.gone.map((r) => `${describe(r)} was not running`)];
+  const notes = [
+    ...result.stopped.map((r) => `stopped ${describe(r)}`),
+    ...result.gone.map((r) => `${describe(r)} was not running`),
+  ];
 
   for (const r of result.refused) {
-    if (r.reason === 'reused' && root !== undefined && r.pid === root.pid && r.start === root.start) {
-      reasons.push(`refused: PID ${r.pid} now belongs to another process (its start time or command line differs from the state file); not stopping a process this skill did not start`);
+    if (
+      r.reason === 'reused' &&
+      root !== undefined &&
+      r.pid === root.pid &&
+      r.start === root.start
+    ) {
+      reasons.push(
+        `refused: PID ${r.pid} now belongs to another process (its start time or command line differs from the state file); not stopping a process this skill did not start`,
+      );
     } else if (r.reason === 'survived') {
-      reasons.push(`${describe(r)} still runs after the last round; run down again`);
+      reasons.push(
+        `${describe(r)} still runs after the last round; run down again`,
+      );
     } else {
-      notes.push(`left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`);
+      notes.push(
+        `left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`,
+      );
     }
   }
 
-  return reasons.length === 0 ? { code: 0, notes, reason: null } : { code: 2, notes, reason: `${reasons.join('; ')}; the state file is kept` };
+  return reasons.length === 0
+    ? { code: 0, notes, reason: null }
+    : {
+        code: 2,
+        notes,
+        reason: `${reasons.join('; ')}; the state file is kept`,
+      };
 }
 
 /**
@@ -656,7 +806,9 @@ function anyAlive(records) {
 
 /** @returns {State | null} */
 function readState() {
-  return existsSync(STATE) ? /** @type {State} */ (JSON.parse(readFileSync(STATE, 'utf8'))) : null;
+  return existsSync(STATE)
+    ? /** @type {State} */ (JSON.parse(readFileSync(STATE, 'utf8')))
+    : null;
 }
 
 /** @returns {State} */
@@ -680,7 +832,9 @@ function requireState() {
 export function identityProblem(st, live) {
   const root = rootOf(st);
 
-  return root !== undefined && matches(root, live) ? null : `PID ${st.pid} is not the process this run started (${root === undefined ? 'no record of it' : 'start time or command line differ'}); not the browser this run started`;
+  return root !== undefined && matches(root, live)
+    ? null
+    : `PID ${st.pid} is not the process this run started (${root === undefined ? 'no record of it' : 'start time or command line differ'}); not the browser this run started`;
 }
 
 /**
@@ -748,7 +902,10 @@ export function deleteProblem(st, expected) {
     return `state profile ${st.profile} is not this flow's profile ${expected.profile}; not deleting it`;
   }
 
-  if (st.configPath !== undefined && resolve(st.configPath) !== resolve(expected.configPath)) {
+  if (
+    st.configPath !== undefined &&
+    resolve(st.configPath) !== resolve(expected.configPath)
+  ) {
     return `state configPath ${st.configPath} is not this flow's config ${expected.configPath}; not deleting it`;
   }
 
@@ -772,8 +929,14 @@ export function isExtensionVersion(version) {
  * @returns {string | null}
  */
 export function findPlaywrightCli(pathEnv) {
-  const shimDir = pathEnv.split(path.delimiter).find((d) => path.isAbsolute(d) && existsSync(join(d, 'playwright-cli.cmd')));
-  const js = shimDir && join(shimDir, 'node_modules', '@playwright', 'cli', 'playwright-cli.js');
+  const shimDir = pathEnv
+    .split(path.delimiter)
+    .find(
+      (d) => path.isAbsolute(d) && existsSync(join(d, 'playwright-cli.cmd')),
+    );
+  const js =
+    shimDir &&
+    join(shimDir, 'node_modules', '@playwright', 'cli', 'playwright-cli.js');
 
   return js && existsSync(js) ? js : null;
 }
@@ -792,7 +955,11 @@ function pw(args, { raw = false } = {}) {
   }
 
   const full = [...(raw ? ['--raw'] : []), `-s=${SESSION}`, ...args];
-  const r = spawnSync(process.execPath, [js, ...full], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  const r = spawnSync(process.execPath, [js, ...full], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+  });
 
   return { code: r.status, out: (r.stdout ?? '') + (r.stderr ?? '') };
 }
@@ -835,7 +1002,9 @@ function runCode(src, dir = join(TMP, 'run')) {
  * @returns {Promise<CdpTarget[]>}
  */
 async function targets(port) {
-  return /** @type {CdpTarget[]} */ (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json());
+  return /** @type {CdpTarget[]} */ (
+    await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()
+  );
 }
 
 /**
@@ -850,7 +1019,9 @@ async function cdp(port, match, method, params = {}) {
   const t = list.find(match);
 
   if (!t) {
-    throw new Error(`no CDP target matched; targets: ${list.map((x) => `${x.type} ${x.url.slice(0, 80)}`).join(' ; ')}`);
+    throw new Error(
+      `no CDP target matched; targets: ${list.map((x) => `${x.type} ${x.url.slice(0, 80)}`).join(' ; ')}`,
+    );
   }
 
   const ws = new WebSocket(t.webSocketDebuggerUrl);
@@ -882,7 +1053,9 @@ async function cdp(port, match, method, params = {}) {
  */
 export function evaluated(r) {
   if (r.result?.exceptionDetails) {
-    throw new Error(`evaluate threw: ${r.result.exceptionDetails.exception?.description ?? r.result.exceptionDetails.text}`);
+    throw new Error(
+      `evaluate threw: ${r.result.exceptionDetails.exception?.description ?? r.result.exceptionDetails.text}`,
+    );
   }
 
   return r.result?.result?.value;
@@ -895,30 +1068,66 @@ export function evaluated(r) {
  * @returns {Promise<unknown>}
  */
 async function evalIn(port, match, fnSource) {
-  return evaluated(await cdp(port, match, 'Runtime.evaluate', { expression: `(${fnSource})()`, awaitPromise: true, returnByValue: true }));
+  return evaluated(
+    await cdp(port, match, 'Runtime.evaluate', {
+      expression: `(${fnSource})()`,
+      awaitPromise: true,
+      returnByValue: true,
+    }),
+  );
 }
 
 /** @param {CdpTarget} t */
-export const isDevtools = (t) => t.url.startsWith('devtools://devtools/bundled/devtools_app.html');
+export const isDevtools = (t) =>
+  t.url.startsWith('devtools://devtools/bundled/devtools_app.html');
 /** @param {CdpTarget} t */
-export const isPanel = (t) => t.url === `chrome-extension://${EXT_ID}/index.html`;
+export const isPanel = (t) =>
+  t.url === `chrome-extension://${EXT_ID}/index.html`;
 
 /** @param {number} port */
 async function showPanel(port) {
-  const ok = await waitFor(async () => (await targets(port)).some(isDevtools), 15000);
+  const ok = await waitFor(
+    async () => (await targets(port)).some(isDevtools),
+    15000,
+  );
 
   if (!ok) {
-    throw new Error('no DevTools window target; was the browser started by "up" (it opens DevTools for each tab)?');
+    throw new Error(
+      'no DevTools window target; was the browser started by "up" (it opens DevTools for each tab)?',
+    );
   }
 
-  const registered = await waitFor(() => evalIn(port, isDevtools, `async () => Object.keys(UI.panels).includes(${JSON.stringify(PANEL_ID)})`), 15000);
+  const registered = await waitFor(
+    () =>
+      evalIn(
+        port,
+        isDevtools,
+        `async () => Object.keys(UI.panels).includes(${JSON.stringify(PANEL_ID)})`,
+      ),
+    15000,
+  );
 
   if (!registered) {
-    throw new Error(`DevTools has no panel ${PANEL_ID}; the extension did not register its panel`);
+    throw new Error(
+      `DevTools has no panel ${PANEL_ID}; the extension did not register its panel`,
+    );
   }
 
-  await evalIn(port, isDevtools, `async () => Extensions.extensionServer.onShowPanel({ command: 'showPanel', id: ${JSON.stringify(PANEL_ID)} })`);
-  const ready = await waitFor(async () => (await targets(port)).some(isPanel) && evalIn(port, isPanel, `async () => document.body.innerText.includes('Components')`), 15000);
+  await evalIn(
+    port,
+    isDevtools,
+    `async () => Extensions.extensionServer.onShowPanel({ command: 'showPanel', id: ${JSON.stringify(PANEL_ID)} })`,
+  );
+  const ready = await waitFor(
+    async () =>
+      (await targets(port)).some(isPanel) &&
+      evalIn(
+        port,
+        isPanel,
+        `async () => document.body.innerText.includes('Components')`,
+      ),
+    15000,
+  );
 
   if (!ready) {
     throw new Error('Angular panel target index.html did not render its tabs');
@@ -928,7 +1137,8 @@ async function showPanel(port) {
 // Functions evaluated inside the panel (chrome-extension://<id>/index.html).
 const PANEL = {
   /** @param {string} name */
-  tab: (name) => `async () => { const t = [...document.querySelectorAll('a,button,[role=tab]')].find((b) => b.textContent.trim() === ${JSON.stringify(name)}); if (!t) return false; t.click(); return true; }`,
+  tab: (name) =>
+    `async () => { const t = [...document.querySelectorAll('a,button,[role=tab]')].find((b) => b.textContent.trim() === ${JSON.stringify(name)}); if (!t) return false; t.click(); return true; }`,
   /** @param {string} name */
   selectComponent: (name) => `async () => {
     const leaf = [...document.querySelectorAll('*')].find((e) => e.children.length === 0 && e.textContent.trim() === ${JSON.stringify(name)} && e.closest('.node-name'));
@@ -948,7 +1158,9 @@ const PANEL = {
  * @returns {Promise<SignalNode[]>}
  */
 async function readSignalGraph(port) {
-  return /** @type {SignalNode[]} */ (await evalIn(port, isPanel, PANEL.readSignalGraph));
+  return /** @type {SignalNode[]} */ (
+    await evalIn(port, isPanel, PANEL.readSignalGraph)
+  );
 }
 
 /**
@@ -959,12 +1171,23 @@ async function readSignalGraph(port) {
 async function panelSignalGraph(port, component) {
   await evalIn(port, isPanel, PANEL.tab('Components'));
 
-  if (!(await waitFor(() => evalIn(port, isPanel, PANEL.selectComponent(component)), 10000))) {
-    throw new Error(`component ${component} not found in the panel's component tree`);
+  if (
+    !(await waitFor(
+      () => evalIn(port, isPanel, PANEL.selectComponent(component)),
+      10000,
+    ))
+  ) {
+    throw new Error(
+      `component ${component} not found in the panel's component tree`,
+    );
   }
 
-  if (!(await waitFor(() => evalIn(port, isPanel, PANEL.showSignalGraph), 10000))) {
-    throw new Error('no "Show Signal Graph" button after selecting the component');
+  if (
+    !(await waitFor(() => evalIn(port, isPanel, PANEL.showSignalGraph), 10000))
+  ) {
+    throw new Error(
+      'no "Show Signal Graph" button after selecting the component',
+    );
   }
 
   return waitFor(async () => {
@@ -984,7 +1207,9 @@ async function screenshotTarget(port, match, file) {
   const r = await cdp(port, match, 'Page.captureScreenshot', { format: 'png' });
 
   if (!r.result?.data) {
-    throw new Error(`screenshot failed: ${JSON.stringify(r.error ?? r).slice(0, 200)}`);
+    throw new Error(
+      `screenshot failed: ${JSON.stringify(r.error ?? r).slice(0, 200)}`,
+    );
   }
 
   writeFileSync(file, Buffer.from(r.result.data, 'base64'));
@@ -1049,7 +1274,9 @@ const EXT_INFO = `async (page) => {
  */
 export function brandedStatusIn(name, b, profile = 'Default') {
   const dir = join(b.userData, profile, 'Extensions', EXT_ID);
-  const versions = existsSync(dir) ? readdirSync(dir).filter((v) => /^\d/.test(v)) : [];
+  const versions = existsSync(dir)
+    ? readdirSync(dir).filter((v) => /^\d/.test(v))
+    : [];
   /** @type {ExtSettings | null} */
   let settings = null;
 
@@ -1057,19 +1284,42 @@ export function brandedStatusIn(name, b, profile = 'Default') {
     const p = join(b.userData, profile, f);
 
     if (!settings && existsSync(p)) {
-      const prefs = /** @type {{ extensions?: { settings?: Record<string, PrefEntry> } }} */ (JSON.parse(readFileSync(p, 'utf8')));
+      const prefs =
+        /** @type {{ extensions?: { settings?: Record<string, PrefEntry> } }} */ (
+          JSON.parse(readFileSync(p, 'utf8'))
+        );
       const s = prefs.extensions?.settings?.[EXT_ID];
 
       if (s) {
-        settings = { file: f, version: s.manifest?.version ?? null, disableReasons: s.disable_reasons ?? [], state: s.state ?? null, fromWebstore: s.from_webstore ?? null, path: s.path ?? null };
+        settings = {
+          file: f,
+          version: s.manifest?.version ?? null,
+          disableReasons: s.disable_reasons ?? [],
+          state: s.state ?? null,
+          fromWebstore: s.from_webstore ?? null,
+          path: s.path ?? null,
+        };
       }
     }
   }
 
   const installed = settings !== null && versions.length > 0;
-  const enabled = installed && settings !== null && settings.disableReasons.length === 0 && settings.state !== 0;
+  const enabled =
+    installed &&
+    settings !== null &&
+    settings.disableReasons.length === 0 &&
+    settings.state !== 0;
 
-  return { browser: name, profile, extensionsDir: dir, versionsOnDisk: versions, settings, installed, enabled, extensionsPage: `${b.scheme}://extensions/?id=${EXT_ID}` };
+  return {
+    browser: name,
+    profile,
+    extensionsDir: dir,
+    versionsOnDisk: versions,
+    settings,
+    installed,
+    enabled,
+    extensionsPage: `${b.scheme}://extensions/?id=${EXT_ID}`,
+  };
 }
 
 /**
@@ -1087,7 +1337,10 @@ function brandedStatus(name, profile) {
  * @param {string} [profile]
  */
 function openInBrowser(name, url, profile = 'Default') {
-  spawn(BROWSERS[name].exe, [`--profile-directory=${profile}`, url], { detached: true, stdio: 'ignore' }).unref();
+  spawn(BROWSERS[name].exe, [`--profile-directory=${profile}`, url], {
+    detached: true,
+    stdio: 'ignore',
+  }).unref();
 }
 
 // ---------- commands ----------
@@ -1098,7 +1351,10 @@ function openInBrowser(name, url, profile = 'Default') {
  * @returns {string | undefined}
  */
 export function newestVersion(dir) {
-  return readdirSync(dir).filter((d) => existsSync(join(dir, d, 'manifest.json'))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).pop();
+  return readdirSync(dir)
+    .filter((d) => existsSync(join(dir, d, 'manifest.json')))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+    .pop();
 }
 
 /** @returns {{ version: string, dir: string } | null} */
@@ -1120,41 +1376,69 @@ async function cmdInstall() {
     const before = brandedStatus(browser, opts.profile);
 
     if (before.installed) {
-      log('OK', `${browser}: Angular DevTools ${before.settings?.version} already installed (enabled: ${before.enabled})`);
+      log(
+        'OK',
+        `${browser}: Angular DevTools ${before.settings?.version} already installed (enabled: ${before.enabled})`,
+      );
 
       return { ok: true, already: true, status: before };
     }
 
     openInBrowser(browser, STORE_URL, opts.profile);
-    log('INFO', `opened ${STORE_URL} in ${browser}. Lars clicks "Add to ${browser.startsWith('edge') ? 'Edge' : 'Chrome'}"${browser.startsWith('edge') ? ' (after "Allow extensions from other stores" if Edge asks)' : ''} and confirms "Add extension"; polling the profile for ${opts.timeout ?? 180} s`);
-    const after = await waitFor(() => {
-      const s = brandedStatus(browser, opts.profile);
+    log(
+      'INFO',
+      `opened ${STORE_URL} in ${browser}. Lars clicks "Add to ${browser.startsWith('edge') ? 'Edge' : 'Chrome'}"${browser.startsWith('edge') ? ' (after "Allow extensions from other stores" if Edge asks)' : ''} and confirms "Add extension"; polling the profile for ${opts.timeout ?? 180} s`,
+    );
+    const after = await waitFor(
+      () => {
+        const s = brandedStatus(browser, opts.profile);
 
-      return s.installed ? s : null;
-    }, Number(opts.timeout ?? 180) * 1000, 2000);
+        return s.installed ? s : null;
+      },
+      Number(opts.timeout ?? 180) * 1000,
+      2000,
+    );
 
     if (!after) {
-      throw new Unhealthy(`${browser}: not installed after ${opts.timeout ?? 180} s; profile has no ${EXT_ID} entry`);
+      throw new Unhealthy(
+        `${browser}: not installed after ${opts.timeout ?? 180} s; profile has no ${EXT_ID} entry`,
+      );
     }
 
-    log('OK', `${browser}: installed ${after.settings?.version ?? after.versionsOnDisk.at(-1)?.replace(/_\d+$/, '')}, enabled ${after.enabled}`);
+    log(
+      'OK',
+      `${browser}: installed ${after.settings?.version ?? after.versionsOnDisk.at(-1)?.replace(/_\d+$/, '')}, enabled ${after.enabled}`,
+    );
 
     return { ok: true, status: after };
   }
 
   const from = opts.from ?? 'edge-dev';
-  const srcRoot = isBranded(from) ? join(BROWSERS[from].userData, opts.profile ?? 'Default', 'Extensions', EXT_ID) : resolve(from);
+  const srcRoot = isBranded(from)
+    ? join(
+        BROWSERS[from].userData,
+        opts.profile ?? 'Default',
+        'Extensions',
+        EXT_ID,
+      )
+    : resolve(from);
 
   if (!existsSync(srcRoot)) {
-    refuse(`no Angular DevTools in ${srcRoot}; install it in ${from} first or pass --from <dir>`);
+    refuse(
+      `no Angular DevTools in ${srcRoot}; install it in ${from} first or pass --from <dir>`,
+    );
   }
 
   const srcVersion = newestVersion(srcRoot);
   const src = srcVersion ? join(srcRoot, srcVersion) : srcRoot;
-  const version = /** @type {{ version?: unknown }} */ (JSON.parse(readFileSync(join(src, 'manifest.json'), 'utf8'))).version;
+  const version = /** @type {{ version?: unknown }} */ (
+    JSON.parse(readFileSync(join(src, 'manifest.json'), 'utf8'))
+  ).version;
 
   if (!isExtensionVersion(version)) {
-    return refuse(`manifest version ${JSON.stringify(version)} in ${src} is not digits and dots`);
+    return refuse(
+      `manifest version ${JSON.stringify(version)} in ${src} is not digits and dots`,
+    );
   }
 
   const dest = join(EXT_COPY, version);
@@ -1167,7 +1451,10 @@ async function cmdInstall() {
 
   mkdirSync(EXT_COPY, { recursive: true });
   cpSync(src, dest, { recursive: true });
-  log('OK', `copied Angular DevTools ${version} from ${src} (read only) to ${dest}`);
+  log(
+    'OK',
+    `copied Angular DevTools ${version} from ${src} (read only) to ${dest}`,
+  );
 
   return { ok: true, version, dir: dest, source: src };
 }
@@ -1186,18 +1473,30 @@ async function cmdUninstall() {
     }
 
     openInBrowser(browser, STORE_URL, opts.profile);
-    log('INFO', `opened ${STORE_URL} in ${browser} (a browser will not open ${before.extensionsPage} from the command line). Lars clicks "Remove from ${browser.startsWith('edge') ? 'Edge' : 'Chrome'}" there, or opens ${before.extensionsPage} himself and clicks Remove; polling the profile for ${opts.timeout ?? 180} s`);
-    const after = await waitFor(() => {
-      const s = brandedStatus(browser, opts.profile);
+    log(
+      'INFO',
+      `opened ${STORE_URL} in ${browser} (a browser will not open ${before.extensionsPage} from the command line). Lars clicks "Remove from ${browser.startsWith('edge') ? 'Edge' : 'Chrome'}" there, or opens ${before.extensionsPage} himself and clicks Remove; polling the profile for ${opts.timeout ?? 180} s`,
+    );
+    const after = await waitFor(
+      () => {
+        const s = brandedStatus(browser, opts.profile);
 
-      return s.settings ? null : s;
-    }, Number(opts.timeout ?? 180) * 1000, 2000);
+        return s.settings ? null : s;
+      },
+      Number(opts.timeout ?? 180) * 1000,
+      2000,
+    );
 
     if (!after) {
-      throw new Unhealthy(`${browser}: still registered in the profile after ${opts.timeout ?? 180} s`);
+      throw new Unhealthy(
+        `${browser}: still registered in the profile after ${opts.timeout ?? 180} s`,
+      );
     }
 
-    log('OK', `${browser}: removed (folder versions left on disk: ${after.versionsOnDisk.join(', ') || 'none'})`);
+    log(
+      'OK',
+      `${browser}: removed (folder versions left on disk: ${after.versionsOnDisk.join(', ') || 'none'})`,
+    );
 
     return { ok: true, status: after };
   }
@@ -1220,13 +1519,19 @@ async function cmdStatus() {
   if (browser === 'test') {
     const copy = newestCopy();
     const st = readState();
-    log(copy ? 'OK' : 'INFO', `test: copy ${copy ? `${copy.version} at ${copy.dir}` : 'none (run install)'}; up ${!!st}`);
+    log(
+      copy ? 'OK' : 'INFO',
+      `test: copy ${copy ? `${copy.version} at ${copy.dir}` : 'none (run install)'}; up ${!!st}`,
+    );
 
     return { ok: !!copy, browser, copy, up: !!st };
   }
 
   const s = brandedStatus(browser, opts.profile);
-  log(s.installed ? 'OK' : 'INFO', `${browser}/${s.profile}: installed ${s.installed}${s.installed ? `, version ${s.settings?.version}, enabled ${s.enabled}, disable_reasons ${JSON.stringify(s.settings?.disableReasons)}` : ''}`);
+  log(
+    s.installed ? 'OK' : 'INFO',
+    `${browser}/${s.profile}: installed ${s.installed}${s.installed ? `, version ${s.settings?.version}, enabled ${s.enabled}, disable_reasons ${JSON.stringify(s.settings?.disableReasons)}` : ''}`,
+  );
 
   return { ok: true, ...s };
 }
@@ -1237,7 +1542,11 @@ async function cmdStatus() {
  * @returns {string}
  */
 export function evidenceStamp(date) {
-  return date.toISOString().replace(/[-:]/g, '').replace(/\..*/, '').replace('T', '-');
+  return date
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\..*/, '')
+    .replace('T', '-');
 }
 
 /** @returns {Promise<Result>} */
@@ -1274,7 +1583,9 @@ async function cmdUp() {
   try {
     rows = portRows(appUrl);
   } catch (e) {
-    return refuse(`--app-url ${appUrl}: ${e instanceof Error ? e.message : String(e)}`);
+    return refuse(
+      `--app-url ${appUrl}: ${e instanceof Error ? e.message : String(e)}`,
+    );
   }
 
   let order = slotOrder(slotOfFlow(flowId));
@@ -1285,13 +1596,21 @@ async function cmdUp() {
   const t0 = Date.now();
 
   for (;;) {
-    const plan = planPorts(rows, order, await busyPorts(candidatePorts(rows, order, forced, first)), forced, first);
+    const plan = planPorts(
+      rows,
+      order,
+      await busyPorts(candidatePorts(rows, order, forced, first)),
+      forced,
+      first,
+    );
 
     if (!plan.ok) {
       return refuse(plan.reason);
     }
 
-    const port = /** @type {PortEntry} */ (plan.ports.find((p) => p.name === 'cdp')).port;
+    const port = /** @type {PortEntry} */ (
+      plan.ports.find((p) => p.name === 'cdp')
+    ).port;
     mkdirSync(evidenceDir, { recursive: true });
     const config = {
       browser: {
@@ -1300,7 +1619,12 @@ async function cmdUp() {
         launchOptions: {
           channel: 'chromium',
           headless: false,
-          args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`, '--auto-open-devtools-for-tabs', `--remote-debugging-port=${port}`],
+          args: [
+            `--disable-extensions-except=${ext}`,
+            `--load-extension=${ext}`,
+            '--auto-open-devtools-for-tabs',
+            `--remote-debugging-port=${port}`,
+          ],
         },
       },
     };
@@ -1312,22 +1636,45 @@ async function cmdUp() {
     const pid = Number(r.out.match(/opened with pid (\d+)/)?.[1]);
 
     if (r.code !== 0 || !pid) {
-      throw new Error(`playwright-cli open failed (${r.code}): ${r.out.slice(0, 600)}`);
+      throw new Error(
+        `playwright-cli open failed (${r.code}): ${r.out.slice(0, 600)}`,
+      );
     }
 
     // The session process starts while `open` runs, so it started inside that window.
     const opened = snapshot(pid, { notBefore, notAfter });
 
     if (opened.length === 0) {
-      throw new Error(`playwright-cli PID ${pid} is not running, or did not start while open ran`);
+      throw new Error(
+        `playwright-cli PID ${pid} is not running, or did not start while open ran`,
+      );
     }
 
     /** @type {State} */
-    const st = { flowId, session: SESSION, pid, tree: opened, cdpPort: port, slot: plan.slot, ports: plan.ports, appUrl, extensionVersion: copy.version, extensionDir: copy.dir, profile: PROFILE, configPath, evidenceDir, startedAt: new Date().toISOString() };
+    const st = {
+      flowId,
+      session: SESSION,
+      pid,
+      tree: opened,
+      cdpPort: port,
+      slot: plan.slot,
+      ports: plan.ports,
+      appUrl,
+      extensionVersion: copy.version,
+      extensionDir: copy.dir,
+      profile: PROFILE,
+      configPath,
+      evidenceDir,
+      startedAt: new Date().toISOString(),
+    };
     writeFileSync(STATE, JSON.stringify(st, null, 2));
     const ready = await waitFor(async () => {
       try {
-        return (await targets(port)).some((t) => t.type === 'service_worker' && t.url.startsWith(`chrome-extension://${EXT_ID}/`));
+        return (await targets(port)).some(
+          (t) =>
+            t.type === 'service_worker' &&
+            t.url.startsWith(`chrome-extension://${EXT_ID}/`),
+        );
       } catch {
         return false;
       }
@@ -1348,13 +1695,18 @@ async function cmdUp() {
       st.readyInSeconds = Math.round((Date.now() - t0) / 100) / 10;
       st.browserPid = holders[0] ?? null;
       writeFileSync(STATE, JSON.stringify(st, null, 2));
-      log('OK', `session ${SESSION} (playwright-cli PID ${pid}), browser PID ${st.browserPid ?? 'not named by the OS'}, CDP ${port}${plan.slot === first ? '' : ` (fell back to slot ${plan.slot})`}, Angular DevTools ${copy.version}, ready in ${st.readyInSeconds} s`);
+      log(
+        'OK',
+        `session ${SESSION} (playwright-cli PID ${pid}), browser PID ${st.browserPid ?? 'not named by the OS'}, CDP ${port}${plan.slot === first ? '' : ` (fell back to slot ${plan.slot})`}, Angular DevTools ${copy.version}, ready in ${st.readyInSeconds} s`,
+      );
 
       return { ok: true, ...st };
     }
 
     if (holder === null) {
-      throw new Unhealthy(`browser PID ${pid} up but no Angular DevTools service worker of its own on CDP port ${port}; run doctor`);
+      throw new Unhealthy(
+        `browser PID ${pid} up but no Angular DevTools service worker of its own on CDP port ${port}; run doctor`,
+      );
     }
 
     pw(['close']);
@@ -1366,19 +1718,25 @@ async function cmdUp() {
     if (stopped.code !== 0) {
       st.tree = records;
       writeFileSync(STATE, JSON.stringify(st, null, 2));
-      throw new Error(`CDP port ${port} was taken by PID ${holder} after the check, and stopping this attempt failed: ${stopped.reason}; run down`);
+      throw new Error(
+        `CDP port ${port} was taken by PID ${holder} after the check, and stopping this attempt failed: ${stopped.reason}; run down`,
+      );
     }
 
     rmSync(STATE, { force: true });
 
     if (forced !== undefined) {
-      refuse(`port ${port} (--port) was taken by PID ${holder} after the check; --port has no fallback`);
+      refuse(
+        `port ${port} (--port) was taken by PID ${holder} after the check; --port has no fallback`,
+      );
     }
 
     order = order.slice(order.indexOf(plan.slot) + 1);
 
     if (order.length === 0) {
-      refuse(`CDP port ${port} was taken by PID ${holder} after the check, and none of the ${SLOT_TRIES} slots is left`);
+      refuse(
+        `CDP port ${port} was taken by PID ${holder} after the check, and none of the ${SLOT_TRIES} slots is left`,
+      );
     }
   }
 }
@@ -1393,7 +1751,10 @@ async function cmdUp() {
 export function checkOf(name, result, detail) {
   const ok = result !== false;
   /** @type {Check} */
-  const check = typeof result === 'string' ? { name, ok, detail, status: result } : { name, ok, detail };
+  const check =
+    typeof result === 'string'
+      ? { name, ok, detail, status: result }
+      : { name, ok, detail };
 
   return { check, marker: result === 'warn' ? 'WARN' : ok ? 'OK' : 'ERROR' };
 }
@@ -1412,7 +1773,13 @@ async function cmdDoctor() {
   const fresh = mapFresh(SKILL_DIR);
   add('map-fresh', fresh.status, fresh.detail);
   const live = checkIdentity(st);
-  add('process', !!live, live ? `PID ${st.pid} alive, start time and command line match` : `PID ${st.pid} not running`);
+  add(
+    'process',
+    !!live,
+    live
+      ? `PID ${st.pid} alive, start time and command line match`
+      : `PID ${st.pid} not running`,
+  );
 
   if (!live) {
     return { ok: false, checks };
@@ -1422,7 +1789,10 @@ async function cmdDoctor() {
   const recorded = merge(st.tree ?? [], tree);
 
   // Written only while the state file is there and the record changed: a down that just removed it stays done.
-  if (existsSync(STATE) && JSON.stringify(recorded) !== JSON.stringify(st.tree ?? [])) {
+  if (
+    existsSync(STATE) &&
+    JSON.stringify(recorded) !== JSON.stringify(st.tree ?? [])
+  ) {
     st.tree = recorded;
     writeFileSync(STATE, JSON.stringify(st, null, 2));
   }
@@ -1433,20 +1803,58 @@ async function cmdDoctor() {
   let version = null;
 
   try {
-    version = /** @type {{ Browser?: string }} */ (await (await fetch(`http://127.0.0.1:${st.cdpPort}/json/version`)).json());
+    version = /** @type {{ Browser?: string }} */ (
+      await (await fetch(`http://127.0.0.1:${st.cdpPort}/json/version`)).json()
+    );
   } catch {}
 
   // The CDP port is held by the recorded Chromium (a child of the playwright-cli session process), and answers.
-  const recordedPorts = st.ports ?? [{ name: 'cdp', port: st.cdpPort, kind: 'derived' }];
-  const ports = portsCheck(recordedPorts, await busyPorts(recordedPorts.map((p) => p.port)), new Set(tree.map((r) => r.pid)));
-  add('ports', ports.status === 'pass' && !!version, `${ports.detail}; ${version ? `CDP answers (${version.Browser}), recorded browser PID ${st.browserPid}` : `CDP ${st.cdpPort} /json/version does not answer`}`);
-  const ext = /** @type {{ serviceWorkers: string[], info: { name: string, version: string, state: string, location: string, path: string, runtimeErrors: number, manifestErrors: number } | null }} */ (runCode(EXT_INFO));
-  add('extension', ext.info?.state === 'ENABLED' && ext.serviceWorkers.length > 0, ext.info ? `${ext.info.name} ${ext.info.version} ${ext.info.state} (${ext.info.location}, ${ext.info.path}); service worker ${ext.serviceWorkers.length ? 'running' : 'absent'}; errors ${ext.info.runtimeErrors}/${ext.info.manifestErrors}` : 'not registered');
-  const page = /** @type {{ url: string, ngVersion: string | null, devBuild: boolean, flag: boolean }} */ (runCode(`async (page) => ({ url: page.url(), ngVersion: await page.evaluate(() => document.querySelector('[ng-version]')?.getAttribute('ng-version') ?? null), devBuild: await page.evaluate(() => typeof window.ng === 'object' && typeof window.ng.getComponent === 'function'), flag: await page.evaluate(() => window.__NG_DEVTOOLS_CONNECTED__ === true) })`));
-  add('app', !!page.ngVersion && page.devBuild, `${page.url}: ng-version ${page.ngVersion}, window.ng ${page.devBuild ? 'present (development build)' : 'absent (production build or not Angular)'}`);
-  add('connected-flag', page.flag, `window.__NG_DEVTOOLS_CONNECTED__ ${page.flag}`);
+  const recordedPorts = st.ports ?? [
+    { name: 'cdp', port: st.cdpPort, kind: 'derived' },
+  ];
+  const ports = portsCheck(
+    recordedPorts,
+    await busyPorts(recordedPorts.map((p) => p.port)),
+    new Set(tree.map((r) => r.pid)),
+  );
+  add(
+    'ports',
+    ports.status === 'pass' && !!version,
+    `${ports.detail}; ${version ? `CDP answers (${version.Browser}), recorded browser PID ${st.browserPid}` : `CDP ${st.cdpPort} /json/version does not answer`}`,
+  );
+  const ext =
+    /** @type {{ serviceWorkers: string[], info: { name: string, version: string, state: string, location: string, path: string, runtimeErrors: number, manifestErrors: number } | null }} */ (
+      runCode(EXT_INFO)
+    );
+  add(
+    'extension',
+    ext.info?.state === 'ENABLED' && ext.serviceWorkers.length > 0,
+    ext.info
+      ? `${ext.info.name} ${ext.info.version} ${ext.info.state} (${ext.info.location}, ${ext.info.path}); service worker ${ext.serviceWorkers.length ? 'running' : 'absent'}; errors ${ext.info.runtimeErrors}/${ext.info.manifestErrors}`
+      : 'not registered',
+  );
+  const page =
+    /** @type {{ url: string, ngVersion: string | null, devBuild: boolean, flag: boolean }} */ (
+      runCode(
+        `async (page) => ({ url: page.url(), ngVersion: await page.evaluate(() => document.querySelector('[ng-version]')?.getAttribute('ng-version') ?? null), devBuild: await page.evaluate(() => typeof window.ng === 'object' && typeof window.ng.getComponent === 'function'), flag: await page.evaluate(() => window.__NG_DEVTOOLS_CONNECTED__ === true) })`,
+      )
+    );
+  add(
+    'app',
+    !!page.ngVersion && page.devBuild,
+    `${page.url}: ng-version ${page.ngVersion}, window.ng ${page.devBuild ? 'present (development build)' : 'absent (production build or not Angular)'}`,
+  );
+  add(
+    'connected-flag',
+    page.flag,
+    `window.__NG_DEVTOOLS_CONNECTED__ ${page.flag}`,
+  );
   const devtools = (await targets(st.cdpPort)).some(isDevtools);
-  add('devtools-window', devtools, devtools ? 'DevTools window target present' : 'no devtools:// target');
+  add(
+    'devtools-window',
+    devtools,
+    devtools ? 'DevTools window target present' : 'no devtools:// target',
+  );
 
   return { ok: checks.every((c) => c.ok), checks };
 }
@@ -1459,7 +1867,13 @@ async function cmdDoctor() {
 export function attachOk(r) {
   const d = r.detection ?? {};
 
-  return !!(r.flag && d.isAngular && d.isDebugMode && r.backendInstalled && r.backendReady);
+  return !!(
+    r.flag &&
+    d.isAngular &&
+    d.isDebugMode &&
+    r.backendInstalled &&
+    r.backendReady
+  );
 }
 
 /** @returns {Promise<Result>} */
@@ -1467,7 +1881,10 @@ async function cmdAttach() {
   requireState();
   const r = /** @type {AttachFacts} */ (runCode(ATTACH_PROBE));
   const ok = attachOk(r);
-  log(ok ? 'OK' : 'ERROR', `flag ${r.flag} (set at ${r.flagSetAt} ms); detection ${JSON.stringify(r.detection ?? {})}; backendInstalled ${r.backendInstalled}; backendReady at ${r.backendReady} ms; Angular ${r.ngVersion}`);
+  log(
+    ok ? 'OK' : 'ERROR',
+    `flag ${r.flag} (set at ${r.flagSetAt} ms); detection ${JSON.stringify(r.detection ?? {})}; backendInstalled ${r.backendInstalled}; backendReady at ${r.backendReady} ms; Angular ${r.ngVersion}`,
+  );
 
   if (!ok) {
     throw new Unhealthy(`not attached: ${JSON.stringify(r)}`);
@@ -1483,28 +1900,40 @@ async function cmdPanel() {
   await showPanel(st.cdpPort);
 
   if (sub === 'show') {
-    const text = /** @type {string} */ (await evalIn(st.cdpPort, isPanel, PANEL.text));
+    const text = /** @type {string} */ (
+      await evalIn(st.cdpPort, isPanel, PANEL.text)
+    );
     log('OK', `Angular panel: ${text}`);
 
     return { ok: true, text };
   }
 
   if (sub === 'signal-graph') {
-    const nodes = await panelSignalGraph(st.cdpPort, opts.component ?? 'app-counter');
-    log(nodes ? 'OK' : 'ERROR', `signal graph pane: ${(nodes ?? []).map((n) => `${n.kind}:${n.text[0]}`).join(', ')}`);
+    const nodes = await panelSignalGraph(
+      st.cdpPort,
+      opts.component ?? 'app-counter',
+    );
+    log(
+      nodes ? 'OK' : 'ERROR',
+      `signal graph pane: ${(nodes ?? []).map((n) => `${n.kind}:${n.text[0]}`).join(', ')}`,
+    );
 
     return { ok: !!nodes, nodes };
   }
 
   if (sub === 'screenshot') {
-    const file = resolve(opts.file ?? join(st.evidenceDir, `devtools-${Date.now()}.png`));
+    const file = resolve(
+      opts.file ?? join(st.evidenceDir, `devtools-${Date.now()}.png`),
+    );
     await screenshotTarget(st.cdpPort, isDevtools, file);
     log('OK', `DevTools window screenshot ${file}`);
 
     return { ok: true, file };
   }
 
-  return refuse(`unknown panel subcommand ${sub}; use show, signal-graph, screenshot`);
+  return refuse(
+    `unknown panel subcommand ${sub}; use show, signal-graph, screenshot`,
+  );
 }
 
 /**
@@ -1515,7 +1944,13 @@ async function cmdPanel() {
  * @returns {boolean}
  */
 export function profilerOk(prof, cycles) {
-  return prof.bothOn.a > 0 && prof.bothOn.b > 0 && prof.afterRemoveA.a === prof.bothOn.a && prof.afterRemoveA.b > prof.bothOn.b && (cycles ?? 0) >= 2;
+  return (
+    prof.bothOn.a > 0 &&
+    prof.bothOn.b > 0 &&
+    prof.afterRemoveA.a === prof.bothOn.a &&
+    prof.afterRemoveA.b > prof.bothOn.b &&
+    (cycles ?? 0) >= 2
+  );
 }
 
 /**
@@ -1534,17 +1969,23 @@ export function signalGraphMatch(ng, pane) {
   const split = (n) => {
     const i = n.indexOf(':');
 
-    return i === -1 ? { kind: n, label: '' } : { kind: n.slice(0, i), label: n.slice(i + 1) };
+    return i === -1
+      ? { kind: n, label: '' }
+      : { kind: n.slice(0, i), label: n.slice(i + 1) };
   };
   const left = pane.map(split);
   /** @type {string[]} */
   const missing = [];
   // Labelled nodes first, so an unlabelled one never takes the pane node a labelled one needs.
-  const ordered = [...ng].sort((a, b) => Number(split(a).label === '') - Number(split(b).label === ''));
+  const ordered = [...ng].sort(
+    (a, b) => Number(split(a).label === '') - Number(split(b).label === ''),
+  );
 
   for (const n of ordered) {
     const { kind, label } = split(n);
-    const i = left.findIndex((p) => p.kind === kind && (label === '' || p.label === label));
+    const i = left.findIndex(
+      (p) => p.kind === kind && (label === '' || p.label === label),
+    );
 
     if (i === -1) {
       missing.push(n);
@@ -1568,9 +2009,18 @@ async function cmdCoexist() {
 
   // 1. Profiler: two extra subscribers, removing one leaves the other and the DevTools recording running.
   await evalIn(st.cdpPort, isPanel, PANEL.tab('Profiler'));
-  await waitFor(() => evalIn(st.cdpPort, isPanel, `async () => !!document.querySelector('button[aria-label="Start recording"]')`), 10000);
+  await waitFor(
+    () =>
+      evalIn(
+        st.cdpPort,
+        isPanel,
+        `async () => !!document.querySelector('button[aria-label="Start recording"]')`,
+      ),
+    10000,
+  );
   const started = await evalIn(st.cdpPort, isPanel, PANEL.recordButton);
-  const prof = /** @type {ProfilerCounts} */ (runCode(`async (page) => {
+  const prof = /** @type {ProfilerCounts} */ (
+    runCode(`async (page) => {
     const text = () => page.locator(${JSON.stringify(component)}).innerText();
     const clickAndSettle = async () => { const before = await text(); await page.${click}.click(); await page.waitForFunction(([sel, b]) => document.querySelector(sel)?.innerText !== b, [${JSON.stringify(component)}, before]); await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 50)))); };
     await page.evaluate(() => { window.__ngdtCoexist = { a: 0, b: 0 }; window.__ngdtRemoveA = ng.ɵsetProfiler(() => window.__ngdtCoexist.a++); window.__ngdtRemoveB = ng.ɵsetProfiler(() => window.__ngdtCoexist.b++); });
@@ -1579,10 +2029,13 @@ async function cmdCoexist() {
     await clickAndSettle();
     const afterRemoveA = await page.evaluate(() => { const s = { ...window.__ngdtCoexist }; window.__ngdtRemoveB(); return s; });
     return { bothOn, afterRemoveA };
-  }`));
+  }`)
+  );
   const stopped = await evalIn(st.cdpPort, isPanel, PANEL.recordButton);
   const summary = await waitFor(async () => {
-    const s = /** @type {{ cycles: number | null, text: string }} */ (await evalIn(st.cdpPort, isPanel, PANEL.profilerSummary));
+    const s = /** @type {{ cycles: number | null, text: string }} */ (
+      await evalIn(st.cdpPort, isPanel, PANEL.profilerSummary)
+    );
 
     return s.cycles !== null ? s : null;
   }, 10000);
@@ -1592,10 +2045,17 @@ async function cmdCoexist() {
     subscribers: prof,
     devtoolsCycles: summary?.cycles ?? null,
   };
-  log(profiler.ok ? 'OK' : 'ERROR', `profiler: own subscribers ${JSON.stringify(prof)}; DevTools recorded ${summary?.cycles} change detection cycles`);
+  log(
+    profiler.ok ? 'OK' : 'ERROR',
+    `profiler: own subscribers ${JSON.stringify(prof)}; DevTools recorded ${summary?.cycles} change detection cycles`,
+  );
 
   // 2. Connected flag: present and true; Angular reads it, an AI extension must not overwrite it.
-  const flagValue = /** @type {{ value?: unknown }} */ (runCode(`async (page) => page.evaluate(() => ({ value: window.__NG_DEVTOOLS_CONNECTED__ }))`));
+  const flagValue = /** @type {{ value?: unknown }} */ (
+    runCode(
+      `async (page) => page.evaluate(() => ({ value: window.__NG_DEVTOOLS_CONNECTED__ }))`,
+    )
+  );
   const flag = { ok: flagValue.value === true, ...flagValue };
   log(flag.ok ? 'OK' : 'ERROR', `connected flag ${JSON.stringify(flagValue)}`);
 
@@ -1605,44 +2065,84 @@ async function cmdCoexist() {
   const paneBefore = await panelSignalGraph(st.cdpPort, component);
   const pane = paneBefore?.map((n) => `${n.kind}:${n.text[0]}`);
   const match = signalGraphMatch(ngBefore, pane ?? null);
-  const signalGraph = { ok: match.ok, ng: ngBefore, pane, missing: match.missing, extra: match.extra };
-  log(signalGraph.ok ? 'OK' : 'ERROR', `signal graph: ng ${ngBefore.length} nodes, pane ${paneBefore?.length ?? 0} nodes${match.ok ? ', the same nodes' : `; missing from the pane ${JSON.stringify(match.missing)}, extra in the pane ${JSON.stringify(match.extra)}`}`);
-  const screenshotBefore = await screenshotTarget(st.cdpPort, isDevtools, join(st.evidenceDir, 'signal-graph-before.png'));
+  const signalGraph = {
+    ok: match.ok,
+    ng: ngBefore,
+    pane,
+    missing: match.missing,
+    extra: match.extra,
+  };
+  log(
+    signalGraph.ok ? 'OK' : 'ERROR',
+    `signal graph: ng ${ngBefore.length} nodes, pane ${paneBefore?.length ?? 0} nodes${match.ok ? ', the same nodes' : `; missing from the pane ${JSON.stringify(match.missing)}, extra in the pane ${JSON.stringify(match.extra)}`}`,
+  );
+  const screenshotBefore = await screenshotTarget(
+    st.cdpPort,
+    isDevtools,
+    join(st.evidenceDir, 'signal-graph-before.png'),
+  );
   /** @type {Record<string, unknown>} */
   let afterDiGraph = {};
 
   // 4. Angular's angular:di_graph tool versus the signal graph (changes the page until reload).
   if (opts['di-graph']) {
     if (!paneBefore) {
-      throw new Error('no signal graph in the pane to compare after angular:di_graph');
+      throw new Error(
+        'no signal graph in the pane to compare after angular:di_graph',
+      );
     }
 
-    runCode(`async (page) => page.evaluate(async () => { let g = null; const ev = new CustomEvent('devtoolstooldiscovery'); ev.respondWith = (x) => { g = x; }; window.dispatchEvent(ev); await g.tools.find((t) => t.name === 'angular:di_graph').execute({}); return true; })`);
+    runCode(
+      `async (page) => page.evaluate(async () => { let g = null; const ev = new CustomEvent('devtoolstooldiscovery'); ev.respondWith = (x) => { g = x; }; window.dispatchEvent(ev); await g.tools.find((t) => t.name === 'angular:di_graph').execute({}); return true; })`,
+    );
     const ngAfter = /** @type {string[]} */ (runCode(readNg));
-    runCode(`async (page) => { const sel = ${JSON.stringify(component)}; const before = await page.locator(sel).innerText(); await page.${click}.click(); await page.waitForFunction(([s, b]) => document.querySelector(s)?.innerText !== b, [sel, before]); return true; }`);
-    const paneAfter = await waitFor(async () => {
-      const n = await readSignalGraph(st.cdpPort);
+    runCode(
+      `async (page) => { const sel = ${JSON.stringify(component)}; const before = await page.locator(sel).innerText(); await page.${click}.click(); await page.waitForFunction(([s, b]) => document.querySelector(s)?.innerText !== b, [sel, before]); return true; }`,
+    );
+    const paneAfter =
+      (await waitFor(async () => {
+        const n = await readSignalGraph(st.cdpPort);
 
-      return n.length && n.length !== paneBefore.length ? n : null;
-    }, 8000) ?? (await panelSignalGraph(st.cdpPort, component));
+        return n.length && n.length !== paneBefore.length ? n : null;
+      }, 8000)) ?? (await panelSignalGraph(st.cdpPort, component));
 
     if (!paneAfter) {
       throw new Error('no signal graph in the pane after angular:di_graph');
     }
 
     const diGraph = {
-      templateLostInNg: ngBefore.some((n) => n.startsWith('template:')) && !ngAfter.some((n) => n.startsWith('template:')),
-      templateLostInPane: paneBefore.some((n) => n.kind === 'template') && !paneAfter.some((n) => n.kind === 'template'),
+      templateLostInNg:
+        ngBefore.some((n) => n.startsWith('template:')) &&
+        !ngAfter.some((n) => n.startsWith('template:')),
+      templateLostInPane:
+        paneBefore.some((n) => n.kind === 'template') &&
+        !paneAfter.some((n) => n.kind === 'template'),
       ngAfter,
       paneAfter: paneAfter.map((n) => `${n.kind}:${n.text[0]}`),
     };
-    const screenshotAfter = await screenshotTarget(st.cdpPort, isDevtools, join(st.evidenceDir, 'signal-graph-after-di-graph.png'));
+    const screenshotAfter = await screenshotTarget(
+      st.cdpPort,
+      isDevtools,
+      join(st.evidenceDir, 'signal-graph-after-di-graph.png'),
+    );
     afterDiGraph = { diGraph, screenshotAfter };
-    log(diGraph.templateLostInPane ? 'WARN' : 'OK', `after angular:di_graph: ng ${JSON.stringify(ngAfter)}; pane ${JSON.stringify(diGraph.paneAfter)}`);
+    log(
+      diGraph.templateLostInPane ? 'WARN' : 'OK',
+      `after angular:di_graph: ng ${JSON.stringify(ngAfter)}; pane ${JSON.stringify(diGraph.paneAfter)}`,
+    );
   }
 
-  const results = { profiler, flag, signalGraph, screenshotBefore, ...afterDiGraph };
-  writeFileSync(join(st.evidenceDir, 'coexist.json'), JSON.stringify(results, null, 2));
+  const results = {
+    profiler,
+    flag,
+    signalGraph,
+    screenshotBefore,
+    ...afterDiGraph,
+  };
+  writeFileSync(
+    join(st.evidenceDir, 'coexist.json'),
+    JSON.stringify(results, null, 2),
+  );
   const ok = profiler.ok && flag.ok && signalGraph.ok;
 
   return { ok, evidence: join(st.evidenceDir, 'coexist.json'), ...results };
@@ -1651,7 +2151,10 @@ async function cmdCoexist() {
 /** @returns {Promise<Result>} */
 async function cmdInfo() {
   const st = requireState();
-  log('INFO', `flow ${st.flowId}, session ${st.session}, app ${st.appUrl}, playwright-cli PID ${st.pid}, browser PID ${st.browserPid}, CDP ${st.cdpPort}, Angular DevTools ${st.extensionVersion}, evidence ${st.evidenceDir}, state ${STATE}`);
+  log(
+    'INFO',
+    `flow ${st.flowId}, session ${st.session}, app ${st.appUrl}, playwright-cli PID ${st.pid}, browser PID ${st.browserPid}, CDP ${st.cdpPort}, Angular DevTools ${st.extensionVersion}, evidence ${st.evidenceDir}, state ${STATE}`,
+  );
 
   return { ok: true, statePath: STATE, ...st };
 }
@@ -1683,7 +2186,9 @@ async function cmdDown() {
     st.tree = records;
     writeFileSync(STATE, JSON.stringify(st, null, 2));
     // A refusal carries one message, so what was stopped and left goes into it.
-    throw new Error(`${outcome.reason ?? 'stop failed; the state file is kept'}; notes: ${notes.join('; ')}`);
+    throw new Error(
+      `${outcome.reason ?? 'stop failed; the state file is kept'}; notes: ${notes.join('; ')}`,
+    );
   }
 
   // The profile and config go before the state file: a failure here keeps the record for the next down.
@@ -1691,14 +2196,26 @@ async function cmdDown() {
     rmSync(configPath, { force: true });
     rmSync(PROFILE, { recursive: true, force: true });
   } catch (e) {
-    throw new Error(`could not remove the profile or config (${e instanceof Error ? e.message : String(e)}); the state file is kept, run down again`);
+    throw new Error(
+      `could not remove the profile or config (${e instanceof Error ? e.message : String(e)}); the state file is kept, run down again`,
+    );
   }
 
   rmSync(STATE, { force: true });
-  notes.push(`removed config, profile and state; evidence kept in ${st.evidenceDir}`);
+  notes.push(
+    `removed config, profile and state; evidence kept in ${st.evidenceDir}`,
+  );
   notes.forEach((n) => log('OK', n));
 
-  return { ok: true, notes, evidenceDir: st.evidenceDir, pid: st.pid, browserPid: st.browserPid, cdpPort: st.cdpPort, session: st.session };
+  return {
+    ok: true,
+    notes,
+    evidenceDir: st.evidenceDir,
+    pid: st.pid,
+    browserPid: st.browserPid,
+    cdpPort: st.cdpPort,
+    session: st.session,
+  };
 }
 
 const HELP = `control.mjs <command> [options] [--json]
@@ -1711,15 +2228,34 @@ const HELP = `control.mjs <command> [options] [--json]
   coexist   [--component app-counter] [--click "getByRole('button', { name: 'Increment' })"] [--di-graph]`;
 
 /** @type {Record<string, () => Promise<Result>>} */
-const COMMANDS = { install: cmdInstall, uninstall: cmdUninstall, status: cmdStatus, up: cmdUp, doctor: cmdDoctor, attach: cmdAttach, panel: cmdPanel, coexist: cmdCoexist, info: cmdInfo, down: cmdDown };
+const COMMANDS = {
+  install: cmdInstall,
+  uninstall: cmdUninstall,
+  status: cmdStatus,
+  up: cmdUp,
+  doctor: cmdDoctor,
+  attach: cmdAttach,
+  panel: cmdPanel,
+  coexist: cmdCoexist,
+  info: cmdInfo,
+  down: cmdDown,
+};
 
 // import.meta.url is the real path, so compare real paths: run through a link, the CLI still runs.
-if (process.argv[1] && realpathSync.native(path.resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+if (
+  process.argv[1] &&
+  realpathSync.native(path.resolve(process.argv[1])) ===
+    realpathSync.native(fileURLToPath(import.meta.url))
+) {
   // Read before parsing, so a usage error still answers in JSON when --json was given.
   const json = process.argv.slice(2).includes('--json');
   /** @type {(reason: string) => never} */
   const usageExit = (reason) => {
-    console.log(json ? JSON.stringify({ ok: false, exit: 2, reason }, null, 2) : `[ERROR] ${printable(reason)}`);
+    console.log(
+      json
+        ? JSON.stringify({ ok: false, exit: 2, reason }, null, 2)
+        : `[ERROR] ${printable(reason)}`,
+    );
     process.exit(2);
   };
   /** @type {Parsed} */
@@ -1738,7 +2274,10 @@ if (process.argv[1] && realpathSync.native(path.resolve(process.argv[1])) === re
   Object.assign(opts, parsed.opts);
   pos.push(...parsed.pos);
   const cmd = parsed.cmd;
-  const run = cmd !== undefined && Object.hasOwn(COMMANDS, cmd) ? COMMANDS[cmd] : undefined;
+  const run =
+    cmd !== undefined && Object.hasOwn(COMMANDS, cmd)
+      ? COMMANDS[cmd]
+      : undefined;
 
   if (!run && cmd !== undefined) {
     if (json) {

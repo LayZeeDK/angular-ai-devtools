@@ -72,7 +72,15 @@ import { JSDOM } from 'jsdom';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..', '..');
-const pagePath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'components', 'components-page.ts');
+const pagePath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'components',
+  'components-page.ts',
+);
 const SUITE = 'fixture-harness-ambiguity.test.mjs';
 const PROBE_HOST = 'app-harness-probe';
 
@@ -127,8 +135,13 @@ function label(host) {
 function probeHosts() {
   const source = readFileSync(pagePath, 'utf8');
   const template = /template:\s*`([\s\S]*?)`/.exec(source);
-  assert.ok(template, `${SUITE}: ${pagePath} declares no template literal, so the probe hosts cannot be read`);
-  const dom = new JSDOM(`<!doctype html><html><body>${template[1]}</body></html>`);
+  assert.ok(
+    template,
+    `${SUITE}: ${pagePath} declares no template literal, so the probe hosts cannot be read`,
+  );
+  const dom = new JSDOM(
+    `<!doctype html><html><body>${template[1]}</body></html>`,
+  );
   return [...dom.window.document.querySelectorAll(PROBE_HOST)];
 }
 
@@ -150,21 +163,33 @@ function readAttributes(host) {
       records.push({ written, kind: 'event', name: null, value });
       continue;
     }
-    if (written.startsWith('#') || written.startsWith('let-') || written.startsWith('ref-')) {
+    if (
+      written.startsWith('#') ||
+      written.startsWith('let-') ||
+      written.startsWith('ref-')
+    ) {
       records.push({ written, kind: 'reference', name: null, value });
       continue;
     }
 
-    const binding = /^\[([\s\S]*)\]$/.exec(written) ?? /^bind-([\s\S]*)$/.exec(written);
+    const binding =
+      /^\[([\s\S]*)\]$/.exec(written) ?? /^bind-([\s\S]*)$/.exec(written);
     if (binding) {
       const target = binding[1].trim();
       if (/^\([\s\S]*\)$/.test(target)) {
         records.push({ written, kind: 'event', name: null, value });
       } else if (target.startsWith('attr.')) {
-        records.push({ written, kind: 'binding', name: target.slice('attr.'.length).trim(), value });
+        records.push({
+          written,
+          kind: 'binding',
+          name: target.slice('attr.'.length).trim(),
+          value,
+        });
       } else {
         // `[class.active]` and `[style.width.px]` add to the attribute named before the first dot.
-        const name = (target.includes('.') ? target.split('.')[0] : target).trim();
+        const name = (
+          target.includes('.') ? target.split('.')[0] : target
+        ).trim();
         records.push({ written, kind: 'binding', name, value });
       }
       continue;
@@ -194,9 +219,16 @@ function describe(record) {
 
 /** The attributes of one host the declared match set covers, names sorted, values in source order. */
 function matchedOf(host) {
-  const records = readAttributes(host).filter((record) => record.name !== null && isMatchedName(record.name));
+  const records = readAttributes(host).filter(
+    (record) => record.name !== null && isMatchedName(record.name),
+  );
   const names = [...new Set(records.map((record) => record.name))].sort();
-  const values = new Map(names.map((name) => [name, records.filter((record) => record.name === name).map(describe)]));
+  const values = new Map(
+    names.map((name) => [
+      name,
+      records.filter((record) => record.name === name).map(describe),
+    ]),
+  );
   const writtenFor = (name) =>
     records
       .filter((record) => record.name === name)
@@ -215,7 +247,8 @@ test('components page renders two app-harness-probe hosts', () => {
 });
 
 test('the declared match set is class and data-*, and id stays outside it, as this suite declares', () => {
-  const { matched, excluded, whyMatched, whyExcluded, provenance } = DECLARED_HARNESS_SURFACE;
+  const { matched, excluded, whyMatched, whyExcluded, provenance } =
+    DECLARED_HARNESS_SURFACE;
 
   // The declaration is pinned, not assumed: narrowing or widening it is a contract change that has to be
   // made here, with its reason, rather than drifting with an edit the rest of the suite would follow.
@@ -249,11 +282,15 @@ test('the declared match set is class and data-*, and id stays outside it, as th
     `${SUITE}: mutant (the declaration lost its provenance) — the commit that wrote the declaration is recorded as "${provenance.commit}", not a full 40-character SHA, so no reader can resolve it`,
   );
   assert.ok(
-    provenance.quoted.some((sentence) => sentence.includes('same class list and the same data attributes')),
+    provenance.quoted.some((sentence) =>
+      sentence.includes('same class list and the same data attributes'),
+    ),
     `${SUITE}: mutant (the declared match set lost its declaration) — the quoted sentence the match set derives from ("the same class list and the same data attributes") is gone, so comparing class and data-* rests on nothing written`,
   );
   assert.ok(
-    provenance.quoted.some((sentence) => sentence.includes('is not an attribute a harness matches on')),
+    provenance.quoted.some((sentence) =>
+      sentence.includes('is not an attribute a harness matches on'),
+    ),
     `${SUITE}: mutant (the id exclusion lost its declaration) — the quoted sentence the exclusion derives from ("an id is not an attribute a harness matches on") is gone, so excluding id rests on nothing written`,
   );
 
@@ -285,7 +322,10 @@ test('the reader reads bindings as well as literals, and compares only what the 
     `<!doctype html><html><body><app-harness-probe id="reader" class="harness-probe" data-probe="host" [attr.data-slot]="'two'" [data-role]="role" (click)="go()" disabled aria-label="probe a"></app-harness-probe></body></html>`,
   );
   const host = dom.window.document.querySelector(PROBE_HOST);
-  assert.ok(host, `${SUITE}: the reader check could not build a probe host to parse`);
+  assert.ok(
+    host,
+    `${SUITE}: the reader check could not build a probe host to parse`,
+  );
 
   const records = readAttributes(host);
 
@@ -294,7 +334,11 @@ test('the reader reads bindings as well as literals, and compares only what the 
     bound,
     `${SUITE}: mutant (reader blind to [attr.x] bindings) — the reader did not read [attr.data-slot], so a distinguishing binding is invisible to it`,
   );
-  assert.equal(bound.name, 'data-slot', `${SUITE}: mutant (binding target misread) — [attr.data-slot] is matched as "${bound.name}", not "data-slot"`);
+  assert.equal(
+    bound.name,
+    'data-slot',
+    `${SUITE}: mutant (binding target misread) — [attr.data-slot] is matched as "${bound.name}", not "data-slot"`,
+  );
   assert.equal(
     describe(bound),
     'two',
@@ -322,7 +366,10 @@ test('the reader reads bindings as well as literals, and compares only what the 
 
 test('the two probe hosts match in every attribute the harness matches on, bindings included (id excluded)', () => {
   const [a, b] = probeHosts();
-  assert.ok(a && b, `${SUITE}: the page must render two probe hosts, so one host has another to be ambiguous with`);
+  assert.ok(
+    a && b,
+    `${SUITE}: the page must render two probe hosts, so one host has another to be ambiguous with`,
+  );
   const left = matchedOf(a);
   const right = matchedOf(b);
 

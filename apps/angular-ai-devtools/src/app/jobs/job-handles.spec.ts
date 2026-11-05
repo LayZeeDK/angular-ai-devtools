@@ -18,7 +18,11 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it } from 'vitest';
 import { chunkFacts } from '../context-budget';
-import { CHUNKED_FACT_LIST_JOB_ID, ChunkedFactListJob, type ChunkedFactListPayload } from './chunked-fact-list-job';
+import {
+  CHUNKED_FACT_LIST_JOB_ID,
+  ChunkedFactListJob,
+  type ChunkedFactListPayload,
+} from './chunked-fact-list-job';
 import { JobHandleRegistry, type JobProgress } from './job-handles';
 
 /** A fresh registry per test, resolved the way the panel resolves it. */
@@ -66,10 +70,20 @@ describe('JobHandleRegistry', () => {
     // The plan is published before the first chunk, and it is published on the signal the caller
     // already holds — not on a replacement.
     handle.report(0, 3);
-    expect(early()).toEqual({ handle: HANDLE, chunksDone: 0, chunksTotal: 3, cancelled: false });
+    expect(early()).toEqual({
+      handle: HANDLE,
+      chunksDone: 0,
+      chunksTotal: 3,
+      cancelled: false,
+    });
 
     handle.report(2, 3);
-    expect(early()).toEqual({ handle: HANDLE, chunksDone: 2, chunksTotal: 3, cancelled: false });
+    expect(early()).toEqual({
+      handle: HANDLE,
+      chunksDone: 2,
+      chunksTotal: 3,
+      cancelled: false,
+    });
     expect(registry.progress(HANDLE)).toBe(early);
 
     // start() is idempotent: the same handle keeps one AbortController for the job's whole life.
@@ -89,7 +103,12 @@ describe('JobHandleRegistry', () => {
     handle.report(1, 3);
     registry.cancel(HANDLE);
 
-    expect(early()).toEqual({ handle: HANDLE, chunksDone: 1, chunksTotal: 3, cancelled: true });
+    expect(early()).toEqual({
+      handle: HANDLE,
+      chunksDone: 1,
+      chunksTotal: 3,
+      cancelled: true,
+    });
     expect(handle.signal.aborted).toBe(true);
     expect(aborts).toBe(1);
   });
@@ -112,7 +131,12 @@ describe('JobHandleRegistry', () => {
     // A job that reports after the cancel keeps the flag: cancellation is not a state a late chunk
     // can overwrite.
     handle.report(1, 3);
-    expect(early()).toEqual({ handle: HANDLE, chunksDone: 1, chunksTotal: 3, cancelled: true });
+    expect(early()).toEqual({
+      handle: HANDLE,
+      chunksDone: 1,
+      chunksTotal: 3,
+      cancelled: true,
+    });
     expect(aborts).toBe(1);
   });
 
@@ -178,7 +202,12 @@ describe('JobHandleRegistry', () => {
 
     const running = job.execute({ handle, facts });
     // One chunk done, two still to come: the job is mid-flight, so its partial work is real.
-    expect(store()).toEqual({ handle, chunksDone: 1, chunksTotal, cancelled: false });
+    expect(store()).toEqual({
+      handle,
+      chunksDone: 1,
+      chunksTotal,
+      cancelled: false,
+    });
 
     registry.cancel(handle);
     registry.cancel(handle);
@@ -194,13 +223,26 @@ describe('JobHandleRegistry', () => {
     // One cancellation, reported once, on the store the panel already held.
     expect(cancellations).toBe(1);
     expect(registry.progress(handle)).toBe(store);
-    expect(store()).toEqual({ handle, chunksDone: 1, chunksTotal, cancelled: true });
+    expect(store()).toEqual({
+      handle,
+      chunksDone: 1,
+      chunksTotal,
+      cancelled: true,
+    });
 
     // No partial fact list: nothing reached the panel's store, and the payload it would have kept
     // from carries no chunk list at all — only how far the job got.
     expect(keptFacts).toEqual([]);
-    expect(payload).toEqual({ status: 'cancelled', chunksDone: 1, chunksTotal });
+    expect(payload).toEqual({
+      status: 'cancelled',
+      chunksDone: 1,
+      chunksTotal,
+    });
     expect('chunks' in payload).toBe(false);
-    expect(Object.keys(payload).sort()).toEqual(['chunksDone', 'chunksTotal', 'status']);
+    expect(Object.keys(payload).sort()).toEqual([
+      'chunksDone',
+      'chunksTotal',
+      'status',
+    ]);
   });
 });

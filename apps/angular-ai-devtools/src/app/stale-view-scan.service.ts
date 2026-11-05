@@ -23,12 +23,17 @@ export class StaleViewScanService implements OnDestroy {
   private ensureWorker(): Worker | null {
     if (this.worker) return this.worker;
     try {
-      const chromeObj = (globalThis as { chrome?: { runtime?: { getURL?: (p: string) => string } } }).chrome;
+      const chromeObj = (
+        globalThis as {
+          chrome?: { runtime?: { getURL?: (p: string) => string } };
+        }
+      ).chrome;
       const url = chromeObj?.runtime?.getURL
         ? chromeObj.runtime.getURL('stale-view-worker.js')
         : '../stale-view-worker.js';
       const w = new Worker(url);
-      w.onmessage = (ev: MessageEvent) => this.handleResult(ev.data as WorkerScanResult);
+      w.onmessage = (ev: MessageEvent) =>
+        this.handleResult(ev.data as WorkerScanResult);
       w.onerror = () => {
         this.scanning.set(false);
       };
@@ -40,9 +45,10 @@ export class StaleViewScanService implements OnDestroy {
   }
 
   issueToken(): string {
-    const token = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
-      ? crypto.randomUUID()
-      : `scan-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const token =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `scan-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     this.latestToken.set(token);
     return token;
   }
@@ -80,7 +86,11 @@ export class StaleViewScanService implements OnDestroy {
 
   terminateWorker(): void {
     if (this.worker) {
-      try { this.worker.terminate(); } catch { /* ignore */ }
+      try {
+        this.worker.terminate();
+      } catch {
+        /* ignore */
+      }
       this.worker = null;
     }
     this.scanning.set(false);

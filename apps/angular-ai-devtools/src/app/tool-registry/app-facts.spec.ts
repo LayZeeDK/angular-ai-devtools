@@ -19,7 +19,9 @@ function newRegistry(): ToolRegistry {
 }
 
 /** The `angular-ai:state` payload the page publishes, as a facts record. */
-function pageState(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+function pageState(
+  overrides: Record<string, unknown> = {},
+): Record<string, unknown> {
   const features: Record<string, boolean> = {};
   for (const name of APP_FACT_FEATURES) {
     features[name] = true;
@@ -48,7 +50,9 @@ const BARE_SNAPSHOT: AppFactsSnapshot = {
 describe('app_facts declaration', () => {
   it('is declared as a two-host read that publishes a result to the model', () => {
     const registry = newRegistry();
-    const declaration = registry.tools().find((tool) => tool.id === APP_FACTS_TOOL_ID);
+    const declaration = registry
+      .tools()
+      .find((tool) => tool.id === APP_FACTS_TOOL_ID);
     expect(declaration).toBeDefined();
     expect(declaration?.kind).toBe('read');
     expect(declaration?.host).toEqual(['panel', 'extension-API']);
@@ -65,7 +69,11 @@ describe('app_facts declaration', () => {
 
 describe('app_facts result', () => {
   it('answers the page record with supported, the eight feature bits and the zone mode', async () => {
-    const outcome = await newRegistry().execute(APP_FACTS_TOOL_ID, undefined, pageContext());
+    const outcome = await newRegistry().execute(
+      APP_FACTS_TOOL_ID,
+      undefined,
+      pageContext(),
+    );
     expect(outcome.kind).toBe('result');
     if (outcome.kind !== 'result') {
       return;
@@ -82,7 +90,10 @@ describe('app_facts result', () => {
   });
 
   it('reports the bits the page published instead of inventing the ones it did not', async () => {
-    const features: Record<string, boolean> = { setProfiler: false, getSignalGraph: true };
+    const features: Record<string, boolean> = {
+      setProfiler: false,
+      getSignalGraph: true,
+    };
     const outcome = await newRegistry().execute(
       APP_FACTS_TOOL_ID,
       undefined,
@@ -93,15 +104,22 @@ describe('app_facts result', () => {
       return;
     }
     const value = outcome.value as Record<string, unknown>;
-    expect(value['featuresReported']).toEqual(['setProfiler', 'getSignalGraph']);
+    expect(value['featuresReported']).toEqual([
+      'setProfiler',
+      'getSignalGraph',
+    ]);
     const bits = value['features'] as Record<string, boolean>;
     expect(bits['setProfiler']).toBe(false);
     expect(bits['getSignalGraph']).toBe(true);
     // A bit the page never published reads false, and supportCheck says the fact is missing.
     expect(bits['getInjector']).toBe(false);
     const unpublished = appFactsSnapshot(pageState({ features }))!;
-    expect(supportCheck('getInjector', unpublished)).toMatchObject({ supported: false });
-    expect(supportCheck('getInjector', unpublished).reason).toMatch(/no features\.getInjector bit/);
+    expect(supportCheck('getInjector', unpublished)).toMatchObject({
+      supported: false,
+    });
+    expect(supportCheck('getInjector', unpublished).reason).toMatch(
+      /no features\.getInjector bit/,
+    );
     // The same id is offered under a record that did publish the bit.
     expect(supportCheck('getInjector', BARE_SNAPSHOT).supported).toBe(true);
   });
@@ -117,35 +135,49 @@ describe('app_facts result', () => {
       return;
     }
     expect(outcome.provenance).toBe('page-published');
-    expect((outcome.value as Record<string, unknown>)['provenance']).toBe('page-published');
+    expect((outcome.value as Record<string, unknown>)['provenance']).toBe(
+      'page-published',
+    );
   });
 
   it('states the dev-mode caveat for getComponent and getDirectiveMetadata', async () => {
-    const outcome = await newRegistry().execute(APP_FACTS_TOOL_ID, undefined, pageContext());
+    const outcome = await newRegistry().execute(
+      APP_FACTS_TOOL_ID,
+      undefined,
+      pageContext(),
+    );
     expect(outcome.kind).toBe('result');
     if (outcome.kind !== 'result') {
       return;
     }
-    const caveats = (outcome.value as Record<string, unknown>)['devModeCaveats'] as Array<
-      Record<string, unknown>
-    >;
-    expect(caveats.map((entry) => entry['api']).sort()).toEqual(['getComponent', 'getDirectiveMetadata']);
+    const caveats = (outcome.value as Record<string, unknown>)[
+      'devModeCaveats'
+    ] as Array<Record<string, unknown>>;
+    expect(caveats.map((entry) => entry['api']).sort()).toEqual([
+      'getComponent',
+      'getDirectiveMetadata',
+    ]);
     for (const entry of caveats) {
-      expect(String(entry['caveat'])).toMatch(/answers nothing outside dev mode/);
+      expect(String(entry['caveat'])).toMatch(
+        /answers nothing outside dev mode/,
+      );
     }
     expect(DEV_MODE_CAVEATS.length).toBe(2);
   });
 
   it('carries the support checks alongside the record, so the offer and the read agree', async () => {
-    const outcome = await newRegistry().execute(APP_FACTS_TOOL_ID, undefined, pageContext());
+    const outcome = await newRegistry().execute(
+      APP_FACTS_TOOL_ID,
+      undefined,
+      pageContext(),
+    );
     if (outcome.kind !== 'result') {
       throw new Error(`expected a result, got ${outcome.kind}`);
     }
     const snapshot = appFactsSnapshot(pageState())!;
-    const checks = (outcome.value as Record<string, unknown>)['supportChecks'] as Record<
-      string,
-      { supported: boolean; reason: string }
-    >;
+    const checks = (outcome.value as Record<string, unknown>)[
+      'supportChecks'
+    ] as Record<string, { supported: boolean; reason: string }>;
     expect(Object.keys(checks).sort()).toEqual(
       [
         ...new Set([
@@ -216,7 +248,12 @@ describe('app_facts before the page has spoken', () => {
 
 describe('supportCheck', () => {
   it('never answers supported without a page record, and says which fact is missing', () => {
-    for (const toolId of [APP_FACTS_TOOL_ID, 'getSignalGraph', 'getComponent', 'no_such_tool']) {
+    for (const toolId of [
+      APP_FACTS_TOOL_ID,
+      'getSignalGraph',
+      'getComponent',
+      'no_such_tool',
+    ]) {
       const check = supportCheck(toolId);
       expect(check.supported).toBe(false);
       expect(check.reason).toMatch(/page channel/);
@@ -230,10 +267,17 @@ describe('supportCheck', () => {
       if (name === 'getDirectiveMetadata') {
         continue;
       }
-      expect(supportCheck(name, BARE_SNAPSHOT)).toMatchObject({ supported: true });
+      expect(supportCheck(name, BARE_SNAPSHOT)).toMatchObject({
+        supported: true,
+      });
     }
     const withoutSignalGraph = appFactsSnapshot(
-      pageState({ features: { ...(pageState()['features'] as Record<string, boolean>), getSignalGraph: false } }),
+      pageState({
+        features: {
+          ...(pageState()['features'] as Record<string, boolean>),
+          getSignalGraph: false,
+        },
+      }),
     )!;
     const check = supportCheck('getSignalGraph', withoutSignalGraph);
     expect(check.supported).toBe(false);
@@ -242,8 +286,12 @@ describe('supportCheck', () => {
   });
 
   it('refuses every capability when the page reported the app as unsupported', () => {
-    const snapshot = appFactsSnapshot(pageState({ supported: false, reason: 'zoneless only' }))!;
-    expect(supportCheck(APP_FACTS_TOOL_ID, snapshot)).toMatchObject({ supported: true });
+    const snapshot = appFactsSnapshot(
+      pageState({ supported: false, reason: 'zoneless only' }),
+    )!;
+    expect(supportCheck(APP_FACTS_TOOL_ID, snapshot)).toMatchObject({
+      supported: true,
+    });
     for (const name of APP_FACT_FEATURES) {
       const check = supportCheck(name, snapshot);
       expect(check.supported).toBe(false);
@@ -265,7 +313,9 @@ describe('supportCheck', () => {
   it('is never supported for an id it has no check for', () => {
     const check = supportCheck('list_signals', BARE_SNAPSHOT);
     expect(check.supported).toBe(false);
-    expect(check.reason).toMatch(/no support check is declared for "list_signals"/);
+    expect(check.reason).toMatch(
+      /no support check is declared for "list_signals"/,
+    );
     expect(check.reason).toMatch(/page channel/);
   });
 
@@ -287,12 +337,18 @@ describe('appFactsSnapshot', () => {
   });
 
   it('reads an unusable zone mode as unknown, never as the supported one', () => {
-    expect(appFactsSnapshot(pageState({ zoneMode: 42 }))!.zoneMode).toBe('unknown');
-    expect(appFactsSnapshot(pageState({ zoneMode: 'zone' }))!.zoneMode).toBe('zone');
+    expect(appFactsSnapshot(pageState({ zoneMode: 42 }))!.zoneMode).toBe(
+      'unknown',
+    );
+    expect(appFactsSnapshot(pageState({ zoneMode: 'zone' }))!.zoneMode).toBe(
+      'zone',
+    );
   });
 
   it('keeps an unpublished feature bit null rather than false', () => {
-    const snapshot = appFactsSnapshot(pageState({ features: { setProfiler: true } }))!;
+    const snapshot = appFactsSnapshot(
+      pageState({ features: { setProfiler: true } }),
+    )!;
     expect(snapshot.features.setProfiler).toBe(true);
     expect(snapshot.features.getSignalGraph).toBeNull();
   });

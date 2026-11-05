@@ -9,7 +9,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
 
 const routesPath = join(repoRoot, 'spikes/ng222-app/src/app/app.routes.ts');
-const pagePath = join(repoRoot, 'spikes/ng222-app/src/app/after-render-page.ts');
+const pagePath = join(
+  repoRoot,
+  'spikes/ng222-app/src/app/after-render-page.ts',
+);
 
 // The behavioural proof runs the component's own `readTargetWidth` out of its real
 // TypeScript source. Angular is replaced with inert stubs because the subject is
@@ -42,7 +45,9 @@ function loadAfterRenderPageClass(element, hookCalls) {
   };
   const requireStub = (specifier) => {
     if (specifier === '@angular/core') return angularStub;
-    throw new Error(`after-render-page.ts imported an unexpected module: ${specifier}`);
+    throw new Error(
+      `after-render-page.ts imported an unexpected module: ${specifier}`,
+    );
   };
 
   const moduleRecord = { exports: {} };
@@ -53,7 +58,11 @@ function loadAfterRenderPageClass(element, hookCalls) {
   );
 
   const PageClass = moduleRecord.exports.AfterRenderPage;
-  assert.equal(typeof PageClass, 'function', 'after-render-page.ts must export AfterRenderPage');
+  assert.equal(
+    typeof PageClass,
+    'function',
+    'after-render-page.ts must export AfterRenderPage',
+  );
   return PageClass;
 }
 
@@ -86,15 +95,29 @@ test('the afterNextRender callback reads offsetWidth from the element without th
     },
   };
   const { hookCalls } = instantiatePage(element);
-  assert.equal(hookCalls.length, 1, 'the constructor must register exactly one afterNextRender hook');
+  assert.equal(
+    hookCalls.length,
+    1,
+    'the constructor must register exactly one afterNextRender hook',
+  );
   assert.doesNotThrow(() => hookCalls[0](), 'the after-render read threw');
-  assert.equal(reads, 1, 'the after-render hook must read offsetWidth exactly once');
+  assert.equal(
+    reads,
+    1,
+    'the after-render hook must read offsetWidth exactly once',
+  );
 });
 
 test('PRECONDITION: the after-render route is registered with AfterRenderPage', () => {
   const routesSrc = readFileSync(routesPath, 'utf8');
-  assert.ok(routesSrc.includes("path: 'after-render'"), 'after-render route not registered');
-  assert.ok(routesSrc.includes('AfterRenderPage'), 'AfterRenderPage not imported/used');
+  assert.ok(
+    routesSrc.includes("path: 'after-render'"),
+    'after-render route not registered',
+  );
+  assert.ok(
+    routesSrc.includes('AfterRenderPage'),
+    'AfterRenderPage not imported/used',
+  );
 });
 
 test('PRECONDITION: the fixture adds no profiler instrumentation', () => {

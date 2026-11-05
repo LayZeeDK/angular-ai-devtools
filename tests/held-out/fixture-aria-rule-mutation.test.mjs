@@ -14,12 +14,34 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
-import { ariaRules, buildSurface, evaluateAll, readTemplate, reverseIteration } from './aria-rules.mjs';
+import {
+  ariaRules,
+  buildSurface,
+  evaluateAll,
+  readTemplate,
+  reverseIteration,
+} from './aria-rules.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..', '..');
-const surfacePath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'components', 'aria-surfaces.ts');
-const itemsPath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'components', 'aria-items.ts');
+const surfacePath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'components',
+  'aria-surfaces.ts',
+);
+const itemsPath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'components',
+  'aria-items.ts',
+);
 
 const SUITE = 'fixture-aria-rule-mutation.test.mjs';
 const SURFACE_FILE = 'spikes/ng222-app/src/app/components/aria-surfaces.ts';
@@ -27,7 +49,8 @@ const ITEMS_FILE = 'spikes/ng222-app/src/app/components/aria-items.ts';
 const ORDER_RULE = 'listbox-option-order';
 const CONTROLS_RULE = 'menu-trigger-controls';
 const LISTBOX_MUTANT = '@for (item of [...listboxItems].reverse(); track item)';
-const CONTROLS_MUTANT = 'aria-controls="components-listbox" on the ngMenuTrigger';
+const CONTROLS_MUTANT =
+  'aria-controls="components-listbox" on the ngMenuTrigger';
 
 function readFixture() {
   return {
@@ -46,14 +69,20 @@ function verdictsFor(fixture) {
 test('all aria rules pass on the fixture surface', () => {
   const verdicts = verdictsFor(readFixture());
   for (const verdict of verdicts) {
-    assert.equal(verdict.pass, true, `${SUITE}: ${verdict.id} should pass on ${SURFACE_FILE}: ${verdict.detail}`);
+    assert.equal(
+      verdict.pass,
+      true,
+      `${SUITE}: ${verdict.id} should pass on ${SURFACE_FILE}: ${verdict.detail}`,
+    );
   }
 });
 
 test('removing one rule attribute reddens only that rule', () => {
   const fixture = readFixture();
   // The order rule reads the rendered tree and names no attribute, so there is nothing to remove for it.
-  const rulesWithAttribute = ariaRules.filter((rule) => typeof rule.attribute === 'string');
+  const rulesWithAttribute = ariaRules.filter(
+    (rule) => typeof rule.attribute === 'string',
+  );
   assert.ok(
     rulesWithAttribute.length > 0,
     `${SUITE}: aria-rules.mjs declares no rule with a removable attribute, so "removing one rule attribute reddens only that rule" has no subject in ${SURFACE_FILE}`,
@@ -65,7 +94,10 @@ test('removing one rule attribute reddens only that rule', () => {
     // locate the start tag containing the surface marker and remove the attribute there
     const tagRe = new RegExp(`<[^>]*${needle}[^>]*>`);
     const tagMatch = fixture.surfaceSrc.match(tagRe);
-    assert.ok(tagMatch, `${SUITE}: ${SURFACE_FILE} has no tag carrying ${needle}, so ${rule.id} has no attribute to remove`);
+    assert.ok(
+      tagMatch,
+      `${SUITE}: ${SURFACE_FILE} has no tag carrying ${needle}, so ${rule.id} has no attribute to remove`,
+    );
     const originalTag = tagMatch[0];
     const attrRe = new RegExp(`\\s${attr}="[^"]*"`);
     const mutatedTag = originalTag.replace(attrRe, '');
@@ -74,10 +106,16 @@ test('removing one rule attribute reddens only that rule', () => {
       originalTag,
       `${SUITE}: mutant (removing ${attr} from ${needle} in ${SURFACE_FILE}) did not change the tag, so ${rule.id} was never exercised`,
     );
-    const mutatedSrc = fixture.surfaceSrc.replace(originalTag, () => mutatedTag);
+    const mutatedSrc = fixture.surfaceSrc.replace(
+      originalTag,
+      () => mutatedTag,
+    );
     const verdicts = verdictsFor({ ...fixture, surfaceSrc: mutatedSrc });
     const target = verdicts.find((v) => v.id === rule.id);
-    assert.ok(target, `${SUITE}: aria-rules.mjs no longer declares ${rule.id}, which ${SURFACE_FILE} is mutated for`);
+    assert.ok(
+      target,
+      `${SUITE}: aria-rules.mjs no longer declares ${rule.id}, which ${SURFACE_FILE} is mutated for`,
+    );
     assert.equal(
       target.pass,
       false,
@@ -126,10 +164,25 @@ test('reversing the rendered listbox order reddens only the order rule', () => {
   );
 
   // Apply the review mutant to the real template text in memory: reverse the listbox's iteration.
-  const { expression, reversedExpression, template: reversedTemplate } = reverseIteration(template, at);
-  assert.notEqual(reversedTemplate, template, `${SUITE}: mutant (${LISTBOX_MUTANT} in ${SURFACE_FILE}) left the template unchanged`);
-  const mutatedSrc = fixture.surfaceSrc.replace(template, () => reversedTemplate);
-  assert.notEqual(mutatedSrc, fixture.surfaceSrc, `${SUITE}: mutant (${LISTBOX_MUTANT} in ${SURFACE_FILE}) was not applied to the component source`);
+  const {
+    expression,
+    reversedExpression,
+    template: reversedTemplate,
+  } = reverseIteration(template, at);
+  assert.notEqual(
+    reversedTemplate,
+    template,
+    `${SUITE}: mutant (${LISTBOX_MUTANT} in ${SURFACE_FILE}) left the template unchanged`,
+  );
+  const mutatedSrc = fixture.surfaceSrc.replace(
+    template,
+    () => reversedTemplate,
+  );
+  assert.notEqual(
+    mutatedSrc,
+    fixture.surfaceSrc,
+    `${SUITE}: mutant (${LISTBOX_MUTANT} in ${SURFACE_FILE}) was not applied to the component source`,
+  );
 
   const verdicts = verdictsFor({ ...fixture, surfaceSrc: mutatedSrc });
   const target = verdicts.find((v) => v.id === ORDER_RULE);
@@ -155,18 +208,36 @@ test('reversing the rendered listbox order reddens only the order rule', () => {
 
 test('a wrong accessible name reddens the accessible-name rule', () => {
   const fixture = readFixture();
-  for (const id of ['listbox-accessible-name', 'menu-trigger-accessible-name']) {
+  for (const id of [
+    'listbox-accessible-name',
+    'menu-trigger-accessible-name',
+  ]) {
     const rule = ariaRules.find((r) => r.id === id);
     assert.ok(rule, `${SUITE}: aria-rules.mjs no longer declares ${id}`);
     const needle = rule.surface === 'listbox' ? 'ngListbox' : 'ngMenuTrigger';
     const tagRe = new RegExp(`<[^>]*${needle}[^>]*>`);
     const tagMatch = fixture.surfaceSrc.match(tagRe);
-    assert.ok(tagMatch, `${SUITE}: ${SURFACE_FILE} has no tag carrying ${needle}, so ${id} has no accessible name to check`);
+    assert.ok(
+      tagMatch,
+      `${SUITE}: ${SURFACE_FILE} has no tag carrying ${needle}, so ${id} has no accessible name to check`,
+    );
     const originalTag = tagMatch[0];
-    const mutatedTag = originalTag.replace(/aria-label="[^"]*"/, 'aria-label="Wrong name"');
-    assert.notEqual(mutatedTag, originalTag, `${SUITE}: mutant (aria-label="Wrong name" in ${SURFACE_FILE}) did not change the tag for ${id}`);
-    const mutatedSrc = fixture.surfaceSrc.replace(originalTag, () => mutatedTag);
-    const verdict = rule.evaluate(buildSurface({ ...fixture, surfaceSrc: mutatedSrc }));
+    const mutatedTag = originalTag.replace(
+      /aria-label="[^"]*"/,
+      'aria-label="Wrong name"',
+    );
+    assert.notEqual(
+      mutatedTag,
+      originalTag,
+      `${SUITE}: mutant (aria-label="Wrong name" in ${SURFACE_FILE}) did not change the tag for ${id}`,
+    );
+    const mutatedSrc = fixture.surfaceSrc.replace(
+      originalTag,
+      () => mutatedTag,
+    );
+    const verdict = rule.evaluate(
+      buildSurface({ ...fixture, surfaceSrc: mutatedSrc }),
+    );
     assert.equal(
       verdict.pass,
       false,
@@ -204,7 +275,10 @@ test('pointing the trigger at the listbox reddens the controls rule', () => {
     `${SUITE}: ${SURFACE_FILE} has no tag carrying ngMenuTrigger, so the mutant (${CONTROLS_MUTANT}) has nothing to retarget`,
   );
   const originalTag = triggerTag[0];
-  const mutatedTag = originalTag.replace(/aria-controls="[^"]*"/, 'aria-controls="components-listbox"');
+  const mutatedTag = originalTag.replace(
+    /aria-controls="[^"]*"/,
+    'aria-controls="components-listbox"',
+  );
   assert.notEqual(
     mutatedTag,
     originalTag,
@@ -219,7 +293,10 @@ test('pointing the trigger at the listbox reddens the controls rule', () => {
 
   const verdicts = verdictsFor({ ...fixture, surfaceSrc: mutatedSrc });
   const target = verdicts.find((v) => v.id === CONTROLS_RULE);
-  assert.ok(target, `${SUITE}: aria-rules.mjs no longer declares ${CONTROLS_RULE}, which ${SURFACE_FILE} is mutated for`);
+  assert.ok(
+    target,
+    `${SUITE}: aria-rules.mjs no longer declares ${CONTROLS_RULE}, which ${SURFACE_FILE} is mutated for`,
+  );
   assert.equal(
     target.pass,
     false,

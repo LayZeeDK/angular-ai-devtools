@@ -5,7 +5,13 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const RECORD_PATH = join(__dirname, '..', 'research', 'raw', 'm027-image-warning-capture.json');
+const RECORD_PATH = join(
+  __dirname,
+  '..',
+  'research',
+  'raw',
+  'm027-image-warning-capture.json',
+);
 
 function loadRecord() {
   return JSON.parse(readFileSync(RECORD_PATH, 'utf8'));
@@ -20,21 +26,28 @@ function validate(record) {
     throw new Error('missing profile/browser provenance');
   }
   if (record.instance == null) throw new Error('missing instance');
-  if (typeof record.capturedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}T/.test(record.capturedAt)) {
+  if (
+    typeof record.capturedAt !== 'string' ||
+    !/^\d{4}-\d{2}-\d{2}T/.test(record.capturedAt)
+  ) {
     throw new Error('missing/invalid capturedAt');
   }
-  if (record.browserBuild == null) throw new Error('missing browser build string');
+  if (record.browserBuild == null)
+    throw new Error('missing browser build string');
   if (record.build == null) throw new Error('missing browser build string');
   if (record.url == null) throw new Error('missing page URL');
   if (record.pageUrl == null) throw new Error('missing page URL');
-  if (typeof record.emitted !== 'boolean') throw new Error('missing emitted boolean');
+  if (typeof record.emitted !== 'boolean')
+    throw new Error('missing emitted boolean');
 
-  if (!Array.isArray(record.messages)) throw new Error('missing messages array');
+  if (!Array.isArray(record.messages))
+    throw new Error('missing messages array');
   for (const m of record.messages) {
     if (m === null || typeof m !== 'object') throw new Error('invalid message');
     if (typeof m.type !== 'string') throw new Error('message missing type');
     if (typeof m.text !== 'string') throw new Error('message missing text');
-    if (m.code !== null && typeof m.code !== 'string') throw new Error('invalid code');
+    if (m.code !== null && typeof m.code !== 'string')
+      throw new Error('invalid code');
     if (m.code !== null && !m.text.includes(m.code)) {
       throw new Error(`invented code: ${m.code} not present in message text`);
     }
@@ -58,7 +71,15 @@ test('capture record validates', () => {
 
 test('held-out E1: missing provenance field reddens', () => {
   const base = loadRecord();
-  const fields = ['browser', 'instance', 'capturedAt', 'browserBuild', 'url', 'emitted', 'messages'];
+  const fields = [
+    'browser',
+    'instance',
+    'capturedAt',
+    'browserBuild',
+    'url',
+    'emitted',
+    'messages',
+  ];
   // profile is null in headless record; removing browser removes the only profile-or-browser value
   for (const field of fields) {
     const mutant = clone(base);
@@ -66,7 +87,11 @@ test('held-out E1: missing provenance field reddens', () => {
     // also remove alias to force failure
     if (field === 'browserBuild') delete mutant.build;
     if (field === 'url') delete mutant.pageUrl;
-    assert.throws(() => validate(mutant), new RegExp(field === 'browserBuild' ? 'browser build' : field, 'i'), `removing ${field} must fail`);
+    assert.throws(
+      () => validate(mutant),
+      new RegExp(field === 'browserBuild' ? 'browser build' : field, 'i'),
+      `removing ${field} must fail`,
+    );
   }
   // removing profile alone is allowed only if browser remains; removing both reddens
   const both = clone(base);

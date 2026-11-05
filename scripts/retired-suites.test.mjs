@@ -51,7 +51,11 @@ const REQUIRED = [
 ];
 
 /** The successors a row may name: the review grammar, or the skill that drives one browser instance and model. */
-const SUCCESSORS = [/gsd review-check/, /gsd final-check/, /verify-ai-browsers/];
+const SUCCESSORS = [
+  /gsd review-check/,
+  /gsd final-check/,
+  /verify-ai-browsers/,
+];
 
 /** Directories a repository walk never descends into: dependencies, generated output and shared browser state. */
 const SKIPPED_DIRECTORIES = new Set([
@@ -114,7 +118,10 @@ function recordPath() {
         .filter((path) => existsSync(path))
     : [];
 
-  assert.ok(copies.length > 0, `no retired-suite record at ${RECORD} or in any archive; the check fails rather than skipping`);
+  assert.ok(
+    copies.length > 0,
+    `no retired-suite record at ${RECORD} or in any archive; the check fails rather than skipping`,
+  );
 
   return copies[0];
 }
@@ -157,7 +164,9 @@ function recordRows(text) {
  * @returns {string[]}
  */
 function walk(directory, found = []) {
-  for (const entry of readdirSync(directory, { withFileTypes: true }).sort((left, right) => (left.name < right.name ? -1 : 1))) {
+  for (const entry of readdirSync(directory, { withFileTypes: true }).sort(
+    (left, right) => (left.name < right.name ? -1 : 1),
+  )) {
     const path = join(directory, entry.name);
 
     if (entry.isDirectory()) {
@@ -193,16 +202,24 @@ function displayPath(path) {
 function namingAllowed(path) {
   const segments = displayPath(path).split('/');
 
-  return NAMING_ALLOWED.some((prefix) => prefix.every((segment, index) => segments[index] === segment));
+  return NAMING_ALLOWED.some((prefix) =>
+    prefix.every((segment, index) => segments[index] === segment),
+  );
 }
 
 test('the record carries one row for each retired suite and no other row', () => {
   const rows = recordRows(readFileSync(recordPath(), 'utf8'));
   const named = rows.map((row) => row.suite);
-  const duplicated = named.filter((suite, index) => named.indexOf(suite) !== index);
+  const duplicated = named.filter(
+    (suite, index) => named.indexOf(suite) !== index,
+  );
 
   assert.deepEqual(duplicated, [], 'a suite has more than one row');
-  assert.deepEqual([...named].sort(), [...RETIRED].sort(), 'the rows must be exactly the ten retired suites');
+  assert.deepEqual(
+    [...named].sort(),
+    [...RETIRED].sort(),
+    'the rows must be exactly the ten retired suites',
+  );
 });
 
 test('every retired row states its claim, its subject, why it could not pass, and what carries it now', () => {
@@ -210,24 +227,48 @@ test('every retired row states its claim, its subject, why it could not pass, an
   const incomplete = rows
     .map((row) => ({
       suite: row.suite,
-      missing: REQUIRED.filter(({ column, missing }) => (row.cells[column] ?? '').length === 0).map(({ missing }) => missing),
+      missing: REQUIRED.filter(
+        ({ column, missing }) => (row.cells[column] ?? '').length === 0,
+      ).map(({ missing }) => missing),
     }))
     .filter((row) => row.missing.length > 0)
     .map((row) => `${row.suite}: ${row.missing.join(', ')}`);
   const successorless = rows
-    .filter((row) => !SUCCESSORS.some((successor) => successor.test(row.cells[4] ?? '')))
+    .filter(
+      (row) =>
+        !SUCCESSORS.some((successor) => successor.test(row.cells[4] ?? '')),
+    )
     .map((row) => row.suite);
 
-  assert.deepEqual(incomplete, [], 'a retired suite with no recorded claim is named here');
-  assert.deepEqual(successorless, [], 'a retired row must name what carries its claim now: the review grammar or verify-ai-browsers');
+  assert.deepEqual(
+    incomplete,
+    [],
+    'a retired suite with no recorded claim is named here',
+  );
+  assert.deepEqual(
+    successorless,
+    [],
+    'a retired row must name what carries its claim now: the review grammar or verify-ai-browsers',
+  );
 });
 
 test('none of the ten retired suites is still under tests/held-out', () => {
-  const present = RETIRED.filter((suite) => existsSync(join(HELD_OUT, suite + '.test.mjs')));
-  const corpus = existsSync(HELD_OUT) ? readdirSync(HELD_OUT).filter((name) => name.endsWith('.test.mjs')) : [];
+  const present = RETIRED.filter((suite) =>
+    existsSync(join(HELD_OUT, suite + '.test.mjs')),
+  );
+  const corpus = existsSync(HELD_OUT)
+    ? readdirSync(HELD_OUT).filter((name) => name.endsWith('.test.mjs'))
+    : [];
 
-  assert.deepEqual(present, [], 'a suite the record lists as retired is still in the corpus');
-  assert.ok(corpus.length > 0, `the corpus at ${HELD_OUT} still holds the suites this milestone kept, so an empty directory cannot pass this check`);
+  assert.deepEqual(
+    present,
+    [],
+    'a suite the record lists as retired is still in the corpus',
+  );
+  assert.ok(
+    corpus.length > 0,
+    `the corpus at ${HELD_OUT} still holds the suites this milestone kept, so an empty directory cannot pass this check`,
+  );
 });
 
 test('no file outside the record names a retired suite', () => {
@@ -260,5 +301,9 @@ test('no file outside the record names a retired suite', () => {
     }
   }
 
-  assert.deepEqual(hits, [], 'a file names a retired suite that no longer exists; the claim belongs in .project/plan/RETIRED-SUITES.md');
+  assert.deepEqual(
+    hits,
+    [],
+    'a file names a retired suite that no longer exists; the claim belongs in .project/plan/RETIRED-SUITES.md',
+  );
 });

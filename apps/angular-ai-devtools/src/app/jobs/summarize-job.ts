@@ -36,7 +36,11 @@
  * job.
  */
 import { Injectable, inject } from '@angular/core';
-import type { ToolBacking, ToolContext, ToolOutcome } from '../tool-registry/tool-registry';
+import type {
+  ToolBacking,
+  ToolContext,
+  ToolOutcome,
+} from '../tool-registry/tool-registry';
 import { JobHandleRegistry } from './job-handles';
 
 /** The job's id. Named here so a failure names the job without the caller supplying it. */
@@ -99,11 +103,18 @@ export type SummarizeOutline = {
 export type SummarizePayload =
   | { readonly status: 'complete'; readonly outline: SummarizeOutline }
   | { readonly status: 'cannot-tell' }
-  | { readonly status: 'cancelled'; readonly segmentsDone: number; readonly segmentsTotal: number };
+  | {
+      readonly status: 'cancelled';
+      readonly segmentsDone: number;
+      readonly segmentsTotal: number;
+    };
 
 /** One Summarizer session: the job creates one and summarises each segment through it. */
 interface SummarizerSession {
-  summarize(text: string, options?: { readonly signal?: AbortSignal }): Promise<string>;
+  summarize(
+    text: string,
+    options?: { readonly signal?: AbortSignal },
+  ): Promise<string>;
 }
 
 /**
@@ -124,7 +135,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function readString(record: Record<string, unknown>, field: string): string | null {
+function readString(
+  record: Record<string, unknown>,
+  field: string,
+): string | null {
   const value = record[field];
   return typeof value === 'string' ? value : null;
 }
@@ -175,7 +189,12 @@ function readRequest(input: unknown): SummarizeRequest | null {
     const id = readString(candidate, 'id');
     const heading = readString(candidate, 'heading');
     const text = readString(candidate, 'text');
-    if (id === null || id.trim().length === 0 || heading === null || text === null) {
+    if (
+      id === null ||
+      id.trim().length === 0 ||
+      heading === null ||
+      text === null
+    ) {
       return null;
     }
     read.push({ id, heading, text });
@@ -208,7 +227,12 @@ function payloadOutcome(payload: SummarizePayload): ToolOutcome {
 
 /** An unusable request is a named failure, never an empty outline that reads as "nothing to say". */
 function invalidOutcome(message: string): ToolOutcome {
-  return { kind: 'error', code: 'invalid-input', toolId: SUMMARIZE_JOB_ID, message };
+  return {
+    kind: 'error',
+    code: 'invalid-input',
+    toolId: SUMMARIZE_JOB_ID,
+    message,
+  };
 }
 
 /** A Summarizer that exists but fails is a third-party failure, named rather than thrown. */
@@ -250,7 +274,11 @@ export class SummarizeJob implements ToolBacking {
     handle.report(0, segmentsTotal);
 
     if (handle.signal.aborted) {
-      return payloadOutcome({ status: 'cancelled', segmentsDone: 0, segmentsTotal });
+      return payloadOutcome({
+        status: 'cancelled',
+        segmentsDone: 0,
+        segmentsTotal,
+      });
     }
 
     const summarizer = readSummarizer();
@@ -289,7 +317,9 @@ export class SummarizeJob implements ToolBacking {
 
       let summary: string;
       try {
-        summary = await session.summarize(segment.text, { signal: handle.signal });
+        summary = await session.summarize(segment.text, {
+          signal: handle.signal,
+        });
       } catch (failure: unknown) {
         if (handle.signal.aborted) {
           // The abort rejected the in-flight call: the work stopped, which is the point.
@@ -306,12 +336,21 @@ export class SummarizeJob implements ToolBacking {
 
       // Only the summary came from the model. The id, the heading and the order are echoed from
       // the request, so the outline keeps code's structure whatever the summary says.
-      outlined.push({ id: segment.id, heading: segment.heading, order: index, summary });
+      outlined.push({
+        id: segment.id,
+        heading: segment.heading,
+        order: index,
+        summary,
+      });
       handle.report(outlined.length, segmentsTotal);
     }
 
     if (handle.signal.aborted) {
-      return payloadOutcome({ status: 'cancelled', segmentsDone: outlined.length, segmentsTotal });
+      return payloadOutcome({
+        status: 'cancelled',
+        segmentsDone: outlined.length,
+        segmentsTotal,
+      });
     }
 
     return payloadOutcome({

@@ -15,7 +15,16 @@
 // Per record or check it spawns `git config` once and `git hash-object --stdin-paths` once (git must be on PATH),
 // with line-ending conversion on and every filter driver off, and writes only the manifest.
 import { randomBytes } from 'node:crypto';
-import { lstatSync, readdirSync, readFileSync, readlinkSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  lstatSync,
+  readdirSync,
+  readFileSync,
+  readlinkSync,
+  realpathSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
@@ -85,7 +94,9 @@ export function assertLocal(path, depth = 0) {
     throw new Error(`more than 20 links: ${path}`);
   }
 
-  const parts = resolve(path).split(sep).filter((part) => part !== '');
+  const parts = resolve(path)
+    .split(sep)
+    .filter((part) => part !== '');
   let current = `${parts[0] ?? ''}${sep}`;
 
   for (const [index, part] of parts.slice(1).entries()) {
@@ -97,7 +108,13 @@ export function assertLocal(path, depth = 0) {
     }
 
     if (stat.isSymbolicLink()) {
-      assertLocal(join(resolve(dirname(current), readlinkSync(current)), ...parts.slice(index + 2)), depth + 1);
+      assertLocal(
+        join(
+          resolve(dirname(current), readlinkSync(current)),
+          ...parts.slice(index + 2),
+        ),
+        depth + 1,
+      );
 
       return;
     }
@@ -112,7 +129,12 @@ export function assertLocal(path, depth = 0) {
 function below(root, path) {
   const fromRoot = relative(root, path);
 
-  if (fromRoot === '' || fromRoot === '..' || fromRoot.startsWith(`..${sep}`) || isAbsolute(fromRoot)) {
+  if (
+    fromRoot === '' ||
+    fromRoot === '..' ||
+    fromRoot.startsWith(`..${sep}`) ||
+    isAbsolute(fromRoot)
+  ) {
     return null;
   }
 
@@ -186,11 +208,19 @@ export function admit(root, path, kind = 'file') {
   const real = realpathSync.native(path);
   const segments = below(root, real);
 
-  if (segments === null || segments.some((segment) => segment.toLowerCase() === 'node_modules')) {
-    return { real: null, problem: 'inside node_modules or outside the repository' };
+  if (
+    segments === null ||
+    segments.some((segment) => segment.toLowerCase() === 'node_modules')
+  ) {
+    return {
+      real: null,
+      problem: 'inside node_modules or outside the repository',
+    };
   }
 
-  return safeRelative(segments.join('/')) ? { real, problem: null } : { real: null, problem: 'not a plain repository path' };
+  return safeRelative(segments.join('/'))
+    ? { real, problem: null }
+    : { real: null, problem: 'not a plain repository path' };
 }
 
 /**
@@ -202,7 +232,15 @@ export function admit(root, path, kind = 'file') {
 function safeRelative(path) {
   return (
     !UNPRINTABLE.test(path) &&
-    path.split('/').every((segment) => segment !== '' && segment !== '.' && segment !== '..' && !/[\\:\0]/.test(segment))
+    path
+      .split('/')
+      .every(
+        (segment) =>
+          segment !== '' &&
+          segment !== '.' &&
+          segment !== '..' &&
+          !/[\\:\0]/.test(segment),
+      )
   );
 }
 
@@ -228,7 +266,9 @@ export function printable(text) {
  * @returns {import('node:child_process').SpawnSyncReturns<string>}
  */
 function gitIn(root, args, input) {
-  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^GIT_/i.test(key)));
+  const env = Object.fromEntries(
+    Object.entries(process.env).filter(([key]) => !/^GIT_/i.test(key)),
+  );
 
   return spawnSync('git', args, {
     cwd: root,
@@ -263,26 +303,48 @@ export function blobHashes(root, paths) {
 
     // --stdin-paths reads one path per line and C-unquotes a line that starts with a double quote.
     if (/[\r\n]/.test(rel) || rel.startsWith('"')) {
-      throw new Error(`a path with a line break or a leading double quote cannot be hashed: ${printable(rel)}`);
+      throw new Error(
+        `a path with a line break or a leading double quote cannot be hashed: ${printable(rel)}`,
+      );
     }
 
     return rel;
   });
   const drivers = new Set(
-    (gitIn(root, ['config', '--name-only', '--get-regexp', '^filter\\.']).stdout ?? '')
+    (
+      gitIn(root, ['config', '--name-only', '--get-regexp', '^filter\\.'])
+        .stdout ?? ''
+    )
       .split(/\r?\n/)
       .filter((line) => line.startsWith('filter.'))
       .map((line) => line.slice('filter.'.length, line.lastIndexOf('.'))),
   );
   const off = [...drivers].flatMap((name) =>
-    ['clean=', 'smudge=', 'process=', 'required=false'].flatMap((setting) => ['-c', `filter.${name}.${setting}`]),
+    ['clean=', 'smudge=', 'process=', 'required=false'].flatMap((setting) => [
+      '-c',
+      `filter.${name}.${setting}`,
+    ]),
   );
-  const r = gitIn(root, [...off, 'hash-object', '--stdin-paths'], `${relativePaths.join('\n')}\n`);
+  const r = gitIn(
+    root,
+    [...off, 'hash-object', '--stdin-paths'],
+    `${relativePaths.join('\n')}\n`,
+  );
   const lines = (r.stdout ?? '').split(/\r?\n/).filter((line) => line !== '');
 
-  if (r.status !== 0 || lines.length !== unique.length || !lines.every((line) => SHA.test(line))) {
-    const why = (r.stderr || String(r.error ?? '') || `${lines.length} hashes for ${unique.length} files`).trim();
-    throw new Error(`git hash-object failed in ${printable(root)}: ${printable(why)}`);
+  if (
+    r.status !== 0 ||
+    lines.length !== unique.length ||
+    !lines.every((line) => SHA.test(line))
+  ) {
+    const why = (
+      r.stderr ||
+      String(r.error ?? '') ||
+      `${lines.length} hashes for ${unique.length} files`
+    ).trim();
+    throw new Error(
+      `git hash-object failed in ${printable(root)}: ${printable(why)}`,
+    );
   }
 
   unique.forEach((path, i) => hashes.set(path, lines[i] ?? ''));
@@ -336,7 +398,9 @@ export function readCommit(root) {
     let gitDir = dotGit;
 
     if (lstatSync(dotGit).isFile()) {
-      const line = /^gitdir:\s*(.+)$/m.exec(plain(root, dotGit) ?? '')?.[1]?.trim();
+      const line = /^gitdir:\s*(.+)$/m
+        .exec(plain(root, dotGit) ?? '')?.[1]
+        ?.trim();
 
       if (line === undefined) {
         return null;
@@ -347,7 +411,8 @@ export function readCommit(root) {
 
     assertLocal(gitDir);
     const commondir = plain(gitDir, join(gitDir, 'commondir'));
-    const common = commondir === null ? gitDir : resolve(gitDir, commondir.trim());
+    const common =
+      commondir === null ? gitDir : resolve(gitDir, commondir.trim());
     assertLocal(common);
     const head = (plain(gitDir, join(gitDir, 'HEAD')) ?? '').trim();
     const ref = /^ref:\s*(refs\/\S+)$/.exec(head)?.[1];
@@ -437,9 +502,11 @@ export function closure(root, entries, ts) {
   }
 
   /** @type {(path: string, kind?: 'file' | 'dir') => boolean} */
-  const allowed = (path, kind = 'file') => admit(root, resolve(path), kind).problem === null;
+  const allowed = (path, kind = 'file') =>
+    admit(root, resolve(path), kind).problem === null;
   /** @type {(path: string) => string | undefined} */
-  const read = (path) => (allowed(path) ? readFileSync(resolve(path), 'utf8') : undefined);
+  const read = (path) =>
+    allowed(path) ? readFileSync(resolve(path), 'utf8') : undefined;
   /** @type {import('typescript').ParseConfigHost} */
   const host = {
     useCaseSensitiveFileNames: ts.sys.useCaseSensitiveFileNames,
@@ -464,8 +531,16 @@ export function closure(root, entries, ts) {
 
     if (allowed(path)) {
       const source = ts.readJsonConfigFile(path, read);
-      const parsed = ts.parseJsonSourceFileConfigFileContent(source, host, dir, undefined, path);
-      const extended = (source.extendedSourceFiles ?? []).map((file) => resolve(file));
+      const parsed = ts.parseJsonSourceFileConfigFileContent(
+        source,
+        host,
+        dir,
+        undefined,
+        path,
+      );
+      const extended = (source.extendedSourceFiles ?? []).map((file) =>
+        resolve(file),
+      );
       config = { options: parsed.options, files: [path, ...extended] };
     } else if (below(root, dir) !== null) {
       config = configFor(dirname(dir));
@@ -489,7 +564,12 @@ export function closure(root, entries, ts) {
     const info = ts.preProcessFile(text, true, true);
 
     for (const reference of info.importedFiles) {
-      const resolved = ts.resolveModuleName(reference.fileName, file, config.options, host).resolvedModule;
+      const resolved = ts.resolveModuleName(
+        reference.fileName,
+        file,
+        config.options,
+        host,
+      ).resolvedModule;
 
       if (resolved !== undefined && !resolved.isExternalLibraryImport) {
         found.push(resolve(resolved.resolvedFileName));
@@ -497,15 +577,26 @@ export function closure(root, entries, ts) {
     }
 
     // ponytail: Angular's component URLs by text match; a URL built at run time is not followed.
-    const urls = [...text.matchAll(/\b(?:templateUrl|styleUrls?)\s*:\s*(\[[^\][]{0,4096}\]|(['"`])[^'"`\n]{0,4096}\2)/g)].flatMap((match) =>
-      [...(match[1] ?? '').matchAll(/(['"`])([^'"`\n]+)\1/g)].map((url) => url[2] ?? ''),
+    const urls = [
+      ...text.matchAll(
+        /\b(?:templateUrl|styleUrls?)\s*:\s*(\[[^\][]{0,4096}\]|(['"`])[^'"`\n]{0,4096}\2)/g,
+      ),
+    ].flatMap((match) =>
+      [...(match[1] ?? '').matchAll(/(['"`])([^'"`\n]+)\1/g)].map(
+        (url) => url[2] ?? '',
+      ),
     );
 
-    for (const name of [...info.referencedFiles.map((reference) => reference.fileName), ...urls]) {
+    for (const name of [
+      ...info.referencedFiles.map((reference) => reference.fileName),
+      ...urls,
+    ]) {
       found.push(resolve(dirname(file), name));
     }
 
-    for (const { real: path } of found.map((item) => admit(root, resolve(item)))) {
+    for (const { real: path } of found.map((item) =>
+      admit(root, resolve(item)),
+    )) {
       if (path !== null && !files.has(path)) {
         files.add(path);
         queue.push(path);
@@ -531,7 +622,11 @@ export function reasonProblem(value) {
     return 'is empty';
   }
 
-  if (value !== value.trim() || value.length > MAX_REASON || UNPRINTABLE.test(value)) {
+  if (
+    value !== value.trim() ||
+    value.length > MAX_REASON ||
+    UNPRINTABLE.test(value)
+  ) {
     return `is not one trimmed, printable line of at most ${MAX_REASON} characters`;
   }
 
@@ -558,7 +653,9 @@ export function parseManifest(value) {
     const missing = keys.filter((key) => !Object.hasOwn(item, key));
 
     if (extra.length > 0 || missing.length > 0) {
-      throw new Error(`${where} has unknown keys [${extra.join(', ')}] or lacks [${missing.join(', ')}]`);
+      throw new Error(
+        `${where} has unknown keys [${extra.join(', ')}] or lacks [${missing.join(', ')}]`,
+      );
     }
   };
   const top = object(value, MANIFEST);
@@ -572,7 +669,9 @@ export function parseManifest(value) {
   const features = new Map();
   let count = 0;
 
-  for (const [id, raw] of Object.entries(object(top['features'], `${MANIFEST} features`))) {
+  for (const [id, raw] of Object.entries(
+    object(top['features'], `${MANIFEST} features`),
+  )) {
     const where = `${MANIFEST} feature ${JSON.stringify(id)}`;
 
     if (!FEATURE_ID.test(id) || id === 'README') {
@@ -581,13 +680,24 @@ export function parseManifest(value) {
 
     const entry = object(raw, where);
     const isExternal = Object.hasOwn(entry, 'external');
-    exactKeys(entry, isExternal ? ['recordedAt', 'commit', 'external'] : ['provenAt', 'commit', 'method', 'entries', 'files'], where);
-    const { provenAt, recordedAt, commit, external, method, entries, files } = entry;
+    exactKeys(
+      entry,
+      isExternal
+        ? ['recordedAt', 'commit', 'external']
+        : ['provenAt', 'commit', 'method', 'entries', 'files'],
+      where,
+    );
+    const { provenAt, recordedAt, commit, external, method, entries, files } =
+      entry;
     const at = isExternal ? 'recordedAt' : 'provenAt';
     const date = isExternal ? recordedAt : provenAt;
 
     // The round trip accepts only what toISOString writes: no text Date.parse skips, no rolled-over February 31.
-    if (typeof date !== 'string' || Number.isNaN(Date.parse(date)) || new Date(date).toISOString() !== date) {
+    if (
+      typeof date !== 'string' ||
+      Number.isNaN(Date.parse(date)) ||
+      new Date(date).toISOString() !== date
+    ) {
       throw new Error(`${where}: ${at} is not a date as toISOString writes it`);
     }
 
@@ -615,7 +725,9 @@ export function parseManifest(value) {
     /** @type {Record<string, string>} */
     const hashes = Object.create(null);
 
-    for (const [path, hash] of Object.entries(object(files, `${where} files`))) {
+    for (const [path, hash] of Object.entries(
+      object(files, `${where} files`),
+    )) {
       count += 1;
 
       if (count > MAX_FILES) {
@@ -624,11 +736,15 @@ export function parseManifest(value) {
 
       if (
         !safeRelative(path) ||
-        path.split('/').some((segment) => segment.toLowerCase() === 'node_modules') ||
+        path
+          .split('/')
+          .some((segment) => segment.toLowerCase() === 'node_modules') ||
         typeof hash !== 'string' ||
         !BLOB.test(hash)
       ) {
-        throw new Error(`${where}: files has a bad path or hash: ${JSON.stringify(path)}`);
+        throw new Error(
+          `${where}: files has a bad path or hash: ${JSON.stringify(path)}`,
+        );
       }
 
       hashes[path] = hash;
@@ -637,12 +753,22 @@ export function parseManifest(value) {
     if (
       !Array.isArray(entries) ||
       entries.length === 0 ||
-      !entries.every((path) => typeof path === 'string' && Object.hasOwn(hashes, path))
+      !entries.every(
+        (path) => typeof path === 'string' && Object.hasOwn(hashes, path),
+      )
     ) {
-      throw new Error(`${where}: entries is not a non-empty list of paths in files`);
+      throw new Error(
+        `${where}: entries is not a non-empty list of paths in files`,
+      );
     }
 
-    features.set(id, { provenAt: date, commit, method: way, entries: /** @type {string[]} */ (entries), files: hashes });
+    features.set(id, {
+      provenAt: date,
+      commit,
+      method: way,
+      entries: /** @type {string[]} */ (entries),
+      files: hashes,
+    });
   }
 
   return { version: 1, features };
@@ -667,7 +793,9 @@ export function readManifest(skillDir) {
   }
 
   if (!stat.isFile() || stat.size > MAX_MANIFEST) {
-    throw new Error(`${MANIFEST} is not a regular file of at most ${MAX_MANIFEST} bytes`);
+    throw new Error(
+      `${MANIFEST} is not a regular file of at most ${MAX_MANIFEST} bytes`,
+    );
   }
 
   return parseManifest(JSON.parse(readFileSync(file, 'utf8')));
@@ -682,7 +810,12 @@ export function featureIds(skillDir) {
   const dir = join(skillDir, 'features');
 
   return readdirSync(dir)
-    .filter((name) => name.endsWith('.md') && name !== 'README.md' && lstatSync(join(dir, name)).isFile())
+    .filter(
+      (name) =>
+        name.endsWith('.md') &&
+        name !== 'README.md' &&
+        lstatSync(join(dir, name)).isFile(),
+    )
     .map((name) => name.slice(0, -'.md'.length))
     .filter((id) => FEATURE_ID.test(id));
 }
@@ -693,7 +826,11 @@ export function featureIds(skillDir) {
  * @returns {void}
  */
 function assertFeature(skillDir, id) {
-  if (!FEATURE_ID.test(id) || id === 'README' || !featureIds(skillDir).includes(id)) {
+  if (
+    !FEATURE_ID.test(id) ||
+    id === 'README' ||
+    !featureIds(skillDir).includes(id)
+  ) {
     throw new Error(`no feature file features/${id}.md`);
   }
 }
@@ -721,10 +858,19 @@ export function record(skillDir, id, entryArgs, external = null) {
 
   const entry =
     external === null
-      ? fingerprint(root, id, entryArgs ?? (previous === undefined || 'external' in previous ? undefined : previous.entries))
+      ? fingerprint(
+          root,
+          id,
+          entryArgs ??
+            (previous === undefined || 'external' in previous
+              ? undefined
+              : previous.entries),
+        )
       : externalEntry(root, external.trim());
   const ids = featureIds(skillDir);
-  const orphans = [...manifest.features.keys()].filter((key) => !ids.includes(key));
+  const orphans = [...manifest.features.keys()].filter(
+    (key) => !ids.includes(key),
+  );
 
   for (const orphan of orphans) {
     manifest.features.delete(orphan);
@@ -796,7 +942,11 @@ function externalEntry(root, reason) {
     throw new Error(`--external reason ${problem}`);
   }
 
-  return { recordedAt: new Date().toISOString(), commit: readCommit(root), external: reason };
+  return {
+    recordedAt: new Date().toISOString(),
+    commit: readCommit(root),
+    external: reason,
+  };
 }
 
 /**
@@ -822,7 +972,9 @@ function same(a, b) {
  * @returns {Record<string, string>}
  */
 function sorted(record) {
-  return Object.fromEntries(Object.entries(record).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
+  return Object.fromEntries(
+    Object.entries(record).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)),
+  );
 }
 
 /**
@@ -834,11 +986,18 @@ function sorted(record) {
 function writeManifest(skillDir, manifest) {
   const features = [...manifest.features.entries()]
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-    .map(([id, entry]) => [id, 'external' in entry ? entry : { ...entry, files: sorted(entry.files) }]);
+    .map(([id, entry]) => [
+      id,
+      'external' in entry ? entry : { ...entry, files: sorted(entry.files) },
+    ]);
   const file = join(skillDir, ...MANIFEST.split('/'));
   // A random name, so no committed link can sit where the write lands.
   const temporary = `${file}.${randomBytes(8).toString('hex')}.tmp`;
-  writeFileSync(temporary, `${JSON.stringify({ version: 1, features: Object.fromEntries(features) }, null, 2)}\n`, { flag: 'wx' });
+  writeFileSync(
+    temporary,
+    `${JSON.stringify({ version: 1, features: Object.fromEntries(features) }, null, 2)}\n`,
+    { flag: 'wx' },
+  );
   try {
     renameSync(temporary, file);
   } catch (error) {
@@ -863,7 +1022,12 @@ export function checkFeatures(skillDir, only) {
     assertFeature(skillDir, only);
   }
 
-  const ids = only === undefined ? [...new Set([...manifest.features.keys(), ...featureIds(skillDir)])].sort() : [only];
+  const ids =
+    only === undefined
+      ? [
+          ...new Set([...manifest.features.keys(), ...featureIds(skillDir)]),
+        ].sort()
+      : [only];
   /** @type {Map<string, { real: string, problem: null } | { real: null, problem: string }>} */
   const admitted = new Map();
 
@@ -900,7 +1064,8 @@ export function checkFeatures(skillDir, only) {
     const changed = [];
 
     for (const [path, hash] of Object.entries(proven.files)) {
-      const { real, problem } = admitted.get(path) ?? admit(root, resolve(root, ...path.split('/')));
+      const { real, problem } =
+        admitted.get(path) ?? admit(root, resolve(root, ...path.split('/')));
 
       if (real === null) {
         changed.push({ path, why: problem });
@@ -912,7 +1077,12 @@ export function checkFeatures(skillDir, only) {
       }
     }
 
-    return { id, status: changed.length === 0 ? 'fresh' : 'stale', proven, changed };
+    return {
+      id,
+      status: changed.length === 0 ? 'fresh' : 'stale',
+      proven,
+      changed,
+    };
   });
 }
 
@@ -925,7 +1095,10 @@ export function since(proven) {
     return '';
   }
 
-  return proven.commit?.slice(0, 12) ?? ('external' in proven ? proven.recordedAt : proven.provenAt);
+  return (
+    proven.commit?.slice(0, 12) ??
+    ('external' in proven ? proven.recordedAt : proven.provenAt)
+  );
 }
 
 /**
@@ -940,10 +1113,18 @@ export function mapFresh(skillDir) {
     const unproven = results.filter((result) => result.status === 'unproven');
     const fresh = results.filter((result) => result.status === 'fresh');
     const external = results.filter((result) => result.status === 'external');
-    const externalPart = external.length > 0 ? `external: ${external.map((result) => result.id).join(', ')}` : '';
+    const externalPart =
+      external.length > 0
+        ? `external: ${external.map((result) => result.id).join(', ')}`
+        : '';
 
     if (stale.length === 0 && unproven.length === 0) {
-      return { status: 'pass', detail: [`${fresh.length} features fresh`, externalPart].filter(Boolean).join('; ') };
+      return {
+        status: 'pass',
+        detail: [`${fresh.length} features fresh`, externalPart]
+          .filter(Boolean)
+          .join('; '),
+      };
     }
 
     return {
@@ -952,14 +1133,19 @@ export function mapFresh(skillDir) {
         stale.length > 0
           ? `stale: ${stale.map((result) => `${result.id} (since ${since(result.proven)}, ${result.changed.length} files changed)`).join(', ')}`
           : '',
-        unproven.length > 0 ? `unproven: ${unproven.map((result) => result.id).join(', ')}` : '',
+        unproven.length > 0
+          ? `unproven: ${unproven.map((result) => result.id).join(', ')}`
+          : '',
         externalPart,
       ]
         .filter(Boolean)
         .join('; '),
     };
   } catch (error) {
-    return { status: 'warn', detail: `could not check: ${printable(error instanceof Error ? error.message : String(error))}` };
+    return {
+      status: 'warn',
+      detail: `could not check: ${printable(error instanceof Error ? error.message : String(error))}`,
+    };
   }
 }
 
@@ -984,7 +1170,8 @@ export function main(argv, skillDir) {
   for (let i = 0; i < rest.length; i += 1) {
     const arg = rest[i];
     const next = rest[i + 1];
-    const value = next !== undefined && !next.startsWith('--') ? next : undefined;
+    const value =
+      next !== undefined && !next.startsWith('--') ? next : undefined;
 
     if (arg === '--json') {
       continue;
@@ -993,14 +1180,26 @@ export function main(argv, skillDir) {
     if (arg === '--feature' && feature === undefined && value !== undefined) {
       feature = value;
       i += 1;
-    } else if (arg === '--entries' && command === 'record' && entries === null) {
+    } else if (
+      arg === '--entries' &&
+      command === 'record' &&
+      entries === null
+    ) {
       entries = [];
 
-      while (rest[i + 1] !== undefined && !(rest[i + 1] ?? '').startsWith('--')) {
+      while (
+        rest[i + 1] !== undefined &&
+        !(rest[i + 1] ?? '').startsWith('--')
+      ) {
         entries.push(/** @type {string} */ (rest[i + 1]));
         i += 1;
       }
-    } else if (arg === '--external' && command === 'record' && external === null && value !== undefined) {
+    } else if (
+      arg === '--external' &&
+      command === 'record' &&
+      external === null &&
+      value !== undefined
+    ) {
       external = value;
       i += 1;
     } else {
@@ -1013,8 +1212,15 @@ export function main(argv, skillDir) {
   try {
     if (command === 'record' && feature !== undefined) {
       const { status, entry } = record(skillDir, feature, entries, external);
-      const what = 'external' in entry ? `external: ${entry.external}` : `${entry.method}, ${Object.keys(entry.files).length} files`;
-      console.log(json ? JSON.stringify({ feature, status, ...entry }, null, 2) : `[OK] ${feature}: ${status} (${what}, since ${since(entry)})`);
+      const what =
+        'external' in entry
+          ? `external: ${entry.external}`
+          : `${entry.method}, ${Object.keys(entry.files).length} files`;
+      console.log(
+        json
+          ? JSON.stringify({ feature, status, ...entry }, null, 2)
+          : `[OK] ${feature}: ${status} (${what}, since ${since(entry)})`,
+      );
 
       return 0;
     }
@@ -1028,18 +1234,34 @@ export function main(argv, skillDir) {
     const results = checkFeatures(skillDir, feature);
 
     if (json) {
-      console.log(JSON.stringify({ manifest: MANIFEST, features: results }, null, 2));
+      console.log(
+        JSON.stringify({ manifest: MANIFEST, features: results }, null, 2),
+      );
     } else {
       for (const { id, status, proven, changed } of results) {
-        const detail = proven !== null && 'external' in proven ? proven.external : changed.map((change) => `${change.path} ${change.why}`).join(', ');
-        const tag = status === 'fresh' || status === 'external' ? '[OK]' : '[WARN]';
-        console.log(`${tag} ${id}: ${status}${proven === null ? '' : ` since ${since(proven)}`}${detail === '' ? '' : `: ${detail}`}`);
+        const detail =
+          proven !== null && 'external' in proven
+            ? proven.external
+            : changed
+                .map((change) => `${change.path} ${change.why}`)
+                .join(', ');
+        const tag =
+          status === 'fresh' || status === 'external' ? '[OK]' : '[WARN]';
+        console.log(
+          `${tag} ${id}: ${status}${proven === null ? '' : ` since ${since(proven)}`}${detail === '' ? '' : `: ${detail}`}`,
+        );
       }
     }
 
-    return results.every((result) => result.status === 'fresh' || result.status === 'external') ? 0 : 1;
+    return results.every(
+      (result) => result.status === 'fresh' || result.status === 'external',
+    )
+      ? 0
+      : 1;
   } catch (error) {
-    const reason = printable(error instanceof Error ? error.message : String(error));
+    const reason = printable(
+      error instanceof Error ? error.message : String(error),
+    );
     console.log(json ? JSON.stringify({ error: reason }) : `[ERROR] ${reason}`);
 
     return 2;
@@ -1049,6 +1271,12 @@ export function main(argv, skillDir) {
 const self = fileURLToPath(import.meta.url);
 
 // import.meta.url is the real path, so compare real paths: run through a link, the CLI still runs.
-if (process.argv[1] && realpathSync.native(resolve(process.argv[1])) === realpathSync.native(self)) {
-  process.exitCode = main(process.argv.slice(2), realpathSync.native(join(dirname(self), '..')));
+if (
+  process.argv[1] &&
+  realpathSync.native(resolve(process.argv[1])) === realpathSync.native(self)
+) {
+  process.exitCode = main(
+    process.argv.slice(2),
+    realpathSync.native(join(dirname(self), '..')),
+  );
 }

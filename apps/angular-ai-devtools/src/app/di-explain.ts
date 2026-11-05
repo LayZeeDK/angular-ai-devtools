@@ -7,7 +7,10 @@ function injectorName(inj: any): string {
   return inj?.metadata?.type ? String(inj.metadata.type) : 'injector';
 }
 
-export function buildDiExplainFacts(path: DiResolutionPath | DiffResult, tokenName?: string): string[] {
+export function buildDiExplainFacts(
+  path: DiResolutionPath | DiffResult,
+  tokenName?: string,
+): string[] {
   const facts: string[] = [];
 
   if (path && typeof path === 'object' && 'sharedInjectors' in (path as any)) {
@@ -30,13 +33,16 @@ export function buildDiExplainFacts(path: DiResolutionPath | DiffResult, tokenNa
 
   const p = path as DiResolutionPath;
   facts.push(`Component: ${p?.component ?? ''}`);
-  const injList = (p && Array.isArray(p.path)) ? p.path : [];
+  const injList = p && Array.isArray(p.path) ? p.path : [];
   facts.push(`Injector count: ${injList.length}`);
   if (tokenName) facts.push(`Token: ${tokenName}`);
   for (const inj of injList) {
     const name = injectorName(inj);
     const tokens = Array.isArray(inj?.providers)
-      ? inj.providers.map((x: any) => (x && typeof x.token === 'string' ? x.token : '')).filter(Boolean).join(', ')
+      ? inj.providers
+          .map((x: any) => (x && typeof x.token === 'string' ? x.token : ''))
+          .filter(Boolean)
+          .join(', ')
       : '';
     facts.push(`${name}: ${tokens || 'no providers'}`);
   }

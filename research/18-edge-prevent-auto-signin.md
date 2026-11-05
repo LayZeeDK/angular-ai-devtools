@@ -5,7 +5,7 @@ Research date: 2026. Target: Microsoft Edge Stable 155 on Windows, launching wit
 ## TL;DR
 
 - `--disable-sync` and `--disable-features=msBrowserSignin` do **not** fully prevent auto-sign-in. `msBrowserSignin` is **not** a real Chromium/Edge feature flag — the real policy is `BrowserSignin` and the real feature flags are `msImplicitSignin`, `msProfileSignIn`, `msEdgeOSAccountInfoSubstrate`, etc.
-- ~~The authoritative, fully-effective mechanism is a set of **Edge policies** applied via the Windows Registry (HKCU or HKLM) under `SOFTWARE\Policies\Microsoft\Edge`. These take effect on the next browser start.~~ **Superseded in this program (measured 2026-10-19):** HKCU Edge policies are deliberately *not* used — the `control-ai-browsers` skill relies on the `ms*` switches alone (`.commandcode/skills/control-ai-browsers/SKILL.md:311-312`). The registry route documented below is what Microsoft documents, not what this repository's instances apply.
+- ~~The authoritative, fully-effective mechanism is a set of **Edge policies** applied via the Windows Registry (HKCU or HKLM) under `SOFTWARE\Policies\Microsoft\Edge`. These take effect on the next browser start.~~ **Superseded in this program (measured 2026-10-19):** HKCU Edge policies are deliberately _not_ used — the `control-ai-browsers` skill relies on the `ms*` switches alone (`.commandcode/skills/control-ai-browsers/SKILL.md:311-312`). The registry route documented below is what Microsoft documents, not what this repository's instances apply.
 - For a single ad-hoc launch with no persistence/account, use **`--guest`** or **`--bwsi`** (browse-without-sign-in) mode — these never touch the OS account.
 - For a fresh `--user-data-dir` profile that must still be a normal profile, combine the registry policies with the `ms*` feature flags below.
 
@@ -52,15 +52,15 @@ Caveat: the WebView2 reporter found that disabling **all** of the above still di
 
 Set these under `HKCU\Software\Policies\Microsoft\Edge` (current user, no admin) or `HKLM\Software\Policies\Microsoft\Edge` (machine-wide):
 
-| Value name | Type | Value | Effect |
-|---|---|---|---|
-| `BrowserSignin` | REG_DWORD | `0` | Disable browser sign-in entirely |
-| `ImplicitSignInEnabled` | REG_DWORD | `0` | Disable implicit (OS-account) sign-in |
-| `WebToBrowserSignInEnabled` | REG_DWORD | `0` | Disable web-to-browser sign-in CTA/seamless sign-in |
-| `SeamlessWebToBrowserSignInEnabled` | REG_DWORD | `0` | Disable seamless web-to-browser sign-in |
-| `NonRemovableProfileEnabled` | REG_DWORD | `0` | Prevent non-removable (auto-created OS) profiles |
-| `SyncDisabled` | REG_DWORD | `1` | Disable sync |
-| `HideFirstRunExperience` | REG_DWORD | `1` | Skip first-run experience (note: by design Edge still auto-signs in on first run unless the policies above are set) |
+| Value name                          | Type      | Value | Effect                                                                                                              |
+| ----------------------------------- | --------- | ----- | ------------------------------------------------------------------------------------------------------------------- |
+| `BrowserSignin`                     | REG_DWORD | `0`   | Disable browser sign-in entirely                                                                                    |
+| `ImplicitSignInEnabled`             | REG_DWORD | `0`   | Disable implicit (OS-account) sign-in                                                                               |
+| `WebToBrowserSignInEnabled`         | REG_DWORD | `0`   | Disable web-to-browser sign-in CTA/seamless sign-in                                                                 |
+| `SeamlessWebToBrowserSignInEnabled` | REG_DWORD | `0`   | Disable seamless web-to-browser sign-in                                                                             |
+| `NonRemovableProfileEnabled`        | REG_DWORD | `0`   | Prevent non-removable (auto-created OS) profiles                                                                    |
+| `SyncDisabled`                      | REG_DWORD | `1`   | Disable sync                                                                                                        |
+| `HideFirstRunExperience`            | REG_DWORD | `1`   | Skip first-run experience (note: by design Edge still auto-signs in on first run unless the policies above are set) |
 
 Source: Microsoft Learn policy docs (`BrowserSignin`, `ImplicitSignInEnabled`, `NonRemovableProfileEnabled`, `WebToBrowserSignInEnabled`, `SeamlessWebToBrowserSignInEnabled`) + the widely-used `Disable-EdgeAnnoyances.reg` gist by asheroto.
 
@@ -99,6 +99,7 @@ Machine-wide (elevated) variant: replace `HKCU:` with `HKLM:` and run as Adminis
 ```
 
 Notes:
+
 - `--disable-sync` is redundant with `SyncDisabled=1` policy but harmless.
 - `--no-first-run` + `--no-default-browser-check` suppress first-run UI; they do NOT by themselves stop auto-sign-in (per Microsoft docs, auto-sign-in still happens on first run for MSA/AAD Windows accounts).
 - The `ms*` flags are best-effort; the registry policies in section 3 are what actually prevent the profile from being created signed-in. Apply both.
@@ -122,12 +123,12 @@ These are the only options that guarantee zero interaction with the Windows acco
 - `--disable-features=msBrowserSignin` — `msBrowserSignin` is not a real feature flag; the policy is `BrowserSignin` (registry), not a `--disable-features` name.
 - `--disable-sync` alone — only disables sync, not implicit profile creation.
 - Setting `HideFirstRunExperience=1` alone — Microsoft docs explicitly state the user is still automatically signed in if the Windows account is MSA/AAD.
-- Disabling `msOneAuthWAM` (`--disable-features=msOneAuthWAM`) — this forces the legacy direct-WAM path, which *also* auto-signs in; deprecated/removed in Edge 157. Do not use as a workaround.
+- Disabling `msOneAuthWAM` (`--disable-features=msOneAuthWAM`) — this forces the legacy direct-WAM path, which _also_ auto-signs in; deprecated/removed in Edge 157. Do not use as a workaround.
 - Edge policies set only under `Software\Policies\Microsoft\Edge\WebView2` — these apply to WebView2 hosts, not to `msedge.exe`.
 
 ## 7. Edge 155 specifics
 
-- Edge 155 (Stable) introduced `--enable-features=msForceOneAuthWAM` for piloting OneAuth. This is for *testing* the new auth library, not for disabling sign-in.
+- Edge 155 (Stable) introduced `--enable-features=msForceOneAuthWAM` for piloting OneAuth. This is for _testing_ the new auth library, not for disabling sign-in.
 - Edge 157 retires the legacy direct-WAM path (MC1490911); organizations that relied on `--disable-features=msOneAuthWAM` must migrate. No new sign-in policies ship in 157.
 - Check the effective auth library per profile at `edge://signin-internals` → "Edge Auth Library Information" → "Library" (`OneAuth` vs `WAM`).
 

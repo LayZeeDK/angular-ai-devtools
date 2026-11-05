@@ -113,10 +113,14 @@ describe('ExtensionPromptService', () => {
   });
 
   it('explain() reports the create() error', async () => {
-    mockLanguageModel({ createError: 'NotAllowedError: Requires a user gesture' });
+    mockLanguageModel({
+      createError: 'NotAllowedError: Requires a user gesture',
+    });
     const result = await service.explain('22.2.2');
     expect(result.ok).toBe(false);
-    expect(service.error()).toContain('NotAllowedError: Requires a user gesture');
+    expect(service.error()).toContain(
+      'NotAllowedError: Requires a user gesture',
+    );
     expect(service.status()).toBe('error');
   });
 
@@ -131,7 +135,13 @@ describe('ExtensionPromptService', () => {
 
   it('is working while availability is checked, so a second click cannot start a second session', async () => {
     let release: (value: string) => void = () => undefined;
-    globalLm.LanguageModel = { availability: () => new Promise<string>((r) => (release = r)), create: async () => ({ prompt: async () => 'x', destroy: () => undefined }) };
+    globalLm.LanguageModel = {
+      availability: () => new Promise<string>((r) => (release = r)),
+      create: async () => ({
+        prompt: async () => 'x',
+        destroy: () => undefined,
+      }),
+    };
     const pending = service.checkAvailability();
     expect(service.working()).toBe(true);
     release('available');

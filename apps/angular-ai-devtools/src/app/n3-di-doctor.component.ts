@@ -11,7 +11,8 @@ import type { DiffResult } from './di-diff-display';
   selector: 'app-n3-di-doctor',
   template: `
     <h2>DI Doctor</h2>
-    <label class="picker">Component:
+    <label class="picker"
+      >Component:
       <select (change)="select($event)" data-testid="component-picker">
         @for (p of service.availablePaths(); track p.component) {
           <option [value]="p.component">{{ p.component }}</option>
@@ -25,7 +26,9 @@ import type { DiffResult } from './di-diff-display';
     @if (view() === 'path') {
       <div data-testid="path-display">
         @for (e of pathEntries(); track e.nodeIndex) {
-          <div class="injector"><span class="name">{{ e.injectorName }}</span> <span class="depth">L{{ e.depth }}</span>
+          <div class="injector">
+            <span class="name">{{ e.injectorName }}</span>
+            <span class="depth">L{{ e.depth }}</span>
             @for (p of e.providers; track p.token) {
               <span class="provider">{{ p.token }} ({{ p.provider }})</span>
             }
@@ -35,8 +38,12 @@ import type { DiffResult } from './di-diff-display';
     } @else {
       <div data-testid="diff-display">
         @if (diffResult()) {
-          <div class="verdict">{{ diffResult()!.same ? 'same' : 'divergent' }}</div>
-          <div class="shared">Shared: {{ diffResult()!.sharedInjectors.length }} injectors</div>
+          <div class="verdict">
+            {{ diffResult()!.same ? 'same' : 'divergent' }}
+          </div>
+          <div class="shared">
+            Shared: {{ diffResult()!.sharedInjectors.length }} injectors
+          </div>
           @for (p of diffResult()!.providersA; track p.token) {
             <span class="provider-a">{{ p.token }}</span>
           }
@@ -53,7 +60,14 @@ import type { DiffResult } from './di-diff-display';
       <p data-testid="ai-answer">{{ answer() }}</p>
     }
   `,
-  styles: [`h2{font-size:14px;margin:0;}`],
+  styles: [
+    `
+      h2 {
+        font-size: 14px;
+        margin: 0;
+      }
+    `,
+  ],
 })
 export class N3DiDoctorComponent {
   protected readonly service = inject(DiDoctorService);
@@ -76,7 +90,8 @@ export class N3DiDoctorComponent {
 
   protected select(event: Event): void {
     const v = (event.target as HTMLSelectElement).value;
-    const found = this.service.availablePaths().find((p) => p.component === v) ?? null;
+    const found =
+      this.service.availablePaths().find((p) => p.component === v) ?? null;
     this.service.selectedPath.set(found);
   }
 

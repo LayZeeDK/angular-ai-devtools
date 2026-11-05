@@ -42,25 +42,44 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   if (msg?.type === 'angular-ai:state-request') {
     const tabId = msg.tabId;
     if (typeof tabId !== 'number') {
-      reply({ ok: false, reason: 'angular-ai:state-request: no inspected tab named' });
+      reply({
+        ok: false,
+        reason: 'angular-ai:state-request: no inspected tab named',
+      });
       return true;
     }
-    chrome.tabs.sendMessage(tabId, { type: 'angular-ai:replay-request' }, (replay) => {
-      // A named refusal, not silence: the panel must be able to tell "no relay here" from "nothing latched".
-      const lastError = chrome.runtime.lastError;
-      if (lastError || !replay) {
-        reply({ ok: false, reason: 'angular-ai:state-request: no relay answered for tab ' + tabId });
-        return;
-      }
-      // Re-emit to the panel as the two messages it already understands.
-      if (replay.state && typeof replay.state === 'object') {
-        chrome.runtime.sendMessage({ type: 'angular-ai:state', ...replay.state, tabId });
-      }
-      if (typeof replay.version === 'string' && replay.version !== '') {
-        chrome.runtime.sendMessage({ type: 'angular-detected', version: replay.version, tabId });
-      }
-      reply({ ok: true });
-    });
+    chrome.tabs.sendMessage(
+      tabId,
+      { type: 'angular-ai:replay-request' },
+      (replay) => {
+        // A named refusal, not silence: the panel must be able to tell "no relay here" from "nothing latched".
+        const lastError = chrome.runtime.lastError;
+        if (lastError || !replay) {
+          reply({
+            ok: false,
+            reason:
+              'angular-ai:state-request: no relay answered for tab ' + tabId,
+          });
+          return;
+        }
+        // Re-emit to the panel as the two messages it already understands.
+        if (replay.state && typeof replay.state === 'object') {
+          chrome.runtime.sendMessage({
+            type: 'angular-ai:state',
+            ...replay.state,
+            tabId,
+          });
+        }
+        if (typeof replay.version === 'string' && replay.version !== '') {
+          chrome.runtime.sendMessage({
+            type: 'angular-detected',
+            version: replay.version,
+            tabId,
+          });
+        }
+        reply({ ok: true });
+      },
+    );
     return true;
   }
 
@@ -71,23 +90,37 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     const tabId = msg.tabId;
     const action = msg.action;
     if (typeof tabId !== 'number') {
-      reply({ ok: false, reason: 'angular-ai:picker-command: no inspected tab named' });
+      reply({
+        ok: false,
+        reason: 'angular-ai:picker-command: no inspected tab named',
+      });
       return true;
     }
     if (action !== 'arm' && action !== 'cancel') {
-      reply({ ok: false, reason: 'angular-ai:picker-command: action must be arm or cancel' });
+      reply({
+        ok: false,
+        reason: 'angular-ai:picker-command: action must be arm or cancel',
+      });
       return true;
     }
     // The command crosses into the page through the relay in that tab, as the replay request does.
-    chrome.tabs.sendMessage(tabId, { type: 'angular-ai:picker-command', action }, (forwarded) => {
-      // A forwarded command no content script received is a silent drop, so it is refused by name too.
-      const lastError = chrome.runtime.lastError;
-      if (lastError || !forwarded) {
-        reply({ ok: false, reason: 'angular-ai:picker-command: no relay answered for tab ' + tabId });
-        return;
-      }
-      reply({ ok: true });
-    });
+    chrome.tabs.sendMessage(
+      tabId,
+      { type: 'angular-ai:picker-command', action },
+      (forwarded) => {
+        // A forwarded command no content script received is a silent drop, so it is refused by name too.
+        const lastError = chrome.runtime.lastError;
+        if (lastError || !forwarded) {
+          reply({
+            ok: false,
+            reason:
+              'angular-ai:picker-command: no relay answered for tab ' + tabId,
+          });
+          return;
+        }
+        reply({ ok: true });
+      },
+    );
     return true;
   }
 

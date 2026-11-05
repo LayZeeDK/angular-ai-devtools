@@ -91,7 +91,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /** One named child record, or `null` when the parent is absent or the child is not a record. */
-function childOf(parent: Record<string, unknown> | null, key: string): Record<string, unknown> | null {
+function childOf(
+  parent: Record<string, unknown> | null,
+  key: string,
+): Record<string, unknown> | null {
   if (parent === null) {
     return null;
   }
@@ -112,15 +115,20 @@ function readChrome(): Record<string, unknown> | null {
  * else (a string, a float, a negative number) is not read as a tab id, because reporting a guessed
  * tab id is worse than reporting none.
  */
-function readInspectedTabId(chrome: Record<string, unknown> | null): number | null {
-  return readSafely(
-    () => {
-      const inspectedWindow = childOf(childOf(chrome, 'devtools'), 'inspectedWindow');
-      const tabId: unknown = inspectedWindow === null ? undefined : inspectedWindow['tabId'];
-      return typeof tabId === 'number' && Number.isInteger(tabId) && tabId >= 0 ? tabId : null;
-    },
-    null,
-  );
+function readInspectedTabId(
+  chrome: Record<string, unknown> | null,
+): number | null {
+  return readSafely(() => {
+    const inspectedWindow = childOf(
+      childOf(chrome, 'devtools'),
+      'inspectedWindow',
+    );
+    const tabId: unknown =
+      inspectedWindow === null ? undefined : inspectedWindow['tabId'];
+    return typeof tabId === 'number' && Number.isInteger(tabId) && tabId >= 0
+      ? tabId
+      : null;
+  }, null);
 }
 
 /** Whether `chrome.runtime` exists — a measurement of the object, not an assumption either way. */
@@ -130,14 +138,15 @@ function readChromeRuntime(chrome: Record<string, unknown> | null): boolean {
 
 /** This panel's `location.pathname`, or `null` when this realm has no location. */
 function readPathname(): string | null {
-  return readSafely(
-    () => {
-      const location: unknown = (globalThis as { location?: unknown }).location;
-      const pathname: unknown = isRecord(location) ? location['pathname'] : undefined;
-      return typeof pathname === 'string' && pathname.length > 0 ? pathname : null;
-    },
-    null,
-  );
+  return readSafely(() => {
+    const location: unknown = (globalThis as { location?: unknown }).location;
+    const pathname: unknown = isRecord(location)
+      ? location['pathname']
+      : undefined;
+    return typeof pathname === 'string' && pathname.length > 0
+      ? pathname
+      : null;
+  }, null);
 }
 
 /**
@@ -171,7 +180,9 @@ export function panelRouteBase(pathname: string | null): string | null {
  * The whole answer, as a function of one realm reading. Pure, so the error case and both result
  * cases are the same code path the backing runs.
  */
-export function panelEnvironmentOutcome(environment: PanelEnvironment): ToolOutcome {
+export function panelEnvironmentOutcome(
+  environment: PanelEnvironment,
+): ToolOutcome {
   const routeBase = panelRouteBase(environment.pathname);
   if (environment.inspectedTabId === null && routeBase === null) {
     return {
@@ -205,10 +216,11 @@ let panelEnvironmentInjector: Injector | null = null;
 function panelEnvironmentSource(): PanelEnvironmentSource {
   try {
     // `null` is the not-found value: the injector answers `null` for a token nothing provided.
-    const provided = panelEnvironmentInjector?.get<PanelEnvironmentSource | null>(
-      PANEL_ENVIRONMENT,
-      null,
-    );
+    const provided =
+      panelEnvironmentInjector?.get<PanelEnvironmentSource | null>(
+        PANEL_ENVIRONMENT,
+        null,
+      );
     if (typeof provided === 'function') {
       return provided;
     }
@@ -230,7 +242,8 @@ const panelEnvironmentBacking: ToolBacking = {
 export const panelEnvironmentTool = defineTool(
   {
     id: PANEL_ENVIRONMENT_TOOL_ID,
-    title: 'Read the panel environment: the DevTools tab id, the route base and chrome.runtime',
+    title:
+      'Read the panel environment: the DevTools tab id, the route base and chrome.runtime',
     kind: 'read',
     host: ['panel', 'extension-API'],
     outcome: 'result',

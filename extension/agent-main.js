@@ -6,14 +6,14 @@
  * cycles and dispatches them to the isolated-world relay as a window CustomEvent.
  */
 (function (global) {
-  "use strict";
+  'use strict';
 
-  var NS = "angular-ai";
-  var RECORD_EVENT = NS + ":record";
-  var STATE_EVENT = NS + ":state";
-  var DI_QUERY_EVENT = NS + ":di-query";
-  var DI_GRAPH_EVENT = NS + ":di-graph";
-  var ERROR_CAPTURE_EVENT = NS + ":error-capture";
+  var NS = 'angular-ai';
+  var RECORD_EVENT = NS + ':record';
+  var STATE_EVENT = NS + ':state';
+  var DI_QUERY_EVENT = NS + ':di-query';
+  var DI_GRAPH_EVENT = NS + ':di-graph';
+  var ERROR_CAPTURE_EVENT = NS + ':error-capture';
 
   // ProfilerEvent enum values (packages/core/primitives/devtools/src/profiler_types.ts).
   // The enum is not published on the page's `ng` global, so the values are hard-coded for
@@ -32,11 +32,11 @@
   var subscriber = null;
   var subscriberRemover = null;
   var installed = false;
-  var zoneMode = "noop";
+  var zoneMode = 'noop';
   var ngObj = null;
 
   function readNg() {
-    return typeof globalThis !== "undefined" ? globalThis.ng : global.ng;
+    return typeof globalThis !== 'undefined' ? globalThis.ng : global.ng;
   }
 
   // Mirrors Angular DevTools' profile-formatter: the generated listener name is
@@ -47,12 +47,12 @@
     if (!name) return null;
     var m = name.match(/(.+?)_(\d+)_listener$/);
     if (m) {
-      var parts = m[1].split("_");
+      var parts = m[1].split('_');
       return parts[parts.length - 1] || null;
     }
     m = name.match(/^(.+)_HostBindingHandler$/);
     if (m) {
-      var parts2 = m[1].split("_");
+      var parts2 = m[1].split('_');
       return parts2[parts2.length - 1] || null;
     }
     return null;
@@ -70,14 +70,25 @@
       getInjectorProviders: false,
     };
     if (!ng) return f;
-    f.setProfiler = typeof ng.ɵsetProfiler === "function" || typeof ng.setProfiler === "function";
-    f.getSignalGraph = typeof ng.ɵgetSignalGraph === "function" || typeof ng.getSignalGraph === "function";
-    f.getHostElement = typeof ng.getHostElement === "function" || typeof ng.ɵgetHostElement === "function";
-    f.getInjector = typeof ng.getInjector === "function" || typeof ng.ɵgetInjectorFromNode === "function";
-    f.getDirectiveMetadata = typeof ng.getDirectiveMetadata === "function" || typeof ng.ɵgetDirectiveMetadata === "function";
-    f.getInjectorResolutionPath = typeof ng.ɵgetInjectorResolutionPath === "function";
-    f.getInjectorMetadata = typeof ng.ɵgetInjectorMetadata === "function";
-    f.getInjectorProviders = typeof ng.ɵgetInjectorProviders === "function";
+    f.setProfiler =
+      typeof ng.ɵsetProfiler === 'function' ||
+      typeof ng.setProfiler === 'function';
+    f.getSignalGraph =
+      typeof ng.ɵgetSignalGraph === 'function' ||
+      typeof ng.getSignalGraph === 'function';
+    f.getHostElement =
+      typeof ng.getHostElement === 'function' ||
+      typeof ng.ɵgetHostElement === 'function';
+    f.getInjector =
+      typeof ng.getInjector === 'function' ||
+      typeof ng.ɵgetInjectorFromNode === 'function';
+    f.getDirectiveMetadata =
+      typeof ng.getDirectiveMetadata === 'function' ||
+      typeof ng.ɵgetDirectiveMetadata === 'function';
+    f.getInjectorResolutionPath =
+      typeof ng.ɵgetInjectorResolutionPath === 'function';
+    f.getInjectorMetadata = typeof ng.ɵgetInjectorMetadata === 'function';
+    f.getInjectorProviders = typeof ng.ɵgetInjectorProviders === 'function';
     return f;
   }
 
@@ -86,32 +97,55 @@
   // global Zone marker only when no injector/NgZone is available.
   function detectZone(ng, hostElement) {
     var n = ng || ngObj || readNg();
-    var getInjector = n && (typeof n.getInjector === "function" ? n.getInjector : (typeof n.ɵgetInjectorFromNode === "function" ? n.ɵgetInjectorFromNode : null));
+    var getInjector =
+      n &&
+      (typeof n.getInjector === 'function'
+        ? n.getInjector
+        : typeof n.ɵgetInjectorFromNode === 'function'
+          ? n.ɵgetInjectorFromNode
+          : null);
     var injector = null;
     if (getInjector) {
       try {
         var root = hostElement;
-        if (!root && typeof document !== "undefined" && document.querySelector) {
-          root = document.querySelector("app-root") || document.body || document.documentElement;
+        if (
+          !root &&
+          typeof document !== 'undefined' &&
+          document.querySelector
+        ) {
+          root =
+            document.querySelector('app-root') ||
+            document.body ||
+            document.documentElement;
         }
         if (root) injector = getInjector(root);
-      } catch (e) { injector = null; }
+      } catch (e) {
+        injector = null;
+      }
     }
-    if (injector && typeof injector.get === "function") {
+    if (injector && typeof injector.get === 'function') {
       var zone = null;
-      try { zone = injector.get("NgZone"); } catch (e) { zone = null; }
+      try {
+        zone = injector.get('NgZone');
+      } catch (e) {
+        zone = null;
+      }
       if (!zone) {
-        try { zone = injector.get(globalThis.NgZone); } catch (e) { zone = null; }
+        try {
+          zone = injector.get(globalThis.NgZone);
+        } catch (e) {
+          zone = null;
+        }
       }
       if (zone && zone.constructor) {
-        var name = zone.constructor.name || "";
-        if (name === "ZoneNgZone" || /ZoneNgZone/.test(name)) return "zone";
-        if (name === "NoopNgZone" || /NoopNgZone/.test(name)) return "noop";
+        var name = zone.constructor.name || '';
+        if (name === 'ZoneNgZone' || /ZoneNgZone/.test(name)) return 'zone';
+        if (name === 'NoopNgZone' || /NoopNgZone/.test(name)) return 'noop';
       }
-      if (zone) return "zone";
+      if (zone) return 'zone';
     }
-    if (globalThis && globalThis.Zone) return "zone";
-    return "noop";
+    if (globalThis && globalThis.Zone) return 'zone';
+    return 'noop';
   }
 
   // --- Companion opt-in: the page's own `globalThis.ngAiDevTools` entry (T004) ----------------
@@ -130,14 +164,14 @@
   // the panel renders any published bit as present, so a bit set from a `typeof` read would read
   // to the user as a full opt-in (N1, N2). Nothing is added to the `features` map either: an extra
   // name there would reach the group gate but neither `app_facts`' closed tuple nor the chip.
-  var COMPANION_KEY = "ngAiDevTools";
+  var COMPANION_KEY = 'ngAiDevTools';
 
   // The accepted vocabulary, spelled once in the page realm. The panel keeps its own closed copy of
   // the same literal (T005); the identical interface-contract bullet is what makes them one promise.
-  var COMPANION_ACCEPTED_VERSION = "0.2202.0";
+  var COMPANION_ACCEPTED_VERSION = '0.2202.0';
   var COMPANION_SYMBOLS = [
-    { pkg: "@angular/platform-browser", name: "Meta" },
-    { pkg: "@angular/router", name: "Router" },
+    { pkg: '@angular/platform-browser', name: 'Meta' },
+    { pkg: '@angular/router', name: 'Router' },
   ];
 
   // The bounded re-check: a handful of attempts on a timer, then it stops. No new event type, no
@@ -157,7 +191,11 @@
 
   function isVettedSymbol(pkg, name) {
     for (var i = 0; i < COMPANION_SYMBOLS.length; i++) {
-      if (COMPANION_SYMBOLS[i].pkg === pkg && COMPANION_SYMBOLS[i].name === name) return true;
+      if (
+        COMPANION_SYMBOLS[i].pkg === pkg &&
+        COMPANION_SYMBOLS[i].name === name
+      )
+        return true;
     }
     return false;
   }
@@ -166,7 +204,9 @@
   // `__ngRecorder`, and it never writes it (N3).
   function readCompanionEntry() {
     try {
-      return typeof globalThis !== "undefined" ? globalThis[COMPANION_KEY] : undefined;
+      return typeof globalThis !== 'undefined'
+        ? globalThis[COMPANION_KEY]
+        : undefined;
     } catch (e) {
       return undefined;
     }
@@ -175,7 +215,11 @@
   // A named answer carrying no accepted symbol, so `declared` always equals `symbols.length` and an
   // `absent` answer is a state, never an empty symbol list.
   function companionRefusal(state, version) {
-    return { state: state, version: typeof version === "string" && version.length ? version : null, symbols: [] };
+    return {
+      state: state,
+      version: typeof version === 'string' && version.length ? version : null,
+      symbols: [],
+    };
   }
 
   // Validates the entry against the package's own facade shape before believing anything: a
@@ -189,59 +233,66 @@
   // own answer, and a missing symbol is not a refusal but the honest "declared, no symbols".
   function probeCompanion() {
     var entry = readCompanionEntry();
-    if (typeof entry === "undefined") return companionRefusal("absent", null);
-    if (entry === null || typeof entry !== "object" || isArrayValue(entry)) return companionRefusal("foreign-entry", null);
+    if (typeof entry === 'undefined') return companionRefusal('absent', null);
+    if (entry === null || typeof entry !== 'object' || isArrayValue(entry))
+      return companionRefusal('foreign-entry', null);
     var version;
     try {
       version = entry.version;
     } catch (e) {
-      return companionRefusal("foreign-entry", null);
+      return companionRefusal('foreign-entry', null);
     }
-    if (typeof version !== "string" || version.length === 0) return companionRefusal("foreign-entry", null);
+    if (typeof version !== 'string' || version.length === 0)
+      return companionRefusal('foreign-entry', null);
     var accepted = [];
     var keys;
     try {
       keys = Object.keys(entry);
     } catch (e) {
-      return companionRefusal("foreign-entry", version);
+      return companionRefusal('foreign-entry', version);
     }
     for (var i = 0; i < keys.length; i++) {
       var pkg = keys[i];
-      if (pkg === "version") continue;
-      if (!isVettedPackage(pkg)) return companionRefusal("foreign-entry", version);
+      if (pkg === 'version') continue;
+      if (!isVettedPackage(pkg))
+        return companionRefusal('foreign-entry', version);
       var group;
       try {
         group = entry[pkg];
       } catch (e) {
-        return companionRefusal("foreign-entry", version);
+        return companionRefusal('foreign-entry', version);
       }
-      if (group === null || typeof group !== "object" || isArrayValue(group)) return companionRefusal("foreign-entry", version);
+      if (group === null || typeof group !== 'object' || isArrayValue(group))
+        return companionRefusal('foreign-entry', version);
       var names;
       try {
         names = Object.keys(group);
       } catch (e) {
-        return companionRefusal("foreign-entry", version);
+        return companionRefusal('foreign-entry', version);
       }
       for (var j = 0; j < names.length; j++) {
         var name = names[j];
-        if (!isVettedSymbol(pkg, name)) return companionRefusal("foreign-entry", version);
+        if (!isVettedSymbol(pkg, name))
+          return companionRefusal('foreign-entry', version);
         var value;
         try {
           value = group[name];
         } catch (e) {
-          return companionRefusal("foreign-entry", version);
+          return companionRefusal('foreign-entry', version);
         }
-        if (typeof value !== "function") return companionRefusal("foreign-entry", version);
+        if (typeof value !== 'function')
+          return companionRefusal('foreign-entry', version);
         accepted.push({ pkg: pkg, name: name, value: value });
       }
     }
-    if (version !== COMPANION_ACCEPTED_VERSION) return companionRefusal("version-unsupported", version);
-    return { state: "declared", version: version, symbols: accepted };
+    if (version !== COMPANION_ACCEPTED_VERSION)
+      return companionRefusal('version-unsupported', version);
+    return { state: 'declared', version: version, symbols: accepted };
   }
 
   function isArrayValue(value) {
     try {
-      return typeof Array.isArray === "function" ? Array.isArray(value) : false;
+      return typeof Array.isArray === 'function' ? Array.isArray(value) : false;
     } catch (e) {
       return false;
     }
@@ -251,12 +302,25 @@
   // compiler-private alias) on the app's root element. No `injector.get` is ever called with a
   // vetted token, because a lookup would instantiate someone else's class (N4).
   function companionInjector(ng) {
-    var getInjector = ng && (typeof ng.getInjector === "function" ? ng.getInjector : (typeof ng.ɵgetInjectorFromNode === "function" ? ng.ɵgetInjectorFromNode : null));
+    var getInjector =
+      ng &&
+      (typeof ng.getInjector === 'function'
+        ? ng.getInjector
+        : typeof ng.ɵgetInjectorFromNode === 'function'
+          ? ng.ɵgetInjectorFromNode
+          : null);
     if (!getInjector) return null;
     var root = null;
     try {
-      if (typeof document !== "undefined" && document && typeof document.querySelector === "function") {
-        root = document.querySelector("app-root") || document.body || document.documentElement;
+      if (
+        typeof document !== 'undefined' &&
+        document &&
+        typeof document.querySelector === 'function'
+      ) {
+        root =
+          document.querySelector('app-root') ||
+          document.body ||
+          document.documentElement;
       }
     } catch (e) {
       root = null;
@@ -278,9 +342,15 @@
     if (!symbols.length) return 0;
     var injector = companionInjector(ng);
     if (!injector) return 0;
-    var getProviders = ng && typeof ng.ɵgetInjectorProviders === "function" ? ng.ɵgetInjectorProviders : null;
+    var getProviders =
+      ng && typeof ng.ɵgetInjectorProviders === 'function'
+        ? ng.ɵgetInjectorProviders
+        : null;
     if (!getProviders) return 0;
-    var getPath = ng && typeof ng.ɵgetInjectorResolutionPath === "function" ? ng.ɵgetInjectorResolutionPath : null;
+    var getPath =
+      ng && typeof ng.ɵgetInjectorResolutionPath === 'function'
+        ? ng.ɵgetInjectorResolutionPath
+        : null;
     var injectors = [];
     if (getPath) {
       try {
@@ -327,7 +397,10 @@
       state: probe.state,
       version: probe.version,
       declared: symbols.length,
-      resolved: probe.state === "declared" ? countCompanionResolved(ng, probe.symbols) : 0,
+      resolved:
+        probe.state === 'declared'
+          ? countCompanionResolved(ng, probe.symbols)
+          : 0,
       symbols: symbols,
     };
   }
@@ -345,14 +418,20 @@
   // otherwise be invisible, because the record is one-shot and no panel-to-page ask exists.
   function armCompanionRecheck(answering) {
     stopCompanionRecheck();
-    if (answering !== "absent" || !lastState) return;
+    if (answering !== 'absent' || !lastState) return;
     var handle;
     try {
-      handle = globalThis.setInterval(recheckCompanion, COMPANION_RECHECK_INTERVAL_MS);
+      handle = globalThis.setInterval(
+        recheckCompanion,
+        COMPANION_RECHECK_INTERVAL_MS,
+      );
     } catch (e) {
       return;
     }
-    companionRecheck = { handle: handle, remaining: COMPANION_RECHECK_ATTEMPTS };
+    companionRecheck = {
+      handle: handle,
+      remaining: COMPANION_RECHECK_ATTEMPTS,
+    };
   }
 
   // Finite: the timer is cleared on the first non-absent answer and on the last attempt, and the
@@ -362,7 +441,7 @@
     try {
       companionRecheck.remaining -= 1;
       var probe = probeCompanion();
-      if (probe.state !== "absent") {
+      if (probe.state !== 'absent') {
         stopCompanionRecheck();
         if (lastState) announceState(lastState.supported, lastState.reason);
         return;
@@ -391,7 +470,13 @@
     try {
       if (ng && ng.VERSION && (ng.VERSION.full || ng.VERSION.major != null)) {
         if (ng.VERSION.full) return String(ng.VERSION.full);
-        return String(ng.VERSION.major) + "." + String(ng.VERSION.minor) + "." + String(ng.VERSION.patch);
+        return (
+          String(ng.VERSION.major) +
+          '.' +
+          String(ng.VERSION.minor) +
+          '.' +
+          String(ng.VERSION.patch)
+        );
       }
       if (ng && ng.version) return String(ng.version);
     } catch (e) {}
@@ -401,49 +486,77 @@
     if (!v) return false;
     var m = String(v).match(/(\d+)\.(\d+)\.(\d+)/);
     if (!m) return false;
-    var maj = Number(m[1]), min = Number(m[2]), pat = Number(m[3]);
+    var maj = Number(m[1]),
+      min = Number(m[2]),
+      pat = Number(m[3]);
     if (maj !== minMajor) return maj < minMajor;
     if (min !== minMinor) return min < minMinor;
     return pat < minPatch;
   }
   function tryInstall() {
     ngObj = readNg();
-    if (!ngObj) return "waiting";
+    if (!ngObj) return 'waiting';
     var detectedVersion = angularVersionString(ngObj);
     if (detectedVersion && versionOlderThan(detectedVersion, 22, 1, 3)) {
-      announceState(false, "Angular " + detectedVersion + " is not supported; requires 22.1.3 or newer");
-      return "notsupported";
+      announceState(
+        false,
+        'Angular ' +
+          detectedVersion +
+          ' is not supported; requires 22.1.3 or newer',
+      );
+      return 'notsupported';
     }
-    var setProfiler = typeof ngObj.ɵsetProfiler === "function" ? ngObj.ɵsetProfiler : (typeof ngObj.setProfiler === "function" ? ngObj.setProfiler : null);
+    var setProfiler =
+      typeof ngObj.ɵsetProfiler === 'function'
+        ? ngObj.ɵsetProfiler
+        : typeof ngObj.setProfiler === 'function'
+          ? ngObj.setProfiler
+          : null;
     if (!setProfiler) {
-      announceState(false, "ng.ɵsetProfiler not found (production build or not an Angular page)");
-      return "notsupported";
+      announceState(
+        false,
+        'ng.ɵsetProfiler not found (production build or not an Angular page)',
+      );
+      return 'notsupported';
     }
-    var gsgCheck = typeof ngObj.ɵgetSignalGraph === "function" ? ngObj.ɵgetSignalGraph : (typeof ngObj.getSignalGraph === "function" ? ngObj.getSignalGraph : null);
+    var gsgCheck =
+      typeof ngObj.ɵgetSignalGraph === 'function'
+        ? ngObj.ɵgetSignalGraph
+        : typeof ngObj.getSignalGraph === 'function'
+          ? ngObj.getSignalGraph
+          : null;
     if (!gsgCheck) {
-      announceState(false, "ng.ɵgetSignalGraph not found (production build or not an Angular page)");
-      return "notsupported";
+      announceState(
+        false,
+        'ng.ɵgetSignalGraph not found (production build or not an Angular page)',
+      );
+      return 'notsupported';
     }
     var zone = detectZone(ngObj);
-    if (zone === "zone") {
-      announceState(false, "Zone.js change detection is not supported; use zoneless Angular 22");
-      return "notsupported";
+    if (zone === 'zone') {
+      announceState(
+        false,
+        'Zone.js change detection is not supported; use zoneless Angular 22',
+      );
+      return 'notsupported';
     }
-    if (installed) return "installed";
+    if (installed) return 'installed';
     subscriber = function (event, instance, eventFn) {
       onEvent(event, instance, eventFn);
     };
     var remover = setProfiler(subscriber);
-    subscriberRemover = typeof remover === "function" ? remover : null;
+    subscriberRemover = typeof remover === 'function' ? remover : null;
     installed = true;
     zoneMode = zone;
     announceState(true, null);
     try {
-      globalThis.setTimeout(function () { dispatchInitialRecord(); }, 500);
+      globalThis.setTimeout(function () {
+        dispatchInitialRecord();
+      }, 500);
     } catch (e) {
       dispatchInitialRecord();
     }
-    return "installed";
+    return 'installed';
   }
 
   function onEvent(event, instance, eventFn) {
@@ -451,8 +564,11 @@
       if (event === ProfilerEvent.OutputStart) {
         if (!pendingTrigger) {
           pendingTrigger = {
-            kind: "output",
-            listenerName: eventFn && typeof eventFn.name === "string" ? extractTriggerName(eventFn.name) : null,
+            kind: 'output',
+            listenerName:
+              eventFn && typeof eventFn.name === 'string'
+                ? extractTriggerName(eventFn.name)
+                : null,
           };
         }
         if (cycle) {
@@ -488,8 +604,12 @@
   function openCycle() {
     cycle = {
       cycleId: ++cycleId,
-      startedAt: (typeof globalThis.performance !== "undefined" && typeof globalThis.performance.now === "function") ? globalThis.performance.now() : Date.now(),
-      trigger: pendingTrigger || { kind: "unknown", listenerName: null },
+      startedAt:
+        typeof globalThis.performance !== 'undefined' &&
+        typeof globalThis.performance.now === 'function'
+          ? globalThis.performance.now()
+          : Date.now(),
+      trigger: pendingTrigger || { kind: 'unknown', listenerName: null },
       checks: new Map(),
     };
     pendingTrigger = null;
@@ -499,46 +619,79 @@
   function getOrCreateCheck(instance) {
     var c = cycle.checks.get(instance);
     if (c) return c;
-    c = { instance: instance, componentName: componentNameFor(instance), events: [] };
+    c = {
+      instance: instance,
+      componentName: componentNameFor(instance),
+      events: [],
+    };
     cycle.checks.set(instance, c);
     return c;
   }
 
   function componentNameFor(instance) {
-    var gh = typeof ngObj.getHostElement === "function" ? ngObj.getHostElement : (typeof ngObj.ɵgetHostElement === "function" ? ngObj.ɵgetHostElement : null);
+    var gh =
+      typeof ngObj.getHostElement === 'function'
+        ? ngObj.getHostElement
+        : typeof ngObj.ɵgetHostElement === 'function'
+          ? ngObj.ɵgetHostElement
+          : null;
     if (gh) {
       try {
         var el = gh(instance);
-        if (el && typeof el.tagName === "string") return el.tagName.toLowerCase();
+        if (el && typeof el.tagName === 'string')
+          return el.tagName.toLowerCase();
       } catch (e) {}
     }
-    if (instance && instance.constructor && instance.constructor.name) return instance.constructor.name.toLowerCase();
-    return "component";
+    if (instance && instance.constructor && instance.constructor.name)
+      return instance.constructor.name.toLowerCase();
+    return 'component';
   }
 
   function classNameFor(instance) {
     try {
-      return (instance && instance.constructor && instance.constructor.name) || null;
+      return (
+        (instance && instance.constructor && instance.constructor.name) || null
+      );
     } catch (e) {
       return null;
     }
   }
 
   function changeDetectionFor(instance) {
-    var gdm = typeof ngObj.getDirectiveMetadata === "function" ? ngObj.getDirectiveMetadata : (typeof ngObj.ɵgetDirectiveMetadata === "function" ? ngObj.ɵgetDirectiveMetadata : null);
-    if (!gdm) return "onpush";
+    var gdm =
+      typeof ngObj.getDirectiveMetadata === 'function'
+        ? ngObj.getDirectiveMetadata
+        : typeof ngObj.ɵgetDirectiveMetadata === 'function'
+          ? ngObj.ɵgetDirectiveMetadata
+          : null;
+    if (!gdm) return 'onpush';
     try {
       var meta = gdm(instance);
-      return meta && meta.changeDetection === 0 ? "onpush" : "eager";
+      return meta && meta.changeDetection === 0 ? 'onpush' : 'eager';
     } catch (e) {
-      return "onpush";
+      return 'onpush';
     }
   }
 
   function captureGraph(instance) {
-    var gh = typeof ngObj.getHostElement === "function" ? ngObj.getHostElement : (typeof ngObj.ɵgetHostElement === "function" ? ngObj.ɵgetHostElement : null);
-    var gi = typeof ngObj.getInjector === "function" ? ngObj.getInjector : (typeof ngObj.ɵgetInjectorFromNode === "function" ? ngObj.ɵgetInjectorFromNode : null);
-    var gsg = typeof ngObj.ɵgetSignalGraph === "function" ? ngObj.ɵgetSignalGraph : (typeof ngObj.getSignalGraph === "function" ? ngObj.getSignalGraph : null);
+    var gh =
+      typeof ngObj.getHostElement === 'function'
+        ? ngObj.getHostElement
+        : typeof ngObj.ɵgetHostElement === 'function'
+          ? ngObj.ɵgetHostElement
+          : null;
+    var gi =
+      typeof ngObj.getInjector === 'function'
+        ? ngObj.getInjector
+        : typeof ngObj.ɵgetInjectorFromNode === 'function'
+          ? ngObj.ɵgetInjectorFromNode
+          : null;
+    var gsg =
+      typeof ngObj.ɵgetSignalGraph === 'function'
+        ? ngObj.ɵgetSignalGraph
+        : typeof ngObj.getSignalGraph === 'function'
+          ? ngObj.getSignalGraph
+          : null;
     if (!gh || !gi || !gsg) return null;
     try {
       var hostElement = gh(instance);
@@ -551,28 +704,56 @@
 
   function enumerateComponentNodes() {
     var ng = ngObj || readNg();
-    var getComponent = ng && (typeof ng.getComponent === "function" ? ng.getComponent : (typeof ng.ɵgetComponent === "function" ? ng.ɵgetComponent : (typeof ng.getOwningComponent === "function" ? ng.getOwningComponent : null)));
+    var getComponent =
+      ng &&
+      (typeof ng.getComponent === 'function'
+        ? ng.getComponent
+        : typeof ng.ɵgetComponent === 'function'
+          ? ng.ɵgetComponent
+          : typeof ng.getOwningComponent === 'function'
+            ? ng.getOwningComponent
+            : null);
     if (!getComponent) return [];
-    if (typeof document === "undefined" || !document || typeof document.querySelectorAll !== "function") return [];
+    if (
+      typeof document === 'undefined' ||
+      !document ||
+      typeof document.querySelectorAll !== 'function'
+    )
+      return [];
     var seen = new Set();
     var out = [];
     var els = null;
-    try { els = document.querySelectorAll("*"); } catch (e) { els = null; }
+    try {
+      els = document.querySelectorAll('*');
+    } catch (e) {
+      els = null;
+    }
     if (!els) return out;
     for (var i = 0; i < els.length; i++) {
       var el = els[i];
       var inst = null;
-      try { inst = getComponent(el); } catch (e) { inst = null; }
+      try {
+        inst = getComponent(el);
+      } catch (e) {
+        inst = null;
+      }
       if (!inst || !inst.constructor) continue;
       var cls = inst.constructor.name;
       if (!cls || seen.has(cls)) continue;
       seen.add(cls);
-      var src = "";
-      try { src = String(inst.constructor); } catch (e) { src = ""; }
+      var src = '';
+      try {
+        src = String(inst.constructor);
+      } catch (e) {
+        src = '';
+      }
       out.push({
-        id: "cmp:" + cls,
-        kind: "template",
-        label: (el && typeof el.tagName === "string") ? el.tagName.toLowerCase() : cls.toLowerCase(),
+        id: 'cmp:' + cls,
+        kind: 'template',
+        label:
+          el && typeof el.tagName === 'string'
+            ? el.tagName.toLowerCase()
+            : cls.toLowerCase(),
         epoch: null,
         debuggableFn: cls,
         debuggableFnSource: src,
@@ -589,30 +770,56 @@
     if (graph.nodes) {
       for (var i = 0; i < graph.nodes.length; i++) {
         var n = graph.nodes[i];
-        if (n && n.debuggableFn && n.debuggableFn.name) seenClasses.add(String(n.debuggableFn.name));
+        if (n && n.debuggableFn && n.debuggableFn.name)
+          seenClasses.add(String(n.debuggableFn.name));
         var nodeValue = null;
         try {
-          var v = n.value !== undefined ? n.value : (typeof n.getValue === "function" ? n.getValue() : undefined);
+          var v =
+            n.value !== undefined
+              ? n.value
+              : typeof n.getValue === 'function'
+                ? n.getValue()
+                : undefined;
           if (v === undefined) {
-            try { v = n.value; } catch (e2) { v = undefined; }
+            try {
+              v = n.value;
+            } catch (e2) {
+              v = undefined;
+            }
           }
-        } catch (e1) { v = undefined; }
+        } catch (e1) {
+          v = undefined;
+        }
         var valueSummary = undefined;
         try {
           if (v === null) valueSummary = null;
-          else if (typeof v === "string") valueSummary = v.length > 64 ? (v.slice(0, 64) + "...") : v;
-          else if (typeof v === "number" || typeof v === "boolean") valueSummary = v;
-          else if (Array.isArray(v)) valueSummary = { type: "array", length: v.length };
-          else if (typeof v === "object") valueSummary = { type: (v && v.constructor && v.constructor.name) || "object", keys: Object.keys(v).length };
+          else if (typeof v === 'string')
+            valueSummary = v.length > 64 ? v.slice(0, 64) + '...' : v;
+          else if (typeof v === 'number' || typeof v === 'boolean')
+            valueSummary = v;
+          else if (Array.isArray(v))
+            valueSummary = { type: 'array', length: v.length };
+          else if (typeof v === 'object')
+            valueSummary = {
+              type: (v && v.constructor && v.constructor.name) || 'object',
+              keys: Object.keys(v).length,
+            };
           else if (v !== undefined) valueSummary = String(v).slice(0, 64);
-        } catch (e3) { valueSummary = undefined; }
+        } catch (e3) {
+          valueSummary = undefined;
+        }
         var pushedNode = {
           id: String(n.id),
           kind: n.kind,
           label: n.label != null ? String(n.label) : null,
           epoch: n.epoch != null ? n.epoch : null,
-        debuggableFn: n.debuggableFn && n.debuggableFn.name ? n.debuggableFn.name : null,
-        debuggableFnSource: n.debuggableFn ? String(n.debuggableFn) : (typeof n.debuggableFnSource === "string" ? n.debuggableFnSource : null),
+          debuggableFn:
+            n.debuggableFn && n.debuggableFn.name ? n.debuggableFn.name : null,
+          debuggableFnSource: n.debuggableFn
+            ? String(n.debuggableFn)
+            : typeof n.debuggableFnSource === 'string'
+              ? n.debuggableFnSource
+              : null,
         };
         if (valueSummary !== undefined) pushedNode.value = valueSummary;
         nodes.push(pushedNode);
@@ -630,16 +837,29 @@
     var edges = [];
     for (var j = 0; j < graph.edges.length; j++) {
       var e2 = graph.edges[j];
-      var consumerIdx = typeof e2.consumer === "number" ? e2.consumer : -1;
-      var producerIdx = typeof e2.producer === "number" ? e2.producer : -1;
-      var consumerId = (consumerIdx >= 0 && consumerIdx < nodes.length) ? nodes[consumerIdx].id : (typeof e2.consumer === "string" ? e2.consumer : null);
-      var producerId = (producerIdx >= 0 && producerIdx < nodes.length) ? nodes[producerIdx].id : (typeof e2.producer === "string" ? e2.producer : null);
+      var consumerIdx = typeof e2.consumer === 'number' ? e2.consumer : -1;
+      var producerIdx = typeof e2.producer === 'number' ? e2.producer : -1;
+      var consumerId =
+        consumerIdx >= 0 && consumerIdx < nodes.length
+          ? nodes[consumerIdx].id
+          : typeof e2.consumer === 'string'
+            ? e2.consumer
+            : null;
+      var producerId =
+        producerIdx >= 0 && producerIdx < nodes.length
+          ? nodes[producerIdx].id
+          : typeof e2.producer === 'string'
+            ? e2.producer
+            : null;
       edges.push({ consumer: consumerId, producer: producerId });
     }
     // Check for a template node (owning component). Missing means graph unavailable.
     var hasTemplate = false;
     for (var t = 0; t < nodes.length; t++) {
-      if (nodes[t].kind === "template") { hasTemplate = true; break; }
+      if (nodes[t].kind === 'template') {
+        hasTemplate = true;
+        break;
+      }
     }
     var result = { nodes: nodes, edges: edges };
     if (!hasTemplate) result.unavailable = true;
@@ -704,21 +924,57 @@
       var elementTag = detail.elementTag;
       var ng = ngObj || readNg();
       var el = null;
-      if (elementTag && typeof document !== "undefined" && document && typeof document.querySelector === "function") {
-        try { el = document.querySelector(elementTag); } catch (err) { el = null; }
+      if (
+        elementTag &&
+        typeof document !== 'undefined' &&
+        document &&
+        typeof document.querySelector === 'function'
+      ) {
+        try {
+          el = document.querySelector(elementTag);
+        } catch (err) {
+          el = null;
+        }
       }
-      if (!el && componentName && typeof document !== "undefined" && document && typeof document.querySelector === "function") {
-        try { el = document.querySelector(componentName); } catch (err) { el = null; }
+      if (
+        !el &&
+        componentName &&
+        typeof document !== 'undefined' &&
+        document &&
+        typeof document.querySelector === 'function'
+      ) {
+        try {
+          el = document.querySelector(componentName);
+        } catch (err) {
+          el = null;
+        }
       }
-      var getInjector = ng && (typeof ng.getInjector === "function" ? ng.getInjector : (typeof ng.ɵgetInjectorFromNode === "function" ? ng.ɵgetInjectorFromNode : null));
+      var getInjector =
+        ng &&
+        (typeof ng.getInjector === 'function'
+          ? ng.getInjector
+          : typeof ng.ɵgetInjectorFromNode === 'function'
+            ? ng.ɵgetInjectorFromNode
+            : null);
       var injector = null;
       if (el && getInjector) {
-        try { injector = getInjector(el); } catch (err) { injector = null; }
+        try {
+          injector = getInjector(el);
+        } catch (err) {
+          injector = null;
+        }
       }
-      var gip = ng && typeof ng.ɵgetInjectorResolutionPath === "function" ? ng.ɵgetInjectorResolutionPath : null;
+      var gip =
+        ng && typeof ng.ɵgetInjectorResolutionPath === 'function'
+          ? ng.ɵgetInjectorResolutionPath
+          : null;
       var injectors = [];
       if (gip && injector) {
-        try { injectors = gip(injector) || []; } catch (err) { injectors = []; }
+        try {
+          injectors = gip(injector) || [];
+        } catch (err) {
+          injectors = [];
+        }
       } else if (injector) {
         injectors = [injector];
       }
@@ -728,55 +984,85 @@
         var inj = injectors[i];
         var meta = null;
         var providers = null;
-        if (ng && typeof ng.ɵgetInjectorMetadata === "function") {
-          try { meta = ng.ɵgetInjectorMetadata(inj); } catch (err) { meta = null; }
+        if (ng && typeof ng.ɵgetInjectorMetadata === 'function') {
+          try {
+            meta = ng.ɵgetInjectorMetadata(inj);
+          } catch (err) {
+            meta = null;
+          }
         }
-        if (ng && typeof ng.ɵgetInjectorProviders === "function") {
-          try { providers = ng.ɵgetInjectorProviders(inj); } catch (err) { providers = null; }
+        if (ng && typeof ng.ɵgetInjectorProviders === 'function') {
+          try {
+            providers = ng.ɵgetInjectorProviders(inj);
+          } catch (err) {
+            providers = null;
+          }
         }
-        var injectorName = "Injector";
+        var injectorName = 'Injector';
         if (meta) {
-          if (typeof meta === "string") injectorName = meta;
+          if (typeof meta === 'string') injectorName = meta;
           else if (meta.source != null) {
-            if (typeof meta.source === "string") injectorName = meta.source;
-            else if (meta.source.tagName != null) injectorName = meta.source.tagName;
+            if (typeof meta.source === 'string') injectorName = meta.source;
+            else if (meta.source.tagName != null)
+              injectorName = meta.source.tagName;
           }
         }
         var provs = [];
         if (Array.isArray(providers)) {
           for (var p = 0; p < providers.length; p++) {
             var pr = providers[p];
-            var token = (pr && pr.token != null)
-              ? (pr.token.name ?? (typeof pr.token.toString === "function" ? pr.token.toString() : undefined) ?? String(pr.token))
-              : (pr && pr.name != null ? String(pr.name) : String(pr));
+            var token =
+              pr && pr.token != null
+                ? (pr.token.name ??
+                  (typeof pr.token.toString === 'function'
+                    ? pr.token.toString()
+                    : undefined) ??
+                  String(pr.token))
+                : pr && pr.name != null
+                  ? String(pr.name)
+                  : String(pr);
             var prov = pr && pr.provider;
-            var providerKind = "none";
-            if (prov && typeof prov === "object") {
-              if (Object.prototype.hasOwnProperty.call(prov, "useFactory")) providerKind = "factory";
-              else if (Object.prototype.hasOwnProperty.call(prov, "useValue")) providerKind = "value";
-              else if (Object.prototype.hasOwnProperty.call(prov, "useClass")) providerKind = "class";
-              else if (Object.prototype.hasOwnProperty.call(prov, "useExisting")) providerKind = "existing";
-            } else if (typeof prov === "function") {
-              providerKind = "class";
+            var providerKind = 'none';
+            if (prov && typeof prov === 'object') {
+              if (Object.prototype.hasOwnProperty.call(prov, 'useFactory'))
+                providerKind = 'factory';
+              else if (Object.prototype.hasOwnProperty.call(prov, 'useValue'))
+                providerKind = 'value';
+              else if (Object.prototype.hasOwnProperty.call(prov, 'useClass'))
+                providerKind = 'class';
+              else if (
+                Object.prototype.hasOwnProperty.call(prov, 'useExisting')
+              )
+                providerKind = 'existing';
+            } else if (typeof prov === 'function') {
+              providerKind = 'class';
             }
-            var source = (pr && pr.source) || "";
+            var source = (pr && pr.source) || '';
             var importPathRaw = pr && (pr.importPath || pr.moduleName);
             var importPath;
             if (Array.isArray(importPathRaw)) {
-              importPath = importPathRaw.map(function (t) {
-                if (t == null) return "";
-                if (typeof t === "string") return t;
-                if (t.name != null) return String(t.name);
-                if (typeof t.toString === "function") return t.toString();
-                return String(t);
-              }).filter(function (s) { return s !== ""; }).join(", ");
+              importPath = importPathRaw
+                .map(function (t) {
+                  if (t == null) return '';
+                  if (typeof t === 'string') return t;
+                  if (t.name != null) return String(t.name);
+                  if (typeof t.toString === 'function') return t.toString();
+                  return String(t);
+                })
+                .filter(function (s) {
+                  return s !== '';
+                })
+                .join(', ');
             } else if (importPathRaw != null) {
               importPath = String(importPathRaw);
             }
             if (!importPath) importPath = source || undefined;
             var entry = {
               token: token,
-              isViewProvider: (pr && typeof pr.isViewProvider === "boolean") ? pr.isViewProvider : false,
+              isViewProvider:
+                pr && typeof pr.isViewProvider === 'boolean'
+                  ? pr.isViewProvider
+                  : false,
               provider: providerKind,
               importPath: importPath,
             };
@@ -784,13 +1070,13 @@
           }
         }
         var metaType;
-        if (typeof meta === "string") {
-          metaType = "environment";
+        if (typeof meta === 'string') {
+          metaType = 'environment';
         } else if (meta && meta.type) {
-          if (meta.type === "element") metaType = "element";
-          else metaType = "environment";
+          if (meta.type === 'element') metaType = 'element';
+          else metaType = 'environment';
         } else {
-          metaType = "environment";
+          metaType = 'environment';
         }
         path.push({
           id: i,
@@ -829,20 +1115,22 @@
   // measurement it is written in production builds too, so the state is named for the debug API
   // (`no-dev-api`) with a reason that names the possibility of a production build rather than
   // asserting one.
-  var PICK_EVENT = NS + ":pick";
-  var PICKED_EVENT = NS + ":picked";
+  var PICK_EVENT = NS + ':pick';
+  var PICKED_EVENT = NS + ':picked';
 
   // The ancestor bound of the path walk: a picked element's depth in its own document, never a
   // document-wide query.
   var PICK_MAX_ANCESTORS = 64;
 
-  var PICK_NO_API_REASON = "ng.getOwningComponent not found; this page may be a production build";
-  var PICK_NO_CONTEXT_REASON = "the picked element carries no __ngContext__; this page may be a production build";
+  var PICK_NO_API_REASON =
+    'ng.getOwningComponent not found; this page may be a production build';
+  var PICK_NO_CONTEXT_REASON =
+    'the picked element carries no __ngContext__; this page may be a production build';
 
   function lowerTagName(el) {
     try {
       var tag = el && el.tagName;
-      return typeof tag === "string" && tag.length ? tag.toLowerCase() : null;
+      return typeof tag === 'string' && tag.length ? tag.toLowerCase() : null;
     } catch (e) {
       return null;
     }
@@ -851,7 +1139,12 @@
   // The identifier the panel already lists components by: the owning instance's host tag name
   // lowercased, with the class name lowercased as the fallback the shipped records use.
   function pickComponentName(instance, ng) {
-    var gh = ng && typeof ng.getHostElement === "function" ? ng.getHostElement : (ng && typeof ng.ɵgetHostElement === "function" ? ng.ɵgetHostElement : null);
+    var gh =
+      ng && typeof ng.getHostElement === 'function'
+        ? ng.getHostElement
+        : ng && typeof ng.ɵgetHostElement === 'function'
+          ? ng.ɵgetHostElement
+          : null;
     if (gh) {
       try {
         var tag = lowerTagName(gh(instance));
@@ -874,7 +1167,11 @@
     while (node && depth < PICK_MAX_ANCESTORS) {
       depth += 1;
       var instance = null;
-      try { instance = getOwning(node); } catch (e) { instance = null; }
+      try {
+        instance = getOwning(node);
+      } catch (e) {
+        instance = null;
+      }
       if (instance) {
         if (!owning) owning = instance;
         var cls = classNameFor(instance);
@@ -884,7 +1181,11 @@
         }
       }
       var parent = null;
-      try { parent = node.parentElement; } catch (e) { parent = null; }
+      try {
+        parent = node.parentElement;
+      } catch (e) {
+        parent = null;
+      }
       node = parent;
     }
     return { owning: owning, path: path };
@@ -896,16 +1197,28 @@
   function pickDescriptorFor(el) {
     if (!el) return null;
     var ng = null;
-    try { ng = readNg(); } catch (e) { ng = null; }
-    var getOwning = ng && typeof ng.getOwningComponent === "function" ? ng.getOwningComponent : null;
-    if (!getOwning) return { status: "no-dev-api", reason: PICK_NO_API_REASON };
+    try {
+      ng = readNg();
+    } catch (e) {
+      ng = null;
+    }
+    var getOwning =
+      ng && typeof ng.getOwningComponent === 'function'
+        ? ng.getOwningComponent
+        : null;
+    if (!getOwning) return { status: 'no-dev-api', reason: PICK_NO_API_REASON };
     var context;
-    try { context = el.__ngContext__; } catch (e) { context = undefined; }
-    if (context === undefined) return { status: "no-dev-api", reason: PICK_NO_CONTEXT_REASON };
+    try {
+      context = el.__ngContext__;
+    } catch (e) {
+      context = undefined;
+    }
+    if (context === undefined)
+      return { status: 'no-dev-api', reason: PICK_NO_CONTEXT_REASON };
     var walk = walkOwningComponents(el, getOwning);
-    if (!walk.owning) return { status: "no-component" };
+    if (!walk.owning) return { status: 'no-component' };
     return {
-      status: "resolved",
+      status: 'resolved',
       elementTag: lowerTagName(el),
       componentName: pickComponentName(walk.owning, ng),
       className: classNameFor(walk.owning),
@@ -927,7 +1240,12 @@
   }
 
   function dispatch(type, detail) {
-    var CustomEventCtor = typeof globalThis.CustomEvent === "function" ? globalThis.CustomEvent : (typeof global.CustomEvent === "function" ? global.CustomEvent : null);
+    var CustomEventCtor =
+      typeof globalThis.CustomEvent === 'function'
+        ? globalThis.CustomEvent
+        : typeof global.CustomEvent === 'function'
+          ? global.CustomEvent
+          : null;
     // `dispatchEvent` takes a DOM `Event`, and a bare `{ type, detail }` is not one — it has none of
     // an event's members and a DOM dispatcher refuses it. The fallback for a realm with no
     // `CustomEvent` constructor is therefore that realm's base `Event` of the requested type, with
@@ -935,9 +1253,9 @@
     var ev = CustomEventCtor
       ? new CustomEventCtor(type, { detail: detail })
       : Object.assign(new Event(type), { detail: detail });
-    if (typeof globalThis.dispatchEvent === "function") {
+    if (typeof globalThis.dispatchEvent === 'function') {
       globalThis.dispatchEvent(ev);
-    } else if (typeof global.dispatchEvent === "function") {
+    } else if (typeof global.dispatchEvent === 'function') {
       global.dispatchEvent(ev);
     }
   }
@@ -949,27 +1267,34 @@
       var check = {
         componentName: nodes[0].component,
         className: nodes[0].component,
-        changeDetection: "onpush",
+        changeDetection: 'onpush',
         events: [],
         graph: { nodes: nodes, edges: [] },
         changedNodeIds: [],
       };
       dispatch(RECORD_EVENT, {
         cycleId: ++cycleId,
-        startedAt: (typeof globalThis.performance !== "undefined" && typeof globalThis.performance.now === "function") ? globalThis.performance.now() : Date.now(),
-        trigger: { kind: "unknown", listenerName: null },
+        startedAt:
+          typeof globalThis.performance !== 'undefined' &&
+          typeof globalThis.performance.now === 'function'
+            ? globalThis.performance.now()
+            : Date.now(),
+        trigger: { kind: 'unknown', listenerName: null },
         zoneMode: zoneMode,
         checks: [check],
       });
-    } catch (e) { /* never throw */ }
+    } catch (e) {
+      /* never throw */
+    }
   }
 
   function start() {
     var r = tryInstall();
-    if (r === "installed" || r === "notsupported") return;
+    if (r === 'installed' || r === 'notsupported') return;
     var handle = globalThis.setInterval(function () {
       var r2 = tryInstall();
-      if (r2 === "installed" || r2 === "notsupported") globalThis.clearInterval(handle);
+      if (r2 === 'installed' || r2 === 'notsupported')
+        globalThis.clearInterval(handle);
     }, 100);
     return handle;
   }
@@ -1013,12 +1338,19 @@
     },
   };
 
-  if (typeof globalThis !== "undefined") globalThis.__ngRecorder = api;
-  if (typeof globalThis !== "undefined" && typeof globalThis.addEventListener === "function") {
-    try { globalThis.addEventListener(DI_QUERY_EVENT, handleDiQuery); } catch (e) {}
+  if (typeof globalThis !== 'undefined') globalThis.__ngRecorder = api;
+  if (
+    typeof globalThis !== 'undefined' &&
+    typeof globalThis.addEventListener === 'function'
+  ) {
+    try {
+      globalThis.addEventListener(DI_QUERY_EVENT, handleDiQuery);
+    } catch (e) {}
     // The pick hop: registered beside the shipped listener, in the capture phase, and it writes no
     // global and no DOM — the answer leaves as one plain-data event on the same global object.
-    try { globalThis.addEventListener(PICK_EVENT, handlePick, true); } catch (e) {}
+    try {
+      globalThis.addEventListener(PICK_EVENT, handlePick, true);
+    } catch (e) {}
   }
 
   // N4: error capture hooks at document_start (console.error, window.onerror,
@@ -1026,50 +1358,73 @@
   function captureErrorPayload(message) {
     try {
       var ng = ngObj || readNg();
-      var text = message instanceof Error ? (message.message || String(message)) : String(message);
+      var text =
+        message instanceof Error
+          ? message.message || String(message)
+          : String(message);
       var codeMatch = text.match(/NG0\d{3,}/);
       var code = codeMatch ? codeMatch[0] : null;
       var component = null;
-      if (ng && typeof ng.getOwningComponent === "function") {
+      if (ng && typeof ng.getOwningComponent === 'function') {
         try {
-          var el = (typeof document !== "undefined" && document)
-            ? (document.activeElement || document.querySelector("app-root") || document.body || document.documentElement)
-            : null;
+          var el =
+            typeof document !== 'undefined' && document
+              ? document.activeElement ||
+                document.querySelector('app-root') ||
+                document.body ||
+                document.documentElement
+              : null;
           var instance = ng.getOwningComponent(el);
-          if (instance && instance.constructor && instance.constructor.name) component = instance.constructor.name;
-          else if (typeof instance === "string") component = instance;
-        } catch (e) { component = null; }
+          if (instance && instance.constructor && instance.constructor.name)
+            component = instance.constructor.name;
+          else if (typeof instance === 'string') component = instance;
+        } catch (e) {
+          component = null;
+        }
       }
       dispatch(ERROR_CAPTURE_EVENT, {
         code: code,
         message: text,
         component: component,
-        timestamp: (typeof Date !== "undefined") ? Date.now() : 0,
+        timestamp: typeof Date !== 'undefined' ? Date.now() : 0,
       });
-    } catch (e) { /* never throw */ }
+    } catch (e) {
+      /* never throw */
+    }
   }
 
   try {
-    if (typeof console !== "undefined" && typeof console.error === "function") {
+    if (typeof console !== 'undefined' && typeof console.error === 'function') {
       var originalConsoleError = console.error;
       console.error = function () {
-        try { captureErrorPayload(Array.prototype.slice.call(arguments).join(" ")); } catch (e) {}
+        try {
+          captureErrorPayload(Array.prototype.slice.call(arguments).join(' '));
+        } catch (e) {}
         return originalConsoleError.apply(this, arguments);
       };
     }
   } catch (e) {}
 
   try {
-    if (typeof globalThis !== "undefined" && typeof globalThis.addEventListener === "function") {
-      globalThis.addEventListener("error", function (ev) {
-        try { captureErrorPayload(ev && ev.error ? ev.error : (ev && ev.message ? ev.message : ev)); } catch (e) {}
+    if (
+      typeof globalThis !== 'undefined' &&
+      typeof globalThis.addEventListener === 'function'
+    ) {
+      globalThis.addEventListener('error', function (ev) {
+        try {
+          captureErrorPayload(
+            ev && ev.error ? ev.error : ev && ev.message ? ev.message : ev,
+          );
+        } catch (e) {}
       });
-      globalThis.addEventListener("unhandledrejection", function (ev) {
-        try { captureErrorPayload(ev && ev.reason ? ev.reason : ev); } catch (e) {}
+      globalThis.addEventListener('unhandledrejection', function (ev) {
+        try {
+          captureErrorPayload(ev && ev.reason ? ev.reason : ev);
+        } catch (e) {}
       });
     }
   } catch (e) {}
 
   // Auto-run when loaded as a content script.
   start();
-})(typeof globalThis !== "undefined" ? globalThis : this);
+})(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -1,5 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
-import { InteropService, INTEROP_LIMITATION, INFERRED_UNTESTED } from './interop.service';
+import {
+  InteropService,
+  INTEROP_LIMITATION,
+  INFERRED_UNTESTED,
+} from './interop.service';
 import { ExtensionMessageService } from './extension-message.service';
 import { ExtensionPromptService } from './extension-prompt.service';
 
@@ -9,9 +13,13 @@ import { ExtensionPromptService } from './extension-prompt.service';
   template: `
     <h2>Interop</h2>
     @if (ext.notSupported()) {
-      <p class="unsupported" data-testid="unsupported">Unsupported: Angular {{ ext.notSupportedReason() }}</p>
+      <p class="unsupported" data-testid="unsupported">
+        Unsupported: Angular {{ ext.notSupportedReason() }}
+      </p>
     } @else if (svc.unavailable()) {
-      <p class="unavailable" data-testid="unavailable">unavailable: signal graph destroyed</p>
+      <p class="unavailable" data-testid="unavailable">
+        unavailable: signal graph destroyed
+      </p>
     } @else if (svc.slices().length === 0) {
       <p class="empty" data-testid="empty-state">no interop findings</p>
     } @else {
@@ -19,7 +27,9 @@ import { ExtensionPromptService } from './extension-prompt.service';
         <div class="slice" data-testid="interop-slice">
           <p data-testid="interop-limit">limit: {{ limitation }}</p>
           <p data-testid="interop-node">node: {{ s.sourceId }}</p>
-          <p data-testid="source-node">source: {{ s.sourceLabel ?? s.sourceId }}</p>
+          <p data-testid="source-node">
+            source: {{ s.sourceLabel ?? s.sourceId }}
+          </p>
           <p data-testid="producer">producers: {{ s.producers.join(', ') }}</p>
           <p data-testid="consumer">consumers: {{ s.consumers.join(', ') }}</p>
           <p data-testid="interop-inferred">attribution: {{ inferred }}</p>
@@ -27,14 +37,23 @@ import { ExtensionPromptService } from './extension-prompt.service';
         </div>
       }
       @if (svc.missingFact()) {
-        <p class="missing" data-testid="missing-fact">missing fact: {{ svc.missingFact() }}</p>
+        <p class="missing" data-testid="missing-fact">
+          missing fact: {{ svc.missingFact() }}
+        </p>
       }
       @if (svc.answer()) {
         <p data-testid="ai-answer">{{ svc.answer() }}</p>
       }
     }
   `,
-  styles: [`h2{font-size:14px;margin:0;}`],
+  styles: [
+    `
+      h2 {
+        font-size: 14px;
+        margin: 0;
+      }
+    `,
+  ],
 })
 export class InteropComponent {
   protected readonly svc = inject(InteropService);

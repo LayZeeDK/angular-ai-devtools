@@ -17,9 +17,16 @@ import {
   type ErrorDigestLookupResult,
 } from './error-digest.tool';
 import { HOSTILE_TOOLS } from './hostile-tools';
-import { PANEL_ENVIRONMENT_TOOL_ID, providePanelEnvironmentTool } from './panel-environment.tool';
+import {
+  PANEL_ENVIRONMENT_TOOL_ID,
+  providePanelEnvironmentTool,
+} from './panel-environment.tool';
 import { provideReadTools } from './read-tools';
-import { TOOL_REGISTRY, provideTools, type ToolRegistry } from './tool-registry';
+import {
+  TOOL_REGISTRY,
+  provideTools,
+  type ToolRegistry,
+} from './tool-registry';
 
 /** The five fields every cohort is snapshotted on: the declaration's public claim, nothing else. */
 type DeclarationSnapshot = {
@@ -79,9 +86,27 @@ const EARLIER_COHORT_SNAPSHOT: readonly DeclarationSnapshot[] = [
     outcome: 'result',
     publish: 'model',
   },
-  { id: 'find_components', kind: 'read', host: ['page'], outcome: 'result', publish: 'model' },
-  { id: 'inspect_component', kind: 'read', host: ['page'], outcome: 'result', publish: 'model' },
-  { id: 'list_signals', kind: 'read', host: ['page'], outcome: 'result', publish: 'model' },
+  {
+    id: 'find_components',
+    kind: 'read',
+    host: ['page'],
+    outcome: 'result',
+    publish: 'model',
+  },
+  {
+    id: 'inspect_component',
+    kind: 'read',
+    host: ['page'],
+    outcome: 'result',
+    publish: 'model',
+  },
+  {
+    id: 'list_signals',
+    kind: 'read',
+    host: ['page'],
+    outcome: 'result',
+    publish: 'model',
+  },
   {
     id: 'getDirectiveMetadata',
     kind: 'read',
@@ -89,11 +114,41 @@ const EARLIER_COHORT_SNAPSHOT: readonly DeclarationSnapshot[] = [
     outcome: 'result',
     publish: 'model',
   },
-  { id: 'getComponent', kind: 'read', host: ['page'], outcome: 'result', publish: 'model' },
-  { id: 'confirm_write', kind: 'write', host: ['panel'], outcome: 'confirm-required', publish: 'internal' },
-  { id: 'async_scan', kind: 'read', host: ['worker'], outcome: 'async-handle', publish: 'internal' },
-  { id: 'snapshot_image', kind: 'read', host: ['page'], outcome: 'image', publish: 'internal' },
-  { id: 'dual_host_read', kind: 'read', host: ['page', 'panel'], outcome: 'result', publish: 'internal' },
+  {
+    id: 'getComponent',
+    kind: 'read',
+    host: ['page'],
+    outcome: 'result',
+    publish: 'model',
+  },
+  {
+    id: 'confirm_write',
+    kind: 'write',
+    host: ['panel'],
+    outcome: 'confirm-required',
+    publish: 'internal',
+  },
+  {
+    id: 'async_scan',
+    kind: 'read',
+    host: ['worker'],
+    outcome: 'async-handle',
+    publish: 'internal',
+  },
+  {
+    id: 'snapshot_image',
+    kind: 'read',
+    host: ['page'],
+    outcome: 'image',
+    publish: 'internal',
+  },
+  {
+    id: 'dual_host_read',
+    kind: 'read',
+    host: ['page', 'panel'],
+    outcome: 'result',
+    publish: 'internal',
+  },
   {
     id: 'wrapped_third_party',
     kind: 'read',
@@ -101,7 +156,13 @@ const EARLIER_COHORT_SNAPSHOT: readonly DeclarationSnapshot[] = [
     outcome: 'result',
     publish: 'internal',
   },
-  { id: 'page_state_schema', kind: 'read', host: ['page'], outcome: 'result', publish: 'internal' },
+  {
+    id: 'page_state_schema',
+    kind: 'read',
+    host: ['page'],
+    outcome: 'result',
+    publish: 'internal',
+  },
   {
     id: PANEL_ENVIRONMENT_TOOL_ID,
     kind: 'read',
@@ -166,13 +227,13 @@ describe('error_digest_lookup declaration', () => {
     const snapshot = snapshotOf(newCohortRegistry());
 
     // Everything that existed before this commit still declares exactly what it declared.
-    expect(snapshot.filter((entry) => entry.id !== ERROR_DIGEST_TOOL_ID)).toEqual(
-      EARLIER_COHORT_SNAPSHOT,
-    );
+    expect(
+      snapshot.filter((entry) => entry.id !== ERROR_DIGEST_TOOL_ID),
+    ).toEqual(EARLIER_COHORT_SNAPSHOT);
     // And the second addition is one declaration, with the fields it claims.
-    expect(snapshot.filter((entry) => entry.id === ERROR_DIGEST_TOOL_ID)).toEqual([
-      ADDED_TOOL_SNAPSHOT,
-    ]);
+    expect(
+      snapshot.filter((entry) => entry.id === ERROR_DIGEST_TOOL_ID),
+    ).toEqual([ADDED_TOOL_SNAPSHOT]);
     expect(snapshot).toHaveLength(EARLIER_COHORT_SNAPSHOT.length + 1);
   });
 
@@ -180,7 +241,9 @@ describe('error_digest_lookup declaration', () => {
     const registry = newCohortRegistry();
 
     const environment = await registry.execute(PANEL_ENVIRONMENT_TOOL_ID);
-    const digest = await registry.execute(ERROR_DIGEST_TOOL_ID, { code: 'NG0100' });
+    const digest = await registry.execute(ERROR_DIGEST_TOOL_ID, {
+      code: 'NG0100',
+    });
 
     expect(environment.kind).toBe('result');
     expect(digest.kind).toBe('result');
@@ -196,8 +259,17 @@ describe('error_digest_lookup code normalisation', () => {
   it('reads the NG0#### form, the bare digits and a lower-cased prefix as one entry', async () => {
     const registry = newRegistry();
 
-    for (const form of ['NG0100', 'ng0100', 'Ng0100', '  NG0100  ', '0100', ' 0100 ']) {
-      const outcome = await registry.execute(ERROR_DIGEST_TOOL_ID, { code: form });
+    for (const form of [
+      'NG0100',
+      'ng0100',
+      'Ng0100',
+      '  NG0100  ',
+      '0100',
+      ' 0100 ',
+    ]) {
+      const outcome = await registry.execute(ERROR_DIGEST_TOOL_ID, {
+        code: form,
+      });
       expect(outcome.kind).toBe('result');
       if (outcome.kind !== 'result') {
         continue;
@@ -213,7 +285,9 @@ describe('error_digest_lookup code normalisation', () => {
     const registry = newRegistry();
 
     for (const form of ['NG01002', '01002']) {
-      const outcome = await registry.execute(ERROR_DIGEST_TOOL_ID, { code: form });
+      const outcome = await registry.execute(ERROR_DIGEST_TOOL_ID, {
+        code: form,
+      });
       expect(outcome.kind).toBe('result');
       if (outcome.kind !== 'result') {
         continue;
@@ -225,9 +299,21 @@ describe('error_digest_lookup code normalisation', () => {
   it('normalises without looking anything up', () => {
     expect(normaliseErrorCode('ng8001')).toEqual({ ok: true, code: 'NG8001' });
     expect(normaliseErrorCode('8001')).toEqual({ ok: true, code: 'NG8001' });
-    expect(normaliseErrorCode(' NG01002 ')).toEqual({ ok: true, code: 'NG01002' });
+    expect(normaliseErrorCode(' NG01002 ')).toEqual({
+      ok: true,
+      code: 'NG01002',
+    });
 
-    for (const rejected of ['', '   ', 'NG0', '100', 'NG0100 00', 'NG0x10', 'abcde', 'NG010011']) {
+    for (const rejected of [
+      '',
+      '   ',
+      'NG0',
+      '100',
+      'NG0100 00',
+      'NG0x10',
+      'abcde',
+      'NG010011',
+    ]) {
       expect(normaliseErrorCode(rejected).ok).toBe(false);
     }
     expect(normaliseErrorCode(100).ok).toBe(false);
@@ -244,7 +330,9 @@ describe('error_digest_lookup result', () => {
       return;
     }
 
-    const outcome = await newRegistry().execute(ERROR_DIGEST_TOOL_ID, { code: 'NG0100' });
+    const outcome = await newRegistry().execute(ERROR_DIGEST_TOOL_ID, {
+      code: 'NG0100',
+    });
 
     expect(outcome.kind).toBe('result');
     if (outcome.kind !== 'result') {
@@ -255,7 +343,9 @@ describe('error_digest_lookup result', () => {
     expect(value.tool).toBe(ERROR_DIGEST_TOOL_ID);
     expect(value.provenance).toBe('panel');
     // The tool reads one digest: its entry deep-equals the one the explainer shows, field for field.
-    expect({ code: value.code, title: value.title, body: value.body }).toEqual(shipped);
+    expect({ code: value.code, title: value.title, body: value.body }).toEqual(
+      shipped,
+    );
     expect(value.body).toBe(digestForCode(SHIPPED_ERROR_DIGEST, 'NG0100'));
   });
 
@@ -264,7 +354,9 @@ describe('error_digest_lookup result', () => {
     expect(SHIPPED_ERROR_DIGEST.entries.length).toBeGreaterThan(0);
 
     for (const entry of SHIPPED_ERROR_DIGEST.entries) {
-      const outcome = await registry.execute(ERROR_DIGEST_TOOL_ID, { code: entry.code });
+      const outcome = await registry.execute(ERROR_DIGEST_TOOL_ID, {
+        code: entry.code,
+      });
       expect(outcome.kind).toBe('result');
       if (outcome.kind !== 'result') {
         continue;
@@ -283,7 +375,17 @@ describe('error_digest_lookup unanswerable codes', () => {
   it('answers invalid-input naming the tool for a malformed code, never an empty result', async () => {
     const registry = newRegistry();
 
-    for (const code of ['', '   ', 'NG', '100', 'NG0', 'NG0x10', 'abcd', 'NG010011', 100]) {
+    for (const code of [
+      '',
+      '   ',
+      'NG',
+      '100',
+      'NG0',
+      'NG0x10',
+      'abcd',
+      'NG010011',
+      100,
+    ]) {
       const outcome = await registry.execute(ERROR_DIGEST_TOOL_ID, { code });
       expect(outcome.kind).toBe('error');
       if (outcome.kind !== 'error') {
@@ -299,7 +401,9 @@ describe('error_digest_lookup unanswerable codes', () => {
     const registry = newRegistry();
     expect(findEntry(SHIPPED_ERROR_DIGEST, 'NG9999')).toBeNull();
 
-    const outcome = await registry.execute(ERROR_DIGEST_TOOL_ID, { code: '9999' });
+    const outcome = await registry.execute(ERROR_DIGEST_TOOL_ID, {
+      code: '9999',
+    });
 
     expect(outcome.kind).toBe('error');
     if (outcome.kind !== 'error') {
@@ -342,7 +446,10 @@ describe('error_digest_lookup licence notice', () => {
       title: shipped.title,
       body: `${shipped.body}\n${notice}`,
     };
-    const digest: ErrorDigest = { version: 'test-fixture', entries: [carrying] };
+    const digest: ErrorDigest = {
+      version: 'test-fixture',
+      entries: [carrying],
+    };
 
     // The fixture really carries the notice, so the removal below is a removal and not a coincidence.
     expect(carrying.body).toMatch(/MIT License/);

@@ -26,14 +26,24 @@ import { test } from 'node:test';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const RECORDING = join(ROOT, 'research', 'raw', 'm022-hit-test.json');
 const CHARTER = join(ROOT, '.project', 'CHARTER.md');
-const REGISTRY = join(ROOT, '.commandcode', 'skills', 'control-ai-browsers', 'instances.json');
+const REGISTRY = join(
+  ROOT,
+  '.commandcode',
+  'skills',
+  'control-ai-browsers',
+  'instances.json',
+);
 const DRIVER = 'spikes/probes/hit-test.js';
 
 const MILESTONE = 'M022';
 // The three identities criterion 2 allows a measured row to return.
 const IDENTITIES = ['tool-host', 'page-element', 'nothing'];
 // The ruling field each identity maps through, so the ruling is judged against the rows.
-const MAPPINGS = { 'tool-host': 'hitOnTheToolHost', 'page-element': 'hitOnAPageElement', nothing: 'hitOnNothing' };
+const MAPPINGS = {
+  'tool-host': 'hitOnTheToolHost',
+  'page-element': 'hitOnAPageElement',
+  nothing: 'hitOnNothing',
+};
 // Tokens a driver that only builds its own probe nodes cannot carry: a page global or storage would
 // outlive the probe, and the probe is the only thing allowed to add nodes to the page.
 const WRITES = [
@@ -71,13 +81,17 @@ function readJson(path, what) {
   try {
     text = readFileSync(path, 'utf8');
   } catch (error) {
-    throw new Error(`the ${what} ${path} cannot be read (${error?.code ?? error}); the check fails rather than skipping`);
+    throw new Error(
+      `the ${what} ${path} cannot be read (${error?.code ?? error}); the check fails rather than skipping`,
+    );
   }
 
   try {
     return JSON.parse(stripBom(text));
   } catch (error) {
-    throw new Error(`the ${what} ${path} is not JSON (${error?.message ?? error})`);
+    throw new Error(
+      `the ${what} ${path} is not JSON (${error?.message ?? error})`,
+    );
   }
 }
 
@@ -97,9 +111,15 @@ function supportedProfiles() {
   const rest = charter.slice(at);
   const end = rest.search(/\n\s*\n|\n- /);
   const paragraph = end >= 0 ? rest.slice(0, end) : rest;
-  const names = [...paragraph.matchAll(/`([a-z0-9][a-z0-9-]*)`/g)].map((match) => match[1]);
+  const names = [...paragraph.matchAll(/`([a-z0-9][a-z0-9-]*)`/g)].map(
+    (match) => match[1],
+  );
 
-  assert.equal(names.length, 4, `CHARTER.md must name four supported profiles; read ${JSON.stringify(names)}`);
+  assert.equal(
+    names.length,
+    4,
+    `CHARTER.md must name four supported profiles; read ${JSON.stringify(names)}`,
+  );
 
   const registry = readJson(REGISTRY, 'browser registry');
   const instances = registry?.instances ?? {};
@@ -132,7 +152,9 @@ function readDriver(path) {
   try {
     return stripBom(readFileSync(join(ROOT, path), 'utf8'));
   } catch (error) {
-    throw new Error(`the recording names the driver ${path}, which does not exist (${error?.code ?? error})`);
+    throw new Error(
+      `the recording names the driver ${path}, which does not exist (${error?.code ?? error})`,
+    );
   }
 }
 
@@ -147,16 +169,39 @@ function readDriver(path) {
 function assertDriverShape(source) {
   const text = stripBom(source);
 
-  assert.match(text, /^async page => \{$/m, 'a run driver is one `async page => { ... }` expression');
-  assert.ok(text.trimEnd().endsWith('}'), 'the driver must close the expression it starts');
-  assert.ok(text.includes('document.elementFromPoint('), 'the driver must read document.elementFromPoint');
-  assert.ok(text.includes("attachShadow({ mode: 'closed' })"), 'the driver must build the closed root the product builds');
-  assert.ok(text.includes('pointer-events:none'), 'the driver must build the host with pointer-events: none');
-  assert.ok(text.includes('angular-ai-devtools-host'), "the driver must build the host the product's id names");
+  assert.match(
+    text,
+    /^async page => \{$/m,
+    'a run driver is one `async page => { ... }` expression',
+  );
+  assert.ok(
+    text.trimEnd().endsWith('}'),
+    'the driver must close the expression it starts',
+  );
+  assert.ok(
+    text.includes('document.elementFromPoint('),
+    'the driver must read document.elementFromPoint',
+  );
+  assert.ok(
+    text.includes("attachShadow({ mode: 'closed' })"),
+    'the driver must build the closed root the product builds',
+  );
+  assert.ok(
+    text.includes('pointer-events:none'),
+    'the driver must build the host with pointer-events: none',
+  );
+  assert.ok(
+    text.includes('angular-ai-devtools-host'),
+    "the driver must build the host the product's id names",
+  );
   assert.match(text, /\.remove\(\)/, 'the driver must remove what it created');
 
   for (const [pattern, token] of WRITES) {
-    assert.doesNotMatch(text, pattern, `a driver that leaves no trace cannot carry ${token}`);
+    assert.doesNotMatch(
+      text,
+      pattern,
+      `a driver that leaves no trace cannot carry ${token}`,
+    );
   }
 }
 
@@ -180,18 +225,35 @@ function mappingFor(ruling, kind) {
  * @returns {void}
  */
 function validate(recording, deps) {
-  assert.ok(recording && typeof recording === 'object' && !Array.isArray(recording), 'the recording must be one JSON object');
-  assert.equal(recording.milestone, MILESTONE, 'the recording must name this milestone');
-  assert.equal(recording.driver, DRIVER, 'the recording must name the one driver that produces the readings');
   assert.ok(
-    filled(recording.runCommand) && /control-ai-browsers/.test(recording.runCommand) && /run <profile>/.test(recording.runCommand),
+    recording && typeof recording === 'object' && !Array.isArray(recording),
+    'the recording must be one JSON object',
+  );
+  assert.equal(
+    recording.milestone,
+    MILESTONE,
+    'the recording must name this milestone',
+  );
+  assert.equal(
+    recording.driver,
+    DRIVER,
+    'the recording must name the one driver that produces the readings',
+  );
+  assert.ok(
+    filled(recording.runCommand) &&
+      /control-ai-browsers/.test(recording.runCommand) &&
+      /run <profile>/.test(recording.runCommand),
     'the recording must name the run command a row is taken with',
   );
 
   const rows = recording.profiles;
 
   assert.ok(Array.isArray(rows), 'the recording must carry a profiles array');
-  assert.equal(rows.length, deps.profiles.length, `one row per supported profile: ${deps.profiles.join(', ')}`);
+  assert.equal(
+    rows.length,
+    deps.profiles.length,
+    `one row per supported profile: ${deps.profiles.join(', ')}`,
+  );
   assert.deepEqual(
     rows.map((row) => row?.profile).sort(),
     [...deps.profiles].sort(),
@@ -203,16 +265,25 @@ function validate(recording, deps) {
   for (const row of rows) {
     const where = row?.profile ?? 'a row';
 
-    assert.ok(deps.profiles.includes(row?.profile), `${where} is not a profile CHARTER.md supports`);
+    assert.ok(
+      deps.profiles.includes(row?.profile),
+      `${where} is not a profile CHARTER.md supports`,
+    );
     assert.ok(filled(row.browser), `${where} must name its browser`);
-    assert.ok(filled(row.browserVersion), `${where} must name the browser version that answered`);
+    assert.ok(
+      filled(row.browserVersion),
+      `${where} must name the browser version that answered`,
+    );
     assert.ok(
       Boolean(row.measured) !== Boolean(row.notTaken),
       `${where} must carry either a measured reading or a named reason, never both and never neither`,
     );
 
     if (row.notTaken) {
-      assert.ok(filled(row.notTaken.reason), `${where} must state why the reading was not taken`);
+      assert.ok(
+        filled(row.notTaken.reason),
+        `${where} must state why the reading was not taken`,
+      );
       assert.match(
         row.notTaken.command ?? '',
         /control\.mjs run \S+ spikes\/probes\/hit-test\.js/,
@@ -225,50 +296,107 @@ function validate(recording, deps) {
 
     // Criterion 3: the product configuration is pointer-events: none, and the recorded value is the
     // one a hover reads. Any other value would let the host swallow a pick.
-    assert.equal(row.host?.pointerEvents, 'none', `${where} must report the host's pointer-events as none, so the host cannot swallow a pick`);
-    assert.equal(row.host?.mode, 'closed', `${where} must build the host with a closed shadow root, as the product does`);
-    assert.ok(Number.isFinite(row.point?.x) && Number.isFinite(row.point?.y), `${where} must name the point that was hit`);
+    assert.equal(
+      row.host?.pointerEvents,
+      'none',
+      `${where} must report the host's pointer-events as none, so the host cannot swallow a pick`,
+    );
+    assert.equal(
+      row.host?.mode,
+      'closed',
+      `${where} must build the host with a closed shadow root, as the product does`,
+    );
+    assert.ok(
+      Number.isFinite(row.point?.x) && Number.isFinite(row.point?.y),
+      `${where} must name the point that was hit`,
+    );
     assert.ok(
       IDENTITIES.includes(row.measured.returned?.kind),
       `${where} must return the tool's host, a page element or nothing; read ${JSON.stringify(row.measured.returned?.kind)}`,
     );
-    assert.ok(filled(row.measured.page), `${where} must name the page the point was taken on`);
+    assert.ok(
+      filled(row.measured.page),
+      `${where} must name the page the point was taken on`,
+    );
     assert.ok(filled(row.measured.at), `${where} must date its reading`);
     assert.match(
       row.measured.command ?? '',
       /control\.mjs run \S+ spikes\/probes\/hit-test\.js/,
       `${where} must name the command that produced its reading`,
     );
-    assert.equal(row.measured.baseline?.kind, 'page-element', `${where} must show the point was over the page element before the host existed`);
-    assert.equal(row.measured.cleanup?.hostRemoved, true, `${where} must remove the host it created`);
-    assert.equal(row.measured.cleanup?.pageElementRemoved, true, `${where} must remove the page element it created`);
-    assert.equal(row.measured.cleanup?.toolElementsAfter, 0, `${where} must leave no tool element behind`);
+    assert.equal(
+      row.measured.baseline?.kind,
+      'page-element',
+      `${where} must show the point was over the page element before the host existed`,
+    );
+    assert.equal(
+      row.measured.cleanup?.hostRemoved,
+      true,
+      `${where} must remove the host it created`,
+    );
+    assert.equal(
+      row.measured.cleanup?.pageElementRemoved,
+      true,
+      `${where} must remove the page element it created`,
+    );
+    assert.equal(
+      row.measured.cleanup?.toolElementsAfter,
+      0,
+      `${where} must leave no tool element behind`,
+    );
 
     if (row.comparison) {
-      assert.notEqual(row.comparison.hostPointerEvents, 'none', `${where}'s comparison reading must be the hit-testable case`);
+      assert.notEqual(
+        row.comparison.hostPointerEvents,
+        'none',
+        `${where}'s comparison reading must be the hit-testable case`,
+      );
       assert.match(
         row.comparison.why ?? '',
         /not the product configuration/i,
         `${where} must label the comparison reading as not the product configuration`,
       );
-      assert.ok(IDENTITIES.includes(row.comparison.returned?.kind), `${where}'s comparison reading must return a named identity`);
+      assert.ok(
+        IDENTITIES.includes(row.comparison.returned?.kind),
+        `${where}'s comparison reading must return a named identity`,
+      );
     }
   }
 
-  assert.ok(measuredRows >= 1, 'at least one profile must carry a measured row; a recording with only named reasons settles nothing');
+  assert.ok(
+    measuredRows >= 1,
+    'at least one profile must carry a measured row; a recording with only named reasons settles nothing',
+  );
 
   const ruling = recording.ruling;
 
-  assert.ok(ruling && typeof ruling === 'object', 'the recording must carry the ruling the hover path implements');
+  assert.ok(
+    ruling && typeof ruling === 'object',
+    'the recording must carry the ruling the hover path implements',
+  );
   assert.equal(
     ruling.reliesOnEngineRetargeting,
     false,
     'the ruling must be correct without the engine retargeting the hit, so it cannot lean on retargeting',
   );
-  assert.ok(filled(ruling.hitOnTheToolHost), "the ruling must state what a hit on the tool's host means");
-  assert.ok(filled(ruling.hitOnAPageElement), 'the ruling must state what a hit on a page element means');
-  assert.match(ruling.statement ?? '', /retarget/i, 'the ruling must name the retargeting it does not depend on');
-  assert.match(ruling.pointerEvents ?? '', /pointer-events/, "the ruling must record why the host's pointer-events value keeps a pick possible");
+  assert.ok(
+    filled(ruling.hitOnTheToolHost),
+    "the ruling must state what a hit on the tool's host means",
+  );
+  assert.ok(
+    filled(ruling.hitOnAPageElement),
+    'the ruling must state what a hit on a page element means',
+  );
+  assert.match(
+    ruling.statement ?? '',
+    /retarget/i,
+    'the ruling must name the retargeting it does not depend on',
+  );
+  assert.match(
+    ruling.pointerEvents ?? '',
+    /pointer-events/,
+    "the ruling must record why the host's pointer-events value keeps a pick possible",
+  );
 
   // Criterion 4, judged against the rows: a measured host hit maps to the tool and never to a
   // candidate, and a measured page hit is the candidate. Swapping either reading is the defect.
@@ -276,13 +404,32 @@ function validate(recording, deps) {
     const kind = row?.measured?.returned?.kind;
 
     if (kind === 'tool-host') {
-      assert.match(mappingFor(ruling, kind), /^the tool\b/i, `${row.profile}'s measured host hit must map to the tool`);
-      assert.doesNotMatch(mappingFor(ruling, kind), /candidate/i, `${row.profile}'s measured host hit must never map to a candidate`);
+      assert.match(
+        mappingFor(ruling, kind),
+        /^the tool\b/i,
+        `${row.profile}'s measured host hit must map to the tool`,
+      );
+      assert.doesNotMatch(
+        mappingFor(ruling, kind),
+        /candidate/i,
+        `${row.profile}'s measured host hit must never map to a candidate`,
+      );
     } else if (kind === 'page-element') {
-      assert.match(mappingFor(ruling, kind), /^the candidate\b/i, `${row.profile}'s measured page hit must map to the candidate`);
-      assert.doesNotMatch(mappingFor(ruling, kind), /^the tool\b/i, `${row.profile}'s measured page hit must not map to the tool`);
+      assert.match(
+        mappingFor(ruling, kind),
+        /^the candidate\b/i,
+        `${row.profile}'s measured page hit must map to the candidate`,
+      );
+      assert.doesNotMatch(
+        mappingFor(ruling, kind),
+        /^the tool\b/i,
+        `${row.profile}'s measured page hit must not map to the tool`,
+      );
     } else if (kind === 'nothing') {
-      assert.ok(filled(mappingFor(ruling, kind)), `${row.profile}'s measured empty hit must map to a named outcome`);
+      assert.ok(
+        filled(mappingFor(ruling, kind)),
+        `${row.profile}'s measured empty hit must map to a named outcome`,
+      );
     }
   }
 
@@ -295,9 +442,21 @@ function validate(recording, deps) {
     'nothing',
     'the recording must state that visualViewport.scale is a rect input for nothing',
   );
-  assert.match(visualViewport?.statement ?? '', /visualViewport\.scale/, 'the statement must name visualViewport.scale');
-  assert.match(visualViewport?.statement ?? '', /pinch/i, 'the statement must name pinch zoom');
-  assert.match(visualViewport?.statement ?? '', /out of scope/i, 'the statement must put pinch zoom out of scope by name');
+  assert.match(
+    visualViewport?.statement ?? '',
+    /visualViewport\.scale/,
+    'the statement must name visualViewport.scale',
+  );
+  assert.match(
+    visualViewport?.statement ?? '',
+    /pinch/i,
+    'the statement must name pinch zoom',
+  );
+  assert.match(
+    visualViewport?.statement ?? '',
+    /out of scope/i,
+    'the statement must put pinch zoom out of scope by name',
+  );
 
   assertDriverShape(deps.readDriver(recording.driver));
 }
@@ -311,12 +470,21 @@ test('one row per supported profile, each carrying its reading or its named reas
 test('the charter names four supported profiles that the browser registry can drive', () => {
   const profiles = supportedProfiles();
 
-  assert.deepEqual(profiles, ['chrome-stable-nano', 'chrome-beta-gemma4', 'edge-dev-aion', 'edge-phi4mini']);
+  assert.deepEqual(profiles, [
+    'chrome-stable-nano',
+    'chrome-beta-gemma4',
+    'edge-dev-aion',
+    'edge-phi4mini',
+  ]);
 });
 
 test('a missing or unreadable recording fails rather than skipping', () => {
   assert.throws(
-    () => readJson(join(ROOT, 'research', 'raw', 'm022-hit-test-absent.json'), 'hit-test recording'),
+    () =>
+      readJson(
+        join(ROOT, 'research', 'raw', 'm022-hit-test-absent.json'),
+        'hit-test recording',
+      ),
     /fails rather than skipping/,
   );
 });
@@ -325,12 +493,21 @@ test('a profile with no row, or a row for a profile the charter does not support
   const missing = load();
 
   missing.recording.profiles.pop();
-  assert.throws(() => validate(missing.recording, missing.deps), /one row per supported profile/);
+  assert.throws(
+    () => validate(missing.recording, missing.deps),
+    /one row per supported profile/,
+  );
 
   const extra = load();
 
-  extra.recording.profiles.push({ ...extra.recording.profiles[0], profile: 'chrome-beta-nano' });
-  assert.throws(() => validate(extra.recording, extra.deps), /one row per supported profile/);
+  extra.recording.profiles.push({
+    ...extra.recording.profiles[0],
+    profile: 'chrome-beta-nano',
+  });
+  assert.throws(
+    () => validate(extra.recording, extra.deps),
+    /one row per supported profile/,
+  );
 });
 
 test('a row with neither a measured reading nor a named reason is refused', () => {
@@ -346,9 +523,13 @@ test('a named reason without the command that would settle it is refused', () =>
 
   row.notTaken = { reason: 'the instance would not start' };
   delete row.measured;
-  assert.throws(() => validate(recording, deps), /command that would settle it/);
+  assert.throws(
+    () => validate(recording, deps),
+    /command that would settle it/,
+  );
 
-  row.notTaken.command = 'node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-stable-nano spikes/probes/hit-test.js';
+  row.notTaken.command =
+    'node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-stable-nano spikes/probes/hit-test.js';
   validate(recording, deps);
 });
 
@@ -366,25 +547,44 @@ test('a file with no measured row fails, because a reason is not a reading', () 
     delete row.comparison;
   }
 
-  assert.throws(() => validate(recording, deps), /at least one profile must carry a measured row/);
+  assert.throws(
+    () => validate(recording, deps),
+    /at least one profile must carry a measured row/,
+  );
 });
 
-test("a measured row whose host pointer-events would let the host swallow a pick is refused", () => {
+test('a measured row whose host pointer-events would let the host swallow a pick is refused', () => {
   for (const value of ['auto', 'all', undefined]) {
     const { recording, deps } = load();
 
     recording.profiles[0].host.pointerEvents = value;
-    assert.throws(() => validate(recording, deps), /swallow a pick/, `${String(value)} must fail`);
+    assert.throws(
+      () => validate(recording, deps),
+      /swallow a pick/,
+      `${String(value)} must fail`,
+    );
   }
 });
 
 test('a measured row that names no point, no identity or a page it left dirty is refused', () => {
   for (const [mutate, expected] of [
     [(row) => delete row.point, /point that was hit/],
-    [(row) => delete row.measured.returned, /the tool's host, a page element or nothing/],
-    [(row) => (row.measured.returned.kind = 'the overlay'), /the tool's host, a page element or nothing/],
-    [(row) => (row.measured.cleanup.toolElementsAfter = 1), /leave no tool element behind/],
-    [(row) => (row.measured.baseline.kind = 'tool-host'), /before the host existed/],
+    [
+      (row) => delete row.measured.returned,
+      /the tool's host, a page element or nothing/,
+    ],
+    [
+      (row) => (row.measured.returned.kind = 'the overlay'),
+      /the tool's host, a page element or nothing/,
+    ],
+    [
+      (row) => (row.measured.cleanup.toolElementsAfter = 1),
+      /leave no tool element behind/,
+    ],
+    [
+      (row) => (row.measured.baseline.kind = 'tool-host'),
+      /before the host existed/,
+    ],
     [(row) => delete row.browserVersion, /browser version/],
   ]) {
     const { recording, deps } = load();
@@ -399,12 +599,18 @@ test('a measured host hit mapped to a candidate, or a measured page hit mapped t
 
   hostHit.recording.profiles[0].measured.returned.kind = 'tool-host';
   hostHit.recording.ruling.hitOnTheToolHost = 'the candidate';
-  assert.throws(() => validate(hostHit.recording, hostHit.deps), /must map to the tool|never map to a candidate/);
+  assert.throws(
+    () => validate(hostHit.recording, hostHit.deps),
+    /must map to the tool|never map to a candidate/,
+  );
 
   const pageHit = load();
 
   pageHit.recording.ruling.hitOnAPageElement = 'the tool, not a candidate';
-  assert.throws(() => validate(pageHit.recording, pageHit.deps), /must map to the candidate|must not map to the tool/);
+  assert.throws(
+    () => validate(pageHit.recording, pageHit.deps),
+    /must map to the candidate|must not map to the tool/,
+  );
 });
 
 test('a ruling that leans on the engine retargeting the hit is refused', () => {
@@ -418,17 +624,25 @@ test('a recording that does not put pinch zoom out of scope by naming visualView
   const missing = load();
 
   delete missing.recording.ruling.visualViewport;
-  assert.throws(() => validate(missing.recording, missing.deps), /rect input for nothing/);
+  assert.throws(
+    () => validate(missing.recording, missing.deps),
+    /rect input for nothing/,
+  );
 
   const vague = load();
 
-  vague.recording.ruling.visualViewport.statement = 'pinch zoom is handled by the browser';
+  vague.recording.ruling.visualViewport.statement =
+    'pinch zoom is handled by the browser';
   delete vague.recording.ruling.visualViewport.scaleIsARectInputFor;
-  assert.throws(() => validate(vague.recording, vague.deps), /rect input for nothing/);
+  assert.throws(
+    () => validate(vague.recording, vague.deps),
+    /rect input for nothing/,
+  );
 
   const noPinch = load();
 
-  noPinch.recording.ruling.visualViewport.statement = '`visualViewport.scale` is a rect input for nothing and is out of scope';
+  noPinch.recording.ruling.visualViewport.statement =
+    '`visualViewport.scale` is a rect input for nothing and is out of scope';
   assert.throws(() => validate(noPinch.recording, noPinch.deps), /pinch/);
 });
 
@@ -437,7 +651,10 @@ test('the driver is a run driver that builds the closed pointer-events: none hos
 
   assert.throws(() => assertDriverShape('const page = 1;\n'), /async page =>/);
   assert.throws(
-    () => assertDriverShape('async page => {\n  await page.evaluate(() => document.elementFromPoint(1, 1));\n}\n'),
+    () =>
+      assertDriverShape(
+        'async page => {\n  await page.evaluate(() => document.elementFromPoint(1, 1));\n}\n',
+      ),
     /closed root/,
   );
   assert.throws(

@@ -24,13 +24,13 @@ extension's content scripts ran in the tester iframe in both worlds. The DevTool
 through `inspectedWindow.eval` with `frameURL`. `window.ng` worked there, and `LanguageModel` answered "OK" from
 inside the tester iframe **[measured, `research/raw/vitest-attach-gemma4.json`]**.
 
-| Route | Extension loads | Content script in tester iframe | DevTools panel reaches tester iframe | `LanguageModel` there |
-|---|---|---|---|---|
-| 1. Vitest's Playwright provider, `persistentContext` + `--load-extension`, bundled Chromium | yes **[measured]** | yes, isolated and MAIN world **[measured]** | yes, with `frameURL` **[measured]** | `typeof` function, `availability()` `unavailable` (no model in Chrome for Testing 153) **[measured]** |
-| 2. Attach to a running branded instance over CDP (custom provider), extension by `Extensions.loadUnpacked` | yes **[measured]** | yes, both worlds **[measured]** | yes, with `frameURL` **[measured]** | `available`, `contextWindow` 9216, answered "OK" in 10.8 s **[measured]** |
-| 2b. Attach, but pages in a new context (`browser.newContext()`) | loaded, but not in the test page **[measured]** | no **[measured]** | panel not registered **[measured]** | not read: the instance stopped responding **[measured]** |
-| 2a. Vitest's own `connectOptions` | not applicable: needs a Playwright `launchServer` endpoint, cannot attach to CDP **[documented]** | - | - | - |
-| 3. Vitest's `preview` provider | not measured | not measured | not measured | would match the browser it opens **[inferred]** |
+| Route                                                                                                      | Extension loads                                                                                   | Content script in tester iframe             | DevTools panel reaches tester iframe | `LanguageModel` there                                                                                 |
+| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| 1. Vitest's Playwright provider, `persistentContext` + `--load-extension`, bundled Chromium                | yes **[measured]**                                                                                | yes, isolated and MAIN world **[measured]** | yes, with `frameURL` **[measured]**  | `typeof` function, `availability()` `unavailable` (no model in Chrome for Testing 153) **[measured]** |
+| 2. Attach to a running branded instance over CDP (custom provider), extension by `Extensions.loadUnpacked` | yes **[measured]**                                                                                | yes, both worlds **[measured]**             | yes, with `frameURL` **[measured]**  | `available`, `contextWindow` 9216, answered "OK" in 10.8 s **[measured]**                             |
+| 2b. Attach, but pages in a new context (`browser.newContext()`)                                            | loaded, but not in the test page **[measured]**                                                   | no **[measured]**                           | panel not registered **[measured]**  | not read: the instance stopped responding **[measured]**                                              |
+| 2a. Vitest's own `connectOptions`                                                                          | not applicable: needs a Playwright `launchServer` endpoint, cannot attach to CDP **[documented]** | -                                           | -                                    | -                                                                                                     |
+| 3. Vitest's `preview` provider                                                                             | not measured                                                                                      | not measured                                | not measured                         | would match the browser it opens **[inferred]**                                                       |
 
 Raw files: `research/raw/vitest-attach-gemma4.json` (route 2), `research/raw/vitest-chromium-bundled.json`
 (route 1), `research/raw/vitest-attach-gemma4-newcontext.json` (route 2b),
@@ -70,12 +70,12 @@ around the route 2 run). Probes: `spikes/probes/vitest-attach.mjs` (runner) and
      expects the count to rise by one from its value just before the click. The spike runs below used an
      earlier version that expected exactly "Clicks: 4"; a click from outside during the hold made that version
      fail ("Received: Clicks: 5"), so it now counts from the value before its own click **[measured]**.
-  `VITE_`-prefixed variables reach the browser as `import.meta.env.<name>` (Vitest browser defines them from
-  `test.env`, `@vitest/browser/dist/index.js:3454-3458`) **[documented; measured by test 3 running only when
-  set]**.
+     `VITE_`-prefixed variables reach the browser as `import.meta.env.<name>` (Vitest browser defines them from
+     `test.env`, `@vitest/browser/dist/index.js:3454-3458`) **[documented; measured by test 3 running only when
+     set]**.
 - Runs: `ng test` (default `headless`) 2 passed, 2 skipped, exit 0; with `VITE_COUNTER_TIMING_DEMO=1` 1 failed,
   2 passed, exit 1; `ng test -c attach` against Chrome Beta 2 passed, exit 0 **[measured]**. `ngc -p
-  tsconfig.spec.json --noEmit` and `ngc -p tsconfig.app.json --noEmit` exit 0; a planted type error in a spec
+tsconfig.spec.json --noEmit` and `ngc -p tsconfig.app.json --noEmit` exit 0; a planted type error in a spec
   made the first exit 1, so the check does run **[measured]**.
 
 ## Route 2: attaching to a real branded browser
@@ -208,7 +208,7 @@ All from `research/raw/vitest-attach-gemma4.json` (route 2); route 1 gave the sa
   `ɵgetDependenciesFromInjectable`, `ɵgetControlFlowBlocks`, `ɵgetTransferState`, `toggleWatchSignal`
   **[measured]**. TestBed's test platform publishes them: `createPlatform` and
   `createOrReusePlatformInjector` call `publishDefaultGlobalUtils()` (`@angular/core/fesm2022/core.mjs:2323,
-  2385`) **[documented]**. No router globals: the counter test has no router **[measured]**.
+2385`) **[documented]**. No router globals: the counter test has no router **[measured]**.
 - **The component host is not `<app-counter>`.** TestBed renders into `<div id="rootN" ng-version="22.2.2">`;
   `document.querySelector('app-counter')` is null and `ng.getComponent(div)` is the Counter **[measured]**.
   Any tool that finds components by selector must walk `[ng-version]` hosts instead.

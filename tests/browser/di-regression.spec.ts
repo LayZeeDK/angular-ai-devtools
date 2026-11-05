@@ -13,7 +13,12 @@ const counterDiGraph = {
         id: 0,
         metadata: { type: 'environment', source: 'AppModule' },
         providers: [
-          { token: 'FooService', isViewProvider: false, provider: 'value', importPath: 'app/app.module' },
+          {
+            token: 'FooService',
+            isViewProvider: false,
+            provider: 'value',
+            importPath: 'app/app.module',
+          },
         ],
       },
       {
@@ -45,7 +50,12 @@ const parentDiGraph = {
         id: 0,
         metadata: { type: 'environment', source: 'AppModule' },
         providers: [
-          { token: 'FooService', isViewProvider: false, provider: 'value', importPath: 'app/app.module' },
+          {
+            token: 'FooService',
+            isViewProvider: false,
+            provider: 'value',
+            importPath: 'app/app.module',
+          },
         ],
       },
       {
@@ -80,19 +90,13 @@ const minimalCycle = {
   ],
 };
 
-async function injectDiGraph(
-  page: Page,
-  graph: unknown,
-): Promise<void> {
+async function injectDiGraph(page: Page, graph: unknown): Promise<void> {
   await page.evaluate((data) => {
     window.chrome._dispatch(data as any);
   }, graph);
 }
 
-async function injectCycle(
-  page: Page,
-  cycle: unknown,
-): Promise<void> {
+async function injectCycle(page: Page, cycle: unknown): Promise<void> {
   await page.evaluate((data) => {
     window.chrome._dispatch({ type: 'angular-ai:record', cycle: data } as any);
   }, cycle);
@@ -106,7 +110,7 @@ async function callCheckAvailability(
     const ng = (window as any).ng;
     if (!ng) return;
     const el = document.querySelector(sel);
-    if (!el) return { };
+    if (!el) return {};
     const component = ng.getComponent(el);
     if (component?.prompt) {
       await component.prompt.checkAvailability();
@@ -169,9 +173,9 @@ test.describe('DI Doctor panel (N3)', () => {
 
     await injectDiGraph(page, counterDiGraph);
 
-    await expect(page.locator('[data-testid="component-picker"]')).toContainText(
-      'app-counter',
-    );
+    await expect(
+      page.locator('[data-testid="component-picker"]'),
+    ).toContainText('app-counter');
     await page
       .locator('[data-testid="component-picker"]')
       .selectOption('app-counter');
@@ -183,9 +187,7 @@ test.describe('DI Doctor panel (N3)', () => {
     const names = await pathDisplay.locator('.name').allTextContents();
     expect(names).toEqual(['AppModule', 'AppComponent', 'CounterComponent']);
 
-    const providers = await pathDisplay
-      .locator('.provider')
-      .allTextContents();
+    const providers = await pathDisplay.locator('.provider').allTextContents();
     expect(providers).toEqual(
       expect.arrayContaining(['FooService (value)', 'BarService (value)']),
     );
@@ -276,9 +278,7 @@ test.describe('N1/N2 regression - no regressions from N3', () => {
     });
   });
 
-  test('N1 renders at default route with recorded cycles', async ({
-    page,
-  }) => {
+  test('N1 renders at default route with recorded cycles', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="component-picker"]');
 
@@ -287,9 +287,7 @@ test.describe('N1/N2 regression - no regressions from N3', () => {
     await expect(
       page.locator('[data-testid="component-picker"]'),
     ).toContainText('app-counter');
-    await expect(page.locator('h2')).toContainText(
-      'Why did this update?',
-    );
+    await expect(page.locator('h2')).toContainText('Why did this update?');
   });
 
   test('N2 renders at signal-provenance route with recorded cycles', async ({

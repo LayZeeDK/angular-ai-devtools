@@ -132,14 +132,14 @@ const AWAITING_PAGE_MESSAGE =
  * can never be read as "no data yet".
  */
 const ABSENT_MESSAGE =
-  'This page carries no companion package: no ngAiDevTools entry was found on the page\'s global object.';
+  "This page carries no companion package: no ngAiDevTools entry was found on the page's global object.";
 
 /**
  * The `foreign-entry` refusal: the key is there, the package is not. A stub or a stale copy that
  * kept the name and lost the shape is not a partial opt-in, and saying so is the whole point (N1).
  */
 const FOREIGN_ENTRY_MESSAGE =
-  'The page carries an ngAiDevTools entry, but it is not the companion package\'s shape: a stub or a stale copy of the entry writes the name without the package behind it, so this is not an opt-in';
+  "The page carries an ngAiDevTools entry, but it is not the companion package's shape: a stub or a stale copy of the entry writes the name without the package behind it, so this is not an opt-in";
 
 /**
  * Renders the extra surface for one page. Pure: it reads the record it is handed, writes nothing,
@@ -151,7 +151,9 @@ const FOREIGN_ENTRY_MESSAGE =
  * version this panel does not accept — the `version-unsupported` refusal, because the panel's
  * closed copy of the vocabulary is what it accepts, not the page's word for it.
  */
-export function companionSurface(record: CompanionRecord | null): CompanionSurface {
+export function companionSurface(
+  record: CompanionRecord | null,
+): CompanionSurface {
   if (record === null) {
     return { kind: 'awaiting-page', message: AWAITING_PAGE_MESSAGE };
   }
@@ -217,7 +219,11 @@ function versionUnsupported(declaredVersion: string | null): CompanionSurface {
 }
 
 /** The `declared` sentence: the accepted version and the two counts, kept apart. */
-function declaredMessage(version: string | null, declared: number, resolved: number): string {
+function declaredMessage(
+  version: string | null,
+  declared: number,
+  resolved: number,
+): string {
   const at = version === null ? '' : ` at version ${version}`;
   return `The page's ngAiDevTools entry declares the companion package${at}, which this panel accepts: ${String(declared)} symbols were declared and ${String(resolved)} of them were resolved in this page's injector`;
 }
@@ -227,7 +233,11 @@ function declaredMessage(version: string | null, declared: number, resolved: num
  * which state it is, so a degraded wiring — a second Angular copy, a dropped provider — is never
  * mistaken for a page without the package.
  */
-function declaredNoSymbolsMessage(version: string | null, declared: number, resolved: number): string {
+function declaredNoSymbolsMessage(
+  version: string | null,
+  declared: number,
+  resolved: number,
+): string {
   const at = version === null ? '' : ` at version ${version}`;
   return `The page's ngAiDevTools entry declares the companion package${at}: declared, no symbols — ${String(declared)} symbols were declared and ${String(resolved)} of them were resolved in this page's injector, and no declared symbol is one this panel can name, so the extra surface is empty, which is a wiring result and not a page without the package`;
 }
@@ -237,7 +247,9 @@ function declaredNoSymbolsMessage(version: string | null, declared: number, reso
  * ones on the panel's closed vocabulary. Nothing is added — a symbol the record did not carry
  * cannot be reported — and nothing outside the accepted promise is ever named (N4, AC7).
  */
-function readDeclaredSymbols(value: readonly CompanionSymbol[]): readonly CompanionSymbol[] {
+function readDeclaredSymbols(
+  value: readonly CompanionSymbol[],
+): readonly CompanionSymbol[] {
   const declared: CompanionSymbol[] = [];
   if (!Array.isArray(value)) {
     return declared;
@@ -268,15 +280,21 @@ function isAcceptedSymbol(pkg: string, name: string): boolean {
 
 /** The version the surface names: the record's non-empty string, or `null` when it named none. */
 function readVersion(value: unknown): string | null {
-  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
+  return typeof value === 'string' && value.trim().length > 0
+    ? value.trim()
+    : null;
 }
 
 /** A count the surface reports: a non-negative whole number, or zero for anything else. */
 function readCount(value: unknown): number {
-  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? Math.trunc(value) : 0;
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0
+    ? Math.trunc(value)
+    : 0;
 }
 
 /** Upper-cases the first letter, so a sentence fragment can start one. */
 function capitalise(text: string): string {
-  return text.length === 0 ? text : text.charAt(0).toUpperCase() + text.slice(1);
+  return text.length === 0
+    ? text
+    : text.charAt(0).toUpperCase() + text.slice(1);
 }

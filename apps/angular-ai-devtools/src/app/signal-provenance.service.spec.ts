@@ -19,11 +19,13 @@ describe('SignalProvenanceService', () => {
       cycleId: 1,
       startedAt: 0,
       trigger: { kind: 'output', listenerName: 'click' },
-      checks: [{
-        componentName: 'app-counter',
-        className: 'CounterComponent',
-        events: [2, 3],
-      }],
+      checks: [
+        {
+          componentName: 'app-counter',
+          className: 'CounterComponent',
+          events: [2, 3],
+        },
+      ],
     } as unknown as RecordedCycle);
 
     expect(service.componentNames()).toContain('app-counter');
@@ -39,23 +41,25 @@ describe('SignalProvenanceService', () => {
       cycleId: 1,
       startedAt: 0,
       trigger: { kind: 'output', listenerName: 'click' },
-      checks: [{
-        componentName: 'app-counter',
-        className: 'CounterComponent',
-        graph: {
-          nodes: [
-            { id: '0', kind: 'template', label: 'app-counter', epoch: 1 },
-            { id: '1', kind: 'signal', label: 'count', epoch: 1 },
-            { id: '2', kind: 'effect', label: 'updateCount', epoch: 1 },
-          ],
-          edges: [
-            { producer: '2', consumer: '1' },
-            { producer: '1', consumer: '0' },
-          ],
+      checks: [
+        {
+          componentName: 'app-counter',
+          className: 'CounterComponent',
+          graph: {
+            nodes: [
+              { id: '0', kind: 'template', label: 'app-counter', epoch: 1 },
+              { id: '1', kind: 'signal', label: 'count', epoch: 1 },
+              { id: '2', kind: 'effect', label: 'updateCount', epoch: 1 },
+            ],
+            edges: [
+              { producer: '2', consumer: '1' },
+              { producer: '1', consumer: '0' },
+            ],
+          },
+          changedNodeIds: ['1'],
+          events: [2, 3],
         },
-        changedNodeIds: ['1'],
-        events: [2, 3],
-      }],
+      ],
     } as unknown as RecordedCycle);
 
     service.select('app-counter');
@@ -71,13 +75,15 @@ describe('SignalProvenanceService', () => {
       cycleId: 1,
       startedAt: 0,
       trigger: { kind: 'output', listenerName: 'click' },
-      checks: [{
-        componentName: 'app-counter',
-        className: 'CounterComponent',
-        graph: { nodes: [], edges: [], unavailable: true },
-        changedNodeIds: [],
-        events: [2, 3],
-      }],
+      checks: [
+        {
+          componentName: 'app-counter',
+          className: 'CounterComponent',
+          graph: { nodes: [], edges: [], unavailable: true },
+          changedNodeIds: [],
+          events: [2, 3],
+        },
+      ],
     } as unknown as RecordedCycle);
 
     service.select('app-counter');
@@ -92,23 +98,25 @@ describe('SignalProvenanceService', () => {
       cycleId: 0,
       startedAt: 0,
       trigger: { kind: 'output', listenerName: 'tick' },
-      checks: [{
-        componentName: 'app-counter',
-        className: 'CounterComponent',
-        graph: {
-          nodes: [
-            { id: '0', kind: 'template', label: 'app-counter', epoch: 1 },
-            { id: '1', kind: 'signal', label: 'count', epoch: 1 },
-            { id: '2', kind: 'effect', label: 'updateCount', epoch: 1 },
-          ],
-          edges: [
-            { producer: '2', consumer: '1' },
-            { producer: '1', consumer: '0' },
-          ],
+      checks: [
+        {
+          componentName: 'app-counter',
+          className: 'CounterComponent',
+          graph: {
+            nodes: [
+              { id: '0', kind: 'template', label: 'app-counter', epoch: 1 },
+              { id: '1', kind: 'signal', label: 'count', epoch: 1 },
+              { id: '2', kind: 'effect', label: 'updateCount', epoch: 1 },
+            ],
+            edges: [
+              { producer: '2', consumer: '1' },
+              { producer: '1', consumer: '0' },
+            ],
+          },
+          changedNodeIds: [],
+          events: [2, 3],
         },
-        changedNodeIds: [],
-        events: [2, 3],
-      }],
+      ],
     } as unknown as RecordedCycle);
 
     // Current cycle: signal epoch 2 (effect writes without reading)
@@ -116,23 +124,25 @@ describe('SignalProvenanceService', () => {
       cycleId: 1,
       startedAt: 1,
       trigger: { kind: 'output', listenerName: 'click' },
-      checks: [{
-        componentName: 'app-counter',
-        className: 'CounterComponent',
-        graph: {
-          nodes: [
-            { id: '0', kind: 'template', label: 'app-counter', epoch: 1 },
-            { id: '1', kind: 'signal', label: 'count', epoch: 2 },
-            { id: '2', kind: 'effect', label: 'updateCount', epoch: 1 },
-          ],
-          edges: [
-            { producer: '2', consumer: '1' },
-            { producer: '1', consumer: '0' },
-          ],
+      checks: [
+        {
+          componentName: 'app-counter',
+          className: 'CounterComponent',
+          graph: {
+            nodes: [
+              { id: '0', kind: 'template', label: 'app-counter', epoch: 1 },
+              { id: '1', kind: 'signal', label: 'count', epoch: 2 },
+              { id: '2', kind: 'effect', label: 'updateCount', epoch: 1 },
+            ],
+            edges: [
+              { producer: '2', consumer: '1' },
+              { producer: '1', consumer: '0' },
+            ],
+          },
+          changedNodeIds: ['1'],
+          events: [2, 3],
         },
-        changedNodeIds: ['1'],
-        events: [2, 3],
-      }],
+      ],
     } as unknown as RecordedCycle);
 
     service.select('app-counter');
@@ -147,16 +157,20 @@ describe('SignalProvenanceService', () => {
       cycleId: 1,
       startedAt: 0,
       trigger: { kind: 'output', listenerName: 'click' },
-      checks: [{
-        componentName: 'app-counter',
-        className: 'CounterComponent',
-        graph: {
-          nodes: [{ id: '0', kind: 'template', label: 'app-counter', epoch: 1 }],
-          edges: [],
+      checks: [
+        {
+          componentName: 'app-counter',
+          className: 'CounterComponent',
+          graph: {
+            nodes: [
+              { id: '0', kind: 'template', label: 'app-counter', epoch: 1 },
+            ],
+            edges: [],
+          },
+          changedNodeIds: [],
+          events: [2, 3],
         },
-        changedNodeIds: [],
-        events: [2, 3],
-      }],
+      ],
     } as unknown as RecordedCycle);
 
     service.select('app-counter');
@@ -170,23 +184,25 @@ describe('SignalProvenanceService', () => {
       cycleId: 1,
       startedAt: 0,
       trigger: { kind: 'output', listenerName: 'click' },
-      checks: [{
-        componentName: 'app-counter',
-        className: 'CounterComponent',
-        graph: {
-          nodes: [
-            { id: '0', kind: 'template', label: 'app-counter', epoch: 1 },
-            { id: '1', kind: 'signal', label: 'count', epoch: 2 },
-            { id: '2', kind: 'effect', label: 'updateCount', epoch: 1 },
-          ],
-          edges: [
-            { producer: '2', consumer: '1' },
-            { producer: '1', consumer: '0' },
-          ],
+      checks: [
+        {
+          componentName: 'app-counter',
+          className: 'CounterComponent',
+          graph: {
+            nodes: [
+              { id: '0', kind: 'template', label: 'app-counter', epoch: 1 },
+              { id: '1', kind: 'signal', label: 'count', epoch: 2 },
+              { id: '2', kind: 'effect', label: 'updateCount', epoch: 1 },
+            ],
+            edges: [
+              { producer: '2', consumer: '1' },
+              { producer: '1', consumer: '0' },
+            ],
+          },
+          changedNodeIds: ['1'],
+          events: [2, 3],
         },
-        changedNodeIds: ['1'],
-        events: [2, 3],
-      }],
+      ],
     } as unknown as RecordedCycle);
 
     service.select('app-counter');

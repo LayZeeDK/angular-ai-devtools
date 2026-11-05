@@ -18,7 +18,14 @@ import { printable } from '../../control-ai-browsers/scripts/fingerprint.mjs';
 import { instanceState, loadRegistry, realDeps } from './state.mjs';
 
 // The build under test: this checkout's extension folder, with the drive letter upper-cased as control.mjs stores it.
-export const CHECKOUT_EXTENSION = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', 'extension').replace(/^[a-z]:/, (d) => d.toUpperCase());
+export const CHECKOUT_EXTENSION = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  '..',
+  '..',
+  '..',
+  '..',
+  'extension',
+).replace(/^[a-z]:/, (d) => d.toUpperCase());
 
 /**
  * Whether two spellings name one folder (a short 8.3 name and its long form, the drive letter's case).
@@ -32,7 +39,8 @@ export function samePath(a, b) {
   }
 
   /** @param {string} p */
-  const real = (p) => (existsSync(p) ? realpathSync.native(p) : p).toLowerCase();
+  const real = (p) =>
+    (existsSync(p) ? realpathSync.native(p) : p).toLowerCase();
 
   return real(a) === real(b);
 }
@@ -47,11 +55,17 @@ export function samePath(a, b) {
  * @param {Deps} deps
  * @returns {void}
  */
-export function check({ evidence, url, names, extension = CHECKOUT_EXTENSION }, registry, deps) {
+export function check(
+  { evidence, url, names, extension = CHECKOUT_EXTENSION },
+  registry,
+  deps,
+) {
   const unknown = names.filter((n) => !Object.hasOwn(registry, n));
 
   if (unknown.length > 0) {
-    throw new Error(`unknown instance ${unknown.join(', ')}; instances: ${Object.keys(registry).join(', ')}`);
+    throw new Error(
+      `unknown instance ${unknown.join(', ')}; instances: ${Object.keys(registry).join(', ')}`,
+    );
   }
 
   /** @type {Record<string, unknown>} */
@@ -67,21 +81,51 @@ export function check({ evidence, url, names, extension = CHECKOUT_EXTENSION }, 
     const loaded = deps.control(['info', name]).json?.['extensionDir'];
 
     if (!samePath(loaded, extension)) {
-      couldNotRun.push(`${name} serves the extension from ${String(loaded)}, not this checkout's ${extension}: run "down ${name}", then "up ${name} --extension=extension" here`);
+      couldNotRun.push(
+        `${name} serves the extension from ${String(loaded)}, not this checkout's ${extension}: run "down ${name}", then "up ${name} --extension=extension" here`,
+      );
       results[name] = { loaded };
       continue;
     }
-    const panel = deps.control(['panel', name, `--url=${url}`, '--feature=error-explainer']);
+    const panel = deps.control([
+      'panel',
+      name,
+      `--url=${url}`,
+      '--feature=error-explainer',
+    ]);
     const state = instanceState(name, want, deps);
-    const answer = typeof panel.json?.['answer'] === 'string' ? panel.json['answer'] : null;
-    const code = typeof panel.json?.['code'] === 'string' ? panel.json['code'] : null;
-    const component = typeof panel.json?.['component'] === 'string' ? panel.json['component'] : null;
-    const digest = typeof panel.json?.['digest'] === 'string' ? panel.json['digest'] : null;
+    const answer =
+      typeof panel.json?.['answer'] === 'string' ? panel.json['answer'] : null;
+    const code =
+      typeof panel.json?.['code'] === 'string' ? panel.json['code'] : null;
+    const component =
+      typeof panel.json?.['component'] === 'string'
+        ? panel.json['component']
+        : null;
+    const digest =
+      typeof panel.json?.['digest'] === 'string' ? panel.json['digest'] : null;
     const digestPresent = panel.json?.['digestPresent'] === true;
-    results[name] = { panel: { exit: panel.code, feature: panel.json?.['feature'] ?? null, answer, code, component, digest, digestPresent, error: panel.json?.['error'] ?? null, answerMs: panel.json?.['answerMs'] ?? null, ngVersion: panel.json?.['ngVersion'] ?? null, extensionId: panel.json?.['extensionId'] ?? null }, state };
+    results[name] = {
+      panel: {
+        exit: panel.code,
+        feature: panel.json?.['feature'] ?? null,
+        answer,
+        code,
+        component,
+        digest,
+        digestPresent,
+        error: panel.json?.['error'] ?? null,
+        answerMs: panel.json?.['answerMs'] ?? null,
+        ngVersion: panel.json?.['ngVersion'] ?? null,
+        extensionId: panel.json?.['extensionId'] ?? null,
+      },
+      state,
+    };
 
     if (panel.json === null || panel.code === 2 || panel.code === null) {
-      couldNotRun.push(`panel ${name} exited ${panel.code}: ${String(panel.json?.['reason'] ?? panel.text.trim().slice(-300))}`);
+      couldNotRun.push(
+        `panel ${name} exited ${panel.code}: ${String(panel.json?.['reason'] ?? panel.text.trim().slice(-300))}`,
+      );
       continue;
     }
 
@@ -91,11 +135,15 @@ export function check({ evidence, url, names, extension = CHECKOUT_EXTENSION }, 
     }
 
     if (panel.code !== 0 || !answer?.trim()) {
-      failed.push(`${name}: the panel showed no answer (${String(panel.json['error'] ?? `exit ${panel.code}`)})`);
+      failed.push(
+        `${name}: the panel showed no answer (${String(panel.json['error'] ?? `exit ${panel.code}`)})`,
+      );
     }
 
     if (code !== 'NG0100') {
-      failed.push(`${name}: the panel showed the wrong code (${code ?? 'none'})`);
+      failed.push(
+        `${name}: the panel showed the wrong code (${code ?? 'none'})`,
+      );
     }
 
     if (!digestPresent) {
@@ -105,7 +153,10 @@ export function check({ evidence, url, names, extension = CHECKOUT_EXTENSION }, 
     failed.push(...state.failed.map((f) => `${name}: ${f}`));
   }
 
-  deps.write(join(evidence, 'error-explainer.json'), JSON.stringify({ url, results }, null, 2));
+  deps.write(
+    join(evidence, 'error-explainer.json'),
+    JSON.stringify({ url, results }, null, 2),
+  );
 
   if (couldNotRun.length > 0) {
     throw new Error(couldNotRun.join('; '));
@@ -124,15 +175,30 @@ export function check({ evidence, url, names, extension = CHECKOUT_EXTENSION }, 
  */
 export function main(argv, makeDeps, load) {
   try {
-    const { values, positionals } = parseArgs({ args: argv, options: { evidence: { type: 'string' }, url: { type: 'string' } }, allowPositionals: true, strict: true });
+    const { values, positionals } = parseArgs({
+      args: argv,
+      options: { evidence: { type: 'string' }, url: { type: 'string' } },
+      allowPositionals: true,
+      strict: true,
+    });
 
     if (!values.evidence || !values.url) {
-      throw new Error('usage: error-explainer.mjs --evidence <dir> --url <app url> [instance...]');
+      throw new Error(
+        'usage: error-explainer.mjs --evidence <dir> --url <app url> [instance...]',
+      );
     }
 
     const registry = load();
     const evidence = resolve(values.evidence);
-    check({ evidence, url: values.url, names: positionals.length > 0 ? positionals : Object.keys(registry) }, registry, makeDeps(evidence));
+    check(
+      {
+        evidence,
+        url: values.url,
+        names: positionals.length > 0 ? positionals : Object.keys(registry),
+      },
+      registry,
+      makeDeps(evidence),
+    );
 
     return 0;
   } catch (e) {
@@ -142,12 +208,20 @@ export function main(argv, makeDeps, load) {
       return 1;
     }
 
-    console.error(printable(`[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`));
+    console.error(
+      printable(
+        `[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`,
+      ),
+    );
 
     return 2;
   }
 }
 
-if (process.argv[1] && realpathSync.native(resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+if (
+  process.argv[1] &&
+  realpathSync.native(resolve(process.argv[1])) ===
+    realpathSync.native(fileURLToPath(import.meta.url))
+) {
   process.exitCode = main(process.argv.slice(2), realDeps, loadRegistry);
 }

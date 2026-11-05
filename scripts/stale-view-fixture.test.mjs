@@ -6,8 +6,22 @@ import { test } from 'node:test';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
-const componentPath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'stale-view-fixture.ts');
-const routesPath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'app.routes.ts');
+const componentPath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'stale-view-fixture.ts',
+);
+const routesPath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'app.routes.ts',
+);
 
 test('component contains a this.<field> = write inside a subscribe callback on a non-signal field', () => {
   const src = readFileSync(componentPath, 'utf8');

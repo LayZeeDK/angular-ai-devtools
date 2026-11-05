@@ -1,6 +1,6 @@
 ---
 name: nx-cloud-cache-investigator
-description: "Nx cache investigator"
+description: 'Nx cache investigator'
 ---
 
 # Nx cache investigator

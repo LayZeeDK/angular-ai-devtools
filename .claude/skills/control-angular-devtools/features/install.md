@@ -44,7 +44,7 @@ End state: test: `doctor` line `extension: Angular DevTools 1.22.1 ENABLED (UNPA
   as the authority and reports leftover folders.
 - `enabled` for branded browsers is read from `disable_reasons` and `state` (inferred meaning); the extensions
   page is the authority. Measured 2026-10-11: Edge Dev `installed true, version 1.22.1, enabled true,
-  disable_reasons []`; Chrome Beta `installed false`.
+disable_reasons []`; Chrome Beta `installed false`.
 - `--profile P` picks the profile read and also passes `--profile-directory=P` to the window it opens (not yet
   run in a branded browser).
 - Proof runs never touch `chrome` or `edge`, and never uninstall the copy in `edge-dev`; branded install and

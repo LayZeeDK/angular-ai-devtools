@@ -1,18 +1,35 @@
 import { describe, it, expect } from 'vitest';
-import { detectAntiPatterns, type DetectorGraph } from './anti-pattern-detector';
+import {
+  detectAntiPatterns,
+  type DetectorGraph,
+} from './anti-pattern-detector';
 
 // Recorded app-counter graph (spikes/ng222-app) with ids resolved by agent-main.js, plus nodes
 // seeded with one instance of each anti-pattern. Write edges have a `signal` as consumer.
-function counterGraph(epochs: { lastLogged: number; audit: number }): DetectorGraph {
+function counterGraph(epochs: {
+  lastLogged: number;
+  audit: number;
+}): DetectorGraph {
   return {
     nodes: [
-      { id: '0', kind: 'template', label: 'app-counter template', epoch: 1, debuggableFn: 'Counter' },
+      {
+        id: '0',
+        kind: 'template',
+        label: 'app-counter template',
+        epoch: 1,
+        debuggableFn: 'Counter',
+      },
       { id: '1', kind: 'signal', label: 'title', epoch: 1 },
       { id: '2', kind: 'signal', label: 'count', epoch: 2 },
       { id: '3', kind: 'computed', label: 'double', epoch: 2 },
       { id: '4', kind: 'signal', label: 'items', epoch: 1 },
       { id: '5', kind: 'effect', label: 'logEffect', epoch: 2 },
-      { id: '6', kind: 'signal', label: 'lastLogged', epoch: epochs.lastLogged },
+      {
+        id: '6',
+        kind: 'signal',
+        label: 'lastLogged',
+        epoch: epochs.lastLogged,
+      },
       { id: '7', kind: 'effect', label: 'pollEffect', epoch: 1 },
       { id: '8', kind: 'computed', label: 'total', epoch: 1 },
       { id: '9', kind: 'signal', label: 'audit', epoch: epochs.audit },
@@ -48,7 +65,8 @@ describe('detectAntiPatterns', () => {
         nodeId: '7',
         nodeLabel: 'pollEffect',
         position: 7,
-        evidence: 'effect "pollEffect" at position 7 has no tracked read in two consecutive snapshots',
+        evidence:
+          'effect "pollEffect" at position 7 has no tracked read in two consecutive snapshots',
       },
       {
         rule: 'untracked-write',
@@ -63,27 +81,37 @@ describe('detectAntiPatterns', () => {
         nodeId: '8',
         nodeLabel: 'total',
         position: 8,
-        evidence: 'computed "total" at position 8 writes signal "audit" at position 9',
+        evidence:
+          'computed "total" at position 8 writes signal "audit" at position 9',
       },
       {
         rule: 'write-after-read',
         nodeId: '10',
         nodeLabel: 'clampEffect',
         position: 10,
-        evidence: 'effect "clampEffect" at position 10 reads and writes signal "count" at position 2',
+        evidence:
+          'effect "clampEffect" at position 10 reads and writes signal "count" at position 2',
       },
     ]);
   });
 
   it('does not flag an untracked read seen in one snapshot only', () => {
     const tracked = counterGraph({ lastLogged: 1, audit: 1 });
-    tracked.edges = [...(tracked.edges ?? []), { consumer: '7', producer: '4' }];
+    tracked.edges = [
+      ...(tracked.edges ?? []),
+      { consumer: '7', producer: '4' },
+    ];
 
-    const rules = (r: ReturnType<typeof detectAntiPatterns>) => r.findings.map((f) => f.rule);
+    const rules = (r: ReturnType<typeof detectAntiPatterns>) =>
+      r.findings.map((f) => f.rule);
 
-    expect(rules(detectAntiPatterns(current, tracked))).not.toContain('untracked-read');
+    expect(rules(detectAntiPatterns(current, tracked))).not.toContain(
+      'untracked-read',
+    );
     expect(rules(detectAntiPatterns(current))).not.toContain('untracked-read');
-    expect(rules(detectAntiPatterns(current, current))).toContain('untracked-read');
+    expect(rules(detectAntiPatterns(current, current))).toContain(
+      'untracked-read',
+    );
   });
 
   it('does not flag an untracked write when the epoch did not advance', () => {
@@ -109,12 +137,22 @@ describe('detectAntiPatterns', () => {
   });
 
   it('reports an unavailable graph distinctly from no findings', () => {
-    expect(detectAntiPatterns({ ...current, unavailable: true }, previous)).toEqual({ graphUnavailable: true, findings: [] });
-    expect(detectAntiPatterns({ nodes: [{ id: '1', kind: 'signal', label: 'count' }], edges: [] })).toEqual({
+    expect(
+      detectAntiPatterns({ ...current, unavailable: true }, previous),
+    ).toEqual({ graphUnavailable: true, findings: [] });
+    expect(
+      detectAntiPatterns({
+        nodes: [{ id: '1', kind: 'signal', label: 'count' }],
+        edges: [],
+      }),
+    ).toEqual({
       graphUnavailable: true,
       findings: [],
     });
-    expect(detectAntiPatterns(null)).toEqual({ graphUnavailable: true, findings: [] });
+    expect(detectAntiPatterns(null)).toEqual({
+      graphUnavailable: true,
+      findings: [],
+    });
   });
 
   it('never invokes debuggableFn', () => {

@@ -61,7 +61,9 @@ export interface WalkInput {
 function templateNode(check: RecordedCheck): GraphNode | undefined {
   const nodes = check.graph?.nodes ?? [];
   const cls = check.className ?? null;
-  return nodes.find((n) => n.kind === 'template' || (cls != null && n.debuggableFn === cls));
+  return nodes.find(
+    (n) => n.kind === 'template' || (cls != null && n.debuggableFn === cls),
+  );
 }
 
 function changedSignals(check: RecordedCheck): string[] {
@@ -69,7 +71,9 @@ function changedSignals(check: RecordedCheck): string[] {
   const edges = check.graph?.edges ?? [];
   const changed = new Set((check.changedNodeIds ?? []).map(String));
   // Topological order: producers before consumers (walk edges).
-  const changedNodes = nodes.filter((n) => changed.has(String(n.id)) && n.kind !== 'template' && n.label);
+  const changedNodes = nodes.filter(
+    (n) => changed.has(String(n.id)) && n.kind !== 'template' && n.label,
+  );
   // Build adjacency: for each changed node, find which changed nodes it depends on.
   const changedIds = new Set(changedNodes.map((n) => String(n.id)));
   const inDegree = new Map<string, number>();
@@ -114,12 +118,12 @@ function changedSignals(check: RecordedCheck): string[] {
 export function walkChain(input: WalkInput | RecordedCheck): ChainResult {
   // Accept a bare check too, by reading optional trigger from it.
   const isBare = !('check' in (input as any));
-  const check: RecordedCheck = isBare ? (input as RecordedCheck) : (input as WalkInput).check;
-  const trigger: RecordedTrigger =
-    (input as WalkInput).trigger ??
+  const check: RecordedCheck = isBare
+    ? (input as RecordedCheck)
+    : (input as WalkInput).check;
+  const trigger: RecordedTrigger = (input as WalkInput).trigger ??
     (input as WalkInput).cycle?.trigger ??
-    (check as any).trigger ??
-    { kind: 'unknown', listenerName: null };
+    (check as any).trigger ?? { kind: 'unknown', listenerName: null };
 
   const componentName = check.componentName;
   const tpl = templateNode(check);
@@ -129,7 +133,9 @@ export function walkChain(input: WalkInput | RecordedCheck): ChainResult {
   const isEager =
     !graphUnavailable &&
     signals.length === 0 &&
-    (check.changeDetection === 1 || check.changeDetection === 'eager' || check.changeDetection === 'Eager');
+    (check.changeDetection === 1 ||
+      check.changeDetection === 'eager' ||
+      check.changeDetection === 'Eager');
 
   let trig: ChainResult['trigger'] = 'unknown';
   let triggerLabel = 'unknown';

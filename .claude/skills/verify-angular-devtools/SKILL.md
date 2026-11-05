@@ -11,11 +11,11 @@ Proves claims about Angular DevTools in the test harness; it never launches or s
 
 ## Checks
 
-| Check | Claim | Feature file and sub-feature in `control-angular-devtools/features/` | Needs running |
-|---|---|---|---|
-| `extension-enabled` | `doctor`'s `extension` line passes: the copy is loaded `ENABLED` and its service worker runs. | `install.md` Status (test) | the harness (`up --app-url`) |
-| `attached` | `attach` passes: connected flag set, `detectAngular` reports Angular in debug mode, backend installed and ready. | `attach.md` Connected flag, Detection result, Backend injection (handshake and version saved, not judged) | the harness on a dev-mode app |
-| `coexist` | `coexist` reports the profiler part (two `ng.ɵsetProfiler` subscribers count while DevTools records, the removed one stops, DevTools recorded the cycles), the connected flag still `true`, and the pane's signal graph listing the same nodes as `ng.ɵgetSignalGraph` (kind and label). With `--di-graph` it runs `angular:di_graph` last and records whether the template node is lost, without judging it. | `profiler.md` Coexistence; `signal-graph.md` Agreement and the `angular:di_graph` regression; `attach.md` Connected flag | the harness on the counter fixture |
+| Check               | Claim                                                                                                                                                                                                                                                                                                                                                                                                         | Feature file and sub-feature in `control-angular-devtools/features/`                                                     | Needs running                      |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------- |
+| `extension-enabled` | `doctor`'s `extension` line passes: the copy is loaded `ENABLED` and its service worker runs.                                                                                                                                                                                                                                                                                                                 | `install.md` Status (test)                                                                                               | the harness (`up --app-url`)       |
+| `attached`          | `attach` passes: connected flag set, `detectAngular` reports Angular in debug mode, backend installed and ready.                                                                                                                                                                                                                                                                                              | `attach.md` Connected flag, Detection result, Backend injection (handshake and version saved, not judged)                | the harness on a dev-mode app      |
+| `coexist`           | `coexist` reports the profiler part (two `ng.ɵsetProfiler` subscribers count while DevTools records, the removed one stops, DevTools recorded the cycles), the connected flag still `true`, and the pane's signal graph listing the same nodes as `ng.ɵgetSignalGraph` (kind and label). With `--di-graph` it runs `angular:di_graph` last and records whether the template node is lost, without judging it. | `profiler.md` Coexistence; `signal-graph.md` Agreement and the `angular:di_graph` regression; `attach.md` Connected flag | the harness on the counter fixture |
 
 Each check's header comment holds its claim, the feature it covers, its usage and the files it writes.
 
@@ -33,7 +33,7 @@ Through `lars-verify` (`~/.claude/skills/lars-verify/references/contract.md`), w
   `"--di-graph"` for `coexist`;
 - teardown: `D info --json`, `D down`, `check-teardown.mjs {runDir}/steps/teardown-1.out --artifact <file>`, then
   `A info APP --json`, `A down APP`, `check-teardown.mjs {runDir}/steps/teardown-4.out --no-artifact "supporting
-  app server; the claim's evidence comes from the control-angular-devtools harness"` (the app is a supporting
+app server; the claim's evidence comes from the control-angular-devtools harness"` (the app is a supporting
   instance: nothing captures from it, and its log proves nothing);
 - artifacts: `{up.evidenceDir}/<file>`, where `<file>` is `extension.json`, `attach.json` or
   `coexist-result.json`.

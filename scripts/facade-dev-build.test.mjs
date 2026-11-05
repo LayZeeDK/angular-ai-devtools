@@ -33,7 +33,13 @@
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, readdirSync, realpathSync, rmSync } from 'node:fs';
+import {
+  existsSync,
+  readFileSync,
+  readdirSync,
+  realpathSync,
+  rmSync,
+} from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import test from 'node:test';
@@ -59,18 +65,37 @@ const PACKAGE_PROJECT_JSON = join(PACKAGE_ROOT, 'project.json');
 const PACKAGE_TSCONFIG = join(PACKAGE_ROOT, 'tsconfig.json');
 const PACKAGE_DIST_ENTRY = join(PACKAGE_ROOT, 'dist', 'index.js');
 
-const RECORDING_PATH = join(REPO_ROOT, 'research', 'raw', 'companion-dev-build.json');
+const RECORDING_PATH = join(
+  REPO_ROOT,
+  'research',
+  'raw',
+  'companion-dev-build.json',
+);
 
 /** The git-ignored output paths the two builds write; the recording names the first. */
 const OUTPUT_DIR = join(REPO_ROOT, 'tmp', 'facade-dev-build');
-const COUNTER_EXAMPLE_DIR = join(REPO_ROOT, 'tmp', 'facade-dev-build-two-copies');
+const COUNTER_EXAMPLE_DIR = join(
+  REPO_ROOT,
+  'tmp',
+  'facade-dev-build-two-copies',
+);
 
 const NX_CLI = join(REPO_ROOT, 'node_modules', 'nx', 'dist', 'bin', 'nx.js');
-const FIXTURE_NG_CLI = join(FIXTURE_ROOT, 'node_modules', '@angular', 'cli', 'bin', 'ng.js');
+const FIXTURE_NG_CLI = join(
+  FIXTURE_ROOT,
+  'node_modules',
+  '@angular',
+  'cli',
+  'bin',
+  'ng.js',
+);
 
 /** The entry name, the two vetted symbols, and the peers this milestone fixes. */
 const ENTRY_NAME = 'ngAiDevTools';
-const VETTED_SYMBOLS = ['@angular/platform-browser#Meta', '@angular/router#Router'];
+const VETTED_SYMBOLS = [
+  '@angular/platform-browser#Meta',
+  '@angular/router#Router',
+];
 const PEER_SPECIFIERS = ['@angular/router', '@angular/platform-browser'];
 
 /** The fixture's declared @angular packages at the base, frozen: the resolution may not be bought
@@ -86,7 +111,11 @@ const FIXTURE_ANGULAR_DEPENDENCIES = [
   '@angular/platform-browser',
   '@angular/router',
 ];
-const FIXTURE_ANGULAR_DEV_DEPENDENCIES = ['@angular/build', '@angular/cli', '@angular/compiler-cli'];
+const FIXTURE_ANGULAR_DEV_DEPENDENCIES = [
+  '@angular/build',
+  '@angular/cli',
+  '@angular/compiler-cli',
+];
 
 /** The base `app.config.ts`, frozen: the fixture's own configuration must keep these bytes, so the
  * only way the package reaches the app is the development replacement (AC4). */
@@ -133,7 +162,10 @@ function run(command, args, options = {}) {
     timeout: 600_000,
     ...options,
   });
-  assert.ok(!result.error, `${command} ${args.join(' ')} must be runnable: ${result.error?.message ?? 'unknown spawn failure'}`);
+  assert.ok(
+    !result.error,
+    `${command} ${args.join(' ')} must be runnable: ${result.error?.message ?? 'unknown spawn failure'}`,
+  );
   return {
     status: result.status,
     output: `${String(result.stdout ?? '')}${String(result.stderr ?? '')}`,
@@ -167,7 +199,12 @@ function providersOf(text) {
 function resolveFromAncestors(from, specifier) {
   let directory = from;
   for (;;) {
-    const candidate = join(directory, 'node_modules', ...specifier.split('/'), 'package.json');
+    const candidate = join(
+      directory,
+      'node_modules',
+      ...specifier.split('/'),
+      'package.json',
+    );
     if (existsSync(candidate)) {
       return candidate;
     }
@@ -191,12 +228,16 @@ function packageDirectoryOf(resolvedFile) {
 }
 
 function versionOf(packageJsonPath) {
-  return packageJsonPath && existsSync(packageJsonPath) ? readJson(packageJsonPath).version : null;
+  return packageJsonPath && existsSync(packageJsonPath)
+    ? readJson(packageJsonPath).version
+    : null;
 }
 
 /** The version of a package as the given root installs it. */
 function installedVersion(requireFrom, specifier) {
-  return versionOf(join(packageDirectoryOf(requireFrom.resolve(specifier)), 'package.json'));
+  return versionOf(
+    join(packageDirectoryOf(requireFrom.resolve(specifier)), 'package.json'),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -233,16 +274,28 @@ function buildFixture({ configuration, outputDirectory, extraArguments = [] }) {
     0,
     `ng build --configuration ${configuration} of ${displayPath(FIXTURE_ROOT)} must succeed: ${result.output}`,
   );
-  assert.match(result.output, /Application bundle generation complete/, `the build must report a completed bundle: ${result.output}`);
+  assert.match(
+    result.output,
+    /Application bundle generation complete/,
+    `the build must report a completed bundle: ${result.output}`,
+  );
 
   const browserDirectory = join(outputDirectory, 'browser');
-  assert.ok(existsSync(browserDirectory), `the build must emit ${displayPath(browserDirectory)}`);
+  assert.ok(
+    existsSync(browserDirectory),
+    `the build must emit ${displayPath(browserDirectory)}`,
+  );
   const bundles = readdirSync(browserDirectory)
     .filter((name) => name.endsWith('.js'))
     .sort();
-  assert.ok(bundles.length > 0, 'the build must emit at least one browser bundle');
+  assert.ok(
+    bundles.length > 0,
+    'the build must emit at least one browser bundle',
+  );
 
-  const text = bundles.map((name) => readFileSync(join(browserDirectory, name), 'utf8')).join('\n');
+  const text = bundles
+    .map((name) => readFileSync(join(browserDirectory, name), 'utf8'))
+    .join('\n');
   return { browserDirectory, bundles, text, bytes: text.length };
 }
 
@@ -251,22 +304,37 @@ function analyseBundle({ text, bundles, bytes }) {
   const lines = text.split('\n');
   const averageLineLength = text.length / Math.max(lines.length, 1);
 
-  const facadeRouter = text.match(/"@angular\/router":\s*\{\s*Router(?:\s*:\s*([A-Za-z0-9_$]+))?\s*\}/);
-  assert.ok(facadeRouter, 'the emitted bundle must carry the facade literal the package builds');
+  const facadeRouter = text.match(
+    /"@angular\/router":\s*\{\s*Router(?:\s*:\s*([A-Za-z0-9_$]+))?\s*\}/,
+  );
+  assert.ok(
+    facadeRouter,
+    'the emitted bundle must carry the facade literal the package builds',
+  );
   const routerClassBindingName = facadeRouter[1] ?? 'Router';
 
-  const routerBindings = [...text.matchAll(/(?:var|let|const)\s+Router\d*\s*=\s*class/g)].map((match) => match[0]);
+  const routerBindings = [
+    ...text.matchAll(/(?:var|let|const)\s+Router\d*\s*=\s*class/g),
+  ].map((match) => match[0]);
   const ownBinding = `var ${routerClassBindingName} = class`;
-  const angularVersionBanners = [...new Set([...text.matchAll(/@license Angular v(\d+\.\d+\.\d+)/g)].map((match) => match[1]))].sort();
+  const angularVersionBanners = [
+    ...new Set(
+      [...text.matchAll(/@license Angular v(\d+\.\d+\.\d+)/g)].map(
+        (match) => match[1],
+      ),
+    ),
+  ].sort();
 
   return {
     bundles,
     bytes,
     unminified: lines.length > 1000 && averageLineLength < 200,
     entryPresent: text.includes(ENTRY_NAME),
-    devModeGuardPresent: /if \(isDevMode\(\)\)/.test(text) && /installFacade\(facade/.test(text),
+    devModeGuardPresent:
+      /if \(isDevMode\(\)\)/.test(text) && /installFacade\(facade/.test(text),
     routerClassBindingName,
-    routerClassBoundOnce: routerBindings.filter((binding) => binding === ownBinding).length === 1,
+    routerClassBoundOnce:
+      routerBindings.filter((binding) => binding === ownBinding).length === 1,
     routerClassBindings: routerBindings.length,
     angularVersionBanners,
   };
@@ -275,10 +343,24 @@ function analyseBundle({ text, bundles, bytes }) {
 /** Builds the package through its declared target, so the fixture resolves the entry the package
  * publishes. The target writes the package's own git-ignored `dist`. */
 function buildPackage() {
-  assert.ok(existsSync(NX_CLI), `the package build runs through ${displayPath(NX_CLI)}`);
-  const result = run(process.execPath, [NX_CLI, 'run', 'ai-devtools-companion:build']);
-  assert.equal(result.status, 0, `the package's build target must succeed: ${result.output}`);
-  assert.ok(existsSync(PACKAGE_DIST_ENTRY), `the build target must emit ${displayPath(PACKAGE_DIST_ENTRY)}`);
+  assert.ok(
+    existsSync(NX_CLI),
+    `the package build runs through ${displayPath(NX_CLI)}`,
+  );
+  const result = run(process.execPath, [
+    NX_CLI,
+    'run',
+    'ai-devtools-companion:build',
+  ]);
+  assert.equal(
+    result.status,
+    0,
+    `the package's build target must succeed: ${result.output}`,
+  );
+  assert.ok(
+    existsSync(PACKAGE_DIST_ENTRY),
+    `the build target must emit ${displayPath(PACKAGE_DIST_ENTRY)}`,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -294,12 +376,16 @@ function buildPackage() {
  * `--include=dev` because this host exports `NODE_ENV=production`, which otherwise drops the
  * fixture's devDependencies and with them `@angular/cli`.
  */
-const MISSING_ROOT_INSTALL = existsSync(NX_CLI) ? false : `the root install is absent (${displayPath(NX_CLI)}); run npm ci --include=dev`;
+const MISSING_ROOT_INSTALL = existsSync(NX_CLI)
+  ? false
+  : `the root install is absent (${displayPath(NX_CLI)}); run npm ci --include=dev`;
 const MISSING_FIXTURE_INSTALL =
-  existsSync(FIXTURE_NG_CLI) && existsSync(join(FIXTURE_ROOT, 'node_modules', 'ai-devtools-companion'))
+  existsSync(FIXTURE_NG_CLI) &&
+  existsSync(join(FIXTURE_ROOT, 'node_modules', 'ai-devtools-companion'))
     ? false
     : `the fixture install is absent (${displayPath(join(FIXTURE_ROOT, 'node_modules'))}); run npm --prefix spikes/ng222-app ci --include=dev`;
-const MISSING_MEASUREMENT_ENVIRONMENT = MISSING_ROOT_INSTALL || MISSING_FIXTURE_INSTALL;
+const MISSING_MEASUREMENT_ENVIRONMENT =
+  MISSING_ROOT_INSTALL || MISSING_FIXTURE_INSTALL;
 
 /**
  * The precondition every measurement test opens with: `false` means the prerequisite is satisfied.
@@ -307,7 +393,11 @@ const MISSING_MEASUREMENT_ENVIRONMENT = MISSING_ROOT_INSTALL || MISSING_FIXTURE_
  * visibly instead of being skipped.
  */
 function requirePrerequisite(missing) {
-  assert.equal(missing, false, `the development-build proof cannot run: ${missing}`);
+  assert.equal(
+    missing,
+    false,
+    `the development-build proof cannot run: ${missing}`,
+  );
 }
 
 let developmentBuildCache = null;
@@ -316,7 +406,12 @@ let developmentBuildCache = null;
 function developmentBuild() {
   if (developmentBuildCache === null) {
     buildPackage();
-    developmentBuildCache = analyseBundle(buildFixture({ configuration: 'development', outputDirectory: OUTPUT_DIR }));
+    developmentBuildCache = analyseBundle(
+      buildFixture({
+        configuration: 'development',
+        outputDirectory: OUTPUT_DIR,
+      }),
+    );
   }
   return developmentBuildCache;
 }
@@ -348,7 +443,11 @@ function peerResolution() {
     return peerResolutionCache;
   }
 
-  const installedLink = join(FIXTURE_ROOT, 'node_modules', 'ai-devtools-companion');
+  const installedLink = join(
+    FIXTURE_ROOT,
+    'node_modules',
+    'ai-devtools-companion',
+  );
   assert.ok(
     existsSync(installedLink),
     `the fixture must install the package; missing ${displayPath(installedLink)} — run npm --prefix spikes/ng222-app ci --include=dev`,
@@ -364,8 +463,12 @@ function peerResolution() {
   const fixtureOwnVersions = {};
   const rootOwnVersions = {};
   for (const specifier of PEER_SPECIFIERS) {
-    symlinkAnchoredVersions[specifier] = versionOf(resolveFromAncestors(installedLink, specifier));
-    realPathAnchoredVersions[specifier] = versionOf(resolveFromAncestors(installedRealPath, specifier));
+    symlinkAnchoredVersions[specifier] = versionOf(
+      resolveFromAncestors(installedLink, specifier),
+    );
+    realPathAnchoredVersions[specifier] = versionOf(
+      resolveFromAncestors(installedRealPath, specifier),
+    );
     fixtureOwnVersions[specifier] = installedVersion(fixtureRequire, specifier);
     rootOwnVersions[specifier] = installedVersion(rootRequire, specifier);
   }
@@ -373,7 +476,9 @@ function peerResolution() {
   peerResolutionCache = {
     installedLink,
     installedRealPath,
-    installedRealPathRelativeToFixture: posixPath(relative(FIXTURE_ROOT, installedRealPath)),
+    installedRealPathRelativeToFixture: posixPath(
+      relative(FIXTURE_ROOT, installedRealPath),
+    ),
     isSymlink,
     symlinkAnchoredVersions,
     realPathAnchoredVersions,
@@ -384,11 +489,17 @@ function peerResolution() {
 }
 
 function fixtureAngularVersion() {
-  return installedVersion(createRequire(join(FIXTURE_ROOT, 'package.json')), '@angular/core');
+  return installedVersion(
+    createRequire(join(FIXTURE_ROOT, 'package.json')),
+    '@angular/core',
+  );
 }
 
 function rootAngularVersion() {
-  return installedVersion(createRequire(join(REPO_ROOT, 'package.json')), '@angular/core');
+  return installedVersion(
+    createRequire(join(REPO_ROOT, 'package.json')),
+    '@angular/core',
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -399,12 +510,28 @@ test('nx lists the companion project beside the panel project (AC1)', () => {
   requirePrerequisite(MISSING_ROOT_INSTALL);
 
   const result = run(process.execPath, [NX_CLI, 'show', 'projects', '--json']);
-  assert.equal(result.status, 0, `nx show projects must succeed: ${result.output}`);
-  const json = result.output.slice(result.output.indexOf('['), result.output.lastIndexOf(']') + 1);
+  assert.equal(
+    result.status,
+    0,
+    `nx show projects must succeed: ${result.output}`,
+  );
+  const json = result.output.slice(
+    result.output.indexOf('['),
+    result.output.lastIndexOf(']') + 1,
+  );
   const projects = JSON.parse(json);
-  assert.ok(Array.isArray(projects), `nx show projects --json must print an array: ${result.output}`);
-  assert.ok(projects.includes('ai-devtools-companion'), `the new project must be inferred from its project.json: ${JSON.stringify(projects)}`);
-  assert.ok(projects.includes('angular-ai-devtools'), `the panel's project must stay listed: ${JSON.stringify(projects)}`);
+  assert.ok(
+    Array.isArray(projects),
+    `nx show projects --json must print an array: ${result.output}`,
+  );
+  assert.ok(
+    projects.includes('ai-devtools-companion'),
+    `the new project must be inferred from its project.json: ${JSON.stringify(projects)}`,
+  );
+  assert.ok(
+    projects.includes('angular-ai-devtools'),
+    `the panel's project must stay listed: ${JSON.stringify(projects)}`,
+  );
   console.log(`facade-dev-build: nx projects ${JSON.stringify(projects)}`);
 });
 
@@ -414,11 +541,23 @@ test('nx lists the companion project beside the panel project (AC1)', () => {
 
 test('the fixture loads the package only through the dev-only provider and exactly one replacement (AC4)', () => {
   const base = readFileSync(BASE_APP_CONFIG, 'utf8').replace(/\r\n/g, '\n');
-  assert.equal(base, BASE_APP_CONFIG_SOURCE, 'the fixture base configuration must keep its bytes: the package may not be wired into it');
+  assert.equal(
+    base,
+    BASE_APP_CONFIG_SOURCE,
+    'the fixture base configuration must keep its bytes: the package may not be wired into it',
+  );
 
   const dev = readFileSync(DEV_APP_CONFIG, 'utf8').replace(/\r\n/g, '\n');
-  assert.match(dev, /import \{ provideAiDevTools \} from 'ai-devtools-companion';/, 'the dev-only file imports the package provider');
-  assert.match(dev, /export const appConfig: ApplicationConfig/, 'the dev-only file exports the symbol the app bootstraps with');
+  assert.match(
+    dev,
+    /import \{ provideAiDevTools \} from 'ai-devtools-companion';/,
+    'the dev-only file imports the package provider',
+  );
+  assert.match(
+    dev,
+    /export const appConfig: ApplicationConfig/,
+    'the dev-only file exports the symbol the app bootstraps with',
+  );
   assert.deepEqual(
     providersOf(dev),
     [...providersOf(base), 'provideAiDevTools()'],
@@ -437,7 +576,9 @@ test('the fixture loads the package only through the dev-only provider and exact
   // No second replacement anywhere: not in production, not in the test target's configurations.
   const replacements = [];
   for (const [targetName, target] of Object.entries(project.architect)) {
-    for (const [configurationName, configuration] of Object.entries(target.configurations ?? {})) {
+    for (const [configurationName, configuration] of Object.entries(
+      target.configurations ?? {},
+    )) {
       for (const replacement of configuration.fileReplacements ?? []) {
         replacements.push({ targetName, configurationName, replacement });
       }
@@ -449,29 +590,48 @@ test('the fixture loads the package only through the dev-only provider and exact
       {
         targetName: 'build',
         configurationName: 'development',
-        replacement: { replace: 'src/app/app.config.ts', with: 'src/app/app.config.dev.ts' },
+        replacement: {
+          replace: 'src/app/app.config.ts',
+          with: 'src/app/app.config.dev.ts',
+        },
       },
     ],
     'exactly one replacement, in the development build configuration',
   );
-  for (const configurationName of Object.keys(project.architect.test.configurations ?? {})) {
+  for (const configurationName of Object.keys(
+    project.architect.test.configurations ?? {},
+  )) {
     assert.equal(
-      (project.architect.test.configurations[configurationName].fileReplacements ?? []).length,
+      (
+        project.architect.test.configurations[configurationName]
+          .fileReplacements ?? []
+      ).length,
       0,
       `the test configuration ${configurationName} must not load the provider`,
     );
   }
 
   // main.ts still bootstraps from './app/app.config', so the replacement is the only wiring.
-  assert.match(readFileSync(MAIN_TS, 'utf8'), /import \{ appConfig \} from '\.\/app\/app\.config';/);
+  assert.match(
+    readFileSync(MAIN_TS, 'utf8'),
+    /import \{ appConfig \} from '\.\/app\/app\.config';/,
+  );
 
   // The package's name occurs in the fixture's source exactly once: the dev-only provider file.
   const importers = filesUnder(FIXTURE_SOURCE_ROOT)
-    .filter((path) => readFileSync(path, 'utf8').includes('ai-devtools-companion'))
+    .filter((path) =>
+      readFileSync(path, 'utf8').includes('ai-devtools-companion'),
+    )
     .map(displayPath);
-  assert.deepEqual(importers, [displayPath(DEV_APP_CONFIG)], 'the dev-only provider file is the fixture source that names the package');
+  assert.deepEqual(
+    importers,
+    [displayPath(DEV_APP_CONFIG)],
+    'the dev-only provider file is the fixture source that names the package',
+  );
 
-  console.log(`facade-dev-build: one replacement in development, base bytes intact, importers ${JSON.stringify(importers)}`);
+  console.log(
+    `facade-dev-build: one replacement in development, base bytes intact, importers ${JSON.stringify(importers)}`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -484,21 +644,40 @@ test("the package's peers resolve to the fixture's own copy, and preserveSymlink
 
   // The outcome AC5 asks for: anchored where the builder resolves from, the peers are the files the
   // fixture itself resolves.
-  assert.deepEqual(peers.symlinkAnchoredVersions, peers.fixtureOwnVersions, 'the package must resolve the same Angular files the fixture resolves');
+  assert.deepEqual(
+    peers.symlinkAnchoredVersions,
+    peers.fixtureOwnVersions,
+    'the package must resolve the same Angular files the fixture resolves',
+  );
   for (const specifier of PEER_SPECIFIERS) {
     assert.equal(
       posixPath(resolveFromAncestors(peers.installedLink, specifier) ?? ''),
-      posixPath(join(packageDirectoryOf(createRequire(join(FIXTURE_ROOT, 'package.json')).resolve(specifier)), 'package.json')),
+      posixPath(
+        join(
+          packageDirectoryOf(
+            createRequire(join(FIXTURE_ROOT, 'package.json')).resolve(
+              specifier,
+            ),
+          ),
+          'package.json',
+        ),
+      ),
       `${specifier} must resolve to the fixture's own installed copy`,
     );
   }
 
   // The anchor is the whole question: resolved at the package's real path, the same specifiers land
   // in the root checkout's install.
-  assert.deepEqual(peers.realPathAnchoredVersions, peers.rootOwnVersions, "the real path anchor is the root checkout's copy");
+  assert.deepEqual(
+    peers.realPathAnchoredVersions,
+    peers.rootOwnVersions,
+    "the real path anchor is the root checkout's copy",
+  );
   if (peers.isSymlink) {
     assert.equal(
-      posixPath(resolveFromAncestors(peers.installedLink, '@angular/router') ?? '').startsWith(posixPath(join(FIXTURE_ROOT, 'node_modules'))),
+      posixPath(
+        resolveFromAncestors(peers.installedLink, '@angular/router') ?? '',
+      ).startsWith(posixPath(join(FIXTURE_ROOT, 'node_modules'))),
       true,
       'a symlinked install is acceptable only because the resolution still lands inside the fixture install',
     );
@@ -507,25 +686,46 @@ test("the package's peers resolve to the fixture's own copy, and preserveSymlink
   // No new @angular/* dependency is declared to reach it.
   const fixturePackage = readJson(FIXTURE_PACKAGE_JSON);
   assert.deepEqual(
-    Object.keys(fixturePackage.dependencies).filter((name) => name.startsWith('@angular/')).sort(),
+    Object.keys(fixturePackage.dependencies)
+      .filter((name) => name.startsWith('@angular/'))
+      .sort(),
     FIXTURE_ANGULAR_DEPENDENCIES,
     'the fixture declares no new @angular/* dependency',
   );
   assert.deepEqual(
-    Object.keys(fixturePackage.devDependencies).filter((name) => name.startsWith('@angular/')).sort(),
+    Object.keys(fixturePackage.devDependencies)
+      .filter((name) => name.startsWith('@angular/'))
+      .sort(),
     FIXTURE_ANGULAR_DEV_DEPENDENCIES,
     'the fixture declares no new @angular/* dev dependency',
   );
-  assert.equal(fixturePackage.dependencies['ai-devtools-companion'], 'file:../../packages/ai-devtools-companion');
+  assert.equal(
+    fixturePackage.dependencies['ai-devtools-companion'],
+    'file:../../packages/ai-devtools-companion',
+  );
 
   // The mechanism the development configuration selects, and only there.
-  const build = readJson(FIXTURE_ANGULAR_JSON).projects['ng222-app'].architect.build;
-  assert.equal(build.configurations.development.preserveSymlinks, true, 'the development configuration must keep the symlink anchor');
-  assert.equal('preserveSymlinks' in build.configurations.production, false, 'the production configuration keeps default resolution: it loads no package');
+  const build =
+    readJson(FIXTURE_ANGULAR_JSON).projects['ng222-app'].architect.build;
+  assert.equal(
+    build.configurations.development.preserveSymlinks,
+    true,
+    'the development configuration must keep the symlink anchor',
+  );
+  assert.equal(
+    'preserveSymlinks' in build.configurations.production,
+    false,
+    'the production configuration keeps default resolution: it loads no package',
+  );
 
-  const lockEntry = readJson(FIXTURE_LOCK).packages['node_modules/ai-devtools-companion'];
+  const lockEntry =
+    readJson(FIXTURE_LOCK).packages['node_modules/ai-devtools-companion'];
   assert.ok(lockEntry, 'the fixture lock must carry the new entry');
-  assert.equal(lockEntry.link ?? undefined, peers.isSymlink ? true : undefined, 'the lock must record how npm installed the package');
+  assert.equal(
+    lockEntry.link ?? undefined,
+    peers.isSymlink ? true : undefined,
+    'the lock must record how npm installed the package',
+  );
 
   console.log(
     `facade-dev-build: installed as ${peers.isSymlink ? 'symlink' : 'copy'}; symlink-anchored ${JSON.stringify(peers.symlinkAnchoredVersions)}, ` +
@@ -542,14 +742,38 @@ test('the development build keeps the entry name and the Router class, and it is
   requirePrerequisite(MISSING_MEASUREMENT_ENVIRONMENT);
   const build = developmentBuild();
 
-  assert.equal(build.unminified, true, 'the development bundle must be unminified for the search to mean anything');
-  assert.equal(build.entryPresent, true, `the emitted bundle must contain the entry name ${ENTRY_NAME}`);
-  assert.equal(build.devModeGuardPresent, true, 'the emitted bundle must keep the isDevMode() guard and the write');
-  assert.equal(build.routerClassBoundOnce, true, `the Router class the entry carries must be declared exactly once: ${JSON.stringify(build)}`);
+  assert.equal(
+    build.unminified,
+    true,
+    'the development bundle must be unminified for the search to mean anything',
+  );
+  assert.equal(
+    build.entryPresent,
+    true,
+    `the emitted bundle must contain the entry name ${ENTRY_NAME}`,
+  );
+  assert.equal(
+    build.devModeGuardPresent,
+    true,
+    'the emitted bundle must keep the isDevMode() guard and the write',
+  );
+  assert.equal(
+    build.routerClassBoundOnce,
+    true,
+    `the Router class the entry carries must be declared exactly once: ${JSON.stringify(build)}`,
+  );
   assert.equal(build.routerClassBindingName, 'Router');
-  assert.deepEqual(build.angularVersionBanners, [fixtureAngularVersion()], `the bundle must carry one Angular copy, the fixture's ${fixtureAngularVersion()}`);
+  assert.deepEqual(
+    build.angularVersionBanners,
+    [fixtureAngularVersion()],
+    `the bundle must carry one Angular copy, the fixture's ${fixtureAngularVersion()}`,
+  );
   if (rootAngularVersion() !== fixtureAngularVersion()) {
-    assert.equal(build.angularVersionBanners.includes(rootAngularVersion()), false, `the root checkout's ${rootAngularVersion()} must not appear in the fixture's bundle`);
+    assert.equal(
+      build.angularVersionBanners.includes(rootAngularVersion()),
+      false,
+      `the root checkout's ${rootAngularVersion()} must not appear in the fixture's bundle`,
+    );
   }
 
   console.log(
@@ -564,14 +788,26 @@ test('with preserveSymlinks off the same build carries two Angular copies, so th
 
   // The entry survives either way — the write is not what the option changes — but the class it
   // carries is the root checkout's copy, so the identity comparison could not hold.
-  assert.equal(build.entryPresent, true, 'the entry is still written in the two-copy build');
+  assert.equal(
+    build.entryPresent,
+    true,
+    'the entry is still written in the two-copy build',
+  );
   assert.deepEqual(
     build.angularVersionBanners,
     [rootAngularVersion(), fixtureAngularVersion()].sort(),
     'the two-copy build must carry both Angular versions',
   );
-  assert.equal(build.routerClassBindings, 2, 'the two-copy build must declare the Router class twice');
-  assert.notEqual(build.routerClassBindingName, 'Router', "the two-copy build's entry must point at the suffixed, root-owned class");
+  assert.equal(
+    build.routerClassBindings,
+    2,
+    'the two-copy build must declare the Router class twice',
+  );
+  assert.notEqual(
+    build.routerClassBindingName,
+    'Router',
+    "the two-copy build's entry must point at the suffixed, root-owned class",
+  );
 
   console.log(
     `facade-dev-build: counterexample banners ${JSON.stringify(build.angularVersionBanners)}, ` +
@@ -585,90 +821,222 @@ test('with preserveSymlinks off the same build carries two Angular copies, so th
 
 test('the served development-build recording is present, development-only and consistent (AC7)', () => {
   requirePrerequisite(MISSING_MEASUREMENT_ENVIRONMENT);
-  assert.ok(existsSync(RECORDING_PATH), `the served reading must be recorded at ${displayPath(RECORDING_PATH)}`);
+  assert.ok(
+    existsSync(RECORDING_PATH),
+    `the served reading must be recorded at ${displayPath(RECORDING_PATH)}`,
+  );
   const recording = readJson(RECORDING_PATH);
 
   // The configuration the recording names, and the command that produced its build half.
-  assert.equal(recording.configuration, 'development', 'the recording must name the development configuration');
-  assert.match(recording.buildCommand, /build\s+--configuration\s+development/, 'the recorded command must name the development configuration explicitly');
-  assert.equal(/--configuration\s+(production|test)\b/.test(recording.buildCommand), false, 'the recorded command must name no other configuration');
-  assert.equal(posixPath(recording.outputPath), posixPath(relative(REPO_ROOT, OUTPUT_DIR)), 'the recording must name the build output this file produces');
+  assert.equal(
+    recording.configuration,
+    'development',
+    'the recording must name the development configuration',
+  );
+  assert.match(
+    recording.buildCommand,
+    /build\s+--configuration\s+development/,
+    'the recorded command must name the development configuration explicitly',
+  );
+  assert.equal(
+    /--configuration\s+(production|test)\b/.test(recording.buildCommand),
+    false,
+    'the recorded command must name no other configuration',
+  );
+  assert.equal(
+    posixPath(recording.outputPath),
+    posixPath(relative(REPO_ROOT, OUTPUT_DIR)),
+    'the recording must name the build output this file produces',
+  );
 
   // The build half: compared with the build this file just made.
   const build = developmentBuild();
-  assert.equal(recording.build.entry, 'main.js', 'the recorded development entry must be main.js');
+  assert.equal(
+    recording.build.entry,
+    'main.js',
+    'the recorded development entry must be main.js',
+  );
   const chunkPattern = new RegExp(recording.build.chunkPattern);
-  const actualEntry = build.bundles.find((name) => name === recording.build.entry);
-  assert.equal(actualEntry, recording.build.entry, `the development entry must be ${recording.build.entry}`);
-  const actualLazyChunks = build.bundles.filter((name) => name !== recording.build.entry);
+  const actualEntry = build.bundles.find(
+    (name) => name === recording.build.entry,
+  );
+  assert.equal(
+    actualEntry,
+    recording.build.entry,
+    `the development entry must be ${recording.build.entry}`,
+  );
+  const actualLazyChunks = build.bundles.filter(
+    (name) => name !== recording.build.entry,
+  );
   assert.equal(
     actualLazyChunks.length,
     recording.build.lazyChunkCount,
     `the development lazy chunk count must match: ${actualLazyChunks.length} vs ${recording.build.lazyChunkCount}`,
   );
   for (const name of actualLazyChunks) {
-    assert.match(name, chunkPattern, `${name} must match chunkPattern ${recording.build.chunkPattern}`);
+    assert.match(
+      name,
+      chunkPattern,
+      `${name} must match chunkPattern ${recording.build.chunkPattern}`,
+    );
   }
   assert.equal(recording.build.entryName, ENTRY_NAME);
   assert.equal(recording.build.entryPresent, build.entryPresent);
   assert.equal(recording.build.unminified, build.unminified);
   assert.equal(recording.build.devModeGuardPresent, build.devModeGuardPresent);
-  assert.equal(recording.build.routerClassBindingName, build.routerClassBindingName);
-  assert.equal(recording.build.routerClassBoundOnce, build.routerClassBoundOnce);
-  assert.deepEqual(recording.build.angularVersionBanners, build.angularVersionBanners);
-  assert.equal(recording.build.angularCopies, build.angularVersionBanners.length, 'the recorded copy count must match the banners the build emitted');
+  assert.equal(
+    recording.build.routerClassBindingName,
+    build.routerClassBindingName,
+  );
+  assert.equal(
+    recording.build.routerClassBoundOnce,
+    build.routerClassBoundOnce,
+  );
+  assert.deepEqual(
+    recording.build.angularVersionBanners,
+    build.angularVersionBanners,
+  );
+  assert.equal(
+    recording.build.angularCopies,
+    build.angularVersionBanners.length,
+    'the recorded copy count must match the banners the build emitted',
+  );
 
   // The peer-resolution half: compared with this checkout's installs.
   const peers = peerResolution();
-  assert.equal(recording.peerResolution.installedAs, peers.isSymlink ? 'symlink' : 'copy');
+  assert.equal(
+    recording.peerResolution.installedAs,
+    peers.isSymlink ? 'symlink' : 'copy',
+  );
   assert.equal(recording.peerResolution.lockfileLinkEntry, peers.isSymlink);
-  assert.equal(posixPath(recording.peerResolution.installedRealPath), peers.installedRealPathRelativeToFixture);
-  assert.deepEqual(recording.peerResolution.symlinkAnchoredVersions, peers.symlinkAnchoredVersions);
-  assert.deepEqual(recording.peerResolution.realPathAnchoredVersions, peers.realPathAnchoredVersions);
-  assert.deepEqual(recording.peerResolution.fixtureOwnVersions, peers.fixtureOwnVersions);
-  assert.deepEqual(recording.peerResolution.rootOwnVersions, peers.rootOwnVersions);
-  assert.match(recording.peerResolution.chosenMechanism, /preserveSymlinks: true/);
+  assert.equal(
+    posixPath(recording.peerResolution.installedRealPath),
+    peers.installedRealPathRelativeToFixture,
+  );
+  assert.deepEqual(
+    recording.peerResolution.symlinkAnchoredVersions,
+    peers.symlinkAnchoredVersions,
+  );
+  assert.deepEqual(
+    recording.peerResolution.realPathAnchoredVersions,
+    peers.realPathAnchoredVersions,
+  );
+  assert.deepEqual(
+    recording.peerResolution.fixtureOwnVersions,
+    peers.fixtureOwnVersions,
+  );
+  assert.deepEqual(
+    recording.peerResolution.rootOwnVersions,
+    peers.rootOwnVersions,
+  );
+  assert.match(
+    recording.peerResolution.chosenMechanism,
+    /preserveSymlinks: true/,
+  );
 
   // The counterexample half: compared with the build this file made without the option.
   const counterExample = counterExampleBuild();
-  assert.deepEqual(recording.counterExample.angularVersionBanners, counterExample.angularVersionBanners);
-  assert.equal(recording.counterExample.routerClassBindingName, counterExample.routerClassBindingName);
-  assert.equal(recording.counterExample.routerClassBindings, counterExample.routerClassBindings);
+  assert.deepEqual(
+    recording.counterExample.angularVersionBanners,
+    counterExample.angularVersionBanners,
+  );
+  assert.equal(
+    recording.counterExample.routerClassBindingName,
+    counterExample.routerClassBindingName,
+  );
+  assert.equal(
+    recording.counterExample.routerClassBindings,
+    counterExample.routerClassBindings,
+  );
 
   // The served half: the four observations AC7 names.
   const served = recording.served;
-  assert.equal(served.isDevMode, true, 'the served page must be a development build');
-  assert.equal(served.ngGlobal, true, 'the served page must expose window.ng');
-  assert.equal(served.identity, true, 'the identity comparison must hold on the served page');
-  assert.deepEqual(served.ownKeys.ownStringKeyDelta, [ENTRY_NAME], 'the own string key difference must be exactly the entry name');
-  assert.deepEqual(served.ownKeys.ownStringKeysRemoved, []);
-  assert.equal(served.ownKeys.ownSymbolKeysChanged, false, 'the own symbol keys must be unchanged');
-  assert.equal(served.ownKeys.entryRestoredAfterSnapshot, true, 'the probe must leave the entry in place');
   assert.equal(
-    served.ownKeys.ownStringKeysWithEntry - served.ownKeys.ownStringKeysWithoutEntry,
+    served.isDevMode,
+    true,
+    'the served page must be a development build',
+  );
+  assert.equal(served.ngGlobal, true, 'the served page must expose window.ng');
+  assert.equal(
+    served.identity,
+    true,
+    'the identity comparison must hold on the served page',
+  );
+  assert.deepEqual(
+    served.ownKeys.ownStringKeyDelta,
+    [ENTRY_NAME],
+    'the own string key difference must be exactly the entry name',
+  );
+  assert.deepEqual(served.ownKeys.ownStringKeysRemoved, []);
+  assert.equal(
+    served.ownKeys.ownSymbolKeysChanged,
+    false,
+    'the own symbol keys must be unchanged',
+  );
+  assert.equal(
+    served.ownKeys.entryRestoredAfterSnapshot,
+    true,
+    'the probe must leave the entry in place',
+  );
+  assert.equal(
+    served.ownKeys.ownStringKeysWithEntry -
+      served.ownKeys.ownStringKeysWithoutEntry,
     served.ownKeys.ownStringKeyDelta.length,
     'the recorded key counts must differ by exactly the reported difference',
   );
-  assert.ok(served.ownKeys.addedByBootstrap.includes(ENTRY_NAME), 'the entry must be one of the keys the page gained at bootstrap');
+  assert.ok(
+    served.ownKeys.addedByBootstrap.includes(ENTRY_NAME),
+    'the entry must be one of the keys the page gained at bootstrap',
+  );
 
   // The symbols: exactly the vetted vocabulary, with declared and resolved counted apart.
-  assert.deepEqual(served.symbols.map((symbol) => `${symbol.pkg}#${symbol.name}`).sort(), [...VETTED_SYMBOLS].sort());
+  assert.deepEqual(
+    served.symbols.map((symbol) => `${symbol.pkg}#${symbol.name}`).sort(),
+    [...VETTED_SYMBOLS].sort(),
+  );
   for (const symbol of served.symbols) {
-    assert.equal(symbol.declared, 1, `${symbol.pkg}#${symbol.name} must be declared once`);
-    assert.equal(symbol.resolved, symbol.matchedRecords > 0 ? 1 : 0, `${symbol.pkg}#${symbol.name} resolved must follow its matched records`);
+    assert.equal(
+      symbol.declared,
+      1,
+      `${symbol.pkg}#${symbol.name} must be declared once`,
+    );
+    assert.equal(
+      symbol.resolved,
+      symbol.matchedRecords > 0 ? 1 : 0,
+      `${symbol.pkg}#${symbol.name} resolved must follow its matched records`,
+    );
   }
   const router = served.symbols.find((symbol) => symbol.name === 'Router');
   const meta = served.symbols.find((symbol) => symbol.name === 'Meta');
-  assert.equal(router.resolved, 1, 'the router class the entry carries must match a provider record by identity');
+  assert.equal(
+    router.resolved,
+    1,
+    'the router class the entry carries must match a provider record by identity',
+  );
   assert.ok(router.matchedRecords >= 1);
-  assert.equal(meta.resolved, 0, 'Meta is expected provided but not created yet (S16)');
+  assert.equal(
+    meta.resolved,
+    0,
+    'Meta is expected provided but not created yet (S16)',
+  );
   assert.equal(meta.matchedRecords, 0, 'no provider record may match Meta');
-  assert.equal(served.identity, router.resolved === 1, 'the identity comparison and the Router count must agree');
+  assert.equal(
+    served.identity,
+    router.resolved === 1,
+    'the identity comparison and the Router count must agree',
+  );
 
   // The package's own vocabulary and the Angular copy the page reports.
   assert.equal(served.entry.version, readJson(PACKAGE_JSON).version);
-  assert.deepEqual(served.entry.ownKeys, [...PEER_SPECIFIERS, 'version'].sort());
-  assert.equal(served.ngVersionAttribute, fixtureAngularVersion(), "the page's ng-version must be the fixture's own Angular version");
+  assert.deepEqual(
+    served.entry.ownKeys,
+    [...PEER_SPECIFIERS, 'version'].sort(),
+  );
+  assert.equal(
+    served.ngVersionAttribute,
+    fixtureAngularVersion(),
+    "the page's ng-version must be the fixture's own Angular version",
+  );
   assert.equal(recording.angular, fixtureAngularVersion());
 
   console.log(
@@ -684,10 +1052,22 @@ test('the served development-build recording is present, development-only and co
 test('the development build is name-stable across two builds at the same output path', () => {
   requirePrerequisite(MISSING_MEASUREMENT_ENVIRONMENT);
   buildPackage();
-  const first = buildFixture({ configuration: 'development', outputDirectory: OUTPUT_DIR });
-  const second = buildFixture({ configuration: 'development', outputDirectory: OUTPUT_DIR });
-  assert.deepEqual(first.bundles, second.bundles, 'two builds at the same output path must emit identical bundle name lists');
-  console.log(`facade-dev-build: stability ${JSON.stringify(first.bundles)} === ${JSON.stringify(second.bundles)}`);
+  const first = buildFixture({
+    configuration: 'development',
+    outputDirectory: OUTPUT_DIR,
+  });
+  const second = buildFixture({
+    configuration: 'development',
+    outputDirectory: OUTPUT_DIR,
+  });
+  assert.deepEqual(
+    first.bundles,
+    second.bundles,
+    'two builds at the same output path must emit identical bundle name lists',
+  );
+  console.log(
+    `facade-dev-build: stability ${JSON.stringify(first.bundles)} === ${JSON.stringify(second.bundles)}`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -714,5 +1094,7 @@ test('no file this task writes names the removed bundle-optimizer option (N5)', 
       `${displayPath(file)} must not name the option this project no longer carries`,
     );
   }
-  console.log(`facade-dev-build: ${files.length} written files name no removed build option`);
+  console.log(
+    `facade-dev-build: ${files.length} written files name no removed build option`,
+  );
 });

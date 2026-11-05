@@ -5,7 +5,10 @@ import { traceProvenance, getProvenanceChain } from './provenance-tracer.ts';
 test('builds adjacency from consumer/producer edges only', () => {
   const graph = {
     nodes: [{ id: 'a' }, { id: 'b' }, { id: 'c' }],
-    edges: [{ consumer: 'b', producer: 'a' }, { consumer: 'c', producer: 'b' }],
+    edges: [
+      { consumer: 'b', producer: 'a' },
+      { consumer: 'c', producer: 'b' },
+    ],
   };
   const result = traceProvenance(graph as any, 'b');
   assert.equal(result.selected, 'b');
@@ -15,7 +18,10 @@ test('builds adjacency from consumer/producer edges only', () => {
 test('getProvenanceChain returns full chain for consumer/producer graph', () => {
   const graph = {
     nodes: [{ id: 'a' }, { id: 'b' }, { id: 'c' }],
-    edges: [{ consumer: 'b', producer: 'a' }, { consumer: 'c', producer: 'b' }],
+    edges: [
+      { consumer: 'b', producer: 'a' },
+      { consumer: 'c', producer: 'b' },
+    ],
   };
   const chain = getProvenanceChain(graph as any, 'b');
   assert.equal(chain.length, 3);

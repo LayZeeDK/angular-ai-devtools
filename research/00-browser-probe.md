@@ -6,17 +6,17 @@ Browser: Chrome/154.0.0.0, Windows 11 arm64 (Snapdragon X Elite). Flags were as 
 
 ## Availability (`<API>.availability()`)
 
-| API | Result |
-|---|---|
-| `LanguageModel` (Prompt API) | `available` |
-| `Summarizer` | `available` |
-| `Writer` | `available` |
-| `Rewriter` | `available` |
-| `Proofreader` | not defined in page |
-| `Translator` (en -> da) | `downloadable` |
-| `LanguageDetector` | `available` |
-| `navigator.modelContext` (WebMCP) | not defined in page |
-| `LanguageModel.params()` | not present (returned null) |
+| API                               | Result                      |
+| --------------------------------- | --------------------------- |
+| `LanguageModel` (Prompt API)      | `available`                 |
+| `Summarizer`                      | `available`                 |
+| `Writer`                          | `available`                 |
+| `Rewriter`                        | `available`                 |
+| `Proofreader`                     | not defined in page         |
+| `Translator` (en -> da)           | `downloadable`              |
+| `LanguageDetector`                | `available`                 |
+| `navigator.modelContext` (WebMCP) | not defined in page         |
+| `LanguageModel.params()`          | not present (returned null) |
 
 ## Session shape
 
@@ -41,13 +41,13 @@ Conclusion: in this browser and flag state, native tool execution is not active.
 
 Source of "available": flag names and descriptions read from the installed binaries with `rg -a`. Source of "enabled": `browser.enabled_labs_experiments` in each channel's `User Data\Local State`.
 
-| Browser (version in Local State / installed) | Enabled now | Relevant flags available but NOT enabled |
-|---|---|---|
-| Chrome stable (154.0.8037.98 / same) | `prompt-api@2`, `prompt-api-multimodal-input@1`, `writer-api@1`, `rewriter-api@1` | `prompt-api-tool-use` ("Extends the Prompt API with tool use (function calling) capabilities"), `gemma4-for-built-in-ai` ("Enables all built-in AI APIs ... to use the Gemma 4 model"), `webmcp-testing` ("Enables the WebMCP API"), `webmcp-support` ("Enables WebMCP support in DevTools") |
-| Chrome Beta (156.0.8078.17) | `prompt-api@1`, `prompt-api-multimodal-input@1`, `summarizer-api@1`, `writer-api@1`, `rewriter-api@1` | same set as stable (no `webmcp-support` string found in Beta) |
+| Browser (version in Local State / installed)                                   | Enabled now                                                                                                                                                     | Relevant flags available but NOT enabled                                                                                                                                                                                                                                                                                                                                            |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Chrome stable (154.0.8037.98 / same)                                           | `prompt-api@2`, `prompt-api-multimodal-input@1`, `writer-api@1`, `rewriter-api@1`                                                                               | `prompt-api-tool-use` ("Extends the Prompt API with tool use (function calling) capabilities"), `gemma4-for-built-in-ai` ("Enables all built-in AI APIs ... to use the Gemma 4 model"), `webmcp-testing` ("Enables the WebMCP API"), `webmcp-support` ("Enables WebMCP support in DevTools")                                                                                        |
+| Chrome Beta (156.0.8078.17)                                                    | `prompt-api@1`, `prompt-api-multimodal-input@1`, `summarizer-api@1`, `writer-api@1`, `rewriter-api@1`                                                           | same set as stable (no `webmcp-support` string found in Beta)                                                                                                                                                                                                                                                                                                                       |
 | Edge stable (154.0.4258.62 running / 155.0.4283.45 installed, restart pending) | `edge-llm-prompt-api-for-phi-mini@1`, `edge-llm-summarization-api-for-phi-mini@1`, `edge-llm-writer-api-for-phi-mini@1`, `edge-llm-rewriter-api-for-phi-mini@1` | `edge-llm-prompt-api-tool-use` ("Enables Prompt API tool use ... in Microsoft Edge"), `gemma4-for-built-in-ai` ("Enables all built-in AI APIs ... with the Gemma 4 model"), `edge-llm-on-device-model-prerelease`, `edge-llm-on-device-model-prerelease-tool-use-workaround` ("Enables the Prompt API tool-use workaround for the prerelease on device AI model"), `webmcp-testing` |
-| Edge Dev (157.0.4322.0) | `edge-llm-on-device-model-prerelease@1` | `edge-llm-prompt-api-for-default` (renamed from `-for-phi-mini`), `edge-llm-prompt-api-tool-use`, `edge-llm-on-device-model-prerelease-tool-use-workaround` (described in this build as "the Prompt API tool-use workaround for the on-device Aion model family"), `gemma4-for-built-in-ai`, `webmcp-testing` |
-| Edge Canary (151.0.4086.0 in Local State) | `edge-llm-prompt-api-for-phi-mini@1`, `edge-llm-on-device-model-prerelease@1`, perf/debug flags | not checked |
+| Edge Dev (157.0.4322.0)                                                        | `edge-llm-on-device-model-prerelease@1`                                                                                                                         | `edge-llm-prompt-api-for-default` (renamed from `-for-phi-mini`), `edge-llm-prompt-api-tool-use`, `edge-llm-on-device-model-prerelease-tool-use-workaround` (described in this build as "the Prompt API tool-use workaround for the on-device Aion model family"), `gemma4-for-built-in-ai`, `webmcp-testing`                                                                       |
+| Edge Canary (151.0.4086.0 in Local State)                                      | `edge-llm-prompt-api-for-phi-mini@1`, `edge-llm-on-device-model-prerelease@1`, perf/debug flags                                                                 | not checked                                                                                                                                                                                                                                                                                                                                                                         |
 
 Model strings: the Edge 155 and 157 binaries both contain `Aion-1.0-Instruct` and `Aion-1.1-Instruct`. **Inferred:** the "prerelease on-device model" flag selects Aion, because Edge Dev's text for the same workaround flag names "the on-device Aion model family". The Chrome 154 binary contains no "Aion" string.
 
@@ -133,20 +133,22 @@ Lars ruled: "C:\ is running low on space. Unnecessary models should be cleaned u
 
 Lars asked: "Could we manage multiple Chrome Beta instances - one with Nano and one with Gemma?" and "Same for Edge Dev with Phi-4-mini and Aion-1.1-Instruct." Each instance runs with its own `--user-data-dir` under `.browsers/` (gitignored, on D:). Its features are set on the command line with `--enable-features`, and it has its own `--remote-debugging-port`. Remote debugging needs no approval on a non-default profile.
 
-| Instance | Port | Features beyond the base API set | Model on disk | Status at 23:45 |
-|---|---|---|---|---|
-| `.browsers/chrome-beta-nano` | 9333 | `AIPromptAPIToolUse` | `v3Nano` 4.0 GB | available |
-| `.browsers/chrome-beta-gemma4` | 9334 | `AIPromptAPIToolUse`, `OnDeviceModelConversationBackend`, `AIApiFoundationalModel:model_version/v4`, `OptimizationGuideManifestBroker` | `gemma4-2b-it` 2.4 GB | available |
-| `.browsers/edge-dev-aion` | 9335 | `msEdgeLLMOnDeviceModelMuffinToolUseWorkaround`, `msEdgeLLMOnDeviceModelPrerelease` | Aion 1.3 GB | available |
-| `.browsers/edge-phi4mini` | 9337 | none (base set) | nothing | available on GPU (Edge stable 155) |
+| Instance                       | Port | Features beyond the base API set                                                                                                       | Model on disk         | Status at 23:45                    |
+| ------------------------------ | ---- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------- | ---------------------------------- |
+| `.browsers/chrome-beta-nano`   | 9333 | `AIPromptAPIToolUse`                                                                                                                   | `v3Nano` 4.0 GB       | available                          |
+| `.browsers/chrome-beta-gemma4` | 9334 | `AIPromptAPIToolUse`, `OnDeviceModelConversationBackend`, `AIApiFoundationalModel:model_version/v4`, `OptimizationGuideManifestBroker` | `gemma4-2b-it` 2.4 GB | available                          |
+| `.browsers/edge-dev-aion`      | 9335 | `msEdgeLLMOnDeviceModelMuffinToolUseWorkaround`, `msEdgeLLMOnDeviceModelPrerelease`                                                    | Aion 1.3 GB           | available                          |
+| `.browsers/edge-phi4mini`      | 9337 | none (base set)                                                                                                                        | nothing               | available on GPU (Edge stable 155) |
 
 Base sets: Chrome `AIPromptAPI,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP`; Edge `AIPromptAPI,AIPromptAPIStructuredOutput,AIPromptAPIToolUse,AIRewriterAPI,AISummarizationAPI,AIWriterAPI,WebMCP`. The Edge names were read from Lars's Edge Dev `edge://version` command line.
 
 Gotchas:
+
 - A fresh profile has Chrome's internal debugging pages off, so `chrome://on-device-internals` shows "Internal debugging pages are currently disabled". Turn them on once per profile with the "Enable internal debugging pages" button on `chrome://chrome-urls`. Edge's instances did not need it.
 - Starting the download needs a real user gesture. In the Phi-4-mini instance, pointer clicks from playwright-cli time out (on page buttons and on the internals tabs), but keyboard input works: focus the element, then press Enter or the arrow keys. Cause unknown.
 
 Phi-4-mini instance, after about 35 minutes of `availability()` returning `downloading`:
+
 - Broker State: `edge_base_model 2026.10.2.1 Foreground Installing 0%`, error None.
 - `prompt_api` is Pending Assets.
 - Every criterion passes: performance class High, device capable, 62,956 MiB free against 20,480 required.
@@ -157,20 +159,23 @@ Phi-4-mini instance, after about 35 minutes of `availability()` returning `downl
 
 ## Moving Lars's own Chrome Beta and Edge Dev profiles to D: (2026-10-12, measured)
 
-Lars ruled: "I mean use D:/ for profiles and models for all browsers used by control-* and verify-* skills" and "Including *my* Chrome Beta and Edge Dev profiles and models".
+Lars ruled: "I mean use D:/ for profiles and models for all browsers used by control-* and verify-* skills" and "Including _my_ Chrome Beta and Edge Dev profiles and models".
 
 Method:
+
 1. Both browsers closed. A survey found no reparse points in either `User Data`.
 2. `robocopy /E /COPY:DAT /DCOPY:DAT /XJ` to `D:\browser-profiles\<browser>\User Data`: Chrome Beta 953 files, 6.561 GB; Edge Dev 4,349 files, 2.087 GB. Counts and bytes matched, and robocopy reported 0 failed.
 3. Each original was renamed to `User Data.bak`, and a junction now sits at `%LOCALAPPDATA%\<vendor>\<browser>\User Data` pointing to D:.
 
 Results:
+
 - Chrome Beta through the junction: works. Remote debugging needed Lars to allow it again; then `LanguageModel.availability()` is `available`, `LanguageModelToolCall` is defined, and `document.modelContext` is an object.
 - **Edge Dev through the junction: broken.** At every startup Edge Dev empties `EdgeOptimizationGuideModelsManifest` (seen twice, the second time after restoring it from the `.bak`). Broker State then shows Manifest Path N/A and Manifest Loaded false, and `availability()` never resolves. The Aion model folder (1.3 GB) stays intact.
 - **Edge Dev started with `--user-data-dir="D:\browser-profiles\Edge Dev\User Data"`: works.** The manifest survives startup and `availability()` is `available`.
 - Inferred cause: Edge's component handling rejects a profile path that resolves through a reparse point. Chrome Beta does not.
 
 Lars's rulings, 2026-10-12: "Edge Dev: Option B." (move it back to C:) and "Chrome Beta: I don't care about any of that user data from Chrome Beta."
+
 - Edge Dev: junction removed, the untouched `User Data.bak` renamed back to `User Data` on C:, and the D: copy deleted. Started normally, its manifest stays and `availability()` is `available` (measured).
 - Chrome Beta: stays on D: through the junction; `User Data.bak` deleted.
 - Free space afterwards: C: 30.0 GB, D: 43.3 GB.
@@ -182,6 +187,7 @@ Lars asked: "Could there be a performance penalty from running profiles and (esp
 Both drives are partitions of the same physical disk, a WD `SDDPTQD-1T00-1124-WD` NVMe SSD. C: is NTFS (666 GB); D: is ReFS (285 GB), Lars's Dev Drive (`fsutil devdrv query` needs admin, so not confirmed here).
 
 The probe `spikes/probes/read-throughput.ps1` reads 1 GB sequentially in 4 MB blocks with `FILE_FLAG_NO_BUFFERING`, so the Windows file cache is bypassed. Both targets are identical copies of Aion's `model.onnx.data` (1,291,678,720 bytes). Three runs each, alternating:
+
 - C: (Lars's Edge Dev profile): 2,148 / 2,237 / 2,280 MB/s
 - D: (`.browsers/edge-dev-aion`): 1,464 / 1,558 / 1,616 MB/s
 
@@ -194,6 +200,7 @@ The weights are read when a session first loads the model. Inference afterwards 
 Lars asked: "Have you exhausted all options to make Phi-4-mini work in Edge Dev?" and "Find research that confirms whether Aion will replace Phi-4-mini in Edge".
 
 Each experiment used a fresh Edge Dev 157.0.4322.0 profile on D:, with the base feature set and no prerelease feature:
+
 1. **Waiting** (the first instance, 35 minutes): Broker State stayed at `edge_base_model 2026.10.2.1 Foreground Installing 0%`. `edge://components` showed "Edge LLM On Device Model" and "Edge LLM Runtime" at version 0.0.0.0, status New: the component updater had never started them.
 2. **Forcing "Check for update"** on both components in `edge://components`: status changed to Downloading. About two minutes later `EdgeLLMOnDeviceModel\2026.10.2.1` held 1,248 MB, and its `manifest.json` names **`Aion-1.1-Instruct`**. Edge Dev 157's default model is Aion, the same as its prerelease model. Both variants in manifest 2026.10.2.1 (`webgpu-fp16` and `webgpu-fp16-prerelease`) name `edge_base_model` 2026.10.2.1.
 3. **Seeding the profile before its first start** with Edge stable's Phi-4-mini folder (`EdgeLLMOnDeviceModel\2026.8.19.1`, 2.4 GB): the manifest loaded (2026.10.2.1), Broker State listed no base model, and `prompt_api` was "Not Supported". The seed was ignored.
@@ -202,6 +209,7 @@ Each experiment used a fresh Edge Dev 157.0.4322.0 profile on D:, with the base 
 Conclusion: Edge Dev 157 does not serve Phi-4-mini. Phi-4-mini is available here only from Edge stable 155 (manifest 2026.9.18.5, model 2026.8.19.1). Both experiment profiles were deleted afterwards. Gotcha for the skills: a fresh Edge profile can sit at "Installing 0%" until "Check for update" is pressed for its model components in `edge://components`.
 
 Microsoft's own statements (page reads via markdown.new):
+
 - Edge Prompt API docs (`https://learn.microsoft.com/en-us/microsoft-edge/web-platform/prompt-api`, updated 2026-10-06) say: "By default, the Prompt API uses the Phi-4-mini model." Aion-1.0-Instruct is the prerelease model behind "Enable prerelease on-device language model" in Canary and Dev from 150.0.4070, "expected to be made available as an open source model in July 2026". On devices of Medium or Low performance class, the Prompt API is supported only through Aion. The docs do not mention Aion-1.1, nor any date when Aion becomes the default in Edge.
 - Windows App SDK docs (`https://learn.microsoft.com/en-us/windows/ai/apis/phi-silica`, updated 2026-10-02) say: "Phi Silica is being replaced by Aion Instruct". The timeline: a sideloadable package in early October 2026, a rollout to Windows Insider devices in November 2026, and "January 2027 - Aion Instruct rolls out to retail devices and Phi Silica is removed." That is Windows' system model, not Edge's.
 
@@ -212,6 +220,7 @@ Reading (inferred): no source states that Aion replaces Phi-4-mini in Edge. The 
 Lars asked: "Can we make the Nano instance use the GPU backend? Can we make Gemma 4 and Phi-4-mini use CPU? What about Aion-1.1-Instruct?" He added: "Keep in mind that this machine is CPU-heavy with an NPU but a poor GPU".
 
 How Chrome chooses, read in Chromium 156.0.8078.17 source:
+
 - At startup Chrome measures a performance class and stores it in the profile's `Local State` (`optimization_guide.on_device.performance_class`).
 - GPU models are allowed only for the classes in the `OnDeviceModelPerformanceParams` feature parameter `compatible_on_device_performance_classes`, default `3,4,5,6` (`components/optimization_guide/core/optimization_guide_features.cc:120-139`). Low-tier GPU models use `compatible_low_tier_on_device_performance_classes`, default `3,4`.
 - `OnDeviceModelForceCpuBackend` is a separate feature, off by default (`services/on_device_model/public/cpp/features.cc:11`). The same string is in Edge Dev 157's binary.
@@ -220,12 +229,12 @@ Stored classes, all on the same GPU (16,162 MB VRAM): chrome-beta-nano 2, chrome
 
 Results (measured with `spikes/probes/relaunch-instance.ps1` and `broker-state.js`):
 
-| Change | Features added | Result |
-|---|---|---|
-| Nano to GPU | `OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/2%2C3%2C4%2C5%2C6/compatible_low_tier_on_device_performance_classes/2%2C3%2C4` (commas escaped as `%2C`) | Broker State lists "GPU (fastest inference)" backends, and `availability()` turned `downloading` while Chrome fetched Nano's GPU variant. Outcome is recorded below once the download finishes. |
-| Gemma 4 to CPU | `OnDeviceModelForceCpuBackend` | Every backend in Broker State reads CPU, and the model stays `available` with no new download. |
-| Aion to CPU | `OnDeviceModelForceCpuBackend` (Edge Dev 157) | `availability()` `unavailable`, and Broker State lists no backend. **Edge deleted the installed model**: `EdgeLLMOnDeviceModel` was empty after restoring the normal features, and the model had to be downloaded again. |
-| Phi-4-mini to CPU | `OnDeviceModelForceCpuBackend` (Edge stable 155) | Same as Aion: `unavailable`, and the model was deleted. |
+| Change            | Features added                                                                                                                                                                    | Result                                                                                                                                                                                                                   |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Nano to GPU       | `OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/2%2C3%2C4%2C5%2C6/compatible_low_tier_on_device_performance_classes/2%2C3%2C4` (commas escaped as `%2C`) | Broker State lists "GPU (fastest inference)" backends, and `availability()` turned `downloading` while Chrome fetched Nano's GPU variant. Outcome is recorded below once the download finishes.                          |
+| Gemma 4 to CPU    | `OnDeviceModelForceCpuBackend`                                                                                                                                                    | Every backend in Broker State reads CPU, and the model stays `available` with no new download.                                                                                                                           |
+| Aion to CPU       | `OnDeviceModelForceCpuBackend` (Edge Dev 157)                                                                                                                                     | `availability()` `unavailable`, and Broker State lists no backend. **Edge deleted the installed model**: `EdgeLLMOnDeviceModel` was empty after restoring the normal features, and the model had to be downloaded again. |
+| Phi-4-mini to CPU | `OnDeviceModelForceCpuBackend` (Edge stable 155)                                                                                                                                  | Same as Aion: `unavailable`, and the model was deleted.                                                                                                                                                                  |
 
 Inferred cause for Edge: its manifests offer only WebGPU variants (`webgpu-fp16` and `webgpu-fp32`, with and without `-prerelease`). Forced to CPU, Edge has no variant to run, so it uninstalls the model. Its ONNX runtime does carry `CPUExecutionProvider`, `DmlExecutionProvider` and `QNNExecutionProvider` (Qualcomm NPU), but no flag found selects them. Edge's `edge-llm-on-device-model-performance-param` flag offers only Default, Enabled, "Enabled BypassPerfRequirement" and Disabled.
 
@@ -236,6 +245,7 @@ Inferred cause for Edge: its manifests offer only WebGPU variants (`webgpu-fp16`
 Lars asked: "Did your Edge mistake impact your judgment on whether they could run on CPU?" Partly, yes. The first Edge verdict rested on a read taken seconds after relaunch, before the manifest was confirmed loaded. It used the force-CPU feature, not the performance-class route that Microsoft's Edge docs describe for CPU inferencing ("supported on devices with less capable GPUs or no GPU, via CPU-inferencing"). It was also run on the standing instances, deleting their models.
 
 Redone in a disposable copy of the Aion profile (`.browsers/edge-dev-aion-lowclass`, deleted afterwards):
+
 1. **GPU disallowed for the device's class:** `OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/6/compatible_low_tier_on_device_performance_classes/6`, stored class 5. With the manifest loaded (`true`), every use case was "Not Supported" and `availability()` stayed `unavailable` for over two minutes. Edge deleted the copy's model folder.
 2. **A Low-class device:** stored class seeded to 2 with the profile closed (`spikes/probes/seed-perf-class.mjs`), the manifest folder deleted, then a restart. The class stayed 2, and Edge downloaded a new manifest with the same four variants: `webgpu-fp16`, `webgpu-fp16-prerelease`, `webgpu-fp32`, `webgpu-fp32-prerelease`. No CPU variant, and `availability()` stayed `unavailable`.
 
@@ -246,12 +256,14 @@ Verdict: on this machine (Windows 11 ARM64), Edge Dev 157 offers Aion only throu
 Lars asked: "Any way to force any of the models on NPU?"
 
 Chrome (Gemini Nano, Gemma 4), measured from Chromium 156.0.8078.17 source:
+
 - `services/on_device_model/public/mojom/on_device_model_service.mojom:49-56` defines three backends: `kGpu` (WebGPU), `kApu` ("Only available on devices with APU, and need special APU model files"), and `kCpu`.
 - GitHub code search finds `ModelBackendType::kApu` only in the mojom traits, the fake ChromeML backend and a unit test. Nothing in `chrome/` or `components/` selects it.
 - Chrome Beta 156's binary has no APU or NPU strings near the on-device model code.
 - Verdict: no NPU route for Chrome's built-in models on Windows. Inferred: the APU backend serves ChromeOS devices.
 
 Edge (Aion, Phi-4-mini), measured from files:
+
 - Edge's model runtime is a downloaded component, `EdgeLLMRuntime\2026.10.2.1\onnxruntime-genai.dll` (ONNX Runtime GenAI).
 - It reads the execution provider from the model's `genai_config.json`. Aion's config says `"provider_options": [{"webgpu": {...}}]`.
 - The runtime's strings mention "the QNN EP package" (Qualcomm's NPU provider). `msedge.dll` also contains `QNNExecutionProvider` and Windows ML provider-download calls (`EnsureExecutionProviderReadyAsync`).
@@ -260,6 +272,7 @@ Edge (Aion, Phi-4-mini), measured from files:
 - Next step: run `spikes/probes/set-genai-provider.mjs` (webgpu, qnn, cpu) on the standing Aion instance with `ep-prompt.js` and `engine-sampler.ps1`, once that instance is free, and restore `webgpu` afterwards.
 
 Other routes to the NPU, outside the built-in Prompt API (inferred, untested):
+
 - Windows' own on-device model runs on the Snapdragon NPU through the Windows App SDK: Phi Silica today, Aion Instruct from the November 2026 Insider rollout (`research/00`, "Phi-4-mini in Edge Dev 157" sources). An extension could reach it only through a native-messaging host.
 - WebNN with `deviceType: 'npu'` (Edge flag `webnn-onnxruntime`: "Enables using ONNX Runtime for CPU, GPU and NPU inference with the WebNN API") runs a model the page supplies itself, not the browser's built-in one.
 
@@ -267,13 +280,14 @@ Other routes to the NPU, outside the built-in Prompt API (inferred, untested):
 
 `spikes/probes/ep-trials.sh` sets the provider list in Aion's `genai_config.json` with `set-genai-provider.mjs`. It restarts the instance through `control-ai-browsers` `stop` and `launch`, runs one prompt (`ep-prompt.js`), and restores the original config afterwards (checked with `cmp`; doctor exits 0). Results in `research/ep-trials/`, one run each:
 
-| Provider | Session | create() | First answer |
-|---|---|---|---|
-| `webgpu` (as shipped) | works | 2,953 ms | 6,290 ms |
-| `qnn` (`QnnHtp.dll`, Qualcomm NPU) | fails: `InvalidStateError: The device is unable to create a session to run the model.` | | |
-| CPU (empty provider list) | **works** (provider inferred, see below) | 4,623 ms | 14,507 ms |
+| Provider                           | Session                                                                                | create() | First answer |
+| ---------------------------------- | -------------------------------------------------------------------------------------- | -------- | ------------ |
+| `webgpu` (as shipped)              | works                                                                                  | 2,953 ms | 6,290 ms     |
+| `qnn` (`QnnHtp.dll`, Qualcomm NPU) | fails: `InvalidStateError: The device is unable to create a session to run the model.` |          |              |
+| CPU (empty provider list)          | **works** (provider inferred, see below)                                               | 4,623 ms | 14,507 ms    |
 
 Corrections to the earlier sections:
+
 - **Aion can run on CPU in Edge**, but only by editing the downloaded component's config. That is unsupported, and an update of the component overwrites it. Chromium's `OnDeviceModelForceCpuBackend` remains destructive on Edge. The earlier "Edge Dev 157 offers Aion only through WebGPU" holds for what Edge selects by itself, not for what its runtime can do. **[inferred]** Which execution provider ran is not observed: the claim rests on the config edit plus the slower `create()` and answer times, with the same answer text as the WebGPU run. No engine observation backs it (see the engine sampler note below).
 - **NPU through QNN: no** with this model. Inferred: QNN needs a model compiled for the NPU, and Aion ships as WebGPU fp16.
 - The engine sampler (`engine-sampler.ps1`) saw no GPU activity even in the WebGPU run, so it missed the model process. Only the latency and the errors above count as evidence.

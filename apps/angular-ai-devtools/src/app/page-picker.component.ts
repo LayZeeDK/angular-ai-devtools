@@ -38,7 +38,11 @@
  */
 import { Component, computed, inject, signal } from '@angular/core';
 import { ExtensionMessageService } from './extension-message.service';
-import type { PickedDescriptor, PickerAction, PickerState } from './extension-message.service';
+import type {
+  PickedDescriptor,
+  PickerAction,
+  PickerState,
+} from './extension-message.service';
 
 /** The seven renderings the surface can show, one per render. */
 export type PickerSurfaceKind =
@@ -66,9 +70,21 @@ export type PickerSurface =
       readonly className: string | null;
       readonly componentPath: readonly string[];
     }
-  | { readonly kind: 'cancelled'; readonly message: string; readonly reason: string | null }
-  | { readonly kind: 'unavailable'; readonly message: string; readonly reason: string | null }
-  | { readonly kind: 'no-dev-api'; readonly message: string; readonly reason: string | null }
+  | {
+      readonly kind: 'cancelled';
+      readonly message: string;
+      readonly reason: string | null;
+    }
+  | {
+      readonly kind: 'unavailable';
+      readonly message: string;
+      readonly reason: string | null;
+    }
+  | {
+      readonly kind: 'no-dev-api';
+      readonly message: string;
+      readonly reason: string | null;
+    }
   | { readonly kind: 'no-component'; readonly message: string };
 
 /**
@@ -84,7 +100,7 @@ const ARMED_MESSAGE =
 
 /** The page's locked answer, with the descriptor it carried rendered below. */
 const LOCKED_MESSAGE =
-  'The page locked the pick and carried this descriptor: the fields below are the payload\'s own, displayed as sent and never re-derived';
+  "The page locked the pick and carried this descriptor: the fields below are the payload's own, displayed as sent and never re-derived";
 
 /** The page's `cancelled` answer: the pick stopped, and no descriptor describes it. */
 const CANCELLED_MESSAGE =
@@ -119,7 +135,9 @@ export function pickerSurface(
   state: PickerState | null,
   picked: PickedDescriptor | null,
 ): PickerSurface {
-  const terminal = state !== null && (state.status === 'cancelled' || state.status === 'unavailable');
+  const terminal =
+    state !== null &&
+    (state.status === 'cancelled' || state.status === 'unavailable');
 
   if (!terminal && picked !== null) {
     if (picked.status === 'resolved') {
@@ -133,7 +151,11 @@ export function pickerSurface(
       };
     }
     if (picked.status === 'no-dev-api') {
-      return { kind: 'no-dev-api', message: NO_DEV_API_MESSAGE, reason: picked.reason };
+      return {
+        kind: 'no-dev-api',
+        message: NO_DEV_API_MESSAGE,
+        reason: picked.reason,
+      };
     }
     return { kind: 'no-component', message: NO_COMPONENT_MESSAGE };
   }
@@ -143,9 +165,17 @@ export function pickerSurface(
       return { kind: 'armed', message: ARMED_MESSAGE };
     }
     if (state.status === 'cancelled') {
-      return { kind: 'cancelled', message: CANCELLED_MESSAGE, reason: state.reason };
+      return {
+        kind: 'cancelled',
+        message: CANCELLED_MESSAGE,
+        reason: state.reason,
+      };
     }
-    return { kind: 'unavailable', message: UNAVAILABLE_MESSAGE, reason: state.reason };
+    return {
+      kind: 'unavailable',
+      message: UNAVAILABLE_MESSAGE,
+      reason: state.reason,
+    };
   }
 
   return { kind: 'awaiting-page', message: AWAITING_PAGE_MESSAGE };
@@ -156,24 +186,44 @@ export function pickerSurface(
   template: `
     <h2>Page picker</h2>
     <p class="subtitle" data-testid="picker-subtitle">
-      arm the picker, click an element in the inspected page, and the page reports what owns it
+      arm the picker, click an element in the inspected page, and the page
+      reports what owns it
     </p>
 
     <div class="commands">
-      <button type="button" class="command" (click)="arm()" data-testid="picker-arm">
+      <button
+        type="button"
+        class="command"
+        (click)="arm()"
+        data-testid="picker-arm"
+      >
         Arm the picker
       </button>
-      <button type="button" class="command" (click)="cancel()" data-testid="picker-cancel">
+      <button
+        type="button"
+        class="command"
+        (click)="cancel()"
+        data-testid="picker-cancel"
+      >
         Cancel the pick
       </button>
     </div>
 
     @if (commandFailure(); as failure) {
-      <p class="command-failure" data-testid="picker-command-failure">{{ failure }}</p>
+      <p class="command-failure" data-testid="picker-command-failure">
+        {{ failure }}
+      </p>
     }
 
-    <section class="state" data-testid="picker-surface" [attr.data-state]="state().kind">
-      <p class="state-message" [attr.data-testid]="'picker-state-' + state().kind">
+    <section
+      class="state"
+      data-testid="picker-surface"
+      [attr.data-state]="state().kind"
+    >
+      <p
+        class="state-message"
+        [attr.data-testid]="'picker-state-' + state().kind"
+      >
         {{ state().message }}
       </p>
 
@@ -199,44 +249,114 @@ export function pickerSurface(
         } @else {
           <ol class="path" data-testid="picker-component-path">
             @for (entry of descriptor.componentPath; track $index) {
-              <li class="path-entry" data-testid="picker-path-entry">{{ entry }}</li>
+              <li class="path-entry" data-testid="picker-path-entry">
+                {{ entry }}
+              </li>
             }
           </ol>
         }
       }
 
       @if (cancelledReason(); as reason) {
-        <p class="state-reason" data-testid="picker-cancelled-reason">{{ reason }}</p>
+        <p class="state-reason" data-testid="picker-cancelled-reason">
+          {{ reason }}
+        </p>
       }
       @if (unavailableReason(); as reason) {
-        <p class="state-reason" data-testid="picker-unavailable-reason">{{ reason }}</p>
+        <p class="state-reason" data-testid="picker-unavailable-reason">
+          {{ reason }}
+        </p>
       }
       @if (noDevApiReason(); as reason) {
-        <p class="state-reason" data-testid="picker-no-dev-api-reason">{{ reason }}</p>
+        <p class="state-reason" data-testid="picker-no-dev-api-reason">
+          {{ reason }}
+        </p>
       }
     </section>
   `,
   styles: [
     `
-      h2 { font-size: 14px; margin: 0; }
-      .subtitle { font-size: 11px; color: #888; margin: 4px 0 12px; }
-      .commands { display: flex; gap: 8px; margin-bottom: 12px; }
-      .command { font-size: 12px; padding: 4px 10px; }
-      .command-failure { font-size: 12px; color: #c62828; margin: 0 0 12px; }
-      .state { font-size: 12px; padding: 8px; background: #f5f9ff; border-radius: 4px; }
-      .state-message { margin: 0; color: #333; }
-      .state[data-state='awaiting-page'] .state-message { color: #b26a00; font-style: italic; }
-      .state[data-state='armed'] .state-message { color: #1565c0; }
+      h2 {
+        font-size: 14px;
+        margin: 0;
+      }
+      .subtitle {
+        font-size: 11px;
+        color: #888;
+        margin: 4px 0 12px;
+      }
+      .commands {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .command {
+        font-size: 12px;
+        padding: 4px 10px;
+      }
+      .command-failure {
+        font-size: 12px;
+        color: #c62828;
+        margin: 0 0 12px;
+      }
+      .state {
+        font-size: 12px;
+        padding: 8px;
+        background: #f5f9ff;
+        border-radius: 4px;
+      }
+      .state-message {
+        margin: 0;
+        color: #333;
+      }
+      .state[data-state='awaiting-page'] .state-message {
+        color: #b26a00;
+        font-style: italic;
+      }
+      .state[data-state='armed'] .state-message {
+        color: #1565c0;
+      }
       .state[data-state='cancelled'] .state-message,
-      .state[data-state='unavailable'] .state-message { color: #b26a00; }
-      .state[data-state='no-dev-api'] .state-message { color: #6a1b9a; }
-      .state[data-state='no-component'] .state-message { color: #455a64; }
-      .descriptor { margin: 8px 0 0; }
-      .field-label { font-size: 11px; color: #666; text-transform: uppercase; }
-      .field { font-family: monospace; font-size: 11px; color: #111; margin: 0 0 4px; }
-      .path { margin: 4px 0 0; padding-left: 18px; font-family: monospace; font-size: 11px; }
-      .path-empty { font-size: 11px; color: #888; font-style: italic; margin: 4px 0 0; }
-      .state-reason { font-size: 11px; color: #333; margin: 6px 0 0; }
+      .state[data-state='unavailable'] .state-message {
+        color: #b26a00;
+      }
+      .state[data-state='no-dev-api'] .state-message {
+        color: #6a1b9a;
+      }
+      .state[data-state='no-component'] .state-message {
+        color: #455a64;
+      }
+      .descriptor {
+        margin: 8px 0 0;
+      }
+      .field-label {
+        font-size: 11px;
+        color: #666;
+        text-transform: uppercase;
+      }
+      .field {
+        font-family: monospace;
+        font-size: 11px;
+        color: #111;
+        margin: 0 0 4px;
+      }
+      .path {
+        margin: 4px 0 0;
+        padding-left: 18px;
+        font-family: monospace;
+        font-size: 11px;
+      }
+      .path-empty {
+        font-size: 11px;
+        color: #888;
+        font-style: italic;
+        margin: 4px 0 0;
+      }
+      .state-reason {
+        font-size: 11px;
+        color: #333;
+        margin: 6px 0 0;
+      }
     `,
   ],
 })
@@ -297,9 +417,12 @@ export class PagePickerComponent {
    */
   private async sendCommand(action: PickerAction): Promise<void> {
     const outcome = await this.ext.sendPickerCommand(action);
-    const command = action === 'arm' ? 'Arming the picker' : 'Cancelling the pick';
+    const command =
+      action === 'arm' ? 'Arming the picker' : 'Cancelling the pick';
     this.commandFailureMessage.set(
-      outcome.status === 'failed' ? `${command} failed: ${outcome.reason}` : null,
+      outcome.status === 'failed'
+        ? `${command} failed: ${outcome.reason}`
+        : null,
     );
   }
 }

@@ -69,16 +69,29 @@ export function traceProvenance(
   const empty = { steps: [], edges: [], noDependencies: false };
 
   if (!graph || graph.unavailable || !graph.nodes) {
-    return { ...empty, selectedId: selectedId != null ? String(selectedId) : null, graphUnavailable: true, notFound: false };
+    return {
+      ...empty,
+      selectedId: selectedId != null ? String(selectedId) : null,
+      graphUnavailable: true,
+      notFound: false,
+    };
   }
 
   const nodes = graph.nodes;
   const ids = nodes.map((n) => String(n.id));
-  const selected = selectedId != null ? String(selectedId) : (nodes.find((n) => n.kind === 'template')?.id ?? null);
+  const selected =
+    selectedId != null
+      ? String(selectedId)
+      : (nodes.find((n) => n.kind === 'template')?.id ?? null);
   const selectedKey = selected != null ? String(selected) : null;
 
   if (selectedKey == null || !ids.includes(selectedKey)) {
-    return { ...empty, selectedId: selectedKey, graphUnavailable: false, notFound: true };
+    return {
+      ...empty,
+      selectedId: selectedKey,
+      graphUnavailable: false,
+      notFound: true,
+    };
   }
 
   const known = new Set(ids);
@@ -109,10 +122,21 @@ export function traceProvenance(
   for (const direction of ['producer', 'self', 'consumer'] as const) {
     nodes.forEach((n, position) => {
       const id = String(n.id);
-      const d: ProvenanceDirection = id === selectedKey ? 'self' : upstream.has(id) ? 'producer' : 'consumer';
+      const d: ProvenanceDirection =
+        id === selectedKey
+          ? 'self'
+          : upstream.has(id)
+            ? 'producer'
+            : 'consumer';
 
       if (chainIds.has(id) && d === direction) {
-        steps.push({ id, kind: n.kind ?? 'unknown', label: n.label ?? null, direction, position });
+        steps.push({
+          id,
+          kind: n.kind ?? 'unknown',
+          label: n.label ?? null,
+          direction,
+          position,
+        });
       }
     });
   }
@@ -120,7 +144,9 @@ export function traceProvenance(
   return {
     selectedId: selectedKey,
     steps,
-    edges: graphEdges.filter((e) => chainIds.has(e.producer) && chainIds.has(e.consumer)),
+    edges: graphEdges.filter(
+      (e) => chainIds.has(e.producer) && chainIds.has(e.consumer),
+    ),
     noDependencies: steps.length === 1,
     graphUnavailable: false,
     notFound: false,

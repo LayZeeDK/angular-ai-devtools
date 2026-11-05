@@ -1,6 +1,6 @@
 ---
 name: nx-cloud-ci-failure-review
-description: "Nx Cloud CI failure review"
+description: 'Nx Cloud CI failure review'
 ---
 
 # Nx Cloud CI failure review

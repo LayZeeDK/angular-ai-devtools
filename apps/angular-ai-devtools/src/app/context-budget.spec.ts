@@ -74,14 +74,22 @@ describe('context-budget constants', () => {
     expect(estimateTokens('')).toBe(0);
     expect(estimateTokens('a'.repeat(CHARS_PER_TOKEN))).toBe(1);
     expect(estimateTokens('a'.repeat(CHARS_PER_TOKEN + 1))).toBe(2);
-    expect(estimateTokens('a'.repeat(CHUNK_TOKEN_CAP * CHARS_PER_TOKEN))).toBe(CHUNK_TOKEN_CAP);
-    expect(estimateTokens('a'.repeat(CHUNK_TOKEN_CAP * CHARS_PER_TOKEN + 1))).toBe(CHUNK_TOKEN_CAP + 1);
+    expect(estimateTokens('a'.repeat(CHUNK_TOKEN_CAP * CHARS_PER_TOKEN))).toBe(
+      CHUNK_TOKEN_CAP,
+    );
+    expect(
+      estimateTokens('a'.repeat(CHUNK_TOKEN_CAP * CHARS_PER_TOKEN + 1)),
+    ).toBe(CHUNK_TOKEN_CAP + 1);
   });
 });
 
 describe('chunkFacts', () => {
   it('returns no chunks for an empty fact list', () => {
-    expect(chunkFacts([])).toEqual({ chunks: [], chunkCount: 0, chunkTokens: [] });
+    expect(chunkFacts([])).toEqual({
+      chunks: [],
+      chunkCount: 0,
+      chunkTokens: [],
+    });
   });
 
   it('keeps a list under the cap in one chunk', () => {
@@ -105,7 +113,13 @@ describe('chunkFacts', () => {
   });
 
   it('splits a list over the cap into chunks that each stay inside it', () => {
-    const facts = [fact(0, 3990), fact(1, 3990), fact(2, 3990), fact(3, 3990), fact(4, 3990)];
+    const facts = [
+      fact(0, 3990),
+      fact(1, 3990),
+      fact(2, 3990),
+      fact(3, 3990),
+      fact(4, 3990),
+    ];
 
     const result = chunkFacts(facts);
 
@@ -116,13 +130,17 @@ describe('chunkFacts', () => {
     }
     for (const [index, chunk] of result.chunks.entries()) {
       expect(result.chunkTokens[index]).toBe(estimateTokens(chunk.join('\n')));
-      expect(estimateTokens(chunk.join('\n'))).toBeLessThanOrEqual(CHUNK_TOKEN_CAP);
+      expect(estimateTokens(chunk.join('\n'))).toBeLessThanOrEqual(
+        CHUNK_TOKEN_CAP,
+      );
     }
   });
 
   it('reports a chunk count equal to the chunks it produced, at every list size', () => {
     for (const size of [1, 2, 3, 5, 9]) {
-      const facts = Array.from({ length: size }, (_, index) => fact(index, 3990));
+      const facts = Array.from({ length: size }, (_, index) =>
+        fact(index, 3990),
+      );
       const result = chunkFacts(facts);
 
       expect(result.chunkCount).toBe(result.chunks.length);
@@ -145,14 +163,20 @@ describe('chunkFacts', () => {
 
     expect(result.chunkCount).toBeGreaterThan(1);
     expect(flatten(result.chunks)).toEqual(facts);
-    expect(flatten(result.chunks).join('\n').length).toBe(facts.join('\n').length);
+    expect(flatten(result.chunks).join('\n').length).toBe(
+      facts.join('\n').length,
+    );
   });
 
   it('refuses a single fact that alone exceeds the cap, without moving the cap', () => {
     const oversized = fact(1, CHUNK_TOKEN_CAP * CHARS_PER_TOKEN + 1);
 
-    expect(() => chunkFacts([fact(0, 100), oversized, fact(2, 100)])).toThrow(RangeError);
-    expect(() => chunkFacts([oversized])).toThrow(/fact at index 0 is 2001 estimated tokens/);
+    expect(() => chunkFacts([fact(0, 100), oversized, fact(2, 100)])).toThrow(
+      RangeError,
+    );
+    expect(() => chunkFacts([oversized])).toThrow(
+      /fact at index 0 is 2001 estimated tokens/,
+    );
     expect(CHUNK_TOKEN_CAP).toBe(2000);
   });
 

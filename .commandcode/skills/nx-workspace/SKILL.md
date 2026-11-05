@@ -1,6 +1,6 @@
 ---
 name: nx-workspace
-description: "Nx Workspace Exploration"
+description: 'Nx Workspace Exploration'
 ---
 
 # Nx Workspace Exploration

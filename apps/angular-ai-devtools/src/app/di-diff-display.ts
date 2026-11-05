@@ -31,9 +31,12 @@ function tokenKey(providers: any): string {
     .join(',');
 }
 
-export function diffDiPaths(pathA: DiResolutionPath, pathB: DiResolutionPath): DiffResult {
-  const a = ((pathA && Array.isArray(pathA.path)) ? pathA.path : []).slice(0, 20);
-  const b = ((pathB && Array.isArray(pathB.path)) ? pathB.path : []).slice(0, 20);
+export function diffDiPaths(
+  pathA: DiResolutionPath,
+  pathB: DiResolutionPath,
+): DiffResult {
+  const a = (pathA && Array.isArray(pathA.path) ? pathA.path : []).slice(0, 20);
+  const b = (pathB && Array.isArray(pathB.path) ? pathB.path : []).slice(0, 20);
 
   const shared: string[] = [];
   let divergentAt = -1;
@@ -55,11 +58,15 @@ export function diffDiPaths(pathA: DiResolutionPath, pathB: DiResolutionPath): D
   const same = divergentAt === -1;
 
   const providersA =
-    divergentAt >= 0 && divergentAt < a.length && Array.isArray(a[divergentAt]?.providers)
+    divergentAt >= 0 &&
+    divergentAt < a.length &&
+    Array.isArray(a[divergentAt]?.providers)
       ? [...a[divergentAt].providers]
       : [];
   const providersB =
-    divergentAt >= 0 && divergentAt < b.length && Array.isArray(b[divergentAt]?.providers)
+    divergentAt >= 0 &&
+    divergentAt < b.length &&
+    Array.isArray(b[divergentAt]?.providers)
       ? [...b[divergentAt].providers]
       : [];
 

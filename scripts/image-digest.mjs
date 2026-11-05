@@ -27,29 +27,106 @@ export const CODES = MEASURED_CODES;
 export const IMAGE_CODES = MEASURED_CODES;
 
 export const ENTRIES_SOURCE = [
-  { code: 'NG0913', meaning: 'An image that is the LCP element was given loading="lazy".', fix: 'Change its loading value to eager or use NgOptimizedImage prioritization.' },
+  {
+    code: 'NG0913',
+    meaning: 'An image that is the LCP element was given loading="lazy".',
+    fix: 'Change its loading value to eager or use NgOptimizedImage prioritization.',
+  },
   // packages/common/src/directives/ng_optimized_image/ng_optimized_image.ts:805 (RuntimeErrorCode.UNEXPECTED_SRC_ATTR)
-  { code: 'NG2950', meaning: 'Both src and ngSrc were set on the same image.', fix: 'Remove the src attribute; the directive sets src from ngSrc.' },
+  {
+    code: 'NG2950',
+    meaning: 'Both src and ngSrc were set on the same image.',
+    fix: 'Remove the src attribute; the directive sets src from ngSrc.',
+  },
   // packages/common/src/directives/ng_optimized_image/ng_optimized_image.ts:820 (RuntimeErrorCode.UNEXPECTED_SRCSET_ATTR)
-  { code: 'NG2951', meaning: 'Both srcset and ngSrcset were set on the same image.', fix: 'Remove the srcset attribute; the directive sets srcset from ngSrcset.' },
-  { code: 'NG2952', meaning: 'NgOptimizedImage reported an invalid input (aspect ratio, fill, or dimensions).', fix: 'Correct the width, height, fill, or loading attribute per the warning.' },
+  {
+    code: 'NG2951',
+    meaning: 'Both srcset and ngSrcset were set on the same image.',
+    fix: 'Remove the srcset attribute; the directive sets srcset from ngSrcset.',
+  },
+  {
+    code: 'NG2952',
+    meaning:
+      'NgOptimizedImage reported an invalid input (aspect ratio, fill, or dimensions).',
+    fix: 'Correct the width, height, fill, or loading attribute per the warning.',
+  },
   // packages/common/src/directives/ng_optimized_image/ng_optimized_image.ts:1028 (RuntimeErrorCode.UNEXPECTED_INPUT_CHANGE)
-  { code: 'NG2953', meaning: 'An NgOptimizedImage input was updated after initialization.', fix: 'Use a static value or wrap the image in an @if gated on the value.' },
+  {
+    code: 'NG2953',
+    meaning: 'An NgOptimizedImage input was updated after initialization.',
+    fix: 'Use a static value or wrap the image in an @if gated on the value.',
+  },
   // packages/common/src/directives/ng_optimized_image/ng_optimized_image.ts:1212 (RuntimeErrorCode.REQUIRED_INPUT_MISSING)
-  { code: 'NG2954', meaning: 'Required width and height attributes are missing.', fix: 'Add width and height or enable fill mode.' },
-  { code: 'NG2955', meaning: 'An image is the LCP element but was not marked priority.', fix: 'Add the priority attribute to that image.' },
-  { code: 'NG2956', meaning: 'A priority image has no preconnect tag for its origin.', fix: 'Add a preconnect link for the image origin in the document head.' },
+  {
+    code: 'NG2954',
+    meaning: 'Required width and height attributes are missing.',
+    fix: 'Add width and height or enable fill mode.',
+  },
+  {
+    code: 'NG2955',
+    meaning: 'An image is the LCP element but was not marked priority.',
+    fix: 'Add the priority attribute to that image.',
+  },
+  {
+    code: 'NG2956',
+    meaning: 'A priority image has no preconnect tag for its origin.',
+    fix: 'Add a preconnect link for the image origin in the document head.',
+  },
   // packages/common/src/directives/ng_optimized_image/asserts.ts:21 (RuntimeErrorCode.UNEXPECTED_DEV_MODE_CHECK_IN_PROD_MODE)
-  { code: 'NG2958', meaning: 'A dev-mode check ran in production mode.', fix: 'Ensure production mode is enabled for production builds.' },
-  { code: 'NG2959', meaning: 'The Netlify image loader saw an unsupported attribute.', fix: 'Remove the unsupported attribute from the img tag.' },
-  { code: 'NG2960', meaning: 'The intrinsic image is significantly larger than necessary.', fix: 'Resize the image or use ngSrcset and sizes.' },
-  { code: 'NG2961', meaning: 'More than the default preloaded image limit were marked priority.', fix: 'Remove priority from less important images.' },
-  { code: 'NG2962', meaning: 'Images look hosted on a CDN but no matching loader is configured.', fix: 'Provide the built-in loader or define a custom IMAGE_LOADER.' },
-  { code: 'NG2963', meaning: 'ngSrcset or loaderParams is present but no image loader is configured.', fix: 'Provide a loader or remove ngSrcset and loaderParams.' },
-  { code: 'NG2964', meaning: 'An LCP image had its ngSrc modified after render.', fix: 'Do not modify ngSrc on an LCP image.' },
-  { code: 'NG2965', meaning: 'A placeholder data URL is longer than the recommended limit.', fix: 'Use a smaller data URL placeholder.' },
-  { code: 'NG2966', meaning: 'The priority attribute is set more than the threshold number of times.', fix: 'Reserve priority for the LCP image only.' },
-  { code: 'NG2967', meaning: 'A placeholder image exceeds the dimension limit.', fix: 'Use a smaller image as the placeholder.' },
+  {
+    code: 'NG2958',
+    meaning: 'A dev-mode check ran in production mode.',
+    fix: 'Ensure production mode is enabled for production builds.',
+  },
+  {
+    code: 'NG2959',
+    meaning: 'The Netlify image loader saw an unsupported attribute.',
+    fix: 'Remove the unsupported attribute from the img tag.',
+  },
+  {
+    code: 'NG2960',
+    meaning: 'The intrinsic image is significantly larger than necessary.',
+    fix: 'Resize the image or use ngSrcset and sizes.',
+  },
+  {
+    code: 'NG2961',
+    meaning:
+      'More than the default preloaded image limit were marked priority.',
+    fix: 'Remove priority from less important images.',
+  },
+  {
+    code: 'NG2962',
+    meaning:
+      'Images look hosted on a CDN but no matching loader is configured.',
+    fix: 'Provide the built-in loader or define a custom IMAGE_LOADER.',
+  },
+  {
+    code: 'NG2963',
+    meaning:
+      'ngSrcset or loaderParams is present but no image loader is configured.',
+    fix: 'Provide a loader or remove ngSrcset and loaderParams.',
+  },
+  {
+    code: 'NG2964',
+    meaning: 'An LCP image had its ngSrc modified after render.',
+    fix: 'Do not modify ngSrc on an LCP image.',
+  },
+  {
+    code: 'NG2965',
+    meaning: 'A placeholder data URL is longer than the recommended limit.',
+    fix: 'Use a smaller data URL placeholder.',
+  },
+  {
+    code: 'NG2966',
+    meaning:
+      'The priority attribute is set more than the threshold number of times.',
+    fix: 'Reserve priority for the LCP image only.',
+  },
+  {
+    code: 'NG2967',
+    meaning: 'A placeholder image exceeds the dimension limit.',
+    fix: 'Use a smaller image as the placeholder.',
+  },
 ];
 
 const LICENSE_PATTERN = /MIT License|Google LLC|licensed under/i;
@@ -90,7 +167,8 @@ export function counterStatus(count) {
 }
 
 export function reddens(textOrCount) {
-  const count = typeof textOrCount === 'number' ? textOrCount : countTokens(textOrCount);
+  const count =
+    typeof textOrCount === 'number' ? textOrCount : countTokens(textOrCount);
   return count > TOKEN_LIMIT;
 }
 
@@ -141,7 +219,13 @@ export function unknown(code) {
 
 export function assertNoLicense(list = entries) {
   for (const entry of list) {
-    const text = [entry.code, entry.title, entry.body, entry.meaning, entry.fix].join(' ');
+    const text = [
+      entry.code,
+      entry.title,
+      entry.body,
+      entry.meaning,
+      entry.fix,
+    ].join(' ');
     if (hasLicense(text)) {
       throw new Error(`license text survived in entry ${entry.code}`);
     }

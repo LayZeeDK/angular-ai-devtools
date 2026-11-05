@@ -41,22 +41,32 @@ function nodeById(graph: SignalGraph): Map<string, SignalGraphNode> {
   return m;
 }
 
-function resolveEndpoint(graph: SignalGraph, value: string | number | undefined): string | undefined {
+function resolveEndpoint(
+  graph: SignalGraph,
+  value: string | number | undefined,
+): string | undefined {
   if (value === undefined || value === null) return undefined;
-  if (typeof value === "number") {
+  if (typeof value === 'number') {
     const node = graph.nodes?.[value];
     return node ? node.id : String(value);
   }
   return String(value);
 }
 
-function outgoing(graph: SignalGraph, id: string, node: SignalGraphNode): string[] {
+function outgoing(
+  graph: SignalGraph,
+  id: string,
+  node: SignalGraphNode,
+): string[] {
   const set = new Set<string>();
   for (const d of node.dependents ?? node.consumers ?? []) set.add(String(d));
   for (const d of node.producers ?? []) set.add(String(d));
   if (graph.edges) {
     for (const e of graph.edges) {
-      const from = resolveEndpoint(graph, e.from as string | number | undefined);
+      const from = resolveEndpoint(
+        graph,
+        e.from as string | number | undefined,
+      );
       const to = resolveEndpoint(graph, e.to as string | number | undefined);
       const consumer = resolveEndpoint(graph, e.consumer);
       const producer = resolveEndpoint(graph, e.producer);
@@ -80,17 +90,34 @@ export function traceProvenance(
   selectedId: string,
 ): ProvenanceChain {
   if (!graph || !Array.isArray(graph.nodes)) {
-    return { selected: selectedId, chain: [], unavailable: true, reason: "graph unavailable" };
+    return {
+      selected: selectedId,
+      chain: [],
+      unavailable: true,
+      reason: 'graph unavailable',
+    };
   }
   if ((graph as { unavailable?: boolean }).unavailable === true) {
-    return { selected: selectedId, chain: [], unavailable: true, reason: "graph unavailable" };
+    return {
+      selected: selectedId,
+      chain: [],
+      unavailable: true,
+      reason: 'graph unavailable',
+    };
   }
   const byId = nodeById(graph);
   if (!byId.has(selectedId)) {
-    return { selected: selectedId, chain: [], unavailable: true, reason: "selected node not found" };
+    return {
+      selected: selectedId,
+      chain: [],
+      unavailable: true,
+      reason: 'selected node not found',
+    };
   }
   // Detect Angular's "graph unavailable" marker: a missing template node.
-  const hasTemplate = graph.nodes.some((n) => n.kind === "template" || n.kind === "Template");
+  const hasTemplate = graph.nodes.some(
+    (n) => n.kind === 'template' || n.kind === 'Template',
+  );
   if (!hasTemplate && graph.nodes.length > 0) {
     // Not necessarily unavailable for arbitrary recorded data; only mark when explicitly flagged.
   }

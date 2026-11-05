@@ -1,5 +1,5 @@
 (function () {
-  "use strict";
+  'use strict';
 
   function isConfig(config) {
     return Array.isArray(config);
@@ -8,14 +8,15 @@
   function findRoute(config, path) {
     for (let i = 0; i < config.length; i += 1) {
       const route = config[i];
-      if (route && typeof route === "object" && route.path === path) return route;
+      if (route && typeof route === 'object' && route.path === path)
+        return route;
     }
     return null;
   }
 
   function walk(config, requestedPath) {
     if (!isConfig(config)) {
-      return { state: "cannot-tell", reason: "unreadable-configuration" };
+      return { state: 'cannot-tell', reason: 'unreadable-configuration' };
     }
     const chain = [];
     const visited = new Set();
@@ -32,10 +33,20 @@
         break;
       }
       if (visited.has(current)) {
-        return { state: "cycle", route: current, chain: chain, destination: destination };
+        return {
+          state: 'cycle',
+          route: current,
+          chain: chain,
+          destination: destination,
+        };
       }
       visited.add(current);
-      chain.push({ path: route.path, redirectTo: route.redirectTo, canActivate: Array.isArray(route.canActivate), loadChildren: !!route.loadChildren });
+      chain.push({
+        path: route.path,
+        redirectTo: route.redirectTo,
+        canActivate: Array.isArray(route.canActivate),
+        loadChildren: !!route.loadChildren,
+      });
 
       if (Array.isArray(route.canActivate) && route.canActivate.length > 0) {
         gated = true;
@@ -60,9 +71,9 @@
       destination = route.path;
       break;
     }
-    // cycle detection by revisit handled above; but if loop exhausted treat as cycle? 
+    // cycle detection by revisit handled above; but if loop exhausted treat as cycle?
     return {
-      state: "redirected",
+      state: 'redirected',
       chain: chain,
       destination: destination,
       changedAt: changedAt,
@@ -73,6 +84,7 @@
 
   const namespace = { walk, chain: walk, resolve: walk };
   const g = globalThis;
-  if (g.angularAiRedirectChain) Object.assign(g.angularAiRedirectChain, namespace);
+  if (g.angularAiRedirectChain)
+    Object.assign(g.angularAiRedirectChain, namespace);
   else g.angularAiRedirectChain = namespace;
 })();

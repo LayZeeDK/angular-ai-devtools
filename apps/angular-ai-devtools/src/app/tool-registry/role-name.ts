@@ -80,7 +80,8 @@
  */
 
 /** Where a control's accessible name came from. `null` when it has none. */
-export type AccessibleNameSource = 'aria-labelledby' | 'aria-label' | 'native' | 'content';
+export type AccessibleNameSource =
+  'aria-labelledby' | 'aria-label' | 'native' | 'content';
 
 /** The one reason this module reports for an element it cannot name. */
 export type AccessibleNameReason = 'no accessible name';
@@ -207,7 +208,11 @@ export function describeElement(element: Element): RoleNameResult {
   return computeAccessibleName(element, computeRole(element));
 }
 
-function named(role: string | null, name: string, source: AccessibleNameSource): RoleNameResult {
+function named(
+  role: string | null,
+  name: string,
+  source: AccessibleNameSource,
+): RoleNameResult {
   return { role, name, source, reason: null };
 }
 
@@ -221,7 +226,9 @@ function explicitRole(element: Element): string | null {
   if (attribute === null) {
     return null;
   }
-  const tokens = attribute.split(WHITESPACE).filter((token) => token.length > 0);
+  const tokens = attribute
+    .split(WHITESPACE)
+    .filter((token) => token.length > 0);
   return tokens.length === 0 ? null : (tokens[0] ?? null);
 }
 
@@ -306,7 +313,9 @@ function nativeName(element: Element): string | null {
     case 'table':
       return captionText(element);
     default:
-      return LABEL_NAMED_CONTROLS.has(element.localName) ? labelText(element) : null;
+      return LABEL_NAMED_CONTROLS.has(element.localName)
+        ? labelText(element)
+        : null;
   }
 }
 
@@ -315,7 +324,9 @@ function labelText(element: Element): string | null {
   const id = element.getAttribute('id');
   if (id !== null && id.length > 0) {
     const parts: string[] = [];
-    for (const label of Array.from(treeRoot(element).querySelectorAll('label'))) {
+    for (const label of Array.from(
+      treeRoot(element).querySelectorAll('label'),
+    )) {
       if (label.getAttribute('for') === id) {
         parts.push(contentText(label, true));
       }
@@ -361,7 +372,9 @@ function nameFromLabelledBy(element: Element): string | null {
     return null;
   }
   const parts: string[] = [];
-  for (const id of attribute.split(WHITESPACE).filter((token) => token.length > 0)) {
+  for (const id of attribute
+    .split(WHITESPACE)
+    .filter((token) => token.length > 0)) {
     const referenced = elementById(element, id);
     if (referenced !== null) {
       // An id that resolves to nothing contributes nothing: it does not invent a name.
@@ -373,7 +386,9 @@ function nameFromLabelledBy(element: Element): string | null {
 
 /** The first element in the same tree as `element` that carries `id`, excluding `element` itself. */
 function elementById(element: Element, id: string): Element | null {
-  for (const candidate of Array.from(treeRoot(element).querySelectorAll('[id]'))) {
+  for (const candidate of Array.from(
+    treeRoot(element).querySelectorAll('[id]'),
+  )) {
     if (candidate !== element && candidate.getAttribute('id') === id) {
       return candidate;
     }
@@ -388,7 +403,11 @@ function elementById(element: Element, id: string): Element | null {
  */
 function treeRoot(element: Element): Element | Document | DocumentFragment {
   const root = element.getRootNode();
-  if (root instanceof Element || root instanceof Document || root instanceof DocumentFragment) {
+  if (
+    root instanceof Element ||
+    root instanceof Document ||
+    root instanceof DocumentFragment
+  ) {
     return root;
   }
   return element.ownerDocument;

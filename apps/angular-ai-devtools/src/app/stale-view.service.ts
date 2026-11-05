@@ -9,18 +9,30 @@ export interface StaleViewFactList {
   pattern: 'direct write in subscribe callback';
 }
 
-export type StaleViewPromptResult = { ok: boolean; text?: string; error?: string };
+export type StaleViewPromptResult = {
+  ok: boolean;
+  text?: string;
+  error?: string;
+};
 
 export function missingStaleViewFact(finding: unknown): string | null {
   if (!finding || typeof finding !== 'object') return 'finding';
   const f = finding as Record<string, unknown>;
-  if (typeof f['field'] !== 'string' || (f['field'] as string).trim() === '') return 'field name';
-  if (typeof f['component'] !== 'string' || (f['component'] as string).trim() === '') return 'owning component';
-  if (f['pattern'] !== 'direct write in subscribe callback') return 'pattern label';
+  if (typeof f['field'] !== 'string' || (f['field'] as string).trim() === '')
+    return 'field name';
+  if (
+    typeof f['component'] !== 'string' ||
+    (f['component'] as string).trim() === ''
+  )
+    return 'owning component';
+  if (f['pattern'] !== 'direct write in subscribe callback')
+    return 'pattern label';
   return null;
 }
 
-export function shapeStaleViewFactList(finding: unknown): StaleViewFactList | null {
+export function shapeStaleViewFactList(
+  finding: unknown,
+): StaleViewFactList | null {
   const missing = missingStaleViewFact(finding);
   if (missing) return null;
   const f = finding as Record<string, unknown>;
@@ -41,7 +53,8 @@ export const buildStaleViewFacts = (finding: unknown): string[] | null => {
   return [fl.field, fl.component ?? 'no owning component', fl.pattern];
 };
 export const buildFacts = buildStaleViewFacts;
-export const canShapeFactList = (finding: unknown): boolean => missingStaleViewFact(finding) === null;
+export const canShapeFactList = (finding: unknown): boolean =>
+  missingStaleViewFact(finding) === null;
 export const canShape = canShapeFactList;
 
 @Injectable({ providedIn: 'root' })
@@ -78,6 +91,10 @@ export class StaleViewService {
     const res = await this.prompt.explainFacts(facts);
     if (res.ok) this.answer.set(res.text);
     else this.missingFact.set(null);
-    return { ok: res.ok, text: res.ok ? res.text : undefined, error: res.ok ? undefined : res.error };
+    return {
+      ok: res.ok,
+      text: res.ok ? res.text : undefined,
+      error: res.ok ? undefined : res.error,
+    };
   }
 }
