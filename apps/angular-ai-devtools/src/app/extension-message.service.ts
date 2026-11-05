@@ -8,6 +8,7 @@ import type {
 import type { ReplayOutcome } from './panel-context';
 import { CAPACITY } from '../../../../src/main-world/error-capture';
 import type { CapturedError } from '../../../../src/main-world/error-capture';
+import { readCount, readVersion } from './wire-readers';
 
 /**
  * The picker's three named states, carried out of the page as `CustomEvent('angular-ai:picker-state')`,
@@ -401,9 +402,9 @@ function readCompanionRecord(value: unknown): CompanionRecord | null {
   }
   return {
     state: state as CompanionRecordState,
-    version: readCompanionVersion(record['version']),
-    declared: readCompanionCount(record['declared']),
-    resolved: readCompanionCount(record['resolved']),
+    version: readVersion(record['version']),
+    declared: readCount(record['declared']),
+    resolved: readCount(record['resolved']),
     symbols,
   };
 }
@@ -425,20 +426,6 @@ function readCompanionSymbol(value: unknown): CompanionSymbol | null {
     return null;
   }
   return { pkg, name };
-}
-
-/** The version the entry declared, or `null` when the payload carried no usable one. */
-function readCompanionVersion(value: unknown): string | null {
-  return typeof value === 'string' && value.trim().length > 0
-    ? value.trim()
-    : null;
-}
-
-/** A declared/resolved count, or `0` when the payload carried no non-negative whole number. */
-function readCompanionCount(value: unknown): number {
-  return typeof value === 'number' && Number.isFinite(value) && value >= 0
-    ? Math.trunc(value)
-    : 0;
 }
 
 /** The three states the page's overlay publishes; anything else is not an answer (T007). */
