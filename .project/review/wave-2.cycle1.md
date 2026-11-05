@@ -16,7 +16,7 @@ Reviewed HEAD: 7c484804f6c92c7c5eca010a6bea09721bf268fc
 
 ## Intent coverage
 
-### SC4 — The panel renders the field set, each field's state and the submit state from a short fact list, and shows the
+### SC4 — The panel renders the field set, each field's state and the submit state from a short fact list, and shows the "cannot tell" state.: pass
    "cannot tell" state.: pass
 
 - ✅ `panel-fields.test.mjs` exercises loading, fields (validity/own errors/submit), root-kind rendering, cannot-tell, and error states; all 9 tests pass.
