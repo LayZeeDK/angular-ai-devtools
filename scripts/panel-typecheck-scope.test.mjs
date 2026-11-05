@@ -117,6 +117,9 @@ const CHECK_STAGES = [
   'npm run check:panel',
   'npm run check:extension',
   'npm run check:companion',
+  // Added when the repository adopted Prettier: the tree is formatted, so an unformatted
+  // commit is a failing check rather than a later surprise. Named in position, not loosened.
+  'npm run format:check',
 ];
 
 /** The TypeScript entry point the npm scripts resolve through `node_modules/.bin`. Driving the
