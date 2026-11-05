@@ -2,10 +2,10 @@
 id: T009
 title: Retry the workspace teardown on a locked directory
 wave: 7
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: orchestrator
+base: 28f37f0459100a53682200c5132a7d6ac177f8e2
 worktree: null
 task_branch: null
 files:

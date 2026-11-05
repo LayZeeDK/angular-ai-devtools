@@ -53,7 +53,16 @@ import {
  */
 function workspace(t, files) {
   const dir = mkdtempSync(join(tmpdir(), 'control-pangular-'));
-  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  // Windows refuses to remove a directory a spawned child still holds; force only
+  // suppresses ENOENT, so the handle is waited out rather than failing the test.
+  t.after(() =>
+    rmSync(dir, {
+      recursive: true,
+      force: true,
+      maxRetries: 10,
+      retryDelay: 100,
+    }),
+  );
 
   for (const [p, text] of Object.entries(files)) {
     mkdirSync(dirname(join(dir, p)), { recursive: true });
