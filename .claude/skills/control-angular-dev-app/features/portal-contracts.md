@@ -35,8 +35,8 @@ Preconditions:
   `playwright-cli -s=<session> --raw eval "() => document.querySelectorAll('table tbody tr').length"` returns
   `20`; snapshot shows the six column headers.
 - **Details.** `playwright-cli -s=<session> click "getByRole('row').nth(1)"`, then `run-code "async page => {
-  await page.waitForURL(/\/contract\/.+\/details/); await page.waitForLoadState('networkidle'); return
-  page.url(); }"`. Snapshot shows the `Contract Details` title with a separate `Edit` button, the policy number of the clicked row and
+await page.waitForURL(/\/contract\/.+\/details/); await page.waitForLoadState('networkidle'); return
+page.url(); }"`. Snapshot shows the `Contract Details` title with a separate `Edit` button, the policy number of the clicked row and
   `link "<customer name>"` with `/url: /customer/<id>/details`.
 - **API side effect.** `playwright-cli -s=<session> requests` lists `GET http://localhost:3000/api/contracts/<id>`.
 - **Angular state.** `eval "() => __ngc.components()"` on details lists `DetailsComponent`,
@@ -44,16 +44,16 @@ Preconditions:
   shows its inputs (`withComponentInputBinding` passes the route `id`).
 - **Edit.** On details, `playwright-cli -s=<session> click "getByRole('button', { name: 'Edit' })"`, wait for
   `/\/contract\/.+\/edit/`; `fill <policynumber textbox ref> "99999999"`; `click "getByRole('button', { name:
-  'Save' })"`. The URL returns to `/details`, the snapshot shows `"99999999"`, `requests` shows
+'Save' })"`. The URL returns to `/details`, the snapshot shows `"99999999"`, `requests` shows
   `[PUT] http://localhost:3000/api/contracts => [200]`.
 - **Create form.** Sidebar Contract `Create`; snapshot shows heading `Contract Create`, `combobox "Select
-  customer"`, an unnamed `textbox` (Policynumber), an unnamed `combobox` (Insurance Start On) and
+customer"`, an unnamed `textbox` (Policynumber), an unnamed `combobox` (Insurance Start On) and
   `button "Save" [disabled]`.
 - **Create and save.** One `run-code`: `async page => { await page.getByRole('combobox', { name: 'Select
-  customer' }).click(); await page.getByRole('option').first().click(); await
-  page.locator('input[type=text]').nth(0).fill('12345678'); const d = page.getByRole('combobox').last(); await
-  d.click(); await page.getByRole('grid').getByText('15', { exact: true }).first().click(); return await
-  d.inputValue(); }`, then click `Save`; the URL becomes `/contract/<id>/details` and `requests` shows
+customer' }).click(); await page.getByRole('option').first().click(); await
+page.locator('input[type=text]').nth(0).fill('12345678'); const d = page.getByRole('combobox').last(); await
+d.click(); await page.getByRole('grid').getByText('15', { exact: true }).first().click(); return await
+d.inputValue(); }`, then click `Save`; the URL becomes `/contract/<id>/details` and `requests` shows
   `[POST] http://localhost:3000/api/contracts => [201] Created`.
 - **Proof.** Snapshots before and after the row click, plus
   `screenshot --filename=<evidenceDir>/contract-details.png`.

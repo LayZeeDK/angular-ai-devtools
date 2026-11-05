@@ -27,14 +27,18 @@ import { instanceState, loadRegistry, realDeps } from './state.mjs';
  */
 export function check({ evidence, name }, registry, deps) {
   if (!Object.hasOwn(registry, name)) {
-    throw new Error(`unknown instance ${name}; instances: ${Object.keys(registry).join(', ')}`);
+    throw new Error(
+      `unknown instance ${name}; instances: ${Object.keys(registry).join(', ')}`,
+    );
   }
 
   const want = /** @type {RegistryInstance} */ (registry[name]);
   const init = deps.control(['model', 'init', name]);
 
   if (init.json === null || init.code === 2 || init.code === null) {
-    throw new Error(`model init ${name} exited ${init.code}: ${String(init.json?.['reason'] ?? init.text.trim().slice(-300))}`);
+    throw new Error(
+      `model init ${name} exited ${init.code}: ${String(init.json?.['reason'] ?? init.text.trim().slice(-300))}`,
+    );
   }
 
   const state = instanceState(name, want, deps);
@@ -43,7 +47,13 @@ export function check({ evidence, name }, registry, deps) {
     join(evidence, 'model-init.json'),
     JSON.stringify(
       {
-        init: { exit: init.code, contextWindow, firstCreateMs: init.json['firstCreateMs'] ?? null, secondCreateMs: init.json['secondCreateMs'] ?? null, answer: init.json['answer'] ?? null },
+        init: {
+          exit: init.code,
+          contextWindow,
+          firstCreateMs: init.json['firstCreateMs'] ?? null,
+          secondCreateMs: init.json['secondCreateMs'] ?? null,
+          answer: init.json['answer'] ?? null,
+        },
         state,
       },
       null,
@@ -63,7 +73,9 @@ export function check({ evidence, name }, registry, deps) {
   }
 
   if (contextWindow !== want.model.contextWindow) {
-    failed.push(`contextWindow ${JSON.stringify(contextWindow)}, registry ${want.model.contextWindow}`);
+    failed.push(
+      `contextWindow ${JSON.stringify(contextWindow)}, registry ${want.model.contextWindow}`,
+    );
   }
 
   failed.push(...state.failed);
@@ -81,7 +93,12 @@ export function check({ evidence, name }, registry, deps) {
  */
 export function main(argv, makeDeps, load) {
   try {
-    const { values, positionals } = parseArgs({ args: argv, options: { evidence: { type: 'string' } }, allowPositionals: true, strict: true });
+    const { values, positionals } = parseArgs({
+      args: argv,
+      options: { evidence: { type: 'string' } },
+      allowPositionals: true,
+      strict: true,
+    });
     const [name, ...rest] = positionals;
 
     if (!values.evidence || name === undefined || rest.length > 0) {
@@ -99,12 +116,20 @@ export function main(argv, makeDeps, load) {
       return 1;
     }
 
-    console.error(printable(`[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`));
+    console.error(
+      printable(
+        `[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`,
+      ),
+    );
 
     return 2;
   }
 }
 
-if (process.argv[1] && realpathSync.native(resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+if (
+  process.argv[1] &&
+  realpathSync.native(resolve(process.argv[1])) ===
+    realpathSync.native(fileURLToPath(import.meta.url))
+) {
   process.exitCode = main(process.argv.slice(2), realDeps, loadRegistry);
 }

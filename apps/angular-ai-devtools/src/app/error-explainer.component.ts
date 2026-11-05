@@ -1,8 +1,15 @@
 import { Component, inject, signal } from '@angular/core';
 import { ExtensionMessageService } from './extension-message.service';
 import { ExtensionPromptService } from './extension-prompt.service';
-import { buildErrorExplainFacts, resolveDigest, shouldCallModel } from '../../../../src/panel/error-explainer-view';
-import { NO_OWN_COMPONENT, EMPTY_STATE } from '../../../../src/main-world/error-capture';
+import {
+  buildErrorExplainFacts,
+  resolveDigest,
+  shouldCallModel,
+} from '../../../../src/panel/error-explainer-view';
+import {
+  NO_OWN_COMPONENT,
+  EMPTY_STATE,
+} from '../../../../src/main-world/error-capture';
 import { NO_DIGEST_ENTRY } from '../../../../src/main-world/error-digest';
 import errorDigest from '../../../../extension/error-digest.json';
 
@@ -16,8 +23,12 @@ import errorDigest from '../../../../extension/error-digest.json';
       @for (err of ext.capturedErrors(); track err.timestamp) {
         <div class="error" data-testid="captured-error">
           <span class="code" data-testid="error-code">{{ err.code }}</span>
-          <span class="component" data-testid="owning-component">{{ err.component ?? '${NO_OWN_COMPONENT}' }}</span>
-          <span class="digest" data-testid="digest-entry">{{ digestBody(err) }}</span>
+          <span class="component" data-testid="owning-component">{{
+            err.component ?? '${NO_OWN_COMPONENT}'
+          }}</span>
+          <span class="digest" data-testid="digest-entry">{{
+            digestBody(err)
+          }}</span>
           <button (click)="explain(err)" data-testid="explain">Explain</button>
         </div>
       }
@@ -26,7 +37,14 @@ import errorDigest from '../../../../extension/error-digest.json';
       }
     }
   `,
-  styles: [`h2{font-size:14px;margin:0;}`],
+  styles: [
+    `
+      h2 {
+        font-size: 14px;
+        margin: 0;
+      }
+    `,
+  ],
 })
 export class ErrorExplainerComponent {
   protected readonly ext = inject(ExtensionMessageService);

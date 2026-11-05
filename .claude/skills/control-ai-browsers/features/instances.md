@@ -31,7 +31,7 @@ Preconditions: the README baseline, except that `up` also works on a stopped ins
 - **Down and up.** Run `C attach chrome-beta-nano`, `C down chrome-beta-nano` (port free, state file
   removed), then `C up chrome-beta-nano`. The `up` line names the PID, backend and time to ready.
 - **Change backend.** Run `C down chrome-beta-gemma4`, then `C up chrome-beta-gemma4 --backend=cpu`; `C doctor
-  chrome-beta-gemma4` shows `backend` `requested cpu`, Broker State `CPU`. Go back with `down` and `up`.
+chrome-beta-gemma4` shows `backend` `requested cpu`, Broker State `CPU`. Go back with `down` and `up`.
 - **Refusals.** `C up edge-dev-aion --backend=cpu` exits 2 before anything starts. `up` on a running
   instance with another backend exits 2 and says to stop it first.
 - **Proof.** The `up`, doctor and `down` JSON in one evidence directory, and `C instances` afterwards.

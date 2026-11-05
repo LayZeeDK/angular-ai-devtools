@@ -1,9 +1,20 @@
 import assert from 'node:assert/strict';
-import { lstatSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import {
+  lstatSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { bridgeSidecarDeps, isBridgeCorrect, unlinkSidecarDeps } from './sidecar-deps-bridge.mjs';
+import {
+  bridgeSidecarDeps,
+  isBridgeCorrect,
+  unlinkSidecarDeps,
+} from './sidecar-deps-bridge.mjs';
 
 function setup() {
   const root = mkdtempSync(join(tmpdir(), 'bridge-'));
@@ -89,7 +100,11 @@ test('junction-removed', () => {
   assert.equal(u.removed, true);
   // path gone
   let exists = true;
-  try { lstatSync(bridgePath); } catch { exists = false; }
+  try {
+    lstatSync(bridgePath);
+  } catch {
+    exists = false;
+  }
   assert.equal(exists, false);
   rmSync(root, { recursive: true, force: true });
 });

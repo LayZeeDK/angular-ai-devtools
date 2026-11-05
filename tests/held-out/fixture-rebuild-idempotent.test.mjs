@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
+import {
+  existsSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+} from 'node:fs';
 import { createServer } from 'node:http';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import test from 'node:test';
@@ -10,7 +16,14 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..');
 const FIXTURE_ROOT = join(REPO_ROOT, 'spikes', 'ng222-app');
-const FIXTURE_NG_CLI = join(FIXTURE_ROOT, 'node_modules', '@angular', 'cli', 'bin', 'ng.js');
+const FIXTURE_NG_CLI = join(
+  FIXTURE_ROOT,
+  'node_modules',
+  '@angular',
+  'cli',
+  'bin',
+  'ng.js',
+);
 const FIXTURE_PACKAGE_JSON = join(FIXTURE_ROOT, 'package.json');
 
 const CYCLE_ONE_OUTPUT = join(REPO_ROOT, 'tmp', 'rebuild-idempotent-cycle-1');
@@ -97,14 +110,19 @@ function componentInstallOccurrences() {
     }
   }
   walk(nodeModules);
-  return occurrences.sort((a, b) => a.name.localeCompare(b.name) || a.path.localeCompare(b.path));
+  return occurrences.sort(
+    (a, b) => a.name.localeCompare(b.name) || a.path.localeCompare(b.path),
+  );
 }
 
 function componentInstallSet(occurrences = componentInstallOccurrences()) {
   const grouped = {};
   for (const name of COMPONENT_PACKAGES) grouped[name] = [];
   for (const occurrence of occurrences) {
-    grouped[occurrence.name].push({ version: occurrence.version, path: occurrence.path });
+    grouped[occurrence.name].push({
+      version: occurrence.version,
+      path: occurrence.path,
+    });
   }
   for (const name of COMPONENT_PACKAGES) {
     grouped[name].sort((a, b) => a.path.localeCompare(b.path));
@@ -118,7 +136,9 @@ function componentInstallSet(occurrences = componentInstallOccurrences()) {
  */
 function assertSingleInstall(moment, occurrences) {
   for (const name of COMPONENT_PACKAGES) {
-    const matching = occurrences.filter((occurrence) => occurrence.name === name);
+    const matching = occurrences.filter(
+      (occurrence) => occurrence.name === name,
+    );
     assert.equal(
       matching.length,
       1,
@@ -159,12 +179,23 @@ function buildCycle(outputDirectory) {
     `the build must report a completed bundle: ${result.output}`,
   );
   const browserDirectory = join(outputDirectory, 'browser');
-  assert.ok(existsSync(browserDirectory), `the build must emit ${displayPath(browserDirectory)}`);
+  assert.ok(
+    existsSync(browserDirectory),
+    `the build must emit ${displayPath(browserDirectory)}`,
+  );
   const entryDocumentPath = join(browserDirectory, 'index.html');
-  assert.ok(existsSync(entryDocumentPath), `the served entry document must exist: ${displayPath(entryDocumentPath)}`);
+  assert.ok(
+    existsSync(entryDocumentPath),
+    `the served entry document must exist: ${displayPath(entryDocumentPath)}`,
+  );
   const entryDocument = readFileSync(entryDocumentPath);
-  const browserFiles = readdirSync(browserDirectory).filter((name) => name.endsWith('.js')).sort();
-  assert.ok(browserFiles.length > 0, 'the build must emit at least one browser bundle');
+  const browserFiles = readdirSync(browserDirectory)
+    .filter((name) => name.endsWith('.js'))
+    .sort();
+  assert.ok(
+    browserFiles.length > 0,
+    'the build must emit at least one browser bundle',
+  );
   return { browserDirectory, entryDocument, browserFiles };
 }
 
@@ -197,13 +228,23 @@ function entryScriptName(documentText, label, origin) {
  */
 async function serveAndFetch(browserDirectory, label) {
   const server = createServer((request, response) => {
-    const requestPath = decodeURIComponent(new URL(request.url ?? '/', 'http://127.0.0.1').pathname);
-    const candidate = resolve(browserDirectory, `.${requestPath === '/' ? '/index.html' : requestPath}`);
+    const requestPath = decodeURIComponent(
+      new URL(request.url ?? '/', 'http://127.0.0.1').pathname,
+    );
+    const candidate = resolve(
+      browserDirectory,
+      `.${requestPath === '/' ? '/index.html' : requestPath}`,
+    );
     const served = relative(browserDirectory, candidate);
-    const insideOutput = !served.startsWith('..') && !served.includes(`..${sep}`);
-    const isFile = insideOutput && existsSync(candidate) && statSync(candidate).isFile();
+    const insideOutput =
+      !served.startsWith('..') && !served.includes(`..${sep}`);
+    const isFile =
+      insideOutput && existsSync(candidate) && statSync(candidate).isFile();
     if (!isFile) {
-      response.writeHead(404, { 'content-type': 'text/plain; charset=utf-8', connection: 'close' });
+      response.writeHead(404, {
+        'content-type': 'text/plain; charset=utf-8',
+        connection: 'close',
+      });
       response.end('not found');
       return;
     }
@@ -258,7 +299,11 @@ async function serveAndFetch(browserDirectory, label) {
       `${SUITE}: GET ${origin}/ after the ${label} cycle must serve a non-empty entry document`,
     );
 
-    const scriptName = entryScriptName(entry.body.toString('utf8'), label, origin);
+    const scriptName = entryScriptName(
+      entry.body.toString('utf8'),
+      label,
+      origin,
+    );
     const bundle = await fetchPath(`/${scriptName}`);
     assert.equal(
       bundle.status,
@@ -287,13 +332,20 @@ async function serveAndFetch(browserDirectory, label) {
   }
 }
 
-const MISSING_FIXTURE_INSTALL = existsSync(FIXTURE_NG_CLI) &&
-  COMPONENT_PACKAGES.every((name) => existsSync(join(FIXTURE_ROOT, 'node_modules', ...name.split('/'))))
-  ? false
-  : `the fixture install is absent (${displayPath(join(FIXTURE_ROOT, 'node_modules'))}); run npm --prefix spikes/ng222-app ci --include=dev`;
+const MISSING_FIXTURE_INSTALL =
+  existsSync(FIXTURE_NG_CLI) &&
+  COMPONENT_PACKAGES.every((name) =>
+    existsSync(join(FIXTURE_ROOT, 'node_modules', ...name.split('/'))),
+  )
+    ? false
+    : `the fixture install is absent (${displayPath(join(FIXTURE_ROOT, 'node_modules'))}); run npm --prefix spikes/ng222-app ci --include=dev`;
 
 function requirePrerequisite(missing) {
-  assert.equal(missing, false, `${SUITE}: the rebuild-idempotency proof cannot run: ${missing}`);
+  assert.equal(
+    missing,
+    false,
+    `${SUITE}: the rebuild-idempotency proof cannot run: ${missing}`,
+  );
 }
 
 test('fixture rebuild idempotent: same entry served and no duplicate component-package install', async () => {
@@ -312,7 +364,9 @@ test('fixture rebuild idempotent: same entry served and no duplicate component-p
   }
 
   // Each component package must be installed exactly once before the first cycle.
-  const before = measureComponentInstallSet('before the first build and serve cycle');
+  const before = measureComponentInstallSet(
+    'before the first build and serve cycle',
+  );
 
   // First build and serve cycle: the build runs, then the built entry is served and fetched.
   const cycleOne = buildCycle(CYCLE_ONE_OUTPUT);
@@ -379,7 +433,9 @@ test('fixture rebuild idempotent: same entry served and no duplicate component-p
   );
 
   // The component-package install set must be identical after the second cycle.
-  const afterTwo = measureComponentInstallSet('after the second build and serve cycle');
+  const afterTwo = measureComponentInstallSet(
+    'after the second build and serve cycle',
+  );
   assert.deepEqual(
     afterTwo.installSet,
     before.installSet,
@@ -392,7 +448,10 @@ test('fixture rebuild idempotent: same entry served and no duplicate component-p
     `${SUITE}: the component-package install set after the second build and serve cycle must be identical to the set ` +
       `measured between the cycles, found ${JSON.stringify(afterTwo.installSet)} against ${JSON.stringify(afterOne.installSet)}`,
   );
-  assertSingleInstall('after the second build and serve cycle', afterTwo.occurrences);
+  assertSingleInstall(
+    'after the second build and serve cycle',
+    afterTwo.occurrences,
+  );
 
   console.log(
     `rebuild-idempotent: served ${servedOne.origin}/ (${servedOne.entryDocument.length} bytes) and ${servedTwo.origin}/ ` +

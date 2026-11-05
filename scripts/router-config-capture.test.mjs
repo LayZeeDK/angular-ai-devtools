@@ -27,27 +27,57 @@ const PORT = await choosePort();
 const ORIGIN = `http://127.0.0.1:${PORT}`;
 const ROUTE_PATH = '/landing';
 const PAGE_URL = `${ORIGIN}${ROUTE_PATH}`;
-const RECORD_PATH = process.env.M030_ROUTER_RECORD ?? join(ROOT, 'research', 'raw', 'm030-router-config.json');
+const RECORD_PATH =
+  process.env.M030_ROUTER_RECORD ??
+  join(ROOT, 'research', 'raw', 'm030-router-config.json');
 
 const CAPTURE_COMMAND = 'node --test scripts/router-config-capture.test.mjs';
 const SERVE_COMMAND = `node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port ${PORT} --host 127.0.0.1  (cwd spikes/ng222-app)`;
 
-const FIVE_FIELDS = ['canActivate', 'component', 'loadChildren', 'path', 'redirectTo'];
+const FIVE_FIELDS = [
+  'canActivate',
+  'component',
+  'loadChildren',
+  'path',
+  'redirectTo',
+];
 
 async function runCapture() {
   const requireApp = createRequire(join(APP, 'package.json'));
   let chromium;
-  try { ({ chromium } = requireApp('playwright')); } catch (e) {
+  try {
+    ({ chromium } = requireApp('playwright'));
+  } catch (e) {
     throw new Error(`playwright missing: ${e}`);
   }
   const playwrightVersion = requireApp('playwright/package.json').version;
-  const angularVersion = JSON.parse(readFileSync(join(APP, 'node_modules', '@angular', 'core', 'package.json'), 'utf8')).version;
+  const angularVersion = JSON.parse(
+    readFileSync(
+      join(APP, 'node_modules', '@angular', 'core', 'package.json'),
+      'utf8',
+    ),
+  ).version;
 
-  const server = spawn(process.execPath, [join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'), 'serve', '--port', String(PORT), '--host', '127.0.0.1'], { cwd: APP, stdio: ['ignore', 'pipe', 'pipe'] });
+  const server = spawn(
+    process.execPath,
+    [
+      join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'),
+      'serve',
+      '--port',
+      String(PORT),
+      '--host',
+      '127.0.0.1',
+    ],
+    { cwd: APP, stdio: ['ignore', 'pipe', 'pipe'] },
+  );
   capturedServerPid = server.pid;
   let serverOutput = '';
-  server.stdout.on('data', (c) => { serverOutput = (serverOutput + c).slice(-4000); });
-  server.stderr.on('data', (c) => { serverOutput = (serverOutput + c).slice(-4000); });
+  server.stdout.on('data', (c) => {
+    serverOutput = (serverOutput + c).slice(-4000);
+  });
+  server.stderr.on('data', (c) => {
+    serverOutput = (serverOutput + c).slice(-4000);
+  });
 
   let browser;
   try {
@@ -57,42 +87,83 @@ async function runCapture() {
     const browserBuild = browser.version();
     const context = await browser.newContext();
     const page = await context.newPage();
-    await page.goto(PAGE_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await page.waitForFunction(() => document.querySelectorAll('[ng-version]').length > 0, null, { timeout: 60000 });
+    await page.goto(PAGE_URL, {
+      waitUntil: 'domcontentloaded',
+      timeout: 60000,
+    });
+    await page.waitForFunction(
+      () => document.querySelectorAll('[ng-version]').length > 0,
+      null,
+      { timeout: 60000 },
+    );
     await page.waitForTimeout(1500);
 
     const captured = await page.evaluate(() => {
       const ng = window.ng;
-      const hosts = [...document.querySelectorAll('*')].filter((el) => { try { return !!ng.getComponent(el); } catch { return false; } });
-      const routedEl = hosts.length ? hosts[hosts.length - 1] : document.querySelector('[ng-version]');
+      const hosts = [...document.querySelectorAll('*')].filter((el) => {
+        try {
+          return !!ng.getComponent(el);
+        } catch {
+          return false;
+        }
+      });
+      const routedEl = hosts.length
+        ? hosts[hosts.length - 1]
+        : document.querySelector('[ng-version]');
       let injectorResolved = false;
       let injectorError = null;
       let routerInstance = null;
       try {
         const inj = ng.getInjector(routedEl);
         injectorResolved = true;
-        routerInstance = (typeof ng.ɵgetRouterInstance === 'function') ? ng.ɵgetRouterInstance(inj) : null;
-      } catch (e) { injectorError = String(e); }
+        routerInstance =
+          typeof ng.ɵgetRouterInstance === 'function'
+            ? ng.ɵgetRouterInstance(inj)
+            : null;
+      } catch (e) {
+        injectorError = String(e);
+      }
       if (!routerInstance) {
         try {
           const rootEl = document.querySelector('[ng-version]');
           const inj = ng.getInjector(rootEl);
-          if (!injectorResolved) { injectorResolved = true; }
-          routerInstance = (typeof ng.ɵgetRouterInstance === 'function') ? ng.ɵgetRouterInstance(inj) : null;
-        } catch (e) { if (!injectorError) injectorError = String(e); }
-      }
-      const config = (routerInstance && Array.isArray(routerInstance.config)) ? routerInstance.config.map((entry) => {
-        const out = {};
-        for (const k of Object.keys(entry ?? {})) {
-          const v = entry[k];
-          if (typeof v === 'function') out[k] = `[fn ${v.name || 'anonymous'}]`;
-          else if (Array.isArray(v)) out[k] = v.map((x) => (typeof x === 'function' ? `[fn ${x.name || 'anonymous'}]` : (x && typeof x === 'object' ? (x.name || x.constructor?.name || String(x)) : x)));
-          else if (v && typeof v === 'object') out[k] = v.name || v.constructor?.name || String(v);
-          else out[k] = v;
+          if (!injectorResolved) {
+            injectorResolved = true;
+          }
+          routerInstance =
+            typeof ng.ɵgetRouterInstance === 'function'
+              ? ng.ɵgetRouterInstance(inj)
+              : null;
+        } catch (e) {
+          if (!injectorError) injectorError = String(e);
         }
-        return out;
-      }) : null;
-      const fieldsPresent = config ? [...new Set(config.flatMap((e) => Object.keys(e)))] : [];
+      }
+      const config =
+        routerInstance && Array.isArray(routerInstance.config)
+          ? routerInstance.config.map((entry) => {
+              const out = {};
+              for (const k of Object.keys(entry ?? {})) {
+                const v = entry[k];
+                if (typeof v === 'function')
+                  out[k] = `[fn ${v.name || 'anonymous'}]`;
+                else if (Array.isArray(v))
+                  out[k] = v.map((x) =>
+                    typeof x === 'function'
+                      ? `[fn ${x.name || 'anonymous'}]`
+                      : x && typeof x === 'object'
+                        ? x.name || x.constructor?.name || String(x)
+                        : x,
+                  );
+                else if (v && typeof v === 'object')
+                  out[k] = v.name || v.constructor?.name || String(v);
+                else out[k] = v;
+              }
+              return out;
+            })
+          : null;
+      const fieldsPresent = config
+        ? [...new Set(config.flatMap((e) => Object.keys(e)))]
+        : [];
       return {
         injectorResolvedOnRoutedElement: injectorResolved,
         injectorError,
@@ -123,8 +194,15 @@ async function runCapture() {
         capture: CAPTURE_COMMAND,
         check: CAPTURE_COMMAND,
       },
-      environment: { platform: process.platform, shell: 'cmd.exe', node: process.version },
-      fixture: { route: ROUTE_PATH, routeTable: 'spikes/ng222-app/src/app/app.routes.ts' },
+      environment: {
+        platform: process.platform,
+        shell: 'cmd.exe',
+        node: process.version,
+      },
+      fixture: {
+        route: ROUTE_PATH,
+        routeTable: 'spikes/ng222-app/src/app/app.routes.ts',
+      },
       injectorResolvedOnRoutedElement: captured.injectorResolvedOnRoutedElement,
       injectorError: captured.injectorError,
       routedElementTag: captured.routedElementTag,
@@ -141,11 +219,16 @@ async function runCapture() {
 async function waitForServer(server, output) {
   const started = Date.now();
   let exit = null;
-  server.on('exit', (code, signal) => { exit = { code, signal }; });
+  server.on('exit', (code, signal) => {
+    exit = { code, signal };
+  });
   while (Date.now() - started < 180000) {
-    if (exit) throw new Error(`server exited: ${JSON.stringify(exit)}\n${output()}`);
+    if (exit)
+      throw new Error(`server exited: ${JSON.stringify(exit)}\n${output()}`);
     try {
-      const res = await fetch(`${ORIGIN}/`, { signal: AbortSignal.timeout(2000) });
+      const res = await fetch(`${ORIGIN}/`, {
+        signal: AbortSignal.timeout(2000),
+      });
       if (res.ok) return;
     } catch {}
     await new Promise((r) => setTimeout(r, 500));
@@ -155,10 +238,20 @@ async function waitForServer(server, output) {
 
 async function killProcessTree(pid) {
   if (process.platform === 'win32') {
-    const killer = spawn('taskkill', ['/PID', String(pid), '/T', '/F'], { stdio: 'ignore' });
-    await new Promise((resolve) => killer.on('exit', resolve).on('error', resolve));
+    const killer = spawn('taskkill', ['/PID', String(pid), '/T', '/F'], {
+      stdio: 'ignore',
+    });
+    await new Promise((resolve) =>
+      killer.on('exit', resolve).on('error', resolve),
+    );
   } else {
-    try { process.kill(-pid, 'SIGTERM'); } catch { try { process.kill(pid, 'SIGTERM'); } catch {} }
+    try {
+      process.kill(-pid, 'SIGTERM');
+    } catch {
+      try {
+        process.kill(pid, 'SIGTERM');
+      } catch {}
+    }
   }
 }
 
@@ -168,7 +261,9 @@ async function waitForPortFree(port, timeout = 30000) {
     const free = await new Promise((resolve) => {
       const srv = createServer();
       srv.once('error', () => resolve(false));
-      srv.listen(port, '127.0.0.1', () => { srv.close(() => resolve(true)); });
+      srv.listen(port, '127.0.0.1', () => {
+        srv.close(() => resolve(true));
+      });
     });
     if (free) return;
     await new Promise((r) => setTimeout(r, 250));
@@ -178,11 +273,19 @@ async function waitForPortFree(port, timeout = 30000) {
 
 async function stopServer(server) {
   if (server.exitCode === null && server.signalCode === null) {
-    try { await killProcessTree(server.pid); } catch {}
+    try {
+      await killProcessTree(server.pid);
+    } catch {}
     server.kill();
-    const timer = setTimeout(() => { try { server.kill('SIGKILL'); } catch {} }, 5000);
+    const timer = setTimeout(() => {
+      try {
+        server.kill('SIGKILL');
+      } catch {}
+    }, 5000);
     timer.unref?.();
-    try { await once(server, 'exit'); } catch {}
+    try {
+      await once(server, 'exit');
+    } catch {}
     clearTimeout(timer);
   }
   await waitForPortFree(PORT);
@@ -190,8 +293,12 @@ async function stopServer(server) {
 
 function isPidAlive(pid) {
   if (!pid) return false;
-  try { process.kill(pid, 0); return true; }
-  catch (e) { return !!(e && e.code === 'EPERM'); }
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (e) {
+    return !!(e && e.code === 'EPERM');
+  }
 }
 
 async function assertTeardownClean(pid, port) {
@@ -200,10 +307,14 @@ async function assertTeardownClean(pid, port) {
     await new Promise((resolve, reject) => {
       const srv = createServer();
       srv.once('error', reject);
-      srv.listen(port, '127.0.0.1', () => { srv.close(() => resolve()); });
+      srv.listen(port, '127.0.0.1', () => {
+        srv.close(() => resolve());
+      });
     });
   } catch (e) {
-    throw new Error(`port ${port} still bound after teardown (${e && e.code ? e.code : e})`);
+    throw new Error(
+      `port ${port} still bound after teardown (${e && e.code ? e.code : e})`,
+    );
   }
 }
 
@@ -222,16 +333,25 @@ function validate(record) {
   assert.ok(redirectEntry, 'redirect route present');
   assert.equal(redirectEntry.redirectTo, 'landing', 'redirect target');
   assert.equal(record.config.length, 12, 'config must have 12 entries');
-  const fields = [...new Set(record.config.flatMap((e) => Object.keys(e)))].sort();
+  const fields = [
+    ...new Set(record.config.flatMap((e) => Object.keys(e))),
+  ].sort();
   assert.deepEqual(fields, FIVE_FIELDS, 'the five fields');
-  assert.deepEqual([...record.fieldsPresent].sort(), FIVE_FIELDS, 'fieldsPresent lists the five fields');
+  assert.deepEqual(
+    [...record.fieldsPresent].sort(),
+    FIVE_FIELDS,
+    'fieldsPresent lists the five fields',
+  );
   const loopA = record.config.find((e) => e.path === 'loop-a');
   const loopB = record.config.find((e) => e.path === 'loop-b');
   assert.ok(loopA && loopA.redirectTo === 'loop-b', 'loop-a redirects');
   assert.ok(loopB && loopB.redirectTo === 'loop-a', 'loop-b redirects');
   const gated = record.config.find((e) => e.path === 'gated');
   assert.ok(gated, 'gated route present');
-  assert.ok(Array.isArray(gated.canActivate) || gated.canActivate !== undefined, 'canActivate present');
+  assert.ok(
+    Array.isArray(gated.canActivate) || gated.canActivate !== undefined,
+    'canActivate present',
+  );
   const lazy = record.config.find((e) => e.path === 'lazy');
   assert.ok(lazy, 'lazy route present');
   assert.ok(lazy.loadChildren !== undefined, 'loadChildren present');
@@ -242,7 +362,10 @@ function validate(record) {
 
 let capturePromise = null;
 let capturedServerPid = null;
-function captured() { capturePromise ??= runCapture(); return capturePromise; }
+function captured() {
+  capturePromise ??= runCapture();
+  return capturePromise;
+}
 
 // ---------------------------------------------------------------- read-only checks ----------------
 
@@ -254,7 +377,9 @@ test('the recording validates against its own fixture and clocks', () => {
 test('the recording holds 12 config entries with the five fields', () => {
   const record = loadRecord();
   assert.equal(record.config.length, 12);
-  const fields = [...new Set(record.config.flatMap((e) => Object.keys(e)))].sort();
+  const fields = [
+    ...new Set(record.config.flatMap((e) => Object.keys(e))),
+  ].sort();
   assert.deepEqual(fields, FIVE_FIELDS);
 });
 
@@ -289,9 +414,12 @@ test('mutant: removing the redirect entry is refused', () => {
 if (process.env.M030_CAPTURE === '1') {
   test('capture router config via ng.getInjector', async (t) => {
     const record = await captured();
-    if (RECORD_PATH) writeFileSync(RECORD_PATH, `${JSON.stringify(record, null, 2)}\n`);
+    if (RECORD_PATH)
+      writeFileSync(RECORD_PATH, `${JSON.stringify(record, null, 2)}\n`);
     validate(record);
     await assertTeardownClean(capturedServerPid, PORT);
-    t.diagnostic(`config entries: ${record.config.length}, fields: ${record.fieldsPresent.join(',')}`);
+    t.diagnostic(
+      `config entries: ${record.config.length}, fields: ${record.fieldsPresent.join(',')}`,
+    );
   });
 }

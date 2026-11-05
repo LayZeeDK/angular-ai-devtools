@@ -31,26 +31,27 @@ export default defineConfig({
   },
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'node ./node_modules/nx/dist/bin/nx.js run angular-ai-devtools:serve --host 127.0.0.1',
+    command:
+      'node ./node_modules/nx/dist/bin/nx.js run angular-ai-devtools:serve --host 127.0.0.1',
     url: 'http://localhost:4200',
     reuseExistingServer: true,
     timeout: 300_000,
-    cwd: workspaceRoot
+    cwd: workspaceRoot,
   },
   projects: [
     {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
     },
 
     {
-      name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
     },
 
     {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] },
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
     },
 
     // Uncomment for mobile browsers support

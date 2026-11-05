@@ -1,4 +1,7 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import {
+  ApplicationConfig,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { provideAppFactsTool } from './tool-registry/app-facts';
@@ -15,6 +18,6 @@ export const appConfig: ApplicationConfig = {
     provideAppFactsTool(),
     provideReadTools(),
     providePanelEnvironmentTool(),
-    provideErrorDigestTool()
-  ]
+    provideErrorDigestTool(),
+  ],
 };

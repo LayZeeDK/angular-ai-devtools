@@ -17,7 +17,10 @@ import { fileURLToPath } from 'node:url';
 export function splitMessages(buffered) {
   const parts = buffered.split('\0');
 
-  return { messages: parts.slice(0, -1).filter((m) => m !== ''), rest: parts.at(-1) ?? '' };
+  return {
+    messages: parts.slice(0, -1).filter((m) => m !== ''),
+    rest: parts.at(-1) ?? '',
+  };
 }
 
 /**
@@ -33,9 +36,12 @@ export function signinRefusal(exe, switches) {
     return null;
   }
 
-  const disabled = switches.filter((a) => a.startsWith('--disable-features=')).flatMap((a) => a.slice('--disable-features='.length).split(','));
+  const disabled = switches
+    .filter((a) => a.startsWith('--disable-features='))
+    .flatMap((a) => a.slice('--disable-features='.length).split(','));
 
-  return switches.includes('--disable-sync') && disabled.includes('msImplicitSignin')
+  return switches.includes('--disable-sync') &&
+    disabled.includes('msImplicitSignin')
     ? null
     : 'refused: an Edge launch needs --disable-sync and msImplicitSignin in --disable-features, or Edge signs the Windows work account in; start instances with control.mjs up';
 }
@@ -50,12 +56,21 @@ let reported = false;
  * @param {string[]} switches
  */
 function keep(resultFile, exe, extension, switches) {
-  const child = spawn(exe, switches, { stdio: ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'] });
-  const toBrowser = /** @type {import('node:stream').Writable} */ (child.stdio[3]);
-  const fromBrowser = /** @type {import('node:stream').Readable} */ (child.stdio[4]);
+  const child = spawn(exe, switches, {
+    stdio: ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'],
+  });
+  const toBrowser = /** @type {import('node:stream').Writable} */ (
+    child.stdio[3]
+  );
+  const fromBrowser = /** @type {import('node:stream').Readable} */ (
+    child.stdio[4]
+  );
   /** @param {object} r */
   const report = (r) => {
-    writeFileSync(resultFile, JSON.stringify({ pid: child.pid, at: new Date().toISOString(), ...r }));
+    writeFileSync(
+      resultFile,
+      JSON.stringify({ pid: child.pid, at: new Date().toISOString(), ...r }),
+    );
     reported = true;
   };
   let rest = '';
@@ -68,7 +83,14 @@ function keep(resultFile, exe, extension, switches) {
       const m = JSON.parse(text);
 
       if (m.id === 1 && !reported) {
-        report(m.result?.id ? { ok: true, id: m.result.id } : { ok: false, error: m.error?.message ?? 'no extension id in the answer' });
+        report(
+          m.result?.id
+            ? { ok: true, id: m.result.id }
+            : {
+                ok: false,
+                error: m.error?.message ?? 'no extension id in the answer',
+              },
+        );
         // Nothing else on the pipe matters; drain it unread for the browser's lifetime.
         fromBrowser.removeAllListeners('data');
         fromBrowser.resume();
@@ -87,10 +109,15 @@ function keep(resultFile, exe, extension, switches) {
   // Errors after the browser exits (a closed pipe) end this process with it.
   toBrowser.on('error', () => {});
   fromBrowser.on('error', () => {});
-  toBrowser.write(`${JSON.stringify({ id: 1, method: 'Extensions.loadUnpacked', params: { path: extension } })}\0`);
+  toBrowser.write(
+    `${JSON.stringify({ id: 1, method: 'Extensions.loadUnpacked', params: { path: extension } })}\0`,
+  );
   child.on('exit', (code) => {
     if (!reported) {
-      report({ ok: false, error: `the browser exited (code ${code}) before Extensions.loadUnpacked answered` });
+      report({
+        ok: false,
+        error: `the browser exited (code ${code}) before Extensions.loadUnpacked answered`,
+      });
     }
 
     process.exit(0);
@@ -101,7 +128,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [resultFile, exe, extension, ...switches] = process.argv.slice(2);
 
   if (!resultFile || !exe || !extension) {
-    console.error('usage: node pipe-keeper.mjs <result.json> <exe> <extension dir> <browser switches...>');
+    console.error(
+      'usage: node pipe-keeper.mjs <result.json> <exe> <extension dir> <browser switches...>',
+    );
     process.exit(2);
   }
 
@@ -111,7 +140,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
 
     try {
-      writeFileSync(resultFile, JSON.stringify({ ok: false, at: new Date().toISOString(), error: `pipe-keeper.mjs failed: ${e.stack ?? e.message}` }));
+      writeFileSync(
+        resultFile,
+        JSON.stringify({
+          ok: false,
+          at: new Date().toISOString(),
+          error: `pipe-keeper.mjs failed: ${e.stack ?? e.message}`,
+        }),
+      );
     } catch {
       // Nowhere to report; up says the keeper wrote no result.
     }
@@ -121,7 +157,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const refusal = signinRefusal(exe, switches);
 
   if (refusal) {
-    writeFileSync(resultFile, JSON.stringify({ ok: false, at: new Date().toISOString(), error: refusal }));
+    writeFileSync(
+      resultFile,
+      JSON.stringify({
+        ok: false,
+        at: new Date().toISOString(),
+        error: refusal,
+      }),
+    );
     console.error(refusal);
     process.exit(2);
   }

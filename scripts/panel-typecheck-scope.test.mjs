@@ -48,7 +48,15 @@
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, isAbsolute, join, resolve, sep } from 'node:path';
 import test from 'node:test';
@@ -64,7 +72,11 @@ const ROOT_TSCONFIG_PATH = join(REPO_ROOT, 'tsconfig.json');
 const PANEL_PROJECT_ROOT = join(REPO_ROOT, 'apps', 'angular-ai-devtools');
 const PANEL_CHECK_CONFIG_PATH = join(PANEL_PROJECT_ROOT, 'tsconfig.check.json');
 const PANEL_SOURCE_ROOT = join(PANEL_PROJECT_ROOT, 'src');
-const COMPANION_PROJECT_ROOT = join(REPO_ROOT, 'packages', 'ai-devtools-companion');
+const COMPANION_PROJECT_ROOT = join(
+  REPO_ROOT,
+  'packages',
+  'ai-devtools-companion',
+);
 const COMPANION_CONFIG_PATH = join(COMPANION_PROJECT_ROOT, 'tsconfig.json');
 const COMPANION_SOURCE_ROOT = join(COMPANION_PROJECT_ROOT, 'src');
 
@@ -78,10 +90,12 @@ const COMPANION_SOURCE_ROOT = join(COMPANION_PROJECT_ROOT, 'src');
 const SCRATCH_ROOT = join(REPO_ROOT, 'tmp');
 
 /** The panel config, relative to the panel project — the form `check:panel` must name. */
-const PANEL_CHECK_CONFIG_RELATIVE = 'apps/angular-ai-devtools/tsconfig.check.json';
+const PANEL_CHECK_CONFIG_RELATIVE =
+  'apps/angular-ai-devtools/tsconfig.check.json';
 
 /** The companion config, relative to the repository root — the form `check:companion` must name. */
-const COMPANION_CONFIG_RELATIVE = 'packages/ai-devtools-companion/tsconfig.json';
+const COMPANION_CONFIG_RELATIVE =
+  'packages/ai-devtools-companion/tsconfig.json';
 
 /** The `check` chain, re-pinned stage by stage: the three stages that predate M018, the panel stage
  * M018 added, the extension stage M025 adds, and the companion stage M021 added last, in that
@@ -192,7 +206,10 @@ function stripJsonComments(text) {
     }
     if (character === '/' && next === '*') {
       index += 2;
-      while (index < text.length && !(text[index] === '*' && text[index + 1] === '/')) {
+      while (
+        index < text.length &&
+        !(text[index] === '*' && text[index + 1] === '/')
+      ) {
         index += 1;
       }
       index += 2;
@@ -217,7 +234,10 @@ function executableText(path) {
 
 /** Repo-relative, forward-slash form — the form a failure message names. */
 function displayPath(absolutePath) {
-  return absolutePath.split(sep).join('/').replace(`${REPO_ROOT.split(sep).join('/')}/`, '');
+  return absolutePath
+    .split(sep)
+    .join('/')
+    .replace(`${REPO_ROOT.split(sep).join('/')}/`, '');
 }
 
 /** A path in the forward-slash form a tsconfig can carry anywhere. */
@@ -257,11 +277,15 @@ function runTsc(configPath, extraArgs = []) {
     existsSync(TSC),
     `the panel check drives ${TSC}; a missing TypeScript would make every assertion below vacuous`,
   );
-  const result = spawnSync(process.execPath, [TSC, '-p', configPath, ...extraArgs], {
-    cwd: REPO_ROOT,
-    encoding: 'utf8',
-    timeout: 300_000,
-  });
+  const result = spawnSync(
+    process.execPath,
+    [TSC, '-p', configPath, ...extraArgs],
+    {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      timeout: 300_000,
+    },
+  );
   assert.ok(
     !result.error,
     `tsc -p ${configPath} must be runnable: ${result.error?.message ?? 'unknown spawn failure'}`,
@@ -287,7 +311,10 @@ function programFiles(configPath) {
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
     .map(posixPath);
-  assert.ok(files.length > 0, 'tsc --listFiles must report the program it built');
+  assert.ok(
+    files.length > 0,
+    'tsc --listFiles must report the program it built',
+  );
   return files;
 }
 
@@ -313,7 +340,11 @@ function assertStageChain(script, expected = CHECK_STAGES) {
 test('the check chain runs every stage it ran before and ends with the companion stage', () => {
   const pkg = JSON.parse(readFileSync(PACKAGE_PATH, 'utf8'));
   const script = pkg.scripts?.check;
-  assert.equal(typeof script, 'string', 'package.json must carry a check script');
+  assert.equal(
+    typeof script,
+    'string',
+    'package.json must carry a check script',
+  );
 
   // The pin in one assertion: the three pre-existing stages, the panel stage, the extension stage
   // and the companion stage, named exactly and in order. A dropped, reordered or extra stage fails
@@ -341,11 +372,8 @@ test('the check chain runs every stage it ran before and ends with the companion
       ...CHECK_STAGES.slice(0, 4),
       CHECK_STAGES[5],
     ],
-    'a dropped panel stage with the extension and companion stages still present': [
-      ...CHECK_STAGES.slice(0, 3),
-      CHECK_STAGES[4],
-      CHECK_STAGES[5],
-    ],
+    'a dropped panel stage with the extension and companion stages still present':
+      [...CHECK_STAGES.slice(0, 3), CHECK_STAGES[4], CHECK_STAGES[5]],
     'the extension and companion stages swapped': [
       ...CHECK_STAGES.slice(0, 4),
       CHECK_STAGES[5],
@@ -357,7 +385,10 @@ test('the check chain runs every stage it ran before and ends with the companion
       CHECK_STAGES[3],
       CHECK_STAGES[5],
     ],
-    'an extra stage appended after the companion stage': [...CHECK_STAGES, 'npm run check:extra'],
+    'an extra stage appended after the companion stage': [
+      ...CHECK_STAGES,
+      'npm run check:extra',
+    ],
   };
   for (const [what, stages] of Object.entries(refused)) {
     assert.throws(
@@ -367,7 +398,9 @@ test('the check chain runs every stage it ran before and ends with the companion
     );
   }
 
-  console.log(`panel-typecheck-scope: check chain is ${JSON.stringify(checkStages(script))}`);
+  console.log(
+    `panel-typecheck-scope: check chain is ${JSON.stringify(checkStages(script))}`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -432,7 +465,11 @@ test('the root tsconfig still lists its three entries, two of them absolute', ()
     [...ROOT_TSCONFIG_ENTRIES].sort(),
     'the root tsconfig must keep the installed installer scripts and the plugin template',
   );
-  assert.equal(include.length, 3, 'the root tsconfig must list exactly its three entries');
+  assert.equal(
+    include.length,
+    3,
+    'the root tsconfig must list exactly its three entries',
+  );
   assert.equal(
     include.filter((entry) => isAbsolute(entry)).length,
     2,
@@ -447,7 +484,9 @@ test('the root tsconfig still lists its three entries, two of them absolute', ()
       `the root tsconfig entry ${entry} must resolve to a readable file at ${path}`,
     );
   }
-  console.log(`panel-typecheck-scope: root tsconfig entries are ${JSON.stringify(include)}`);
+  console.log(
+    `panel-typecheck-scope: root tsconfig entries are ${JSON.stringify(include)}`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -457,13 +496,20 @@ test('the root tsconfig still lists its three entries, two of them absolute', ()
 test('the panel program contains every panel source, the registry and the milestone modules', () => {
   const program = programFiles(PANEL_CHECK_CONFIG_PATH);
   const inProgram = (relativeToRoot) =>
-    program.includes(posixPath(join(REPO_ROOT, relativeToRoot.split('/').join(sep))));
+    program.includes(
+      posixPath(join(REPO_ROOT, relativeToRoot.split('/').join(sep))),
+    );
 
   // Breadth over the source tree: every `.ts` the panel owns is in the program, so a file added
   // later is covered without editing this list.
   const sources = sourceFilesUnder(PANEL_SOURCE_ROOT);
-  assert.ok(sources.length > 0, 'the panel source walk must find at least one file');
-  const uncovered = sources.filter((file) => !program.includes(posixPath(file)));
+  assert.ok(
+    sources.length > 0,
+    'the panel source walk must find at least one file',
+  );
+  const uncovered = sources.filter(
+    (file) => !program.includes(posixPath(file)),
+  );
   assert.deepEqual(
     uncovered.map((file) => displayPath(file)),
     [],
@@ -472,14 +518,17 @@ test('the panel program contains every panel source, the registry and the milest
 
   // The milestone's modules: a registry outside the program could not appear in `--listFiles`.
   const expected = [...MILESTONE_MODULES, ...MILESTONE_SPECS];
-  const missing = expected.filter((relativeToRoot) => !inProgram(relativeToRoot));
+  const missing = expected.filter(
+    (relativeToRoot) => !inProgram(relativeToRoot),
+  );
   assert.deepEqual(
     missing,
     [],
     `the panel check must type-check the milestone's modules; missing from the program: ${JSON.stringify(missing)}`,
   );
   assert.ok(
-    inProgram('src/main-world/error-digest.ts') && inProgram('src/panel/error-explainer-view.ts'),
+    inProgram('src/main-world/error-digest.ts') &&
+      inProgram('src/panel/error-explainer-view.ts'),
     'the panel imports src/main-world and src/panel modules, so the check must follow it there',
   );
 
@@ -496,7 +545,10 @@ test('the panel program contains every panel source, the registry and the milest
 test('the panel stage fails on a deliberate type error and passes once the file is fixed', () => {
   const temp = mkdtempSync(join(tmpdir(), 'panel-typecheck-scope-'));
   try {
-    assert.ok(temp.startsWith(tmpdir()), `the fixture must live under os.tmpdir(): ${temp}`);
+    assert.ok(
+      temp.startsWith(tmpdir()),
+      `the fixture must live under os.tmpdir(): ${temp}`,
+    );
     const probePath = join(temp, 'deliberate-type-error.ts');
     // Extending the real config is what makes this a proof about the real stage: the compiler
     // options that can fail a file — `strict`, the lib set, module resolution, `noEmit` — are the
@@ -535,7 +587,8 @@ test('the panel stage fails on a deliberate type error and passes once the file 
       'utf8',
     );
 
-    const redSource = "export const deliberateTypeError: number = 'not a number';\n";
+    const redSource =
+      "export const deliberateTypeError: number = 'not a number';\n";
     writeFileSync(probePath, redSource, 'utf8');
     const red = runTsc(configPath);
     assert.notEqual(
@@ -547,7 +600,9 @@ test('the panel stage fails on a deliberate type error and passes once the file 
       red.output.includes('TS2322'),
       `the failure must be the deliberate assignment error (TS2322): ${red.output}`,
     );
-    const errorLines = red.output.split(/\r?\n/).filter((line) => /error TS\d+/.test(line));
+    const errorLines = red.output
+      .split(/\r?\n/)
+      .filter((line) => /error TS\d+/.test(line));
     assert.equal(
       errorLines.length,
       1,
@@ -560,7 +615,11 @@ test('the panel stage fails on a deliberate type error and passes once the file 
 
     // The same config, one character class of the probe fixed: now it must pass. Without this the
     // red half would prove only that the temp config is broken.
-    writeFileSync(probePath, 'export const deliberateTypeError: number = 42;\n', 'utf8');
+    writeFileSync(
+      probePath,
+      'export const deliberateTypeError: number = 42;\n',
+      'utf8',
+    );
     const green = runTsc(configPath);
     assert.equal(
       green.status,
@@ -608,9 +667,14 @@ test('the companion config emits nothing and its program holds the package sourc
   // the program `--listFiles` reports. A package outside the program cannot appear there, and an
   // `include` that resolves to nothing leaves the expected list empty below.
   const sources = sourceFilesUnder(COMPANION_SOURCE_ROOT);
-  assert.ok(sources.length > 0, 'the companion source walk must find at least one file');
+  assert.ok(
+    sources.length > 0,
+    'the companion source walk must find at least one file',
+  );
   const program = programFiles(COMPANION_CONFIG_PATH);
-  const uncovered = sources.filter((file) => !program.includes(posixPath(file)));
+  const uncovered = sources.filter(
+    (file) => !program.includes(posixPath(file)),
+  );
   assert.deepEqual(
     uncovered.map((file) => displayPath(file)),
     [],
@@ -656,7 +720,10 @@ test('the companion stage fails on a deliberate type error in its program and pa
         {
           extends: posixPath(COMPANION_CONFIG_PATH),
           compilerOptions: { rootDir: posixPath(REPO_ROOT) },
-          include: [posixPath(join(COMPANION_SOURCE_ROOT, '**', '*.ts')), posixPath(probePath)],
+          include: [
+            posixPath(join(COMPANION_SOURCE_ROOT, '**', '*.ts')),
+            posixPath(probePath),
+          ],
         },
         null,
         2,
@@ -664,14 +731,20 @@ test('the companion stage fails on a deliberate type error in its program and pa
       'utf8',
     );
 
-    writeFileSync(probePath, "export const deliberateTypeError: number = 'not a number';\n", 'utf8');
+    writeFileSync(
+      probePath,
+      "export const deliberateTypeError: number = 'not a number';\n",
+      'utf8',
+    );
     const red = runTsc(configPath);
     assert.notEqual(
       red.status,
       0,
       `a file carrying a deliberate type error must fail the companion stage; got exit ${red.status} with: ${red.output}`,
     );
-    const errorLines = red.output.split(/\r?\n/).filter((line) => /error TS\d+/.test(line));
+    const errorLines = red.output
+      .split(/\r?\n/)
+      .filter((line) => /error TS\d+/.test(line));
     assert.equal(
       errorLines.length,
       1,
@@ -690,7 +763,11 @@ test('the companion stage fails on a deliberate type error in its program and pa
 
     // The same config, the probe fixed: now it must pass. Without this the red half would prove
     // only that the temp config is broken.
-    writeFileSync(probePath, 'export const deliberateTypeError: number = 42;\n', 'utf8');
+    writeFileSync(
+      probePath,
+      'export const deliberateTypeError: number = 42;\n',
+      'utf8',
+    );
     const green = runTsc(configPath);
     assert.equal(
       green.status,

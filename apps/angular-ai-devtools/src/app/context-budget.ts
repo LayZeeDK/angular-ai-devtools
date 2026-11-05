@@ -135,11 +135,16 @@ export function chunkFacts(facts: readonly string[]): ChunkedFacts {
     }
 
     // The separator only counts once the chunk holds a fact already.
-    if (current.length > 0 && tokensForChars(currentChars + FACT_SEPARATOR.length + fact.length) > CHUNK_TOKEN_CAP) {
+    if (
+      current.length > 0 &&
+      tokensForChars(currentChars + FACT_SEPARATOR.length + fact.length) >
+        CHUNK_TOKEN_CAP
+    ) {
       seal();
     }
 
-    currentChars += (current.length === 0 ? 0 : FACT_SEPARATOR.length) + fact.length;
+    currentChars +=
+      (current.length === 0 ? 0 : FACT_SEPARATOR.length) + fact.length;
     current.push(fact);
   });
 

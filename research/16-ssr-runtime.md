@@ -12,7 +12,7 @@ run.
 ## Setup
 
 - Fixture: `spikes/ng222-ssr`, created with `ng new ng222-ssr --ssr --routing --style css --skip-git
-  --skip-tests --ai-config none --zoneless` from `@angular/cli@22.2.2` (the counter's version). Angular
+--skip-tests --ai-config none --zoneless` from `@angular/cli@22.2.2` (the counter's version). Angular
   22.2.2, standalone, zoneless, `provideClientHydration()` with no features, `provideHttpClient(withFetch())`,
   `withComponentInputBinding()` so query parameters reach inputs.
 - Routes (`app.routes.server.ts`): `/` `RenderMode.Server`, `/prerender` `RenderMode.Prerender`, `/client`
@@ -45,11 +45,11 @@ Raw: `research/raw/ssr-hydration.json`.
   `dehydratedViewsCleanupRuns`, `componentsSkippedHydration`, `deferBlocksWithIncrementalHydration`
   **[documented, `_pending_tasks-chunk.mjs:616-621`]**. Values per page load **[measured]**:
 
-| Page | hydratedNodes | hydratedComponents | dehydratedViewsRemoved | dehydratedViewsCleanupRuns | componentsSkippedHydration | deferBlocksWithIncrementalHydration |
-|---|---|---|---|---|---|---|
-| `/` | 40 | 4 | 0 | 1 | 0 | 1 |
-| `/?mismatch=1` | 32 | 4 | 0 | 1 | 0 | 1 |
-| `/?mismatch=text` | 40 | 4 | 0 | 1 | 0 | 1 |
+| Page              | hydratedNodes | hydratedComponents | dehydratedViewsRemoved | dehydratedViewsCleanupRuns | componentsSkippedHydration | deferBlocksWithIncrementalHydration |
+| ----------------- | ------------- | ------------------ | ---------------------- | -------------------------- | -------------------------- | ----------------------------------- |
+| `/`               | 40            | 4                  | 0                      | 1                          | 0                          | 1                                   |
+| `/?mismatch=1`    | 32            | 4                  | 0                      | 1                          | 0                          | 1                                   |
+| `/?mismatch=text` | 40            | 4                  | 0                      | 1                          | 0                          | 1                                   |
 
 - The counters keep counting after the first hydration: `hydratedComponents` went from 4 to 5 when the
   `@defer` block hydrated **[measured, `research/raw/ssr-defer.json`]**.
@@ -64,7 +64,7 @@ Raw: `research/raw/ssr-hydration.json`.
 Raw: `research/raw/ssr-hydration.json` (`/?mismatch=1`).
 
 - Expected and actual node: `expectedNodeDetails` is `<app-mismatch>\n  <p>…</p>  <-- AT THIS LOCATION\n
-  …\n</app-mismatch>`, `actualNodeDetails` the same with `<div>…</div>` **[measured]**.
+…\n</app-mismatch>`, `actualNodeDetails` the same with `<div>…</div>` **[measured]**.
 - Component: the info is set on the closest component host, `<app-mismatch>`, not on the `<div>` that
   differs; `ng.getComponent(host)` names the class (`_Mismatch` in dev, with the leading `_`) **[measured;
   the host walk is in `_debug_node-chunk.mjs:2541-2549`, documented]**.
@@ -99,11 +99,11 @@ Raw: `research/raw/ssr-transfer.json`.
 
 Raw: `research/raw/ssr-transfer.json`; server log of the run (`[api]` lines, 4 new hits during the probe).
 
-| Page | Resource Timing entries for `/api/items` | Browser requests seen by Playwright | Server log hits |
-|---|---|---|---|
-| `/` (cache hit) | 0 | 0 | 1, `ua=node` (the server render) |
-| `/?transfer=0` | 1, `initiatorType: fetch`, `responseStatus` 200 | 1 | 2: `ua=node`, then `HeadlessChrome` |
-| `/client` (no server render) | 1, `initiatorType: fetch` | 1 | 1, `HeadlessChrome` |
+| Page                         | Resource Timing entries for `/api/items`        | Browser requests seen by Playwright | Server log hits                     |
+| ---------------------------- | ----------------------------------------------- | ----------------------------------- | ----------------------------------- |
+| `/` (cache hit)              | 0                                               | 0                                   | 1, `ua=node` (the server render)    |
+| `/?transfer=0`               | 1, `initiatorType: fetch`, `responseStatus` 200 | 1                                   | 2: `ua=node`, then `HeadlessChrome` |
+| `/client` (no server render) | 1, `initiatorType: fetch`                       | 1                                   | 1, `HeadlessChrome`                 |
 
 All three **[measured]**. A cache hit leaves no Resource Timing entry, so "the browser did not request X" is
 observable as an absence, matched against the `u` fields in transfer state. The cache serves only until the
@@ -127,7 +127,7 @@ Raw: `research/raw/ssr-event-replay.json` (main.js held with `page.route`, one c
   `q` empty. Every element with a template listener has `jsaction="click:;"` (the three nav links and both
   buttons; `<app-deferred>` has `click:;keydown:;`) **[measured]**.
 - After an early click on `Early click`, still before hydration: `q` holds one entry, `{eventType: "click",
-  targetElement: <button> "Early click", timeStamp}` **[measured]**. `window.ng` is absent at this point.
+targetElement: <button> "Early click", timeStamp}` **[measured]**. `window.ng` is absent at this point.
 - After hydration: `window._ejsas` is `{}` (the `ng` entry is deleted), `jsaction` attributes are gone from
   everything outside the dehydrated `@defer` block, and the page shows `Early clicks: 1`, so the click was
   replayed **[measured]**. Nothing at runtime records that a replay happened; the only traces are the result
@@ -143,11 +143,11 @@ Raw: `research/raw/ssr-event-replay.json` (main.js held with `page.route`, one c
 Raw: `research/raw/ssr-render-modes.json` (each route a full load; raw HTML read with `page.request.get`
 before the browser load).
 
-| Route (declared) | Response headers | Server HTML | DOM after load |
-|---|---|---|---|
-| `/` (`Server`) | `vary`, `x-powered-by: Express`, `content-type`, `date`, `connection`, `keep-alive`, `transfer-encoding` | `<app-root ng-version ngh="3" ng-server-context="ssr">`, 5 `ngh`, `<!--nghm-->`, `ng-state`, event contract script | `ng-server-context="ssr"`, 1 `ngh` left, 40 nodes hydrated |
-| `/prerender` (`Prerender`) | the same set | the same, but `ng-server-context="ssg"` | `ng-server-context="ssg"`, 40 nodes hydrated |
-| `/client` (`Client`) | the same set | `<body ngcm="">`, empty `<app-root>`, no `ngh`, no `ng-state`, no event contract | `<body ngcm>`, no `ng-server-context`, 0 nodes hydrated, no `NgHydration` mark |
+| Route (declared)           | Response headers                                                                                         | Server HTML                                                                                                        | DOM after load                                                                 |
+| -------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `/` (`Server`)             | `vary`, `x-powered-by: Express`, `content-type`, `date`, `connection`, `keep-alive`, `transfer-encoding` | `<app-root ng-version ngh="3" ng-server-context="ssr">`, 5 `ngh`, `<!--nghm-->`, `ng-state`, event contract script | `ng-server-context="ssr"`, 1 `ngh` left, 40 nodes hydrated                     |
+| `/prerender` (`Prerender`) | the same set                                                                                             | the same, but `ng-server-context="ssg"`                                                                            | `ng-server-context="ssg"`, 40 nodes hydrated                                   |
+| `/client` (`Client`)       | the same set                                                                                             | `<body ngcm="">`, empty `<app-root>`, no `ngh`, no `ng-state`, no event contract                                   | `<body ngcm>`, no `ng-server-context`, 0 nodes hydrated, no `NgHydration` mark |
 
 All **[measured]**. The headers do not differ between modes under `ng serve`. The browser tells the modes
 apart by `ng-server-context` (`ssr`, `ssg`) and by `ngcm` on `<body>` for client mode
@@ -165,9 +165,9 @@ Raw: `research/raw/ssr-defer.json`.
   holds `node`, filtered to blocks inside `node` **[documented, `_debug_node-chunk.mjs:11934-11990`]**. On
   `<body>` it returns `[]`; on `<app-root>` and `<app-page>` both blocks; on `<h1>` only the `@for` **[measured]**.
 - Before the trigger: `{type: 0, state: "initial", incrementalHydrationState: "dehydrated", triggers:
-  ["hydrate on interaction", "on idle"], placeholderBlock: {exists: true, minimumTime: null}, loadingBlock:
-  {exists: false, minimumTime: null, afterTime: null}, hasErrorBlock: false, hostNode: <!--ngh=d0-->,
-  rootNodes: [<app-deferred>]}` **[measured]**. The implicit `on idle` main trigger is listed.
+["hydrate on interaction", "on idle"], placeholderBlock: {exists: true, minimumTime: null}, loadingBlock:
+{exists: false, minimumTime: null, afterTime: null}, hasErrorBlock: false, hostNode: <!--ngh=d0-->,
+rootNodes: [<app-deferred>]}` **[measured]**. The implicit `on idle` main trigger is listed.
 - After one click: `state: "complete"`, `incrementalHydrationState: "hydrated"`, the rest unchanged
   **[measured]**.
 - The `@for` entry carries `items` (the actual data), `trackExpression`, `hasEmptyBlock`, `rootNodes`
@@ -186,14 +186,14 @@ Raw: `research/raw/ssr-render-modes.json`.
 
 ## Verdicts per SSR feature candidate
 
-| Candidate | Supported by the page? | Why |
-|---|---|---|
+| Candidate                                       | Supported by the page?        | Why                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ----------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | N5 as it stands (Hydration and `@defer` doctor) | **Yes, with two corrections** | `defer_blocks`: state, triggers and incremental hydration state are there (7). `hydration_status`: counters and per-component mismatches with expected and actual DOM are there (1, 2). Corrections: `defer_blocks` has no timings, only configured `minimumTime`/`afterTime`; the mismatch sits on the component host, and text differences never show (2). "Why did hydration skip `app-map`?" depends on the `skipped` status and `componentsSkippedHydration`, documented but not exercised here (no `ngSkipHydration` in the fixture). |
-| Transfer State row in section 5 | **Yes** | `ng.ɵgetTransferState` answers "what did the server pass" with readable entries (3). It shows the server's payload at any time after load; it does not say which entries the client used. |
-| Transfer cache explainer | **Yes** | Transfer state entries (`u`, `s`, `b`) plus Resource Timing tell hit from miss per URL: 0 entries on a hit, 1 on a miss (4). The rule that the cache stops at app stability is documented, not measured. |
-| Event replay inspector | **Partly** | Configuration is readable (marks, contract script, `jsaction` attributes in the server HTML), and the queue is readable before hydration (5). After hydration nothing records what was replayed; an inspector would have to read `window._ejsas` from a main-world script at `document_start` and diff it with the result. |
-| Render mode per route | **Yes, per full page load** | `ng-server-context` (`ssr`, `ssg`) and `<body ngcm>` tell the three modes apart (6). A client-side navigation renders nothing on the server, so the mark belongs to the first loaded route only. Under `ng serve` prerender is per request; production prerender was not measured. |
-| Server timing | **No** (not by Angular) | Neither the dev server nor `@angular/ssr` sets `Server-Timing` (8). The extension can read `serverTiming` if an app's server sets it, which is an app feature, not an Angular one. |
+| Transfer State row in section 5                 | **Yes**                       | `ng.ɵgetTransferState` answers "what did the server pass" with readable entries (3). It shows the server's payload at any time after load; it does not say which entries the client used.                                                                                                                                                                                                                                                                                                                                                   |
+| Transfer cache explainer                        | **Yes**                       | Transfer state entries (`u`, `s`, `b`) plus Resource Timing tell hit from miss per URL: 0 entries on a hit, 1 on a miss (4). The rule that the cache stops at app stability is documented, not measured.                                                                                                                                                                                                                                                                                                                                    |
+| Event replay inspector                          | **Partly**                    | Configuration is readable (marks, contract script, `jsaction` attributes in the server HTML), and the queue is readable before hydration (5). After hydration nothing records what was replayed; an inspector would have to read `window._ejsas` from a main-world script at `document_start` and diff it with the result.                                                                                                                                                                                                                  |
+| Render mode per route                           | **Yes, per full page load**   | `ng-server-context` (`ssr`, `ssg`) and `<body ngcm>` tell the three modes apart (6). A client-side navigation renders nothing on the server, so the mark belongs to the first loaded route only. Under `ng serve` prerender is per request; production prerender was not measured.                                                                                                                                                                                                                                                          |
+| Server timing                                   | **No** (not by Angular)       | Neither the dev server nor `@angular/ssr` sets `Server-Timing` (8). The extension can read `serverTiming` if an app's server sets it, which is an app feature, not an Angular one.                                                                                                                                                                                                                                                                                                                                                          |
 
 ## Not reachable from a browser extension
 

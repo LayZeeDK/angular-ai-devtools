@@ -1,6 +1,9 @@
 import { test, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { traceDiPath, getDiResolutionPath } from '../src/main-world/di-path-tracer.ts';
+import {
+  traceDiPath,
+  getDiResolutionPath,
+} from '../src/main-world/di-path-tracer.ts';
 
 const samplePath = [
   { id: 0, metadata: { type: 'environment', source: 'root' }, providers: [] },
@@ -9,7 +12,11 @@ const samplePath = [
 
 describe('traceDiPath', () => {
   it('returns the resolution path for a selected component', () => {
-    const graph = { component: 'App_Counter', resolutionPath: samplePath, available: true };
+    const graph = {
+      component: 'App_Counter',
+      resolutionPath: samplePath,
+      available: true,
+    };
     const result = traceDiPath(graph, 'App_Counter');
     assert.equal(result.available, true);
     assert.equal(result.component, 'App_Counter');
@@ -23,14 +30,23 @@ describe('traceDiPath', () => {
   });
 
   it('returns unavailable for mismatched component', () => {
-    const graph = { component: 'App_Counter', resolutionPath: [], available: true };
+    const graph = {
+      component: 'App_Counter',
+      resolutionPath: [],
+      available: true,
+    };
     const result = traceDiPath(graph, 'App_Other');
     assert.equal(result.available, false);
     assert.equal(result.reason, 'component mismatch');
   });
 
   it('returns unavailable when graph.available is false', () => {
-    const graph = { component: 'App_Counter', resolutionPath: [], available: false, reason: 'apis missing' };
+    const graph = {
+      component: 'App_Counter',
+      resolutionPath: [],
+      available: false,
+      reason: 'apis missing',
+    };
     const result = traceDiPath(graph, 'App_Counter');
     assert.equal(result.available, false);
     assert.equal(result.reason, 'apis missing');
@@ -39,7 +55,11 @@ describe('traceDiPath', () => {
 
 describe('getDiResolutionPath', () => {
   it('returns the path array', () => {
-    const graph = { component: 'App_Counter', resolutionPath: samplePath, available: true };
+    const graph = {
+      component: 'App_Counter',
+      resolutionPath: samplePath,
+      available: true,
+    };
     const path = getDiResolutionPath(graph, 'App_Counter');
     assert.equal(path.length, 2);
   });

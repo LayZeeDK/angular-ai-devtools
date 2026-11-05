@@ -13,7 +13,13 @@ const LIVE = {
   ok: true,
   flag: true,
   flagSetAt: 45,
-  detection: { isIvy: true, isAngular: true, isDebugMode: true, isSupportedAngularVersion: true, isAngularDevTools: true },
+  detection: {
+    isIvy: true,
+    isAngular: true,
+    isDebugMode: true,
+    isSupportedAngularVersion: true,
+    isAngularDevTools: true,
+  },
   backendInstalled: true,
   handshake: true,
   backendReady: 818,
@@ -52,14 +58,28 @@ test('passes on the live attach result and saves it', () => {
   const f = fake(0, LIVE);
   check({ out: 'D:\\ev' }, f.deps);
   assert.deepEqual(f.calls, [['attach']]);
-  assert.deepEqual(JSON.parse(f.files.get(join('D:\\ev', 'attach.json')) ?? '').result, LIVE);
+  assert.deepEqual(
+    JSON.parse(f.files.get(join('D:\\ev', 'attach.json')) ?? '').result,
+    LIVE,
+  );
 });
 
 test('an attach that is not ok throws its CLAIM error with the facts control.mjs put in its reason, after saving them', () => {
-  const facts = { ...LIVE, backendReady: null, detection: { isAngular: true, isDebugMode: false } };
+  const facts = {
+    ...LIVE,
+    backendReady: null,
+    detection: { isAngular: true, isDebugMode: false },
+  };
   // control-angular-devtools throws Unhealthy and prints only ok, exit and reason (control.mjs cmdAttach).
-  const f = fake(1, { ok: false, exit: 1, reason: `not attached: ${JSON.stringify(facts)}` });
-  assert.throws(() => check({ out: 'o' }, f.deps), /^Error: CLAIM: attach exited 1: not attached: \{"ok":true,"flag":true,.*"isDebugMode":false\}/);
+  const f = fake(1, {
+    ok: false,
+    exit: 1,
+    reason: `not attached: ${JSON.stringify(facts)}`,
+  });
+  assert.throws(
+    () => check({ out: 'o' }, f.deps),
+    /^Error: CLAIM: attach exited 1: not attached: \{"ok":true,"flag":true,.*"isDebugMode":false\}/,
+  );
   assert.ok(f.files.has(join('o', 'attach.json')));
 });
 
@@ -72,11 +92,22 @@ test('main: 1 with the Error: CLAIM line; 2 when attach is refused or prints no 
   assert.equal(main(['--out', 'o'], fake(1, { ok: false }).deps), 1);
   assert.match(lines.join('\n'), /^Error: CLAIM: /m);
   lines.length = 0;
-  assert.equal(main(['--out', 'o'], fake(2, { ok: false, reason: 'refused: no state' }).deps), 2);
+  assert.equal(
+    main(
+      ['--out', 'o'],
+      fake(2, { ok: false, reason: 'refused: no state' }).deps,
+    ),
+    2,
+  );
   assert.equal(main(['--out', 'o'], fake(0, null).deps), 2);
   assert.doesNotMatch(lines.join('\n'), /CLAIM:/);
 });
 
 test('the script exits 2 on an unknown flag', () => {
-  assert.equal(spawnSync(process.execPath, [SCRIPT, '--out', 'o', '--di-graph'], { encoding: 'utf8' }).status, 2);
+  assert.equal(
+    spawnSync(process.execPath, [SCRIPT, '--out', 'o', '--di-graph'], {
+      encoding: 'utf8',
+    }).status,
+    2,
+  );
 });

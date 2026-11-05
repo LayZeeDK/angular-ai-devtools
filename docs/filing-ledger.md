@@ -15,9 +15,16 @@ Status: draft, not filed. Found 2026-10-11 during spike S2 (`docs/feature-propos
 ```js
 const host = document.querySelector('app-counter');
 const inj = ng.getInjector(host);
-const nodes = () => ng.ɵgetSignalGraph(ng.getInjector(host)).nodes.map((n) => n.kind + ':' + (n.label || '-')).join(' ');
+const nodes = () =>
+  ng
+    .ɵgetSignalGraph(ng.getInjector(host))
+    .nodes.map((n) => n.kind + ':' + (n.label || '-'))
+    .join(' ');
 nodes(); // 'template:app-counter signal:title signal:count computed:double signal:items effect:-'
-const vcr = ng.ɵgetInjectorProviders(inj).map((r) => r.token).find((t) => t.name === 'ViewContainerRef');
+const vcr = ng
+  .ɵgetInjectorProviders(inj)
+  .map((r) => r.token)
+  .find((t) => t.name === 'ViewContainerRef');
 inj.get(vcr, null, { optional: true, self: true });
 nodes(); // 'effect:- signal:count'
 ```
@@ -25,7 +32,12 @@ nodes(); // 'effect:- signal:count'
 The same happens after running the tool itself:
 
 ```js
-let g; const ev = new CustomEvent('devtoolstooldiscovery'); ev.respondWith = (x) => { g = x; }; dispatchEvent(ev);
+let g;
+const ev = new CustomEvent('devtoolstooldiscovery');
+ev.respondWith = (x) => {
+  g = x;
+};
+dispatchEvent(ev);
 await g.tools.find((t) => t.name === 'angular:di_graph').execute({});
 // signal graph for any component host now lacks its template node
 ```
@@ -96,6 +108,7 @@ Status: draft, not filed. Found 2026-10-11 in the root-cause reading of Gemini N
 **What happens:** with the Blink runtime feature `AIPromptAPIToolUse` off, `LanguageModel.create()` with `expectedInputs` containing `tool-response` and `expectedOutputs` containing `tool-call` rejects with "The device is unable to create a session to run the model. Please check the result of availability() first." `LanguageModel.availability()` with the same options returns `available`.
 
 **Why (source, measured in 09):**
+
 - `LanguageModel::ExecuteAvailability` always sends an empty `tools` vector to the browser (`third_party/blink/renderer/modules/ai/language_model.cc`, L659-L686, L674).
 - `AIManager::CanCreateLanguageModel` runs its only tool gate, `!base::FeatureList::IsEnabled(kAIPromptAPIToolUse)`, only when `options->tools` is non-empty (`chrome/browser/ai/ai_manager.cc`, L774-L783), so `availability()` never reaches it. `GetExpectedInputCapabilities` skips `kToolCall`/`kToolResponse` (L244-L268).
 - In the spec, `availability()` and `create()` share "compute language model options availability" (`index.bs` L415-L445), which adds a content-type availability for every expected input and output type (L463-L471), and `create()` fails only when that availability is `unavailable` (L322-L324). So the two are meant to agree; 09 reads this as a conformance bug against the spec, not a spec gap.
@@ -103,9 +116,12 @@ Status: draft, not filed. Found 2026-10-11 in the root-cause reading of Gemini N
 **Reproduction** in Chrome 156 with `AIPromptAPIToolUse` off and the model available:
 
 ```js
-const opts = { expectedInputs: [{ type: 'text' }, { type: 'tool-response' }], expectedOutputs: [{ type: 'text' }, { type: 'tool-call' }] };
+const opts = {
+  expectedInputs: [{ type: 'text' }, { type: 'tool-response' }],
+  expectedOutputs: [{ type: 'text' }, { type: 'tool-call' }],
+};
 await LanguageModel.availability(opts); // 'available'
-await LanguageModel.create(opts);       // rejects: "The device is unable to create a session to run the model. ..."
+await LanguageModel.create(opts); // rejects: "The device is unable to create a session to run the model. ..."
 ```
 
 The snippet restates the probe matrix in 05; it was not run in this exact form (inferred).
@@ -127,17 +143,36 @@ Status: draft, not filed. Found 2026-10-12 in spike S1 phase 2 (`research/11-spi
 **Reproduction** in a page tab on the Gemma 4 instance, one fresh session per variant, run 70 s apart so Chrome's crash backoff cannot affect a later variant (the S11 matrix, `spikes/probes/tool-name-matrix.js`, run 2026-10-12):
 
 ```js
-const withParam = { type: 'object', properties: { scope: { type: 'string', enum: ['page'] } }, required: ['scope'] };
+const withParam = {
+  type: 'object',
+  properties: { scope: { type: 'string', enum: ['page'] } },
+  required: ['scope'],
+};
 const noParam = { type: 'object', properties: {} };
-const run = async (name, inputSchema) => (await LanguageModel.create({
-  expectedInputs: [{ type: 'text', languages: ['en'] }, { type: 'tool-response' }],
-  expectedOutputs: [{ type: 'text', languages: ['en'] }, { type: 'tool-call' }],
-  tools: [{ name, description: 'Returns how many Angular components are on the page.', inputSchema }],
-})).prompt('How many Angular components are on the page? Use the tool.');
+const run = async (name, inputSchema) =>
+  (
+    await LanguageModel.create({
+      expectedInputs: [
+        { type: 'text', languages: ['en'] },
+        { type: 'tool-response' },
+      ],
+      expectedOutputs: [
+        { type: 'text', languages: ['en'] },
+        { type: 'tool-call' },
+      ],
+      tools: [
+        {
+          name,
+          description: 'Returns how many Angular components are on the page.',
+          inputSchema,
+        },
+      ],
+    })
+  ).prompt('How many Angular components are on the page? Use the tool.');
 await run('get_component_count', withParam); // tool call get_component_count({"scope":"page"})
-await run('get_component_count', noParam);   // tool call get_component_count({})
-await run('getComponentCount', withParam);   // UnknownError: An unknown error occurred: kErrorUnknown
-await run('getcomponentcount', withParam);   // tool call getcomponentcount({"scope":"page"})
+await run('get_component_count', noParam); // tool call get_component_count({})
+await run('getComponentCount', withParam); // UnknownError: An unknown error occurred: kErrorUnknown
+await run('getcomponentcount', withParam); // tool call getcomponentcount({"scope":"page"})
 await run('Get_component_count', withParam); // UnknownError: An unknown error occurred: kErrorUnknown
 ```
 

@@ -1,28 +1,62 @@
 import type { Injectable as InjectableType } from '@angular/core';
 // @ts-ignore
-const _keepModule: any = await import('../../../../src/main-world/interop-keep-list.ts').catch(() => null);
+const _keepModule: any =
+  await import('../../../../src/main-world/interop-keep-list.ts').catch(
+    () => null,
+  );
 const keepInteropNodes: (nodes: any) => any[] =
   (_keepModule && _keepModule.keepInteropNodes) ||
-  ((nodes: any[]) => (Array.isArray(nodes) ? nodes : []).filter((n: any) => {
-    if (!n || typeof n !== 'object') return false;
-    if (n.label === 'toSignal.source' || n.label === 'toSignal.state') return true;
-    const text = typeof n.debuggableFnSource === 'string' ? n.debuggableFnSource : (typeof n.debuggableFn === 'string' ? n.debuggableFn : String(n.debuggableFn ?? ''));
-    return /(?<![A-Za-z0-9_$])subject\.error(?![A-Za-z0-9_$])/.test(text);
-  }));
+  ((nodes: any[]) =>
+    (Array.isArray(nodes) ? nodes : []).filter((n: any) => {
+      if (!n || typeof n !== 'object') return false;
+      if (n.label === 'toSignal.source' || n.label === 'toSignal.state')
+        return true;
+      const text =
+        typeof n.debuggableFnSource === 'string'
+          ? n.debuggableFnSource
+          : typeof n.debuggableFn === 'string'
+            ? n.debuggableFn
+            : String(n.debuggableFn ?? '');
+      return /(?<![A-Za-z0-9_$])subject\.error(?![A-Za-z0-9_$])/.test(text);
+    }));
 import type { ExtensionPromptService as ExtensionPromptServiceType } from './extension-prompt.service';
 
 let _ng: any = {};
-try { _ng = await import('@angular/core'); } catch { _ng = {}; }
-const Injectable = _ng.Injectable ?? ((..._a: any[]) => (t: any) => t);
+try {
+  _ng = await import('@angular/core');
+} catch {
+  _ng = {};
+}
+const Injectable =
+  _ng.Injectable ??
+  ((..._a: any[]) =>
+    (t: any) =>
+      t);
 const inject = _ng.inject ?? ((..._a: any[]) => null);
 const signal = _ng.signal ?? ((v: any) => ({ set() {}, update() {} }));
-const effect = _ng.effect ?? ((fn: any) => { try { fn(); } catch {} });
+const effect =
+  _ng.effect ??
+  ((fn: any) => {
+    try {
+      fn();
+    } catch {}
+  });
 
 let ExtensionPromptService: any = null;
-try { ExtensionPromptService = (await import('./extension-prompt.service')).ExtensionPromptService; } catch { ExtensionPromptService = null; }
+try {
+  ExtensionPromptService = (await import('./extension-prompt.service'))
+    .ExtensionPromptService;
+} catch {
+  ExtensionPromptService = null;
+}
 
 let UpdateCauseService: any = null;
-try { UpdateCauseService = (await import('./n1-update-cause.service')).UpdateCauseService; } catch { UpdateCauseService = null; }
+try {
+  UpdateCauseService = (await import('./n1-update-cause.service'))
+    .UpdateCauseService;
+} catch {
+  UpdateCauseService = null;
+}
 
 export const INTEROP_LIMITATION =
   'Cannot name the feeding Observable, the operator chain, or emission timing.';
@@ -46,7 +80,14 @@ export interface InteropNodeLike {
 
 export interface InteropGraphLike {
   nodes?: readonly InteropNodeLike[] | null;
-  edges?: readonly { from?: unknown; to?: unknown; consumer?: unknown; producer?: unknown }[] | null;
+  edges?:
+    | readonly {
+        from?: unknown;
+        to?: unknown;
+        consumer?: unknown;
+        producer?: unknown;
+      }[]
+    | null;
   unavailable?: boolean;
 }
 
@@ -88,18 +129,27 @@ export interface InteropPromptResult {
   error?: string;
 }
 
-function normalizeGraph(input: unknown): { nodes: InteropNodeLike[]; edges: any[] } {
-  if (Array.isArray(input)) return { nodes: input as InteropNodeLike[], edges: [] };
+function normalizeGraph(input: unknown): {
+  nodes: InteropNodeLike[];
+  edges: any[];
+} {
+  if (Array.isArray(input))
+    return { nodes: input as InteropNodeLike[], edges: [] };
   if (input && typeof input === 'object') {
     const o = input as Record<string, unknown>;
-    const nodes = Array.isArray(o['nodes']) ? (o['nodes'] as InteropNodeLike[]) : [];
+    const nodes = Array.isArray(o['nodes'])
+      ? (o['nodes'] as InteropNodeLike[])
+      : [];
     const edges = Array.isArray(o['edges']) ? (o['edges'] as any[]) : [];
     return { nodes, edges };
   }
   return { nodes: [], edges: [] };
 }
 
-function resolveEndpoint(graphNodes: InteropNodeLike[], value: unknown): string | undefined {
+function resolveEndpoint(
+  graphNodes: InteropNodeLike[],
+  value: unknown,
+): string | undefined {
   if (value === undefined || value === null) return undefined;
   if (typeof value === 'number') {
     const node = graphNodes[value];
@@ -108,7 +158,10 @@ function resolveEndpoint(graphNodes: InteropNodeLike[], value: unknown): string 
   return String(value);
 }
 
-function directProducers(node: InteropNodeLike, graph: { nodes: InteropNodeLike[]; edges: any[] }): string[] {
+function directProducers(
+  node: InteropNodeLike,
+  graph: { nodes: InteropNodeLike[]; edges: any[] },
+): string[] {
   const set = new Set<string>();
   for (const p of node.producers ?? node.dependencies ?? []) set.add(String(p));
   const id = String(node.id);
@@ -120,7 +173,10 @@ function directProducers(node: InteropNodeLike, graph: { nodes: InteropNodeLike[
   return [...set];
 }
 
-function directConsumers(node: InteropNodeLike, graph: { nodes: InteropNodeLike[]; edges: any[] }): string[] {
+function directConsumers(
+  node: InteropNodeLike,
+  graph: { nodes: InteropNodeLike[]; edges: any[] },
+): string[] {
   const set = new Set<string>();
   for (const c of node.consumers ?? node.dependents ?? []) set.add(String(c));
   const id = String(node.id);
@@ -135,7 +191,10 @@ function directConsumers(node: InteropNodeLike, graph: { nodes: InteropNodeLike[
   return [...set];
 }
 
-export function buildInteropSlice(node: InteropNodeLike, graph?: unknown): InteropSlice {
+export function buildInteropSlice(
+  node: InteropNodeLike,
+  graph?: unknown,
+): InteropSlice {
   const g = normalizeGraph(graph ?? { nodes: [node], edges: [] });
   const id = String(node.id ?? '');
   const producers = directProducers(node, g);
@@ -170,20 +229,28 @@ export const buildSlices = sliceInteropNodes;
 export const getInteropSlices = sliceInteropNodes;
 export const interopSlices = sliceInteropNodes;
 export const sliceInteropGraph = sliceInteropNodes;
-export const sliceDirectProducersConsumers = (node: unknown, graph?: unknown) => {
+export const sliceDirectProducersConsumers = (
+  node: unknown,
+  graph?: unknown,
+) => {
   const n = node as InteropNodeLike;
   const g = normalizeGraph(graph ?? { nodes: [n], edges: [] });
   return { producers: directProducers(n, g), consumers: directConsumers(n, g) };
 };
 
-export function attributeFieldToNode(fieldValue: unknown, nodes: readonly InteropNodeLike[] | null | undefined): InteropAttribution {
+export function attributeFieldToNode(
+  fieldValue: unknown,
+  nodes: readonly InteropNodeLike[] | null | undefined,
+): InteropAttribution {
   const list = Array.isArray(nodes) ? nodes : [];
   const candidates = list.filter((n) => Object.is(n?.value, fieldValue));
   return {
     value: fieldValue,
     candidates: candidates.map((n) => String(n.id ?? n.label ?? '')),
     candidateIds: candidates.map((n) => String(n.id ?? '')),
-    candidateLabels: candidates.map((n) => (n.label == null ? '' : String(n.label))),
+    candidateLabels: candidates.map((n) =>
+      n.label == null ? '' : String(n.label),
+    ),
     wording: INFERRED_UNTESTED,
   };
 }
@@ -207,8 +274,16 @@ export function shapeInteropFactList(finding: unknown): InteropFactList | null {
   const f = finding as Record<string, unknown>;
   const sourceId = String(f['sourceId'] ?? f['id'] ?? f['nodeId']);
   const sourceLabel = (f['sourceLabel'] ?? f['label'] ?? null) as string | null;
-  const producers = Array.isArray(f['producers']) ? (f['producers'] as unknown[]).map(String) : (Array.isArray(f['directProducers']) ? (f['directProducers'] as unknown[]).map(String) : []);
-  const consumers = Array.isArray(f['consumers']) ? (f['consumers'] as unknown[]).map(String) : (Array.isArray(f['directConsumers']) ? (f['directConsumers'] as unknown[]).map(String) : []);
+  const producers = Array.isArray(f['producers'])
+    ? (f['producers'] as unknown[]).map(String)
+    : Array.isArray(f['directProducers'])
+      ? (f['directProducers'] as unknown[]).map(String)
+      : [];
+  const consumers = Array.isArray(f['consumers'])
+    ? (f['consumers'] as unknown[]).map(String)
+    : Array.isArray(f['directConsumers'])
+      ? (f['directConsumers'] as unknown[]).map(String)
+      : [];
   return {
     sourceId,
     sourceLabel,
@@ -225,7 +300,9 @@ export const canShapeFactList = (f: unknown) => missingInteropFact(f) === null;
 
 export class InteropService {
   private readonly prompt: any = inject(ExtensionPromptService);
-  private readonly cause: any = UpdateCauseService ? inject(UpdateCauseService) : null;
+  private readonly cause: any = UpdateCauseService
+    ? inject(UpdateCauseService)
+    : null;
   readonly slices = signal([] as InteropSlice[]);
   readonly missingFact = signal(null as string | null);
   readonly answer = signal(null as string | null);
@@ -239,8 +316,8 @@ export class InteropService {
         const nodes: any[] = [];
         const edges: any[] = [];
         const seen = new Set();
-        for (const c of (Array.isArray(cycles) ? cycles : [])) {
-          for (const ch of (c?.checks ?? [])) {
+        for (const c of Array.isArray(cycles) ? cycles : []) {
+          for (const ch of c?.checks ?? []) {
             const g = ch?.graph;
             if (!g) continue;
             const gn = Array.isArray(g?.nodes) ? g.nodes : [];
@@ -262,7 +339,9 @@ export class InteropService {
   processGraph(graph: unknown): void {
     const g = normalizeGraph(graph);
     const kept = keepInteropNodes(g.nodes as any);
-    this.slices.set(kept.map((n) => buildInteropSlice(n as InteropNodeLike, g)));
+    this.slices.set(
+      kept.map((n) => buildInteropSlice(n as InteropNodeLike, g)),
+    );
   }
 
   shape(finding: unknown): InteropFactList | null {
@@ -278,7 +357,13 @@ export class InteropService {
       return { ok: false, error: `missing fact: ${missing}` };
     }
     const fl = shapeInteropFactList(finding)!;
-    const facts = [fl.sourceId, fl.sourceLabel ?? 'no label', fl.producers.join(',') || 'none', fl.consumers.join(',') || 'none', fl.limitation];
+    const facts = [
+      fl.sourceId,
+      fl.sourceLabel ?? 'no label',
+      fl.producers.join(',') || 'none',
+      fl.consumers.join(',') || 'none',
+      fl.limitation,
+    ];
     if (!this.prompt.ready()) await this.prompt.checkAvailability();
     if (!this.prompt.ready()) {
       this.unavailable.set(true);
@@ -286,6 +371,10 @@ export class InteropService {
     }
     const res = await this.prompt.explainFacts(facts);
     if (res.ok) this.answer.set(res.text);
-    return { ok: res.ok, text: res.ok ? res.text : undefined, error: res.ok ? undefined : res.error };
+    return {
+      ok: res.ok,
+      text: res.ok ? res.text : undefined,
+      error: res.ok ? undefined : res.error,
+    };
   }
 }

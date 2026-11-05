@@ -29,10 +29,16 @@ test('E3: npm test reports 0 skipped and 0 todo', () => {
   assert.equal(
     skippedMatches.length + todoMatches.length > 0,
     true,
-    'E3: no node --test summary lines found'
+    'E3: no node --test summary lines found',
   );
-  assert.ok(passMatches.length >= 3, `E3: expected at least 3 pass summary blocks, got ${passMatches.length}`);
-  assert.ok(totalPass >= 500, `E3: expected total pass count >= 500, got ${totalPass}`);
+  assert.ok(
+    passMatches.length >= 3,
+    `E3: expected at least 3 pass summary blocks, got ${passMatches.length}`,
+  );
+  assert.ok(
+    totalPass >= 500,
+    `E3: expected total pass count >= 500, got ${totalPass}`,
+  );
   assert.deepEqual(bad, [], `E3: non-zero skip/todo counts: ${bad.join(', ')}`);
   assert.equal(result.status, 0, `E3: npm test exited ${result.status}`);
 });

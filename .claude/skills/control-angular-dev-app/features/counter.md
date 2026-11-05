@@ -30,7 +30,7 @@ Preconditions:
   `playwright-cli -s=<session> snapshot --filename=<evidenceDir>/counter-after.yml`. The paragraph reads
   `Clicks: 4 (double 8, cart 1)`.
 - **Signal state.** Run `playwright-cli -s=<session> --raw eval "() => __ngc.signals('app-counter')" >
-  <evidenceDir>/counter-signals.json`. After one click: `count` 4, `double` 8; edges include
+<evidenceDir>/counter-signals.json`. After one click: `count` 4, `double` 8; edges include
   `computed:double -> signal:count` and `effect: -> signal:count`.
 - **Dependencies.** `eval "() => __ngc.dependenciesOf('app-counter', 'double')"` returns
   `dependsOn: ["count"]`.

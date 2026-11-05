@@ -26,11 +26,11 @@ Raw results: `raw/20-built-in-ai-without-flags.json`.
 
 ## Measured
 
-| Context | Chrome 156 (Nano) and Chrome Beta 157 (Nano, Gemma 4) | Edge 155 (Phi-4-mini) and Edge Dev 157 (Aion) |
-|---|---|---|
-| Web page | `LanguageModel` available and answers; Summarizer and LanguageDetector available; Translator downloadable; Writer, Rewriter and Proofreader undefined | `LanguageModel` undefined; Summarizer available; LanguageDetector available (155) or downloadable (157); Translator downloadable (155) or unavailable (157); Writer, Rewriter and Proofreader undefined |
-| DevTools panel (Edge: also an extension tab) | `LanguageModel` available and answers; Summarizer, Writer, Rewriter and LanguageDetector available; Proofreader and Translator downloadable | `LanguageModel` available and answers; Summarizer, Writer, Rewriter and Proofreader available; LanguageDetector and Translator as in the page |
-| Extension service worker | `LanguageModel` available and answers; Summarizer and LanguageDetector available; Translator downloadable; Writer, Rewriter and Proofreader undefined | `LanguageModel` undefined; Summarizer available; LanguageDetector and Translator as in the page; Writer, Rewriter and Proofreader undefined |
+| Context                                      | Chrome 156 (Nano) and Chrome Beta 157 (Nano, Gemma 4)                                                                                                 | Edge 155 (Phi-4-mini) and Edge Dev 157 (Aion)                                                                                                                                                           |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Web page                                     | `LanguageModel` available and answers; Summarizer and LanguageDetector available; Translator downloadable; Writer, Rewriter and Proofreader undefined | `LanguageModel` undefined; Summarizer available; LanguageDetector available (155) or downloadable (157); Translator downloadable (155) or unavailable (157); Writer, Rewriter and Proofreader undefined |
+| DevTools panel (Edge: also an extension tab) | `LanguageModel` available and answers; Summarizer, Writer, Rewriter and LanguageDetector available; Proofreader and Translator downloadable           | `LanguageModel` available and answers; Summarizer, Writer, Rewriter and Proofreader available; LanguageDetector and Translator as in the page                                                           |
+| Extension service worker                     | `LanguageModel` available and answers; Summarizer and LanguageDetector available; Translator downloadable; Writer, Rewriter and Proofreader undefined | `LanguageModel` undefined; Summarizer available; LanguageDetector and Translator as in the page; Writer, Rewriter and Proofreader undefined                                                             |
 
 ## Workers
 
@@ -38,12 +38,12 @@ Lars, 2026-10-19: "What about web workers? Can they be used by MV3 extensions an
 APIs with/without feature flags?" Measured the same day, no flags, raw in `raw/20-built-in-ai-without-flags.json` under `workers`. Each probe
 ran in a fresh browser, from a temporary worker file in the extension (deleted after the run).
 
-| Worker | Chrome 156, Chrome Beta 157 (Nano, Gemma 4) | Edge 155, Edge Dev 157 |
-|---|---|---|
-| Dedicated worker started by the DevTools panel | all seven globals exist. `LanguageModel`, Summarizer, Writer and Rewriter `available`, Proofreader `downloadable`; the prompt answers "OK" (5-43 s, cold) | all seven globals exist. `LanguageModel`, Summarizer, Writer, Rewriter and Proofreader `available`; the prompt answers "OK" (5-7 s) |
-| Dedicated worker started by a top-level extension tab | `LanguageModel`, Summarizer, LanguageDetector and Translator exist; Writer, Rewriter and Proofreader undefined (Chrome 156 only) | Summarizer, LanguageDetector and Translator exist; `LanguageModel`, Writer, Rewriter and Proofreader undefined |
-| Extension service worker | cannot start one: `Worker` and `SharedWorker` are undefined (Chrome 156) | the same (Edge 155, Edge Dev 157) |
-| Any of these, `LanguageDetector.availability()` or `Translator.availability()` | renderer crash: no answer, one Crashpad report per call, the panel shows the sad-face frame | the same |
+| Worker                                                                         | Chrome 156, Chrome Beta 157 (Nano, Gemma 4)                                                                                                               | Edge 155, Edge Dev 157                                                                                                              |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Dedicated worker started by the DevTools panel                                 | all seven globals exist. `LanguageModel`, Summarizer, Writer and Rewriter `available`, Proofreader `downloadable`; the prompt answers "OK" (5-43 s, cold) | all seven globals exist. `LanguageModel`, Summarizer, Writer, Rewriter and Proofreader `available`; the prompt answers "OK" (5-7 s) |
+| Dedicated worker started by a top-level extension tab                          | `LanguageModel`, Summarizer, LanguageDetector and Translator exist; Writer, Rewriter and Proofreader undefined (Chrome 156 only)                          | Summarizer, LanguageDetector and Translator exist; `LanguageModel`, Writer, Rewriter and Proofreader undefined                      |
+| Extension service worker                                                       | cannot start one: `Worker` and `SharedWorker` are undefined (Chrome 156)                                                                                  | the same (Edge 155, Edge Dev 157)                                                                                                   |
+| Any of these, `LanguageDetector.availability()` or `Translator.availability()` | renderer crash: no answer, one Crashpad report per call, the panel shows the sad-face frame                                                               | the same                                                                                                                            |
 
 - So MV3 extensions can use web workers, but only an extension page can start them; the service worker cannot.
 - A worker started by the panel is the one place besides the panel itself where the Prompt API works without flags in all four browsers.

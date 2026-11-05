@@ -12,30 +12,36 @@ export interface InteropNode {
 }
 
 export function nodeText(node: InteropNode): string {
-  if (typeof node.debuggableFnSource === "string") return node.debuggableFnSource;
-  if (typeof node.debuggableFn === "string") return node.debuggableFn;
+  if (typeof node.debuggableFnSource === 'string')
+    return node.debuggableFnSource;
+  if (typeof node.debuggableFn === 'string') return node.debuggableFn;
   const fn = node.debuggableFn;
-  if (fn && typeof (fn as { toString?: () => string }).toString === "function") {
+  if (
+    fn &&
+    typeof (fn as { toString?: () => string }).toString === 'function'
+  ) {
     try {
       return String((fn as { toString: () => string }).toString());
     } catch {
-      return "";
+      return '';
     }
   }
-  return "";
+  return '';
 }
 
 const SUBJECT_ERROR_RE = /(?<![A-Za-z0-9_$])subject\.error(?![A-Za-z0-9_$])/;
 
 export function isInteropNode(node: InteropNode | null | undefined): boolean {
-  if (!node || typeof node !== "object") return false;
+  if (!node || typeof node !== 'object') return false;
   const label = node.label;
-  if (label === "toSignal.source" || label === "toSignal.state") return true;
+  if (label === 'toSignal.source' || label === 'toSignal.state') return true;
   const text = nodeText(node);
   return SUBJECT_ERROR_RE.test(text);
 }
 
-export function keepInteropNodes<T extends InteropNode>(nodes: readonly T[] | null | undefined): T[] {
+export function keepInteropNodes<T extends InteropNode>(
+  nodes: readonly T[] | null | undefined,
+): T[] {
   const list = Array.isArray(nodes) ? nodes : [];
   const out: T[] = [];
   for (const n of list) {

@@ -39,7 +39,12 @@ const ROOT = join(__dirname, '..', '..');
 const APP = join(ROOT, 'spikes', 'ng222-app');
 const AGENT_PATH = join(ROOT, 'extension', 'agent-main.js');
 const ROUTE_PATH = '/trust-bypass';
-const DEFAULT_RECORD_PATH = join(ROOT, 'research', 'raw', 'm029-sanitizer-warning.json');
+const DEFAULT_RECORD_PATH = join(
+  ROOT,
+  'research',
+  'raw',
+  'm029-sanitizer-warning.json',
+);
 const DEFAULT_PORT = 4271;
 
 const SANITIZER_WARNING = /WARNING: sanitizing HTML stripped some content/;
@@ -49,7 +54,8 @@ const TEMPLATE_UPDATE_EVENTS = [2, 3];
 // part that varies between captures, so the serve line is built from it.
 const CAPTURE_COMMAND = 'node scripts/capture/sanitizer-warning.live.mjs';
 const CHECK_COMMAND = 'node --test scripts/sanitizer-warning-capture.test.mjs';
-const MUTANT_COMMAND = 'set M029_RECORD=<path to a mutant recording>& node --test scripts/sanitizer-warning-capture.test.mjs';
+const MUTANT_COMMAND =
+  'set M029_RECORD=<path to a mutant recording>& node --test scripts/sanitizer-warning-capture.test.mjs';
 
 const USAGE = `the M029 sanitizer-warning capture: one headless page load of the two-binding fixture
 
@@ -107,23 +113,46 @@ export async function capture(options = {}) {
   try {
     ({ chromium } = requireApp('playwright'));
   } catch (error) {
-    throw new Error(`playwright is not installed for the fixture (${APP}); run: npm --prefix spikes/ng222-app ci --include=dev. ${error}`);
+    throw new Error(
+      `playwright is not installed for the fixture (${APP}); run: npm --prefix spikes/ng222-app ci --include=dev. ${error}`,
+    );
   }
   const playwrightVersion = requireApp('playwright/package.json').version;
-  const angularVersion = JSON.parse(readFileSync(join(APP, 'node_modules', '@angular', 'core', 'package.json'), 'utf8')).version;
-  if (!existsSync(AGENT_PATH)) throw new Error(`the page agent is missing at ${AGENT_PATH}`);
-  if (!existsSync(join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'))) {
-    throw new Error('the fixture’s Angular CLI is not installed; run: npm --prefix spikes/ng222-app ci --include=dev');
+  const angularVersion = JSON.parse(
+    readFileSync(
+      join(APP, 'node_modules', '@angular', 'core', 'package.json'),
+      'utf8',
+    ),
+  ).version;
+  if (!existsSync(AGENT_PATH))
+    throw new Error(`the page agent is missing at ${AGENT_PATH}`);
+  if (
+    !existsSync(join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'))
+  ) {
+    throw new Error(
+      'the fixture’s Angular CLI is not installed; run: npm --prefix spikes/ng222-app ci --include=dev',
+    );
   }
 
   const server = spawn(
     process.execPath,
-    [join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'), 'serve', '--port', String(port), '--host', '127.0.0.1'],
+    [
+      join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'),
+      'serve',
+      '--port',
+      String(port),
+      '--host',
+      '127.0.0.1',
+    ],
     { cwd: APP, stdio: ['ignore', 'pipe', 'pipe'] },
   );
   let serverOutput = '';
-  server.stdout.on('data', (chunk) => { serverOutput = (serverOutput + chunk).slice(-4000); });
-  server.stderr.on('data', (chunk) => { serverOutput = (serverOutput + chunk).slice(-4000); });
+  server.stdout.on('data', (chunk) => {
+    serverOutput = (serverOutput + chunk).slice(-4000);
+  });
+  server.stderr.on('data', (chunk) => {
+    serverOutput = (serverOutput + chunk).slice(-4000);
+  });
 
   let browser;
   try {
@@ -140,13 +169,19 @@ export async function capture(options = {}) {
     const documentLoads = [];
     page.on('load', () => documentLoads.push(page.url()));
     const navigations = [];
-    page.on('framenavigated', (frame) => { if (frame === page.mainFrame()) navigations.push(frame.url()); });
+    page.on('framenavigated', (frame) => {
+      if (frame === page.mainFrame()) navigations.push(frame.url());
+    });
 
     const cdp = await context.newCDPSession(page);
     const cdpConsole = [];
     cdp.on('Runtime.consoleAPICalled', (event) => {
       const text = (event.args ?? [])
-        .map((arg) => ('value' in arg && arg.value !== undefined ? arg.value : (arg.description ?? arg.unserializableValue ?? '')))
+        .map((arg) =>
+          'value' in arg && arg.value !== undefined
+            ? arg.value
+            : (arg.description ?? arg.unserializableValue ?? ''),
+        )
         .join(' ');
       cdpConsole.push({
         type: String(event.type),
@@ -162,22 +197,43 @@ export async function capture(options = {}) {
 
     await page.goto(pageUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
     // The fixture's first write: the unsafe host carries the value the sanitizer strips.
-    await page.waitForFunction(() => (document.getElementById('unsafe')?.getAttribute('data-bound') ?? '').includes('kept paragraph 1'), null, { timeout: 60000 });
+    await page.waitForFunction(
+      () =>
+        (
+          document.getElementById('unsafe')?.getAttribute('data-bound') ?? ''
+        ).includes('kept paragraph 1'),
+      null,
+      { timeout: 60000 },
+    );
     const firstDom = await readFixtureDom(page);
     // The page agent installs its profiler subscription from a poll; the first write is already done by
     // then. Wait for it so the second write is measured with the subscription in place.
-    await page.waitForFunction(() => !!(window.__ngRecorder && window.__ngRecorder.installed), null, { timeout: 60000 });
+    await page.waitForFunction(
+      () => !!(window.__ngRecorder && window.__ngRecorder.installed),
+      null,
+      { timeout: 60000 },
+    );
     await page.waitForTimeout(900);
     await page.click('#rewrite');
-    await page.waitForFunction(() => (document.getElementById('unsafe')?.getAttribute('data-bound') ?? '').includes('kept paragraph 2'), null, { timeout: 60000 });
+    await page.waitForFunction(
+      () =>
+        (
+          document.getElementById('unsafe')?.getAttribute('data-bound') ?? ''
+        ).includes('kept paragraph 2'),
+      null,
+      { timeout: 60000 },
+    );
     await page.waitForTimeout(600);
     const secondDom = await readFixtureDom(page);
-    const scriptRan = await page.evaluate(() => window.__m029StrippedScriptRan === true);
+    const scriptRan = await page.evaluate(
+      () => window.__m029StrippedScriptRan === true,
+    );
 
     const tapDump = await page.evaluate(() => {
       const trim = (detail) => ({
         cycleId: detail?.cycleId ?? null,
-        startedAt: typeof detail?.startedAt === 'number' ? detail.startedAt : null,
+        startedAt:
+          typeof detail?.startedAt === 'number' ? detail.startedAt : null,
         trigger: detail?.trigger ?? null,
         zoneMode: detail?.zoneMode ?? null,
         checks: (detail?.checks ?? []).map((check) => ({
@@ -185,17 +241,27 @@ export async function capture(options = {}) {
           className: check?.className ?? null,
           changeDetection: check?.changeDetection ?? null,
           events: Array.isArray(check?.events) ? check.events.slice() : [],
-          changedNodeIds: Array.isArray(check?.changedNodeIds) ? check.changedNodeIds.slice() : [],
-          graphNodeCount: Array.isArray(check?.graph?.nodes) ? check.graph.nodes.length : null,
+          changedNodeIds: Array.isArray(check?.changedNodeIds)
+            ? check.changedNodeIds.slice()
+            : [],
+          graphNodeCount: Array.isArray(check?.graph?.nodes)
+            ? check.graph.nodes.length
+            : null,
         })),
       });
       const tap = window.__m029tap ?? { log: [], installedAt: null };
       return {
-        installedAt: typeof tap.installedAt === 'number' ? tap.installedAt : null,
+        installedAt:
+          typeof tap.installedAt === 'number' ? tap.installedAt : null,
         log: (tap.log ?? []).map((entry) =>
           entry.kind === 'record'
             ? { kind: 'record', t: entry.t, detail: trim(entry.detail) }
-            : { kind: entry.kind, t: entry.t, type: entry.type, text: entry.text },
+            : {
+                kind: entry.kind,
+                t: entry.t,
+                type: entry.type,
+                text: entry.text,
+              },
         ),
       };
     });
@@ -228,7 +294,10 @@ async function readFixtureDom(page) {
     const read = (id) => {
       const element = document.getElementById(id);
       if (!element) return null;
-      return { bound: element.getAttribute('data-bound'), rendered: element.innerHTML };
+      return {
+        bound: element.getAttribute('data-bound'),
+        rendered: element.innerHTML,
+      };
     };
     return { unsafe: read('unsafe'), safe: read('safe') };
   });
@@ -237,26 +306,45 @@ async function readFixtureDom(page) {
 async function waitForServer(server, output, origin) {
   const started = Date.now();
   let exit = null;
-  server.on('exit', (code, signal) => { exit = { code, signal }; });
+  server.on('exit', (code, signal) => {
+    exit = { code, signal };
+  });
   while (Date.now() - started < 180000) {
-    if (exit) throw new Error(`the fixture dev server exited (${JSON.stringify(exit)}):\n${output()}`);
+    if (exit)
+      throw new Error(
+        `the fixture dev server exited (${JSON.stringify(exit)}):\n${output()}`,
+      );
     try {
-      const response = await fetch(`${origin}/`, { signal: AbortSignal.timeout(2000) });
+      const response = await fetch(`${origin}/`, {
+        signal: AbortSignal.timeout(2000),
+      });
       if (response.ok) return;
     } catch {
       /* not listening yet */
     }
     await new Promise((thatResolves) => setTimeout(thatResolves, 500));
   }
-  throw new Error(`the fixture dev server did not answer on ${origin} within 180s:\n${output()}`);
+  throw new Error(
+    `the fixture dev server did not answer on ${origin} within 180s:\n${output()}`,
+  );
 }
 
 async function stopServer(server) {
   if (server.exitCode !== null || server.signalCode !== null) return;
   server.kill();
-  const timer = setTimeout(() => { try { server.kill('SIGKILL'); } catch { /* gone */ } }, 5000);
+  const timer = setTimeout(() => {
+    try {
+      server.kill('SIGKILL');
+    } catch {
+      /* gone */
+    }
+  }, 5000);
   timer.unref?.();
-  try { await once(server, 'exit'); } catch { /* already gone */ }
+  try {
+    await once(server, 'exit');
+  } catch {
+    /* already gone */
+  }
   clearTimeout(timer);
 }
 
@@ -268,7 +356,9 @@ function writeOf(entry, version) {
   // What the write should leave behind if the sanitizer removes exactly the <script> elements and
   // nothing else. A write counts as stripped when the rendered markup is that, with no script left:
   // a value that was bound but never written (empty markup) is not a strip.
-  const expectedRender = scriptInValue ? value.replace(/<script[\s\S]*?<\/script>/gi, '') : value;
+  const expectedRender = scriptInValue
+    ? value.replace(/<script[\s\S]*?<\/script>/gi, '')
+    : value;
   return {
     version,
     value,
@@ -292,7 +382,9 @@ export function buildRecording(input) {
     order,
     type: message.type,
     text: message.text,
-    code: /NG0\d{3,}/.test(message.text) ? (message.text.match(/NG0\d{3,}/) ?? [null])[0] : null,
+    code: /NG0\d{3,}/.test(message.text)
+      ? (message.text.match(/NG0\d{3,}/) ?? [null])[0]
+      : null,
     timestamp: message.timestamp,
     executionContextId: message.executionContextId,
   }));
@@ -303,8 +395,19 @@ export function buildRecording(input) {
   for (const entry of input.tapDump.log) {
     if (entry.kind === 'console') {
       const order = tapMessages.length;
-      tapMessages.push({ order, t: entry.t, type: entry.type, text: entry.text });
-      sequence.push({ order: sequence.length, source: 'console', ref: order, t: entry.t, name: `console:${entry.type}` });
+      tapMessages.push({
+        order,
+        t: entry.t,
+        type: entry.type,
+        text: entry.text,
+      });
+      sequence.push({
+        order: sequence.length,
+        source: 'console',
+        ref: order,
+        t: entry.t,
+        name: `console:${entry.type}`,
+      });
     } else if (entry.kind === 'record') {
       const order = records.length;
       records.push({
@@ -327,10 +430,30 @@ export function buildRecording(input) {
   }
 
   const writes = [
-    { binding: 'unsafe', version: 1, when: 'initial render', entry: input.firstDom.unsafe },
-    { binding: 'safe', version: 1, when: 'initial render', entry: input.firstDom.safe },
-    { binding: 'unsafe', version: 2, when: 'the page’s own rewrite button', entry: input.secondDom.unsafe },
-    { binding: 'safe', version: 2, when: 'the page’s own rewrite button', entry: input.secondDom.safe },
+    {
+      binding: 'unsafe',
+      version: 1,
+      when: 'initial render',
+      entry: input.firstDom.unsafe,
+    },
+    {
+      binding: 'safe',
+      version: 1,
+      when: 'initial render',
+      entry: input.firstDom.safe,
+    },
+    {
+      binding: 'unsafe',
+      version: 2,
+      when: 'the page’s own rewrite button',
+      entry: input.secondDom.unsafe,
+    },
+    {
+      binding: 'safe',
+      version: 2,
+      when: 'the page’s own rewrite button',
+      entry: input.secondDom.safe,
+    },
   ];
 
   const bindings = ['unsafe', 'safe'].map((id) => ({
@@ -339,35 +462,56 @@ export function buildRecording(input) {
     attribute: '[innerHTML]',
     writes: writes
       .filter((write) => write.binding === id)
-      .map((write) => ({ ...writeOf(write.entry, write.version), when: write.when })),
+      .map((write) => ({
+        ...writeOf(write.entry, write.version),
+        when: write.when,
+      })),
   }));
 
-  const warningMessages = consoleMessages.filter((message) => message.type === 'warning' && SANITIZER_WARNING.test(message.text));
-  const strippedWrites = writes.filter((write) => writeOf(write.entry, write.version).stripped);
+  const warningMessages = consoleMessages.filter(
+    (message) =>
+      message.type === 'warning' && SANITIZER_WARNING.test(message.text),
+  );
+  const strippedWrites = writes.filter(
+    (write) => writeOf(write.entry, write.version).stripped,
+  );
 
   const occurrences = warningMessages.map((message, index) => {
     // The two console channels carry the same messages in the same order, so the browser message's
     // order is also its index in the page tap.
     const tapIndex = message.order;
     const tapEntry = tapMessages[tapIndex];
-    const sequenceIndex = sequence.findIndex((entry) => entry.source === 'console' && entry.ref === tapIndex);
+    const sequenceIndex = sequence.findIndex(
+      (entry) => entry.source === 'console' && entry.ref === tapIndex,
+    );
     const covering = records.findIndex(
       (record) =>
         record.startedAt !== null &&
         record.startedAt <= tapEntry.t &&
         tapEntry.t <= record.t &&
-        record.checks.some((check) => TEMPLATE_UPDATE_EVENTS.every((event) => check.events.includes(event))),
+        record.checks.some((check) =>
+          TEMPLATE_UPDATE_EVENTS.every((event) => check.events.includes(event)),
+        ),
     );
     const coveringRecord = covering === -1 ? null : records[covering];
-    const recordSequenceIndex = coveringRecord ? sequence.findIndex((entry) => entry.source === 'profiler' && entry.ref === covering) : -1;
-    const positionsBetween = coveringRecord ? recordSequenceIndex - sequenceIndex - 1 : null;
+    const recordSequenceIndex = coveringRecord
+      ? sequence.findIndex(
+          (entry) => entry.source === 'profiler' && entry.ref === covering,
+        )
+      : -1;
+    const positionsBetween = coveringRecord
+      ? recordSequenceIndex - sequenceIndex - 1
+      : null;
     const shares = Boolean(coveringRecord) && positionsBetween === 0;
     const write = strippedWrites[index] ?? null;
 
     let reading;
     if (coveringRecord) {
       const named = coveringRecord.checks
-        .map((check) => `${check.componentName} events [${check.events.join(',')}]`)
+        .map(
+          (check) =>
+            `${check.componentName} events [${check.events.join(',')}]`,
+        )
         .join(', ');
       reading =
         `the warning at page-clock ${tapEntry.t} falls inside cycle ${coveringRecord.cycleId}'s template-update window ` +
@@ -384,7 +528,9 @@ export function buildRecording(input) {
     }
 
     return {
-      id: write ? `${write.binding}-write-${write.version}` : `warning-${index + 1}`,
+      id: write
+        ? `${write.binding}-write-${write.version}`
+        : `warning-${index + 1}`,
       binding: write ? write.binding : null,
       writeVersion: write ? write.version : null,
       warningConsole: message.order,
@@ -403,10 +549,15 @@ export function buildRecording(input) {
   const contains = {
     console: {
       messages: consoleMessages.length,
-      warnings: consoleMessages.filter((message) => message.type === 'warning').length,
+      warnings: consoleMessages.filter((message) => message.type === 'warning')
+        .length,
       sanitizerWarnings: warningMessages.length,
-      messagesCarryingAnNgCode: consoleMessages.filter((message) => message.code !== null).length,
-      distinctSanitizerWarningTexts: [...new Set(warningMessages.map((message) => message.text))],
+      messagesCarryingAnNgCode: consoleMessages.filter(
+        (message) => message.code !== null,
+      ).length,
+      distinctSanitizerWarningTexts: [
+        ...new Set(warningMessages.map((message) => message.text)),
+      ],
     },
     pageTap: {
       messages: tapMessages.length,
@@ -415,27 +566,58 @@ export function buildRecording(input) {
     profiler: {
       records: records.length,
       recordsCarryingTemplateUpdateEvents: records.filter((record) =>
-        record.checks.some((check) => TEMPLATE_UPDATE_EVENTS.every((event) => check.events.includes(event))),
+        record.checks.some((check) =>
+          TEMPLATE_UPDATE_EVENTS.every((event) => check.events.includes(event)),
+        ),
       ).length,
       checksCarryingTemplateUpdateEvents: records.reduce(
         (total, record) =>
-          total + record.checks.filter((check) => TEMPLATE_UPDATE_EVENTS.every((event) => check.events.includes(event))).length,
+          total +
+          record.checks.filter((check) =>
+            TEMPLATE_UPDATE_EVENTS.every((event) =>
+              check.events.includes(event),
+            ),
+          ).length,
         0,
       ),
-      eventNumbers: [...new Set(records.flatMap((record) => record.checks.flatMap((check) => check.events)))].sort((a, b) => a - b),
-      checkFields: [...new Set(records.flatMap((record) => record.checks.flatMap((check) => Object.keys(check))))],
-      namesTheBinding: records.some((record) => JSON.stringify(record.checks).includes('innerHTML')),
-      identifiesTheWrittenElement: records.some((record) => /unsafe|#safe/.test(JSON.stringify(record.checks))),
+      eventNumbers: [
+        ...new Set(
+          records.flatMap((record) =>
+            record.checks.flatMap((check) => check.events),
+          ),
+        ),
+      ].sort((a, b) => a - b),
+      checkFields: [
+        ...new Set(
+          records.flatMap((record) =>
+            record.checks.flatMap((check) => Object.keys(check)),
+          ),
+        ),
+      ],
+      namesTheBinding: records.some((record) =>
+        JSON.stringify(record.checks).includes('innerHTML'),
+      ),
+      identifiesTheWrittenElement: records.some((record) =>
+        /unsafe|#safe/.test(JSON.stringify(record.checks)),
+      ),
       syntheticRecords: records.filter((record) =>
         record.checks.every((check) => check.events.length === 0),
       ).length,
     },
     ordering: {
       occurrences: occurrences.length,
-      occurrencesWithACoveringRecord: occurrences.filter((occurrence) => occurrence.coveringRecord !== null).length,
-      occurrencesWithoutACoveringRecord: occurrences.filter((occurrence) => occurrence.coveringRecord === null).length,
-      firstWritePrecededTheSubscription: occurrences.length > 0 && occurrences[0].warningTapTime < (input.tapDump.installedAt ?? Infinity),
-      sharesPosition: occurrences.some((occurrence) => occurrence.sharesPositionWithBindingEvent),
+      occurrencesWithACoveringRecord: occurrences.filter(
+        (occurrence) => occurrence.coveringRecord !== null,
+      ).length,
+      occurrencesWithoutACoveringRecord: occurrences.filter(
+        (occurrence) => occurrence.coveringRecord === null,
+      ).length,
+      firstWritePrecededTheSubscription:
+        occurrences.length > 0 &&
+        occurrences[0].warningTapTime < (input.tapDump.installedAt ?? Infinity),
+      sharesPosition: occurrences.some(
+        (occurrence) => occurrence.sharesPositionWithBindingEvent,
+      ),
     },
   };
 
@@ -463,7 +645,8 @@ export function buildRecording(input) {
     },
     environment: {
       platform: process.platform,
-      shell: process.platform === 'win32' ? 'cmd.exe' : (process.env.SHELL ?? 'sh'),
+      shell:
+        process.platform === 'win32' ? 'cmd.exe' : (process.env.SHELL ?? 'sh'),
       node: process.version,
     },
     fixture: {
@@ -472,7 +655,8 @@ export function buildRecording(input) {
       routeTable: 'spikes/ng222-app/src/app/app.routes.ts',
       pageLoads: 1,
       documentLoads: input.documentLoads.length,
-      documentLoadsNote: 'one `load` event per document; a reload inside the measurement would add a second',
+      documentLoadsNote:
+        'one `load` event per document; a reload inside the measurement would add a second',
       loads: input.documentLoads,
       framenavigated: input.navigations,
       framenavigatedNote:
@@ -481,13 +665,17 @@ export function buildRecording(input) {
       bindings,
     },
     console: {
-      channel: 'CDP Runtime.consoleAPICalled on the measured page load, one event per console call, arguments joined with a space',
-      mainWorldContexts: new Set(input.cdpConsole.map((message) => message.executionContextId)).size,
+      channel:
+        'CDP Runtime.consoleAPICalled on the measured page load, one event per console call, arguments joined with a space',
+      mainWorldContexts: new Set(
+        input.cdpConsole.map((message) => message.executionContextId),
+      ).size,
       count: consoleMessages.length,
       messages: consoleMessages,
     },
     pageTap: {
-      channel: 'in-page tap on console.* at document_start, same page clock (performance.now) as the profiler records',
+      channel:
+        'in-page tap on console.* at document_start, same page clock (performance.now) as the profiler records',
       count: tapMessages.length,
       messages: tapMessages,
     },
@@ -515,8 +703,12 @@ export function buildRecording(input) {
       sequence,
       occurrences,
       sharesPosition: {
-        any: occurrences.some((occurrence) => occurrence.sharesPositionWithBindingEvent),
-        occurrences: occurrences.filter((occurrence) => occurrence.sharesPositionWithBindingEvent).map((occurrence) => occurrence.id),
+        any: occurrences.some(
+          (occurrence) => occurrence.sharesPositionWithBindingEvent,
+        ),
+        occurrences: occurrences
+          .filter((occurrence) => occurrence.sharesPositionWithBindingEvent)
+          .map((occurrence) => occurrence.id),
       },
     },
   };
@@ -556,8 +748,14 @@ export function parseArgs(argv = []) {
       throw new Error(`unknown argument: ${arg} (try --help)`);
     }
   }
-  if (!Number.isInteger(options.port) || options.port <= 0 || options.port > 65535) {
-    throw new Error(`the port must be a port number, got ${JSON.stringify(options.port)}`);
+  if (
+    !Number.isInteger(options.port) ||
+    options.port <= 0 ||
+    options.port > 65535
+  ) {
+    throw new Error(
+      `the port must be a port number, got ${JSON.stringify(options.port)}`,
+    );
   }
   if (typeof options.out !== 'string' || options.out === '') {
     throw new Error('--out names no path');
@@ -590,7 +788,9 @@ export async function main(argv = process.argv.slice(2)) {
     console.log(`now prove it: ${CHECK_COMMAND}`);
     return 0;
   } catch (error) {
-    console.error(`capture failed: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(
+      `capture failed: ${error instanceof Error ? error.message : String(error)}`,
+    );
     return 1;
   }
 }

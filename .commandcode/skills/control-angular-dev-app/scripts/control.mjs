@@ -4,7 +4,17 @@
 // Deterministic steps only; driving stays in playwright-cli.
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  readdirSync,
+  realpathSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { createServer } from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -60,16 +70,23 @@ import { describe, merge, processTable, snapshot, stop } from './proctree.mjs';
 
 /** @typedef {{ status: number | null, stdout: string, stderr: string }} Run */
 
-const SKILL_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const SKILL_DIR = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+);
 const REPO_ROOT = path.resolve(SKILL_DIR, '../../..');
 const SCRATCH = path.join(REPO_ROOT, 'tmp', 'control-angular-dev-app');
 const STATE_DIR = path.join(SCRATCH, 'state');
 const INSPECT_JS = path.join(SKILL_DIR, 'scripts', 'ng-inspect.js');
-const PORTAL_DEFAULT_DIR = 'D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools';
+const PORTAL_DEFAULT_DIR =
+  'D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools';
 // Fixed: the API takes PORT, but the portal frontend's BaseUrl token hardcodes http://localhost:3000/api/.
 const PORTAL_API_PORT = 3000;
 const PORTAL_API_PIN = 'libs/shared/utils/src/lib/injection-tokens.ts';
-const SYSTEM32 = path.join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32');
+const SYSTEM32 = path.join(
+  process.env['SystemRoot'] ?? 'C:\\Windows',
+  'System32',
+);
 // Node looks a bare program name up through Windows, which skips the current directory only when the looking process
 // has the variable (measured: set in the child's env alone, a pwsh.exe planted in the cwd still ran). The servers
 // this script starts inherit it.
@@ -80,40 +97,108 @@ const TARGETS = {
   counter: {
     dir: path.join(REPO_ROOT, 'spikes', 'ng222-app'),
     marker: 'app-root',
-    ports: () => [{ name: 'app', kind: 'derived', at: (slot) => (slot === 0 ? 4222 : 4300 + slot) }],
+    ports: () => [
+      {
+        name: 'app',
+        kind: 'derived',
+        at: (slot) => (slot === 0 ? 4222 : 4300 + slot),
+      },
+    ],
     procs: (dir, ports) => [
-      { name: 'app', bin: binOf(dir, '@angular/cli', 'ng'), args: ['serve', '--port', String(ports['app'])], env: {}, port: Number(ports['app']), readyPath: '/' },
+      {
+        name: 'app',
+        bin: binOf(dir, '@angular/cli', 'ng'),
+        args: ['serve', '--port', String(ports['app'])],
+        env: {},
+        port: Number(ports['app']),
+        readyPath: '/',
+      },
     ],
   },
   components: {
     dir: path.join(REPO_ROOT, 'spikes', 'ng222-app'),
     marker: 'app-root',
-    ports: () => [{ name: 'app', kind: 'derived', at: (slot) => (slot === 0 ? 4224 : 4600 + slot) }],
+    ports: () => [
+      {
+        name: 'app',
+        kind: 'derived',
+        at: (slot) => (slot === 0 ? 4224 : 4600 + slot),
+      },
+    ],
     procs: (dir, ports) => [
-      { name: 'app', bin: binOf(dir, '@angular/cli', 'ng'), args: ['serve', '--port', String(ports['app'])], env: {}, port: Number(ports['app']), readyPath: '/components' },
+      {
+        name: 'app',
+        bin: binOf(dir, '@angular/cli', 'ng'),
+        args: ['serve', '--port', String(ports['app'])],
+        env: {},
+        port: Number(ports['app']),
+        readyPath: '/components',
+      },
     ],
   },
   ssr: {
     dir: path.join(REPO_ROOT, 'spikes', 'ng222-ssr'),
     marker: 'app-root',
-    ports: () => [{ name: 'app', kind: 'derived', at: (slot) => (slot === 0 ? 4223 : 4400 + slot) }],
+    ports: () => [
+      {
+        name: 'app',
+        kind: 'derived',
+        at: (slot) => (slot === 0 ? 4223 : 4400 + slot),
+      },
+    ],
     // HMR (the dev-server default) loads every @defer dependency eagerly (NG0751), which hides incremental hydration.
     procs: (dir, ports) => [
-      { name: 'app', bin: binOf(dir, '@angular/cli', 'ng'), args: ['serve', '--port', String(ports['app']), '--no-hmr'], env: {}, port: Number(ports['app']), readyPath: '/' },
+      {
+        name: 'app',
+        bin: binOf(dir, '@angular/cli', 'ng'),
+        args: ['serve', '--port', String(ports['app']), '--no-hmr'],
+        env: {},
+        port: Number(ports['app']),
+        readyPath: '/',
+      },
     ],
   },
   portal: {
     dir: process.env['CONTROL_NG_PORTAL_DIR'] || PORTAL_DEFAULT_DIR,
     marker: 'ng-journal-root',
     ports: (dir) => [
-      { name: 'app', kind: 'derived', at: (slot) => (slot === 0 ? 4200 : 4500 + slot) },
-      { name: 'api', kind: 'fixed', port: PORTAL_API_PORT, pin: `${pinOf(dir, PORTAL_API_PIN, `localhost:${PORTAL_API_PORT}`)} in the portal checkout ${dir}` },
-      { name: 'pangular', kind: 'external', port: PANGULAR_PORT, owner: 'control-pangular-inspector, whose server the portal reaches through its /__pangular proxy' },
+      {
+        name: 'app',
+        kind: 'derived',
+        at: (slot) => (slot === 0 ? 4200 : 4500 + slot),
+      },
+      {
+        name: 'api',
+        kind: 'fixed',
+        port: PORTAL_API_PORT,
+        pin: `${pinOf(dir, PORTAL_API_PIN, `localhost:${PORTAL_API_PORT}`)} in the portal checkout ${dir}`,
+      },
+      {
+        name: 'pangular',
+        kind: 'external',
+        port: PANGULAR_PORT,
+        owner:
+          'control-pangular-inspector, whose server the portal reaches through its /__pangular proxy',
+      },
     ],
     procs: (dir, ports) => [
       // --inspect=false: the @nx/js:node executor otherwise opens the Node inspector on 9229 (measured), a port any other Node process may hold.
-      { name: 'api', bin: binOf(dir, 'nx', 'nx'), args: ['run', 'api:serve', '--inspect=false'], env: { PORT: String(PORTAL_API_PORT) }, port: PORTAL_API_PORT, readyPath: '/api/customers' },
-      { name: 'app', bin: binOf(dir, 'nx', 'nx'), args: ['run', 'insurance-portal:serve', `--port=${ports['app']}`], env: {}, port: Number(ports['app']), readyPath: '/' },
+      {
+        name: 'api',
+        bin: binOf(dir, 'nx', 'nx'),
+        args: ['run', 'api:serve', '--inspect=false'],
+        env: { PORT: String(PORTAL_API_PORT) },
+        port: PORTAL_API_PORT,
+        readyPath: '/api/customers',
+      },
+      {
+        name: 'app',
+        bin: binOf(dir, 'nx', 'nx'),
+        args: ['run', 'insurance-portal:serve', `--port=${ports['app']}`],
+        env: {},
+        port: Number(ports['app']),
+        readyPath: '/',
+      },
     ],
   },
 };
@@ -194,7 +279,14 @@ export function slotOf(dir, worktree) {
     return 0;
   }
 
-  return 1 + (createHash('sha1').update(path.resolve(dir).toLowerCase()).digest().readUInt32BE(0) % (SLOTS - 1));
+  return (
+    1 +
+    (createHash('sha1')
+      .update(path.resolve(dir).toLowerCase())
+      .digest()
+      .readUInt32BE(0) %
+      (SLOTS - 1))
+  );
 }
 
 /**
@@ -204,7 +296,9 @@ export function slotOf(dir, worktree) {
  * @returns {number[]}
  */
 export function slotOrder(first) {
-  return Array.from({ length: SLOT_TRIES }, (_, i) => (first === 0 ? i : 1 + ((first - 1 + i) % (SLOTS - 1))));
+  return Array.from({ length: SLOT_TRIES }, (_, i) =>
+    first === 0 ? i : 1 + ((first - 1 + i) % (SLOTS - 1)),
+  );
 }
 
 /**
@@ -221,7 +315,9 @@ export function listeners(text) {
     const m = l.trim().split(/\s+/);
 
     if (m[0] === 'TCP' && m[3] === 'LISTENING') {
-      const port = Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1));
+      const port = Number(
+        (m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1),
+      );
       const pid = Number(m[4]);
       const pids = map.get(port) ?? [];
 
@@ -245,7 +341,9 @@ export function listeners(text) {
  */
 export function pinOf(dir, rel, needle) {
   try {
-    const i = readFileSync(path.join(dir, rel), 'utf8').split(/\r?\n/).findIndex((l) => l.includes(needle));
+    const i = readFileSync(path.join(dir, rel), 'utf8')
+      .split(/\r?\n/)
+      .findIndex((l) => l.includes(needle));
 
     return i === -1 ? rel : `${rel}:${i + 1}`;
   } catch {
@@ -264,7 +362,9 @@ export function pinOf(dir, rel, needle) {
  */
 export function candidatePorts(rows, order, forced, first = order[0]) {
   const slots = first === undefined ? order : [...order, first];
-  const ports = rows.flatMap((r) => (r.kind === 'derived' ? slots.map((slot) => r.at(slot)) : [r.port]));
+  const ports = rows.flatMap((r) =>
+    r.kind === 'derived' ? slots.map((slot) => r.at(slot)) : [r.port],
+  );
 
   return [...new Set([...ports, ...(forced === undefined ? [] : [forced])])];
 }
@@ -283,7 +383,10 @@ export function candidatePorts(rows, order, forced, first = order[0]) {
  */
 export function planPorts(rows, order, busy, forced, first = order[0]) {
   /** @param {number[]} pids */
-  const heldBy = (pids) => (pids.length === 0 ? 'held by a process the OS did not name' : `held by PID ${pids.join(', ')}`);
+  const heldBy = (pids) =>
+    pids.length === 0
+      ? 'held by a process the OS did not name'
+      : `held by PID ${pids.join(', ')}`;
   /** @param {number} port */
   const holder = (port) => busy.get(port);
 
@@ -291,7 +394,10 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
     const pids = r.kind === 'fixed' ? holder(r.port) : undefined;
 
     if (r.kind === 'fixed' && pids !== undefined) {
-      return { ok: false, reason: `fixed port ${r.name} ${r.port} ${heldBy(pids)}; pinned by ${r.pin}` };
+      return {
+        ok: false,
+        reason: `fixed port ${r.name} ${r.port} ${heldBy(pids)}; pinned by ${r.pin}`,
+      };
     }
   }
 
@@ -299,19 +405,30 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
   const forcedPids = forced === undefined ? undefined : holder(forced);
 
   if (forced !== undefined && forcedPids !== undefined) {
-    return { ok: false, reason: `port ${forced} (--port) is ${heldBy(forcedPids)}; --port has no fallback` };
+    return {
+      ok: false,
+      reason: `port ${forced} (--port) is ${heldBy(forcedPids)}; --port has no fallback`,
+    };
   }
 
   /** @type {(r: PortRow, i: number, slot: number) => number} */
-  const portAt = (r, i, slot) => (r.kind !== 'derived' ? r.port : i === main && forced !== undefined ? forced : r.at(slot));
+  const portAt = (r, i, slot) =>
+    r.kind !== 'derived'
+      ? r.port
+      : i === main && forced !== undefined
+        ? forced
+        : r.at(slot);
   /** @type {string[]} */
   const tried = [];
 
   for (const slot of order) {
     const taken = rows.flatMap((r, i) => {
-      const pids = r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
+      const pids =
+        r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
 
-      return pids === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} ${heldBy(pids)}`];
+      return pids === undefined
+        ? []
+        : [`${r.name} ${portAt(r, i, slot)} ${heldBy(pids)}`];
     });
 
     if (taken.length === 0) {
@@ -333,9 +450,19 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
 
         const from = portAt(r, i, first);
         const pids = holder(from);
-        const why = pids !== undefined ? heldBy(pids) : order[0] === first ? `slot ${first} had ${tried[0]}` : 'taken after the check';
+        const why =
+          pids !== undefined
+            ? heldBy(pids)
+            : order[0] === first
+              ? `slot ${first} had ${tried[0]}`
+              : 'taken after the check';
 
-        return { name: r.name, port, kind: r.kind, reason: `fell back from ${from}: ${why}` };
+        return {
+          name: r.name,
+          port,
+          kind: r.kind,
+          reason: `fell back from ${from}: ${why}`,
+        };
       });
 
       return { ok: true, slot, ports };
@@ -344,7 +471,10 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
     tried.push(...taken);
   }
 
-  return { ok: false, reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}` };
+  return {
+    ok: false,
+    reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}`,
+  };
 }
 
 /**
@@ -370,14 +500,26 @@ export function portsCheck(ports, busy, tree) {
 
     const foreign = pids.filter((pid) => !tree.has(pid));
 
-    return foreign.length === 0 ? [] : [`${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`];
+    return foreign.length === 0
+      ? []
+      : [
+          `${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`,
+        ];
   });
 
   if (problems.length > 0) {
     return { status: 'fail', detail: problems.join('; ') };
   }
 
-  return { status: 'pass', detail: ports.map((p) => `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`).join(', ') };
+  return {
+    status: 'pass',
+    detail: ports
+      .map(
+        (p) =>
+          `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`,
+      )
+      .join(', '),
+  };
 }
 
 /**
@@ -386,7 +528,9 @@ export function portsCheck(ports, busy, tree) {
  * @returns {string | null}
  */
 export function authCodeIn(log) {
-  const all = [...log.replace(/\x1b\[[0-9;]*m/g, '').matchAll(/auth code\s+(\d{4,8})/g)];
+  const all = [
+    ...log.replace(/\x1b\[[0-9;]*m/g, '').matchAll(/auth code\s+(\d{4,8})/g),
+  ];
 
   return all.at(-1)?.[1] ?? null;
 }
@@ -402,7 +546,8 @@ export function authCodeIn(log) {
  * @returns {string[]}
  */
 export function buildLogErrors(log) {
-  const entryStart = /\[ERROR\]|error TS\d+|^\[\w+\]|^\d\d\.\d\d\.\d\d |^[❯✔✘]|^Application bundle/;
+  const entryStart =
+    /\[ERROR\]|error TS\d+|^\[\w+\]|^\d\d\.\d\d\.\d\d |^[❯✔✘]|^Application bundle/;
   let inVite = false;
 
   return log.split(/\r?\n/).filter((raw) => {
@@ -433,7 +578,12 @@ export function buildLogErrors(log) {
  */
 export function consoleErrors(stdout) {
   const total = Number(/Errors: (\d+)/.exec(stdout)?.[1] ?? NaN);
-  const pangular = stdout.split(/\r?\n/).filter((l) => l.startsWith('[ERROR]') && /__connection\.json|\[pangular\]/.test(l));
+  const pangular = stdout
+    .split(/\r?\n/)
+    .filter(
+      (l) =>
+        l.startsWith('[ERROR]') && /__connection\.json|\[pangular\]/.test(l),
+    );
 
   return { total, pangular, others: total - pangular.length };
 }
@@ -444,7 +594,11 @@ export function consoleErrors(stdout) {
  * @returns {string}
  */
 export function cdMode(ngZone) {
-  return ngZone === 'NoopNgZone' ? 'zoneless' : ngZone ? 'zone-based' : 'unknown (no NgZone provider record found)';
+  return ngZone === 'NoopNgZone'
+    ? 'zoneless'
+    : ngZone
+      ? 'zone-based'
+      : 'unknown (no NgZone provider record found)';
 }
 
 /**
@@ -515,7 +669,9 @@ function sameOrigin(a, b) {
  * @returns {string[]}
  */
 export function authReply(target, otp, pageUrl, appUrl) {
-  return target === 'portal' && otp && sameOrigin(pageUrl, appUrl) ? ['dialog-accept', otp] : ['dialog-dismiss'];
+  return target === 'portal' && otp && sameOrigin(pageUrl, appUrl)
+    ? ['dialog-accept', otp]
+    : ['dialog-dismiss'];
 }
 
 /**
@@ -533,24 +689,49 @@ export function authCheck(target, otp, pageUrl, appUrl, logName, reply) {
   const name = 'pangular-auth';
 
   if (target !== 'portal') {
-    return { name, status: 'warn', detail: 'dismissed a code prompt on a page that is not the portal; the one-time code goes only to the portal' };
+    return {
+      name,
+      status: 'warn',
+      detail:
+        'dismissed a code prompt on a page that is not the portal; the one-time code goes only to the portal',
+    };
   }
 
   if (!sameOrigin(pageUrl, appUrl)) {
-    return { name, status: 'warn', detail: `dismissed a code prompt on ${pageUrl ?? 'a page whose URL the snapshot did not name'}, not on the portal's origin; the one-time code goes only there` };
+    return {
+      name,
+      status: 'warn',
+      detail: `dismissed a code prompt on ${pageUrl ?? 'a page whose URL the snapshot did not name'}, not on the portal's origin; the one-time code goes only there`,
+    };
   }
 
   if (!otp) {
-    return { name, status: 'warn', detail: `dismissed the overlay's code prompt: no control-pangular-inspector state file with a code for port ${PANGULAR_PORT}` };
+    return {
+      name,
+      status: 'warn',
+      detail: `dismissed the overlay's code prompt: no control-pangular-inspector state file with a code for port ${PANGULAR_PORT}`,
+    };
   }
 
   if (reply.status !== 0) {
-    const error = (reply.stderr || reply.stdout).split(otp).join('<code>').trim().slice(0, 200);
+    const error = (reply.stderr || reply.stdout)
+      .split(otp)
+      .join('<code>')
+      .trim()
+      .slice(0, 200);
 
-    return { name, status: 'warn', detail: `found the one-time code in ${logName}, but dialog-accept failed: ${error}` };
+    return {
+      name,
+      status: 'warn',
+      detail: `found the one-time code in ${logName}, but dialog-accept failed: ${error}`,
+    };
   }
 
-  return { name, status: 'pass', detail: `entered the one-time code from ${logName} into the overlay prompt` };
+  return {
+    name,
+    status: 'pass',
+    detail: `entered the one-time code from ${logName} into the overlay prompt`,
+  };
 }
 
 /**
@@ -562,7 +743,11 @@ export function authCheck(target, otp, pageUrl, appUrl, logName, reply) {
 export function markerCheck(roots, marker) {
   return roots.includes(marker)
     ? { name: 'app-marker', status: 'pass', detail: `root <${marker}> present` }
-    : { name: 'app-marker', status: 'fail', detail: `expected root <${marker}>, found ${roots.length ? `<${roots.join('>, <')}>` : 'no Angular root'}` };
+    : {
+        name: 'app-marker',
+        status: 'fail',
+        detail: `expected root <${marker}>, found ${roots.length ? `<${roots.join('>, <')}>` : 'no Angular root'}`,
+      };
 }
 
 /**
@@ -572,7 +757,14 @@ export function markerCheck(roots, marker) {
  * @returns {string}
  */
 export function checkLine(c) {
-  const tag = c.status === 'pass' ? '[OK]' : c.status === 'skip' ? '[SKIP]' : c.status === 'warn' ? '[WARN]' : '[ERROR]';
+  const tag =
+    c.status === 'pass'
+      ? '[OK]'
+      : c.status === 'skip'
+        ? '[SKIP]'
+        : c.status === 'warn'
+          ? '[WARN]'
+          : '[ERROR]';
 
   return `${tag} ${c.name}: ${printable(c.detail)}`;
 }
@@ -583,7 +775,10 @@ export function checkLine(c) {
  * @returns {{ proc: ProcState, root: ProcRecord | undefined }[]}
  */
 export function rootsOf(state) {
-  return state.procs.map((proc) => ({ proc, root: (state.tree ?? []).find((r) => r.pid === proc.pid) }));
+  return state.procs.map((proc) => ({
+    proc,
+    root: (state.tree ?? []).find((r) => r.pid === proc.pid),
+  }));
 }
 
 /**
@@ -596,7 +791,12 @@ export function rootsOf(state) {
 export function liveTrees(state, table = processTable) {
   const rows = table();
 
-  return new Map(rootsOf(state).map(({ proc, root }) => [proc.pid, root === undefined ? [] : snapshot(root, { table: () => rows })]));
+  return new Map(
+    rootsOf(state).map(({ proc, root }) => [
+      proc.pid,
+      root === undefined ? [] : snapshot(root, { table: () => rows }),
+    ]),
+  );
 }
 
 /**
@@ -606,8 +806,14 @@ export function liveTrees(state, table = processTable) {
  * @param {{ table?: () => ProcRecord[], stop?: (records: ProcRecord[]) => StopResult }} [deps]
  * @returns {{ records: ProcRecord[], result: StopResult }}
  */
-export function stopRun(state, { table = processTable, stop: stopRecords = stop } = {}) {
-  const records = merge(state.tree ?? [], [...liveTrees(state, table).values()].flat());
+export function stopRun(
+  state,
+  { table = processTable, stop: stopRecords = stop } = {},
+) {
+  const records = merge(
+    state.tree ?? [],
+    [...liveTrees(state, table).values()].flat(),
+  );
 
   return { records, result: stopRecords(records) };
 }
@@ -622,11 +828,19 @@ export function stopRun(state, { table = processTable, stop: stopRecords = stop 
 export function downOutcome(state, result) {
   // A state file written before proctree.mjs records no tree: stopping nothing and removing it would lose the run.
   if (state.procs.length > 0 && state.tree === undefined) {
-    return { code: 2, notes: [], reason: `refused: the state file records no process tree (written before proctree.mjs); nothing stopped: check PID(s) ${state.procs.map((p) => p.pid).join(', ')} by hand, then delete the state file` };
+    return {
+      code: 2,
+      notes: [],
+      reason: `refused: the state file records no process tree (written before proctree.mjs); nothing stopped: check PID(s) ${state.procs.map((p) => p.pid).join(', ')} by hand, then delete the state file`,
+    };
   }
 
   /** @type {Map<string, string>} */
-  const roots = new Map(rootsOf(state).flatMap(({ proc, root }) => (root === undefined ? [] : [[`${root.pid}@${root.start}`, proc.name]])));
+  const roots = new Map(
+    rootsOf(state).flatMap(({ proc, root }) =>
+      root === undefined ? [] : [[`${root.pid}@${root.start}`, proc.name]],
+    ),
+  );
   /** @type {string[]} */
   const reasons = [];
   const notes = [
@@ -638,15 +852,27 @@ export function downOutcome(state, result) {
     const root = roots.get(`${r.pid}@${r.start}`);
 
     if (r.reason === 'reused' && root !== undefined) {
-      reasons.push(`refused: PID ${r.pid} (${root}) now belongs to another process (its start time or command line differs from the state file); not stopping a process this skill did not start`);
+      reasons.push(
+        `refused: PID ${r.pid} (${root}) now belongs to another process (its start time or command line differs from the state file); not stopping a process this skill did not start`,
+      );
     } else if (r.reason === 'survived') {
-      reasons.push(`${describe(r)} still runs after the last round; run down again`);
+      reasons.push(
+        `${describe(r)} still runs after the last round; run down again`,
+      );
     } else {
-      notes.push(`left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`);
+      notes.push(
+        `left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`,
+      );
     }
   }
 
-  return reasons.length === 0 ? { code: 0, notes, reason: null } : { code: 2, notes, reason: `${reasons.join('; ')}; the state file is kept` };
+  return reasons.length === 0
+    ? { code: 0, notes, reason: null }
+    : {
+        code: 2,
+        notes,
+        reason: `${reasons.join('; ')}; the state file is kept`,
+      };
 }
 
 /**
@@ -666,7 +892,9 @@ export function flowIdFor(args) {
 
   if (typeof target === 'string' && target !== '') {
     if (!isTarget(target)) {
-      throw new Error(`unknown target "${target}"; use counter, components, ssr or portal`);
+      throw new Error(
+        `unknown target "${target}"; use counter, components, ssr or portal`,
+      );
     }
 
     return target;
@@ -690,8 +918,11 @@ function binOf(dir, pkg, binName) {
     return null;
   }
 
-  const manifest = /** @type {{ bin?: string | Record<string, string> }} */ (JSON.parse(readFileSync(pj, 'utf8')));
-  const bin = typeof manifest.bin === 'string' ? manifest.bin : manifest.bin?.[binName];
+  const manifest = /** @type {{ bin?: string | Record<string, string> }} */ (
+    JSON.parse(readFileSync(pj, 'utf8'))
+  );
+  const bin =
+    typeof manifest.bin === 'string' ? manifest.bin : manifest.bin?.[binName];
 
   return bin === undefined ? null : path.join(dir, 'node_modules', pkg, bin);
 }
@@ -719,8 +950,16 @@ async function bindAnswer(port, host) {
   return new Promise((resolve) => {
     const server = createServer();
 
-    server.once('error', (error) => resolve(/** @type {NodeJS.ErrnoException} */ (error).code === 'EADDRINUSE' ? 'busy' : 'unknown'));
-    server.listen({ host, port, exclusive: true }, () => server.close(() => resolve('free')));
+    server.once('error', (error) =>
+      resolve(
+        /** @type {NodeJS.ErrnoException} */ (error).code === 'EADDRINUSE'
+          ? 'busy'
+          : 'unknown',
+      ),
+    );
+    server.listen({ host, port, exclusive: true }, () =>
+      server.close(() => resolve('free')),
+    );
   });
 }
 
@@ -759,7 +998,17 @@ export async function probePort(port, hosts = LOOPBACKS) {
 function namedHolders() {
   const netstat = path.join(SYSTEM32, 'netstat.exe');
 
-  return listeners(['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n'));
+  return listeners(
+    ['TCP', 'TCPv6']
+      .map(
+        (proto) =>
+          spawnSync(netstat, ['-ano', '-p', proto], {
+            encoding: 'utf8',
+            windowsHide: true,
+          }).stdout,
+      )
+      .join('\n'),
+  );
 }
 
 /**
@@ -798,14 +1047,36 @@ export async function busyPorts(ports, hosts = LOOPBACKS) {
  * @returns {Run}
  */
 function playwrightCli(args) {
-  const shimDir = (process.env['PATH'] ?? '').split(path.delimiter).find((d) => path.isAbsolute(d) && existsSync(path.join(d, 'playwright-cli.cmd')));
-  const js = shimDir && path.join(shimDir, 'node_modules', '@playwright', 'cli', 'playwright-cli.js');
+  const shimDir = (process.env['PATH'] ?? '')
+    .split(path.delimiter)
+    .find(
+      (d) =>
+        path.isAbsolute(d) && existsSync(path.join(d, 'playwright-cli.cmd')),
+    );
+  const js =
+    shimDir &&
+    path.join(
+      shimDir,
+      'node_modules',
+      '@playwright',
+      'cli',
+      'playwright-cli.js',
+    );
 
   if (!js || !existsSync(js)) {
-    return { status: 127, stdout: '', stderr: 'playwright-cli not found on PATH' };
+    return {
+      status: 127,
+      stdout: '',
+      stderr: 'playwright-cli not found on PATH',
+    };
   }
 
-  const r = spawnSync(process.execPath, [js, ...args], { cwd: REPO_ROOT, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
+  const r = spawnSync(process.execPath, [js, ...args], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+    windowsHide: true,
+    maxBuffer: 64 * 1024 * 1024,
+  });
 
   return { status: r.status, stdout: r.stdout ?? '', stderr: r.stderr ?? '' };
 }
@@ -815,7 +1086,13 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // The portal proxies /__pangular to this port (proxy.conf.json); control-pangular-inspector writes its state here.
 const PANGULAR_PORT = 9999;
-const PANGULAR_STATE = path.join(REPO_ROOT, 'tmp', 'control-pangular-inspector', 'state', `pangular-${PANGULAR_PORT}.json`);
+const PANGULAR_STATE = path.join(
+  REPO_ROOT,
+  'tmp',
+  'control-pangular-inspector',
+  'state',
+  `pangular-${PANGULAR_PORT}.json`,
+);
 
 /**
  * The Pangular devtools server behind PANGULAR_PORT, as far as the port and control-pangular-inspector's state file
@@ -828,14 +1105,21 @@ async function pangularServer() {
   let log = null;
 
   try {
-    log = /** @type {{ log?: string }} */ (JSON.parse(readFileSync(PANGULAR_STATE, 'utf8'))).log ?? null;
+    log =
+      /** @type {{ log?: string }} */ (
+        JSON.parse(readFileSync(PANGULAR_STATE, 'utf8'))
+      ).log ?? null;
   } catch {
     // no server started by control-pangular-inspector
   }
 
   const held = await busyPorts([PANGULAR_PORT]);
 
-  return { held: held.has(PANGULAR_PORT), pid: held.get(PANGULAR_PORT)?.[0] ?? null, log };
+  return {
+    held: held.has(PANGULAR_PORT),
+    pid: held.get(PANGULAR_PORT)?.[0] ?? null,
+    log,
+  };
 }
 
 /**
@@ -877,7 +1161,9 @@ function out(result, code) {
     }
 
     const { checks, ...rest } = result;
-    process.stdout.write(`${code === 0 ? '[OK]' : '[ERROR]'} ${JSON.stringify(rest)}\n`);
+    process.stdout.write(
+      `${code === 0 ? '[OK]' : '[ERROR]'} ${JSON.stringify(rest)}\n`,
+    );
   }
 
   process.exit(code);
@@ -913,13 +1199,20 @@ function resolveFlow() {
     return named;
   }
 
-  const files = existsSync(STATE_DIR) ? readdirSync(STATE_DIR).filter((f) => f.endsWith('.json')) : [];
+  const files = existsSync(STATE_DIR)
+    ? readdirSync(STATE_DIR).filter((f) => f.endsWith('.json'))
+    : [];
 
   if (files.length === 1 && files[0] !== undefined) {
     return files[0].slice(0, -5);
   }
 
-  return fail(2, files.length === 0 ? 'no state file: nothing was started by this skill (run up first)' : `several flows are running (${files.join(', ')}); pass --target or --url`);
+  return fail(
+    2,
+    files.length === 0
+      ? 'no state file: nothing was started by this skill (run up first)'
+      : `several flows are running (${files.join(', ')}); pass --target or --url`,
+  );
 }
 
 /**
@@ -930,7 +1223,10 @@ function readState(flowId) {
   const p = statePath(flowId);
 
   if (!existsSync(p)) {
-    fail(2, `no state file for flow ${flowId} at ${p}: nothing to act on (run up first)`);
+    fail(
+      2,
+      `no state file for flow ${flowId} at ${p}: nothing to act on (run up first)`,
+    );
   }
 
   return /** @type {State} */ (JSON.parse(readFileSync(p, 'utf8')));
@@ -946,7 +1242,6 @@ function mainPortOf(rows) {
 
   return r === undefined ? NaN : r.kind === 'derived' ? r.at(0) : r.port;
 }
-
 
 /**
  * Whether another process took a started process's port after planPorts checked it: a holder outside the started
@@ -985,16 +1280,34 @@ async function launch(state, specs, marker, attempt, t0, timeoutMs) {
   // One at a time: two cold `nx run` processes started together timed out in the Nx plugin worker (3 of 4 portal runs, 2026-10-11).
   for (const p of specs) {
     /** @type {NodeJS.ProcessEnv} */
-    const env = { ...process.env, NX_TUI: 'false', NG_CLI_ANALYTICS: 'false', ...p.env };
+    const env = {
+      ...process.env,
+      NX_TUI: 'false',
+      NG_CLI_ANALYTICS: 'false',
+      ...p.env,
+    };
 
     if (!('PORT' in p.env)) {
       delete env['PORT']; // measured: the Angular dev server serves on $PORT and ignores --port when PORT is set
     }
 
-    const log = path.join(state.evidenceDir, `${p.name}${attempt === 0 ? '' : `-${attempt + 1}`}.log`);
+    const log = path.join(
+      state.evidenceDir,
+      `${p.name}${attempt === 0 ? '' : `-${attempt + 1}`}.log`,
+    );
     const fd = openSync(log, 'a');
     const notBefore = Date.now();
-    const child = spawn(process.execPath, [/** @type {string} */ (p.bin), ...p.args], { cwd: state.dir, env, detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
+    const child = spawn(
+      process.execPath,
+      [/** @type {string} */ (p.bin), ...p.args],
+      {
+        cwd: state.dir,
+        env,
+        detached: true,
+        stdio: ['ignore', fd, fd],
+        windowsHide: true,
+      },
+    );
     const notAfter = Date.now();
     child.unref();
 
@@ -1005,7 +1318,13 @@ async function launch(state, specs, marker, attempt, t0, timeoutMs) {
     const first = snapshot(child.pid, { notBefore, notAfter });
     const root = first[0];
     /** @type {ProcState} */
-    const s = { name: p.name, pid: child.pid, port: p.port, readyUrl: `http://localhost:${p.port}${p.readyPath}`, log };
+    const s = {
+      name: p.name,
+      pid: child.pid,
+      port: p.port,
+      readyUrl: `http://localhost:${p.port}${p.readyPath}`,
+      log,
+    };
     state.procs.push(s);
     state.tree = merge(state.tree ?? [], first);
     writeFileSync(sp, JSON.stringify(state, null, 2));
@@ -1013,7 +1332,8 @@ async function launch(state, specs, marker, attempt, t0, timeoutMs) {
     for (;;) {
       // A first SSR render compiles on demand; aborting it at 3 s logs an AbortError in the server log (measured).
       const r = await fetchText(s.readyUrl, 60000);
-      const pageOk = s.name !== 'app' || (r.status === 200 && r.body.includes(`<${marker}`));
+      const pageOk =
+        s.name !== 'app' || (r.status === 200 && r.body.includes(`<${marker}`));
       const answered = r.status >= 200 && r.status < 500 && pageOk;
       const live = root === undefined ? [] : snapshot(root);
       const exited = live.length === 0;
@@ -1026,7 +1346,15 @@ async function launch(state, specs, marker, attempt, t0, timeoutMs) {
       }
 
       const entry = (state.ports ?? []).find((e) => e.port === s.port);
-      const taken = answered || exited ? takenBy((await busyPorts([s.port])).get(s.port) ?? [], new Set(live.map((x) => x.pid)), exited, readFileSync(s.log, 'utf8')) : null;
+      const taken =
+        answered || exited
+          ? takenBy(
+              (await busyPorts([s.port])).get(s.port) ?? [],
+              new Set(live.map((x) => x.pid)),
+              exited,
+              readFileSync(s.log, 'utf8'),
+            )
+          : null;
 
       if (taken !== null && entry !== undefined) {
         return { entry, pid: taken.pid };
@@ -1037,11 +1365,19 @@ async function launch(state, specs, marker, attempt, t0, timeoutMs) {
       }
 
       if (exited) {
-        fail(2, `${s.name} (PID ${s.pid}) exited before it was ready; see ${s.log}; run down to clear the state`, { state: sp });
+        fail(
+          2,
+          `${s.name} (PID ${s.pid}) exited before it was ready; see ${s.log}; run down to clear the state`,
+          { state: sp },
+        );
       }
 
       if (Date.now() - t0 > timeoutMs) {
-        fail(2, `${s.name} not ready after ${timeoutMs / 1000}s at ${s.readyUrl}; see ${s.log}; run down`, { state: sp });
+        fail(
+          2,
+          `${s.name} not ready after ${timeoutMs / 1000}s at ${s.readyUrl}; see ${s.log}; run down`,
+          { state: sp },
+        );
       }
 
       await sleep(500);
@@ -1060,7 +1396,9 @@ async function up() {
     const flowId = resolveFlow();
 
     if (existsSync(statePath(flowId))) {
-      fail(2, `flow ${flowId} already has a state file; run down first`, { state: statePath(flowId) });
+      fail(2, `flow ${flowId} already has a state file; run down first`, {
+        state: statePath(flowId),
+      });
     }
 
     const evidenceDir = path.join(SCRATCH, `${flowId}-${stamp}`);
@@ -1071,9 +1409,25 @@ async function up() {
       fail(2, `nothing answers at ${url} (${res.body})`);
     }
 
-    const ports = [{ name: 'app', port: urlPort(url), kind: /** @type {PortKind} */ ('external'), reason: 'attached with --url; this skill did not start it' }];
+    const ports = [
+      {
+        name: 'app',
+        port: urlPort(url),
+        kind: /** @type {PortKind} */ ('external'),
+        reason: 'attached with --url; this skill did not start it',
+      },
+    ];
     /** @type {State} */
-    const state = { flowId, mode: 'attach', url, ports, session: `control-ngdev-${flowId}`, evidenceDir, startedAt: new Date().toISOString(), procs: [] };
+    const state = {
+      flowId,
+      mode: 'attach',
+      url,
+      ports,
+      session: `control-ngdev-${flowId}`,
+      evidenceDir,
+      startedAt: new Date().toISOString(),
+      procs: [],
+    };
     writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
     out({ ok: true, command: 'up', ...state }, 0);
   }
@@ -1081,7 +1435,10 @@ async function up() {
   const targetName = flag('target');
 
   if (typeof targetName !== 'string' || !isTarget(targetName)) {
-    return fail(2, 'up needs --target counter|components|ssr|portal, or --url <dev-server URL> to attach to a running app');
+    return fail(
+      2,
+      'up needs --target counter|components|ssr|portal, or --url <dev-server URL> to attach to a running app',
+    );
   }
 
   const t = TARGETS[targetName];
@@ -1091,24 +1448,36 @@ async function up() {
   const worktree = isWorktree(dir) || isWorktree(REPO_ROOT);
   const rows = t.ports(dir);
   const portFlag = flag('port');
-  const forced = typeof portFlag === 'string' && portFlag !== '' ? Number(portFlag) : undefined;
+  const forced =
+    typeof portFlag === 'string' && portFlag !== ''
+      ? Number(portFlag)
+      : undefined;
 
   if (portFlag === true) {
     fail(2, 'refused: --port needs a value');
   }
 
-  if (forced !== undefined && !(Number.isInteger(forced) && forced > 0 && forced < 65536)) {
+  if (
+    forced !== undefined &&
+    !(Number.isInteger(forced) && forced > 0 && forced < 65536)
+  ) {
     fail(2, `refused: --port ${portFlag} is not a port number`);
   }
 
   const other = rows.find((r) => r.kind !== 'derived' && r.port === forced);
 
   if (other !== undefined) {
-    fail(2, `refused: --port ${forced} is the ${other.kind} port ${other.name} of this flow`);
+    fail(
+      2,
+      `refused: --port ${forced} is the ${other.kind} port ${other.name} of this flow`,
+    );
   }
 
   if (worktree && forced === mainPortOf(rows)) {
-    fail(2, `refused: ${dir} is a git worktree and port ${forced} is the main checkout's documented port; use the derived port or --url on purpose`);
+    fail(
+      2,
+      `refused: ${dir} is a git worktree and port ${forced} is the main checkout's documented port; use the derived port or --url on purpose`,
+    );
   }
 
   /** @type {number} */
@@ -1117,18 +1486,26 @@ async function up() {
   try {
     timeoutMs = timeoutMsOf(argv, 240);
   } catch (error) {
-    return fail(2, `refused: ${error instanceof Error ? error.message : String(error)}`);
+    return fail(
+      2,
+      `refused: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 
   const flowId = targetName;
 
   if (existsSync(statePath(flowId))) {
-    fail(2, `flow ${flowId} already has a state file; run down first`, { state: statePath(flowId) });
+    fail(2, `flow ${flowId} already has a state file; run down first`, {
+      state: statePath(flowId),
+    });
   }
 
   for (const p of t.procs(dir, {})) {
     if (!p.bin || !existsSync(p.bin)) {
-      fail(2, `cannot find the CLI for ${p.name} under ${dir}/node_modules (install dependencies first)`);
+      fail(
+        2,
+        `cannot find the CLI for ${p.name} under ${dir}/node_modules (install dependencies first)`,
+      );
     }
   }
 
@@ -1139,7 +1516,13 @@ async function up() {
   let attempt = 0;
 
   for (;;) {
-    const plan = planPorts(rows, order, await busyPorts(candidatePorts(rows, order, forced, first)), forced, first);
+    const plan = planPorts(
+      rows,
+      order,
+      await busyPorts(candidatePorts(rows, order, forced, first)),
+      forced,
+      first,
+    );
 
     if (!plan.ok) {
       return fail(2, `refused: ${plan.reason}`);
@@ -1149,14 +1532,46 @@ async function up() {
     const ports = Object.fromEntries(plan.ports.map((p) => [p.name, p.port]));
     const port = Number(ports['app']);
     /** @type {State} */
-    const state = { flowId, mode: 'launch', target: targetName, dir, worktree, url: `http://localhost:${port}/`, port, slot: plan.slot, ports: plan.ports, session: `control-ngdev-${flowId}-${port}`, evidenceDir, startedAt: new Date().toISOString(), procs: [] };
-    const busy = await launch(state, t.procs(dir, ports), t.marker, attempt, t0, timeoutMs);
+    const state = {
+      flowId,
+      mode: 'launch',
+      target: targetName,
+      dir,
+      worktree,
+      url: `http://localhost:${port}/`,
+      port,
+      slot: plan.slot,
+      ports: plan.ports,
+      session: `control-ngdev-${flowId}-${port}`,
+      evidenceDir,
+      startedAt: new Date().toISOString(),
+      procs: [],
+    };
+    const busy = await launch(
+      state,
+      t.procs(dir, ports),
+      t.marker,
+      attempt,
+      t0,
+      timeoutMs,
+    );
     attempt += 1;
 
     if (busy === null) {
-      state.tree = merge(state.tree ?? [], [...liveTrees(state).values()].flat());
+      state.tree = merge(
+        state.tree ?? [],
+        [...liveTrees(state).values()].flat(),
+      );
       writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
-      out({ ok: true, command: 'up', readyInSeconds: Math.round((Date.now() - t0) / 100) / 10, ...state }, 0);
+      out(
+        {
+          ok: true,
+          command: 'up',
+          readyInSeconds: Math.round((Date.now() - t0) / 100) / 10,
+          ...state,
+        },
+        0,
+      );
     }
 
     // Another process took a port after the check: stop what this attempt started, then try the next slot.
@@ -1166,18 +1581,28 @@ async function up() {
     if (stopped.code !== 0) {
       state.tree = records;
       writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
-      fail(2, `${busy.entry.name} ${busy.entry.port} was taken after the check, and stopping this attempt failed: ${stopped.reason}; run down`, { state: statePath(flowId), notes: stopped.notes });
+      fail(
+        2,
+        `${busy.entry.name} ${busy.entry.port} was taken after the check, and stopping this attempt failed: ${stopped.reason}; run down`,
+        { state: statePath(flowId), notes: stopped.notes },
+      );
     }
 
     rmSync(statePath(flowId), { force: true });
     const taken = `${busy.entry.name} ${busy.entry.port} was taken ${busy.pid === null ? 'by another process' : `by PID ${busy.pid}`} after the check`;
 
     if (busy.entry.kind === 'fixed') {
-      fail(2, `refused: fixed port ${busy.entry.name} ${busy.entry.port} held by ${busy.pid === null ? 'another process' : `PID ${busy.pid}`}; pinned by ${busy.entry.reason}`);
+      fail(
+        2,
+        `refused: fixed port ${busy.entry.name} ${busy.entry.port} held by ${busy.pid === null ? 'another process' : `PID ${busy.pid}`}; pinned by ${busy.entry.reason}`,
+      );
     }
 
     if (forced !== undefined && busy.entry.port === forced) {
-      fail(2, `refused: port ${forced} (--port) ${taken}; --port has no fallback`);
+      fail(
+        2,
+        `refused: port ${forced} (--port) ${taken}; --port has no fallback`,
+      );
     }
 
     order = order.slice(order.indexOf(plan.slot) + 1);
@@ -1202,11 +1627,18 @@ async function doctor() {
   add('map-fresh', fresh.status, fresh.detail);
 
   if (state.mode === 'attach' || state.target === undefined) {
-    add('process-alive', 'skip', 'attached with --url; this skill did not start the server');
+    add(
+      'process-alive',
+      'skip',
+      'attached with --url; this skill did not start the server',
+    );
     add('ports', 'skip', '--url given; ownership not checked');
     add('build-log', 'skip', 'attached with --url; no build log');
   } else {
-    if (state.worktree && state.port === mainPortOf(portRowsOf(state.target, state.dir))) {
+    if (
+      state.worktree &&
+      state.port === mainPortOf(portRowsOf(state.target, state.dir))
+    ) {
       fail(2, 'refused: worktree flow points at the main checkout port');
     }
 
@@ -1216,14 +1648,23 @@ async function doctor() {
 
     for (const { proc: p, root } of rootsOf(state)) {
       const live = trees.get(p.pid) ?? [];
-      add(`process-alive:${p.name}`, live.length > 0 ? 'pass' : 'fail', root !== undefined && live.length > 0 ? `PID ${p.pid} running since ${new Date(root.start).toISOString()}` : `PID ${p.pid} is gone or reused`);
+      add(
+        `process-alive:${p.name}`,
+        live.length > 0 ? 'pass' : 'fail',
+        root !== undefined && live.length > 0
+          ? `PID ${p.pid} running since ${new Date(root.start).toISOString()}`
+          : `PID ${p.pid} is gone or reused`,
+      );
       live.forEach((r) => tree.add(r.pid));
     }
 
     const recorded = merge(state.tree ?? [], [...trees.values()].flat());
 
     // Written only while the state file is there and the record changed: a down that just removed it stays done.
-    if (existsSync(statePath(flowId)) && JSON.stringify(recorded) !== JSON.stringify(state.tree ?? [])) {
+    if (
+      existsSync(statePath(flowId)) &&
+      JSON.stringify(recorded) !== JSON.stringify(state.tree ?? [])
+    ) {
       state.tree = recorded;
       writeFileSync(statePath(flowId), JSON.stringify(state, null, 2));
     }
@@ -1231,13 +1672,31 @@ async function doctor() {
     add('tree', 'pass', `${recorded.length} process(es) recorded for down`);
     // A state file written before ports were recorded: check the ports its processes record.
     /** @type {PortEntry[]} */
-    const recordedPorts = state.ports ?? state.procs.map((p) => ({ name: p.name, port: p.port, kind: /** @type {PortKind} */ ('derived') }));
-    const ports = portsCheck(recordedPorts, await busyPorts(recordedPorts.map((p) => p.port)), tree);
+    const recordedPorts =
+      state.ports ??
+      state.procs.map((p) => ({
+        name: p.name,
+        port: p.port,
+        kind: /** @type {PortKind} */ ('derived'),
+      }));
+    const ports = portsCheck(
+      recordedPorts,
+      await busyPorts(recordedPorts.map((p) => p.port)),
+      tree,
+    );
     add('ports', ports.status, ports.detail);
 
     for (const p of state.procs) {
-      const errLines = buildLogErrors(existsSync(p.log) ? readFileSync(p.log, 'utf8') : '');
-      add(`build-log:${p.name}`, errLines.length === 0 ? 'pass' : 'fail', errLines.length === 0 ? 'no error lines in the server log' : errLines.slice(0, 3).join(' | '));
+      const errLines = buildLogErrors(
+        existsSync(p.log) ? readFileSync(p.log, 'utf8') : '',
+      );
+      add(
+        `build-log:${p.name}`,
+        errLines.length === 0 ? 'pass' : 'fail',
+        errLines.length === 0
+          ? 'no error lines in the server log'
+          : errLines.slice(0, 3).join(' | '),
+      );
     }
   }
 
@@ -1253,7 +1712,11 @@ async function doctor() {
     let res = playwrightCli([`-s=${s}`, ...args]);
 
     // Only run-code and eval errors omit the dialog text; tab-list names it and the current tab's URL (measured).
-    for (let i = 0; i < 3 && /modal state/i.test(res.stdout + res.stderr); i++) {
+    for (
+      let i = 0;
+      i < 3 && /modal state/i.test(res.stdout + res.stderr);
+      i++
+    ) {
       const tabs = playwrightCli([`-s=${s}`, 'tab-list']).stdout;
 
       if (!/authentication code/i.test(tabs)) {
@@ -1261,11 +1724,26 @@ async function doctor() {
       }
 
       const pageUrl = currentTabUrl(tabs);
-      const otp = pangular.log && existsSync(pangular.log) ? authCodeIn(readFileSync(pangular.log, 'utf8')) : null;
-      const reply = playwrightCli([`-s=${s}`, ...authReply(state.target, otp, pageUrl, state.url)]);
+      const otp =
+        pangular.log && existsSync(pangular.log)
+          ? authCodeIn(readFileSync(pangular.log, 'utf8'))
+          : null;
+      const reply = playwrightCli([
+        `-s=${s}`,
+        ...authReply(state.target, otp, pageUrl, state.url),
+      ]);
 
       if (!authNoted) {
-        checks.push(authCheck(state.target, otp, pageUrl, state.url, pangular.log && path.basename(pangular.log), reply));
+        checks.push(
+          authCheck(
+            state.target,
+            otp,
+            pageUrl,
+            state.url,
+            pangular.log && path.basename(pangular.log),
+            reply,
+          ),
+        );
         authNoted = true;
       }
 
@@ -1277,12 +1755,19 @@ async function doctor() {
   pw(['--raw', 'eval', '() => 1']); // a prompt left open by an earlier command would block goto
   let r = pw(['goto', state.url]);
 
-  if (r.status !== 0 || /not open|is not running|No browser/i.test(r.stdout + r.stderr)) {
+  if (
+    r.status !== 0 ||
+    /not open|is not running|No browser/i.test(r.stdout + r.stderr)
+  ) {
     r = pw(['open', state.url]);
   }
 
   if (r.status !== 0) {
-    add('browser-session', 'fail', `could not open playwright-cli session ${s}: ${(r.stderr || r.stdout).slice(0, 300)}`);
+    add(
+      'browser-session',
+      'fail',
+      `could not open playwright-cli session ${s}: ${(r.stderr || r.stdout).slice(0, 300)}`,
+    );
 
     return out({ ok: false, command: 'doctor', flowId, checks }, 2);
   }
@@ -1295,39 +1780,102 @@ async function doctor() {
   try {
     page = /** @type {PageFacts} */ (JSON.parse(r.stdout.trim()));
   } catch {
-    add('page-probe', 'fail', `inspect helper did not return JSON: ${(r.stdout + r.stderr).slice(0, 300)}`);
+    add(
+      'page-probe',
+      'fail',
+      `inspect helper did not return JSON: ${(r.stdout + r.stderr).slice(0, 300)}`,
+    );
 
     return out({ ok: false, command: 'doctor', flowId, checks }, 1);
   }
 
-  add('angular-root', page.ngVersion ? 'pass' : 'fail', page.ngVersion ? `[ng-version="${page.ngVersion}"] on <${page.roots.join('>, <')}>` : 'no [ng-version] element: not an Angular app or not bootstrapped');
+  add(
+    'angular-root',
+    page.ngVersion ? 'pass' : 'fail',
+    page.ngVersion
+      ? `[ng-version="${page.ngVersion}"] on <${page.roots.join('>, <')}>`
+      : 'no [ng-version] element: not an Angular app or not bootstrapped',
+  );
 
   if (target) {
     checks.push(markerCheck(page.roots, target.marker));
   }
 
-  add('dev-build', page.devMode ? 'pass' : 'fail', page.devMode ? `window.ng has ${page.ngFunctions.length} functions` : 'window.ng missing: production build (or ngDevMode=false); ng.* recipes will not work');
+  add(
+    'dev-build',
+    page.devMode ? 'pass' : 'fail',
+    page.devMode
+      ? `window.ng has ${page.ngFunctions.length} functions`
+      : 'window.ng missing: production build (or ngDevMode=false); ng.* recipes will not work',
+  );
 
   if (page.devMode) {
-    add('ng-core-functions', page.missingCore.length === 0 ? 'pass' : 'warn', page.missingCore.length === 0 ? 'all public and injector/signal functions present' : `missing: ${page.missingCore.join(', ')}`);
-    add('router-globals', page.router ? 'pass' : 'warn', page.router ? 'ɵgetRouterInstance, ɵgetLoadedRoutes, ɵnavigateByUrl present (provideRouter)' : 'router globals absent (no provideRouter, or RouterModule.forRoot): router recipes unavailable');
+    add(
+      'ng-core-functions',
+      page.missingCore.length === 0 ? 'pass' : 'warn',
+      page.missingCore.length === 0
+        ? 'all public and injector/signal functions present'
+        : `missing: ${page.missingCore.join(', ')}`,
+    );
+    add(
+      'router-globals',
+      page.router ? 'pass' : 'warn',
+      page.router
+        ? 'ɵgetRouterInstance, ɵgetLoadedRoutes, ɵnavigateByUrl present (provideRouter)'
+        : 'router globals absent (no provideRouter, or RouterModule.forRoot): router recipes unavailable',
+    );
   }
 
-  add('change-detection-mode', 'pass', `${cdMode(page.ngZone)} (NgZone provider: ${page.ngZone ?? 'none'}); zone.js ${page.zoneLoaded ? 'loaded' : 'not loaded'}; mark_feature_usage: ${page.featureMarks.join(', ') || 'none'}`);
+  add(
+    'change-detection-mode',
+    'pass',
+    `${cdMode(page.ngZone)} (NgZone provider: ${page.ngZone ?? 'none'}); zone.js ${page.zoneLoaded ? 'loaded' : 'not loaded'}; mark_feature_usage: ${page.featureMarks.join(', ') || 'none'}`,
+  );
   const consoleOut = pw(['console', 'error']).stdout;
   const errors = consoleErrors(consoleOut);
 
   if (errors.pangular.length > 0) {
-    const noServer = errors.pangular.some((l) => l.includes('No devtools server found'));
-    const listener = pangular.held ? (pangular.pid === null ? `a process the OS did not name listens on ${PANGULAR_PORT}` : `PID ${pangular.pid} listens on ${PANGULAR_PORT}`) : `nothing listens on ${PANGULAR_PORT}`;
-    add('pangular-overlay', 'warn', noServer ? `${errors.pangular.length} console error(s) from the Pangular overlay: it found no devtools server behind /__pangular (${listener}); start one with control-pangular-inspector for live Pangular data` : `${errors.pangular.length} console error(s) from the Pangular overlay's /__connection.json probes, expected while a devtools server runs behind /__pangular (${listener})`);
+    const noServer = errors.pangular.some((l) =>
+      l.includes('No devtools server found'),
+    );
+    const listener = pangular.held
+      ? pangular.pid === null
+        ? `a process the OS did not name listens on ${PANGULAR_PORT}`
+        : `PID ${pangular.pid} listens on ${PANGULAR_PORT}`
+      : `nothing listens on ${PANGULAR_PORT}`;
+    add(
+      'pangular-overlay',
+      'warn',
+      noServer
+        ? `${errors.pangular.length} console error(s) from the Pangular overlay: it found no devtools server behind /__pangular (${listener}); start one with control-pangular-inspector for live Pangular data`
+        : `${errors.pangular.length} console error(s) from the Pangular overlay's /__connection.json probes, expected while a devtools server runs behind /__pangular (${listener})`,
+    );
   }
 
   const besides = errors.pangular.length ? ' besides the Pangular overlay' : '';
-  add('console-errors', errors.others === 0 ? 'pass' : 'fail', errors.others === 0 ? `no console errors since load${besides}` : Number.isNaN(errors.others) ? `could not read the console: ${consoleOut.slice(0, 200)}` : `${errors.others} console error(s)${besides}; run playwright-cli -s=${s} console error`);
+  add(
+    'console-errors',
+    errors.others === 0 ? 'pass' : 'fail',
+    errors.others === 0
+      ? `no console errors since load${besides}`
+      : Number.isNaN(errors.others)
+        ? `could not read the console: ${consoleOut.slice(0, 200)}`
+        : `${errors.others} console error(s)${besides}; run playwright-cli -s=${s} console error`,
+  );
 
   const failed = checks.filter((c) => c.status === 'fail');
-  out({ ok: failed.length === 0, command: 'doctor', flowId, url: state.url, session: s, ngVersion: page.ngVersion, checks }, failed.length === 0 ? 0 : 1);
+  out(
+    {
+      ok: failed.length === 0,
+      command: 'doctor',
+      flowId,
+      url: state.url,
+      session: s,
+      ngVersion: page.ngVersion,
+      checks,
+    },
+    failed.length === 0 ? 0 : 1,
+  );
 }
 
 function info() {
@@ -1343,27 +1891,59 @@ function down() {
   const close = playwrightCli([`-s=${state.session}`, 'close']);
   const { records, result } = stopRun(state);
   const outcome = downOutcome(state, result);
-  const notes = [`session ${state.session}: ${close.status === 0 ? 'closed' : 'was not open'}`, ...outcome.notes];
+  const notes = [
+    `session ${state.session}: ${close.status === 0 ? 'closed' : 'was not open'}`,
+    ...outcome.notes,
+  ];
 
   if (outcome.code !== 0) {
     state.tree = records;
     writeFileSync(sp, JSON.stringify(state, null, 2));
-    out({ ok: false, command: 'down', flowId, evidenceDir: state.evidenceDir, notes, reason: outcome.reason, state: sp }, outcome.code);
+    out(
+      {
+        ok: false,
+        command: 'down',
+        flowId,
+        evidenceDir: state.evidenceDir,
+        notes,
+        reason: outcome.reason,
+        state: sp,
+      },
+      outcome.code,
+    );
   }
 
   rmSync(sp, { force: true });
-  out({ ok: true, command: 'down', flowId, evidenceDir: state.evidenceDir, notes }, 0);
+  out(
+    {
+      ok: true,
+      command: 'down',
+      flowId,
+      evidenceDir: state.evidenceDir,
+      notes,
+    },
+    0,
+  );
 }
 
 /** @type {Record<string, () => void | Promise<void>>} */
 const commands = { up, doctor, info, down };
 
 // import.meta.url is the real path, so compare real paths: run through a link, the CLI still runs.
-if (process.argv[1] && realpathSync.native(path.resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
-  const run = cmd !== undefined && Object.hasOwn(commands, cmd) ? commands[cmd] : undefined;
+if (
+  process.argv[1] &&
+  realpathSync.native(path.resolve(process.argv[1])) ===
+    realpathSync.native(fileURLToPath(import.meta.url))
+) {
+  const run =
+    cmd !== undefined && Object.hasOwn(commands, cmd)
+      ? commands[cmd]
+      : undefined;
 
   if (run === undefined) {
-    process.stdout.write('usage: control.mjs <up|doctor|info|down> [--target counter|ssr|portal] [--url <url>] [--port N] [--dir <path>] [--timeout S] [--json]\n');
+    process.stdout.write(
+      'usage: control.mjs <up|doctor|info|down> [--target counter|ssr|portal] [--url <url>] [--port N] [--dir <path>] [--timeout S] [--json]\n',
+    );
     process.exit(2);
   }
 

@@ -106,7 +106,8 @@ export type SanitizerSurface =
   | ({
       readonly kind: 'error';
       readonly state: 'error';
-      readonly reason: typeof NOT_A_FACT_LIST | typeof DELIBERATE_WITHOUT_BYPASS;
+      readonly reason:
+        typeof NOT_A_FACT_LIST | typeof DELIBERATE_WITHOUT_BYPASS;
     } & Pane);
 
 /** The loading sentence: a state, not a finding, and it never borrows the absence's wording. */
@@ -117,7 +118,8 @@ const LOADING_MESSAGE = 'loading: the sanitizer finding is being assembled';
  * absence is not — no clean, safe or ok anywhere (N3).
  */
 const NONE_MESSAGE = 'none: no sanitizer warning was captured for this page';
-const NONE_ABSENCE_LINE = 'the absence of a capture is not a measurement of the page';
+const NONE_ABSENCE_LINE =
+  'the absence of a capture is not a measurement of the page';
 
 /** The absence sentence the Surface contract asks for: a warning was captured, no record covers it. */
 const CANNOT_TELL_MESSAGE =
@@ -148,7 +150,8 @@ function clockOf(value: unknown): number | null {
 function componentNames(value: unknown): string[] {
   const found: string[] = [];
   for (const entry of asList(value)) {
-    if (typeof entry === 'string' && entry.length > 0 && !found.includes(entry)) found.push(entry);
+    if (typeof entry === 'string' && entry.length > 0 && !found.includes(entry))
+      found.push(entry);
   }
   return found;
 }
@@ -157,7 +160,12 @@ function componentNames(value: unknown): string[] {
 function cycleIds(value: unknown): number[] {
   const found: number[] = [];
   for (const entry of asList(value)) {
-    if (typeof entry === 'number' && Number.isFinite(entry) && !found.includes(entry)) found.push(entry);
+    if (
+      typeof entry === 'number' &&
+      Number.isFinite(entry) &&
+      !found.includes(entry)
+    )
+      found.push(entry);
   }
   return found;
 }
@@ -186,7 +194,8 @@ function normaliseFinding(raw: unknown): SanitizerFinding | null {
       at: clockOf(raw['at']),
       components: componentNames(raw['components']),
       cycleIds: cycleIds(raw['cycleIds']),
-      binding: typeof binding === 'string' && binding.length > 0 ? binding : null,
+      binding:
+        typeof binding === 'string' && binding.length > 0 ? binding : null,
       reason: null,
     };
   }
@@ -211,12 +220,20 @@ function pane(message: string, lines: readonly string[]): Pane {
 
 /** The loading pane: the state, on its own line, so it is never mistaken for an empty finding. */
 function loading(): SanitizerSurface {
-  return { kind: 'loading', state: 'loading', ...pane(LOADING_MESSAGE, [LOADING_MESSAGE]) };
+  return {
+    kind: 'loading',
+    state: 'loading',
+    ...pane(LOADING_MESSAGE, [LOADING_MESSAGE]),
+  };
 }
 
 /** The absence pane: the no-warning statement and, with it, what that statement is not (N3). */
 function absence(): SanitizerSurface {
-  return { kind: 'none', state: 'none', ...pane(NONE_MESSAGE, [NONE_MESSAGE, NONE_ABSENCE_LINE]) };
+  return {
+    kind: 'none',
+    state: 'none',
+    ...pane(NONE_MESSAGE, [NONE_MESSAGE, NONE_ABSENCE_LINE]),
+  };
 }
 
 /** The unreadable pane. The reason rides along as data and is deliberately not rendered. */
@@ -277,12 +294,23 @@ function stripped(findings: readonly SanitizerFinding[]): SanitizerSurface {
     }
   }
 
-  const parts = [`stripped: ${counted(placed.length, 'warning')} placed on a covering record`];
-  if (unattributable > 0) parts.push(`${counted(unattributable, 'warning')} could not be placed`);
-  parts.push(binding === null ? 'no single binding was carried' : `binding ${binding}`);
+  const parts = [
+    `stripped: ${counted(placed.length, 'warning')} placed on a covering record`,
+  ];
+  if (unattributable > 0)
+    parts.push(`${counted(unattributable, 'warning')} could not be placed`);
+  parts.push(
+    binding === null ? 'no single binding was carried' : `binding ${binding}`,
+  );
   const message = parts.join('; ');
 
-  return { kind: 'stripped', state: 'stripped', findings, binding, ...pane(message, lines) };
+  return {
+    kind: 'stripped',
+    state: 'stripped',
+    findings,
+    binding,
+    ...pane(message, lines),
+  };
 }
 
 /** The absence pane for a load whose warnings were all unattributable: no component, no binding. */
@@ -316,7 +344,10 @@ function deliberate(binding: string, at: number | null): SanitizerSurface {
 function deliberateFrom(factList: Record<string, unknown>): SanitizerSurface {
   const binding = factList['binding'];
   const named = typeof binding === 'string' ? binding : '';
-  if (!named.startsWith(BYPASS_PREFIX) || named.length === BYPASS_PREFIX.length) {
+  if (
+    !named.startsWith(BYPASS_PREFIX) ||
+    named.length === BYPASS_PREFIX.length
+  ) {
     return unreadable(DELIBERATE_WITHOUT_BYPASS);
   }
   return deliberate(named, clockOf(factList['at']));
@@ -366,7 +397,8 @@ export function sanitizerPanel(factList?: unknown): SanitizerSurface {
   // A finding that was claimed and not yet delivered: assembling, not empty.
   if (state === 'stripped' || state === 'cannot-tell') return loading();
 
-  if (state === 'deliberate' || factList['deliberate'] === true) return deliberateFrom(factList);
+  if (state === 'deliberate' || factList['deliberate'] === true)
+    return deliberateFrom(factList);
 
   if (state === 'error') return unreadable(NOT_A_FACT_LIST);
 

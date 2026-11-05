@@ -18,7 +18,14 @@ import { parseArgs } from 'node:util';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..', '..', '..');
-const CONTROL = join(ROOT, '.commandcode', 'skills', 'control-angular-devtools', 'scripts', 'control.mjs');
+const CONTROL = join(
+  ROOT,
+  '.commandcode',
+  'skills',
+  'control-angular-devtools',
+  'scripts',
+  'control.mjs',
+);
 const PARTS = ['profiler', 'flag', 'signalGraph'];
 
 /** @typedef {{ code: number | null, json: Record<string, unknown> | null, text: string }} StepResult */
@@ -40,7 +47,9 @@ export function jsonOf(stdout) {
     /** @type {unknown} */
     const value = JSON.parse(stdout.slice(at));
 
-    return value !== null && typeof value === 'object' && !Array.isArray(value) ? /** @type {Record<string, unknown>} */ (value) : null;
+    return value !== null && typeof value === 'object' && !Array.isArray(value)
+      ? /** @type {Record<string, unknown>} */ (value)
+      : null;
   } catch {
     return null;
   }
@@ -53,7 +62,9 @@ export function jsonOf(stdout) {
  * @returns {unknown}
  */
 export function field(value, key) {
-  return value !== null && typeof value === 'object' ? /** @type {Record<string, unknown>} */ (value)[key] : undefined;
+  return value !== null && typeof value === 'object'
+    ? /** @type {Record<string, unknown>} */ (value)[key]
+    : undefined;
 }
 
 /**
@@ -64,20 +75,41 @@ export function field(value, key) {
  */
 export function check({ out, diGraph }, deps) {
   const r = deps.control(diGraph ? ['coexist', '--di-graph'] : ['coexist']);
-  const parts = Object.fromEntries(PARTS.map((p) => [p, field(field(r.json, p), 'ok') === true]));
+  const parts = Object.fromEntries(
+    PARTS.map((p) => [p, field(field(r.json, p), 'ok') === true]),
+  );
   const di = field(r.json, 'diGraph');
-  const recorded = di === undefined ? null : { templateLostInPane: field(di, 'templateLostInPane') ?? null, templateLostInNg: field(di, 'templateLostInNg') ?? null };
-  deps.write(join(out, 'coexist-result.json'), JSON.stringify({ exit: r.code, parts, diGraph: recorded, result: r.json ?? r.text }, null, 2));
+  const recorded =
+    di === undefined
+      ? null
+      : {
+          templateLostInPane: field(di, 'templateLostInPane') ?? null,
+          templateLostInNg: field(di, 'templateLostInNg') ?? null,
+        };
+  deps.write(
+    join(out, 'coexist-result.json'),
+    JSON.stringify(
+      { exit: r.code, parts, diGraph: recorded, result: r.json ?? r.text },
+      null,
+      2,
+    ),
+  );
 
   if (r.json === null || (r.code !== 0 && r.code !== 1)) {
-    throw new Error(`control.mjs coexist exited ${r.code}: ${r.text.trim().slice(-400)}`);
+    throw new Error(
+      `control.mjs coexist exited ${r.code}: ${r.text.trim().slice(-400)}`,
+    );
   }
 
   const failed = PARTS.filter((p) => !parts[p]);
 
   if (failed.length > 0) {
-    const seen = failed.map((p) => `${p} ${JSON.stringify(field(r.json, p) ?? null).slice(0, 300)}`);
-    throw new Error(`CLAIM: coexist exited ${r.code}; failed ${seen.join('; ')}`);
+    const seen = failed.map(
+      (p) => `${p} ${JSON.stringify(field(r.json, p) ?? null).slice(0, 300)}`,
+    );
+    throw new Error(
+      `CLAIM: coexist exited ${r.code}; failed ${seen.join('; ')}`,
+    );
   }
 }
 
@@ -88,13 +120,20 @@ export function check({ out, diGraph }, deps) {
  */
 export function main(argv, deps) {
   try {
-    const { values } = parseArgs({ args: argv, options: { out: { type: 'string' }, 'di-graph': { type: 'boolean' } }, strict: true });
+    const { values } = parseArgs({
+      args: argv,
+      options: { out: { type: 'string' }, 'di-graph': { type: 'boolean' } },
+      strict: true,
+    });
 
     if (!values.out) {
       throw new Error('usage: coexist.mjs --out <dir> [--di-graph]');
     }
 
-    check({ out: resolve(values.out), diGraph: values['di-graph'] === true }, deps);
+    check(
+      { out: resolve(values.out), diGraph: values['di-graph'] === true },
+      deps,
+    );
 
     return 0;
   } catch (e) {
@@ -104,7 +143,9 @@ export function main(argv, deps) {
       return 1;
     }
 
-    console.error(`[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`);
+    console.error(
+      `[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`,
+    );
 
     return 2;
   }
@@ -113,9 +154,19 @@ export function main(argv, deps) {
 /** @type {Deps} */
 const realDeps = {
   control: (args) => {
-    const r = spawnSync(process.execPath, [CONTROL, ...args, '--json'], { cwd: ROOT, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024, timeout: 600000 });
+    const r = spawnSync(process.execPath, [CONTROL, ...args, '--json'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      windowsHide: true,
+      maxBuffer: 64 * 1024 * 1024,
+      timeout: 600000,
+    });
 
-    return { code: r.status, json: jsonOf(r.stdout ?? ''), text: (r.stdout ?? '') + (r.stderr ?? '') };
+    return {
+      code: r.status,
+      json: jsonOf(r.stdout ?? ''),
+      text: (r.stdout ?? '') + (r.stderr ?? ''),
+    };
   },
   write: (file, data) => {
     mkdirSync(dirname(file), { recursive: true });
@@ -123,6 +174,10 @@ const realDeps = {
   },
 };
 
-if (process.argv[1] && realpathSync.native(resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+if (
+  process.argv[1] &&
+  realpathSync.native(resolve(process.argv[1])) ===
+    realpathSync.native(fileURLToPath(import.meta.url))
+) {
   process.exitCode = main(process.argv.slice(2), realDeps);
 }

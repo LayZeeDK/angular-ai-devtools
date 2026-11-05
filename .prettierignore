@@ -1,0 +1,25 @@
+# Generated, vendored, or build output
+node_modules/
+dist/
+tmp/
+coverage/
+.nx/
+test-results/
+playwright-report/
+.commandcode/worktrees/
+
+# GSD Path bookkeeping: STATE.md is parsed line by line, and INTENT/PLAN/review headings
+# are compared character for character against task contracts. A reformat breaks the gates.
+.project/
+
+# Byte-pinned surfaces. Both control skills record hashes of these files, and the fixture
+# feeds the built bundle that research/raw records, so formatting them stales a recording.
+spikes/
+research/raw/
+
+# JSON is left alone: Prettier has no width-respecting mode for it, so "no maximum line
+# length" can only mean "not reformatted". EditorConfig still states the intent for editors.
+*.json
+
+# Generated from the source enum by scripts/generate-error-digest.mjs
+extension/error-digest.json

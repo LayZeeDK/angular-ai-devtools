@@ -67,10 +67,7 @@ const currentCycle = {
   ],
 };
 
-async function injectCycles(
-  page: Page,
-  cycles: unknown[],
-): Promise<void> {
+async function injectCycles(page: Page, cycles: unknown[]): Promise<void> {
   await page.evaluate((data) => {
     const chrome = window.chrome;
     for (const cycle of data) {
@@ -79,9 +76,7 @@ async function injectCycles(
   }, cycles);
 }
 
-async function callCheckAvailability(
-  page: Page,
-): Promise<void> {
+async function callCheckAvailability(page: Page): Promise<void> {
   await page.evaluate(async () => {
     const ng = window.ng;
     if (!ng) return;
@@ -132,9 +127,9 @@ test.describe('Signal provenance panel (Prompt API available)', () => {
 
     await injectCycles(page, [previousCycle, currentCycle]);
 
-    await expect(page.locator('[data-testid="component-picker"]')).toContainText(
-      'app-counter',
-    );
+    await expect(
+      page.locator('[data-testid="component-picker"]'),
+    ).toContainText('app-counter');
     await page
       .locator('[data-testid="component-picker"]')
       .selectOption('app-counter');
@@ -146,9 +141,9 @@ test.describe('Signal provenance panel (Prompt API available)', () => {
   test('component picker lists app-counter after recording', async ({
     page,
   }) => {
-    await expect(page.locator('[data-testid="component-picker"]')).toContainText(
-      'app-counter',
-    );
+    await expect(
+      page.locator('[data-testid="component-picker"]'),
+    ).toContainText('app-counter');
   });
 
   test('provenance chain renders with node kinds, labels, and directions', async ({
@@ -165,12 +160,7 @@ test.describe('Signal provenance panel (Prompt API available)', () => {
     expect(labels).toEqual(['count', 'double', 'updateCount', 'app-counter']);
 
     const directions = await steps.locator('.dir').allTextContents();
-    expect(directions).toEqual([
-      'producer',
-      'producer',
-      'producer',
-      'self',
-    ]);
+    expect(directions).toEqual(['producer', 'producer', 'producer', 'self']);
   });
 
   test('at least three anti-pattern findings render with labels and positions', async ({
@@ -247,9 +237,9 @@ test.describe('Signal provenance panel (Prompt API unavailable)', () => {
 
     await injectCycles(page, [previousCycle, currentCycle]);
 
-    await expect(page.locator('[data-testid="component-picker"]')).toContainText(
-      'app-counter',
-    );
+    await expect(
+      page.locator('[data-testid="component-picker"]'),
+    ).toContainText('app-counter');
     await page
       .locator('[data-testid="component-picker"]')
       .selectOption('app-counter');

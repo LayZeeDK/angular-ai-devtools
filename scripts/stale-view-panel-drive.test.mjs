@@ -2,7 +2,13 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-const SRC = readFileSync(new URL('../.commandcode/skills/control-ai-browsers/scripts/panel.mjs', import.meta.url), 'utf8');
+const SRC = readFileSync(
+  new URL(
+    '../.commandcode/skills/control-ai-browsers/scripts/panel.mjs',
+    import.meta.url,
+  ),
+  'utf8',
+);
 
 test('panel driver registers the stale-view feature', () => {
   assert.match(SRC, /feature === 'stale-view'/);
@@ -10,7 +16,10 @@ test('panel driver registers the stale-view feature', () => {
 });
 
 test('panel driver routes to the stale-view panel route', () => {
-  assert.match(SRC, /const route = isErrors \? 'error-explainer' : 'stale-view'/);
+  assert.match(
+    SRC,
+    /const route = isErrors \? 'error-explainer' : 'stale-view'/,
+  );
 });
 
 test('panel driver wires stale-view selectors', () => {
@@ -21,7 +30,13 @@ test('panel driver wires stale-view selectors', () => {
 });
 
 test('stale-view component carries the hedged wording', () => {
-  const comp = readFileSync(new URL('../apps/angular-ai-devtools/src/app/stale-view.component.ts', import.meta.url), 'utf8');
+  const comp = readFileSync(
+    new URL(
+      '../apps/angular-ai-devtools/src/app/stale-view.component.ts',
+      import.meta.url,
+    ),
+    'utf8',
+  );
   assert.match(comp, /the template may show a stale value/);
 });
 

@@ -93,10 +93,16 @@ interface RecordedCall {
 }
 
 /** What the stub registry answers: a result, so a `result` renders rather than host-unavailable. */
-const STUB_OUTCOME: ToolOutcome = { kind: 'result', value: {}, provenance: 'page-published' };
+const STUB_OUTCOME: ToolOutcome = {
+  kind: 'result',
+  value: {},
+  provenance: 'page-published',
+};
 
 /** The eight page-published bits, with `present` naming the ones the page reported as `true`. */
-function featuresWith(present: readonly string[]): Readonly<Record<string, boolean>> {
+function featuresWith(
+  present: readonly string[],
+): Readonly<Record<string, boolean>> {
   const bits: Record<string, boolean> = {};
   for (const name of APP_FACT_FEATURES) {
     bits[name] = present.includes(name);
@@ -161,7 +167,9 @@ const OLD_VERSION_RECORD: CompanionRecord = {
 
 function fakeExtension(page: Page = {}): FakeExtension {
   return {
-    features: signal<Readonly<Record<string, boolean>> | null>(page.features ?? null),
+    features: signal<Readonly<Record<string, boolean>> | null>(
+      page.features ?? null,
+    ),
     zoneMode: signal<string | null>(page.zoneMode ?? null),
     stateReceived: signal(page.stateReceived ?? false),
     appVersion: signal<string | null>(page.appVersion ?? null),
@@ -212,7 +220,10 @@ interface Rendered {
  * `provideAppFactsTool()` builds.
  */
 function renderChat(
-  options: { readonly page?: Page; readonly registry?: 'registered' | 'app-facts' } = {},
+  options: {
+    readonly page?: Page;
+    readonly registry?: 'registered' | 'app-facts';
+  } = {},
 ): Rendered {
   TestBed.resetTestingModule();
   const ext = fakeExtension(options.page);
@@ -222,7 +233,9 @@ function renderChat(
     imports: [ChatEntryComponent],
     providers: [
       { provide: ExtensionMessageService, useValue: ext },
-      stub === null ? provideAppFactsTool() : { provide: TOOL_REGISTRY, useValue: stub.registry },
+      stub === null
+        ? provideAppFactsTool()
+        : { provide: TOOL_REGISTRY, useValue: stub.registry },
     ],
   });
   const fixture = TestBed.createComponent(ChatEntryComponent);
@@ -231,7 +244,10 @@ function renderChat(
 }
 
 /** Every element carrying a test id, in document order. */
-function all(fixture: ComponentFixture<ChatEntryComponent>, testId: string): readonly HTMLElement[] {
+function all(
+  fixture: ComponentFixture<ChatEntryComponent>,
+  testId: string,
+): readonly HTMLElement[] {
   const found: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll(
     `[data-testid="${testId}"]`,
   );
@@ -239,17 +255,25 @@ function all(fixture: ComponentFixture<ChatEntryComponent>, testId: string): rea
 }
 
 /** Whether an element with that test id rendered at all. */
-function has(fixture: ComponentFixture<ChatEntryComponent>, testId: string): boolean {
+function has(
+  fixture: ComponentFixture<ChatEntryComponent>,
+  testId: string,
+): boolean {
   return all(fixture, testId).length > 0;
 }
 
 /** The trimmed text of the first element with that test id, or `''` when none rendered. */
-function text(fixture: ComponentFixture<ChatEntryComponent>, testId: string): string {
+function text(
+  fixture: ComponentFixture<ChatEntryComponent>,
+  testId: string,
+): string {
   return (all(fixture, testId)[0]?.textContent ?? '').trim();
 }
 
 /** Lets the `app_facts` promise settle, then renders the outcome it wrote. */
-async function settle(fixture: ComponentFixture<ChatEntryComponent>): Promise<void> {
+async function settle(
+  fixture: ComponentFixture<ChatEntryComponent>,
+): Promise<void> {
   for (let turn = 0; turn < 4; turn += 1) {
     await Promise.resolve();
   }
@@ -257,13 +281,21 @@ async function settle(fixture: ComponentFixture<ChatEntryComponent>): Promise<vo
 }
 
 /** The eight chip entries as `'<name>: present'` / `'<name>: absent'` lines. */
-function chipEntries(fixture: ComponentFixture<ChatEntryComponent>): readonly string[] {
-  return all(fixture, 'chip-entry').map((entry) => (entry.textContent ?? '').trim());
+function chipEntries(
+  fixture: ComponentFixture<ChatEntryComponent>,
+): readonly string[] {
+  return all(fixture, 'chip-entry').map((entry) =>
+    (entry.textContent ?? '').trim(),
+  );
 }
 
 /** The companion rendering's own name, read from the section's `data-state`. */
-function surfaceState(fixture: ComponentFixture<ChatEntryComponent>): string | null {
-  return all(fixture, 'companion-surface')[0]?.getAttribute('data-state') ?? null;
+function surfaceState(
+  fixture: ComponentFixture<ChatEntryComponent>,
+): string | null {
+  return (
+    all(fixture, 'companion-surface')[0]?.getAttribute('data-state') ?? null
+  );
 }
 
 describe('ChatEntryComponent', () => {
@@ -278,15 +310,17 @@ describe('ChatEntryComponent', () => {
 
     const entries = chipEntries(fixture);
     expect(entries).toHaveLength(APP_FACT_FEATURES.length);
-    expect(entries.map((entry) => entry.replace(/: (present|absent)$/, ''))).toEqual([
-      ...APP_FACT_FEATURES,
-    ]);
+    expect(
+      entries.map((entry) => entry.replace(/: (present|absent)$/, '')),
+    ).toEqual([...APP_FACT_FEATURES]);
     expect(entries.filter((entry) => entry.endsWith(': present'))).toEqual([
       'setProfiler: present',
       'getHostElement: present',
     ]);
     // Six absences by name, not dropped from the chip (E1).
-    expect(entries.filter((entry) => entry.endsWith(': absent'))).toHaveLength(6);
+    expect(entries.filter((entry) => entry.endsWith(': absent'))).toHaveLength(
+      6,
+    );
     expect(has(fixture, 'cannot-tell')).toBe(false);
     expect(has(fixture, 'no-angular-root')).toBe(false);
 
@@ -306,15 +340,25 @@ describe('ChatEntryComponent', () => {
 
   it('renders eight absent names for a payload whose bits are all false (E3)', () => {
     const { fixture } = renderChat({
-      page: { stateReceived: true, appVersion: '22.2.2', features: featuresWith([]) },
+      page: {
+        stateReceived: true,
+        appVersion: '22.2.2',
+        features: featuresWith([]),
+      },
     });
 
     const entries = chipEntries(fixture);
     expect(entries).toHaveLength(APP_FACT_FEATURES.length);
-    expect(entries.filter((entry) => entry.endsWith(': present'))).toHaveLength(0);
-    expect(entries.filter((entry) => entry.endsWith(': absent'))).toHaveLength(APP_FACT_FEATURES.length);
+    expect(entries.filter((entry) => entry.endsWith(': present'))).toHaveLength(
+      0,
+    );
+    expect(entries.filter((entry) => entry.endsWith(': absent'))).toHaveLength(
+      APP_FACT_FEATURES.length,
+    );
     // A chip that names the features, not an empty chip and not an invented one.
-    expect(chipEntries(fixture)).toEqual(APP_FACT_FEATURES.map((name) => `${name}: absent`));
+    expect(chipEntries(fixture)).toEqual(
+      APP_FACT_FEATURES.map((name) => `${name}: absent`),
+    );
   });
 
   it('renders the page own reason verbatim for supported: false, with no zone claim (N1, N2)', () => {
@@ -339,13 +383,19 @@ describe('ChatEntryComponent', () => {
     // The facts win over the passing version: every group is withheld, so no header exists at all.
     expect(all(fixture, 'tool-group')).toHaveLength(0);
     expect(all(fixture, 'group-title')).toHaveLength(0);
-    expect(text(fixture, 'empty-groups')).toContain('no tool group is offered on this page');
+    expect(text(fixture, 'empty-groups')).toContain(
+      'no tool group is offered on this page',
+    );
     expect(text(fixture, 'empty-groups')).toContain(reason);
   });
 
   it('names the cannot-tell state with the version and the absent debug surface (N4)', () => {
     const { fixture } = renderChat({
-      page: { stateReceived: false, appVersion: '22.2.2', replayOutcome: 'answered' },
+      page: {
+        stateReceived: false,
+        appVersion: '22.2.2',
+        replayOutcome: 'answered',
+      },
     });
 
     expect(has(fixture, 'cannot-tell')).toBe(true);
@@ -362,7 +412,9 @@ describe('ChatEntryComponent', () => {
     const { fixture } = renderChat({ page: { replayOutcome: 'answered' } });
 
     expect(has(fixture, 'no-angular-root')).toBe(true);
-    expect(text(fixture, 'no-angular-root')).toBe('No Angular root found on this page');
+    expect(text(fixture, 'no-angular-root')).toBe(
+      'No Angular root found on this page',
+    );
     // Visibly its own state, not the cannot-tell one.
     expect(has(fixture, 'cannot-tell')).toBe(false);
     expect(all(fixture, 'chip-entry')).toHaveLength(0);
@@ -373,7 +425,9 @@ describe('ChatEntryComponent', () => {
   });
 
   it('waits by name before the replay answers, and never shows the refusal (AC3, SC1)', () => {
-    const { fixture, calls } = renderChat({ page: { replayOutcome: 'outstanding' } });
+    const { fixture, calls } = renderChat({
+      page: { replayOutcome: 'outstanding' },
+    });
 
     // The Surface contract's loading line, through the state's own test id.
     expect(has(fixture, 'awaiting-page')).toBe(true);
@@ -394,7 +448,9 @@ describe('ChatEntryComponent', () => {
     const { fixture } = renderChat({ page: { replayOutcome: 'failed' } });
 
     expect(has(fixture, 'transport-failed')).toBe(true);
-    expect(text(fixture, 'transport-failed')).toContain('extension message transport');
+    expect(text(fixture, 'transport-failed')).toContain(
+      'extension message transport',
+    );
     // A broken channel is never read as a non-Angular page, and never as a wait.
     expect(has(fixture, 'no-angular-root')).toBe(false);
     expect(has(fixture, 'awaiting-page')).toBe(false);
@@ -425,9 +481,15 @@ describe('ChatEntryComponent', () => {
     expect(all(fixture, 'companion-symbol')).toHaveLength(0);
 
     // E3: nothing that already worked degrades. The eight-bit chip is exactly what M020 renders…
-    expect(chipEntries(fixture)).toEqual(APP_FACT_FEATURES.map((name) => `${name}: present`));
+    expect(chipEntries(fixture)).toEqual(
+      APP_FACT_FEATURES.map((name) => `${name}: present`),
+    );
     // …and the version-gated group list still offers the five groups the gates allow.
-    expect(all(fixture, 'group-title').map((element) => (element.textContent ?? '').trim())).toEqual([
+    expect(
+      all(fixture, 'group-title').map((element) =>
+        (element.textContent ?? '').trim(),
+      ),
+    ).toEqual([
       'The app-facts support record',
       'Component reads',
       'Signal reads',
@@ -441,8 +503,12 @@ describe('ChatEntryComponent', () => {
 
     // Nothing has arrived: `awaiting-page`, and it says so without borrowing the absence sentence.
     expect(surfaceState(fixture)).toBe('awaiting-page');
-    expect(text(fixture, 'companion-awaiting-page')).toContain('no companion answer has arrived');
-    expect(text(fixture, 'companion-awaiting-page')).not.toContain('no ngAiDevTools entry');
+    expect(text(fixture, 'companion-awaiting-page')).toContain(
+      'no companion answer has arrived',
+    );
+    expect(text(fixture, 'companion-awaiting-page')).not.toContain(
+      'no ngAiDevTools entry',
+    );
     expect(has(fixture, 'companion-absent')).toBe(false);
     // The chip's own page state is untouched by the extra surface.
     expect(has(fixture, 'no-angular-root')).toBe(true);
@@ -496,10 +562,11 @@ describe('ChatEntryComponent', () => {
     });
 
     expect(surfaceState(fixture)).toBe('declared');
-    expect(all(fixture, 'companion-symbol').map((element) => (element.textContent ?? '').trim())).toEqual([
-      '@angular/router#Router',
-      '@angular/platform-browser#Meta',
-    ]);
+    expect(
+      all(fixture, 'companion-symbol').map((element) =>
+        (element.textContent ?? '').trim(),
+      ),
+    ).toEqual(['@angular/router#Router', '@angular/platform-browser#Meta']);
     expect(text(fixture, 'companion-declared-count')).toBe('declared: 2');
     expect(text(fixture, 'companion-resolved-count')).toBe('resolved: 2');
     expect(has(fixture, 'companion-declared-no-symbols')).toBe(false);
@@ -524,8 +591,12 @@ describe('ChatEntryComponent', () => {
 
     // Its own state, not a refusal and not an empty list where the answer should be.
     expect(surfaceState(fixture)).toBe('declared');
-    expect(text(fixture, 'companion-declared')).toContain('declared, no symbols');
-    expect(text(fixture, 'companion-declared-no-symbols')).toBe('declared, no symbols');
+    expect(text(fixture, 'companion-declared')).toContain(
+      'declared, no symbols',
+    );
+    expect(text(fixture, 'companion-declared-no-symbols')).toBe(
+      'declared, no symbols',
+    );
     expect(text(fixture, 'companion-declared-count')).toBe('declared: 0');
     expect(text(fixture, 'companion-resolved-count')).toBe('resolved: 0');
     expect(all(fixture, 'companion-symbol')).toHaveLength(0);
@@ -535,7 +606,11 @@ describe('ChatEntryComponent', () => {
 
   it('renders no group header at all and the projection emptyReason when every gate fails (E5)', () => {
     const { fixture } = renderChat({
-      page: { stateReceived: true, appVersion: '22.0.0', features: featuresWith(ALL_PRESENT) },
+      page: {
+        stateReceived: true,
+        appVersion: '22.0.0',
+        features: featuresWith(ALL_PRESENT),
+      },
     });
 
     // The chip is still a fingerprint: a version below the gate is not a page state.
@@ -549,12 +624,20 @@ describe('ChatEntryComponent', () => {
   });
 
   it('offers the groups whose gates pass and no header for the one a feature bit withholds (SC2)', () => {
-    const withheld = [...APP_FACT_FEATURES].filter((name) => name !== 'getSignalGraph');
+    const withheld = [...APP_FACT_FEATURES].filter(
+      (name) => name !== 'getSignalGraph',
+    );
     const { fixture } = renderChat({
-      page: { stateReceived: true, appVersion: '22.2.2', features: featuresWith(withheld) },
+      page: {
+        stateReceived: true,
+        appVersion: '22.2.2',
+        features: featuresWith(withheld),
+      },
     });
 
-    const titles = all(fixture, 'group-title').map((element) => (element.textContent ?? '').trim());
+    const titles = all(fixture, 'group-title').map((element) =>
+      (element.textContent ?? '').trim(),
+    );
     expect(titles).toEqual([
       'The app-facts support record',
       'Component reads',
@@ -568,7 +651,9 @@ describe('ChatEntryComponent', () => {
     expect(rendered).not.toContain('panel_environment');
     expect(rendered).not.toContain("The panel's own environment");
     // Every offered group lists at least one tool id.
-    expect(all(fixture, 'group-tool').length).toBeGreaterThanOrEqual(titles.length);
+    expect(all(fixture, 'group-tool').length).toBeGreaterThanOrEqual(
+      titles.length,
+    );
   });
 
   it('hands the live context to app_facts, which answers a result and not host-unavailable (AC1)', async () => {
@@ -589,7 +674,10 @@ describe('ChatEntryComponent', () => {
   });
 
   it('lets app_facts answer host-unavailable only for a page that never announced state', async () => {
-    const { fixture } = renderChat({ registry: 'app-facts', page: { replayOutcome: 'answered' } });
+    const { fixture } = renderChat({
+      registry: 'app-facts',
+      page: { replayOutcome: 'answered' },
+    });
 
     await settle(fixture);
     const line = text(fixture, 'app-facts');
@@ -617,7 +705,11 @@ describe('the chat route', () => {
       'fields', // M031 SC4 surface: the field set, or its absence state
     ]);
     // T003's conversion stayed the only other lazy route: five explainers are still eager.
-    expect(appRoutes.filter((route) => route.loadComponent !== undefined).map((route) => route.path)).toEqual([
+    expect(
+      appRoutes
+        .filter((route) => route.loadComponent !== undefined)
+        .map((route) => route.path),
+    ).toEqual([
       'interop',
       'chat',
       'picker',
@@ -627,7 +719,13 @@ describe('the chat route', () => {
       'redirect', // M030 SC4 surface
       'fields', // M031 SC4 surface
     ]);
-    for (const path of ['', 'signal-provenance', 'di-doctor', 'error-explainer', 'stale-view']) {
+    for (const path of [
+      '',
+      'signal-provenance',
+      'di-doctor',
+      'error-explainer',
+      'stale-view',
+    ]) {
       const route = appRoutes.find((candidate) => candidate.path === path);
       expect(route?.component).toBeDefined();
     }

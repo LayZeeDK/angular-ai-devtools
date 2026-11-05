@@ -21,7 +21,7 @@ with a user gesture, initialise it, and clear it to free space. Switching models
 - `edge://components`: "Edge LLM On Device Model" and "Edge LLM Runtime" with "Check for update".
 - A page calls `LanguageModel.create({ monitor })` from a click; the browser downloads the model.
 - The model folders in the profile: `OptGuideOnDeviceModel\<version>` (Nano), `OptGuideManifestModel\<hash>\
-  <version>` (Gemma 4), `EdgeLLMOnDeviceModel\<version>` (Aion, Phi-4-mini), each with a `manifest.json`.
+<version>` (Gemma 4), `EdgeLLMOnDeviceModel\<version>` (Aion, Phi-4-mini), each with a `manifest.json`.
 
 ## Driving it with control-ai-browsers
 

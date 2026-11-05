@@ -11,11 +11,17 @@ export interface ErrorDigest {
 
 export const NO_DIGEST_ENTRY = 'no digest entry';
 
-export function findEntry(digest: ErrorDigest, code: string): DigestEntry | null {
+export function findEntry(
+  digest: ErrorDigest,
+  code: string,
+): DigestEntry | null {
   return digest.entries.find((e) => e.code === code) ?? null;
 }
 
-export function digestForCode(digest: ErrorDigest, code: string | null): string {
+export function digestForCode(
+  digest: ErrorDigest,
+  code: string | null,
+): string {
   if (!code) return NO_DIGEST_ENTRY;
   const entry = findEntry(digest, code);
   return entry ? entry.body : NO_DIGEST_ENTRY;

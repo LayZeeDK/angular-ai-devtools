@@ -7,7 +7,10 @@ import { test } from 'node:test';
 
 /** @typedef {(page: { addInitScript: (fn: () => void) => Promise<void>, evaluate: (fn: () => unknown) => Promise<unknown> }) => Promise<unknown>} RunCode */
 
-const source = readFileSync(new URL('./ng-inspect.js', import.meta.url), 'utf8');
+const source = readFileSync(
+  new URL('./ng-inspect.js', import.meta.url),
+  'utf8',
+);
 /** @type {RunCode} */
 const runCode = new Function(`return (${source}\n);`)();
 
@@ -44,12 +47,29 @@ async function run(t, ng) {
   const win = { ng };
   const fakeDocument = {
     /** @param {string} selector */
-    querySelector: (selector) => (selector === '[ng-version]' ? root : selector === 'app-counter' ? child : null),
+    querySelector: (selector) =>
+      selector === '[ng-version]'
+        ? root
+        : selector === 'app-counter'
+          ? child
+          : null,
     /** @param {string} selector */
-    querySelectorAll: (selector) => (selector === '[ng-version]' ? [root] : [root, child]),
+    querySelectorAll: (selector) =>
+      selector === '[ng-version]' ? [root] : [root, child],
   };
-  const saved = Object.fromEntries(['window', 'document', 'Node', 'Element', 'location'].map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
-  Object.assign(globalThis, { window: win, document: fakeDocument, Node: FakeNode, Element: FakeElement, location: { href: 'http://localhost:4222/', pathname: '/' } });
+  const saved = Object.fromEntries(
+    ['window', 'document', 'Node', 'Element', 'location'].map((key) => [
+      key,
+      Object.getOwnPropertyDescriptor(globalThis, key),
+    ]),
+  );
+  Object.assign(globalThis, {
+    window: win,
+    document: fakeDocument,
+    Node: FakeNode,
+    Element: FakeElement,
+    location: { href: 'http://localhost:4222/', pathname: '/' },
+  });
   t.after(() => {
     for (const [key, descriptor] of Object.entries(saved)) {
       if (descriptor === undefined) {
@@ -69,7 +89,9 @@ async function run(t, ng) {
 
   return {
     doctor: /** @type {Record<string, unknown>} */ (doctor),
-    ngc: /** @type {Record<string, (...args: unknown[]) => unknown>} */ (win['__ngc']),
+    ngc: /** @type {Record<string, (...args: unknown[]) => unknown>} */ (
+      win['__ngc']
+    ),
     initScripts,
   };
 }
@@ -89,25 +111,63 @@ function fakeNg(zoneRecords) {
     ],
     edges: [{ consumer: 1, producer: 0 }],
   };
-  const names = ['getContext', 'getRootComponents', 'getHostElement', 'applyChanges', 'isSignal', 'ɵgetInjectorMetadata', 'ɵgetDependenciesFromInjectable', 'getDirectiveMetadata', 'getListeners', 'getDirectives', 'getOwningComponent', 'ɵgetRouterInstance', 'ɵgetLoadedRoutes', 'ɵnavigateByUrl'];
+  const names = [
+    'getContext',
+    'getRootComponents',
+    'getHostElement',
+    'applyChanges',
+    'isSignal',
+    'ɵgetInjectorMetadata',
+    'ɵgetDependenciesFromInjectable',
+    'getDirectiveMetadata',
+    'getListeners',
+    'getDirectives',
+    'getOwningComponent',
+    'ɵgetRouterInstance',
+    'ɵgetLoadedRoutes',
+    'ɵnavigateByUrl',
+  ];
 
   return {
     ...Object.fromEntries(names.map((name) => [name, () => undefined])),
     isSignal: () => false,
     /** @param {unknown} el */
-    getComponent: (el) => (el instanceof FakeElement && el.tagName === 'APP-COUNTER' ? counter : el instanceof FakeElement && el.tagName === 'APP-ROOT' ? { constructor: { name: 'App' } } : null),
+    getComponent: (el) =>
+      el instanceof FakeElement && el.tagName === 'APP-COUNTER'
+        ? counter
+        : el instanceof FakeElement && el.tagName === 'APP-ROOT'
+          ? { constructor: { name: 'App' } }
+          : null,
     getInjector: () => ({ node: true }),
     ɵgetSignalGraph: () => graph,
     ɵgetInjectorResolutionPath: () => ['node', 'environment'],
     /** @param {string} injector */
-    ɵgetInjectorProviders: (injector) => (injector === 'environment' ? zoneRecords : [{ token: CartService, isViewProvider: false, importPath: [] }]),
-    getDirectiveMetadata: () => ({ inputs: { count: 'count' }, outputs: {}, changeDetection: 0 }),
-    getListeners: () => [{ name: 'click', type: 'dom', useCapture: false, extra: 'dropped' }],
+    ɵgetInjectorProviders: (injector) =>
+      injector === 'environment'
+        ? zoneRecords
+        : [{ token: CartService, isViewProvider: false, importPath: [] }],
+    getDirectiveMetadata: () => ({
+      inputs: { count: 'count' },
+      outputs: {},
+      changeDetection: 0,
+    }),
+    getListeners: () => [
+      { name: 'click', type: 'dom', useCapture: false, extra: 'dropped' },
+    ],
     getDirectives: () => [],
     getOwningComponent: () => ({ constructor: { name: '_App' } }),
-    ɵgetRouterInstance: () => ({ url: '/home', navigated: true, config: [{ path: '', redirectTo: 'home' }, { path: 'home', component: {} }, { path: 'claim', loadChildren: () => null }] }),
+    ɵgetRouterInstance: () => ({
+      url: '/home',
+      navigated: true,
+      config: [
+        { path: '', redirectTo: 'home' },
+        { path: 'home', component: {} },
+        { path: 'claim', loadChildren: () => null },
+      ],
+    }),
     /** @param {{ path?: string }} route */
-    ɵgetLoadedRoutes: (route) => (route.path === 'claim' ? [{ path: 'list', component: {} }] : undefined),
+    ɵgetLoadedRoutes: (route) =>
+      route.path === 'claim' ? [{ path: 'list', component: {} }] : undefined,
   };
 }
 
@@ -132,7 +192,9 @@ test('doctor reads the version, roots and the last NgZone record, and installs t
 });
 
 test('doctor reports a zoneless app and the core functions a build lacks', async (t) => {
-  const ng = fakeNg([{ token: NgZone, provider: { useClass: { name: 'NoopNgZone' } } }]);
+  const ng = fakeNg([
+    { token: NgZone, provider: { useClass: { name: 'NoopNgZone' } } },
+  ]);
   delete ng['ɵgetSignalGraph'];
   delete ng['ɵnavigateByUrl'];
   const { doctor } = await run(t, ng);
@@ -154,21 +216,41 @@ test('components, inspect state and dependenciesOf read through window.ng', asyn
     { i: 0, tag: 'app-root', name: 'App' },
     { i: 1, tag: 'app-counter', name: 'Counter' },
   ]);
-  assert.deepEqual(ngc['dependenciesOf']?.('app-counter', 'double'), { signal: 'double', kind: 'computed', value: 6, dependsOn: ['count'] });
-  assert.throws(() => ngc['dependenciesOf']?.('app-counter', 'triple'), /no signal node labelled triple; labels: count, double/);
-  assert.throws(() => ngc['inspect']?.('app-missing'), /no component host matches app-missing/);
+  assert.deepEqual(ngc['dependenciesOf']?.('app-counter', 'double'), {
+    signal: 'double',
+    kind: 'computed',
+    value: 6,
+    dependsOn: ['count'],
+  });
+  assert.throws(
+    () => ngc['dependenciesOf']?.('app-counter', 'triple'),
+    /no signal node labelled triple; labels: count, double/,
+  );
+  assert.throws(
+    () => ngc['inspect']?.('app-missing'),
+    /no component host matches app-missing/,
+  );
 });
 
 test('inspect, providers and router report what window.ng returns', async (t) => {
   const { ngc } = await run(t, fakeNg([]));
-  const inspected = /** @type {Record<string, unknown>} */ (ngc['inspect']?.('app-counter'));
+  const inspected = /** @type {Record<string, unknown>} */ (
+    ngc['inspect']?.('app-counter')
+  );
   assert.equal(inspected['name'], 'Counter');
   assert.equal(inspected['changeDetection'], 'OnPush');
   assert.deepEqual(inspected['inputs'], { count: 3 });
-  assert.deepEqual(inspected['state'], { count: 3, constructor: { name: '_Counter' } });
-  assert.deepEqual(inspected['listeners'], [{ name: 'click', type: 'dom', useCapture: false }]);
+  assert.deepEqual(inspected['state'], {
+    count: 3,
+    constructor: { name: '_Counter' },
+  });
+  assert.deepEqual(inspected['listeners'], [
+    { name: 'click', type: 'dom', useCapture: false },
+  ]);
   assert.equal(inspected['owner'], 'App');
-  assert.deepEqual(ngc['providers']?.('app-counter', 0), [{ token: 'CartService', isViewProvider: false, importPath: [] }]);
+  assert.deepEqual(ngc['providers']?.('app-counter', 0), [
+    { token: 'CartService', isViewProvider: false, importPath: [] },
+  ]);
   assert.deepEqual(ngc['router']?.(), {
     present: true,
     url: '/home',

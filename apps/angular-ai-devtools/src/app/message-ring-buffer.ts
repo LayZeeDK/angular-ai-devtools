@@ -84,7 +84,9 @@ export class MessageRingBuffer {
   readonly size = computed(() => this.entriesState().length);
 
   /** The oldest entry the buffer still holds, or `null` when it is empty. */
-  readonly oldest = computed<RingEntry | null>(() => this.entriesState()[0] ?? null);
+  readonly oldest = computed<RingEntry | null>(
+    () => this.entriesState()[0] ?? null,
+  );
 
   /** The most recent entry the buffer holds, or `null` when it is empty. */
   readonly newest = computed<RingEntry | null>(() => {
@@ -99,7 +101,9 @@ export class MessageRingBuffer {
    */
   readonly currentPageEntries = computed<readonly RingEntry[]>(() => {
     const key = this.currentPageKeyState();
-    return key === null ? [] : this.entriesState().filter((entry) => entry.pageKey === key);
+    return key === null
+      ? []
+      : this.entriesState().filter((entry) => entry.pageKey === key);
   });
 
   /**
@@ -146,7 +150,9 @@ export class MessageRingBuffer {
    * the buffer no longer holds (evicted, pruned, or never written), and invents nothing.
    */
   at(position: number): RingEntry | null {
-    return this.entriesState().find((entry) => entry.position === position) ?? null;
+    return (
+      this.entriesState().find((entry) => entry.position === position) ?? null
+    );
   }
 
   /**
@@ -177,7 +183,10 @@ export class MessageRingBuffer {
   }
 }
 
-function neighboursWithin(entries: readonly RingEntry[], position: number): RingNeighbours {
+function neighboursWithin(
+  entries: readonly RingEntry[],
+  position: number,
+): RingNeighbours {
   const index = entries.findIndex((entry) => entry.position === position);
   if (index === -1) {
     return { previous: null, next: null };

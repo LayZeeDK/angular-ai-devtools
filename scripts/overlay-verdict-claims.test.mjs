@@ -34,7 +34,8 @@ const RAW = join(ROOT, 'research', 'raw');
 const RULINGS = ['required', 'not-required'];
 const SOURCES = ['insurance-portal', 'counter-fixture'];
 const READINGS = ['toolElements', 'drawnRect', 'descriptor', 'noDevContext'];
-const VERDICT_PATH = /^\.project\/build\/verify\/[a-z0-9]+(-[a-z0-9]+)*\/verdict\.json$/;
+const VERDICT_PATH =
+  /^\.project\/build\/verify\/[a-z0-9]+(-[a-z0-9]+)*\/verdict\.json$/;
 // Tokens a driver that only reads the page cannot carry; a page global, storage or a second element
 // would each change the page the milestone is trying to leave untouched.
 const WRITES = [
@@ -68,13 +69,18 @@ function currentRecording() {
   const branch = text.match(/^branch:\s*(\S+)\s*$/m)?.[1] ?? '';
   const number = branch.match(/^gsd-path\/M(\d{3})$/)?.[1];
 
-  assert.ok(number, `STATE.md must name the milestone under work by branch; the check fails rather than skipping`);
+  assert.ok(
+    number,
+    `STATE.md must name the milestone under work by branch; the check fails rather than skipping`,
+  );
 
   const milestone = `M${number}`;
   const path = join(RAW, `m${number}-verdict-claims.json`);
 
   if (!existsSync(path)) {
-    throw new Error(`the claim list ${path} cannot be read (ENOENT); the check fails rather than skipping`);
+    throw new Error(
+      `the claim list ${path} cannot be read (ENOENT); the check fails rather than skipping`,
+    );
   }
 
   return { path, milestone };
@@ -90,7 +96,10 @@ function intentPath(milestone) {
   const number = milestone.slice(1);
   const archives = join(ROOT, '.project', 'archive');
   const archived = existsSync(archives)
-    ? readdirSync(archives).filter((name) => name.startsWith(`${number}-`)).sort().pop()
+    ? readdirSync(archives)
+        .filter((name) => name.startsWith(`${number}-`))
+        .sort()
+        .pop()
     : undefined;
 
   if (archived) {
@@ -99,7 +108,10 @@ function intentPath(milestone) {
 
   const current = join(ROOT, '.project', 'intent', 'INTENT.md');
 
-  assert.ok(existsSync(current), `${milestone} is neither archived nor the current milestone`);
+  assert.ok(
+    existsSync(current),
+    `${milestone} is neither archived nor the current milestone`,
+  );
 
   return current;
 }
@@ -128,7 +140,8 @@ function intentCriteria(path) {
   let currentId = '';
 
   const flush = () => {
-    if (current) criteria[currentId] = current.join(' ').replace(/\s+/g, ' ').trim();
+    if (current)
+      criteria[currentId] = current.join(' ').replace(/\s+/g, ' ').trim();
     current = null;
     currentId = '';
   };
@@ -153,7 +166,10 @@ function intentCriteria(path) {
 
   flush();
 
-  assert.ok(Object.keys(criteria).length > 0, 'INTENT.md must list its success criteria as a numbered list');
+  assert.ok(
+    Object.keys(criteria).length > 0,
+    'INTENT.md must list its success criteria as a numbered list',
+  );
 
   return criteria;
 }
@@ -176,13 +192,17 @@ function readRecording(path) {
   try {
     text = readFileSync(path, 'utf8');
   } catch (error) {
-    throw new Error(`the claim list ${path} cannot be read (${error?.code ?? error}); the check fails rather than skipping`);
+    throw new Error(
+      `the claim list ${path} cannot be read (${error?.code ?? error}); the check fails rather than skipping`,
+    );
   }
 
   try {
     return JSON.parse(stripBom(text));
   } catch (error) {
-    throw new Error(`the claim list ${path} is not JSON (${error?.message ?? error})`);
+    throw new Error(
+      `the claim list ${path} is not JSON (${error?.message ?? error})`,
+    );
   }
 }
 
@@ -194,7 +214,9 @@ function readDriver(path) {
   try {
     return stripBom(readFileSync(join(ROOT, path), 'utf8'));
   } catch (error) {
-    throw new Error(`the claim list names the driver ${path}, which does not exist (${error?.code ?? error})`);
+    throw new Error(
+      `the claim list names the driver ${path}, which does not exist (${error?.code ?? error})`,
+    );
   }
 }
 
@@ -209,17 +231,31 @@ function readDriver(path) {
 function assertDriverShape(source) {
   const text = stripBom(source).trim();
 
-  assert.match(text, /^async page => \{/, 'a run driver is one `async page => { ... }` expression');
-  assert.ok(text.endsWith('}'), 'the driver must close the expression it starts');
+  assert.match(
+    text,
+    /^async page => \{/,
+    'a run driver is one `async page => { ... }` expression',
+  );
+  assert.ok(
+    text.endsWith('}'),
+    'the driver must close the expression it starts',
+  );
   assert.ok(text.includes('page.evaluate('), 'the driver must read the page');
   assert.ok(text.includes('return'), 'the driver must return plain data');
 
   for (const reading of READINGS) {
-    assert.ok(text.includes(reading), `the driver must return the ${reading} reading`);
+    assert.ok(
+      text.includes(reading),
+      `the driver must return the ${reading} reading`,
+    );
   }
 
   for (const [pattern, token] of WRITES) {
-    assert.doesNotMatch(text, pattern, `a driver that reads the page only cannot carry ${token}`);
+    assert.doesNotMatch(
+      text,
+      pattern,
+      `a driver that reads the page only cannot carry ${token}`,
+    );
   }
 }
 
@@ -229,12 +265,22 @@ function assertDriverShape(source) {
  * @returns {void}
  */
 function validate(recording, deps) {
-  assert.ok(recording && typeof recording === 'object' && !Array.isArray(recording), 'the recording must be one JSON object');
-  assert.equal(recording.milestone, deps.milestone, 'the recording must name the milestone its file is numbered for');
+  assert.ok(
+    recording && typeof recording === 'object' && !Array.isArray(recording),
+    'the recording must be one JSON object',
+  );
+  assert.equal(
+    recording.milestone,
+    deps.milestone,
+    'the recording must name the milestone its file is numbered for',
+  );
 
   const claims = recording.claims;
 
-  assert.ok(Array.isArray(claims) && claims.length > 0, 'the recording must carry a claims array');
+  assert.ok(
+    Array.isArray(claims) && claims.length > 0,
+    'the recording must carry a claims array',
+  );
 
   const seen = new Set();
   const sources = new Set();
@@ -244,31 +290,80 @@ function validate(recording, deps) {
   for (const row of claims) {
     const where = row?.criterion ?? 'a row';
 
-    assert.ok(Object.hasOwn(deps.criteria, row?.criterion ?? ''), `${where} is not a criterion the intent declares`);
+    assert.ok(
+      Object.hasOwn(deps.criteria, row?.criterion ?? ''),
+      `${where} is not a criterion the intent declares`,
+    );
     assert.ok(!seen.has(row.criterion), `${where} appears more than once`);
     seen.add(row.criterion);
-    assert.equal(row.criterionText, deps.criteria[row.criterion], `${where} must quote the INTENT criterion character for character`);
-    assert.ok(RULINGS.includes(row.ruling), `${where} must rule required or not-required`);
-    assert.ok(filled(row.reason), `${where} must state a reason rather than leave the cell empty`);
+    assert.equal(
+      row.criterionText,
+      deps.criteria[row.criterion],
+      `${where} must quote the INTENT criterion character for character`,
+    );
+    assert.ok(
+      RULINGS.includes(row.ruling),
+      `${where} must rule required or not-required`,
+    );
+    assert.ok(
+      filled(row.reason),
+      `${where} must state a reason rather than leave the cell empty`,
+    );
 
     if (row.ruling === 'not-required') {
-      assert.ok(row.reason.trim().length >= 60, `${where} must state why the charter's portal clause does not reach it`);
-      assert.match(row.reason, /portal/i, `${where} must answer the charter's portal clause by name`);
+      assert.ok(
+        row.reason.trim().length >= 60,
+        `${where} must state why the charter's portal clause does not reach it`,
+      );
+      assert.match(
+        row.reason,
+        /portal/i,
+        `${where} must answer the charter's portal clause by name`,
+      );
       continue;
     }
 
     required += 1;
-    assert.ok(SOURCES.includes(row.source), `${where} must name the insurance portal or the counter fixture as its source page`);
-    assert.match(row.sourcePage ?? '', /^https?:\/\//, `${where} must name the page or route that produces its facts`);
-    assert.ok(filled(row.route), `${where} must name the route that produces its facts`);
-    assert.ok(filled(row.serve), `${where} must name the command that serves that page`);
-    assert.ok(filled(row.driver), `${where} must name the driver the wave gate runs`);
-    assert.ok(filled(row.instance), `${where} must name the instance it is driven on`);
-    assert.match(row.verdictPath ?? '', VERDICT_PATH, `${where} must name the verdict path the wave gate cites`);
-    assert.ok(Array.isArray(row.readings) && row.readings.length > 0, `${where} must name the readings that produce its facts`);
+    assert.ok(
+      SOURCES.includes(row.source),
+      `${where} must name the insurance portal or the counter fixture as its source page`,
+    );
+    assert.match(
+      row.sourcePage ?? '',
+      /^https?:\/\//,
+      `${where} must name the page or route that produces its facts`,
+    );
+    assert.ok(
+      filled(row.route),
+      `${where} must name the route that produces its facts`,
+    );
+    assert.ok(
+      filled(row.serve),
+      `${where} must name the command that serves that page`,
+    );
+    assert.ok(
+      filled(row.driver),
+      `${where} must name the driver the wave gate runs`,
+    );
+    assert.ok(
+      filled(row.instance),
+      `${where} must name the instance it is driven on`,
+    );
+    assert.match(
+      row.verdictPath ?? '',
+      VERDICT_PATH,
+      `${where} must name the verdict path the wave gate cites`,
+    );
+    assert.ok(
+      Array.isArray(row.readings) && row.readings.length > 0,
+      `${where} must name the readings that produce its facts`,
+    );
 
     for (const reading of row.readings) {
-      assert.ok(READINGS.includes(reading), `${where} names ${reading}, which is not one of the four readings`);
+      assert.ok(
+        READINGS.includes(reading),
+        `${where} names ${reading}, which is not one of the four readings`,
+      );
       cited.add(reading);
     }
 
@@ -278,18 +373,38 @@ function validate(recording, deps) {
   if (required === 0) {
     // A milestone the portal clause does not reach owes no driver and no readings; it says so with reasons
     // rather than naming a driver it would have to invent.
-    assert.equal(recording.driver ?? null, null, 'a list with no required row must not name a driver');
+    assert.equal(
+      recording.driver ?? null,
+      null,
+      'a list with no required row must not name a driver',
+    );
 
     return;
   }
 
-  assert.ok(filled(recording.driver), 'a list with a required row must name the one driver that produces the readings');
-  assert.ok(filled(recording.instance), 'a list with a required row must name the instance the claims are driven on');
-  assert.ok(Array.isArray(recording.gateReadings) && recording.gateReadings.includes('toolElements'), 'the recording must name the tool-element count the wave gate cites');
-  assert.ok(sources.has('insurance-portal'), "the charter requires a portal-backed verdict wherever a route produces the facts");
+  assert.ok(
+    filled(recording.driver),
+    'a list with a required row must name the one driver that produces the readings',
+  );
+  assert.ok(
+    filled(recording.instance),
+    'a list with a required row must name the instance the claims are driven on',
+  );
+  assert.ok(
+    Array.isArray(recording.gateReadings) &&
+      recording.gateReadings.includes('toolElements'),
+    'the recording must name the tool-element count the wave gate cites',
+  );
+  assert.ok(
+    sources.has('insurance-portal'),
+    'the charter requires a portal-backed verdict wherever a route produces the facts',
+  );
 
   for (const needed of ['drawnRect', 'descriptor', 'noDevContext']) {
-    assert.ok(cited.has(needed), `the rows must cite the ${needed} reading the driver returns`);
+    assert.ok(
+      cited.has(needed),
+      `the rows must cite the ${needed} reading the driver returns`,
+    );
   }
 
   assertDriverShape(deps.readDriver(recording.driver));
@@ -362,12 +477,20 @@ test("the milestone's recording rules each criterion it names and quotes its own
 test('the recording follows the milestone its file is numbered for, not an archived one', () => {
   const { recording, deps } = load();
 
-  assert.equal(recording.milestone, deps.milestone, 'the resolved recording must name the resolved milestone');
+  assert.equal(
+    recording.milestone,
+    deps.milestone,
+    'the resolved recording must name the resolved milestone',
+  );
 
   const mismatched = structuredClone(recording);
   mismatched.milestone = 'M999';
 
-  assert.throws(() => validate(mismatched, deps), /milestone/, 'a recording that names another milestone must fail');
+  assert.throws(
+    () => validate(mismatched, deps),
+    /milestone/,
+    'a recording that names another milestone must fail',
+  );
 });
 
 test('a required row is checked against a synthetic list, so a milestone that owes nothing cannot weaken it', () => {
@@ -379,17 +502,33 @@ test('a required row is checked against a synthetic list, so a milestone that ow
 
 test('a missing recording fails rather than skipping', () => {
   assert.throws(
-    () => readRecording(join(ROOT, 'research', 'raw', 'm000-verdict-claims-absent.json')),
+    () =>
+      readRecording(
+        join(ROOT, 'research', 'raw', 'm000-verdict-claims-absent.json'),
+      ),
     /fails rather than skipping/,
   );
 });
 
 test('a required row that leaves a source, driver, instance or verdict path empty is refused', () => {
-  for (const field of ['source', 'sourcePage', 'route', 'serve', 'driver', 'instance', 'verdictPath', 'readings']) {
+  for (const field of [
+    'source',
+    'sourcePage',
+    'route',
+    'serve',
+    'driver',
+    'instance',
+    'verdictPath',
+    'readings',
+  ]) {
     const { recording, deps } = requiredFixture();
     delete recording.claims[0][field];
 
-    assert.throws(() => validate(recording, deps), /SC1/, `a row without ${field} must fail`);
+    assert.throws(
+      () => validate(recording, deps),
+      /SC1/,
+      `a row without ${field} must fail`,
+    );
   }
 });
 
@@ -408,7 +547,11 @@ test('a criterion the milestone does not declare is refused', () => {
   assert.throws(() => validate(replaced.recording, replaced.deps), /criterion/);
 
   const added = requiredFixture();
-  added.recording.claims.push({ ...added.recording.claims[0], criterion: 'SC98', criterionText: 'anything' });
+  added.recording.claims.push({
+    ...added.recording.claims[0],
+    criterion: 'SC98',
+    criterionText: 'anything',
+  });
 
   assert.throws(() => validate(added.recording, added.deps), /declares/);
 });
@@ -421,7 +564,11 @@ test('a row that paraphrases the criterion instead of quoting it is refused', ()
 });
 
 test('a driver that writes into the page is refused', () => {
-  for (const token of ['localStorage.setItem("a", "b");', 'document.createElement("div");', 'window.__overlay = 1;']) {
+  for (const token of [
+    'localStorage.setItem("a", "b");',
+    'document.createElement("div");',
+    'window.__overlay = 1;',
+  ]) {
     const { recording, deps } = requiredFixture();
     const writing = {
       ...deps,
@@ -437,8 +584,18 @@ test('a driver that is not a run expression, or is absent, is refused', () => {
   const { recording, deps } = requiredFixture();
 
   assert.throws(
-    () => validate(recording, { ...deps, readDriver: () => 'const page = 1;\n' }),
+    () =>
+      validate(recording, { ...deps, readDriver: () => 'const page = 1;\n' }),
     /async page =>/,
   );
-  assert.throws(() => validate(recording, { ...deps, readDriver: () => { throw new Error('does not exist'); } }), /does not exist/);
+  assert.throws(
+    () =>
+      validate(recording, {
+        ...deps,
+        readDriver: () => {
+          throw new Error('does not exist');
+        },
+      }),
+    /does not exist/,
+  );
 });

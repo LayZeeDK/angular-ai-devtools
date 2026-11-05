@@ -76,7 +76,8 @@ const OPTIONAL_COMPONENT_ID: ToolInputSchema = {
   properties: {
     componentId: {
       type: 'string',
-      description: 'an optional component id; omit it to read the signals of the whole page',
+      description:
+        'an optional component id; omit it to read the signals of the whole page',
     },
   },
   required: [],
@@ -94,7 +95,7 @@ const REQUIRED_COMPONENT_ID_TIER0: ToolInputSchema = {
     componentId: {
       type: 'string',
       description:
-        'the id of the component to read; getDirectiveMetadata is a Tier-0 debug API that answers nothing outside dev mode, so an empty read is not evidence that the page has no directives, and the page\'s own reason is passed through instead of a fallback read',
+        "the id of the component to read; getDirectiveMetadata is a Tier-0 debug API that answers nothing outside dev mode, so an empty read is not evidence that the page has no directives, and the page's own reason is passed through instead of a fallback read",
     },
   },
   required: ['componentId'],
@@ -106,7 +107,7 @@ const REQUIRED_COMPONENT_ID_TIER0_COMPONENT: ToolInputSchema = {
     componentId: {
       type: 'string',
       description:
-        'the id of the component to read; getComponent is a Tier-0 debug API that answers nothing outside dev mode, so an empty read is not evidence that the page has no components, and the page\'s own reason is passed through instead of a fallback read',
+        "the id of the component to read; getComponent is a Tier-0 debug API that answers nothing outside dev mode, so an empty read is not evidence that the page has no components, and the page's own reason is passed through instead of a fallback read",
     },
   },
   required: ['componentId'],
@@ -167,7 +168,9 @@ function pageReadBacking(toolId: PageReadKind): ToolBacking {
   const read: PageReader = PAGE_READERS[toolId];
   return {
     execute: async (input: unknown): Promise<ToolOutcome> => {
-      const pageInput: Readonly<Record<string, unknown>> = isRecord(input) ? input : {};
+      const pageInput: Readonly<Record<string, unknown>> = isRecord(input)
+        ? input
+        : {};
       let response: PageResponse;
       try {
         response = await read(pageHost(), pageInput);
@@ -179,7 +182,11 @@ function pageReadBacking(toolId: PageReadKind): ToolBacking {
         );
       }
       if (response.status === 'result') {
-        return { kind: 'result', value: response.value, provenance: 'page-request' };
+        return {
+          kind: 'result',
+          value: response.value,
+          provenance: 'page-request',
+        };
       }
       return pageFailure(toolId, response.code, response.message);
     },

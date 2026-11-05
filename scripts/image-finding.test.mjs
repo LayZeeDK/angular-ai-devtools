@@ -8,9 +8,30 @@ import { isKnownCode } from './image-digest.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
-const componentPath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'image-budget-page.ts');
-const routesPath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'app.routes.ts');
-const samplePath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'image-budget-warning.json');
+const componentPath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'image-budget-page.ts',
+);
+const routesPath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'app.routes.ts',
+);
+const samplePath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'image-budget-warning.json',
+);
 
 const EXPECTED_CODE = 'NG02952';
 
@@ -53,7 +74,10 @@ test('COM-1 yields no finding when the binding field is removed (mutant)', () =>
 test('provenance: sample source names the capture record, not a transcription', () => {
   const sample = loadSample();
   assert.equal(typeof sample.source, 'string');
-  assert.match(sample.source, /research\/raw\/m027-image-warning-capture\.json/);
+  assert.match(
+    sample.source,
+    /research\/raw\/m027-image-warning-capture\.json/,
+  );
   assert.match(sample.source, /capture/i);
   assert.doesNotMatch(sample.source, /transcribed/i);
 });

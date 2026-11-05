@@ -19,14 +19,25 @@ import { JSDOM } from 'jsdom';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..', '..');
-const probePath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'components', 'harness-probe.ts');
+const probePath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'components',
+  'harness-probe.ts',
+);
 const SUITE = 'fixture-harness-predicate.test.mjs';
 const SUBJECT = '<app-harness-probe>';
 
 /** The template literal the probe component declares, read out of its own source. */
 function readTemplate(source) {
   const match = /template:\s*`([\s\S]*?)`/.exec(source);
-  assert.ok(match, `${SUITE}: ${probePath} declares no template literal, so there is no predicate subject to parse`);
+  assert.ok(
+    match,
+    `${SUITE}: ${probePath} declares no template literal, so there is no predicate subject to parse`,
+  );
   return match[1];
 }
 
@@ -37,11 +48,18 @@ function readTemplate(source) {
 function readProbeItems() {
   const template = readTemplate(readFileSync(probePath, 'utf8'));
   const dom = new JSDOM(`<!doctype html><html><body>${template}</body></html>`);
-  const items = [...dom.window.document.querySelectorAll('[data-kind]')].map((element) => ({
-    tag: element.tagName.toLowerCase(),
-    text: element.textContent.trim(),
-    attributes: Object.fromEntries([...element.attributes].map((attribute) => [attribute.name, attribute.value])),
-  }));
+  const items = [...dom.window.document.querySelectorAll('[data-kind]')].map(
+    (element) => ({
+      tag: element.tagName.toLowerCase(),
+      text: element.textContent.trim(),
+      attributes: Object.fromEntries(
+        [...element.attributes].map((attribute) => [
+          attribute.name,
+          attribute.value,
+        ]),
+      ),
+    }),
+  );
   assert.ok(
     items.length > 0,
     `${SUITE}: the probe template renders no [data-kind] item, so the fixture supplies no predicate case (HAR-2)`,
@@ -63,7 +81,9 @@ function describePredicate(predicate) {
  */
 function matchItems(items, predicate) {
   const matched = items.filter((item) =>
-    Object.entries(predicate).every(([name, value]) => item.attributes[name] === value),
+    Object.entries(predicate).every(
+      ([name, value]) => item.attributes[name] === value,
+    ),
   );
   if (matched.length === 0) {
     return {
@@ -108,7 +128,10 @@ test('the same predicate against the target matches exactly the item the fixture
 
 test('the no-match report is derived from the predicate, not special-cased for one selector', () => {
   const items = readProbeItems();
-  const result = matchItems(items, { 'data-kind': 'alpha', 'data-slot': 'absent' });
+  const result = matchItems(items, {
+    'data-kind': 'alpha',
+    'data-slot': 'absent',
+  });
 
   assert.equal(
     result.matched.length,

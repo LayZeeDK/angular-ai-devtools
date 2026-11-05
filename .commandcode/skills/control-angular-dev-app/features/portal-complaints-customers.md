@@ -37,12 +37,12 @@ Preconditions:
 - **Complaint create.** Sidebar Complaint `Create`; `click "getByRole('combobox', { name: 'Select type' })"`
   then `run-code "async page => { await page.getByRole('option').first().click(); }"`; the same for
   `Select customer`; `fill <description textbox ref> "<text>"`; `click "getByRole('button', { name: 'Save'
-  })"`. The URL becomes `/complaint/<id>/details` and `requests` shows
+})"`. The URL becomes `/complaint/<id>/details` and `requests` shows
   `[POST] http://localhost:3000/api/complaints => [201] Created`.
 - **Customers.** Same with `Customers` and `**/customer/list`; eight headers, 30 rows; a row click opens
   `/customer/<id>/details`.
 - **Customer from contract.** On contract details, `playwright-cli -s=<session> click "getByRole('link', {
-  name: '<customer name from the snapshot>' })"`; the URL matches `/customer/.+/details`.
+name: '<customer name from the snapshot>' })"`; the URL matches `/customer/.+/details`.
 - **API.** `playwright-cli -s=<session> requests` shows `GET http://localhost:3000/api/customers`.
 - **Proof.** Snapshots and `screenshot --filename=<evidenceDir>/customers.png`.
 

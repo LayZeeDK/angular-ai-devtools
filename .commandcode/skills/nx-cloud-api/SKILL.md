@@ -1,6 +1,6 @@
 ---
 name: nx-cloud-api
-description: "Nx Cloud API"
+description: 'Nx Cloud API'
 ---
 
 # Nx Cloud API

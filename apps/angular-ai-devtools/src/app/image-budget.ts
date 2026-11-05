@@ -47,9 +47,23 @@ export type ImageBudgetInput =
     };
 
 export type ImageBudgetSurface =
-  | { readonly kind: 'empty'; readonly state: 'empty'; readonly message: string }
-  | { readonly kind: 'loading'; readonly state: 'loading'; readonly message: string; readonly facts: readonly string[] }
-  | { readonly kind: 'unknown'; readonly state: 'unknown'; readonly message: string; readonly code: string }
+  | {
+      readonly kind: 'empty';
+      readonly state: 'empty';
+      readonly message: string;
+    }
+  | {
+      readonly kind: 'loading';
+      readonly state: 'loading';
+      readonly message: string;
+      readonly facts: readonly string[];
+    }
+  | {
+      readonly kind: 'unknown';
+      readonly state: 'unknown';
+      readonly message: string;
+      readonly code: string;
+    }
   | {
       readonly kind: 'success';
       readonly state: 'success';
@@ -68,7 +82,9 @@ const LOADING_MESSAGE = 'assembling fact list';
 const UNKNOWN_MESSAGE_PREFIX = 'unknown';
 
 function readCode(value: unknown): string {
-  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : '';
+  return typeof value === 'string' && value.trim().length > 0
+    ? value.trim()
+    : '';
 }
 
 function readBinding(value: unknown): string {
@@ -87,10 +103,22 @@ function normalizeFinding(input: ImageBudgetInput): ImageBudgetFinding | null {
   }
   if (typeof input !== 'object') return null;
   const obj = input as any;
-  if (typeof obj.code === 'string' && (obj.image === undefined || typeof obj.image === 'string') && (obj.binding === undefined || typeof obj.binding === 'string') && !('finding' in obj) && !('digest' in obj) && !('loading' in obj) && !('facts' in obj)) {
+  if (
+    typeof obj.code === 'string' &&
+    (obj.image === undefined || typeof obj.image === 'string') &&
+    (obj.binding === undefined || typeof obj.binding === 'string') &&
+    !('finding' in obj) &&
+    !('digest' in obj) &&
+    !('loading' in obj) &&
+    !('facts' in obj)
+  ) {
     const code = readCode(obj.code);
     if (!code) return null;
-    return { code, image: readImage(obj.image) ?? undefined, binding: readBinding(obj.binding) || undefined } as ImageBudgetFinding;
+    return {
+      code,
+      image: readImage(obj.image) ?? undefined,
+      binding: readBinding(obj.binding) || undefined,
+    } as ImageBudgetFinding;
   }
   if ('finding' in obj) {
     const f = obj.finding;
@@ -109,16 +137,28 @@ function normalizeFinding(input: ImageBudgetInput): ImageBudgetFinding | null {
   if (!code) return null;
   // If loading flag present, treat as no finding yet.
   if (obj.loading === true || obj.assembling === true) return null;
-  return { code, image: readImage(obj.image) ?? undefined, binding: readBinding(obj.binding) || undefined } as ImageBudgetFinding;
+  return {
+    code,
+    image: readImage(obj.image) ?? undefined,
+    binding: readBinding(obj.binding) || undefined,
+  } as ImageBudgetFinding;
 }
 
-function normalizeDigest(input: ImageBudgetInput): readonly ImageBudgetDigestEntry[] {
-  if (input === null || input === undefined || typeof input !== 'object') return [];
+function normalizeDigest(
+  input: ImageBudgetInput,
+): readonly ImageBudgetDigestEntry[] {
+  if (input === null || input === undefined || typeof input !== 'object')
+    return [];
   const obj = input as any;
   let raw: unknown = undefined;
   if ('digest' in obj) raw = obj.digest;
   else if (Array.isArray(obj)) raw = obj;
-  if (raw && typeof raw === 'object' && !Array.isArray(raw) && 'entries' in (raw as any)) {
+  if (
+    raw &&
+    typeof raw === 'object' &&
+    !Array.isArray(raw) &&
+    'entries' in (raw as any)
+  ) {
     raw = (raw as any).entries;
   }
   if (Array.isArray(raw)) return raw as ImageBudgetDigestEntry[];
@@ -140,19 +180,76 @@ function findDigestEntry(
 // Default fact list (mirrors scripts/image-digest.mjs) so the surface works
 // even when no digest is passed in.
 const DEFAULT_ENTRIES: readonly ImageBudgetDigestEntry[] = [
-  { code: 'NG0913', meaning: 'An image that is the LCP element was given loading="lazy".', fix: 'Change its loading value to eager or use NgOptimizedImage prioritization.' },
-  { code: 'NG2952', meaning: 'NgOptimizedImage reported an image aspect-ratio, fill, or loading attribute problem.', fix: 'Correct the width, height, fill, or loading attribute per the warning.' },
-  { code: 'NG2955', meaning: 'An image is the LCP element but was not marked priority.', fix: 'Add the priority attribute to that image.' },
-  { code: 'NG2956', meaning: 'A priority image has no preconnect tag for its origin.', fix: 'Add a preconnect link for the image origin in the document head.' },
-  { code: 'NG2959', meaning: 'The Netlify image loader saw an unsupported attribute.', fix: 'Remove the unsupported attribute from the img tag.' },
-  { code: 'NG2960', meaning: 'The intrinsic image is significantly larger than necessary.', fix: 'Resize the image or use ngSrcset and sizes.' },
-  { code: 'NG2961', meaning: 'More than the default preloaded image limit were marked priority.', fix: 'Remove priority from less important images.' },
-  { code: 'NG2962', meaning: 'Images look hosted on a CDN but no matching loader is configured.', fix: 'Provide the built-in loader or define a custom IMAGE_LOADER.' },
-  { code: 'NG2963', meaning: 'ngSrcset or loaderParams is present but no image loader is configured.', fix: 'Provide a loader or remove ngSrcset and loaderParams.' },
-  { code: 'NG2964', meaning: 'An LCP image had its ngSrc modified after render.', fix: 'Do not modify ngSrc on an LCP image.' },
-  { code: 'NG2965', meaning: 'A placeholder data URL is longer than the recommended limit.', fix: 'Use a smaller data URL placeholder.' },
-  { code: 'NG2966', meaning: 'The priority attribute is set more than the threshold number of times.', fix: 'Reserve priority for the LCP image only.' },
-  { code: 'NG2967', meaning: 'A placeholder image exceeds the dimension limit.', fix: 'Use a smaller image as the placeholder.' },
+  {
+    code: 'NG0913',
+    meaning: 'An image that is the LCP element was given loading="lazy".',
+    fix: 'Change its loading value to eager or use NgOptimizedImage prioritization.',
+  },
+  {
+    code: 'NG2952',
+    meaning:
+      'NgOptimizedImage reported an image aspect-ratio, fill, or loading attribute problem.',
+    fix: 'Correct the width, height, fill, or loading attribute per the warning.',
+  },
+  {
+    code: 'NG2955',
+    meaning: 'An image is the LCP element but was not marked priority.',
+    fix: 'Add the priority attribute to that image.',
+  },
+  {
+    code: 'NG2956',
+    meaning: 'A priority image has no preconnect tag for its origin.',
+    fix: 'Add a preconnect link for the image origin in the document head.',
+  },
+  {
+    code: 'NG2959',
+    meaning: 'The Netlify image loader saw an unsupported attribute.',
+    fix: 'Remove the unsupported attribute from the img tag.',
+  },
+  {
+    code: 'NG2960',
+    meaning: 'The intrinsic image is significantly larger than necessary.',
+    fix: 'Resize the image or use ngSrcset and sizes.',
+  },
+  {
+    code: 'NG2961',
+    meaning:
+      'More than the default preloaded image limit were marked priority.',
+    fix: 'Remove priority from less important images.',
+  },
+  {
+    code: 'NG2962',
+    meaning:
+      'Images look hosted on a CDN but no matching loader is configured.',
+    fix: 'Provide the built-in loader or define a custom IMAGE_LOADER.',
+  },
+  {
+    code: 'NG2963',
+    meaning:
+      'ngSrcset or loaderParams is present but no image loader is configured.',
+    fix: 'Provide a loader or remove ngSrcset and loaderParams.',
+  },
+  {
+    code: 'NG2964',
+    meaning: 'An LCP image had its ngSrc modified after render.',
+    fix: 'Do not modify ngSrc on an LCP image.',
+  },
+  {
+    code: 'NG2965',
+    meaning: 'A placeholder data URL is longer than the recommended limit.',
+    fix: 'Use a smaller data URL placeholder.',
+  },
+  {
+    code: 'NG2966',
+    meaning:
+      'The priority attribute is set more than the threshold number of times.',
+    fix: 'Reserve priority for the LCP image only.',
+  },
+  {
+    code: 'NG2967',
+    meaning: 'A placeholder image exceeds the dimension limit.',
+    fix: 'Use a smaller image as the placeholder.',
+  },
 ];
 
 export function imageBudget(...args: unknown[]): ImageBudgetSurface {
@@ -178,7 +275,8 @@ export function imageBudget(...args: unknown[]): ImageBudgetSurface {
   else if (second && typeof second === 'object') {
     const o = second as any;
     if (Array.isArray(o)) digest = o as ImageBudgetDigestEntry[];
-    else if (Array.isArray(o.entries)) digest = o.entries as ImageBudgetDigestEntry[];
+    else if (Array.isArray(o.entries))
+      digest = o.entries as ImageBudgetDigestEntry[];
     else if (o.digest) {
       const d = o.digest;
       if (Array.isArray(d)) digest = d as ImageBudgetDigestEntry[];
@@ -196,9 +294,11 @@ export function imageBudget(...args: unknown[]): ImageBudgetSurface {
     if (Array.isArray(o.digest)) digest = o.digest as ImageBudgetDigestEntry[];
     else if (o.digest && typeof o.digest === 'object') {
       const dd = o.digest as any;
-      if (Array.isArray(dd.entries)) digest = dd.entries as ImageBudgetDigestEntry[];
+      if (Array.isArray(dd.entries))
+        digest = dd.entries as ImageBudgetDigestEntry[];
     }
-    if (Array.isArray(o.entries)) digest = o.entries as ImageBudgetDigestEntry[];
+    if (Array.isArray(o.entries))
+      digest = o.entries as ImageBudgetDigestEntry[];
   }
 
   if (!loading) {
@@ -213,7 +313,12 @@ export function imageBudget(...args: unknown[]): ImageBudgetSurface {
   }
 
   if (loading) {
-    return { kind: 'loading', state: 'loading', message: LOADING_MESSAGE, facts };
+    return {
+      kind: 'loading',
+      state: 'loading',
+      message: LOADING_MESSAGE,
+      facts,
+    };
   }
 
   if (!finding) {
@@ -234,7 +339,12 @@ export function imageBudget(...args: unknown[]): ImageBudgetSurface {
 
   const binding = readBinding(finding.binding);
   const image = readImage(finding.image);
-  const fix = typeof entry.fix === 'string' ? entry.fix : (typeof entry.body === 'string' ? entry.body : '');
+  const fix =
+    typeof entry.fix === 'string'
+      ? entry.fix
+      : typeof entry.body === 'string'
+        ? entry.body
+        : '';
   const text = [code, binding, fix].filter(Boolean).join(' — ');
 
   return {

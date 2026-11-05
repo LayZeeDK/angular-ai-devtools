@@ -31,12 +31,12 @@ Preconditions:
 
 - **Home.** `playwright-cli -s=<session> snapshot --filename=<evidenceDir>/home.yml` shows
   `heading "Home" [level=1]` and links `Contracts`, `Claims`, `Complaints`, `Customers` with `/url:
-  /<domain>/list`.
+/<domain>/list`.
 - **Tile.** `playwright-cli -s=<session> click "getByRole('link', { name: 'Contracts' })"`, then
   `playwright-cli -s=<session> --raw run-code "async page => { await page.waitForURL('**/contract/list'); await
-  page.locator('table tbody tr').first().waitFor(); return page.url(); }"` prints `.../contract/list`.
+page.locator('table tbody tr').first().waitFor(); return page.url(); }"` prints `.../contract/list`.
 - **Sidebar.** `playwright-cli -s=<session> click "getByRole('navigation').getByRole('listitem').filter({
-  hasText: 'CLAIM' }).getByText('Create')"`; the URL becomes `/claim/create`.
+hasText: 'CLAIM' }).getByText('Create')"`; the URL becomes `/claim/create`.
 - **Router state.** `playwright-cli -s=<session> --raw eval "() => __ngc.router()"`: after visiting
   `/contract/list` the route list contains `/contract/list`, `/contract/create`, `/contract/:id/edit`,
   `/contract/:id/details`.

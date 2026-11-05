@@ -42,7 +42,10 @@ const CONTROL_DIR = join(ROOT, '.commandcode', 'skills', 'control-ai-browsers');
  * @returns {Record<string, unknown> | null}
  */
 export function jsonOf(stdout) {
-  const line = stdout.split(/\r?\n/).filter((l) => l.startsWith('{')).pop();
+  const line = stdout
+    .split(/\r?\n/)
+    .filter((l) => l.startsWith('{'))
+    .pop();
 
   if (line === undefined) {
     return null;
@@ -52,7 +55,9 @@ export function jsonOf(stdout) {
     /** @type {unknown} */
     const value = JSON.parse(line);
 
-    return value !== null && typeof value === 'object' && !Array.isArray(value) ? /** @type {Record<string, unknown>} */ (value) : null;
+    return value !== null && typeof value === 'object' && !Array.isArray(value)
+      ? /** @type {Record<string, unknown>} */ (value)
+      : null;
   } catch {
     return null;
   }
@@ -67,7 +72,10 @@ export function records(value) {
   /** @type {unknown[]} */
   const items = Array.isArray(value) ? value : [];
 
-  return items.filter(/** @returns {v is Record<string, unknown>} */ (v) => v !== null && typeof v === 'object' && !Array.isArray(v));
+  return items.filter(
+    /** @returns {v is Record<string, unknown>} */ (v) =>
+      v !== null && typeof v === 'object' && !Array.isArray(v),
+  );
 }
 
 /**
@@ -78,18 +86,32 @@ export function records(value) {
 export function registryOf(text) {
   /** @type {unknown} */
   const parsed = JSON.parse(text);
-  const instances = parsed !== null && typeof parsed === 'object' ? /** @type {Record<string, unknown>} */ (parsed)['instances'] : undefined;
+  const instances =
+    parsed !== null && typeof parsed === 'object'
+      ? /** @type {Record<string, unknown>} */ (parsed)['instances']
+      : undefined;
 
   if (instances === null || typeof instances !== 'object') {
     throw new Error('instances.json has no instances object');
   }
 
   for (const [name, entry] of Object.entries(instances)) {
-    const model = entry !== null && typeof entry === 'object' ? /** @type {Record<string, unknown>} */ (entry)['model'] : undefined;
-    const m = model !== null && typeof model === 'object' ? /** @type {Record<string, unknown>} */ (model) : {};
+    const model =
+      entry !== null && typeof entry === 'object'
+        ? /** @type {Record<string, unknown>} */ (entry)['model']
+        : undefined;
+    const m =
+      model !== null && typeof model === 'object'
+        ? /** @type {Record<string, unknown>} */ (model)
+        : {};
 
-    if (typeof m['name'] !== 'string' || typeof m['contextWindow'] !== 'number') {
-      throw new Error(`instances.json entry ${name} has no model.name and model.contextWindow`);
+    if (
+      typeof m['name'] !== 'string' ||
+      typeof m['contextWindow'] !== 'number'
+    ) {
+      throw new Error(
+        `instances.json entry ${name} has no model.name and model.contextWindow`,
+      );
     }
   }
 
@@ -106,8 +128,14 @@ export function registryOf(text) {
 export function instanceState(name, want, deps) {
   /** @type {string[]} */
   const failed = [];
-  const steps = [['doctor', name], ['flags', name], ['model', 'info', name]].map((args) => ({ args, r: deps.control(args) }));
-  const broken = steps.find(({ r }) => r.json === null || (r.code !== 0 && r.code !== 1));
+  const steps = [
+    ['doctor', name],
+    ['flags', name],
+    ['model', 'info', name],
+  ].map((args) => ({ args, r: deps.control(args) }));
+  const broken = steps.find(
+    ({ r }) => r.json === null || (r.code !== 0 && r.code !== 1),
+  );
 
   if (broken) {
     return {
@@ -119,22 +147,31 @@ export function instanceState(name, want, deps) {
     };
   }
 
-  const [doctor, flags, info] = steps.map(({ r }) => /** @type {StepResult & { json: Record<string, unknown> }} */ (r));
+  const [doctor, flags, info] = steps.map(
+    ({ r }) =>
+      /** @type {StepResult & { json: Record<string, unknown> }} */ (r),
+  );
 
   if (!doctor || !flags || !info) {
     throw new Error('unreachable: three steps ran');
   }
 
   if (doctor.code !== 0) {
-    const bad = records(doctor.json['checks']).filter((c) => c['pass'] === false).map((c) => String(c['id']));
-    failed.push(`doctor exited ${doctor.code} (failed: ${bad.join(', ') || 'none listed'})`);
+    const bad = records(doctor.json['checks'])
+      .filter((c) => c['pass'] === false)
+      .map((c) => String(c['id']));
+    failed.push(
+      `doctor exited ${doctor.code} (failed: ${bad.join(', ') || 'none listed'})`,
+    );
   }
 
   if (flags.code !== 0) {
     failed.push(`flags exited ${flags.code}`);
   }
 
-  const onDisk = records(info.json['disk']).some((m) => m['name'] === want.model.name);
+  const onDisk = records(info.json['disk']).some(
+    (m) => m['name'] === want.model.name,
+  );
   const serving = info.json['serving'] ?? null;
 
   if (info.code !== 0) {
@@ -146,7 +183,9 @@ export function instanceState(name, want, deps) {
   }
 
   if (serving !== want.model.name) {
-    failed.push(`Broker State serves ${JSON.stringify(serving)}, not ${want.model.name}`);
+    failed.push(
+      `Broker State serves ${JSON.stringify(serving)}, not ${want.model.name}`,
+    );
   }
 
   const backend = info.json['backend'];
@@ -160,7 +199,11 @@ export function instanceState(name, want, deps) {
       expected: want.model.name,
       disk: onDisk,
       serving,
-      backend: backend !== null && typeof backend === 'object' ? (/** @type {Record<string, unknown>} */ (backend)['backendType'] ?? null) : null,
+      backend:
+        backend !== null && typeof backend === 'object'
+          ? (/** @type {Record<string, unknown>} */ (backend)['backendType'] ??
+            null)
+          : null,
       requestedBackend: info.json['requestedBackend'] ?? null,
       performanceClass: info.json['performanceClass'] ?? null,
     },
@@ -176,13 +219,17 @@ export function decide(states) {
   const stuck = states.filter((s) => s.couldNotRun !== null);
 
   if (stuck.length > 0) {
-    throw new Error(stuck.map((s) => `${s.instance}: ${s.couldNotRun}`).join('; '));
+    throw new Error(
+      stuck.map((s) => `${s.instance}: ${s.couldNotRun}`).join('; '),
+    );
   }
 
   const bad = states.filter((s) => !s.pass);
 
   if (bad.length > 0) {
-    throw new Error(`CLAIM: ${bad.map((s) => `${s.instance}: ${s.failed.join(', ')}`).join('; ')}`);
+    throw new Error(
+      `CLAIM: ${bad.map((s) => `${s.instance}: ${s.failed.join(', ')}`).join('; ')}`,
+    );
   }
 }
 
@@ -198,10 +245,14 @@ export function check({ evidence, names }, registry, deps) {
   const unknown = picked.filter((n) => !Object.hasOwn(registry, n));
 
   if (unknown.length > 0) {
-    throw new Error(`unknown instance ${unknown.join(', ')}; instances: ${Object.keys(registry).join(', ')}`);
+    throw new Error(
+      `unknown instance ${unknown.join(', ')}; instances: ${Object.keys(registry).join(', ')}`,
+    );
   }
 
-  const states = picked.map((n) => instanceState(n, /** @type {RegistryInstance} */ (registry[n]), deps));
+  const states = picked.map((n) =>
+    instanceState(n, /** @type {RegistryInstance} */ (registry[n]), deps),
+  );
   deps.write(join(evidence, 'state.json'), JSON.stringify(states, null, 2));
   decide(states);
 }
@@ -214,7 +265,12 @@ export function check({ evidence, names }, registry, deps) {
  */
 export function main(argv, makeDeps, loadRegistry) {
   try {
-    const { values, positionals } = parseArgs({ args: argv, options: { evidence: { type: 'string' } }, allowPositionals: true, strict: true });
+    const { values, positionals } = parseArgs({
+      args: argv,
+      options: { evidence: { type: 'string' } },
+      allowPositionals: true,
+      strict: true,
+    });
 
     if (!values.evidence) {
       throw new Error('usage: state.mjs --evidence <dir> [<instance>...]');
@@ -231,7 +287,11 @@ export function main(argv, makeDeps, loadRegistry) {
       return 1;
     }
 
-    console.error(printable(`[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`));
+    console.error(
+      printable(
+        `[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`,
+      ),
+    );
 
     return 2;
   }
@@ -245,15 +305,28 @@ export function main(argv, makeDeps, loadRegistry) {
 export function realDeps(evidence) {
   return {
     control: (args) => {
-      const r = spawnSync(process.execPath, [join(CONTROL_DIR, 'scripts', 'control.mjs'), ...args, `--evidence=${evidence}`, '--json'], {
-        cwd: ROOT,
-        encoding: 'utf8',
-        windowsHide: true,
-        maxBuffer: 64 * 1024 * 1024,
-        timeout: 600000,
-      });
+      const r = spawnSync(
+        process.execPath,
+        [
+          join(CONTROL_DIR, 'scripts', 'control.mjs'),
+          ...args,
+          `--evidence=${evidence}`,
+          '--json',
+        ],
+        {
+          cwd: ROOT,
+          encoding: 'utf8',
+          windowsHide: true,
+          maxBuffer: 64 * 1024 * 1024,
+          timeout: 600000,
+        },
+      );
 
-      return { code: r.status, json: jsonOf(r.stdout ?? ''), text: (r.stdout ?? '') + (r.stderr ?? '') };
+      return {
+        code: r.status,
+        json: jsonOf(r.stdout ?? ''),
+        text: (r.stdout ?? '') + (r.stderr ?? ''),
+      };
     },
     write: (file, data) => {
       mkdirSync(dirname(file), { recursive: true });
@@ -267,6 +340,10 @@ export function loadRegistry() {
   return registryOf(readFileSync(join(CONTROL_DIR, 'instances.json'), 'utf8'));
 }
 
-if (process.argv[1] && realpathSync.native(resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+if (
+  process.argv[1] &&
+  realpathSync.native(resolve(process.argv[1])) ===
+    realpathSync.native(fileURLToPath(import.meta.url))
+) {
   process.exitCode = main(process.argv.slice(2), realDeps, loadRegistry);
 }

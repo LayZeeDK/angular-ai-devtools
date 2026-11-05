@@ -15,7 +15,14 @@ import { parseArgs } from 'node:util';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..', '..', '..');
-const CONTROL = join(ROOT, '.commandcode', 'skills', 'control-pangular-inspector', 'scripts', 'control.mjs');
+const CONTROL = join(
+  ROOT,
+  '.commandcode',
+  'skills',
+  'control-pangular-inspector',
+  'scripts',
+  'control.mjs',
+);
 
 /** @typedef {{ code: number | null, json: Record<string, unknown> | null, text: string }} StepResult */
 /** @typedef {{ control: (args: string[]) => StepResult, write: (file: string, data: string) => void }} Deps */
@@ -36,7 +43,9 @@ export function jsonOf(stdout) {
     /** @type {unknown} */
     const value = JSON.parse(stdout.slice(at));
 
-    return value !== null && typeof value === 'object' && !Array.isArray(value) ? /** @type {Record<string, unknown>} */ (value) : null;
+    return value !== null && typeof value === 'object' && !Array.isArray(value)
+      ? /** @type {Record<string, unknown>} */ (value)
+      : null;
   } catch {
     return null;
   }
@@ -51,7 +60,10 @@ export function records(value) {
   /** @type {unknown[]} */
   const items = Array.isArray(value) ? value : [];
 
-  return items.filter(/** @returns {v is Record<string, unknown>} */ (v) => v !== null && typeof v === 'object' && !Array.isArray(v));
+  return items.filter(
+    /** @returns {v is Record<string, unknown>} */ (v) =>
+      v !== null && typeof v === 'object' && !Array.isArray(v),
+  );
 }
 
 /**
@@ -62,17 +74,26 @@ export function records(value) {
  */
 export function check({ out }, deps) {
   const r = deps.control(['check']);
-  deps.write(join(out, 'setup-check.json'), JSON.stringify({ exit: r.code, result: r.json ?? r.text }, null, 2));
+  deps.write(
+    join(out, 'setup-check.json'),
+    JSON.stringify({ exit: r.code, result: r.json ?? r.text }, null, 2),
+  );
 
   if (r.json === null || (r.code !== 0 && r.code !== 1)) {
-    throw new Error(`control.mjs check exited ${r.code}: ${r.text.trim().slice(-400)}`);
+    throw new Error(
+      `control.mjs check exited ${r.code}: ${r.text.trim().slice(-400)}`,
+    );
   }
 
   const facts = records(r.json['checks']);
-  const failed = facts.filter((c) => c['status'] !== 'pass').map((c) => `${c['name']}: ${c['detail']}`);
+  const failed = facts
+    .filter((c) => c['status'] !== 'pass')
+    .map((c) => `${c['name']}: ${c['detail']}`);
 
   if (r.code !== 0 || failed.length > 0) {
-    throw new Error(`CLAIM: check exited ${r.code}; failed setup facts: ${failed.join('; ') || 'none listed'}`);
+    throw new Error(
+      `CLAIM: check exited ${r.code}; failed setup facts: ${failed.join('; ') || 'none listed'}`,
+    );
   }
 }
 
@@ -83,7 +104,11 @@ export function check({ out }, deps) {
  */
 export function main(argv, deps) {
   try {
-    const { values } = parseArgs({ args: argv, options: { out: { type: 'string' } }, strict: true });
+    const { values } = parseArgs({
+      args: argv,
+      options: { out: { type: 'string' } },
+      strict: true,
+    });
 
     if (!values.out) {
       throw new Error('usage: setup.mjs --out <dir>');
@@ -99,7 +124,9 @@ export function main(argv, deps) {
       return 1;
     }
 
-    console.error(`[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`);
+    console.error(
+      `[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`,
+    );
 
     return 2;
   }
@@ -108,9 +135,19 @@ export function main(argv, deps) {
 /** @type {Deps} */
 const realDeps = {
   control: (args) => {
-    const r = spawnSync(process.execPath, [CONTROL, ...args, '--json'], { cwd: ROOT, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024, timeout: 600000 });
+    const r = spawnSync(process.execPath, [CONTROL, ...args, '--json'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      windowsHide: true,
+      maxBuffer: 64 * 1024 * 1024,
+      timeout: 600000,
+    });
 
-    return { code: r.status, json: jsonOf(r.stdout ?? ''), text: (r.stdout ?? '') + (r.stderr ?? '') };
+    return {
+      code: r.status,
+      json: jsonOf(r.stdout ?? ''),
+      text: (r.stdout ?? '') + (r.stderr ?? ''),
+    };
   },
   write: (file, data) => {
     mkdirSync(dirname(file), { recursive: true });
@@ -118,6 +155,10 @@ const realDeps = {
   },
 };
 
-if (process.argv[1] && realpathSync.native(resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+if (
+  process.argv[1] &&
+  realpathSync.native(resolve(process.argv[1])) ===
+    realpathSync.native(fileURLToPath(import.meta.url))
+) {
   process.exitCode = main(process.argv.slice(2), realDeps);
 }

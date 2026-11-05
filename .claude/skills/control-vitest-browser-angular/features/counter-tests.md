@@ -27,7 +27,7 @@ Preconditions:
 - No run recorded (`node $S info` exits 2 with "no state file").
 
 - **Default run.** `node $S up`, then `node $S doctor`: `test-run` reports `last summary: Tests  2 passed | 2
-  skipped (4)`.
+skipped (4)`.
 - **Timing demo.** `node $S down`, then `node $S up --timing-demo`. `doctor` still exits 0 because the run
   itself works, and `test-run` reports `1 failed | 2 passed | 1 skipped (4)`. The log shows the assertion text
   above and a failure screenshot path under `spikes/ng222-app/.vitest/attachments/failure-screenshots/`.

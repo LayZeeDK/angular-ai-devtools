@@ -43,7 +43,10 @@
 import type { PanelContext, ReplayOutcome } from './panel-context';
 
 /** One feature name and what the page published for it. */
-export type FeatureFingerprintEntry = { readonly name: string; readonly present: boolean };
+export type FeatureFingerprintEntry = {
+  readonly name: string;
+  readonly present: boolean;
+};
 
 /**
  * What the chip renders. `entries` is present only in the fingerprint state, so a caller cannot
@@ -120,21 +123,31 @@ export function featureFingerprint(
     if (version === null) {
       return { kind: 'no-angular-root', message: NO_ANGULAR_ROOT_MESSAGE };
     }
-    return { kind: 'cannot-tell', message: cannotTellMessage(version, false), version };
+    return {
+      kind: 'cannot-tell',
+      message: cannotTellMessage(version, false),
+      version,
+    };
   }
 
   const bits = readFeatureBits(context.facts['features']);
   if (bits === null) {
     // The page announced state but published no boolean bit — `null` or `{}`. Eight absences
     // would be a claim about the app that the page never made.
-    return { kind: 'cannot-tell', message: cannotTellMessage(version, true), version };
+    return {
+      kind: 'cannot-tell',
+      message: cannotTellMessage(version, true),
+      version,
+    };
   }
 
   const supported = context.facts['supported'] !== false;
-  const entries: readonly FeatureFingerprintEntry[] = featureNames.map((name) => ({
-    name,
-    present: bits[name] === true,
-  }));
+  const entries: readonly FeatureFingerprintEntry[] = featureNames.map(
+    (name) => ({
+      name,
+      present: bits[name] === true,
+    }),
+  );
 
   return {
     kind: 'fingerprint',
@@ -152,7 +165,10 @@ export function featureFingerprint(
 }
 
 /** The "cannot tell" sentence, naming the version when one was read and the absent debug surface. */
-function cannotTellMessage(version: string | null, stateReceived: boolean): string {
+function cannotTellMessage(
+  version: string | null,
+  stateReceived: boolean,
+): string {
   const debugSurface =
     'the debug surface that publishes the feature bits (window.ng) is absent or unpublished';
   const detected = version === null ? 'An Angular page' : `Angular ${version}`;
@@ -176,7 +192,9 @@ function readVersion(value: string | null): string | null {
  * count: a map with no boolean is the dangerous `{}` the wire reader hands back for a payload
  * that announced features but measured nothing, and it is not evidence of eight absences.
  */
-function readFeatureBits(value: unknown): Readonly<Record<string, boolean>> | null {
+function readFeatureBits(
+  value: unknown,
+): Readonly<Record<string, boolean>> | null {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     return null;
   }

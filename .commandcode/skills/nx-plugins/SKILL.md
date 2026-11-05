@@ -1,6 +1,6 @@
 ---
 name: nx-plugins
-description: "Finding and Installing new plugins"
+description: 'Finding and Installing new plugins'
 ---
 
 ## Finding and Installing new plugins

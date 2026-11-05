@@ -15,15 +15,21 @@ window.addEventListener('angular-ai:record', (/** @type {CustomEvent} */ e) => {
   chrome.runtime.sendMessage({ type: 'angular-ai:record', cycle: e.detail });
 });
 
-window.addEventListener('angular-ai:di-graph', (/** @type {CustomEvent} */ e) => {
-  const d = e.detail || {};
-  chrome.runtime.sendMessage({ type: 'angular-ai:di-graph', ...d });
-});
+window.addEventListener(
+  'angular-ai:di-graph',
+  (/** @type {CustomEvent} */ e) => {
+    const d = e.detail || {};
+    chrome.runtime.sendMessage({ type: 'angular-ai:di-graph', ...d });
+  },
+);
 
-window.addEventListener('angular-ai:error-capture', (/** @type {CustomEvent} */ e) => {
-  const d = e.detail || {};
-  chrome.runtime.sendMessage({ type: 'angular-ai:error-capture', ...d });
-});
+window.addEventListener(
+  'angular-ai:error-capture',
+  (/** @type {CustomEvent} */ e) => {
+    const d = e.detail || {};
+    chrome.runtime.sendMessage({ type: 'angular-ai:error-capture', ...d });
+  },
+);
 
 // Forward supported / not-supported state from the MAIN-world agent
 window.addEventListener('angular-ai:state', (/** @type {CustomEvent} */ e) => {
@@ -37,15 +43,21 @@ window.addEventListener('angular-ai:state', (/** @type {CustomEvent} */ e) => {
 // sends one runtime message per event, and the background attaches the sender's tab id. Nothing is
 // read here on purpose — a payload this relay cannot interpret is carried as received, because
 // reading it is the panel's job and a state invented at this hop would be a state the page never said.
-window.addEventListener('angular-ai:picker-state', (/** @type {CustomEvent} */ e) => {
-  const d = e.detail || {};
-  chrome.runtime.sendMessage({ type: 'angular-ai:picker-state', ...d });
-});
+window.addEventListener(
+  'angular-ai:picker-state',
+  (/** @type {CustomEvent} */ e) => {
+    const d = e.detail || {};
+    chrome.runtime.sendMessage({ type: 'angular-ai:picker-state', ...d });
+  },
+);
 
 // A locked pick arrives as the event's whole detail (the descriptor the page realm resolved), and the
 // message names it, so the panel reads one member instead of guessing which field is the payload.
 window.addEventListener('angular-ai:picked', (/** @type {CustomEvent} */ e) => {
-  chrome.runtime.sendMessage({ type: 'angular-ai:picked', descriptor: e.detail });
+  chrome.runtime.sendMessage({
+    type: 'angular-ai:picked',
+    descriptor: e.detail,
+  });
 });
 
 // Answer the panel's one replay request (routed here by the background) from the latch above, and
@@ -60,7 +72,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'angular-ai:picker-command') {
     // The command crosses the world boundary as a DOM event, never as a page object, and its action is
     // carried verbatim: the background is what validates it by name before anything is forwarded.
-    window.dispatchEvent(new CustomEvent('angular-ai:picker-command', { detail: { action: msg.action } }));
+    window.dispatchEvent(
+      new CustomEvent('angular-ai:picker-command', {
+        detail: { action: msg.action },
+      }),
+    );
     // Answering lets the background tell "the relay carried it" from "no relay here".
     sendResponse({ ok: true });
     return true;
@@ -100,10 +116,14 @@ if (document.readyState === 'loading') {
       const observer = new MutationObserver((records) => {
         // The shared predicate runs first, before the [ng-version] probe: a batch of records that
         // the tool itself caused never drives detection.
-        if (records.filter((record) => !isToolRecord(record)).length === 0) return;
+        if (records.filter((record) => !isToolRecord(record)).length === 0)
+          return;
         if (checkAngular()) observer.disconnect();
       });
-      observer.observe(document.documentElement, { childList: true, subtree: true });
+      observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+      });
     }
   });
 } else {
@@ -111,10 +131,14 @@ if (document.readyState === 'loading') {
     const observer = new MutationObserver((records) => {
       // The shared predicate runs first, before the [ng-version] probe: a batch of records that
       // the tool itself caused never drives detection.
-      if (records.filter((record) => !isToolRecord(record)).length === 0) return;
+      if (records.filter((record) => !isToolRecord(record)).length === 0)
+        return;
       if (checkAngular()) observer.disconnect();
     });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+    });
   }
 }
 

@@ -49,7 +49,9 @@ function literalArray(text, where) {
     match,
     `${SUITE}: ${where} is not an array literal this suite can read ("${text.trim()}"), so the scope the surface iterates is unknown`,
   );
-  return [...match[1].matchAll(/'([^']*)'|"([^"]*)"/g)].map((quoted) => quoted[1] ?? quoted[2]);
+  return [...match[1].matchAll(/'([^']*)'|"([^"]*)"/g)].map(
+    (quoted) => quoted[1] ?? quoted[2],
+  );
 }
 
 /** The `template: \`...\`` literal the surface component declares, read out of its own source. */
@@ -69,7 +71,9 @@ export function readTemplate(src, surfaceFile) {
  */
 export function readScope({ itemsSrc, surfaceSrc, itemsFile, surfaceFile }) {
   const scope = {};
-  for (const match of itemsSrc.matchAll(/export const (\w+)\s*=\s*(\[[\s\S]*?\]);/g)) {
+  for (const match of itemsSrc.matchAll(
+    /export const (\w+)\s*=\s*(\[[\s\S]*?\]);/g,
+  )) {
     scope[match[1]] = literalArray(match[2], `${itemsFile} export ${match[1]}`);
   }
   for (const name of ['listboxItems', 'menuItems']) {
@@ -133,7 +137,11 @@ function closingBrace(src, open) {
     }
     if (ch === '{' && src[i + 1] === '{') {
       const end = src.indexOf('}}', i + 2);
-      assert.notEqual(end, -1, `${SUITE}: an interpolation in the surface template is not closed, so it cannot be rendered`);
+      assert.notEqual(
+        end,
+        -1,
+        `${SUITE}: an interpolation in the surface template is not closed, so it cannot be rendered`,
+      );
       i = end + 1; // skip both closing braces; the loop's increment lands after them
       continue;
     }
@@ -161,7 +169,9 @@ function evaluateExpression(expression, scope) {
 }
 
 function renderInterpolations(text, scope) {
-  return text.replace(/\{\{([\s\S]*?)\}\}/g, (_all, expression) => String(evaluateExpression(expression.trim(), scope)));
+  return text.replace(/\{\{([\s\S]*?)\}\}/g, (_all, expression) =>
+    String(evaluateExpression(expression.trim(), scope)),
+  );
 }
 
 /**
@@ -171,13 +181,27 @@ function renderInterpolations(text, scope) {
 export function readForBlock(src, at) {
   const openParen = src.indexOf('(', at);
   const closeParen = closingParen(src, openParen);
-  assert.notEqual(closeParen, -1, `${SUITE}: the block at offset ${at} has an unbalanced @for header, so the rendered order cannot be read`);
+  assert.notEqual(
+    closeParen,
+    -1,
+    `${SUITE}: the block at offset ${at} has an unbalanced @for header, so the rendered order cannot be read`,
+  );
   const header = src.slice(openParen + 1, closeParen);
   const openBrace = src.indexOf('{', closeParen);
-  assert.notEqual(openBrace, -1, `${SUITE}: the @for header "${header.trim()}" opens no body, so nothing would render`);
+  assert.notEqual(
+    openBrace,
+    -1,
+    `${SUITE}: the @for header "${header.trim()}" opens no body, so nothing would render`,
+  );
   const closeBrace = closingBrace(src, openBrace);
-  assert.notEqual(closeBrace, -1, `${SUITE}: the @for body after "${header.trim()}" is unbalanced, so nothing would render`);
-  const parsed = /^\s*([\w$]+)\s+of\s+([\s\S]+?)\s*;\s*track\s+[\s\S]*$/.exec(header);
+  assert.notEqual(
+    closeBrace,
+    -1,
+    `${SUITE}: the @for body after "${header.trim()}" is unbalanced, so nothing would render`,
+  );
+  const parsed = /^\s*([\w$]+)\s+of\s+([\s\S]+?)\s*;\s*track\s+[\s\S]*$/.exec(
+    header,
+  );
   assert.ok(
     parsed,
     `${SUITE}: the @for header "${header.trim()}" is not one this suite can read, so the rendered order cannot be observed`,
@@ -205,7 +229,9 @@ export function reverseIteration(templateSrc, at) {
     expression: block.expression,
     reversedExpression,
     template:
-      templateSrc.slice(0, block.expressionStart) + reversedExpression + templateSrc.slice(block.expressionEnd),
+      templateSrc.slice(0, block.expressionStart) +
+      reversedExpression +
+      templateSrc.slice(block.expressionEnd),
   };
 }
 
@@ -256,7 +282,9 @@ export function buildSurface({ surfaceSrc, itemsSrc, surfaceFile, itemsFile }) {
 
 /** The listbox options the surface actually rendered, in document order. */
 function renderedListboxOptions(surface) {
-  const host = (surface.rendered ?? []).find((element) => element.hasAttribute('nglistbox'));
+  const host = (surface.rendered ?? []).find((element) =>
+    element.hasAttribute('nglistbox'),
+  );
   return host ? [...host.querySelectorAll('[ngoption]')] : [];
 }
 
@@ -277,8 +305,11 @@ function controlledMenu(elements) {
   const binding = /\[menu\]\s*=\s*"([^"]*)"/.exec(trigger.raw);
   const ref = binding ? binding[1].trim() : null;
   const refPattern = ref ? new RegExp(`#${escapeRegExp(ref)}(?![\\w-])`) : null;
-  const panel = refPattern ? elements.find((e) => refPattern.test(e.raw)) : undefined;
-  const id = panel && typeof panel.attrs.id === 'string' ? panel.attrs.id : null;
+  const panel = refPattern
+    ? elements.find((e) => refPattern.test(e.raw))
+    : undefined;
+  const id =
+    panel && typeof panel.attrs.id === 'string' ? panel.attrs.id : null;
   return { trigger, ref, id };
 }
 
@@ -289,11 +320,22 @@ export const ariaRules = [
     attribute: 'aria-label',
     expectedName: 'Components listbox',
     evaluate(surface) {
-      const el = surface.elements.find((e) => e.attrs.ngListbox !== undefined || e.raw.includes('ngListbox'));
+      const el = surface.elements.find(
+        (e) => e.attrs.ngListbox !== undefined || e.raw.includes('ngListbox'),
+      );
       const expectedName = 'Components listbox';
-      const name = el && (el.attrs['aria-label'] || el.attrs['aria-labelledby']);
-      const ok = !!el && (el.attrs['aria-label'] === expectedName || !!el.attrs['aria-labelledby']);
-      return { pass: !!ok, detail: ok ? `aria-label="${name}"` : `expected aria-label="${expectedName}", got "${name}"` };
+      const name =
+        el && (el.attrs['aria-label'] || el.attrs['aria-labelledby']);
+      const ok =
+        !!el &&
+        (el.attrs['aria-label'] === expectedName ||
+          !!el.attrs['aria-labelledby']);
+      return {
+        pass: !!ok,
+        detail: ok
+          ? `aria-label="${name}"`
+          : `expected aria-label="${expectedName}", got "${name}"`,
+      };
     },
   },
   {
@@ -303,7 +345,12 @@ export const ariaRules = [
     evaluate(surface) {
       const el = surface.elements.find((e) => e.raw.includes('ngListbox'));
       const ok = !!el && el.attrs.focusMode === 'activedescendant';
-      return { pass: !!ok, detail: ok ? 'focusMode="activedescendant"' : 'missing focusMode="activedescendant"' };
+      return {
+        pass: !!ok,
+        detail: ok
+          ? 'focusMode="activedescendant"'
+          : 'missing focusMode="activedescendant"',
+      };
     },
   },
   {
@@ -313,9 +360,18 @@ export const ariaRules = [
     evaluate(surface) {
       const el = surface.elements.find((e) => e.raw.includes('ngMenuTrigger'));
       const expectedName = 'Open components menu';
-      const name = el && (el.attrs['aria-label'] || el.attrs['aria-labelledby']);
-      const ok = !!el && (el.attrs['aria-label'] === expectedName || !!el.attrs['aria-labelledby']);
-      return { pass: !!ok, detail: ok ? `aria-label="${name}"` : `expected aria-label="${expectedName}", got "${name}"` };
+      const name =
+        el && (el.attrs['aria-label'] || el.attrs['aria-labelledby']);
+      const ok =
+        !!el &&
+        (el.attrs['aria-label'] === expectedName ||
+          !!el.attrs['aria-labelledby']);
+      return {
+        pass: !!ok,
+        detail: ok
+          ? `aria-label="${name}"`
+          : `expected aria-label="${expectedName}", got "${name}"`,
+      };
     },
   },
   {
@@ -327,12 +383,17 @@ export const ariaRules = [
     evaluate(surface) {
       const { trigger, ref, id: expectedId } = controlledMenu(surface.elements);
       if (!trigger) {
-        return { pass: false, detail: 'missing the ngMenuTrigger itself, so there is no aria-controls to resolve to a menu' };
+        return {
+          pass: false,
+          detail:
+            'missing the ngMenuTrigger itself, so there is no aria-controls to resolve to a menu',
+        };
       }
       if (!ref) {
         return {
           pass: false,
-          detail: 'the ngMenuTrigger declares no [menu]="..." binding, so the element it controls cannot be resolved',
+          detail:
+            'the ngMenuTrigger declares no [menu]="..." binding, so the element it controls cannot be resolved',
         };
       }
       if (!expectedId) {
@@ -341,7 +402,10 @@ export const ariaRules = [
           detail: `the trigger's [menu]="${ref}" names no #${ref} panel carrying an id, so the element it controls cannot be resolved`,
         };
       }
-      const ctrl = typeof trigger.attrs['aria-controls'] === 'string' ? trigger.attrs['aria-controls'] : null;
+      const ctrl =
+        typeof trigger.attrs['aria-controls'] === 'string'
+          ? trigger.attrs['aria-controls']
+          : null;
       if (!ctrl) {
         return {
           pass: false,
@@ -363,8 +427,12 @@ export const ariaRules = [
     id: 'listbox-option-order',
     surface: 'listbox',
     evaluate(surface) {
-      const renderedOrder = renderedListboxOptions(surface).map((option) => option.textContent.trim());
-      const declaredOrder = Array.isArray(surface.scope?.listboxItems) ? surface.scope.listboxItems : [];
+      const renderedOrder = renderedListboxOptions(surface).map((option) =>
+        option.textContent.trim(),
+      );
+      const declaredOrder = Array.isArray(surface.scope?.listboxItems)
+        ? surface.scope.listboxItems
+        : [];
       const ok =
         declaredOrder.length > 0 &&
         renderedOrder.length === declaredOrder.length &&

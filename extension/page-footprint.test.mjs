@@ -32,49 +32,64 @@
 // The stub `ng` reports Angular 22.2.2, the version T001 measured on the fixture
 // (`research/raw/m022-ng-context.json`); the recording pins it so a page that starts reporting another
 // version is a stale recording and not a silent footgun.
-import assert from "node:assert/strict";
-import { describe, it } from "node:test";
-import { readFileSync } from "node:fs";
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { readFileSync } from 'node:fs';
 
-const { JSDOM } = await import("jsdom").catch(() => {
+const { JSDOM } = await import('jsdom').catch(() => {
   throw new Error(
-    "page-footprint.test.mjs needs jsdom, which this checkout does not have — provision it with `npm ci --include=dev` (the shell exports NODE_ENV=production, so the flag is not optional)"
+    'page-footprint.test.mjs needs jsdom, which this checkout does not have — provision it with `npm ci --include=dev` (the shell exports NODE_ENV=production, so the flag is not optional)',
   );
 });
 
-const OVERLAY = readFileSync(new URL("./overlay.js", import.meta.url), "utf8");
-const FILTER = readFileSync(new URL("./observer-filter.js", import.meta.url), "utf8");
-const GEOMETRY = readFileSync(new URL("./overlay-geometry.js", import.meta.url), "utf8");
-const RECORDER = readFileSync(new URL("./agent-main.js", import.meta.url), "utf8");
-const MANIFEST = JSON.parse(readFileSync(new URL("./manifest.json", import.meta.url), "utf8"));
+const OVERLAY = readFileSync(new URL('./overlay.js', import.meta.url), 'utf8');
+const FILTER = readFileSync(
+  new URL('./observer-filter.js', import.meta.url),
+  'utf8',
+);
+const GEOMETRY = readFileSync(
+  new URL('./overlay-geometry.js', import.meta.url),
+  'utf8',
+);
+const RECORDER = readFileSync(
+  new URL('./agent-main.js', import.meta.url),
+  'utf8',
+);
+const MANIFEST = JSON.parse(
+  readFileSync(new URL('./manifest.json', import.meta.url), 'utf8'),
+);
 
-const RECORDING_URL = new URL("../research/raw/m022-page-footprint.json", import.meta.url);
-const HOST_ID = "angular-ai-devtools-host";
-const RETIRED_MARKER_ID = "angular-ai-devtools-marker";
-const ANGULAR_VERSION = "22.2.2";
+const RECORDING_URL = new URL(
+  '../research/raw/m022-page-footprint.json',
+  import.meta.url,
+);
+const HOST_ID = 'angular-ai-devtools-host';
+const RETIRED_MARKER_ID = 'angular-ai-devtools-marker';
+const ANGULAR_VERSION = '22.2.2';
 
 /** The page every arm boots: enough markup for the recorder's `document` reads, nothing Angular. */
-const PAGE_HTML = "<!doctype html><html><head><title>page</title></head><body><app-root id=\"page\">page</app-root></body></html>";
+const PAGE_HTML =
+  '<!doctype html><html><head><title>page</title></head><body><app-root id="page">page</app-root></body></html>';
 
 /** The eight `featuresOf(ng)` names, in the order `agent-main.js` declares them. */
 const FEATURE_NAMES = [
-  "setProfiler",
-  "getSignalGraph",
-  "getHostElement",
-  "getInjector",
-  "getDirectiveMetadata",
-  "getInjectorResolutionPath",
-  "getInjectorMetadata",
-  "getInjectorProviders",
+  'setProfiler',
+  'getSignalGraph',
+  'getHostElement',
+  'getInjector',
+  'getDirectiveMetadata',
+  'getInjectorResolutionPath',
+  'getInjectorMetadata',
+  'getInjectorProviders',
 ];
 
 /** The commands the recording pins: the two gates this task owns, the build they measure against, and
  * the arm command. A recording that names a different command is refused. */
 const COMMANDS = {
-  arms: "node --test extension/page-footprint.test.mjs",
-  check: "npm run check",
-  test: "npm test",
-  build: "npx nx run angular-ai-devtools:build-extension",
+  arms: 'node --test extension/page-footprint.test.mjs',
+  check: 'npm run check',
+  test: 'npm test',
+  build: 'npx nx run angular-ai-devtools:build-extension',
 };
 
 /**
@@ -82,10 +97,22 @@ const COMMANDS = {
  * surface is a change to the measurement, not a detail of it.
  */
 const SURFACES = [
-  { surface: "profilerSubscribers", describes: "the ɵsetProfiler subscriber list" },
-  { surface: "featureRecord", describes: "the published feature record (`angular-ai:state`.`features`)" },
-  { surface: "pageGlobals", describes: "the global names the scripts add to the page's window" },
-  { surface: "pageNodes", describes: "the element nodes outside the tool's host subtree" },
+  {
+    surface: 'profilerSubscribers',
+    describes: 'the ɵsetProfiler subscriber list',
+  },
+  {
+    surface: 'featureRecord',
+    describes: 'the published feature record (`angular-ai:state`.`features`)',
+  },
+  {
+    surface: 'pageGlobals',
+    describes: "the global names the scripts add to the page's window",
+  },
+  {
+    surface: 'pageNodes',
+    describes: "the element nodes outside the tool's host subtree",
+  },
 ];
 
 /**
@@ -93,13 +120,13 @@ const SURFACES = [
  * name rather than by a deep-equal blob nobody can read.
  */
 const RECORDED_PATHS = [
-  "angularVersion",
-  "commands",
-  "arms.sharedModules",
-  "arms.withoutOverlay",
-  "arms.withOverlay",
-  "differential",
-  "secondBoot",
+  'angularVersion',
+  'commands',
+  'arms.sharedModules',
+  'arms.withoutOverlay',
+  'arms.withOverlay',
+  'differential',
+  'secondBoot',
 ];
 
 /** A payload built inside the jsdom realm carries that window's prototypes; copy it into this realm. */
@@ -113,9 +140,16 @@ function plain(value) {
  * the same, so re-ordering a recording's keys is not a disagreement while a changed value is.
  */
 function canonical(value) {
-  if (Array.isArray(value)) return "[" + value.map(canonical).join(",") + "]";
-  if (value !== null && typeof value === "object") {
-    return "{" + Object.keys(value).sort().map((key) => JSON.stringify(key) + ":" + canonical(value[key])).join(",") + "}";
+  if (Array.isArray(value)) return '[' + value.map(canonical).join(',') + ']';
+  if (value !== null && typeof value === 'object') {
+    return (
+      '{' +
+      Object.keys(value)
+        .sort()
+        .map((key) => JSON.stringify(key) + ':' + canonical(value[key]))
+        .join(',') +
+      '}'
+    );
   }
   return JSON.stringify(value === undefined ? null : value);
 }
@@ -134,17 +168,18 @@ function addedGlobalNames(baseline, window) {
 /** One element as `tag#id.class`, so the DOM surface is a readable list and not a node tree. */
 function describeElement(element) {
   const tag = String(element.tagName).toLowerCase();
-  const id = element.id ? "#" + element.id : "";
-  const className = typeof element.className === "string" && element.className.trim().length > 0
-    ? "." + element.className.trim().split(/\s+/).join(".")
-    : "";
+  const id = element.id ? '#' + element.id : '';
+  const className =
+    typeof element.className === 'string' && element.className.trim().length > 0
+      ? '.' + element.className.trim().split(/\s+/).join('.')
+      : '';
   return tag + id + className;
 }
 
 /** Every element node the page keeps outside the tool's host subtree — the page's own DOM. */
 function pageNodes(document, host) {
   const nodes = [];
-  for (const element of document.querySelectorAll("*")) {
+  for (const element of document.querySelectorAll('*')) {
     if (element === host) continue;
     if (host && host.contains(element)) continue;
     nodes.push(describeElement(element));
@@ -158,7 +193,7 @@ function pageNodes(document, host) {
  * `source` boots a mutated copy of overlay.js for the red-half proofs.
  */
 function bootArm({ overlay = false, source = OVERLAY } = {}) {
-  const dom = new JSDOM(PAGE_HTML, { runScripts: "outside-only" });
+  const dom = new JSDOM(PAGE_HTML, { runScripts: 'outside-only' });
   const { window } = dom;
   const document = window.document;
   const states = [];
@@ -170,7 +205,13 @@ function bootArm({ overlay = false, source = OVERLAY } = {}) {
     created.push(String(tagName).toLowerCase());
     return rawCreateElement(tagName, options);
   };
-  window.console = { log: () => {}, info: () => {}, warn: () => {}, error: () => {}, debug: () => {} };
+  window.console = {
+    log: () => {},
+    info: () => {},
+    warn: () => {},
+    error: () => {},
+    debug: () => {},
+  };
 
   // The tool's observers, held so they can be disconnected before the document goes away: a record
   // delivered to a callback after `window.close()` would throw into this test's output, and the
@@ -204,7 +245,7 @@ function bootArm({ overlay = false, source = OVERLAY } = {}) {
       return null;
     },
     getHostElement() {
-      return { tagName: "APP-ROOT" };
+      return { tagName: 'APP-ROOT' };
     },
     getDirectiveMetadata() {
       return { changeDetection: 1 };
@@ -216,31 +257,38 @@ function bootArm({ overlay = false, source = OVERLAY } = {}) {
 
   // The one event the recorder publishes on the page's own window, captured the way the page's
   // isolated-world relay would capture it: the published feature record is this payload's `features`.
-  window.addEventListener("angular-ai:state", (event) => states.push(plain(event.detail)));
+  window.addEventListener('angular-ai:state', (event) =>
+    states.push(plain(event.detail)),
+  );
 
   const globalsBefore = ownGlobalNames(window);
-  const modules = ["observer-filter.js", "overlay-geometry.js"];
+  const modules = ['observer-filter.js', 'overlay-geometry.js'];
   const run = (module, code) => {
     try {
       window.eval(code);
     } catch (error) {
-      bootErrors.push({ module, message: error && error.message ? error.message : String(error) });
+      bootErrors.push({
+        module,
+        message: error && error.message ? error.message : String(error),
+      });
     }
   };
-  run("observer-filter.js", FILTER);
-  run("overlay-geometry.js", GEOMETRY);
+  run('observer-filter.js', FILTER);
+  run('overlay-geometry.js', GEOMETRY);
   if (overlay) {
-    run("overlay.js", source);
-    modules.push("overlay.js");
+    run('overlay.js', source);
+    modules.push('overlay.js');
   }
-  run("agent-main.js", RECORDER);
-  modules.push("agent-main.js");
+  run('agent-main.js', RECORDER);
+  modules.push('agent-main.js');
 
   const host = document.getElementById(HOST_ID);
   const measured = {
     modules,
     profilerSubscriberCount: subscribers.length,
-    profilerSubscribers: subscribers.map((subscriber) => subscriber.name || "(anonymous)"),
+    profilerSubscribers: subscribers.map(
+      (subscriber) => subscriber.name || '(anonymous)',
+    ),
     featureRecord: states.length > 0 ? states[0].features : null,
     pageGlobals: addedGlobalNames(globalsBefore, window),
     pageNodes: pageNodes(document, host),
@@ -258,7 +306,11 @@ function bootArm({ overlay = false, source = OVERLAY } = {}) {
     measured,
     close() {
       try {
-        if (window.__ngRecorder && typeof window.__ngRecorder.reset === "function") window.__ngRecorder.reset();
+        if (
+          window.__ngRecorder &&
+          typeof window.__ngRecorder.reset === 'function'
+        )
+          window.__ngRecorder.reset();
       } catch (error) {
         /* a timer left behind must not fail the measurement that already happened */
       }
@@ -295,7 +347,12 @@ function differential(withoutOverlay, withOverlay) {
   const differences = [];
   for (const { surface, describes } of SURFACES) {
     if (canonical(before[surface]) === canonical(after[surface])) continue;
-    differences.push({ surface, describes, withoutOverlay: before[surface], withOverlay: after[surface] });
+    differences.push({
+      surface,
+      describes,
+      withoutOverlay: before[surface],
+      withOverlay: after[surface],
+    });
   }
   return differences;
 }
@@ -303,13 +360,22 @@ function differential(withoutOverlay, withOverlay) {
 /** One difference as a sentence, truncated so a long DOM surface stays readable in a failure. */
 function summarise(value) {
   const text = JSON.stringify(value);
-  return text.length > 240 ? text.slice(0, 240) + "…" : text;
+  return text.length > 240 ? text.slice(0, 240) + '…' : text;
 }
 
 function describeDifferences(differences) {
   return differences
-    .map((difference) => difference.surface + " (" + difference.describes + "): withoutOverlay " + summarise(difference.withoutOverlay) + " / withOverlay " + summarise(difference.withOverlay))
-    .join("; ");
+    .map(
+      (difference) =>
+        difference.surface +
+        ' (' +
+        difference.describes +
+        '): withoutOverlay ' +
+        summarise(difference.withoutOverlay) +
+        ' / withOverlay ' +
+        summarise(difference.withOverlay),
+    )
+    .join('; ');
 }
 
 /** SC5: the two arms' readings are the same, or the test fails naming the arm that differs. */
@@ -318,41 +384,42 @@ function assertSamePageFootprint(withoutOverlay, withOverlay) {
   assert.deepEqual(
     differences.map((difference) => difference.surface),
     [],
-    'the page footprint is not the same with and without the overlay; the arm that differs is "withOverlay" — ' + describeDifferences(differences)
+    'the page footprint is not the same with and without the overlay; the arm that differs is "withOverlay" — ' +
+      describeDifferences(differences),
   );
 }
 
 /** The bites this pin has to prove. Each one is a page-visible leak the overlay must never have. */
 const BITES = [
   {
-    name: "the overlay subscribes to the profiler",
-    surface: "profilerSubscribers",
-    line: "try { globalThis.ng.ɵsetProfiler(function overlayProfilerSubscriber() {}); } catch (error) {}",
+    name: 'the overlay subscribes to the profiler',
+    surface: 'profilerSubscribers',
+    line: 'try { globalThis.ng.ɵsetProfiler(function overlayProfilerSubscriber() {}); } catch (error) {}',
   },
   {
-    name: "the overlay removes a feature name",
-    surface: "featureRecord",
-    line: "try { delete globalThis.ng.ɵgetSignalGraph; } catch (error) {}",
+    name: 'the overlay removes a feature name',
+    surface: 'featureRecord',
+    line: 'try { delete globalThis.ng.ɵgetSignalGraph; } catch (error) {}',
   },
   {
-    name: "the overlay adds a feature name",
-    surface: "featureRecord",
-    line: "try { globalThis.ng.ɵgetInjectorProviders = function overlayOwnedFeature() {}; } catch (error) {}",
+    name: 'the overlay adds a feature name',
+    surface: 'featureRecord',
+    line: 'try { globalThis.ng.ɵgetInjectorProviders = function overlayOwnedFeature() {}; } catch (error) {}',
   },
   {
-    name: "the overlay writes a page global",
-    surface: "pageGlobals",
-    line: "globalThis.__angularAiOverlayFootprintProbe = 1;",
+    name: 'the overlay writes a page global',
+    surface: 'pageGlobals',
+    line: 'globalThis.__angularAiOverlayFootprintProbe = 1;',
   },
   {
-    name: "the overlay creates a node outside its host subtree",
-    surface: "pageNodes",
+    name: 'the overlay creates a node outside its host subtree',
+    surface: 'pageNodes',
     line: 'document.body.appendChild(document.createElement("span"));',
   },
 ];
 
 /** Where a bite is injected: the overlay's last statement before it publishes its command channel. */
-const BITE_ANCHOR = "document.documentElement.appendChild(host);";
+const BITE_ANCHOR = 'document.documentElement.appendChild(host);';
 
 /**
  * Applies one bite. A bite whose anchor has moved fails loudly rather than silently: a pin that no
@@ -360,8 +427,14 @@ const BITE_ANCHOR = "document.documentElement.appendChild(host);";
  */
 function bittenOverlay(bite) {
   const occurrences = OVERLAY.split(BITE_ANCHOR).length - 1;
-  assert.equal(occurrences, 1, 'the "' + bite.name + '" bite anchor is gone from overlay.js (or is no longer unique) — restate the bite here instead of deleting it');
-  return OVERLAY.replace(BITE_ANCHOR, BITE_ANCHOR + " " + bite.line);
+  assert.equal(
+    occurrences,
+    1,
+    'the "' +
+      bite.name +
+      '" bite anchor is gone from overlay.js (or is no longer unique) — restate the bite here instead of deleting it',
+  );
+  return OVERLAY.replace(BITE_ANCHOR, BITE_ANCHOR + ' ' + bite.line);
 }
 
 /** The second boot's readings: the three page-visible halves of SC4. */
@@ -369,7 +442,8 @@ function secondBootOf(arm) {
   const host = arm.document.getElementById(HOST_ID);
   const marker = arm.document.getElementById(RETIRED_MARKER_ID);
   return {
-    toolElements: arm.document.querySelectorAll('[id^="angular-ai-devtools"]').length,
+    toolElements: arm.document.querySelectorAll('[id^="angular-ai-devtools"]')
+      .length,
     markerIdResolvesTo: marker === null ? null : marker.id,
     closedRootReadable: host === null ? null : host.shadowRoot !== null,
   };
@@ -396,18 +470,29 @@ function measureMilestone() {
   const withoutOverlay = bootArm({ overlay: false });
   const withOverlay = bootArm({ overlay: true });
   try {
-    assert.deepEqual(withoutOverlay.bootErrors, [], "the withoutOverlay arm must boot every module cleanly");
-    assert.deepEqual(withOverlay.bootErrors, [], "the withOverlay arm must boot every module cleanly");
+    assert.deepEqual(
+      withoutOverlay.bootErrors,
+      [],
+      'the withoutOverlay arm must boot every module cleanly',
+    );
+    assert.deepEqual(
+      withOverlay.bootErrors,
+      [],
+      'the withOverlay arm must boot every module cleanly',
+    );
     const differences = differential(withoutOverlay, withOverlay);
 
     const createdBefore = withOverlay.created.length;
-    assert.doesNotThrow(() => withOverlay.window.eval(OVERLAY), "a second boot must never throw into the page it inspects (N3)");
+    assert.doesNotThrow(
+      () => withOverlay.window.eval(OVERLAY),
+      'a second boot must never throw into the page it inspects (N3)',
+    );
 
     return {
       angularVersion: ANGULAR_VERSION,
       commands: COMMANDS,
       arms: {
-        sharedModules: ["observer-filter.js", "overlay-geometry.js"],
+        sharedModules: ['observer-filter.js', 'overlay-geometry.js'],
         withoutOverlay: recordedArm(withoutOverlay),
         withOverlay: recordedArm(withOverlay),
       },
@@ -434,22 +519,33 @@ function measureMilestone() {
 function readRecording(url = RECORDING_URL) {
   let text;
   try {
-    text = readFileSync(url, "utf8");
+    text = readFileSync(url, 'utf8');
   } catch (error) {
     throw new Error(
-      "the page-footprint recording is absent or unreadable (" + url.pathname + ") — write research/raw/m022-page-footprint.json from the measurement this file prints: run `node --test extension/page-footprint.test.mjs`"
+      'the page-footprint recording is absent or unreadable (' +
+        url.pathname +
+        ') — write research/raw/m022-page-footprint.json from the measurement this file prints: run `node --test extension/page-footprint.test.mjs`',
     );
   }
   try {
     return JSON.parse(text);
   } catch (error) {
-    throw new Error("research/raw/m022-page-footprint.json is not JSON: " + (error && error.message ? error.message : String(error)));
+    throw new Error(
+      'research/raw/m022-page-footprint.json is not JSON: ' +
+        (error && error.message ? error.message : String(error)),
+    );
   }
 }
 
 /** Reads one dotted path out of the recording or the measurement, `undefined` when it is absent. */
 function at(root, path) {
-  return path.split(".").reduce((node, key) => (node === null || node === undefined ? undefined : node[key]), root);
+  return path
+    .split('.')
+    .reduce(
+      (node, key) =>
+        node === null || node === undefined ? undefined : node[key],
+      root,
+    );
 }
 
 /** Every recorded path that disagrees with the measurement, each with both readings. */
@@ -466,8 +562,15 @@ function recordingMismatches(recorded, measured) {
 
 function describeMismatches(mismatches) {
   return mismatches
-    .map((mismatch) => mismatch.path + ": recorded " + summarise(mismatch.recorded) + " / measured " + summarise(mismatch.measured))
-    .join("; ");
+    .map(
+      (mismatch) =>
+        mismatch.path +
+        ': recorded ' +
+        summarise(mismatch.recorded) +
+        ' / measured ' +
+        summarise(mismatch.measured),
+    )
+    .join('; ');
 }
 
 /**
@@ -475,25 +578,55 @@ function describeMismatches(mismatches) {
  * written again (absent, or disagreeing), so the re-record is a copy of evidence and never a guess.
  */
 function measuredBlock(measured) {
-  return "page-footprint measured block — write it to research/raw/m022-page-footprint.json, keeping the file's descriptive keys:\n" + JSON.stringify(measured, null, 2);
+  return (
+    "page-footprint measured block — write it to research/raw/m022-page-footprint.json, keeping the file's descriptive keys:\n" +
+    JSON.stringify(measured, null, 2)
+  );
 }
 
-describe("the page footprint with and without the overlay (SC5)", () => {
-  it("reads the same ɵsetProfiler list and the same feature record in both arms", () => {
+describe('the page footprint with and without the overlay (SC5)', () => {
+  it('reads the same ɵsetProfiler list and the same feature record in both arms', () => {
     const withoutOverlay = bootArm({ overlay: false });
     const withOverlay = bootArm({ overlay: true });
     try {
-      assert.deepEqual(withoutOverlay.bootErrors, [], "the withoutOverlay arm must boot every module cleanly");
-      assert.deepEqual(withOverlay.bootErrors, [], "the withOverlay arm must boot every module cleanly");
+      assert.deepEqual(
+        withoutOverlay.bootErrors,
+        [],
+        'the withoutOverlay arm must boot every module cleanly',
+      );
+      assert.deepEqual(
+        withOverlay.bootErrors,
+        [],
+        'the withOverlay arm must boot every module cleanly',
+      );
 
       // The measurement is not vacuous: each arm booted one recorder against the stub, the stub saw
       // exactly that one subscriber, and the feature record is the eight-name object and not an empty
       // one. A differential over two empty readings would pass for the wrong reason.
-      assert.equal(withoutOverlay.subscribers.length, 1, "the recorder subscribes once, so the stub records exactly one subscriber without the overlay");
-      assert.equal(withOverlay.subscribers.length, 1, "and the overlay adds none, so the stub still records exactly one");
-      assert.ok(withoutOverlay.measured.featureRecord !== null, "the recorder must publish a feature record in both arms");
-      assert.deepEqual(Object.keys(withoutOverlay.measured.featureRecord), FEATURE_NAMES, "the feature record is the eight names `featuresOf` reads");
-      assert.deepEqual(Object.keys(withOverlay.measured.featureRecord), FEATURE_NAMES, "and the overlay adds or removes none of them");
+      assert.equal(
+        withoutOverlay.subscribers.length,
+        1,
+        'the recorder subscribes once, so the stub records exactly one subscriber without the overlay',
+      );
+      assert.equal(
+        withOverlay.subscribers.length,
+        1,
+        'and the overlay adds none, so the stub still records exactly one',
+      );
+      assert.ok(
+        withoutOverlay.measured.featureRecord !== null,
+        'the recorder must publish a feature record in both arms',
+      );
+      assert.deepEqual(
+        Object.keys(withoutOverlay.measured.featureRecord),
+        FEATURE_NAMES,
+        'the feature record is the eight names `featuresOf` reads',
+      );
+      assert.deepEqual(
+        Object.keys(withOverlay.measured.featureRecord),
+        FEATURE_NAMES,
+        'and the overlay adds or removes none of them',
+      );
 
       assertSamePageFootprint(withoutOverlay, withOverlay);
     } finally {
@@ -506,11 +639,27 @@ describe("the page footprint with and without the overlay (SC5)", () => {
     const withoutOverlay = bootArm({ overlay: false });
     const withOverlay = bootArm({ overlay: true });
     try {
-      assert.deepEqual(withoutOverlay.created, [], "without the overlay nothing the tool owns creates a node");
-      assert.deepEqual(withOverlay.created, ["div"], "with the overlay exactly one node is created — the host");
-      assert.equal(withoutOverlay.document.getElementById(HOST_ID), null, "the withoutOverlay arm has no host");
-      assert.ok(withOverlay.host, "the withOverlay arm attaches its host");
-      assert.equal(withOverlay.document.getElementById(RETIRED_MARKER_ID), null, "and the retired marker is not there either");
+      assert.deepEqual(
+        withoutOverlay.created,
+        [],
+        'without the overlay nothing the tool owns creates a node',
+      );
+      assert.deepEqual(
+        withOverlay.created,
+        ['div'],
+        'with the overlay exactly one node is created — the host',
+      );
+      assert.equal(
+        withoutOverlay.document.getElementById(HOST_ID),
+        null,
+        'the withoutOverlay arm has no host',
+      );
+      assert.ok(withOverlay.host, 'the withOverlay arm attaches its host');
+      assert.equal(
+        withOverlay.document.getElementById(RETIRED_MARKER_ID),
+        null,
+        'and the retired marker is not there either',
+      );
     } finally {
       withoutOverlay.close();
       withOverlay.close();
@@ -518,7 +667,7 @@ describe("the page footprint with and without the overlay (SC5)", () => {
   });
 
   for (const bite of BITES) {
-    it("reddens when " + bite.name + " (SC5)", () => {
+    it('reddens when ' + bite.name + ' (SC5)', () => {
       const withoutOverlay = bootArm({ overlay: false });
       const clean = bootArm({ overlay: true });
       const bitten = bootArm({ overlay: true, source: bittenOverlay(bite) });
@@ -529,11 +678,23 @@ describe("the page footprint with and without the overlay (SC5)", () => {
         const differences = differential(withoutOverlay, bitten);
         assert.ok(
           differences.length > 0,
-          'the "' + bite.name + '" bite must redden the differential, and it read identical — the surface it should have moved is ' + bite.surface
+          'the "' +
+            bite.name +
+            '" bite must redden the differential, and it read identical — the surface it should have moved is ' +
+            bite.surface,
         );
         assert.ok(
           differences.some((difference) => difference.surface === bite.surface),
-          'the "' + bite.name + '" bite must redden ' + bite.surface + "; it reddened " + JSON.stringify(differences.map((difference) => difference.surface)) + " — " + describeDifferences(differences)
+          'the "' +
+            bite.name +
+            '" bite must redden ' +
+            bite.surface +
+            '; it reddened ' +
+            JSON.stringify(
+              differences.map((difference) => difference.surface),
+            ) +
+            ' — ' +
+            describeDifferences(differences),
         );
       } finally {
         withoutOverlay.close();
@@ -544,27 +705,66 @@ describe("the page footprint with and without the overlay (SC5)", () => {
   }
 });
 
-describe("the tool-element count across a second boot (SC4)", () => {
-  it("leaves exactly one tool-created element, no marker id and a closed root that cannot be read back", () => {
+describe('the tool-element count across a second boot (SC4)', () => {
+  it('leaves exactly one tool-created element, no marker id and a closed root that cannot be read back', () => {
     const withoutOverlay = bootArm({ overlay: false });
     const arm = bootArm({ overlay: true });
     try {
       // Both content scripts have booted at this point: the overlay's declaration, then the recorder.
-      assert.deepEqual(arm.bootErrors, [], "the arm must boot every module cleanly");
-      assert.ok(arm.host, "the withOverlay arm attaches its host");
-      assert.equal(arm.host.shadowRoot, null, "the root is closed, so it cannot be read back before the second boot either");
-      assert.equal(secondBootOf(arm).toolElements, 1, "one tool-created element before the second boot");
+      assert.deepEqual(
+        arm.bootErrors,
+        [],
+        'the arm must boot every module cleanly',
+      );
+      assert.ok(arm.host, 'the withOverlay arm attaches its host');
+      assert.equal(
+        arm.host.shadowRoot,
+        null,
+        'the root is closed, so it cannot be read back before the second boot either',
+      );
+      assert.equal(
+        secondBootOf(arm).toolElements,
+        1,
+        'one tool-created element before the second boot',
+      );
 
       const createdBefore = arm.created.length;
-      assert.doesNotThrow(() => arm.window.eval(OVERLAY), "a second boot must never throw into the page it inspects (N3)");
+      assert.doesNotThrow(
+        () => arm.window.eval(OVERLAY),
+        'a second boot must never throw into the page it inspects (N3)',
+      );
 
       const after = secondBootOf(arm);
-      assert.equal(after.toolElements, 1, "the document still holds exactly one tool-created element (AR-3, E7)");
-      assert.equal(after.markerIdResolvesTo, null, "the retired marker id resolves to null and stays that way");
-      assert.equal(after.closedRootReadable, false, "the closed root cannot be read back, so the second run cannot adopt it");
-      assert.equal(arm.created.length - createdBefore, 0, "the second boot creates no node");
-      assert.equal(arm.document.getElementById(HOST_ID), arm.host, "the first run's host is still the one host");
-      assert.equal(withoutOverlay.document.getElementById(HOST_ID), null, "and the withoutOverlay arm never had one");
+      assert.equal(
+        after.toolElements,
+        1,
+        'the document still holds exactly one tool-created element (AR-3, E7)',
+      );
+      assert.equal(
+        after.markerIdResolvesTo,
+        null,
+        'the retired marker id resolves to null and stays that way',
+      );
+      assert.equal(
+        after.closedRootReadable,
+        false,
+        'the closed root cannot be read back, so the second run cannot adopt it',
+      );
+      assert.equal(
+        arm.created.length - createdBefore,
+        0,
+        'the second boot creates no node',
+      );
+      assert.equal(
+        arm.document.getElementById(HOST_ID),
+        arm.host,
+        "the first run's host is still the one host",
+      );
+      assert.equal(
+        withoutOverlay.document.getElementById(HOST_ID),
+        null,
+        'and the withoutOverlay arm never had one',
+      );
     } finally {
       withoutOverlay.close();
       arm.close();
@@ -572,50 +772,76 @@ describe("the tool-element count across a second boot (SC4)", () => {
   });
 });
 
-describe("the recorded footprint (SC5)", () => {
-  it("refuses an absent recording instead of skipping", () => {
+describe('the recorded footprint (SC5)', () => {
+  it('refuses an absent recording instead of skipping', () => {
     assert.throws(
-      () => readRecording(new URL("./m022-page-footprint-absent.json", import.meta.url)),
+      () =>
+        readRecording(
+          new URL('./m022-page-footprint-absent.json', import.meta.url),
+        ),
       /absent or unreadable[\s\S]*research\/raw\/m022-page-footprint\.json[\s\S]*node --test extension\/page-footprint\.test\.mjs/,
-      "a missing recording must fail naming the command that produces it"
+      'a missing recording must fail naming the command that produces it',
     );
   });
 
-  it("refuses a recording that disagrees, field by field", () => {
+  it('refuses a recording that disagrees, field by field', () => {
     const recorded = readRecording();
     const measured = measureMilestone();
     const doctored = JSON.parse(JSON.stringify(recorded));
-    assert.equal(doctored.angularVersion, measured.angularVersion, "the recording must be current before it is doctored here");
-    doctored.angularVersion = "21.0.0";
-    doctored.commands.test = "npx vitest run";
-    doctored.arms.withOverlay.profilerSubscriberCount = measured.arms.withOverlay.profilerSubscriberCount + 1;
-    doctored.arms.withoutOverlay.featureRecord.getSignalGraph = !measured.arms.withoutOverlay.featureRecord.getSignalGraph;
+    assert.equal(
+      doctored.angularVersion,
+      measured.angularVersion,
+      'the recording must be current before it is doctored here',
+    );
+    doctored.angularVersion = '21.0.0';
+    doctored.commands.test = 'npx vitest run';
+    doctored.arms.withOverlay.profilerSubscriberCount =
+      measured.arms.withOverlay.profilerSubscriberCount + 1;
+    doctored.arms.withoutOverlay.featureRecord.getSignalGraph =
+      !measured.arms.withoutOverlay.featureRecord.getSignalGraph;
     doctored.secondBoot.toolElements = 2;
 
-    const paths = recordingMismatches(doctored, measured).map((mismatch) => mismatch.path);
-    for (const path of ["angularVersion", "commands", "arms.withOverlay", "arms.withoutOverlay", "secondBoot"]) {
-      assert.ok(paths.includes(path), "a doctored " + path + " must be refused by name; the refusal named " + JSON.stringify(paths));
+    const paths = recordingMismatches(doctored, measured).map(
+      (mismatch) => mismatch.path,
+    );
+    for (const path of [
+      'angularVersion',
+      'commands',
+      'arms.withOverlay',
+      'arms.withoutOverlay',
+      'secondBoot',
+    ]) {
+      assert.ok(
+        paths.includes(path),
+        'a doctored ' +
+          path +
+          ' must be refused by name; the refusal named ' +
+          JSON.stringify(paths),
+      );
     }
   });
 
-  it("matches research/raw/m022-page-footprint.json with what it measures", () => {
+  it('matches research/raw/m022-page-footprint.json with what it measures', () => {
     const measured = measureMilestone();
 
     // The measurement the recording is written from, printed so a stale recording is re-recorded from
     // evidence and not from a guess. The one-line summary is always printed; the whole block only when
     // the recording has to be written again, so a green run stays readable.
     console.log(
-      "page-footprint: " +
+      'page-footprint: ' +
         JSON.stringify({
           angularVersion: measured.angularVersion,
           subscriberCounts: {
-            withoutOverlay: measured.arms.withoutOverlay.profilerSubscriberCount,
+            withoutOverlay:
+              measured.arms.withoutOverlay.profilerSubscriberCount,
             withOverlay: measured.arms.withOverlay.profilerSubscriberCount,
           },
-          featureRecordIdentical: JSON.stringify(measured.arms.withoutOverlay.featureRecord) === JSON.stringify(measured.arms.withOverlay.featureRecord),
+          featureRecordIdentical:
+            JSON.stringify(measured.arms.withoutOverlay.featureRecord) ===
+            JSON.stringify(measured.arms.withOverlay.featureRecord),
           identical: measured.differential.identical,
           toolElementsAfterSecondBoot: measured.secondBoot.toolElements,
-        })
+        }),
     );
 
     let recorded;
@@ -630,24 +856,59 @@ describe("the recorded footprint (SC5)", () => {
     assert.deepEqual(
       mismatches,
       [],
-      "research/raw/m022-page-footprint.json disagrees with this file's measurement — re-record it from the block this test printed; the fields that differ are: " + describeMismatches(mismatches)
+      "research/raw/m022-page-footprint.json disagrees with this file's measurement — re-record it from the block this test printed; the fields that differ are: " +
+        describeMismatches(mismatches),
     );
-    assert.equal(measured.differential.identical, true, "and the measurement the recording claims is the one the differential finds");
+    assert.equal(
+      measured.differential.identical,
+      true,
+      'and the measurement the recording claims is the one the differential finds',
+    );
   });
 });
 
 describe("the manifest's declaration order this harness models", () => {
   it("loads the overlay's shared modules before overlay.js at document_start, and the recorder at document_idle", () => {
     const declarations = MANIFEST.content_scripts || [];
-    const overlayEntry = declarations.find((entry) => (entry.js || []).includes("overlay.js"));
-    assert.ok(overlayEntry, "the manifest must declare overlay.js; without it the withOverlay arm models nothing");
-    assert.equal(overlayEntry.run_at, "document_start", "the overlay attaches at document_start");
-    assert.deepEqual(overlayEntry.js, ["observer-filter.js", "overlay-geometry.js", "overlay.js"], "the shared modules load before overlay.js, which is the order this harness boots");
-    assert.equal(overlayEntry.world, undefined, "and in the ISOLATED world (AR-2)");
+    const overlayEntry = declarations.find((entry) =>
+      (entry.js || []).includes('overlay.js'),
+    );
+    assert.ok(
+      overlayEntry,
+      'the manifest must declare overlay.js; without it the withOverlay arm models nothing',
+    );
+    assert.equal(
+      overlayEntry.run_at,
+      'document_start',
+      'the overlay attaches at document_start',
+    );
+    assert.deepEqual(
+      overlayEntry.js,
+      ['observer-filter.js', 'overlay-geometry.js', 'overlay.js'],
+      'the shared modules load before overlay.js, which is the order this harness boots',
+    );
+    assert.equal(
+      overlayEntry.world,
+      undefined,
+      'and in the ISOLATED world (AR-2)',
+    );
 
-    const recorderEntry = declarations.find((entry) => (entry.js || []).includes("agent-main.js"));
-    assert.ok(recorderEntry, "the manifest must declare the page-realm recorder");
-    assert.equal(recorderEntry.world, "MAIN", "the recorder is the MAIN-world script (decision 4)");
-    assert.equal(recorderEntry.run_at, "document_idle", "and boots after the overlay's document_start entry");
+    const recorderEntry = declarations.find((entry) =>
+      (entry.js || []).includes('agent-main.js'),
+    );
+    assert.ok(
+      recorderEntry,
+      'the manifest must declare the page-realm recorder',
+    );
+    assert.equal(
+      recorderEntry.world,
+      'MAIN',
+      'the recorder is the MAIN-world script (decision 4)',
+    );
+    assert.equal(
+      recorderEntry.run_at,
+      'document_idle',
+      "and boots after the overlay's document_start entry",
+    );
   });
 });

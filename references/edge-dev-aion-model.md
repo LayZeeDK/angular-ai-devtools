@@ -11,11 +11,11 @@ measured, and when to drop it.
 Edge Dev gets Aion as three separate components, each updated on its own by the component updater
 (`edge://components`):
 
-| Component | Folder in the profile | Role |
-| --- | --- | --- |
+| Component                     | Folder in the profile                           | Role                                             |
+| ----------------------------- | ----------------------------------------------- | ------------------------------------------------ |
 | Edge On-Device Model Manifest | `EdgeOptimizationGuideModelsManifest\<version>` | names the base model to load (`edge_base_model`) |
-| Edge LLM On Device Model | `EdgeLLMOnDeviceModel\<version>` | the model weights |
-| Edge LLM Runtime | `EdgeLLMRuntime\<version>` | the inference runtime |
+| Edge LLM On Device Model      | `EdgeLLMOnDeviceModel\<version>`                | the model weights                                |
+| Edge LLM Runtime              | `EdgeLLMRuntime\<version>`                      | the inference runtime                            |
 
 Aion works only when the model and runtime on disk match the version the manifest names.
 
@@ -96,12 +96,12 @@ initializers), plus two new adapters, `rewrite_general.onnx_adapter` and `summar
 What Microsoft's update server offers. The real requests were captured from a NetLog (update protocol 4.0, to
 `edge.microsoft.com/componentupdater/api/v1/update`) and replayed per channel as a fresh install:
 
-| Edge (arm64) | Manifest | Model | Runtime |
-| --- | --- | --- | --- |
-| Stable 155.0.4283.62 | 2026.9.18.5 | none | 2026.10.2.1 |
-| Beta 156.0.4314.30 | 2026.10.2.1 | none | 2026.10.12.1 |
-| Dev 157.0.4329.0 | 2026.10.2.1 | 2026.10.15.1 | 2026.10.12.1 |
-| Canary 158.0.4344.0 | 2026.10.2.1 | 2026.10.15.1 | 2026.10.12.1 |
+| Edge (arm64)         | Manifest    | Model        | Runtime      |
+| -------------------- | ----------- | ------------ | ------------ |
+| Stable 155.0.4283.62 | 2026.9.18.5 | none         | 2026.10.2.1  |
+| Beta 156.0.4314.30   | 2026.10.2.1 | none         | 2026.10.12.1 |
+| Dev 157.0.4329.0     | 2026.10.2.1 | 2026.10.15.1 | 2026.10.12.1 |
+| Canary 158.0.4344.0  | 2026.10.2.1 | 2026.10.15.1 | 2026.10.12.1 |
 
 The rollout bucket (`AppRollout` 0 to 0.99) changes nothing. So no channel is served a manifest naming
 2026.10.15.1; a Canary or Beta install gets the same mismatch or no new model at all.
@@ -113,12 +113,12 @@ was found that moves the manifest.
 Running it anyway. The manifest's variant files (`variants/*/manifest.binarypb`) name the model version as a
 protobuf string. Rewriting `2026.10.2.1` to `2026.10.15.1` in both variants makes Edge load the new model:
 
-| Browser | Model | Runtime | Result |
-| --- | --- | --- | --- |
-| Edge Dev 157 | 2026.10.15.1 | 2026.10.12.1 or 2026.10.2.1 | Ready and `available`, but every prompt returns 32 x U+0018 in under half a second; canaries fail |
-| Edge stable 155 | 2026.10.15.1 | 2026.10.12.1 | same garbage |
-| Edge Canary 158 | 2026.10.15.1 | 2026.10.12.1 | doctor exit 0 on three launches: structured and tool canaries pass, "Hello!" and "5" answered correctly |
-| Edge Canary 158, original manifest | 2026.10.15.1 | 2026.10.12.1 | the usual mismatch: wants 2026.10.2.1, `downloading` |
+| Browser                            | Model        | Runtime                     | Result                                                                                                  |
+| ---------------------------------- | ------------ | --------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Edge Dev 157                       | 2026.10.15.1 | 2026.10.12.1 or 2026.10.2.1 | Ready and `available`, but every prompt returns 32 x U+0018 in under half a second; canaries fail       |
+| Edge stable 155                    | 2026.10.15.1 | 2026.10.12.1                | same garbage                                                                                            |
+| Edge Canary 158                    | 2026.10.15.1 | 2026.10.12.1                | doctor exit 0 on three launches: structured and tool canaries pass, "Hello!" and "5" answered correctly |
+| Edge Canary 158, original manifest | 2026.10.15.1 | 2026.10.12.1                | the usual mismatch: wants 2026.10.2.1, `downloading`                                                    |
 
 The patched manifest survived 3.5 minutes without `--disable-component-update` (the updater sees the same
 manifest version and leaves it); a real newer manifest from Microsoft would replace it. Edge deletes model and

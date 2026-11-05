@@ -85,7 +85,8 @@
   function labelFor(rect, viewport, labelSize, options) {
     const box = boxFor(rect);
     const edges = viewport || {};
-    const gap = options && options.gap !== undefined ? finite(options.gap) : DEFAULT_GAP;
+    const gap =
+      options && options.gap !== undefined ? finite(options.gap) : DEFAULT_GAP;
     const size = labelSize || {};
     const labelWidth = Math.max(0, finite(size.width));
     const labelHeight = Math.max(0, finite(size.height));

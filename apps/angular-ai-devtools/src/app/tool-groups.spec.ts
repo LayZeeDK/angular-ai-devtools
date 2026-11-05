@@ -6,7 +6,10 @@ import {
   type ToolGroupDeclaration,
   type ToolGroupProjection,
 } from './tool-groups';
-import type { ToolDeclaration, ToolPublish } from './tool-registry/tool-registry';
+import type {
+  ToolDeclaration,
+  ToolPublish,
+} from './tool-registry/tool-registry';
 import { appFactsTool } from './tool-registry/app-facts';
 import { errorDigestTool } from './tool-registry/error-digest.tool';
 import { panelEnvironmentTool } from './tool-registry/panel-environment.tool';
@@ -95,7 +98,10 @@ function allGroupsVisible(): readonly ToolDeclaration[] {
 
 /** The reason recorded for a group, or `''` when the group was offered (so assertions stay string-typed). */
 function reasonFor(projection: ToolGroupProjection, groupId: string): string {
-  return projection.excluded.find((exclusion) => exclusion.groupId === groupId)?.reason ?? '';
+  return (
+    projection.excluded.find((exclusion) => exclusion.groupId === groupId)
+      ?.reason ?? ''
+  );
 }
 
 /** The ids the projection offers, in order. */
@@ -109,7 +115,9 @@ function offeredIds(projection: ToolGroupProjection): readonly string[] {
  * hard-coding a version the table might move away from.
  */
 function onePatchBelow(minVersion: string): string {
-  const [major, minor, patch] = minVersion.split('.').map((part) => Number(part));
+  const [major, minor, patch] = minVersion
+    .split('.')
+    .map((part) => Number(part));
   if (patch !== undefined && patch > 0) {
     return `${String(major)}.${String(minor)}.${String(patch - 1)}`;
   }
@@ -117,7 +125,11 @@ function onePatchBelow(minVersion: string): string {
 }
 
 /** The fixture everything is projected over when the declaration set is not the case under test. */
-const DEV_PAGE = page({ version: '22.2.2', supported: true, features: ALL_FEATURES_TRUE });
+const DEV_PAGE = page({
+  version: '22.2.2',
+  supported: true,
+  features: ALL_FEATURES_TRUE,
+});
 
 describe('projectToolGroups', () => {
   it('offers the model-visible groups and withholds the one whose only member is panel-published', () => {
@@ -131,15 +143,27 @@ describe('projectToolGroups', () => {
       'error-reference',
     ]);
     expect(projection.groups).toEqual([
-      { id: 'app-support', title: 'The app-facts support record', toolIds: ['app_facts'] },
-      { id: 'component-reads', title: 'Component reads', toolIds: ['find_components', 'inspect_component'] },
+      {
+        id: 'app-support',
+        title: 'The app-facts support record',
+        toolIds: ['app_facts'],
+      },
+      {
+        id: 'component-reads',
+        title: 'Component reads',
+        toolIds: ['find_components', 'inspect_component'],
+      },
       { id: 'signal-reads', title: 'Signal reads', toolIds: ['list_signals'] },
       {
         id: 'dev-mode-reads',
         title: 'Tier-0 debug reads (dev mode only)',
         toolIds: ['getComponent', 'getDirectiveMetadata'],
       },
-      { id: 'error-reference', title: 'The Angular error reference', toolIds: ['error_digest_lookup'] },
+      {
+        id: 'error-reference',
+        title: 'The Angular error reference',
+        toolIds: ['error_digest_lookup'],
+      },
     ]);
 
     // AC2: `panel_environment` declares `publish: 'panel'`, so it reaches no group at all.
@@ -164,14 +188,19 @@ describe('projectToolGroups', () => {
     for (const group of projection.groups) {
       expect(group.toolIds.length).toBeGreaterThan(0);
       for (const toolId of group.toolIds) {
-        const declaration = REGISTERED.find((candidate) => candidate.id === toolId);
+        const declaration = REGISTERED.find(
+          (candidate) => candidate.id === toolId,
+        );
         expect(declaration?.publish).toBe('model');
       }
     }
   });
 
   it('drops the ids it was not handed, and withholds a group none of whose ids is declared', () => {
-    const projection = projectToolGroups([appFactsTool.declaration, findComponentsTool.declaration], DEV_PAGE);
+    const projection = projectToolGroups(
+      [appFactsTool.declaration, findComponentsTool.declaration],
+      DEV_PAGE,
+    );
 
     expect(offeredIds(projection)).toEqual(['app-support', 'component-reads']);
     // A partially handed registry shrinks a group to what resolved rather than inventing a member.
@@ -180,7 +209,9 @@ describe('projectToolGroups', () => {
     const missingReason = reasonFor(projection, 'signal-reads');
     expect(missingReason).toContain('list_signals');
     expect(missingReason).toContain('declared in the registry it was handed');
-    expect(projection.groups.map((group) => group.id)).not.toContain('signal-reads');
+    expect(projection.groups.map((group) => group.id)).not.toContain(
+      'signal-reads',
+    );
   });
 
   it('withholds every group at once when the registry handed in is empty', () => {
@@ -189,24 +220,42 @@ describe('projectToolGroups', () => {
     expect(projection.groups).toEqual([]);
     expect(projection.excluded).toHaveLength(TOOL_GROUPS.length);
     expect(projection.emptyReason).not.toBeNull();
-    expect(projection.emptyReason ?? '').toContain('no tool group is offered on this page');
+    expect(projection.emptyReason ?? '').toContain(
+      'no tool group is offered on this page',
+    );
   });
 
   it('E4: a version exactly at a group minimum includes it, and one patch below withholds it', () => {
     const tools = allGroupsVisible();
 
     for (const group of TOOL_GROUPS) {
-      const at = projectToolGroups(tools, page({ version: group.minVersion, supported: true, features: ALL_FEATURES_TRUE }));
+      const at = projectToolGroups(
+        tools,
+        page({
+          version: group.minVersion,
+          supported: true,
+          features: ALL_FEATURES_TRUE,
+        }),
+      );
       const offered = at.groups.find((candidate) => candidate.id === group.id);
       expect(offered).toBeDefined();
       expect(offered?.toolIds).toEqual([...group.memberIds]);
-      expect(at.excluded.map((exclusion) => exclusion.groupId)).not.toContain(group.id);
+      expect(at.excluded.map((exclusion) => exclusion.groupId)).not.toContain(
+        group.id,
+      );
 
       const below = onePatchBelow(group.minVersion);
-      const under = projectToolGroups(tools, page({ version: below, supported: true, features: ALL_FEATURES_TRUE }));
+      const under = projectToolGroups(
+        tools,
+        page({ version: below, supported: true, features: ALL_FEATURES_TRUE }),
+      );
       // Absent from the list, not present with no tools.
-      expect(under.groups.map((candidate) => candidate.id)).not.toContain(group.id);
-      expect(under.groups.every((candidate) => candidate.toolIds.length > 0)).toBe(true);
+      expect(under.groups.map((candidate) => candidate.id)).not.toContain(
+        group.id,
+      );
+      expect(
+        under.groups.every((candidate) => candidate.toolIds.length > 0),
+      ).toBe(true);
       const reason = reasonFor(under, group.id);
       expect(reason).toBeDefined();
       expect(reason).toContain(below);
@@ -217,7 +266,10 @@ describe('projectToolGroups', () => {
 
   it('E5: when every gate fails the list is empty, every group is explained, and the list says why', () => {
     const tools = allGroupsVisible();
-    const projection = projectToolGroups(tools, page({ version: '0.0.1', supported: true, features: ALL_FEATURES_TRUE }));
+    const projection = projectToolGroups(
+      tools,
+      page({ version: '0.0.1', supported: true, features: ALL_FEATURES_TRUE }),
+    );
 
     expect(projection.groups).toEqual([]);
     expect(projection.excluded.map((exclusion) => exclusion.groupId)).toEqual(
@@ -230,7 +282,9 @@ describe('projectToolGroups', () => {
     // The list explains itself: the count, every group id and each group's own reason.
     const emptyReason = projection.emptyReason ?? '';
     expect(projection.emptyReason).not.toBeNull();
-    expect(emptyReason).toContain(`all ${TOOL_GROUPS.length} declared groups were withheld`);
+    expect(emptyReason).toContain(
+      `all ${TOOL_GROUPS.length} declared groups were withheld`,
+    );
     expect(emptyReason).toContain('no tool group is offered on this page');
     for (const group of TOOL_GROUPS) {
       expect(emptyReason).toContain(`"${group.id}"`);
@@ -239,10 +293,20 @@ describe('projectToolGroups', () => {
 
   it('opens nothing on a missing or unparseable version and says it cannot tell', () => {
     const tools = allGroupsVisible();
-    const unreadable: readonly (string | null)[] = [null, '', '   ', 'unknown', 'twenty-two', '22.2'];
+    const unreadable: readonly (string | null)[] = [
+      null,
+      '',
+      '   ',
+      'unknown',
+      'twenty-two',
+      '22.2',
+    ];
 
     for (const version of unreadable) {
-      const projection = projectToolGroups(tools, page({ version, supported: true, features: ALL_FEATURES_TRUE }));
+      const projection = projectToolGroups(
+        tools,
+        page({ version, supported: true, features: ALL_FEATURES_TRUE }),
+      );
 
       expect(projection.groups).toEqual([]);
       expect(projection.excluded).toHaveLength(TOOL_GROUPS.length);
@@ -257,14 +321,21 @@ describe('projectToolGroups', () => {
   it('N2: the page own supported: false wins over a passing version and is quoted verbatim', () => {
     const projection = projectToolGroups(
       allGroupsVisible(),
-      page({ version: '22.2.2', supported: false, reason: 'the debug surface is gone on this page', features: ALL_FEATURES_TRUE }),
+      page({
+        version: '22.2.2',
+        supported: false,
+        reason: 'the debug surface is gone on this page',
+        features: ALL_FEATURES_TRUE,
+      }),
     );
 
     expect(projection.groups).toEqual([]);
     expect(projection.excluded).toHaveLength(TOOL_GROUPS.length);
     for (const exclusion of projection.excluded) {
       expect(exclusion.reason).toContain('supported: false');
-      expect(exclusion.reason).toContain('"the debug surface is gone on this page"');
+      expect(exclusion.reason).toContain(
+        '"the debug surface is gone on this page"',
+      );
       expect(exclusion.reason).toContain('the facts win over');
     }
   });
@@ -298,7 +369,11 @@ describe('projectToolGroups', () => {
     );
 
     for (const projection of [withEmptyMap, withNoMap]) {
-      expect(offeredIds(projection)).toEqual(['app-support', 'error-reference', 'panel-environment']);
+      expect(offeredIds(projection)).toEqual([
+        'app-support',
+        'error-reference',
+        'panel-environment',
+      ]);
       const reason = reasonFor(projection, 'component-reads');
       expect(reason).toBeDefined();
       expect(reason).toContain('published no features.getHostElement bit');
@@ -319,8 +394,14 @@ describe('projectToolGroups', () => {
     expect(offeredIds(projection)).toEqual(['app-support', 'error-reference']);
     // But a missing bit is not `true`, so every group that needs one is withheld naming that bit —
     // silence never opens a group whose support the panel cannot confirm.
-    for (const groupId of ['component-reads', 'signal-reads', 'dev-mode-reads']) {
-      expect(reasonFor(projection, groupId)).toContain('published no features.');
+    for (const groupId of [
+      'component-reads',
+      'signal-reads',
+      'dev-mode-reads',
+    ]) {
+      expect(reasonFor(projection, groupId)).toContain(
+        'published no features.',
+      );
     }
     expect(reasonFor(projection, 'panel-environment')).toContain('publish');
     expect(projection.excluded).toHaveLength(4);
@@ -328,7 +409,11 @@ describe('projectToolGroups', () => {
 
   it('is pure: two identical calls are deep-equal and neither input is mutated', () => {
     const tools = allGroupsVisible();
-    const context = page({ version: '22.2.2', supported: true, features: ALL_FEATURES_TRUE });
+    const context = page({
+      version: '22.2.2',
+      supported: true,
+      features: ALL_FEATURES_TRUE,
+    });
     const toolsBefore = JSON.stringify(tools);
     const contextBefore = JSON.stringify(context);
     const groupsBefore = JSON.stringify(TOOL_GROUPS);
@@ -347,7 +432,10 @@ describe('projectToolGroups', () => {
 
   it('carries an emptyReason exactly when the list is empty', () => {
     const offered = projectToolGroups(REGISTERED, DEV_PAGE);
-    const withheld = projectToolGroups(REGISTERED, page({ version: '1.0.0', supported: true }));
+    const withheld = projectToolGroups(
+      REGISTERED,
+      page({ version: '1.0.0', supported: true }),
+    );
 
     expect(offered.groups.length).toBeGreaterThan(0);
     expect(offered.emptyReason).toBeNull();

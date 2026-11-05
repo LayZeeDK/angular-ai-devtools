@@ -1,9 +1,23 @@
-import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  computed,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-type Surface = { readonly state: string; readonly message: string; readonly lines: readonly string[] };
+type Surface = {
+  readonly state: string;
+  readonly message: string;
+  readonly lines: readonly string[];
+};
 
-const LOADERS: Record<string, () => Promise<{ default: (fact: unknown) => Surface }>> = {
+const LOADERS: Record<
+  string,
+  () => Promise<{ default: (fact: unknown) => Surface }>
+> = {
   fields: () => import('./panel-fields') as never,
   redirect: () => import('./panel-redirect') as never,
   sanitizer: () => import('./panel-sanitizer') as never,
@@ -12,12 +26,22 @@ const LOADERS: Record<string, () => Promise<{ default: (fact: unknown) => Surfac
 
 const FACTS: Record<string, unknown> = {
   fields: {
-    fields: { name: { valid: true, invalid: false, errors: [] }, age: { valid: true, invalid: false, errors: [] } },
-    root: { invalid: true, valid: false, errors: [{ kind: 'name-too-short-for-age' }] },
+    fields: {
+      name: { valid: true, invalid: false, errors: [] },
+      age: { valid: true, invalid: false, errors: [] },
+    },
+    root: {
+      invalid: true,
+      valid: false,
+      errors: [{ kind: 'name-too-short-for-age' }],
+    },
     submitState: 'disabled',
   },
   redirect: {
-    chain: [{ path: 'start', destination: 'landing' }, { path: 'landing', destination: 'landing' }],
+    chain: [
+      { path: 'start', destination: 'landing' },
+      { path: 'landing', destination: 'landing' },
+    ],
     destination: 'landing',
     changedAt: 'start',
     gated: false,
@@ -53,7 +77,10 @@ export class PanelDemoComponent implements OnInit {
 
   ngOnInit(): void {
     const fromData = this.route.snapshot.data['surface'];
-    const name = typeof fromData === 'string' && fromData.length > 0 ? fromData : this.surface();
+    const name =
+      typeof fromData === 'string' && fromData.length > 0
+        ? fromData
+        : this.surface();
     this.name.set(name);
     const loader = LOADERS[name];
     if (!loader) {

@@ -11,7 +11,7 @@ answer renders in the panel. Angular detection still comes from the content scri
 
 - `extension-load`: `up` loads the extension. Branded Chrome ignores `--load-extension`, so every instance starts
   through `scripts/pipe-keeper.mjs`. The keeper launches the browser with `--remote-debugging-pipe
-  --enable-unsafe-extension-debugging`, calls CDP `Extensions.loadUnpacked`, and holds the pipe until the browser
+--enable-unsafe-extension-debugging`, calls CDP `Extensions.loadUnpacked`, and holds the pipe until the browser
   exits. `up` then turns developer mode on (Edge Dev 157 disables unpacked extensions without it) and prints the
   extension id.
 - `extension-check`: doctor's `extension` line opens `chrome-extension://<id>/manifest.json` and compares the name

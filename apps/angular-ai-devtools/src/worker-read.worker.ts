@@ -34,7 +34,9 @@
 export type WorkerReadName = 'component-summary';
 
 /** Every read this worker can perform, in the order they are listed in a failure message. */
-export const WORKER_READ_NAMES: readonly WorkerReadName[] = ['component-summary'];
+export const WORKER_READ_NAMES: readonly WorkerReadName[] = [
+  'component-summary',
+];
 
 /** One component as the page reported it, reduced to what a worker read projects. */
 export type PageComponentRecord = {
@@ -60,7 +62,8 @@ export type WorkerReadRequest = {
 };
 
 /** The failures a worker read can report. Both a refusal and a crash are named, not thrown. */
-export type WorkerReadErrorCode = 'invalid-input' | 'unknown-read' | 'worker-failed';
+export type WorkerReadErrorCode =
+  'invalid-input' | 'unknown-read' | 'worker-failed';
 
 /**
  * The worker's answer. A failure is a value, not an exception and not an empty value, for the same
@@ -68,14 +71,22 @@ export type WorkerReadErrorCode = 'invalid-input' | 'unknown-read' | 'worker-fai
  * only sees `undefined`.
  */
 export type WorkerReadReply =
-  | { readonly token: number; readonly status: 'result'; readonly value: unknown }
+  | {
+      readonly token: number;
+      readonly status: 'result';
+      readonly value: unknown;
+    }
   | {
       readonly token: number;
       readonly status: 'error';
       readonly code: WorkerReadErrorCode;
       readonly message: string;
     }
-  | { readonly token: number; readonly status: 'cancelled'; readonly message: string };
+  | {
+      readonly token: number;
+      readonly status: 'cancelled';
+      readonly message: string;
+    };
 
 /** One component, summarised: what the reader answers, with no prompt text and no truncation. */
 export type ComponentSummary = {
@@ -116,7 +127,8 @@ const SUPERSEDED_BEFORE_START =
   'was superseded before the read started, so nothing was read for it';
 
 /** The same reason for a read that had already begun. */
-const SUPERSEDED_WHILE_RUNNING = 'was superseded while the read ran, so its value was withheld';
+const SUPERSEDED_WHILE_RUNNING =
+  'was superseded while the read ran, so its value was withheld';
 
 /** A dedicated worker's own scope: the two members this module uses. */
 export type WorkerReadScope = {
@@ -143,7 +155,9 @@ function isComponentRecord(value: unknown): value is PageComponentRecord {
     typeof value['id'] === 'string' &&
     typeof value['name'] === 'string' &&
     Array.isArray(value['signals']) &&
-    (value['signals'] as readonly unknown[]).every((signal) => typeof signal === 'string')
+    (value['signals'] as readonly unknown[]).every(
+      (signal) => typeof signal === 'string',
+    )
   );
 }
 
@@ -206,11 +220,18 @@ const componentSummary: WorkerReader = async (
 
   const components = snapshot.components;
   const matched: ComponentSummary[] = [];
-  for (let start = 0; start < components.length; start += WORKER_READ_CHUNK_SIZE) {
+  for (
+    let start = 0;
+    start < components.length;
+    start += WORKER_READ_CHUNK_SIZE
+  ) {
     if (!isCurrentToken()) {
       return { status: 'superseded' };
     }
-    for (const component of components.slice(start, start + WORKER_READ_CHUNK_SIZE)) {
+    for (const component of components.slice(
+      start,
+      start + WORKER_READ_CHUNK_SIZE,
+    )) {
       if (wanted === '' || component.name.toLowerCase().includes(wanted)) {
         matched.push({
           id: component.id,
@@ -223,7 +244,10 @@ const componentSummary: WorkerReader = async (
       await yieldToMessageQueue();
     }
   }
-  return { status: 'value', value: { components: matched } satisfies ComponentSummaryValue };
+  return {
+    status: 'value',
+    value: { components: matched } satisfies ComponentSummaryValue,
+  };
 };
 
 /** The reads this worker performs, by name. The extension point for a second read. */
@@ -286,9 +310,12 @@ export async function handleWorkerReadMessage(
 
   const read = isRecord(data) ? data['read'] : undefined;
   const reader =
-    typeof read === 'string' && isWorkerReadName(read) ? WORKER_READERS[read] : undefined;
+    typeof read === 'string' && isWorkerReadName(read)
+      ? WORKER_READERS[read]
+      : undefined;
   if (reader === undefined) {
-    const named = typeof read === 'string' ? `"${read}"` : `a ${typeof read} read name`;
+    const named =
+      typeof read === 'string' ? `"${read}"` : `a ${typeof read} read name`;
     scope.postMessage(
       errorReply(
         token,
@@ -379,7 +406,11 @@ function ownWorkerScope(): WorkerReadScope | undefined {
   if (candidate === null || typeof candidate !== 'object') {
     return undefined;
   }
-  const scope = candidate as { postMessage?: unknown; document?: unknown; importScripts?: unknown };
+  const scope = candidate as {
+    postMessage?: unknown;
+    document?: unknown;
+    importScripts?: unknown;
+  };
   if (
     typeof scope.postMessage !== 'function' ||
     scope.document !== undefined ||

@@ -37,7 +37,9 @@ import {
 import { JobHandleRegistry } from './job-handles';
 
 const globalSummarizer = globalThis as unknown as { Summarizer?: unknown };
-const globalLanguageModel = globalThis as unknown as { LanguageModel?: unknown };
+const globalLanguageModel = globalThis as unknown as {
+  LanguageModel?: unknown;
+};
 
 /** The originals, so the spec leaves the globals exactly as it found them. */
 const originalSummarizer: unknown = globalSummarizer.Summarizer;
@@ -56,11 +58,15 @@ const DECLARATION = {
 /** The result's free text: a stack frame chain and a console warning, deliberately unlike the description. */
 const STACK_TEXT =
   'TypeError: Cannot read properties of null (reading "updateTotal") at CartService.updateCart (cart.service.ts:412:17)';
-const CONSOLE_TEXT = 'WARN [cart] total computed as NaN after the coupon was removed';
+const CONSOLE_TEXT =
+  'WARN [cart] total computed as NaN after the coupon was removed';
 
 /** Fixed answers, so a summary can be told apart from the text it summarises and from the declaration. */
 const SUMMARIES = new Map<string, string>([
-  [STACK_TEXT, 'CartService.updateCart read a null total at cart.service.ts:412'],
+  [
+    STACK_TEXT,
+    'CartService.updateCart read a null total at cart.service.ts:412',
+  ],
   [CONSOLE_TEXT, 'the cart total became NaN after the coupon was removed'],
 ]);
 
@@ -81,7 +87,8 @@ type FakeSummarizerControls = {
  */
 function installSummarizer(
   availability: () => Promise<string>,
-  answer: (text: string) => string = (text: string): string => SUMMARIES.get(text) ?? `summary of ${text}`,
+  answer: (text: string) => string = (text: string): string =>
+    SUMMARIES.get(text) ?? `summary of ${text}`,
 ): FakeSummarizerControls {
   const held: ((summary: string) => void)[] = [];
   const controls: FakeSummarizerControls = {
@@ -102,7 +109,9 @@ function installSummarizer(
       controls.availabilityCount.value += 1;
       return availability();
     },
-    create: async (): Promise<{ summarize: (text: string) => Promise<string> }> => {
+    create: async (): Promise<{
+      summarize: (text: string) => Promise<string>;
+    }> => {
       controls.createCount.value += 1;
       return {
         summarize: async (text: string): Promise<string> => {
@@ -131,7 +140,10 @@ function installPromptApiSentinel(): void {
   };
   globalLanguageModel.LanguageModel = {
     availability: async (): Promise<string> => touch(),
-    create: async (): Promise<{ prompt: () => Promise<string>; destroy: () => void }> => ({
+    create: async (): Promise<{
+      prompt: () => Promise<string>;
+      destroy: () => void;
+    }> => ({
       prompt: async (): Promise<string> => touch(),
       destroy: (): void => {
         touch();
@@ -149,7 +161,10 @@ function consoleSegment(): SummarizeSegment {
   return { id: 'console', heading: 'Console output', text: CONSOLE_TEXT };
 }
 
-function requestFor(handle: string, segments: readonly SummarizeSegment[]): SummarizeRequest {
+function requestFor(
+  handle: string,
+  segments: readonly SummarizeSegment[],
+): SummarizeRequest {
   return { handle, declaration: DECLARATION, result: { segments } };
 }
 
@@ -179,7 +194,9 @@ function payloadOf(outcome: ToolOutcome): SummarizePayload {
 }
 
 /** The payload narrowed to the complete variant; a different answer fails loudly. */
-function completePayload(outcome: ToolOutcome): Extract<SummarizePayload, { status: 'complete' }> {
+function completePayload(
+  outcome: ToolOutcome,
+): Extract<SummarizePayload, { status: 'complete' }> {
   const payload = payloadOf(outcome);
   if (payload.status !== 'complete') {
     throw new Error(`expected a complete payload, got "${payload.status}"`);
@@ -188,7 +205,9 @@ function completePayload(outcome: ToolOutcome): Extract<SummarizePayload, { stat
 }
 
 /** The payload narrowed to the cannot-tell variant. */
-function cannotTellPayload(outcome: ToolOutcome): Extract<SummarizePayload, { status: 'cannot-tell' }> {
+function cannotTellPayload(
+  outcome: ToolOutcome,
+): Extract<SummarizePayload, { status: 'cannot-tell' }> {
   const payload = payloadOf(outcome);
   if (payload.status !== 'cannot-tell') {
     throw new Error(`expected a cannot-tell payload, got "${payload.status}"`);
@@ -197,7 +216,9 @@ function cannotTellPayload(outcome: ToolOutcome): Extract<SummarizePayload, { st
 }
 
 /** The payload narrowed to the cancelled variant. */
-function cancelledPayload(outcome: ToolOutcome): Extract<SummarizePayload, { status: 'cancelled' }> {
+function cancelledPayload(
+  outcome: ToolOutcome,
+): Extract<SummarizePayload, { status: 'cancelled' }> {
   const payload = payloadOf(outcome);
   if (payload.status !== 'cancelled') {
     throw new Error(`expected a cancelled payload, got "${payload.status}"`);
@@ -226,7 +247,9 @@ describe('SummarizeJob', () => {
     const controls = installSummarizer(async () => 'available');
     const handle = `${SUMMARIZE_JOB_ID}#1`;
 
-    const outcome = await job.execute(requestFor(handle, [stackSegment(), consoleSegment()]));
+    const outcome = await job.execute(
+      requestFor(handle, [stackSegment(), consoleSegment()]),
+    );
     const payload = completePayload(outcome);
 
     // The structural parts are echoed from the request, verbatim and in order; the only
@@ -234,8 +257,18 @@ describe('SummarizeJob', () => {
     expect(payload.outline.toolId).toBe(DECLARATION.id);
     expect(payload.outline.toolTitle).toBe(DECLARATION.title);
     expect(payload.outline.segments).toEqual([
-      { id: 'stack', heading: 'Stack', order: 0, summary: SUMMARIES.get(STACK_TEXT) },
-      { id: 'console', heading: 'Console output', order: 1, summary: SUMMARIES.get(CONSOLE_TEXT) },
+      {
+        id: 'stack',
+        heading: 'Stack',
+        order: 0,
+        summary: SUMMARIES.get(STACK_TEXT),
+      },
+      {
+        id: 'console',
+        heading: 'Console output',
+        order: 1,
+        summary: SUMMARIES.get(CONSOLE_TEXT),
+      },
     ]);
 
     // Only the two free-text segments reached the Summarizer, in outline order, through one
@@ -258,10 +291,14 @@ describe('SummarizeJob', () => {
 
     // The result's free text and the declaration's description differ word for word; the fixed
     // answers above only exist for the result texts, so a summary can only carry result text.
-    const outcome = await job.execute(requestFor(handle, [stackSegment(), consoleSegment()]));
+    const outcome = await job.execute(
+      requestFor(handle, [stackSegment(), consoleSegment()]),
+    );
     const payload = completePayload(outcome);
 
-    const summaries = payload.outline.segments.map((segment) => segment.summary).join('\n');
+    const summaries = payload.outline.segments
+      .map((segment) => segment.summary)
+      .join('\n');
     expect(summaries).toContain('cart.service.ts:412');
     expect(summaries).toContain('NaN');
 
@@ -297,7 +334,12 @@ describe('SummarizeJob', () => {
       expect(controls.asked).toEqual([]);
 
       // The plan was still published truthfully before the stop.
-      expect(early()).toEqual({ handle, chunksDone: 0, chunksTotal: 1, cancelled: false });
+      expect(early()).toEqual({
+        handle,
+        chunksDone: 0,
+        chunksTotal: 1,
+        cancelled: false,
+      });
     }
 
     // AC4: the cannot-tell state is the answer, not a Prompt API fallback.
@@ -328,7 +370,9 @@ describe('SummarizeJob', () => {
     // beforeEach leaves the global unset: the unit-test environment's real state.
     expect(globalSummarizer.Summarizer).toBeUndefined();
 
-    const outcome = await job.execute(requestFor(handle, [stackSegment(), consoleSegment()]));
+    const outcome = await job.execute(
+      requestFor(handle, [stackSegment(), consoleSegment()]),
+    );
 
     expect(cannotTellPayload(outcome)).toEqual({ status: 'cannot-tell' });
     expect(promptTouched.value).toBe(0);
@@ -345,16 +389,28 @@ describe('SummarizeJob', () => {
     // The signal is taken before the job runs: a registry that replaced it would leave this one
     // reporting the idle placeholder for the job's whole life.
     const early = registry.progress(handle);
-    expect(early()).toEqual({ handle, chunksDone: 0, chunksTotal: 0, cancelled: false });
+    expect(early()).toEqual({
+      handle,
+      chunksDone: 0,
+      chunksTotal: 0,
+      cancelled: false,
+    });
 
-    const running = job.execute(requestFor(handle, [stackSegment(), consoleSegment()]));
+    const running = job.execute(
+      requestFor(handle, [stackSegment(), consoleSegment()]),
+    );
     await settle();
 
     // One segment committed and reported before the cancel arrives; the second segment's work has
     // started and is in flight, which is what "between segments" means here: the boundary is where
     // the cancel takes effect, not a gap in which nothing was ever asked. The progress read is the
     // proof that the in-flight segment is uncommitted — chunksDone stays at 1.
-    expect(early()).toEqual({ handle, chunksDone: 1, chunksTotal: 2, cancelled: false });
+    expect(early()).toEqual({
+      handle,
+      chunksDone: 1,
+      chunksTotal: 2,
+      cancelled: false,
+    });
     expect(controls.asked).toEqual([STACK_TEXT, CONSOLE_TEXT]);
 
     registry.cancel(handle);
@@ -362,7 +418,11 @@ describe('SummarizeJob', () => {
     controls.release('a summary computed after the cancel');
     const outcome = await running;
 
-    expect(cancelledPayload(outcome)).toEqual({ status: 'cancelled', segmentsDone: 1, segmentsTotal: 2 });
+    expect(cancelledPayload(outcome)).toEqual({
+      status: 'cancelled',
+      segmentsDone: 1,
+      segmentsTotal: 2,
+    });
     // The cancel stopped the job at the boundary: it asked for nothing after the in-flight segment,
     // so the work really stopped rather than being computed into a discarded buffer (N1).
     expect(controls.asked).toEqual([STACK_TEXT, CONSOLE_TEXT]);
@@ -370,7 +430,12 @@ describe('SummarizeJob', () => {
     expect(serialized).not.toContain('computed after the cancel');
 
     // The cancelled flag survives the job's last report, and the signal is still the same one.
-    expect(early()).toEqual({ handle, chunksDone: 1, chunksTotal: 2, cancelled: true });
+    expect(early()).toEqual({
+      handle,
+      chunksDone: 1,
+      chunksTotal: 2,
+      cancelled: true,
+    });
     expect(registry.progress(handle)).toBe(early);
   });
 
@@ -381,9 +446,15 @@ describe('SummarizeJob', () => {
     const controls = installSummarizer(async () => 'available');
 
     registry.cancel(handle);
-    const outcome = await job.execute(requestFor(handle, [stackSegment(), consoleSegment()]));
+    const outcome = await job.execute(
+      requestFor(handle, [stackSegment(), consoleSegment()]),
+    );
 
-    expect(cancelledPayload(outcome)).toEqual({ status: 'cancelled', segmentsDone: 0, segmentsTotal: 2 });
+    expect(cancelledPayload(outcome)).toEqual({
+      status: 'cancelled',
+      segmentsDone: 0,
+      segmentsTotal: 2,
+    });
     expect(controls.availabilityCount.value).toBe(0);
     expect(controls.createCount.value).toBe(0);
     expect(controls.asked).toEqual([]);
@@ -401,7 +472,10 @@ describe('SummarizeJob', () => {
     const { job } = newJob();
     const handle = `${SUMMARIZE_JOB_ID}#8`;
 
-    const noHandle = await job.execute({ declaration: DECLARATION, result: { segments: [] } });
+    const noHandle = await job.execute({
+      declaration: DECLARATION,
+      result: { segments: [] },
+    });
     expect(noHandle.kind).toBe('error');
     if (noHandle.kind === 'error') {
       expect(noHandle.code).toBe('invalid-input');
@@ -409,7 +483,11 @@ describe('SummarizeJob', () => {
       expect(noHandle.message).toContain(SUMMARIZE_JOB_ID);
     }
 
-    const noSegments = await job.execute({ handle, declaration: DECLARATION, result: {} });
+    const noSegments = await job.execute({
+      handle,
+      declaration: DECLARATION,
+      result: {},
+    });
     expect(noSegments.kind).toBe('error');
     if (noSegments.kind === 'error') {
       expect(noSegments.code).toBe('invalid-input');
@@ -440,11 +518,15 @@ describe('SummarizeJob', () => {
     // availability says available, but the session cannot be built.
     globalSummarizer.Summarizer = {
       availability: async (): Promise<string> => 'available',
-      create: async (): Promise<{ summarize: (text: string) => Promise<string> }> => {
+      create: async (): Promise<{
+        summarize: (text: string) => Promise<string>;
+      }> => {
         throw new Error('NetworkError: the model download failed');
       },
     };
-    const refusedCreate = await job.execute(requestFor(handle, [stackSegment()]));
+    const refusedCreate = await job.execute(
+      requestFor(handle, [stackSegment()]),
+    );
     expect(refusedCreate.kind).toBe('error');
     if (refusedCreate.kind === 'error') {
       expect(refusedCreate.code).toBe('third-party-failed');
@@ -453,10 +535,15 @@ describe('SummarizeJob', () => {
     }
 
     // A session exists, but one segment's summary is rejected.
-    const controls = installSummarizer(async () => 'available', (): string => {
-      throw new Error('QuotaExceededError: the text is over the input quota');
-    });
-    const refusedSummary = await job.execute(requestFor(`${handle}-b`, [stackSegment()]));
+    const controls = installSummarizer(
+      async () => 'available',
+      (): string => {
+        throw new Error('QuotaExceededError: the text is over the input quota');
+      },
+    );
+    const refusedSummary = await job.execute(
+      requestFor(`${handle}-b`, [stackSegment()]),
+    );
     expect(refusedSummary.kind).toBe('error');
     if (refusedSummary.kind === 'error') {
       expect(refusedSummary.code).toBe('third-party-failed');

@@ -8,7 +8,7 @@ works on the host `<div id="rootN" ng-version="22.2.2">`.
 ## Sub-features
 
 - `held-render` the Counter in the tester iframe, visible in the snapshot as `paragraph "Clicks: 3 (double 6,
-  cart 2)"` and `button "Increment"`.
+cart 2)"` and `button "Increment"`.
 - `held-increment` a click from the agent raises the count by one.
 - `held-signals` `ng.ɵgetSignalGraph(ng.getInjector(host))`: template `div` -> `title`, `count`, `double`,
   unnamed `items`; `double` -> `count`; effect -> `count`.
@@ -37,7 +37,7 @@ Preconditions:
 - **Signals, injector, profiler.** Run `spikes/probes/vitest-iframe-probe.js` in the frame: `run-code` with
   `async page => page.frame('vitest-iframe').evaluate(<the probe's function source>, 'mount')`, then `'after'`
   after a click. Or use the spike runner, which does all of it: `node spikes/probes/vitest-attach.mjs --route
-  attach --cdp-port <instance port> --label <label>`. The runner starts its own `ng test` and needs no run from
+attach --cdp-port <instance port> --label <label>`. The runner starts its own `ng test` and needs no run from
   this skill: run `down` first.
 
 ## Gotchas

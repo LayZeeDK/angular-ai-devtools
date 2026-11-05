@@ -70,8 +70,8 @@ sidecars, including worktree and branch).
   to complete the next milestone end-to-end without a human-in-the-loop, with full milestone
   decision authority." It applies to every milestone in this program, not to one of them. At each
   milestone's first legal boundary — `inspect/active` or `define/active` with `STATE.milestone:
-  null` — record the grant once with `gsd.bat preapprove --repo <root> --grant
-  intent,plan,rulings,ship`, quoting that instruction whenever a ruling is recorded as delegated.
+null` — record the grant once with `gsd.bat preapprove --repo <root> --grant
+intent,plan,rulings,ship`, quoting that instruction whenever a ruling is recorded as delegated.
   `STATE.milestone` must still be null at that moment: only `milestone intent approved` names it,
   so never set it in the next-milestone transition. Do not stop for the intent gate, the plan gate,
   a prohibition, an edge, a `NEEDS-USER` row, or ship approval; stop only at a helper failure, a
