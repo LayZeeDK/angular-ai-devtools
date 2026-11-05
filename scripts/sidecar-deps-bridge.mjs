@@ -199,19 +199,9 @@ function linkedPathsArray() {
 
 // Exports: many aliases for compatibility
 export const bridgeSidecarDeps = doBridge;
-export const ensureSidecarDeps = doBridge;
-export const createBridge = doBridge;
 export const bridge = doBridge;
-export const ensureBridge = doBridge;
-export const linkNodeModules = doBridge;
-export const linkSidecarDeps = doBridge;
 
 export const unlinkSidecarDeps = doUnlink;
-export const teardownBridge = doUnlink;
-export const removeBridge = doUnlink;
-export const unlinkBridge = doUnlink;
-export const retireBridge = doUnlink;
-export const removeSidecarDeps = doUnlink;
 
 export function isBridgeCorrect(sidecarPath, primaryPath) {
   const [s, p] = asPaths(sidecarPath, primaryPath);
@@ -230,38 +220,20 @@ export function isBridgeCorrect(sidecarPath, primaryPath) {
     return false;
   }
 }
-export const verifyBridge = isBridgeCorrect;
-export const verifySidecarDeps = isBridgeCorrect;
 
 export function linkedPaths() {
   return linkedPathsArray();
 }
-export const getLinkedPaths = linkedPaths;
-export const recordedLinkedPaths = linkedPaths;
 export function getRecordedLinkedPaths() {
   return linkedPathsArray();
 }
 
 export default {
   bridgeSidecarDeps: doBridge,
-  ensureSidecarDeps: doBridge,
-  createBridge: doBridge,
   bridge: doBridge,
-  ensureBridge: doBridge,
-  linkNodeModules: doBridge,
-  linkSidecarDeps: doBridge,
   unlinkSidecarDeps: doUnlink,
-  teardownBridge: doUnlink,
-  removeBridge: doUnlink,
-  unlinkBridge: doUnlink,
-  retireBridge: doUnlink,
-  removeSidecarDeps: doUnlink,
   isBridgeCorrect,
-  verifyBridge: isBridgeCorrect,
-  verifySidecarDeps: isBridgeCorrect,
   linkedPaths,
-  getLinkedPaths: linkedPaths,
-  recordedLinkedPaths: linkedPaths,
   getRecordedLinkedPaths: linkedPathsArray,
 };
 
