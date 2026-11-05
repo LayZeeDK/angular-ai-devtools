@@ -29,6 +29,14 @@ Review depth: full
 T003 and T004. The panel shows the fields and the absence state; every recording the change staled is re-recorded from a
 cleared output path and proved by reverting one field.
 
+## Wave 3 — the typecheck the task's Verify missed
+
+Goal: T003 verified with the surface suite alone, so the project's `check:panel` was never run against it and the ship gate found three TS18048 errors on an indexed lookup. T005 guards the lookup and adds the typecheck to the task's own Verify so the gap cannot recur.
+
+Review depth: full
+
+T005. The panel typechecks under `noUncheckedIndexedAccess`, and its task Verify runs that typecheck rather than the suite alone.
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -47,6 +55,7 @@ cleared output path and proved by reverting one field.
 | SC2 | T002 | AC2 |
 | SC3 | T002 | AC3 |
 | SC4 | T003 | AC1 |
+| SC4 | T005 | AC2 |
 | SC5 | T004 | AC4 |
 
 ## Prohibitions
