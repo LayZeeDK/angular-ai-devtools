@@ -44,6 +44,7 @@ async function runCapture() {
   const angularVersion = JSON.parse(readFileSync(join(APP, 'node_modules', '@angular', 'core', 'package.json'), 'utf8')).version;
 
   const server = spawn(process.execPath, [join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'), 'serve', '--port', String(PORT), '--host', '127.0.0.1'], { cwd: APP, stdio: ['ignore', 'pipe', 'pipe'] });
+  capturedServerPid = server.pid;
   let serverOutput = '';
   server.stdout.on('data', (c) => { serverOutput = (serverOutput + c).slice(-4000); });
   server.stderr.on('data', (c) => { serverOutput = (serverOutput + c).slice(-4000); });
@@ -187,6 +188,25 @@ async function stopServer(server) {
   await waitForPortFree(PORT);
 }
 
+function isPidAlive(pid) {
+  if (!pid) return false;
+  try { process.kill(pid, 0); return true; }
+  catch (e) { return !!(e && e.code === 'EPERM'); }
+}
+
+async function assertTeardownClean(pid, port) {
+  if (isPidAlive(pid)) throw new Error(`server PID ${pid} survived teardown`);
+  try {
+    await new Promise((resolve, reject) => {
+      const srv = createServer();
+      srv.once('error', reject);
+      srv.listen(port, '127.0.0.1', () => { srv.close(() => resolve()); });
+    });
+  } catch (e) {
+    throw new Error(`port ${port} still bound after teardown (${e && e.code ? e.code : e})`);
+  }
+}
+
 function loadRecord() {
   return JSON.parse(readFileSync(RECORD_PATH, 'utf8'));
 }
@@ -221,6 +241,7 @@ function validate(record) {
 }
 
 let capturePromise = null;
+let capturedServerPid = null;
 function captured() { capturePromise ??= runCapture(); return capturePromise; }
 
 // ---------------------------------------------------------------- read-only checks ----------------
@@ -270,6 +291,7 @@ if (process.env.M030_CAPTURE === '1') {
     const record = await captured();
     if (RECORD_PATH) writeFileSync(RECORD_PATH, `${JSON.stringify(record, null, 2)}\n`);
     validate(record);
+    await assertTeardownClean(capturedServerPid, PORT);
     t.diagnostic(`config entries: ${record.config.length}, fields: ${record.fieldsPresent.join(',')}`);
   });
 }

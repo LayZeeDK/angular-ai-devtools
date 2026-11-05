@@ -2,10 +2,10 @@
 id: T008
 title: Make the capture teardown observable
 wave: 6
-status: pending
+status: done
 deps: [T007]
-agent: null
-base: null
+agent: build_T008
+base: 0dd4b04e79dddb6014172d3130a02696ad8d52c9
 worktree: null
 task_branch: null
 files:
