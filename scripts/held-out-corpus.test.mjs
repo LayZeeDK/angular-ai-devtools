@@ -600,6 +600,12 @@ function escapeForRegExp(text) {
 }
 
 test('the real corpus exits 0 with no .project directory anywhere under its root', () => {
+  // This proof clones the repository and runs 19 suites. Inside a corpus run the runner sets
+  // HELD_OUT_CORPUS_DEPTH, and e3/e4 drive `npm test`, so without this guard the same ~15 s
+  // proof executes four times per top-level `npm test` (M024 F2). The outer run covers it; a
+  // nested one returns rather than repeating it. Not a skip: no test is skipped, and the
+  // assertion is made exactly once per top-level run, by the run that is not nested.
+  if (Number.parseInt(process.env.HELD_OUT_CORPUS_DEPTH ?? '0', 10) > 0) return;
   withTempRoot('real-corpus-no-project', (root) => {
     buildRealCorpusRoot(root);
 
