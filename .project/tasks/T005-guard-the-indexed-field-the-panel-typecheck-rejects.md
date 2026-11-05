@@ -10,6 +10,7 @@ worktree: null
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-fields.ts
+  - scripts/panel-fields.test.mjs
 ---
 
 # T005 — Guard the indexed field the panel typecheck rejects
