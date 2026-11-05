@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
+import { createServer } from 'node:net';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
@@ -11,7 +12,18 @@ import { test } from 'node:test';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const APP = join(ROOT, 'spikes', 'ng222-app');
-const PORT = Number(process.env.M030_ROUTER_PORT ?? 4273);
+async function choosePort() {
+  if (process.env.M030_ROUTER_PORT) return Number(process.env.M030_ROUTER_PORT);
+  const srv = createServer();
+  await new Promise((resolve, reject) => {
+    srv.once('error', reject);
+    srv.listen(0, '127.0.0.1', resolve);
+  });
+  const port = srv.address().port;
+  await new Promise((resolve) => srv.close(resolve));
+  return port;
+}
+const PORT = await choosePort();
 const ORIGIN = `http://127.0.0.1:${PORT}`;
 const ROUTE_PATH = '/landing';
 const PAGE_URL = `${ORIGIN}${ROUTE_PATH}`;
@@ -140,13 +152,39 @@ async function waitForServer(server, output) {
   throw new Error(`server not answering: ${output()}`);
 }
 
+async function killProcessTree(pid) {
+  if (process.platform === 'win32') {
+    const killer = spawn('taskkill', ['/PID', String(pid), '/T', '/F'], { stdio: 'ignore' });
+    await new Promise((resolve) => killer.on('exit', resolve).on('error', resolve));
+  } else {
+    try { process.kill(-pid, 'SIGTERM'); } catch { try { process.kill(pid, 'SIGTERM'); } catch {} }
+  }
+}
+
+async function waitForPortFree(port, timeout = 30000) {
+  const started = Date.now();
+  while (Date.now() - started < timeout) {
+    const free = await new Promise((resolve) => {
+      const srv = createServer();
+      srv.once('error', () => resolve(false));
+      srv.listen(port, '127.0.0.1', () => { srv.close(() => resolve(true)); });
+    });
+    if (free) return;
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  throw new Error(`port ${port} not free after ${timeout}ms`);
+}
+
 async function stopServer(server) {
-  if (server.exitCode !== null || server.signalCode !== null) return;
-  server.kill();
-  const timer = setTimeout(() => { try { server.kill('SIGKILL'); } catch {} }, 5000);
-  timer.unref?.();
-  try { await once(server, 'exit'); } catch {}
-  clearTimeout(timer);
+  if (server.exitCode === null && server.signalCode === null) {
+    try { await killProcessTree(server.pid); } catch {}
+    server.kill();
+    const timer = setTimeout(() => { try { server.kill('SIGKILL'); } catch {} }, 5000);
+    timer.unref?.();
+    try { await once(server, 'exit'); } catch {}
+    clearTimeout(timer);
+  }
+  await waitForPortFree(PORT);
 }
 
 function loadRecord() {
@@ -178,7 +216,7 @@ function validate(record) {
   assert.ok(lazy, 'lazy route present');
   assert.ok(lazy.loadChildren !== undefined, 'loadChildren present');
   assert.match(record.browserBuild, /^\d+\.\d+\.\d+\.\d+$/);
-  assert.match(record.url, new RegExp(`^http://127\\.0\\.0\\.1:${PORT}/landing$`));
+  assert.match(record.url, /^http:\/\/127\.0\.0\.1:\d+\/landing$/);
   assert.match(record.capturedAt, /^\d{4}-\d{2}-\d{2}T/);
 }
 

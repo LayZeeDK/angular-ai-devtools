@@ -2,10 +2,10 @@
 id: T007
 title: Bind a free port and prove the server is released
 wave: 5
-status: pending
+status: done
 deps: [T001, T006]
-agent: null
-base: null
+agent: build_T007
+base: c31e49cec8921503f33f30dab5824d85f39fcb5c
 worktree: null
 task_branch: null
 files:
