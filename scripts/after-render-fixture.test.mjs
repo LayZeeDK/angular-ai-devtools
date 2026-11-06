@@ -125,7 +125,7 @@ test('PRECONDITION: the after-render route is registered with AfterRenderPage', 
 // added `router-lint` as the ninth. Pinning the whole table keeps a route from
 // being dropped, reordered or shadowed silently while the fixture above is what
 // the other suites navigate.
-test('PRECONDITION: the route table declares all fifteen routes in order', () => {
+test('PRECONDITION: the route table declares all sixteen routes in order', () => {
   const routesSrc = readFileSync(routesPath, 'utf8');
   const paths = [...routesSrc.matchAll(/path:\s*'([^']+)'/g)].map(
     (match) => match[1],
@@ -140,6 +140,7 @@ test('PRECONDITION: the route table declares all fifteen routes in order', () =>
     'field-form',
     'lint-observability',
     'router-lint',
+    'legacy-module',
     'redirect',
     'landing',
     'gated',

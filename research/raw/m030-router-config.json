@@ -1,16 +1,16 @@
 {
-  "capturedAt": "2026-11-06T05:33:04.503Z",
+  "capturedAt": "2026-11-06T11:58:15.154Z",
   "browser": "headless Playwright Chromium (build 153.0.8010.12)",
   "browserBuild": "153.0.8010.12",
   "instance": "headless",
   "playwright": "1.63.0",
   "angularVersion": "22.2.2",
-  "url": "http://127.0.0.1:62385/landing",
-  "pageUrl": "http://127.0.0.1:62385/landing",
+  "url": "http://127.0.0.1:60703/landing",
+  "pageUrl": "http://127.0.0.1:60703/landing",
   "commands": {
     "install": "npm ci --include=dev",
     "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
-    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 62385 --host 127.0.0.1  (cwd spikes/ng222-app)",
+    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 60703 --host 127.0.0.1  (cwd spikes/ng222-app)",
     "capture": "node --test scripts/router-config-capture.test.mjs",
     "check": "node --test scripts/router-config-capture.test.mjs"
   },
@@ -70,6 +70,10 @@
     {
       "path": "router-lint",
       "component": "[fn _RouterLintPage]"
+    },
+    {
+      "path": "legacy-module",
+      "component": "[fn _LegacyModulePage]"
     },
     {
       "path": "redirect",

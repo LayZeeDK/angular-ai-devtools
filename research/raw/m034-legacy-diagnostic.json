@@ -1,0 +1,165 @@
+{
+  "capturedAt": "2026-11-06T11:57:40.193Z",
+  "browser": "headless Playwright Chromium (build 153.0.8010.12)",
+  "browserBuild": "153.0.8010.12",
+  "instance": "headless",
+  "playwright": "1.63.0",
+  "angularVersion": "22.2.2",
+  "url": "http://127.0.0.1:50746/legacy-module",
+  "pageUrl": "http://127.0.0.1:50746/legacy-module",
+  "commands": {
+    "install": "npm ci --include=dev",
+    "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
+    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 50746 --host 127.0.0.1  (cwd spikes/ng222-app)",
+    "capture": "set M034_CAPTURE=1 && node --experimental-strip-types --test scripts/legacy-diagnostic-capture.test.mjs",
+    "check": "node --experimental-strip-types --test scripts/legacy-diagnostic-capture.test.mjs",
+    "mutants": "set M034_RECORD=<path to a mutant recording> && node --experimental-strip-types --test scripts/legacy-diagnostic-capture.test.mjs"
+  },
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0"
+  },
+  "fixture": {
+    "route": "/legacy-module",
+    "routeTable": "spikes/ng222-app/src/app/app.routes.ts",
+    "page": "spikes/ng222-app/src/app/legacy-module-page.ts",
+    "module": "spikes/ng222-app/src/app/legacy-module.ts",
+    "component": "LegacyModulePage",
+    "construct": "@NgModule({ id: module.id }) — NgModule.id set to module.id anti-pattern",
+    "whyItReachesTheConsole": "the construct is a compile-time anti-pattern (NG6100); whether anything reaches the page console is what this capture measures",
+    "compilerOptionsChanged": [],
+    "angularCompilerOptions": {
+      "enableI18nLegacyMessageIdFormat": false,
+      "strictInjectionParameters": true,
+      "strictInputAccessModifiers": true
+    },
+    "angularCompilerOptionsSource": "spikes/ng222-app/tsconfig.json (tsconfig.app.json extends it and adds none)",
+    "expectedCodes": [],
+    "expectedCodesInTheBuildOutput": [
+      "NG6100"
+    ]
+  },
+  "page": {
+    "pageLoads": 1,
+    "documentLoads": 1,
+    "ngVersion": "22.2.2",
+    "headingText": "legacy module",
+    "uncaughtPageErrors": 0
+  },
+  "console": {
+    "total": 3,
+    "withAnNgCode": 0,
+    "withoutAnNgCode": 3
+  },
+  "messages": [
+    {
+      "order": 0,
+      "type": "debug",
+      "code": null,
+      "text": "[vite] connecting...",
+      "location": {
+        "url": "http://127.0.0.1:50746/@vite/client",
+        "line": 882,
+        "column": 8,
+        "lineNumber": 882,
+        "columnNumber": 8
+      }
+    },
+    {
+      "order": 1,
+      "type": "log",
+      "code": null,
+      "text": "Angular is running in development mode.",
+      "location": {
+        "url": "http://127.0.0.1:50746/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158",
+        "line": 9377,
+        "column": 10,
+        "lineNumber": 9377,
+        "columnNumber": 10
+      }
+    },
+    {
+      "order": 2,
+      "type": "debug",
+      "code": null,
+      "text": "[vite] connected.",
+      "location": {
+        "url": "http://127.0.0.1:50746/@vite/client",
+        "line": 995,
+        "column": 11,
+        "lineNumber": 995,
+        "columnNumber": 11
+      }
+    }
+  ],
+  "ngCodedMessages": [],
+  "build": {
+    "command": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 50746 --host 127.0.0.1  (cwd spikes/ng222-app)",
+    "output": "> Building...\n√ Building...\nInitial chunk files | Names         |  Raw size\nmain.js             | main          |  49.14 kB | \nchunk-5AUPTLOC.js   | -             |   4.28 kB | \nstyles.css          | styles        |  95 bytes | \n\n                    | Initial total |  53.52 kB\n\nLazy chunk files    | Names         |  Raw size\nchunk-WGO37D3H.js   | redirect-page | 195 bytes | \n\nApplication bundle generation complete. [1.288 seconds] - 2026-11-06T11:57:33.889Z\n\n▲ [WARNING] NG6100: Using 'module.id' for NgModule.id is a common anti-pattern that is ignored by the Angular compiler. Find more at https://next.angular.dev/errors/NG6100 [plugin angular-compiler]\n\n    D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/src/app/legacy-module.ts:17:16:\n      17 │ @NgModule({ id: module.id })\n         ╵                 ~~~~~~~~~\n\n\nWatch mode enabled. Watching for file changes...\nNOTE: Raw file sizes do not reflect development server per-request transformations.\n  ➜  Local:   http://127.0.0.1:50746/",
+    "outputCharacters": 1004,
+    "ngCodedLines": 1
+  },
+  "buildObservations": [
+    {
+      "attempt": "@NgModule({ id: module.id }) on LegacyModule (spikes/ng222-app/src/app/legacy-module.ts)",
+      "stage": "ng serve — angular-compiler plugin, printed during the build",
+      "command": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 50746 --host 127.0.0.1  (cwd spikes/ng222-app)",
+      "code": "NG6100",
+      "text": "NG6100: Using 'module.id' for NgModule.id is a common anti-pattern that is ignored by the Angular compiler. Find more at https://next.angular.dev/errors/NG6100",
+      "sourceLocation": "D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/src/app/legacy-module.ts:17:16:",
+      "rawText": "▲ [WARNING] NG6100: Using 'module.id' for NgModule.id is a common anti-pattern that is ignored by the Angular compiler. Find more at https://next.angular.dev/errors/NG6100 [plugin angular-compiler]\n\n    D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/src/app/legacy-module.ts:17:16:\n      17 │ @NgModule({ id: module.id })\n         ╵                 ~~~~~~~~~",
+      "measuredFrom": "the dev server's own stdout/stderr, collected during this capture",
+      "reachedThePageConsole": false,
+      "digestCarriesCode": true
+    }
+  ],
+  "digest": {
+    "path": "extension/error-digest.json",
+    "entryCount": 64,
+    "codesOnTheConsole": [],
+    "codesInTheBuildOutput": [
+      "NG6100"
+    ],
+    "codesCaptured": [
+      "NG6100"
+    ],
+    "codesNotCarried": [],
+    "entries": [
+      {
+        "code": "NG6100",
+        "carried": true,
+        "title": "NgModule.id Set to module.id anti-pattern",
+        "fields": [
+          "code",
+          "title",
+          "body"
+        ],
+        "modernEquivalentField": null,
+        "statesAModernEquivalent": true,
+        "matchedModernEquivalentPhrases": [
+          "instead",
+          "should be used"
+        ],
+        "modernEquivalentContext": "loading NgModules without obtaining direct references to them. In most Angular code, ES dynamic import() ( import(&#39;./path/to/module&#39;) ) should be used instead, as this provides a direct reference to the NgModule being loaded without the need for a global registration side effect. If you are not using getNgModu"
+      }
+    ]
+  },
+  "verdict": {
+    "question": "Does a legacy-construct diagnostic reach the page console in a development build of this fixture?",
+    "answer": "no",
+    "codesOnThePageConsole": [],
+    "codesInTheDevServerOutput": [
+      "NG6100"
+    ],
+    "codesOnlyInTheDevServerOutput": [
+      "NG6100"
+    ],
+    "basis": {
+      "consoleMessages": 3,
+      "ngCodedConsoleMessages": 0,
+      "buildNGCodeLines": 1,
+      "command": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 50746 --host 127.0.0.1  (cwd spikes/ng222-app)"
+    }
+  }
+}

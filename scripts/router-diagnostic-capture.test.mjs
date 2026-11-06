@@ -627,7 +627,7 @@ function validate(record) {
   // config
   if (!record.injectorResolvedOnRoutedElement) fail('injector not resolved');
   if (!Array.isArray(record.config)) fail('config not array');
-  if (record.config.length !== 15)
+  if (record.config.length !== 16)
     fail(`config length ${record.config.length}`);
   const fields = [
     ...new Set(record.config.flatMap((e) => Object.keys(e))),
@@ -687,9 +687,9 @@ test('a console message carries an NG code, and it is the construct’s', () => 
   assert.ok(record.console.withoutAnNgCode > 0, 'all messages carried a code');
 });
 
-test('the config is recorded with 15 entries', () => {
+test('the config is recorded with 16 entries', () => {
   const record = loadRecord();
-  assert.equal(record.config.length, 15);
+  assert.equal(record.config.length, 16);
 });
 
 test('PRECONDITION: app.routes.ts registers the fixture page', () => {

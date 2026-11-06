@@ -2,11 +2,11 @@
 id: T001
 title: Measure what the page says about a legacy construct
 wave: 1
-status: in-progress
+status: done
 deps: []
-agent: free-beam-high
+agent: paid-deepseek-v4-1-flash-high
 base: 378d14d5de89cc4c4ed5856b280cb4b2c1b6be1d
-worktree: D:\projects\sandbox\angular-ai-devtools
+worktree: null
 task_branch: null
 files:
   - spikes/ng222-app/src/app/legacy-module-page.ts
@@ -78,3 +78,19 @@ node --experimental-strip-types --test "scripts/legacy-diagnostic-capture.test.m
 ## Log
 
 - dispatched
+
+- 2026-11-06 — dispatched paid-deepseek-v4-1-flash-high (serial isolation, primary checkout). Measured with
+  `M034_CAPTURE=1` and recorded `research/raw/m034-legacy-diagnostic.json` (Angular 22.2.2, headless Chromium
+  153.0.8010.12). The construct’s diagnostic does **not** reach the page console: `console.total: 3`,
+  `withAnNgCode: 0`, `verdict.answer: "no"`. It appears only in the dev server’s compiler output —
+  `NG6100: Using 'module.id' for NgModule.id is a common anti-pattern that is ignored by the Angular compiler`
+  at `legacy-module.ts:17:16`, extracted from the recorded 1004-char `build.output` so it cannot be a hand
+  transcription. The digest carries NG6100 (64 entries) with no equivalent field, but its prose states one:
+  “ES dynamic import() … should be used instead”. Fixture fix: `declare const module` has no runtime binding and
+  threw `ReferenceError`, so `legacy-module.ts` now declares `const module = { id: 'legacy-module' }`.
+  Re-measured both route recordings to 16 entries (the new route legitimately moves them) and re-cut the three
+  stale `15` pins in `scripts/router-diagnostic.test.mjs` — no tolerance was widened. Verify: 29/29 pass.
+  `npm run check`: 7/7 stages. Two consecutive default runs wrote nothing (identical recording SHA-256).
+  Falsification recorded in INTENT `## Corrections`: SC1 and SC2 cannot be satisfied by a page-side oracle.
+  Verdict: ready — the measurement is complete and proved; the milestone’s premise is falsified and the
+  re-scope is requested through a plan repair rather than by bending T002.
