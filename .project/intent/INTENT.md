@@ -92,7 +92,7 @@ A developer looking at one component and asking whether OnPush is safe for it, a
 
 ## Open questions
 
-- Which readiness inputs does `ɵcmp` expose on 22.2.2 — strategy, standalone, signal inputs, anything else?
-- Does the fixture already contain a component on each strategy, or does one need adding?
-- Does the panel's existing `changeDetection` field already satisfy part of SC1, making this a join rather than
+- [RESEARCH] Which readiness inputs does ɵcmp expose on 22.2.2 — strategy, standalone, signal inputs, anything else?
+- [RESEARCH] Does the fixture already contain a component on each strategy, or does one need adding?
+- [RESEARCH] Does the panel's existing changeDetection field already satisfy part of SC1, making this a join rather than
   a new read?

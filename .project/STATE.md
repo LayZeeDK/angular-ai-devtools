@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: onpush-readiness
-phase: define
+phase: research
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
@@ -666,3 +666,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-06 — inspect — inspection complete
 - 2026-11-06 — define — definition started
 - 2026-11-06 — define — milestone intent approved
+- 2026-11-06 — research — research started
+- 2026-11-06 — research — research complete
