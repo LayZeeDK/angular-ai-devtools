@@ -2,11 +2,11 @@
 id: T003
 title: Panel surface for the legacy finding
 wave: 2
-status: pending
+status: in-progress
 deps: [T002]
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: 0077279324a48f933ffe36c6f38b064f0543b00e
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-legacy.ts
