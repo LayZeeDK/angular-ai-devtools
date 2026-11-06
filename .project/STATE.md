@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: lint-core
-phase: plan
+phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M032
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -622,3 +622,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-06 — plan — build plan repair requested
 - 2026-11-06 — plan — build recovery: {"base": "9a1c4da2ec24bf3e0cdf43a3f39156714ff3eeeb", "branch": "gsd-path/M032", "kind": "plan", "source": "build"}
 - 2026-11-06 — plan — plan approved
+- 2026-11-06 — build — build started
