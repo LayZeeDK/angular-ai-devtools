@@ -5,12 +5,12 @@
   "angular": "22.2.2",
   "remeasurement": {
     "on": "2026-11-06",
-    "task": "M034 T004 — the development build was re-emitted with its output path deleted first, and the build, peer-resolution and counterexample halves below were re-read from that build.",
+    "task": "M035 T004 — the development build was re-emitted with its output path deleted first, and the build, peer-resolution and counterexample halves below were re-read from that build.",
     "command": "node node_modules/@angular/cli/bin/ng.js build --configuration development --output-path ../../tmp/facade-dev-build",
     "cwd": "spikes/ng222-app",
     "outputPathClearedFirst": "tmp/facade-dev-build was removed before the build ran; build.outputClearedFirst records that fact. The counterexample build beside it (tmp/facade-dev-build-two-copies) was cleared the same way.",
-    "outcome": "no pinned value moved: the entry, the two lazy chunks, the entry name, the dev-mode guard, the single Router binding, the one Angular banner and all four peer resolutions measured the same as before. The value that did move is the emitted byte count, which this recording does not pin: the build is 2176374 bytes, the same count research/raw/m022-ng-context.json measured for the same configuration at the same head, so the two recordings reconcile byte for byte as well as bundle for bundle.",
-    "notReMeasured": "the served half was not re-driven: this task rebuilds the bundle and does not open a browser. Its recorded readings are unchanged, and the suite checks them against this checkout's installs and against the Angular version the build carries."
+    "outcome": "no pinned value moved: the entry, the two lazy chunks, the entry name, the dev-mode guard, the single Router binding, the one Angular banner and all four peer resolutions measured the same as before. The value that did move is the emitted byte count, which this recording does not pin: the build is 2180767 bytes, the same count research/raw/m022-ng-context.json measured for the same configuration at this same head, so the two recordings reconcile byte for byte as well as bundle for bundle.",
+    "notReMeasured": "the served half was not re-driven: this task rebuilds the bundle and does not open a browser. Its recorded readings are unchanged, and the suite checks them against this checkout’s installs and against the Angular version the build carries."
   },
   "package": {
     "name": "ai-devtools-companion",
@@ -24,7 +24,11 @@
     "entry": "main.js",
     "lazyChunkCount": 2,
     "chunkPattern": "^chunk-[A-Z0-9]+\\.js$",
-    "sample": ["chunk-4GZTSCME.js", "chunk-BC3BGO77.js", "main.js"],
+    "sample": [
+      "chunk-4GZTSCME.js",
+      "chunk-BC3BGO77.js",
+      "main.js"
+    ],
     "sampleNote": "sample is an observation, not an assertion.",
     "outputClearedFirst": true,
     "unminified": true,
@@ -33,10 +37,12 @@
     "devModeGuardPresent": true,
     "routerClassBindingName": "Router",
     "routerClassBoundOnce": true,
-    "angularVersionBanners": ["22.2.2"],
+    "angularVersionBanners": [
+      "22.2.2"
+    ],
     "angularCopies": 1,
-    "bytesObserved": 2176374,
-    "bytesObservedNote": "an observation, not an assertion: the development build embeds absolute paths, so this count belongs to this checkout. It is the count of both development builds measured here, tmp/facade-dev-build and tmp/ng-context/dev, so the two output paths did not move it."
+    "bytesObserved": 2180767,
+    "bytesObservedNote": "an observation, not an assertion: the development build embeds absolute paths, so this count belongs to this checkout. It is the count of both development builds measured here, tmp/facade-dev-build and tmp/ng-context/dev (2180767 bytes at each), so the two output paths did not move it."
   },
   "peerResolution": {
     "installedAs": "symlink",
@@ -63,7 +69,10 @@
   },
   "counterExample": {
     "mechanism": "the same file: dependency with preserveSymlinks unset",
-    "angularVersionBanners": ["22.1.8", "22.2.2"],
+    "angularVersionBanners": [
+      "22.1.8",
+      "22.2.2"
+    ],
     "routerClassBindingName": "Router2",
     "routerClassBindings": 2,
     "meaning": "the entry's Router was the root checkout's class, so the identity comparison could not hold: declared, no resolved"
@@ -83,16 +92,27 @@
     "entry": {
       "typeof": "object",
       "version": "0.2202.0",
-      "ownKeys": ["@angular/platform-browser", "@angular/router", "version"],
+      "ownKeys": [
+        "@angular/platform-browser",
+        "@angular/router",
+        "version"
+      ],
       "routerIsFunction": true,
       "metaIsFunction": true
     },
     "ownKeys": {
       "ownStringKeysAtDocumentStart": 1235,
-      "addedByBootstrap": ["devtoolsFormatters", "ng", "ngAiDevTools", "ngDevMode"],
+      "addedByBootstrap": [
+        "devtoolsFormatters",
+        "ng",
+        "ngAiDevTools",
+        "ngDevMode"
+      ],
       "ownStringKeysWithEntry": 1239,
       "ownStringKeysWithoutEntry": 1238,
-      "ownStringKeyDelta": ["ngAiDevTools"],
+      "ownStringKeyDelta": [
+        "ngAiDevTools"
+      ],
       "ownStringKeysRemoved": [],
       "ownSymbolKeysWithEntry": [],
       "ownSymbolKeysWithoutEntry": [],
@@ -116,18 +136,40 @@
       }
     ],
     "injectorPath": [
-      { "type": "element", "providers": 6, "routerMatches": 0, "metaMatches": 0 },
-      { "type": "environment", "providers": 59, "routerMatches": 1, "metaMatches": 0 },
-      { "type": "environment", "providers": 8, "routerMatches": 0, "metaMatches": 0 },
-      { "type": "null", "providers": null }
+      {
+        "type": "element",
+        "providers": 6,
+        "routerMatches": 0,
+        "metaMatches": 0
+      },
+      {
+        "type": "environment",
+        "providers": 59,
+        "routerMatches": 1,
+        "metaMatches": 0
+      },
+      {
+        "type": "environment",
+        "providers": 8,
+        "routerMatches": 0,
+        "metaMatches": 0
+      },
+      {
+        "type": "null",
+        "providers": null
+      }
     ]
   },
   "reconciliation": {
     "comparedWith": "research/raw/m022-ng-context.json",
-    "developmentBundles": ["chunk-4GZTSCME.js", "chunk-BC3BGO77.js", "main.js"],
+    "developmentBundles": [
+      "chunk-4GZTSCME.js",
+      "chunk-BC3BGO77.js",
+      "main.js"
+    ],
     "agrees": true,
     "leftoverHypothesis": "refuted",
-    "note": "A clean build (output directory deleted first) emits three development bundles at 2176374 bytes, matching m022-ng-context's clean build of the same configuration name for name and byte for byte; the earlier single-bundle recording was stale. This task's three bundles are genuine, not leftovers from a reused output directory."
+    "note": "A clean build (output directory deleted first) emits 3 development bundles at 2180767 bytes, matching m022-ng-context's clean build of the same configuration name for name and byte for byte; the earlier single-bundle recording was stale. This task's 3 bundles are genuine, not leftovers from a reused output directory."
   },
   "verdict": "works: the one entry survives the development build, and its Router is the app's own class"
 }

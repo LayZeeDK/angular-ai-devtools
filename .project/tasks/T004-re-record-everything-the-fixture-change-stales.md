@@ -2,11 +2,11 @@
 id: T004
 title: Re-record everything the fixture change stales
 wave: 2
-status: in-progress
+status: done
 deps: [T003]
 agent: paid-deepseek-v4-1-flash-high
 base: 2c54713c547ed98c72e83a6fe4ce369f1abd1329
-worktree: D:\projects\sandbox\angular-ai-devtools
+worktree: null
 task_branch: null
 files:
   - .commandcode/skills/control-angular-dev-app/features/.proven.json
@@ -69,3 +69,4 @@ node --experimental-strip-types --test "scripts/fixture-proof-fresh.test.mjs" "s
 ## Log
 
 - dispatched
+- 2026-11-06 — dispatched paid-deepseek-v4-1-flash-high (serial). Re-recorded both control-skill manifests (24 -> 26 files) through fingerprint.mjs, re-measured m022-ng-context (dev 2176374 -> 2180767, prod 472550 -> 473611, prod entry main-JST524BV -> main-AHS4MRYY) and companion-dev-build (bytesObserved 2176374 -> 2180767), produced m035-verdict-claims.json with five full quotes, and re-cut only the DEV_BYTES_TOLERANCE doc comment (tolerance stays 2000). Declared Verify 22/22, npm run check green. npm test red only at held-out E4, whose cause was a tracked taste file dirtied mid-run by a preference write, now parked. Verdict: ready.
