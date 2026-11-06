@@ -28,7 +28,7 @@ Reviewed HEAD: 697bd41fadd07baf772482428842450ef1d6ea90
 
 - ✅ T002 evidence: `scripts/router-diagnostic.test.mjs` passes — E3 segment-matches-configuration → `cannot-tell`/`segment-matches-configuration` (`:92-93`); no-url-segment → `cannot-tell`/`no-url-segment` (`:102-103`); no-captured-messages → `cannot-tell`/`no-captured-messages` (`:111-112`). AC7a mutant (names nearest route as owner) reddens the no-owner pin (`assert.ok(!('route' in mr))` throws /owner route|route as the owner/). AC7b mutant (drops code) reddens the code pin (throws /NG04002/). Module names no guard verdict/resolver/redirect decision (output fields only state/reason/segment/code/message/consideredCount). The invented empty-capture mutant (above) additionally pins the no-captured-messages branch, which is part of SC3's "cannot tell with the reason".
 
-### Invented mutant (additional, not T002's two)
+#### Invented mutant (additional, not T002's two)
 
 - Mutant: remove the `if (list.length === 0) return cannotTell(NO_CAPTURED_MESSAGES);` guard so an empty capture is swallowed (returns `undefined`). Pin on untouched module: `routerDiagnostic([], {config})` → `{state:"cannot-tell", reason:"no-captured-messages"}`. Mutant result: `undefined`. Pin reddens with message "defect: cannot-tell swallowed an empty capture". Verified by running the scratchpad script (9 tests in T002 suite unaffected; module unchanged).
 
