@@ -2,12 +2,12 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: lint-router
-phase: ship
+phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M033
-archive: null
+archive: .project/archive/033-lint-router
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -644,3 +644,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-06 — plan — plan approved
 - 2026-11-06 — build — build started
 - 2026-11-06 — ship — build done; final review pending
+- 2026-11-06 — shipped — archive preflight passed; shipment recorded

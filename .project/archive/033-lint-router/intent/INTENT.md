@@ -44,8 +44,9 @@ it and what to replace.
 3. A finding that cannot be attributed to exactly one configured route reports "cannot tell" with
    the reason, rather than picking the nearest route or naming a guard verdict the configuration
    does not record.
-4. The panel renders the route, the finding and the remedy from a short fact list, and shows the
-   "cannot tell" state.
+4. The panel renders the unmatched segment, the code the message stated and how many configured
+   routes were considered, from a short fact list, and shows the "cannot tell" state: it names no
+   route as the owner and no remedy, because the message states neither.
 5. `npm run check` and `npm test` pass at the head.
 
 ## Edge coverage
@@ -82,6 +83,10 @@ inspected page (AR-3).
 
 ## Corrections
 
+- **SC4 promised a route and a remedy; the message states neither (measured).** T001 recorded
+  `namesConfiguredRoutePath: false` for `NG04002`, and `digestCarriesCode: false` means no
+  digest explanation exists either. N1 forbids a remedy the message does not state, so SC4 now
+  names the unmatched segment, the code and the count of routes considered, and nothing else.
 - **The roadmap's premise assumes the compiler flags a route declaration.** No tsconfig here
   enables `extendedDiagnostics`, and the compiler's router lint is compile-time — the tool reads a
   running page. T001 measures which router diagnostics, if any, reach the page's console, before

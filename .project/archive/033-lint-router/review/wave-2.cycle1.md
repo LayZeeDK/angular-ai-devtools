@@ -30,7 +30,7 @@ Recordings question — `research/raw/m022-ng-context.json` was MEASURED, not nu
 
 ## Intent coverage
 
-### SC4 — The panel renders the route, the finding and the remedy from a short fact list, and shows the "cannot tell" state.: pass
+### SC4 — The panel renders the unmatched segment, the code the message stated and how many configured routes were considered, from a short fact list, and shows the "cannot tell" state: it names no route as the owner and no remedy, because the message states neither.: pass
 
 - ✅ Covered by T003; evidence recorded above (panel-router.test.mjs 17/17, nx test 333/333) and in the verify ledger. Surface renders segment, code, message body and considered count from the fact list, and the cannot-tell state carries only its reason.
 
