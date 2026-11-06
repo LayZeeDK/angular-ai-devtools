@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: lint-router
-phase: define
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
@@ -635,3 +635,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-06 — define — define started
 - 2026-11-06 — define — milestone intent approved
 - 2026-11-06 — define — STATE repair: milestone named lint-router (was null)
+- 2026-11-06 — plan — planning started
+- 2026-11-06 — plan — plan approved
