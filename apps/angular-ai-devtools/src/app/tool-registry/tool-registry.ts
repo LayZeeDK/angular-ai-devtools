@@ -36,21 +36,25 @@ import {
   type Provider,
   type Signal,
 } from '@angular/core';
+import { describeFailure, isRecord } from '../record-guard';
 
 /** What the tool does to the inspected application. */
 export type ToolKind = 'read' | 'write' | 'confirm';
 
 /** Where the tool runs — the reach it needs before it can be offered. */
-export type ToolHost = 'page' | 'iframe' | 'panel' | 'worker' | 'extension-API' | 'tester';
+export type ToolHost =
+  'page' | 'iframe' | 'panel' | 'worker' | 'extension-API' | 'tester';
 
 /** The shape of what the tool answers — exactly one of the `ToolOutcome` variants. */
-export type ToolOutcomeKind = 'result' | 'confirm-required' | 'async-handle' | 'image' | 'error';
+export type ToolOutcomeKind =
+  'result' | 'confirm-required' | 'async-handle' | 'image' | 'error';
 
 /** Who may call the tool. The model loop filters on `'model'`. */
 export type ToolPublish = 'model' | 'panel' | 'internal';
 
 /** Where the value in a `ToolOutcome` came from. Page-published state is never trusted silently. */
-export type ToolProvenance = 'panel' | 'page-published' | 'page-request' | 'third-party';
+export type ToolProvenance =
+  'panel' | 'page-published' | 'page-request' | 'third-party';
 
 /** The failure vocabulary. Every failure an `execute` call can report is one of these. */
 export type ToolErrorCode =
@@ -92,8 +96,16 @@ export type ToolDeclaration = {
 
 /** Every answer a tool can give. There is no throw and no bare empty value. */
 export type ToolOutcome =
-  | { readonly kind: 'result'; readonly value: unknown; readonly provenance: ToolProvenance }
-  | { readonly kind: 'confirm-required'; readonly token: string; readonly summary: string }
+  | {
+      readonly kind: 'result';
+      readonly value: unknown;
+      readonly provenance: ToolProvenance;
+    }
+  | {
+      readonly kind: 'confirm-required';
+      readonly token: string;
+      readonly summary: string;
+    }
   | { readonly kind: 'async-handle'; readonly handle: string }
   | {
       readonly kind: 'image';
@@ -109,11 +121,17 @@ export type ToolOutcome =
     };
 
 /** What the backing is told about the call: the facts it may read and where they came from. */
-export type ToolContext = { readonly facts: ToolFacts; readonly provenance: ToolProvenance };
+export type ToolContext = {
+  readonly facts: ToolFacts;
+  readonly provenance: ToolProvenance;
+};
 
 /** The code behind a declaration. One method, and it answers an outcome rather than throwing. */
 export type ToolBacking = {
-  readonly execute: (input: unknown, context: ToolContext) => Promise<ToolOutcome>;
+  readonly execute: (
+    input: unknown,
+    context: ToolContext,
+  ) => Promise<ToolOutcome>;
 };
 
 /** The registry surface. `tools` is the only observable surface; there is no second one. */
@@ -121,7 +139,11 @@ export type ToolRegistry = {
   readonly tools: Signal<readonly ToolDeclaration[]>;
   declare(declaration: ToolDeclaration): void;
   attach(toolId: string, backing: ToolBacking): void;
-  execute(toolId: string, input?: unknown, context?: ToolContext): Promise<ToolOutcome>;
+  execute(
+    toolId: string,
+    input?: unknown,
+    context?: ToolContext,
+  ): Promise<ToolOutcome>;
   awaitHandle(handle: string): Promise<ToolOutcome>;
 };
 
@@ -144,7 +166,9 @@ export class ToolDeclarationError extends Error {
     field: 'id' | 'kind' | 'host' | 'outcome' | 'publish' | 'input',
     detail: string,
   ) {
-    super(`tool declaration rejected: tool "${toolId}" field "${field}" ${detail}`);
+    super(
+      `tool declaration rejected: tool "${toolId}" field "${field}" ${detail}`,
+    );
     this.name = 'ToolDeclarationError';
     this.toolId = toolId;
     this.field = field;
@@ -155,7 +179,14 @@ export class ToolDeclarationError extends Error {
 const MISSING_TOOL_ID = '<missing-id>';
 
 const TOOL_KINDS: readonly ToolKind[] = ['read', 'write', 'confirm'];
-const TOOL_HOSTS: readonly ToolHost[] = ['page', 'iframe', 'panel', 'worker', 'extension-API', 'tester'];
+const TOOL_HOSTS: readonly ToolHost[] = [
+  'page',
+  'iframe',
+  'panel',
+  'worker',
+  'extension-API',
+  'tester',
+];
 const TOOL_OUTCOMES: readonly ToolOutcomeKind[] = [
   'result',
   'confirm-required',
@@ -178,7 +209,9 @@ const SCHEMA_TYPES: readonly ToolInputProperty['type'][] = [
 const EMPTY_FACTS: ToolFacts = Object.freeze({});
 
 /** The token the panel and every tool module resolve the registry through. */
-export const TOOL_REGISTRY = new InjectionToken<ToolRegistry>('angular-ai-devtools:tool-registry');
+export const TOOL_REGISTRY = new InjectionToken<ToolRegistry>(
+  'angular-ai-devtools:tool-registry',
+);
 
 /** Entries contributed by `provideTools`, gathered before the registry is built. */
 const TOOL_ENTRIES = new InjectionToken<readonly (readonly ToolEntry[])[]>(
@@ -186,12 +219,17 @@ const TOOL_ENTRIES = new InjectionToken<readonly (readonly ToolEntry[])[]>(
 );
 
 /** Pairs a declaration with its backing. The authoring surface every tool module uses. */
-export function defineTool(declaration: ToolDeclaration, backing: ToolBacking): ToolEntry {
+export function defineTool(
+  declaration: ToolDeclaration,
+  backing: ToolBacking,
+): ToolEntry {
   return { declaration, backing };
 }
 
 /** Registers entries with the registry the injector builds; outlives no injector. */
-export function provideTools(...entries: readonly ToolEntry[]): EnvironmentProviders {
+export function provideTools(
+  ...entries: readonly ToolEntry[]
+): EnvironmentProviders {
   return makeEnvironmentProviders([
     { provide: TOOL_ENTRIES, useValue: entries, multi: true },
     ...registryProviders(),
@@ -258,9 +296,15 @@ function createToolRegistry(): ToolRegistry {
       input?: unknown,
       context?: ToolContext,
     ): Promise<ToolOutcome> => {
-      const declaration = declarations().find((candidate) => candidate.id === toolId);
+      const declaration = declarations().find(
+        (candidate) => candidate.id === toolId,
+      );
       if (declaration === undefined) {
-        return errorOutcome('invalid-input', toolId, `no tool is declared with the id "${toolId}"`);
+        return errorOutcome(
+          'invalid-input',
+          toolId,
+          `no tool is declared with the id "${toolId}"`,
+        );
       }
 
       const backing = backings.get(toolId);
@@ -275,9 +319,16 @@ function createToolRegistry(): ToolRegistry {
       const facts = context?.facts ?? EMPTY_FACTS;
       const check = checkInput(declaration, facts, input);
       if (!check.ok) {
-        return errorOutcome(check.code, toolId, `the input for tool "${toolId}" is unusable: ${check.detail}`);
+        return errorOutcome(
+          check.code,
+          toolId,
+          `the input for tool "${toolId}" is unusable: ${check.detail}`,
+        );
       }
-      const resolved: ToolContext = { facts, provenance: context?.provenance ?? 'panel' };
+      const resolved: ToolContext = {
+        facts,
+        provenance: context?.provenance ?? 'panel',
+      };
 
       let running: Promise<ToolOutcome>;
       try {
@@ -330,14 +381,22 @@ function createToolRegistry(): ToolRegistry {
 
 type InputCheck =
   | { readonly ok: true }
-  | { readonly ok: false; readonly code: ToolErrorCode; readonly detail: string };
+  | {
+      readonly ok: false;
+      readonly code: ToolErrorCode;
+      readonly detail: string;
+    };
 
 /**
  * Checks the call's input against the declaration's schema. A static schema was already
  * validated by `declare`; a schema built from the facts is resolved here, and a schema function
  * that fails is reported rather than thrown.
  */
-function checkInput(declaration: ToolDeclaration, facts: ToolFacts, input: unknown): InputCheck {
+function checkInput(
+  declaration: ToolDeclaration,
+  facts: ToolFacts,
+  input: unknown,
+): InputCheck {
   const source = declaration.input;
   let resolvedSchema: unknown;
   if (typeof source === 'function') {
@@ -354,7 +413,11 @@ function checkInput(declaration: ToolDeclaration, facts: ToolFacts, input: unkno
     resolvedSchema = source;
   }
   if (!isRecord(resolvedSchema)) {
-    return { ok: false, code: 'declaration-invalid', detail: 'the input schema is not an object' };
+    return {
+      ok: false,
+      code: 'declaration-invalid',
+      detail: 'the input schema is not an object',
+    };
   }
 
   const rawRequired: unknown = resolvedSchema['required'];
@@ -362,15 +425,25 @@ function checkInput(declaration: ToolDeclaration, facts: ToolFacts, input: unkno
     ? rawRequired.filter((entry): entry is string => typeof entry === 'string')
     : [];
   const rawProperties: unknown = resolvedSchema['properties'];
-  const properties: Readonly<Record<string, unknown>> = isRecord(rawProperties) ? rawProperties : {};
+  const properties: Readonly<Record<string, unknown>> = isRecord(rawProperties)
+    ? rawProperties
+    : {};
 
   const value: unknown = input === undefined ? {} : input;
   if (!isRecord(value)) {
-    return { ok: false, code: 'invalid-input', detail: 'input must be an object' };
+    return {
+      ok: false,
+      code: 'invalid-input',
+      detail: 'input must be an object',
+    };
   }
   for (const name of required) {
     if (value[name] === undefined) {
-      return { ok: false, code: 'invalid-input', detail: `it is missing the required property "${name}"` };
+      return {
+        ok: false,
+        code: 'invalid-input',
+        detail: `it is missing the required property "${name}"`,
+      };
     }
   }
   for (const [name, rawProperty] of Object.entries(properties)) {
@@ -378,7 +451,9 @@ function checkInput(declaration: ToolDeclaration, facts: ToolFacts, input: unkno
     if (actual === undefined) {
       continue;
     }
-    const property: Readonly<Record<string, unknown>> = isRecord(rawProperty) ? rawProperty : {};
+    const property: Readonly<Record<string, unknown>> = isRecord(rawProperty)
+      ? rawProperty
+      : {};
     const declaredType = property['type'];
     if (!matchesSchemaType(actual, declaredType)) {
       return {
@@ -418,12 +493,19 @@ function matchesSchemaType(value: unknown, declaredType: unknown): boolean {
   }
 }
 
-function assertDeclaration(declaration: ToolDeclaration, declaredIds: ReadonlySet<string>): void {
+function assertDeclaration(
+  declaration: ToolDeclaration,
+  declaredIds: ReadonlySet<string>,
+): void {
   const record: Partial<ToolDeclaration> = declaration ?? {};
 
   const rawId: unknown = record.id;
   if (typeof rawId !== 'string' || rawId.trim().length === 0) {
-    throw new ToolDeclarationError(MISSING_TOOL_ID, 'id', 'is missing or empty');
+    throw new ToolDeclarationError(
+      MISSING_TOOL_ID,
+      'id',
+      'is missing or empty',
+    );
   }
   const toolId = rawId;
 
@@ -510,18 +592,34 @@ function assertInputSchema(toolId: string, input: unknown): void {
     );
   }
   if (input['type'] !== 'object') {
-    throw new ToolDeclarationError(toolId, 'input', 'must have the type "object"');
+    throw new ToolDeclarationError(
+      toolId,
+      'input',
+      'must have the type "object"',
+    );
   }
   const properties: unknown = input['properties'];
   if (!isRecord(properties)) {
-    throw new ToolDeclarationError(toolId, 'input', 'must carry a properties record');
+    throw new ToolDeclarationError(
+      toolId,
+      'input',
+      'must carry a properties record',
+    );
   }
   if (!Array.isArray(input['required'])) {
-    throw new ToolDeclarationError(toolId, 'input', 'must carry a required list');
+    throw new ToolDeclarationError(
+      toolId,
+      'input',
+      'must carry a required list',
+    );
   }
   for (const [name, rawProperty] of Object.entries(properties)) {
     if (!isRecord(rawProperty)) {
-      throw new ToolDeclarationError(toolId, 'input', `describes "${name}" without a property record`);
+      throw new ToolDeclarationError(
+        toolId,
+        'input',
+        `describes "${name}" without a property record`,
+      );
     }
     if (!isOneOf(rawProperty['type'], SCHEMA_TYPES)) {
       throw new ToolDeclarationError(
@@ -533,7 +631,8 @@ function assertInputSchema(toolId: string, input: unknown): void {
     const allowed: unknown = rawProperty['enum'];
     if (
       allowed !== undefined &&
-      (!Array.isArray(allowed) || allowed.some((entry: unknown) => typeof entry !== 'string'))
+      (!Array.isArray(allowed) ||
+        allowed.some((entry: unknown) => typeof entry !== 'string'))
     ) {
       throw new ToolDeclarationError(
         toolId,
@@ -544,7 +643,11 @@ function assertInputSchema(toolId: string, input: unknown): void {
   }
 }
 
-function errorOutcome(code: ToolErrorCode, toolId: string, message: string): ToolOutcome {
+function errorOutcome(
+  code: ToolErrorCode,
+  toolId: string,
+  message: string,
+): ToolOutcome {
   return { kind: 'error', code, toolId, message };
 }
 
@@ -557,21 +660,11 @@ function failureOutcome(toolId: string, failure: unknown): ToolOutcome {
   );
 }
 
-function describeFailure(failure: unknown): string {
-  if (failure instanceof Error) {
-    return failure.message;
-  }
-  try {
-    return String(failure);
-  } catch {
-    return 'unknown failure';
-  }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function isOneOf<T extends string>(value: unknown, allowed: readonly T[]): value is T {
-  return typeof value === 'string' && (allowed as readonly string[]).includes(value);
+function isOneOf<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+): value is T {
+  return (
+    typeof value === 'string' && (allowed as readonly string[]).includes(value)
+  );
 }

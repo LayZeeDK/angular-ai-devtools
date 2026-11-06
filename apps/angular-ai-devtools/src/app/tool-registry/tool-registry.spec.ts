@@ -25,7 +25,14 @@ import {
 // The vocabulary the envelope fixes (INTENT Scope in). Used both to pin membership and to
 // type-check that every union is exported with exactly these members.
 const KINDS: readonly ToolKind[] = ['read', 'write', 'confirm'];
-const HOSTS: readonly ToolHost[] = ['page', 'iframe', 'panel', 'worker', 'extension-API', 'tester'];
+const HOSTS: readonly ToolHost[] = [
+  'page',
+  'iframe',
+  'panel',
+  'worker',
+  'extension-API',
+  'tester',
+];
 const OUTCOMES: readonly ToolOutcomeKind[] = [
   'result',
   'confirm-required',
@@ -48,7 +55,11 @@ const ERROR_CODES: readonly ToolErrorCode[] = [
   'third-party-failed',
 ];
 
-const EMPTY_SCHEMA: ToolInputSchema = { type: 'object', properties: {}, required: [] };
+const EMPTY_SCHEMA: ToolInputSchema = {
+  type: 'object',
+  properties: {},
+  required: [],
+};
 
 /**
  * Builds a declaration from a known-good base. Keys set to `undefined` are removed rather than
@@ -94,8 +105,17 @@ function captureDeclarationError(
   return thrown as ToolDeclarationError;
 }
 
-function resultBacking(value: unknown, provenance: ToolProvenance = 'panel'): ToolBacking {
-  return { execute: async (): Promise<ToolOutcome> => ({ kind: 'result', value, provenance }) };
+function resultBacking(
+  value: unknown,
+  provenance: ToolProvenance = 'panel',
+): ToolBacking {
+  return {
+    execute: async (): Promise<ToolOutcome> => ({
+      kind: 'result',
+      value,
+      provenance,
+    }),
+  };
 }
 
 describe('tool registry envelope', () => {
@@ -113,19 +133,34 @@ describe('tool registry envelope', () => {
   it('accepts every member of the declared vocabulary and keeps registration order', () => {
     const registry = newRegistry();
     const candidates: ToolDeclaration[] = [
-      ...HOSTS.map((host) => declaration({ id: `probe.host.${host}`, host: [host] })),
+      ...HOSTS.map((host) =>
+        declaration({ id: `probe.host.${host}`, host: [host] }),
+      ),
       ...KINDS.map((kind) => declaration({ id: `probe.kind.${kind}`, kind })),
-      ...OUTCOMES.map((outcome) => declaration({ id: `probe.outcome.${outcome}`, outcome })),
-      ...PUBLISHES.map((publish) => declaration({ id: `probe.publish.${publish}`, publish })),
+      ...OUTCOMES.map((outcome) =>
+        declaration({ id: `probe.outcome.${outcome}`, outcome }),
+      ),
+      ...PUBLISHES.map((publish) =>
+        declaration({ id: `probe.publish.${publish}`, publish }),
+      ),
     ];
 
     for (const candidate of candidates) {
       registry.declare(candidate);
     }
 
-    expect(registry.tools().map((tool) => tool.id)).toEqual(candidates.map((tool) => tool.id));
-    expect(registry.tools()).toHaveLength(HOSTS.length + KINDS.length + OUTCOMES.length + PUBLISHES.length);
-    expect(PROVENANCES).toEqual(['panel', 'page-published', 'page-request', 'third-party']);
+    expect(registry.tools().map((tool) => tool.id)).toEqual(
+      candidates.map((tool) => tool.id),
+    );
+    expect(registry.tools()).toHaveLength(
+      HOSTS.length + KINDS.length + OUTCOMES.length + PUBLISHES.length,
+    );
+    expect(PROVENANCES).toEqual([
+      'panel',
+      'page-published',
+      'page-request',
+      'third-party',
+    ]);
     expect(ERROR_CODES).toEqual([
       'not-implemented',
       'declaration-invalid',
@@ -146,7 +181,10 @@ describe('tool registry envelope', () => {
       'rejects a declaration missing its %s field, naming the tool id and the field (E1)',
       (field, expectedToolId) => {
         const registry = newRegistry();
-        const error = captureDeclarationError(registry, declaration({ [field]: undefined }));
+        const error = captureDeclarationError(
+          registry,
+          declaration({ [field]: undefined }),
+        );
 
         expect(error.field).toBe(field);
         expect(error.toolId).toBe(expectedToolId);
@@ -162,7 +200,11 @@ describe('tool registry envelope', () => {
       ['a kind outside the three', { kind: 'mutate' }, 'kind'],
       ['an outcome outside the five', { outcome: 'stream' }, 'outcome'],
       ['a publish outside the three', { publish: 'toolbar' }, 'publish'],
-    ] as [string, Record<string, unknown>, 'host' | 'kind' | 'outcome' | 'publish'][])(
+    ] as [
+      string,
+      Record<string, unknown>,
+      'host' | 'kind' | 'outcome' | 'publish',
+    ][])(
       'rejects %s as a declaration error naming the id and the field',
       (_label, overrides, field) => {
         const registry = newRegistry();
@@ -179,7 +221,10 @@ describe('tool registry envelope', () => {
       const registry = newRegistry();
       registry.declare(declaration());
 
-      const error = captureDeclarationError(registry, declaration({ title: 'Read it again' }));
+      const error = captureDeclarationError(
+        registry,
+        declaration({ title: 'Read it again' }),
+      );
 
       expect(error.field).toBe('id');
       expect(error.toolId).toBe('page.read_title');
@@ -190,7 +235,9 @@ describe('tool registry envelope', () => {
       const registry = newRegistry();
       const error = captureDeclarationError(
         registry,
-        declaration({ input: { type: 'object', properties: {}, required: 'title' } }),
+        declaration({
+          input: { type: 'object', properties: {}, required: 'title' },
+        }),
       );
 
       expect(error.field).toBe('input');
@@ -201,7 +248,9 @@ describe('tool registry envelope', () => {
   describe('execute', () => {
     it('E2 a declared tool with no backing returns a not-implemented outcome, never an empty result and never a throw', async () => {
       const registry = newRegistry();
-      registry.declare(declaration({ id: 'page.read_landmarks', publish: 'model' }));
+      registry.declare(
+        declaration({ id: 'page.read_landmarks', publish: 'model' }),
+      );
 
       const outcome = await registry.execute('page.read_landmarks', {});
 
@@ -211,7 +260,9 @@ describe('tool registry envelope', () => {
         code: 'not-implemented',
         toolId: 'page.read_landmarks',
       });
-      await expect(registry.execute('page.read_landmarks', {})).resolves.toMatchObject({
+      await expect(
+        registry.execute('page.read_landmarks', {}),
+      ).resolves.toMatchObject({
         kind: 'error',
         code: 'not-implemented',
         toolId: 'page.read_landmarks',
@@ -221,7 +272,9 @@ describe('tool registry envelope', () => {
     it('answers an unregistered id with an invalid-input error naming that id, never a throw', async () => {
       const registry = newRegistry();
 
-      await expect(registry.execute('page.no_such_tool', {})).resolves.toMatchObject({
+      await expect(
+        registry.execute('page.no_such_tool', {}),
+      ).resolves.toMatchObject({
         kind: 'error',
         code: 'invalid-input',
         toolId: 'page.no_such_tool',
@@ -231,11 +284,22 @@ describe('tool registry envelope', () => {
     it('answers the backing outcome for a valid call, carrying the provenance it was given', async () => {
       const registry = newRegistry();
       registry.declare(declaration({ id: 'page.read_title' }));
-      registry.attach('page.read_title', resultBacking('Sign in', 'page-request'));
+      registry.attach(
+        'page.read_title',
+        resultBacking('Sign in', 'page-request'),
+      );
 
       await expect(
-        registry.execute('page.read_title', {}, { facts: {}, provenance: 'page-request' }),
-      ).resolves.toEqual({ kind: 'result', value: 'Sign in', provenance: 'page-request' });
+        registry.execute(
+          'page.read_title',
+          {},
+          { facts: {}, provenance: 'page-request' },
+        ),
+      ).resolves.toEqual({
+        kind: 'result',
+        value: 'Sign in',
+        provenance: 'page-request',
+      });
     });
 
     it('rejects an input that breaks the declared schema with an invalid-input error, never a throw', async () => {
@@ -256,12 +320,16 @@ describe('tool registry envelope', () => {
       );
       registry.attach('page.set_value', resultBacking(true, 'page-request'));
 
-      await expect(registry.execute('page.set_value', {})).resolves.toMatchObject({
+      await expect(
+        registry.execute('page.set_value', {}),
+      ).resolves.toMatchObject({
         kind: 'error',
         code: 'invalid-input',
         toolId: 'page.set_value',
       });
-      await expect(registry.execute('page.set_value', { selector: 42 })).resolves.toMatchObject({
+      await expect(
+        registry.execute('page.set_value', { selector: 42 }),
+      ).resolves.toMatchObject({
         kind: 'error',
         code: 'invalid-input',
       });
@@ -270,7 +338,11 @@ describe('tool registry envelope', () => {
       ).resolves.toMatchObject({ kind: 'error', code: 'invalid-input' });
       await expect(
         registry.execute('page.set_value', { selector: '#a', mode: 'clear' }),
-      ).resolves.toMatchObject({ kind: 'result', value: true, provenance: 'page-request' });
+      ).resolves.toMatchObject({
+        kind: 'result',
+        value: true,
+        provenance: 'page-request',
+      });
     });
 
     it('builds the input schema from the facts when the declaration supplies a function', async () => {
@@ -281,7 +353,9 @@ describe('tool registry envelope', () => {
           input: (facts: ToolFacts): ToolInputSchema => {
             const widgets: unknown = facts['widgets'];
             const known = Array.isArray(widgets)
-              ? widgets.filter((entry): entry is string => typeof entry === 'string')
+              ? widgets.filter(
+                  (entry): entry is string => typeof entry === 'string',
+                )
               : [];
             return {
               type: 'object',
@@ -291,8 +365,14 @@ describe('tool registry envelope', () => {
           },
         }),
       );
-      registry.attach('page.inspect_widget', resultBacking({ widget: 'chart' }, 'page-request'));
-      const context: ToolContext = { facts: { widgets: ['chart'] }, provenance: 'page-published' };
+      registry.attach(
+        'page.inspect_widget',
+        resultBacking({ widget: 'chart' }, 'page-request'),
+      );
+      const context: ToolContext = {
+        facts: { widgets: ['chart'] },
+        provenance: 'page-published',
+      };
 
       await expect(
         registry.execute('page.inspect_widget', { widget: 'chart' }, context),
@@ -315,11 +395,15 @@ describe('tool registry envelope', () => {
         },
       });
 
-      await expect(registry.execute('page.reject_read', {})).resolves.toMatchObject({
+      await expect(
+        registry.execute('page.reject_read', {}),
+      ).resolves.toMatchObject({
         kind: 'error',
         toolId: 'page.reject_read',
       });
-      await expect(registry.execute('page.throw_read', {})).resolves.toMatchObject({
+      await expect(
+        registry.execute('page.throw_read', {}),
+      ).resolves.toMatchObject({
         kind: 'error',
         toolId: 'page.throw_read',
       });
@@ -333,7 +417,9 @@ describe('tool registry envelope', () => {
       const backend = new Promise<ToolOutcome>((resolve) => {
         release = resolve;
       });
-      registry.declare(declaration({ id: 'page.crawl_links', outcome: 'async-handle' }));
+      registry.declare(
+        declaration({ id: 'page.crawl_links', outcome: 'async-handle' }),
+      );
       registry.attach('page.crawl_links', { execute: () => backend });
 
       const started = await registry.execute('page.crawl_links', {});
@@ -341,9 +427,16 @@ describe('tool registry envelope', () => {
       const handle = started.kind === 'async-handle' ? started.handle : '';
       expect(handle).not.toBe('');
 
-      await expect(registry.awaitHandle(handle)).resolves.toEqual({ kind: 'async-handle', handle });
+      await expect(registry.awaitHandle(handle)).resolves.toEqual({
+        kind: 'async-handle',
+        handle,
+      });
 
-      release({ kind: 'result', value: ['/a', '/b'], provenance: 'page-request' });
+      release({
+        kind: 'result',
+        value: ['/a', '/b'],
+        provenance: 'page-request',
+      });
       await backend;
 
       await expect(registry.awaitHandle(handle)).resolves.toEqual({
@@ -356,7 +449,9 @@ describe('tool registry envelope', () => {
     it('answers an unknown handle with an invalid-input error naming it, never a throw', async () => {
       const registry = newRegistry();
 
-      await expect(registry.awaitHandle('page.crawl_links#99')).resolves.toMatchObject({
+      await expect(
+        registry.awaitHandle('page.crawl_links#99'),
+      ).resolves.toMatchObject({
         kind: 'error',
         code: 'invalid-input',
         toolId: 'page.crawl_links#99',
@@ -370,22 +465,25 @@ describe('tool registry envelope', () => {
       TestBed.configureTestingModule({
         providers: [
           provideTools(
-            defineTool(declaration({ id: 'panel.app_facts', host: ['panel'] }), {
-              execute: async (): Promise<ToolOutcome> => ({
-                kind: 'result',
-                value: { framework: 'angular' },
-                provenance: 'panel',
-              }),
-            }),
+            defineTool(
+              declaration({ id: 'panel.app_facts', host: ['panel'] }),
+              {
+                execute: async (): Promise<ToolOutcome> => ({
+                  kind: 'result',
+                  value: { framework: 'angular' },
+                  provenance: 'panel',
+                }),
+              },
+            ),
           ),
         ],
       });
 
       const registry = TestBed.inject(TOOL_REGISTRY);
 
-      expect(registry.tools().map((tool) => [tool.id, tool.host, tool.publish])).toEqual([
-        ['panel.app_facts', ['panel'], 'model'],
-      ]);
+      expect(
+        registry.tools().map((tool) => [tool.id, tool.host, tool.publish]),
+      ).toEqual([['panel.app_facts', ['panel'], 'model']]);
       await expect(registry.execute('panel.app_facts', {})).resolves.toEqual({
         kind: 'result',
         value: { framework: 'angular' },

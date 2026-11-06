@@ -1,0 +1,154 @@
+{
+  "capturedAt": "2026-11-05T23:01:55.402Z",
+  "browser": "headless Playwright Chromium (build 153.0.8010.12)",
+  "browserBuild": "153.0.8010.12",
+  "instance": "headless",
+  "playwright": "1.63.0",
+  "angularVersion": "22.2.2",
+  "url": "http://127.0.0.1:59498/lint-observability",
+  "pageUrl": "http://127.0.0.1:59498/lint-observability",
+  "commands": {
+    "install": "npm ci --include=dev",
+    "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
+    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 59498 --host 127.0.0.1  (cwd spikes/ng222-app)",
+    "capture": "set M032_CAPTURE=1 && node --test scripts/lint-observability.test.mjs",
+    "check": "node --test scripts/lint-observability.test.mjs",
+    "mutants": "set M032_RECORD=<path to a mutant recording> && node --test scripts/lint-observability.test.mjs"
+  },
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0"
+  },
+  "fixture": {
+    "route": "/lint-observability",
+    "routeTable": "spikes/ng222-app/src/app/app.routes.ts",
+    "page": "spikes/ng222-app/src/app/lint-observability-page.ts",
+    "component": "LintObservabilityPage",
+    "construct": "input.required() on the routed component, left unbound, read by that component's own template",
+    "whyItReachesTheConsole": "the router creates the component, so no template writes it and the compiler checks no required input on it; the template read of the unset signal throws RuntimeError(-950) in @angular/core, whose message is built under ngDevMode",
+    "compilerOptionsChanged": [],
+    "angularCompilerOptions": {
+      "enableI18nLegacyMessageIdFormat": false,
+      "strictInjectionParameters": true,
+      "strictInputAccessModifiers": true
+    },
+    "angularCompilerOptionsSource": "spikes/ng222-app/tsconfig.json (tsconfig.app.json extends it and adds none)",
+    "expectedCodes": [
+      "NG0950"
+    ]
+  },
+  "page": {
+    "pageLoads": 1,
+    "documentLoads": 1,
+    "ngVersion": "22.2.2",
+    "headingText": "lint observability",
+    "unboundInputSpanRendered": true,
+    "uncaughtPageErrors": 0
+  },
+  "console": {
+    "total": 4,
+    "withAnNgCode": 1,
+    "withoutAnNgCode": 3
+  },
+  "messages": [
+    {
+      "order": 0,
+      "type": "debug",
+      "code": null,
+      "text": "[vite] connecting...",
+      "location": {
+        "url": "http://127.0.0.1:59498/@vite/client",
+        "line": 882,
+        "column": 8,
+        "lineNumber": 882,
+        "columnNumber": 8
+      }
+    },
+    {
+      "order": 1,
+      "type": "log",
+      "code": null,
+      "text": "Angular is running in development mode.",
+      "location": {
+        "url": "http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158",
+        "line": 9377,
+        "column": 10,
+        "lineNumber": 9377,
+        "columnNumber": 10
+      }
+    },
+    {
+      "order": 2,
+      "type": "error",
+      "code": "NG0950",
+      "text": "ERROR RuntimeError: NG0950: Input \"requiredLabel\" is required but no value is available yet. Find more at https://v22.angular.dev/errors/NG0950\n    at _LintObservabilityPage.inputValueFn [as requiredLabel] (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:17005:10)\n    at LintObservabilityPage_Template (http://127.0.0.1:59498/main.js:839:44)\n    at executeTemplate (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:4369:3)\n    at refreshView (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:4926:28)\n    at detectChangesInView (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:5061:25)\n    at detectChangesInViewIfAttached (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:5047:2)\n    at detectChangesInComponent (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:5040:3)\n    at detectChangesInChildComponents (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:5076:46)\n    at refreshView (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:4954:28)\n    at detectChangesInView (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:5061:25)",
+      "location": {
+        "url": "http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/_resource-chunk-J43UWQbW.js?v=ce1c2158",
+        "line": 2722,
+        "column": 16,
+        "lineNumber": 2722,
+        "columnNumber": 16
+      }
+    },
+    {
+      "order": 3,
+      "type": "debug",
+      "code": null,
+      "text": "[vite] connected.",
+      "location": {
+        "url": "http://127.0.0.1:59498/@vite/client",
+        "line": 995,
+        "column": 11,
+        "lineNumber": 995,
+        "columnNumber": 11
+      }
+    }
+  ],
+  "ngCodedMessages": [
+    {
+      "order": 2,
+      "type": "error",
+      "code": "NG0950",
+      "text": "ERROR RuntimeError: NG0950: Input \"requiredLabel\" is required but no value is available yet. Find more at https://v22.angular.dev/errors/NG0950\n    at _LintObservabilityPage.inputValueFn [as requiredLabel] (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:17005:10)\n    at LintObservabilityPage_Template (http://127.0.0.1:59498/main.js:839:44)\n    at executeTemplate (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:4369:3)\n    at refreshView (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:4926:28)\n    at detectChangesInView (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:5061:25)\n    at detectChangesInViewIfAttached (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:5047:2)\n    at detectChangesInComponent (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:5040:3)\n    at detectChangesInChildComponents (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:5076:46)\n    at refreshView (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:4954:28)\n    at detectChangesInView (http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:5061:25)",
+      "location": {
+        "url": "http://127.0.0.1:59498/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/_resource-chunk-J43UWQbW.js?v=ce1c2158",
+        "line": 2722,
+        "column": 16,
+        "lineNumber": 2722,
+        "columnNumber": 16
+      },
+      "digestCarriesCode": true,
+      "namesElementOrComponent": {
+        "definition": "the message body — every character before the first stack frame — naming an element (an HTML tag, or a selector such as 'app-x') or a component class name",
+        "any": false,
+        "elementSelector": null,
+        "component": null,
+        "matchedTokens": [],
+        "namesTheInputInstead": "requiredLabel",
+        "stackNamesTheComponent": "LintObservabilityPage",
+        "stackFrame": "at LintObservabilityPage_Template (http://127.0.0.1:59498/main.js:839:44)",
+        "stackCountsAsTheMessageNamingIt": false
+      }
+    }
+  ],
+  "digest": {
+    "path": "extension/error-digest.json",
+    "entryCount": 64,
+    "codesOnTheConsole": [
+      "NG0950"
+    ],
+    "codesNotCarried": []
+  },
+  "buildObservations": [
+    {
+      "attempt": "input.required() left unbound on a child component written in the page template",
+      "stage": "ng serve — angular-compiler plugin (AOT template type checking)",
+      "text": "NG8008: Required input 'label' from component LintObservabilityChild must be specified.",
+      "reachedThePageConsole": false,
+      "handTranscribedFromABuildLog": true,
+      "detail": "the dev server reported \"Application bundle generation failed\" and served no page, so nothing reached a console",
+      "digestCarriesCode": false
+    }
+  ]
+}

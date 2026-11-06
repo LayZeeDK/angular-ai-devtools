@@ -5,7 +5,10 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 
-import { checkFeatures, featureIds } from '../.commandcode/skills/control-angular-dev-app/scripts/fingerprint.mjs';
+import {
+  checkFeatures,
+  featureIds,
+} from '../.commandcode/skills/control-angular-dev-app/scripts/fingerprint.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 

@@ -1,7 +1,11 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { UpdateCauseService } from './n1-update-cause.service';
 import { traceProvenance, type ProvenanceResult } from './signal-provenance';
-import { detectAntiPatterns, type AntiPatternResult, type DetectorGraph } from './anti-pattern-detector';
+import {
+  detectAntiPatterns,
+  type AntiPatternResult,
+  type DetectorGraph,
+} from './anti-pattern-detector';
 import type { RecordedCheck } from './update-cause-chain';
 
 export function wrapPageLabel(label: string): string {
@@ -43,7 +47,10 @@ export class SignalProvenanceService {
 
   // Reuses recordedCycles as the per-component graph cache for T003's two-snapshot mitigation.
   // Finds the latest and second-to-latest checks with graphs for the selected component.
-  private getCheckWithPreviousGraph(): { check: RecordedCheck | null; previous: DetectorGraph | null } {
+  private getCheckWithPreviousGraph(): {
+    check: RecordedCheck | null;
+    previous: DetectorGraph | null;
+  } {
     const sel = this.selectedComponent();
     if (!sel) return { check: null, previous: null };
     const cycles = this.causeService.recordedCycles();
@@ -86,7 +93,9 @@ export class SignalProvenanceService {
     if (ap && !ap.graphUnavailable) {
       for (const finding of ap.findings) {
         const label = wrapPageLabel(finding.nodeLabel ?? '');
-        facts.push(`anti-pattern ${finding.rule} at ${label} position ${finding.position}`);
+        facts.push(
+          `anti-pattern ${finding.rule} at ${label} position ${finding.position}`,
+        );
       }
     }
     return facts;

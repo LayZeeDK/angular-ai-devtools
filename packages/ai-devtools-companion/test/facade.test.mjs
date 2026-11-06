@@ -21,7 +21,14 @@
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import test from 'node:test';
@@ -43,7 +50,11 @@ const SOURCE_ROOT = join(PACKAGE_ROOT, 'src');
 const TSC = join(REPO_ROOT, 'node_modules', 'typescript', 'bin', 'tsc');
 
 /** The three peers the package may name, and the only dependency field it may carry. */
-const PEER_DEPENDENCIES = ['@angular/core', '@angular/platform-browser', '@angular/router'];
+const PEER_DEPENDENCIES = [
+  '@angular/core',
+  '@angular/platform-browser',
+  '@angular/router',
+];
 
 /** The vetted vocabulary this milestone fixes (INTENT.md, the interface contract). */
 const PACKAGE_VERSION = '0.2202.0';
@@ -69,10 +80,16 @@ function displayPath(absolutePath) {
  * compiles under the declaration the project carries.
  */
 async function compileWriter() {
-  assert.ok(existsSync(TSC), `the facade test compiles with ${TSC}; a missing TypeScript would make every assertion below vacuous`);
+  assert.ok(
+    existsSync(TSC),
+    `the facade test compiles with ${TSC}; a missing TypeScript would make every assertion below vacuous`,
+  );
 
   const temp = mkdtempSync(join(tmpdir(), 'companion-facade-'));
-  assert.ok(temp.startsWith(tmpdir()), `the compile output must live under os.tmpdir(): ${temp}`);
+  assert.ok(
+    temp.startsWith(tmpdir()),
+    `the compile output must live under os.tmpdir(): ${temp}`,
+  );
 
   const result = spawnSync(
     process.execPath,
@@ -93,17 +110,30 @@ async function compileWriter() {
     ],
     { cwd: REPO_ROOT, encoding: 'utf8', timeout: 300_000 },
   );
-  assert.ok(!result.error, `the package compile must be runnable: ${result.error?.message ?? 'unknown spawn failure'}`);
+  assert.ok(
+    !result.error,
+    `the package compile must be runnable: ${result.error?.message ?? 'unknown spawn failure'}`,
+  );
   assert.equal(
     result.status,
     0,
     `the package's own tsconfig must compile before the writer can be exercised: ${String(result.stdout ?? '')}${String(result.stderr ?? '')}`,
   );
-  assert.ok(existsSync(join(temp, 'facade.js')), 'the compile must emit facade.js into the temp directory');
-  assert.ok(existsSync(join(temp, 'index.js')), 'the compile must emit index.js into the temp directory');
+  assert.ok(
+    existsSync(join(temp, 'facade.js')),
+    'the compile must emit facade.js into the temp directory',
+  );
+  assert.ok(
+    existsSync(join(temp, 'index.js')),
+    'the compile must emit index.js into the temp directory',
+  );
 
   // The emitted files are ESM; the temp directory carries no package.json of its own, so it says so.
-  writeFileSync(join(temp, 'package.json'), `${JSON.stringify({ type: 'module' }, null, 2)}\n`, 'utf8');
+  writeFileSync(
+    join(temp, 'package.json'),
+    `${JSON.stringify({ type: 'module' }, null, 2)}\n`,
+    'utf8',
+  );
 
   const module = await import(pathToFileURL(join(temp, 'facade.js')).href);
   return { module, temp };
@@ -163,9 +193,15 @@ function evaluateInstall(write) {
   }
 
   const after = snapshotOwnKeys();
-  const addedStrings = after.strings.filter((key) => !baseline.strings.includes(key));
-  const removedStrings = baseline.strings.filter((key) => !after.strings.includes(key));
-  const addedSymbols = after.symbols.filter((symbol) => !baseline.symbols.includes(symbol));
+  const addedStrings = after.strings.filter(
+    (key) => !baseline.strings.includes(key),
+  );
+  const removedStrings = baseline.strings.filter(
+    (key) => !after.strings.includes(key),
+  );
+  const addedSymbols = after.symbols.filter(
+    (symbol) => !baseline.symbols.includes(symbol),
+  );
 
   try {
     if (!threw) {
@@ -175,7 +211,10 @@ function evaluateInstall(write) {
       if (removedStrings.length !== 0) {
         problems.push('own-string-key-removed');
       }
-      if (addedSymbols.length !== 0 || after.symbols.length !== baseline.symbols.length) {
+      if (
+        addedSymbols.length !== 0 ||
+        after.symbols.length !== baseline.symbols.length
+      ) {
         problems.push('own-symbol-keys');
       }
       if (!Object.is(second, first)) {
@@ -220,7 +259,11 @@ test('the install adds exactly the one entry name to the own string keys and no 
   );
 
   const evaluation = evaluateInstall((facade) => installFacade(facade));
-  assert.deepEqual(evaluation.problems, [], `the real writer must satisfy the probe: ${JSON.stringify(evaluation.problems)}`);
+  assert.deepEqual(
+    evaluation.problems,
+    [],
+    `the real writer must satisfy the probe: ${JSON.stringify(evaluation.problems)}`,
+  );
   assert.deepEqual(evaluation.addedStrings, [FACADE_KEY]);
   assert.deepEqual(evaluation.removedStrings, []);
   assert.deepEqual(evaluation.addedSymbols, []);
@@ -249,10 +292,24 @@ test('a second install returns the entry already in place, unchanged and throwin
   });
 
   try {
-    assert.equal(first, firstFacade, 'the first install returns the facade it wrote');
-    assert.equal(second, firstFacade, 'the second install returns the existing entry, not its argument');
-    assert.ok(Object.is(second, first), 'the two installs must return the same object');
-    assert.ok(Object.is(globalThis[FACADE_KEY], firstFacade), 'the entry must be the first facade after both installs');
+    assert.equal(
+      first,
+      firstFacade,
+      'the first install returns the facade it wrote',
+    );
+    assert.equal(
+      second,
+      firstFacade,
+      'the second install returns the existing entry, not its argument',
+    );
+    assert.ok(
+      Object.is(second, first),
+      'the two installs must return the same object',
+    );
+    assert.ok(
+      Object.is(globalThis[FACADE_KEY], firstFacade),
+      'the entry must be the first facade after both installs',
+    );
 
     const after = snapshotOwnKeys();
     assert.deepEqual(
@@ -260,12 +317,18 @@ test('a second install returns the entry already in place, unchanged and throwin
       [FACADE_KEY],
       'two installs add one own string key, not two',
     );
-    assert.deepEqual(after.symbols, baseline.symbols, 'a second install adds no own symbol key');
+    assert.deepEqual(
+      after.symbols,
+      baseline.symbols,
+      'a second install adds no own symbol key',
+    );
   } finally {
     delete globalThis[FACADE_KEY];
   }
 
-  console.log('facade: second install is a no-op, Object.is identity held, no throw');
+  console.log(
+    'facade: second install is a no-op, Object.is identity held, no throw',
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -310,7 +373,9 @@ test('the probe rejects a second own string key, an own symbol key and a replace
     );
   }
 
-  console.log(`facade: probe rejected ${mutants.length} mutants for ${JSON.stringify(mutants.map((mutant) => mutant.reason))}`);
+  console.log(
+    `facade: probe rejected ${mutants.length} mutants for ${JSON.stringify(mutants.map((mutant) => mutant.reason))}`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -368,7 +433,10 @@ function codeOf(path) {
     }
     if (character === '/' && next === '*') {
       index += 2;
-      while (index < text.length && !(text[index] === '*' && text[index + 1] === '/')) {
+      while (
+        index < text.length &&
+        !(text[index] === '*' && text[index + 1] === '/')
+      ) {
         index += 1;
       }
       index += 2;
@@ -393,14 +461,24 @@ test('the package writes its one global from inside provideAiDevTools() under is
   const allCode = sources.map(codeOf).join('\n');
 
   // One property assignment in the whole package, spelled with the member the contract names.
-  const assignments = allCode.match(/globalThis\s*\.\s*ngAiDevTools\s*=/g) ?? [];
-  assert.equal(assignments.length, 1, `the package must hold exactly one global property assignment; found ${assignments.length}`);
+  const assignments =
+    allCode.match(/globalThis\s*\.\s*ngAiDevTools\s*=/g) ?? [];
+  assert.equal(
+    assignments.length,
+    1,
+    `the package must hold exactly one global property assignment; found ${assignments.length}`,
+  );
 
   // It lives inside the writer function, not at module scope.
   const writerStart = facadeCode.indexOf('export function installFacade');
   assert.ok(writerStart >= 0, 'facade.ts must export installFacade');
-  const assignmentIndex = facadeCode.search(/globalThis\s*\.\s*ngAiDevTools\s*=/);
-  assert.ok(assignmentIndex > writerStart, 'the one assignment must sit inside installFacade, never at module scope');
+  const assignmentIndex = facadeCode.search(
+    /globalThis\s*\.\s*ngAiDevTools\s*=/,
+  );
+  assert.ok(
+    assignmentIndex > writerStart,
+    'the one assignment must sit inside installFacade, never at module scope',
+  );
 
   // The call is guarded by isDevMode() and lives in the provider the app installs.
   assert.match(
@@ -420,7 +498,9 @@ test('the package writes its one global from inside provideAiDevTools() under is
   );
   assert.match(indexCode, /from '@angular\/core'/);
 
-  console.log(`facade: one assignment at facade.ts:${assignmentIndex}, guarded call in provideAiDevTools()`);
+  console.log(
+    `facade: one assignment at facade.ts:${assignmentIndex}, guarded call in provideAiDevTools()`,
+  );
 });
 
 test('the package uses no DOM API, no page dialog, no defineProperty, no forwardRef and no other global (AC8)', () => {
@@ -441,16 +521,28 @@ test('the package uses no DOM API, no page dialog, no defineProperty, no forward
     ['the impurity-prone identifier this builder marks pure', /\bforwardRef\b/],
   ];
   for (const [what, pattern] of forbidden) {
-    assert.equal(pattern.test(allCode), false, `the package must not contain ${what}: ${pattern}`);
+    assert.equal(
+      pattern.test(allCode),
+      false,
+      `the package must not contain ${what}: ${pattern}`,
+    );
   }
 
   // Every global name the code touches, spelled out: one read of the entry, one write of it.
-  const globals = [...allCode.matchAll(/\bglobalThis\s*(?:\.\s*([A-Za-z_$][\w$]*)|\[\s*'([^']+)'\s*\])/g)].map(
-    (match) => match[1] ?? match[2],
+  const globals = [
+    ...allCode.matchAll(
+      /\bglobalThis\s*(?:\.\s*([A-Za-z_$][\w$]*)|\[\s*'([^']+)'\s*\])/g,
+    ),
+  ].map((match) => match[1] ?? match[2]);
+  assert.deepEqual(
+    [...new Set(globals)],
+    ['ngAiDevTools'],
+    `the package may touch one global name; touched ${JSON.stringify(globals)}`,
   );
-  assert.deepEqual([...new Set(globals)], ['ngAiDevTools'], `the package may touch one global name; touched ${JSON.stringify(globals)}`);
 
-  console.log(`facade: no DOM, no dialog, no defineProperty, no forwardRef; globalThis names touched: ${JSON.stringify([...new Set(globals)])}`);
+  console.log(
+    `facade: no DOM, no dialog, no defineProperty, no forwardRef; globalThis names touched: ${JSON.stringify([...new Set(globals)])}`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -463,16 +555,28 @@ test('the vetted table is executable code carrying exactly the two symbols, and 
   assert.equal(packageJson.version, PACKAGE_VERSION);
   assert.equal(packageJson.private, true, 'the package stays unpublished');
   assert.equal(packageJson.type, 'module');
-  assert.equal('dependencies' in packageJson, false, 'the package may carry no dependencies field at all');
+  assert.equal(
+    'dependencies' in packageJson,
+    false,
+    'the package may carry no dependencies field at all',
+  );
   assert.deepEqual(
     Object.keys(packageJson.peerDependencies ?? {}).sort(),
     [...PEER_DEPENDENCIES].sort(),
     'the three @angular peers, and no other peer',
   );
   for (const peer of PEER_DEPENDENCIES) {
-    assert.equal(typeof packageJson.peerDependencies[peer], 'string', `${peer} must carry a version range`);
+    assert.equal(
+      typeof packageJson.peerDependencies[peer],
+      'string',
+      `${peer} must carry a version range`,
+    );
   }
-  assert.equal(packageJson.exports['.'].default, './dist/index.js', 'the entry point is the file under the package dist');
+  assert.equal(
+    packageJson.exports['.'].default,
+    './dist/index.js',
+    'the entry point is the file under the package dist',
+  );
   assert.equal(packageJson.exports['.'].types, './dist/index.d.ts');
 
   const projectJson = JSON.parse(readFileSync(PROJECT_JSON_PATH, 'utf8'));
@@ -480,33 +584,80 @@ test('the vetted table is executable code carrying exactly the two symbols, and 
   assert.equal(projectJson.root, 'packages/ai-devtools-companion');
   const build = projectJson.targets?.build;
   assert.ok(build, 'project.json must declare a build target');
-  assert.match(build.options?.command ?? '', /^tsc -p packages\/ai-devtools-companion\/tsconfig\.json/, 'the build target runs the package tsc');
-  assert.match(build.options?.command ?? '', /--outDir packages\/ai-devtools-companion\/dist/, 'the build target writes the package dist');
-  assert.deepEqual(build.outputs, ['{projectRoot}/dist'], 'the build target declares its own dist as its output');
+  assert.match(
+    build.options?.command ?? '',
+    /^tsc -p packages\/ai-devtools-companion\/tsconfig\.json/,
+    'the build target runs the package tsc',
+  );
+  assert.match(
+    build.options?.command ?? '',
+    /--outDir packages\/ai-devtools-companion\/dist/,
+    'the build target writes the package dist',
+  );
+  assert.deepEqual(
+    build.outputs,
+    ['{projectRoot}/dist'],
+    'the build target declares its own dist as its output',
+  );
 
-  const tsconfig = JSON.parse(readFileSync(TSCONFIG_PATH, 'utf8').replace(/^\uFEFF/, '').replace(/^\s*\/\/.*$/gm, ''));
-  assert.equal(tsconfig.compilerOptions?.noEmit, true, 'the shared tsconfig must emit nothing on its own, so the check stage writes no build output');
+  const tsconfig = JSON.parse(
+    readFileSync(TSCONFIG_PATH, 'utf8')
+      .replace(/^\uFEFF/, '')
+      .replace(/^\s*\/\/.*$/gm, ''),
+  );
+  assert.equal(
+    tsconfig.compilerOptions?.noEmit,
+    true,
+    'the shared tsconfig must emit nothing on its own, so the check stage writes no build output',
+  );
   assert.equal(tsconfig.compilerOptions?.outDir, 'dist');
   assert.deepEqual(tsconfig.include, ['src/**/*.ts']);
 
   // The table: real class imports, the two groups and no others, versioned by the package.
   const vettedCode = codeOf(join(SOURCE_ROOT, 'vetted.ts'));
-  assert.match(vettedCode, /import \{ Meta \} from '@angular\/platform-browser';/);
+  assert.match(
+    vettedCode,
+    /import \{ Meta \} from '@angular\/platform-browser';/,
+  );
   assert.match(vettedCode, /import \{ Router \} from '@angular\/router';/);
-  assert.match(vettedCode, new RegExp(`export const PACKAGE_VERSION = '${PACKAGE_VERSION}';`));
-  assert.match(vettedCode, new RegExp(`export const VETTED_ANGULAR_VERSION = '${VETTED_ANGULAR_VERSION}';`));
-  const groups = [...vettedCode.matchAll(/'(@angular\/[a-z-]+)': \{/g)].map((match) => match[1]).sort();
-  assert.deepEqual(groups, VETTED_SYMBOLS.map((symbol) => symbol.pkg).sort(), 'exactly the two vetted groups');
+  assert.match(
+    vettedCode,
+    new RegExp(`export const PACKAGE_VERSION = '${PACKAGE_VERSION}';`),
+  );
+  assert.match(
+    vettedCode,
+    new RegExp(
+      `export const VETTED_ANGULAR_VERSION = '${VETTED_ANGULAR_VERSION}';`,
+    ),
+  );
+  const groups = [...vettedCode.matchAll(/'(@angular\/[a-z-]+)': \{/g)]
+    .map((match) => match[1])
+    .sort();
+  assert.deepEqual(
+    groups,
+    VETTED_SYMBOLS.map((symbol) => symbol.pkg).sort(),
+    'exactly the two vetted groups',
+  );
   for (const symbol of VETTED_SYMBOLS) {
-    assert.match(vettedCode, new RegExp(`'${symbol.pkg}': \\{ ${symbol.name} \\}`), `the entry must carry ${symbol.pkg}#${symbol.name}`);
+    assert.match(
+      vettedCode,
+      new RegExp(`'${symbol.pkg}': \\{ ${symbol.name} \\}`),
+      `the entry must carry ${symbol.pkg}#${symbol.name}`,
+    );
   }
   assert.equal(
     /from '[^']*\.json'/.test(vettedCode),
     false,
     'the table must not be generated data: a data file can only carry names',
   );
-  const angularImports = [...vettedCode.matchAll(/from '(@angular\/[a-z-]+)'/g)].map((match) => match[1]).sort();
-  assert.deepEqual(angularImports, [VETTED_SYMBOLS[0].pkg, VETTED_SYMBOLS[1].pkg].sort(), 'the table imports its peers and nothing else');
+  const angularImports = [...vettedCode.matchAll(/from '(@angular\/[a-z-]+)'/g)]
+    .map((match) => match[1])
+    .sort();
+  assert.deepEqual(
+    angularImports,
+    [VETTED_SYMBOLS[0].pkg, VETTED_SYMBOLS[1].pkg].sort(),
+    'the table imports its peers and nothing else',
+  );
 
   console.log(
     `facade: package ${packageJson.name}@${packageJson.version}, peers ${JSON.stringify(Object.keys(packageJson.peerDependencies).sort())}, ` +
@@ -518,7 +669,13 @@ test('the vetted table is executable code carrying exactly the two symbols, and 
  * resolves must be the emitted file, and the tracked tree must not carry a second copy of it. */
 test('the package exposes its dist entry and nothing in the package root shadows it', () => {
   const packageJson = JSON.parse(readFileSync(PACKAGE_JSON_PATH, 'utf8'));
-  const entry = resolve(PACKAGE_ROOT, packageJson.exports['.'].default.replace('./', ''));
-  assert.ok(entry.startsWith(join(PACKAGE_ROOT, 'dist')), `the exported entry must live under the package's dist: ${displayPath(entry)}`);
+  const entry = resolve(
+    PACKAGE_ROOT,
+    packageJson.exports['.'].default.replace('./', ''),
+  );
+  assert.ok(
+    entry.startsWith(join(PACKAGE_ROOT, 'dist')),
+    `the exported entry must live under the package's dist: ${displayPath(entry)}`,
+  );
   assert.equal(/node_modules/.test(displayPath(entry)), false);
 });

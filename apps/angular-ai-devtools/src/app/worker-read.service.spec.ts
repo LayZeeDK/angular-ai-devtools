@@ -33,7 +33,10 @@ import {
   type WorkerReadScope,
 } from '../worker-read.worker';
 import { provideReadTools } from './tool-registry/read-tools';
-import { TOOL_REGISTRY, type ToolRegistry } from './tool-registry/tool-registry';
+import {
+  TOOL_REGISTRY,
+  type ToolRegistry,
+} from './tool-registry/tool-registry';
 import {
   NO_WORKER_REASON,
   createWorkerReadPort,
@@ -68,7 +71,10 @@ function readRequest(
 }
 
 /** A scope that records what the module posts, so a reply can be asserted rather than awaited. */
-function recordingScope(): { scope: WorkerReadScope; replies: WorkerReadReply[] } {
+function recordingScope(): {
+  scope: WorkerReadScope;
+  replies: WorkerReadReply[];
+} {
   const replies: WorkerReadReply[] = [];
   return {
     replies,
@@ -81,7 +87,10 @@ function recordingScope(): { scope: WorkerReadScope; replies: WorkerReadReply[] 
 }
 
 /** The one reply posted for `token`; fails loudly when the module posted none or several. */
-function replyFor(replies: readonly WorkerReadReply[], token: number): WorkerReadReply {
+function replyFor(
+  replies: readonly WorkerReadReply[],
+  token: number,
+): WorkerReadReply {
   const matches = replies.filter((reply) => reply.token === token);
   if (matches.length !== 1) {
     throw new Error(
@@ -100,22 +109,32 @@ function settleWorker(): Promise<void> {
 
 function valueOf(reply: WorkerReadReply): unknown {
   if (reply.status !== 'result') {
-    throw new Error(`expected a result for token ${reply.token}, got ${reply.status}`);
+    throw new Error(
+      `expected a result for token ${reply.token}, got ${reply.status}`,
+    );
   }
   return reply.value;
 }
 
-function summarisedComponents(value: unknown): readonly { id: string; name: string; signalCount: number }[] {
+function summarisedComponents(
+  value: unknown,
+): readonly { id: string; name: string; signalCount: number }[] {
   const components = (value as { components?: unknown }).components;
   if (!Array.isArray(components)) {
     throw new Error(`expected a components list, got ${JSON.stringify(value)}`);
   }
-  return components as readonly { id: string; name: string; signalCount: number }[];
+  return components as readonly {
+    id: string;
+    name: string;
+    signalCount: number;
+  }[];
 }
 
 function resultOf(outcome: WorkerReadOutcome): unknown {
   if (outcome.status !== 'result') {
-    throw new Error(`expected a result outcome, got ${outcome.status}: ${JSON.stringify(outcome)}`);
+    throw new Error(
+      `expected a result outcome, got ${outcome.status}: ${JSON.stringify(outcome)}`,
+    );
   }
   return outcome.value;
 }
@@ -195,7 +214,9 @@ function boundaryPort(): { port: WorkerReadPort; replies: WorkerReadReply[] } {
 
 function newService(port: WorkerReadPort): WorkerReadService {
   TestBed.resetTestingModule();
-  TestBed.configureTestingModule({ providers: [{ provide: WORKER_READ_PORT, useValue: port }] });
+  TestBed.configureTestingModule({
+    providers: [{ provide: WORKER_READ_PORT, useValue: port }],
+  });
   return TestBed.inject(WorkerReadService);
 }
 
@@ -210,8 +231,14 @@ describe('the worker read boundary — worker side', () => {
 
     const reply = replyFor(replies, 1);
     const components = summarisedComponents(valueOf(reply));
-    expect(components.map((component) => component.id)).toEqual(['cmp-0', 'cmp-1', 'cmp-2']);
-    expect(components.map((component) => component.signalCount)).toEqual([2, 2, 2]);
+    expect(components.map((component) => component.id)).toEqual([
+      'cmp-0',
+      'cmp-1',
+      'cmp-2',
+    ]);
+    expect(components.map((component) => component.signalCount)).toEqual([
+      2, 2, 2,
+    ]);
   });
 
   it('filters by name and answers an empty list only when nothing matched', async () => {
@@ -223,14 +250,24 @@ describe('the worker read boundary — worker side', () => {
     };
 
     const matched = recordingScope();
-    await handleWorkerReadMessage(matched.scope, readRequest(1, { snapshot, input: { name: 'alpha' } }));
-    expect(summarisedComponents(valueOf(replyFor(matched.replies, 1))).map((c) => c.id)).toEqual([
-      'cmp-a',
-    ]);
+    await handleWorkerReadMessage(
+      matched.scope,
+      readRequest(1, { snapshot, input: { name: 'alpha' } }),
+    );
+    expect(
+      summarisedComponents(valueOf(replyFor(matched.replies, 1))).map(
+        (c) => c.id,
+      ),
+    ).toEqual(['cmp-a']);
 
     const missed = recordingScope();
-    await handleWorkerReadMessage(missed.scope, readRequest(1, { snapshot, input: { name: 'gamma' } }));
-    expect(summarisedComponents(valueOf(replyFor(missed.replies, 1)))).toEqual([]);
+    await handleWorkerReadMessage(
+      missed.scope,
+      readRequest(1, { snapshot, input: { name: 'gamma' } }),
+    );
+    expect(summarisedComponents(valueOf(replyFor(missed.replies, 1)))).toEqual(
+      [],
+    );
 
     // The empty list above is a real answer from a real read: the reply is a result, not a failure.
     expect(replyFor(missed.replies, 1).status).toBe('result');
@@ -259,7 +296,10 @@ describe('the worker read boundary — worker side', () => {
   it('refuses a message with no token and a snapshot of the wrong shape', async () => {
     const { scope, replies } = recordingScope();
 
-    await handleWorkerReadMessage(scope, { read: 'component-summary', snapshot: snapshotWith(1) });
+    await handleWorkerReadMessage(scope, {
+      read: 'component-summary',
+      snapshot: snapshotWith(1),
+    });
     await handleWorkerReadMessage(scope, {
       token: 9,
       read: 'component-summary',
@@ -275,9 +315,18 @@ describe('the worker read boundary — worker side', () => {
 
     const tokenless = replies.filter((reply) => reply.token === 0);
     expect(tokenless).toHaveLength(1);
-    expect(tokenless[0]).toMatchObject({ status: 'error', code: 'invalid-input' });
-    expect(replyFor(replies, 9)).toMatchObject({ status: 'error', code: 'invalid-input' });
-    expect(replyFor(replies, 10)).toMatchObject({ status: 'error', code: 'invalid-input' });
+    expect(tokenless[0]).toMatchObject({
+      status: 'error',
+      code: 'invalid-input',
+    });
+    expect(replyFor(replies, 9)).toMatchObject({
+      status: 'error',
+      code: 'invalid-input',
+    });
+    expect(replyFor(replies, 10)).toMatchObject({
+      status: 'error',
+      code: 'invalid-input',
+    });
 
     // No reply is a result: an unusable message is never answered with a value.
     expect(replies.some((reply) => reply.status === 'result')).toBe(false);
@@ -302,14 +351,22 @@ describe('the worker read boundary — worker side', () => {
     // Exactly one reply for the stale token, and it is not a value: the work was stopped, not
     // merely ignored.
     expect(replies.filter((reply) => reply.token === 1)).toHaveLength(1);
-    expect(replies.some((reply) => reply.token === 1 && reply.status === 'result')).toBe(false);
+    expect(
+      replies.some((reply) => reply.token === 1 && reply.status === 'result'),
+    ).toBe(false);
   });
 
   it('does not run a read whose token was already stale when it arrived', async () => {
     const { scope, replies } = recordingScope();
 
-    await handleWorkerReadMessage(scope, readRequest(7, { snapshot: snapshotWith(1) }));
-    await handleWorkerReadMessage(scope, readRequest(6, { snapshot: snapshotWith(400) }));
+    await handleWorkerReadMessage(
+      scope,
+      readRequest(7, { snapshot: snapshotWith(1) }),
+    );
+    await handleWorkerReadMessage(
+      scope,
+      readRequest(6, { snapshot: snapshotWith(400) }),
+    );
 
     expect(replyFor(replies, 6)).toMatchObject({ status: 'cancelled' });
     const stale = replyFor(replies, 6);
@@ -325,7 +382,9 @@ describe('WorkerReadService', () => {
     const boundary = boundaryPort();
     const service = newService(boundary.port);
 
-    const pending = service.read('component-summary', snapshotWith(3), { name: 'Cmp1' });
+    const pending = service.read('component-summary', snapshotWith(3), {
+      name: 'Cmp1',
+    });
     // Issued and in flight: the caller was not made to wait for the worker to answer.
     expect(service.reading()).toBe(true);
     expect(service.status()).toBe('reading');
@@ -355,13 +414,21 @@ describe('WorkerReadService', () => {
     expect(staleOutcome.token).toBe(1);
     expect(service.result()).toBeNull();
 
-    manual.answer(2, { token: 2, status: 'result', value: { components: [{ id: 'cmp-0' }] } });
+    manual.answer(2, {
+      token: 2,
+      status: 'result',
+      value: { components: [{ id: 'cmp-0' }] },
+    });
     const fresh = await newer;
     expect(resultOf(fresh)).toEqual({ components: [{ id: 'cmp-0' }] });
     expect(service.status()).toBe('ready');
 
     // The late answer for the superseded token arrives now: it must not resolve into the service.
-    manual.answer(1, { token: 1, status: 'result', value: { components: [{ id: 'stale' }] } });
+    manual.answer(1, {
+      token: 1,
+      status: 'result',
+      value: { components: [{ id: 'stale' }] },
+    });
     await settleWorker();
     expect(service.status()).toBe('ready');
     expect(service.result()).toBe(fresh);
@@ -375,10 +442,18 @@ describe('WorkerReadService', () => {
     const service = newService(manual.port);
 
     const pending = service.read('component-summary', snapshotWith(1));
-    manual.answer(1, { token: 99, status: 'result', value: { components: [] } });
+    manual.answer(1, {
+      token: 99,
+      status: 'result',
+      value: { components: [] },
+    });
 
     const outcome = await pending;
-    expect(outcome).toMatchObject({ status: 'error', code: 'worker-failed', token: 1 });
+    expect(outcome).toMatchObject({
+      status: 'error',
+      code: 'worker-failed',
+      token: 1,
+    });
     if (outcome.status !== 'error') {
       throw new Error('expected a named failure');
     }
@@ -409,7 +484,11 @@ describe('WorkerReadService', () => {
 
     const port = createWorkerReadPort();
     const reply = await port.read(readRequest(3));
-    expect(reply).toMatchObject({ status: 'error', code: 'worker-failed', token: 3 });
+    expect(reply).toMatchObject({
+      status: 'error',
+      code: 'worker-failed',
+      token: 3,
+    });
     if (reply.status !== 'error') {
       throw new Error('expected a named failure');
     }
@@ -437,9 +516,13 @@ describe('the page-read injector capture', () => {
     const outcome = await registry.execute('find_components', {});
     expect(outcome).toMatchObject({ kind: 'error', code: 'host-unavailable' });
     if (outcome.kind !== 'error') {
-      throw new Error('expected the page-read port to answer with its honest failure');
+      throw new Error(
+        'expected the page-read port to answer with its honest failure',
+      );
     }
     expect(outcome.message).toContain('find_components');
-    expect(outcome.message).toContain('no page-request transport exists in this build');
+    expect(outcome.message).toContain(
+      'no page-request transport exists in this build',
+    );
   });
 });

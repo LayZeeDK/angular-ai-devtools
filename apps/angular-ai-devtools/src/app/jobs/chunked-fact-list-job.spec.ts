@@ -26,7 +26,9 @@ import {
 import { JobHandleRegistry } from './job-handles';
 
 /** The outcome's payload, narrowed to the complete variant; a different answer fails loudly. */
-function completePayload(outcome: ToolOutcome): Extract<ChunkedFactListPayload, { status: 'complete' }> {
+function completePayload(
+  outcome: ToolOutcome,
+): Extract<ChunkedFactListPayload, { status: 'complete' }> {
   const payload = payloadOf(outcome);
   if (payload.status !== 'complete') {
     throw new Error(`expected a complete payload, got "${payload.status}"`);
@@ -86,11 +88,21 @@ describe('ChunkedFactListJob', () => {
     // The signal is taken before the job runs: a registry that replaced it would leave this one
     // reporting the idle placeholder for the job's whole life.
     const early = registry.progress(handle);
-    expect(early()).toEqual({ handle, chunksDone: 0, chunksTotal: 0, cancelled: false });
+    expect(early()).toEqual({
+      handle,
+      chunksDone: 0,
+      chunksTotal: 0,
+      cancelled: false,
+    });
 
     const outcome = await job.execute({ handle, facts });
 
-    expect(early()).toEqual({ handle, chunksDone: 3, chunksTotal: 3, cancelled: false });
+    expect(early()).toEqual({
+      handle,
+      chunksDone: 3,
+      chunksTotal: 3,
+      cancelled: false,
+    });
     expect(registry.progress(handle)).toBe(early);
 
     const payload = completePayload(outcome);
@@ -135,20 +147,38 @@ describe('ChunkedFactListJob', () => {
 
     // The job emitted its first chunk and is suspended at the boundary before any await in the
     // spec: this cancel therefore lands between chunk 1 and chunk 2, with work already done.
-    expect(early()).toEqual({ handle, chunksDone: 1, chunksTotal: 3, cancelled: false });
+    expect(early()).toEqual({
+      handle,
+      chunksDone: 1,
+      chunksTotal: 3,
+      cancelled: false,
+    });
     expect(early().chunksDone).toBeLessThan(early().chunksTotal);
 
     registry.cancel(handle);
     const outcome = await running;
 
     // The work stopped where it was: one chunk done, and the other two were never produced.
-    expect(early()).toEqual({ handle, chunksDone: 1, chunksTotal: 3, cancelled: true });
+    expect(early()).toEqual({
+      handle,
+      chunksDone: 1,
+      chunksTotal: 3,
+      cancelled: true,
+    });
 
     // The payload carries no chunk list at all, so the last completed chunk cannot be read as the
     // complete fact list; the counts it reached are what travels instead.
     const payload = cancelledPayload(outcome);
-    expect(payload).toEqual({ status: 'cancelled', chunksDone: 1, chunksTotal: 3 });
-    expect(Object.keys(payload).sort()).toEqual(['chunksDone', 'chunksTotal', 'status']);
+    expect(payload).toEqual({
+      status: 'cancelled',
+      chunksDone: 1,
+      chunksTotal: 3,
+    });
+    expect(Object.keys(payload).sort()).toEqual([
+      'chunksDone',
+      'chunksTotal',
+      'status',
+    ]);
   });
 
   // AC4 / E3
@@ -175,8 +205,16 @@ describe('ChunkedFactListJob', () => {
     expect(registry.progress(handle)).toBe(early);
 
     const payload = cancelledPayload(outcome);
-    expect(payload).toEqual({ status: 'cancelled', chunksDone: 1, chunksTotal: 3 });
-    expect(Object.keys(payload).sort()).toEqual(['chunksDone', 'chunksTotal', 'status']);
+    expect(payload).toEqual({
+      status: 'cancelled',
+      chunksDone: 1,
+      chunksTotal: 3,
+    });
+    expect(Object.keys(payload).sort()).toEqual([
+      'chunksDone',
+      'chunksTotal',
+      'status',
+    ]);
   });
 
   // N1
@@ -194,7 +232,11 @@ describe('ChunkedFactListJob', () => {
       chunksTotal: 3,
       cancelled: true,
     });
-    expect(cancelledPayload(outcome)).toEqual({ status: 'cancelled', chunksDone: 0, chunksTotal: 3 });
+    expect(cancelledPayload(outcome)).toEqual({
+      status: 'cancelled',
+      chunksDone: 0,
+      chunksTotal: 3,
+    });
   });
 
   it('refuses an unusable fact list rather than answering with an empty or partial one', async () => {
@@ -234,7 +276,12 @@ describe('ChunkedFactListJob', () => {
     // Between two chunks, not before the first and not after the last: exactly one chunk emitted
     // and at least one still to come, with the job suspended on that boundary.
     const doneAtCancel = early().chunksDone;
-    expect(early()).toEqual({ handle, chunksDone: 1, chunksTotal: plan.chunkCount, cancelled: false });
+    expect(early()).toEqual({
+      handle,
+      chunksDone: 1,
+      chunksTotal: plan.chunkCount,
+      cancelled: false,
+    });
     expect(doneAtCancel).toBeGreaterThan(0);
     expect(doneAtCancel).toBeLessThan(plan.chunkCount);
     expect(plan.chunkCount - doneAtCancel).toBeGreaterThan(1);
@@ -245,16 +292,33 @@ describe('ChunkedFactListJob', () => {
 
     // The chunk it had completed is not the answer: the payload carries no list at all, so neither
     // the last completed chunk nor a prefix of the list can be read as the complete fact list.
-    expect(payload).toEqual({ status: 'cancelled', chunksDone: doneAtCancel, chunksTotal: plan.chunkCount });
+    expect(payload).toEqual({
+      status: 'cancelled',
+      chunksDone: doneAtCancel,
+      chunksTotal: plan.chunkCount,
+    });
     expect('chunks' in payload).toBe(false);
-    expect(Object.keys(payload).sort()).toEqual(['chunksDone', 'chunksTotal', 'status']);
-    expect(JSON.stringify(payload)).not.toContain(plan.chunks[0]![0]!.slice(0, 8));
-    expect(JSON.stringify(payload)).not.toContain(plan.chunks[1]![0]!.slice(0, 8));
+    expect(Object.keys(payload).sort()).toEqual([
+      'chunksDone',
+      'chunksTotal',
+      'status',
+    ]);
+    expect(JSON.stringify(payload)).not.toContain(
+      plan.chunks[0]![0]!.slice(0, 8),
+    );
+    expect(JSON.stringify(payload)).not.toContain(
+      plan.chunks[1]![0]!.slice(0, 8),
+    );
 
     // And no further chunk was emitted after the cancel: a job that drained the remaining chunks
     // would reach chunksTotal instead of stopping at the boundary it was cancelled on (N1).
     await new Promise<void>((resolve) => setTimeout(resolve, 5));
-    expect(early()).toEqual({ handle, chunksDone: doneAtCancel, chunksTotal: plan.chunkCount, cancelled: true });
+    expect(early()).toEqual({
+      handle,
+      chunksDone: doneAtCancel,
+      chunksTotal: plan.chunkCount,
+      cancelled: true,
+    });
   });
 
   // E6 / AC6 / SC4: an over-cap list is chunked, and the count the panel receives is the number of
@@ -263,7 +327,10 @@ describe('ChunkedFactListJob', () => {
     const { registry, job } = newJob();
     const runs = [
       { handle: `${CHUNKED_FACT_LIST_JOB_ID}#e6a`, facts: overCapFacts() },
-      { handle: `${CHUNKED_FACT_LIST_JOB_ID}#e6b`, facts: [...overCapFacts(), fact(5), fact(6)] },
+      {
+        handle: `${CHUNKED_FACT_LIST_JOB_ID}#e6b`,
+        facts: [...overCapFacts(), fact(5), fact(6)],
+      },
     ];
     const received: number[] = [];
     const planned: number[] = [];

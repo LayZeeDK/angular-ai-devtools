@@ -24,12 +24,33 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
-import { readScope, readTemplate, renderSurface, reverseIteration } from './aria-rules.mjs';
+import {
+  readScope,
+  readTemplate,
+  renderSurface,
+  reverseIteration,
+} from './aria-rules.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..', '..');
-const itemsPath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'components', 'aria-items.ts');
-const surfacePath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'components', 'aria-surfaces.ts');
+const itemsPath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'components',
+  'aria-items.ts',
+);
+const surfacePath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'components',
+  'aria-surfaces.ts',
+);
 
 const SUITE = 'fixture-aria-order.test.mjs';
 const ITEMS_FILE = 'spikes/ng222-app/src/app/components/aria-items.ts';
@@ -71,7 +92,10 @@ function renderFixtureSurface() {
 
 test('listbox options render in the pinned DOM order', () => {
   const { template, scope } = renderFixtureSurface();
-  const rendered = renderedOrder(renderSurface(template, scope), '#components-listbox li');
+  const rendered = renderedOrder(
+    renderSurface(template, scope),
+    '#components-listbox li',
+  );
 
   assert.deepEqual(
     rendered,
@@ -83,7 +107,10 @@ test('listbox options render in the pinned DOM order', () => {
 
 test('menu items render in the pinned DOM order', () => {
   const { template, scope } = renderFixtureSurface();
-  const rendered = renderedOrder(renderSurface(template, scope), '#components-menu > div');
+  const rendered = renderedOrder(
+    renderSurface(template, scope),
+    '#components-menu > div',
+  );
 
   assert.deepEqual(
     rendered,
@@ -95,7 +122,10 @@ test('menu items render in the pinned DOM order', () => {
 
 test('the rendered order tracks the template @for expression, not the declared array', () => {
   const { template, scope } = renderFixtureSurface();
-  const before = renderedOrder(renderSurface(template, scope), '#components-listbox li');
+  const before = renderedOrder(
+    renderSurface(template, scope),
+    '#components-listbox li',
+  );
 
   const marker = template.indexOf('id="components-listbox"');
   assert.notEqual(
@@ -112,8 +142,15 @@ test('the rendered order tracks the template @for expression, not the declared a
 
   // Apply the review mutant in memory to the real template text: wrap the listbox's iterated expression
   // in a reverse. If the order this suite reads came from the declared array, this would change nothing.
-  const { expression, reversedExpression, template: mutatedTemplate } = reverseIteration(template, at);
-  const after = renderedOrder(renderSurface(mutatedTemplate, scope), '#components-listbox li');
+  const {
+    expression,
+    reversedExpression,
+    template: mutatedTemplate,
+  } = reverseIteration(template, at);
+  const after = renderedOrder(
+    renderSurface(mutatedTemplate, scope),
+    '#components-listbox li',
+  );
 
   assert.deepEqual(
     after,

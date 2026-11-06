@@ -29,7 +29,11 @@ const SUITE_SUFFIX = '.test.mjs';
 const SKIPPED_DIRECTORIES = new Set(['node_modules', '.git']);
 
 /** Roots named by the environment, in priority order. */
-const ROOT_ENV_KEYS = ['HELD_OUT_CORPUS_ROOT', 'RUN_HELD_OUT_CORPUS_ROOT', 'HELD_OUT_ROOT'];
+const ROOT_ENV_KEYS = [
+  'HELD_OUT_CORPUS_ROOT',
+  'RUN_HELD_OUT_CORPUS_ROOT',
+  'HELD_OUT_ROOT',
+];
 /**
  * Nesting marker. `npm test` runs this corpus, and two corpus suites (`e3`, `e4`) drive `npm test`,
  * so an unguarded corpus would recurse forever. A nested run reports the marker and returns 0: the
@@ -100,7 +104,8 @@ export function findSuites(root) {
       if (SKIPPED_DIRECTORIES.has(entry.name)) continue;
       const full = join(directory, entry.name);
       if (entry.isDirectory()) walk(full);
-      else if (entry.isFile() && entry.name.endsWith(SUITE_SUFFIX)) found.push(full);
+      else if (entry.isFile() && entry.name.endsWith(SUITE_SUFFIX))
+        found.push(full);
     }
   };
   walk(join(root, ...CORPUS_SEGMENTS));
@@ -155,13 +160,17 @@ export function runSuite(suite, options) {
   env[DEPTH_ENV] = String(options.depth + 1);
 
   const started = Date.now();
-  const result = spawnSync(process.execPath, ['--experimental-strip-types', '--test', suite], {
-    cwd: options.root,
-    encoding: 'utf8',
-    timeout: SUITE_TIMEOUT_MS,
-    maxBuffer: MAX_BUFFER,
-    env,
-  });
+  const result = spawnSync(
+    process.execPath,
+    ['--experimental-strip-types', '--test', suite],
+    {
+      cwd: options.root,
+      encoding: 'utf8',
+      timeout: SUITE_TIMEOUT_MS,
+      maxBuffer: MAX_BUFFER,
+      env,
+    },
+  );
   const ms = Date.now() - started;
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}`;
   const tests = summaryCount(output, 'tests') ?? 0;
@@ -178,7 +187,9 @@ export function runSuite(suite, options) {
         ? `did not finish within ${Math.round(SUITE_TIMEOUT_MS / 1000)}s`
         : `could not be run: ${error.message}`;
   } else if (result.status !== 0) {
-    reason = result.signal ? `exited on signal ${result.signal}` : `exited ${result.status}`;
+    reason = result.signal
+      ? `exited on signal ${result.signal}`
+      : `exited ${result.status}`;
   } else if (tests === 0) {
     reason = 'reported no tests — a suite that proves nothing may not pass';
   } else if (skipped > 0) {
@@ -227,7 +238,9 @@ export function main(argv = process.argv.slice(2), env = process.env) {
     return 1;
   }
 
-  console.log(`held-out corpus: ${suites.length} suite(s) under ${corpusDir}, one at a time`);
+  console.log(
+    `held-out corpus: ${suites.length} suite(s) under ${corpusDir}, one at a time`,
+  );
   const started = Date.now();
   /** @type {{ file: string, reason: string }[]} */
   const failures = [];
@@ -240,7 +253,9 @@ export function main(argv = process.argv.slice(2), env = process.env) {
     tests += result.tests;
     passed += result.pass;
     if (result.ok) {
-      console.log(`PASS ${file} — ${result.tests} test(s), ${result.pass} passed (${formatDuration(result.ms)})`);
+      console.log(
+        `PASS ${file} — ${result.tests} test(s), ${result.pass} passed (${formatDuration(result.ms)})`,
+      );
       continue;
     }
     const reason = result.reason ?? 'failed';
@@ -262,7 +277,9 @@ export function main(argv = process.argv.slice(2), env = process.env) {
   }
   console.error(total);
   for (const failure of failures) {
-    console.error(`held-out corpus: FAILED ${failure.file} — ${failure.reason}`);
+    console.error(
+      `held-out corpus: FAILED ${failure.file} — ${failure.reason}`,
+    );
   }
   return 1;
 }
@@ -280,4 +297,12 @@ if (argvEntry && (argvEntry === self || argvEntry === selfResolved)) {
   process.exitCode = main();
 }
 
-export default { resolveRoot, findSuites, summaryCount, tailLines, runSuite, formatDuration, main };
+export default {
+  resolveRoot,
+  findSuites,
+  summaryCount,
+  tailLines,
+  runSuite,
+  formatDuration,
+  main,
+};

@@ -4,7 +4,7 @@
 // ng.ɵsetProfiler.
 
 /** @param {{ addInitScript: (script: () => void) => Promise<void>, evaluate: <T>(fn: () => T) => Promise<Awaited<T>> }} page */
-async page => {
+async (page) => {
   /** @typedef {{ id?: string, kind: string, label?: string, value: unknown, epoch: number }} SignalNode */
   /** @typedef {{ token?: { name?: string }, provider?: { useClass?: { name: string }, useFactory?: unknown, name?: string }, isViewProvider?: boolean, importPath?: object[] }} ProviderRecord */
   /** @typedef {{ path?: string, children?: RouteLike[], loadChildren?: unknown, loadComponent?: unknown, component?: unknown, redirectTo?: string }} RouteLike */
@@ -37,15 +37,25 @@ async page => {
     /** @type {() => NgApi} */
     const ng = () => {
       if (w.ng === undefined) {
-        throw new Error('window.ng is missing: not an Angular development build');
+        throw new Error(
+          'window.ng is missing: not an Angular development build',
+        );
       }
 
       return w.ng;
     };
     /** @type {(x: unknown) => string} */
-    const name = (x) => (/** @type {{ constructor?: { name?: string } } | null | undefined} */ (x)?.constructor?.name ?? String(x)).replace(/^_/, '');
+    const name = (x) => {
+      const holder =
+        /** @type {{ constructor?: { name?: string } } | null | undefined} */ (
+          x
+        );
+      const resolved = holder?.constructor?.name ?? String(x);
+      return String(resolved).replace(/^_/, '');
+    };
     /** @type {(t: unknown) => string} */
-    const tokenName = (t) => (typeof t === 'function' ? t.name.replace(/^_/, '') : String(t));
+    const tokenName = (t) =>
+      typeof t === 'function' ? t.name.replace(/^_/, '') : String(t);
     /** @type {(v: unknown, depth?: number) => unknown} */
     const safe = (v, depth = 0) => {
       if (v === null || (typeof v !== 'object' && typeof v !== 'function')) {
@@ -53,7 +63,9 @@ async page => {
       }
 
       if (typeof v === 'function') {
-        return w.ng?.isSignal?.(v) ? { signal: safe(v(), depth + 1) } : `[fn ${v.name}]`;
+        return w.ng?.isSignal?.(v)
+          ? { signal: safe(v(), depth + 1) }
+          : `[fn ${v.name}]`;
       }
 
       if (v instanceof Node) {
@@ -68,12 +80,20 @@ async page => {
         return v.slice(0, 20).map((x) => safe(x, depth + 1));
       }
 
-      return Object.fromEntries(Object.entries(v).slice(0, 30).map(([k, x]) => [k, safe(x, depth + 1)]));
+      return Object.fromEntries(
+        Object.entries(v)
+          .slice(0, 30)
+          .map(([k, x]) => [k, safe(x, depth + 1)]),
+      );
     };
-    const hosts = () => [...document.querySelectorAll('*')].filter((el) => ng().getComponent(el));
+    const hosts = () =>
+      [...document.querySelectorAll('*')].filter((el) => ng().getComponent(el));
     /** @type {(selector: string | number) => Element} */
     const host = (selector) => {
-      const el = typeof selector === 'number' ? hosts()[selector] : document.querySelector(selector);
+      const el =
+        typeof selector === 'number'
+          ? hosts()[selector]
+          : document.querySelector(selector);
 
       if (!el || !w.ng?.getComponent(el)) {
         throw new Error(`no component host matches ${selector}`);
@@ -93,7 +113,9 @@ async page => {
     // Zoneless-by-default apps never get the NgZoneless mark and may still load zone.js; the NgZone provider record tells.
     const ngZoneClass = () => {
       try {
-        for (const inj of ng().ɵgetInjectorResolutionPath(ng().getInjector(root()))) {
+        for (const inj of ng().ɵgetInjectorResolutionPath(
+          ng().getInjector(root()),
+        )) {
           /** @type {ProviderRecord[]} */
           let records = [];
 
@@ -107,7 +129,12 @@ async page => {
           const rec = records.findLast((r) => r.token?.name === 'NgZone');
 
           if (rec) {
-            return rec.provider?.useClass?.name ?? (rec.provider?.useFactory ? 'NgZone' : rec.provider?.name ?? 'unknown');
+            return (
+              rec.provider?.useClass?.name ??
+              (rec.provider?.useFactory
+                ? 'NgZone'
+                : (rec.provider?.name ?? 'unknown'))
+            );
           }
         }
       } catch {
@@ -116,49 +143,108 @@ async page => {
 
       return null;
     };
-    const CORE = ['getComponent', 'getContext', 'getOwningComponent', 'getRootComponents', 'getInjector', 'getDirectives', 'getDirectiveMetadata', 'getHostElement', 'getListeners', 'applyChanges', 'isSignal', 'ɵgetSignalGraph', 'ɵgetInjectorResolutionPath', 'ɵgetInjectorMetadata', 'ɵgetInjectorProviders', 'ɵgetDependenciesFromInjectable'];
+    const CORE = [
+      'getComponent',
+      'getContext',
+      'getOwningComponent',
+      'getRootComponents',
+      'getInjector',
+      'getDirectives',
+      'getDirectiveMetadata',
+      'getHostElement',
+      'getListeners',
+      'applyChanges',
+      'isSignal',
+      'ɵgetSignalGraph',
+      'ɵgetInjectorResolutionPath',
+      'ɵgetInjectorMetadata',
+      'ɵgetInjectorProviders',
+      'ɵgetDependenciesFromInjectable',
+    ];
     /** @type {(selector: string | number) => ReturnType<NgApi['ɵgetSignalGraph']>} */
-    const graph = (selector) => ng().ɵgetSignalGraph(ng().getInjector(host(selector)));
+    const graph = (selector) =>
+      ng().ɵgetSignalGraph(ng().getInjector(host(selector)));
     const router = () => ng().ɵgetRouterInstance?.(ng().getInjector(root()));
 
     w.__ngc = {
       doctor() {
         const api = /** @type {Record<string, unknown> | undefined} */ (w.ng);
-        const fns = ['ɵgetRouterInstance', 'ɵgetLoadedRoutes', 'ɵnavigateByUrl'];
+        const fns = [
+          'ɵgetRouterInstance',
+          'ɵgetLoadedRoutes',
+          'ɵnavigateByUrl',
+        ];
 
         return {
           url: location.href,
-          ngVersion: document.querySelector('[ng-version]')?.getAttribute('ng-version') ?? null,
-          roots: [...document.querySelectorAll('[ng-version]')].map((e) => e.tagName.toLowerCase()),
-          devMode: typeof api === 'object' && typeof api['getComponent'] === 'function',
+          ngVersion:
+            document
+              .querySelector('[ng-version]')
+              ?.getAttribute('ng-version') ?? null,
+          roots: [...document.querySelectorAll('[ng-version]')].map((e) =>
+            e.tagName.toLowerCase(),
+          ),
+          devMode:
+            typeof api === 'object' &&
+            typeof api['getComponent'] === 'function',
           ngFunctions: Object.keys(api ?? {}).sort(),
           missingCore: CORE.filter((k) => typeof api?.[k] !== 'function'),
           router: fns.every((k) => typeof api?.[k] === 'function'),
           zoneLoaded: typeof w.Zone !== 'undefined',
           ngZone: ngZoneClass(),
-          featureMarks: performance.getEntriesByName('mark_feature_usage').map((m) => /** @type {{ detail?: { feature?: string } }} */ (m).detail?.feature),
+          featureMarks: performance
+            .getEntriesByName('mark_feature_usage')
+            .map(
+              (m) =>
+                /** @type {{ detail?: { feature?: string } }} */ (m).detail
+                  ?.feature,
+            ),
         };
       },
       components() {
-        return hosts().map((el, i) => ({ i, tag: el.tagName.toLowerCase(), name: name(ng().getComponent(el)) }));
+        return hosts().map((el, i) => ({
+          i,
+          tag: el.tagName.toLowerCase(),
+          name: name(ng().getComponent(el)),
+        }));
       },
       /** @param {string | number} selector */
       inspect(selector) {
         const el = host(selector);
-        const cmp = /** @type {Record<string, unknown>} */ (ng().getComponent(el));
+        const cmp = /** @type {Record<string, unknown>} */ (
+          ng().getComponent(el)
+        );
         const meta = ng().getDirectiveMetadata(cmp) ?? {};
-        const inputs = Object.fromEntries(Object.keys(meta.inputs ?? {}).map((k) => [k, safe(cmp[k])]));
+        const inputs = Object.fromEntries(
+          Object.keys(meta.inputs ?? {}).map((k) => [k, safe(cmp[k])]),
+        );
 
         return {
           name: name(cmp),
-          changeDetection: meta.changeDetection === 0 ? 'OnPush' : meta.changeDetection === 1 ? 'Eager' : meta.changeDetection,
+          changeDetection:
+            meta.changeDetection === 0
+              ? 'OnPush'
+              : meta.changeDetection === 1
+                ? 'Eager'
+                : meta.changeDetection,
           encapsulation: meta.encapsulation,
           inputs,
           outputs: meta.outputs ?? {},
-          listeners: ng().getListeners(el).map((l) => ({ name: l.name, type: l.type, useCapture: l.useCapture })),
+          listeners: ng()
+            .getListeners(el)
+            .map((l) => ({
+              name: l.name,
+              type: l.type,
+              useCapture: l.useCapture,
+            })),
           directives: ng().getDirectives(el).map(name),
           owner: name(ng().getOwningComponent(el)),
-          state: Object.fromEntries(Object.keys(cmp).filter((k) => !k.startsWith('__')).slice(0, 30).map((k) => [k, safe(cmp[k])])),
+          state: Object.fromEntries(
+            Object.keys(cmp)
+              .filter((k) => !k.startsWith('__'))
+              .slice(0, 30)
+              .map((k) => [k, safe(cmp[k])]),
+          ),
         };
       },
       /** @param {string | number} selector */
@@ -172,8 +258,16 @@ async page => {
         };
 
         return {
-          nodes: g.nodes.map((n) => ({ kind: n.kind, label: n.label ?? null, value: safe(n.value), epoch: n.epoch })),
-          edges: g.edges.map((e) => `${label(g.nodes[e.consumer]?.id ?? e.consumer)} -> ${label(g.nodes[e.producer]?.id ?? e.producer)}`),
+          nodes: g.nodes.map((n) => ({
+            kind: n.kind,
+            label: n.label ?? null,
+            value: safe(n.value),
+            epoch: n.epoch,
+          })),
+          edges: g.edges.map(
+            (e) =>
+              `${label(g.nodes[e.consumer]?.id ?? e.consumer)} -> ${label(g.nodes[e.producer]?.id ?? e.producer)}`,
+          ),
         };
       },
       /**
@@ -185,7 +279,9 @@ async page => {
         const node = g.nodes.find((n) => n.label === signalLabel);
 
         if (node === undefined) {
-          throw new Error(`no signal node labelled ${signalLabel}; labels: ${g.nodes.map((n) => n.label).join(', ')}`);
+          throw new Error(
+            `no signal node labelled ${signalLabel}; labels: ${g.nodes.map((n) => n.label).join(', ')}`,
+          );
         }
 
         const idx = g.nodes.indexOf(node);
@@ -194,7 +290,11 @@ async page => {
           signal: signalLabel,
           kind: node.kind,
           value: safe(node.value),
-          dependsOn: g.edges.filter((e) => e.consumer === idx).map((e) => g.nodes[e.producer]?.label ?? g.nodes[e.producer]?.kind),
+          dependsOn: g.edges
+            .filter((e) => e.consumer === idx)
+            .map(
+              (e) => g.nodes[e.producer]?.label ?? g.nodes[e.producer]?.kind,
+            ),
         };
       },
       /** @param {string | number} selector */
@@ -212,7 +312,15 @@ async page => {
               // some injectors list no providers
             }
 
-            return { i, type: m?.type ?? null, source: m?.source instanceof Element ? `<${m.source.tagName.toLowerCase()}>` : (m?.source ?? null), providers };
+            return {
+              i,
+              type: m?.type ?? null,
+              source:
+                m?.source instanceof Element
+                  ? `<${m.source.tagName.toLowerCase()}>`
+                  : (m?.source ?? null),
+              providers,
+            };
           });
       },
       /**
@@ -220,7 +328,9 @@ async page => {
        * @param {number} [index]
        */
       providers(selector, index = 0) {
-        const inj = ng().ɵgetInjectorResolutionPath(ng().getInjector(host(selector)))[index];
+        const inj = ng().ɵgetInjectorResolutionPath(
+          ng().getInjector(host(selector)),
+        )[index];
 
         if (inj === undefined) {
           throw new Error(`no injector at index ${index}`);
@@ -228,7 +338,11 @@ async page => {
 
         return ng()
           .ɵgetInjectorProviders(inj)
-          .map((p) => ({ token: tokenName(p.token), isViewProvider: p.isViewProvider, importPath: p.importPath?.map?.(name) ?? null }));
+          .map((p) => ({
+            token: tokenName(p.token),
+            isViewProvider: p.isViewProvider,
+            importPath: p.importPath?.map?.(name) ?? null,
+          }));
       },
       router() {
         const r = router();
@@ -243,17 +357,32 @@ async page => {
             const p = [prefix, rt.path].filter((x) => x).join('/');
             const kids = rt.children ?? ng().ɵgetLoadedRoutes(rt);
 
-            return [{ path: `/${p}`, lazy: !!(rt.loadChildren || rt.loadComponent), loaded: !!kids || !!rt.component, redirectTo: rt.redirectTo ?? undefined }, ...walk(kids, p)];
+            return [
+              {
+                path: `/${p}`,
+                lazy: !!(rt.loadChildren || rt.loadComponent),
+                loaded: !!kids || !!rt.component,
+                redirectTo: rt.redirectTo ?? undefined,
+              },
+              ...walk(kids, p),
+            ];
           });
 
-        return { present: true, url: r.url, navigated: r.navigated, routes: walk(r.config, '') };
+        return {
+          present: true,
+          url: r.url,
+          navigated: r.navigated,
+          routes: walk(r.config, ''),
+        };
       },
       /** @param {string} url */
       async navigate(url) {
         const r = router();
 
         if (!r) {
-          throw new Error('router globals absent: navigate through the UI instead');
+          throw new Error(
+            'router globals absent: navigate through the UI instead',
+          );
         }
 
         const ok = await ng().ɵnavigateByUrl(r, url);
@@ -266,5 +395,7 @@ async page => {
   await page.addInitScript(install);
   await page.evaluate(install);
 
-  return await page.evaluate(() => /** @type {Window & NgGlobals} */ (window).__ngc?.doctor());
-}
+  return await page.evaluate(() =>
+    /** @type {Window & NgGlobals} */ (window).__ngc?.doctor(),
+  );
+};

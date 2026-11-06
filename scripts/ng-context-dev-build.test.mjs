@@ -60,13 +60,35 @@ const FIXTURE_ROOT = join(REPO_ROOT, 'spikes', 'ng222-app');
 const FIXTURE_SOURCE_ROOT = join(FIXTURE_ROOT, 'src');
 const FIXTURE_ANGULAR_JSON = join(FIXTURE_ROOT, 'angular.json');
 const FIXTURE_PACKAGE_JSON = join(FIXTURE_ROOT, 'package.json');
-const FIXTURE_NG_CLI = join(FIXTURE_ROOT, 'node_modules', '@angular', 'cli', 'bin', 'ng.js');
-const FIXTURE_PACKAGE_LINK = join(FIXTURE_ROOT, 'node_modules', 'ai-devtools-companion');
+const FIXTURE_NG_CLI = join(
+  FIXTURE_ROOT,
+  'node_modules',
+  '@angular',
+  'cli',
+  'bin',
+  'ng.js',
+);
+const FIXTURE_PACKAGE_LINK = join(
+  FIXTURE_ROOT,
+  'node_modules',
+  'ai-devtools-companion',
+);
 
 const NX_CLI = join(REPO_ROOT, 'node_modules', 'nx', 'dist', 'bin', 'nx.js');
-const PACKAGE_DIST_ENTRY = join(REPO_ROOT, 'packages', 'ai-devtools-companion', 'dist', 'index.js');
+const PACKAGE_DIST_ENTRY = join(
+  REPO_ROOT,
+  'packages',
+  'ai-devtools-companion',
+  'dist',
+  'index.js',
+);
 
-const RECORDING_PATH = join(REPO_ROOT, 'research', 'raw', 'm022-ng-context.json');
+const RECORDING_PATH = join(
+  REPO_ROOT,
+  'research',
+  'raw',
+  'm022-ng-context.json',
+);
 const RESEARCH_RAW = join(REPO_ROOT, 'research', 'raw');
 const DRIVER_PATH = join(REPO_ROOT, 'spikes', 'probes', 'ng-context.js');
 
@@ -76,7 +98,8 @@ const PROVISION_FIXTURE = 'npm --prefix spikes/ng222-app ci --include=dev';
 /** The package build, in the form a reader runs, and in the form this file runs it (AGENTS.md: the
  * Nx CLI entry for this install is `node_modules/nx/dist/bin/nx.js`, called through `node`). */
 const PACKAGE_BUILD_COMMAND = 'npx nx run ai-devtools-companion:build';
-const PACKAGE_BUILD_INVOCATION = 'node node_modules/nx/dist/bin/nx.js run ai-devtools-companion:build';
+const PACKAGE_BUILD_INVOCATION =
+  'node node_modules/nx/dist/bin/nx.js run ai-devtools-companion:build';
 
 /** The two configurations this file measures, each with its git-ignored output and the served URL
  * of the static server the driver reads. Nothing else is buildable from here. */
@@ -100,11 +123,19 @@ const OUTPUT_DIRECTORIES = {
  * compared exactly, so only the volatile size is relaxed.
  */
 const DEV_BYTES_TOLERANCE = 2000;
-const OUTPUT_PATHS = { development: 'tmp/ng-context/dev', production: 'tmp/ng-context/prod' };
-const SERVED_URLS = { development: 'http://127.0.0.1:4461/', production: 'http://127.0.0.1:4462/' };
+const OUTPUT_PATHS = {
+  development: 'tmp/ng-context/dev',
+  production: 'tmp/ng-context/prod',
+};
+const SERVED_URLS = {
+  development: 'http://127.0.0.1:4461/',
+  production: 'http://127.0.0.1:4462/',
+};
 const SERVE_COMMANDS = {
-  development: 'python -m http.server 4461 --bind 127.0.0.1 --directory tmp/ng-context/dev/browser',
-  production: 'python -m http.server 4462 --bind 127.0.0.1 --directory tmp/ng-context/prod/browser',
+  development:
+    'python -m http.server 4461 --bind 127.0.0.1 --directory tmp/ng-context/dev/browser',
+  production:
+    'python -m http.server 4462 --bind 127.0.0.1 --directory tmp/ng-context/prod/browser',
 };
 
 /**
@@ -161,7 +192,9 @@ const FROZEN_DEVELOPMENT_CONFIGURATION = {
   extractLicenses: false,
   sourceMap: true,
   preserveSymlinks: true,
-  fileReplacements: [{ replace: 'src/app/app.config.ts', with: 'src/app/app.config.dev.ts' }],
+  fileReplacements: [
+    { replace: 'src/app/app.config.ts', with: 'src/app/app.config.dev.ts' },
+  ],
 };
 const FROZEN_PRODUCTION_CONFIGURATION = {
   budgets: [
@@ -224,7 +257,9 @@ function versionOf(packageJsonPath) {
 }
 
 function fixtureAngularVersion() {
-  return versionOf(join(FIXTURE_ROOT, 'node_modules', '@angular', 'core', 'package.json'));
+  return versionOf(
+    join(FIXTURE_ROOT, 'node_modules', '@angular', 'core', 'package.json'),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -271,20 +306,28 @@ function analyseBundle({ configuration, text, bundles }) {
     configuration,
     bundles,
     bytes: text.length,
-    unminified: lines.length > 1000 && text.length / Math.max(lines.length, 1) < 200,
+    unminified:
+      lines.length > 1000 && text.length / Math.max(lines.length, 1) < 200,
     ngContextWrite: {
       present: identifier !== null && writes.length > 0,
       binding: constant ? constant[0] : null,
       identifier,
       writeSites: writes.length,
-      writeSnippets: writes.map((match) => snippetAround(text, match.index, 40, 60)),
+      writeSnippets: writes.map((match) =>
+        snippetAround(text, match.index, 40, 60),
+      ),
     },
     ngGlobalSurface: {
       present: NG_GLOBAL_REQUIRED.every((name) =>
-        text.includes(NG_GLOBAL_MARKERS.find(([markerName]) => markerName === name)[1]),
+        text.includes(
+          NG_GLOBAL_MARKERS.find(([markerName]) => markerName === name)[1],
+        ),
       ),
       markers: Object.fromEntries(
-        NG_GLOBAL_MARKERS.map(([name, marker]) => [name, text.includes(marker)]),
+        NG_GLOBAL_MARKERS.map(([name, marker]) => [
+          name,
+          text.includes(marker),
+        ]),
       ),
       evidence: text.includes('var GLOBAL_PUBLISH_EXPANDO_KEY = "ng";')
         ? 'var GLOBAL_PUBLISH_EXPANDO_KEY = "ng"; ... w[GLOBAL_PUBLISH_EXPANDO_KEY][name] = fn;'
@@ -336,10 +379,20 @@ function buildFixture(configuration) {
   );
 
   const browserDirectory = join(outputDirectory, 'browser');
-  assert.ok(existsSync(browserDirectory), `the build must emit ${displayPath(browserDirectory)}`);
-  const bundles = readdirSync(browserDirectory).filter((name) => name.endsWith('.js')).sort();
-  assert.ok(bundles.length > 0, 'the build must emit at least one browser bundle');
-  const text = bundles.map((name) => readFileSync(join(browserDirectory, name), 'utf8')).join('\n');
+  assert.ok(
+    existsSync(browserDirectory),
+    `the build must emit ${displayPath(browserDirectory)}`,
+  );
+  const bundles = readdirSync(browserDirectory)
+    .filter((name) => name.endsWith('.js'))
+    .sort();
+  assert.ok(
+    bundles.length > 0,
+    'the build must emit at least one browser bundle',
+  );
+  const text = bundles
+    .map((name) => readFileSync(join(browserDirectory, name), 'utf8'))
+    .join('\n');
 
   return {
     ...analyseBundle({ configuration, text, bundles }),
@@ -356,8 +409,16 @@ function buildPackage() {
     existsSync(NX_CLI),
     `the package build runs through ${displayPath(NX_CLI)} — run ${PROVISION_ROOT}`,
   );
-  const result = run(process.execPath, [NX_CLI, 'run', 'ai-devtools-companion:build']);
-  assert.equal(result.status, 0, `the package's build target must succeed: ${result.output}`);
+  const result = run(process.execPath, [
+    NX_CLI,
+    'run',
+    'ai-devtools-companion:build',
+  ]);
+  assert.equal(
+    result.status,
+    0,
+    `the package's build target must succeed: ${result.output}`,
+  );
   assert.ok(
     existsSync(PACKAGE_DIST_ENTRY),
     `the build target must emit ${displayPath(PACKAGE_DIST_ENTRY)}`,
@@ -384,11 +445,16 @@ const MISSING_FIXTURE_INSTALL =
   existsSync(FIXTURE_NG_CLI) && existsSync(FIXTURE_PACKAGE_LINK)
     ? false
     : `the fixture install is absent (${displayPath(join(FIXTURE_ROOT, 'node_modules'))}); run ${PROVISION_FIXTURE}`;
-const MISSING_MEASUREMENT_ENVIRONMENT = MISSING_ROOT_INSTALL || MISSING_FIXTURE_INSTALL;
+const MISSING_MEASUREMENT_ENVIRONMENT =
+  MISSING_ROOT_INSTALL || MISSING_FIXTURE_INSTALL;
 
 /** The precondition every measurement test opens with: `false` means the prerequisite is satisfied. */
 function requirePrerequisite(missing) {
-  assert.equal(missing, false, `the __ngContext__ measurement cannot run: ${missing}`);
+  assert.equal(
+    missing,
+    false,
+    `the __ngContext__ measurement cannot run: ${missing}`,
+  );
 }
 
 const measurements = new Map();
@@ -432,7 +498,10 @@ test('every composed build names its configuration, and a composer without one i
   }
 
   assert.equal(PACKAGE_BUILD_COMMAND, 'npx nx run ai-devtools-companion:build');
-  assert.equal(posixPath(NX_CLI).endsWith('node_modules/nx/dist/bin/nx.js'), true);
+  assert.equal(
+    posixPath(NX_CLI).endsWith('node_modules/nx/dist/bin/nx.js'),
+    true,
+  );
   console.log(
     `ng-context-dev-build: root install present, fixture install present at ${fixtureAngularVersion()}; ` +
       `commands ${JSON.stringify(Object.keys(OUTPUT_DIRECTORIES).map(buildCommand))}`,
@@ -447,21 +516,32 @@ test('the development bundle carries the __ngContext__ write and a window.ng sur
   requirePrerequisite(MISSING_MEASUREMENT_ENVIRONMENT);
   const build = measurement('development');
 
-  assert.equal(build.unminified, true, 'the development bundle must be unminified for a search to mean anything');
+  assert.equal(
+    build.unminified,
+    true,
+    'the development bundle must be unminified for a search to mean anything',
+  );
   assert.equal(
     build.ngContextWrite.present,
     true,
     `the development bundle must write __ngContext__: ${JSON.stringify(build.ngContextWrite)}`,
   );
   assert.equal(build.ngContextWrite.identifier, 'MONKEY_PATCH_KEY_NAME');
-  assert.ok(build.ngContextWrite.writeSites >= 2, 'both branches of attachPatchData must write the property');
+  assert.ok(
+    build.ngContextWrite.writeSites >= 2,
+    'both branches of attachPatchData must write the property',
+  );
   assert.equal(
     build.ngGlobalSurface.present,
     true,
     `the development bundle must publish window.ng: ${JSON.stringify(build.ngGlobalSurface)}`,
   );
   for (const name of NG_GLOBAL_REQUIRED) {
-    assert.equal(build.ngGlobalSurface.markers[name], true, `the window.ng marker ${name} must be present`);
+    assert.equal(
+      build.ngGlobalSurface.markers[name],
+      true,
+      `the window.ng marker ${name} must be present`,
+    );
   }
 
   console.log(
@@ -475,7 +555,11 @@ test('the production bundle carries the same __ngContext__ write and no window.n
   requirePrerequisite(MISSING_MEASUREMENT_ENVIRONMENT);
   const build = measurement('production');
 
-  assert.equal(build.unminified, false, 'the production bundle must be minified');
+  assert.equal(
+    build.unminified,
+    false,
+    'the production bundle must be minified',
+  );
   assert.equal(
     build.ngContextWrite.present,
     true,
@@ -486,15 +570,26 @@ test('the production bundle carries the same __ngContext__ write and no window.n
     /var [A-Za-z0-9_$]+="__ngContext__"$/,
     'the production bundle binds the same property name to a minified alias',
   );
-  assert.notEqual(build.ngContextWrite.identifier, 'MONKEY_PATCH_KEY_NAME', 'the production bundle is minified');
-  assert.ok(build.ngContextWrite.writeSites >= 1, 'the production bundle must assign through the alias');
+  assert.notEqual(
+    build.ngContextWrite.identifier,
+    'MONKEY_PATCH_KEY_NAME',
+    'the production bundle is minified',
+  );
+  assert.ok(
+    build.ngContextWrite.writeSites >= 1,
+    'the production bundle must assign through the alias',
+  );
   assert.equal(
     build.ngGlobalSurface.present,
     false,
     `the production bundle must publish no window.ng: ${JSON.stringify(build.ngGlobalSurface)}`,
   );
   for (const name of NG_GLOBAL_REQUIRED) {
-    assert.equal(build.ngGlobalSurface.markers[name], false, `the window.ng marker ${name} must be absent`);
+    assert.equal(
+      build.ngGlobalSurface.markers[name],
+      false,
+      `the window.ng marker ${name} must be absent`,
+    );
   }
   assert.equal(build.ngGlobalSurface.evidence, null);
 
@@ -518,15 +613,29 @@ test('the recording is present, names both configurations and matches the bytes 
   const recording = readJson(RECORDING_PATH);
 
   assert.equal(recording.app, 'spikes/ng222-app');
-  assert.equal(recording.angular, fixtureAngularVersion(), 'the recording must name the Angular version it measured');
+  assert.equal(
+    recording.angular,
+    fixtureAngularVersion(),
+    'the recording must name the Angular version it measured',
+  );
   assert.equal(recording.packageBuild.command, PACKAGE_BUILD_COMMAND);
-  assert.equal(recording.packageBuild.equivalentInvocation, PACKAGE_BUILD_INVOCATION);
-  assert.match(recording.packageBuild.why, /development configuration|development build/);
+  assert.equal(
+    recording.packageBuild.equivalentInvocation,
+    PACKAGE_BUILD_INVOCATION,
+  );
+  assert.match(
+    recording.packageBuild.why,
+    /development configuration|development build/,
+  );
 
   for (const configuration of Object.keys(OUTPUT_DIRECTORIES)) {
     const recorded = recording.builds[configuration];
     assert.ok(recorded, `the recording must name the ${configuration} build`);
-    assert.equal(recorded.configuration, configuration, 'a recorded build must name its configuration');
+    assert.equal(
+      recorded.configuration,
+      configuration,
+      'a recorded build must name its configuration',
+    );
     assert.equal(recorded.command, buildCommand(configuration));
     assert.equal(recorded.cwd, 'spikes/ng222-app');
     assert.equal(recorded.outputPath, OUTPUT_PATHS[configuration]);
@@ -536,33 +645,81 @@ test('the recording is present, names both configurations and matches the bytes 
       // development build embeds absolute paths (see DEV_BYTES_TOLERANCE). The bundle list is recorded as
       // a shape (entry, lazyChunkCount, chunkPattern) plus a sample observation, because the chunk names
       // themselves move with the output path.
-      assert.equal(recorded.entry, 'main.js', 'the recorded development entry must be main.js');
+      assert.equal(
+        recorded.entry,
+        'main.js',
+        'the recorded development entry must be main.js',
+      );
       const chunkPattern = new RegExp(recorded.chunkPattern);
-      const actualEntry = actual.bundles.find((name) => name === recorded.entry);
-      assert.equal(actualEntry, recorded.entry, `the development entry must be ${recorded.entry}`);
-      const actualLazyChunks = actual.bundles.filter((name) => name !== recorded.entry);
+      const actualEntry = actual.bundles.find(
+        (name) => name === recorded.entry,
+      );
+      assert.equal(
+        actualEntry,
+        recorded.entry,
+        `the development entry must be ${recorded.entry}`,
+      );
+      const actualLazyChunks = actual.bundles.filter(
+        (name) => name !== recorded.entry,
+      );
       assert.equal(
         actualLazyChunks.length,
         recorded.lazyChunkCount,
         `the development lazy chunk count must match: ${actualLazyChunks.length} vs ${recorded.lazyChunkCount}`,
       );
       for (const name of actualLazyChunks) {
-        assert.match(name, chunkPattern, `${name} must match chunkPattern ${recorded.chunkPattern}`);
+        assert.match(
+          name,
+          chunkPattern,
+          `${name} must match chunkPattern ${recorded.chunkPattern}`,
+        );
       }
-      assert.equal(recorded.unminified, actual.unminified, 'the recorded development bundle must match minification');
-      assert.deepEqual(recorded.ngContextWrite, actual.ngContextWrite, 'the recorded development __ngContext__ write must match');
-      assert.deepEqual(recorded.ngGlobalSurface, actual.ngGlobalSurface, 'the recorded development window.ng surface must match');
-      assert.equal(recorded.command, actual.command, 'the recorded development command must match');
-      assert.equal(recorded.configuration, actual.configuration, 'the recorded development configuration must match');
-      assert.equal(recorded.cwd, actual.cwd, 'the recorded development cwd must match');
-      assert.equal(recorded.outputPath, actual.outputPath, 'the recorded development output path must match');
+      assert.equal(
+        recorded.unminified,
+        actual.unminified,
+        'the recorded development bundle must match minification',
+      );
+      assert.deepEqual(
+        recorded.ngContextWrite,
+        actual.ngContextWrite,
+        'the recorded development __ngContext__ write must match',
+      );
+      assert.deepEqual(
+        recorded.ngGlobalSurface,
+        actual.ngGlobalSurface,
+        'the recorded development window.ng surface must match',
+      );
+      assert.equal(
+        recorded.command,
+        actual.command,
+        'the recorded development command must match',
+      );
+      assert.equal(
+        recorded.configuration,
+        actual.configuration,
+        'the recorded development configuration must match',
+      );
+      assert.equal(
+        recorded.cwd,
+        actual.cwd,
+        'the recorded development cwd must match',
+      );
+      assert.equal(
+        recorded.outputPath,
+        actual.outputPath,
+        'the recorded development output path must match',
+      );
       assert.ok(
         Math.abs(actual.bytes - recorded.bytes) <= DEV_BYTES_TOLERANCE,
         `the recorded development build bytes must be within ${DEV_BYTES_TOLERANCE} of the emitted bytes: actual ${actual.bytes}, expected ${recorded.bytes}`,
       );
     } else {
       // The build half, compared whole with the bytes this file just produced.
-      assert.deepEqual(recorded, actual, `the recorded ${configuration} build must match the emitted bytes`);
+      assert.deepEqual(
+        recorded,
+        actual,
+        `the recorded ${configuration} build must match the emitted bytes`,
+      );
     }
   }
 
@@ -570,7 +727,10 @@ test('the recording is present, names both configurations and matches the bytes 
   assert.equal(recording.builds.production.ngContextWrite.present, true);
   assert.equal(recording.builds.development.ngGlobalSurface.present, true);
   assert.equal(recording.builds.production.ngGlobalSurface.present, false);
-  assert.equal(recording.differential.ngContextWrite, 'present in both configurations');
+  assert.equal(
+    recording.differential.ngContextWrite,
+    'present in both configurations',
+  );
   assert.equal(recording.differential.ngGlobalSurface, 'development only');
   assert.equal(
     recording.builds.development.ngContextWrite.binding,
@@ -588,13 +748,16 @@ test('the recording is present, names both configurations and matches the bytes 
 // AC3, AC6 — the served readings are the driver's own, and they agree with the bytes
 // ---------------------------------------------------------------------------
 
-test('the recorded served readings are the driver\'s own, plain data, and agree with the emitted bytes (AC3, AC6)', () => {
+test("the recorded served readings are the driver's own, plain data, and agree with the emitted bytes (AC3, AC6)", () => {
   requirePrerequisite(MISSING_MEASUREMENT_ENVIRONMENT);
   const recording = readJson(RECORDING_PATH);
   const served = recording.served;
 
   assert.equal(served.driver, 'spikes/probes/ng-context.js');
-  assert.match(served.command, /control\.mjs run \S+ spikes\/probes\/ng-context\.js$/);
+  assert.match(
+    served.command,
+    /control\.mjs run \S+ spikes\/probes\/ng-context\.js$/,
+  );
   assert.deepEqual(
     served.reading,
     JSON.parse(JSON.stringify(served.reading)),
@@ -603,7 +766,10 @@ test('the recorded served readings are the driver\'s own, plain data, and agree 
 
   for (const configuration of Object.keys(SERVED_URLS)) {
     assert.equal(served.servers[configuration].url, SERVED_URLS[configuration]);
-    assert.equal(served.servers[configuration].command, SERVE_COMMANDS[configuration]);
+    assert.equal(
+      served.servers[configuration].command,
+      SERVE_COMMANDS[configuration],
+    );
     assert.equal(
       served.servers[configuration].directory,
       `${OUTPUT_PATHS[configuration]}/browser`,
@@ -620,13 +786,29 @@ test('the recorded served readings are the driver\'s own, plain data, and agree 
   const development = served.reading.development;
   const production = served.reading.production;
   assert.equal(development.templateElement.tag, 'button');
-  assert.equal(development.templateElement.hasNgContext, true, 'a template element on a development page carries a context');
+  assert.equal(
+    development.templateElement.hasNgContext,
+    true,
+    'a template element on a development page carries a context',
+  );
   assert.equal(production.templateElement.tag, 'button');
-  assert.equal(production.templateElement.hasNgContext, true, 'a template element on a production page carries a context too');
+  assert.equal(
+    production.templateElement.hasNgContext,
+    true,
+    'a template element on a production page carries a context too',
+  );
   assert.equal(development.componentHost.hasNgContext, true);
   assert.equal(production.componentHost.hasNgContext, true);
-  assert.equal(development.ngGlobalType, 'object', 'the development page must publish window.ng');
-  assert.equal(production.ngGlobalType, 'undefined', 'the production page must publish no window.ng');
+  assert.equal(
+    development.ngGlobalType,
+    'object',
+    'the development page must publish window.ng',
+  );
+  assert.equal(
+    production.ngGlobalType,
+    'undefined',
+    'the production page must publish no window.ng',
+  );
   assert.equal(development.ngOwningComponentType, 'function');
   assert.equal(production.ngOwningComponentType, 'undefined');
   assert.equal(typeof development.appRootComponentName, 'string');
@@ -639,11 +821,19 @@ test('the recorded served readings are the driver\'s own, plain data, and agree 
   // what the page reports, and what both builds say about the context is what both pages carry.
   const developmentBuild = measurement('development');
   const productionBuild = measurement('production');
-  assert.equal(developmentBuild.ngGlobalSurface.present, development.ngGlobalType === 'object');
-  assert.equal(productionBuild.ngGlobalSurface.present, production.ngGlobalType === 'object');
   assert.equal(
-    developmentBuild.ngContextWrite.present && productionBuild.ngContextWrite.present,
-    development.templateElement.hasNgContext && production.templateElement.hasNgContext,
+    developmentBuild.ngGlobalSurface.present,
+    development.ngGlobalType === 'object',
+  );
+  assert.equal(
+    productionBuild.ngGlobalSurface.present,
+    production.ngGlobalType === 'object',
+  );
+  assert.equal(
+    developmentBuild.ngContextWrite.present &&
+      productionBuild.ngContextWrite.present,
+    development.templateElement.hasNgContext &&
+      production.templateElement.hasNgContext,
   );
 
   console.log(
@@ -663,27 +853,51 @@ test('the recording carries the no-dev-api ruling and names what the measurement
 
   assert.equal(ruling.productionPage, 'no-dev-api');
   assert.equal(ruling.developmentPage, 'debug-api available');
-  assert.equal(ruling.contextOnATemplateElement, 'present in both configurations');
+  assert.equal(
+    ruling.contextOnATemplateElement,
+    'present in both configurations',
+  );
   assert.equal(ruling.supersededOutcome, 'no-dev-context');
   assert.match(ruling.statement, /__ngContext__/);
   assert.match(ruling.statement, /no-dev-api/);
-  assert.match(ruling.supersededBecause, /production build writes __ngContext__/);
+  assert.match(
+    ruling.supersededBecause,
+    /production build writes __ngContext__/,
+  );
 
-  assert.ok(Array.isArray(recording.doesNotSettle), 'the recording must say what it does not settle');
+  assert.ok(
+    Array.isArray(recording.doesNotSettle),
+    'the recording must say what it does not settle',
+  );
   assert.ok(recording.doesNotSettle.length > 0);
   for (const entry of recording.doesNotSettle) {
     assert.ok(entry.question.length > 0, 'every open question must be stated');
-    assert.ok(entry.stillOpen.length > 0, 'every open question must say what remains open');
-    assert.ok(entry.probeThatWouldSettleIt.length > 0, 'every open question must name the probe that would settle it');
+    assert.ok(
+      entry.stillOpen.length > 0,
+      'every open question must say what remains open',
+    );
+    assert.ok(
+      entry.probeThatWouldSettleIt.length > 0,
+      'every open question must name the probe that would settle it',
+    );
   }
   const runtimeElement = recording.doesNotSettle.find((entry) =>
     /inside a component's template/.test(entry.question),
   );
-  assert.ok(runtimeElement, 'the recording must name the runtime-element question a bundle search cannot answer');
-  assert.match(runtimeElement.question, /a dev context that no bundle search can see/);
+  assert.ok(
+    runtimeElement,
+    'the recording must name the runtime-element question a bundle search cannot answer',
+  );
+  assert.match(
+    runtimeElement.question,
+    /a dev context that no bundle search can see/,
+  );
   assert.match(runtimeElement.question, /inside a component's template/);
   assert.match(runtimeElement.settledFor, /app-counter button/);
-  assert.match(runtimeElement.probeThatWouldSettleIt, /spikes\/probes\/ng-context\.js/);
+  assert.match(
+    runtimeElement.probeThatWouldSettleIt,
+    /spikes\/probes\/ng-context\.js/,
+  );
 
   console.log(
     `ng-context-dev-build: ruling ${ruling.productionPage}, ${recording.doesNotSettle.length} open question(s) recorded`,
@@ -696,7 +910,11 @@ test('the recording carries the no-dev-api ruling and names what the measurement
 
 test('the driver is a `control-ai-browsers run` probe that only reads and returns plain data (AC6)', () => {
   const source = readFileSync(DRIVER_PATH, 'utf8');
-  assert.match(source, /^async page => \{$/m, 'the driver must be a run-driver: async page => { ... }');
+  assert.match(
+    source,
+    /^async page => \{$/m,
+    'the driver must be a run-driver: async page => { ... }',
+  );
 
   for (const forbidden of [
     'createElement',
@@ -720,12 +938,24 @@ test('the driver is a `control-ai-browsers run` probe that only reads and return
     );
   }
   for (const url of Object.values(SERVED_URLS)) {
-    assert.ok(source.includes(url), `the driver must read the served page at ${url}`);
+    assert.ok(
+      source.includes(url),
+      `the driver must read the served page at ${url}`,
+    );
   }
-  assert.match(source, /return page\.evaluate\(/, 'the reading must be taken in the page realm');
-  assert.match(source, /return \{\s*development,\s*production,\s*differential:/);
+  assert.match(
+    source,
+    /return page\.evaluate\(/,
+    'the reading must be taken in the page realm',
+  );
+  assert.match(
+    source,
+    /return \{\s*development,\s*production,\s*differential:/,
+  );
 
-  console.log(`ng-context-dev-build: driver ${displayPath(DRIVER_PATH)} is read-only and names both servers`);
+  console.log(
+    `ng-context-dev-build: driver ${displayPath(DRIVER_PATH)} is read-only and names both servers`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -734,27 +964,56 @@ test('the driver is a `control-ai-browsers run` probe that only reads and return
 
 test('the fixture is untouched: its dependencies and both build configurations are the measured ones (AC7)', () => {
   const fixturePackage = readJson(FIXTURE_PACKAGE_JSON);
-  assert.deepEqual(Object.keys(fixturePackage.dependencies).sort(), FIXTURE_DEPENDENCIES);
-  assert.deepEqual(Object.keys(fixturePackage.devDependencies).sort(), FIXTURE_DEV_DEPENDENCIES);
+  assert.deepEqual(
+    Object.keys(fixturePackage.dependencies).sort(),
+    FIXTURE_DEPENDENCIES,
+  );
+  assert.deepEqual(
+    Object.keys(fixturePackage.devDependencies).sort(),
+    FIXTURE_DEV_DEPENDENCIES,
+  );
 
-  const build = readJson(FIXTURE_ANGULAR_JSON).projects['ng222-app'].architect.build;
-  assert.equal(build.defaultConfiguration, 'production', 'the fixture’s default stays production: hence the explicit flag');
-  assert.deepEqual(build.configurations.development, FROZEN_DEVELOPMENT_CONFIGURATION);
-  assert.deepEqual(build.configurations.production, FROZEN_PRODUCTION_CONFIGURATION);
+  const build =
+    readJson(FIXTURE_ANGULAR_JSON).projects['ng222-app'].architect.build;
+  assert.equal(
+    build.defaultConfiguration,
+    'production',
+    'the fixture’s default stays production: hence the explicit flag',
+  );
+  assert.deepEqual(
+    build.configurations.development,
+    FROZEN_DEVELOPMENT_CONFIGURATION,
+  );
+  assert.deepEqual(
+    build.configurations.production,
+    FROZEN_PRODUCTION_CONFIGURATION,
+  );
 
   // The fixture's own source cannot have been instrumented to produce the reading it is measured for.
   const instrumented = filesUnder(FIXTURE_SOURCE_ROOT)
-    .filter((path) => /__ngContext__|window\.ng/.test(readFileSync(path, 'utf8')))
+    .filter((path) =>
+      /__ngContext__|window\.ng/.test(readFileSync(path, 'utf8')),
+    )
     .map(displayPath);
-  assert.deepEqual(instrumented, [], 'the fixture source must not read or write the properties under measurement');
+  assert.deepEqual(
+    instrumented,
+    [],
+    'the fixture source must not read or write the properties under measurement',
+  );
 
   // AC7's tree-wide half is a property of the diff, which the reviewer reads with git; what a test
   // can hold is that this task's own artifacts are the three declared paths and that none of them is
   // Markdown — the docs-audit gate derives its frozen inventory from the tracked Markdown tree, so a
   // Markdown file beside the measurement would be a new document.
   assert.deepEqual(
-    [RECORDING_PATH, DRIVER_PATH, fileURLToPath(import.meta.url)].map(displayPath),
-    ['research/raw/m022-ng-context.json', 'spikes/probes/ng-context.js', 'scripts/ng-context-dev-build.test.mjs'],
+    [RECORDING_PATH, DRIVER_PATH, fileURLToPath(import.meta.url)].map(
+      displayPath,
+    ),
+    [
+      'research/raw/m022-ng-context.json',
+      'spikes/probes/ng-context.js',
+      'scripts/ng-context-dev-build.test.mjs',
+    ],
   );
   assert.deepEqual(
     readdirSync(RESEARCH_RAW).filter((name) => name.endsWith('.md')),
@@ -762,7 +1021,9 @@ test('the fixture is untouched: its dependencies and both build configurations a
     'the measurement is a JSON recording: no Markdown document is added beside it',
   );
 
-  console.log('ng-context-dev-build: fixture dependencies, both configurations and the artifact paths are pinned');
+  console.log(
+    'ng-context-dev-build: fixture dependencies, both configurations and the artifact paths are pinned',
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -773,8 +1034,14 @@ test('the development build is name-stable across two builds at the same output 
   buildPackage();
   const first = buildFixture('development');
   const second = buildFixture('development');
-  assert.deepEqual(first.bundles, second.bundles, 'two builds at the same output path must emit identical bundle name lists');
-  console.log(`ng-context-dev-build: stability ${JSON.stringify(first.bundles)} === ${JSON.stringify(second.bundles)}`);
+  assert.deepEqual(
+    first.bundles,
+    second.bundles,
+    'two builds at the same output path must emit identical bundle name lists',
+  );
+  console.log(
+    `ng-context-dev-build: stability ${JSON.stringify(first.bundles)} === ${JSON.stringify(second.bundles)}`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -783,14 +1050,30 @@ test('the development build is name-stable across two builds at the same output 
 
 test('this file fails rather than skips when a prerequisite is absent (AC1, AC4)', () => {
   const source = readFileSync(fileURLToPath(import.meta.url), 'utf8');
-  assert.equal(/\.skip\s*\(/.test(source), false, 'this file may carry no skip');
-  assert.equal(/skip:\s*true/.test(source), false, 'no test may be declared skippable');
+  assert.equal(
+    /\.skip\s*\(/.test(source),
+    false,
+    'this file may carry no skip',
+  );
+  assert.equal(
+    /skip:\s*true/.test(source),
+    false,
+    'no test may be declared skippable',
+  );
   assert.ok(
     (source.match(/requirePrerequisite\(/g) ?? []).length >= 6,
     'every measurement test must open with the install gate',
   );
-  assert.ok(MISSING_ROOT_INSTALL === false || /npm ci --include=dev/.test(MISSING_ROOT_INSTALL));
-  assert.ok(MISSING_FIXTURE_INSTALL === false || /--include=dev/.test(MISSING_FIXTURE_INSTALL));
+  assert.ok(
+    MISSING_ROOT_INSTALL === false ||
+      /npm ci --include=dev/.test(MISSING_ROOT_INSTALL),
+  );
+  assert.ok(
+    MISSING_FIXTURE_INSTALL === false ||
+      /--include=dev/.test(MISSING_FIXTURE_INSTALL),
+  );
 
-  console.log('ng-context-dev-build: no skip directive; the install gate names its provisioning command');
+  console.log(
+    'ng-context-dev-build: no skip directive; the install gate names its provisioning command',
+  );
 });

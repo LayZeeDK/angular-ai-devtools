@@ -1224,3 +1224,365 @@ Risks
 
 Open questions
 - [RESEARCH] What does FRM-S1 (S9) measure for the field states of a cross-field rule in Signal Forms, and which state explains a disabled submit?
+
+### M032 — lint-core
+
+Goal: Build the core lint explainers: why the compiler reported this template, lifecycle or configuration problem, and what the app should do instead.
+Depends on: [M020]
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
+Status: shipped
+Archive: .project/archive/032-lint-core
+Integrated: null
+
+Scope: in
+- The lint findings the compiler raises on the reference fixture, grouped by the API each one concerns.
+- A mapping from a finding to the modern pattern that replaces the flagged construct.
+- The panel surface rendering the findings and their remedies from a short fact list.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, every template and configuration lint the compiler reports produces a finding naming the construct and its modern replacement.
+2. The finding is produced from the compiler message and the app facts alone, with no new page-side instrumentation.
+3. A subject that does not match this explainer's premise reports "cannot tell" rather than naming a wrong cause.
+
+Risks: the lint catalogue is large and versioned; a digest pinned to one Angular version goes stale silently (see the 18-vs-13 image-code defect).
+Open questions: none
+
+
+### M033 — lint-router
+
+Goal: Build the router lint explainers: why a route declaration is flagged, and which configured route the finding belongs to.
+Depends on: [M020]
+Programme: core · Batch: 3 · Group: @angular/router
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The router findings the compiler raises on the fixture, joined to the configured route they concern.
+- The modern replacement for each flagged routing construct.
+- The panel surface rendering the route, the finding and the remedy.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, a flagged route declaration produces a finding naming the configured route and the construct to replace.
+2. The finding names no guard verdict the configuration does not record.
+3. A subject that does not match this explainer's premise reports "cannot tell" rather than naming a wrong cause.
+
+Risks: a route finding that cannot be attributed to exactly one configured route must say so rather than pick the nearest.
+Open questions: none
+
+
+### M034 — lint-legacy
+
+Goal: Build the legacy-API explainers: why a construct is flagged as legacy and what the modern equivalent is.
+Depends on: [M020]
+Programme: core · Batch: 3 · Group: cross-package
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The legacy findings on the fixture, each naming the flagged construct and the modern API that replaces it.
+- A refusal path for a construct that has no modern equivalent, rather than a fabricated remedy.
+- The panel surface rendering the construct, its replacement and the migration note.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, a flagged legacy construct produces a finding naming it and its modern replacement.
+2. A construct with no modern equivalent reports that plainly instead of naming a replacement.
+3. A subject that does not match this explainer's premise reports "cannot tell" rather than naming a wrong cause.
+
+Risks: the legacy catalogue mixes removals and deprecations; conflating them produces a wrong remedy.
+Open questions: none
+
+
+### M035 — onpush-readiness
+
+Goal: Build the change-detection explainer: why this component could adopt OnPush, and what blocks it.
+Depends on: [M020]
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The component facts that make a component OnPush-ready, and the ones that block it.
+- Each blocking fact joined to the component and the template expression it comes from.
+- The panel surface rendering readiness, the blockers and the first change to make.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, a component using default change detection produces a finding naming its blockers or stating it is ready.
+2. The finding is produced from the profile and template facts alone, with no new page-side instrumentation.
+3. A subject that does not match this explainer's premise reports "cannot tell" rather than naming a wrong cause.
+
+Risks: readiness inferred from a quiet profile is not readiness; a component with no observed updates must not be reported as ready.
+Open questions: none
+
+
+### M036 — resource-lifecycle
+
+Goal: Build the resource explainer: why this resource is still loading, errored, or never settled.
+Depends on: [M020]
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The resource status the fixture exposes, per resource and per parameter set.
+- The lifecycle event that last moved the resource, and the state it holds now.
+- The panel surface rendering the resource, its status and the last transition.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, a resource that has not settled produces a finding naming its status and the last lifecycle event.
+2. The finding reports the observed status rather than inferring completion from the absence of an error.
+3. A subject that does not match this explainer's premise reports "cannot tell" rather than naming a wrong cause.
+
+Risks: a resource that was never read and one that failed to load look alike unless the status is read, not inferred.
+Open questions: none
+
+
+### M037 — signal-forms-doctor
+
+Goal: Build the Signal Forms doctor: why this form is invalid, field by field and at the root.
+Depends on: [M020]
+Programme: core · Batch: 3 · Group: @angular/forms
+Surfaces: panel
+Gate: S9.
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- Each field's validity and its own errors, plus the root's error kind when it carries one.
+- The distinction between a field error and a cross-field rule, kept visible rather than merged.
+- The panel surface rendering the field set, the submit state and the root kind.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, an invalid form produces a finding naming each invalid field and the root kind when present.
+2. The finding never names the rule that decided a root verdict, only the kind the form carries.
+3. A subject that does not match this explainer's premise reports "cannot tell" rather than naming a wrong cause.
+
+Risks: spike S9 is unrun; the shape it finds sets what a Signal Forms read can expose.
+Open questions: S9: what does a Signal Forms root expose beyond a boolean and an error kind?
+
+
+### M038 — linked-state-reset
+
+Goal: Build the explainer for state that resets itself: why this linked signal or state value returned to its source value.
+Depends on: [M020]
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The linked state the fixture exposes, its source and its last write.
+- The write that caused the reset, distinguished from a recomputation.
+- The panel surface rendering the value, its source and the last transition.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, a linked value that returned to its source produces a finding naming the write that reset it.
+2. A recomputation is not reported as a reset.
+3. A subject that does not match this explainer's premise reports "cannot tell" rather than naming a wrong cause.
+
+Risks: a reset and a recomputation reach the same value by different routes; the observable must distinguish them or say it cannot.
+Open questions: none
+
+
+### M039 — render-phase-effect
+
+Goal: Build the render-phase explainer: why this effect ran during rendering, and what it touched.
+Depends on: [M020]
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The effect executions the fixture exposes, with the phase each ran in.
+- The values the effect wrote, joined to the phase that observed them.
+- The panel surface rendering the effect, its phase and the value it changed.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, an effect that writes during rendering produces a finding naming the effect and the phase.
+2. The finding reports the phase it observed rather than inferring one from the effect's own report.
+3. A subject that does not match this explainer's premise reports "cannot tell" rather than naming a wrong cause.
+
+Risks: phase attribution across a microtask boundary is the failure mode here; an unattributable write must say so.
+Open questions: none
+
+
+### M040 — performance-narrator
+
+Goal: Build the performance narrator: which component did the work in this frame, and what it cost.
+Depends on: [M020]
+Programme: core · Batch: 3 · Group: cross-package
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The recorded render work per component, ordered by the profile rather than by wall-clock guesses.
+- The cost attributed to each component, with the phase it belongs to.
+- The panel surface rendering the frame's ordered work and its cost.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, a frame with recorded work produces a finding listing the components in phase order with their cost.
+2. A frame with no recorded work reports that, rather than an empty table that reads as "nothing was slow".
+3. A subject that does not match this explainer's premise reports "cannot tell" rather than naming a wrong cause.
+
+Risks: the profile records events, not durations; a cost inferred from ordering is not a measurement.
+Open questions: none
+
+
+### M041 — navigation-blocking
+
+Goal: Build the navigation explainer: what is holding this navigation, and at which stage.
+Depends on: [M020]
+Programme: core · Batch: 3 · Group: @angular/router
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The navigation stages the fixture records, and the one the navigation stopped in.
+- The route the navigation was heading for, and the route it is on.
+- The panel surface rendering the stage, both routes and the end state.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, a navigation that does not complete produces a finding naming the stage it stopped in.
+2. The finding names no guard verdict the router does not record.
+3. A subject that does not match this explainer's premise reports "cannot tell" rather than naming a wrong cause.
+
+Risks: a navigation that is merely slow and one that is blocked look identical until the stage is read.
+Open questions: none
+
+
+### M042 — error-boundary
+
+Goal: Build the error-boundary explainer: why this error reached the boundary that caught it, and what it replaced.
+Depends on: [M020]
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
+Gate: S10.
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- Which boundary caught the error, and the subtree it replaced.
+- The error's own identity, distinguished from the boundary's fallback content.
+- The panel surface rendering the error, the boundary and the replaced subtree.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, an error that reaches a boundary produces a finding naming the boundary and the subtree it replaced.
+2. The finding reports the error the boundary received, never the fallback that replaced it.
+3. A subject that does not match this explainer's premise reports "cannot tell" rather than naming a wrong cause.
+
+Risks: spike S10 is unrun; a boundary that swallows an error silently sets what this explainer can see.
+Open questions: S10: does an Angular error boundary expose the error it caught to a page-side reader?
+
+
+### M043 — stability-explainer
+
+Goal: Build the stability explainer: why the app is not stable, and what is still outstanding.
+Depends on: [M020]
+Programme: core · Batch: 3 · Group: @angular/core
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The outstanding work the fixture reports: pending tasks, in-flight requests and unsettled resources.
+- Each outstanding item joined to the component or service that owns it.
+- The panel surface rendering what is outstanding and the first item to settle.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. On the fixture, an unstable app produces a finding listing the outstanding work with its owners.
+2. A stable app reports stability as measured, not as the absence of a report.
+3. A subject that does not match this explainer's premise reports "cannot tell" rather than naming a wrong cause.
+
+Risks: stability read from a quiet interval is not stability; the observable must come from the reported work.
+Open questions: none
+

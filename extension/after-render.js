@@ -28,7 +28,7 @@
 // family of the pair names the phase an event belongs to; an event that carries its own `phase`
 // wins over that, and one that carries its own `at` ordinal wins over its list index.
 (function () {
-  "use strict";
+  'use strict';
 
   // Mirrors the four values in agent-main.js's ProfilerEvent literal. The extension's content
   // scripts share one world but not one module system, so the numbers are repeated here rather than
@@ -38,36 +38,42 @@
   const OUTPUT_START = 6;
   const OUTPUT_END = 7;
 
-  const ORDERED = "ordered";
-  const CANNOT_TELL = "cannot-tell";
-  const UNKNOWN = "unknown";
+  const ORDERED = 'ordered';
+  const CANNOT_TELL = 'cannot-tell';
+  const UNKNOWN = 'unknown';
 
   // The name of the absence, so a caller compares a constant instead of prose (E3).
-  const NO_AFTER_RENDER_EVENT = "no-after-render-event";
+  const NO_AFTER_RENDER_EVENT = 'no-after-render-event';
 
   // The phase an event belongs to, from the family of the pair that emitted it.
   function phaseForType(type) {
-    if (type === TEMPLATE_UPDATE_START || type === TEMPLATE_UPDATE_END) return "template-update";
-    if (type === OUTPUT_START || type === OUTPUT_END) return "output";
+    if (type === TEMPLATE_UPDATE_START || type === TEMPLATE_UPDATE_END)
+      return 'template-update';
+    if (type === OUTPUT_START || type === OUTPUT_END) return 'output';
     return null;
   }
 
   // An event the enum carries. Anything else is not a recorded profiler event and cannot be placed.
   function recognises(type) {
-    return typeof type === "number" && phaseForType(type) !== null;
+    return typeof type === 'number' && phaseForType(type) !== null;
   }
 
   // The list the page agent records holds the enum's numbers (`events.push(event)`), but a recorder
   // that normalises as it goes holds `{ type }`. Both are read here.
   function typeOf(event) {
-    if (typeof event === "number") return event;
-    if (event && typeof event === "object") return event.type;
+    if (typeof event === 'number') return event;
+    if (event && typeof event === 'object') return event.type;
     return undefined;
   }
 
   // The phase an event belongs to: its own when the recorder supplied one, the pair's otherwise.
   function phaseOfEvent(event) {
-    if (event && typeof event === "object" && typeof event.phase === "string" && event.phase) {
+    if (
+      event &&
+      typeof event === 'object' &&
+      typeof event.phase === 'string' &&
+      event.phase
+    ) {
       return event.phase;
     }
     return phaseForType(typeOf(event));
@@ -76,14 +82,23 @@
   // Where the event sits in the recorded list: its own ordinal when the recorder supplied one, its
   // list index otherwise. The list's order is never changed to agree with an ordinal.
   function ordinalOf(event, index) {
-    if (event && typeof event === "object" && typeof event.at === "number" && Number.isFinite(event.at)) {
+    if (
+      event &&
+      typeof event === 'object' &&
+      typeof event.at === 'number' &&
+      Number.isFinite(event.at)
+    ) {
       return event.at;
     }
     return index;
   }
 
   function entryFor(event, index) {
-    return { type: typeOf(event), phase: phaseOfEvent(event), ordinal: ordinalOf(event, index) };
+    return {
+      type: typeOf(event),
+      phase: phaseOfEvent(event),
+      ordinal: ordinalOf(event, index),
+    };
   }
 
   // The read as it was read: `at` and `width` are carried through as values. A `width` of 0 stays 0
@@ -95,7 +110,7 @@
 
   // The event an `unknown` result names, copied so the caller's list is the caller's.
   function copyOfEvent(event) {
-    if (event && typeof event === "object") return Object.assign({}, event);
+    if (event && typeof event === 'object') return Object.assign({}, event);
     return event;
   }
 
@@ -112,7 +127,9 @@
     const list = Array.isArray(events) ? events : [];
     const readCopy = copyOfRead(read);
     const readAt =
-      typeof readCopy.at === "number" && Number.isFinite(readCopy.at) ? readCopy.at : Number.NaN;
+      typeof readCopy.at === 'number' && Number.isFinite(readCopy.at)
+        ? readCopy.at
+        : Number.NaN;
 
     // An event whose type is not one the enum carries stops the join: it cannot be placed, so neither
     // the events around the read nor the phase can be stated without guessing (unknown).
@@ -139,8 +156,15 @@
 
     // The phase the read ran in is the phase of the event it interrupted — the last one emitted
     // before it; a read before every recorded event takes the phase of the first one after it.
-    const readPhase = before.length > 0 ? before[before.length - 1].phase : after[0].phase;
-    return { state: ORDERED, read: readCopy, phase: readPhase, before: before, after: after };
+    const readPhase =
+      before.length > 0 ? before[before.length - 1].phase : after[0].phase;
+    return {
+      state: ORDERED,
+      read: readCopy,
+      phase: readPhase,
+      before: before,
+      after: after,
+    };
   }
 
   const namespace = {

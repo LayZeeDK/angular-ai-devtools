@@ -46,8 +46,18 @@ for (const skill of ['control-ai-browsers', 'verify-ai-browsers']) {
   test(`.claude/skills/${skill} mirrors .commandcode/skills/${skill}`, () => {
     const maintained = files(join(ROOT, '.commandcode', 'skills', skill));
     const copy = files(join(ROOT, '.claude', 'skills', skill));
-    assert.deepEqual([...copy.keys()].sort(), [...maintained.keys()].sort(), 'the same files');
-    const differ = [...maintained].filter(([f, bytes]) => !OWN_CANONICAL.has(f) && !bytes.equals(/** @type {Buffer} */ (copy.get(f)))).map(([f]) => f);
+    assert.deepEqual(
+      [...copy.keys()].sort(),
+      [...maintained.keys()].sort(),
+      'the same files',
+    );
+    const differ = [...maintained]
+      .filter(
+        ([f, bytes]) =>
+          !OWN_CANONICAL.has(f) &&
+          !bytes.equals(/** @type {Buffer} */ (copy.get(f))),
+      )
+      .map(([f]) => f);
     assert.deepEqual(differ, [], 'the same bytes');
   });
 }

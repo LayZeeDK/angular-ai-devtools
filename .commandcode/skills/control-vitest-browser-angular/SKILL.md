@@ -18,10 +18,10 @@ All commands run from the root of the checkout you drive (the main checkout or a
 
 ## Pick a flow
 
-| Flow | Command | Browser | Model | Extension load |
-|---|---|---|---|---|
-| Attach (default) | `node $S up [--instance <name>]` | the per-model instance (default `chrome-beta-gemma4`), on the CDP port control-ai-browsers gives it | yes | `Extensions.loadUnpacked` over CDP |
-| Bundled | `node $S up --bundled --extension <dir>` | Playwright's Chromium (Chrome for Testing 153), persistent profile under `tmp/` | no (`LanguageModel` `unavailable`) | `--load-extension` |
+| Flow             | Command                                  | Browser                                                                                             | Model                              | Extension load                     |
+| ---------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------- | ---------------------------------- |
+| Attach (default) | `node $S up [--instance <name>]`         | the per-model instance (default `chrome-beta-gemma4`), on the CDP port control-ai-browsers gives it | yes                                | `Extensions.loadUnpacked` over CDP |
+| Bundled          | `node $S up --bundled --extension <dir>` | Playwright's Chromium (Chrome for Testing 153), persistent profile under `tmp/`                     | no (`LanguageModel` `unavailable`) | `--load-extension`                 |
 
 Ports. The main checkout uses slot 0, the defaults below. A git worktree (`.git` is a file) takes slot 1-99
 from a hash of the fixture path, so its ports stay the same from run to run: Vitest `51400 + slot`, bundled CDP
@@ -31,11 +31,11 @@ derived port is busy, `up` tries the next slot, 10 slots in all, and records the
 (`info --json`: `slot`, `ports`). Vitest's default 63315 cannot be used here, because it sits in a Windows
 excluded port range.
 
-| Port | Kind | Default | How it moves |
-|---|---|---|---|
-| vitest | derived | 51315 | `--port`, passed as `VITEST_BROWSER_PORT` to `vitest-base.config.mts` (`strictPort`) (measured: listened on 51436, and on its fallback 51437 while a throwaway listener held 51436) |
-| bundled-cdp | derived | 9350 | moves with the slot, passed as `VITEST_CDP_PORT` to Chromium's `--remote-debugging-port` (bundled mode only; measured: 9536) |
-| instance | external | the instance's CDP port | control-ai-browsers owns it: `up` asks `control-ai-browsers up <instance> --json` for it, which starts the instance when it is not running (measured: 9334 for `chrome-beta-gemma4` before control-ai-browsers derived worktree ports, 9681 after, in the `verification-skills` worktree) |
+| Port        | Kind     | Default                 | How it moves                                                                                                                                                                                                                                                                              |
+| ----------- | -------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| vitest      | derived  | 51315                   | `--port`, passed as `VITEST_BROWSER_PORT` to `vitest-base.config.mts` (`strictPort`) (measured: listened on 51436, and on its fallback 51437 while a throwaway listener held 51436)                                                                                                       |
+| bundled-cdp | derived  | 9350                    | moves with the slot, passed as `VITEST_CDP_PORT` to Chromium's `--remote-debugging-port` (bundled mode only; measured: 9536)                                                                                                                                                              |
+| instance    | external | the instance's CDP port | control-ai-browsers owns it: `up` asks `control-ai-browsers up <instance> --json` for it, which starts the instance when it is not running (measured: 9334 for `chrome-beta-gemma4` before control-ai-browsers derived worktree ports, 9681 after, in the `verification-skills` worktree) |
 
 - `--port N` sets the Vitest port with no fallback for it: a busy `N` exits 2 naming its holder's PID; from a
   worktree the main checkout's 51315 is refused. The bundled CDP port still derives and falls back.
@@ -93,22 +93,22 @@ node .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs doct
 
 Read-only. Each check prints one line (`--json` for the list):
 
-| Check | Passes when |
-|---|---|
-| `map-fresh` | always; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`), or that were never proven; never fails doctor |
-| `process-alive` | the recorded `ng test` PID runs with the recorded start time and command line |
-| `tree` | adds the live processes below the `ng test` root to the recorded tree, for `down` |
-| `ports` | every derived port listens and its PID is in the `ng test` tree (bundled Chromium included); the instance's external port is listed, not checked: `[OK] ports: vitest 51436 (derived), instance 9681 (external: control-ai-browsers instance chrome-beta-gemma4; this skill attaches to it)` |
-| `test-run` | the log has Vitest's `DEV` (watch) or `RUN` line and no "An exception occurred" or "Unhandled Error"; reports the last `Tests` summary |
-| `browser-cdp` | `/json/version` answers on the CDP port |
-| `orchestrator-tab` | a tab starts with `http://127.0.0.1:<port>/__vitest_test__/` |
-| `tester-frame` | the tab has a child frame named `vitest-iframe` with a default execution context |
-| `dev-build` | `window.ng` has functions in the tester iframe |
-| `vitest-runner` | `window.__vitest_browser_runner__` is an object in the tester iframe |
-| `mounted-component` | a `[ng-version]` host exists now; `[WARN]` when no test is running |
-| `language-model` | `LanguageModel.availability()` in the tester iframe is `available`; in bundled mode `[WARN]` (no model) |
-| `extension-content-script` | with `--extension`: an execution context from `chrome-extension://<id>` exists in the tester iframe |
-| `extension-loaded` | with `--extension`: the extension's service worker target exists; `[SKIP]` without |
+| Check                      | Passes when                                                                                                                                                                                                                                                                                  |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `map-fresh`                | always; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`), or that were never proven; never fails doctor                                                                                                                                    |
+| `process-alive`            | the recorded `ng test` PID runs with the recorded start time and command line                                                                                                                                                                                                                |
+| `tree`                     | adds the live processes below the `ng test` root to the recorded tree, for `down`                                                                                                                                                                                                            |
+| `ports`                    | every derived port listens and its PID is in the `ng test` tree (bundled Chromium included); the instance's external port is listed, not checked: `[OK] ports: vitest 51436 (derived), instance 9681 (external: control-ai-browsers instance chrome-beta-gemma4; this skill attaches to it)` |
+| `test-run`                 | the log has Vitest's `DEV` (watch) or `RUN` line and no "An exception occurred" or "Unhandled Error"; reports the last `Tests` summary                                                                                                                                                       |
+| `browser-cdp`              | `/json/version` answers on the CDP port                                                                                                                                                                                                                                                      |
+| `orchestrator-tab`         | a tab starts with `http://127.0.0.1:<port>/__vitest_test__/`                                                                                                                                                                                                                                 |
+| `tester-frame`             | the tab has a child frame named `vitest-iframe` with a default execution context                                                                                                                                                                                                             |
+| `dev-build`                | `window.ng` has functions in the tester iframe                                                                                                                                                                                                                                               |
+| `vitest-runner`            | `window.__vitest_browser_runner__` is an object in the tester iframe                                                                                                                                                                                                                         |
+| `mounted-component`        | a `[ng-version]` host exists now; `[WARN]` when no test is running                                                                                                                                                                                                                           |
+| `language-model`           | `LanguageModel.availability()` in the tester iframe is `available`; in bundled mode `[WARN]` (no model)                                                                                                                                                                                      |
+| `extension-content-script` | with `--extension`: an execution context from `chrome-extension://<id>` exists in the tester iframe                                                                                                                                                                                          |
+| `extension-loaded`         | with `--extension`: the extension's service worker target exists; `[SKIP]` without                                                                                                                                                                                                           |
 
 Exit 0 healthy, 1 a check failed (named), 2 could not run (no state file, refused).
 
@@ -124,7 +124,7 @@ playwright-cli -s=control-vitest-chrome-beta-gemma4-51315 tab-select <index of "
 ```
 
 - The snapshot includes the tester iframe with `f`-prefixed refs, for example `paragraph [ref=f1e3]: "Clicks: 3
-  (double 6, cart 2)"` and `button "Increment" [ref=f1e4]`; `click f1e4` clicks inside the iframe **[measured]**.
+(double 6, cart 2)"` and `button "Increment" [ref=f1e4]`; `click f1e4` clicks inside the iframe **[measured]**.
 - For waits and reads inside the iframe, use `run-code` with `page.frame('vitest-iframe')`:
   `async page => { const f = page.frame('vitest-iframe'); await f.waitForFunction(() => ...); return f.evaluate(() => ...); }`
   **[measured]**. Never a fixed sleep.
@@ -190,12 +190,12 @@ refusal. A state file from before `proctree.mjs`, with no `tree`, stops nothing 
 
 `node .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs <command> [flags] [--json]`
 
-| Command | Flags | Does | Exit |
-|---|---|---|---|
-| `up` | `--instance <name>` (default `chrome-beta-gemma4`) or `--bundled`; `--extension <dir>\|s1-vitest`; `--hold <ms>`; `--timing-demo`; `--filter <text>`; `--port <n>`; `--timeout <s>` (default 180) | starts the run as above, writes the state file, waits until ready | 0 / 2 |
-| `doctor` | | the checks above | 0 / 1 / 2 |
-| `info` | | the state: flow id, mode, instance, CDP URL, Vitest port, `slot`, `ports` (`{name, port, kind, reason?}`), orchestrator URL, session, evidence dir, extension dir and id, `proc` (`{pid, log}`), `tree` (`{pid, ppid, start, commandLine}`, the root first; `start` in ms since the epoch) | 0 / 2 |
-| `down` | | the cleanup above | 0 / 2 |
+| Command  | Flags                                                                                                                                                                                             | Does                                                                                                                                                                                                                                                                                       | Exit      |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
+| `up`     | `--instance <name>` (default `chrome-beta-gemma4`) or `--bundled`; `--extension <dir>\|s1-vitest`; `--hold <ms>`; `--timing-demo`; `--filter <text>`; `--port <n>`; `--timeout <s>` (default 180) | starts the run as above, writes the state file, waits until ready                                                                                                                                                                                                                          | 0 / 2     |
+| `doctor` |                                                                                                                                                                                                   | the checks above                                                                                                                                                                                                                                                                           | 0 / 1 / 2 |
+| `info`   |                                                                                                                                                                                                   | the state: flow id, mode, instance, CDP URL, Vitest port, `slot`, `ports` (`{name, port, kind, reason?}`), orchestrator URL, session, evidence dir, extension dir and id, `proc` (`{pid, log}`), `tree` (`{pid, ppid, start, commandLine}`, the root first; `start` in ms since the epoch) | 0 / 2     |
+| `down`   |                                                                                                                                                                                                   | the cleanup above                                                                                                                                                                                                                                                                          | 0 / 2     |
 
 State file: `tmp/control-vitest-browser-angular/state/<flowId>.json`. Exit codes: 0 done or healthy; 1 not
 healthy; 2 refused or could not run, with the reason (a run already recorded, 10 busy slots, a busy `--port`, worktree on

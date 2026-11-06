@@ -40,6 +40,7 @@ Research and design for an AI-assisted Angular DevTools browser extension (Chrom
   - `control-vitest-browser-angular` (claims about it are proven with `lars-verify`).
 
   The browser instance registry is `.claude/skills/control-ai-browsers/instances.json`. Instances: chrome-beta-nano 9333, chrome-beta-gemma4 9334, edge-dev-aion 9335, edge-phi4mini 9337, chrome-stable-nano 9338 (read 2026-11-01 from the registry's `port` fields). Profiles are on D: under `.browsers/`.
+
 - **Review history:** `tmp/review/` (gitignored), with round 1-10 findings and triage, plus every agent brief.
 
 ## State at handoff

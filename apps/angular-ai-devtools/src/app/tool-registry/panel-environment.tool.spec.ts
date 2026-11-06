@@ -20,7 +20,10 @@ function newRegistry(realm?: PanelEnvironment): ToolRegistry {
     providers:
       realm === undefined
         ? [providePanelEnvironmentTool()]
-        : [providePanelEnvironmentTool(), { provide: PANEL_ENVIRONMENT, useValue: () => realm }],
+        : [
+            providePanelEnvironmentTool(),
+            { provide: PANEL_ENVIRONMENT, useValue: () => realm },
+          ],
   });
   return TestBed.inject(TOOL_REGISTRY);
 }
@@ -58,17 +61,27 @@ describe('panel_environment declaration', () => {
     expect(declaration?.host).toEqual(['panel', 'extension-API']);
     expect(declaration?.outcome).toBe('result');
     expect(declaration?.publish).toBe('panel');
-    expect(declaration?.input).toEqual({ type: 'object', properties: {}, required: [] });
+    expect(declaration?.input).toEqual({
+      type: 'object',
+      properties: {},
+      required: [],
+    });
   });
 
   it('is listed by the registry the panel builds through provideTools', () => {
-    expect(newRegistry().tools().map((tool) => tool.id)).toEqual(['panel_environment']);
+    expect(
+      newRegistry()
+        .tools()
+        .map((tool) => tool.id),
+    ).toEqual(['panel_environment']);
   });
 });
 
 describe('panel_environment result', () => {
   it('reports the DevTools tab id, the route base and chrome.runtime inside the extension', async () => {
-    const outcome = await newRegistry(EXTENSION_REALM).execute(PANEL_ENVIRONMENT_TOOL_ID);
+    const outcome = await newRegistry(EXTENSION_REALM).execute(
+      PANEL_ENVIRONMENT_TOOL_ID,
+    );
 
     expect(outcome.kind).toBe('result');
     if (outcome.kind !== 'result') {
@@ -85,7 +98,9 @@ describe('panel_environment result', () => {
   });
 
   it('reports the served app through its own location and never guesses a tab id', async () => {
-    const outcome = await newRegistry(SERVED_REALM).execute(PANEL_ENVIRONMENT_TOOL_ID);
+    const outcome = await newRegistry(SERVED_REALM).execute(
+      PANEL_ENVIRONMENT_TOOL_ID,
+    );
 
     expect(outcome.kind).toBe('result');
     if (outcome.kind !== 'result') {
@@ -101,23 +116,30 @@ describe('panel_environment result', () => {
   });
 
   it('derives the route base from the served pathname rather than a hard-coded one', async () => {
-    const served = await newRegistry({ ...SERVED_REALM, pathname: '/panel' }).execute(
-      PANEL_ENVIRONMENT_TOOL_ID,
-    );
+    const served = await newRegistry({
+      ...SERVED_REALM,
+      pathname: '/panel',
+    }).execute(PANEL_ENVIRONMENT_TOOL_ID);
     const root = await newRegistry({ ...SERVED_REALM, pathname: '/' }).execute(
       PANEL_ENVIRONMENT_TOOL_ID,
     );
 
     expect(served.kind).toBe('result');
     expect(root.kind).toBe('result');
-    expect((served as { value: Record<string, unknown> }).value['routeBase']).toBe('/panel/');
-    expect((root as { value: Record<string, unknown> }).value['routeBase']).toBe('/');
+    expect(
+      (served as { value: Record<string, unknown> }).value['routeBase'],
+    ).toBe('/panel/');
+    expect(
+      (root as { value: Record<string, unknown> }).value['routeBase'],
+    ).toBe('/');
   });
 });
 
 describe('panel_environment unreadable realm', () => {
   it('answers host-unavailable naming the tool when there is neither an extension API nor a location', async () => {
-    const outcome = await newRegistry(UNREADABLE_REALM).execute(PANEL_ENVIRONMENT_TOOL_ID);
+    const outcome = await newRegistry(UNREADABLE_REALM).execute(
+      PANEL_ENVIRONMENT_TOOL_ID,
+    );
 
     expect(outcome.kind).toBe('error');
     if (outcome.kind !== 'error') {

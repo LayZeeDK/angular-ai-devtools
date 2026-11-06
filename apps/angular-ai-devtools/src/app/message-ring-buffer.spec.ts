@@ -133,7 +133,10 @@ describe('MessageRingBuffer', () => {
       for (const entry of buffer.currentPageEntries()) {
         expect(entry.pageKey).toBe(pageKeyFor(3, 2));
       }
-      expect(buffer.factNeighbours(stalePositions[0]!)).toEqual({ previous: null, next: null });
+      expect(buffer.factNeighbours(stalePositions[0]!)).toEqual({
+        previous: null,
+        next: null,
+      });
     });
 
     it('refuses a message when no page is live instead of filing it under a guessed key', () => {
@@ -189,10 +192,22 @@ describe('MessageRingBuffer', () => {
     buffer.navigate(1, 1);
     fill(buffer, 3);
 
-    expect(buffer.neighbours(1)).toEqual({ previous: null, next: buffer.at(2) });
-    expect(buffer.neighbours(2)).toEqual({ previous: buffer.at(1), next: buffer.at(3) });
-    expect(buffer.neighbours(3)).toEqual({ previous: buffer.at(2), next: null });
-    expect(buffer.factNeighbours(2)).toEqual({ previous: buffer.at(1), next: buffer.at(3) });
+    expect(buffer.neighbours(1)).toEqual({
+      previous: null,
+      next: buffer.at(2),
+    });
+    expect(buffer.neighbours(2)).toEqual({
+      previous: buffer.at(1),
+      next: buffer.at(3),
+    });
+    expect(buffer.neighbours(3)).toEqual({
+      previous: buffer.at(2),
+      next: null,
+    });
+    expect(buffer.factNeighbours(2)).toEqual({
+      previous: buffer.at(1),
+      next: buffer.at(3),
+    });
   });
 
   // E1 / SC1: the filled buffer survives a navigation and its oldest surviving entry is read back
@@ -235,7 +250,9 @@ describe('MessageRingBuffer', () => {
     expect(overflowing.size()).toBe(200);
     expect(overflowing.at(evictedFirst.position)).toBeNull();
     expect(overflowing.oldest()).not.toEqual(evictedFirst);
-    expect(overflowing.oldest()!.position).toBeGreaterThan(evictedFirst.position);
+    expect(overflowing.oldest()!.position).toBeGreaterThan(
+      evictedFirst.position,
+    );
     expect(overflowing.oldest()!.message).toBe('m2');
   });
 
@@ -250,13 +267,25 @@ describe('MessageRingBuffer', () => {
     // one is empty rather than borrowed from an imagined successor.
     expect(partial.size()).toBe(3);
     expect(partial.size()).toBeLessThan(partial.capacity);
-    expect(partial.neighbours(1)).toEqual({ previous: null, next: partial.at(2) });
-    expect(partial.neighbours(3)).toEqual({ previous: partial.at(2), next: null });
+    expect(partial.neighbours(1)).toEqual({
+      previous: null,
+      next: partial.at(2),
+    });
+    expect(partial.neighbours(3)).toEqual({
+      previous: partial.at(2),
+      next: null,
+    });
     expect(partial.neighbours(4)).toEqual({ previous: null, next: null });
-    expect(partial.neighbours(partial.capacity)).toEqual({ previous: null, next: null });
+    expect(partial.neighbours(partial.capacity)).toEqual({
+      previous: null,
+      next: null,
+    });
     expect(partial.at(4)).toBeNull();
     expect(partial.at(partial.capacity)).toBeNull();
-    expect(partial.factNeighbours(3)).toEqual({ previous: partial.at(2), next: null });
+    expect(partial.factNeighbours(3)).toEqual({
+      previous: partial.at(2),
+      next: null,
+    });
     expect(partial.newest()!.message).toBe('m3');
     expect(partial.currentPageEntries()).toHaveLength(3);
 
@@ -266,12 +295,27 @@ describe('MessageRingBuffer', () => {
 
     expect(single.size()).toBe(1);
     expect(single.oldest()).toBe(single.newest());
-    expect(single.neighbours(only.position)).toEqual({ previous: null, next: null });
-    expect(single.factNeighbours(only.position)).toEqual({ previous: null, next: null });
+    expect(single.neighbours(only.position)).toEqual({
+      previous: null,
+      next: null,
+    });
+    expect(single.factNeighbours(only.position)).toEqual({
+      previous: null,
+      next: null,
+    });
     // Neither side of the only entry is invented, and neither is a position it does not hold.
-    expect(single.neighbours(only.position - 1)).toEqual({ previous: null, next: null });
-    expect(single.neighbours(only.position + 1)).toEqual({ previous: null, next: null });
-    expect(single.factNeighbours(only.position + 1)).toEqual({ previous: null, next: null });
+    expect(single.neighbours(only.position - 1)).toEqual({
+      previous: null,
+      next: null,
+    });
+    expect(single.neighbours(only.position + 1)).toEqual({
+      previous: null,
+      next: null,
+    });
+    expect(single.factNeighbours(only.position + 1)).toEqual({
+      previous: null,
+      next: null,
+    });
     expect(single.at(only.position + 1)).toBeNull();
   });
 });

@@ -14,12 +14,12 @@ Raw: `raw/19-languagemodel-contexts.json`. Each browser-model pair ran in its `c
 the repository extension loaded over the pipe and developer mode on. The page was the counter fixture (Angular
 22.2.2). Per context: `typeof LanguageModel`, `availability()`, `create()`, one prompt.
 
-| Context | Chrome Beta 157 Nano | Chrome Beta 157 Gemma 4 | Chrome 156 Nano | Edge Dev 157 Aion | Edge 155 Phi-4-mini |
-|---|---|---|---|---|---|
-| DevTools panel page | works, create 4.3 s | works, 4.5 s | works, 8.1 s | works, 3.2 s | works, 6.5 s |
-| Dedicated worker started by the panel | works | works, 1.1 s | works | works | works |
-| Extension service worker | works | works, 0.9 s | works | works | works |
-| Hidden `devtools.html` page | refused | refused | refused | refused | refused |
+| Context                               | Chrome Beta 157 Nano | Chrome Beta 157 Gemma 4 | Chrome 156 Nano | Edge Dev 157 Aion | Edge 155 Phi-4-mini |
+| ------------------------------------- | -------------------- | ----------------------- | --------------- | ----------------- | ------------------- |
+| DevTools panel page                   | works, create 4.3 s  | works, 4.5 s            | works, 8.1 s    | works, 3.2 s      | works, 6.5 s        |
+| Dedicated worker started by the panel | works                | works, 1.1 s            | works           | works             | works               |
+| Extension service worker              | works                | works, 0.9 s            | works           | works             | works               |
+| Hidden `devtools.html` page           | refused              | refused                 | refused         | refused           | refused             |
 
 "Works" means `available`, `create()` resolved and the prompt answered "OK". A create time of a few ms means a
 session already existed in that browser, so the time is not a cold start. "Refused" means `LanguageModel` exists,

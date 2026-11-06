@@ -9,11 +9,41 @@ function counterCheck() {
     className: 'Counter',
     graph: {
       nodes: [
-        { id: '0', kind: 'template', label: null, epoch: 3, debuggableFn: 'Counter' },
-        { id: '1', kind: 'signal', label: 'count', epoch: 2, debuggableFn: null },
-        { id: '2', kind: 'computed', label: 'double', epoch: 2, debuggableFn: null },
-        { id: '3', kind: 'effect', label: 'logCount', epoch: 2, debuggableFn: null },
-        { id: '4', kind: 'signal', label: 'title', epoch: 1, debuggableFn: null },
+        {
+          id: '0',
+          kind: 'template',
+          label: null,
+          epoch: 3,
+          debuggableFn: 'Counter',
+        },
+        {
+          id: '1',
+          kind: 'signal',
+          label: 'count',
+          epoch: 2,
+          debuggableFn: null,
+        },
+        {
+          id: '2',
+          kind: 'computed',
+          label: 'double',
+          epoch: 2,
+          debuggableFn: null,
+        },
+        {
+          id: '3',
+          kind: 'effect',
+          label: 'logCount',
+          epoch: 2,
+          debuggableFn: null,
+        },
+        {
+          id: '4',
+          kind: 'signal',
+          label: 'title',
+          epoch: 1,
+          debuggableFn: null,
+        },
       ],
       edges: [
         { consumer: '0', producer: '2' },
@@ -32,9 +62,27 @@ describe('traceProvenance', () => {
     expect(res.graphUnavailable).toBe(false);
     expect(res.noDependencies).toBe(false);
     expect(res.steps).toEqual([
-      { id: '1', kind: 'signal', label: 'count', direction: 'producer', position: 1 },
-      { id: '2', kind: 'computed', label: 'double', direction: 'self', position: 2 },
-      { id: '0', kind: 'template', label: null, direction: 'consumer', position: 0 },
+      {
+        id: '1',
+        kind: 'signal',
+        label: 'count',
+        direction: 'producer',
+        position: 1,
+      },
+      {
+        id: '2',
+        kind: 'computed',
+        label: 'double',
+        direction: 'self',
+        position: 2,
+      },
+      {
+        id: '0',
+        kind: 'template',
+        label: null,
+        direction: 'consumer',
+        position: 0,
+      },
     ]);
     expect(res.edges).toEqual([
       { consumer: '0', producer: '2' },
@@ -85,25 +133,48 @@ describe('traceProvenance', () => {
 
     const res = traceProvenance(check, 'a');
 
-    expect(res.steps.map((s) => s.label)).toEqual(['zeta', 'alpha', 'mu', null]);
+    expect(res.steps.map((s) => s.label)).toEqual([
+      'zeta',
+      'alpha',
+      'mu',
+      null,
+    ]);
     expect(res.steps.map((s) => s.position)).toEqual([1, 2, 3, 0]);
   });
 
   it('yields a single step with noDependencies for an isolated node (E3)', () => {
     const check = counterCheck();
-    check.graph.nodes.push({ id: '5', kind: 'signal', label: 'unused', epoch: 0, debuggableFn: null });
+    check.graph.nodes.push({
+      id: '5',
+      kind: 'signal',
+      label: 'unused',
+      epoch: 0,
+      debuggableFn: null,
+    });
 
     const res = traceProvenance(check, '5');
 
     expect(res.noDependencies).toBe(true);
     expect(res.graphUnavailable).toBe(false);
-    expect(res.steps).toEqual([{ id: '5', kind: 'signal', label: 'unused', direction: 'self', position: 5 }]);
+    expect(res.steps).toEqual([
+      {
+        id: '5',
+        kind: 'signal',
+        label: 'unused',
+        direction: 'self',
+        position: 5,
+      },
+    ]);
     expect(res.edges).toEqual([]);
   });
 
   it('reports graphUnavailable with no steps, not noDependencies', () => {
     const check = {
-      graph: { nodes: [{ id: '1', kind: 'signal', label: 'count' }], edges: [], unavailable: true },
+      graph: {
+        nodes: [{ id: '1', kind: 'signal', label: 'count' }],
+        edges: [],
+        unavailable: true,
+      },
     };
 
     const res = traceProvenance(check, '1');

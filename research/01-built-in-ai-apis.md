@@ -15,31 +15,37 @@ Labels: **[measured]** = read in a primary source (URL given). **[inferred]** = 
 ## 1. Prompt API (`LanguageModel`) shape
 
 Sources:
+
 - Explainer (spec README): https://github.com/webmachinelearning/prompt-api (read raw README, `main`, fetched 2026-10-11) -- "S1"
 - Chrome docs: https://developer.chrome.com/docs/ai/prompt-api ("Last updated: August 26, 2026") -- "C1"
 
 ### Status
+
 - [measured, C1] Chrome ships the Prompt API in **extensions since Chrome 138** and on the **web since Chrome 148** (Intent to Ship). The `aiLanguageModelOriginTrial` extension permission is expired; extension developers should remove it.
 - [measured, S1] Edge also has an experimental implementation (link to https://learn.microsoft.com/en-us/microsoft-edge/web-platform/prompt-api). Chromium status in S1's stakeholder section still says "prototyping behind a flag" (stale relative to C1).
 
 ### Creation and availability
+
 - [measured, S1/C1] `LanguageModel.availability(options)` -> `"unavailable" | "downloadable" | "downloading" | "available"`. Pass the same options you will pass to `create()`/`prompt()` (C1 calls this "critical").
 - [measured, S1/C1] `LanguageModel.create(options)`; options include `initialPrompts`, `expectedInputs`, `expectedOutputs`, `tools`, `signal`, `monitor(m)` (fires `downloadprogress` `ProgressEvent`, `loaded` 0..1, at least a 0 and a 1 event even without download), `samplingMode`, `thinking`, legacy `temperature`/`topK`.
 - [measured, C1] Triggering the download needs **user activation** (C1 links to /docs/ai/get-started#user-activation).
 - [measured, S1] Download failure rejects `create()` with `NetworkError`.
 
 ### Sampling parameters
+
 - [measured, S1/C1] New: `samplingMode` enum (`most-predictable` ... `balanced` (default) ... `most-creative`). On the web it is behind an **origin trial** in Chrome 148.
 - [measured, S1/C1] Legacy `temperature` / `topK` and `LanguageModel.params()` (returns e.g. `{defaultTopK: 3, maxTopK: 128, defaultTemperature: 1, maxTemperature: 2}`) are **deprecated but still functional only in extension contexts**; ignored on the web. Passing `samplingMode` together with `topK`/`temperature` rejects with `TypeError`. C1: in extensions "must either specify both `topK` and `temperature` or neither".
 - Design note [inferred]: an extension is the one context where `temperature: 0`-like determinism is still reachable via raw params; plan to migrate to `samplingMode: "most-predictable"` because S1 says raw params "may be completely removed".
 
 ### Prompts, roles, system prompt
+
 - [measured, S1] Messages use `{ role: "system" | "user" | "assistant", content }`. The system prompt must be message 0 of the first sequence sent to `create()` (`initialPrompts`), `append()`, or `prompt()`; anywhere else -> `TypeError`. Too-large `initialPrompts` -> `QuotaExceededError`.
 - [measured, S1/C1] `prefix: true` on a trailing assistant message pre-fills the response (other positions -> `SyntaxError`).
 - [measured, S1/C1] `session.append(messages)` pre-processes context without generating; can trigger overflow eviction.
 - [measured, S1/C1] `session.prompt(input, { signal, responseConstraint, omitResponseConstraintInput, thinking })` returns a string; `session.promptStreaming(...)` returns a `ReadableStream` (async-iterable chunks).
 
 ### Multimodal (`expectedInputs` / `expectedOutputs`)
+
 - [measured, C1] `expectedInputs[].type`: `text`, `image`, `audio`. `expectedOutputs[].type`: `text` only (S1 adds `tool-call` for tools, see below). `languages`: Chrome accepts `"en"`, `"ja"`, `"es"`, `"de"`, `"fr"`.
 - [measured, C1] Image inputs: `HTMLImageElement`, `SVGImageElement`, `HTMLVideoElement` (current frame), `HTMLCanvasElement`, `ImageBitmap`, `OffscreenCanvas`, `VideoFrame`, `Blob`, `ImageData`. Audio: `AudioBuffer`, `ArrayBufferView`, `ArrayBuffer`, `Blob`.
 - [measured, C1] **Audio input requires a GPU** in Chrome.
@@ -47,11 +53,13 @@ Sources:
 - Design note [inferred]: a DevTools extension can feed screenshots from `chrome.tabs.captureVisibleTab()` as a `Blob`/`ImageBitmap` (extension-origin data, so no CORS taint). Not verified.
 
 ### Structured output
+
 - [measured, S1/C1] `responseConstraint`: a JSON Schema object or a `RegExp`, on `prompt()`/`promptStreaming()`. Result is a string (`JSON.parse` it). Unsupported schema features -> `NotSupportedError`; model cannot comply -> `SyntaxError`; neither schema nor RegExp -> `TypeError`.
 - [measured, S1/C1] By default the constraint is injected into the model input and costs context; measure it with `measureContextUsage(input, { responseConstraint })`. `omitResponseConstraintInput: true` skips that injection (then describe the format in the prompt). `omitResponseConstraintInput` without `responseConstraint` -> `TypeError`.
 - [measured, C1] Chrome's page links a dedicated guide: https://developer.chrome.com/docs/ai/structured-output-for-prompt-api (not read here).
 
 ### Tool calling (`tools`)
+
 - [measured, S1] Declared at `create()`: `tools: [{ name, description, inputSchema }]`, `inputSchema` a JSON Schema with `type: "object"`. When `tools` is given, `expectedOutputs` must include `{ type: "tool-call" }` and `expectedInputs` must include `{ type: "tool-response" }` (plus `{ type: "tool-call" }` in inputs if you seed history with assistant tool calls).
 - [measured, S1] **Open loop only. The browser does NOT run the tool loop.** `prompt()` resolves to an array of `{ type: "text" | "tool-call", value }`; each `LanguageModelToolCall` has `callId`, `name`, `arguments`. The app executes the tool and sends `new LanguageModelToolSuccess({ callId, name, result: [{ type: "text"|"image"|"audio"|"object", value }] })` or `new LanguageModelToolError({ callId, name, errorMessage })` as a `role: "user"` `tool-response` content item. Superseded: the spelling is not uniform across builds — Chrome Beta 156 reads `callID` and Edge Dev 157.0.4329 requires `callId`, so the shipped driver reads `c.callID ?? c.callId` (`control.mjs:1424-1430`) and `callId` does not throw everywhere. A `tool-response` must immediately follow the `tool-call`.
 - [measured, S1] Closed loop (an `execute` callback per tool, the user agent loops inside one `prompt()`) is explicitly "a planned future extension and is not yet part of the specification or implemented in browsers".
@@ -60,24 +68,29 @@ Sources:
 - Design note [inferred]: open loop suits a DevTools agent, since the extension must gate each tool (e.g. reading component state through the content script) and can trim tool results before they eat the context window. S1 lists exactly these reasons for keeping open loop.
 
 ### Thinking mode
+
 - [measured, S1] `thinking: { effort: "none" | "low" | "medium" | "high", includeThoughts }`, at `create()` and per `prompt()`; check with `availability({ thinking })`. Thoughts are stripped from history after each turn. Not mentioned on C1 -> [inferred] not shipped in Chrome stable; may depend on the model (Gemma-class models do reasoning; Nano availability unknown).
 
 ### Clone, destroy, abort
+
 - [measured, S1/C1] `session.clone({ signal })` forks a session with its context (cheap way to reuse a long system prompt).
 - [measured, S1/C1] `session.destroy()` or aborting the `create()` signal: rejects pending `prompt()` and errors streams with `AbortError`, lets the browser unload the model.
 - [measured, S1] Per-call `signal`: a queued prompt is dropped; an in-flight prompt is aborted and its prompt/response pair removed from the session; a finished prompt is unaffected. Same rules for `append()`.
 
 ### Context window / quota
+
 - [measured, S1] Renamed: `inputUsage` -> `contextUsage`, `inputQuota` -> `contextWindow`, `measureInputUsage()` -> `measureContextUsage()`, `onquotaoverflow` -> `oncontextoverflow`. **Old names are removed on the web and deprecated in extensions** ("will be removed from extension contexts in a future release"). Use the new names.
 - [measured, S1/C1] On overflow the oldest prompt/response pairs are evicted (system prompt / `initialPrompts` never) and `contextoverflow` fires. If eviction cannot make room -> `QuotaExceededError` with `requested` and `contextWindow`; nothing removed.
 - [measured, S1] `measureContextUsage` counts control tokens, accepts multimodal arrays and an abort `signal`.
 
 ### Contexts
+
 - [measured, S1/C1] Available to top-level windows and same-origin iframes; cross-origin iframes need `allow="language-model"`. **Not available in web workers.** S1: "a browser could expose them to extension service workers" (outside web specs). See section 3.
 
 ## 2. Models behind the Prompt API, flags, hardware
 
 Sources:
+
 - Chromium `main` source, fetched 2026-10-11 from chromium.googlesource.com (`refs/heads/main`; exact commit not captured because the log endpoint returned 403):
   - https://chromium.googlesource.com/chromium/src/+/refs/heads/main/chrome/browser/flag_descriptions.h -- "F1"
   - https://chromium.googlesource.com/chromium/src/+/refs/heads/main/chrome/browser/about_flags.cc -- "F2"
@@ -86,6 +99,7 @@ Sources:
 - Edge blog 2026-06-02: https://blogs.windows.com/msedgedev/2026/06/02/expanding-on-device-ai-in-microsoft-edge-new-models-and-apis-for-the-web/ -- "E2"
 
 ### Chrome
+
 - [measured, C1] Default model: **Gemini Nano** ("The Prompt API uses the Gemini Nano model in Chrome"). C1 gives no Nano version number; current size is shown at `chrome://on-device-internals`.
 - [measured, F1/F2] **Gemma 4 is real and flag-gated**: `chrome://flags/#gemma4-for-built-in-ai` ("Gemma 4 for Built-in AI": "Enables all built-in AI APIs (Prompt, Summarizer, Writer, etc.) to use the Gemma 4 model"). It enables features `OptimizationGuideManifestBroker,AIApiFoundationalModel:model_version/v4`.
 - [measured, F1/F2] **Tool calling flag**: `chrome://flags/#prompt-api-tool-use` ("Prompt API Tool Use": "Extends the Prompt API with tool use (function calling) capabilities"). Enabling it turns on `AIPromptAPIToolUse,OnDeviceModelConversationBackend,AIApiFoundationalModel:model_version/v4`, i.e. **tool use switches the foundational model to v4 (the same value the Gemma 4 flag sets)**. [inferred] Tool calling in Chrome therefore runs on Gemma 4, not Gemini Nano. Narrowed: with `--enable-features=AIPromptAPIToolUse` alone, Nano gets tool sessions but answered in text, with no tool call (`05-spikes.md`, "Prediction confirmed: Nano gets tool sessions with `AIPromptAPIToolUse` alone").
@@ -97,9 +111,11 @@ Sources:
 - [unresolved] Gemma 4 variant/size (E2B? E4B?) and its context window are not stated in F1/F2. A single non-Google news item claims a ~4 GB Gemma 4 download; not verified (page was paywalled).
 
 Hardware (Chrome) [measured, C1]: Windows 10/11, macOS 13+, Linux, ChromeOS Platform 16389.0.0+ on Chromebook Plus. No Android/iOS. >= 22 GB free on the profile volume (model removed if free space drops below 10 GB). GPU with strictly more than 4 GB VRAM **or** CPU with >= 16 GB RAM and >= 4 cores. Audio input requires a GPU. Unmetered network for the first download. Translator and Language Detector work on desktop only.
+
 - [inferred] Lars's Snapdragon X Elite (Windows on ARM64) box: C1 does not list architecture restrictions; CPU path needs 16 GB RAM. Whether Chrome's on-device runtime has an ARM64 Windows GPU/NPU backend is not stated. Check `chrome://on-device-internals` on the machine.
 
 ### Edge
+
 - [measured, E1] Prompt API is a **developer preview in Edge Canary and Dev** from 138.0.3309.2, flag `edge://flags` -> "Prompt API for on-device language model". Optional "Enable on device AI model debug logs".
 - [measured, E1] Default model **Phi-4-mini** (4B params per E2). Hardware: Windows 10/11 or macOS 13.3+, >= 20 GB free (deleted under 10 GB), **GPU with >= 5.5 GB VRAM**, unmetered network. `edge://on-device-internals` shows "Device performance class"; High or above needed for Phi-4-mini.
 - [measured, E1/E2] **The model is "Aion-1.0-Instruct", not "Aion-1.1-Instruct".** Prerelease, Edge Canary/Dev 150.0.4070+, flag "Enable prerelease on-device language model"; when enabled it replaces Phi-4-mini as the default. Smaller and faster, runs on weaker GPUs or CPU only (Medium/Low performance class). E1 says it was "expected to be made available as an open source model in July 2026". Verify with `edge://on-device-internals` -> Model Status -> Model Name. Superseded: Edge Dev 157's manifest names `Aion-1.1-Instruct` (`00-browser-probe.md`, "Edge Dev 157 results (Aion), measured").
@@ -118,15 +134,15 @@ https://chromium.googlesource.com/chromium/src/+/refs/heads/main/chrome/renderer
 
 Per context (Chrome):
 
-| Context | `LanguageModel`? | Evidence |
-|---|---|---|
-| DevTools panel / sidebar pages (`chrome.devtools.panels.create`) | Yes [measured, policy delegation; not run] | A panel is a cross-origin `chrome-extension://` iframe inside the `devtools://` frontend, so Permissions Policy would block it by default. The DevTools frontend delegates explicitly: https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/panels/common/ExtensionView.ts creates the panel iframe with `allow="language-model; summarizer; translator; language-detector; writer; rewriter; proofreader; clipboard-write; autoplay"`. So the DevTools team made built-in AI deliberately available to extension panels. |
-| `devtools_page` (hidden background page of the DevTools extension) | Unconfirmed [inferred] | Also an iframe in the DevTools frontend; whether it gets the same `allow` list was not checked. Use the panel instead. |
-| Side panel | Yes [measured] | Google's own sample `ai.gemini-on-device` uses `side_panel` + `minimum_chrome_version: "138"`: https://github.com/GoogleChrome/chrome-extensions-samples/tree/main/functional-samples/ai.gemini-on-device |
-| Extension service worker | Yes [measured, X1/I1] | `AIPromptAPIForWorkers` is force-enabled only in extension processes; web workers do not get it (C1: "isn't available in Web Workers"). S1 anticipates this ("a browser could expose them to extension service workers"). Update 2026-10-19 (`research/20`): without feature flags Chrome keeps it, Edge 155 and Edge Dev 157 do not. |
-| Offscreen document | Yes [inferred] | A Window document in the extension process; same as side panel. |
-| Content script | Probably yes, with web-page semantics [inferred] | Content scripts share the page's `Window` in the page's renderer, which is not an extension process, so X1's extension extras (legacy `temperature`/`topK`, `params()`, old identifiers) do not apply; Chrome 148+ web exposure and the page's Permissions Policy (`language-model`) would govern. Not tested. |
-| Inspected page via `chrome.devtools.inspectedWindow.eval` | Page context [inferred] | Runs as page script; same as web. Not a good place to host the model session. |
+| Context                                                            | `LanguageModel`?                                 | Evidence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ------------------------------------------------------------------ | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DevTools panel / sidebar pages (`chrome.devtools.panels.create`)   | Yes [measured, policy delegation; not run]       | A panel is a cross-origin `chrome-extension://` iframe inside the `devtools://` frontend, so Permissions Policy would block it by default. The DevTools frontend delegates explicitly: https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/panels/common/ExtensionView.ts creates the panel iframe with `allow="language-model; summarizer; translator; language-detector; writer; rewriter; proofreader; clipboard-write; autoplay"`. So the DevTools team made built-in AI deliberately available to extension panels. |
+| `devtools_page` (hidden background page of the DevTools extension) | Unconfirmed [inferred]                           | Also an iframe in the DevTools frontend; whether it gets the same `allow` list was not checked. Use the panel instead.                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Side panel                                                         | Yes [measured]                                   | Google's own sample `ai.gemini-on-device` uses `side_panel` + `minimum_chrome_version: "138"`: https://github.com/GoogleChrome/chrome-extensions-samples/tree/main/functional-samples/ai.gemini-on-device                                                                                                                                                                                                                                                                                                                                    |
+| Extension service worker                                           | Yes [measured, X1/I1]                            | `AIPromptAPIForWorkers` is force-enabled only in extension processes; web workers do not get it (C1: "isn't available in Web Workers"). S1 anticipates this ("a browser could expose them to extension service workers"). Update 2026-10-19 (`research/20`): without feature flags Chrome keeps it, Edge 155 and Edge Dev 157 do not.                                                                                                                                                                                                        |
+| Offscreen document                                                 | Yes [inferred]                                   | A Window document in the extension process; same as side panel.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Content script                                                     | Probably yes, with web-page semantics [inferred] | Content scripts share the page's `Window` in the page's renderer, which is not an extension process, so X1's extension extras (legacy `temperature`/`topK`, `params()`, old identifiers) do not apply; Chrome 148+ web exposure and the page's Permissions Policy (`language-model`) would govern. Not tested.                                                                                                                                                                                                                               |
+| Inspected page via `chrome.devtools.inspectedWindow.eval`          | Page context [inferred]                          | Runs as page script; same as web. Not a good place to host the model session.                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
 - [measured, C1] Extensions: Prompt API stable since Chrome 138; the old `aiLanguageModelOriginTrial` permission is expired, no manifest permission is needed.
 - [measured, getstarted https://developer.chrome.com/docs/ai/get-started] "All of these APIs can be used when building Chrome Extensions"; APIs still in an origin trial require registering the extension for that trial (https://developer.chrome.com/docs/extensions/how-to/web-platform/origin-trials).
@@ -136,6 +152,7 @@ Per context (Chrome):
 - Tool use in extensions [inferred]: tool types are gated only by `AIPromptAPIToolUse` (flag/experimental), with the same Window/Worker exposure, so with `#prompt-api-tool-use` enabled they should exist in panels and the extension service worker.
 
 Edge:
+
 - [measured, E1] "allows you to prompt a small language model (SLM) that is built into Microsoft Edge, from your website's or browser extension's JavaScript code". No per-context table.
 - [inferred] Edge builds on the same `chrome/renderer` code, so X1's extension-process enablement most likely applies too. Not confirmed from Edge sources (closed). Worth one spike: load an unpacked extension in Edge Canary and log `typeof LanguageModel` in panel, service worker, offscreen and content script.
 
@@ -145,17 +162,17 @@ Recommendation [inferred]: host the session in the DevTools panel page (permissi
 
 Sources: Chrome table https://developer.chrome.com/docs/ai/built-in-apis ("C2", body last updated 2025-09-12, so partly stale); R1 and X1 (Chromium `main`, current); Edge docs https://learn.microsoft.com/en-us/microsoft-edge/web-platform/writing-assistance-apis ("E3"), .../proofreader-api ("E4"), .../languagedetector-api, .../translator-api; E2.
 
-| API | Chrome status | Chrome extension service worker (X1) | Edge status |
-|---|---|---|---|
-| Summarizer (`Summarizer`) | Stable since 138 (C2); `AISummarizationAPI` stable (R1). `preference: "capability"|"speed"|"auto"` option behind `#summarizer-api-performance-preference` (F1) | Yes | Enabled by default since 138.0.3309.2 in Canary/Dev (E3); Phi-4-mini, or Aion-1.0-Instruct with the prerelease flag |
-| Writer (`Writer`) | Experimental + origin trial `AIWriterAPI` (R1); C2 says developer trial / OT | Yes | Developer preview, Canary/Dev 138.0.3309.2+, flag "Writer API for on-device language model" (E3) |
-| Rewriter (`Rewriter`) | Experimental + origin trial `AIRewriterAPI` (R1) | Yes | Developer preview, flag "Rewriter API for on-device language model" (E3) |
-| Proofreader (`Proofreader`) | Experimental + origin trial `AIProofreaderAPI` (R1); "built-in small expert model" (F1) | **No** (not in X1 list) | Developer preview, Canary/Dev 142+, Phi-4-mini (E4) |
-| Translator (`Translator`) | Stable since 138, desktop only (C2, R1) | Yes | Shipped in **Edge 148**, task-specific model, 145+ languages (E2) |
-| Language Detector (`LanguageDetector`) | Stable since 138, desktop only (C2, R1) | Yes | Shipped in Edge 148 (E2) |
-| Semantic Embedder (`SemanticEmbedder`) | New. `AIEmbeddingsAPI` status `test` (R1), flag `#semantic-embedder-api` (F1/F2) | Not forced by X1, but the flag itself enables `AIEmbeddingsAPI,AIEmbeddingsAPIForWorkers` (F2), so with the flag on it should be in workers [inferred] | No source found |
-| Decisions API (`DecisionModel`) | New. `AIDecisionModelAPI` experimental, flag `#decisions-api`; "verification, classification, and decisions regarding unstructured data, over a developer-defined schema", runs Gemma 4 on CPU (F1). Explainer: https://github.com/explainers-by-googlers/decisions-api | No | No source found |
-| Web Speech on-device | `#web-speech-on-device-small-expert-model` (F1) | n/a | Experimental on-device recognition, `processLocally = true`, Canary/Dev (E2) |
+| API                                    | Chrome status                                                                                                                                                                                                                                                           | Chrome extension service worker (X1)                                                                                                                   | Edge status                                                                                      |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| Summarizer (`Summarizer`)              | Stable since 138 (C2); `AISummarizationAPI` stable (R1). `preference: "capability"                                                                                                                                                                                      | "speed"                                                                                                                                                | "auto"`option behind`#summarizer-api-performance-preference` (F1)                                | Yes | Enabled by default since 138.0.3309.2 in Canary/Dev (E3); Phi-4-mini, or Aion-1.0-Instruct with the prerelease flag |
+| Writer (`Writer`)                      | Experimental + origin trial `AIWriterAPI` (R1); C2 says developer trial / OT                                                                                                                                                                                            | Yes                                                                                                                                                    | Developer preview, Canary/Dev 138.0.3309.2+, flag "Writer API for on-device language model" (E3) |
+| Rewriter (`Rewriter`)                  | Experimental + origin trial `AIRewriterAPI` (R1)                                                                                                                                                                                                                        | Yes                                                                                                                                                    | Developer preview, flag "Rewriter API for on-device language model" (E3)                         |
+| Proofreader (`Proofreader`)            | Experimental + origin trial `AIProofreaderAPI` (R1); "built-in small expert model" (F1)                                                                                                                                                                                 | **No** (not in X1 list)                                                                                                                                | Developer preview, Canary/Dev 142+, Phi-4-mini (E4)                                              |
+| Translator (`Translator`)              | Stable since 138, desktop only (C2, R1)                                                                                                                                                                                                                                 | Yes                                                                                                                                                    | Shipped in **Edge 148**, task-specific model, 145+ languages (E2)                                |
+| Language Detector (`LanguageDetector`) | Stable since 138, desktop only (C2, R1)                                                                                                                                                                                                                                 | Yes                                                                                                                                                    | Shipped in Edge 148 (E2)                                                                         |
+| Semantic Embedder (`SemanticEmbedder`) | New. `AIEmbeddingsAPI` status `test` (R1), flag `#semantic-embedder-api` (F1/F2)                                                                                                                                                                                        | Not forced by X1, but the flag itself enables `AIEmbeddingsAPI,AIEmbeddingsAPIForWorkers` (F2), so with the flag on it should be in workers [inferred] | No source found                                                                                  |
+| Decisions API (`DecisionModel`)        | New. `AIDecisionModelAPI` experimental, flag `#decisions-api`; "verification, classification, and decisions regarding unstructured data, over a developer-defined schema", runs Gemma 4 on CPU (F1). Explainer: https://github.com/explainers-by-googlers/decisions-api | No                                                                                                                                                     | No source found                                                                                  |
+| Web Speech on-device                   | `#web-speech-on-device-small-expert-model` (F1)                                                                                                                                                                                                                         | n/a                                                                                                                                                    | Experimental on-device recognition, `processLocally = true`, Canary/Dev (E2)                     |
 
 - [measured, every Edge page above] Each Edge page says the API is usable "from your website's or browser extension's JavaScript code".
 - [measured, getstarted] Chrome: "All of these APIs can be used when building Chrome Extensions"; origin-trial APIs need the extension registered for the trial.

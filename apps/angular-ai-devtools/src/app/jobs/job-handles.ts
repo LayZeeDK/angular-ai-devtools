@@ -29,7 +29,12 @@
  * No dependency beyond `@angular/core`: the panel's initial bundle is already over its 520 kB
  * warning budget (AR-1), so this adds no third-party code.
  */
-import { Injectable, signal, type Signal, type WritableSignal } from '@angular/core';
+import {
+  Injectable,
+  signal,
+  type Signal,
+  type WritableSignal,
+} from '@angular/core';
 
 /**
  * One job's progress, as the panel reads it. `chunksDone` and `chunksTotal` are the job's own
@@ -103,7 +108,12 @@ export class JobHandleRegistry {
       report: (chunksDone: number, chunksTotal: number): void => {
         // The value is replaced, not the signal: listeners see the new counts, and the flag the
         // cancel already published survives a late report.
-        entry.state.set({ handle, chunksDone, chunksTotal, cancelled: entry.state().cancelled });
+        entry.state.set({
+          handle,
+          chunksDone,
+          chunksTotal,
+          cancelled: entry.state().cancelled,
+        });
       },
     };
   }
@@ -120,7 +130,9 @@ export class JobHandleRegistry {
   cancel(handle: string): void {
     const entry = this.entry(handle);
 
-    entry.state.update((current) => (current.cancelled ? current : { ...current, cancelled: true }));
+    entry.state.update((current) =>
+      current.cancelled ? current : { ...current, cancelled: true },
+    );
     if (!entry.controller.signal.aborted) {
       entry.controller.abort();
     }

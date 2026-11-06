@@ -6,6 +6,7 @@ import { ImageBudgetPage } from './image-budget-page';
 import { AfterRenderPage } from './after-render-page';
 import { TrustBypassPage } from './trust-bypass-page';
 import { FieldFormPage } from './field-form-page';
+import { LintObservabilityPage } from './lint-observability-page';
 import { LandingPage, LazyPage } from './redirect-page';
 import { redirectGuard } from './redirect-guard';
 
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'after-render', component: AfterRenderPage },
   { path: 'trust-bypass', component: TrustBypassPage },
   { path: 'field-form', component: FieldFormPage },
+  { path: 'lint-observability', component: LintObservabilityPage },
   { path: 'redirect', redirectTo: 'landing' },
   { path: 'landing', component: LandingPage },
   { path: 'gated', component: LandingPage, canActivate: [redirectGuard] },

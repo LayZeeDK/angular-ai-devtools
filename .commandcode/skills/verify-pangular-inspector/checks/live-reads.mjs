@@ -18,7 +18,14 @@ import { parseArgs } from 'node:util';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..', '..', '..');
-const CONTROL = join(ROOT, '.commandcode', 'skills', 'control-pangular-inspector', 'scripts', 'control.mjs');
+const CONTROL = join(
+  ROOT,
+  '.commandcode',
+  'skills',
+  'control-pangular-inspector',
+  'scripts',
+  'control.mjs',
+);
 const DRIVE =
   "async page => { await page.getByRole('navigation').getByRole('listitem').filter({ hasText: 'CONTRACT' }).getByText('List').click(); await page.waitForURL('**/contract/list'); await page.locator('table tbody tr').first().waitFor(); return page.url(); }";
 const SELECTOR = '{"selector":"ng-journal-list"}';
@@ -37,11 +44,36 @@ const SELECTOR = '{"selector":"ng-journal-list"}';
  * @type {{ id: string, args: string[], file: string, holds: (text: string) => boolean }[]}
  */
 export const READS = [
-  { id: 'listPages', args: ['call', 'list-pages'], file: 'list-pages.json', holds: (t) => t.includes('/contract/list') },
-  { id: 'components', args: ['components', '--depth', '3'], file: 'list-components.json', holds: (t) => t.includes('ListComponent <ng-journal-list>') },
-  { id: 'inspectComponent', args: ['call', 'inspect-component', '--args', SELECTOR], file: 'inspect-component.json', holds: (t) => t.includes('ListComponent') },
-  { id: 'inspectSignals', args: ['call', 'inspect-signals', '--args', SELECTOR], file: 'inspect-signals.json', holds: (t) => t.includes('nodes') },
-  { id: 'inspectProviders', args: ['call', 'inspect-providers', '--args', SELECTOR], file: 'inspect-providers.json', holds: (t) => t.includes('lookupPath') },
+  {
+    id: 'listPages',
+    args: ['call', 'list-pages'],
+    file: 'list-pages.json',
+    holds: (t) => t.includes('/contract/list'),
+  },
+  {
+    id: 'components',
+    args: ['components', '--depth', '3'],
+    file: 'list-components.json',
+    holds: (t) => t.includes('ListComponent <ng-journal-list>'),
+  },
+  {
+    id: 'inspectComponent',
+    args: ['call', 'inspect-component', '--args', SELECTOR],
+    file: 'inspect-component.json',
+    holds: (t) => t.includes('ListComponent'),
+  },
+  {
+    id: 'inspectSignals',
+    args: ['call', 'inspect-signals', '--args', SELECTOR],
+    file: 'inspect-signals.json',
+    holds: (t) => t.includes('nodes'),
+  },
+  {
+    id: 'inspectProviders',
+    args: ['call', 'inspect-providers', '--args', SELECTOR],
+    file: 'inspect-providers.json',
+    holds: (t) => t.includes('lookupPath'),
+  },
   {
     id: 'explainNavigation',
     args: ['call', 'explain-navigation', '--args', '{"limit":2}'],
@@ -66,7 +98,9 @@ export function jsonOf(stdout) {
     /** @type {unknown} */
     const value = JSON.parse(stdout.slice(at));
 
-    return value !== null && typeof value === 'object' && !Array.isArray(value) ? /** @type {Record<string, unknown>} */ (value) : null;
+    return value !== null && typeof value === 'object' && !Array.isArray(value)
+      ? /** @type {Record<string, unknown>} */ (value)
+      : null;
   } catch {
     return null;
   }
@@ -78,8 +112,12 @@ export function jsonOf(stdout) {
  * @returns {string | null}
  */
 export function findPlaywrightCli(pathEnv) {
-  const shimDir = pathEnv.split(delimiter).find((d) => isAbsolute(d) && existsSync(join(d, 'playwright-cli.cmd')));
-  const js = shimDir ? join(shimDir, 'node_modules', '@playwright', 'cli', 'playwright-cli.js') : null;
+  const shimDir = pathEnv
+    .split(delimiter)
+    .find((d) => isAbsolute(d) && existsSync(join(d, 'playwright-cli.cmd')));
+  const js = shimDir
+    ? join(shimDir, 'node_modules', '@playwright', 'cli', 'playwright-cli.js')
+    : null;
 
   return js && existsSync(js) ? js : null;
 }
@@ -95,40 +133,66 @@ export function check({ session, out }, deps) {
   const checks = {};
   /** @type {string[]} */
   const notes = [];
-  const save = (/** @type {string} */ file, /** @type {unknown} */ data) => deps.write(join(out, file), JSON.stringify(data, null, 2));
+  const save = (/** @type {string} */ file, /** @type {unknown} */ data) =>
+    deps.write(join(out, file), JSON.stringify(data, null, 2));
 
   const doctor = deps.control(['doctor']);
-  save('doctor.json', { exit: doctor.code, result: doctor.json ?? doctor.text });
+  save('doctor.json', {
+    exit: doctor.code,
+    result: doctor.json ?? doctor.text,
+  });
 
   if (doctor.json === null || (doctor.code !== 0 && doctor.code !== 1)) {
-    throw new Error(`control.mjs doctor exited ${doctor.code}: ${doctor.text.trim().slice(-400)}`);
+    throw new Error(
+      `control.mjs doctor exited ${doctor.code}: ${doctor.text.trim().slice(-400)}`,
+    );
   }
 
   checks['doctorOk'] = doctor.code === 0;
 
   if (!checks['doctorOk']) {
-    const failed = Array.isArray(doctor.json['checks']) ? JSON.stringify(doctor.json['checks']).slice(0, 600) : 'no checks listed';
+    const failed = Array.isArray(doctor.json['checks'])
+      ? JSON.stringify(doctor.json['checks']).slice(0, 600)
+      : 'no checks listed';
     notes.push(`doctor exited ${doctor.code}: ${failed}`);
   }
 
-  const before = deps.pw([`-s=${session}`, 'snapshot', `--filename=${join(out, 'before.yml')}`]);
+  const before = deps.pw([
+    `-s=${session}`,
+    'snapshot',
+    `--filename=${join(out, 'before.yml')}`,
+  ]);
 
   if (before.code !== 0) {
-    throw new Error(`playwright-cli snapshot on ${session} exited ${before.code}: ${before.out.trim().slice(-300)}`);
+    throw new Error(
+      `playwright-cli snapshot on ${session} exited ${before.code}: ${before.out.trim().slice(-300)}`,
+    );
   }
 
   const drive = deps.pw([`-s=${session}`, '--raw', 'run-code', DRIVE]);
 
   if (drive.code === null) {
-    throw new Error(`the CONTRACT > List drive did not finish: ${drive.out.trim().slice(-300)}`);
+    throw new Error(
+      `the CONTRACT > List drive did not finish: ${drive.out.trim().slice(-300)}`,
+    );
   }
 
-  deps.pw([`-s=${session}`, 'snapshot', `--filename=${join(out, 'after.yml')}`]);
-  deps.pw([`-s=${session}`, 'screenshot', `--filename=${join(out, 'contract-list.png')}`]);
+  deps.pw([
+    `-s=${session}`,
+    'snapshot',
+    `--filename=${join(out, 'after.yml')}`,
+  ]);
+  deps.pw([
+    `-s=${session}`,
+    'screenshot',
+    `--filename=${join(out, 'contract-list.png')}`,
+  ]);
   checks['drove'] = drive.code === 0 && drive.out.includes('/contract/list');
 
   if (!checks['drove']) {
-    notes.push(`CONTRACT > List: exit ${drive.code}, ${drive.out.trim().slice(-300)}`);
+    notes.push(
+      `CONTRACT > List: exit ${drive.code}, ${drive.out.trim().slice(-300)}`,
+    );
   }
 
   for (const read of READS) {
@@ -136,14 +200,18 @@ export function check({ session, out }, deps) {
     save(read.file, { exit: r.code, result: r.json ?? r.text });
 
     if (r.json === null || (r.code !== 0 && r.code !== 1)) {
-      throw new Error(`control.mjs ${read.args.join(' ')} exited ${r.code}: ${r.text.trim().slice(-400)}`);
+      throw new Error(
+        `control.mjs ${read.args.join(' ')} exited ${r.code}: ${r.text.trim().slice(-400)}`,
+      );
     }
 
     const text = typeof r.json['text'] === 'string' ? r.json['text'] : '';
     checks[read.id] = r.code === 0 && read.holds(text);
 
     if (!checks[read.id]) {
-      notes.push(`${read.id}: exit ${r.code}, ${text.slice(0, 200) || 'no text'}`);
+      notes.push(
+        `${read.id}: exit ${r.code}, ${text.slice(0, 200) || 'no text'}`,
+      );
     }
   }
 
@@ -162,10 +230,16 @@ export function check({ session, out }, deps) {
  */
 export function main(argv, deps) {
   try {
-    const { values } = parseArgs({ args: argv, options: { session: { type: 'string' }, out: { type: 'string' } }, strict: true });
+    const { values } = parseArgs({
+      args: argv,
+      options: { session: { type: 'string' }, out: { type: 'string' } },
+      strict: true,
+    });
 
     if (!values.session || !values.out) {
-      throw new Error('usage: live-reads.mjs --session <playwright-cli session> --out <dir>');
+      throw new Error(
+        'usage: live-reads.mjs --session <playwright-cli session> --out <dir>',
+      );
     }
 
     check({ session: values.session, out: resolve(values.out) }, deps);
@@ -178,7 +252,9 @@ export function main(argv, deps) {
       return 1;
     }
 
-    console.error(`[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`);
+    console.error(
+      `[ERROR] could not run: ${e instanceof Error ? e.message : String(e)}`,
+    );
 
     return 2;
   }
@@ -187,18 +263,36 @@ export function main(argv, deps) {
 /** @type {Deps} */
 const realDeps = {
   control: (args) => {
-    const r = spawnSync(process.execPath, [CONTROL, ...args, '--json'], { cwd: ROOT, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024, timeout: 600000 });
+    const r = spawnSync(process.execPath, [CONTROL, ...args, '--json'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      windowsHide: true,
+      maxBuffer: 64 * 1024 * 1024,
+      timeout: 600000,
+    });
 
-    return { code: r.status, json: jsonOf(r.stdout ?? ''), text: (r.stdout ?? '') + (r.stderr ?? '') };
+    return {
+      code: r.status,
+      json: jsonOf(r.stdout ?? ''),
+      text: (r.stdout ?? '') + (r.stderr ?? ''),
+    };
   },
   pw: (args) => {
     const js = findPlaywrightCli(process.env['PATH'] ?? '');
 
     if (!js) {
-      throw new Error('playwright-cli not found on PATH (its npm shim, playwright-cli.cmd)');
+      throw new Error(
+        'playwright-cli not found on PATH (its npm shim, playwright-cli.cmd)',
+      );
     }
 
-    const r = spawnSync(process.execPath, [js, ...args], { cwd: ROOT, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024, timeout: 120000 });
+    const r = spawnSync(process.execPath, [js, ...args], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      windowsHide: true,
+      maxBuffer: 64 * 1024 * 1024,
+      timeout: 120000,
+    });
 
     return { code: r.status, out: (r.stdout ?? '') + (r.stderr ?? '') };
   },
@@ -208,6 +302,10 @@ const realDeps = {
   },
 };
 
-if (process.argv[1] && realpathSync.native(resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+if (
+  process.argv[1] &&
+  realpathSync.native(resolve(process.argv[1])) ===
+    realpathSync.native(fileURLToPath(import.meta.url))
+) {
   process.exitCode = main(process.argv.slice(2), realDeps);
 }

@@ -23,7 +23,13 @@
  */
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import test from 'node:test';
@@ -53,7 +59,13 @@ const ENVELOPE_MODULE_RELATIVE = [
  * constant, and such a plan changes it alongside that edit.
  */
 export const PINNED_ENVELOPE_SHA256 =
-  '20859b889b727679929e7c927cf2abeb3c4920cea190d31a69bb08bac080407e';
+  '2d265053816060f8bdd669877975366fe6c826ed395aab29d36bb2bbfcfe4de3';
+
+// Deliberate edit, recorded as the pin requires: `tool-registry.ts` carried private copies of
+// `isRecord` and `describeFailure` that were byte-identical (apart from one fallback string) to
+// the ones in six other modules. Both are now imported from `record-guard.ts`, and the envelope
+// lost one string: its unreachable `String()` fallback said 'unknown failure' where the six
+// others said 'an unprintable failure'. No tool was added and no declaration changed.
 
 /** The pinned module's path under `root`. */
 export function envelopeModulePath(root = REPO_ROOT) {
@@ -69,7 +81,10 @@ export function sha256Of(bytes) {
  * One comparison, as a function of a path — so the real module, an untouched copy in `os.tmpdir()`
  * and a one-byte-changed copy all run the identical check.
  */
-export function checkEnvelopePin(modulePath, expected = PINNED_ENVELOPE_SHA256) {
+export function checkEnvelopePin(
+  modulePath,
+  expected = PINNED_ENVELOPE_SHA256,
+) {
   const exists = existsSync(modulePath);
   const actual = exists ? sha256Of(readFileSync(modulePath)) : null;
   return {
@@ -85,8 +100,12 @@ export function checkEnvelopePin(modulePath, expected = PINNED_ENVELOPE_SHA256) 
 function pathLabel(modulePath) {
   const relativePath = relative(REPO_ROOT, modulePath).split(sep).join('/');
   const insideRepo =
-    relativePath.length > 0 && !relativePath.startsWith('..') && !isAbsolute(relativePath);
-  return insideRepo ? `${modulePath} (repo-relative: ${relativePath})` : modulePath;
+    relativePath.length > 0 &&
+    !relativePath.startsWith('..') &&
+    !isAbsolute(relativePath);
+  return insideRepo
+    ? `${modulePath} (repo-relative: ${relativePath})`
+    : modulePath;
 }
 
 /**
@@ -138,11 +157,24 @@ test('E3 the registry core hash is pinned and any edit to it fails the pin', () 
 
     // The red side: exactly one byte changes, and the same comparison must report it.
     const mutated = Buffer.from(original);
-    const offset = mutated.indexOf(Buffer.from('angular-ai-devtools:tool-registry'));
-    assert.ok(offset >= 0, 'the fixture must change a byte of the module it copied');
+    const offset = mutated.indexOf(
+      Buffer.from('angular-ai-devtools:tool-registry'),
+    );
+    assert.ok(
+      offset >= 0,
+      'the fixture must change a byte of the module it copied',
+    );
     mutated[offset] = mutated[offset] ^ 0x01;
-    assert.notEqual(mutated[offset], original[offset], 'the mutation must change the byte');
-    assert.equal(mutated.length, original.length, 'the mutation must not add or remove bytes');
+    assert.notEqual(
+      mutated[offset],
+      original[offset],
+      'the mutation must change the byte',
+    );
+    assert.equal(
+      mutated.length,
+      original.length,
+      'the mutation must not add or remove bytes',
+    );
     assert.notEqual(
       sha256Of(mutated),
       PINNED_ENVELOPE_SHA256,
@@ -152,13 +184,26 @@ test('E3 the registry core hash is pinned and any edit to it fails the pin', () 
     const mutatedCopy = join(temporary, 'tool-registry.mutated.ts');
     writeFileSync(mutatedCopy, mutated);
     const mutatedPin = checkEnvelopePin(mutatedCopy);
-    assert.equal(mutatedPin.ok, false, 'a one-byte edit to the registry core must fail the pin');
+    assert.equal(
+      mutatedPin.ok,
+      false,
+      'a one-byte edit to the registry core must fail the pin',
+    );
     assert.equal(mutatedPin.actual, sha256Of(mutated));
 
     const message = describePinFailure(mutatedPin);
-    assert.ok(message.includes(mutatedCopy), 'the failure must name the module that changed');
-    assert.ok(message.includes(PINNED_ENVELOPE_SHA256), 'the failure must name the expected hash');
-    assert.ok(message.includes(mutatedPin.actual), 'the failure must name the actual hash');
+    assert.ok(
+      message.includes(mutatedCopy),
+      'the failure must name the module that changed',
+    );
+    assert.ok(
+      message.includes(PINNED_ENVELOPE_SHA256),
+      'the failure must name the expected hash',
+    );
+    assert.ok(
+      message.includes(mutatedPin.actual),
+      'the failure must name the actual hash',
+    );
     assert.match(
       message,
       /never in a commit that adds a tool/,

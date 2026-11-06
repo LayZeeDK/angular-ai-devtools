@@ -11,19 +11,37 @@ test('label toSignal.state kept', () => {
 });
 
 test('no label but debuggableFnSource contains subject.error kept (E5)', () => {
-  assert.equal(isInteropNode({ label: null, debuggableFnSource: 'function(){ subject.error(new Error()); }' }), true);
+  assert.equal(
+    isInteropNode({
+      label: null,
+      debuggableFnSource: 'function(){ subject.error(new Error()); }',
+    }),
+    true,
+  );
 });
 
 test('library-internal node matching neither rule filtered (E5)', () => {
-  assert.equal(isInteropNode({ label: 'computed', debuggableFnSource: 'function(){ return x; }' }), false);
+  assert.equal(
+    isInteropNode({
+      label: 'computed',
+      debuggableFnSource: 'function(){ return x; }',
+    }),
+    false,
+  );
 });
 
 test('whole-token: subject.errorHandler does not match', () => {
-  assert.equal(isInteropNode({ debuggableFnSource: 'subject.errorHandler()' }), false);
+  assert.equal(
+    isInteropNode({ debuggableFnSource: 'subject.errorHandler()' }),
+    false,
+  );
 });
 
 test('whole-token: xsubject.error does not match', () => {
-  assert.equal(isInteropNode({ debuggableFnSource: 'xsubject.error()' }), false);
+  assert.equal(
+    isInteropNode({ debuggableFnSource: 'xsubject.error()' }),
+    false,
+  );
 });
 
 test('keepInteropNodes returns kept subset in input order', () => {
@@ -38,5 +56,11 @@ test('keepInteropNodes returns kept subset in input order', () => {
 });
 
 test('nodeText preference order: debuggableFnSource first', () => {
-  assert.equal(isInteropNode({ debuggableFnSource: 'no', debuggableFn: 'subject.error()' }), false);
+  assert.equal(
+    isInteropNode({
+      debuggableFnSource: 'no',
+      debuggableFn: 'subject.error()',
+    }),
+    false,
+  );
 });

@@ -1,6 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 
-export type PromptStatus = 'idle' | 'checking' | 'ready' | 'unavailable' | 'working' | 'error';
+export type PromptStatus =
+  'idle' | 'checking' | 'ready' | 'unavailable' | 'working' | 'error';
 
 export interface PromptAnswer {
   ok: true;
@@ -46,7 +47,9 @@ export class ExtensionPromptService {
   readonly error = signal<string | null>(null);
   readonly ready = computed(() => this.status() === 'ready');
   // Also while availability is checked, so a second click cannot start a second session.
-  readonly working = computed(() => this.status() === 'working' || this.status() === 'checking');
+  readonly working = computed(
+    () => this.status() === 'working' || this.status() === 'checking',
+  );
 
   async checkAvailability(): Promise<boolean> {
     this.status.set('checking');
@@ -87,10 +90,13 @@ export class ExtensionPromptService {
     this.answer.set(null);
     this.error.set(null);
 
-    const ready = this.status() === 'ready' ? true : await this.checkAvailability();
+    const ready =
+      this.status() === 'ready' ? true : await this.checkAvailability();
     const lm = languageModel();
     if (!ready || !lm) {
-      const message = this.error() ?? `Prompt API unavailable in the panel (availability: ${this.availability()})`;
+      const message =
+        this.error() ??
+        `Prompt API unavailable in the panel (availability: ${this.availability()})`;
       this.error.set(message);
       return { ok: false, error: message };
     }
@@ -117,23 +123,34 @@ export class ExtensionPromptService {
     return this.runPrompt(() => this.buildPrompt(version));
   }
 
-  async explainFacts(facts: string[] | string | null = []): Promise<PromptResult> {
-    const list = Array.isArray(facts) ? facts.map((f) => String(f)) : (facts == null ? [] : [String(facts)]);
+  async explainFacts(
+    facts: string[] | string | null = [],
+  ): Promise<PromptResult> {
+    const list = Array.isArray(facts)
+      ? facts.map((f) => String(f))
+      : facts == null
+        ? []
+        : [String(facts)];
     return this.runPrompt(() => this.buildFactsPrompt(list));
   }
 
   // Generalized entry point: accepts a version string, a fact list, a chain result object, or null.
   // Routes explicitly by type — no string content heuristics.
-  async explain(input: string | string[] | ChainResultLike | null = null): Promise<PromptResult> {
+  async explain(
+    input: string | string[] | ChainResultLike | null = null,
+  ): Promise<PromptResult> {
     if (Array.isArray(input)) {
       return this.explainFacts(input.map((v) => String(v)));
     }
     if (input !== null && typeof input === 'object') {
       const facts: string[] = [];
       const obj = input as Record<string, unknown>;
-      if (typeof obj['chain'] === 'string') facts.push(`chain: ${obj['chain']}`);
-      if (typeof obj['triggerLabel'] === 'string') facts.push(`trigger: ${obj['triggerLabel']}`);
-      if (Array.isArray(obj['signalLabels'])) facts.push(`signals: ${(obj['signalLabels'] as unknown[]).join(', ')}`);
+      if (typeof obj['chain'] === 'string')
+        facts.push(`chain: ${obj['chain']}`);
+      if (typeof obj['triggerLabel'] === 'string')
+        facts.push(`trigger: ${obj['triggerLabel']}`);
+      if (Array.isArray(obj['signalLabels']))
+        facts.push(`signals: ${(obj['signalLabels'] as unknown[]).join(', ')}`);
       if (facts.length === 0) facts.push(JSON.stringify(obj));
       return this.explainFacts(facts);
     }
@@ -141,13 +158,19 @@ export class ExtensionPromptService {
   }
 
   // Aliases for callers/tests that expect a facts-specific method name.
-  async explainWithFacts(facts: string[] | string | null = []): Promise<PromptResult> {
+  async explainWithFacts(
+    facts: string[] | string | null = [],
+  ): Promise<PromptResult> {
     return this.explainFacts(facts);
   }
-  async explainChain(chain: string | Record<string, unknown> | null = null): Promise<PromptResult> {
+  async explainChain(
+    chain: string | Record<string, unknown> | null = null,
+  ): Promise<PromptResult> {
     return this.explain(chain as any);
   }
-  async explainFactList(facts: string[] | string | null = []): Promise<PromptResult> {
+  async explainFactList(
+    facts: string[] | string | null = [],
+  ): Promise<PromptResult> {
     return this.explainFacts(facts);
   }
 }

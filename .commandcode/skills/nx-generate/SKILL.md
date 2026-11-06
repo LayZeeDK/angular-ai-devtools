@@ -1,6 +1,6 @@
 ---
 name: nx-generate
-description: "Run Nx Generator"
+description: 'Run Nx Generator'
 ---
 
 # Run Nx Generator

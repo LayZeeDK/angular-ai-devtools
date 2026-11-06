@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: cross-field-validation
+milestone: lint-core
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M031
-archive: .project/archive/031-cross-field-validation
+branch: gsd-path/M032
+archive: .project/archive/032-lint-core
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -606,3 +606,27 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-05 — build — build started
 - 2026-11-05 — ship — build done; final review pending
 - 2026-11-05 — shipped — archive preflight passed; shipment recorded
+- 2026-11-05 — inspect — programme 1 closed: Generation 1 (M018-M031) shipped and integrated; bound gsd-path/M032; programme 2 open
+- 2026-11-05 — inspect — inspection complete: docs audit re-run over 145 documents (144 audited, 533 claims, gate passed) and collected; programme 2 opened by the owner
+- 2026-11-05 — define — define opened for programme 2: Generation 2 (twelve milestones) admitted through the roadmap phase
+- 2026-11-05 — roadmap — roadmap re-slice started
+- 2026-11-05 — roadmap — program roadmap approved
+- 2026-11-05 — define — define opened for lint-core
+- 2026-11-05 — define — milestone intent approved
+- 2026-11-05 — plan — planning started
+- 2026-11-05 — plan — plan approved
+- 2026-11-05 — build — build started
+- 2026-11-06 — build — T003 landed missing its demo loader; patch a task rather than hand-edit product code
+- 2026-11-06 — build — settle landed dispatches before reopening the plan
+- 2026-11-06 — build — plan a patch task for the missing demo loader
+- 2026-11-06 — plan — build plan repair requested
+- 2026-11-06 — plan — build recovery: {"base": "9a1c4da2ec24bf3e0cdf43a3f39156714ff3eeeb", "branch": "gsd-path/M032", "kind": "plan", "source": "build"}
+- 2026-11-06 — plan — plan approved
+- 2026-11-06 — build — build started
+- 2026-11-06 — ship — build done; final review pending
+- 2026-11-06 — ship — plan verify string carries a typo: ai-devtool-companion
+- 2026-11-06 — plan — patch plan reopened
+- 2026-11-06 — plan — plan approved
+- 2026-11-06 — build — build started
+- 2026-11-06 — ship — build done; final review pending
+- 2026-11-06 — shipped — archive preflight passed; shipment recorded

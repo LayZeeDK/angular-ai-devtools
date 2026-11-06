@@ -15,7 +15,11 @@ import {
   type PageResponse,
 } from '../page-reads';
 import { provideReadTools } from './read-tools';
-import { TOOL_REGISTRY, type ToolInputSchema, type ToolRegistry } from './tool-registry';
+import {
+  TOOL_REGISTRY,
+  type ToolInputSchema,
+  type ToolRegistry,
+} from './tool-registry';
 
 /** The five ids INTENT.md names, verbatim — the last two keep their camelCase spelling. */
 const READ_TOOL_IDS = [
@@ -48,7 +52,9 @@ function newRegistry(host?: PageHost): ToolRegistry {
 }
 
 /** A fake page host that records every request it is asked and answers from `answer`. */
-function fakeHost(answer: (request: PageRequest) => PageResponse | Promise<PageResponse>): {
+function fakeHost(
+  answer: (request: PageRequest) => PageResponse | Promise<PageResponse>,
+): {
   host: PageHost;
   seen: PageRequest[];
 } {
@@ -94,22 +100,33 @@ describe('read tool declarations', () => {
       expect(Array.isArray(schema.required)).toBe(true);
       const needsId = toolId !== 'find_components' && toolId !== 'list_signals';
       expect(schema.required).toEqual(needsId ? ['componentId'] : []);
-      expect(schema.properties['componentId'] ?? schema.properties['name']).toBeDefined();
+      expect(
+        schema.properties['componentId'] ?? schema.properties['name'],
+      ).toBeDefined();
     }
   });
 
   it('states the dev-mode restriction in the two Tier-0 declarations and nowhere else', () => {
     const registry = newRegistry();
     for (const toolId of TIER0_IDS) {
-      const description = schemaOf(registry, toolId).properties['componentId']?.description ?? '';
+      const description =
+        schemaOf(registry, toolId).properties['componentId']?.description ?? '';
       expect(description).toContain(toolId);
       expect(description).toMatch(/outside dev mode/);
       // The caveat says what an empty read is not evidence of, so no consumer reads it as absence.
-      expect(description).toMatch(/not evidence that the page has no (components|directives)/);
+      expect(description).toMatch(
+        /not evidence that the page has no (components|directives)/,
+      );
       expect(description).toMatch(/instead of a fallback read/);
     }
-    for (const toolId of ['find_components', 'inspect_component', 'list_signals']) {
-      for (const property of Object.values(schemaOf(registry, toolId).properties)) {
+    for (const toolId of [
+      'find_components',
+      'inspect_component',
+      'list_signals',
+    ]) {
+      for (const property of Object.values(
+        schemaOf(registry, toolId).properties,
+      )) {
         expect(property.description ?? '').not.toMatch(/outside dev mode/);
       }
     }
@@ -120,12 +137,20 @@ describe('read tool results', () => {
   it('maps each page payload to a result labelled page-request and asks for that tool only', async () => {
     for (const toolId of READ_TOOL_IDS) {
       const payload = { read: toolId, components: [] };
-      const { host, seen } = fakeHost(() => ({ status: 'result', value: payload }));
-      const outcome = await newRegistry(host).execute(toolId, validInput(toolId));
+      const { host, seen } = fakeHost(() => ({
+        status: 'result',
+        value: payload,
+      }));
+      const outcome = await newRegistry(host).execute(
+        toolId,
+        validInput(toolId),
+      );
       expect(seen).toEqual([{ kind: toolId, input: validInput(toolId) }]);
       expect(outcome.kind).toBe('result');
       if (outcome.kind !== 'result') {
-        throw new Error(`expected a result for "${toolId}", got ${outcome.kind}`);
+        throw new Error(
+          `expected a result for "${toolId}", got ${outcome.kind}`,
+        );
       }
       expect(outcome.provenance).toBe('page-request');
       expect(outcome.value).toBe(payload);
@@ -133,9 +158,15 @@ describe('read tool results', () => {
   });
 
   it('keeps an empty page answer an empty result rather than inventing components', async () => {
-    const { host } = fakeHost(() => ({ status: 'result', value: { components: [] } }));
+    const { host } = fakeHost(() => ({
+      status: 'result',
+      value: { components: [] },
+    }));
     const outcome = await newRegistry(host).execute('find_components', {});
-    expect(outcome).toMatchObject({ kind: 'result', provenance: 'page-request' });
+    expect(outcome).toMatchObject({
+      kind: 'result',
+      provenance: 'page-request',
+    });
     if (outcome.kind !== 'result') {
       return;
     }
@@ -148,7 +179,9 @@ describe('read tool results', () => {
       code: 'invalid-input',
       message: 'the page has no component "cmp-404"',
     }));
-    const outcome = await newRegistry(host).execute('inspect_component', { componentId: 'cmp-404' });
+    const outcome = await newRegistry(host).execute('inspect_component', {
+      componentId: 'cmp-404',
+    });
     expect(outcome).toMatchObject({
       kind: 'error',
       code: 'invalid-input',
@@ -174,7 +207,11 @@ describe('read tool results', () => {
     ];
     for (const [toolId, input] of rejected) {
       const outcome = await registry.execute(toolId, input);
-      expect(outcome).toMatchObject({ kind: 'error', code: 'invalid-input', toolId });
+      expect(outcome).toMatchObject({
+        kind: 'error',
+        code: 'invalid-input',
+        toolId,
+      });
       expect(outcome).not.toHaveProperty('value');
     }
     // The envelope rejected the calls, so nothing reached the page.
@@ -188,9 +225,15 @@ describe('read tool results', () => {
         code: 'host-unavailable',
         message: `the page is not in dev mode, so ${toolId} answered nothing`,
       }));
-      const outcome = await newRegistry(host).execute(toolId, { componentId: 'cmp-1' });
+      const outcome = await newRegistry(host).execute(toolId, {
+        componentId: 'cmp-1',
+      });
       expect(seen.length).toBe(1);
-      expect(outcome).toMatchObject({ kind: 'error', code: 'host-unavailable', toolId });
+      expect(outcome).toMatchObject({
+        kind: 'error',
+        code: 'host-unavailable',
+        toolId,
+      });
       if (outcome.kind !== 'error') {
         return;
       }
@@ -206,7 +249,11 @@ describe('the page-read port before the transport exists', () => {
     const registry = newRegistry();
     for (const toolId of READ_TOOL_IDS) {
       const outcome = await registry.execute(toolId, validInput(toolId));
-      expect(outcome).toMatchObject({ kind: 'error', code: 'host-unavailable', toolId });
+      expect(outcome).toMatchObject({
+        kind: 'error',
+        code: 'host-unavailable',
+        toolId,
+      });
       if (outcome.kind !== 'error') {
         continue;
       }
@@ -226,7 +273,9 @@ describe('the page-read port before the transport exists', () => {
     // The spec asserts the exported text rather than re-typing it: one reason, no drift.
     expect(response.code).toBe('host-unavailable');
     expect(response.message).toContain(PAGE_HOST_UNAVAILABLE_REASON);
-    expect(PAGE_HOST_UNAVAILABLE_REASON).toMatch(/no page-request transport exists in this build/);
+    expect(PAGE_HOST_UNAVAILABLE_REASON).toMatch(
+      /no page-request transport exists in this build/,
+    );
   });
 
   it('reports a host that throws as host-unavailable naming the tool, never as a throw', async () => {
@@ -244,13 +293,17 @@ describe('the page-read port before the transport exists', () => {
     if (outcome.kind !== 'error') {
       return;
     }
-    expect(outcome.message).toContain('no channel carries a request to the page');
+    expect(outcome.message).toContain(
+      'no channel carries a request to the page',
+    );
   });
 });
 
 describe('page-reads readers', () => {
   it('exports one reader per request kind, and each reader asks for its own kind', async () => {
-    expect(Object.keys(PAGE_READERS).sort()).toEqual([...PAGE_READ_KINDS].sort());
+    expect(Object.keys(PAGE_READERS).sort()).toEqual(
+      [...PAGE_READ_KINDS].sort(),
+    );
     for (const reader of [
       readComponents,
       readComponent,
@@ -261,7 +314,10 @@ describe('page-reads readers', () => {
       expect(typeof reader).toBe('function');
     }
     for (const kind of PAGE_READ_KINDS) {
-      const { host, seen } = fakeHost(() => ({ status: 'result', value: kind }));
+      const { host, seen } = fakeHost(() => ({
+        status: 'result',
+        value: kind,
+      }));
       const response = await PAGE_READERS[kind](host, { componentId: 'cmp-1' });
       expect(seen).toEqual([{ kind, input: { componentId: 'cmp-1' } }]);
       expect(response).toEqual({ status: 'result', value: kind });

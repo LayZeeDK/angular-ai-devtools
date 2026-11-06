@@ -28,12 +28,25 @@ function fake(o = {}) {
         calls.push(args);
 
         if (args[0] === 'tools') {
-          return { code: o.toolsCode ?? 0, json: { ok: true, count: 46, actionToolsPresent: o.actions ?? [] }, text: '' };
+          return {
+            code: o.toolsCode ?? 0,
+            json: { ok: true, count: 46, actionToolsPresent: o.actions ?? [] },
+            text: '',
+          };
         }
 
         const code = o.navigateCode === undefined ? 2 : o.navigateCode;
 
-        return { code, json: { ok: code === 0, reason: o.reason ?? 'refused: navigate acts on the app; pass --confirm to run it' }, text: `exit ${code}` };
+        return {
+          code,
+          json: {
+            ok: code === 0,
+            reason:
+              o.reason ??
+              'refused: navigate acts on the app; pass --confirm to run it',
+          },
+          text: `exit ${code}`,
+        };
       },
       write: (file, data) => {
         files.set(file, data);
@@ -61,21 +74,37 @@ function runMain(t, deps) {
 test('passes when tools/list has no action tool and navigate without --confirm is refused', () => {
   const f = fake();
   check({ out: 'D:\\ev' }, f.deps);
-  assert.deepEqual(f.calls, [['tools'], ['call', 'navigate', '--args', '{"action":"navigate","url":"/home"}']]);
+  assert.deepEqual(f.calls, [
+    ['tools'],
+    ['call', 'navigate', '--args', '{"action":"navigate","url":"/home"}'],
+  ]);
   assert.ok(!f.calls[1]?.includes('--confirm'));
-  assert.ok(f.files.has(join('D:\\ev', 'tools-list.json')) && f.files.has(join('D:\\ev', 'navigate-refused.json')));
+  assert.ok(
+    f.files.has(join('D:\\ev', 'tools-list.json')) &&
+      f.files.has(join('D:\\ev', 'navigate-refused.json')),
+  );
 });
 
 test('an action tool on offer fails the claim and main exits 1 with the Error: CLAIM line', (t) => {
-  assert.throws(() => check({ out: 'o' }, fake({ actions: ['navigate', 'highlight'] }).deps), /^Error: CLAIM: tools\/list offers action tools: navigate, highlight$/);
+  assert.throws(
+    () =>
+      check({ out: 'o' }, fake({ actions: ['navigate', 'highlight'] }).deps),
+    /^Error: CLAIM: tools\/list offers action tools: navigate, highlight$/,
+  );
   const r = runMain(t, fake({ actions: ['navigate'] }).deps);
   assert.equal(r.code, 1);
   assert.match(r.stderr, /^Error: CLAIM: /m);
 });
 
 test('navigate that runs (exit 0) or fails as a tool (exit 1) fails the claim', () => {
-  assert.throws(() => check({ out: 'o' }, fake({ navigateCode: 0 }).deps), /CLAIM: call navigate without --confirm exited 0, not 2/);
-  assert.throws(() => check({ out: 'o' }, fake({ navigateCode: 1 }).deps), /CLAIM: call navigate without --confirm exited 1/);
+  assert.throws(
+    () => check({ out: 'o' }, fake({ navigateCode: 0 }).deps),
+    /CLAIM: call navigate without --confirm exited 0, not 2/,
+  );
+  assert.throws(
+    () => check({ out: 'o' }, fake({ navigateCode: 1 }).deps),
+    /CLAIM: call navigate without --confirm exited 1/,
+  );
 });
 
 test('tools that cannot answer could not run: exit 2, no CLAIM line', (t) => {
@@ -92,7 +121,16 @@ test('the script exits 2 without --out', () => {
 });
 
 test('an exit 2 that is not the --confirm refusal (the server lacks the tool) fails the claim, after saving both answers', () => {
-  const f = fake({ reason: 'no tool navigate on http://localhost:9999/__mcp (the server runs --read-only)' });
-  assert.throws(() => check({ out: 'o' }, f.deps), /^Error: CLAIM: call navigate without --confirm exited 2, not 2 with its --confirm refusal: no tool navigate/);
-  assert.ok(f.files.has(join('o', 'tools-list.json')) && f.files.has(join('o', 'navigate-refused.json')));
+  const f = fake({
+    reason:
+      'no tool navigate on http://localhost:9999/__mcp (the server runs --read-only)',
+  });
+  assert.throws(
+    () => check({ out: 'o' }, f.deps),
+    /^Error: CLAIM: call navigate without --confirm exited 2, not 2 with its --confirm refusal: no tool navigate/,
+  );
+  assert.ok(
+    f.files.has(join('o', 'tools-list.json')) &&
+      f.files.has(join('o', 'navigate-refused.json')),
+  );
 });

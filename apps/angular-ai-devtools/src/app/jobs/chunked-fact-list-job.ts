@@ -29,9 +29,18 @@
  * job is a panel-internal tool — a model never invents a handle.
  */
 import { Injectable, inject } from '@angular/core';
-import { CHUNK_TOKEN_CAP, chunkFacts, type ChunkedFacts } from '../context-budget';
-import type { ToolBacking, ToolContext, ToolOutcome } from '../tool-registry/tool-registry';
+import {
+  CHUNK_TOKEN_CAP,
+  chunkFacts,
+  type ChunkedFacts,
+} from '../context-budget';
+import type {
+  ToolBacking,
+  ToolContext,
+  ToolOutcome,
+} from '../tool-registry/tool-registry';
 import { JobHandleRegistry } from './job-handles';
+import { describeFailure, isRecord } from '../record-guard';
 
 /** The job's id. Named here so a failure names the job without the caller supplying it. */
 export const CHUNKED_FACT_LIST_JOB_ID = 'chunked_fact_list';
@@ -79,21 +88,6 @@ function betweenChunks(): Promise<void> {
   });
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function describeFailure(failure: unknown): string {
-  if (failure instanceof Error) {
-    return failure.message;
-  }
-  try {
-    return String(failure);
-  } catch {
-    return 'an unprintable failure';
-  }
-}
-
 /**
  * The job's input, or `null` when it is not one. The input crosses the envelope as `unknown`, so
  * it is checked rather than trusted: a job that reported progress under `"[object Object]"` would
@@ -108,7 +102,10 @@ function readRequest(input: unknown): ChunkedFactListRequest | null {
   if (typeof handle !== 'string' || handle.trim().length === 0) {
     return null;
   }
-  if (!Array.isArray(facts) || facts.some((fact: unknown) => typeof fact !== 'string')) {
+  if (
+    !Array.isArray(facts) ||
+    facts.some((fact: unknown) => typeof fact !== 'string')
+  ) {
     return null;
   }
   return { handle, facts: facts as readonly string[] };
@@ -121,7 +118,12 @@ function payloadOutcome(payload: ChunkedFactListPayload): ToolOutcome {
 
 /** An unusable fact list is a named failure, never an empty result that reads as "no facts". */
 function invalidOutcome(message: string): ToolOutcome {
-  return { kind: 'error', code: 'invalid-input', toolId: CHUNKED_FACT_LIST_JOB_ID, message };
+  return {
+    kind: 'error',
+    code: 'invalid-input',
+    toolId: CHUNKED_FACT_LIST_JOB_ID,
+    message,
+  };
 }
 
 /**
@@ -178,7 +180,11 @@ export class ChunkedFactListJob implements ToolBacking {
     if (handle.signal.aborted) {
       // The partial list is dropped here rather than handed on: the cancelled payload carries no
       // chunks, so the last completed chunk is not presented as a complete fact list (AC3, AC5).
-      return payloadOutcome({ status: 'cancelled', chunksDone: emitted.length, chunksTotal });
+      return payloadOutcome({
+        status: 'cancelled',
+        chunksDone: emitted.length,
+        chunksTotal,
+      });
     }
 
     return payloadOutcome({

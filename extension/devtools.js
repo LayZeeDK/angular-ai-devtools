@@ -5,5 +5,5 @@ chrome.devtools.panels.create(
   'panel/index.html',
   (panel) => {
     console.log('[Angular AI DevTools] Panel created');
-  }
+  },
 );

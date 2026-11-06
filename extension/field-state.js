@@ -1,19 +1,31 @@
 (function () {
-  "use strict";
+  'use strict';
 
-  const CANNOT_TELL = "cannot-tell";
-  const FIELDS = "fields";
+  const CANNOT_TELL = 'cannot-tell';
+  const FIELDS = 'fields';
 
   function isFieldState(value) {
-    return !!value && typeof value === "object" && value.fields && typeof value.fields === "object" && value.root && typeof value.root === "object";
+    return (
+      !!value &&
+      typeof value === 'object' &&
+      value.fields &&
+      typeof value.fields === 'object' &&
+      value.root &&
+      typeof value.root === 'object'
+    );
   }
 
   function ownErrors(field) {
-    if (!field || typeof field !== "object" || !Array.isArray(field.errors)) return [];
+    if (!field || typeof field !== 'object' || !Array.isArray(field.errors))
+      return [];
     const out = [];
     for (let i = 0; i < field.errors.length; i += 1) {
       const error = field.errors[i];
-      if (error && typeof error === "object" && typeof error.kind === "string") {
+      if (
+        error &&
+        typeof error === 'object' &&
+        typeof error.kind === 'string'
+      ) {
         out.push({ kind: error.kind });
       }
     }
@@ -21,7 +33,7 @@
   }
 
   function readField(field) {
-    if (!field || typeof field !== "object") {
+    if (!field || typeof field !== 'object') {
       return { valid: false, invalid: true, errors: [] };
     }
     return {
@@ -33,7 +45,12 @@
 
   function read(state) {
     if (!isFieldState(state)) {
-      return { state: CANNOT_TELL, reason: "unreadable-state", fields: {}, submit: "unknown" };
+      return {
+        state: CANNOT_TELL,
+        reason: 'unreadable-state',
+        fields: {},
+        submit: 'unknown',
+      };
     }
 
     const fields = {};
@@ -44,20 +61,23 @@
 
     const root = state.root;
     const rootErrors = Array.isArray(root.errors) ? root.errors : [];
-    const rootKind = rootErrors.length > 0 && typeof rootErrors[0].kind === "string" ? rootErrors[0].kind : null;
+    const rootKind =
+      rootErrors.length > 0 && typeof rootErrors[0].kind === 'string'
+        ? rootErrors[0].kind
+        : null;
     const rootInvalid = root.invalid === true || root.valid === false;
 
     const submitState =
-      typeof state.submitState === "string"
+      typeof state.submitState === 'string'
         ? state.submitState
         : state.submitDisabled === true
-          ? "disabled"
-          : "enabled";
+          ? 'disabled'
+          : 'enabled';
 
     if (rootInvalid && rootKind === null) {
       return {
         state: CANNOT_TELL,
-        reason: "root-invalid-without-error-kind",
+        reason: 'root-invalid-without-error-kind',
         fields: fields,
         submit: submitState,
         submitState: submitState,

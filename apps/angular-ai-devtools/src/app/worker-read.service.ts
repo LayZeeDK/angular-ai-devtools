@@ -22,7 +22,13 @@
  * builds the real worker lazily, on the first read, so the worker is never constructed on the
  * panel's startup path.
  */
-import { Injectable, InjectionToken, computed, inject, signal } from '@angular/core';
+import {
+  Injectable,
+  InjectionToken,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import type {
   PageSnapshot,
   WorkerReadErrorCode,
@@ -31,6 +37,7 @@ import type {
   WorkerReadReply,
   WorkerReadRequest,
 } from '../worker-read.worker';
+import { describeFailure, isRecord } from './record-guard';
 
 /** Why a read could not cross the boundary. Named once so a spec asserts it instead of re-typing. */
 export const NO_WORKER_REASON =
@@ -43,7 +50,8 @@ const WORKER_READ_ERROR_CODES: readonly WorkerReadErrorCode[] = [
 ];
 
 /** What the service saw a read do. `cancelled` is an answer, not an absence of one. */
-export type WorkerReadStatus = 'idle' | 'reading' | 'ready' | 'cancelled' | 'error';
+export type WorkerReadStatus =
+  'idle' | 'reading' | 'ready' | 'cancelled' | 'error';
 
 /**
  * A read's outcome as the panel receives it. Every variant carries the token and the read name,
@@ -76,12 +84,11 @@ export type WorkerReadPort = {
   terminate(): void;
 };
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
 function isWorkerReadErrorCode(value: unknown): value is WorkerReadErrorCode {
-  return typeof value === 'string' && (WORKER_READ_ERROR_CODES as readonly string[]).includes(value);
+  return (
+    typeof value === 'string' &&
+    (WORKER_READ_ERROR_CODES as readonly string[]).includes(value)
+  );
 }
 
 /**
@@ -106,7 +113,10 @@ function readReply(data: unknown): WorkerReadReply | null {
     return {
       token,
       status: 'cancelled',
-      message: typeof message === 'string' ? message : 'the worker cancelled this read',
+      message:
+        typeof message === 'string'
+          ? message
+          : 'the worker cancelled this read',
     };
   }
   if (status === 'error') {
@@ -119,21 +129,11 @@ function readReply(data: unknown): WorkerReadReply | null {
       token,
       status: 'error',
       code,
-      message: typeof message === 'string' ? message : 'the worker reported no reason',
+      message:
+        typeof message === 'string' ? message : 'the worker reported no reason',
     };
   }
   return null;
-}
-
-function describeFailure(failure: unknown): string {
-  if (failure instanceof Error) {
-    return failure.message;
-  }
-  try {
-    return String(failure);
-  } catch {
-    return 'an unprintable failure';
-  }
 }
 
 /**
@@ -174,13 +174,18 @@ export function createWorkerReadPort(): WorkerReadPort {
       return null;
     }
     try {
-      const created = new Worker(new URL('../worker-read.worker', import.meta.url), {
-        type: 'module',
-      });
+      const created = new Worker(
+        new URL('../worker-read.worker', import.meta.url),
+        {
+          type: 'module',
+        },
+      );
       created.onmessage = (event: MessageEvent<unknown>): void => {
         const reply = readReply(event.data);
         if (reply === null) {
-          failAll('the worker answered with a message that is not a read reply');
+          failAll(
+            'the worker answered with a message that is not a read reply',
+          );
           return;
         }
         settle(reply);
@@ -191,7 +196,9 @@ export function createWorkerReadPort(): WorkerReadPort {
         );
       };
       created.onmessageerror = (): void => {
-        failAll('the worker answered with a message that could not be deserialised');
+        failAll(
+          'the worker answered with a message that could not be deserialised',
+        );
       };
       worker = created;
       return worker;
@@ -335,7 +342,11 @@ export class WorkerReadService {
    * the token it was asked under, and that token is still the newest. A reply that fails any of
    * them resolves its own caller and never writes `result()`.
    */
-  private settle(token: number, read: WorkerReadName, reply: WorkerReadReply): void {
+  private settle(
+    token: number,
+    read: WorkerReadName,
+    reply: WorkerReadReply,
+  ): void {
     const entry = this.awaiting.get(token);
     if (entry === undefined) {
       return;
@@ -345,7 +356,13 @@ export class WorkerReadService {
     if (reply.token !== token) {
       const message = `the worker answered token ${reply.token} instead of ${token}, so the answer was not applied`;
       this.status.set('error');
-      entry.resolve({ status: 'error', token, read, code: 'worker-failed', message });
+      entry.resolve({
+        status: 'error',
+        token,
+        read,
+        code: 'worker-failed',
+        message,
+      });
       return;
     }
 
@@ -363,12 +380,22 @@ export class WorkerReadService {
       reply.status === 'result'
         ? { status: 'result', token, read, value: reply.value }
         : reply.status === 'error'
-          ? { status: 'error', token, read, code: reply.code, message: reply.message }
+          ? {
+              status: 'error',
+              token,
+              read,
+              code: reply.code,
+              message: reply.message,
+            }
           : { status: 'cancelled', token, read, message: reply.message };
 
     this.result.set(outcome);
     this.status.set(
-      outcome.status === 'result' ? 'ready' : outcome.status === 'cancelled' ? 'cancelled' : 'error',
+      outcome.status === 'result'
+        ? 'ready'
+        : outcome.status === 'cancelled'
+          ? 'cancelled'
+          : 'error',
     );
     entry.resolve(outcome);
   }

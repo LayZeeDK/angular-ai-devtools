@@ -20,7 +20,13 @@ import {
 } from './companion';
 
 /** A page that answered and carries no entry: the `absent` refusal (E2). */
-const ABSENT: CompanionRecord = { state: 'absent', version: null, declared: 0, resolved: 0, symbols: [] };
+const ABSENT: CompanionRecord = {
+  state: 'absent',
+  version: null,
+  declared: 0,
+  resolved: 0,
+  symbols: [],
+};
 
 /** A key that is not the package's shape: a stub or a stale copy. */
 const FOREIGN: CompanionRecord = {
@@ -62,7 +68,12 @@ const DECLARED_EMPTY: CompanionRecord = {
 };
 
 /** The record's four answers, in the order the page realm names them. */
-const RECORDS: readonly CompanionRecord[] = [ABSENT, FOREIGN, OLD_VERSION, DECLARED];
+const RECORDS: readonly CompanionRecord[] = [
+  ABSENT,
+  FOREIGN,
+  OLD_VERSION,
+  DECLARED,
+];
 
 describe('the closed copy of the accepted vocabulary', () => {
   it('pins the one version string and the two pkg#name symbols the interface contract fixes (AC7)', () => {
@@ -70,13 +81,16 @@ describe('the closed copy of the accepted vocabulary', () => {
     // interface-contract bullet is what makes the two one promise, and this assertion is what keeps
     // the panel's half of it from drifting.
     expect(COMPANION_ACCEPTED_VERSION).toBe('0.2202.0');
-    expect(COMPANION_ACCEPTED_SYMBOLS.map((symbol) => `${symbol.pkg}#${symbol.name}`)).toEqual([
-      '@angular/router#Router',
-      '@angular/platform-browser#Meta',
-    ]);
+    expect(
+      COMPANION_ACCEPTED_SYMBOLS.map(
+        (symbol) => `${symbol.pkg}#${symbol.name}`,
+      ),
+    ).toEqual(['@angular/router#Router', '@angular/platform-browser#Meta']);
     // Exactly two this milestone, and no others.
     expect(COMPANION_ACCEPTED_SYMBOLS).toHaveLength(2);
-    expect(new Set(COMPANION_ACCEPTED_SYMBOLS.map((symbol) => symbol.pkg)).size).toBe(2);
+    expect(
+      new Set(COMPANION_ACCEPTED_SYMBOLS.map((symbol) => symbol.pkg)).size,
+    ).toBe(2);
     // The name the refusal has to spell out is the entry's own name, not a paraphrase.
     expect(COMPANION_KEY).toBe('ngAiDevTools');
     expect(companionSurface(ABSENT).message).toContain(COMPANION_KEY);
@@ -98,7 +112,10 @@ describe('companionSurface', () => {
     for (const record of RECORDS) {
       expect(companionSurface(record).kind, record.state).toBe(record.state);
     }
-    const kinds = new Set([companionSurface(null).kind, ...RECORDS.map((record) => companionSurface(record).kind)]);
+    const kinds = new Set([
+      companionSurface(null).kind,
+      ...RECORDS.map((record) => companionSurface(record).kind),
+    ]);
     expect(kinds.size).toBe(named.length);
     for (const kind of kinds) {
       expect(named).toContain(kind);
@@ -170,16 +187,20 @@ describe('companionSurface', () => {
     if (surface.kind !== 'declared') {
       return;
     }
-    expect(surface.symbols.map((symbol) => `${symbol.pkg}#${symbol.name}`)).toEqual([
-      '@angular/router#Router',
-      '@angular/platform-browser#Meta',
-    ]);
+    expect(
+      surface.symbols.map((symbol) => `${symbol.pkg}#${symbol.name}`),
+    ).toEqual(['@angular/router#Router', '@angular/platform-browser#Meta']);
     expect(surface.declared).toBe(2);
     expect(surface.resolved).toBe(2);
     expect(surface.noSymbols).toBe(false);
 
     // One symbol carried is one symbol rendered: the surface never pads a list from a vocabulary.
-    const single = companionSurface({ ...DECLARED, declared: 1, resolved: 1, symbols: [DECLARED.symbols[1]!] });
+    const single = companionSurface({
+      ...DECLARED,
+      declared: 1,
+      resolved: 1,
+      symbols: [DECLARED.symbols[1]!],
+    });
     expect(single.kind).toBe('declared');
     if (single.kind !== 'declared') {
       return;
@@ -238,9 +259,9 @@ describe('companionSurface', () => {
     if (invented.kind !== 'declared') {
       return;
     }
-    expect(invented.symbols.map((symbol) => `${symbol.pkg}#${symbol.name}`)).toEqual([
-      '@angular/router#Router',
-    ]);
+    expect(
+      invented.symbols.map((symbol) => `${symbol.pkg}#${symbol.name}`),
+    ).toEqual(['@angular/router#Router']);
     expect(invented.message).not.toContain('@angular/core');
     expect(invented.message).not.toContain('ApplicationRef');
 

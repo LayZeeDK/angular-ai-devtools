@@ -1,5 +1,13 @@
-import { NO_DIGEST_ENTRY, digestForCode, findEntry } from '../main-world/error-digest';
-import { NO_OWN_COMPONENT, EMPTY_STATE, componentLabel } from '../main-world/error-capture';
+import {
+  NO_DIGEST_ENTRY,
+  digestForCode,
+  findEntry,
+} from '../main-world/error-digest';
+import {
+  NO_OWN_COMPONENT,
+  EMPTY_STATE,
+  componentLabel,
+} from '../main-world/error-capture';
 
 export { NO_DIGEST_ENTRY, NO_OWN_COMPONENT, EMPTY_STATE, componentLabel };
 
@@ -53,18 +61,32 @@ export function hasDigestEntry(digest: unknown, code: string | null): boolean {
 }
 
 function safeFind(digest: unknown, code: string): any {
-  try { return findEntry(digest as any, code); } catch { return null; }
+  try {
+    return findEntry(digest as any, code);
+  } catch {
+    return null;
+  }
 }
 
-export function buildPanelFactList(error: CapturedErrorLike, digest?: unknown): PanelErrorFactList {
+export function buildPanelFactList(
+  error: CapturedErrorLike,
+  digest?: unknown,
+): PanelErrorFactList {
   const code = error?.code ? String(error.code) : '';
   const component = error?.component ?? null;
   const d = resolveDigest(digest, error?.code ?? null);
-  const digestStr = hasDigestEntry(digest, error?.code ?? null) ? d : (d && d !== NO_DIGEST_ENTRY ? d : NO_DIGEST_ENTRY);
+  const digestStr = hasDigestEntry(digest, error?.code ?? null)
+    ? d
+    : d && d !== NO_DIGEST_ENTRY
+      ? d
+      : NO_DIGEST_ENTRY;
   return { code, component, digest: digestStr };
 }
 
-export function buildErrorExplainFacts(error: CapturedErrorLike, digest?: unknown): string[] {
+export function buildErrorExplainFacts(
+  error: CapturedErrorLike,
+  digest?: unknown,
+): string[] {
   const fl = buildPanelFactList(error, digest);
   const facts: string[] = [];
   if (fl.code) facts.push(`Error code: ${fl.code}`);

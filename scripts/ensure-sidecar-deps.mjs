@@ -12,7 +12,10 @@ if (existsSync(join(cwd, 'node_modules'))) {
 let commonDir;
 
 try {
-  commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd, encoding: 'utf8' }).trim();
+  commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+    cwd,
+    encoding: 'utf8',
+  }).trim();
 } catch {
   process.exit(0);
 }
@@ -20,7 +23,10 @@ try {
 const gitDir = resolve(cwd, commonDir);
 const primary = dirname(gitDir);
 
-if (!existsSync(join(primary, 'package.json')) || !existsSync(join(primary, 'node_modules'))) {
+if (
+  !existsSync(join(primary, 'package.json')) ||
+  !existsSync(join(primary, 'node_modules'))
+) {
   process.exit(0);
 }
 

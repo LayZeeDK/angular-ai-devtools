@@ -29,9 +29,17 @@
  * edits nothing inside the envelope: the declaration record is the extension point.
  */
 import type { EnvironmentProviders } from '@angular/core';
-import { findEntry, type ErrorDigest } from '../../../../../src/main-world/error-digest';
+import {
+  findEntry,
+  type ErrorDigest,
+} from '../../../../../src/main-world/error-digest';
 import errorDigestJson from '../../../../../extension/error-digest.json';
-import { defineTool, provideTools, type ToolBacking, type ToolOutcome } from './tool-registry';
+import {
+  defineTool,
+  provideTools,
+  type ToolBacking,
+  type ToolOutcome,
+} from './tool-registry';
 
 /** The tool id this module declares. */
 export const ERROR_DIGEST_TOOL_ID = 'error_digest_lookup';
@@ -140,7 +148,10 @@ function invalidInput(detail: string): ToolOutcome {
  * digest is already notice-free, that call is the identity there, and the deep-equal between this
  * tool's answer and the explainer's entry holds for every entry the digest ships.
  */
-export function errorDigestLookupOutcome(digest: ErrorDigest, rawCode: unknown): ToolOutcome {
+export function errorDigestLookupOutcome(
+  digest: ErrorDigest,
+  rawCode: unknown,
+): ToolOutcome {
   const normalised = normaliseErrorCode(rawCode);
   if (!normalised.ok) {
     return invalidInput(normalised.detail);
@@ -187,7 +198,8 @@ const errorDigestBacking: ToolBacking = {
 export const errorDigestTool = defineTool(
   {
     id: ERROR_DIGEST_TOOL_ID,
-    title: 'Look up an Angular error code in the error digest the panel already ships',
+    title:
+      'Look up an Angular error code in the error digest the panel already ships',
     kind: 'read',
     host: ['panel'],
     outcome: 'result',

@@ -91,7 +91,7 @@
 // warning's answer never stands in for another's. `covers(record, t)` is the window predicate the join
 // uses, exported so a caller can ask the same question of a record it holds.
 (function () {
-  "use strict";
+  'use strict';
 
   // Mirrors the two values in agent-main.js's ProfilerEvent literal that mark a template update:
   // TemplateUpdateStart 2, TemplateUpdateEnd 3. The extension's content scripts share one world but
@@ -100,19 +100,19 @@
   const TEMPLATE_UPDATE_START = 2;
   const TEMPLATE_UPDATE_END = 3;
 
-  const STRIPPED = "stripped";
-  const CANNOT_TELL = "cannot-tell";
-  const DELIBERATE = "deliberate";
-  const NONE = "none";
+  const STRIPPED = 'stripped';
+  const CANNOT_TELL = 'cannot-tell';
+  const DELIBERATE = 'deliberate';
+  const NONE = 'none';
 
   // The name of the absence, so a caller compares a constant instead of prose (E3).
-  const NO_COVERING_RECORD = "no-covering-profiler-record";
+  const NO_COVERING_RECORD = 'no-covering-profiler-record';
 
   // The one family of sanitizer calls that writes a value the sanitizer never sees: every
   // `DomSanitizer` method is `bypassSecurityTrust<Html|Style|Script|Url|ResourceUrl>`, and a binding may
   // only be reported `deliberate` when it declares one of them. A binding that bypasses nothing is not
   // a bypass, however convenient the label would be (N2).
-  const VETTED_BYPASS_PREFIX = "bypassSecurityTrust";
+  const VETTED_BYPASS_PREFIX = 'bypassSecurityTrust';
   const VETTED_BYPASS = /^bypassSecurityTrust[A-Za-z]+$/;
 
   // The warning's own position on the page clock, or null when the entry carries none. A time from
@@ -121,8 +121,8 @@
   function clockOf(warning) {
     if (
       warning &&
-      typeof warning === "object" &&
-      typeof warning.t === "number" &&
+      typeof warning === 'object' &&
+      typeof warning.t === 'number' &&
       Number.isFinite(warning.t)
     ) {
       return warning.t;
@@ -134,11 +134,11 @@
   // ends included as T001's shared-position definition states them. A record missing either end has
   // no window and covers nothing.
   function windowOf(record) {
-    if (!record || typeof record !== "object") return null;
+    if (!record || typeof record !== 'object') return null;
     const start = record.startedAt;
     const end = record.t;
-    if (typeof start !== "number" || !Number.isFinite(start)) return null;
-    if (typeof end !== "number" || !Number.isFinite(end)) return null;
+    if (typeof start !== 'number' || !Number.isFinite(start)) return null;
+    if (typeof end !== 'number' || !Number.isFinite(end)) return null;
     return { start: start, end: end };
   }
 
@@ -169,7 +169,8 @@
     const names = [];
     for (let i = 0; i < checks.length; i += 1) {
       const name = checks[i].componentName;
-      if (typeof name === "string" && name !== "" && names.indexOf(name) === -1) names.push(name);
+      if (typeof name === 'string' && name !== '' && names.indexOf(name) === -1)
+        names.push(name);
     }
     return names;
   }
@@ -183,7 +184,7 @@
       const checks = covering[i].checks;
       for (let c = 0; c < checks.length; c += 1) {
         const named = checks[c].binding;
-        if (typeof named !== "string" || named === "") continue;
+        if (typeof named !== 'string' || named === '') continue;
         if (binding === null) {
           binding = named;
           continue;
@@ -224,10 +225,14 @@
     for (let i = 0; i < covering.length; i += 1) {
       const names = componentNames(covering[i].checks);
       for (let n = 0; n < names.length; n += 1) {
-        if (finding.components.indexOf(names[n]) === -1) finding.components.push(names[n]);
+        if (finding.components.indexOf(names[n]) === -1)
+          finding.components.push(names[n]);
       }
       const cycleId = covering[i].record.cycleId;
-      if (typeof cycleId === "number" && finding.cycleIds.indexOf(cycleId) === -1) {
+      if (
+        typeof cycleId === 'number' &&
+        finding.cycleIds.indexOf(cycleId) === -1
+      ) {
         finding.cycleIds.push(cycleId);
       }
     }
@@ -243,15 +248,19 @@
   // nothing that reads as a component, a binding or a cause (E3, N2). The warning's own time is
   // carried through: it is the one thing that was observed, and it names nobody.
   function cannotTell(at) {
-    return { state: CANNOT_TELL, at: at === undefined ? null : at, reason: NO_COVERING_RECORD };
+    return {
+      state: CANNOT_TELL,
+      at: at === undefined ? null : at,
+      reason: NO_COVERING_RECORD,
+    };
   }
 
   // The `bypassSecurityTrust*` method a binding declares, or null when it declares none. A binding that
   // bypasses nothing — the sanitized ones, and a label that merely looks like one — is not a bypass.
   function bypassOf(binding) {
-    if (!binding || typeof binding !== "object") return null;
+    if (!binding || typeof binding !== 'object') return null;
     const named = binding.bypass;
-    if (typeof named !== "string") return null;
+    if (typeof named !== 'string') return null;
     return VETTED_BYPASS.test(named) ? named : null;
   }
 
@@ -266,9 +275,9 @@
     const writes = writesOf(binding);
     for (let i = 0; i < writes.length; i += 1) {
       const write = writes[i];
-      if (!write || typeof write !== "object") continue;
-      if (typeof write.value !== "string" || write.value === "") continue;
-      if (typeof write.rendered !== "string") continue;
+      if (!write || typeof write !== 'object') continue;
+      if (typeof write.value !== 'string' || write.value === '') continue;
+      if (typeof write.rendered !== 'string') continue;
       if (write.rendered !== write.value) continue;
       return { version: write.version, value: write.value };
     }
@@ -282,16 +291,16 @@
   function losingCounterpartOf(value, bindings, self) {
     for (let i = 0; i < bindings.length; i += 1) {
       const binding = bindings[i];
-      if (!binding || typeof binding !== "object") continue;
+      if (!binding || typeof binding !== 'object') continue;
       if (binding === self) continue;
       if (binding.id === self.id) continue;
       if (bypassOf(binding) !== null) continue;
       const writes = writesOf(binding);
       for (let w = 0; w < writes.length; w += 1) {
         const write = writes[w];
-        if (!write || typeof write !== "object") continue;
+        if (!write || typeof write !== 'object') continue;
         if (write.value !== value) continue;
-        if (typeof write.rendered !== "string") continue;
+        if (typeof write.rendered !== 'string') continue;
         if (write.rendered === value) continue;
         return { id: binding.id, version: write.version };
       }

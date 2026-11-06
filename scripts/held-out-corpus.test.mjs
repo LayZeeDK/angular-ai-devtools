@@ -18,7 +18,17 @@
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -94,7 +104,9 @@ const INHERITED = [
  * @returns {T}
  */
 function withTempRoot(label, body) {
-  const root = mkdtempSync(join(process.env.TEMP ?? tmpdir(), `held-out-corpus-${label}-`));
+  const root = mkdtempSync(
+    join(process.env.TEMP ?? tmpdir(), `held-out-corpus-${label}-`),
+  );
   try {
     return body(root);
   } finally {
@@ -145,8 +157,16 @@ function runCorpus(root, budgetMs = 3 * 60 * 1000) {
   });
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}`;
 
-  assert.equal(result.error, undefined, `the corpus script could not be run against ${root}: ${result.error?.message ?? ''}\n${output}`);
-  assert.notEqual(result.status, null, `the corpus script was killed by ${result.signal ?? 'an unknown signal'} against ${root}\n${output}`);
+  assert.equal(
+    result.error,
+    undefined,
+    `the corpus script could not be run against ${root}: ${result.error?.message ?? ''}\n${output}`,
+  );
+  assert.notEqual(
+    result.status,
+    null,
+    `the corpus script was killed by ${result.signal ?? 'an unknown signal'} against ${root}\n${output}`,
+  );
 
   return { status: /** @type {number} */ (result.status), output };
 }
@@ -197,11 +217,31 @@ test('a corpus of passing suites exits 0', () => {
       run.output.includes(corpusDirOf(root)),
       `the run must enumerate the fixture corpus at ${corpusDirOf(root)}, not another root\n${run.output}`,
     );
-    assert.match(run.output, /held-out corpus: 2 suite\(s\)/, `the run must find both fixture suites\n${run.output}`);
-    assert.match(run.output, /PASS tests\/held-out\/alpha\.test\.mjs/, `a passing suite must be reported as passing\n${run.output}`);
-    assert.match(run.output, /PASS tests\/held-out\/nested\/beta\.test\.mjs/, `a suite in a subdirectory must be found and reported\n${run.output}`);
-    assert.match(run.output, /2 suite\(s\), 2 passed, 0 failed/, `the total must count both suites as passing\n${run.output}`);
-    assert.equal(run.status, 0, `a corpus of passing suites must exit 0\n${run.output}`);
+    assert.match(
+      run.output,
+      /held-out corpus: 2 suite\(s\)/,
+      `the run must find both fixture suites\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      /PASS tests\/held-out\/alpha\.test\.mjs/,
+      `a passing suite must be reported as passing\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      /PASS tests\/held-out\/nested\/beta\.test\.mjs/,
+      `a suite in a subdirectory must be found and reported\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      /2 suite\(s\), 2 passed, 0 failed/,
+      `the total must count both suites as passing\n${run.output}`,
+    );
+    assert.equal(
+      run.status,
+      0,
+      `a corpus of passing suites must exit 0\n${run.output}`,
+    );
   });
 });
 
@@ -215,11 +255,30 @@ test('a corpus containing one failing suite exits non-zero and names that file',
     const run = runCorpus(root);
     const named = 'tests/held-out/fixture-fails.test.mjs';
 
-    assert.notEqual(run.status, 0, `a corpus with a failing suite must not exit 0\n${run.output}`);
-    assert.ok(run.output.includes(named), `the failing suite must be named as ${named}\n${run.output}`);
-    assert.match(run.output, /FAIL tests\/held-out\/fixture-fails\.test\.mjs — exited 1/, `the per-suite line must name the file and why it failed\n${run.output}`);
-    assert.match(run.output, /held-out corpus: FAILED tests\/held-out\/fixture-fails\.test\.mjs/, `the closing summary must name the failing file\n${run.output}`);
-    assert.match(run.output, /2 suite\(s\), 1 passed, 1 failed/, `the total must count the failure\n${run.output}`);
+    assert.notEqual(
+      run.status,
+      0,
+      `a corpus with a failing suite must not exit 0\n${run.output}`,
+    );
+    assert.ok(
+      run.output.includes(named),
+      `the failing suite must be named as ${named}\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      /FAIL tests\/held-out\/fixture-fails\.test\.mjs — exited 1/,
+      `the per-suite line must name the file and why it failed\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      /held-out corpus: FAILED tests\/held-out\/fixture-fails\.test\.mjs/,
+      `the closing summary must name the failing file\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      /2 suite\(s\), 1 passed, 1 failed/,
+      `the total must count the failure\n${run.output}`,
+    );
     assert.ok(
       !run.output.includes('FAIL tests/held-out/alpha-passes.test.mjs'),
       `the passing suite must not be blamed for the failure\n${run.output}`,
@@ -233,7 +292,11 @@ test('a suite that reports zero tests fails the corpus', () => {
 
     const run = runCorpus(root);
 
-    assert.notEqual(run.status, 0, `a suite that proves nothing must not count as a pass\n${run.output}`);
+    assert.notEqual(
+      run.status,
+      0,
+      `a suite that proves nothing must not count as a pass\n${run.output}`,
+    );
     assert.match(
       run.output,
       /FAIL tests\/held-out\/fixture-declares-nothing\.test\.mjs — reported no tests/,
@@ -253,7 +316,11 @@ test('a suite that skips a test fails the corpus', () => {
 
     const run = runCorpus(root);
 
-    assert.notEqual(run.status, 0, `a skipped test must not count as a pass\n${run.output}`);
+    assert.notEqual(
+      run.status,
+      0,
+      `a skipped test must not count as a pass\n${run.output}`,
+    );
     assert.match(
       run.output,
       /FAIL tests\/held-out\/fixture-skips\.test\.mjs — reported 1 skipped test\(s\)/,
@@ -273,7 +340,11 @@ test('a suite that defers a test as todo fails the corpus', () => {
 
     const run = runCorpus(root);
 
-    assert.notEqual(run.status, 0, `a todo test must not count as a pass\n${run.output}`);
+    assert.notEqual(
+      run.status,
+      0,
+      `a todo test must not count as a pass\n${run.output}`,
+    );
     assert.match(
       run.output,
       /FAIL tests\/held-out\/fixture-defers\.test\.mjs — reported 1 todo test\(s\)/,
@@ -293,10 +364,25 @@ test('a corpus directory with no suite is an error, never a pass', () => {
 
     const run = runCorpus(root);
 
-    assert.notEqual(run.status, 0, `an empty corpus must not exit 0\n${run.output}`);
-    assert.match(run.output, /no suite matched .*tests[\\/]held-out/, `the error must name the corpus it found empty\n${run.output}`);
-    assert.match(run.output, /an empty corpus is an error, not a pass/, `the error must say an empty corpus is not a pass\n${run.output}`);
-    assert.ok(!/0 passed, 0 failed/.test(run.output), `an empty corpus must not print a passing total\n${run.output}`);
+    assert.notEqual(
+      run.status,
+      0,
+      `an empty corpus must not exit 0\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      /no suite matched .*tests[\\/]held-out/,
+      `the error must name the corpus it found empty\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      /an empty corpus is an error, not a pass/,
+      `the error must say an empty corpus is not a pass\n${run.output}`,
+    );
+    assert.ok(
+      !/0 passed, 0 failed/.test(run.output),
+      `an empty corpus must not print a passing total\n${run.output}`,
+    );
   });
 });
 
@@ -306,9 +392,21 @@ test('a root with no corpus directory at all is an error, never a pass', () => {
     // the corpus lands. It is an absence to report, not a run that found everything already green.
     const run = runCorpus(root);
 
-    assert.notEqual(run.status, 0, `an absent corpus must not exit 0\n${run.output}`);
-    assert.match(run.output, /no suite matched/, `the error must say no suite matched\n${run.output}`);
-    assert.match(run.output, /an empty corpus is an error, not a pass/, `the error must say an empty corpus is not a pass\n${run.output}`);
+    assert.notEqual(
+      run.status,
+      0,
+      `an absent corpus must not exit 0\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      /no suite matched/,
+      `the error must say no suite matched\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      /an empty corpus is an error, not a pass/,
+      `the error must say an empty corpus is not a pass\n${run.output}`,
+    );
   });
 });
 
@@ -319,13 +417,29 @@ test('the corpus exits 0 with no .project directory anywhere under its root', ()
       [join('nested', 'beta.test.mjs')]: PASSING_SUITE,
     });
 
-    assert.deepEqual(projectDirectories(root), [], `the fixture root must carry no .project directory, so this run is the ship flow's state`);
+    assert.deepEqual(
+      projectDirectories(root),
+      [],
+      `the fixture root must carry no .project directory, so this run is the ship flow's state`,
+    );
 
     const run = runCorpus(root);
 
-    assert.equal(run.status, 0, `the corpus must run green with no .project directory present\n${run.output}`);
-    assert.match(run.output, /2 suite\(s\), 2 passed, 0 failed/, `both suites must have run, not been excused\n${run.output}`);
-    assert.deepEqual(projectDirectories(root), [], `the corpus run must not create a .project directory under its root`);
+    assert.equal(
+      run.status,
+      0,
+      `the corpus must run green with no .project directory present\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      /2 suite\(s\), 2 passed, 0 failed/,
+      `both suites must have run, not been excused\n${run.output}`,
+    );
+    assert.deepEqual(
+      projectDirectories(root),
+      [],
+      `the corpus run must not create a .project directory under its root`,
+    );
   });
 });
 
@@ -341,7 +455,10 @@ test('the corpus exits 0 with no .project directory anywhere under its root', ()
  * ==============================================================================================*/
 
 /** The repository this suite ships in: `scripts/` is one level below its root, and the separator it ends on is not part of the name. */
-const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url)).replace(/[\\/]$/, '');
+const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url)).replace(
+  /[\\/]$/,
+  '',
+);
 
 /** Where the real corpus lives: the directory SC3 is written about. */
 const REAL_CORPUS = join(REPO_ROOT, 'tests', 'held-out');
@@ -359,9 +476,18 @@ const REAL_CORPUS = join(REPO_ROOT, 'tests', 'held-out');
  *   `.project`, and it runs in the corpus proper.
  */
 const NOT_RUN_HERE = new Map([
-  ['e3-zero-skipped.test.mjs', 'drives `npm test`, and the project gate reads `.project/` — excluded by the AC1 ruling'],
-  ['e4-idempotent-checks.test.mjs', 'drives `npm test`, and the project gate reads `.project/` — excluded by the AC1 ruling'],
-  ['fixture-rebuild-idempotent.test.mjs', 'drives `ng build` from `spikes/ng222-app`\'s own nested install, which a copy does not carry'],
+  [
+    'e3-zero-skipped.test.mjs',
+    'drives `npm test`, and the project gate reads `.project/` — excluded by the AC1 ruling',
+  ],
+  [
+    'e4-idempotent-checks.test.mjs',
+    'drives `npm test`, and the project gate reads `.project/` — excluded by the AC1 ruling',
+  ],
+  [
+    'fixture-rebuild-idempotent.test.mjs',
+    "drives `ng build` from `spikes/ng222-app`'s own nested install, which a copy does not carry",
+  ],
 ]);
 
 /**
@@ -394,7 +520,9 @@ function buildRealCorpusRoot(root, options = {}) {
   // History first. `e7-archive-order` asks git about two commits rather than about a path, and a root with
   // no repository behind it would fail that suite for the wrong reason — the fixture must be able to judge
   // what the suite actually claims. A clone reads this repository and writes nothing into it.
-  const clone = spawnSync('git', ['clone', '--quiet', REPO_ROOT, root], { encoding: 'utf8' });
+  const clone = spawnSync('git', ['clone', '--quiet', REPO_ROOT, root], {
+    encoding: 'utf8',
+  });
   assert.equal(
     clone.status,
     0,
@@ -407,10 +535,18 @@ function buildRealCorpusRoot(root, options = {}) {
 
   // The working tree, not just HEAD: a suite must be judged against the sources as they are on disk, or an
   // uncommitted change would redden this proof for a reason it does not describe. `.project` stays out.
-  const listed = spawnSync('git', ['-C', REPO_ROOT, 'ls-files', '-z'], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
-  assert.equal(listed.status, 0, `the working tree's file list must be readable (git ls-files exited ${listed.status})\n${listed.stderr ?? ''}`);
+  const listed = spawnSync('git', ['-C', REPO_ROOT, 'ls-files', '-z'], {
+    encoding: 'utf8',
+    maxBuffer: 32 * 1024 * 1024,
+  });
+  assert.equal(
+    listed.status,
+    0,
+    `the working tree's file list must be readable (git ls-files exited ${listed.status})\n${listed.stderr ?? ''}`,
+  );
   for (const path of listed.stdout.split('\0')) {
-    if (path === '' || path === '.project' || path.startsWith(`.project/`)) continue;
+    if (path === '' || path === '.project' || path.startsWith(`.project/`))
+      continue;
     const from = join(REPO_ROOT, path);
     if (!existsSync(from)) continue; // a tracked file deleted in the working tree is not part of it
     const to = join(root, path);
@@ -421,7 +557,10 @@ function buildRealCorpusRoot(root, options = {}) {
   // Dependencies are installed for this repository, not for a copy of it. Linking them keeps the fixture's
   // jsdom and typescript suites resolvable without a second install, and the link carries no project data.
   const installed = join(REPO_ROOT, 'node_modules');
-  assert.ok(existsSync(installed), `the fixture root links this repository's installed dependencies, so they must be installed first: run npm ci --include=dev\n(root: ${root})`);
+  assert.ok(
+    existsSync(installed),
+    `the fixture root links this repository's installed dependencies, so they must be installed first: run npm ci --include=dev\n(root: ${root})`,
+  );
   symlinkSync(installed, join(root, 'node_modules'), 'junction');
 
   // The corpus: copies of the real suites, the helpers beside them, minus the suites named above. The clone
@@ -432,7 +571,12 @@ function buildRealCorpusRoot(root, options = {}) {
   mkdirSync(corpus, { recursive: true });
   for (const entry of readdirSync(REAL_CORPUS, { withFileTypes: true })) {
     if (!entry.isFile()) continue;
-    if (only !== null && entry.name.endsWith('.test.mjs') && !only.includes(entry.name)) continue;
+    if (
+      only !== null &&
+      entry.name.endsWith('.test.mjs') &&
+      !only.includes(entry.name)
+    )
+      continue;
     copyFileSync(join(REAL_CORPUS, entry.name), join(corpus, entry.name));
   }
   for (const name of NOT_RUN_HERE.keys()) {
@@ -456,6 +600,12 @@ function escapeForRegExp(text) {
 }
 
 test('the real corpus exits 0 with no .project directory anywhere under its root', () => {
+  // This proof clones the repository and runs 19 suites. Inside a corpus run the runner sets
+  // HELD_OUT_CORPUS_DEPTH, and e3/e4 drive `npm test`, so without this guard the same ~15 s
+  // proof executes four times per top-level `npm test` (M024 F2). The outer run covers it; a
+  // nested one returns rather than repeating it. Not a skip: no test is skipped, and the
+  // assertion is made exactly once per top-level run, by the run that is not nested.
+  if (Number.parseInt(process.env.HELD_OUT_CORPUS_DEPTH ?? '0', 10) > 0) return;
   withTempRoot('real-corpus-no-project', (root) => {
     buildRealCorpusRoot(root);
 
@@ -489,7 +639,9 @@ test('the real corpus exits 0 with no .project directory anywhere under its root
     );
     assert.match(
       run.output,
-      new RegExp(`held-out corpus: ${expected.length} suite\\(s\\), ${expected.length} passed, 0 failed`),
+      new RegExp(
+        `held-out corpus: ${expected.length} suite\\(s\\), ${expected.length} passed, 0 failed`,
+      ),
       `the total must count every real suite as passing\n${run.output}`,
     );
 
@@ -500,7 +652,11 @@ test('the real corpus exits 0 with no .project directory anywhere under its root
       /PASS tests\/held-out\/e7-archive-order\.test\.mjs — 1 test\(s\), 1 passed/,
       `e7-archive-order must pass with no .project directory, on data it carries\n${run.output}`,
     );
-    assert.deepEqual(projectDirectories(root), [], `the corpus run must not create a .project directory under its root`);
+    assert.deepEqual(
+      projectDirectories(root),
+      [],
+      `the corpus run must not create a .project directory under its root`,
+    );
   });
 });
 
@@ -510,14 +666,21 @@ test('a held-out suite that reads .project reddens the corpus and is named', () 
     // mutation AC3 asks for: a held-out suite reaching for `.project` must redden the run that judges it.
     const restored = `${readFileSync(join(REAL_CORPUS, 'e7-archive-order.test.mjs'), 'utf8')}\n${RESTORED_PROJECT_READ}\n`;
     buildRealCorpusRoot(root, {
-      only: ['stale-view-ordering.test.mjs', 'stale-view-version-gate.test.mjs'],
+      only: [
+        'stale-view-ordering.test.mjs',
+        'stale-view-version-gate.test.mjs',
+      ],
       extraSuites: { 'e7-archive-order-restored-read.test.mjs': restored },
     });
 
     const run = runCorpus(root);
     const named = 'tests/held-out/e7-archive-order-restored-read.test.mjs';
 
-    assert.notEqual(run.status, 0, `a suite that reads .project must not pass in a root without one\n${run.output}`);
+    assert.notEqual(
+      run.status,
+      0,
+      `a suite that reads .project must not pass in a root without one\n${run.output}`,
+    );
     assert.match(
       run.output,
       new RegExp(`FAIL ${escapeForRegExp(named)} — exited 1`),
@@ -533,8 +696,20 @@ test('a held-out suite that reads .project reddens the corpus and is named', () 
       `the closing summary must name the suite that read .project\n${run.output}`,
     );
     // One reading suite reddens the run and is named; the clean suites beside it are not blamed.
-    assert.match(run.output, /PASS tests\/held-out\/stale-view-ordering\.test\.mjs/, `the clean suites must still pass\n${run.output}`);
-    assert.match(run.output, /PASS tests\/held-out\/stale-view-version-gate\.test\.mjs/, `the clean suites must still pass\n${run.output}`);
-    assert.match(run.output, /3 suite\(s\), 2 passed, 1 failed/, `the total must count exactly one failure\n${run.output}`);
+    assert.match(
+      run.output,
+      /PASS tests\/held-out\/stale-view-ordering\.test\.mjs/,
+      `the clean suites must still pass\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      /PASS tests\/held-out\/stale-view-version-gate\.test\.mjs/,
+      `the clean suites must still pass\n${run.output}`,
+    );
+    assert.match(
+      run.output,
+      /3 suite\(s\), 2 passed, 1 failed/,
+      `the total must count exactly one failure\n${run.output}`,
+    );
   });
 });

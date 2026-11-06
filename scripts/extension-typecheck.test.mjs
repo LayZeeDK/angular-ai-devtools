@@ -86,14 +86,35 @@ const PANEL_PROBE_NAME = 'probe-wrong-property.js';
  * a paraphrase: `strict: false` is stated as deliberate, the reason is named, the gap is recorded
  * rather than hidden, and the panel exclusion is stated as the only one and as build output. */
 const HEADER_STATEMENTS = [
-  ['`strict: false` is deliberate', 'the header must state that strict: false is deliberate'],
-  ['implicit-any', 'the header must name implicit-any as the reason the gap exists'],
-  ['hand-written JavaScript', 'the header must name hand-written JavaScript as the source of the gap'],
-  ['`strict: true` over the same sources', 'the header must not claim the extension is strict-clean'],
-  ['gap is recorded here rather than hidden', 'the header must say the gap is recorded rather than hidden'],
+  [
+    '`strict: false` is deliberate',
+    'the header must state that strict: false is deliberate',
+  ],
+  [
+    'implicit-any',
+    'the header must name implicit-any as the reason the gap exists',
+  ],
+  [
+    'hand-written JavaScript',
+    'the header must name hand-written JavaScript as the source of the gap',
+  ],
+  [
+    '`strict: true` over the same sources',
+    'the header must not claim the extension is strict-clean',
+  ],
+  [
+    'gap is recorded here rather than hidden',
+    'the header must say the gap is recorded rather than hidden',
+  ],
   ['exclude: ["panel/**"]', 'the header must state the panel/** exclusion'],
-  ['only exclusion', 'the header must state that the panel exclusion is the only one'],
-  ['build output', 'the header must say extension/panel/ is generated build output'],
+  [
+    'only exclusion',
+    'the header must state that the panel exclusion is the only one',
+  ],
+  [
+    'build output',
+    'the header must say extension/panel/ is generated build output',
+  ],
 ];
 
 /** The checkout's `extension/` at the moment this module loaded: the state every run below must
@@ -113,8 +134,8 @@ function sha256(buffer) {
 function treeDigest(directory) {
   const entries = [];
   const walk = (current) => {
-    const names = readdirSync(current, { withFileTypes: true }).sort((left, right) =>
-      left.name.localeCompare(right.name, 'en'),
+    const names = readdirSync(current, { withFileTypes: true }).sort(
+      (left, right) => left.name.localeCompare(right.name, 'en'),
     );
     for (const entry of names) {
       const path = join(current, entry.name);
@@ -125,7 +146,9 @@ function treeDigest(directory) {
       if (!entry.isFile()) {
         continue;
       }
-      entries.push(`${relative(directory, path).split(sep).join('/')} ${sha256(readFileSync(path))}`);
+      entries.push(
+        `${relative(directory, path).split(sep).join('/')} ${sha256(readFileSync(path))}`,
+      );
     }
   };
   walk(directory);
@@ -199,7 +222,10 @@ function stripJsonComments(text) {
     }
     if (character === '/' && next === '*') {
       index += 2;
-      while (index < text.length && !(text[index] === '*' && text[index + 1] === '/')) {
+      while (
+        index < text.length &&
+        !(text[index] === '*' && text[index + 1] === '/')
+      ) {
         index += 1;
       }
       index += 2;
@@ -209,10 +235,6 @@ function stripJsonComments(text) {
     index += 1;
   }
   return output;
-}
-
-function readJsonc(path) {
-  return JSON.parse(stripJsonComments(readFileSync(path, 'utf8')).replace(/^\uFEFF/, ''));
 }
 
 // ---------------------------------------------------------------------------
@@ -238,7 +260,9 @@ function posix(path) {
  * `os.tmpdir()` can change what the check sees.
  */
 function createFixture(label, { sources = true, panel = false } = {}) {
-  const fixtureRoot = resolve(mkdtempSync(join(tmpdir(), `extension-typecheck-${label}-`)));
+  const fixtureRoot = resolve(
+    mkdtempSync(join(tmpdir(), `extension-typecheck-${label}-`)),
+  );
   assert.ok(
     fixtureRoot.startsWith(resolve(tmpdir())),
     `the fixture must live under os.tmpdir(), never the checkout: ${fixtureRoot}`,
@@ -283,11 +307,15 @@ function removeFixture(fixtureRoot) {
     // A junction `rmdir` refuses (already gone, or held open) is unlinked, never recursed into.
     rmSync(junction, { force: true });
   }
-  assert.ok(!existsSync(junction), `the fixture's node_modules junction must be removed: ${junction}`);
+  assert.ok(
+    !existsSync(junction),
+    `the fixture's node_modules junction must be removed: ${junction}`,
+  );
   rmSync(fixtureRoot, { recursive: true, force: true });
   assert.ok(
-    existsSync(join(NODE_MODULES, 'typescript')) && existsSync(join(NODE_MODULES, '@types', 'chrome')),
-    'removing a fixture must never disturb the checkout\'s node_modules',
+    existsSync(join(NODE_MODULES, 'typescript')) &&
+      existsSync(join(NODE_MODULES, '@types', 'chrome')),
+    "removing a fixture must never disturb the checkout's node_modules",
   );
 }
 
@@ -327,7 +355,13 @@ function parseDiagnostics(output) {
     }
     const withoutFile = /^error (TS\d+):/.exec(line);
     if (withoutFile) {
-      found.push({ file: null, line: null, column: null, code: withoutFile[1], text: line });
+      found.push({
+        file: null,
+        line: null,
+        column: null,
+        code: withoutFile[1],
+        text: line,
+      });
     }
   }
   return found;
@@ -339,14 +373,18 @@ function parseDiagnostics(output) {
  * parsed diagnostics. A spawn that cannot happen at all is a test failure, not a check result.
  */
 function runCheck(fixtureRoot, configPath, extraArgs = []) {
-  const result = spawnSync(process.execPath, [TSC, '-p', configPath, ...extraArgs], {
-    cwd: fixtureRoot,
-    encoding: 'utf8',
-    timeout: 300_000,
-    // A generous buffer: the config header measures 7308 errors with strict on over the same
-    // sources, so a probe that ever compiles them strict must not have its output cut off.
-    maxBuffer: 16 * 1024 * 1024,
-  });
+  const result = spawnSync(
+    process.execPath,
+    [TSC, '-p', configPath, ...extraArgs],
+    {
+      cwd: fixtureRoot,
+      encoding: 'utf8',
+      timeout: 300_000,
+      // A generous buffer: the config header measures 7308 errors with strict on over the same
+      // sources, so a probe that ever compiles them strict must not have its output cut off.
+      maxBuffer: 16 * 1024 * 1024,
+    },
+  );
   assert.ok(
     !result.error,
     `tsc -p ${configPath} must be runnable: ${result.error?.message ?? 'unknown spawn failure'}`,
@@ -490,7 +528,7 @@ function assertConfigRecordsTheGap(text) {
   assert.deepEqual(
     config.exclude,
     ['panel/**'],
-    'panel/** must be the config\'s only exclusion: the generated bundle is the only tree that cannot be fixed at source',
+    "panel/** must be the config's only exclusion: the generated bundle is the only tree that cannot be fixed at source",
   );
 
   const headerEnd = text.indexOf('"compilerOptions"');
@@ -524,7 +562,9 @@ function captureFailure(assertion, what) {
   } catch (error) {
     return error.message;
   }
-  assert.fail(`${what}: the mutated fixture must redden the assertion, but it passed`);
+  assert.fail(
+    `${what}: the mutated fixture must redden the assertion, but it passed`,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -543,7 +583,10 @@ test('E1 — a wrong property in an authored source reddens the check and names 
     // Premise: the copied real sources are green, so the probe is the only cause of the red run
     // below. Without this, a fixture that was already red would satisfy E1 for the wrong reason.
     const baseline = runCheck(fixtureRoot, configPath);
-    assertGreen(baseline, `the copied authored sources (${authoredSources().length} files) before the probe`);
+    assertGreen(
+      baseline,
+      `the copied authored sources (${authoredSources().length} files) before the probe`,
+    );
 
     const withoutProbe = readFileSync(target, 'utf8');
     writeFileSync(
@@ -560,7 +603,11 @@ test('E1 — a wrong property in an authored source reddens the check and names 
     writeFileSync(target, withoutProbe, 'utf8');
     const fixed = runCheck(fixtureRoot, configPath);
     const mutant = captureFailure(
-      () => assertReddensAndNamesTheFile(fixed, `extension/${AUTHORED_PROBE_TARGET}`),
+      () =>
+        assertReddensAndNamesTheFile(
+          fixed,
+          `extension/${AUTHORED_PROBE_TARGET}`,
+        ),
       'E1 mutant (probe removed)',
     );
     assert.match(
@@ -577,10 +624,18 @@ test('E1 — a wrong property in an authored source reddens the check and names 
       `${withoutProbe}\n// T003 E1 probe: a property access no DOM element has.\n${WRONG_PROPERTY}`,
       'utf8',
     );
-    writeFileSync(join(fixtureRoot, 'extension', 'overlay.js'), WRONG_PROPERTY, 'utf8');
+    writeFileSync(
+      join(fixtureRoot, 'extension', 'overlay.js'),
+      WRONG_PROPERTY,
+      'utf8',
+    );
     const twoFiles = runCheck(fixtureRoot, configPath);
     const namingMutant = captureFailure(
-      () => assertReddensAndNamesTheFile(twoFiles, `extension/${AUTHORED_PROBE_TARGET}`),
+      () =>
+        assertReddensAndNamesTheFile(
+          twoFiles,
+          `extension/${AUTHORED_PROBE_TARGET}`,
+        ),
       'E1 mutant (a second authored source broken)',
     );
     assert.match(
@@ -612,7 +667,10 @@ test('E2 — the same wrong property inside extension/panel/ leaves the check gr
       `// T003 E2 probe: the same wrong property, in generated bundle territory.\n${WRONG_PROPERTY}`,
       'utf8',
     );
-    assert.ok(existsSync(probePath), `the panel probe must exist in the fixture: ${probePath}`);
+    assert.ok(
+      existsSync(probePath),
+      `the panel probe must exist in the fixture: ${probePath}`,
+    );
 
     const green = runCheck(fixtureRoot, configPath);
     assertGreen(green, 'a tree whose only error is inside extension/panel/');
@@ -636,7 +694,10 @@ test('E2 — the same wrong property inside extension/panel/ leaves the check gr
     // only exclusion" is held by a test rather than by the header's prose alone.
     writeFileSync(
       configPath,
-      configText.replace('"exclude": ["panel/**"]', '"exclude": ["panel/**", "overlay.js"]'),
+      configText.replace(
+        '"exclude": ["panel/**"]',
+        '"exclude": ["panel/**", "overlay.js"]',
+      ),
       'utf8',
     );
     const widened = runCheck(fixtureRoot, configPath, ['--listFiles']);
@@ -657,14 +718,25 @@ test('E2 — the same wrong property inside extension/panel/ leaves the check gr
     // The mutant for the green itself: the exclusion dropped. The green assertion must fail, and the
     // panel probe must be named — which is what proves the exclusion, not luck, is what keeps the
     // tree green.
-    writeFileSync(configPath, configText.replace('"exclude": ["panel/**"]', '"exclude": []'), 'utf8');
+    writeFileSync(
+      configPath,
+      configText.replace('"exclude": ["panel/**"]', '"exclude": []'),
+      'utf8',
+    );
     const red = runCheck(fixtureRoot, configPath);
     assert.ok(
-      red.fileErrors.some((diagnostic) => diagnostic.file === `extension/panel/${PANEL_PROBE_NAME}`),
+      red.fileErrors.some(
+        (diagnostic) =>
+          diagnostic.file === `extension/panel/${PANEL_PROBE_NAME}`,
+      ),
       `with the exclusion dropped the panel probe must be named, or the green run above proved nothing: ${JSON.stringify(red.fileErrors.slice(0, 3).map((diagnostic) => diagnostic.text))}`,
     );
     const mutant = captureFailure(
-      () => assertGreen(red, 'a tree whose only error is inside extension/panel/ (exclusion dropped)'),
+      () =>
+        assertGreen(
+          red,
+          'a tree whose only error is inside extension/panel/ (exclusion dropped)',
+        ),
       'E2 mutant (exclusion dropped)',
     );
     assert.match(
@@ -723,7 +795,8 @@ test('E3 — a tree with no JavaScript reports no errors rather than failing to 
     const absentConfig = join(extensionDir, 'tsconfig.absent.json');
     const startupFailure = runCheck(fixtureRoot, absentConfig);
     const startupMutant = captureFailure(
-      () => assertNoErrorsRatherThanFailingToStart(startupFailure, absentConfig),
+      () =>
+        assertNoErrorsRatherThanFailingToStart(startupFailure, absentConfig),
       'E3 mutant (config absent)',
     );
     assert.match(
@@ -752,7 +825,11 @@ test('E4 — the config records strict: false and its header states the gap and 
   // The mutant that flips the setting: the header may still say all of it, but a strict config is
   // not the recorded gap SC4 claims, and the assertion must fail on the setting rather than prose.
   const strictFlipped = text.replace('"strict": false', '"strict": true');
-  assert.notEqual(strictFlipped, text, 'the E4 mutant must find the strict setting to flip');
+  assert.notEqual(
+    strictFlipped,
+    text,
+    'the E4 mutant must find the strict setting to flip',
+  );
   const strictMutant = captureFailure(
     () => assertConfigRecordsTheGap(strictFlipped),
     'E4 mutant (strict flipped)',
@@ -766,7 +843,11 @@ test('E4 — the config records strict: false and its header states the gap and 
   // The mutant that removes the record: a config identical in behaviour but with no header. The
   // setting stays false and the header assertions must fail, which proves the header is asserted.
   const headerStripped = text.replace(/^[ \t]*\/\/.*(?:\r?\n|$)/gm, '');
-  assert.notEqual(headerStripped, text, 'the E4 mutant must find the header to strip');
+  assert.notEqual(
+    headerStripped,
+    text,
+    'the E4 mutant must find the header to strip',
+  );
   const headerMutant = captureFailure(
     () => assertConfigRecordsTheGap(headerStripped),
     'E4 mutant (header stripped)',
@@ -779,8 +860,15 @@ test('E4 — the config records strict: false and its header states the gap and 
 
   // The mutant that removes one header statement, leaving the rest intact: it proves the header
   // check reaches every statement in the list, not only the first one that a stripped header hits.
-  const statementDropped = text.replace('is the only exclusion', 'is an exclusion');
-  assert.notEqual(statementDropped, text, 'the E4 mutant must find the only-exclusion sentence');
+  const statementDropped = text.replace(
+    'is the only exclusion',
+    'is an exclusion',
+  );
+  assert.notEqual(
+    statementDropped,
+    text,
+    'the E4 mutant must find the only-exclusion sentence',
+  );
   const statementMutant = captureFailure(
     () => assertConfigRecordsTheGap(statementDropped),
     'E4 mutant (only-exclusion statement dropped)',
@@ -794,8 +882,15 @@ test('E4 — the config records strict: false and its header states the gap and 
   // The mutant that widens the exclusion: an authored file dropped from the check. The header still
   // says "only exclusion"; the executable config must disagree nowhere, and the assertion is on the
   // executable list, not the prose.
-  const widerExclude = text.replace('"exclude": ["panel/**"]', '"exclude": ["panel/**", "overlay.js"]');
-  assert.notEqual(widerExclude, text, 'the E4 mutant must find the exclusion to widen');
+  const widerExclude = text.replace(
+    '"exclude": ["panel/**"]',
+    '"exclude": ["panel/**", "overlay.js"]',
+  );
+  assert.notEqual(
+    widerExclude,
+    text,
+    'the E4 mutant must find the exclusion to widen',
+  );
   const excludeMutant = captureFailure(
     () => assertConfigRecordsTheGap(widerExclude),
     'E4 mutant (exclusion widened)',

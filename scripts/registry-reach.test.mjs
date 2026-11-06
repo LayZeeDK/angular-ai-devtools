@@ -30,7 +30,15 @@
  * `finally`, and the real tree is only read.
  */
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import test from 'node:test';
@@ -45,12 +53,32 @@ export const REPO_ROOT = resolve(here, '..');
 const SOURCE_ROOT = ['apps', 'angular-ai-devtools', 'src'];
 
 /** The module this milestone's guard exists to protect. */
-const PAGE_READS_RELATIVE = ['apps', 'angular-ai-devtools', 'src', 'app', 'page-reads.ts'];
+const PAGE_READS_RELATIVE = [
+  'apps',
+  'angular-ai-devtools',
+  'src',
+  'app',
+  'page-reads.ts',
+];
 
 /** The only files allowed to import `page-reads.ts`: the registration and its spec. */
 const ALLOWLIST_RELATIVE = [
-  ['apps', 'angular-ai-devtools', 'src', 'app', 'tool-registry', 'read-tools.ts'],
-  ['apps', 'angular-ai-devtools', 'src', 'app', 'tool-registry', 'read-tools.spec.ts'],
+  [
+    'apps',
+    'angular-ai-devtools',
+    'src',
+    'app',
+    'tool-registry',
+    'read-tools.ts',
+  ],
+  [
+    'apps',
+    'angular-ai-devtools',
+    'src',
+    'app',
+    'tool-registry',
+    'read-tools.spec.ts',
+  ],
 ];
 
 /** The registry's own module, which N2 says must not reach around its own execute path. */
@@ -104,15 +132,18 @@ function displayPath(root, absolutePath) {
 
 function samePath(left, right) {
   const normalise = (value) =>
-    process.platform === 'win32' ? resolve(value).toLowerCase() : resolve(value);
+    process.platform === 'win32'
+      ? resolve(value).toLowerCase()
+      : resolve(value);
   return normalise(left) === normalise(right);
 }
 
 /** Every `.ts` file under `root`, sorted, skipping the directories that hold no source. */
 function walkTypeScriptFiles(directory) {
   const found = [];
-  const entries = readdirSync(directory, { withFileTypes: true }).sort((left, right) =>
-    left.name < right.name ? -1 : left.name > right.name ? 1 : 0,
+  const entries = readdirSync(directory, { withFileTypes: true }).sort(
+    (left, right) =>
+      left.name < right.name ? -1 : left.name > right.name ? 1 : 0,
   );
   for (const entry of entries) {
     if (entry.isDirectory()) {
@@ -122,7 +153,11 @@ function walkTypeScriptFiles(directory) {
       found.push(...walkTypeScriptFiles(join(directory, entry.name)));
       continue;
     }
-    if (entry.isFile() && entry.name.endsWith('.ts') && !entry.name.endsWith('.d.ts')) {
+    if (
+      entry.isFile() &&
+      entry.name.endsWith('.ts') &&
+      !entry.name.endsWith('.d.ts')
+    ) {
       found.push(join(directory, entry.name));
     }
   }
@@ -169,7 +204,10 @@ function stripComments(source) {
     }
     if (character === '/' && next === '*') {
       index += 2;
-      while (index < source.length && !(source[index] === '*' && source[index + 1] === '/')) {
+      while (
+        index < source.length &&
+        !(source[index] === '*' && source[index + 1] === '/')
+      ) {
         index += 1;
       }
       index += 2;
@@ -250,7 +288,11 @@ export function checkRegistryReach(root = REPO_ROOT) {
         if (allowlistDisplay.includes(fileDisplay)) {
           accepted.push({ file: fileDisplay, specifier });
         } else {
-          violations.push({ file: fileDisplay, specifier, resolved: displayPath(root, resolved) });
+          violations.push({
+            file: fileDisplay,
+            specifier,
+            resolved: displayPath(root, resolved),
+          });
         }
       }
     }
@@ -262,7 +304,9 @@ export function checkRegistryReach(root = REPO_ROOT) {
     pageReadsModuleExists: existsSync(guarded),
     scannedFiles,
     allowlist: allowlistDisplay,
-    allowlistMissing: allowlistDisplay.filter((entry) => !existsSync(join(root, ...entry.split('/')))),
+    allowlistMissing: allowlistDisplay.filter(
+      (entry) => !existsSync(join(root, ...entry.split('/'))),
+    ),
     accepted,
     violations,
   };
@@ -280,13 +324,17 @@ export function exportedNames(source) {
   const lists = /^[ \t]*export\s*\{([^}]*)\}/gm;
   for (const match of code.matchAll(lists)) {
     for (const piece of match[1].split(',')) {
-      const name = piece.split(/\s+as\s+/).pop()?.trim();
+      const name = piece
+        .split(/\s+as\s+/)
+        .pop()
+        ?.trim();
       if (name !== undefined && /^[A-Za-z_$][\w$]*$/.test(name)) {
         names.push(name);
       }
     }
   }
-  const star = /^[ \t]*export\s*\*\s*(?:as\s+([A-Za-z_$][\w$]*)\s+)?from\s*['"]([^'"]+)['"]/gm;
+  const star =
+    /^[ \t]*export\s*\*\s*(?:as\s+([A-Za-z_$][\w$]*)\s+)?from\s*['"]([^'"]+)['"]/gm;
   for (const match of code.matchAll(star)) {
     names.push(match[1] ?? '*');
   }
@@ -301,12 +349,20 @@ export function checkRegistryModule(root = REPO_ROOT) {
   const importViolations = [];
   for (const specifier of moduleSpecifiers(source)) {
     const resolved = resolveSpecifier(registryPath, specifier);
-    if (specifier.includes('page-reads') || (resolved !== null && samePath(resolved, guarded))) {
-      importViolations.push({ file: displayPath(root, registryPath), specifier });
+    if (
+      specifier.includes('page-reads') ||
+      (resolved !== null && samePath(resolved, guarded))
+    ) {
+      importViolations.push({
+        file: displayPath(root, registryPath),
+        specifier,
+      });
     }
   }
   const exports = exportedNames(source);
-  const forbiddenExports = exports.filter((name) => FORBIDDEN_REGISTRY_EXPORTS.includes(name));
+  const forbiddenExports = exports.filter((name) =>
+    FORBIDDEN_REGISTRY_EXPORTS.includes(name),
+  );
   return {
     registryModule: displayPath(root, registryPath),
     importViolations,
@@ -325,13 +381,29 @@ test('every page-read import in the repository goes through the registry', () =>
 
   // The check must observe something: a renamed, deleted or unread module fails here, so a green
   // run can never mean "nothing was scanned".
-  assert.ok(result.pageReadsModuleExists, `${result.pageReadsModule} must exist for this check to mean anything`);
-  assert.ok(result.scannedFiles > 0, 'the source walk must scan at least one file');
-  assert.deepEqual(result.allowlistMissing, [], 'both allowlisted importers must exist');
+  assert.ok(
+    result.pageReadsModuleExists,
+    `${result.pageReadsModule} must exist for this check to mean anything`,
+  );
+  assert.ok(
+    result.scannedFiles > 0,
+    'the source walk must scan at least one file',
+  );
+  assert.deepEqual(
+    result.allowlistMissing,
+    [],
+    'both allowlisted importers must exist',
+  );
 
-  console.log(`registry-reach: scanned ${result.scannedFiles} files under apps/angular-ai-devtools/src`);
-  console.log(`registry-reach: allowlist accepted ${JSON.stringify(result.allowlist)}`);
-  console.log(`registry-reach: accepted imports ${JSON.stringify(result.accepted)}`);
+  console.log(
+    `registry-reach: scanned ${result.scannedFiles} files under apps/angular-ai-devtools/src`,
+  );
+  console.log(
+    `registry-reach: allowlist accepted ${JSON.stringify(result.allowlist)}`,
+  );
+  console.log(
+    `registry-reach: accepted imports ${JSON.stringify(result.accepted)}`,
+  );
 
   assert.deepEqual(
     result.violations.map((violation) => describeViolation(violation)),
@@ -340,7 +412,10 @@ test('every page-read import in the repository goes through the registry', () =>
   );
 
   // The allowlist is real: both entries import the module and were recognised as such.
-  assert.deepEqual(result.accepted.map((entry) => entry.file).sort(), [...result.allowlist].sort());
+  assert.deepEqual(
+    result.accepted.map((entry) => entry.file).sort(),
+    [...result.allowlist].sort(),
+  );
 
   // Two consecutive runs agree, and neither writes into the checkout.
   assert.deepEqual(checkRegistryReach(REPO_ROOT), result);
@@ -350,7 +425,9 @@ test('N2 the registry module neither imports nor re-exports a page reader', () =
   const result = checkRegistryModule(REPO_ROOT);
 
   assert.deepEqual(
-    result.importViolations.map((violation) => `${violation.file} imports "${violation.specifier}"`),
+    result.importViolations.map(
+      (violation) => `${violation.file} imports "${violation.specifier}"`,
+    ),
     [],
     'tool-registry.ts must not import or re-export the page-reads module',
   );
@@ -360,12 +437,21 @@ test('N2 the registry module neither imports nor re-exports a page reader', () =
     `tool-registry.ts must not export any of ${FORBIDDEN_REGISTRY_EXPORTS.join(', ')}`,
   );
   // The module is still the envelope the check is about: an empty read would pass vacuously.
-  assert.ok(result.exports.includes('TOOL_REGISTRY'), 'tool-registry.ts must still export TOOL_REGISTRY');
-  assert.ok(result.exports.length > 10, 'tool-registry.ts must still export the envelope');
+  assert.ok(
+    result.exports.includes('TOOL_REGISTRY'),
+    'tool-registry.ts must still export TOOL_REGISTRY',
+  );
+  assert.ok(
+    result.exports.length > 10,
+    'tool-registry.ts must still export the envelope',
+  );
 });
 
 test('E4 a module importing a page reader directly fails and the same module going through the registry passes', () => {
-  const fixtureRoot = join(tmpdir(), `registry-reach-fixture-${process.pid}-${Date.now()}`);
+  const fixtureRoot = join(
+    tmpdir(),
+    `registry-reach-fixture-${process.pid}-${Date.now()}`,
+  );
   const app = join(fixtureRoot, 'apps', 'angular-ai-devtools', 'src', 'app');
   const toolRegistry = join(app, 'tool-registry');
 
@@ -377,8 +463,14 @@ test('E4 a module importing a page reader directly fails and the same module goi
   try {
     // The guarded module, the registry and the two allowlisted importers: the fixture is a small
     // but complete copy of the shape the real tree has.
-    write(join(app, 'page-reads.ts'), 'export const PAGE_HOST = "page-host";\n');
-    write(join(toolRegistry, 'tool-registry.ts'), 'export const TOOL_REGISTRY = "tool-registry";\n');
+    write(
+      join(app, 'page-reads.ts'),
+      'export const PAGE_HOST = "page-host";\n',
+    );
+    write(
+      join(toolRegistry, 'tool-registry.ts'),
+      'export const TOOL_REGISTRY = "tool-registry";\n',
+    );
     write(
       join(toolRegistry, 'read-tools.ts'),
       "import { PAGE_HOST } from '../page-reads';\n\nexport const readTools = [PAGE_HOST];\n",
@@ -393,10 +485,7 @@ test('E4 a module importing a page reader directly fails and the same module goi
       join(app, 'rogue-reader.ts'),
       "import { PAGE_HOST } from './page-reads';\n\nexport const rogue = PAGE_HOST;\n",
     );
-    write(
-      join(app, 'rogue-reexport.ts'),
-      "export * from './page-reads';\n",
-    );
+    write(join(app, 'rogue-reexport.ts'), "export * from './page-reads';\n");
     write(
       join(app, 'rogue-dynamic.ts'),
       "export async function loadReader() {\n  return import('./page-reads');\n}\n",
@@ -419,11 +508,23 @@ test('E4 a module importing a page reader directly fails and the same module goi
 
     const result = checkRegistryReach(fixtureRoot);
 
-    assert.ok(result.pageReadsModuleExists, 'the fixture must contain the guarded module');
-    assert.ok(result.scannedFiles > 0, 'the fixture walk must scan at least one file');
-    assert.deepEqual(result.allowlistMissing, [], 'both allowlisted importers exist in the fixture');
+    assert.ok(
+      result.pageReadsModuleExists,
+      'the fixture must contain the guarded module',
+    );
+    assert.ok(
+      result.scannedFiles > 0,
+      'the fixture walk must scan at least one file',
+    );
+    assert.deepEqual(
+      result.allowlistMissing,
+      [],
+      'both allowlisted importers exist in the fixture',
+    );
 
-    const reported = result.violations.map((violation) => `${violation.file} :: ${violation.specifier}`).sort();
+    const reported = result.violations
+      .map((violation) => `${violation.file} :: ${violation.specifier}`)
+      .sort();
     assert.deepEqual(reported, [
       'apps/angular-ai-devtools/src/app/rogue-dynamic.ts :: ./page-reads',
       'apps/angular-ai-devtools/src/app/rogue-reader.ts :: ./page-reads',
@@ -431,14 +532,25 @@ test('E4 a module importing a page reader directly fails and the same module goi
     ]);
 
     const flagged = result.violations.map((violation) => violation.file);
-    assert.ok(!flagged.includes('apps/angular-ai-devtools/src/app/through-registry.ts'));
-    assert.deepEqual(result.accepted.map((entry) => entry.file).sort(), [...result.allowlist].sort());
+    assert.ok(
+      !flagged.includes('apps/angular-ai-devtools/src/app/through-registry.ts'),
+    );
+    assert.deepEqual(
+      result.accepted.map((entry) => entry.file).sort(),
+      [...result.allowlist].sort(),
+    );
 
     // A failure names the offending file and the specifier, not just the fact of a failure.
     const firstViolation = result.violations[0];
     const message = describeViolation(firstViolation);
-    assert.ok(message.includes(firstViolation.file), 'the failure must name the file');
-    assert.ok(message.includes(`"${firstViolation.specifier}"`), 'the failure must name the specifier');
+    assert.ok(
+      message.includes(firstViolation.file),
+      'the failure must name the file',
+    );
+    assert.ok(
+      message.includes(`"${firstViolation.specifier}"`),
+      'the failure must name the specifier',
+    );
 
     // The same module that failed above passes once it goes through the registry: one fixture,
     // two verdicts, so the check cannot be satisfied by scanning nothing.
@@ -457,8 +569,14 @@ test('E4 a module importing a page reader directly fails and the same module goi
     );
 
     const afterRewrite = checkRegistryReach(fixtureRoot);
-    const stillFlagged = afterRewrite.violations.map((violation) => violation.file);
-    assert.ok(!stillFlagged.includes('apps/angular-ai-devtools/src/app/rogue-reader.ts'));
+    const stillFlagged = afterRewrite.violations.map(
+      (violation) => violation.file,
+    );
+    assert.ok(
+      !stillFlagged.includes(
+        'apps/angular-ai-devtools/src/app/rogue-reader.ts',
+      ),
+    );
     assert.equal(afterRewrite.scannedFiles, result.scannedFiles);
   } finally {
     rmSync(fixtureRoot, { recursive: true, force: true });

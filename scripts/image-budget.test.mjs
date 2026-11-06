@@ -10,9 +10,14 @@ import {
   formatKb,
 } from './panel-bundle-budget.test.mjs';
 
-const { imageBudget, imageBudgetSurface } = await import('../apps/angular-ai-devtools/src/app/image-budget.ts');
+const { imageBudget, imageBudgetSurface } =
+  await import('../apps/angular-ai-devtools/src/app/image-budget.ts');
 
-const SAMPLE_FINDING = { code: 'NG2952', image: 'hero.png', binding: 'sizes="100px"' };
+const SAMPLE_FINDING = {
+  code: 'NG2952',
+  image: 'hero.png',
+  binding: 'sizes="100px"',
+};
 
 test('empty state when no finding is recorded', () => {
   assert.equal(imageBudget(null).kind, 'empty');
@@ -63,7 +68,9 @@ test('success renders finding, code, binding and fix from the digest entry', () 
 
 test('success fix comes from the digest entry, not invented (mutant)', () => {
   // mutate digest entry fix and confirm surface follows it
-  const mutated = entries.map((e) => (e.code === 'NG2952' ? { ...e, fix: 'MUTATED_FIX' } : e));
+  const mutated = entries.map((e) =>
+    e.code === 'NG2952' ? { ...e, fix: 'MUTATED_FIX' } : e,
+  );
   const result = imageBudget(SAMPLE_FINDING, mutated);
   assert.equal(result.fix, 'MUTATED_FIX');
 });
@@ -88,19 +95,30 @@ test('image-budget: the initial total stays inside the 535.44 kB baseline', () =
     console.log(`image-budget: skip — ${measurement.reason}`);
     return;
   }
-  assertWithinBaseline(measurement.kb, PANEL_OUTPUT_RELATIVE, measurement.files);
+  assertWithinBaseline(
+    measurement.kb,
+    PANEL_OUTPUT_RELATIVE,
+    measurement.files,
+  );
   const margin = PRE_MILESTONE_INITIAL_KB - measurement.kb;
   console.log(
     `image-budget: measured initial total ${formatKb(measurement.kb)} (${measurement.bytes} B over ` +
       `${measurement.files.length} eager files) against ${formatKb(PRE_MILESTONE_INITIAL_KB)} baseline; ` +
       `margin ${formatKb(margin)}`,
   );
-  console.log(`image-budget: eager files: ${measurement.files.map((f) => `${f.file} ${f.bytes} B`).join(', ')}`);
+  console.log(
+    `image-budget: eager files: ${measurement.files.map((f) => `${f.file} ${f.bytes} B`).join(', ')}`,
+  );
 });
 
 test('image-budget: the budget assertion reddens when the total exceeds the baseline', () => {
   assert.throws(
-    () => assertWithinBaseline(PRE_MILESTONE_INITIAL_KB + 0.001, 'image-budget mutant', []),
+    () =>
+      assertWithinBaseline(
+        PRE_MILESTONE_INITIAL_KB + 0.001,
+        'image-budget mutant',
+        [],
+      ),
     /exceeds the pre-milestone baseline/,
     'a total above the baseline must fail the comparison',
   );

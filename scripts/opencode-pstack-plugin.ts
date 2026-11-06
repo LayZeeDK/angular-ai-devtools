@@ -16,20 +16,28 @@
  * (`pstack:arena` -> `arena`).
  */
 
-import { readFileSync } from "node:fs";
-import { homedir } from "node:os";
-import { join } from "node:path";
+import { readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 
-import { Plugin } from "@opencode/plugin";
+import { Plugin } from '@opencode/plugin';
 
 /** Absolute path of opencode's global configuration directory. */
 const CONFIG_DIR: string = process.env.XDG_CONFIG_HOME
-  ? join(process.env.XDG_CONFIG_HOME, "opencode")
-  : join(homedir(), ".config", "opencode");
+  ? join(process.env.XDG_CONFIG_HOME, 'opencode')
+  : join(homedir(), '.config', 'opencode');
 
-const SHEET_PATH: string = join(CONFIG_DIR, "pstack-models.md");
-const MANIFEST_PATH: string = join(CONFIG_DIR, ".pstack-opencode-manifest.json");
-const MANDATE_REL: readonly string[] = ["plugins", "pstack", "hooks", "session-start-context.md"];
+const SHEET_PATH: string = join(CONFIG_DIR, 'pstack-models.md');
+const MANIFEST_PATH: string = join(
+  CONFIG_DIR,
+  '.pstack-opencode-manifest.json',
+);
+const MANDATE_REL: readonly string[] = [
+  'plugins',
+  'pstack',
+  'hooks',
+  'session-start-context.md',
+];
 
 /**
  * Decide whether the sheet asks for the mandate.
@@ -42,11 +50,11 @@ const MANDATE_REL: readonly string[] = ["plugins", "pstack", "hooks", "session-s
 function hookEnabled(): boolean {
   let raw: string;
   try {
-    raw = readFileSync(SHEET_PATH, "utf8");
+    raw = readFileSync(SHEET_PATH, 'utf8');
   } catch {
     return true;
   }
-  return !/^session hook: off\r?$/m.test(raw.replace(/^\uFEFF/, ""));
+  return !/^session hook: off\r?$/m.test(raw.replace(/^\uFEFF/, ''));
 }
 
 /**
@@ -57,27 +65,32 @@ function hookEnabled(): boolean {
 function mandate(): string {
   let repoPath: unknown;
   try {
-    repoPath = (JSON.parse(readFileSync(MANIFEST_PATH, "utf8")) as { repoPath?: unknown }).repoPath;
+    repoPath = (
+      JSON.parse(readFileSync(MANIFEST_PATH, 'utf8')) as { repoPath?: unknown }
+    ).repoPath;
   } catch {
-    return "";
+    return '';
   }
-  if (typeof repoPath !== "string" || repoPath === "") return "";
+  if (typeof repoPath !== 'string' || repoPath === '') return '';
 
   try {
-    return readFileSync(join(repoPath, ...MANDATE_REL), "utf8").replaceAll("pstack:", "");
+    return readFileSync(join(repoPath, ...MANDATE_REL), 'utf8').replaceAll(
+      'pstack:',
+      '',
+    );
   } catch {
-    return "";
+    return '';
   }
 }
 
 export default Plugin.define({
-  id: "pstack",
+  id: 'pstack',
   async setup(ctx) {
-    await ctx.session.hook("context", (event) => {
+    await ctx.session.hook('context', (event) => {
       if (!hookEnabled()) return;
 
       const text = mandate();
-      if (text !== "") event.system.push({ type: "text", text });
+      if (text !== '') event.system.push({ type: 'text', text });
     });
   },
 });

@@ -1,6 +1,6 @@
 ---
 name: nx-run-tasks
-description: "Understand which tasks can be run"
+description: 'Understand which tasks can be run'
 ---
 
 You can run tasks with Nx in the following way.

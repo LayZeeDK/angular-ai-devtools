@@ -14,15 +14,15 @@ stranded, nothing is half-written.**
 
 ## Where the pipeline is
 
-| Field | Value |
-|---|---|
-| phase / status | `inspect` / `active` |
-| branch | `gsd-path/M018` (bound; `gsd-path/M017` retired locally and on origin) |
-| milestone | `null` — generation 1 is not in `ROADMAP.md` yet |
-| archive | `null` |
-| HEAD | `b165ae2a6b55c7a135a2d83de9ff58da9080651a` |
-| base after bind | `88274697e47c5bfe5ea858e0b07ea7b0fd5e398b` |
-| previous ship | `f983b0b4f1b9e4a167b2da37ecaf67daa2723834`, integrated at `62a10a7` |
+| Field           | Value                                                                  |
+| --------------- | ---------------------------------------------------------------------- |
+| phase / status  | `inspect` / `active`                                                   |
+| branch          | `gsd-path/M018` (bound; `gsd-path/M017` retired locally and on origin) |
+| milestone       | `null` — generation 1 is not in `ROADMAP.md` yet                       |
+| archive         | `null`                                                                 |
+| HEAD            | `b165ae2a6b55c7a135a2d83de9ff58da9080651a`                             |
+| base after bind | `88274697e47c5bfe5ea858e0b07ea7b0fd5e398b`                             |
+| previous ship   | `f983b0b4f1b9e4a167b2da37ecaf67daa2723834`, integrated at `62a10a7`    |
 
 ## Already done and durable
 
@@ -58,7 +58,7 @@ It returns `run-phase inspect`, normal mode. Follow the **re-inspection** recipe
   be a full 40-character SHA** — a short SHA is rejected. Suggested names:
   `m018-inspect-docs`, `m018-inspect-codebase`.
 - Copy the prior audit out first (`copy .project\research\DOCS-AUDIT.md
-  "%TEMP%\prior-audit.md"`); `gsd inspect assemble --prior-audit` consumes it.
+"%TEMP%\prior-audit.md"`); `gsd inspect assemble --prior-audit` consumes it.
 - Delete `<docs worktree>/.project/research/parts/` **before** `collect-artifact`, or
   the collector treats the chunk briefs as unexpected paths.
 

@@ -23,7 +23,15 @@ import ts from 'typescript';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..', '..');
-const probePath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'components', 'harness-probe.ts');
+const probePath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'components',
+  'harness-probe.ts',
+);
 const SUITE = 'fixture-harness-action.test.mjs';
 
 const ACTION = '[data-action="advance"]';
@@ -39,14 +47,21 @@ after(() => {
 /** The template literal the probe component declares, read out of its own source. */
 function readTemplate(source) {
   const match = /template:\s*`([\s\S]*?)`/.exec(source);
-  assert.ok(match, `${SUITE}: ${probePath} declares no template literal, so the action has no rendered effect to observe`);
+  assert.ok(
+    match,
+    `${SUITE}: ${probePath} declares no template literal, so the action has no rendered effect to observe`,
+  );
   return match[1];
 }
 
 /** Remove the `@Component({...})` decorator so the class can be instantiated without Angular JIT. */
 function stripComponentDecorator(source) {
   const at = source.indexOf('@Component(');
-  assert.notEqual(at, -1, `${SUITE}: ${probePath} declares no @Component decorator, so its template cannot be read`);
+  assert.notEqual(
+    at,
+    -1,
+    `${SUITE}: ${probePath} declares no @Component decorator, so its template cannot be read`,
+  );
   const open = at + '@Component'.length;
   let depth = 0;
   let quote = null;
@@ -64,7 +79,9 @@ function stripComponentDecorator(source) {
       if (depth === 0) return source.slice(0, at) + source.slice(i + 1);
     }
   }
-  assert.fail(`${SUITE}: the @Component decorator in ${probePath} is not balanced, so the class cannot be compiled`);
+  assert.fail(
+    `${SUITE}: the @Component decorator in ${probePath} is not balanced, so the class cannot be compiled`,
+  );
 }
 
 /**
@@ -91,14 +108,24 @@ async function loadProbe() {
     fileName: 'harness-probe.ts',
     reportDiagnostics: true,
   });
-  const fatal = (diagnostics ?? []).filter((d) => d.category === ts.DiagnosticCategory.Error);
-  assert.equal(fatal.length, 0, `${SUITE}: ${probePath} does not compile, so the action cannot be driven`);
+  const fatal = (diagnostics ?? []).filter(
+    (d) => d.category === ts.DiagnosticCategory.Error,
+  );
+  assert.equal(
+    fatal.length,
+    0,
+    `${SUITE}: ${probePath} does not compile, so the action cannot be driven`,
+  );
   const dir = mkdtempSync(join(tmpdir(), 'm023-harness-probe-'));
   tempDirs.push(dir);
   const file = join(dir, 'harness-probe.mjs');
   writeFileSync(file, outputText, 'utf8');
   const module = await import(pathToFileURL(file).href);
-  assert.equal(typeof module.HarnessProbe, 'function', `${SUITE}: ${probePath} no longer exports HarnessProbe, so the action cannot be driven`);
+  assert.equal(
+    typeof module.HarnessProbe,
+    'function',
+    `${SUITE}: ${probePath} no longer exports HarnessProbe, so the action cannot be driven`,
+  );
   loaded = { HarnessProbe: module.HarnessProbe, template };
   return loaded;
 }
@@ -111,11 +138,16 @@ function evaluate(expression, probe) {
 }
 
 function renderInterpolations(text, probe) {
-  return text.replace(/\{\{([\s\S]*?)\}\}/g, (_all, expression) => String(evaluate(expression.trim(), probe)));
+  return text.replace(/\{\{([\s\S]*?)\}\}/g, (_all, expression) =>
+    String(evaluate(expression.trim(), probe)),
+  );
 }
 
 function textNodes(document) {
-  const walker = document.createTreeWalker(document.body, 4 /** NodeFilter.SHOW_TEXT */);
+  const walker = document.createTreeWalker(
+    document.body,
+    4 /** NodeFilter.SHOW_TEXT */,
+  );
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
   return nodes;
@@ -137,7 +169,8 @@ async function mount() {
     .map((node) => ({ node, expression: node.nodeValue ?? '' }))
     .filter(({ expression }) => expression.includes('{{'));
   const paint = () => {
-    for (const { node, expression } of bindings) node.nodeValue = renderInterpolations(expression, probe);
+    for (const { node, expression } of bindings)
+      node.nodeValue = renderInterpolations(expression, probe);
   };
 
   for (const element of document.querySelectorAll('*')) {
@@ -160,26 +193,48 @@ async function mount() {
 
   const action = document.querySelector(ACTION);
   const state = document.querySelector(STATE);
-  assert.ok(action, `${SUITE}: the fixture template renders no ${ACTION} element, so there is no action to drive`);
-  assert.ok(state, `${SUITE}: the fixture template renders no ${STATE} element, so the action's effect is unobservable`);
+  assert.ok(
+    action,
+    `${SUITE}: the fixture template renders no ${ACTION} element, so there is no action to drive`,
+  );
+  assert.ok(
+    state,
+    `${SUITE}: the fixture template renders no ${STATE} element, so the action's effect is unobservable`,
+  );
 
   return {
     document,
-    click: () => action.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })),
+    click: () =>
+      action.dispatchEvent(
+        new dom.window.MouseEvent('click', { bubbles: true }),
+      ),
     stateText: () => state.textContent.trim(),
-    noErrors: () => assert.deepEqual(errors.map(String), [], `${SUITE}: the action's own binding threw, so its effect never landed`),
+    noErrors: () =>
+      assert.deepEqual(
+        errors.map(String),
+        [],
+        `${SUITE}: the action's own binding threw, so its effect never landed`,
+      ),
   };
 }
 
 function assertNumericRender(text, when) {
-  assert.match(text, /^\d+$/, `${SUITE}: mutant (state element no longer interpolates its value) — ${when} the ${STATE} element rendered "${text}", not a number, so the action's effect is not observable`);
+  assert.match(
+    text,
+    /^\d+$/,
+    `${SUITE}: mutant (state element no longer interpolates its value) — ${when} the ${STATE} element rendered "${text}", not a number, so the action's effect is not observable`,
+  );
 }
 
 test('the count state element renders its value from the template interpolation', async () => {
   const page = await mount();
   const text = page.stateText();
   assertNumericRender(text, 'before any click');
-  assert.equal(text, '0', `${SUITE}: mutant (state element no longer interpolates count()) — the fixture's initial ${STATE} text must be "0", got "${text}"`);
+  assert.equal(
+    text,
+    '0',
+    `${SUITE}: mutant (state element no longer interpolates count()) — the fixture's initial ${STATE} text must be "0", got "${text}"`,
+  );
 });
 
 test('clicking the advance action changes the text the count state renders (HAR-4 effect)', async () => {
@@ -196,7 +251,11 @@ test('clicking the advance action changes the text the count state renders (HAR-
     before,
     `${SUITE}: mutant (advance() made a no-op) — clicking ${ACTION} did not change the text ${STATE} renders: it stayed "${before}", so the action's effect never landed`,
   );
-  assert.equal(after, '1', `${SUITE}: mutant (advance() no longer increments) — after one click on ${ACTION} the ${STATE} element must render "1", got "${after}"`);
+  assert.equal(
+    after,
+    '1',
+    `${SUITE}: mutant (advance() no longer increments) — after one click on ${ACTION} the ${STATE} element must render "1", got "${after}"`,
+  );
 });
 
 test('each click advances the rendered count again, so the effect is the action and not a constant', async () => {
@@ -208,6 +267,14 @@ test('each click advances the rendered count again, so the effect is the action 
   page.click();
   page.noErrors();
   const afterSecond = page.stateText();
-  assert.notEqual(afterSecond, afterFirst, `${SUITE}: mutant (advance() sets a constant instead of advancing) — the second click on ${ACTION} left ${STATE} at "${afterSecond}", so the action does not advance on every click`);
-  assert.equal(afterSecond, '2', `${SUITE}: mutant (advance() sets a constant instead of advancing) — after two clicks on ${ACTION} the ${STATE} element must render "2", got "${afterSecond}"`);
+  assert.notEqual(
+    afterSecond,
+    afterFirst,
+    `${SUITE}: mutant (advance() sets a constant instead of advancing) — the second click on ${ACTION} left ${STATE} at "${afterSecond}", so the action does not advance on every click`,
+  );
+  assert.equal(
+    afterSecond,
+    '2',
+    `${SUITE}: mutant (advance() sets a constant instead of advancing) — after two clicks on ${ACTION} the ${STATE} element must render "2", got "${afterSecond}"`,
+  );
 });

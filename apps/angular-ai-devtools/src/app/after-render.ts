@@ -1,7 +1,6 @@
 /**
  * The after-render panel surface — M028 T003 (INTENT.md SC4; prohibitions N1, N2, N4).
  *
- * The ordering itself lives in `extension/after-render.js` (`globalThis.angularAiAfterRender`,
  * T002): one read joined to the profiler events the page agent records, in emission order. This
  * module is the display half and nothing else — it is handed the chain the ordering module
  * produced and renders it. There is no second reader of the profiler list here, no subscriber, no
@@ -102,7 +101,8 @@ const CANNOT_TELL_MESSAGE =
   'cannot tell: the profiler list recorded no after-render event for the read';
 
 /** The sentence an unplaceable event gets: the finding has no order, and the surface says so. */
-const UNKNOWN_MESSAGE = 'unknown: the event cannot be placed, so this finding has no ordering for it';
+const UNKNOWN_MESSAGE =
+  'unknown: the event cannot be placed, so this finding has no ordering for it';
 
 /** The one wording for a value the chain did not carry, so no state invents one. */
 const NOT_RECORDED = 'not recorded';
@@ -113,7 +113,8 @@ function isObject(value: unknown): value is Record<string, unknown> {
 
 /** A scalar rendered as itself; a value the chain did not carry rendered as its absence. */
 function formatValue(value: unknown): string {
-  if (typeof value === 'number') return Number.isFinite(value) ? String(value) : NOT_RECORDED;
+  if (typeof value === 'number')
+    return Number.isFinite(value) ? String(value) : NOT_RECORDED;
   if (typeof value === 'string') return value.length > 0 ? value : NOT_RECORDED;
   return NOT_RECORDED;
 }
@@ -123,7 +124,8 @@ function formatValue(value: unknown): string {
  * are listed by name in a fixed order — the field names' order, never a re-order of the chain.
  */
 function describeEvent(event: unknown): string {
-  if (typeof event === 'number' || typeof event === 'boolean') return `type ${String(event)}`;
+  if (typeof event === 'number' || typeof event === 'boolean')
+    return `type ${String(event)}`;
   if (typeof event === 'string') return `type ${JSON.stringify(event)}`;
   if (event === null) return 'a null event';
   if (event === undefined) return 'no event at all';
@@ -159,7 +161,10 @@ function normaliseEvent(value: unknown): AfterRenderChainEvent {
     return {
       type: value['type'],
       phase: typeof phase === 'string' && phase.length > 0 ? phase : null,
-      ordinal: typeof ordinal === 'number' && Number.isFinite(ordinal) ? ordinal : null,
+      ordinal:
+        typeof ordinal === 'number' && Number.isFinite(ordinal)
+          ? ordinal
+          : null,
     };
   }
   return { type: value, phase: null, ordinal: null };
@@ -186,7 +191,10 @@ function phaseLine(phase: string | null): string {
 }
 
 /** One chain line: where the event sits, the phase it belongs to and the type it carried. */
-function eventLine(where: 'before' | 'after', event: AfterRenderChainEvent): string {
+function eventLine(
+  where: 'before' | 'after',
+  event: AfterRenderChainEvent,
+): string {
   return `${where} ${formatValue(event.ordinal)}: ${phaseName(event.phase)} (type ${formatValue(event.type)})`;
 }
 
@@ -194,7 +202,11 @@ function eventLine(where: 'before' | 'after', event: AfterRenderChainEvent): str
 function pane(
   message: string,
   lines: readonly string[],
-): { readonly message: string; readonly lines: readonly string[]; readonly text: string } {
+): {
+  readonly message: string;
+  readonly lines: readonly string[];
+  readonly text: string;
+} {
   return { message, lines, text: lines.join('\n') };
 }
 
@@ -218,7 +230,11 @@ export function afterRenderPanel(chain?: unknown): AfterRenderSurface {
   }
 
   if (chain['loading'] === true || chain['assembling'] === true) {
-    return { kind: 'loading', state: 'loading', ...pane(LOADING_MESSAGE, [LOADING_MESSAGE]) };
+    return {
+      kind: 'loading',
+      state: 'loading',
+      ...pane(LOADING_MESSAGE, [LOADING_MESSAGE]),
+    };
   }
 
   const read = normaliseRead(chain['read']);
@@ -233,7 +249,10 @@ export function afterRenderPanel(chain?: unknown): AfterRenderSurface {
       return cannotTell(read, undefined);
     }
     const phaseValue = chain['phase'];
-    const phase = typeof phaseValue === 'string' && phaseValue.length > 0 ? phaseValue : null;
+    const phase =
+      typeof phaseValue === 'string' && phaseValue.length > 0
+        ? phaseValue
+        : null;
     const lines = [
       readLine(read),
       phaseLine(phase),
@@ -271,9 +290,14 @@ export function afterRenderPanel(chain?: unknown): AfterRenderSurface {
 }
 
 /** The absence state: the read it applies to, the named absence, and nothing about a cause. */
-function cannotTell(read: AfterRenderRead | null, reason: unknown): AfterRenderSurface {
+function cannotTell(
+  read: AfterRenderRead | null,
+  reason: unknown,
+): AfterRenderSurface {
   const named =
-    typeof reason === 'string' && reason.length > 0 ? reason : NO_AFTER_RENDER_EVENT;
+    typeof reason === 'string' && reason.length > 0
+      ? reason
+      : NO_AFTER_RENDER_EVENT;
   const lines = [readLine(read), CANNOT_TELL_MESSAGE];
   return {
     kind: 'cannot-tell',

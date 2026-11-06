@@ -46,7 +46,9 @@ import { printable } from './fingerprint.mjs';
 // command line only to leave them out; never to stop anything. Nx spawns its daemon as
 // `node <nx>/src/daemon/server/start.js` up to Nx 22 and `node <nx>/dist/src/daemon/server/start.js` from Nx 23
 // (src/daemon/client/client.js in each).
-export const SHARED_HELPERS = [/[\\/]nx[\\/](?:dist[\\/])?src[\\/]daemon[\\/]server[\\/]start\.js(?![\w.])/i];
+export const SHARED_HELPERS = [
+  /[\\/]nx[\\/](?:dist[\\/])?src[\\/]daemon[\\/]server[\\/]start\.js(?![\w.])/i,
+];
 
 // A fixed query: no value from a caller or a state file is ever put into it.
 const QUERY =
@@ -57,7 +59,10 @@ const QUERY =
  * @returns {boolean} whether the command line is a shared helper's
  */
 export function isSharedHelper(commandLine) {
-  return commandLine !== null && SHARED_HELPERS.some((pattern) => pattern.test(commandLine));
+  return (
+    commandLine !== null &&
+    SHARED_HELPERS.some((pattern) => pattern.test(commandLine))
+  );
 }
 
 /**
@@ -66,7 +71,12 @@ export function isSharedHelper(commandLine) {
  * @returns {boolean} whether the live process is the recorded one: same PID, start time and command line
  */
 export function matches(record, row) {
-  return row !== undefined && row.pid === record.pid && row.start === record.start && row.commandLine === record.commandLine;
+  return (
+    row !== undefined &&
+    row.pid === record.pid &&
+    row.start === record.start &&
+    row.commandLine === record.commandLine
+  );
 }
 
 /**
@@ -87,13 +97,27 @@ function fromWindows(row) {
     return null;
   }
 
-  const { ProcessId: pid, ParentProcessId: ppid, Start: start, CommandLine: commandLine } = /** @type {Record<string, unknown>} */ (row);
+  const {
+    ProcessId: pid,
+    ParentProcessId: ppid,
+    Start: start,
+    CommandLine: commandLine,
+  } = /** @type {Record<string, unknown>} */ (row);
 
-  if (typeof pid !== 'number' || typeof ppid !== 'number' || typeof start !== 'number') {
+  if (
+    typeof pid !== 'number' ||
+    typeof ppid !== 'number' ||
+    typeof start !== 'number'
+  ) {
     return null;
   }
 
-  return { pid, ppid, start, commandLine: typeof commandLine === 'string' ? commandLine : null };
+  return {
+    pid,
+    ppid,
+    start,
+    commandLine: typeof commandLine === 'string' ? commandLine : null,
+  };
 }
 
 /**
@@ -106,11 +130,19 @@ export function parsePs(text) {
   const rows = [];
 
   for (const line of text.split('\n')) {
-    const found = /^\s*(\d+)\s+(\d+)\s+(\w{3}\s+\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4})\s?(.*)$/.exec(line);
+    const found =
+      /^\s*(\d+)\s+(\d+)\s+(\w{3}\s+\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4})\s?(.*)$/.exec(
+        line,
+      );
     const start = found === null ? NaN : Date.parse(found[3] ?? '');
 
     if (found !== null && Number.isFinite(start)) {
-      rows.push({ pid: Number(found[1]), ppid: Number(found[2]), start, commandLine: found[4] ?? null });
+      rows.push({
+        pid: Number(found[1]),
+        ppid: Number(found[2]),
+        start,
+        commandLine: found[4] ?? null,
+      });
     }
   }
 
@@ -124,19 +156,36 @@ export function parsePs(text) {
  * @returns {string} its standard output
  */
 function powershell(command) {
-  const pwsh = join(process.env['ProgramFiles'] ?? 'C:\\Program Files', 'PowerShell', '7', 'pwsh.exe');
+  const pwsh = join(
+    process.env['ProgramFiles'] ?? 'C:\\Program Files',
+    'PowerShell',
+    '7',
+    'pwsh.exe',
+  );
   const shell = existsSync(pwsh)
     ? pwsh
-    : join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
-  const result = spawnSync(shell, ['-NoProfile', '-NonInteractive', '-Command', command], {
-    encoding: 'utf8',
-    maxBuffer: 64 * 1024 * 1024,
-    timeout: 60_000,
-    windowsHide: true,
-  });
+    : join(
+        process.env['SystemRoot'] ?? 'C:\\Windows',
+        'System32',
+        'WindowsPowerShell',
+        'v1.0',
+        'powershell.exe',
+      );
+  const result = spawnSync(
+    shell,
+    ['-NoProfile', '-NonInteractive', '-Command', command],
+    {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+      timeout: 60_000,
+      windowsHide: true,
+    },
+  );
 
   if (result.error || result.status !== 0) {
-    throw new Error(`PowerShell failed: ${printable(result.error?.message ?? result.stderr.trim())}`);
+    throw new Error(
+      `PowerShell failed: ${printable(result.error?.message ?? result.stderr.trim())}`,
+    );
   }
 
   return result.stdout;
@@ -150,7 +199,9 @@ export function processTable() {
   if (process.platform === 'win32') {
     const text = powershell(QUERY).trim();
 
-    return text === '' ? [] : [JSON.parse(text)].flat().flatMap((row) => fromWindows(row) ?? []);
+    return text === ''
+      ? []
+      : [JSON.parse(text)].flat().flatMap((row) => fromWindows(row) ?? []);
   }
 
   if (process.platform === 'linux' || process.platform === 'darwin') {
@@ -161,21 +212,40 @@ export function processTable() {
     }
 
     // -ww: never cut the command line to the terminal width, or a shared helper's path could be lost.
-    const result = spawnSync(ps, ['-ww', '-A', '-o', 'pid=', '-o', 'ppid=', '-o', 'lstart=', '-o', 'args='], {
-      encoding: 'utf8',
-      env: { ...process.env, LC_ALL: 'C' },
-      maxBuffer: 64 * 1024 * 1024,
-      timeout: 60_000,
-    });
+    const result = spawnSync(
+      ps,
+      [
+        '-ww',
+        '-A',
+        '-o',
+        'pid=',
+        '-o',
+        'ppid=',
+        '-o',
+        'lstart=',
+        '-o',
+        'args=',
+      ],
+      {
+        encoding: 'utf8',
+        env: { ...process.env, LC_ALL: 'C' },
+        maxBuffer: 64 * 1024 * 1024,
+        timeout: 60_000,
+      },
+    );
 
     if (result.error || result.status !== 0) {
-      throw new Error(`process query failed: ${printable(result.error?.message ?? result.stderr.trim())}`);
+      throw new Error(
+        `process query failed: ${printable(result.error?.message ?? result.stderr.trim())}`,
+      );
     }
 
     return parsePs(result.stdout);
   }
 
-  throw new Error(`process trees are not supported on ${process.platform}; only win32, linux and darwin`);
+  throw new Error(
+    `process trees are not supported on ${process.platform}; only win32, linux and darwin`,
+  );
 }
 
 /**
@@ -199,7 +269,12 @@ function below(rows, roots) {
     for (const row of rows) {
       const parent = tree.get(row.ppid);
 
-      if (parent !== undefined && !tree.has(row.pid) && row.start >= parent.start && !isSharedHelper(row.commandLine)) {
+      if (
+        parent !== undefined &&
+        !tree.has(row.pid) &&
+        row.start >= parent.start &&
+        !isSharedHelper(row.commandLine)
+      ) {
         tree.set(row.pid, row);
         found.push(row);
         grew = true;
@@ -220,9 +295,17 @@ function below(rows, roots) {
  *   the spawned one, whose PID was reused, and gives an empty tree
  * @returns {ProcRecord[]}
  */
-export function snapshot(root, { table = processTable, notBefore, notAfter } = {}) {
-  if (typeof root === 'number' && (notBefore === undefined || notAfter === undefined)) {
-    throw new TypeError('snapshot(<PID>) needs notBefore and notAfter, the times just before and after the spawn');
+export function snapshot(
+  root,
+  { table = processTable, notBefore, notAfter } = {},
+) {
+  if (
+    typeof root === 'number' &&
+    (notBefore === undefined || notAfter === undefined)
+  ) {
+    throw new TypeError(
+      'snapshot(<PID>) needs notBefore and notAfter, the times just before and after the spawn',
+    );
   }
 
   const rows = table();
@@ -232,7 +315,8 @@ export function snapshot(root, { table = processTable, notBefore, notAfter } = {
   if (
     live === undefined ||
     (typeof root === 'number'
-      ? live.start < (notBefore ?? 0) - 1000 || live.start > (notAfter ?? 0) + 50
+      ? live.start < (notBefore ?? 0) - 1000 ||
+        live.start > (notAfter ?? 0) + 50
       : !matches(root, live)) ||
     isSharedHelper(live.commandLine)
   ) {
@@ -270,14 +354,19 @@ export function merge(recorded, live) {
  * @returns {void}
  */
 function forceKill(records) {
-  const targets = records.filter((record) => Number.isSafeInteger(record.pid) && Number.isSafeInteger(record.start));
+  const targets = records.filter(
+    (record) =>
+      Number.isSafeInteger(record.pid) && Number.isSafeInteger(record.start),
+  );
 
   if (targets.length === 0) {
     return;
   }
 
   if (process.platform === 'win32') {
-    const pairs = targets.flatMap((record) => [record.pid, record.start]).join(',');
+    const pairs = targets
+      .flatMap((record) => [record.pid, record.start])
+      .join(',');
 
     try {
       // `$p.Handle` opens one handle that the start-time check and Kill() then share; while it is open, Windows
@@ -319,10 +408,14 @@ function sleep(ms) {
 function callerChain(rows) {
   const chain = new Set([process.pid]);
 
-  for (let row = rows.get(process.pid); row !== undefined; ) {
+  for (let row = rows.get(process.pid); row !== undefined;) {
     const parent = rows.get(row.ppid);
 
-    if (parent === undefined || parent.start > row.start || chain.has(parent.pid)) {
+    if (
+      parent === undefined ||
+      parent.start > row.start ||
+      chain.has(parent.pid)
+    ) {
       break;
     }
 
@@ -342,7 +435,10 @@ function callerChain(rows) {
  * @param {StopOptions} [options]
  * @returns {StopResult}
  */
-export function stop(records, { table = processTable, kill = forceKill, pause = sleep, rounds = 10 } = {}) {
+export function stop(
+  records,
+  { table = processTable, kill = forceKill, pause = sleep, rounds = 10 } = {},
+) {
   /** @type {StopResult} */
   const result = { stopped: [], gone: [], refused: [] };
   /** @type {Map<string, ProcRecord>} */
@@ -369,7 +465,11 @@ export function stop(records, { table = processTable, kill = forceKill, pause = 
   }
 
   // merge() drops shared helpers; a running one is reported here so the caller sees why it stays running.
-  const helpers = new Map(records.filter((record) => isSharedHelper(record.commandLine)).map((record) => [key(record), record]));
+  const helpers = new Map(
+    records
+      .filter((record) => isSharedHelper(record.commandLine))
+      .map((record) => [key(record), record]),
+  );
 
   for (const helper of helpers.values()) {
     if (matches(helper, first.get(helper.pid))) {
@@ -390,7 +490,10 @@ export function stop(records, { table = processTable, kill = forceKill, pause = 
       }
     }
 
-    for (const child of below(rows.filter((row) => !caller.has(row.pid)), [...active.values()])) {
+    for (const child of below(
+      rows.filter((row) => !caller.has(row.pid)),
+      [...active.values()],
+    )) {
       if (!active.has(key(child))) {
         active.set(key(child), child);
       }
@@ -399,7 +502,15 @@ export function stop(records, { table = processTable, kill = forceKill, pause = 
     // A record is a parent only of a record that started no earlier than it, as in below(): a stale PPID that now
     // names a younger record must not keep both waiting.
     const all = [...active.values()];
-    const leaves = all.filter((record) => !all.some((child) => child.ppid === record.pid && child.start >= record.start && child !== record));
+    const leaves = all.filter(
+      (record) =>
+        !all.some(
+          (child) =>
+            child.ppid === record.pid &&
+            child.start >= record.start &&
+            child !== record,
+        ),
+    );
 
     kill(leaves);
 
@@ -412,7 +523,9 @@ export function stop(records, { table = processTable, kill = forceKill, pause = 
     }
   }
 
-  const rows = new Map(active.size === 0 ? [] : table().map((row) => [row.pid, row]));
+  const rows = new Map(
+    active.size === 0 ? [] : table().map((row) => [row.pid, row]),
+  );
 
   for (const [id, record] of active) {
     if (matches(record, rows.get(record.pid))) {

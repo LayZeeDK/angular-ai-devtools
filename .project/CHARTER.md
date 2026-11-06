@@ -177,6 +177,14 @@ questions, answered in the panel, on the developer's machine.
 ## Corrections
 
 <!-- Verbatim user rulings that amend this charter. Append-only. -->
+  - 2026-11-05: programme 2 · Generation 2 admission. Programme 1 (Generation 1,
+    M018-M031) is closed with all twelve backlog goals shipped and archived.
+    **Generation 2 — core explainers (batch 3)**, twelve entries M032-M043, enters
+    `Full scope: in`. The backlog's thirteenth entry, `console-read`, is carried to
+    the next generation because §2 caps one roadmap approval at twelve entries.
+    Numbering continues from M031 and never restarts (backlog §2). A3's programme
+    order is unchanged. Spike gates carried in: S9 for M037 signal-forms-doctor,
+    S10 for M042 error-boundary.
 - 2026-10-28: program scope is the first release only (N4, N24, N25); the
   remaining proposals form a later program.
 - 2026-10-28: keep `spikes/ng222-app` and `spikes/ng222-ssr` as verification

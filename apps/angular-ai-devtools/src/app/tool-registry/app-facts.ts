@@ -34,6 +34,7 @@ import {
   type ToolFacts,
   type ToolOutcome,
 } from './tool-registry';
+import { isRecord } from '../record-guard';
 
 /** The tool id this module declares. */
 export const APP_FACTS_TOOL_ID = 'app_facts';
@@ -76,7 +77,10 @@ export type AppFactsSnapshot = {
 };
 
 /** What a caller is told before it offers a capability. Never supported by default. */
-export type SupportCheck = { readonly supported: boolean; readonly reason: string };
+export type SupportCheck = {
+  readonly supported: boolean;
+  readonly reason: string;
+};
 
 /** A capability the registry can name but cannot promise on the page's behalf. */
 export type DevModeCaveat = {
@@ -148,7 +152,9 @@ export function appFactsSnapshot(facts: ToolFacts): AppFactsSnapshot | null {
  * Reads the eight bits out of the page's map. A bit that is not a boolean reads `null`: the page
  * published no such fact, which is neither support nor a measured absence.
  */
-function readFeatureBits(value: unknown): Readonly<Record<AppFactFeature, boolean | null>> {
+function readFeatureBits(
+  value: unknown,
+): Readonly<Record<AppFactFeature, boolean | null>> {
   const published = isRecord(value) ? value : {};
   // `Object.fromEntries` cannot prove the eight keys were filled, so the record is asserted once:
   // the keys are exactly `APP_FACT_FEATURES` and this loop writes every value.
@@ -202,7 +208,8 @@ export function supportCheck(
   }
 
   const feature = isAppFactFeature(toolId) ? toolId : undefined;
-  const bit: boolean | null = feature === undefined ? null : snapshot.features[feature];
+  const bit: boolean | null =
+    feature === undefined ? null : snapshot.features[feature];
   const publishedBit =
     bit === null
       ? `${PAGE_CHANNEL} published no "${toolId}" bit`
@@ -249,7 +256,9 @@ const CHECKED_TOOL_IDS: readonly string[] = [
   ]),
 ];
 
-function supportChecksFor(snapshot: AppFactsSnapshot): Readonly<Record<string, SupportCheck>> {
+function supportChecksFor(
+  snapshot: AppFactsSnapshot,
+): Readonly<Record<string, SupportCheck>> {
   const checks: Record<string, SupportCheck> = {};
   for (const toolId of CHECKED_TOOL_IDS) {
     checks[toolId] = supportCheck(toolId, snapshot);
@@ -280,7 +289,9 @@ function readAppFacts(context: ToolContext): ToolOutcome {
   const features = Object.fromEntries(
     APP_FACT_FEATURES.map((name) => [name, snapshot.features[name] === true]),
   ) as Record<AppFactFeature, boolean>;
-  const featuresReported = APP_FACT_FEATURES.filter((name) => snapshot.features[name] !== null);
+  const featuresReported = APP_FACT_FEATURES.filter(
+    (name) => snapshot.features[name] !== null,
+  );
 
   const value: AppFactsResult = {
     tool: APP_FACTS_TOOL_ID,
@@ -298,8 +309,10 @@ function readAppFacts(context: ToolContext): ToolOutcome {
 }
 
 const appFactsBacking: ToolBacking = {
-  execute: async (_input: unknown, context: ToolContext): Promise<ToolOutcome> =>
-    readAppFacts(context),
+  execute: async (
+    _input: unknown,
+    context: ToolContext,
+  ): Promise<ToolOutcome> => readAppFacts(context),
 };
 
 /** `app_facts`: a read the panel runs and the extension API hands to the model. */
@@ -319,8 +332,4 @@ export const appFactsTool = defineTool(
 /** Registers `app_facts` through the envelope. The only line `app.config.ts` gains. */
 export function provideAppFactsTool(): EnvironmentProviders {
   return provideTools(appFactsTool);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

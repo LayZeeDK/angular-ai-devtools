@@ -15,13 +15,10 @@
 
 export const CAPACITY = 50;
 
-export const NO_OWN_COMPONENT = "no owning component";
-export const NO_OWN_COMPONENT_MESSAGE = NO_OWN_COMPONENT;
-export const NO_OWNING_COMPONENT = NO_OWN_COMPONENT;
+export const NO_OWN_COMPONENT = 'no owning component';
 
-export const EMPTY_STATE = "No captured errors";
+export const EMPTY_STATE = 'No captured errors';
 export const EMPTY_MESSAGE = EMPTY_STATE;
-export const NO_CAPTURED_ERRORS = EMPTY_STATE;
 
 export interface CapturedError {
   code: string | null;
@@ -32,27 +29,31 @@ export interface CapturedError {
 
 export function extractErrorCode(value: unknown): string | null {
   const text =
-    value instanceof Error ? `${value.name ?? ""} ${value.message ?? ""}` : String(value ?? "");
+    value instanceof Error
+      ? `${value.name ?? ''} ${value.message ?? ''}`
+      : String(value ?? '');
   const match = text.match(/NG0\d{3,}/);
   return match ? match[0] : null;
 }
 
 export function resolveOwningComponent(ng: any, target?: any): string | null {
   const fn =
-    ng && typeof ng === "object"
-      ? typeof ng.getOwningComponent === "function"
+    ng && typeof ng === 'object'
+      ? typeof ng.getOwningComponent === 'function'
         ? ng.getOwningComponent
-        : typeof ng["\u0152getOwningComponent"] === "function"
-        ? ng["\u0152getOwningComponent"]
-        : null
+        : typeof ng['\u0152getOwningComponent'] === 'function'
+          ? ng['\u0152getOwningComponent']
+          : null
       : null;
   // Also accept the Angular-style ɵ-prefixed accessor if present.
   const getter =
     fn ||
-    (ng && typeof ng === "object" && typeof ng.ɵgetOwningComponent === "function"
+    (ng &&
+    typeof ng === 'object' &&
+    typeof ng.ɵgetOwningComponent === 'function'
       ? ng.ɵgetOwningComponent
       : null);
-  if (typeof getter !== "function") return null;
+  if (typeof getter !== 'function') return null;
   let instance: any = null;
   try {
     instance = getter.call(ng, target);
@@ -60,9 +61,13 @@ export function resolveOwningComponent(ng: any, target?: any): string | null {
     instance = null;
   }
   if (instance == null) return null;
-  if (typeof instance === "string") return instance;
-  if (typeof instance.name === "string" && instance.name) return instance.name;
-  if (instance.constructor && typeof instance.constructor.name === "string" && instance.constructor.name) {
+  if (typeof instance === 'string') return instance;
+  if (typeof instance.name === 'string' && instance.name) return instance.name;
+  if (
+    instance.constructor &&
+    typeof instance.constructor.name === 'string' &&
+    instance.constructor.name
+  ) {
     return instance.constructor.name;
   }
   try {
@@ -71,8 +76,6 @@ export function resolveOwningComponent(ng: any, target?: any): string | null {
     return null;
   }
 }
-
-export const getOwningComponentName = resolveOwningComponent;
 
 function makeCapturedError(
   message: unknown,
@@ -83,14 +86,14 @@ function makeCapturedError(
 ): CapturedError {
   return {
     code: codeOverride !== undefined ? codeOverride : extractErrorCode(message),
-    message: String(message ?? "").trim(),
+    message: String(message ?? '').trim(),
     component: resolveOwningComponent(ng, target),
     timestamp,
   };
 }
 
 export function captureError(...args: any[]): CapturedError {
-  let message: unknown = "";
+  let message: unknown = '';
   let ng: any = null;
   let target: any = null;
   let timestamp = Date.now();
@@ -98,12 +101,12 @@ export function captureError(...args: any[]): CapturedError {
 
   if (args.length === 0) {
     // nothing
-  } else if (typeof args[0] === "string" || args[0] instanceof Error) {
+  } else if (typeof args[0] === 'string' || args[0] instanceof Error) {
     message = args[0];
     if (args[1] !== undefined) ng = args[1];
     if (args[2] !== undefined) target = args[2];
-    if (typeof args[3] === "number") timestamp = args[3];
-  } else if (args[0] && typeof args[0] === "object") {
+    if (typeof args[3] === 'number') timestamp = args[3];
+  } else if (args[0] && typeof args[0] === 'object') {
     const o = args[0] as any;
     message = o.message ?? o.error ?? o.reason ?? o;
     if (o.ng !== undefined) ng = o.ng;
@@ -112,9 +115,9 @@ export function captureError(...args: any[]): CapturedError {
     else if (o.element !== undefined) target = o.element;
     else if (o.instance !== undefined) target = o.instance;
     else if (args[2] !== undefined) target = args[2];
-    if (typeof o.timestamp === "number") timestamp = o.timestamp;
+    if (typeof o.timestamp === 'number') timestamp = o.timestamp;
     if (o.code !== undefined) codeOverride = o.code;
-    if (typeof args[1] === "number") timestamp = args[1];
+    if (typeof args[1] === 'number') timestamp = args[1];
   }
 
   if (codeOverride === null) codeOverride = null;
@@ -122,9 +125,17 @@ export function captureError(...args: any[]): CapturedError {
 }
 
 export function captureConsoleError(...args: any[]): CapturedError {
-  const message = args.map((a) => (a instanceof Error ? a.message : String(a))).join(" ");
-  const ng = args.length > 1 && args[args.length - 1] && args[args.length - 1].ng ? args[args.length - 1].ng : null;
-  const target = args.length > 1 && args[args.length - 1] && args[args.length - 1].target ? args[args.length - 1].target : null;
+  const message = args
+    .map((a) => (a instanceof Error ? a.message : String(a)))
+    .join(' ');
+  const ng =
+    args.length > 1 && args[args.length - 1] && args[args.length - 1].ng
+      ? args[args.length - 1].ng
+      : null;
+  const target =
+    args.length > 1 && args[args.length - 1] && args[args.length - 1].target
+      ? args[args.length - 1].target
+      : null;
   return captureError({ message, ng, target, timestamp: Date.now() });
 }
 
@@ -137,7 +148,8 @@ export function captureWindowError(...args: any[]): CapturedError {
 }
 
 export function captureUnhandledRejection(...args: any[]): CapturedError {
-  const reason = args[0] && args[0].reason !== undefined ? args[0].reason : args[0];
+  const reason =
+    args[0] && args[0].reason !== undefined ? args[0].reason : args[0];
   const ng = args[1] !== undefined ? args[1] : null;
   const target = args[2] !== undefined ? args[2] : null;
   return captureError({ message: reason, ng, target, timestamp: Date.now() });
@@ -148,7 +160,8 @@ export class RingBuffer<T = CapturedError> {
   private items: T[] = [];
 
   constructor(capacity: number = CAPACITY) {
-    this.capacity = typeof capacity === "number" && capacity > 0 ? capacity : CAPACITY;
+    this.capacity =
+      typeof capacity === 'number' && capacity > 0 ? capacity : CAPACITY;
     this.items = [];
   }
 
@@ -174,28 +187,29 @@ export class RingBuffer<T = CapturedError> {
   }
 }
 
-export function createRingBuffer<T = CapturedError>(capacity: number = CAPACITY): RingBuffer<T> {
+export function createRingBuffer<T = CapturedError>(
+  capacity: number = CAPACITY,
+): RingBuffer<T> {
   return new RingBuffer<T>(capacity);
 }
 
-export function pushToRingBuffer<T>(buffer: T[], item: T, capacity: number = CAPACITY): T[] {
+export function pushToRingBuffer<T>(
+  buffer: T[],
+  item: T,
+  capacity: number = CAPACITY,
+): T[] {
   const next = Array.isArray(buffer) ? buffer.slice() : [];
   next.push(item);
   while (next.length > capacity) next.shift();
   return next;
 }
 
-export const pushRing = pushToRingBuffer;
-export const pushRingBuffer = pushToRingBuffer;
-export const addToRingBuffer = pushToRingBuffer;
-export const appendToRingBuffer = pushToRingBuffer;
-
 export function isEmpty(value: any): boolean {
   if (value == null) return true;
   if (Array.isArray(value)) return value.length === 0;
   if (value instanceof RingBuffer) return value.isEmpty();
-  if (typeof value.size === "number") return value.size === 0;
-  if (typeof value.length === "number") return value.length === 0;
+  if (typeof value.size === 'number') return value.size === 0;
+  if (typeof value.length === 'number') return value.length === 0;
   return false;
 }
 
@@ -210,14 +224,10 @@ export function isEmptyState(value: any): boolean {
 export const defaultExport = {
   CAPACITY,
   NO_OWN_COMPONENT,
-  NO_OWN_COMPONENT_MESSAGE,
-  NO_OWNING_COMPONENT,
   EMPTY_STATE,
   EMPTY_MESSAGE,
-  NO_CAPTURED_ERRORS,
   extractErrorCode,
   resolveOwningComponent,
-  getOwningComponentName: resolveOwningComponent,
   captureError,
   captureConsoleError,
   captureWindowError,
@@ -225,10 +235,6 @@ export const defaultExport = {
   RingBuffer,
   createRingBuffer,
   pushToRingBuffer,
-  pushRing,
-  pushRingBuffer,
-  addToRingBuffer,
-  appendToRingBuffer,
   isEmpty,
   componentLabel,
   isEmptyState,

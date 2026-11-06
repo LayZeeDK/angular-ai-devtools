@@ -39,45 +39,78 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { companionSurface, type CompanionSymbol } from './companion';
 import { ExtensionMessageService } from './extension-message.service';
 import { featureFingerprint } from './feature-fingerprint';
-import { buildPanelContext, type PanelContext, type PanelSignals } from './panel-context';
+import {
+  buildPanelContext,
+  type PanelContext,
+  type PanelSignals,
+} from './panel-context';
 import { projectToolGroups } from './tool-groups';
-import { APP_FACT_FEATURES, APP_FACTS_TOOL_ID } from './tool-registry/app-facts';
-import { TOOL_REGISTRY, type ToolContext, type ToolOutcome } from './tool-registry/tool-registry';
+import {
+  APP_FACT_FEATURES,
+  APP_FACTS_TOOL_ID,
+} from './tool-registry/app-facts';
+import {
+  TOOL_REGISTRY,
+  type ToolContext,
+  type ToolOutcome,
+} from './tool-registry/tool-registry';
 
 @Component({
   selector: 'app-chat-entry',
   template: `
     <h2>Chat</h2>
     <p class="subtitle" data-testid="chat-subtitle">
-      the tool groups this app's version gate allows, and the features its page published
+      the tool groups this app's version gate allows, and the features its page
+      published
     </p>
 
     <section class="chip" data-testid="chip">
       @if (fingerprint(); as fp) {
         <p class="chip-status" data-testid="chip-status">
-          {{ fp.supported ? 'the page reports the app as supported' : 'the page reports the app as not supported' }}
+          {{
+            fp.supported
+              ? 'the page reports the app as supported'
+              : 'the page reports the app as not supported'
+          }}
         </p>
         @if (fp.reason) {
           <p class="chip-reason" data-testid="chip-reason">{{ fp.reason }}</p>
         }
         @if (fp.zoneMode) {
-          <p class="chip-zone" data-testid="chip-zone">change detection: {{ fp.zoneMode }}</p>
+          <p class="chip-zone" data-testid="chip-zone">
+            change detection: {{ fp.zoneMode }}
+          </p>
         }
         <ul class="chip-entries">
           @for (entry of fp.entries; track entry.name) {
-            <li class="chip-entry" data-testid="chip-entry" [attr.data-present]="entry.present">
+            <li
+              class="chip-entry"
+              data-testid="chip-entry"
+              [attr.data-present]="entry.present"
+            >
               {{ entry.name }}: {{ entry.present ? 'present' : 'absent' }}
             </li>
           }
         </ul>
       } @else if (chipState(); as state) {
-        <p class="chip-state" [attr.data-testid]="state.kind">{{ state.message }}</p>
+        <p class="chip-state" [attr.data-testid]="state.kind">
+          {{ state.message }}
+        </p>
       }
     </section>
 
-    <section class="companion" data-testid="companion-surface" [attr.data-state]="companionKind()">
-      <h3 class="companion-title" data-testid="companion-title">Companion package (opt-in)</h3>
-      <p class="companion-state" [attr.data-testid]="'companion-' + companionKind()">
+    <section
+      class="companion"
+      data-testid="companion-surface"
+      [attr.data-state]="companionKind()"
+    >
+      <h3 class="companion-title" data-testid="companion-title">
+        Companion package (opt-in)
+      </h3>
+      <p
+        class="companion-state"
+        [attr.data-testid]="'companion-' + companionKind()"
+      >
         {{ companionMessage() }}
       </p>
       @if (companionKind() === 'declared') {
@@ -93,7 +126,10 @@ import { TOOL_REGISTRY, type ToolContext, type ToolOutcome } from './tool-regist
           </p>
         } @else {
           <ul class="companion-symbols">
-            @for (symbol of companionSymbols(); track symbol.pkg + '#' + symbol.name) {
+            @for (
+              symbol of companionSymbols();
+              track symbol.pkg + '#' + symbol.name
+            ) {
               <li class="companion-symbol" data-testid="companion-symbol">
                 {{ symbol.pkg }}#{{ symbol.name }}
               </li>
@@ -105,14 +141,20 @@ import { TOOL_REGISTRY, type ToolContext, type ToolOutcome } from './tool-regist
 
     <section class="groups" data-testid="group-list">
       @if (projection().groups.length === 0) {
-        <p class="empty" data-testid="empty-groups">{{ projection().emptyReason }}</p>
+        <p class="empty" data-testid="empty-groups">
+          {{ projection().emptyReason }}
+        </p>
       } @else {
         @for (group of projection().groups; track group.id) {
           <div class="group" data-testid="tool-group">
-            <h3 class="group-title" data-testid="group-title">{{ group.title }}</h3>
+            <h3 class="group-title" data-testid="group-title">
+              {{ group.title }}
+            </h3>
             <ul class="group-tools">
               @for (toolId of group.toolIds; track toolId) {
-                <li class="group-tool" data-testid="group-tool">{{ toolId }}</li>
+                <li class="group-tool" data-testid="group-tool">
+                  {{ toolId }}
+                </li>
               }
             </ul>
           </div>
@@ -124,31 +166,114 @@ import { TOOL_REGISTRY, type ToolContext, type ToolOutcome } from './tool-regist
   `,
   styles: [
     `
-      h2 { font-size: 14px; margin: 0; }
-      .subtitle { font-size: 11px; color: #888; margin: 4px 0 12px; }
-      .chip { font-size: 12px; padding: 8px; background: #f5f9ff; border-radius: 4px; }
-      .chip-entries { list-style: none; margin: 0; padding: 0; }
-      .chip-entry { font-family: monospace; font-size: 11px; color: #333; }
-      .chip-entry[data-present='false'] { color: #999; }
-      .chip-reason { color: #c62828; margin: 4px 0; }
-      .chip-state { color: #b26a00; font-style: italic; margin: 0; }
-      .companion { font-size: 12px; padding: 8px; margin-top: 12px; background: #f7f7fb; border-radius: 4px; }
-      .companion-title { font-size: 12px; margin: 0; }
-      .companion-state { margin: 4px 0; color: #333; }
+      h2 {
+        font-size: 14px;
+        margin: 0;
+      }
+      .subtitle {
+        font-size: 11px;
+        color: #888;
+        margin: 4px 0 12px;
+      }
+      .chip {
+        font-size: 12px;
+        padding: 8px;
+        background: #f5f9ff;
+        border-radius: 4px;
+      }
+      .chip-entries {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .chip-entry {
+        font-family: monospace;
+        font-size: 11px;
+        color: #333;
+      }
+      .chip-entry[data-present='false'] {
+        color: #999;
+      }
+      .chip-reason {
+        color: #c62828;
+        margin: 4px 0;
+      }
+      .chip-state {
+        color: #b26a00;
+        font-style: italic;
+        margin: 0;
+      }
+      .companion {
+        font-size: 12px;
+        padding: 8px;
+        margin-top: 12px;
+        background: #f7f7fb;
+        border-radius: 4px;
+      }
+      .companion-title {
+        font-size: 12px;
+        margin: 0;
+      }
+      .companion-state {
+        margin: 4px 0;
+        color: #333;
+      }
       .companion[data-state='absent'] .companion-state,
       .companion[data-state='foreign-entry'] .companion-state,
-      .companion[data-state='version-unsupported'] .companion-state { color: #c62828; }
-      .companion[data-state='awaiting-page'] .companion-state { color: #b26a00; font-style: italic; }
-      .companion-count { font-family: monospace; font-size: 11px; color: #555; margin: 2px 0; }
-      .companion-none { color: #b26a00; font-style: italic; margin: 2px 0; }
-      .companion-symbols { list-style: none; margin: 2px 0 0; padding: 0; }
-      .companion-symbol { font-family: monospace; font-size: 11px; color: #333; }
-      .groups { margin-top: 12px; }
-      .group { margin-bottom: 8px; }
-      .group-title { font-size: 12px; margin: 0; }
-      .group-tools { margin: 2px 0 0; padding-left: 18px; font-size: 11px; font-family: monospace; }
-      .empty { color: #888; font-style: italic; font-size: 12px; }
-      .app-facts { font-size: 11px; color: #666; margin-top: 12px; }
+      .companion[data-state='version-unsupported'] .companion-state {
+        color: #c62828;
+      }
+      .companion[data-state='awaiting-page'] .companion-state {
+        color: #b26a00;
+        font-style: italic;
+      }
+      .companion-count {
+        font-family: monospace;
+        font-size: 11px;
+        color: #555;
+        margin: 2px 0;
+      }
+      .companion-none {
+        color: #b26a00;
+        font-style: italic;
+        margin: 2px 0;
+      }
+      .companion-symbols {
+        list-style: none;
+        margin: 2px 0 0;
+        padding: 0;
+      }
+      .companion-symbol {
+        font-family: monospace;
+        font-size: 11px;
+        color: #333;
+      }
+      .groups {
+        margin-top: 12px;
+      }
+      .group {
+        margin-bottom: 8px;
+      }
+      .group-title {
+        font-size: 12px;
+        margin: 0;
+      }
+      .group-tools {
+        margin: 2px 0 0;
+        padding-left: 18px;
+        font-size: 11px;
+        font-family: monospace;
+      }
+      .empty {
+        color: #888;
+        font-style: italic;
+        font-size: 12px;
+      }
+      .app-facts {
+        font-size: 11px;
+        color: #666;
+        margin-top: 12px;
+      }
     `,
   ],
 })
@@ -161,10 +286,14 @@ export class ChatEntryComponent {
    * projection and the `app_facts` call — gets the same object built from one instant of the page,
    * and the seven signals are read once per change, not once per reader.
    */
-  private readonly context = computed<PanelContext>(() => buildPanelContext(this.panelSignals()));
+  private readonly context = computed<PanelContext>(() =>
+    buildPanelContext(this.panelSignals()),
+  );
 
   /** The chip model: eight `APP_FACT_FEATURES` entries, or one of the four named page states. */
-  protected readonly chip = computed(() => featureFingerprint(this.context(), APP_FACT_FEATURES));
+  protected readonly chip = computed(() =>
+    featureFingerprint(this.context(), APP_FACT_FEATURES),
+  );
 
   /** The groups whose gates passed. An excluded group is absent here, so it has no header. */
   protected readonly projection = computed(() =>
@@ -176,19 +305,25 @@ export class ChatEntryComponent {
    * member. It reads nothing else — not `facts.features`, not the eight `app_facts` names — so a
    * page without the package refuses here while the chip beside it stays unchanged (SC2, E3, N2).
    */
-  private readonly companion = computed(() => companionSurface(this.context().companion));
+  private readonly companion = computed(() =>
+    companionSurface(this.context().companion),
+  );
 
   /** The rendering's own name, rendered as `data-state` and inside each per-state test id. */
   protected readonly companionKind = computed(() => this.companion().kind);
 
   /** The one sentence this rendering shows; the component adds no per-state wording of its own. */
-  protected readonly companionMessage = computed(() => this.companion().message);
+  protected readonly companionMessage = computed(
+    () => this.companion().message,
+  );
 
   /** The declared symbols the surface may name, and no symbol the record did not carry. */
-  protected readonly companionSymbols = computed<readonly CompanionSymbol[]>(() => {
-    const surface = this.companion();
-    return surface.kind === 'declared' ? surface.symbols : [];
-  });
+  protected readonly companionSymbols = computed<readonly CompanionSymbol[]>(
+    () => {
+      const surface = this.companion();
+      return surface.kind === 'declared' ? surface.symbols : [];
+    },
+  );
 
   /** Whether this is the honest "declared, no symbols" state rather than a list (E1). */
   protected readonly companionNoSymbols = computed(() => {
@@ -243,7 +378,10 @@ export class ChatEntryComponent {
     // render — never a second one, and never before the facts exist.
     effect(() => {
       const context = this.context();
-      const toolContext: ToolContext = { facts: context.facts, provenance: 'page-published' };
+      const toolContext: ToolContext = {
+        facts: context.facts,
+        provenance: 'page-published',
+      };
       void this.registry
         .execute(APP_FACTS_TOOL_ID, undefined, toolContext)
         .then((outcome) => this.appFacts.set(outcome));

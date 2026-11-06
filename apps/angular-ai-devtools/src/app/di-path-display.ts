@@ -4,14 +4,19 @@ export interface DisplayEntry {
   injectorName: string;
   nodeIndex: number;
   depth: number;
-  providers: { readonly token: string; readonly isViewProvider: boolean; readonly provider: unknown; readonly importPath?: string }[];
+  providers: {
+    readonly token: string;
+    readonly isViewProvider: boolean;
+    readonly provider: unknown;
+    readonly importPath?: string;
+  }[];
   type: string;
   error?: string;
 }
 
 export function formatDiPath(path: DiResolutionPath): DisplayEntry[] {
   const entries: DisplayEntry[] = [];
-  const list = (path && Array.isArray(path.path)) ? path.path : [];
+  const list = path && Array.isArray(path.path) ? path.path : [];
   list.forEach((inj, i) => {
     const source = inj?.metadata?.source;
     const injectorName =
@@ -24,7 +29,9 @@ export function formatDiPath(path: DiResolutionPath): DisplayEntry[] {
       injectorName,
       nodeIndex: typeof inj?.id === 'number' ? inj.id : i,
       depth: i,
-      providers: Array.isArray(inj?.providers) ? [...(inj.providers as any)] : [],
+      providers: Array.isArray(inj?.providers)
+        ? [...(inj.providers as any)]
+        : [],
       type: String(inj?.metadata?.type ?? ''),
       error: inj?.error,
     });

@@ -36,7 +36,7 @@
         "main.js"
       ],
       "sampleNote": "sample is an observation, not an assertion.",
-      "bytes": 2171440,
+      "bytes": 2173114,
       "unminified": true,
       "ngContextWrite": {
         "present": true,
@@ -70,9 +70,9 @@
       "bundles": [
         "chunk-7NHODFAA.js",
         "chunk-S3ZOYCGE.js",
-        "main-KLCJ35EZ.js"
+        "main-EHYZRKVA.js"
       ],
-      "bytes": 470868,
+      "bytes": 471376,
       "unminified": false,
       "ngContextWrite": {
         "present": true,
@@ -194,7 +194,11 @@
   ],
   "reconciliation": {
     "comparedWith": "research/raw/companion-dev-build.json",
-    "developmentBundles": ["chunk-5CQ6O73V.js", "chunk-KDTDSBO7.js", "main.js"],
+    "developmentBundles": [
+      "chunk-5CQ6O73V.js",
+      "chunk-KDTDSBO7.js",
+      "main.js"
+    ],
     "agrees": true,
     "leftoverHypothesis": "refuted",
     "note": "A clean build (output directory deleted first) emits the same three development bundles as companion-dev-build; T004's three bundles are genuine, not leftovers from a reused output directory."

@@ -1,6 +1,6 @@
 ---
 name: link-workspace-packages
-description: "Link Workspace Packages"
+description: 'Link Workspace Packages'
 ---
 
 # Link Workspace Packages

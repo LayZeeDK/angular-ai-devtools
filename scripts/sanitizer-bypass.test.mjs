@@ -62,14 +62,22 @@ const RECORD_PATH = process.env.M029_BYPASS_RECORD ?? null;
 /** The sanitizer's one signal, matched exactly as T001's capture matched it. */
 const SANITIZER_WARNING = /WARNING: sanitizing HTML stripped some content/;
 const TEMPLATE_UPDATE_EVENTS = [2, 3]; // TemplateUpdateStart, TemplateUpdateEnd
-const TAP_TYPE_TO_CDP = { warn: 'warning', log: 'log', debug: 'debug', info: 'info', error: 'error' };
+const TAP_TYPE_TO_CDP = {
+  warn: 'warning',
+  log: 'log',
+  debug: 'debug',
+  info: 'info',
+  error: 'error',
+};
 
 /** The `bypassSecurityTrust*` family the module reports as a vetted bypass. */
 const VETTED_BYPASS = /^bypassSecurityTrust[A-Za-z]+$/;
 
 const CAPTURE_COMMAND = 'node --test scripts/sanitizer-bypass.test.mjs';
-const RECORD_COMMAND = 'set M029_BYPASS_RECORD=<path>&& node --test scripts/sanitizer-bypass.test.mjs';
-const MUTANT_COMMAND = 'set M029_BYPASS_MUTANT=<name>&& node --test scripts/sanitizer-bypass.test.mjs';
+const RECORD_COMMAND =
+  'set M029_BYPASS_RECORD=<path>&& node --test scripts/sanitizer-bypass.test.mjs';
+const MUTANT_COMMAND =
+  'set M029_BYPASS_MUTANT=<name>&& node --test scripts/sanitizer-bypass.test.mjs';
 const SERVE_COMMAND = `node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port ${PORT} --host 127.0.0.1  (cwd spikes/ng222-app)`;
 
 // ---------------------------------------------------------------- capture ----------------
@@ -116,16 +124,31 @@ async function runCapture() {
   }
   const playwrightVersion = requireApp('playwright/package.json').version;
   const angularVersion = JSON.parse(
-    readFileSync(join(APP, 'node_modules', '@angular', 'core', 'package.json'), 'utf8'),
+    readFileSync(
+      join(APP, 'node_modules', '@angular', 'core', 'package.json'),
+      'utf8',
+    ),
   ).version;
-  if (!existsSync(AGENT_PATH)) throw new Error(`the page agent is missing at ${AGENT_PATH}`);
-  if (!existsSync(join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'))) {
-    throw new Error('the fixture’s Angular CLI is not installed; run: npm --prefix spikes/ng222-app ci --include=dev');
+  if (!existsSync(AGENT_PATH))
+    throw new Error(`the page agent is missing at ${AGENT_PATH}`);
+  if (
+    !existsSync(join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'))
+  ) {
+    throw new Error(
+      'the fixture’s Angular CLI is not installed; run: npm --prefix spikes/ng222-app ci --include=dev',
+    );
   }
 
   const server = spawn(
     process.execPath,
-    [join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'), 'serve', '--port', String(PORT), '--host', '127.0.0.1'],
+    [
+      join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'),
+      'serve',
+      '--port',
+      String(PORT),
+      '--host',
+      '127.0.0.1',
+    ],
     { cwd: APP, stdio: ['ignore', 'pipe', 'pipe'] },
   );
   let serverOutput = '';
@@ -154,7 +177,11 @@ async function runCapture() {
     const cdpConsole = [];
     cdp.on('Runtime.consoleAPICalled', (event) => {
       const text = (event.args ?? [])
-        .map((arg) => ('value' in arg && arg.value !== undefined ? arg.value : (arg.description ?? arg.unserializableValue ?? '')))
+        .map((arg) =>
+          'value' in arg && arg.value !== undefined
+            ? arg.value
+            : (arg.description ?? arg.unserializableValue ?? ''),
+        )
         .join(' ');
       cdpConsole.push({
         type: String(event.type),
@@ -168,7 +195,10 @@ async function runCapture() {
     await page.addInitScript(TAP_SOURCE);
     await page.addInitScript({ path: AGENT_PATH });
 
-    await page.goto(PAGE_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.goto(PAGE_URL, {
+      waitUntil: 'domcontentloaded',
+      timeout: 60000,
+    });
     // The fixtures' hosts are read off the page — the binding list is measured, not transcribed — and
     // the first render is the moment every host carries a value.
     await page.waitForFunction(
@@ -177,22 +207,38 @@ async function runCapture() {
       { timeout: 60000 },
     );
     const hostIds = await page.evaluate(() =>
-      [...document.querySelectorAll('[data-bound]')].map((element) => element.id),
+      [...document.querySelectorAll('[data-bound]')].map(
+        (element) => element.id,
+      ),
     );
     await page.waitForFunction(
-      (ids) => ids.every((id) => (document.getElementById(id)?.getAttribute('data-bound') ?? '') !== ''),
+      (ids) =>
+        ids.every(
+          (id) =>
+            (document.getElementById(id)?.getAttribute('data-bound') ?? '') !==
+            '',
+        ),
       hostIds,
       { timeout: 60000 },
     );
     const first = await readFixtureDom(page, hostIds);
     // The page agent installs its profiler subscription from a poll that lands after this page's first
     // render; wait for it so the second write is measured with the subscription in place.
-    await page.waitForFunction(() => !!(window.__ngRecorder && window.__ngRecorder.installed), null, { timeout: 60000 });
+    await page.waitForFunction(
+      () => !!(window.__ngRecorder && window.__ngRecorder.installed),
+      null,
+      { timeout: 60000 },
+    );
     await page.waitForTimeout(900);
     await page.click('#rewrite');
     // The second write is the moment every host's value differs from the one just read.
     await page.waitForFunction(
-      (previous) => previous.every((entry) => (document.getElementById(entry.id)?.getAttribute('data-bound') ?? '') !== entry.value),
+      (previous) =>
+        previous.every(
+          (entry) =>
+            (document.getElementById(entry.id)?.getAttribute('data-bound') ??
+              '') !== entry.value,
+        ),
       first.map((entry) => ({ id: entry.id, value: entry.value })),
       { timeout: 60000 },
     );
@@ -208,7 +254,8 @@ async function runCapture() {
     const tapDump = await page.evaluate(() => {
       const trim = (detail) => ({
         cycleId: detail?.cycleId ?? null,
-        startedAt: typeof detail?.startedAt === 'number' ? detail.startedAt : null,
+        startedAt:
+          typeof detail?.startedAt === 'number' ? detail.startedAt : null,
         trigger: detail?.trigger ?? null,
         zoneMode: detail?.zoneMode ?? null,
         checks: (detail?.checks ?? []).map((check) => ({
@@ -216,17 +263,27 @@ async function runCapture() {
           className: check?.className ?? null,
           changeDetection: check?.changeDetection ?? null,
           events: Array.isArray(check?.events) ? check.events.slice() : [],
-          changedNodeIds: Array.isArray(check?.changedNodeIds) ? check.changedNodeIds.slice() : [],
-          graphNodeCount: Array.isArray(check?.graph?.nodes) ? check.graph.nodes.length : null,
+          changedNodeIds: Array.isArray(check?.changedNodeIds)
+            ? check.changedNodeIds.slice()
+            : [],
+          graphNodeCount: Array.isArray(check?.graph?.nodes)
+            ? check.graph.nodes.length
+            : null,
         })),
       });
       const tap = window.__m029tap ?? { log: [], installedAt: null };
       return {
-        installedAt: typeof tap.installedAt === 'number' ? tap.installedAt : null,
+        installedAt:
+          typeof tap.installedAt === 'number' ? tap.installedAt : null,
         log: (tap.log ?? []).map((entry) =>
           entry.kind === 'record'
             ? { kind: 'record', t: entry.t, detail: trim(entry.detail) }
-            : { kind: entry.kind, t: entry.t, type: entry.type, text: entry.text },
+            : {
+                kind: entry.kind,
+                t: entry.t,
+                type: entry.type,
+                text: entry.text,
+              },
         ),
       };
     });
@@ -275,24 +332,41 @@ async function waitForServer(server, output) {
     exit = { code, signal };
   });
   while (Date.now() - started < 180000) {
-    if (exit) throw new Error(`the fixture dev server exited (${JSON.stringify(exit)}):\n${output()}`);
+    if (exit)
+      throw new Error(
+        `the fixture dev server exited (${JSON.stringify(exit)}):\n${output()}`,
+      );
     try {
-      const response = await fetch(`${ORIGIN}/`, { signal: AbortSignal.timeout(2000) });
+      const response = await fetch(`${ORIGIN}/`, {
+        signal: AbortSignal.timeout(2000),
+      });
       if (response.ok) return;
     } catch {
       /* not listening yet */
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
-  throw new Error(`the fixture dev server did not answer on ${ORIGIN} within 180s:\n${output()}`);
+  throw new Error(
+    `the fixture dev server did not answer on ${ORIGIN} within 180s:\n${output()}`,
+  );
 }
 
 async function killProcessTree(pid) {
   if (process.platform === 'win32') {
-    const killer = spawn('taskkill', ['/PID', String(pid), '/T', '/F'], { stdio: 'ignore' });
-    await new Promise((resolve) => killer.on('exit', resolve).on('error', resolve));
+    const killer = spawn('taskkill', ['/PID', String(pid), '/T', '/F'], {
+      stdio: 'ignore',
+    });
+    await new Promise((resolve) =>
+      killer.on('exit', resolve).on('error', resolve),
+    );
   } else {
-    try { process.kill(-pid, 'SIGTERM'); } catch { try { process.kill(pid, 'SIGTERM'); } catch {} }
+    try {
+      process.kill(-pid, 'SIGTERM');
+    } catch {
+      try {
+        process.kill(pid, 'SIGTERM');
+      } catch {}
+    }
   }
 }
 
@@ -302,7 +376,9 @@ async function waitForPortFree(port, timeout = 30000) {
     const free = await new Promise((resolve) => {
       const srv = createServer();
       srv.once('error', () => resolve(false));
-      srv.listen(port, '127.0.0.1', () => { srv.close(() => resolve(true)); });
+      srv.listen(port, '127.0.0.1', () => {
+        srv.close(() => resolve(true));
+      });
     });
     if (free) return;
     await new Promise((resolve) => setTimeout(resolve, 250));
@@ -312,7 +388,9 @@ async function waitForPortFree(port, timeout = 30000) {
 
 async function stopServer(server) {
   if (server.exitCode === null && server.signalCode === null) {
-    try { await killProcessTree(server.pid); } catch {}
+    try {
+      await killProcessTree(server.pid);
+    } catch {}
     server.kill();
     const timer = setTimeout(() => {
       try {
@@ -356,7 +434,9 @@ function buildRecording(input) {
     order,
     type: message.type,
     text: message.text,
-    code: /NG0\d{3,}/.test(message.text) ? (message.text.match(/NG0\d{3,}/) ?? [null])[0] : null,
+    code: /NG0\d{3,}/.test(message.text)
+      ? (message.text.match(/NG0\d{3,}/) ?? [null])[0]
+      : null,
     timestamp: message.timestamp,
     executionContextId: message.executionContextId,
   }));
@@ -367,8 +447,19 @@ function buildRecording(input) {
   for (const entry of input.tapDump.log) {
     if (entry.kind === 'console') {
       const order = tapMessages.length;
-      tapMessages.push({ order, t: entry.t, type: entry.type, text: entry.text });
-      sequence.push({ order: sequence.length, source: 'console', ref: order, t: entry.t, name: `console:${entry.type}` });
+      tapMessages.push({
+        order,
+        t: entry.t,
+        type: entry.type,
+        text: entry.text,
+      });
+      sequence.push({
+        order: sequence.length,
+        source: 'console',
+        ref: order,
+        t: entry.t,
+        name: `console:${entry.type}`,
+      });
     } else if (entry.kind === 'record') {
       const order = records.length;
       records.push({
@@ -392,35 +483,56 @@ function buildRecording(input) {
 
   const snapshots = [
     { when: 'initial render', entries: input.first, version: 1 },
-    { when: 'the page’s own rewrite button', entries: input.second, version: 2 },
+    {
+      when: 'the page’s own rewrite button',
+      entries: input.second,
+      version: 2,
+    },
   ];
 
-  const bypassOf = (id) => input.first.find((entry) => entry.id === id)?.bypass ?? null;
+  const bypassOf = (id) =>
+    input.first.find((entry) => entry.id === id)?.bypass ?? null;
 
   const bindings = input.hostIds.map((id) => ({
     id,
     // Read off the host's `data-bypass`, so the declaration is the page's and not the harness's.
     bypass: bypassOf(id),
     writes: snapshots.map((snapshot) => ({
-      ...writeOf(snapshot.entries.find((entry) => entry.id === id) ?? null, snapshot.version),
+      ...writeOf(
+        snapshot.entries.find((entry) => entry.id === id) ?? null,
+        snapshot.version,
+      ),
       when: snapshot.when,
     })),
   }));
 
   const warningMessages = consoleMessages.filter(
-    (message) => message.type === 'warning' && SANITIZER_WARNING.test(message.text),
+    (message) =>
+      message.type === 'warning' && SANITIZER_WARNING.test(message.text),
   );
   const allWrites = bindings.flatMap((binding) =>
-    binding.writes.map((write) => ({ binding: binding.id, bypass: binding.bypass, ...write })),
+    binding.writes.map((write) => ({
+      binding: binding.id,
+      bypass: binding.bypass,
+      ...write,
+    })),
   );
   const lostWrites = allWrites.filter((write) => write.lostContent);
   const wholeWrites = allWrites.filter((write) => write.keptWhole);
 
   // The contrast, measured: a write that lost content and a bypassed write of the very same value.
   const strippedWrite = lostWrites[0] ?? null;
-  const bypassBinding = bindings.find((binding) => VETTED_BYPASS.test(String(binding.bypass ?? ''))) ?? null;
-  const bypassWrite = bypassBinding ? (bypassBinding.writes.find((write) => write.keptWhole) ?? null) : null;
-  const sameValue = strippedWrite !== null && bypassWrite !== null && strippedWrite.value === bypassWrite.value;
+  const bypassBinding =
+    bindings.find((binding) =>
+      VETTED_BYPASS.test(String(binding.bypass ?? '')),
+    ) ?? null;
+  const bypassWrite = bypassBinding
+    ? (bypassBinding.writes.find((write) => write.keptWhole) ?? null)
+    : null;
+  const sameValue =
+    strippedWrite !== null &&
+    bypassWrite !== null &&
+    strippedWrite.value === bypassWrite.value;
 
   const pair = {
     reading:
@@ -430,20 +542,31 @@ function buildRecording(input) {
     documentLoads: input.documentLoads.length,
     sanitizerWarnings: warningMessages.length,
     warningsInThePageTap: tapMessages.filter(
-      (message) => message.type === 'warn' && SANITIZER_WARNING.test(message.text),
+      (message) =>
+        message.type === 'warn' && SANITIZER_WARNING.test(message.text),
     ).length,
     writes: allWrites.length,
     writesThatLostContent: lostWrites.length,
     writesThatKeptTheirValueWhole: wholeWrites.length,
     lostWrites: lostWrites.map((write) => `${write.binding}@${write.version}`),
-    wholeWrites: wholeWrites.map((write) => `${write.binding}@${write.version}`),
-    everyWarningIsAccountedForByALostWrite: warningMessages.length === lostWrites.length,
-    bypassBindings: bindings.filter((binding) => VETTED_BYPASS.test(String(binding.bypass ?? ''))).length,
+    wholeWrites: wholeWrites.map(
+      (write) => `${write.binding}@${write.version}`,
+    ),
+    everyWarningIsAccountedForByALostWrite:
+      warningMessages.length === lostWrites.length,
+    bypassBindings: bindings.filter((binding) =>
+      VETTED_BYPASS.test(String(binding.bypass ?? '')),
+    ).length,
     bypassedKeptItsValueWhole: bypassWrite !== null,
     bypassedValueIsTheValueAStrippedWriteLost: sameValue,
     sameValue: {
-      stripped: strippedWrite ? `${strippedWrite.binding}@${strippedWrite.version}` : null,
-      bypassed: bypassBinding !== null && bypassWrite !== null ? `${bypassBinding.id}@${bypassWrite.version}` : null,
+      stripped: strippedWrite
+        ? `${strippedWrite.binding}@${strippedWrite.version}`
+        : null,
+      bypassed:
+        bypassBinding !== null && bypassWrite !== null
+          ? `${bypassBinding.id}@${bypassWrite.version}`
+          : null,
       identical: sameValue,
     },
     scriptRan: input.sentinels.scriptRan,
@@ -488,13 +611,17 @@ function buildRecording(input) {
       bindings,
     },
     console: {
-      channel: 'CDP Runtime.consoleAPICalled on the measured page load, one event per console call, arguments joined with a space',
-      mainWorldContexts: new Set(input.cdpConsole.map((message) => message.executionContextId)).size,
+      channel:
+        'CDP Runtime.consoleAPICalled on the measured page load, one event per console call, arguments joined with a space',
+      mainWorldContexts: new Set(
+        input.cdpConsole.map((message) => message.executionContextId),
+      ).size,
       count: consoleMessages.length,
       messages: consoleMessages,
     },
     pageTap: {
-      channel: 'in-page tap on console.* at document_start, same page clock (performance.now) as the profiler records',
+      channel:
+        'in-page tap on console.* at document_start, same page clock (performance.now) as the profiler records',
       count: tapMessages.length,
       messages: tapMessages,
     },
@@ -509,7 +636,8 @@ function buildRecording(input) {
     },
     pair,
     order: {
-      clock: 'performance.now() of the measured document; the console tap and the record listener run in that document',
+      clock:
+        'performance.now() of the measured document; the console tap and the record listener run in that document',
       sequence,
     },
   };
@@ -542,14 +670,24 @@ const MUTANTS = {
     '  return { state: NONE, findings: [] };',
     '  return { state: NONE, findings: [], clean: true };',
   ],
-  'deliberate-without-a-bypass': ['    return VETTED_BYPASS.test(named) ? named : null;', '    return named;'],
+  'deliberate-without-a-bypass': [
+    '    return VETTED_BYPASS.test(named) ? named : null;',
+    '    return named;',
+  ],
 };
 
 function mutatedSource(name) {
   const mutation = MUTANTS[name];
-  if (!mutation) throw new Error(`unknown mutant: ${name}; known: ${Object.keys(MUTANTS).join(', ')}`);
+  if (!mutation)
+    throw new Error(
+      `unknown mutant: ${name}; known: ${Object.keys(MUTANTS).join(', ')}`,
+    );
   const source = SRC.replace(mutation[0], mutation[1]);
-  assert.notEqual(source, SRC, `the mutation must change the module: ${JSON.stringify(mutation[0])}`);
+  assert.notEqual(
+    source,
+    SRC,
+    `the mutation must change the module: ${JSON.stringify(mutation[0])}`,
+  );
   return source;
 }
 
@@ -565,7 +703,10 @@ function loadBare(source = MODULE_SOURCE) {
   const context = createContext({});
   runInContext(source, context);
   const api = context.angularAiSanitizerTriage;
-  assert.ok(api, 'the module must publish its namespace on the global object of whatever world it runs in');
+  assert.ok(
+    api,
+    'the module must publish its namespace on the global object of whatever world it runs in',
+  );
   return { api, context };
 }
 
@@ -587,14 +728,20 @@ function reddens(pin, what) {
   } catch (error) {
     failure = error;
   }
-  assert.ok(failure instanceof Error, `${what} passed on the mutant, so the mutation is not caught`);
+  assert.ok(
+    failure instanceof Error,
+    `${what} passed on the mutant, so the mutation is not caught`,
+  );
   return failure;
 }
 
 /** The warnings the capture recorded, on the page clock — the clock the profiler records use. */
 function warningsOf(record) {
   return record.pageTap.messages
-    .filter((message) => message.type === 'warn' && SANITIZER_WARNING.test(message.text))
+    .filter(
+      (message) =>
+        message.type === 'warn' && SANITIZER_WARNING.test(message.text),
+    )
     .map((message) => ({ t: message.t, type: message.type }));
 }
 
@@ -619,7 +766,9 @@ function coveringRecordOf(record, t) {
         typeof candidate.startedAt === 'number' &&
         candidate.startedAt <= t &&
         t <= candidate.t &&
-        candidate.checks.some((check) => TEMPLATE_UPDATE_EVENTS.every((event) => check.events.includes(event))),
+        candidate.checks.some((check) =>
+          TEMPLATE_UPDATE_EVENTS.every((event) => check.events.includes(event)),
+        ),
     ) ?? null
   );
 }
@@ -664,7 +813,18 @@ function assertDeliberate(finding, expected) {
     'the contrast names the pair it was measured on and no other claim',
   );
   const text = JSON.stringify(finding).toLowerCase();
-  for (const word of ['script', 'innerhtml', 'onerror', '<', '>', 'tag', 'attribute', 'removed', 'cause', 'because']) {
+  for (const word of [
+    'script',
+    'innerhtml',
+    'onerror',
+    '<',
+    '>',
+    'tag',
+    'attribute',
+    'removed',
+    'cause',
+    'because',
+  ]) {
     assert.ok(
       !text.includes(word),
       `the deliberate finding must not say "${word}": it copies neither the markup nor a cause — ${text}`,
@@ -684,36 +844,91 @@ function assertDeliberate(finding, expected) {
  * finding, and never reads as clean, safe, ok or as a deliberate bypass.
  */
 function assertAbsenceIsNeither(result) {
-  assert.equal(result.state, 'none', 'a load with no warning is the `none` state and no other');
-  assert.deepEqual(result.findings, [], 'the `none` state carries no finding, deliberate or otherwise');
+  assert.equal(
+    result.state,
+    'none',
+    'a load with no warning is the `none` state and no other',
+  );
+  assert.deepEqual(
+    result.findings,
+    [],
+    'the `none` state carries no finding, deliberate or otherwise',
+  );
   const text = JSON.stringify(host(result)).toLowerCase();
-  for (const word of ['clean', 'safe', 'ok', 'fine', 'nothing', 'passed', 'unaffected']) {
+  for (const word of [
+    'clean',
+    'safe',
+    'ok',
+    'fine',
+    'nothing',
+    'passed',
+    'unaffected',
+  ]) {
     assert.ok(
       !text.includes(word),
       `the absence must not be reported as "${word}": a warning that did not appear is not a measurement of the page (N3)`,
     );
   }
-  assert.notEqual(result.state, 'deliberate', 'a page with no warning is not a deliberate bypass (N3)');
-  assert.notEqual(result.state, 'stripped', 'no warning must never be reported as a strip');
-  assert.notEqual(result.state, 'cannot-tell', 'no warning at all is a different absence than no record');
-  assert.deepEqual(Object.keys(result).sort(), ['findings', 'state'], 'the absence states the state and the findings');
+  assert.notEqual(
+    result.state,
+    'deliberate',
+    'a page with no warning is not a deliberate bypass (N3)',
+  );
+  assert.notEqual(
+    result.state,
+    'stripped',
+    'no warning must never be reported as a strip',
+  );
+  assert.notEqual(
+    result.state,
+    'cannot-tell',
+    'no warning at all is a different absence than no record',
+  );
+  assert.deepEqual(
+    Object.keys(result).sort(),
+    ['findings', 'state'],
+    'the absence states the state and the findings',
+  );
 }
 
 // ---------------------------------------------------------------- the capture ----------------
 
 test('the capture is one page load of the three-binding fixture, and its two console channels agree', async (t) => {
   const record = await captured();
-  if (RECORD_PATH !== null) writeFileSync(RECORD_PATH, `${JSON.stringify(record, null, 2)}\n`);
+  if (RECORD_PATH !== null)
+    writeFileSync(RECORD_PATH, `${JSON.stringify(record, null, 2)}\n`);
 
-  assert.equal(record.fixture.pageLoads, 1, 'the recording must describe one page load');
-  assert.equal(record.fixture.documentLoads, 1, `one document, not ${record.fixture.documentLoads}: ${JSON.stringify(record.fixture.loads)}`);
-  assert.equal(record.console.mainWorldContexts, 1, 'a page that reloaded mid-capture is not one page load');
+  assert.equal(
+    record.fixture.pageLoads,
+    1,
+    'the recording must describe one page load',
+  );
+  assert.equal(
+    record.fixture.documentLoads,
+    1,
+    `one document, not ${record.fixture.documentLoads}: ${JSON.stringify(record.fixture.loads)}`,
+  );
+  assert.equal(
+    record.console.mainWorldContexts,
+    1,
+    'a page that reloaded mid-capture is not one page load',
+  );
 
   // Three hosts, read off the page: one stripped, one safe, one bypassed. Nothing here is a hand-written
   // list — the ids are the DOM's and the bypass names are the hosts' own `data-bypass` attributes.
-  assert.equal(record.fixture.hosts.length, 3, `the fixture must have three bindings: ${JSON.stringify(record.fixture.hosts)}`);
-  const bypassed = record.fixture.bindings.filter((binding) => VETTED_BYPASS.test(String(binding.bypass ?? '')));
-  assert.equal(bypassed.length, 1, 'exactly one binding must declare a `bypassSecurityTrust*` call');
+  assert.equal(
+    record.fixture.hosts.length,
+    3,
+    `the fixture must have three bindings: ${JSON.stringify(record.fixture.hosts)}`,
+  );
+  const bypassed = record.fixture.bindings.filter((binding) =>
+    VETTED_BYPASS.test(String(binding.bypass ?? '')),
+  );
+  assert.equal(
+    bypassed.length,
+    1,
+    'exactly one binding must declare a `bypassSecurityTrust*` call',
+  );
   assert.equal(
     record.fixture.bindings.filter((binding) => binding.bypass === null).length,
     2,
@@ -733,14 +948,35 @@ test('the capture is one page load of the three-binding fixture, and its two con
   );
   for (const [index, tap] of tapMessages.entries()) {
     const browser = browserMessages[index];
-    assert.equal(TAP_TYPE_TO_CDP[tap.type], browser.type, `message ${index} differs in type between the two channels`);
-    assert.equal(tap.text, browser.text, `message ${index} differs between the two channels`);
+    assert.equal(
+      TAP_TYPE_TO_CDP[tap.type],
+      browser.type,
+      `message ${index} differs in type between the two channels`,
+    );
+    assert.equal(
+      tap.text,
+      browser.text,
+      `message ${index} differs between the two channels`,
+    );
   }
   for (const message of browserMessages) {
     if (message.type !== 'warning') continue;
-    assert.match(message.text, SANITIZER_WARNING, `a warning was recorded that is not the sanitizer's: ${message.text}`);
-    for (const name of ['innerHTML', 'data-bound', 'data-bypass', 'TrustBypass', ...record.fixture.hosts]) {
-      assert.ok(!message.text.includes(name), `the sanitizer warning names ${name}; it names nothing`);
+    assert.match(
+      message.text,
+      SANITIZER_WARNING,
+      `a warning was recorded that is not the sanitizer's: ${message.text}`,
+    );
+    for (const name of [
+      'innerHTML',
+      'data-bound',
+      'data-bypass',
+      'TrustBypass',
+      ...record.fixture.hosts,
+    ]) {
+      assert.ok(
+        !message.text.includes(name),
+        `the sanitizer warning names ${name}; it names nothing`,
+      );
     }
   }
   t.diagnostic(
@@ -751,17 +987,50 @@ test('the capture is one page load of the three-binding fixture, and its two con
 
 test('provenance names the build, the URL, the time and the exact commands', async () => {
   const record = await captured();
-  assert.match(record.browserBuild, /^\d+\.\d+\.\d+\.\d+$/, `browserBuild is not a Chromium build: ${record.browserBuild}`);
-  assert.ok(record.browser.includes(record.browserBuild), 'browser must name the build in browserBuild');
+  assert.match(
+    record.browserBuild,
+    /^\d+\.\d+\.\d+\.\d+$/,
+    `browserBuild is not a Chromium build: ${record.browserBuild}`,
+  );
+  assert.ok(
+    record.browser.includes(record.browserBuild),
+    'browser must name the build in browserBuild',
+  );
   assert.equal(record.instance, 'headless');
-  assert.match(record.url, /^http:\/\/127\.0\.0\.1:\d+\/trust-bypass$/, `url is not the fixture route: ${record.url}`);
+  assert.match(
+    record.url,
+    /^http:\/\/127\.0\.0\.1:\d+\/trust-bypass$/,
+    `url is not the fixture route: ${record.url}`,
+  );
   assert.equal(record.url, record.pageUrl);
-  assert.match(record.capturedAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/, 'capturedAt must be an ISO timestamp');
-  assert.match(record.capturedAt, /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/, 'capturedAt must be the capture time, in UTC');
-  for (const key of ['install', 'installApp', 'serve', 'capture', 'check', 'record', 'mutants']) {
-    assert.ok(typeof record.commands[key] === 'string' && record.commands[key] !== '', `missing command: ${key}`);
+  assert.match(
+    record.capturedAt,
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/,
+    'capturedAt must be an ISO timestamp',
+  );
+  assert.match(
+    record.capturedAt,
+    /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/,
+    'capturedAt must be the capture time, in UTC',
+  );
+  for (const key of [
+    'install',
+    'installApp',
+    'serve',
+    'capture',
+    'check',
+    'record',
+    'mutants',
+  ]) {
+    assert.ok(
+      typeof record.commands[key] === 'string' && record.commands[key] !== '',
+      `missing command: ${key}`,
+    );
   }
-  assert.match(record.commands.capture, /node --test scripts\/sanitizer-bypass\.test\.mjs/);
+  assert.match(
+    record.commands.capture,
+    /node --test scripts\/sanitizer-bypass\.test\.mjs/,
+  );
   assert.match(record.commands.serve, /ng\.js serve/);
   assert.match(record.commands.mutants, /M029_BYPASS_MUTANT/);
   assert.equal(record.environment.node, process.version);
@@ -775,13 +1044,19 @@ test('the pair: the stripped binding warned and the bypassed binding did not, in
   const pair = record.pair;
 
   // The presence: warnings, one per write that lost content, in the same load as the silence.
-  assert.ok(pair.sanitizerWarnings > 0, 'the capture holds no sanitizer warning, so there is no presence to contrast');
+  assert.ok(
+    pair.sanitizerWarnings > 0,
+    'the capture holds no sanitizer warning, so there is no presence to contrast',
+  );
   assert.equal(
     pair.sanitizerWarnings,
     pair.warningsInThePageTap,
     'the browser list and the page tap must hold the same warnings',
   );
-  assert.ok(pair.lostWrites.length > 0, 'no write lost content, so nothing was stripped and there is no presence');
+  assert.ok(
+    pair.lostWrites.length > 0,
+    'no write lost content, so nothing was stripped and there is no presence',
+  );
   assert.equal(
     pair.sanitizerWarnings,
     pair.writesThatLostContent,
@@ -789,39 +1064,77 @@ test('the pair: the stripped binding warned and the bypassed binding did not, in
       'the warning fires once per sanitize call that strips, so every warning is accounted for and none is left for a write that kept its value',
   );
   for (const id of pair.lostWrites) {
-    const binding = record.fixture.bindings.find((candidate) => id.startsWith(`${candidate.id}@`));
-    assert.ok(binding, `the recording names a write (${id}) of no binding it holds`);
-    assert.equal(binding.bypass, null, `the write that lost content (${id}) must be a sanitized binding, or the contrast is not about a bypass`);
+    const binding = record.fixture.bindings.find((candidate) =>
+      id.startsWith(`${candidate.id}@`),
+    );
+    assert.ok(
+      binding,
+      `the recording names a write (${id}) of no binding it holds`,
+    );
+    assert.equal(
+      binding.bypass,
+      null,
+      `the write that lost content (${id}) must be a sanitized binding, or the contrast is not about a bypass`,
+    );
   }
 
   // The absence, next to it: the bypassed binding wrote the same value, the sanitizer left it whole, and
   // no warning was left over for it.
-  assert.equal(pair.bypassBindings, 1, 'exactly one binding must declare a `bypassSecurityTrust*` call');
-  assert.equal(pair.bypassedKeptItsValueWhole, true, 'the bypassed write must keep its value whole');
+  assert.equal(
+    pair.bypassBindings,
+    1,
+    'exactly one binding must declare a `bypassSecurityTrust*` call',
+  );
+  assert.equal(
+    pair.bypassedKeptItsValueWhole,
+    true,
+    'the bypassed write must keep its value whole',
+  );
   assert.equal(
     pair.bypassedValueIsTheValueAStrippedWriteLost,
     true,
     `the bypassed value must be the value a stripped write lost, or the sanitizer would not have warned for it: ${JSON.stringify(pair.sameValue)}`,
   );
-  const bypassed = record.fixture.bindings.find((binding) => VETTED_BYPASS.test(String(binding.bypass ?? '')));
+  const bypassed = record.fixture.bindings.find((binding) =>
+    VETTED_BYPASS.test(String(binding.bypass ?? '')),
+  );
   assert.ok(bypassed, 'the capture holds no bypassed binding');
   for (const write of bypassed.writes) {
-    assert.ok(write.scriptInValue, `the bypassed write ${write.version} must carry the markup the sanitizer would strip`);
+    assert.ok(
+      write.scriptInValue,
+      `the bypassed write ${write.version} must carry the markup the sanitizer would strip`,
+    );
     assert.equal(
       write.scriptInRendered,
       true,
       `the bypassed write ${write.version} lost its markup: the bypass was not applied, so the absence is not the bypass's`,
     );
-    assert.equal(write.rendered, write.value, `the bypassed write ${write.version} is not its value, byte for byte`);
+    assert.equal(
+      write.rendered,
+      write.value,
+      `the bypassed write ${write.version} is not its value, byte for byte`,
+    );
   }
   // The stripped twin: the same value, the script gone. The sanitizer would have warned for the bypassed
   // value, because it did warn for this one.
   const [strippedId, strippedVersion] = pair.sameValue.stripped.split('@');
-  const stripped = record.fixture.bindings.find((binding) => binding.id === strippedId);
-  const strippedWrite = stripped.writes.find((write) => write.version === Number(strippedVersion));
+  const stripped = record.fixture.bindings.find(
+    (binding) => binding.id === strippedId,
+  );
+  const strippedWrite = stripped.writes.find(
+    (write) => write.version === Number(strippedVersion),
+  );
   const bypassWrite = bypassed.writes.find((write) => write.keptWhole);
-  assert.equal(strippedWrite.value, bypassWrite.value, 'the two values must be identical');
-  assert.equal(strippedWrite.scriptInRendered, false, 'the stripped write must have lost its script element');
+  assert.equal(
+    strippedWrite.value,
+    bypassWrite.value,
+    'the two values must be identical',
+  );
+  assert.equal(
+    strippedWrite.scriptInRendered,
+    false,
+    'the stripped write must have lost its script element',
+  );
   assert.equal(
     pair.scriptRan,
     false,
@@ -839,14 +1152,29 @@ test('the pair: the stripped binding warned and the bypassed binding did not, in
 test('the module reports the bypass as deliberate, and the same load still reports the strip', async (t) => {
   const record = await captured();
   const { api } = loadBare();
-  const result = host(api.join(warningsOf(record), record.profiler.records, bindingsOf(record)));
-  const bypassed = record.fixture.bindings.find((binding) => VETTED_BYPASS.test(String(binding.bypass ?? '')));
+  const result = host(
+    api.join(warningsOf(record), record.profiler.records, bindingsOf(record)),
+  );
+  const bypassed = record.fixture.bindings.find((binding) =>
+    VETTED_BYPASS.test(String(binding.bypass ?? '')),
+  );
   const bypassWrite = bypassed.writes.find((write) => write.keptWhole);
-  const [strippedId, strippedVersion] = record.pair.sameValue.stripped.split('@');
+  const [strippedId, strippedVersion] =
+    record.pair.sameValue.stripped.split('@');
 
-  assert.equal(result.state, 'stripped', 'a placed strip outranks the measured bypass, and this load placed one');
-  const deliberate = result.findings.filter((finding) => finding.state === 'deliberate');
-  assert.equal(deliberate.length, 1, `the load must report exactly one deliberate bypass: ${JSON.stringify(result.findings)}`);
+  assert.equal(
+    result.state,
+    'stripped',
+    'a placed strip outranks the measured bypass, and this load placed one',
+  );
+  const deliberate = result.findings.filter(
+    (finding) => finding.state === 'deliberate',
+  );
+  assert.equal(
+    deliberate.length,
+    1,
+    `the load must report exactly one deliberate bypass: ${JSON.stringify(result.findings)}`,
+  );
   assertDeliberate(deliberate[0], {
     binding: bypassed.bypass,
     contrast: {
@@ -860,34 +1188,55 @@ test('the module reports the bypass as deliberate, and the same load still repor
   // The warning findings are still the warning findings: one per warning, in the recorded order, and the
   // deliberate finding was not folded into one of them.
   const warnings = warningsOf(record);
-  assert.equal(result.findings.length, warnings.length + 1, 'one finding per warning, plus one per measured bypass');
+  assert.equal(
+    result.findings.length,
+    warnings.length + 1,
+    'one finding per warning, plus one per measured bypass',
+  );
   for (const [index, warning] of warnings.entries()) {
     const covering = coveringRecordOf(record, warning.t);
     if (covering === null) {
-      assert.equal(result.findings[index].state, 'cannot-tell', `warning ${index} has no covering record`);
+      assert.equal(
+        result.findings[index].state,
+        'cannot-tell',
+        `warning ${index} has no covering record`,
+      );
       assert.equal(result.findings[index].at, warning.t);
       continue;
     }
-    assert.equal(result.findings[index].state, 'stripped', `warning ${index} falls inside cycle ${covering.cycleId}`);
+    assert.equal(
+      result.findings[index].state,
+      'stripped',
+      `warning ${index} falls inside cycle ${covering.cycleId}`,
+    );
     assert.equal(result.findings[index].at, warning.t);
     assert.deepEqual(
       result.findings[index].components,
       covering.checks
-        .filter((check) => TEMPLATE_UPDATE_EVENTS.every((event) => check.events.includes(event)))
+        .filter((check) =>
+          TEMPLATE_UPDATE_EVENTS.every((event) => check.events.includes(event)),
+        )
         .map((check) => check.componentName),
     );
-    assert.equal('binding' in result.findings[index], false, 'the measured record carries no binding, so the finding must name none');
+    assert.equal(
+      'binding' in result.findings[index],
+      false,
+      'the measured record carries no binding, so the finding must name none',
+    );
   }
 
   // The control — the same attribute, no bypass, no strip — is never reported deliberately, and neither is
   // any binding that declares no `bypassSecurityTrust*` call.
   assert.deepEqual(
-    result.findings.filter((finding) => finding.state === 'deliberate').map((finding) => finding.binding),
+    result.findings
+      .filter((finding) => finding.state === 'deliberate')
+      .map((finding) => finding.binding),
     [bypassed.bypass],
     'only the binding that declares a vetted bypass may be reported deliberate',
   );
   assert.ok(
-    record.fixture.bindings.filter((binding) => binding.bypass === null).length === 2,
+    record.fixture.bindings.filter((binding) => binding.bypass === null)
+      .length === 2,
     'the fixture must hold two sanitized bindings beside the bypassed one',
   );
 
@@ -905,20 +1254,30 @@ test('deliberate is the load’s answer only beside a presence, and the same bin
 
   // A load whose warnings could not be placed anywhere still reports the measured bypass: the absence is
   // stated as deliberate only where a warning exists in the same lists.
-  const unplaced = warningsOf(record).filter((warning) => coveringRecordOf(record, warning.t) === null);
+  const unplaced = warningsOf(record).filter(
+    (warning) => coveringRecordOf(record, warning.t) === null,
+  );
   assert.ok(
     unplaced.length > 0,
     'the capture must hold at least one warning with no covering record — the agent’s subscription lands after the first render',
   );
-  const onlyUnplaced = host(api.join(unplaced, record.profiler.records, bindings));
-  assert.equal(onlyUnplaced.state, 'deliberate', 'the load’s strongest positive answer is the measured bypass');
+  const onlyUnplaced = host(
+    api.join(unplaced, record.profiler.records, bindings),
+  );
   assert.equal(
-    onlyUnplaced.findings.filter((finding) => finding.state === 'cannot-tell').length,
+    onlyUnplaced.state,
+    'deliberate',
+    'the load’s strongest positive answer is the measured bypass',
+  );
+  assert.equal(
+    onlyUnplaced.findings.filter((finding) => finding.state === 'cannot-tell')
+      .length,
     unplaced.length,
     'the unplaceable warnings are still reported, one finding each',
   );
   assert.equal(
-    onlyUnplaced.findings.filter((finding) => finding.state === 'deliberate').length,
+    onlyUnplaced.findings.filter((finding) => finding.state === 'deliberate')
+      .length,
     1,
     'the measured bypass is reported beside them',
   );
@@ -937,22 +1296,44 @@ test('deliberate is the load’s answer only beside a presence, and the same bin
 test('held-out M1: reporting the bypass as stripped reddens the deliberate pin', async (t) => {
   const record = await captured();
   const api = mutant('bypass-as-stripped');
-  const result = host(api.join(warningsOf(record), record.profiler.records, bindingsOf(record)));
-  const bypassed = result.findings.find(
-    (finding) => typeof finding.binding === 'string' && VETTED_BYPASS.test(finding.binding),
+  const result = host(
+    api.join(warningsOf(record), record.profiler.records, bindingsOf(record)),
   );
-  assert.ok(bypassed, 'the mutant must still report the bypass, or it is not the mutation this pin exists to catch');
-  assert.equal(bypassed.state, 'stripped', 'the mutant must report the bypassed binding as a strip');
+  const bypassed = result.findings.find(
+    (finding) =>
+      typeof finding.binding === 'string' &&
+      VETTED_BYPASS.test(finding.binding),
+  );
+  assert.ok(
+    bypassed,
+    'the mutant must still report the bypass, or it is not the mutation this pin exists to catch',
+  );
+  assert.equal(
+    bypassed.state,
+    'stripped',
+    'the mutant must report the bypassed binding as a strip',
+  );
   const failure = reddens(
-    () => assertDeliberate(bypassed, { binding: bypassed.binding, contrast: bypassed.contrast ?? {} }),
+    () =>
+      assertDeliberate(bypassed, {
+        binding: bypassed.binding,
+        contrast: bypassed.contrast ?? {},
+      }),
     'reporting the bypass as stripped',
   );
   t.diagnostic(`M1 bypass-as-stripped: ${failure.message.split('\n')[0]}`);
 
   // The module on disk was never written, so reloading it restores the pin.
-  const reloaded = host(loadBare(SRC).api.join(warningsOf(record), record.profiler.records, bindingsOf(record)));
+  const reloaded = host(
+    loadBare(SRC).api.join(
+      warningsOf(record),
+      record.profiler.records,
+      bindingsOf(record),
+    ),
+  );
   assert.equal(
-    reloaded.findings.filter((finding) => finding.state === 'deliberate').length,
+    reloaded.findings.filter((finding) => finding.state === 'deliberate')
+      .length,
     1,
     'reloading the untouched module must restore the deliberate finding',
   );
@@ -961,16 +1342,25 @@ test('held-out M1: reporting the bypass as stripped reddens the deliberate pin',
 test('held-out M2: reporting a page with no warning as clean reddens the N3 pin', async (t) => {
   const record = await captured();
   const api = mutant('no-warning-as-clean');
-  const result = host(api.join([], record.profiler.records, bindingsOf(record)));
+  const result = host(
+    api.join([], record.profiler.records, bindingsOf(record)),
+  );
   assert.match(
     JSON.stringify(result),
     /clean/,
     'the mutant must claim the page is clean, or it is not the mutation N3 exists to catch',
   );
-  const failure = reddens(() => assertAbsenceIsNeither(result), 'reporting a page with no warning as clean');
+  const failure = reddens(
+    () => assertAbsenceIsNeither(result),
+    'reporting a page with no warning as clean',
+  );
   t.diagnostic(`M2 no-warning-as-clean: ${failure.message.split('\n')[0]}`);
 
-  assertAbsenceIsNeither(host(loadBare(SRC).api.join([], record.profiler.records, bindingsOf(record))));
+  assertAbsenceIsNeither(
+    host(
+      loadBare(SRC).api.join([], record.profiler.records, bindingsOf(record)),
+    ),
+  );
 });
 
 test('held-out M3: reporting deliberate for a non-bypassSecurityTrust* binding reddens', async (t) => {
@@ -978,28 +1368,57 @@ test('held-out M3: reporting deliberate for a non-bypassSecurityTrust* binding r
   // The capture's own bindings, with the bypass binding relabelled as the attribute it is written
   // through: a label that names no `bypassSecurityTrust*` call is not a vetted bypass.
   const relabelled = bindingsOf(record).map((binding) =>
-    VETTED_BYPASS.test(String(binding.bypass ?? '')) ? { ...binding, bypass: 'innerHtml' } : binding,
+    VETTED_BYPASS.test(String(binding.bypass ?? ''))
+      ? { ...binding, bypass: 'innerHtml' }
+      : binding,
   );
   const pin = (api) => {
-    const result = host(api.join(warningsOf(record), record.profiler.records, relabelled));
+    const result = host(
+      api.join(warningsOf(record), record.profiler.records, relabelled),
+    );
     assert.equal(
-      result.findings.filter((finding) => finding.state === 'deliberate').length,
+      result.findings.filter((finding) => finding.state === 'deliberate')
+        .length,
       0,
       'a binding that declares no `bypassSecurityTrust*` call must never be reported deliberate',
     );
-    assert.notEqual(result.state, 'deliberate', 'and the load must not answer deliberate for one');
+    assert.notEqual(
+      result.state,
+      'deliberate',
+      'and the load must not answer deliberate for one',
+    );
     return result;
   };
 
-  assert.equal(pin(loadBare(SRC).api).state, 'stripped', 'the strip is still placed for the relabelled page');
+  assert.equal(
+    pin(loadBare(SRC).api).state,
+    'stripped',
+    'the strip is still placed for the relabelled page',
+  );
 
   const api = mutant('deliberate-without-a-bypass');
-  const result = host(api.join(warningsOf(record), record.profiler.records, relabelled));
-  const bypassed = result.findings.find((finding) => finding.state === 'deliberate');
-  assert.ok(bypassed, 'the mutant must report the relabelled binding as deliberate');
-  assert.equal(bypassed.binding, 'innerHtml', 'the mutant names the label it was handed');
-  const failure = reddens(() => pin(api), 'reporting deliberate for a non-bypassSecurityTrust* binding');
-  t.diagnostic(`M3 deliberate-without-a-bypass: ${failure.message.split('\n')[0]}`);
+  const result = host(
+    api.join(warningsOf(record), record.profiler.records, relabelled),
+  );
+  const bypassed = result.findings.find(
+    (finding) => finding.state === 'deliberate',
+  );
+  assert.ok(
+    bypassed,
+    'the mutant must report the relabelled binding as deliberate',
+  );
+  assert.equal(
+    bypassed.binding,
+    'innerHtml',
+    'the mutant names the label it was handed',
+  );
+  const failure = reddens(
+    () => pin(api),
+    'reporting deliberate for a non-bypassSecurityTrust* binding',
+  );
+  t.diagnostic(
+    `M3 deliberate-without-a-bypass: ${failure.message.split('\n')[0]}`,
+  );
 
   // The run's own module over the same relabelled bindings: green on the file, and the case this suite
   // is red on when it is started with M029_BYPASS_MUTANT=deliberate-without-a-bypass.
@@ -1015,15 +1434,27 @@ test('the module answers from the three lists it is given and installs nothing o
     calls.push(name);
   };
   const context = createContext({
-    console: { log: spy('console.log'), warn: spy('console.warn'), error: spy('console.error'), info: spy('console.info'), debug: spy('console.debug') },
+    console: {
+      log: spy('console.log'),
+      warn: spy('console.warn'),
+      error: spy('console.error'),
+      info: spy('console.info'),
+      debug: spy('console.debug'),
+    },
     ng: { ɵsetProfiler: spy('ɵsetProfiler') },
     performance: { now: spy('performance.now') },
   });
   runInContext(SRC, context);
   const api = context.angularAiSanitizerTriage;
-  host(api.join(warningsOf(record), record.profiler.records, bindingsOf(record)));
+  host(
+    api.join(warningsOf(record), record.profiler.records, bindingsOf(record)),
+  );
   host(api.join([], record.profiler.records, bindingsOf(record)));
-  assert.deepEqual(calls, [], 'joining must not read the console, subscribe to the profiler or read the clock (N1)');
+  assert.deepEqual(
+    calls,
+    [],
+    'joining must not read the console, subscribe to the profiler or read the clock (N1)',
+  );
 });
 
 test('the three lists it was given are left exactly as they were (N1)', async () => {
@@ -1034,5 +1465,9 @@ test('the three lists it was given are left exactly as they were (N1)', async ()
   const before = JSON.stringify([warnings, records, bindings]);
   const { api } = loadBare();
   host(api.join(warnings, records, bindings));
-  assert.equal(JSON.stringify([warnings, records, bindings]), before, 'joining must not write to the lists it reads');
+  assert.equal(
+    JSON.stringify([warnings, records, bindings]),
+    before,
+    'joining must not write to the lists it reads',
+  );
 });

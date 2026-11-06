@@ -25,7 +25,10 @@ describe('ExtensionMessageService', () => {
           },
         },
         // The panel asks the background (which asks the relay) once, at construction.
-        sendMessage(msg: SentRequest, callback?: (reply: unknown) => void): void {
+        sendMessage(
+          msg: SentRequest,
+          callback?: (reply: unknown) => void,
+        ): void {
           requests.push(msg);
           callback?.({ ok: true });
         },
@@ -42,12 +45,19 @@ describe('ExtensionMessageService', () => {
     const causes = TestBed.inject(UpdateCauseService);
     deliver({ type: 'angular-detected', version: '19.0.0', tabId: 6 });
     deliver({ type: 'angular-detected', version: '22.2.2', tabId: 5 });
-    expect(causes.recorded().map((c) => c.reason)).toEqual(['v22.2.2 detected']);
+    expect(causes.recorded().map((c) => c.reason)).toEqual([
+      'v22.2.2 detected',
+    ]);
   });
 
   it('forwards recorded cycles', () => {
     const causes = TestBed.inject(UpdateCauseService);
-    const cycle = { cycleId: 1, startedAt: 10, trigger: { kind: 'output', listenerName: 'click' }, checks: [{ componentName: 'Cmp', events: [] }] };
+    const cycle = {
+      cycleId: 1,
+      startedAt: 10,
+      trigger: { kind: 'output', listenerName: 'click' },
+      checks: [{ componentName: 'Cmp', events: [] }],
+    };
     deliver({ type: 'angular-ai:record', cycle, tabId: 5 });
     expect(causes.recordedCycles().length).toBe(1);
     expect(causes.recordedCycles()[0]!.cycleId).toBe(1);
@@ -55,7 +65,12 @@ describe('ExtensionMessageService', () => {
 
   it('deduplicates recorded cycles with the same cycleId', () => {
     const causes = TestBed.inject(UpdateCauseService);
-    const cycle = { cycleId: 7, startedAt: 10, trigger: { kind: 'output', listenerName: 'click' }, checks: [{ componentName: 'Cmp', events: [] }] };
+    const cycle = {
+      cycleId: 7,
+      startedAt: 10,
+      trigger: { kind: 'output', listenerName: 'click' },
+      checks: [{ componentName: 'Cmp', events: [] }],
+    };
     deliver({ type: 'angular-ai:record', cycle, tabId: 5 });
     deliver({ type: 'angular-ai:record', cycle, tabId: 5 });
     expect(causes.recordedCycles().length).toBe(1);
@@ -70,7 +85,12 @@ describe('ExtensionMessageService', () => {
 
   it('marks the page not supported from angular-ai:state with supported:false', () => {
     const ext = TestBed.inject(ExtensionMessageService);
-    deliver({ type: 'angular-ai:state', supported: false, reason: 'no profiler', tabId: 5 });
+    deliver({
+      type: 'angular-ai:state',
+      supported: false,
+      reason: 'no profiler',
+      tabId: 5,
+    });
     expect(ext.notSupported()).toBe(true);
     expect(ext.notSupportedReason()).toBe('no profiler');
   });
@@ -78,9 +98,19 @@ describe('ExtensionMessageService', () => {
   it('ignores messages for another tab', () => {
     const causes = TestBed.inject(UpdateCauseService);
     const ext = TestBed.inject(ExtensionMessageService);
-    const cycle = { cycleId: 9, startedAt: 10, trigger: { kind: 'output', listenerName: 'click' }, checks: [{ componentName: 'Cmp', events: [] }] };
+    const cycle = {
+      cycleId: 9,
+      startedAt: 10,
+      trigger: { kind: 'output', listenerName: 'click' },
+      checks: [{ componentName: 'Cmp', events: [] }],
+    };
     deliver({ type: 'angular-ai:record', cycle, tabId: 6 });
-    deliver({ type: 'angular-ai:state', supported: false, reason: 'no profiler', tabId: 6 });
+    deliver({
+      type: 'angular-ai:state',
+      supported: false,
+      reason: 'no profiler',
+      tabId: 6,
+    });
     expect(causes.recordedCycles().length).toBe(0);
     expect(ext.stateReceived()).toBe(false);
   });
@@ -104,7 +134,13 @@ describe('ExtensionMessageService', () => {
       getInjectorMetadata: true,
       getInjectorProviders: false,
     };
-    deliver({ type: 'angular-ai:state', supported: true, zoneMode: 'noop', features, tabId: 5 });
+    deliver({
+      type: 'angular-ai:state',
+      supported: true,
+      zoneMode: 'noop',
+      features,
+      tabId: 5,
+    });
     expect(ext.features()).toEqual(features);
     expect(ext.zoneMode()).toBe('noop');
     // The existing behaviour is untouched: a supported page still flips neither negative signal.
@@ -144,9 +180,20 @@ describe('ExtensionMessageService', () => {
 
   it('keeps the record absent answer as its own state, not as a missing answer (E2)', () => {
     const ext = TestBed.inject(ExtensionMessageService);
-    const absent = { state: 'absent', version: null, declared: 0, resolved: 0, symbols: [] };
+    const absent = {
+      state: 'absent',
+      version: null,
+      declared: 0,
+      resolved: 0,
+      symbols: [],
+    };
 
-    deliver({ type: 'angular-ai:state', supported: true, companion: absent, tabId: 5 });
+    deliver({
+      type: 'angular-ai:state',
+      supported: true,
+      companion: absent,
+      tabId: 5,
+    });
 
     // The page answered, and its answer is "no entry": that is a state the surface names, not the
     // `null` that renders as "the panel has not been told".
@@ -172,7 +219,12 @@ describe('ExtensionMessageService', () => {
       null,
       [1, 2, 3],
     ]) {
-      deliver({ type: 'angular-ai:state', supported: true, companion, tabId: 5 });
+      deliver({
+        type: 'angular-ai:state',
+        supported: true,
+        companion,
+        tabId: 5,
+      });
       expect(ext.companion(), JSON.stringify(companion)).toBeNull();
     }
   });
@@ -227,14 +279,57 @@ describe('ExtensionMessageService', () => {
   it('writes a replayed state and version through all four signals', () => {
     const ext = TestBed.inject(ExtensionMessageService);
     expect(requests.length).toBe(1);
-    const features = { setProfiler: true, getSignalGraph: false, getInjector: true };
+    const features = {
+      setProfiler: true,
+      getSignalGraph: false,
+      getInjector: true,
+    };
     // What the background re-emits for a latched state, then for a latched version.
-    deliver({ type: 'angular-ai:state', supported: true, zoneMode: 'zone.js', features, tabId: 5 });
+    deliver({
+      type: 'angular-ai:state',
+      supported: true,
+      zoneMode: 'zone.js',
+      features,
+      tabId: 5,
+    });
     deliver({ type: 'angular-detected', version: '22.1.4', tabId: 5 });
     expect(ext.features()).toEqual(features);
     expect(ext.zoneMode()).toBe('zone.js');
     expect(ext.stateReceived()).toBe(true);
     expect(ext.appVersion()).toBe('22.1.4');
+  });
+
+  it('records the replay as failed when the callback fires with no reply', () => {
+    // The outer `beforeEach` already injected the service, so TestBed is
+    // instantiated; reset it before configuring this scenario's chrome.
+    TestBed.resetTestingModule();
+    // The `beforeEach` service already asked once; this scenario counts its own.
+    requests.length = 0;
+    // `chrome.runtime.sendMessage` invokes the callback with `undefined` when no
+    // listener answers the request. An absent reply means nobody answered: it is
+    // a failed replay, not an answered one.
+    globalChrome.chrome = {
+      devtools: { inspectedWindow: { tabId: 5 } },
+      runtime: {
+        onMessage: {
+          addListener(): void {
+            /* nothing listens in this scenario */
+          },
+        },
+        sendMessage(
+          msg: SentRequest,
+          callback?: (reply: unknown) => void,
+        ): void {
+          requests.push(msg);
+          if (callback) callback(undefined);
+        },
+      },
+    };
+    TestBed.configureTestingModule({});
+    const ext = TestBed.inject(ExtensionMessageService);
+    expect(requests).toEqual([{ type: 'angular-ai:state-request', tabId: 5 }]);
+    expect(ext.replayOutcome()).toBe('failed');
+    expect(ext.stateReceived()).toBe(false);
   });
 
   it('records the replay as answered from a reply that is not { ok: false }', () => {
@@ -256,7 +351,10 @@ describe('ExtensionMessageService', () => {
           },
         },
         // A background that has not answered yet: the callback is kept, never called.
-        sendMessage(msg: SentRequest, callback?: (reply: unknown) => void): void {
+        sendMessage(
+          msg: SentRequest,
+          callback?: (reply: unknown) => void,
+        ): void {
           requests.push(msg);
           if (callback) pending.push(callback);
         },
@@ -288,10 +386,16 @@ describe('ExtensionMessageService', () => {
             deliver = cb;
           },
         },
-        sendMessage(msg: SentRequest, callback?: (reply: unknown) => void): void {
+        sendMessage(
+          msg: SentRequest,
+          callback?: (reply: unknown) => void,
+        ): void {
           requests.push(msg);
           // What `background.js` answers when no relay responded for the tab.
-          callback?.({ ok: false, reason: 'angular-ai:state-request: no relay answered for tab 5' });
+          callback?.({
+            ok: false,
+            reason: 'angular-ai:state-request: no relay answered for tab 5',
+          });
         },
       },
     };
@@ -373,7 +477,9 @@ describe('ExtensionMessageService', () => {
     expect(requests.length).toBe(1);
     // A transport that cannot ask will never answer, so the replay is named failed rather than
     // left outstanding forever.
-    expect(TestBed.inject(ExtensionMessageService).replayOutcome()).toBe('failed');
+    expect(TestBed.inject(ExtensionMessageService).replayOutcome()).toBe(
+      'failed',
+    );
   });
 
   // The picker's transport (T007). The page's overlay publishes the state and the resolved
@@ -394,22 +500,53 @@ describe('ExtensionMessageService', () => {
     deliver({ type: 'angular-ai:picker-state', status: 'armed', tabId: 5 });
     expect(ext.pickerState()).toEqual({ status: 'armed', reason: null });
 
-    deliver({ type: 'angular-ai:picker-state', status: 'cancelled', reason: 'cancelled from the panel', tabId: 5 });
-    expect(ext.pickerState()).toEqual({ status: 'cancelled', reason: 'cancelled from the panel' });
+    deliver({
+      type: 'angular-ai:picker-state',
+      status: 'cancelled',
+      reason: 'cancelled from the panel',
+      tabId: 5,
+    });
+    expect(ext.pickerState()).toEqual({
+      status: 'cancelled',
+      reason: 'cancelled from the panel',
+    });
 
-    deliver({ type: 'angular-ai:picker-state', status: 'unavailable', reason: 'no descriptor within 1500 ms', tabId: 5 });
-    expect(ext.pickerState()).toEqual({ status: 'unavailable', reason: 'no descriptor within 1500 ms' });
+    deliver({
+      type: 'angular-ai:picker-state',
+      status: 'unavailable',
+      reason: 'no descriptor within 1500 ms',
+      tabId: 5,
+    });
+    expect(ext.pickerState()).toEqual({
+      status: 'unavailable',
+      reason: 'no descriptor within 1500 ms',
+    });
 
     // A page that explains itself in whitespace has not explained anything: the reason is null, not
     // a blank string the surface would render as an explanation.
-    deliver({ type: 'angular-ai:picker-state', status: 'unavailable', reason: '   ', tabId: 5 });
+    deliver({
+      type: 'angular-ai:picker-state',
+      status: 'unavailable',
+      reason: '   ',
+      tabId: 5,
+    });
     expect(ext.pickerState()).toEqual({ status: 'unavailable', reason: null });
   });
 
   it('refuses a picker state that names none of the three statuses, instead of inventing one (AC5)', () => {
     const ext = TestBed.inject(ExtensionMessageService);
 
-    for (const status of ['pending', 'ARMED', 'outstanding', 'resolved', 'no-dev-api', 42, null, undefined, ['armed']]) {
+    for (const status of [
+      'pending',
+      'ARMED',
+      'outstanding',
+      'resolved',
+      'no-dev-api',
+      42,
+      null,
+      undefined,
+      ['armed'],
+    ]) {
       deliver({ type: 'angular-ai:picker-state', status, tabId: 5 });
       expect(ext.pickerState(), String(JSON.stringify(status))).toBeNull();
     }
@@ -438,20 +575,32 @@ describe('ExtensionMessageService', () => {
 
   it('keeps the three descriptor shapes apart, never collapsing them into one (AC5)', () => {
     const ext = TestBed.inject(ExtensionMessageService);
-    const noDevApi = { status: 'no-dev-api', reason: 'the picked element carries no __ngContext__; this page may be a production build' };
+    const noDevApi = {
+      status: 'no-dev-api',
+      reason:
+        'the picked element carries no __ngContext__; this page may be a production build',
+    };
 
     deliver({ type: 'angular-ai:picked', descriptor: noDevApi, tabId: 5 });
     expect(ext.picked()).toEqual(noDevApi);
     // The named production-build outcome is not the "no owning component" one.
     expect(ext.picked()?.status).not.toBe('no-component');
 
-    deliver({ type: 'angular-ai:picked', descriptor: { status: 'no-component' }, tabId: 5 });
+    deliver({
+      type: 'angular-ai:picked',
+      descriptor: { status: 'no-component' },
+      tabId: 5,
+    });
     expect(ext.picked()).toEqual({ status: 'no-component' });
     expect(ext.picked()?.status).not.toBe('no-dev-api');
 
     // The status is the outcome; a reason that did not arrive as a usable string reads null rather
     // than turning the named outcome into no answer at all.
-    deliver({ type: 'angular-ai:picked', descriptor: { status: 'no-dev-api', reason: 42 }, tabId: 5 });
+    deliver({
+      type: 'angular-ai:picked',
+      descriptor: { status: 'no-dev-api', reason: 42 },
+      tabId: 5,
+    });
     expect(ext.picked()).toEqual({ status: 'no-dev-api', reason: null });
   });
 
@@ -483,7 +632,13 @@ describe('ExtensionMessageService', () => {
     // A path that is not a list is an empty path, never a single-entry one invented from a string.
     deliver({
       type: 'angular-ai:picked',
-      descriptor: { status: 'resolved', elementTag: 'button', componentName: 'app-counter', className: 'C', componentPath: 'CounterComponent' },
+      descriptor: {
+        status: 'resolved',
+        elementTag: 'button',
+        componentName: 'app-counter',
+        className: 'C',
+        componentPath: 'CounterComponent',
+      },
       tabId: 5,
     });
     expect(ext.picked()).toEqual({
@@ -520,7 +675,11 @@ describe('ExtensionMessageService', () => {
     const ext = TestBed.inject(ExtensionMessageService);
 
     deliver({ type: 'angular-ai:picker-state', status: 'armed', tabId: 6 });
-    deliver({ type: 'angular-ai:picked', descriptor: { status: 'no-component' }, tabId: 6 });
+    deliver({
+      type: 'angular-ai:picked',
+      descriptor: { status: 'no-component' },
+      tabId: 6,
+    });
 
     expect(ext.pickerState()).toBeNull();
     expect(ext.picked()).toBeNull();
@@ -545,7 +704,7 @@ describe('ExtensionMessageService', () => {
     ]);
   });
 
-  it('reports a refused picker command by the background\'s own reason, without a retry (AC6)', async () => {
+  it("reports a refused picker command by the background's own reason, without a retry (AC6)", async () => {
     TestBed.resetTestingModule();
     globalChrome.chrome = {
       devtools: { inspectedWindow: { tabId: 5 } },
@@ -555,11 +714,17 @@ describe('ExtensionMessageService', () => {
             deliver = cb;
           },
         },
-        sendMessage(msg: SentRequest, callback?: (reply: unknown) => void): void {
+        sendMessage(
+          msg: SentRequest,
+          callback?: (reply: unknown) => void,
+        ): void {
           requests.push(msg);
           if (msg.type === 'angular-ai:picker-command') {
             // What `background.js` answers when no content script received the forwarded command.
-            callback?.({ ok: false, reason: 'angular-ai:picker-command: no relay answered for tab 5' });
+            callback?.({
+              ok: false,
+              reason: 'angular-ai:picker-command: no relay answered for tab 5',
+            });
             return;
           }
           callback?.({ ok: true });
@@ -577,9 +742,11 @@ describe('ExtensionMessageService', () => {
       reason: 'angular-ai:picker-command: no relay answered for tab 5',
     });
     // Exactly one command message: the refusal is not retried.
-    expect(requests.filter((request) => request.type === 'angular-ai:picker-command')).toEqual([
-      { type: 'angular-ai:picker-command', tabId: 5, action: 'arm' },
-    ]);
+    expect(
+      requests.filter(
+        (request) => request.type === 'angular-ai:picker-command',
+      ),
+    ).toEqual([{ type: 'angular-ai:picker-command', tabId: 5, action: 'arm' }]);
 
     // A refusal that names no reason still reads as a sentence rather than as a blank line.
     TestBed.resetTestingModule();
@@ -591,16 +758,27 @@ describe('ExtensionMessageService', () => {
             deliver = cb;
           },
         },
-        sendMessage(msg: SentRequest, callback?: (reply: unknown) => void): void {
+        sendMessage(
+          msg: SentRequest,
+          callback?: (reply: unknown) => void,
+        ): void {
           requests.push(msg);
-          callback?.(msg.type === 'angular-ai:picker-command' ? { ok: false } : { ok: true });
+          callback?.(
+            msg.type === 'angular-ai:picker-command'
+              ? { ok: false }
+              : { ok: true },
+          );
         },
       },
     };
     TestBed.configureTestingModule({});
-    const unreasoned = await TestBed.inject(ExtensionMessageService).sendPickerCommand('cancel');
+    const unreasoned = await TestBed.inject(
+      ExtensionMessageService,
+    ).sendPickerCommand('cancel');
     expect(unreasoned.status).toBe('failed');
-    expect(unreasoned.status === 'failed' ? unreasoned.reason : '').toContain('angular-ai:picker-command');
+    expect(unreasoned.status === 'failed' ? unreasoned.reason : '').toContain(
+      'angular-ai:picker-command',
+    );
   });
 
   it('reports a picker command whose transport throws as a failed send (AC6)', async () => {
@@ -613,7 +791,10 @@ describe('ExtensionMessageService', () => {
             deliver = cb;
           },
         },
-        sendMessage(msg: SentRequest, callback?: (reply: unknown) => void): void {
+        sendMessage(
+          msg: SentRequest,
+          callback?: (reply: unknown) => void,
+        ): void {
           requests.push(msg);
           if (msg.type === 'angular-ai:picker-command') {
             // An invalidated extension context is the shipped case (`requestReplay` names it too).
@@ -629,9 +810,15 @@ describe('ExtensionMessageService', () => {
     const thrown = await ext.sendPickerCommand('cancel');
 
     expect(thrown.status).toBe('failed');
-    expect(thrown.status === 'failed' ? thrown.reason : '').toContain('Extension context invalidated');
+    expect(thrown.status === 'failed' ? thrown.reason : '').toContain(
+      'Extension context invalidated',
+    );
     // The command was attempted once and never retried.
-    expect(requests.filter((request) => request.type === 'angular-ai:picker-command')).toHaveLength(1);
+    expect(
+      requests.filter(
+        (request) => request.type === 'angular-ai:picker-command',
+      ),
+    ).toHaveLength(1);
   });
 
   it('reports a picker command it has no transport for, without throwing (AC6)', async () => {
@@ -652,6 +839,8 @@ describe('ExtensionMessageService', () => {
     const outcome = await ext.sendPickerCommand('arm');
 
     expect(outcome.status).toBe('failed');
-    expect(outcome.status === 'failed' ? outcome.reason : '').toContain('angular-ai:picker-command');
+    expect(outcome.status === 'failed' ? outcome.reason : '').toContain(
+      'angular-ai:picker-command',
+    );
   });
 });

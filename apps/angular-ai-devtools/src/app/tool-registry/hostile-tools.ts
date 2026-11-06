@@ -20,27 +20,18 @@ import {
   type ToolInputSchema,
   type ToolOutcome,
 } from './tool-registry';
+import { describeFailure, isRecord } from '../record-guard';
 
 /** A failure that names the tool it belongs to. `execute` never throws, so every failure is this. */
-function failure(toolId: string, code: ToolErrorCode, message: string): ToolOutcome {
+function failure(
+  toolId: string,
+  code: ToolErrorCode,
+  message: string,
+): ToolOutcome {
   return { kind: 'error', code, toolId, message };
 }
 
 /** A wrapped third-party throw or rejection is reported, not rethrown. */
-function describeFailure(failureValue: unknown): string {
-  if (failureValue instanceof Error) {
-    return failureValue.message;
-  }
-  try {
-    return String(failureValue);
-  } catch {
-    return 'an unprintable failure';
-  }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 /**
  * `confirm_write` — a write that must not happen until a confirmation presents its token.
@@ -80,7 +71,11 @@ function confirmWriteBacking(): ToolBacking {
         };
       }
 
-      if (typeof presented !== 'string' || !issued.has(presented) || spent.has(presented)) {
+      if (
+        typeof presented !== 'string' ||
+        !issued.has(presented) ||
+        spent.has(presented)
+      ) {
         return failure(
           CONFIRM_WRITE_ID,
           'invalid-input',
@@ -106,7 +101,10 @@ export const confirmWrite = defineTool(
     input: {
       type: 'object',
       properties: {
-        token: { type: 'string', description: 'the token a previous call answered' },
+        token: {
+          type: 'string',
+          description: 'the token a previous call answered',
+        },
       },
       required: [],
     },
@@ -130,7 +128,9 @@ export const asyncScan = defineTool(
     publish: 'internal',
     input: {
       type: 'object',
-      properties: { scope: { type: 'string', description: 'the subtree to scan' } },
+      properties: {
+        scope: { type: 'string', description: 'the subtree to scan' },
+      },
       required: [],
     },
   },
@@ -194,7 +194,8 @@ export const dualHostRead = defineTool(
       return {
         kind: 'result',
         value: {
-          pageTitle: typeof title === 'string' ? title : '(the page published no title)',
+          pageTitle:
+            typeof title === 'string' ? title : '(the page published no title)',
           panelRecord: { view: 'panel', framework: 'angular' },
         },
         provenance: context.provenance,
@@ -228,7 +229,12 @@ export function wrappedThirdPartyTool(thirdParty: ThirdPartyTool): ToolEntry {
       publish: 'internal',
       input: {
         type: 'object',
-        properties: { query: { type: 'string', description: 'what to ask the wrapped tool' } },
+        properties: {
+          query: {
+            type: 'string',
+            description: 'what to ask the wrapped tool',
+          },
+        },
         required: [],
       },
     },
@@ -277,7 +283,9 @@ function knownForms(facts: ToolFacts): readonly string[] | undefined {
   if (!Array.isArray(forms)) {
     return undefined;
   }
-  const known = forms.filter((entry): entry is string => typeof entry === 'string');
+  const known = forms.filter(
+    (entry): entry is string => typeof entry === 'string',
+  );
   return known.length === 0 ? undefined : known;
 }
 
@@ -292,7 +300,11 @@ export const pageStateSchemaInput = (facts: ToolFacts): ToolInputSchema => {
   return {
     type: 'object',
     properties: {
-      form: { type: 'string', enum: forms, description: 'a form the page published' },
+      form: {
+        type: 'string',
+        enum: forms,
+        description: 'a form the page published',
+      },
     },
     required: ['form'],
   };

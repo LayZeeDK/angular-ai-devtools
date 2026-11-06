@@ -24,7 +24,7 @@
     const filter = globalThis.angularAiObserverFilter;
     if (!filter || typeof filter.isToolRecord !== 'function') {
       throw new Error(
-        '[Angular AI DevTools] overlay.js requires observer-filter.js first in the same isolated world; fix the content_scripts declaration order'
+        '[Angular AI DevTools] overlay.js requires observer-filter.js first in the same isolated world; fix the content_scripts declaration order',
       );
     }
     return filter;
@@ -40,7 +40,7 @@
     const geometry = globalThis.angularAiOverlayGeometry;
     if (!geometry || typeof geometry.compute !== 'function') {
       throw new Error(
-        '[Angular AI DevTools] overlay.js requires overlay-geometry.js first in the same isolated world; fix the content_scripts declaration order'
+        '[Angular AI DevTools] overlay.js requires overlay-geometry.js first in the same isolated world; fix the content_scripts declaration order',
       );
     }
     return geometry;
@@ -69,7 +69,8 @@
   // ignores a MutationObserver callback's return value.
   function notePageRecords(pageRecords) {
     if (pageRecords.length === 0) return pageRecords;
-    if (followedElement !== null && !followedElement.isConnected) followedElement = null;
+    if (followedElement !== null && !followedElement.isConnected)
+      followedElement = null;
     return pageRecords;
   }
 
@@ -87,7 +88,10 @@
     }
     return notePageRecords(pageRecords);
   });
-  observer.observe(document.documentElement, { childList: true, subtree: true });
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
 
   // ---- The picker: five rect inputs, one dirty flag, one frame loop, hover, lock, cancel ----------
   //
@@ -152,7 +156,9 @@
 
   function tagOf(element) {
     const tag = element && element.tagName;
-    return typeof tag === 'string' && tag.length > 0 ? tag.toLowerCase() : 'element';
+    return typeof tag === 'string' && tag.length > 0
+      ? tag.toLowerCase()
+      : 'element';
   }
 
   // The label is the surface: a hovered element is named by its tag, a locked pick keeps that tag and
@@ -162,18 +168,33 @@
     const tag = tagOf(element);
     const answer = descriptorState;
     if (answer && answer.status === 'resolved') {
-      const component = typeof answer.componentName === 'string' && answer.componentName.length > 0 ? answer.componentName : null;
-      const className = typeof answer.className === 'string' && answer.className.length > 0 ? answer.className : null;
-      if (component && className) return tag + ' — ' + component + ' (' + className + ')';
+      const component =
+        typeof answer.componentName === 'string' &&
+        answer.componentName.length > 0
+          ? answer.componentName
+          : null;
+      const className =
+        typeof answer.className === 'string' && answer.className.length > 0
+          ? answer.className
+          : null;
+      if (component && className)
+        return tag + ' — ' + component + ' (' + className + ')';
       if (component) return tag + ' — ' + component;
       return tag + ' — component unresolved';
     }
     if (answer && answer.status === 'no-dev-api') {
-      const reason = typeof answer.reason === 'string' && answer.reason.length > 0 ? answer.reason : 'no Angular dev API on this page';
+      const reason =
+        typeof answer.reason === 'string' && answer.reason.length > 0
+          ? answer.reason
+          : 'no Angular dev API on this page';
       return tag + ' — ' + reason;
     }
-    if (answer && answer.status === 'no-component') return tag + ' — no owning component';
-    if (unanswered) return tag + ' — the page realm did not answer in ' + ANSWER_TIMEOUT_MS + ' ms';
+    if (answer && answer.status === 'no-component')
+      return tag + ' — no owning component';
+    if (unanswered)
+      return (
+        tag + ' — the page realm did not answer in ' + ANSWER_TIMEOUT_MS + ' ms'
+      );
     return tag;
   }
 
@@ -216,7 +237,11 @@
     root.appendChild(styleNode);
     root.appendChild(rectNode);
     root.appendChild(labelNode);
-    drawing = { styleNode: styleNode, rectNode: rectNode, labelNode: labelNode };
+    drawing = {
+      styleNode: styleNode,
+      rectNode: rectNode,
+      labelNode: labelNode,
+    };
     return drawing;
   }
 
@@ -259,19 +284,35 @@
       const measured = drawing.labelNode.getBoundingClientRect();
       labelSize = { width: measured.width || 0, height: measured.height || 0 };
     }
-    const placement = geometry.compute(element.getBoundingClientRect(), viewportBox(), labelSize, {
-      gap: LABEL_GAP,
-    });
-    drawing.rectNode.style.transform = 'translate(' + cssPixels(placement.box.left) + ', ' + cssPixels(placement.box.top) + ')';
+    const placement = geometry.compute(
+      element.getBoundingClientRect(),
+      viewportBox(),
+      labelSize,
+      {
+        gap: LABEL_GAP,
+      },
+    );
+    drawing.rectNode.style.transform =
+      'translate(' +
+      cssPixels(placement.box.left) +
+      ', ' +
+      cssPixels(placement.box.top) +
+      ')';
     drawing.rectNode.style.width = cssPixels(placement.box.width);
     drawing.rectNode.style.height = cssPixels(placement.box.height);
-    drawing.labelNode.style.transform = 'translate(' + cssPixels(placement.label.left) + ', ' + cssPixels(placement.label.top) + ')';
+    drawing.labelNode.style.transform =
+      'translate(' +
+      cssPixels(placement.label.left) +
+      ', ' +
+      cssPixels(placement.label.top) +
+      ')';
   }
 
   function recompute() {
     dirty = false;
     if (!armed) return;
-    if (!lockedElement) hoveredElement = pointer ? candidateAt(pointer.x, pointer.y) : null;
+    if (!lockedElement)
+      hoveredElement = pointer ? candidateAt(pointer.x, pointer.y) : null;
     draw();
   }
 
@@ -295,7 +336,8 @@
     if (!frameHandle) return;
     const handle = frameHandle;
     frameHandle = 0;
-    if (typeof window.cancelAnimationFrame === 'function') window.cancelAnimationFrame(handle);
+    if (typeof window.cancelAnimationFrame === 'function')
+      window.cancelAnimationFrame(handle);
   }
 
   function markDirty() {
@@ -362,7 +404,15 @@
     descriptorState = null;
     followAnswer(false);
     markDirty();
-    emitState('unavailable', 'no ' + PICKED_EVENT + ' within ' + ANSWER_TIMEOUT_MS + ' ms of ' + PICK_EVENT);
+    emitState(
+      'unavailable',
+      'no ' +
+        PICKED_EVENT +
+        ' within ' +
+        ANSWER_TIMEOUT_MS +
+        ' ms of ' +
+        PICK_EVENT,
+    );
   }
 
   function lock(element) {
@@ -377,7 +427,9 @@
       // The cross-world hop: a DOM node, dispatched on the element itself. `bubbles: true` so a
       // capture listener on the global object sees it, `composed: false` so it never leaves the light
       // tree, and no detail at all — the MAIN-world listener reads `event.target`.
-      element.dispatchEvent(new CustomEvent(PICK_EVENT, { bubbles: true, composed: false }));
+      element.dispatchEvent(
+        new CustomEvent(PICK_EVENT, { bubbles: true, composed: false }),
+      );
     } catch (error) {
       /* a page element must never be able to throw the picker over */
     }
@@ -389,13 +441,22 @@
     if (!target || typeof target.addEventListener !== 'function') return;
     const useCapture = capture === true;
     target.addEventListener(type, handler, useCapture);
-    inputs.push({ target: target, type: type, handler: handler, capture: useCapture });
+    inputs.push({
+      target: target,
+      type: type,
+      handler: handler,
+      capture: useCapture,
+    });
   }
 
   function detachInputs() {
     for (let index = 0; index < inputs.length; index += 1) {
       const entry = inputs[index];
-      entry.target.removeEventListener(entry.type, entry.handler, entry.capture);
+      entry.target.removeEventListener(
+        entry.type,
+        entry.handler,
+        entry.capture,
+      );
     }
     inputs = [];
     dropResolutionQuery();
@@ -405,8 +466,10 @@
     const held = resolutionQuery;
     resolutionQuery = null;
     if (!held) return;
-    if (typeof held.query.removeEventListener === 'function') held.query.removeEventListener('change', held.handler);
-    else if (typeof held.query.removeListener === 'function') held.query.removeListener(held.handler);
+    if (typeof held.query.removeEventListener === 'function')
+      held.query.removeEventListener('change', held.handler);
+    else if (typeof held.query.removeListener === 'function')
+      held.query.removeListener(held.handler);
   }
 
   // CSS `zoom` and page zoom surface as a device-pixel-ratio change, so the resolution query is rebuilt
@@ -420,8 +483,10 @@
       markDirty();
       attachResolutionQuery();
     };
-    if (typeof query.addEventListener === 'function') query.addEventListener('change', handler);
-    else if (typeof query.addListener === 'function') query.addListener(handler);
+    if (typeof query.addEventListener === 'function')
+      query.addEventListener('change', handler);
+    else if (typeof query.addListener === 'function')
+      query.addListener(handler);
     resolutionQuery = { query: query, handler: handler };
   }
 
@@ -460,7 +525,12 @@
     try {
       module = requireGeometry();
     } catch (error) {
-      emitState('unavailable', error && error.message ? error.message : 'overlay.js requires overlay-geometry.js');
+      emitState(
+        'unavailable',
+        error && error.message
+          ? error.message
+          : 'overlay.js requires overlay-geometry.js',
+      );
       return;
     }
     geometry = module;
@@ -468,7 +538,10 @@
     armed = true;
     dirty = true;
     ensureDrawing();
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+    });
     attachInputs();
     emitState('armed');
     scheduleFrame();
@@ -488,7 +561,8 @@
 
   function onCommand(event) {
     const detail = event && event.detail ? event.detail : null;
-    const action = detail && typeof detail.action === 'string' ? detail.action : null;
+    const action =
+      detail && typeof detail.action === 'string' ? detail.action : null;
     if (action === 'arm') {
       arm();
       return;
@@ -498,7 +572,10 @@
       return;
     }
     // The background validates the action before forwarding it; anything else is answered by name.
-    emitState('unavailable', COMMAND_EVENT + ' carried no known action (arm|cancel)');
+    emitState(
+      'unavailable',
+      COMMAND_EVENT + ' carried no known action (arm|cancel)',
+    );
   }
 
   // Attach last, so the observer above sees the tool's own insertion and has to drop it.
@@ -508,5 +585,7 @@
   // before any panel can arm — and is never detached: it is the channel, not a rect input.
   window.addEventListener(COMMAND_EVENT, onCommand);
 
-  console.log('[Angular AI DevTools] Overlay host attached (closed shadow root)');
+  console.log(
+    '[Angular AI DevTools] Overlay host attached (closed shadow root)',
+  );
 })();

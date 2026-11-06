@@ -94,7 +94,9 @@ function asEntry(raw: unknown): RedirectChainEntry {
   if (isObject(raw)) {
     const path = typeof raw['path'] === 'string' ? raw['path'] : '';
     const redirectTo =
-      typeof raw['redirectTo'] === 'string' && raw['redirectTo'].length > 0 ? raw['redirectTo'] : null;
+      typeof raw['redirectTo'] === 'string' && raw['redirectTo'].length > 0
+        ? raw['redirectTo']
+        : null;
     return {
       path,
       redirectTo,
@@ -102,7 +104,12 @@ function asEntry(raw: unknown): RedirectChainEntry {
       loadChildren: raw['loadChildren'] === true,
     };
   }
-  return { path: String(raw ?? ''), redirectTo: null, canActivate: false, loadChildren: false };
+  return {
+    path: String(raw ?? ''),
+    redirectTo: null,
+    canActivate: false,
+    loadChildren: false,
+  };
 }
 
 function pane(message: string, lines: readonly string[]): Pane {
@@ -110,7 +117,11 @@ function pane(message: string, lines: readonly string[]): Pane {
 }
 
 function loading(): RedirectSurface {
-  return { kind: 'loading', state: 'loading', ...pane(LOADING_MESSAGE, [LOADING_MESSAGE]) };
+  return {
+    kind: 'loading',
+    state: 'loading',
+    ...pane(LOADING_MESSAGE, [LOADING_MESSAGE]),
+  };
 }
 
 function walked(
@@ -125,7 +136,8 @@ function walked(
     const marked = entry.path !== '' && entry.path === changedAt;
     lines.push(marked ? `${entry.path} (changed)` : entry.path);
   }
-  if (destination !== null && destination.length > 0) lines.push(`destination ${destination}`);
+  if (destination !== null && destination.length > 0)
+    lines.push(`destination ${destination}`);
   const message = `walked: ${chain.length} route${chain.length === 1 ? '' : 's'} entered, destination ${destination ?? 'not recorded'}`;
   return {
     kind: 'walked',
@@ -140,18 +152,31 @@ function walked(
 function cycle(route: string): RedirectSurface {
   const named = route.length > 0 ? route : 'not recorded';
   const message = `cycle: the walk revisited ${named}`;
-  return { kind: 'cycle', state: 'cycle', route: named, ...pane(message, [`route ${named}`]) };
+  return {
+    kind: 'cycle',
+    state: 'cycle',
+    route: named,
+    ...pane(message, [`route ${named}`]),
+  };
 }
 
 function gated(route: string | null): RedirectSurface {
   const named = route !== null && route.length > 0 ? route : 'not recorded';
   const message = `gated: a route is gated`;
   const lines = [`route ${named}`, 'gated'];
-  return { kind: 'gated', state: 'gated', route: route !== null && route.length > 0 ? route : null, ...pane(message, lines) };
+  return {
+    kind: 'gated',
+    state: 'gated',
+    route: route !== null && route.length > 0 ? route : null,
+    ...pane(message, lines),
+  };
 }
 
 function cannotTell(reason: unknown): RedirectSurface {
-  const named = typeof reason === 'string' && reason.length > 0 ? reason : UNREADABLE_CONFIGURATION;
+  const named =
+    typeof reason === 'string' && reason.length > 0
+      ? reason
+      : UNREADABLE_CONFIGURATION;
   const message = 'cannot tell: the router configuration could not be read';
   return {
     kind: 'cannot-tell',
@@ -164,11 +189,17 @@ function cannotTell(reason: unknown): RedirectSurface {
 function error(route: string | null): RedirectSurface {
   const named = route !== null && route.length > 0 ? route : 'not recorded';
   const message = `error: the walk stopped at a lazy boundary at ${named}`;
-  return { kind: 'error', state: 'error', route: route !== null && route.length > 0 ? route : null, ...pane(message, [`route ${named}`]) };
+  return {
+    kind: 'error',
+    state: 'error',
+    route: route !== null && route.length > 0 ? route : null,
+    ...pane(message, [`route ${named}`]),
+  };
 }
 
 export function redirectPanel(result?: unknown): RedirectSurface {
-  if (result === null || result === undefined) return cannotTell(UNREADABLE_CONFIGURATION);
+  if (result === null || result === undefined)
+    return cannotTell(UNREADABLE_CONFIGURATION);
 
   if (!isObject(result)) return cannotTell(UNREADABLE_CONFIGURATION);
 
@@ -208,9 +239,12 @@ export function redirectPanel(result?: unknown): RedirectSurface {
 
   if (state === 'redirected') {
     const chain = asList(result['chain']).map(asEntry);
-    const destination = typeof result['destination'] === 'string' ? result['destination'] : null;
-    const changedAt = typeof result['changedAt'] === 'string' ? result['changedAt'] : null;
-    const stoppedAt = typeof result['stoppedAt'] === 'string' ? result['stoppedAt'] : null;
+    const destination =
+      typeof result['destination'] === 'string' ? result['destination'] : null;
+    const changedAt =
+      typeof result['changedAt'] === 'string' ? result['changedAt'] : null;
+    const stoppedAt =
+      typeof result['stoppedAt'] === 'string' ? result['stoppedAt'] : null;
     const isGated = result['gated'] === true;
 
     if (stoppedAt !== null && stoppedAt.length > 0) {
@@ -227,15 +261,19 @@ export function redirectPanel(result?: unknown): RedirectSurface {
   // A result that carries a chain but no recognised state is still a walked chain on its way.
   if (Array.isArray(result['chain'])) {
     const chain = asList(result['chain']).map(asEntry);
-    const destination = typeof result['destination'] === 'string' ? result['destination'] : null;
-    const changedAt = typeof result['changedAt'] === 'string' ? result['changedAt'] : null;
+    const destination =
+      typeof result['destination'] === 'string' ? result['destination'] : null;
+    const changedAt =
+      typeof result['changedAt'] === 'string' ? result['changedAt'] : null;
     return walked(chain, destination, changedAt);
   }
 
   if (state === 'walked') {
     const chain = asList(result['chain']).map(asEntry);
-    const destination = typeof result['destination'] === 'string' ? result['destination'] : null;
-    const changedAt = typeof result['changedAt'] === 'string' ? result['changedAt'] : null;
+    const destination =
+      typeof result['destination'] === 'string' ? result['destination'] : null;
+    const changedAt =
+      typeof result['changedAt'] === 'string' ? result['changedAt'] : null;
     return walked(chain, destination, changedAt);
   }
 

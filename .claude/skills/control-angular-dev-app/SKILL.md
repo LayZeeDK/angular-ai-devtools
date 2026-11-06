@@ -20,12 +20,12 @@ sessions are looked up from there. `S` stands for `.claude/skills/control-angula
 
 ## Pick a flow
 
-| Flow | Command | Notes |
-|---|---|---|
-| Counter fixture | `node $S up --target counter` | `spikes/ng222-app`, Angular 22.2.2, zoneless, `provideRouter(routes)` over the two routes `src/app/app.routes.ts:5-8` declares, `/stale-view` and `/stale-view-deferred` (read 2026-11-01) |
-| SSR fixture | `node $S up --target ssr` | `spikes/ng222-ssr`, Angular 22.2.2, `@angular/ssr`, zoneless, `provideClientHydration()`; routes `/` (`RenderMode.Server`), `/prerender` (`RenderMode.Prerender`), `/client` (`RenderMode.Client`); local data at `/api/items` from `src/server.ts` |
-| Insurance Portal | `node $S up --target portal` | The portal checkout `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools` (a git worktree of the portal repository); override it with `--dir <path>` or `CONTROL_NG_PORTAL_DIR` |
-| Any dev-mode app | `node $S up --url http://localhost:<port>/` | Nothing is launched or stopped; process and port checks report skipped |
+| Flow             | Command                                     | Notes                                                                                                                                                                                                                                               |
+| ---------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Counter fixture  | `node $S up --target counter`               | `spikes/ng222-app`, Angular 22.2.2, zoneless, `provideRouter(routes)` over the two routes `src/app/app.routes.ts:5-8` declares, `/stale-view` and `/stale-view-deferred` (read 2026-11-01)                                                          |
+| SSR fixture      | `node $S up --target ssr`                   | `spikes/ng222-ssr`, Angular 22.2.2, `@angular/ssr`, zoneless, `provideClientHydration()`; routes `/` (`RenderMode.Server`), `/prerender` (`RenderMode.Prerender`), `/client` (`RenderMode.Client`); local data at `/api/items` from `src/server.ts` |
+| Insurance Portal | `node $S up --target portal`                | The portal checkout `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools` (a git worktree of the portal repository); override it with `--dir <path>` or `CONTROL_NG_PORTAL_DIR`                                         |
+| Any dev-mode app | `node $S up --url http://localhost:<port>/` | Nothing is launched or stopped; process and port checks report skipped                                                                                                                                                                              |
 
 Ports. The main checkout uses slot 0, the defaults below. A worktree session (this checkout's `.git` is a file, or the target folder's: the portal
 folder is a worktree of its own repository) takes slot 1-99 from a hash of the fixture or portal folder, so its ports stay the
@@ -33,14 +33,14 @@ same from run to run: counter `4300 + slot`, SSR `4400 + slot`, portal `4500 + s
 2026-10-16 in the `verification-skills` worktree: counter 4336, SSR 4464; the default portal folder: 4507). When a derived port is busy, `up` tries the next
 slot, 10 slots in all, and records the slot and the ports it used (`info --json`: `slot`, `ports`).
 
-| Port | Kind | Default | How it moves |
-|---|---|---|---|
-| counter app | derived | 4222 | `--port`, passed to `ng serve --port` (measured: listened on 4336, and on its fallback 4337 while a throwaway listener held 4336) |
-| SSR app | derived | 4223 | `--port`, passed to `ng serve --port` (measured: listened on 4464) |
-| portal app | derived | 4200 | `--port`, passed to `nx run insurance-portal:serve --port=` (measured: listened on 4507) |
-| portal api | fixed | 3000 | `.claude/skills/control-angular-dev-app/scripts/control.mjs:69` keeps it at 3000 because the portal checkout (outside this repository) hardcodes `http://localhost:3000/api/` at `libs/shared/utils/src/lib/injection-tokens.ts:5`; the API itself takes `PORT`. One portal per machine |
-| portal pangular | external | 9999 | control-pangular-inspector starts it; the portal proxies `/__pangular` to it. This skill never starts or stops it |
-| `--url` app | external | the URL's port | whatever runs it; this skill never starts or stops it |
+| Port            | Kind     | Default        | How it moves                                                                                                                                                                                                                                                                            |
+| --------------- | -------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| counter app     | derived  | 4222           | `--port`, passed to `ng serve --port` (measured: listened on 4336, and on its fallback 4337 while a throwaway listener held 4336)                                                                                                                                                       |
+| SSR app         | derived  | 4223           | `--port`, passed to `ng serve --port` (measured: listened on 4464)                                                                                                                                                                                                                      |
+| portal app      | derived  | 4200           | `--port`, passed to `nx run insurance-portal:serve --port=` (measured: listened on 4507)                                                                                                                                                                                                |
+| portal api      | fixed    | 3000           | `.claude/skills/control-angular-dev-app/scripts/control.mjs:69` keeps it at 3000 because the portal checkout (outside this repository) hardcodes `http://localhost:3000/api/` at `libs/shared/utils/src/lib/injection-tokens.ts:5`; the API itself takes `PORT`. One portal per machine |
+| portal pangular | external | 9999           | control-pangular-inspector starts it; the portal proxies `/__pangular` to it. This skill never starts or stops it                                                                                                                                                                       |
+| `--url` app     | external | the URL's port | whatever runs it; this skill never starts or stops it                                                                                                                                                                                                                                   |
 
 - `--port N` sets the app port with no fallback for it: a busy `N` exits 2 naming its holder's PID; from a
   worktree the main checkout's port is refused (use `--url` to drive that instance on purpose), and so are a
@@ -49,7 +49,7 @@ slot, 10 slots in all, and records the slot and the ports it used (`info --json`
   or the server exits with "already in use" in its log) is stopped, and `up` tries the next slot; each attempt
   logs to its own file (`app.log`, `app-2.log`, ...).
 - A busy fixed port exits 2: `fixed port api 3000 held by PID <p>; pinned by
-  libs/shared/utils/src/lib/injection-tokens.ts:5 in the portal checkout <dir>`. The holder may be another
+libs/shared/utils/src/lib/injection-tokens.ts:5 in the portal checkout <dir>`. The holder may be another
   session's portal or Lars's own; it is never stopped.
 - One instance per flow per checkout: `up` refuses while the flow's state file exists. A second session runs
   its own instance from its own worktree.
@@ -130,7 +130,7 @@ Answers "is this instance worth driving?". One line per check:
   (last record; `NoopNgZone` = zoneless), plus whether zone.js is loaded and `mark_feature_usage` marks.
 - `pangular-overlay` (portal only, warning): the console errors the dev-only Pangular overlay logs, with what
   listens on port 9999. Without a server: three `__connection.json` 404/502 and `[pangular] No devtools server
-  found` ("it found no devtools server"). With control-pangular-inspector's server: one `__connection.json` 404,
+found` ("it found no devtools server"). With control-pangular-inspector's server: one `__connection.json` 404,
   which is expected ("expected while a devtools server runs").
 - `console-errors`: `playwright-cli console error` reports zero errors besides the `pangular-overlay` ones.
 
@@ -148,7 +148,7 @@ Session: `playwright-cli -s=<session>`; take `<session>` from `info` (`control-n
 - Loop: `snapshot --filename=<evidenceDir>/<step>-before.yml`, one action, a fresh snapshot, then check the
   expected change (`find`, `eval`, or the snapshot text).
 - Waiting: no fixed sleeps. Use `run-code "async page => { await page.waitForURL('**/contract/list'); await
-  page.locator('table tbody tr').first().waitFor(); return page.url(); }"`.
+page.locator('table tbody tr').first().waitFor(); return page.url(); }"`.
 - Router setup shortcut (not a user path): `eval "() => __ngc.navigate('/claim/list')"` calls
   `ng.ɵnavigateByUrl`. Prove user paths by clicking the nav.
 
@@ -162,28 +162,29 @@ Recipes per feature: [features/README.md](features/README.md).
 `playwright-cli -s=<session> --raw eval "() => __ngc.<fn>(...)"` and return objects, not `JSON.stringify`
 (that double-encodes). `<host>` is a CSS selector or an index from `components()`.
 
-| Helper | What it calls | Returns |
-|---|---|---|
-| `components()` | `ng.getComponent` over the DOM | `{i, tag, name}`; dev class names lose their leading `_` |
-| `inspect(host)` | `getComponent`, `getDirectiveMetadata`, `getListeners`, `getDirectives`, `getOwningComponent` | name, `changeDetection` (`OnPush`/`Eager`), inputs with values, outputs, host listeners, directives, owner, own fields (signals unwrapped) |
-| `signals(host)` | `ng.ɵgetSignalGraph(ng.getInjector(host))` | nodes `{kind, label, value, epoch}`, edges as `consumer -> producer` labels |
-| `dependenciesOf(host, label)` | same | direct producers of one signal, e.g. `double` -> `["count"]` |
-| `injectors(host)` | `ɵgetInjectorResolutionPath`, `ɵgetInjectorMetadata`, `ɵgetInjectorProviders` | the lookup path: type, source, provider count |
-| `providers(host, i)` | `ɵgetInjectorProviders` on path entry `i` | token names, `isViewProvider`, import path |
-| `router()` | `ng.ɵgetRouterInstance`, `ng.ɵgetLoadedRoutes` | current URL and the route tree, lazy children once loaded; `{present: false}` without router globals |
-| `navigate(url)` | `ng.ɵnavigateByUrl` | `{ok, url}` |
+| Helper                        | What it calls                                                                                 | Returns                                                                                                                                    |
+| ----------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `components()`                | `ng.getComponent` over the DOM                                                                | `{i, tag, name}`; dev class names lose their leading `_`                                                                                   |
+| `inspect(host)`               | `getComponent`, `getDirectiveMetadata`, `getListeners`, `getDirectives`, `getOwningComponent` | name, `changeDetection` (`OnPush`/`Eager`), inputs with values, outputs, host listeners, directives, owner, own fields (signals unwrapped) |
+| `signals(host)`               | `ng.ɵgetSignalGraph(ng.getInjector(host))`                                                    | nodes `{kind, label, value, epoch}`, edges as `consumer -> producer` labels                                                                |
+| `dependenciesOf(host, label)` | same                                                                                          | direct producers of one signal, e.g. `double` -> `["count"]`                                                                               |
+| `injectors(host)`             | `ɵgetInjectorResolutionPath`, `ɵgetInjectorMetadata`, `ɵgetInjectorProviders`                 | the lookup path: type, source, provider count                                                                                              |
+| `providers(host, i)`          | `ɵgetInjectorProviders` on path entry `i`                                                     | token names, `isViewProvider`, import path                                                                                                 |
+| `router()`                    | `ng.ɵgetRouterInstance`, `ng.ɵgetLoadedRoutes`                                                | current URL and the route tree, lazy children once loaded; `{present: false}` without router globals                                       |
+| `navigate(url)`               | `ng.ɵnavigateByUrl`                                                                           | `{ok, url}`                                                                                                                                |
 
 Also: `playwright-cli -s=<session> console`, `requests` (the portal calls `http://localhost:3000/api/...`),
 and raw `ng.*` through `eval`, for example the button's listeners:
 `eval "() => ng.getListeners(document.querySelector('app-counter button')).map(l => l.name)"`.
 
 SSR target: `playwright-cli -s=<session> --raw run-code --filename=.claude/skills/control-angular-dev-app/scripts/ssr-check.js
-> <evidenceDir>/ssr-check.json` reads the server HTML of `/` and `/?mismatch=1` (`ngh` count, `<script
-id="ng-state">`, `ng-server-context`), loads each page, and returns `window.ng`, the `ngDevMode` hydration
-counters, every node whose `__ngDebugHydrationInfo__` status is not `hydrated` (with expected and actual DOM)
-and console errors, plus six named checks and `ok`. It navigates the session's page and ends on `/`. The SSR
+
+> <evidenceDir>/ssr-check.json`reads the server HTML of`/`and`/?mismatch=1` (`ngh`count,`<script
+> id="ng-state">`, `ng-server-context`), loads each page, and returns `window.ng`, the `ngDevMode`hydration
+counters, every node whose`**ngDebugHydrationInfo**`status is not`hydrated`(with expected and actual DOM)
+and console errors, plus six named checks and`ok`. It navigates the session's page and ends on `/`. The SSR
 reads in [features/ssr.md](features/ssr.md) cover transfer state, `@defer` blocks, event replay and render
-modes.
+> modes.
 
 Not reachable: Angular DevTools (browser extension, manual only); the Nx and Angular CLI MCP servers are not
 used (the script cannot call MCP tools).
@@ -220,12 +221,12 @@ A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits
 
 `scripts/control.mjs <command> [--target counter|ssr|portal] [--url <url>] [--port N] [--dir <path>] [--timeout S] [--json]`
 
-| Command | Does | Output | Exit |
-|---|---|---|---|
-| `up` | launch (`--target`) or attach (`--url`); writes `tmp/control-angular-dev-app/state/<flowId>.json` | flowId (the target, or `url-<port>`; a URL without a port uses 80 or 443), url, port, slot, ports `{name, port, kind, reason?}`, session, evidenceDir, procs `{name, pid, port, readyUrl, log}`, tree `{pid, ppid, start, commandLine}` (each root and every process seen below it; `start` in ms since the epoch), `readyInSeconds` | 0 ready; 2 refused (10 slots busy, a busy fixed port, a busy `--port`, worktree on the main port, state exists), process exited, timeout |
-| `doctor` | checks above | one line per check, or `checks[]` with `--json` | 0 / 1 / 2 |
-| `info` | prints the state | state plus `statePath` | 0; 2 no state |
-| `down` | teardown (Cleanup) | notes per process and the session; `reason` and `state` on exit 2 | 0 done (also when a root PID is gone); 2 missing state file, a root PID that now belongs to another process (never touched), or a record still running after the last round (state file kept for both) |
+| Command  | Does                                                                                              | Output                                                                                                                                                                                                                                                                                                                               | Exit                                                                                                                                                                                                   |
+| -------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `up`     | launch (`--target`) or attach (`--url`); writes `tmp/control-angular-dev-app/state/<flowId>.json` | flowId (the target, or `url-<port>`; a URL without a port uses 80 or 443), url, port, slot, ports `{name, port, kind, reason?}`, session, evidenceDir, procs `{name, pid, port, readyUrl, log}`, tree `{pid, ppid, start, commandLine}` (each root and every process seen below it; `start` in ms since the epoch), `readyInSeconds` | 0 ready; 2 refused (10 slots busy, a busy fixed port, a busy `--port`, worktree on the main port, state exists), process exited, timeout                                                               |
+| `doctor` | checks above                                                                                      | one line per check, or `checks[]` with `--json`                                                                                                                                                                                                                                                                                      | 0 / 1 / 2                                                                                                                                                                                              |
+| `info`   | prints the state                                                                                  | state plus `statePath`                                                                                                                                                                                                                                                                                                               | 0; 2 no state                                                                                                                                                                                          |
+| `down`   | teardown (Cleanup)                                                                                | notes per process and the session; `reason` and `state` on exit 2                                                                                                                                                                                                                                                                    | 0 done (also when a root PID is gone); 2 missing state file, a root PID that now belongs to another process (never touched), or a record still running after the last round (state file kept for both) |
 
 `scripts/fingerprint.mjs` (a byte copy of lars-create-verification's; never edit it here) keeps the proof manifest
 `features/.proven.json`:
@@ -268,7 +269,7 @@ facts. `scripts/ssr-check.js` is a `run-code` file for the SSR target (Inspect).
   or the label text's sibling.
 - The portal loads the Pangular Inspector overlay in development builds (`main.ts`, since the portal commit
   `f102b97`). It adds `div#pangular-popup-root` (shadow root) and a floating `button "Toggle Pangular
-  Inspector"` that appears last in every snapshot; recipes do not use it. Without a Pangular server on 9999 it
+Inspector"` that appears last in every snapshot; recipes do not use it. Without a Pangular server on 9999 it
   logs four console errors (doctor: `pangular-overlay` warning). With control-pangular-inspector's server
   running, the first page load in a new session asks for a one-time code in a `prompt` and playwright-cli
   commands fail with "does not handle the modal state" until it is answered (`dialog-accept <code>`, the code
@@ -282,7 +283,7 @@ facts. `scripts/ssr-check.js` is a `run-code` file for the SSR target (Inspect).
   (research/05-spikes.md). The helpers read providers through `ɵgetInjectorProviders` only.
 - Never call `ng.ɵsetProfiler(null)`: it clears every profiler, Angular DevTools' included.
 - Since Angular 22.0 a component without `changeDetection` is OnPush: `getDirectiveMetadata(...)
-  .changeDetection === 0`. `Eager` means the author opted out.
+.changeDetection === 0`. `Eager` means the author opted out.
 - Neither fixture gets the `NgZoneless` mark (it is set only inside `provideZonelessChangeDetection()`), and
   the portal loads zone.js yet is zoneless. Read zone mode from the LAST `NgZone` provider record, as the doctor
   does: bootstrap adds a `NoopNgZone` record before the app's providers and the profiler keeps both, so a

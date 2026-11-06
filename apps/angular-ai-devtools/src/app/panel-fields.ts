@@ -3,7 +3,7 @@
  *
  * The read itself lives in `extension/field-state.js` (T002, `globalThis.angularAiFieldState`):
  * it reports each field's validity and its own errors, the submit state, and yields
- * `cannot-tell` when every field is valid while submit stays disabled. This module is the
+ * `cannot-tell` when the form's root is invalid and carries no error kind. This module is the
  * display half and nothing else — it is handed the result the read produced (or the fact
  * that the read is still running, or that the form could not be read) and renders it. It
  * reads no form and installs no hook (N1): every fact in the pane arrived through the
@@ -14,8 +14,10 @@
  *   loading      the field set is being read. Never an empty list: a result that has not
  *                arrived yet is a read on its way, not a read that found nothing.
  *   fields       each field's validity, its own errors, and the submit state.
- *   cannot-tell  every field is valid while submit stays disabled: a rule outside the
- *                field states is holding it. The absence is named, and nothing else.
+ *   cannot-tell  the root is invalid and carries no error kind: a rule outside the
+ *                field states has no name here. The absence is named, and nothing else —
+ *                the fields and submit state that were read are shown as data, never as a
+ *                claim about why the form will not submit.
  *   error        the form could not be read. That is said, and nothing else.
  *
  * No rendered string names the cross-field rule, a field's value, or a reason beyond a
@@ -79,7 +81,11 @@ function asList(value: unknown): readonly unknown[] {
 function asField(raw: unknown): FieldEntry {
   if (isObject(raw)) {
     const errors = asList(raw['errors'])
-      .map((e) => (isObject(e) && typeof e['kind'] === 'string' ? { kind: String(e['kind']) } : null))
+      .map((e) =>
+        isObject(e) && typeof e['kind'] === 'string'
+          ? { kind: String(e['kind']) }
+          : null,
+      )
       .filter((e): e is { kind: string } => e !== null);
     return {
       valid: raw['valid'] === true,
@@ -105,7 +111,11 @@ function pane(message: string, lines: readonly string[]): Pane {
 }
 
 function loading(): FieldsSurface {
-  return { kind: 'loading', state: 'loading', ...pane(LOADING_MESSAGE, [LOADING_MESSAGE]) };
+  return {
+    kind: 'loading',
+    state: 'loading',
+    ...pane(LOADING_MESSAGE, [LOADING_MESSAGE]),
+  };
 }
 
 function fieldsSurface(
@@ -145,8 +155,17 @@ function cannotTell(
   fields: Record<string, FieldEntry>,
   submit: string,
 ): FieldsSurface {
-  const named = typeof reason === 'string' && reason.length > 0 ? reason : 'root-invalid-without-error-kind';
-  const message = 'cannot tell: every field is valid while submit stays disabled';
+  const named =
+    typeof reason === 'string' && reason.length > 0
+      ? reason
+      : 'root-invalid-without-error-kind';
+  // The reader reaches `cannot-tell` on the root alone — `rootInvalid && rootKind === null`
+  // (`extension/field-state.js`) — and never consults field validity or the submit state to
+  // decide. Saying "every field is valid while submit stays disabled" therefore asserted two
+  // things the reader had not checked, and both can be false. State only what was read.
+  const message =
+    'cannot tell: the form root is invalid and carries no error kind';
+  const rootLines = [message, `reason: ${named}`, `submit: ${submit}`];
   return {
     kind: 'cannot-tell',
     state: 'cannot-tell',
@@ -154,14 +173,20 @@ function cannotTell(
     fields,
     submit,
     submitState: submit,
-    ...pane(message, [message, named]),
+    ...pane(message, rootLines),
   };
 }
 
 function error(reason: unknown): FieldsSurface {
-  const named = typeof reason === 'string' && reason.length > 0 ? reason : UNREADABLE_FORM;
+  const named =
+    typeof reason === 'string' && reason.length > 0 ? reason : UNREADABLE_FORM;
   const message = 'error: the form could not be read';
-  return { kind: 'error', state: 'error', reason: named, ...pane(message, [message, named]) };
+  return {
+    kind: 'error',
+    state: 'error',
+    reason: named,
+    ...pane(message, [message, named]),
+  };
 }
 
 export function fieldsPanel(result?: unknown): FieldsSurface {
@@ -183,7 +208,9 @@ export function fieldsPanel(result?: unknown): FieldsSurface {
     const root = result['root'] as Record<string, unknown>;
     const rootErrors = Array.isArray(root['errors']) ? root['errors'] : [];
     const rootKind =
-      rootErrors.length > 0 && isObject(rootErrors[0]) && typeof rootErrors[0]['kind'] === 'string'
+      rootErrors.length > 0 &&
+      isObject(rootErrors[0]) &&
+      typeof rootErrors[0]['kind'] === 'string'
         ? String(rootErrors[0]['kind'])
         : null;
     const rootInvalid = root['invalid'] === true || root['valid'] === false;
@@ -215,7 +242,9 @@ export function fieldsPanel(result?: unknown): FieldsSurface {
   }
 
   if (state === 'error') {
-    return error(typeof result['reason'] === 'string' ? result['reason'] : UNREADABLE_FORM);
+    return error(
+      typeof result['reason'] === 'string' ? result['reason'] : UNREADABLE_FORM,
+    );
   }
 
   if (state === 'fields' || isObject(result['fields'])) {
@@ -226,7 +255,12 @@ export function fieldsPanel(result?: unknown): FieldsSurface {
         : typeof result['submit'] === 'string'
           ? String(result['submit'])
           : 'unknown';
-    const rootError = typeof result['rootError'] === 'string' ? result['rootError'] : typeof result['rootErrorKind'] === 'string' ? result['rootErrorKind'] : null;
+    const rootError =
+      typeof result['rootError'] === 'string'
+        ? result['rootError']
+        : typeof result['rootErrorKind'] === 'string'
+          ? result['rootErrorKind']
+          : null;
     return fieldsSurface(fields, submit, rootError);
   }
 

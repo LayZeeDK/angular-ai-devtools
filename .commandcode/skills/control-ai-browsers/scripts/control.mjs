@@ -4,13 +4,40 @@
 // Usage: node control.mjs <command> [sub] <instance> [--json] [--evidence=<dir>]  (see SKILL.md, Helpers)
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statfsSync, statSync, writeFileSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  renameSync,
+  rmSync,
+  statfsSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { createServer } from 'node:net';
-import path, { delimiter, dirname, isAbsolute, join, resolve, sep } from 'node:path';
+import path, {
+  delimiter,
+  dirname,
+  isAbsolute,
+  join,
+  resolve,
+  sep,
+} from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mapFresh, printable } from './fingerprint.mjs';
 import { drivePanel } from './panel.mjs';
-import { describe, matches, merge, processTable, snapshot, stop } from './proctree.mjs';
+import {
+  describe,
+  matches,
+  merge,
+  processTable,
+  snapshot,
+  stop,
+} from './proctree.mjs';
 
 /** @typedef {{ exe: string, scheme: string, product: string, modelRoots: string[], minFreeMib: number, modelComponents?: string[], browserArgs?: string[] }} BrowserDef */
 /** @typedef {{ name: string, folders: string, asset: string, useCase: string, contextWindow: number, toolCanary: boolean | 'report', downloadMib: number }} ModelDef */
@@ -95,7 +122,9 @@ import { describe, matches, merge, processTable, snapshot, stop } from './proctr
 const SKILL_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = resolve(SKILL_DIR, '..', '..', '..');
 /** @type {Registry} */
-const REGISTRY = JSON.parse(readFileSync(join(SKILL_DIR, 'instances.json'), 'utf8'));
+const REGISTRY = JSON.parse(
+  readFileSync(join(SKILL_DIR, 'instances.json'), 'utf8'),
+);
 
 /**
  * The primary checkout of the repository `dir` belongs to: the folder holding the git common dir. A worktree or a
@@ -105,8 +134,14 @@ const REGISTRY = JSON.parse(readFileSync(join(SKILL_DIR, 'instances.json'), 'utf
  */
 export function primaryCheckout(dir) {
   // A GIT_DIR or GIT_COMMON_DIR inherited from a hook or wrapper would point every shared path at another repository.
-  const env = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_')));
-  const r = spawnSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: dir, encoding: 'utf8', windowsHide: true, env });
+  const env = Object.fromEntries(
+    Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_')),
+  );
+  const r = spawnSync(
+    'git',
+    ['rev-parse', '--path-format=absolute', '--git-common-dir'],
+    { cwd: dir, encoding: 'utf8', windowsHide: true, env },
+  );
   const common = r.status === 0 ? r.stdout.trim() : '';
 
   return common ? dirname(resolve(common)) : dir;
@@ -124,11 +159,18 @@ export const PROFILES = resolve(ARTIFACT_ROOT, REGISTRY.profilesRoot);
 const KEEPER = join(SKILL_DIR, 'scripts', 'pipe-keeper.mjs');
 const SLOTS = 40;
 const SLOT_TRIES = 10;
-const IS_WORKTREE = existsSync(join(ROOT, '.git')) && statSync(join(ROOT, '.git')).isFile();
+const IS_WORKTREE =
+  existsSync(join(ROOT, '.git')) && statSync(join(ROOT, '.git')).isFile();
 const OWN_SLOT = 0;
 // bench.js hard-codes the main checkout's counter fixture (control-angular-dev-app owns it).
 /** @type {PortEntry} */
-const BENCH_APP = { name: 'bench app', port: 4222, kind: 'external', reason: 'control-angular-dev-app counter fixture in the main checkout; spikes/probes/bench.js:4 hard-codes it' };
+const BENCH_APP = {
+  name: 'bench app',
+  port: 4222,
+  kind: 'external',
+  reason:
+    'control-angular-dev-app counter fixture in the main checkout; spikes/probes/bench.js:4 hard-codes it',
+};
 const PROBE_ORIGIN = 'https://example.org/';
 const STEP_TIMEOUT_MS = 180000;
 const EXIT = { OK: 0, UNHEALTHY: 1, REFUSED: 2 };
@@ -165,8 +207,16 @@ export function parseArgs(argv) {
 }
 
 const { opts, pos } = parseArgs(process.argv.slice(2));
-const runId = new Date().toISOString().replace(/[-:]/g, '').replace(/\..*/, '').replace('T', '-');
-const evidenceDir = resolve(typeof opts['evidence'] === 'string' ? opts['evidence'] : join(TMP, 'evidence', runId));
+const runId = new Date()
+  .toISOString()
+  .replace(/[-:]/g, '')
+  .replace(/\..*/, '')
+  .replace('T', '-');
+const evidenceDir = resolve(
+  typeof opts['evidence'] === 'string'
+    ? opts['evidence']
+    : join(TMP, 'evidence', runId),
+);
 
 export class Refusal extends Error {}
 
@@ -208,7 +258,9 @@ function log(marker, msg) {
  * @returns {string | null}
  */
 export function reparseRefusal(dir, real) {
-  return sameDir(real, dir) ? null : `${dir} resolves through a reparse point to ${real}; use a real folder`;
+  return sameDir(real, dir)
+    ? null
+    : `${dir} resolves through a reparse point to ${real}; use a real folder`;
 }
 
 /**
@@ -226,10 +278,15 @@ export function positiveFlag(flag, value, fallback, what = 'number above 0') {
   }
 
   // Decimal digits only: Number() alone also reads 0x2400, 1e3 and padded whitespace.
-  const n = typeof value === 'string' && /^\d+(\.\d+)?$/.test(value) ? Number(value) : NaN;
+  const n =
+    typeof value === 'string' && /^\d+(\.\d+)?$/.test(value)
+      ? Number(value)
+      : NaN;
 
   if (!(Number.isFinite(n) && n > 0)) {
-    return refuse(`usage: --${flag}=<${what}>; got ${value === true ? `--${flag} with no value` : JSON.stringify(value)}`);
+    return refuse(
+      `usage: --${flag}=<${what}>; got ${value === true ? `--${flag} with no value` : JSON.stringify(value)}`,
+    );
   }
 
   return n;
@@ -289,7 +346,9 @@ export function upMismatch(name, pid, d, backend, port) {
     why.push(`port ${d.commandLine.port}, requested ${port}`);
   }
 
-  return why.length === 0 ? null : `${name} already runs as PID ${pid} on port ${d.commandLine.port} with another configuration (${why.join('; ')}); run "down ${name}" first`;
+  return why.length === 0
+    ? null
+    : `${name} already runs as PID ${pid} on port ${d.commandLine.port} with another configuration (${why.join('; ')}); run "down ${name}" first`;
 }
 
 // ---------- registry ----------
@@ -317,7 +376,9 @@ export function listeners(text) {
     const m = l.trim().split(/\s+/);
 
     if (m[0] === 'TCP' && m[3] === 'LISTENING') {
-      const port = Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1));
+      const port = Number(
+        (m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1),
+      );
       const pid = Number(m[4]);
       const pids = map.get(port) ?? [];
 
@@ -343,7 +404,9 @@ export function listeners(text) {
  */
 export function candidatePorts(rows, order, forced, first = order[0]) {
   const slots = first === undefined ? order : [...order, first];
-  const ports = rows.flatMap((r) => (r.kind === 'derived' ? slots.map((slot) => r.at(slot)) : [r.port]));
+  const ports = rows.flatMap((r) =>
+    r.kind === 'derived' ? slots.map((slot) => r.at(slot)) : [r.port],
+  );
 
   return [...new Set([...ports, ...(forced === undefined ? [] : [forced])])];
 }
@@ -362,7 +425,10 @@ export function candidatePorts(rows, order, forced, first = order[0]) {
  */
 export function planPorts(rows, order, busy, forced, first = order[0]) {
   /** @param {number[]} pids */
-  const heldBy = (pids) => (pids.length === 0 ? 'held by a process the OS did not name' : `held by PID ${pids.join(', ')}`);
+  const heldBy = (pids) =>
+    pids.length === 0
+      ? 'held by a process the OS did not name'
+      : `held by PID ${pids.join(', ')}`;
   /** @param {number} port */
   const holder = (port) => busy.get(port);
 
@@ -370,7 +436,10 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
     const pids = r.kind === 'fixed' ? holder(r.port) : undefined;
 
     if (r.kind === 'fixed' && pids !== undefined) {
-      return { ok: false, reason: `fixed port ${r.name} ${r.port} ${heldBy(pids)}; pinned by ${r.pin}` };
+      return {
+        ok: false,
+        reason: `fixed port ${r.name} ${r.port} ${heldBy(pids)}; pinned by ${r.pin}`,
+      };
     }
   }
 
@@ -378,19 +447,30 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
   const forcedPids = forced === undefined ? undefined : holder(forced);
 
   if (forced !== undefined && forcedPids !== undefined) {
-    return { ok: false, reason: `port ${forced} (--port) is ${heldBy(forcedPids)}; --port has no fallback` };
+    return {
+      ok: false,
+      reason: `port ${forced} (--port) is ${heldBy(forcedPids)}; --port has no fallback`,
+    };
   }
 
   /** @type {(r: PortRow, i: number, slot: number) => number} */
-  const portAt = (r, i, slot) => (r.kind !== 'derived' ? r.port : i === main && forced !== undefined ? forced : r.at(slot));
+  const portAt = (r, i, slot) =>
+    r.kind !== 'derived'
+      ? r.port
+      : i === main && forced !== undefined
+        ? forced
+        : r.at(slot);
   /** @type {string[]} */
   const tried = [];
 
   for (const slot of order) {
     const taken = rows.flatMap((r, i) => {
-      const pids = r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
+      const pids =
+        r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
 
-      return pids === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} ${heldBy(pids)}`];
+      return pids === undefined
+        ? []
+        : [`${r.name} ${portAt(r, i, slot)} ${heldBy(pids)}`];
     });
 
     if (taken.length === 0) {
@@ -412,9 +492,19 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
 
         const from = portAt(r, i, first);
         const pids = holder(from);
-        const why = pids !== undefined ? heldBy(pids) : order[0] === first ? `slot ${first} had ${tried[0]}` : 'taken after the check';
+        const why =
+          pids !== undefined
+            ? heldBy(pids)
+            : order[0] === first
+              ? `slot ${first} had ${tried[0]}`
+              : 'taken after the check';
 
-        return { name: r.name, port, kind: r.kind, reason: `fell back from ${from}: ${why}` };
+        return {
+          name: r.name,
+          port,
+          kind: r.kind,
+          reason: `fell back from ${from}: ${why}`,
+        };
       });
 
       return { ok: true, slot, ports };
@@ -423,7 +513,10 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
     tried.push(...taken);
   }
 
-  return { ok: false, reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}` };
+  return {
+    ok: false,
+    reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}`,
+  };
 }
 
 /**
@@ -449,14 +542,26 @@ export function portsCheck(ports, busy, tree) {
 
     const foreign = pids.filter((pid) => !tree.has(pid));
 
-    return foreign.length === 0 ? [] : [`${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`];
+    return foreign.length === 0
+      ? []
+      : [
+          `${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`,
+        ];
   });
 
   if (problems.length > 0) {
     return { status: 'fail', detail: problems.join('; ') };
   }
 
-  return { status: 'pass', detail: ports.map((p) => `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`).join(', ') };
+  return {
+    status: 'pass',
+    detail: ports
+      .map(
+        (p) =>
+          `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`,
+      )
+      .join(', '),
+  };
 }
 
 /**
@@ -494,8 +599,16 @@ async function bindAnswer(port, host) {
   return new Promise((resolve) => {
     const server = createServer();
 
-    server.once('error', (error) => resolve(/** @type {NodeJS.ErrnoException} */ (error).code === 'EADDRINUSE' ? 'busy' : 'unknown'));
-    server.listen({ host, port, exclusive: true }, () => server.close(() => resolve('free')));
+    server.once('error', (error) =>
+      resolve(
+        /** @type {NodeJS.ErrnoException} */ (error).code === 'EADDRINUSE'
+          ? 'busy'
+          : 'unknown',
+      ),
+    );
+    server.listen({ host, port, exclusive: true }, () =>
+      server.close(() => resolve('free')),
+    );
   });
 }
 
@@ -532,9 +645,23 @@ export async function probePort(port, hosts = LOOPBACKS) {
  * @returns {Map<number, number[]>}
  */
 function namedHolders() {
-  const netstat = join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32', 'netstat.exe');
+  const netstat = join(
+    process.env['SystemRoot'] ?? 'C:\\Windows',
+    'System32',
+    'netstat.exe',
+  );
 
-  return listeners(['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n'));
+  return listeners(
+    ['TCP', 'TCPv6']
+      .map(
+        (proto) =>
+          spawnSync(netstat, ['-ano', '-p', proto], {
+            encoding: 'utf8',
+            windowsHide: true,
+          }).stdout,
+      )
+      .join('\n'),
+  );
 }
 
 /**
@@ -586,7 +713,12 @@ export function sessionOf(name, port) {
  * @returns {Inst}
  */
 export function at(inst, port) {
-  return { ...inst, port, cdp: `http://127.0.0.1:${port}`, session: sessionOf(inst.name, port) };
+  return {
+    ...inst,
+    port,
+    cdp: `http://127.0.0.1:${port}`,
+    session: sessionOf(inst.name, port),
+  };
 }
 
 /**
@@ -596,13 +728,22 @@ export function at(inst, port) {
  * @returns {Inst}
  */
 export function instance(name, registry = REGISTRY, slot = OWN_SLOT) {
-  const i = name !== undefined && Object.hasOwn(registry.instances, name) ? registry.instances[name] : undefined;
+  const i =
+    name !== undefined && Object.hasOwn(registry.instances, name)
+      ? registry.instances[name]
+      : undefined;
 
   if (name === undefined || i === undefined) {
-    return refuse(`unknown instance "${name}"; known: ${Object.keys(registry.instances).join(', ')}`);
+    return refuse(
+      `unknown instance "${name}"; known: ${Object.keys(registry.instances).join(', ')}`,
+    );
   }
 
-  const b = (Object.hasOwn(registry.browsers, i.browser) ? registry.browsers[i.browser] : undefined) ?? refuse(`instance "${name}" names unknown browser "${i.browser}"`);
+  const b =
+    (Object.hasOwn(registry.browsers, i.browser)
+      ? registry.browsers[i.browser]
+      : undefined) ??
+    refuse(`instance "${name}" names unknown browser "${i.browser}"`);
   const dir = join(PROFILES, name);
 
   const index = Object.keys(registry.instances).indexOf(name);
@@ -611,7 +752,19 @@ export function instance(name, registry = REGISTRY, slot = OWN_SLOT) {
   // The shared instances load the primary checkout's build; `up --extension=<dir>` loads another one (state records it).
   const extensionDir = i.extension ? resolve(PRIMARY, i.extension) : null;
 
-  return { name, ...i, ...b, dir, session: sessionOf(name, port), port, cdp: `http://127.0.0.1:${port}`, mainPort: i.port, index, slot, extensionDir };
+  return {
+    name,
+    ...i,
+    ...b,
+    dir,
+    session: sessionOf(name, port),
+    port,
+    cdp: `http://127.0.0.1:${port}`,
+    mainPort: i.port,
+    index,
+    slot,
+    extensionDir,
+  };
 }
 
 /**
@@ -621,14 +774,17 @@ export function instance(name, registry = REGISTRY, slot = OWN_SLOT) {
  * @returns {string[]}
  */
 export function featuresFor(inst, backend) {
-  const extra = backend === 'gpu' || backend === 'cpu' ? inst.backend[backend] : undefined;
+  const extra =
+    backend === 'gpu' || backend === 'cpu' ? inst.backend[backend] : undefined;
 
   if (extra === undefined) {
     refuse(`--backend must be gpu or cpu`);
   }
 
   if (extra === null) {
-    refuse(`${inst.name} refuses --backend=${backend}: forcing CPU on Edge deletes the installed model (measured twice); Edge offers WebGPU variants only`);
+    refuse(
+      `${inst.name} refuses --backend=${backend}: forcing CPU on Edge deletes the installed model (measured twice); Edge offers WebGPU variants only`,
+    );
   }
 
   return [...inst.features, ...extra];
@@ -641,7 +797,13 @@ export function featuresFor(inst, backend) {
  * @returns {string[]}
  */
 export function launchArgs(inst, features) {
-  return [`--user-data-dir=${inst.dir}`, `--remote-debugging-port=${inst.port}`, ...switchesOf(inst), ...(features.length ? [`--enable-features=${features.join(',')}`] : []), 'about:blank'];
+  return [
+    `--user-data-dir=${inst.dir}`,
+    `--remote-debugging-port=${inst.port}`,
+    ...switchesOf(inst),
+    ...(features.length ? [`--enable-features=${features.join(',')}`] : []),
+    'about:blank',
+  ];
 }
 
 /**
@@ -654,9 +816,16 @@ export function launchArgs(inst, features) {
  * @returns {string[]}
  */
 export function switchesOf(inst) {
-  const extension = inst.extensionDir ? ['--remote-debugging-pipe', '--enable-unsafe-extension-debugging'] : [];
+  const extension = inst.extensionDir
+    ? ['--remote-debugging-pipe', '--enable-unsafe-extension-debugging']
+    : [];
 
-  return [...REGISTRY.commonArgs, ...(inst.browserArgs ?? []), ...(inst.args ?? []), ...extension];
+  return [
+    ...REGISTRY.commonArgs,
+    ...(inst.browserArgs ?? []),
+    ...(inst.args ?? []),
+    ...extension,
+  ];
 }
 
 /**
@@ -676,7 +845,10 @@ export function accountState(prefsText) {
     p = {};
   }
 
-  return { accounts: Array.isArray(p.account_info) ? p.account_info.length : 0, syncSetup: p.sync?.has_setup_completed === true };
+  return {
+    accounts: Array.isArray(p.account_info) ? p.account_info.length : 0,
+    syncSetup: p.sync?.has_setup_completed === true,
+  };
 }
 
 /**
@@ -697,7 +869,14 @@ function profileAccount(inst) {
  * @returns {string}
  */
 export function extensionId(dir) {
-  return [...createHash('sha256').update(Buffer.from(dir, 'utf16le')).digest().subarray(0, 16)].map((b) => String.fromCharCode(97 + (b >> 4), 97 + (b & 15))).join('');
+  return [
+    ...createHash('sha256')
+      .update(Buffer.from(dir, 'utf16le'))
+      .digest()
+      .subarray(0, 16),
+  ]
+    .map((b) => String.fromCharCode(97 + (b >> 4), 97 + (b & 15)))
+    .join('');
 }
 
 // ---------- processes ----------
@@ -723,7 +902,16 @@ export function jsonRows(text) {
  * @returns {unknown[]}
  */
 function pwshJson(command) {
-  const r = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', `${command} | ConvertTo-Json -Depth 4 -Compress`], { encoding: 'utf8', windowsHide: true });
+  const r = spawnSync(
+    'pwsh',
+    [
+      '-NoProfile',
+      '-NonInteractive',
+      '-Command',
+      `${command} | ConvertTo-Json -Depth 4 -Compress`,
+    ],
+    { encoding: 'utf8', windowsHide: true },
+  );
 
   return jsonRows(r.stdout ?? '');
 }
@@ -746,15 +934,26 @@ export function programOf(commandLine) {
 export function parseCommandLine(commandLine) {
   const cl = commandLine ?? '';
   // Node quotes a spawned argument that holds a space as a whole: "--user-data-dir=D:\a b\x".
-  const udd = cl.match(/"--user-data-dir=([^"]+)"|--user-data-dir=(?:"([^"]+)"|(\S+))/);
+  const udd = cl.match(
+    /"--user-data-dir=([^"]+)"|--user-data-dir=(?:"([^"]+)"|(\S+))/,
+  );
 
   return {
     userDataDir: udd ? (udd[1] ?? udd[2] ?? udd[3] ?? null) : null,
     port: Number(cl.match(/--remote-debugging-port=(\d+)/)?.[1] ?? NaN),
-    features: (cl.match(/--enable-features=(?:"([^"]+)"|(\S+))/)?.slice(1).find(Boolean) ?? '').split(',').filter(Boolean),
+    features: (
+      cl
+        .match(/--enable-features=(?:"([^"]+)"|(\S+))/)
+        ?.slice(1)
+        .find(Boolean) ?? ''
+    )
+      .split(',')
+      .filter(Boolean),
     args: REGISTRY.commonArgs.filter((a) => cl.includes(a)),
     // Every switch name, in order: drift compares them with what up launches.
-    flags: [...cl.matchAll(/(?:^|\s)"?(--[A-Za-z0-9-]+)/g)].map((m) => m[1] ?? ''),
+    flags: [...cl.matchAll(/(?:^|\s)"?(--[A-Za-z0-9-]+)/g)].map(
+      (m) => m[1] ?? '',
+    ),
   };
 }
 
@@ -763,7 +962,8 @@ export function parseCommandLine(commandLine) {
  * @param {string | null | undefined} b
  * @returns {boolean}
  */
-export const sameDir = (a, b) => !!a && !!b && resolve(a).toLowerCase() === resolve(b).toLowerCase();
+export const sameDir = (a, b) =>
+  !!a && !!b && resolve(a).toLowerCase() === resolve(b).toLowerCase();
 
 // The instance's browser processes are the ones of the registry's browser program whose --user-data-dir is its
 // profile; Lars's own browsers never match. Found to read them, never to stop by name.
@@ -775,7 +975,12 @@ export const sameDir = (a, b) => !!a && !!b && resolve(a).toLowerCase() === reso
 export function instanceProcessesIn(inst, rows) {
   const exeName = (inst.exe.split('\\').pop() ?? '').toLowerCase();
 
-  return rows.filter((p) => (programOf(p.commandLine)?.split('\\').pop() ?? '').toLowerCase() === exeName && sameDir(parseCommandLine(p.commandLine).userDataDir, inst.dir));
+  return rows.filter(
+    (p) =>
+      (programOf(p.commandLine)?.split('\\').pop() ?? '').toLowerCase() ===
+        exeName &&
+      sameDir(parseCommandLine(p.commandLine).userDataDir, inst.dir),
+  );
 }
 
 /**
@@ -791,9 +996,15 @@ function instanceProcesses(inst) {
  * @returns {ProcRecord | null}
  */
 function mainProcess(inst) {
-  const main = instanceProcesses(inst).filter((p) => !/--type=/.test(p.commandLine ?? ''));
+  const main = instanceProcesses(inst).filter(
+    (p) => !/--type=/.test(p.commandLine ?? ''),
+  );
 
-  return main.length === 1 ? /** @type {ProcRecord} */ (main[0]) : main.length === 0 ? null : refuse(`${main.length} main processes use ${inst.dir}`);
+  return main.length === 1
+    ? /** @type {ProcRecord} */ (main[0])
+    : main.length === 0
+      ? null
+      : refuse(`${main.length} main processes use ${inst.dir}`);
 }
 
 /**
@@ -812,9 +1023,15 @@ export function rootOf(st) {
  * @param {{ table?: () => ProcRecord[], stop?: (records: ProcRecord[]) => StopResult }} [deps]
  * @returns {{ records: ProcRecord[], result: StopResult }}
  */
-export function stopRun(st, { table = processTable, stop: stopRecords = stop } = {}) {
+export function stopRun(
+  st,
+  { table = processTable, stop: stopRecords = stop } = {},
+) {
   const root = rootOf(st);
-  const records = merge(st.tree ?? [], root === undefined ? [] : snapshot(root, { table }));
+  const records = merge(
+    st.tree ?? [],
+    root === undefined ? [] : snapshot(root, { table }),
+  );
 
   return { records, result: stopRecords(records) };
 }
@@ -829,25 +1046,49 @@ export function stopRun(st, { table = processTable, stop: stopRecords = stop } =
 export function downOutcome(st, result) {
   // A state file written before proctree.mjs records no tree: stopping nothing and removing it would lose the run.
   if (st.tree === undefined) {
-    return { code: 2, notes: [], reason: `refused: the state file records no process tree (written before proctree.mjs); nothing stopped: run attach to record the running instance, then down` };
+    return {
+      code: 2,
+      notes: [],
+      reason: `refused: the state file records no process tree (written before proctree.mjs); nothing stopped: run attach to record the running instance, then down`,
+    };
   }
 
   const root = rootOf(st);
   /** @type {string[]} */
   const reasons = [];
-  const notes = [...result.stopped.map((r) => `stopped ${describe(r)}`), ...result.gone.map((r) => `${describe(r)} was not running`)];
+  const notes = [
+    ...result.stopped.map((r) => `stopped ${describe(r)}`),
+    ...result.gone.map((r) => `${describe(r)} was not running`),
+  ];
 
   for (const r of result.refused) {
-    if (r.reason === 'reused' && root !== undefined && r.pid === root.pid && r.start === root.start) {
-      reasons.push(`refused: PID ${r.pid} now belongs to another process (its start time or command line differs from the state file); not stopping a process this skill did not start`);
+    if (
+      r.reason === 'reused' &&
+      root !== undefined &&
+      r.pid === root.pid &&
+      r.start === root.start
+    ) {
+      reasons.push(
+        `refused: PID ${r.pid} now belongs to another process (its start time or command line differs from the state file); not stopping a process this skill did not start`,
+      );
     } else if (r.reason === 'survived') {
-      reasons.push(`${describe(r)} still runs after the last round; run down again`);
+      reasons.push(
+        `${describe(r)} still runs after the last round; run down again`,
+      );
     } else {
-      notes.push(`left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`);
+      notes.push(
+        `left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`,
+      );
     }
   }
 
-  return reasons.length === 0 ? { code: 0, notes, reason: null } : { code: 2, notes, reason: `${reasons.join('; ')}; the state file is kept` };
+  return reasons.length === 0
+    ? { code: 0, notes, reason: null }
+    : {
+        code: 2,
+        notes,
+        reason: `${reasons.join('; ')}; the state file is kept`,
+      };
 }
 
 /**
@@ -883,11 +1124,15 @@ export function drift(inst, proc) {
   const have = [...cl.features].sort().join(',');
   /** @type {Backend[]} */
   const kinds = ['gpu', 'cpu'];
-  const backend = kinds.find((k) => {
-    const extra = inst.backend[k];
+  const backend =
+    kinds.find((k) => {
+      const extra = inst.backend[k];
 
-    return Array.isArray(extra) && [...inst.features, ...extra].sort().join(',') === have;
-  }) ?? null;
+      return (
+        Array.isArray(extra) &&
+        [...inst.features, ...extra].sort().join(',') === have
+      );
+    }) ?? null;
   /** @type {string[]} */
   const problems = [];
 
@@ -901,19 +1146,31 @@ export function drift(inst, proc) {
   }
 
   if (!backend) {
-    problems.push(`--enable-features matches no registry backend: ${cl.features.join(',')}`);
+    problems.push(
+      `--enable-features matches no registry backend: ${cl.features.join(',')}`,
+    );
   }
 
   // An entry may carry a value (--name=value): its name must be a switch, and the whole entry must be on the line.
   /** @param {string} a */
   const nameOf = (a) => a.split('=')[0] ?? a;
-  const tokens = (proc.commandLine ?? '').split(/\s+/).map((t) => t.replace(/^"|"$/g, ''));
+  const tokens = (proc.commandLine ?? '')
+    .split(/\s+/)
+    .map((t) => t.replace(/^"|"$/g, ''));
 
-  for (const a of switchesOf(inst).filter((x) => !cl.flags.includes(nameOf(x)) || (x.includes('=') && !tokens.includes(x)))) {
+  for (const a of switchesOf(inst).filter(
+    (x) =>
+      !cl.flags.includes(nameOf(x)) || (x.includes('=') && !tokens.includes(x)),
+  )) {
     problems.push(`missing ${a}`);
   }
 
-  const launched = ['--user-data-dir', '--remote-debugging-port', '--enable-features', ...switchesOf(inst).map(nameOf)];
+  const launched = [
+    '--user-data-dir',
+    '--remote-debugging-port',
+    '--enable-features',
+    ...switchesOf(inst).map(nameOf),
+  ];
 
   for (const [i, f] of cl.flags.entries()) {
     if (!launched.includes(f)) {
@@ -961,7 +1218,9 @@ async function waitFor(fn, timeoutMs, everyMs = 1000) {
  */
 async function cdpJson(inst, path) {
   try {
-    const r = await fetch(`${inst.cdp}${path}`, { signal: AbortSignal.timeout(3000) });
+    const r = await fetch(`${inst.cdp}${path}`, {
+      signal: AbortSignal.timeout(3000),
+    });
 
     return r.ok ? await r.json() : null;
   } catch {
@@ -974,7 +1233,10 @@ async function cdpJson(inst, path) {
  * @returns {Promise<CdpTarget[]>}
  */
 async function pageTargets(inst) {
-  return (/** @type {CdpTarget[] | null} */ (await cdpJson(inst, '/json/list')) ?? []).filter((t) => t.type === 'page');
+  const listed = /** @type {CdpTarget[] | null} */ (
+    await cdpJson(inst, '/json/list')
+  );
+  return (listed ?? []).filter((t) => t.type === 'page');
 }
 
 /**
@@ -1025,7 +1287,8 @@ function pinFolderOf(name) {
  */
 export function pinProblems(v, name, roots) {
   /** @type {(x: unknown) => x is Record<string, unknown>} */
-  const isObject = (x) => typeof x === 'object' && x !== null && !Array.isArray(x);
+  const isObject = (x) =>
+    typeof x === 'object' && x !== null && !Array.isArray(x);
 
   if (!isObject(v) || !isObject(v['roots']) || !isObject(v['files'])) {
     return ['not an object with roots and files'];
@@ -1050,7 +1313,9 @@ export function pinProblems(v, name, roots) {
     }
 
     if (typeof version !== 'string' || !VERSION.test(version)) {
-      out.push(`${root} version ${JSON.stringify(version)} is not a version folder name`);
+      out.push(
+        `${root} version ${JSON.stringify(version)} is not a version folder name`,
+      );
     }
 
     const list = files[root];
@@ -1061,12 +1326,20 @@ export function pinProblems(v, name, roots) {
     }
 
     for (const [f, size] of Object.entries(list)) {
-      if (f.split('/').some((s) => s === '' || s === '.' || s === '..' || /[\\:]/.test(s))) {
-        out.push(`${root} file ${JSON.stringify(f)} is not a plain relative path`);
+      if (
+        f
+          .split('/')
+          .some((s) => s === '' || s === '.' || s === '..' || /[\\:]/.test(s))
+      ) {
+        out.push(
+          `${root} file ${JSON.stringify(f)} is not a plain relative path`,
+        );
       }
 
       if (!Number.isInteger(size) || /** @type {number} */ (size) < 0) {
-        out.push(`${root} file ${f} size ${JSON.stringify(size)} is not a byte count`);
+        out.push(
+          `${root} file ${f} size ${JSON.stringify(size)} is not a byte count`,
+        );
       }
     }
   }
@@ -1098,13 +1371,17 @@ function readPin(inst) {
   try {
     v = JSON.parse(readFileSync(f, 'utf8'));
   } catch (e) {
-    return refuse(`${f} does not parse (${e instanceof Error ? e.message : String(e)}); run "model pin ${inst.name}" again on a healthy instance`);
+    return refuse(
+      `${f} does not parse (${e instanceof Error ? e.message : String(e)}); run "model pin ${inst.name}" again on a healthy instance`,
+    );
   }
 
   const bad = pinProblems(v, inst.name, inst.pin ?? []);
 
   if (bad.length > 0) {
-    refuse(`${f} is not a valid pin (${bad.slice(0, 3).join('; ')}); run "model pin ${inst.name}" again on a healthy instance`);
+    refuse(
+      `${f} is not a valid pin (${bad.slice(0, 3).join('; ')}); run "model pin ${inst.name}" again on a healthy instance`,
+    );
   }
 
   return /** @type {Pin} */ (v);
@@ -1117,7 +1394,13 @@ function readPin(inst) {
  * @returns {PinPlan}
  */
 function planFor(inst, pin) {
-  return pinPlan(pin.roots, pinRootsOnDisk(inst), (root, version) => listingDiff(pin.files[root] ?? {}, listing(join(inst.dir, root, version))).length > 0);
+  return pinPlan(
+    pin.roots,
+    pinRootsOnDisk(inst),
+    (root, version) =>
+      listingDiff(pin.files[root] ?? {}, listing(join(inst.dir, root, version)))
+        .length > 0,
+  );
 }
 
 /**
@@ -1138,7 +1421,10 @@ export function restoreSwap(dir) {
 /** @param {Inst} inst */
 function recoverPinSwap(inst) {
   if (restoreSwap(pinFolderOf(inst.name))) {
-    log('WARN', `${inst.name}: put back the pin an interrupted "model pin" left at ${pinFolderOf(inst.name)}.old`);
+    log(
+      'WARN',
+      `${inst.name}: put back the pin an interrupted "model pin" left at ${pinFolderOf(inst.name)}.old`,
+    );
   }
 }
 
@@ -1158,7 +1444,9 @@ function unpinnedRoots(inst, pin) {
  * @returns {Record<string, string[]>}
  */
 function pinRootsOnDisk(inst) {
-  return Object.fromEntries((inst.pin ?? []).map((r) => [r, versionFolders(join(inst.dir, r))]));
+  return Object.fromEntries(
+    (inst.pin ?? []).map((r) => [r, versionFolders(join(inst.dir, r))]),
+  );
 }
 
 /**
@@ -1176,7 +1464,10 @@ function restorePin(inst) {
 
   if (pin === null) {
     if (inst.pin) {
-      log('WARN', `${inst.name} has no pin yet: once doctor passes, run "model pin ${inst.name}" so up can restore its model components`);
+      log(
+        'WARN',
+        `${inst.name} has no pin yet: once doctor passes, run "model pin ${inst.name}" so up can restore its model components`,
+      );
     }
 
     return null;
@@ -1186,7 +1477,10 @@ function restorePin(inst) {
   const unpinned = unpinnedRoots(inst, pin);
 
   if (unpinned.length > 0) {
-    log('WARN', `the pin of ${inst.name} lacks ${unpinned.join(', ')}; run "model pin ${inst.name}" again once doctor passes`);
+    log(
+      'WARN',
+      `the pin of ${inst.name} lacks ${unpinned.join(', ')}; run "model pin ${inst.name}" again once doctor passes`,
+    );
   }
 
   if (plan.remove.length === 0 && plan.add.length === 0) {
@@ -1194,7 +1488,10 @@ function restorePin(inst) {
   }
 
   applyPin(inst.dir, pinFolderOf(inst.name), plan, pin.files);
-  log('WARN', `${inst.name}: the model components on disk differed from the pin of ${pin.at}; restored it (${describePlan(plan)})`);
+  log(
+    'WARN',
+    `${inst.name}: the model components on disk differed from the pin of ${pin.at}; restored it (${describePlan(plan)})`,
+  );
 
   return plan;
 }
@@ -1206,7 +1503,9 @@ function restorePin(inst) {
  * @returns {number | null}
  */
 export function slotFor(inst, port) {
-  const slot = Array.from({ length: SLOTS }, (_, i) => i).find((i) => portAt(inst.index, inst.mainPort, i) === port);
+  const slot = Array.from({ length: SLOTS }, (_, i) => i).find(
+    (i) => portAt(inst.index, inst.mainPort, i) === port,
+  );
 
   return slot ?? null;
 }
@@ -1225,9 +1524,30 @@ function writeState(inst, proc, placed, seen = []) {
   const live = new Map(rows.map((r) => [r.pid, r]));
   // A state file of this same browser process keeps what it recorded; one of another process keeps only its records
   // that still run (a down that exited 2 left them), so a later down still stops them.
-  const kept = prior === null ? [] : prior.pid === proc.pid && rootOf(prior)?.start === proc.start ? prior.tree ?? [] : (prior.tree ?? []).filter((r) => matches(r, live.get(r.pid)));
+  const kept =
+    prior === null
+      ? []
+      : prior.pid === proc.pid && rootOf(prior)?.start === proc.start
+        ? (prior.tree ?? [])
+        : (prior.tree ?? []).filter((r) => matches(r, live.get(r.pid)));
   /** @type {State} */
-  const st = { instance: inst.name, pid: proc.pid, tree: merge(merge(snapshot(proc, { table: () => rows }), kept), seen), port: inst.port, slot: placed?.slot ?? slotFor(inst, inst.port), ports: [...(placed?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }]), BENCH_APP], cdp: inst.cdp, session: inst.session, profile: inst.dir, backend: drift(inst, proc).backend, extensionDir: inst.extensionDir, at: new Date().toISOString() };
+  const st = {
+    instance: inst.name,
+    pid: proc.pid,
+    tree: merge(merge(snapshot(proc, { table: () => rows }), kept), seen),
+    port: inst.port,
+    slot: placed?.slot ?? slotFor(inst, inst.port),
+    ports: [
+      ...(placed?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }]),
+      BENCH_APP,
+    ],
+    cdp: inst.cdp,
+    session: inst.session,
+    profile: inst.dir,
+    backend: drift(inst, proc).backend,
+    extensionDir: inst.extensionDir,
+    at: new Date().toISOString(),
+  };
   writeFileSync(statePath(inst.name), JSON.stringify(st, null, 2));
 
   return st;
@@ -1243,8 +1563,12 @@ let attachedHere = null;
  * @returns {string | null}
  */
 export function findPlaywrightCli(pathEnv) {
-  const shimDir = pathEnv.split(delimiter).find((d) => isAbsolute(d) && existsSync(join(d, 'playwright-cli.cmd')));
-  const js = shimDir && join(shimDir, 'node_modules', '@playwright', 'cli', 'playwright-cli.js');
+  const shimDir = pathEnv
+    .split(delimiter)
+    .find((d) => isAbsolute(d) && existsSync(join(d, 'playwright-cli.cmd')));
+  const js =
+    shimDir &&
+    join(shimDir, 'node_modules', '@playwright', 'cli', 'playwright-cli.js');
 
   return js && existsSync(js) ? js : null;
 }
@@ -1263,11 +1587,22 @@ function pw(inst, args, { raw = false, timeoutMs = 120000 } = {}) {
   }
 
   const full = [...(raw ? ['--raw'] : []), `-s=${inst.session}`, ...args];
-  const r = spawnSync(process.execPath, [js, ...full], { cwd: ROOT, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024, timeout: timeoutMs });
-  const error = /** @type {(Error & { code?: string }) | undefined} */ (r.error);
+  const r = spawnSync(process.execPath, [js, ...full], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    windowsHide: true,
+    maxBuffer: 64 * 1024 * 1024,
+    timeout: timeoutMs,
+  });
+  const error = /** @type {(Error & { code?: string }) | undefined} */ (
+    r.error
+  );
 
   if (error?.code === 'ETIMEDOUT') {
-    return { code: -1, out: `playwright-cli ${args[0]} timed out after ${timeoutMs} ms; a tab renderer may be hung (see Gotchas)` };
+    return {
+      code: -1,
+      out: `playwright-cli ${args[0]} timed out after ${timeoutMs} ms; a tab renderer may be hung (see Gotchas)`,
+    };
   }
 
   return { code: r.status, out: (r.stdout ?? '') + (r.stderr ?? '') };
@@ -1287,13 +1622,21 @@ function isAttached(inst) {
  * @param {Inst} inst
  */
 async function freshBlankTab(inst) {
-  const stale = (await pageTargets(inst)).filter((t) => t.url === 'about:blank');
+  const stale = (await pageTargets(inst)).filter(
+    (t) => t.url === 'about:blank',
+  );
 
   if (stale.length === 0) {
     return;
   }
 
-  const opened = await fetch(`${inst.cdp}/json/new?about:blank`, { method: 'PUT', signal: AbortSignal.timeout(3000) }).then((r) => r.ok, () => false);
+  const opened = await fetch(`${inst.cdp}/json/new?about:blank`, {
+    method: 'PUT',
+    signal: AbortSignal.timeout(3000),
+  }).then(
+    (r) => r.ok,
+    () => false,
+  );
 
   // Without a new tab, closing the old ones would leave the browser with none.
   if (!opened) {
@@ -1301,7 +1644,9 @@ async function freshBlankTab(inst) {
   }
 
   for (const t of stale) {
-    await fetch(`${inst.cdp}/json/close/${t.id}`, { signal: AbortSignal.timeout(3000) }).catch(() => {});
+    await fetch(`${inst.cdp}/json/close/${t.id}`, {
+      signal: AbortSignal.timeout(3000),
+    }).catch(() => {});
   }
 }
 
@@ -1317,7 +1662,9 @@ async function ensureAttached(inst) {
   const r = pw(inst, ['attach', `--cdp=${inst.cdp}`]);
 
   if (r.code !== 0 || !isAttached(inst)) {
-    refuse(`playwright-cli could not attach ${inst.session} to ${inst.cdp}: ${r.out.trim().slice(0, 300)}`);
+    refuse(
+      `playwright-cli could not attach ${inst.session} to ${inst.cdp}: ${r.out.trim().slice(0, 300)}`,
+    );
   }
 
   attachedHere = inst;
@@ -1331,8 +1678,14 @@ async function ensureAttached(inst) {
  * @param {TabOptions} [options]
  * @returns {string}
  */
-export function tabSource(body, { args = {}, url = PROBE_ORIGIN, purpose = 'probe' } = {}) {
-  const target = url && url.startsWith('https://') ? `${url}${url.includes('?') ? '&' : '?'}ai-browsers=${purpose}` : url;
+export function tabSource(
+  body,
+  { args = {}, url = PROBE_ORIGIN, purpose = 'probe' } = {},
+) {
+  const target =
+    url && url.startsWith('https://')
+      ? `${url}${url.includes('?') ? '&' : '?'}ai-browsers=${purpose}`
+      : url;
 
   return `async page => {
   const p = await page.context().newPage();
@@ -1362,12 +1715,23 @@ async function inTab(inst, body, options, timeoutMs) {
  * @param {number} [timeoutMs]  default `--timeout-min` (15) minutes
  * @returns {Promise<unknown>}
  */
-async function runCode(inst, src, timeoutMs = positiveFlag('timeout-min', opts['timeout-min'], 15) * 60000) {
+async function runCode(
+  inst,
+  src,
+  timeoutMs = positiveFlag('timeout-min', opts['timeout-min'], 15) * 60000,
+) {
   await ensureAttached(inst);
   mkdirSync(join(TMP, 'run'), { recursive: true });
-  const file = join(TMP, 'run', `${inst.session}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.js`);
+  const file = join(
+    TMP,
+    'run',
+    `${inst.session}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.js`,
+  );
   writeFileSync(file, src);
-  const r = pw(inst, ['run-code', `--filename=${file}`], { raw: true, timeoutMs });
+  const r = pw(inst, ['run-code', `--filename=${file}`], {
+    raw: true,
+    timeoutMs,
+  });
   rmSync(file, { force: true });
 
   if (r.code !== 0) {
@@ -1626,7 +1990,10 @@ function readLocalState(inst) {
 
 /** @param {Inst} inst */
 function perfClass(inst) {
-  return readLocalState(inst)?.optimization_guide?.on_device?.performance_class ?? null;
+  return (
+    readLocalState(inst)?.optimization_guide?.on_device?.performance_class ??
+    null
+  );
 }
 
 /**
@@ -1637,7 +2004,12 @@ function freeSpace(inst) {
   const st = statfsSync(existsSync(inst.dir) ? inst.dir : PROFILES);
   const bytes = Number(st.bavail) * Number(st.bsize);
 
-  return { bytes, mib: Math.floor(bytes / 1048576), minMib: inst.minFreeMib, volume: inst.dir.slice(0, 2) };
+  return {
+    bytes,
+    mib: Math.floor(bytes / 1048576),
+    minMib: inst.minFreeMib,
+    volume: inst.dir.slice(0, 2),
+  };
 }
 
 /**
@@ -1648,7 +2020,9 @@ function freeSpace(inst) {
  * @returns {boolean}
  */
 export function insideProfile(profileReal, dirReal) {
-  return dirReal.toLowerCase().startsWith(profileReal.toLowerCase().replace(/[\\/]+$/, '') + sep);
+  return dirReal
+    .toLowerCase()
+    .startsWith(profileReal.toLowerCase().replace(/[\\/]+$/, '') + sep);
 }
 
 /**
@@ -1700,7 +2074,15 @@ export function diskModels(inst) {
       /** @type {ModelManifest} */
       const m = JSON.parse(readFileSync(manifest, 'utf8'));
       const bytes = dirSize(dir);
-      out.push({ name: m.BaseModelSpec?.name ?? m.name, modelVersion: m.BaseModelSpec?.version, componentVersion: m.version, performanceHints: m.BaseModelSpec?.supported_performance_hints, dir, bytes, mib: Math.round(bytes / 1048576) });
+      out.push({
+        name: m.BaseModelSpec?.name ?? m.name,
+        modelVersion: m.BaseModelSpec?.version,
+        componentVersion: m.version,
+        performanceHints: m.BaseModelSpec?.supported_performance_hints,
+        dir,
+        bytes,
+        mib: Math.round(bytes / 1048576),
+      });
 
       return;
     }
@@ -1724,13 +2106,46 @@ export function diskModels(inst) {
  * @returns {Broker}
  */
 export function parseBroker(text) {
-  const assets = [...text.matchAll(/([a-z0-9_]+) \| (\d{4}\.[\d.]+) \| (Ready|Not Installed|Registering|Background Installing|Foreground Installing|Uninstalling|Unknown) \| (\d+)%/g)].map((m) => ({ name: m[1] ?? '', version: m[2] ?? '', state: m[3] ?? '', progress: Number(m[4]) }));
-  const useCases = Object.fromEntries([...text.matchAll(/\| ([a-z][a-z0-9_]+) \| (Available|Not Supported|Pending Usage|Pending Assets|[A-Z][A-Za-z ]+?) (?=\|)/g)].map((m) => [m[1] ?? '', (m[2] ?? '').trim()]));
-  const models = [...text.matchAll(/([a-z0-9_]+) \| ([\d,.]+) \| MiB \| (?:([A-Z]:\\[^|]+?) \| )?(GPU[^|]*?|CPU)(?= \||$)/g)].map((m) => ({ name: m[1] ?? '', mib: Number((m[2] ?? '').replace(/,/g, '')), weights: m[3] ?? null, backend: (m[4] ?? '').trim() }));
+  const assets = [
+    ...text.matchAll(
+      /([a-z0-9_]+) \| (\d{4}\.[\d.]+) \| (Ready|Not Installed|Registering|Background Installing|Foreground Installing|Uninstalling|Unknown) \| (\d+)%/g,
+    ),
+  ].map((m) => ({
+    name: m[1] ?? '',
+    version: m[2] ?? '',
+    state: m[3] ?? '',
+    progress: Number(m[4]),
+  }));
+  const useCases = Object.fromEntries(
+    [
+      ...text.matchAll(
+        /\| ([a-z][a-z0-9_]+) \| (Available|Not Supported|Pending Usage|Pending Assets|[A-Z][A-Za-z ]+?) (?=\|)/g,
+      ),
+    ].map((m) => [m[1] ?? '', (m[2] ?? '').trim()]),
+  );
+  const models = [
+    ...text.matchAll(
+      /([a-z0-9_]+) \| ([\d,.]+) \| MiB \| (?:([A-Z]:\\[^|]+?) \| )?(GPU[^|]*?|CPU)(?= \||$)/g,
+    ),
+  ].map((m) => ({
+    name: m[1] ?? '',
+    mib: Number((m[2] ?? '').replace(/,/g, '')),
+    weights: m[3] ?? null,
+    backend: (m[4] ?? '').trim(),
+  }));
   /** @type {(label: string) => string | null} */
-  const pick = (label) => text.match(new RegExp(`${label} \\| ([^|]+?) \\|`))?.[1] ?? null;
+  const pick = (label) =>
+    text.match(new RegExp(`${label} \\| ([^|]+?) \\|`))?.[1] ?? null;
 
-  return { manifestPath: pick('Manifest Path'), manifestLoaded: pick('Manifest Loaded'), perfClass: pick('Performance Class'), diskInstall: pick('Enough disk space to install'), assets, useCases, models };
+  return {
+    manifestPath: pick('Manifest Path'),
+    manifestLoaded: pick('Manifest Loaded'),
+    perfClass: pick('Performance Class'),
+    diskInstall: pick('Enough disk space to install'),
+    assets,
+    useCases,
+    models,
+  };
 }
 
 /**
@@ -1757,14 +2172,24 @@ export function brokerPending(b) {
  */
 export function assetVerdict(b, asset, onDisk, edge) {
   if (b.disabled || b.manifestLoaded !== 'true') {
-    return { verdict: 'other', detail: b.disabled ? b.error : 'Broker State has not loaded the model manifest yet' };
+    return {
+      verdict: 'other',
+      detail: b.disabled
+        ? b.error
+        : 'Broker State has not loaded the model manifest yet',
+    };
   }
 
   const rows = b.assets.filter((a) => asset.test(a.name));
   const row = rows.find((a) => a.state === 'Ready') ?? rows[0];
 
   if (row === undefined) {
-    return edge ? { verdict: 'in-flight', detail: `no ${asset.source} row while the manifest is loaded: a model component update is in flight` } : { verdict: 'other', detail: `no ${asset.source} row` };
+    return edge
+      ? {
+          verdict: 'in-flight',
+          detail: `no ${asset.source} row while the manifest is loaded: a model component update is in flight`,
+        }
+      : { verdict: 'other', detail: `no ${asset.source} row` };
   }
 
   if (row.state === 'Ready') {
@@ -1772,15 +2197,24 @@ export function assetVerdict(b, asset, onDisk, edge) {
   }
 
   if (/Installing|Registering/.test(row.state)) {
-    return { verdict: 'in-flight', detail: `${row.name} ${row.version} ${row.state} ${row.progress}%` };
+    return {
+      verdict: 'in-flight',
+      detail: `${row.name} ${row.version} ${row.state} ${row.progress}%`,
+    };
   }
 
   // Right after the update the old folder is still beside the new one; Edge deletes it at the next start (measured).
   if (onDisk.some((v) => v !== row.version)) {
-    return { verdict: 'mismatch', detail: `Broker State wants ${row.name} ${row.version} (${row.state}), the disk holds ${onDisk.join(', ')}: the model component moved past the version the manifest names` };
+    return {
+      verdict: 'mismatch',
+      detail: `Broker State wants ${row.name} ${row.version} (${row.state}), the disk holds ${onDisk.join(', ')}: the model component moved past the version the manifest names`,
+    };
   }
 
-  return { verdict: 'other', detail: `${row.name} ${row.version} ${row.state} ${row.progress}%` };
+  return {
+    verdict: 'other',
+    detail: `${row.name} ${row.version} ${row.state} ${row.progress}%`,
+  };
 }
 
 /**
@@ -1789,7 +2223,12 @@ export function assetVerdict(b, asset, onDisk, edge) {
  * @returns {string[]}
  */
 export function versionFolders(dir) {
-  return existsSync(dir) ? readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory() && VERSION.test(e.name)).map((e) => e.name).sort() : [];
+  return existsSync(dir)
+    ? readdirSync(dir, { withFileTypes: true })
+        .filter((e) => e.isDirectory() && VERSION.test(e.name))
+        .map((e) => e.name)
+        .sort()
+    : [];
 }
 
 /**
@@ -1865,7 +2304,9 @@ export function pinPlan(pinned, disk, differs = () => false) {
 
   for (const [root, version] of Object.entries(pinned)) {
     const have = disk[root] ?? [];
-    plan.remove.push(...have.filter((v) => v !== version).map((v) => ({ root, version: v })));
+    plan.remove.push(
+      ...have.filter((v) => v !== version).map((v) => ({ root, version: v })),
+    );
 
     if (!have.includes(version)) {
       plan.add.push({ root, version });
@@ -1885,7 +2326,17 @@ export function pinPlan(pinned, disk, differs = () => false) {
 export function describePlan(plan) {
   const roots = [...new Set([...plan.remove, ...plan.add].map((f) => f.root))];
 
-  return roots.map((r) => [r, ...plan.remove.filter((f) => f.root === r).map((f) => `-${f.version}`), ...plan.add.filter((f) => f.root === r).map((f) => `${f.replace ? '~' : '+'}${f.version}`)].join(' ')).join('; ');
+  return roots
+    .map((r) =>
+      [
+        r,
+        ...plan.remove.filter((f) => f.root === r).map((f) => `-${f.version}`),
+        ...plan.add
+          .filter((f) => f.root === r)
+          .map((f) => `${f.replace ? '~' : '+'}${f.version}`),
+      ].join(' '),
+    )
+    .join('; ');
 }
 
 /**
@@ -1903,7 +2354,9 @@ function refuseLinked(dir, profileReal, what) {
   }
 
   if (profileReal !== '' && !insideProfile(profileReal, real)) {
-    refuse(`${dir} resolves to ${real}, outside the profile ${profileReal}; not ${what}`);
+    refuse(
+      `${dir} resolves to ${real}, outside the profile ${profileReal}; not ${what}`,
+    );
   }
 }
 
@@ -1940,7 +2393,9 @@ export function applyPin(profile, pinFolder, plan, files) {
     const bad = listingDiff(files[f.root] ?? {}, listing(src));
 
     if (bad.length > 0) {
-      refuse(`the pin's ${f.root}\\${f.version} does not match pin.json (${bad.slice(0, 3).join('; ')}); run "model pin" again on a healthy instance`);
+      refuse(
+        `the pin's ${f.root}\\${f.version} does not match pin.json (${bad.slice(0, 3).join('; ')}); run "model pin" again on a healthy instance`,
+      );
     }
   }
 
@@ -1961,7 +2416,9 @@ export function applyPin(profile, pinFolder, plan, files) {
       const bad = listingDiff(files[f.root] ?? {}, listing(staging));
 
       if (bad.length > 0) {
-        refuse(`the copy of ${f.root}\\${f.version} does not match the pin (${bad.slice(0, 3).join('; ')}); nothing in the profile was changed`);
+        refuse(
+          `the copy of ${f.root}\\${f.version} does not match the pin (${bad.slice(0, 3).join('; ')}); nothing in the profile was changed`,
+        );
       }
     }
   } catch (e) {
@@ -1988,7 +2445,10 @@ export function applyPin(profile, pinFolder, plan, files) {
   }
 
   for (const f of plan.add) {
-    rmSync(join(profile, f.root, `${f.version}.replaced`), { recursive: true, force: true });
+    rmSync(join(profile, f.root, `${f.version}.replaced`), {
+      recursive: true,
+      force: true,
+    });
   }
 }
 
@@ -1999,7 +2459,11 @@ export function applyPin(profile, pinFolder, plan, files) {
  * @returns {string[]}
  */
 function modelVersionsOnDisk(inst, disk = diskModels(inst)) {
-  return disk.filter((d) => d.name === inst.model.name).flatMap((d) => (d.componentVersion === undefined ? [] : [d.componentVersion]));
+  return disk
+    .filter((d) => d.name === inst.model.name)
+    .flatMap((d) =>
+      d.componentVersion === undefined ? [] : [d.componentVersion],
+    );
 }
 
 /**
@@ -2008,7 +2472,12 @@ function modelVersionsOnDisk(inst, disk = diskModels(inst)) {
  * @param {DiskModel[]} [disk]
  */
 function verdictOf(inst, broker, disk) {
-  return assetVerdict(broker, new RegExp(inst.model.asset), modelVersionsOnDisk(inst, disk), !!inst.modelComponents);
+  return assetVerdict(
+    broker,
+    new RegExp(inst.model.asset),
+    modelVersionsOnDisk(inst, disk),
+    !!inst.modelComponents,
+  );
 }
 
 /**
@@ -2021,7 +2490,9 @@ function pinHint(inst) {
     return `${inst.name} has no "pin" in instances.json; see SKILL.md Gotchas, "Edge updates its model past its manifest"`;
   }
 
-  return readPin(inst) ? `"down ${inst.name}", then "up ${inst.name}" restores the pin` : `no pin to restore from: copy a matching ${inst.pin.join(' and ')} set into the stopped profile, then "model pin ${inst.name}" once doctor passes`;
+  return readPin(inst)
+    ? `"down ${inst.name}", then "up ${inst.name}" restores the pin`
+    : `no pin to restore from: copy a matching ${inst.pin.join(' and ')} set into the stopped profile, then "model pin ${inst.name}" once doctor passes`;
 }
 
 /**
@@ -2031,7 +2502,9 @@ function pinHint(inst) {
  * @param {Inst} inst
  */
 function requestHint(inst) {
-  return readPin(inst) ? `run "model init ${inst.name}" once: create() requests the pinned model from disk; if it stays unavailable, ${pinHint(inst)}` : pinHint(inst);
+  return readPin(inst)
+    ? `run "model init ${inst.name}" once: create() requests the pinned model from disk; if it stays unavailable, ${pinHint(inst)}`
+    : pinHint(inst);
 }
 
 /**
@@ -2040,10 +2513,20 @@ function requestHint(inst) {
  * @returns {Promise<Broker | BrokerDisabled>}
  */
 async function brokerState(inst, timeoutMs) {
-  const text = /** @type {string} */ (await inTab(inst, BROKER, { url: null, args: { scheme: inst.scheme } }, timeoutMs));
+  const text = /** @type {string} */ (
+    await inTab(
+      inst,
+      BROKER,
+      { url: null, args: { scheme: inst.scheme } },
+      timeoutMs,
+    )
+  );
 
   if (text === 'DEBUG-PAGES-DISABLED') {
-    return { disabled: true, error: `internal debugging pages are off in ${inst.name}; "up ${inst.name}" turns them on (chrome://chrome-urls)` };
+    return {
+      disabled: true,
+      error: `internal debugging pages are off in ${inst.name}; "up ${inst.name}" turns them on (chrome://chrome-urls)`,
+    };
   }
 
   return parseBroker(text);
@@ -2058,9 +2541,24 @@ async function brokerState(inst, timeoutMs) {
  */
 export function servingBackend(inst, broker, disk) {
   const mine = disk.filter((d) => d.name === inst.model.name);
-  const row = broker.models?.find((m) => m.weights && mine.some((d) => /** @type {string} */ (m.weights).toLowerCase().startsWith(d.dir.toLowerCase())));
+  const row = broker.models?.find(
+    (m) =>
+      m.weights &&
+      mine.some((d) =>
+        /** @type {string} */ (m.weights)
+          .toLowerCase()
+          .startsWith(d.dir.toLowerCase()),
+      ),
+  );
 
-  return row ? { kind: row.backend.startsWith('GPU') ? 'gpu' : 'cpu', row: row.name, backendType: row.backend, weights: row.weights } : { kind: null, row: null };
+  return row
+    ? {
+        kind: row.backend.startsWith('GPU') ? 'gpu' : 'cpu',
+        row: row.name,
+        backendType: row.backend,
+        weights: row.weights,
+      }
+    : { kind: null, row: null };
 }
 
 /**
@@ -2086,7 +2584,14 @@ async function modelInfo(inst) {
   const disk = diskModels(inst);
   const proc = mainProcess(inst);
   /** @type {ModelInfo} */
-  const out = { instance: inst.name, expected: inst.model.name, running: !!proc, disk, performanceClass: perfClass(inst), free: freeSpace(inst) };
+  const out = {
+    instance: inst.name,
+    expected: inst.model.name,
+    running: !!proc,
+    disk,
+    performanceClass: perfClass(inst),
+    free: freeSpace(inst),
+  };
 
   if (!proc) {
     return out;
@@ -2099,18 +2604,37 @@ async function modelInfo(inst) {
   if (!broker.disabled) {
     const backend = servingBackend(inst, broker, disk);
     out.backend = backend;
-    out.asset = broker.assets.find((a) => new RegExp(inst.model.asset).test(a.name)) ?? null;
-    out.serving = backend.row ? disk.find((d) => String(backend.weights).toLowerCase().startsWith(d.dir.toLowerCase()))?.name ?? null : null;
+    out.asset =
+      broker.assets.find((a) => new RegExp(inst.model.asset).test(a.name)) ??
+      null;
+    out.serving = backend.row
+      ? (disk.find((d) =>
+          String(backend.weights).toLowerCase().startsWith(d.dir.toLowerCase()),
+        )?.name ?? null)
+      : null;
   }
 
   return out;
 }
 
 function cpuLoad() {
-  const load = /** @type {{ Average: number | null }[]} */ (pwshJson("Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average | Select-Object Average"))[0]?.Average ?? null;
-  const top = /** @type {{ Name: string, PercentProcessorTime: number }[]} */ (pwshJson("Get-CimInstance Win32_PerfFormattedData_PerfProc_Process | Where-Object { $_.Name -notin '_Total','Idle' } | Sort-Object PercentProcessorTime -Descending | Select-Object -First 5 Name,PercentProcessorTime"));
+  const load =
+    /** @type {{ Average: number | null }[]} */ (
+      pwshJson(
+        'Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average | Select-Object Average',
+      )
+    )[0]?.Average ?? null;
+  const top = /** @type {{ Name: string, PercentProcessorTime: number }[]} */ (
+    pwshJson(
+      "Get-CimInstance Win32_PerfFormattedData_PerfProc_Process | Where-Object { $_.Name -notin '_Total','Idle' } | Sort-Object PercentProcessorTime -Descending | Select-Object -First 5 Name,PercentProcessorTime",
+    )
+  );
 
-  return { at: new Date().toISOString(), loadPercent: load, top: top.map((p) => `${p.Name} ${p.PercentProcessorTime}%`) };
+  return {
+    at: new Date().toISOString(),
+    loadPercent: load,
+    top: top.map((p) => `${p.Name} ${p.PercentProcessorTime}%`),
+  };
 }
 
 // ---------- doctor rules ----------
@@ -2141,7 +2665,7 @@ export function doctorOk(checks) {
  * @returns {boolean | null}
  */
 export function toolsPass(toolCanary, tools) {
-  return toolCanary === 'report' ? null : tools?.pass ?? null;
+  return toolCanary === 'report' ? null : (tools?.pass ?? null);
 }
 
 /**
@@ -2149,7 +2673,11 @@ export function toolsPass(toolCanary, tools) {
  * @returns {number}
  */
 export function exitCode(result) {
-  return result.couldNotRun ? EXIT.REFUSED : result.ok ? EXIT.OK : EXIT.UNHEALTHY;
+  return result.couldNotRun
+    ? EXIT.REFUSED
+    : result.ok
+      ? EXIT.OK
+      : EXIT.UNHEALTHY;
 }
 
 // ---------- commands ----------
@@ -2164,9 +2692,24 @@ async function cmdInstances() {
     const d = proc ? drift(inst, proc) : null;
     const port = proc ? parseCommandLine(proc.commandLine).port : inst.port;
     const tabs = proc ? await pageTabs(at(inst, port)) : [];
-    const row = { name, browser: inst.browser, port, model: inst.model.name, defaultBackend: inst.backend.default, profileExists: existsSync(inst.dir), pid: proc?.pid ?? null, backend: d?.backend ?? null, drift: d?.problems ?? null, tabs: tabs.length, stateFile: existsSync(statePath(name)) };
+    const row = {
+      name,
+      browser: inst.browser,
+      port,
+      model: inst.model.name,
+      defaultBackend: inst.backend.default,
+      profileExists: existsSync(inst.dir),
+      pid: proc?.pid ?? null,
+      backend: d?.backend ?? null,
+      drift: d?.problems ?? null,
+      tabs: tabs.length,
+      stateFile: existsSync(statePath(name)),
+    };
     rows.push(row);
-    log(proc && d ? (d.problems.length ? 'WARN' : 'OK') : 'INFO', `${name} :${port} ${inst.model.name}: ${proc && d ? `PID ${proc.pid}, backend ${d.backend ?? '?'}${d.problems.length ? `, drift: ${d.problems.join('; ')}` : ''}, ${tabs.length} tab(s)` : 'stopped'}`);
+    log(
+      proc && d ? (d.problems.length ? 'WARN' : 'OK') : 'INFO',
+      `${name} :${port} ${inst.model.name}: ${proc && d ? `PID ${proc.pid}, backend ${d.backend ?? '?'}${d.problems.length ? `, drift: ${d.problems.join('; ')}` : ''}, ${tabs.length} tab(s)` : 'stopped'}`,
+    );
   }
 
   return { ok: true, instances: rows };
@@ -2177,11 +2720,21 @@ async function cmdInstances() {
  * @returns {Promise<Result>}
  */
 async function cmdUp(registered) {
-  const inst = { ...registered, extensionDir: typeof opts['extension'] === 'string' ? extensionFlag(opts['extension']) : registered.extensionDir };
-  const backend = typeof opts['backend'] === 'string' ? opts['backend'] : inst.backend.default;
+  const inst = {
+    ...registered,
+    extensionDir:
+      typeof opts['extension'] === 'string'
+        ? extensionFlag(opts['extension'])
+        : registered.extensionDir,
+  };
+  const backend =
+    typeof opts['backend'] === 'string'
+      ? opts['backend']
+      : inst.backend.default;
   // `--no-ai-features`: an experiment launch with no --enable-features at all (what a user's browser has); doctor then
   // reports drift. Every other switch, the Edge sign-in ones included, stays.
-  const features = opts['no-ai-features'] === true ? [] : featuresFor(inst, backend);
+  const features =
+    opts['no-ai-features'] === true ? [] : featuresFor(inst, backend);
   const forced = portFlag(opts['port']);
   const running = mainProcess(inst);
 
@@ -2189,7 +2742,9 @@ async function cmdUp(registered) {
     const loaded = readState(inst.name)?.extensionDir;
 
     if (loaded !== undefined && loaded !== inst.extensionDir) {
-      refuse(`${inst.name} runs with the extension from ${loaded}, not ${inst.extensionDir}; run "down ${inst.name}" first`);
+      refuse(
+        `${inst.name} runs with the extension from ${loaded}, not ${inst.extensionDir}; run "down ${inst.name}" first`,
+      );
     }
 
     const d = drift(inst, running);
@@ -2199,18 +2754,29 @@ async function cmdUp(registered) {
       refuse(mismatch);
     }
 
-    log('OK', `${inst.name} already runs as PID ${running.pid} with backend ${backend}`);
+    log(
+      'OK',
+      `${inst.name} already runs as PID ${running.pid} with backend ${backend}`,
+    );
 
     const st = writeState(at(inst, d.commandLine.port), running);
 
-    return { ok: true, alreadyRunning: true, session: st.session, evidenceDir, state: st };
+    return {
+      ok: true,
+      alreadyRunning: true,
+      session: st.session,
+      evidenceDir,
+      state: st,
+    };
   }
 
   const firstUse = !existsSync(inst.dir);
   const account = profileAccount(inst);
 
   if (account.accounts > 0 || account.syncSetup) {
-    refuse(`${inst.name}'s profile holds a signed-in account (${account.accounts} account entr${account.accounts === 1 ? 'y' : 'ies'}, sync set up: ${account.syncSetup}); an instance profile must never hold one. Delete ${inst.dir} (stopped) and "up" again; the model comes back by "model download", or from the pin`);
+    refuse(
+      `${inst.name}'s profile holds a signed-in account (${account.accounts} account entr${account.accounts === 1 ? 'y' : 'ies'}, sync set up: ${account.syncSetup}); an instance profile must never hold one. Delete ${inst.dir} (stopped) and "up" again; the model comes back by "model download", or from the pin`,
+    );
   }
   mkdirSync(inst.dir, { recursive: true });
 
@@ -2223,12 +2789,24 @@ async function cmdUp(registered) {
   const pinRestored = restorePin(inst);
 
   /** @type {PortRow[]} */
-  const rows = [{ name: 'cdp', kind: 'derived', at: (slot) => portAt(inst.index, inst.mainPort, slot) }];
+  const rows = [
+    {
+      name: 'cdp',
+      kind: 'derived',
+      at: (slot) => portAt(inst.index, inst.mainPort, slot),
+    },
+  ];
   let order = slotOrder(inst.slot);
   const first = order[0];
 
   for (;;) {
-    const plan = planPorts(rows, order, await busyPorts(candidatePorts(rows, order, forced, first)), forced, first);
+    const plan = planPorts(
+      rows,
+      order,
+      await busyPorts(candidatePorts(rows, order, forced, first)),
+      forced,
+      first,
+    );
 
     if (!plan.ok) {
       return refuse(plan.reason);
@@ -2237,22 +2815,50 @@ async function cmdUp(registered) {
     const run = at(inst, /** @type {PortEntry} */ (plan.ports[0]).port);
     const t0 = Date.now();
     // One result file per launch, so two runs never read or delete each other's; the keeper writes it at once.
-    const keeperResult = run.extensionDir === null ? null : join(TMP, `extension-${run.name}-${t0}.json`);
+    const keeperResult =
+      run.extensionDir === null
+        ? null
+        : join(TMP, `extension-${run.name}-${t0}.json`);
     mkdirSync(TMP, { recursive: true });
     // Every way out of this attempt but a successful load (which reads and removes it) drops the result file.
-    const dropKeeperResult = () => keeperResult !== null && rmSync(keeperResult, { force: true });
+    const dropKeeperResult = () =>
+      keeperResult !== null && rmSync(keeperResult, { force: true });
     // The browser and its keeper outlive this command; started in a worktree they would hold its folder open, and
     // retiring that worktree would fail. The primary checkout outlives every worktree.
-    const spawnOptions = /** @type {const} */ ({ detached: true, stdio: 'ignore', cwd: PRIMARY });
-    const child = run.extensionDir === null || keeperResult === null
-      ? spawn(run.exe, launchArgs(run, features), spawnOptions)
-      : spawn(process.execPath, [KEEPER, keeperResult, run.exe, run.extensionDir, ...launchArgs(run, features)], spawnOptions);
+    const spawnOptions = /** @type {const} */ ({
+      detached: true,
+      stdio: 'ignore',
+      cwd: PRIMARY,
+    });
+    const child =
+      run.extensionDir === null || keeperResult === null
+        ? spawn(run.exe, launchArgs(run, features), spawnOptions)
+        : spawn(
+            process.execPath,
+            [
+              KEEPER,
+              keeperResult,
+              run.exe,
+              run.extensionDir,
+              ...launchArgs(run, features),
+            ],
+            spawnOptions,
+          );
     const notAfter = Date.now();
     child.unref();
     // The browser process as spawned, inside the spawn's time window; the main process is found by its profile.
-    const spawned = child.pid === undefined ? [] : snapshot(child.pid, { notBefore: t0, notAfter });
-    const version = /** @type {CdpVersion | null} */ (await waitFor(() => cdpJson(run, '/json/version'), 60000, 500));
-    const proc = await waitFor(() => mainProcess(run), version ? 10000 : 1000, 500);
+    const spawned =
+      child.pid === undefined
+        ? []
+        : snapshot(child.pid, { notBefore: t0, notAfter });
+    const version = /** @type {CdpVersion | null} */ (
+      await waitFor(() => cdpJson(run, '/json/version'), 60000, 500)
+    );
+    const proc = await waitFor(
+      () => mainProcess(run),
+      version ? 10000 : 1000,
+      500,
+    );
     const owner = portOwner(run.port);
 
     // Another process took the port after the check: it answers (or holds the port) instead of this profile's browser.
@@ -2264,18 +2870,24 @@ async function cmdUp(registered) {
       if (stopped.code !== 0) {
         // Kept, so a later down finds what this attempt started.
         writeState(run, proc, plan, records);
-        refuse(`port ${run.port} was taken by PID ${owner} after the check, and stopping this attempt failed: ${stopped.reason}; run down`);
+        refuse(
+          `port ${run.port} was taken by PID ${owner} after the check, and stopping this attempt failed: ${stopped.reason}; run down`,
+        );
       }
 
       if (forced !== undefined) {
-        refuse(`port ${run.port} (--port) was taken by PID ${owner} after the check; --port has no fallback`);
+        refuse(
+          `port ${run.port} (--port) was taken by PID ${owner} after the check; --port has no fallback`,
+        );
       }
 
       dropKeeperResult();
       order = order.slice(order.indexOf(plan.slot) + 1);
 
       if (order.length === 0) {
-        refuse(`port ${run.port} was taken by PID ${owner} after the check, and none of the ${SLOT_TRIES} slots is left`);
+        refuse(
+          `port ${run.port} was taken by PID ${owner} after the check, and none of the ${SLOT_TRIES} slots is left`,
+        );
       }
 
       continue;
@@ -2286,11 +2898,15 @@ async function cmdUp(registered) {
     }
 
     if (!version) {
-      refuse(`${run.name} did not answer on ${run.cdp}/json/version within 60 s`);
+      refuse(
+        `${run.name} did not answer on ${run.cdp}/json/version within 60 s`,
+      );
     }
 
     if (!proc) {
-      throw new Error(`${run.name} answers on ${run.cdp} but no main process uses ${run.dir} after 10 s`);
+      throw new Error(
+        `${run.name} answers on ${run.cdp} but no main process uses ${run.dir} after 10 s`,
+      );
     }
 
     const st = writeState(run, proc, plan, spawned);
@@ -2313,8 +2929,17 @@ async function cmdUp(registered) {
       debugPages = await inTab(run, ENABLE_DEBUG_PAGES, { url: null });
     }
 
-    const developerMode = run.extensionDir === null ? null : /** @type {string} */ (await inTab(run, DEVELOPER_MODE, { url: null, args: { scheme: run.scheme } }));
-    const loaded = keeperResult === null ? null : await loadedExtension(run, keeperResult);
+    const developerMode =
+      run.extensionDir === null
+        ? null
+        : /** @type {string} */ (
+            await inTab(run, DEVELOPER_MODE, {
+              url: null,
+              args: { scheme: run.scheme },
+            })
+          );
+    const loaded =
+      keeperResult === null ? null : await loadedExtension(run, keeperResult);
 
     // A browser without its extension must not stay up: a later `up` would find it running as configured.
     if (loaded !== null && 'error' in loaded) {
@@ -2325,14 +2950,34 @@ async function cmdUp(registered) {
         rmSync(statePath(run.name), { force: true });
       }
 
-      refuse(`${run.name}: loading ${run.extensionDir} failed: ${loaded.error}; ${stopped.code === 0 ? 'the browser was stopped; fix the extension, then "up" again' : `stopping the browser failed too (${stopped.reason}); run "down ${run.name}"`}`);
+      refuse(
+        `${run.name}: loading ${run.extensionDir} failed: ${loaded.error}; ${stopped.code === 0 ? 'the browser was stopped; fix the extension, then "up" again' : `stopping the browser failed too (${stopped.reason}); run "down ${run.name}"`}`,
+      );
     }
 
     const extension = loaded;
 
-    log('OK', `${run.name} launched as PID ${proc.pid} on ${run.cdp} (${version.Browser}), backend ${backend}, ready in ${readyMs} ms${extension ? `, extension ${extension.id}` : ''}${firstUse ? ', new profile' : ''}${plan.slot === inst.slot ? '' : `, slot ${plan.slot} (${plan.ports[0]?.reason})`}${restored.length ? `; closed ${restored.length} restored tab(s)` : ''}${debugPages ? `; internal debugging pages ${debugPages}` : ''}${developerMode ? `; developer mode ${developerMode}` : ''}`);
+    log(
+      'OK',
+      `${run.name} launched as PID ${proc.pid} on ${run.cdp} (${version.Browser}), backend ${backend}, ready in ${readyMs} ms${extension ? `, extension ${extension.id}` : ''}${firstUse ? ', new profile' : ''}${plan.slot === inst.slot ? '' : `, slot ${plan.slot} (${plan.ports[0]?.reason})`}${restored.length ? `; closed ${restored.length} restored tab(s)` : ''}${debugPages ? `; internal debugging pages ${debugPages}` : ''}${developerMode ? `; developer mode ${developerMode}` : ''}`,
+    );
 
-    return { ok: true, session: st.session, evidenceDir, backend, firstUse, pinRestored, readyMs, extension, developerMode, browserVersion: version.Browser, closedRestoredTabs: restored.map((t) => t.url), debugPages, state: st, tabs: await pageTabs(run) };
+    return {
+      ok: true,
+      session: st.session,
+      evidenceDir,
+      backend,
+      firstUse,
+      pinRestored,
+      readyMs,
+      extension,
+      developerMode,
+      browserVersion: version.Browser,
+      closedRestoredTabs: restored.map((t) => t.url),
+      debugPages,
+      state: st,
+      tabs: await pageTabs(run),
+    };
   }
 }
 
@@ -2346,7 +2991,9 @@ function extensionFlag(value) {
   // Chromium upper-cases the drive letter before it hashes the path into the id (crx_file id_util MaybeNormalizePath).
   const dir = resolve(value).replace(/^[a-z]:/, (d) => d.toUpperCase());
 
-  return existsSync(join(dir, 'manifest.json')) ? dir : refuse(`--extension: ${dir} holds no manifest.json`);
+  return existsSync(join(dir, 'manifest.json'))
+    ? dir
+    : refuse(`--extension: ${dir} holds no manifest.json`);
 }
 
 /**
@@ -2358,7 +3005,12 @@ function extensionFlag(value) {
  */
 async function loadedExtension(run, file) {
   /** @type {{ ok: boolean, id?: string, error?: string } | undefined} */
-  const r = await waitFor(async () => (existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : undefined), 30000, 250);
+  const r = await waitFor(
+    async () =>
+      existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : undefined,
+    30000,
+    250,
+  );
 
   rmSync(file, { force: true });
 
@@ -2380,7 +3032,14 @@ async function extensionCheck(inst, dir) {
   const id = extensionId(dir);
   /** @type {{ name?: string, version?: string }} */
   const want = JSON.parse(readFileSync(join(dir, 'manifest.json'), 'utf8'));
-  const text = await inTab(inst, 'async (p) => p.evaluate(() => document.body.innerText)', { url: `chrome-extension://${id}/manifest.json`, purpose: 'extension' }).catch((/** @type {unknown} */ e) => `error: ${e instanceof Error ? e.message : String(e)}`);
+  const text = await inTab(
+    inst,
+    'async (p) => p.evaluate(() => document.body.innerText)',
+    { url: `chrome-extension://${id}/manifest.json`, purpose: 'extension' },
+  ).catch(
+    (/** @type {unknown} */ e) =>
+      `error: ${e instanceof Error ? e.message : String(e)}`,
+  );
   /** @type {{ name?: string, version?: string } | null} */
   let got = null;
 
@@ -2392,7 +3051,18 @@ async function extensionCheck(inst, dir) {
 
   const pass = got?.name === want.name && got?.version === want.version;
 
-  return [pass, pass ? `${want.name} ${want.version} loaded as ${id} from ${dir}` : { id, dir, expected: { name: want.name, version: want.version }, got: got ?? String(text).slice(0, 200), fix: `"down ${inst.name}", then "up ${inst.name} [--extension=<dir>]" loads the extension again and turns on developer mode, without which Edge Dev 157 disables it (net::ERR_BLOCKED_BY_CLIENT)` }];
+  return [
+    pass,
+    pass
+      ? `${want.name} ${want.version} loaded as ${id} from ${dir}`
+      : {
+          id,
+          dir,
+          expected: { name: want.name, version: want.version },
+          got: got ?? String(text).slice(0, 200),
+          fix: `"down ${inst.name}", then "up ${inst.name} [--extension=<dir>]" loads the extension again and turns on developer mode, without which Edge Dev 157 disables it (net::ERR_BLOCKED_BY_CLIENT)`,
+        },
+  ];
 }
 
 /**
@@ -2402,14 +3072,28 @@ async function extensionCheck(inst, dir) {
  * @returns {Promise<Result>}
  */
 async function cmdPanel(inst) {
-  const url = typeof opts['url'] === 'string' ? opts['url'] : refuse('usage: panel <name> --url=<an Angular app page, e.g. the counter fixture of control-angular-dev-app>');
+  const url =
+    typeof opts['url'] === 'string'
+      ? opts['url']
+      : refuse(
+          'usage: panel <name> --url=<an Angular app page, e.g. the counter fixture of control-angular-dev-app>',
+        );
 
   if (inst.extensionDir === null) {
     refuse(`${inst.name} has no "extension" in instances.json`);
   }
 
-  const r = await drivePanel(inst.cdp, url, { answerTimeoutMs: positiveFlag('timeout-min', opts['timeout-min'], 4) * 60000, feature: typeof opts['feature'] === 'string' ? opts['feature'] : undefined });
-  log(r.ok ? 'OK' : 'ERROR', r.ok ? `${inst.name} panel answered in ${r.answerMs} ms (Angular ${r.ngVersion}, extension ${r.extensionId}): ${printable(String(r.answer).slice(0, 160))}` : `${inst.name} panel: ${printable(String(r.error))}`);
+  const r = await drivePanel(inst.cdp, url, {
+    answerTimeoutMs:
+      positiveFlag('timeout-min', opts['timeout-min'], 4) * 60000,
+    feature: typeof opts['feature'] === 'string' ? opts['feature'] : undefined,
+  });
+  log(
+    r.ok ? 'OK' : 'ERROR',
+    r.ok
+      ? `${inst.name} panel answered in ${r.answerMs} ms (Angular ${r.ngVersion}, extension ${r.extensionId}): ${printable(String(r.answer).slice(0, 160))}`
+      : `${inst.name} panel: ${printable(String(r.error))}`,
+  );
 
   return { ...r, model: inst.model.name };
 }
@@ -2419,11 +3103,19 @@ async function cmdPanel(inst) {
  * @returns {Promise<Result>}
  */
 async function cmdAttach(inst) {
-  const proc = mainProcess(inst) ?? refuse(`${inst.name} is not running; run "up ${inst.name}"`);
-  const st = writeState(at(inst, parseCommandLine(proc.commandLine).port), proc);
+  const proc =
+    mainProcess(inst) ??
+    refuse(`${inst.name} is not running; run "up ${inst.name}"`);
+  const st = writeState(
+    at(inst, parseCommandLine(proc.commandLine).port),
+    proc,
+  );
   await ensureAttached(inst);
   attachedHere = null;
-  log('OK', `${inst.session} attached to ${inst.name} PID ${proc.pid}; it stays attached for ad hoc playwright-cli commands until "detach ${inst.name}" or "down ${inst.name}"`);
+  log(
+    'OK',
+    `${inst.session} attached to ${inst.name} PID ${proc.pid}; it stays attached for ad hoc playwright-cli commands until "detach ${inst.name}" or "down ${inst.name}"`,
+  );
 
   return { ok: true, state: st };
 }
@@ -2444,7 +3136,11 @@ async function cmdDetach(inst) {
  * @returns {Promise<Result>}
  */
 async function cmdDown(inst) {
-  const st = readState(inst.name) ?? refuse(`no state file at ${statePath(inst.name)}; run "attach ${inst.name}" or "up ${inst.name}" first`);
+  const st =
+    readState(inst.name) ??
+    refuse(
+      `no state file at ${statePath(inst.name)}; run "attach ${inst.name}" or "up ${inst.name}" first`,
+    );
   const root = rootOf(st);
   const live = processTable().find((r) => r.pid === st.pid);
 
@@ -2454,19 +3150,35 @@ async function cmdDown(inst) {
     const outcome = downOutcome(st, result);
 
     if (outcome.code !== 0) {
-      writeFileSync(statePath(inst.name), JSON.stringify({ ...st, tree: records }, null, 2));
+      writeFileSync(
+        statePath(inst.name),
+        JSON.stringify({ ...st, tree: records }, null, 2),
+      );
 
-      return { ok: false, couldNotRun: true, reason: outcome.reason, notes: outcome.notes, pid: st.pid };
+      return {
+        ok: false,
+        couldNotRun: true,
+        reason: outcome.reason,
+        notes: outcome.notes,
+        pid: st.pid,
+      };
     }
 
     rmSync(statePath(inst.name), { force: true });
     log('OK', `PID ${st.pid} is not running any more; removed the state file`);
 
-    return { ok: true, alreadyStopped: true, pid: st.pid, notes: outcome.notes };
+    return {
+      ok: true,
+      alreadyStopped: true,
+      pid: st.pid,
+      notes: outcome.notes,
+    };
   }
 
   if (portOwner(inst.port) !== st.pid) {
-    refuse(`port ${inst.port} is not owned by PID ${st.pid}; not sending Browser.close to it`);
+    refuse(
+      `port ${inst.port} is not owned by PID ${st.pid}; not sending Browser.close to it`,
+    );
   }
 
   // down does not wait for a model download; it says what closing interrupts or leaves behind.
@@ -2478,10 +3190,16 @@ async function cmdDown(inst) {
     model = verdictOf(inst, await brokerState(inst, 90000));
 
     if (model.verdict === 'in-flight' || model.verdict === 'mismatch') {
-      log('WARN', `${inst.name} model ${model.verdict}: ${model.detail}; closing anyway${inst.pin && readPin(inst) ? `; the next "up ${inst.name}" restores the pin` : model.verdict === 'mismatch' || inst.pin ? `; ${pinHint(inst)}` : ''}`);
+      log(
+        'WARN',
+        `${inst.name} model ${model.verdict}: ${model.detail}; closing anyway${inst.pin && readPin(inst) ? `; the next "up ${inst.name}" restores the pin` : model.verdict === 'mismatch' || inst.pin ? `; ${pinHint(inst)}` : ''}`,
+      );
     }
   } catch (e) {
-    log('WARN', `could not read Broker State before closing: ${e instanceof Error ? e.message : String(e)}`);
+    log(
+      'WARN',
+      `could not read Broker State before closing: ${e instanceof Error ? e.message : String(e)}`,
+    );
   }
 
   // The last snapshot, while the main process still lives; kept in the state before Browser.close.
@@ -2489,7 +3207,9 @@ async function cmdDown(inst) {
   writeFileSync(statePath(inst.name), JSON.stringify(st, null, 2));
   pw(inst, ['detach']);
   attachedHere = null;
-  const version = /** @type {CdpVersion | null} */ (await cdpJson(inst, '/json/version')) ?? refuse(`${inst.cdp} does not answer`);
+  const version =
+    /** @type {CdpVersion | null} */ (await cdpJson(inst, '/json/version')) ??
+    refuse(`${inst.cdp} does not answer`);
   const ws = new WebSocket(version.webSocketDebuggerUrl);
   await new Promise((r, j) => {
     ws.addEventListener('open', r);
@@ -2511,14 +3231,26 @@ async function cmdDown(inst) {
   const outcome = downOutcome(st, result);
 
   if (outcome.code !== 0) {
-    writeFileSync(statePath(inst.name), JSON.stringify({ ...st, tree: records }, null, 2));
+    writeFileSync(
+      statePath(inst.name),
+      JSON.stringify({ ...st, tree: records }, null, 2),
+    );
 
-    return { ok: false, couldNotRun: true, reason: outcome.reason, notes: outcome.notes, pid: st.pid };
+    return {
+      ok: false,
+      couldNotRun: true,
+      reason: outcome.reason,
+      notes: outcome.notes,
+      pid: st.pid,
+    };
   }
 
   rmSync(statePath(inst.name), { force: true });
   const portFree = !(await busyPorts([inst.port])).has(inst.port);
-  log(portFree ? 'OK' : 'ERROR', `${inst.name} PID ${st.pid} closed over CDP; no process uses ${inst.dir}; port ${inst.port} ${portFree ? 'free' : 'still owned'}; state file removed`);
+  log(
+    portFree ? 'OK' : 'ERROR',
+    `${inst.name} PID ${st.pid} closed over CDP; no process uses ${inst.dir}; port ${inst.port} ${portFree ? 'free' : 'still owned'}; state file removed`,
+  );
 
   return { ok: portFree, pid: st.pid, portFree, model, notes: outcome.notes };
 }
@@ -2529,15 +3261,34 @@ async function cmdDown(inst) {
  */
 async function cmdFlags(inst) {
   const proc = mainProcess(inst) ?? refuse(`${inst.name} is not running`);
-  const page = parseCommandLine(/** @type {string | null} */ (await inTab(inst, VERSION_CMDLINE, { url: null, args: { scheme: inst.scheme } })));
+  const page = parseCommandLine(
+    /** @type {string | null} */ (
+      await inTab(inst, VERSION_CMDLINE, {
+        url: null,
+        args: { scheme: inst.scheme },
+      })
+    ),
+  );
   const d = drift(inst, proc);
   const want = d.backend ? featuresFor(inst, d.backend) : inst.features;
   const missing = want.filter((f) => !page.features.includes(f));
   const extra = page.features.filter((f) => !want.includes(f));
-  const ok = d.problems.length === 0 && missing.length === 0 && extra.length === 0;
-  log(ok ? 'OK' : 'ERROR', `${inst.scheme}://version features (${d.backend ?? 'no matching'} backend): ${page.features.join(', ')}${missing.length ? `; missing ${missing.join(', ')}` : ''}${extra.length ? `; not in registry ${extra.join(', ')}` : ''}${d.problems.length ? `; drift: ${d.problems.join('; ')}` : ''}`);
+  const ok =
+    d.problems.length === 0 && missing.length === 0 && extra.length === 0;
+  log(
+    ok ? 'OK' : 'ERROR',
+    `${inst.scheme}://version features (${d.backend ?? 'no matching'} backend): ${page.features.join(', ')}${missing.length ? `; missing ${missing.join(', ')}` : ''}${extra.length ? `; not in registry ${extra.join(', ')}` : ''}${d.problems.length ? `; drift: ${d.problems.join('; ')}` : ''}`,
+  );
 
-  return { ok, backend: d.backend, effective: page.features, registry: want, missing, extra, drift: d.problems };
+  return {
+    ok,
+    backend: d.backend,
+    effective: page.features,
+    registry: want,
+    missing,
+    extra,
+    drift: d.problems,
+  };
 }
 
 /**
@@ -2550,14 +3301,23 @@ async function cmdDoctor(inst) {
   /** @type {(id: string, pass: boolean | null, detail: unknown, warn?: boolean) => void} */
   const add = (id, pass, detail, warn = false) => {
     checks.push({ id, pass, warn, detail });
-    log(checkMarker(pass, warn), `${id}: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`);
+    log(
+      checkMarker(pass, warn),
+      `${id}: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`,
+    );
   };
 
   const fresh = mapFresh(SKILL_DIR);
   add('map-fresh', true, fresh.detail, fresh.status === 'warn');
 
   const proc = mainProcess(inst);
-  add('process', !!proc, proc ? `PID ${proc.pid} ${programOf(proc.commandLine)} --user-data-dir=${inst.dir}` : `no process uses ${inst.dir}`);
+  add(
+    'process',
+    !!proc,
+    proc
+      ? `PID ${proc.pid} ${programOf(proc.commandLine)} --user-data-dir=${inst.dir}`
+      : `no process uses ${inst.dir}`,
+  );
 
   if (!proc) {
     return { ok: false, couldNotRun: true, checks };
@@ -2572,30 +3332,70 @@ async function cmdDoctor(inst) {
   // Written only for a state file of this same browser process, and only when the record changed. A standing
   // instance runs for days: records that exited are dropped (a PID with its start time never runs again).
   if (st !== null && root !== undefined && matches(root, proc)) {
-    const recorded = merge(st.tree ?? [], live).filter((r) => matches(r, byPid.get(r.pid)));
+    const recorded = merge(st.tree ?? [], live).filter((r) =>
+      matches(r, byPid.get(r.pid)),
+    );
 
     if (JSON.stringify(recorded) !== JSON.stringify(st.tree ?? [])) {
-      writeFileSync(statePath(inst.name), JSON.stringify({ ...st, tree: recorded }, null, 2));
+      writeFileSync(
+        statePath(inst.name),
+        JSON.stringify({ ...st, tree: recorded }, null, 2),
+      );
     }
 
     add('tree', true, `${recorded.length} process(es) recorded for down`);
   } else {
-    add('tree', null, st === null ? 'no state file: nothing recorded for down (run attach or up)' : `the state file records PID ${st.pid}, not this browser process; not changed`);
+    add(
+      'tree',
+      null,
+      st === null
+        ? 'no state file: nothing recorded for down (run attach or up)'
+        : `the state file records PID ${st.pid}, not this browser process; not changed`,
+    );
   }
 
   const d = drift(inst, proc);
-  add('commandLine', d.problems.length === 0, d.problems.length ? { drift: d.problems } : `matches the registry, backend ${d.backend}`);
+  add(
+    'commandLine',
+    d.problems.length === 0,
+    d.problems.length
+      ? { drift: d.problems }
+      : `matches the registry, backend ${d.backend}`,
+  );
 
-  const version = /** @type {CdpVersion | null} */ (await cdpJson(inst, '/json/version'));
-  const recordedPorts = readState(inst.name)?.ports ?? [{ name: 'cdp', port: inst.port, kind: /** @type {PortKind} */ ('derived') }];
-  const ports = portsCheck(recordedPorts, await busyPorts(recordedPorts.map((p) => p.port)), new Set(live.map((r) => r.pid)));
-  add('ports', ports.status === 'pass' && !!version && new RegExp(inst.product).test(version.Browser), `${ports.detail}; ${inst.cdp} answers as ${version?.Browser ?? 'nothing'}`);
+  const version = /** @type {CdpVersion | null} */ (
+    await cdpJson(inst, '/json/version')
+  );
+  const recordedPorts = readState(inst.name)?.ports ?? [
+    { name: 'cdp', port: inst.port, kind: /** @type {PortKind} */ ('derived') },
+  ];
+  const ports = portsCheck(
+    recordedPorts,
+    await busyPorts(recordedPorts.map((p) => p.port)),
+    new Set(live.map((r) => r.pid)),
+  );
+  add(
+    'ports',
+    ports.status === 'pass' &&
+      !!version &&
+      new RegExp(inst.product).test(version.Browser),
+    `${ports.detail}; ${inst.cdp} answers as ${version?.Browser ?? 'nothing'}`,
+  );
 
   const tabs = await pageTabs(inst);
   add('tabs', true, { count: tabs.length, urls: tabs }, tabs.length > 1);
 
   const account = profileAccount(inst);
-  add('account', account.accounts === 0 && !account.syncSetup, account.accounts === 0 && !account.syncSetup ? 'no signed-in account, sync not set up' : { ...account, fix: `down, delete ${inst.dir}, then up: an instance profile must never hold an account` });
+  add(
+    'account',
+    account.accounts === 0 && !account.syncSetup,
+    account.accounts === 0 && !account.syncSetup
+      ? 'no signed-in account, sync not set up'
+      : {
+          ...account,
+          fix: `down, delete ${inst.dir}, then up: an instance profile must never hold an account`,
+        },
+  );
 
   if (inst.extensionDir !== null) {
     add('extension', ...(await extensionCheck(inst, inst.extensionDir)));
@@ -2603,24 +3403,50 @@ async function cmdDoctor(inst) {
 
   const disk = diskModels(inst);
   const hit = disk.find((x) => x.name === inst.model.name);
-  add('model.disk', !!hit, hit ? `${hit.name} ${hit.modelVersion} (${hit.mib} MiB) at ${hit.dir}` : { expected: inst.model.name, found: disk.map((x) => x.name) });
+  add(
+    'model.disk',
+    !!hit,
+    hit
+      ? `${hit.name} ${hit.modelVersion} (${hit.mib} MiB) at ${hit.dir}`
+      : { expected: inst.model.name, found: disk.map((x) => x.name) },
+  );
   const others = disk.filter((x) => x.name !== inst.model.name);
 
   if (others.length) {
     /** @type {Check} */ (checks.at(-1)).warn = true;
-    log('WARN', `model.disk: other models in this profile: ${others.map((x) => `${x.name} ${x.componentVersion} ${x.mib} MiB`).join(', ')}`);
+    log(
+      'WARN',
+      `model.disk: other models in this profile: ${others.map((x) => `${x.name} ${x.componentVersion} ${x.mib} MiB`).join(', ')}`,
+    );
   }
 
   if (inst.pin) {
     const pin = readPin(inst);
     if (pin === null) {
-      add('model.pin', true, `no pin: run "model pin ${inst.name}" once doctor passes, so up can restore ${inst.pin.join(' and ')}`, true);
+      add(
+        'model.pin',
+        true,
+        `no pin: run "model pin ${inst.name}" once doctor passes, so up can restore ${inst.pin.join(' and ')}`,
+        true,
+      );
     } else {
       const plan = planFor(inst, pin);
       const same = plan.remove.length === 0 && plan.add.length === 0;
       const unpinned = unpinnedRoots(inst, pin);
-      const lacks = unpinned.length > 0 ? `; the pin lacks ${unpinned.join(', ')}: run "model pin ${inst.name}" again` : '';
-      add('model.pin', same, same ? `matches the pin of ${pin.at}: ${Object.entries(pin.roots).map(([r, v]) => `${r} ${v}`).join(', ')}${lacks}` : `the disk differs from the pin of ${pin.at} (${describePlan(plan)}); ${pinHint(inst)}${lacks}`, unpinned.length > 0);
+      const lacks =
+        unpinned.length > 0
+          ? `; the pin lacks ${unpinned.join(', ')}: run "model pin ${inst.name}" again`
+          : '';
+      add(
+        'model.pin',
+        same,
+        same
+          ? `matches the pin of ${pin.at}: ${Object.entries(pin.roots)
+              .map(([r, v]) => `${r} ${v}`)
+              .join(', ')}${lacks}`
+          : `the disk differs from the pin of ${pin.at} (${describePlan(plan)}); ${pinHint(inst)}${lacks}`,
+        unpinned.length > 0,
+      );
     }
   }
 
@@ -2633,12 +3459,41 @@ async function cmdDoctor(inst) {
       return;
     }
 
-    const asset = b.assets.find((a) => new RegExp(inst.model.asset).test(a.name) && a.state === 'Ready') ?? b.assets.find((a) => new RegExp(inst.model.asset).test(a.name));
+    const asset =
+      b.assets.find(
+        (a) => new RegExp(inst.model.asset).test(a.name) && a.state === 'Ready',
+      ) ?? b.assets.find((a) => new RegExp(inst.model.asset).test(a.name));
     const v = verdictOf(inst, b, disk);
-    add('model.broker', asset?.state === 'Ready' && b.useCases[inst.model.useCase] === 'Available', { asset: asset ?? `${inst.model.asset} absent`, useCase: inst.model.useCase, state: b.useCases[inst.model.useCase] ?? null, manifestLoaded: b.manifestLoaded, ...(v.verdict === 'in-flight' || v.verdict === 'mismatch' ? { [v.verdict]: v.detail, fix: v.verdict === 'mismatch' ? pinHint(inst) : 'wait for the update to finish, then run doctor again' } : {}) });
+    add(
+      'model.broker',
+      asset?.state === 'Ready' &&
+        b.useCases[inst.model.useCase] === 'Available',
+      {
+        asset: asset ?? `${inst.model.asset} absent`,
+        useCase: inst.model.useCase,
+        state: b.useCases[inst.model.useCase] ?? null,
+        manifestLoaded: b.manifestLoaded,
+        ...(v.verdict === 'in-flight' || v.verdict === 'mismatch'
+          ? {
+              [v.verdict]: v.detail,
+              fix:
+                v.verdict === 'mismatch'
+                  ? pinHint(inst)
+                  : 'wait for the update to finish, then run doctor again',
+            }
+          : {}),
+      },
+    );
     const be = servingBackend(inst, b, disk);
-    add('backend', be.kind === d.backend, { requested: d.backend, broker: be.backendType ?? 'no model row with weights in the model folder', row: be.row });
-    add('performanceClass', true, { localState: perfClass(inst), broker: b.perfClass });
+    add('backend', be.kind === d.backend, {
+      requested: d.backend,
+      broker: be.backendType ?? 'no model row with weights in the model folder',
+      row: be.row,
+    });
+    add('performanceClass', true, {
+      localState: perfClass(inst),
+      broker: b.perfClass,
+    });
   };
   // Right after a launch Broker State has not loaded the model manifest yet (measured: the asset absent and
   // manifestLoaded false, then Ready once a page had used the model); read it again after the page checks.
@@ -2649,15 +3504,31 @@ async function cmdDoctor(inst) {
   }
 
   const free = freeSpace(inst);
-  add('disk.free', true, `${free.mib} MiB free on ${free.volume}, browser minimum ${free.minMib} MiB (Broker State: ${broker.diskInstall ?? '?'})`, free.mib < free.minMib);
+  add(
+    'disk.free',
+    true,
+    `${free.mib} MiB free on ${free.volume}, browser minimum ${free.minMib} MiB (Broker State: ${broker.diskInstall ?? '?'})`,
+    free.mib < free.minMib,
+  );
 
-  const avail = /** @type {Availability} */ (await inTab(inst, AVAILABILITY, { purpose: 'availability' }));
+  const avail = /** @type {Availability} */ (
+    await inTab(inst, AVAILABILITY, { purpose: 'availability' })
+  );
   add('api.availability', avail.LanguageModel === 'available', avail);
 
   // create() on a model that is not available waits for (and can start) a download; doctor stays read-only.
   if (avail.LanguageModel !== 'available') {
-    for (const id of ['model.contextWindow', 'canary.structured', 'canary.tools', 'canary.webmcp']) {
-      add(id, null, `skipped: LanguageModel is ${avail.LanguageModel}; ${switchesOf(inst).includes('--disable-component-update') ? requestHint(inst) : `run "model download ${inst.name}"`}`);
+    for (const id of [
+      'model.contextWindow',
+      'canary.structured',
+      'canary.tools',
+      'canary.webmcp',
+    ]) {
+      add(
+        id,
+        null,
+        `skipped: LanguageModel is ${avail.LanguageModel}; ${switchesOf(inst).includes('--disable-component-update') ? requestHint(inst) : `run "model download ${inst.name}"`}`,
+      );
     }
 
     if (brokerLater) {
@@ -2667,11 +3538,26 @@ async function cmdDoctor(inst) {
     return { ok: false, backend: d.backend, checks };
   }
 
-  const canary = /** @type {Canary} */ (await inTab(inst, CANARY, { purpose: 'canary', args: { toolCanary: inst.model.toolCanary } }));
-  add('model.contextWindow', canary.contextWindow === inst.model.contextWindow, `contextWindow ${canary.contextWindow}, expected ${inst.model.contextWindow}`);
+  const canary = /** @type {Canary} */ (
+    await inTab(inst, CANARY, {
+      purpose: 'canary',
+      args: { toolCanary: inst.model.toolCanary },
+    })
+  );
+  add(
+    'model.contextWindow',
+    canary.contextWindow === inst.model.contextWindow,
+    `contextWindow ${canary.contextWindow}, expected ${inst.model.contextWindow}`,
+  );
   add('canary.structured', canary.structured?.pass === true, canary.structured);
   // "report": the model's native tool calling is too unreliable to gate health on (Phi-4-mini); the result is kept.
-  add('canary.tools', toolsPass(inst.model.toolCanary, canary.tools), inst.model.toolCanary === 'report' ? { reportedOnly: true, ...canary.tools } : canary.tools);
+  add(
+    'canary.tools',
+    toolsPass(inst.model.toolCanary, canary.tools),
+    inst.model.toolCanary === 'report'
+      ? { reportedOnly: true, ...canary.tools }
+      : canary.tools,
+  );
   add('canary.webmcp', canary.webmcp?.pass === true, canary.webmcp);
 
   if (brokerLater) {
@@ -2691,17 +3577,33 @@ async function cmdModel(inst, sub) {
     const info = await modelInfo(inst);
 
     for (const x of info.disk) {
-      log('INFO', `disk: ${x.name} ${x.modelVersion} component ${x.componentVersion} hints ${JSON.stringify(x.performanceHints)} ${x.mib} MiB ${x.dir}`);
+      log(
+        'INFO',
+        `disk: ${x.name} ${x.modelVersion} component ${x.componentVersion} hints ${JSON.stringify(x.performanceHints)} ${x.mib} MiB ${x.dir}`,
+      );
     }
 
     if (info.broker && !info.broker.disabled) {
-      for (const a of info.broker.assets.filter((a) => a.state !== 'Not Installed')) {
-        log('INFO', `broker asset: ${a.name} ${a.version} ${a.state} ${a.progress}%`);
+      for (const a of info.broker.assets.filter(
+        (a) => a.state !== 'Not Installed',
+      )) {
+        log(
+          'INFO',
+          `broker asset: ${a.name} ${a.version} ${a.state} ${a.progress}%`,
+        );
       }
 
-      log('INFO', `serving ${info.serving ?? 'none'}; backend ${info.backend?.backendType ?? '?'} (requested ${info.requestedBackend}); performance class ${info.performanceClass} (Broker State ${info.broker.perfClass})`);
+      log(
+        'INFO',
+        `serving ${info.serving ?? 'none'}; backend ${info.backend?.backendType ?? '?'} (requested ${info.requestedBackend}); performance class ${info.performanceClass} (Broker State ${info.broker.perfClass})`,
+      );
     } else {
-      log('INFO', info.broker?.disabled ? info.broker.error : `${inst.name} is stopped; disk only. performance class ${info.performanceClass}`);
+      log(
+        'INFO',
+        info.broker?.disabled
+          ? info.broker.error
+          : `${inst.name} is stopped; disk only. performance class ${info.performanceClass}`,
+      );
     }
 
     return { ok: true, ...info };
@@ -2709,8 +3611,13 @@ async function cmdModel(inst, sub) {
 
   if (sub === 'init') {
     mainProcess(inst) ?? refuse(`${inst.name} is not running`);
-    const r = /** @type {InitRun} */ (await inTab(inst, INIT, { purpose: 'init' }));
-    log('OK', `first create ${r.firstCreateMs} ms, second create ${r.secondCreateMs} ms, contextWindow ${r.contextWindow}, prompt ${r.promptMs} ms: ${String(r.answer).slice(0, 80)}`);
+    const r = /** @type {InitRun} */ (
+      await inTab(inst, INIT, { purpose: 'init' })
+    );
+    log(
+      'OK',
+      `first create ${r.firstCreateMs} ms, second create ${r.secondCreateMs} ms, contextWindow ${r.contextWindow}, prompt ${r.promptMs} ms: ${String(r.answer).slice(0, 80)}`,
+    );
 
     return { ok: true, ...r };
   }
@@ -2727,7 +3634,9 @@ async function cmdModel(inst, sub) {
     return modelPin(inst);
   }
 
-  return refuse('usage: model info|init|download|clear|pin <instance> [--confirm=<model name>]');
+  return refuse(
+    'usage: model info|init|download|clear|pin <instance> [--confirm=<model name>]',
+  );
 }
 
 /**
@@ -2737,21 +3646,32 @@ async function cmdModel(inst, sub) {
  * @returns {Promise<Result>}
  */
 async function modelPin(inst) {
-  const roots = inst.pin ?? refuse(`${inst.name} has no "pin" roots in instances.json`);
-  const proc = mainProcess(inst) ?? refuse(`${inst.name} is not running; pin a running instance that doctor passes`);
+  const roots =
+    inst.pin ?? refuse(`${inst.name} has no "pin" roots in instances.json`);
+  const proc =
+    mainProcess(inst) ??
+    refuse(
+      `${inst.name} is not running; pin a running instance that doctor passes`,
+    );
   const d = drift(inst, proc);
 
   // The registry's switches keep the component updater off while the folders are copied.
   if (d.problems.length > 0) {
-    refuse(`${inst.name} does not run with its registry command line (${d.problems.join('; ')}); run "down ${inst.name}" and "up ${inst.name}" first`);
+    refuse(
+      `${inst.name} does not run with its registry command line (${d.problems.join('; ')}); run "down ${inst.name}" and "up ${inst.name}" first`,
+    );
   }
 
   /** @param {string} when */
   const healthy = async (when) => {
     const v = verdictOf(inst, await brokerState(inst));
-    const avail = /** @type {Availability} */ (await inTab(inst, AVAILABILITY, { purpose: 'availability' }));
+    const avail = /** @type {Availability} */ (
+      await inTab(inst, AVAILABILITY, { purpose: 'availability' })
+    );
 
-    return v.verdict === 'ready' && avail.LanguageModel === 'available' ? null : `not pinning: ${when}, Broker State ${v.detail}, LanguageModel ${avail.LanguageModel}`;
+    return v.verdict === 'ready' && avail.LanguageModel === 'available'
+      ? null
+      : `not pinning: ${when}, Broker State ${v.detail}, LanguageModel ${avail.LanguageModel}`;
   };
   const before = await healthy('before the copy');
 
@@ -2773,9 +3693,16 @@ async function modelPin(inst) {
     const have = disk[r] ?? [];
 
     if (have.length !== 1) {
-      log('ERROR', `not pinning: ${r} holds ${have.join(', ') || 'no version'}; a pin takes exactly one`);
+      log(
+        'ERROR',
+        `not pinning: ${r} holds ${have.join(', ') || 'no version'}; a pin takes exactly one`,
+      );
 
-      return { ok: false, reason: `${r} holds ${have.join(', ') || 'no version'}; a pin takes exactly one`, disk };
+      return {
+        ok: false,
+        reason: `${r} holds ${have.join(', ') || 'no version'}; a pin takes exactly one`,
+        disk,
+      };
     }
 
     const version = /** @type {string} */ (have[0]);
@@ -2784,7 +3711,9 @@ async function modelPin(inst) {
     const list = listing(join(inst.dir, r, version));
 
     if (list.links.length > 0) {
-      refuse(`${join(inst.dir, r, version)} holds a link (${list.links.join(', ')}); not pinning a folder with links`);
+      refuse(
+        `${join(inst.dir, r, version)} holds a link (${list.links.join(', ')}); not pinning a folder with links`,
+      );
     }
 
     versions[r] = version;
@@ -2798,29 +3727,48 @@ async function modelPin(inst) {
   rmSync(next, { recursive: true, force: true });
 
   for (const [r, version] of Object.entries(versions)) {
-    cpSync(join(inst.dir, r, version), join(next, r, version), { recursive: true });
+    cpSync(join(inst.dir, r, version), join(next, r, version), {
+      recursive: true,
+    });
   }
 
   // The copy must match what was listed, the profile must not have moved meanwhile, and the model must still be Ready.
   const moved = roots.flatMap((r) => {
     const now = versionFolders(join(inst.dir, r));
     const v = /** @type {string} */ (versions[r]);
-    const changed = now.length !== 1 || now[0] !== v ? [`${r} now holds ${now.join(', ') || 'no version'}`] : listingDiff(files[r] ?? {}, listing(join(inst.dir, r, v))).map((x) => `${r}\\${v}: ${x}`);
+    const changed =
+      now.length !== 1 || now[0] !== v
+        ? [`${r} now holds ${now.join(', ') || 'no version'}`]
+        : listingDiff(files[r] ?? {}, listing(join(inst.dir, r, v))).map(
+            (x) => `${r}\\${v}: ${x}`,
+          );
 
-    return [...changed, ...listingDiff(files[r] ?? {}, listing(join(next, r, v))).map((x) => `copy of ${r}\\${v}: ${x}`)];
+    return [
+      ...changed,
+      ...listingDiff(files[r] ?? {}, listing(join(next, r, v))).map(
+        (x) => `copy of ${r}\\${v}: ${x}`,
+      ),
+    ];
   });
   const after = await healthy('after the copy');
 
   if (moved.length > 0 || after !== null) {
     rmSync(next, { recursive: true, force: true });
-    const reason = after ?? `not pinning: the folders changed during the copy (${moved.slice(0, 3).join('; ')})`;
+    const reason =
+      after ??
+      `not pinning: the folders changed during the copy (${moved.slice(0, 3).join('; ')})`;
     log('ERROR', reason);
 
     return { ok: false, reason };
   }
 
   /** @type {Pin} */
-  const pin = { instance: inst.name, at: new Date().toISOString(), roots: versions, files };
+  const pin = {
+    instance: inst.name,
+    at: new Date().toISOString(),
+    roots: versions,
+    files,
+  };
   writeFileSync(join(next, 'pin.json'), JSON.stringify(pin, null, 2));
   // The old pin stays until the new one is in place, so a failed rename still leaves one whole pin.
   const old = `${dir}.old`;
@@ -2841,7 +3789,12 @@ async function modelPin(inst) {
   }
 
   rmSync(old, { recursive: true, force: true });
-  log('OK', `pinned ${Object.entries(versions).map(([r, ver]) => `${r} ${ver}`).join(', ')} in ${dir}`);
+  log(
+    'OK',
+    `pinned ${Object.entries(versions)
+      .map(([r, ver]) => `${r} ${ver}`)
+      .join(', ')} in ${dir}`,
+  );
 
   return { ok: true, pin, dir };
 }
@@ -2854,11 +3807,15 @@ async function modelDownload(inst) {
   const budget = downloadTimeouts(opts['timeout-min']);
 
   if (switchesOf(inst).includes('--disable-component-update')) {
-    refuse(`${inst.name} runs with --disable-component-update, so Check for update starts no download (measured); its model comes back from the pin: ${requestHint(inst)}`);
+    refuse(
+      `${inst.name} runs with --disable-component-update, so Check for update starts no download (measured); its model comes back from the pin: ${requestHint(inst)}`,
+    );
   }
 
   mainProcess(inst) ?? refuse(`${inst.name} is not running`);
-  const before = /** @type {Availability} */ (await inTab(inst, AVAILABILITY, { purpose: 'availability' }));
+  const before = /** @type {Availability} */ (
+    await inTab(inst, AVAILABILITY, { purpose: 'availability' })
+  );
   const diskBefore = diskModels(inst);
 
   if (before.LanguageModel === 'available') {
@@ -2867,8 +3824,15 @@ async function modelDownload(inst) {
     return { ok: true, alreadyAvailable: true, before };
   }
 
-  if (before.LanguageModel !== 'downloadable' && before.LanguageModel !== 'downloading') {
-    return { ok: false, reason: `LanguageModel.availability() is ${before.LanguageModel}`, before };
+  if (
+    before.LanguageModel !== 'downloadable' &&
+    before.LanguageModel !== 'downloading'
+  ) {
+    return {
+      ok: false,
+      reason: `LanguageModel.availability() is ${before.LanguageModel}`,
+      before,
+    };
   }
 
   const roomless = downloadRefusal(freeSpace(inst), inst.model);
@@ -2880,15 +3844,28 @@ async function modelDownload(inst) {
   const broker = await brokerState(inst);
 
   if (broker.diskInstall?.startsWith('false')) {
-    return { ok: false, reason: `Broker State: not enough disk space to install: ${broker.diskInstall}`, before, broker };
+    return {
+      ok: false,
+      reason: `Broker State: not enough disk space to install: ${broker.diskInstall}`,
+      before,
+      broker,
+    };
   }
 
   /** @type {EdgeComponent[] | null} */
   let components = null;
 
   if (inst.modelComponents) {
-    components = /** @type {EdgeComponent[]} */ (await inTab(inst, EDGE_COMPONENTS, { url: null, args: { names: inst.modelComponents } }));
-    log('INFO', `edge://components: pressed Check for update on ${components.map((c) => `${c.name} (${c.status})`).join(', ')}`);
+    components = /** @type {EdgeComponent[]} */ (
+      await inTab(inst, EDGE_COMPONENTS, {
+        url: null,
+        args: { names: inst.modelComponents },
+      })
+    );
+    log(
+      'INFO',
+      `edge://components: pressed Check for update on ${components.map((c) => `${c.name} (${c.status})`).join(', ')}`,
+    );
   }
 
   // create() needs a trusted user gesture; pointer clicks can time out in an instance, Enter on a focused button still counts.
@@ -2928,19 +3905,46 @@ async function modelDownload(inst) {
     return { gesture, ...(await p.evaluate(() => ({ ...window.__dl, progress: undefined, samples: window.__dl.progress.length }))), polls: samples.filter((s, i) => i % 12 === 0 || i === samples.length - 1) };
   }`;
   const t0 = Date.now();
-  const run = /** @type {DownloadRun} */ (await inTab(inst, START, { purpose: 'download' }, budget.clientMs));
-  const after = await waitFor(async () => {
-    const a = /** @type {Availability} */ (await inTab(inst, AVAILABILITY, { purpose: 'availability' }));
+  const run = /** @type {DownloadRun} */ (
+    await inTab(inst, START, { purpose: 'download' }, budget.clientMs)
+  );
+  const after = await waitFor(
+    async () => {
+      const a = /** @type {Availability} */ (
+        await inTab(inst, AVAILABILITY, { purpose: 'availability' })
+      );
 
-    return a.LanguageModel === 'available' ? a : null;
-  }, 120000, 5000);
+      return a.LanguageModel === 'available' ? a : null;
+    },
+    120000,
+    5000,
+  );
   const diskAfter = diskModels(inst);
-  const added = diskAfter.filter((x) => !diskBefore.some((y) => y.dir === x.dir && y.bytes === x.bytes));
-  const durationMs = run.readyAt && run.clickAt ? run.readyAt - run.clickAt : null;
+  const added = diskAfter.filter(
+    (x) => !diskBefore.some((y) => y.dir === x.dir && y.bytes === x.bytes),
+  );
+  const durationMs =
+    run.readyAt && run.clickAt ? run.readyAt - run.clickAt : null;
   const ok = run.state === 'ready' && !!after;
-  log(ok ? 'OK' : 'ERROR', `download ${run.state} (gesture ${run.gesture}) in ${durationMs ?? Date.now() - t0} ms; new on disk: ${added.map((x) => `${x.name} ${x.componentVersion} ${x.mib} MiB`).join(', ') || 'none'}`);
+  log(
+    ok ? 'OK' : 'ERROR',
+    `download ${run.state} (gesture ${run.gesture}) in ${durationMs ?? Date.now() - t0} ms; new on disk: ${added.map((x) => `${x.name} ${x.componentVersion} ${x.mib} MiB`).join(', ') || 'none'}`,
+  );
 
-  return { ok, state: run.state, gesture: run.gesture, durationMs, contextWindow: run.contextWindow, progressEvents: run.samples, polls: run.polls, components, added, diskBefore, diskAfter, availabilityAfter: after };
+  return {
+    ok,
+    state: run.state,
+    gesture: run.gesture,
+    durationMs,
+    contextWindow: run.contextWindow,
+    progressEvents: run.samples,
+    polls: run.polls,
+    components,
+    added,
+    diskBefore,
+    diskAfter,
+    availabilityAfter: after,
+  };
 }
 
 /**
@@ -2951,18 +3955,24 @@ async function modelClear(inst) {
   const confirm = opts['confirm'];
 
   if (typeof confirm !== 'string') {
-    return refuse('model clear needs --confirm=<model name from its manifest.json>, e.g. --confirm=v3Nano');
+    return refuse(
+      'model clear needs --confirm=<model name from its manifest.json>, e.g. --confirm=v3Nano',
+    );
   }
 
   if (instanceProcesses(inst).length) {
-    refuse(`${inst.name} is running; run "down ${inst.name}" first (files are never deleted under a running browser)`);
+    refuse(
+      `${inst.name} is running; run "down ${inst.name}" first (files are never deleted under a running browser)`,
+    );
   }
 
   const disk = diskModels(inst);
   const victims = disk.filter((x) => x.name === confirm);
 
   if (victims.length === 0) {
-    refuse(`no model named ${confirm} in ${inst.dir}; installed: ${disk.map((x) => x.name).join(', ') || 'none'}`);
+    refuse(
+      `no model named ${confirm} in ${inst.dir}; installed: ${disk.map((x) => x.name).join(', ') || 'none'}`,
+    );
   }
 
   const profileReal = realpathSync.native(inst.dir);
@@ -2977,7 +3987,9 @@ async function modelClear(inst) {
     const real = realpathSync.native(v.dir);
 
     if (!insideProfile(profileReal, real)) {
-      refuse(`${v.dir} resolves to ${real}, outside the profile ${profileReal}; not deleting it`);
+      refuse(
+        `${v.dir} resolves to ${real}, outside the profile ${profileReal}; not deleting it`,
+      );
     }
   }
 
@@ -2989,9 +4001,20 @@ async function modelClear(inst) {
   }
 
   const freeAfter = freeSpace(inst);
-  log('INFO', `removed ${victims.reduce((s, v) => s + v.bytes, 0)} bytes; free space on ${freeAfter.volume} ${freeBefore.mib} -> ${freeAfter.mib} MiB (ReFS can report freed space late, and other downloads write meanwhile)`);
+  log(
+    'INFO',
+    `removed ${victims.reduce((s, v) => s + v.bytes, 0)} bytes; free space on ${freeAfter.volume} ${freeBefore.mib} -> ${freeAfter.mib} MiB (ReFS can report freed space late, and other downloads write meanwhile)`,
+  );
 
-  return { ok: victims.every((v) => !existsSync(v.dir)), removed: victims, bytesRemoved: victims.reduce((s, v) => s + v.bytes, 0), freeBefore, freeAfter, bytesFreed: freeAfter.bytes - freeBefore.bytes, diskAfter: diskModels(inst) };
+  return {
+    ok: victims.every((v) => !existsSync(v.dir)),
+    removed: victims,
+    bytesRemoved: victims.reduce((s, v) => s + v.bytes, 0),
+    freeBefore,
+    freeAfter,
+    bytesFreed: freeAfter.bytes - freeBefore.bytes,
+    diskAfter: diskModels(inst),
+  };
 }
 
 /**
@@ -3002,13 +4025,18 @@ async function cmdRun(inst) {
   const file = pos[2];
 
   if (!file || !existsSync(file)) {
-    return refuse('usage: run <instance> <script.js> (a file holding "async page => {...}"; it runs in a new tab that is closed afterwards)');
+    return refuse(
+      'usage: run <instance> <script.js> (a file holding "async page => {...}"; it runs in a new tab that is closed afterwards)',
+    );
   }
 
   mainProcess(inst) ?? refuse(`${inst.name} is not running`);
   const body = readFileSync(file, 'utf8').trim().replace(/;\s*$/, '');
 
-  return { ok: true, result: await inTab(inst, body, { url: null, purpose: 'run' }) };
+  return {
+    ok: true,
+    result: await inTab(inst, body, { url: null, purpose: 'run' }),
+  };
 }
 
 /**
@@ -3028,15 +4056,26 @@ async function cmdRun(inst) {
 /** @returns {Promise<Result>} */
 async function cmdBench() {
   if (IS_WORKTREE) {
-    refuse('bench runs from the main checkout only: bench.js hard-codes the counter fixture on http://localhost:4222, which in a worktree is not this checkout\'s app');
+    refuse(
+      "bench runs from the main checkout only: bench.js hard-codes the counter fixture on http://localhost:4222, which in a worktree is not this checkout's app",
+    );
   }
 
-  const names = pos.slice(1).length ? pos.slice(1) : Object.keys(REGISTRY.instances);
+  const names = pos.slice(1).length
+    ? pos.slice(1)
+    : Object.keys(REGISTRY.instances);
   const bench = join(ROOT, 'spikes', 'probes', 'bench.js');
-  const fixture = await fetch('http://localhost:4222/', { signal: AbortSignal.timeout(3000) }).then((r) => r.ok, () => false);
+  const fixture = await fetch('http://localhost:4222/', {
+    signal: AbortSignal.timeout(3000),
+  }).then(
+    (r) => r.ok,
+    () => false,
+  );
 
   if (!fixture) {
-    refuse('bench needs the counter fixture on http://localhost:4222 (bench.js hard-codes it); start it with control-angular-dev-app');
+    refuse(
+      'bench needs the counter fixture on http://localhost:4222 (bench.js hard-codes it); start it with control-angular-dev-app',
+    );
   }
 
   /** @type {BenchRecord[]} */
@@ -3047,11 +4086,22 @@ async function cmdBench() {
     mainProcess(inst) ?? refuse(`${name} is not running`);
     const info = await modelInfo(inst);
     /** @type {BenchRecord} */
-    const record = { instance: name, model: info.serving, backend: info.backend?.backendType ?? null, requestedBackend: info.requestedBackend, performanceClass: info.performanceClass, cpuBefore: cpuLoad() };
+    const record = {
+      instance: name,
+      model: info.serving,
+      backend: info.backend?.backendType ?? null,
+      requestedBackend: info.requestedBackend,
+      performanceClass: info.performanceClass,
+      cpuBefore: cpuLoad(),
+    };
     const t0 = Date.now();
 
     try {
-      record.result = await inTab(inst, readFileSync(bench, 'utf8').trim().replace(/;\s*$/, ''), { url: null, purpose: 'bench' });
+      record.result = await inTab(
+        inst,
+        readFileSync(bench, 'utf8').trim().replace(/;\s*$/, ''),
+        { url: null, purpose: 'bench' },
+      );
     } catch (e) {
       record.error = e instanceof Error ? e.message : String(e);
     }
@@ -3060,7 +4110,10 @@ async function cmdBench() {
     const cpuAfter = cpuLoad();
     record.cpuAfter = cpuAfter;
     results.push(record);
-    log(record.error ? 'ERROR' : 'OK', `${name}: ${record.model} on ${record.backend}, CPU ${record.cpuBefore.loadPercent}% -> ${cpuAfter.loadPercent}%, ${record.ms} ms${record.error ? `: ${record.error}` : ''}`);
+    log(
+      record.error ? 'ERROR' : 'OK',
+      `${name}: ${record.model} on ${record.backend}, CPU ${record.cpuBefore.loadPercent}% -> ${cpuAfter.loadPercent}%, ${record.ms} ms${record.error ? `: ${record.error}` : ''}`,
+    );
 
     if (attachedHere === inst) {
       pw(inst, ['detach']);
@@ -3068,7 +4121,12 @@ async function cmdBench() {
     }
   }
 
-  return { ok: results.every((r) => !r.error), results, summarize: 'node spikes/probes/bench-summary.mjs takes bench.js return values; pass each results[i].result' };
+  return {
+    ok: results.every((r) => !r.error),
+    results,
+    summarize:
+      'node spikes/probes/bench-summary.mjs takes bench.js return values; pass each results[i].result',
+  };
 }
 
 /**
@@ -3079,7 +4137,24 @@ async function cmdInfo(inst) {
   const st = readState(inst.name);
   // The recorded tree goes to the top level, where a teardown check reads it, and only there.
   const { tree, ...rest } = st ?? { tree: undefined };
-  const result = { ok: true, instance: inst.name, port: inst.port, slot: st?.slot ?? slotFor(inst, inst.port), ports: st?.ports ?? [{ name: 'cdp', port: inst.port, kind: 'derived' }, BENCH_APP], cdp: inst.cdp, session: inst.session, profile: inst.dir, extensionDir: inst.extensionDir, statePath: statePath(inst.name), state: st && rest, ...(tree === undefined ? {} : { tree }), evidenceDir };
+  const result = {
+    ok: true,
+    instance: inst.name,
+    port: inst.port,
+    slot: st?.slot ?? slotFor(inst, inst.port),
+    ports: st?.ports ?? [
+      { name: 'cdp', port: inst.port, kind: 'derived' },
+      BENCH_APP,
+    ],
+    cdp: inst.cdp,
+    session: inst.session,
+    profile: inst.dir,
+    extensionDir: inst.extensionDir,
+    statePath: statePath(inst.name),
+    state: st && rest,
+    ...(tree === undefined ? {} : { tree }),
+    evidenceDir,
+  };
   log('INFO', JSON.stringify(result));
 
   return result;
@@ -3096,7 +4171,12 @@ function located(inst) {
   const st = readState(inst.name);
 
   if (st) {
-    return { ...at(inst, st.port), ...(st.extensionDir === undefined ? {} : { extensionDir: st.extensionDir }) };
+    return {
+      ...at(inst, st.port),
+      ...(st.extensionDir === undefined
+        ? {}
+        : { extensionDir: st.extensionDir }),
+    };
   }
 
   const proc = mainProcess(inst);
@@ -3126,13 +4206,22 @@ async function main() {
   portFlag(opts['port']);
 
   if (cmd === 'instances' || cmd === 'bench') {
-    return { cmd, at: new Date().toISOString(), ...(await (cmd === 'instances' ? cmdInstances() : cmdBench())) };
+    return {
+      cmd,
+      at: new Date().toISOString(),
+      ...(await (cmd === 'instances' ? cmdInstances() : cmdBench())),
+    };
   }
 
-  const run = cmd !== undefined && Object.hasOwn(COMMANDS, cmd) ? COMMANDS[cmd] : undefined;
+  const run =
+    cmd !== undefined && Object.hasOwn(COMMANDS, cmd)
+      ? COMMANDS[cmd]
+      : undefined;
 
   if (cmd === undefined || run === undefined) {
-    return refuse('usage: control.mjs <instances|up|attach|detach|doctor|flags|model|run|panel|down|bench|info> ... (see SKILL.md, Helpers)');
+    return refuse(
+      'usage: control.mjs <instances|up|attach|detach|doctor|flags|model|run|panel|down|bench|info> ... (see SKILL.md, Helpers)',
+    );
   }
 
   const sub = cmd === 'model' ? pos[1] : undefined;
@@ -3144,7 +4233,12 @@ async function main() {
 
   const inst = cmd === 'up' ? instance(name) : located(instance(name));
 
-  return { cmd: [cmd, sub].filter(Boolean).join(' '), instance: inst.name, at: new Date().toISOString(), ...(await run(inst, sub)) };
+  return {
+    cmd: [cmd, sub].filter(Boolean).join(' '),
+    instance: inst.name,
+    at: new Date().toISOString(),
+    ...(await run(inst, sub)),
+  };
 }
 
 /**
@@ -3153,7 +4247,10 @@ async function main() {
  */
 function save(result) {
   mkdirSync(evidenceDir, { recursive: true });
-  const file = join(evidenceDir, `${result.instance ?? 'all'}-${(result.cmd ?? 'error').replace(/[^A-Za-z0-9.]+/g, '-').slice(0, 60)}-${Date.now()}.json`);
+  const file = join(
+    evidenceDir,
+    `${result.instance ?? 'all'}-${(result.cmd ?? 'error').replace(/[^A-Za-z0-9.]+/g, '-').slice(0, 60)}-${Date.now()}.json`,
+  );
   writeFileSync(file, JSON.stringify(result, null, 2));
 
   return file;
@@ -3173,7 +4270,11 @@ function finish() {
 }
 
 // import.meta.url is the real path, so compare real paths: run through a link, the CLI still runs.
-if (process.argv[1] && realpathSync.native(resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
+if (
+  process.argv[1] &&
+  realpathSync.native(resolve(process.argv[1])) ===
+    realpathSync.native(fileURLToPath(import.meta.url))
+) {
   main().then(
     (result) => {
       finish();
@@ -3183,7 +4284,9 @@ if (process.argv[1] && realpathSync.native(resolve(process.argv[1])) === realpat
       if (opts['json']) {
         console.log(JSON.stringify({ ...result, evidence: file, exit: code }));
       } else {
-        console.log(`[${code === 0 ? 'OK' : 'ERROR'}] exit ${code}; evidence ${file}`);
+        console.log(
+          `[${code === 0 ? 'OK' : 'ERROR'}] exit ${code}; evidence ${file}`,
+        );
       }
 
       exitWith(code);
@@ -3192,13 +4295,23 @@ if (process.argv[1] && realpathSync.native(resolve(process.argv[1])) === realpat
       finish();
       const refused = err instanceof Refusal;
       const message = err instanceof Error ? err.message : String(err);
-      const result = { cmd: pos.join(' '), instance: pos.find((p) => Object.hasOwn(REGISTRY.instances, p)), ok: false, refused, reason: message };
+      const result = {
+        cmd: pos.join(' '),
+        instance: pos.find((p) => Object.hasOwn(REGISTRY.instances, p)),
+        ok: false,
+        refused,
+        reason: message,
+      };
       const file = save(result);
 
       if (opts['json']) {
-        console.log(JSON.stringify({ ...result, evidence: file, exit: EXIT.REFUSED }));
+        console.log(
+          JSON.stringify({ ...result, evidence: file, exit: EXIT.REFUSED }),
+        );
       } else {
-        console.log(`${logLine('ERROR', `${refused ? 'refused' : 'could not run'}: ${message}`)}\n[ERROR] exit 2; evidence ${file}`);
+        console.log(
+          `${logLine('ERROR', `${refused ? 'refused' : 'could not run'}: ${message}`)}\n[ERROR] exit 2; evidence ${file}`,
+        );
       }
 
       exitWith(EXIT.REFUSED);

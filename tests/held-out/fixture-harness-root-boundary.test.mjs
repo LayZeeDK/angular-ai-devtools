@@ -25,8 +25,24 @@ import { JSDOM } from 'jsdom';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..', '..');
-const pagePath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'components', 'components-page.ts');
-const probePath = join(root, 'spikes', 'ng222-app', 'src', 'app', 'components', 'harness-probe.ts');
+const pagePath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'components',
+  'components-page.ts',
+);
+const probePath = join(
+  root,
+  'spikes',
+  'ng222-app',
+  'src',
+  'app',
+  'components',
+  'harness-probe.ts',
+);
 const SUITE = 'fixture-harness-root-boundary.test.mjs';
 
 const PROBE_HOST = 'app-harness-probe';
@@ -38,7 +54,10 @@ const MARKER_TEXT = 'projected content';
 /** The template literal a component declares, read out of its own source. */
 function readTemplate(source, path) {
   const match = /template:\s*`([\s\S]*?)`/.exec(source);
-  assert.ok(match, `${SUITE}: ${path} declares no template literal, so there is no rendered result to observe`);
+  assert.ok(
+    match,
+    `${SUITE}: ${path} declares no template literal, so there is no rendered result to observe`,
+  );
   return match[1];
 }
 
@@ -83,7 +102,9 @@ function instantiate(host, template, document) {
   for (const node of caller) {
     const claimed = slots.find(
       ({ selectors }) =>
-        selectors !== null && node.nodeType === 1 /* Element */ && selectors.some((selector) => matchesSelector(node, selector)),
+        selectors !== null &&
+        node.nodeType === 1 /* Element */ &&
+        selectors.some((selector) => matchesSelector(node, selector)),
     );
     if (claimed) claimed.nodes.push(node);
     else if (wildcard !== -1) slots[wildcard].nodes.push(node);
@@ -98,8 +119,13 @@ function instantiate(host, template, document) {
 /** Mount the page: every `app-harness-probe` element in it becomes a rendered component root. */
 function mountPage() {
   const pageTemplate = readTemplate(readFileSync(pagePath, 'utf8'), pagePath);
-  const probeTemplate = readTemplate(readFileSync(probePath, 'utf8'), probePath);
-  const dom = new JSDOM(`<!doctype html><html><body><div id="page">${pageTemplate}</div></body></html>`);
+  const probeTemplate = readTemplate(
+    readFileSync(probePath, 'utf8'),
+    probePath,
+  );
+  const dom = new JSDOM(
+    `<!doctype html><html><body><div id="page">${pageTemplate}</div></body></html>`,
+  );
   const { document } = dom.window;
   const page = document.getElementById('page');
   const roots = [...page.querySelectorAll(PROBE_HOST)];
@@ -114,11 +140,19 @@ function mountPage() {
 
 /** Mount a single probe around `callerHtml`, with no page around it. */
 function mountProbe(callerHtml) {
-  const probeTemplate = readTemplate(readFileSync(probePath, 'utf8'), probePath);
-  const dom = new JSDOM(`<!doctype html><html><body><${PROBE_HOST} id="probe-solo">${callerHtml}</${PROBE_HOST}></body></html>`);
+  const probeTemplate = readTemplate(
+    readFileSync(probePath, 'utf8'),
+    probePath,
+  );
+  const dom = new JSDOM(
+    `<!doctype html><html><body><${PROBE_HOST} id="probe-solo">${callerHtml}</${PROBE_HOST}></body></html>`,
+  );
   const { document } = dom.window;
   const host = document.getElementById('probe-solo');
-  assert.ok(host, `${SUITE}: the mount could not build a <${PROBE_HOST}> root to project into`);
+  assert.ok(
+    host,
+    `${SUITE}: the mount could not build a <${PROBE_HOST}> root to project into`,
+  );
   return { document, root: instantiate(host, probeTemplate, document) };
 }
 
@@ -128,25 +162,46 @@ function label(root, index) {
 
 test('probe projects caller content through ng-content', () => {
   const src = readFileSync(probePath, 'utf8');
-  assert.match(src, /<ng-content\b/, `${SUITE}: mutant (remove projection point) — probe must project via <ng-content`);
+  assert.match(
+    src,
+    /<ng-content\b/,
+    `${SUITE}: mutant (remove projection point) — probe must project via <ng-content`,
+  );
 });
 
 test('probe places ng-content before its own list so projected content lands inside the root', () => {
   const src = readFileSync(probePath, 'utf8');
-  assert.match(src, /<ng-content\b[\s\S]*?<ul>/, `${SUITE}: mutant (move projection point) — <ng-content> must precede <ul> inside probe root`);
+  assert.match(
+    src,
+    /<ng-content\b[\s\S]*?<ul>/,
+    `${SUITE}: mutant (move projection point) — <ng-content> must precede <ul> inside probe root`,
+  );
 });
 
 test('page places projected content inside both probes and once outside', () => {
   const src = readFileSync(pagePath, 'utf8');
   // content inside probe roots
-  const inside = [...src.matchAll(/<app-harness-probe\b[^>]*>[\s\S]*?<\/app-harness-probe>/g)]
+  const inside = [
+    ...src.matchAll(/<app-harness-probe\b[^>]*>[\s\S]*?<\/app-harness-probe>/g),
+  ]
     .map((m) => (m[0].match(/projected content/g) || []).length)
     .reduce((a, b) => a + b, 0);
   // content outside any probe
-  const stripped = src.replace(/<app-harness-probe\b[^>]*>[\s\S]*?<\/app-harness-probe>/g, '');
+  const stripped = src.replace(
+    /<app-harness-probe\b[^>]*>[\s\S]*?<\/app-harness-probe>/g,
+    '',
+  );
   const outside = (stripped.match(/projected content/g) || []).length;
-  assert.equal(inside, 2, `${SUITE}: mutant (move projection point) — expected 2 projected inside probe roots, got ${inside}`);
-  assert.equal(outside, 1, `${SUITE}: mutant (move projection point) — expected 1 projected outside probe roots, got ${outside}`);
+  assert.equal(
+    inside,
+    2,
+    `${SUITE}: mutant (move projection point) — expected 2 projected inside probe roots, got ${inside}`,
+  );
+  assert.equal(
+    outside,
+    1,
+    `${SUITE}: mutant (move projection point) — expected 1 projected outside probe roots, got ${outside}`,
+  );
 });
 
 test('each probe root renders the caller content written inside it, where its projection point is', () => {

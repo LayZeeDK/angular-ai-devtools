@@ -78,7 +78,10 @@ describe('computeRole', () => {
       [make('dialog'), 'dialog'],
     ];
     for (const [element, role] of cases) {
-      expect(computeRole(element), `${element.localName} should be ${role}`).toBe(role);
+      expect(
+        computeRole(element),
+        `${element.localName} should be ${role}`,
+      ).toBe(role);
     }
     for (const level of ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']) {
       expect(computeRole(make(level))).toBe('heading');
@@ -100,7 +103,10 @@ describe('computeRole', () => {
     ];
     for (const element of unnamed) {
       const role = computeRole(element);
-      expect(role, `${element.localName}[${element.getAttribute('type') ?? ''}]`).toBeNull();
+      expect(
+        role,
+        `${element.localName}[${element.getAttribute('type') ?? ''}]`,
+      ).toBeNull();
       expect(role).not.toBe('generic');
     }
   });
@@ -138,7 +144,11 @@ describe('computeAccessibleName — the role’s own order', () => {
 
   it('reads aria-label second, and answers the label even when the text differs', () => {
     const label = make('label', { for: 'email' }, 'Email address');
-    const control = make('input', { id: 'email', type: 'text', 'aria-label': 'Work email' });
+    const control = make('input', {
+      id: 'email',
+      type: 'text',
+      'aria-label': 'Work email',
+    });
     inTree(label, control);
 
     expect(computeAccessibleName(control)).toEqual({
@@ -173,7 +183,9 @@ describe('computeAccessibleName — the role’s own order', () => {
       reason: null,
     });
 
-    expect(computeAccessibleName(make('img', { alt: 'A chart of the build' }))).toEqual({
+    expect(
+      computeAccessibleName(make('img', { alt: 'A chart of the build' })),
+    ).toEqual({
       role: 'img',
       name: 'A chart of the build',
       source: 'native',
@@ -191,7 +203,9 @@ describe('computeAccessibleName — the role’s own order', () => {
   });
 
   it('reads content last, and only for the roles whose naming source includes it', () => {
-    expect(computeAccessibleName(make('a', { href: '/docs' }, 'Read the docs'))).toEqual({
+    expect(
+      computeAccessibleName(make('a', { href: '/docs' }, 'Read the docs')),
+    ).toEqual({
       role: 'link',
       name: 'Read the docs',
       source: 'content',
@@ -205,7 +219,11 @@ describe('computeAccessibleName — the role’s own order', () => {
     });
 
     for (const role of CONTENT_NAMED_ROLES) {
-      expect(computeAccessibleName(make('div', { role }, 'Named by its own content'))).toEqual({
+      expect(
+        computeAccessibleName(
+          make('div', { role }, 'Named by its own content'),
+        ),
+      ).toEqual({
         role,
         name: 'Named by its own content',
         source: 'content',
@@ -220,16 +238,24 @@ describe('computeAccessibleName — the role’s own order', () => {
       role: 'tabpanel',
       ...NO_NAME,
     });
-    expect(computeAccessibleName(make('div', { role: 'listbox' }, 'Option one')).name).toBeNull();
+    expect(
+      computeAccessibleName(make('div', { role: 'listbox' }, 'Option one'))
+        .name,
+    ).toBeNull();
   });
 
   it('collapses whitespace and trims every source', () => {
-    expect(computeAccessibleName(make('button', { 'aria-label': '  Save \n\t  changes  ' })).name).toBe(
-      'Save changes',
-    );
+    expect(
+      computeAccessibleName(
+        make('button', { 'aria-label': '  Save \n\t  changes  ' }),
+      ).name,
+    ).toBe('Save changes');
 
     const contentNamed = make('button');
-    contentNamed.append(make('span', {}, '  Save '), make('span', {}, ' changes  '));
+    contentNamed.append(
+      make('span', {}, '  Save '),
+      make('span', {}, ' changes  '),
+    );
     expect(computeAccessibleName(contentNamed).name).toBe('Save changes');
 
     const referenced = make('span', { id: 'ref' }, '  First\n  name ');
@@ -244,25 +270,31 @@ describe('computeAccessibleName — the role’s own order', () => {
   });
 
   it('falls through a source that reads empty instead of answering an empty name', () => {
-    expect(computeAccessibleName(make('button', { 'aria-label': '   ' }, 'Send'))).toEqual({
+    expect(
+      computeAccessibleName(make('button', { 'aria-label': '   ' }, 'Send')),
+    ).toEqual({
       role: 'button',
       name: 'Send',
       source: 'content',
       reason: null,
     });
-    expect(computeAccessibleName(make('button', { 'aria-labelledby': 'nowhere' }, 'Dangling'))).toEqual(
-      {
-        role: 'button',
-        name: 'Dangling',
-        source: 'content',
-        reason: null,
-      },
-    );
+    expect(
+      computeAccessibleName(
+        make('button', { 'aria-labelledby': 'nowhere' }, 'Dangling'),
+      ),
+    ).toEqual({
+      role: 'button',
+      name: 'Dangling',
+      source: 'content',
+      reason: null,
+    });
   });
 
   it('computes the role itself when the caller passes only an element', () => {
     const button = make('button', {}, 'Send');
-    expect(computeAccessibleName(button)).toEqual(computeAccessibleName(button, computeRole(button)));
+    expect(computeAccessibleName(button)).toEqual(
+      computeAccessibleName(button, computeRole(button)),
+    );
 
     // An observed role the element does not itself carry is honoured: an explainer names the
     // element under the role it measured.
@@ -277,7 +309,11 @@ describe('computeAccessibleName — the role’s own order', () => {
 
 describe('N3 — no textContent fallback for a role named by an author source', () => {
   it('returns the aria-label of a button even when the button’s text says something else', () => {
-    expect(computeAccessibleName(make('button', { 'aria-label': 'Save changes' }, 'Discard'))).toEqual({
+    expect(
+      computeAccessibleName(
+        make('button', { 'aria-label': 'Save changes' }, 'Discard'),
+      ),
+    ).toEqual({
       role: 'button',
       name: 'Save changes',
       source: 'aria-label',
@@ -288,16 +324,28 @@ describe('N3 — no textContent fallback for a role named by an author source', 
   it('answers no accessible name for a textbox and a checkbox that have text but no label', () => {
     const textarea = make('textarea');
     textarea.textContent = 'the user typed this';
-    expect(computeAccessibleName(textarea)).toEqual({ role: 'textbox', ...NO_NAME });
+    expect(computeAccessibleName(textarea)).toEqual({
+      role: 'textbox',
+      ...NO_NAME,
+    });
 
     const textbox = make('div', { role: 'textbox' }, 'the user typed this');
-    expect(computeAccessibleName(textbox)).toEqual({ role: 'textbox', ...NO_NAME });
+    expect(computeAccessibleName(textbox)).toEqual({
+      role: 'textbox',
+      ...NO_NAME,
+    });
 
     const checkbox = make('div', { role: 'checkbox' }, 'Accept the terms');
-    expect(computeAccessibleName(checkbox)).toEqual({ role: 'checkbox', ...NO_NAME });
+    expect(computeAccessibleName(checkbox)).toEqual({
+      role: 'checkbox',
+      ...NO_NAME,
+    });
 
     const nativeCheckbox = make('input', { type: 'checkbox', value: 'accept' });
-    expect(computeAccessibleName(nativeCheckbox)).toEqual({ role: 'checkbox', ...NO_NAME });
+    expect(computeAccessibleName(nativeCheckbox)).toEqual({
+      role: 'checkbox',
+      ...NO_NAME,
+    });
   });
 
   it('never reads value, placeholder or title as a name', () => {
@@ -322,7 +370,11 @@ describe('the result shape', () => {
   });
 
   it('pairs a non-null name with a source and a null name with the reason', () => {
-    const labelled = make('button', { 'aria-label': 'Save changes' }, 'Discard');
+    const labelled = make(
+      'button',
+      { 'aria-label': 'Save changes' },
+      'Discard',
+    );
     const byId = make('button', { 'aria-labelledby': 'caption' });
     const caption = make('span', { id: 'caption' }, 'Named by reference');
     inTree(caption, byId);
@@ -340,7 +392,12 @@ describe('the result shape', () => {
     ];
 
     for (const result of results) {
-      expect(Object.keys(result).sort()).toEqual(['name', 'reason', 'role', 'source']);
+      expect(Object.keys(result).sort()).toEqual([
+        'name',
+        'reason',
+        'role',
+        'source',
+      ]);
       if (result.name === null) {
         expect(result.source).toBeNull();
         expect(result.reason).toBe(NO_ACCESSIBLE_NAME_REASON);
@@ -365,8 +422,12 @@ describe('the result shape', () => {
 
 describe('E5', () => {
   it('E5 a labelled control and a content-named control both yield a role and a name, and an unlabelled control yields no accessible name', () => {
-    const labelled = describeElement(make('button', { 'aria-label': 'Save changes' }, 'Discard'));
-    const contentNamed = describeElement(make('a', { href: '/docs' }, 'Read the docs'));
+    const labelled = describeElement(
+      make('button', { 'aria-label': 'Save changes' }, 'Discard'),
+    );
+    const contentNamed = describeElement(
+      make('a', { href: '/docs' }, 'Read the docs'),
+    );
     const unlabelled = describeElement(make('input', { type: 'text' }));
 
     // Two fixtures, two roles, two names — the observation the Aria explainer has to make.

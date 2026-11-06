@@ -1,9 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { UpdateCauseService } from './n1-update-cause.service';
-import type { CompanionRecord, CompanionRecordState, CompanionSymbol } from './companion';
+import type {
+  CompanionRecord,
+  CompanionRecordState,
+  CompanionSymbol,
+} from './companion';
 import type { ReplayOutcome } from './panel-context';
 import { CAPACITY } from '../../../../src/main-world/error-capture';
 import type { CapturedError } from '../../../../src/main-world/error-capture';
+import { readCount, readVersion } from './wire-readers';
 
 /**
  * The picker's three named states, carried out of the page as `CustomEvent('angular-ai:picker-state')`,
@@ -73,7 +78,11 @@ interface ExtensionMessage {
     cycleId: number;
     startedAt: number;
     trigger: { kind: 'output' | 'unknown'; listenerName: string | null };
-    checks: Array<{ instance?: unknown; componentName: string; events?: number[] }>;
+    checks: Array<{
+      instance?: unknown;
+      componentName: string;
+      events?: number[];
+    }>;
   };
   supported?: boolean;
   reason?: string;
@@ -173,9 +182,12 @@ export class ExtensionMessageService {
       return;
     }
     try {
-      runtime.sendMessage({ type: 'angular-ai:state-request', tabId: this.inspectedTabId }, (reply) => {
-        this.replayOutcome.set(isFailedReply(reply) ? 'failed' : 'answered');
-      });
+      runtime.sendMessage(
+        { type: 'angular-ai:state-request', tabId: this.inspectedTabId },
+        (reply) => {
+          this.replayOutcome.set(isFailedReply(reply) ? 'failed' : 'answered');
+        },
+      );
     } catch {
       // No extension context to ask (a plain page load): the signals keep their "cannot tell"
       // values rather than throwing out of construction, and the failed replay stays visible.
@@ -213,7 +225,11 @@ export class ExtensionMessageService {
       try {
         send.call(
           runtime,
-          { type: 'angular-ai:picker-command', tabId: this.inspectedTabId, action },
+          {
+            type: 'angular-ai:picker-command',
+            tabId: this.inspectedTabId,
+            action,
+          },
           (reply) => {
             resolve(
               isFailedReply(reply)
@@ -234,7 +250,11 @@ export class ExtensionMessageService {
 
   private handleMessage(msg: ExtensionMessage) {
     // The service worker relays every tab's detection to every panel; keep the inspected tab's only.
-    if (msg.tabId !== undefined && this.inspectedTabId !== undefined && msg.tabId !== this.inspectedTabId) {
+    if (
+      msg.tabId !== undefined &&
+      this.inspectedTabId !== undefined &&
+      msg.tabId !== this.inspectedTabId
+    ) {
       return;
     }
     if (msg.type === 'angular-detected') {
@@ -266,7 +286,8 @@ export class ExtensionMessageService {
         code: msg.code ?? null,
         message: msg.message ?? '',
         component: msg.component ?? null,
-        timestamp: typeof msg.timestamp === 'number' ? msg.timestamp : Date.now(),
+        timestamp:
+          typeof msg.timestamp === 'number' ? msg.timestamp : Date.now(),
       };
       this.capturedErrors.update((list) => {
         const next = [...list, err];
@@ -291,9 +312,13 @@ export class ExtensionMessageService {
  * reply at all in a callback that never fires — is not this service's to diagnose.
  */
 function isFailedReply(reply: unknown): boolean {
-  return (
-    typeof reply === 'object' && reply !== null && (reply as { ok?: unknown }).ok === false
-  );
+  // A callback that fires with no reply means nobody answered the request:
+  // `chrome.runtime.sendMessage` invokes the callback with `undefined` and sets
+  // `runtime.lastError` when no listener exists. That is a failed replay, not an
+  // answered one. A callback that never fires is a different case and never
+  // reaches this function — the panel keeps its "outstanding" state.
+  if (reply === undefined || reply === null) return true;
+  return typeof reply === 'object' && (reply as { ok?: unknown }).ok === false;
 }
 
 /**
@@ -302,7 +327,9 @@ function isFailedReply(reply: unknown): boolean {
  */
 function refusalReason(reply: unknown): string {
   const reason =
-    typeof reply === 'object' && reply !== null ? (reply as { reason?: unknown }).reason : undefined;
+    typeof reply === 'object' && reply !== null
+      ? (reply as { reason?: unknown }).reason
+      : undefined;
   return typeof reason === 'string' && reason.trim().length > 0
     ? reason
     : 'the background refused angular-ai:picker-command without naming a reason';
@@ -320,7 +347,9 @@ function describeError(error: unknown): string {
  * carries no map answers `null` — "the page published no features record" — rather than an empty
  * record, so a missing map is never read as "every API is absent".
  */
-function readFeatureBits(value: unknown): Readonly<Record<string, boolean>> | null {
+function readFeatureBits(
+  value: unknown,
+): Readonly<Record<string, boolean>> | null {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     return null;
   }
@@ -373,9 +402,9 @@ function readCompanionRecord(value: unknown): CompanionRecord | null {
   }
   return {
     state: state as CompanionRecordState,
-    version: readCompanionVersion(record['version']),
-    declared: readCompanionCount(record['declared']),
-    resolved: readCompanionCount(record['resolved']),
+    version: readVersion(record['version']),
+    declared: readCount(record['declared']),
+    resolved: readCount(record['resolved']),
     symbols,
   };
 }
@@ -388,24 +417,23 @@ function readCompanionSymbol(value: unknown): CompanionSymbol | null {
   const symbol = value as Record<string, unknown>;
   const pkg = symbol['pkg'];
   const name = symbol['name'];
-  if (typeof pkg !== 'string' || pkg.length === 0 || typeof name !== 'string' || name.length === 0) {
+  if (
+    typeof pkg !== 'string' ||
+    pkg.length === 0 ||
+    typeof name !== 'string' ||
+    name.length === 0
+  ) {
     return null;
   }
   return { pkg, name };
 }
 
-/** The version the entry declared, or `null` when the payload carried no usable one. */
-function readCompanionVersion(value: unknown): string | null {
-  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
-}
-
-/** A declared/resolved count, or `0` when the payload carried no non-negative whole number. */
-function readCompanionCount(value: unknown): number {
-  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? Math.trunc(value) : 0;
-}
-
 /** The three states the page's overlay publishes; anything else is not an answer (T007). */
-const PICKER_STATUSES: ReadonlySet<string> = new Set<string>(['armed', 'cancelled', 'unavailable']);
+const PICKER_STATUSES: ReadonlySet<string> = new Set<string>([
+  'armed',
+  'cancelled',
+  'unavailable',
+]);
 
 /**
  * Reads an `angular-ai:picker-state` payload into one of the three named statuses, or `null` when it

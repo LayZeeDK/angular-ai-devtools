@@ -44,6 +44,15 @@
 import type { PanelContext } from './panel-context';
 import type { ToolDeclaration } from './tool-registry/tool-registry';
 
+// This module is loaded directly by Node (`tests/held-out/tool-group-gates.test.mjs`
+// imports it under `--experimental-strip-types`), and Node resolves relative specifiers
+// only with an explicit extension. The app build cannot carry a `.ts` specifier because
+// it emits, so this file keeps its own copy of the guard rather than importing the shared
+// one. Body identical to `record-guard.ts`; the parity test pins that.
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 /**
  * One declared group: the ids it lists, the `[ng-version]` floor it needs, and — when the page
  * publishes a bit the whole group depends on — the feature that must read `true`.
@@ -208,7 +217,10 @@ function refuseGroup(
   }
 
   if (version === null) {
-    const read = context.version === null ? 'nothing' : `"${context.version}", which is not a three-part version`;
+    const read =
+      context.version === null
+        ? 'nothing'
+        : `"${context.version}", which is not a three-part version`;
     return `${VERSION_SOURCE} is ${read}, so the minimum version "${group.minVersion}" of the group "${group.id}" cannot be compared, and this projection cannot tell whether the group applies: an unknown version withholds the group, it never opens it`;
   }
 
@@ -231,14 +243,18 @@ function refuseGroup(
  * `requiredFeature` that is not `true` withholds it naming the bit — published `false` and
  * unpublished are both not `true`, and neither is read as support.
  */
-function refuseOnFacts(group: ToolGroupDeclaration, context: PanelContext): string | null {
+function refuseOnFacts(
+  group: ToolGroupDeclaration,
+  context: PanelContext,
+): string | null {
   const facts = context.facts;
   const supported: unknown = facts['supported'];
   const versionText = String(context.version).trim();
 
   if (supported === false) {
     const rawReason: unknown = facts['reason'];
-    const pageReason = typeof rawReason === 'string' ? rawReason : 'no reason given';
+    const pageReason =
+      typeof rawReason === 'string' ? rawReason : 'no reason given';
     return `${PAGE_CHANNEL} reported supported: false ("${pageReason}"), and the facts win over ${VERSION_SOURCE} "${versionText}", so the group "${group.id}" is withheld`;
   }
 
@@ -248,7 +264,9 @@ function refuseOnFacts(group: ToolGroupDeclaration, context: PanelContext): stri
   }
 
   const rawFeatures: unknown = facts['features'];
-  const features: Readonly<Record<string, unknown>> = isRecord(rawFeatures) ? rawFeatures : {};
+  const features: Readonly<Record<string, unknown>> = isRecord(rawFeatures)
+    ? rawFeatures
+    : {};
   const bit: unknown = features[requiredFeature];
   if (bit === true) {
     return null;
@@ -267,7 +285,10 @@ function refuseOnFacts(group: ToolGroupDeclaration, context: PanelContext): stri
  * tool is not the model's to call. A group left with nothing is withheld with a sentence naming
  * which rule removed its members, so it is never present with no tools.
  */
-function refuseOnMembership(group: ToolGroupDeclaration, tools: readonly ToolDeclaration[]): string | null {
+function refuseOnMembership(
+  group: ToolGroupDeclaration,
+  tools: readonly ToolDeclaration[],
+): string | null {
   const resolved = resolveMembers(group, tools);
   if (resolved.length === 0) {
     const listed = group.memberIds.map((toolId) => `"${toolId}"`).join(', ');
@@ -279,7 +300,10 @@ function refuseOnMembership(group: ToolGroupDeclaration, tools: readonly ToolDec
   }
 
   const published = resolved
-    .map((declaration) => `"${declaration.id}" declares publish = '${declaration.publish}'`)
+    .map(
+      (declaration) =>
+        `"${declaration.id}" declares publish = '${declaration.publish}'`,
+    )
     .join(', ');
   return `every declaration the group "${group.id}" resolved is hidden from the model by its publish value (${published}), and only publish = 'model' members may be offered, so the group is withheld rather than offered with no tools`;
 }
@@ -354,8 +378,4 @@ function isBelow(version: ParsedVersion, minimum: ParsedVersion): boolean {
     return version.minor < minimum.minor;
   }
   return version.patch < minimum.patch;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

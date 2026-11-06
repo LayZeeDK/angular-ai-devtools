@@ -4,7 +4,16 @@
 // tools, call, resource. Deterministic steps only; driving the app stays in playwright-cli.
 import { spawn, spawnSync } from 'node:child_process';
 import http from 'node:http';
-import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  readdirSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { createServer } from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -66,15 +75,28 @@ import { describe, merge, processTable, snapshot, stop } from './proctree.mjs';
 /** @typedef {{ pageId?: string | null, ngVersion?: string | null, devBuild?: boolean }} PageProbe */
 /** @typedef {{ status: number | null, stdout: string, stderr: string }} Run */
 
-const SKILL_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const SKILL_DIR = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+);
 const REPO_ROOT = path.resolve(SKILL_DIR, '../../..');
 const SCRATCH = path.join(REPO_ROOT, 'tmp', 'control-pangular-inspector');
 const STATE_DIR = path.join(SCRATCH, 'state');
 const PKG = '@pangular-inspector/devtools';
 const PINNED = '0.0.7'; // npm view @pangular-inspector/devtools version, 2026-10-11
 const DEFAULT_PORT = 9999; // the docs' standalone port; proxy.conf.json names it, so it is fixed per app
-const PORTAL_DEFAULT_DIR = 'D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools';
-const ACTION_TOOLS = ['highlight', 'navigate', 'dispatch-ngrx-action', 'form-action', 'fill-form', 'set-http-rule', 'remove-http-rule', 'analog-call-api'];
+const PORTAL_DEFAULT_DIR =
+  'D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools';
+const ACTION_TOOLS = [
+  'highlight',
+  'navigate',
+  'dispatch-ngrx-action',
+  'form-action',
+  'fill-form',
+  'set-http-rule',
+  'remove-http-rule',
+  'analog-call-api',
+];
 const OVERLAY_SNIPPET = `
   .then(() => {
     if (typeof ngDevMode === 'undefined' || ngDevMode) {
@@ -83,11 +105,20 @@ const OVERLAY_SNIPPET = `
 
     return undefined;
   })`;
-const SYSTEM32 = path.join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32');
+const SYSTEM32 = path.join(
+  process.env['SystemRoot'] ?? 'C:\\Windows',
+  'System32',
+);
 // Windows reads this from this process when Node looks up a bare program name (git): the current directory is then
 // not searched.
 process.env['NoDefaultCurrentDirectoryInExePath'] = '1';
-const NPM_CLI = path.join(path.dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js');
+const NPM_CLI = path.join(
+  path.dirname(process.execPath),
+  'node_modules',
+  'npm',
+  'bin',
+  'npm-cli.js',
+);
 
 // ---------- pure helpers (exported for the tests) ----------
 
@@ -137,7 +168,10 @@ export function liveTree(state, table = processTable) {
  * @param {{ table?: () => ProcRecord[], stop?: (records: ProcRecord[]) => StopResult }} [deps]
  * @returns {{ records: ProcRecord[], result: StopResult }}
  */
-export function stopRun(state, { table = processTable, stop: stopRecords = stop } = {}) {
+export function stopRun(
+  state,
+  { table = processTable, stop: stopRecords = stop } = {},
+) {
   const records = merge(state.tree ?? [], liveTree(state, table));
 
   return { records, result: stopRecords(records) };
@@ -153,25 +187,49 @@ export function stopRun(state, { table = processTable, stop: stopRecords = stop 
 export function downOutcome(state, result) {
   // A state file written before proctree.mjs records no tree: stopping nothing and removing it would lose the run.
   if (state.tree === undefined) {
-    return { code: 2, notes: [], reason: `refused: the state file records no process tree (written before proctree.mjs); nothing stopped: check PID ${state.pid} by hand, then delete the state file` };
+    return {
+      code: 2,
+      notes: [],
+      reason: `refused: the state file records no process tree (written before proctree.mjs); nothing stopped: check PID ${state.pid} by hand, then delete the state file`,
+    };
   }
 
   const root = rootOf(state);
   /** @type {string[]} */
   const reasons = [];
-  const notes = [...result.stopped.map((r) => `stopped ${describe(r)}`), ...result.gone.map((r) => `${describe(r)} was not running`)];
+  const notes = [
+    ...result.stopped.map((r) => `stopped ${describe(r)}`),
+    ...result.gone.map((r) => `${describe(r)} was not running`),
+  ];
 
   for (const r of result.refused) {
-    if (r.reason === 'reused' && root !== undefined && r.pid === root.pid && r.start === root.start) {
-      reasons.push(`refused: PID ${r.pid} now belongs to another process (its start time or command line differs from the state file); not stopping a process this skill did not start`);
+    if (
+      r.reason === 'reused' &&
+      root !== undefined &&
+      r.pid === root.pid &&
+      r.start === root.start
+    ) {
+      reasons.push(
+        `refused: PID ${r.pid} now belongs to another process (its start time or command line differs from the state file); not stopping a process this skill did not start`,
+      );
     } else if (r.reason === 'survived') {
-      reasons.push(`${describe(r)} still runs after the last round; run down again`);
+      reasons.push(
+        `${describe(r)} still runs after the last round; run down again`,
+      );
     } else {
-      notes.push(`left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`);
+      notes.push(
+        `left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`,
+      );
     }
   }
 
-  return reasons.length === 0 ? { code: 0, notes, reason: null } : { code: 2, notes, reason: `${reasons.join('; ')}; the state file is kept` };
+  return reasons.length === 0
+    ? { code: 0, notes, reason: null }
+    : {
+        code: 2,
+        notes,
+        reason: `${reasons.join('; ')}; the state file is kept`,
+      };
 }
 
 // ---------- ports (SKILL.md, "Pick a flow") ----------
@@ -190,7 +248,9 @@ export function listeners(text) {
     const m = l.trim().split(/\s+/);
 
     if (m[0] === 'TCP' && m[3] === 'LISTENING') {
-      const port = Number((m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1));
+      const port = Number(
+        (m[1] ?? '').slice((m[1] ?? '').lastIndexOf(':') + 1),
+      );
       const pid = Number(m[4]);
       const pids = map.get(port) ?? [];
 
@@ -214,7 +274,9 @@ export function listeners(text) {
  */
 export function pinOf(dir, rel, needle) {
   try {
-    const i = readFileSync(path.join(dir, rel), 'utf8').split(/\r?\n/).findIndex((l) => l.includes(needle));
+    const i = readFileSync(path.join(dir, rel), 'utf8')
+      .split(/\r?\n/)
+      .findIndex((l) => l.includes(needle));
 
     return i === -1 ? rel : `${rel}:${i + 1}`;
   } catch {
@@ -233,7 +295,9 @@ export function pinOf(dir, rel, needle) {
  */
 export function candidatePorts(rows, order, forced, first = order[0]) {
   const slots = first === undefined ? order : [...order, first];
-  const ports = rows.flatMap((r) => (r.kind === 'derived' ? slots.map((slot) => r.at(slot)) : [r.port]));
+  const ports = rows.flatMap((r) =>
+    r.kind === 'derived' ? slots.map((slot) => r.at(slot)) : [r.port],
+  );
 
   return [...new Set([...ports, ...(forced === undefined ? [] : [forced])])];
 }
@@ -252,7 +316,10 @@ export function candidatePorts(rows, order, forced, first = order[0]) {
  */
 export function planPorts(rows, order, busy, forced, first = order[0]) {
   /** @param {number[]} pids */
-  const heldBy = (pids) => (pids.length === 0 ? 'held by a process the OS did not name' : `held by PID ${pids.join(', ')}`);
+  const heldBy = (pids) =>
+    pids.length === 0
+      ? 'held by a process the OS did not name'
+      : `held by PID ${pids.join(', ')}`;
   /** @param {number} port */
   const holder = (port) => busy.get(port);
 
@@ -260,7 +327,10 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
     const pids = r.kind === 'fixed' ? holder(r.port) : undefined;
 
     if (r.kind === 'fixed' && pids !== undefined) {
-      return { ok: false, reason: `fixed port ${r.name} ${r.port} ${heldBy(pids)}; pinned by ${r.pin}` };
+      return {
+        ok: false,
+        reason: `fixed port ${r.name} ${r.port} ${heldBy(pids)}; pinned by ${r.pin}`,
+      };
     }
   }
 
@@ -268,19 +338,30 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
   const forcedPids = forced === undefined ? undefined : holder(forced);
 
   if (forced !== undefined && forcedPids !== undefined) {
-    return { ok: false, reason: `port ${forced} (--port) is ${heldBy(forcedPids)}; --port has no fallback` };
+    return {
+      ok: false,
+      reason: `port ${forced} (--port) is ${heldBy(forcedPids)}; --port has no fallback`,
+    };
   }
 
   /** @type {(r: PortRow, i: number, slot: number) => number} */
-  const portAt = (r, i, slot) => (r.kind !== 'derived' ? r.port : i === main && forced !== undefined ? forced : r.at(slot));
+  const portAt = (r, i, slot) =>
+    r.kind !== 'derived'
+      ? r.port
+      : i === main && forced !== undefined
+        ? forced
+        : r.at(slot);
   /** @type {string[]} */
   const tried = [];
 
   for (const slot of order) {
     const taken = rows.flatMap((r, i) => {
-      const pids = r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
+      const pids =
+        r.kind === 'derived' ? holder(portAt(r, i, slot)) : undefined;
 
-      return pids === undefined ? [] : [`${r.name} ${portAt(r, i, slot)} ${heldBy(pids)}`];
+      return pids === undefined
+        ? []
+        : [`${r.name} ${portAt(r, i, slot)} ${heldBy(pids)}`];
     });
 
     if (taken.length === 0) {
@@ -302,9 +383,19 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
 
         const from = portAt(r, i, first);
         const pids = holder(from);
-        const why = pids !== undefined ? heldBy(pids) : order[0] === first ? `slot ${first} had ${tried[0]}` : 'taken after the check';
+        const why =
+          pids !== undefined
+            ? heldBy(pids)
+            : order[0] === first
+              ? `slot ${first} had ${tried[0]}`
+              : 'taken after the check';
 
-        return { name: r.name, port, kind: r.kind, reason: `fell back from ${from}: ${why}` };
+        return {
+          name: r.name,
+          port,
+          kind: r.kind,
+          reason: `fell back from ${from}: ${why}`,
+        };
       });
 
       return { ok: true, slot, ports };
@@ -313,7 +404,10 @@ export function planPorts(rows, order, busy, forced, first = order[0]) {
     tried.push(...taken);
   }
 
-  return { ok: false, reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}` };
+  return {
+    ok: false,
+    reason: `no free slot in ${order.length} tries (slots ${order.join(', ')}): ${tried.join(', ')}`,
+  };
 }
 
 /**
@@ -339,14 +433,26 @@ export function portsCheck(ports, busy, tree) {
 
     const foreign = pids.filter((pid) => !tree.has(pid));
 
-    return foreign.length === 0 ? [] : [`${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`];
+    return foreign.length === 0
+      ? []
+      : [
+          `${p.name} ${p.port} held by PID ${foreign.join(', ')}, not the recorded tree`,
+        ];
   });
 
   if (problems.length > 0) {
     return { status: 'fail', detail: problems.join('; ') };
   }
 
-  return { status: 'pass', detail: ports.map((p) => `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`).join(', ') };
+  return {
+    status: 'pass',
+    detail: ports
+      .map(
+        (p) =>
+          `${p.name} ${p.port} (${p.kind}${p.reason === undefined ? '' : `: ${p.reason}`})`,
+      )
+      .join(', '),
+  };
 }
 
 /**
@@ -360,12 +466,28 @@ export function portsCheck(ports, busy, tree) {
  */
 export function portRows(dir, port, appUrl, project) {
   const app = findApp(dir, project);
-  const proxy = app === null ? 'apps/<app>/proxy.conf.json' : path.relative(dir, app.proxy).split(path.sep).join('/');
+  const proxy =
+    app === null
+      ? 'apps/<app>/proxy.conf.json'
+      : path.relative(dir, app.proxy).split(path.sep).join('/');
   /** @type {PortRow[]} */
-  const rows = [{ name: 'pangular', kind: 'fixed', port, pin: `${pinOf(dir, proxy, `localhost:${port}`)} in the app checkout ${dir}` }];
+  const rows = [
+    {
+      name: 'pangular',
+      kind: 'fixed',
+      port,
+      pin: `${pinOf(dir, proxy, `localhost:${port}`)} in the app checkout ${dir}`,
+    },
+  ];
 
   if (appUrl !== null) {
-    rows.push({ name: 'app', kind: 'external', port: Number(new URL(appUrl).port || 80), owner: 'control-angular-dev-app (or whatever serves --app-url); this skill never starts or stops it' });
+    rows.push({
+      name: 'app',
+      kind: 'external',
+      port: Number(new URL(appUrl).port || 80),
+      owner:
+        'control-angular-dev-app (or whatever serves --app-url); this skill never starts or stops it',
+    });
   }
 
   return rows;
@@ -377,7 +499,9 @@ export function portRows(dir, port, appUrl, project) {
  * @returns {string | null}
  */
 export function authCodeIn(log) {
-  const all = [...log.replace(/\x1b\[[0-9;]*m/g, '').matchAll(/auth code\s+(\d{4,8})/g)];
+  const all = [
+    ...log.replace(/\x1b\[[0-9;]*m/g, '').matchAll(/auth code\s+(\d{4,8})/g),
+  ];
 
   return all.at(-1)?.[1] ?? null;
 }
@@ -392,7 +516,9 @@ export const short = (name) => name.replace(/^pangular[_:]/, '');
  * @returns {string | null}
  */
 export function callRefusal(name, confirm) {
-  return ACTION_TOOLS.includes(short(name)) && !confirm ? `refused: ${short(name)} acts on the app; pass --confirm to run it (and start the server with up --allow-actions)` : null;
+  return ACTION_TOOLS.includes(short(name)) && !confirm
+    ? `refused: ${short(name)} acts on the app; pass --confirm to run it (and start the server with up --allow-actions)`
+    : null;
 }
 
 /**
@@ -401,7 +527,13 @@ export function callRefusal(name, confirm) {
  * @returns {RpcMessage}
  */
 export function parseRpcText(text) {
-  const data = text.includes('data:') ? text.split(/\r?\n/).filter((l) => l.startsWith('data:')).map((l) => l.slice(5).trim()).pop() : text;
+  const data = text.includes('data:')
+    ? text
+        .split(/\r?\n/)
+        .filter((l) => l.startsWith('data:'))
+        .map((l) => l.slice(5).trim())
+        .pop()
+    : text;
 
   return JSON.parse(data ?? '');
 }
@@ -416,16 +548,32 @@ export function parseRpcText(text) {
 export function findApp(dir, project) {
   // ponytail: Nx project.json with an @angular/build:dev-server serve target; angular.json workspaces are not covered
   const appsDir = path.join(dir, 'apps');
-  const candidates = existsSync(appsDir) ? readdirSync(appsDir).map((d) => path.join(appsDir, d, 'project.json')).filter(existsSync) : [];
+  const candidates = existsSync(appsDir)
+    ? readdirSync(appsDir)
+        .map((d) => path.join(appsDir, d, 'project.json'))
+        .filter(existsSync)
+    : [];
 
   for (const pj of candidates) {
     const j = readProject(pj);
 
-    if ((!project || j.name === project) && j.targets?.['serve']?.executor === '@angular/build:dev-server') {
+    if (
+      (!project || j.name === project) &&
+      j.targets?.['serve']?.executor === '@angular/build:dev-server'
+    ) {
       const root = path.dirname(pj);
       const browser = j.targets['build']?.options?.browser;
 
-      return { name: j.name, projectJson: pj, root, main: path.join(dir, browser ?? path.relative(dir, path.join(root, 'src', 'main.ts'))), proxy: path.join(root, 'proxy.conf.json') };
+      return {
+        name: j.name,
+        projectJson: pj,
+        root,
+        main: path.join(
+          dir,
+          browser ?? path.relative(dir, path.join(root, 'src', 'main.ts')),
+        ),
+        proxy: path.join(root, 'proxy.conf.json'),
+      };
     }
   }
 
@@ -452,13 +600,20 @@ export function insideDir(dir, file) {
  */
 export function detectMount(dir, app) {
   const j = readProject(app.projectJson);
-  const ssr = j.targets?.['build']?.options?.ssr || existsSync(path.join(app.root, 'src', 'server.ts'));
+  const ssr =
+    j.targets?.['build']?.options?.ssr ||
+    existsSync(path.join(app.root, 'src', 'server.ts'));
 
   if (ssr) {
     return 'express-hub';
   }
 
-  if (['vite.config.ts', 'vite.config.mts', 'vite.config.js'].some((f) => existsSync(path.join(app.root, f)) || existsSync(path.join(dir, f)))) {
+  if (
+    ['vite.config.ts', 'vite.config.mts', 'vite.config.js'].some(
+      (f) =>
+        existsSync(path.join(app.root, f)) || existsSync(path.join(dir, f)),
+    )
+  ) {
     return 'vite-plugin';
   }
 
@@ -473,7 +628,10 @@ export function detectMount(dir, app) {
 export function mainFacts(main) {
   return {
     overlayImport: main.includes(`import('${PKG}/overlay')`),
-    devGuard: /typeof ngDevMode === 'undefined' \|\| ngDevMode|import\.meta\.env\.DEV/.test(main),
+    devGuard:
+      /typeof ngDevMode === 'undefined' \|\| ngDevMode|import\.meta\.env\.DEV/.test(
+        main,
+      ),
   };
 }
 
@@ -490,7 +648,10 @@ export function addOverlayImport(src) {
     return null;
   }
 
-  return src.replace(m[0], `bootstrapApplication(${m[1]})${OVERLAY_SNIPPET}\n  .catch(`);
+  return src.replace(
+    m[0],
+    `bootstrapApplication(${m[1]})${OVERLAY_SNIPPET}\n  .catch(`,
+  );
 }
 
 /**
@@ -500,7 +661,14 @@ export function addOverlayImport(src) {
  * @returns {string}
  */
 export function checkLine(c) {
-  const tag = c.status === 'pass' ? '[OK]' : c.status === 'skip' ? '[SKIP]' : c.status === 'warn' ? '[WARN]' : '[ERROR]';
+  const tag =
+    c.status === 'pass'
+      ? '[OK]'
+      : c.status === 'skip'
+        ? '[SKIP]'
+        : c.status === 'warn'
+          ? '[WARN]'
+          : '[ERROR]';
 
   return `${tag} ${c.name}: ${printable(c.detail)}`;
 }
@@ -513,9 +681,16 @@ export function checkLine(c) {
  * @returns {NxTarget}
  */
 export function withProxyConfig(serve, rel) {
-  const { executor, defaultConfiguration, continuous, options, ...rest } = serve;
+  const { executor, defaultConfiguration, continuous, options, ...rest } =
+    serve;
 
-  return { executor, defaultConfiguration, continuous, options: { ...options, proxyConfig: rel }, ...rest };
+  return {
+    executor,
+    defaultConfiguration,
+    continuous,
+    options: { ...options, proxyConfig: rel },
+    ...rest,
+  };
 }
 
 /**
@@ -533,28 +708,49 @@ export function withProxyConfig(serve, rel) {
 export function proxyPlan(existing, head, current, rel, target) {
   const tracked = head !== undefined;
   /** @param {unknown} v */
-  const others = (v) => JSON.stringify(Object.entries(v !== null && typeof v === 'object' ? v : {}).filter(([k]) => k !== '/__pangular'));
+  const others = (v) =>
+    JSON.stringify(
+      Object.entries(v !== null && typeof v === 'object' ? v : {}).filter(
+        ([k]) => k !== '/__pangular',
+      ),
+    );
 
   if (current && current !== rel) {
-    return { refusal: `refused: serve.options.proxyConfig names ${current}, not ${rel}; add the /__pangular entry to ${current} by hand (SKILL.md "Launch" shows it)` };
+    return {
+      refusal: `refused: serve.options.proxyConfig names ${current}, not ${rel}; add the /__pangular entry to ${current} by hand (SKILL.md "Launch" shows it)`,
+    };
   }
 
-  if (existing !== null && (typeof existing !== 'object' || Array.isArray(existing))) {
-    return { refusal: `refused: ${rel} is not a key-per-path object (an array-form proxy config?); add the /__pangular entry by hand` };
+  if (
+    existing !== null &&
+    (typeof existing !== 'object' || Array.isArray(existing))
+  ) {
+    return {
+      refusal: `refused: ${rel} is not a key-per-path object (an array-form proxy config?); add the /__pangular entry by hand`,
+    };
   }
 
   const entries = /** @type {Record<string, unknown>} */ (existing ?? {});
   const keys = Object.keys(entries).filter((k) => k !== '/__pangular');
 
   if (keys.length > 0 && !tracked) {
-    return { refusal: `refused: ${rel} is not tracked by git and holds other entries (${keys.join(', ')}); remove deletes an untracked proxy file, so commit it first` };
+    return {
+      refusal: `refused: ${rel} is not tracked by git and holds other entries (${keys.join(', ')}); remove deletes an untracked proxy file, so commit it first`,
+    };
   }
 
   if (tracked && existing !== null && others(existing) !== others(head)) {
-    return { refusal: `refused: ${rel} has uncommitted changes besides /__pangular; remove restores it from HEAD and would drop them, so commit them first` };
+    return {
+      refusal: `refused: ${rel} has uncommitted changes besides /__pangular; remove restores it from HEAD and would drop them, so commit them first`,
+    };
   }
 
-  return { proxy: { ...entries, '/__pangular': { target, pathRewrite: { '^/__pangular': '' }, ws: true } } };
+  return {
+    proxy: {
+      ...entries,
+      '/__pangular': { target, pathRewrite: { '^/__pangular': '' }, ws: true },
+    },
+  };
 }
 
 /**
@@ -571,9 +767,19 @@ export function withHeadLockEntries(head, packages) {
     return { packages, dropped };
   }
 
-  const merged = { ...packages, ...Object.fromEntries(dropped.map((k) => [k, head[k]])) };
+  const merged = {
+    ...packages,
+    ...Object.fromEntries(dropped.map((k) => [k, head[k]])),
+  };
 
-  return { packages: Object.fromEntries(Object.keys(merged).sort((a, b) => a.localeCompare(b, 'en')).map((k) => [k, merged[k]])), dropped };
+  return {
+    packages: Object.fromEntries(
+      Object.keys(merged)
+        .sort((a, b) => a.localeCompare(b, 'en'))
+        .map((k) => [k, merged[k]]),
+    ),
+    dropped,
+  };
 }
 
 /**
@@ -583,7 +789,13 @@ export function withHeadLockEntries(head, packages) {
  * @returns {string[]}
  */
 export function managedPaths(app, dir) {
-  return ['package.json', 'package-lock.json', path.relative(dir, app.main), path.relative(dir, app.projectJson), path.relative(dir, app.proxy)].map((p) => p.split(path.sep).join('/'));
+  return [
+    'package.json',
+    'package-lock.json',
+    path.relative(dir, app.main),
+    path.relative(dir, app.projectJson),
+    path.relative(dir, app.proxy),
+  ].map((p) => p.split(path.sep).join('/'));
 }
 
 /**
@@ -592,7 +804,10 @@ export function managedPaths(app, dir) {
  * @returns {string[]}
  */
 export function porcelainPaths(stdout) {
-  return stdout.split(/\r?\n/).filter(Boolean).map((l) => l.slice(3).trim());
+  return stdout
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .map((l) => l.slice(3).trim());
 }
 
 /**
@@ -609,12 +824,38 @@ export function setupChecks(f, dir, port) {
   const add = (name, ok, detail) => {
     checks.push({ name, status: ok ? 'pass' : 'fail', detail });
   };
-  add('declared-exact', f.declared === PINNED, `package.json declares ${f.declared ?? 'nothing'} (want exactly ${PINNED})`);
-  add('installed', f.installed === PINNED, `node_modules has ${f.installed ?? 'nothing'}`);
-  add('overlay-import', f.overlayImport, `${path.relative(dir, f.app.main)} ${f.overlayImport ? 'imports' : 'does not import'} ${PKG}/overlay`);
-  add('dev-guard', f.devGuard, f.devGuard ? 'overlay import is guarded by ngDevMode / import.meta.env.DEV' : 'no ngDevMode / import.meta.env.DEV guard found');
-  add('proxy-config', !!f.proxyConfig, `serve.options.proxyConfig = ${f.proxyConfig ?? 'unset'}`);
-  add('proxy-target', f.proxyTarget === `http://localhost:${port}`, `/__pangular -> ${f.proxyTarget ?? 'none'}`);
+  add(
+    'declared-exact',
+    f.declared === PINNED,
+    `package.json declares ${f.declared ?? 'nothing'} (want exactly ${PINNED})`,
+  );
+  add(
+    'installed',
+    f.installed === PINNED,
+    `node_modules has ${f.installed ?? 'nothing'}`,
+  );
+  add(
+    'overlay-import',
+    f.overlayImport,
+    `${path.relative(dir, f.app.main)} ${f.overlayImport ? 'imports' : 'does not import'} ${PKG}/overlay`,
+  );
+  add(
+    'dev-guard',
+    f.devGuard,
+    f.devGuard
+      ? 'overlay import is guarded by ngDevMode / import.meta.env.DEV'
+      : 'no ngDevMode / import.meta.env.DEV guard found',
+  );
+  add(
+    'proxy-config',
+    !!f.proxyConfig,
+    `serve.options.proxyConfig = ${f.proxyConfig ?? 'unset'}`,
+  );
+  add(
+    'proxy-target',
+    f.proxyTarget === `http://localhost:${port}`,
+    `/__pangular -> ${f.proxyTarget ?? 'none'}`,
+  );
 
   return checks;
 }
@@ -630,10 +871,16 @@ export function readOnlyCheck(readOnly, toolNames) {
   const actions = toolNames.map(short).filter((n) => ACTION_TOOLS.includes(n));
 
   if (!readOnly) {
-    return { status: 'warn', detail: `started with --allow-actions: ${actions.join(', ')}` };
+    return {
+      status: 'warn',
+      detail: `started with --allow-actions: ${actions.join(', ')}`,
+    };
   }
 
-  return { status: actions.length === 0 ? 'pass' : 'fail', detail: `${toolNames.length} tools, action tools present: ${actions.join(', ') || 'none'}` };
+  return {
+    status: actions.length === 0 ? 'pass' : 'fail',
+    detail: `${toolNames.length} tools, action tools present: ${actions.join(', ') || 'none'}`,
+  };
 }
 
 /**
@@ -644,14 +891,24 @@ export function readOnlyCheck(readOnly, toolNames) {
  * @returns {{ status: Check['status'], detail: string }}
  */
 export function consoleCheck(stdout, port) {
-  const errs = stdout.split(/\r?\n/).filter((l) => l.startsWith('[ERROR]') && !l.includes('/__connection.json'));
+  const errs = stdout
+    .split(/\r?\n/)
+    .filter(
+      (l) => l.startsWith('[ERROR]') && !l.includes('/__connection.json'),
+    );
   const noServer = errs.some((l) => l.includes('No devtools server found'));
 
   if (errs.length === 0) {
-    return { status: 'pass', detail: 'no console errors besides the expected /__connection.json 404' };
+    return {
+      status: 'pass',
+      detail: 'no console errors besides the expected /__connection.json 404',
+    };
   }
 
-  return { status: noServer ? 'fail' : 'warn', detail: `${errs.length} console error(s): ${(errs[0] ?? '').slice(0, 200)}${noServer ? ` (the proxy did not reach port ${port})` : ''}` };
+  return {
+    status: noServer ? 'fail' : 'warn',
+    detail: `${errs.length} console error(s): ${(errs[0] ?? '').slice(0, 200)}${noServer ? ` (the proxy did not reach port ${port})` : ''}`,
+  };
 }
 
 /**
@@ -666,7 +923,10 @@ export function componentOutline(tree, filter, depth) {
   /** @type {string[]} */
   const lines = [];
   /** @type {(n: TreeNode) => boolean} */
-  const keep = (n) => !filter || `${n.name} ${n.tag}`.toLowerCase().includes(filter) || (n.children ?? []).some(keep);
+  const keep = (n) =>
+    !filter ||
+    `${n.name} ${n.tag}`.toLowerCase().includes(filter) ||
+    (n.children ?? []).some(keep);
   /** @type {(n: TreeNode, d: number) => void} */
   const walk = (n, d) => {
     if (d >= depth || !keep(n)) {
@@ -688,7 +948,14 @@ export function componentOutline(tree, filter, depth) {
  * @returns {Resource | undefined}
  */
 export function findResource(all, id) {
-  return id ? all.find((x) => x.uri === id || x.name === id || decodeURIComponent(x.uri).endsWith(id)) : undefined;
+  return id
+    ? all.find(
+        (x) =>
+          x.uri === id ||
+          x.name === id ||
+          decodeURIComponent(x.uri).endsWith(id),
+      )
+    : undefined;
 }
 
 // ---------- process and tool access ----------
@@ -708,8 +975,14 @@ function readProject(file) {
  * @returns {Run}
  */
 function run(bin, args, cwd) {
-  const [file, full] = bin === 'npm' ? [process.execPath, [NPM_CLI, ...args]] : [bin, args];
-  const r = spawnSync(file, full, { cwd, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
+  const [file, full] =
+    bin === 'npm' ? [process.execPath, [NPM_CLI, ...args]] : [bin, args];
+  const r = spawnSync(file, full, {
+    cwd,
+    encoding: 'utf8',
+    windowsHide: true,
+    maxBuffer: 64 * 1024 * 1024,
+  });
 
   return { status: r.status, stdout: r.stdout ?? '', stderr: r.stderr ?? '' };
 }
@@ -745,8 +1018,16 @@ async function bindAnswer(port, host) {
   return new Promise((resolve) => {
     const server = createServer();
 
-    server.once('error', (error) => resolve(/** @type {NodeJS.ErrnoException} */ (error).code === 'EADDRINUSE' ? 'busy' : 'unknown'));
-    server.listen({ host, port, exclusive: true }, () => server.close(() => resolve('free')));
+    server.once('error', (error) =>
+      resolve(
+        /** @type {NodeJS.ErrnoException} */ (error).code === 'EADDRINUSE'
+          ? 'busy'
+          : 'unknown',
+      ),
+    );
+    server.listen({ host, port, exclusive: true }, () =>
+      server.close(() => resolve('free')),
+    );
   });
 }
 
@@ -785,7 +1066,17 @@ export async function probePort(port, hosts = LOOPBACKS) {
 function namedHolders() {
   const netstat = path.join(SYSTEM32, 'netstat.exe');
 
-  return listeners(['TCP', 'TCPv6'].map((proto) => spawnSync(netstat, ['-ano', '-p', proto], { encoding: 'utf8', windowsHide: true }).stdout).join('\n'));
+  return listeners(
+    ['TCP', 'TCPv6']
+      .map(
+        (proto) =>
+          spawnSync(netstat, ['-ano', '-p', proto], {
+            encoding: 'utf8',
+            windowsHide: true,
+          }).stdout,
+      )
+      .join('\n'),
+  );
 }
 
 /**
@@ -824,14 +1115,36 @@ export async function busyPorts(ports, hosts = LOOPBACKS) {
  * @returns {Run}
  */
 function playwrightCli(args) {
-  const shimDir = (process.env['PATH'] ?? '').split(path.delimiter).find((d) => path.isAbsolute(d) && existsSync(path.join(d, 'playwright-cli.cmd')));
-  const js = shimDir && path.join(shimDir, 'node_modules', '@playwright', 'cli', 'playwright-cli.js');
+  const shimDir = (process.env['PATH'] ?? '')
+    .split(path.delimiter)
+    .find(
+      (d) =>
+        path.isAbsolute(d) && existsSync(path.join(d, 'playwright-cli.cmd')),
+    );
+  const js =
+    shimDir &&
+    path.join(
+      shimDir,
+      'node_modules',
+      '@playwright',
+      'cli',
+      'playwright-cli.js',
+    );
 
   if (!js || !existsSync(js)) {
-    return { status: 127, stdout: '', stderr: 'playwright-cli not found on PATH' };
+    return {
+      status: 127,
+      stdout: '',
+      stderr: 'playwright-cli not found on PATH',
+    };
   }
 
-  const r = spawnSync(process.execPath, [js, ...args], { cwd: REPO_ROOT, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
+  const r = spawnSync(process.execPath, [js, ...args], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+    windowsHide: true,
+    maxBuffer: 64 * 1024 * 1024,
+  });
 
   return { status: r.status, stdout: r.stdout ?? '', stderr: r.stderr ?? '' };
 }
@@ -865,7 +1178,9 @@ function out(result, code) {
     }
 
     const { checks, ...rest } = result;
-    process.stdout.write(`${code === 0 ? '[OK]' : '[ERROR]'} ${JSON.stringify(rest)}\n`);
+    process.stdout.write(
+      `${code === 0 ? '[OK]' : '[ERROR]'} ${JSON.stringify(rest)}\n`,
+    );
   }
 
   process.exit(code);
@@ -881,15 +1196,22 @@ function fail(code, reason, extra = {}) {
   return out({ ok: false, command: cmd, reason, ...extra }, code);
 }
 
-const appDir = () => path.resolve(str('dir') ?? process.env['CONTROL_PANGULAR_DIR'] ?? PORTAL_DEFAULT_DIR);
+const appDir = () =>
+  path.resolve(
+    str('dir') ?? process.env['CONTROL_PANGULAR_DIR'] ?? PORTAL_DEFAULT_DIR,
+  );
 /** @returns {number} the --port value, else the default; a value that is no port is a refusal */
 const port = () => {
   const given = flagIn(argv, 'port');
-  const raw = given === undefined ? String(DEFAULT_PORT) : given === true ? '' : given;
+  const raw =
+    given === undefined ? String(DEFAULT_PORT) : given === true ? '' : given;
   const n = Number(raw);
 
   if (raw === '' || !Number.isInteger(n) || n < 1 || n > 65535) {
-    return fail(2, `refused: --port ${raw === '' ? 'needs a value' : `${raw} is not a port number`}`);
+    return fail(
+      2,
+      `refused: --port ${raw === '' ? 'needs a value' : `${raw} is not a port number`}`,
+    );
   }
 
   return n;
@@ -904,7 +1226,10 @@ const port = () => {
 function installedVersion(dir) {
   const pj = path.join(dir, 'node_modules', PKG, 'package.json');
 
-  return existsSync(pj) ? /** @type {{ version: string }} */ (JSON.parse(readFileSync(pj, 'utf8'))).version : null;
+  return existsSync(pj)
+    ? /** @type {{ version: string }} */ (JSON.parse(readFileSync(pj, 'utf8')))
+        .version
+    : null;
 }
 
 /**
@@ -915,18 +1240,27 @@ function setupFacts(dir) {
   const app = findApp(dir, str('project'));
 
   if (!app) {
-    return fail(2, `no Nx application with an @angular/build:dev-server serve target under ${dir}/apps (pass --dir, --project)`);
+    return fail(
+      2,
+      `no Nx application with an @angular/build:dev-server serve target under ${dir}/apps (pass --dir, --project)`,
+    );
   }
 
   refuseOutside(dir, app);
 
   /** @type {{ dependencies?: Record<string, string>, devDependencies?: Record<string, string> }} */
-  const manifest = JSON.parse(readFileSync(path.join(dir, 'package.json'), 'utf8'));
-  const declared = manifest.devDependencies?.[PKG] ?? manifest.dependencies?.[PKG] ?? null;
+  const manifest = JSON.parse(
+    readFileSync(path.join(dir, 'package.json'), 'utf8'),
+  );
+  const declared =
+    manifest.devDependencies?.[PKG] ?? manifest.dependencies?.[PKG] ?? null;
   const main = existsSync(app.main) ? readFileSync(app.main, 'utf8') : '';
-  const serveOptions = readProject(app.projectJson).targets?.['serve']?.options ?? {};
+  const serveOptions =
+    readProject(app.projectJson).targets?.['serve']?.options ?? {};
   /** @type {Record<string, { target?: string }> | null} */
-  const proxy = existsSync(app.proxy) ? JSON.parse(readFileSync(app.proxy, 'utf8')) : null;
+  const proxy = existsSync(app.proxy)
+    ? JSON.parse(readFileSync(app.proxy, 'utf8'))
+    : null;
 
   return {
     app,
@@ -946,13 +1280,19 @@ function setupFacts(dir) {
  */
 function refuseOutside(dir, app) {
   if (!insideDir(dir, app.main)) {
-    fail(2, `refused: ${app.projectJson} names a main file outside ${dir} (${app.main})`, { main: app.main });
+    fail(
+      2,
+      `refused: ${app.projectJson} names a main file outside ${dir} (${app.main})`,
+      { main: app.main },
+    );
   }
 }
 
 /** @param {string} dir */
 function dirtyPaths(dir) {
-  return porcelainPaths(git(dir, ['status', '--porcelain', '--untracked-files=all']).stdout);
+  return porcelainPaths(
+    git(dir, ['status', '--porcelain', '--untracked-files=all']).stdout,
+  );
 }
 
 // npm 11 drops 27 lockfile entries from this checkout's committed lockfile on any install (measured on HEAD, without
@@ -973,7 +1313,10 @@ function keepHeadLockEntries(dir) {
   const before = JSON.parse(head.stdout);
   /** @type {{ packages: Record<string, unknown> }} */
   const lock = JSON.parse(readFileSync(file, 'utf8'));
-  const { packages, dropped } = withHeadLockEntries(before.packages ?? {}, lock.packages);
+  const { packages, dropped } = withHeadLockEntries(
+    before.packages ?? {},
+    lock.packages,
+  );
 
   if (dropped.length) {
     lock.packages = packages;
@@ -990,13 +1333,19 @@ function install() {
   const notes = [];
 
   if (f.mount !== 'standalone-cli') {
-    fail(2, `mount ${f.mount} detected: this script automates only the standalone CLI mount of a client-only app. Follow SKILL.md "Other mounts" for ${f.mount === 'express-hub' ? 'initPangularHub() in server.ts' : 'the pangular() Vite plugin'}.`, { mount: f.mount });
+    fail(
+      2,
+      `mount ${f.mount} detected: this script automates only the standalone CLI mount of a client-only app. Follow SKILL.md "Other mounts" for ${f.mount === 'express-hub' ? 'initPangularHub() in server.ts' : 'the pangular() Vite plugin'}.`,
+      { mount: f.mount },
+    );
   }
 
   // Decided before any change: install never drops an app's own proxy entries.
   const target = `http://localhost:${port()}`;
   const rel = path.relative(dir, f.app.proxy).split(path.sep).join('/');
-  const existing = existsSync(f.app.proxy) ? JSON.parse(readFileSync(f.app.proxy, 'utf8')) : null;
+  const existing = existsSync(f.app.proxy)
+    ? JSON.parse(readFileSync(f.app.proxy, 'utf8'))
+    : null;
   const atHead = existing === null ? null : git(dir, ['show', `HEAD:./${rel}`]);
   /** @type {unknown} */
   let head;
@@ -1016,14 +1365,20 @@ function install() {
   }
 
   if (f.declared !== PINNED || f.installed !== PINNED) {
-    const r = run('npm', ['install', '--save-dev', '--save-exact', `${PKG}@${PINNED}`], dir);
+    const r = run(
+      'npm',
+      ['install', '--save-dev', '--save-exact', `${PKG}@${PINNED}`],
+      dir,
+    );
 
     if (r.status !== 0) {
       fail(2, `npm install failed: ${(r.stderr || r.stdout).slice(-800)}`);
     }
 
     notes.push(`npm install --save-dev --save-exact ${PKG}@${PINNED}`);
-    notes.push(`lockfile: kept ${keepHeadLockEntries(dir)} HEAD entries npm dropped for reasons unrelated to ${PKG}`);
+    notes.push(
+      `lockfile: kept ${keepHeadLockEntries(dir)} HEAD entries npm dropped for reasons unrelated to ${PKG}`,
+    );
   } else {
     notes.push(`${PKG}@${PINNED} already declared and installed`);
   }
@@ -1032,7 +1387,10 @@ function install() {
     const next = addOverlayImport(readFileSync(f.app.main, 'utf8'));
 
     if (next === null) {
-      fail(2, `could not find "bootstrapApplication(...).catch(" in ${f.app.main}; add the overlay import by hand (SKILL.md "Install")`);
+      fail(
+        2,
+        `could not find "bootstrapApplication(...).catch(" in ${f.app.main}; add the overlay import by hand (SKILL.md "Install")`,
+      );
     }
 
     writeFileSync(f.app.main, next);
@@ -1040,7 +1398,9 @@ function install() {
   }
 
   writeFileSync(f.app.proxy, JSON.stringify(proxy.proxy, null, 2) + '\n');
-  notes.push(`proxy /__pangular -> ${target} in ${f.app.proxy}${existing === null ? '' : ' (merged into the existing file)'}`);
+  notes.push(
+    `proxy /__pangular -> ${target} in ${f.app.proxy}${existing === null ? '' : ' (merged into the existing file)'}`,
+  );
   const pj = readProject(f.app.projectJson);
   const targets = pj.targets ?? {};
   const serve = targets['serve'] ?? {};
@@ -1051,14 +1411,37 @@ function install() {
     notes.push(`serve.options.proxyConfig = ${rel}`);
   }
 
-  const prettier = path.join(dir, 'node_modules', 'prettier', 'bin', 'prettier.cjs');
+  const prettier = path.join(
+    dir,
+    'node_modules',
+    'prettier',
+    'bin',
+    'prettier.cjs',
+  );
 
   if (existsSync(prettier)) {
-    const pr = spawnSync(process.execPath, [prettier, '--write', f.app.main, f.app.projectJson, f.app.proxy], { cwd: dir, encoding: 'utf8', windowsHide: true });
-    notes.push(`formatted with the repo's prettier: ${pr.status === 0 ? 'ok' : pr.stderr.trim()}`);
+    const pr = spawnSync(
+      process.execPath,
+      [prettier, '--write', f.app.main, f.app.projectJson, f.app.proxy],
+      { cwd: dir, encoding: 'utf8', windowsHide: true },
+    );
+    notes.push(
+      `formatted with the repo's prettier: ${pr.status === 0 ? 'ok' : pr.stderr.trim()}`,
+    );
   }
 
-  out({ ok: true, command: 'install', dir, project: f.app.name, mount: f.mount, notes, changed: dirtyPaths(dir) }, 0);
+  out(
+    {
+      ok: true,
+      command: 'install',
+      dir,
+      project: f.app.name,
+      mount: f.mount,
+      notes,
+      changed: dirtyPaths(dir),
+    },
+    0,
+  );
 }
 
 function check() {
@@ -1066,7 +1449,17 @@ function check() {
   const f = setupFacts(dir);
   const checks = setupChecks(f, dir, port());
   const failed = checks.filter((c) => c.status === 'fail');
-  out({ ok: failed.length === 0, command: 'check', dir, project: f.app.name, mount: f.mount, checks }, failed.length === 0 ? 0 : 1);
+  out(
+    {
+      ok: failed.length === 0,
+      command: 'check',
+      dir,
+      project: f.app.name,
+      mount: f.mount,
+      checks,
+    },
+    failed.length === 0 ? 0 : 1,
+  );
 }
 
 function remove() {
@@ -1083,10 +1476,16 @@ function remove() {
   const foreign = dirtyPaths(dir).filter((p) => !managed.includes(p));
 
   if (foreign.length) {
-    fail(2, `refused: the worktree has changes this skill did not make (${foreign.join(', ')}); remove restores files from git and would discard them`, { foreign });
+    fail(
+      2,
+      `refused: the worktree has changes this skill did not make (${foreign.join(', ')}); remove restores files from git and would discard them`,
+      { foreign },
+    );
   }
 
-  const tracked = managed.filter((p) => git(dir, ['ls-files', '--error-unmatch', p]).status === 0);
+  const tracked = managed.filter(
+    (p) => git(dir, ['ls-files', '--error-unmatch', p]).status === 0,
+  );
   const r = git(dir, ['checkout', 'HEAD', '--', ...tracked]);
 
   if (r.status !== 0) {
@@ -1100,14 +1499,29 @@ function remove() {
   const n = run('npm', ['install', '--no-audit', '--no-fund'], dir); // prunes node_modules back to the restored lockfile
 
   if (n.status !== 0) {
-    fail(2, `npm install (prune) failed: ${(n.stderr || n.stdout).slice(-800)}`);
+    fail(
+      2,
+      `npm install (prune) failed: ${(n.stderr || n.stdout).slice(-800)}`,
+    );
   }
 
   git(dir, ['checkout', 'HEAD', '--', 'package-lock.json']); // undo npm's unrelated lockfile drift (see keepHeadLockEntries)
 
   const left = dirtyPaths(dir);
   const diff = git(dir, ['diff', '--stat', 'HEAD']).stdout.trim();
-  out({ ok: left.length === 0 && !diff, command: 'remove', dir, restored: tracked, deleted: managed.filter((x) => !tracked.includes(x)), installed: installedVersion(dir), gitStatus: left, gitDiffStat: diff }, left.length === 0 && !diff ? 0 : 1);
+  out(
+    {
+      ok: left.length === 0 && !diff,
+      command: 'remove',
+      dir,
+      restored: tracked,
+      deleted: managed.filter((x) => !tracked.includes(x)),
+      installed: installedVersion(dir),
+      gitStatus: left,
+      gitDiffStat: diff,
+    },
+    left.length === 0 && !diff ? 0 : 1,
+  );
 }
 
 // ---------- the standalone devtools server ----------
@@ -1123,7 +1537,10 @@ function readState() {
 
   if (!existsSync(p)) {
     const files = existsSync(STATE_DIR) ? readdirSync(STATE_DIR) : [];
-    fail(2, `no state file at ${p}: nothing was started by this skill on port ${port()}${files.length ? ` (found ${files.join(', ')}; pass --port)` : ''}`);
+    fail(
+      2,
+      `no state file at ${p}: nothing was started by this skill on port ${port()}${files.length ? ` (found ${files.join(', ')}; pass --port)` : ''}`,
+    );
   }
 
   return JSON.parse(readFileSync(p, 'utf8'));
@@ -1135,7 +1552,9 @@ async function up() {
   mkdirSync(STATE_DIR, { recursive: true });
 
   if (existsSync(statePath(p))) {
-    fail(2, `a state file already exists for port ${p}; run down first`, { state: statePath(p) });
+    fail(2, `a state file already exists for port ${p}; run down first`, {
+      state: statePath(p),
+    });
   }
 
   const bin = path.join(dir, 'node_modules', PKG, 'bin.mjs');
@@ -1151,7 +1570,10 @@ async function up() {
   try {
     rows = portRows(dir, p, appUrl, str('project'));
   } catch (error) {
-    return fail(2, `refused: --app-url ${appUrl}: ${error instanceof Error ? error.message : String(error)}`);
+    return fail(
+      2,
+      `refused: --app-url ${appUrl}: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 
   // A busy fixed port is never taken over: it may be another session's devtools server or Lars's own.
@@ -1166,10 +1588,24 @@ async function up() {
   const evidenceDir = path.join(SCRATCH, `pangular-${p}-${stamp}`);
   mkdirSync(evidenceDir, { recursive: true });
   const log = path.join(evidenceDir, 'pangular.log');
-  const args = [bin, 'dev', '--port', String(p), '--no-open', '--root', dir, ...(readOnly ? ['--read-only'] : [])];
+  const args = [
+    bin,
+    'dev',
+    '--port',
+    String(p),
+    '--no-open',
+    '--root',
+    dir,
+    ...(readOnly ? ['--read-only'] : []),
+  ];
   const fd = openSync(log, 'a');
   const t0 = Date.now();
-  const child = spawn(process.execPath, args, { cwd: dir, detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
+  const child = spawn(process.execPath, args, {
+    cwd: dir,
+    detached: true,
+    stdio: ['ignore', fd, fd],
+    windowsHide: true,
+  });
   const notAfter = Date.now();
   child.unref();
   const pid = child.pid;
@@ -1179,12 +1615,29 @@ async function up() {
   }
 
   /** @type {State} */
-  const state = { mode: 'launch', dir, port: p, ports: plan.ports, readOnly, mcpUrl: `http://localhost:${p}/__mcp`, origin: `http://localhost:${p}`, appUrl, session: `pangular-${p}`, evidenceDir, log, pid, tree: snapshot(pid, { notBefore: t0, notAfter }), startedAt: new Date().toISOString() };
+  const state = {
+    mode: 'launch',
+    dir,
+    port: p,
+    ports: plan.ports,
+    readOnly,
+    mcpUrl: `http://localhost:${p}/__mcp`,
+    origin: `http://localhost:${p}`,
+    appUrl,
+    session: `pangular-${p}`,
+    evidenceDir,
+    log,
+    pid,
+    tree: snapshot(pid, { notBefore: t0, notAfter }),
+    startedAt: new Date().toISOString(),
+  };
   writeFileSync(statePath(p), JSON.stringify(state, null, 2));
 
   for (;;) {
     /** @type {RpcResponse | { error: string, result?: undefined }} */
-    const r = await mcp(state, 'initialize', initParams()).catch((e) => ({ error: e instanceof Error ? e.message : String(e) }));
+    const r = await mcp(state, 'initialize', initParams()).catch((e) => ({
+      error: e instanceof Error ? e.message : String(e),
+    }));
 
     const live = liveTree(state);
     const exited = live.length === 0;
@@ -1196,7 +1649,12 @@ async function up() {
       writeFileSync(statePath(p), JSON.stringify(state, null, 2));
     }
     // Another process took the port after the check: it can answer initialize before this server fails to bind.
-    const foreign = r.result || exited ? ((await busyPorts([p])).get(p) ?? []).find((holder) => !live.some((x) => x.pid === holder)) : undefined;
+    const foreign =
+      r.result || exited
+        ? ((await busyPorts([p])).get(p) ?? []).find(
+            (holder) => !live.some((x) => x.pid === holder),
+          )
+        : undefined;
 
     if (foreign !== undefined) {
       const refusal = `refused: fixed port pangular ${p} held by PID ${foreign}; pinned by ${plan.ports[0]?.reason}`;
@@ -1206,7 +1664,11 @@ async function up() {
       if (stopped.code !== 0) {
         state.tree = records;
         writeFileSync(statePath(p), JSON.stringify(state, null, 2));
-        fail(2, `${refusal}; stopping what this run started failed: ${stopped.reason}; run down`, { state: statePath(p), notes: stopped.notes });
+        fail(
+          2,
+          `${refusal}; stopping what this run started failed: ${stopped.reason}; run down`,
+          { state: statePath(p), notes: stopped.notes },
+        );
       }
 
       rmSync(statePath(p), { force: true });
@@ -1220,21 +1682,41 @@ async function up() {
     }
 
     if (exited) {
-      fail(2, `pangular (PID ${pid}) exited before it answered; see ${log}; run down`, { state: statePath(p) });
+      fail(
+        2,
+        `pangular (PID ${pid}) exited before it answered; see ${log}; run down`,
+        { state: statePath(p) },
+      );
     }
 
     if (Date.now() - t0 > 60000) {
-      fail(2, `pangular not answering on ${state.mcpUrl} after 60 s; see ${log}; run down`);
+      fail(
+        2,
+        `pangular not answering on ${state.mcpUrl} after 60 s; see ${log}; run down`,
+      );
     }
 
     await sleep(300);
   }
 
-  out({ ok: true, command: 'up', readyInSeconds: Math.round((Date.now() - t0) / 100) / 10, statePath: statePath(p), ...state }, 0);
+  out(
+    {
+      ok: true,
+      command: 'up',
+      readyInSeconds: Math.round((Date.now() - t0) / 100) / 10,
+      statePath: statePath(p),
+      ...state,
+    },
+    0,
+  );
 }
 
 // ---------- MCP over HTTP (plain JSON-RPC; no MCP client needed) ----------
-const initParams = () => ({ protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'control-pangular-inspector', version: '1' } });
+const initParams = () => ({
+  protocolVersion: '2025-06-18',
+  capabilities: {},
+  clientInfo: { name: 'control-pangular-inspector', version: '1' },
+});
 let rpcId = 0;
 
 /**
@@ -1246,9 +1728,17 @@ let rpcId = 0;
  * @param {{ origin?: string | null }} [options]
  * @returns {Promise<RpcResponse>}
  */
-export async function mcp(state, method, params, { origin = state.origin } = {}) {
+export async function mcp(
+  state,
+  method,
+  params,
+  { origin = state.origin } = {},
+) {
   /** @type {Record<string, string>} */
-  const headers = { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' };
+  const headers = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json, text/event-stream',
+  };
   const token = process.env['PANGULAR_MCP_TOKEN'];
 
   if (origin) {
@@ -1262,19 +1752,33 @@ export async function mcp(state, method, params, { origin = state.origin } = {})
   // node:http without keep-alive: process.exit with an open fetch socket trips a libuv assertion on Windows (measured)
   /** @type {{ status: number | undefined, text: string }} */
   const res = await new Promise((resolve) => {
-    const req = http.request(state.mcpUrl, { method: 'POST', headers, agent: false, timeout: 20000 }, (r) => {
-      let buf = '';
-      r.setEncoding('utf8');
-      r.on('data', (c) => (buf += c));
-      r.on('end', () => resolve({ status: r.statusCode, text: buf }));
-    });
+    const req = http.request(
+      state.mcpUrl,
+      { method: 'POST', headers, agent: false, timeout: 20000 },
+      (r) => {
+        let buf = '';
+        r.setEncoding('utf8');
+        r.on('data', (c) => (buf += c));
+        r.on('end', () => resolve({ status: r.statusCode, text: buf }));
+      },
+    );
     req.on('timeout', () => req.destroy(new Error('timeout')));
     // A server that is down is a result (HTTP 0 and the error), so doctor and call name it instead of crashing.
     req.on('error', (e) => {
       const code = /** @type {NodeJS.ErrnoException} */ (e).code;
-      resolve({ status: 0, text: [code, e.message].filter(Boolean).join(': ') || 'request failed' });
+      resolve({
+        status: 0,
+        text: [code, e.message].filter(Boolean).join(': ') || 'request failed',
+      });
     });
-    req.end(JSON.stringify({ jsonrpc: '2.0', id: ++rpcId, method, ...(params ? { params } : {}) }));
+    req.end(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: ++rpcId,
+        method,
+        ...(params ? { params } : {}),
+      }),
+    );
   });
   const text = res.text;
 
@@ -1294,7 +1798,12 @@ async function toolList(state) {
   const r = await mcp(state, 'tools/list');
   const list = r.result?.tools ?? null;
 
-  return { list, why: list ? '' : `tools/list failed on ${state.mcpUrl}: ${r.httpStatus === 200 ? JSON.stringify(r.error ?? null) : `HTTP ${r.httpStatus}: ${r.body}`}` };
+  return {
+    list,
+    why: list
+      ? ''
+      : `tools/list failed on ${state.mcpUrl}: ${r.httpStatus === 200 ? JSON.stringify(r.error ?? null) : `HTTP ${r.httpStatus}: ${r.body}`}`,
+  };
 }
 
 async function tools() {
@@ -1306,7 +1815,19 @@ async function tools() {
   }
 
   /** @type {Record<string, unknown>} */
-  const result = { ok: true, command: 'tools', mcpUrl: state.mcpUrl, count: list.length, actionToolsPresent: list.map((t) => short(t.name)).filter((n) => ACTION_TOOLS.includes(n)), tools: list.map((t) => ({ name: t.name, readOnly: t.annotations?.readOnlyHint === true })) };
+  const result = {
+    ok: true,
+    command: 'tools',
+    mcpUrl: state.mcpUrl,
+    count: list.length,
+    actionToolsPresent: list
+      .map((t) => short(t.name))
+      .filter((n) => ACTION_TOOLS.includes(n)),
+    tools: list.map((t) => ({
+      name: t.name,
+      readOnly: t.annotations?.readOnlyHint === true,
+    })),
+  };
   result['savedTo'] = save(state, result);
   out(result, 0);
 }
@@ -1326,7 +1847,10 @@ function outPath(state) {
   const file = path.resolve(state.evidenceDir, outFile);
 
   if (!insideDir(state.evidenceDir, file)) {
-    fail(2, `refused: --out ${outFile} lies outside the evidence directory ${state.evidenceDir}`);
+    fail(
+      2,
+      `refused: --out ${outFile} lies outside the evidence directory ${state.evidenceDir}`,
+    );
   }
 
   return file;
@@ -1354,7 +1878,10 @@ async function call() {
   const name = argv[1];
 
   if (!name || name.startsWith('--')) {
-    return fail(2, 'usage: call <tool> [--args <json>] [--confirm] [--out <file>]');
+    return fail(
+      2,
+      'usage: call <tool> [--args <json>] [--confirm] [--out <file>]',
+    );
   }
 
   const refusal = callRefusal(name, argv.includes('--confirm'));
@@ -1370,7 +1897,10 @@ async function call() {
     const raw = str('args');
     args = raw ? JSON.parse(raw) : {};
   } catch (e) {
-    fail(2, `--args is not JSON: ${e instanceof Error ? e.message : String(e)}`);
+    fail(
+      2,
+      `--args is not JSON: ${e instanceof Error ? e.message : String(e)}`,
+    );
   }
 
   const state = readState();
@@ -1384,13 +1914,30 @@ async function call() {
   const tool = list.find((t) => short(t.name) === short(name));
 
   if (!tool) {
-    return fail(2, `no tool ${name} on ${state.mcpUrl}${state.readOnly && ACTION_TOOLS.includes(short(name)) ? ' (the server runs --read-only)' : ''}; available: ${list.map((t) => short(t.name)).join(', ')}`);
+    return fail(
+      2,
+      `no tool ${name} on ${state.mcpUrl}${state.readOnly && ACTION_TOOLS.includes(short(name)) ? ' (the server runs --read-only)' : ''}; available: ${list.map((t) => short(t.name)).join(', ')}`,
+    );
   }
 
-  const r = await mcp(state, 'tools/call', { name: tool.name, arguments: args });
-  const text = (r.result?.content ?? []).filter((c) => c.type === 'text').map((c) => c.text).join('\n');
+  const r = await mcp(state, 'tools/call', {
+    name: tool.name,
+    arguments: args,
+  });
+  const text = (r.result?.content ?? [])
+    .filter((c) => c.type === 'text')
+    .map((c) => c.text)
+    .join('\n');
   /** @type {Record<string, unknown> & { ok: boolean }} */
-  const result = { ok: !!r.result && !r.result.isError, command: 'call', tool: tool.name, arguments: args, isError: r.result?.isError ?? null, text, error: r.error ?? (r.httpStatus !== 200 ? r : undefined) };
+  const result = {
+    ok: !!r.result && !r.result.isError,
+    command: 'call',
+    tool: tool.name,
+    arguments: args,
+    isError: r.result?.isError ?? null,
+    text,
+    error: r.error ?? (r.httpStatus !== 200 ? r : undefined),
+  };
   result['savedTo'] = save(state, result);
   out(result, result.ok ? 0 : 1);
 }
@@ -1401,19 +1948,30 @@ async function resource() {
   const list = await mcp(state, 'resources/list');
 
   if (list.httpStatus !== 200) {
-    return fail(2, `resources/list failed on ${state.mcpUrl}: HTTP ${list.httpStatus}: ${list.body}`);
+    return fail(
+      2,
+      `resources/list failed on ${state.mcpUrl}: HTTP ${list.httpStatus}: ${list.body}`,
+    );
   }
 
   const all = list.result?.resources ?? [];
   const hit = findResource(all, id);
 
   if (!hit) {
-    return fail(2, `usage: resource <id>; available: ${all.map((x) => decodeURIComponent(x.uri)).join(', ')}`);
+    return fail(
+      2,
+      `usage: resource <id>; available: ${all.map((x) => decodeURIComponent(x.uri)).join(', ')}`,
+    );
   }
 
   const r = await mcp(state, 'resources/read', { uri: hit.uri });
   /** @type {Record<string, unknown> & { ok: boolean }} */
-  const result = { ok: !!r.result, command: 'resource', uri: hit.uri, contents: (r.result?.contents ?? []).map((c) => c.text ?? c) };
+  const result = {
+    ok: !!r.result,
+    command: 'resource',
+    uri: hit.uri,
+    contents: (r.result?.contents ?? []).map((c) => c.text ?? c),
+  };
   result['savedTo'] = save(state, result);
   out(result, result.ok ? 0 : 1);
 }
@@ -1430,15 +1988,36 @@ async function doctor() {
   const fresh = mapFresh(SKILL_DIR);
   add('map-fresh', fresh.status, fresh.detail);
   const f = setupFacts(dir);
-  add('package-pinned', f.declared === PINNED && f.installed === PINNED ? 'pass' : 'fail', `declared ${f.declared ?? 'none'}, installed ${f.installed ?? 'none'}, pin ${PINNED}`);
-  add('overlay-import', f.overlayImport && f.devGuard ? 'pass' : 'fail', f.overlayImport ? (f.devGuard ? 'dev-guarded overlay import in main' : 'overlay import without a dev guard') : 'no overlay import in main');
+  add(
+    'package-pinned',
+    f.declared === PINNED && f.installed === PINNED ? 'pass' : 'fail',
+    `declared ${f.declared ?? 'none'}, installed ${f.installed ?? 'none'}, pin ${PINNED}`,
+  );
+  add(
+    'overlay-import',
+    f.overlayImport && f.devGuard ? 'pass' : 'fail',
+    f.overlayImport
+      ? f.devGuard
+        ? 'dev-guarded overlay import in main'
+        : 'overlay import without a dev guard'
+      : 'no overlay import in main',
+  );
   const root = rootOf(state);
   const live = liveTree(state);
-  add('process-alive', root !== undefined && live.length > 0 ? 'pass' : 'fail', root !== undefined && live.length > 0 ? `PID ${state.pid} since ${new Date(root.start).toISOString()}` : `PID ${state.pid} is gone or reused`);
+  add(
+    'process-alive',
+    root !== undefined && live.length > 0 ? 'pass' : 'fail',
+    root !== undefined && live.length > 0
+      ? `PID ${state.pid} since ${new Date(root.start).toISOString()}`
+      : `PID ${state.pid} is gone or reused`,
+  );
   const recorded = merge(state.tree ?? [], live);
 
   // Written only while the state file is there and the record changed: a down that just removed it stays done.
-  if (existsSync(statePath(port())) && JSON.stringify(recorded) !== JSON.stringify(state.tree ?? [])) {
+  if (
+    existsSync(statePath(port())) &&
+    JSON.stringify(recorded) !== JSON.stringify(state.tree ?? [])
+  ) {
     state.tree = recorded;
     writeFileSync(statePath(port()), JSON.stringify(state, null, 2));
   }
@@ -1446,15 +2025,35 @@ async function doctor() {
   add('tree', 'pass', `${recorded.length} process(es) recorded for down`);
   // A state file written before ports were recorded: check its one port.
   /** @type {PortEntry[]} */
-  const recordedPorts = state.ports ?? [{ name: 'pangular', port: state.port, kind: 'fixed' }];
-  const ports = portsCheck(recordedPorts, await busyPorts(recordedPorts.map((p) => p.port)), new Set(live.map((r) => r.pid)));
+  const recordedPorts = state.ports ?? [
+    { name: 'pangular', port: state.port, kind: 'fixed' },
+  ];
+  const ports = portsCheck(
+    recordedPorts,
+    await busyPorts(recordedPorts.map((p) => p.port)),
+    new Set(live.map((r) => r.pid)),
+  );
   add('ports', ports.status, ports.detail);
 
-  const noOrigin = await mcp(state, 'initialize', initParams(), { origin: null });
-  add('mcp-origin-guard', noOrigin.httpStatus === 403 ? 'pass' : 'fail', `POST without Origin -> ${noOrigin.httpStatus} (want 403)`);
+  const noOrigin = await mcp(state, 'initialize', initParams(), {
+    origin: null,
+  });
+  add(
+    'mcp-origin-guard',
+    noOrigin.httpStatus === 403 ? 'pass' : 'fail',
+    `POST without Origin -> ${noOrigin.httpStatus} (want 403)`,
+  );
   const init = await mcp(state, 'initialize', initParams());
-  const tokenNote = process.env['PANGULAR_MCP_TOKEN'] ? 'with Bearer token' : 'no token (the standalone CLI asks for none; a hub mount needs PANGULAR_MCP_TOKEN)';
-  add('mcp-initialize', init.result ? 'pass' : 'fail', init.result ? `${init.result.serverInfo?.name} ${init.result.serverInfo?.version}, local Origin, ${tokenNote}` : `HTTP ${init.httpStatus}: ${init.body ?? JSON.stringify(init.error)}`);
+  const tokenNote = process.env['PANGULAR_MCP_TOKEN']
+    ? 'with Bearer token'
+    : 'no token (the standalone CLI asks for none; a hub mount needs PANGULAR_MCP_TOKEN)';
+  add(
+    'mcp-initialize',
+    init.result ? 'pass' : 'fail',
+    init.result
+      ? `${init.result.serverInfo?.name} ${init.result.serverInfo?.version}, local Origin, ${tokenNote}`
+      : `HTTP ${init.httpStatus}: ${init.body ?? JSON.stringify(init.error)}`,
+  );
   const tools = await toolList(state);
   const list = tools.list ?? [];
 
@@ -1462,14 +2061,21 @@ async function doctor() {
   if (tools.list === null) {
     add('read-only', 'fail', tools.why);
   } else {
-    const ro = readOnlyCheck(state.readOnly, list.map((t) => t.name));
+    const ro = readOnlyCheck(
+      state.readOnly,
+      list.map((t) => t.name),
+    );
     add('read-only', ro.status, ro.detail);
   }
 
   const appUrl = str('app-url') ?? state.appUrl;
 
   if (!appUrl) {
-    add('overlay-connected', 'skip', 'no --app-url: pass the portal URL (control-angular-dev-app info) to check the page');
+    add(
+      'overlay-connected',
+      'skip',
+      'no --app-url: pass the portal URL (control-angular-dev-app info) to check the page',
+    );
   } else {
     // The overlay asks for the one-time code in a prompt, at a moment of its own choosing (before or after it sets
     // its page id, measured both ways); the code is printed in the server log, as a user would read it.
@@ -1481,29 +2087,51 @@ async function doctor() {
       }
 
       await sleep(500);
-      const otp = existsSync(state.log) ? authCodeIn(readFileSync(state.log, 'utf8')) : null;
-      const acc = playwrightCli([`-s=${state.session}`, 'dialog-accept', otp ?? '']);
+      const otp = existsSync(state.log)
+        ? authCodeIn(readFileSync(state.log, 'utf8'))
+        : null;
+      const acc = playwrightCli([
+        `-s=${state.session}`,
+        'dialog-accept',
+        otp ?? '',
+      ]);
 
       if (!answered) {
-        add('auth-code', otp && acc.status === 0 ? 'pass' : 'fail', otp ? `entered the one-time code from ${path.basename(state.log)} into the overlay prompt` : 'prompt shown but no auth code in the server log');
+        add(
+          'auth-code',
+          otp && acc.status === 0 ? 'pass' : 'fail',
+          otp
+            ? `entered the one-time code from ${path.basename(state.log)} into the overlay prompt`
+            : 'prompt shown but no auth code in the server log',
+        );
       }
 
       answered = true;
 
       return true;
     };
-    await answerPrompt(playwrightCli([`-s=${state.session}`, '--raw', 'eval', '() => 1']));
+    await answerPrompt(
+      playwrightCli([`-s=${state.session}`, '--raw', 'eval', '() => 1']),
+    );
     let r = playwrightCli([`-s=${state.session}`, 'goto', appUrl]);
 
-    if (r.status !== 0 || /not open|is not running|No browser/i.test(r.stdout + r.stderr)) {
+    if (
+      r.status !== 0 ||
+      /not open|is not running|No browser/i.test(r.stdout + r.stderr)
+    ) {
       r = playwrightCli([`-s=${state.session}`, 'open', appUrl]);
     }
 
     if (r.status !== 0) {
-      add('browser-session', 'fail', `playwright-cli session ${state.session}: ${(r.stderr || r.stdout).slice(0, 300)}`);
+      add(
+        'browser-session',
+        'fail',
+        `playwright-cli session ${state.session}: ${(r.stderr || r.stdout).slice(0, 300)}`,
+      );
     } else {
       add('browser-session', 'pass', `session ${state.session} on ${appUrl}`);
-      const code = "async page => { await page.waitForFunction(() => typeof window.__pangularPageId === 'string', null, { timeout: 3000 }).catch(() => {}); return await page.evaluate(() => ({ pageId: window.__pangularPageId ?? null, ngVersion: document.querySelector('[ng-version]')?.getAttribute('ng-version') ?? null, devBuild: typeof window.ng === 'object' })); }";
+      const code =
+        "async page => { await page.waitForFunction(() => typeof window.__pangularPageId === 'string', null, { timeout: 3000 }).catch(() => {}); return await page.evaluate(() => ({ pageId: window.__pangularPageId ?? null, ngVersion: document.querySelector('[ng-version]')?.getAttribute('ng-version') ?? null, devBuild: typeof window.ng === 'object' })); }";
       /** @type {PageProbe} */
       let page = {};
       /** @type {Run} */
@@ -1523,31 +2151,66 @@ async function doctor() {
         }
       }
 
-      add('dev-build', page.devBuild ? 'pass' : 'fail', page.devBuild ? `window.ng present, Angular ${page.ngVersion}` : 'window.ng missing: production build, overlay has nothing to read');
-      add('overlay-page-id', page.pageId ? 'pass' : 'fail', page.pageId ? `window.__pangularPageId = ${page.pageId}` : `window.__pangularPageId not set within 15 s (${pr.stdout.slice(0, 200)})`);
+      add(
+        'dev-build',
+        page.devBuild ? 'pass' : 'fail',
+        page.devBuild
+          ? `window.ng present, Angular ${page.ngVersion}`
+          : 'window.ng missing: production build, overlay has nothing to read',
+      );
+      add(
+        'overlay-page-id',
+        page.pageId ? 'pass' : 'fail',
+        page.pageId
+          ? `window.__pangularPageId = ${page.pageId}`
+          : `window.__pangularPageId not set within 15 s (${pr.stdout.slice(0, 200)})`,
+      );
       let listed = false;
       let text = '';
 
       for (let i = 0; i < 20 && page.pageId && !listed; i++) {
-        const lp = await mcp(state, 'tools/call', { name: list.find((t) => short(t.name) === 'list-pages')?.name ?? 'pangular_list-pages', arguments: {} });
+        const lp = await mcp(state, 'tools/call', {
+          name:
+            list.find((t) => short(t.name) === 'list-pages')?.name ??
+            'pangular_list-pages',
+          arguments: {},
+        });
         text = (lp.result?.content ?? []).map((c) => c.text).join('\n');
         listed = text.includes(page.pageId);
 
         if (!listed) {
-          await answerPrompt(playwrightCli([`-s=${state.session}`, '--raw', 'eval', '() => 1']));
+          await answerPrompt(
+            playwrightCli([`-s=${state.session}`, '--raw', 'eval', '() => 1']),
+          );
           await sleep(500);
         }
       }
 
-      add('overlay-connected', listed ? 'pass' : 'fail', listed ? `list-pages reports page ${page.pageId}` : `list-pages does not show ${page.pageId ?? 'the page'}: ${text.slice(0, 200)}`);
-      const ce = consoleCheck(playwrightCli([`-s=${state.session}`, 'console', 'error']).stdout, state.port);
+      add(
+        'overlay-connected',
+        listed ? 'pass' : 'fail',
+        listed
+          ? `list-pages reports page ${page.pageId}`
+          : `list-pages does not show ${page.pageId ?? 'the page'}: ${text.slice(0, 200)}`,
+      );
+      const ce = consoleCheck(
+        playwrightCli([`-s=${state.session}`, 'console', 'error']).stdout,
+        state.port,
+      );
       add('console-errors', ce.status, ce.detail);
     }
   }
 
   const failed = checks.filter((c) => c.status === 'fail');
   /** @type {Record<string, unknown> & { checks: Check[] }} */
-  const result = { ok: failed.length === 0, command: 'doctor', port: state.port, mcpUrl: state.mcpUrl, session: state.session, checks };
+  const result = {
+    ok: failed.length === 0,
+    command: 'doctor',
+    port: state.port,
+    mcpUrl: state.mcpUrl,
+    session: state.session,
+    checks,
+  };
   result['savedTo'] = save(state, result);
   out(result, failed.length === 0 ? 0 : 1);
 }
@@ -1569,18 +2232,27 @@ async function components() {
   let source;
 
   if (tool) {
-    const r = await mcp(state, 'tools/call', { name: tool.name, arguments: { ...(filter ? { filter } : {}), ...(Number.isFinite(depth) ? { depth } : {}) } });
+    const r = await mcp(state, 'tools/call', {
+      name: tool.name,
+      arguments: {
+        ...(filter ? { filter } : {}),
+        ...(Number.isFinite(depth) ? { depth } : {}),
+      },
+    });
     text = (r.result?.content ?? []).map((c) => c.text).join('\n');
     source = tool.name;
   } else {
     const res = (await mcp(state, 'resources/list')).result?.resources ?? [];
-    const uri = res.find((x) => decodeURIComponent(x.uri).endsWith('pangular:component-tree'))?.uri;
+    const uri = res.find((x) =>
+      decodeURIComponent(x.uri).endsWith('pangular:component-tree'),
+    )?.uri;
     const r = uri && (await mcp(state, 'resources/read', { uri }));
     const first = r ? r.result?.contents?.[0]?.text : undefined;
     /** @type {{ nodes: TreeNode[] }} */
     const tree = first ? JSON.parse(first) : { nodes: [] };
     text = componentOutline(tree, filter, depth);
-    source = 'resource pangular:component-tree (list-components is not in this version)';
+    source =
+      'resource pangular:component-tree (list-components is not in this version)';
   }
 
   /** @type {Record<string, unknown> & { ok: boolean }} */
@@ -1597,10 +2269,19 @@ async function scan() {
   const bin = path.join(dir, 'node_modules', PKG, 'bin.mjs');
 
   if (!name || name.startsWith('--') || !existsSync(bin)) {
-    return fail(2, !existsSync(bin) ? `${PKG} is not installed in ${dir}` : 'usage: scan <get-routes|get-components|get-signals|get-providers|get-pipes|get-ngrx-store|build-meta> [--root <dir>] [--out <file>]');
+    return fail(
+      2,
+      !existsSync(bin)
+        ? `${PKG} is not installed in ${dir}`
+        : 'usage: scan <get-routes|get-components|get-signals|get-providers|get-pipes|get-ngrx-store|build-meta> [--root <dir>] [--out <file>]',
+    );
   }
 
-  const child = spawn(process.execPath, [bin, 'mcp', '--root', root, '--read-only'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
+  const child = spawn(
+    process.execPath,
+    [bin, 'mcp', '--root', root, '--read-only'],
+    { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true },
+  );
   /** @type {Map<number, (msg: RpcMessage) => void>} */
   const pending = new Map();
   let buf = '';
@@ -1622,23 +2303,40 @@ async function scan() {
     }
   });
   /** @type {(method: string, params: object | undefined, id: number) => Promise<RpcMessage>} */
-  const request = (method, params, id) => new Promise((resolve) => {
-    pending.set(id, resolve);
-    child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id, method, ...(params ? { params } : {}) }) + '\n');
-  });
+  const request = (method, params, id) =>
+    new Promise((resolve) => {
+      pending.set(id, resolve);
+      child.stdin.write(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id,
+          method,
+          ...(params ? { params } : {}),
+        }) + '\n',
+      );
+    });
   const timer = setTimeout(() => {
     child.kill();
-    fail(2, `stdio MCP server did not answer within 60 s: ${stderr.slice(0, 300)}`);
+    fail(
+      2,
+      `stdio MCP server did not answer within 60 s: ${stderr.slice(0, 300)}`,
+    );
   }, 60000);
   await request('initialize', initParams(), 1);
-  child.stdin.write(JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) + '\n');
+  child.stdin.write(
+    JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) +
+      '\n',
+  );
   const list = await request('tools/list', undefined, 2);
   const tool = list.result?.tools?.find((t) => short(t.name) === short(name));
 
   if (!tool) {
     child.kill();
 
-    return fail(2, `no source tool ${name}; stdio has: ${(list.result?.tools ?? []).map((t) => short(t.name)).join(', ')}`);
+    return fail(
+      2,
+      `no source tool ${name}; stdio has: ${(list.result?.tools ?? []).map((t) => short(t.name)).join(', ')}`,
+    );
   }
 
   const r = await request('tools/call', { name: tool.name, arguments: {} }, 3);
@@ -1646,13 +2344,23 @@ async function scan() {
   child.kill();
   const text = (r.result?.content ?? []).map((c) => c.text).join('\n');
   /** @type {Record<string, unknown> & { ok: boolean }} */
-  const result = { ok: !!r.result && !r.result.isError, command: 'scan', root, tool: tool.name, warnings: stderr.trim() || undefined, text };
+  const result = {
+    ok: !!r.result && !r.result.isError,
+    command: 'scan',
+    root,
+    tool: tool.name,
+    warnings: stderr.trim() || undefined,
+    text,
+  };
   result['savedTo'] = save({ evidenceDir: path.join(SCRATCH, 'scan') }, result);
   out(result, result.ok ? 0 : 1);
 }
 
 function info() {
-  out({ ok: true, command: 'info', statePath: statePath(port()), ...readState() }, 0);
+  out(
+    { ok: true, command: 'info', statePath: statePath(port()), ...readState() },
+    0,
+  );
 }
 
 function down() {
@@ -1661,12 +2369,25 @@ function down() {
   const close = playwrightCli([`-s=${state.session}`, 'close']);
   const { records, result } = stopRun(state);
   const outcome = downOutcome(state, result);
-  const notes = [`session ${state.session}: ${close.status === 0 ? 'closed' : 'was not open'}`, ...outcome.notes];
+  const notes = [
+    `session ${state.session}: ${close.status === 0 ? 'closed' : 'was not open'}`,
+    ...outcome.notes,
+  ];
 
   if (outcome.code !== 0) {
     state.tree = records;
     writeFileSync(sp, JSON.stringify(state, null, 2));
-    out({ ok: false, command: 'down', evidenceDir: state.evidenceDir, notes, reason: outcome.reason, state: sp }, outcome.code);
+    out(
+      {
+        ok: false,
+        command: 'down',
+        evidenceDir: state.evidenceDir,
+        notes,
+        reason: outcome.reason,
+        state: sp,
+      },
+      outcome.code,
+    );
   }
 
   rmSync(sp, { force: true });
@@ -1674,14 +2395,36 @@ function down() {
 }
 
 /** @type {Record<string, () => void | Promise<void>>} */
-const commands = { install, check, remove, up, doctor, info, down, tools, call, resource, scan, components };
+const commands = {
+  install,
+  check,
+  remove,
+  up,
+  doctor,
+  info,
+  down,
+  tools,
+  call,
+  resource,
+  scan,
+  components,
+};
 
 // import.meta.url is the real path, so compare real paths: run through a link, the CLI still runs.
-if (process.argv[1] && realpathSync.native(path.resolve(process.argv[1])) === realpathSync.native(fileURLToPath(import.meta.url))) {
-  const command = cmd !== undefined && Object.hasOwn(commands, cmd) ? commands[cmd] : undefined;
+if (
+  process.argv[1] &&
+  realpathSync.native(path.resolve(process.argv[1])) ===
+    realpathSync.native(fileURLToPath(import.meta.url))
+) {
+  const command =
+    cmd !== undefined && Object.hasOwn(commands, cmd)
+      ? commands[cmd]
+      : undefined;
 
   if (command === undefined) {
-    process.stdout.write('usage: control.mjs <install|check|remove|up|doctor|info|down|tools|call|resource|scan|components> [--dir <app>] [--project <name>] [--port N] [--app-url <url>] [--allow-actions] [--args <json>] [--confirm] [--out <file>] [--json]\n');
+    process.stdout.write(
+      'usage: control.mjs <install|check|remove|up|doctor|info|down|tools|call|resource|scan|components> [--dir <app>] [--project <name>] [--port N] [--app-url <url>] [--allow-actions] [--args <json>] [--confirm] [--out <file>] [--json]\n',
+    );
     process.exit(2);
   }
 

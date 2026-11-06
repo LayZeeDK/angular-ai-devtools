@@ -42,13 +42,28 @@ export function traceDiPath(
   component: string,
 ): DiResolutionPath {
   if (!graph || !Array.isArray(graph.resolutionPath)) {
-    return { component, path: [], available: false, reason: 'DI graph unavailable' };
+    return {
+      component,
+      path: [],
+      available: false,
+      reason: 'DI graph unavailable',
+    };
   }
   if (graph.available === false) {
-    return { component, path: [], available: false, reason: graph.reason ?? 'DI graph unavailable' };
+    return {
+      component,
+      path: [],
+      available: false,
+      reason: graph.reason ?? 'DI graph unavailable',
+    };
   }
   if (graph.component !== component) {
-    return { component, path: [], available: false, reason: 'component mismatch' };
+    return {
+      component,
+      path: [],
+      available: false,
+      reason: 'component mismatch',
+    };
   }
   return {
     component: graph.component,

@@ -31,7 +31,10 @@ export function resolveScanDir(input) {
   let candidate = fromArg;
   if (!candidate) {
     for (const key of ENV_KEYS) {
-      if (process.env[key]) { candidate = process.env[key]; break; }
+      if (process.env[key]) {
+        candidate = process.env[key];
+        break;
+      }
     }
   }
   if (candidate) {
@@ -49,7 +52,11 @@ export function findTestFiles(root) {
   const out = [];
   function walk(dir) {
     let entries;
-    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
     for (const e of entries) {
       const full = join(dir, e.name);
       if (e.isDirectory()) {
@@ -68,13 +75,19 @@ export function run(options) {
   const scanDir = resolveScanDir(options);
   const files = findTestFiles(scanDir);
   if (files.length === 0) {
-    console.error(`No user-scope tests found under ${scanDir} (expected **/*.test.mjs).`);
+    console.error(
+      `No user-scope tests found under ${scanDir} (expected **/*.test.mjs).`,
+    );
     return 1;
   }
   const env = { ...process.env };
   delete env.NODE_TEST_CONTEXT;
   delete env.NODE_TEST_WORKER_ID;
-  const res = spawnSync(process.execPath, ['--experimental-strip-types', '--test', ...files], { stdio: 'inherit', env });
+  const res = spawnSync(
+    process.execPath,
+    ['--experimental-strip-types', '--test', ...files],
+    { stdio: 'inherit', env },
+  );
   return res.status ?? (res.signal ? 1 : 0);
 }
 
@@ -84,9 +97,23 @@ export async function main(argv = process.argv.slice(2)) {
   const args = Array.isArray(argv) ? argv : [];
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
-    if (a === '--root' || a === '--dir' || a === '--scripts-dir' || a === '--path' || a === '--home' || a === '--base') {
+    if (
+      a === '--root' ||
+      a === '--dir' ||
+      a === '--scripts-dir' ||
+      a === '--path' ||
+      a === '--home' ||
+      a === '--base'
+    ) {
       root = args[++i];
-    } else if (a.startsWith('--root=') || a.startsWith('--dir=') || a.startsWith('--scripts-dir=') || a.startsWith('--path=') || a.startsWith('--home=') || a.startsWith('--base=')) {
+    } else if (
+      a.startsWith('--root=') ||
+      a.startsWith('--dir=') ||
+      a.startsWith('--scripts-dir=') ||
+      a.startsWith('--path=') ||
+      a.startsWith('--home=') ||
+      a.startsWith('--base=')
+    ) {
       root = a.slice(a.indexOf('=') + 1);
     } else if (!a.startsWith('-') && root == null) {
       root = a;
@@ -99,11 +126,23 @@ export async function main(argv = process.argv.slice(2)) {
 
 const self = fileURLToPath(import.meta.url);
 let argvEntry = process.argv[1];
-try { if (argvEntry) argvEntry = realpathSync(resolve(argvEntry)); } catch {}
+try {
+  if (argvEntry) argvEntry = realpathSync(resolve(argvEntry));
+} catch {}
 let selfResolved = self;
-try { selfResolved = realpathSync(self); } catch {}
+try {
+  selfResolved = realpathSync(self);
+} catch {}
 if (argvEntry && (argvEntry === self || argvEntry === selfResolved)) {
-  main().then((code) => { process.exitCode = code ?? process.exitCode; });
+  main().then((code) => {
+    process.exitCode = code ?? process.exitCode;
+  });
 }
 
-export default { resolveScanDir, findTestFiles, run, main, resolveUserScopeDir: resolveScanDir };
+export default {
+  resolveScanDir,
+  findTestFiles,
+  run,
+  main,
+  resolveUserScopeDir: resolveScanDir,
+};

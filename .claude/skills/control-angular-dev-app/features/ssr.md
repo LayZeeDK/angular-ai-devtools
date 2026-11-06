@@ -37,7 +37,7 @@ Preconditions:
 - `node $S up --target ssr` and `node $S doctor --target ssr` exit 0 on a fresh page.
 
 - **Server HTML, hydration, mismatch.** Run `playwright-cli -s=<session> --raw run-code
-  --filename=.claude/skills/control-angular-dev-app/scripts/ssr-check.js > <evidenceDir>/ssr-check.json`.
+--filename=.claude/skills/control-angular-dev-app/scripts/ssr-check.js > <evidenceDir>/ssr-check.json`.
   `ok` is `true` when all six checks pass; `expected-mismatch-detected` is the `?mismatch=1` case. The checks:
   `server-html-ngh` (`ngh` attributes in the server HTML of `/`), `server-html-transfer-state`
   (`<script id="ng-state">` in it), `dev-build-after-hydration` (`window.ng` present), `hydration-counters`
