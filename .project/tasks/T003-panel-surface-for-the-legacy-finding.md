@@ -2,11 +2,11 @@
 id: T003
 title: Panel surface for the legacy finding
 wave: 2
-status: in-progress
+status: done
 deps: [T002]
 agent: paid-deepseek-v4-1-flash-high
 base: 0077279324a48f933ffe36c6f38b064f0543b00e
-worktree: D:\projects\sandbox\angular-ai-devtools
+worktree: null
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-legacy.ts
@@ -70,3 +70,12 @@ node --experimental-strip-types --test "scripts/panel-legacy.test.mjs" "scripts/
 ## Log
 
 - dispatched
+- 2026-11-06 — dispatched paid-deepseek-v4-1-flash-high (serial isolation, primary checkout). Built
+  `panel-legacy.ts` on the sibling surfaces' pattern, registered `/legacy` with `data.surface` in the demo loader,
+  and re-cut the pins the route genuinely moves: `app.spec.ts` 15 -> 16, `chat-entry.component.spec.ts` 15 -> 16,
+  10 -> 11 and the surface loop 6 -> 7, `panel-routes.test.mjs` surfaces 4 -> 5 with a second mutant that must fail
+  naming `legacy`. It corrected two premises of the plan by measurement: `scripts/router-diagnostic.test.mjs` pins
+  the m033 recording and not `app.routes.ts` (re-cut to 17, saw `16 !== 17` redden, restored byte-identically), and
+  `page-picker.component.spec.ts` asserts no count (18/18 with and without the route). 27/27 task tests,
+  333/333 app tests, 10/10 held-out, `tsc` exit 0, prettier clean.
+  Verdict: ready.

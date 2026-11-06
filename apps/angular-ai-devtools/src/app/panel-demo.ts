@@ -24,6 +24,7 @@ const LOADERS: Record<
   'after-render': () => import('./after-render') as never,
   lint: () => import('./panel-lint') as never,
   router: () => import('./panel-router') as never,
+  legacy: () => import('./panel-legacy') as never,
 };
 
 const FACTS: Record<string, unknown> = {
@@ -74,6 +75,18 @@ const FACTS: Record<string, unknown> = {
         message:
           "NG04002: Cannot match any routes. URL Segment: 'this-route-does-not-exist'",
         consideredCount: 15,
+      },
+    ],
+  },
+  legacy: {
+    facts: [
+      {
+        state: 'finding',
+        component: 'WidgetComponent',
+        structure: 'NgModule-declared',
+        modernForm:
+          'removing standalone: false and adding dependencies to their imports array',
+        source: 'https://angular.dev/reference/migrations/standalone',
       },
     ],
   },

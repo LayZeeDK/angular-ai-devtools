@@ -13,7 +13,7 @@ const ROUTES = join(
   'app.routes.ts',
 );
 
-const surfaces = ['after-render', 'sanitizer', 'redirect', 'fields'];
+const surfaces = ['after-render', 'sanitizer', 'redirect', 'fields', 'legacy'];
 
 function routeBlock(source, surface) {
   const needle = "path: '" + surface + "'";
@@ -52,6 +52,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     sanitizer: ['panel-sanitizer', 'sanitizerPanel'],
     redirect: ['panel-redirect', 'redirectPanel'],
     fields: ['panel-fields', 'fieldsPanel'],
+    legacy: ['panel-legacy', 'legacyPanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -152,5 +153,24 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       err instanceof assert.AssertionError &&
       String(err.message).includes('lint'),
     'removing the lint loader must fail naming the missing surface lint',
+  );
+
+  // Mutant: remove the legacy key from LOADERS. The M034 route is the one this task adds, so the
+  // check must name it when its loader is gone rather than pass on the older surfaces alone.
+  const withoutLegacy = demoSource.replace(
+    "  legacy: () => import('./panel-legacy') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutLegacy,
+    demoSource,
+    'the legacy mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutLegacy),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('legacy'),
+    'removing the legacy loader must fail naming the missing surface legacy',
   );
 });
