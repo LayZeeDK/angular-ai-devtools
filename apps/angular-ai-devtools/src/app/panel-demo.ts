@@ -23,6 +23,7 @@ const LOADERS: Record<
   sanitizer: () => import('./panel-sanitizer') as never,
   'after-render': () => import('./after-render') as never,
   lint: () => import('./panel-lint') as never,
+  router: () => import('./panel-router') as never,
 };
 
 const FACTS: Record<string, unknown> = {
@@ -61,6 +62,18 @@ const FACTS: Record<string, unknown> = {
         code: 'NG0950',
         message:
           'NG0950: Required input requiredLabel from component WidgetComponent must be specified.',
+      },
+    ],
+  },
+  router: {
+    facts: [
+      {
+        state: 'finding',
+        segment: 'this-route-does-not-exist',
+        code: 'NG04002',
+        message:
+          "NG04002: Cannot match any routes. URL Segment: 'this-route-does-not-exist'",
+        consideredCount: 15,
       },
     ],
   },

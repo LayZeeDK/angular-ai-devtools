@@ -2,11 +2,11 @@
 id: T003
 title: Panel surface for the router finding
 wave: 2
-status: pending
+status: done
 deps:
   - T002
-agent: null
-base: null
+agent: free-glyph-cluster-medium
+base: 2a8627c7ad4ba32cee83c02a031a66baf024d20c
 worktree: null
 task_branch: null
 files:

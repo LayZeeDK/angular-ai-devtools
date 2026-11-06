@@ -28,7 +28,7 @@ describe('App', () => {
  * a route accepts and renders nothing for.
  */
 describe('the route table', () => {
-  it('appends the lint surface last and installs it through the demo component', async () => {
+  it('appends the panel surfaces last and installs each through the demo component', async () => {
     expect(appRoutes.map((route) => route.path)).toEqual([
       '',
       'signal-provenance',
@@ -44,6 +44,7 @@ describe('the route table', () => {
       'redirect',
       'fields',
       'lint', // M032 SC4 surface: the diagnostic joined to its input, or its absence state
+      'router', // M033 SC4 surface: the navigation failure and the routes it failed to match
     ]);
     expect(appRoutes.filter((route) => route.path === 'lint')).toHaveLength(1);
 
@@ -56,5 +57,13 @@ describe('the route table', () => {
     expect(lint.data?.['surface']).toBe('lint');
     // Its own name, so a copy of another surface's route cannot stand in for it.
     expect(lint.data?.['surface']).not.toBe('fields');
+
+    const router = appRoutes.find((route) => route.path === 'router');
+    expect(router?.component).toBeUndefined();
+    if (router?.loadComponent === undefined) {
+      throw new Error('the router surface must load lazily');
+    }
+    expect(await router.loadComponent()).toBe(PanelDemoComponent);
+    expect(router.data?.['surface']).toBe('router');
   });
 });
