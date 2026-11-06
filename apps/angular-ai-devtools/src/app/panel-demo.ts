@@ -22,6 +22,7 @@ const LOADERS: Record<
   redirect: () => import('./panel-redirect') as never,
   sanitizer: () => import('./panel-sanitizer') as never,
   'after-render': () => import('./after-render') as never,
+  lint: () => import('./panel-lint') as never,
 };
 
 const FACTS: Record<string, unknown> = {
@@ -52,6 +53,17 @@ const FACTS: Record<string, unknown> = {
     bindings: [],
   },
   'after-render': { events: [] },
+  lint: {
+    facts: [
+      {
+        state: 'finding',
+        construct: 'requiredLabel',
+        code: 'NG0950',
+        message:
+          'NG0950: Required input requiredLabel from component WidgetComponent must be specified.',
+      },
+    ],
+  },
 };
 
 @Component({

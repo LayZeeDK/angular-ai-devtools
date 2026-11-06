@@ -2,10 +2,10 @@
 id: T005
 title: Register the lint surface in the panel demo
 wave: 3
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: paid-deepseek-v4-1-flash-high
+base: 4d76887d82f13896a353e800be320cd73bede892
 worktree: null
 task_branch: null
 files:
