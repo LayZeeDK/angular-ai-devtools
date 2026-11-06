@@ -23,6 +23,8 @@ all `defects-found`, all applied).
 | A7  | `debugger` permission granted                                                                  | N21's CDP trace, P3's accessibility tree            |
 | A8  | `@angular/cdk/testing` excepted from the components exclusion                                  | the HAR family                                      |
 | A9  | All tiers permitted; modern APIs only; `@angular/animations` deprecated and out                | applies to every milestone                          |
+| A10 | **Design system ordered immediately after `angular/components`** (2026-11-05) | Owner: "After/during the `angular/components` efforts at the latest, allowing dog-fooding of Storybook and Angular Material features in Angular AI DevTools." DS-2/DS-5/DS-6/DS-7/DS-8 and Storybook move from generation 7 to generation 4; defer/hydration, boundary and test suites shift to 5-7. "Storybook" here is the tool's feature set for browsing a Storybook application (§6.2), not the design system's own component stories and not a general review surface. Supersedes A3's placement of Storybook relative to components: both now follow components, so the DS and the Storybook features dogfood each other while the material features they rest on are still fresh |
+| A11 | **Generation 4 delivers a design-system *subset*, and the DS precedes the Storybook features** (2026-11-05) | Owner: "It doesn't have to be a complete design system, just a subset used by the features in milestones shipped before the design system or immediately after." So: (a) **scope** — no general component library and no theming system; the subset is exactly what the shipped explainer shell repeats across its six surfaces plus what the immediately-following milestones consume, and a component is added when a shipped feature needs it, not in advance; (b) **order inside the generation** — DS-2/DS-5/DS-6/DS-7/DS-8 first, then the §6.2 Storybook features, because the story-gap finder is only meaningful against a Storybook with real gaps and the DS's is the owned one; (c) **the converse obligation** — every DS story exposes its args and at least one variant, so the story index has a corpus worth reading rather than one story per component |
 
 ### Architecture rulings
 
@@ -214,38 +216,15 @@ teardown-leak · M056 error-routing · M057 locale-correctness · M058 outlet-ex
 guard-phase · M060 lazy-chunk-failure · M061 title-input-binding · M062 schema-disabled-hidden ·
 M063 formfield-binder · M064 head-state · M065 error-channel-map
 
-### Generation 4 — defer, hydration, animation, template blocks (batches 4-5)
+### Generation 4 — design system and Storybook (owner ruling 2026-11-05)
 
-M066-M070 defer payload-cost / trigger-payoff / nested-order / error-block / layout-shift
-M071-M078 hydration timeline / skipped / text-mismatch / dehydrated-state / server-log /
-ssr-payload-budget / render-vs-hydration / dom-drift
-M079-M083 animation stuck / view-transitions / enter-leave / render-cost / legacy-flag
-M084 **control-flow tap** · M085 template-block-review · M086 for-keystroke-rebuild · M087
-for-input-churn · M088 for-empty-blind-spot · M089 for-nested-identity · M090 for-large-list-cost ·
-M091 if-branch-timeline · M092 if-condition-values · M093 switch-case-order · M094
-let-binding-values · M095 defer-placeholder-flash · M096 defer-loading-never
-Gates: DEF-S1..S5, HYD-S2..S4, ANI-S1, FOR-S1..S4, CF-S1, CF-S2, SUB-S1, BND-S1, BND-S2.
+**Reordered 2026-11-05 (A10).** This generation was Generation 7. The owner moved it to sit immediately after `angular/components` (generation 3), so the panel dogfoods the design system while the material features it is built on are still being worked on.
 
-### Generation 5 — boundary, service worker, elements, taps
+"Design system and Storybook" names two things in one generation. The **design system** is DS-2 tokens, DS-5 harvest, DS-6 services, DS-7 harnesses and DS-8 Playwright. **Storybook** is the tool's feature set for when the inspected application *is* a Storybook (§6.2): detecting the preview through `window.__STORYBOOK_PREVIEW__`, reading the story index, the story-gap finder that lists components rendered without a story, asking about a story's component like any app, and "why does this story differ". Tier 1, third-party reads of globals.
 
-M097 boundary-did-not-catch (S10 + M109-adjacent ErrorHandler join) · M098 boundary-reset-unreachable
-(S10) · M099-M101 sw stale-asset-set / install-churn / safe-mode · M102-M103 elements
-identity / bootstrap · M104-M112 opt-in taps: pending-task-labelling, signal-write-provenance,
-http-interceptor-chain, binding-provenance, swupdate-events, form-schema-tap, sanitizer-decisions,
-guard-verdicts, animation-completion.
-Rule: every tap lands **with** the milestone it upgrades, never as its own wave.
+The two belong together because they validate each other: shipping the DS gives the tool a Storybook application of its own to browse, and the Storybook feature set is what makes that browsing useful. Neither is a general test harness — the stories are a review surface with no gate, and per the note below a story interaction test excluded from `npm test` is a test nobody notices failing. DS-5's harvest gets easier here, not harder: by generation 4 the six explainer surfaces it harvests already exist.
 
-### Generation 6 — test suites (batch 6)
-
-M113 test-attach-harness (the Vitest tester-iframe attach; `cdpAttach` lives here) · M114-M117
-test timing / query-mismatch / test-vs-app / test-DI · M118 test-override-ignored · M119
-test-zone-era-helper · M120 test-defer-block · M121-M122 router-testing nav / inputs · M123-M124
-http double-answered / injected-error · M125-M127 harness predicate / ambiguity / action · M128-M131
-Playwright stability / page-ledger / retry / step-timing · M132 Playwright testability (only if
-PWT-S5 shows disagreement)
-Gates: S20, S21, S22, S23, TST-S1..S3, RTH-S1, HTT-S1, HTT-S2, HAR-S1, PWT-S2..S5.
-
-### Generation 7 — design system and Storybook
+**Scope is a subset, not a library (A11).** This generation ships the design system the shipped features actually use: the tokens the explainer shell repeats, the four services it needs, its harnesses and its Playwright proofs. It does not attempt a complete component library, a theming system, or stories for components the tool does not consume. A component joins the DS when a shipped feature needs it — growing by use, not in advance.
 
 Owner's programme 2. **Corrected by review:**
 
@@ -269,7 +248,36 @@ Owner's programme 2. **Corrected by review:**
   `npm test` is, by that property, a test nobody notices failing; and its `chrome.*` mock would be
   a second unowned copy of the wire contract. Storybook is a review surface, not a gate.
 
----
+### Generation 5 — defer, hydration, animation, template blocks (batches 4-5)
+
+M066-M070 defer payload-cost / trigger-payoff / nested-order / error-block / layout-shift
+M071-M078 hydration timeline / skipped / text-mismatch / dehydrated-state / server-log /
+ssr-payload-budget / render-vs-hydration / dom-drift
+M079-M083 animation stuck / view-transitions / enter-leave / render-cost / legacy-flag
+M084 **control-flow tap** · M085 template-block-review · M086 for-keystroke-rebuild · M087
+for-input-churn · M088 for-empty-blind-spot · M089 for-nested-identity · M090 for-large-list-cost ·
+M091 if-branch-timeline · M092 if-condition-values · M093 switch-case-order · M094
+let-binding-values · M095 defer-placeholder-flash · M096 defer-loading-never
+Gates: DEF-S1..S5, HYD-S2..S4, ANI-S1, FOR-S1..S4, CF-S1, CF-S2, SUB-S1, BND-S1, BND-S2.
+
+### Generation 6 — boundary, service worker, elements, taps
+
+M097 boundary-did-not-catch (S10 + M109-adjacent ErrorHandler join) · M098 boundary-reset-unreachable
+(S10) · M099-M101 sw stale-asset-set / install-churn / safe-mode · M102-M103 elements
+identity / bootstrap · M104-M112 opt-in taps: pending-task-labelling, signal-write-provenance,
+http-interceptor-chain, binding-provenance, swupdate-events, form-schema-tap, sanitizer-decisions,
+guard-verdicts, animation-completion.
+Rule: every tap lands **with** the milestone it upgrades, never as its own wave.
+
+### Generation 7 — test suites (batch 6)
+
+M113 test-attach-harness (the Vitest tester-iframe attach; `cdpAttach` lives here) · M114-M117
+test timing / query-mismatch / test-vs-app / test-DI · M118 test-override-ignored · M119
+test-zone-era-helper · M120 test-defer-block · M121-M122 router-testing nav / inputs · M123-M124
+http double-answered / injected-error · M125-M127 harness predicate / ambiguity / action · M128-M131
+Playwright stability / page-ledger / retry / step-timing · M132 Playwright testability (only if
+PWT-S5 shows disagreement)
+Gates: S20, S21, S22, S23, TST-S1..S3, RTH-S1, HTT-S1, HTT-S2, HAR-S1, PWT-S2..S5.
 
 ## 5. Testing ladder (from the fourth review)
 
