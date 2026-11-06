@@ -1,6 +1,6 @@
 ---
 id: T002
-title: Join a legacy diagnostic to its construct
+title: Join a component's structure to the modern form
 wave: 1
 status: pending
 deps: [T001]
@@ -9,53 +9,58 @@ base: null
 worktree: null
 task_branch: null
 files:
-  - extension/legacy-diagnostic.js
-  - scripts/legacy-diagnostic.test.mjs
+  - extension/legacy-structure.js
+  - scripts/legacy-structure.test.mjs
+  - scripts/legacy-equivalents-capture.test.mjs
+  - research/raw/m034-equivalents.json
   - extension/page-footprint.test.mjs
 ---
 
-# T002 — Join a legacy diagnostic to its construct
+# T002 — Join a component's structure to the modern form
 
 ## Context
 
-T001 records which legacy diagnostics the page reports, what each message says, and whether the digest carries the code
-and states a modern equivalent. This task turns that recording into a finding: construct, code, and the equivalent only
-when the digest itself supplies one.
+T001 closed the diagnostic route: `NG6100` reaches the dev server's output and never the page console, so there is no
+captured diagnostic for a page-side panel to join. The intent's delegated ruling re-scopes this milestone to the legacy
+axis the page does show — a component declared in an NgModule rather than standalone — and requires the modern form to be
+quoted from a cited table rather than composed.
 
-The failure this must avoid is the one every milestone in this programme has had to police — composing a plausible
-cause or remedy the evidence does not contain. Here the temptation is concrete: a developer wants to be told what to
-write instead, and an unsourced equivalent would be more useful and less true.
+The temptation this task must resist is the same one every milestone here has policed: writing a plausible modern form
+from memory. A migration guide is data, and data that was never fetched is a guess wearing a citation.
 
 ## Approach
 
-A pure function over captured messages and digest entries. It reads the code from the message body, looks the entry up,
-and extracts the construct the message names. If the digest states an equivalent it is carried as `equivalent`; if not,
-the finding says so with `equivalentSourced: false` rather than going silent or inventing one. Unknown codes and
-construct-free messages are `cannot-tell`, each with its own reason.
+Read `ɵcmp.standalone` off the selected component's type. When it is false, the finding names the component and states
+that it is NgModule-declared, and carries the modern form from `research/raw/m034-equivalents.json` — every entry of
+which holds the URL it came from, a verbatim quote, and the instant it was retrieved. When the component is already
+standalone, or its metadata cannot be read, the module answers `cannot-tell` with its reason and names no modern form.
 
 ## Interface contract
 
-`legacyDiagnostic(messages, digest) -> { state: "finding" | "cannot-tell", construct?, code?, equivalent?, equivalentSourced?, reason? }` — pure, no DOM.
+`legacyStructure(fact, equivalents) -> { state: "finding" | "cannot-tell", component?, structure?, modernForm?, source?, reason? }` — pure, no DOM.
 
 ## Files
 
-- `extension/legacy-diagnostic.js` — the join
-- `scripts/legacy-diagnostic.test.mjs` — its tests and mutants
+- `extension/legacy-structure.js` — the join
+- `scripts/legacy-structure.test.mjs` — its tests and mutants
+- `scripts/legacy-equivalents-capture.test.mjs` — the cited table's capture and its shape checks
+- `research/raw/m034-equivalents.json` — the recording
+- `extension/page-footprint.test.mjs` — the extension footprint pin this task stales
 
 ## Acceptance criteria
 
-1. Held-out E1: no captured diagnostic produces no finding, and the module says so with reason `no-captured-diagnostics` rather than reporting the page as legacy-free.
-2. A captured diagnostic whose code the digest carries and whose message names a construct produces a finding naming both, with `equivalentSourced: true` only when the digest entry states an equivalent.
-3. Held-out E3: a captured diagnostic whose code the digest does not carry produces `cannot-tell` with reason `code-not-in-digest`, and names no equivalent.
-4. Held-out E2: with the console read removed the module produces no finding; it never derives a construct from digest text alone.
-5. A message naming no construct produces `cannot-tell` with reason `message-names-no-construct`.
-6. Two mutants redden by name, each pinning the unmutated module first: one renders an unsourced equivalent, one drops the construct while keeping the code.
-7. The module reads no clock, no console and no DOM, and its tests assert that by construction.
+1. Held-out E1: a selected component whose `ɵcmp.standalone` is false produces a finding naming the component and stating that it is NgModule-declared, with the modern form and its source taken from the equivalents table.
+2. A component that is already standalone produces `cannot-tell` with reason `already-standalone`, and names no modern form.
+3. Held-out E3: a component whose metadata cannot be read produces `cannot-tell` with reason `metadata-unreadable`, and names neither structure nor form.
+4. Held-out E2: with the metadata read removed the module produces no finding; it never infers structure from a component's name, file path or selector.
+5. Every equivalents entry carries a URL, a verbatim quote and its retrieval time; a capture writes nothing unless `M034_EQUIV_CAPTURE=1`, and two default runs leave `git status --porcelain` unchanged.
+6. A mutant that renders a modern form no entry sources reddens by name, with the unmutated module pinned first.
+7. The module reads no clock, no console and no DOM.
 
 ## Verify
 
 ```bash
-node --experimental-strip-types --test "scripts/legacy-diagnostic.test.mjs"
+node --experimental-strip-types --test "scripts/legacy-structure.test.mjs" "scripts/legacy-equivalents-capture.test.mjs"
 ```
 
 ## Intent coverage

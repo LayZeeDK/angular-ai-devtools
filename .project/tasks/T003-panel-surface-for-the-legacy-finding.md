@@ -17,6 +17,7 @@ files:
   - apps/angular-ai-devtools/src/app/page-picker.component.spec.ts
   - scripts/panel-legacy.test.mjs
   - scripts/panel-routes.test.mjs
+  - scripts/router-diagnostic.test.mjs
   - tests/held-out/fixture-explainers-unchanged.test.mjs
 ---
 
@@ -38,7 +39,7 @@ in the demo's loader map with a sample fact. Every fact list is normalised first
 
 ## Interface contract
 
-`legacyDiagnostic(messages, digest) -> { state: "finding" | "cannot-tell", construct?, code?, equivalent?, equivalentSourced?, reason? }` — pure, no DOM.
+`legacyStructure(fact, equivalents) -> { state: "finding" | "cannot-tell", component?, structure?, modernForm?, source?, reason? }` — pure, no DOM.
 
 ## Files
 
