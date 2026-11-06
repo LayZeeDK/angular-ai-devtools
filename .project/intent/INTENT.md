@@ -80,6 +80,13 @@ to write instead.
   measured, and independently confirmed by M032 and M033 — and the digest carries no `NG81xx` entry. The measurable
   signal is the runtime `NG6100` family, and T001 records which of them actually reaches the console before any
   criterion is treated as met.
+- **Measured 2026-11-06 (T001, `research/raw/m034-legacy-diagnostic.json`): the premise is false for the one code
+  the digest carries.** `NG6100` fires in the dev server's own compiler output — `NG6100: Using 'module.id' for
+  NgModule.id is a common anti-pattern that is ignored by the Angular compiler` — and **never reaches the page
+  console**: 3 captured console messages, `withAnNgCode: 0`. The component renders and the page raises no error, so
+  nothing is left for a page-side agent to join. `packages/ai-devtools-companion/src` holds no dev-server output
+  capture either, so that stream is not an observable the agent already collects. SC1 and SC2 as written cannot be
+  satisfied by the oracle this panel has.
 
 ## Risks
 
