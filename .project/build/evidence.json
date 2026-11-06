@@ -1,7 +1,7 @@
 {
   "canonical_project_dir": ".project",
   "command": "verify-landed",
-  "head": "e9282542cc456ea0afc139e3f31778f2d4711c51",
+  "head": "71725f1cc34e14cb8b04eb053649469b0f4a714c",
   "project_dir": ".project",
   "tasks": [
     {
@@ -16,7 +16,7 @@
             "valid": true
           }
         ],
-        "head": "e9282542cc456ea0afc139e3f31778f2d4711c51",
+        "head": "71725f1cc34e14cb8b04eb053649469b0f4a714c",
         "subject": "T001: Measure which NG-coded diagnostics reach the page console"
       },
       "landed_commit": "2cb68f7824437e6427f96dcd7cd0f2726ac164ef",
@@ -40,7 +40,7 @@
             "valid": true
           }
         ],
-        "head": "e9282542cc456ea0afc139e3f31778f2d4711c51",
+        "head": "71725f1cc34e14cb8b04eb053649469b0f4a714c",
         "subject": "T002: Join a captured diagnostic to the construct it names"
       },
       "landed_commit": "9bd18c6a22b50ea22771e99b0caee69777c22dfb",
@@ -64,7 +64,7 @@
             "valid": true
           }
         ],
-        "head": "e9282542cc456ea0afc139e3f31778f2d4711c51",
+        "head": "71725f1cc34e14cb8b04eb053649469b0f4a714c",
         "subject": "T003: Render the diagnostic and its construct in the panel"
       },
       "landed_commit": "45eadafdfc7f6e929f77e2cbec8d2cce05558cea",
@@ -88,7 +88,7 @@
             "valid": true
           }
         ],
-        "head": "e9282542cc456ea0afc139e3f31778f2d4711c51",
+        "head": "71725f1cc34e14cb8b04eb053649469b0f4a714c",
         "subject": "T004: Re-record every artefact the fixture change stales"
       },
       "landed_commit": "abfbcded8ad5d31ba151c7e5c464397470a44e3c",
@@ -112,7 +112,7 @@
             "valid": true
           }
         ],
-        "head": "e9282542cc456ea0afc139e3f31778f2d4711c51",
+        "head": "71725f1cc34e14cb8b04eb053649469b0f4a714c",
         "subject": "T005: Register the lint surface in the panel demo"
       },
       "landed_commit": "519a47d4d13b42925055672ba1bcc8b003fc6054",
