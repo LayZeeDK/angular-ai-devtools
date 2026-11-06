@@ -1,0 +1,35 @@
+{
+ "milestone": "M034",
+ "claims": [
+  {
+   "criterion": "SC1",
+   "criterionText": "On the fixture, a legacy-construct diagnostic the page console reports produces a finding naming the construct and the code the message stated, and naming the modern equivalent only when the digest's own entry for that code states one.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. The intent's own Corrections record that the runtime NG6100 diagnostic fires in the dev server output and never reaches the page console, so this criterion is expected to answer \"cannot tell\" on the fixture rather than to be observed met. Quoted from .project/intent/INTENT.md for lint-legacy in the shape m032 and m033 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
+  },
+  {
+   "criterion": "SC2",
+   "criterionText": "The finding is produced from observables the agent already collects — dev-mode console messages and the `ng` hooks — with no new page-side instrumentation and no build-log scraping.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. The intent's own Corrections record that no dev-server output capture exists in packages/ai-devtools-companion/src, so the agent already collects no such observable and this criterion is expected to answer \"cannot tell\" too. Quoted from .project/intent/INTENT.md for lint-legacy in the shape m032 and m033 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
+  },
+  {
+   "criterion": "SC3",
+   "criterionText": "A diagnostic whose code the digest does not carry, or which names no construct, reports \"cannot tell\" with the reason, rather than naming a modern equivalent it cannot source.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Quoted from .project/intent/INTENT.md for lint-legacy in the shape m032 and m033 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
+  },
+  {
+   "criterion": "SC4",
+   "criterionText": "The panel renders the construct, the code and the modern equivalent from a short fact list, and shows the \"cannot tell\" state, inventing neither a construct nor an equivalent.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Quoted from .project/intent/INTENT.md for lint-legacy in the shape m032 and m033 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
+  },
+  {
+   "criterion": "SC5",
+   "criterionText": "`npm run check` and `npm test` pass at the head.",
+   "ruling": "not-required",
+   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Quoted from .project/intent/INTENT.md for lint-legacy in the shape m032 and m033 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
+  }
+ ]
+}

@@ -2,11 +2,11 @@
 id: T004
 title: Re-record everything the fixture change stales
 wave: 2
-status: in-progress
+status: done
 deps: [T003]
 agent: paid-deepseek-v4-1-flash-high
 base: 6809f471bee3aeceac263ba5b57cbb79dfe6bc04
-worktree: D:\projects\sandbox\angular-ai-devtools
+worktree: null
 task_branch: null
 files:
   - .commandcode/skills/control-angular-dev-app/features/.proven.json
@@ -69,3 +69,15 @@ node --experimental-strip-types --test "scripts/fixture-proof-fresh.test.mjs" "s
 ## Log
 
 - dispatched
+- 2026-11-06 — dispatched paid-deepseek-v4-1-flash-high (serial, primary checkout). Re-recorded both control-skill
+  manifests through `fingerprint.mjs record` (24 files each, two new fixture entries), re-measured
+  `m022-ng-context.json` with each output path cleared first (production bundles renamed, 471795 -> 472550 bytes;
+  dev 2173114 -> 2176374) and `companion-dev-build.json` from a cleared path (no pinned value moved). Recorded
+  `m034-verdict-claims.json` in the m032/m033 shape, all five criteria quoted in full (235/181/175/175/48 chars).
+  Three declared pins (`fixture-proof-fresh`, `overlay-verdict-claims`, `facade-dev-build`) were left untouched
+  because every value in them still measures identical. `ng-context-dev-build.test.mjs` changed one doc comment
+  (1,907,107 -> 2,176,374 bytes); `DEV_BYTES_TOLERANCE` stayed 2000, not widened. Gate: scripts 60/60, skills 628/628,
+  app 333/333, held-out 85/85 (22 suites), `npm run check` green with prettier clean.
+  Note: `gsd verdict-record` does not exist on this host (the global gsd shim's loader.js is missing); the claims
+  were recorded in the established shape and the provenance is stated in each row rather than claimed.
+  Verdict: ready.
