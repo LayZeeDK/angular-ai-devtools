@@ -2,11 +2,11 @@
 id: T002
 title: Join a component's structure to the modern form
 wave: 1
-status: pending
+status: in-progress
 deps: [T001]
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: 7bea51942b7fe2eedbb0d5ea52da1305c122c23f
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - extension/legacy-structure.js
