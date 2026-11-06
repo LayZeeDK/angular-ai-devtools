@@ -26,18 +26,18 @@ Reviewed HEAD: bc0f165
 
 ## Intent coverage
 
-### SC1 — On the fixture, a component the page shows as NgModule-declared produces a finding naming the component and stating that it is NgModule-declared
+### SC1 — On the fixture, a component running default change detection produces a finding naming the component, the strategy it runs under, and each readiness fact the page can supply, and naming no blocker.
 
 - ✅ Judged against the **shipped** wording at `.project/intent/INTENT.md:36`: `onPush === false` is the explicit-eager case, and it produces a finding naming the component, the strategy and each readiness fact — verified by the four-state output recorded in T002's Log and by `extension/onpush-readiness.js:65-75`.
 - ✅ The finding carries no blocker and no verdict: the emitted strings are exactly `component`, `strategy`, the fact sentences and the state literals, checked by the source scan at `scripts/onpush-readiness.test.mjs:154-161`.
 - ✅ A component the page reports as already OnPush yields `cannot-tell` with reason `already-onpush`, never a finding (`extension/onpush-readiness.js:62-64`), which is the honest answer given that Angular 22 makes OnPush the default.
 
-### SC2 — The finding is produced from observables the agent already collects
+### SC2 — The finding is produced from observables the agent already collects — component metadata through the `ng` hooks — with no new page-side instrumentation, no build-log scraping and no dev-server dependency.
 
 - ✅ The strategy is read from the component def's `onPush`, confirmed on both installed versions by T001's recording; no new instrumentation, no build log and no dev-server dependency is introduced.
 - ✅ Where the strategy cannot be read, the module answers `cannot-tell` rather than inheriting `agent-main.js`'s fail-open — the advisory below records that the legacy path itself is still unfixed.
 
-### SC3 — Where the readiness verdict would require mutation evidence the page does not carry, report cannot-tell
+### SC3 — Where a readiness verdict would require mutation evidence the page does not carry, the module reports "cannot tell" with that reason rather than naming a blocker.
 
 - ✅ `strategy-unreadable` and `component-unreadable` are the two absence states, and neither names a blocker (`extension/onpush-readiness.js:58-69`).
 - ✅ The research evidence (`evidence-domain.md`) proves by absence that no field records async-pipe use, signal subscriptions or OnPush safety, so declining the verdict is the measured outcome, not a shortcut.
