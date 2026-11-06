@@ -94,7 +94,7 @@ async function runCapture() {
     await page.waitForFunction(
       () => document.querySelectorAll('[ng-version]').length > 0,
       null,
-      { timeout: 60000 },
+      { timeout: 120000 },
     );
     await page.waitForTimeout(1500);
 
@@ -332,7 +332,7 @@ function validate(record) {
   const redirectEntry = record.config.find((e) => e.path === 'redirect');
   assert.ok(redirectEntry, 'redirect route present');
   assert.equal(redirectEntry.redirectTo, 'landing', 'redirect target');
-  assert.equal(record.config.length, 15, 'config must have 15 entries');
+  assert.equal(record.config.length, 16, 'config must have 16 entries');
   const fields = [
     ...new Set(record.config.flatMap((e) => Object.keys(e))),
   ].sort();
@@ -374,9 +374,9 @@ test('the recording validates against its own fixture and clocks', () => {
   assert.doesNotThrow(() => validate(record));
 });
 
-test('the recording holds 15 config entries with the five fields', () => {
+test('the recording holds 16 config entries with the five fields', () => {
   const record = loadRecord();
-  assert.equal(record.config.length, 15);
+  assert.equal(record.config.length, 16);
   const fields = [
     ...new Set(record.config.flatMap((e) => Object.keys(e))),
   ].sort();

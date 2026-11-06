@@ -1291,8 +1291,8 @@ Goal: Build the legacy-API explainers: why a construct is flagged as legacy and 
 Depends on: [M020]
 Programme: core · Batch: 3 · Group: cross-package
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/034-lint-legacy
 Integrated: null
 
 Scope: in

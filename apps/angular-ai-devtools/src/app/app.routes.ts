@@ -84,4 +84,13 @@ export const appRoutes: Route[] = [
       import('./panel-demo').then((m) => m.PanelDemoComponent),
     data: { surface: 'router' },
   },
+  // The M034 SC4 surface: the selected component's structure and the modern form the cited table
+  // sources for it — or the absence it can name instead. Lazy for the same reason as the surfaces
+  // above it — the panel's eager bundle is measured.
+  {
+    path: 'legacy',
+    loadComponent: () =>
+      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    data: { surface: 'legacy' },
+  },
 ];

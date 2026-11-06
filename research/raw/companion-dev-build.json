@@ -3,6 +3,15 @@
   "date": "2026-11-02",
   "app": "spikes/ng222-app",
   "angular": "22.2.2",
+  "remeasurement": {
+    "on": "2026-11-06",
+    "task": "M034 T004 — the development build was re-emitted with its output path deleted first, and the build, peer-resolution and counterexample halves below were re-read from that build.",
+    "command": "node node_modules/@angular/cli/bin/ng.js build --configuration development --output-path ../../tmp/facade-dev-build",
+    "cwd": "spikes/ng222-app",
+    "outputPathClearedFirst": "tmp/facade-dev-build was removed before the build ran; build.outputClearedFirst records that fact. The counterexample build beside it (tmp/facade-dev-build-two-copies) was cleared the same way.",
+    "outcome": "no pinned value moved: the entry, the two lazy chunks, the entry name, the dev-mode guard, the single Router binding, the one Angular banner and all four peer resolutions measured the same as before. The value that did move is the emitted byte count, which this recording does not pin: the build is 2176374 bytes, the same count research/raw/m022-ng-context.json measured for the same configuration at the same head, so the two recordings reconcile byte for byte as well as bundle for bundle.",
+    "notReMeasured": "the served half was not re-driven: this task rebuilds the bundle and does not open a browser. Its recorded readings are unchanged, and the suite checks them against this checkout's installs and against the Angular version the build carries."
+  },
   "package": {
     "name": "ai-devtools-companion",
     "version": "0.2202.0",
@@ -25,7 +34,9 @@
     "routerClassBindingName": "Router",
     "routerClassBoundOnce": true,
     "angularVersionBanners": ["22.2.2"],
-    "angularCopies": 1
+    "angularCopies": 1,
+    "bytesObserved": 2176374,
+    "bytesObservedNote": "an observation, not an assertion: the development build embeds absolute paths, so this count belongs to this checkout. It is the count of both development builds measured here, tmp/facade-dev-build and tmp/ng-context/dev, so the two output paths did not move it."
   },
   "peerResolution": {
     "installedAs": "symlink",
@@ -113,10 +124,10 @@
   },
   "reconciliation": {
     "comparedWith": "research/raw/m022-ng-context.json",
-    "developmentBundles": ["chunk-5CQ6O73V.js", "chunk-KDTDSBO7.js", "main.js"],
+    "developmentBundles": ["chunk-4GZTSCME.js", "chunk-BC3BGO77.js", "main.js"],
     "agrees": true,
     "leftoverHypothesis": "refuted",
-    "note": "A clean build (output directory deleted first) emits three development bundles, matching m022-ng-context; the earlier single-bundle recording was stale. T004's three bundles are genuine, not leftovers from a reused output directory."
+    "note": "A clean build (output directory deleted first) emits three development bundles at 2176374 bytes, matching m022-ng-context's clean build of the same configuration name for name and byte for byte; the earlier single-bundle recording was stale. This task's three bundles are genuine, not leftovers from a reused output directory."
   },
   "verdict": "works: the one entry survives the development build, and its Router is the app's own class"
 }

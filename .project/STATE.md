@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: lint-router
+milestone: lint-legacy
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M033
-archive: .project/archive/033-lint-router
+branch: gsd-path/M034
+archive: .project/archive/034-lint-legacy
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -643,5 +643,21 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-06 — plan — build recovery: {"base": "88a5abea61aac1ef4fb8f1ee4ef4765c266c5d40", "branch": "gsd-path/M033", "kind": "plan", "source": "build"}
 - 2026-11-06 — plan — plan approved
 - 2026-11-06 — build — build started
+- 2026-11-06 — ship — build done; final review pending
+- 2026-11-06 — shipped — archive preflight passed; shipment recorded
+- 2026-11-06 — inspect — router bound next milestone
+- 2026-11-06 — inspect — inspection complete
+- 2026-11-06 — define — define started
+- 2026-11-06 — define — milestone intent approved
+- 2026-11-06 — define — STATE repair: milestone named lint-legacy (was null)
+- 2026-11-06 — plan — planning started
+- 2026-11-06 — plan — plan approved
+- 2026-11-06 — build — build started
+- 2026-11-06 — build — gap found: no page-observable legacy diagnostic
+- 2026-11-06 — plan — build plan repair requested
+- 2026-11-06 — plan — build recovery: {"base": "341f27c57003ea914f9cf71be71735919279ee0b", "branch": "gsd-path/M034", "kind": "plan", "source": "build"}
+- 2026-11-06 — plan — plan approved
+- 2026-11-06 — build — build started
+- 2026-11-06 — build — build done; final review pending
 - 2026-11-06 — ship — build done; final review pending
 - 2026-11-06 — shipped — archive preflight passed; shipment recorded

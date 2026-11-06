@@ -705,6 +705,7 @@ describe('the chat route', () => {
       'fields', // M031 SC4 surface: the field set, or its absence state
       'lint', // M032 SC4 surface: the diagnostic joined to its input, or its absence state
       'router', // M033 SC4 surface: the router finding, or its absence state
+      'legacy', // M034 SC4 surface: the component's structure and the sourced modern form
     ]);
     // T003's conversion stayed the only other lazy route: five explainers are still eager.
     expect(
@@ -722,6 +723,7 @@ describe('the chat route', () => {
       'fields', // M031 SC4 surface
       'lint', // M032 SC4 surface
       'router', // M033 SC4 surface
+      'legacy', // M034 SC4 surface
     ]);
     for (const path of [
       '',
@@ -759,6 +761,7 @@ describe('the chat route', () => {
       'fields',
       'lint',
       'router',
+      'legacy',
     ]) {
       const route = appRoutes.find((candidate) => candidate.path === surface);
       if (route?.loadComponent === undefined) {
