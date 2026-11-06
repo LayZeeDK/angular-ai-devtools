@@ -1,0 +1,128 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "e9282542cc456ea0afc139e3f31778f2d4711c51",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M032",
+        "candidates": [
+          {
+            "base": "d621a3fb793c3a49979e08721f03ddc698848e9c",
+            "commit": "2cb68f7824437e6427f96dcd7cd0f2726ac164ef",
+            "valid": true
+          }
+        ],
+        "head": "e9282542cc456ea0afc139e3f31778f2d4711c51",
+        "subject": "T001: Measure which NG-coded diagnostics reach the page console"
+      },
+      "landed_commit": "2cb68f7824437e6427f96dcd7cd0f2726ac164ef",
+      "reasons": [],
+      "task": {
+        "base": "d621a3fb793c3a49979e08721f03ddc698848e9c",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-measure-what-reaches-the-console.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M032",
+        "candidates": [
+          {
+            "base": "2cb68f7824437e6427f96dcd7cd0f2726ac164ef",
+            "commit": "9bd18c6a22b50ea22771e99b0caee69777c22dfb",
+            "valid": true
+          }
+        ],
+        "head": "e9282542cc456ea0afc139e3f31778f2d4711c51",
+        "subject": "T002: Join a captured diagnostic to the construct it names"
+      },
+      "landed_commit": "9bd18c6a22b50ea22771e99b0caee69777c22dfb",
+      "reasons": [],
+      "task": {
+        "base": "2cb68f7824437e6427f96dcd7cd0f2726ac164ef",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-join-a-diagnostic-to-its-construct.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M032",
+        "candidates": [
+          {
+            "base": "9bd18c6a22b50ea22771e99b0caee69777c22dfb",
+            "commit": "45eadafdfc7f6e929f77e2cbec8d2cce05558cea",
+            "valid": true
+          }
+        ],
+        "head": "e9282542cc456ea0afc139e3f31778f2d4711c51",
+        "subject": "T003: Render the diagnostic and its construct in the panel"
+      },
+      "landed_commit": "45eadafdfc7f6e929f77e2cbec8d2cce05558cea",
+      "reasons": [],
+      "task": {
+        "base": "9bd18c6a22b50ea22771e99b0caee69777c22dfb",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-panel-surface.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M032",
+        "candidates": [
+          {
+            "base": "8e481c8f4a510088cf6795b009fe5e63b6a73075",
+            "commit": "abfbcded8ad5d31ba151c7e5c464397470a44e3c",
+            "valid": true
+          }
+        ],
+        "head": "e9282542cc456ea0afc139e3f31778f2d4711c51",
+        "subject": "T004: Re-record every artefact the fixture change stales"
+      },
+      "landed_commit": "abfbcded8ad5d31ba151c7e5c464397470a44e3c",
+      "reasons": [],
+      "task": {
+        "base": "8e481c8f4a510088cf6795b009fe5e63b6a73075",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-re-record-what-the-page-stales.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M032",
+        "candidates": [
+          {
+            "base": "4d76887d82f13896a353e800be320cd73bede892",
+            "commit": "519a47d4d13b42925055672ba1bcc8b003fc6054",
+            "valid": true
+          }
+        ],
+        "head": "e9282542cc456ea0afc139e3f31778f2d4711c51",
+        "subject": "T005: Register the lint surface in the panel demo"
+      },
+      "landed_commit": "519a47d4d13b42925055672ba1bcc8b003fc6054",
+      "reasons": [],
+      "task": {
+        "base": "4d76887d82f13896a353e800be320cd73bede892",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-register-the-lint-surface.md"
+      }
+    }
+  ]
+}
