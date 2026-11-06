@@ -2,12 +2,12 @@
 id: T004
 title: Re-record everything the fixture change stales
 wave: 2
-status: pending
+status: done
 deps:
   - T001
   - T003
-agent: null
-base: null
+agent: free-beam-high
+base: 7f59a75c165fee56435692bd2feca246b4cc3042
 worktree: null
 task_branch: null
 files:
