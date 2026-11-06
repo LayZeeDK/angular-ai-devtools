@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: lint-legacy
-phase: build
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: active
 branch: gsd-path/M034
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -654,3 +654,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-06 — plan — plan approved
 - 2026-11-06 — build — build started
 - 2026-11-06 — build — gap found: no page-observable legacy diagnostic
+- 2026-11-06 — plan — build plan repair requested
+- 2026-11-06 — plan — build recovery: {"base": "341f27c57003ea914f9cf71be71735919279ee0b", "branch": "gsd-path/M034", "kind": "plan", "source": "build"}
