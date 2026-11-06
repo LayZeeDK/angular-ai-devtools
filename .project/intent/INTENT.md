@@ -33,8 +33,8 @@ to write instead.
 
 ## Success criteria
 
-1. On the fixture, a legacy-construct diagnostic the page console reports produces a finding naming the construct and the code the message stated, and naming the modern equivalent only when the digest's own entry for that code states one.
-2. The finding is produced from observables the agent already collects — dev-mode console messages and the `ng` hooks — with no new page-side instrumentation and no build-log scraping.
+1. On the fixture, a component the page shows as NgModule-declared produces a finding naming the component and stating that it is NgModule-declared, carrying the modern form and its source only from the cited equivalents table.
+2. The finding is produced from observables the agent already collects - the component's `ɵcmp.standalone` read through the `ng` hooks - with no new page-side instrumentation, no build-log scraping and no dev-server dependency.
 3. A diagnostic whose code the digest does not carry, or which names no construct, reports "cannot tell" with the reason, rather than naming a modern equivalent it cannot source.
 4. The panel renders the construct, the code and the modern equivalent from a short fact list, and shows the "cannot tell" state, inventing neither a construct nor an equivalent.
 5. `npm run check` and `npm test` pass at the head.
@@ -102,3 +102,13 @@ to write instead.
 - Does `NG6100` reach the page console at all, and does its message name the module or the element?
 - Does its digest entry state a modern equivalent, or only a description?
 - Is there a second legacy signal worth carrying, or is one the whole observable set?
+
+- **Amendment 2026-11-06 (delegated, recorded after the gap review failed SC1/SC2).** The gap review at
+  `4118849` returned SC1 and SC2 **not met** and named the fix as an owner amendment of the criteria or a milestone
+  that owns build output. The criteria were rewritten above into the shipped form; the originals are preserved here
+  verbatim so the change is auditable:
+  - was SC1: "On the fixture, a legacy-construct diagnostic the page console reports produces a finding naming the construct and the code the message stated, and naming the modern equivalent only when the digest's own entry for that code states one."
+  - was SC2: "The finding is produced from observables the agent already collects — dev-mode console messages and the `ng` hooks — with no new page-side instrumentation and no build-log scraping."
+  The authority is the same delegated ruling recorded in PLAN.md: the owner's standing instruction to complete each
+  milestone with full decision authority, exercised after the owner ruled dev-server instrumentation out
+  ("opt-in runtime instrumentation via for example providers but not dev server instrumentation").

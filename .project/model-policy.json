@@ -1,63 +1,27 @@
 {
   "roles": {
-    "inspect_codebase": {
-      "effort": "high",
-      "model": "free-glyph-cluster-medium"
-    },
-    "inspect_docs": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    },
-    "docs_audit": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    },
-    "plan": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    },
-    "plan_patch": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    },
-    "decide": {
-      "model": "stealth/glyph-cluster:free",
-      "effort": "medium"
-    },
-    "research": {
-      "model": "stealth/glyph-cluster:free",
-      "effort": "medium"
-    },
-    "coder": {
-      "effort": "high",
-      "model": "free-crouton-alpha-medium"
-    },
-    "reviewer": {
-      "effort": "high",
-      "model": "free-glyph-cluster-medium"
-    },
-    "review_panel": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    },
-    "skeptic": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    },
-    "roadmap": {
-      "effort": "medium",
-      "model": "stealth/glyph-cluster:free"
-    },
-    "vision": {
-      "model": "stealth/crouton-alpha",
-      "effort": "medium"
-    },
-    "long_form": {
-      "model": "stealth/crouton-alpha",
-      "effort": "medium"
-    }
+    "coder": { "model": "paid-deepseek-v4-1-flash-high", "effort": "high" },
+    "reviewer_panel_beam": { "model": "free-beam-high", "effort": "high" },
+    "reviewer_panel_glyph": { "model": "free-glyph-cluster-medium", "effort": "medium" },
+    "reviewer_panel_glm": { "model": "paid-glm-5-3-flash-high", "effort": "high" },
+    "gap_review": { "model": "paid-glm-5-3-flash-high", "effort": "high" },
+    "inspect_codebase": { "model": "free-glyph-cluster-medium", "effort": "medium" },
+    "inspect_docs": { "model": "free-glyph-cluster-medium", "effort": "medium" },
+    "docs_audit": { "model": "free-glyph-cluster-medium", "effort": "medium" },
+    "plan": { "model": "paid-deepseek-v4-1-flash-high", "effort": "high" },
+    "plan_patch": { "model": "paid-deepseek-v4-1-flash-high", "effort": "high" },
+    "decide": { "model": "paid-deepseek-v4-1-flash-high", "effort": "high" },
+    "research": { "model": "free-glyph-cluster-medium", "effort": "medium" },
+    "mechanical_repair": { "model": "paid-deepseek-v4-1-flash-low", "effort": "low" },
+    "roadmap": { "model": "paid-deepseek-v4-1-flash-high", "effort": "high" },
+    "vision": { "model": "free-crouton-alpha-medium", "effort": "medium" },
+    "long_form": { "model": "paid-deepseek-v4-1-flash-high", "effort": "high" }
   },
   "notes": {
-    "beam_reserved_for_taste": "Owner instruction 2026-11-04: remaining Beam requests go to taste learning; no GSD Path dispatch may use it."
+    "superseded": "Owner 2026-11-06: reviews run as a three-member panel and tasks may run in rounds. Routing, panel composition and the isolation preconditions are recorded in ~/.commandcode/references/gsd-path-quota-plan.md.",
+    "crouton": "stealth/crouton-alpha is geo-blocked from this account (403 in about 600 ms, zero tokens). It appears only for image work and only with a finishing proof; if it fails, move to paid-deepseek-v4-1-flash-high.",
+    "quota_event": "A 429, a capacity message, or a zero-token run is a quota event, not a task failure: move down the rung and do not count it as one of the three failed attempts.",
+    "panel_cap": "Never more than 4 concurrent dispatches; refill a slot when one completes.",
+    "beam_reserved_for_taste": "Superseded by the 2026-11-06 instruction: Beam is a panel member and may be dispatched while quota lasts."
   }
 }
