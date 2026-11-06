@@ -84,6 +84,25 @@ Review depth: full
   passes and its row is recorded.
 - Verify: `node --experimental-strip-types --test "scripts/recording-consistency.test.mjs" && npx nx run angular-ai-devtools:test --skip-nx-cache && npm run check`
 
+## Wave 4 — make the gate measure instead of remember
+
+Goal: the initial record stops asserting a strategy nobody read, the field's type admits the wire, the consistency test
+states its real scope, and `npm test` executes the app suite every time instead of replaying it.
+
+Review depth: full
+
+### T006 — Make the gate measure instead of remember
+
+- Deps: none
+- Files: `extension/agent-main.js`, `extension/agent-main.test.mjs`,
+  `apps/angular-ai-devtools/src/app/update-cause-chain.ts`,
+  `apps/angular-ai-devtools/src/app/update-cause-chain.spec.ts`,
+  `scripts/recording-consistency.test.mjs`, `nx.json`
+- Acceptance: the initial record carries `changeDetection: null` and restoring `'onpush'` reddens a named test; the field
+  type admits `null`; the consistency header states what it does not check; two consecutive `npm test` runs report the same
+  pass blocks without clearing anything, so the held-out E3 suite passes twice.
+- Verify: `node --experimental-strip-types --test "extension/agent-main.test.mjs" && npx nx run angular-ai-devtools:test --skip-nx-cache && npm run check`
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -105,6 +124,8 @@ Review depth: full
 | SC5 | T004 | AC4 |
 | SC1 | T005 | AC1 |
 | SC5 | T005 | AC4 |
+| SC1 | T006 | AC1 |
+| SC5 | T006 | AC4 |
 
 ## Prohibitions
 
