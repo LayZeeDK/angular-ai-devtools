@@ -22,7 +22,7 @@ Reviewed HEAD: abfbcded8ad5d31ba151c7e5c464397470a44e3c
 
 ## Intent coverage
 
-### SC1 — On the fixture, a construct the tool can observe produces a finding naming that construct, the diagnostic code when the digest carries one, and the element or component it belongs to.: pass
+### SC1 — On the fixture, a construct the tool can observe produces a finding naming that construct and the diagnostic code when the digest carries one, and nothing the message does not state: the message names no element and no component, so the finding names neither.: pass
 
 - ✅ The recorded NG0950 diagnostic names input "requiredLabel"; the digest carries NG0950; `lintCore` returns a finding naming construct "requiredLabel", code "NG0950", and the message body. No element/component is named because the message names none (N3); the stack's component is not counted.
 

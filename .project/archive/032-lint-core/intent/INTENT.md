@@ -31,8 +31,9 @@ needs to know which element, component or binding carries it, and what to change
 
 ## Success criteria
 
-1. On the fixture, a construct the tool can observe produces a finding naming that construct, the
-   diagnostic code when the digest carries one, and the element or component it belongs to.
+1. On the fixture, a construct the tool can observe produces a finding naming that construct and
+   the diagnostic code when the digest carries one, and nothing the message does not state: the
+   message names no element and no component, so the finding names neither.
 2. The finding is produced from observables the agent already collects — dev-mode console
    messages, `window.ng` reads and the app facts — with no new page-side instrumentation and no
    build-log scraping.
@@ -81,6 +82,13 @@ manufacture a subject; naming a cause the diagnostic does not state; code genera
 - **No extended diagnostics are enabled in this repository.** A milestone that needs a
   diagnostic to exist must not switch `extendedDiagnostics` on to manufacture one; that would
   make the subject a fixture artefact rather than an observable the tool meets in the field.
+- **SC1 promised the element or component, and the message carries neither.** T001 measured the
+  observable diagnostic: `NG0950` reports `Input "requiredLabel" is required but no value is
+  available yet` — the input property, no element, no component. The only place a component name
+  appears is the stack frame, which is a fact about where the throw happened, not about the
+  construct. SC1 is therefore narrowed to the construct and the code, and the finding drops the
+  stack rather than carrying it, so a surface rendering the finding cannot name a component the
+  message never named.
 
 ## Risks
 

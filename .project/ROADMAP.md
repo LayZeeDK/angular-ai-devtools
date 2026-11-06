@@ -1231,8 +1231,8 @@ Goal: Build the core lint explainers: why the compiler reported this template, l
 Depends on: [M020]
 Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/032-lint-core
 Integrated: null
 
 Scope: in
