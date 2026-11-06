@@ -2,11 +2,11 @@
 id: T006
 title: Make the gate measure instead of remember
 wave: 4
-status: pending
+status: in-progress
 deps: []
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: 88433d23ed91614c41dd2d19ba1c8e237df796ff
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - extension/agent-main.js
