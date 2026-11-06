@@ -31,7 +31,10 @@ function host(value) {
 }
 
 function mutant(anchor, replacement) {
-  assert.ok(SRC.includes(anchor), `mutation anchor not found: ${JSON.stringify(anchor)}`);
+  assert.ok(
+    SRC.includes(anchor),
+    `mutation anchor not found: ${JSON.stringify(anchor)}`,
+  );
   const mutated = SRC.replace(anchor, replacement);
   assert.notEqual(mutated, SRC, 'the mutation must change the module');
   return loadBare(mutated);
@@ -87,7 +90,8 @@ describe('E1 finding', () => {
 describe('E3 segment matches config', () => {
   it('cannot-tell segment-matches-configuration', () => {
     const { api } = loadBare();
-    const text = "ERROR RuntimeError: NG04002: Cannot match any routes. URL Segment: 'router-lint'";
+    const text =
+      "ERROR RuntimeError: NG04002: Cannot match any routes. URL Segment: 'router-lint'";
     const r = host(api.routerDiagnostic([{ code: 'NG04002', text }], FACTS));
     assert.equal(r.state, 'cannot-tell');
     assert.equal(r.reason, 'segment-matches-configuration');
@@ -98,7 +102,12 @@ describe('E3 segment matches config', () => {
 describe('no url segment', () => {
   it('cannot-tell no-url-segment', () => {
     const { api } = loadBare();
-    const r = host(api.routerDiagnostic([{ code: 'NG04002', text: 'ERROR RuntimeError: NG04002: something' }], FACTS));
+    const r = host(
+      api.routerDiagnostic(
+        [{ code: 'NG04002', text: 'ERROR RuntimeError: NG04002: something' }],
+        FACTS,
+      ),
+    );
     assert.equal(r.state, 'cannot-tell');
     assert.equal(r.reason, 'no-url-segment');
   });
@@ -129,16 +138,27 @@ describe('AC7a nearest route', () => {
     const { api } = loadBare();
     const r = host(api.routerDiagnostic(capturedMessages(), FACTS));
     assert.equal(r.state, 'finding');
-    assert.ok(!('route' in r), 'finding must not name a configured route as the owner');
+    assert.ok(
+      !('route' in r),
+      'finding must not name a configured route as the owner',
+    );
 
     // mutate so the finding names the nearest configured path as the owner
-    const anchor = "answers.push(finding(segment, code, body, consideredCount));";
-    const replacement = "answers.push(Object.assign({}, finding(segment, code, body, consideredCount), { route: paths[0] }));";
+    const anchor =
+      'answers.push(finding(segment, code, body, consideredCount));';
+    const replacement =
+      'answers.push(Object.assign({}, finding(segment, code, body, consideredCount), { route: paths[0] }));';
     const { api: mApi } = mutant(anchor, replacement);
     const mr = host(mApi.routerDiagnostic(capturedMessages(), FACTS));
-    assert.ok(mr !== null && typeof mr === 'object', 'mutated result must be an object');
+    assert.ok(
+      mr !== null && typeof mr === 'object',
+      'mutated result must be an object',
+    );
     assert.throws(() => {
-      assert.ok(!('route' in mr), 'finding must not name a configured route as the owner');
+      assert.ok(
+        !('route' in mr),
+        'finding must not name a configured route as the owner',
+      );
     }, /owner route|route as the owner/);
   });
 });
@@ -152,11 +172,14 @@ describe('AC7b code omitted', () => {
     assert.equal(r.code, CODE, 'finding must carry code NG04002');
 
     // mutate so the code is dropped
-    const anchor = "const code = codeOf(body, message);";
-    const replacement = "const code = null;";
+    const anchor = 'const code = codeOf(body, message);';
+    const replacement = 'const code = null;';
     const { api: mApi } = mutant(anchor, replacement);
     const mr = host(mApi.routerDiagnostic(capturedMessages(), FACTS));
-    assert.ok(mr !== null && typeof mr === 'object', 'mutated result must be an object');
+    assert.ok(
+      mr !== null && typeof mr === 'object',
+      'mutated result must be an object',
+    );
     assert.throws(() => {
       assert.equal(mr.code, CODE, 'finding must carry code NG04002');
     }, /NG04002/);

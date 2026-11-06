@@ -98,7 +98,11 @@ function namesConfiguredRoutePath(text, configPaths) {
   if (tokens.some((t) => set.has(t))) return true;
   // also direct path equality without quotes
   return configPaths.some(
-    (p) => p !== '' && new RegExp(`\\b${p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(text),
+    (p) =>
+      p !== '' &&
+      new RegExp(`\\b${p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(
+        text,
+      ),
   );
 }
 
@@ -128,7 +132,10 @@ async function runCapture() {
   }
   const playwrightVersion = requireApp('playwright/package.json').version;
   const angularVersion = JSON.parse(
-    readFileSync(join(APP, 'node_modules', '@angular', 'core', 'package.json'), 'utf8'),
+    readFileSync(
+      join(APP, 'node_modules', '@angular', 'core', 'package.json'),
+      'utf8',
+    ),
   ).version;
   const tsconfig = readTsconfig();
 
@@ -138,7 +145,14 @@ async function runCapture() {
 
   const server = spawn(
     process.execPath,
-    [join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'), 'serve', '--port', String(port), '--host', '127.0.0.1'],
+    [
+      join(APP, 'node_modules', '@angular', 'cli', 'bin', 'ng.js'),
+      'serve',
+      '--port',
+      String(port),
+      '--host',
+      '127.0.0.1',
+    ],
     { cwd: APP, stdio: ['ignore', 'pipe', 'pipe'] },
   );
   const serverPid = server.pid;
@@ -161,7 +175,11 @@ async function runCapture() {
 
     const raw = [];
     page.on('console', (message) => {
-      raw.push({ type: message.type(), text: message.text(), location: message.location() });
+      raw.push({
+        type: message.type(),
+        text: message.text(),
+        location: message.location(),
+      });
     });
     const pageErrors = [];
     page.on('pageerror', (error) => {
@@ -189,14 +207,19 @@ async function runCapture() {
           return false;
         }
       });
-      const routedEl = hosts.length ? hosts[hosts.length - 1] : document.querySelector('[ng-version]');
+      const routedEl = hosts.length
+        ? hosts[hosts.length - 1]
+        : document.querySelector('[ng-version]');
       let injectorResolved = false;
       let injectorError = null;
       let routerInstance = null;
       try {
         const inj = ng.getInjector(routedEl);
         injectorResolved = true;
-        routerInstance = typeof ng.ɵgetRouterInstance === 'function' ? ng.ɵgetRouterInstance(inj) : null;
+        routerInstance =
+          typeof ng.ɵgetRouterInstance === 'function'
+            ? ng.ɵgetRouterInstance(inj)
+            : null;
       } catch (e) {
         injectorError = String(e);
       }
@@ -205,7 +228,10 @@ async function runCapture() {
           const rootEl = document.querySelector('[ng-version]');
           const inj = ng.getInjector(rootEl);
           if (!injectorResolved) injectorResolved = true;
-          routerInstance = typeof ng.ɵgetRouterInstance === 'function' ? ng.ɵgetRouterInstance(inj) : null;
+          routerInstance =
+            typeof ng.ɵgetRouterInstance === 'function'
+              ? ng.ɵgetRouterInstance(inj)
+              : null;
         } catch (e) {
           if (!injectorError) injectorError = String(e);
         }
@@ -216,7 +242,8 @@ async function runCapture() {
               const out = {};
               for (const k of Object.keys(entry ?? {})) {
                 const v = entry[k];
-                if (typeof v === 'function') out[k] = `[fn ${v.name || 'anonymous'}]`;
+                if (typeof v === 'function')
+                  out[k] = `[fn ${v.name || 'anonymous'}]`;
                 else if (Array.isArray(v))
                   out[k] = v.map((x) =>
                     typeof x === 'function'
@@ -225,17 +252,22 @@ async function runCapture() {
                         ? x.name || x.constructor?.name || String(x)
                         : x,
                   );
-                else if (v && typeof v === 'object') out[k] = v.name || v.constructor?.name || String(v);
+                else if (v && typeof v === 'object')
+                  out[k] = v.name || v.constructor?.name || String(v);
                 else out[k] = v;
               }
               return out;
             })
           : null;
-      const fieldsPresent = config ? [...new Set(config.flatMap((e) => Object.keys(e)))] : [];
+      const fieldsPresent = config
+        ? [...new Set(config.flatMap((e) => Object.keys(e)))]
+        : [];
       return {
         ngVersion:
-          document.querySelector('[ng-version]')?.getAttribute('ng-version') ?? null,
-        headingText: document.querySelector('#router-lint-heading')?.textContent ?? null,
+          document.querySelector('[ng-version]')?.getAttribute('ng-version') ??
+          null,
+        headingText:
+          document.querySelector('#router-lint-heading')?.textContent ?? null,
         injectorResolvedOnRoutedElement: injectorResolved,
         injectorError,
         routedElementTag: routedEl ? routedEl.tagName.toLowerCase() : null,
@@ -257,7 +289,9 @@ async function runCapture() {
       text: m.text,
       location: m.location,
     }));
-    const configPaths = (domAndConfig.config ?? []).map((e) => e.path).filter((p) => typeof p === 'string');
+    const configPaths = (domAndConfig.config ?? [])
+      .map((e) => e.path)
+      .filter((p) => typeof p === 'string');
     const ngCodedMessages = messages
       .filter((m) => m.code !== null)
       .map((m) => ({
@@ -271,10 +305,13 @@ async function runCapture() {
       }));
 
     for (const m of ngCodedMessages) {
-      if (!m.text.includes(m.code)) throw new Error(`message ${m.order} carries ${m.code} not in text`);
+      if (!m.text.includes(m.code))
+        throw new Error(`message ${m.order} carries ${m.code} not in text`);
     }
 
-    const codesOnTheConsole = [...new Set(ngCodedMessages.map((m) => m.code))].sort();
+    const codesOnTheConsole = [
+      ...new Set(ngCodedMessages.map((m) => m.code)),
+    ].sort();
 
     return {
       capturedAt: new Date().toISOString(),
@@ -307,7 +344,8 @@ async function runCapture() {
         whyItReachesTheConsole:
           'the router cannot match the requested URL and reports NG04002 to the page console',
         compilerOptionsChanged: [],
-        angularCompilerOptions: tsconfig.angularCompilerOptions ?? 'none declared',
+        angularCompilerOptions:
+          tsconfig.angularCompilerOptions ?? 'none declared',
         angularCompilerOptionsSource:
           'spikes/ng222-app/tsconfig.json (tsconfig.app.json extends it and adds none)',
         expectedCodes: codesOnTheConsole,
@@ -329,13 +367,16 @@ async function runCapture() {
       digest: {
         path: 'extension/error-digest.json',
         entryCount: new Set(
-          (JSON.parse(readFileSync(DIGEST_PATH, 'utf8')).entries ?? []).map((e) => e.code),
+          (JSON.parse(readFileSync(DIGEST_PATH, 'utf8')).entries ?? []).map(
+            (e) => e.code,
+          ),
         ).size,
         codesOnTheConsole,
         codesNotCarried: codesOnTheConsole.filter((code) => !codes.has(code)),
       },
       // router configuration read at the same instant
-      injectorResolvedOnRoutedElement: domAndConfig.injectorResolvedOnRoutedElement,
+      injectorResolvedOnRoutedElement:
+        domAndConfig.injectorResolvedOnRoutedElement,
       injectorError: domAndConfig.injectorError,
       routedElementTag: domAndConfig.routedElementTag,
       routerUrl: domAndConfig.routerUrl,
@@ -357,9 +398,12 @@ async function waitForServer(server, origin, output) {
     exit = { code, signal };
   });
   while (Date.now() - started < 240000) {
-    if (exit) throw new Error(`server exited: ${JSON.stringify(exit)}\n${output()}`);
+    if (exit)
+      throw new Error(`server exited: ${JSON.stringify(exit)}\n${output()}`);
     try {
-      const res = await fetch(`${origin}/`, { signal: AbortSignal.timeout(2000) });
+      const res = await fetch(`${origin}/`, {
+        signal: AbortSignal.timeout(2000),
+      });
       if (res.ok) return;
     } catch {}
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -369,8 +413,12 @@ async function waitForServer(server, origin, output) {
 
 async function killProcessTree(pid) {
   if (process.platform === 'win32') {
-    const killer = spawn('taskkill', ['/PID', String(pid), '/T', '/F'], { stdio: 'ignore' });
-    await new Promise((resolve) => killer.on('exit', resolve).on('error', resolve));
+    const killer = spawn('taskkill', ['/PID', String(pid), '/T', '/F'], {
+      stdio: 'ignore',
+    });
+    await new Promise((resolve) =>
+      killer.on('exit', resolve).on('error', resolve),
+    );
   } else {
     try {
       process.kill(-pid, 'SIGTERM');
@@ -438,17 +486,42 @@ function fail(message) {
 
 function validate(record) {
   // provenance
-  checkStrings(record, ['browser', 'browserBuild', 'instance', 'playwright', 'angularVersion', 'url', 'pageUrl', 'capturedAt'], 'the recording');
+  checkStrings(
+    record,
+    [
+      'browser',
+      'browserBuild',
+      'instance',
+      'playwright',
+      'angularVersion',
+      'url',
+      'pageUrl',
+      'capturedAt',
+    ],
+    'the recording',
+  );
   if (record.instance !== 'headless') fail(`instance is ${record.instance}`);
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(record.capturedAt)) fail('bad capturedAt');
-  if (!/^\d+\.\d+\.\d+\.\d+$/.test(record.browserBuild)) fail('bad browserBuild');
-  if (!record.browser.includes(record.browserBuild)) fail('browser missing build');
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(record.capturedAt))
+    fail('bad capturedAt');
+  if (!/^\d+\.\d+\.\d+\.\d+$/.test(record.browserBuild))
+    fail('bad browserBuild');
+  if (!record.browser.includes(record.browserBuild))
+    fail('browser missing build');
   if (record.url !== record.pageUrl) fail('url/pageUrl disagree');
   if (!record.url.endsWith(ROUTE_PATH)) fail(`url not route: ${record.url}`);
-  checkStrings(record.commands, ['install', 'installApp', 'serve', 'capture', 'check'], 'commands');
+  checkStrings(
+    record.commands,
+    ['install', 'installApp', 'serve', 'capture', 'check'],
+    'commands',
+  );
   if (!record.commands.serve.includes('ng.js serve')) fail('serve command');
-  if (!record.commands.capture.includes('M033_CAPTURE=1')) fail('capture command flag');
-  checkStrings(record.environment, ['platform', 'shell', 'node'], 'environment');
+  if (!record.commands.capture.includes('M033_CAPTURE=1'))
+    fail('capture command flag');
+  checkStrings(
+    record.environment,
+    ['platform', 'shell', 'node'],
+    'environment',
+  );
 
   // messages
   if (!Array.isArray(record.messages)) fail('missing messages');
@@ -462,23 +535,37 @@ function validate(record) {
     if (m.code !== code) fail(`code mismatch ${index}`);
   });
   const derived = record.messages.filter((m) => m.code !== null);
-  if (derived.length !== record.ngCodedMessages.length) fail('ngCoded count mismatch');
-  const configPaths = (record.config ?? []).map((e) => e.path).filter((p) => typeof p === 'string');
+  if (derived.length !== record.ngCodedMessages.length)
+    fail('ngCoded count mismatch');
+  const configPaths = (record.config ?? [])
+    .map((e) => e.path)
+    .filter((p) => typeof p === 'string');
   record.ngCodedMessages.forEach((m, index) => {
     const same = derived[index];
     if (!same || m.order !== same.order) fail(`ngcoded ${index} order`);
-    if (m.text !== same.text || m.code !== same.code) fail(`ngcoded ${index} disagree`);
+    if (m.text !== same.text || m.code !== same.code)
+      fail(`ngcoded ${index} disagree`);
     if (!NG_CODE.test(m.code)) fail(`ngcoded ${index} not code`);
     if (!m.text.includes(m.code)) fail(`ngcoded ${index} code not in text`);
-    if (typeof m.digestCarriesCode !== 'boolean') fail(`ngcoded ${index} digestCarriesCode`);
+    if (typeof m.digestCarriesCode !== 'boolean')
+      fail(`ngcoded ${index} digestCarriesCode`);
     const codes = digestCodes();
-    if (m.digestCarriesCode !== codes.has(m.code)) fail(`digest carries ${m.code}`);
-    if (typeof m.namesConfiguredRoutePath !== 'boolean') fail(`ngcoded ${index} namesConfiguredRoutePath`);
+    if (m.digestCarriesCode !== codes.has(m.code))
+      fail(`digest carries ${m.code}`);
+    if (typeof m.namesConfiguredRoutePath !== 'boolean')
+      fail(`ngcoded ${index} namesConfiguredRoutePath`);
     const observed = namesConfiguredRoutePath(m.text, configPaths);
-    if (m.namesConfiguredRoutePath !== observed) fail(`namesConfiguredRoutePath ${m.order} stated ${m.namesConfiguredRoutePath} but text gives ${observed}`);
+    if (m.namesConfiguredRoutePath !== observed)
+      fail(
+        `namesConfiguredRoutePath ${m.order} stated ${m.namesConfiguredRoutePath} but text gives ${observed}`,
+      );
   });
   if (!isObject(record.console)) fail('missing console');
-  const summary = { total: record.messages.length, withAnNgCode: derived.length, withoutAnNgCode: record.messages.length - derived.length };
+  const summary = {
+    total: record.messages.length,
+    withAnNgCode: derived.length,
+    withoutAnNgCode: record.messages.length - derived.length,
+  };
   for (const [k, v] of Object.entries(summary)) {
     if (record.console[k] !== v) fail(`console ${k}`);
   }
@@ -486,13 +573,33 @@ function validate(record) {
   // fixture
   const fixture = record.fixture;
   if (!isObject(fixture)) fail('missing fixture');
-  checkStrings(fixture, ['route', 'routeTable', 'page', 'component', 'construct', 'angularCompilerOptionsSource'], 'fixture');
+  checkStrings(
+    fixture,
+    [
+      'route',
+      'routeTable',
+      'page',
+      'component',
+      'construct',
+      'angularCompilerOptionsSource',
+    ],
+    'fixture',
+  );
   if (fixture.route !== ROUTE_PATH) fail('route');
-  if (!Array.isArray(fixture.expectedCodes) || fixture.expectedCodes.length === 0) fail('expectedCodes empty');
-  const recorded = [...new Set(record.ngCodedMessages.map((m) => m.code))].sort();
-  if (recorded.join(',') !== [...fixture.expectedCodes].sort().join(',')) fail('expectedCodes mismatch');
-  if (!Array.isArray(fixture.compilerOptionsChanged)) fail('compilerOptionsChanged');
-  if (fixture.compilerOptionsChanged.length !== 0) fail('compiler options changed');
+  if (
+    !Array.isArray(fixture.expectedCodes) ||
+    fixture.expectedCodes.length === 0
+  )
+    fail('expectedCodes empty');
+  const recorded = [
+    ...new Set(record.ngCodedMessages.map((m) => m.code)),
+  ].sort();
+  if (recorded.join(',') !== [...fixture.expectedCodes].sort().join(','))
+    fail('expectedCodes mismatch');
+  if (!Array.isArray(fixture.compilerOptionsChanged))
+    fail('compilerOptionsChanged');
+  if (fixture.compilerOptionsChanged.length !== 0)
+    fail('compiler options changed');
   if (!isObject(fixture.angularCompilerOptions)) fail('angularCompilerOptions');
   for (const flag of ['strictTemplates', 'extendedDiagnostics']) {
     if (fixture.angularCompilerOptions[flag] === true) fail(`${flag} on`);
@@ -508,20 +615,32 @@ function validate(record) {
   // digest
   if (!isObject(record.digest)) fail('missing digest');
   if (record.digest.path !== 'extension/error-digest.json') fail('digest path');
-  const onTheConsole = [...new Set(record.ngCodedMessages.map((m) => m.code))].sort();
-  if (record.digest.codesOnTheConsole.join(',') !== onTheConsole.join(',')) fail('digest codesOnTheConsole');
+  const onTheConsole = [
+    ...new Set(record.ngCodedMessages.map((m) => m.code)),
+  ].sort();
+  if (record.digest.codesOnTheConsole.join(',') !== onTheConsole.join(','))
+    fail('digest codesOnTheConsole');
   const notCarried = onTheConsole.filter((code) => !digestCodes().has(code));
-  if (record.digest.codesNotCarried.join(',') !== notCarried.join(',')) fail('digest codesNotCarried');
+  if (record.digest.codesNotCarried.join(',') !== notCarried.join(','))
+    fail('digest codesNotCarried');
 
   // config
   if (!record.injectorResolvedOnRoutedElement) fail('injector not resolved');
   if (!Array.isArray(record.config)) fail('config not array');
-  if (record.config.length !== 15) fail(`config length ${record.config.length}`);
-  const fields = [...new Set(record.config.flatMap((e) => Object.keys(e)))].sort();
+  if (record.config.length !== 15)
+    fail(`config length ${record.config.length}`);
+  const fields = [
+    ...new Set(record.config.flatMap((e) => Object.keys(e))),
+  ].sort();
   if (JSON.stringify(fields) !== JSON.stringify(FIVE_FIELDS)) fail('fields');
-  if (JSON.stringify([...record.fieldsPresent].sort()) !== JSON.stringify(FIVE_FIELDS)) fail('fieldsPresent');
+  if (
+    JSON.stringify([...record.fieldsPresent].sort()) !==
+    JSON.stringify(FIVE_FIELDS)
+  )
+    fail('fieldsPresent');
   const redirectEntry = record.config.find((e) => e.path === 'redirect');
-  if (!redirectEntry || redirectEntry.redirectTo !== 'landing') fail('redirect entry');
+  if (!redirectEntry || redirectEntry.redirectTo !== 'landing')
+    fail('redirect entry');
   const loopA = record.config.find((e) => e.path === 'loop-a');
   const loopB = record.config.find((e) => e.path === 'loop-b');
   if (!loopA || loopA.redirectTo !== 'loop-b') fail('loop-a');
@@ -577,7 +696,10 @@ test('PRECONDITION: app.routes.ts registers the fixture page', () => {
   const routes = readFileSync(ROUTES_PATH, 'utf8');
   assert.ok(existsSync(PAGE_PATH), 'the fixture page is missing');
   assert.match(routes, /RouterLintPage/);
-  assert.ok(routes.includes(`path: 'router-lint'`), 'the router-lint route is not in the route table');
+  assert.ok(
+    routes.includes(`path: 'router-lint'`),
+    'the router-lint route is not in the route table',
+  );
 });
 
 test('PRECONDITION: the fixture changes no compiler option', () => {
@@ -603,7 +725,10 @@ test('held-out: a recording with the captured messages removed reddens', () => {
   mutant.digest.codesOnTheConsole = [];
   mutant.digest.codesNotCarried = [];
   mutant.fixture.expectedCodes = base.fixture.expectedCodes;
-  assert.throws(() => validate(mutant), /expectedCodes mismatch|claims no code|not a recording/);
+  assert.throws(
+    () => validate(mutant),
+    /expectedCodes mismatch|claims no code|not a recording/,
+  );
 });
 
 test('held-out: a message whose text lost its code reddens', () => {
@@ -611,7 +736,10 @@ test('held-out: a message whose text lost its code reddens', () => {
   const message = mutant.ngCodedMessages[0];
   message.text = message.text.replace(/NG\d{4,5}/g, 'NG0000');
   message.code = 'NG0000';
-  assert.throws(() => validate(mutant), /disagree|code mismatch|code not in text/);
+  assert.throws(
+    () => validate(mutant),
+    /disagree|code mismatch|code not in text/,
+  );
 });
 
 test('held-out: a code the message text does not carry reddens', () => {
@@ -623,13 +751,15 @@ test('held-out: a code the message text does not carry reddens', () => {
 
 test('held-out: a message claiming digest coverage it does not have reddens', () => {
   const mutant = clone(loadRecord());
-  mutant.ngCodedMessages[0].digestCarriesCode = !mutant.ngCodedMessages[0].digestCarriesCode;
+  mutant.ngCodedMessages[0].digestCarriesCode =
+    !mutant.ngCodedMessages[0].digestCarriesCode;
   assert.throws(() => validate(mutant), /digest carries/);
 });
 
 test('held-out: a message with a wrong namesConfiguredRoutePath reddens', () => {
   const mutant = clone(loadRecord());
-  mutant.ngCodedMessages[0].namesConfiguredRoutePath = !mutant.ngCodedMessages[0].namesConfiguredRoutePath;
+  mutant.ngCodedMessages[0].namesConfiguredRoutePath =
+    !mutant.ngCodedMessages[0].namesConfiguredRoutePath;
   assert.throws(() => validate(mutant), /namesConfiguredRoutePath/);
 });
 
@@ -640,6 +770,9 @@ if (process.env.M033_CAPTURE === '1') {
     const record = await runCapture();
     writeFileSync(RECORD_PATH, `${JSON.stringify(record, null, 2)}\n`);
     validate(record);
-    assert.ok(record.ngCodedMessages.length > 0, 'the capture reached no NG-coded console message');
+    assert.ok(
+      record.ngCodedMessages.length > 0,
+      'the capture reached no NG-coded console message',
+    );
   });
 }
