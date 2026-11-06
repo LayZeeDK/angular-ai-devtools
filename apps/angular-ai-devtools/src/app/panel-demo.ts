@@ -97,7 +97,7 @@ const FACTS: Record<string, unknown> = {
     facts: [
       {
         state: 'finding',
-        component: 'DeclaredDefault',
+        component: '_DeclaredDefault',
         strategy: 'eager',
         facts: ['input "label" is signal-based'],
       },

@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { walkChain, type ChainResult } from './update-cause-chain';
+import {
+  walkChain,
+  type ChainResult,
+  type RecordedCheck,
+} from './update-cause-chain';
 
 describe('walkChain', () => {
   it('yields click -> count -> double -> app-counter template', () => {
@@ -111,5 +115,84 @@ describe('walkChain', () => {
     });
     expect(res.trigger).toBe('eager');
     expect(res.chain).toBe('checked because Eager');
+  });
+
+  /**
+   * The recorder answers `null` when a component's change-detection metadata cannot be read
+   * (`extension/agent-main.js`, `changeDetectionFor`: no metadata function, or a throwing call).
+   * `null` is neither `1`, `'eager'` nor `'Eager'`, so the eager branch stays shut and an
+   * unreadable component is never reported as "checked because Eager" — the walk says it has no
+   * signal cause instead of guessing the strategy. This case is red the day `null` joins the eager
+   * test, which is the fail-open the M035 review found on the extension side.
+   */
+  it('does not report an unreadable strategy as eager', () => {
+    // The bytes the extension sends, JSON round-tripped rather than cast, so the `null` below is
+    // the serialised wire value and not a type the spec invented.
+    const check = JSON.parse(
+      JSON.stringify({
+        componentName: 'app-counter',
+        className: 'CounterComponent',
+        changeDetection: null,
+        graph: {
+          nodes: [
+            {
+              id: 't',
+              kind: 'template',
+              label: 'app-counter template',
+              epoch: 1,
+              debuggableFn: 'CounterComponent',
+            },
+          ],
+          edges: [],
+        },
+        changedNodeIds: [],
+      }),
+    ) as RecordedCheck;
+
+    const res = walkChain({
+      check,
+      trigger: { kind: 'unknown', listenerName: null },
+    });
+
+    expect(check.changeDetection).toBeNull();
+    expect(res.trigger).toBe('unknown');
+    expect(res.chain).not.toBe('checked because Eager');
+    expect(res.chain).toBe('no signal cause');
+    expect(res.noSignalCause).toBe(true);
+  });
+
+  it('still reports an explicitly declared Default as eager beside the unreadable case', () => {
+    const base = {
+      componentName: 'app-counter',
+      className: 'CounterComponent',
+      graph: {
+        nodes: [
+          {
+            id: 't',
+            kind: 'template',
+            label: 'app-counter template',
+            epoch: 1,
+            debuggableFn: 'CounterComponent',
+          },
+        ],
+        edges: [],
+      },
+      changedNodeIds: [],
+    };
+
+    const eager = walkChain({
+      check: { ...base, changeDetection: 1 },
+      trigger: { kind: 'unknown', listenerName: null },
+    });
+    expect(eager.chain).toBe('checked because Eager');
+
+    const unreadable = walkChain({
+      check: JSON.parse(
+        JSON.stringify({ ...base, changeDetection: null }),
+      ) as RecordedCheck,
+      trigger: { kind: 'unknown', listenerName: null },
+    });
+    expect(unreadable.chain).toBe('no signal cause');
+    expect(unreadable.chain).not.toBe(eager.chain);
   });
 });

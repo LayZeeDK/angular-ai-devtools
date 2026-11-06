@@ -2,11 +2,11 @@
 id: T005
 title: Correct the three findings the wave-2 panel verified
 wave: 3
-status: in-progress
+status: done
 deps: []
 agent: paid-deepseek-v4-1-flash-high
-base: 9b8668ae5c016dd8a3914596e68a9a8e245ecf26
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 7cb59e0e265c83138aa3352e78c05c5139056faf
+worktree: null
 task_branch: null
 files:
   - extension/agent-main.js
@@ -81,3 +81,4 @@ node --experimental-strip-types --test "scripts/recording-consistency.test.mjs" 
 ## Log
 
 - dispatched
+- 2026-11-06 — dispatched paid-deepseek-v4-1-flash-high (serial). Fixed all three findings: `changeDetectionFor` returns `null` on both unread paths (proved load-bearing by restoring the old default: 52 pass / 2 fail, 'onpush' !== null); the m022 reconciliation note now states 2180767, the value its own field carries; the demo names `_DeclaredDefault` (reverting it: 2 failed / 335 passed). New `scripts/recording-consistency.test.mjs` failed on the pre-fix file with the exact sentence and passes after; it also pins `research/raw/stale-view-counter.json` as the one permitted unparseable recording, a pre-existing defect it found. 7 tests, 337 panel tests over 31 files, 54 extension tests, `npm run check` exit 0, prettier clean. Verdict: ready.

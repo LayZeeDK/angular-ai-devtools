@@ -278,6 +278,70 @@ describe('agent-main.js (recorder)', () => {
     });
   });
 
+  /**
+   * The unreadable-metadata case: the recorder answers nothing, never the best case.
+   *
+   * `changeDetectionFor` used to answer `'onpush'` on both of its unreadable paths — the runtime
+   * publishes no metadata function, and the metadata call throws. That made "this component is
+   * OnPush" the silent answer for a component nobody read. The consumer
+   * (`apps/angular-ai-devtools/src/app/update-cause-chain.ts`) treats only `1`/`'eager'`/`'Eager'`
+   * as eager, so the fallback did not merely mislabel the strategy: it suppressed the eager branch
+   * for a component whose strategy was never read. Both assertions below are red on that default,
+   * which reported `'onpush'`.
+   */
+  describe('change-detection metadata that cannot be read', () => {
+    it("answers null, not 'onpush', when the runtime publishes no metadata function", async () => {
+      const counter = new Counter();
+      const { ng } = makeNg({ graph: counterGraph() });
+      delete ng.getDirectiveMetadata;
+      const { recorder, dispatched } = boot({ ng });
+      const sub = recorder.getSubscriber();
+
+      sub(PE.TemplateUpdateStart, counter);
+      sub(PE.TemplateUpdateEnd, counter);
+      await flushMicrotasks();
+
+      const record = dispatched.find((e) => e.type === 'angular-ai:record');
+      assert.ok(record, 'a cycle must still be recorded');
+      assert.equal(record.detail.checks[0].changeDetection, null);
+      assert.notEqual(record.detail.checks[0].changeDetection, 'onpush');
+      assert.equal(record.detail.checks[0].componentName, 'app-counter');
+    });
+
+    it("answers null, not 'onpush', when the metadata read throws", async () => {
+      const counter = new Counter();
+      const { ng } = makeNg({ graph: counterGraph() });
+      ng.getDirectiveMetadata = () => {
+        throw new Error('no directive metadata for this instance');
+      };
+      const { recorder, dispatched } = boot({ ng });
+      const sub = recorder.getSubscriber();
+
+      sub(PE.TemplateUpdateStart, counter);
+      sub(PE.TemplateUpdateEnd, counter);
+      await flushMicrotasks();
+
+      const record = dispatched.find((e) => e.type === 'angular-ai:record');
+      assert.ok(record, 'a throwing metadata read must not lose the record');
+      assert.equal(record.detail.checks[0].changeDetection, null);
+      assert.notEqual(record.detail.checks[0].changeDetection, 'onpush');
+    });
+
+    it("still answers the strategy it read: 'eager' for an explicitly declared Default", async () => {
+      const counter = new Counter();
+      const { ng } = makeNg({ graph: counterGraph(), changeDetection: 1 });
+      const { recorder, dispatched } = boot({ ng });
+      const sub = recorder.getSubscriber();
+
+      sub(PE.TemplateUpdateStart, counter);
+      sub(PE.TemplateUpdateEnd, counter);
+      await flushMicrotasks();
+
+      const record = dispatched.find((e) => e.type === 'angular-ai:record');
+      assert.equal(record.detail.checks[0].changeDetection, 'eager');
+    });
+  });
+
   describe('extractTriggerName (formatOutput-style)', () => {
     it('extracts the DOM event name from a generated listener name', () => {
       assert.equal(

@@ -664,12 +664,12 @@
         : typeof ngObj.ɵgetDirectiveMetadata === 'function'
           ? ngObj.ɵgetDirectiveMetadata
           : null;
-    if (!gdm) return 'onpush';
+    if (!gdm) return null;
     try {
       var meta = gdm(instance);
       return meta && meta.changeDetection === 0 ? 'onpush' : 'eager';
     } catch (e) {
-      return 'onpush';
+      return null;
     }
   }
 
