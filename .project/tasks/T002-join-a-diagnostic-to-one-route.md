@@ -2,11 +2,11 @@
 id: T002
 title: Join a routing failure to the configured routes it failed to match
 wave: 1
-status: pending
+status: done
 deps:
   - T001
-agent: null
-base: null
+agent: free-beam-high
+base: 7ffed253b639cd4e32ff4e70e1d01b27602ced67
 worktree: null
 task_branch: null
 files:
