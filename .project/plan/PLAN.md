@@ -22,8 +22,8 @@ T002 builds the join against that recording.
 
 Review depth: full
 
-T001 and T002. A recording of what reaches the console, and a pure join from a captured diagnostic to exactly one
-configured route, with an honest absence state.
+T001 and T002. A recording of what reaches the console, and a pure join from a captured navigation failure to the
+configured routes it failed to match, with an honest absence state.
 
 ## Wave 2 — the surface and the recordings
 
@@ -51,15 +51,16 @@ recording the change staled is re-measured from a cleared output path and proved
   adds a route to the same fixture.
 - Verify: `node --experimental-strip-types --test "scripts/router-diagnostic-capture.test.mjs" "scripts/router-config-capture.test.mjs"`
 
-### T002 — Join a router diagnostic to exactly one configured route
+### T002 — Join a routing failure to the configured routes it failed to match
 
 - Deps: T001
 - Files: `extension/router-diagnostic.js`, `scripts/router-diagnostic.test.mjs`
-- Acceptance: given captured messages and a router configuration, a message whose path matches exactly one configured
-  route produces a finding naming that route and the message text; a message matching two or more routes produces
-  `cannot-tell` with reason `several-configures-routes` and **no route**; a message matching none produces `cannot-tell`
-  with reason `no-configured-route`; a message carrying a code the digest does not carry records the code it saw and
-  explains nothing; the module never reads the clock, the console or the DOM.
+- Acceptance: a message naming a segment that matches no configured path produces a finding naming that segment and
+  stating that none of the configured routes matches it, carrying the code the message stated even though the digest
+  does not carry it; a segment that does match a configured path produces `cannot-tell` with reason
+  `segment-matches-configuration`; a message with no extractable segment produces `cannot-tell` with reason
+  `no-url-segment`; the finding states how many configured paths were compared and names no route as the owner; the
+  module reads no clock, console or DOM.
 - Verify: `node --experimental-strip-types --test "scripts/router-diagnostic.test.mjs"`
 
 ### T003 — Panel surface for the router finding
@@ -124,13 +125,14 @@ recording the change staled is re-measured from a cleared output path and proved
 
 Entry: the panel surface at `/panel/router`, rendering from a fact list.
 
-States: `loading`, `finding` (route, construct, code, remedy), `cannot-tell` (reason only), `error` (reason carried, not
-rendered as a cause).
+States: `loading`, `finding` (the unmatched segment, the count of configured paths compared, the code the message
+stated), `cannot-tell` (reason only), `error` (reason carried, not rendered as a cause).
 
 Walkthrough:
-1. A diagnostic attributed to one configured route renders the route, the finding and the remedy, and names no guard
-   verdict the configuration does not record.
-2. A diagnostic that matches several configured routes renders "cannot tell" with its reason, and no route.
+1. A navigation failure whose segment matches no configured path renders the segment, the statement that none of the
+   configured routes matches it, and the code, and names no route as the owner.
+2. A navigation failure whose segment does match a configured path renders "cannot tell" with its reason, and no claim
+   about why the navigation failed.
 3. An empty fact list renders the loading state, never an empty table that reads as "no route is at fault".
 
 Criteria: SC4

@@ -35,9 +35,9 @@ it and what to replace.
 
 ## Success criteria
 
-1. On the fixture, a routing construct the tool can observe produces a finding naming the
-   configured route it belongs to and the construct to replace, from the route configuration the
-   tool already reads and the diagnostic message.
+1. On the fixture, a navigation failure the page console reports produces a finding naming the unmatched URL
+   segment and stating that none of the configured routes matches it, recording the code the message stated even when
+   the digest does not carry that code.
 2. The finding is produced from observables the agent already collects — the `Router`
    configuration through `ng.getInjector` and dev-mode console messages — with no new page-side
    instrumentation and no build-log scraping.
@@ -90,6 +90,11 @@ inspected page (AR-3).
   `NG04002` family is absent. A finding may therefore report only the codes the digest carries,
   and must record the code it saw when the digest has none rather than explaining it from
   sympathy.
+- **The observable is a navigation failure, not a flagged declaration.** T001 measured one router diagnostic on the
+  console: `NG04002: Cannot match any routes. URL Segment: 'this-route-does-not-exist'`. `digestCarriesCode` is
+  **false** (the digest's 64 entries do not include it) and `namesConfiguredRoutePath` is **false** — the message names
+  the URL segment that failed, not any of the 15 configured routes. SC1 is therefore aimed at the unmatched navigation
+  target and at the absence of a matching configured route, not at a route that was flagged.
 - **Configuration is readable but not decisive.** M030 measured that `Router.config` is available;
   it records `path`, `component`, `redirectTo`, `canActivate` and `loadChildren`, and no guard
   verdict. Attribution must therefore be by configured path, never by behaviour.

@@ -37,7 +37,7 @@ The route table is pinned by `chat-entry.component.spec.ts`, so the pin is re-cu
 
 ## Interface contract
 
-`routerDiagnostic(messages, facts) -> { state: "finding" | "cannot-tell", route?, construct?, code?, message?, reason? }` — pure, no DOM.
+`routerDiagnostic(messages, facts) -> { state: "finding" | "cannot-tell", segment?, code?, message?, consideredCount?, reason? }` — pure, no DOM.
 
 ## Files
 
@@ -50,8 +50,9 @@ The route table is pinned by `chat-entry.component.spec.ts`, so the pin is re-cu
 
 ## Acceptance criteria
 
-1. The surface renders the configured route, the finding and the remedy from a short fact list (E4).
-2. The cannot-tell state renders its reason and **no** route line.
+1. The surface renders the unmatched segment, the statement that none of the configured routes matches it, and the
+   code, from a short fact list (E4).
+2. The cannot-tell state renders its reason and **no** segment-level claim about why the navigation failed.
 3. A fact list carrying a guard verdict, a resolver outcome or a redirect decision renders none of them.
 4. `/panel/router` resolves the surface rather than the demo's error branch, and the loader check reddens when the
    `router` key is removed.

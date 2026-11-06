@@ -1,6 +1,6 @@
 ---
 id: T002
-title: Join a router diagnostic to exactly one configured route
+title: Join a routing failure to the configured routes it failed to match
 wave: 1
 status: pending
 deps:
@@ -14,25 +14,33 @@ files:
   - scripts/router-diagnostic.test.mjs
 ---
 
-# T002 — Join a router diagnostic to exactly one configured route
+# T002 — Join a routing failure to the configured routes it failed to match
 
 ## Context
 
-T001's recording says which router diagnostics reach the page console and what each message names, and records the
-router configuration read at the same instant. This task builds the join against that recording rather than against
-an assumption about what a router message contains.
+T001 measured the only router diagnostic this fixture puts on a console: `NG04002: Cannot match any routes. URL
+Segment: 'this-route-does-not-exist'`. Its recording says `digestCarriesCode: false` and `namesConfiguredRoutePath:
+false`, and it carries the 15 configured paths read at the same instant.
+
+So the join is not "which configured route does this belong to" — the whole message means no configured route matched.
+The join is: take the segment the message names, compare it against the configured paths, and report the absence,
+listing what was compared.
 
 ## Approach
 
-A pure module that takes the captured messages and the configuration and answers per message. Attribution is by
-configured path only. When more than one configured route explains a message, the answer is `cannot-tell` with the
-reason and no route — never the nearest, never the only near one.
+A pure module that takes the captured messages and the configuration and answers per message. It extracts the URL
+segment from the message text and compares it to the configured paths.
+
+A segment matching **no** configured path is the finding: the tool can say which navigation target failed and that
+none of the configured routes covers it. A segment that **does** match a configured path is `cannot-tell` — the router
+failed for a reason the message does not give, and guessing one is the failure this programme keeps removing. A
+message with no extractable segment is `cannot-tell` with its own reason.
 
 The module reads no clock, no console and no DOM, so a test can drive it from the recording alone.
 
 ## Interface contract
 
-`routerDiagnostic(messages, facts) -> { state: "finding" | "cannot-tell", route?, construct?, code?, message?, reason? }` — pure, no DOM.
+`routerDiagnostic(messages, facts) -> { state: "finding" | "cannot-tell", segment?, code?, message?, consideredCount?, reason? }` — pure, no DOM.
 
 ## Files
 
@@ -41,14 +49,17 @@ The module reads no clock, no console and no DOM, so a test can drive it from th
 
 ## Acceptance criteria
 
-1. A message that matches exactly one configured route produces a finding naming that route and the message text, and
-   carrying the code the message states (E1).
-2. Held-out E3: a message matching two or more configured routes produces `cannot-tell` with reason
-   `several-configured-routes` and **no** `route` key.
-3. A message matching no configured route produces `cannot-tell` with reason `no-configured-route`.
-4. A message whose code the digest does not carry records the code it saw and explains nothing about it (E2).
-5. The module names no guard verdict, resolver outcome or redirect decision, and no element the message does not state.
-6. A mutant that attributes to the nearest route reddens AC2's pin by name; a mutant that omits the code reddens AC1's.
+1. Held-out E1: a message naming a segment that matches no configured path produces a finding naming that segment,
+   stating that none of the configured routes matches it, and carrying the code the message stated even though the
+   digest does not carry it.
+2. Held-out E3: a message naming a segment that **does** match a configured path produces `cannot-tell` with reason
+   `segment-matches-configuration` and no segment-level claim about why the navigation failed.
+3. A message from which no segment can be extracted produces `cannot-tell` with reason `no-url-segment`.
+4. A message whose code the digest does not carry records the code it saw and explains nothing about it.
+5. The finding states how many configured paths were compared, and names no configured route as the owner (E2).
+6. The module names no guard verdict, resolver outcome or redirect decision.
+7. A mutant that names the nearest configured route as the owner reddens AC1's pin by name; a mutant that omits the
+   code reddens AC4's.
 
 ## Verify
 
