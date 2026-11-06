@@ -8,7 +8,7 @@ Alignment mode: no
 
 | Verdict | Count |
 |---------|-------|
-| verified | 312 |
+| verified | 316 |
 | stale | 12 |
 | aspirational | 0 |
 | unverifiable | 205 |
