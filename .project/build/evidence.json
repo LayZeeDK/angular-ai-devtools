@@ -1,0 +1,104 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "ac810e5e33d31afa6c14d411e45c54129149d230",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M033",
+        "candidates": [
+          {
+            "base": "69c64638c4eefa46995635339bd2b701258c84c1",
+            "commit": "576f4079af678320501db751d667fdea4d674a50",
+            "valid": true
+          }
+        ],
+        "head": "ac810e5e33d31afa6c14d411e45c54129149d230",
+        "subject": "T001: Measure what the router says on the fixture"
+      },
+      "landed_commit": "576f4079af678320501db751d667fdea4d674a50",
+      "reasons": [],
+      "task": {
+        "base": "69c64638c4eefa46995635339bd2b701258c84c1",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-measure-what-the-router-says.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M033",
+        "candidates": [
+          {
+            "base": "7ffed253b639cd4e32ff4e70e1d01b27602ced67",
+            "commit": "8db73babe5455236a179f225a760aabdf062cbef",
+            "valid": true
+          }
+        ],
+        "head": "ac810e5e33d31afa6c14d411e45c54129149d230",
+        "subject": "T002: Join a routing failure to the configured routes it failed to match"
+      },
+      "landed_commit": "8db73babe5455236a179f225a760aabdf062cbef",
+      "reasons": [],
+      "task": {
+        "base": "7ffed253b639cd4e32ff4e70e1d01b27602ced67",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-join-a-diagnostic-to-one-route.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M033",
+        "candidates": [
+          {
+            "base": "2a8627c7ad4ba32cee83c02a031a66baf024d20c",
+            "commit": "7f59a75c165fee56435692bd2feca246b4cc3042",
+            "valid": true
+          }
+        ],
+        "head": "ac810e5e33d31afa6c14d411e45c54129149d230",
+        "subject": "T003: Panel surface for the router finding"
+      },
+      "landed_commit": "7f59a75c165fee56435692bd2feca246b4cc3042",
+      "reasons": [],
+      "task": {
+        "base": "2a8627c7ad4ba32cee83c02a031a66baf024d20c",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-panel-surface.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M033",
+        "candidates": [
+          {
+            "base": "7f59a75c165fee56435692bd2feca246b4cc3042",
+            "commit": "697bd41fadd07baf772482428842450ef1d6ea90",
+            "valid": true
+          }
+        ],
+        "head": "ac810e5e33d31afa6c14d411e45c54129149d230",
+        "subject": "T004: Re-record everything the fixture change stales"
+      },
+      "landed_commit": "697bd41fadd07baf772482428842450ef1d6ea90",
+      "reasons": [],
+      "task": {
+        "base": "7f59a75c165fee56435692bd2feca246b4cc3042",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-re-record-what-the-change-stales.md"
+      }
+    }
+  ]
+}
