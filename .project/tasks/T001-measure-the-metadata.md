@@ -2,11 +2,11 @@
 id: T001
 title: Measure the metadata on the shipped version, and give the fixture an OnPush subject
 wave: 1
-status: in-progress
+status: done
 deps: []
 agent: paid-deepseek-v4-1-flash-high
-base: cb1fe6790f28b2195be691b0adfaa348df216677
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: e7b92e7a6ae7a1e1857ffed0e6bb8e128d1e0c5d
+worktree: null
 task_branch: null
 files:
   - spikes/ng222-app/src/app/onpush-ready-page.ts
@@ -70,3 +70,4 @@ node --experimental-strip-types --test "scripts/onpush-metadata-capture.test.mjs
 ## Log
 
 - dispatched
+- 2026-11-06 — dispatched paid-deepseek-v4-1-flash-high (serial, primary checkout). Recorded the def surface on both installed versions: onPush, signals, standalone, inputs and inputConfig are present on all defs and changeDetection on none, on 22.2.2 (fixture) and 22.1.8 (panel). Re-measured the three route pins 16 -> 17. Verdict: ready.
