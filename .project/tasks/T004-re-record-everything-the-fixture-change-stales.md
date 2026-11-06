@@ -2,11 +2,11 @@
 id: T004
 title: Re-record everything the fixture change stales
 wave: 2
-status: pending
+status: in-progress
 deps: [T003]
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: 6809f471bee3aeceac263ba5b57cbb79dfe6bc04
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - .commandcode/skills/control-angular-dev-app/features/.proven.json
