@@ -2,11 +2,11 @@
 id: T002
 title: Join a component's structure to the modern form
 wave: 1
-status: in-progress
+status: done
 deps: [T001]
 agent: paid-deepseek-v4-1-flash-high
-base: 7bea51942b7fe2eedbb0d5ea52da1305c122c23f
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 9007d6df55b73c22281a7cb4a179565479d40d9c
+worktree: null
 task_branch: null
 files:
   - extension/legacy-structure.js
@@ -72,3 +72,13 @@ node --experimental-strip-types --test "scripts/legacy-structure.test.mjs" "scri
 ## Log
 
 - dispatched
+
+- 2026-11-06 — dispatched paid-deepseek-v4-1-flash-high (serial isolation, primary checkout, base 9007d6d).
+  Built `extension/legacy-structure.js` (pure join over a fact's standalone flag and the cited table), the capture
+  `scripts/legacy-equivalents-capture.test.mjs`, and the recording `research/raw/m034-equivalents.json` (one entry,
+  `https://angular.dev/reference/migrations/standalone`, quote 165 chars, form 73 chars, page text 8424 chars pinned by
+  sha256 `209df753…`). Default runs fetch nothing (fetch stubbed to throw, 0 calls) and two consecutive runs left
+  `git status --porcelain` byte-identical. 28/28 pass; mutants M1 (unsourced form) and M2 (structure inferred from the
+  name) redden by name. `npx prettier --check` clean on all four files. It declined to re-cut
+  `extension/page-footprint.test.mjs`, with evidence that adding the module does not move the footprint it asserts.
+  Verdict: ready.
