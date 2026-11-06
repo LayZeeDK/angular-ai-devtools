@@ -460,7 +460,9 @@ test('E5 an audit with zero unverifiable rows is a pass', () => {
     // the "exactly 7 exempt" count below is a property of the hand-authored audit,
     // not of the rule. S6 carries the assembled-audit contract; this file keeps the
     // hand-authored one. The generic action is recorded as a follow-up, not hidden.
-    console.log('E5/E7: assembled audit; the hand-authored queue contract does not apply');
+    console.log(
+      'E5/E7: assembled audit; the hand-authored queue contract does not apply',
+    );
     return;
   }
   console.log(`E5: resolved docs-audit gate at ${gatePath()}`);
@@ -921,7 +923,9 @@ test('E7 every remaining row names a shipped command, never a prose verb', () =>
     // the "exactly 7 exempt" count below is a property of the hand-authored audit,
     // not of the rule. S6 carries the assembled-audit contract; this file keeps the
     // hand-authored one. The generic action is recorded as a follow-up, not hidden.
-    console.log('E5/E7: assembled audit; the hand-authored queue contract does not apply');
+    console.log(
+      'E5/E7: assembled audit; the hand-authored queue contract does not apply',
+    );
     return;
   }
   console.log(`E7: resolved docs-audit gate at ${gatePath()}`);
