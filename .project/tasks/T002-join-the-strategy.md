@@ -2,11 +2,11 @@
 id: T002
 title: Join the strategy and the readiness facts
 wave: 1
-status: in-progress
+status: done
 deps: [T001]
 agent: paid-deepseek-v4-1-flash-high
-base: bacaf92a29178021137794e02b986d18711a808c
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 677cebe8e2a5f18cda035df701811fb309c58ee1
+worktree: null
 task_branch: null
 files:
   - extension/onpush-readiness.js
@@ -61,3 +61,4 @@ node --experimental-strip-types --test "scripts/onpush-readiness.test.mjs"
 ## Log
 
 - dispatched
+- 2026-11-06 — dispatched paid-deepseek-v4-1-flash-high (serial). Four states: finding with strategy eager and the signal-input fact; already-onpush; strategy-unreadable; component-unreadable. Mutants M1 (reports a blocker) and M2 (returns onpush for an unreadable read) redden by name. 13/13 pass, prettier clean, two files. Verdict: ready.
