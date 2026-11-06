@@ -2,11 +2,11 @@
 id: T002
 title: Join the strategy and the readiness facts
 wave: 1
-status: pending
+status: in-progress
 deps: [T001]
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: bacaf92a29178021137794e02b986d18711a808c
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - extension/onpush-readiness.js
