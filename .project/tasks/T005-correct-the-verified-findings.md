@@ -2,11 +2,11 @@
 id: T005
 title: Correct the three findings the wave-2 panel verified
 wave: 3
-status: pending
+status: in-progress
 deps: []
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: 9b8668ae5c016dd8a3914596e68a9a8e245ecf26
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - extension/agent-main.js
