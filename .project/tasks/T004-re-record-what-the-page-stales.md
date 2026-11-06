@@ -2,10 +2,10 @@
 id: T004
 title: Re-record every artefact the fixture change stales
 wave: 2
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: free-beam-high
+base: 8e481c8f4a510088cf6795b009fe5e63b6a73075
 worktree: null
 task_branch: null
 files:
