@@ -2,8 +2,8 @@
   "version": 1,
   "features": {
     "components": {
-      "provenAt": "2026-11-06T00:32:13.456Z",
-      "commit": "8e481c8f4a510088cf6795b009fe5e63b6a73075",
+      "provenAt": "2026-11-06T06:31:10.562Z",
+      "commit": "7f59a75c165fee56435692bd2feca246b4cc3042",
       "method": "typescript",
       "entries": [
         "spikes/ng222-app/src/main.ts",
@@ -12,7 +12,7 @@
       "files": {
         "spikes/ng222-app/src/app/after-render-page.ts": "4b2ce57bc083634287cac27fbcdb1a7f9911480f",
         "spikes/ng222-app/src/app/app.config.ts": "e60fc79fa4a0a0dcd99d4d06a82ff642f45e0d16",
-        "spikes/ng222-app/src/app/app.routes.ts": "e82aa29d96db234ff208c236132fe3f7ee109983",
+        "spikes/ng222-app/src/app/app.routes.ts": "047da5597b5cb9c895baaf91a2e9da8e99fe9158",
         "spikes/ng222-app/src/app/app.ts": "7090c0cd7276b21a637542c2845e925a22b910a4",
         "spikes/ng222-app/src/app/components/aria-items.ts": "0dfe1cd31809c061cf01d9f43d647f0defac2464",
         "spikes/ng222-app/src/app/components/aria-surfaces.ts": "b88d109b98499503613c1b876cc06cd38e547082",
@@ -24,6 +24,8 @@
         "spikes/ng222-app/src/app/lint-observability-page.ts": "58fa2f10eb58adee87bd76b9b1d98a414a2389d9",
         "spikes/ng222-app/src/app/redirect-guard.ts": "c2a3a442d50e3ee92f396ddeec76846e7fd5f42f",
         "spikes/ng222-app/src/app/redirect-page.ts": "43e370ffc3d8a7a277adfeecdec0e72b83f7eddd",
+        "spikes/ng222-app/src/app/router-lint-page.ts": "2151def4d2e90537f0535dd796fc58461d493557",
+        "spikes/ng222-app/src/app/router-lint.ts": "dc6afd37e92651fe8c0ddb4b33be8f6ebfad99fb",
         "spikes/ng222-app/src/app/stale-view-deferred-fixture.ts": "3ec5491f916a8769aee98b0334a60cc54932ce6a",
         "spikes/ng222-app/src/app/stale-view-fixture.ts": "007556c4e5ca72c09bce5ec7f50f54b5ed666cc8",
         "spikes/ng222-app/src/app/trust-bypass-page.ts": "0e426bd55f745bf1f44f01068d6a65524809f84e",
@@ -33,8 +35,8 @@
       }
     },
     "counter": {
-      "provenAt": "2026-11-06T00:32:14.250Z",
-      "commit": "8e481c8f4a510088cf6795b009fe5e63b6a73075",
+      "provenAt": "2026-11-06T06:31:11.050Z",
+      "commit": "7f59a75c165fee56435692bd2feca246b4cc3042",
       "method": "typescript",
       "entries": [
         "spikes/ng222-app/src/main.ts",
@@ -43,7 +45,7 @@
       "files": {
         "spikes/ng222-app/src/app/after-render-page.ts": "4b2ce57bc083634287cac27fbcdb1a7f9911480f",
         "spikes/ng222-app/src/app/app.config.ts": "e60fc79fa4a0a0dcd99d4d06a82ff642f45e0d16",
-        "spikes/ng222-app/src/app/app.routes.ts": "e82aa29d96db234ff208c236132fe3f7ee109983",
+        "spikes/ng222-app/src/app/app.routes.ts": "047da5597b5cb9c895baaf91a2e9da8e99fe9158",
         "spikes/ng222-app/src/app/app.ts": "7090c0cd7276b21a637542c2845e925a22b910a4",
         "spikes/ng222-app/src/app/components/aria-items.ts": "0dfe1cd31809c061cf01d9f43d647f0defac2464",
         "spikes/ng222-app/src/app/components/aria-surfaces.ts": "b88d109b98499503613c1b876cc06cd38e547082",
@@ -55,6 +57,8 @@
         "spikes/ng222-app/src/app/lint-observability-page.ts": "58fa2f10eb58adee87bd76b9b1d98a414a2389d9",
         "spikes/ng222-app/src/app/redirect-guard.ts": "c2a3a442d50e3ee92f396ddeec76846e7fd5f42f",
         "spikes/ng222-app/src/app/redirect-page.ts": "43e370ffc3d8a7a277adfeecdec0e72b83f7eddd",
+        "spikes/ng222-app/src/app/router-lint-page.ts": "2151def4d2e90537f0535dd796fc58461d493557",
+        "spikes/ng222-app/src/app/router-lint.ts": "dc6afd37e92651fe8c0ddb4b33be8f6ebfad99fb",
         "spikes/ng222-app/src/app/stale-view-deferred-fixture.ts": "3ec5491f916a8769aee98b0334a60cc54932ce6a",
         "spikes/ng222-app/src/app/stale-view-fixture.ts": "007556c4e5ca72c09bce5ec7f50f54b5ed666cc8",
         "spikes/ng222-app/src/app/trust-bypass-page.ts": "0e426bd55f745bf1f44f01068d6a65524809f84e",

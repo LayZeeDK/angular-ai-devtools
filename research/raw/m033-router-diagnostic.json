@@ -1,0 +1,210 @@
+{
+  "capturedAt": "2026-11-06T05:35:43.780Z",
+  "browser": "headless Playwright Chromium (build 153.0.8010.12)",
+  "browserBuild": "153.0.8010.12",
+  "instance": "headless",
+  "playwright": "1.63.0",
+  "angularVersion": "22.2.2",
+  "url": "http://127.0.0.1:64134/router-lint",
+  "pageUrl": "http://127.0.0.1:64134/router-lint",
+  "commands": {
+    "install": "npm ci --include=dev",
+    "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
+    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 64134 --host 127.0.0.1  (cwd spikes/ng222-app)",
+    "capture": "set M033_CAPTURE=1 && node --test scripts/router-diagnostic-capture.test.mjs",
+    "check": "node --test scripts/router-diagnostic-capture.test.mjs"
+  },
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0"
+  },
+  "fixture": {
+    "route": "/router-lint",
+    "routeTable": "spikes/ng222-app/src/app/app.routes.ts",
+    "page": "spikes/ng222-app/src/app/router-lint-page.ts",
+    "component": "RouterLintPage",
+    "construct": "routed page that navigates on init to an unmatched path, provoking the router's runtime diagnostic",
+    "whyItReachesTheConsole": "the router cannot match the requested URL and reports NG04002 to the page console",
+    "compilerOptionsChanged": [],
+    "angularCompilerOptions": {
+      "enableI18nLegacyMessageIdFormat": false,
+      "strictInjectionParameters": true,
+      "strictInputAccessModifiers": true
+    },
+    "angularCompilerOptionsSource": "spikes/ng222-app/tsconfig.json (tsconfig.app.json extends it and adds none)",
+    "expectedCodes": [
+      "NG04002"
+    ]
+  },
+  "page": {
+    "pageLoads": 1,
+    "documentLoads": 1,
+    "ngVersion": "22.2.2",
+    "headingText": "router lint",
+    "uncaughtPageErrors": 0
+  },
+  "console": {
+    "total": 4,
+    "withAnNgCode": 1,
+    "withoutAnNgCode": 3
+  },
+  "messages": [
+    {
+      "order": 0,
+      "type": "debug",
+      "code": null,
+      "text": "[vite] connecting...",
+      "location": {
+        "url": "http://127.0.0.1:64134/@vite/client",
+        "line": 882,
+        "column": 8,
+        "lineNumber": 882,
+        "columnNumber": 8
+      }
+    },
+    {
+      "order": 1,
+      "type": "debug",
+      "code": null,
+      "text": "[vite] connected.",
+      "location": {
+        "url": "http://127.0.0.1:64134/@vite/client",
+        "line": 995,
+        "column": 11,
+        "lineNumber": 995,
+        "columnNumber": 11
+      }
+    },
+    {
+      "order": 2,
+      "type": "log",
+      "code": null,
+      "text": "Angular is running in development mode.",
+      "location": {
+        "url": "http://127.0.0.1:64134/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158",
+        "line": 9377,
+        "column": 10,
+        "lineNumber": 9377,
+        "columnNumber": 10
+      }
+    },
+    {
+      "order": 3,
+      "type": "error",
+      "code": "NG04002",
+      "text": "ERROR RuntimeError: NG04002: Cannot match any routes. URL Segment: 'this-route-does-not-exist'\n    at Recognizer.noMatchError (http://127.0.0.1:64134/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/router-CptVeduw.js?v=ce1c2158:2475:10)\n    at Recognizer.match (http://127.0.0.1:64134/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/router-CptVeduw.js?v=ce1c2158:2507:41)\n    at async Recognizer.recognize (http://127.0.0.1:64134/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/router-CptVeduw.js?v=ce1c2158:2479:38)\n    at async http://127.0.0.1:64134/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/router-CptVeduw.js?v=ce1c2158:2665:62",
+      "location": {
+        "url": "http://127.0.0.1:64134/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/_resource-chunk-J43UWQbW.js?v=ce1c2158",
+        "line": 2722,
+        "column": 16,
+        "lineNumber": 2722,
+        "columnNumber": 16
+      }
+    }
+  ],
+  "ngCodedMessages": [
+    {
+      "order": 3,
+      "type": "error",
+      "code": "NG04002",
+      "text": "ERROR RuntimeError: NG04002: Cannot match any routes. URL Segment: 'this-route-does-not-exist'\n    at Recognizer.noMatchError (http://127.0.0.1:64134/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/router-CptVeduw.js?v=ce1c2158:2475:10)\n    at Recognizer.match (http://127.0.0.1:64134/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/router-CptVeduw.js?v=ce1c2158:2507:41)\n    at async Recognizer.recognize (http://127.0.0.1:64134/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/router-CptVeduw.js?v=ce1c2158:2479:38)\n    at async http://127.0.0.1:64134/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/router-CptVeduw.js?v=ce1c2158:2665:62",
+      "location": {
+        "url": "http://127.0.0.1:64134/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/_resource-chunk-J43UWQbW.js?v=ce1c2158",
+        "line": 2722,
+        "column": 16,
+        "lineNumber": 2722,
+        "columnNumber": 16
+      },
+      "digestCarriesCode": false,
+      "namesConfiguredRoutePath": false
+    }
+  ],
+  "digest": {
+    "path": "extension/error-digest.json",
+    "entryCount": 64,
+    "codesOnTheConsole": [
+      "NG04002"
+    ],
+    "codesNotCarried": [
+      "NG04002"
+    ]
+  },
+  "injectorResolvedOnRoutedElement": true,
+  "injectorError": null,
+  "routedElementTag": "app-router-lint-page",
+  "routerUrl": "/router-lint",
+  "hasRouterInstance": true,
+  "fieldsPresent": [
+    "path",
+    "component",
+    "redirectTo",
+    "canActivate",
+    "loadChildren"
+  ],
+  "config": [
+    {
+      "path": "stale-view",
+      "component": "[fn _StaleViewFixture]"
+    },
+    {
+      "path": "stale-view-deferred",
+      "component": "[fn _StaleViewDeferredFixture]"
+    },
+    {
+      "path": "components",
+      "component": "[fn _ComponentsPage]"
+    },
+    {
+      "path": "image-budget",
+      "component": "[fn _ImageBudgetPage]"
+    },
+    {
+      "path": "after-render",
+      "component": "[fn _AfterRenderPage]"
+    },
+    {
+      "path": "trust-bypass",
+      "component": "[fn _TrustBypassPage]"
+    },
+    {
+      "path": "field-form",
+      "component": "[fn _FieldFormPage]"
+    },
+    {
+      "path": "lint-observability",
+      "component": "[fn _LintObservabilityPage]"
+    },
+    {
+      "path": "router-lint",
+      "component": "[fn _RouterLintPage]"
+    },
+    {
+      "path": "redirect",
+      "redirectTo": "landing"
+    },
+    {
+      "path": "landing",
+      "component": "[fn _LandingPage]"
+    },
+    {
+      "path": "gated",
+      "component": "[fn _LandingPage]",
+      "canActivate": [
+        "[fn redirectGuard]"
+      ]
+    },
+    {
+      "path": "lazy",
+      "loadChildren": "[fn loadChildren]"
+    },
+    {
+      "path": "loop-a",
+      "redirectTo": "loop-b"
+    },
+    {
+      "path": "loop-b",
+      "redirectTo": "loop-a"
+    }
+  ]
+}

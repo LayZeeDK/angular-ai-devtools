@@ -704,6 +704,7 @@ describe('the chat route', () => {
       'redirect', // M030 SC4 surface: the walked redirect chain, or its absence state
       'fields', // M031 SC4 surface: the field set, or its absence state
       'lint', // M032 SC4 surface: the diagnostic joined to its input, or its absence state
+      'router', // M033 SC4 surface: the router finding, or its absence state
     ]);
     // T003's conversion stayed the only other lazy route: five explainers are still eager.
     expect(
@@ -720,6 +721,7 @@ describe('the chat route', () => {
       'redirect', // M030 SC4 surface
       'fields', // M031 SC4 surface
       'lint', // M032 SC4 surface
+      'router', // M033 SC4 surface
     ]);
     for (const path of [
       '',
@@ -747,7 +749,7 @@ describe('the chat route', () => {
     }
     expect(await interop.loadComponent()).toBe(InteropComponent);
 
-    // The five panel surfaces are installed through PanelDemoComponent, which is a component.
+    // The panel surfaces are installed through PanelDemoComponent, which is a component.
     // Registering the surface function itself would satisfy a route-shape pin while rendering
     // nothing in the browser, so the pin asserts both the component and the surface it is given.
     for (const surface of [
@@ -756,6 +758,7 @@ describe('the chat route', () => {
       'redirect',
       'fields',
       'lint',
+      'router',
     ]) {
       const route = appRoutes.find((candidate) => candidate.path === surface);
       if (route?.loadComponent === undefined) {

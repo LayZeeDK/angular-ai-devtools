@@ -1261,8 +1261,8 @@ Goal: Build the router lint explainers: why a route declaration is flagged, and 
 Depends on: [M020]
 Programme: core · Batch: 3 · Group: @angular/router
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/033-lint-router
 Integrated: null
 
 Scope: in

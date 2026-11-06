@@ -75,4 +75,13 @@ export const appRoutes: Route[] = [
       import('./panel-demo').then((m) => m.PanelDemoComponent),
     data: { surface: 'lint' },
   },
+  // The M033 SC4 surface: the router finding — the unmatched segment, or the state that names
+  // why it cannot be told. Lazy for the same reason as the surfaces above it — the panel's eager
+  // bundle is measured.
+  {
+    path: 'router',
+    loadComponent: () =>
+      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    data: { surface: 'router' },
+  },
 ];
