@@ -63,6 +63,27 @@ recording the change staled is re-measured from a cleared output path.
 - Acceptance: both control-skill feature manifests name both new fixture files; both development-build recordings are re-measured with the output path cleared first, and each says so; `m035-verdict-claims.json` quotes every intent criterion in full; no value is tolerance-adjusted; `npx prettier --check` passes on every file this task touched; `npm run check` and `npm test` pass at the head.
 - Verify: `node --experimental-strip-types --test "scripts/fixture-proof-fresh.test.mjs" "scripts/ng-context-dev-build.test.mjs" "scripts/overlay-verdict-claims.test.mjs"`
 
+## Wave 3 — correct the three findings the panel verified
+
+Goal: the unreadable case says nothing, the recording's prose agrees with its own fields, and the demo shows the name the
+page reports.
+
+Review depth: full
+
+### T005 — Correct the three findings the wave-2 panel verified
+
+- Deps: none
+- Files: `extension/agent-main.js`, `apps/angular-ai-devtools/src/app/update-cause-chain.spec.ts`,
+  `research/raw/m022-ng-context.json`, `scripts/recording-consistency.test.mjs`,
+  `apps/angular-ai-devtools/src/app/panel-demo.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`,
+  `extension/agent-main.test.mjs`, `extension/page-footprint.test.mjs`,
+  `apps/angular-ai-devtools/src/app/app.spec.ts`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`,
+  `apps/angular-ai-devtools/src/app/companion.spec.ts`
+- Acceptance: `changeDetectionFor` returns null when the read does not happen and the update-cause chain does not treat
+  null as eager; the m022 note mentions no count its own fields contradict; the demo names `_DeclaredDefault`; the gate
+  passes and its row is recorded.
+- Verify: `node --experimental-strip-types --test "scripts/recording-consistency.test.mjs" && npx nx run angular-ai-devtools:test --skip-nx-cache && npm run check`
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -82,6 +103,8 @@ recording the change staled is re-measured from a cleared output path.
 | SC3 | T002 | AC3 |
 | SC4 | T003 | AC1 |
 | SC5 | T004 | AC4 |
+| SC1 | T005 | AC1 |
+| SC5 | T005 | AC4 |
 
 ## Prohibitions
 
