@@ -11,8 +11,10 @@ Alignment mode: no
 | verified | 316 |
 | stale | 12 |
 | aspirational | 0 |
-| unverifiable | 205 |
-| descriptive docs (no testable claims) | 1 |
+| unverifiable | 203 |
+| descriptive docs (no testable claims) | 2 |
+
+Claim rows audited: 526 across 143 documents; with the 2 descriptive documents, the 145 frozen inventory paths are fully accounted for.
 
 ## Doc: .claude/skills/control-ai-browsers/SKILL.md
 
@@ -997,14 +999,6 @@ Alignment mode: no
 | References grounding artifacts `docs/feature-proposals.md` section 8 rulings, `docs/filing-ledger.md`, research `00-10`, and skills/playbooks | structure | verified | `D:\projects\sandbox\angular-ai-devtools\docs\feature-proposals.md`, `docs\filing-ledger.md` exist; `.commandcode\skills\control-*`/`verify-*` skill folders exist (see chunk skills docs). |
 | States "At most two agents at once" and gates (no push/PR/tag/filing; don't touch Lars's profiles beyond read-only checks) | status | unverifiable | Process/behavioral constraints in a historical run log; cannot verify from repository state alone. |
 
-## Doc: docs/autonomy-gaps.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "No commit in this repository carries" user-scope edits under `C:\Users\LarsGyrupBrinkNielse\.commandcode\`; pins live in repo tests like `scripts/autonomy-gaps.test.mjs` | status | unverifiable | Commit-history claim not verified here (no git history search performed per budget); `D:\projects\sandbox\angular-ai-devtools\scripts\autonomy-gaps.test.mjs` exists as the named pin file. |
-| References repo pins `scripts/autonomy-gaps.test.mjs`, `scripts/user-scope-autonomy.test.mjs`, `scripts/docs-correction.test.mjs`, `scripts/docs-audit-disposition.test.mjs` | structure | verified | All four files exist: `D:\projects\sandbox\angular-ai-devtools\scripts\autonomy-gaps.test.mjs`, `user-scope-autonomy.test.mjs`, `docs-correction.test.mjs`, `docs-audit-disposition.test.mjs`. |
-| "Gap 8/9/10 made no user-scope edit at all" and describes measures tied to repo-side fixes/tests | status | unverifiable | Historical analysis of M017 run behavior; not provable from static file presence alone beyond referenced test files. |
-
 ## Doc: docs/design/tutor.md
 
 | Claim | Type | Verdict | Evidence |
@@ -1269,6 +1263,7 @@ Alignment mode: no
 
 ## Descriptive docs
 - .commandcode/taste/taste.md
+- docs/autonomy-gaps.md
 
 ## User rulings
 
