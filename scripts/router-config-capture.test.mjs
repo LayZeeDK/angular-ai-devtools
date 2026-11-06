@@ -332,7 +332,7 @@ function validate(record) {
   const redirectEntry = record.config.find((e) => e.path === 'redirect');
   assert.ok(redirectEntry, 'redirect route present');
   assert.equal(redirectEntry.redirectTo, 'landing', 'redirect target');
-  assert.equal(record.config.length, 14, 'config must have 14 entries');
+  assert.equal(record.config.length, 15, 'config must have 15 entries');
   const fields = [
     ...new Set(record.config.flatMap((e) => Object.keys(e))),
   ].sort();
@@ -374,9 +374,9 @@ test('the recording validates against its own fixture and clocks', () => {
   assert.doesNotThrow(() => validate(record));
 });
 
-test('the recording holds 14 config entries with the five fields', () => {
+test('the recording holds 15 config entries with the five fields', () => {
   const record = loadRecord();
-  assert.equal(record.config.length, 14);
+  assert.equal(record.config.length, 15);
   const fields = [
     ...new Set(record.config.flatMap((e) => Object.keys(e))),
   ].sort();

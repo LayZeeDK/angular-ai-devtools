@@ -2,10 +2,10 @@
 id: T001
 title: Measure what the router says on the fixture
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: free-beam-high
+base: 69c64638c4eefa46995635339bd2b701258c84c1
 worktree: null
 task_branch: null
 files:
