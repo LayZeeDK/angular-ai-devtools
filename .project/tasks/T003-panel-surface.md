@@ -14,6 +14,7 @@ files:
   - apps/angular-ai-devtools/src/app/panel-demo.ts
   - apps/angular-ai-devtools/src/app/app.routes.ts
   - apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts
+  - apps/angular-ai-devtools/src/app/app.spec.ts
   - scripts/panel-router.test.mjs
   - scripts/panel-routes.test.mjs
 ---
@@ -45,6 +46,7 @@ The route table is pinned by `chat-entry.component.spec.ts`, so the pin is re-cu
 - `apps/angular-ai-devtools/src/app/panel-demo.ts` — the loader map and a sample fact.
 - `apps/angular-ai-devtools/src/app/app.routes.ts` — the route entry.
 - `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts` — the route pin.
+- `apps/angular-ai-devtools/src/app/app.spec.ts` — the route-table pin in the app suite.
 - `scripts/panel-router.test.mjs` — the surface suite.
 - `scripts/panel-routes.test.mjs` — every surface has a loader.
 
