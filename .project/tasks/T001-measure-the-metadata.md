@@ -2,11 +2,11 @@
 id: T001
 title: Measure the metadata on the shipped version, and give the fixture an OnPush subject
 wave: 1
-status: pending
+status: in-progress
 deps: []
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: cb1fe6790f28b2195be691b0adfaa348df216677
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - spikes/ng222-app/src/app/onpush-ready-page.ts
