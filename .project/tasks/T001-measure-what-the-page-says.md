@@ -2,11 +2,11 @@
 id: T001
 title: Measure what the page says about a legacy construct
 wave: 1
-status: pending
+status: in-progress
 deps: []
-agent: null
-base: null
-worktree: null
+agent: free-beam-high
+base: 378d14d5de89cc4c4ed5856b280cb4b2c1b6be1d
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - spikes/ng222-app/src/app/legacy-module-page.ts
