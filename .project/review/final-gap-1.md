@@ -1,6 +1,6 @@
 # Gap Review — 1: project Verify
 
-Reviewed HEAD: 9425cb5093f9bd763b517f47e3b3a4094c462ddd
+Reviewed HEAD: ba6440b2f1b44593e6e5c3e7f2e5c21d0501348c
 Gap verdict: blocked
 Risk: project Verify
 Waves checked: 1, 2
@@ -9,7 +9,7 @@ Waves checked: 1, 2
 
 - **Check**: `npm ci --include=dev && npm --prefix spikes/ng222-app ci --include=dev && npx nx run ai-devtools-companion:build && npm run check && npm test`
 - **Observed**: Exit 1; exact stdout and stderr are in the command/commit ledger entry.
-- **Reference**: .project/build/verify-ledger.jsonl — 9425cb5093f9bd763b517f47e3b3a4094c462ddd, command above
+- **Reference**: .project/build/verify-ledger.jsonl — ba6440b2f1b44593e6e5c3e7f2e5c21d0501348c, command above
 
 ## Finding
 
