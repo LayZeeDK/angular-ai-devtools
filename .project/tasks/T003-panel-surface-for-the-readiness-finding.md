@@ -2,11 +2,11 @@
 id: T003
 title: Panel surface for the readiness finding
 wave: 2
-status: in-progress
+status: done
 deps: [T002]
 agent: paid-deepseek-v4-1-flash-high
-base: bdfbaf334362c49bbd6cc0fcb24661f28d1d90a6
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 11ee55ab5c80f5c781baec24fc1319989fa04411
+worktree: null
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-onpush.ts
@@ -67,3 +67,4 @@ node --experimental-strip-types --test "scripts/panel-onpush.test.mjs" "scripts/
 ## Log
 
 - dispatched
+- 2026-11-06 — dispatched paid-deepseek-v4-1-flash-high (serial). Built panel-onpush.ts on the sibling shape, registered /onpush with data.surface and a loader, and re-cut every moved pin: router-diagnostic 16 -> 17 (three assertions), app.spec 16 -> 17, chat-entry 16 -> 17 and 11 -> 12, panel-routes surfaces and E2 with a new E4 mutant naming onpush. Left page-picker and the held-out explainers pin byte-identical. 33/33 task tests, 333/333 app tests, 10/10 held-out, tsc 0, prettier clean. Verdict: ready.

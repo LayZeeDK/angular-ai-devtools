@@ -25,7 +25,8 @@ describe('App', () => {
  * The chat-entry suite carries the same ordered pin; this one is the app suite's own view of the
  * M032 addition: the `lint` surface is appended last, it loads lazily, and it is installed through
  * `PanelDemoComponent` with its own name in route data — never the surface function itself, which
- * a route accepts and renders nothing for. M034 appends `legacy` after it the same way.
+ * a route accepts and renders nothing for. M034 appends `legacy` after it, and M035 appends
+ * `onpush` after that, the same way.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -46,6 +47,7 @@ describe('the route table', () => {
       'lint', // M032 SC4 surface: the diagnostic joined to its input, or its absence state
       'router', // M033 SC4 surface: the navigation failure and the routes it failed to match
       'legacy', // M034 SC4 surface: the component's structure and the form the table sources
+      'onpush', // M035 SC4 surface: the strategy the def reports and its readiness facts
     ]);
     expect(appRoutes.filter((route) => route.path === 'lint')).toHaveLength(1);
 
@@ -76,5 +78,15 @@ describe('the route table', () => {
     expect(legacy.data?.['surface']).toBe('legacy');
     // Its own name, so a copy of another surface's route cannot stand in for it.
     expect(legacy.data?.['surface']).not.toBe('router');
+
+    const onpush = appRoutes.find((route) => route.path === 'onpush');
+    expect(onpush?.component).toBeUndefined();
+    if (onpush?.loadComponent === undefined) {
+      throw new Error('the onpush surface must load lazily');
+    }
+    expect(await onpush.loadComponent()).toBe(PanelDemoComponent);
+    expect(onpush.data?.['surface']).toBe('onpush');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(onpush.data?.['surface']).not.toBe('legacy');
   });
 });
