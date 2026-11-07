@@ -122,9 +122,16 @@ T002 builds the join, T003 renders it inside the panel and re-cuts the panel's o
 
 ### panel — T003
 
-- Entry: `panelResource(facts)` in `apps/angular-ai-devtools/src/app/panel-resource.ts`, registered as a `data.surface`
-  route with a loader in `panel-demo.ts`.
-- States: loading, finding, cannot-tell, error — the four the sibling surfaces already use.
-- Walkthrough: the loader supplies a fact list from the join's own output; the surface renders `resource`, `state` and
-  `params` for a finding, only `reason` for cannot-tell, and nothing it was not handed.
-- Criteria: SC5, and the fixture pin that fails when a surface has no fixture.
+Entry: the panel route `/resource`, reachable from the panel demo's loader map like every other surface.
+
+States: loading before a fact list arrives; a finding with the resource identity, the state and the params status; cannot-tell
+with its reason and nothing else; error when the fact cannot be read at all.
+
+Walkthrough:
+
+1. The panel is opened on the resource fixture page; the surface shows the resource the graph named and the state it reported.
+2. The params status is shown beside the state, so idle-by-design reads differently from still loading.
+3. A resource whose status could not be read shows this surface's cannot-tell text and its reason, with no resource, no state
+   and no cause.
+
+Criteria: SC5, and the fixture pin that fails when a surface has no fixture.
