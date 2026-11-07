@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: onpush-readiness
+milestone: resource-lifecycle
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M035
-archive: .project/archive/035-onpush-readiness
+branch: gsd-path/M036
+archive: .project/archive/036-resource-lifecycle
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -690,5 +690,60 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-07 — plan — plan approved
 - 2026-11-07 — build — build started
 - 2026-11-07 — build — all seven tasks landed; five waves reviewed
+- 2026-11-07 — ship — build done; final review pending
+- 2026-11-07 — shipped — archive preflight passed; shipment recorded
+- 2026-11-07 — inspect — router bound next milestone
+- 2026-11-07 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-07 — inspect — inspection closed by measured delta
+- 2026-11-07 — define — definition started
+- 2026-11-07 — define — milestone intent approved
+- 2026-11-07 — research — research started
+- 2026-11-07 — research — research handoff validated
+- 2026-11-07 — decide — decide started
+- 2026-11-07 — decide — decisions settled
+- 2026-11-07 — plan — planning started
+- 2026-11-07 — plan — plan approved
+- 2026-11-07 — build — build started
+- 2026-11-07 — build — wave-1 panel: five verified findings before wave 2
+- 2026-11-07 — plan — build plan repair requested
+- 2026-11-07 — plan — build recovery: {"base": "a8b2510b1df6082ce9df05cf2ff7b1c7841b38b7", "branch": "gsd-path/M036", "kind": "plan", "source": "build"}
+- 2026-11-07 — plan — plan approved
+- 2026-11-07 — build — build started
+- 2026-11-07 — build — waves 2-3 panel: three verified findings
+- 2026-11-07 — plan — build plan repair requested
+- 2026-11-07 — plan — build recovery: {"base": "608e1ca1c3061e0377e3900a1c4aec8543e625b4", "branch": "gsd-path/M036", "kind": "plan", "source": "build"}
+- 2026-11-07 — plan — plan approved
+- 2026-11-07 — build — build started
+- 2026-11-07 — build — all six tasks landed; four waves reviewed
+- 2026-11-07 — ship — build done; final review pending
+- 2026-11-07 — ship — project Verify: the fixture install is not bridged in a sidecar
+- 2026-11-07 — plan — patch plan reopened
+- 2026-11-07 — plan — plan approved
+- 2026-11-07 — build — build started
+- 2026-11-07 — build — all seven tasks landed
+- 2026-11-07 — ship — build done; final review pending
+- 2026-11-07 — ship — recordings pin absolute checkout paths
+- 2026-11-07 — plan — patch plan reopened
+- 2026-11-07 — plan — plan approved
+- 2026-11-07 — build — build started
+- 2026-11-07 — build — all eight tasks landed
+- 2026-11-07 — ship — build done; final review pending
+- 2026-11-07 — ship — final gap: three assertions are root-checkout-only
+- 2026-11-07 — plan — patch plan reopened
+- 2026-11-07 — plan — plan approved
+- 2026-11-07 — build — build started
+- 2026-11-07 — build — all tasks landed; waves reviewed
+- 2026-11-07 — ship — build done; final review pending
+- 2026-11-07 — ship — final gap: copied fixture links are absolute and broken
+- 2026-11-07 — plan — patch plan reopened
+- 2026-11-07 — plan — plan approved
+- 2026-11-07 — build — build started
+- 2026-11-07 — build — all tasks landed; waves reviewed
+- 2026-11-07 — ship — build done; final review pending
+- 2026-11-07 — ship — final gap: fixture-relative real path is cross-drive in a sidecar
+- 2026-11-07 — plan — patch plan reopened
+- 2026-11-07 — plan — plan approved
+- 2026-11-07 — build — build started
+- 2026-11-07 — build — all tasks landed; waves reviewed
 - 2026-11-07 — ship — build done; final review pending
 - 2026-11-07 — shipped — archive preflight passed; shipment recorded

@@ -25,8 +25,8 @@ describe('App', () => {
  * The chat-entry suite carries the same ordered pin; this one is the app suite's own view of the
  * M032 addition: the `lint` surface is appended last, it loads lazily, and it is installed through
  * `PanelDemoComponent` with its own name in route data — never the surface function itself, which
- * a route accepts and renders nothing for. M034 appends `legacy` after it, and M035 appends
- * `onpush` after that, the same way.
+ * a route accepts and renders nothing for. M034 appends `legacy` after it, M035 appends `onpush`
+ * after that, and M036 appends `resource` last, the same way.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -48,6 +48,7 @@ describe('the route table', () => {
       'router', // M033 SC4 surface: the navigation failure and the routes it failed to match
       'legacy', // M034 SC4 surface: the component's structure and the form the table sources
       'onpush', // M035 SC4 surface: the strategy the def reports and its readiness facts
+      'resource', // M036 SC5 surface: the resource, its state and the params status beside it
     ]);
     expect(appRoutes.filter((route) => route.path === 'lint')).toHaveLength(1);
 
@@ -88,5 +89,15 @@ describe('the route table', () => {
     expect(onpush.data?.['surface']).toBe('onpush');
     // Its own name, so a copy of another surface's route cannot stand in for it.
     expect(onpush.data?.['surface']).not.toBe('legacy');
+
+    const resource = appRoutes.find((route) => route.path === 'resource');
+    expect(resource?.component).toBeUndefined();
+    if (resource?.loadComponent === undefined) {
+      throw new Error('the resource surface must load lazily');
+    }
+    expect(await resource.loadComponent()).toBe(PanelDemoComponent);
+    expect(resource.data?.['surface']).toBe('resource');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(resource.data?.['surface']).not.toBe('onpush');
   });
 });

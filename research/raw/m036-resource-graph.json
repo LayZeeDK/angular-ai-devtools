@@ -1,0 +1,325 @@
+{
+  "capturedAt": "2026-11-07T02:12:21.271Z",
+  "browser": "headless Playwright Chromium (build 153.0.8010.12)",
+  "browserBuild": "153.0.8010.12",
+  "instance": "headless",
+  "playwright": "1.63.0",
+  "angularVersion": "22.2.2",
+  "url": "http://127.0.0.1:64225/resource-states",
+  "pageUrl": "http://127.0.0.1:64225/resource-states",
+  "commands": {
+    "install": "npm ci --include=dev",
+    "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
+    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 64225 --host 127.0.0.1  (cwd spikes/ng222-app)",
+    "capture": "set \"M036_CAPTURE=1\"&& node --test scripts/resource-graph-capture.test.mjs",
+    "check": "node --experimental-strip-types --test scripts/resource-graph-capture.test.mjs"
+  },
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0"
+  },
+  "fixture": {
+    "route": "/resource-states",
+    "routeTable": "spikes/ng222-app/src/app/app.routes.ts",
+    "page": "spikes/ng222-app/src/app/resource-page.ts",
+    "pageComponent": "ResourcePage",
+    "statesSource": "spikes/ng222-app/src/app/resource-states.ts",
+    "statesComponent": "ResourceStates",
+    "element": "app-resource-states",
+    "whyIdle": "IdleResource params read the IdleSource signal, which stays undefined, and return undefined; an undefined request is what the state computation turns into status idle, so the loader never runs"
+  },
+  "hooks": {
+    "labelsComeFrom": "ɵgetSignalGraph",
+    "setProfilerCarriesNoLabels": true,
+    "perInstall": [
+      {
+        "package": "@angular/core",
+        "path": "node_modules/@angular/core",
+        "version": "22.1.8",
+        "servedByTheFixture": false,
+        "declaredInTypes": [
+          {
+            "symbol": "ɵgetSignalGraph",
+            "declared": true
+          },
+          {
+            "symbol": "ɵsetProfiler",
+            "declared": true
+          }
+        ],
+        "publishedOnWindowNg": [
+          {
+            "symbol": "ɵgetSignalGraph",
+            "published": true
+          },
+          {
+            "symbol": "ɵsetProfiler",
+            "published": true
+          }
+        ],
+        "sourceFacts": {
+          "debugNameBuilder": true,
+          "idleFromUndefinedRequest": true,
+          "paramsStatusExported": true
+        },
+        "runtime": null
+      },
+      {
+        "package": "@angular/core",
+        "path": "spikes/ng222-app/node_modules/@angular/core",
+        "version": "22.2.2",
+        "servedByTheFixture": true,
+        "declaredInTypes": [
+          {
+            "symbol": "ɵgetSignalGraph",
+            "declared": true
+          },
+          {
+            "symbol": "ɵsetProfiler",
+            "declared": true
+          }
+        ],
+        "publishedOnWindowNg": [
+          {
+            "symbol": "ɵgetSignalGraph",
+            "published": true
+          },
+          {
+            "symbol": "ɵsetProfiler",
+            "published": true
+          }
+        ],
+        "sourceFacts": {
+          "debugNameBuilder": true,
+          "idleFromUndefinedRequest": true,
+          "paramsStatusExported": true
+        },
+        "runtime": {
+          "reading": "window.ng read in the served page",
+          "getSignalGraph": "function",
+          "setProfiler": "function",
+          "returnedGraph": true
+        }
+      }
+    ]
+  },
+  "graph": {
+    "reading": "ɵgetSignalGraph(ng.getInjector(<app-resource-states>))",
+    "nodeCount": 28,
+    "edgeCount": 37,
+    "resourceNodeCount": 26,
+    "nodes": [
+      {
+        "label": "app-resource-states",
+        "kind": "template",
+        "value": null
+      },
+      {
+        "label": "IdleSource",
+        "kind": "signal",
+        "value": null
+      },
+      {
+        "label": "Resource#ErroredResource.error",
+        "kind": "computed",
+        "value": null
+      },
+      {
+        "label": "Resource#ErroredResource.extRequest",
+        "kind": "linkedSignal",
+        "value": null
+      },
+      {
+        "label": "Resource#ErroredResource.isLoading",
+        "kind": "computed",
+        "value": false
+      },
+      {
+        "label": "Resource#ErroredResource.loadEffect",
+        "kind": "effect",
+        "value": null
+      },
+      {
+        "label": "Resource#ErroredResource.state",
+        "kind": "linkedSignal",
+        "value": null
+      },
+      {
+        "label": "Resource#ErroredResource.status",
+        "kind": "computed",
+        "value": "error"
+      },
+      {
+        "label": "Resource#ErroredResource.stream",
+        "kind": "signal",
+        "value": null
+      },
+      {
+        "label": "Resource#IdleResource.extRequest",
+        "kind": "linkedSignal",
+        "value": null
+      },
+      {
+        "label": "Resource#IdleResource.isLoading",
+        "kind": "computed",
+        "value": false
+      },
+      {
+        "label": "Resource#IdleResource.loadEffect",
+        "kind": "effect",
+        "value": null
+      },
+      {
+        "label": "Resource#IdleResource.state",
+        "kind": "linkedSignal",
+        "value": null
+      },
+      {
+        "label": "Resource#IdleResource.status",
+        "kind": "computed",
+        "value": "idle"
+      },
+      {
+        "label": "Resource#IdleResource.value",
+        "kind": "computed",
+        "value": null
+      },
+      {
+        "label": "Resource#LoadingResource.extRequest",
+        "kind": "linkedSignal",
+        "value": null
+      },
+      {
+        "label": "Resource#LoadingResource.isLoading",
+        "kind": "computed",
+        "value": true
+      },
+      {
+        "label": "Resource#LoadingResource.loadEffect",
+        "kind": "effect",
+        "value": null
+      },
+      {
+        "label": "Resource#LoadingResource.state",
+        "kind": "linkedSignal",
+        "value": null
+      },
+      {
+        "label": "Resource#LoadingResource.status",
+        "kind": "computed",
+        "value": "loading"
+      },
+      {
+        "label": "Resource#LoadingResource.value",
+        "kind": "computed",
+        "value": null
+      },
+      {
+        "label": "Resource#ResolvedResource.extRequest",
+        "kind": "linkedSignal",
+        "value": null
+      },
+      {
+        "label": "Resource#ResolvedResource.isLoading",
+        "kind": "computed",
+        "value": false
+      },
+      {
+        "label": "Resource#ResolvedResource.loadEffect",
+        "kind": "effect",
+        "value": null
+      },
+      {
+        "label": "Resource#ResolvedResource.state",
+        "kind": "linkedSignal",
+        "value": null
+      },
+      {
+        "label": "Resource#ResolvedResource.status",
+        "kind": "computed",
+        "value": "resolved"
+      },
+      {
+        "label": "Resource#ResolvedResource.stream",
+        "kind": "signal",
+        "value": null
+      },
+      {
+        "label": "Resource#ResolvedResource.value",
+        "kind": "computed",
+        "value": "ResolvedResource value"
+      }
+    ]
+  },
+  "page": {
+    "ngVersion": "22.2.2",
+    "headingText": "resource states",
+    "idleParamsValue": "undefined",
+    "route": "/resource-states"
+  },
+  "resources": [
+    {
+      "debugName": "LoadingResource",
+      "expectedState": "loading",
+      "labels": [
+        "Resource#LoadingResource.extRequest",
+        "Resource#LoadingResource.isLoading",
+        "Resource#LoadingResource.loadEffect",
+        "Resource#LoadingResource.state",
+        "Resource#LoadingResource.status",
+        "Resource#LoadingResource.value"
+      ],
+      "status": "loading",
+      "isLoading": true,
+      "instanceStatus": "loading"
+    },
+    {
+      "debugName": "ResolvedResource",
+      "expectedState": "resolved",
+      "labels": [
+        "Resource#ResolvedResource.extRequest",
+        "Resource#ResolvedResource.isLoading",
+        "Resource#ResolvedResource.loadEffect",
+        "Resource#ResolvedResource.state",
+        "Resource#ResolvedResource.status",
+        "Resource#ResolvedResource.stream",
+        "Resource#ResolvedResource.value"
+      ],
+      "status": "resolved",
+      "isLoading": false,
+      "instanceStatus": "resolved"
+    },
+    {
+      "debugName": "ErroredResource",
+      "expectedState": "error",
+      "labels": [
+        "Resource#ErroredResource.error",
+        "Resource#ErroredResource.extRequest",
+        "Resource#ErroredResource.isLoading",
+        "Resource#ErroredResource.loadEffect",
+        "Resource#ErroredResource.state",
+        "Resource#ErroredResource.status",
+        "Resource#ErroredResource.stream"
+      ],
+      "status": "error",
+      "isLoading": false,
+      "instanceStatus": "error"
+    },
+    {
+      "debugName": "IdleResource",
+      "expectedState": "idle",
+      "labels": [
+        "Resource#IdleResource.extRequest",
+        "Resource#IdleResource.isLoading",
+        "Resource#IdleResource.loadEffect",
+        "Resource#IdleResource.state",
+        "Resource#IdleResource.status",
+        "Resource#IdleResource.value"
+      ],
+      "status": "idle",
+      "isLoading": false,
+      "instanceStatus": "idle"
+    }
+  ]
+}

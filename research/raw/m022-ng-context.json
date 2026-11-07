@@ -4,29 +4,30 @@
   "app": "spikes/ng222-app",
   "angular": "22.2.2",
   "remeasurement": {
-    "on": "2026-11-06",
-    "task": "M035 T004 — both builds re-emitted with each output path deleted first, and both build objects below re-read from the new bytes.",
+    "on": "2026-11-07",
+    "task": "M036 T004 — both builds re-emitted with each output path deleted first, and both build objects below re-read from the new bytes.",
     "commands": [
       "node node_modules/@angular/cli/bin/ng.js build --configuration development --output-path ../../tmp/ng-context/dev",
       "node node_modules/@angular/cli/bin/ng.js build --configuration production --output-path ../../tmp/ng-context/prod"
     ],
     "cwd": "spikes/ng222-app",
     "outputPathClearedFirst": "tmp/ng-context/dev and tmp/ng-context/prod were each removed before its build ran; builds.development.outputClearedFirst and builds.production.outputClearedFirst record that fact.",
-    "proof": "the production bundles were rebuilt rather than tolerated: their content-hashed names moved from chunk-6JCU2JY6.js, chunk-BZU54WNM.js, main-JST524BV.js to chunk-6JCU2JY6.js, chunk-BZU54WNM.js, main-AHS4MRYY.js, the total byte count moved 472550 -> 473611, and the minified alias for \"__ngContext__\" stayed lu. The development byte count moved 2176374 -> 2180767; its chunk names are stable across builds (chunk-4GZTSCME.js, chunk-BC3BGO77.js, main.js), so the movement that build shows is the byte count.",
-    "notReMeasured": "the served half was not re-driven: this task rebuilds the bundles and does not open a browser. The recorded page readings are unchanged, and the suite cross-checks them against the bytes measured at this head."
+    "proof": "the production bundles were rebuilt rather than tolerated: their content-hashed names moved from chunk-6JCU2JY6.js, chunk-BZU54WNM.js, main-AHS4MRYY.js to chunk-4Z6IPR7R.js, chunk-N2IS2LH6.js, main-SKSKCBNM.js, the total byte count moved 473611 -> 482597, and the minified alias for \"__ngContext__\" moved lu -> Su. The development byte count moved 2180767 -> 2199406; its chunk names moved with it (chunk-4GZTSCME.js, chunk-BC3BGO77.js, main.js -> chunk-AUYJPN2L.js, chunk-EGO3M3XF.js, main.js), because the resource page and the component behind it are new emitted code in those chunks, so the development movement is the byte count and the chunk contents together, re-recorded rather than absorbed by the tolerance.",
+    "notReMeasured": "the served half was not re-driven: this task rebuilds the bundles and does not open a browser. The recorded page readings are unchanged, and the suite cross-checks them against the bytes measured at this head.",
+    "commandsNote": "both commands run in spikes/ng222-app after the package build (`npx nx run ai-devtools-companion:build`), which the development configuration resolves through its dev-only provider file."
   },
   "growth": {
-    "reRecordedOn": "2026-11-06",
-    "cause": "spikes/ng222-app/src/app/onpush-ready-page.ts and spikes/ng222-app/src/app/onpush-ready.ts — the readiness fixture page and the finding builder behind it, added by T001 and routed at /onpush-ready. The growth is that page’s emitted code, a real change in both bundles, not measurement noise; both builds are therefore re-recorded rather than the development byte bound widened.",
+    "reRecordedOn": "2026-11-07",
+    "cause": "spikes/ng222-app/src/app/resource-page.ts and spikes/ng222-app/src/app/resource-states.ts — the routed resource page and the component that holds one resource per state, added by T001 and routed at resource-states (spikes/ng222-app/src/app/app.routes.ts:29). The growth is that page’s emitted code, a real change in both bundles, not measurement noise; both builds are therefore re-recorded rather than the development byte bound widened.",
     "development": {
-      "was": 2176374,
-      "now": 2180767,
-      "delta": 4393
+      "was": 2180767,
+      "now": 2199406,
+      "delta": 18639
     },
     "production": {
-      "was": 472550,
-      "now": 473611,
-      "delta": 1061
+      "was": 473611,
+      "now": 482597,
+      "delta": 8986
     },
     "tolerance": "the development byte tolerance stays 2000 bytes (DEV_BYTES_TOLERANCE in scripts/ng-context-dev-build.test.mjs); it was not widened to cover this change"
   },
@@ -43,12 +44,12 @@
       "lazyChunkCount": 2,
       "chunkPattern": "^chunk-[A-Z0-9]+\\.js$",
       "sample": [
-        "chunk-4GZTSCME.js",
-        "chunk-BC3BGO77.js",
+        "chunk-AUYJPN2L.js",
+        "chunk-EGO3M3XF.js",
         "main.js"
       ],
       "sampleNote": "sample is an observation, not an assertion.",
-      "bytes": 2180767,
+      "bytes": 2199406,
       "unminified": true,
       "ngContextWrite": {
         "present": true,
@@ -80,20 +81,20 @@
     "production": {
       "configuration": "production",
       "bundles": [
-        "chunk-6JCU2JY6.js",
-        "chunk-BZU54WNM.js",
-        "main-AHS4MRYY.js"
+        "chunk-4Z6IPR7R.js",
+        "chunk-N2IS2LH6.js",
+        "main-SKSKCBNM.js"
       ],
-      "bytes": 473611,
+      "bytes": 482597,
       "unminified": false,
       "ngContextWrite": {
         "present": true,
-        "binding": "var lu=\"__ngContext__\"",
-        "identifier": "lu",
+        "binding": "var Su=\"__ngContext__\"",
+        "identifier": "Su",
         "writeSites": 2,
         "writeSnippets": [
-          "__ngContext__\";function fn(e,t){Be(t)?(e[lu]=t[Gn],om(t)):e[lu]=t}function ld(e){return dd(e[en])}fu",
-          "tion fn(e,t){Be(t)?(e[lu]=t[Gn],om(t)):e[lu]=t}function ld(e){return dd(e[en])}function ud(e){return"
+          "__ngContext__\";function vn(e,t){We(t)?(e[Su]=t[Kn],Cm(t)):e[Su]=t}function bd(e){return Nd(e[sn])}fu",
+          "tion vn(e,t){We(t)?(e[Su]=t[Kn],Cm(t)):e[Su]=t}function bd(e){return Nd(e[sn])}function _d(e){return"
         ]
       },
       "ngGlobalSurface": {
@@ -117,7 +118,7 @@
   "differential": {
     "ngContextWrite": "present in both configurations",
     "ngGlobalSurface": "development only",
-    "meaning": "attachPatchData writes __ngContext__ in both configurations — the development bundle names the property through MONKEY_PATCH_KEY_NAME, the production bundle through the minified alias lu — while the surface that would read it, window.ng, is published only in the development build. The property is not dev-only; the debug API is."
+    "meaning": "attachPatchData writes __ngContext__ in both configurations — the development bundle names the property through MONKEY_PATCH_KEY_NAME, the production bundle through the minified alias Su — while the surface that would read it, window.ng, is published only in the development build. The property is not dev-only; the debug API is."
   },
   "served": {
     "driver": "spikes/probes/ng-context.js",
@@ -207,13 +208,13 @@
   "reconciliation": {
     "comparedWith": "research/raw/companion-dev-build.json",
     "developmentBundles": [
-      "chunk-4GZTSCME.js",
-      "chunk-BC3BGO77.js",
+      "chunk-AUYJPN2L.js",
+      "chunk-EGO3M3XF.js",
       "main.js"
     ],
     "agrees": true,
     "leftoverHypothesis": "refuted",
-    "note": "A clean build (output directory deleted first) emits the same three development bundles as companion-dev-build, at the same 2180767 bytes: two recordings built the same configuration into two different output paths and agree name for name and byte for byte, so this task's three bundles are genuine, not leftovers from a reused output directory."
+    "note": "A clean build (output directory deleted first) emits the same three development bundles as companion-dev-build, at the same 2199406 bytes: two recordings built the same configuration into two different output paths and agree name for name and byte for byte, so this task's three bundles are genuine, not leftovers from a reused output directory."
   },
   "verdict": "measured: both configurations write __ngContext__, and only the development build publishes window.ng; a production page therefore answers no-dev-api, not no-dev-context"
 }

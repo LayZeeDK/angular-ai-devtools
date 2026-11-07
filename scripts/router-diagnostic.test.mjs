@@ -54,8 +54,8 @@ function bodyOf(text) {
 const BODY = bodyOf(DIAG.text);
 
 describe('measurement', () => {
-  it('recording has 17 config and one NG diagnostic', () => {
-    assert.equal(RECORDING.config.length, 17);
+  it('recording has 18 config and one NG diagnostic', () => {
+    assert.equal(RECORDING.config.length, 18);
     assert.equal(RECORDING.ngCodedMessages.length, 1);
     assert.equal(DIAG.code, 'NG04002');
     assert.equal(DIAG.digestCarriesCode, false);
@@ -82,7 +82,7 @@ describe('E1 finding', () => {
     assert.equal(r.segment, SEGMENT);
     assert.equal(r.code, CODE);
     assert.equal(r.message, BODY);
-    assert.equal(r.consideredCount, 17);
+    assert.equal(r.consideredCount, 18);
     assert.ok(!('route' in r));
   });
 });
@@ -126,7 +126,7 @@ describe('facts variants', () => {
   it('accepts paths and array', () => {
     const { api } = loadBare();
     const r1 = host(api.routerDiagnostic(capturedMessages(), FACTS_PATHS));
-    assert.equal(r1.consideredCount, 17);
+    assert.equal(r1.consideredCount, 18);
     const r2 = host(api.routerDiagnostic(capturedMessages(), CONFIG));
     assert.equal(r2.state, 'finding');
   });

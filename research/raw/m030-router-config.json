@@ -1,16 +1,16 @@
 {
-  "capturedAt": "2026-11-06T19:43:07.456Z",
+  "capturedAt": "2026-11-07T02:11:13.832Z",
   "browser": "headless Playwright Chromium (build 153.0.8010.12)",
   "browserBuild": "153.0.8010.12",
   "instance": "headless",
   "playwright": "1.63.0",
   "angularVersion": "22.2.2",
-  "url": "http://127.0.0.1:52934/landing",
-  "pageUrl": "http://127.0.0.1:52934/landing",
+  "url": "http://127.0.0.1:63563/landing",
+  "pageUrl": "http://127.0.0.1:63563/landing",
   "commands": {
     "install": "npm ci --include=dev",
     "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
-    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 52934 --host 127.0.0.1  (cwd spikes/ng222-app)",
+    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 63563 --host 127.0.0.1  (cwd spikes/ng222-app)",
     "capture": "node --test scripts/router-config-capture.test.mjs",
     "check": "node --test scripts/router-config-capture.test.mjs"
   },
@@ -78,6 +78,10 @@
     {
       "path": "onpush-ready",
       "component": "[fn _OnPushReadyPage]"
+    },
+    {
+      "path": "resource-states",
+      "component": "[fn _ResourcePage]"
     },
     {
       "path": "redirect",

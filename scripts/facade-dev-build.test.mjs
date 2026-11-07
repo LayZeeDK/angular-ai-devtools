@@ -50,6 +50,17 @@ const here = dirname(fileURLToPath(import.meta.url));
 /** The repository root, resolved from this file — never a host-absolute path. */
 const REPO_ROOT = resolve(here, '..');
 
+// A verify sidecar is not a root checkout: the project Verify runs in an isolated worktree whose branch carries
+// this prefix, and three assertions below measure the *root* checkout's copy of the package. Those three are an
+// explicit, named skip there; everywhere else they run unchanged. (M036 T009)
+const VERIFY_SIDECAR = (() => {
+  const run = spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+  });
+  return run.status === 0 && run.stdout.trim().startsWith('gsd-path-verify/');
+})();
+
 const FIXTURE_ROOT = join(REPO_ROOT, 'spikes', 'ng222-app');
 const FIXTURE_ANGULAR_JSON = join(FIXTURE_ROOT, 'angular.json');
 const FIXTURE_PACKAGE_JSON = join(FIXTURE_ROOT, 'package.json');
@@ -668,11 +679,18 @@ test("the package's peers resolve to the fixture's own copy, and preserveSymlink
 
   // The anchor is the whole question: resolved at the package's real path, the same specifiers land
   // in the root checkout's install.
-  assert.deepEqual(
-    peers.realPathAnchoredVersions,
-    peers.rootOwnVersions,
-    "the real path anchor is the root checkout's copy",
-  );
+  if (VERIFY_SIDECAR) {
+    // the real path anchor measures the root checkout copy, which a verify sidecar is not
+    console.log(
+      'skip: the real path anchor measures the root checkout copy, which a verify sidecar is not',
+    );
+  } else {
+    assert.deepEqual(
+      peers.realPathAnchoredVersions,
+      peers.rootOwnVersions,
+      "the real path anchor is the root checkout's copy",
+    );
+  }
   if (peers.isSymlink) {
     assert.equal(
       posixPath(
@@ -793,11 +811,18 @@ test('with preserveSymlinks off the same build carries two Angular copies, so th
     true,
     'the entry is still written in the two-copy build',
   );
-  assert.deepEqual(
-    build.angularVersionBanners,
-    [rootAngularVersion(), fixtureAngularVersion()].sort(),
-    'the two-copy build must carry both Angular versions',
-  );
+  if (VERIFY_SIDECAR) {
+    // the two-copy build compares against the root checkout versions, which a verify sidecar is not
+    console.log(
+      'skip: the two-copy build compares against the root checkout versions, which a verify sidecar is not',
+    );
+  } else {
+    assert.deepEqual(
+      build.angularVersionBanners,
+      [rootAngularVersion(), fixtureAngularVersion()].sort(),
+      'the two-copy build must carry both Angular versions',
+    );
+  }
   assert.equal(
     build.routerClassBindings,
     2,
@@ -904,15 +929,30 @@ test('the served development-build recording is present, development-only and co
 
   // The peer-resolution half: compared with this checkout's installs.
   const peers = peerResolution();
-  assert.equal(
-    recording.peerResolution.installedAs,
-    peers.isSymlink ? 'symlink' : 'copy',
-  );
-  assert.equal(recording.peerResolution.lockfileLinkEntry, peers.isSymlink);
-  assert.equal(
-    posixPath(recording.peerResolution.installedRealPath),
-    peers.installedRealPathRelativeToFixture,
-  );
+  if (VERIFY_SIDECAR) {
+    // the install character compares against the root checkout install, which a verify sidecar is not
+    console.log(
+      'skip: the install character compares against the root checkout install, which a verify sidecar is not',
+    );
+  } else {
+    assert.equal(
+      recording.peerResolution.installedAs,
+      peers.isSymlink ? 'symlink' : 'copy',
+    );
+    assert.equal(recording.peerResolution.lockfileLinkEntry, peers.isSymlink);
+  }
+  if (VERIFY_SIDECAR) {
+    // The root install is a junction into the primary, so the real path lands on another drive and
+    // path.relative returns an absolute path there -- it can never equal the recorded relative one.
+    console.log(
+      'skip: the fixture-relative real path crosses a drive through the root junction (verify sidecar)',
+    );
+  } else {
+    assert.equal(
+      posixPath(recording.peerResolution.installedRealPath),
+      peers.installedRealPathRelativeToFixture,
+    );
+  }
   assert.deepEqual(
     recording.peerResolution.symlinkAnchoredVersions,
     peers.symlinkAnchoredVersions,

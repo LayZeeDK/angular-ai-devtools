@@ -1,0 +1,70 @@
+---
+id: T008
+title: Copy the fixture install into a verify sidecar
+wave: 6
+status: done
+deps: []
+agent: orchestrator-serial
+base: 5b200fb73cc713486d733fb5d8f67adab39f8809
+worktree: null
+task_branch: null
+files:
+  - scripts/ensure-sidecar-deps.mjs
+---
+
+# T008 — Copy the fixture install into a verify sidecar
+
+## Context
+
+T007 bridged `spikes/ng222-app/node_modules` with `bridge()`, which creates a **junction**. In a verify sidecar that makes
+every path below the fixture resolve into the **primary** checkout, while the suite's own `createRequire` against the
+sidecar's fixture root resolves into the sidecar. Three assertions compare those two roots and fail:
+
+```
+measured through the junction: D:/projects/.../packages/ai-devtools-companion
+measured from the sidecar:     C:/Users/.../verify/project-verify/packages/...
+```
+
+Both values are correct; they describe different roots. The recordings are innocent - they already store
+`../../packages/ai-devtools-companion`. The defect is the junction, and it is mine: T007 introduced it.
+
+The fixture's dependency resolution is itself under test (`preserveSymlinks` is the whole subject of `facade-dev-build`), so
+a bridge that makes two roots look like one answers the question the suite is asking.
+
+## Approach
+
+Copy the fixture install into the sidecar with `cpSync(..., { recursive: true, dereference: false })` so the fixture's own
+relative symlink survives as a symlink and resolves inside the sidecar. Guard it: only when the primary has the install and
+the sidecar does not, and never over an existing directory.
+
+## Interface contract
+
+`resourceLifecycle(fact)` returns `{ state: "finding" | "cannot-tell", resource?, status?, params?, reason? }`, where
+`reason` is one of `no-resource`, `labels-unreadable`, `params-unavailable`, `status-unavailable`. T003 consumes the same
+shape; both tasks must carry this line unchanged.
+
+## Files
+
+- `scripts/ensure-sidecar-deps.mjs`
+
+## Acceptance criteria
+
+1. held-out E1: a sidecar without a fixture install receives a copy whose entries are real files, and the fixture's own relative symlink is preserved (held-out E1)
+2. held-out E2: a primary without a fixture install is left alone and the script exits 0 (held-out E2)
+3. an existing fixture install in the sidecar is never overwritten
+4. the project Verify's peer-resolution assertions pass in a sidecar
+
+## Verify
+
+```bash
+node --experimental-strip-types --test "scripts/facade-dev-build.test.mjs" && node --experimental-strip-types --test "scripts/ng-context-dev-build.test.mjs" && npx prettier --check scripts/ensure-sidecar-deps.mjs
+```
+
+## Intent coverage
+
+- SC6 — the project Verify passes in the sidecar the pipeline uses
+
+## Log
+
+- dispatched
+- 2026-11-08 - implemented serially. `ensure-sidecar-deps.mjs` copies the fixture install with `cpSync(..., { recursive: true, dereference: false })` instead of bridging it, so the fixture's own relative symlink survives and resolves inside the sidecar. T007's junction made every path below the fixture resolve into the primary, which is why three peer-resolution assertions compared two different roots. Guarded: only when the primary has the install and the sidecar does not. Verify: facade 8/8, ng-context 10/10, recorded. Verdict: ready.

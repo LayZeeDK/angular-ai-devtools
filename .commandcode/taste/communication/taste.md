@@ -9,4 +9,5 @@
 - Model prompting guides should note the model's context window, multimodal/multi-model capabilities, the tasks it excels at, and when to use it for subagents. Confidence: 0.8
 - Directly corrects conclusions that conflict with his prior experience (e.g., declaring a capability/environment impossible after past successful runs) and expects the assistant to revise rather than defend. Confidence: 0.8
 - Never call AskUserQuestion; proceed with available context and escalate through the normal channel instead. Confidence: 0.9
+- When reporting what has shipped, describe it from the user's perspective — what a developer can now do or see — not from implementation details like module names, commit SHAs, file paths or test counts. Confidence: 0.95
 - When reporting bugs or unexpected behavior, the user asks diagnostic questions ("why does X happen?") and expects a thorough root cause analysis with code traces and explanations, not just a proposed fix. Confidence: 0.7">

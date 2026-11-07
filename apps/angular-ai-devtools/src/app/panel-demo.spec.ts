@@ -15,6 +15,10 @@
  * committed recording is therefore inlined from disk at build time through `import.meta.glob` with a
  * `?raw` eager query, anchored to the repo root by walking up from this spec file, and parsed here.
  * The name comes from the committed artifact, not from prose in this spec.
+ *
+ * M036 T003 extends the same discipline to the `resource` surface's sample fact: the identity and
+ * the status the demo prints are the ones `research/raw/m036-resource-graph.json` records for the
+ * idle-by-design resource, so a demo that named a resource the fixture never has reddens here.
  */
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -29,6 +33,15 @@ interface OnpushMetadataRecording {
       runtime: { component: string };
     };
   };
+}
+
+/** The part of the M036 resource-graph recording this spec reads. */
+interface ResourceGraphRecording {
+  resources: {
+    debugName: string;
+    expectedState: string;
+    status: string;
+  }[];
 }
 
 /** The vite `import.meta.glob` surface this spec uses, cast rather than declared globally. */
@@ -65,6 +78,28 @@ function readRecording(): {
     );
   }
   return { recording: JSON.parse(text) as OnpushMetadataRecording, text };
+}
+
+/** The M036 resource-graph recording and its text, inlined from disk the same way. */
+function readResourceRecording(): {
+  recording: ResourceGraphRecording;
+  text: string;
+} {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m036-resource-graph.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m036-resource-graph.json was not inlined above this spec file',
+    );
+  }
+  return { recording: JSON.parse(text) as ResourceGraphRecording, text };
 }
 
 /** The demo rendered for one surface name, once its lazy surface has answered. */
@@ -131,5 +166,31 @@ describe('the panel demo', () => {
     expect(nameLine.slice('component: '.length)).toBe(
       recording.subjects.declaredDefault.compiled.typeRef,
     );
+  });
+
+  /**
+   * The M036 half: the sample fact behind `/resource` is the idle-by-design finding, and the
+   * identity and the status it prints are the ones the recording names. The `params` line is the
+   * join's own sentence for that measured case — the recording carries the resource's status, not a
+   * params status — so no params value is presented as a measurement it is not.
+   */
+  it('renders the idle-by-design resource the M036 recording names', async () => {
+    const { recording, text } = readResourceRecording();
+    const idle = recording.resources.find(
+      (resource) => resource.expectedState === 'idle',
+    );
+    if (idle === undefined) {
+      throw new Error('the M036 recording carries no idle-by-design resource');
+    }
+
+    const demo = await renderDemo('resource');
+    expect(demo.state()).toBe('finding');
+    expect(demo.lines()).toEqual([
+      `resource: Resource#${idle.debugName}`,
+      `status: ${idle.status}`,
+      'params: idle (by design)',
+    ]);
+    // The identity the demo prints is in the committed recording's bytes, not only in this spec.
+    expect(text.includes(`Resource#${idle.debugName}`)).toBe(true);
   });
 });
