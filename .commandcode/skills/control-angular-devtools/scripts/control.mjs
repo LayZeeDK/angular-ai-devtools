@@ -646,16 +646,30 @@ export async function probePort(port, hosts = LOOPBACKS) {
 
 /**
  * The PIDs `netstat` names for the listening ports it reports. Naming only: which table a host exposes is its
- * business, and a host whose netstat reports only the host table names none of them, so this may say nothing.
+ * business, and a host whose netstat reports only the host table names none of them, so this may say nothing. An
+ * owner the OS cannot attribute (PID 0, which a restricted sandbox reports for a socket it will not name) is not a
+ * name either, so it is dropped: every reader then sees the port held by a process the OS did not name, and never by
+ * PID 0, which is no process and so cannot be another browser.
  * @returns {Map<number, number[]>}
  */
 function namedHolders() {
-  return listeners(
+  /** @type {Map<number, number[]>} */
+  const attributed = new Map();
+
+  for (const [port, pids] of listeners(
     spawnSync(join(SYSTEM32, 'netstat.exe'), ['-ano'], {
       encoding: 'utf8',
       windowsHide: true,
     }).stdout,
-  );
+  )) {
+    const named = pids.filter((pid) => pid !== 0);
+
+    if (named.length > 0) {
+      attributed.set(port, named);
+    }
+  }
+
+  return attributed;
 }
 
 /**
