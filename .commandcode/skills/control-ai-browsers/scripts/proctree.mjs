@@ -1,6 +1,6 @@
 // @ts-check
 // The process tree a control skill's run started: record it, keep it after a parent exits, and stop it by PID.
-// Byte-copied into every control skill beside fingerprint.mjs; never edited there. Contract:
+// A control skill carries a byte copy at scripts/proctree.mjs; edit only here, never the copy. Contract:
 // lars-create-verification references/generated-skill.md, "Process trees".
 // Windows reads one Win32_Process query through PowerShell; Linux and macOS read `ps`; other platforms throw.
 // Nothing here prints: callers print `describe(record)`, which escapes the command line.
