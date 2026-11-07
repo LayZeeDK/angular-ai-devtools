@@ -67,28 +67,48 @@
         : null;
     const rootInvalid = root.invalid === true || root.valid === false;
 
+    // The submit state is carried when the fact carries the string the page reported, or the submit
+    // element's own `disabled` reading. A fact carrying neither is a state nobody read, so it is
+    // reported as such (SC4): `enabled` here would be a claim about a state the page never stated,
+    // and `disabled` would be that same claim inferred from field validity (N3). The root's own
+    // absence keeps precedence: a root that is invalid with no error kind is named first, because
+    // that is the defect the reader was built to name.
+    const submitCarried =
+      typeof state.submitState === 'string' ||
+      typeof state.submitDisabled === 'boolean';
     const submitState =
       typeof state.submitState === 'string'
         ? state.submitState
         : state.submitDisabled === true
           ? 'disabled'
           : 'enabled';
+    const submitValue = submitCarried ? submitState : 'unknown';
 
     if (rootInvalid && rootKind === null) {
       return {
         state: CANNOT_TELL,
         reason: 'root-invalid-without-error-kind',
         fields: fields,
-        submit: submitState,
-        submitState: submitState,
+        submit: submitValue,
+        submitState: submitValue,
+      };
+    }
+
+    if (!submitCarried) {
+      return {
+        state: CANNOT_TELL,
+        reason: 'submit-state-unreadable',
+        fields: fields,
+        submit: submitValue,
+        submitState: submitValue,
       };
     }
 
     const result = {
       state: FIELDS,
       fields: fields,
-      submit: submitState,
-      submitState: submitState,
+      submit: submitValue,
+      submitState: submitValue,
     };
     if (rootKind !== null) {
       result.rootError = rootKind;

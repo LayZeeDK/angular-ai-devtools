@@ -2,11 +2,11 @@
 id: T002
 title: Supply the submit state to the pane and the recordings
 wave: 2
-status: in-progress
+status: done
 deps: [T001]
 agent: paid-deepseek-v4-1-flash-high
 base: 03ef4668f1b3523bc884ec5adf6cbdbc7f8028c7
-worktree: D:\projects\sandbox\angular-ai-devtools
+worktree: null
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-demo.ts
@@ -63,3 +63,7 @@ node --experimental-strip-types --test "scripts/field-state.test.mjs" && node --
 ## Log
 
 - dispatched
+- 2026-11-08 - implemented. The module no longer reports a submit state it was not given: a fact carrying
+  neither submitState nor submitDisabled answers cannot-tell / submit-state-unreadable. Four mutants pin it.
+  No recording moved and each is proven by a clean rebuild. Gate: 842+60+628+341+85, exit 0.
+  Verdict: ready. Deps T001.

@@ -97,8 +97,12 @@ describe('field-state', () => {
     const state = { fields: RECORDING.fields, root: RECORDING.root };
     const result = host(api.read(state));
     assert.equal(result.state, 'cannot-tell');
-    assert.equal(result.submit, 'enabled');
-    assert.equal(result.submitState, 'enabled');
+    // This fact carries no submit state: the recording's root is invalid with no error kind and the
+    // state is withheld here, so the module reports the state as unread rather than as `enabled` — a
+    // claim nobody measured. The root's absence is named first.
+    assert.equal(result.reason, 'root-invalid-without-error-kind');
+    assert.equal(result.submit, 'unknown');
+    assert.equal(result.submitState, 'unknown');
     for (const key of ['name', 'age']) {
       const field = result.fields[key];
       assert.ok(field, `${key} present`);
@@ -128,6 +132,8 @@ describe('field-state', () => {
 
   it('E3: root invalid with a kind reports that kind; root invalid without one returns cannot-tell', () => {
     const { api } = loadBare();
+    // Both facts carry the submit state, because the subject here is the root's error kind: since
+    // M037 T002 a fact that carries none is cannot-tell for that reason, which would mask this pin.
     const withKind = host(
       api.read({
         fields: {
@@ -139,6 +145,7 @@ describe('field-state', () => {
           invalid: true,
           errors: [{ kind: 'name-too-short-for-age' }],
         },
+        submitDisabled: false,
       }),
     );
     assert.equal(withKind.state, 'fields');
@@ -152,9 +159,11 @@ describe('field-state', () => {
           age: { valid: true, invalid: false, errors: [] },
         },
         root: { valid: false, invalid: true, errors: [] },
+        submitDisabled: false,
       }),
     );
     assert.equal(without.state, 'cannot-tell');
+    assert.equal(without.reason, 'root-invalid-without-error-kind');
   });
 
   it('unreadable yields cannot-tell', () => {
@@ -179,6 +188,9 @@ describe('mutants', () => {
         invalid: true,
         errors: [{ kind: 'name-too-short-for-age' }],
       },
+      // The submit state is carried so the join reaches `fields` at all (M037 T002): this mutant is
+      // about the root kind, and a fact with no submit state is cannot-tell for that other reason.
+      submitDisabled: true,
     };
     const unmutated = loadBare().api;
     assert.equal(
@@ -237,18 +249,26 @@ describe('mutants', () => {
     const pin = () => {
       const result = host(api.read(state));
       assert.equal(result.state, 'cannot-tell', 'cannot-tell pin');
+      // The reason, not only the state: since M037 T002 a fact with no submit state is also
+      // cannot-tell, so the state alone no longer tells this defect from that one. With the root
+      // check removed this fact's remaining reason is `submit-state-unreadable`.
+      assert.equal(
+        result.reason,
+        'root-invalid-without-error-kind',
+        'cannot-tell reason pin',
+      );
     };
     const failure = reddens(pin);
     console.log(`mutant empty-success reddens: ${failure.message}`);
-    assert.match(failure.message, /cannot-tell pin/);
+    assert.match(failure.message, /cannot-tell reason pin/);
   });
 });
 
 describe('submit-state join', () => {
-  it('E1: a fact with no submit state yields no finding — the module reports its default, it does not guess', () => {
+  it('E1: a fact carrying no submit state yields cannot-tell with a named reason, never a default', () => {
     const pin = (api) => {
-      // The recording now carries the submit state, so omitting it here is
-      // deliberate: the fact is built from fields and root only.
+      // The recording carries the submit state, so omitting it here is deliberate: the fact is
+      // built from fields and root only.
       assert.equal(
         RECORDING.submitDisabled,
         true,
@@ -261,16 +281,19 @@ describe('submit-state join', () => {
       assert.ok(!('submitDisabled' in fact), 'fact omits submitDisabled');
       assert.ok(!('submitState' in fact), 'fact omits submitState');
       assert.ok(!('submit' in fact), 'fact omits submit');
-      // A field is invalid, so an implementation that infers the submit state
-      // from field validity would answer 'disabled' here.
+      // A field is invalid, so an implementation that infers the submit state from field validity
+      // would answer 'disabled' here (N3).
       assert.equal(fact.fields.name.invalid, true, 'a field is invalid');
       const result = host(api.read(fact));
-      assert.equal(result.state, 'fields', 'E1 state pin');
-      // The module's documented default, not a guess.
-      assert.equal(result.submit, 'enabled', 'E1 default-not-guess pin');
-      assert.equal(result.submitState, 'enabled', 'E1 default-not-guess pin');
-      // No disabled-submit finding anywhere in the answer.
-      assertNoSubstring(result, ['disabled'], 'E1 no disabled finding');
+      // SC4, in the shipped code: the state cannot be told from this fact, and the module says so
+      // with that reason rather than defaulting to `enabled`.
+      assert.equal(result.state, 'cannot-tell', 'E1 state pin');
+      assert.equal(result.reason, 'submit-state-unreadable', 'E1 reason pin');
+      // What was not read is reported as unread — never as a default, in either direction.
+      assert.equal(result.submit, 'unknown', 'E1 no-default pin');
+      assert.equal(result.submitState, 'unknown', 'E1 no-default pin');
+      // No submit finding anywhere in the answer: not a disabled claim and not an enabled one.
+      assertNoSubstring(result, ['enabled', 'disabled'], 'E1 no submit claim');
       assert.equal(
         result.submitDisabled,
         undefined,
@@ -279,21 +302,26 @@ describe('submit-state join', () => {
     };
     const messages = proveNonVacuous(pin, [
       {
-        anchor: ": 'enabled';",
-        replacement: ": 'disabled';",
-        message: /E1 default-not-guess pin/,
+        anchor: 'if (!submitCarried) {',
+        replacement: 'if (false) {',
+        message: /E1 state pin/,
       },
       {
-        anchor: ": 'enabled';",
-        replacement:
-          ": Object.keys(fields).some((k) => fields[k].invalid) ? 'disabled' : 'enabled';",
-        message: /E1 default-not-guess pin/,
+        anchor: "reason: 'submit-state-unreadable',",
+        replacement: "reason: 'root-invalid-without-error-kind',",
+        message: /E1 reason pin/,
       },
       {
-        anchor: 'state: FIELDS,\n      fields: fields,',
+        // The pre-M037 default: a fact carrying no state falls back to `enabled`.
+        anchor: "const submitValue = submitCarried ? submitState : 'unknown';",
+        replacement: 'const submitValue = submitState;',
+        message: /E1 no-default pin/,
+      },
+      {
+        anchor: "reason: 'submit-state-unreadable',\n        fields: fields,",
         replacement:
-          "state: FIELDS,\n      fields: fields,\n      submitNote: 'submit disabled by field validity',",
-        message: /E1 no disabled finding/,
+          "reason: 'submit-state-unreadable',\n        submitNote: 'submit disabled by field validity',\n        fields: fields,",
+        message: /E1 no submit claim/,
       },
     ]);
     console.log(`E1 non-vacuous: ${messages.join(' | ')}`);
