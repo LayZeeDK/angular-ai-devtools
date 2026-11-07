@@ -681,7 +681,9 @@ test("the package's peers resolve to the fixture's own copy, and preserveSymlink
   // in the root checkout's install.
   if (VERIFY_SIDECAR) {
     // the real path anchor measures the root checkout copy, which a verify sidecar is not
-    console.log('skip: the real path anchor measures the root checkout copy, which a verify sidecar is not');
+    console.log(
+      'skip: the real path anchor measures the root checkout copy, which a verify sidecar is not',
+    );
   } else {
     assert.deepEqual(
       peers.realPathAnchoredVersions,
@@ -811,7 +813,9 @@ test('with preserveSymlinks off the same build carries two Angular copies, so th
   );
   if (VERIFY_SIDECAR) {
     // the two-copy build compares against the root checkout versions, which a verify sidecar is not
-    console.log('skip: the two-copy build compares against the root checkout versions, which a verify sidecar is not');
+    console.log(
+      'skip: the two-copy build compares against the root checkout versions, which a verify sidecar is not',
+    );
   } else {
     assert.deepEqual(
       build.angularVersionBanners,
@@ -927,7 +931,9 @@ test('the served development-build recording is present, development-only and co
   const peers = peerResolution();
   if (VERIFY_SIDECAR) {
     // the install character compares against the root checkout install, which a verify sidecar is not
-    console.log('skip: the install character compares against the root checkout install, which a verify sidecar is not');
+    console.log(
+      'skip: the install character compares against the root checkout install, which a verify sidecar is not',
+    );
   } else {
     assert.equal(
       recording.peerResolution.installedAs,
