@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: null
-phase: inspect
+phase: define
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
@@ -694,3 +694,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-07 — shipped — archive preflight passed; shipment recorded
 - 2026-11-07 — inspect — router bound next milestone
 - 2026-11-07 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-07 — inspect — inspection closed by measured delta
+- 2026-11-07 — define — definition started
