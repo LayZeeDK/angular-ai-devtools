@@ -8,8 +8,11 @@ Project verify: `npm run check` and `npm test`
 
 - max_review_cycles: 3
 - wave_budget: none
-- review_panel: on
+- review_panel: off
 - finding_skeptics: off
+
+Reviews are run as a three-member `lars-review` panel (Beam, Glyph, GLM) rather than through the pipeline's
+panel runner, which this host does not configure; `review_panel: off` records that the pipeline step is not in use.
 
 - Review depth: full on every wave; a three-member panel on the wave that carries the join.
 - Route-table pins move in this milestone, so every suite that enumerates the route table is declared up front.
