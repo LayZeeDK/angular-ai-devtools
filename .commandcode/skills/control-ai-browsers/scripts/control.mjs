@@ -3174,9 +3174,18 @@ async function cmdDown(inst) {
     );
   const root = rootOf(st);
   const live = processTable().find((r) => r.pid === st.pid);
+  const owner = portOwner(inst.port);
+  const alive = live !== undefined && root !== undefined && matches(root, live);
 
-  // The browser is gone, or its PID now belongs to another process: no Browser.close; stop what it left.
-  if (live === undefined || root === undefined || !matches(root, live)) {
+  // The browser is gone, its PID now belongs to another process, or it lost its CDP port: no
+  // Browser.close; stop what it left, by the identity this state file recorded. A port held by
+  // another process is never touched, so a browser that lost the port is still stopped.
+  if (!alive || owner !== st.pid) {
+    if (alive && owner !== null) {
+      refuse(
+        `port ${inst.port} is owned by PID ${owner}, not PID ${st.pid}; not sending Browser.close to it`,
+      );
+    }
     const { records, result } = stopRun(st);
     const outcome = downOutcome(st, result);
 
@@ -3196,20 +3205,19 @@ async function cmdDown(inst) {
     }
 
     rmSync(statePath(inst.name), { force: true });
-    log('OK', `PID ${st.pid} is not running any more; removed the state file`);
+    log(
+      'OK',
+      alive
+        ? `port ${inst.port} was free; stopped PID ${st.pid} by process identity and removed the state file`
+        : `PID ${st.pid} is not running any more; removed the state file`,
+    );
 
     return {
       ok: true,
-      alreadyStopped: true,
+      alreadyStopped: !alive,
       pid: st.pid,
       notes: outcome.notes,
     };
-  }
-
-  if (portOwner(inst.port) !== st.pid) {
-    refuse(
-      `port ${inst.port} is not owned by PID ${st.pid}; not sending Browser.close to it`,
-    );
   }
 
   // down does not wait for a model download; it says what closing interrupts or leaves behind.
