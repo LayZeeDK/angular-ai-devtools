@@ -27,15 +27,10 @@ error together with a rule that spans fields.
 
 ## Success criteria
 
-1. On the fixture, a form whose submit is disabled produces a finding naming the form, the submit state, and the
-   root field's error kinds when the root carries any -- and naming no rule, element or remedy the fact list does not
-   carry.
-2. A field's own error and a root-level (cross-field) error are reported as different things, in different places,
-   with different words; neither is merged into the other.
-3. Both are produced from what the page already exposes through `ng.getComponent`, with no new page-side
-   instrumentation and no build-output or dev-server dependency.
-4. Where the record carries no submit state, the module reports "cannot tell" with that reason rather than inferring
-   a disabled submit from field validity.
+1. On the fixture, a form whose submit is disabled produces a finding naming the form, the submit state, and the root field's error kinds when the root carries any -- and naming no rule, element or remedy the fact list does not carry.
+2. A field's own error and a root-level (cross-field) error are reported as different things, in different places, with different words; neither is merged into the other.
+3. Both are produced from what the page already exposes through `ng.getComponent`, with no new page-side instrumentation and no build-output or dev-server dependency.
+4. Where the record carries no submit state, the module reports "cannot tell" with that reason rather than inferring a disabled submit from field validity.
 5. The panel renders the field set, the submit state and the root kind, and renders nothing it was not given.
 6. `npm run check` and `npm test` pass at the head.
 
