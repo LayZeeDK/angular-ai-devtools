@@ -39,7 +39,8 @@
     "jsdom": "^27.1.0",
     "prettier": "^3.9.10",
     "typescript": "6.0.3",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "yaml": "^2.9.1"
   },
   "dependencies": {
     "@angular/common": "~22.1.0",
