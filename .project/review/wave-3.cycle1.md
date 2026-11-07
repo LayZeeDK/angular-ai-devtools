@@ -45,7 +45,7 @@ audited by the adjudicator against the code at the frozen head.
 
 ## Intent coverage
 
-### SC1 — On the fixture, a component running default change detection produces a finding naming the component, the strategy it runs under, and each readiness fact the page can supply, and naming no blocker.: pass
+### SC1 — On the fixture, a component that explicitly declares eager change detection produces a finding naming the component, the strategy it runs under, and each readiness fact the page can supply, and naming no blocker.: pass
 
 - ✅ The finding is produced from the join and rendered from a short fact list; T005 does not change it. What T005 changes is
   what happens when the strategy cannot be read, which is SC3's shape, and it now says nothing rather than the best case

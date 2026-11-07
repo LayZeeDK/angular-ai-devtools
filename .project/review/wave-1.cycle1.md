@@ -26,7 +26,7 @@ Reviewed HEAD: bc0f165
 
 ## Intent coverage
 
-### SC1 — On the fixture, a component running default change detection produces a finding naming the component, the strategy it runs under, and each readiness fact the page can supply, and naming no blocker.: pass
+### SC1 — On the fixture, a component that explicitly declares eager change detection produces a finding naming the component, the strategy it runs under, and each readiness fact the page can supply, and naming no blocker.: pass
 
 - ✅ Judged against the **shipped** wording at `.project/intent/INTENT.md:36`: `onPush === false` is the explicit-eager case, and it produces a finding naming the component, the strategy and each readiness fact — verified by the four-state output recorded in T002's Log and by `extension/onpush-readiness.js:65-75`.
 - ✅ The finding carries no blocker and no verdict: the emitted strings are exactly `component`, `strategy`, the fact sentences and the state literals, checked by the source scan at `scripts/onpush-readiness.test.mjs:154-161`.

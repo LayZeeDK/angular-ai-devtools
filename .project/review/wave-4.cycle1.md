@@ -36,7 +36,7 @@ informational point about the breadth of the cache change, which T007 subsequent
 
 ## Intent coverage
 
-### SC1 — On the fixture, a component running default change detection produces a finding naming the component, the strategy it runs under, and each readiness fact the page can supply, and naming no blocker.: pass
+### SC1 — On the fixture, a component that explicitly declares eager change detection produces a finding naming the component, the strategy it runs under, and each readiness fact the page can supply, and naming no blocker.: pass
 
 - ✅ The initial record no longer fabricates the strategy it feeds that finding (`extension/agent-main.js:1275`), so the
   finding's input is either a read value or an explicit `null`, never a guess.

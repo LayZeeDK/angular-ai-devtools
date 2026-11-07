@@ -1,35 +1,35 @@
 {
- "milestone": "M035",
- "claims": [
-  {
-   "criterion": "SC1",
-   "criterionText": "On the fixture, a component running default change detection produces a finding naming the component, the strategy it runs under, and each readiness fact the page can supply, and naming no blocker.",
-   "ruling": "not-required",
-   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. The intent's own Problem section records that the strategy is already observable and already surfaced (extension/agent-main.js:660-670 reads ɵcmp.changeDetection), so this criterion is a join over facts the page already exposes rather than a new oracle, and its subject is the fixture's /onpush-ready route. Quoted from .project/intent/INTENT.md in the shape m032, m033 and m034 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
-  },
-  {
-   "criterion": "SC2",
-   "criterionText": "The finding is produced from observables the agent already collects — component metadata through the `ng` hooks — with no new page-side instrumentation, no build-log scraping and no dev-server dependency.",
-   "ruling": "not-required",
-   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. The intent's Scope: out record excludes reading source, static analysis and inferring mutation from a component's fields, so the facts this criterion cites come only from the ng hooks the agent already collects and no build-log or dev-server path exists in packages/ai-devtools-companion/src. Quoted from .project/intent/INTENT.md in the shape m032, m033 and m034 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
-  },
-  {
-   "criterion": "SC3",
-   "criterionText": "Where a readiness verdict would require mutation evidence the page does not carry, the module reports \"cannot tell\" with that reason rather than naming a blocker.",
-   "ruling": "not-required",
-   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. The intent's own Corrections record that mutation evidence is absent from ɵcmp, so this criterion is expected to answer \"cannot tell\" with the reason the module measured (strategy-unreadable, already-onpush) rather than to be observed naming a blocker. Quoted from .project/intent/INTENT.md in the shape m032, m033 and m034 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
-  },
-  {
-   "criterion": "SC4",
-   "criterionText": "The panel renders the component, the strategy and the readiness facts from a short fact list, and shows the \"cannot tell\" state, inventing neither a blocker nor a verdict.",
-   "ruling": "not-required",
-   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. The surface is the panel's own /onpush route in apps/angular-ai-devtools (panel-onpush.ts), rendered from the short fact list, not a route of the insurance portal. Quoted from .project/intent/INTENT.md in the shape m032, m033 and m034 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
-  },
-  {
-   "criterion": "SC5",
-   "criterionText": "`npm run check` and `npm test` pass at the head.",
-   "ruling": "not-required",
-   "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. This criterion is the project gate itself, answered by running npm run check and npm test at the head of this milestone. Quoted from .project/intent/INTENT.md in the shape m032, m033 and m034 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
-  }
- ]
+  "milestone": "M035",
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "On the fixture, a component that explicitly declares eager change detection produces a finding naming the component, the strategy it runs under, and each readiness fact the page can supply, and naming no blocker.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. The intent's own Problem section records that the strategy is already observable and already surfaced (extension/agent-main.js:660-670 reads ɵcmp.changeDetection), so this criterion is a join over facts the page already exposes rather than a new oracle, and its subject is the fixture's /onpush-ready route. Quoted from .project/intent/INTENT.md in the shape m032, m033 and m034 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "The finding is produced from observables the agent already collects — component metadata through the `ng` hooks — with no new page-side instrumentation, no build-log scraping and no dev-server dependency.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. The intent's Scope: out record excludes reading source, static analysis and inferring mutation from a component's fields, so the facts this criterion cites come only from the ng hooks the agent already collects and no build-log or dev-server path exists in packages/ai-devtools-companion/src. Quoted from .project/intent/INTENT.md in the shape m032, m033 and m034 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "Where a readiness verdict would require mutation evidence the page does not carry, the module reports \"cannot tell\" with that reason rather than naming a blocker.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. The intent's own Corrections record that mutation evidence is absent from ɵcmp, so this criterion is expected to answer \"cannot tell\" with the reason the module measured (strategy-unreadable, already-onpush) rather than to be observed naming a blocker. Quoted from .project/intent/INTENT.md in the shape m032, m033 and m034 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "The panel renders the component, the strategy and the readiness facts from a short fact list, and shows the \"cannot tell\" state, inventing neither a blocker nor a verdict.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. The surface is the panel's own /onpush route in apps/angular-ai-devtools (panel-onpush.ts), rendered from the short fact list, not a route of the insurance portal. Quoted from .project/intent/INTENT.md in the shape m032, m033 and m034 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC5",
+      "criterionText": "`npm run check` and `npm test` pass at the head.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. This criterion is the project gate itself, answered by running npm run check and npm test at the head of this milestone. Quoted from .project/intent/INTENT.md in the shape m032, m033 and m034 recorded; this host cannot run gsd verdict-record (the installed gsd-pi has no loader.js), so the quote-and-check path was scripts/overlay-verdict-claims.test.mjs."
+    }
+  ]
 }

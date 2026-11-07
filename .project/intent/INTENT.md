@@ -33,7 +33,7 @@ A developer looking at one component and asking whether OnPush is safe for it, a
 
 ## Success criteria
 
-1. On the fixture, a component running default change detection produces a finding naming the component, the strategy it runs under, and each readiness fact the page can supply, and naming no blocker.
+1. On the fixture, a component that explicitly declares eager change detection produces a finding naming the component, the strategy it runs under, and each readiness fact the page can supply, and naming no blocker.
 2. The finding is produced from observables the agent already collects — component metadata through the `ng` hooks — with no new page-side instrumentation, no build-log scraping and no dev-server dependency.
 3. Where a readiness verdict would require mutation evidence the page does not carry, the module reports "cannot tell" with that reason rather than naming a blocker.
 4. The panel renders the component, the strategy and the readiness facts from a short fact list, and shows the "cannot tell" state, inventing neither a blocker nor a verdict.
@@ -75,6 +75,8 @@ A developer looking at one component and asking whether OnPush is safe for it, a
 - `@angular/animations`, Angular SSR and `angular/components` (A5).
 
 ## Corrections
+- **2026-11-07 — SC1 amended after measurement (owner-delegated ruling, milestore M035).** The criterion originally read, verbatim: "On the fixture, a component running default change detection produces a finding naming the component, the strategy it runs under, and each readiness fact the page can supply, and naming no blocker." T001 measured that in Angular 22 a component that declares no strategy **is** OnPush — `@angular/compiler-cli` resolves a missing `changeDetection` to OnPush from major 22, the compiler omits the entry from the compiled def, and the runtime derives `onPush: changeDetection !== Eager` (`research/raw/m035-onpush-metadata.json`; `node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:10152`). So "running default change detection" describes almost every component and yields `cannot-tell` (reason `already-onpush`), not a finding; the only eager components are those that explicitly declare `ChangeDetectionStrategy.Default`. The shipped criterion therefore names the explicit-eager case, which is the behaviour `extension/onpush-readiness.js:65-75` and `panel-onpush.ts` implement. The original wording above is preserved verbatim, and the pre-amendment review at `bf7fe7c` judged it not met.
+
 
 - **The premise asks for a verdict the oracle cannot produce.** "Why this component could adopt OnPush, and
   what blocks it" requires mutation evidence, which is absent from `ɵcmp`; the strategy itself is already
