@@ -106,6 +106,31 @@ Review depth: full
   4. an unmeasured params read yields `params-unavailable`
 - Verify: `node --experimental-strip-types --test "scripts/resource-lifecycle.test.mjs" && node --experimental-strip-types --test "scripts/docs-correction.test.mjs"`
 
+## Wave 4 — Accept every name the graph emits
+
+Goal: the identity gate accepts every label `createDebugNameObject` can build, and no reason claims a read failed when it
+succeeded.
+
+Review depth: full
+
+One task. T006 closes the three verified findings of the waves 2-3 panel and three stale literals: whitespace-bearing
+debug names are accepted, `local` is answered as a set value rather than an unread one, the two recordings name the routed
+path, and the pane's reason list reaches five.
+
+### T006 — Accept every name the graph emits
+
+- Deps: none
+- Files: `extension/resource-lifecycle.js`, `scripts/resource-lifecycle.test.mjs`,
+  `apps/angular-ai-devtools/src/app/panel-resource.ts`, `scripts/panel-resource.test.mjs`,
+  `research/raw/m022-ng-context.json`, `research/raw/m036-verdict-claims.json`, `research/raw/m035-onpush-metadata.json`
+- Acceptance:
+  1. held-out E2: a label whose name contains a space is a finding, and a bare `Resource`, an empty name and an untrimmed value are refused (held-out E2)
+  2. held-out E2: `local` produces a finding that says the value was set (held-out E2)
+  3. both recordings name `resource-states` and none says `/resource`
+  4. the pane's reason list covers five and `resource-unnamed` is rendered through it
+  5. the M035 build recording is re-recorded at this head or states its staleness
+- Verify: `node --experimental-strip-types --test "scripts/resource-lifecycle.test.mjs" && node --experimental-strip-types --test "scripts/panel-resource.test.mjs" && node --experimental-strip-types --test "scripts/recording-consistency.test.mjs"`
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -123,6 +148,8 @@ Review depth: full
 | SC3 | T001 | AC1 |
 | SC1 | T002 | AC1 |
 | SC1 | T005 | AC1 |
+| SC1 | T006 | AC1 |
+| SC4 | T006 | AC2 |
 | SC3 | T005 | AC1 |
 | SC2 | T002 | AC2 |
 | SC3 | T002 | AC3 |
