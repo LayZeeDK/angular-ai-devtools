@@ -145,7 +145,10 @@ test('ship mode refuses a check whose newest evidence says not verified', () => 
     );
 
     assert.equal(result.status, 1, result.out);
-    assert.match(result.out, new RegExp(`verdict:${first}: .*not-verified`));
+    assert.match(
+      result.out,
+      new RegExp(`verdict:${first}: newest is not verified`),
+    );
     assert.equal(rest.length, CHECKS.length - 1);
   } finally {
     rmSync(root, { recursive: true, force: true });
