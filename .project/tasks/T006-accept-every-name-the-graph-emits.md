@@ -2,11 +2,11 @@
 id: T006
 title: Accept every name the graph emits
 wave: 4
-status: pending
+status: in-progress
 deps: []
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: 1ff73cf984c587b227a8859ea9a2e20ba7e2a09a
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - extension/resource-lifecycle.js
