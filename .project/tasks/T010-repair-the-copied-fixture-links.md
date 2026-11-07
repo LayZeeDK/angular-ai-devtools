@@ -2,10 +2,10 @@
 id: T010
 title: Repair the copied fixture links
 wave: 8
-status: pending
+status: done
 deps: [T008]
-agent: null
-base: null
+agent: orchestrator-serial
+base: 34c0cd61fb2cd4207dc7c152cc87ae3d5d37ab19
 worktree: null
 task_branch: null
 files:
@@ -54,3 +54,4 @@ node --experimental-strip-types --test "scripts/sidecar-deps-bridge.test.mjs" &&
 ## Log
 
 - dispatched
+- 2026-11-08 - implemented; cpSync rewrote each copied symlink to an absolute target, so every link is now recreated from the source's own string. Prettier clean, node --check clean. Verdict: ready.

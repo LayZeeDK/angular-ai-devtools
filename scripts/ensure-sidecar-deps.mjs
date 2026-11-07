@@ -1,5 +1,14 @@
 import { execFileSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readdirSync,
+  readlinkSync,
+  rmSync,
+  symlinkSync,
+} from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { bridge } from './sidecar-deps-bridge.mjs';
 
@@ -52,4 +61,24 @@ if (
       dereference: false,
     },
   );
+
+  // cpSync preserves a symlink but rewrites its target to an absolute path, which breaks the fixture's
+  // relative link into packages/. Recreate every copied link from the source's own target string: the
+  // relative target is part of what the fixture's suites measure.
+  const sourceInstall = join(fixturePrimary, 'node_modules');
+  const copiedInstall = join(fixtureSidecar, 'node_modules');
+
+  for (const entry of readdirSync(sourceInstall)) {
+    const sourcePath = join(sourceInstall, entry);
+
+    if (!lstatSync(sourcePath).isSymbolicLink()) {
+      continue;
+    }
+
+    const target = readlinkSync(sourcePath);
+    const copiedPath = join(copiedInstall, entry);
+
+    rmSync(copiedPath, { recursive: true, force: true });
+    symlinkSync(target, copiedPath, 'dir');
+  }
 }
