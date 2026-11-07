@@ -693,3 +693,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-07 — ship — build done; final review pending
 - 2026-11-07 — shipped — archive preflight passed; shipment recorded
 - 2026-11-07 — inspect — router bound next milestone
+- 2026-11-07 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
