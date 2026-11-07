@@ -231,9 +231,22 @@ if (values.ship) {
         verdicts.push({
           check: named,
           verdict: String(parsed.verdict ?? 'unknown'),
-          at: statSync(path).mtime.toISOString(),
+          // The verdict's own start time, not the file's mtime: a restored or copied verdict keeps its run time
+          // but loses its mtime, and mtime would let stale evidence win.
+          at: String(parsed.startedAt ?? statSync(path).mtime.toISOString()),
           file: relative(ROOT, path),
         });
+
+        // An unnamed verdict matches no check, so without this it would vanish: evidence present on disk and
+        // silently not counted.
+        if (named === '(unnamed)') {
+          add(
+            'evidence-unnamed',
+            false,
+            `${relative(ROOT, path)} names no check in its condition`,
+            'evidence',
+          );
+        }
       } catch {
         add(
           'evidence-read',
@@ -252,7 +265,6 @@ if (values.ship) {
       .filter((v) => v.check === check)
       .sort((a, b) => a.at.localeCompare(b.at));
     const verified = mine.filter((v) => v.verdict === 'verified');
-    const denied = mine.filter((v) => v.verdict === 'not verified');
     const newest = mine[mine.length - 1];
     add(
       `verdict:${check}`,
