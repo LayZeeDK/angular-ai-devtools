@@ -2,11 +2,11 @@
 id: T003
 title: Panel surface for the resource finding
 wave: 2
-status: pending
+status: in-progress
 deps: [T002]
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: f67f2e369191d39256ffd1815b5adf4b6ad3afca
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-resource.ts
