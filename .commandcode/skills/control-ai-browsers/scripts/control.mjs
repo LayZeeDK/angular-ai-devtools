@@ -687,7 +687,12 @@ export async function busyPorts(ports, hosts = LOOPBACKS) {
   if (busy.size > 0) {
     for (const [port, pids] of namedHolders()) {
       if (busy.has(port)) {
-        busy.set(port, pids);
+        // An owner the OS cannot attribute (PID 0, which a restricted sandbox reports for a socket it will not
+        // name) is not evidence of another process: the port stays held by a process the OS did not name.
+        busy.set(
+          port,
+          pids.filter((pid) => pid !== 0),
+        );
       }
     }
   }
