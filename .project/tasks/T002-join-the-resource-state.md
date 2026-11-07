@@ -43,11 +43,11 @@ shape; both tasks must carry this line unchanged.
 
 ## Acceptance criteria
 
-1. Held-out E1: a fact naming a resource whose status is `loading` yields a finding carrying the `Resource#<name>` identity,
+1. held-out E1: a fact naming a resource whose status is `loading` yields a finding carrying the `Resource#<name>` identity,
    the status and the params status, and no cause.
-2. Held-out E3: a fact whose params status is idle yields a finding that says idle by design, never loading and never an
+2. held-out E3: a fact whose params status is idle yields a finding that says idle by design, never loading and never an
    error.
-3. Held-out E4: a fact whose status could not be read yields `cannot-tell` with reason `status-unavailable`, and the module
+3. held-out E2 and held-out E4: with the label read withheld no finding is produced, and a fact whose status could not be read yields `cannot-tell` with reason `status-unavailable`, and the module
    never names a stuck request.
 4. The module emits no string naming a loader, a promise, a network stall or a verdict; a source scan proves it, and a
    mutant that emits a blocker reddens by name.
