@@ -19,7 +19,8 @@ import { createServer } from 'node:net';
 import { homedir } from 'node:os';
 import path, { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mapFresh, printable } from './fingerprint.mjs';
+import { mapFresh } from './fingerprint.mjs';
+import { printable } from './text.mjs';
 import {
   describe,
   matches,

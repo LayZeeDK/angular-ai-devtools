@@ -20,7 +20,8 @@ import {
 import { createServer } from 'node:net';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { mapFresh, printable } from './fingerprint.mjs';
+import { mapFresh } from './fingerprint.mjs';
+import { printable } from './text.mjs';
 import { describe, merge, processTable, snapshot, stop } from './proctree.mjs';
 
 /** @typedef {import('./proctree.mjs').ProcRecord} ProcRecord */
