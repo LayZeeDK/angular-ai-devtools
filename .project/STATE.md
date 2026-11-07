@@ -5,7 +5,7 @@ milestone: resource-lifecycle
 phase: ship
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M036
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -716,3 +716,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-07 — build — build started
 - 2026-11-07 — build — all six tasks landed; four waves reviewed
 - 2026-11-07 — ship — build done; final review pending
+- 2026-11-07 — ship — project Verify: the fixture install is not bridged in a sidecar
