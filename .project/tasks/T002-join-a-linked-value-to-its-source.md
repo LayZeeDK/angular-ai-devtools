@@ -2,11 +2,11 @@
 id: T002
 title: Join a linked value to the source it follows
 wave: 2
-status: pending
+status: done
 deps:
   - T001
-agent: null
-base: null
+agent: paid-deepseek-v4.1-flash-high
+base: 771a95373bdff08a91b8116ccb0d94c5216ca6ff
 worktree: null
 task_branch: null
 files:
@@ -64,3 +64,4 @@ node --experimental-strip-types --test "scripts/linked-state.test.mjs" && npx pr
 ## Log
 
 - dispatched
+- 2026-11-07 - ready - a linked signal is identified by node kind; the join reports the signal, its source and both values, and refuses with a named reason. 16 mutants proven non-vacuous.
