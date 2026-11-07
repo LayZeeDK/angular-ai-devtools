@@ -2,10 +2,10 @@
 id: T008
 title: Copy the fixture install into a verify sidecar
 wave: 6
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: orchestrator-serial
+base: 5b200fb73cc713486d733fb5d8f67adab39f8809
 worktree: null
 task_branch: null
 files:
@@ -67,3 +67,4 @@ node --experimental-strip-types --test "scripts/facade-dev-build.test.mjs" && no
 ## Log
 
 - dispatched
+- 2026-11-08 - implemented serially. `ensure-sidecar-deps.mjs` copies the fixture install with `cpSync(..., { recursive: true, dereference: false })` instead of bridging it, so the fixture's own relative symlink survives and resolves inside the sidecar. T007's junction made every path below the fixture resolve into the primary, which is why three peer-resolution assertions compared two different roots. Guarded: only when the primary has the install and the sidecar does not. Verify: facade 8/8, ng-context 10/10, recorded. Verdict: ready.
