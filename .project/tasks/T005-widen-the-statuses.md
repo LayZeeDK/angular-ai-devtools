@@ -2,11 +2,11 @@
 id: T005
 title: Widen the statuses and close the echoed identity
 wave: 3
-status: pending
+status: in-progress
 deps: []
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: a17f6a093b0e46a08baa6084cfb4edb5f700e7c4
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - extension/resource-lifecycle.js
