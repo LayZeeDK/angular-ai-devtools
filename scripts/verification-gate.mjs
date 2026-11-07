@@ -7,8 +7,8 @@
 //     the contract when the canonical copy is installed, and the byte-copied scripts are in step. No browser, no
 //     model, no evidence: this is what keeps the skills from rotting between milestones.
 //
-//   --ship: all of the above, plus a `verified` verdict for every check, and no `not verified` verdict anywhere
-//     under the evidence root. This is the ship gate.
+//   --ship: all of the above, plus a `verified` verdict that is the newest one for every check. A `not verified`
+//     verdict that a later run superseded is history, not a blocker. This is the ship gate.
 //
 // Usage: node scripts/verification-gate.mjs [--ship] [--evidence <dir>] [--json-out <file>] [--json]
 // Exit 0 pass, 1 blocked (the blockers are named), 2 could not run.
@@ -214,8 +214,19 @@ if (values.ship) {
 
       try {
         const parsed = JSON.parse(readFileSync(path, 'utf8'));
-        const text = JSON.stringify(parsed);
-        const named = /checks\/([\w-]+)\.mjs/.exec(text)?.[1] ?? '(unnamed)';
+        // The check is named by the condition's argv, never by the claim prose: a claim may cite another check
+        // (interop's cites `checks/state.mjs`), and matching the serialized text files the verdict under the
+        // wrong check.
+        const condition = parsed?.spec?.steps?.condition;
+        const conditionArg = Array.isArray(condition)
+          ? condition
+              .map(String)
+              .find((arg) => /checks[\\/][\w-]+\.mjs$/.test(arg))
+          : undefined;
+        const named =
+          conditionArg === undefined
+            ? '(unnamed)'
+            : conditionArg.replace(/.*checks[\\/]/, '').replace(/\.mjs$/, '');
 
         verdicts.push({
           check: named,
@@ -237,22 +248,19 @@ if (values.ship) {
   walk(evidence);
 
   for (const { check } of checks()) {
-    const mine = verdicts.filter((v) => v.check === check);
+    const mine = verdicts
+      .filter((v) => v.check === check)
+      .sort((a, b) => a.at.localeCompare(b.at));
     const verified = mine.filter((v) => v.verdict === 'verified');
     const denied = mine.filter((v) => v.verdict === 'not verified');
+    const newest = mine[mine.length - 1];
     add(
       `verdict:${check}`,
-      verified.length > 0 && denied.length === 0,
+      // The newest verdict decides: a failure that a later run superseded is history, not a blocker.
+      newest !== undefined && newest.verdict === 'verified',
       verified.length === 0
         ? `no verified verdict under ${relative(ROOT, evidence)}`
-        : denied.length > 0
-          ? `${denied.length} not-verified verdict(s), newest ${
-              denied
-                .map((v) => v.at)
-                .sort()
-                .slice(-1)[0]
-            }`
-          : `${verified.length} verified`,
+        : `newest is ${newest.verdict} at ${newest.at}`,
       'evidence',
     );
   }
