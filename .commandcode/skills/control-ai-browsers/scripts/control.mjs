@@ -852,13 +852,47 @@ export function accountState(prefsText) {
 }
 
 /**
+ * A profile's account state, and whether the file could actually be read. A Preferences file that exists but does
+ * not parse must not read as "no account": that is the one answer that lets an Edge instance sign the Windows work
+ * account in. An absent file is a different thing — a profile that has never run has no account by definition.
  * @param {Pick<Inst, 'dir'>} inst
- * @returns {{ accounts: number, syncSetup: boolean }}
+ * @returns {{ accounts: number, syncSetup: boolean, readable: boolean }}
  */
 function profileAccount(inst) {
   const f = join(inst.dir, 'Default', 'Preferences');
 
-  return accountState(existsSync(f) ? readFileSync(f, 'utf8') : '');
+  if (!existsSync(f)) {
+    return { accounts: 0, syncSetup: false, readable: true };
+  }
+
+  try {
+    const p = JSON.parse(readFileSync(f, 'utf8'));
+
+    return { ...accountState(JSON.stringify(p)), readable: true };
+  } catch {
+    return { accounts: 0, syncSetup: false, readable: false };
+  }
+}
+
+/**
+ * Refuse a profile that holds a signed-in account, or whose Preferences cannot be read. Both `up` paths call this:
+ * a running instance is refused too, because `alreadyRunning` is exactly when the profile is live and the account is
+ * already inside it. Ignoring the unreadable case is what let the guard pass on an Edge profile that had one.
+ * @param {Inst} inst
+ * @param {{ accounts: number, syncSetup: boolean, readable: boolean }} account
+ */
+function refuseAccount(inst, account) {
+  if (!account.readable) {
+    refuse(
+      `${inst.name}'s Default/Preferences exists but could not be read, so its account state is unknown; an instance profile must never hold an account, so this is refused rather than assumed clean. Delete ${inst.dir} (stopped) and "up" again`,
+    );
+  }
+
+  if (account.accounts > 0 || account.syncSetup) {
+    refuse(
+      `${inst.name}'s profile holds a signed-in account (${account.accounts} account entr${account.accounts === 1 ? 'y' : 'ies'}, sync set up: ${account.syncSetup}); an instance profile must never hold one. Delete ${inst.dir} (stopped) and "up" again; the model comes back by "model download", or from the pin`,
+    );
+  }
 }
 
 /**
@@ -2739,6 +2773,8 @@ async function cmdUp(registered) {
   const running = mainProcess(inst);
 
   if (running) {
+    refuseAccount(inst, profileAccount(inst));
+
     const loaded = readState(inst.name)?.extensionDir;
 
     if (loaded !== undefined && loaded !== inst.extensionDir) {
@@ -2771,13 +2807,8 @@ async function cmdUp(registered) {
   }
 
   const firstUse = !existsSync(inst.dir);
-  const account = profileAccount(inst);
 
-  if (account.accounts > 0 || account.syncSetup) {
-    refuse(
-      `${inst.name}'s profile holds a signed-in account (${account.accounts} account entr${account.accounts === 1 ? 'y' : 'ies'}, sync set up: ${account.syncSetup}); an instance profile must never hold one. Delete ${inst.dir} (stopped) and "up" again; the model comes back by "model download", or from the pin`,
-    );
-  }
+  refuseAccount(inst, profileAccount(inst));
   mkdirSync(inst.dir, { recursive: true });
 
   const linked = reparseRefusal(inst.dir, realpathSync.native(inst.dir));
