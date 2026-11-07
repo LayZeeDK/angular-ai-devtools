@@ -131,6 +131,27 @@ path, and the pane's reason list reaches five.
   5. the M035 build recording is re-recorded at this head or states its staleness
 - Verify: `node --experimental-strip-types --test "scripts/resource-lifecycle.test.mjs" && node --experimental-strip-types --test "scripts/panel-resource.test.mjs" && node --experimental-strip-types --test "scripts/recording-consistency.test.mjs"`
 
+## Wave 5 — Bridge the fixture install in a verify sidecar
+
+Goal: the project Verify can pass in the sidecar the pipeline uses, so a green primary is not a red gate.
+
+Review depth: verify-only
+
+One task. T007 extends `scripts/ensure-sidecar-deps.mjs` so the fixture's nested install is bridged like the root one. The
+gate failure it fixes is environmental: `facade-dev-build` refuses to run without `spikes/ng222-app/node_modules`, which no
+sidecar receives.
+
+### T007 — Bridge the fixture install in a verify sidecar
+
+- Deps: none
+- Files: `scripts/ensure-sidecar-deps.mjs`, `scripts/sidecar-deps-bridge.test.mjs`, `scripts/facade-dev-build.test.mjs`
+- Acceptance:
+  1. held-out E1: a sidecar without a fixture install gets one bridged to the primary's, and a second run reuses it (held-out E1)
+  2. held-out E2: a primary without a fixture install is left alone and the script exits 0 (held-out E2)
+  3. a real directory at the fixture path is refused, as at the root
+  4. `facade-dev-build` passes in a sidecar whose fixture install was bridged
+- Verify: `node --experimental-strip-types --test "scripts/sidecar-deps-bridge.test.mjs" && node --experimental-strip-types --test "scripts/facade-dev-build.test.mjs"`
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -150,6 +171,7 @@ path, and the pane's reason list reaches five.
 | SC1 | T005 | AC1 |
 | SC1 | T006 | AC1 |
 | SC4 | T006 | AC2 |
+| SC6 | T007 | AC1 |
 | SC3 | T005 | AC1 |
 | SC2 | T002 | AC2 |
 | SC3 | T002 | AC3 |
