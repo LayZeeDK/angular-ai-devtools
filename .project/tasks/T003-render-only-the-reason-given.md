@@ -2,11 +2,11 @@
 id: T003
 title: Render only the reason the pane was given
 wave: 3
-status: pending
+status: in-progress
 deps: [T002]
-agent: null
-base: null
-worktree: null
+agent: orchestrator-serial
+base: 66a7e9c10c16f3b7499e465093225d08c3d5c9dd
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-fields.ts
