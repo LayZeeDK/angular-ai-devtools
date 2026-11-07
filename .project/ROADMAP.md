@@ -1321,8 +1321,9 @@ Goal: Build the change-detection explainer: why this component could adopt OnPus
 Depends on: [M020]
 Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/035-onpush-readiness
+Integrated: null
 Integrated: null
 
 Scope: in

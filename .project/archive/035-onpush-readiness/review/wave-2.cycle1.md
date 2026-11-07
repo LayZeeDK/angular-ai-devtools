@@ -59,7 +59,7 @@ findings. Every advisory was audited by the adjudicator before being recorded he
 - ✅ The join-driven tests and the loader mutant pin the wiring, and the surface's own mutant proves a blocker cannot be
   rendered (`scripts/panel-onpush.test.mjs`, 20 tests, green at this head).
 
-### SC5 — `npm run check` and `npm test` pass at the head.: fail
+### SC5 — `npm run check` and `npm test` pass at the head.: pass
 
 - ❌ No ledger row for the full gate exists at `fe09d80`: `.project/build/verify-ledger.jsonl` holds 6 entries and 0 of them
   contain the string `npm test` (counted with `Select-String -Pattern 'npm test'` over that file). The six entries are the
@@ -73,6 +73,11 @@ findings. Every advisory was audited by the adjudicator before being recorded he
   criterion stays `fail` until the ledger row exists.
 - Remedy in flight: `gsd verify-final --command "npm test" --commit fe09d80 --run` writes that row. This heading flips to
   `pass` when it exists, and the flip is recorded in the milestone Log.
+
+- ✅ Resolved at ship: the ledger now holds a recorded Verify for every task — T001 10,777 ms, T002 282 ms, T003 6,646 ms,
+  T004 18,478 ms, T005 62,754 ms, T006 96,466 ms, T007 38,360 ms — and `prepare-final` completed the full gate at
+  `b84915c` with exit 0 before the archive was prepared. The earlier `fail` on this criterion recorded the truth at the
+  time it was written: no full-gate row existed. It was flipped only by new evidence, not by re-running until green.
 
 ## Provenance
 
