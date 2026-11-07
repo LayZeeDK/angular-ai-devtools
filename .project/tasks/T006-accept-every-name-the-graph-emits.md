@@ -18,7 +18,7 @@ files:
   - research/raw/m035-onpush-metadata.json
 ---
 
-# T006 — Accept every name the graph emits, and stop reusing the unread reason
+# T006 — Accept every name the graph emits
 
 ## Context
 
@@ -49,6 +49,10 @@ recording. Record in the Log that the chained-`loading` case — a resource whos
 while an upstream resource is loading, leaving `extRequest` with no `request` — remains unanswered and is the next gap.
 
 ## Interface contract
+
+`resourceLifecycle(fact)` returns `{ state: "finding" | "cannot-tell", resource?, status?, params?, reason? }`, where
+`reason` is one of `no-resource`, `labels-unreadable`, `params-unavailable`, `status-unavailable`. T003 consumes the same
+shape; both tasks must carry this line unchanged.
 
 ## Files
 
