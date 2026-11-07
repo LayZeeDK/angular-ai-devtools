@@ -88,6 +88,28 @@ T002 builds the join, T003 renders it inside the panel and re-cuts the panel's o
   their output path cleared first; the verdict claims quote every criterion in full; the project gate passes at the head.
 - Verify: `node --experimental-strip-types --test "scripts/fixture-proof-fresh.test.mjs" "scripts/ng-context-dev-build.test.mjs" "scripts/overlay-verdict-claims.test.mjs"`
 
+## Wave 5 — Widen the statuses and close the echoed identity
+
+Goal: the join names the fifth status the graph reports, and no caller-supplied value can reach a finding unread.
+
+Review depth: full
+
+The wave is one task. T005 closes the five findings the wave-1 panel verified: `reloading` becomes a named status, the
+`resource` identity is gated on `Resource#`, two research lines are corrected, the vacuous purity assertions are repaired,
+and the tests stop asserting a params value the recording never measured.
+
+### T005 — Widen the statuses and close the echoed identity
+
+- Deps: none
+- Files: `extension/resource-lifecycle.js`, `scripts/resource-lifecycle.test.mjs`, `research/08-recent-angular-features.md`,
+  `scripts/docs-correction.test.mjs`
+- Acceptance:
+  1. held-out E2: `reloading` produces a finding distinct from `loading`; an identity not beginning `Resource#` yields `cannot-tell` with reason `resource-unnamed` (held-out E2)
+  2. `research/08-recent-angular-features.md:137` attributes status to the `.status` nodes, and `:170` names `.status`
+  3. the purity assertions hold inside the sandbox, and a module using `Date` or `console` reddens
+  4. an unmeasured params read yields `params-unavailable`
+- Verify: `node --experimental-strip-types --test "scripts/resource-lifecycle.test.mjs" && node --experimental-strip-types --test "scripts/docs-correction.test.mjs"`
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -104,6 +126,8 @@ T002 builds the join, T003 renders it inside the panel and re-cuts the panel's o
 |---|---|---|
 | SC3 | T001 | AC1 |
 | SC1 | T002 | AC1 |
+| SC1 | T005 | AC1 |
+| SC3 | T005 | AC1 |
 | SC2 | T002 | AC2 |
 | SC3 | T002 | AC3 |
 | SC4 | T002 | AC4 |
