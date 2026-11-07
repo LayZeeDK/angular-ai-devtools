@@ -2,11 +2,11 @@
 id: T004
 title: Re-record what the fixture change stales and run the gate
 wave: 4
-status: pending
+status: done
 deps:
   - T003
-agent: null
-base: null
+agent: paid-deepseek-v4.1-flash-high
+base: 74791b978b014f09e125aa0255f710f57d8f22e3
 worktree: null
 task_branch: null
 files:
@@ -72,3 +72,4 @@ node --experimental-strip-types --test "scripts/fixture-proof-fresh.test.mjs" "s
 - `extension/page-footprint.test.mjs`
 - `scripts/facade-dev-build.test.mjs`
 - `scripts/recording-consistency.test.mjs`
+- 2026-11-07 - ready - re-recorded five stale proof records and both build recordings through their own suites; check and test exit 0; no tolerance widened.

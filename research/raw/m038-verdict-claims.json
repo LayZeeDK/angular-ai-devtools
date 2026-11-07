@@ -1,0 +1,47 @@
+{
+  "milestone": "M038",
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "On the fixture, a linked signal whose value agrees with its source produces a finding naming the signal and the source it follows, and saying the value currently matches.",
+      "criterionCharacters": 170,
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Its subject is the fixture's own linked-state page (spikes/ng222-app/src/app/linked-state-page.ts, routed at spikes/ng222-app/src/app/app.routes.ts:31), whose signal graph the capture scripts/linked-state-capture.test.mjs reads and records in research/raw/m038-linked-state.json: the agreeing linked signal holds 7 and its source holds 7, and extension/linked-state.js answers state finding with signal \"agreeing\", source \"source\", value 7, sourceValue 7 and reason \"matching\". The oracle is scripts/linked-state.test.mjs, whose AC1 pin holds the finding's six fields and whose held-out E3 pin holds an equal pair to matching. Quoted from .project/intent/INTENT.md in the shape m035 recorded; this host's gsd install is still incomplete (the installed gsd-pi has no dist/loader.js, so neither gsd verify-final nor gsd verdict-record runs here), so the quote-and-check path is scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "A linked signal whose value differs from its source is reported as differing, and the two values are shown.",
+      "criterionCharacters": 107,
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Its subject is the differing linked signal on the same page, written once to 8 against a source of 7 (research/raw/m038-linked-state.json, answers.values); extension/linked-state.js answers a second finding naming signal \"differing\", the same source, value 8 and sourceValue 7 with reason \"differing\", so both values are carried. The oracle is scripts/linked-state.test.mjs, whose AC2 pin holds the two findings apart and whose held-out E3 pin requires unequal values to be differing and the two results to be neither equal nor deep-equal, so the states are never merged. Quoted from .project/intent/INTENT.md in the shape m035 recorded; this host's gsd install is still incomplete (the installed gsd-pi has no dist/loader.js, so neither gsd verify-final nor gsd verdict-record runs here), so the quote-and-check path is scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "Both are produced from what the page already exposes through the signal graph, with no new page-side instrumentation, no build-output and no dev-server dependency.",
+      "criterionCharacters": 163,
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Its subject is the read path: scripts/linked-state-capture.test.mjs builds the fixture's development configuration, serves that output and reads the signal graph off the routed element's injector, and extension/linked-state.js joins only the nodes and edges that graph already carries. No page-side tap was added, and nothing in the join or the capture reads a build log or depends on a dev server being up beyond the static output it serves itself. Quoted from .project/intent/INTENT.md in the shape m035 recorded; this host's gsd install is still incomplete (the installed gsd-pi has no dist/loader.js, so neither gsd verify-final nor gsd verdict-record runs here), so the quote-and-check path is scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "Where the record cannot say whether a value came from a write or a recomputation, it reports cannot tell with that reason, and names no write, owner or cause.",
+      "criterionCharacters": 158,
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Its subject is the absence extension/linked-state.js returns instead of a guess: state \"cannot-tell\" with exactly one of four reasons — no-linked-signal, signal-unreadable, value-unreadable, source-unreadable — and with no signal, source, value or cause beside it, because the graph records values and no history. The oracle is scripts/linked-state.test.mjs, whose held-out E1, E2 and E4 pins require the named reason and forbid every field a finding would carry. Quoted from .project/intent/INTENT.md in the shape m035 recorded; this host's gsd install is still incomplete (the installed gsd-pi has no dist/loader.js, so neither gsd verify-final nor gsd verdict-record runs here), so the quote-and-check path is scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC5",
+      "criterionText": "The panel renders the signal, the source, the two values and the agreement, and renders nothing it was not given.",
+      "criterionCharacters": 113,
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Its subject is the panel's own /linked-state surface (apps/angular-ai-devtools/src/app/panel-linked-state.ts, handed its fact by panel-demo.ts at path 'linked-state'), which renders the signal, the source, the two values and the agreement and nothing else. The oracles are apps/angular-ai-devtools/src/app/panel-demo.spec.ts, which holds every rendered line to research/raw/m038-linked-state.json, and scripts/panel-linked-state.test.mjs, which pins each rendered state including the cannot-tell one. Quoted from .project/intent/INTENT.md in the shape m035 recorded; this host's gsd install is still incomplete (the installed gsd-pi has no dist/loader.js, so neither gsd verify-final nor gsd verdict-record runs here), so the quote-and-check path is scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC6",
+      "criterionText": "`npm run check` and `npm test` pass at the head.",
+      "criterionCharacters": 48,
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. This criterion is the project gate itself, answered by running npm run check and npm test at the head of this milestone rather than by any page: the gate row is the milestone's verify ledger entry, and no portal route produces it. Quoted from .project/intent/INTENT.md in the shape m035 recorded; this host's gsd install is still incomplete (the installed gsd-pi has no dist/loader.js, so neither gsd verify-final nor gsd verdict-record runs here), so the quote-and-check path is scripts/overlay-verdict-claims.test.mjs."
+    }
+  ]
+}

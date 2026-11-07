@@ -110,17 +110,19 @@ const OUTPUT_DIRECTORIES = {
 
 /**
  * The development build embeds absolute paths (the checkout path among them), so its total byte count varies by
- * where it is built: re-measured for the recording compared below by M036 T004, 2,199,406 bytes in
+ * where it is built: re-measured for the recording compared below by M038 T004, 2,202,196 bytes in
  * `tmp/ng-context/dev` in this checkout, and the same count again from the clean development build
  * `facade-dev-build.test.mjs` makes into `tmp/facade-dev-build`, so the count reproduces at this head at two
- * output paths. The count has moved for real emitted code four times since the bound was sized — the trust-bypass
+ * output paths. The count has moved for real emitted code five times since the bound was sized — the trust-bypass
  * page (`spikes/ng222-app/src/app/trust-bypass-page.ts`), the legacy-module page and NgModule
  * (`spikes/ng222-app/src/app/legacy-module-page.ts`, `legacy-module.ts`, commit 00aaf19), the readiness page
- * (`spikes/ng222-app/src/app/onpush-ready-page.ts`, `onpush-ready.ts`), and the resource page with the component
- * that holds one resource per state (`spikes/ng222-app/src/app/resource-page.ts`, `resource-states.ts`) — and each
- * move was re-recorded rather than absorbed by a wider bound: this recording is 18,639 bytes above the one it
- * replaced (2,180,767 → 2,199,406), and that one was 4,393 bytes above its own predecessor
- * (2,176,374 → 2,180,767), which was 3,260 bytes above its own (2,173,114 → 2,176,374). When the bound was
+ * (`spikes/ng222-app/src/app/onpush-ready-page.ts`, `onpush-ready.ts`), the resource page with the component
+ * that holds one resource per state (`spikes/ng222-app/src/app/resource-page.ts`, `resource-states.ts`), and the
+ * linked-state page (`spikes/ng222-app/src/app/linked-state-page.ts`). Each move was re-recorded rather than
+ * absorbed by a wider bound: this recording is 2,790 bytes above the one it replaced (2,199,406 → 2,202,196),
+ * and that one was 18,639 bytes above its own predecessor (2,180,767 → 2,199,406), and that one was 4,393
+ * bytes above its own (2,176,374 → 2,180,767), which was 3,260 bytes above its own (2,173,114 → 2,176,374).
+ * When the bound was
  * sized the spread across locations was about 1,336 bytes: 1,901,023 bytes in `tmp/probe-dev` (+40 bytes from
  * the output directory alone) and 1,899,687 bytes in the ship Verify's sidecar checkout (-1,296 bytes). A
  * tolerance of 2,000 bytes is therefore large enough to absorb a different checkout, a different output path or
@@ -719,11 +721,108 @@ test('the recording is present, names both configurations and matches the bytes 
         `the recorded development build bytes must be within ${DEV_BYTES_TOLERANCE} of the emitted bytes: actual ${actual.bytes}, expected ${recorded.bytes}`,
       );
     } else {
-      // The build half, compared whole with the bytes this file just produced.
+      // The production bundle names are content hashes, so they are recorded as a shape (entryPattern,
+      // lazyChunkCount, chunkPattern) plus a sample observation, and never pinned: a name the bundler
+      // derives from the bytes it just wrote is a derived value, and pinning one turns every legitimate
+      // source change into a recording defect (M036's fix, commit 78b08ca, applied to this half too).
+      // Everything that is not derived is still compared exactly — the recorded key set included, so a
+      // doctored recording cannot hide a field behind a shape — and `bytes` stays exact, because the
+      // minified production build embeds no absolute path.
       assert.deepEqual(
-        recorded,
-        actual,
-        `the recorded ${configuration} build must match the emitted bytes`,
+        Object.keys(recorded).sort(),
+        [
+          'bytes',
+          'chunkPattern',
+          'command',
+          'configuration',
+          'cwd',
+          'entryPattern',
+          'lazyChunkCount',
+          'ngContextWrite',
+          'ngGlobalSurface',
+          'outputClearedFirst',
+          'outputPath',
+          'sample',
+          'sampleNote',
+          'unminified',
+        ],
+        `the recorded ${configuration} build must carry exactly the fields this file reads`,
+      );
+      assert.equal(
+        Object.hasOwn(recorded, 'bundles'),
+        false,
+        'the production bundle names are a derived value and may not be pinned',
+      );
+
+      const entryPattern = new RegExp(recorded.entryPattern);
+      const chunkPattern = new RegExp(recorded.chunkPattern);
+      const entryNames = actual.bundles.filter((name) =>
+        entryPattern.test(name),
+      );
+      assert.equal(
+        entryNames.length,
+        1,
+        `exactly one production bundle must be the entry: ${JSON.stringify(actual.bundles)}`,
+      );
+      const actualLazyChunks = actual.bundles.filter(
+        (name) => !entryPattern.test(name),
+      );
+      assert.equal(
+        actualLazyChunks.length,
+        recorded.lazyChunkCount,
+        `the production lazy chunk count must match: ${actualLazyChunks.length} vs ${recorded.lazyChunkCount}`,
+      );
+      for (const name of actualLazyChunks) {
+        assert.match(
+          name,
+          chunkPattern,
+          `${name} must match chunkPattern ${recorded.chunkPattern}`,
+        );
+      }
+      assert.equal(
+        recorded.configuration,
+        actual.configuration,
+        'the recorded production configuration must match',
+      );
+      assert.equal(
+        recorded.command,
+        actual.command,
+        'the recorded production command must match',
+      );
+      assert.equal(
+        recorded.cwd,
+        actual.cwd,
+        'the recorded production cwd must match',
+      );
+      assert.equal(
+        recorded.outputPath,
+        actual.outputPath,
+        'the recorded production output path must match',
+      );
+      assert.equal(
+        recorded.outputClearedFirst,
+        actual.outputClearedFirst,
+        'the recorded production build must record that its output was cleared first',
+      );
+      assert.equal(
+        recorded.unminified,
+        actual.unminified,
+        'the recorded production bundle must match minification',
+      );
+      assert.deepEqual(
+        recorded.ngContextWrite,
+        actual.ngContextWrite,
+        'the recorded production __ngContext__ write must match',
+      );
+      assert.deepEqual(
+        recorded.ngGlobalSurface,
+        actual.ngGlobalSurface,
+        'the recorded production window.ng surface must match',
+      );
+      assert.equal(
+        recorded.bytes,
+        actual.bytes,
+        `the recorded production bytes must match the emitted bytes: actual ${actual.bytes}, expected ${recorded.bytes}`,
       );
     }
   }
@@ -1034,19 +1133,25 @@ test('the fixture is untouched: its dependencies and both build configurations a
 // ---------------------------------------------------------------------------
 // Stability — two builds at the same output path emit identical bundle name lists
 // ---------------------------------------------------------------------------
-test('the development build is name-stable across two builds at the same output path', () => {
+// The pin each build half carries is a shape, not a name, so the shape has to be shown to be a
+// property of the build rather than a coincidence of one run: the same configuration, built twice at
+// the same output path, must emit the same names. Both configurations are covered, because both now
+// record a shape.
+test('each configuration is name-stable across two builds at the same output path', () => {
   requirePrerequisite(MISSING_MEASUREMENT_ENVIRONMENT);
   buildPackage();
-  const first = buildFixture('development');
-  const second = buildFixture('development');
-  assert.deepEqual(
-    first.bundles,
-    second.bundles,
-    'two builds at the same output path must emit identical bundle name lists',
-  );
-  console.log(
-    `ng-context-dev-build: stability ${JSON.stringify(first.bundles)} === ${JSON.stringify(second.bundles)}`,
-  );
+  for (const configuration of Object.keys(OUTPUT_DIRECTORIES)) {
+    const first = buildFixture(configuration);
+    const second = buildFixture(configuration);
+    assert.deepEqual(
+      first.bundles,
+      second.bundles,
+      `two ${configuration} builds at the same output path must emit identical bundle name lists`,
+    );
+    console.log(
+      `ng-context-dev-build: ${configuration} stability ${JSON.stringify(first.bundles)} === ${JSON.stringify(second.bundles)}`,
+    );
+  }
 });
 
 // ---------------------------------------------------------------------------
