@@ -2,11 +2,11 @@
 id: T007
 title: Restore the unit-test cache the held-out inner runs depend on
 wave: 5
-status: pending
+status: in-progress
 deps: []
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: 4109b8345518e8c04587761a8fa223f6fd8f760a
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - nx.json
