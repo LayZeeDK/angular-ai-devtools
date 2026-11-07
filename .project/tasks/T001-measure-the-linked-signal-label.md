@@ -2,11 +2,11 @@
 id: T001
 title: Measure the linked-signal label and author the fixture states
 wave: 1
-status: pending
+status: in-progress
 deps: []
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: 4ec6eb9bb5e4845bc60a9c190f4b5cc65e6e3667
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - spikes/ng222-app/src/app/linked-state-page.ts
