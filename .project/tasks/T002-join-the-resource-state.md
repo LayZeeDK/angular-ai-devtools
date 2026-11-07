@@ -2,11 +2,11 @@
 id: T002
 title: Join the resource state machine to a finding
 wave: 2
-status: pending
+status: in-progress
 deps: [T001]
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: 1cf974c6e2de7d3232c5a3cb356d40b9cac3eb8d
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - extension/resource-lifecycle.js
