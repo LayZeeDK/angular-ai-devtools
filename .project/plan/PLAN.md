@@ -187,6 +187,20 @@ in both layouts.
   - Acceptance: AC1 on the verify branch, AC2 mutant, AC3 unchanged count
   - Verify: `node --experimental-strip-types --test "scripts/facade-dev-build.test.mjs"`
 
+## Wave 8 — Repair the copied fixture links
+
+Goal: make the copied fixture install carry working links, so the sidecar measures the same graph as the root.
+
+Review depth: verify-only
+
+`T010` recreates each copied symlink from the source's own target string.
+
+- `T010` -- Repair the copied fixture links
+  - Deps: T008
+  - Files: `scripts/ensure-sidecar-deps.mjs`
+  - Acceptance: AC1 target string equality, AC2 repair on rerun, AC3 facade passes
+  - Verify: `node --experimental-strip-types --test "scripts/ensure-sidecar-deps.test.mjs"`
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -215,6 +229,7 @@ in both layouts.
 | SC5 | T003 | AC1 |
 | SC6 | T004 | AC4 |
 | SC6 | T009 | AC1 |
+| SC6 | T010 | AC1 |
 
 ## Prohibitions
 
