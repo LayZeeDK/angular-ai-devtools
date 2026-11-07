@@ -58,7 +58,7 @@ A developer watching a spinner who needs to know whether to wait, to fix an erro
 | E3 | SC2 | ordering | held-out | `scripts/resource-lifecycle.test.mjs` — idle params yield idle-by-design, never loading |
 | E4 | SC4 | boundary | held-out | `scripts/resource-lifecycle.test.mjs` — an unresolved loader yields cannot-tell, not a stuck request |
 | E5 | SC5 | encoding | held-out | `scripts/panel-resource.test.mjs` — the surface renders state and params, and no cause |
-| E6 | SC6 | none | held-out | the project gate at the head |
+| E6 | SC6 | none | dismissed | the project gate at the head has no input edge of its own |
 
 ## Prohibitions
 
