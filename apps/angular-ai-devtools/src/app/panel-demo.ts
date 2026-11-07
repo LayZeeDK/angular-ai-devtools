@@ -27,6 +27,7 @@ const LOADERS: Record<
   legacy: () => import('./panel-legacy') as never,
   onpush: () => import('./panel-onpush') as never,
   resource: () => import('./panel-resource') as never,
+  'linked-state': () => import('./panel-linked-state') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -127,6 +128,25 @@ export const FACTS: Record<string, unknown> = {
         resource: 'Resource#IdleResource',
         status: 'idle',
         params: 'idle (by design)',
+      },
+    ],
+  },
+  // The join's own answer for the recording's `differing` subject
+  // (extension/linked-state.js): the linked signal and the source it follows hold two different
+  // stored values, so the word the join carries in `reason` — and the state this pane renders — is
+  // `differing`. Every field here is the recording's: the signal's label and value and the
+  // source's are `research/raw/m038-linked-state.json`'s own (`subjects.differing.node`,
+  // `source.node`). The `matching` agreement is the pane's other state and is pinned, with the
+  // values it carries, in `scripts/panel-linked-state.test.mjs`.
+  'linked-state': {
+    facts: [
+      {
+        state: 'finding',
+        signal: 'differing',
+        source: 'source',
+        value: 8,
+        sourceValue: 7,
+        reason: 'differing',
       },
     ],
   },

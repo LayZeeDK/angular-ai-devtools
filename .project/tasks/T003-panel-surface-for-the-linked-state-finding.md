@@ -2,11 +2,11 @@
 id: T003
 title: Panel surface for the linked-state finding
 wave: 3
-status: pending
+status: done
 deps:
   - T002
-agent: null
-base: null
+agent: paid-deepseek-v4.1-flash-high
+base: 208df7e65f048dcef219f17f270c468ff0e29b8c
 worktree: null
 task_branch: null
 files:
@@ -76,3 +76,4 @@ node --experimental-strip-types --test "scripts/panel-linked-state.test.mjs" "sc
 - dispatched
 - `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`
 - `tests/held-out/fixture-explainers-unchanged.test.mjs`
+- 2026-11-07 - ready - the pane renders matching, differing, cannot-tell and idle, passes through a state it was not written for, and reads the join's reason rather than re-deriving the agreement. Four route pins re-cut, five mutants named.

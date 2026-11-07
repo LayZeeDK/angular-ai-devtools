@@ -24,6 +24,12 @@
  * is the recording the capture re-measured, and the state the pane prints — and the reading the
  * sample fact carries — must be that recording's, so a demo that fell back to the module's default
  * (extension/field-state.js, INTENT.md SC4) reddens here instead of shipping.
+ *
+ * M038 T003 extends it to the `linked-state` surface: `research/raw/m038-linked-state.json` is T001's
+ * measurement of the two linked signals and their shared source, and the signal, the source and the
+ * two stored values the demo prints must be that recording's. The word the pane reports is the
+ * join's own `reason` — `differing` for the recording's `differing` subject — and never the
+ * recording's precomputed `agreesWithItsSource`, which the pane may not read at all.
  */
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -60,6 +66,15 @@ interface FieldStateRecording {
     rootErrors: { kind: string }[];
     submitDisabled: boolean;
   };
+}
+
+/** The part of the M038 linked-state recording this spec reads. */
+interface LinkedStateRecording {
+  subjects: {
+    agreeing: { node: { label: string; value: number } };
+    differing: { node: { label: string; value: number } };
+  };
+  source: { node: { label: string; value: number } };
 }
 
 /** The vite `import.meta.glob` surface this spec uses, cast rather than declared globally. */
@@ -140,6 +155,28 @@ function readFieldRecording(): {
     );
   }
   return { recording: JSON.parse(text) as FieldStateRecording, text };
+}
+
+/** The M038 linked-state recording and its text, inlined from disk the same way. */
+function readLinkedStateRecording(): {
+  recording: LinkedStateRecording;
+  text: string;
+} {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m038-linked-state.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m038-linked-state.json was not inlined above this spec file',
+    );
+  }
+  return { recording: JSON.parse(text) as LinkedStateRecording, text };
 }
 
 /** The demo rendered for one surface name, once its lazy surface has answered. */
@@ -275,6 +312,55 @@ describe('the panel demo', () => {
     // in a field this spec picked.
     expect(text.includes('"submitDisabled": true')).toBe(true);
     expect(text.includes(`"${recording.submitElementId}"`)).toBe(true);
+  });
+
+  /**
+   * The M038 half: the sample fact behind `/linked-state` is the join's answer for the recording's
+   * `differing` subject, and the signal, the source and the two stored values the pane prints are
+   * that recording's. The word the pane reports is the join's `reason`, and the recording's
+   * precomputed agreement is neither printed nor consulted — it says the values differ, which the
+   * pane may only know because the join said so.
+   */
+  it('renders the linked signal, its source and the agreement the M038 recording measures', async () => {
+    const { recording, text } = readLinkedStateRecording();
+    const signal = recording.subjects.differing.node;
+    const source = recording.source.node;
+
+    // The measured pair the demo samples: two different stored values and one shared source.
+    expect(signal.label).toBe('differing');
+    expect(signal.value).not.toBe(source.value);
+
+    // The fact the pane is handed carries the recording's own labels and values.
+    const fact = FACTS['linked-state'] as {
+      facts?: { signal?: unknown; source?: unknown; value?: unknown }[];
+    };
+    const sampled = fact.facts?.[0];
+    if (sampled === undefined) {
+      throw new Error(
+        'the linked-state sample must carry one fact for the pane to render',
+      );
+    }
+    expect(sampled.signal).toBe(signal.label);
+    expect(sampled.source).toBe(source.label);
+    expect(sampled.value).toBe(signal.value);
+
+    const demo = await renderDemo('linked-state');
+    // The pane's state is the join's own word, not the recording's precomputed agreement.
+    expect(demo.state()).toBe('differing');
+    expect(demo.lines()).toEqual([
+      `signal: ${signal.label}`,
+      `source: ${source.label}`,
+      `value: ${signal.value}`,
+      `sourceValue: ${source.value}`,
+      'reason: differing',
+    ]);
+    // Nothing the pane renders names the precomputed field or a cause for the difference.
+    expect(demo.text()).not.toContain('agreesWithItsSource');
+    expect(demo.text()).not.toMatch(/written|owner|cause/i);
+    // The identity and the two values are in the committed recording's bytes, not only here.
+    expect(text.includes(`"label": "${signal.label}"`)).toBe(true);
+    expect(text.includes(`"label": "${source.label}"`)).toBe(true);
+    expect(text.includes(`"value": ${signal.value}`)).toBe(true);
   });
 
   /**
