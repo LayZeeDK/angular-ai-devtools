@@ -28,8 +28,8 @@ error together with a rule that spans fields.
 ## Success criteria
 
 1. On the fixture, a form whose submit is disabled produces a finding naming the form, the submit state, and the
-root field's error kinds when the root carries any -- and naming no rule, element or remedy the fact list does not
-carry.
+   root field's error kinds when the root carries any -- and naming no rule, element or remedy the fact list does not
+   carry.
 2. A field's own error and a root-level (cross-field) error are reported as different things, in different places,
    with different words; neither is merged into the other.
 3. Both are produced from what the page already exposes through `ng.getComponent`, with no new page-side
