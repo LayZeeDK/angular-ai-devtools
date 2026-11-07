@@ -2,11 +2,11 @@
 id: T005
 title: Widen the statuses and close the echoed identity
 wave: 3
-status: in-progress
+status: done
 deps: []
 agent: paid-deepseek-v4-1-flash-high
-base: a17f6a093b0e46a08baa6084cfb4edb5f700e7c4
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 483bcd4a238ab8319185167f0bd37e91b234d828
+worktree: null
 task_branch: null
 files:
   - extension/resource-lifecycle.js
@@ -76,3 +76,4 @@ node --experimental-strip-types --test "scripts/resource-lifecycle.test.mjs" && 
 ## Log
 
 - dispatched
+- 2026-11-07 — dispatched paid-deepseek-v4-1-flash-high (serial). `reloading` is now a named status answered before the params gate, with the reload sentence taken from Angular's own `ResourceStatus` text; the identity is gated on `Resource#<name>` and a cause in that slot yields `resource-unnamed`. `research/08` lines 137, 169 and 170 now agree that status lives on `.status` nodes. The vm purity assertions moved inside the context and are proven by M6 (Date) and M7 (console), each of which also shows the old assertions could not have caught them. Finding 5 is answered by asserting `params-unavailable` for measured fields and labelling every constructed params input as an echo, never a measurement. 30/30, 16/16, tsc 0, prettier clean; the docs case fails by name on the base commit. Carried forward: `local` is a sixth `ResourceStatus` value, deliberately unnamed and answered `status-unavailable`. Verdict: ready.

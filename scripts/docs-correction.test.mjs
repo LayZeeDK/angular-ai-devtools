@@ -424,3 +424,68 @@ test('AGENTS.md states the shipped interop suite test count', () => {
     'the corrected count must be stated',
   );
 });
+
+test('research/08-recent-angular-features.md attributes resource status to the node the recording carries it on', () => {
+  const text = read('research/08-recent-angular-features.md');
+  const nodes = readJson(
+    'research/raw/m036-resource-graph.json',
+  ).graph.nodes.filter((node) => String(node.label).startsWith('Resource#'));
+  // The measurement the sentence is corrected against: every `Resource#<name>.state` node records
+  // `value: null`, and every `Resource#<name>.status` node records the status as its value. Read
+  // from the recording itself, so the page cannot rot while still reading as corrected.
+  const states = nodes.filter((node) => node.label.endsWith('.state'));
+  const statuses = nodes.filter((node) => node.label.endsWith('.status'));
+  assert.equal(states.length > 0, true, 'the recording holds .state nodes');
+  assert.equal(
+    statuses.length,
+    states.length,
+    'every recorded resource carries one .state node and one .status node',
+  );
+  for (const node of states) {
+    assert.equal(
+      node.value,
+      null,
+      `${node.label} records value: null, so it carries no status`,
+    );
+  }
+  for (const node of statuses) {
+    assert.equal(
+      typeof node.value,
+      'string',
+      `${node.label} carries the status the resource reports`,
+    );
+  }
+  // The attribution, on the line the research note cites.
+  const lines = text.split(/\r?\n/);
+  assert.match(
+    lines[136] ?? '',
+    /Status comes from the `Resource#<name>\.status` computed node/,
+    'line 137 must attribute status to the .status computed node',
+  );
+  assert.match(
+    lines[136] ?? '',
+    /every `\.state` node records `value: null`/,
+    'line 137 must state what the .state node actually records',
+  );
+  assert.equal(
+    text.includes("Status comes from reading the `state` node's value"),
+    false,
+    'the state-node attribution must be gone',
+  );
+  // The field list, on the line it is cited at.
+  assert.match(
+    lines[169] ?? '',
+    /\(state, status, isLoading, extRequest, value\)/,
+    'line 170 must name .status among the fields the agent reads',
+  );
+  assert.equal(
+    text.includes('(state, isLoading, extRequest, value)'),
+    false,
+    'the field list that omitted .status must be gone',
+  );
+  assert.equal(
+    text.includes('`Resource#products.state`'),
+    false,
+    'no example may read a status off a .state node',
+  );
+});
