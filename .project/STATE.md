@@ -5,7 +5,7 @@ milestone: signal-forms-doctor
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M037
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -759,3 +759,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-07 — plan — planning started
 - 2026-11-07 — plan — plan approved
 - 2026-11-07 — build — build started
+- 2026-11-07 — build — final gap: SC4 contradicted by the module default

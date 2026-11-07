@@ -15,6 +15,8 @@ files:
   - research/raw/m022-ng-context.json
   - research/raw/companion-dev-build.json
   - research/raw/m037-verdict-claims.json
+  - extension/field-state.js
+  - scripts/field-state.test.mjs
   - apps/angular-ai-devtools/src/app/app.spec.ts
   - apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts
   - extension/page-footprint.test.mjs
@@ -45,12 +47,12 @@ None
 1. held-out E5: an unrenderable fact yields cannot-tell in the pane, never a blank or a default.
 2. The demo fact's submit state equals the recording's, proven by a test rather than by inspection.
 3. Every moved recording is re-measured; no tolerance widens.
-4. `npm run check` and `npm test` pass at the head.
+4. A fact carrying neither submit state nor submitDisabled yields cannot-tell with a named reason, never`enabled` -- so SC4 holds in the shipped code.\n5. `npm run check` and `npm test` pass at the head.
 
 ## Verify
 
 ```bash
-node --experimental-strip-types --test "apps/angular-ai-devtools/src/app/panel-demo.spec.ts" && npm run check && npm test
+node --experimental-strip-types --test "scripts/field-state.test.mjs" && node --experimental-strip-types --test "apps/angular-ai-devtools/src/app/panel-demo.spec.ts" && npm run check && npm test
 ```
 
 ## Intent coverage
