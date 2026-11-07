@@ -9,6 +9,7 @@ import { FieldFormPage } from './field-form-page';
 import { LintObservabilityPage } from './lint-observability-page';
 import { RouterLintPage } from './router-lint-page';
 import { LegacyModulePage } from './legacy-module-page';
+import { OnPushReadyPage } from './onpush-ready-page';
 import { LandingPage, LazyPage } from './redirect-page';
 import { redirectGuard } from './redirect-guard';
 
@@ -23,6 +24,7 @@ export const routes: Routes = [
   { path: 'lint-observability', component: LintObservabilityPage },
   { path: 'router-lint', component: RouterLintPage },
   { path: 'legacy-module', component: LegacyModulePage },
+  { path: 'onpush-ready', component: OnPushReadyPage },
   { path: 'redirect', redirectTo: 'landing' },
   { path: 'landing', component: LandingPage },
   { path: 'gated', component: LandingPage, canActivate: [redirectGuard] },

@@ -627,7 +627,7 @@ function validate(record) {
   // config
   if (!record.injectorResolvedOnRoutedElement) fail('injector not resolved');
   if (!Array.isArray(record.config)) fail('config not array');
-  if (record.config.length !== 16)
+  if (record.config.length !== 17)
     fail(`config length ${record.config.length}`);
   const fields = [
     ...new Set(record.config.flatMap((e) => Object.keys(e))),
@@ -648,6 +648,15 @@ function validate(record) {
   // router-lint route present
   const rl = record.config.find((e) => e.path === 'router-lint');
   if (!rl) fail('router-lint route missing from config');
+  // M035 T001 added the onpush-ready measurement page to the same table, which
+  // is why the entry count moved from sixteen to seventeen.
+  const onpushReady = record.config.find((e) => e.path === 'onpush-ready');
+  if (!onpushReady) fail('onpush-ready route missing from config');
+  if (
+    typeof onpushReady.component !== 'string' ||
+    !onpushReady.component.includes('OnPushReadyPage')
+  )
+    fail('onpush-ready is not routed to its page');
 
   return true;
 }
@@ -687,9 +696,9 @@ test('a console message carries an NG code, and it is the construct’s', () => 
   assert.ok(record.console.withoutAnNgCode > 0, 'all messages carried a code');
 });
 
-test('the config is recorded with 16 entries', () => {
+test('the config is recorded with 17 entries', () => {
   const record = loadRecord();
-  assert.equal(record.config.length, 16);
+  assert.equal(record.config.length, 17);
 });
 
 test('PRECONDITION: app.routes.ts registers the fixture page', () => {

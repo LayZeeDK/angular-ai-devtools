@@ -10,7 +10,11 @@ export interface RecordedCheck {
   instance?: unknown;
   componentName: string;
   className?: string | null;
-  changeDetection?: number | string;
+  // `null` is a real answer on the wire: the recorder sends it when a component's change-detection
+  // metadata could not be read (`extension/agent-main.js`, `changeDetectionFor`'s two unread paths,
+  // and the initial record, which reads no metadata at all). Excluding it here would make the type
+  // disagree with the bytes the panel receives.
+  changeDetection?: number | string | null;
   events?: number[];
   graph?: GraphSnapshot | null;
   changedNodeIds?: string[];

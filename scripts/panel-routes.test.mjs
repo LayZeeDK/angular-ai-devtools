@@ -13,7 +13,14 @@ const ROUTES = join(
   'app.routes.ts',
 );
 
-const surfaces = ['after-render', 'sanitizer', 'redirect', 'fields', 'legacy'];
+const surfaces = [
+  'after-render',
+  'sanitizer',
+  'redirect',
+  'fields',
+  'legacy',
+  'onpush',
+];
 
 function routeBlock(source, surface) {
   const needle = "path: '" + surface + "'";
@@ -53,6 +60,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     redirect: ['panel-redirect', 'redirectPanel'],
     fields: ['panel-fields', 'fieldsPanel'],
     legacy: ['panel-legacy', 'legacyPanel'],
+    onpush: ['panel-onpush', 'onpushPanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -84,6 +92,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'redirectPanel(',
     'sanitizerPanel(',
     'afterRenderPanel(',
+    'onpushPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -172,5 +181,24 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       err instanceof assert.AssertionError &&
       String(err.message).includes('legacy'),
     'removing the legacy loader must fail naming the missing surface legacy',
+  );
+
+  // Mutant: remove the onpush key from LOADERS. The M035 route is the one this task adds, so the
+  // check must name it when its loader is gone rather than pass on the surfaces before it.
+  const withoutOnpush = demoSource.replace(
+    "  onpush: () => import('./panel-onpush') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutOnpush,
+    demoSource,
+    'the onpush mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutOnpush),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('onpush'),
+    'removing the onpush loader must fail naming the missing surface onpush',
   );
 });

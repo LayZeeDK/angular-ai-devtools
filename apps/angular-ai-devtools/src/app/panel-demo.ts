@@ -25,6 +25,7 @@ const LOADERS: Record<
   lint: () => import('./panel-lint') as never,
   router: () => import('./panel-router') as never,
   legacy: () => import('./panel-legacy') as never,
+  onpush: () => import('./panel-onpush') as never,
 };
 
 const FACTS: Record<string, unknown> = {
@@ -87,6 +88,18 @@ const FACTS: Record<string, unknown> = {
         modernForm:
           'removing standalone: false and adding dependencies to their imports array',
         source: 'https://angular.dev/reference/migrations/standalone',
+      },
+    ],
+  },
+  // The join's own `onPush: false` answer (extension/onpush-readiness.js): the component declared
+  // the deprecated Default strategy — Eager at runtime — with one signal-based input read.
+  onpush: {
+    facts: [
+      {
+        state: 'finding',
+        component: '_DeclaredDefault',
+        strategy: 'eager',
+        facts: ['input "label" is signal-based'],
       },
     ],
   },

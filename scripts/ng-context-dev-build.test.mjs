@@ -110,19 +110,20 @@ const OUTPUT_DIRECTORIES = {
 
 /**
  * The development build embeds absolute paths (the checkout path among them), so its total byte count varies by
- * where it is built: re-measured for the recording compared below by M034 T004, 2,176,374 bytes in
+ * where it is built: re-measured for the recording compared below by M035 T004, 2,180,767 bytes in
  * `tmp/ng-context/dev` in this checkout, and the same count again from the clean development build
  * `facade-dev-build.test.mjs` makes into `tmp/facade-dev-build`, so the count reproduces at this head at two
- * output paths. The count has moved for real emitted code twice since the bound was sized — the trust-bypass
- * page (`spikes/ng222-app/src/app/trust-bypass-page.ts`) and the legacy-module page and NgModule
- * (`spikes/ng222-app/src/app/legacy-module-page.ts`, `legacy-module.ts`, commit 00aaf19) — and each move was
- * re-recorded rather than absorbed by a wider bound: this recording is 3,260 bytes above the one it replaced
- * (2,173,114 → 2,176,374). When the bound was sized the spread across locations was about 1,336 bytes: 1,901,023
- * bytes in `tmp/probe-dev` (+40 bytes from the output directory alone) and 1,899,687 bytes in the ship Verify's
- * sidecar checkout (-1,296 bytes from the checkout). A tolerance of 2,000 bytes is therefore large enough to
- * absorb a different checkout, a different output path or a plain rebuild, and small enough that a real
- * regression — which changes the bundle by far more than that — still fails. The structural fields below are still
- * compared exactly, so only the volatile size is relaxed.
+ * output paths. The count has moved for real emitted code three times since the bound was sized — the trust-bypass
+ * page (`spikes/ng222-app/src/app/trust-bypass-page.ts`), the legacy-module page and NgModule
+ * (`spikes/ng222-app/src/app/legacy-module-page.ts`, `legacy-module.ts`, commit 00aaf19), and the readiness page
+ * (`spikes/ng222-app/src/app/onpush-ready-page.ts`, `onpush-ready.ts`) — and each move was re-recorded rather than
+ * absorbed by a wider bound: this recording is 4,393 bytes above the one it replaced (2,176,374 → 2,180,767), and
+ * that one was 3,260 bytes above its own predecessor (2,173,114 → 2,176,374). When the bound was sized the spread
+ * across locations was about 1,336 bytes: 1,901,023 bytes in `tmp/probe-dev` (+40 bytes from the output directory
+ * alone) and 1,899,687 bytes in the ship Verify's sidecar checkout (-1,296 bytes from the checkout). A tolerance of
+ * 2,000 bytes is therefore large enough to absorb a different checkout, a different output path or a plain
+ * rebuild, and small enough that a real regression — which changes the bundle by far more than that — still fails.
+ * The structural fields below are still compared exactly, so only the volatile size is relaxed.
  */
 const DEV_BYTES_TOLERANCE = 2000;
 const OUTPUT_PATHS = {

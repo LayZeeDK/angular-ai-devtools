@@ -664,12 +664,12 @@
         : typeof ngObj.ɵgetDirectiveMetadata === 'function'
           ? ngObj.ɵgetDirectiveMetadata
           : null;
-    if (!gdm) return 'onpush';
+    if (!gdm) return null;
     try {
       var meta = gdm(instance);
       return meta && meta.changeDetection === 0 ? 'onpush' : 'eager';
     } catch (e) {
-      return 'onpush';
+      return null;
     }
   }
 
@@ -1270,7 +1270,9 @@
       var check = {
         componentName: nodes[0].component,
         className: nodes[0].component,
-        changeDetection: 'onpush',
+        // Nothing here read a strategy: this record is built from the enumerated nodes alone, so
+        // the honest answer is the same `null` `changeDetectionFor` gives on its unread paths.
+        changeDetection: null,
         events: [],
         graph: { nodes: nodes, edges: [] },
         changedNodeIds: [],

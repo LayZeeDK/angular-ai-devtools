@@ -93,4 +93,13 @@ export const appRoutes: Route[] = [
       import('./panel-demo').then((m) => m.PanelDemoComponent),
     data: { surface: 'legacy' },
   },
+  // The M035 SC4 surface: the change-detection strategy the component def reports, with the
+  // readiness facts the metadata carries — or the state that names why it cannot be told. Lazy for
+  // the same reason as the surfaces above it — the panel's eager bundle is measured.
+  {
+    path: 'onpush',
+    loadComponent: () =>
+      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    data: { surface: 'onpush' },
+  },
 ];

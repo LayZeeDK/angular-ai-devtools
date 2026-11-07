@@ -278,6 +278,119 @@ describe('agent-main.js (recorder)', () => {
     });
   });
 
+  /**
+   * The unreadable-metadata case: the recorder answers nothing, never the best case.
+   *
+   * `changeDetectionFor` used to answer `'onpush'` on both of its unreadable paths — the runtime
+   * publishes no metadata function, and the metadata call throws. That made "this component is
+   * OnPush" the silent answer for a component nobody read. The consumer
+   * (`apps/angular-ai-devtools/src/app/update-cause-chain.ts`) treats only `1`/`'eager'`/`'Eager'`
+   * as eager, so the fallback did not merely mislabel the strategy: it suppressed the eager branch
+   * for a component whose strategy was never read. Both assertions below are red on that default,
+   * which reported `'onpush'`.
+   */
+  describe('change-detection metadata that cannot be read', () => {
+    it("answers null, not 'onpush', when the runtime publishes no metadata function", async () => {
+      const counter = new Counter();
+      const { ng } = makeNg({ graph: counterGraph() });
+      delete ng.getDirectiveMetadata;
+      const { recorder, dispatched } = boot({ ng });
+      const sub = recorder.getSubscriber();
+
+      sub(PE.TemplateUpdateStart, counter);
+      sub(PE.TemplateUpdateEnd, counter);
+      await flushMicrotasks();
+
+      const record = dispatched.find((e) => e.type === 'angular-ai:record');
+      assert.ok(record, 'a cycle must still be recorded');
+      assert.equal(record.detail.checks[0].changeDetection, null);
+      assert.notEqual(record.detail.checks[0].changeDetection, 'onpush');
+      assert.equal(record.detail.checks[0].componentName, 'app-counter');
+    });
+
+    it("answers null, not 'onpush', when the metadata read throws", async () => {
+      const counter = new Counter();
+      const { ng } = makeNg({ graph: counterGraph() });
+      ng.getDirectiveMetadata = () => {
+        throw new Error('no directive metadata for this instance');
+      };
+      const { recorder, dispatched } = boot({ ng });
+      const sub = recorder.getSubscriber();
+
+      sub(PE.TemplateUpdateStart, counter);
+      sub(PE.TemplateUpdateEnd, counter);
+      await flushMicrotasks();
+
+      const record = dispatched.find((e) => e.type === 'angular-ai:record');
+      assert.ok(record, 'a throwing metadata read must not lose the record');
+      assert.equal(record.detail.checks[0].changeDetection, null);
+      assert.notEqual(record.detail.checks[0].changeDetection, 'onpush');
+    });
+
+    it("still answers the strategy it read: 'eager' for an explicitly declared Default", async () => {
+      const counter = new Counter();
+      const { ng } = makeNg({ graph: counterGraph(), changeDetection: 1 });
+      const { recorder, dispatched } = boot({ ng });
+      const sub = recorder.getSubscriber();
+
+      sub(PE.TemplateUpdateStart, counter);
+      sub(PE.TemplateUpdateEnd, counter);
+      await flushMicrotasks();
+
+      const record = dispatched.find((e) => e.type === 'angular-ai:record');
+      assert.equal(record.detail.checks[0].changeDetection, 'eager');
+    });
+  });
+
+  /**
+   * The initial record: the one snapshot `tryInstall` publishes 500 ms after install, before any
+   * profiler cycle exists.
+   *
+   * `dispatchInitialRecord` builds that check out of what the page hands it — a component node and
+   * its class name — and reads no change-detection metadata at all. It used to fill that gap with
+   * the literal `'onpush'`, asserting the best case for a component nobody read, one function below
+   * the `return null` correction `changeDetectionFor` received for the same reason. The value is
+   * now the `null` every unread path answers, and the two cases below are red the moment `'onpush'`
+   * comes back: the first pins `null` itself, the second pins the wire the consumer receives.
+   */
+  describe('the initial record published after install', () => {
+    /** Installs into a page with one component node and answers the initial record's detail. */
+    function initialRecord() {
+      const instance = new Counter();
+      const element = { tagName: 'APP-COUNTER' };
+      const { ng } = pageNg({ resolve: { getComponent: () => instance } });
+      const document = {
+        querySelector: () => ({ tagName: 'APP-ROOT' }),
+        querySelectorAll: () => [element],
+        body: { tagName: 'APP-ROOT' },
+        documentElement: { tagName: 'APP-ROOT' },
+      };
+      const page = bootSandbox({ ng, document });
+      page.sandbox.__ngRecorder.start();
+      page.clock.tickMany(); // drains the shipped 500 ms initial-record timeout
+      const record = page.dispatched.find(
+        (event) => event.type === 'angular-ai:record',
+      );
+      assert.ok(record, 'the initial record must still be dispatched');
+      return plain(record.detail);
+    }
+
+    it('records the strategy it did not read as null', () => {
+      const detail = initialRecord();
+      assert.equal(detail.checks.length, 1);
+      assert.equal(detail.checks[0].componentName, 'Counter');
+      assert.equal(detail.checks[0].changeDetection, null);
+    });
+
+    it("never says 'onpush' for a strategy the page did not supply", () => {
+      const detail = initialRecord();
+      assert.notEqual(detail.checks[0].changeDetection, 'onpush');
+      // The serialised value the panel consumes, not a type this file invented: the field is
+      // present and null, so the walk reads "no claim" rather than an absent key it must guess at.
+      assert.match(JSON.stringify(detail), /"changeDetection":null/);
+    });
+  });
+
   describe('extractTriggerName (formatOutput-style)', () => {
     it('extracts the DOM event name from a generated listener name', () => {
       assert.equal(

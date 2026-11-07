@@ -1,0 +1,393 @@
+{
+  "capturedAt": "2026-11-06T19:45:53.004Z",
+  "instance": "headless",
+  "browser": "headless Playwright Chromium (build 153.0.8010.12)",
+  "browserBuild": "153.0.8010.12",
+  "playwright": "1.63.0",
+  "url": "http://127.0.0.1:65457/onpush-ready",
+  "pageUrl": "http://127.0.0.1:65457/onpush-ready",
+  "commands": {
+    "install": "npm ci --include=dev",
+    "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
+    "build": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js build --configuration development --output-path tmp/m035-onpush-build  (cwd spikes/ng222-app)",
+    "capture": "set \"M035_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/onpush-metadata-capture.test.mjs\"",
+    "check": "node --experimental-strip-types --test \"scripts/onpush-metadata-capture.test.mjs\""
+  },
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0"
+  },
+  "angular": {
+    "runtimeReportedByThePage": "22.2.2",
+    "fixtureDependency": {
+      "declared": "^22.2.0",
+      "installed": "22.2.2",
+      "source": "spikes/ng222-app/node_modules/@angular/core/package.json"
+    },
+    "panelDependency": {
+      "declared": "~22.1.0",
+      "installed": "22.1.8",
+      "source": "node_modules/@angular/core/package.json"
+    },
+    "whichOneTheCaptureRead": "the runtime defs below were produced by @angular/core 22.2.2 while it served the fixture, which is the fixture dependency installed in spikes/ng222-app/node_modules; the panel ships 22.1.8 (declared ~22.1.0 in the repository package.json) and its def surface is read statically from node_modules/@angular/core. Both versions declare the same five fields and no changeDetection field, so the runtime read holds for the panel version too"
+  },
+  "build": {
+    "configuration": "development",
+    "command": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js build --configuration development --output-path tmp/m035-onpush-build  (cwd spikes/ng222-app)",
+    "outputPath": "tmp/m035-onpush-build/browser",
+    "bundles": [
+      "chunk-4GZTSCME.js",
+      "chunk-BC3BGO77.js",
+      "main.js"
+    ]
+  },
+  "fixture": {
+    "route": "/onpush-ready",
+    "routeTable": "spikes/ng222-app/src/app/app.routes.ts",
+    "page": "spikes/ng222-app/src/app/onpush-ready-page.ts",
+    "onPushComponent": "spikes/ng222-app/src/app/onpush-ready.ts",
+    "defaultComponent": "spikes/ng222-app/src/app/counter.ts",
+    "defaultComponentWhy": "the root component renders app-counter on every route, so the page yields a pre-existing component that declares no strategy alongside the new subjects"
+  },
+  "page": {
+    "pageLoads": 1,
+    "ngVersion": "22.2.2",
+    "headingText": "onpush ready",
+    "onPushLabelText": "page",
+    "counterText": "Clicks: 3 (double 6, cart 1)Increment",
+    "uncaughtPageErrors": 0,
+    "pageErrorMessages": []
+  },
+  "answers": {
+    "fieldsPresentOnTheDef": [
+      "onPush",
+      "signals",
+      "standalone",
+      "inputs",
+      "inputConfig"
+    ],
+    "changeDetectionFieldPresent": false,
+    "onPushReports": {
+      "onPushReady": true,
+      "declaredDefault": false,
+      "counter": true
+    },
+    "finding": "onPush, signals, standalone, inputs and inputConfig are on the def; changeDetection is not, at 22.1.8 and at 22.2.2. The def reports onPush true for the component that declares OnPush and for the component that declares no strategy, and false only for the component that declares ChangeDetectionStrategy.Default explicitly. That is what the compiler and the runtime do on this version: the compiler omits a changeDetection entry when the resolved strategy is OnPush or when none is declared, emits changeDetection: 1 for the explicitly declared Default alias, and the runtime derives onPush as changeDetection !== ChangeDetectionStrategy.Eager and initialises the view with the OnPush flags when onPush is true. A component that names no strategy is therefore OnPush since Angular 22, which is why the fixture pre-existing Counter — not the new component — was already the OnPush subject"
+  },
+  "subjects": {
+    "onPushReady": {
+      "declaredStrategy": "OnPush",
+      "source": "spikes/ng222-app/src/app/onpush-ready.ts",
+      "compiled": {
+        "typeRef": "_OnPushReady",
+        "carriesChangeDetection": false,
+        "changeDetectionEntry": null,
+        "call": "defineComponent({ type: _OnPushReady, selectors: [[\"app-onpush-ready\"]], inputs: { label: [1, \"label\"] }, decls: 2, vars: 1, consts: [[\"id\", \"onpush-ready-label\"]], template: function OnPushReady_Template(rf, ctx) { if (rf & 1) { \\u0275\\u02"
+      },
+      "runtime": {
+        "found": true,
+        "element": "app-onpush-ready",
+        "component": "_OnPushReady",
+        "defPath": "ng.getComponent(element).constructor.ɵcmp",
+        "defKeyCount": 42,
+        "fields": {
+          "onPush": {
+            "present": true,
+            "type": "boolean",
+            "value": true
+          },
+          "signals": {
+            "present": true,
+            "type": "boolean",
+            "value": false
+          },
+          "standalone": {
+            "present": true,
+            "type": "boolean",
+            "value": true
+          },
+          "inputs": {
+            "present": true,
+            "type": "object",
+            "value": {
+              "label": [
+                "label",
+                1,
+                null
+              ]
+            }
+          },
+          "inputConfig": {
+            "present": true,
+            "type": "object",
+            "value": {
+              "label": [
+                1,
+                "label"
+              ]
+            }
+          }
+        },
+        "strategyField": {
+          "name": "changeDetection",
+          "present": false,
+          "type": null,
+          "value": null
+        }
+      }
+    },
+    "declaredDefault": {
+      "declaredStrategy": "Default",
+      "source": "spikes/ng222-app/src/app/onpush-ready.ts",
+      "compiled": {
+        "typeRef": "_DeclaredDefault",
+        "carriesChangeDetection": true,
+        "changeDetectionEntry": "changeDetection: 1",
+        "call": "defineComponent({ type: _DeclaredDefault, selectors: [[\"app-declared-default\"]], inputs: { label: [1, \"label\"] }, decls: 2, vars: 1, consts: [[\"id\", \"declared-default-label\"]], template: function DeclaredDefault_Template(rf, ctx) { if (rf &"
+      },
+      "runtime": {
+        "found": true,
+        "element": "app-declared-default",
+        "component": "_DeclaredDefault",
+        "defPath": "ng.getComponent(element).constructor.ɵcmp",
+        "defKeyCount": 42,
+        "fields": {
+          "onPush": {
+            "present": true,
+            "type": "boolean",
+            "value": false
+          },
+          "signals": {
+            "present": true,
+            "type": "boolean",
+            "value": false
+          },
+          "standalone": {
+            "present": true,
+            "type": "boolean",
+            "value": true
+          },
+          "inputs": {
+            "present": true,
+            "type": "object",
+            "value": {
+              "label": [
+                "label",
+                1,
+                null
+              ]
+            }
+          },
+          "inputConfig": {
+            "present": true,
+            "type": "object",
+            "value": {
+              "label": [
+                1,
+                "label"
+              ]
+            }
+          }
+        },
+        "strategyField": {
+          "name": "changeDetection",
+          "present": false,
+          "type": null,
+          "value": null
+        }
+      }
+    },
+    "counter": {
+      "declaredStrategy": "none declared",
+      "source": "spikes/ng222-app/src/app/counter.ts",
+      "compiled": {
+        "typeRef": "_Counter",
+        "carriesChangeDetection": false,
+        "changeDetectionEntry": null,
+        "call": "defineComponent({ type: _Counter, selectors: [[\"app-counter\"]], inputs: { title: [1, \"title\"] }, decls: 4, vars: 4, consts: [[\"type\", \"button\", 3, \"click\"]], template: function Counter_Template(rf, ctx) { if (rf & 1) { \\u0275\\u0275domElemen"
+      },
+      "runtime": {
+        "found": true,
+        "element": "app-counter",
+        "component": "_Counter",
+        "defPath": "ng.getComponent(element).constructor.ɵcmp",
+        "defKeyCount": 42,
+        "fields": {
+          "onPush": {
+            "present": true,
+            "type": "boolean",
+            "value": true
+          },
+          "signals": {
+            "present": true,
+            "type": "boolean",
+            "value": false
+          },
+          "standalone": {
+            "present": true,
+            "type": "boolean",
+            "value": true
+          },
+          "inputs": {
+            "present": true,
+            "type": "object",
+            "value": {
+              "title": [
+                "title",
+                1,
+                null
+              ]
+            }
+          },
+          "inputConfig": {
+            "present": true,
+            "type": "object",
+            "value": {
+              "title": [
+                1,
+                "title"
+              ]
+            }
+          }
+        },
+        "strategyField": {
+          "name": "changeDetection",
+          "present": false,
+          "type": null,
+          "value": null
+        }
+      }
+    }
+  },
+  "surface": {
+    "panel": {
+      "types": "node_modules/@angular/core/types/_debug_node-chunk.d.ts",
+      "version": "22.1.8",
+      "fields": {
+        "onPush": {
+          "present": true,
+          "declarations": [
+            {
+              "interface": "ComponentDef",
+              "declaration": "readonly onPush: boolean;"
+            }
+          ]
+        },
+        "signals": {
+          "present": true,
+          "declarations": [
+            {
+              "interface": "ComponentDef",
+              "declaration": "readonly signals: boolean;"
+            },
+            {
+              "interface": "DirectiveDef",
+              "declaration": "readonly signals: boolean;"
+            }
+          ]
+        },
+        "standalone": {
+          "present": true,
+          "declarations": [
+            {
+              "interface": "DirectiveDef",
+              "declaration": "readonly standalone: boolean;"
+            }
+          ]
+        },
+        "inputs": {
+          "present": true,
+          "declarations": [
+            {
+              "interface": "DirectiveDef",
+              "declaration": "readonly inputs: Record<string, ["
+            }
+          ]
+        },
+        "inputConfig": {
+          "present": true,
+          "declarations": [
+            {
+              "interface": "DirectiveDef",
+              "declaration": "readonly inputConfig: {"
+            }
+          ]
+        },
+        "changeDetection": {
+          "present": false,
+          "declarations": []
+        }
+      },
+      "onPushDerivation": {
+        "source": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "lineNumber": 10152,
+        "declaration": "onPush: componentDefinition.changeDetection !== ChangeDetectionStrategy.Eager,"
+      }
+    },
+    "fixture": {
+      "types": "spikes/ng222-app/node_modules/@angular/core/types/_debug_node-chunk.d.ts",
+      "version": "22.2.2",
+      "fields": {
+        "onPush": {
+          "present": true,
+          "declarations": [
+            {
+              "interface": "ComponentDef",
+              "declaration": "readonly onPush: boolean;"
+            }
+          ]
+        },
+        "signals": {
+          "present": true,
+          "declarations": [
+            {
+              "interface": "ComponentDef",
+              "declaration": "readonly signals: boolean;"
+            },
+            {
+              "interface": "DirectiveDef",
+              "declaration": "readonly signals: boolean;"
+            }
+          ]
+        },
+        "standalone": {
+          "present": true,
+          "declarations": [
+            {
+              "interface": "DirectiveDef",
+              "declaration": "readonly standalone: boolean;"
+            }
+          ]
+        },
+        "inputs": {
+          "present": true,
+          "declarations": [
+            {
+              "interface": "DirectiveDef",
+              "declaration": "readonly inputs: Record<string, ["
+            }
+          ]
+        },
+        "inputConfig": {
+          "present": true,
+          "declarations": [
+            {
+              "interface": "DirectiveDef",
+              "declaration": "readonly inputConfig: {"
+            }
+          ]
+        },
+        "changeDetection": {
+          "present": false,
+          "declarations": []
+        }
+      },
+      "onPushDerivation": {
+        "source": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "lineNumber": 10347,
+        "declaration": "onPush: componentDefinition.changeDetection !== ChangeDetectionStrategy.Eager,"
+      }
+    }
+  }
+}
