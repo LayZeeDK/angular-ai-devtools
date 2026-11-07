@@ -2,11 +2,11 @@
 id: T003
 title: Panel surface for the resource finding
 wave: 2
-status: in-progress
+status: done
 deps: [T002]
 agent: paid-deepseek-v4-1-flash-high
-base: f67f2e369191d39256ffd1815b5adf4b6ad3afca
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: b41d0d7ed27e812bf957be39bdcd03bd119545b2
+worktree: null
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-resource.ts
@@ -70,3 +70,4 @@ node --experimental-strip-types --test "scripts/panel-resource.test.mjs" "script
 ## Log
 
 - dispatched
+- 2026-11-07 — dispatched paid-deepseek-v4-1-flash-high (serial). Four states render (loading, finding, cannot-tell, error) and the surface does NOT enumerate statuses: a finding carrying `reloading` renders as a finding, pinned, with a mutant that reddens if the pane starts gating on known values. Cause mutant `finding-renders-no-cause` reddens. Three pins re-cut with the failing assertion recorded (app.spec, chat-entry, panel-routes) and three left byte-identical because their values did not move (router-diagnostic, page-picker, fixture-explainers). 33/33 scripts, 339/339 app, tsc 0, prettier clean. Honest caveat recorded: two pins inside one chat-entry test could not be reddened independently because the first assertion aborts the test. Verdict: ready.

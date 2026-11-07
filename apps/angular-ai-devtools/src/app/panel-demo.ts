@@ -26,6 +26,7 @@ const LOADERS: Record<
   router: () => import('./panel-router') as never,
   legacy: () => import('./panel-legacy') as never,
   onpush: () => import('./panel-onpush') as never,
+  resource: () => import('./panel-resource') as never,
 };
 
 const FACTS: Record<string, unknown> = {
@@ -100,6 +101,22 @@ const FACTS: Record<string, unknown> = {
         component: '_DeclaredDefault',
         strategy: 'eager',
         facts: ['input "label" is signal-based'],
+      },
+    ],
+  },
+  // The join's own idle-by-design answer (extension/resource-lifecycle.js): the graph reports
+  // `Resource#IdleResource.status` as `idle` because its params expression produces nothing, and
+  // the join names that as `idle (by design)` rather than as a request still running. The identity
+  // and the status are the recording's (`research/raw/m036-resource-graph.json`, `resources`);
+  // only the idle case is sampled here, because the other three report the same status the sample
+  // would have to invent against a recording that does not carry a params status at all.
+  resource: {
+    facts: [
+      {
+        state: 'finding',
+        resource: 'Resource#IdleResource',
+        status: 'idle',
+        params: 'idle (by design)',
       },
     ],
   },

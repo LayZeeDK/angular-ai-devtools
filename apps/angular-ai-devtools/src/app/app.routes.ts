@@ -102,4 +102,13 @@ export const appRoutes: Route[] = [
       import('./panel-demo').then((m) => m.PanelDemoComponent),
     data: { surface: 'onpush' },
   },
+  // The M036 SC5 surface: the resource the graph named, the state it reports and the params status
+  // beside it — or the state that names why it cannot be told. Lazy for the same reason as the
+  // surfaces above it — the panel's eager bundle is measured.
+  {
+    path: 'resource',
+    loadComponent: () =>
+      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    data: { surface: 'resource' },
+  },
 ];
