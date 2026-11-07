@@ -8,10 +8,13 @@
 // it — so a surface that drifts from the join's own field names reddens rather than rendering a
 // plausible blank.
 //
-// The statuses are deliberately not enumerated in the surface: a later task widens the join's
-// vocabulary with `reloading`, so a pane that carried its own copy of the list would refuse a real
-// status. Two pins below hold that open — a finding carrying a status the pane has never heard of
-// renders it verbatim, and a mutant that starts gating on the four known statuses reddens by name.
+// The statuses are deliberately not enumerated in the surface: the join's vocabulary holds six of
+// them — `reloading` and `local` as well as the four a first load passes through — so a pane that
+// carried its own copy of the list would refuse a real status. Two pins below hold that open — a
+// finding carrying a status the pane has never heard of renders it verbatim, and a mutant that
+// starts gating on four known statuses reddens by name. The reasons are enumerated here, and held
+// to the join's own five: `resource-unnamed` is the fifth, and a pane left with four of them would
+// answer a reason the join really names with a fallback.
 //
 // The mutant discipline is the sibling suites': every pin runs on the unmutated module first, so the
 // pin is known live before the mutated copy is asked to break it. The one this task names is first:
@@ -78,9 +81,9 @@ const FINDING_WITHOUT_PARAMS = {
   status: STATUS,
 };
 
-// A finding carrying a status this surface has never heard of. The join's vocabulary is the join's;
-// a later task adds `reloading` to it, so a pane that gated on today's four values would refuse a
-// real status and render `error` instead.
+// A finding carrying a status this surface has never heard of. The join's vocabulary is the join's —
+// six values, `reloading` and `local` among them — so a pane that gated on four of them would refuse
+// a real status and render `error` instead.
 const FINDING_RELOADING = {
   state: 'finding',
   resource: RESOURCE,
@@ -95,12 +98,15 @@ const IDLE_FINDING = {
   params: IDLE_BY_DESIGN,
 };
 
-// The four reasons the join can name, each an absence and nothing else.
+// The five reasons the join can name, each an absence and nothing else. `resource-unnamed` is the
+// fifth: the reason the join answers for a value in the identity slot that is not the shape the graph
+// labels, which is a reason the pane has to render like every other one.
 const REASONS = [
   'no-resource',
   'labels-unreadable',
   'params-unavailable',
   'status-unavailable',
+  'resource-unnamed',
 ];
 
 const CANNOT_TELL = { state: 'cannot-tell', reason: 'no-resource' };
@@ -268,6 +274,34 @@ function pinCannotTellReason(surface) {
       `cannot-tell-reason: pane must not render ${composed}`,
     );
   }
+}
+
+function pinUnnamedReasonRendered(surface) {
+  assert.equal(
+    surface.state,
+    'cannot-tell',
+    'unnamed-reason-rendered: must be cannot-tell',
+  );
+  assert.equal(
+    surface.reason,
+    'resource-unnamed',
+    'unnamed-reason-rendered: the reason is the join’s own, not the pane’s fallback',
+  );
+  assert.ok(
+    surface.text.includes('reason: resource-unnamed'),
+    'unnamed-reason-rendered: the reason must be named',
+  );
+  assert.equal(
+    surface.resource,
+    undefined,
+    'unnamed-reason-rendered: no resource',
+  );
+  assert.equal(surface.status, undefined, 'unnamed-reason-rendered: no status');
+  assert.equal(surface.params, undefined, 'unnamed-reason-rendered: no params');
+  assert.ok(
+    !surface.text.includes('resource:'),
+    'unnamed-reason-rendered: no resource line',
+  );
 }
 
 function pinUnfamiliarStatusRendered(surface) {
@@ -613,6 +647,28 @@ describe('panel-resource mutants', () => {
     );
     mutantReddens('loading-never-idle', mutant, [], pinLoadingNeverIdle);
   });
+
+  it('M6: a pane gating the reasons on four of them reddens the unnamed-reason pin', async () => {
+    // The defect this task repairs, restated as a mutant: the pane is handed `resource-unnamed`,
+    // which the join has named since T005, and answers with its fallback because the pane's own
+    // short list has never heard of it.
+    const anchor =
+      "    return { state: 'cannot-tell', reason: reason ?? UNKNOWN_REASON };";
+    const mutant = await loadMutant(
+      anchor,
+      [
+        "    const known = ['no-resource', 'labels-unreadable', 'params-unavailable', 'status-unavailable'];",
+        "    return { state: 'cannot-tell', reason: known.includes(reason ?? '') ? reason : UNKNOWN_REASON };",
+      ].join('\n'),
+    );
+    const failure = mutantReddens(
+      'unnamed-reason-rendered',
+      mutant,
+      list({ state: 'cannot-tell', reason: 'resource-unnamed' }),
+      pinUnnamedReasonRendered,
+    );
+    assert.match(failure.message, /unknown-reason/);
+  });
 });
 
 // ---------------------------------------------------------------------------------------------
@@ -665,20 +721,32 @@ describe('the join drives the pane', () => {
         status: 'not-a-status',
         params: PARAMS,
       }),
+      resourceJoin().resourceLifecycle({
+        resource: 'the loader never resolves',
+        status: STATUS,
+        params: PARAMS,
+      }),
     ];
     assert.deepEqual(
       answers.map((fact) => fact.state),
-      ['cannot-tell', 'cannot-tell', 'cannot-tell', 'cannot-tell'],
+      [
+        'cannot-tell',
+        'cannot-tell',
+        'cannot-tell',
+        'cannot-tell',
+        'cannot-tell',
+      ],
     );
     assert.deepEqual(
       answers.map((fact) => fact.reason),
       // The order the join answers in: a withheld label read first, then no identity, then the
-      // params, then the status.
+      // params, then the status, then a value in the identity slot the graph never labels.
       [
         'labels-unreadable',
         'no-resource',
         'params-unavailable',
         'status-unavailable',
+        'resource-unnamed',
       ],
     );
     for (const fact of answers) {
@@ -690,6 +758,48 @@ describe('the join drives the pane', () => {
       assert.equal(surface.params, undefined);
       assert.ok(surface.text.includes(`reason: ${fact.reason}`));
     }
+  });
+
+  it('E5: resource-unnamed is rendered through the pane, naming only its reason', () => {
+    // The fifth reason, driven from the join rather than written into the pane: a value in the
+    // identity slot that the graph never labels is refused by the join and rendered by the pane as
+    // the one reason it carries — never as an `unknown-reason` fallback, and never with a resource
+    // borrowed back out of the value that was refused.
+    const fact = resourceJoin().resourceLifecycle({
+      resource: 'the loader never resolves',
+      status: STATUS,
+      params: PARAMS,
+    });
+    assert.equal(fact.state, 'cannot-tell');
+    assert.equal(fact.reason, 'resource-unnamed');
+    // The join's absence carries the reason and nothing else — read field by field, because the
+    // fact comes from the join's own context and carries that realm's object prototype.
+    assert.deepEqual(Object.keys(fact).sort(), ['reason', 'state']);
+    const surface = SURFACE.resourcePanel(list(fact));
+    pinUnnamedReasonRendered(surface);
+    assert.deepEqual(
+      [...surface.lines],
+      [
+        'cannot tell: no resource state can be named from this fact',
+        'reason: resource-unnamed',
+      ],
+      'unnamed-reason-rendered: the pane line for line, and no invented line',
+    );
+    assert.equal(
+      surface.text.includes('the loader never resolves'),
+      false,
+      'unnamed-reason-rendered: the refused value reaches nothing',
+    );
+    // The pane's own list of reasons is the join's list, not a shorter one: every reason the join
+    // answers is a reason this suite renders.
+    assert.deepEqual([...REASONS].sort(), [
+      'labels-unreadable',
+      'no-resource',
+      'params-unavailable',
+      'resource-unnamed',
+      'status-unavailable',
+    ]);
+    console.log(`panel-resource resource-unnamed: ${surface.text}`);
   });
 
   it('E5: no answer the join produces names a cause, a verdict or a network explanation', () => {

@@ -28,8 +28,8 @@
 // so nothing here is inferred from a thrown `ResourceParamsStatus.IDLE`.
 //
 // The status strings are the ones the graph reports — `idle`, `loading`, `reloading`, `resolved`,
-// `error` — and they are echoed rather than renamed: the resource is named as the graph names it,
-// never by a friendlier name, and `error` is `error`, not `errored`.
+// `error`, `local` — and they are echoed rather than renamed: the resource is named as the graph
+// names it, never by a friendlier name, and `error` is `error`, not `errored`.
 //
 // `reloading` is the fifth, and it is not `loading`: `projectStatusOfState` reports the first load
 // of a resource as `loading` and its reload as `reloading` (`_resource-chunk.mjs:504`,
@@ -37,29 +37,39 @@
 // first response is in the second state, so collapsing the two would answer the milestone's own
 // question with the wrong word. The finding names the reload; the status value is the graph's.
 //
+// `local` is the sixth value of the public `ResourceStatus` union (`types/_api-chunk.d.ts:149`) and
+// the one status written rather than loaded: `.set()`/`.update()` put it on the state
+// (`_resource-chunk.mjs:351-358`) without asking a request for anything. The status *was* read, so
+// it is a finding; that finding says the value was set and not loaded, which is the whole
+// difference between it and the five a load passes through. `status-unavailable` stays reserved for
+// a status the caller could not read at all.
+//
 // The identity is the one field a caller could fill with anything, so it is gated to the shape the
 // graph emits. `createDebugNameObject` (`_resource-chunk.mjs:514-518`) builds
 // `Resource${name ? '#' + name : ''}.${part}`, so a named resource's nodes are
-// `Resource#<name>.<part>` and the identity a finding carries is the `Resource#<name>` prefix. A
-// bare `Resource` is the same function with no name — there is nothing to name — and any other
-// string in that slot (a cause, a loader name, a verdict) was never emitted by the graph at all.
+// `Resource#<name>.<part>` and the identity a finding carries is the `Resource#<name>` prefix. That
+// function sanitises nothing, so the name is exactly what `debugName` held — a space, a dot, a dash
+// included — and a gate that admitted only non-space names would refuse a label the graph really
+// emits and call a resource the developer did name unnamed. What is still refused: a bare
+// `Resource`, which is the same function with no name and has nothing to name; an empty name; and
+// any value carrying leading or trailing whitespace, which no emitted label has.
 (function () {
   'use strict';
 
   const FINDING = 'finding';
   const CANNOT_TELL = 'cannot-tell';
 
-  // The status values a load passes through, as `Resource#<name>.status` labels them, and the same
-  // five the params status carries. A value outside this set is not a read. The public
-  // `ResourceStatus` union (`@angular/core` `types/_api-chunk.d.ts:149`) declares one more, `local`,
-  // which is a value written by `.set()`/`.update()` rather than the outcome of a request; no
-  // request passes through it, so this join does not name it.
+  // The status values the graph reports, as `Resource#<name>.status` labels them — every member of
+  // the public `ResourceStatus` union (`@angular/core` `types/_api-chunk.d.ts:149`), which is the
+  // set a value has to be in to count as a read. The five a load passes through come first; `local`
+  // is the sixth and is the one `.set()`/`.update()` write rather than a load.
   const IDLE = 'idle';
   const LOADING = 'loading';
   const RELOADING = 'reloading';
   const RESOLVED = 'resolved';
   const ERROR = 'error';
-  const STATUSES = [IDLE, LOADING, RELOADING, RESOLVED, ERROR];
+  const LOCAL = 'local';
+  const STATUSES = [IDLE, LOADING, RELOADING, RESOLVED, ERROR, LOCAL];
 
   // What an idle finding puts in `params`: the params produced nothing, so the resource was never
   // asked to start. The words are the measured meaning of the state, not a guess about the loader.
@@ -73,10 +83,18 @@
   const RELOADING_SAME_DEPS =
     'reloading (a fresh value for the same dependencies)';
 
+  // What a local finding puts in `params`: the status is the one `.set()`/`.update()` write, so the
+  // value was set rather than loaded. It says that, and it says nothing about a request, because a
+  // local status is not the outcome of one.
+  const LOCAL_SET_NOT_LOADED = 'set locally (the value was set, not loaded)';
+
   // The shape the graph labels a resource by: `Resource#<name>`, with a name. The graph also emits
   // a bare `Resource` when a resource carries no `debugName`, and that is an identity with nothing
-  // in it — refused as `resource-unnamed` along with any other string that is not this shape.
-  const RESOURCE_IDENTITY = /^Resource#\S+$/;
+  // in it — refused as `resource-unnamed` along with any other string that is not this shape. The
+  // name may contain a space: `createDebugNameObject` applies no sanitisation, so `Order Items` is
+  // the name a `debugName` of `'Order Items'` produces. `Resource#` with no name and a value with
+  // leading or trailing whitespace are the two shapes the pattern still refuses.
+  const RESOURCE_IDENTITY = /^Resource#\S(?:.*\S)?$/;
 
   // A string that says something, or null. The params status is echoed exactly as the caller read
   // it; an absent, empty or non-string one is nothing to name.
@@ -127,11 +145,17 @@
     if (!RESOURCE_IDENTITY.test(resource))
       return cannotTell('resource-unnamed');
 
-    // No status, or a status outside the five a load passes through: the read did not happen, so
+    // No status, or a status outside the six `ResourceStatus` declares: the read did not happen, so
     // this is the case that must be answered with `cannot-tell` rather than with a guess.
     const status = readString(read.status);
     if (status === null || STATUSES.indexOf(status) === -1)
       return cannotTell('status-unavailable');
+
+    // The locally set value: `.set()`/`.update()` wrote the status, so this is a read like any other
+    // and the finding states what the status means — the value was set, not loaded. It is answered
+    // before the params gate like idle and reloading, because the status alone carries the meaning.
+    if (status === LOCAL)
+      return finding(resource, status, LOCAL_SET_NOT_LOADED);
 
     // The reload: the same reactive dependencies asked for a fresh value while the previous one is
     // still held. The status itself carries the meaning, so the finding states it — in the reload's
@@ -147,9 +171,9 @@
 
     // Every remaining status — `loading`, `resolved`, `error` — is reported only with the params
     // status that produced it, and only when that status is one the state machine reports. An unread
-    // params status is an absence, not an empty column: the finding would be half a finding. Idle
-    // and reloading were answered above, because each of those statuses carries its own meaning and
-    // needs no second reading to say it.
+    // params status is an absence, not an empty column: the finding would be half a finding. Idle,
+    // local and reloading were answered above, because each of those statuses carries its own
+    // meaning and needs no second reading to say it.
     const params = readString(read.params);
     if (params === null || STATUSES.indexOf(params) === -1)
       return cannotTell('params-unavailable');

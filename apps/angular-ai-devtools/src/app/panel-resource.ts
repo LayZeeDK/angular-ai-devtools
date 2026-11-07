@@ -28,11 +28,21 @@
  * prevents, and the pane is not entitled to decide which is true.
  *
  * The status strings are **not enumerated here**. The join reports the values the state machine
- * reports today — `loading`, `resolved`, `error`, `idle` — and a later task widens that list with
- * `reloading`, so a pane carrying its own copy of the vocabulary would refuse a real status or
- * render it under a friendlier name. Whatever string the finding carries is what this pane prints;
- * the resource is named as the graph named it, never by a friendlier name, and `error` is `error`,
- * not `errored`.
+ * reports — `idle`, `loading`, `reloading`, `resolved`, `error` and `local` — and a pane carrying
+ * its own copy of the vocabulary would refuse a real status or render it under a friendlier name.
+ * Whatever string the finding carries is what this pane prints; the resource is named as the graph
+ * named it, never by a friendlier name, and `error` is `error`, not `errored`.
+ *
+ * The identity is printed as it arrived, spaces included: `createDebugNameObject` sanitises nothing
+ * (`@angular/core` `fesm2022/_resource-chunk.mjs:514-518`), so a `debugName` of `Order Items`
+ * reaches this pane as `Resource#Order Items` and is printed unchanged. This pane trims only the
+ * whitespace around a whole value, never a space inside one, so a name with a space in it is
+ * rendered as it was labelled.
+ *
+ * The reasons are not enumerated here for the same reason: the join names five of them —
+ * `no-resource`, `labels-unreadable`, `params-unavailable`, `status-unavailable` and
+ * `resource-unnamed` — and each is printed as it arrived. A reason this pane has never heard of is
+ * rendered too, never replaced, because the join owns the vocabulary.
  *
  * Four states, and they never blur:
  *

@@ -1,11 +1,11 @@
 {
-  "capturedAt": "2026-11-06T19:45:53.004Z",
+  "capturedAt": "2026-11-07T05:23:55.763Z",
   "instance": "headless",
   "browser": "headless Playwright Chromium (build 153.0.8010.12)",
   "browserBuild": "153.0.8010.12",
   "playwright": "1.63.0",
-  "url": "http://127.0.0.1:65457/onpush-ready",
-  "pageUrl": "http://127.0.0.1:65457/onpush-ready",
+  "url": "http://127.0.0.1:62047/onpush-ready",
+  "pageUrl": "http://127.0.0.1:62047/onpush-ready",
   "commands": {
     "install": "npm ci --include=dev",
     "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
@@ -37,8 +37,8 @@
     "command": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js build --configuration development --output-path tmp/m035-onpush-build  (cwd spikes/ng222-app)",
     "outputPath": "tmp/m035-onpush-build/browser",
     "bundles": [
-      "chunk-4GZTSCME.js",
-      "chunk-BC3BGO77.js",
+      "chunk-AUYJPN2L.js",
+      "chunk-EGO3M3XF.js",
       "main.js"
     ]
   },

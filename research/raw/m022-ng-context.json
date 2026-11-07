@@ -18,7 +18,7 @@
   },
   "growth": {
     "reRecordedOn": "2026-11-07",
-    "cause": "spikes/ng222-app/src/app/resource-page.ts and spikes/ng222-app/src/app/resource-states.ts — the routed resource page and the component that holds one resource per state, added by T001 and routed at /resource. The growth is that page’s emitted code, a real change in both bundles, not measurement noise; both builds are therefore re-recorded rather than the development byte bound widened.",
+    "cause": "spikes/ng222-app/src/app/resource-page.ts and spikes/ng222-app/src/app/resource-states.ts — the routed resource page and the component that holds one resource per state, added by T001 and routed at resource-states (spikes/ng222-app/src/app/app.routes.ts:29). The growth is that page’s emitted code, a real change in both bundles, not measurement noise; both builds are therefore re-recorded rather than the development byte bound widened.",
     "development": {
       "was": 2180767,
       "now": 2199406,

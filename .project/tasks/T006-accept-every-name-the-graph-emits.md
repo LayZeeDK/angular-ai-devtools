@@ -2,11 +2,11 @@
 id: T006
 title: Accept every name the graph emits
 wave: 4
-status: in-progress
+status: done
 deps: []
 agent: paid-deepseek-v4-1-flash-high
-base: 1ff73cf984c587b227a8859ea9a2e20ba7e2a09a
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: f4d8a68000e191ff1a1237c0170b58c9bf91d100
+worktree: null
 task_branch: null
 files:
   - extension/resource-lifecycle.js
@@ -86,3 +86,5 @@ node --experimental-strip-types --test "scripts/resource-lifecycle.test.mjs" && 
 ## Log
 
 - dispatched
+- 2026-11-07 — dispatched paid-deepseek-v4-1-flash-high (serial). The identity gate is now `/^Resource#\S(?:.*\S)?$/`: a name containing a space is a finding (M8 reddens if the gate is narrowed back), while a bare `Resource`, an empty name and any untrimmed value are still refused. `local` is the sixth `STATUSES` member with its own branch answering 'set locally (the value was set, not loaded)' before the params gate (M9 reddens the old answer). The pane's reason list reaches five and `resource-unnamed` is driven through the join (pane M6 reddens a four-reason gate). Both recordings now name `resource-states`; the one remaining `/resource` is the panel's own route and was left alone. `research/raw/m035-onpush-metadata.json` was re-recorded through `onpush-metadata-capture.test.mjs`'s own capture, not hand-edited: the build pair moved to `chunk-AUYJPN2L.js`/`chunk-EGO3M3XF.js` and every other field re-derived identical (15/15 read-only checks still pass). 36/36, 22/22, 7/7, tsc 0 on both projects, prettier clean.
+- Carried as the next gap, stated in this Log because the task file was the only place the reviewer's finding had no home: the chained-`loading` case — a resource whose params re-throw `ResourceParamsStatus.LOADING` while an upstream resource is loading, leaving `extRequest` with no `request` — spins forever and is still answered `status: loading`, indistinguishable from a slow loader. Verdict: ready.

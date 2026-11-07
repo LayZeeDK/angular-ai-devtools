@@ -28,10 +28,17 @@
 //                         answers.
 //   finding / resolved    the same three fields, with `resolved`.
 //   finding / error       the same three fields, with `error` and nothing about the cause.
+//   finding / local       the same identity and the `local` status, with the value said to be set
+//                         rather than loaded: the sixth `ResourceStatus`, and not a load status.
 //   cannot-tell           one of five reasons and nothing else: `no-resource` (E1),
 //                         `labels-unreadable` (E2), `status-unavailable` (E4), `params-unavailable`,
 //                         and `resource-unnamed` for a value in the identity slot that is not the
 //                         shape the graph labels.
+//
+// Two facts below are derived from the graph's own source rather than measured by the recording, and
+// each says so where it is declared: the label of a `debugName` containing a space
+// (`createDebugNameObject` sanitises nothing, `_resource-chunk.mjs:514-518`) and the `local` status
+// (`.set()` writes it, `_resource-chunk.mjs:351-358`; no captured subject was locally set).
 //
 // Every mutant is applied to a copy of the module source, after the unmutated module is pinned with
 // the same function, and must redden that pin by name: a mutant that survives its pin proves the
@@ -165,6 +172,26 @@ const MEASURED_RELOADING = {
 };
 
 /**
+ * The local subject, which the recording does not carry: no captured subject had `.set()` called on
+ * it, so `local` is verified from source instead — `set()` writes `status: 'local'`
+ * (`_resource-chunk.mjs:351-358`) and `ResourceStatus` declares it (`types/_api-chunk.d.ts:149`).
+ * The identity is the measured label of the subject whose value a `.set()` would set.
+ */
+const MEASURED_LOCAL = {
+  resource: 'Resource#ResolvedResource',
+  status: 'local',
+};
+
+/**
+ * The label the graph gives a `debugName` with a space in it, derived from the naming function
+ * rather than measured: `createDebugNameObject` interpolates the name with no sanitisation
+ * (`_resource-chunk.mjs:514-518`), so `debugName: 'Order Items'` produces
+ * `Resource#Order Items.status` and the identity is `Resource#Order Items`. The recording captured
+ * names with no space in them, so no measured subject carries this label.
+ */
+const SPACED_RESOURCE = 'Resource#Order Items';
+
+/**
  * A params status the recording never measured. Every subject's `Resource#<name>.extRequest` node is
  * recorded with `value: null`, so no params status exists in the measurement for any of the four
  * subjects. The value below is a CONSTRUCTED caller input: it exercises the join's echo and its
@@ -178,6 +205,12 @@ const RESOLVED_FACT = { ...MEASURED_RESOLVED, params: CONSTRUCTED_PARAMS };
 const ERROR_FACT = { ...MEASURED_ERROR, params: CONSTRUCTED_PARAMS };
 const IDLE_FACT = { ...MEASURED_IDLE, params: CONSTRUCTED_IDLE_PARAMS };
 const RELOADING_FACT = { ...MEASURED_RELOADING, params: 'reloading' };
+const LOCAL_FACT = MEASURED_LOCAL;
+const SPACED_FACT = {
+  resource: SPACED_RESOURCE,
+  status: 'loading',
+  params: CONSTRUCTED_PARAMS,
+};
 
 /** What each fact must produce, exactly: three of the four fields, and no fifth. */
 const LOADING_FINDING = {
@@ -209,6 +242,18 @@ const RELOADING_FINDING = {
   resource: 'Resource#ResolvedResource',
   status: 'reloading',
   params: 'reloading (a fresh value for the same dependencies)',
+};
+const LOCAL_FINDING = {
+  state: 'finding',
+  resource: 'Resource#ResolvedResource',
+  status: 'local',
+  params: 'set locally (the value was set, not loaded)',
+};
+const SPACED_FINDING = {
+  state: 'finding',
+  resource: SPACED_RESOURCE,
+  status: 'loading',
+  params: CONSTRUCTED_PARAMS,
 };
 
 /** The five reasons, each an absence the join can name. */
@@ -542,6 +587,86 @@ describe('the fifth status — a reload is not a first load', () => {
   });
 });
 
+describe('the sixth status — a local value was set, not loaded', () => {
+  it('answers local with a finding that says the value was set rather than loaded', () => {
+    const { lifecycle } = standalone();
+    const result = plain(lifecycle.resourceLifecycle(LOCAL_FACT));
+    assert.deepEqual(result, LOCAL_FINDING);
+    assert.equal(
+      result.state,
+      'finding',
+      'the status was read, so `local` is a finding and not an absence',
+    );
+    assert.equal(result.status, 'local');
+    assert.notEqual(
+      result.reason,
+      'status-unavailable',
+      'a read that succeeded must never be answered with the reason reserved for a read that failed',
+    );
+    assert.match(
+      result.params,
+      /\bset\b/,
+      'the local finding says the value was set',
+    );
+    assert.match(
+      result.params,
+      /not loaded/,
+      'and says it was not loaded, which is what separates it from the five load statuses',
+    );
+    assert.deepEqual(
+      Object.keys(result).sort(),
+      ['params', 'resource', 'state', 'status'],
+      'a local finding carries the resource, the status and the meaning of the status and nothing else',
+    );
+    assertNoClaim(result, 'a local finding');
+    console.log(`resource-lifecycle local: ${JSON.stringify(result)}`);
+  });
+
+  it('is a different answer from every one of the five a load passes through', () => {
+    const { lifecycle } = standalone();
+    const local = plain(lifecycle.resourceLifecycle(LOCAL_FACT));
+    for (const [fact, what] of [
+      [LOADING_FACT, 'loading'],
+      [RESOLVED_FACT, 'resolved'],
+      [ERROR_FACT, 'error'],
+      [IDLE_FACT, 'idle'],
+      [RELOADING_FACT, 'reloading'],
+    ]) {
+      const load = plain(lifecycle.resourceLifecycle(fact));
+      assert.equal(
+        load.state,
+        'finding',
+        `the ${what} finding is a finding, like the local one`,
+      );
+      assert.notEqual(load.status, local.status, `local is not ${what}`);
+      assert.notEqual(
+        load.params,
+        local.params,
+        `the ${what} finding says something other than "set locally"`,
+      );
+    }
+  });
+
+  it('answers a local status with no params read at all, because the status carries the meaning', () => {
+    const { lifecycle } = standalone();
+    // The measured fields alone: no params status exists in the recording, and none is needed.
+    assert.deepEqual(
+      plain(lifecycle.resourceLifecycle(MEASURED_LOCAL)),
+      LOCAL_FINDING,
+    );
+    // Idle params beside a local status do not change the answer: the value was set, not idle.
+    assert.deepEqual(
+      plain(lifecycle.resourceLifecycle({ ...MEASURED_LOCAL, params: 'idle' })),
+      LOCAL_FINDING,
+    );
+    console.log(
+      `resource-lifecycle local, no params read: ${JSON.stringify(
+        plain(lifecycle.resourceLifecycle(MEASURED_LOCAL)),
+      )}`,
+    );
+  });
+});
+
 describe('E3 — idle is by design', () => {
   it('E3 — idle params yield idle by design, never loading and never an error', () => {
     const { lifecycle } = standalone();
@@ -752,6 +877,8 @@ describe('the identity is the graph\u2019s, not the caller\u2019s', () => {
       'Resource',
       'Resource#',
       'Resource# ',
+      'Resource# Order Items',
+      'Resource#Order Items ',
       ' resource#LoadingResource',
       'Resource#LoadingResource ',
       'resource#LoadingResource',
@@ -795,6 +922,41 @@ describe('the identity is the graph\u2019s, not the caller\u2019s', () => {
         ),
       )}`,
     );
+  });
+
+  it('accepts a name the graph emits with a space in it', () => {
+    // `createDebugNameObject` applies no sanitisation, so `debugName: 'Order Items'` really produces
+    // the label `Resource#Order Items.status`. Refusing it would tell a developer who did name the
+    // resource that it is unnamed.
+    const { lifecycle } = standalone();
+    for (const resource of [
+      SPACED_RESOURCE,
+      'Resource#Order Items and More',
+      'Resource#Resource A',
+      'Resource#with a space.and.dots',
+    ]) {
+      const result = plain(
+        lifecycle.resourceLifecycle({
+          resource,
+          status: 'loading',
+          params: CONSTRUCTED_PARAMS,
+        }),
+      );
+      assert.equal(
+        result.state,
+        'finding',
+        `a space in a name is not a reason to call a named resource unnamed: ${JSON.stringify(resource)} -> ${JSON.stringify(result)}`,
+      );
+      assert.equal(
+        result.resource,
+        resource,
+        'the identity is echoed as the graph labels it, space and all',
+      );
+      assert.equal(result.reason, undefined, 'a finding names no reason');
+    }
+    const spaced = plain(lifecycle.resourceLifecycle(SPACED_FACT));
+    assert.deepEqual(spaced, SPACED_FINDING);
+    console.log(`resource-lifecycle spaced name: ${JSON.stringify(spaced)}`);
   });
 
   it('echoes the shape the graph does label, unchanged', () => {
@@ -934,6 +1096,60 @@ function pinIdentityIsTheGraphsShape(lifecycle) {
   return result;
 }
 
+/**
+ * The pin a gate that refuses a name with a space in it reddens: the graph emits `Resource#Order
+ * Items` for `debugName: 'Order Items'`, so refusing it reports a resource the developer named as
+ * unnamed. Shared by the unmutated module and the mutant, for the same reason.
+ */
+function pinAcceptsASpacedName(lifecycle) {
+  const result = plain(lifecycle.resourceLifecycle(SPACED_FACT));
+  assert.equal(
+    result.state,
+    'finding',
+    'spaced-name-accepted: a named resource whose name holds a space is a finding',
+  );
+  assert.equal(
+    result.resource,
+    SPACED_RESOURCE,
+    'spaced-name-accepted: the identity is echoed as the graph labels it',
+  );
+  assert.deepEqual(
+    result,
+    SPACED_FINDING,
+    'spaced-name-accepted: the finding carries the resource, the status and the params status',
+  );
+  return result;
+}
+
+/**
+ * The pin a `local` status answered as unread reddens: the status was read, so it is a finding that
+ * says the value was set rather than loaded. Shared by the unmutated module and the mutant.
+ */
+function pinLocalIsASetValue(lifecycle) {
+  const result = plain(lifecycle.resourceLifecycle(LOCAL_FACT));
+  assert.equal(
+    result.state,
+    'finding',
+    'local-is-a-set-value: the status was read, so this is a finding',
+  );
+  assert.equal(
+    result.status,
+    'local',
+    'local-is-a-set-value: the status is echoed as the graph reports it',
+  );
+  assert.notEqual(
+    result.reason,
+    'status-unavailable',
+    'local-is-a-set-value: the unread reason is not the answer to a successful read',
+  );
+  assert.deepEqual(
+    result,
+    LOCAL_FINDING,
+    'local-is-a-set-value: the finding says the value was set, not loaded',
+  );
+  return result;
+}
+
 describe('mutants redden by name', () => {
   it('reddens by name: a cause named inside the loader', () => {
     // Pin the unmutated module first, so the mutation below is the only cause of a red pin.
@@ -1056,7 +1272,7 @@ describe('mutants redden by name', () => {
     pinReloadIsNotALoad(lifecycle);
 
     const anchor =
-      '  const STATUSES = [IDLE, LOADING, RELOADING, RESOLVED, ERROR];';
+      '  const STATUSES = [IDLE, LOADING, RELOADING, RESOLVED, ERROR, LOCAL];';
     const mutated = SRC.replace(
       anchor,
       '  const STATUSES = [IDLE, LOADING, RESOLVED, ERROR];',
@@ -1129,6 +1345,82 @@ describe('mutants redden by name', () => {
     );
     console.log(
       `resource-lifecycle M5 (identity echoed) -> ${JSON.stringify(mutantResult)}\n  reddened: ${failure.message.split('\n')[0]}`,
+    );
+  });
+
+  it('reddens by name: the identity gate narrowed back to non-space names', () => {
+    // The defect this task repairs, restated as a mutant: the wave-1 gate `/^Resource#\S+$/` refuses
+    // `Resource#Order Items`, which is the label the graph emits for `debugName: 'Order Items'`.
+    const { lifecycle } = standalone();
+    pinAcceptsASpacedName(lifecycle);
+
+    const anchor = '  const RESOURCE_IDENTITY = /^Resource#\\S(?:.*\\S)?$/;';
+    const mutated = SRC.replace(
+      anchor,
+      '  const RESOURCE_IDENTITY = /^Resource#\\S+$/;',
+    );
+    assert.notEqual(
+      mutated,
+      SRC,
+      'the identity-gate mutation target is gone from resource-lifecycle.js — restate the bite in scripts/resource-lifecycle.test.mjs',
+    );
+    const mutant = standalone(mutated).lifecycle;
+    const mutantResult = plain(mutant.resourceLifecycle(SPACED_FACT));
+    assert.deepEqual(
+      mutantResult,
+      { state: 'cannot-tell', reason: 'resource-unnamed' },
+      'the mutant calls a named resource unnamed, which is the defect',
+    );
+
+    const failure = reddens(
+      () => pinAcceptsASpacedName(mutant),
+      'the spaced-name pin',
+    );
+    assert.match(
+      failure.message,
+      /spaced-name-accepted/,
+      `the narrowed-gate mutant must redden the spaced-name pin by name: ${failure.message}`,
+    );
+    console.log(
+      `resource-lifecycle M8 (gate refuses a name with a space) -> ${JSON.stringify(mutantResult)}\n  reddened: ${failure.message.split('\n')[0]}`,
+    );
+  });
+
+  it('reddens by name: a locally set value answered as an unread status', () => {
+    const { lifecycle } = standalone();
+    pinLocalIsASetValue(lifecycle);
+
+    const anchor =
+      '    if (status === LOCAL)\n' +
+      '      return finding(resource, status, LOCAL_SET_NOT_LOADED);';
+    const mutated = SRC.replace(
+      anchor,
+      "    if (status === LOCAL) return cannotTell('status-unavailable');",
+    );
+    assert.notEqual(
+      mutated,
+      SRC,
+      'the local mutation target is gone from resource-lifecycle.js — restate the bite in scripts/resource-lifecycle.test.mjs',
+    );
+    const mutant = standalone(mutated).lifecycle;
+    const mutantResult = plain(mutant.resourceLifecycle(LOCAL_FACT));
+    assert.deepEqual(
+      mutantResult,
+      { state: 'cannot-tell', reason: 'status-unavailable' },
+      'the mutant claims a read that succeeded had failed',
+    );
+
+    const failure = reddens(
+      () => pinLocalIsASetValue(mutant),
+      'the local-is-a-set-value pin',
+    );
+    assert.match(
+      failure.message,
+      /local-is-a-set-value/,
+      `the local mutant must redden the local pin by name: ${failure.message}`,
+    );
+    console.log(
+      `resource-lifecycle M9 (local answered status-unavailable) -> ${JSON.stringify(mutantResult)}\n  reddened: ${failure.message.split('\n')[0]}`,
     );
   });
 
