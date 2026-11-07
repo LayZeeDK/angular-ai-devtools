@@ -172,6 +172,21 @@ peer-resolution assertions then compare two different roots.
   4. the peer-resolution assertions pass in a sidecar
 - Verify: `node --experimental-strip-types --test "scripts/facade-dev-build.test.mjs" && node --experimental-strip-types --test "scripts/ng-context-dev-build.test.mjs"`
 
+## Wave 7 — Scope the root-copy assertions
+
+Goal: make the project Verify runnable in the sidecar it has always used, without weakening a single assertion.
+
+Review depth: verify-only
+
+`T009` gates the three root-copy assertions on the checkout being a root checkout. Everything else in the suite runs
+in both layouts.
+
+- `T009` -- Scope the root-copy assertions to a root checkout
+  - Deps: T007, T008
+  - Files: `scripts/facade-dev-build.test.mjs`
+  - Acceptance: AC1 on the verify branch, AC2 mutant, AC3 unchanged count
+  - Verify: `node --experimental-strip-types --test "scripts/facade-dev-build.test.mjs"`
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -199,6 +214,7 @@ peer-resolution assertions then compare two different roots.
 | SC4 | T002 | AC4 |
 | SC5 | T003 | AC1 |
 | SC6 | T004 | AC4 |
+| SC6 | T009 | AC1 |
 
 ## Prohibitions
 

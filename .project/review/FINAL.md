@@ -1,6 +1,6 @@
 # Final Review - M036 resource-lifecycle
 
-Reviewed HEAD: 49a25968f3b697d966779715920d3409988981c8
+Reviewed HEAD: 62cb1fa933c790afde5151f99732373e34f9c5ab
 Overall verdict: pass
 Met: SC1, SC2, SC3, SC4, SC5 and SC6 are met, with SC1's params field resting on a constructed read rather than a measured one and one real load state deliberately declined, both stated under their own Observed and Fix direction.
 
