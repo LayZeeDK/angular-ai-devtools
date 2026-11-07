@@ -2,11 +2,11 @@
 id: T002
 title: Supply the submit state to the pane and the recordings
 wave: 2
-status: pending
+status: in-progress
 deps: [T001]
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: 03ef4668f1b3523bc884ec5adf6cbdbc7f8028c7
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-demo.ts
