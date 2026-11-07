@@ -31,8 +31,16 @@ const RECORD_PATH =
   process.env.M031_FIELD_RECORD ??
   join(ROOT, 'research', 'raw', 'm031-field-state.json');
 
-const CAPTURE_COMMAND = 'node --test scripts/field-state-capture.test.mjs';
+const ARMED_CAPTURE_COMMAND =
+  'set "M031_CAPTURE=1"&& node --experimental-strip-types --test scripts/field-state-capture.test.mjs';
+const CAPTURE_COMMAND =
+  'node --experimental-strip-types --test scripts/field-state-capture.test.mjs';
 const SERVE_COMMAND = `node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port ${PORT} --host 127.0.0.1  (cwd spikes/ng222-app)`;
+// The fixture's submit element: field-form-page.ts:18
+// `<button type="submit" id="submit" [disabled]="fieldForm().invalid()">`.
+// Its own `disabled` property is the state the fact was missing; it is read
+// from the rendered element, never re-derived from the form's validity.
+const SUBMIT_SELECTOR = 'button[type="submit"]';
 
 async function runCapture() {
   const requireApp = createRequire(join(APP, 'package.json'));
@@ -90,7 +98,7 @@ async function runCapture() {
     );
     await page.waitForTimeout(1500);
 
-    const initial = await page.evaluate(() => {
+    const initial = await page.evaluate((submitSelector) => {
       const ng = window.ng;
       let comp = null;
       let host = null;
@@ -114,6 +122,7 @@ async function runCapture() {
         invalid: !!st.invalid(),
         errors: (st.errors() || []).map((e) => ({ kind: e.kind })),
       });
+      const submitEl = document.querySelector(submitSelector);
       return {
         found: true,
         hostTag: host ? host.tagName.toLowerCase() : null,
@@ -121,10 +130,14 @@ async function runCapture() {
         root: shape(rootState),
         name: shape(nameState),
         age: shape(ageState),
+        submit: {
+          elementId: submitEl ? submitEl.id : null,
+          disabled: submitEl ? submitEl.disabled === true : null,
+        },
       };
-    });
+    }, SUBMIT_SELECTOR);
 
-    const probe = await page.evaluate(() => {
+    const probe = await page.evaluate((submitSelector) => {
       const ng = window.ng;
       let comp = null;
       for (const el of document.querySelectorAll('*')) {
@@ -144,6 +157,7 @@ async function runCapture() {
           const rootState = f();
           const nameState = f.name();
           const ageState = f.age();
+          const submitEl = document.querySelector(submitSelector);
           resolve({
             available: true,
             fieldsIndividuallyValid: !!(nameState.valid() && ageState.valid()),
@@ -151,10 +165,11 @@ async function runCapture() {
             rootErrors: (rootState.errors() || []).map((e) => ({
               kind: e.kind,
             })),
+            submitDisabled: submitEl ? submitEl.disabled === true : null,
           });
         }, 300);
       });
-    });
+    }, SUBMIT_SELECTOR);
 
     await browser.close();
     browser = undefined;
@@ -172,7 +187,7 @@ async function runCapture() {
         install: 'npm ci --include=dev',
         installApp: 'npm --prefix spikes/ng222-app ci --include=dev',
         serve: SERVE_COMMAND,
-        capture: CAPTURE_COMMAND,
+        capture: ARMED_CAPTURE_COMMAND,
         check: CAPTURE_COMMAND,
       },
       environment: {
@@ -188,12 +203,15 @@ async function runCapture() {
       componentHostTag: initial.hostTag,
       fields: initial.found ? { name: initial.name, age: initial.age } : {},
       root: initial.found ? initial.root : null,
+      submitElementId: initial.found ? initial.submit.elementId : null,
+      submitDisabled: initial.found ? initial.submit.disabled : null,
       crossField: {
         probe: 'fields individually valid, root cross-field invalid',
         available: !!probe.available,
         fieldsIndividuallyValid: !!probe.fieldsIndividuallyValid,
         rootInvalid: !!probe.rootInvalid,
         rootErrors: probe.rootErrors || [],
+        submitDisabled: probe.available ? probe.submitDisabled === true : null,
         observable: !!(
           probe.available &&
           probe.fieldsIndividuallyValid &&
@@ -338,6 +356,21 @@ function validate(record) {
   assert.equal(typeof record.root.valid, 'boolean', 'root.valid boolean');
   assert.equal(typeof record.root.invalid, 'boolean', 'root.invalid boolean');
   assert.ok(Array.isArray(record.root.errors), 'root.errors array');
+  assert.equal(
+    record.submitElementId,
+    'submit',
+    'submit element id read from the rendered button',
+  );
+  assert.equal(
+    typeof record.submitDisabled,
+    'boolean',
+    'submit element disabled boolean',
+  );
+  assert.equal(
+    record.submitDisabled,
+    true,
+    'submit element disabled at capture (binding ties disabled to invalid)',
+  );
   assert.ok(record.crossField, 'crossField present');
   assert.equal(
     record.crossField.observable,
@@ -350,6 +383,11 @@ function validate(record) {
     'probe fields valid',
   );
   assert.equal(record.crossField.rootInvalid, true, 'probe root invalid');
+  assert.equal(
+    record.crossField.submitDisabled,
+    true,
+    'probe: fields valid but root invalid leaves submit disabled',
+  );
   assert.ok(
     (record.crossField.rootErrors || []).some(
       (e) => e.kind === 'name-too-short-for-age',
@@ -387,6 +425,27 @@ test('the recording has both fields with validity and errors', () => {
   assert.ok(record.fields.age, 'age present');
 });
 
+test('the recording carries the submit state read off the rendered button', () => {
+  const record = loadRecord();
+  assert.equal(record.submitElementId, 'submit', 'element id read');
+  assert.equal(record.submitDisabled, true, 'element disabled value read');
+  // The fixture binds `[disabled]="fieldForm().invalid()"`, so the reading
+  // tracks the root, not the fields: at the cross-field probe every field is
+  // valid, the root is invalid, and the button is still disabled.
+  assert.equal(record.crossField.fieldsIndividuallyValid, true);
+  assert.equal(record.crossField.rootInvalid, true);
+  assert.equal(record.crossField.submitDisabled, true);
+});
+
+test('mutant: a recording without the submit state is refused', () => {
+  const mutantRecord = clone(loadRecord());
+  delete mutantRecord.submitDisabled;
+  assert.throws(
+    () => validate(mutantRecord),
+    /submit element disabled boolean/,
+  );
+});
+
 test('mutant: removing the required field is refused', () => {
   const mutant = clone(loadRecord());
   delete mutant.fields.name;
@@ -412,7 +471,7 @@ if (process.env.M031_CAPTURE === '1') {
     validate(record);
     await assertTeardownClean(capturedServerPid, PORT);
     t.diagnostic(
-      `fields: ${Object.keys(record.fields).join(',')}, crossField observable: ${record.crossField.observable}`,
+      `fields: ${Object.keys(record.fields).join(',')}, submit: ${record.submitElementId}#${record.submitDisabled}, crossField observable: ${record.crossField.observable}`,
     );
   });
 }

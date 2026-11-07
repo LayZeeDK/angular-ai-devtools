@@ -2,11 +2,11 @@
 id: T001
 title: Capture the submit state the fact never carried
 wave: 1
-status: in-progress
+status: done
 deps: []
 agent: paid-deepseek-v4-1-flash-high
 base: 8a167e18405b04132f88842663ee65688646b320
-worktree: D:\projects\sandbox\angular-ai-devtools
+worktree: null
 task_branch: null
 files:
   - scripts/field-state-capture.test.mjs
@@ -60,3 +60,6 @@ node --experimental-strip-types --test "scripts/field-state.test.mjs" && node --
 ## Log
 
 - dispatched
+- 2026-11-08 - implemented. Capture reads the rendered button's own disabled; recording now carries
+  submitElementId, submitDisabled and crossField.submitDisabled; five join tests with two mutants each.
+  Verdict: ready. The armed run is not self-consistent on a stale record (read-only tests run first).
