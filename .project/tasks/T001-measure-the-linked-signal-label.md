@@ -2,11 +2,11 @@
 id: T001
 title: Measure the linked-signal label and author the fixture states
 wave: 1
-status: in-progress
+status: done
 deps: []
-agent: paid-deepseek-v4-1-flash-high
-base: 4ec6eb9bb5e4845bc60a9c190f4b5cc65e6e3667
-worktree: D:\projects\sandbox\angular-ai-devtools
+agent: paid-deepseek-v4.1-flash-high
+base: 229fbae4cee3291f00080dc6525a17fecc994e00
+worktree: null
 task_branch: null
 files:
   - spikes/ng222-app/src/app/linked-state-page.ts
@@ -86,3 +86,4 @@ node --experimental-strip-types --test "scripts/linked-state-capture.test.mjs" "
 - `scripts/legacy-diagnostic-capture.test.mjs`
 - `scripts/lint-observability.test.mjs`
 - `scripts/onpush-metadata-capture.test.mjs`
+- 2026-11-07 - ready - measured on Angular 22.2.2: kind identifies a linked signal, the label is the field name, and the source is reachable as the shared producer. Route pin 18 to 19. Recording sha256 b7bd843a, stable across an independent unarmed run.

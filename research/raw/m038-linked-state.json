@@ -1,0 +1,436 @@
+{
+  "capturedAt": "2026-11-07T15:27:31.679Z",
+  "instance": "headless",
+  "browser": "headless Playwright Chromium (build 153.0.8010.12)",
+  "browserBuild": "153.0.8010.12",
+  "playwright": "1.63.0",
+  "url": "http://127.0.0.1:62985/linked-state",
+  "pageUrl": "http://127.0.0.1:62985/linked-state",
+  "commands": {
+    "install": "npm ci --include=dev",
+    "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
+    "build": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js build --configuration development --output-path tmp/m038-linked-build  (cwd spikes/ng222-app)",
+    "capture": "set \"M038_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/linked-state-capture.test.mjs\"",
+    "check": "node --experimental-strip-types --test \"scripts/linked-state-capture.test.mjs\""
+  },
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0"
+  },
+  "angular": {
+    "runtimeReportedByThePage": "22.2.2",
+    "fixtureDependency": {
+      "declared": "^22.2.0",
+      "installed": "22.2.2",
+      "source": "spikes/ng222-app/node_modules/@angular/core/package.json"
+    },
+    "whichOneTheCaptureRead": "the runtime graph below was produced by the @angular/core installed in spikes/ng222-app/node_modules, whose version the served page reports; the static reads name the same package on disk"
+  },
+  "build": {
+    "configuration": "development",
+    "command": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js build --configuration development --output-path tmp/m038-linked-build  (cwd spikes/ng222-app)",
+    "outputPath": "tmp/m038-linked-build/browser",
+    "bundles": [
+      "chunk-AUYJPN2L.js",
+      "chunk-EGO3M3XF.js",
+      "main.js"
+    ],
+    "carriesThePage": true
+  },
+  "fixture": {
+    "route": "/linked-state",
+    "routeTable": "spikes/ng222-app/src/app/app.routes.ts",
+    "page": "spikes/ng222-app/src/app/linked-state-page.ts",
+    "component": "LinkedStatePage",
+    "element": "app-linked-state-page",
+    "subjects": [
+      "agreeing",
+      "differing"
+    ],
+    "avoidedElement": "#linked-state-source",
+    "avoidedElementWhy": "the page renders no element for the source signal: the template reads only the two linked signals and the plain computed, so the source can only be reached through them",
+    "values": {
+      "source": 7,
+      "agreeing": 7,
+      "differing": 8,
+      "plainComputed": 14
+    },
+    "writes": {
+      "where": "spikes/ng222-app/src/app/linked-state-page.ts, constructor",
+      "verbatim": "this.differing.set(this.source() + 1);",
+      "why": "one write, so the stored value differs from the source and the state is the differing one"
+    }
+  },
+  "compiled": {
+    "readFrom": "the development bundle that carries the page (main.js), built and served by the capture",
+    "why": "the compiler passes the field name as the debugName option in a development build; the runtime only copies that option onto the node, so the label is a compile-time artefact",
+    "perSubject": {
+      "agreeing": {
+        "field": "agreeing",
+        "bundle": "main.js",
+        "lineNumber": 32304,
+        "passesADebugName": true,
+        "debugNameLiteral": "agreeing",
+        "injectedOnlyInDevMode": true,
+        "call": "agreeing = linkedSignal( () => this.source(), ...ngDevMode ? [{ debugName: \"agreeing\" }] : ( /* istanbul ignore next */ [] ) )"
+      },
+      "differing": {
+        "field": "differing",
+        "bundle": "main.js",
+        "lineNumber": 32311,
+        "passesADebugName": true,
+        "debugNameLiteral": "differing",
+        "injectedOnlyInDevMode": true,
+        "call": "differing = linkedSignal( () => this.source(), ...ngDevMode ? [{ debugName: \"differing\" }] : ( /* istanbul ignore next */ [] ) )"
+      }
+    },
+    "plainComputed": {
+      "field": "plainComputed",
+      "bundle": "main.js",
+      "lineNumber": 32318,
+      "passesADebugName": true,
+      "debugNameLiteral": "plainComputed",
+      "injectedOnlyInDevMode": true,
+      "call": "plainComputed = computed( () => this.source() * 2, ...ngDevMode ? [{ debugName: \"plainComputed\" }] : ( /* istanbul ignore next */ [] ) )"
+    },
+    "source": {
+      "field": "source",
+      "bundle": "main.js",
+      "lineNumber": 32297,
+      "passesADebugName": true,
+      "debugNameLiteral": "source",
+      "injectedOnlyInDevMode": true,
+      "call": "source = signal( 7, ...ngDevMode ? [{ debugName: \"source\" }] : ( /* istanbul ignore next */ [] ) )"
+    }
+  },
+  "graph": {
+    "reading": "ɵgetSignalGraph(ng.getInjector(<app-linked-state-page>))",
+    "hook": "function",
+    "nodeCount": 5,
+    "edgeCount": 6,
+    "nodes": [
+      {
+        "index": 0,
+        "id": "1",
+        "kind": "template",
+        "label": "app-linked-state-page",
+        "epoch": 0,
+        "value": null
+      },
+      {
+        "index": 1,
+        "id": "2",
+        "kind": "linkedSignal",
+        "label": "agreeing",
+        "epoch": 1,
+        "value": 7
+      },
+      {
+        "index": 2,
+        "id": "3",
+        "kind": "signal",
+        "label": "source",
+        "epoch": 0,
+        "value": 7
+      },
+      {
+        "index": 3,
+        "id": "4",
+        "kind": "linkedSignal",
+        "label": "differing",
+        "epoch": 2,
+        "value": 8
+      },
+      {
+        "index": 4,
+        "id": "5",
+        "kind": "computed",
+        "label": "plainComputed",
+        "epoch": 1,
+        "value": 14
+      }
+    ],
+    "edges": [
+      {
+        "consumer": 0,
+        "producer": 1
+      },
+      {
+        "consumer": 0,
+        "producer": 3
+      },
+      {
+        "consumer": 0,
+        "producer": 4
+      },
+      {
+        "consumer": 1,
+        "producer": 2
+      },
+      {
+        "consumer": 3,
+        "producer": 2
+      },
+      {
+        "consumer": 4,
+        "producer": 2
+      }
+    ],
+    "templateConsumerCandidates": [
+      {
+        "index": 0,
+        "id": "1",
+        "kind": "template",
+        "label": "app-linked-state-page",
+        "value": null
+      }
+    ]
+  },
+  "labels": {
+    "question": "which node label does the graph give a linked signal at this head?",
+    "answeredBy": {
+      "source": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+      "branchLine": {
+        "lineNumber": 12511,
+        "declaration": "} else if (isLinkedSignalNode(consumer)) {"
+      },
+      "labelLine": {
+        "lineNumber": 12521,
+        "declaration": "label: consumer.debugName,"
+      }
+    },
+    "observed": {
+      "linkedSignalNodeCount": 2,
+      "linkedSignalKinds": [
+        "linkedSignal"
+      ],
+      "linkedSignalLabels": [
+        "agreeing",
+        "differing"
+      ],
+      "computedNodeCount": 1,
+      "computedKinds": [
+        "computed"
+      ],
+      "computedLabels": [
+        "plainComputed"
+      ]
+    },
+    "labelEachLinkedSignalCarries": {
+      "agreeing": "agreeing",
+      "differing": "differing"
+    },
+    "labelIsTheFieldName": true,
+    "labelIdentifiesALinkedSignal": false,
+    "theNodeKindIdentifiesALinkedSignal": true,
+    "observation": "the graph returned 2 node(s) of kind \"linkedSignal\" carrying label \"agreeing\"/\"differing\" and value(s) 7/8, and 1 node(s) of kind \"computed\" carrying label \"plainComputed\" and value(s) 14"
+  },
+  "sources": {
+    "branch": {
+      "lineNumber": 12511,
+      "declaration": "} else if (isLinkedSignalNode(consumer)) {"
+    },
+    "label": {
+      "lineNumber": 12521,
+      "declaration": "label: consumer.debugName,"
+    },
+    "nodeKind": {
+      "source": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_untracked-chunk.mjs",
+      "lineNumber": 52,
+      "declaration": "kind: 'linkedSignal',"
+    },
+    "createLinkedSignal": {
+      "source": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_untracked-chunk.mjs",
+      "assignmentCount": 0,
+      "assignments": []
+    },
+    "wrapper": {
+      "source": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_resource-chunk.mjs",
+      "functionDeclaration": {
+        "lineNumber": 133,
+        "declaration": "function upgradeLinkedSignalGetter(getter, debugName, customSet) {"
+      },
+      "assignments": [
+        {
+          "lineNumber": 135,
+          "declaration": "getter[SIGNAL].debugName = debugName;"
+        }
+      ],
+      "callSites": [
+        {
+          "lineNumber": 127,
+          "declaration": "return upgradeLinkedSignalGetter(getter, options?.debugName, options?.set);"
+        },
+        {
+          "lineNumber": 130,
+          "declaration": "return upgradeLinkedSignalGetter(getter, optionsOrComputation.debugName, optionsOrComputation.set);"
+        }
+      ],
+      "derivesAName": false
+    },
+    "postProducerCreatedHook": {
+      "hook": "setPostProducerCreatedFn",
+      "installationCount": 0,
+      "installations": []
+    },
+    "debugNameOption": {
+      "source": "spikes/ng222-app/node_modules/@angular/core/types/core.d.ts",
+      "declaredOnLinkedSignalOptions": true,
+      "lineNumber": 2447,
+      "declaration": "debugName?: string;"
+    },
+    "page": {
+      "source": "spikes/ng222-app/src/app/linked-state-page.ts",
+      "importsLinkedSignal": true,
+      "declaresLinkedSignals": 2,
+      "declaresPlainComputeds": 1,
+      "mentionsADebugName": false,
+      "writesTheDifferingSubject": true,
+      "templateReadsTheSourceDirectly": false
+    }
+  },
+  "subjects": {
+    "agreeing": {
+      "key": "agreeing",
+      "field": "agreeing",
+      "element": "#linked-state-agreeing",
+      "instanceValue": 7,
+      "writtenAway": false,
+      "agreesWithItsSource": true,
+      "label": "agreeing",
+      "node": {
+        "index": 1,
+        "id": "2",
+        "kind": "linkedSignal",
+        "label": "agreeing",
+        "value": 7
+      },
+      "producers": [
+        {
+          "index": 2,
+          "id": "3",
+          "kind": "signal",
+          "label": "source",
+          "value": 7
+        }
+      ]
+    },
+    "differing": {
+      "key": "differing",
+      "field": "differing",
+      "element": "#linked-state-differing",
+      "instanceValue": 8,
+      "writtenAway": true,
+      "agreesWithItsSource": false,
+      "label": "differing",
+      "node": {
+        "index": 3,
+        "id": "4",
+        "kind": "linkedSignal",
+        "label": "differing",
+        "value": 8
+      },
+      "producers": [
+        {
+          "index": 2,
+          "id": "3",
+          "kind": "signal",
+          "label": "source",
+          "value": 7
+        }
+      ]
+    }
+  },
+  "source": {
+    "key": "source",
+    "field": "source",
+    "instanceValue": 7,
+    "reachable": true,
+    "node": {
+      "index": 2,
+      "id": "3",
+      "kind": "signal",
+      "label": "source",
+      "value": 7
+    },
+    "evidence": {
+      "templateReadsTheSourceDirectly": false,
+      "producersOfAgreeing": [
+        {
+          "index": 2,
+          "id": "3",
+          "kind": "signal",
+          "label": "source",
+          "value": 7
+        }
+      ],
+      "producersOfDiffering": [
+        {
+          "index": 2,
+          "id": "3",
+          "kind": "signal",
+          "label": "source",
+          "value": 7
+        }
+      ],
+      "producerIndicesSharedByBothLinkedSignals": [
+        2
+      ],
+      "nodesWithTheSourceValueAndKindSignal": [
+        {
+          "index": 2,
+          "id": "3",
+          "kind": "signal",
+          "label": "source",
+          "value": 7
+        }
+      ]
+    }
+  },
+  "page": {
+    "pageLoads": 1,
+    "ngVersion": "22.2.2",
+    "headingText": "linked state",
+    "sourceText": null,
+    "texts": {
+      "agreeing": "agreeing 7",
+      "differing": "differing 8",
+      "plainComputed": "computed 14"
+    },
+    "uncaughtPageErrors": 0,
+    "pageErrorMessages": []
+  },
+  "answers": {
+    "labelEachLinkedSignalCarries": {
+      "agreeing": "agreeing",
+      "differing": "differing"
+    },
+    "labelIsTheFieldName": true,
+    "labelIdentifiesALinkedSignal": false,
+    "theNodeKindIdentifiesALinkedSignal": true,
+    "linkedSignalKinds": [
+      "linkedSignal"
+    ],
+    "plainComputedKinds": [
+      "computed"
+    ],
+    "sourceReachableFromTheGraph": true,
+    "sourceNode": {
+      "index": 2,
+      "id": "3",
+      "kind": "signal",
+      "label": "source",
+      "value": 7
+    },
+    "sourceValue": 7,
+    "values": {
+      "source": 7,
+      "agreeing": 7,
+      "differing": 8,
+      "plainComputed": 14
+    },
+    "observation": "the graph returned 2 node(s) of kind \"linkedSignal\" carrying label \"agreeing\"/\"differing\" and value(s) 7/8, and 1 node(s) of kind \"computed\" carrying label \"plainComputed\" and value(s) 14",
+    "finding": "a linked signal carries the label of the field it is assigned to: the 2 nodes of kind 'linkedSignal' report label \"agreeing\" and \"differing\". The runtime does not derive that label — the graph reads label: consumer.debugName (spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:12521, \"label: consumer.debugName,\"), the public linkedSignal copies whatever debugName option it is handed (spikes/ng222-app/node_modules/@angular/core/fesm2022/_resource-chunk.mjs:135, \"getter[SIGNAL].debugName = debugName;\"), and the Angular compiler is what hands the field name over: it rewrote each initializer in the development build to `...ngDevMode ? [{ debugName: \"agreeing\" }] : []` (agreeing = linkedSignal( () => this.source(), ...ngDevMode ? [{ debugName: \"agreeing\" }] : ( /* istanbul ignore next */ [] ) )). The plain computed in the same graph is labelled \"plainComputed\" the same way, so the label does not say \"linked signal\" — the node kind does ('linkedSignal' versus 'computed'). The source signal is reachable from the graph only as the producer both linked signals share (node 2, kind 'signal', label \"source\", value 7); the page template never reads it. The agreeing subject holds 7 and its source holds 7; the differing subject was written once to 8, so it no longer equals its source."
+  }
+}

@@ -11,6 +11,7 @@ import { RouterLintPage } from './router-lint-page';
 import { LegacyModulePage } from './legacy-module-page';
 import { OnPushReadyPage } from './onpush-ready-page';
 import { ResourcePage } from './resource-page';
+import { LinkedStatePage } from './linked-state-page';
 import { LandingPage, LazyPage } from './redirect-page';
 import { redirectGuard } from './redirect-guard';
 
@@ -27,6 +28,7 @@ export const routes: Routes = [
   { path: 'legacy-module', component: LegacyModulePage },
   { path: 'onpush-ready', component: OnPushReadyPage },
   { path: 'resource-states', component: ResourcePage },
+  { path: 'linked-state', component: LinkedStatePage },
   { path: 'redirect', redirectTo: 'landing' },
   { path: 'landing', component: LandingPage },
   { path: 'gated', component: LandingPage, canActivate: [redirectGuard] },
