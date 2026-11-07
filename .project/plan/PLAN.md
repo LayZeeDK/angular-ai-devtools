@@ -134,4 +134,4 @@ Walkthrough:
 3. A resource whose status could not be read shows this surface's cannot-tell text and its reason, with no resource, no state
    and no cause.
 
-Criteria: SC5, and the fixture pin that fails when a surface has no fixture.
+Criteria: SC5
