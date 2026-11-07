@@ -1,15 +1,15 @@
 # Gap Review — 1: project Verify
 
-Reviewed HEAD: 40f66c16ebd10ba1993f6cc18a57d4a6a73008f7
+Reviewed HEAD: 7d9eb142af9ce903fcc23d75d0c988e918152020
 Gap verdict: blocked
 Risk: project Verify
-Waves checked: 1, 2, 3, 4, 5, 6, 7
+Waves checked: 1, 2, 3, 4, 5, 6, 7, 8
 
 ## Checked evidence
 
 - **Check**: `npm run check && npm test`
 - **Observed**: Exit 1; exact stdout and stderr are in the command/commit ledger entry.
-- **Reference**: .project/build/verify-ledger.jsonl — 40f66c16ebd10ba1993f6cc18a57d4a6a73008f7, command above
+- **Reference**: .project/build/verify-ledger.jsonl — 7d9eb142af9ce903fcc23d75d0c988e918152020, command above
 
 ## Finding
 

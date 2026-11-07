@@ -201,6 +201,18 @@ Review depth: verify-only
   - Acceptance: AC1 target string equality, AC2 repair on rerun, AC3 facade passes
   - Verify: `node --experimental-strip-types --test "scripts/ensure-sidecar-deps.test.mjs"`
 
+## Wave 9 — Guard the fixture-relative real path
+
+Goal: close the last sidecar-layout assertion, so the project Verify can pass in isolation.
+
+Review depth: verify-only
+
+- `T011` -- Guard the fixture-relative real path
+  - Deps: T009
+  - Files: `scripts/facade-dev-build.test.mjs`
+  - Acceptance: AC1 skip on the verify branch, AC2 four guards
+  - Verify: `node --experimental-strip-types --test "scripts/facade-dev-build.test.mjs"`
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -230,6 +242,7 @@ Review depth: verify-only
 | SC6 | T004 | AC4 |
 | SC6 | T009 | AC1 |
 | SC6 | T010 | AC1 |
+| SC6 | T011 | AC1 |
 
 ## Prohibitions
 

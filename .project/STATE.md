@@ -737,3 +737,9 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-07 — ship — final gap: copied fixture links are absolute and broken
 - 2026-11-07 — plan — patch plan reopened
 - 2026-11-07 — plan — plan approved
+- 2026-11-07 — build — build started
+- 2026-11-07 — build — all tasks landed; waves reviewed
+- 2026-11-07 — ship — build done; final review pending
+- 2026-11-07 — ship — final gap: fixture-relative real path is cross-drive in a sidecar
+- 2026-11-07 — plan — patch plan reopened
+- 2026-11-07 — plan — plan approved
