@@ -2,11 +2,11 @@
 id: T002
 title: Join the resource state machine to a finding
 wave: 2
-status: in-progress
+status: done
 deps: [T001]
 agent: paid-deepseek-v4-1-flash-high
-base: 1cf974c6e2de7d3232c5a3cb356d40b9cac3eb8d
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 4c82a601b154cfa2d6963f83560e7b5ed18fe02d
+worktree: null
 task_branch: null
 files:
   - extension/resource-lifecycle.js
@@ -68,3 +68,4 @@ node --experimental-strip-types --test "scripts/resource-lifecycle.test.mjs"
 ## Log
 
 - dispatched
+- 2026-11-07 — dispatched paid-deepseek-v4-1-flash-high (serial). Four statuses produce findings (loading / resolved / error / idle), idle states 'idle (by design)' and never loading or an error, and four absence reasons cover no-resource, labels-unreadable, status-unavailable and params-unavailable. A params status outside the graph's four values is refused, so a cause cannot ride in through it. Mutants M1 (names a cause inside the loader) and M2 (reports idle as loading) redden by name. 16/16, prettier clean, `tsc -p extension` exit 0. Verdict: ready.
