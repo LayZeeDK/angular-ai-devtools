@@ -2,10 +2,10 @@
 id: T009
 title: Scope the root-copy assertions to a root checkout
 wave: 7
-status: pending
+status: done
 deps: [T007, T008]
-agent: null
-base: null
+agent: orchestrator-serial
+base: aa52330213e76a70cab8e5cea187e616fd4393f9
 worktree: null
 task_branch: null
 files:
@@ -60,3 +60,4 @@ node --experimental-strip-types --test "scripts/facade-dev-build.test.mjs" && np
 ## Log
 
 - dispatched
+- 2026-11-08 - implemented; the three root-copy assertions are guarded on the verify branch, 3 skips, suite green in the primary. Adjusted the reason text to avoid an apostrophe inside a single-quoted JS string. Verdict: ready.
