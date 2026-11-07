@@ -2,11 +2,11 @@
 id: T003
 title: Render only the reason the pane was given
 wave: 3
-status: in-progress
+status: done
 deps: [T002]
 agent: orchestrator-serial
 base: 66a7e9c10c16f3b7499e465093225d08c3d5c9dd
-worktree: D:\projects\sandbox\angular-ai-devtools
+worktree: null
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-fields.ts
@@ -55,3 +55,6 @@ node --experimental-strip-types --test "scripts/panel-fields.test.mjs" && npx pr
 ## Log
 
 - dispatched
+- 2026-11-08 - implemented. The pane renders one sentence per reason the module can name and a generic
+  sentence for any other, so it never asserts the root for a submit-state-unreadable result.
+  Four tests; the mutant restores the fixed sentence and reddens. 14/14. Verdict: ready.

@@ -70,6 +70,16 @@ type Pane = {
 
 const LOADING_MESSAGE = 'loading: the field set is being read';
 
+const CANNOT_TELL_MESSAGES: Readonly<Record<string, string>> = {
+  'root-invalid-without-error-kind':
+    'cannot tell: the form root is invalid and carries no error kind',
+  'submit-state-unreadable':
+    'cannot tell: the page did not report a submit state',
+};
+
+const GENERIC_CANNOT_TELL =
+  'cannot tell: the page did not report what this pane needs';
+
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
@@ -163,8 +173,9 @@ function cannotTell(
   // (`extension/field-state.js`) — and never consults field validity or the submit state to
   // decide. Saying "every field is valid while submit stays disabled" therefore asserted two
   // things the reader had not checked, and both can be false. State only what was read.
-  const message =
-    'cannot tell: the form root is invalid and carries no error kind';
+  // One sentence per reason the module can name. An unrecognised reason gets a sentence that
+  // asserts no cause at all: this pane states what it was told and nothing further.
+  const message = CANNOT_TELL_MESSAGES[named] ?? GENERIC_CANNOT_TELL;
   const rootLines = [message, `reason: ${named}`, `submit: ${submit}`];
   return {
     kind: 'cannot-tell',
