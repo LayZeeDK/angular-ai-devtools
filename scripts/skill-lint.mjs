@@ -32,9 +32,25 @@ const KNOWN = new Set([
   'description',
   'license',
   'allowed-tools',
-  'metadata',
-  'version',
+  // Documented extension fields; a skill authored for another agent uses these.
+  'argument-hint',
+  'when_to_use',
+  'disable-model-invocation',
+  'user-invocable',
+  'disallowed-tools',
+  'arguments',
+  'model',
+  'effort',
+  'compatibility',
 ]);
+
+/**
+ * Command Code's limits, from its own skills reference. A description over this is not truncated:
+ * the skill is skipped, exactly as `control-ai-browsers` was at 1253 characters.
+ */
+const DESCRIPTION_MAX = 1024;
+
+const DESCRIPTION_MIN = 10;
 
 const findings = [];
 const seenNames = new Map();
@@ -141,7 +157,41 @@ function lintFile(file) {
         rel,
         2,
         'name-mismatch',
-        `name ${JSON.stringify(name)} must equal its directory ${JSON.stringify(dir)}`,
+        `name ${JSON.stringify(name)} must equal its directory ${JSON.stringify(dir)} — Command Code skips ` +
+          'a mismatch, so a renamed folder silently uninstalls the skill',
+      );
+    }
+    // Command Code's naming rules; a violation skips the skill.
+    if (!/^[a-z0-9-]+$/.test(name)) {
+      fail(
+        rel,
+        2,
+        'name-charset',
+        `name ${JSON.stringify(name)} must be lowercase letters, digits and hyphens only`,
+      );
+    }
+    if (name.length > 64) {
+      fail(
+        rel,
+        2,
+        'name-length',
+        `name is ${name.length} characters; the limit is 64`,
+      );
+    }
+    if (name.startsWith('-') || name.endsWith('-')) {
+      fail(
+        rel,
+        2,
+        'name-hyphen-edge',
+        `name ${JSON.stringify(name)} must not start or end with a hyphen`,
+      );
+    }
+    if (name.includes('--')) {
+      fail(
+        rel,
+        2,
+        'name-double-hyphen',
+        `name ${JSON.stringify(name)} must not contain consecutive hyphens`,
       );
     }
     const key = `${rootKey}::${name}`;
@@ -158,21 +208,35 @@ function lintFile(file) {
   }
 
   if (typeof description === 'string') {
-    if (description.trim().length < 10) {
+    if (description.trim().length < DESCRIPTION_MIN) {
       fail(
         rel,
         3,
         'short-description',
         'the description is too short to say when the skill applies',
       );
-    } else if (description.length > 4000) {
+    } else if (description.length > DESCRIPTION_MAX) {
       fail(
         rel,
         3,
         'long-description',
-        `description is ${description.length} characters; keep it under 4000`,
+        `description is ${description.length} characters; Command Code drops a skill whose description ` +
+          `exceeds ${DESCRIPTION_MAX} ("Skill description must be ${DESCRIPTION_MAX} characters or less"). ` +
+          'Move the enumeration into the body and keep the description to what it does and when to use it.',
       );
     }
+  }
+
+  if (
+    typeof fields.compatibility === 'string' &&
+    fields.compatibility.length > 500
+  ) {
+    fail(
+      rel,
+      2,
+      'long-compatibility',
+      `compatibility is ${fields.compatibility.length} characters; the limit is 500`,
+    );
   }
 
   if (parts.body.trim() === '') {

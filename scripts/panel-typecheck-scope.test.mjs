@@ -117,6 +117,10 @@ const CHECK_STAGES = [
   // it never registered, and nothing reported it. The lint runs before the type checks so a
   // dead skill fails the gate in the first stage rather than after them.
   'npm run lint:skills',
+  // The lint checks the manifest against the spec; only Command Code's loader decides whether the
+  // skill actually loads. It skipped `control-ai-browsers` at 1253 characters while the lint passed,
+  // so the loader's own report is a gate stage. It is a no-op where the CLI is absent.
+  'npm run verify:skills',
   'npm run check:skills',
   'npm run check:panel',
   'npm run check:extension',
