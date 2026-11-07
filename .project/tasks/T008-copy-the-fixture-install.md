@@ -39,6 +39,10 @@ the sidecar does not, and never over an existing directory.
 
 ## Interface contract
 
+`resourceLifecycle(fact)` returns `{ state: "finding" | "cannot-tell", resource?, status?, params?, reason? }`, where
+`reason` is one of `no-resource`, `labels-unreadable`, `params-unavailable`, `status-unavailable`. T003 consumes the same
+shape; both tasks must carry this line unchanged.
+
 ## Files
 
 - `scripts/ensure-sidecar-deps.mjs`
