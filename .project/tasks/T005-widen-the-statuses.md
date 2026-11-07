@@ -1,7 +1,7 @@
 ---
 id: T005
 title: Widen the statuses and close the echoed identity
-wave: 5
+wave: 2
 status: in-progress
 deps: []
 agent: paid-deepseek-v4-1-flash-high

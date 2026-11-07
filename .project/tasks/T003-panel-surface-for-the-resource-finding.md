@@ -3,7 +3,7 @@ id: T003
 title: Panel surface for the resource finding
 wave: 2
 status: pending
-deps: [T002]
+deps: [T002, T005]
 agent: null
 base: null
 worktree: null
