@@ -413,5 +413,3 @@ Measured 2026-10-11/12 unless marked inferred.
 - `--raw run-code` prints the function's return value as JSON; returning a string double-encodes it.
 - The internals and components pages are localised (Danish UI); match ids, classes and English data strings, not
   button labels. `chrome://chrome-urls`'s debug button is English.
-
-
