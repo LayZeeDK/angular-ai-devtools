@@ -17,7 +17,8 @@
     "test:app": "npx nx run angular-ai-devtools:test",
     "test:held-out": "node scripts/held-out-corpus.mjs",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "sync:verification-scripts": "node scripts/sync-verification-scripts.mjs"
   },
   "devDependencies": {
     "@angular-devkit/core": "~22.1.0",
