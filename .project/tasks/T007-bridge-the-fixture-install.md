@@ -2,10 +2,10 @@
 id: T007
 title: Bridge the fixture install in a verify sidecar
 wave: 5
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: orchestrator-serial
+base: 19f07d1b0c210da2b97d55a64d858c6f3241bb15
 worktree: null
 task_branch: null
 files:
@@ -68,3 +68,4 @@ node --experimental-strip-types --test "scripts/sidecar-deps-bridge.test.mjs" &&
 ## Log
 
 - dispatched
+- 2026-11-07 — implemented serially in the primary checkout. The fixture bridging is inlined in `scripts/ensure-sidecar-deps.mjs`: after the root bridge it calls `bridge()` for `spikes/ng222-app` when the primary has that install and the sidecar does not, so the same idempotence and same-target guarantees apply. It was first written as a `bridgeFixture()` helper in `scripts/sidecar-deps-bridge.mjs` with two new cases in its suite; that widened the task's file set after the contract was approved, which `verify-landed` refuses, so the helper and the two cases were reverted rather than the rule bent. The behaviour is exercised end to end by `scripts/facade-dev-build.test.mjs` (8/8) and by the project Verify running in a real sidecar, which is the case that failed before this task. Verdict: ready.

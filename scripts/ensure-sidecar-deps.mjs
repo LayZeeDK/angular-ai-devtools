@@ -31,3 +31,15 @@ if (
 }
 
 bridge(cwd, primary);
+
+const FIXTURE = ['spikes', 'ng222-app'];
+const fixturePrimary = join(primary, ...FIXTURE);
+const fixtureSidecar = join(cwd, ...FIXTURE);
+
+if (
+  existsSync(join(fixturePrimary, 'package.json')) &&
+  existsSync(join(fixturePrimary, 'node_modules')) &&
+  !existsSync(join(fixtureSidecar, 'node_modules'))
+) {
+  bridge(fixtureSidecar, fixturePrimary);
+}
