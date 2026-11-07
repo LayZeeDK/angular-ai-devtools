@@ -123,10 +123,11 @@ test('PRECONDITION: the after-render route is registered with AfterRenderPage', 
 // The route table this fixture lives in, in declaration order. M032 T001 added
 // the `lint-observability` measurement page as the eighth route; M033 T001
 // added `router-lint` as the ninth; M034 T001 added `legacy-module` as the
-// tenth; M035 T001 added `onpush-ready` as the eleventh. Pinning the whole table
-// keeps a route from being dropped, reordered or shadowed silently while the
-// fixture above is what the other suites navigate.
-test('PRECONDITION: the route table declares all seventeen routes in order', () => {
+// tenth; M035 T001 added `onpush-ready` as the eleventh; M036 T001 added
+// `resource-states` as the twelfth. Pinning the whole table keeps a route from
+// being dropped, reordered or shadowed silently while the fixture above is what
+// the other suites navigate.
+test('PRECONDITION: the route table declares all eighteen routes in order', () => {
   const routesSrc = readFileSync(routesPath, 'utf8');
   const paths = [...routesSrc.matchAll(/path:\s*'([^']+)'/g)].map(
     (match) => match[1],
@@ -143,6 +144,7 @@ test('PRECONDITION: the route table declares all seventeen routes in order', () 
     'router-lint',
     'legacy-module',
     'onpush-ready',
+    'resource-states',
     'redirect',
     'landing',
     'gated',

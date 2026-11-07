@@ -2,11 +2,11 @@
 id: T001
 title: Measure the graph hook and give the fixture one resource per state
 wave: 1
-status: in-progress
+status: done
 deps: []
 agent: paid-deepseek-v4-1-flash-high
-base: 7377a8ff82ee3a75919f23ee536bc7143f2cfa1b
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 98afa8c20d2e55e82c86f3408c5a5be0e2ddd561
+worktree: null
 task_branch: null
 files:
   - spikes/ng222-app/src/app/resource-states.ts
@@ -88,3 +88,4 @@ node --experimental-strip-types --test "scripts/resource-graph-capture.test.mjs"
 ## Log
 
 - dispatched
+- 2026-11-07 — dispatched paid-deepseek-v4-1-flash-high (serial). `ɵgetSignalGraph` confirmed on both installs (22.1.8 by a static types+source read, recorded as `runtime: null` rather than dressed up as a run; 22.2.2 at runtime, returning 28 nodes and 37 edges). Four fixture resources produce labels and statuses: loading, resolved, error and idle, the last because its params expression returns undefined. `research/08-recent-angular-features.md:170` now names `ɵgetSignalGraph`. Route pins re-cut 17 -> 18 with the failing assertion recorded for each, and both recordings re-captured. 25/25 declared Verify, capture gated (identical SHA256 across three runs). Two flags carried forward: `scripts/ng-context-dev-build.test.mjs` now fails by 18,639 bytes and belongs to T004's re-record, and `research/08:264` still carries an unqualified 20.1+ floor. Verdict: ready.

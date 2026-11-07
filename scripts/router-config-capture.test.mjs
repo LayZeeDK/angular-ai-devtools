@@ -332,7 +332,7 @@ function validate(record) {
   const redirectEntry = record.config.find((e) => e.path === 'redirect');
   assert.ok(redirectEntry, 'redirect route present');
   assert.equal(redirectEntry.redirectTo, 'landing', 'redirect target');
-  assert.equal(record.config.length, 17, 'config must have 17 entries');
+  assert.equal(record.config.length, 18, 'config must have 18 entries');
   const fields = [
     ...new Set(record.config.flatMap((e) => Object.keys(e))),
   ].sort();
@@ -364,6 +364,17 @@ function validate(record) {
       onpushReady.component.includes('OnPushReadyPage'),
     'onpush-ready is routed to its page',
   );
+  // M036 T001 added the resource-states measurement page, which is why the
+  // entry count moved from seventeen.
+  const resourceStates = record.config.find(
+    (e) => e.path === 'resource-states',
+  );
+  assert.ok(resourceStates, 'resource-states route present');
+  assert.ok(
+    typeof resourceStates.component === 'string' &&
+      resourceStates.component.includes('ResourcePage'),
+    'resource-states is routed to its page',
+  );
   assert.match(record.browserBuild, /^\d+\.\d+\.\d+\.\d+$/);
   assert.match(record.url, /^http:\/\/127\.0\.0\.1:\d+\/landing$/);
   assert.match(record.capturedAt, /^\d{4}-\d{2}-\d{2}T/);
@@ -383,9 +394,9 @@ test('the recording validates against its own fixture and clocks', () => {
   assert.doesNotThrow(() => validate(record));
 });
 
-test('the recording holds 17 config entries with the five fields', () => {
+test('the recording holds 18 config entries with the five fields', () => {
   const record = loadRecord();
-  assert.equal(record.config.length, 17);
+  assert.equal(record.config.length, 18);
   const fields = [
     ...new Set(record.config.flatMap((e) => Object.keys(e))),
   ].sort();

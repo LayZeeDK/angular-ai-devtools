@@ -627,7 +627,7 @@ function validate(record) {
   // config
   if (!record.injectorResolvedOnRoutedElement) fail('injector not resolved');
   if (!Array.isArray(record.config)) fail('config not array');
-  if (record.config.length !== 17)
+  if (record.config.length !== 18)
     fail(`config length ${record.config.length}`);
   const fields = [
     ...new Set(record.config.flatMap((e) => Object.keys(e))),
@@ -657,6 +657,17 @@ function validate(record) {
     !onpushReady.component.includes('OnPushReadyPage')
   )
     fail('onpush-ready is not routed to its page');
+  // M036 T001 added resource-states to the same table, which is why the entry
+  // count moved from seventeen to eighteen.
+  const resourceStates = record.config.find(
+    (e) => e.path === 'resource-states',
+  );
+  if (!resourceStates) fail('resource-states route missing from config');
+  if (
+    typeof resourceStates.component !== 'string' ||
+    !resourceStates.component.includes('ResourcePage')
+  )
+    fail('resource-states is not routed to its page');
 
   return true;
 }
@@ -696,9 +707,9 @@ test('a console message carries an NG code, and it is the construct’s', () => 
   assert.ok(record.console.withoutAnNgCode > 0, 'all messages carried a code');
 });
 
-test('the config is recorded with 17 entries', () => {
+test('the config is recorded with 18 entries', () => {
   const record = loadRecord();
-  assert.equal(record.config.length, 17);
+  assert.equal(record.config.length, 18);
 });
 
 test('PRECONDITION: app.routes.ts registers the fixture page', () => {

@@ -167,8 +167,8 @@ Each idea says what the on-device model adds that a static panel cannot. "Covere
 **F1. Resource lifecycle explainer ("why is this spinner still spinning?")**
 
 - Model adds: explains a cause from a timeline. "`Resource#products.state` went `loading` at 12:01:03 and has not resolved; its params read `debouncedSearch.value`, which is still `loading` because typing restarts the 300 ms timer" or "params threw `ResourceParamsStatus.IDLE`, so the resource is idle by design".
-- Data: graph nodes labelled `Resource#<name>.*` (state, isLoading, extRequest, value), sampled by the page agent per CD cycle (`ɵsetProfiler`) and correlated with `PerformanceResourceTiming` entries for `httpResource` URLs. The tool returns one line per transition, never the raw graph.
-- Tier 1. Min Angular 22.0 for stable resources and `ResourceParamsStatus`; labels need ngtsc and 20.1+. Status: stable (`debounced` part experimental).
+- Data: graph nodes labelled `Resource#<name>.*` (state, isLoading, extRequest, value), read by the page agent per CD cycle through `ɵgetSignalGraph(injector)`, which copies each node's `debugName` into its `label` (`ɵsetProfiler` registers a change-detection timing callback and carries no labels), and correlated with `PerformanceResourceTiming` entries for `httpResource` URLs. The tool returns one line per transition, never the raw graph.
+- Tier 1. Min Angular 22.0 for stable resources and `ResourceParamsStatus`; labels need ngtsc and a version floor of 20.1+ that is **unverified** — neither installed `@angular/core` ships a CHANGELOG and no source comment cites an introduction version, so only that the labels exist in 22.1.8 and 22.2.2 is measured (`research/raw/m036-resource-graph.json`). Status: stable (`debounced` part experimental).
 - Covered: no. N2 has one resource rule (params read a per-keystroke signal); this is the lifecycle view.
 
 **F2. Signal Forms doctor ("why can't I submit?")**
