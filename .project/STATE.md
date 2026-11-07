@@ -5,7 +5,7 @@ milestone: resource-lifecycle
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M036
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -709,3 +709,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-07 — plan — build recovery: {"base": "a8b2510b1df6082ce9df05cf2ff7b1c7841b38b7", "branch": "gsd-path/M036", "kind": "plan", "source": "build"}
 - 2026-11-07 — plan — plan approved
 - 2026-11-07 — build — build started
+- 2026-11-07 — build — waves 2-3 panel: three verified findings
