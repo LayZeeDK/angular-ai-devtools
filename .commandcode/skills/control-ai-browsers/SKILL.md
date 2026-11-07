@@ -204,7 +204,10 @@ is not running or the command could not run. A run takes 25-50 s, longer under l
   with the panel's `extension-panel-<uuid>_<n>` key), reloads the page so the panel records the Angular version,
   clicks "Explain version with AI" and reads `.ai-answer` or `.ai-error`. It exits 0 with `answer`, `answerMs`,
   `ngVersion`, `extensionId` and `steps`, or 1 with `error`. `--timeout-min` (default 4) caps the wait for the
-  answer. Use the counter fixture of control-angular-dev-app as the page (`up --target counter`). The proof across
+  answer. Use the counter fixture of control-angular-dev-app as the page, started with **that skill's** script:
+  `node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter`. `--target` is not a
+  flag here — this script ignores unknown flags silently, so `control.mjs up <name> --target=counter` starts a
+  browser, exits 0 and serves nothing, and the `panel` run then spends its 4 minutes timing out. The proof across
   every pair is `verify-ai-browsers` `checks/extension-panel.mjs`. Recipe: `features/extension-panel.md`.
 - The panel's other tabs are driven manually in the DevTools panel: "Signal Provenance" (N2, recipes
   `features/signal-provenance.md`) and "DI Doctor" (N3, recipes `features/di-doctor.md`); their proof across every
