@@ -7,7 +7,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { printable } from './fingerprint.mjs';
+import { printable } from './text.mjs';
 
 /**
  * One process as recorded: `start` is when it started, in milliseconds since the epoch (whole seconds from `ps`).

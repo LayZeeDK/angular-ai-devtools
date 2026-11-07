@@ -28,7 +28,8 @@ import path, {
   sep,
 } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mapFresh, printable } from './fingerprint.mjs';
+import { mapFresh } from './fingerprint.mjs';
+import { printable } from './text.mjs';
 import { drivePanel } from './panel.mjs';
 import {
   describe,
