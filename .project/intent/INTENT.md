@@ -92,7 +92,6 @@ finds the labels richer than F1 describes, the criteria may widen, and the widen
 
 ## Open questions
 
-- Which resource fields does the graph label on this fixture's build, and are they present for `resource`, `rxResource` and
-  `httpResource` alike?
-- Does the fixture already contain a resource on each state, or does one need adding?
-- Does the panel's existing signal-graph record already carry the resource labels, making this a join rather than a new read?
+- [RESEARCH] Which resource fields does the graph label on this fixture's build, and are they present for resource, rxResource and httpResource alike?
+- [RESEARCH] Does the fixture already contain a resource on each state, or does one need adding?
+- [RESEARCH] Does the panel's existing signal-graph record already carry the resource labels, making this a join rather than a new read?
