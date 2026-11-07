@@ -28,7 +28,9 @@ flipped and nothing restarts.
 `instances.json` is the single source for each instance's browser, executable, main-checkout port, features,
 extra switches (`args`), backends, expected model, model folder pattern, Broker State asset, use case and pinned
 component roots (`pin`). Other skills look instances up
-there, and ask `up <name> --json` or `info <name> --json` for the port an instance runs on.
+there, and ask `info <name> --json` or `up <name> --json` for the port an instance runs on. `info` reports it as a
+top-level `port`; `up` reports it only as `state.port`, and only on the path that actually launched — the
+`alreadyRunning` path returns `state` too, so read `state.port` from either.
 
 Shared instances. The profiles (each holding a multi-GB model), the pins and the state files live in the primary
 checkout's `.commandcode\worktrees\` (`.browsers\<name>`, `tmp\control-ai-browsers\`), found through
@@ -126,8 +128,10 @@ pages open, so a rebuilt panel needs no restart.
   stable 156, Edge Dev 157 and Edge stable 155 (2026-10-19). No extension path is on any command line.
 - `up` then turns on developer mode in the profile (`developerPrivate` on the extensions page; it stays on). Edge
   Dev 157 disables an unpacked extension while it is off (`unsupportedDeveloperExtension`).
-- `up` prints `extension <id>` and returns `extension: {dir, id}`. A failed load exits 2 and leaves the browser
-  running, so `down` it after fixing the extension.
+- `up` prints `extension <id>` and returns `extension: {dir, id}`. A failed load exits 2 and **stops the browser it
+  just started**, removing the state file, because a browser without its extension must not stay up for a later `up`
+  to find as configured: fix the extension, then `up` again. When the stop itself failed the message says so and
+  names the `down` to run instead.
 - Every other command, doctor's `extension` check included, reads the loaded folder from the state file, so a
   sidecar's doctor passes against instances the primary checkout started. To try a worktree's build, `down` the
   instance and `up <name> --extension=extension` from that worktree; `up` refuses (exit 2) while the instance runs
@@ -147,14 +151,15 @@ backend) and leaves the session attached for ad hoc
 node .commandcode/skills/control-ai-browsers/scripts/control.mjs doctor edge-dev-aion
 ```
 
-Read-only; one line per check:
+One line per check. Not read-only: `tree` records the live processes into the instance's state file, so a `doctor`
+run enlarges what a later `down` stops, and `attach` on a hand-started browser records its command line.
 
 | Check                 | Passes when                                                                                                                                                                                                                                                                                                           |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `map-fresh`           | always, first; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`) or that were never proven; never fails doctor                                                                                                                                                       |
 | `process`             | one main process of the registry's browser uses the instance profile                                                                                                                                                                                                                                                  |
 | `tree`                | adds the live processes below it to the recorded tree, for `down`, and drops records that exited; `[SKIP]` with no state file, or one that records another process                                                                                                                                                    |
-| `commandLine`         | executable, the two common arguments and `--enable-features` match the registry for one backend, no other switch is present and none repeats, and from a worktree the port is not the registry's (drift check)                                                                                                        |
+| `commandLine`         | executable, the two common arguments and `--enable-features` match the registry for one backend, no other switch is present and none repeats                                                                                                                                                                          |
 | `ports`               | the CDP port listens, a process of the instance's tree holds it, and `/json/version` answers with the right product: `[OK] ports: cdp 9680 (derived), bench app 4222 (external: ...); http://127.0.0.1:9680 answers as Chrome/157.0.8103.6` (measured 2026-10-16); the external bench app port is listed, not checked |
 | `tabs`                | always; `[WARN]` when more than one tab is open                                                                                                                                                                                                                                                                       |
 | `model.disk`          | a `manifest.json` in the profile names the expected model; `[WARN]` lists other models in the profile                                                                                                                                                                                                                 |
