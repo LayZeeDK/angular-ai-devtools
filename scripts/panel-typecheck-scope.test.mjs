@@ -113,6 +113,10 @@ const COMPANION_CONFIG_RELATIVE =
 const CHECK_STAGES = [
   'node scripts/ensure-sidecar-deps.mjs',
   'tsc -p tsconfig.json',
+  // Added after `control-ai-browsers` was found to have shipped with invalid YAML frontmatter:
+  // it never registered, and nothing reported it. The lint runs before the type checks so a
+  // dead skill fails the gate in the first stage rather than after them.
+  'npm run lint:skills',
   'npm run check:skills',
   'npm run check:panel',
   'npm run check:extension',
