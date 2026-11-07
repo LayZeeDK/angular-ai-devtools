@@ -15,7 +15,7 @@
       ]
     },
     "@angular/build:unit-test": {
-      "cache": false,
+      "cache": true,
       "inputs": [
         "default",
         "^default"

@@ -2,11 +2,11 @@
 id: T007
 title: Restore the unit-test cache the held-out inner runs depend on
 wave: 5
-status: in-progress
+status: done
 deps: []
 agent: paid-deepseek-v4-1-flash-high
-base: 4109b8345518e8c04587761a8fa223f6fd8f760a
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 12e64877dbd02424dcc475da74e95d2e2b907be7
+worktree: null
 task_branch: null
 files:
   - nx.json
@@ -69,3 +69,4 @@ npx nx run angular-ai-devtools:test && npx nx run angular-ai-devtools:test && gi
 ## Log
 
 - dispatched
+- 2026-11-07 — applied by the adjudicator (one-line revert plus prose; no coder dispatch). `@angular/build:unit-test` caches again and a consecutive `npx nx run angular-ai-devtools:test` reports `Cache: 1/1 hit (100%)`. `SYNTHESIS.md` now records the quadratic gate design, the measurement that disproved the cache hypothesis (`Cache: 0/1 hit (0%)` on two runs, E3 still failing), and the bounded-inner-run remedy. Verdict: ready.

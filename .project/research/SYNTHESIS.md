@@ -59,3 +59,24 @@ be a guess.
   measures rather than assumes.
 - Whether the panel's existing `changeDetection` field can be corrected in place without breaking its consumers;
   T002 answers it when it touches the module.
+
+## Added at ship — the gate's cost is quadratic, and the cache was hiding it
+
+T006 disabled Nx caching for `@angular/build:unit-test` so a verification gate could not replay app-test results. The
+change is right in principle and wrong in this repo, and the measurement proves it rather than suggesting it:
+
+- `tests/held-out/e3-zero-skipped.test.mjs:13` and `tests/held-out/e4-idempotent-checks.test.mjs:13` each spawn `npm test`
+  with `timeout: 20 * 60 * 1000`, and `npm test` includes `test:held-out` — the gate re-enters itself, twice in E4's case.
+- With the cache on, the inner runs fit inside 20 minutes because the app suite is replayed. With it off they do not: the
+  inner run is killed at its own timeout, returns partial output, and E3 fails at `passMatches.length >= 3`, which reads as
+  "too few pass blocks" rather than "the inner gate timed out".
+- Measured at head `f404eee`: two consecutive `npx nx run angular-ai-devtools:test` both reported `Cache: 0/1 hit (0%)`,
+  so the cache was genuinely off, and E3 still failed — which disproved the cache being the cause of E3's earlier failure.
+
+T007 therefore restores `"cache": true` and records the real defect: **the gate's cost is quadratic in its own suites, and
+the cache was masking it.** The proper fix, for a milestone that owns the test harness, is to bound the inner runs — a
+marker the held-out corpus honours so a nested `npm test` does not re-enter the held-out stage — after which the cache can
+be disabled safely and E3/E4's 20-minute budgets will still hold.
+
+This is the one place in M035 where a correct change was reverted. It is recorded here rather than quietly dropped, and the
+revert is a task with its own acceptance criteria, not an edit made in passing.
