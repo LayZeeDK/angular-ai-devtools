@@ -103,6 +103,21 @@ Review depth: full
   pass blocks without clearing anything, so the held-out E3 suite passes twice.
 - Verify: `node --experimental-strip-types --test "extension/agent-main.test.mjs" && npx nx run angular-ai-devtools:test --skip-nx-cache && npm run check`
 
+## Wave 5 — restore the cache the inner runs depend on
+
+Goal: the gate fits its own timeout again, and the compounding defect that made it not fit is recorded rather than
+rediscovered.
+
+Review depth: verify-only
+
+### T007 — Restore the unit-test cache the held-out inner runs depend on
+
+- Deps: none
+- Files: `nx.json`, `.project/research/SYNTHESIS.md`
+- Acceptance: `@angular/build:unit-test` caches again and the second consecutive run reports `Cache: 1/1 hit (100%)`;
+  the synthesis records the quadratic gate design and the bounded-inner-run remedy.
+- Verify: `npx nx run angular-ai-devtools:test && npx nx run angular-ai-devtools:test && git status --porcelain nx.json`
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -126,6 +141,7 @@ Review depth: full
 | SC5 | T005 | AC4 |
 | SC1 | T006 | AC1 |
 | SC5 | T006 | AC4 |
+| SC5 | T007 | AC2 |
 
 ## Prohibitions
 
