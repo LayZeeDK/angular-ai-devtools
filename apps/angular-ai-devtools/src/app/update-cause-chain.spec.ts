@@ -195,4 +195,42 @@ describe('walkChain', () => {
     expect(unreadable.chain).toBe('no signal cause');
     expect(unreadable.chain).not.toBe(eager.chain);
   });
+
+  /**
+   * The declaration, not just the behaviour: `changeDetection: null` is annotated `RecordedCheck`
+   * with no cast, so a field type that excludes `null` fails the type check on this line instead of
+   * being widened at a call site. The assertions then pin what the honest answer buys — a `null`
+   * strategy is `no signal cause`, never an eager claim the recorder could not support.
+   */
+  it('admits a recorded null strategy and still yields no signal cause', () => {
+    const check: RecordedCheck = {
+      componentName: 'app-counter',
+      className: 'CounterComponent',
+      changeDetection: null,
+      graph: {
+        nodes: [
+          {
+            id: 't',
+            kind: 'template',
+            label: 'app-counter template',
+            epoch: 1,
+            debuggableFn: 'CounterComponent',
+          },
+        ],
+        edges: [],
+      },
+      changedNodeIds: [],
+    };
+
+    const res = walkChain({
+      check,
+      trigger: { kind: 'unknown', listenerName: null },
+    });
+
+    expect(check.changeDetection).toBeNull();
+    expect(res.trigger).toBe('unknown');
+    expect(res.chain).toBe('no signal cause');
+    expect(res.noSignalCause).toBe(true);
+    expect(res.chain).not.toBe('checked because Eager');
+  });
 });

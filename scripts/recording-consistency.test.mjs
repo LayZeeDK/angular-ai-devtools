@@ -1,35 +1,52 @@
 /**
- * A recording's prose must agree with the recording's own fields — M035 T005 (INTENT.md SC1, SC5).
+ * A recording's stated byte counts must agree with the byte totals that recording records itself —
+ * M035 T005 (INTENT.md SC1, SC5).
  *
  * The M035 wave-2 review found `research/raw/m022-ng-context.json` stating
  * `builds.development.bytes` as 2180767 while its own `reconciliation.note` read "at the same
  * 2176374 bytes". The claim was true in substance and the number was stale prose, so every
- * existing suite stayed green: nothing compared a sentence with the field beside it. This file is
- * that comparison, so the next re-record cannot leave prose behind.
+ * existing suite stayed green: nothing compared a sentence with the field beside it.
  *
- * What is checked, and against what.
+ * Scope, stated exactly: this file compares `N bytes`-shaped counts found in the prose of
+ * `research/raw/*.json` against that same file's own recorded byte totals. Nothing more.
  *
- * A recording that measures bytes records them as numeric fields — `builds.development.bytes`,
- * `build.bytesObserved` — and those are its *current* byte totals. When it re-records a build it
- * also states what the total *was*, and here that history has one shape: an object under the
- * recording's `growth` key carrying `was`, `now` and `delta`. Both sets are used, and they are not
- * interchangeable:
+ * The corpus is those recordings, and only those that record at least one numeric `bytes` field —
+ * `builds.development.bytes`, `build.bytesObserved`. A recording that measures no bytes has no
+ * total for prose to contradict, so it is not scanned; and the scan asserts, per file, that it
+ * actually examined a mention, so an empty scan cannot pass as a clean one.
  *
- *   - A prose sentence that states a byte count as a count — "at the same 2176374 bytes" — must
- *     name a current total. Prose that contradicts the fields is exactly this case.
- *   - A prose sentence that narrates a movement — "the total byte count moved 472550 -> 473611" —
- *     names both ends of the movement, and each end must be a total the recording records, current
- *     or historical. The movement is the recording's own idiom for its history, so the endpoints are
- *     held to the recorded set rather than to the current one.
+ * A count is in scope only when the sentence says "byte"/"bytes" and the count is written as a
+ * count — `NNN bytes`, comma-grouped or not. That count is held to the recording's *current*
+ * totals, not its history, so "at the same 2176374 bytes" is a finding when 2176374 is only the
+ * old total. Three refinements, each of them a judgement this file does make:
+ *
+ *   - A movement — "the total byte count moved 472550 -> 473611" — names both ends, and each end
+ *     must be a total the recording records, current or historical. The movement is the project's
+ *     own idiom for its history, so the endpoints are held to the recorded set rather than to the
+ *     current one.
  *   - A bound is not a measurement. A count standing as a tolerance or a limit — "the development
  *     byte tolerance stays 2000 bytes" — is skipped, because a bound is stated and not measured;
  *     `scripts/ng-context-dev-build.test.mjs` carries the real `DEV_BYTES_TOLERANCE`, and this file
  *     has no business reading it as a bundle size.
+ *   - A sentence in which no "byte"/"bytes" word appears is not read at all, even when it states a
+ *     number that is plainly a size.
  *
- * Scope: `research/raw/*.json` files that record at least one numeric `bytes` field. A recording
- * that measures no bytes has no byte total for prose to contradict, so it is not scanned — and the
- * scan asserts, per file, that it actually examined a mention, so an empty scan cannot pass as a
- * clean one.
+ * Out of scope: what a green run here does *not* mean. This is a narrow check, not a
+ * prose-drift gate, and it proves nothing about the following — all of which can carry a stale or
+ * invented number through it:
+ *
+ *   - a count written without the word "bytes" — "the same 2176374", "1.9 MB" — is not matched, so
+ *     a stale byte count stated that way passes;
+ *   - a number that is not a byte count at all — probe counts, node counts, timings, versions, ids,
+ *     error codes — is never read, whatever its magnitude;
+ *   - prose outside `research/raw/*.json` is not read: `research/*.md`, `.project/**` (task
+ *     contracts, reviews, the plan) and every other file in the repository are outside this scan
+ *     entirely, so a recording's numbers quoted into markdown drift unwatched;
+ *   - a `research/raw/*.json` recording with no numeric `bytes` field is skipped, so any other
+ *     recorded quantity — a node total, a signal count — is unchecked in it;
+ *   - the shape of the totals it does use is assumed, not proven: it looks for `bytes`-named
+ *     numeric fields for current totals and `growth.*.{was,now,delta}` for history. A recording
+ *     that states its history in some new shape has that history read as nothing.
  *
  * Nothing here reads a build, opens a browser or needs a network: the corpus is committed text, so
  * the check costs milliseconds and runs in the default suite (`npm test`).

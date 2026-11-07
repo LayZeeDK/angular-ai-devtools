@@ -2,11 +2,11 @@
 id: T006
 title: Make the gate measure instead of remember
 wave: 4
-status: in-progress
+status: done
 deps: []
 agent: paid-deepseek-v4-1-flash-high
-base: 88433d23ed91614c41dd2d19ba1c8e237df796ff
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 8114870f31512de64a5ac5575ca34e6ad30c0a24
+worktree: null
 task_branch: null
 files:
   - extension/agent-main.js
@@ -80,3 +80,4 @@ node --experimental-strip-types --test "extension/agent-main.test.mjs" && npx nx
 ## Log
 
 - dispatched
+- 2026-11-07 — built by paid-deepseek-v4-1-flash-high, then completed by the adjudicator after the coder's double-`npm test` proof overran an hour (the held-out corpus runs `npm test` itself, so the cost compounds). Edits: `agent-main.js` initial record now carries `changeDetection: null`; `update-cause-chain.ts` admits `null`; the consistency test's header states its real scope; `nx.json` no longer caches `@angular/build:unit-test`. Cache proof run directly: two consecutive `npx nx run angular-ai-devtools:test` both report `Cache: 0/1 hit (0%)` with 338 tests executing. Declared Verify recorded at this head: exit 0 in 96,466 ms. Verdict: ready.
