@@ -2,11 +2,11 @@
 id: T001
 title: Capture the submit state the fact never carried
 wave: 1
-status: pending
+status: in-progress
 deps: []
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: 8a167e18405b04132f88842663ee65688646b320
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - scripts/field-state-capture.test.mjs
