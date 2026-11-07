@@ -1383,8 +1383,8 @@ Depends on: [M020]
 Programme: core · Batch: 3 · Group: @angular/forms
 Surfaces: panel
 Gate: S9.
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/037-signal-forms-doctor
 Integrated: null
 
 Scope: in

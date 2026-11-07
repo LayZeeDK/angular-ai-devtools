@@ -29,7 +29,16 @@ const LOADERS: Record<
   resource: () => import('./panel-resource') as never,
 };
 
-const FACTS: Record<string, unknown> = {
+// The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
+// to the recording it came from, rather than only the line the pane derived from it.
+export const FACTS: Record<string, unknown> = {
+  // The join's own field answer for the cross-field case (extension/field-state.js): every field
+  // valid, while the root carries its own error kind. The submit state is the recording's, not a
+  // label written here: M037's T001 re-captured `crossField.submitDisabled: true` for this exact
+  // shape in `research/raw/m031-field-state.json` and names the element it was read off
+  // (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured
+  // boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4),
+  // which is why the demo carries the measured one.
   fields: {
     fields: {
       name: { valid: true, invalid: false, errors: [] },
@@ -40,7 +49,8 @@ const FACTS: Record<string, unknown> = {
       valid: false,
       errors: [{ kind: 'name-too-short-for-age' }],
     },
-    submitState: 'disabled',
+    submitElementId: 'submit',
+    submitDisabled: true,
   },
   redirect: {
     chain: [

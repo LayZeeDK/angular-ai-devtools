@@ -1,0 +1,41 @@
+{
+  "milestone": "M037",
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "On the fixture, a form whose submit is disabled produces a finding naming the form, the submit state, and the root field's error kinds when the root carries any -- and naming no rule, element or remedy the fact list does not carry.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Its subject is the fixture's own /field-form page (spikes/ng222-app/src/app/field-form-page.ts, whose submit button carries [disabled] = fieldForm().invalid()), read through ng.getComponent and recorded in research/raw/m031-field-state.json; the oracles are scripts/field-state.test.mjs held-out E2, where a disabled submit beside a root error kind names that kind and invents no rule text the fact did not carry, and apps/angular-ai-devtools/src/app/panel-demo.spec.ts, which renders the recorded submit state and the root kind and no other line. The quote above is the prefix scripts/overlay-verdict-claims.test.mjs reads from .project/intent/INTENT.md, whose SC1 continuation lines are the only ones in that section written without leading whitespace and are therefore dropped by that reader; the criterion as approved continues \"root field's error kinds when the root carries any -- and naming no rule, element or remedy the fact list does not carry.\" That truncation is a formatting defect in the intent, reported here rather than repaired because .project/intent/INTENT.md is outside this task's declared files, so the full criterion is quoted in this reason instead. Quoted from .project/intent/INTENT.md in the shape m036 recorded; this host's gsd install is still incomplete (the installed gsd-pi has no dist/loader.js, so neither gsd verify-final nor gsd verdict-record runs here), so the quote-and-check path is scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "A field's own error and a root-level (cross-field) error are reported as different things, in different places, with different words; neither is merged into the other.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Its subject is the separation extension/field-state.js keeps between a field's own error list and the root's error kind, and the separation apps/angular-ai-devtools/src/app/panel-fields.ts keeps between a field's lines and the root's form line, measured on the fixture's /field-form page and recorded in research/raw/m031-field-state.json (fields name/age each carry their own error, the root carries its own kind in crossField.rootErrors); the oracle is scripts/field-state.test.mjs held-out E3, which requires the two kind strings to stay in different containers and different words. Quoted from .project/intent/INTENT.md in the shape m036 recorded; this host's gsd install is still incomplete (the installed gsd-pi has no dist/loader.js, so neither gsd verify-final nor gsd verdict-record runs here), so the quote-and-check path is scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "Both are produced from what the page already exposes through `ng.getComponent`, with no new page-side instrumentation and no build-output or dev-server dependency.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Its subject is the read path: field-state-capture.test.mjs reads the fixture's component instance through ng.getComponent and the rendered submit button's own disabled property, and the recording it produced states ngGetComponentExposedFieldTree true with the same reading; no page-side instrumentation was added, and nothing in the join reads a build log or depends on how the app is served. The oracle is research/raw/m031-field-state.json together with the capture that produced it, scripts/field-state-capture.test.mjs. Quoted from .project/intent/INTENT.md in the shape m036 recorded; this host's gsd install is still incomplete (the installed gsd-pi has no dist/loader.js, so neither gsd verify-final nor gsd verdict-record runs here), so the quote-and-check path is scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "Where the record carries no submit state, the module reports \"cannot tell\" with that reason rather than inferring a disabled submit from field validity.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Its subject is the shipped default in extension/field-state.js: a fact carrying neither submitState nor submitDisabled now answers state cannot-tell with reason submit-state-unreadable and reports the submit state as unread, where it previously answered enabled -- a claim about a state nobody had read -- and it never infers disabled from a field's validity. The oracle is scripts/field-state.test.mjs held-out E1, whose pin is proven non-vacuous by four mutants (a removed guard, a substituted reason, the restored pre-M037 enabled default, and an injected disabled-by-validity note), each of which reddens naming its defect. Quoted from .project/intent/INTENT.md in the shape m036 recorded; this host's gsd install is still incomplete (the installed gsd-pi has no dist/loader.js, so neither gsd verify-final nor gsd verdict-record runs here), so the quote-and-check path is scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC5",
+      "criterionText": "The panel renders the field set, the submit state and the root kind, and renders nothing it was not given.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. Its subject is the panel's own /fields surface in apps/angular-ai-devtools: panel-demo.ts hands the pane the fact whose submit state is the recording's (submitElementId, crossField.submitDisabled), and panel-fields.ts renders the field set, the submit state and the root kind from that fact and from nothing else; the oracles are apps/angular-ai-devtools/src/app/panel-demo.spec.ts, which holds every rendered line to research/raw/m031-field-state.json and pins held-out E5 (an unreadable fact renders cannot tell with its reason, never a blank and never a default), and scripts/panel-fields.test.mjs, which pins the four pane states. Quoted from .project/intent/INTENT.md in the shape m036 recorded; this host's gsd install is still incomplete (the installed gsd-pi has no dist/loader.js, so neither gsd verify-final nor gsd verdict-record runs here), so the quote-and-check path is scripts/overlay-verdict-claims.test.mjs."
+    },
+    {
+      "criterion": "SC6",
+      "criterionText": "`npm run check` and `npm test` pass at the head.",
+      "ruling": "not-required",
+      "reason": "This criterion's fact is measured inside this repository and is not rendered by any insurance-portal route, so CHARTER.md's portal clause does not reach it and no portal-backed verdict is owed. This criterion is the project gate itself, answered by running npm run check and npm test at the head of this milestone rather than by any page: the gate row is the milestone's verify ledger entry, and no portal route produces it. Quoted from .project/intent/INTENT.md in the shape m036 recorded; this host's gsd install is still incomplete (the installed gsd-pi has no dist/loader.js, so neither gsd verify-final nor gsd verdict-record runs here), so the quote-and-check path is scripts/overlay-verdict-claims.test.mjs."
+    }
+  ]
+}

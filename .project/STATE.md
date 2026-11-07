@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: resource-lifecycle
+milestone: signal-forms-doctor
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M036
-archive: .project/archive/036-resource-lifecycle
+branch: gsd-path/M037
+archive: .project/archive/037-signal-forms-doctor
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -745,5 +745,31 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-07 — plan — plan approved
 - 2026-11-07 — build — build started
 - 2026-11-07 — build — all tasks landed; waves reviewed
+- 2026-11-07 — ship — build done; final review pending
+- 2026-11-07 — shipped — archive preflight passed; shipment recorded
+- 2026-11-07 — inspect — router bound next milestone
+- 2026-11-07 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-07 — inspect — inspection complete; spike S9 answered
+- 2026-11-07 — define — definition started
+- 2026-11-07 — define — milestone intent approved
+- 2026-11-07 — research — research started
+- 2026-11-07 — research — research complete
+- 2026-11-07 — decide — decide started
+- 2026-11-07 — decide — decisions recorded
+- 2026-11-07 — plan — planning started
+- 2026-11-07 — plan — plan approved
+- 2026-11-07 — build — build started
+- 2026-11-07 — build — final gap: SC4 contradicted by the module default
+- 2026-11-07 — plan — build plan repair requested
+- 2026-11-07 — plan — build recovery: {"base": "06d33b0ae7bce217b894ace147e6c59eb530531b", "branch": "gsd-path/M037", "kind": "plan", "source": "build"}
+- 2026-11-07 — plan — plan approved
+- 2026-11-07 — build — build started
+- 2026-11-07 — build — all tasks landed; two waves reviewed
+- 2026-11-07 — ship — build done; final review pending
+- 2026-11-07 — ship — final gap: the fields pane asserts a cause it was not given
+- 2026-11-07 — plan — patch plan reopened
+- 2026-11-07 — plan — plan approved
+- 2026-11-07 — build — build started
+- 2026-11-07 — build — all tasks landed; three waves reviewed
 - 2026-11-07 — ship — build done; final review pending
 - 2026-11-07 — shipped — archive preflight passed; shipment recorded

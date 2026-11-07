@@ -1,18 +1,18 @@
 {
-  "capturedAt": "2026-11-05T06:03:59.044Z",
+  "capturedAt": "2026-11-07T12:21:08.033Z",
   "browser": "headless Playwright Chromium (build 153.0.8010.12)",
   "browserBuild": "153.0.8010.12",
   "instance": "headless",
   "playwright": "1.63.0",
   "angularVersion": "22.2.2",
-  "url": "http://127.0.0.1:54968/field-form",
-  "pageUrl": "http://127.0.0.1:54968/field-form",
+  "url": "http://127.0.0.1:49990/field-form",
+  "pageUrl": "http://127.0.0.1:49990/field-form",
   "commands": {
     "install": "npm ci --include=dev",
     "installApp": "npm --prefix spikes/ng222-app ci --include=dev",
-    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 54968 --host 127.0.0.1  (cwd spikes/ng222-app)",
-    "capture": "node --test scripts/field-state-capture.test.mjs",
-    "check": "node --test scripts/field-state-capture.test.mjs"
+    "serve": "node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js serve --port 49990 --host 127.0.0.1  (cwd spikes/ng222-app)",
+    "capture": "set \"M031_CAPTURE=1\"&& node --experimental-strip-types --test scripts/field-state-capture.test.mjs",
+    "check": "node --experimental-strip-types --test scripts/field-state-capture.test.mjs"
   },
   "environment": {
     "platform": "win32",
@@ -50,6 +50,8 @@
     "invalid": true,
     "errors": []
   },
+  "submitElementId": "submit",
+  "submitDisabled": true,
   "crossField": {
     "probe": "fields individually valid, root cross-field invalid",
     "available": true,
@@ -60,6 +62,7 @@
         "kind": "name-too-short-for-age"
       }
     ],
+    "submitDisabled": true,
     "observable": true
   }
 }

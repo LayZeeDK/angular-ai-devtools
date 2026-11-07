@@ -189,3 +189,62 @@ describe('mutants', () => {
     assert.match(failure.message, /rule name leaked/);
   });
 });
+
+describe('cannot-tell reasons', () => {
+  const base = {
+    state: 'cannot-tell',
+    fields: { name: { valid: false, invalid: true, errors: [] } },
+    submit: 'disabled',
+    submitState: 'disabled',
+  };
+
+  it('renders the root sentence for root-invalid-without-error-kind', () => {
+    const pane = SURFACE.fieldsPanel({
+      ...base,
+      reason: 'root-invalid-without-error-kind',
+    });
+    assert.match(pane.message, /root is invalid and carries no error kind/);
+  });
+
+  it('never asserts the root for a submit-state-unreadable result', () => {
+    const pane = SURFACE.fieldsPanel({
+      ...base,
+      reason: 'submit-state-unreadable',
+    });
+    assert.match(pane.message, /submit state/);
+    assert.doesNotMatch(pane.message, /root is invalid/);
+    assert.match(pane.lines.join('\n'), /reason: submit-state-unreadable/);
+  });
+
+  it('asserts no cause for an unrecognised reason', () => {
+    const pane = SURFACE.fieldsPanel({ ...base, reason: 'something-else' });
+    assert.doesNotMatch(pane.message, /root is invalid/);
+    assert.doesNotMatch(pane.message, /submit state/);
+    assert.match(pane.lines.join('\n'), /reason: something-else/);
+  });
+
+  it('mutant: restoring the fixed sentence reddens the submit case', async () => {
+    const mutated = SURFACE_SRC.replace(
+      'const message = CANNOT_TELL_MESSAGES[named] ?? GENERIC_CANNOT_TELL;',
+      "const message = 'cannot tell: the form root is invalid and carries no error kind';",
+    );
+    assert.notEqual(mutated, SURFACE_SRC, 'mutant did not apply');
+    const dir = mkdtempSync(join(tmpdir(), 'fields-reason-'));
+    try {
+      const file = join(dir, 'panel-fields.ts');
+      writeFileSync(file, mutated);
+      const mod = await import(pathToFileURL(file).href);
+      const pane = mod.fieldsPanel({
+        ...base,
+        reason: 'submit-state-unreadable',
+      });
+      assert.match(
+        pane.message,
+        /root is invalid/,
+        'mutant must reproduce the defect',
+      );
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
