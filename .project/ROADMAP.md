@@ -1352,8 +1352,8 @@ Goal: Build the resource explainer: why this resource is still loading, errored,
 Depends on: [M020]
 Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/036-resource-lifecycle
 Integrated: null
 
 Scope: in
