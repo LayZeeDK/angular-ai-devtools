@@ -99,6 +99,7 @@ T002 builds the join, T003 renders it inside the panel and re-cuts the panel's o
 
 | Criterion | Task | Criterion |
 |---|---|---|
+| SC3 | T001 | AC1 |
 | SC1 | T002 | AC1 |
 | SC2 | T002 | AC2 |
 | SC3 | T002 | AC3 |
