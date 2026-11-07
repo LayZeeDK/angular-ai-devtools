@@ -2,10 +2,10 @@
 id: T011
 title: Guard the fixture-relative real path
 wave: 9
-status: pending
+status: done
 deps: [T009]
-agent: null
-base: null
+agent: orchestrator-serial
+base: 5805f8d4852066fa0726ca1964c923b43573b51c
 worktree: null
 task_branch: null
 files:
@@ -51,3 +51,4 @@ node --experimental-strip-types --test "scripts/facade-dev-build.test.mjs" && np
 ## Log
 
 - dispatched
+- 2026-11-08 - implemented; the fixture-relative real path is guarded on the verify branch, four guards total, node --check and Prettier clean. Verdict: ready.
