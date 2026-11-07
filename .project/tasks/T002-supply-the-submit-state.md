@@ -44,7 +44,7 @@ None
 
 ## Acceptance criteria
 
-1. an unrenderable fact yields cannot-tell in the pane, never a blank or a default.
+1. held-out E5: an unrenderable fact yields cannot-tell in the pane, never a blank or a default.
 2. The demo fact's submit state equals the recording's, proven by a test rather than by inspection.
 3. Every moved recording is re-measured; no tolerance widens.
 4. A fact carrying neither submit state nor submitDisabled yields cannot-tell with a named reason, never`enabled` -- so SC4 holds in the shipped code.\n5. `npm run check` and `npm test` pass at the head.
