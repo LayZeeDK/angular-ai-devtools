@@ -14,7 +14,7 @@ import { existsSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { printable } from '../../control-ai-browsers/scripts/fingerprint.mjs';
+import { printable } from '../../control-ai-browsers/scripts/text.mjs';
 import { instanceState, loadRegistry, realDeps } from './state.mjs';
 
 // The build under test: this checkout's extension folder, with the drive letter upper-cased as control.mjs stores it.
