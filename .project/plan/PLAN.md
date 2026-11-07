@@ -63,7 +63,6 @@ Review depth: full
 | E4 | T001 | scripts/field-state.test.mjs |
 | E7 | T001 | scripts/field-state.test.mjs |
 | E5 | T003 | scripts/panel-fields.test.mjs |
-| E5 | T002 | apps/angular-ai-devtools/src/app/panel-demo.spec.ts |
 
 ## Intent coverage
 
