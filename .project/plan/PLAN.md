@@ -63,18 +63,6 @@ T002 builds the join, T003 renders it inside the panel and re-cuts the panel's o
   `cannot-tell` with a reason; no emitted string names a cause inside the loader.
 - Verify: `node --experimental-strip-types --test "scripts/resource-lifecycle.test.mjs"`
 
-### T005 — Widen the statuses and close the echoed identity
-
-- Deps: none
-- Files: `extension/resource-lifecycle.js`, `scripts/resource-lifecycle.test.mjs`, `research/08-recent-angular-features.md`,
-  `scripts/docs-correction.test.mjs`
-- Acceptance:
-  1. held-out E2: `reloading` produces a finding distinct from `loading`; an identity not beginning `Resource#` yields `cannot-tell` with reason `resource-unnamed` (held-out E2)
-  2. `research/08-recent-angular-features.md:137` attributes status to the `.status` nodes, and `:170` names `.status`
-  3. the purity assertions hold inside the sandbox, and a module using `Date` or `console` reddens
-  4. an unmeasured params read yields `params-unavailable`
-- Verify: `node --experimental-strip-types --test "scripts/resource-lifecycle.test.mjs" && node --experimental-strip-types --test "scripts/docs-correction.test.mjs"`
-
 ### T003 — Panel surface for the resource finding
 
 - Deps: T002
@@ -99,6 +87,24 @@ T002 builds the join, T003 renders it inside the panel and re-cuts the panel's o
 - Acceptance: both feature manifests name the new fixture files; both development-build recordings are re-measured with
   their output path cleared first; the verdict claims quote every criterion in full; the project gate passes at the head.
 - Verify: `node --experimental-strip-types --test "scripts/fixture-proof-fresh.test.mjs" "scripts/ng-context-dev-build.test.mjs" "scripts/overlay-verdict-claims.test.mjs"`
+
+## Wave 3 — Widen the statuses and close the echoed identity
+
+Goal: the join names the fifth status the graph reports, and no caller-supplied value reaches a finding unread.
+
+Review depth: full
+
+### T005 — Widen the statuses and close the echoed identity
+
+- Deps: none
+- Files: `extension/resource-lifecycle.js`, `scripts/resource-lifecycle.test.mjs`, `research/08-recent-angular-features.md`,
+  `scripts/docs-correction.test.mjs`
+- Acceptance:
+  1. held-out E2: `reloading` produces a finding distinct from `loading`; an identity not beginning `Resource#` yields `cannot-tell` with reason `resource-unnamed` (held-out E2)
+  2. `research/08-recent-angular-features.md:137` attributes status to the `.status` nodes, and `:170` names `.status`
+  3. the purity assertions hold inside the sandbox, and a module using `Date` or `console` reddens
+  4. an unmeasured params read yields `params-unavailable`
+- Verify: `node --experimental-strip-types --test "scripts/resource-lifecycle.test.mjs" && node --experimental-strip-types --test "scripts/docs-correction.test.mjs"`
 
 ## Held-out checks
 

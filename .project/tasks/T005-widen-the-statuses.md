@@ -1,7 +1,7 @@
 ---
 id: T005
 title: Widen the statuses and close the echoed identity
-wave: 2
+wave: 3
 status: pending
 deps: []
 agent: null
