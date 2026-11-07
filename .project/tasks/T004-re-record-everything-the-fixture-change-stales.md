@@ -2,11 +2,11 @@
 id: T004
 title: Re-record everything the fixture change stales
 wave: 2
-status: in-progress
+status: done
 deps: [T003]
 agent: paid-deepseek-v4-1-flash-high
-base: 478b0b3a3af629e2837343153d3087392b83acc6
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: d722736bf2c766d6d1c5f18c61e6f60ad5db22b7
+worktree: null
 task_branch: null
 files:
   - .commandcode/skills/control-angular-dev-app/features/.proven.json
@@ -67,3 +67,4 @@ node --experimental-strip-types --test "scripts/fixture-proof-fresh.test.mjs" "s
 ## Log
 
 - dispatched
+- 2026-11-07 — dispatched paid-deepseek-v4-1-flash-high (serial). Every recording re-emitted and re-read: m022 dev 2180767 -> 2199406 (+18639, new chunk names), production 473611 -> 482597 (+8986, alias lu -> Su), companion bytes matched to 2199406, and both .proven.json closures 26 -> 28 files. DEV_BYTES_TOLERANCE stays 2000; only its doc comment was re-cut. Gate: npm run check exit 0 (7 stages, prettier clean) and npm test exit 0 with 827 + 60 + 628 + 339 scripts/skills/app and 85/85 held-out across 22 suites (7m 7s), reproduced over two full runs. Pins that did not move are listed with why. Flags carried: `gsd verify-final` is broken on this host (the global shim's loader.js is missing), so the quorum row is recorded in words; the served halves were not re-driven and both recordings say so. Verdict: ready.
