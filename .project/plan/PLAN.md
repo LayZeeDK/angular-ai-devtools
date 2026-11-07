@@ -152,6 +152,26 @@ sidecar receives.
   4. `facade-dev-build` passes in a sidecar whose fixture install was bridged
 - Verify: `node --experimental-strip-types --test "scripts/sidecar-deps-bridge.test.mjs" && node --experimental-strip-types --test "scripts/facade-dev-build.test.mjs"`
 
+## Wave 6 — Copy the fixture install into a verify sidecar
+
+Goal: the fixture's dependency graph resolves inside the sidecar, so the resolution assertions measure what they claim.
+
+Review depth: verify-only
+
+One task. T008 replaces T007's junction with a copy, because a junction makes the fixture resolve into the primary and the
+peer-resolution assertions then compare two different roots.
+
+### T008 — Copy the fixture install into a verify sidecar
+
+- Deps: none
+- Files: `scripts/ensure-sidecar-deps.mjs`
+- Acceptance:
+  1. held-out E1: a sidecar receives a copy whose entries are real files and whose relative symlink survives (held-out E1)
+  2. held-out E2: a primary without a fixture install is left alone and the script exits 0 (held-out E2)
+  3. an existing fixture install in the sidecar is never overwritten
+  4. the peer-resolution assertions pass in a sidecar
+- Verify: `node --experimental-strip-types --test "scripts/facade-dev-build.test.mjs" && node --experimental-strip-types --test "scripts/ng-context-dev-build.test.mjs"`
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -172,6 +192,7 @@ sidecar receives.
 | SC1 | T006 | AC1 |
 | SC4 | T006 | AC2 |
 | SC6 | T007 | AC1 |
+| SC6 | T008 | AC4 |
 | SC3 | T005 | AC1 |
 | SC2 | T002 | AC2 |
 | SC3 | T002 | AC3 |

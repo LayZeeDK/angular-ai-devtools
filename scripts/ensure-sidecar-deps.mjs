@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { bridge } from './sidecar-deps-bridge.mjs';
 
@@ -41,5 +41,15 @@ if (
   existsSync(join(fixturePrimary, 'node_modules')) &&
   !existsSync(join(fixtureSidecar, 'node_modules'))
 ) {
-  bridge(fixtureSidecar, fixturePrimary);
+  mkdirSync(fixtureSidecar, { recursive: true });
+  // A copy, not a bridge: the fixture's own resolution is what several suites measure, and a
+  // junction would make every path below it resolve into the primary checkout instead.
+  cpSync(
+    join(fixturePrimary, 'node_modules'),
+    join(fixtureSidecar, 'node_modules'),
+    {
+      recursive: true,
+      dereference: false,
+    },
+  );
 }
