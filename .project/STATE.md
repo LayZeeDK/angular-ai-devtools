@@ -5,7 +5,7 @@ milestone: signal-forms-doctor
 phase: ship
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M037
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -766,3 +766,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-07 — build — build started
 - 2026-11-07 — build — all tasks landed; two waves reviewed
 - 2026-11-07 — ship — build done; final review pending
+- 2026-11-07 — ship — final gap: the fields pane asserts a cause it was not given

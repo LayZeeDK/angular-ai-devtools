@@ -39,6 +39,20 @@ Review depth: full
   - Acceptance: AC1 cannot-tell in the pane, AC2 fact equals the recording, AC3 no tolerance widens, AC4 gate
   - Verify: `node --experimental-strip-types --test "apps/angular-ai-devtools/src/app/panel-demo.spec.ts" && npm run check`
 
+## Wave 3 — Render only the reason the pane was given
+
+Goal: stop the fields pane asserting a cause the module did not give.
+
+Review depth: full
+
+`T003` maps the reasons the module can name to their own sentences, and renders a generic sentence for any other.
+
+- `T003` -- Render only the reason the pane was given
+  - Deps: T002
+  - Files: `apps/angular-ai-devtools/src/app/panel-fields.ts`, `scripts/panel-fields.test.mjs`
+  - Acceptance: AC1 root sentence unchanged, AC2 submit reason says submit, AC3 generic for unknown, AC4 non-vacuous
+  - Verify: `node --experimental-strip-types --test "scripts/panel-fields.test.mjs"`
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -48,6 +62,7 @@ Review depth: full
 | E3 | T001 | scripts/field-state.test.mjs |
 | E4 | T001 | scripts/field-state.test.mjs |
 | E7 | T001 | scripts/field-state.test.mjs |
+| E5 | T003 | scripts/panel-fields.test.mjs |
 | E5 | T002 | apps/angular-ai-devtools/src/app/panel-demo.spec.ts |
 
 ## Intent coverage
@@ -60,6 +75,7 @@ Review depth: full
 | SC4 | T001 | AC1 |
 | SC5 | T002 | AC1 |
 | SC6 | T002 | AC4 |
+| SC5 | T003 | AC2 |
 
 ## Prohibitions
 
