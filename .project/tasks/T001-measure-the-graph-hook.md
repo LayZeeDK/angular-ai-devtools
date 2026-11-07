@@ -2,11 +2,11 @@
 id: T001
 title: Measure the graph hook and give the fixture one resource per state
 wave: 1
-status: pending
+status: in-progress
 deps: []
-agent: null
-base: null
-worktree: null
+agent: paid-deepseek-v4-1-flash-high
+base: 7377a8ff82ee3a75919f23ee536bc7143f2cfa1b
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - spikes/ng222-app/src/app/resource-states.ts
