@@ -2,7 +2,7 @@
 
 Milestone: M036 resource-lifecycle
 Branch: gsd-path/M036
-Project verify: `npm run check` and `npm test`
+Project verify: `npm run check && npm test`
 
 ## Config
 
