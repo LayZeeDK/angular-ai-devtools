@@ -43,7 +43,9 @@ including making the params input either measured or explicitly `params-unavaila
 
 ## Interface contract
 
-Same function, same shape; `status` and `params` widen from four values to five.
+`resourceLifecycle(fact)` returns `{ state: "finding" | "cannot-tell", resource?, status?, params?, reason? }`, where
+`reason` is one of `no-resource`, `labels-unreadable`, `params-unavailable`, `status-unavailable`. T003 consumes the same
+shape; both tasks must carry this line unchanged.
 
 ## Files
 
