@@ -2,10 +2,10 @@
 id: T006
 title: Copy text.mjs beside every fingerprint copy the tests build
 wave: 5
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: orchestrator
+base: 414a1999d2884c49bcbe1bd7e03ea709372e55ff
 worktree: null
 task_branch: null
 files:
@@ -84,3 +84,4 @@ node --experimental-strip-types --test ".commandcode/skills/control-angular-dev-
 ## Log
 
 - dispatched
+- 2026-11-08 - ready - the four tests each copy `text.mjs` beside `fingerprint.mjs` into their throwaway skill folder, in the shape the canonical test and the passing `control-ai-browsers` test already use. Each test is 1 of 1 green alone and the four together are 4 of 4; at the base the same Verify exited 1 with `ERR_MODULE_NOT_FOUND` naming `…fingerprint-copy-XXXX/.claude/skills/control-demo/scripts/text.mjs`, so the repair is not vacuous. No assertion changed, no test skipped, and the `.claude` copies were left as they are because their `fingerprint.mjs` imports no `text.mjs`. `npm run test:skills` is 628 of 628 green at this commit.
