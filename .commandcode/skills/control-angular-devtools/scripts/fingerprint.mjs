@@ -29,6 +29,7 @@ import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { UNPRINTABLE, printable } from './text.mjs';
 
 /** @typedef {typeof import('typescript')} TypeScript */
 /** @typedef {'typescript' | 'entries'} Method */
@@ -71,9 +72,6 @@ const NETWORK = /^(?:[\\/]{2}|\\\?\?\\)/;
 const CODE = /\.(?:[cm]?[jt]s|[jt]sx)$/i;
 const TS_SOURCE = /\.(?:[cm]?ts|tsx)$/i;
 const MAX_REASON = 500;
-// Control, format (bidirectional marks included), surrogate and separator characters, which would let printed
-// manifest text rewrite or split the terminal line it is on.
-const UNPRINTABLE = /[\p{Cc}\p{Cf}\p{Cs}\p{Zl}\p{Zp}]/u;
 const MAX_MANIFEST = 16 * 1024 * 1024;
 const MAX_FILES = 50_000;
 
@@ -242,20 +240,6 @@ function safeRelative(path) {
           !/[\\:\0]/.test(segment),
       )
   );
-}
-
-/**
- * `text` with every character UNPRINTABLE matches written as a `\u` escape, for printing a message that may quote
- * manifest content.
- * @param {string} text
- * @returns {string}
- */
-export function printable(text) {
-  return text.replace(new RegExp(UNPRINTABLE.source, 'gu'), (char) => {
-    const hex = (char.codePointAt(0) ?? 0).toString(16);
-
-    return hex.length > 4 ? `\\u{${hex}}` : `\\u${hex.padStart(4, '0')}`;
-  });
 }
 
 /**

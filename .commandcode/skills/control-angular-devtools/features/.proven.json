@@ -2,8 +2,8 @@
   "version": 1,
   "features": {
     "attach": {
-      "provenAt": "2026-11-07T04:06:18.951Z",
-      "commit": "d722736bf2c766d6d1c5f18c61e6f60ad5db22b7",
+      "provenAt": "2026-11-07T18:15:30.490Z",
+      "commit": "dd9077618b1b05fdc1e92da145d81515b26d2825",
       "method": "typescript",
       "entries": [
         "spikes/ng222-app/src/main.ts",
@@ -12,7 +12,7 @@
       "files": {
         "spikes/ng222-app/src/app/after-render-page.ts": "4b2ce57bc083634287cac27fbcdb1a7f9911480f",
         "spikes/ng222-app/src/app/app.config.ts": "e60fc79fa4a0a0dcd99d4d06a82ff642f45e0d16",
-        "spikes/ng222-app/src/app/app.routes.ts": "c26dc3bbd51a45005a4a92851ee1ce525ac7755e",
+        "spikes/ng222-app/src/app/app.routes.ts": "d084913e9787e725575d8c2e3ac05ee01e5c7d46",
         "spikes/ng222-app/src/app/app.ts": "7090c0cd7276b21a637542c2845e925a22b910a4",
         "spikes/ng222-app/src/app/components/aria-items.ts": "0dfe1cd31809c061cf01d9f43d647f0defac2464",
         "spikes/ng222-app/src/app/components/aria-surfaces.ts": "b88d109b98499503613c1b876cc06cd38e547082",
@@ -23,6 +23,7 @@
         "spikes/ng222-app/src/app/image-budget-page.ts": "ac73b34f1aaf657410769357e63cf7eb6e19b44a",
         "spikes/ng222-app/src/app/legacy-module-page.ts": "429bb36b44cf72987fd99e338ea6937d7d522a98",
         "spikes/ng222-app/src/app/legacy-module.ts": "26530fa7c3b023630bc232ed4b4192201efdbddc",
+        "spikes/ng222-app/src/app/linked-state-page.ts": "d75e96ada5dcd26154d777f3559fef452eafff3d",
         "spikes/ng222-app/src/app/lint-observability-page.ts": "58fa2f10eb58adee87bd76b9b1d98a414a2389d9",
         "spikes/ng222-app/src/app/onpush-ready-page.ts": "02c2882b4d7ac7051cbd6f6924d0a57273b11291",
         "spikes/ng222-app/src/app/onpush-ready.ts": "df24778d4ec7448c1ca0f77ada5d80a6f9bbca4b",
@@ -46,8 +47,8 @@
       "external": "test install copies the extension from Lars's Edge Dev profile and a branded install needs Lars's click in the store; neither is in this repository"
     },
     "profiler": {
-      "provenAt": "2026-11-07T04:06:21.142Z",
-      "commit": "d722736bf2c766d6d1c5f18c61e6f60ad5db22b7",
+      "provenAt": "2026-11-07T18:15:32.845Z",
+      "commit": "dd9077618b1b05fdc1e92da145d81515b26d2825",
       "method": "typescript",
       "entries": [
         "spikes/ng222-app/src/main.ts",
@@ -56,7 +57,7 @@
       "files": {
         "spikes/ng222-app/src/app/after-render-page.ts": "4b2ce57bc083634287cac27fbcdb1a7f9911480f",
         "spikes/ng222-app/src/app/app.config.ts": "e60fc79fa4a0a0dcd99d4d06a82ff642f45e0d16",
-        "spikes/ng222-app/src/app/app.routes.ts": "c26dc3bbd51a45005a4a92851ee1ce525ac7755e",
+        "spikes/ng222-app/src/app/app.routes.ts": "d084913e9787e725575d8c2e3ac05ee01e5c7d46",
         "spikes/ng222-app/src/app/app.ts": "7090c0cd7276b21a637542c2845e925a22b910a4",
         "spikes/ng222-app/src/app/components/aria-items.ts": "0dfe1cd31809c061cf01d9f43d647f0defac2464",
         "spikes/ng222-app/src/app/components/aria-surfaces.ts": "b88d109b98499503613c1b876cc06cd38e547082",
@@ -67,6 +68,7 @@
         "spikes/ng222-app/src/app/image-budget-page.ts": "ac73b34f1aaf657410769357e63cf7eb6e19b44a",
         "spikes/ng222-app/src/app/legacy-module-page.ts": "429bb36b44cf72987fd99e338ea6937d7d522a98",
         "spikes/ng222-app/src/app/legacy-module.ts": "26530fa7c3b023630bc232ed4b4192201efdbddc",
+        "spikes/ng222-app/src/app/linked-state-page.ts": "d75e96ada5dcd26154d777f3559fef452eafff3d",
         "spikes/ng222-app/src/app/lint-observability-page.ts": "58fa2f10eb58adee87bd76b9b1d98a414a2389d9",
         "spikes/ng222-app/src/app/onpush-ready-page.ts": "02c2882b4d7ac7051cbd6f6924d0a57273b11291",
         "spikes/ng222-app/src/app/onpush-ready.ts": "df24778d4ec7448c1ca0f77ada5d80a6f9bbca4b",
@@ -85,8 +87,8 @@
       }
     },
     "signal-graph": {
-      "provenAt": "2026-11-07T04:06:23.785Z",
-      "commit": "d722736bf2c766d6d1c5f18c61e6f60ad5db22b7",
+      "provenAt": "2026-11-07T18:15:35.255Z",
+      "commit": "dd9077618b1b05fdc1e92da145d81515b26d2825",
       "method": "typescript",
       "entries": [
         "spikes/ng222-app/src/main.ts",
@@ -95,7 +97,7 @@
       "files": {
         "spikes/ng222-app/src/app/after-render-page.ts": "4b2ce57bc083634287cac27fbcdb1a7f9911480f",
         "spikes/ng222-app/src/app/app.config.ts": "e60fc79fa4a0a0dcd99d4d06a82ff642f45e0d16",
-        "spikes/ng222-app/src/app/app.routes.ts": "c26dc3bbd51a45005a4a92851ee1ce525ac7755e",
+        "spikes/ng222-app/src/app/app.routes.ts": "d084913e9787e725575d8c2e3ac05ee01e5c7d46",
         "spikes/ng222-app/src/app/app.ts": "7090c0cd7276b21a637542c2845e925a22b910a4",
         "spikes/ng222-app/src/app/components/aria-items.ts": "0dfe1cd31809c061cf01d9f43d647f0defac2464",
         "spikes/ng222-app/src/app/components/aria-surfaces.ts": "b88d109b98499503613c1b876cc06cd38e547082",
@@ -106,6 +108,7 @@
         "spikes/ng222-app/src/app/image-budget-page.ts": "ac73b34f1aaf657410769357e63cf7eb6e19b44a",
         "spikes/ng222-app/src/app/legacy-module-page.ts": "429bb36b44cf72987fd99e338ea6937d7d522a98",
         "spikes/ng222-app/src/app/legacy-module.ts": "26530fa7c3b023630bc232ed4b4192201efdbddc",
+        "spikes/ng222-app/src/app/linked-state-page.ts": "d75e96ada5dcd26154d777f3559fef452eafff3d",
         "spikes/ng222-app/src/app/lint-observability-page.ts": "58fa2f10eb58adee87bd76b9b1d98a414a2389d9",
         "spikes/ng222-app/src/app/onpush-ready-page.ts": "02c2882b4d7ac7051cbd6f6924d0a57273b11291",
         "spikes/ng222-app/src/app/onpush-ready.ts": "df24778d4ec7448c1ca0f77ada5d80a6f9bbca4b",

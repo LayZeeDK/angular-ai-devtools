@@ -111,4 +111,14 @@ export const appRoutes: Route[] = [
       import('./panel-demo').then((m) => m.PanelDemoComponent),
     data: { surface: 'resource' },
   },
+  // The M038 SC4 surface: the linked signal and the source it follows, both stored values and the
+  // agreement the join reads between them — matching or differing — or the state that names why it
+  // cannot be told. Lazy for the same reason as the surfaces above it — the panel's eager bundle is
+  // measured.
+  {
+    path: 'linked-state',
+    loadComponent: () =>
+      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    data: { surface: 'linked-state' },
+  },
 ];

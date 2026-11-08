@@ -4,7 +4,9 @@
   "type": "module",
   "description": "Sandbox scripts that install agent skills and subagents for the AI coding CLIs.",
   "scripts": {
-    "check": "node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run format:check",
+    "check": "node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run format:check",
+    "lint:skills": "node scripts/skill-lint.mjs",
+    "verify:skills": "node scripts/skills-registered.mjs",
     "check:skills": "tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json",
     "check:panel": "tsc -p apps/angular-ai-devtools/tsconfig.check.json",
     "check:companion": "tsc -p packages/ai-devtools-companion/tsconfig.json",
@@ -15,7 +17,10 @@
     "test:app": "npx nx run angular-ai-devtools:test",
     "test:held-out": "node scripts/held-out-corpus.mjs",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "sync:verification-scripts": "node scripts/sync-verification-scripts.mjs",
+    "gate:verification": "node scripts/verification-gate.mjs",
+    "gate:verification:ship": "node scripts/verification-gate.mjs --ship"
   },
   "devDependencies": {
     "@angular-devkit/core": "~22.1.0",
@@ -38,7 +43,8 @@
     "jsdom": "^27.1.0",
     "prettier": "^3.9.10",
     "typescript": "6.0.3",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "yaml": "^2.9.1"
   },
   "dependencies": {
     "@angular/common": "~22.1.0",

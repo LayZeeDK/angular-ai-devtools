@@ -28,7 +28,8 @@ import path, {
   sep,
 } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mapFresh, printable } from './fingerprint.mjs';
+import { mapFresh } from './fingerprint.mjs';
+import { printable } from './text.mjs';
 import { drivePanel } from './panel.mjs';
 import {
   describe,
@@ -686,7 +687,12 @@ export async function busyPorts(ports, hosts = LOOPBACKS) {
   if (busy.size > 0) {
     for (const [port, pids] of namedHolders()) {
       if (busy.has(port)) {
-        busy.set(port, pids);
+        // An owner the OS cannot attribute (PID 0, which a restricted sandbox reports for a socket it will not
+        // name) is not evidence of another process: the port stays held by a process the OS did not name.
+        busy.set(
+          port,
+          pids.filter((pid) => pid !== 0),
+        );
       }
     }
   }
@@ -852,13 +858,47 @@ export function accountState(prefsText) {
 }
 
 /**
+ * A profile's account state, and whether the file could actually be read. A Preferences file that exists but does
+ * not parse must not read as "no account": that is the one answer that lets an Edge instance sign the Windows work
+ * account in. An absent file is a different thing — a profile that has never run has no account by definition.
  * @param {Pick<Inst, 'dir'>} inst
- * @returns {{ accounts: number, syncSetup: boolean }}
+ * @returns {{ accounts: number, syncSetup: boolean, readable: boolean }}
  */
 function profileAccount(inst) {
   const f = join(inst.dir, 'Default', 'Preferences');
 
-  return accountState(existsSync(f) ? readFileSync(f, 'utf8') : '');
+  if (!existsSync(f)) {
+    return { accounts: 0, syncSetup: false, readable: true };
+  }
+
+  try {
+    const p = JSON.parse(readFileSync(f, 'utf8'));
+
+    return { ...accountState(JSON.stringify(p)), readable: true };
+  } catch {
+    return { accounts: 0, syncSetup: false, readable: false };
+  }
+}
+
+/**
+ * Refuse a profile that holds a signed-in account, or whose Preferences cannot be read. Both `up` paths call this:
+ * a running instance is refused too, because `alreadyRunning` is exactly when the profile is live and the account is
+ * already inside it. Ignoring the unreadable case is what let the guard pass on an Edge profile that had one.
+ * @param {Inst} inst
+ * @param {{ accounts: number, syncSetup: boolean, readable: boolean }} account
+ */
+function refuseAccount(inst, account) {
+  if (!account.readable) {
+    refuse(
+      `${inst.name}'s Default/Preferences exists but could not be read, so its account state is unknown; an instance profile must never hold an account, so this is refused rather than assumed clean. Delete ${inst.dir} (stopped) and "up" again`,
+    );
+  }
+
+  if (account.accounts > 0 || account.syncSetup) {
+    refuse(
+      `${inst.name}'s profile holds a signed-in account (${account.accounts} account entr${account.accounts === 1 ? 'y' : 'ies'}, sync set up: ${account.syncSetup}); an instance profile must never hold one. Delete ${inst.dir} (stopped) and "up" again; the model comes back by "model download", or from the pin`,
+    );
+  }
 }
 
 /**
@@ -2739,6 +2779,8 @@ async function cmdUp(registered) {
   const running = mainProcess(inst);
 
   if (running) {
+    refuseAccount(inst, profileAccount(inst));
+
     const loaded = readState(inst.name)?.extensionDir;
 
     if (loaded !== undefined && loaded !== inst.extensionDir) {
@@ -2771,13 +2813,8 @@ async function cmdUp(registered) {
   }
 
   const firstUse = !existsSync(inst.dir);
-  const account = profileAccount(inst);
 
-  if (account.accounts > 0 || account.syncSetup) {
-    refuse(
-      `${inst.name}'s profile holds a signed-in account (${account.accounts} account entr${account.accounts === 1 ? 'y' : 'ies'}, sync set up: ${account.syncSetup}); an instance profile must never hold one. Delete ${inst.dir} (stopped) and "up" again; the model comes back by "model download", or from the pin`,
-    );
-  }
+  refuseAccount(inst, profileAccount(inst));
   mkdirSync(inst.dir, { recursive: true });
 
   const linked = reparseRefusal(inst.dir, realpathSync.native(inst.dir));
@@ -3143,9 +3180,18 @@ async function cmdDown(inst) {
     );
   const root = rootOf(st);
   const live = processTable().find((r) => r.pid === st.pid);
+  const owner = portOwner(inst.port);
+  const alive = live !== undefined && root !== undefined && matches(root, live);
 
-  // The browser is gone, or its PID now belongs to another process: no Browser.close; stop what it left.
-  if (live === undefined || root === undefined || !matches(root, live)) {
+  // The browser is gone, its PID now belongs to another process, or it lost its CDP port: no
+  // Browser.close; stop what it left, by the identity this state file recorded. A port held by
+  // another process is never touched, so a browser that lost the port is still stopped.
+  if (!alive || owner !== st.pid) {
+    if (alive && owner !== null) {
+      refuse(
+        `port ${inst.port} is owned by PID ${owner}, not PID ${st.pid}; not sending Browser.close to it`,
+      );
+    }
     const { records, result } = stopRun(st);
     const outcome = downOutcome(st, result);
 
@@ -3165,20 +3211,19 @@ async function cmdDown(inst) {
     }
 
     rmSync(statePath(inst.name), { force: true });
-    log('OK', `PID ${st.pid} is not running any more; removed the state file`);
+    log(
+      'OK',
+      alive
+        ? `port ${inst.port} was free; stopped PID ${st.pid} by process identity and removed the state file`
+        : `PID ${st.pid} is not running any more; removed the state file`,
+    );
 
     return {
       ok: true,
-      alreadyStopped: true,
+      alreadyStopped: !alive,
       pid: st.pid,
       notes: outcome.notes,
     };
-  }
-
-  if (portOwner(inst.port) !== st.pid) {
-    refuse(
-      `port ${inst.port} is not owned by PID ${st.pid}; not sending Browser.close to it`,
-    );
   }
 
   // down does not wait for a model download; it says what closing interrupts or leaves behind.

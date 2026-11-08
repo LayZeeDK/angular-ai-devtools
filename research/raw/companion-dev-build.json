@@ -5,11 +5,11 @@
   "angular": "22.2.2",
   "remeasurement": {
     "on": "2026-11-07",
-    "task": "M036 T004 — the development build was re-emitted with its output path deleted first, and the build, peer-resolution and counterexample halves below were re-read from that build.",
+    "task": "M038 T004 — the development build was re-emitted with its output path deleted first, and the build, peer-resolution and counterexample halves below were re-read from that build.",
     "command": "node node_modules/@angular/cli/bin/ng.js build --configuration development --output-path ../../tmp/facade-dev-build",
     "cwd": "spikes/ng222-app",
     "outputPathClearedFirst": "tmp/facade-dev-build was removed before the build ran; build.outputClearedFirst records that fact. The counterexample build beside it (tmp/facade-dev-build-two-copies) was cleared the same way.",
-    "outcome": "no pinned value moved: the entry, the two lazy chunks, the entry name, the dev-mode guard, the single Router binding, the one Angular banner and all four peer resolutions measured the same as before. The values that did move are the emitted byte count and the content-hashed lazy chunk names beside it: the build is 2199406 bytes (was 2180767), the same count research/raw/m022-ng-context.json measured for the same configuration at this same head, so the two recordings reconcile byte for byte as well as bundle for bundle.",
+    "outcome": "one pinned value moved and only one: the emitted byte count, which is 2202196 bytes (was 2199406). research/raw/m022-ng-context.json measures the same 2202196 bytes for the same configuration at this same head, so the two recordings reconcile byte for byte as well as bundle for bundle. Everything else measured the same as before — the entry (main.js), the two lazy chunks and their names (chunk-AUYJPN2L.js, chunk-EGO3M3XF.js), the entry name, the dev-mode guard, the single Router binding, the one Angular banner and all four peer resolutions. The growth is the routed linked-state page (spikes/ng222-app/src/app/linked-state-page.ts), imported statically by app.routes.ts, so it lands in the entry and adds no lazy chunk.",
     "notReMeasured": "the served half was not re-driven: this task rebuilds the bundle and does not open a browser. Its recorded readings are unchanged, and the suite checks them against this checkout’s installs and against the Angular version the build carries."
   },
   "package": {
@@ -41,8 +41,8 @@
       "22.2.2"
     ],
     "angularCopies": 1,
-    "bytesObserved": 2199406,
-    "bytesObservedNote": "an observation, not an assertion: the development build embeds absolute paths, so this count belongs to this checkout. It is the count of both development builds measured here, tmp/facade-dev-build and tmp/ng-context/dev (2199406 bytes at each), and it is the count research/raw/m022-ng-context.json records for the same configuration, so neither the output path nor the recording moved it."
+    "bytesObserved": 2202196,
+    "bytesObservedNote": "an observation, not an assertion: the development build embeds absolute paths, so this count belongs to this checkout. It is the count of both development builds measured here, tmp/facade-dev-build and tmp/ng-context/dev (2202196 bytes at each), and it is the count research/raw/m022-ng-context.json records for the same configuration, so neither the output path nor the recording moved it."
   },
   "peerResolution": {
     "installedAs": "symlink",
@@ -169,7 +169,7 @@
     ],
     "agrees": true,
     "leftoverHypothesis": "refuted",
-    "note": "A clean build (output directory deleted first) emits 3 development bundles at 2199406 bytes, matching m022-ng-context's clean build of the same configuration name for name and byte for byte; the earlier single-bundle recording was stale. This task's 3 bundles are genuine, not leftovers from a reused output directory."
+    "note": "A clean build (output directory deleted first) emits 3 development bundles at 2202196 bytes, matching m022-ng-context's clean build of the same configuration name for name and byte for byte; the earlier single-bundle recording was stale. This task's 3 bundles are genuine, not leftovers from a reused output directory."
   },
   "verdict": "works: the one entry survives the development build, and its Router is the app's own class"
 }

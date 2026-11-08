@@ -45,6 +45,10 @@ test('this copy records a feature, reports it fresh, then stale after its file c
   });
   mkdirSync(join(skill, 'scripts'));
   copyFileSync(copy, join(skill, 'scripts', 'fingerprint.mjs'));
+  copyFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), 'text.mjs'),
+    join(skill, 'scripts', 'text.mjs'),
+  );
   /** @param {string[]} args */
   const run = (...args) =>
     spawnSync(

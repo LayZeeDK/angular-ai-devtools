@@ -103,6 +103,21 @@ GSD Path workflow rules and lessons learned live in the user-scope
 `~/AGENTS.md` (`## GSD Path` section). Detailed progressive-disclosure
 docs are in `~/.commandcode/references/gsd-path-notes.md`.
 
+### A milestone cannot ship without working verification skills
+
+`npm run gate:verification` (structure) runs inside `npm run check`, so CI fails when a `verify-*` check does not
+load, its unit test fails, a `control-*` skill breaks the `lars-create-verification` contract, or a byte-copied
+script drifts. `npm run gate:verification:ship` adds the evidence half: every check needs a `verified` verdict under
+the evidence root, and no check may carry a `not verified` verdict. Run it before the ship gate and before
+`prepare-final`; it writes `.project/review/VERIFICATION.json`, which the ship decision quotes. A blocker there is a
+ship blocker, and a `--evidence` path that hides a check is not an argument.
+
+- Verification skills are exercised, not assumed: a check that has never produced a `verified` verdict is named by
+  `gate:verification:ship` as a blocker, not treated as coverage.
+- Fix a broken check in its own skill (`verify-ai-browsers`), never by widening its claim or skipping it in the gate.
+- The three user-scope skills govern the work: `lars-create-verification` (the contract), `lars-maintain-verification`
+  (keeping the map true), and `lars-verify` (the verdict). A check that none of them can run is a defect in the check.
+
 ## Programmes
 
 The product is a backlog of **seven programmes** (generations), defined in

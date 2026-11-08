@@ -113,10 +113,22 @@ const COMPANION_CONFIG_RELATIVE =
 const CHECK_STAGES = [
   'node scripts/ensure-sidecar-deps.mjs',
   'tsc -p tsconfig.json',
+  // Added after `control-ai-browsers` was found to have shipped with invalid YAML frontmatter:
+  // it never registered, and nothing reported it. The lint runs before the type checks so a
+  // dead skill fails the gate in the first stage rather than after them.
+  'npm run lint:skills',
+  // The lint checks the manifest against the spec; only Command Code's loader decides whether the
+  // skill actually loads. It skipped `control-ai-browsers` at 1253 characters while the lint passed,
+  // so the loader's own report is a gate stage. It is a no-op where the CLI is absent.
+  'npm run verify:skills',
   'npm run check:skills',
   'npm run check:panel',
   'npm run check:extension',
   'npm run check:companion',
+  // Added with the verification gate (08a8418): a milestone may not ship without working
+  // verification skills, and the gate runs inside `npm run check` so the chain cannot pass
+  // around it. The pin predated the stage; the pin follows the chain, never the reverse.
+  'npm run gate:verification',
   // Added when the repository adopted Prettier: the tree is formatted, so an unformatted
   // commit is a failing check rather than a later surprise. Named in position, not loosened.
   'npm run format:check',

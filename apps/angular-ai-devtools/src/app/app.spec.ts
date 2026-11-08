@@ -26,7 +26,8 @@ describe('App', () => {
  * M032 addition: the `lint` surface is appended last, it loads lazily, and it is installed through
  * `PanelDemoComponent` with its own name in route data — never the surface function itself, which
  * a route accepts and renders nothing for. M034 appends `legacy` after it, M035 appends `onpush`
- * after that, and M036 appends `resource` last, the same way.
+ * after that, M036 appends `resource` after that, and M038 appends `linked-state` last, the same
+ * way.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -49,6 +50,7 @@ describe('the route table', () => {
       'legacy', // M034 SC4 surface: the component's structure and the form the table sources
       'onpush', // M035 SC4 surface: the strategy the def reports and its readiness facts
       'resource', // M036 SC5 surface: the resource, its state and the params status beside it
+      'linked-state', // M038 SC4 surface: the linked signal, its source and the agreement between
     ]);
     expect(appRoutes.filter((route) => route.path === 'lint')).toHaveLength(1);
 
@@ -99,5 +101,17 @@ describe('the route table', () => {
     expect(resource.data?.['surface']).toBe('resource');
     // Its own name, so a copy of another surface's route cannot stand in for it.
     expect(resource.data?.['surface']).not.toBe('onpush');
+
+    const linkedState = appRoutes.find(
+      (route) => route.path === 'linked-state',
+    );
+    expect(linkedState?.component).toBeUndefined();
+    if (linkedState?.loadComponent === undefined) {
+      throw new Error('the linked-state surface must load lazily');
+    }
+    expect(await linkedState.loadComponent()).toBe(PanelDemoComponent);
+    expect(linkedState.data?.['surface']).toBe('linked-state');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(linkedState.data?.['surface']).not.toBe('resource');
   });
 });

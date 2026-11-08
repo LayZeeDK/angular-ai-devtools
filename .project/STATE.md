@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: signal-forms-doctor
+milestone: linked-state-reset
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M037
-archive: .project/archive/037-signal-forms-doctor
+branch: gsd-path/M038
+archive: .project/archive/038-linked-state-reset
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -773,3 +773,19 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-07 — build — all tasks landed; three waves reviewed
 - 2026-11-07 — ship — build done; final review pending
 - 2026-11-07 — shipped — archive preflight passed; shipment recorded
+- 2026-11-07 — inspect — router bound next milestone
+- 2026-11-07 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-07 — inspect — measured delta inspection
+- 2026-11-07 — define — definition started
+- 2026-11-07 — define — milestone intent approved
+- 2026-11-07 — plan — planning started
+- 2026-11-07 — plan — plan approved
+- 2026-11-07 — build — build started
+- 2026-11-08 — ship — build done; final review pending
+- 2026-11-08 — ship — final gate blocked: project Verify is red at this head — npm test fails scripts/panel-typecheck-scope.test.mjs:351 because the check-chain pin predates the gate:verification stage; finding set in .project/review/PATCH-FINDINGS.md
+- 2026-11-08 — plan — patch plan reopened
+- 2026-11-08 — plan — patch plan approved
+- 2026-11-08 — build — build started
+- 2026-11-08 — ship — build done; final review pending
+- 2026-11-08 — ship — archive preflight passed; shipment recorded
+- 2026-11-08 — shipped — archive preflight passed; shipment recorded

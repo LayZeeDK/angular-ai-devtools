@@ -12,7 +12,7 @@ import { realpathSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { printable } from '../../control-ai-browsers/scripts/fingerprint.mjs';
+import { printable } from '../../control-ai-browsers/scripts/text.mjs';
 import { instanceState, loadRegistry, realDeps } from './state.mjs';
 
 /** @typedef {import('./state.mjs').Deps} Deps */
