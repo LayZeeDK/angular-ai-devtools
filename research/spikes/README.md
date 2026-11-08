@@ -19,7 +19,10 @@ insight with no opt-in"). They answer three gates and carry three analyses those
 carry-forward copy"): the active research directory must list nothing but a byte-identical copy of the archived
 audit. On 2026-11-08, ahead of M040's archive, the six documents were moved from `.project/research/` to
 `research/spikes/` — the same tracked `research/` tree that already holds `research/raw/m040-work-events.json`
-and the numbered long-form research documents. No content was deleted or rewritten; every file arrived byte-identical.
+and the numbered long-form research documents. No content was deleted or rewritten. One byte did change, and it is
+git's doing rather than the move's: this repository carries `* text=auto eol=lf`, so a single stray CRLF in
+`s11-answer.md` was written to the index as LF — that file is 3,352 bytes here and was 3,353 before `git add`.
+Every other file is byte-for-byte what the spike wrote.
 
 **Reading a path inside them.** The documents were written while they lived in `.project/research/`, so a reference
 inside one to `.project/research/<name>.md` for one of the six files above now resolves to
