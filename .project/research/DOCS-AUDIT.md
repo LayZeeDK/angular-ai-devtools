@@ -8,7 +8,7 @@ Alignment mode: no
 
 | Verdict | Count |
 |---------|-------|
-| verified | 316 |
+| verified | 320 |
 | stale | 12 |
 | aspirational | 0 |
 | unverifiable | 205 |
@@ -575,6 +575,15 @@ Alignment mode: no
 | "Portal navigation is exercised against the Insurance Portal target with root marker ng-journal-root and derived app port" | config | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:161-168 defines portal target, marker ng-journal-root, derived app port 4200/4500+slot; portal checkout default dir points outside repo (82) and exists at D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools. |
 | "Feature flags in apps/insurance-portal/src/assets/feature-flags.manifest.json control sidebar entries/routes as described" | feature | unverifiable | External manifest exists at D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools\apps\insurance-portal\src\assets\feature-flags.manifest.json (Test-Path => True), but flag names, *ngJournalFeatureFlag usage, canMatch guards, and route visibility behavior were not verified in this audit. |
 | "Home redirect, tiles, sidebar structure, lazy route growth, and not-found rendering match the live portal" | feature | unverifiable | Portal checkout exists, but route config, home/sidebar templates, lazy loading, and not-found component behavior were not verified from external portal source or runtime in this audit. |
+
+## Doc: .commandcode/skills/control-angular-dev-app/features/portal-zoneful-worktree.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "The zoneful portal worktree at D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools-zoneful is pinned at commit 976752389c22bb563d2278c2d78f423cb2505669" | config | verified | Re-checked 2026-11-08 at HEAD a81780f: `git -C <worktree> rev-parse HEAD` prints 976752389c22bb563d2278c2d78f423cb2505669; the same pin is recorded in .commandcode/skills/control-angular-dev-app/features/.proven.json (recordedAt 2026-11-08T01:48:39.235Z) and AGENTS.md names the path. |
+| "It serves the portal on derived port 4509 (4500 + slot) with the API on the fixed 3000" | config | verified | .commandcode/skills/control-angular-dev-app/scripts/control.mjs:165-175 derives the portal app port as 4500 + slot and pins the API at 3000; tmp/control-angular-dev-app/portal-2026-11-08T01-45-28-325Z/app.log carries `> nx run insurance-portal:serve:development --port=4509`. |
+| "It runs Angular 20.3.35 with the zone.js polyfill and no change-detection provider in its bootstrap" | config | verified | Re-checked 2026-11-08: node_modules/@angular/core/package.json in the worktree is 20.3.35 (package.json asks ^20.3.29 and zone.js ^0.16.2); apps/insurance-portal/project.json build polyfills are ["zone.js"]; apps/insurance-portal/src/app/app.config.ts names no provideZoneChangeDetection and no provideZonelessChangeDetection. |
+| "It is zone-backed: the last NgZone provider record is a useFactory record, which the doctor reports as zone-based, and zone.js is loaded" | feature | verified | .commandcode/skills/control-angular-dev-app/scripts/ng-inspect.js:128-137 returns the LAST NgZone record and reports useFactory as NgZone; control.mjs:597-603 maps that to zone-based; research/raw/zone-mode-portal-zonejs.json records the NoopNgZone record first and fn:ngZoneFactory last beside NgZoneChangeDetectionScheduler and ZoneStablePendingTask. |
 
 ## Doc: .commandcode/skills/control-angular-dev-app/features/ssr.md
 

@@ -210,18 +210,18 @@ the verification target is an **isolated worktree of the zoneful version**, pinn
 checkout's moving `main`.
 
 Why it matters, measured 2026-11-07 against the live portal: `update-cause`, `signal-provenance`, `stale-view` and
-`interop` each refused with *"Angular Zone.js change detection is not supported; use zoneless Angular 22"*, and
+`interop` each refused with _"Angular Zone.js change detection is not supported; use zoneless Angular 22"_, and
 `di-doctor` rendered controls with zero rows. Those four joins need the zoneless signal graph; a zoneful target cannot
 produce them, so they are a **legitimate fixture fallback** — provided the verdict names the portal route tried and the
 artefact the zoneful portal lacks.
 
 Recorded target:
 
-| Field | Value |
-|---|---|
-| Path | `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools-zoneful` (isolated worktree) |
-| Pinned commit | recorded in `skills/control-angular-dev-app/features/.proven.json` when the worktree is created |
-| Serve | `control-angular-dev-app up --target portal --dir <path>` (or `CONTROL_NG_PORTAL_DIR=<path>`) |
+| Field         | Value                                                                                                         |
+| ------------- | ------------------------------------------------------------------------------------------------------------- |
+| Path          | `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools-zoneful` (isolated worktree) |
+| Pinned commit | recorded in `skills/control-angular-dev-app/features/.proven.json` when the worktree is created               |
+| Serve         | `control-angular-dev-app up --target portal --dir <path>` (or `CONTROL_NG_PORTAL_DIR=<path>`)                 |
 
 When the migration completes, re-pin to the portal's zoneless `main` and re-target every verdict that was taken on the
 zoneful worktree; do not restate a zoneful verdict as zoneless evidence.

@@ -110,6 +110,29 @@
   // never consulted to decide what kind of node one is.
   const EFFECT_KIND = 'effect';
 
+  // The finding shapes this module publishes. The three share one field, `state`, and nothing else, so the
+  // list that carries them carries the union: a list inferred from the first shape pushed into it would
+  // refuse the second, and the refusal would be about the list's declared element type, not the findings.
+  /**
+   * @typedef {object} EffectFinding
+   * @property {string} state
+   * @property {string | null} effect
+   * @property {string} namedBy
+   * @property {string[]} reads
+   *
+   * @typedef {object} ChangeDetectionFinding
+   * @property {string} state
+   * @property {string | null} code
+   * @property {string | null} message
+   * @property {string | null} provenance
+   *
+   * @typedef {object} CannotTellFinding
+   * @property {string} state
+   * @property {string} reason
+   *
+   * @typedef {EffectFinding | ChangeDetectionFinding | CannotTellFinding} Finding
+   */
+
   function isObject(value) {
     return value !== null && typeof value === 'object' && !Array.isArray(value);
   }
@@ -307,6 +330,7 @@
       subject.namedBy,
       readsOf(nodes, edges, indexOfNode(subject.node)),
     );
+    /** @type {Finding[]} */
     const findings = [effect];
 
     // A recorded change-detection message is a finding of its own, after the effect and never joined
