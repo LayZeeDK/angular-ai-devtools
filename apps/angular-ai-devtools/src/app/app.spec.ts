@@ -26,8 +26,8 @@ describe('App', () => {
  * M032 addition: the `lint` surface is appended last, it loads lazily, and it is installed through
  * `PanelDemoComponent` with its own name in route data — never the surface function itself, which
  * a route accepts and renders nothing for. M034 appends `legacy` after it, M035 appends `onpush`
- * after that, M036 appends `resource` after that, and M038 appends `linked-state` last, the same
- * way.
+ * after that, M036 appends `resource` after that, M038 appends `linked-state`, and M039 appends
+ * `render-phase` last, the same way.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -51,6 +51,7 @@ describe('the route table', () => {
       'onpush', // M035 SC4 surface: the strategy the def reports and its readiness facts
       'resource', // M036 SC5 surface: the resource, its state and the params status beside it
       'linked-state', // M038 SC4 surface: the linked signal, its source and the agreement between
+      'render-phase', // M039 SC5 surface: the effect and its reads, the phase absence, the change-detection finding
     ]);
     expect(appRoutes.filter((route) => route.path === 'lint')).toHaveLength(1);
 
@@ -113,5 +114,17 @@ describe('the route table', () => {
     expect(linkedState.data?.['surface']).toBe('linked-state');
     // Its own name, so a copy of another surface's route cannot stand in for it.
     expect(linkedState.data?.['surface']).not.toBe('resource');
+
+    const renderPhase = appRoutes.find(
+      (route) => route.path === 'render-phase',
+    );
+    expect(renderPhase?.component).toBeUndefined();
+    if (renderPhase?.loadComponent === undefined) {
+      throw new Error('the render-phase surface must load lazily');
+    }
+    expect(await renderPhase.loadComponent()).toBe(PanelDemoComponent);
+    expect(renderPhase.data?.['surface']).toBe('render-phase');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(renderPhase.data?.['surface']).not.toBe('linked-state');
   });
 });

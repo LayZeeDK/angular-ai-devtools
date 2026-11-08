@@ -22,6 +22,7 @@ const surfaces = [
   'onpush',
   'resource',
   'linked-state',
+  'render-phase',
 ];
 
 function routeBlock(source, surface) {
@@ -65,6 +66,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     onpush: ['panel-onpush', 'onpushPanel'],
     resource: ['panel-resource', 'resourcePanel'],
     'linked-state': ['panel-linked-state', 'linkedStatePanel'],
+    'render-phase': ['panel-render-phase', 'renderPhasePanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -99,6 +101,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'onpushPanel(',
     'resourcePanel(',
     'linkedStatePanel(',
+    'renderPhasePanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -246,5 +249,26 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       err instanceof assert.AssertionError &&
       String(err.message).includes('linked-state'),
     'removing the linked-state loader must fail naming the missing surface linked-state',
+  );
+
+  // Mutant: remove the render-phase key from LOADERS. The M039 route is the one this task adds, so
+  // the check must name it when its loader is gone rather than pass on the surfaces before it. It is
+  // the second quoted key in the map, so a parse that read only bare identifiers would pass this
+  // pin's first half and never see the surface it dropped either.
+  const withoutRenderPhase = demoSource.replace(
+    "  'render-phase': () => import('./panel-render-phase') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutRenderPhase,
+    demoSource,
+    'the render-phase mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutRenderPhase),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('render-phase'),
+    'removing the render-phase loader must fail naming the missing surface render-phase',
   );
 });

@@ -30,6 +30,15 @@
  * two stored values the demo prints must be that recording's. The word the pane reports is the
  * join's own `reason` — `differing` for the recording's `differing` subject — and never the
  * recording's precomputed `agreesWithItsSource`, which the pane may not read at all.
+ *
+ * M039 T003 extends it to the `render-phase` surface, and to the separation that surface exists for:
+ * `research/raw/m039-render-phase.json` is T001's measurement of the counter fixture's effect, and
+ * the effect the demo's sample answer names — its empty label, the edge that named it and the one
+ * signal that edge reads — must be that recording's. The change-detection half is
+ * `extension/error-digest.json`'s NG0100 entry, which the recording records as the substitute for a
+ * capture the page did not produce; the demo's provenance says so, because a digest entry presented
+ * as a capture is the small untruth this discipline exists to catch. The pane's three blocks are
+ * asserted apart, each holding only its own text (SC5, E7).
  */
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -75,6 +84,37 @@ interface LinkedStateRecording {
     differing: { node: { label: string; value: number } };
   };
   source: { node: { label: string; value: number } };
+}
+
+/** The part of the M039 render-phase recording this spec reads. */
+interface RenderPhaseRecording {
+  profiler: {
+    effectEvent: { matchingNames: string[]; count: number; absent: boolean };
+  };
+  effect: {
+    freshRead: {
+      nodeIndex: number;
+      kind: string;
+      label: string;
+      labelEmpty: boolean;
+      signalsTheEdgesName: string[];
+      edges: { consumer: number; producer: number }[];
+    };
+  };
+  changeDetection: {
+    result: string;
+    substitute: {
+      kind: string;
+      notACapture: boolean;
+      code: string;
+      entryIndex: number;
+    };
+  };
+}
+
+/** The part of the shipped error digest this spec reads. */
+interface ErrorDigest {
+  entries: { code: string; title: string; body: string }[];
 }
 
 /** The vite `import.meta.glob` surface this spec uses, cast rather than declared globally. */
@@ -177,6 +217,47 @@ function readLinkedStateRecording(): {
     );
   }
   return { recording: JSON.parse(text) as LinkedStateRecording, text };
+}
+
+/** The M039 render-phase recording and its text, inlined from disk the same way. */
+function readRenderPhaseRecording(): {
+  recording: RenderPhaseRecording;
+  text: string;
+} {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m039-render-phase.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m039-render-phase.json was not inlined above this spec file',
+    );
+  }
+  return { recording: JSON.parse(text) as RenderPhaseRecording, text };
+}
+
+/** The shipped error digest, inlined from disk the same way. */
+function readErrorDigest(): { digest: ErrorDigest; text: string } {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/error-digest.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/error-digest.json was not inlined above this spec file',
+    );
+  }
+  return { digest: JSON.parse(text) as ErrorDigest, text };
 }
 
 /** The demo rendered for one surface name, once its lazy surface has answered. */
@@ -361,6 +442,111 @@ describe('the panel demo', () => {
     expect(text.includes(`"label": "${signal.label}"`)).toBe(true);
     expect(text.includes(`"label": "${source.label}"`)).toBe(true);
     expect(text.includes(`"value": ${signal.value}`)).toBe(true);
+  });
+
+  /**
+   * The M039 half: the sample answer behind `/render-phase` is the join's answer for the recording
+   * T001 made, and the demo renders it as three blocks that keep their own text. The effect half is
+   * the recording's own — the counter fixture's effect node carries no label, one recorded edge and
+   * the one signal that edge names — and the change-detection half is the digest's NG0100 entry,
+   * which the recording names as a substitute and not as a capture.
+   */
+  it('renders the effect, the phase and the change-detection finding the M039 record carries, apart', async () => {
+    const { recording, text: recordingText } = readRenderPhaseRecording();
+    const { digest, text: digestText } = readErrorDigest();
+    const fresh = recording.effect.freshRead;
+
+    // The measurement first: the recorded effect is an unlabelled effect node, and the profiler
+    // declares no effect event — the negative the phase's absence stands on.
+    expect(fresh.kind).toBe('effect');
+    expect(fresh.label).toBe('');
+    expect(fresh.labelEmpty).toBe(true);
+    expect(recording.profiler.effectEvent.absent).toBe(true);
+    expect(recording.profiler.effectEvent.count).toBe(0);
+    expect(recording.changeDetection.result).toBe('negative');
+    expect(recording.changeDetection.substitute.notACapture).toBe(true);
+
+    const entry = digest.entries.find(
+      (candidate) =>
+        candidate.code === recording.changeDetection.substitute.code,
+    );
+    if (entry === undefined) {
+      throw new Error(
+        `the shipped digest no longer carries ${recording.changeDetection.substitute.code}, so the pane has no change-detection message to render`,
+      );
+    }
+
+    // The sample the pane is handed carries the recording's values, not labels written beside them.
+    const fact = FACTS['render-phase'] as {
+      findings: Record<string, unknown>[];
+      phase: Record<string, unknown>;
+    };
+    const [effect, change] = fact.findings;
+    expect(effect).toEqual({
+      state: 'effect',
+      effect: null,
+      namedBy: 'recorded-edge',
+      reads: fresh.signalsTheEdgesName,
+    });
+    expect(change).toEqual({
+      state: 'change-detection',
+      code: entry.code,
+      message: entry.body,
+      provenance: 'digest entry, not a capture',
+    });
+    expect(fact.phase).toEqual({
+      state: 'cannot-tell',
+      absence: 'no-effect-event',
+    });
+
+    const demo = await renderDemo('render-phase');
+    expect(demo.state()).toBe('findings');
+    expect(demo.blocks().map((block) => block.state)).toEqual([
+      'effect',
+      'change-detection',
+      'phase',
+    ]);
+    expect(demo.lines()).toEqual([
+      'effect: (the graph gives no label)',
+      'namedBy: recorded-edge',
+      ...fresh.signalsTheEdgesName.map((signal) => `read: ${signal}`),
+      `code: ${entry.code}`,
+      `message: ${entry.body}`,
+      'provenance: digest entry, not a capture',
+      'phase: cannot-tell',
+      'absence: no-effect-event',
+    ]);
+
+    // E7: each block holds only its own text. The code is in the change-detection block, the phase
+    // word in the phase block, and neither reaches the effect block.
+    const [effectBlock, changeBlock, phaseBlock] = demo.blocks();
+    if (
+      effectBlock === undefined ||
+      changeBlock === undefined ||
+      phaseBlock === undefined
+    ) {
+      throw new Error('the render-phase pane must render all three blocks');
+    }
+    expect(effectBlock.lines).not.toContain(`code: ${entry.code}`);
+    expect(effectBlock.text).not.toContain('phase:');
+    expect(changeBlock.text).not.toContain('namedBy:');
+    expect(changeBlock.text).not.toContain('absence:');
+    expect(phaseBlock.lines).toEqual([
+      'phase: cannot-tell',
+      'absence: no-effect-event',
+    ]);
+    expect(phaseBlock.text).not.toContain(`code: ${entry.code}`);
+    expect(new Set(demo.blocks().map((block) => block.text)).size).toBe(3);
+
+    // Nothing here names a phase other than the join's absence, and nothing claims a write.
+    expect(demo.text()).not.toMatch(/rendering|after-render|before-render/i);
+    expect(demo.text()).not.toMatch(/\b(wrote|written|owner|cause|because)\b/i);
+    // The values the pane prints are in the committed files' bytes, not only in this spec.
+    expect(recordingText.includes(`"labelEmpty": ${fresh.labelEmpty}`)).toBe(
+      true,
+    );
+    expect(recordingText.includes('"notACapture": true')).toBe(true);
+    expect(digestText.includes(JSON.stringify(entry.body))).toBe(true);
   });
 
   /**

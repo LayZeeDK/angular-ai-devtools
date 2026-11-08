@@ -8,10 +8,28 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
+/**
+ * One block of a surface that renders its parts apart rather than as one list — M039 T003.
+ *
+ * The demo renders whatever the surface hands it and derives nothing: a surface that answers
+ * `blocks` gets one element per block, carrying that block's own state word, so the parts stay
+ * separate on screen rather than being flattened into the lines. Every other surface answers
+ * `lines` alone and renders the way it always has.
+ */
+type Block = {
+  readonly kind: string;
+  readonly state: string;
+  readonly message: string;
+  readonly lines: readonly string[];
+  readonly text: string;
+};
+
 type Surface = {
   readonly state: string;
   readonly message: string;
   readonly lines: readonly string[];
+  /** Present only on a surface that renders its parts apart; absent means one flat list. */
+  readonly blocks?: readonly Block[];
 };
 
 const LOADERS: Record<
@@ -28,6 +46,7 @@ const LOADERS: Record<
   onpush: () => import('./panel-onpush') as never,
   resource: () => import('./panel-resource') as never,
   'linked-state': () => import('./panel-linked-state') as never,
+  'render-phase': () => import('./panel-render-phase') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -150,17 +169,63 @@ export const FACTS: Record<string, unknown> = {
       },
     ],
   },
+  // The join's own answer for T001's recording (`research/raw/m039-render-phase.json`), which is the
+  // answer this surface exists to keep apart. The recording measured the counter fixture's effect as
+  // node 5 — kind `effect`, an empty label, one recorded edge to `signal:count` — so the finding
+  // names no label, says the graph named the effect by `recorded-edge`, and reports the one signal
+  // that edge names. The change-detection finding is the digest's NG0100 entry, which the recording
+  // records as the substitute for the capture the page did not produce; its provenance says so,
+  // because the demo may not present a digest entry as a capture. The phase is the join's one
+  // answer: cannot-tell, naming the absence it published. Every value here is one the recording
+  // carries, and the three parts stay three findings/blocks rather than one merged answer.
+  'render-phase': {
+    findings: [
+      {
+        state: 'effect',
+        effect: null,
+        namedBy: 'recorded-edge',
+        reads: ['count'],
+      },
+      {
+        state: 'change-detection',
+        code: 'NG0100',
+        message:
+          "Expression Changed After Checked edit Angular throws an ExpressionChangedAfterItHasBeenCheckedError when an expression value has been changed after change detection has completed. Angular only throws this error in development mode. In development mode, Angular performs an additional check after each change detection run, to ensure the bindings haven't changed. This catches errors where the view is left in an inconsistent state. This can occur, for example, if a method or getter returns a different value each time it is called, or if a child component changes values on its parent. If either of these occurs, this is a sign that change detection is not stabilized. Angular throws the error to ensure data is always reflected correctly in the view, which prevents erratic UI behavior or a possible infinite loop. This error commonly occurs when you've added template expressions or have begun to implement lifecycle hooks like ngAfterViewInit or ngOnChanges . …",
+        provenance: 'digest entry, not a capture',
+      },
+    ],
+    phase: { state: 'cannot-tell', absence: 'no-effect-event' },
+  },
 };
 
 @Component({
   selector: 'app-panel-demo',
   standalone: true,
   template: `
-    <section class="panel-demo">
+    <section
+      class="panel-demo"
+      [attr.data-surface]="name()"
+      [attr.data-state]="state()"
+    >
       <h2>panel surface: {{ name() }}</h2>
       <p class="state">state: {{ state() }}</p>
-      @for (line of lines(); track $index) {
-        <p class="line">{{ line }}</p>
+      @if (blocks().length > 0) {
+        @for (block of blocks(); track $index) {
+          <section
+            class="panel-block"
+            [attr.data-block-kind]="block.kind"
+            [attr.data-block-state]="block.state"
+          >
+            <p class="block-state">{{ block.state }}</p>
+            @for (line of block.lines; track $index) {
+              <p class="line">{{ line }}</p>
+            }
+          </section>
+        }
+      } @else {
+        @for (line of lines(); track $index) {
+          <p class="line">{{ line }}</p>
+        }
       }
     </section>
   `,
@@ -171,6 +236,9 @@ export class PanelDemoComponent implements OnInit {
   readonly name = signal('fields');
   readonly state = signal('loading');
   readonly lines = signal<readonly string[]>([]);
+  // The blocks a surface renders apart, in the order it hands them over. Empty for every surface
+  // that answers one flat list, which is every surface except the render-phase pane.
+  readonly blocks = signal<readonly Block[]>([]);
   readonly text = computed(() => this.lines().join('\n'));
 
   ngOnInit(): void {
@@ -190,6 +258,7 @@ export class PanelDemoComponent implements OnInit {
       const surface = mod.default(FACTS[name]);
       this.state.set(surface.state);
       this.lines.set(surface.lines);
+      this.blocks.set(surface.blocks ?? []);
     });
   }
 }
