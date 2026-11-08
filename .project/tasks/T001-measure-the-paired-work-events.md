@@ -2,10 +2,10 @@
 id: T001
 title: Measure the paired work events and the identity they carry
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: commandcode-coder
+base: 646deaab4b823c76f0a037ad87d16bb317b62266
 worktree: null
 task_branch: null
 files:
@@ -118,3 +118,5 @@ node --check scripts/performance-measure.test.mjs && node --experimental-strip-t
 ## Log
 
 - pending
+- measured on the live zoneless fixture (Chrome/158.0.8127.18, CDP 9334, :4222) at 2026-11-08T13:31:26.761Z: TemplateUpdate 2/3, LifecycleHook 4/5 and HostBindingsUpdate 24/25 pass an instance on both ends; Component 18/19 passes nothing on its start and componentView[CONTEXT] on its end; ChangeDetection 12/13 passes nothing on either end — that absence is the milestone's answer for SC3. 25/25 suite tests pass; Verify green including npm run check.
+- T001 measured the paired work events on the live zoneless fixture: TemplateUpdate 2/3, LifecycleHook 4/5 and HostBindingsUpdate 24/25 pass an instance on both ends, Component 18/19 only on its end, ChangeDetection 12/13 on neither (the named absence SC3 rests on); 25/25 suite tests and npm run check green: ready
