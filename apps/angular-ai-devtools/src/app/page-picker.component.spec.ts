@@ -410,11 +410,32 @@ describe('PagePickerComponent', () => {
     // Lazy and only lazy: no eager `component`, and the chunk resolves to this component.
     expect(route.component).toBeUndefined();
     expect(await route.loadComponent()).toBe(PagePickerComponent);
-    expect(
-      appRoutes
-        .filter((candidate) => candidate.loadComponent !== undefined)
-        .map((candidate) => candidate.path),
-    ).toContain('picker');
+    // The picker's own reading of the table is the list of lazy paths. It is re-cut whenever a
+    // surface is appended — M039 adds `render-phase` after this one — so a route that quietly
+    // stopped being lazy, or a surface appended without registering, reddens here as well as in
+    // the app suite rather than going unread.
+    const lazy = appRoutes
+      .filter((candidate) => candidate.loadComponent !== undefined)
+      .map((candidate) => candidate.path);
+    expect(lazy).toContain('picker');
+    expect(lazy).toContain('render-phase');
+    expect(lazy).toEqual([
+      'interop',
+      'chat',
+      'picker',
+      'image-budget',
+      'after-render',
+      'sanitizer',
+      'redirect',
+      'fields',
+      'lint',
+      'router',
+      'legacy',
+      'onpush',
+      'resource',
+      'linked-state',
+      'render-phase',
+    ]);
   });
 });
 

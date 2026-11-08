@@ -186,3 +186,42 @@ puts a positive `remaining` back.
 Generation 1 to Generation 2 took one docs audit of 145 documents in **11 chunks**
 (~5.5 M tokens on free Glyph), five argument refusals from `assemble`, two from `collect`, and
 four from `transition`. Budget a session, not an iteration.
+
+## Verification target: the Insurance Portal first
+
+Every feature is verified on the **Insurance Portal**
+(`D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools`, served by
+`control-angular-dev-app up --target portal`). It is the default target for a `verify-*` check and for a
+screenshot, not an extra.
+
+A fixture (`spikes/ng222-app`, `spikes/ng222-ssr`) is a fallback **only** when no portal feature carries the
+runtime artefact the claim needs — with or without the opt-in providers and primitives the claim exercises. A
+verdict that used a fixture must name the portal route it tried and the artefact the portal lacks; without that,
+the verdict is not coverage.
+
+Measured on 2026-11-07: 15 of 23 verdict specs drove the counter fixture on `:4222` and 3 drove the portal, so
+most of the current evidence is fixture evidence and is not coverage under this rule. Re-target it as each
+milestone's verification is re-run; do not restate an existing verdict as portal evidence.
+
+### The portal is migrating to zoneless: verify against a pinned zoneful worktree
+
+The Insurance Portal is **in the middle of a migration to zoneless Angular**. Until that migration is confirmed complete,
+the verification target is an **isolated worktree of the zoneful version**, pinned to a recorded commit — not the portal
+checkout's moving `main`.
+
+Why it matters, measured 2026-11-07 against the live portal: `update-cause`, `signal-provenance`, `stale-view` and
+`interop` each refused with _"Angular Zone.js change detection is not supported; use zoneless Angular 22"_, and
+`di-doctor` rendered controls with zero rows. Those four joins need the zoneless signal graph; a zoneful target cannot
+produce them, so they are a **legitimate fixture fallback** — provided the verdict names the portal route tried and the
+artefact the zoneful portal lacks.
+
+Recorded target:
+
+| Field         | Value                                                                                                         |
+| ------------- | ------------------------------------------------------------------------------------------------------------- |
+| Path          | `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools-zoneful` (isolated worktree) |
+| Pinned commit | recorded in `skills/control-angular-dev-app/features/.proven.json` when the worktree is created               |
+| Serve         | `control-angular-dev-app up --target portal --dir <path>` (or `CONTROL_NG_PORTAL_DIR=<path>`)                 |
+
+When the migration completes, re-pin to the portal's zoneless `main` and re-target every verdict that was taken on the
+zoneful worktree; do not restate a zoneful verdict as zoneless evidence.

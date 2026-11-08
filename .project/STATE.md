@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: linked-state-reset
+milestone: render-phase-effect
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M038
-archive: .project/archive/038-linked-state-reset
+branch: gsd-path/M039
+archive: .project/archive/039-render-phase-effect
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -788,4 +788,16 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-08 — build — build started
 - 2026-11-08 — ship — build done; final review pending
 - 2026-11-08 — ship — archive preflight passed; shipment recorded
+- 2026-11-08 — shipped — archive preflight passed; shipment recorded
+- 2026-11-08 — inspect — router bound next milestone
+- 2026-11-08 — inspect — inspection finished
+- 2026-11-08 — define — definition started
+- 2026-11-08 — define — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-08 — define — milestone intent approved
+- 2026-11-08 — plan — planning started
+- 2026-11-08 — plan — plan approved
+- 2026-11-08 — build — build started
+- 2026-11-08 — build — project verify repaired at 7408212: render-phase.js findings typed as the three-shape union (TS2345), features/portal-zoneful-worktree.md written so the proof manifest names no orphan, AGENTS.md and extension/panel/index.html Prettier-formatted; npm run check green, npm test red only on the installed user-scope helper suite
+- 2026-11-08 — build — build done; final review pending
+- 2026-11-08 — ship — build done; final review pending
 - 2026-11-08 — shipped — archive preflight passed; shipment recorded

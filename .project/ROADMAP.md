@@ -1443,8 +1443,8 @@ Goal: Build the render-phase explainer: why this effect ran during rendering, an
 Depends on: [M020]
 Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/039-render-phase-effect
 Integrated: null
 
 Scope: in

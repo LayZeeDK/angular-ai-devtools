@@ -1,1 +1,178 @@
-/* You can add global styles to this file, and also import other style files */
+/*
+ * The DevTools panel's one global baseline (M039 T005).
+ *
+ * Every `panel-demo` surface — the ten that shipped before this milestone and the
+ * render-phase pane it adds — renders the same hooks: a `section.panel-demo`
+ * carrying `data-surface` and `data-state`, an `h2`, a `p.state`, then either
+ * `p.line` rows or `section.panel-block` blocks (each carrying
+ * `data-block-kind`/`data-block-state`, a `p.block-state` and its own `p.line`
+ * rows). The pane is styled here, once, so no demo component grows a `styles`
+ * block that would spend the `anyComponentStyle` budget.
+ *
+ * Five groups, each reachable from that markup: typography, spacing and line
+ * rhythm, state colours, control normalisation, and a dark-scheme block that
+ * restates the colours instead of inverting the page. Literal values only —
+ * `scripts/panel-styles.test.mjs` reads the computed style of a document built
+ * from this file's own markup, and a custom property is not a value a reader
+ * resolves for it.
+ *
+ * The emitted sheet is held to the 535.44 kB initial total
+ * `scripts/panel-bundle-budget.test.mjs` records, so the declarations below are
+ * as few as the five groups allow: a state colour sits on the surface or block
+ * that carries it and is inherited by the state word, while `p.line` and the
+ * heading restate the body colour so content never takes a state's tint.
+ */
+
+body {
+  margin: 0;
+  padding: 14px 16px 20px;
+  color: #1b1f24;
+  background: #ffffff;
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* A heading scale: one weight, background and top rule for every level, the panel's size
+ * for h2. */
+h1,
+h2,
+h3 {
+  margin: 0 0 10px;
+  padding: 8px 0 6px;
+  border-top: 2px solid #cfd6e2;
+  background: #f6f8fa;
+  color: #10151b;
+  font-weight: 600;
+}
+
+h2 {
+  font-size: 15px;
+}
+
+/* The surface: one card per panel route, with its own edge and background. */
+section.panel-demo[data-surface][data-state] {
+  padding: 16px 18px 18px;
+  border: 1px solid #cfd6e2;
+  border-radius: 6px;
+  background: #fbfcfd;
+}
+
+/* The state line: the word the surface answered with, set apart from its content. */
+p.state {
+  margin: 0 0 12px;
+  padding: 4px 10px;
+  border-left: 3px solid currentcolor;
+  background: #eef1f5;
+  font-weight: 700;
+}
+
+/* One block per part a surface keeps apart. */
+section.panel-block[data-block-kind][data-block-state] {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #dde2ea;
+  border-left: 3px solid #b9c2cf;
+  background: #ffffff;
+}
+
+p.block-state {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* One row per line the surface handed over: a ruled rhythm, not spans run together. */
+p.line {
+  margin: 0;
+  padding: 5px 10px;
+  border-top: 1px solid #e6eaf0;
+  background: #f7f8fa;
+  color: #1b1f24;
+  line-height: 1.6;
+}
+
+/* State colours: one colour per state, wherever the pane prints the word. */
+section.panel-demo[data-state='finding'],
+section.panel-block[data-block-state='finding'] {
+  color: #0b4a8c;
+}
+
+section.panel-demo[data-state='differing'],
+section.panel-block[data-block-state='differing'] {
+  color: #8a4b06;
+}
+
+section.panel-demo[data-state='cannot-tell'],
+section.panel-block[data-block-state='cannot-tell'] {
+  color: #6b5200;
+}
+
+section.panel-demo[data-state='idle'],
+section.panel-block[data-block-state='idle'] {
+  color: #565e6b;
+}
+
+/* Controls: the picker's buttons and selects stop being browser chrome. */
+button,
+select {
+  padding: 5px 10px;
+  border: 1px solid #c2cad6;
+  background: #ffffff;
+  color: #1b1f24;
+  font: inherit;
+  cursor: pointer;
+}
+
+button {
+  font-weight: 600;
+}
+
+button:focus-visible,
+select:focus-visible {
+  outline: 2px solid #2f6fd0;
+}
+
+/* Dark DevTools theme: restate the colours, so the panel is not a white slab. */
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #e4e7ec;
+    background: #14171c;
+  }
+
+  h1,
+  h2,
+  h3 {
+    border-top-color: #2b313a;
+    background: #1f242b;
+    color: #f1f3f6;
+  }
+
+  section.panel-demo[data-surface][data-state] {
+    border-color: #2b313a;
+    background: #1a1e24;
+  }
+
+  p.state {
+    background: #232830;
+  }
+
+  section.panel-block[data-block-kind][data-block-state] {
+    border-color: #2b313a;
+    background: #22272f;
+  }
+
+  p.line {
+    border-top-color: #2b313a;
+    background: #232830;
+    color: #dfe3e9;
+  }
+
+  button,
+  select {
+    border-color: #3a424e;
+    background: #262c35;
+    color: #e4e7ec;
+  }
+}

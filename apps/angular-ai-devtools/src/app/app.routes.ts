@@ -121,4 +121,14 @@ export const appRoutes: Route[] = [
       import('./panel-demo').then((m) => m.PanelDemoComponent),
     data: { surface: 'linked-state' },
   },
+  // The M039 SC5 surface: the effect the graph carries with the signals its edges name, the phase
+  // as the absence the join published, and the change-detection finding — three blocks, each
+  // rendering only its own text. Lazy for the same reason as the surfaces above it — the panel's
+  // eager bundle is measured.
+  {
+    path: 'render-phase',
+    loadComponent: () =>
+      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    data: { surface: 'render-phase' },
+  },
 ];

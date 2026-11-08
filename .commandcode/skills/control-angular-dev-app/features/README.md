@@ -62,6 +62,8 @@ Each feature file has an H1, one paragraph of user-visible behaviour, then four 
 - [Portal claims](./portal-claims.md): list, details, create form.
 - [Portal complaints and customers](./portal-complaints-customers.md): both lists, complaint details, complaint
   create and save, customer details.
+- [Zoneful portal worktree](./portal-zoneful-worktree.md): the pinned zoneful portal worktree the portal
+  features above are verified against, its commit, its port and the proof that it is zone-backed.
 
 ## Full sweep
 
@@ -74,6 +76,7 @@ A full pass drives the features in this order.
 5. [Portal contracts](./portal-contracts.md)
 6. [Portal claims](./portal-claims.md)
 7. [Portal complaints and customers](./portal-complaints-customers.md)
+8. [Zoneful portal worktree](./portal-zoneful-worktree.md) (the target the portal features run against)
 
 ## Manual only
 
