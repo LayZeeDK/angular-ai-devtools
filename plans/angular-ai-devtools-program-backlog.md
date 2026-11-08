@@ -310,3 +310,126 @@ Gates: S20, S21, S22, S23, TST-S1..S3, RTH-S1, HTT-S1, HTT-S2, HAR-S1, PWT-S2..S
 - ~26 named spikes gate individual milestones; the largest are S9/S10 (forms, boundary), S5
   (image tokens), S16/S23 (companion package), S20/S21 (Vitest attach), TS1–TS12 (tutor).
 - Generation 1's charter scope admission (A3 programme 1) is recorded as a Correction at the bind.
+
+---
+
+## Scheduled changes — verification target and portal control (queued 2026-11-08)
+
+Recorded here rather than acted on now, because the pipeline state does not allow it: M040 is `build/active`
+(`gsd-path/M040`, `performance-narrator`) and its worktree is held by an in-flight task. Both items rank **above** the
+remaining Generation 2 entries, because every milestone after them inherits their outcome.
+
+### Q1 — re-target verification to the zoneless portal, and shrink the fixture fallback list
+
+**Trigger.** The migration completed: the portal checkout is on `claude/ai-devtools-spike` at `92d46ec`, `package.json`
+carries no `zone.js`, and it carries its own `control-insurance-portal`, `verify-insurance-portal`, `control-api`,
+`verify-api`. `AGENTS.md` now supersedes the zoneful-worktree rule with a dated correction.
+
+**The debt this exposes.** Of 14 verified checks, the eight AI-browser checks were taken on the counter fixture (`:4222`)
+and are therefore **not coverage** under the portal-first rule. `update-cause`, `signal-provenance`, `stale-view` and
+`interop` were refused by the zoneful page and must be re-attempted on zoneless before any fixture fallback is claimed.
+
+**Acceptance.** Each previously fixture-backed check either yields a verdict on the zoneless portal, or carries a named
+reason — the route tried and the artefact the portal lacks. No zoneful verdict restated as zoneless evidence.
+
+### Q2 — delegate portal control to the portal's own CLI, behind an adapter
+
+**Decision.** Reuse the portal's **control** artefacts; never its **verification** artefacts.
+
+- Delegate: routes, fixtures, API shapes, feature map, how to start the app.
+- Do not delegate: spec shape, two-run agreement, `verdict.json`, lint, teardown proof, evidence floor — user scope, one
+  runner for every target, or cross-milestone comparison stops meaning anything.
+- Do not merge claim sets: `verify-insurance-portal` asserts *the app works*; our `verify-*` assert *our tool explains the
+  app*. An app regression must not masquerade as a tool pass.
+
+**Why.** Measured here: the panel route table reached **20** routes while the fixture table stayed at **19**, and a coder
+"fixing" the fixture count would have been wrong. Duplicated route knowledge drifts, and the drift surfaces as an
+unexplained red.
+
+**Mechanism.** Every check takes an *app-under-test adapter* — start, drive, read feature map, teardown — whose portal
+implementation shells out to the portal's `control-*` CLI and whose fixture implementation is ours.
+
+**Required companion.** A **contract canary** asserting the portal CLI's JSON shape, failing with "the portal's control CLI
+changed shape" rather than an assertion buried inside a browser drive.
+
+**Compliance.** New or changed `verify-*` checks go through user-scope `lars-create-verification` and
+`lars-maintain-verification`; a result is accepted only when `lars-verify` yields a `verdict.json` whose word is read from
+the file.
+
+**Ordering.** Q2 first, with Q1 as its acceptance evidence: the adapter makes the re-targeting repeatable, and the
+re-targeted verdicts prove the adapter.
+
+**Admission.** Neither is in `.project/ROADMAP.md` yet — a roadmap approval admits at most twelve entries and Generation 2
+still lists M041–M043. Both become roadmap entries at the next re-slice, ahead of Generation 2's remaining tail.
+
+
+### Q3 — refresh `~/Downloads/angular-ai-devtools-features.*` with styled, in-use screenshots of every shipped feature
+
+**Queued 2026-11-08.** Cannot be done while the pipeline is mid-milestone: M040 is `build/active` and a capture run needs
+the app, the extension build and the browser instances, which the milestone's own tasks hold.
+
+**Why the current document is out of date, measured:**
+
+| Gap | Fact |
+|---|---|
+| Styling | The 10 images in the PDF were captured when `extension/panel/styles.css` was **0 bytes**; M039 T005 took it to 4,461 B source / 1,955 B emitted, with four distinct state colours and a dark block. Every screenshot predates it. |
+| Coverage | M038 `linked-state-reset` (`78b7a37`) and M039 `render-phase-effect` (`6b4437f`) shipped after the document and have **no** section; M040 `performance-narrator` ships next. |
+| Shot kind | The images are page screenshots of bare surfaces — content in the top-left of a white canvas, no browser, no DevTools. "The panel in use" was never captured. |
+| Target | Captures were taken off the counter fixture; the portal-first rule makes that not-coverage. The portal is now zoneless at `claude/ai-devtools-spike@92d46ec`. |
+
+**Trigger.** After M040 ships, and after any capture the milestone's own T005 produces is available to reuse.
+
+**Acceptance.**
+1. Each shipped feature has a screenshot showing the **Angular AI DevTools panel docked in a real DevTools window** beside
+   the page it explains, taken on the **zoneless portal** — route named per image.
+2. Styled: the panel region visibly carries padding, a rule, a tinted state line and the distinct state colours (the M039 T005
+   suite's own measurements are the standard, not an eye).
+3. New sections for `linked-state-reset`, `render-phase-effect` (including its honest `cannot-tell` phase) and
+   `performance-narrator`.
+4. All four formats rebuilt through the proven pipeline: `pandoc -f gfm -t html5 -s --include-in-header <css>` →
+   `.html`/`.docx`, then **Edge headless `--print-to-pdf`** (the original producer was `Skia/PDF m157`, not a pandoc engine).
+5. Nine empty/blank shots replaced or dropped: `image-budget` was a white canvas, `sanitizer` an error page, and
+   `di-doctor`/`error-explainer`/`stale-view`/`interop`/`signal-provenance` empty states.
+
+**Ordering.** After Q1 (re-target verification to the zoneless portal), and reusing the same driving path: the screenshots and
+the verdicts should come from one harness, not two that can disagree about what the panel showed.
+
+**Compliance.** If the capture work adds or changes a `verify-*` check, it goes through `lars-create-verification` /
+`lars-maintain-verification`, and is accepted only on a `lars-verify` `verdict.json` read from the file.
+
+
+### Q4 — spike: sourcemap plus a worker-side AST index, for code insight with no opt-in
+
+**Queued 2026-11-08. Gate: S11.** Owner's question: could sourcemaps and runtime code, indexed in one or more
+workers via `typescript` or `tree-sitter` (WASM), give code insight that runtime introspection cannot reach without the
+application installing opt-in providers and primitives?
+
+**Why it earns a spike rather than a milestone.** Every explainer shipped so far pays the opt-in tax: `window.ng` needs a
+development build, the profiler needs `ɵsetProfiler`, the DI surface needs providers. Sourcemaps and the script bytes the
+page already downloaded need nothing from the application. That asymmetry is the whole prize, and it is unproven on the
+targets this project actually explains.
+
+**The premise to falsify, by measurement, before any design.** Each item is a command, not an opinion:
+
+1. Does the portal's `main-*.js` reference a `.map` that resolves, and is `sourcesContent` embedded? (Production builds
+   commonly ship neither.)
+2. Does Angular's AOT output preserve **template** mapping at expression precision, or only at component granularity?
+3. Is `web-tree-sitter` plus its TypeScript, HTML and Angular grammars installable and runnable in a module worker in
+   this repository, and what does parsing a 1-5 MB bundle cost in wall clock and memory?
+4. What does the **production** panel build cost when the same questions are asked of the extension itself?
+
+If (1) or (2) fails on the zoneless portal, the capability is dev-and-staging only. That is still useful, and it changes
+who the feature is for, so it must be decided by measurement rather than assumed.
+
+**Expected insight, if the premise holds.** Template line for a rendered node; declared-but-never-instantiated providers
+that no injector can show; which templates read a signal the runtime graph only names; and the binding that caused a
+component to be checked, which the M040 narrator can currently report only as cost and identity.
+
+**Non-negotiable honesty rules for the feature that follows.** Every finding carries `{source: 'static', provenance:
+'map' | 'ast' | 'ts'}` and is never mixed into runtime facts. A missing map is `cannot-tell: no-sourcemap`, never a guess
+from a minified position. Static analysis can be false at runtime (dynamic providers, module federation, `eval`), so a
+static claim may not be rendered in the vocabulary that runtime evidence has earned.
+
+**Ordering.** After Q1, because a static index is most useful against the portal this project is learning to drive, and its
+first measurement is taken on that portal. Before any design system work that would style surfaces this feature adds.
+

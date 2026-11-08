@@ -225,3 +225,26 @@ Recorded target:
 
 When the migration completes, re-pin to the portal's zoneless `main` and re-target every verdict that was taken on the
 zoneful worktree; do not restate a zoneful verdict as zoneless evidence.
+
+### Correction, 2026-11-08 — the migration completed; verify against the zoneless portal
+
+The subsection above ("The portal is migrating to zoneless: verify against a pinned zoneful worktree") is **superseded**. Measured
+today: the portal checkout `D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools` is on branch
+`claude/ai-devtools-spike` at `92d46ec`, `package.json` carries **no** `zone.js`, and the app is zoneless.
+
+What that changes:
+
+- **Target.** The portal at that branch is the verification target. The pinned zoneful worktree is retired: do not take a new
+  verdict on it, and do not restate a zoneful verdict as zoneless evidence. Re-target as each milestone's verification is re-run.
+- **The four refusals are gone.** `update-cause`, `signal-provenance`, `stale-view` and `interop` refused on a zoneful page with
+  "Zone.js change detection is not supported; use zoneless Angular 22". On the zoneless portal they can be exercised, so the
+  fixture fallback that was justified for them is no longer justified — the fallback list shrinks to whatever the portal genuinely
+  cannot produce, and each remaining entry must name the route tried and the artefact it lacks.
+- **The portal now carries its own skills** — `control-insurance-portal`, `verify-insurance-portal`, `control-api`, `verify-api`
+  under `.commandcode/skills/` in that checkout. For a portal-targeted check, prefer the portal's own skill: it owns that app's
+  routes, its API and its fixtures. Our `control-angular-dev-app` / `verify-*` skills remain authoritative for the extension and
+  the panel itself, which are ours.
+- **Nothing else about the portal-first rule changes.** It is still the default target; a fixture still needs a named reason.
+
+This is the exit condition the superseded subsection wrote for itself, discharged by measurement rather than by waiting for someone
+to declare the migration done.

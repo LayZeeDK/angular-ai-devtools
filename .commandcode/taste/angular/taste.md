@@ -5,6 +5,7 @@
 - Signal Forms (`@angular/forms/signals`) is the target forms API; the Insurance Portal was migrated to it. Confidence: 0.8
 - RxJS itself is not legacy and should not be excluded; it is fine as long as it stays compatible with OnPush and zoneless, and he expects RxJS-specific and RxJS+Angular-specific features to be designed, not dropped. Confidence: 0.75
 - Experimental Angular features are acceptable input to designs and proposals. Confidence: 0.8
+- Angular `ɵ`-prefixed internals — including developer-preview and experimental APIs — are free for the extension to use and do not count as opt-in costs; only our own Angular AI DevTools runtime symbols (directives, components, services, resources) count as opt-in primitives. Confidence: 0.9
 - Legacy-support rule: if a feature judged legacy behaves identically to its modern replacement from a runtime DevTools perspective, leave it working with no flag, do not list it as supported, and remove support plus flag it only once the runtime behaviour differs (when it can be detected). Confidence: 0.85
 - Expects him to be told about legacy APIs that a target app actually uses (audit the app, then map legacy → modern replacement). Confidence: 0.75
 - When adapting Angular skills for Command Code, the `angular-developer` skill should be model-invocable (no `disable-model-invocation` flag) so it auto-loads when working on Angular projects; only `angular-new-app` should remain explicit-only (`disable-model-invocation: true`). Confidence: 0.9
