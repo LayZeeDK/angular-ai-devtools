@@ -3242,7 +3242,130 @@
       "lacks": "a zoneless profiler stream at a supported version: the pinned worktree is Angular 20.3.35 zone-backed, and extension/agent-main.js:500-542 refuses a page older than 22.1.3 and refuses a zoneful page before it ever calls setProfiler",
       "countedAs": "negative, not a capture"
     },
-    "instrumentation": "one profiler callback per page on a tab the `run` command closes; the extension keeps its single setProfiler subscription and no page gained a global, an append-only list or a second tap"
+    "instrumentation": "one profiler callback per page on a tab the `run` command closes; the extension keeps its single setProfiler subscription and no page gained a global, an append-only list or a second tap",
+    "portalZonelessAttempt": {
+      "target": "the portal`s zoneless main checkout, the target AGENTS.md re-pins to when the migration completes",
+      "path": "D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools",
+      "branch": "claude/ai-devtools-spike",
+      "pin": "92d46ec",
+      "angular": "22.2.2",
+      "serve": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal --dir <path>",
+      "url": "http://localhost:4507/",
+      "routeTried": "/home",
+      "at": "2026-11-08T17:44:56.866Z",
+      "instance": "chrome-beta-gemma4",
+      "evidence": ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261108-174456/chrome-beta-gemma4-run-1794159900937.json",
+      "gates": {
+        "zoneGlobal": false,
+        "zoneMode": "noop: the root injector has no NgZone provider (NG0201: No provider found for `NgZone`) and no zone.js dependency is installed, so detectZone reads noop",
+        "setProfiler": true,
+        "getSignalGraph": true,
+        "note": "all four gates extension/agent-main.js:507-553 reads are open on this route, so the agent would install here rather than refuse"
+      },
+      "result": "supported",
+      "pairs": [
+        {
+          "label": "TemplateUpdate",
+          "start": 2,
+          "end": 3,
+          "startCount": 60,
+          "endCount": 60,
+          "startInstance": [
+            "_AppComponent",
+            "Toast",
+            "_SidebarComponent",
+            "RepeaterContext",
+            "Object",
+            "_HomeComponent",
+            "_CardComponent",
+            "_HeaderComponent",
+            null
+          ],
+          "endInstance": [
+            "_AppComponent",
+            "Toast",
+            "_SidebarComponent",
+            "RepeaterContext",
+            "Object",
+            "_HomeComponent",
+            "_CardComponent",
+            "_HeaderComponent",
+            null
+          ]
+        },
+        {
+          "label": "LifecycleHook",
+          "start": 4,
+          "end": 5,
+          "startCount": 64,
+          "endCount": 64,
+          "startInstance": [
+            "Toast",
+            "RouterOutlet",
+            "RouterLink",
+            "RouterLinkActive",
+            "NgTemplateOutlet"
+          ],
+          "endInstance": [
+            "Toast",
+            "RouterOutlet",
+            "RouterLink",
+            "RouterLinkActive",
+            "NgTemplateOutlet"
+          ]
+        },
+        {
+          "label": "ChangeDetection",
+          "start": 12,
+          "end": 13,
+          "startCount": 3,
+          "endCount": 3,
+          "startInstance": [
+            null
+          ],
+          "endInstance": [
+            null
+          ]
+        },
+        {
+          "label": "Component",
+          "start": 18,
+          "end": 19,
+          "startCount": 32,
+          "endCount": 32,
+          "startInstance": [
+            null
+          ],
+          "endInstance": [
+            "Toast",
+            "_SidebarComponent",
+            "_AppComponent",
+            "_HeaderComponent",
+            "_HomeComponent",
+            "_CardComponent"
+          ]
+        },
+        {
+          "label": "HostBindingsUpdate",
+          "start": 24,
+          "end": 25,
+          "startCount": 26,
+          "endCount": 26,
+          "startInstance": [
+            "Bind",
+            "Toast",
+            "RouterLink"
+          ],
+          "endInstance": [
+            "Bind",
+            "Toast",
+            "RouterLink"
+          ]
+        }
+      ],
+      "reading": "measured, not inferred: one tap on the shipped setProfiler over a /home navigation and a click, three requestAnimationFrame ticks, then the stream counted and the tap removed. All five pairs arrive with both ends, ComponentStart arrives with no instance on all 32 starts while its ends carry names, and ChangeDetection carries none at either end - the same shape the counter fixture measured, measured here on a portal route. So the charter`s portal clause reaches this milestone`s facts on the portal`s zoneless main: a portal-backed verdict becomes possible when AGENTS.md re-pins verification to that checkout, and until then the pinned zoneful worktree above still cannot carry one, and a verdict taken there must not be restated as zoneless evidence",
+      "countedAs": "a positive measurement that the stream is available on a portal route, not a frame this milestone narrates: the narrated frame is the counter fixture`s, and nothing here is a duration"
+    }
   },
   "doesNotSettle": [
     "whether a component whose work the profiler bracketed can be named from anything other than the ComponentEnd instance: no site passes a name, and the watcher`s own name is not the profiler`s",
