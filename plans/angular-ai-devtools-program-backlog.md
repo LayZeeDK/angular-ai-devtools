@@ -339,14 +339,14 @@ reason — the route tried and the artefact the portal lacks. No zoneful verdict
 - Delegate: routes, fixtures, API shapes, feature map, how to start the app.
 - Do not delegate: spec shape, two-run agreement, `verdict.json`, lint, teardown proof, evidence floor — user scope, one
   runner for every target, or cross-milestone comparison stops meaning anything.
-- Do not merge claim sets: `verify-insurance-portal` asserts *the app works*; our `verify-*` assert *our tool explains the
-  app*. An app regression must not masquerade as a tool pass.
+- Do not merge claim sets: `verify-insurance-portal` asserts _the app works_; our `verify-*` assert _our tool explains the
+  app_. An app regression must not masquerade as a tool pass.
 
 **Why.** Measured here: the panel route table reached **20** routes while the fixture table stayed at **19**, and a coder
 "fixing" the fixture count would have been wrong. Duplicated route knowledge drifts, and the drift surfaces as an
 unexplained red.
 
-**Mechanism.** Every check takes an *app-under-test adapter* — start, drive, read feature map, teardown — whose portal
+**Mechanism.** Every check takes an _app-under-test adapter_ — start, drive, read feature map, teardown — whose portal
 implementation shells out to the portal's `control-*` CLI and whose fixture implementation is ours.
 
 **Required companion.** A **contract canary** asserting the portal CLI's JSON shape, failing with "the portal's control CLI
@@ -362,7 +362,6 @@ re-targeted verdicts prove the adapter.
 **Admission.** Neither is in `.project/ROADMAP.md` yet — a roadmap approval admits at most twelve entries and Generation 2
 still lists M041–M043. Both become roadmap entries at the next re-slice, ahead of Generation 2's remaining tail.
 
-
 ### Q3 — refresh `~/Downloads/angular-ai-devtools-features.*` with styled, in-use screenshots of every shipped feature
 
 **Queued 2026-11-08.** Cannot be done while the pipeline is mid-milestone: M040 is `build/active` and a capture run needs
@@ -370,16 +369,17 @@ the app, the extension build and the browser instances, which the milestone's ow
 
 **Why the current document is out of date, measured:**
 
-| Gap | Fact |
-|---|---|
-| Styling | The 10 images in the PDF were captured when `extension/panel/styles.css` was **0 bytes**; M039 T005 took it to 4,461 B source / 1,955 B emitted, with four distinct state colours and a dark block. Every screenshot predates it. |
-| Coverage | M038 `linked-state-reset` (`78b7a37`) and M039 `render-phase-effect` (`6b4437f`) shipped after the document and have **no** section; M040 `performance-narrator` ships next. |
-| Shot kind | The images are page screenshots of bare surfaces — content in the top-left of a white canvas, no browser, no DevTools. "The panel in use" was never captured. |
-| Target | Captures were taken off the counter fixture; the portal-first rule makes that not-coverage. The portal is now zoneless at `claude/ai-devtools-spike@92d46ec`. |
+| Gap       | Fact                                                                                                                                                                                                                              |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Styling   | The 10 images in the PDF were captured when `extension/panel/styles.css` was **0 bytes**; M039 T005 took it to 4,461 B source / 1,955 B emitted, with four distinct state colours and a dark block. Every screenshot predates it. |
+| Coverage  | M038 `linked-state-reset` (`78b7a37`) and M039 `render-phase-effect` (`6b4437f`) shipped after the document and have **no** section; M040 `performance-narrator` ships next.                                                      |
+| Shot kind | The images are page screenshots of bare surfaces — content in the top-left of a white canvas, no browser, no DevTools. "The panel in use" was never captured.                                                                     |
+| Target    | Captures were taken off the counter fixture; the portal-first rule makes that not-coverage. The portal is now zoneless at `claude/ai-devtools-spike@92d46ec`.                                                                     |
 
 **Trigger.** After M040 ships, and after any capture the milestone's own T005 produces is available to reuse.
 
 **Acceptance.**
+
 1. Each shipped feature has a screenshot showing the **Angular AI DevTools panel docked in a real DevTools window** beside
    the page it explains, taken on the **zoneless portal** — route named per image.
 2. Styled: the panel region visibly carries padding, a rule, a tinted state line and the distinct state colours (the M039 T005
@@ -396,7 +396,6 @@ the verdicts should come from one harness, not two that can disagree about what 
 
 **Compliance.** If the capture work adds or changes a `verify-*` check, it goes through `lars-create-verification` /
 `lars-maintain-verification`, and is accepted only on a `lars-verify` `verdict.json` read from the file.
-
 
 ### Q4 — spike: sourcemap plus a worker-side AST index, for code insight with no opt-in
 
@@ -432,4 +431,3 @@ static claim may not be rendered in the vocabulary that runtime evidence has ear
 
 **Ordering.** After Q1, because a static index is most useful against the portal this project is learning to drive, and its
 first measurement is taken on that portal. Before any design system work that would style surfaces this feature adds.
-
