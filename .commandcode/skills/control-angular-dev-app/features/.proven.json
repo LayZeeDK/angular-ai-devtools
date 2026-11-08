@@ -101,6 +101,11 @@
       "commit": "faa978feed4f67b54c217450bc00dbb59117ef8f",
       "external": "needs the ng-journal Insurance Portal checkout at D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools, outside this repository"
     },
+    "portal-zoneful-worktree": {
+      "recordedAt": "2026-11-08T01:48:39.235Z",
+      "commit": "976752389c22bb563d2278c2d78f423cb2505669",
+      "external": "zoneful ng-journal Insurance Portal worktree D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools-zoneful, recorded 2026-11-08, port 4509, Angular 20.3.35, polyfills zone.js, package.json zone.js ^0.16.2, bootstrap with no change-detection provider, injector NgZone record useFactory with NgZoneChangeDetectionScheduler and ZoneStablePendingTask, zone-hosted setTimeout ticked applicationRef._tick 2x and Zone.root 0x; outside this repository"
+    },
     "ssr": {
       "provenAt": "2026-10-16T13:44:02.018Z",
       "commit": "a553213310899e1bb9f1b58fc97a75ced93c9d41",
