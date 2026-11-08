@@ -11,8 +11,16 @@ const SRC = readFileSync(new URL('./agent-main.js', import.meta.url), 'utf8');
 const PE = {
   TemplateUpdateStart: 2,
   TemplateUpdateEnd: 3,
+  LifecycleHookStart: 4,
+  LifecycleHookEnd: 5,
   OutputStart: 6,
   OutputEnd: 7,
+  ChangeDetectionStart: 12,
+  ChangeDetectionEnd: 13,
+  ComponentStart: 18,
+  ComponentEnd: 19,
+  HostBindingsUpdateStart: 24,
+  HostBindingsUpdateEnd: 25,
 };
 
 const ORIGINALS = {
@@ -33,6 +41,12 @@ function namedFn(name) {
 }
 
 function boot(opts = {}) {
+  return bootSource(SRC, opts);
+}
+
+// The one boot, parameterised by the source it evaluates: the pins below drive the shipped file and
+// their mutants drive one anchored edit of it, so a mutant is measured through the same boot.
+function bootSource(source, opts = {}) {
   const dispatched = [];
   globalThis.CustomEvent = function (type, options) {
     return { type, detail: options && options.detail };
@@ -46,7 +60,7 @@ function boot(opts = {}) {
   if (opts.ng !== undefined) globalThis.ng = opts.ng;
   else delete globalThis.ng;
   delete globalThis.__ngRecorder;
-  vm.runInThisContext(SRC, { filename: 'agent-main.js' });
+  vm.runInThisContext(source, { filename: 'agent-main.js' });
   return { recorder: globalThis.__ngRecorder, dispatched };
 }
 
@@ -2011,6 +2025,603 @@ describe('agent-main.js (page-realm pick resolution)', () => {
       componentName: 'cardcomponent',
       className: 'CardComponent',
       componentPath: ['CardComponent'],
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The five paired work events reach one frame-level list (T002, SC2, held-out E3)
+// ---------------------------------------------------------------------------
+//
+// T001 measured what the ends of each pair carry (`research/raw/m040-work-events.json`):
+// `TemplateUpdate`, `LifecycleHook` and `HostBindingsUpdate` pass an instance at both ends, `Component`
+// at its end only — every `ComponentStart` measured `null` — and `ChangeDetection` at neither, 3/3 on
+// both pages. The block below drives the shipped subscriber with exactly that frame, so what is
+// asserted is the record the page produces and not a copy of the record's builder.
+//
+// Three halves are pinned together, because SC2 is a requirement about all three at once:
+//
+//   1. **one list, one shape.** Every recorded value reaches `record.events` in emission order, each
+//      entry `{ type, pair, end, at, componentName }` — the same five fields for an added event as for
+//      the four the recorder already recorded.
+//   2. **additive.** `OutputStart` still sets the trigger, `TemplateUpdateStart` still opens the cycle,
+//      the per-check `events` list still carries bare event numbers, and the added events create no
+//      check and open no cycle.
+//   3. **a surface reads fields, never a number.** The pair and the end bit travel with the entry, so
+//      a reader answers from `pair`/`end`/`componentName` — and answers the same with the event number
+//      scrambled. The shipped builder names no value at all.
+//
+// Each pin is proven non-vacuously at the end of the block: the untouched source passes, one anchored
+// mutant of the shipped file reddens it, and the failure names the defect by string.
+
+/** Every value the agent records, as `[pair, isEnd]`, keyed by the number the profiler passes. */
+const RECORDED_PAIRS = {
+  [PE.TemplateUpdateStart]: ['TemplateUpdate', false],
+  [PE.TemplateUpdateEnd]: ['TemplateUpdate', true],
+  [PE.LifecycleHookStart]: ['LifecycleHook', false],
+  [PE.LifecycleHookEnd]: ['LifecycleHook', true],
+  [PE.OutputStart]: ['Output', false],
+  [PE.OutputEnd]: ['Output', true],
+  [PE.ChangeDetectionStart]: ['ChangeDetection', false],
+  [PE.ChangeDetectionEnd]: ['ChangeDetection', true],
+  [PE.ComponentStart]: ['Component', false],
+  [PE.ComponentEnd]: ['Component', true],
+  [PE.HostBindingsUpdateStart]: ['HostBindingsUpdate', false],
+  [PE.HostBindingsUpdateEnd]: ['HostBindingsUpdate', true],
+};
+
+/** The one entry shape the interface contract fixes, in its field order. */
+const FRAME_ENTRY_KEYS = ['type', 'pair', 'end', 'at', 'componentName'];
+
+/** The emission order this block drives: T001's recorded frame order with the output pair ahead. */
+const FRAME_ORDER = [
+  PE.OutputStart,
+  PE.OutputEnd,
+  PE.ChangeDetectionStart,
+  PE.TemplateUpdateStart,
+  PE.LifecycleHookStart,
+  PE.LifecycleHookEnd,
+  PE.ComponentStart,
+  PE.ComponentEnd,
+  PE.HostBindingsUpdateStart,
+  PE.HostBindingsUpdateEnd,
+  PE.TemplateUpdateEnd,
+  PE.ChangeDetectionEnd,
+];
+
+/**
+ * The identity each value measured, read off T001's witness: three pairs carry one at both ends,
+ * `Component` at its end only, `ChangeDetection` at neither. The page below names its three instances
+ * differently, so an entry's name is checkable rather than a constant.
+ */
+const MEASURED_IDENTITY = {
+  [PE.TemplateUpdateStart]: 'app-counter',
+  [PE.TemplateUpdateEnd]: 'app-counter',
+  [PE.LifecycleHookStart]: 'app-form-root',
+  [PE.LifecycleHookEnd]: 'app-form-root',
+  [PE.OutputStart]: 'app-counter',
+  [PE.OutputEnd]: 'app-counter',
+  [PE.ChangeDetectionStart]: null,
+  [PE.ChangeDetectionEnd]: null,
+  [PE.ComponentStart]: null,
+  [PE.ComponentEnd]: 'child-cmp',
+  [PE.HostBindingsUpdateStart]: 'app-form-root',
+  [PE.HostBindingsUpdateEnd]: 'app-form-root',
+};
+
+/** The name of a recorded value, from this file's copy of the agent's literal. */
+function nameOf(type) {
+  const found = Object.keys(PE).find((name) => PE[name] === type);
+  return found ?? `event ${type}`;
+}
+
+/** Every `angular-ai:record` a boot dispatched. */
+function recordsOf(dispatched) {
+  return dispatched.filter((event) => event.type === 'angular-ai:record');
+}
+
+/** The one record this frame produced, or a failure that names what arrived instead. */
+function theFrame(dispatched) {
+  const records = recordsOf(dispatched);
+  assert.equal(
+    records.length,
+    1,
+    `TemplateUpdateStart must still open the cycle and the queued microtask must close it: exactly one record per frame, and this run dispatched ${records.length}`,
+  );
+  return records[0].detail;
+}
+
+/** The recorders this block booted, reset after each test so no page timer outlives its assertions. */
+const WORK_BOOTS = [];
+
+/**
+ * A page whose three instances carry three different host tags, so a name an entry records can be
+ * told apart from the name a neighbour or a fallback word would produce.
+ */
+function workPage() {
+  const counter = new (namedFn('Counter'))();
+  const directive = new (namedFn('FormRoot'))();
+  const child = new (namedFn('Child'))();
+  const tags = new Map([
+    [counter, 'APP-COUNTER'],
+    [directive, 'APP-FORM-ROOT'],
+    [child, 'CHILD-CMP'],
+  ]);
+  const captured = { profilerCalls: 0 };
+  const ng = {
+    ɵsetProfiler(callback) {
+      captured.profilerCalls += 1;
+      captured.subscriber = callback;
+      return () => {};
+    },
+    ɵgetSignalGraph: () => counterGraph(),
+    getHostElement(instance) {
+      if (!tags.has(instance)) throw new Error('no host element here');
+      return { tagName: tags.get(instance) };
+    },
+    getDirectiveMetadata: () => ({ changeDetection: 1 }),
+    getInjector: () => ({ get: () => null }),
+  };
+  return { ng, captured, counter, directive, child, tags };
+}
+
+/**
+ * Boots the (possibly mutated) script on that page and hands it a page clock that advances on every
+ * read, so a receipt time is a measurement: two receipts are two different readings.
+ */
+function bootWorkPage(options = {}) {
+  const page = workPage();
+  const booted = bootSource(options.source ?? SRC, { ng: page.ng });
+  WORK_BOOTS.push(booted.recorder);
+  let now = 500;
+  globalThis.performance = {
+    now: () => {
+      now += 1;
+      return now;
+    },
+  };
+  assert.equal(
+    page.captured.profilerCalls,
+    1,
+    'the widening extends the one subscription and never adds a second tap',
+  );
+  return { ...page, ...booted, subscriber: booted.recorder.getSubscriber() };
+}
+
+/** The measured frame: one call per emission, with the arguments the profiler passes at that site. */
+function driveMeasuredFrame(page) {
+  const sub = page.subscriber;
+  const listener = namedFn('Counter_Template_button_click_0_listener');
+  sub(PE.OutputStart, page.counter, listener);
+  sub(PE.OutputEnd, page.counter, listener);
+  sub(PE.ChangeDetectionStart); // the site passes no instance, so the profiler's default is null
+  sub(PE.TemplateUpdateStart, page.counter);
+  sub(PE.LifecycleHookStart, page.directive);
+  sub(PE.LifecycleHookEnd, page.directive);
+  sub(PE.ComponentStart); // measured: every ComponentStart arrives with a null instance
+  sub(PE.ComponentEnd, page.child);
+  sub(PE.HostBindingsUpdateStart, page.directive);
+  sub(PE.HostBindingsUpdateEnd, page.directive);
+  sub(PE.TemplateUpdateEnd, page.counter);
+  sub(PE.ChangeDetectionEnd);
+}
+
+/**
+ * A surface: it answers from the entry's fields and never from its number, which is what the record's
+ * shape exists for.
+ */
+function surfaceOf(entry) {
+  return (
+    entry.pair +
+    ':' +
+    (entry.end ? 'end' : 'start') +
+    ' ' +
+    (entry.componentName === null ? '(no component)' : entry.componentName)
+  );
+}
+
+/**
+ * The pin. Every failure names the value or the field it is about, so a mutant reports the defect
+ * rather than a diff nobody can read.
+ */
+function assertMeasuredFrame(detail) {
+  assert.deepEqual(
+    Object.keys(detail),
+    ['cycleId', 'startedAt', 'trigger', 'zoneMode', 'events', 'checks'],
+    'the frame-level list must be additive: the four recorded fields keep their order, `events` is added and `checks` stays last',
+  );
+
+  const entries = detail.events;
+  assert.ok(
+    Array.isArray(entries),
+    `the record must publish the frame's work as a list \`events\`; it published ${JSON.stringify(entries)}`,
+  );
+  for (const type of FRAME_ORDER) {
+    assert.ok(
+      entries.some((entry) => entry.type === type),
+      `${nameOf(type)} (${type}) must reach the frame-level list; the record holds ${JSON.stringify(entries.map((entry) => entry.type))}`,
+    );
+  }
+  assert.deepEqual(
+    entries.map((entry) => entry.type),
+    FRAME_ORDER,
+    'the frame-level list must hold one entry per recorded event in emission order; a value out of place means the list was reordered by name or by pair',
+  );
+
+  entries.forEach((entry, index) => {
+    assert.deepEqual(
+      Object.keys(entry),
+      FRAME_ENTRY_KEYS,
+      `the frame-level list must use one shape for every recorded value: entry ${index} (${nameOf(entry.type)}) carries ${JSON.stringify(Object.keys(entry))}`,
+    );
+    const [pair, end] = RECORDED_PAIRS[entry.type];
+    assert.equal(
+      entry.pair,
+      pair,
+      `entry ${index} (${nameOf(entry.type)}) must carry pair ${JSON.stringify(pair)}; it carries ${JSON.stringify(entry.pair)}`,
+    );
+    assert.equal(
+      entry.end,
+      end,
+      `entry ${index} (${nameOf(entry.type)}) must carry end ${end}; it carries ${JSON.stringify(entry.end)}`,
+    );
+    assert.equal(
+      typeof entry.at,
+      'number',
+      `entry ${index} (${nameOf(entry.type)}) must carry the page's own receipt time; it carries ${JSON.stringify(entry.at)}`,
+    );
+    if (MEASURED_IDENTITY[entry.type] === null) {
+      assert.equal(
+        entry.componentName,
+        null,
+        `an event the profiler passed no instance for must record componentName null, never a name derived from a node index, a list position, a neighbour or the recorder's fallback; ${nameOf(entry.type)} (${entry.type}) recorded ${JSON.stringify(entry.componentName)}`,
+      );
+    } else {
+      assert.equal(
+        entry.componentName,
+        MEASURED_IDENTITY[entry.type],
+        `${nameOf(entry.type)} (${entry.type}) must record the identity the profiler's instance yielded, ${JSON.stringify(MEASURED_IDENTITY[entry.type])}; it recorded ${JSON.stringify(entry.componentName)}`,
+      );
+    }
+  });
+
+  const times = entries.map((entry) => entry.at);
+  assert.deepEqual(
+    [...times].sort((left, right) => left - right),
+    times,
+    'the receipt times must be the readings of the page clock, in emission order',
+  );
+  assert.equal(
+    new Set(times).size,
+    times.length,
+    'each entry carries its own receipt reading, so no entry borrows a neighbour`s time',
+  );
+  for (const pair of ['TemplateUpdate', 'LifecycleHook', 'Component']) {
+    const start = entries.find((entry) => entry.pair === pair && !entry.end);
+    const end = entries.find((entry) => entry.pair === pair && entry.end);
+    assert.ok(
+      end.at - start.at > 0,
+      `${pair}'s duration is its end's measured receipt minus its start's; this page clock advanced between them, so a zero or negative difference means a time was reconstructed instead of read`,
+    );
+  }
+
+  assert.equal(
+    detail.checks.length,
+    1,
+    'the added events must not create a check: TemplateUpdateStart alone opens the cycle and creates one',
+  );
+  assert.deepEqual(
+    detail.checks[0].events,
+    [PE.TemplateUpdateStart, PE.TemplateUpdateEnd],
+    'the per-check `events` list must still carry the bare event numbers it carried before T002 — the template update pair here, because the output pair arrived before the cycle opened — and none of the ten added values',
+  );
+  for (const check of detail.checks) {
+    for (const value of check.events) {
+      assert.ok(
+        [
+          PE.TemplateUpdateStart,
+          PE.TemplateUpdateEnd,
+          PE.OutputStart,
+          PE.OutputEnd,
+        ].includes(value),
+        `the per-check list carries one of the four values T002 left alone; it carries ${nameOf(value)} (${value}), which is an added value`,
+      );
+    }
+  }
+  assert.equal(
+    detail.trigger.kind,
+    'output',
+    'OutputStart must still set the cycle trigger, which the change-detection chain reads',
+  );
+  assert.equal(
+    detail.trigger.listenerName,
+    'click',
+    'the trigger must still name the DOM event the listener name carries',
+  );
+}
+
+/**
+ * One anchored mutation of the shipped source. The anchor must appear exactly once, so a pin that no
+ * longer mutates anything fails loudly instead of proving nothing.
+ */
+function mutantOf(anchor, replacement) {
+  const occurrences = SRC.split(anchor).length - 1;
+  assert.equal(
+    occurrences,
+    1,
+    `the mutant anchor ${JSON.stringify(anchor)} must appear once in extension/agent-main.js; it appears ${occurrences} time(s) — restate the mutant instead of deleting it`,
+  );
+  return SRC.replace(anchor, replacement);
+}
+
+/** Boots a mutant, drives the measured frame and hands the pin the detail it produced. */
+async function frameOfMutant(source) {
+  const page = bootWorkPage({ source });
+  driveMeasuredFrame(page);
+  await flushMicrotasks();
+  return theFrame(page.dispatched);
+}
+
+describe('agent-main.js (the five paired work events, T002)', () => {
+  afterEach(() => {
+    for (const recorder of WORK_BOOTS.splice(0)) {
+      if (recorder && typeof recorder.reset === 'function') recorder.reset();
+    }
+    globalThis.ng = ORIGINALS.ng;
+    globalThis.Zone = ORIGINALS.Zone;
+    globalThis.CustomEvent = ORIGINALS.CustomEvent;
+    globalThis.dispatchEvent = ORIGINALS.dispatchEvent;
+    globalThis.performance = ORIGINALS.performance;
+    delete globalThis.__ngRecorder;
+  });
+
+  it('records the five pairs in one frame-level list, one entry shape, in emission order (AC1)', async () => {
+    const page = bootWorkPage();
+    driveMeasuredFrame(page);
+    await flushMicrotasks();
+
+    assertMeasuredFrame(theFrame(page.dispatched));
+  });
+
+  it('held-out E3: an added event reaches a surface through the same shape, and OutputStart still sets the trigger', async () => {
+    const page = bootWorkPage();
+    driveMeasuredFrame(page);
+    await flushMicrotasks();
+    const detail = theFrame(page.dispatched);
+
+    const added = detail.events.find(
+      (entry) => entry.type === PE.LifecycleHookEnd,
+    );
+    const recorded = detail.events.find(
+      (entry) => entry.type === PE.TemplateUpdateEnd,
+    );
+    assert.deepEqual(
+      Object.keys(added),
+      Object.keys(recorded),
+      'an added event must travel exactly the shape the four recorded events travel',
+    );
+    assert.equal(
+      surfaceOf(added),
+      'LifecycleHook:end app-form-root',
+      'a surface must name the added pair and its component from the entry`s own fields',
+    );
+    assert.equal(
+      surfaceOf(recorded),
+      'TemplateUpdate:end app-counter',
+      'and name the pair the recorder already recorded the same way',
+    );
+
+    // The number is not what a surface reads: with the same entries and the numbers made unreadable,
+    // every answer is unchanged.
+    const scrambled = detail.events.map((entry) => ({ ...entry, type: 999 }));
+    assert.deepEqual(
+      scrambled.map(surfaceOf),
+      detail.events.map(surfaceOf),
+      'a surface reading pair, end and componentName must answer the same whatever the event number says; a surface that switched on the number would answer differently here',
+    );
+
+    assert.equal(
+      detail.trigger.kind,
+      'output',
+      'OutputStart must still set the cycle trigger beside the added events',
+    );
+    assert.equal(detail.trigger.listenerName, 'click');
+  });
+
+  it('a given event record is what the agent writes: the record builder names no value (SC2)', () => {
+    const start = SRC.indexOf('function recordWorkEvent(');
+    const end = SRC.indexOf('function holdPendingWorkEvent(', start);
+    assert.notEqual(
+      start,
+      -1,
+      'the agent must carry `function recordWorkEvent(`',
+    );
+    assert.notEqual(
+      end,
+      -1,
+      'the record builder must be followed by `function holdPendingWorkEvent(`',
+    );
+    const builder = SRC.slice(start, end);
+
+    assert.equal(
+      builder.includes('ProfilerEvent.'),
+      false,
+      'the record builder must name no value: the pair and the end bit come from WORK_EVENT_PAIRS, so no branch decides what an entry carries',
+    );
+    assert.equal(
+      /event\s*===|event\s*!==|switch\s*\(\s*event\s*\)|case\s+\d+\s*:/.test(
+        builder,
+      ),
+      false,
+      'the record builder must not compare the event number to read a field',
+    );
+  });
+
+  it('added events open no cycle and create no check, and the frame the task opens adopts them (AC2)', async () => {
+    const page = bootWorkPage();
+    page.subscriber(PE.ChangeDetectionStart);
+    page.subscriber(PE.ComponentStart);
+    await flushMicrotasks();
+    assert.deepEqual(
+      recordsOf(page.dispatched),
+      [],
+      'an added event must not open a cycle: only TemplateUpdateStart opens one, so nothing is dispatched here',
+    );
+
+    page.subscriber(PE.TemplateUpdateStart, page.counter);
+    page.subscriber(PE.ComponentEnd, page.child);
+    page.subscriber(PE.ChangeDetectionEnd);
+    await flushMicrotasks();
+
+    const detail = theFrame(page.dispatched);
+    assert.deepEqual(
+      detail.events.map((entry) => entry.type),
+      [
+        PE.ChangeDetectionStart,
+        PE.ComponentStart,
+        PE.TemplateUpdateStart,
+        PE.ComponentEnd,
+        PE.ChangeDetectionEnd,
+      ],
+      'the frame the microtask closes must carry every arrival in emission order, including the two that arrived before its opener',
+    );
+    assert.deepEqual(
+      detail.checks[0].events,
+      [PE.TemplateUpdateStart],
+      'and the per-check list still holds only the bare values the recorder recorded before T002',
+    );
+  });
+
+  it('records null for an event the profiler named nothing for, never a derived name (AC3)', async () => {
+    const page = bootWorkPage();
+    // An instance that yields no name: no host element and no named constructor.
+    const nameless = Object.create(null);
+    page.subscriber(PE.TemplateUpdateStart, page.counter);
+    page.subscriber(PE.LifecycleHookStart, nameless);
+    page.subscriber(PE.ComponentStart);
+    await flushMicrotasks();
+
+    const entries = theFrame(page.dispatched).events;
+    assert.equal(
+      entries[1].componentName,
+      null,
+      'an instance that yields no name must be recorded as naming no component, never as a fallback word',
+    );
+    assert.notEqual(
+      entries[1].componentName,
+      'component',
+      "the recorder's 'component' fallback must not reach the frame-level entry",
+    );
+    assert.equal(
+      entries[2].componentName,
+      null,
+      'ComponentStart measured null on every page T001 drove and is recorded as measured, not filled in from its end',
+    );
+  });
+
+  it('the initial record carries the same `events` list, empty (AC1)', async () => {
+    // The one snapshot `tryInstall` publishes is dispatched after its own 500 ms timer, from the
+    // nodes the page enumerates and no profiler event at all: it must carry the same list, empty,
+    // so a reader never has to guess whether the field is there.
+    const instance = new Counter();
+    const { ng } = pageNg({ resolve: { getComponent: () => instance } });
+    const document = {
+      querySelector: () => ({ tagName: 'APP-ROOT' }),
+      querySelectorAll: () => [{ tagName: 'APP-COUNTER' }],
+      body: { tagName: 'APP-ROOT' },
+      documentElement: { tagName: 'APP-ROOT' },
+    };
+    const page = bootSandbox({ ng, document });
+    page.sandbox.__ngRecorder.start();
+    page.clock.tickMany();
+    const record = page.dispatched.find(
+      (event) => event.type === 'angular-ai:record',
+    );
+    assert.ok(record, 'the initial record must still be dispatched');
+    const detail = plain(record.detail);
+    assert.deepEqual(
+      detail.events,
+      [],
+      'the snapshot carries the list a frame carries, empty: it read no profiler event',
+    );
+    assert.deepEqual(
+      Object.keys(detail),
+      ['cycleId', 'startedAt', 'trigger', 'zoneMode', 'events', 'checks'],
+      'and the list is the additive field in the same position in both records',
+    );
+  });
+
+  describe('the pins are non-vacuous: a mutant reddens one, naming the defect', () => {
+    it('passes on the untouched source first', async () => {
+      const detail = await frameOfMutant(SRC);
+      assert.doesNotThrow(
+        () => assertMeasuredFrame(detail),
+        'the untouched source must pass the pin before any mutant is credited with reddening it',
+      );
+    });
+
+    it('M1 drops an added pair`s end event: the pin names the value it lost', async () => {
+      const dropped = mutantOf(
+        'kinds[named.end] = { pair: named.pair, end: true };',
+        'if (named.end !== ProfilerEvent.HostBindingsUpdateEnd) kinds[named.end] = { pair: named.pair, end: true };',
+      );
+      const detail = await frameOfMutant(dropped);
+      assert.throws(
+        () => assertMeasuredFrame(detail),
+        /HostBindingsUpdateEnd \(25\) must reach the frame-level list/,
+        'a dropped end event must redden the pin naming the value that went missing',
+      );
+    });
+
+    it('M2 records an added event in a second shape: the pin names the entry', async () => {
+      const secondShape = mutantOf(
+        'var kind = WORK_EVENT_KINDS[event];',
+        "var kind = WORK_EVENT_KINDS[event];\n    if (event === ProfilerEvent.LifecycleHookEnd) {\n      if (cycle)\n        cycle.events.push({\n          type: event,\n          pair: 'LifecycleHook',\n          ended: true,\n          at: nowMs(),\n          componentName: instanceNameFor(instance),\n        });\n      return null;\n    }",
+      );
+      const detail = await frameOfMutant(secondShape);
+      assert.throws(
+        () => assertMeasuredFrame(detail),
+        /must use one shape for every recorded value: entry \d+ \(LifecycleHookEnd\)/,
+        'a second shape must redden the pin naming the value that travelled it',
+      );
+    });
+
+    it("M3 fills a name in from the recorder's fallback: the pin names the absence", async () => {
+      const fallback = mutantOf(
+        'componentName: instanceNameFor(instance),',
+        'componentName: componentNameFor(instance),',
+      );
+      const detail = await frameOfMutant(fallback);
+      assert.throws(
+        () => assertMeasuredFrame(detail),
+        /must record componentName null, never a name derived/,
+        'a name derived for an event that named nothing must redden the absence pin',
+      );
+    });
+
+    it('M4 stops setting the trigger on OutputStart: the pin names the trigger', async () => {
+      const triggerless = mutantOf('if (!pendingTrigger) {', 'if (false) {');
+      const detail = await frameOfMutant(triggerless);
+      assert.throws(
+        () => assertMeasuredFrame(detail),
+        /OutputStart must still set the cycle trigger/,
+        'a trigger the recorder no longer sets must redden the additive pin',
+      );
+    });
+
+    it('M5 stops opening the cycle on TemplateUpdateStart: the frame is lost and named', async () => {
+      const openerless = mutantOf(
+        'if (!cycle) openCycle();',
+        'if (false) openCycle();',
+      );
+      const page = bootWorkPage({ source: openerless });
+      driveMeasuredFrame(page);
+      await flushMicrotasks();
+      assert.throws(
+        () => theFrame(page.dispatched),
+        /TemplateUpdateStart must still open the cycle/,
+        'a cycle nothing opens must redden the frame pin by name',
+      );
     });
   });
 });

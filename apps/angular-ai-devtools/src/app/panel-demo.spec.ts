@@ -117,6 +117,53 @@ interface ErrorDigest {
   entries: { code: string; title: string; body: string }[];
 }
 
+/** The part of the M040 work-events recording this spec reads. */
+interface PerformanceRecording {
+  pairs: {
+    sources: {
+      package: string;
+      pairs: { label: string; start: number; end: number }[];
+    }[];
+  };
+  identity: {
+    namedAbsence: {
+      pair: string;
+      carriesIdentity: string;
+      consequence: string;
+    };
+  };
+  witness: {
+    pages: {
+      url: string;
+      pairs: {
+        label: string;
+        start: number;
+        end: number;
+        startInstance: string[];
+        endInstance: string[];
+      }[];
+    }[];
+  };
+}
+
+/** One interval of the narrator's answer the demo's `performance` sample holds. */
+interface PerformanceInterval {
+  state: string;
+  pair: string;
+  componentName?: string;
+  absence?: string;
+  startedAt: number;
+  endedAt?: number;
+  durationMs?: number;
+}
+
+/** The narrator's answer the demo's `performance` sample fact holds. */
+interface PerformanceFact {
+  state: string;
+  intervals: PerformanceInterval[];
+  unresolved: unknown[];
+}
+
 /** The vite `import.meta.glob` surface this spec uses, cast rather than declared globally. */
 interface GlobSurface {
   glob(
@@ -239,6 +286,28 @@ function readRenderPhaseRecording(): {
     );
   }
   return { recording: JSON.parse(text) as RenderPhaseRecording, text };
+}
+
+/** The M040 work-events recording and its text, inlined from disk the same way. */
+function readPerformanceRecording(): {
+  recording: PerformanceRecording;
+  text: string;
+} {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m040-work-events.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m040-work-events.json was not inlined above this spec file',
+    );
+  }
+  return { recording: JSON.parse(text) as PerformanceRecording, text };
 }
 
 /** The shipped error digest, inlined from disk the same way. */
@@ -547,6 +616,140 @@ describe('the panel demo', () => {
     );
     expect(recordingText.includes('"notACapture": true')).toBe(true);
     expect(digestText.includes(JSON.stringify(entry.body))).toBe(true);
+  });
+
+  /**
+   * The M040 half: the sample answer behind `/performance` is the narrator's answer for the frame
+   * `research/raw/m040-work-events.json` measured, and the demo renders it with the component
+   * identity and the measured cost in their own cells — nothing else. Every pair and every name the
+   * sample carries is derived from that recording here, so a demo that named a component the page
+   * never reported, or printed a duration no measurement carries, reddens against the recording's
+   * own bytes rather than against a copy of them written in this spec.
+   */
+  it('renders the frame’s ordered work the M040 record carries, identity and cost apart', async () => {
+    const { recording, text: recordingText } = readPerformanceRecording();
+    const fact = FACTS['performance'] as unknown as PerformanceFact;
+
+    // The answer's shape: four intervals in the order the frame recorded them, and the frame's own
+    // state — a start it never closed makes the frame `unmeasured`, which is the narrator's rule.
+    expect(fact.state).toBe('unmeasured');
+    expect(fact.unresolved).toEqual([]);
+    expect(fact.intervals.map((interval) => interval.state)).toEqual([
+      'measured',
+      'measured',
+      'cannot-tell',
+      'unmeasured',
+    ]);
+    const [appTemplate, routerHook, changeDetection, unclosed] = fact.intervals;
+    if (
+      appTemplate === undefined ||
+      routerHook === undefined ||
+      changeDetection === undefined ||
+      unclosed === undefined
+    ) {
+      throw new Error(
+        'the performance sample must carry the four intervals the frame recorded',
+      );
+    }
+
+    // The recording's own measured facts, read rather than restated: the five pairs the installed
+    // `ProfilerEvent` derives, and the page whose per-pair rows name the instances each bracket
+    // carried — the two the witness measured on `/`.
+    const page = recording.witness.pages[0];
+    if (page === undefined) {
+      throw new Error(
+        'the M040 recording must carry the witness page its frames were measured on',
+      );
+    }
+    expect(page.url).toBe('http://localhost:4222/');
+    const derivedPairs = recording.pairs.sources[1]?.pairs ?? [];
+    expect(derivedPairs.map((pair) => pair.label)).toContain('TemplateUpdate');
+    const witnessOf = (interval: PerformanceInterval) => {
+      const witnessed = page.pairs.find(
+        (candidate) => candidate.label === interval.pair,
+      );
+      if (witnessed === undefined) {
+        throw new Error(
+          `the recording measured no ${interval.pair} pair on ${page.url}`,
+        );
+      }
+      return witnessed;
+    };
+
+    for (const interval of fact.intervals) {
+      // Every pair the sample names is one the installed ProfilerEvent derives.
+      expect(derivedPairs.map((pair) => pair.label)).toContain(interval.pair);
+      const witnessed = witnessOf(interval);
+      if (interval.state === 'measured') {
+        const name = interval.componentName ?? '';
+        // The identity is one the recording measured for that pair, and it is in the recording's
+        // bytes — not a name written beside it here.
+        expect(witnessed.startInstance).toContain(name);
+        expect(recordingText.includes(name)).toBe(true);
+        // The cost is the answer's own two receipt times: no duration is written separately.
+        expect(interval.durationMs).toBe(
+          (interval.endedAt ?? 0) - interval.startedAt,
+        );
+        continue;
+      }
+      // No name and no duration: the answer carries neither, so the demo may print neither.
+      expect(interval.componentName).toBeUndefined();
+      expect(interval.durationMs).toBeUndefined();
+      if (interval.state === 'cannot-tell') {
+        // The pair whose own two events named nobody is the one the recording answers as carrying
+        // no identity at all, which is why this interval names an absence instead of a component.
+        expect(witnessed.startInstance).toEqual(['null']);
+        expect(recording.identity.namedAbsence.carriesIdentity).toBe('none');
+        expect(interval.absence).toBeDefined();
+      }
+    }
+
+    const demo = await renderDemo('performance');
+    expect(demo.state()).toBe(fact.state);
+    // One row per interval, in the answer's order: the state word the answer gave it, then only the
+    // cells that hold text. The unnamed interval prints no cost line and the unmeasured one prints
+    // no identity line, which is SC5's "nothing it was not given".
+    expect(demo.lines()).toEqual([
+      `state: ${appTemplate.state}`,
+      `identity: ${appTemplate.componentName}`,
+      `cost: ${appTemplate.durationMs}`,
+      `state: ${routerHook.state}`,
+      `identity: ${routerHook.componentName}`,
+      `cost: ${routerHook.durationMs}`,
+      `state: ${changeDetection.state}`,
+      `identity: ${changeDetection.absence}`,
+      `state: ${unclosed.state}`,
+      `cost: ${unclosed.state}`,
+    ]);
+
+    // A measured zero is a measurement: the second row's cost is `0`, never a blank.
+    expect(routerHook.durationMs).toBe(0);
+    expect(demo.lines()).toContain('cost: 0');
+
+    // Exactly two columns: the pair name the answer carried identifies the work and is never
+    // printed as a third one, and no cost line appears for the two intervals the page did not
+    // measure.
+    const costLines = demo.lines().filter((line) => line.startsWith('cost: '));
+    expect(costLines).toEqual([
+      `cost: ${appTemplate.durationMs}`,
+      `cost: ${routerHook.durationMs}`,
+      `cost: ${unclosed.state}`,
+    ]);
+    for (const pair of page.pairs) {
+      expect(demo.text()).not.toContain(pair.label);
+    }
+
+    // The instance the recording measured for the pair the frame never closed is printed nowhere:
+    // an unmeasured interval has no component, and borrowing its bracket's name would be the small
+    // untruth this scenario exists to catch.
+    const printed = fact.intervals
+      .map((interval) => interval.componentName)
+      .filter((name): name is string => typeof name === 'string');
+    const unprinted = page.pairs
+      .flatMap((pair) => pair.startInstance)
+      .filter((name) => name !== 'null' && !printed.includes(name));
+    expect(unprinted).toEqual(['_Counter']);
+    for (const name of unprinted) expect(demo.text()).not.toContain(name);
   });
 
   /**

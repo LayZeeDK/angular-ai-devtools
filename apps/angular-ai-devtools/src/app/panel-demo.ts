@@ -47,6 +47,7 @@ const LOADERS: Record<
   resource: () => import('./panel-resource') as never,
   'linked-state': () => import('./panel-linked-state') as never,
   'render-phase': () => import('./panel-render-phase') as never,
+  performance: () => import('./panel-performance') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -195,6 +196,51 @@ export const FACTS: Record<string, unknown> = {
       },
     ],
     phase: { state: 'cannot-tell', absence: 'no-effect-event' },
+  },
+  // The narrator's own answer for the frame the M040 recording measured
+  // (`research/raw/m040-work-events.json`), in the shape `narrate` answers with — one interval per
+  // start the frame recorded, in that recorded order. Every name, pair and absence here is the
+  // recording's: `_App` and `_Counter` are the two instances T001's `TemplateUpdate` witness rows
+  // measured on `/`, `RouterOutlet` is the `LifecycleHook` one, and the `ChangeDetection` bracket is
+  // the pair the recording answers as carrying no identity at all — which is why its interval is
+  // `cannot-tell` with the absence `no-component-identity` and no name field. The recording carries
+  // no frame-level receipt time (`at`) at all, so the two `startedAt`/`endedAt` readings below are
+  // constructed and only ever compared with themselves: every `durationMs` is its own interval's
+  // `endedAt - startedAt`, so the demo prints no duration the answer does not already measure — a
+  // measured zero included. The `_Counter` template update is a start this frame never closed, which
+  // is the `unmeasured` interval the pane must render with no component name and no number.
+  performance: {
+    state: 'unmeasured',
+    intervals: [
+      {
+        state: 'measured',
+        pair: 'TemplateUpdate',
+        componentName: '_App',
+        startedAt: 12,
+        endedAt: 14,
+        durationMs: 2,
+      },
+      {
+        state: 'measured',
+        pair: 'LifecycleHook',
+        componentName: 'RouterOutlet',
+        startedAt: 14,
+        endedAt: 14,
+        durationMs: 0,
+      },
+      {
+        state: 'cannot-tell',
+        pair: 'ChangeDetection',
+        absence: 'no-component-identity',
+        startedAt: 15,
+      },
+      {
+        state: 'unmeasured',
+        pair: 'TemplateUpdate',
+        startedAt: 17,
+      },
+    ],
+    unresolved: [],
   },
 };
 

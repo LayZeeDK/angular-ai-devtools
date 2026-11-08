@@ -710,6 +710,7 @@ describe('the chat route', () => {
       'resource', // M036 SC5 surface: the resource, its state and the params status beside it
       'linked-state', // M038 SC4 surface: the linked signal, its source and the agreement between
       'render-phase', // M039 SC5 surface: the effect and its reads, the phase absence, the change-detection finding
+      'performance', // M040 SC5 surface: the frame's ordered work, its identity and its measured cost apart
     ]);
     // T003's conversion stayed the only other lazy route: five explainers are still eager.
     expect(
@@ -732,6 +733,7 @@ describe('the chat route', () => {
       'resource', // M036 SC5 surface
       'linked-state', // M038 SC4 surface
       'render-phase', // M039 SC5 surface
+      'performance', // M040 SC5 surface
     ]);
     for (const path of [
       '',
@@ -774,6 +776,7 @@ describe('the chat route', () => {
       'resource',
       'linked-state',
       'render-phase',
+      'performance',
     ]) {
       const route = appRoutes.find((candidate) => candidate.path === surface);
       if (route?.loadComponent === undefined) {

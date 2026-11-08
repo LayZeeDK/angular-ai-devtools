@@ -1,0 +1,3377 @@
+{
+  "schema": "m040-work-events/v1",
+  "milestone": "performance-narrator",
+  "task": "T001",
+  "title": "Measure the paired work events and the identity they carry",
+  "capturedAt": "2026-11-08T13:46:13.533Z",
+  "question": "At this head, does either end of the five paired profiler work events pass a component identity, and does the page agent`s microtask-delimited frame hold both ends of a pair?",
+  "verdict": "answered",
+  "commands": {
+    "check": "node --experimental-strip-types --test \"scripts/performance-measure.test.mjs\"",
+    "serve": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter --json",
+    "browser": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-gemma4 --json",
+    "drive": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-gemma4 <witness-probe.js> --json",
+    "teardown": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs down chrome-beta-gemma4; node .commandcode/skills/control-angular-dev-app/scripts/control.mjs down --target counter"
+  },
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0",
+    "browser": "Chrome/158.0.8127.18",
+    "instance": "chrome-beta-gemma4",
+    "cdp": 9334,
+    "fixture": "spikes/ng222-app",
+    "fixtureUrl": "http://localhost:4222/",
+    "fixtureAngular": "22.2.2",
+    "panelAngular": "22.1.8"
+  },
+  "pairs": {
+    "question": "Which ProfilerEvent values does each installed @angular/core declare, and which of them are a start and an end that bracket one unit of work?",
+    "reader": {
+      "how": "one reader applied to each installed package: find `var ProfilerEvent;`, take the block up to `})(ProfilerEvent ||`, read every `ProfilerEvent[ProfilerEvent[\"Name\"] = N] = \"Name\";` assignment, then look the five pair names up in that derived list by name and take their numbers from it",
+      "pattern": "ProfilerEvent\\[ProfilerEvent\\[\"([A-Za-z]+)\"\\] = (\\d+)\\] = \"([A-Za-z]+)\";",
+      "why": "the enum is a runtime IIFE in the shipped chunk, so the names and numbers are read from what the browser would execute, and the pair numbers are derived from that list rather than quoted"
+    },
+    "sources": [
+      {
+        "package": "panel: the @angular/core the extension panel builds against",
+        "manifest": "node_modules/@angular/core/package.json",
+        "version": "22.1.8",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "count": 26,
+        "values": [
+          {
+            "name": "TemplateCreateStart",
+            "value": 0
+          },
+          {
+            "name": "TemplateCreateEnd",
+            "value": 1
+          },
+          {
+            "name": "TemplateUpdateStart",
+            "value": 2
+          },
+          {
+            "name": "TemplateUpdateEnd",
+            "value": 3
+          },
+          {
+            "name": "LifecycleHookStart",
+            "value": 4
+          },
+          {
+            "name": "LifecycleHookEnd",
+            "value": 5
+          },
+          {
+            "name": "OutputStart",
+            "value": 6
+          },
+          {
+            "name": "OutputEnd",
+            "value": 7
+          },
+          {
+            "name": "BootstrapApplicationStart",
+            "value": 8
+          },
+          {
+            "name": "BootstrapApplicationEnd",
+            "value": 9
+          },
+          {
+            "name": "BootstrapComponentStart",
+            "value": 10
+          },
+          {
+            "name": "BootstrapComponentEnd",
+            "value": 11
+          },
+          {
+            "name": "ChangeDetectionStart",
+            "value": 12
+          },
+          {
+            "name": "ChangeDetectionEnd",
+            "value": 13
+          },
+          {
+            "name": "ChangeDetectionSyncStart",
+            "value": 14
+          },
+          {
+            "name": "ChangeDetectionSyncEnd",
+            "value": 15
+          },
+          {
+            "name": "AfterRenderHooksStart",
+            "value": 16
+          },
+          {
+            "name": "AfterRenderHooksEnd",
+            "value": 17
+          },
+          {
+            "name": "ComponentStart",
+            "value": 18
+          },
+          {
+            "name": "ComponentEnd",
+            "value": 19
+          },
+          {
+            "name": "DeferBlockStateStart",
+            "value": 20
+          },
+          {
+            "name": "DeferBlockStateEnd",
+            "value": 21
+          },
+          {
+            "name": "DynamicComponentStart",
+            "value": 22
+          },
+          {
+            "name": "DynamicComponentEnd",
+            "value": 23
+          },
+          {
+            "name": "HostBindingsUpdateStart",
+            "value": 24
+          },
+          {
+            "name": "HostBindingsUpdateEnd",
+            "value": 25
+          }
+        ],
+        "pairs": [
+          {
+            "label": "TemplateUpdate",
+            "start": {
+              "name": "TemplateUpdateStart",
+              "value": 2
+            },
+            "end": {
+              "name": "TemplateUpdateEnd",
+              "value": 3
+            }
+          },
+          {
+            "label": "LifecycleHook",
+            "start": {
+              "name": "LifecycleHookStart",
+              "value": 4
+            },
+            "end": {
+              "name": "LifecycleHookEnd",
+              "value": 5
+            }
+          },
+          {
+            "label": "ChangeDetection",
+            "start": {
+              "name": "ChangeDetectionStart",
+              "value": 12
+            },
+            "end": {
+              "name": "ChangeDetectionEnd",
+              "value": 13
+            }
+          },
+          {
+            "label": "Component",
+            "start": {
+              "name": "ComponentStart",
+              "value": 18
+            },
+            "end": {
+              "name": "ComponentEnd",
+              "value": 19
+            }
+          },
+          {
+            "label": "HostBindingsUpdate",
+            "start": {
+              "name": "HostBindingsUpdateStart",
+              "value": 24
+            },
+            "end": {
+              "name": "HostBindingsUpdateEnd",
+              "value": 25
+            }
+          }
+        ]
+      },
+      {
+        "package": "fixture: the @angular/core the counter page loads",
+        "manifest": "spikes/ng222-app/node_modules/@angular/core/package.json",
+        "version": "22.2.2",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "count": 26,
+        "values": [
+          {
+            "name": "TemplateCreateStart",
+            "value": 0
+          },
+          {
+            "name": "TemplateCreateEnd",
+            "value": 1
+          },
+          {
+            "name": "TemplateUpdateStart",
+            "value": 2
+          },
+          {
+            "name": "TemplateUpdateEnd",
+            "value": 3
+          },
+          {
+            "name": "LifecycleHookStart",
+            "value": 4
+          },
+          {
+            "name": "LifecycleHookEnd",
+            "value": 5
+          },
+          {
+            "name": "OutputStart",
+            "value": 6
+          },
+          {
+            "name": "OutputEnd",
+            "value": 7
+          },
+          {
+            "name": "BootstrapApplicationStart",
+            "value": 8
+          },
+          {
+            "name": "BootstrapApplicationEnd",
+            "value": 9
+          },
+          {
+            "name": "BootstrapComponentStart",
+            "value": 10
+          },
+          {
+            "name": "BootstrapComponentEnd",
+            "value": 11
+          },
+          {
+            "name": "ChangeDetectionStart",
+            "value": 12
+          },
+          {
+            "name": "ChangeDetectionEnd",
+            "value": 13
+          },
+          {
+            "name": "ChangeDetectionSyncStart",
+            "value": 14
+          },
+          {
+            "name": "ChangeDetectionSyncEnd",
+            "value": 15
+          },
+          {
+            "name": "AfterRenderHooksStart",
+            "value": 16
+          },
+          {
+            "name": "AfterRenderHooksEnd",
+            "value": 17
+          },
+          {
+            "name": "ComponentStart",
+            "value": 18
+          },
+          {
+            "name": "ComponentEnd",
+            "value": 19
+          },
+          {
+            "name": "DeferBlockStateStart",
+            "value": 20
+          },
+          {
+            "name": "DeferBlockStateEnd",
+            "value": 21
+          },
+          {
+            "name": "DynamicComponentStart",
+            "value": 22
+          },
+          {
+            "name": "DynamicComponentEnd",
+            "value": 23
+          },
+          {
+            "name": "HostBindingsUpdateStart",
+            "value": 24
+          },
+          {
+            "name": "HostBindingsUpdateEnd",
+            "value": 25
+          }
+        ],
+        "pairs": [
+          {
+            "label": "TemplateUpdate",
+            "start": {
+              "name": "TemplateUpdateStart",
+              "value": 2
+            },
+            "end": {
+              "name": "TemplateUpdateEnd",
+              "value": 3
+            }
+          },
+          {
+            "label": "LifecycleHook",
+            "start": {
+              "name": "LifecycleHookStart",
+              "value": 4
+            },
+            "end": {
+              "name": "LifecycleHookEnd",
+              "value": 5
+            }
+          },
+          {
+            "label": "ChangeDetection",
+            "start": {
+              "name": "ChangeDetectionStart",
+              "value": 12
+            },
+            "end": {
+              "name": "ChangeDetectionEnd",
+              "value": 13
+            }
+          },
+          {
+            "label": "Component",
+            "start": {
+              "name": "ComponentStart",
+              "value": 18
+            },
+            "end": {
+              "name": "ComponentEnd",
+              "value": 19
+            }
+          },
+          {
+            "label": "HostBindingsUpdate",
+            "start": {
+              "name": "HostBindingsUpdateStart",
+              "value": 24
+            },
+            "end": {
+              "name": "HostBindingsUpdateEnd",
+              "value": 25
+            }
+          }
+        ]
+      }
+    ],
+    "identical": true,
+    "derivedCount": 26,
+    "finding": "Both installed builds declare the same 26 values, and the five pairs are 2/3, 4/5, 12/13, 18/19 and 24/25 of that derived list."
+  },
+  "identity": {
+    "question": "What does each emission site of the five pairs pass, and does that argument list carry a component identity?",
+    "reader": {
+      "how": "one reader over the chunk the page loads: every `profiler(` call site with its 1-indexed line, the call text, the argument list as written, and — where the first argument is a local constant — that constant`s own `const x = a ? ProfilerEvent.A : ProfilerEvent.B;` line, resolved by scanning upward at most eight lines",
+      "pattern": "a line containing `profiler(` that is neither `const profiler = function (event, instance = null, eventFn)` nor `function setProfiler(`, split on top-level commas",
+      "why": "the enum number says an event exists; only the call site says what it carries, and SC3 turns on whether a bracket names a component. The reader names the call site and the argument list it read; it does not infer an argument from a neighbouring call"
+    },
+    "sites": [
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 259,
+        "call": "profiler(ProfilerEvent.LifecycleHookStart, directive, hook);",
+        "eventArg": "ProfilerEvent.LifecycleHookStart",
+        "events": [
+          "LifecycleHookStart"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "directive",
+            "identifier": true
+          },
+          {
+            "text": "hook",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 258,
+          "text": "function callHookInternal(directive, hook) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 265,
+        "call": "profiler(ProfilerEvent.LifecycleHookEnd, directive, hook);",
+        "eventArg": "ProfilerEvent.LifecycleHookEnd",
+        "events": [
+          "LifecycleHookEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "directive",
+            "identifier": true
+          },
+          {
+            "text": "hook",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 258,
+          "text": "function callHookInternal(directive, hook) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 4324,
+        "call": "profiler(ProfilerEvent.AfterRenderHooksStart);",
+        "eventArg": "ProfilerEvent.AfterRenderHooksStart",
+        "events": [
+          "AfterRenderHooksStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 4321,
+          "text": "execute() {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 4360,
+        "call": "profiler(ProfilerEvent.AfterRenderHooksEnd);",
+        "eventArg": "ProfilerEvent.AfterRenderHooksEnd",
+        "events": [
+          "AfterRenderHooksEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 4321,
+          "text": "execute() {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 4880,
+        "call": "profiler(ProfilerEvent.LifecycleHookStart, callContext, hook);",
+        "eventArg": "ProfilerEvent.LifecycleHookStart",
+        "events": [
+          "LifecycleHookStart"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "callContext",
+            "identifier": true
+          },
+          {
+            "text": "hook",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 4868,
+          "text": "function executeOnDestroys(tView, lView) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 4884,
+        "call": "profiler(ProfilerEvent.LifecycleHookEnd, callContext, hook);",
+        "eventArg": "ProfilerEvent.LifecycleHookEnd",
+        "events": [
+          "LifecycleHookEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "callContext",
+            "identifier": true
+          },
+          {
+            "text": "hook",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 4868,
+          "text": "function executeOnDestroys(tView, lView) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 4888,
+        "call": "profiler(ProfilerEvent.LifecycleHookStart, context, toCall);",
+        "eventArg": "ProfilerEvent.LifecycleHookStart",
+        "events": [
+          "LifecycleHookStart"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          },
+          {
+            "text": "toCall",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 4868,
+          "text": "function executeOnDestroys(tView, lView) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 4892,
+        "call": "profiler(ProfilerEvent.LifecycleHookEnd, context, toCall);",
+        "eventArg": "ProfilerEvent.LifecycleHookEnd",
+        "events": [
+          "LifecycleHookEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          },
+          {
+            "text": "toCall",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 4868,
+          "text": "function executeOnDestroys(tView, lView) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 5359,
+        "call": "profiler(preHookType, context, templateFn);",
+        "eventArg": "preHookType",
+        "events": [
+          "TemplateUpdateStart",
+          "TemplateCreateStart"
+        ],
+        "resolvedFrom": {
+          "line": 5358,
+          "text": "const preHookType = isUpdatePhase ? ProfilerEvent.TemplateUpdateStart : ProfilerEvent.TemplateCreateStart;"
+        },
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          },
+          {
+            "text": "templateFn",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 5350,
+          "text": "function executeTemplate(tView, lView, templateFn, rf, context) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 5364,
+        "call": "profiler(postHookType, context, templateFn);",
+        "eventArg": "postHookType",
+        "events": [
+          "TemplateUpdateEnd",
+          "TemplateCreateEnd"
+        ],
+        "resolvedFrom": {
+          "line": 5363,
+          "text": "const postHookType = isUpdatePhase ? ProfilerEvent.TemplateUpdateEnd : ProfilerEvent.TemplateCreateEnd;"
+        },
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          },
+          {
+            "text": "templateFn",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 5350,
+          "text": "function executeTemplate(tView, lView, templateFn, rf, context) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 5740,
+        "call": "profiler(ProfilerEvent.ComponentStart);",
+        "eventArg": "ProfilerEvent.ComponentStart",
+        "events": [
+          "ComponentStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 5731,
+          "text": "function renderComponent(hostLView, componentHostIdx) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 5744,
+        "call": "profiler(ProfilerEvent.ComponentEnd, componentView[CONTEXT]);",
+        "eventArg": "ProfilerEvent.ComponentEnd",
+        "events": [
+          "ComponentEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "componentView[CONTEXT]",
+            "identifier": false
+          }
+        ],
+        "enclosing": {
+          "line": 5731,
+          "text": "function renderComponent(hostLView, componentHostIdx) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 6166,
+        "call": "profiler(ProfilerEvent.ComponentStart);",
+        "eventArg": "ProfilerEvent.ComponentStart",
+        "events": [
+          "ComponentStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 6164,
+          "text": "function detectChangesInComponent(hostLView, componentHostIdx, mode) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 6171,
+        "call": "profiler(ProfilerEvent.ComponentEnd, componentView[CONTEXT]);",
+        "eventArg": "ProfilerEvent.ComponentEnd",
+        "events": [
+          "ComponentEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "componentView[CONTEXT]",
+            "identifier": false
+          }
+        ],
+        "enclosing": {
+          "line": 6164,
+          "text": "function detectChangesInComponent(hostLView, componentHostIdx, mode) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 6234,
+        "call": "profiler(ProfilerEvent.HostBindingsUpdateStart, context);",
+        "eventArg": "ProfilerEvent.HostBindingsUpdateStart",
+        "events": [
+          "HostBindingsUpdateStart"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 6220,
+          "text": "function processHostBindingOpCodes(tView, lView) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 6238,
+        "call": "profiler(ProfilerEvent.HostBindingsUpdateEnd, context);",
+        "eventArg": "ProfilerEvent.HostBindingsUpdateEnd",
+        "events": [
+          "HostBindingsUpdateEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 6220,
+          "text": "function processHostBindingOpCodes(tView, lView) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 8227,
+        "call": "profiler(ProfilerEvent.OutputStart, context, listenerFn);",
+        "eventArg": "ProfilerEvent.OutputStart",
+        "events": [
+          "OutputStart"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          },
+          {
+            "text": "listenerFn",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 8224,
+          "text": "function executeListenerWithErrorHandling(lView, context, listenerFn, e) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 8233,
+        "call": "profiler(ProfilerEvent.OutputEnd, context, listenerFn);",
+        "eventArg": "ProfilerEvent.OutputEnd",
+        "events": [
+          "OutputEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          },
+          {
+            "text": "listenerFn",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 8224,
+          "text": "function executeListenerWithErrorHandling(lView, context, listenerFn, e) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 9153,
+        "call": "profiler(ProfilerEvent.DynamicComponentStart);",
+        "eventArg": "ProfilerEvent.DynamicComponentStart",
+        "events": [
+          "DynamicComponentStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 9152,
+          "text": "create(injector, projectableNodes, rootSelectorOrNode, environmentInjector, directives, componentBindings, hostElementNamespace) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 9209,
+        "call": "profiler(ProfilerEvent.DynamicComponentEnd);",
+        "eventArg": "ProfilerEvent.DynamicComponentEnd",
+        "events": [
+          "DynamicComponentEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 9170,
+          "text": "createComponentRef(environment, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings, hostElementNamespace) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 11316,
+        "call": "profiler(ProfilerEvent.DeferBlockStateStart);",
+        "eventArg": "ProfilerEvent.DeferBlockStateStart",
+        "events": [
+          "DeferBlockStateStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 11315,
+          "text": "function applyDeferBlockState(newState, lDetails, lContainer, tNode, hostLView) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 11353,
+        "call": "profiler(ProfilerEvent.DeferBlockStateEnd);",
+        "eventArg": "ProfilerEvent.DeferBlockStateEnd",
+        "events": [
+          "DeferBlockStateEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 11315,
+          "text": "function applyDeferBlockState(newState, lDetails, lContainer, tNode, hostLView) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 12888,
+        "call": "profiler(ProfilerEvent.BootstrapComponentStart);",
+        "eventArg": "ProfilerEvent.BootstrapComponentStart",
+        "events": [
+          "BootstrapComponentStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 12885,
+          "text": "bootstrapImpl(component, hostElementOrOptions, injector = Injector.NULL) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 12923,
+        "call": "profiler(ProfilerEvent.BootstrapComponentEnd, compRef);",
+        "eventArg": "ProfilerEvent.BootstrapComponentEnd",
+        "events": [
+          "BootstrapComponentEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "compRef",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 12885,
+          "text": "bootstrapImpl(component, hostElementOrOptions, injector = Injector.NULL) {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 12934,
+        "call": "profiler(ProfilerEvent.ChangeDetectionStart);",
+        "eventArg": "ProfilerEvent.ChangeDetectionStart",
+        "events": [
+          "ChangeDetectionStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 12933,
+          "text": "_tick() {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 12944,
+        "call": "profiler(ProfilerEvent.ChangeDetectionEnd);",
+        "eventArg": "ProfilerEvent.ChangeDetectionEnd",
+        "events": [
+          "ChangeDetectionEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 12941,
+          "text": "tickImpl = () => {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 12962,
+        "call": "profiler(ProfilerEvent.ChangeDetectionEnd);",
+        "eventArg": "ProfilerEvent.ChangeDetectionEnd",
+        "events": [
+          "ChangeDetectionEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 12941,
+          "text": "tickImpl = () => {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 12973,
+        "call": "profiler(ProfilerEvent.ChangeDetectionSyncStart);",
+        "eventArg": "ProfilerEvent.ChangeDetectionSyncStart",
+        "events": [
+          "ChangeDetectionSyncStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 12965,
+          "text": "synchronize() {"
+        }
+      },
+      {
+        "source": "panel",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 12977,
+        "call": "profiler(ProfilerEvent.ChangeDetectionSyncEnd);",
+        "eventArg": "ProfilerEvent.ChangeDetectionSyncEnd",
+        "events": [
+          "ChangeDetectionSyncEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 12965,
+          "text": "synchronize() {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 259,
+        "call": "profiler(ProfilerEvent.LifecycleHookStart, directive, hook);",
+        "eventArg": "ProfilerEvent.LifecycleHookStart",
+        "events": [
+          "LifecycleHookStart"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "directive",
+            "identifier": true
+          },
+          {
+            "text": "hook",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 258,
+          "text": "function callHookInternal(directive, hook) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 265,
+        "call": "profiler(ProfilerEvent.LifecycleHookEnd, directive, hook);",
+        "eventArg": "ProfilerEvent.LifecycleHookEnd",
+        "events": [
+          "LifecycleHookEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "directive",
+            "identifier": true
+          },
+          {
+            "text": "hook",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 258,
+          "text": "function callHookInternal(directive, hook) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 4335,
+        "call": "profiler(ProfilerEvent.AfterRenderHooksStart);",
+        "eventArg": "ProfilerEvent.AfterRenderHooksStart",
+        "events": [
+          "AfterRenderHooksStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 4332,
+          "text": "execute() {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 4371,
+        "call": "profiler(ProfilerEvent.AfterRenderHooksEnd);",
+        "eventArg": "ProfilerEvent.AfterRenderHooksEnd",
+        "events": [
+          "AfterRenderHooksEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 4332,
+          "text": "execute() {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 5018,
+        "call": "profiler(ProfilerEvent.LifecycleHookStart, callContext, hook);",
+        "eventArg": "ProfilerEvent.LifecycleHookStart",
+        "events": [
+          "LifecycleHookStart"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "callContext",
+            "identifier": true
+          },
+          {
+            "text": "hook",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 5006,
+          "text": "function executeOnDestroys(tView, lView) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 5022,
+        "call": "profiler(ProfilerEvent.LifecycleHookEnd, callContext, hook);",
+        "eventArg": "ProfilerEvent.LifecycleHookEnd",
+        "events": [
+          "LifecycleHookEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "callContext",
+            "identifier": true
+          },
+          {
+            "text": "hook",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 5006,
+          "text": "function executeOnDestroys(tView, lView) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 5026,
+        "call": "profiler(ProfilerEvent.LifecycleHookStart, context, toCall);",
+        "eventArg": "ProfilerEvent.LifecycleHookStart",
+        "events": [
+          "LifecycleHookStart"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          },
+          {
+            "text": "toCall",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 5006,
+          "text": "function executeOnDestroys(tView, lView) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 5030,
+        "call": "profiler(ProfilerEvent.LifecycleHookEnd, context, toCall);",
+        "eventArg": "ProfilerEvent.LifecycleHookEnd",
+        "events": [
+          "LifecycleHookEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          },
+          {
+            "text": "toCall",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 5006,
+          "text": "function executeOnDestroys(tView, lView) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 5497,
+        "call": "profiler(preHookType, context, templateFn);",
+        "eventArg": "preHookType",
+        "events": [
+          "TemplateUpdateStart",
+          "TemplateCreateStart"
+        ],
+        "resolvedFrom": {
+          "line": 5496,
+          "text": "const preHookType = isUpdatePhase ? ProfilerEvent.TemplateUpdateStart : ProfilerEvent.TemplateCreateStart;"
+        },
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          },
+          {
+            "text": "templateFn",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 5488,
+          "text": "function executeTemplate(tView, lView, templateFn, rf, context) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 5502,
+        "call": "profiler(postHookType, context, templateFn);",
+        "eventArg": "postHookType",
+        "events": [
+          "TemplateUpdateEnd",
+          "TemplateCreateEnd"
+        ],
+        "resolvedFrom": {
+          "line": 5501,
+          "text": "const postHookType = isUpdatePhase ? ProfilerEvent.TemplateUpdateEnd : ProfilerEvent.TemplateCreateEnd;"
+        },
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          },
+          {
+            "text": "templateFn",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 5488,
+          "text": "function executeTemplate(tView, lView, templateFn, rf, context) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 5889,
+        "call": "profiler(ProfilerEvent.ComponentStart);",
+        "eventArg": "ProfilerEvent.ComponentStart",
+        "events": [
+          "ComponentStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 5880,
+          "text": "function renderComponent(hostLView, componentHostIdx) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 5893,
+        "call": "profiler(ProfilerEvent.ComponentEnd, componentView[CONTEXT]);",
+        "eventArg": "ProfilerEvent.ComponentEnd",
+        "events": [
+          "ComponentEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "componentView[CONTEXT]",
+            "identifier": false
+          }
+        ],
+        "enclosing": {
+          "line": 5880,
+          "text": "function renderComponent(hostLView, componentHostIdx) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 6349,
+        "call": "profiler(ProfilerEvent.ComponentStart);",
+        "eventArg": "ProfilerEvent.ComponentStart",
+        "events": [
+          "ComponentStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 6347,
+          "text": "function detectChangesInComponent(hostLView, componentHostIdx, mode) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 6354,
+        "call": "profiler(ProfilerEvent.ComponentEnd, componentView[CONTEXT]);",
+        "eventArg": "ProfilerEvent.ComponentEnd",
+        "events": [
+          "ComponentEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "componentView[CONTEXT]",
+            "identifier": false
+          }
+        ],
+        "enclosing": {
+          "line": 6347,
+          "text": "function detectChangesInComponent(hostLView, componentHostIdx, mode) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 6417,
+        "call": "profiler(ProfilerEvent.HostBindingsUpdateStart, context);",
+        "eventArg": "ProfilerEvent.HostBindingsUpdateStart",
+        "events": [
+          "HostBindingsUpdateStart"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 6403,
+          "text": "function processHostBindingOpCodes(tView, lView) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 6421,
+        "call": "profiler(ProfilerEvent.HostBindingsUpdateEnd, context);",
+        "eventArg": "ProfilerEvent.HostBindingsUpdateEnd",
+        "events": [
+          "HostBindingsUpdateEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 6403,
+          "text": "function processHostBindingOpCodes(tView, lView) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 8410,
+        "call": "profiler(ProfilerEvent.OutputStart, context, listenerFn);",
+        "eventArg": "ProfilerEvent.OutputStart",
+        "events": [
+          "OutputStart"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          },
+          {
+            "text": "listenerFn",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 8407,
+          "text": "function executeListenerWithErrorHandling(lView, context, listenerFn, e) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 8416,
+        "call": "profiler(ProfilerEvent.OutputEnd, context, listenerFn);",
+        "eventArg": "ProfilerEvent.OutputEnd",
+        "events": [
+          "OutputEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "context",
+            "identifier": true
+          },
+          {
+            "text": "listenerFn",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 8407,
+          "text": "function executeListenerWithErrorHandling(lView, context, listenerFn, e) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 9336,
+        "call": "profiler(ProfilerEvent.DynamicComponentStart);",
+        "eventArg": "ProfilerEvent.DynamicComponentStart",
+        "events": [
+          "DynamicComponentStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 9335,
+          "text": "create(injector, projectableNodes, rootSelectorOrNode, environmentInjector, directives, componentBindings, hostElementNamespace, allowNonStandaloneDirectives) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 9392,
+        "call": "profiler(ProfilerEvent.DynamicComponentEnd);",
+        "eventArg": "ProfilerEvent.DynamicComponentEnd",
+        "events": [
+          "DynamicComponentEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 9353,
+          "text": "createComponentRef(environment, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings, hostElementNamespace, allowNonStandaloneDirectives) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 11511,
+        "call": "profiler(ProfilerEvent.DeferBlockStateStart);",
+        "eventArg": "ProfilerEvent.DeferBlockStateStart",
+        "events": [
+          "DeferBlockStateStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 11510,
+          "text": "function applyDeferBlockState(newState, lDetails, lContainer, tNode, hostLView) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 11548,
+        "call": "profiler(ProfilerEvent.DeferBlockStateEnd);",
+        "eventArg": "ProfilerEvent.DeferBlockStateEnd",
+        "events": [
+          "DeferBlockStateEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 11510,
+          "text": "function applyDeferBlockState(newState, lDetails, lContainer, tNode, hostLView) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 13254,
+        "call": "profiler(ProfilerEvent.BootstrapComponentStart);",
+        "eventArg": "ProfilerEvent.BootstrapComponentStart",
+        "events": [
+          "BootstrapComponentStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 13251,
+          "text": "bootstrapImpl(component, hostElementOrOptions, injector = Injector.NULL) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 13289,
+        "call": "profiler(ProfilerEvent.BootstrapComponentEnd, compRef);",
+        "eventArg": "ProfilerEvent.BootstrapComponentEnd",
+        "events": [
+          "BootstrapComponentEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [
+          {
+            "text": "compRef",
+            "identifier": true
+          }
+        ],
+        "enclosing": {
+          "line": 13251,
+          "text": "bootstrapImpl(component, hostElementOrOptions, injector = Injector.NULL) {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 13300,
+        "call": "profiler(ProfilerEvent.ChangeDetectionStart);",
+        "eventArg": "ProfilerEvent.ChangeDetectionStart",
+        "events": [
+          "ChangeDetectionStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 13299,
+          "text": "_tick() {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 13310,
+        "call": "profiler(ProfilerEvent.ChangeDetectionEnd);",
+        "eventArg": "ProfilerEvent.ChangeDetectionEnd",
+        "events": [
+          "ChangeDetectionEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 13307,
+          "text": "tickImpl = () => {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 13328,
+        "call": "profiler(ProfilerEvent.ChangeDetectionEnd);",
+        "eventArg": "ProfilerEvent.ChangeDetectionEnd",
+        "events": [
+          "ChangeDetectionEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 13307,
+          "text": "tickImpl = () => {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 13339,
+        "call": "profiler(ProfilerEvent.ChangeDetectionSyncStart);",
+        "eventArg": "ProfilerEvent.ChangeDetectionSyncStart",
+        "events": [
+          "ChangeDetectionSyncStart"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 13331,
+          "text": "synchronize() {"
+        }
+      },
+      {
+        "source": "fixture",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "line": 13343,
+        "call": "profiler(ProfilerEvent.ChangeDetectionSyncEnd);",
+        "eventArg": "ProfilerEvent.ChangeDetectionSyncEnd",
+        "events": [
+          "ChangeDetectionSyncEnd"
+        ],
+        "resolvedFrom": null,
+        "args": [],
+        "enclosing": {
+          "line": 13331,
+          "text": "synchronize() {"
+        }
+      }
+    ],
+    "perPair": [
+      {
+        "label": "TemplateUpdate",
+        "start": 2,
+        "end": 3,
+        "startSites": [
+          {
+            "source": "panel",
+            "line": 5359,
+            "argCount": 2,
+            "expression": "context",
+            "identity": "instance"
+          },
+          {
+            "source": "fixture",
+            "line": 5497,
+            "argCount": 2,
+            "expression": "context",
+            "identity": "instance"
+          }
+        ],
+        "endSites": [
+          {
+            "source": "panel",
+            "line": 5364,
+            "argCount": 2,
+            "expression": "context",
+            "identity": "instance"
+          },
+          {
+            "source": "fixture",
+            "line": 5502,
+            "argCount": 2,
+            "expression": "context",
+            "identity": "instance"
+          }
+        ],
+        "carriesIdentity": "both",
+        "sharesAnEnclosingFunction": true,
+        "sitePairs": [
+          {
+            "source": "panel",
+            "startLine": 5359,
+            "endLine": 5364,
+            "sameEnclosingFunction": true,
+            "shape": "one-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 5497,
+            "endLine": 5502,
+            "sameEnclosingFunction": true,
+            "shape": "one-try-finally"
+          }
+        ],
+        "witness": {
+          "http://localhost:4222/": {
+            "startCount": 6,
+            "endCount": 6,
+            "startInstance": [
+              "_App",
+              "_Counter"
+            ],
+            "endInstance": [
+              "_App",
+              "_Counter"
+            ],
+            "startEventFn": [
+              "App_Template",
+              "Counter_Template"
+            ],
+            "endEventFn": [
+              "App_Template",
+              "Counter_Template"
+            ]
+          },
+          "http://localhost:4222/field-form": {
+            "startCount": 6,
+            "endCount": 6,
+            "startInstance": [
+              "_App",
+              "_FieldFormPage"
+            ],
+            "endInstance": [
+              "_App",
+              "_FieldFormPage"
+            ],
+            "startEventFn": [
+              "App_Template",
+              "FieldFormPage_Template"
+            ],
+            "endEventFn": [
+              "App_Template",
+              "FieldFormPage_Template"
+            ]
+          }
+        }
+      },
+      {
+        "label": "LifecycleHook",
+        "start": 4,
+        "end": 5,
+        "startSites": [
+          {
+            "source": "panel",
+            "line": 259,
+            "argCount": 2,
+            "expression": "directive",
+            "identity": "instance"
+          },
+          {
+            "source": "panel",
+            "line": 4880,
+            "argCount": 2,
+            "expression": "callContext",
+            "identity": "instance"
+          },
+          {
+            "source": "panel",
+            "line": 4888,
+            "argCount": 2,
+            "expression": "context",
+            "identity": "instance"
+          },
+          {
+            "source": "fixture",
+            "line": 259,
+            "argCount": 2,
+            "expression": "directive",
+            "identity": "instance"
+          },
+          {
+            "source": "fixture",
+            "line": 5018,
+            "argCount": 2,
+            "expression": "callContext",
+            "identity": "instance"
+          },
+          {
+            "source": "fixture",
+            "line": 5026,
+            "argCount": 2,
+            "expression": "context",
+            "identity": "instance"
+          }
+        ],
+        "endSites": [
+          {
+            "source": "panel",
+            "line": 265,
+            "argCount": 2,
+            "expression": "directive",
+            "identity": "instance"
+          },
+          {
+            "source": "panel",
+            "line": 4884,
+            "argCount": 2,
+            "expression": "callContext",
+            "identity": "instance"
+          },
+          {
+            "source": "panel",
+            "line": 4892,
+            "argCount": 2,
+            "expression": "context",
+            "identity": "instance"
+          },
+          {
+            "source": "fixture",
+            "line": 265,
+            "argCount": 2,
+            "expression": "directive",
+            "identity": "instance"
+          },
+          {
+            "source": "fixture",
+            "line": 5022,
+            "argCount": 2,
+            "expression": "callContext",
+            "identity": "instance"
+          },
+          {
+            "source": "fixture",
+            "line": 5030,
+            "argCount": 2,
+            "expression": "context",
+            "identity": "instance"
+          }
+        ],
+        "carriesIdentity": "both",
+        "sharesAnEnclosingFunction": true,
+        "sitePairs": [
+          {
+            "source": "panel",
+            "startLine": 259,
+            "endLine": 265,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "panel",
+            "startLine": 4880,
+            "endLine": 4884,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "panel",
+            "startLine": 4888,
+            "endLine": 4892,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 259,
+            "endLine": 265,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 5018,
+            "endLine": 5022,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 5026,
+            "endLine": 5030,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          }
+        ],
+        "witness": {
+          "http://localhost:4222/": {
+            "startCount": 3,
+            "endCount": 3,
+            "startInstance": [
+              "RouterOutlet"
+            ],
+            "endInstance": [
+              "RouterOutlet"
+            ],
+            "startEventFn": [
+              "rememberChangeHistoryAndInvokeOnChangesHook"
+            ],
+            "endEventFn": [
+              "rememberChangeHistoryAndInvokeOnChangesHook"
+            ]
+          },
+          "http://localhost:4222/field-form": {
+            "startCount": 3,
+            "endCount": 3,
+            "startInstance": [
+              "RouterOutlet"
+            ],
+            "endInstance": [
+              "RouterOutlet"
+            ],
+            "startEventFn": [
+              "rememberChangeHistoryAndInvokeOnChangesHook"
+            ],
+            "endEventFn": [
+              "rememberChangeHistoryAndInvokeOnChangesHook"
+            ]
+          }
+        }
+      },
+      {
+        "label": "ChangeDetection",
+        "start": 12,
+        "end": 13,
+        "startSites": [
+          {
+            "source": "panel",
+            "line": 12934,
+            "argCount": 0,
+            "expression": null,
+            "identity": "none"
+          },
+          {
+            "source": "fixture",
+            "line": 13300,
+            "argCount": 0,
+            "expression": null,
+            "identity": "none"
+          }
+        ],
+        "endSites": [
+          {
+            "source": "panel",
+            "line": 12944,
+            "argCount": 0,
+            "expression": null,
+            "identity": "none"
+          },
+          {
+            "source": "panel",
+            "line": 12962,
+            "argCount": 0,
+            "expression": null,
+            "identity": "none"
+          },
+          {
+            "source": "fixture",
+            "line": 13310,
+            "argCount": 0,
+            "expression": null,
+            "identity": "none"
+          },
+          {
+            "source": "fixture",
+            "line": 13328,
+            "argCount": 0,
+            "expression": null,
+            "identity": "none"
+          }
+        ],
+        "carriesIdentity": "none",
+        "sharesAnEnclosingFunction": false,
+        "sitePairs": [],
+        "witness": {
+          "http://localhost:4222/": {
+            "startCount": 3,
+            "endCount": 3,
+            "startInstance": [
+              "null"
+            ],
+            "endInstance": [
+              "null"
+            ],
+            "startEventFn": [
+              "undefined"
+            ],
+            "endEventFn": [
+              "undefined"
+            ]
+          },
+          "http://localhost:4222/field-form": {
+            "startCount": 3,
+            "endCount": 3,
+            "startInstance": [
+              "null"
+            ],
+            "endInstance": [
+              "null"
+            ],
+            "startEventFn": [
+              "undefined"
+            ],
+            "endEventFn": [
+              "undefined"
+            ]
+          }
+        }
+      },
+      {
+        "label": "Component",
+        "start": 18,
+        "end": 19,
+        "startSites": [
+          {
+            "source": "panel",
+            "line": 5740,
+            "argCount": 0,
+            "expression": null,
+            "identity": "none"
+          },
+          {
+            "source": "panel",
+            "line": 6166,
+            "argCount": 0,
+            "expression": null,
+            "identity": "none"
+          },
+          {
+            "source": "fixture",
+            "line": 5889,
+            "argCount": 0,
+            "expression": null,
+            "identity": "none"
+          },
+          {
+            "source": "fixture",
+            "line": 6349,
+            "argCount": 0,
+            "expression": null,
+            "identity": "none"
+          }
+        ],
+        "endSites": [
+          {
+            "source": "panel",
+            "line": 5744,
+            "argCount": 1,
+            "expression": "componentView[CONTEXT]",
+            "identity": "instance"
+          },
+          {
+            "source": "panel",
+            "line": 6171,
+            "argCount": 1,
+            "expression": "componentView[CONTEXT]",
+            "identity": "instance"
+          },
+          {
+            "source": "fixture",
+            "line": 5893,
+            "argCount": 1,
+            "expression": "componentView[CONTEXT]",
+            "identity": "instance"
+          },
+          {
+            "source": "fixture",
+            "line": 6354,
+            "argCount": 1,
+            "expression": "componentView[CONTEXT]",
+            "identity": "instance"
+          }
+        ],
+        "carriesIdentity": "end-only",
+        "sharesAnEnclosingFunction": true,
+        "sitePairs": [
+          {
+            "source": "panel",
+            "startLine": 5740,
+            "endLine": 5744,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "panel",
+            "startLine": 6166,
+            "endLine": 6171,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 5889,
+            "endLine": 5893,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 6349,
+            "endLine": 6354,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          }
+        ],
+        "witness": {
+          "http://localhost:4222/": {
+            "startCount": 6,
+            "endCount": 6,
+            "startInstance": [
+              "null"
+            ],
+            "endInstance": [
+              "_Counter",
+              "_App"
+            ],
+            "startEventFn": [
+              "undefined"
+            ],
+            "endEventFn": [
+              "undefined"
+            ]
+          },
+          "http://localhost:4222/field-form": {
+            "startCount": 9,
+            "endCount": 9,
+            "startInstance": [
+              "null"
+            ],
+            "endInstance": [
+              "_FieldFormPage",
+              "_Counter",
+              "_App"
+            ],
+            "startEventFn": [
+              "undefined"
+            ],
+            "endEventFn": [
+              "undefined"
+            ]
+          }
+        }
+      },
+      {
+        "label": "HostBindingsUpdate",
+        "start": 24,
+        "end": 25,
+        "startSites": [
+          {
+            "source": "panel",
+            "line": 6234,
+            "argCount": 1,
+            "expression": "context",
+            "identity": "instance"
+          },
+          {
+            "source": "fixture",
+            "line": 6417,
+            "argCount": 1,
+            "expression": "context",
+            "identity": "instance"
+          }
+        ],
+        "endSites": [
+          {
+            "source": "panel",
+            "line": 6238,
+            "argCount": 1,
+            "expression": "context",
+            "identity": "instance"
+          },
+          {
+            "source": "fixture",
+            "line": 6421,
+            "argCount": 1,
+            "expression": "context",
+            "identity": "instance"
+          }
+        ],
+        "carriesIdentity": "both",
+        "sharesAnEnclosingFunction": true,
+        "sitePairs": [
+          {
+            "source": "panel",
+            "startLine": 6234,
+            "endLine": 6238,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 6417,
+            "endLine": 6421,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          }
+        ],
+        "witness": {
+          "http://localhost:4222/": {
+            "startCount": 0,
+            "endCount": 0,
+            "startInstance": [],
+            "endInstance": [],
+            "startEventFn": [],
+            "endEventFn": []
+          },
+          "http://localhost:4222/field-form": {
+            "startCount": 3,
+            "endCount": 3,
+            "startInstance": [
+              "FormRoot"
+            ],
+            "endInstance": [
+              "FormRoot"
+            ],
+            "startEventFn": [
+              "undefined"
+            ],
+            "endEventFn": [
+              "undefined"
+            ]
+          }
+        }
+      }
+    ],
+    "verdict": "answered",
+    "namedAbsence": {
+      "pair": "ChangeDetection 12/13",
+      "carriesIdentity": "none",
+      "startSites": 1,
+      "endSites": 2,
+      "evidence": "the profiler brackets change detection and names nothing: the start is `profiler(ProfilerEvent.ChangeDetectionStart)` and each end is `profiler(ProfilerEvent.ChangeDetectionEnd)`, so the callback receives the parameter default `instance = null` with no `eventFn`, and measured on both pages all 3 starts and all 3 ends carried a null instance and an undefined eventFn",
+      "consequence": "SC3`s cannot-tell is the answer for a ChangeDetection interval: the profiler brackets the frame`s change detection and names nothing. The identity that does exist for a Component bracket arrives on its end (`componentView[CONTEXT]`) and never on its start, so a ComponentStart with no end in the frame is unnamed and must report the same absence"
+    },
+    "finding": "Three pairs carry an identity on both ends (TemplateUpdate, LifecycleHook, HostBindingsUpdate), one carries it on its end only (Component), and one carries none at all (ChangeDetection)."
+  },
+  "frames": {
+    "question": "Are both emission sites of a pair inside one bracketed call, and does the page agent`s microtask-delimited frame hold both ends?",
+    "brackets": [
+      {
+        "label": "TemplateUpdate",
+        "start": 2,
+        "end": 3,
+        "sharesAnEnclosingFunction": true,
+        "sitePairs": [
+          {
+            "source": "panel",
+            "startLine": 5359,
+            "endLine": 5364,
+            "sameEnclosingFunction": true,
+            "shape": "one-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 5497,
+            "endLine": 5502,
+            "sameEnclosingFunction": true,
+            "shape": "one-try-finally"
+          }
+        ],
+        "agentFrame": {
+          "http://localhost:4222/": {
+            "startCount": 6,
+            "endCount": 6,
+            "bracketsInOneFrame": 6,
+            "startsArrivedWithNoFrame": 3,
+            "endsArrivedWithNoFrame": 0
+          },
+          "http://localhost:4222/field-form": {
+            "startCount": 6,
+            "endCount": 6,
+            "bracketsInOneFrame": 6,
+            "startsArrivedWithNoFrame": 3,
+            "endsArrivedWithNoFrame": 0
+          }
+        }
+      },
+      {
+        "label": "LifecycleHook",
+        "start": 4,
+        "end": 5,
+        "sharesAnEnclosingFunction": true,
+        "sitePairs": [
+          {
+            "source": "panel",
+            "startLine": 259,
+            "endLine": 265,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "panel",
+            "startLine": 4880,
+            "endLine": 4884,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "panel",
+            "startLine": 4888,
+            "endLine": 4892,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 259,
+            "endLine": 265,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 5018,
+            "endLine": 5022,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 5026,
+            "endLine": 5030,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          }
+        ],
+        "agentFrame": {
+          "http://localhost:4222/": {
+            "startCount": 3,
+            "endCount": 3,
+            "bracketsInOneFrame": 3,
+            "startsArrivedWithNoFrame": 0,
+            "endsArrivedWithNoFrame": 0
+          },
+          "http://localhost:4222/field-form": {
+            "startCount": 3,
+            "endCount": 3,
+            "bracketsInOneFrame": 3,
+            "startsArrivedWithNoFrame": 0,
+            "endsArrivedWithNoFrame": 0
+          }
+        }
+      },
+      {
+        "label": "ChangeDetection",
+        "start": 12,
+        "end": 13,
+        "sharesAnEnclosingFunction": false,
+        "sitePairs": [],
+        "agentFrame": {
+          "http://localhost:4222/": {
+            "startCount": 3,
+            "endCount": 3,
+            "bracketsInOneFrame": 0,
+            "startsArrivedWithNoFrame": 3,
+            "endsArrivedWithNoFrame": 0
+          },
+          "http://localhost:4222/field-form": {
+            "startCount": 3,
+            "endCount": 3,
+            "bracketsInOneFrame": 0,
+            "startsArrivedWithNoFrame": 3,
+            "endsArrivedWithNoFrame": 0
+          }
+        }
+      },
+      {
+        "label": "Component",
+        "start": 18,
+        "end": 19,
+        "sharesAnEnclosingFunction": true,
+        "sitePairs": [
+          {
+            "source": "panel",
+            "startLine": 5740,
+            "endLine": 5744,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "panel",
+            "startLine": 6166,
+            "endLine": 6171,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 5889,
+            "endLine": 5893,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 6349,
+            "endLine": 6354,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          }
+        ],
+        "agentFrame": {
+          "http://localhost:4222/": {
+            "startCount": 6,
+            "endCount": 6,
+            "bracketsInOneFrame": 3,
+            "startsArrivedWithNoFrame": 3,
+            "endsArrivedWithNoFrame": 0
+          },
+          "http://localhost:4222/field-form": {
+            "startCount": 9,
+            "endCount": 9,
+            "bracketsInOneFrame": 6,
+            "startsArrivedWithNoFrame": 3,
+            "endsArrivedWithNoFrame": 0
+          }
+        }
+      },
+      {
+        "label": "HostBindingsUpdate",
+        "start": 24,
+        "end": 25,
+        "sharesAnEnclosingFunction": true,
+        "sitePairs": [
+          {
+            "source": "panel",
+            "startLine": 6234,
+            "endLine": 6238,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          },
+          {
+            "source": "fixture",
+            "startLine": 6417,
+            "endLine": 6421,
+            "sameEnclosingFunction": true,
+            "shape": "start-then-try-finally"
+          }
+        ],
+        "agentFrame": {
+          "http://localhost:4222/": {
+            "startCount": 0,
+            "endCount": 0,
+            "bracketsInOneFrame": 0,
+            "startsArrivedWithNoFrame": 0,
+            "endsArrivedWithNoFrame": 0
+          },
+          "http://localhost:4222/field-form": {
+            "startCount": 3,
+            "endCount": 3,
+            "bracketsInOneFrame": 3,
+            "startsArrivedWithNoFrame": 0,
+            "endsArrivedWithNoFrame": 0
+          }
+        }
+      }
+    ],
+    "agentFrame": {
+      "how": "the agent opens its cycle on the first TemplateUpdateStart of a task and closes it from a queued microtask, so the cycle spans the rest of that task`s synchronous work and nothing after it",
+      "opensOn": "TemplateUpdateStart",
+      "opensOnValue": 2,
+      "openBranch": 599,
+      "openCall": 600,
+      "openFunction": 738,
+      "closeQueue": 747,
+      "closeFunction": 1038,
+      "profilerTaps": 1,
+      "tapLine": 558
+    },
+    "startsWithNoFrame": [
+      {
+        "label": "TemplateUpdate",
+        "start": 2,
+        "observed": 12,
+        "startsArrivedWithNoFrame": 6
+      },
+      {
+        "label": "ChangeDetection",
+        "start": 12,
+        "observed": 6,
+        "startsArrivedWithNoFrame": 6
+      },
+      {
+        "label": "Component",
+        "start": 18,
+        "observed": 15,
+        "startsArrivedWithNoFrame": 6
+      }
+    ],
+    "disagreements": [
+      {
+        "label": "Component",
+        "start": 18,
+        "end": 19,
+        "bracketedCallHoldsBothEnds": true,
+        "agentFrameHoldsBothEnds": false,
+        "detail": "each start and its end are in one try/finally (renderComponent 5740/5744, detectChangesInComponent 6166/6171), but the outermost ComponentStart of a task precedes the first TemplateUpdateStart that opens the frame: 3 of 6 starts on / and 3 of 9 on /field-form arrived with no frame open, and only the inner brackets share a frame",
+        "narratorObeys": "a Component start recorded with no frame open belongs to the frame the task opens later, or the interval is unmeasured; it is never paired with an end from another frame"
+      }
+    ],
+    "rule": "The agent frame is not the profiler bracket. A start and its end must be matched by recorded arrival order and the measured nesting — a pair`s end is emitted inside the same synchronous call as its start — and a start that arrives with no frame open belongs to the frame the same task opens later or is reported unmeasured. A duration is never taken from the agent`s cycle alone.",
+    "verdict": "answered",
+    "finding": "Both ends of all five pairs sit in one synchronous call except ChangeDetection, whose start and end are emitted in two different calls; the agent`s frame holds both ends for TemplateUpdate, LifecycleHook and HostBindingsUpdate, only the inner brackets for Component, and never for ChangeDetection."
+  },
+  "witness": {
+    "attempted": true,
+    "at": "2026-11-08T13:31:26.761Z",
+    "evidence": ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261108-133126/chrome-beta-gemma4-run-1794144694979.json",
+    "routesDriven": [
+      "/",
+      "/field-form"
+    ],
+    "instance": {
+      "name": "chrome-beta-gemma4",
+      "browser": "Chrome/158.0.8127.18",
+      "cdp": 9334
+    },
+    "build": {
+      "app": "spikes/ng222-app",
+      "angular": "22.2.2",
+      "url": "http://localhost:4222/",
+      "servedBy": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter --json",
+      "configuration": "development",
+      "zoneless": true
+    },
+    "pages": [
+      {
+        "url": "http://localhost:4222/",
+        "angularVersion": "22.2.2",
+        "zoneGlobal": false,
+        "framesOpened": 3,
+        "eventsRecorded": 48,
+        "perEvent": [
+          {
+            "event": 2,
+            "name": "TemplateUpdateStart",
+            "count": 6,
+            "instanceKinds": {
+              "object:_App": 3,
+              "object:_Counter": 3
+            },
+            "eventFnKinds": {
+              "function": 6
+            },
+            "eventFnNames": {
+              "App_Template": 3,
+              "Counter_Template": 3
+            },
+            "arrivedInOpenFrame": 3,
+            "arrivedWithNoFrame": 3
+          },
+          {
+            "event": 3,
+            "name": "TemplateUpdateEnd",
+            "count": 6,
+            "instanceKinds": {
+              "object:_App": 3,
+              "object:_Counter": 3
+            },
+            "eventFnKinds": {
+              "function": 6
+            },
+            "eventFnNames": {
+              "App_Template": 3,
+              "Counter_Template": 3
+            },
+            "arrivedInOpenFrame": 6,
+            "arrivedWithNoFrame": 0
+          },
+          {
+            "event": 4,
+            "name": "LifecycleHookStart",
+            "count": 3,
+            "instanceKinds": {
+              "object:RouterOutlet": 3
+            },
+            "eventFnKinds": {
+              "function": 3
+            },
+            "eventFnNames": {
+              "rememberChangeHistoryAndInvokeOnChangesHook": 3
+            },
+            "arrivedInOpenFrame": 3,
+            "arrivedWithNoFrame": 0
+          },
+          {
+            "event": 5,
+            "name": "LifecycleHookEnd",
+            "count": 3,
+            "instanceKinds": {
+              "object:RouterOutlet": 3
+            },
+            "eventFnKinds": {
+              "function": 3
+            },
+            "eventFnNames": {
+              "rememberChangeHistoryAndInvokeOnChangesHook": 3
+            },
+            "arrivedInOpenFrame": 3,
+            "arrivedWithNoFrame": 0
+          },
+          {
+            "event": 6,
+            "name": "OutputStart",
+            "count": 3,
+            "instanceKinds": {
+              "object:_Counter": 3
+            },
+            "eventFnKinds": {
+              "function": 3
+            },
+            "eventFnNames": {
+              "Counter_Template_button_click_2_listener": 3
+            },
+            "arrivedInOpenFrame": 0,
+            "arrivedWithNoFrame": 3
+          },
+          {
+            "event": 7,
+            "name": "OutputEnd",
+            "count": 3,
+            "instanceKinds": {
+              "object:_Counter": 3
+            },
+            "eventFnKinds": {
+              "function": 3
+            },
+            "eventFnNames": {
+              "Counter_Template_button_click_2_listener": 3
+            },
+            "arrivedInOpenFrame": 0,
+            "arrivedWithNoFrame": 3
+          },
+          {
+            "event": 12,
+            "name": "ChangeDetectionStart",
+            "count": 3,
+            "instanceKinds": {
+              "null": 3
+            },
+            "eventFnKinds": {
+              "undefined": 3
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 0,
+            "arrivedWithNoFrame": 3
+          },
+          {
+            "event": 13,
+            "name": "ChangeDetectionEnd",
+            "count": 3,
+            "instanceKinds": {
+              "null": 3
+            },
+            "eventFnKinds": {
+              "undefined": 3
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 3,
+            "arrivedWithNoFrame": 0
+          },
+          {
+            "event": 14,
+            "name": "ChangeDetectionSyncStart",
+            "count": 3,
+            "instanceKinds": {
+              "null": 3
+            },
+            "eventFnKinds": {
+              "undefined": 3
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 0,
+            "arrivedWithNoFrame": 3
+          },
+          {
+            "event": 15,
+            "name": "ChangeDetectionSyncEnd",
+            "count": 3,
+            "instanceKinds": {
+              "null": 3
+            },
+            "eventFnKinds": {
+              "undefined": 3
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 3,
+            "arrivedWithNoFrame": 0
+          },
+          {
+            "event": 18,
+            "name": "ComponentStart",
+            "count": 6,
+            "instanceKinds": {
+              "null": 6
+            },
+            "eventFnKinds": {
+              "undefined": 6
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 3,
+            "arrivedWithNoFrame": 3
+          },
+          {
+            "event": 19,
+            "name": "ComponentEnd",
+            "count": 6,
+            "instanceKinds": {
+              "object:_Counter": 3,
+              "object:_App": 3
+            },
+            "eventFnKinds": {
+              "undefined": 6
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 6,
+            "arrivedWithNoFrame": 0
+          }
+        ],
+        "pairs": [
+          {
+            "label": "TemplateUpdate",
+            "start": 2,
+            "end": 3,
+            "startCount": 6,
+            "endCount": 6,
+            "startInstance": [
+              "_App",
+              "_Counter"
+            ],
+            "endInstance": [
+              "_App",
+              "_Counter"
+            ],
+            "startEventFn": [
+              "App_Template",
+              "Counter_Template"
+            ],
+            "endEventFn": [
+              "App_Template",
+              "Counter_Template"
+            ],
+            "startsArrivedWithNoFrame": 3,
+            "endsArrivedWithNoFrame": 0,
+            "bracketsInOneFrame": 6,
+            "startDepths": [
+              3,
+              4
+            ]
+          },
+          {
+            "label": "LifecycleHook",
+            "start": 4,
+            "end": 5,
+            "startCount": 3,
+            "endCount": 3,
+            "startInstance": [
+              "RouterOutlet"
+            ],
+            "endInstance": [
+              "RouterOutlet"
+            ],
+            "startEventFn": [
+              "rememberChangeHistoryAndInvokeOnChangesHook"
+            ],
+            "endEventFn": [
+              "rememberChangeHistoryAndInvokeOnChangesHook"
+            ],
+            "startsArrivedWithNoFrame": 0,
+            "endsArrivedWithNoFrame": 0,
+            "bracketsInOneFrame": 3,
+            "startDepths": [
+              3
+            ]
+          },
+          {
+            "label": "ChangeDetection",
+            "start": 12,
+            "end": 13,
+            "startCount": 3,
+            "endCount": 3,
+            "startInstance": [
+              "null"
+            ],
+            "endInstance": [
+              "null"
+            ],
+            "startEventFn": [
+              "undefined"
+            ],
+            "endEventFn": [
+              "undefined"
+            ],
+            "startsArrivedWithNoFrame": 3,
+            "endsArrivedWithNoFrame": 0,
+            "bracketsInOneFrame": 0,
+            "startDepths": [
+              0
+            ]
+          },
+          {
+            "label": "Component",
+            "start": 18,
+            "end": 19,
+            "startCount": 6,
+            "endCount": 6,
+            "startInstance": [
+              "null"
+            ],
+            "endInstance": [
+              "_Counter",
+              "_App"
+            ],
+            "startEventFn": [
+              "undefined"
+            ],
+            "endEventFn": [
+              "undefined"
+            ],
+            "startsArrivedWithNoFrame": 3,
+            "endsArrivedWithNoFrame": 0,
+            "bracketsInOneFrame": 3,
+            "startDepths": [
+              2,
+              3
+            ]
+          },
+          {
+            "label": "HostBindingsUpdate",
+            "start": 24,
+            "end": 25,
+            "startCount": 0,
+            "endCount": 0,
+            "startInstance": [],
+            "endInstance": [],
+            "startEventFn": [],
+            "endEventFn": [],
+            "startsArrivedWithNoFrame": 0,
+            "endsArrivedWithNoFrame": 0,
+            "bracketsInOneFrame": 0,
+            "startDepths": []
+          }
+        ],
+        "frameOrders": [
+          {
+            "frame": 1,
+            "order": [
+              2,
+              3,
+              4,
+              5,
+              18,
+              2,
+              3,
+              19,
+              19,
+              15,
+              13
+            ]
+          },
+          {
+            "frame": 2,
+            "order": [
+              2,
+              3,
+              4,
+              5,
+              18,
+              2,
+              3,
+              19,
+              19,
+              15,
+              13
+            ]
+          },
+          {
+            "frame": 3,
+            "order": [
+              2,
+              3,
+              4,
+              5,
+              18,
+              2,
+              3,
+              19,
+              19,
+              15,
+              13
+            ]
+          }
+        ],
+        "probe": "one throwaway profiler callback per page, on a tab `run` closes"
+      },
+      {
+        "url": "http://localhost:4222/field-form",
+        "angularVersion": "22.2.2",
+        "zoneGlobal": false,
+        "framesOpened": 3,
+        "eventsRecorded": 60,
+        "perEvent": [
+          {
+            "event": 2,
+            "name": "TemplateUpdateStart",
+            "count": 6,
+            "instanceKinds": {
+              "object:_App": 3,
+              "object:_FieldFormPage": 3
+            },
+            "eventFnKinds": {
+              "function": 6
+            },
+            "eventFnNames": {
+              "App_Template": 3,
+              "FieldFormPage_Template": 3
+            },
+            "arrivedInOpenFrame": 3,
+            "arrivedWithNoFrame": 3
+          },
+          {
+            "event": 3,
+            "name": "TemplateUpdateEnd",
+            "count": 6,
+            "instanceKinds": {
+              "object:_App": 3,
+              "object:_FieldFormPage": 3
+            },
+            "eventFnKinds": {
+              "function": 6
+            },
+            "eventFnNames": {
+              "App_Template": 3,
+              "FieldFormPage_Template": 3
+            },
+            "arrivedInOpenFrame": 6,
+            "arrivedWithNoFrame": 0
+          },
+          {
+            "event": 4,
+            "name": "LifecycleHookStart",
+            "count": 3,
+            "instanceKinds": {
+              "object:RouterOutlet": 3
+            },
+            "eventFnKinds": {
+              "function": 3
+            },
+            "eventFnNames": {
+              "rememberChangeHistoryAndInvokeOnChangesHook": 3
+            },
+            "arrivedInOpenFrame": 3,
+            "arrivedWithNoFrame": 0
+          },
+          {
+            "event": 5,
+            "name": "LifecycleHookEnd",
+            "count": 3,
+            "instanceKinds": {
+              "object:RouterOutlet": 3
+            },
+            "eventFnKinds": {
+              "function": 3
+            },
+            "eventFnNames": {
+              "rememberChangeHistoryAndInvokeOnChangesHook": 3
+            },
+            "arrivedInOpenFrame": 3,
+            "arrivedWithNoFrame": 0
+          },
+          {
+            "event": 6,
+            "name": "OutputStart",
+            "count": 3,
+            "instanceKinds": {
+              "object:_FieldFormPage": 3
+            },
+            "eventFnKinds": {
+              "function": 3
+            },
+            "eventFnNames": {
+              "(anonymous)": 3
+            },
+            "arrivedInOpenFrame": 0,
+            "arrivedWithNoFrame": 3
+          },
+          {
+            "event": 7,
+            "name": "OutputEnd",
+            "count": 3,
+            "instanceKinds": {
+              "object:_FieldFormPage": 3
+            },
+            "eventFnKinds": {
+              "function": 3
+            },
+            "eventFnNames": {
+              "(anonymous)": 3
+            },
+            "arrivedInOpenFrame": 0,
+            "arrivedWithNoFrame": 3
+          },
+          {
+            "event": 12,
+            "name": "ChangeDetectionStart",
+            "count": 3,
+            "instanceKinds": {
+              "null": 3
+            },
+            "eventFnKinds": {
+              "undefined": 3
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 0,
+            "arrivedWithNoFrame": 3
+          },
+          {
+            "event": 13,
+            "name": "ChangeDetectionEnd",
+            "count": 3,
+            "instanceKinds": {
+              "null": 3
+            },
+            "eventFnKinds": {
+              "undefined": 3
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 3,
+            "arrivedWithNoFrame": 0
+          },
+          {
+            "event": 14,
+            "name": "ChangeDetectionSyncStart",
+            "count": 3,
+            "instanceKinds": {
+              "null": 3
+            },
+            "eventFnKinds": {
+              "undefined": 3
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 0,
+            "arrivedWithNoFrame": 3
+          },
+          {
+            "event": 15,
+            "name": "ChangeDetectionSyncEnd",
+            "count": 3,
+            "instanceKinds": {
+              "null": 3
+            },
+            "eventFnKinds": {
+              "undefined": 3
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 3,
+            "arrivedWithNoFrame": 0
+          },
+          {
+            "event": 18,
+            "name": "ComponentStart",
+            "count": 9,
+            "instanceKinds": {
+              "null": 9
+            },
+            "eventFnKinds": {
+              "undefined": 9
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 6,
+            "arrivedWithNoFrame": 3
+          },
+          {
+            "event": 19,
+            "name": "ComponentEnd",
+            "count": 9,
+            "instanceKinds": {
+              "object:_FieldFormPage": 3,
+              "object:_Counter": 3,
+              "object:_App": 3
+            },
+            "eventFnKinds": {
+              "undefined": 9
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 9,
+            "arrivedWithNoFrame": 0
+          },
+          {
+            "event": 24,
+            "name": "HostBindingsUpdateStart",
+            "count": 3,
+            "instanceKinds": {
+              "object:FormRoot": 3
+            },
+            "eventFnKinds": {
+              "undefined": 3
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 3,
+            "arrivedWithNoFrame": 0
+          },
+          {
+            "event": 25,
+            "name": "HostBindingsUpdateEnd",
+            "count": 3,
+            "instanceKinds": {
+              "object:FormRoot": 3
+            },
+            "eventFnKinds": {
+              "undefined": 3
+            },
+            "eventFnNames": {},
+            "arrivedInOpenFrame": 3,
+            "arrivedWithNoFrame": 0
+          }
+        ],
+        "pairs": [
+          {
+            "label": "TemplateUpdate",
+            "start": 2,
+            "end": 3,
+            "startCount": 6,
+            "endCount": 6,
+            "startInstance": [
+              "_App",
+              "_FieldFormPage"
+            ],
+            "endInstance": [
+              "_App",
+              "_FieldFormPage"
+            ],
+            "startEventFn": [
+              "App_Template",
+              "FieldFormPage_Template"
+            ],
+            "endEventFn": [
+              "App_Template",
+              "FieldFormPage_Template"
+            ],
+            "startsArrivedWithNoFrame": 3,
+            "endsArrivedWithNoFrame": 0,
+            "bracketsInOneFrame": 6,
+            "startDepths": [
+              3,
+              4
+            ]
+          },
+          {
+            "label": "LifecycleHook",
+            "start": 4,
+            "end": 5,
+            "startCount": 3,
+            "endCount": 3,
+            "startInstance": [
+              "RouterOutlet"
+            ],
+            "endInstance": [
+              "RouterOutlet"
+            ],
+            "startEventFn": [
+              "rememberChangeHistoryAndInvokeOnChangesHook"
+            ],
+            "endEventFn": [
+              "rememberChangeHistoryAndInvokeOnChangesHook"
+            ],
+            "startsArrivedWithNoFrame": 0,
+            "endsArrivedWithNoFrame": 0,
+            "bracketsInOneFrame": 3,
+            "startDepths": [
+              3
+            ]
+          },
+          {
+            "label": "ChangeDetection",
+            "start": 12,
+            "end": 13,
+            "startCount": 3,
+            "endCount": 3,
+            "startInstance": [
+              "null"
+            ],
+            "endInstance": [
+              "null"
+            ],
+            "startEventFn": [
+              "undefined"
+            ],
+            "endEventFn": [
+              "undefined"
+            ],
+            "startsArrivedWithNoFrame": 3,
+            "endsArrivedWithNoFrame": 0,
+            "bracketsInOneFrame": 0,
+            "startDepths": [
+              0
+            ]
+          },
+          {
+            "label": "Component",
+            "start": 18,
+            "end": 19,
+            "startCount": 9,
+            "endCount": 9,
+            "startInstance": [
+              "null"
+            ],
+            "endInstance": [
+              "_FieldFormPage",
+              "_Counter",
+              "_App"
+            ],
+            "startEventFn": [
+              "undefined"
+            ],
+            "endEventFn": [
+              "undefined"
+            ],
+            "startsArrivedWithNoFrame": 3,
+            "endsArrivedWithNoFrame": 0,
+            "bracketsInOneFrame": 6,
+            "startDepths": [
+              2,
+              3
+            ]
+          },
+          {
+            "label": "HostBindingsUpdate",
+            "start": 24,
+            "end": 25,
+            "startCount": 3,
+            "endCount": 3,
+            "startInstance": [
+              "FormRoot"
+            ],
+            "endInstance": [
+              "FormRoot"
+            ],
+            "startEventFn": [
+              "undefined"
+            ],
+            "endEventFn": [
+              "undefined"
+            ],
+            "startsArrivedWithNoFrame": 0,
+            "endsArrivedWithNoFrame": 0,
+            "bracketsInOneFrame": 3,
+            "startDepths": [
+              4
+            ]
+          }
+        ],
+        "frameOrders": [
+          {
+            "frame": 1,
+            "order": [
+              2,
+              3,
+              4,
+              5,
+              18,
+              2,
+              3,
+              24,
+              25,
+              19,
+              18,
+              19,
+              19,
+              15,
+              13
+            ]
+          },
+          {
+            "frame": 2,
+            "order": [
+              2,
+              3,
+              4,
+              5,
+              18,
+              2,
+              3,
+              24,
+              25,
+              19,
+              18,
+              19,
+              19,
+              15,
+              13
+            ]
+          },
+          {
+            "frame": 3,
+            "order": [
+              2,
+              3,
+              4,
+              5,
+              18,
+              2,
+              3,
+              24,
+              25,
+              19,
+              18,
+              19,
+              19,
+              15,
+              13
+            ]
+          }
+        ],
+        "probe": "one throwaway profiler callback per page, on a tab `run` closes"
+      }
+    ],
+    "negatives": [
+      "HostBindingsUpdate 24/25 fired zero times on / across three ticks, so the counter page cannot witness that pair; it was measured on /field-form instead, where the FormRoot directive carries host bindings",
+      "the three ticks on each page produced the same event order, so the frame orders recorded here are one observed order repeated, not a distribution"
+    ],
+    "portalAttempt": {
+      "target": "the pinned zoneful Insurance Portal worktree, the repository`s verification target",
+      "path": "D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools-zoneful",
+      "pin": "976752389c22bb563d2278c2d78f423cb2505669",
+      "angular": "20.3.35",
+      "routeTried": "/home",
+      "result": "negative",
+      "lacks": "a zoneless profiler stream at a supported version: the pinned worktree is Angular 20.3.35 zone-backed, and extension/agent-main.js:500-542 refuses a page older than 22.1.3 and refuses a zoneful page before it ever calls setProfiler",
+      "countedAs": "negative, not a capture"
+    },
+    "instrumentation": "one profiler callback per page on a tab the `run` command closes; the extension keeps its single setProfiler subscription and no page gained a global, an append-only list or a second tap",
+    "portalZonelessAttempt": {
+      "target": "the portal`s zoneless main checkout, the target AGENTS.md re-pins to when the migration completes",
+      "path": "D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools",
+      "branch": "claude/ai-devtools-spike",
+      "pin": "92d46ec",
+      "angular": "22.2.2",
+      "serve": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal --dir <path>",
+      "url": "http://localhost:4507/",
+      "routeTried": "/home",
+      "at": "2026-11-08T17:44:56.866Z",
+      "instance": "chrome-beta-gemma4",
+      "evidence": ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261108-174456/chrome-beta-gemma4-run-1794159900937.json",
+      "gates": {
+        "zoneGlobal": false,
+        "zoneMode": "noop: the root injector has no NgZone provider (NG0201: No provider found for `NgZone`) and no zone.js dependency is installed, so detectZone reads noop",
+        "setProfiler": true,
+        "getSignalGraph": true,
+        "note": "all four gates extension/agent-main.js:507-553 reads are open on this route, so the agent would install here rather than refuse"
+      },
+      "result": "supported",
+      "pairs": [
+        {
+          "label": "TemplateUpdate",
+          "start": 2,
+          "end": 3,
+          "startCount": 60,
+          "endCount": 60,
+          "startInstance": [
+            "_AppComponent",
+            "Toast",
+            "_SidebarComponent",
+            "RepeaterContext",
+            "Object",
+            "_HomeComponent",
+            "_CardComponent",
+            "_HeaderComponent",
+            null
+          ],
+          "endInstance": [
+            "_AppComponent",
+            "Toast",
+            "_SidebarComponent",
+            "RepeaterContext",
+            "Object",
+            "_HomeComponent",
+            "_CardComponent",
+            "_HeaderComponent",
+            null
+          ]
+        },
+        {
+          "label": "LifecycleHook",
+          "start": 4,
+          "end": 5,
+          "startCount": 64,
+          "endCount": 64,
+          "startInstance": [
+            "Toast",
+            "RouterOutlet",
+            "RouterLink",
+            "RouterLinkActive",
+            "NgTemplateOutlet"
+          ],
+          "endInstance": [
+            "Toast",
+            "RouterOutlet",
+            "RouterLink",
+            "RouterLinkActive",
+            "NgTemplateOutlet"
+          ]
+        },
+        {
+          "label": "ChangeDetection",
+          "start": 12,
+          "end": 13,
+          "startCount": 3,
+          "endCount": 3,
+          "startInstance": [
+            null
+          ],
+          "endInstance": [
+            null
+          ]
+        },
+        {
+          "label": "Component",
+          "start": 18,
+          "end": 19,
+          "startCount": 32,
+          "endCount": 32,
+          "startInstance": [
+            null
+          ],
+          "endInstance": [
+            "Toast",
+            "_SidebarComponent",
+            "_AppComponent",
+            "_HeaderComponent",
+            "_HomeComponent",
+            "_CardComponent"
+          ]
+        },
+        {
+          "label": "HostBindingsUpdate",
+          "start": 24,
+          "end": 25,
+          "startCount": 26,
+          "endCount": 26,
+          "startInstance": [
+            "Bind",
+            "Toast",
+            "RouterLink"
+          ],
+          "endInstance": [
+            "Bind",
+            "Toast",
+            "RouterLink"
+          ]
+        }
+      ],
+      "reading": "measured, not inferred: one tap on the shipped setProfiler over a /home navigation and a click, three requestAnimationFrame ticks, then the stream counted and the tap removed. All five pairs arrive with both ends, ComponentStart arrives with no instance on all 32 starts while its ends carry names, and ChangeDetection carries none at either end - the same shape the counter fixture measured, measured here on a portal route. So the charter`s portal clause reaches this milestone`s facts on the portal`s zoneless main: a portal-backed verdict becomes possible when AGENTS.md re-pins verification to that checkout, and until then the pinned zoneful worktree above still cannot carry one, and a verdict taken there must not be restated as zoneless evidence",
+      "countedAs": "a positive measurement that the stream is available on a portal route, not a frame this milestone narrates: the narrated frame is the counter fixture`s, and nothing here is a duration"
+    }
+  },
+  "doesNotSettle": [
+    "whether a component whose work the profiler bracketed can be named from anything other than the ComponentEnd instance: no site passes a name, and the watcher`s own name is not the profiler`s",
+    "what a production build emits: every site read here is in the development bundle the fixture serves, and the agent already refuses a page without ng.ɵsetProfiler",
+    "how often a bracket arrives with no matching end: the witness drove three ticks per page and every start it saw was matched, so the unmatched case is T003`s fixture, not this measurement",
+    "whether the emission sites move between point releases: this record cites the two versions this head installs (panel 22.1.8, fixture 22.2.2) and the suite re-derives them on every run",
+    "what the portal page emits: the pinned zoneful worktree was named and refused, not driven, because the agent refuses it before subscribing"
+  ]
+}
