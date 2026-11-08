@@ -2,10 +2,10 @@
 id: T005
 title: Re-cut the check-chain pin for the verification gate
 wave: 5
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: orchestrator
+base: 75a62bcf968104be2cb702fae950469663d9f35c
 worktree: null
 task_branch: null
 files:
@@ -71,3 +71,4 @@ node --experimental-strip-types --test "scripts/panel-typecheck-scope.test.mjs"
 ## Log
 
 - dispatched
+- 2026-11-08 - ready - `CHECK_STAGES` now names `npm run gate:verification` in position between `npm run check:companion` and `npm run format:check`, with the comment that records 08a8418; nothing else in the file changed, so the assertion, its message and the six red-half cases are byte identical, and `package.json` still runs the stage. `node --test scripts/panel-typecheck-scope.test.mjs` is 7 of 7 green at this commit; at the base the same command failed 1 of 7 with the pin refusing the extra stage. `npm run check` is green at this commit. No tolerance widened and no assertion relaxed.

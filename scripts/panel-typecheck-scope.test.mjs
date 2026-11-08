@@ -125,6 +125,10 @@ const CHECK_STAGES = [
   'npm run check:panel',
   'npm run check:extension',
   'npm run check:companion',
+  // Added with the verification gate (08a8418): a milestone may not ship without working
+  // verification skills, and the gate runs inside `npm run check` so the chain cannot pass
+  // around it. The pin predated the stage; the pin follows the chain, never the reverse.
+  'npm run gate:verification',
   // Added when the repository adopted Prettier: the tree is formatted, so an unformatted
   // commit is a failing check rather than a later surprise. Named in position, not loosened.
   'npm run format:check',
