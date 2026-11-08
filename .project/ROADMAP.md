@@ -1473,8 +1473,8 @@ Goal: Build the performance narrator: which component did the work in this frame
 Depends on: [M020]
 Programme: core · Batch: 3 · Group: cross-package
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/040-performance-narrator
 Integrated: null
 
 Scope: in

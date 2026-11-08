@@ -2,12 +2,12 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: performance-narrator
-phase: plan
+phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
 branch: gsd-path/M040
-archive: null
+archive: .project/archive/040-performance-narrator
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -808,3 +808,7 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-08 — define — milestone intent approved
 - 2026-11-08 — plan — planning started
 - 2026-11-08 — plan — plan approved
+- 2026-11-08 — build — build started
+- 2026-11-08 — build — build done; final review pending
+- 2026-11-08 — ship — build done; final review pending
+- 2026-11-08 — shipped — archive preflight passed; shipment recorded

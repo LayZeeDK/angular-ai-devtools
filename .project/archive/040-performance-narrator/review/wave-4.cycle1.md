@@ -1,0 +1,43 @@
+# Review — wave 4, cycle 1
+
+Cycle: 1
+Depth: full
+Wave verdict: pass
+Tasks reviewed: 1
+Reviewed HEAD: df142d42d0988360240239fd2043aa1162a761bd
+Wave scope: T004, landed at `cff78961190a64534cced5e829fda6033f6efe3b` — the panel surface and every route-table pin the registration moves.
+
+## T004 — Panel surface for the frame's ordered work and its cost: pass
+
+- ✅ `node --experimental-strip-types --test scripts/panel-performance.test.mjs`, run in this session at df142d4: `ℹ tests 25`, `ℹ pass 25`, `ℹ fail 0`, `ℹ duration_ms 995.8096`. The run prints its own mutant evidence, e.g. `mutant unmeasured-interval-prints-no-cost reddens: … the cost cell holds the unmeasured word the answer carries (unmeasured); it held "0"`.
+- ✅ Two columns, apart, each rendering only its own state: `apps/angular-ai-devtools/src/app/panel-performance.ts:142-158` builds one row as `{ state, pair, identity, cost }` with the identity from `componentName` or `absence` only (`:152`) and the cost from `durationMs` only (`:150`, `:154`), and `:165-170` prints the state word then one line per cell that has text. `scripts/panel-performance.test.mjs:754` (AC1, one row per interval in the answer's order with its two cells apart) passes, and the run above shows the columns it printed.
+- ✅ Nothing invented, in either direction: an unnamed interval renders the answer's absence word with an empty cost cell (`panel-performance.ts:152-155`; pinned at `scripts/panel-performance.test.mjs:779` and by M2 at `:1109`, whose failure names `no-component-identity` against `unknown-component`), an unmeasured interval renders its word and no number (`panel-performance.ts:155`; pinned at `:800` and by M1 at `:1090`), and a measured zero renders `0` rather than a blank (`panel-performance.ts:124-127`, `:154`; pinned at `:823` and by M4 at `:1154`).
+- ✅ It reads no clock and derives nothing: `panel-performance.ts:99-104` reads only `state`, `absence` and `intervals`, and `:216-238` renders in the answer's order. `scripts/panel-performance.test.mjs:836` and `:866` (AC3) prove it, and M8 (`:1237`) derives a cost from `startedAt` and reddens with "the pane must not read the answer's startedAt receipt time; its source names ['startedAt']".
+- ✅ Byte-identical on a second read, held-out E8: the text is assembled from the same values in the same order (`panel-performance.ts:222-238`), pinned at `scripts/panel-performance.test.mjs:1064` (`E8: the same answer rendered twice is byte-identical`) and by M9 (`:1261`), whose failure shows the drifted `cost: 21` against `cost: 22`.
+- ✅ The ten mutants are all there and all name their defect: `scripts/panel-performance.test.mjs:1090` (M1 unmeasured cost), `:1109` (M2 minted name), `:1127` (M3 another row's text), `:1154` (M4 blanked zero), `:1167` (M5 reordered rows), `:1180` (M6 a row for an unplaced end), `:1219` (M7 a dropped state word), `:1237` (M8 a derived cost), `:1261` (M9 a non-deterministic read), `:1274` (M10 one cell repeating the other's text) — ten in the run above, each green.
+- ✅ The route, the loader key and the sample fact: `apps/angular-ai-devtools/src/app/app.routes.ts:138-141` registers `path: 'performance'` lazily with `data: { surface: 'performance' }`, `panel-demo.ts:50` adds the loader key beside the fourteen above it, and `panel-demo.ts:212-244` carries the narrator's own answer as the sample fact — a measured `_App` at `2`, a measured `RouterOutlet` at `0`, the `ChangeDetection` bracket as `cannot-tell` with `no-component-identity` and no name field (`:231-236`), and an unclosed `TemplateUpdate` start as `unmeasured` (`:237-241`).
+- ✅ The fact is held to the recording rather than to itself: `apps/angular-ai-devtools/src/app/panel-demo.spec.ts:631` reads `FACTS['performance']`, `:651` requires "the performance sample must carry the four intervals the frame recorded", and `:707` renders the surface. The route-table pins the registration moved are quoted in this wave's own land (`app.spec.ts:55`, `:131-139`; `scripts/panel-routes.test.mjs:26`, `:71`, `:107`, and the loader-removal mutant at `:278-295`, whose assertion is "removing the performance loader must fail naming the missing surface performance").
+
+## Intent coverage
+
+### SC2 — Recording stays additive: the four events the page agent already records keep the meaning they have today — `OutputStart` still sets the cycle trigger and `TemplateUpdateStart` still opens the cycle — and every added event travels the same per-event record shape as those four, so no surface branches on a specific event number to read one.: pass
+
+- ✅ This wave neither re-proves nor weakens SC2: it touches no file that records a profiler event and leaves `extension/agent-main.js` byte-identical (`git show --stat cff7896` lists only the pane, the demo, the route, the four route-table pins, the two suites and the task file). The criterion itself is proved in wave 2 — `OutputStart` still sets the trigger and `TemplateUpdateStart` still opens the cycle (`extension/agent-main.js:576-585`, `:599-600`), pinned by `extension/agent-main.test.mjs:2460`, `:2602`, `:2612` and by the held-out E3 case at `:2386`.
+- ✅ What this wave adds to SC2 is the reason the criterion reaches the panel at all: the pane reads the answer's fields and never an event number (`panel-performance.ts:142-158`, `:216-220`), so no surface branches on an event value. `scripts/panel-performance.test.mjs:711` reads the pairs from the recording and `:733` feeds the landed join's answer straight in, both green in the run above.
+- ✅ Named dependency, stated rather than implied: the additive record is wave 2's (`110d9fc`); this wave's proof is that the surface consumes that record's answer through its declared fields only. Pass.
+
+### SC3 — When a work interval is bracketed by a `ComponentStart`/`ComponentEnd` pair but the profiler passes no component identity for it, the finding reports cannot-tell with a named absence — that the profiler bracketed work but named no component — and never names the component by its node index, its position in the list, or its nearest named neighbour.: pass
+
+- ✅ The display half is this wave's: an unnamed interval renders the absence word in its identity cell and no cost (`panel-performance.ts:152-155`, pinned at `scripts/panel-performance.test.mjs:779`), and no name is minted from a position, a neighbour or a fallback — M2 (`:1109`), M3 (`:1127`) and M10 (`:1274`) each redden naming the defect, and the run above prints M2's failure against `unknown-component` and `no-component-identity`.
+- ✅ A state the pane was not written for is rendered as the word it was given rather than dropped or relabelled (`panel-performance.ts:145-146`, `:166`; pinned at `scripts/panel-performance.test.mjs:999` and by M7 at `:1219`), which is what stops the pane answering "named" for a cannot-tell it did not understand.
+- ✅ The cannot-tell state itself, and the prohibition on naming by index, position or neighbour, are proved in wave 3 (`extension/performance-narrator.js:202-209`, `:180-183`; `scripts/performance-narrator.test.mjs:1159` with mutants at `:1181`, `:1211`, `:1228`) on the measurement in wave 1 (`research/raw/m040-work-events.json:2140-2147`). This wave proves the pane does not undo either. Pass with both dependencies named.
+
+### SC5 — The panel renders the frame's ordered work with the component identity and the measured cost in separate columns, and renders nothing it was not given: no cost for an unmeasured interval, no component for an unnamed one.: pass
+
+- ✅ "The component identity and the measured cost in separate columns" is `apps/angular-ai-devtools/src/app/panel-performance.ts:75-80` (`identity` and `cost` as two fields of one row) and `:142-170`, pinned by `scripts/panel-performance.test.mjs:754` (AC1) and `:952` (AC4/E7, each state renders its own text and no other state's).
+- ✅ "Renders nothing it was not given: no cost for an unmeasured interval" is `panel-performance.ts:153-155` and its printing rule at `:167-168`, pinned at `:800` and by M1 (`:1090`).
+- ✅ "No component for an unnamed one" is `panel-performance.ts:152` with `:167`, pinned at `:779` and by M2 (`:1109`).
+- ✅ The pane cannot smuggle either in: it reads no `startedAt`, `endedAt`, `unresolved` or `events` (`panel-performance.ts:34-40`, `:99-104`; asserted at `scripts/panel-performance.test.mjs:836`), and an interval poisoned with every field the answer never carries renders none of them (`:866`).
+- ✅ Determinism, the criterion's idempotency edge, is E8: `scripts/panel-performance.test.mjs:1064`, with M9 (`:1261`) reddening it. The run above is 25 tests, 25 pass, 0 fail, and the four-suite run is `ℹ pass 74`, `ℹ fail 0`.
+
+Artifact size: 8773 bytes.
