@@ -781,3 +781,8 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-07 — plan — planning started
 - 2026-11-07 — plan — plan approved
 - 2026-11-07 — build — build started
+- 2026-11-08 — ship — build done; final review pending
+- 2026-11-08 — ship — final gate blocked: project Verify is red at this head — npm test fails scripts/panel-typecheck-scope.test.mjs:351 because the check-chain pin predates the gate:verification stage; finding set in .project/review/PATCH-FINDINGS.md
+- 2026-11-08 — plan — patch plan reopened
+- 2026-11-08 — plan — patch plan approved
+- 2026-11-08 — build — build started

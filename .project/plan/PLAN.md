@@ -65,6 +65,28 @@ Review depth: full
 - Acceptance: every moved value is shown old to new; no tolerance widened; the untargeted halves are named as not re-driven; the gate is green at the head.
 - Verify: `node --experimental-strip-types --test "scripts/fixture-proof-fresh.test.mjs" "scripts/ng-context-dev-build.test.mjs" "scripts/overlay-verdict-claims.test.mjs"`
 
+## Wave 5 — re-cut the pin and copy the escaper
+
+Goal: make the project gate green again without touching what it checks — the chain pin follows the chain, and each copied fingerprint keeps the module it imports.
+
+Review depth: full
+
+The two findings are independent repairs to the gate itself, so they share a wave and touch disjoint files: T005 re-cuts the check-chain pin, T006 repairs the four skill tests the pin's failure had masked. Neither task edits `package.json`, widens a tolerance or skips a test.
+
+### T005 — Re-cut the check-chain pin for the verification gate
+
+- Deps: none
+- Files: `scripts/panel-typecheck-scope.test.mjs`
+- Acceptance: `npm run gate:verification` is named in position between `check:companion` and `format:check`; the assertion, its message and the six red-half cases are unchanged; `package.json` keeps the stage; 7 of 7 at the landing commit and 1 of 7 at base.
+- Verify: `node --experimental-strip-types --test "scripts/panel-typecheck-scope.test.mjs"`
+
+### T006 — Copy text.mjs beside every fingerprint copy the tests build
+
+- Deps: none
+- Files: `.commandcode/skills/control-angular-dev-app/scripts/fingerprint.test.mjs`, `.commandcode/skills/control-angular-devtools/scripts/fingerprint.test.mjs`, `.commandcode/skills/control-pangular-inspector/scripts/fingerprint.test.mjs`, `.commandcode/skills/control-vitest-browser-angular/scripts/fingerprint.test.mjs`
+- Acceptance: each test copies `text.mjs` beside `fingerprint.mjs` in the canonical test's shape; each passes alone; all four fail with `ERR_MODULE_NOT_FOUND` at base; no assertion changed and no test skipped.
+- Verify: `node --experimental-strip-types --test ".commandcode/skills/control-angular-dev-app/scripts/fingerprint.test.mjs" ".commandcode/skills/control-angular-devtools/scripts/fingerprint.test.mjs" ".commandcode/skills/control-pangular-inspector/scripts/fingerprint.test.mjs" ".commandcode/skills/control-vitest-browser-angular/scripts/fingerprint.test.mjs"`
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -87,6 +109,8 @@ Review depth: full
 | SC4 | T002 | AC4 |
 | SC5 | T003 | AC1 |
 | SC6 | T004 | AC4 |
+| SC6 | T005 | AC4 |
+| SC6 | T006 | AC3 |
 
 ## Prohibitions
 
