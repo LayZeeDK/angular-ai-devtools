@@ -2,11 +2,11 @@
 id: T002
 title: Widen the page agent to the five paired work events
 wave: 2
-status: pending
+status: done
 deps:
   - T001
-agent: null
-base: null
+agent: commandcode-coder
+base: d671bd51a60bb9c3f6f144f1cff4c6c116932669
 worktree: null
 task_branch: null
 files:
@@ -139,3 +139,4 @@ node --check extension/agent-main.js && node --check extension/agent-main.test.m
 ## Log
 
 - pending
+- widened extension/agent-main.js to the five paired work events additively: the literal grows to the twelve values, and the change-detection record publishes one frame-level events list, one entry shape {type, pair, end, at, componentName}, in emission order; OutputStart still sets the trigger, TemplateUpdateStart still opens the cycle and the per-check events list still holds bare numbers. T001 measurement obeyed as recorded: ComponentStart null at every start, ChangeDetection null at both ends. agent-main suite 68/68 with five mutants naming their defect (dropped HostBindingsUpdateEnd, LifecycleHookEnd in a second shape, fallback name, trigger, opener) and held-out E3; the M039 derived agent block re-cut through its canonical serialisation (actsOn, declaredAt 24-37, dropsTheRestAt 573-724) and both M039 suites green; Verify green including npm run check: ready

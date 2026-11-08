@@ -17,12 +17,23 @@
 
   // ProfilerEvent enum values (packages/core/primitives/devtools/src/profiler_types.ts).
   // The enum is not published on the page's `ng` global, so the values are hard-coded for
-  // the 22.x surface this extension targets.
+  // the 22.x surface this extension targets. The five paired work events T001 measured
+  // (research/raw/m040-work-events.json) sit here in value order beside the output pair the
+  // recorder already tracked. The fourteen values this milestone does not read are still
+  // dropped, which is what `onEvent`'s record branch states by omission.
   var ProfilerEvent = {
     TemplateUpdateStart: 2,
     TemplateUpdateEnd: 3,
+    LifecycleHookStart: 4,
+    LifecycleHookEnd: 5,
     OutputStart: 6,
     OutputEnd: 7,
+    ChangeDetectionStart: 12,
+    ChangeDetectionEnd: 13,
+    ComponentStart: 18,
+    ComponentEnd: 19,
+    HostBindingsUpdateStart: 24,
+    HostBindingsUpdateEnd: 25,
   };
 
   var pendingTrigger = null; // { kind, listenerName } | null, set by the first OutputStart per cycle
@@ -561,6 +572,7 @@
 
   function onEvent(event, instance, eventFn) {
     try {
+      recordWorkEvent(event, instance);
       if (event === ProfilerEvent.OutputStart) {
         if (!pendingTrigger) {
           pendingTrigger = {
@@ -601,16 +613,135 @@
     }
   }
 
+  // --- The twelve recorded values, in one frame-level list (T002) -----------------------------
+  //
+  // T001 measured what each pair's two emission sites carry (`research/raw/m040-work-events.json`):
+  // `TemplateUpdate`, `LifecycleHook` and `HostBindingsUpdate` pass an instance at both ends,
+  // `Component` passes one at its end only — every `ComponentStart` measured `null` — and
+  // `ChangeDetection` passes none at all. This list states what arrived and nothing more: an event
+  // the profiler passed no instance for is recorded with `componentName: null`, never with a name
+  // read from a node index, a list position, a neighbour or the `'component'` fallback
+  // `componentNameFor` answers. That absence is what lets a narrator answer cannot-tell honestly.
+  //
+  // Every recorded value travels one entry shape — `{ type, pair, end, at, componentName }` — and
+  // the pair and the end bit travel with the entry, so a surface reads fields and never compares an
+  // event number. `at` is the page's own `performance.now()` reading at receipt, so a start and its
+  // matching end differ by a duration the page measured rather than one a panel reconstructs from
+  // emission order.
+  //
+  // The frame boundary is the microtask `closeCycle` runs in, not the template update that opens it:
+  // an event that arrives before the frame's opener is held here and adopted by the frame the same
+  // task opens later. T001 measured that case — `ChangeDetection`'s start arrived with no frame open
+  // 3/3 on both pages and preceded the opener, `Component`'s outermost start 3 of 6 times on `/`,
+  // and `OutputStart`/`OutputEnd` arrived with no frame open at all — so the held list crosses a task
+  // boundary. Nothing here pairs a start with its end: the pairing rule belongs to the narrator that
+  // reads this record, and this file keeps both arrivals.
+  var pendingWorkEvents = []; // entries recorded before the frame's opener: { type, pair, ... }
+  var PENDING_WORK_EVENT_LIMIT = 64; // one frame's worth; a page that never ticks holds no record
+
+  // The one table that maps a value to its pair and end bit. It is data, not a branch: the group of
+  // six pairs is the whole vocabulary this record speaks, so a reader never needs the number.
+  var WORK_EVENT_PAIRS = [
+    {
+      pair: 'TemplateUpdate',
+      start: ProfilerEvent.TemplateUpdateStart,
+      end: ProfilerEvent.TemplateUpdateEnd,
+    },
+    {
+      pair: 'LifecycleHook',
+      start: ProfilerEvent.LifecycleHookStart,
+      end: ProfilerEvent.LifecycleHookEnd,
+    },
+    {
+      pair: 'Output',
+      start: ProfilerEvent.OutputStart,
+      end: ProfilerEvent.OutputEnd,
+    },
+    {
+      pair: 'ChangeDetection',
+      start: ProfilerEvent.ChangeDetectionStart,
+      end: ProfilerEvent.ChangeDetectionEnd,
+    },
+    {
+      pair: 'Component',
+      start: ProfilerEvent.ComponentStart,
+      end: ProfilerEvent.ComponentEnd,
+    },
+    {
+      pair: 'HostBindingsUpdate',
+      start: ProfilerEvent.HostBindingsUpdateStart,
+      end: ProfilerEvent.HostBindingsUpdateEnd,
+    },
+  ];
+
+  // value -> { pair, end }, built once at load from the table above.
+  var WORK_EVENT_KINDS = indexWorkEvents();
+
+  function indexWorkEvents() {
+    var kinds = {};
+    for (var i = 0; i < WORK_EVENT_PAIRS.length; i++) {
+      var named = WORK_EVENT_PAIRS[i];
+      kinds[named.start] = { pair: named.pair, end: false };
+      kinds[named.end] = { pair: named.pair, end: true };
+    }
+    return kinds;
+  }
+
+  // One entry per recorded value, in emission order. The entry is built from the table and the
+  // measurement alone: no value is named here, so no branch decides what an entry carries.
+  function recordWorkEvent(event, instance) {
+    var kind = WORK_EVENT_KINDS[event];
+    if (!kind) return null; // one of the fourteen values this milestone does not read
+    var entry = {
+      type: event,
+      pair: kind.pair,
+      end: kind.end,
+      at: nowMs(),
+      componentName: instanceNameFor(instance),
+    };
+    if (cycle) cycle.events.push(entry);
+    else holdPendingWorkEvent(entry);
+    return entry;
+  }
+
+  function holdPendingWorkEvent(entry) {
+    pendingWorkEvents.push(entry);
+    // Bounded: a frame is one task's worth of work, so a page that emits work events and never
+    // opens a frame keeps at most the most recent bound rather than growing without limit.
+    if (pendingWorkEvents.length > PENDING_WORK_EVENT_LIMIT) {
+      pendingWorkEvents.splice(
+        0,
+        pendingWorkEvents.length - PENDING_WORK_EVENT_LIMIT,
+      );
+    }
+  }
+
+  // The frame the task opens takes the events held before its opener, in arrival order.
+  function adoptPendingWorkEvents() {
+    var adopted = pendingWorkEvents;
+    pendingWorkEvents = [];
+    return adopted;
+  }
+
+  // The page's own clock, read at receipt. One reader, so the record's `at` and the cycle's
+  // `startedAt` are the same measurement on the same scale.
+  function nowMs() {
+    if (
+      typeof globalThis.performance !== 'undefined' &&
+      typeof globalThis.performance.now === 'function'
+    ) {
+      return globalThis.performance.now();
+    }
+    return Date.now();
+  }
+
   function openCycle() {
     cycle = {
       cycleId: ++cycleId,
-      startedAt:
-        typeof globalThis.performance !== 'undefined' &&
-        typeof globalThis.performance.now === 'function'
-          ? globalThis.performance.now()
-          : Date.now(),
+      startedAt: nowMs(),
       trigger: pendingTrigger || { kind: 'unknown', listenerName: null },
       checks: new Map(),
+      events: adoptPendingWorkEvents(),
     };
     pendingTrigger = null;
     globalThis.queueMicrotask(closeCycle);
@@ -629,6 +760,14 @@
   }
 
   function componentNameFor(instance) {
+    return hostOrClassName(instance) || 'component';
+  }
+
+  // The name an instance yields — its host tag lowercased, then its constructor name lowercased —
+  // or `null` when it yields neither. The one reading both the shipped per-check name and the
+  // frame-level entry use; `componentNameFor` adds the `'component'` fallback, and the entry
+  // deliberately does not (an event that named nothing is recorded as naming nothing).
+  function hostOrClassName(instance) {
     var gh =
       typeof ngObj.getHostElement === 'function'
         ? ngObj.getHostElement
@@ -642,9 +781,16 @@
           return el.tagName.toLowerCase();
       } catch (e) {}
     }
-    if (instance && instance.constructor && instance.constructor.name)
-      return instance.constructor.name.toLowerCase();
-    return 'component';
+    var cls = classNameFor(instance);
+    return cls ? cls.toLowerCase() : null;
+  }
+
+  // The identity the profiler passed, or `null` when it passed none. Nothing is derived: a null
+  // instance is recorded as no component, and an instance that yields no name is recorded the same
+  // way rather than borrowing a fallback word, a neighbour or a list position (AC3).
+  function instanceNameFor(instance) {
+    if (instance === null || typeof instance === 'undefined') return null;
+    return hostOrClassName(instance);
   }
 
   function classNameFor(instance) {
@@ -898,6 +1044,9 @@
       startedAt: c.startedAt,
       trigger: c.trigger,
       zoneMode: zoneMode,
+      // The frame's own work, in arrival order: the four existing fields are untouched and this
+      // list is the additive half (the per-check `events` below keeps the four bare numbers).
+      events: c.events.slice(),
       checks: [],
     };
     c.checks.forEach(function (check, instance) {
@@ -1279,13 +1428,12 @@
       };
       dispatch(RECORD_EVENT, {
         cycleId: ++cycleId,
-        startedAt:
-          typeof globalThis.performance !== 'undefined' &&
-          typeof globalThis.performance.now === 'function'
-            ? globalThis.performance.now()
-            : Date.now(),
+        startedAt: nowMs(),
         trigger: { kind: 'unknown', listenerName: null },
         zoneMode: zoneMode,
+        // The snapshot carries the same list a frame carries, empty: this record read no profiler
+        // event, and a record that omitted the field would make a reader guess at its shape.
+        events: [],
         checks: [check],
       });
     } catch (e) {
@@ -1315,6 +1463,7 @@
     subscriber = null;
     pendingTrigger = null;
     cycle = null;
+    pendingWorkEvents = [];
     prevEpochs = new WeakMap();
     stopCompanionRecheck();
     lastState = null;

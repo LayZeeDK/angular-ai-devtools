@@ -295,16 +295,24 @@
     },
     "agent": {
       "source": "extension/agent-main.js",
-      "declaredAt": "extension/agent-main.js:21-26",
+      "declaredAt": "extension/agent-main.js:24-37",
       "actsOn": [
         "TemplateUpdateStart",
         "TemplateUpdateEnd",
+        "LifecycleHookStart",
+        "LifecycleHookEnd",
         "OutputStart",
-        "OutputEnd"
+        "OutputEnd",
+        "ChangeDetectionStart",
+        "ChangeDetectionEnd",
+        "ComponentStart",
+        "ComponentEnd",
+        "HostBindingsUpdateStart",
+        "HostBindingsUpdateEnd"
       ],
-      "dropsTheRestAt": "extension/agent-main.js:562-602"
+      "dropsTheRestAt": "extension/agent-main.js:573-724"
     },
-    "finding": "The installed @angular/core declares 26 ProfilerEvent values, numbered 0 through 25, and the panel package (22.1.8) and the fixture package (22.2.2) declare the same list. No value name contains `effect`: the only effect-shaped name in either package is `afterRenderEffectPhase`, which is a ReactiveNodeKind and not a ProfilerEvent. The page agent acts on four of the 26 values and drops the rest, so no page event reports that an effect ran."
+    "finding": "The installed @angular/core declares 26 ProfilerEvent values, numbered 0 through 25, and the panel package (22.1.8) and the fixture package (22.2.2) declare the same list. No value name contains `effect`: the only effect-shaped name in either package is `afterRenderEffectPhase`, which is a ReactiveNodeKind and not a ProfilerEvent. The page agent records twelve of the 26 values - the five paired work events and the output pair - and drops the rest, so no page event reports that an effect ran."
   },
   "effect": {
     "question": "What does the signal graph carry for an effect: its kind, its label, its epoch, its edges and the signals those edges name?",
