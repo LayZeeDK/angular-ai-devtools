@@ -2,11 +2,11 @@
 id: T002
 title: Join an effect to the signals its edges say it reads
 wave: 2
-status: pending
+status: done
 deps:
   - T001
-agent: null
-base: null
+agent: build_t002
+base: 6211a329540b51e4d1674ec8f1e1c2c5b5d4f6ae
 worktree: null
 task_branch: null
 files:
@@ -116,3 +116,4 @@ node --check extension/render-phase.js && node --check scripts/render-phase.test
 ## Log
 
 - dispatched
+- 2026-11-08 - joined one effect to the signals its edges name: extension/render-phase.js is a pure join (no DOM, no clock, no console, no imports, bare node:vm) answering {findings, phase}. An effect finding is {state, effect, namedBy, reads}: named by the graph label, or by nothing (effect null, namedBy recorded-edge) when the graph gives none; reads are the labels the effect's consumer edges name, in recorded edge order, and empty rather than borrowed when the edges name no producer. A recorded change-detection message is its own finding {state, code, message, provenance}, never joined to the effect. The phase is always cannot-tell with the published absence no-effect-event, outside every finding. Three named absences: graph-unreadable, no-effect-node (never the words no effects) and effect-unreadable. Fixtures are T001's recording: counter node 5 id 6 label empty to signal:count, /stale-view with no edge at all, portal Resource.loadEffect to linkedSignal Resource.extRequest, and the digest's NG0100 entry as the stand-in for the capture T001 did not produce. Verify: node --check on both files, 13 of 13 tests pass with 19 anchored mutants (E1 x3, E2 x3, E3 x2, E4 x3, E5 x2, E6 x2, E8 x2, AC1 x2), each reddening with a failure that names the defect, prettier clean. ready
