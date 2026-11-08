@@ -1,6 +1,6 @@
 # Gap Review — 2: the four skill tests the chain pin's failure masked
 
-Reviewed HEAD: 65c7f03ac04b953427b0ed1462395b8a89e3d59a
+Reviewed HEAD: 861d35be0de9a5788b66adb5b0cbd7e2a07be9b1
 Gap verdict: pass
 Risk: the four skill tests the chain pin's failure masked
 Waves checked: 1, 2, 3, 4, 5

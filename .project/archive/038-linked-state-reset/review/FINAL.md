@@ -2,9 +2,23 @@
 
 Milestone: M038 linked-state-reset (archive slug 038-linked-state-reset)
 
-Reviewed HEAD: 65c7f03ac04b953427b0ed1462395b8a89e3d59a
+Reviewed HEAD: 861d35be0de9a5788b66adb5b0cbd7e2a07be9b1
 Overall verdict: pass
 Met: SC1, SC2, SC3, SC4, SC5, SC6
+
+Head note: this head is a bookkeeping head. The code review below was made at 65c7f03 and is
+re-recorded here unchanged — no new code review is claimed or pretended. The two commits that sit
+between 65c7f03 and this head touch nothing a criterion could rest on: 8168ecc (`state: archive
+preflight passed; shipment recorded`) writes `.project/STATE.md`, the `.project/review/` artifacts
+and `.project/build/verify-ledger.jsonl`, and 861d35b (`state: record the two patch-task verifies in
+the ledger`) writes two lines of `.project/build/verify-ledger.jsonl`. `git diff --name-only
+65c7f03ac04b953427b0ed1462395b8a89e3d59a 861d35be0de9a5788b66adb5b0cbd7e2a07be9b1` names no path
+under `extension/`, `apps/`, `src/`, `scripts/`, `.commandcode/skills/` or `package.json`, so no
+product module, test, assertion or gate moved after the reviewed head. What is re-run at this head is
+the project Verify (`npm run check && npm test`), executed in isolation by `workflow_run.py
+prepare-final --expected-head 861d35be0de9a5788b66adb5b0cbd7e2a07be9b1`, whose result is recorded in
+`.project/review/final-gap-1.md`; the criterion evidence of SC1 to SC5 is the review at 65c7f03 with
+the wave suites re-run there, and is not restated as new work at this head.
 
 The milestone the intent was corrected to is real and works: a linked signal is identified by its
 node kind, the join names the signal, the source it follows and both stored values, and the pane

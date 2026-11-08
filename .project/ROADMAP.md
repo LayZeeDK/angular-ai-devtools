@@ -1413,8 +1413,8 @@ Goal: Build the explainer for state that resets itself: why this linked signal o
 Depends on: [M020]
 Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/038-linked-state-reset
 Integrated: null
 
 Scope: in
