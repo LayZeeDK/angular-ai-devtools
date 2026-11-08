@@ -1,0 +1,7 @@
+{
+  "id": "m039-e3-skip-repair-ship",
+  "kind": "subagent",
+  "task": "repair E3 zero-skip defect + complete the ship",
+  "dispatchedAt": "2026-02-14T00:00:00Z",
+  "expect": "clean-worktree E3 green, FINAL.md SC6 met, archive, ship commit"
+}
