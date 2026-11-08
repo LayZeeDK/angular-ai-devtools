@@ -1,0 +1,1190 @@
+{
+  "schema": "m039-render-phase/v1",
+  "milestone": "render-phase-effect",
+  "task": "T001",
+  "title": "Measure the profiler events, the NG0100 message and the effect's edges",
+  "capturedAt": "2026-11-08T05:11:31.772Z",
+  "question": "At this head, what does the page expose: which profiler events exist, does a page emit an NG0100 that can be captured, and what does the signal graph carry for an effect?",
+  "commands": {
+    "check": "node --experimental-strip-types --test \"scripts/render-phase-measure.test.mjs\"",
+    "serve": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter --json",
+    "servePortal": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal --json",
+    "browser": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-gemma4 --json",
+    "drive": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-gemma4 <probe>",
+    "teardown": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs down chrome-beta-gemma4; node .commandcode/skills/control-angular-dev-app/scripts/control.mjs down --target counter; node .commandcode/skills/control-angular-dev-app/scripts/control.mjs down --target portal"
+  },
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0"
+  },
+  "profiler": {
+    "question": "Which ProfilerEvent values does the @angular/core this checkout installs declare, and is any of them an effect event?",
+    "reader": {
+      "how": "one reader, applied to each installed package: find `var ProfilerEvent;`, take the block up to `})(ProfilerEvent ||`, and read every `ProfilerEvent[ProfilerEvent[\"Name\"] = N] = \"Name\";` assignment",
+      "pattern": "ProfilerEvent\\[ProfilerEvent\\[\"([A-Za-z]+)\"\\] = (\\d+)\\] = \"([A-Za-z]+)\";",
+      "why": "the enum is a runtime IIFE in the shipped chunk, so the names and numbers are read from what the browser would execute"
+    },
+    "sources": [
+      {
+        "package": "panel: the @angular/core the extension panel builds against",
+        "manifest": "node_modules/@angular/core/package.json",
+        "version": "22.1.8",
+        "chunk": "node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "count": 26,
+        "values": [
+          {
+            "name": "TemplateCreateStart",
+            "value": 0
+          },
+          {
+            "name": "TemplateCreateEnd",
+            "value": 1
+          },
+          {
+            "name": "TemplateUpdateStart",
+            "value": 2
+          },
+          {
+            "name": "TemplateUpdateEnd",
+            "value": 3
+          },
+          {
+            "name": "LifecycleHookStart",
+            "value": 4
+          },
+          {
+            "name": "LifecycleHookEnd",
+            "value": 5
+          },
+          {
+            "name": "OutputStart",
+            "value": 6
+          },
+          {
+            "name": "OutputEnd",
+            "value": 7
+          },
+          {
+            "name": "BootstrapApplicationStart",
+            "value": 8
+          },
+          {
+            "name": "BootstrapApplicationEnd",
+            "value": 9
+          },
+          {
+            "name": "BootstrapComponentStart",
+            "value": 10
+          },
+          {
+            "name": "BootstrapComponentEnd",
+            "value": 11
+          },
+          {
+            "name": "ChangeDetectionStart",
+            "value": 12
+          },
+          {
+            "name": "ChangeDetectionEnd",
+            "value": 13
+          },
+          {
+            "name": "ChangeDetectionSyncStart",
+            "value": 14
+          },
+          {
+            "name": "ChangeDetectionSyncEnd",
+            "value": 15
+          },
+          {
+            "name": "AfterRenderHooksStart",
+            "value": 16
+          },
+          {
+            "name": "AfterRenderHooksEnd",
+            "value": 17
+          },
+          {
+            "name": "ComponentStart",
+            "value": 18
+          },
+          {
+            "name": "ComponentEnd",
+            "value": 19
+          },
+          {
+            "name": "DeferBlockStateStart",
+            "value": 20
+          },
+          {
+            "name": "DeferBlockStateEnd",
+            "value": 21
+          },
+          {
+            "name": "DynamicComponentStart",
+            "value": 22
+          },
+          {
+            "name": "DynamicComponentEnd",
+            "value": 23
+          },
+          {
+            "name": "HostBindingsUpdateStart",
+            "value": 24
+          },
+          {
+            "name": "HostBindingsUpdateEnd",
+            "value": 25
+          }
+        ]
+      },
+      {
+        "package": "fixture: the @angular/core the served fixture runs",
+        "manifest": "spikes/ng222-app/node_modules/@angular/core/package.json",
+        "version": "22.2.2",
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs",
+        "count": 26,
+        "values": [
+          {
+            "name": "TemplateCreateStart",
+            "value": 0
+          },
+          {
+            "name": "TemplateCreateEnd",
+            "value": 1
+          },
+          {
+            "name": "TemplateUpdateStart",
+            "value": 2
+          },
+          {
+            "name": "TemplateUpdateEnd",
+            "value": 3
+          },
+          {
+            "name": "LifecycleHookStart",
+            "value": 4
+          },
+          {
+            "name": "LifecycleHookEnd",
+            "value": 5
+          },
+          {
+            "name": "OutputStart",
+            "value": 6
+          },
+          {
+            "name": "OutputEnd",
+            "value": 7
+          },
+          {
+            "name": "BootstrapApplicationStart",
+            "value": 8
+          },
+          {
+            "name": "BootstrapApplicationEnd",
+            "value": 9
+          },
+          {
+            "name": "BootstrapComponentStart",
+            "value": 10
+          },
+          {
+            "name": "BootstrapComponentEnd",
+            "value": 11
+          },
+          {
+            "name": "ChangeDetectionStart",
+            "value": 12
+          },
+          {
+            "name": "ChangeDetectionEnd",
+            "value": 13
+          },
+          {
+            "name": "ChangeDetectionSyncStart",
+            "value": 14
+          },
+          {
+            "name": "ChangeDetectionSyncEnd",
+            "value": 15
+          },
+          {
+            "name": "AfterRenderHooksStart",
+            "value": 16
+          },
+          {
+            "name": "AfterRenderHooksEnd",
+            "value": 17
+          },
+          {
+            "name": "ComponentStart",
+            "value": 18
+          },
+          {
+            "name": "ComponentEnd",
+            "value": 19
+          },
+          {
+            "name": "DeferBlockStateStart",
+            "value": 20
+          },
+          {
+            "name": "DeferBlockStateEnd",
+            "value": 21
+          },
+          {
+            "name": "DynamicComponentStart",
+            "value": 22
+          },
+          {
+            "name": "DynamicComponentEnd",
+            "value": 23
+          },
+          {
+            "name": "HostBindingsUpdateStart",
+            "value": 24
+          },
+          {
+            "name": "HostBindingsUpdateEnd",
+            "value": 25
+          }
+        ]
+      }
+    ],
+    "identical": true,
+    "numbers": {
+      "first": 0,
+      "last": 25,
+      "contiguous": true
+    },
+    "effectEvent": {
+      "search": "does any value name contain `effect`, case-insensitively, in either package",
+      "matchingNames": [],
+      "absent": true,
+      "count": 0
+    },
+    "effectIsCarriedAs": {
+      "symbol": "afterRenderEffectPhase",
+      "carrier": "ReactiveNodeKind",
+      "declaration": "node_modules/@angular/core/types/_formatter-chunk.d.ts",
+      "kinds": [
+        "signal",
+        "computed",
+        "effect",
+        "template",
+        "linkedSignal",
+        "afterRenderEffectPhase",
+        "childSignalProp",
+        "unknown"
+      ],
+      "fixtureKinds": [
+        "signal",
+        "computed",
+        "effect",
+        "template",
+        "linkedSignal",
+        "afterRenderEffectPhase",
+        "childSignalProp",
+        "unknown"
+      ],
+      "kindsIdentical": true,
+      "isProfilerEvent": false,
+      "reading": "the effect-shaped name in either package is a node kind, not a profiler event: a page can carry an effect in the signal graph and still emit no event about it"
+    },
+    "agent": {
+      "source": "extension/agent-main.js",
+      "declaredAt": "extension/agent-main.js:21-26",
+      "actsOn": [
+        "TemplateUpdateStart",
+        "TemplateUpdateEnd",
+        "OutputStart",
+        "OutputEnd"
+      ],
+      "dropsTheRestAt": "extension/agent-main.js:562-602"
+    },
+    "finding": "The installed @angular/core declares 26 ProfilerEvent values, numbered 0 through 25, and the panel package (22.1.8) and the fixture package (22.2.2) declare the same list. No value name contains `effect`: the only effect-shaped name in either package is `afterRenderEffectPhase`, which is a ReactiveNodeKind and not a ProfilerEvent. The page agent acts on four of the 26 values and drops the rest, so no page event reports that an effect ran."
+  },
+  "effect": {
+    "question": "What does the signal graph carry for an effect: its kind, its label, its epoch, its edges and the signals those edges name?",
+    "recording": {
+      "path": "research/raw/effect-writes.json",
+      "probe": "spikes/probes/effect-writes.js",
+      "capturedAt": "2026-10-12",
+      "angular": "22.2.2",
+      "page": "http://localhost:4222/",
+      "element": "app-counter",
+      "reading": "ng.ɵgetSignalGraph(ng.getInjector(document.querySelector(\"app-counter\"))), with each edge printed as `${label(consumer)} -> ${label(producer)}` (spikes/probes/effect-writes.js:19)",
+      "nodeCount": 6,
+      "edgeCount": 6
+    },
+    "fromRecording": {
+      "kind": "effect",
+      "label": "",
+      "labelEmpty": true,
+      "epoch": null,
+      "holdsEpoch": false,
+      "holdsEpochReading": "the probe recorded no epoch field, so this recording cannot state one",
+      "nodes": [
+        {
+          "kind": "template",
+          "label": "app-counter"
+        },
+        {
+          "kind": "signal",
+          "label": "title"
+        },
+        {
+          "kind": "signal",
+          "label": "count"
+        },
+        {
+          "kind": "computed",
+          "label": "double"
+        },
+        {
+          "kind": "signal",
+          "label": "items"
+        },
+        {
+          "kind": "effect",
+          "label": ""
+        }
+      ],
+      "edges": [
+        {
+          "edge": "template:app-counter -> signal:title",
+          "consumer": "template:app-counter",
+          "producer": "signal:title"
+        },
+        {
+          "edge": "template:app-counter -> signal:count",
+          "consumer": "template:app-counter",
+          "producer": "signal:count"
+        },
+        {
+          "edge": "template:app-counter -> computed:double",
+          "consumer": "template:app-counter",
+          "producer": "computed:double"
+        },
+        {
+          "edge": "template:app-counter -> signal:items",
+          "consumer": "template:app-counter",
+          "producer": "signal:items"
+        },
+        {
+          "edge": "computed:double -> signal:count",
+          "consumer": "computed:double",
+          "producer": "signal:count"
+        },
+        {
+          "edge": "effect: -> signal:count",
+          "consumer": "effect:",
+          "producer": "signal:count"
+        }
+      ],
+      "signalsTheEdgesName": [
+        "count"
+      ]
+    },
+    "freshRead": {
+      "target": "counter fixture",
+      "at": "2026-11-08T05:01:39.146Z",
+      "instance": "chrome-beta-gemma4",
+      "cdp": 9334,
+      "browser": "Chrome/158.0.8127.18",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+      "url": "http://localhost:4222/",
+      "element": "app-counter",
+      "component": "_Counter",
+      "reading": "ng.ɵgetSignalGraph(ng.getInjector(document.querySelector(\"app-counter\")))",
+      "nodeIndex": 5,
+      "id": "6",
+      "kind": "effect",
+      "label": "",
+      "labelEmpty": true,
+      "epoch": 1,
+      "edges": [
+        {
+          "consumer": 5,
+          "producer": 2,
+          "consumerLabel": "effect:",
+          "producerLabel": "signal:count"
+        }
+      ],
+      "producers": [
+        {
+          "index": 2,
+          "id": "3",
+          "kind": "signal",
+          "label": "count",
+          "epoch": 0
+        }
+      ],
+      "signalsTheEdgesName": [
+        "count"
+      ],
+      "nodeCount": 6,
+      "edgeCount": 6,
+      "nodeFields": [
+        "debuggableFn",
+        "epoch",
+        "id",
+        "kind",
+        "label",
+        "value",
+        "watched"
+      ],
+      "nodes": [
+        {
+          "index": 0,
+          "id": "1",
+          "kind": "template",
+          "label": "app-counter",
+          "epoch": 0,
+          "carriesPhaseField": false
+        },
+        {
+          "index": 1,
+          "id": "2",
+          "kind": "signal",
+          "label": "title",
+          "epoch": 1,
+          "carriesPhaseField": false
+        },
+        {
+          "index": 2,
+          "id": "3",
+          "kind": "signal",
+          "label": "count",
+          "epoch": 0,
+          "carriesPhaseField": false
+        },
+        {
+          "index": 3,
+          "id": "4",
+          "kind": "computed",
+          "label": "double",
+          "epoch": 1,
+          "carriesPhaseField": false
+        },
+        {
+          "index": 4,
+          "id": "5",
+          "kind": "signal",
+          "label": "items",
+          "epoch": 0,
+          "carriesPhaseField": false
+        },
+        {
+          "index": 5,
+          "id": "6",
+          "kind": "effect",
+          "label": "",
+          "epoch": 1,
+          "carriesPhaseField": false
+        }
+      ],
+      "allEdges": [
+        {
+          "consumer": 0,
+          "producer": 1
+        },
+        {
+          "consumer": 0,
+          "producer": 2
+        },
+        {
+          "consumer": 0,
+          "producer": 3
+        },
+        {
+          "consumer": 0,
+          "producer": 4
+        },
+        {
+          "consumer": 3,
+          "producer": 2
+        },
+        {
+          "consumer": 5,
+          "producer": 2
+        }
+      ]
+    },
+    "effectNodesOnTheFixturePagesRead": [
+      {
+        "route": "/",
+        "element": "app-counter",
+        "component": "_Counter",
+        "nodeIndex": 5,
+        "id": "6",
+        "kind": "effect",
+        "label": "",
+        "labelEmpty": true,
+        "epoch": 1,
+        "nodeCount": 6,
+        "edgeCount": 6,
+        "producers": [
+          {
+            "index": 2,
+            "kind": "signal",
+            "label": "count"
+          }
+        ]
+      },
+      {
+        "route": "/stale-view",
+        "element": "app-stale-view-fixture",
+        "component": "_StaleViewFixture",
+        "nodeIndex": 0,
+        "id": "1",
+        "kind": "effect",
+        "label": "",
+        "labelEmpty": true,
+        "epoch": 1,
+        "nodeCount": 1,
+        "edgeCount": 0,
+        "producers": []
+      },
+      {
+        "route": "/stale-view-deferred",
+        "element": "app-stale-view-deferred-fixture",
+        "component": "_StaleViewDeferredFixture",
+        "nodeIndex": 0,
+        "id": "1",
+        "kind": "effect",
+        "label": "",
+        "labelEmpty": true,
+        "epoch": 1,
+        "nodeCount": 2,
+        "edgeCount": 1,
+        "producers": [
+          {
+            "index": 1,
+            "kind": "signal",
+            "label": "trigger"
+          }
+        ]
+      },
+      {
+        "route": "/field-form",
+        "element": "app-field-form-page",
+        "component": "_FieldFormPage",
+        "nodeIndex": 100,
+        "id": "101",
+        "kind": "effect",
+        "label": "",
+        "labelEmpty": true,
+        "epoch": 1,
+        "nodeCount": 101,
+        "edgeCount": 177,
+        "producers": [
+          {
+            "index": 2,
+            "kind": "linkedSignal",
+            "label": ""
+          },
+          {
+            "index": 11,
+            "kind": "linkedSignal",
+            "label": ""
+          },
+          {
+            "index": 56,
+            "kind": "linkedSignal",
+            "label": ""
+          }
+        ]
+      }
+    ],
+    "agreement": {
+      "kindAgrees": true,
+      "labelAgrees": true,
+      "labelIsEmptyInBoth": true,
+      "signalAgrees": true,
+      "epoch": "the 2026-10-12 recording holds no epoch, so the epoch above is the fresh read's measurement and not a restatement of the recording"
+    },
+    "portalRead": {
+      "target": "Insurance Portal",
+      "at": "2026-11-08T05:05:43.343Z",
+      "instance": "chrome-beta-gemma4",
+      "cdp": 9334,
+      "browser": "Chrome/158.0.8127.18",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+      "url": "http://localhost:4507/",
+      "angular": "22.2.2 (the page reports it as its [ng-version])",
+      "reading": "ng.ɵgetSignalGraph(ng.getInjector(host)) for every element `ng.getComponent` answers for, on each route",
+      "countedAs": "a node reachable from more than one host injector is counted once per host, so the totals are occurrences rather than distinct nodes",
+      "routes": [
+        {
+          "route": "/home",
+          "url": "http://localhost:4507/home",
+          "hostCount": 9,
+          "nodeCount": 116,
+          "edgeCount": 109,
+          "effectNodeOccurrences": 14,
+          "effectLabels": [
+            ""
+          ],
+          "nodesWithPhaseField": 0,
+          "afterRenderEffectPhaseNodes": 0,
+          "nodeFields": [
+            "debuggableFn",
+            "epoch",
+            "id",
+            "kind",
+            "label",
+            "value",
+            "watched"
+          ]
+        },
+        {
+          "route": "/contract",
+          "url": "http://localhost:4507/contract",
+          "hostCount": 3,
+          "nodeCount": 48,
+          "edgeCount": 41,
+          "effectNodeOccurrences": 6,
+          "effectLabels": [
+            ""
+          ],
+          "nodesWithPhaseField": 0,
+          "afterRenderEffectPhaseNodes": 0,
+          "nodeFields": [
+            "debuggableFn",
+            "epoch",
+            "id",
+            "kind",
+            "label",
+            "value",
+            "watched"
+          ]
+        },
+        {
+          "route": "/claim",
+          "url": "http://localhost:4507/claim",
+          "hostCount": 3,
+          "nodeCount": 48,
+          "edgeCount": 41,
+          "effectNodeOccurrences": 6,
+          "effectLabels": [
+            ""
+          ],
+          "nodesWithPhaseField": 0,
+          "afterRenderEffectPhaseNodes": 0,
+          "nodeFields": [
+            "debuggableFn",
+            "epoch",
+            "id",
+            "kind",
+            "label",
+            "value",
+            "watched"
+          ]
+        },
+        {
+          "route": "/complaint",
+          "url": "http://localhost:4507/complaint",
+          "hostCount": 3,
+          "nodeCount": 48,
+          "edgeCount": 41,
+          "effectNodeOccurrences": 6,
+          "effectLabels": [
+            ""
+          ],
+          "nodesWithPhaseField": 0,
+          "afterRenderEffectPhaseNodes": 0,
+          "nodeFields": [
+            "debuggableFn",
+            "epoch",
+            "id",
+            "kind",
+            "label",
+            "value",
+            "watched"
+          ]
+        },
+        {
+          "route": "/customer",
+          "url": "http://localhost:4507/customer",
+          "hostCount": 3,
+          "nodeCount": 48,
+          "edgeCount": 41,
+          "effectNodeOccurrences": 6,
+          "effectLabels": [
+            ""
+          ],
+          "nodesWithPhaseField": 0,
+          "afterRenderEffectPhaseNodes": 0,
+          "nodeFields": [
+            "debuggableFn",
+            "epoch",
+            "id",
+            "kind",
+            "label",
+            "value",
+            "watched"
+          ]
+        },
+        {
+          "route": "/contract/list",
+          "url": "http://localhost:4507/contract/list",
+          "hostCount": 47,
+          "nodeCount": 791,
+          "edgeCount": 829,
+          "effectNodeOccurrences": 95,
+          "effectLabels": [
+            "",
+            "Resource.loadEffect"
+          ],
+          "nodesWithPhaseField": 0,
+          "afterRenderEffectPhaseNodes": 0,
+          "nodeFields": [
+            "debuggableFn",
+            "epoch",
+            "id",
+            "kind",
+            "label",
+            "value",
+            "watched"
+          ]
+        },
+        {
+          "route": "/claim/list",
+          "url": "http://localhost:4507/claim/list",
+          "hostCount": 7,
+          "nodeCount": 136,
+          "edgeCount": 139,
+          "effectNodeOccurrences": 15,
+          "effectLabels": [
+            "",
+            "Resource.loadEffect"
+          ],
+          "nodesWithPhaseField": 0,
+          "afterRenderEffectPhaseNodes": 0,
+          "nodeFields": [
+            "debuggableFn",
+            "epoch",
+            "id",
+            "kind",
+            "label",
+            "value",
+            "watched"
+          ]
+        },
+        {
+          "route": "/customer/list",
+          "url": "http://localhost:4507/customer/list",
+          "hostCount": 7,
+          "nodeCount": 186,
+          "edgeCount": 189,
+          "effectNodeOccurrences": 15,
+          "effectLabels": [
+            "",
+            "Resource.loadEffect"
+          ],
+          "nodesWithPhaseField": 0,
+          "afterRenderEffectPhaseNodes": 0,
+          "nodeFields": [
+            "debuggableFn",
+            "epoch",
+            "id",
+            "kind",
+            "label",
+            "value",
+            "watched"
+          ]
+        }
+      ],
+      "nodeOccurrences": 1421,
+      "effectNodeOccurrences": 163,
+      "labelledEffectNodeOccurrences": 3,
+      "effectLabelSet": [
+        "",
+        "Resource.loadEffect"
+      ],
+      "labelledEffectNodes": [
+        {
+          "route": "/contract/list",
+          "element": "ng-journal-list",
+          "nodeIndex": 15,
+          "id": "45",
+          "label": "Resource.loadEffect",
+          "epoch": 1,
+          "producers": [
+            {
+              "index": 3,
+              "kind": "linkedSignal",
+              "label": "Resource.extRequest"
+            }
+          ]
+        },
+        {
+          "route": "/claim/list",
+          "element": "ng-journal-list",
+          "nodeIndex": 15,
+          "id": "45",
+          "label": "Resource.loadEffect",
+          "epoch": 1,
+          "producers": [
+            {
+              "index": 3,
+              "kind": "linkedSignal",
+              "label": "Resource.extRequest"
+            }
+          ]
+        },
+        {
+          "route": "/customer/list",
+          "element": "ng-journal-list",
+          "nodeIndex": 15,
+          "id": "45",
+          "label": "Resource.loadEffect",
+          "epoch": 1,
+          "producers": [
+            {
+              "index": 3,
+              "kind": "linkedSignal",
+              "label": "Resource.extRequest"
+            }
+          ]
+        }
+      ],
+      "reading2": "every portal effect node carries an empty label except one: `Resource.loadEffect`, which appears on the list pages and reads a `linkedSignal` labelled `Resource.extRequest`"
+    },
+    "writeAsAnEdge": {
+      "edgeShape": {
+        "declaration": "node_modules/@angular/core/types/core.d.ts",
+        "interface": "DebugSignalGraphEdge",
+        "members": [
+          {
+            "name": "consumer",
+            "type": "number"
+          },
+          {
+            "name": "producer",
+            "type": "number"
+          }
+        ],
+        "fixtureMembers": [
+          {
+            "name": "consumer",
+            "type": "number"
+          },
+          {
+            "name": "producer",
+            "type": "number"
+          }
+        ],
+        "identical": true
+      },
+      "edgeCarriesAWrite": false,
+      "writeFieldCount": 0,
+      "reading": "an edge is a pair of indices into `nodes`: `producer` feeds `consumer`. The pair names a direction of dependency and nothing else — no field, no value and no moment — so a write is not representable as an edge and no claim that an effect wrote a value can be built on one"
+    },
+    "finding": "The graph carries an effect as `{kind: \"effect\", id, epoch, label}` plus its edges. On the counter page the effect is node 5, id \"6\", with label \"\" and epoch 1, and its one edge names signal node 2, \"count\", as its producer: the same kind, empty label and `count` as the 2026-10-12 recording, which holds no epoch. On the fixture, 1 of the 4 pages whose graph carries an effect carries it with no producer edge at all. On the portal, 163 effect node occurrences carry [\"\",\"Resource.loadEffect\"] and every one of them is empty except `Resource.loadEffect` (3 occurrences), whose producer is the `linkedSignal` labelled `Resource.extRequest`. `DebugSignalGraphEdge` is a producer/consumer index pair with 2 members and none of them names a write."
+  },
+  "phase": {
+    "question": "Does ɵgetSignalGraph carry a node of kind `afterRenderEffectPhase` on a page that uses `afterRenderEffect`, and does any node carry a phase field?",
+    "declared": {
+      "nodeKind": "afterRenderEffectPhase",
+      "carrier": "ReactiveNodeKind",
+      "declaration": "node_modules/@angular/core/types/_formatter-chunk.d.ts",
+      "kinds": [
+        "signal",
+        "computed",
+        "effect",
+        "template",
+        "linkedSignal",
+        "afterRenderEffectPhase",
+        "childSignalProp",
+        "unknown"
+      ],
+      "declared": true
+    },
+    "pagesRead": [
+      {
+        "target": "counter fixture",
+        "route": "/",
+        "element": "app-counter",
+        "component": "_Counter",
+        "nodeCount": 6,
+        "edgeCount": 6,
+        "nodeFields": [
+          "debuggableFn",
+          "epoch",
+          "id",
+          "kind",
+          "label",
+          "value",
+          "watched"
+        ],
+        "nodesWithPhaseField": 0,
+        "afterRenderEffectPhaseNodes": 0
+      },
+      {
+        "target": "counter fixture",
+        "route": "/stale-view",
+        "element": "app-stale-view-fixture",
+        "component": "_StaleViewFixture",
+        "nodeCount": 1,
+        "edgeCount": 0,
+        "nodeFields": [
+          "debuggableFn",
+          "epoch",
+          "id",
+          "kind",
+          "label"
+        ],
+        "nodesWithPhaseField": 0,
+        "afterRenderEffectPhaseNodes": 0
+      },
+      {
+        "target": "counter fixture",
+        "route": "/stale-view-deferred",
+        "element": "app-stale-view-deferred-fixture",
+        "component": "_StaleViewDeferredFixture",
+        "nodeCount": 2,
+        "edgeCount": 1,
+        "nodeFields": [
+          "debuggableFn",
+          "epoch",
+          "id",
+          "kind",
+          "label",
+          "value",
+          "watched"
+        ],
+        "nodesWithPhaseField": 0,
+        "afterRenderEffectPhaseNodes": 0
+      },
+      {
+        "target": "counter fixture",
+        "route": "/linked-state",
+        "element": "app-linked-state-page",
+        "component": "_LinkedStatePage",
+        "nodeCount": 5,
+        "edgeCount": 6,
+        "nodeFields": [
+          "debuggableFn",
+          "epoch",
+          "id",
+          "kind",
+          "label",
+          "value",
+          "watched"
+        ],
+        "nodesWithPhaseField": 0,
+        "afterRenderEffectPhaseNodes": 0
+      },
+      {
+        "target": "counter fixture",
+        "route": "/field-form",
+        "element": "app-field-form-page",
+        "component": "_FieldFormPage",
+        "nodeCount": 101,
+        "edgeCount": 177,
+        "nodeFields": [
+          "debuggableFn",
+          "epoch",
+          "id",
+          "kind",
+          "label",
+          "value",
+          "watched"
+        ],
+        "nodesWithPhaseField": 0,
+        "afterRenderEffectPhaseNodes": 0
+      }
+    ],
+    "nodesRead": 115,
+    "afterRenderEffectPhaseNodes": 0,
+    "nodesWithPhaseField": 0,
+    "nodeFieldsObserved": [
+      "debuggableFn",
+      "epoch",
+      "id",
+      "kind",
+      "label",
+      "value",
+      "watched"
+    ],
+    "portal": {
+      "routes": [
+        "/home",
+        "/contract",
+        "/claim",
+        "/complaint",
+        "/customer",
+        "/contract/list",
+        "/claim/list",
+        "/customer/list"
+      ],
+      "nodesRead": 1421,
+      "afterRenderEffectPhaseNodes": 0,
+      "nodesWithPhaseField": 0,
+      "nodeFieldsObserved": [
+        "debuggableFn",
+        "epoch",
+        "id",
+        "kind",
+        "label",
+        "value",
+        "watched"
+      ]
+    },
+    "pagesUsingAfterRenderEffect": [],
+    "sourceScans": [
+      {
+        "where": "spikes/ng222-app/src",
+        "afterRenderEffectOccurrences": 0,
+        "readBy": "the suite, on every run"
+      },
+      {
+        "where": "the portal checkout (outside this repository), apps/ and libs/, searched recursively",
+        "afterRenderEffectOccurrences": 0,
+        "readBy": "this measurement, once"
+      }
+    ],
+    "verdict": "declared-not-observed",
+    "finding": "ReactiveNodeKind declares `afterRenderEffectPhase` and the declared list is identical in both installed packages. It is declared and not observed: none of the 115 nodes read across 5 fixture pages and none of the 1421 node occurrences read across 8 portal routes is of that kind, neither target calls `afterRenderEffect`, and no node of any kind carries a `phase` field — the fields observed are debuggableFn, epoch, id, kind, label, value, watched."
+  },
+  "changeDetection": {
+    "question": "Does a page emit an ExpressionChangedAfterItHasBeenChecked (NG0100) message that can be captured?",
+    "attempted": true,
+    "attempts": [
+      {
+        "target": "counter fixture (the fallback target)",
+        "at": "2026-11-08T05:01:39.146Z",
+        "instance": {
+          "name": "chrome-beta-gemma4",
+          "cdp": 9334,
+          "browser": "Chrome/158.0.8127.18",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+        },
+        "build": {
+          "app": "spikes/ng222-app",
+          "angular": "22.2.2 (reported by the served page as its [ng-version])",
+          "url": "http://localhost:4222/",
+          "servedBy": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter",
+          "configuration": "development",
+          "developmentMode": "the page logs \"Angular is running in development mode.\" and `window.ng` answers",
+          "changeDetection": "zoneless"
+        },
+        "drove": {
+          "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-gemma4 <probe>",
+          "probe": "a file outside the repository holding `async page => {...}`: it listens to the page console and to pageerror, loads each route, clicks every button on the page up to three times, then reads five signal graphs",
+          "routes": [
+            "/",
+            "/stale-view",
+            "/stale-view-deferred",
+            "/after-render",
+            "/components",
+            "/field-form",
+            "/linked-state",
+            "/onpush-ready",
+            "/resource-states",
+            "/image-budget",
+            "/trust-bypass",
+            "/lint-observability",
+            "/router-lint",
+            "/legacy-module",
+            "/landing",
+            "/gated",
+            "/redirect"
+          ],
+          "pageLoads": 17,
+          "clicks": 66,
+          "consoleMessages": 117,
+          "consoleErrors": 7,
+          "pageErrors": 0
+        },
+        "result": "negative",
+        "messages": [],
+        "ng0100Count": 0,
+        "expressionChangedCount": 0,
+        "codesSeenOnTheSweep": [
+          "NG0950: a required input with no value yet, on /lint-observability",
+          "NG02952: the NgOptimizedImage `sizes` warning the fixture authors, on /image-budget",
+          "NG04002: a click that navigates a route the fixture does not declare, from /router-lint"
+        ]
+      },
+      {
+        "target": "Insurance Portal (the default target)",
+        "at": "2026-11-08T05:05:01.496Z",
+        "instance": {
+          "name": "chrome-beta-gemma4",
+          "cdp": 9334,
+          "browser": "Chrome/158.0.8127.18",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+        },
+        "build": {
+          "app": "the portal checkout (outside this repository), served on a worktree of its own",
+          "angular": "22.2.2 (reported by the served page as its [ng-version])",
+          "url": "http://localhost:4507/",
+          "servedBy": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal",
+          "configuration": "development",
+          "developmentMode": "the page logs \"Angular is running in development mode.\" and `window.ng` answers",
+          "changeDetection": "zoneless: provideZonelessChangeDetection() in the portal app config"
+        },
+        "drove": {
+          "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-gemma4 <probe>",
+          "probe": "a file outside the repository holding `async page => {...}`: it listens to the page console and to pageerror, loads each route and clicks up to eight buttons twice",
+          "routes": [
+            "/",
+            "/home",
+            "/contract",
+            "/claim",
+            "/complaint",
+            "/customer",
+            "/contract/list",
+            "/claim/list",
+            "/customer/list"
+          ],
+          "pageLoads": 9,
+          "clicks": 0,
+          "consoleMessages": 99,
+          "consoleErrors": 36,
+          "pageErrors": 8,
+          "buttonsFound": 0
+        },
+        "result": "negative",
+        "messages": [],
+        "ng0100Count": 0,
+        "expressionChangedCount": 0,
+        "codesSeenOnTheSweep": [
+          "NG0913: an image-dimension warning the portal itself renders"
+        ],
+        "note": "the sweep also observed a page error that is not an NG code, and a pangular devtools-server message; neither is an NG0100 and neither is recorded as one"
+      }
+    ],
+    "result": "negative",
+    "messages": [],
+    "substitute": {
+      "kind": "digest-entry",
+      "notACapture": true,
+      "reading": "no message was captured, so the change-detection finding this milestone may name is the digest's entry, recorded here as a substitute for the capture that was not produced — a digest entry, never a capture",
+      "source": "extension/error-digest.json",
+      "digestVersion": "22.2.x",
+      "entryIndex": 0,
+      "code": "NG0100",
+      "title": "Expression Changed After Checked",
+      "bodyStartsWith": "Expression Changed After Checked edit Angular throws an ExpressionChangedAfterItHasBeenCheckedError when an expression v",
+      "bodyTruncatedInSource": true,
+      "digestEntries": 64,
+      "entriesWhoseCodeIsNg0100": 1,
+      "occurrencesOfNg0100InTheDigestText": 3,
+      "otherOccurrencesBelongTo": "NG01002 (Missing Control Value), whose code and body both carry the prefix"
+    },
+    "finding": "No page produced an NG0100. Two attempts were made: the counter fixture over 17 route loads and 66 clicks, and the Insurance Portal over 9 route loads, both in development mode on Chrome 158.0.8127.18 through the chrome-beta-gemma4 instance. Neither logged an ExpressionChangedAfterItHasBeenChecked error and neither logged an NG0100 code, so the record of the change-detection half is that negative, and the digest's single NG0100 entry is recorded as a substitute — a digest entry, not a capture."
+  },
+  "doesNotSettle": [
+    "which phase an effect ran in: no profiler event reports an effect, so no page read can place one in a phase",
+    "whether a node of kind `afterRenderEffectPhase` exists on a page that uses `afterRenderEffect`: neither target calls `afterRenderEffect`, so the kind is declared and unobserved here and this record says only that",
+    "whether a value was written by an effect: an edge is a producer/consumer index pair and the record holds no write",
+    "what an NG0100 message names on either target: no target produced one, so nothing was named and nothing is claimed",
+    "what an empty effect label, or `Resource.loadEffect`, is derived from: the label is recorded as the graph reports it and nothing about its construction is claimed here"
+  ]
+}

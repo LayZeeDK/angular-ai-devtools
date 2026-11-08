@@ -2,10 +2,10 @@
 id: T001
 title: Measure the profiler events, the NG0100 message and the effect's edges
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_t001
+base: b114e5fb1eacfb4bad05af7eccc77dd22498c776
 worktree: null
 task_branch: null
 files:
@@ -104,3 +104,4 @@ node --check scripts/render-phase-measure.test.mjs && node --experimental-strip-
 ## Log
 
 - dispatched
+- 2026-11-08 - measured on the gemma4 instance (Chrome 158.0.8127.18): 26 ProfilerEvent values in both installs (panel 22.1.8, fixture 22.2.2), zero of them an effect event, and afterRenderEffectPhase is a ReactiveNodeKind; no node carries a phase field and no page is of that kind (115 fixture nodes, 1421 portal node occurrences); the counter effect is node 5, label "", epoch 1, one edge to signal:count; the portal labels one effect Resource.loadEffect. No page produced an NG0100 over 17 fixture routes and 66 clicks plus 9 portal routes, so the negative is recorded and the digest's single NG0100 entry is recorded as a substitute (notACapture). Verify: node --check, 28/28 tests pass, prettier clean. Instance and both dev servers stopped; check-teardown clean (browser artifact = the run json, both servers --no-artifact). ready
