@@ -1186,5 +1186,49 @@
     "whether a value was written by an effect: an edge is a producer/consumer index pair and the record holds no write",
     "what an NG0100 message names on either target: no target produced one, so nothing was named and nothing is claimed",
     "what an empty effect label, or `Resource.loadEffect`, is derived from: the label is recorded as the graph reports it and nothing about its construction is claimed here"
-  ]
+  ],
+  "capture": {
+    "task": "T004",
+    "command": "set \"M039_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/render-phase-capture.test.mjs\"",
+    "check": "node --experimental-strip-types --test \"scripts/render-phase-capture.test.mjs\"",
+    "records": "research/raw/m039-render-phase.json",
+    "route": "/",
+    "page": "http://localhost:4222/",
+    "element": "app-counter",
+    "component": "_Counter",
+    "build": {
+      "app": "spikes/ng222-app",
+      "angular": "22.2.2",
+      "configuration": "development"
+    },
+    "instance": {
+      "name": "chrome-beta-gemma4",
+      "cdp": 9334
+    },
+    "at": "2026-11-08T07:19:56.846Z",
+    "remeasured": [
+      "changeDetection.messages",
+      "changeDetection.result",
+      "changeDetection.substitute",
+      "effect.agreement",
+      "effect.fromRecording",
+      "effect.recording",
+      "effect.writeAsAnEdge",
+      "phase.afterRenderEffectPhaseNodes",
+      "phase.declared",
+      "phase.nodeFieldsObserved",
+      "phase.nodesRead",
+      "phase.nodesWithPhaseField",
+      "phase.pagesUsingAfterRenderEffect",
+      "phase.sourceScans",
+      "phase.verdict",
+      "profiler.agent",
+      "profiler.effectEvent",
+      "profiler.effectIsCarriedAs",
+      "profiler.identical",
+      "profiler.numbers",
+      "profiler.sources"
+    ],
+    "reading": "an armed run re-measures every section listed above from the artefacts this head carries: the installed packages, the probe recording, the fixture sources and the digest. The counter page fresh read and the portal sweep are the provenance of the one page read this milestone took and are carried unchanged, so a re-drive - with a fresh clock, a fresh console count and a fresh browser build string - is a manual step and never a side effect of a test run"
+  }
 }
