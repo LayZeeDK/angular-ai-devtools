@@ -131,4 +131,13 @@ export const appRoutes: Route[] = [
       import('./panel-demo').then((m) => m.PanelDemoComponent),
     data: { surface: 'render-phase' },
   },
+  // The M040 SC5 surface: the frame's ordered work — each interval's component identity in one
+  // column and the cost the page measured in another — and nothing the answer did not carry. Lazy
+  // for the same reason as the surfaces above it — the panel's eager bundle is measured.
+  {
+    path: 'performance',
+    loadComponent: () =>
+      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    data: { surface: 'performance' },
+  },
 ];
