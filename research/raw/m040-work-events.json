@@ -2372,13 +2372,13 @@
       "how": "the agent opens its cycle on the first TemplateUpdateStart of a task and closes it from a queued microtask, so the cycle spans the rest of that task`s synchronous work and nothing after it",
       "opensOn": "TemplateUpdateStart",
       "opensOnValue": 2,
-      "openBranch": 587,
-      "openCall": 588,
-      "openFunction": 604,
-      "closeQueue": 616,
-      "closeFunction": 892,
+      "openBranch": 599,
+      "openCall": 600,
+      "openFunction": 738,
+      "closeQueue": 747,
+      "closeFunction": 1038,
       "profilerTaps": 1,
-      "tapLine": 547
+      "tapLine": 558
     },
     "startsWithNoFrame": [
       {
