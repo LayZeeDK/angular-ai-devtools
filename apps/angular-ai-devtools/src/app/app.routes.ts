@@ -148,4 +148,14 @@ export const appRoutes: Route[] = [
     loadComponent: loadPanelDemo,
     data: { surface: 'navigation' },
   },
+  // The M042 SC1-SC4 surface: the declaring component and the throwing component as two separate
+  // facts, the error's own name, message and cause, the content the boundary rendered instead under
+  // its own fallback label, and every named absence — the replaced subtree included — in its own
+  // sentence. Lazy for the same reason as the surfaces above it — the panel's eager bundle is
+  // measured.
+  {
+    path: 'error-boundary',
+    loadComponent: loadPanelDemo,
+    data: { surface: 'error-boundary' },
+  },
 ];

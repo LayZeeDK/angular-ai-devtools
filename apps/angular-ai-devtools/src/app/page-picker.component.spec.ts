@@ -421,6 +421,7 @@ describe('PagePickerComponent', () => {
     expect(lazy).toContain('render-phase');
     expect(lazy).toContain('performance');
     expect(lazy).toContain('navigation');
+    expect(lazy).toContain('error-boundary');
     expect(lazy).toEqual([
       'interop',
       'chat',
@@ -439,6 +440,7 @@ describe('PagePickerComponent', () => {
       'render-phase',
       'performance',
       'navigation',
+      'error-boundary',
     ]);
   });
 });

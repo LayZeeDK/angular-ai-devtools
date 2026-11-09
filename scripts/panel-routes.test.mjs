@@ -30,6 +30,7 @@ const surfaces = [
   'render-phase',
   'performance',
   'navigation',
+  'error-boundary',
 ];
 
 function routeBlock(source, surface) {
@@ -300,6 +301,26 @@ test('E1: a panel route installs a component through the one shared loader, neve
       ),
     'a route that no longer names its surface must fail naming it',
   );
+
+  // Mutant: the M042 surface's route entry removed from the table entirely. This is the mutation the
+  // task's own red-then-green proof applies to `app.routes.ts`, replayed here so the pin carries it
+  // rather than relying on a log: the check must name the surface whose entry is gone.
+  const withoutErrorBoundary = source.replace(
+    "  {\n    path: 'error-boundary',\n    loadComponent: loadPanelDemo,\n    data: { surface: 'error-boundary' },\n  },\n",
+    '',
+  );
+  assert.notEqual(
+    withoutErrorBoundary,
+    source,
+    'the removed-error-boundary-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutErrorBoundary),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route error-boundary must exist'),
+    'a table without the error-boundary route must fail naming the missing surface',
+  );
 });
 
 test('E2: the surface functions are still exported for their suites', () => {
@@ -315,6 +336,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     'render-phase': ['panel-render-phase', 'renderPhasePanel'],
     performance: ['panel-performance', 'performancePanel'],
     navigation: ['panel-navigation', 'navigationPanel'],
+    'error-boundary': ['panel-error-boundary', 'errorBoundaryPanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -561,5 +583,26 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       err instanceof assert.AssertionError &&
       String(err.message).includes('navigation'),
     'removing the navigation loader must fail naming the missing surface navigation',
+  );
+
+  // Mutant: remove the error-boundary key from LOADERS. The M042 route is the one this task adds, so
+  // the check must name it when its loader is gone rather than pass on the surfaces before it. It is
+  // the third quoted key in the map, so a parse that read only bare identifiers would pass this
+  // pin's first half and never see the surface it dropped.
+  const withoutErrorBoundary = demoSource.replace(
+    "  'error-boundary': () => import('./panel-error-boundary') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutErrorBoundary,
+    demoSource,
+    'the error-boundary mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutErrorBoundary),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('error-boundary'),
+    'removing the error-boundary loader must fail naming the missing surface error-boundary',
   );
 });

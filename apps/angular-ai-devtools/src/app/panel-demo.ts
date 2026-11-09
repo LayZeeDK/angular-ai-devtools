@@ -49,6 +49,7 @@ const LOADERS: Record<
   'render-phase': () => import('./panel-render-phase') as never,
   performance: () => import('./panel-performance') as never,
   navigation: () => import('./panel-navigation') as never,
+  'error-boundary': () => import('./panel-error-boundary') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -302,6 +303,39 @@ export const FACTS: Record<string, unknown> = {
       },
     ],
     unattributed: [],
+  },
+  // The join's own answer (`extension/error-boundary.js`, T004) for the frame
+  // `research/raw/m042-error-boundary.json` records. The two component names are the recorded
+  // `onViewError` payloads, not names written here: `S10Parent` is the `boundaryType` of the
+  // change-detection catch (the component whose own `@boundary` caught the error) and `S10Child`
+  // the `declarationType` the same catch carried (the template that threw), which is why the pane
+  // can print the two as two facts. The error's name is the recorded `errorCtor` and its message
+  // the recorded `@error` content minus the probe's own `caught: ` prefix, so the error and the
+  // fallback disagree here as they did on the page — the interesting case, not a trap. `coreVersion`
+  // is `null` because no page reports one, which is why `no-core-version` is carried beside it, and
+  // `no-replaced-subtree` travels with every finding because the removed primary view was recorded
+  // nowhere. `panel-demo.spec.ts` runs the join over that recording and holds this fact to its
+  // answer field for field, so a fact that drifted from the recording reddens there.
+  'error-boundary': {
+    state: 'caught',
+    absence: null,
+    findings: [
+      {
+        declaringType: 'S10Parent',
+        throwingType: 'S10Child',
+        caughtBy: true,
+        reset: true,
+        errorName: 'Error',
+        errorMessage: 'S10 spike: thrown inside the @boundary primary view',
+        cause: null,
+        route: 'hook',
+        replacedSubtree: 'no-replaced-subtree',
+      },
+    ],
+    absences: ['no-replaced-subtree', 'no-core-version'],
+    version: '22.2.2',
+    coreVersion: null,
+    fallback: 'caught: S10 spike: thrown inside the @boundary primary view',
   },
 };
 
