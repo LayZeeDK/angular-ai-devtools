@@ -83,21 +83,77 @@ T004 follows the panel family exactly and touches no file T001–T003 writes exc
 - Verify: `node --check apps/angular-ai-devtools/src/app/panel-navigation.ts && node --check apps/angular-ai-devtools/src/app/panel-demo.ts && node --check apps/angular-ai-devtools/src/app/app.routes.ts && node --check apps/angular-ai-devtools/src/app/app.spec.ts && node --check apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts && node --check apps/angular-ai-devtools/src/app/page-picker.component.spec.ts && node --check apps/angular-ai-devtools/src/app/panel-demo.spec.ts && node --check scripts/panel-navigation.test.mjs && node --check scripts/panel-routes.test.mjs && node --experimental-strip-types --test "scripts/panel-navigation.test.mjs" "scripts/panel-routes.test.mjs" "scripts/after-render-fixture.test.mjs" "tests/held-out/fixture-explainers-unchanged.test.mjs" && npx nx run angular-ai-devtools:test && npx prettier --check apps/angular-ai-devtools/src/app/panel-navigation.ts apps/angular-ai-devtools/src/app/panel-demo.ts apps/angular-ai-devtools/src/app/app.routes.ts apps/angular-ai-devtools/src/app/app.spec.ts apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts apps/angular-ai-devtools/src/app/page-picker.component.spec.ts apps/angular-ai-devtools/src/app/panel-demo.spec.ts scripts/panel-navigation.test.mjs scripts/panel-routes.test.mjs && npm run check`
 - Held-out: none; E1–E9 are T003's and the route registration must not redden them.
 
-## Wave 5 — the recording, the verdict claims and the gate
+## Wave 5 — give back the bytes M041's own registration added to the panel's eager graph
 
-Goal: make the measurement repeatable behind an opt-in switch, rule the milestone's claims against the portal clause, and leave the project gate green at the head.
+Goal: return the panel's built initial total to the 535.44 kB baseline this repository has held since M020, by collapsing the thirteen identical lazy loaders the route table had accumulated into the one the surfaces already share, and prove it with a build rather than with a raised constant.
 
 Review depth: full
 
-T005 adds the armed re-capture and the two recordings the gate itself reads: without `research/raw/m041-verdict-claims.json` the claim-list suite fails by construction, because it resolves the milestone from the bound branch and refuses a missing list, so the project gate cannot be green without it.
+The build plan's first five waves left the project gate red on three defects no task owned. The repairs run as waves 5 to 7 and the gate closes in wave 8, which is where T005 moves: its one outstanding criterion is the gate, no task may depend on a later wave, and its own acceptance criteria are otherwise untouched. A reviewer reading the resequencing should read it as the same five tasks plus three, ordered by what each one can prove.
+
+Wave 5 is the bundle because its proof is a number the build prints. The panel's initial total is summed from the eager references in the built index, and a route table is eager by construction, so the one entry M041's surface added to `appRoutes` is what crossed the line: the table already carried twelve entries whose `loadComponent` is the same closure, the build emits thirteen copies of it, and the measured total moved from 535.44 kB to 535.62 kB. Collapsing the duplication is the repair the criterion asks for — moving the baseline, widening the budget or deleting the surface would each be the widening the constant's own test forbids.
+
+### T006 — Hold the panel's initial bundle inside the recorded baseline with one shared lazy loader
+
+- Deps: T004
+- Files: `apps/angular-ai-devtools/src/app/app.routes.ts`, `apps/angular-ai-devtools/src/app/app.spec.ts`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`, `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/panel-routes.test.mjs`, `tests/held-out/fixture-explainers-unchanged.test.mjs`
+- Intent coverage: SC6
+- Edges: none
+- Acceptance: AC1 the route table keeps every surface, its order, its `data.surface` and its five eager explainer routes, and the only change to it is one shared lazy loader defined once and referenced by all thirteen panel-demo routes; AC2 the lazy boundary stays single and lazy — `import('./panel-demo')` appears once, no surface module is imported eagerly, and `panel-navigation.ts` and `panel-demo.ts` are byte-identical to their landed state; AC3 a fresh `build-extension` followed by the two measurement suites yields an initial total at or below 535.44 kB with `PRE_MILESTONE_INITIAL_KB`, `EXPECTED_INITIAL_BUDGET`, `assertWithinBaseline` and the panel's budget block byte-identical; AC4 the green half is a measurement, not a skip — the Log quotes the build's printed total, the suites' own measurement, and the pre-repair reading that failed; AC5 the route-table suite's E1 is re-cut to follow the shared loader to its single definition with the failing assertion quoted, and a block pointed at a surface function, an `as any` component or a second definition reddens it naming the defect; AC6 every other route-table pin passes unmodified and is named in the Log as run; AC7 the tracked build artifact is restored after the measurement, so the landing carries no rebuilt `extension/panel/index.html`, and `npm run check` passes with the committed bytes
+- Verify: `node --check apps/angular-ai-devtools/src/app/app.routes.ts && node --check scripts/panel-routes.test.mjs && npx nx run angular-ai-devtools:build-extension && node --experimental-strip-types --test "scripts/panel-bundle-budget.test.mjs" "scripts/image-budget.test.mjs" "scripts/panel-routes.test.mjs" && npx nx run angular-ai-devtools:test && git checkout -- extension/panel/index.html && npm run check`
+- Held-out: none; E1–E9 are T003's and this task must not redden them.
+
+## Wave 6 — hold each verdict claim list to the intent that belongs to it
+
+Goal: give the archive-or-live intent rule one implementation, so a claims file is always held to its own milestone's criteria and never to whichever milestone happens to be live.
+
+Review depth: full
+
+M040's suite reads the live intent, so it fails for every milestone after its own: measured, `research/raw/m040-verdict-claims.json` matches `.project/archive/040-performance-narrator/intent/INTENT.md` on six rows of six and the live intent on one. The overlay suite already carries the correct rule as private code; the repair lifts it into one module, binds M040's and M041's suites to it, and proves the binding in both directions — the failure mode of a "fix" here is a resolver that silently answers the live file, which would pass while comparing one milestone's claims to another milestone's words.
+
+### T007 — Hold every verdict claim list to the intent of the milestone it rules
+
+- Deps: T004
+- Files: `scripts/verdict-claims-intent.mjs`, `scripts/performance-capture.test.mjs`, `scripts/navigation-capture.test.mjs`, `scripts/overlay-verdict-claims.test.mjs`
+- Intent coverage: SC6
+- Edges: none
+- Acceptance: AC1 M040's claims are held to M040's criteria — the quote test at `scripts/performance-capture.test.mjs:1937` passes on its own archived intent, with the assertion that failed before the repair quoted; AC2 M041's claims are held to M041's criteria, resolved by the milestone its claims file names, live while unarchived and archived once the archive exists; AC3 one rule with one implementation, imported by all three claims suites, with no live-intent constant left in any of them; AC4 the resolver refuses rather than falls back — an archived milestone with no archive intent, and a milestone that is neither archived nor bound, each raise naming the milestone and every absolute path tried; AC5 the overlay suite keeps its force through the shared resolver; AC6 both directions are proven non-vacuously with the failing assertions quoted — M040's quotes redden against the live intent naming SC1, and a foreign milestone raises the resolver's own refusal; AC7 the rule is applied to every claims suite in the tree and the Log names, per claims file, the intent it is now held to; AC8 `npm run check` passes and the three claims suites are green together
+- Verify: `node --check scripts/verdict-claims-intent.mjs && node --check scripts/performance-capture.test.mjs && node --check scripts/navigation-capture.test.mjs && node --check scripts/overlay-verdict-claims.test.mjs && node --experimental-strip-types --test "scripts/performance-capture.test.mjs" "scripts/navigation-capture.test.mjs" "scripts/overlay-verdict-claims.test.mjs" && npx prettier --check scripts/verdict-claims-intent.mjs scripts/performance-capture.test.mjs scripts/navigation-capture.test.mjs scripts/overlay-verdict-claims.test.mjs && npm run check`
+- Held-out: none; E1–E9 are T003's and no claims file changes.
+
+## Wave 7 — audit the seven spike records the derived inventory lists
+
+Goal: make the head audit cover the derived inventory by auditing the S11/S12/S13 record set where it lives, so the docs-audit gate passes on coverage and not on an exemption written for it.
+
+Review depth: full
+
+The seven documents moved to `research/spikes/` because the archive preflight requires the active research directory to hold only a byte-identical audit copy. They are tracked Markdown, so the gate — installed tooling, read-only, never edited — inventories them, and its refusal names all seven. The only honest repair is the audit's own form: claim sections for what each document states, tallies re-derived from those rows, a queue row for each non-verified one, and a ruling recorded in the table the audit keeps rulings in. Excluding `research/spikes/` in the suite instead would leave the gate itself red on the same head, which is a widened rule rather than a repair.
+
+### T008 — Audit the spike-record set so the head audit covers the derived inventory
+
+- Deps: T004, T006, T007
+- Files: `.project/research/DOCS-AUDIT.md`, `scripts/docs-audit-disposition.test.mjs`
+- Intent coverage: SC6
+- Edges: none
+- Acceptance: AC1 the gate exits 0 at this head with coverage equal to the derived inventory, and the disposition suite's E6 assertion at `scripts/docs-audit-disposition.test.mjs:629` passes with the failing read (153 inventoried, 146 covered) quoted; AC2 each of the seven gains a `## Doc:` section of its own claims, each with a type, a verdict and evidence naming what settles it, and no row asserts a claim the document does not state; AC3 the Summary tallies equal the rows, the descriptive tally still equals its single entry, and coverage equals the derived inventory exactly; AC4 every non-verified row is queued once, numbered above the current maximum 928 and strictly increasing, with an action naming what would settle it; AC5 one appended `## User rulings` row records the ruling and why the set is audited where it lives, with every prior row, `Planned` value and retired queue number preserved; AC6 the seven documents and their README are not edited; AC7 the disposition suite keeps its force — E6's reconstructed prior and its three mutations still redden by name, E5 and E7 keep the branch the assembled audit already takes, and no assertion is weakened or re-cut except where the rewrite moves it; AC8 `npm run check` passes and the gate script shows no diff
+- Verify: `node --experimental-strip-types --test "scripts/docs-audit-disposition.test.mjs" "scripts/autonomy-gaps.test.mjs" && npm run check`
+- Held-out: none; E1–E9 are T003's and this task changes no product code.
+
+## Wave 8 — the recording, the verdict claims, the archive synthesis and the gate
+
+Goal: make the measurement repeatable behind an opt-in switch, rule the milestone's claims against the portal clause, author the archive's required synthesis from what already exists, and leave the project gate green at the head the repairs leave.
+
+Review depth: full
+
+T005 adds the armed re-capture and the two recordings the gate itself reads: without `research/raw/m041-verdict-claims.json` the claim-list suite fails by construction, because it resolves the milestone from the bound branch and refuses a missing list, so the project gate cannot be green without it. It runs last because its remaining criterion is the gate itself: `npm run check` and `npm test` can only be green once waves 5 to 7 have landed, and this task records that reading rather than asserting it. It also authors the one artefact the archive requires and no earlier task could write — the research synthesis, written at the head the gate closes on, from artefacts that already exist.
 
 ### T005 — Re-capture behind an opt-in switch, rule the claims and close the gate
 
-- Deps: T004
-- Files: `scripts/navigation-capture.test.mjs`, `research/raw/m041-navigation.json`, `research/raw/m041-verdict-claims.json`, `scripts/navigation-measure.test.mjs`, `scripts/navigation-blocking.test.mjs`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`
+- Deps: T004, T006, T007, T008
+- Files: `scripts/navigation-capture.test.mjs`, `research/raw/m041-navigation.json`, `research/raw/m041-verdict-claims.json`, `scripts/navigation-measure.test.mjs`, `scripts/navigation-blocking.test.mjs`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `extension/agent-main.test.mjs`, `scripts/panel-navigation.test.mjs`, `.project/research/SYNTHESIS.md`
 - Intent coverage: SC6
 - Edges: none
-- Acceptance: AC1 a default run writes nothing and names every file it would write; AC2 with `M041_CAPTURE=1` every section is re-derived and written in canonical form and a second armed run changes no byte; AC3 no reported value is pinned as a literal, each is re-derived from the installed router chunk and the agent's read path, and a moved source reddens the derivation naming it; AC4 the claim list rules SC1–SC6 answering the portal clause by name and quoting each criterion verbatim, and every required row names its source page, driver, instance and verdict path; AC5 the project gate is green at the head with the claim list present; AC6 two mutants redden named assertions naming their defects
+- Acceptance: AC1 a default run writes nothing and names every file it would write; AC2 with `M041_CAPTURE=1` every section is re-derived and written in canonical form and a second armed run changes no byte; AC3 no reported value is pinned as a literal, each is re-derived from the installed router chunk and the agent's read path, and a moved source reddens the derivation naming it; AC4 the claim list rules SC1–SC6 answering the portal clause by name and quoting each criterion verbatim, and every required row names its source page, driver, instance and verdict path; AC5 the project gate is green at the head with the claim list present, and the Log names every suite in that gate which skipped for a missing build rather than counting the skip as a measurement; AC6 two mutants redden named assertions naming their defects; AC7 the archive's required synthesis exists at `.project/research/SYNTHESIS.md`, headed as authored at archive time, stating with the record that no research and no decide phase ran, synthesising only artefacts already in the tree, and claiming no independent research
 - Verify: `node --check scripts/navigation-capture.test.mjs && node --experimental-strip-types --test "scripts/navigation-capture.test.mjs" "scripts/navigation-measure.test.mjs" "scripts/navigation-blocking.test.mjs" "scripts/overlay-verdict-claims.test.mjs" && npx prettier --check scripts/navigation-capture.test.mjs && npm run check && npm test`
 - Held-out: none; E1–E9 are T003's and the project gate is not a held-out check (E10 is dismissed).
 
@@ -137,6 +193,12 @@ T005 adds the armed re-capture and the two recordings the gate itself reads: wit
 | SC1       | T004 | AC2        |
 | SC2       | T004 | AC3        |
 | SC3       | T004 | AC4        |
+| SC6       | T006 | AC3        |
+| SC6       | T006 | AC7        |
+| SC6       | T007 | AC1        |
+| SC6       | T007 | AC8        |
+| SC6       | T008 | AC1        |
+| SC6       | T008 | AC8        |
 | SC6       | T005 | AC5        |
 
 ## Prohibitions
@@ -148,6 +210,9 @@ T005 adds the armed re-capture and the two recordings the gate itself reads: wit
 | N3          | SC3       | T003 |
 | N4          | SC4       | T003 |
 | N5          | SC5       | T003 |
+| N6          | SC6       | T006 |
+| N6          | SC6       | T007 |
+| N6          | SC6       | T008 |
 | N6          | SC6       | T005 |
 
 ## Surface contract
@@ -177,3 +242,7 @@ Walkthrough:
 - T002 → T003: T003 reads the `routerEvents` list T002 publishes and nothing else; its interface contract bullet is the byte-identical record-shape bullet T002 carries, and its suite feeds recorded entries of that shape into the join with no page.
 - T003 → T004: the pane is handed T003's `narrateNavigation` answer and reads no event list, so the answer's field names are the pane's whole input. The identical pane bullet in both files is what a reviewer checks when the two disagree.
 - T004 → T005: T005 re-captures the recording that T003's suite and T004's demo fact both pin, and adds the claim list that lets `scripts/overlay-verdict-claims.test.mjs` resolve this milestone at all; without T004's sample fact there is no recorded answer to hold the re-cut to.
+- T004 → T006: T006 edits the route table T004 registered, and the thirteen closures it collapses are the ones T004's surface landed beside — so the repair reads as one entry in a table T004 made thirteen long, and the six suites that read that table are declared with it.
+- T004 → T007: T007 binds the claims suite that T004's surface is ruled in; M041's claim list only resolves because T004's route exists, and the resolver is what keeps that list held to M041's criteria after M041 is archived.
+- T004, T006, T007 → T008: the audit is a claim about the documents at the head the repairs leave, so it is taken last of the three repairs — after the route table and the claims binding have landed, and after the surface T004 registered, which is what its own `Audited HEAD` records.
+- T006, T007, T008 → T005: T005's remaining criterion is the project gate, and the gate cannot be green before these three land. It is the last wave rather than the fifth because a task may not depend on a later wave; nothing in T005's own half changed, which is why its acceptance criteria 1 to 4 and 6 are the ones the blocked build measured, and the two added obligations are the skip it must record and the archive's synthesis.
