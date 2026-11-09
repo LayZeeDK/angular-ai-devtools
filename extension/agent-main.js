@@ -1015,22 +1015,22 @@
     return result;
   }
 
+  // The map's key is tested, not its write wrapped: a `WeakMap` takes an object identity and no
+  // other, and the profiler hands a block view's context as `null` or `undefined` at the five sites
+  // T001 measured, so it gets no entry — no epoch delta, not an empty one. `get` never throws; `set` does.
   function diffEpochs(instance, graph) {
-    var prev = prevEpochs.get(instance);
+    var keyed =
+      (typeof instance === 'object' && instance !== null) ||
+      typeof instance === 'function';
+    var prev = keyed ? prevEpochs.get(instance) : null;
     var changed = [];
-    if (prev && graph && graph.nodes) {
-      for (var i = 0; i < graph.nodes.length; i++) {
-        var n = graph.nodes[i];
-        if (prev.get(n.id) !== n.epoch) changed.push(String(n.id));
-      }
-    }
     var next = new Map();
-    if (graph && graph.nodes) {
-      for (var j = 0; j < graph.nodes.length; j++) {
-        var nj = graph.nodes[j];
-        next.set(nj.id, nj.epoch);
-      }
+    for (var i = 0; graph && graph.nodes && i < graph.nodes.length; i++) {
+      var n = graph.nodes[i];
+      if (prev && prev.get(n.id) !== n.epoch) changed.push(String(n.id));
+      next.set(n.id, n.epoch);
     }
+    if (!keyed) return changed;
     prevEpochs.set(instance, next);
     return changed;
   }

@@ -3604,3 +3604,418 @@ describe('agent-main.js (the router stream beside the profiler subscription, T00
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// The epoch map`s key: no throw, no lost frame, and the delta intact (T002, SC6)
+// ---------------------------------------------------------------------------
+//
+// T001 measured the defect (`research/raw/m042-error-boundary.json`): a `TemplateUpdateStart`
+// whose instance is `null` or `undefined` — an embedded block view`s context, which five measured
+// sites pass that way — reaches `getOrCreateCheck`, opens a frame, and throws
+// `TypeError: Invalid value used as weak map key` when the frame closes, at
+// `prevEpochs.set(instance, next)`. The close runs from a queued microtask, outside `onEvent`'s
+// try/catch, so the throw reaches the page and the frame`s whole record is lost (`records: 0`).
+//
+// The pins below drive the shipped file through the same boot the reproduction used, and they hold
+// both halves of SC6 at once, because either half alone can be reached by trading the other away:
+//
+//   1. the frame lands. A frame carrying a non-object identity closes without a throw, reaches the
+//      page`s dispatch, and carries the check with the shape a valid check travels.
+//   2. the delta still names. An object identity whose node epoch moved still names that node —
+//      T001 measured `movedOne → ["n0"]` and `bothMoved → ["n0","n1"]` — so a repair that reaches
+//      the absence by emptying the list reddens the second half, and one that keeps the list by
+//      restoring the throw reddens the first.
+//
+// Each pin is proven non-vacuously at the end of the block: the untouched source passes first, and
+// three anchored mutants of the shipped file each redden one, the failure naming the defect.
+
+/** The upstream `queueMicrotask`, put back after every epoch test. */
+const ORIGINAL_QUEUE_MICROTASK = globalThis.queueMicrotask;
+
+/** The recorders this block booted, reset after each test so no page timer outlives it. */
+const EPOCH_BOOTS = [];
+
+/** The two-node graph T001`s epoch passes drove: `n0` and `n1`, at the epochs given. */
+function epochGraph(n0, n1) {
+  return {
+    nodes: [
+      { id: 'n0', kind: 'signal', label: 'count', epoch: n0 },
+      { id: 'n1', kind: 'computed', label: 'double', epoch: n1 },
+    ],
+    edges: [{ consumer: 1, producer: 0 }],
+  };
+}
+
+/**
+ * A page whose frame close is captured rather than run. The defect`s throw escaped exactly this
+ * callback — it is the microtask `closeCycle` runs in — so the test invokes it and records what it
+ * threw, instead of letting the throw reach this process`s uncaught handler and turn a measured
+ * red into a crash.
+ */
+function bootEpochPage(options = {}) {
+  const closers = [];
+  const errors = [];
+  const tags = new Map();
+  const instances = (options.instances ?? ['Counter']).map((name) => {
+    const instance = new (namedFn(name))();
+    tags.set(instance, 'APP-' + name.toUpperCase());
+    return instance;
+  });
+  const captured = { calls: [] };
+  let graph = options.graph ?? null;
+  const ng = {
+    ɵsetProfiler(callback) {
+      captured.calls.push(callback);
+      return () => {};
+    },
+    ɵgetSignalGraph: () => graph,
+    // An identity the page knows yields its host tag; one it does not yields nothing, which is the
+    // honest answer for an embedded view`s context and leaves the check named by the fallback word.
+    getHostElement(instance) {
+      const tag = tags.get(instance);
+      return tag === undefined ? null : { tagName: tag };
+    },
+    getDirectiveMetadata: () => ({ changeDetection: 1 }),
+    getInjector: () => ({ get: () => null }),
+  };
+  globalThis.queueMicrotask = (callback) => closers.push(callback);
+  const booted = bootSource(options.source ?? SRC, { ng });
+  EPOCH_BOOTS.push(booted.recorder);
+  return {
+    ...booted,
+    ng,
+    captured,
+    instances,
+    errors,
+    subscriber: booted.recorder.getSubscriber(),
+    setGraph: (next) => {
+      graph = next;
+    },
+    /** Runs every queued frame close, recording a throw instead of letting it escape. */
+    close() {
+      const pending = closers.splice(0);
+      for (const callback of pending) {
+        try {
+          callback();
+        } catch (error) {
+          errors.push(error);
+        }
+      }
+      return pending.length;
+    },
+    records: () => recordsOf(booted.dispatched),
+  };
+}
+
+/** The one check the record carries for the named identity, or a failure naming what it carried. */
+function checkNamed(detail, name) {
+  const found = detail.checks.filter((check) => check.componentName === name);
+  assert.equal(
+    found.length,
+    1,
+    `the record must carry one check for ${JSON.stringify(name)}; it carried ${JSON.stringify(detail.checks.map((check) => check.componentName))}`,
+  );
+  return found[0];
+}
+
+/** The checks the record carries for the identities that were not objects. */
+function namelessChecks(detail) {
+  return detail.checks.filter((check) => check.componentName === 'component');
+}
+
+/**
+ * Drives the measured frames and hands the pin two readings: the frame that carried the non-object
+ * identities, and the pass in which `n0` moved while `n1` held.
+ */
+function epochReadingOf(source) {
+  const page = bootEpochPage({ instances: ['Counter'], source });
+  const [counter] = page.instances;
+
+  // The frame T001`s `twoKeysInOneFrame` measured: both shapes an embedded view`s context arrives
+  // in, with the component instance beside them.
+  page.setGraph(epochGraph(1, 1));
+  page.subscriber(PE.TemplateUpdateStart, undefined);
+  page.subscriber(PE.TemplateUpdateStart, null);
+  page.subscriber(PE.TemplateUpdateStart, counter);
+  page.subscriber(PE.TemplateUpdateEnd, counter);
+  page.close();
+
+  // The pass T001 measured as `movedOne`: `n0`s epoch moved and `n1`s held.
+  page.setGraph(epochGraph(2, 1));
+  page.subscriber(PE.TemplateUpdateStart, null);
+  page.subscriber(PE.TemplateUpdateStart, counter);
+  page.subscriber(PE.TemplateUpdateEnd, counter);
+  page.close();
+
+  return { page, errors: page.errors, frames: page.records() };
+}
+
+/** The pin: both halves of SC6, on the frame and then on the pass. */
+function assertEpochRecord(reading) {
+  const errors = reading.errors.map(
+    (error) => `${error.name}: ${error.message}`,
+  );
+  assert.deepEqual(
+    errors,
+    [],
+    `a frame whose identity is not an object must close without a throw. The throw escapes the queued microtask, which is outside onEvent's try/catch, so the frame's record is lost with it: the page's error channel carried ${JSON.stringify(errors)} and the page received ${reading.frames.length} record(s)`,
+  );
+
+  const frame = reading.frames[0];
+  assert.ok(
+    frame,
+    `the frame that carried a null and an undefined identity must still reach the page's dispatch, as it did for a valid instance (T001 measured records: 1 for an object and 0 for either non-object); the page received ${reading.frames.length} record(s)`,
+  );
+  const detail = frame.detail;
+  assert.deepEqual(
+    detail.checks.map((check) => check.events.length).sort(),
+    [1, 1, 2],
+    `frame ${detail.cycleId} must carry one check per identity that opened it — the null one, the undefined one and the component instance — each with the events it saw; the record carried ${detail.checks.length} check(s), named ${JSON.stringify(detail.checks.map((check) => check.componentName))}`,
+  );
+
+  for (const [index, check] of namelessChecks(detail).entries()) {
+    assert.deepEqual(
+      Object.keys(check),
+      Object.keys(checkNamed(detail, 'app-counter')),
+      `the check an identity that is not an object produced must travel the shape a valid check travels; check ${index} of frame ${detail.cycleId} carries ${JSON.stringify(Object.keys(check))}`,
+    );
+    assert.deepEqual(
+      check.changedNodeIds,
+      [],
+      `a check whose identity cannot key the epoch map answers no changed node: it has no previous pass to compare against, and T001 measured the empty list only for a pass that was diffed. Check ${index} of frame ${detail.cycleId} answered ${JSON.stringify(check.changedNodeIds)}`,
+    );
+  }
+
+  const moved = reading.frames[1];
+  assert.ok(
+    moved,
+    'the pass after the frame must still reach the dispatch: a repair that stops the page agent recording would pass the throw pin and lose this one',
+  );
+  const named = checkNamed(moved.detail, 'app-counter').changedNodeIds;
+  assert.deepEqual(
+    named,
+    ['n0'],
+    `the epoch record must still name the node whose epoch moved: T001 measured movedOne → ["n0"], and this pass answered ${JSON.stringify(named)}`,
+  );
+  assert.deepEqual(
+    namelessChecks(moved.detail).map((check) => check.changedNodeIds),
+    [[]],
+    'and the non-object check beside it must name no changed node in any pass: an identity that cannot be a key never gets an entry, so a write under an identity of its own would have named n0 here',
+  );
+}
+
+describe('agent-main.js (the epoch map`s key, T002)', () => {
+  afterEach(() => {
+    for (const recorder of EPOCH_BOOTS.splice(0)) {
+      if (recorder && typeof recorder.reset === 'function') recorder.reset();
+    }
+    globalThis.queueMicrotask = ORIGINAL_QUEUE_MICROTASK;
+    globalThis.ng = ORIGINALS.ng;
+    globalThis.Zone = ORIGINALS.Zone;
+    globalThis.CustomEvent = ORIGINALS.CustomEvent;
+    globalThis.dispatchEvent = ORIGINALS.dispatchEvent;
+    globalThis.performance = ORIGINALS.performance;
+    delete globalThis.__ngRecorder;
+  });
+
+  it('held-out E12: a load and a reload close their frames without an agent-thrown error, and every changed epoch is still named (AC1, AC2, AC3)', () => {
+    const load = epochReadingOf(SRC);
+    assertEpochRecord(load);
+
+    const { page } = load;
+    const counter = page.instances[0];
+
+    // A pass in which nothing moved is still the empty list — and only that pass answers it.
+    page.setGraph(epochGraph(2, 1));
+    page.subscriber(PE.TemplateUpdateStart, counter);
+    page.close();
+    assert.deepEqual(
+      checkNamed(page.records()[2].detail, 'app-counter').changedNodeIds,
+      [],
+      'a pass in which nothing moved answers the empty list, which is why the empty list cannot be the only answer this record gives',
+    );
+
+    // The pass in which both epochs moved names both, as T001 measured `bothMoved → ["n0","n1"]`.
+    page.setGraph(epochGraph(3, 4));
+    page.subscriber(PE.TemplateUpdateStart, counter);
+    page.close();
+    assert.deepEqual(
+      checkNamed(page.records()[3].detail, 'app-counter').changedNodeIds,
+      ['n0', 'n1'],
+      'the pass in which both epochs moved must name both, as T001 measured bothMoved → ["n0","n1"]',
+    );
+    assert.deepEqual(
+      page.errors.map((error) => `${error.name}: ${error.message}`),
+      [],
+      'no pass may throw: every one of these frames reached the dispatch',
+    );
+
+    // The reload: the shipped file evaluated a second time on the same page global. Its first pass
+    // has no previous entry to diff against, so it names nothing — and it reaches its dispatch.
+    assertEpochRecord(epochReadingOf(SRC));
+  });
+
+  it('held-out E13: two loads in one session record no agent error, and no epoch change crosses a load or an instance (AC4)', () => {
+    const firstLoad = epochReadingOf(SRC);
+    assertEpochRecord(firstLoad);
+    const firstInstance = firstLoad.page.instances[0];
+    firstLoad.page.setGraph(epochGraph(3, 4));
+    firstLoad.page.subscriber(PE.TemplateUpdateStart, firstInstance);
+    firstLoad.page.close();
+    const namedByTheFirstLoad = checkNamed(
+      firstLoad.page.records()[2].detail,
+      'app-counter',
+    ).changedNodeIds;
+    assert.deepEqual(
+      namedByTheFirstLoad,
+      ['n0', 'n1'],
+      'the first load ends having named both nodes',
+    );
+
+    // The second load, on the same page global, in the same session. Its first pass reads epochs
+    // that differ from the ones the first load held: a map that outlived its load would name them.
+    const secondLoad = bootEpochPage({ instances: ['Counter'] });
+    const secondInstance = secondLoad.instances[0];
+    secondLoad.setGraph(epochGraph(9, 9));
+    secondLoad.subscriber(PE.TemplateUpdateStart, secondInstance);
+    secondLoad.close();
+    assert.deepEqual(
+      secondLoad.errors.map((error) => `${error.name}: ${error.message}`),
+      [],
+      'the second load must record zero agent-thrown errors of its own',
+    );
+    const firstFrameOfTheSecondLoad = secondLoad.records()[0];
+    assert.ok(
+      firstFrameOfTheSecondLoad,
+      'the second load must record the frame that opened it, so no epoch change is attributed across loads',
+    );
+    assert.deepEqual(
+      checkNamed(firstFrameOfTheSecondLoad.detail, 'app-counter')
+        .changedNodeIds,
+      [],
+      `no epoch change may be attributed to the other load's instance: this load's first pass answered ${JSON.stringify(checkNamed(firstFrameOfTheSecondLoad.detail, 'app-counter').changedNodeIds)} where the first load's last pass named ${JSON.stringify(namedByTheFirstLoad)}`,
+    );
+
+    // Two instances of one load keep their own entries apart: the second instance's first pass
+    // answers nothing even though the first instance's entry holds an older epoch for n0
+    // (T001 measured `secondInstanceFirstPass → []`).
+    const load = bootEpochPage({ instances: ['Counter', 'Journal'] });
+    const [counter, journal] = load.instances;
+    load.setGraph(epochGraph(1, 1));
+    load.subscriber(PE.TemplateUpdateStart, counter);
+    load.close();
+    assert.deepEqual(
+      checkNamed(load.records()[0].detail, 'app-counter').changedNodeIds,
+      [],
+    );
+    load.setGraph(epochGraph(2, 1));
+    load.subscriber(PE.TemplateUpdateStart, journal);
+    load.close();
+    assert.deepEqual(
+      checkNamed(load.records()[1].detail, 'app-journal').changedNodeIds,
+      [],
+      'the second instance`s first pass must answer no changed node, even though the first instance`s entry holds an older epoch for n0 — T001 measured secondInstanceFirstPass → []',
+    );
+    assert.deepEqual(
+      load.errors.map((error) => `${error.name}: ${error.message}`),
+      [],
+      'and nothing in that load threw',
+    );
+  });
+
+  it('the guard is a key test and not a silencing: the entry is written for every object identity and cleared only by reset (AC5)', () => {
+    const page = bootEpochPage({ instances: ['Counter'] });
+    const [counter] = page.instances;
+
+    page.setGraph(epochGraph(1, 1));
+    page.subscriber(PE.TemplateUpdateStart, null);
+    page.subscriber(PE.TemplateUpdateStart, counter);
+    page.close();
+    page.setGraph(epochGraph(2, 1));
+    page.subscriber(PE.TemplateUpdateStart, counter);
+    page.close();
+    assert.deepEqual(
+      checkNamed(page.records()[1].detail, 'app-counter').changedNodeIds,
+      ['n0'],
+      'the map must still be written for every object identity: this pass names n0 only because the pass before it stored its epochs',
+    );
+
+    assert.equal(
+      page.captured.calls.length,
+      1,
+      'the profiler is installed exactly once',
+    );
+    assert.equal(
+      typeof page.captured.calls[0],
+      'function',
+      'and never removed with `ɵsetProfiler(null)`, which would clear every callback on the page',
+    );
+
+    page.setGraph(epochGraph(3, 4));
+    page.subscriber(PE.TemplateUpdateStart, counter);
+    page.close();
+    assert.deepEqual(
+      checkNamed(page.records()[2].detail, 'app-counter').changedNodeIds,
+      ['n0', 'n1'],
+      'both epochs moved in this pass, so both are named',
+    );
+    page.recorder.reset();
+    page.subscriber(PE.TemplateUpdateStart, counter);
+    page.close();
+    assert.deepEqual(
+      checkNamed(page.records()[3].detail, 'app-counter').changedNodeIds,
+      [],
+      'the first pass after reset() has no entry to diff against, so the map is cleared there and nowhere else',
+    );
+    assert.equal(
+      SRC.split('new WeakMap()').length - 1,
+      2,
+      'the map is declared once and replaced once — on the reset path — and nowhere else',
+    );
+  });
+
+  describe('the pins are non-vacuous: a mutant reddens one, naming the defect', () => {
+    it('passes on the untouched source first', () => {
+      assert.doesNotThrow(
+        () => assertEpochRecord(epochReadingOf(SRC)),
+        'the untouched source must pass the pin before any mutant is credited with reddening it',
+      );
+    });
+
+    it('M1 drops the non-object check from the record: the pin names the lost frame', () => {
+      const dropped = mutantOf(
+        '      if (serialized) facts.checks.push(serialized);',
+        '      if (serialized && instance)\n        facts.checks.push(serialized);',
+      );
+      assert.throws(
+        () => assertEpochRecord(epochReadingOf(dropped)),
+        /frame \d+ must carry one check per identity that opened it/,
+        'a record that silently drops the check a non-object identity opened must redden the pin naming the frame it emptied',
+      );
+    });
+
+    it('M2 stops writing the map: the pin names the moved-epoch case it emptied', () => {
+      const unwritten = mutantOf(
+        '    prevEpochs.set(instance, next);',
+        '    void next;',
+      );
+      assert.throws(
+        () => assertEpochRecord(epochReadingOf(unwritten)),
+        /must still name the node whose epoch moved/,
+        'a map that is never written answers the empty list on every pass, and must redden the pin naming the pass that moved',
+      );
+    });
+
+    it('M3 restores the throw: the pin names the frame the marker loses', () => {
+      const unguarded = mutantOf(
+        '    if (!keyed) return changed;',
+        '    if (!keyed && false) return changed;',
+      );
+      assert.throws(
+        () => assertEpochRecord(epochReadingOf(unguarded)),
+        /must close without a throw/,
+        'the throw the repair removed must redden the pin that says the frame is lost with it',
+      );
+    });
+  });
+});
