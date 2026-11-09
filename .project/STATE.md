@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: performance-narrator
-phase: shipped
+milestone: navigation-blocking
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M040
-archive: .project/archive/040-performance-narrator
+branch: gsd-path/M041
+archive: null
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -812,3 +812,13 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-08 — build — build done; final review pending
 - 2026-11-08 — ship — build done; final review pending
 - 2026-11-08 — shipped — archive preflight passed; shipment recorded
+- 2026-11-08 — inspect — M040 performance-narrator shipped and integrated at c03ed6fa; bound gsd-path/M041; generation 2 continues
+- 2026-11-08 — inspect — router bound next milestone: gsd-path/M041 from main at 2c0d47d; M040 performance-narrator integrated at c03ed6fa
+- 2026-11-08 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-08 — inspect — inspection closed by measured delta: 12 of 145 audited documents changed since c9451b1, 371 non-audit paths; no code audited, no unchanged document re-audited
+- 2026-11-08 — define — definition started
+- 2026-11-08 — define — branch gsd-path/M041 now at 3c5063e: Prettier-only repair of plans/angular-ai-devtools-program-backlog.md after the queue commit; no path, count, field or milestone changed
+- 2026-11-08 — define — branch gsd-path/M041 now at bfc626d, superseding the 3c5063e position line: the spike-record README states the one LF normalisation the move took; no state field, milestone or audit count changed
+- 2026-11-09 — define — milestone intent approved
+- 2026-11-09 — plan — planning started
+- 2026-11-09 — plan — plan approved
