@@ -689,12 +689,11 @@
     "finding": "The node injector on the host element resolves to a 5-entry path; entry 2, whose metadata source is `Environment Injector` and which carries 90 provider records, holds the `Router` token, and that token resolves to the very instance `ɵgetRouterInstance` returns. No new tap is needed.",
     "readFrom": {
       "source": "extension/agent-main.js",
-      "function": "handleDiQuery",
-      "cite": "extension/agent-main.js:1075-1253",
+      "function": "routerTokenFrom",
+      "cite": "extension/agent-main.js:1750-1839",
       "calls": [
         "ng.getInjector(el) (else ng.ɵgetInjectorFromNode)",
         "ng.ɵgetInjectorResolutionPath(injector)",
-        "ng.ɵgetInjectorMetadata(entry)",
         "ng.ɵgetInjectorProviders(entry)"
       ],
       "tokenField": "record.token"
@@ -3026,5 +3025,27 @@
     "what a NavigationSkipped with code 1 (IgnoredByUrlHandlingStrategy) carries: no run produced one",
     "what Scroll carries in a real run: no run produced one, so its key set is derived from the chunk only",
     "which navigation an id-less RouteConfigLoadStart/End belongs to: attribution here is by `route.path` and by arrival, and the record claims nothing more"
-  ]
+  ],
+  "capture": {
+    "task": "T005",
+    "command": "set \"M041_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/navigation-capture.test.mjs\"",
+    "check": "node --experimental-strip-types --test \"scripts/navigation-capture.test.mjs\"",
+    "records": "research/raw/m041-navigation.json",
+    "remeasured": [
+      "absences.guard-verdict-not-recorded",
+      "absences.no-holder-recorded",
+      "environment.router",
+      "events.classes",
+      "events.codes",
+      "events.enumerated",
+      "events.observedClassCount",
+      "events.reader",
+      "events.scroll",
+      "guards.fixture",
+      "held.currentNavigation",
+      "reach.readFrom"
+    ],
+    "reading": "an armed run re-measures every section listed above from the artefacts this head carries: the installed @angular/router chunk and manifest, the widened page agent`s own Router read, and the fixture`s guard file. The page`s own readings — the recorded frames, their receipt times and the payloads those events carried — are the one measurement this milestone took and are carried unchanged, so a re-drive is a manual step and never a side effect of a test run",
+    "at": "2026-11-09T02:34:49.019Z"
+  }
 }

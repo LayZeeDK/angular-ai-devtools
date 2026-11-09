@@ -13,9 +13,9 @@
 //           leaving a stale key set beside a stale sentence.
 //   reach   Whether the page agent can reach the `Router` through its own read —
 //           `getInjector` on the host element, then `ɵgetInjectorResolutionPath` — and
-//           which entry holds its token. The reader parses the agent's own
-//           `handleDiQuery` body, so the recorded path cannot drift from the code that
-//           will perform it.
+//           which entry holds its token. The reader parses the agent's own Router read,
+//           `routerTokenFrom` through the end of `routerSubscribe`, so the recorded path
+//           cannot drift from the code that performs it.
 //   held    What a navigation that has not ended looks like: a start and a stage, no
 //           terminal event, and a `currentNavigation()` field list the chunk itself
 //           declares. The held frame is checked for internal consistency, never
@@ -296,16 +296,27 @@ function currentNavigationFields(text) {
   };
 }
 
-/** The page agent's own `handleDiQuery` body, and the lines it sits on. */
-function agentReadPath() {
+/**
+ * The page agent's own Router read, and the lines it sits on: from `routerTokenFrom` — the read the
+ * widened agent performs for the Router, which walks the injector resolution path and takes the
+ * token from each provider record — through the end of `routerSubscribe`, where the four ɵ lookups
+ * are feature-detected and the stream is subscribed. T001 cited `handleDiQuery`, which performed the
+ * same read before the agent carried one of its own; T005's re-capture moved the citation to the code
+ * the shipped agent runs.
+ */
+function agentRouterRead() {
   requireFile(AGENT_PATH, 'the page agent is part of this repository');
   const text = readFileSync(AGENT_PATH, 'utf8');
-  const start = text.indexOf('function handleDiQuery(');
+  const start = text.indexOf('function routerTokenFrom(');
   if (start === -1) {
-    fail(`${AGENT_REL} declares no \`function handleDiQuery(\``);
+    fail(`${AGENT_REL} declares no \`function routerTokenFrom(\``);
   }
-  const end = text.indexOf('\n  }\n', start);
-  if (end === -1) fail(`${AGENT_REL} never closes handleDiQuery`);
+  const subscribe = text.indexOf('function routerSubscribe(', start);
+  if (subscribe === -1) {
+    fail(`${AGENT_REL} declares no \`function routerSubscribe(\``);
+  }
+  const end = text.indexOf('\n  }\n', subscribe);
+  if (end === -1) fail(`${AGENT_REL} never closes routerSubscribe`);
   return {
     body: text.slice(start, end),
     startLine: lineOfIndex(text, start),
@@ -690,34 +701,38 @@ function validateReach(record) {
   if (reach.readFrom.source !== AGENT_REL) {
     fail(`reach.readFrom.source is ${JSON.stringify(reach.readFrom.source)}`);
   }
-  if (reach.readFrom.function !== 'handleDiQuery') {
+  if (reach.readFrom.function !== 'routerTokenFrom') {
     fail(
-      `reach.readFrom.function is ${JSON.stringify(reach.readFrom.function)}`,
+      `reach.readFrom.function is ${JSON.stringify(reach.readFrom.function)}; the widened agent's Router read is \`routerTokenFrom\``,
     );
   }
-  const body = agentReadPath();
+  const body = agentRouterRead();
   const cited = citationLines(reach.readFrom.cite, 'reach.readFrom.cite');
   if (cited.path !== AGENT_REL) fail(`reach.readFrom.cite cites ${cited.path}`);
   if (cited.start < body.startLine || cited.end > body.endLine) {
     fail(
-      `reach.readFrom.cite cites lines ${cited.start}-${cited.end} and handleDiQuery sits on lines ${body.startLine}-${body.endLine}`,
+      `reach.readFrom.cite cites lines ${cited.start}-${cited.end} and the agent's Router read sits on lines ${body.startLine}-${body.endLine}`,
     );
   }
   for (const call of [
     'getInjector',
     'ɵgetInjectorResolutionPath',
-    'ɵgetInjectorMetadata',
     'ɵgetInjectorProviders',
   ]) {
     if (!body.body.includes(call)) {
       fail(
-        `the agent's handleDiQuery body no longer calls ${call}, so the recorded reach cannot be performed by the code that will perform it`,
+        `the agent's Router read no longer calls ${call}, so the recorded reach cannot be performed by the code that will perform it`,
       );
     }
   }
+  if (!/\.token\b/.test(body.body)) {
+    fail(
+      `the agent's Router read no longer takes a provider record's \`token\`, so the recorded reach names a field the agent does not read`,
+    );
+  }
   if (!/token:\s*token/.test(body.body)) {
     fail(
-      `the agent's handleDiQuery body no longer records a \`token:\` field, so the recorded reach names a field the agent does not read`,
+      `the agent's Router read no longer returns the token it found as \`token: token\`, so the recorded reach names a field the agent does not return`,
     );
   }
   if (reach.readFrom.tokenField !== 'record.token') {
@@ -2002,9 +2017,16 @@ test('the codes are the installed enums, and only a measured production is a pro
 
 test('the reach is the agent’s own read path, and the third entry holds the Router token', () => {
   const record = loadRecord();
-  const body = agentReadPath();
+  const body = agentRouterRead();
   assert.match(body.body, /ɵgetInjectorResolutionPath/);
   assert.match(body.body, /token:\s*token/);
+  assert.equal(record.reach.readFrom.function, 'routerTokenFrom');
+  assert.ok(
+    record.reach.readFrom.calls.some((call) =>
+      call.includes('ɵgetInjectorProviders'),
+    ),
+    'the recorded read names the ɵ call that walks the provider records',
+  );
   assert.equal(record.reach.routerTokenEntry, 2);
   assert.equal(
     record.reach.path[record.reach.routerTokenEntry].metadataSource,
