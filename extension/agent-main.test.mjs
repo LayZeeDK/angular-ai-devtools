@@ -2234,9 +2234,16 @@ function assertMeasuredFrame(detail) {
       'zoneMode',
       'events',
       'routerEvents',
+      // Re-cut for T003: this assertion read
+      //   ['cycleId','startedAt','trigger','zoneMode','events','routerEvents','checks']
+      // and failed with `+ 'boundary'` present in `actual` once the boundary record was added beside
+      // the router's list. The additive rule is unchanged — the four recorded fields keep their
+      // order, `events` is the first additive field, the router list the second, the boundary record
+      // the third, and `checks` stays last.
+      'boundary',
       'checks',
     ],
-    'the frame-level list must be additive: the four recorded fields keep their order, `events` is added, the router list is added beside it and `checks` stays last',
+    'the frame-level list must be additive: the four recorded fields keep their order, `events` is added, the router list and the boundary record are added beside it and `checks` stays last',
   );
 
   const entries = detail.events;
@@ -2561,9 +2568,14 @@ describe('agent-main.js (the five paired work events, T002)', () => {
         'zoneMode',
         'events',
         'routerEvents',
+        // Re-cut for T003: this assertion read
+        //   ['cycleId','startedAt','trigger','zoneMode','events','routerEvents','checks']
+        // and failed with `+ 'boundary'` present in `actual` once the boundary record joined the
+        // snapshot. The field still sits in the same position in both records.
+        'boundary',
         'checks',
       ],
-      'and the list is the additive field in the same position in both records — the router list is the second, and `checks` stays last',
+      'and each additive field sits in the same position in both records — the router list is the second, the boundary record the third, and `checks` stays last',
     );
   });
 
@@ -4015,6 +4027,862 @@ describe('agent-main.js (the epoch map`s key, T002)', () => {
         () => assertEpochRecord(epochReadingOf(unguarded)),
         /must close without a throw/,
         'the throw the repair removed must redden the pin that says the frame is lost with it',
+      );
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The boundary hook's record, beside the profiler and the router (T003, SC2, SC5)
+// ---------------------------------------------------------------------------
+//
+// T001 measured what an error boundary hands a page (`research/raw/m042-error-boundary.json`), and the
+// block below drives the shipped install with exactly that: the `ErrorHandler` the page resolved, the
+// two `details` shapes the installed chunk passes to `onViewError`, and the one published key that
+// separates a core with the boundary machinery from a core without it. What is asserted is the record
+// the page produces, never a copy of its builder.
+//
+//   1. **one section, one shape.** `record.boundary` sits beside `events` and `routerEvents`, and every
+//      arrival travels the same entry shape: the route it arrived by, the error's own name and message,
+//      the detail fields that payload carried, and the page's own receipt time.
+//   2. **the absences.** `caughtBy` is `null` on the construction shape, which does not carry it, and
+//      is never synthesised from `boundary.type`; `cause` is absent on a thrown `Error` and present
+//      only on the boundary's own wrapped error; an absent discriminator answers `cannot-tell` with a
+//      named absence rather than an empty boundary list; and a handler that cannot be reached, or one
+//      that refuses the hook, is its own named absence.
+//   3. **additive.** `ɵsetProfiler` is called once and never with `null`, the hook is armed beside it
+//      and never inside its callback, an app-declared `onViewError` is chained rather than replaced,
+//      and `reset` removes it and puts the app's own back.
+//
+// Each pin is proven non-vacuously at the end of the block: the untouched source passes first, one
+// anchored mutant of the shipped file reddens it, and the failure names the defect by string.
+
+/** The token name the walk reads on `record.token`, as the chunk names the class it provides. */
+class ErrorHandler {}
+
+/** The two views T001 measured apart: the one whose template threw, and the one that declared. */
+class S10Child {}
+class S10Parent {}
+
+/** The one entry shape the interface contract fixes, in its field order. */
+const BOUNDARY_ENTRY_KEYS = ['route', 'error', 'details', 'at'];
+
+/** The detail fields, in their field order: two of them are the declaring view's, one is the catch's. */
+const BOUNDARY_DETAIL_KEYS = [
+  'declarationType',
+  'declarationInstanceName',
+  'caughtBy',
+  'boundaryType',
+  'boundaryReset',
+];
+
+/** The recorders this block booted, reset after each test so no page timer outlives its assertions. */
+const BOUNDARY_BOOTS = [];
+
+/** The root element the agent's own reads prefer, and one element list for the presence test. */
+function boundaryRoot() {
+  return { tagName: 'APP-ROOT' };
+}
+
+function boundaryDocument() {
+  const root = boundaryRoot();
+  return {
+    querySelector: (selector) => (selector === 'app-root' ? root : null),
+    querySelectorAll: () => [root],
+    body: root,
+    documentElement: root,
+  };
+}
+
+/**
+ * The page T001 measured: `toggleWatchSignal` published (the one key 22.2.2 publishes and 22.1.8 does
+ * not), the `ErrorHandler` token on resolution path entry 1 read from `record.token` — entry 0 is the
+ * element injector and holds none — and the provider record `provideBrowserGlobalErrorListeners()`
+ * leaves behind, whose token carries the name `GlobalErrorListeners`. `options` switches one half of
+ * that page off per case, so each absence is driven apart and compared apart.
+ */
+function boundaryPage(options = {}) {
+  const handler = new ErrorHandler();
+  if (options.appHook) handler.onViewError = options.appHook;
+  if (options.freeze) Object.freeze(handler);
+  const getCalls = [];
+  const profilerCalls = [];
+  const throwing = new S10Child();
+  const declaring = new S10Parent();
+  const tags = new Map([
+    [throwing, 'S10-CHILD'],
+    [declaring, 'S10-PARENT'],
+  ]);
+  const records = [];
+  if (options.handler !== false) {
+    records.push({
+      token: ErrorHandler,
+      provider: { provide: 'ErrorHandler' },
+      source: 'provideBrowserGlobalErrorListeners',
+      isViewProvider: false,
+    });
+  }
+  if (options.globalListeners !== false) {
+    records.push({
+      token: { name: 'GlobalErrorListeners' },
+      provider: {},
+      source: '@angular/core',
+      isViewProvider: false,
+    });
+  }
+  const injectorOf = (label, providers) => ({
+    label,
+    providers,
+    get(token) {
+      getCalls.push({ injector: label, token });
+      if (label === 'environment' && token === ErrorHandler) return handler;
+      return null;
+    },
+  });
+  const element = injectorOf('element', [
+    { token: { name: 'ElementRef' }, provider: {} },
+  ]);
+  const environment = injectorOf('environment', records);
+  const path = [element, environment];
+  const ng = {
+    ɵsetProfiler(callback) {
+      profilerCalls.push(callback);
+      return () => {};
+    },
+    ɵgetSignalGraph: () => counterGraph(),
+    // An identity the page knows yields its host tag, so an entry's name is checkable rather than a
+    // constant; one it does not know yields nothing, which is the honest answer.
+    getHostElement(instance) {
+      const tag = tags.get(instance);
+      return tag === undefined ? null : { tagName: tag };
+    },
+    getDirectiveMetadata: () => ({ changeDetection: 1 }),
+    getInjector: () => element,
+    ɵgetInjectorResolutionPath: (candidate) =>
+      candidate === element ? path : [candidate],
+    ɵgetInjectorProviders: (candidate) => candidate.providers,
+  };
+  // The discriminator T001 enumerated: present on a build that publishes it, absent otherwise.
+  if (options.discriminator !== false) ng.toggleWatchSignal = () => {};
+  return {
+    ng,
+    handler,
+    throwing,
+    declaring,
+    getCalls,
+    profilerCalls,
+    element,
+    environment,
+    path,
+    records,
+  };
+}
+
+/** Boots the (possibly mutated) script on that page, once, beside the one profiler tap. */
+function bootBoundaryPage(options = {}) {
+  const page = boundaryPage(options);
+  globalThis.document = boundaryDocument();
+  const booted = bootSource(options.source ?? SRC, { ng: page.ng });
+  BOUNDARY_BOOTS.push(booted.recorder);
+  assert.equal(
+    page.profilerCalls.length,
+    1,
+    'the record extends the one profiler tap and never adds a second one',
+  );
+  return { ...page, ...booted, subscriber: booted.recorder.getSubscriber() };
+}
+
+/** The two `details` payloads the installed chunk passes, with the boundary's own field added. */
+function boundaryDetails() {
+  return {
+    view: (throwing, declaring) => ({
+      declarationInstance: throwing,
+      declarationType: S10Child,
+      caughtBy: () => {},
+      boundary: { type: S10Parent, reset: () => {} },
+    }),
+    construction: (declaring) => ({
+      declarationInstance: declaring,
+      declarationType: S10Parent,
+      boundary: { type: S10Parent, reset: () => {} },
+    }),
+  };
+}
+
+/** The boundary's own wrapped error, as `encapsulateBoundaryError` builds it. */
+function wrappedBoundaryError(cause) {
+  const error = new Error(
+    `Error boundary caught an error that's not an Error instance: ${String(cause)}. Check this error's .cause for the actual error.`,
+    { cause },
+  );
+  error.name = 'ErrorBoundaryWrappedError';
+  return error;
+}
+
+/** One frame's record, so a record exists for what the hook collected before it. */
+async function boundaryFrame(page) {
+  page.subscriber(PE.TemplateUpdateStart, {});
+  await flushMicrotasks();
+  const records = recordsOf(page.dispatched);
+  assert.ok(
+    records.length > 0,
+    'TemplateUpdateStart must still open the cycle and the queued microtask must close it: this run dispatched no record',
+  );
+  return records.at(-1).detail;
+}
+
+/** The two detail shapes' own fields: the thrower and the declarer are two answers, recorded apart. */
+function assertBoundaryFields(detail) {
+  const [first] = detail.boundary.entries;
+  assert.equal(
+    first.details.declarationType,
+    'S10Child',
+    'the change-detection shape names the view whose template threw',
+  );
+  assert.equal(
+    first.details.boundaryType,
+    'S10Parent',
+    'the boundary is the component that declared it, never the component that threw (N1)',
+  );
+  assert.notEqual(
+    first.details.declarationType,
+    first.details.boundaryType,
+    'the throwing view and the declaring view are two answers and are recorded apart',
+  );
+}
+
+/** The construction shape omits `caughtBy`, so that entry records the absence rather than a value. */
+function assertCaughtByAbsence(detail) {
+  const entries = detail.boundary.entries;
+  assert.equal(
+    entries.length,
+    2,
+    'the pin drives the two shapes, one arrival each',
+  );
+  assert.equal(
+    entries[0].details.caughtBy,
+    true,
+    'the change-detection shape carries a caught-by mechanism, and the record says so',
+  );
+  assert.equal(
+    entries[1].details.caughtBy,
+    null,
+    'the construction shape does not carry caughtBy, so the record answers null for it — never a synthesised caught-by read from boundary.type (AC4)',
+  );
+}
+
+/** The values of one entry's `details`, by the field order the contract fixes. */
+function detailValues(entry) {
+  return BOUNDARY_DETAIL_KEYS.map((key) => entry.details[key]);
+}
+
+/** One anchored edit of an already-mutated source, refusing to proceed if the anchor went away. */
+function mutantEdit(source, anchor, replacement) {
+  const occurrences = source.split(anchor).length - 1;
+  assert.equal(
+    occurrences,
+    1,
+    `the mutant anchor ${JSON.stringify(anchor)} must appear once in the mutated source; it appears ${occurrences} time(s) — restate the mutant instead of deleting it`,
+  );
+  return source.replace(anchor, replacement);
+}
+
+/**
+ * The pin: the record's section, its one entry shape, and the two detail shapes read by the fields
+ * each carries. Every failure names the field it is about, so a mutant reports the defect.
+ */
+function assertBoundaryRecord(detail) {
+  const boundary = detail.boundary;
+  assert.ok(
+    boundary && typeof boundary === 'object',
+    `the record must publish a boundary section beside \`events\` and \`routerEvents\`; it published ${JSON.stringify(boundary)}`,
+  );
+  assert.deepEqual(
+    Object.keys(boundary),
+    [
+      'state',
+      'absence',
+      'chained',
+      'globalListeners',
+      'version',
+      'coreVersion',
+      'entries',
+    ],
+    'the boundary section is one fixed shape: the install answer, its named absence, the chaining flag, the browser-listener answer, the version this surface works against and the one the page reports, and the arrivals',
+  );
+  assert.equal(
+    boundary.state,
+    'installed',
+    `a page that publishes the discriminator and resolves its handler has the hook armed; the record answered ${JSON.stringify(boundary.state)} with ${JSON.stringify(boundary.absence)}`,
+  );
+  assert.equal(
+    boundary.absence,
+    null,
+    'an installed hook has no absence beside it',
+  );
+  assert.equal(
+    boundary.version,
+    '22.2.2',
+    'the version is the constant T001 measured as the @angular/core this surface works against, never a claim about the page',
+  );
+  assert.equal(
+    boundary.coreVersion,
+    null,
+    'no measured page reports its own core version, so the field records the one it reported — null — and never an invented version',
+  );
+  assert.equal(
+    boundary.globalListeners,
+    'declared',
+    `the page declares the browser global error listeners and the record must name that, not guess at it; it answered ${JSON.stringify(boundary.globalListeners)}`,
+  );
+
+  const entries = boundary.entries;
+  assert.ok(
+    Array.isArray(entries),
+    `the boundary section must publish its arrivals as a list; it published ${JSON.stringify(entries)}`,
+  );
+  entries.forEach((entry, index) => {
+    assert.deepEqual(
+      Object.keys(entry),
+      BOUNDARY_ENTRY_KEYS,
+      `every arrival must travel one entry shape: entry ${index} (${entry.route}) carries ${JSON.stringify(Object.keys(entry))}`,
+    );
+    assert.deepEqual(
+      Object.keys(entry.details),
+      BOUNDARY_DETAIL_KEYS,
+      `every entry carries the same five detail fields, each null where the payload did not carry it: entry ${index} carries ${JSON.stringify(Object.keys(entry.details))}`,
+    );
+    assert.equal(
+      typeof entry.at,
+      'number',
+      `entry ${index} must carry the page's own receipt time; it carries ${JSON.stringify(entry.at)}`,
+    );
+    assertPlainData(entry, `boundary entry ${index}`);
+  });
+  const roundTripped = JSON.parse(JSON.stringify(entries));
+  assert.deepEqual(
+    roundTripped,
+    entries,
+    'the entries must be plain data: a value the serialized boundary drops or rewrites means an instance crossed it',
+  );
+}
+
+/** The hook's own installation: reached through `record.token`, armed once, removed by `reset`. */
+function assertBoundaryArmed(page) {
+  assert.equal(
+    page.getCalls.filter((call) => call.token === ErrorHandler).length,
+    1,
+    'the ErrorHandler must be reached from `record.token` and asked of its injector exactly once',
+  );
+  assert.equal(
+    page.getCalls.find((call) => call.token === ErrorHandler).injector,
+    'environment',
+    'and it is asked of the entry that holds the record — the app injector at entry 1, not the element injector at entry 0',
+  );
+  assert.equal(
+    typeof page.handler.onViewError,
+    'function',
+    'the hook must be armed on the handler the page resolved, before any profiler event arrives',
+  );
+}
+
+describe('agent-main.js (the boundary hook record, T003)', () => {
+  afterEach(() => {
+    for (const recorder of BOUNDARY_BOOTS.splice(0)) {
+      if (recorder && typeof recorder.reset === 'function') recorder.reset();
+    }
+    globalThis.ng = ORIGINALS.ng;
+    globalThis.Zone = ORIGINALS.Zone;
+    globalThis.CustomEvent = ORIGINALS.CustomEvent;
+    globalThis.dispatchEvent = ORIGINALS.dispatchEvent;
+    globalThis.performance = ORIGINALS.performance;
+    delete globalThis.__ngRecorder;
+    delete globalThis.document;
+  });
+
+  it('arms one hook on the handler the page resolved, and reads the two detail shapes by their fields (AC1, AC4)', async () => {
+    const page = bootBoundaryPage();
+    assertBoundaryArmed(page);
+
+    const { view, construction } = boundaryDetails();
+    const boom = new Error('boom');
+    page.handler.onViewError(boom, view(page.throwing, page.declaring));
+    page.handler.onViewError(
+      new TypeError('created'),
+      construction(page.declaring),
+    );
+
+    const detail = await boundaryFrame(page);
+    assertBoundaryRecord(detail);
+    assertBoundaryFields(detail);
+    assertCaughtByAbsence(detail);
+
+    const entries = detail.boundary.entries;
+    assert.equal(
+      entries.length,
+      2,
+      'one entry per arrival, in arrival order, with nothing coalesced',
+    );
+
+    // The change-detection catch: the throwing view threw, the declaring view declared the boundary.
+    assert.equal(
+      entries[0].route,
+      'hook',
+      'an arrival that carried details came by the hook',
+    );
+    assert.deepEqual(entries[0].error, { name: 'Error', message: 'boom' });
+    assert.equal(entries[0].details.declarationInstanceName, 's10-child');
+    assert.equal(entries[0].details.boundaryReset, true);
+
+    // The construction catch: no `caughtBy` at all, and nothing synthesised for it.
+    assert.deepEqual(entries[1].error, {
+      name: 'TypeError',
+      message: 'created',
+    });
+    assert.equal(
+      entries[1].details.boundaryType,
+      'S10Parent',
+      'and the boundary it named is still recorded whole: one absent field is not a missing record',
+    );
+    assert.equal(entries[1].details.boundaryReset, true);
+
+    // Nothing the record carries is an instance, an element or a function.
+    assert.equal(
+      containsFunction(detail.boundary),
+      false,
+      'no handler, callback, reset or instance may cross the message boundary',
+    );
+    assert.deepEqual(
+      Object.keys(entries[0].error),
+      ['name', 'message'],
+      'an Error the app threw is recorded as its own name and message, with no `cause` field at all',
+    );
+  });
+
+  it('names the route each error arrived by, and a delivery with no details names no boundary (AC3)', async () => {
+    const page = bootBoundaryPage();
+    page.handler.onViewError(new Error('delivered'));
+    page.handler.onViewError(
+      new Error('hooked'),
+      boundaryDetails().view(page.throwing, page.declaring),
+    );
+
+    const detail = await boundaryFrame(page);
+    assertBoundaryRecord(detail);
+    const [delivery, hooked] = detail.boundary.entries;
+
+    assert.equal(
+      delivery.route,
+      'handler',
+      'a delivery that carried no details arrived by the handler, and the record names that route',
+    );
+    assert.deepEqual(
+      detailValues(delivery),
+      [null, null, null, null, null],
+      'an arrival with no details names no declaring component, no boundary, no caught-by and no reset — and the absence is one record, never a boundary that was not observed',
+    );
+    assert.equal(
+      hooked.route,
+      'hook',
+      'and the arrival beside it still names its own route: the two outcomes are told apart from the record alone',
+    );
+    assert.notEqual(
+      hooked.details.boundaryType,
+      null,
+      'a record that carries a boundary is not overwritten by the delivery beside it',
+    );
+  });
+
+  it('records the wrapped cause only where the boundary wrapped a value that is not Error-like (SC2)', async () => {
+    const page = bootBoundaryPage();
+    page.handler.onViewError(
+      wrappedBoundaryError('boom'),
+      boundaryDetails().view(page.throwing, page.declaring),
+    );
+
+    const detail = await boundaryFrame(page);
+    assertBoundaryRecord(detail);
+    const [entry] = detail.boundary.entries;
+
+    assert.deepEqual(
+      Object.keys(entry.error),
+      ['name', 'message', 'cause'],
+      'the boundary wrapped a thrown string, so the record carries that value as the cause',
+    );
+    assert.equal(entry.error.name, 'ErrorBoundaryWrappedError');
+    assert.equal(
+      entry.error.cause,
+      'boom',
+      'the cause is the value the boundary wrapped, as plain data',
+    );
+    assertPlainData(entry.error, 'the wrapped error');
+    assert.equal(
+      JSON.stringify(entry.error).includes('[object'),
+      false,
+      'nothing is coerced through `String()` into the record',
+    );
+  });
+
+  it('answers cannot-tell with a named absence, never an empty boundary list, where the machinery cannot be confirmed (AC5, SC5)', async () => {
+    const page = bootBoundaryPage({ discriminator: false });
+
+    const detail = await boundaryFrame(page);
+    const boundary = detail.boundary;
+    assert.equal(
+      boundary.state,
+      'cannot-tell',
+      'a page whose published key list lacks `toggleWatchSignal` cannot be confirmed to carry the boundary machinery, and the record answers cannot-tell',
+    );
+    assert.equal(
+      boundary.absence,
+      'machinery-unconfirmed',
+      `the absence is named, so it is never read as a page that caught nothing; it answered ${JSON.stringify(boundary.absence)}`,
+    );
+    assert.deepEqual(
+      boundary.entries,
+      [],
+      'and the list is empty because nothing arrived, which the named absence makes legible rather than a claim that no boundary exists',
+    );
+    assert.equal(
+      page.handler.onViewError,
+      undefined,
+      'no hook is installed on a build this surface cannot confirm carries the machinery',
+    );
+    assert.equal(
+      boundary.globalListeners,
+      'declared',
+      'the browser-listener answer is read independently of the discriminator, so SC5 still separates its two outcomes',
+    );
+  });
+
+  it('names a handler that cannot be resolved, and one that refuses the hook, as their own absences (AC6)', async () => {
+    const unreachable = bootBoundaryPage({ handler: false });
+    const noHandler = (await boundaryFrame(unreachable)).boundary;
+    assert.equal(noHandler.state, 'cannot-tell');
+    assert.equal(
+      noHandler.absence,
+      'handler-unresolved',
+      'a handler the walk cannot reach is its own named absence, never an empty caught list',
+    );
+
+    const frozen = bootBoundaryPage({ freeze: true });
+    const refused = (await boundaryFrame(frozen)).boundary;
+    assert.equal(refused.state, 'cannot-tell');
+    assert.equal(
+      refused.absence,
+      'hook-refused',
+      'a handler that refuses the assignment is a different absence from one that was never found',
+    );
+    assert.notEqual(
+      refused.absence,
+      noHandler.absence,
+      'the three states a reader must tell apart stay three',
+    );
+    assert.equal(
+      frozen.handler.onViewError,
+      undefined,
+      'a refusal leaves the handler exactly as it was',
+    );
+  });
+
+  it('chains an app-declared onViewError instead of replacing it, and reset puts it back (AC1, AC7)', async () => {
+    const seen = [];
+    function appHook(error, details) {
+      seen.push({ self: this, error, details });
+      return 'app-answer';
+    }
+    const page = bootBoundaryPage({ appHook });
+    assert.equal(
+      typeof page.handler.onViewError,
+      'function',
+      'the hook is armed on a handler that already declares one',
+    );
+    assert.notEqual(
+      page.handler.onViewError,
+      appHook,
+      'the app declared its own hook, so the armed one is this file`s and cannot be the app`s',
+    );
+
+    const boom = new Error('boom');
+    const details = boundaryDetails().view(page.throwing, page.declaring);
+    const answer = page.handler.onViewError(boom, details);
+
+    assert.equal(
+      seen.length,
+      1,
+      'the app-declared hook must still be called — an installation that replaced it would leave this empty',
+    );
+    assert.equal(
+      seen[0].error,
+      boom,
+      'and called with the same error the boundary handed the hook',
+    );
+    assert.equal(seen[0].details, details, 'and the same details object');
+    assert.equal(
+      seen[0].self,
+      page.handler,
+      'and the same `this`, so an app hook that reads its own handler still works',
+    );
+    assert.equal(
+      answer,
+      'app-answer',
+      'the app hook`s return value reaches the caller, as it did before this installation',
+    );
+
+    const detail = await boundaryFrame(page);
+    const boundary = detail.boundary;
+    assert.equal(boundary.state, 'installed');
+    assert.equal(
+      boundary.chained,
+      true,
+      'the record says the hook was chained onto an app-declared one, so a reader knows the absence is the app`s and not a gap',
+    );
+    assert.equal(
+      boundary.entries.length,
+      1,
+      'a chained hook still records the arrival, once',
+    );
+    assert.equal(
+      seen.length,
+      1,
+      'and the app hook is called exactly once per arrival',
+    );
+    assert.equal(
+      SRC.split('handler.onViewError = onViewError;').length - 1,
+      1,
+      'one definition is installed on the handler the page resolves, and it is the only write to that property',
+    );
+
+    page.recorder.reset();
+    assert.equal(
+      page.handler.onViewError,
+      appHook,
+      'reset must put the app`s own hook back where it declared one',
+    );
+  });
+
+  it('removes the hook and clears the arrivals on reset, so a second install starts clean (AC1)', async () => {
+    const page = bootBoundaryPage();
+    page.handler.onViewError(
+      new Error('boom'),
+      boundaryDetails().view(page.throwing, page.declaring),
+    );
+    const first = await boundaryFrame(page);
+    assert.equal(first.boundary.entries.length, 1);
+
+    page.recorder.reset();
+    assert.equal(
+      page.handler.onViewError,
+      undefined,
+      'the hook this file installed is removed by the same reset path as the profiler and router subscriptions',
+    );
+
+    page.recorder.tryInstall();
+    const second = await boundaryFrame(page);
+    assert.equal(
+      typeof page.handler.onViewError,
+      'function',
+      'a second install arms the hook again',
+    );
+    assert.deepEqual(
+      second.boundary.entries,
+      [],
+      'and the list is cleared with the hook, so a second install starts from an empty stream',
+    );
+  });
+
+  it('bounds the list as a page-health guard, keeping the newest arrivals in order (AC4)', async () => {
+    const page = bootBoundaryPage();
+    for (let index = 0; index < 130; index += 1) {
+      page.handler.onViewError(new Error(`boom ${index}`));
+    }
+    const detail = await boundaryFrame(page);
+    const entries = detail.boundary.entries;
+
+    assert.equal(
+      entries.length,
+      128,
+      'the list is bounded: a page that throws without end keeps a fixed number of arrivals rather than growing without limit',
+    );
+    assert.equal(
+      entries[0].error.message,
+      'boom 2',
+      'the oldest arrivals fall off the front',
+    );
+    assert.equal(
+      entries.at(-1).error.message,
+      'boom 129',
+      'and the newest stay whole',
+    );
+    assert.deepEqual(
+      entries.map((entry) => entry.error.message),
+      [...entries.map((entry) => entry.error.message)].sort(
+        (left, right) =>
+          Number(left.split(' ')[1]) - Number(right.split(' ')[1]),
+      ),
+      'within the bound nothing is dropped, coalesced or reordered',
+    );
+  });
+
+  it('records the page`s own answer for the browser global error listeners, never an absence read as "no errors" (AC3, SC5)', async () => {
+    const page = bootBoundaryPage({ globalListeners: false });
+    const detail = await boundaryFrame(page);
+    assert.equal(
+      detail.boundary.globalListeners,
+      'no-global-error-listeners',
+      'a page with no record for the provider answers the named absence, so no surface can read it as "no raw browser error occurred" (N5)',
+    );
+    assert.deepEqual(detail.boundary.entries, []);
+
+    const unreadable = bootBoundaryPage();
+    delete unreadable.ng.ɵgetInjectorProviders;
+    // A page that publishes no provider reader cannot answer either way; the field is null rather
+    // than a `false` claim about a subject nobody read.
+    const second = await boundaryFrame(unreadable);
+    assert.equal(
+      second.boundary.globalListeners,
+      null,
+      'where the page publishes no reader for the provider the answer is null, never a claim',
+    );
+  });
+
+  describe('the pins are non-vacuous: a mutant reddens one, naming the defect', () => {
+    it('passes on the untouched source first', async () => {
+      const page = bootBoundaryPage();
+      page.handler.onViewError(
+        new Error('boom'),
+        boundaryDetails().view(page.throwing, page.declaring),
+      );
+      const detail = await boundaryFrame(page);
+      assert.doesNotThrow(
+        () => assertBoundaryRecord(detail),
+        'the untouched source must pass the pin before any mutant is credited with reddening it',
+      );
+    });
+
+    it('M1 gives a payload that lacks caughtBy a synthetic one: the pin names the absent field (AC4)', async () => {
+      const synthesised = mutantOf(
+        "        caughtBy: typeof caughtBy === 'function' ? true : null,",
+        '        caughtBy: hasBoundary ? true : null,',
+      );
+      const page = bootBoundaryPage({ source: synthesised });
+      const { view, construction } = boundaryDetails();
+      page.handler.onViewError(
+        new Error('boom'),
+        view(page.throwing, page.declaring),
+      );
+      page.handler.onViewError(
+        new TypeError('created'),
+        construction(page.declaring),
+      );
+      const detail = await boundaryFrame(page);
+      assert.throws(
+        () => assertCaughtByAbsence(detail),
+        /the construction shape does not carry caughtBy, so the record answers null/,
+        'a caught-by synthesised for a shape that omits it must redden the absence pin',
+      );
+    });
+
+    it('M2 swaps the throwing view and the declaring boundary: the pin names the field (N1)', async () => {
+      const swappedFirst = mutantOf(
+        "          boundaryFieldOf(details, 'declarationType'),",
+        "          boundaryFieldOf(boundary, 'type'),",
+      );
+      const swapped = mutantEdit(
+        swappedFirst,
+        "        boundaryType: hasBoundary\n          ? boundaryTypeNameOf(boundaryFieldOf(boundary, 'type'))\n          : null,",
+        "        boundaryType: hasBoundary\n          ? boundaryTypeNameOf(boundaryFieldOf(details, 'declarationType'))\n          : null,",
+      );
+      const page = bootBoundaryPage({ source: swapped });
+      page.handler.onViewError(
+        new Error('boom'),
+        boundaryDetails().view(page.throwing, page.declaring),
+      );
+      const detail = await boundaryFrame(page);
+      assert.throws(
+        () => assertBoundaryFields(detail),
+        /the change-detection shape names the view whose template threw/,
+        'a record that presents the throwing component as the boundary must redden the field pin',
+      );
+    });
+
+    it('M3 answers an absent discriminator as an empty list: the pin names the absence (AC5)', async () => {
+      const assumed = mutantOf(
+        "    if (!ng || typeof ng.toggleWatchSignal !== 'function') {\n      boundaryAbsence = 'machinery-unconfirmed';\n      return false;\n    }",
+        "    if (!ng || typeof ng.toggleWatchSignal !== 'function') {\n      boundaryInstalled = true;\n      return true;\n    }",
+      );
+      const page = bootBoundaryPage({
+        source: assumed,
+        discriminator: false,
+      });
+      const detail = await boundaryFrame(page);
+      assert.throws(
+        () => {
+          assert.equal(
+            detail.boundary.state,
+            'cannot-tell',
+            `a page whose published key list lacks the discriminator cannot be confirmed to carry the boundary machinery; the record answered ${JSON.stringify(detail.boundary.state)} with ${JSON.stringify(detail.boundary.absence)}`,
+          );
+          assert.equal(detail.boundary.absence, 'machinery-unconfirmed');
+        },
+        /cannot be confirmed to carry the boundary machinery/,
+        'an absent discriminator answered as an empty boundary list must redden the absence pin',
+      );
+    });
+
+    it('M4 replaces an app-declared onViewError instead of chaining it: the pin names the app`s hook (AC7)', async () => {
+      const replaced = mutantOf(
+        "    boundaryPriorHook = typeof prior === 'function' ? prior : null;",
+        '    boundaryPriorHook = null;',
+      );
+      const seen = [];
+      const page = bootBoundaryPage({
+        source: replaced,
+        appHook: (error, details) => seen.push(error),
+      });
+      page.handler.onViewError(
+        new Error('boom'),
+        boundaryDetails().view(page.throwing, page.declaring),
+      );
+      assert.throws(
+        () =>
+          assert.equal(
+            seen.length,
+            1,
+            'the app-declared hook must still be called — an installation that replaced it leaves this empty',
+          ),
+        /an installation that replaced it leaves this empty/,
+        'an installation that overwrites an app-declared hook must redden the chaining pin',
+      );
+    });
+
+    it('M5 installs the hook inside the profiler callback: the pin names the additive rule (AC1, AC7)', async () => {
+      const moved = mutantOf(
+        "    // The third subscription, armed beside the tap's answer and never inside its callback.\n    installBoundaryHook();\n",
+        '',
+      );
+      const inside = mutantEdit(
+        moved,
+        '    subscriber = function (event, instance, eventFn) {\n      onEvent(event, instance, eventFn);\n    };',
+        '    subscriber = function (event, instance, eventFn) {\n      installBoundaryHook();\n      onEvent(event, instance, eventFn);\n    };',
+      );
+      const page = bootBoundaryPage({ source: inside });
+      assert.throws(
+        () =>
+          assert.equal(
+            typeof page.handler.onViewError,
+            'function',
+            'the hook must be armed on the handler the page resolved, before any profiler event arrives',
+          ),
+        /the hook must be armed on the handler the page resolved, before any profiler event arrives/,
+        'a hook taken inside the profiler callback must redden the additive pin',
+      );
+      // The mutant is not vacuous: it installs, just later than the page's own bootstrap.
+      await boundaryFrame(page);
+      assert.equal(
+        typeof page.handler.onViewError,
+        'function',
+        'and the same mutant does arm the hook once a profiler event has arrived, so the pin reddens the timing and not the installation',
       );
     });
   });

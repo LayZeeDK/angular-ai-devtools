@@ -559,11 +559,11 @@
     subscriberRemover = typeof remover === 'function' ? remover : null;
     installed = true;
     zoneMode = zone;
+    // The third subscription, armed beside the tap's answer and never inside its callback.
+    installBoundaryHook();
     announceState(true, null);
     try {
-      globalThis.setTimeout(function () {
-        dispatchInitialRecord();
-      }, 500);
+      globalThis.setTimeout(dispatchInitialRecord, 500);
     } catch (e) {
       dispatchInitialRecord();
     }
@@ -1047,9 +1047,9 @@
       // The frame's own work, in arrival order: the four existing fields are untouched and this
       // list is the additive half (the per-check `events` below keeps the four bare numbers).
       events: c.events.slice(),
-      // The router's own arrivals, in arrival order, as their own field: a stream is not frame-scoped,
-      // so the list is what has arrived and not what this frame saw (T002).
+      // The router's arrivals (T002) and the boundary record (T003): neither is frame-scoped.
       routerEvents: routerEventList(),
+      boundary: boundaryField(),
       checks: [],
     };
     c.checks.forEach(function (check, instance) {
@@ -1437,9 +1437,9 @@
         // The snapshot carries the same list a frame carries, empty: this record read no profiler
         // event, and a record that omitted the field would make a reader guess at its shape.
         events: [],
-        // The router's list is not frame-scoped, so the snapshot carries what has already arrived —
-        // a reader attached after the fact is exactly who the replay is for.
+        // The router list and the boundary record are not frame-scoped: they carry the arrivals.
         routerEvents: routerEventList(),
+        boundary: boundaryField(),
         checks: [check],
       });
     } catch (e) {
@@ -1893,6 +1893,367 @@
     // the profiler is never cleared with `null`, which would remove every callback on the page.
     uninstallRouterEvents();
     routerEvents = [];
+    // The boundary hook is removed by the same path, and the app's own hook is put back where it
+    // declared one, so a second install starts from a page this file has never written to.
+    uninstallBoundaryHook();
+    boundaryEntries = [];
+    boundaryGlobalListeners = undefined;
+  }
+
+  // --- The boundary hook's record, beside the profiler and router subscriptions (T003) -----------
+  //
+  // T001 measured what a boundary hands a page (`research/raw/m042-error-boundary.json`). The
+  // resolved `ErrorHandler`'s optional `onViewError(error, details)` is one of the two generic
+  // surfaces that reach a caught boundary error; `ng.getContext()` on a node inside the rendered
+  // `@error` view, which answers `{$error, $reset}`, is the other. Two `details` shapes reach the
+  // hook: the change-detection catch passes `{declarationInstance, declarationType, caughtBy}`, and
+  // the construction catch passes `{declarationInstance, declarationType, boundary}` with no
+  // `caughtBy` at all. The boundary's own `ON_ERROR` hook adds `details.boundary = {type, reset}`
+  // before either call. The record therefore reads the fields a payload carries and requires none
+  // the other omits: an absent field is `null`, never borrowed from the other shape, from a
+  // neighbouring arrival or from a value derived out of the error.
+  //
+  // `declarationType` is the *throwing* view's context on the change-detection path and the
+  // *declaring* view's on the construction path, while `details.boundary.type` is always the
+  // declaring view's — two different LViews, so two different answers, recorded apart (N1). The
+  // replaced subtree is unobtainable (`LBoundary` holds `hostLView` and `error` only) and nothing
+  // here reaches for it.
+  //
+  // The hook is installed on the handler instance the page already resolved, from the install path
+  // and never from inside the profiler callback. An app that declares its own `onViewError` keeps
+  // it: this file's hook records first and calls through with the same arguments and the same
+  // `this`, so an app hook that throws still throws. A handler that cannot be resolved, or one that
+  // refuses the assignment, is a named absence and never an empty caught list.
+  //
+  // No page reports its own core version, so `version` is the constant T001 measured as the version
+  // this surface works against, and `coreVersion` is whatever the page reports — `null` on both
+  // measured installs, because neither publishes one. The single check that separates the installs
+  // is the published-key discriminator T001 enumerated: 22.2.2 publishes `toggleWatchSignal` and
+  // 22.1.8 does not, so its absence answers `cannot-tell` with a named absence. It is a proxy for
+  // the build, never a version claim, and never evidence that a boundary exists.
+  var ERROR_HANDLER_TOKEN_NAME = 'ErrorHandler';
+  var DECLARED_ERROR_LISTENERS_TOKEN_NAME = 'GlobalErrorListeners';
+  var BOUNDARY_WRAPPED_ERROR_NAME = 'ErrorBoundaryWrappedError';
+  var BOUNDARY_VERSION = '22.2.2'; // the @angular/core this surface is measured against (T001)
+  var BOUNDARY_ENTRY_LIMIT = 128; // arrivals kept: a page-health guard, not a curation
+  var BOUNDARY_TEXT_LIMIT = 128; // characters of an error message or a wrapped cause kept
+
+  var boundaryEntries = []; // one entry per arrival, in arrival order
+  var boundaryHandler = null; // the handler this file's hook was installed on
+  var boundaryPriorHook = null; // the app's own onViewError, called through and never replaced
+  var boundaryInstalled = false;
+  var boundaryAbsence = null; // the named absence the install answered, or null
+  var boundaryGlobalListeners; // memoised: 'declared' | 'no-global-error-listeners' | null
+
+  // A payload field, behind a guard: `details` and `details.boundary` come from the page's own
+  // runtime, so a getter that throws reads as "no value here" rather than losing the record.
+  function boundaryFieldOf(source, field) {
+    if (source === null || typeof source !== 'object') return undefined;
+    try {
+      return source[field];
+    } catch (e) {
+      return undefined;
+    }
+  }
+
+  // `true` when the payload itself carries the field, whatever its value.
+  function boundaryCarries(source, field) {
+    if (source === null || typeof source !== 'object') return false;
+    try {
+      return Object.prototype.hasOwnProperty.call(source, field);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // The name a payload's type field yields. `details.declarationType` and `details.boundary.type`
+  // are constructor functions, so the name is the function's own `name` — never `String(value)`,
+  // which would carry the function's source across the boundary.
+  function boundaryTypeNameOf(value) {
+    if (value === null || typeof value === 'undefined') return null;
+    try {
+      if (typeof value === 'string') return value.length ? value : null;
+      if (typeof value.name === 'string' && value.name.length)
+        return value.name;
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+
+  // A text field, kept whole below the bound and truncated above it: a message is content the app
+  // supplied, so it crosses as plain data and nothing else.
+  function boundaryTextOf(text) {
+    return text.length > BOUNDARY_TEXT_LIMIT
+      ? text.slice(0, BOUNDARY_TEXT_LIMIT) + '...'
+      : text;
+  }
+
+  // The value the boundary wrapped, as plain data. `encapsulateBoundaryError` returns an error-like
+  // value as it stands and wraps anything else in an `ErrorBoundaryWrappedError` whose `cause` is
+  // the thrown value, so `cause` is present exactly where the boundary wrapped a value that is not
+  // Error-like — and absent, rather than null, on an `Error` the app threw itself.
+  function boundaryCauseOf(value) {
+    if (value === null || typeof value === 'undefined') return null;
+    var kind = typeof value;
+    if (kind === 'string') return boundaryTextOf(value);
+    if (kind === 'number' || kind === 'boolean') return value;
+    if (kind === 'function') return 'function';
+    var type = 'object';
+    var keys = 0;
+    try {
+      type = (value.constructor && value.constructor.name) || 'object';
+    } catch (e) {
+      type = 'object';
+    }
+    try {
+      keys = Object.keys(value).length;
+    } catch (e) {
+      keys = 0;
+    }
+    return { type: String(type), keys: keys };
+  }
+
+  // The error's own name and message, and its cause only where the boundary wrapped a non-Error.
+  // Nothing is read from the rendered `@error` view: the fallback is content the boundary rendered
+  // instead, and the error is the value the boundary received (N2).
+  function boundaryErrorOf(error) {
+    var summary = { name: null, message: null };
+    if (error === null || typeof error === 'undefined') return summary;
+    if (typeof error === 'object' || typeof error === 'function') {
+      var name = boundaryFieldOf(error, 'name');
+      summary.name =
+        typeof name === 'string' && name.length
+          ? name
+          : boundaryTypeNameOf(boundaryFieldOf(error, 'constructor'));
+      var message = boundaryFieldOf(error, 'message');
+      if (typeof message === 'string')
+        summary.message = boundaryTextOf(message);
+    } else {
+      summary.message = boundaryTextOf(String(error));
+    }
+    if (summary.name === BOUNDARY_WRAPPED_ERROR_NAME) {
+      summary.cause = boundaryCauseOf(boundaryFieldOf(error, 'cause'));
+    }
+    return summary;
+  }
+
+  // One entry per arrival, in arrival order, one shape for every arrival: the route it arrived by,
+  // the error's own plain summary, the detail fields the payload carried, and the page's own receipt
+  // time. The route is read off the payload — an arrival that carried `details` came by the hook, a
+  // delivery that carried none came by the handler — so no surface has to know anything else.
+  function recordBoundaryArrival(error, details) {
+    var carried = details !== null && typeof details === 'object';
+    var boundary = boundaryFieldOf(details, 'boundary');
+    var hasBoundary = boundary !== null && typeof boundary === 'object';
+    var caughtBy = boundaryFieldOf(details, 'caughtBy');
+    var entry = {
+      route: carried ? 'hook' : 'handler',
+      error: boundaryErrorOf(error),
+      details: {
+        declarationType: boundaryTypeNameOf(
+          boundaryFieldOf(details, 'declarationType'),
+        ),
+        declarationInstanceName: instanceNameFor(
+          boundaryFieldOf(details, 'declarationInstance'),
+        ),
+        // `caughtBy` is the catching view's own `ON_ERROR` callback — a function, so the record keeps
+        // the one plain fact it carries and never the function, its name or its source. The
+        // construction shape omits the field, and that absence is recorded as `null`: it is never
+        // filled in from `boundary.type` or from the arrival before this one.
+        caughtBy: typeof caughtBy === 'function' ? true : null,
+        boundaryType: hasBoundary
+          ? boundaryTypeNameOf(boundaryFieldOf(boundary, 'type'))
+          : null,
+        boundaryReset: hasBoundary
+          ? typeof boundaryFieldOf(boundary, 'reset') === 'function'
+          : null,
+      },
+      at: nowMs(),
+    };
+    boundaryEntries.push(entry);
+    if (boundaryEntries.length > BOUNDARY_ENTRY_LIMIT) {
+      boundaryEntries.splice(0, boundaryEntries.length - BOUNDARY_ENTRY_LIMIT);
+    }
+    return entry;
+  }
+
+  // The one hook this file installs. It records first and calls the app's own hook after, so a
+  // recorder that throws never costs the app its handler, and an app hook that throws is not
+  // swallowed here: it reaches the caller exactly as it would have without this installation.
+  function onViewError(error, details) {
+    try {
+      recordBoundaryArrival(error, details);
+    } catch (e) {
+      /* a recorder must never break the app's own handler */
+    }
+    if (!boundaryPriorHook) return undefined;
+    return boundaryPriorHook.call(this, error, details);
+  }
+
+  // The page's own injector, walked the way the router's reach is walked: `getInjector` on a host
+  // element, `ɵgetInjectorResolutionPath` for the entries, `ɵgetInjectorProviders` for each entry's
+  // records, and the token taken from `record.token`. Every entry is walked — the element injector
+  // is entry 0 and the app's environment injector is not the first entry — and the same pass
+  // answers whether the page declares the browser global error listeners, whose one record is the
+  // token `provideBrowserGlobalErrorListeners()` injects at bootstrap. Both answers are `null` where
+  // the page publishes no reader for them, never `false`.
+  function boundaryWalk() {
+    var answer = { handler: null, listeners: null };
+    var ng = ngObj || readNg();
+    if (!ng) return answer;
+    var getInjector =
+      typeof ng.getInjector === 'function'
+        ? ng.getInjector
+        : typeof ng.ɵgetInjectorFromNode === 'function'
+          ? ng.ɵgetInjectorFromNode
+          : null;
+    var getPath =
+      typeof ng.ɵgetInjectorResolutionPath === 'function'
+        ? ng.ɵgetInjectorResolutionPath
+        : null;
+    var getProviders =
+      typeof ng.ɵgetInjectorProviders === 'function'
+        ? ng.ɵgetInjectorProviders
+        : null;
+    if (!getInjector || !getPath || !getProviders) return answer;
+    answer.listeners = 'no-global-error-listeners';
+    var candidates = routerHostCandidates();
+    for (var i = 0; i < candidates.length; i++) {
+      if (answer.handler && answer.listeners === 'declared') break;
+      var injector = null;
+      try {
+        injector = getInjector(candidates[i]);
+      } catch (e) {
+        injector = null;
+      }
+      if (!injector) continue;
+      var entries = [];
+      try {
+        entries = getPath(injector) || [];
+      } catch (e) {
+        entries = [];
+      }
+      if (!isArrayValue(entries) || !entries.length) entries = [injector];
+      for (var j = 0; j < entries.length; j++) {
+        var records = null;
+        try {
+          records = getProviders(entries[j]);
+        } catch (e) {
+          records = null;
+        }
+        if (!isArrayValue(records)) continue;
+        for (var k = 0; k < records.length; k++) {
+          var token = null;
+          try {
+            token = records[k] ? records[k].token : null;
+          } catch (e) {
+            token = null;
+          }
+          var name = routerTokenNameOf(token);
+          if (name === DECLARED_ERROR_LISTENERS_TOKEN_NAME)
+            answer.listeners = 'declared';
+          else if (name === ERROR_HANDLER_TOKEN_NAME && !answer.handler)
+            answer.handler = { injector: entries[j], token: token };
+        }
+      }
+    }
+    return answer;
+  }
+
+  // The one installer, called from the install path and from nowhere else. The discriminator is
+  // read first: a page whose published key list lacks `toggleWatchSignal` is a build this surface
+  // cannot confirm carries the machinery, so the answer is a named absence and no hook is installed
+  // — never an empty caught list. A second arm returns the first installation, so one arrival is
+  // one entry however many times the install is attempted.
+  function installBoundaryHook() {
+    if (boundaryInstalled) return true;
+    var ng = ngObj || readNg();
+    if (!ng || typeof ng.toggleWatchSignal !== 'function') {
+      boundaryAbsence = 'machinery-unconfirmed';
+      return false;
+    }
+    var walk = boundaryWalk();
+    if (!walk.handler) {
+      boundaryAbsence = 'handler-unresolved';
+      return false;
+    }
+    var handler = null;
+    try {
+      handler = walk.handler.injector.get(walk.handler.token);
+    } catch (e) {
+      handler = null;
+    }
+    if (
+      !handler ||
+      (typeof handler !== 'object' && typeof handler !== 'function')
+    ) {
+      boundaryAbsence = 'handler-unresolved';
+      return false;
+    }
+    var prior = boundaryFieldOf(handler, 'onViewError');
+    boundaryPriorHook = typeof prior === 'function' ? prior : null;
+    try {
+      handler.onViewError = onViewError;
+    } catch (e) {
+      boundaryAbsence = 'hook-refused';
+      return false;
+    }
+    if (boundaryFieldOf(handler, 'onViewError') !== onViewError) {
+      boundaryAbsence = 'hook-refused';
+      return false;
+    }
+    boundaryHandler = handler;
+    boundaryAbsence = null;
+    boundaryInstalled = true;
+    return true;
+  }
+
+  // Removed by the same reset path as the profiler and router subscriptions: the app's own hook is
+  // put back where it declared one, and this file's own is removed, so a later install starts from a
+  // page whose handler this file has not written to.
+  function uninstallBoundaryHook() {
+    var handler = boundaryHandler;
+    var prior = boundaryPriorHook;
+    boundaryHandler = null;
+    boundaryPriorHook = null;
+    boundaryInstalled = false;
+    boundaryAbsence = null;
+    if (!handler) return;
+    if (boundaryFieldOf(handler, 'onViewError') !== onViewError) return;
+    try {
+      if (prior) handler.onViewError = prior;
+      else delete handler.onViewError;
+    } catch (e) {
+      /* a frozen handler keeps whatever it refused to release */
+    }
+  }
+
+  // The named answer for the page's own browser-global-error-listener provider. Read once, on the
+  // first record: a record exists only after the app has rendered a frame, so by then the bootstrap
+  // that resolves the provider's token has run. `null` where the page publishes no provider reader
+  // at all, and `no-global-error-listeners` where the walk completed and found no record — a named
+  // absence, never the claim that no raw browser error occurred (N5).
+  function boundaryListeners() {
+    if (typeof boundaryGlobalListeners === 'undefined') {
+      boundaryGlobalListeners = boundaryWalk().listeners;
+    }
+    return boundaryGlobalListeners;
+  }
+
+  // The record's additive section: the install answer, the named absence beside it, whether the hook
+  // was chained onto an app-declared one, the version this surface works against and the version the
+  // page reports, the browser-listener answer, and every arrival in arrival order as a copy.
+  function boundaryField() {
+    return {
+      state: boundaryInstalled ? 'installed' : 'cannot-tell',
+      absence: boundaryInstalled ? null : boundaryAbsence,
+      chained: boundaryPriorHook !== null,
+      globalListeners: boundaryListeners(),
+      version: BOUNDARY_VERSION,
+      coreVersion: angularVersionString(ngObj || readNg()),
+      entries: boundaryEntries.slice(),
+    };
   }
 
   var api = {
