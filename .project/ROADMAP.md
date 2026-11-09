@@ -1503,8 +1503,8 @@ Goal: Build the navigation explainer: what is holding this navigation, and at wh
 Depends on: [M020]
 Programme: core · Batch: 3 · Group: @angular/router
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/041-navigation-blocking
 Integrated: null
 
 Scope: in

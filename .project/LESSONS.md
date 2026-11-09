@@ -48,3 +48,6 @@ Second lesson, from the same milestone's bookkeeping: **a helper that refuses mu
 output filter.** `review.ps1 -Action close` failed four times in a row while the orchestrator's `Select-String`
 matched nothing and reported progress. The stub path was also wrong — stubs written into `.project/review` are
 rejected by the completion gate, which cost three cycles.
+
+- 041-navigation-blocking — A gate task's declared files must cover every defect the gate can report: T005 blocked because `npm run check` was red on three defects outside its declared files, so the repair had to widen ownership before the gate could carry a verdict.
+- 041-navigation-blocking — A guard whose red names only a count costs a second cycle: the held-out E3 guard failed twice with `expected at least 3 pass summary blocks, got 1` and nothing to read, so T009 now asserts the nested run's own status, signal and tail first and names the first leg that left no evidence.
