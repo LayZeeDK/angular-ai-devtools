@@ -2,12 +2,12 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: error-boundary
-phase: plan
+phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
 branch: gsd-path/M042
-archive: null
+archive: .project/archive/042-error-boundary
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -844,3 +844,7 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-09 — define — milestone intent approved
 - 2026-11-09 — plan — planning started
 - 2026-11-09 — plan — plan approved
+- 2026-11-09 — build — build started
+- 2026-11-09 — build — build done; final review pending
+- 2026-11-09 — ship — build done; final review pending
+- 2026-11-09 — shipped — archive preflight passed; shipment recorded
