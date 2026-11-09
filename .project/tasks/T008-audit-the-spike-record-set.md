@@ -6,9 +6,9 @@ deps:
   - T004
   - T006
   - T007
-status: pending
-agent: null
-base: null
+status: done
+agent: gsd-path-build
+base: b106c15e8262924215a098108d292e2211f0b661
 worktree: null
 task_branch: null
 files:
@@ -126,3 +126,5 @@ node --experimental-strip-types --test "scripts/docs-audit-disposition.test.mjs"
 ## Log
 
 - pending
+- Repaired the head audit: seven `## Doc:` sections for the spike-record set (20 verified, 4 stale, 12 unverifiable rows), Summary re-derived to verified 340 / stale 16 / aspirational 0 / unverifiable 217 / descriptive 1, 16 queue rows 929-944 for the non-verified rows, and one `## User rulings` row (Queue # 930, fix-doc, Planned no) recording why the set is audited at research/spikes/. The seven documents and their README are byte-identical (`git diff --numstat -- research/spikes` empty); `check_docs_audit.py` is unedited. Gate: exit 0, 153 inventoried = 152 claim sections + 1 descriptive, 573 claims, queue 233. Failing read before the repair: \`audit coverage does not equal the frozen inventory; not audited:\` the seven research/spikes paths. Disposition suite E6 green over the pre-re-cut prior and its three mutations still redden with their named refusals; E5 and E7 keep the assembled-audit branch. The ruling row sits ahead of queue rows 99 and 100 because E6 reconstructs the pre-re-cut prior by removing those two numbers from both tables and requires every prior row to stay an exact ordered prefix.
+- The task's Verify passed verbatim at this head: `node --experimental-strip-types --test` over the two suites (tests 18, pass 18, fail 0 — E6 exit 0 over the head audit with 153 inventoried docs, its pre-re-cut prior green and its three mutations red with their named refusals) and `npm run check` through every stage, ending `verification gate (structure): pass` and `All matched files use Prettier code style!`. The installed gate `check_docs_audit.py --repo <root> --primary <root>` exits 0, and `scripts/docs-audit-disposition.test.mjs` carries no diff. ready
