@@ -140,4 +140,16 @@ export const appRoutes: Route[] = [
       import('./panel-demo').then((m) => m.PanelDemoComponent),
     data: { surface: 'performance' },
   },
+  // The M041 SC1-SC3 surface: one block per recorded navigation. An open navigation renders the
+  // stage it reached, its last event and the holder it cannot name; an ended one renders its
+  // terminal class and only that class's own fields; the guard aggregate and the resolve stage
+  // render their own named absences; and each route-config load renders by its own route with its
+  // measured interval. Lazy for the same reason as the surfaces above it — the panel's eager bundle
+  // is measured.
+  {
+    path: 'navigation',
+    loadComponent: () =>
+      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    data: { surface: 'navigation' },
+  },
 ];

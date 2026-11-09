@@ -420,6 +420,7 @@ describe('PagePickerComponent', () => {
     expect(lazy).toContain('picker');
     expect(lazy).toContain('render-phase');
     expect(lazy).toContain('performance');
+    expect(lazy).toContain('navigation');
     expect(lazy).toEqual([
       'interop',
       'chat',
@@ -437,6 +438,7 @@ describe('PagePickerComponent', () => {
       'linked-state',
       'render-phase',
       'performance',
+      'navigation',
     ]);
   });
 });

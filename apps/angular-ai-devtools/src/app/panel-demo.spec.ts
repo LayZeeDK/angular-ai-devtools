@@ -39,10 +39,19 @@
  * capture the page did not produce; the demo's provenance says so, because a digest entry presented
  * as a capture is the small untruth this discipline exists to catch. The pane's three blocks are
  * asserted apart, each holding only its own text (SC5, E7).
+ *
+ * M041 T004 extends it to the `navigation` surface, and to the stronger form of the same discipline:
+ * the surface is reached through its own route entry, and the sample fact is not written here at all
+ * — `research/raw/m041-navigation.json`'s warm frame is run through the shipped
+ * `extension/navigation-narrator.js` (inlined from disk and evaluated, because the join is the page's
+ * own IIFE and this spec has no page), and the fact the demo is handed must equal that answer field
+ * for field. A demo that drifted from the recording, or a route or loader key that went missing,
+ * reddens here rather than shipping.
  */
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { describe, expect, it, vi } from 'vitest';
+import { appRoutes } from './app.routes';
 import { FACTS, PanelDemoComponent } from './panel-demo';
 import { fieldsPanel } from './panel-fields';
 
@@ -162,6 +171,63 @@ interface PerformanceFact {
   state: string;
   intervals: PerformanceInterval[];
   unresolved: unknown[];
+}
+
+/** The M041 navigation recording's one frame, and the event shape it keeps. */
+interface NavigationRecording {
+  warm: {
+    events: NavigationEvent[];
+  };
+}
+
+/** One recorded router event, as T001's recording keeps it. */
+interface NavigationEvent {
+  readonly t: number;
+  readonly class: string;
+  readonly payload?: {
+    readonly id?: number;
+    readonly url?: string;
+    readonly urlAfterRedirects?: string;
+    readonly route?: { readonly path?: string };
+    readonly reason?: string;
+    readonly code?: number;
+    readonly error?: { readonly name?: string; readonly message?: string };
+    readonly shouldActivate?: boolean;
+    readonly state?: {
+      readonly matchedChain?: { readonly path?: string | null }[];
+    };
+  };
+}
+
+/** One navigation of the join's answer, for the fields this spec reads. */
+interface NavigationFact {
+  state: string;
+  url: string | null;
+  urlAfterRedirects: string | null;
+  terminal: string | null;
+  code: number | null;
+  reason: string | null;
+  stage: string | null;
+  lastEvent: string | null;
+  holder: { state: string; absence: string } | null;
+  absence: string | null;
+  matched: { path: string | null } | null;
+  loads: { route: string | null; durationMs: number | null; open: boolean }[];
+  guards: { state: string; absence: string; shouldActivate: boolean } | null;
+  resolve: { state: string; absence: string } | null;
+}
+
+/** The join's answer for one record, for the fields this spec reads. */
+interface NavigationAnswer {
+  state: string;
+  absence: string | null;
+  navigations: NavigationFact[];
+  unattributed: unknown[];
+}
+
+/** The page's own narrator namespace, as `extension/navigation-narrator.js` publishes it. */
+interface NavigationNarrator {
+  narrateNavigation(record: unknown): NavigationAnswer;
 }
 
 /** The vite `import.meta.glob` surface this spec uses, cast rather than declared globally. */
@@ -327,6 +393,100 @@ function readErrorDigest(): { digest: ErrorDigest; text: string } {
     );
   }
   return { digest: JSON.parse(text) as ErrorDigest, text };
+}
+
+/** The M041 navigation recording and its text, inlined from disk the same way. */
+function readNavigationRecording(): {
+  recording: NavigationRecording;
+  text: string;
+} {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m041-navigation.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m041-navigation.json was not inlined above this spec file',
+    );
+  }
+  return { recording: JSON.parse(text) as NavigationRecording, text };
+}
+
+/** One recorded event as the entry shape the page agent publishes. */
+function navigationEntry(event: NavigationEvent) {
+  const payload = event.payload ?? {};
+  const match = payload.state?.matchedChain;
+  return {
+    type: event.class,
+    at: event.t,
+    id: typeof payload.id === 'number' ? payload.id : null,
+    url: typeof payload.url === 'string' ? payload.url : null,
+    urlAfterRedirects:
+      typeof payload.urlAfterRedirects === 'string'
+        ? payload.urlAfterRedirects
+        : null,
+    route: typeof payload.route?.path === 'string' ? payload.route.path : null,
+    reason: typeof payload.reason === 'string' ? payload.reason : null,
+    code: typeof payload.code === 'number' ? payload.code : null,
+    error:
+      payload.error === undefined
+        ? null
+        : {
+            name: payload.error.name ?? null,
+            message: payload.error.message ?? null,
+          },
+    shouldActivate:
+      typeof payload.shouldActivate === 'boolean'
+        ? payload.shouldActivate
+        : null,
+    matchedPaths: Array.isArray(match)
+      ? match.map((node) => (typeof node.path === 'string' ? node.path : null))
+      : [],
+  };
+}
+
+/** The record the page agent publishes for the recording's warm frame: the list of arrivals. */
+function navigationRecord(recording: NavigationRecording) {
+  return { routerEvents: recording.warm.events.map(navigationEntry) };
+}
+
+/**
+ * The join `extension/navigation-narrator.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's sample fact is held to the join's answer for the recording, not to a
+ * copy of it. The module is an IIFE with no imports, so running it is the whole of loading it.
+ */
+function navigationJoin(): NavigationNarrator {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/navigation-narrator.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/navigation-narrator.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (
+    globalThis as unknown as {
+      angularAiNavigationNarrator?: NavigationNarrator;
+    }
+  ).angularAiNavigationNarrator;
+  if (join === undefined || typeof join.narrateNavigation !== 'function') {
+    throw new Error(
+      'extension/navigation-narrator.js published no narrateNavigation',
+    );
+  }
+  return join;
 }
 
 /** The demo rendered for one surface name, once its lazy surface has answered. */
@@ -750,6 +910,87 @@ describe('the panel demo', () => {
       .filter((name) => name !== 'null' && !printed.includes(name));
     expect(unprinted).toEqual(['_Counter']);
     for (const name of unprinted) expect(demo.text()).not.toContain(name);
+  });
+
+  /**
+   * The M041 half: the surface behind `/navigation` is reached through its own route entry — the
+   * lazy component and the surface name the route data carries — and the sample fact it renders is
+   * the join's own answer for the recording's warm frame, computed here by running
+   * `extension/navigation-narrator.js` over that frame. A fact that drifted from the recording, a
+   * route that stopped pointing at the demo, or a loader key that went missing all redden here.
+   */
+  it('renders the recording’s navigation, and the sample fact is the join’s own answer for it', async () => {
+    const { recording, text: recordingText } = readNavigationRecording();
+    const join = navigationJoin();
+    const answer = join.narrateNavigation(navigationRecord(recording));
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'navigation',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the navigation surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    const surfaceName = route.data?.['surface'];
+    if (typeof surfaceName !== 'string') {
+      throw new Error(
+        'the navigation route must name its surface in route data',
+      );
+    }
+    expect(surfaceName).toBe('navigation');
+
+    // The fact the pane is handed is the join's answer, field for field.
+    expect(FACTS['navigation']).toEqual(answer);
+    expect(answer.state).toBe('ended');
+    const fact = answer.navigations[0];
+    if (fact === undefined) {
+      throw new Error('the warm frame must answer one navigation');
+    }
+    expect(recording.warm.events.length).toBeGreaterThan(0);
+    // Every value the pane prints is in the committed recording's bytes, not only in this spec.
+    expect(recordingText.includes(`"url": "${fact.url}"`)).toBe(true);
+    expect(recordingText.includes(JSON.stringify(fact.matched?.path))).toBe(
+      true,
+    );
+
+    const demo = await renderDemo(surfaceName);
+    expect(demo.state()).toBe(answer.state);
+    // One block, in the answer's order: the state word first, then only the fields the answer
+    // carried — the terminal class, the end route it recorded, the guard aggregate with its own
+    // absence, the resolve absence, the chain's own path and each load by its own route.
+    expect(demo.lines()).toEqual([
+      `state: ${fact.state}`,
+      `route: ${fact.url}`,
+      `endRoute: ${fact.urlAfterRedirects}`,
+      `terminal: ${fact.terminal}`,
+      `guards: ${fact.guards?.state}`,
+      `guards absence: ${fact.guards?.absence}`,
+      `shouldActivate: ${fact.guards?.shouldActivate}`,
+      `resolve: ${fact.resolve?.state}`,
+      `resolve absence: ${fact.resolve?.absence}`,
+      `matched: ${fact.matched?.path}`,
+      ...fact.loads.flatMap((load) => [
+        `load: ${load.route}`,
+        `load interval: ${load.durationMs}`,
+      ]),
+    ]);
+    // The text is the lines, so the same answer rendered twice is the same bytes.
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+    // Nothing is printed that the answer did not carry: no stage for an ended navigation, no
+    // holder, no code, no reason, no guard name and no error.
+    for (const marker of [
+      'stage reached: ',
+      'lastEvent: ',
+      'holder: ',
+      'code: ',
+      'reason: ',
+      'error: ',
+      'redirectGuard',
+    ]) {
+      expect(demo.text()).not.toContain(marker);
+    }
   });
 
   /**

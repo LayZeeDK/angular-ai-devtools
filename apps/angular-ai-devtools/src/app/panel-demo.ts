@@ -48,6 +48,7 @@ const LOADERS: Record<
   'linked-state': () => import('./panel-linked-state') as never,
   'render-phase': () => import('./panel-render-phase') as never,
   performance: () => import('./panel-performance') as never,
+  navigation: () => import('./panel-navigation') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -241,6 +242,66 @@ export const FACTS: Record<string, unknown> = {
       },
     ],
     unresolved: [],
+  },
+  // The join's own answer (`extension/navigation-narrator.js`) for the one frame the M041 recording
+  // took with all of it at once (`research/raw/m041-navigation.json`, `warm.events`): a completed
+  // navigation whose two route-config loads were both measured, whose guard check ended on the
+  // aggregate, and which reached the resolve stage on a configuration that declares no resolver.
+  // Every value here is the join's, derived from that recording rather than written for the demo —
+  // `panel-demo.spec.ts` runs the join over the recording and holds this fact to its answer, so a
+  // fact that drifts from the recording reddens there. The two intervals are the join's own
+  // differences between the recorded receipt times (`382.8 - 367.2`, `421.8 - 384.2`), which is why
+  // they carry the doubles those subtractions produce: no duration is rounded or written by hand.
+  navigation: {
+    state: 'ended',
+    absence: null,
+    navigations: [
+      {
+        id: 2,
+        state: 'ended',
+        url: '/claim/list',
+        urlAfterRedirects: '/claim/list',
+        terminal: 'NavigationEnd',
+        code: null,
+        reason: null,
+        error: null,
+        stage: null,
+        lastEvent: 'NavigationEnd',
+        holder: null,
+        absence: null,
+        matched: {
+          path: 'list',
+          wildcard: false,
+          paths: [null, 'claim', '', 'list'],
+        },
+        loads: [
+          {
+            route: 'claim',
+            startedAt: 367.2,
+            endedAt: 382.8,
+            durationMs: 15.600000000000023,
+            open: false,
+          },
+          {
+            route: 'list',
+            startedAt: 384.2,
+            endedAt: 421.8,
+            durationMs: 37.60000000000002,
+            open: false,
+          },
+        ],
+        guards: {
+          state: 'cannot-tell',
+          absence: 'guard-verdict-not-recorded',
+          shouldActivate: true,
+        },
+        resolve: {
+          state: 'cannot-tell',
+          absence: 'no-resolver-configured',
+        },
+      },
+    ],
+    unattributed: [],
   },
 };
 

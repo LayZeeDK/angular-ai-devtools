@@ -24,6 +24,7 @@ const surfaces = [
   'linked-state',
   'render-phase',
   'performance',
+  'navigation',
 ];
 
 function routeBlock(source, surface) {
@@ -69,6 +70,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     'linked-state': ['panel-linked-state', 'linkedStatePanel'],
     'render-phase': ['panel-render-phase', 'renderPhasePanel'],
     performance: ['panel-performance', 'performancePanel'],
+    navigation: ['panel-navigation', 'navigationPanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -105,6 +107,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'linkedStatePanel(',
     'renderPhasePanel(',
     'performancePanel(',
+    'navigationPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -293,5 +296,26 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       err instanceof assert.AssertionError &&
       String(err.message).includes('performance'),
     'removing the performance loader must fail naming the missing surface performance',
+  );
+
+  // Mutant: remove the navigation key from LOADERS. The M041 route is the one this task adds, so the
+  // check must name it when its loader is gone rather than pass on the surfaces before it. It is a
+  // bare identifier key whose import is the only reference to `panel-navigation.ts`, so a route that
+  // dropped it would leave the surface unreachable while every earlier surface still loaded.
+  const withoutNavigation = demoSource.replace(
+    "  navigation: () => import('./panel-navigation') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutNavigation,
+    demoSource,
+    'the navigation mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutNavigation),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('navigation'),
+    'removing the navigation loader must fail naming the missing surface navigation',
   );
 });
