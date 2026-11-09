@@ -45,6 +45,8 @@ import { fileURLToPath } from 'node:url';
 import { createContext, runInContext } from 'node:vm';
 import { test } from 'node:test';
 
+import { intentPathForMilestone } from './verdict-claims-intent.mjs';
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
 const SELF_PATH = fileURLToPath(import.meta.url);
@@ -53,7 +55,6 @@ const RECORD_PATH =
   process.env.M040_RECORD ??
   join(ROOT, 'research', 'raw', 'm040-work-events.json');
 const CLAIMS_PATH = join(ROOT, 'research', 'raw', 'm040-verdict-claims.json');
-const INTENT_PATH = join(ROOT, '.project', 'intent', 'INTENT.md');
 const AGENT_PATH = join(ROOT, 'extension', 'agent-main.js');
 const NARRATOR_PATH = join(ROOT, 'extension', 'performance-narrator.js');
 
@@ -1940,7 +1941,10 @@ test('the claim list quotes the milestone`s own intent character for character',
     'the milestone owes the gate its claim list',
   );
   const criteria = intentCriteria(
-    readText(INTENT_PATH, 'the milestone`s own intent'),
+    readText(
+      intentPathForMilestone(ROOT, 'M040'),
+      'the milestone`s own intent',
+    ),
   );
   assert.doesNotThrow(() => assertQuotesIntent(recording, criteria));
 
@@ -1967,6 +1971,38 @@ test('the claim list quotes the milestone`s own intent character for character',
       'a reason long enough to pass the length rule but attached to a criterion that does not exist',
   });
   assert.throws(() => assertQuotesIntent(invented, criteria), /SC99/);
+});
+
+test('the claims are M040`s own: held to the live intent they redden naming SC1', () => {
+  const own = intentPathForMilestone(ROOT, 'M040');
+  const live = join(ROOT, '.project', 'intent', 'INTENT.md');
+
+  assert.notEqual(
+    own,
+    live,
+    'an archived milestone must not resolve to the live intent',
+  );
+  assert.ok(
+    own.startsWith(join(ROOT, '.project', 'archive', '040-')),
+    `${own} is not M040's archive`,
+  );
+
+  const recording = readJson(
+    CLAIMS_PATH,
+    'the milestone owes the gate its claim list',
+  );
+
+  // The defect this suite landed with, proven live rather than quoted: held to whoever is current, these
+  // rows redden at SC1 - which is what "the binding, not the claims, was wrong" means.
+  assert.throws(
+    () =>
+      assertQuotesIntent(
+        recording,
+        intentCriteria(readText(live, 'the live intent')),
+      ),
+    /SC1 must quote the INTENT criterion character for character/,
+    'M040`s claims must redden when they are held to the live intent, naming SC1',
+  );
 });
 
 // ------------------------------------------------------------- the mutants ----

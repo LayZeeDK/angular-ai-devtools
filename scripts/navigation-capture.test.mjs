@@ -51,10 +51,19 @@
 // hash, a pinned timestamp or a pinned line number is the stale value this milestone's N6 forbids.
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
+
+import { intentPathForMilestone } from './verdict-claims-intent.mjs';
 
 const SELF_PATH = fileURLToPath(import.meta.url);
 const HERE = dirname(SELF_PATH);
@@ -62,7 +71,6 @@ const ROOT = join(HERE, '..');
 
 const RECORD_REL = 'research/raw/m041-navigation.json';
 const CLAIMS_REL = 'research/raw/m041-verdict-claims.json';
-const INTENT_REL = '.project/intent/INTENT.md';
 const CHUNK_REL = 'node_modules/@angular/router/fesm2022/_router-chunk.mjs';
 const MANIFEST_REL = 'node_modules/@angular/router/package.json';
 const AGENT_REL = 'extension/agent-main.js';
@@ -70,7 +78,6 @@ const GUARD_REL = 'spikes/ng222-app/src/app/redirect-guard.ts';
 
 const RECORD_PATH = join(ROOT, RECORD_REL);
 const CLAIMS_PATH = join(ROOT, CLAIMS_REL);
-const INTENT_PATH = join(ROOT, INTENT_REL);
 const CHUNK_PATH = join(ROOT, CHUNK_REL);
 const MANIFEST_PATH = join(ROOT, MANIFEST_REL);
 const AGENT_PATH = join(ROOT, AGENT_REL);
@@ -1568,7 +1575,10 @@ test('the recording is the canonical serialisation of its own record', () => {
 
 test('the claim list rules every criterion and quotes each one character for character', (t) => {
   const criteria = intentCriteria(
-    readText(INTENT_PATH, 'the intent is part of this repository'),
+    readText(
+      intentPathForMilestone(ROOT, 'M041'),
+      'the intent is part of this repository',
+    ),
   );
   const claims = JSON.parse(
     readText(CLAIMS_PATH, 'the claim list has not been written'),
@@ -1577,6 +1587,246 @@ test('the claim list rules every criterion and quotes each one character for cha
   t.diagnostic(
     `claim list ${CLAIMS_REL}: ${claims.claims.length} row(s) for ${Object.keys(criteria).length} declared criterion(s), ${claims.claims.reduce((sum, row) => sum + row.criterionText.length, 0)} quoted character(s)`,
   );
+});
+
+// -------------------------------------------------- the intent that answers ----
+
+/** The live intent. Named here so a test can prove what the resolver does *not* answer with. */
+const LIVE_INTENT = join(ROOT, '.project', 'intent', 'INTENT.md');
+
+/** M040's own intent, which is the archive's copy: the milestone has shipped and cannot be current. */
+const M040_INTENT = join(
+  ROOT,
+  '.project',
+  'archive',
+  '040-performance-narrator',
+  'intent',
+  'INTENT.md',
+);
+
+/**
+ * Hold a claim list to the intent at `path`, character for character, and answer the criteria it
+ * declares. A path the resolver never checked fails here by name, so an answer is only an answer
+ * once the file on disk is the one whose words the claims quote.
+ *
+ * @param {string} path
+ * @param {string} claimsPath
+ * @returns {Record<string, string>}
+ */
+function heldTo(path, claimsPath) {
+  const criteria = intentCriteria(readText(path, 'the resolved intent'));
+  const claims = JSON.parse(
+    readText(claimsPath, 'the claim list has not been written'),
+  );
+  for (const row of claims.claims) {
+    assert.equal(
+      row.criterionText,
+      criteria[row.criterion],
+      `${row.criterion} of ${displayPath(claimsPath)} is not what ${displayPath(path)} declares`,
+    );
+  }
+  return criteria;
+}
+
+/**
+ * What the resolver answered: the path it returned, or the error it raised. Returning the error rather
+ * than letting `assert.throws` swallow it is what lets a mutant's answer be printed in the failure, so
+ * a resolver that fell back fails with the path it fell back to in the message.
+ *
+ * @param {string} root
+ * @param {string} milestone
+ * @returns {string | Error}
+ */
+function answeredOrRaised(root, milestone) {
+  try {
+    return intentPathForMilestone(root, milestone);
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
+}
+
+test('the intent follows the milestone its claims are numbered for, through every token', () => {
+  for (const token of ['M040', '040', '40']) {
+    assert.equal(
+      intentPathForMilestone(ROOT, token),
+      M040_INTENT,
+      `${token} must resolve to M040's own archive`,
+    );
+  }
+  for (const token of ['M041', '041', '41']) {
+    assert.equal(
+      intentPathForMilestone(ROOT, token),
+      LIVE_INTENT,
+      `${token} must resolve to the live intent, which STATE.md binds to M041`,
+    );
+  }
+  // The defect this resolver removes: an archived milestone never reads whoever is current.
+  assert.notEqual(intentPathForMilestone(ROOT, 'M040'), LIVE_INTENT);
+});
+
+test('each answer is the file its own claim list quotes, checked on disk', () => {
+  heldTo(
+    intentPathForMilestone(ROOT, 'M040'),
+    join(ROOT, 'research', 'raw', 'm040-verdict-claims.json'),
+  );
+  heldTo(intentPathForMilestone(ROOT, 'M041'), CLAIMS_PATH);
+
+  // A resolver that returns a path it never checked answers with a file that is not there, and the
+  // quote comparison is what turns that into a failure naming the path rather than a silent pass.
+  const unchecked = (root, milestone) =>
+    join(
+      root,
+      '.project',
+      'archive',
+      `${milestone}-milestone`,
+      'intent',
+      'INTENT.md',
+    );
+  assert.equal(
+    existsSync(unchecked(ROOT, '041')),
+    false,
+    'the unchecked answer must be a path no one checked',
+  );
+  assert.throws(
+    () => heldTo(unchecked(ROOT, '041'), CLAIMS_PATH),
+    /is missing — the resolved intent/,
+    'an answer that was never checked must redden, naming the path it returned',
+  );
+});
+
+test('the resolver refuses rather than falling back, and every refusal names its paths', () => {
+  const scratch = join(ROOT, 'tmp', 'm041-intent-scratch');
+  const archiveIntent = join(
+    scratch,
+    '.project',
+    'archive',
+    '040-missing-intent',
+    'intent',
+    'INTENT.md',
+  );
+  const live = join(scratch, '.project', 'intent', 'INTENT.md');
+
+  try {
+    rmSync(scratch, { recursive: true, force: true });
+    mkdirSync(join(scratch, '.project', 'archive', '040-missing-intent'), {
+      recursive: true,
+    });
+    mkdirSync(join(scratch, '.project', 'intent'), { recursive: true });
+    copyFileSync(
+      join(ROOT, '.project', 'STATE.md'),
+      join(scratch, '.project', 'STATE.md'),
+    );
+    copyFileSync(LIVE_INTENT, live);
+
+    // The fallback this repair exists to refuse, stated as the mutant it is: a resolver that reads the
+    // live intent when the archive carries none. It answers, which is why nothing may implement it.
+    const fallingBack = (root) => join(root, '.project', 'intent', 'INTENT.md');
+    assert.equal(fallingBack(scratch), live);
+    assert.ok(
+      existsSync(fallingBack(scratch)),
+      'the fallback must be reachable for the refusal to be the thing that stops it',
+    );
+
+    // What the resolver answered, so a fallback is compared and printed rather than reported as an
+    // unattributed "missing expected exception".
+    const fallback = answeredOrRaised(scratch, '040');
+    assert.ok(
+      fallback instanceof Error,
+      `M040 must raise rather than answer: a resolver that fell back returned ${String(fallback)}, which holds M040's claims to M041's words`,
+    );
+    assert.match(
+      fallback.message,
+      /M040/,
+      'the refusal must name the milestone it was asked about',
+    );
+    assert.ok(
+      fallback.message.includes(archiveIntent),
+      `the refusal must name the path it tried: ${archiveIntent}`,
+    );
+    assert.ok(
+      fallback.message.includes(live),
+      'the refusal must name the live intent it refused to fall back to',
+    );
+
+    // Neither archived nor bound: the live intent belongs to M041, so it answers for M041 and no other.
+    const unbound = answeredOrRaised(scratch, 'M042');
+    assert.ok(
+      unbound instanceof Error,
+      `M042 must raise rather than answer: a resolver that answered with ${String(unbound)} would hold one milestone's claims to another milestone's words`,
+    );
+    assert.match(
+      unbound.message,
+      /M042/,
+      'the refusal must name the milestone it was asked about',
+    );
+    assert.ok(
+      unbound.message.includes(live),
+      'the refusal must name the live intent it tried',
+    );
+    assert.match(
+      unbound.message,
+      /belongs to M041/,
+      'the refusal must say which milestone the live intent does belong to',
+    );
+
+    // A token that names no milestone is the same refusal, with the paths it would have tried.
+    assert.throws(
+      () => intentPathForMilestone(scratch, 'not-a-milestone'),
+      /a milestone token is M040, 040 or 40/,
+      'a token that names no milestone must raise',
+    );
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
+test('no claims suite decides the archive-or-live question for itself', () => {
+  // Assembled so this check does not find its own needles in this file.
+  const importer = ["from '", './verdict-claims-intent.mjs'].join('');
+  const slash = ['intent', 'INTENT.md'].join('/');
+  const fromResolver = new RegExp(
+    [
+      'intentCriteria\\(',
+      '\\s*(?:readText\\()?\\s*',
+      'intentPathForMilestone\\(',
+    ].join(''),
+  );
+  const removed = [
+    ['INTENT', '_PATH'].join(''),
+    ['INTENT', '_REL'].join(''),
+    ['function ', 'intentPath('].join(''),
+  ];
+
+  for (const suite of [
+    'performance-capture.test.mjs',
+    'navigation-capture.test.mjs',
+    'overlay-verdict-claims.test.mjs',
+  ]) {
+    const source = readText(join(HERE, suite), 'every claims suite ships here');
+
+    assert.ok(
+      source.includes(importer),
+      `${suite} must import the shared resolver rather than decide for itself`,
+    );
+    // The criteria a claim list is held to are read from the resolver, not from a path assembled here.
+    assert.match(
+      source,
+      fromResolver,
+      `${suite} must read its criteria from the shared resolver, which is the one place the archive-or-live decision is written`,
+    );
+    for (const name of removed) {
+      assert.equal(
+        source.includes(name),
+        false,
+        `${suite} carries ${JSON.stringify(name)} again; a suite may not keep the live intent as a constant of its own`,
+      );
+    }
+    assert.equal(
+      source.includes(slash),
+      false,
+      `${suite} spells the live intent as ${JSON.stringify(slash)}; the archive-or-live decision lives in one file`,
+    );
+  }
 });
 
 test('every file this suite would write is named, and the recording is the only one', () => {
@@ -1874,7 +2124,10 @@ test('mutant: a recording that drifts from its canonical serialisation reddens n
 
 test('mutant: a claim whose quoted criterion differs from INTENT by one character reddens naming the character', () => {
   const criteria = intentCriteria(
-    readText(INTENT_PATH, 'the intent is part of this repository'),
+    readText(
+      intentPathForMilestone(ROOT, 'M041'),
+      'the intent is part of this repository',
+    ),
   );
   const claims = JSON.parse(
     readText(CLAIMS_PATH, 'the claim list has not been written'),
