@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: navigation-blocking
-phase: build
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: done
 branch: gsd-path/M041
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -829,3 +829,6 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-09 — plan — plan approved
 - 2026-11-09 — build — build started
 - 2026-11-09 — build — T005 blocked again: the held-out E3 guard is red and its message names nothing
+- 2026-11-09 — plan — build plan repair requested
+- 2026-11-09 — plan — build recovery: {"base": "732cf3fcfc486f6620e947ed9ae37dab804baea7", "branch": "gsd-path/M041", "kind": "plan", "source": "build"}
+- 2026-11-09 — plan — plan approved

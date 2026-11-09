@@ -89,7 +89,7 @@ Goal: return the panel's built initial total to the 535.44 kB baseline this repo
 
 Review depth: full
 
-The build plan's first five waves left the project gate red on three defects no task owned. The repairs run as waves 5 to 7 and the gate closes in wave 8, which is where T005 moves: its one outstanding criterion is the gate, no task may depend on a later wave, and its own acceptance criteria are otherwise untouched. A reviewer reading the resequencing should read it as the same five tasks plus three, ordered by what each one can prove.
+The build plan's first five waves left the project gate red on three defects no task owned. The repairs run as waves 5 to 8 and the gate closes in wave 9, which is where T005 moves: its one outstanding criterion is the gate, no task may depend on a later wave, and its own acceptance criteria are otherwise untouched. A reviewer reading the resequencing should read it as the same five tasks plus four, ordered by what each one can prove.
 
 Wave 5 is the bundle because its proof is a number the build prints. The panel's initial total is summed from the eager references in the built index, and a route table is eager by construction, so the one entry M041's surface added to `appRoutes` is what crossed the line: the table already carried twelve entries whose `loadComponent` is the same closure, the build emits thirteen copies of it, and the measured total moved from 535.44 kB to 535.62 kB. Collapsing the duplication is the repair the criterion asks for — moving the baseline, widening the budget or deleting the surface would each be the widening the constant's own test forbids.
 
@@ -139,17 +139,41 @@ The seven documents moved to `research/spikes/` because the archive preflight re
 - Verify: `node --experimental-strip-types --test "scripts/docs-audit-disposition.test.mjs" "scripts/autonomy-gaps.test.mjs" && npm run check`
 - Held-out: none; E1–E9 are T003's and this task changes no product code.
 
-## Wave 8 — the recording, the verdict claims, the archive synthesis and the gate
+## Wave 8 — make the held-out guard's red name its own leg, and bound the nested run
+
+Goal: make the held-out guard's red name the leg that stopped the nested chain and quote what that run printed, and put the nested run inside the corpus's own depth marker, so the gate's held-out leg becomes observable inside a bounded run instead of reporting a count nobody can explain.
+
+Review depth: full
+
+The second blocked build left one defect standing and it is a defect of evidence, not of counting. `.project/research/e3-diagnosis.md` measured the guard three ways and this wave takes its conclusions as given: `tests/held-out/e3-zero-skipped.test.mjs` counts the right number of blocks — 3 with a hot nx cache and 3 after `npx nx reset`, because the app leg is vitest and the held-out leg is silent and neither can emit an `ℹ pass` block, so no cache state can move the count — and `got 1` means the nested `&&` chain stopped after a leg that printed nothing, proved by shape: forcing leg 1 red yields exactly one block and the guard emits the reported sentence verbatim at line 34. What is wrong is that the block-count assertion fires *before* the exit-status assertion at line 43, so the red discards the exit code and the nested output that would name the leg — twice in a row, at 2m39s and 5m46s, with nothing to read. And E3 alone burns **17m26s** of its own 20-minute cap because the `npm test` it spawns re-enters the whole held-out corpus, while `tests/held-out/e4-idempotent-checks.test.mjs` nests two full `check` plus `test` pairs and has never been observed green at all; neither honours `HELD_OUT_CORPUS_DEPTH`, the marker `scripts/held-out-corpus.mjs` already carries for exactly this recursion.
+
+So this wave repairs the guard's observability and bounds its nested run, and moves no threshold. `passMatches.length >= 3` stays, `totalPass >= 500` stays, the `ℹ pass` regex stays, and every assertion the blocked build measured stays where it is except the exit status, which moves to the head so it can never be discarded again. The bound is the corpus's own `depth + 1` arithmetic, applied to the guard's children, so the cut is the one the repository already understands rather than a new switch. One consequence is recorded rather than hidden: bounding E3 cuts its `test:held-out` leg to the corpus's nesting notice, which would let a held-out suite's `ℹ skipped 1` pass unobserved in a run no outer corpus owns — a real skip, in the suite whose subject is zero skips — so the stricter rule is part of the repair: E3 refuses a run no outer corpus owns, and the zero-skip rule over the held-out suites stays with the corpus runner, whose per-suite refusal fails on any skipped test, any todo and any suite reporting no tests, which is strictly stronger than the line count E3 proxies.
+
+The wave sits here, immediately before the wave that closes the gate, and it takes the number T005 vacated rather than a tenth number of its own: PLAN.md's waves must be unique, ordered and contiguous, and `build_state.py` refuses a plan whose wave headings own no task file, so moving T005 to the last wave moves the repair into the slot it left. Nothing in this wave depends on the product code of waves 1 to 7: it reads `package.json`'s own `test` chain, `scripts/held-out-corpus.mjs`'s own words and the two guard files, and it is measured by running them.
+
+### T009 — Make the held-out guard's red name its own leg and bound the nested run
+
+- Deps: none
+- Files: `scripts/held-out-nested-run.mjs`, `scripts/held-out-nested-run.test.mjs`, `tests/held-out/e3-zero-skipped.test.mjs`, `tests/held-out/e4-idempotent-checks.test.mjs`, `scripts/held-out-corpus.test.mjs`, `scripts/held-out-corpus.mjs`
+- Intent coverage: SC6
+- Edges: none
+- Acceptance: AC1 the red is informative and no threshold moved — the exit-status assertion is evaluated before any count and carries the status, the signal and the nested run's last 40 lines, while `passMatches.length >= 3`, `/ℹ pass (\d+)/g` and `totalPass >= 500` stay character for character, and a block-count failure lists every leg of the `test` chain in order, naming the first leg that left no evidence of finishing; AC2 the nested run is bounded through one shared implementation that sets `HELD_OUT_CORPUS_DEPTH` to `max(parent + 1, 1)`, so E3 and E4 no longer re-enter the corpus unbounded, and every inner failure — E4's four status assertions and its two pass counts included — carries the child's own tail rather than a bare number; AC3 the bound does not hide a skip: because cutting E3's held-out leg would leave a held-out suite's skip unobserved outside an owning corpus, E3 refuses a run whose parent marker is absent, naming the marker, the bound and the corpus runner, and when bounded it requires the corpus leg's nesting notice for the depth it set, leaving the zero-skip rule with the corpus runner's stricter per-suite refusal; AC4 the pin proves both behaviours non-vacuously — the aborted-chain shape yields a message naming the leg that stopped the chain, a guard copy with the bound dropped fails naming the bound, and the leg report, nesting notice, tail and threshold literals are each held to a derived source rather than a literal; AC5 every file the repair touches is declared and nothing outside it moves, with `scripts/held-out-corpus.mjs` and `package.json` unedited and `scripts/held-out-corpus.test.mjs` run unmodified or re-cut with the failing assertion quoted; AC6 the pin, the corpus suite and `npm run check` pass at this head and the bound is measured, with `npm run test:held-out` quoting E3's and E4's own lines and wall times in the Log
+- Verify: `node --check scripts/held-out-nested-run.mjs && node --check scripts/held-out-nested-run.test.mjs && node --check tests/held-out/e3-zero-skipped.test.mjs && node --check tests/held-out/e4-idempotent-checks.test.mjs && node --experimental-strip-types --test "scripts/held-out-nested-run.test.mjs" "scripts/held-out-corpus.test.mjs" && npx prettier --check scripts/held-out-nested-run.mjs scripts/held-out-nested-run.test.mjs tests/held-out/e3-zero-skipped.test.mjs tests/held-out/e4-idempotent-checks.test.mjs && npm run check && npm run test:held-out`
+- Held-out: none; E1–E9 are T003's and this task repairs the guard that protects them, so the corpus's own per-suite run is where their green is measured.
+
+## Wave 9 — the recording, the verdict claims, the archive synthesis and the gate
 
 Goal: make the measurement repeatable behind an opt-in switch, rule the milestone's claims against the portal clause, author the archive's required synthesis from what already exists, and leave the project gate green at the head the repairs leave.
 
 Review depth: full
 
-T005 adds the armed re-capture and the two recordings the gate itself reads: without `research/raw/m041-verdict-claims.json` the claim-list suite fails by construction, because it resolves the milestone from the bound branch and refuses a missing list, so the project gate cannot be green without it. It runs last because its remaining criterion is the gate itself: `npm run check` and `npm test` can only be green once waves 5 to 7 have landed, and this task records that reading rather than asserting it. It also authors the one artefact the archive requires and no earlier task could write — the research synthesis, written at the head the gate closes on, from artefacts that already exist.
+T005 adds the armed re-capture and the two recordings the gate itself reads: without `research/raw/m041-verdict-claims.json` the claim-list suite fails by construction, because it resolves the milestone from the bound branch and refuses a missing list, so the project gate cannot be green without it. It runs last because its remaining criterion is the gate itself: `npm run check` and `npm test` can only be green once waves 5 to 8 have landed, and this task records that reading rather than asserting it. It also authors the one artefact the archive requires and no earlier task could write — the research synthesis, written at the head the gate closes on, from artefacts that already exist.
+
+Wave 8 is the fourth repair and the last thing standing between this task and its criterion: the held-out guard now names the leg that stopped its nested chain and keeps that run inside the corpus's depth marker, so the red that blocked this task twice cannot recur without saying what it saw. Nothing in T005's own half changed for it; the only edit is that its Verify can now reach the held-out leg at all.
 
 ### T005 — Re-capture behind an opt-in switch, rule the claims and close the gate
 
-- Deps: T004, T006, T007, T008
+- Deps: T004, T006, T007, T008, T009
 - Files: `scripts/navigation-capture.test.mjs`, `research/raw/m041-navigation.json`, `research/raw/m041-verdict-claims.json`, `scripts/navigation-measure.test.mjs`, `scripts/navigation-blocking.test.mjs`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `extension/agent-main.test.mjs`, `scripts/panel-navigation.test.mjs`, `.project/research/SYNTHESIS.md`
 - Intent coverage: SC6
 - Edges: none
@@ -199,6 +223,8 @@ T005 adds the armed re-capture and the two recordings the gate itself reads: wit
 | SC6       | T007 | AC8        |
 | SC6       | T008 | AC1        |
 | SC6       | T008 | AC8        |
+| SC6       | T009 | AC3        |
+| SC6       | T009 | AC6        |
 | SC6       | T005 | AC5        |
 
 ## Prohibitions
@@ -213,6 +239,7 @@ T005 adds the armed re-capture and the two recordings the gate itself reads: wit
 | N6          | SC6       | T006 |
 | N6          | SC6       | T007 |
 | N6          | SC6       | T008 |
+| N6          | SC6       | T009 |
 | N6          | SC6       | T005 |
 
 ## Surface contract
@@ -245,4 +272,6 @@ Walkthrough:
 - T004 → T006: T006 edits the route table T004 registered, and the thirteen closures it collapses are the ones T004's surface landed beside — so the repair reads as one entry in a table T004 made thirteen long, and the six suites that read that table are declared with it.
 - T004 → T007: T007 binds the claims suite that T004's surface is ruled in; M041's claim list only resolves because T004's route exists, and the resolver is what keeps that list held to M041's criteria after M041 is archived.
 - T004, T006, T007 → T008: the audit is a claim about the documents at the head the repairs leave, so it is taken last of the three repairs — after the route table and the claims binding have landed, and after the surface T004 registered, which is what its own `Audited HEAD` records.
-- T006, T007, T008 → T005: T005's remaining criterion is the project gate, and the gate cannot be green before these three land. It is the last wave rather than the fifth because a task may not depend on a later wave; nothing in T005's own half changed, which is why its acceptance criteria 1 to 4 and 6 are the ones the blocked build measured, and the two added obligations are the skip it must record and the archive's synthesis.
+- T009 (no dependency, on purpose): T009 repairs the guard that runs the corpus which proves E1–E9, so the held-out suite it edits is the one that reddens on theirs; it changes no product code and reads only `package.json`'s `test` chain, `scripts/held-out-corpus.mjs`'s own words and the two guard files, which is why it carries no dependency and is measured by running them.
+- T009 → T005: T005's remaining criterion is the project gate, and the gate's held-out leg is the guard T009 repairs — the red that blocked T005 twice came from `tests/held-out/e3-zero-skipped.test.mjs` reporting a block count with no leg named. T009 lands first so the closing wave can run that leg and read what it says, and E4's bounded run is what makes the leg's own idempotence proof observable at all.
+- T006, T007, T008, T009 → T005: T005's remaining criterion is the project gate, and the gate cannot be green before these four land. It is the last wave rather than the fifth because a task may not depend on a later wave; nothing in T005's own half changed, which is why its acceptance criteria 1 to 4 and 6 are the ones the blocked build measured, and the two added obligations are the skip it must record and the archive's synthesis.

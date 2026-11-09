@@ -1,12 +1,13 @@
 ---
 id: T005
 title: Re-capture behind an opt-in switch, rule the claims and close the gate
-wave: 8
+wave: 9
 deps:
   - T004
   - T006
   - T007
   - T008
+  - T009
 status: pending
 agent: null
 base: null
@@ -58,6 +59,15 @@ verdict list to its own milestone's intent (T007), and an audit repair that cove
 spike records the derived inventory lists (T008). Only after those land is the commit this
 task runs the gate at one where `npm run check` and `npm test` can both be green, so this
 task owns the measurement of the gate and nothing of the repairs' contents.
+
+The build then blocked a second time, on the gate's held-out leg rather than on any of those
+three: `tests/held-out/e3-zero-skipped.test.mjs` reported `expected at least 3 pass summary
+blocks, got 1` twice and threw away the nested run that produced it, so the leg that stopped
+the chain could not be named. That is a fourth repair, T009, and it lands in the wave before
+this one: it makes the guard's red quote the nested run and name the leg, and it bounds the
+nested run with the corpus's own depth marker so E3 and E4 finish inside their caps. This
+task's own half is unchanged by it; what changes is only that its gate can now reach and read
+that leg.
 
 The archive owes one artefact that no earlier task could write, and this task is where it
 belongs. `archive_milestone.REQUIRED_ARCHIVE_FILES` requires a research synthesis at the
@@ -150,3 +160,4 @@ node --check scripts/navigation-capture.test.mjs && node --experimental-strip-ty
 - The failing leg inside that nested invocation could not be observed — E3 echoes only its own assertion, never the nested run's output. Each leg was then measured directly at the nested depth (`HELD_OUT_CORPUS_DEPTH=1`) and is green on its own: the first leg 1,182 tests / 183 suites / 1,182 pass / 0 fail / 0 skipped / 0 todo (279,641 ms, exit 0), `node scripts/run-user-scope-tests.mjs` exit 0, `npm run test:skills` exit 0. So no single leg reproduces the nested stop, and `test:app` and `test:held-out` were not re-measured at that depth. The machine was concurrently running an unrelated Stryker/nx workload from another session (16+ node processes); I cannot rule it out as the cause and cannot rule it in.
 - `tests/held-out/e4-idempotent-checks.test.mjs` was never observed. It runs two consecutive `npm run check` + `npm test` pairs, all nested, and was still running in both attempts when they were stopped — the second was stopped once the gate was already red, about fifteen minutes in. The 20-minute cap cannot cover this gate on this machine: one nested `npm test` costs roughly six minutes, E4 nests two of them plus two `npm run check`s, on top of the outer run's own legs. `npm test` therefore has no observed green completion at this head, and it is recorded unobserved rather than counted as a measurement.
 - No landing was attempted and no verdict was recorded as pass: `verify-ledger.jsonl` is unchanged (sha256 c8107de26911c4c13220a5c091b16285a653e3d137473095905f1c487b6b4742), as are `.project/STATE.md` (sha256 6290c9066cf703985c77deeb3121cd48d5517624894cdcd376cddd856d89f060) and `.commandcode/taste/communication/taste.md` (sha256 ca0471db673db30182ab2bba30ea0937ee9cbc76a37fc87cb37120fa39582aa4), so nothing needed parking. Nothing in this task's declared files is implicated in the red: the whole 1,182-test first leg passes at this head, and `tests/held-out/e3-zero-skipped.test.mjs` is outside this task's files. No assertion was weakened and no pin re-cut. blocked
+- 2026-11-09 — second plan repair: this task is resequenced to wave 9 with deps T004, T006, T007, T008 and T009, and its files, acceptance criteria and Verify are unchanged. The held-out leg that blocked this task twice is a defect of evidence, not of counting — `.project/research/e3-diagnosis.md` measured 3 blocks with a hot nx cache and 3 after `npx nx reset`, and showed that `got 1` means the nested `&&` chain stopped after a leg that printed nothing, while `tests/held-out/e3-zero-skipped.test.mjs` asserted its block count before its exit status and discarded the nested output that would have named the leg. That repair is T009, which lands in the wave before this one: the exit status is asserted first with the nested run's last 40 lines, a block-count failure lists every leg of the `test` chain and names the first that left no evidence of finishing, and both guard suites spawn their nested commands through one shared bound on `HELD_OUT_CORPUS_DEPTH`, so the 17m26s run against E3's own 20-minute cap and E4's never-observed `check` plus `test` pairs become bounded runs whose lines this task's gate can read. Nothing in this task's half changed: criteria 1 to 4 and 6 are the ones the blocked build measured, and the gate it owns is still the gate it measures. The plan's waves stay contiguous and every wave still owns a task, so the repair takes the number this task vacated instead of a tenth number of its own.
