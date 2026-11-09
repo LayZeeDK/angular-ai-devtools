@@ -1533,9 +1533,9 @@ Goal: Build the error-boundary explainer: why this error reached the boundary th
 Depends on: [M020]
 Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
-Gate: S10.
-Status: pending
-Archive: null
+Gate: S10 (run; answered in .project/archive/042-error-boundary/research/s10-answer.md)
+Status: shipped
+Archive: .project/archive/042-error-boundary
 Integrated: null
 
 Scope: in

@@ -712,6 +712,7 @@ describe('the chat route', () => {
       'render-phase', // M039 SC5 surface: the effect and its reads, the phase absence, the change-detection finding
       'performance', // M040 SC5 surface: the frame's ordered work, its identity and its measured cost apart
       'navigation', // M041 SC1-3 surface: a navigation's stage, the holder it cannot name, its terminal and its loads
+      'error-boundary', // M042 SC1-4 surface: the declaring and throwing components apart, the error, the fallback, each named absence
     ]);
     // T003's conversion stayed the only other lazy route: five explainers are still eager.
     expect(
@@ -736,6 +737,7 @@ describe('the chat route', () => {
       'render-phase', // M039 SC5 surface
       'performance', // M040 SC5 surface
       'navigation', // M041 SC1-3 surface
+      'error-boundary', // M042 SC1-4 surface
     ]);
     for (const path of [
       '',
@@ -780,6 +782,7 @@ describe('the chat route', () => {
       'render-phase',
       'performance',
       'navigation',
+      'error-boundary',
     ]) {
       const route = appRoutes.find((candidate) => candidate.path === surface);
       if (route?.loadComponent === undefined) {

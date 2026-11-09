@@ -1,0 +1,1080 @@
+{
+  "schema": "m042-error-boundary/v1",
+  "milestone": "error-boundary",
+  "task": "T001",
+  "title": "The instrument's throw, the @boundary hook record and the version discriminator, measured at the plan's base",
+  "question": "Which emission makes the shipped page agent throw, what does the epoch record it protects contain, what does an Angular error boundary hand a page-side reader, and can a page say which core it runs?",
+  "capturedAt": "2026-11-09T11:47:26.259Z",
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0"
+  },
+  "commands": {
+    "check": "node --check scripts/error-boundary-measure.test.mjs && node --experimental-strip-types --test \"scripts/error-boundary-measure.test.mjs\" && npx prettier --check scripts/error-boundary-measure.test.mjs research/raw/m042-error-boundary.json && npm run check",
+    "capture": "M042_CAPTURE=1 node --experimental-strip-types --test \"scripts/error-boundary-measure.test.mjs\"",
+    "reproduce": "node --experimental-strip-types --test \"scripts/error-boundary-measure.test.mjs\""
+  },
+  "teardown": {
+    "ports": [
+      4507,
+      3000,
+      4222,
+      9333,
+      9334
+    ],
+    "started": [],
+    "stopped": [],
+    "note": "This task starts no server, binds no port and opens no browser: all three readings are taken from the shipped agent, the two installed chunks and the file S10 wrote. Nothing was started, so there was nothing to stop."
+  },
+  "instrument": {
+    "question": "Which profiler emission makes the shipped agent throw at extension/agent-main.js:1034, what does the frame lose when it does, and what does the epoch map that line protects contain?",
+    "finding": "A `TemplateUpdateStart` (ProfilerEvent value 2) whose instance is not an object reaches `getOrCreateCheck`, opens a frame, and throws `TypeError: Invalid value used as weak map key` at `prevEpochs.set(instance, next)` when the frame closes. The throw happens in `closeCycle`, which runs from `globalThis.queueMicrotask(closeCycle)` - outside the try/catch that wraps `onEvent` - so it escapes into the page and the frame's whole record is lost: the page receives its `angular-ai:state` event and no `angular-ai:record` at all. The epoch map is keyed by the profiler instance, and holds that instance's node epochs from the previous pass, so a pass can name the nodes whose epoch moved; a guard that stops the throw must leave both halves intact. T002 repaired exactly that half: the map's key is tested before the map is read and the write is skipped for an identity that cannot be a WeakMap key, so at this head the same frame throws nothing, lands its record, and keeps the delta a keyed identity still names - `repair` measures both, and `epochs` is unchanged from the base.",
+    "throw": {
+      "source": "extension/agent-main.js",
+      "line": 1034,
+      "expression": "prevEpochs.set(instance, next);",
+      "constructor": "TypeError",
+      "message": "Invalid value used as weak map key",
+      "onEventCaughtIt": false,
+      "reproducedAtThisHead": false,
+      "frameRecordLostAtTheBase": true,
+      "callPath": [
+        {
+          "at": "extension/agent-main.js:1038",
+          "code": "function closeCycle() {"
+        },
+        {
+          "at": "extension/agent-main.js:1055",
+          "code": "c.checks.forEach(function (check, instance) {"
+        },
+        {
+          "at": "extension/agent-main.js:1064",
+          "code": "var changedNodeIds = diffEpochs(instance, graph);"
+        },
+        {
+          "at": "extension/agent-main.js:1034",
+          "code": "prevEpochs.set(instance, next);"
+        }
+      ],
+      "escapeRoute": {
+        "frameOpenedAt": "extension/agent-main.js:601",
+        "queuedAt": "extension/agent-main.js:747",
+        "onEventRange": "extension/agent-main.js:573-614",
+        "throwInsideOnEventTryCatch": false,
+        "dispatchAfterTheThrow": "extension/agent-main.js:1059"
+      },
+      "occurrences": {
+        "count": 2,
+        "by": "S10",
+        "quotation": "S10 measured this TypeError twice per page, in the app's ErrorHandler on the fixture and in window.onerror on both subjects, and left the trigger uninvestigated (s10-answer.md:310)"
+      },
+      "reproductionStandsFor": "one of the two occurrences at the plan's base. Each occurrence was one frame: the emission opened the frame, the frame close threw once, and the forEach aborted before its dispatch - so a frame with two non-object keys threw once (measured at the base). The count of two is S10's page measurement, quoted and not re-measured here; this task takes no page. At this head the same frame throws nothing, which is what `reproducedAtThisHead` measures."
+    },
+    "repair": {
+      "task": "T002",
+      "at": "extension/agent-main.js:1021-1036",
+      "owns": "diffEpochs",
+      "readsTheMapBeforeWritingIt": true,
+      "property": "the key is tested before the map is read and the write is skipped for an identity that cannot be a WeakMap key, so the epoch delta is read for a keyed identity and skipped for a non-keyed one - pinned by driving the shipped file, not by the words the guard is written in",
+      "keyed": "the profiler instance, by object identity, and only where that identity can be a WeakMap key at all: an object or a function",
+      "unkeyed": "no entry at all, and never an empty one: `get` never threw and `set` was never reached, so a second pass with the same non-keyed identity and a moved epoch between them names nothing",
+      "keyedSkip": {
+        "unkeyed": [
+          {
+            "instance": "undefined",
+            "throws": 0,
+            "records": 2,
+            "firstPass": [],
+            "secondPass": []
+          },
+          {
+            "instance": "null",
+            "throws": 0,
+            "records": 2,
+            "firstPass": [],
+            "secondPass": []
+          },
+          {
+            "instance": "number",
+            "throws": 0,
+            "records": 2,
+            "firstPass": [],
+            "secondPass": []
+          },
+          {
+            "instance": "string",
+            "throws": 0,
+            "records": 2,
+            "firstPass": [],
+            "secondPass": []
+          }
+        ],
+        "keyed": {
+          "instance": "a",
+          "throws": 0,
+          "records": 3,
+          "firstPass": [],
+          "secondPass": [
+            "n0"
+          ],
+          "thirdPass": []
+        }
+      }
+    },
+    "emissions": {
+      "eventIds": [
+        {
+          "name": "TemplateUpdateStart",
+          "value": 2
+        },
+        {
+          "name": "TemplateUpdateEnd",
+          "value": 3
+        },
+        {
+          "name": "LifecycleHookStart",
+          "value": 4
+        },
+        {
+          "name": "LifecycleHookEnd",
+          "value": 5
+        },
+        {
+          "name": "OutputStart",
+          "value": 6
+        },
+        {
+          "name": "OutputEnd",
+          "value": 7
+        },
+        {
+          "name": "ChangeDetectionStart",
+          "value": 12
+        },
+        {
+          "name": "ChangeDetectionEnd",
+          "value": 13
+        },
+        {
+          "name": "ComponentStart",
+          "value": 18
+        },
+        {
+          "name": "ComponentEnd",
+          "value": 19
+        },
+        {
+          "name": "HostBindingsUpdateStart",
+          "value": 24
+        },
+        {
+          "name": "HostBindingsUpdateEnd",
+          "value": 25
+        }
+      ],
+      "perEvent": [
+        {
+          "name": "TemplateUpdateStart",
+          "value": 2,
+          "throws": 0,
+          "constructor": null,
+          "message": null,
+          "onEventCaughtIt": false,
+          "records": 1
+        },
+        {
+          "name": "TemplateUpdateEnd",
+          "value": 3,
+          "throws": 0,
+          "constructor": null,
+          "message": null,
+          "onEventCaughtIt": false,
+          "records": 0
+        },
+        {
+          "name": "LifecycleHookStart",
+          "value": 4,
+          "throws": 0,
+          "constructor": null,
+          "message": null,
+          "onEventCaughtIt": false,
+          "records": 0
+        },
+        {
+          "name": "LifecycleHookEnd",
+          "value": 5,
+          "throws": 0,
+          "constructor": null,
+          "message": null,
+          "onEventCaughtIt": false,
+          "records": 0
+        },
+        {
+          "name": "OutputStart",
+          "value": 6,
+          "throws": 0,
+          "constructor": null,
+          "message": null,
+          "onEventCaughtIt": false,
+          "records": 0
+        },
+        {
+          "name": "OutputEnd",
+          "value": 7,
+          "throws": 0,
+          "constructor": null,
+          "message": null,
+          "onEventCaughtIt": false,
+          "records": 0
+        },
+        {
+          "name": "ChangeDetectionStart",
+          "value": 12,
+          "throws": 0,
+          "constructor": null,
+          "message": null,
+          "onEventCaughtIt": false,
+          "records": 0
+        },
+        {
+          "name": "ChangeDetectionEnd",
+          "value": 13,
+          "throws": 0,
+          "constructor": null,
+          "message": null,
+          "onEventCaughtIt": false,
+          "records": 0
+        },
+        {
+          "name": "ComponentStart",
+          "value": 18,
+          "throws": 0,
+          "constructor": null,
+          "message": null,
+          "onEventCaughtIt": false,
+          "records": 0
+        },
+        {
+          "name": "ComponentEnd",
+          "value": 19,
+          "throws": 0,
+          "constructor": null,
+          "message": null,
+          "onEventCaughtIt": false,
+          "records": 0
+        },
+        {
+          "name": "HostBindingsUpdateStart",
+          "value": 24,
+          "throws": 0,
+          "constructor": null,
+          "message": null,
+          "onEventCaughtIt": false,
+          "records": 0
+        },
+        {
+          "name": "HostBindingsUpdateEnd",
+          "value": 25,
+          "throws": 0,
+          "constructor": null,
+          "message": null,
+          "onEventCaughtIt": false,
+          "records": 0
+        }
+      ],
+      "throwingIds": [],
+      "sites": [
+        {
+          "line": 11532,
+          "context": "null",
+          "via": "literal",
+          "enclosing": {
+            "name": "applyDeferBlockState",
+            "line": 11510,
+            "kind": "function"
+          },
+          "call": "const embeddedLView = createAndRenderEmbeddedLView(hostLView, activeBlockTNode, null, {"
+        },
+        {
+          "line": 15099,
+          "context": "undefined",
+          "via": "literal",
+          "enclosing": {
+            "name": "ɵɵrepeater",
+            "line": 15068,
+            "kind": "function"
+          },
+          "call": "const embeddedLView = createAndRenderEmbeddedLView(hostLView, emptyTemplateTNode, undefined, {"
+        },
+        {
+          "line": 15202,
+          "context": "undefined",
+          "via": "ternary",
+          "definedAt": 15198,
+          "enclosing": {
+            "name": "ɵɵboundaryUpdate",
+            "line": 15178,
+            "kind": "function"
+          },
+          "call": "embeddedLView = createAndRenderEmbeddedLView(hostLView, templateTNode, context, {"
+        },
+        {
+          "line": 15618,
+          "context": "null",
+          "via": "literal",
+          "enclosing": {
+            "name": "ɵɵforeignContent",
+            "line": 15609,
+            "kind": "function"
+          },
+          "call": "const embeddedLView = createAndRenderEmbeddedLView(lView, tNode, null, options);"
+        },
+        {
+          "line": 16975,
+          "context": "undefined",
+          "via": "literal",
+          "enclosing": {
+            "name": "insertFallbackContent",
+            "line": 16968,
+            "kind": "function"
+          },
+          "call": "const fallbackLView = createAndRenderEmbeddedLView(lView, fallbackTNode, undefined, {"
+        }
+      ],
+      "anchors": {
+        "templateUpdateStart": "extension/agent-main.js:601",
+        "preHook": 5497,
+        "updateTemplateCall": 6204,
+        "refreshReadsContext": 6378,
+        "contextSlot": 5369,
+        "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs"
+      }
+    },
+    "reproduction": {
+      "validInstance": {
+        "instance": "object",
+        "throws": 0,
+        "constructor": null,
+        "message": null,
+        "records": 1,
+        "events": [
+          "angular-ai:state",
+          "angular-ai:record"
+        ],
+        "checks": 1
+      },
+      "undefinedInstance": {
+        "instance": "undefined",
+        "throws": 0,
+        "constructor": null,
+        "message": null,
+        "records": 1,
+        "events": [
+          "angular-ai:state",
+          "angular-ai:record"
+        ],
+        "checks": 1
+      },
+      "nullInstance": {
+        "instance": "null",
+        "throws": 0,
+        "constructor": null,
+        "message": null,
+        "records": 1,
+        "events": [
+          "angular-ai:state",
+          "angular-ai:record"
+        ],
+        "checks": 1
+      },
+      "twoKeysInOneFrame": {
+        "instances": [
+          "undefined",
+          "null"
+        ],
+        "throws": 0,
+        "messages": [],
+        "records": 1
+      }
+    },
+    "epochs": {
+      "map": {
+        "declaredAt": "extension/agent-main.js:42",
+        "declaration": "var prevEpochs = new WeakMap(); // instance -> Map(nodeId, epoch)",
+        "comment": "instance -> Map(nodeId, epoch)",
+        "kind": "WeakMap",
+        "keyedBy": "the profiler's own `instance` argument, by object identity: two passes are the same entry only when the profiler passed the same object",
+        "holds": "a Map from each node id the graph reported to that node's epoch, written after every pass",
+        "resetAt": "extension/agent-main.js:1889",
+        "resetExpression": "prevEpochs = new WeakMap();"
+      },
+      "passes": [
+        {
+          "label": "a first pass",
+          "instance": "a",
+          "epochs": [
+            1,
+            1
+          ],
+          "ids": [
+            "n0",
+            "n1"
+          ],
+          "records": 1,
+          "changedNodeIds": []
+        },
+        {
+          "label": "a second pass, n0 moved",
+          "instance": "a",
+          "epochs": [
+            2,
+            1
+          ],
+          "ids": [
+            "n0",
+            "n1"
+          ],
+          "records": 1,
+          "changedNodeIds": [
+            "n0"
+          ]
+        },
+        {
+          "label": "a third pass, nothing moved",
+          "instance": "a",
+          "epochs": [
+            2,
+            1
+          ],
+          "ids": [
+            "n0",
+            "n1"
+          ],
+          "records": 1,
+          "changedNodeIds": []
+        },
+        {
+          "label": "b first pass, its own entry",
+          "instance": "b",
+          "epochs": [
+            5,
+            5
+          ],
+          "ids": [
+            "n0",
+            "n1"
+          ],
+          "records": 1,
+          "changedNodeIds": []
+        },
+        {
+          "label": "a fourth pass, both moved",
+          "instance": "a",
+          "epochs": [
+            3,
+            4
+          ],
+          "ids": [
+            "n0",
+            "n1"
+          ],
+          "records": 1,
+          "changedNodeIds": [
+            "n0",
+            "n1"
+          ]
+        },
+        {
+          "label": "a pass whose node ids are numbers",
+          "instance": "a",
+          "epochs": [
+            3,
+            4
+          ],
+          "ids": [
+            1,
+            2
+          ],
+          "records": 1,
+          "changedNodeIds": [
+            "1",
+            "2"
+          ]
+        },
+        {
+          "label": "a pass whose graph read answers nothing",
+          "instance": "a",
+          "epochs": null,
+          "ids": null,
+          "records": 1,
+          "changedNodeIds": []
+        },
+        {
+          "label": "the first pass after reset()",
+          "instance": "a",
+          "epochs": [
+            3,
+            4
+          ],
+          "ids": [
+            "n0",
+            "n1"
+          ],
+          "records": 1,
+          "changedNodeIds": []
+        }
+      ],
+      "firstPass": [],
+      "movedOne": [
+        "n0"
+      ],
+      "held": [],
+      "secondInstanceFirstPass": [],
+      "movedBoth": [
+        "n0",
+        "n1"
+      ],
+      "numericNodeIds": [
+        "1",
+        "2"
+      ],
+      "graphUnavailable": [],
+      "afterReset": [],
+      "ambiguity": "The empty list is the honest answer for a first read, for a pass in which nothing moved, for a graph read that answered nothing and for the first pass after reset(). It therefore cannot be the *only* answer: a reader is told which nodes moved only by a list that is non-empty, and a repair that always answers the empty list is contradicted by the two passes that named them.",
+      "purpose": "The map turns a stateless full-graph read into a per-pass delta. `serializeCheck` reads the graph once and `diffEpochs` compares it with the same instance's previous pass, so the record can say which nodes actually moved in this pass rather than which nodes exist; a WeakMap so a destroyed component is not retained, and keyed by the instance so two components checked in one frame keep their own epochs apart.",
+      "answersTheOpenQuestion": "The key is the profiler instance and nothing else, so a primitive node identity cannot throw here: node ids are values inside the inner Map, and a pass whose nodes carry numeric ids records them as such (see numericNodeIds). The two-per-page error was therefore two frames, not two node identities."
+    }
+  },
+  "hook": {
+    "question": "What exactly does an Angular error boundary hand a page-side reader, on the core the subject runs?",
+    "finding": "Two shapes, one hook. `ErrorHandler.onViewError(error, details)` receives `{declarationInstance, declarationType, caughtBy}` from the change-detection catch, and `details.boundary = {type, reset}` is added by the boundary's own ON_ERROR hook immediately before the call; the construction catch passes `{declarationInstance, declarationType, boundary}` with no `caughtBy`. `details.declarationType` is the view whose template threw, `details.boundary.type` is the component that declares the boundary - two different LViews, so two different answers. `ng.getContext()` on a node inside the rendered `@error` view answers `{$error, $reset}`, which is the only after-the-fact reader. The rendered fallback is content, never the error: S10 measured the `@error` view carrying `caught: ` and the error's own message in its own text, and a surface that quotes it would be reporting a template, not the throw.",
+    "install": {
+      "label": "fixture",
+      "version": "22.2.2",
+      "manifest": "spikes/ng222-app/node_modules/@angular/core/package.json",
+      "chunk": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs"
+    },
+    "provider": {
+      "at": "spikes/ng222-app/src/app/app.config.ts:7",
+      "text": "provideBrowserGlobalErrorListeners(),",
+      "s10CitedAt": "spikes/ng222-app/src/app/app.config.ts:6",
+      "s10CitationMatchesThisHead": false,
+      "note": "S10 cited line 6; at this head the call is on line 7, and the import is line 1. The recording keeps both so the difference is visible rather than inherited."
+    },
+    "boundaryApi": {
+      "create": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15169",
+      "update": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15178",
+      "get": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15174",
+      "instructionNamespaceAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:18602",
+      "publishedOnNg": false,
+      "getterReachableFromThePage": false
+    },
+    "retainedState": {
+      "classAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15158-15168",
+      "fields": [
+        {
+          "name": "hostLView",
+          "initial": null
+        },
+        {
+          "name": "error",
+          "initial": "null"
+        }
+      ],
+      "resetAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15164-15167",
+      "resetBody": [
+        "this.error = null;",
+        "markViewForRefresh(this.hostLView);"
+      ]
+    },
+    "details": {
+      "paths": [
+        {
+          "at": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:6293-6297",
+          "enclosing": "refreshView",
+          "keys": [
+            "declarationInstance",
+            "declarationType",
+            "caughtBy"
+          ],
+          "name": "detectChangesInView",
+          "carriesCaughtBy": true
+        },
+        {
+          "at": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15236-15243",
+          "enclosing": "ɵɵboundaryUpdate",
+          "keys": [
+            "declarationInstance",
+            "declarationType",
+            "boundary"
+          ],
+          "name": "boundaryConstruction",
+          "carriesCaughtBy": false
+        }
+      ],
+      "boundaryAddedAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15213-15216",
+      "boundaryField": "boundary",
+      "boundaryKeys": [
+        "type",
+        "reset"
+      ],
+      "constructionPathAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15234-15234",
+      "measured": {
+        "keys": [
+          "declarationInstance",
+          "declarationType",
+          "caughtBy",
+          "boundary"
+        ],
+        "by": "S10 on the change-detection path with a child that throws inside a parent's @boundary",
+        "quotation": "s10-answer.md:148-151"
+      },
+      "caughtByIsOptional": true,
+      "notes": "On the construction path `details.declarationInstance` is the declaring view's instance, so `declarationType` and `boundary.type` are the same answer there; on the change-detection path `declarationType` comes from the throwing view, so the two differ. A reader must expect both shapes and require neither field the other omits."
+    },
+    "errorView": {
+      "contextAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15198-15201",
+      "keys": [
+        "$error",
+        "$reset"
+      ],
+      "primaryContext": "undefined",
+      "resetSource": "() => boundary.reset()",
+      "publishedOnNg": true,
+      "isTheOnlyAfterTheFactReader": true
+    },
+    "fallback": {
+      "renderedBy": "S10's own JIT probe component",
+      "primary": false,
+      "fallback": true,
+      "text": "caught: S10 spike: thrown inside the @boundary primary view",
+      "prefix": "caught: ",
+      "prefixIsTheProbesOwnTemplate": true,
+      "carriesTheErrorsOwnMessage": true,
+      "neverTheError": "The prefix and the surrounding markup are the probe's template. S10's record keeps the rendered text and the thrown message in different fields, which is what lets SC2 forbid quoting the view."
+    },
+    "readers": {
+      "onViewErrorAt": [
+        "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15218",
+        "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15245"
+      ],
+      "handleErrorAt": [
+        "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15220",
+        "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15247"
+      ],
+      "truthinessAt": [
+        "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15217",
+        "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15244"
+      ]
+    },
+    "declarations": {
+      "throwingViewAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:6291",
+      "boundaryViewAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15211",
+      "constructionViewAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:15234"
+    },
+    "wrapped": {
+      "functionAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2699",
+      "classAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2708",
+      "causeAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2711"
+    },
+    "globalListeners": {
+      "provideAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2786",
+      "errorListenerAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2773",
+      "rejectionListenerAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2772"
+    },
+    "quotations": [
+      {
+        "at": ".project/research/s10-answer.md:140-141",
+        "why": "S10's measurement of the fixture's rendered @error view: the primary view removed, the fallback rendered, and the text it carried",
+        "contains": [
+          "\"dom\":{\"primary\":false,\"fallback\":true",
+          "caught: S10 spike"
+        ]
+      },
+      {
+        "at": ".project/research/s10-answer.md:142-144",
+        "why": "S10's measurement of ng.getContext() on a node inside the @error view",
+        "contains": [
+          "\"context\":{\"keys\":[\"$error\",\"$reset\"]",
+          "\"errorCtor\":\"Error\"",
+          "\"hasReset\":true",
+          "\"resetSource\":\"() => boundary.reset()\""
+        ]
+      },
+      {
+        "at": ".project/research/s10-answer.md:148-151",
+        "why": "S10's measurement of the onViewError payload on the @boundary-construction path and of the ErrorDetails field names that arrived",
+        "contains": [
+          "\"onViewError\":[{\"name\":\"Error\"",
+          "\"declarationType\":\"S10BoundaryHost\"",
+          "\"boundaryType\":\"S10BoundaryHost\"",
+          "\"restKeys\":[\"declarationInstance\",\"declarationType\",\"caughtBy\",\"boundary\"]"
+        ]
+      },
+      {
+        "at": ".project/research/s10-answer.md:169-175",
+        "why": "S10 measured the throwing component and the declaring component apart in one record",
+        "contains": [
+          "\"declarationType\":\"S10Child\"",
+          "\"boundaryType\":\"S10Parent\"",
+          "\"contextKeys\":[\"$error\",\"$reset\"]"
+        ]
+      },
+      {
+        "at": ".project/research/s10-answer.md:310",
+        "why": "S10's record of this instrument's own TypeError, which it left uninvestigated",
+        "contains": [
+          "TypeError: Invalid value used as weak map key",
+          "extension/agent-main.js:1034",
+          "prevEpochs.set(instance, next)",
+          "twice per page"
+        ]
+      },
+      {
+        "at": ".project/research/s10-answer.md:46",
+        "why": "the provider S10 cites, which is why the fixture's raw browser errors reach the handler",
+        "contains": [
+          "provideBrowserGlobalErrorListeners()",
+          "spikes/ng222-app/src/app/app.config.ts:6"
+        ]
+      }
+    ],
+    "absentInRepo": {
+      "install": "node_modules/@angular/core/package.json",
+      "version": "22.1.8",
+      "counts": {
+        "onViewError": {
+          "total": 0,
+          "perChunk": {}
+        },
+        "boundaryCreate": {
+          "total": 0,
+          "perChunk": {}
+        },
+        "boundaryUpdate": {
+          "total": 0,
+          "perChunk": {}
+        },
+        "LBoundary": {
+          "total": 0,
+          "perChunk": {}
+        },
+        "BoundaryError": {
+          "total": 0,
+          "perChunk": {}
+        },
+        "encapsulateBoundaryError": {
+          "total": 0,
+          "perChunk": {}
+        },
+        "ON_ERROR": {
+          "total": 0,
+          "perChunk": {}
+        }
+      },
+      "errorDetailsInTypes": 0,
+      "note": "The 22.1.8 install has no boundary machinery at all: no `onViewError`, no `boundaryCreate`, no `LBoundary`, no `ON_ERROR` slot and no `ErrorDetails` declaration. A surface that reads a page runs against the page's own runtime, but a type imported from `@angular/core` would compile against this absence."
+    }
+  },
+  "version": {
+    "question": "Can a page tell which core it runs, and which single check lets a surface answer cannot-tell on a core without the boundary machinery instead of reporting an empty boundary list?",
+    "finding": "No page can report its own core version: neither install publishes a version-named key on `ng`, and `VERSION` is a module export rather than a debug utility. Of the three checks enumerated, only the published key list differs between the two installs, and it differs by exactly one key: 22.2.2 publishes `toggleWatchSignal` from `internalCoreGlobalUtils` and 22.1.8 does not (25 keys against 24). The resolved handler's own keys, its class source and the injector provider record for the handler token are identical on both installs, so none of them discriminates. The single check a surface may therefore make is the presence of that one key; where it is absent the answer is cannot-tell, never an empty boundary list - and it is a proxy for the build, not a version, so the surface declares the version it works against as a constant instead of reading one.",
+    "installs": [
+      {
+        "label": "repo",
+        "version": "22.1.8",
+        "manifest": "node_modules/@angular/core/package.json",
+        "publishedKeyCount": 24
+      },
+      {
+        "label": "fixture",
+        "version": "22.2.2",
+        "manifest": "spikes/ng222-app/node_modules/@angular/core/package.json",
+        "publishedKeyCount": 25
+      }
+    ],
+    "counts": {
+      "repo": {
+        "onViewError": {
+          "total": 0,
+          "perChunk": {}
+        },
+        "boundaryCreate": {
+          "total": 0,
+          "perChunk": {}
+        },
+        "boundaryUpdate": {
+          "total": 0,
+          "perChunk": {}
+        },
+        "LBoundary": {
+          "total": 0,
+          "perChunk": {}
+        },
+        "BoundaryError": {
+          "total": 0,
+          "perChunk": {}
+        },
+        "encapsulateBoundaryError": {
+          "total": 0,
+          "perChunk": {}
+        },
+        "ON_ERROR": {
+          "total": 0,
+          "perChunk": {}
+        }
+      },
+      "fixture": {
+        "onViewError": {
+          "total": 4,
+          "perChunk": {
+            "_debug_node-chunk.mjs": 4
+          }
+        },
+        "boundaryCreate": {
+          "total": 5,
+          "perChunk": {
+            "_debug_node-chunk.mjs": 4,
+            "core.mjs": 1
+          }
+        },
+        "boundaryUpdate": {
+          "total": 5,
+          "perChunk": {
+            "_debug_node-chunk.mjs": 4,
+            "core.mjs": 1
+          }
+        },
+        "LBoundary": {
+          "total": 2,
+          "perChunk": {
+            "_debug_node-chunk.mjs": 2
+          }
+        },
+        "BoundaryError": {
+          "total": 3,
+          "perChunk": {
+            "_debug_node-chunk.mjs": 3
+          }
+        },
+        "encapsulateBoundaryError": {
+          "total": 5,
+          "perChunk": {
+            "_debug_node-chunk.mjs": 3,
+            "_pending_tasks-chunk.mjs": 2
+          }
+        },
+        "ON_ERROR": {
+          "total": 9,
+          "perChunk": {
+            "_debug_node-chunk.mjs": 5,
+            "_pending_tasks-chunk.mjs": 2,
+            "core.mjs": 2
+          }
+        }
+      },
+      "machineryChunk": {
+        "chunk": "_debug_node-chunk.mjs",
+        "onViewError": 4,
+        "boundaryCreate": 4,
+        "LBoundary": 2
+      },
+      "errorDetailsInTypes": {
+        "repo": {
+          "total": 0,
+          "perFile": {}
+        },
+        "fixture": {
+          "total": 9,
+          "perFile": {
+            "_debug_node-chunk.d.ts": 4,
+            "core.d.ts": 5
+          }
+        }
+      }
+    },
+    "enumerated": {
+      "publishedKeyList": {
+        "repo": {
+          "count": 24,
+          "keys": [
+            "applyChanges",
+            "enableProfiling",
+            "getComponent",
+            "getContext",
+            "getDirectiveMetadata",
+            "getDirectives",
+            "getHostElement",
+            "getInjector",
+            "getListeners",
+            "getOwningComponent",
+            "getRootComponents",
+            "isSignal",
+            "ɵgetComponentInstanceDeepLinkId",
+            "ɵgetControlFlowBlocks",
+            "ɵgetDependenciesFromInjectable",
+            "ɵgetInjectorMetadata",
+            "ɵgetInjectorProviders",
+            "ɵgetInjectorResolutionPath",
+            "ɵgetLoadedRoutes",
+            "ɵgetRouterInstance",
+            "ɵgetSignalGraph",
+            "ɵgetTransferState",
+            "ɵnavigateByUrl",
+            "ɵsetProfiler"
+          ],
+          "publishesInternal": false,
+          "internal": []
+        },
+        "fixture": {
+          "count": 25,
+          "keys": [
+            "applyChanges",
+            "enableProfiling",
+            "getComponent",
+            "getContext",
+            "getDirectiveMetadata",
+            "getDirectives",
+            "getHostElement",
+            "getInjector",
+            "getListeners",
+            "getOwningComponent",
+            "getRootComponents",
+            "isSignal",
+            "toggleWatchSignal",
+            "ɵgetComponentInstanceDeepLinkId",
+            "ɵgetControlFlowBlocks",
+            "ɵgetDependenciesFromInjectable",
+            "ɵgetInjectorMetadata",
+            "ɵgetInjectorProviders",
+            "ɵgetInjectorResolutionPath",
+            "ɵgetLoadedRoutes",
+            "ɵgetRouterInstance",
+            "ɵgetSignalGraph",
+            "ɵgetTransferState",
+            "ɵnavigateByUrl",
+            "ɵsetProfiler"
+          ],
+          "publishesInternal": true,
+          "internal": [
+            "toggleWatchSignal"
+          ]
+        },
+        "addedByTheNewerInstall": [
+          "toggleWatchSignal"
+        ],
+        "removedByTheNewerInstall": [],
+        "shared": [
+          "applyChanges",
+          "enableProfiling",
+          "getComponent",
+          "getContext",
+          "getDirectiveMetadata",
+          "getDirectives",
+          "getHostElement",
+          "getInjector",
+          "getListeners",
+          "getOwningComponent",
+          "getRootComponents",
+          "isSignal",
+          "ɵgetComponentInstanceDeepLinkId",
+          "ɵgetControlFlowBlocks",
+          "ɵgetDependenciesFromInjectable",
+          "ɵgetInjectorMetadata",
+          "ɵgetInjectorProviders",
+          "ɵgetInjectorResolutionPath",
+          "ɵgetLoadedRoutes",
+          "ɵgetRouterInstance",
+          "ɵgetSignalGraph",
+          "ɵgetTransferState",
+          "ɵnavigateByUrl",
+          "ɵsetProfiler"
+        ]
+      },
+      "handler": {
+        "repo": {
+          "chunk": "_pending_tasks-chunk.mjs",
+          "lines": "2692-2696",
+          "source": "class ErrorHandler { _console = console; handleError(error) { this._console.error('ERROR', error); } }",
+          "ownKeys": [
+            "_console"
+          ],
+          "methods": [
+            "handleError"
+          ],
+          "declaresOnViewError": false
+        },
+        "fixture": {
+          "chunk": "_pending_tasks-chunk.mjs",
+          "lines": "2693-2697",
+          "source": "class ErrorHandler { _console = console; handleError(error) { this._console.error('ERROR', error); } }",
+          "ownKeys": [
+            "_console"
+          ],
+          "methods": [
+            "handleError"
+          ],
+          "declaresOnViewError": false
+        },
+        "sourceIdentical": true,
+        "ownKeysIdentical": true
+      },
+      "providerRecords": {
+        "repo": {
+          "package": "@angular/platform-browser",
+          "chunk": "node_modules/@angular/platform-browser/fesm2022/_browser-chunk.mjs",
+          "recordAt": "node_modules/@angular/platform-browser/fesm2022/_browser-chunk.mjs:335-337",
+          "provide": "ErrorHandler",
+          "useFactory": "errorHandler",
+          "factoryAt": "node_modules/@angular/platform-browser/fesm2022/_browser-chunk.mjs:299-301",
+          "factoryBody": "function errorHandler() { return new ErrorHandler(); }"
+        },
+        "fixture": {
+          "package": "@angular/platform-browser",
+          "chunk": "spikes/ng222-app/node_modules/@angular/platform-browser/fesm2022/_browser-chunk.mjs",
+          "recordAt": "spikes/ng222-app/node_modules/@angular/platform-browser/fesm2022/_browser-chunk.mjs:335-337",
+          "provide": "ErrorHandler",
+          "useFactory": "errorHandler",
+          "factoryAt": "spikes/ng222-app/node_modules/@angular/platform-browser/fesm2022/_browser-chunk.mjs:299-301",
+          "factoryBody": "function errorHandler() { return new ErrorHandler(); }"
+        },
+        "identical": true
+      },
+      "reportsItsOwnVersion": {
+        "matching": [],
+        "reportedBy": 0
+      }
+    },
+    "discriminator": {
+      "check": "typeof ng.toggleWatchSignal === 'function'",
+      "measuredAs": "the one key 22.2.2 publishes and 22.1.8 does not",
+      "absentOn": {
+        "label": "repo",
+        "version": "22.1.8"
+      },
+      "presentOn": {
+        "label": "fixture",
+        "version": "22.2.2"
+      },
+      "answersWhenAbsent": "cannot-tell",
+      "answersWhenPresent": "the machinery is available; whether a boundary exists is still unanswerable until one fires, so a page with the key and no caught error is cannot-tell with no-error-caught",
+      "isAProxyForTheBuild": true,
+      "notAVersion": "The key names a signal-watching toggle and says nothing about boundaries. It is the only difference these two installs leave a page, so it may be used to refuse the answer - never to claim a version, and never as evidence that a boundary exists."
+    },
+    "declares": {
+      "coreVersion": "22.2.2",
+      "means": "the version of @angular/core this surface is measured against and works against",
+      "readFrom": "spikes/ng222-app/node_modules/@angular/core/package.json",
+      "onAPage": null,
+      "why": "No page reports a version, so the record carries `null` where a page reports none and the surface declares this constant instead."
+    }
+  },
+  "doesNotSettle": [
+    "What a live `@boundary` does on this head: this task takes no page and mounts nothing. The hook record is read from the fixture's installed chunk and quoted from S10, each quotation held to the line it cites.",
+    "Which of the two per-page occurrences S10 measured came from which block view: the reproduction establishes the emission class (a `TemplateUpdateStart` with a non-object instance) and that each such frame loses its whole record; the count of two is S10's page measurement.",
+    "That a third-party, frozen or sealed `ErrorHandler` accepts the hook: the stock class both installs provide is a plain mutable instance, and a refusal is a named absence rather than a measurement this task can take without a page.",
+    "Whether a later 22.x keeps the published key list this discriminator reads: the check is a proxy for the build, so a point release that publishes the same key with different internals would defeat it. The recording states the counts that justify it at this head.",
+    "What the `@boundary`-construction catch's `details` shape carries when a view throws during creation: the shape is read from the chunk with its four-field absence of `caughtBy`, and S10 did not measure that path."
+  ]
+}

@@ -1604,6 +1604,34 @@ const M040_INTENT = join(
   'INTENT.md',
 );
 
+/** M041's own intent, which is the archive's copy: the milestone has shipped and cannot be current. */
+const M041_INTENT = join(
+  ROOT,
+  '.project',
+  'archive',
+  '041-navigation-blocking',
+  'intent',
+  'INTENT.md',
+);
+
+/**
+ * The milestone `.project/STATE.md` binds, read the way the resolver reads it: the binding is the
+ * branch line. A suite that hard-codes which milestone is current reddens the moment the next one
+ * starts, so the checks below ask STATE which it binds and print the answer in every message.
+ *
+ * @returns {string} `M042`-shaped
+ */
+function boundMilestone() {
+  const state = readText(join(ROOT, '.project', 'STATE.md'), 'STATE.md');
+  const branch = /^branch:\s*(\S+)\s*$/m.exec(state)?.[1] ?? '';
+  const number = /^gsd-path\/M(\d{3})$/.exec(branch)?.[1];
+  assert.ok(
+    number !== undefined,
+    `STATE.md must bind a milestone on its branch line; it binds ${JSON.stringify(branch)}`,
+  );
+  return `M${number}`;
+}
+
 /**
  * Hold a claim list to the intent at `path`, character for character, and answer the criteria it
  * declares. A path the resolver never checked fails here by name, so an answer is only an answer
@@ -1656,8 +1684,24 @@ test('the intent follows the milestone its claims are numbered for, through ever
   for (const token of ['M041', '041', '41']) {
     assert.equal(
       intentPathForMilestone(ROOT, token),
+      M041_INTENT,
+      `${token} must resolve to M041's own archive, which is where M041's claims are held`,
+    );
+    assert.notEqual(
+      intentPathForMilestone(ROOT, token),
       LIVE_INTENT,
-      `${token} must resolve to the live intent, which STATE.md binds to M041`,
+      `${token} is archived, so it must never read whoever is current`,
+    );
+  }
+  // The live intent answers only for the milestone STATE.md binds, so it is asked by the number
+  // STATE binds rather than by a literal that goes stale the moment the next milestone starts.
+  const bound = boundMilestone();
+  const digits = bound.slice(1);
+  for (const token of [bound, digits, String(Number(digits))]) {
+    assert.equal(
+      intentPathForMilestone(ROOT, token),
+      LIVE_INTENT,
+      `${token} must resolve to the live intent, which STATE.md binds to ${bound}`,
     );
   }
   // The defect this resolver removes: an archived milestone never reads whoever is current.
@@ -1748,24 +1792,25 @@ test('the resolver refuses rather than falling back, and every refusal names its
       'the refusal must name the live intent it refused to fall back to',
     );
 
-    // Neither archived nor bound: the live intent belongs to M041, so it answers for M041 and no other.
-    const unbound = answeredOrRaised(scratch, 'M042');
+    // Neither archived nor bound: the live intent belongs to the milestone STATE.md binds (the
+    // scratch copies this head's STATE.md), so the one after it answers for nothing and raises.
+    const bound = boundMilestone();
+    const background = `M${String(Number(bound.slice(1)) + 1).padStart(3, '0')}`;
+    const unbound = answeredOrRaised(scratch, background);
     assert.ok(
       unbound instanceof Error,
-      `M042 must raise rather than answer: a resolver that answered with ${String(unbound)} would hold one milestone's claims to another milestone's words`,
+      `${background} must raise rather than answer: a resolver that answered with ${String(unbound)} would hold one milestone's claims to another milestone's words`,
     );
-    assert.match(
-      unbound.message,
-      /M042/,
+    assert.ok(
+      unbound.message.includes(background),
       'the refusal must name the milestone it was asked about',
     );
     assert.ok(
       unbound.message.includes(live),
       'the refusal must name the live intent it tried',
     );
-    assert.match(
-      unbound.message,
-      /belongs to M041/,
+    assert.ok(
+      unbound.message.includes(`belongs to ${bound}`),
       'the refusal must say which milestone the live intent does belong to',
     );
 

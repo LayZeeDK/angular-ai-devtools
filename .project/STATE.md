@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: navigation-blocking
+milestone: error-boundary
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M041
-archive: .project/archive/041-navigation-blocking
+branch: gsd-path/M042
+archive: .project/archive/042-error-boundary
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -831,6 +831,18 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-09 — build — T005 blocked again: the held-out E3 guard is red and its message names nothing
 - 2026-11-09 — plan — build plan repair requested
 - 2026-11-09 — plan — build recovery: {"base": "732cf3fcfc486f6620e947ed9ae37dab804baea7", "branch": "gsd-path/M041", "kind": "plan", "source": "build"}
+- 2026-11-09 — plan — plan approved
+- 2026-11-09 — build — build started
+- 2026-11-09 — build — build done; final review pending
+- 2026-11-09 — ship — build done; final review pending
+- 2026-11-09 — shipped — archive preflight passed; shipment recorded
+- 2026-11-09 — inspect — router bound next milestone
+- 2026-11-09 — inspect — pre-approval: {"kinds": ["intent", "plan"]}
+- 2026-11-09 — inspect — pre-approval: {"kinds": ["intent", "plan", "rulings", "ship"]}
+- 2026-11-09 — inspect — inspection closed by measured delta: 19 of 152 audited documents changed since c9451b1, 411 non-audit paths; no code audited, no unchanged document re-audited
+- 2026-11-09 — define — definition started
+- 2026-11-09 — define — milestone intent approved
+- 2026-11-09 — plan — planning started
 - 2026-11-09 — plan — plan approved
 - 2026-11-09 — build — build started
 - 2026-11-09 — build — build done; final review pending

@@ -47,6 +47,14 @@
  * own IIFE and this spec has no page), and the fact the demo is handed must equal that answer field
  * for field. A demo that drifted from the recording, or a route or loader key that went missing,
  * reddens here rather than shipping.
+ *
+ * M042 T005 extends it to the `error-boundary` surface, the same way: the record the page agent
+ * publishes is assembled from `research/raw/m042-error-boundary.json` — the two `onViewError`
+ * payloads' `declarationType`/`boundaryType` pair, the recorded `errorCtor`, the recorded rendered
+ * fallback content minus the probe's own prefix, and the two readings the record states — and run
+ * through the shipped `extension/error-boundary.js`. The fact the demo is handed must equal that
+ * join's answer field for field, and the pane must print the declaring component, the throwing
+ * component and the fallback as three separate facts.
  */
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -54,6 +62,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { appRoutes } from './app.routes';
 import { FACTS, PanelDemoComponent } from './panel-demo';
 import { fieldsPanel } from './panel-fields';
+import { errorBoundaryPanel } from './panel-error-boundary';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -415,6 +424,200 @@ function readNavigationRecording(): {
     );
   }
   return { recording: JSON.parse(text) as NavigationRecording, text };
+}
+
+/** The part of the M042 error-boundary recording this spec reads. */
+interface ErrorBoundaryRecording {
+  hook: {
+    quotations: { at: string; contains: string[] }[];
+    details: { measured: { keys: string[] } };
+    provider: { text: string };
+    fallback: { text: string; prefix: string };
+  };
+  version: {
+    declares: { coreVersion: string; onAPage: string | null };
+  };
+}
+
+/** One finding of the join's answer, for the fields this spec reads. */
+interface BoundaryFinding {
+  declaringType: string | null;
+  throwingType: string | null;
+  caughtBy: boolean | null;
+  reset: boolean | null;
+  errorName: string | null;
+  errorMessage: string | null;
+  cause: unknown;
+  route: string | null;
+  replacedSubtree: string;
+}
+
+/** The join's answer for one record, for the fields this spec reads. */
+interface BoundaryAnswer {
+  state: string;
+  absence: string | null;
+  findings: BoundaryFinding[];
+  absences: string[];
+  version: string;
+  coreVersion: string | null;
+  fallback: string | null;
+}
+
+/** The page's own boundary namespace, as `extension/error-boundary.js` publishes it. */
+interface ErrorBoundaryJoin {
+  readErrorBoundary(record: unknown): BoundaryAnswer;
+}
+
+/** The M042 error-boundary recording and its text, inlined from disk the same way. */
+function readErrorBoundaryRecording(): {
+  recording: ErrorBoundaryRecording;
+  text: string;
+} {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m042-error-boundary.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m042-error-boundary.json was not inlined above this spec file',
+    );
+  }
+  return { recording: JSON.parse(text) as ErrorBoundaryRecording, text };
+}
+
+/**
+ * The join `extension/error-boundary.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's sample fact is held to the join's answer for the recording, not to a
+ * copy of it. The module is an IIFE with no imports, so running it is the whole of loading it.
+ */
+function errorBoundaryJoin(): ErrorBoundaryJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/error-boundary.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/error-boundary.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (
+    globalThis as unknown as {
+      angularAiErrorBoundary?: ErrorBoundaryJoin;
+    }
+  ).angularAiErrorBoundary;
+  if (join === undefined || typeof join.readErrorBoundary !== 'function') {
+    throw new Error(
+      'extension/error-boundary.js published no readErrorBoundary',
+    );
+  }
+  return join;
+}
+
+/** One recorded `onViewError` payload's two component answers, read from its quotation. */
+interface RecordedTypePair {
+  readonly declarationType: string;
+  readonly boundaryType: string;
+  readonly text: string;
+}
+
+/**
+ * The pairs S10's `onViewError` quotations record: the declaring view (`boundaryType`) and the
+ * throwing view (`declarationType`) as that payload carried them. No component name in this spec is
+ * written by hand.
+ */
+function recordedTypePairs(
+  recording: ErrorBoundaryRecording,
+): readonly RecordedTypePair[] {
+  const pairs: RecordedTypePair[] = [];
+  for (const quotation of recording.hook.quotations) {
+    const text = quotation.contains.join('\n');
+    const declaration = /"declarationType":"([^"]+)"/.exec(text);
+    const boundary = /"boundaryType":"([^"]+)"/.exec(text);
+    const declarationType = declaration?.[1];
+    const boundaryType = boundary?.[1];
+    if (declarationType !== undefined && boundaryType !== undefined) {
+      pairs.push({ declarationType, boundaryType, text });
+    }
+  }
+  return pairs;
+}
+
+/**
+ * The record the page agent publishes, assembled from the recording: the change-detection catch's
+ * two component answers, the thrown error's own name and message, the content the rendered `@error`
+ * view carried, the two facts the record states (that the page declares the browser global error
+ * listeners, where it says so, and that the boundary's `reset()` exists, where the quotation
+ * measured `hasReset`), and no core version, because no page reports one. The entry's
+ * `declarationInstanceName` and `at` are the record's framework-side values: the join reads
+ * neither, which is why nothing in the expectations below is built from them.
+ */
+function errorBoundaryRecord(recording: ErrorBoundaryRecording) {
+  const pairs = recordedTypePairs(recording);
+  const pair = pairs.find(
+    (candidate) => candidate.declarationType !== candidate.boundaryType,
+  );
+  if (pair === undefined) {
+    throw new Error(
+      'the M042 recording carries no onViewError payload naming two different views',
+    );
+  }
+  // The error's own name and the reset the error view's context carried sit in a quotation the
+  // type pair above does not come from, so both are read from every quotation.
+  const quotations = recording.hook.quotations
+    .map((quotation) => quotation.contains.join('\n'))
+    .join('\n');
+  const errorName = /"errorCtor":"([^"]+)"/.exec(quotations)?.[1];
+  if (errorName === undefined) {
+    throw new Error('the M042 recording names no error constructor');
+  }
+  const prefix = recording.hook.fallback.prefix;
+  const rendered = recording.hook.fallback.text;
+  if (!rendered.startsWith(prefix)) {
+    throw new Error(
+      'the recorded fallback no longer begins with the prefix the recording names',
+    );
+  }
+  const declaresListeners = recording.hook.provider.text.startsWith(
+    'provideBrowserGlobalErrorListeners',
+  );
+  const carriesReset = /"hasReset":true/.test(quotations);
+
+  return {
+    state: 'installed',
+    absence: null,
+    chained: false,
+    globalListeners: declaresListeners ? 'declared' : null,
+    version: recording.version.declares.coreVersion,
+    coreVersion: recording.version.declares.onAPage,
+    errorView: { state: 'rendered', text: rendered },
+    entries: [
+      {
+        route: 'hook',
+        error: { name: errorName, message: rendered.slice(prefix.length) },
+        details: {
+          declarationType: pair.declarationType,
+          declarationInstanceName: 'child',
+          caughtBy: recording.hook.details.measured.keys.includes('caughtBy')
+            ? true
+            : null,
+          boundaryType: pair.boundaryType,
+          boundaryReset: carriesReset ? true : null,
+        },
+        at: 4,
+      },
+    ],
+  };
 }
 
 /** One recorded event as the entry shape the page agent publishes. */
@@ -991,6 +1194,104 @@ describe('the panel demo', () => {
     ]) {
       expect(demo.text()).not.toContain(marker);
     }
+  });
+
+  /**
+   * The M042 half: the surface behind `/error-boundary` is reached through its own route entry, and
+   * the sample fact it renders is the join's own answer for the record assembled from the recording.
+   * The pane keeps four things apart that a reader must never see merged: the declaring component
+   * and the throwing component on their own labelled lines, the error's own name and message, the
+   * content the boundary rendered instead under its fallback label and never as the error, and each
+   * named absence in its own sentence.
+   */
+  it('renders the boundary, the error and the named absences the M042 record carries, apart', async () => {
+    const { recording, text: recordingText } = readErrorBoundaryRecording();
+    const answer = errorBoundaryJoin().readErrorBoundary(
+      errorBoundaryRecord(recording),
+    );
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'error-boundary',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the error-boundary surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    const surfaceName = route.data?.['surface'];
+    if (typeof surfaceName !== 'string') {
+      throw new Error(
+        'the error-boundary route must name its surface in route data',
+      );
+    }
+    expect(surfaceName).toBe('error-boundary');
+
+    // The fact the pane is handed is the join's answer, field for field.
+    expect(FACTS['error-boundary']).toEqual(answer);
+    expect(answer.state).toBe('caught');
+    expect(answer.absence).toBeNull();
+    const finding = answer.findings[0];
+    if (finding === undefined) {
+      throw new Error('the recorded boundary arrival must answer one finding');
+    }
+    const declaring = finding.declaringType;
+    const throwing = finding.throwingType;
+    const fallback = answer.fallback;
+    if (declaring === null || throwing === null || fallback === null) {
+      throw new Error(
+        'the recorded boundary arrival must name both views and the fallback content',
+      );
+    }
+
+    const demo = await renderDemo(surfaceName);
+    expect(demo.state()).toBe(answer.state);
+    // The demo renders the pane's own lines for the fact it was handed, and nothing else.
+    expect(demo.lines()).toEqual(
+      errorBoundaryPanel(FACTS['error-boundary']).lines,
+    );
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+
+    // Two component facts, each under its own label: the declaring view and the throwing view.
+    expect(declaring).not.toBe(throwing);
+    expect(demo.lines()).toContain(`declaring component: ${declaring}`);
+    expect(demo.lines()).toContain(`throwing component: ${throwing}`);
+    // The error is the thrown value's own name and message…
+    expect(demo.lines()).toContain(`error: ${finding.errorName}`);
+    expect(demo.lines()).toContain(`error message: ${finding.errorMessage}`);
+    // …and the content the boundary rendered is fallback content, under its own label only.
+    expect(demo.lines()).toContain(
+      `fallback rendered by the boundary: ${fallback}`,
+    );
+    expect(finding.errorMessage).not.toBe(fallback);
+    expect(demo.lines()).not.toContain(`error message: ${fallback}`);
+
+    // The replaced subtree is the named absence and nothing else: no node, tag, content or count of
+    // the removed primary view appears anywhere in the pane.
+    expect(finding.replacedSubtree).toBe('no-replaced-subtree');
+    expect(answer.absences).toContain('no-replaced-subtree');
+    for (const claim of [
+      /<\/?[a-z]/i,
+      /\bnodes?\b/i,
+      /\btags?\b/i,
+      /\bcount\b/i,
+      /\bchildren\b/i,
+    ]) {
+      expect(demo.text()).not.toMatch(claim);
+    }
+
+    // Every value the pane prints is in the committed recording, not only in this spec: the two
+    // component names in S10's own quotations, and the rendered content in the file's bytes.
+    const recordedQuotations = recording.hook.quotations
+      .map((quotation) => quotation.contains.join('\n'))
+      .join('\n');
+    expect(recordedQuotations.includes(`"declarationType":"${throwing}"`)).toBe(
+      true,
+    );
+    expect(recordedQuotations.includes(`"boundaryType":"${declaring}"`)).toBe(
+      true,
+    );
+    expect(recordingText.includes(JSON.stringify(fallback))).toBe(true);
   });
 
   /**
