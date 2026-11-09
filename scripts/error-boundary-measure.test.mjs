@@ -607,20 +607,17 @@ const AGENT = once(() => {
   );
   const lines = source.split('\n');
   const resetMap = linesHolding(lines, 'prevEpochs = new WeakMap();');
+  const setLine = soleLine(
+    lines,
+    'prevEpochs.set(instance, next)',
+    'extension/agent-main.js',
+  );
   return {
     source,
     lines,
     profiler: agentProfilerLiteral(source),
-    setLine: soleLine(
-      lines,
-      'prevEpochs.set(instance, next)',
-      'extension/agent-main.js',
-    ),
-    getLine: soleLine(
-      lines,
-      'var prev = prevEpochs.get(instance);',
-      'extension/agent-main.js',
-    ),
+    setLine,
+    epochOwner: readEpochOwner(lines, setLine),
     mapLine: soleLine(
       lines,
       'var prevEpochs = new WeakMap();',
@@ -664,6 +661,68 @@ const AGENT = once(() => {
     ),
   };
 });
+
+// ------------------------------------------------- the epoch map's key ----
+//
+// The property T002 repaired to, derived from the write's own line and never from the
+// guard's text. When this suite was written the read was one unconditional statement
+// (`var prev = prevEpochs.get(instance);`); T002 replaced it with a keyed read
+// (`var prev = keyed ? prevEpochs.get(instance) : null;`) and an early return before the
+// write, and a suite anchored on the old sentence called the repair a defect - 22 of the
+// 29 tests reddened on a guard that made the milestone's own criterion true. So the pin
+// below is the function that owns the map's write and the order its statements run in,
+// and what the guard must *do* is measured by driving the shipped file (`keyedSkip`),
+// not by the words it is written in. A guard rewritten as a helper, an `instanceof` or a
+// different test keeps every anchor here; only a function that stopped owning the map
+// would move them.
+
+/**
+ * The function that owns the epoch map's write: its name, its line range, whether it
+ * reads the map before it writes it, and whether a read is guarded by a test at all.
+ *
+ * @param {string[]} lines
+ * @param {number} setLine the 1-indexed line carrying the map's write
+ */
+function readEpochOwner(lines, setLine) {
+  let start = -1;
+  for (let index = setLine - 1; index >= 0; index -= 1) {
+    if (/^\s*(?:async )?function ([\w$ɵ]+)\s*\(/.test(lines[index])) {
+      start = index;
+      break;
+    }
+  }
+  if (start === -1) {
+    fail(`no function encloses the epoch map's write on line ${setLine}`);
+  }
+  let depth = 0;
+  let end = start;
+  for (; end < lines.length; end += 1) {
+    for (const character of lines[end]) {
+      if (character === '{') depth += 1;
+      else if (character === '}') depth -= 1;
+    }
+    if (depth === 0) break;
+  }
+  if (end >= lines.length) {
+    fail(
+      `the function enclosing line ${setLine} of extension/agent-main.js never closes`,
+    );
+  }
+  const readIndex = lines.findIndex(
+    (line, at) => at >= start && at <= end && line.includes('prevEpochs.get('),
+  );
+  const readLine = readIndex === -1 ? null : readIndex + 1;
+  return {
+    name: /^\s*(?:async )?function ([\w$ɵ]+)/.exec(lines[start])[1],
+    start: start + 1,
+    end: end + 1,
+    at: `extension/agent-main.js:${start + 1}-${end + 1}`,
+    setAt: setLine,
+    readAt: readLine,
+    readsBeforeWriting: readLine !== null && readLine < setLine,
+    body: lines.slice(start, end + 1),
+  };
+}
 
 /** The line range `function onEvent(...)` spans, so a throw can be placed outside it. */
 const ON_EVENT_RANGE = once(() => {
@@ -967,6 +1026,65 @@ function measureEpochs() {
   });
 }
 
+/**
+ * The property the epoch guard exists for, read from behaviour rather than from the line
+ * it is written on. Four non-keyed identities (the shapes the five embedded-view sites
+ * hand the profiler, plus a primitive and a string) are driven twice: a first frame with
+ * one pair of epochs and a second with `n0` moved. An entry written for a non-key would
+ * make the second pass name `n0`; an entry read for one would have thrown when it was.
+ * The keyed identity beside them is the discriminator in the other direction: the same
+ * two passes must name `n0`, and a third with nothing moved must name nothing.
+ */
+function measureKeyedSkip() {
+  const unkeyed = [
+    ['undefined', undefined],
+    ['null', null],
+    ['number', 7],
+    ['string', 'instance'],
+  ].map(([kind, instance]) =>
+    withAgent((page) => {
+      page.graph = signalGraph([1, 1]);
+      page.frame(instance);
+      page.graph = signalGraph([2, 1]);
+      page.frame(instance);
+      const records = page.records();
+      const changed = (index) =>
+        records.length > index
+          ? records[index].detail.checks[0].changedNodeIds
+          : null;
+      return {
+        instance: kind,
+        throws: page.errors.length,
+        records: records.length,
+        firstPass: changed(0),
+        secondPass: changed(1),
+      };
+    }),
+  );
+  const keyed = withAgent((page) => {
+    page.graph = signalGraph([1, 1]);
+    page.frame(INSTANCE_A);
+    page.graph = signalGraph([2, 1]);
+    page.frame(INSTANCE_A);
+    page.graph = signalGraph([2, 1]);
+    page.frame(INSTANCE_A);
+    const records = page.records();
+    const changed = (index) =>
+      records.length > index
+        ? records[index].detail.checks[0].changedNodeIds
+        : null;
+    return {
+      instance: 'a',
+      throws: page.errors.length,
+      records: records.length,
+      firstPass: changed(0),
+      secondPass: changed(1),
+      thirdPass: changed(2),
+    };
+  });
+  return { unkeyed, keyed };
+}
+
 /** The whole measurement, taken once. Every number in the record comes from here. */
 const measured = once(() => ({
   perEvent: measurePerEvent(),
@@ -977,6 +1095,7 @@ const measured = once(() => ({
   },
   twoKeysInOneFrame: measureTwoKeysInOneFrame(),
   epochs: measureEpochs(),
+  keyedSkip: measureKeyedSkip(),
 }));
 
 // ------------------------------------------------------------- the record ----
@@ -1369,6 +1488,32 @@ const QUOTATIONS = [
   },
 ];
 
+/**
+ * The defect as S10 measured it on a page, read out of the line that records it. The
+ * constructor and the message are quoted from that line rather than re-measured here,
+ * because the head this suite runs at no longer reproduces them: T002 repaired the key,
+ * and what the repair had to preserve is measured in `instrument.epochs` and
+ * `instrument.repair`. The quotation is a citation with an anchor, so it cannot drift
+ * from the file it names.
+ */
+const S10_THROW = once(() => {
+  const cited = citedLines(
+    '.project/research/s10-answer.md:310',
+    'the S10 record of this instrument',
+  );
+  const match = /`([A-Za-z]*Error): ([^`]+)`/.exec(cited.lines.join('\n'));
+  if (match === null) {
+    fail(
+      '.project/research/s10-answer.md:310 no longer quotes the error this instrument threw, so the defect this record preserves lost its source',
+    );
+  }
+  return {
+    at: '.project/research/s10-answer.md:310',
+    name: match[1],
+    message: match[2],
+  };
+});
+
 /** Assembles the whole recording from the derivations above. */
 function buildRecord() {
   const { repo, fixture, counts, types } = live();
@@ -1435,14 +1580,16 @@ function buildRecord() {
       question:
         'Which profiler emission makes the shipped agent throw at extension/agent-main.js:1034, what does the frame lose when it does, and what does the epoch map that line protects contain?',
       finding:
-        "A `TemplateUpdateStart` (ProfilerEvent value 2) whose instance is not an object reaches `getOrCreateCheck`, opens a frame, and throws `TypeError: Invalid value used as weak map key` at `prevEpochs.set(instance, next)` when the frame closes. The throw happens in `closeCycle`, which runs from `globalThis.queueMicrotask(closeCycle)` - outside the try/catch that wraps `onEvent` - so it escapes into the page and the frame's whole record is lost: the page receives its `angular-ai:state` event and no `angular-ai:record` at all. The epoch map is keyed by the profiler instance, and holds that instance's node epochs from the previous pass, so a pass can name the nodes whose epoch moved; a guard that stops the throw must leave both halves intact.",
+        "A `TemplateUpdateStart` (ProfilerEvent value 2) whose instance is not an object reaches `getOrCreateCheck`, opens a frame, and throws `TypeError: Invalid value used as weak map key` at `prevEpochs.set(instance, next)` when the frame closes. The throw happens in `closeCycle`, which runs from `globalThis.queueMicrotask(closeCycle)` - outside the try/catch that wraps `onEvent` - so it escapes into the page and the frame's whole record is lost: the page receives its `angular-ai:state` event and no `angular-ai:record` at all. The epoch map is keyed by the profiler instance, and holds that instance's node epochs from the previous pass, so a pass can name the nodes whose epoch moved; a guard that stops the throw must leave both halves intact. T002 repaired exactly that half: the map's key is tested before the map is read and the write is skipped for an identity that cannot be a WeakMap key, so at this head the same frame throws nothing, lands its record, and keeps the delta a keyed identity still names - `repair` measures both, and `epochs` is unchanged from the base.",
       throw: {
         source: 'extension/agent-main.js',
         line: AGENT().setLine,
         expression: AGENT().lines[AGENT().setLine - 1].trim(),
-        constructor: failure.constructor,
-        message: failure.message,
+        constructor: S10_THROW().name,
+        message: S10_THROW().message,
         onEventCaughtIt: false,
+        reproducedAtThisHead: failure.throws > 0,
+        frameRecordLostAtTheBase: true,
         callPath: [
           {
             at: `extension/agent-main.js:${AGENT().closeCycleLine}`,
@@ -1469,7 +1616,7 @@ function buildRecord() {
             AGENT().setLine >= onEvent.start && AGENT().setLine <= onEvent.end,
           dispatchAfterTheThrow: `extension/agent-main.js:${AGENT().dispatchLine}`,
         },
-        frameRecordLost: failure.records === 0,
+        frameRecordLostAtTheBase: true,
         occurrences: {
           count: 2,
           by: 'S10',
@@ -1477,7 +1624,20 @@ function buildRecord() {
             "S10 measured this TypeError twice per page, in the app's ErrorHandler on the fixture and in window.onerror on both subjects, and left the trigger uninvestigated (s10-answer.md:310)",
         },
         reproductionStandsFor:
-          "one of the two occurrences. Each occurrence is one frame: the emission opens the frame, the frame close throws once, and the forEach aborts before its dispatch - so a frame with two non-object keys still throws once (measured below). The count of two is S10's page measurement, quoted and not re-measured here; this task takes no page.",
+          "one of the two occurrences at the plan's base. Each occurrence was one frame: the emission opened the frame, the frame close threw once, and the forEach aborted before its dispatch - so a frame with two non-object keys threw once (measured at the base). The count of two is S10's page measurement, quoted and not re-measured here; this task takes no page. At this head the same frame throws nothing, which is what `reproducedAtThisHead` measures.",
+      },
+      repair: {
+        task: 'T002',
+        at: AGENT().epochOwner.at,
+        owns: AGENT().epochOwner.name,
+        readsTheMapBeforeWritingIt: AGENT().epochOwner.readsBeforeWriting,
+        property:
+          'the key is tested before the map is read and the write is skipped for an identity that cannot be a WeakMap key, so the epoch delta is read for a keyed identity and skipped for a non-keyed one - pinned by driving the shipped file, not by the words the guard is written in',
+        keyed:
+          'the profiler instance, by object identity, and only where that identity can be a WeakMap key at all: an object or a function',
+        unkeyed:
+          'no entry at all, and never an empty one: `get` never threw and `set` was never reached, so a second pass with the same non-keyed identity and a moved epoch between them names nothing',
+        keyedSkip: reading.keyedSkip,
       },
       emissions: {
         eventIds: AGENT().profiler.values,
@@ -1696,14 +1856,14 @@ function validateInstrument(record, reading) {
       `instrument.throw.expression is ${JSON.stringify(thrown.expression)} and line ${AGENT().setLine} now reads ${JSON.stringify(AGENT().lines[AGENT().setLine - 1].trim())}`,
     );
   }
-  if (thrown.constructor !== 'TypeError') {
+  if (thrown.constructor !== S10_THROW().name) {
     fail(
-      `instrument.throw.constructor is ${JSON.stringify(thrown.constructor)}`,
+      `instrument.throw.constructor is ${JSON.stringify(thrown.constructor)} and ${S10_THROW().at} quotes ${JSON.stringify(S10_THROW().name)}`,
     );
   }
-  if (thrown.message !== 'Invalid value used as weak map key') {
+  if (thrown.message !== S10_THROW().message) {
     fail(
-      `instrument.throw.message is ${JSON.stringify(thrown.message)} and the run measured ${JSON.stringify(reading.frames.undefined.message)}`,
+      `instrument.throw.message is ${JSON.stringify(thrown.message)} and ${S10_THROW().at} quotes ${JSON.stringify(S10_THROW().message)}`,
     );
   }
   if (thrown.onEventCaughtIt !== false) {
@@ -1744,14 +1904,24 @@ function validateInstrument(record, reading) {
   ) {
     fail('instrument.throw.escapeRoute.dispatchAfterTheThrow moved');
   }
-  if (thrown.frameRecordLost !== (reading.frames.undefined.records === 0)) {
+  // The defect is history at this head, and the record says so in the one field that can be
+  // measured: a frame driven with a non-object identity throws nothing. The cost it had at the
+  // base (the frame's whole record lost) is quoted, because no run at this head can reproduce it
+  // - which is the whole point of T002 - and the half that must survive the repair is pinned by
+  // `epochs` and `repair` rather than by this field.
+  if (thrown.reproducedAtThisHead !== reading.frames.undefined.throws > 0) {
     fail(
-      `instrument.throw.frameRecordLost is ${thrown.frameRecordLost} and the driven frame dispatched ${reading.frames.undefined.records} record(s)`,
+      `instrument.throw.reproducedAtThisHead is ${thrown.reproducedAtThisHead} and the driven non-object frame threw ${reading.frames.undefined.throws}`,
     );
   }
-  if (thrown.frameRecordLost !== true) {
+  if (thrown.reproducedAtThisHead !== false) {
     fail(
-      `the frame now dispatches ${reading.frames.undefined.records} record(s) after the throw, so the cost of the defect moved and T002's premise must be re-measured`,
+      'instrument.throw.reproducedAtThisHead is true: a frame carrying a non-object identity throws again, which is the defect SC6 forbids - the recording must be re-measured, not edited',
+    );
+  }
+  if (thrown.frameRecordLostAtTheBase !== true) {
+    fail(
+      'instrument.throw.frameRecordLostAtTheBase is not true, and S10 measured the frame losing its whole record before the repair',
     );
   }
   if (!isObject(thrown.occurrences) || thrown.occurrences.count !== 2) {
@@ -1859,9 +2029,9 @@ function validateInstrument(record, reading) {
         );
       }
     }
-    if (stated.records !== 0) {
+    if (stated.records !== 1 || stated.throws !== 0) {
       fail(
-        `instrument.reproduction.${key}.records is ${stated.records}: a non-object key now keeps the frame record, so the defect and its cost both moved`,
+        `instrument.reproduction.${key} records ${stated.records} record(s) and throws ${stated.throws}: a non-object identity must land its frame and throw nothing, which is the half T002 repaired`,
       );
     }
   }
@@ -1889,9 +2059,130 @@ function validateInstrument(record, reading) {
       );
     }
   }
-  if (twoKeys.throws !== 1) {
+  if (twoKeys.throws !== 0) {
     fail(
-      `instrument.reproduction.twoKeysInOneFrame.throws is ${twoKeys.throws}: the frame must throw once, because the forEach aborts on its first non-object key`,
+      `instrument.reproduction.twoKeysInOneFrame.throws is ${twoKeys.throws}: the frame must throw nothing, because the write is skipped for both non-object keys and the forEach completes`,
+    );
+  }
+}
+
+/**
+ * The guard's property, held to the drive rather than to its text: the epoch delta is read
+ * for a keyed identity and skipped for a non-keyed one. Nothing here quotes the guard, so
+ * T002's repair - or any later rewrite of it that keeps this behaviour - leaves the pin
+ * standing, while a repair that reached the absence of the throw by emptying the record
+ * reddens it, and so does a repair that restored the throw to keep the list.
+ */
+function validateRepair(record, reading) {
+  const repair = record.instrument.repair;
+  if (!isObject(repair)) fail('missing instrument.repair');
+  strings(
+    repair,
+    ['task', 'at', 'owns', 'property', 'keyed', 'unkeyed'],
+    'instrument.repair',
+  );
+  if (repair.task !== 'T002') {
+    fail(
+      `instrument.repair.task is ${JSON.stringify(repair.task)}, not the task that repaired the key`,
+    );
+  }
+  if (repair.at !== AGENT().epochOwner.at) {
+    fail(
+      `instrument.repair.at is ${repair.at} and the function owning the map's write spans ${AGENT().epochOwner.at} - the function this record names moved`,
+    );
+  }
+  if (repair.owns !== AGENT().epochOwner.name) {
+    fail(
+      `instrument.repair.owns is ${JSON.stringify(repair.owns)} and the function owning the map's write is ${JSON.stringify(AGENT().epochOwner.name)}`,
+    );
+  }
+  if (
+    repair.readsTheMapBeforeWritingIt !== AGENT().epochOwner.readsBeforeWriting
+  ) {
+    fail(
+      `instrument.repair.readsTheMapBeforeWritingIt is ${repair.readsTheMapBeforeWritingIt} and the map's read sits on line ${AGENT().epochOwner.readAt} of a write on line ${AGENT().epochOwner.setAt}`,
+    );
+  }
+  if (repair.readsTheMapBeforeWritingIt !== true) {
+    fail(
+      'instrument.repair.readsTheMapBeforeWritingIt is not true: the write runs before any read, so no prior record is consulted and the delta the record exists for is gone',
+    );
+  }
+
+  const drive = repair.keyedSkip;
+  if (!isObject(drive)) fail('missing instrument.repair.keyedSkip');
+  const measured = reading.keyedSkip;
+  if (
+    !Array.isArray(drive.unkeyed) ||
+    drive.unkeyed.length !== measured.unkeyed.length
+  ) {
+    fail(
+      `instrument.repair.keyedSkip.unkeyed holds ${Array.isArray(drive.unkeyed) ? drive.unkeyed.length : 'no'} identity(s) and the run drove ${measured.unkeyed.length}`,
+    );
+  }
+  for (const stated of drive.unkeyed) {
+    const actual = measured.unkeyed.find(
+      (entry) => entry.instance === stated.instance,
+    );
+    if (actual === undefined) {
+      fail(
+        `instrument.repair.keyedSkip.unkeyed names the identity ${JSON.stringify(stated.instance)}, which this run did not drive`,
+      );
+    }
+    for (const field of ['throws', 'records']) {
+      if (JSON.stringify(stated[field]) !== JSON.stringify(actual[field])) {
+        fail(
+          `instrument.repair.keyedSkip.unkeyed[${stated.instance}].${field} is ${JSON.stringify(stated[field])} and the run measured ${JSON.stringify(actual[field])}`,
+        );
+      }
+    }
+    if (stated.throws !== 0) {
+      fail(
+        `instrument.repair.keyedSkip.unkeyed[${stated.instance}].throws is ${stated.throws}: a non-object identity must throw nothing, which is the defect SC6 forbids`,
+      );
+    }
+    if (stated.records !== 2) {
+      fail(
+        `instrument.repair.keyedSkip.unkeyed[${stated.instance}].records is ${stated.records}: both driven frames must land, or the skip costs the page the frame it is meant to keep`,
+      );
+    }
+    if (
+      JSON.stringify(stated.firstPass) !== '[]' ||
+      JSON.stringify(stated.secondPass) !== '[]'
+    ) {
+      fail(
+        `instrument.repair.keyedSkip.unkeyed[${stated.instance}] names ${JSON.stringify([stated.firstPass, stated.secondPass])} across two passes with n0 moved between them: the delta must be skipped for a non-keyed identity, and a list here means an entry was kept for an identity that cannot be a WeakMap key`,
+      );
+    }
+  }
+
+  const keyedStated = drive.keyed;
+  if (!isObject(keyedStated)) {
+    fail('missing instrument.repair.keyedSkip.keyed');
+  }
+  for (const field of ['throws', 'records', 'firstPass']) {
+    if (
+      JSON.stringify(keyedStated[field]) !==
+      JSON.stringify(measured.keyed[field])
+    ) {
+      fail(
+        `instrument.repair.keyedSkip.keyed.${field} is ${JSON.stringify(keyedStated[field])} and the run measured ${JSON.stringify(measured.keyed[field])}`,
+      );
+    }
+  }
+  if (keyedStated.throws !== 0) {
+    fail(
+      `instrument.repair.keyedSkip.keyed.throws is ${keyedStated.throws}: an object identity must throw nothing`,
+    );
+  }
+  if (JSON.stringify(keyedStated.secondPass) !== '["n0"]') {
+    fail(
+      `instrument.repair.keyedSkip.keyed.secondPass is ${JSON.stringify(keyedStated.secondPass)}: the epoch delta must still be read for a keyed identity, and N6 forbids reaching the absence of the throw by emptying the record`,
+    );
+  }
+  if (JSON.stringify(keyedStated.thirdPass) !== '[]') {
+    fail(
+      `instrument.repair.keyedSkip.keyed.thirdPass is ${JSON.stringify(keyedStated.thirdPass)}: a keyed pass in which nothing moved names no node, or the list is not a delta at all`,
     );
   }
 }
@@ -2661,6 +2952,7 @@ function validate(record) {
 
   const reading = measured();
   validateInstrument(record, reading);
+  validateRepair(record, reading);
   validateEpochs(record, reading);
   validateHook(record);
   validateVersion(record);
@@ -2699,14 +2991,14 @@ test('the recording is the canonical serialisation of its own record', () => {
   );
 });
 
-test('the instrument throws on the one emission that opens a frame, and the frame keeps no record', () => {
+test('no emission throws, a non-object identity lands its frame, and the delta is skipped for it', () => {
   const record = loadRecord();
-  const { perEvent, frames } = measured();
+  const { perEvent, frames, keyedSkip } = measured();
   const throwing = perEvent.filter((entry) => entry.throws > 0);
   assert.deepEqual(
     throwing.map((entry) => entry.name),
-    ['TemplateUpdateStart'],
-    'the emission that provokes the throw moved',
+    [],
+    'an emission threw into the page again; the defect this recording preserves is back',
   );
   assert.equal(record.instrument.throw.line, 1034);
   assert.equal(record.instrument.throw.constructor, 'TypeError');
@@ -2714,21 +3006,37 @@ test('the instrument throws on the one emission that opens a frame, and the fram
     record.instrument.throw.message,
     'Invalid value used as weak map key',
   );
+  assert.equal(record.instrument.throw.reproducedAtThisHead, false);
+  assert.equal(record.instrument.throw.frameRecordLostAtTheBase, true);
   for (const [kind, frame] of [
     ['undefined', frames.undefined],
     ['null', frames.null],
   ]) {
     assert.equal(
       frame.records,
-      0,
+      1,
       `${kind}: the frame record reached the page`,
     );
-    assert.deepEqual(frame.events, ['angular-ai:state'], kind);
-    assert.equal(frame.constructor, 'TypeError', kind);
+    assert.equal(frame.throws, 0, `${kind}: the frame threw`);
+    assert.equal(frame.constructor, null, kind);
   }
   assert.equal(frames.object.records, 1);
   assert.equal(frames.object.checks, 1);
   assert.match(record.instrument.finding, /weak map key/);
+  for (const entry of keyedSkip.unkeyed) {
+    assert.equal(
+      entry.records,
+      2,
+      `${entry.instance}: both frames must land for a non-object identity`,
+    );
+    assert.deepEqual(
+      entry.secondPass,
+      [],
+      `${entry.instance}: an entry was kept for an identity that cannot be a WeakMap key`,
+    );
+  }
+  assert.deepEqual(keyedSkip.keyed.secondPass, ['n0']);
+  assert.deepEqual(keyedSkip.keyed.thirdPass, []);
 });
 
 test('the epoch record names a moved epoch, holds on a still one, and is keyed by the instance', () => {
@@ -2874,25 +3182,52 @@ test('held-out: a recording that blames the wrong emission reddens', () => {
   mutant.instrument.emissions.throwingIds = [3];
   assert.throws(
     () => validate(mutant),
-    /emissions\.throwingIds is \[3\] and the run reddened \[2\]/,
+    /emissions\.throwingIds is \[3\] and the run reddened \[\] instead/,
   );
 });
 
-test('held-out: a recording that says the frame survived the throw reddens', () => {
+test('held-out: a recording that says the defect still reproduces reddens', () => {
   const mutant = clone(loadRecord());
-  mutant.instrument.throw.frameRecordLost = false;
+  mutant.instrument.throw.reproducedAtThisHead = true;
   assert.throws(
     () => validate(mutant),
-    /frameRecordLost is false and the driven frame dispatched 0 record/,
+    /reproducedAtThisHead is true and the driven non-object frame threw 0/,
   );
 });
 
-test('held-out: a recording in which the thrown frame kept a record reddens', () => {
+test('held-out: a repaired frame recorded as lost reddens', () => {
   const mutant = clone(loadRecord());
-  mutant.instrument.reproduction.undefinedInstance.records = 1;
+  mutant.instrument.reproduction.undefinedInstance.records = 0;
   assert.throws(
     () => validate(mutant),
-    /undefinedInstance\.records is 1 and the run measured 0/,
+    /undefinedInstance\.records is 0 and the run measured 1/,
+  );
+});
+
+test('held-out: a non-keyed identity that kept an epoch record reddens, naming the skip', () => {
+  const mutant = clone(loadRecord());
+  mutant.instrument.repair.keyedSkip.unkeyed[0].secondPass = ['n0'];
+  assert.throws(
+    () => validate(mutant),
+    /the delta must be skipped for a non-keyed identity/,
+  );
+});
+
+test('held-out: a keyed identity whose delta was emptied reddens, naming N6', () => {
+  const mutant = clone(loadRecord());
+  mutant.instrument.repair.keyedSkip.keyed.secondPass = [];
+  assert.throws(
+    () => validate(mutant),
+    /the epoch delta must still be read for a keyed identity/,
+  );
+});
+
+test('held-out: a repair claimed for a function that does not own the write reddens', () => {
+  const mutant = clone(loadRecord());
+  mutant.instrument.repair.owns = 'serializeCheck';
+  assert.throws(
+    () => validate(mutant),
+    /instrument\.repair\.owns is "serializeCheck"/,
   );
 });
 

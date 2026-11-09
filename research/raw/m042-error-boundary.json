@@ -29,7 +29,7 @@
   },
   "instrument": {
     "question": "Which profiler emission makes the shipped agent throw at extension/agent-main.js:1034, what does the frame lose when it does, and what does the epoch map that line protects contain?",
-    "finding": "A `TemplateUpdateStart` (ProfilerEvent value 2) whose instance is not an object reaches `getOrCreateCheck`, opens a frame, and throws `TypeError: Invalid value used as weak map key` at `prevEpochs.set(instance, next)` when the frame closes. The throw happens in `closeCycle`, which runs from `globalThis.queueMicrotask(closeCycle)` - outside the try/catch that wraps `onEvent` - so it escapes into the page and the frame's whole record is lost: the page receives its `angular-ai:state` event and no `angular-ai:record` at all. The epoch map is keyed by the profiler instance, and holds that instance's node epochs from the previous pass, so a pass can name the nodes whose epoch moved; a guard that stops the throw must leave both halves intact.",
+    "finding": "A `TemplateUpdateStart` (ProfilerEvent value 2) whose instance is not an object reaches `getOrCreateCheck`, opens a frame, and throws `TypeError: Invalid value used as weak map key` at `prevEpochs.set(instance, next)` when the frame closes. The throw happens in `closeCycle`, which runs from `globalThis.queueMicrotask(closeCycle)` - outside the try/catch that wraps `onEvent` - so it escapes into the page and the frame's whole record is lost: the page receives its `angular-ai:state` event and no `angular-ai:record` at all. The epoch map is keyed by the profiler instance, and holds that instance's node epochs from the previous pass, so a pass can name the nodes whose epoch moved; a guard that stops the throw must leave both halves intact. T002 repaired exactly that half: the map's key is tested before the map is read and the write is skipped for an identity that cannot be a WeakMap key, so at this head the same frame throws nothing, lands its record, and keeps the delta a keyed identity still names - `repair` measures both, and `epochs` is unchanged from the base.",
     "throw": {
       "source": "extension/agent-main.js",
       "line": 1034,
@@ -37,6 +37,8 @@
       "constructor": "TypeError",
       "message": "Invalid value used as weak map key",
       "onEventCaughtIt": false,
+      "reproducedAtThisHead": false,
+      "frameRecordLostAtTheBase": true,
       "callPath": [
         {
           "at": "extension/agent-main.js:1038",
@@ -62,13 +64,63 @@
         "throwInsideOnEventTryCatch": false,
         "dispatchAfterTheThrow": "extension/agent-main.js:1059"
       },
-      "frameRecordLost": true,
       "occurrences": {
         "count": 2,
         "by": "S10",
         "quotation": "S10 measured this TypeError twice per page, in the app's ErrorHandler on the fixture and in window.onerror on both subjects, and left the trigger uninvestigated (s10-answer.md:310)"
       },
-      "reproductionStandsFor": "one of the two occurrences. Each occurrence is one frame: the emission opens the frame, the frame close throws once, and the forEach aborts before its dispatch - so a frame with two non-object keys still throws once (measured below). The count of two is S10's page measurement, quoted and not re-measured here; this task takes no page."
+      "reproductionStandsFor": "one of the two occurrences at the plan's base. Each occurrence was one frame: the emission opened the frame, the frame close threw once, and the forEach aborted before its dispatch - so a frame with two non-object keys threw once (measured at the base). The count of two is S10's page measurement, quoted and not re-measured here; this task takes no page. At this head the same frame throws nothing, which is what `reproducedAtThisHead` measures."
+    },
+    "repair": {
+      "task": "T002",
+      "at": "extension/agent-main.js:1021-1036",
+      "owns": "diffEpochs",
+      "readsTheMapBeforeWritingIt": true,
+      "property": "the key is tested before the map is read and the write is skipped for an identity that cannot be a WeakMap key, so the epoch delta is read for a keyed identity and skipped for a non-keyed one - pinned by driving the shipped file, not by the words the guard is written in",
+      "keyed": "the profiler instance, by object identity, and only where that identity can be a WeakMap key at all: an object or a function",
+      "unkeyed": "no entry at all, and never an empty one: `get` never threw and `set` was never reached, so a second pass with the same non-keyed identity and a moved epoch between them names nothing",
+      "keyedSkip": {
+        "unkeyed": [
+          {
+            "instance": "undefined",
+            "throws": 0,
+            "records": 2,
+            "firstPass": [],
+            "secondPass": []
+          },
+          {
+            "instance": "null",
+            "throws": 0,
+            "records": 2,
+            "firstPass": [],
+            "secondPass": []
+          },
+          {
+            "instance": "number",
+            "throws": 0,
+            "records": 2,
+            "firstPass": [],
+            "secondPass": []
+          },
+          {
+            "instance": "string",
+            "throws": 0,
+            "records": 2,
+            "firstPass": [],
+            "secondPass": []
+          }
+        ],
+        "keyed": {
+          "instance": "a",
+          "throws": 0,
+          "records": 3,
+          "firstPass": [],
+          "secondPass": [
+            "n0"
+          ],
+          "thirdPass": []
+        }
+      }
     },
     "emissions": {
       "eventIds": [
@@ -125,11 +177,11 @@
         {
           "name": "TemplateUpdateStart",
           "value": 2,
-          "throws": 1,
-          "constructor": "TypeError",
-          "message": "Invalid value used as weak map key",
+          "throws": 0,
+          "constructor": null,
+          "message": null,
           "onEventCaughtIt": false,
-          "records": 0
+          "records": 1
         },
         {
           "name": "TemplateUpdateEnd",
@@ -231,9 +283,7 @@
           "records": 0
         }
       ],
-      "throwingIds": [
-        2
-      ],
+      "throwingIds": [],
       "sites": [
         {
           "line": 11532,
@@ -316,36 +366,36 @@
       },
       "undefinedInstance": {
         "instance": "undefined",
-        "throws": 1,
-        "constructor": "TypeError",
-        "message": "Invalid value used as weak map key",
-        "records": 0,
+        "throws": 0,
+        "constructor": null,
+        "message": null,
+        "records": 1,
         "events": [
-          "angular-ai:state"
+          "angular-ai:state",
+          "angular-ai:record"
         ],
-        "checks": 0
+        "checks": 1
       },
       "nullInstance": {
         "instance": "null",
-        "throws": 1,
-        "constructor": "TypeError",
-        "message": "Invalid value used as weak map key",
-        "records": 0,
+        "throws": 0,
+        "constructor": null,
+        "message": null,
+        "records": 1,
         "events": [
-          "angular-ai:state"
+          "angular-ai:state",
+          "angular-ai:record"
         ],
-        "checks": 0
+        "checks": 1
       },
       "twoKeysInOneFrame": {
         "instances": [
           "undefined",
           "null"
         ],
-        "throws": 1,
-        "messages": [
-          "Invalid value used as weak map key"
-        ],
-        "records": 0
+        "throws": 0,
+        "messages": [],
+        "records": 1
       }
     },
     "epochs": {
