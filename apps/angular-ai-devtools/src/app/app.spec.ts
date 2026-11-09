@@ -27,7 +27,8 @@ describe('App', () => {
  * `PanelDemoComponent` with its own name in route data — never the surface function itself, which
  * a route accepts and renders nothing for. M034 appends `legacy` after it, M035 appends `onpush`
  * after that, M036 appends `resource` after that, M038 appends `linked-state`, M039 appends
- * `render-phase` after that, and M040 appends `performance` last, the same way.
+ * `render-phase` after that, M040 appends `performance` last, and M041 appends `navigation` after
+ * that, the same way.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -53,6 +54,7 @@ describe('the route table', () => {
       'linked-state', // M038 SC4 surface: the linked signal, its source and the agreement between
       'render-phase', // M039 SC5 surface: the effect and its reads, the phase absence, the change-detection finding
       'performance', // M040 SC5 surface: the frame's ordered work, its component identity and its measured cost apart
+      'navigation', // M041 SC1-3 surface: a navigation's stage, the holder it cannot name, its terminal and its loads
     ]);
     expect(appRoutes.filter((route) => route.path === 'lint')).toHaveLength(1);
 
@@ -137,5 +139,15 @@ describe('the route table', () => {
     expect(performance.data?.['surface']).toBe('performance');
     // Its own name, so a copy of another surface's route cannot stand in for it.
     expect(performance.data?.['surface']).not.toBe('render-phase');
+
+    const navigation = appRoutes.find((route) => route.path === 'navigation');
+    expect(navigation?.component).toBeUndefined();
+    if (navigation?.loadComponent === undefined) {
+      throw new Error('the navigation surface must load lazily');
+    }
+    expect(await navigation.loadComponent()).toBe(PanelDemoComponent);
+    expect(navigation.data?.['surface']).toBe('navigation');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(navigation.data?.['surface']).not.toBe('performance');
   });
 });

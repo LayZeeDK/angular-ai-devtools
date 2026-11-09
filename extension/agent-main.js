@@ -1047,6 +1047,9 @@
       // The frame's own work, in arrival order: the four existing fields are untouched and this
       // list is the additive half (the per-check `events` below keeps the four bare numbers).
       events: c.events.slice(),
+      // The router's own arrivals, in arrival order, as their own field: a stream is not frame-scoped,
+      // so the list is what has arrived and not what this frame saw (T002).
+      routerEvents: routerEventList(),
       checks: [],
     };
     c.checks.forEach(function (check, instance) {
@@ -1434,6 +1437,9 @@
         // The snapshot carries the same list a frame carries, empty: this record read no profiler
         // event, and a record that omitted the field would make a reader guess at its shape.
         events: [],
+        // The router's list is not frame-scoped, so the snapshot carries what has already arrived —
+        // a reader attached after the fact is exactly who the replay is for.
+        routerEvents: routerEventList(),
         checks: [check],
       });
     } catch (e) {
@@ -1441,11 +1447,427 @@
     }
   }
 
+  // --- The router's own stream, beside the profiler subscription (T002) ------------------------
+  //
+  // T001 measured the stream this block records (`research/raw/m041-navigation.json`): sixteen event
+  // classes, each with its own key set; the `Router` reachable from the agent's own read —
+  // `getInjector` on the host element, then `ɵgetInjectorResolutionPath`, then the provider record
+  // whose `token` names it — at resolution path entry 2 on the measured page (`Environment Injector`,
+  // 90 provider records), never entry 0 (the element injector, 6 records); and the two route-config
+  // classes carrying no navigation id at all.
+  //
+  // One entry per emission, in arrival order, built from the event alone, one shape for every class:
+  // `{ type, at, id, url, urlAfterRedirects, route, reason, code, error, shouldActivate,
+  // matchedPaths }`. `type` is the class name the runtime reports and never the event number, so no
+  // surface branches on a number; every field the event did not carry is `null` and is never filled in
+  // from the last navigation seen or from the navigation in flight (SC5); and nothing else crosses the
+  // boundary — a routed snapshot contributes its own route-config path strings, an error its own name
+  // and message.
+  //
+  // The subscription is created beside the profiler tap and never inside it: the tap answers once and
+  // this reads the page's own injector beside that answer, `reset` removes both, and the profiler is
+  // never cleared with `null`, which would take every callback with it, this agent's included.
+  var ROUTER_TOKEN_NAME = 'Router';
+  var ROUTER_EVENT_LIMIT = 512; // arrivals kept: a page-health guard, not a curation
+  var ROUTER_CHAIN_LIMIT = 32; // route-config paths read from one snapshot
+  var ROUTER_HOST_SCAN_LIMIT = 64; // elements read once, for the dev-context presence test
+  var routerEvents = []; // one entry per Router.events emission, in arrival order
+  var routerSubscription = null; // the stream's own subscription, removed by reset()
+
+  // `true` when the event object itself carries the field, whatever its value. This is the one test
+  // that decides whether an entry records a value: an absent field is never read from anywhere else.
+  function routerCarries(event, field) {
+    if (event === null || typeof event !== 'object') return false;
+    return Object.prototype.hasOwnProperty.call(event, field);
+  }
+
+  // The field's own value, or `null` where the event carries none. An own field whose value is
+  // `undefined` is recorded as `null` too, because the boundary is serialized and `undefined` does not
+  // cross it — a reader never has to tell "unknown" from "not applicable".
+  function routerFieldOf(event, field) {
+    if (!routerCarries(event, field)) return null;
+    var value;
+    try {
+      value = event[field];
+    } catch (e) {
+      return null;
+    }
+    return typeof value === 'undefined' ? null : value;
+  }
+
+  // A field that crosses the boundary as it stands, or `null`. Numbers, strings and booleans only, so
+  // no instance, element, function or URL tree is ever recorded as a field value.
+  function routerPrimitiveOf(event, field) {
+    var value = routerFieldOf(event, field);
+    var kind = typeof value;
+    if (kind === 'string' || kind === 'number' || kind === 'boolean')
+      return value;
+    return null;
+  }
+
+  // The class name the runtime reports for the event, never its number: a surface reads the name and
+  // has to know no event number to read one (AC5). An event whose class the runtime cannot name is
+  // recorded as naming none.
+  function routerClassNameOf(event) {
+    var name = null;
+    try {
+      name =
+        event && event.constructor && typeof event.constructor.name === 'string'
+          ? event.constructor.name
+          : null;
+    } catch (e) {
+      name = null;
+    }
+    return name && name.length ? name : null;
+  }
+
+  // The route a route-config event names, as the plain path string its own payload carries: the `Route`
+  // object is a function-bearing instance and cannot cross the boundary (AC4). T001 attributed a late
+  // load end by exactly this field, so it is the one the record keeps.
+  function routerRoutePathOf(event) {
+    var route = routerFieldOf(event, 'route');
+    if (route === null || typeof route !== 'object') return null;
+    var path;
+    try {
+      path = route.path;
+    } catch (e) {
+      return null;
+    }
+    return typeof path === 'string' ? path : null;
+  }
+
+  // The route-tree snapshot an event carried: a router state snapshot answers its own `root`, and an
+  // activation event carries the activated snapshot itself. Anything else carries none, and a payload
+  // this read cannot follow is no snapshot rather than an error.
+  function routerSnapshotOf(event) {
+    var state = routerFieldOf(event, 'state');
+    if (state !== null && typeof state === 'object') {
+      var root;
+      try {
+        root = state.root;
+      } catch (e) {
+        root = null;
+      }
+      if (root) return root;
+    }
+    var snapshot = routerFieldOf(event, 'snapshot');
+    return snapshot !== null && typeof snapshot === 'object' ? snapshot : null;
+  }
+
+  // One config path from one snapshot: the route's own `path`, `''` for a componentless route and
+  // `null` where the snapshot carries no route configuration at all. T001 measured the portal's
+  // primary chain as `[null, "contract", "", "list"]`, so all three cases occur in one chain.
+  function routerSnapshotPathOf(snapshot) {
+    var config;
+    try {
+      config = snapshot.routeConfig;
+    } catch (e) {
+      return null;
+    }
+    if (!config || typeof config !== 'object') return null;
+    var path;
+    try {
+      path = config.path;
+    } catch (e) {
+      return null;
+    }
+    return typeof path === 'string' ? path : null;
+  }
+
+  // The primary chain's own config paths, in order, and nothing else: no snapshot object, no URL tree
+  // and no component reference crosses the boundary. An event with no route-tree snapshot contributes
+  // an empty list rather than a guess.
+  function routerMatchedPathsOf(event) {
+    var paths = [];
+    var node = routerSnapshotOf(event);
+    var depth = 0;
+    while (node && depth < ROUTER_CHAIN_LIMIT) {
+      paths.push(routerSnapshotPathOf(node));
+      var child = null;
+      try {
+        child = node.firstChild;
+      } catch (e) {
+        child = null;
+      }
+      node = child || null;
+      depth += 1;
+    }
+    return paths;
+  }
+
+  // An error contributes its own name and message only: the error object itself does not cross the
+  // boundary. A `NavigationError`'s `target` field has no counterpart in the entry at all, so nothing
+  // can record a `null` for the value T001 measured as `undefined`: the absence is the absent field.
+  function routerErrorOf(event) {
+    var error = routerFieldOf(event, 'error');
+    if (error === null) return null;
+    var name = null;
+    var message = null;
+    if (typeof error === 'string') {
+      message = error;
+    } else if (typeof error === 'object') {
+      try {
+        if (typeof error.name === 'string' && error.name.length)
+          name = error.name;
+        else if (
+          error.constructor &&
+          typeof error.constructor.name === 'string' &&
+          error.constructor.name.length
+        )
+          name = error.constructor.name;
+      } catch (e) {
+        name = null;
+      }
+      try {
+        if (typeof error.message === 'string') message = error.message;
+      } catch (e) {
+        message = null;
+      }
+    }
+    if (name === null && message === null) return null;
+    return { name: name, message: message };
+  }
+
+  // One entry per emission, in arrival order, one shape for every class. The entry is built from the
+  // event alone: no field is read from the last event seen, from the navigation in flight or from a
+  // previous entry, which is what keeps the two id-less route-config events id-less (SC5). The
+  // builder names no class and compares no number, so no branch decides what an entry carries.
+  function recordRouterEvent(event) {
+    var entry = {
+      type: routerClassNameOf(event),
+      at: nowMs(),
+      id: routerPrimitiveOf(event, 'id'),
+      url: routerPrimitiveOf(event, 'url'),
+      urlAfterRedirects: routerPrimitiveOf(event, 'urlAfterRedirects'),
+      route: routerRoutePathOf(event),
+      reason: routerPrimitiveOf(event, 'reason'),
+      code: routerPrimitiveOf(event, 'code'),
+      error: routerErrorOf(event),
+      shouldActivate: routerPrimitiveOf(event, 'shouldActivate'),
+      matchedPaths: routerMatchedPathsOf(event),
+    };
+    routerEvents.push(entry);
+    // Bounded as a page-health guard, not as a curation: below the bound nothing is dropped,
+    // coalesced or reordered, and above it the oldest arrivals fall off the front so the newest — the
+    // ones a reader is looking at — stay whole. The pairing rule belongs to the join that reads this.
+    if (routerEvents.length > ROUTER_EVENT_LIMIT) {
+      routerEvents.splice(0, routerEvents.length - ROUTER_EVENT_LIMIT);
+    }
+    return entry;
+  }
+
+  // The one subscriber. It records and nothing else: a held navigation is therefore whatever arrived,
+  // with no terminal synthesised for it, and a late arrival keeps its own place in arrival order.
+  function onRouterEvent(event) {
+    try {
+      recordRouterEvent(event);
+    } catch (e) {
+      /* never throw into the router's own stream */
+    }
+  }
+
+  // The list as the record publishes it: a copy, so a reader can hold it without mutating the
+  // recorder's own and the next record still answers what arrived.
+  function routerEventList() {
+    return routerEvents.slice();
+  }
+
+  // The name a provider record's `token` yields. `record.provider.provide` is deliberately not read:
+  // T001 measured 33 of the entry's 90 `provide` names and `Router` is not among them.
+  function routerTokenNameOf(token) {
+    if (token === null || typeof token === 'undefined') return null;
+    try {
+      if (typeof token === 'string') return token;
+      if (typeof token.name === 'string' && token.name.length)
+        return token.name;
+      if (typeof token.toString === 'function') return String(token);
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+
+  // The candidate host elements, in the order the rest of this file prefers them. The last resort is
+  // the first element in the document that carries a dev context, because `getInjector` answers only on
+  // a node that carries one and an app's root component is not always called `app-root` (T001's portal
+  // root is `ng-journal-root`). The scan is bounded and is the same presence test the picker reads.
+  function routerHostCandidates() {
+    var candidates = [];
+    var push = function (element) {
+      if (element && candidates.indexOf(element) === -1)
+        candidates.push(element);
+    };
+    if (typeof document === 'undefined' || !document) return candidates;
+    try {
+      if (typeof document.querySelector === 'function')
+        push(document.querySelector('app-root'));
+    } catch (e) {}
+    try {
+      push(document.body);
+    } catch (e) {}
+    try {
+      push(document.documentElement);
+    } catch (e) {}
+    var elements = null;
+    try {
+      elements =
+        typeof document.querySelectorAll === 'function'
+          ? document.querySelectorAll('*')
+          : null;
+    } catch (e) {
+      elements = null;
+    }
+    var limit =
+      elements && elements.length
+        ? Math.min(elements.length, ROUTER_HOST_SCAN_LIMIT)
+        : 0;
+    for (var i = 0; i < limit; i++) {
+      if (routerCarriesDevContext(elements[i])) {
+        push(elements[i]);
+        break;
+      }
+    }
+    return candidates;
+  }
+
+  // The dev-context presence test the picker reads, on the same untyped element: `__ngContext__` is the
+  // page's own private field and is not on the DOM type, so it is read as a presence test and never
+  // serialized. A getter that throws answers "no context here" instead of stopping the scan.
+  function routerCarriesDevContext(node) {
+    var context;
+    try {
+      context = node.__ngContext__;
+    } catch (e) {
+      return false;
+    }
+    return typeof context !== 'undefined';
+  }
+
+  // The token the app's own provider record gives the `Router`, read from one host element's injector
+  // resolution path. Every entry is walked — the element injector is entry 0 on the measured page and
+  // holds 6 records, and the app's environment injector is not the first entry — and the token is taken
+  // from `record.token`, the field T001 measured as the one that finds it.
+  function routerTokenFrom(element, getInjector, getPath, getProviders) {
+    var injector = null;
+    try {
+      injector = getInjector(element);
+    } catch (e) {
+      injector = null;
+    }
+    if (!injector) return null;
+    var entries = [];
+    try {
+      entries = getPath(injector) || [];
+    } catch (e) {
+      entries = [];
+    }
+    if (!isArrayValue(entries) || !entries.length) entries = [injector];
+    for (var i = 0; i < entries.length; i++) {
+      var records = null;
+      try {
+        records = getProviders(entries[i]);
+      } catch (e) {
+        records = null;
+      }
+      if (!isArrayValue(records)) continue;
+      for (var j = 0; j < records.length; j++) {
+        var token = null;
+        try {
+          token = records[j] ? records[j].token : null;
+        } catch (e) {
+          token = null;
+        }
+        if (routerTokenNameOf(token) !== ROUTER_TOKEN_NAME) continue;
+        return { injector: entries[i], token: token };
+      }
+    }
+    return null;
+  }
+
+  // The router instance and its stream, reached from the page's own debug API and no new tap. Every ɵ
+  // function is feature-detected and every call guarded, so a page without this read subscribes to
+  // nothing rather than throwing into its own bootstrap.
+  function routerSubscribe() {
+    var ng = ngObj || readNg();
+    if (!ng) return null;
+    var getInjector =
+      typeof ng.getInjector === 'function'
+        ? ng.getInjector
+        : typeof ng.ɵgetInjectorFromNode === 'function'
+          ? ng.ɵgetInjectorFromNode
+          : null;
+    var getPath =
+      typeof ng.ɵgetInjectorResolutionPath === 'function'
+        ? ng.ɵgetInjectorResolutionPath
+        : null;
+    var getProviders =
+      typeof ng.ɵgetInjectorProviders === 'function'
+        ? ng.ɵgetInjectorProviders
+        : null;
+    if (!getInjector || !getPath || !getProviders) return null;
+    var candidates = routerHostCandidates();
+    for (var i = 0; i < candidates.length; i++) {
+      var found = routerTokenFrom(
+        candidates[i],
+        getInjector,
+        getPath,
+        getProviders,
+      );
+      if (!found) continue;
+      var router = null;
+      try {
+        router = found.injector.get(found.token);
+      } catch (e) {
+        router = null;
+      }
+      if (!router) return null;
+      var stream = null;
+      try {
+        stream = router.events;
+      } catch (e) {
+        stream = null;
+      }
+      if (!stream || typeof stream.subscribe !== 'function') return null;
+      var subscription = null;
+      try {
+        subscription = stream.subscribe(onRouterEvent);
+      } catch (e) {
+        return null;
+      }
+      return subscription || null;
+    }
+    return null;
+  }
+
+  // Armed from the install path's own answer and never from inside the profiler callback: the tap
+  // answered `installed` once, this reads the page's own injector beside it, and a second arm returns
+  // the first subscription instead of adding a second one.
+  function installRouterEvents() {
+    if (routerSubscription || !installed) return routerSubscription;
+    var subscription = routerSubscribe();
+    if (subscription) routerSubscription = subscription;
+    return routerSubscription;
+  }
+
+  // Removed by the same reset path as the profiler subscription, so a second install starts from an
+  // empty stream rather than from one this page's earlier subscription is still writing to.
+  function uninstallRouterEvents() {
+    var subscription = routerSubscription;
+    routerSubscription = null;
+    if (!subscription) return;
+    try {
+      if (typeof subscription.unsubscribe === 'function')
+        subscription.unsubscribe();
+    } catch (e) {}
+  }
+
   function start() {
     var r = tryInstall();
+    installRouterEvents();
     if (r === 'installed' || r === 'notsupported') return;
     var handle = globalThis.setInterval(function () {
       var r2 = tryInstall();
+      installRouterEvents();
       if (r2 === 'installed' || r2 === 'notsupported')
         globalThis.clearInterval(handle);
     }, 100);
@@ -1467,6 +1889,10 @@
     prevEpochs = new WeakMap();
     stopCompanionRecheck();
     lastState = null;
+    // The router subscription is removed here, beside the profiler's own removal, and its list with it:
+    // the profiler is never cleared with `null`, which would remove every callback on the page.
+    uninstallRouterEvents();
+    routerEvents = [];
   }
 
   var api = {

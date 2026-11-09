@@ -14,8 +14,9 @@
  * assertion, because a claim list that is absent at the gate is the defect this file exists to name. It
  * drives no browser - the gate runs the driver the list names.
  *
- * The list follows the milestone. The recording is discovered by its number, and its intent is resolved
- * from the archive when that milestone has been archived and from `.project/intent` when it has not, so a
+ * The list follows the milestone. The recording is discovered by its number, and its intent is resolved by
+ * `scripts/verdict-claims-intent.mjs` - the archive's copy for a finished milestone, the live intent only
+ * for the milestone `.project/STATE.md` binds, and a refusal rather than a fallback for anything else - so a
  * finished milestone keeps resolving against its own criteria and a new one is never checked against a
  * finished milestone's list. A milestone the portal clause does not reach rules its criteria
  * `not-required` with a reason, and owes no driver: the rules that only apply to required rows are
@@ -23,10 +24,12 @@
  */
 
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
+
+import { intentPathForMilestone } from './verdict-claims-intent.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const RAW = join(ROOT, 'research', 'raw');
@@ -84,36 +87,6 @@ function currentRecording() {
   }
 
   return { path, milestone };
-}
-
-/**
- * An archived milestone reads its own archive; a live one reads the project's current intent.
- *
- * @param {string} milestone
- * @returns {string}
- */
-function intentPath(milestone) {
-  const number = milestone.slice(1);
-  const archives = join(ROOT, '.project', 'archive');
-  const archived = existsSync(archives)
-    ? readdirSync(archives)
-        .filter((name) => name.startsWith(`${number}-`))
-        .sort()
-        .pop()
-    : undefined;
-
-  if (archived) {
-    return join(archives, archived, 'intent', 'INTENT.md');
-  }
-
-  const current = join(ROOT, '.project', 'intent', 'INTENT.md');
-
-  assert.ok(
-    existsSync(current),
-    `${milestone} is neither archived nor the current milestone`,
-  );
-
-  return current;
 }
 
 /**
@@ -417,7 +390,7 @@ function validate(recording, deps) {
  */
 function load() {
   const { path, milestone } = currentRecording();
-  const criteria = intentCriteria(intentPath(milestone));
+  const criteria = intentCriteria(intentPathForMilestone(ROOT, milestone));
 
   return {
     recording: structuredClone(readRecording(path)),

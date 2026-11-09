@@ -43,7 +43,7 @@ const PASSING_SUITE = [
   "import { test } from 'node:test';",
   '',
   "test('fixture assertion holds', () => {",
-  '  assert.equal(1, 1);',
+  '  assert.equal(1 + 1, 2);',
   '});',
   '',
 ].join('\n');

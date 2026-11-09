@@ -13,17 +13,23 @@ const ROUTES = join(
   'app.routes.ts',
 );
 
+/** Every surface the panel's route table declares, in table order. Each one is a route a user
+ * clicks, so a surface that loses its path, its component or its own name in route data fails E1
+ * by that name rather than as a smaller count. */
 const surfaces = [
   'after-render',
   'sanitizer',
   'redirect',
   'fields',
+  'lint',
+  'router',
   'legacy',
   'onpush',
   'resource',
   'linked-state',
   'render-phase',
   'performance',
+  'navigation',
 ];
 
 function routeBlock(source, surface) {
@@ -34,8 +40,28 @@ function routeBlock(source, surface) {
   return source.slice(at, next < 0 ? undefined : next);
 }
 
-test('E1: a panel route installs a component, never a surface function', () => {
-  const source = readFileSync(ROUTES, 'utf8');
+/** The identifier every panel-demo route installs. */
+const SHARED_LOADER = 'loadPanelDemo';
+
+/** The definition that identifier must have: the demo module imported dynamically, resolving its
+ * component out of the module it just loaded. */
+const SHARED_LOADER_DEFINITION =
+  /const\s+loadPanelDemo\s*=\s*\(\)\s*=>\s*import\('\.\/panel-demo'\)\.then\(\s*\(\w+\)\s*=>\s*\w+\.PanelDemoComponent,?\s*\)/;
+
+/** The dynamic import the shared loader must be the only site of. */
+const DEMO_IMPORT = /import\('\.\/panel-demo'\)/g;
+
+/**
+ * E1's first half, at the route entries: every named surface still has a route, that route still
+ * installs something through `loadComponent` rather than a surface function, and it still names its
+ * own surface in route data.
+ *
+ * This half deliberately says nothing about *which* loader a block installs. Which loader it
+ * installs is `assertOneSharedLoader`'s property, one level down, and separating the two is what
+ * lets a route that kept its own copy of the closure fail the duplication count by name instead of
+ * vanishing into a per-surface list.
+ */
+function assertSurfaceRoutes(source) {
   for (const surface of surfaces) {
     const block = routeBlock(source, surface);
     assert.ok(block, 'route ' + surface + ' must exist');
@@ -47,14 +73,233 @@ test('E1: a panel route installs a component, never a surface function', () => {
         block,
     );
     assert.ok(
-      block.includes('PanelDemoComponent'),
-      'route ' + surface + ' must install PanelDemoComponent: ' + block,
+      block.includes('loadComponent:'),
+      'route ' +
+        surface +
+        ' must install a component through loadComponent: ' +
+        block,
     );
     assert.ok(
       block.includes("surface: '" + surface + "'"),
       'route ' + surface + ' must name its surface in route data: ' + block,
     );
   }
+}
+
+/**
+ * E1's second half, one level below the route entries: the closure every panel-demo route installs
+ * is defined exactly once above the table, that one definition resolves `PanelDemoComponent`
+ * through a dynamic import of the demo module, and the demo module is imported in exactly one
+ * place.
+ *
+ * That is the same property the pin used to read off each route block — a route installs a
+ * component and never a surface function — proven where the bytes now live instead of where they
+ * used to be repeated. It is also strictly stronger: a route carrying its own copy of the closure
+ * duplicates the import, a second definition duplicates the loader, and a component-less loader
+ * installs nothing, and each of those reddens here by name.
+ */
+function assertOneSharedLoader(source) {
+  const definitions = [...source.matchAll(/const\s+loadPanelDemo\s*=/g)];
+  assert.equal(
+    definitions.length,
+    1,
+    'the shared panel loader ' +
+      SHARED_LOADER +
+      ' must be defined exactly once above the route table; found ' +
+      definitions.length +
+      ' definitions, and a second definition of the same lazy closure is a second copy of its ' +
+      'bytes in the eager bundle',
+  );
+  const definition = SHARED_LOADER_DEFINITION.exec(source);
+  assert.ok(
+    definition,
+    'the ' +
+      SHARED_LOADER +
+      ' definition must import the demo module dynamically and resolve PanelDemoComponent from ' +
+      'it; the definition reads: ' +
+      source.slice(definitions[0].index, definitions[0].index + 160),
+  );
+  const demoImports = [...source.matchAll(DEMO_IMPORT)];
+  assert.equal(
+    demoImports.length,
+    1,
+    "import('./panel-demo') must appear exactly once, in the shared loader; the table carries " +
+      demoImports.length +
+      ' copies of that dynamic import, so the same closure is duplicated once per route, and ' +
+      'the duplicated bytes are what the panel initial-bundle baseline cannot pay for',
+  );
+  const installed = [...source.matchAll(/loadComponent:\s*loadPanelDemo\b/g)]
+    .length;
+  const panelRoutes = [...source.matchAll(/data:\s*\{\s*surface:/g)].length;
+  assert.equal(
+    installed,
+    panelRoutes,
+    installed +
+      ' of ' +
+      panelRoutes +
+      ' panel-demo routes install the shared loader ' +
+      SHARED_LOADER +
+      '; every one of them must reference it rather than carry a closure of its own',
+  );
+}
+
+test('E1: a panel route installs a component through the one shared loader, never a surface function', () => {
+  const source = readFileSync(ROUTES, 'utf8');
+
+  // Green first, both halves, on the real table.
+  assertSurfaceRoutes(source);
+  assertOneSharedLoader(source);
+
+  const definition = SHARED_LOADER_DEFINITION.exec(source);
+  assert.ok(
+    definition,
+    'the pin must be able to find the shared loader definition it mutates',
+  );
+
+  // Mutant: one route keeps its own copy of the closure instead of the shared loader. This is the
+  // shape the thirteenth entry had. The per-surface half must stay green — the entry is intact —
+  // and the duplication half must fail, naming the repeated dynamic import.
+  const ownClosure = source.replace(
+    "    path: 'navigation',\n    loadComponent: loadPanelDemo,",
+    "    path: 'navigation',\n    loadComponent: () =>\n      import('./panel-demo').then((m) => m.PanelDemoComponent),",
+  );
+  assert.notEqual(
+    ownClosure,
+    source,
+    'the own-closure mutant must change app.routes.ts',
+  );
+  assert.doesNotThrow(
+    () => assertSurfaceRoutes(ownClosure),
+    'a route with its own closure keeps every surface entry intact, so the per-surface half must not redden for it',
+  );
+  assert.throws(
+    () => assertOneSharedLoader(ownClosure),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        "import('./panel-demo') must appear exactly once",
+      ),
+    'a route carrying its own closure must fail the duplication check naming the repeated dynamic import',
+  );
+
+  // Mutant: a surface dropped from the shared loader — the route entry stays, its loader does not.
+  // The pin must fail naming the surface it left behind, not merely report a smaller count.
+  const withoutShared = source.replace(
+    "    path: 'linked-state',\n    loadComponent: loadPanelDemo,\n",
+    "    path: 'linked-state',\n",
+  );
+  assert.notEqual(
+    withoutShared,
+    source,
+    'the dropped-loader mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutShared),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'route linked-state must install a component through loadComponent',
+      ),
+    'a route no longer installing the shared loader must fail naming the surface linked-state',
+  );
+
+  // Mutant: a route pointed at a surface function instead of a component — the failure the
+  // original text pin caught, still caught here by name.
+  const surfaceFunction = source.replace(
+    "    path: 'navigation',\n    loadComponent: loadPanelDemo,",
+    "    path: 'navigation',\n    loadComponent: () =>\n      import('./panel-navigation').then((m) => m.navigationPanel as any),",
+  );
+  assert.notEqual(
+    surfaceFunction,
+    source,
+    'the surface-function mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(surfaceFunction),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'route navigation must not install a surface function as a component',
+      ),
+    'a route pointed at a surface function must fail naming the surface navigation',
+  );
+
+  // Mutant: a surface whose route is gone from the table entirely — the pin must name it.
+  const renamedPath = source.replace(
+    "    path: 'navigation',",
+    "    path: 'navigation-renamed',",
+  );
+  assert.notEqual(
+    renamedPath,
+    source,
+    'the renamed-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(renamedPath),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route navigation must exist'),
+    'a surface without its route must fail naming the missing surface',
+  );
+
+  // Mutant: a second definition of the shared loader — the same closure emitted twice.
+  const secondDefinition = source.replace(
+    definition[0],
+    definition[0] + '\n' + definition[0],
+  );
+  assert.notEqual(
+    secondDefinition,
+    source,
+    'the second-definition mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertOneSharedLoader(secondDefinition),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'must be defined exactly once above the route table',
+      ),
+    'a second definition of the shared loader must fail naming the duplicate',
+  );
+
+  // Mutant: the loader imports the demo but resolves no component out of it, so a route would
+  // install a module rather than a component.
+  const componentless = source.replace(
+    definition[0],
+    "const loadPanelDemo = () => import('./panel-demo');",
+  );
+  assert.notEqual(
+    componentless,
+    source,
+    'the component-less mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertOneSharedLoader(componentless),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('must import the demo module dynamically'),
+    'a loader that resolves no component must fail naming the property it lost',
+  );
+
+  // Mutant: a route that keeps its loader but drops the surface it names in route data.
+  const unnamedSurface = source.replace(
+    "    data: { surface: 'performance' },\n",
+    '',
+  );
+  assert.notEqual(
+    unnamedSurface,
+    source,
+    'the unnamed-surface mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(unnamedSurface),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'route performance must name its surface in route data',
+      ),
+    'a route that no longer names its surface must fail naming it',
+  );
 });
 
 test('E2: the surface functions are still exported for their suites', () => {
@@ -69,6 +314,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     'linked-state': ['panel-linked-state', 'linkedStatePanel'],
     'render-phase': ['panel-render-phase', 'renderPhasePanel'],
     performance: ['panel-performance', 'performancePanel'],
+    navigation: ['panel-navigation', 'navigationPanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -105,6 +351,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'linkedStatePanel(',
     'renderPhasePanel(',
     'performancePanel(',
+    'navigationPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -293,5 +540,26 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       err instanceof assert.AssertionError &&
       String(err.message).includes('performance'),
     'removing the performance loader must fail naming the missing surface performance',
+  );
+
+  // Mutant: remove the navigation key from LOADERS. The M041 route is the one this task adds, so the
+  // check must name it when its loader is gone rather than pass on the surfaces before it. It is a
+  // bare identifier key whose import is the only reference to `panel-navigation.ts`, so a route that
+  // dropped it would leave the surface unreachable while every earlier surface still loaded.
+  const withoutNavigation = demoSource.replace(
+    "  navigation: () => import('./panel-navigation') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutNavigation,
+    demoSource,
+    'the navigation mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutNavigation),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('navigation'),
+    'removing the navigation loader must fail naming the missing surface navigation',
   );
 });

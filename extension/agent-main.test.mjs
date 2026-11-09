@@ -2227,8 +2227,16 @@ function surfaceOf(entry) {
 function assertMeasuredFrame(detail) {
   assert.deepEqual(
     Object.keys(detail),
-    ['cycleId', 'startedAt', 'trigger', 'zoneMode', 'events', 'checks'],
-    'the frame-level list must be additive: the four recorded fields keep their order, `events` is added and `checks` stays last',
+    [
+      'cycleId',
+      'startedAt',
+      'trigger',
+      'zoneMode',
+      'events',
+      'routerEvents',
+      'checks',
+    ],
+    'the frame-level list must be additive: the four recorded fields keep their order, `events` is added, the router list is added beside it and `checks` stays last',
   );
 
   const entries = detail.events;
@@ -2546,8 +2554,16 @@ describe('agent-main.js (the five paired work events, T002)', () => {
     );
     assert.deepEqual(
       Object.keys(detail),
-      ['cycleId', 'startedAt', 'trigger', 'zoneMode', 'events', 'checks'],
-      'and the list is the additive field in the same position in both records',
+      [
+        'cycleId',
+        'startedAt',
+        'trigger',
+        'zoneMode',
+        'events',
+        'routerEvents',
+        'checks',
+      ],
+      'and the list is the additive field in the same position in both records — the router list is the second, and `checks` stays last',
     );
   });
 
@@ -2621,6 +2637,969 @@ describe('agent-main.js (the five paired work events, T002)', () => {
         () => theFrame(page.dispatched),
         /TemplateUpdateStart must still open the cycle/,
         'a cycle nothing opens must redden the frame pin by name',
+      );
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The router's own stream reaches one record beside the profiler list (T002, SC1, SC2, SC5)
+// ---------------------------------------------------------------------------
+//
+// T001 measured the vocabulary (`research/raw/m041-navigation.json`): sixteen classes, each with its
+// own key set, the `Router` at injector resolution path entry 2 with its token readable as
+// `record.token`, and the two route-config classes carrying no navigation id at all. The block below
+// drives the shipped subscriber with the recording's own frames, so what is asserted is the record the
+// page produces and not a copy of its builder:
+//
+//   1. one list, one shape. Every `Router.events` emission reaches `record.routerEvents` in arrival
+//      order, each entry the eleven fields the interface contract fixes, `type` the class name the
+//      runtime reports and never the event number a surface would have to know.
+//   2. the absences. An entry records `id: null` where the event carried none — never the id of the
+//      last navigation seen or of the one in flight — and an error records its own name and message
+//      only, with no field for the `target` T001 measured as `undefined`.
+//   3. additive. `ɵsetProfiler` is still called once with the same subscriber, the trigger and the cycle
+//      opener keep their meanings, and `reset` removes both subscriptions.
+//
+// Each pin is proven non-vacuously at the end of the block: the untouched source passes first, one
+// anchored mutant of the shipped file reddens it, and the failure names the defect by string.
+
+/** The sixteen classes T001 recorded, each with the key set the installed chunk declares. */
+const ROUTER_CLASSES = {
+  NavigationStart: ['id', 'navigationTrigger', 'restoredState', 'type', 'url'],
+  RouteConfigLoadStart: ['route', 'type'],
+  RouteConfigLoadEnd: ['route', 'type'],
+  RoutesRecognized: ['id', 'state', 'type', 'url', 'urlAfterRedirects'],
+  GuardsCheckStart: ['id', 'state', 'type', 'url', 'urlAfterRedirects'],
+  GuardsCheckEnd: [
+    'id',
+    'shouldActivate',
+    'state',
+    'type',
+    'url',
+    'urlAfterRedirects',
+  ],
+  ResolveStart: ['id', 'state', 'type', 'url', 'urlAfterRedirects'],
+  ResolveEnd: ['id', 'state', 'type', 'url', 'urlAfterRedirects'],
+  ChildActivationStart: ['snapshot', 'type'],
+  ActivationStart: ['snapshot', 'type'],
+  ActivationEnd: ['snapshot', 'type'],
+  ChildActivationEnd: ['snapshot', 'type'],
+  NavigationEnd: ['id', 'type', 'url', 'urlAfterRedirects'],
+  NavigationCancel: ['code', 'id', 'reason', 'type', 'url'],
+  NavigationError: ['error', 'id', 'target', 'type', 'url'],
+  NavigationSkipped: ['code', 'id', 'reason', 'type', 'url'],
+};
+
+/** The `EventType` numbers the recording attributes to those classes. */
+const ROUTER_EVENT_TYPES = {
+  NavigationStart: 0,
+  NavigationEnd: 1,
+  NavigationCancel: 2,
+  NavigationError: 3,
+  RoutesRecognized: 4,
+  ResolveStart: 5,
+  ResolveEnd: 6,
+  GuardsCheckStart: 7,
+  GuardsCheckEnd: 8,
+  RouteConfigLoadStart: 9,
+  RouteConfigLoadEnd: 10,
+  ChildActivationStart: 11,
+  ChildActivationEnd: 12,
+  ActivationStart: 13,
+  ActivationEnd: 14,
+  NavigationSkipped: 16,
+};
+
+/** The one entry shape the interface contract fixes, in its field order. */
+const ROUTER_ENTRY_KEYS = [
+  'type',
+  'at',
+  'id',
+  'url',
+  'urlAfterRedirects',
+  'route',
+  'reason',
+  'code',
+  'error',
+  'shouldActivate',
+  'matchedPaths',
+];
+
+const ROUTER_CLASS_CACHE = new Map();
+
+/** A constructor the runtime reports under the measured class name. */
+function namedRouterClass(className) {
+  if (!ROUTER_CLASS_CACHE.has(className)) {
+    ROUTER_CLASS_CACHE.set(className, namedFn(className));
+  }
+  return ROUTER_CLASS_CACHE.get(className);
+}
+
+/** One router event of a measured class, carrying exactly that class's measured key set. */
+function routerEventOf(className, payload = {}) {
+  const keys = ROUTER_CLASSES[className];
+  assert.ok(
+    keys,
+    `${className} is not one of the sixteen classes T001 recorded`,
+  );
+  const Ctor = namedRouterClass(className);
+  const event = new Ctor();
+  event.type = ROUTER_EVENT_TYPES[className];
+  for (const key of keys) {
+    if (key === 'type') continue;
+    if (key in payload) event[key] = payload[key];
+  }
+  return event;
+}
+
+/** A route-configuration object, function-bearing the way the real `Route` is. */
+function measuredRoute(path, extra = {}) {
+  return {
+    path,
+    hasLoadChildren: extra.hasLoadChildren ?? true,
+    hasLoadComponent: extra.hasLoadComponent ?? false,
+    redirectTo: null,
+    loadChildren: () => ({}),
+    ...extra,
+  };
+}
+
+/** One activated route snapshot, from its own config path. */
+function activatedRouteSnapshot(path, firstChild = null) {
+  return { routeConfig: path === null ? null : { path }, firstChild };
+}
+
+/** A router state snapshot: the primary chain, root first, following `firstChild`. */
+function routerStateSnapshot(paths) {
+  let next = null;
+  for (let index = paths.length - 1; index >= 0; index -= 1) {
+    next = activatedRouteSnapshot(paths[index], next);
+  }
+  return { root: next };
+}
+
+/** The class names of a frame, in emission order — what the record's `type` fields must answer. */
+function classesOf(events) {
+  return events.map((event) => event.constructor.name);
+}
+
+/**
+ * T001's superseded frame, verbatim in arrival order (`superseded.events`): navigation 2 is cancelled
+ * with code 1 at its lazy boundary and its own `RouteConfigLoadEnd` arrives afterwards — after its
+ * cancel and before its successor's load end — so the record's order is arrival order and never an
+ * attribution.
+ */
+function measuredSupersededFrame() {
+  const contract = () => routerStateSnapshot([null, 'contract', '', 'list']);
+  const recognised = () => ({
+    id: 3,
+    state: contract(),
+    url: '/contract/list',
+    urlAfterRedirects: '/contract/list',
+  });
+  return [
+    routerEventOf('NavigationStart', { id: 2, url: '/claim/list' }),
+    routerEventOf('RouteConfigLoadStart', {
+      route: measuredRoute('claim'),
+    }),
+    routerEventOf('NavigationCancel', {
+      code: 1,
+      id: 2,
+      reason: 'Navigation ID 2 is not equal to the current navigation id 3',
+      url: '/claim/list',
+    }),
+    routerEventOf('NavigationStart', { id: 3, url: '/contract/list' }),
+    routerEventOf('RouteConfigLoadStart', {
+      route: measuredRoute('contract'),
+    }),
+    routerEventOf('RouteConfigLoadEnd', { route: measuredRoute('claim') }),
+    routerEventOf('RouteConfigLoadEnd', {
+      route: measuredRoute('contract'),
+    }),
+    routerEventOf('RoutesRecognized', recognised()),
+    routerEventOf('GuardsCheckStart', recognised()),
+    routerEventOf('ChildActivationStart', {
+      snapshot: activatedRouteSnapshot(null),
+    }),
+    routerEventOf('ActivationStart', {
+      snapshot: activatedRouteSnapshot('contract'),
+    }),
+    routerEventOf('ChildActivationStart', {
+      snapshot: activatedRouteSnapshot('contract'),
+    }),
+    routerEventOf('ActivationStart', { snapshot: activatedRouteSnapshot('') }),
+    routerEventOf('ChildActivationStart', {
+      snapshot: activatedRouteSnapshot(''),
+    }),
+    routerEventOf('ActivationStart', {
+      snapshot: activatedRouteSnapshot('list'),
+    }),
+    routerEventOf('GuardsCheckEnd', {
+      id: 3,
+      shouldActivate: true,
+      state: contract(),
+      url: '/contract/list',
+      urlAfterRedirects: '/contract/list',
+    }),
+    routerEventOf('ResolveStart', recognised()),
+    routerEventOf('ResolveEnd', recognised()),
+    routerEventOf('RouteConfigLoadStart', {
+      route: measuredRoute('list', {
+        hasLoadChildren: false,
+        hasLoadComponent: true,
+      }),
+    }),
+    routerEventOf('RouteConfigLoadEnd', {
+      route: measuredRoute('list', {
+        hasLoadChildren: false,
+        hasLoadComponent: true,
+      }),
+    }),
+    routerEventOf('ActivationEnd', {
+      snapshot: activatedRouteSnapshot('list'),
+    }),
+    routerEventOf('ChildActivationEnd', {
+      snapshot: activatedRouteSnapshot(''),
+    }),
+    routerEventOf('ActivationEnd', { snapshot: activatedRouteSnapshot('') }),
+    routerEventOf('ChildActivationEnd', {
+      snapshot: activatedRouteSnapshot('contract'),
+    }),
+    routerEventOf('ActivationEnd', {
+      snapshot: activatedRouteSnapshot('contract'),
+    }),
+    routerEventOf('ChildActivationEnd', {
+      snapshot: activatedRouteSnapshot(null),
+    }),
+    routerEventOf('NavigationEnd', {
+      id: 3,
+      url: '/contract/list',
+      urlAfterRedirects: '/contract/list',
+    }),
+  ];
+}
+
+/** T001's held frame (`held.inFlight.events`): a start and a stage, and no terminal event. */
+function measuredHeldFrame() {
+  return [
+    routerEventOf('NavigationStart', { id: 2, url: '/complaint/list' }),
+    routerEventOf('RouteConfigLoadStart', {
+      route: measuredRoute('complaint'),
+    }),
+  ];
+}
+
+/** T001's error frame (`terminals.error.events`): a navigation that died fetching a lazy chunk. */
+function measuredErrorFrame() {
+  const failure = new TypeError(
+    'Failed to fetch dynamically imported module: http://localhost:4507/src-2HBDPKHR.js',
+  );
+  return [
+    routerEventOf('NavigationStart', { id: 2, url: '/customer/list' }),
+    routerEventOf('RouteConfigLoadStart', {
+      route: measuredRoute('customer'),
+    }),
+    routerEventOf('NavigationError', {
+      error: failure,
+      id: 2,
+      target: undefined,
+      url: '/customer/list',
+    }),
+  ];
+}
+
+/** Every leaf of a recorded value, asserted to be something the serialized boundary can carry. */
+function assertPlainData(value, where) {
+  if (value === null || typeof value !== 'object') {
+    assert.notEqual(
+      typeof value,
+      'function',
+      `${where} must be plain data; it carries a function, which cannot cross the serialized boundary`,
+    );
+    assert.notEqual(
+      typeof value,
+      'undefined',
+      `${where} must be plain data; it carries undefined, which the serialized boundary drops`,
+    );
+    return;
+  }
+  for (const [key, nested] of Object.entries(value)) {
+    assertPlainData(nested, `${where}.${key}`);
+  }
+}
+
+/** The recorders this block booted, reset after each test so no page timer outlives its assertions. */
+const ROUTER_BOOTS = [];
+
+/**
+ * A page whose `Router` sits where T001 measured it: the element injector is resolution path entry 0
+ * (6 records, no `Router`), the app's environment injector is entry 2 (90 records) and holds the token
+ * as `record.token`, and `record.provider.provide` names none of the 90 `Router`.
+ */
+function routerPageModel() {
+  const routerToken = { name: 'Router' };
+  const subscribers = [];
+  const subscriptions = [];
+  const stream = {
+    subscribe(callback) {
+      subscribers.push(callback);
+      const subscription = {
+        unsubscribed: 0,
+        unsubscribe() {
+          this.unsubscribed += 1;
+          const index = subscribers.indexOf(callback);
+          if (index !== -1) subscribers.splice(index, 1);
+        },
+      };
+      subscriptions.push(subscription);
+      return subscription;
+    },
+  };
+  const router = { events: stream };
+  const getCalls = [];
+  const profilerCalls = [];
+  const named = (count, prefix) => {
+    const records = [];
+    for (let index = 0; index < count; index += 1) {
+      const name = `${prefix}${index}`;
+      records.push({
+        token: { name },
+        provider: { provide: name },
+        source: 'Measured',
+        isViewProvider: false,
+      });
+    }
+    return records;
+  };
+  const injectorOf = (label, providers) => ({
+    label,
+    providers,
+    get(token) {
+      getCalls.push({ injector: label, token });
+      if (label === 'environment' && token === routerToken) return router;
+      return null;
+    },
+  });
+  const element = injectorOf('element', named(6, 'Element'));
+  const app = injectorOf('app', named(6, 'App'));
+  const environment = injectorOf(
+    'environment',
+    named(89, 'Environment').concat([
+      {
+        token: routerToken,
+        provider: { provide: 'RouterService' },
+        source: 'provideRouter',
+        isViewProvider: false,
+      },
+    ]),
+  );
+  const spare = injectorOf('spare', named(8, 'Spare'));
+  const path = [element, app, environment, spare];
+  const ng = {
+    ɵsetProfiler(callback) {
+      profilerCalls.push(callback);
+      return () => {};
+    },
+    ɵgetSignalGraph: () => counterGraph(),
+    getHostElement: () => ({ tagName: 'APP-COUNTER' }),
+    getDirectiveMetadata: () => ({ changeDetection: 1 }),
+    // The element injector for every element, as the page's own root answers it: the walk that finds
+    // the `Router` is the resolution path beside it, never the node it started from.
+    getInjector: () => element,
+    ɵgetInjectorResolutionPath: (candidate) =>
+      candidate === element ? path : [candidate],
+    ɵgetInjectorProviders: (candidate) => candidate.providers,
+  };
+  return {
+    ng,
+    path,
+    element,
+    app,
+    environment,
+    spare,
+    router,
+    routerToken,
+    stream,
+    subscribers,
+    subscriptions,
+    getCalls,
+    profilerCalls,
+    emit(event) {
+      for (const callback of [...subscribers]) callback(event);
+    },
+  };
+}
+
+/** The root element the page answers `getInjector` on, and nothing else. */
+function routerRoot() {
+  return { tagName: 'APP-ROOT' };
+}
+
+/** A page document: the root the agent's own reads prefer, and one element list for the presence test. */
+function routerDocument(elements) {
+  const root = routerRoot();
+  return {
+    querySelector: (selector) => (selector === 'app-root' ? root : null),
+    querySelectorAll: () => elements ?? [root],
+    body: root,
+    documentElement: root,
+  };
+}
+
+/** Boots the (possibly mutated) script on that page and gives it a clock that advances per read. */
+function bootRouterPage(options = {}) {
+  const page = routerPageModel();
+  globalThis.document = options.document ?? routerDocument();
+  const booted = bootSource(options.source ?? SRC, { ng: page.ng });
+  ROUTER_BOOTS.push(booted.recorder);
+  let now = 900;
+  globalThis.performance = {
+    now: () => {
+      now += 1;
+      return now;
+    },
+  };
+  assert.equal(
+    page.profilerCalls.length,
+    1,
+    'the widening extends the one profiler tap and never adds a second one',
+  );
+  return { ...page, ...booted, subscriber: booted.recorder.getSubscriber() };
+}
+
+/** One emitter, one profiler frame, one record: the shipped path, driven the way the page drives it. */
+async function recordOfEvents(page, events) {
+  for (const event of events) page.emit(event);
+  page.subscriber(PE.TemplateUpdateStart, page.counter ?? {});
+  await flushMicrotasks();
+  return theFrame(page.dispatched);
+}
+
+/** The router list's pins: one list, one shape, arrival order, the class name, the page's own clock. */
+function assertRouterStream(detail, events) {
+  const entries = detail.routerEvents;
+  assert.ok(
+    Array.isArray(entries),
+    `the record must publish the router's arrivals as a list \`routerEvents\`; it published ${JSON.stringify(entries)}`,
+  );
+  entries.forEach((entry, index) => {
+    assert.deepEqual(
+      Object.keys(entry),
+      ROUTER_ENTRY_KEYS,
+      `the router list must use one shape for every recorded event: entry ${index} (${entry.type}) carries ${JSON.stringify(Object.keys(entry))}`,
+    );
+    assert.equal(
+      typeof entry.type,
+      'string',
+      `the entry's type must be the event's own class name, never the event number (entry ${index} carries ${JSON.stringify(entry.type)})`,
+    );
+    assert.equal(
+      typeof entry.at,
+      'number',
+      `entry ${index} (${entry.type}) must carry the page's own receipt time; it carries ${JSON.stringify(entry.at)}`,
+    );
+    assertPlainData(entry, `entry ${index} (${entry.type})`);
+  });
+  assert.deepEqual(
+    entries.map((entry) => entry.type),
+    classesOf(events),
+    'the router list must hold one entry per Router.events emission, in arrival order, with nothing coalesced, sorted or dropped',
+  );
+  const times = entries.map((entry) => entry.at);
+  assert.deepEqual(
+    [...times].sort((left, right) => left - right),
+    times,
+    'the receipt times must be the readings of the page clock, in arrival order',
+  );
+  assert.equal(
+    new Set(times).size,
+    times.length,
+    'each entry carries its own receipt reading, so no entry borrows a neighbour`s time',
+  );
+  const roundTripped = JSON.parse(JSON.stringify(entries));
+  assert.deepEqual(
+    roundTripped,
+    entries,
+    'the router list must be plain data: a value the serialized boundary drops or rewrites means an instance crossed it',
+  );
+}
+
+/** The two route-config events, and only them, are the entries the measurement found id-less. */
+function assertRouteConfigIds(detail) {
+  const loads = detail.routerEvents.filter(
+    (entry) =>
+      entry.type === 'RouteConfigLoadStart' ||
+      entry.type === 'RouteConfigLoadEnd',
+  );
+  assert.ok(
+    loads.length > 0,
+    'the frame must record its route-config arrivals; none reached the list',
+  );
+  for (const entry of loads) {
+    assert.equal(
+      entry.id,
+      null,
+      `${entry.type} must record id null, never the id of the last navigation seen or of the navigation in flight (it recorded ${JSON.stringify(entry.id)})`,
+    );
+    assert.equal(
+      typeof entry.id,
+      'object',
+      `${entry.type} must record the absence as null and nothing else; it recorded ${JSON.stringify(entry.id)}`,
+    );
+  }
+}
+
+/** The error terminal: its own name and message, no `target`, and nothing else. */
+function assertErrorSummary(detail) {
+  const errors = detail.routerEvents.filter(
+    (entry) => entry.type === 'NavigationError',
+  );
+  assert.equal(errors.length, 1, 'the error frame carries one NavigationError');
+  const entry = errors[0];
+  assert.deepEqual(
+    Object.keys(entry.error ?? {}),
+    ['name', 'message'],
+    `an error must record its own name and message and nothing else: ${entry.type} records ${JSON.stringify(entry.error)}`,
+  );
+  assert.equal(entry.error.name, 'TypeError');
+  assert.equal(
+    entry.error.message,
+    'Failed to fetch dynamically imported module: http://localhost:4507/src-2HBDPKHR.js',
+    'the message must be the error`s own, not a paraphrase',
+  );
+  assert.equal(
+    Object.keys(entry).includes('target'),
+    false,
+    'the error entry must carry no `target` field at all: the measured value was undefined, so nothing records a null for it',
+  );
+}
+
+/** The reach: one subscription, taken through `record.token` on the entry that holds it. */
+function assertRouterReached(page) {
+  assert.equal(
+    page.subscribers.length,
+    1,
+    'the Router must be reached through record.token on the injector resolution path: no subscription was taken, so the token was not found where T001 measured it',
+  );
+  assert.ok(
+    page.getCalls.some((call) => call.injector === 'environment'),
+    'the walk must ask the environment injector for the token: the element injector at entry 0 holds no Router and the app injector is not the first entry',
+  );
+}
+
+/** The additive rule: the subscription exists before any profiler event, so a pre-frame arrival lands. */
+function assertRouterArmed(detail) {
+  const entries = detail.routerEvents;
+  assert.ok(
+    entries.length >= 1 && entries[0].type === 'NavigationStart',
+    'the router subscription must be created beside the profiler subscription, never inside the profiler callback: an event the router emitted before the first profiler event must still be in the record',
+  );
+}
+
+describe('agent-main.js (the router stream beside the profiler subscription, T002)', () => {
+  afterEach(() => {
+    for (const recorder of ROUTER_BOOTS.splice(0)) {
+      if (recorder && typeof recorder.reset === 'function') recorder.reset();
+    }
+    globalThis.ng = ORIGINALS.ng;
+    globalThis.Zone = ORIGINALS.Zone;
+    globalThis.CustomEvent = ORIGINALS.CustomEvent;
+    globalThis.dispatchEvent = ORIGINALS.dispatchEvent;
+    globalThis.performance = ORIGINALS.performance;
+    delete globalThis.__ngRecorder;
+    delete globalThis.document;
+  });
+
+  it('the sixteen classes are T001`s measured sixteen, each with its own recorded key set (AC2)', () => {
+    const recording = JSON.parse(
+      readFileSync(
+        new URL('../research/raw/m041-navigation.json', import.meta.url),
+        'utf8',
+      ),
+    );
+    const measured = recording.events.classes;
+    assert.equal(
+      measured.length,
+      16,
+      'the recording enumerates the sixteen classes this record is held to',
+    );
+    assert.deepEqual(
+      measured.map((entry) => entry.name).sort(),
+      Object.keys(ROUTER_CLASSES).sort(),
+      'the classes this suite drives must be the sixteen T001 measured, not a vocabulary invented here',
+    );
+    for (const entry of measured) {
+      assert.deepEqual(
+        ROUTER_CLASSES[entry.name],
+        entry.keys,
+        `${entry.name} must be driven with the key set the recording carries`,
+      );
+      assert.equal(
+        ROUTER_EVENT_TYPES[entry.name],
+        entry.type,
+        `${entry.name} must be driven with its recorded EventType number`,
+      );
+    }
+  });
+
+  it('records one entry per emission, in arrival order, in one shape, by class name (AC2, AC5)', async () => {
+    const events = measuredSupersededFrame();
+    const page = bootRouterPage();
+    const detail = await recordOfEvents(page, events);
+
+    assertRouterStream(detail, events);
+    assertRouterReached(page);
+
+    const cancel = detail.routerEvents.find(
+      (entry) => entry.type === 'NavigationCancel',
+    );
+    assert.equal(cancel.id, 2);
+    assert.equal(
+      cancel.code,
+      1,
+      'a cancel carries its own code, and code 1 is the measured one',
+    );
+    assert.equal(
+      cancel.reason,
+      'Navigation ID 2 is not equal to the current navigation id 3',
+      'a cancel carries the router`s own reason text',
+    );
+    assert.equal(
+      cancel.urlAfterRedirects,
+      null,
+      'a cancel carries no urlAfterRedirects, so the entry records none',
+    );
+
+    const end = detail.routerEvents.find(
+      (entry) => entry.type === 'NavigationEnd',
+    );
+    assert.equal(end.urlAfterRedirects, '/contract/list');
+    const recognised = detail.routerEvents.find(
+      (entry) => entry.type === 'RoutesRecognized',
+    );
+    assert.deepEqual(
+      recognised.matchedPaths,
+      [null, 'contract', '', 'list'],
+      'a routed snapshot contributes its primary chain`s own config paths, in order, including the componentless empty path T001 measured',
+    );
+    const guardEnd = detail.routerEvents.find(
+      (entry) => entry.type === 'GuardsCheckEnd',
+    );
+    assert.equal(
+      guardEnd.shouldActivate,
+      true,
+      'the guard end carries its own aggregate verdict',
+    );
+    assert.equal(
+      detail.routerEvents.filter((entry) => entry.type === 'ActivationStart')[0]
+        .matchedPaths[0],
+      'contract',
+      'an activation event contributes its own snapshot`s config path and no other route',
+    );
+  });
+
+  it('records id null for the two route-config events and borrows no navigation id (AC3, SC5)', async () => {
+    const events = measuredSupersededFrame();
+    const page = bootRouterPage();
+    const detail = await recordOfEvents(page, events);
+
+    assertRouteConfigIds(detail);
+    const loads = detail.routerEvents
+      .filter((entry) => entry.type === 'RouteConfigLoadEnd')
+      .map((entry) => entry.route);
+    assert.deepEqual(
+      loads,
+      ['claim', 'contract', 'list'],
+      'a load end keeps its own route path, in arrival order',
+    );
+  });
+
+  it('keeps arrival order as arrival order: the abandoned load end stays after its own cancel (SC5)', async () => {
+    const events = measuredSupersededFrame();
+    const page = bootRouterPage();
+    const detail = await recordOfEvents(page, events);
+
+    const cancelAt = detail.routerEvents.findIndex(
+      (entry) => entry.type === 'NavigationCancel',
+    );
+    const abandonedAt = cancelAt + 3;
+    assert.equal(
+      detail.routerEvents[abandonedAt].route,
+      'claim',
+      'the abandoned navigation`s own RouteConfigLoadEnd arrives after its cancel and is recorded where it arrived, so arrival order is not read as attribution',
+    );
+    assert.equal(
+      detail.routerEvents[abandonedAt].id,
+      null,
+      'and it is still an id-less load: the navigation it belongs to is the join`s question, not the record`s',
+    );
+  });
+
+  it('records plain data only: an error contributes its own name and message, never the object (AC4)', async () => {
+    const events = measuredErrorFrame();
+    const page = bootRouterPage();
+    const detail = await recordOfEvents(page, events);
+
+    assertRouterStream(detail, events);
+    assertErrorSummary(detail);
+  });
+
+  it('a held navigation records its last event and no synthesised terminal (AC2)', async () => {
+    const events = measuredHeldFrame();
+    const page = bootRouterPage();
+    const detail = await recordOfEvents(page, events);
+
+    assertRouterStream(detail, events);
+    assert.equal(
+      detail.routerEvents.length,
+      2,
+      'a held navigation is the start and the stage that arrived, and nothing else',
+    );
+    assert.deepEqual(
+      detail.routerEvents.map((entry) => entry.type),
+      ['NavigationStart', 'RouteConfigLoadStart'],
+      'the last event is the stage the navigation reached',
+    );
+    for (const terminal of [
+      'NavigationEnd',
+      'NavigationCancel',
+      'NavigationError',
+      'NavigationSkipped',
+    ]) {
+      assert.equal(
+        detail.routerEvents.some((entry) => entry.type === terminal),
+        false,
+        `a held navigation must carry no synthesised ${terminal}: the terminal event is the only discriminator and the record never mints one`,
+      );
+    }
+  });
+
+  it('arms beside the profiler tap, and reset removes both subscriptions (AC1)', async () => {
+    const page = bootRouterPage();
+    assert.equal(
+      page.profilerCalls.length,
+      1,
+      'ɵsetProfiler must still be called exactly once',
+    );
+    assert.equal(
+      page.profilerCalls[0],
+      page.recorder.getSubscriber(),
+      'and with the same subscriber the trigger and the cycle opener read',
+    );
+    assert.equal(
+      page.subscribers.length,
+      1,
+      'the router subscription must exist as soon as the install answered, before any profiler event',
+    );
+
+    const detail = await recordOfEvents(page, measuredHeldFrame());
+    assertRouterArmed(detail);
+
+    page.recorder.reset();
+    assert.equal(
+      page.subscribers.length,
+      0,
+      'reset must remove the router subscription beside the profiler`s own remover',
+    );
+    assert.equal(
+      page.subscriptions[0].unsubscribed,
+      1,
+      'and the stream`s own unsubscribe is what removes it',
+    );
+
+    page.emit(routerEventOf('NavigationStart', { id: 9, url: '/after-reset' }));
+    page.subscriber(PE.TemplateUpdateStart, {});
+    await flushMicrotasks();
+    const after = recordsOf(page.dispatched).at(-1).detail;
+    assert.deepEqual(
+      after.routerEvents,
+      [],
+      'the list is cleared with the subscription, so a second install starts from an empty stream',
+    );
+  });
+
+  it('reaches the Router at the injector entry that holds record.token, not entry 0 and not provider.provide (AC1)', async () => {
+    const page = bootRouterPage();
+    assertRouterReached(page);
+    assert.equal(
+      page.getCalls.filter((call) => call.token === page.routerToken).length,
+      1,
+      'the token is read from the provider record and asked of the injector exactly once',
+    );
+    assert.equal(
+      page.getCalls.find((call) => call.token === page.routerToken).injector,
+      'environment',
+      'and it is asked of the environment injector, which is entry 2 of the measured path — not the element injector at entry 0',
+    );
+  });
+
+  it('reaches a root that is not app-root through the dev-context presence test (AC1)', async () => {
+    const portalRoot = { tagName: 'NG-JOURNAL-ROOT', __ngContext__: 12 };
+    const page = bootRouterPage({
+      document: {
+        querySelector: () => null,
+        querySelectorAll: () => [{ tagName: 'BODY' }, portalRoot],
+        body: { tagName: 'BODY' },
+        documentElement: { tagName: 'HTML' },
+      },
+    });
+    assertRouterReached(page);
+    assert.equal(
+      page.getCalls.some((call) => call.token === page.routerToken),
+      true,
+      'the host element is found by carrying a dev context, because getInjector answers on no other node and an app root is not always called app-root',
+    );
+  });
+
+  it('bounds the list as a page-health guard, keeping the newest arrivals in order (AC2)', async () => {
+    const page = bootRouterPage();
+    const emissions = 515;
+    for (let index = 0; index < emissions; index += 1) {
+      page.emit(
+        routerEventOf(index % 2 === 0 ? 'NavigationStart' : 'NavigationEnd', {
+          id: index,
+          url: `/page/${index}`,
+        }),
+      );
+    }
+    page.subscriber(PE.TemplateUpdateStart, {});
+    await flushMicrotasks();
+    const entries = theFrame(page.dispatched).routerEvents;
+
+    assert.equal(
+      entries.length,
+      512,
+      'the list is bounded: a page that never stops navigating keeps a fixed number of arrivals rather than growing without limit',
+    );
+    assert.equal(
+      entries[0].id,
+      emissions - 512,
+      'the oldest arrivals fall off the front',
+    );
+    assert.equal(entries.at(-1).id, emissions - 1, 'and the newest stay whole');
+    assert.deepEqual(
+      entries.map((entry) => entry.id),
+      [...entries.map((entry) => entry.id)].sort((left, right) => left - right),
+      'within the bound nothing is dropped, coalesced or reordered',
+    );
+  });
+
+  describe('the pins are non-vacuous: a mutant reddens one, naming the defect', () => {
+    it('passes on the untouched source first', async () => {
+      const page = bootRouterPage();
+      const detail = await recordOfEvents(page, measuredSupersededFrame());
+      assert.doesNotThrow(() => {
+        assertRouterStream(detail, measuredSupersededFrame());
+        assertRouteConfigIds(detail);
+      }, 'the untouched source must pass the pins before any mutant is credited with reddening one');
+    });
+
+    it('M1 gives a route-config load a synthesised id: the pin names the absence', async () => {
+      const synthesised = mutantOf(
+        "      id: routerPrimitiveOf(event, 'id'),",
+        `      id: routerCarries(event, 'id')
+        ? event.id
+        : (function () {
+            for (var r = routerEvents.length - 1; r >= 0; r -= 1) {
+              if (typeof routerEvents[r].id === 'number') return routerEvents[r].id;
+            }
+            return null;
+          })(),`,
+      );
+      const page = bootRouterPage({ source: synthesised });
+      const detail = await recordOfEvents(page, measuredSupersededFrame());
+      assert.throws(
+        () => assertRouteConfigIds(detail),
+        /must record id null, never the id of the last navigation seen or of the navigation in flight/,
+        'an id borrowed from the navigation in flight must redden the absence pin',
+      );
+    });
+
+    it('M2 records an event in a second shape: the pin names the entry', async () => {
+      const secondShape = mutantOf(
+        '  function recordRouterEvent(event) {\n    var entry = {',
+        `  function recordRouterEvent(event) {
+    var entry = {
+      ...(routerClassNameOf(event) === 'RouteConfigLoadEnd'
+        ? { ended: true }
+        : {}),`,
+      );
+      const page = bootRouterPage({ source: secondShape });
+      const detail = await recordOfEvents(page, measuredSupersededFrame());
+      assert.throws(
+        () => assertRouterStream(detail, measuredSupersededFrame()),
+        /must use one shape for every recorded event: entry \d+ \(RouteConfigLoadEnd\)/,
+        'a second shape must redden the pin naming the entry that travelled it',
+      );
+    });
+
+    it('M3 records the event number as the type: the pin names what a surface must not need', async () => {
+      const numbered = mutantOf(
+        '      type: routerClassNameOf(event),',
+        "      type: routerPrimitiveOf(event, 'type'),",
+      );
+      const page = bootRouterPage({ source: numbered });
+      const detail = await recordOfEvents(page, measuredSupersededFrame());
+      assert.throws(
+        () => assertRouterStream(detail, measuredSupersededFrame()),
+        /must be the event's own class name, never the event number/,
+        'a type recorded as the event number must redden the pin that says no surface needs one',
+      );
+    });
+
+    it('M4 installs the router subscription inside the profiler callback: the pin names the additive rule', async () => {
+      const inside = mutantOf(
+        '    var r = tryInstall();\n    installRouterEvents();\n',
+        '    var r = tryInstall();\n',
+      );
+      const chained = (() => {
+        const anchor =
+          '    subscriber = function (event, instance, eventFn) {\n      onEvent(event, instance, eventFn);\n    };';
+        const occurrences = inside.split(anchor).length - 1;
+        assert.equal(
+          occurrences,
+          1,
+          'the profiler callback anchor must appear once in the mutated source',
+        );
+        return inside.replace(
+          anchor,
+          '    subscriber = function (event, instance, eventFn) {\n      installRouterEvents();\n      onEvent(event, instance, eventFn);\n    };',
+        );
+      })();
+      const page = bootRouterPage({ source: chained });
+      const detail = await recordOfEvents(page, measuredHeldFrame());
+      assert.throws(
+        () => assertRouterArmed(detail),
+        /must be created beside the profiler subscription, never inside the profiler callback/,
+        'a subscription taken inside the profiler callback must redden the additive pin',
+      );
+    });
+
+    it('M5 carries the error object itself: the pin names the boundary', async () => {
+      const carried = mutantOf(
+        '      error: routerErrorOf(event),',
+        "      error: routerFieldOf(event, 'error'),",
+      );
+      const page = bootRouterPage({ source: carried });
+      const detail = await recordOfEvents(page, measuredErrorFrame());
+      assert.throws(
+        () => assertErrorSummary(detail),
+        /must record its own name and message and nothing else/,
+        'an error instance crossing the boundary must redden the plain-data pin',
+      );
+    });
+
+    it('M6 reads provider.provide instead of record.token: the pin names the field that finds the Router (AC1)', async () => {
+      const provideRead = mutantOf(
+        '        if (routerTokenNameOf(token) !== ROUTER_TOKEN_NAME) continue;',
+        '        if (routerTokenNameOf(records[j].provider.provide) !== ROUTER_TOKEN_NAME)\n          continue;',
+      );
+      const page = bootRouterPage({ source: provideRead });
+      assert.throws(
+        () => assertRouterReached(page),
+        /must be reached through record\.token on the injector resolution path/,
+        'reading the provider`s `provide` name instead of its `token` must redden the reach pin',
       );
     });
   });

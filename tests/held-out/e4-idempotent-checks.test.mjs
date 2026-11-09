@@ -1,6 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import {
+  boundedChild,
+  exitStatusMessage,
+  tailLines,
+} from '../../scripts/held-out-nested-run.mjs';
 
 function run(cmd, args) {
   const env = { ...process.env };
@@ -12,8 +17,12 @@ function run(cmd, args) {
     maxBuffer: 1024 * 1024 * 256,
     timeout: 20 * 60 * 1000,
     shell: true,
-    env,
+    env: boundedChild(env),
   });
+}
+
+function outputOf(result) {
+  return (result.stdout || '') + (result.stderr || '');
 }
 
 function gitPorcelain() {
@@ -37,23 +46,37 @@ test('E4: two consecutive npm run check + npm test are idempotent', () => {
   const test2 = run('npm', ['test']);
   const after2 = gitPorcelain();
 
-  assert.equal(check1.status, 0, 'E4: first npm run check failed');
-  assert.equal(test1.status, 0, 'E4: first npm test failed');
-  assert.equal(check2.status, 0, 'E4: second npm run check failed');
-  assert.equal(test2.status, 0, 'E4: second npm test failed');
+  assert.equal(
+    check1.status,
+    0,
+    exitStatusMessage('E4: first npm run check', check1, outputOf(check1)),
+  );
+  assert.equal(
+    test1.status,
+    0,
+    exitStatusMessage('E4: first npm test', test1, outputOf(test1)),
+  );
+  assert.equal(
+    check2.status,
+    0,
+    exitStatusMessage('E4: second npm run check', check2, outputOf(check2)),
+  );
+  assert.equal(
+    test2.status,
+    0,
+    exitStatusMessage('E4: second npm test', test2, outputOf(test2)),
+  );
 
-  const out1 =
-    (check1.stdout || '') +
-    (check1.stderr || '') +
-    (test1.stdout || '') +
-    (test1.stderr || '');
-  const out2 =
-    (check2.stdout || '') +
-    (check2.stderr || '') +
-    (test2.stdout || '') +
-    (test2.stderr || '');
-  assert.ok(passCount(out1) > 0, 'E4: first run reported 0 passes');
-  assert.ok(passCount(out2) > 0, 'E4: second run reported 0 passes');
+  const out1 = outputOf(check1) + outputOf(test1);
+  const out2 = outputOf(check2) + outputOf(test2);
+  assert.ok(
+    passCount(out1) > 0,
+    `E4: first run reported 0 passes\n${tailLines(out1)}`,
+  );
+  assert.ok(
+    passCount(out2) > 0,
+    `E4: second run reported 0 passes\n${tailLines(out2)}`,
+  );
   assert.equal(
     passCount(out1),
     passCount(out2),

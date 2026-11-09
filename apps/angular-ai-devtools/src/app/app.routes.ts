@@ -5,6 +5,15 @@ import { N3DiDoctorComponent } from './n3-di-doctor.component';
 import { ErrorExplainerComponent } from './error-explainer.component';
 import { StaleViewComponent } from './stale-view.component';
 
+// Every panel surface route installs the same component through the same dynamic import, so the
+// loader is defined once and referenced by each of those routes. Thirteen copies of one closure in
+// the route table were thirteen copies of its bytes in the eager bundle — which is exactly what put
+// the initial total over the recorded baseline when the last surface was registered. Defined here,
+// not per route: the dynamic import below stays the only reference to the demo module, so the lazy
+// boundary is unchanged and the demo stays out of the eager graph.
+const loadPanelDemo = () =>
+  import('./panel-demo').then((m) => m.PanelDemoComponent);
+
 export const appRoutes: Route[] = [
   { path: '', component: N1UpdateCauseComponent },
   { path: 'signal-provenance', component: N2SignalProvenanceComponent },
@@ -37,8 +46,7 @@ export const appRoutes: Route[] = [
   // Lazy for the same reason as the three above it — the panel's eager bundle is measured.
   {
     path: 'after-render',
-    loadComponent: () =>
-      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    loadComponent: loadPanelDemo,
     data: { surface: 'after-render' },
   },
   // The M029 SC4 surface: the sanitizer finding from a fact list, or the state that names the
@@ -46,24 +54,21 @@ export const appRoutes: Route[] = [
   // measured, and its eager graph is unchanged by this route.
   {
     path: 'sanitizer',
-    loadComponent: () =>
-      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    loadComponent: loadPanelDemo,
     data: { surface: 'sanitizer' },
   },
   // The M030 SC4 surface: the walked redirect chain, or the state that names its absence.
   // Lazy for the same reason as the surfaces above it — the panel's eager bundle is measured.
   {
     path: 'redirect',
-    loadComponent: () =>
-      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    loadComponent: loadPanelDemo,
     data: { surface: 'redirect' },
   },
   // The M031 SC4 surface: the field set, or the state that names its absence.
   // Lazy for the same reason as the surfaces above it — the panel's eager bundle is measured.
   {
     path: 'fields',
-    loadComponent: () =>
-      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    loadComponent: loadPanelDemo,
     data: { surface: 'fields' },
   },
   // The M032 SC4 surface: the diagnostic joined to the input its own text names, or the state
@@ -71,8 +76,7 @@ export const appRoutes: Route[] = [
   // the panel's eager bundle is measured.
   {
     path: 'lint',
-    loadComponent: () =>
-      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    loadComponent: loadPanelDemo,
     data: { surface: 'lint' },
   },
   // The M033 SC4 surface: the router finding — the unmatched segment, or the state that names
@@ -80,8 +84,7 @@ export const appRoutes: Route[] = [
   // bundle is measured.
   {
     path: 'router',
-    loadComponent: () =>
-      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    loadComponent: loadPanelDemo,
     data: { surface: 'router' },
   },
   // The M034 SC4 surface: the selected component's structure and the modern form the cited table
@@ -89,8 +92,7 @@ export const appRoutes: Route[] = [
   // above it — the panel's eager bundle is measured.
   {
     path: 'legacy',
-    loadComponent: () =>
-      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    loadComponent: loadPanelDemo,
     data: { surface: 'legacy' },
   },
   // The M035 SC4 surface: the change-detection strategy the component def reports, with the
@@ -98,8 +100,7 @@ export const appRoutes: Route[] = [
   // the same reason as the surfaces above it — the panel's eager bundle is measured.
   {
     path: 'onpush',
-    loadComponent: () =>
-      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    loadComponent: loadPanelDemo,
     data: { surface: 'onpush' },
   },
   // The M036 SC5 surface: the resource the graph named, the state it reports and the params status
@@ -107,8 +108,7 @@ export const appRoutes: Route[] = [
   // surfaces above it — the panel's eager bundle is measured.
   {
     path: 'resource',
-    loadComponent: () =>
-      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    loadComponent: loadPanelDemo,
     data: { surface: 'resource' },
   },
   // The M038 SC4 surface: the linked signal and the source it follows, both stored values and the
@@ -117,8 +117,7 @@ export const appRoutes: Route[] = [
   // measured.
   {
     path: 'linked-state',
-    loadComponent: () =>
-      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    loadComponent: loadPanelDemo,
     data: { surface: 'linked-state' },
   },
   // The M039 SC5 surface: the effect the graph carries with the signals its edges name, the phase
@@ -127,8 +126,7 @@ export const appRoutes: Route[] = [
   // eager bundle is measured.
   {
     path: 'render-phase',
-    loadComponent: () =>
-      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    loadComponent: loadPanelDemo,
     data: { surface: 'render-phase' },
   },
   // The M040 SC5 surface: the frame's ordered work — each interval's component identity in one
@@ -136,8 +134,18 @@ export const appRoutes: Route[] = [
   // for the same reason as the surfaces above it — the panel's eager bundle is measured.
   {
     path: 'performance',
-    loadComponent: () =>
-      import('./panel-demo').then((m) => m.PanelDemoComponent),
+    loadComponent: loadPanelDemo,
     data: { surface: 'performance' },
+  },
+  // The M041 SC1-SC3 surface: one block per recorded navigation. An open navigation renders the
+  // stage it reached, its last event and the holder it cannot name; an ended one renders its
+  // terminal class and only that class's own fields; the guard aggregate and the resolve stage
+  // render their own named absences; and each route-config load renders by its own route with its
+  // measured interval. Lazy for the same reason as the surfaces above it — the panel's eager bundle
+  // is measured.
+  {
+    path: 'navigation',
+    loadComponent: loadPanelDemo,
+    data: { surface: 'navigation' },
   },
 ];
