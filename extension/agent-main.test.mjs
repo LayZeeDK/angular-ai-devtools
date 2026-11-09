@@ -2240,7 +2240,13 @@ function assertMeasuredFrame(detail) {
       // the router's list. The additive rule is unchanged — the four recorded fields keep their
       // order, `events` is the first additive field, the router list the second, the boundary record
       // the third, and `checks` stays last.
+      //
+      // Re-cut again for M043 T001, which failed with `+ 'stability'` present in `actual`:
+      //   actual:   [..., 'boundary', 'stability', 'checks']
+      //   expected: [..., 'boundary', 'checks']
+      // The fourth additive field, and still not a change to the four recorded ones.
       'boundary',
+      'stability',
       'checks',
     ],
     'the frame-level list must be additive: the four recorded fields keep their order, `events` is added, the router list and the boundary record are added beside it and `checks` stays last',
@@ -2572,7 +2578,13 @@ describe('agent-main.js (the five paired work events, T002)', () => {
         //   ['cycleId','startedAt','trigger','zoneMode','events','routerEvents','checks']
         // and failed with `+ 'boundary'` present in `actual` once the boundary record joined the
         // snapshot. The field still sits in the same position in both records.
+        //
+        // Re-cut again for M043 T001, which failed with `+ 'stability'` present in `actual`:
+        //   actual:   [..., 'boundary', 'stability', 'checks']
+        //   expected: [..., 'boundary', 'checks']
+        // The snapshot carries the same fourth additive field in the same position.
         'boundary',
+        'stability',
         'checks',
       ],
       'and each additive field sits in the same position in both records — the router list is the second, the boundary record the third, and `checks` stays last',

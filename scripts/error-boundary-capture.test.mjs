@@ -43,7 +43,14 @@ const ROOT = join(HERE, '..');
 
 const RECORD_PATH = join(ROOT, 'research', 'raw', 'm042-error-boundary.json');
 const CLAIMS_PATH = join(ROOT, 'research', 'raw', 'm042-verdict-claims.json');
-const INTENT_PATH = join(ROOT, '.project', 'intent', 'INTENT.md');
+const INTENT_PATH = join(
+  ROOT,
+  '.project',
+  'archive',
+  '042-error-boundary',
+  'intent',
+  'INTENT.md',
+);
 const AGENT_PATH = join(ROOT, 'extension', 'agent-main.js');
 const JOIN_PATH = join(ROOT, 'extension', 'error-boundary.js');
 const MEASURE_SUITE = join(ROOT, 'scripts', 'error-boundary-measure.test.mjs');

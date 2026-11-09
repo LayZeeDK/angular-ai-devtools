@@ -1044,12 +1044,12 @@
       startedAt: c.startedAt,
       trigger: c.trigger,
       zoneMode: zoneMode,
-      // The frame's own work, in arrival order: the four existing fields are untouched and this
-      // list is the additive half (the per-check `events` below keeps the four bare numbers).
+      // The frame's own work, in arrival order; the per-check `events` below keeps the bare numbers.
       events: c.events.slice(),
       // The router's arrivals (T002) and the boundary record (T003): neither is frame-scoped.
       routerEvents: routerEventList(),
       boundary: boundaryField(),
+      stability: stabilityField(),
       checks: [],
     };
     c.checks.forEach(function (check, instance) {
@@ -1434,12 +1434,12 @@
         startedAt: nowMs(),
         trigger: { kind: 'unknown', listenerName: null },
         zoneMode: zoneMode,
-        // The snapshot carries the same list a frame carries, empty: this record read no profiler
-        // event, and a record that omitted the field would make a reader guess at its shape.
+        // The snapshot carries the same list a frame carries, empty.
         events: [],
         // The router list and the boundary record are not frame-scoped: they carry the arrivals.
         routerEvents: routerEventList(),
         boundary: boundaryField(),
+        stability: stabilityField(),
         checks: [check],
       });
     } catch (e) {
@@ -1839,9 +1839,8 @@
     return null;
   }
 
-  // Armed from the install path's own answer and never from inside the profiler callback: the tap
-  // answered `installed` once, this reads the page's own injector beside it, and a second arm returns
-  // the first subscription instead of adding a second one.
+  // Armed from the install path's own answer and never from inside the profiler callback, and a
+  // second arm answers the first subscription instead of adding a second one.
   function installRouterEvents() {
     if (routerSubscription || !installed) return routerSubscription;
     var subscription = routerSubscribe();
@@ -1849,8 +1848,7 @@
     return routerSubscription;
   }
 
-  // Removed by the same reset path as the profiler subscription, so a second install starts from an
-  // empty stream rather than from one this page's earlier subscription is still writing to.
+  // Removed by the same reset path as the profiler subscription, so a second install starts empty.
   function uninstallRouterEvents() {
     var subscription = routerSubscription;
     routerSubscription = null;
@@ -1864,10 +1862,12 @@
   function start() {
     var r = tryInstall();
     installRouterEvents();
+    installStability();
     if (r === 'installed' || r === 'notsupported') return;
     var handle = globalThis.setInterval(function () {
       var r2 = tryInstall();
       installRouterEvents();
+      installStability();
       if (r2 === 'installed' || r2 === 'notsupported')
         globalThis.clearInterval(handle);
     }, 100);
@@ -1889,10 +1889,11 @@
     prevEpochs = new WeakMap();
     stopCompanionRecheck();
     lastState = null;
-    // The router subscription is removed here, beside the profiler's own removal, and its list with it:
-    // the profiler is never cleared with `null`, which would remove every callback on the page.
+    // The router subscription is removed here, beside the profiler's own removal, and its list with
+    // it: the profiler is never cleared with `null`, which would take every callback on the page.
     uninstallRouterEvents();
     routerEvents = [];
+    uninstallStability();
     // The boundary hook is removed by the same path, and the app's own hook is put back where it
     // declared one, so a second install starts from a page this file has never written to.
     uninstallBoundaryHook();
@@ -2253,6 +2254,201 @@
       version: BOUNDARY_VERSION,
       coreVersion: angularVersionString(ngObj || readNg()),
       entries: boundaryEntries.slice(),
+    };
+  }
+
+  // --- The stability surface, beside the router and boundary reads (T001) ---------------------
+  //
+  // T001 measured what a page's `ApplicationRef` hands a page-side reader
+  // (`research/raw/m043-stability.json`). `isStable` is one `pipe(map(pending => !pending))` over
+  // `PendingTasksInternal.hasPendingTasksObservable`, and that getter answers the tracker's own
+  // `BehaviorSubject`: a subscriber is handed the current value at subscribe and every later
+  // `next()` reaches the same subscription, so this reads the getter once and subscribes once rather
+  // than re-reading per record. The reach is the one this file already performs for `Router` -
+  // `getInjector`, `ɵgetInjectorResolutionPath`, `ɵgetInjectorProviders`, the provider record whose
+  // `token.name` is `ApplicationRef`, then `injector.get(token)` - and a page whose records carry no
+  // such token records the named absence instead of a state.
+  //
+  // Every field is what the page published and nothing this file infers: the emission and the page's
+  // own `performance.now()` reading at receipt, the attach reading, and the settle reading as the
+  // page's own reading when `true` arrived or the named absence `no-settle-observed`. The emission a
+  // `BehaviorSubject` hands a new subscriber synchronously is read *at* `attachAt`, so a page already
+  // stable at attach settles at attach and not after it: a settle later than attach is the only shape
+  // that can carry an unstable-to-stable change, which is the half SC2 must not claim from a page
+  // that never moved. The getter carries no reason - the tracker holds task ids and nothing else - so
+  // no reason is recorded, and a surface that named a cause would be inventing one.
+  //
+  // Armed from the install path's own answer and never from inside the profiler callback, removed by
+  // the same reset path as the profiler and router subscriptions, and built where no cited line
+  // lives: the epoch map's write keeps its line, `closeCycle` its own, and the router reach above is
+  // untouched.
+  var STABILITY_TOKEN_NAME = 'ApplicationRef';
+  var STABILITY_VERSION = '22.2.2'; // the @angular/core this surface is measured against (T001)
+
+  var stabilitySubscription = null; // the observable's own subscription, removed by reset()
+  var stabilityReachedBy = null; // the token name the injector walk resolved, or null
+  var stabilityAbsence = 'no-stability-observable'; // cleared only where an observable answered
+  var stabilityAttachAt = null; // the page's own performance.now() at attach
+  var stabilityReading = null; // { value, at }: the last isStable emission and its page reading
+  var stabilitySettle = null; // { state: 'settled', at } | { state: 'no-settle-observed' }
+
+  // The token a provider record gives the application reference, read from one host element's
+  // injector resolution path. Every entry is walked, because the app's environment injector is not
+  // entry 0; the name comes from `record.token`, the field the router reach already reads.
+  function stabilityTokenFrom(element, getInjector, getPath, getProviders) {
+    var injector = null;
+    try {
+      injector = getInjector(element);
+    } catch (e) {
+      injector = null;
+    }
+    if (!injector) return null;
+    var entries = [];
+    try {
+      entries = getPath(injector) || [];
+    } catch (e) {
+      entries = [];
+    }
+    if (!isArrayValue(entries) || !entries.length) entries = [injector];
+    for (var i = 0; i < entries.length; i++) {
+      var records = null;
+      try {
+        records = getProviders(entries[i]);
+      } catch (e) {
+        records = null;
+      }
+      if (!isArrayValue(records)) continue;
+      for (var j = 0; j < records.length; j++) {
+        var token = null;
+        try {
+          token = records[j] ? records[j].token : null;
+        } catch (e) {
+          token = null;
+        }
+        if (routerTokenNameOf(token) !== STABILITY_TOKEN_NAME) continue;
+        return { injector: entries[i], token: token };
+      }
+    }
+    return null;
+  }
+
+  // The emission, as the page published it. `first` is the value a `BehaviorSubject` hands a new
+  // subscriber synchronously, so its reading is the attach reading; a stable page settles there.
+  function onStabilityEmission(value) {
+    var first = stabilityReading === null;
+    var at = first && stabilityAttachAt !== null ? stabilityAttachAt : nowMs();
+    stabilityReading = { value: value === true, at: at };
+    if (
+      stabilityReading.value &&
+      (!stabilitySettle || stabilitySettle.state !== 'settled')
+    ) {
+      stabilitySettle = { state: 'settled', at: at };
+    }
+  }
+
+  // The instance and its stream, reached from the page's own debug API and no new tap. Every ɵ
+  // function is feature-detected and every call guarded, so a page without this read subscribes to
+  // nothing rather than throwing into its own bootstrap.
+  function stabilitySubscribe() {
+    var ng = ngObj || readNg();
+    if (!ng) return null;
+    var getInjector =
+      typeof ng.getInjector === 'function'
+        ? ng.getInjector
+        : typeof ng.ɵgetInjectorFromNode === 'function'
+          ? ng.ɵgetInjectorFromNode
+          : null;
+    var getPath =
+      typeof ng.ɵgetInjectorResolutionPath === 'function'
+        ? ng.ɵgetInjectorResolutionPath
+        : null;
+    var getProviders =
+      typeof ng.ɵgetInjectorProviders === 'function'
+        ? ng.ɵgetInjectorProviders
+        : null;
+    if (!getInjector || !getPath || !getProviders) return null;
+    var candidates = routerHostCandidates();
+    for (var i = 0; i < candidates.length; i++) {
+      var found = stabilityTokenFrom(
+        candidates[i],
+        getInjector,
+        getPath,
+        getProviders,
+      );
+      if (!found) continue;
+      var appRef = null;
+      try {
+        appRef = found.injector.get(found.token);
+      } catch (e) {
+        appRef = null;
+      }
+      if (!appRef) return null;
+      var stream = null;
+      try {
+        stream = appRef.isStable;
+      } catch (e) {
+        stream = null;
+      }
+      if (!stream || typeof stream.subscribe !== 'function') return null;
+      stabilityAttachAt = nowMs();
+      stabilityReading = null;
+      stabilitySettle = { state: 'no-settle-observed' };
+      var subscription = null;
+      try {
+        subscription = stream.subscribe(onStabilityEmission);
+      } catch (e) {
+        stabilityAttachAt = null;
+        stabilityReading = null;
+        stabilitySettle = null;
+        return null;
+      }
+      stabilityReachedBy = routerTokenNameOf(found.token);
+      stabilityAbsence = null;
+      return subscription || null;
+    }
+    return null;
+  }
+
+  // Armed from the install path's own answer and never from inside the profiler callback: the tap
+  // answered `installed` once, this reads the page's own injector beside it, and a second arm
+  // returns the first subscription instead of adding a second one.
+  function installStability() {
+    if (stabilitySubscription || !installed) return stabilitySubscription;
+    var subscription = stabilitySubscribe();
+    if (subscription) stabilitySubscription = subscription;
+    return stabilitySubscription;
+  }
+
+  // Removed by the same reset path as the profiler and router subscriptions, and every field with it,
+  // so a second install starts from a page this file has never read.
+  function uninstallStability() {
+    var subscription = stabilitySubscription;
+    stabilitySubscription = null;
+    stabilityReachedBy = null;
+    stabilityAbsence = 'no-stability-observable';
+    stabilityAttachAt = null;
+    stabilityReading = null;
+    stabilitySettle = null;
+    if (!subscription) return;
+    try {
+      if (typeof subscription.unsubscribe === 'function')
+        subscription.unsubscribe();
+    } catch (e) {}
+  }
+
+  // The section both records publish: the token the walk resolved or `null`, the named absence or
+  // `null`, the page's own reading at attach, the emission the state was read from, the settle
+  // reading or its named absence, the constant this surface works against, and the version the page
+  // reported.
+  function stabilityField() {
+    return {
+      reachedBy: stabilityReachedBy,
+      absence: stabilityAbsence,
+      attachAt: stabilityAttachAt,
+      reading: stabilityReading,
+      settle: stabilitySettle || { state: 'no-settle-observed' },
+      version: STABILITY_VERSION,
+      coreVersion: angularVersionString(ngObj || readNg()),
     };
   }
 

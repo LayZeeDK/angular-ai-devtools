@@ -3,9 +3,9 @@ id: T001
 title: Measure the stability surface and carry it on the page agent's record
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: build_agent
+base: ef2cc27f4c60e2bc21e659881d7a124deb502222
 worktree: null
 task_branch: null
 files:
@@ -85,3 +85,10 @@ None; E1 to E11 are T002's, T003's and T004's and this task must not redden them
 ## Log
 
 - pending
+- 2026-11-09 — build — the reach is measured, not assumed: the agent's own five-step walk (ng.getInjector, ɵgetInjectorResolutionPath, ɵgetInjectorProviders, the record whose token.name is ApplicationRef, injector.get(token)) resolves the token on a subject whose records carry it and answers reachedBy null + no-stability-observable on one whose records do not — never unstable, since nothing was read.
+- 2026-11-09 — build — one subscription through isStable stays current across a later add()/remove() flip (installed 22.2.2 PendingTasksInternal, driven here: true at subscribe, false across two adds, true again after the last remove, twice over), so the agent subscribes once at attach; /resource-states is unstable for its lifetime (neverSettles at resource-states.ts:61, loader at :69, pending task added at _resource-chunk.mjs:404 and removed only in the load effect's finally at :463), and no inspected subject produced an unstable-to-stable change, so the ruling is transitionProducible: false on a page with answer no-transition-observed — SC2's positive half is not claimed and would need a drive that ends the last pending task after attach.
+- 2026-11-09 — build — the record carries it: a stability section ({reachedBy, absence, attachAt, reading, settle, version, coreVersion}) sits after boundary and before checks in both the frame record and the initial snapshot, armed at start():1865 and :1870 and removed by reset():1896; the profiler is installed once and ɵsetProfiler(null) is never called; repeats re-derived from the frame's own events (a second TemplateUpdate pair in one checks row: [2,3,2,3], and a second ChangeDetection pair carrying componentName null, four such entries).
+- 2026-11-09 — build — anchors held: var prevEpochs at 42, onEvent at 573-614, prevEpochs.set(instance, next) at 1034, closeCycle at 1038, the router reach at 1750-1839 and prevEpochs = new WeakMap() at 1889 are unmoved (each insertion paid for by merging a two-line comment); installRouterEvents (1845 to 1844), uninstallRouterEvents (1854 to 1852) and start (1864 to 1862) moved and are declared in the recording's record.anchors.moved.
+- 2026-11-09 — build — re-cuts, each with the failing assertion quoted: extension/agent-main.test.mjs's two record-key assertions failed with + 'stability' present in actual and now list it after 'boundary'; scripts/error-boundary-measure.test.mjs failed with .project/research/s10-answer.md is missing (the note archived to .project/archive/042-error-boundary/research/) and now resolves the moved document while keeping the citations the m042 recording quotes; scripts/error-boundary-capture.test.mjs read the live intent, which this milestone rebound to the stability criteria, and now reads M042's own intent from .project/archive/042-error-boundary/intent/INTENT.md.
+- 2026-11-09 — build — Verify pass at ef2cc27f4c60e2bc21e659881d7a124deb502222: the task's Verify line ran verbatim to exit 0 — node --check x3 clean, 327 node tests pass / 0 fail across the twelve named suites (scripts/stability-measure.test.mjs among them, 14 tests), npx nx run angular-ai-devtools:test 31 files / 346 tests passed, prettier --check clean on the eight named files, npm run check clean (tsc, skill lint, panel/extension/companion checks, verification gate: pass, format:check clean). A default run of scripts/stability-measure.test.mjs writes nothing; two armed runs produced byte-identical research/raw/m043-stability.json (24647 bytes).
+- 2026-11-09 — build — landing verdict: the declared 16 paths carry the work (6 changed, all declared), the Log is append-only above this line, the Verify line passed verbatim at ef2cc27f4c60e2bc21e659881d7a124deb502222 and no product path outside the declaration moved — ready

@@ -50,7 +50,23 @@ const SELF_PATH = fileURLToPath(import.meta.url);
 
 const RECORD_PATH = join(ROOT, 'research', 'raw', 'm042-error-boundary.json');
 const AGENT_PATH = join(ROOT, 'extension', 'agent-main.js');
-const S10_PATH = join(ROOT, '.project', 'research', 's10-answer.md');
+// M043 re-cut: M042's land archived its research note, so `.project/research/s10-answer.md` no
+// longer resolves and this suite failed with `.project/research/s10-answer.md is missing - the S10
+// record of this instrument cites it`. The citations below keep their historical text - the
+// recording quotes them, and rewriting them would make `research/raw/m042-error-boundary.json`
+// disagree with its own derivation - so the moved document is resolved here instead.
+const S10_PATH = join(
+  ROOT,
+  '.project',
+  'archive',
+  '042-error-boundary',
+  'research',
+  's10-answer.md',
+);
+const MOVED_DOCUMENTS = {
+  '.project/research/s10-answer.md':
+    '.project/archive/042-error-boundary/research/s10-answer.md',
+};
 const APP_CONFIG_PATH = join(
   ROOT,
   'spikes',
@@ -205,7 +221,7 @@ function citation(citationText, where) {
 /** Every line of a cited range, from the file the citation names. */
 function citedLines(citationText, where) {
   const { path, start, end } = citation(citationText, where);
-  const absolute = join(ROOT, path);
+  const absolute = join(ROOT, MOVED_DOCUMENTS[path] ?? path);
   requireFile(absolute, `${where} cites it`);
   const lines = readFileSync(absolute, 'utf8').split('\n');
   if (end > lines.length) {

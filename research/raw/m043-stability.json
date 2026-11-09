@@ -1,0 +1,517 @@
+{
+  "schema": "m043-stability/v1",
+  "milestone": "stability-explainer",
+  "task": "T001",
+  "title": "The stability surface - the reach, the subscription's currency, the unstable subject and the record that carries them",
+  "question": "Can the page agent reach `ApplicationRef.isStable` the way it reaches `Router`, does one subscription taken through it stay current, which subject is unstable at attach, and can any inspected subject produce an unstable-to-stable change?",
+  "capturedAt": "2026-11-09T00:00:00.000Z",
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0"
+  },
+  "commands": {
+    "check": "node --check extension/agent-main.js && node --check extension/agent-main.test.mjs && node --check scripts/stability-measure.test.mjs && node --experimental-strip-types --test \"scripts/stability-measure.test.mjs\" \"extension/agent-main.test.mjs\" \"extension/page-footprint.test.mjs\" \"extension/error-boundary.test.mjs\" \"scripts/performance-measure.test.mjs\" \"scripts/render-phase-measure.test.mjs\" \"scripts/performance-capture.test.mjs\" \"scripts/render-phase-capture.test.mjs\" \"scripts/navigation-measure.test.mjs\" \"scripts/navigation-capture.test.mjs\" \"scripts/error-boundary-measure.test.mjs\" \"scripts/error-boundary-capture.test.mjs\" && npx nx run angular-ai-devtools:test && npx prettier --check extension/agent-main.js extension/agent-main.test.mjs scripts/stability-measure.test.mjs scripts/error-boundary-measure.test.mjs scripts/error-boundary-capture.test.mjs apps/angular-ai-devtools/src/app/companion.spec.ts apps/angular-ai-devtools/src/app/update-cause-chain.spec.ts research/raw/m043-stability.json && npm run check",
+    "capture": "M043_CAPTURE=1 node --experimental-strip-types --test \"scripts/stability-measure.test.mjs\"",
+    "reproduce": "node --experimental-strip-types --test \"scripts/stability-measure.test.mjs\""
+  },
+  "teardown": {
+    "ports": [
+      4507,
+      3000,
+      4222,
+      9333,
+      9334
+    ],
+    "started": [],
+    "stopped": [],
+    "note": "This task starts no server, binds no port and opens no browser: the reach and the record are driven by booting the shipped agent in Node, and the currency reading drives the installed 22.2.2 tracker. Nothing was started, so there was nothing to stop."
+  },
+  "reach": {
+    "question": "Can the agent reach `ApplicationRef.isStable` through the walk it already performs for `Router`, and what does a page without it still say?",
+    "finding": "Yes, through the same five steps and no new tap: `ng.getInjector(host)`, `ɵgetInjectorResolutionPath`, `ɵgetInjectorProviders`, the provider record whose `token.name` is `ApplicationRef` (the class the runtime provides, whose name the token yields), then `injector.get(token)` on the entry that carried the record. On the measured page the walk finds the token in the environment injector, exactly where M041 measured `Router`; the agent reads the getter once and subscribes once. A page whose records carry no `ApplicationRef` record answers `reachedBy: null` with the named absence `no-stability-observable` and the state `cannot-tell` - never `unstable`, because nothing was read rather than something was read and said \"not stable\".",
+    "token": {
+      "name": "ApplicationRef",
+      "declaredAt": "extension/agent-main.js:2285",
+      "isTheRuntimeClass": "class ApplicationRef {",
+      "classAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:13197",
+      "namedBy": "extension/agent-main.js:2328"
+    },
+    "walk": [
+      {
+        "step": "ng.getInjector",
+        "at": "extension/agent-main.js:2301",
+        "code": "injector = getInjector(element);"
+      },
+      {
+        "step": "ɵgetInjectorResolutionPath",
+        "at": "extension/agent-main.js:2308",
+        "code": "entries = getPath(injector) || [];"
+      },
+      {
+        "step": "ɵgetInjectorProviders",
+        "at": "extension/agent-main.js:2316",
+        "code": "records = getProviders(entries[i]);"
+      },
+      {
+        "step": "record.token",
+        "at": "extension/agent-main.js:2324",
+        "code": "token = records[j] ? records[j].token : null;"
+      },
+      {
+        "step": "injector.get(token)",
+        "at": "extension/agent-main.js:2381",
+        "code": "appRef = found.injector.get(found.token);"
+      }
+    ],
+    "subjects": {
+      "withToken": {
+        "providerRecords": 2,
+        "entryIndex": 1,
+        "reachedBy": "ApplicationRef",
+        "absence": null,
+        "attachAt": "number",
+        "state": "stable",
+        "reading": {
+          "value": true,
+          "at": 1008
+        },
+        "getterReads": 1,
+        "subscriptions": 1,
+        "resolveAnswered": "the ApplicationRef instance the entry answered"
+      },
+      "withoutToken": {
+        "providerRecords": 2,
+        "entryIndex": null,
+        "reachedBy": null,
+        "absence": "no-stability-observable",
+        "attachAt": null,
+        "state": "cannot-tell",
+        "getterReads": 0,
+        "subscriptions": 0,
+        "resolveAnswered": null
+      }
+    },
+    "aPageWithout": "A page whose provider records carry no ApplicationRef still records the section, answering `reachedBy: null`, `absence: \"no-stability-observable\"`, `attachAt: null`, `reading: null` and `settle: {\"state\":\"no-settle-observed\"}`. It never claims instability from a read it could not take.",
+    "installedOnce": {
+      "setProfilerCalls": 1,
+      "profilerClearedWithNull": false,
+      "armedAt": "extension/agent-main.js:1865",
+      "armedInsideTheProfilerCallback": false,
+      "onEventRange": "extension/agent-main.js:573-614"
+    }
+  },
+  "observable": {
+    "question": "Does one subscription taken through the `isStable` getter stay current through a later `add()`/`remove()` flip, and what does the stream underneath carry?",
+    "finding": "One subscription is enough. The getter builds a fresh pipe on every access, but the observable it pipes is `hasPendingTasksObservable`, which answers `this.pendingTask` - a `BehaviorSubject` - so a subscriber is handed the current value at subscribe and every later `next()` reaches the same subscription. Driven against the installed 22.2.2 tracker, one subscription read `true` at subscribe, `false` when the first task was added, stayed `false` through a second add and a first remove, and read `true` again when the last task was removed; a second flip reproduced the same sequence. The agent therefore subscribes once at attach and never re-reads the getter per record.",
+    "getter": {
+      "at": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:13221-13222",
+      "source": "return this.internalPendingTask.hasPendingTasksObservable.pipe(map(pending => !pending));",
+      "builds": "a fresh `map(pending => !pending)` pipe per access, over `hasPendingTasksObservable`",
+      "freshPipePerAccess": true,
+      "streamUnderIt": "this.pendingTask, a BehaviorSubject<boolean> that means hasPendingTasks",
+      "streamAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2295",
+      "subjectAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2288"
+    },
+    "currency": {
+      "oneSubscription": true,
+      "atSubscribe": [
+        true
+      ],
+      "afterFirstAdd": [
+        true,
+        false
+      ],
+      "afterSecondAdd": [
+        true,
+        false
+      ],
+      "afterOneRemoved": [
+        true,
+        false
+      ],
+      "afterAllRemoved": [
+        true,
+        false,
+        true
+      ],
+      "afterSecondFlip": [
+        true,
+        false,
+        true,
+        false,
+        true
+      ],
+      "sequence": [
+        true,
+        false,
+        true,
+        false,
+        true
+      ],
+      "flipsAcross": 5,
+      "staysCurrent": true,
+      "subscriptionsTaken": 1,
+      "readingsInvertedBy": "map(pending => !pending), so an emission is the stability bit"
+    },
+    "pendingTasks": {
+      "trackerAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2284-2338",
+      "idsAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2286",
+      "idsKind": "Set",
+      "holds": "number task ids and nothing else",
+      "addAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2305",
+      "addReturns": "number (a monotone id)",
+      "hasAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2313-2315",
+      "removeAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2316-2322",
+      "emitsAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2292 (the boolean read) and spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2288 (the stream)",
+      "idsAfterSubscribe": [],
+      "noPerItemOrder": "The tracker holds ids in a `Set<number>`: insertion order is the only order it has, and it records no per-item field at all - no component, no label, no reason - so a surface can say a task is outstanding and cannot say which work it belongs to."
+    },
+    "absences": [
+      "`isStable` carries no reason: the getter is one `pipe(map(pending => !pending))` over a boolean, so an unstable reading says \"a task is outstanding\" and nothing about what it is.",
+      "`PendingTasksInternal.pendingTasks` is a `Set<number>` of ids: membership is readable by id (`has(taskId)`), and no id maps back to a component, a route or a resource.",
+      "The set carries no per-item order and no per-item record: `add()` returns a counter, `remove(taskId)` takes it back, and the only ordering available is the Set insertion order of bare numbers."
+    ]
+  },
+  "page": {
+    "question": "Which inspected subject is unstable while the read is attached, and why is it unstable for its lifetime?",
+    "finding": "/resource-states is SC1's positive case and it is unstable at attach, for the page's lifetime. The fixture's `LoadingResource` is given a loader that returns `new Promise<never>(() => {})`, a promise nothing resolves; the resource takes the page's `PendingTasks`, `add()`s a task when the load starts, and removes it only in the `finally` of the load effect or when a load is aborted. A promise that never settles returns neither way, so the task stays outstanding, the tracker's stream keeps saying \"pending\", and `isStable` says `false` for as long as the page lives. No fixture change is needed: the state is installed in `spikes/ng222-app/src/app/resource-states.ts` already.",
+    "route": "/resource-states",
+    "file": "spikes/ng222-app/src/app/resource-states.ts",
+    "componentAt": "spikes/ng222-app/src/app/resource-states.ts:56",
+    "loader": {
+      "neverSettlesAt": "spikes/ng222-app/src/app/resource-states.ts:61",
+      "neverSettles": "new Promise<never>(() => {})",
+      "loadingResourceAt": "spikes/ng222-app/src/app/resource-states.ts:67-71",
+      "loaderAt": "spikes/ng222-app/src/app/resource-states.ts:69",
+      "settles": false
+    },
+    "coupling": {
+      "injectsPendingTasksAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_resource-chunk.mjs:331",
+      "addsATaskAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_resource-chunk.mjs:404",
+      "removesInFinallyAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_resource-chunk.mjs:463",
+      "removesOnAbortAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_resource-chunk.mjs:470",
+      "projectsStatusAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_resource-chunk.mjs:501-510"
+    },
+    "state": "unstable",
+    "stateFor": "the page's lifetime",
+    "reading": {
+      "value": false,
+      "means": "not stable: the tracker holds an outstanding task",
+      "carriesNoReason": true
+    },
+    "reasonAvailable": false
+  },
+  "transition": {
+    "question": "Is an unstable-to-stable transition producible while the read is attached, and if it is not, what would produce one?",
+    "finding": "No inspected subject produces an unstable-to-stable change. `/resource-states` is unstable from attach to teardown and cannot end its task, and it is the only page-shaped subject this checkout carries, so this recording answers `no-transition-observed` rather than leaving the reader to infer a transition from a page that was already stable at attach. The mechanism itself is measured: the installed tracker took one subscription and reported `true` at subscribe, `false` across two adds, and `true` again after the last remove, so a page that ended its last task while the read was attached would produce the change. SC2's positive half therefore rests on a drive that starts and finishes a task after attach, and this task does not claim it.",
+    "answer": "no-transition-observed",
+    "producedOnAnInspectedPage": false,
+    "mechanism": {
+      "measured": true,
+      "produced": true,
+      "settle": {
+        "state": "settled",
+        "at": 1008,
+        "sinceAttachMs": 7
+      },
+      "sequence": [
+        true,
+        false,
+        true,
+        false,
+        true
+      ],
+      "oneSubscription": true,
+      "wouldEmit": "true (stable) as the last outstanding task is removed",
+      "sourceAt": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2288, spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2316-2322"
+    },
+    "wouldNeed": [
+      "A page whose last outstanding task is removed while the read is attached: `/resource-states` cannot, because its loader returns a promise nothing resolves and the removal runs only in the load effect's `finally` or on an abort.",
+      "Or a subject that starts a task after attach and finishes it: a router navigation on a stable route, which the agent already records as `routerEvents`, adds and releases a pending task around the navigation.",
+      "Or a fixture change to the loader, which this task's acceptance criteria forbid."
+    ],
+    "alreadyStableAtAttach": {
+      "subject": "stable-at-attach",
+      "state": "stable",
+      "settle": {
+        "state": "settled",
+        "at": 1001,
+        "sinceAttachMs": 0
+      },
+      "transition": "no-transition-observed",
+      "note": "A page already stable at attach settles *at* `attachAt`, not after it: the emission a BehaviorSubject hands a new subscriber synchronously is read at attach. A settle later than attach is therefore the only shape that can carry a transition, and this one carries none."
+    },
+    "subjects": {
+      "unstable-then-stable": {
+        "state": "stable",
+        "reading": {
+          "value": true,
+          "at": 1008
+        },
+        "settle": {
+          "state": "settled",
+          "at": 1008,
+          "sinceAttachMs": 7
+        },
+        "answer": "transition-observed"
+      },
+      "stable-at-attach": {
+        "state": "stable",
+        "reading": {
+          "value": true,
+          "at": 1001
+        },
+        "settle": {
+          "state": "settled",
+          "at": 1001,
+          "sinceAttachMs": 0
+        },
+        "answer": "no-transition-observed"
+      },
+      "silent-stream": {
+        "state": "idle",
+        "reading": null,
+        "settle": {
+          "state": "no-settle-observed"
+        },
+        "answer": "no-transition-observed"
+      },
+      "no-application-ref": {
+        "state": "cannot-tell",
+        "reading": null,
+        "settle": {
+          "state": "no-settle-observed"
+        },
+        "answer": "no-transition-observed"
+      }
+    }
+  },
+  "repeats": {
+    "question": "Does one frame carry a second `TemplateUpdate` start/end pair inside one `checks` row, and a second `ChangeDetection` pair carrying `componentName: null`?",
+    "finding": "Both, re-derived from the frame's own `events` list at this head. A driven frame carrying two template-update pairs records a `checks` row holding four values - start, end, start, end - so the row carries two pairs rather than one, and the frame-level list carries both. The same frame carries two `ChangeDetection` pairs, and every one of their four entries records `componentName: null`: the profiler passes no instance for that pair at all, and the entry records the absence rather than borrowing a name.",
+    "frameKeys": [
+      "ChangeDetection",
+      "ChangeDetection",
+      "ChangeDetection",
+      "ChangeDetection",
+      "TemplateUpdate",
+      "TemplateUpdate",
+      "TemplateUpdate",
+      "TemplateUpdate"
+    ],
+    "templateUpdate": {
+      "pair": "TemplateUpdate",
+      "starts": 2,
+      "ends": 2,
+      "inOneCheckRow": 2,
+      "checkRowEvents": [
+        2,
+        3,
+        2,
+        3
+      ],
+      "componentNames": [
+        "app-root"
+      ]
+    },
+    "changeDetection": {
+      "pair": "ChangeDetection",
+      "starts": 2,
+      "ends": 2,
+      "nullComponentNames": 4,
+      "carriesNoInstance": true,
+      "inAnyCheckRow": false
+    },
+    "shape": "one entry per recorded value: { type, pair, end, at, componentName } - `at` is the page's own reading at receipt"
+  },
+  "record": {
+    "question": "Does the agent carry the read on the record it already dispatches, armed from the install path and removed by `reset()`?",
+    "finding": "Yes. A `stability` section sits beside `events`, `routerEvents`, `boundary` and `checks` in both the frame record and the initial snapshot, in the same position in each: after `boundary`, before `checks`. It is armed from the install path's own answer - `start()` calls it beside `installRouterEvents()`, never from inside the profiler callback - and `reset()` removes the subscription and clears every field it holds, so a second install starts from a page this file has never read. Every field is a number, a boolean, a string the page published, or `null`; nothing is inferred and no clock is read beyond the page's own `performance.now()`.",
+    "field": "stability",
+    "sectionAt": "extension/agent-main.js:2285-2454",
+    "fieldAt": "extension/agent-main.js:2443-2453",
+    "keys": [
+      "reachedBy",
+      "absence",
+      "attachAt",
+      "reading",
+      "settle",
+      "version",
+      "coreVersion"
+    ],
+    "frameFieldAt": "extension/agent-main.js:1052",
+    "snapshotFieldAt": "extension/agent-main.js:1442",
+    "position": "after `boundary`, before `checks`, in both records",
+    "armedAt": "extension/agent-main.js:1865",
+    "removedAt": "extension/agent-main.js:1896",
+    "frameKeys": [
+      "cycleId",
+      "startedAt",
+      "trigger",
+      "zoneMode",
+      "events",
+      "routerEvents",
+      "boundary",
+      "stability",
+      "checks"
+    ],
+    "readsTheGetterAt": "extension/agent-main.js:2388",
+    "recordsTheEmissionAt": "extension/agent-main.js:2340",
+    "settlesAt": "extension/agent-main.js:2345",
+    "version": "22.2.2",
+    "versionAt": "extension/agent-main.js:2286",
+    "coreVersion": "the page's own `ng.VERSION.full`, `null` where it reports none",
+    "frame": {
+      "reachedBy": "ApplicationRef",
+      "absence": null,
+      "attachAt": 1001,
+      "reading": {
+        "value": true,
+        "at": 1008
+      },
+      "settle": {
+        "state": "settled",
+        "at": 1008
+      },
+      "version": "22.2.2",
+      "coreVersion": "22.2.2"
+    },
+    "snapshot": {
+      "reachedBy": "ApplicationRef",
+      "absence": null,
+      "attachAt": 1001,
+      "reading": {
+        "value": false,
+        "at": 1001
+      },
+      "settle": {
+        "state": "no-settle-observed"
+      },
+      "version": "22.2.2",
+      "coreVersion": "22.2.2"
+    },
+    "afterReset": {
+      "reachedBy": null,
+      "absence": "no-stability-observable",
+      "attachAt": null,
+      "reading": null,
+      "settle": {
+        "state": "no-settle-observed"
+      },
+      "version": "22.2.2",
+      "coreVersion": "22.2.2"
+    },
+    "afterResetState": "cannot-tell",
+    "unsubscribedOnReset": 1,
+    "settledFrame": {
+      "reachedBy": "ApplicationRef",
+      "absence": null,
+      "attachAt": 1001,
+      "reading": {
+        "value": true,
+        "at": 1008
+      },
+      "settle": {
+        "state": "settled",
+        "at": 1008
+      },
+      "version": "22.2.2",
+      "coreVersion": "22.2.2"
+    },
+    "silentFrame": {
+      "reachedBy": "ApplicationRef",
+      "absence": null,
+      "attachAt": 1001,
+      "reading": null,
+      "settle": {
+        "state": "no-settle-observed"
+      },
+      "version": "22.2.2",
+      "coreVersion": "22.2.2"
+    },
+    "absentFrame": {
+      "reachedBy": null,
+      "absence": "no-stability-observable",
+      "attachAt": null,
+      "reading": null,
+      "settle": {
+        "state": "no-settle-observed"
+      },
+      "version": "22.2.2",
+      "coreVersion": "22.2.2"
+    },
+    "anchors": {
+      "unmoved": [
+        {
+          "anchor": "var prevEpochs = new WeakMap();",
+          "at": 42,
+          "expected": 42
+        },
+        {
+          "anchor": "function onEvent(event, instance, eventFn) {",
+          "at": 573,
+          "expected": 573
+        },
+        {
+          "anchor": "prevEpochs.set(instance, next);",
+          "at": 1034,
+          "expected": 1034
+        },
+        {
+          "anchor": "function closeCycle() {",
+          "at": 1038,
+          "expected": 1038
+        },
+        {
+          "anchor": "function routerTokenFrom(element, getInjector, getPath, getProviders) {",
+          "at": 1750,
+          "expected": 1750
+        },
+        {
+          "anchor": "prevEpochs = new WeakMap();",
+          "at": 1889,
+          "expected": 1889
+        }
+      ],
+      "moved": [
+        {
+          "anchor": "function installRouterEvents()",
+          "was": 1845,
+          "now": 1844,
+          "why": "the two-line comment above it became one line, which paid for the first `installStability()` call"
+        },
+        {
+          "anchor": "function uninstallRouterEvents()",
+          "was": 1854,
+          "now": 1852,
+          "why": "the second comment merge, which paid for the retry call site"
+        },
+        {
+          "anchor": "function start()",
+          "was": 1864,
+          "now": 1862,
+          "why": "the two merges above it; `start()` hosts both `installStability()` calls"
+        }
+      ]
+    },
+    "profilerOnce": {
+      "setProfilerCalls": 1,
+      "clearedWithNull": false,
+      "note": "The profiler is installed once and `ɵsetProfiler(null)` is never called, so a second install adds its own subscriber rather than removing every callback on the page."
+    }
+  },
+  "absences": [
+    "`isStable` carries no reason (`spikes/ng222-app/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:13221-13222`): the getter is a boolean map, so an unstable reading names no task.",
+    "`PendingTasksInternal.pendingTasks` is a `Set<number>` (`spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2286`): ids only, so no task maps back to a component, a route or a resource.",
+    "The tracker carries no per-item order (`spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2305` to `spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs:2316-2322`): `add()` answers a counter and `remove(taskId)` takes it back; insertion order of bare numbers is the only order there is.",
+    "No page reports the Angular version it runs: `coreVersion` is `ng.VERSION.full` where the page publishes it and `null` where it does not, and the surface declares `22.2.2` as the constant it works against.",
+    "The transition is a named absence, not a reading: `no-transition-observed`, with the mechanism measured and the drive it would need named."
+  ],
+  "doesNotSettle": [
+    "What a live `/resource-states` emits: this task takes no page. The instability is read from the fixture's own loader and the installed resource class, quoted with both anchors, and the state the record answers for it is derived from that reading.",
+    "Which task id `/resource-states` holds open: the tracker keeps ids only, so the coupling is provable (the resource adds and removes its own id) and the id itself is not page-observable evidence.",
+    "Whether a later 22.x keeps `hasPendingTasksObservable` a `BehaviorSubject`: the currency reading is the installed 22.2.2 chunk, so a point release that answered a cold observable per access would make a single subscription insufficient. The recording names the chunk it measured.",
+    "What the read answers on a page that destroys its application: `destroyed` makes the observable answer `false` and complete, which this task does not drive."
+  ]
+}
