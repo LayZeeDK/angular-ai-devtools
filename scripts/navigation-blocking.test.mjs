@@ -1,0 +1,2193 @@
+// Tests for extension/navigation-narrator.js — the join that turns one recorded navigation stream
+// into the navigations it carries: the terminal each one reached and only the fields that terminal
+// recorded, the stage an open one sits at, the holder no payload names, and the three absences this
+// milestone must report rather than invent.
+//
+// The module is evaluated in a bare `node:vm` context; the checkout is never written. Two pins guard
+// purity: the context carries no DOM, clock, console or network, and the join is run again in a
+// context where every one of those names is a trap, so a module that reached for one is caught
+// rather than answered exactly as the clean module is.
+//
+// Every frame below is T001's measurement (`research/raw/m041-navigation.json`) converted into the
+// entry shape T002 publishes — the class name, the page's own receipt time and the fields the event
+// carried — so the pins are held to a recording rather than to a fixture invented for the test:
+//
+//   held         NavigationStart + RouteConfigLoadStart, no terminal event, nothing named as holder
+//   warm         23 events, two measured route-config intervals, NavigationEnd 3.1 ms after the last
+//   superseded   a NavigationCancel at 564.2 ms whose own load end arrives at 1756.3 ms, 314.8 ms
+//                before the successor's at 2071.1 ms
+//   error        a NavigationError carrying a TypeError's own name and message
+//   skip         a single NavigationSkipped, so the record carries no start for it at all
+//   redirect     11 events whose only trace of the redirect is `url` against `urlAfterRedirects`
+//   refused      the eleven classes a refused `canMatch` produced, and the same eleven an unmatched
+//   unmatched    URL produced: the same key sets, both `shouldActivate: true`, both chain `[null,"**"]`
+//
+// Three frames are not verbatim recordings and say so where they sit: the two wildcard frames carry
+// the recording's own class sequence and chain with the ids and urls of the two navigations the
+// recording compared, a prefix frame is the recorded stream cut where the measurement's hold was,
+// and the measured-zero frame repeats one recorded reading on both ends of one load.
+//
+// The nine held-out edges are pinned exactly:
+//
+//   E1  each of the four terminal classes renders as itself, with only the fields that class carried
+//   E2  an end route appears only where the terminal event carried `urlAfterRedirects`
+//   E3  a start with no terminal renders open at its last stage, never as the reason it is open, and
+//       an empty record answers the absence rather than a zero that reads as success
+//   E4  every stage word is the class of an event the record contains, and no other word appears
+//   E5  an open navigation's holder is `no-holder-recorded` and carries no guard, chunk or task name
+//   E6  a wildcard match is reported as the match and never as a guard refusal, and a refusal is
+//       indistinguishable from an unmatched URL in the answer
+//   E7  `shouldActivate` is the aggregate field it is and is never attributed to a named guard, and
+//       a resolve stage on a configuration declaring no resolver answers `no-resolver-configured`
+//   E8  a completed navigation with a measured interval answers ended with it, a measured zero
+//       included, and is never reported open or held
+//   E9  an id-less load never acquires one, and a load end closes the load its own start opened on
+//       the navigation that start belonged to — never its successor
+//
+// Every edge is proven non-vacuously in four phases: the pin is run against the untouched module
+// first, then against a mutant of the module source which is asserted to exhibit the defect the pin
+// hunts, then the pin is asserted to redden on it with a failure message that names the defect by
+// string, then the untouched module is pinned again. A mutant that survives its pin, or reddens with
+// a message that does not name the defect, fails this suite.
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { describe, it } from 'node:test';
+import { createContext, runInContext } from 'node:vm';
+
+const SRC = readFileSync(
+  new URL('../extension/navigation-narrator.js', import.meta.url),
+  'utf8',
+);
+const RECORDING = JSON.parse(
+  readFileSync(
+    new URL('../research/raw/m041-navigation.json', import.meta.url),
+    'utf8',
+  ),
+);
+
+// ------------------------------------------------------------ measured facts ----
+
+/** The four terminal classes the recording enumerates, and no fifth. */
+const TERMINAL_CLASSES = [
+  'NavigationEnd',
+  'NavigationCancel',
+  'NavigationError',
+  'NavigationSkipped',
+];
+
+/** The four stage words, and the class each one is named by. Written here rather than read from the
+ * module, so the pin cannot be satisfied by the module agreeing with itself. */
+const STAGE_WORDS = [
+  'activation',
+  'guards-check',
+  'resolve',
+  'route-config-load',
+];
+const STAGE_OF_CLASS = new Map([
+  ['RouteConfigLoadStart', 'route-config-load'],
+  ['RouteConfigLoadEnd', 'route-config-load'],
+  ['GuardsCheckStart', 'guards-check'],
+  ['GuardsCheckEnd', 'guards-check'],
+  ['ResolveStart', 'resolve'],
+  ['ResolveEnd', 'resolve'],
+  ['ChildActivationStart', 'activation'],
+  ['ActivationStart', 'activation'],
+  ['ActivationEnd', 'activation'],
+  ['ChildActivationEnd', 'activation'],
+]);
+
+/** The classes the recording enumerates, by name, with each class's own recorded payload fields. */
+const CLASS_KEYS = new Map(
+  RECORDING.events.classes.map((row) => [row.name, row.keys]),
+);
+
+/** The recorded frames, verbatim. */
+const HELD = RECORDING.held.inFlight.events;
+const WARM = RECORDING.warm.events;
+const SUPERSEDED = RECORDING.superseded.events;
+const ERROR = RECORDING.terminals.error.events;
+const SKIP = RECORDING.terminals.skip.events;
+const REDIRECT = RECORDING.terminals.redirect.events;
+
+/** The two navigations the refused-`canMatch` comparison measured, as class sequences. */
+const GUARD_COMPARISON =
+  RECORDING.absences['guard-verdict-not-recorded']
+    .refusedGuardVersusUnmatchedUrl.comparison;
+
+/** The key sets an answer, a navigation and a load may carry — and the whole of what one may. */
+const ANSWER_KEYS = ['absence', 'navigations', 'state', 'unattributed'];
+const NAVIGATION_KEYS = [
+  'absence',
+  'code',
+  'error',
+  'guards',
+  'holder',
+  'id',
+  'lastEvent',
+  'loads',
+  'matched',
+  'reason',
+  'resolve',
+  'stage',
+  'state',
+  'terminal',
+  'url',
+  'urlAfterRedirects',
+];
+const ENTRY_KEYS = [
+  'at',
+  'code',
+  'error',
+  'id',
+  'matchedPaths',
+  'reason',
+  'route',
+  'shouldActivate',
+  'type',
+  'url',
+  'urlAfterRedirects',
+];
+const LOAD_KEYS = ['durationMs', 'endedAt', 'open', 'route', 'startedAt'];
+const HOLDER_KEYS = ['absence', 'state'];
+const GUARDS_KEYS = ['absence', 'shouldActivate', 'state'];
+const RESOLVE_KEYS = ['absence', 'state'];
+const MATCHED_KEYS = ['path', 'paths', 'wildcard'];
+
+// ---------------------------------------------------------------- the record ----
+
+function numberOrNull(value) {
+  return typeof value === 'number' ? value : null;
+}
+
+function textOrNull(value) {
+  return typeof value === 'string' ? value : null;
+}
+
+/**
+ * The chain a recorded payload carried: a router state snapshot's own `matchedChain` in order — the
+ * recording keeps both forms, `{path}` objects and bare paths, in one run — or a single activated
+ * snapshot's own `path` where that is all the recording kept.
+ */
+function chainOf(payload) {
+  if (payload.state && Array.isArray(payload.state.matchedChain)) {
+    return payload.state.matchedChain.map((node) => {
+      if (typeof node === 'string') return node;
+      return node && typeof node.path === 'string' ? node.path : null;
+    });
+  }
+  if (payload.snapshot && typeof payload.snapshot.path === 'string') {
+    return [payload.snapshot.path];
+  }
+  return [];
+}
+
+/**
+ * One recorded event as the entry T002 publishes: the class name, the page's own receipt time, and
+ * the fields the event carried — every field it did not carry is `null`, and the error is its own
+ * name and message.
+ */
+function fromRecording(event) {
+  const payload = event.payload ?? {};
+  return {
+    type: event.class,
+    at: event.t,
+    id: numberOrNull(payload.id),
+    url: textOrNull(payload.url),
+    urlAfterRedirects: textOrNull(payload.urlAfterRedirects),
+    route:
+      payload.route && typeof payload.route.path === 'string'
+        ? payload.route.path
+        : null,
+    reason: textOrNull(payload.reason),
+    code: numberOrNull(payload.code),
+    error:
+      payload.error === undefined || payload.error === null
+        ? null
+        : {
+            name: textOrNull(payload.error.name),
+            message: textOrNull(payload.error.message),
+          },
+    shouldActivate:
+      typeof payload.shouldActivate === 'boolean'
+        ? payload.shouldActivate
+        : null,
+    matchedPaths: chainOf(payload),
+  };
+}
+
+/** One entry of the shape T002 publishes, from the fields this test means it to carry. */
+function entry(partial) {
+  return {
+    type: partial.type,
+    at: numberOrNull(partial.at),
+    id: numberOrNull(partial.id),
+    url: textOrNull(partial.url),
+    urlAfterRedirects: textOrNull(partial.urlAfterRedirects),
+    route: textOrNull(partial.route),
+    reason: textOrNull(partial.reason),
+    code: numberOrNull(partial.code),
+    error: partial.error ?? null,
+    shouldActivate:
+      typeof partial.shouldActivate === 'boolean'
+        ? partial.shouldActivate
+        : null,
+    matchedPaths: Array.isArray(partial.matchedPaths)
+      ? partial.matchedPaths
+      : [],
+  };
+}
+
+/** A record as the page agent publishes it: the list of arrivals, and nothing else read. */
+function recordOf(events) {
+  return { routerEvents: events.map(fromRecording) };
+}
+
+/** The one recorded event of a frame that carries a class, or a failure naming it. */
+function recordedEvent(events, type, id) {
+  const found = events.filter(
+    (event) =>
+      event.class === type &&
+      (id === undefined || (event.payload && event.payload.id === id)),
+  );
+  assert.ok(
+    found.length > 0,
+    `the recording carries no ${type}${id === undefined ? '' : ` for id ${id}`}`,
+  );
+  return found[0];
+}
+
+// ----------------------------------------------------------------- fixtures ----
+
+/** The held navigation the recording measured: a start and a lazy load start, and no terminal. */
+function heldRecord() {
+  return recordOf(HELD);
+}
+
+/** A navigation that recorded nothing but its start: the held frame cut after the first event. */
+function startOnlyRecord() {
+  assert.equal(
+    HELD[0].class,
+    'NavigationStart',
+    'the held frame opens on a start',
+  );
+  return recordOf(HELD.slice(0, 1));
+}
+
+/** The warm lazy navigation: two measured route-config intervals and a NavigationEnd. */
+function warmRecord() {
+  return recordOf(WARM);
+}
+
+/** The warm frame cut after one recorded class, which is where a navigation is held at that stage. */
+function prefixThrough(type) {
+  const index = WARM.findIndex((event) => event.class === type);
+  assert.ok(index >= 0, `the warm frame carries no ${type}`);
+  const prefix = WARM.slice(0, index + 1);
+  assert.equal(
+    prefix[prefix.length - 1].class,
+    type,
+    'the prefix ends on the cut',
+  );
+  return recordOf(prefix);
+}
+
+/** The superseded run: one navigation cancelled at 564.2 ms and its successor ended at 5119 ms. */
+function supersededRecord() {
+  return recordOf(SUPERSEDED);
+}
+
+/** The error terminal, measured by aborting a lazy chunk request. */
+function errorRecord() {
+  return recordOf(ERROR);
+}
+
+/** The same-URL skip: one NavigationSkipped and no start at all. */
+function skipRecord() {
+  return recordOf(SKIP);
+}
+
+/** The redirect: one navigation whose only trace of the redirect is `url` against the end route. */
+function redirectRecord() {
+  return recordOf(REDIRECT);
+}
+
+/**
+ * A wildcard navigation, in the class sequence the recording measured for both the refused `canMatch`
+ * and the unmatched URL. The sequence, the chain and the aggregate are the recording's; the id and
+ * the url are the two navigations' own, which the recording's comparison named as the only paths
+ * that differed between them.
+ */
+function wildcardRecord({ id, url }) {
+  const chain = GUARD_COMPARISON.refusedMatchedChain.map((node) => node.path);
+  assert.deepEqual(
+    GUARD_COMPARISON.unmatchedMatchedChain.map((node) => node.path),
+    chain,
+    'the recording measured one chain for both the refused guard and the unmatched URL',
+  );
+  const at = (step) => 100 + step;
+  const events = [
+    entry({ type: 'NavigationStart', at: at(0), id, url }),
+    entry({
+      type: 'RoutesRecognized',
+      at: at(1),
+      id,
+      url,
+      urlAfterRedirects: url,
+      matchedPaths: chain,
+    }),
+    entry({
+      type: 'GuardsCheckStart',
+      at: at(2),
+      id,
+      url,
+      urlAfterRedirects: url,
+      matchedPaths: chain,
+    }),
+    entry({ type: 'ChildActivationStart', at: at(3) }),
+    entry({ type: 'ActivationStart', at: at(4) }),
+    entry({
+      type: 'GuardsCheckEnd',
+      at: at(5),
+      id,
+      url,
+      urlAfterRedirects: url,
+      shouldActivate: GUARD_COMPARISON.refusedShouldActivate,
+      matchedPaths: chain,
+    }),
+    entry({
+      type: 'ResolveStart',
+      at: at(6),
+      id,
+      url,
+      urlAfterRedirects: url,
+      matchedPaths: chain,
+    }),
+    entry({
+      type: 'ResolveEnd',
+      at: at(7),
+      id,
+      url,
+      urlAfterRedirects: url,
+      matchedPaths: chain,
+    }),
+    entry({ type: 'ActivationEnd', at: at(8) }),
+    entry({ type: 'ChildActivationEnd', at: at(9) }),
+    entry({
+      type: 'NavigationEnd',
+      at: at(10),
+      id,
+      url,
+      urlAfterRedirects: url,
+    }),
+  ];
+  assert.deepEqual(
+    events.map((event) => event.type),
+    GUARD_COMPARISON.refusedClassSequence,
+    'the eleven classes the recording measured, in its own order',
+  );
+  return { routerEvents: events };
+}
+
+/** The refused `canMatch`: the portal's own manifest served with the claim list switched off. */
+function refusedRecord() {
+  assert.equal(GUARD_COMPARISON.eventCountEqual, true);
+  return wildcardRecord({ id: 2, url: '/claim/list' });
+}
+
+/** The unmatched URL: no route matches, so the wildcard route matches it. */
+function unmatchedRecord() {
+  assert.equal(GUARD_COMPARISON.terminalClassEqual, true);
+  return wildcardRecord({ id: 3, url: '/nowhere' });
+}
+
+/**
+ * One load whose two ends carry the same recorded reading — the warm frame's own `claim` start
+ * reading, used on both ends, because a measured zero is what two equal readings are and the
+ * recording contains no instance of one.
+ */
+function measuredZeroRecord() {
+  const start = recordedEvent(WARM, 'RouteConfigLoadStart');
+  const reading = start.t;
+  assert.equal(
+    typeof reading,
+    'number',
+    'the recording measured the load start',
+  );
+  const navigationEnd = recordedEvent(WARM, 'NavigationEnd');
+  return {
+    routerEvents: [
+      entry({
+        type: 'NavigationStart',
+        at: reading - 1,
+        id: navigationEnd.payload.id,
+        url: navigationEnd.payload.url,
+      }),
+      entry({
+        type: 'RouteConfigLoadStart',
+        at: reading,
+        route: start.payload.route.path,
+      }),
+      entry({
+        type: 'RouteConfigLoadEnd',
+        at: reading,
+        route: start.payload.route.path,
+      }),
+      entry({
+        type: 'NavigationEnd',
+        at: reading + 1,
+        id: navigationEnd.payload.id,
+        url: navigationEnd.payload.url,
+        urlAfterRedirects: navigationEnd.payload.urlAfterRedirects,
+      }),
+    ],
+  };
+}
+
+/**
+ * A record that begins with a load start and holds a load end whose own route names no open load:
+ * the two cases an id-less load is unattributed in. The route names are the recording's own; the
+ * readings are ordinals, because the recording keeps no stream that begins at a load start.
+ */
+function unattributedRecord() {
+  const routes = RECORDING.warm.routeConfigLoads.map((row) => row.routePath);
+  assert.ok(
+    routes.length >= 2,
+    'the recording measured two route-config loads',
+  );
+  return {
+    routerEvents: [
+      entry({ type: 'RouteConfigLoadStart', at: 10, route: routes[0] }),
+      entry({ type: 'NavigationStart', at: 20, id: 2, url: '/claim/list' }),
+      entry({ type: 'RouteConfigLoadStart', at: 21, route: routes[0] }),
+      entry({ type: 'RouteConfigLoadEnd', at: 30, route: routes[1] }),
+    ],
+  };
+}
+
+/** Every frame this suite pins, for the pins that walk them all. */
+function everyRecord() {
+  return [
+    ['held', heldRecord()],
+    ['a navigation that recorded only its start', startOnlyRecord()],
+    ['warm', warmRecord()],
+    ['superseded', supersededRecord()],
+    ['error', errorRecord()],
+    ['skip', skipRecord()],
+    ['redirect', redirectRecord()],
+    ['refused canMatch', refusedRecord()],
+    ['unmatched URL', unmatchedRecord()],
+    ['a measured zero', measuredZeroRecord()],
+    ['an unattributed load', unattributedRecord()],
+  ];
+}
+
+// ---------------------------------------------------------------- plumbing ----
+
+/**
+ * The standalone module: a bare context holding the source and whatever the caller puts in it. A bare
+ * `node:vm` context installs no DOM and no network; the two names it does install in every realm
+ * (`Date`, `console`) are handled by the guarded run below.
+ */
+function standalone(source = SRC, sandbox = {}) {
+  const context = createContext(sandbox);
+  runInContext(source, context);
+  const api = context.angularAiNavigationNarrator;
+  assert.ok(
+    api,
+    'the module must publish its namespace on the global object of whatever world it runs in',
+  );
+  assert.equal(
+    typeof api.narrateNavigation,
+    'function',
+    'the module publishes the join',
+  );
+  return { api, context };
+}
+
+function pristineApi() {
+  return standalone().api;
+}
+
+/**
+ * A value from the vm context carries that context's own prototypes, so it is copied into this realm
+ * before a structural assertion reads it. It is also how every answer is cloned, so a test can never
+ * mutate a fixture for the next one.
+ */
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+/** One answer, copied into this realm. */
+function answerOf(api, record) {
+  return clone(api.narrateNavigation(record));
+}
+
+/** One navigation of an answer, by the id the record gave it. */
+function navById(answer, id) {
+  const found = answer.navigations.filter((navigation) => navigation.id === id);
+  assert.equal(
+    found.length,
+    1,
+    `the answer carries one navigation with id ${id}`,
+  );
+  return found[0];
+}
+
+/** The keys an object carries, in the one order an assertion can compare. */
+function keysOf(value) {
+  return Object.keys(value).sort();
+}
+
+/** No string in `value` is one of `forbidden`, and the failure names which one was found. */
+function assertNoneOf(value, forbidden, what) {
+  const text = JSON.stringify(value);
+  for (const [name, needle] of forbidden) {
+    assert.equal(
+      text.includes(needle),
+      false,
+      `${what} carries ${name} (${JSON.stringify(needle)}), which it must not: ${text}`,
+    );
+  }
+}
+
+// ------------------------------------------------------------- mutant tools ----
+
+/**
+ * A copy of the module with one anchored replacement applied. The anchor must occur exactly once, so
+ * a mutation cannot silently rewrite a different branch, and the result must differ from the source,
+ * so a no-op mutation is a failure rather than a green mutant.
+ */
+function mutant(anchor, replacement) {
+  assert.ok(
+    SRC.includes(anchor),
+    `mutation anchor not found in extension/navigation-narrator.js — restate the bite: ${JSON.stringify(anchor)}`,
+  );
+  const occurrences = SRC.split(anchor).length - 1;
+  assert.equal(
+    occurrences,
+    1,
+    `mutation anchor must occur exactly once, found ${occurrences}: ${JSON.stringify(anchor)}`,
+  );
+  const mutated = SRC.replace(anchor, replacement);
+  assert.notEqual(mutated, SRC, 'the mutation must change the module source');
+  return standalone(mutated).api;
+}
+
+/** A pin that a value reddens: returns the failure the pin raises on it. */
+function reddens(pin, what) {
+  let failure = null;
+  try {
+    pin();
+  } catch (error) {
+    failure = error;
+  }
+  assert.ok(
+    failure instanceof Error,
+    `${what} passed on the mutant, so the mutation is not caught`,
+  );
+  return failure;
+}
+
+/**
+ * The four phases, per criterion. `pin` is the same function for the untouched module and for every
+ * mutant; a mutation that survives it, or that reddens with a message not naming its defect, fails.
+ * Returns one `mutant -> failure` line per mutation so the run prints its own evidence.
+ */
+function proveNonVacuous(pin, mutations) {
+  // 1. Pin the untouched module on the behaviour claimed.
+  pin(pristineApi());
+
+  const caught = [];
+  for (const mutation of mutations) {
+    // 2. Mutate a copy of the module source and prove the copy exhibits the defect.
+    const api = mutant(mutation.anchor, mutation.replacement);
+    mutation.defect(api);
+
+    // 3. Assert the pin reddens, and that the failure names the defect by string.
+    const failure = reddens(() => pin(api), mutation.what);
+    assert.match(
+      failure.message,
+      mutation.message,
+      `${mutation.what} must redden naming the defect ${mutation.message}: ${failure.message}`,
+    );
+    caught.push(`${mutation.what} -> ${failure.message.split('\n')[0]}`);
+  }
+
+  // 4. Restore: the untouched module still satisfies the pin.
+  pin(pristineApi());
+  return caught;
+}
+
+// ------------------------------------------------------------------- the pins ----
+
+/**
+ * E1, held out. Each of the four terminal classes renders as itself, with only the fields that class
+ * carried: `code` and `reason` where the class recorded them, the error's own name and message where
+ * it recorded one, and an end route only where the event carried it.
+ */
+function pinEachTerminalAsItself(api) {
+  const cases = [
+    {
+      what: 'a completed lazy navigation',
+      record: warmRecord(),
+      id: RECORDING.warm.terminal.payload.id,
+      type: 'NavigationEnd',
+    },
+    {
+      what: 'a redirect',
+      record: redirectRecord(),
+      id: RECORDING.terminals.redirect.terminal.payload.id,
+      type: 'NavigationEnd',
+    },
+    {
+      what: 'a superseded navigation',
+      record: supersededRecord(),
+      id: RECORDING.superseded.cancel.payload.id,
+      type: 'NavigationCancel',
+    },
+    {
+      what: 'an aborted chunk',
+      record: errorRecord(),
+      id: RECORDING.terminals.error.event.payload.id,
+      type: 'NavigationError',
+    },
+    {
+      what: 'a same-URL skip',
+      record: skipRecord(),
+      id: RECORDING.terminals.skip.event.payload.id,
+      type: 'NavigationSkipped',
+    },
+  ];
+
+  for (const one of cases) {
+    const answer = answerOf(api, one.record);
+    assert.equal(
+      answer.state,
+      'ended',
+      `E1 ${one.what} answers a record that ended`,
+    );
+    const navigation = navById(answer, one.id);
+    assert.equal(navigation.state, 'ended', `E1 ${one.what} answers ended`);
+    assert.equal(
+      navigation.terminal,
+      one.type,
+      'E1 each terminal is the class the record carries',
+    );
+
+    // The fields reported are exactly the fields that class's own payload carries, read from the
+    // recording's per-class key set rather than from this file's opinion.
+    const keys = CLASS_KEYS.get(one.type);
+    assert.ok(keys, `the recording enumerates no ${one.type}`);
+    assert.equal(
+      navigation.code !== null,
+      keys.includes('code'),
+      'E1 only the fields the terminal class recorded are reported',
+    );
+    assert.equal(
+      navigation.reason !== null,
+      keys.includes('reason'),
+      'E1 only the fields the terminal class recorded are reported',
+    );
+    assert.equal(
+      navigation.error !== null,
+      keys.includes('error'),
+      'E1 only the fields the terminal class recorded are reported',
+    );
+    assert.equal(
+      navigation.urlAfterRedirects !== null,
+      keys.includes('urlAfterRedirects'),
+      'E1 only the fields the terminal class recorded are reported',
+    );
+    assert.equal(
+      navigation.stage,
+      null,
+      'E1 a navigation with a terminal event names no stage',
+    );
+    assert.deepEqual(
+      keysOf(navigation),
+      NAVIGATION_KEYS,
+      'E1 a navigation carries the answer fields and no invented cause',
+    );
+  }
+
+  // The three recorded values, verbatim: a cancel's code and reason, an error's own name and
+  // message, and a skip's code and reason.
+  const cancel = recordedEvent(SUPERSEDED, 'NavigationCancel');
+  const cancelled = navById(
+    answerOf(api, supersededRecord()),
+    cancel.payload.id,
+  );
+  assert.equal(cancelled.code, cancel.payload.code, 'E1 the cancel own code');
+  assert.equal(
+    cancelled.reason,
+    cancel.payload.reason,
+    'E1 the cancel own reason',
+  );
+
+  const error = recordedEvent(ERROR, 'NavigationError');
+  const failed = navById(answerOf(api, errorRecord()), error.payload.id);
+  assert.deepEqual(
+    failed.error,
+    { name: error.payload.error.name, message: error.payload.error.message },
+    'E1 the error own name and message, and nothing of the error object',
+  );
+
+  const skip = recordedEvent(SKIP, 'NavigationSkipped');
+  const skipped = navById(answerOf(api, skipRecord()), skip.payload.id);
+  assert.equal(skipped.code, skip.payload.code, 'E1 the skip own code');
+  assert.equal(skipped.reason, skip.payload.reason, 'E1 the skip own reason');
+  return [cancelled, failed, skipped];
+}
+
+/**
+ * E2, held out. The end route is the terminal event's own `urlAfterRedirects`, and appears only
+ * where that event carried it — a cancel or an error record names no end route at all, even where
+ * another navigation in the same record names one.
+ */
+function pinEndRouteOnlyWhereTheTerminalCarriedIt(api) {
+  const redirect = answerOf(api, redirectRecord());
+  const navigation = redirect.navigations[0];
+  const terminal = RECORDING.terminals.redirect.terminal.payload;
+  assert.equal(
+    navigation.url,
+    terminal.url,
+    'E2 the heading route is the recorded url',
+  );
+  assert.equal(
+    navigation.urlAfterRedirects,
+    terminal.urlAfterRedirects,
+    'E2 the end route is the terminal own field',
+  );
+  assert.notEqual(
+    navigation.url,
+    navigation.urlAfterRedirects,
+    'E2 the redirect differs from the heading route, so the two fields are not one',
+  );
+
+  const superseded = answerOf(api, supersededRecord());
+  const abandoned = navById(superseded, RECORDING.superseded.cancel.payload.id);
+  const successor = navById(superseded, RECORDING.superseded.successor.id);
+  assert.equal(
+    abandoned.url,
+    RECORDING.superseded.cancel.payload.url,
+    'E2 the abandoned navigation heading route',
+  );
+  assert.equal(
+    abandoned.urlAfterRedirects,
+    null,
+    'E2 the end route is named only where the terminal event carried it',
+  );
+  assert.equal(
+    successor.urlAfterRedirects,
+    recordedEvent(
+      SUPERSEDED,
+      'NavigationEnd',
+      RECORDING.superseded.successor.id,
+    ).payload.urlAfterRedirects,
+    'E2 the successor own end route, in the same record',
+  );
+
+  for (const [what, record, id] of [
+    [
+      'an error record',
+      errorRecord(),
+      RECORDING.terminals.error.event.payload.id,
+    ],
+    ['a skip record', skipRecord(), RECORDING.terminals.skip.event.payload.id],
+  ]) {
+    assert.equal(
+      navById(answerOf(api, record), id).urlAfterRedirects,
+      null,
+      `E2 ${what} names no end route`,
+    );
+  }
+  return [navigation, abandoned, successor];
+}
+
+/**
+ * E3, held out. A navigation that recorded a start and no terminal event answers open at the stage
+ * of its last recorded event and never as the reason it is open, and a record carrying no navigation
+ * answers the absence rather than a zero that reads as success.
+ */
+function pinOpenStageAndTheEmptyAbsence(api) {
+  const answer = answerOf(api, heldRecord());
+  assert.equal(
+    answer.state,
+    'open',
+    'E3 a navigation with no terminal event answers open',
+  );
+  assert.deepEqual(
+    keysOf(answer),
+    ANSWER_KEYS,
+    'E3 the answer carries its four fields',
+  );
+  assert.equal(
+    answer.absence,
+    null,
+    'E3 a record holding a navigation names no record-level absence',
+  );
+  assert.equal(answer.navigations.length, 1, 'E3 one navigation, as recorded');
+  const open = answer.navigations[0];
+  assert.deepEqual(
+    keysOf(open),
+    NAVIGATION_KEYS,
+    'E3 a navigation carries the answer fields',
+  );
+  assert.equal(open.id, HELD[0].payload.id, 'E3 the navigation own id');
+  assert.equal(open.url, HELD[0].payload.url, 'E3 the heading route');
+  assert.equal(open.terminal, null, 'E3 no terminal was recorded');
+  assert.equal(
+    open.lastEvent,
+    'RouteConfigLoadStart',
+    'E3 the last recorded event own class',
+  );
+  assert.equal(
+    open.stage,
+    'route-config-load',
+    'E3 the stage is the stage of the last recorded event',
+  );
+  assert.equal(
+    open.reason,
+    null,
+    'E3 the stage is never presented as the reason the navigation is open',
+  );
+  assert.equal(open.code, null, 'E3 an open navigation carries no code');
+  assert.equal(open.error, null, 'E3 an open navigation carries no error');
+  assert.equal(
+    open.urlAfterRedirects,
+    null,
+    'E3 an open navigation names no end route',
+  );
+
+  // A start and nothing else: the stage is absent, named as absent, and the class is still named.
+  const startOnly = answerOf(api, startOnlyRecord());
+  assert.equal(startOnly.state, 'open', 'E3 a record of one start is open');
+  const alone = startOnly.navigations[0];
+  assert.equal(
+    alone.lastEvent,
+    'NavigationStart',
+    'E3 the last event is still the class it recorded',
+  );
+  assert.equal(
+    alone.stage,
+    null,
+    'E3 a last event that maps to no stage answers the stage as absent',
+  );
+  assert.equal(
+    alone.absence,
+    'no-stage-recorded',
+    'E3 the absent stage is named rather than guessed',
+  );
+
+  // An empty record answers the absence, not a zero.
+  const empty = answerOf(api, { routerEvents: [] });
+  assert.equal(
+    empty.state,
+    'cannot-tell',
+    'E3 a record carrying no navigation answers the absence',
+  );
+  assert.equal(
+    empty.absence,
+    'no-navigation-recorded',
+    'E3 the absence names what the record lacks',
+  );
+  assert.deepEqual(
+    empty.navigations,
+    [],
+    'E3 no navigation is invented to fill an empty record',
+  );
+  assert.deepEqual(empty.unattributed, [], 'E3 no load is invented either');
+
+  // A record the module cannot read is a different absence from an empty one.
+  for (const [what, unreadable] of [
+    ['no record at all', null],
+    ['a record that is not an object', 'record'],
+    ['a record with no list', { cycleId: 1 }],
+    ['a record whose list is not a list', { routerEvents: 'arrivals' }],
+  ]) {
+    const unread = answerOf(api, unreadable);
+    assert.equal(unread.state, 'cannot-tell', `E3 ${what} is cannot-tell`);
+    assert.equal(
+      unread.absence,
+      'record-unreadable',
+      `E3 ${what} names the absence it forced`,
+    );
+    assert.deepEqual(
+      unread.navigations,
+      [],
+      `E3 ${what} carries no navigation`,
+    );
+  }
+  return [open, alone, empty];
+}
+
+/**
+ * E4, held out. Every stage word the join answers is the class of an event the record contains, every
+ * recorded class maps to the word this suite derives from the recording, and no other word appears.
+ */
+function pinStageWordsComeFromRecordedClasses(api) {
+  const held = answerOf(api, heldRecord()).navigations[0];
+  assert.ok(
+    STAGE_WORDS.includes(held.stage),
+    'E4 every stage word the join answers is one the record names',
+  );
+  assert.equal(
+    held.stage,
+    'route-config-load',
+    'E4 the stage is the class of the last recorded event',
+  );
+
+  // The four stage words, each from a frame held at that stage: the prefixes are the recorded stream
+  // cut where the hold would be, so every last event is one the recording measured.
+  const seen = new Set();
+  for (const [what, record, expected, last] of [
+    ['a lazy load', heldRecord(), 'route-config-load', 'RouteConfigLoadStart'],
+    [
+      'a guard check',
+      prefixThrough('GuardsCheckStart'),
+      'guards-check',
+      'GuardsCheckStart',
+    ],
+    ['a resolve stage', prefixThrough('ResolveEnd'), 'resolve', 'ResolveEnd'],
+    [
+      'an activation',
+      prefixThrough('ActivationEnd'),
+      'activation',
+      'ActivationEnd',
+    ],
+  ]) {
+    const answer = answerOf(api, record);
+    const open = answer.navigations.filter(
+      (navigation) => navigation.state === 'open',
+    );
+    assert.equal(open.length, 1, `E4 ${what} leaves one navigation open`);
+    assert.equal(
+      open[0].lastEvent,
+      last,
+      `E4 ${what} names the class it recorded last`,
+    );
+    assert.ok(
+      STAGE_WORDS.includes(open[0].stage),
+      'E4 every stage word the join answers is one the record names',
+    );
+    assert.equal(
+      open[0].stage,
+      expected,
+      'E4 the stage is the class of the last recorded event',
+    );
+    seen.add(open[0].stage);
+  }
+  assert.deepEqual(
+    [...seen].sort(),
+    STAGE_WORDS,
+    'E4 all four stage words, and only those four',
+  );
+
+  // Every open navigation of every measured frame maps through the recorded classes, and no
+  // completed navigation names a stage at all.
+  for (const [what, record] of everyRecord()) {
+    for (const navigation of answerOf(api, record).navigations) {
+      if (navigation.state === 'open') {
+        assert.ok(
+          STAGE_WORDS.includes(navigation.stage) ||
+            (navigation.stage === null &&
+              !STAGE_OF_CLASS.has(navigation.lastEvent)),
+          `E4 ${what} answers a stage word only where a recorded class names one: ${JSON.stringify(navigation)}`,
+        );
+        assert.equal(
+          navigation.stage,
+          STAGE_OF_CLASS.get(navigation.lastEvent) ?? null,
+          'E4 the stage is the class of the last recorded event',
+        );
+        continue;
+      }
+      assert.equal(
+        navigation.stage,
+        null,
+        'E4 a navigation with a terminal event names no stage',
+      );
+    }
+  }
+  return [...seen];
+}
+
+/**
+ * E5, held out. An open navigation's holder answers cannot-tell with `no-holder-recorded` and carries
+ * no guard, chunk, task or resolver name — because no payload and no `currentNavigation()` field
+ * carries one.
+ */
+function pinHolderIsNotRecorded(api) {
+  const recorded = RECORDING.absences['no-holder-recorded'];
+  assert.deepEqual(
+    recorded.payloadFieldsMatchingAWord,
+    [],
+    'the recording measured no payload field naming a holder',
+  );
+  assert.deepEqual(
+    recorded.currentNavigationFieldsMatchingAWord,
+    [],
+    'the recording measured no currentNavigation field naming a holder',
+  );
+
+  const answer = answerOf(api, heldRecord());
+  const open = answer.navigations[0];
+  assert.deepEqual(
+    keysOf(open.holder),
+    HOLDER_KEYS,
+    'E5 the holder carries the verdict and the named absence and nothing else',
+  );
+  assert.equal(open.holder.state, 'cannot-tell', 'E5 the holder verdict');
+  assert.equal(
+    open.holder.absence,
+    'no-holder-recorded',
+    'E5 the holder absence is the one the page measured',
+  );
+
+  // The words the recording checked, read from the recording: the holder names none of them, and
+  // the one that is part of the absence's own name is not a name the holder invented.
+  const text = JSON.stringify(open.holder);
+  const words = recorded.wordsChecked;
+  assert.ok(
+    words.length >= 4,
+    'the recording checked at least four holder words',
+  );
+  for (const word of words) {
+    if (open.holder.absence.includes(word)) continue;
+    assert.equal(
+      text.includes(word),
+      false,
+      `E5 the holder carries no ${word} name: ${text}`,
+    );
+  }
+
+  // Nothing in the navigation's holder cell is a name of anything: no key a reader could take for a
+  // guard, a resolver, a chunk or a task.
+  for (const key of ['guard', 'guards', 'resolver', 'chunk', 'task', 'name']) {
+    assert.equal(
+      key in open.holder,
+      false,
+      `E5 the holder carries no ${key} field`,
+    );
+  }
+  return open.holder;
+}
+
+/**
+ * E6, held out. A navigation whose recorded chain is the wildcard reports the wildcard match and
+ * never a guard refusal: a refused `canMatch` and an unmatched URL produce the same answer apart from
+ * the ids and urls the recording measured as the only difference.
+ */
+function pinWildcardMatchIsNeverARefusal(api) {
+  const refused = answerOf(api, refusedRecord());
+  const unmatched = answerOf(api, unmatchedRecord());
+  const chain = GUARD_COMPARISON.refusedMatchedChain.map((node) => node.path);
+
+  for (const [what, answer, neither] of [
+    ['the refused canMatch', refused, null],
+    ['the unmatched URL', unmatched, null],
+  ]) {
+    assert.equal(answer.state, 'ended', `E6 ${what} ended`);
+    const navigation = answer.navigations[0];
+    assert.equal(
+      navigation.terminal,
+      'NavigationEnd',
+      `E6 ${what} ended as measured`,
+    );
+    assert.deepEqual(
+      keysOf(navigation.matched),
+      MATCHED_KEYS,
+      'E6 the matched answer carries the chain and the leaf it ends on',
+    );
+    assert.equal(
+      navigation.matched.path,
+      '**',
+      'E6 a wildcard match is reported as the wildcard match',
+    );
+    assert.equal(
+      navigation.matched.wildcard,
+      true,
+      'E6 the wildcard is named as a wildcard',
+    );
+    assert.deepEqual(
+      navigation.matched.paths,
+      chain,
+      'E6 the chain is the one the record carried',
+    );
+    assert.deepEqual(
+      navigation.matched.paths,
+      JSON.parse(JSON.stringify(navigation.matched.paths)),
+      'E6 the chain is plain data',
+    );
+    assert.equal(
+      navigation.reason,
+      null,
+      'E6 a wildcard match is reported as the match and never as a guard refusal',
+    );
+    assert.equal(
+      navigation.holder,
+      null,
+      'E6 a navigation that ended is not held',
+    );
+    assert.equal(
+      navigation.guards.shouldActivate,
+      GUARD_COMPARISON.refusedShouldActivate,
+      'E6 the guard aggregate is the value the record carried',
+    );
+    assert.equal(
+      navigation.guards.absence,
+      'guard-verdict-not-recorded',
+      'E6 the guard verdict is the named absence',
+    );
+    assert.equal(neither, null);
+  }
+
+  // Nothing in either answer is a guard, a guard name or a refusal: the two are indistinguishable,
+  // which is the measurement, and the answer never claims to tell them apart.
+  for (const answer of [refused, unmatched]) {
+    assertNoneOf(
+      answer,
+      [
+        ['a guard module name', 'canMatch'],
+        ['a guard module name', 'canActivate'],
+        ['a refusal', 'refused'],
+        ['a refusal', 'refusal'],
+        ['a refusal', 'denied'],
+        [
+          'the fixture guard name',
+          RECORDING.guards.fixture.canActivateNames[0],
+        ],
+      ],
+      'E6 the wildcard answer',
+    );
+  }
+
+  // The same answer twice, apart from the two navigations' own ids and urls — the paths the
+  // recording measured as the only difference between the refused run and the unmatched one.
+  const normalise = (answer) =>
+    answer.navigations.map((navigation) => ({
+      ...navigation,
+      id: 0,
+      url: '/',
+      urlAfterRedirects: '/',
+      matched: { ...navigation.matched, paths: [] },
+    }));
+  assert.deepEqual(
+    normalise(refused),
+    normalise(unmatched),
+    'E6 a refused canMatch and an unmatched URL are the same answer',
+  );
+  return refused;
+}
+
+/**
+ * E7, held out. `shouldActivate` renders as the aggregate field it is and is never attributed to a
+ * named guard, and a resolve stage on a configuration that declares no resolver answers
+ * `no-resolver-configured` rather than naming one.
+ */
+function pinTheAggregateAndTheAbsentResolver(api) {
+  const guardAbsence = RECORDING.absences['guard-verdict-not-recorded'];
+  assert.equal(
+    guardAbsence.guardFieldsAreAggregateOnly,
+    true,
+    'the recording measured the guard payload as aggregate-only',
+  );
+
+  const answer = answerOf(api, warmRecord());
+  const navigation = answer.navigations[0];
+  assert.deepEqual(
+    keysOf(navigation.guards),
+    GUARDS_KEYS,
+    'E7 the guard answer carries the aggregate and no guard name',
+  );
+  assert.equal(navigation.guards.state, 'cannot-tell', 'E7 the guard verdict');
+  assert.equal(
+    navigation.guards.absence,
+    'guard-verdict-not-recorded',
+    'E7 the guard absence is the one the page measured',
+  );
+  assert.equal(
+    navigation.guards.shouldActivate,
+    guardAbsence.shouldActivateValue,
+    'E7 the aggregate is reported as the aggregate it is',
+  );
+  assert.equal(
+    typeof navigation.guards.shouldActivate,
+    'boolean',
+    'E7 the aggregate is a boolean, not a verdict',
+  );
+
+  // A resolve stage on a record whose configuration declares no resolver: the two targets' walks are
+  // the measurement, and the portal emitted the stage anyway.
+  const resolver = RECORDING.absences['no-resolver-configured'];
+  assert.equal(
+    resolver.portal.resolveKeysTotal,
+    0,
+    'the portal declares no resolver',
+  );
+  assert.equal(
+    resolver.fixture.resolveKeysTotal,
+    0,
+    'the fixture declares no resolver',
+  );
+  assert.ok(
+    resolver.resolveStageObservedAnyway,
+    'the portal emitted a resolve stage despite declaring no resolver',
+  );
+  const resolveEvents = WARM.filter(
+    (event) => event.class === 'ResolveStart' || event.class === 'ResolveEnd',
+  );
+  assert.equal(
+    resolveEvents.length,
+    2,
+    'the warm frame carries both resolve events, so the absence is not vacuous',
+  );
+  assert.deepEqual(
+    keysOf(navigation.resolve),
+    RESOLVE_KEYS,
+    'E7 the resolve stage answers the named absence and names no resolver',
+  );
+  assert.equal(
+    navigation.resolve.state,
+    'cannot-tell',
+    'E7 the resolve verdict',
+  );
+  assert.equal(
+    navigation.resolve.absence,
+    'no-resolver-configured',
+    'E7 the resolve absence is the configuration the recording measured',
+  );
+
+  for (const inspected of [answer, answerOf(api, refusedRecord())]) {
+    assertNoneOf(
+      inspected,
+      [
+        ['a guard name', 'canMatch'],
+        ['a guard name', 'canActivate'],
+        [
+          'the fixture guard name',
+          RECORDING.guards.fixture.canActivateNames[0],
+        ],
+      ],
+      'E7 the answer',
+    );
+  }
+  return navigation.guards;
+}
+
+/**
+ * E8, held out. A navigation that completed answers ended with the interval its own two route-config
+ * events measured — a measured zero included — and is never reported open or held, however long its
+ * load interval was.
+ */
+function pinCompletedIsNeverHeld(api) {
+  const answer = answerOf(api, warmRecord());
+  assert.equal(
+    answer.state,
+    'ended',
+    'E8 a record whose navigation ended answers ended',
+  );
+  const navigation = answer.navigations[0];
+  assert.equal(
+    navigation.state,
+    'ended',
+    'E8 a navigation with a terminal event is ended',
+  );
+  assert.equal(
+    navigation.terminal,
+    'NavigationEnd',
+    'E8 the terminal it recorded',
+  );
+  assert.equal(
+    navigation.holder,
+    null,
+    'E8 a completed navigation is never reported as held',
+  );
+  assert.equal(
+    navigation.stage,
+    null,
+    'E8 a completed navigation names no stage',
+  );
+  assert.equal(
+    navigation.absence,
+    null,
+    'E8 a completed navigation names no absence',
+  );
+
+  const recorded = RECORDING.warm.routeConfigLoads;
+  assert.equal(
+    navigation.loads.length,
+    recorded.length,
+    'E8 one load per route-config start the record carries',
+  );
+  for (let index = 0; index < recorded.length; index += 1) {
+    const load = navigation.loads[index];
+    assert.deepEqual(
+      keysOf(load),
+      LOAD_KEYS,
+      'E8 a load carries its own interval and no id',
+    );
+    assert.equal(
+      load.route,
+      recorded[index].routePath,
+      'E8 the load own route',
+    );
+    assert.equal(
+      load.startedAt,
+      recorded[index].startAt,
+      'E8 the load own start',
+    );
+    assert.equal(load.endedAt, recorded[index].endAt, 'E8 the load own end');
+    assert.equal(load.open, false, 'E8 the load the record closed is closed');
+    assert.equal(
+      load.durationMs,
+      load.endedAt - load.startedAt,
+      'E8 the interval is the difference the two recorded times measure',
+    );
+    assert.equal(
+      Math.round(load.durationMs * 10) / 10,
+      recorded[index].intervalMs,
+      'E8 the interval is the one the recording measured',
+    );
+  }
+
+  // A measured zero is a measured zero, and the navigation that measured it still ended.
+  const zero = answerOf(api, measuredZeroRecord());
+  assert.equal(zero.state, 'ended', 'E8 the zero-interval navigation ended');
+  const zeroLoad = zero.navigations[0].loads[0];
+  assert.equal(
+    zeroLoad.durationMs,
+    0,
+    'E8 a measured zero stays a measured zero',
+  );
+  assert.equal(
+    typeof zeroLoad.durationMs,
+    'number',
+    'E8 the zero is a number, never a missing interval',
+  );
+  assert.equal(zeroLoad.open, false, 'E8 the load is closed');
+  assert.equal(
+    zeroLoad.startedAt,
+    zeroLoad.endedAt,
+    'E8 both ends carry the one recorded reading',
+  );
+  return [navigation, zeroLoad];
+}
+
+/**
+ * E9, held out. A route-config load start never acquires an id, and a load end closes the load its own
+ * start opened, on the navigation that start belonged to — so a superseded navigation's late load end
+ * is never attributed to its successor.
+ */
+function pinLoadsAreAttributedByRouteAndStart(api) {
+  const ordering = RECORDING.superseded.ordering;
+  assert.equal(
+    ordering.abandonedLoadEndIsAfterItsOwnCancel,
+    true,
+    'the recording measured the abandoned load end after its own cancel',
+  );
+  assert.equal(
+    ordering.abandonedLoadEndIsBeforeTheSuccessorLoadEnd,
+    true,
+    'the recording measured the abandoned load end before the successor own',
+  );
+
+  // The recording's own derived table is arrival-paired: its `contract` row ends on the abandoned
+  // navigation's load end. That is the defect this pin exists for, quoted from the recording.
+  const rows = RECORDING.superseded.routeConfigLoads;
+  const contractRow = rows.filter((row) => row.routePath === 'contract')[0];
+  assert.equal(
+    contractRow.endAt,
+    ordering.abandonedLoadEndAt,
+    'the recording arrival-paired table hands the abandoned load end to the successor route',
+  );
+
+  const answer = answerOf(api, supersededRecord());
+  const abandoned = navById(answer, RECORDING.superseded.cancel.payload.id);
+  const successor = navById(answer, RECORDING.superseded.successor.id);
+  assert.equal(abandoned.state, 'ended', 'E9 the superseded navigation ended');
+  assert.equal(abandoned.loads.length, 1, 'E9 it opened one load');
+  assert.equal(
+    abandoned.loads[0].route,
+    'claim',
+    'E9 the abandoned navigation keeps the load its own start opened',
+  );
+  assert.equal(
+    abandoned.loads[0].startedAt,
+    rows.filter((row) => row.routePath === 'claim')[0].startAt,
+    'E9 the load own recorded start',
+  );
+  assert.equal(
+    abandoned.loads[0].endedAt,
+    ordering.abandonedLoadEndAt,
+    'E9 the late load end closes the load its own start opened',
+  );
+  assert.equal(
+    abandoned.loads[0].open,
+    false,
+    'E9 the load the record closed is closed',
+  );
+
+  const contract = successor.loads.filter(
+    (load) => load.route === 'contract',
+  )[0];
+  assert.ok(contract, 'E9 the successor owns the contract load');
+  assert.equal(
+    contract.endedAt,
+    ordering.successorLoadEndAt,
+    'E9 the successor load end is never the abandoned navigation own',
+  );
+  assert.equal(
+    Math.round(contract.durationMs * 10) / 10,
+    Math.round((ordering.successorLoadEndAt - contract.startedAt) * 10) / 10,
+    'E9 the successor interval is its own two recorded times',
+  );
+
+  // No load ever acquires an id, in any frame: the two route-config classes carry none, and a load
+  // row has no id field at all.
+  for (const [what, record] of everyRecord()) {
+    for (const navigation of answerOf(api, record).navigations) {
+      for (const load of navigation.loads) {
+        assert.deepEqual(
+          keysOf(load),
+          LOAD_KEYS,
+          'E9 a route-config load carries no id at all',
+        );
+        assert.equal(
+          'id' in load,
+          false,
+          `E9 no load in ${what} acquires a navigation id`,
+        );
+      }
+    }
+  }
+
+  // A load start with no navigation in flight, and a load end whose own route names no open load,
+  // are reported by kind and route — never attached to a navigation that did not open them.
+  const loose = answerOf(api, unattributedRecord());
+  assert.deepEqual(
+    loose.unattributed,
+    [
+      {
+        kind: 'RouteConfigLoadStart',
+        route: RECORDING.warm.routeConfigLoads[0].routePath,
+      },
+      {
+        kind: 'RouteConfigLoadEnd',
+        route: RECORDING.warm.routeConfigLoads[1].routePath,
+      },
+    ],
+    'E9 an id-less load with no navigation or no start is reported by kind and route',
+  );
+  assert.equal(loose.navigations.length, 1, 'E9 one navigation in that record');
+  assert.equal(
+    loose.navigations[0].loads.length,
+    1,
+    'E9 only the load its own navigation opened',
+  );
+  assert.equal(
+    loose.navigations[0].loads[0].open,
+    true,
+    'E9 the load no end named stays open, with no duration',
+  );
+  assert.equal(loose.navigations[0].loads[0].durationMs, null);
+  return [abandoned, successor];
+}
+
+// -------------------------------------------------------------------------- measurement ----
+
+describe('measurement', () => {
+  it('the recording carries the classes, terminals, ordering and absences the pins rest on', () => {
+    assert.equal(RECORDING.schema, 'm041-navigation/v1');
+    assert.equal(RECORDING.events.enumerated, 16);
+    assert.equal(RECORDING.events.classes.length, 16);
+
+    // The four terminals and the fields each one carries.
+    for (const type of TERMINAL_CLASSES) {
+      const keys = CLASS_KEYS.get(type);
+      assert.ok(keys, `the recording enumerates no ${type}`);
+      assert.deepEqual(
+        keys.includes('urlAfterRedirects'),
+        type === 'NavigationEnd',
+        `only NavigationEnd carries an end route: ${type} ${JSON.stringify(keys)}`,
+      );
+    }
+    assert.deepEqual(CLASS_KEYS.get('NavigationCancel'), [
+      'code',
+      'id',
+      'reason',
+      'type',
+      'url',
+    ]);
+    assert.deepEqual(CLASS_KEYS.get('NavigationError'), [
+      'error',
+      'id',
+      'target',
+      'type',
+      'url',
+    ]);
+
+    // The two route-config classes carry no id at all, which is what E9 is written on.
+    for (const type of ['RouteConfigLoadStart', 'RouteConfigLoadEnd']) {
+      assert.deepEqual(
+        CLASS_KEYS.get(type),
+        ['route', 'type'],
+        `${type} carries a route and a type and no id`,
+      );
+    }
+
+    // Every class the stage table names is a class the recording enumerated.
+    for (const name of STAGE_OF_CLASS.keys()) {
+      assert.ok(
+        CLASS_KEYS.has(name),
+        `the stage table names ${name}, which the recording does not enumerate`,
+      );
+    }
+    for (const type of TERMINAL_CLASSES) {
+      assert.equal(
+        STAGE_OF_CLASS.has(type),
+        false,
+        `${type} is a terminal and names no stage`,
+      );
+    }
+
+    // The held navigation: a start and a stage, no terminal, and no field naming a holder.
+    assert.deepEqual(
+      HELD.map((event) => event.class),
+      ['NavigationStart', 'RouteConfigLoadStart'],
+      'the held frame carries a start and a load start',
+    );
+    assert.equal(RECORDING.held.inFlight.hasTerminalEvent, false);
+    assert.equal(RECORDING.held.stillInFlightLater.hasTerminalEvent, false);
+    const words = RECORDING.absences['no-holder-recorded'].wordsChecked;
+    assert.deepEqual(words, ['guard', 'resolver', 'chunk', 'task', 'holder']);
+    assert.equal(
+      RECORDING.absences['no-holder-recorded'].currentNavigationFields.length,
+      12,
+      'the ten fields at the hold plus the two the chunk adds later',
+    );
+
+    // The superseded ordering: the abandoned load end arrives after its own cancel and before the
+    // successor's own.
+    const ordering = RECORDING.superseded.ordering;
+    assert.equal(ordering.abandonedLoadEndAt, 1756.3);
+    assert.equal(ordering.successorLoadEndAt, 2071.1);
+    assert.equal(ordering.cancelToAbandonedLoadEndMs, 1192.1);
+    assert.equal(ordering.abandonedLoadEndToSuccessorLoadEndMs, 314.8);
+    assert.match(
+      RECORDING.superseded.attribution,
+      /by route\.path .* never by position/,
+    );
+
+    // The warm intervals, and the terminal that followed them.
+    assert.deepEqual(
+      RECORDING.warm.routeConfigLoads.map((row) => [
+        row.routePath,
+        row.intervalMs,
+      ]),
+      [
+        ['claim', 15.6],
+        ['list', 37.6],
+      ],
+    );
+
+    // The three absences, each with its own verdict, and the two configurations that measured the
+    // resolver one.
+    for (const name of [
+      'no-holder-recorded',
+      'guard-verdict-not-recorded',
+      'no-resolver-configured',
+    ]) {
+      assert.equal(
+        RECORDING.absences[name].named,
+        name,
+        `the recording names the ${name} absence`,
+      );
+      assert.equal(RECORDING.absences[name].verdict, 'cannot-tell');
+    }
+    assert.equal(RECORDING.guards.portal.canActivate, 0);
+    assert.deepEqual(RECORDING.guards.fixture.canActivateNames, [
+      'redirectGuard',
+    ]);
+
+    // A refused canMatch and an unmatched URL are the same eleven events and the same key sets.
+    assert.equal(GUARD_COMPARISON.eventCountEqual, true);
+    assert.equal(GUARD_COMPARISON.classSequenceEqual, true);
+    assert.equal(GUARD_COMPARISON.keySequenceEqual, true);
+    assert.equal(GUARD_COMPARISON.shouldActivateEqual, true);
+    assert.equal(GUARD_COMPARISON.hasNavigationCancelInEither, false);
+    assert.deepEqual(GUARD_COMPARISON.refusedClassSequence, [
+      'NavigationStart',
+      'RoutesRecognized',
+      'GuardsCheckStart',
+      'ChildActivationStart',
+      'ActivationStart',
+      'GuardsCheckEnd',
+      'ResolveStart',
+      'ResolveEnd',
+      'ActivationEnd',
+      'ChildActivationEnd',
+      'NavigationEnd',
+    ]);
+
+    // The entry shape this suite feeds the join is the one T002 publishes.
+    for (const [what, record] of everyRecord()) {
+      for (const carried of record.routerEvents) {
+        assert.deepEqual(
+          keysOf(carried),
+          ENTRY_KEYS,
+          `every entry of ${what} carries the one published shape`,
+        );
+      }
+    }
+
+    console.log(
+      `navigation-narrator measurement: ${CLASS_KEYS.size} classes; terminals ${TERMINAL_CLASSES.join('/')}; ` +
+        `held ${HELD.length} events with no terminal; abandoned load end ${ordering.abandonedLoadEndAt} ms ` +
+        `(${ordering.cancelToAbandonedLoadEndMs} ms after its own cancel, ${ordering.abandonedLoadEndToSuccessorLoadEndMs} ms ` +
+        `before the successor at ${ordering.successorLoadEndAt} ms); warm intervals ${RECORDING.warm.routeConfigLoads
+          .map((row) => `${row.routePath} ${row.intervalMs} ms`)
+          .join(', ')}; three absences with verdict cannot-tell`,
+    );
+  });
+});
+
+// -------------------------------------------------------------------------- purity ----
+
+const HOST_GLOBALS = [
+  'document',
+  'window',
+  'console',
+  'Date',
+  'performance',
+  'setTimeout',
+  'setInterval',
+  'fetch',
+  'XMLHttpRequest',
+];
+
+/** A global that throws when read, called or constructed, naming itself in the error. */
+function tripwire(name) {
+  const reached = () => {
+    throw new Error(`the module reached for ${name}`);
+  };
+  return new Proxy(function tripwire() {}, {
+    get: reached,
+    set: reached,
+    has: reached,
+    apply: reached,
+    construct: reached,
+  });
+}
+
+/** Runs the join inside a context where every host global is a trap. */
+function guarded(source, record) {
+  const sandbox = { __record: record };
+  for (const name of HOST_GLOBALS) sandbox[name] = tripwire(name);
+  const { context } = standalone(source, sandbox);
+  return clone(
+    runInContext(
+      'angularAiNavigationNarrator.narrateNavigation(__record)',
+      context,
+    ),
+  );
+}
+
+describe('purity', () => {
+  it('loads bare, publishes the join and the vocabulary, and answers with every host global a trap', () => {
+    const { api, context } = standalone();
+    for (const name of [
+      'document',
+      'window',
+      'performance',
+      'setTimeout',
+      'setInterval',
+      'fetch',
+      'XMLHttpRequest',
+    ]) {
+      assert.equal(
+        runInContext(`typeof ${name}`, context),
+        'undefined',
+        `the module must not run with a ${name} in scope`,
+      );
+    }
+
+    // The published constants are the vocabulary the module emits, so a caller compares words and
+    // not prose.
+    assert.equal(api.ENDED, 'ended');
+    assert.equal(api.OPEN, 'open');
+    assert.equal(api.CANNOT_TELL, 'cannot-tell');
+    assert.equal(api.ROUTE_CONFIG_LOAD, 'route-config-load');
+    assert.equal(api.GUARDS_CHECK, 'guards-check');
+    assert.equal(api.RESOLVE, 'resolve');
+    assert.equal(api.ACTIVATION, 'activation');
+    assert.equal(api.NO_HOLDER_RECORDED, 'no-holder-recorded');
+    assert.equal(api.GUARD_VERDICT_NOT_RECORDED, 'guard-verdict-not-recorded');
+    assert.equal(api.NO_RESOLVER_CONFIGURED, 'no-resolver-configured');
+    assert.equal(api.NO_STAGE_RECORDED, 'no-stage-recorded');
+    assert.equal(api.NO_NAVIGATION_RECORDED, 'no-navigation-recorded');
+    assert.equal(api.RECORD_UNREADABLE, 'record-unreadable');
+
+    // The traps are armed, and proven armed before anything is asserted through them.
+    const traps = createContext({});
+    for (const name of HOST_GLOBALS) traps[name] = tripwire(name);
+    assert.throws(
+      () => runInContext('Date.now()', traps),
+      /the module reached for Date/,
+      'the Date trap must bite, or the guard is decoration',
+    );
+    assert.throws(
+      () => runInContext('console.log("x")', traps),
+      /the module reached for console/,
+      'the console guard must bite, or the guard is decoration',
+    );
+
+    const answered = guarded(SRC, heldRecord());
+    assert.equal(
+      answered.state,
+      'open',
+      'the join answers the held frame while every host global in scope is a trap',
+    );
+    assert.equal(
+      answered.navigations[0].stage,
+      'route-config-load',
+      'the stage under the traps is the one the record names',
+    );
+    console.log(`navigation-narrator guarded: ${JSON.stringify(answered)}`);
+  });
+});
+
+// ------------------------------------------------ E1: each terminal as itself ----
+
+describe('E1 — each terminal class renders as itself and only with its own fields', () => {
+  it('reports the class the record carries and no cause beyond it', () => {
+    const caught = proveNonVacuous(pinEachTerminalAsItself, [
+      {
+        what: 'M1 every terminal is reported as NavigationEnd',
+        anchor: '    navigation.terminal = entry.type;',
+        replacement: "    navigation.terminal = 'NavigationEnd';",
+        message: /E1 each terminal is the class the record carries/,
+        defect(api) {
+          const answer = answerOf(api, supersededRecord());
+          assert.equal(
+            navById(answer, RECORDING.superseded.cancel.payload.id).terminal,
+            'NavigationEnd',
+            'the mutant renders a cancelled navigation as a completed one',
+          );
+        },
+      },
+      {
+        what: 'M2 a terminal reports a code its own class never carried',
+        anchor: '    navigation.code = entry.code;',
+        replacement:
+          '    navigation.code = entry.code === null ? 0 : entry.code;',
+        message: /E1 only the fields the terminal class recorded are reported/,
+        defect(api) {
+          const answer = answerOf(api, warmRecord());
+          assert.equal(
+            answer.navigations[0].code,
+            0,
+            'the mutant gives a NavigationEnd a code no NavigationEnd carries',
+          );
+        },
+      },
+    ]);
+    console.log(`E1 non-vacuous:\n  ${caught.join('\n  ')}`);
+  });
+});
+
+// ------------------------------------------------------ E2: the end route ----
+
+describe('E2 — the end route is named only where the terminal event carried it', () => {
+  it('names the terminal own urlAfterRedirects and no end route for a cancel or an error', () => {
+    const caught = proveNonVacuous(pinEndRouteOnlyWhereTheTerminalCarriedIt, [
+      {
+        what: 'M3 the end route is filled from the heading route',
+        anchor: '    navigation.urlAfterRedirects = entry.urlAfterRedirects;',
+        replacement:
+          '    navigation.urlAfterRedirects = entry.urlAfterRedirects || entry.url;',
+        message:
+          /E2 the end route is named only where the terminal event carried it/,
+        defect(api) {
+          const answer = answerOf(api, supersededRecord());
+          assert.equal(
+            navById(answer, RECORDING.superseded.cancel.payload.id)
+              .urlAfterRedirects,
+            RECORDING.superseded.cancel.payload.url,
+            'the mutant reports a destination the router never stated',
+          );
+        },
+      },
+    ]);
+    console.log(`E2 non-vacuous:\n  ${caught.join('\n  ')}`);
+  });
+});
+
+// ------------------------------------------------ E3: open stage and absence ----
+
+describe('E3 — an open navigation sits at its stage and an empty record answers the absence', () => {
+  it('names the stage, never the reason, and never a zero for an empty record', () => {
+    const caught = proveNonVacuous(pinOpenStageAndTheEmptyAbsence, [
+      {
+        what: 'M4 the stage is presented as the reason the navigation is open',
+        anchor: '      reason: navigation.reason,',
+        replacement: '      reason: open ? stage : navigation.reason,',
+        message:
+          /E3 the stage is never presented as the reason the navigation is open/,
+        defect(api) {
+          const answer = answerOf(api, heldRecord());
+          assert.equal(
+            answer.navigations[0].reason,
+            'route-config-load',
+            'the mutant answers the stage as the reason',
+          );
+        },
+      },
+      {
+        what: 'M5 an empty record answers a zero rather than the absence',
+        anchor:
+          '    if (navigations.length === 0) {\n' +
+          '      return answer(CANNOT_TELL, NO_NAVIGATION_RECORDED, [], unattributed);\n' +
+          '    }',
+        replacement:
+          '    if (navigations.length === 0) {\n' +
+          '      return answer(ENDED, null, [], unattributed);\n' +
+          '    }',
+        message: /E3 a record carrying no navigation answers the absence/,
+        defect(api) {
+          const answer = answerOf(api, { routerEvents: [] });
+          assert.equal(
+            answer.state,
+            'ended',
+            'the mutant answers an empty record as a stream that ended',
+          );
+        },
+      },
+    ]);
+    console.log(`E3 non-vacuous:\n  ${caught.join('\n  ')}`);
+  });
+});
+
+// ------------------------------------------------------ E4: stage words ----
+
+describe('E4 — every stage word is the class of an event the record contains', () => {
+  it('derives each stage from its own event class and never invents a word', () => {
+    const caught = proveNonVacuous(pinStageWordsComeFromRecordedClasses, [
+      {
+        what: 'M6 the stage is derived from a receipt time instead of an event class',
+        anchor:
+          '      if (STAGE_BY_CLASS[i][0] === last.type) return STAGE_BY_CLASS[i][1];',
+        replacement:
+          '      if (\n' +
+          "        STAGE_BY_CLASS[i][0] === (last.at < 400 ? 'ActivationEnd' : 'ResolveEnd')\n" +
+          '      ) {\n' +
+          '        return STAGE_BY_CLASS[i][1];\n' +
+          '      }',
+        message: /E4 the stage is the class of the last recorded event/,
+        defect(api) {
+          const answer = answerOf(api, heldRecord());
+          assert.equal(
+            answer.navigations[0].stage,
+            'activation',
+            'the mutant reads the stage off the receipt time, not off the class',
+          );
+        },
+      },
+      {
+        what: 'M7 a stage word is minted that no event names',
+        anchor:
+          '      if (STAGE_BY_CLASS[i][0] === last.type) return STAGE_BY_CLASS[i][1];',
+        replacement:
+          "      if (STAGE_BY_CLASS[i][0] === last.type) return STAGE_BY_CLASS[i][1] + '-stage';",
+        message: /E4 every stage word the join answers is one the record names/,
+        defect(api) {
+          const answer = answerOf(api, heldRecord());
+          assert.equal(
+            answer.navigations[0].stage,
+            'route-config-load-stage',
+            'the mutant mints a stage word no event class names',
+          );
+        },
+      },
+    ]);
+    console.log(`E4 non-vacuous:\n  ${caught.join('\n  ')}`);
+  });
+});
+
+// ---------------------------------------------------------- E5: the holder ----
+
+describe('E5 — an open navigation’s holder is cannot-tell with no-holder-recorded', () => {
+  it('names the absence and no guard, chunk, task or resolver', () => {
+    const caught = proveNonVacuous(pinHolderIsNotRecorded, [
+      {
+        what: 'M8 a held navigation is given a holder',
+        anchor:
+          '    return { state: CANNOT_TELL, absence: NO_HOLDER_RECORDED };',
+        replacement:
+          '    return {\n' +
+          '      state: CANNOT_TELL,\n' +
+          '      absence: NO_HOLDER_RECORDED,\n' +
+          "      name: 'lazy chunk',\n" +
+          '    };',
+        message:
+          /E5 the holder carries the verdict and the named absence and nothing else/,
+        defect(api) {
+          const answer = answerOf(api, heldRecord());
+          assert.equal(
+            answer.navigations[0].holder.name,
+            'lazy chunk',
+            'the mutant names what is holding the navigation',
+          );
+        },
+      },
+    ]);
+    console.log(`E5 non-vacuous:\n  ${caught.join('\n  ')}`);
+  });
+});
+
+// ------------------------------------------------- E6: wildcard, not refusal ----
+
+describe('E6 — a wildcard match is reported as the match and never as a guard refusal', () => {
+  it('reports the wildcard chain and the same answer for a refusal and an unmatched URL', () => {
+    const caught = proveNonVacuous(pinWildcardMatchIsNeverARefusal, [
+      {
+        what: 'M9 a guard refusal is presented as the reason',
+        anchor: '    navigation.reason = entry.reason;',
+        replacement:
+          "    navigation.reason = entry.reason === null ? 'guard refused' : entry.reason;",
+        message:
+          /E6 a wildcard match is reported as the match and never as a guard refusal/,
+        defect(api) {
+          const answer = answerOf(api, refusedRecord());
+          assert.equal(
+            answer.navigations[0].reason,
+            'guard refused',
+            'the mutant reports a cause the terminal event never carried',
+          );
+        },
+      },
+    ]);
+    console.log(`E6 non-vacuous:\n  ${caught.join('\n  ')}`);
+  });
+});
+
+// --------------------------------------------- E7: the aggregate and resolver ----
+
+describe('E7 — the guard aggregate is an aggregate and the resolver stage is an absence', () => {
+  it('reports shouldActivate as it is and answers no-resolver-configured', () => {
+    const caught = proveNonVacuous(pinTheAggregateAndTheAbsentResolver, [
+      {
+        what: 'M10 the guard answer is attributed to a named guard',
+        anchor:
+          '    return {\n' +
+          '      state: CANNOT_TELL,\n' +
+          '      absence: GUARD_VERDICT_NOT_RECORDED,\n' +
+          '      shouldActivate: navigation.shouldActivate,\n' +
+          '    };',
+        replacement:
+          '    return {\n' +
+          '      state: CANNOT_TELL,\n' +
+          '      absence: GUARD_VERDICT_NOT_RECORDED,\n' +
+          "      guard: 'canMatch',\n" +
+          '      shouldActivate: navigation.shouldActivate,\n' +
+          '    };',
+        message: /E7 the guard answer carries the aggregate and no guard name/,
+        defect(api) {
+          const answer = answerOf(api, warmRecord());
+          assert.equal(
+            answer.navigations[0].guards.guard,
+            'canMatch',
+            'the mutant attributes the aggregate to a named guard',
+          );
+        },
+      },
+      {
+        what: 'M11 the resolve stage names a resolver',
+        anchor:
+          '    return { state: CANNOT_TELL, absence: NO_RESOLVER_CONFIGURED };',
+        replacement:
+          '    return {\n' +
+          '      state: CANNOT_TELL,\n' +
+          '      absence: NO_RESOLVER_CONFIGURED,\n' +
+          "      name: 'resolver',\n" +
+          '    };',
+        message:
+          /E7 the resolve stage answers the named absence and names no resolver/,
+        defect(api) {
+          const answer = answerOf(api, warmRecord());
+          assert.equal(
+            answer.navigations[0].resolve.name,
+            'resolver',
+            'the mutant infers a resolver from a resolve stage',
+          );
+        },
+      },
+    ]);
+    console.log(`E7 non-vacuous:\n  ${caught.join('\n  ')}`);
+  });
+});
+
+// ------------------------------------------------ E8: completed is never held ----
+
+describe('E8 — a completed navigation is never reported open or held', () => {
+  it('answers ended with its measured interval, a measured zero included', () => {
+    const caught = proveNonVacuous(pinCompletedIsNeverHeld, [
+      {
+        what: 'M12 a completed navigation with a loaded route is reported open and held',
+        anchor: '    navigation.state = ENDED;',
+        replacement:
+          '    navigation.state = navigation.loads.length > 0 ? OPEN : ENDED;',
+        message: /E8 a record whose navigation ended answers ended/,
+        defect(api) {
+          const answer = answerOf(api, warmRecord());
+          assert.equal(
+            answer.navigations[0].state,
+            'open',
+            'the mutant reports a navigation with a terminal event as still in flight',
+          );
+          assert.equal(
+            answer.navigations[0].holder.absence,
+            'no-holder-recorded',
+            'the mutant gives the completed navigation a holder',
+          );
+        },
+      },
+      {
+        what: 'M13 a measured zero is reported as a missing interval',
+        anchor:
+          '      isMeasurement(load.startedAt) && isMeasurement(at)\n' +
+          '        ? at - load.startedAt\n' +
+          '        : null;',
+        replacement:
+          '      isMeasurement(load.startedAt) && isMeasurement(at)\n' +
+          '        ? at - load.startedAt || null\n' +
+          '        : null;',
+        message: /E8 a measured zero stays a measured zero/,
+        defect(api) {
+          const answer = answerOf(api, measuredZeroRecord());
+          assert.equal(
+            answer.navigations[0].loads[0].durationMs,
+            null,
+            'the mutant reads the measured zero as falsy and drops the interval',
+          );
+        },
+      },
+    ]);
+    console.log(`E8 non-vacuous:\n  ${caught.join('\n  ')}`);
+  });
+});
+
+// ------------------------------------------- E9: loads by route and by start ----
+
+describe('E9 — a load is attributed by its own route and its own start, never by arrival', () => {
+  it('closes the abandoned navigation’s load on itself and never on its successor', () => {
+    const caught = proveNonVacuous(pinLoadsAreAttributedByRouteAndStart, [
+      {
+        what: 'M14 a route-config load end is attributed by position instead of route',
+        anchor:
+          '      if (openLoads[i].load.open && openLoads[i].route === route) {',
+        replacement:
+          '      if (openLoads[i].load.open && i === openLoads.length - 1) {',
+        message: /E9 the late load end closes the load its own start opened/,
+        defect(api) {
+          const answer = answerOf(api, supersededRecord());
+          const abandoned = navById(
+            answer,
+            RECORDING.superseded.cancel.payload.id,
+          );
+          assert.equal(
+            abandoned.loads[0].endedAt,
+            null,
+            'the mutant closes the load that started last instead of the one the end names',
+          );
+          assert.equal(
+            navById(answer, RECORDING.superseded.successor.id).loads.filter(
+              (load) => load.route === 'contract',
+            )[0].endedAt,
+            RECORDING.superseded.ordering.abandonedLoadEndAt,
+            'the mutant hands the abandoned navigation load end to its successor',
+          );
+        },
+      },
+      {
+        what: 'M15 an id-less load start acquires the id of the navigation in flight',
+        anchor: '      loads: navigation.loads.map(loadAnswer),',
+        replacement:
+          '      loads: navigation.loads.map((load) => ({\n' +
+          '        ...loadAnswer(load),\n' +
+          '        id: navigation.id,\n' +
+          '      })),',
+        message: /E9 a route-config load carries no id at all/,
+        defect(api) {
+          const answer = answerOf(api, heldRecord());
+          assert.equal(
+            answer.navigations[0].loads[0].id,
+            HELD[0].payload.id,
+            'the mutant lends the load a navigation id it never carried',
+          );
+        },
+      },
+    ]);
+    console.log(`E9 non-vacuous:\n  ${caught.join('\n  ')}`);
+  });
+});
+
+// ----------------------------------------------------------------- the module itself ----
+
+describe('the module', () => {
+  it('carries no import, no DOM, no clock, no console and no network', () => {
+    for (const needle of [
+      ['im', 'port '].join(''),
+      ['req', 'uire('].join(''),
+      ['docu', 'ment'].join(''),
+      ['win', 'dow.'].join(''),
+      ['cons', 'ole.'].join(''),
+      ['Date', '.now'].join(''),
+      ['fe', 'tch('].join(''),
+      ['XMLHttp', 'Request'].join(''),
+    ]) {
+      assert.equal(
+        SRC.includes(needle),
+        false,
+        `the module carries ${JSON.stringify(needle)}, and it must read the record it is handed and nothing else`,
+      );
+    }
+  });
+
+  it('answers the same record twice byte-identically and holds no state between calls', () => {
+    const api = pristineApi();
+    const first = api.narrateNavigation(supersededRecord());
+    const again = api.narrateNavigation(supersededRecord());
+    assert.equal(
+      JSON.stringify(clone(first)),
+      JSON.stringify(clone(again)),
+      'the same record answered twice is byte-identical text',
+    );
+
+    // The answer a record produced is not changed by answering a different record afterwards.
+    const before = JSON.stringify(clone(first));
+    api.narrateNavigation(heldRecord());
+    api.narrateNavigation({ routerEvents: [] });
+    const after = JSON.stringify(
+      clone(api.narrateNavigation(supersededRecord())),
+    );
+    assert.equal(
+      after,
+      before,
+      'a later call changes nothing an earlier answer carried',
+    );
+  });
+
+  it('republishes in place on a second run in the same world', () => {
+    const context = createContext({});
+    runInContext(SRC, context);
+    const first = context.angularAiNavigationNarrator;
+    runInContext(SRC, context);
+    const second = context.angularAiNavigationNarrator;
+    assert.equal(
+      first,
+      second,
+      'a second run must republish the same namespace, so a caller reference stays valid',
+    );
+    assert.equal(typeof second.narrateNavigation, 'function');
+  });
+});
