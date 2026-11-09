@@ -3,9 +3,9 @@ id: T001
 title: Measure the navigation stream, its stages and the three absences
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: commandcode-coder
+base: 15e478a5758772247a3c7e0d582539ecd18ffbac
 worktree: null
 task_branch: null
 files:
@@ -126,3 +126,5 @@ node --check scripts/navigation-measure.test.mjs && node --experimental-strip-ty
 ## Log
 
 - pending
+- measured on the live zoneless portal (claude/ai-devtools-spike 92d46ec, Angular 22.2.2, typeof Zone undefined, http://localhost:4507, Chrome/158.0.8127.18, chrome-beta-nano, CDP 9333) and the counter fixture (:4222) at 2026-11-09T00:21:25.019Z: sixteen event classes each with its own key set, all sixteen observed in the run, and the eleven declared codes with two of them produced (cancel code 1, skip code 0); the Router token sits at injector resolution path entry 2 (Environment Injector, 90 provider records) as record.token and resolves to the Router instance; a held navigation is a NavigationStart and a RouteConfigLoadStart with no terminal event at +23 ms and still two events at +738 ms, router.url still /home, and currentNavigation()'s ten fields (plus finalUrl and targetRouterState, which the chunk adds later) name no holder; the three terminals recorded verbatim, with an error's target carried as undefined because recognition never produced a snapshot; the abandoned navigation's RouteConfigLoadEnd arrives 1192.1 ms after its own cancel and 314.8 ms before its successor's, attributed by route.path; a refused canMatch is the same eleven events as an unmatched URL; the portal declares 0 canActivate and 12 anonymous canMatch, the fixture's one canActivate is redirectGuard, and both declare 0 resolvers. 28/28 suite tests pass (15 mutants); Verify green including npm run check.
+- T001 measured the navigation stream and the three absences on the live zoneless portal: sixteen classes each with its own key set, the Router reachable at injector path entry 2 with no new tap, a held navigation that is a start and a stage and no terminal event, the three terminals verbatim, and a late RouteConfigLoadEnd measured after its own cancel and before its successor's; no-holder-recorded, guard-verdict-not-recorded and no-resolver-configured are all measured rather than assumed: ready

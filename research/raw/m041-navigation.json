@@ -1,0 +1,3030 @@
+{
+  "schema": "m041-navigation/v1",
+  "milestone": "navigation-blocking",
+  "task": "T001",
+  "title": "Measure the navigation stream, its stages and the three absences",
+  "capturedAt": "2026-11-09T00:21:25.019Z",
+  "question": "What does the router emit on a real page — which classes, with which payload keys and which codes — and what do the three absences this milestone must report look like where they were measured?",
+  "verdict": "The stream carries sixteen classes, each with a fixed key set read from the installed chunk and observed on the portal; a held navigation is a NavigationStart and a stage with no terminal event; the three terminals carry their own fields only; and no payload and no currentNavigation() field names a holder, a guard verdict or a resolver.",
+  "commands": {
+    "check": "node --check scripts/navigation-measure.test.mjs && node --experimental-strip-types --test \"scripts/navigation-measure.test.mjs\" && npx prettier --check scripts/navigation-measure.test.mjs && npm run check",
+    "serve": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal --dir D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools --json",
+    "serveCounter": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter --json",
+    "browser": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-nano --json",
+    "drive": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-nano <probe>.js --json",
+    "teardown": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs down chrome-beta-nano; node .commandcode/skills/control-angular-dev-app/scripts/control.mjs down --target portal; node .commandcode/skills/control-angular-dev-app/scripts/control.mjs down --target counter"
+  },
+  "environment": {
+    "platform": "win32",
+    "shell": "cmd.exe",
+    "node": "v24.22.0",
+    "browser": "Chrome/158.0.8127.18",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+    "instance": "chrome-beta-nano",
+    "cdp": 9333,
+    "driver": "control-ai-browsers run chrome-beta-nano, one probe file per section, each in its own tab",
+    "probes": [
+      {
+        "name": "probe-a-reach.js",
+        "measured": "the reach path and the portal’s route configuration"
+      },
+      {
+        "name": "probe-b-stream.js",
+        "measured": "the vocabulary, the warm lazy navigation, the same-URL skip and the loaded configuration"
+      },
+      {
+        "name": "probe-c-held.js",
+        "measured": "the held navigation and its completion"
+      },
+      {
+        "name": "probe-d-superseded.js",
+        "measured": "the superseded navigation and the late route-config load end"
+      },
+      {
+        "name": "probe-e-error.js",
+        "measured": "the error terminal, by aborting the lazy chunk request"
+      },
+      {
+        "name": "probe-f-guard.js",
+        "measured": "the refused canMatch against an unmatched URL, under one page and one configuration"
+      },
+      {
+        "name": "probe-g-fixture.js",
+        "measured": "the counter fixture’s route configuration and its one named canActivate"
+      },
+      {
+        "name": "probe-h-control.js",
+        "measured": "the control for the portal’s own page error, with no ng.* call at all"
+      },
+      {
+        "name": "probe-i-redirect.js",
+        "measured": "a route redirect on the fixture"
+      },
+      {
+        "name": "probe-j-environment.js",
+        "measured": "each target’s Angular version and zone mode"
+      }
+    ],
+    "probesNote": "The probe files were throwaway drivers under `tmp/` (git-ignored) and are not part of the repository; each section states the probe that measured it, and the suite re-derives the half of each section the repository can prove.",
+    "portal": {
+      "dir": "D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools",
+      "branch": "claude/ai-devtools-spike",
+      "commit": "92d46ec",
+      "url": "http://localhost:4507/",
+      "port": 4507,
+      "apiPort": 3000,
+      "host": "ng-journal-root",
+      "angular": "22.2.2",
+      "typeofZone": "undefined",
+      "servedBy": "control-angular-dev-app up --target portal"
+    },
+    "fixture": {
+      "dir": "spikes/ng222-app",
+      "url": "http://localhost:4222/",
+      "port": 4222,
+      "host": "app-root",
+      "angular": "22.2.2",
+      "typeofZone": "undefined",
+      "servedBy": "control-angular-dev-app up --target counter"
+    },
+    "router": {
+      "package": "@angular/router",
+      "version": "22.1.8",
+      "chunk": "node_modules/@angular/router/fesm2022/_router-chunk.mjs"
+    }
+  },
+  "events": {
+    "question": "Which event classes can the installed router put on its stream, what is each class’s own key set, and which cancellation codes does it declare?",
+    "finding": "The installed chunk declares seventeen EventType values and sixteen event classes besides Scroll; each class’s key set is read from its own `this.<field> =` assignments plus its `type` field, and every one of the sixteen was observed on the portal in this run with exactly that key set.",
+    "reader": {
+      "how": "Every `class <Name>` block is read from the installed chunk: its own `this.<field> =` assignments, its `type = EventType.<Name>` field, and — for a class that extends RouterEvent — the base constructor’s own two assignments. The EventType enum and both code enums are read from the same file’s IIFEs.",
+      "pattern": "class <Name> … ( this.<field> = … | type = EventType.<Name> ) ; var EventType / NavigationCancellationCode / NavigationSkippedCode IIFEs",
+      "why": "A point release that adds, renames or moves a field reddens the enumeration that names it, rather than leaving a stale key set beside a stale sentence.",
+      "source": "node_modules/@angular/router/fesm2022/_router-chunk.mjs",
+      "baseClass": {
+        "name": "RouterEvent",
+        "keys": [
+          "id",
+          "url"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:973-979"
+      }
+    },
+    "enumerated": 16,
+    "enumeratedAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs",
+    "classes": [
+      {
+        "name": "NavigationStart",
+        "type": 0,
+        "keys": [
+          "id",
+          "navigationTrigger",
+          "restoredState",
+          "type",
+          "url"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:981-992",
+        "extendsRouterEvent": true,
+        "observed": {
+          "keys": [
+            "id",
+            "navigationTrigger",
+            "restoredState",
+            "type",
+            "url"
+          ],
+          "count": 10,
+          "frames": [
+            "contract",
+            "error",
+            "held",
+            "heldCompletion",
+            "redirect",
+            "refusedCanMatch",
+            "superseded",
+            "unmatchedUrl",
+            "warm"
+          ]
+        }
+      },
+      {
+        "name": "RouteConfigLoadStart",
+        "type": 9,
+        "keys": [
+          "route",
+          "type"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1124-1132",
+        "extendsRouterEvent": false,
+        "observed": {
+          "keys": [
+            "route",
+            "type"
+          ],
+          "count": 13,
+          "frames": [
+            "contract",
+            "error",
+            "held",
+            "heldCompletion",
+            "refusedCanMatch",
+            "superseded",
+            "unmatchedUrl",
+            "warm"
+          ]
+        }
+      },
+      {
+        "name": "RouteConfigLoadEnd",
+        "type": 10,
+        "keys": [
+          "route",
+          "type"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1134-1142",
+        "extendsRouterEvent": false,
+        "observed": {
+          "keys": [
+            "route",
+            "type"
+          ],
+          "count": 11,
+          "frames": [
+            "contract",
+            "heldCompletion",
+            "refusedCanMatch",
+            "superseded",
+            "unmatchedUrl",
+            "warm"
+          ]
+        }
+      },
+      {
+        "name": "RoutesRecognized",
+        "type": 4,
+        "keys": [
+          "id",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1057-1068",
+        "extendsRouterEvent": true,
+        "observed": {
+          "keys": [
+            "id",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "count": 7,
+          "frames": [
+            "contract",
+            "heldCompletion",
+            "redirect",
+            "refusedCanMatch",
+            "superseded",
+            "unmatchedUrl",
+            "warm"
+          ]
+        }
+      },
+      {
+        "name": "GuardsCheckStart",
+        "type": 7,
+        "keys": [
+          "id",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1070-1081",
+        "extendsRouterEvent": true,
+        "observed": {
+          "keys": [
+            "id",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "count": 7,
+          "frames": [
+            "contract",
+            "heldCompletion",
+            "redirect",
+            "refusedCanMatch",
+            "superseded",
+            "unmatchedUrl",
+            "warm"
+          ]
+        }
+      },
+      {
+        "name": "GuardsCheckEnd",
+        "type": 8,
+        "keys": [
+          "id",
+          "shouldActivate",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1083-1096",
+        "extendsRouterEvent": true,
+        "observed": {
+          "keys": [
+            "id",
+            "shouldActivate",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "count": 7,
+          "frames": [
+            "contract",
+            "heldCompletion",
+            "redirect",
+            "refusedCanMatch",
+            "superseded",
+            "unmatchedUrl",
+            "warm"
+          ]
+        }
+      },
+      {
+        "name": "ResolveStart",
+        "type": 5,
+        "keys": [
+          "id",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1098-1109",
+        "extendsRouterEvent": true,
+        "observed": {
+          "keys": [
+            "id",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "count": 7,
+          "frames": [
+            "contract",
+            "heldCompletion",
+            "redirect",
+            "refusedCanMatch",
+            "superseded",
+            "unmatchedUrl",
+            "warm"
+          ]
+        }
+      },
+      {
+        "name": "ResolveEnd",
+        "type": 6,
+        "keys": [
+          "id",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1111-1122",
+        "extendsRouterEvent": true,
+        "observed": {
+          "keys": [
+            "id",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "count": 7,
+          "frames": [
+            "contract",
+            "heldCompletion",
+            "redirect",
+            "refusedCanMatch",
+            "superseded",
+            "unmatchedUrl",
+            "warm"
+          ]
+        }
+      },
+      {
+        "name": "ChildActivationStart",
+        "type": 11,
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1144-1153",
+        "extendsRouterEvent": false,
+        "observed": {
+          "keys": [
+            "snapshot",
+            "type"
+          ],
+          "count": 15,
+          "frames": [
+            "contract",
+            "heldCompletion",
+            "redirect",
+            "refusedCanMatch",
+            "superseded",
+            "unmatchedUrl",
+            "warm"
+          ]
+        }
+      },
+      {
+        "name": "ActivationStart",
+        "type": 13,
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1166-1175",
+        "extendsRouterEvent": false,
+        "observed": {
+          "keys": [
+            "snapshot",
+            "type"
+          ],
+          "count": 15,
+          "frames": [
+            "contract",
+            "heldCompletion",
+            "redirect",
+            "refusedCanMatch",
+            "superseded",
+            "unmatchedUrl",
+            "warm"
+          ]
+        }
+      },
+      {
+        "name": "ActivationEnd",
+        "type": 14,
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1177-1186",
+        "extendsRouterEvent": false,
+        "observed": {
+          "keys": [
+            "snapshot",
+            "type"
+          ],
+          "count": 15,
+          "frames": [
+            "contract",
+            "heldCompletion",
+            "redirect",
+            "refusedCanMatch",
+            "superseded",
+            "unmatchedUrl",
+            "warm"
+          ]
+        }
+      },
+      {
+        "name": "ChildActivationEnd",
+        "type": 12,
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1155-1164",
+        "extendsRouterEvent": false,
+        "observed": {
+          "keys": [
+            "snapshot",
+            "type"
+          ],
+          "count": 15,
+          "frames": [
+            "contract",
+            "heldCompletion",
+            "redirect",
+            "refusedCanMatch",
+            "superseded",
+            "unmatchedUrl",
+            "warm"
+          ]
+        }
+      },
+      {
+        "name": "NavigationEnd",
+        "type": 1,
+        "keys": [
+          "id",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:994-1003",
+        "extendsRouterEvent": true,
+        "observed": {
+          "keys": [
+            "id",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "count": 7,
+          "frames": [
+            "contract",
+            "heldCompletion",
+            "redirect",
+            "refusedCanMatch",
+            "superseded",
+            "unmatchedUrl",
+            "warm"
+          ]
+        }
+      },
+      {
+        "name": "NavigationCancel",
+        "type": 2,
+        "keys": [
+          "code",
+          "id",
+          "reason",
+          "type",
+          "url"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1018-1029",
+        "extendsRouterEvent": true,
+        "observed": {
+          "keys": [
+            "code",
+            "id",
+            "reason",
+            "type",
+            "url"
+          ],
+          "count": 1,
+          "frames": [
+            "superseded"
+          ]
+        }
+      },
+      {
+        "name": "NavigationError",
+        "type": 3,
+        "keys": [
+          "error",
+          "id",
+          "target",
+          "type",
+          "url"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1044-1055",
+        "extendsRouterEvent": true,
+        "observed": {
+          "keys": [
+            "error",
+            "id",
+            "target",
+            "type",
+            "url"
+          ],
+          "count": 1,
+          "frames": [
+            "error"
+          ]
+        }
+      },
+      {
+        "name": "NavigationSkipped",
+        "type": 16,
+        "keys": [
+          "code",
+          "id",
+          "reason",
+          "type",
+          "url"
+        ],
+        "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1034-1042",
+        "extendsRouterEvent": true,
+        "observed": {
+          "keys": [
+            "code",
+            "id",
+            "reason",
+            "type",
+            "url"
+          ],
+          "count": 1,
+          "frames": [
+            "skip"
+          ]
+        }
+      }
+    ],
+    "observedClassCount": 16,
+    "scroll": {
+      "name": "Scroll",
+      "type": 15,
+      "keys": [
+        "anchor",
+        "position",
+        "routerEvent",
+        "scrollBehavior",
+        "type"
+      ],
+      "declaredAt": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1188-1203",
+      "inTheEnumeratedSixteen": false,
+      "why": "Scroll is a stream class with a type of its own, but it reports a scroll position for a RouterEvent rather than a navigation stage, and no run produced one; it is recorded here by name so its absence from the sixteen is a measurement and not an omission.",
+      "observedInARun": false
+    },
+    "codes": {
+      "source": "node_modules/@angular/router/fesm2022/_router-chunk.mjs",
+      "declaration": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:1005-1017",
+      "cancellation": [
+        {
+          "name": "Redirect",
+          "value": 0,
+          "producedByARun": false,
+          "producedBy": null
+        },
+        {
+          "name": "SupersededByNewNavigation",
+          "value": 1,
+          "producedByARun": true,
+          "producedBy": {
+            "frame": "superseded",
+            "t": 564.2,
+            "reason": "Navigation ID 2 is not equal to the current navigation id 3"
+          }
+        },
+        {
+          "name": "NoDataFromResolver",
+          "value": 2,
+          "producedByARun": false,
+          "producedBy": null
+        },
+        {
+          "name": "GuardRejected",
+          "value": 3,
+          "producedByARun": false,
+          "producedBy": null
+        },
+        {
+          "name": "Aborted",
+          "value": 4,
+          "producedByARun": false,
+          "producedBy": null
+        }
+      ],
+      "skipped": [
+        {
+          "name": "IgnoredSameUrlNavigation",
+          "value": 0,
+          "producedByARun": true,
+          "producedBy": {
+            "frame": "skip",
+            "t": 495.4,
+            "reason": "Navigation to /claim/list was ignored because it is the same as the current Router URL."
+          }
+        },
+        {
+          "name": "IgnoredByUrlHandlingStrategy",
+          "value": 1,
+          "producedByARun": false,
+          "producedBy": null
+        }
+      ],
+      "redirectProducedNoCancel": {
+        "frame": "redirect",
+        "events": 11,
+        "cancelCount": 0,
+        "url": "/redirect",
+        "urlAfterRedirects": "/landing"
+      },
+      "unproduced": [
+        {
+          "enum": "NavigationCancellationCode",
+          "name": "Redirect",
+          "value": 0
+        },
+        {
+          "enum": "NavigationCancellationCode",
+          "name": "NoDataFromResolver",
+          "value": 2
+        },
+        {
+          "enum": "NavigationCancellationCode",
+          "name": "GuardRejected",
+          "value": 3
+        },
+        {
+          "enum": "NavigationCancellationCode",
+          "name": "Aborted",
+          "value": 4
+        },
+        {
+          "enum": "NavigationSkippedCode",
+          "name": "IgnoredByUrlHandlingStrategy",
+          "value": 1
+        }
+      ]
+    }
+  },
+  "reach": {
+    "recorder": "run chrome-beta-nano tmp/m041/probe-a-reach.js",
+    "question": "Is the Router reachable from the page agent’s own read — getInjector on the host element, then the injector resolution path — and which path entry holds its token?",
+    "finding": "The node injector on the host element resolves to a 5-entry path; entry 2, whose metadata source is `Environment Injector` and which carries 90 provider records, holds the `Router` token, and that token resolves to the very instance `ɵgetRouterInstance` returns. No new tap is needed.",
+    "readFrom": {
+      "source": "extension/agent-main.js",
+      "function": "handleDiQuery",
+      "cite": "extension/agent-main.js:1072-1250",
+      "calls": [
+        "ng.getInjector(el) (else ng.ɵgetInjectorFromNode)",
+        "ng.ɵgetInjectorResolutionPath(injector)",
+        "ng.ɵgetInjectorMetadata(entry)",
+        "ng.ɵgetInjectorProviders(entry)"
+      ],
+      "tokenField": "record.token"
+    },
+    "hostElement": "ng-journal-root",
+    "path": [
+      {
+        "index": 0,
+        "metadataType": "element",
+        "metadataSource": "NG-JOURNAL-ROOT",
+        "providerCount": 6,
+        "tokenCount": 6,
+        "hasRouterToken": 0,
+        "providerProvideCount": 0,
+        "providerProvideHasRouter": false,
+        "routerTokenResolvesToTheRouterInstance": null
+      },
+      {
+        "index": 1,
+        "metadataType": "environment",
+        "metadataSource": "Standalone[_AppComponent]",
+        "providerCount": 6,
+        "tokenCount": 6,
+        "hasRouterToken": 0,
+        "providerProvideCount": 6,
+        "providerProvideHasRouter": false,
+        "routerTokenResolvesToTheRouterInstance": null
+      },
+      {
+        "index": 2,
+        "metadataType": "environment",
+        "metadataSource": "Environment Injector",
+        "providerCount": 90,
+        "tokenCount": 90,
+        "hasRouterToken": 1,
+        "providerProvideCount": 33,
+        "providerProvideHasRouter": false,
+        "routerTokenResolvesToTheRouterInstance": true
+      },
+      {
+        "index": 3,
+        "metadataType": "environment",
+        "metadataSource": null,
+        "providerCount": 8,
+        "tokenCount": 8,
+        "hasRouterToken": 0,
+        "providerProvideCount": 5,
+        "providerProvideHasRouter": false,
+        "routerTokenResolvesToTheRouterInstance": null
+      },
+      {
+        "index": 4,
+        "metadataType": "null",
+        "metadataSource": null,
+        "providerCount": 0,
+        "tokenCount": 0,
+        "hasRouterToken": 0,
+        "providerProvideCount": 0,
+        "providerProvideHasRouter": false,
+        "routerTokenResolvesToTheRouterInstance": null
+      }
+    ],
+    "pathEntryCount": 5,
+    "routerTokenEntry": 2,
+    "routerTokenEntrySource": "Environment Injector",
+    "tokenFieldIsTheFieldThatFindsIt": true,
+    "providerProvideIsTheFieldThatFindsIt": false,
+    "appInjectorIsTheFirstEntry": false,
+    "note": "In the entry that holds Router, `record.token` yields 90 token names, one of them `Router`; `record.provider.provide` yields 33 names and `Router` is not one of them. The first entry is the element injector on the host element (`NG-JOURNAL-ROOT`, 6 providers), so the app's environment injector is not the first entry."
+  },
+  "held": {
+    "recorder": "run chrome-beta-nano tmp/m041/probe-c-held.js",
+    "question": "With the chunk requests delayed, what does a navigation that has not ended look like from the page?",
+    "finding": "Held at its lazy boundary the navigation recorded 2 events — NavigationStart then RouteConfigLoadStart — and no terminal event, with router.url still /home; the state was identical 738.2 ms later, and currentNavigation() carried 10 fields, none of which names a holder. Released, the same navigation emitted 23 events and ended NavigationEnd.",
+    "target": "/complaint/list",
+    "holdMs": 2500,
+    "holdBy": "every **/*.js request delayed 2500 ms by the driver",
+    "inFlight": {
+      "at": 221.5,
+      "sinceNavigationStart": 23,
+      "eventCount": 2,
+      "events": [
+        {
+          "t": 198.9,
+          "type": 0,
+          "class": "NavigationStart",
+          "keys": [
+            "id",
+            "navigationTrigger",
+            "restoredState",
+            "type",
+            "url"
+          ],
+          "payload": {
+            "id": 2,
+            "navigationTrigger": "imperative",
+            "restoredState": null,
+            "type": 0,
+            "url": "/complaint/list"
+          }
+        },
+        {
+          "t": 199.4,
+          "type": 9,
+          "class": "RouteConfigLoadStart",
+          "keys": [
+            "route",
+            "type"
+          ],
+          "payload": {
+            "route": {
+              "path": "complaint",
+              "hasLoadChildren": true,
+              "hasLoadComponent": false,
+              "redirectTo": null,
+              "canActivateCount": 0,
+              "canActivateNames": [],
+              "canMatchCount": 0,
+              "canMatchNames": [],
+              "resolveKeys": []
+            },
+            "type": 9
+          }
+        }
+      ],
+      "lastEvent": {
+        "t": 199.4,
+        "type": 9,
+        "class": "RouteConfigLoadStart"
+      },
+      "lastEventClass": "RouteConfigLoadStart",
+      "lastEventType": 9,
+      "routerUrl": "/home",
+      "hasTerminalEvent": false
+    },
+    "stillInFlightLater": {
+      "at": 936.7,
+      "sinceNavigationStart": 738.2,
+      "eventCount": 2,
+      "lastEventClass": "RouteConfigLoadStart",
+      "routerUrl": "/home",
+      "hasTerminalEvent": false,
+      "currentNavigationKeysEqual": true
+    },
+    "currentNavigation": {
+      "read": "router.currentNavigation()",
+      "keys": [
+        "abort",
+        "beforeActivateHandler",
+        "extractedUrl",
+        "extras",
+        "id",
+        "initialUrl",
+        "previousNavigation",
+        "routesRecognizeHandler",
+        "targetBrowserUrl",
+        "trigger"
+      ],
+      "kinds": {
+        "abort": "function",
+        "beforeActivateHandler": "object",
+        "extractedUrl": "object:UrlTree",
+        "extras": "object",
+        "id": "number",
+        "initialUrl": "object:UrlTree",
+        "previousNavigation": "object",
+        "routesRecognizeHandler": "object",
+        "targetBrowserUrl": "undefined",
+        "trigger": "string"
+      },
+      "values": {
+        "id": 2,
+        "initialUrl": "/complaint/list",
+        "extractedUrl": "/complaint/list",
+        "finalUrl": "absent",
+        "targetBrowserUrl": "absent",
+        "trigger": "imperative",
+        "extrasKeys": [
+          "skipLocationChange"
+        ],
+        "extrasSkipLocationChange": false,
+        "previousNavigation": "object",
+        "targetRouterState": "absent"
+      },
+      "handlers": {
+        "routesRecognizeHandler": {
+          "ctorName": "Object",
+          "keys": [],
+          "kinds": {}
+        },
+        "beforeActivateHandler": {
+          "ctorName": "Object",
+          "keys": [],
+          "kinds": {}
+        }
+      },
+      "chunkSetSite": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:3830-3830",
+      "chunkSetFieldCount": 10,
+      "chunkSetFields": [
+        "abort",
+        "beforeActivateHandler",
+        "extractedUrl",
+        "extras",
+        "id",
+        "initialUrl",
+        "previousNavigation",
+        "routesRecognizeHandler",
+        "targetBrowserUrl",
+        "trigger"
+      ],
+      "chunkUpdateSites": [
+        {
+          "line": 3863,
+          "fields": [
+            "finalUrl"
+          ]
+        },
+        {
+          "line": 3893,
+          "fields": [
+            "finalUrl"
+          ]
+        },
+        {
+          "line": 3975,
+          "fields": [
+            "targetRouterState"
+          ]
+        },
+        {
+          "line": 4000,
+          "fields": [
+            "abort"
+          ]
+        }
+      ]
+    },
+    "completion": {
+      "eventCount": 23,
+      "classes": [
+        "NavigationStart",
+        "RouteConfigLoadStart",
+        "RouteConfigLoadEnd",
+        "RoutesRecognized",
+        "GuardsCheckStart",
+        "ChildActivationStart",
+        "ActivationStart",
+        "ChildActivationStart",
+        "ActivationStart",
+        "ChildActivationStart",
+        "ActivationStart",
+        "GuardsCheckEnd",
+        "ResolveStart",
+        "ResolveEnd",
+        "RouteConfigLoadStart",
+        "RouteConfigLoadEnd",
+        "ActivationEnd",
+        "ChildActivationEnd",
+        "ActivationEnd",
+        "ChildActivationEnd",
+        "ActivationEnd",
+        "ChildActivationEnd",
+        "NavigationEnd"
+      ],
+      "terminal": {
+        "t": 7758.3,
+        "type": 1,
+        "class": "NavigationEnd",
+        "keys": [
+          "id",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 2,
+          "type": 1,
+          "url": "/complaint/list",
+          "urlAfterRedirects": "/complaint/list"
+        }
+      },
+      "routerUrl": "/complaint/list",
+      "navResolved": true,
+      "currentNavigationAtTheEnd": null
+    }
+  },
+  "warm": {
+    "recorder": "run chrome-beta-nano tmp/m041/probe-b-stream.js",
+    "question": "What does a lazy navigation that completed measure between its two route-config events and the terminal event that followed them?",
+    "finding": "The first navigation to /claim/list loaded 2 route configs — the `claim` config with 15.6 ms between its two events and the `list` config with 37.6 ms between its two events — and ended NavigationEnd 3.1 ms after the last load end.",
+    "url": "/claim/list",
+    "events": [
+      {
+        "t": 366.6,
+        "type": 0,
+        "class": "NavigationStart",
+        "keys": [
+          "id",
+          "navigationTrigger",
+          "restoredState",
+          "type",
+          "url"
+        ],
+        "payload": {
+          "id": 2,
+          "navigationTrigger": "imperative",
+          "restoredState": null,
+          "type": 0,
+          "url": "/claim/list"
+        }
+      },
+      {
+        "t": 367.2,
+        "type": 9,
+        "class": "RouteConfigLoadStart",
+        "keys": [
+          "route",
+          "type"
+        ],
+        "payload": {
+          "route": {
+            "path": "claim",
+            "hasLoadChildren": true,
+            "hasLoadComponent": false,
+            "redirectTo": null,
+            "canActivateCount": 0,
+            "canMatchCount": 0,
+            "canMatchNames": [],
+            "resolveKeys": []
+          },
+          "type": 9
+        }
+      },
+      {
+        "t": 382.8,
+        "type": 10,
+        "class": "RouteConfigLoadEnd",
+        "keys": [
+          "route",
+          "type"
+        ],
+        "payload": {
+          "route": {
+            "path": "claim",
+            "hasLoadChildren": true,
+            "hasLoadComponent": false,
+            "redirectTo": null,
+            "canActivateCount": 0,
+            "canMatchCount": 0,
+            "canMatchNames": [],
+            "resolveKeys": []
+          },
+          "type": 10
+        }
+      },
+      {
+        "t": 383.6,
+        "type": 4,
+        "class": "RoutesRecognized",
+        "keys": [
+          "id",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 2,
+          "state": {
+            "ctorName": "RouterStateSnapshot",
+            "url": "/claim/list",
+            "matchedChain": [
+              {
+                "path": null,
+                "paramKeys": []
+              },
+              {
+                "path": "claim",
+                "paramKeys": []
+              },
+              {
+                "path": "",
+                "paramKeys": []
+              },
+              {
+                "path": "list",
+                "paramKeys": []
+              }
+            ]
+          },
+          "type": 4,
+          "url": "/claim/list",
+          "urlAfterRedirects": "/claim/list"
+        }
+      },
+      {
+        "t": 383.6,
+        "type": 7,
+        "class": "GuardsCheckStart",
+        "keys": [
+          "id",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 2,
+          "state": {
+            "ctorName": "RouterStateSnapshot",
+            "url": "/claim/list",
+            "matchedChain": [
+              {
+                "path": null,
+                "paramKeys": []
+              },
+              {
+                "path": "claim",
+                "paramKeys": []
+              },
+              {
+                "path": "",
+                "paramKeys": []
+              },
+              {
+                "path": "list",
+                "paramKeys": []
+              }
+            ]
+          },
+          "type": 7,
+          "url": "/claim/list",
+          "urlAfterRedirects": "/claim/list"
+        }
+      },
+      {
+        "t": 383.8,
+        "type": 11,
+        "class": "ChildActivationStart",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": null,
+            "paramKeys": [],
+            "hasRouteConfig": false
+          },
+          "type": 11
+        }
+      },
+      {
+        "t": 383.9,
+        "type": 13,
+        "class": "ActivationStart",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "claim",
+            "paramKeys": [],
+            "hasRouteConfig": true
+          },
+          "type": 13
+        }
+      },
+      {
+        "t": 383.9,
+        "type": 11,
+        "class": "ChildActivationStart",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "claim",
+            "paramKeys": [],
+            "hasRouteConfig": true
+          },
+          "type": 11
+        }
+      },
+      {
+        "t": 383.9,
+        "type": 13,
+        "class": "ActivationStart",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "",
+            "paramKeys": [],
+            "hasRouteConfig": true
+          },
+          "type": 13
+        }
+      },
+      {
+        "t": 383.9,
+        "type": 11,
+        "class": "ChildActivationStart",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "",
+            "paramKeys": [],
+            "hasRouteConfig": true
+          },
+          "type": 11
+        }
+      },
+      {
+        "t": 383.9,
+        "type": 13,
+        "class": "ActivationStart",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "list",
+            "paramKeys": [],
+            "hasRouteConfig": true
+          },
+          "type": 13
+        }
+      },
+      {
+        "t": 383.9,
+        "type": 8,
+        "class": "GuardsCheckEnd",
+        "keys": [
+          "id",
+          "shouldActivate",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 2,
+          "shouldActivate": true,
+          "state": {
+            "ctorName": "RouterStateSnapshot",
+            "url": "/claim/list",
+            "matchedChain": [
+              {
+                "path": null,
+                "paramKeys": []
+              },
+              {
+                "path": "claim",
+                "paramKeys": []
+              },
+              {
+                "path": "",
+                "paramKeys": []
+              },
+              {
+                "path": "list",
+                "paramKeys": []
+              }
+            ]
+          },
+          "type": 8,
+          "url": "/claim/list",
+          "urlAfterRedirects": "/claim/list"
+        }
+      },
+      {
+        "t": 384,
+        "type": 5,
+        "class": "ResolveStart",
+        "keys": [
+          "id",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 2,
+          "state": {
+            "ctorName": "RouterStateSnapshot",
+            "url": "/claim/list",
+            "matchedChain": [
+              {
+                "path": null,
+                "paramKeys": []
+              },
+              {
+                "path": "claim",
+                "paramKeys": []
+              },
+              {
+                "path": "",
+                "paramKeys": []
+              },
+              {
+                "path": "list",
+                "paramKeys": []
+              }
+            ]
+          },
+          "type": 5,
+          "url": "/claim/list",
+          "urlAfterRedirects": "/claim/list"
+        }
+      },
+      {
+        "t": 384.2,
+        "type": 6,
+        "class": "ResolveEnd",
+        "keys": [
+          "id",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 2,
+          "state": {
+            "ctorName": "RouterStateSnapshot",
+            "url": "/claim/list",
+            "matchedChain": [
+              {
+                "path": null,
+                "paramKeys": []
+              },
+              {
+                "path": "claim",
+                "paramKeys": []
+              },
+              {
+                "path": "",
+                "paramKeys": []
+              },
+              {
+                "path": "list",
+                "paramKeys": []
+              }
+            ]
+          },
+          "type": 6,
+          "url": "/claim/list",
+          "urlAfterRedirects": "/claim/list"
+        }
+      },
+      {
+        "t": 384.2,
+        "type": 9,
+        "class": "RouteConfigLoadStart",
+        "keys": [
+          "route",
+          "type"
+        ],
+        "payload": {
+          "route": {
+            "path": "list",
+            "hasLoadChildren": false,
+            "hasLoadComponent": true,
+            "redirectTo": null,
+            "canActivateCount": 0,
+            "canMatchCount": 1,
+            "canMatchNames": [
+              ""
+            ],
+            "resolveKeys": []
+          },
+          "type": 9
+        }
+      },
+      {
+        "t": 421.8,
+        "type": 10,
+        "class": "RouteConfigLoadEnd",
+        "keys": [
+          "route",
+          "type"
+        ],
+        "payload": {
+          "route": {
+            "path": "list",
+            "hasLoadChildren": false,
+            "hasLoadComponent": true,
+            "redirectTo": null,
+            "canActivateCount": 0,
+            "canMatchCount": 1,
+            "canMatchNames": [
+              ""
+            ],
+            "resolveKeys": []
+          },
+          "type": 10
+        }
+      },
+      {
+        "t": 424.8,
+        "type": 14,
+        "class": "ActivationEnd",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "list",
+            "paramKeys": [],
+            "hasRouteConfig": true
+          },
+          "type": 14
+        }
+      },
+      {
+        "t": 424.8,
+        "type": 12,
+        "class": "ChildActivationEnd",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "",
+            "paramKeys": [],
+            "hasRouteConfig": true
+          },
+          "type": 12
+        }
+      },
+      {
+        "t": 424.8,
+        "type": 14,
+        "class": "ActivationEnd",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "",
+            "paramKeys": [],
+            "hasRouteConfig": true
+          },
+          "type": 14
+        }
+      },
+      {
+        "t": 424.8,
+        "type": 12,
+        "class": "ChildActivationEnd",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "claim",
+            "paramKeys": [],
+            "hasRouteConfig": true
+          },
+          "type": 12
+        }
+      },
+      {
+        "t": 424.8,
+        "type": 14,
+        "class": "ActivationEnd",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "claim",
+            "paramKeys": [],
+            "hasRouteConfig": true
+          },
+          "type": 14
+        }
+      },
+      {
+        "t": 424.8,
+        "type": 12,
+        "class": "ChildActivationEnd",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": null,
+            "paramKeys": [],
+            "hasRouteConfig": false
+          },
+          "type": 12
+        }
+      },
+      {
+        "t": 424.9,
+        "type": 1,
+        "class": "NavigationEnd",
+        "keys": [
+          "id",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 2,
+          "type": 1,
+          "url": "/claim/list",
+          "urlAfterRedirects": "/claim/list"
+        }
+      }
+    ],
+    "eventCount": 23,
+    "routeConfigLoads": [
+      {
+        "routePath": "claim",
+        "startAt": 367.2,
+        "endAt": 382.8,
+        "intervalMs": 15.6
+      },
+      {
+        "routePath": "list",
+        "startAt": 384.2,
+        "endAt": 421.8,
+        "intervalMs": 37.6
+      }
+    ],
+    "terminal": {
+      "t": 424.9,
+      "type": 1,
+      "class": "NavigationEnd",
+      "keys": [
+        "id",
+        "type",
+        "url",
+        "urlAfterRedirects"
+      ],
+      "payload": {
+        "id": 2,
+        "type": 1,
+        "url": "/claim/list",
+        "urlAfterRedirects": "/claim/list"
+      }
+    },
+    "navResolved": true,
+    "second": {
+      "url": "/contract/list",
+      "eventCount": 23,
+      "routeConfigLoads": [
+        {
+          "routePath": "contract",
+          "startAt": 552.3,
+          "endAt": 555.4,
+          "intervalMs": 3.1
+        },
+        {
+          "routePath": "list",
+          "startAt": 556.4,
+          "endAt": 566.7,
+          "intervalMs": 10.3
+        }
+      ],
+      "terminal": {
+        "t": 569.5,
+        "type": 1,
+        "class": "NavigationEnd",
+        "keys": [
+          "id",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 4,
+          "type": 1,
+          "url": "/contract/list",
+          "urlAfterRedirects": "/contract/list"
+        }
+      }
+    }
+  },
+  "superseded": {
+    "recorder": "run chrome-beta-nano tmp/m041/probe-d-superseded.js",
+    "question": "When a later navigation supersedes a held one, when does the abandoned navigation’s own RouteConfigLoadEnd arrive?",
+    "finding": "The abandoned navigation was cancelled at 564.2 ms with code 1 and the reason the router states; its own RouteConfigLoadEnd arrived at 1756.3 ms — 1192.1 ms after that cancel — and the successor's own load end at 2071.1 ms, 314.8 ms later, so ordering by arrival alone would attribute the first load end to the wrong navigation. Both load ends name their route in `route.path`, which is what tells them apart.",
+    "abandoned": {
+      "url": "/claim/list",
+      "id": 2,
+      "navResolved": false
+    },
+    "successor": {
+      "url": "/contract/list",
+      "id": 3,
+      "navResolved": true
+    },
+    "events": [
+      {
+        "t": 247.3,
+        "type": 0,
+        "class": "NavigationStart",
+        "keys": [
+          "id",
+          "navigationTrigger",
+          "restoredState",
+          "type",
+          "url"
+        ],
+        "payload": {
+          "id": 2,
+          "navigationTrigger": "imperative",
+          "restoredState": null,
+          "type": 0,
+          "url": "/claim/list"
+        }
+      },
+      {
+        "t": 248.1,
+        "type": 9,
+        "class": "RouteConfigLoadStart",
+        "keys": [
+          "route",
+          "type"
+        ],
+        "payload": {
+          "route": {
+            "path": "claim",
+            "hasLoadChildren": true,
+            "hasLoadComponent": false,
+            "canMatchCount": 0
+          },
+          "type": 9
+        }
+      },
+      {
+        "t": 564.2,
+        "type": 2,
+        "class": "NavigationCancel",
+        "keys": [
+          "code",
+          "id",
+          "reason",
+          "type",
+          "url"
+        ],
+        "payload": {
+          "code": 1,
+          "id": 2,
+          "reason": "Navigation ID 2 is not equal to the current navigation id 3",
+          "type": 2,
+          "url": "/claim/list"
+        }
+      },
+      {
+        "t": 564.3,
+        "type": 0,
+        "class": "NavigationStart",
+        "keys": [
+          "id",
+          "navigationTrigger",
+          "restoredState",
+          "type",
+          "url"
+        ],
+        "payload": {
+          "id": 3,
+          "navigationTrigger": "imperative",
+          "restoredState": null,
+          "type": 0,
+          "url": "/contract/list"
+        }
+      },
+      {
+        "t": 564.6,
+        "type": 9,
+        "class": "RouteConfigLoadStart",
+        "keys": [
+          "route",
+          "type"
+        ],
+        "payload": {
+          "route": {
+            "path": "contract",
+            "hasLoadChildren": true,
+            "hasLoadComponent": false,
+            "canMatchCount": 0
+          },
+          "type": 9
+        }
+      },
+      {
+        "t": 1756.3,
+        "type": 10,
+        "class": "RouteConfigLoadEnd",
+        "keys": [
+          "route",
+          "type"
+        ],
+        "payload": {
+          "route": {
+            "path": "claim",
+            "hasLoadChildren": true,
+            "hasLoadComponent": false,
+            "canMatchCount": 0
+          },
+          "type": 10
+        }
+      },
+      {
+        "t": 2071.1,
+        "type": 10,
+        "class": "RouteConfigLoadEnd",
+        "keys": [
+          "route",
+          "type"
+        ],
+        "payload": {
+          "route": {
+            "path": "contract",
+            "hasLoadChildren": true,
+            "hasLoadComponent": false,
+            "canMatchCount": 0
+          },
+          "type": 10
+        }
+      },
+      {
+        "t": 2071.9,
+        "type": 4,
+        "class": "RoutesRecognized",
+        "keys": [
+          "id",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 3,
+          "state": {
+            "ctorName": "RouterStateSnapshot",
+            "url": "/contract/list",
+            "matchedChain": [
+              null,
+              "contract",
+              "",
+              "list"
+            ]
+          },
+          "type": 4,
+          "url": "/contract/list",
+          "urlAfterRedirects": "/contract/list"
+        }
+      },
+      {
+        "t": 2071.9,
+        "type": 7,
+        "class": "GuardsCheckStart",
+        "keys": [
+          "id",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 3,
+          "state": {
+            "ctorName": "RouterStateSnapshot",
+            "url": "/contract/list",
+            "matchedChain": [
+              null,
+              "contract",
+              "",
+              "list"
+            ]
+          },
+          "type": 7,
+          "url": "/contract/list",
+          "urlAfterRedirects": "/contract/list"
+        }
+      },
+      {
+        "t": 2072.1,
+        "type": 11,
+        "class": "ChildActivationStart",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": null
+          },
+          "type": 11
+        }
+      },
+      {
+        "t": 2072.1,
+        "type": 13,
+        "class": "ActivationStart",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "contract"
+          },
+          "type": 13
+        }
+      },
+      {
+        "t": 2072.1,
+        "type": 11,
+        "class": "ChildActivationStart",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "contract"
+          },
+          "type": 11
+        }
+      },
+      {
+        "t": 2072.1,
+        "type": 13,
+        "class": "ActivationStart",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": ""
+          },
+          "type": 13
+        }
+      },
+      {
+        "t": 2072.2,
+        "type": 11,
+        "class": "ChildActivationStart",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": ""
+          },
+          "type": 11
+        }
+      },
+      {
+        "t": 2072.2,
+        "type": 13,
+        "class": "ActivationStart",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "list"
+          },
+          "type": 13
+        }
+      },
+      {
+        "t": 2072.2,
+        "type": 8,
+        "class": "GuardsCheckEnd",
+        "keys": [
+          "id",
+          "shouldActivate",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 3,
+          "shouldActivate": true,
+          "state": {
+            "ctorName": "RouterStateSnapshot",
+            "url": "/contract/list",
+            "matchedChain": [
+              null,
+              "contract",
+              "",
+              "list"
+            ]
+          },
+          "type": 8,
+          "url": "/contract/list",
+          "urlAfterRedirects": "/contract/list"
+        }
+      },
+      {
+        "t": 2072.2,
+        "type": 5,
+        "class": "ResolveStart",
+        "keys": [
+          "id",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 3,
+          "state": {
+            "ctorName": "RouterStateSnapshot",
+            "url": "/contract/list",
+            "matchedChain": [
+              null,
+              "contract",
+              "",
+              "list"
+            ]
+          },
+          "type": 5,
+          "url": "/contract/list",
+          "urlAfterRedirects": "/contract/list"
+        }
+      },
+      {
+        "t": 2072.4,
+        "type": 6,
+        "class": "ResolveEnd",
+        "keys": [
+          "id",
+          "state",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 3,
+          "state": {
+            "ctorName": "RouterStateSnapshot",
+            "url": "/contract/list",
+            "matchedChain": [
+              null,
+              "contract",
+              "",
+              "list"
+            ]
+          },
+          "type": 6,
+          "url": "/contract/list",
+          "urlAfterRedirects": "/contract/list"
+        }
+      },
+      {
+        "t": 2072.4,
+        "type": 9,
+        "class": "RouteConfigLoadStart",
+        "keys": [
+          "route",
+          "type"
+        ],
+        "payload": {
+          "route": {
+            "path": "list",
+            "hasLoadChildren": false,
+            "hasLoadComponent": true,
+            "canMatchCount": 1
+          },
+          "type": 9
+        }
+      },
+      {
+        "t": 5116.4,
+        "type": 10,
+        "class": "RouteConfigLoadEnd",
+        "keys": [
+          "route",
+          "type"
+        ],
+        "payload": {
+          "route": {
+            "path": "list",
+            "hasLoadChildren": false,
+            "hasLoadComponent": true,
+            "canMatchCount": 1
+          },
+          "type": 10
+        }
+      },
+      {
+        "t": 5118.9,
+        "type": 14,
+        "class": "ActivationEnd",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "list"
+          },
+          "type": 14
+        }
+      },
+      {
+        "t": 5118.9,
+        "type": 12,
+        "class": "ChildActivationEnd",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": ""
+          },
+          "type": 12
+        }
+      },
+      {
+        "t": 5118.9,
+        "type": 14,
+        "class": "ActivationEnd",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": ""
+          },
+          "type": 14
+        }
+      },
+      {
+        "t": 5118.9,
+        "type": 12,
+        "class": "ChildActivationEnd",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "contract"
+          },
+          "type": 12
+        }
+      },
+      {
+        "t": 5118.9,
+        "type": 14,
+        "class": "ActivationEnd",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": "contract"
+          },
+          "type": 14
+        }
+      },
+      {
+        "t": 5118.9,
+        "type": 12,
+        "class": "ChildActivationEnd",
+        "keys": [
+          "snapshot",
+          "type"
+        ],
+        "payload": {
+          "snapshot": {
+            "ctorName": "ActivatedRouteSnapshot",
+            "path": null
+          },
+          "type": 12
+        }
+      },
+      {
+        "t": 5119,
+        "type": 1,
+        "class": "NavigationEnd",
+        "keys": [
+          "id",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 3,
+          "type": 1,
+          "url": "/contract/list",
+          "urlAfterRedirects": "/contract/list"
+        }
+      }
+    ],
+    "eventCount": 27,
+    "cancel": {
+      "t": 564.2,
+      "type": 2,
+      "class": "NavigationCancel",
+      "keys": [
+        "code",
+        "id",
+        "reason",
+        "type",
+        "url"
+      ],
+      "payload": {
+        "code": 1,
+        "id": 2,
+        "reason": "Navigation ID 2 is not equal to the current navigation id 3",
+        "type": 2,
+        "url": "/claim/list"
+      }
+    },
+    "routeConfigLoads": [
+      {
+        "routePath": "claim",
+        "startAt": 248.1,
+        "endAt": 1756.3,
+        "intervalMs": 1508.2
+      },
+      {
+        "routePath": "contract",
+        "startAt": 564.6,
+        "endAt": 1756.3,
+        "intervalMs": 1191.7
+      },
+      {
+        "routePath": "list",
+        "startAt": 2072.4,
+        "endAt": 5116.4,
+        "intervalMs": 3044
+      }
+    ],
+    "ordering": {
+      "cancelAt": 564.2,
+      "abandonedLoadEndAt": 1756.3,
+      "successorLoadEndAt": 2071.1,
+      "abandonedLoadEndIsAfterItsOwnCancel": true,
+      "abandonedLoadEndIsBeforeTheSuccessorLoadEnd": true,
+      "cancelToAbandonedLoadEndMs": 1192.1,
+      "abandonedLoadEndToSuccessorLoadEndMs": 314.8
+    },
+    "attribution": "by route.path in the event’s own payload, never by position"
+  },
+  "terminals": {
+    "recorder": "four runs of chrome-beta-nano, one per terminal, each named beside it",
+    "question": "What does each of the three terminal classes actually put on the wire?",
+    "finding": "A cancel carries {code, id, reason, type, url} with code 1 and the router’s own reason; an error carries {error, id, target, type, url}, with the error’s name and message and a `target` key whose value is undefined because recognition never produced a snapshot; a skip carries {code, id, reason, type, url} with code 0 and the same-URL reason. A redirect produced no cancel at all.",
+    "cancel": {
+      "recorder": "run chrome-beta-nano tmp/m041/probe-d-superseded.js",
+      "frame": "superseded",
+      "event": {
+        "t": 564.2,
+        "type": 2,
+        "class": "NavigationCancel",
+        "keys": [
+          "code",
+          "id",
+          "reason",
+          "type",
+          "url"
+        ],
+        "payload": {
+          "code": 1,
+          "id": 2,
+          "reason": "Navigation ID 2 is not equal to the current navigation id 3",
+          "type": 2,
+          "url": "/claim/list"
+        }
+      },
+      "fields": [
+        "code",
+        "id",
+        "reason",
+        "type",
+        "url"
+      ]
+    },
+    "error": {
+      "recorder": "run chrome-beta-nano tmp/m041/probe-e-error.js",
+      "frame": "error",
+      "events": [
+        {
+          "t": 204.4,
+          "type": 0,
+          "class": "NavigationStart",
+          "keys": [
+            "id",
+            "navigationTrigger",
+            "restoredState",
+            "type",
+            "url"
+          ],
+          "payload": {
+            "id": 2,
+            "navigationTrigger": "imperative",
+            "restoredState": null,
+            "type": 0,
+            "url": "/customer/list"
+          }
+        },
+        {
+          "t": 205,
+          "type": 9,
+          "class": "RouteConfigLoadStart",
+          "keys": [
+            "route",
+            "type"
+          ],
+          "payload": {
+            "route": {
+              "path": "customer",
+              "hasLoadChildren": true,
+              "hasLoadComponent": false,
+              "redirectTo": null,
+              "canActivateCount": 0,
+              "canActivateNames": [],
+              "canMatchCount": 0,
+              "canMatchNames": [],
+              "resolveKeys": []
+            },
+            "type": 9
+          }
+        },
+        {
+          "t": 226.3,
+          "type": 3,
+          "class": "NavigationError",
+          "keys": [
+            "error",
+            "id",
+            "target",
+            "type",
+            "url"
+          ],
+          "payload": {
+            "error": {
+              "ctorName": "TypeError",
+              "name": "TypeError",
+              "message": "Failed to fetch dynamically imported module: http://localhost:4507/src-2HBDPKHR.js",
+              "stackFirstLine": "TypeError: Failed to fetch dynamically imported module: http://localhost:4507/src-2HBDPKHR.js"
+            },
+            "id": 2,
+            "target": "undefined",
+            "type": 3,
+            "url": "/customer/list"
+          }
+        }
+      ],
+      "event": {
+        "t": 226.3,
+        "type": 3,
+        "class": "NavigationError",
+        "keys": [
+          "error",
+          "id",
+          "target",
+          "type",
+          "url"
+        ],
+        "payload": {
+          "error": {
+            "ctorName": "TypeError",
+            "name": "TypeError",
+            "message": "Failed to fetch dynamically imported module: http://localhost:4507/src-2HBDPKHR.js",
+            "stackFirstLine": "TypeError: Failed to fetch dynamically imported module: http://localhost:4507/src-2HBDPKHR.js"
+          },
+          "id": 2,
+          "target": "undefined",
+          "type": 3,
+          "url": "/customer/list"
+        }
+      },
+      "fields": [
+        "error",
+        "id",
+        "target",
+        "type",
+        "url"
+      ],
+      "routerUrlBefore": "/home",
+      "routerUrlAfter": "/home",
+      "navRejected": "TypeError: Failed to fetch dynamically imported module: http://localhost:4507/src-2HBDPKHR.js",
+      "targetValue": "undefined",
+      "targetNote": "The event carries a `target` key and its value is undefined: the installed declaration marks it optional, and the one construction site passes `targetSnapshot ?? undefined`, which is undefined while recognition has not produced a snapshot. It is recorded as carried-with-an-undefined-value, never as a null or as an omitted key.",
+      "constructionSite": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:4041-4041",
+      "constructionCall": "new NavigationError(overallTransitionState.id, this.urlSerializer.serialize(overallTransitionState.extractedUrl), e, overallTransitionState.targetSnapshot ?? undefined);",
+      "abortedRequestUrls": [
+        "http://localhost:4507/src-2HBDPKHR.js"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Error: [pangular] No devtools server found (tried ./, /__pangular/, /__devframes/pangular/). Mount initPangularHub() or the pangular() Vite plugin in your dev server, before the SSR handler. On a custom path, pass it to initOverlay({baseURL}). See https://pangular-inspector.dev/getting-started/installation/\n    at noServerError (http://localhost:4507/@fs/D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/.angular/cache/22.2.2/insurance-portal/vite/deps/@pangular-inspector_devtools_overlay.js?v=00af0743:14234:9)\n    at http://localhost:4507/@fs/D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/.angular/cache/22.2.2/insurance-portal/vite/deps/@pangular-inspector_devtools_overlay.js?v=00af0743:14239:9\n    at async startOverlay (http://localhost:4507/@fs/D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/.angular/cache/22.2.2/insurance-portal/vite/deps/@pangular-inspector_devtools_overlay.js?v=00af0743:14238:14)"
+      ]
+    },
+    "skip": {
+      "recorder": "run chrome-beta-nano tmp/m041/probe-b-stream.js",
+      "frame": "skip",
+      "events": [
+        {
+          "t": 495.4,
+          "type": 16,
+          "class": "NavigationSkipped",
+          "keys": [
+            "code",
+            "id",
+            "reason",
+            "type",
+            "url"
+          ],
+          "payload": {
+            "code": 0,
+            "id": 3,
+            "reason": "Navigation to /claim/list was ignored because it is the same as the current Router URL.",
+            "type": 16,
+            "url": "/claim/list"
+          }
+        }
+      ],
+      "event": {
+        "t": 495.4,
+        "type": 16,
+        "class": "NavigationSkipped",
+        "keys": [
+          "code",
+          "id",
+          "reason",
+          "type",
+          "url"
+        ],
+        "payload": {
+          "code": 0,
+          "id": 3,
+          "reason": "Navigation to /claim/list was ignored because it is the same as the current Router URL.",
+          "type": 16,
+          "url": "/claim/list"
+        }
+      },
+      "fields": [
+        "code",
+        "id",
+        "reason",
+        "type",
+        "url"
+      ],
+      "navResolved": false
+    },
+    "redirect": {
+      "recorder": "run chrome-beta-nano tmp/m041/probe-i-redirect.js",
+      "frame": "redirect",
+      "events": [
+        {
+          "t": 289.2,
+          "type": 0,
+          "class": "NavigationStart",
+          "keys": [
+            "id",
+            "navigationTrigger",
+            "restoredState",
+            "type",
+            "url"
+          ],
+          "payload": {
+            "id": 2,
+            "navigationTrigger": "imperative",
+            "restoredState": null,
+            "type": 0,
+            "url": "/redirect"
+          }
+        },
+        {
+          "t": 290.6,
+          "type": 4,
+          "class": "RoutesRecognized",
+          "keys": [
+            "id",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "payload": {
+            "id": 2,
+            "state": {
+              "ctorName": "RouterStateSnapshot",
+              "url": "/landing",
+              "matchedChain": [
+                null,
+                "landing"
+              ]
+            },
+            "type": 4,
+            "url": "/redirect",
+            "urlAfterRedirects": "/landing"
+          }
+        },
+        {
+          "t": 290.6,
+          "type": 7,
+          "class": "GuardsCheckStart",
+          "keys": [
+            "id",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "payload": {
+            "id": 2,
+            "state": {
+              "ctorName": "RouterStateSnapshot",
+              "url": "/landing",
+              "matchedChain": [
+                null,
+                "landing"
+              ]
+            },
+            "type": 7,
+            "url": "/redirect",
+            "urlAfterRedirects": "/landing"
+          }
+        },
+        {
+          "t": 290.9,
+          "type": 11,
+          "class": "ChildActivationStart",
+          "keys": [
+            "snapshot",
+            "type"
+          ],
+          "payload": {
+            "snapshot": {
+              "ctorName": "ActivatedRouteSnapshot",
+              "path": null
+            },
+            "type": 11
+          }
+        },
+        {
+          "t": 290.9,
+          "type": 13,
+          "class": "ActivationStart",
+          "keys": [
+            "snapshot",
+            "type"
+          ],
+          "payload": {
+            "snapshot": {
+              "ctorName": "ActivatedRouteSnapshot",
+              "path": "landing"
+            },
+            "type": 13
+          }
+        },
+        {
+          "t": 291.2,
+          "type": 8,
+          "class": "GuardsCheckEnd",
+          "keys": [
+            "id",
+            "shouldActivate",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "payload": {
+            "id": 2,
+            "shouldActivate": true,
+            "state": {
+              "ctorName": "RouterStateSnapshot",
+              "url": "/landing",
+              "matchedChain": [
+                null,
+                "landing"
+              ]
+            },
+            "type": 8,
+            "url": "/redirect",
+            "urlAfterRedirects": "/landing"
+          }
+        },
+        {
+          "t": 291.3,
+          "type": 5,
+          "class": "ResolveStart",
+          "keys": [
+            "id",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "payload": {
+            "id": 2,
+            "state": {
+              "ctorName": "RouterStateSnapshot",
+              "url": "/landing",
+              "matchedChain": [
+                null,
+                "landing"
+              ]
+            },
+            "type": 5,
+            "url": "/redirect",
+            "urlAfterRedirects": "/landing"
+          }
+        },
+        {
+          "t": 291.6,
+          "type": 6,
+          "class": "ResolveEnd",
+          "keys": [
+            "id",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "payload": {
+            "id": 2,
+            "state": {
+              "ctorName": "RouterStateSnapshot",
+              "url": "/landing",
+              "matchedChain": [
+                null,
+                "landing"
+              ]
+            },
+            "type": 6,
+            "url": "/redirect",
+            "urlAfterRedirects": "/landing"
+          }
+        },
+        {
+          "t": 293.4,
+          "type": 14,
+          "class": "ActivationEnd",
+          "keys": [
+            "snapshot",
+            "type"
+          ],
+          "payload": {
+            "snapshot": {
+              "ctorName": "ActivatedRouteSnapshot",
+              "path": "landing"
+            },
+            "type": 14
+          }
+        },
+        {
+          "t": 293.4,
+          "type": 12,
+          "class": "ChildActivationEnd",
+          "keys": [
+            "snapshot",
+            "type"
+          ],
+          "payload": {
+            "snapshot": {
+              "ctorName": "ActivatedRouteSnapshot",
+              "path": null
+            },
+            "type": 12
+          }
+        },
+        {
+          "t": 293.5,
+          "type": 1,
+          "class": "NavigationEnd",
+          "keys": [
+            "id",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "payload": {
+            "id": 2,
+            "type": 1,
+            "url": "/redirect",
+            "urlAfterRedirects": "/landing"
+          }
+        }
+      ],
+      "eventCount": 11,
+      "cancelCount": 0,
+      "terminal": {
+        "t": 293.5,
+        "type": 1,
+        "class": "NavigationEnd",
+        "keys": [
+          "id",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "payload": {
+          "id": 2,
+          "type": 1,
+          "url": "/redirect",
+          "urlAfterRedirects": "/landing"
+        }
+      },
+      "finding": "A route redirect from /redirect to /landing emitted 11 events and 0 NavigationCancel: the redirect is only `url` differing from `urlAfterRedirects`, so it is not a stage and not a terminal."
+    }
+  },
+  "absences": {
+    "no-holder-recorded": {
+      "recorder": "run chrome-beta-nano tmp/m041/probe-c-held.js",
+      "criterion": "SC3",
+      "named": "no-holder-recorded",
+      "verdict": "cannot-tell",
+      "fieldsChecked": "currentNavigation()’s own field list plus the key sets of the events recorded while the navigation was held",
+      "currentNavigationFieldsAtTheHold": [
+        "abort",
+        "beforeActivateHandler",
+        "extractedUrl",
+        "extras",
+        "id",
+        "initialUrl",
+        "previousNavigation",
+        "routesRecognizeHandler",
+        "targetBrowserUrl",
+        "trigger"
+      ],
+      "fieldsTheChunkAddsLater": [
+        "finalUrl",
+        "targetRouterState"
+      ],
+      "currentNavigationFields": [
+        "abort",
+        "beforeActivateHandler",
+        "extractedUrl",
+        "extras",
+        "finalUrl",
+        "id",
+        "initialUrl",
+        "previousNavigation",
+        "routesRecognizeHandler",
+        "targetBrowserUrl",
+        "targetRouterState",
+        "trigger"
+      ],
+      "derivedFrom": {
+        "setSite": "node_modules/@angular/router/fesm2022/_router-chunk.mjs:3830",
+        "updateSites": [
+          {
+            "line": 3863,
+            "fields": [
+              "finalUrl"
+            ]
+          },
+          {
+            "line": 3893,
+            "fields": [
+              "finalUrl"
+            ]
+          },
+          {
+            "line": 3975,
+            "fields": [
+              "targetRouterState"
+            ]
+          },
+          {
+            "line": 4000,
+            "fields": [
+              "abort"
+            ]
+          }
+        ],
+        "why": "The field list is the object literal the router hands to its own currentNavigation signal, plus the fields its own update sites add; nothing is enumerated from a neighbouring object."
+      },
+      "eventPayloadKeysChecked": [
+        "id",
+        "navigationTrigger",
+        "restoredState",
+        "route",
+        "type",
+        "url"
+      ],
+      "wordsChecked": [
+        "guard",
+        "resolver",
+        "chunk",
+        "task",
+        "holder"
+      ],
+      "payloadFieldsMatchingAWord": [],
+      "currentNavigationFieldsMatchingAWord": [],
+      "finding": "No field of currentNavigation() and no key of any event recorded during the hold matches guard, resolver, chunk, task or holder: the 10 fields are abort, beforeActivateHandler, extractedUrl, extras, id, initialUrl, previousNavigation, routesRecognizeHandler, targetBrowserUrl, trigger, the two handler objects carry no keys at all (routesRecognizeHandler: 0, beforeActivateHandler: 0), and the 2 fields the chunk adds later are finalUrl and targetRouterState. What is holding the navigation is not recorded anywhere."
+    },
+    "guard-verdict-not-recorded": {
+      "recorder": "run chrome-beta-nano tmp/m041/probe-b-stream.js and tmp/m041/probe-f-guard.js",
+      "criterion": "SC4",
+      "named": "guard-verdict-not-recorded",
+      "verdict": "cannot-tell",
+      "guardsCheckEndKeys": [
+        "id",
+        "shouldActivate",
+        "state",
+        "type",
+        "url",
+        "urlAfterRedirects"
+      ],
+      "guardsCheckEndObservedKeys": [
+        "id",
+        "shouldActivate",
+        "state",
+        "type",
+        "url",
+        "urlAfterRedirects"
+      ],
+      "guardFieldsInThatPayload": [
+        "shouldActivate"
+      ],
+      "shouldActivateValue": true,
+      "guardFieldsAreAggregateOnly": true,
+      "routeConfigPayloadCarries": {
+        "frame": "warm",
+        "routePath": "list",
+        "canMatchCount": 1,
+        "canMatchNames": [
+          ""
+        ],
+        "note": "The two route-config events carry the route-config object itself, so a route that declares canActivate or canMatch has those arrays reachable through the payload — unnamed functions, with no verdict. A guard is therefore nameable from configuration and never from the stream."
+      },
+      "refusedGuardVersusUnmatchedUrl": {
+        "refused": "the portal’s own manifest served with `claim-list: false`, so the route’s canMatch refuses",
+        "unmatched": "a URL no route matches, so the wildcard `**` route matches it",
+        "comparison": {
+          "routeConfigLoads": {
+            "refused": [
+              {
+                "ctorName": "RouteConfigLoadStart",
+                "t": 389.69999998807907,
+                "routePath": "claim"
+              },
+              {
+                "ctorName": "RouteConfigLoadEnd",
+                "t": 394.10000002384186,
+                "routePath": "claim"
+              }
+            ],
+            "unmatched": [
+              {
+                "ctorName": "RouteConfigLoadStart",
+                "t": 271.39999997615814,
+                "routePath": "**"
+              },
+              {
+                "ctorName": "RouteConfigLoadEnd",
+                "t": 277.19999998807907,
+                "routePath": "**"
+              }
+            ]
+          },
+          "routeConfigLoadCountEqual": true,
+          "classSequenceEqual": true,
+          "keySequenceEqual": true,
+          "eventCountEqual": true,
+          "refusedClassSequence": [
+            "NavigationStart",
+            "RoutesRecognized",
+            "GuardsCheckStart",
+            "ChildActivationStart",
+            "ActivationStart",
+            "GuardsCheckEnd",
+            "ResolveStart",
+            "ResolveEnd",
+            "ActivationEnd",
+            "ChildActivationEnd",
+            "NavigationEnd"
+          ],
+          "unmatchedClassSequence": [
+            "NavigationStart",
+            "RoutesRecognized",
+            "GuardsCheckStart",
+            "ChildActivationStart",
+            "ActivationStart",
+            "GuardsCheckEnd",
+            "ResolveStart",
+            "ResolveEnd",
+            "ActivationEnd",
+            "ChildActivationEnd",
+            "NavigationEnd"
+          ],
+          "terminalClassEqual": true,
+          "shouldActivateEqual": true,
+          "refusedShouldActivate": true,
+          "unmatchedShouldActivate": true,
+          "refusedMatchedChain": [
+            {
+              "path": null,
+              "params": []
+            },
+            {
+              "path": "**",
+              "params": []
+            }
+          ],
+          "unmatchedMatchedChain": [
+            {
+              "path": null,
+              "params": []
+            },
+            {
+              "path": "**",
+              "params": []
+            }
+          ],
+          "refusedTerminalClass": [
+            "NavigationEnd"
+          ],
+          "unmatchedTerminalClass": [
+            "NavigationEnd"
+          ],
+          "differingPayloadPaths": [
+            "0:NavigationStart.id",
+            "0:NavigationStart.url",
+            "1:RoutesRecognized.id",
+            "1:RoutesRecognized.state.url",
+            "1:RoutesRecognized.url",
+            "1:RoutesRecognized.urlAfterRedirects",
+            "2:GuardsCheckStart.id",
+            "2:GuardsCheckStart.state.url",
+            "2:GuardsCheckStart.url",
+            "2:GuardsCheckStart.urlAfterRedirects",
+            "5:GuardsCheckEnd.id",
+            "5:GuardsCheckEnd.state.url",
+            "5:GuardsCheckEnd.url",
+            "5:GuardsCheckEnd.urlAfterRedirects",
+            "6:ResolveStart.id",
+            "6:ResolveStart.state.url",
+            "6:ResolveStart.url",
+            "6:ResolveStart.urlAfterRedirects",
+            "7:ResolveEnd.id",
+            "7:ResolveEnd.state.url",
+            "7:ResolveEnd.url",
+            "7:ResolveEnd.urlAfterRedirects",
+            "10:NavigationEnd.id",
+            "10:NavigationEnd.url",
+            "10:NavigationEnd.urlAfterRedirects"
+          ],
+          "hasNavigationCancelInEither": false,
+          "guardNamesInEitherPayload": []
+        },
+        "finding": "Excluding the route-config loads the recognition itself performs (2 for the refused navigation, 2 for the unmatched one — the refused one has to load the route before it can decide that no child matches), the refused and the unmatched navigation are the same 11 events with the same key sets; both recognise the wildcard chain [null,\"**\"], both record shouldActivate true, both end NavigationEnd, neither records a NavigationCancel, and all 25 payload paths that differ are the two navigations' own `id`, `url`, `urlAfterRedirects` and `state.url`. A guard refusal is therefore indistinguishable from an unmatched URL, and no payload names the guard."
+      },
+      "finding": "GuardsCheckEnd adds exactly 1 field over GuardsCheckStart — shouldActivate, a boolean aggregate of the whole check — and the stream names no guard and no per-guard verdict."
+    },
+    "no-resolver-configured": {
+      "recorder": "run chrome-beta-nano tmp/m041/probe-b-stream.js and tmp/m041/probe-g-fixture.js",
+      "criterion": "SC4",
+      "named": "no-resolver-configured",
+      "verdict": "cannot-tell",
+      "portal": {
+        "walk": "Router.config walked recursively through children and _loadedRoutes after four lazy boundaries were loaded",
+        "routeCount": 7,
+        "rowsWalked": 23,
+        "resolveKeysTotal": 0,
+        "routesDeclaringAResolver": [],
+        "canActivateTotal": 0,
+        "canMatchTotal": 12
+      },
+      "fixture": {
+        "walk": "Router.config walked recursively through children and _loadedRoutes after its one lazy boundary was loaded",
+        "routeCount": 19,
+        "rowsWalked": 20,
+        "resolveKeysTotal": 0,
+        "routesDeclaringAResolver": [],
+        "canActivateTotal": 1,
+        "canMatchTotal": 0
+      },
+      "resolveStageObservedAnyway": {
+        "frame": "warm",
+        "resolveStartAt": 384,
+        "resolveEndAt": 384.2,
+        "note": "ResolveStart and ResolveEnd were emitted on the portal although no route declares a resolver: the stage runs whenever the check has canActivate checks to perform, and the portal’s canMatch guards put one there. A resolve stage is therefore not evidence of a configured resolver."
+      },
+      "finding": "Neither target declares a resolver — the portal has 0 resolve keys across 23 walked rows and the fixture 0 across 20 — so a navigation's resolve stage cannot be attributed to a resolver, and the absence is `no-resolver-configured` rather than a claim about one."
+    }
+  },
+  "guards": {
+    "recorder": "run chrome-beta-nano tmp/m041/probe-b-stream.js and tmp/m041/probe-g-fixture.js",
+    "question": "How many guards does each target declare, and what name does a guard’s configured function carry?",
+    "finding": "The portal declares 0 canActivate and 12 canMatch, every one of them an anonymous function whose name is the empty string; the fixture declares 1 canActivate on /gated, whose configured function is named redirectGuard and whose source is () => true. A guard can be named from configuration only when the function carries a name.",
+    "portal": {
+      "canActivate": 0,
+      "canMatch": 12,
+      "canMatchNames": [
+        ""
+      ],
+      "canMatchRoutePaths": [
+        "list",
+        "create",
+        ":id/edit",
+        ":id/details",
+        "list",
+        ":id/details",
+        "create",
+        "list",
+        "create",
+        ":id/details",
+        "list",
+        ":id/details"
+      ],
+      "resolveKeys": 0,
+      "routeCount": 7,
+      "loadChildrenBoundaries": [
+        "contract",
+        "claim",
+        "complaint",
+        "customer"
+      ],
+      "redirects": [
+        {
+          "path": "",
+          "redirectTo": "home"
+        }
+      ],
+      "wildcard": [
+        {
+          "path": "**",
+          "hasLoadComponent": true,
+          "hasLoadChildren": false
+        }
+      ],
+      "measuredOn": "four navigations, one per lazy boundary, then the walk"
+    },
+    "fixture": {
+      "canActivate": 1,
+      "canActivateNames": [
+        "redirectGuard"
+      ],
+      "canActivateSources": [
+        "() => true"
+      ],
+      "canActivateRoutePaths": [
+        "gated"
+      ],
+      "canMatch": 0,
+      "resolveKeys": 0,
+      "routeCount": 19,
+      "loadChildrenBoundaries": [
+        "lazy"
+      ],
+      "guardFile": "spikes/ng222-app/src/app/redirect-guard.ts",
+      "measuredOn": "the fixture page, after its one lazy boundary was loaded"
+    },
+    "nameSource": "the configured function’s own `name`, read from Router.config in the page; the suite re-derives the same name from the guard’s own file"
+  },
+  "pageErrors": {
+    "recorder": "every probe, plus run chrome-beta-nano tmp/m041/probe-h-control.js as the control",
+    "observed": "TypeError: Invalid value used as weak map key",
+    "occurrences": "once per page load and once per navigation, on the portal only",
+    "seenIn": [
+      "TypeError: Invalid value used as weak map key"
+    ],
+    "control": {
+      "probe": "a page load and a sidebar-click navigation with no ng.* call at all",
+      "pageErrorsAfterLoad": [
+        "TypeError: Invalid value used as weak map key"
+      ],
+      "pageErrorsAfterClickNavigation": [
+        "TypeError: Invalid value used as weak map key",
+        "TypeError: Invalid value used as weak map key"
+      ],
+      "ngCalledByThisProbe": false
+    },
+    "fixtureControl": "the counter fixture recorded none",
+    "attribution": "pre-existing on the portal checkout and independent of this measurement: it also appears under a control that calls no ng function, and not at all on the fixture. It is recorded so nobody reads it as the instrument’s own error."
+  },
+  "doesNotSettle": [
+    "what is holding an in-flight navigation: no payload and no currentNavigation() field names a holder, so the record states the absence and nothing else",
+    "a guard’s per-guard verdict: the stream carries only GuardsCheckEnd.shouldActivate, an aggregate",
+    "whether a resolver stage implies a resolver: the portal emits ResolveStart and ResolveEnd while declaring none, so the stage is not evidence of one",
+    "what a NavigationCancel with code 3 (GuardRejected) or code 4 (Aborted) carries: neither target produced one, so both stay open questions",
+    "what a NavigationSkipped with code 1 (IgnoredByUrlHandlingStrategy) carries: no run produced one",
+    "what Scroll carries in a real run: no run produced one, so its key set is derived from the chunk only",
+    "which navigation an id-less RouteConfigLoadStart/End belongs to: attribution here is by `route.path` and by arrival, and the record claims nothing more"
+  ]
+}
