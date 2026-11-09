@@ -55,6 +55,15 @@
  * through the shipped `extension/error-boundary.js`. The fact the demo is handed must equal that
  * join's answer field for field, and the pane must print the declaring component, the throwing
  * component and the fallback as three separate facts.
+ *
+ * M043 T003 extends it to the `stability` surface, the same way and to the same discipline: the record
+ * is assembled from `research/raw/m043-stability.json` — the `stability` section T001 measured for its
+ * unsettled-then-settled subject and the frame's own `events` list, rebuilt from the four pairs the
+ * recording counts — and run through the shipped `extension/stability-narrator.js`. The fact the demo
+ * is handed must equal that join's answer field for field, and the pane must render the state, the
+ * settle reading and the repeated work as three blocks that keep their own text, with every named
+ * absence in a block of its own (E9: asked for a cause, an outstanding item, an owner or an order, it
+ * renders that absence's own sentence rather than an empty list or a dash).
  */
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -63,6 +72,7 @@ import { appRoutes } from './app.routes';
 import { FACTS, PanelDemoComponent } from './panel-demo';
 import { fieldsPanel } from './panel-fields';
 import { errorBoundaryPanel } from './panel-error-boundary';
+import { stabilityPanel } from './panel-stability';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -617,6 +627,182 @@ function errorBoundaryRecord(recording: ErrorBoundaryRecording) {
         at: 4,
       },
     ],
+  };
+}
+
+/** The part of the M043 stability recording this spec reads. */
+interface StabilityRecording {
+  record: {
+    frame: StabilitySection;
+    snapshot: StabilitySection;
+    silentFrame: StabilitySection;
+    absentFrame: StabilitySection;
+    afterReset: StabilitySection;
+  };
+  repeats: {
+    frameKeys: string[];
+    templateUpdate: {
+      pair: string;
+      starts: number;
+      ends: number;
+      componentNames: string[];
+    };
+    changeDetection: {
+      pair: string;
+      starts: number;
+      ends: number;
+      nullComponentNames: number;
+    };
+  };
+  transition: {
+    alreadyStableAtAttach: {
+      subject: string;
+      state: string;
+      settle: { state: string; at: number; sinceAttachMs: number };
+    };
+  };
+}
+
+/** The `stability` section one record carries, as the page agent publishes it. */
+interface StabilitySection {
+  reachedBy: string | null;
+  absence: string | null;
+  attachAt: number | null;
+  reading: { value: boolean | null; at: number | null } | null;
+  settle: { state: string; at?: number };
+  version: string;
+  coreVersion: string | null;
+}
+
+/** One pass of the join's answer, for the fields this spec reads. */
+interface StabilityRepeat {
+  pair: string;
+  componentName: string | null;
+  passes: number;
+}
+
+/** The join's answer for one record, for the fields this spec reads. */
+interface StabilityAnswer {
+  state: string;
+  absence: string | null;
+  reading: { value: boolean | null; at: number | null } | null;
+  settle: { state: string; at?: number; sinceAttachMs?: number | null };
+  repeats: StabilityRepeat[];
+  absences: string[];
+  version: string;
+  coreVersion: string | null;
+}
+
+/** The page's own stability namespace, as `extension/stability-narrator.js` publishes it. */
+interface StabilityNarrator {
+  stability(record: unknown): StabilityAnswer;
+}
+
+/** The M043 stability recording and its text, inlined from disk the same way. */
+function readStabilityRecording(): {
+  recording: StabilityRecording;
+  text: string;
+} {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m043-stability.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m043-stability.json was not inlined above this spec file',
+    );
+  }
+  return { recording: JSON.parse(text) as StabilityRecording, text };
+}
+
+/**
+ * The join `extension/stability-narrator.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's sample fact is held to the join's answer for the record assembled from
+ * the recording, not to a copy of it. The module is an IIFE with no imports, so running it is the
+ * whole of loading it.
+ */
+function stabilityJoin(): StabilityNarrator {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/stability-narrator.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/stability-narrator.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (
+    globalThis as unknown as {
+      angularAiStabilityNarrator?: StabilityNarrator;
+    }
+  ).angularAiStabilityNarrator;
+  if (join === undefined || typeof join.stability !== 'function') {
+    throw new Error(
+      'extension/stability-narrator.js published no stability join',
+    );
+  }
+  return join;
+}
+
+/** One entry of the frame's own `events` list, in the shape the page agent records. */
+interface RecordedWorkEntry {
+  readonly pair: string;
+  readonly end: boolean;
+  readonly at: number | null;
+  readonly componentName: string | null;
+}
+
+/**
+ * The frame's own `events` list, rebuilt from the four pairs the recording counts. `frameKeys` holds
+ * the recorded labels in arrival order — four `ChangeDetection` entries and four `TemplateUpdate` ones
+ * — and each pair's entries are its starts and its ends in the order the recording measured them
+ * (`checkRowEvents` is start, end, start, end), so every pair yields `starts` passes and no more. The
+ * component a pair was attributed to is the one the recording measured for it: `app-root` for
+ * `TemplateUpdate`, and no component at all for `ChangeDetection`, whose four entries recorded
+ * `componentName: null`.
+ */
+function stabilityEvents(
+  recording: StabilityRecording,
+): readonly RecordedWorkEntry[] {
+  const seen = new Map<string, number>();
+  const events: RecordedWorkEntry[] = [];
+  for (const pair of recording.repeats.frameKeys) {
+    const index = seen.get(pair) ?? 0;
+    seen.set(pair, index + 1);
+    const attributed =
+      pair === recording.repeats.templateUpdate.pair
+        ? (recording.repeats.templateUpdate.componentNames[0] ?? null)
+        : null;
+    events.push({
+      pair,
+      end: index % 2 === 1,
+      at: null,
+      componentName: attributed,
+    });
+  }
+  return events;
+}
+
+/**
+ * The record the page agent publishes for the recording's settled frame: the `stability` section T001
+ * measured (`record.frame`, whose emission was `isStable true` at 1008 with the page's attach reading
+ * at 1001) beside the frame's own `events` list. The join reads those two fields and no other.
+ */
+function stabilityRecord(recording: StabilityRecording) {
+  return {
+    stability: recording.record.frame,
+    events: stabilityEvents(recording),
   };
 }
 
@@ -1292,6 +1478,217 @@ describe('the panel demo', () => {
       true,
     );
     expect(recordingText.includes(JSON.stringify(fallback))).toBe(true);
+  });
+
+  /**
+   * The M043 half — and E9, this task's held-out case: the surface behind `/stability` is reached
+   * through its own route entry, and the sample fact it renders is the join's own answer for the
+   * record assembled from the recording. The pane keeps three readings apart — the state with the
+   * emission it was read from, the settle reading with its own measured interval, and the repeated
+   * work — and renders every named absence in a sentence of its own. A demo that drifted from the
+   * recording, a route or loader key that went missing, or a pane that answered a question the page
+   * cannot answer with an empty list or a dash, all redden here.
+   */
+  it('E9: renders the state, the settle reading and the repeated work apart, and every named absence in its own sentence', async () => {
+    const { recording, text: recordingText } = readStabilityRecording();
+    const join = stabilityJoin();
+    const record = stabilityRecord(recording);
+    const answer = join.stability(record);
+
+    // The record the spec assembles is the recording's: four pairs per frame, two starts and two ends
+    // each, the template updates attributed to the one name the recording measured and the
+    // change-detection pairs to nobody.
+    const events = stabilityEvents(recording);
+    expect(events).toHaveLength(recording.repeats.frameKeys.length);
+    expect(
+      events.filter((entry) => entry.pair === 'TemplateUpdate' && !entry.end),
+    ).toHaveLength(recording.repeats.templateUpdate.starts);
+    expect(
+      events.filter((entry) => entry.pair === 'TemplateUpdate' && entry.end),
+    ).toHaveLength(recording.repeats.templateUpdate.ends);
+    expect(
+      events.filter((entry) => entry.pair === 'ChangeDetection' && !entry.end),
+    ).toHaveLength(recording.repeats.changeDetection.starts);
+    expect(
+      events.filter(
+        (entry) =>
+          entry.pair === 'ChangeDetection' && entry.componentName === null,
+      ),
+    ).toHaveLength(recording.repeats.changeDetection.nullComponentNames);
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find((candidate) => candidate.path === 'stability');
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the stability surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    const surfaceName = route.data?.['surface'];
+    if (typeof surfaceName !== 'string') {
+      throw new Error(
+        'the stability route must name its surface in route data',
+      );
+    }
+    expect(surfaceName).toBe('stability');
+
+    // The fact the pane is handed is the join's answer, field for field.
+    expect(FACTS['stability']).toEqual(answer);
+    expect(answer.state).toBe('stable');
+    const settle = answer.settle;
+    if (settle.state !== 'settled' || typeof settle.at !== 'number') {
+      throw new Error(
+        `the settled frame must answer a settle reading; it answered ${JSON.stringify(settle)}`,
+      );
+    }
+    // The state was read from the recording's own emission, and the settle interval is the distance
+    // between the two readings the page published — never a number minted here.
+    expect(answer.reading).toEqual(recording.record.frame.reading);
+    expect(answer.reading?.value).toBe(true);
+    expect(settle.at).toBe(recording.record.frame.settle.at);
+    expect(settle.at).toBe(1008);
+    expect(settle.sinceAttachMs).toBe(7);
+    expect(recording.record.frame.attachAt).toBe(1001);
+    expect(settle.at - (recording.record.frame.attachAt ?? 0)).toBe(
+      settle.sinceAttachMs,
+    );
+    // The recording also carries a measured `0` for the page it found already stable at attach. The
+    // frame this demo renders is a different subject, and its reading is not that zero.
+    expect(
+      recording.transition.alreadyStableAtAttach.settle.sinceAttachMs,
+    ).toBe(0);
+    expect(settle.sinceAttachMs).not.toBe(0);
+    // Every value the pane prints is in the committed recording's bytes, not only in this spec.
+    expect(recordingText.includes('"at": 1008')).toBe(true);
+    expect(recordingText.includes('"value": true')).toBe(true);
+
+    const demo = await renderDemo(surfaceName);
+    expect(demo.state()).toBe(answer.state);
+    // The pane's own lines for the fact it was handed, and nothing else.
+    expect(demo.lines()).toEqual(stabilityPanel(FACTS['stability']).lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+
+    // Three readings, three blocks, in that order — the state, the settle reading, the repeated work —
+    // and then one block per named absence the answer carried.
+    const blocks = demo.blocks();
+    expect(blocks.slice(0, 3).map((block) => block.kind)).toEqual([
+      'state',
+      'settle',
+      'repeats',
+    ]);
+    expect(blocks.slice(3).map((block) => block.kind)).toEqual(answer.absences);
+
+    const [stateBlock, settleBlock, repeatsBlock] = blocks;
+    if (
+      stateBlock === undefined ||
+      settleBlock === undefined ||
+      repeatsBlock === undefined
+    ) {
+      throw new Error(
+        'the stability pane must render all three reading blocks',
+      );
+    }
+
+    // The state block: the word, its own sentence and the emission the state was read from.
+    expect(stateBlock.lines[0]).toBe(`state: ${answer.state}`);
+    expect(stateBlock.lines).toContain('emission: isStable true at 1008 ms');
+    // The settle block: the reading's own time and the interval the page measured, both printed as
+    // the answer carries them.
+    expect(settleBlock.lines).toEqual([
+      `settle: settled at ${settle.at} ms, ${settle.sinceAttachMs} ms after attach`,
+    ]);
+    // The repeated-work block: one line per pass the answer carried, and nothing beside it.
+    expect(repeatsBlock.lines).toEqual(
+      answer.repeats.map(
+        (repeat) =>
+          `${repeat.pair} ${repeat.componentName ?? 'no component'}: ${repeat.passes} ${
+            repeat.passes === 1 ? 'pass' : 'passes'
+          }`,
+      ),
+    );
+    expect(repeatsBlock.lines).toContain('TemplateUpdate app-root: 2 passes');
+    expect(repeatsBlock.lines).toContain(
+      'ChangeDetection no component: 2 passes',
+    );
+
+    // Each block holds only its own text: the settle time is in the settle block and nowhere else,
+    // the passes are in the repeated-work block and nowhere else, and the state's sentence is in the
+    // state block.
+    expect(stateBlock.text).not.toContain('settle:');
+    expect(stateBlock.text).not.toContain('pass');
+    expect(settleBlock.text).not.toContain('emission:');
+    expect(settleBlock.text).not.toContain('pass');
+    for (const block of [settleBlock, repeatsBlock]) {
+      expect(block.text).not.toContain(`state: ${answer.state}`);
+    }
+    expect(new Set(blocks.map((block) => block.text)).size).toBe(blocks.length);
+
+    // E9: asked for a cause, an outstanding item, an owner or an order, the pane renders that
+    // absence's own sentence — never an empty list, never a dash, never a blank cell.
+    for (const absence of [
+      'no-cause-reported',
+      'no-outstanding-inventory',
+      'no-settle-order',
+    ]) {
+      expect(answer.absences).toContain(absence);
+      const block = blocks.find((candidate) => candidate.kind === absence);
+      if (block === undefined) {
+        throw new Error(
+          `the pane must render ${absence} in a block of its own; it rendered ${JSON.stringify(
+            blocks.map((candidate) => candidate.kind),
+          )}`,
+        );
+      }
+      expect(block.state).toBe(absence);
+      expect(block.lines).toHaveLength(1);
+      const sentence = block.lines[0] ?? '';
+      expect(sentence.startsWith(`${absence}: `)).toBe(true);
+      // A sentence, not a word: it states its own fact and is never an empty list. The one thing it
+      // may state is that nothing is named, so every sentence carries a "no".
+      expect(sentence.length).toBeGreaterThan(60);
+      expect(sentence).toMatch(/\bno\b/);
+    }
+    // No cell is ever the empty string where the answer established one, and no line is a dash or an
+    // empty list standing in for an answer.
+    const cells = stabilityPanel(FACTS['stability']).cells;
+    for (const absence of answer.absences) {
+      const cell = cells[absence];
+      if (cell === undefined) {
+        throw new Error(`the pane must hold a cell for ${absence}`);
+      }
+      expect(cell).toBe(
+        blocks.find((block) => block.kind === absence)?.lines[0],
+      );
+      expect(cell.length).toBeGreaterThan(0);
+    }
+    const stateCell = cells[answer.state];
+    if (stateCell === undefined) {
+      throw new Error(`the pane must hold a cell for ${answer.state}`);
+    }
+    expect(stateCell).toBe(stateBlock.lines[1]);
+    expect(stateCell.length).toBeGreaterThan(0);
+    expect(demo.lines().every((line) => line.trim().length > 0)).toBe(true);
+    for (const dash of ['—', '–', '-']) {
+      expect(demo.lines()).not.toContain(dash);
+    }
+    // The cause, the outstanding item, the owner and the order are never filled in: no line names
+    // one, no line is an inventory of work, and no line is a dash standing in for an answer.
+    for (const claim of [
+      /^cause: /im,
+      /^owner: /im,
+      /^outstanding: /im,
+      /^first to settle: /im,
+      /\bthe cause is\b/i,
+      /\bcaused by\b/i,
+      /\btask\s+\d/i,
+      /\bowned by\b/i,
+      /\b[A-Z][A-Za-z]*Component\b/,
+      /^\s*[-*•]\s/m,
+      /\bbecause\b/i,
+      /\bdue to\b/i,
+      /\b(who|owns?) its\b/i,
+    ]) {
+      expect(demo.text()).not.toMatch(claim);
+    }
   });
 
   /**

@@ -158,4 +158,14 @@ export const appRoutes: Route[] = [
     loadComponent: loadPanelDemo,
     data: { surface: 'error-boundary' },
   },
+  // The M043 SC5 surface: the stability state and the emission it was read from, the settle time or
+  // its named absence, and the repeated work the frame recorded — three readings, each in its own
+  // block, and every named absence in its own sentence. It installs the shared loader above, so the
+  // demo module is imported once and the panel's initial bundle keeps the bytes it had. Lazy for the
+  // same reason as the surfaces above it — the panel's eager bundle is measured.
+  {
+    path: 'stability',
+    loadComponent: loadPanelDemo,
+    data: { surface: 'stability' },
+  },
 ];

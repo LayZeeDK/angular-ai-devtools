@@ -28,7 +28,8 @@ describe('App', () => {
  * a route accepts and renders nothing for. M034 appends `legacy` after it, M035 appends `onpush`
  * after that, M036 appends `resource` after that, M038 appends `linked-state`, M039 appends
  * `render-phase` after that, M040 appends `performance` last, M041 appends `navigation` after
- * that and M042 appends `error-boundary` after that, the same way.
+ * that, M042 appends `error-boundary` after that and M043 appends `stability` after that, the same
+ * way.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -56,6 +57,7 @@ describe('the route table', () => {
       'performance', // M040 SC5 surface: the frame's ordered work, its component identity and its measured cost apart
       'navigation', // M041 SC1-3 surface: a navigation's stage, the holder it cannot name, its terminal and its loads
       'error-boundary', // M042 SC1-4 surface: the declaring and throwing components apart, the error, the fallback, each named absence
+      'stability', // M043 SC5 surface: the state and its emission, the settle time or its absence, the repeated work, apart
     ]);
     expect(appRoutes.filter((route) => route.path === 'lint')).toHaveLength(1);
 
@@ -162,5 +164,15 @@ describe('the route table', () => {
     expect(errorBoundary.data?.['surface']).toBe('error-boundary');
     // Its own name, so a copy of another surface's route cannot stand in for it.
     expect(errorBoundary.data?.['surface']).not.toBe('navigation');
+
+    const stability = appRoutes.find((route) => route.path === 'stability');
+    expect(stability?.component).toBeUndefined();
+    if (stability?.loadComponent === undefined) {
+      throw new Error('the stability surface must load lazily');
+    }
+    expect(await stability.loadComponent()).toBe(PanelDemoComponent);
+    expect(stability.data?.['surface']).toBe('stability');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(stability.data?.['surface']).not.toBe('error-boundary');
   });
 });

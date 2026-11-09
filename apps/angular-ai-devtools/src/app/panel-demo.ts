@@ -50,6 +50,7 @@ const LOADERS: Record<
   performance: () => import('./panel-performance') as never,
   navigation: () => import('./panel-navigation') as never,
   'error-boundary': () => import('./panel-error-boundary') as never,
+  stability: () => import('./panel-stability') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -336,6 +337,33 @@ export const FACTS: Record<string, unknown> = {
     version: '22.2.2',
     coreVersion: null,
     fallback: 'caught: S10 spike: thrown inside the @boundary primary view',
+  },
+  // The join's own answer (`extension/stability-narrator.js`, T002) for T001's recording
+  // (`research/raw/m043-stability.json`), read from the `stability` section that recording measured for
+  // its unsettled-then-settled subject (`record.frame`) and from the frame's own `events` list, whose
+  // four pairs the recording counts in `repeats` — two `TemplateUpdate` pairs over `app-root` and two
+  // `ChangeDetection` pairs carrying no instance at all. Every value here is the recording's: the
+  // emission `isStable true` at `1008`, the settle time `1008` and the seven milliseconds the page
+  // measured between its attach reading (`1001`) and that emission, and the two passes per pair. The
+  // three permanent absences travel with every answer, which is why the pane renders them as their own
+  // sentences. `panel-demo.spec.ts` runs the join over that section and that event list and holds this
+  // fact to its answer field for field, so a fact that drifted from the recording reddens there.
+  stability: {
+    state: 'stable',
+    absence: null,
+    reading: { value: true, at: 1008 },
+    settle: { state: 'settled', at: 1008, sinceAttachMs: 7 },
+    repeats: [
+      { pair: 'ChangeDetection', componentName: null, passes: 2 },
+      { pair: 'TemplateUpdate', componentName: 'app-root', passes: 2 },
+    ],
+    absences: [
+      'no-cause-reported',
+      'no-outstanding-inventory',
+      'no-settle-order',
+    ],
+    version: '22.2.2',
+    coreVersion: '22.2.2',
   },
 };
 

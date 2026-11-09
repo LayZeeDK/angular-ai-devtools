@@ -31,6 +31,7 @@ const surfaces = [
   'performance',
   'navigation',
   'error-boundary',
+  'stability',
 ];
 
 function routeBlock(source, surface) {
@@ -321,6 +322,26 @@ test('E1: a panel route installs a component through the one shared loader, neve
       String(err.message).includes('route error-boundary must exist'),
     'a table without the error-boundary route must fail naming the missing surface',
   );
+
+  // Mutant: the M043 surface's route entry removed from the table entirely. This is the mutation the
+  // task's own red-then-green proof applies to `app.routes.ts`, replayed here so the pin carries it
+  // rather than relying on a log: the check must name the surface whose entry is gone.
+  const withoutStability = source.replace(
+    "  {\n    path: 'stability',\n    loadComponent: loadPanelDemo,\n    data: { surface: 'stability' },\n  },\n",
+    '',
+  );
+  assert.notEqual(
+    withoutStability,
+    source,
+    'the removed-stability-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutStability),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route stability must exist'),
+    'a table without the stability route must fail naming the missing surface',
+  );
 });
 
 test('E2: the surface functions are still exported for their suites', () => {
@@ -337,6 +358,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     performance: ['panel-performance', 'performancePanel'],
     navigation: ['panel-navigation', 'navigationPanel'],
     'error-boundary': ['panel-error-boundary', 'errorBoundaryPanel'],
+    stability: ['panel-stability', 'stabilityPanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -374,6 +396,8 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'renderPhasePanel(',
     'performancePanel(',
     'navigationPanel(',
+    'errorBoundaryPanel(',
+    'stabilityPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -604,5 +628,26 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       err instanceof assert.AssertionError &&
       String(err.message).includes('error-boundary'),
     'removing the error-boundary loader must fail naming the missing surface error-boundary',
+  );
+
+  // Mutant: remove the stability key from LOADERS. The M043 route is the one this task adds, so the
+  // check must name it when its loader is gone rather than pass on the surfaces before it. It is a
+  // bare identifier key whose import is the only reference to `panel-stability.ts`, so a route that
+  // dropped it would leave the surface unreachable while every earlier surface still loaded.
+  const withoutStability = demoSource.replace(
+    "  stability: () => import('./panel-stability') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutStability,
+    demoSource,
+    'the stability mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutStability),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('stability'),
+    'removing the stability loader must fail naming the missing surface stability',
   );
 });
