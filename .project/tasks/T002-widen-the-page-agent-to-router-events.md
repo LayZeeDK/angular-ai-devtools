@@ -4,9 +4,9 @@ title: Widen the page agent to Router.events beside the profiler subscription
 wave: 2
 deps:
   - T001
-status: pending
-agent: null
-base: null
+status: done
+agent: commandcode-coder
+base: 8f7739e817139cb9c5ab715ef0600f3476b84c2d
 worktree: null
 task_branch: null
 files:
@@ -115,3 +115,4 @@ node --check extension/agent-main.js && node --check extension/agent-main.test.m
 ## Log
 
 - pending
+- widened \`extension/agent-main.js\` to \`Router.events\` beside the one \`ɵsetProfiler\` subscription: every record now publishes \`routerEvents\`, one flat list in arrival order, one entry shape \`{ type, at, id, url, urlAfterRedirects, route, reason, code, error, shouldActivate, matchedPaths }\` where \`type\` is the event's own class name and \`at\` the page's own receipt reading. Every field an event did not carry is \`null\` and nothing is borrowed: the two route-config classes keep \`id: null\` and never receive the id of the navigation in flight; \`matchedPaths\` carries only the snapshot's own config paths (\`[null, 'contract', '', 'list']\` on the measured frame); an error carries only its own name and message, with no \`target\` field at all for the value T001 measured as \`undefined\`. The \`Router\` is reached the measured way - \`getInjector\` on the host element, \`ɵgetInjectorResolutionPath\`, then the provider record whose \`token\` names it (the environment injector, never entry 0 and never \`provider.provide\`) - armed from \`start()\` beside the tap, never inside the profiler callback, and removed with the list by \`reset()\`; \`ɵsetProfiler\` is still called once with the same subscriber. agent-main suite 85/85 with six mutants naming their defect by string (synthesised route-load id, a second entry shape, the event number as \`type\`, the subscription installed inside the profiler callback, the raw error object, \`provider.provide\` instead of \`record.token\`); page-footprint 12/12 with its bound intact; performance-measure 25/25 and render-phase-measure 28/28 unmoved, their anchors (literal 24-37, \`setProfiler(\` 558, \`onEvent\` 573, opener 599/600, \`openCycle\` 738, \`queueMicrotask\` 747, \`closeCycle\` 1038) still holding; \`companion.spec.ts\` and \`update-cause-chain.spec.ts\` unmoved, both pinning a model the added field does not reach; the M040 frame pin re-cut for the additive \`routerEvents\` field and T001's \`reach.readFrom.cite\` re-cut to \`1075-1253\`; Verify green including \`npm run check\`: ready

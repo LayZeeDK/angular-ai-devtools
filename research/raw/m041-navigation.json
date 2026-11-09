@@ -690,7 +690,7 @@
     "readFrom": {
       "source": "extension/agent-main.js",
       "function": "handleDiQuery",
-      "cite": "extension/agent-main.js:1072-1250",
+      "cite": "extension/agent-main.js:1075-1253",
       "calls": [
         "ng.getInjector(el) (else ng.ɵgetInjectorFromNode)",
         "ng.ɵgetInjectorResolutionPath(injector)",
