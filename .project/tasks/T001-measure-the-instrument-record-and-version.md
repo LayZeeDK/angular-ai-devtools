@@ -3,9 +3,9 @@ id: T001
 title: Measure the instrument's throw, the hook record and the version discriminator
 wave: 1
 deps: []
-status: pending
-agent: null
-base: null
+status: done
+agent: coding-subagent
+base: 35ecbb37db448de36c099ce7ee9af77b2615bc86
 worktree: null
 task_branch: null
 files:
@@ -69,3 +69,4 @@ None; E12 and E13 are T002's and this task must not redden them.
 ## Log
 
 - pending
+- ready - the throw, the epoch record and the version discriminator are measured at this head: the recording is research/raw/m042-error-boundary.json, the suite is scripts/error-boundary-measure.test.mjs with 29 tests and 16 named mutants, and the Verify ran verbatim and passed. ready
