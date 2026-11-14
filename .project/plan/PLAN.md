@@ -184,6 +184,46 @@ Walkthrough:
 6. Where the answer names a state the pane was not written for, the pane renders that state word and nothing else.
 7. No block orders work by settle time, and no sentence names an owner, a task id or a stack.
 
+## Wave 5 — drive the settle on an inspected page, so SC2's transition half rests on a page rather than a realm
+
+Patch wave, added at `46abef82` from the blocked final review
+(`.project/review/PATCH-FINDINGS.md`, F1). It adds evidence and no behaviour.
+
+Review depth: full
+
+Goal: Produce one inspected-page reading in which the stability read emits a
+change from unstable to stable after attach, so SC2's transition half rests on
+a page rather than a `node:vm` realm — or, if no page here can produce it,
+record that on a page with the measured reason.
+
+### T005 — Drive a settle on an inspected page and record what the page reports
+
+Files: `.project/tasks/T005-drive-a-settle-on-an-inspected-page.md`,
+`research/raw/m043-settle-page.json`, `scripts/stability-page-settle.test.mjs`.
+
+Drives an inspected page under an attached stability read, starts and finishes
+a pending task after attach — the named candidate is a router navigation on a
+stable route — and records what the page emitted in
+`research/raw/m043-settle-page.json`, pinned by
+`scripts/stability-page-settle.test.mjs`.
+
+Success criteria this wave carries: SC2 alone. Five criteria are met at
+`46abef82`; nothing else is re-opened.
+
+Acceptance criteria
+
+1. The recording states either a page-produced transition with both readings
+   (`settle.at > attachAt`) or a measured reason it could not be produced.
+2. It carries the route, the attach reading, the settle reading and the
+   emission sequence, each cited to the source that produced it.
+3. The suite pins the reading and carries real mutants: a settle time taken
+   from the attach reading, a transition claimed where the page emitted
+   nothing, an interval taken from the record's quiet tail.
+4. The join's behaviour is proved against the new recording, and the four
+   stability suites stay green.
+5. No file under `extension/`, `apps/` or `spikes/ng222-app/` changes — this is
+   evidence, not behaviour, and no fixture is touched.
+
 ## Dependency notes
 
 - T001 to T002: the reader is handed the record T001 publishes, so the record's field names are the reader's whole input; T001's recording is what the held-out pins are driven against, and the interface contract both tasks carry is the text a reviewer compares when they disagree.
