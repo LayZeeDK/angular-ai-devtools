@@ -304,6 +304,7 @@ export const FACTS: Record<string, unknown> = {
       },
     ],
     unattributed: [],
+    skipped: [],
   },
   // The join's own answer (`extension/error-boundary.js`, T004) for the frame
   // `research/raw/m042-error-boundary.json` records. The two component names are the recorded
