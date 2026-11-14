@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: gate-integrity
-phase: build
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: done
 branch: gsd-path/M044
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -889,3 +889,6 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-14 — plan — plan approved
 - 2026-11-14 — build — build started
 - 2026-11-14 — build — T003 needs a wider allow-list, a declared-claims rule for the gate, and a named tolerance for T004's missing claims file
+- 2026-11-14 — plan — build plan repair requested
+- 2026-11-14 — plan — build recovery: {"base": "6d2ca9b8d5948e8a4c7471771d27b1ce3244f4d9", "branch": "gsd-path/M044", "kind": "plan", "source": "build"}
+- 2026-11-14 — plan — plan approved
