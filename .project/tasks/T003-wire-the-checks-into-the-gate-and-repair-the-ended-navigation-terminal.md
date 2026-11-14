@@ -42,7 +42,7 @@ A check that only prints is the defect this milestone removes, so both checks be
 
 ## Interface contract
 
-The narrator's finding for an ended id carries the navigation id, the url and the word the record uses for the skip; no finding claims a cause, an owner or an intent the entry does not carry. The gate stages are named so the scope pin can assert them by name rather than by position.
+The gate surfaces `checkArchivePaths({ root, milestone })` and `checkFixRecord({ root, range, tasks })`, each returning `{ examined, findings[] }` where a finding carries `file`, `line`, `claim` and `class`, and `nothing-examined` is a finding rather than a pass. T001's record carries the same shapes as data: `archiveReferences[]`, `fixRecord` and `skippedNavigations[]`, each with `examined` and `command`. The narrator's finding for an ended id carries the navigation id, the url and the word the record uses for the skip, and names no cause, owner or intent the entry does not carry. The claims file cites one artefact per criterion, each artefact a path plus the reading it carries.
 
 ## Intent coverage
 

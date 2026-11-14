@@ -30,7 +30,7 @@ The recordings are this milestone's evidence rather than its output: each check 
 
 ## Interface contract
 
-The claims file cites one artefact per criterion, each artefact a path plus the reading it carries; a criterion without an artefact fails the task rather than being claimed.
+The gate surfaces `checkArchivePaths({ root, milestone })` and `checkFixRecord({ root, range, tasks })`, each returning `{ examined, findings[] }` where a finding carries `file`, `line`, `claim` and `class`, and `nothing-examined` is a finding rather than a pass. T001's record carries the same shapes as data: `archiveReferences[]`, `fixRecord` and `skippedNavigations[]`, each with `examined` and `command`. The narrator's finding for an ended id carries the navigation id, the url and the word the record uses for the skip, and names no cause, owner or intent the entry does not carry. The claims file cites one artefact per criterion, each artefact a path plus the reading it carries.
 
 ## Intent coverage
 

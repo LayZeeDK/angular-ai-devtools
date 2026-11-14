@@ -27,7 +27,7 @@ Three shapes decide every later task, and none of them is measured at this head.
 
 ## Interface contract
 
-The record is `research/raw/m044-gate-shapes.json` and carries one section per measurement: `archiveReferences[]`, `fixRecord`, `skippedNavigations[]`. Every section carries `examined` and `command`, and `examined: 0` is a failure of the measurement rather than a clean result.
+The gate surfaces `checkArchivePaths({ root, milestone })` and `checkFixRecord({ root, range, tasks })`, each returning `{ examined, findings[] }` where a finding carries `file`, `line`, `claim` and `class`, and `nothing-examined` is a finding rather than a pass. T001's record carries the same shapes as data: `archiveReferences[]`, `fixRecord` and `skippedNavigations[]`, each with `examined` and `command`. The narrator's finding for an ended id carries the navigation id, the url and the word the record uses for the skip, and names no cause, owner or intent the entry does not carry. The claims file cites one artefact per criterion, each artefact a path plus the reading it carries.
 
 ## Intent coverage
 
