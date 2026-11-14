@@ -8,7 +8,7 @@
   "archiveReferences": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps",
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
-    "filesExamined": 270,
+    "filesExamined": 271,
     "suitesExamined": 141,
     "examined": 138,
     "movedSubtrees": [
@@ -30,14 +30,174 @@
       "undecided": 104
     },
     "sites": {
-      "comment": 48,
       "segment": 41,
-      "pattern": 5,
-      "message": 30,
+      "comment": 48,
       "path": 6,
-      "citation": 8
+      "citation": 8,
+      "message": 30,
+      "pattern": 5
     },
     "references": [
+      {
+        "file": "scripts/autonomy-gaps.test.mjs",
+        "line": 47,
+        "path": ".project/research/DOCS-AUDIT.md",
+        "site": "segment",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives",
+        "root": "repoRoot",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/docs-audit-disposition.test.mjs",
+        "line": 9,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/docs-audit-disposition.test.mjs",
+        "line": 49,
+        "path": ".project/research/DOCS-AUDIT.md",
+        "site": "segment",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives",
+        "root": "repoRoot",
+        "construct": "array"
+      },
+      {
+        "file": "scripts/error-boundary-capture.test.mjs",
+        "line": 19,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/error-boundary-capture.test.mjs",
+        "line": 46,
+        "path": ".project/archive/042-error-boundary/intent/INTENT.md",
+        "site": "segment",
+        "class": "deliberate-archive-read",
+        "reason": "resolves to .project/archive/042-error-boundary/intent/INTENT.md, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose",
+        "root": "ROOT",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 53,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 54,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 58,
+        "path": ".project/archive/042-error-boundary/research/s10-answer.md",
+        "site": "segment",
+        "class": "deliberate-archive-read",
+        "reason": "resolves to .project/archive/042-error-boundary/research/s10-answer.md, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose",
+        "root": "ROOT",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 67,
+        "path": ".project/research/s10-answer.md",
+        "site": "path",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 68,
+        "path": ".project/archive/042-error-boundary/research/s10-answer.md",
+        "site": "path",
+        "class": "deliberate-archive-read",
+        "reason": "resolves to .project/archive/042-error-boundary/research/s10-answer.md, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 1454,
+        "path": ".project/research/s10-answer.md",
+        "site": "citation",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 1459,
+        "path": ".project/research/s10-answer.md",
+        "site": "citation",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 1469,
+        "path": ".project/research/s10-answer.md",
+        "site": "citation",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 1479,
+        "path": ".project/research/s10-answer.md",
+        "site": "citation",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 1488,
+        "path": ".project/research/s10-answer.md",
+        "site": "citation",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 1498,
+        "path": ".project/research/s10-answer.md",
+        "site": "citation",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 1517,
+        "path": ".project/research/s10-answer.md",
+        "site": "citation",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 1523,
+        "path": ".project/research/s10-answer.md",
+        "site": "message",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/error-boundary-measure.test.mjs",
+        "line": 1527,
+        "path": ".project/research/s10-answer.md",
+        "site": "citation",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
+      },
       {
         "file": "scripts/gate-integrity.test.mjs",
         "line": 8,
@@ -387,166 +547,6 @@
         "site": "path",
         "class": "deliberate-archive-read",
         "reason": "resolves to .project/archive, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose"
-      },
-      {
-        "file": "scripts/autonomy-gaps.test.mjs",
-        "line": 47,
-        "path": ".project/research/DOCS-AUDIT.md",
-        "site": "segment",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives",
-        "root": "repoRoot",
-        "construct": "call"
-      },
-      {
-        "file": "scripts/docs-audit-disposition.test.mjs",
-        "line": 9,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/docs-audit-disposition.test.mjs",
-        "line": 49,
-        "path": ".project/research/DOCS-AUDIT.md",
-        "site": "segment",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives",
-        "root": "repoRoot",
-        "construct": "array"
-      },
-      {
-        "file": "scripts/error-boundary-capture.test.mjs",
-        "line": 19,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/error-boundary-capture.test.mjs",
-        "line": 46,
-        "path": ".project/archive/042-error-boundary/intent/INTENT.md",
-        "site": "segment",
-        "class": "deliberate-archive-read",
-        "reason": "resolves to .project/archive/042-error-boundary/intent/INTENT.md, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose",
-        "root": "ROOT",
-        "construct": "call"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 53,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 54,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 58,
-        "path": ".project/archive/042-error-boundary/research/s10-answer.md",
-        "site": "segment",
-        "class": "deliberate-archive-read",
-        "reason": "resolves to .project/archive/042-error-boundary/research/s10-answer.md, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose",
-        "root": "ROOT",
-        "construct": "call"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 67,
-        "path": ".project/research/s10-answer.md",
-        "site": "path",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 68,
-        "path": ".project/archive/042-error-boundary/research/s10-answer.md",
-        "site": "path",
-        "class": "deliberate-archive-read",
-        "reason": "resolves to .project/archive/042-error-boundary/research/s10-answer.md, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 1454,
-        "path": ".project/research/s10-answer.md",
-        "site": "citation",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 1459,
-        "path": ".project/research/s10-answer.md",
-        "site": "citation",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 1469,
-        "path": ".project/research/s10-answer.md",
-        "site": "citation",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 1479,
-        "path": ".project/research/s10-answer.md",
-        "site": "citation",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 1488,
-        "path": ".project/research/s10-answer.md",
-        "site": "citation",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 1498,
-        "path": ".project/research/s10-answer.md",
-        "site": "citation",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 1517,
-        "path": ".project/research/s10-answer.md",
-        "site": "citation",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 1523,
-        "path": ".project/research/s10-answer.md",
-        "site": "message",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
-      },
-      {
-        "file": "scripts/error-boundary-measure.test.mjs",
-        "line": 1527,
-        "path": ".project/research/s10-answer.md",
-        "site": "citation",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/s10-answer.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
       },
       {
         "file": "scripts/held-out-corpus.test.mjs",
@@ -1558,6 +1558,6 @@
       "skippedNavigations.startType"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-14T15:03:43.091Z"
+    "at": "2026-11-14T16:20:34.683Z"
   }
 }

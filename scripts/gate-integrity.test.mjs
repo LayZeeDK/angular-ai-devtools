@@ -1398,8 +1398,8 @@ function compareArchiveReferences(recorded, derived) {
     'counts',
     'sites',
   ]) {
-    const left = JSON.stringify(recorded[field]);
-    const right = JSON.stringify(derived[field]);
+    const left = canonicalJson(recorded[field]);
+    const right = canonicalJson(derived[field]);
     if (left !== right)
       problems.push(`archiveReferences.${field}: ${left} -> ${right}`);
   }
@@ -2215,3 +2215,679 @@ test('the arming gate guards the one write, and the suite spawns nothing but rea
     );
   }
 });
+
+// ================== T002: the archive-path and the fix-record checks (SC1, SC2, SC5) ==================
+//
+// The two checks T003 wires into the gate, held against the rows T001 measured rather than against
+// strings written here: the record's own `archived-by-the-move` rows are the live paths, its
+// `deliberate-archive-read` rows are the archived ones, and M035's range is the claim list that
+// carries a file change the range never made. A dot-project path is spelled through `DOTTED`
+// throughout, because the record enumerates this file's own references by line: an added reference,
+// or an added line above one, would move a count or a key behind the record's back. Everything
+// below is therefore appended after the last line the record pins.
+
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import {
+  MUTANTS,
+  checkArchivePaths,
+  checkFixRecord,
+  shipRange,
+} from './gate-integrity.mjs';
+
+/** The first characters of a dot-project path, kept apart so no added line is a reference. */
+const DOTTED = '.' + 'project';
+
+/** The milestone whose own archive move the archive-path check is pointed at. */
+const LIVE_MILESTONE = 'M044';
+
+/** The two suites the record and the check agree name the same live path, one naming it and one reading it. */
+const NAMING_SUITE = 'scripts/performance-capture.test.mjs';
+const READING_SUITE = 'scripts/navigation-capture.test.mjs';
+
+/** The archive-path report over this repository, derived once: the check reads 141 suites. */
+let archiveReport = null;
+
+/**
+ * @returns {any}
+ */
+function archiveCheck() {
+  if (archiveReport === null) {
+    archiveReport = checkArchivePaths({
+      root: ROOT,
+      milestone: LIVE_MILESTONE,
+    });
+  }
+  return archiveReport;
+}
+
+/** The reference rows T001 recorded, which is the enumeration every assertion below is driven from. */
+function referenceRows() {
+  return recorded().archiveReferences.references;
+}
+
+/** One row's identity in the record and in the check: the file, the line and the path it resolves. */
+function rowKey(/** @type {any} */ row) {
+  return `${String(row?.file)}:${String(row?.line)}:${String(row?.path ?? 'no-path')}`;
+}
+
+/**
+ * The suite the fixture tree is written to, as the four lines every suite needs to bind its own
+ * module root: the check resolves `join(ROOT, DOTTED, ...)` against a root the file binds itself.
+ *
+ * @param {...string} body
+ * @returns {string}
+ */
+function fixtureSuite(...body) {
+  return [
+    "import { readFileSync } from 'node:fs';",
+    "import { dirname, join } from 'node:path';",
+    "import { fileURLToPath } from 'node:url';",
+    "const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');",
+    ...body,
+    '',
+  ].join('\n');
+}
+
+// --------------------------------------------------- AC1: the three halves ----
+
+test('AC1: the record own live rows split into one that only names the path and one that reads it', (t) => {
+  const report = archiveCheck();
+  const rows = referenceRows();
+
+  // The naming half, from the record's own row: the path is computed and held against an answer,
+  // and nothing opens it.
+  const named = rows.find(
+    (row) => row.class === 'archived-by-the-move' && row.file === NAMING_SUITE,
+  );
+  assert.ok(
+    named,
+    `the record must carry the ${NAMING_SUITE} row that only names the live path`,
+  );
+  const namingRow = report.rows.find(
+    (row) => row.file === named.file && row.line === named.line,
+  );
+  assert.ok(
+    namingRow,
+    `${named.file}:${named.line} is recorded and the check enumerates no reference there`,
+  );
+  assert.equal(namingRow.class, 'archived-by-the-move');
+  assert.equal(
+    namingRow.use,
+    'naming',
+    `${named.file}:${named.line} resolves the live path ${String(
+      named.path,
+    )} and only names it, so the check must record a naming rather than a read`,
+  );
+  assert.ok(
+    namingRow.usedBy,
+    'a clean row records the use it saw as well as a finding does',
+  );
+  assert.equal(
+    namingRow.verdict,
+    'clean',
+    `a reference that names the live path is clean: reporting it would redden every milestone after its own archive`,
+  );
+  assert.equal(
+    report.findings.some((finding) => finding.file === named.file),
+    false,
+    `${named.file} must not be reported, and it was`,
+  );
+
+  // The reading half: the same path, read.
+  const reader = report.findings.find(
+    (finding) => finding.file === READING_SUITE,
+  );
+  assert.ok(
+    reader,
+    `${READING_SUITE} reads the live path ${String(
+      named.path,
+    )} and must be a finding; the check reported ${String(
+      report.findings.length,
+    )} finding(s): ${report.findings
+      .map((finding) => `${finding.file}:${String(finding.line)}`)
+      .join(', ')}`,
+  );
+  assert.equal(
+    reader.path,
+    named.path,
+    'both references name the same live path, which is what makes the pair a pair',
+  );
+  assert.equal(reader.class, 'archived-by-the-move');
+  assert.equal(reader.use, 'read');
+  assert.equal(
+    reader.usedBy,
+    'copyFileSync',
+    'the use recorded for the reading row names the call that reads the path',
+  );
+  assert.ok(
+    reader.useLine > reader.line,
+    `the read sits below the reference that builds the path (use line ${String(
+      reader.useLine,
+    )}, reference line ${String(reader.line)}), which is why both are recorded`,
+  );
+  const source = readFileSync(join(ROOT, reader.file), 'utf8').split('\n');
+  assert.match(
+    source[reader.useLine - 1] ?? '',
+    /copyFileSync/,
+    `the recorded use line ${reader.file}:${reader.useLine} must be the line that reads the path`,
+  );
+  assert.match(
+    source[reader.line - 1] ?? '',
+    /join\(/,
+    `the recorded reference line ${reader.file}:${reader.line} must be the line that builds the path`,
+  );
+
+  // Every finding carries the four fields the contract names, plus the use it saw.
+  for (const finding of report.findings) {
+    for (const field of ['file', 'line', 'claim', 'class', 'use']) {
+      assert.ok(
+        finding[field] !== null && finding[field] !== undefined,
+        `a finding must carry ${field}: ${JSON.stringify(finding)}`,
+      );
+    }
+  }
+  assert.ok(
+    report.filesExamined > 0 && report.examined > 0,
+    `the check must state what it examined: ${String(
+      report.examined,
+    )} live reference(s) in ${String(report.filesExamined)} suite(s)`,
+  );
+  t.diagnostic(
+    `archivePaths: ${String(report.examined)} live reference(s) of ${String(
+      report.referencesExamined,
+    )} in ${String(report.filesExamined)} suite(s); findings: ${report.findings
+      .map(
+        (finding) =>
+          `${finding.file}:${String(finding.line)} ${String(
+            finding.path,
+          )} read by ${String(finding.usedBy)}:${String(finding.useLine)}`,
+      )
+      .join('; ')}`,
+  );
+});
+
+test('AC1: every class the record decided is the class the check derives, and its one divergence is named', () => {
+  const report = archiveCheck();
+  const rows = referenceRows();
+  const at = new Map(report.rows.map((row) => [rowKey(row), row]));
+  for (const row of rows) {
+    assert.ok(
+      at.has(rowKey(row)),
+      `${row.file}:${row.line} is recorded and the check enumerates no reference there`,
+    );
+  }
+  for (const row of rows.filter((entry) => entry.class !== 'undecided')) {
+    const mine = at.get(rowKey(row));
+    assert.equal(
+      mine.class,
+      row.class,
+      `${row.file}:${row.line} is recorded ${row.class} and the check derives ${String(
+        mine.class,
+      )}`,
+    );
+  }
+  // A suite that reads an archived path is clean whatever it does with it: the move writes that
+  // path rather than deleting it.
+  for (const mine of report.rows.filter(
+    (row) => row.class === 'deliberate-archive-read',
+  )) {
+    assert.equal(
+      mine.verdict,
+      'clean',
+      `${mine.file}:${mine.line} reads an archived path and must be clean`,
+    );
+  }
+
+  // The one row the check decides that the record left undecided, named rather than hidden: the
+  // record's reader stopped at `import.meta.url`, so a `const ROOT = join(HERE, '..')` root looked
+  // like a directory the suite invented. Following the binding is what makes the read visible.
+  const diverged = rows.filter(
+    (row) =>
+      row.class === 'undecided' &&
+      at.get(rowKey(row))?.class === 'archived-by-the-move',
+  );
+  assert.deepEqual(
+    diverged.map((row) => `${row.file}:${row.line}`),
+    ['scripts/navigation-capture.test.mjs:1595'],
+    `the check derives one live reference the record left undecided: ${JSON.stringify(
+      diverged.map((row) => `${row.file}:${row.line}`),
+    )}`,
+  );
+  const undecided = rows.find(
+    (row) =>
+      `${row.file}:${row.line}` === 'scripts/navigation-capture.test.mjs:1595',
+  );
+  assert.match(
+    String(undecided?.reason),
+    /does not bind to its own module root/,
+    'the record left that row undecided on its root reading, which is the measurement this half adds',
+  );
+});
+
+test('AC1: a live read is a finding, a live naming is clean with its use, and an archived read is clean', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'm044-archive-paths-'));
+  try {
+    mkdirSync(join(root, 'scripts'), { recursive: true });
+    mkdirSync(join(root, DOTTED, 'research'), { recursive: true });
+    mkdirSync(join(root, DOTTED, 'archive', '001-fixture', 'research'), {
+      recursive: true,
+    });
+    await writeFile(join(root, DOTTED, 'research', 'x.md'), 'the live note\n');
+    await writeFile(
+      join(root, DOTTED, 'archive', '001-fixture', 'research', 'x.md'),
+      'the archived note\n',
+    );
+    // A path built segment by segment and read: the shape a literal grep misses.
+    await writeFile(
+      join(root, 'scripts', 'live.test.mjs'),
+      fixtureSuite(
+        `export const note = readFileSync(join(ROOT, '${DOTTED}', 'research', 'x.md'), 'utf8');`,
+      ),
+    );
+    // The same path, named and never read.
+    await writeFile(
+      join(root, 'scripts', 'named.test.mjs'),
+      fixtureSuite(
+        `const note = join(ROOT, '${DOTTED}', 'research', 'x.md');`,
+        'export const clean = String(note);',
+      ),
+    );
+    // An archived path, read on purpose: the move writes this one rather than deleting it.
+    await writeFile(
+      join(root, 'scripts', 'archived.test.mjs'),
+      fixtureSuite(
+        `export const note = readFileSync(join(ROOT, '${DOTTED}', 'archive', '001-fixture', 'research', 'x.md'), 'utf8');`,
+      ),
+    );
+
+    const report = checkArchivePaths({ root, milestone: LIVE_MILESTONE });
+    assert.equal(
+      report.filesExamined,
+      3,
+      `the check must state how many suites it examined: ${String(
+        report.filesExamined,
+      )}`,
+    );
+    assert.deepEqual(
+      report.movedSubtrees,
+      ['research'],
+      'the relocated subtrees are derived from the archive directory the fixture carries',
+    );
+    assert.equal(report.referencesExamined, 3);
+    assert.equal(
+      report.examined,
+      2,
+      `the two references that resolve a live path are the ones examined: ${String(
+        report.examined,
+      )}`,
+    );
+
+    const live = report.rows.find(
+      (row) => row.file === 'scripts/live.test.mjs',
+    );
+    assert.ok(live);
+    assert.equal(
+      live.claim,
+      `${DOTTED}/research/x.md`,
+      'the segment-built path is resolved, so the reference names the file and not the segment',
+    );
+    assert.equal(live.class, 'archived-by-the-move');
+    assert.equal(live.use, 'read');
+    assert.equal(live.verdict, 'finding');
+
+    const naming = report.rows.find(
+      (row) => row.file === 'scripts/named.test.mjs',
+    );
+    assert.ok(naming);
+    assert.equal(naming.class, 'archived-by-the-move');
+    assert.equal(naming.use, 'naming');
+    assert.match(
+      String(naming.usedBy),
+      /String/,
+      `the clean row records the use it saw: ${JSON.stringify(naming.usedBy)}`,
+    );
+    assert.equal(naming.verdict, 'clean');
+
+    const archived = report.rows.find(
+      (row) => row.file === 'scripts/archived.test.mjs',
+    );
+    assert.ok(archived);
+    assert.equal(archived.class, 'deliberate-archive-read');
+    assert.equal(archived.use, 'read');
+    assert.equal(
+      archived.verdict,
+      'clean',
+      'reading an archived path is not a reference the move can break',
+    );
+
+    assert.equal(report.findings.length, 1);
+    assert.equal(report.findings[0]?.file, 'scripts/live.test.mjs');
+    assert.equal(report.ok, false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// ------------------------------------------------ AC3: nothing examined ----
+
+test('AC3: the archive-path check reports examined 0 as a finding, for a move that deletes nothing and for a call with no input', () => {
+  const empty = mkdtempSync(join(tmpdir(), 'm044-archive-empty-'));
+  try {
+    const report = checkArchivePaths({
+      root: empty,
+      milestone: LIVE_MILESTONE,
+    });
+    assert.equal(
+      report.examined,
+      0,
+      `an archive move that relocates nothing examines zero live paths: ${String(
+        report.examined,
+      )}`,
+    );
+    assert.equal(
+      report.ok,
+      false,
+      'a check that examined nothing must not report itself as passing',
+    );
+    assert.equal(report.findings.length, 1);
+    assert.equal(report.findings[0]?.class, 'nothing-examined');
+    assert.equal(report.findings[0]?.file, `${DOTTED}/archive`);
+    assert.match(
+      String(report.findings[0]?.reason),
+      /carries no milestone directory/,
+      'the refusal names the empty input it was pointed at',
+    );
+  } finally {
+    rmSync(empty, { recursive: true, force: true });
+  }
+
+  const bare = checkArchivePaths({});
+  assert.equal(bare.examined, 0);
+  assert.equal(bare.ok, false);
+  assert.equal(bare.findings.length, 1);
+  assert.equal(bare.findings[0]?.class, 'nothing-examined');
+});
+
+// ------------------------------------------------------ AC2: the fix record ----
+
+test('AC2: M035 own range carries no nx.json, and the claim is a finding naming the task and the file', (t) => {
+  const range = shipRange({ root: ROOT, milestone: '035' });
+  assert.equal(range.error, '', `the range must derive: ${range.error}`);
+  assert.match(
+    range.range,
+    /^[0-9a-f]{40}\.\.[0-9a-f]{40}$/,
+    `the range is a pair of ship commits: ${range.range}`,
+  );
+  const report = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks: `${DOTTED}/archive/035-onpush-readiness/tasks`,
+  });
+  assert.ok(
+    report.examined > 0,
+    'the check must hold at least one claim against the range',
+  );
+  assert.ok(
+    report.claims.some((claim) => claim.inTheRange),
+    'a claim the range carries must not be reported absent, or the check would report every claim',
+  );
+
+  const claimed = report.findings.find((finding) => finding.file === 'nx.json');
+  assert.ok(
+    claimed,
+    `M035's T006 claims nx.json and the range carries no such path; findings: ${JSON.stringify(
+      report.findings.map((finding) => `${finding.task} ${finding.file}`),
+    )}`,
+  );
+  assert.equal(claimed.task, 'T006');
+  assert.equal(claimed.class, 'claim-absent-from-the-range');
+  assert.deepEqual(
+    claimed.statusesInTheRange,
+    [],
+    'the range fact is an empty status list for that path',
+  );
+  assert.equal(
+    'cache' in claimed,
+    false,
+    'the check reports the range fact and never asserts the tree fact as its verdict',
+  );
+  assert.equal('tree' in report, false);
+  assert.match(
+    String(claimed.claim),
+    /nx\.json/,
+    `the finding carries the log line the claim was made on: ${String(claimed.claim)}`,
+  );
+  assert.match(
+    String(claimed.taskFile),
+    /T006-make-the-gate-measure-instead-of-remember\.md$/,
+    'the finding names the task file the claim sits in as well as the file it claims',
+  );
+  t.diagnostic(
+    `fixRecord: ${String(report.examined)} claim(s) from ${String(
+      report.tasksExamined,
+    )} task log(s) over ${String(report.range.changed)} changed path(s); ${String(
+      report.findings.length,
+    )} absent: ${report.findings
+      .map((finding) => `${finding.task} ${finding.file}`)
+      .join('; ')}`,
+  );
+});
+
+test('AC2: a claim naming the new name of a rename is not reported absent, because a rename carries both names', () => {
+  const pair = recorded().fixRecord.rename.recorded;
+  const range = recorded().fixRecord.rename.range;
+  assert.notEqual(pair.from, pair.to, 'the record carries a rename pair');
+  const text = [
+    '---',
+    'id: T901',
+    '---',
+    '',
+    '## Log',
+    `- M044 says it moved \`${pair.from}\` to \`${pair.to}\``,
+    '',
+  ].join('\n');
+  const report = checkFixRecord({
+    root: ROOT,
+    range,
+    tasks: [{ id: 'T901', file: 'fixture/T901-rename.md', text }],
+  });
+  assert.ok(
+    report.range.renames > 0,
+    `the range must carry the rename the record measured: ${String(
+      report.range.renames,
+    )}`,
+  );
+  assert.equal(report.claimsExamined, 2);
+  assert.deepEqual(
+    report.claims.map((claim) => claim.inTheRange),
+    [true, true],
+    `a rename carries both of its names, so a claim about ${pair.from} and one about ${pair.to} are both true`,
+  );
+  assert.deepEqual(
+    report.findings,
+    [],
+    'nothing is absent when the range carries both names of the rename',
+  );
+});
+
+test('AC3: the fix-record check reports examined 0 as a finding, for an empty range and an empty task list', () => {
+  const task = {
+    id: 'T902',
+    file: 'fixture/T902.md',
+    text: '## Log\n- the gate now caches `nx.json`\n',
+  };
+  const emptyRange = checkFixRecord({
+    root: ROOT,
+    range: 'HEAD..HEAD',
+    tasks: [task],
+  });
+  assert.equal(emptyRange.examined, 0);
+  assert.equal(emptyRange.ok, false);
+  assert.equal(emptyRange.findings.length, 1);
+  assert.equal(emptyRange.findings[0]?.class, 'nothing-examined');
+  assert.match(
+    String(emptyRange.findings[0]?.reason),
+    /carries no changed path/,
+    'the refusal names the empty range it was pointed at',
+  );
+
+  const noTasks = checkFixRecord({
+    root: ROOT,
+    range: recorded().fixRecord.rename.range,
+    tasks: [],
+  });
+  assert.equal(noTasks.examined, 0);
+  assert.equal(noTasks.ok, false);
+  assert.equal(noTasks.findings[0]?.class, 'nothing-examined');
+  assert.match(
+    String(noTasks.findings[0]?.reason),
+    /no claim was compared/,
+    'the refusal names the empty claim list it was pointed at',
+  );
+
+  const bare = checkFixRecord({});
+  assert.equal(bare.examined, 0);
+  assert.equal(bare.findings[0]?.class, 'nothing-examined');
+});
+
+// --------------------------------------------------------- AC4: the mutants ----
+
+test('AC4: removing the use distinction reddens the archive-path check, naming the file and the path', (t) => {
+  const real = archiveCheck();
+  const expected = real.findings.find(
+    (finding) => finding.file === READING_SUITE,
+  );
+  assert.ok(
+    expected,
+    'the untouched check must report the live path the suite reads before the mutant is run',
+  );
+
+  const mutated = checkArchivePaths({
+    root: ROOT,
+    milestone: LIVE_MILESTONE,
+    mutant: MUTANTS.archivePaths,
+  });
+  assert.equal(
+    mutated.findings.filter(
+      (finding) => finding.class === 'archived-by-the-move',
+    ).length,
+    0,
+    'the mutant removes the naming/read distinction, so no live reference is a finding in it',
+  );
+
+  let message = '';
+  try {
+    const found = mutated.findings.find(
+      (finding) =>
+        finding.file === expected.file && finding.path === expected.path,
+    );
+    assert.ok(
+      found,
+      `the live path ${String(expected.path)} that ${expected.file}:${String(
+        expected.line,
+      )} reads with ${String(
+        expected.usedBy,
+      )} must be a finding; the mutant reported it clean because a naming and a read are no longer told apart`,
+    );
+  } catch (error) {
+    message = error instanceof Error ? error.message : String(error);
+  }
+  t.diagnostic(`mutant failure: ${message}`);
+  assert.match(
+    message,
+    new RegExp(escapeForRegExp(expected.file)),
+    `the mutant must redden the check naming ${expected.file}; it produced ${JSON.stringify(
+      message.slice(0, 240),
+    )}`,
+  );
+  assert.match(
+    message,
+    new RegExp(escapeForRegExp(String(expected.path))),
+    `the mutant must redden the check naming the path ${String(
+      expected.path,
+    )}; it produced ${JSON.stringify(message.slice(0, 240))}`,
+  );
+});
+
+test('AC4: treating a rename as absent reddens the fix-record check, naming the task and the file', (t) => {
+  const pair = recorded().fixRecord.rename.recorded;
+  const range = recorded().fixRecord.rename.range;
+  const tasks = [
+    {
+      id: 'T903',
+      file: 'fixture/T903.md',
+      text: [
+        '---',
+        'id: T903',
+        '---',
+        '',
+        '## Log',
+        `- the archive move put it at \`${pair.to}\``,
+        '',
+      ].join('\n'),
+    },
+  ];
+  const clean = checkFixRecord({ root: ROOT, range, tasks });
+  assert.deepEqual(
+    clean.findings,
+    [],
+    'the untouched check must pass first: the range carries the new name of the rename',
+  );
+
+  const mutated = checkFixRecord({
+    root: ROOT,
+    range,
+    tasks,
+    mutant: MUTANTS.fixRecord,
+  });
+  let message = '';
+  try {
+    assert.deepEqual(
+      mutated.findings,
+      [],
+      `the claim names the new name of the rename ${pair.to}, which the range carries`,
+    );
+  } catch (error) {
+    message = error instanceof Error ? error.message : String(error);
+  }
+  t.diagnostic(`mutant failure: ${message}`);
+  assert.match(
+    message,
+    /T903/,
+    `the mutant must redden the check naming the task; it produced ${JSON.stringify(
+      message.slice(0, 240),
+    )}`,
+  );
+  assert.match(
+    message,
+    new RegExp(escapeForRegExp(pair.to)),
+    `the mutant must redden the check naming the file the claim names; it produced ${JSON.stringify(
+      message.slice(0, 240),
+    )}`,
+  );
+});
+
+/**
+ * A value as JSON with its object keys in one order. A count map is compared by the counts it
+ * carries, never by the order its keys were inserted: `sites` is built in the order the references
+ * are met, and `git ls-files` lists an untracked file ahead of the staged ones, so a checkout that
+ * carries this suite untracked and one that carries it committed record the same counts in two
+ * orders. The counts are the measurement; the insertion order is a property of the run. Declared
+ * here rather than above, because the record pins the line numbers of this file's references.
+ *
+ * @param {unknown} value
+ * @returns {string}
+ */
+function canonicalJson(value) {
+  return JSON.stringify(value, (_key, inner) =>
+    isObject(inner)
+      ? Object.fromEntries(
+          Object.keys(inner)
+            .sort()
+            .map((key) => [key, inner[key]]),
+        )
+      : inner,
+  );
+}

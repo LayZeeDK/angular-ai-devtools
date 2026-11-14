@@ -4,9 +4,9 @@ title: Build the archive-path and fix-record checks
 wave: 2
 deps:
   - T001
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002
+base: b9f83927a97bf146134f395ffe4e4ba2a2b71b1a
 worktree: null
 task_branch: null
 files:
@@ -67,3 +67,8 @@ E1, E2, E3, E4, E5, E9, E11
 ## Log
 
 - (no entries yet)
+
+- 2026-11-14 — T002 delivered scripts/gate-integrity.mjs (50,603 B) and extended scripts/gate-integrity.test.mjs (104,981 B), re-capturing esearch/raw/m044-gate-shapes.json because its ilesExamined count moved 270 -> 271 when the new module appeared. Orchestrator re-ran the chain rather than reading the report: 19 tests / 19 pass / 0 fail, prettier --check clean, 
+pm run check exit 0. The only edit inside wave one's file is two lines — JSON.stringify replaced with a key-sorted canonicalJson in one comparator — because the recording's sites key order depends on whether the suite itself is tracked, so the pin reddened on insertion order while every count was identical.
+- 2026-11-14 — the check is red on the shipped tree by its own rule, and that is the finding T003 inherits: four live reads resolve a path the archive move deletes — scripts/autonomy-gaps.test.mjs:47 (.project/research/DOCS-AUDIT.md via xistsSync at 490), scripts/docs-audit-disposition.test.mjs:49 (same path via eadFileSync at 51), scripts/navigation-capture.test.mjs:1595 (.project/intent/INTENT.md via copyFileSync at 1763) and scripts/retired-suites.test.mjs:28 (.project/plan/RETIRED-SUITES.md via xistsSync at 108). Wiring the check into the gate without repairing those four refuses ship permanently, so a repair task must land before T003.
+- 2026-11-14 — verdict: ready
