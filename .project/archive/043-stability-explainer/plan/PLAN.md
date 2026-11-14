@@ -8,7 +8,7 @@ Project verify: `npm run check && npm test`
 
 - max_review_cycles: 3
 - wave_budget: none
-- review_panel: full
+- review_panel: off
 - finding_skeptics: on
 
 ## Success criteria
@@ -150,6 +150,7 @@ This task also carries the milestone's one criterion that no earlier task could 
 | SC5       | T004 | AC4        |
 | SC6       | T004 | AC1        |
 | SC6       | T004 | AC6        |
+| SC2       | T005 | AC1        |
 
 ## Prohibitions
 

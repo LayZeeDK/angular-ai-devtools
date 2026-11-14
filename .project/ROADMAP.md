@@ -1564,8 +1564,8 @@ Goal: Build the stability explainer: why the app is not stable, and what is stil
 Depends on: [M020]
 Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/043-stability-explainer
 Integrated: null
 
 Scope: in
