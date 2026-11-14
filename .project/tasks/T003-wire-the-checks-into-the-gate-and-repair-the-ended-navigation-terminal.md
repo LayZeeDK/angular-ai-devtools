@@ -26,6 +26,9 @@ files:
   - scripts/held-out-nested-run.test.mjs
   - scripts/legacy-diagnostic-capture.test.mjs
   - scripts/linked-state-capture.test.mjs
+  - research/raw/m044-gate-shapes.json
+  - scripts/gate-integrity.test.mjs
+  - scripts/navigation-capture.test.mjs
   - scripts/autonomy-gaps.test.mjs
   - scripts/docs-audit-disposition.test.mjs
   - scripts/retired-suites.test.mjs
@@ -69,6 +72,9 @@ The gate surfaces `checkArchivePaths({ root, milestone })` and `checkFixRecord({
 5. held-out E6 — AC5 `package.json` is pinned by many suites that assert parts of the verify chain, and this task changes it; the full `npm test` runs after the wiring and every suite that reddens on the new stages is re-cut in this task, with the file named in the Log. No suite is skipped and no assertion is widened to accept an unlisted stage.
 
 6. held-out E6 — AC6 the archive-path check passes on this milestone's own tree: the four live reads T002 measured resolve archive-aware, `checkArchivePaths` reports no finding for the tree with a non-zero `examined`, and a mutant restoring one hardcoded live path reddens the check naming that file — the failure string quoted in the Log.
+
+7. held-out E6 — AC7 the gate wires the fix-record check so it can be green over a real task set: a log token is a claim only when the task's own `files:` declares the path, every other path-like token is recorded as a `mention` and named rather than judged, and `claims: 'log'` remains the export's default so T002's nineteen tests pass unchanged — proven by the gate run over M044's own tasks reporting zero absent claims while the same run with `claims: 'log'` still reports `nx.json`.
+8. held-out E10 — AC8 `npm test` at this task's head fails only on `scripts/overlay-verdict-claims.test.mjs`'s two tests, whose cause is the absent `research/raw/m044-verdict-claims.json` that T004 creates; every other suite passes and the total count is recorded. A failure outside those two names is a blocker, and T004 must leave `npm test` fully green.
 
 ## Verify
 
