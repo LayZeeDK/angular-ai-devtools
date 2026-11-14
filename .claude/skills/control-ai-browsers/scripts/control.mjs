@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // @ts-check
 // Deterministic control of the per-model browser instances in instances.json, through playwright-cli and raw CDP.
-// Usage: node control.mjs <command> [sub] <instance> [--json] [--evidence=<dir>]  (see SKILL.md, Helpers)
+// Usage: node control.mjs <command> [sub] <instance> [--json] [--evidence=<dir>]  (see SKILL.md, Scripts)
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
@@ -1117,7 +1117,7 @@ export function downOutcome(st, result) {
       );
     } else {
       notes.push(
-        `left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`,
+        `left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'shared' ? 'a shared service (the Nx daemon), never stopped' : 'it runs this script'}`,
       );
     }
   }
@@ -4265,7 +4265,7 @@ async function main() {
 
   if (cmd === undefined || run === undefined) {
     return refuse(
-      'usage: control.mjs <instances|up|attach|detach|doctor|flags|model|run|panel|down|bench|info> ... (see SKILL.md, Helpers)',
+      'usage: control.mjs <instances|up|attach|detach|doctor|flags|model|run|panel|down|bench|info> ... (see SKILL.md, Scripts)',
     );
   }
 

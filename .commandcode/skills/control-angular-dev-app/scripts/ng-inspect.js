@@ -4,7 +4,7 @@
 // ng.ɵsetProfiler.
 
 /** @param {{ addInitScript: (script: () => void) => Promise<void>, evaluate: <T>(fn: () => T) => Promise<Awaited<T>> }} page */
-async (page) => {
+async function ngInspect(page) {
   /** @typedef {{ id?: string, kind: string, label?: string, value: unknown, epoch: number }} SignalNode */
   /** @typedef {{ token?: { name?: string }, provider?: { useClass?: { name: string }, useFactory?: unknown, name?: string }, isViewProvider?: boolean, importPath?: object[] }} ProviderRecord */
   /** @typedef {{ path?: string, children?: RouteLike[], loadChildren?: unknown, loadComponent?: unknown, component?: unknown, redirectTo?: string }} RouteLike */
@@ -398,4 +398,4 @@ async (page) => {
   return await page.evaluate(() =>
     /** @type {Window & NgGlobals} */ (window).__ngc?.doctor(),
   );
-};
+}

@@ -182,7 +182,7 @@ is not running or the command could not run. A run takes 25-50 s, longer under l
 
 ## Drive
 
-- Model lifecycle: `model info|download|init|pin <name>`, `model clear <name> --confirm=<model>` (see Helpers).
+- Model lifecycle: `model info|download|init|pin <name>`, `model clear <name> --confirm=<model>` (see Scripts).
 - Effective features: `flags <name>` reads the command line from `chrome://version` / `edge://version` and
   compares it with the registry.
 - A probe: `run <name> <file.js>`, where the file holds `async page => {...}`. It runs in a new tab that is
@@ -257,7 +257,7 @@ its work is done (Lars's rule: no unused browser windows); the next `up` starts 
 model, extension and developer mode, so nothing is lost. An instance another session is still using stays up. Never run `playwright-cli close`,
 `close-all` or `kill-all`: they reach other agents' sessions.
 
-## Helpers
+## Scripts
 
 `node .commandcode/skills/control-ai-browsers/scripts/control.mjs <command> ... [--json] [--evidence=<dir>]`
 

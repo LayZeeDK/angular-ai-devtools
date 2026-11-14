@@ -3,7 +3,7 @@
 // tool (navigate, fill-form, form-action, highlight and the rest), and `call navigate` without `--confirm` is
 // refused by control-pangular-inspector (exit 2, `refused: navigate ... pass --confirm`).
 // Covers: control-pangular-inspector features/README.md (read-only unless `--allow-actions`; action tools need
-// `call ... --confirm`) and its SKILL.md Helpers (`tools`, `call`).
+// `call ... --confirm`) and its SKILL.md Scripts (`tools`, `call`).
 // Needs: the portal (control-angular-dev-app up --target portal) and control-pangular-inspector up on it.
 // Usage: node .commandcode/skills/verify-pangular-inspector/checks/read-only.mjs --out <dir>
 // Writes: <dir>/tools-list.json, navigate-refused.json.

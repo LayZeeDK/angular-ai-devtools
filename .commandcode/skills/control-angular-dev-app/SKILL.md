@@ -219,7 +219,7 @@ deletes it. The evidence directory stays. `up` stops an attempt whose port was t
 the next slot.
 A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). Never `playwright-cli close-all` or `kill-all`: they reach Lars's sessions.
 
-## Helpers
+## Scripts
 
 `scripts/control.mjs <command> [--target counter|ssr|portal] [--url <url>] [--port N] [--dir <path>] [--timeout S] [--json]`
 

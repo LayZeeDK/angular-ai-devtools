@@ -941,7 +941,7 @@ test('down goes through proctree.mjs: the last snapshot below each root is merge
   );
 });
 
-test('downOutcome refuses a reused root PID and a survivor with exit 2, and only notes a reused child or a shared helper', () => {
+test('downOutcome refuses a reused root PID and a survivor with exit 2, and only notes a reused child or a shared service', () => {
   const root = {
     pid: 7,
     ppid: 1,
@@ -990,14 +990,14 @@ test('downOutcome refuses a reused root PID and a survivor with exit 2, and only
         ppid: 7,
         start: 1300,
         commandLine: 'node nx/src/daemon/server/start.js',
-        reason: 'helper',
+        reason: 'shared',
       },
     ],
   });
   assert.equal(noted.code, 0);
   assert.deepEqual(noted.notes.slice(1), [
     'left PID 30 alone: it now belongs to another process',
-    'left PID 50 (node nx/src/daemon/server/start.js) alone: a shared helper (the Nx daemon), never stopped',
+    'left PID 50 (node nx/src/daemon/server/start.js) alone: a shared service (the Nx daemon), never stopped',
   ]);
   assert.equal(
     downOutcome(state, { stopped: [], gone: [root, child], refused: [] }).code,

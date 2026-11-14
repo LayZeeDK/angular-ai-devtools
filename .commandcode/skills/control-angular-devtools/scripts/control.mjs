@@ -792,7 +792,7 @@ export function downOutcome(st, result) {
       );
     } else {
       notes.push(
-        `left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`,
+        `left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'shared' ? 'a shared service (the Nx daemon), never stopped' : 'it runs this script'}`,
       );
     }
   }

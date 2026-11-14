@@ -138,7 +138,7 @@ const MAIN_VITEST_PORT = 51315;
 const MAIN_BUNDLED_CDP_PORT = 9350;
 const DEFAULT_INSTANCE = 'chrome-beta-gemma4';
 
-// ---------- pure helpers (exported for the tests) ----------
+// ---------- pure functions (exported for the tests) ----------
 
 /**
  * The derived rows of the ports table: the Vitest browser server, and in bundled mode the bundled Chromium's CDP
@@ -643,7 +643,7 @@ export function downOutcome(state, result) {
       );
     } else {
       notes.push(
-        `left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`,
+        `left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'shared' ? 'a shared service (the Nx daemon), never stopped' : 'it runs this script'}`,
       );
     }
   }

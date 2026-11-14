@@ -161,7 +161,7 @@ the profile, then the state file, so a profile that cannot be deleted keeps the 
 again); the evidence stays. A PID that is already gone is noted, exit 0. A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). Then stop the app with the tool that started it. Never `close-all` or
 `kill-all`. `uninstall` (test) deletes the extension copy and test profiles; it refuses while `up`.
 
-## Helpers
+## Scripts
 
 `scripts/control.mjs <command> [options] [--json]`; exit 0 done or healthy, 1 not healthy, 2 refused or
 could not run (the reason is printed; `--json` gives `{ok, exit, reason}`, also for a usage error and an unknown

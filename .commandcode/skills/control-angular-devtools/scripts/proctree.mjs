@@ -21,9 +21,9 @@ import { printable } from './text.mjs';
 
 /**
  * Why `stop` left a record alone: `reused` its PID now belongs to a process with another start time or command
- * line; `helper` it is a shared helper; `caller` it is the process running `stop`; `survived` it was still running
+ * line; `shared` it is a shared service; `caller` it is the process running `stop`; `survived` it was still running
  * after the last round.
- * @typedef {'reused' | 'helper' | 'caller' | 'survived'} RefusedReason
+ * @typedef {'reused' | 'shared' | 'caller' | 'survived'} RefusedReason
  */
 
 /**
@@ -42,11 +42,11 @@ import { printable } from './text.mjs';
  * @property {number} [rounds]  at most this many rounds; default 10
  */
 
-// Shared helpers a run may start but never owns: other sessions in the checkout use them. Matched on the
+// Shared services a run may start but never owns: other sessions in the checkout use them. Matched on the
 // command line only to leave them out; never to stop anything. Nx spawns its daemon as
 // `node <nx>/src/daemon/server/start.js` up to Nx 22 and `node <nx>/dist/src/daemon/server/start.js` from Nx 23
 // (src/daemon/client/client.js in each).
-export const SHARED_HELPERS = [
+export const SHARED_SERVICES = [
   /[\\/]nx[\\/](?:dist[\\/])?src[\\/]daemon[\\/]server[\\/]start\.js(?![\w.])/i,
 ];
 
@@ -56,12 +56,12 @@ const QUERY =
 
 /**
  * @param {string | null} commandLine
- * @returns {boolean} whether the command line is a shared helper's
+ * @returns {boolean} whether the command line is a shared service's
  */
-export function isSharedHelper(commandLine) {
+export function isSharedService(commandLine) {
   return (
     commandLine !== null &&
-    SHARED_HELPERS.some((pattern) => pattern.test(commandLine))
+    SHARED_SERVICES.some((pattern) => pattern.test(commandLine))
   );
 }
 
@@ -211,7 +211,7 @@ export function processTable() {
       throw new Error('process query failed: no /bin/ps or /usr/bin/ps');
     }
 
-    // -ww: never cut the command line to the terminal width, or a shared helper's path could be lost.
+    // -ww: never cut the command line to the terminal width, or a shared service's path could be lost.
     const result = spawnSync(
       ps,
       [
@@ -250,7 +250,7 @@ export function processTable() {
 
 /**
  * The live processes below `roots` in `rows` (the roots excluded). A child counts only when it started no earlier
- * than its parent, so a process whose parent PID was reused is never taken in; a shared helper and everything
+ * than its parent, so a process whose parent PID was reused is never taken in; a shared service and everything
  * below it are left out.
  * @param {ProcRecord[]} rows
  * @param {ProcRecord[]} roots  live rows
@@ -273,7 +273,7 @@ function below(rows, roots) {
         parent !== undefined &&
         !tree.has(row.pid) &&
         row.start >= parent.start &&
-        !isSharedHelper(row.commandLine)
+        !isSharedService(row.commandLine)
       ) {
         tree.set(row.pid, row);
         found.push(row);
@@ -286,7 +286,7 @@ function below(rows, roots) {
 }
 
 /**
- * The live tree under a process: the root and every descendant, shared helpers left out.
+ * The live tree under a process: the root and every descendant, shared services left out.
  * @param {number | ProcRecord} root  a PID only right after the caller spawned it; otherwise the recorded root,
  *   and a live process that does not match it (another start time or command line) gives an empty tree
  * @param {{ table?: () => ProcRecord[], notBefore?: number, notAfter?: number }} [options]  both required with a
@@ -318,7 +318,7 @@ export function snapshot(
       ? live.start < (notBefore ?? 0) - 1000 ||
         live.start > (notAfter ?? 0) + 50
       : !matches(root, live)) ||
-    isSharedHelper(live.commandLine)
+    isSharedService(live.commandLine)
   ) {
     return [];
   }
@@ -328,7 +328,7 @@ export function snapshot(
 
 /**
  * The union of two lists of records, keyed by PID and start time, so a process seen once stays recorded after it
- * or its parent exits. Shared helpers are dropped.
+ * or its parent exits. Shared services are dropped.
  * @param {ProcRecord[]} recorded
  * @param {ProcRecord[]} live
  * @returns {ProcRecord[]}
@@ -338,7 +338,7 @@ export function merge(recorded, live) {
   const all = new Map();
 
   for (const record of [...recorded, ...live]) {
-    if (!isSharedHelper(record.commandLine)) {
+    if (!isSharedService(record.commandLine)) {
       all.set(`${record.pid}@${record.start}`, record);
     }
   }
@@ -464,18 +464,18 @@ export function stop(
     }
   }
 
-  // merge() drops shared helpers; a running one is reported here so the caller sees why it stays running.
-  const helpers = new Map(
+  // merge() drops shared services; a running one is reported here so the caller sees why it stays running.
+  const services = new Map(
     records
-      .filter((record) => isSharedHelper(record.commandLine))
+      .filter((record) => isSharedService(record.commandLine))
       .map((record) => [key(record), record]),
   );
 
-  for (const helper of helpers.values()) {
-    if (matches(helper, first.get(helper.pid))) {
-      result.refused.push({ ...helper, reason: 'helper' });
+  for (const service of services.values()) {
+    if (matches(service, first.get(service.pid))) {
+      result.refused.push({ ...service, reason: 'shared' });
     } else {
-      result.gone.push(helper);
+      result.gone.push(service);
     }
   }
 

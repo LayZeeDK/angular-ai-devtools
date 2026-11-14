@@ -14,7 +14,7 @@
  *   evaluate: <T>(fn: () => T) => Promise<Awaited<T>>,
  * }} page
  */
-async (page) => {
+async function ssrCheck(page) {
   /** @typedef {{ status: string, node: string, component: string | null, expected: unknown, actual: unknown }} Mismatch */
   /** @typedef {{ status: string, expectedNodeDetails?: unknown, actualNodeDetails?: unknown }} HydrationInfo */
   /** @typedef {{ hydratedComponents?: number, hydratedNodes?: number, componentsSkippedHydration?: number, deferBlocksWithIncrementalHydration?: number }} DevModeCounters */
@@ -161,4 +161,4 @@ async (page) => {
     clean,
     mismatch,
   };
-};
+}

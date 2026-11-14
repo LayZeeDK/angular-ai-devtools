@@ -222,7 +222,7 @@ function isTarget(name) {
   return Object.hasOwn(TARGETS, name);
 }
 
-// ---------- pure helpers (exported for the tests) ----------
+// ---------- pure functions (exported for the tests) ----------
 
 /**
  * The value after `--<name>`: a string, true when the flag has no value, undefined when it is absent. Callers treat an
@@ -862,7 +862,7 @@ export function downOutcome(state, result) {
       );
     } else {
       notes.push(
-        `left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'helper' ? 'a shared helper (the Nx daemon), never stopped' : 'it runs this script'}`,
+        `left ${r.reason === 'reused' ? `PID ${r.pid}` : describe(r)} alone: ${r.reason === 'reused' ? 'it now belongs to another process' : r.reason === 'shared' ? 'a shared service (the Nx daemon), never stopped' : 'it runs this script'}`,
       );
     }
   }
@@ -1784,7 +1784,7 @@ async function doctor() {
     add(
       'page-probe',
       'fail',
-      `inspect helper did not return JSON: ${(r.stdout + r.stderr).slice(0, 300)}`,
+      `ng-inspect.js did not return JSON: ${(r.stdout + r.stderr).slice(0, 300)}`,
     );
 
     return out({ ok: false, command: 'doctor', flowId, checks }, 1);

@@ -186,7 +186,7 @@ the extension (`Extensions.uninstall`), and stops the instance only if `up` laun
 bundled profile, removes the state file and keeps the evidence. A recorded PID that no longer runs is not a
 refusal. A state file from before `proctree.mjs`, with no `tree`, stops nothing and exits 2 (state file kept). When `control-ai-browsers down` refuses (exit 2), the refusal stands and is noted; only a missing state file there is mended with `attach` and a second `down`. Never `close-all` or `kill-all`.
 
-## Helpers
+## Scripts
 
 `node .commandcode/skills/control-vitest-browser-angular/scripts/control.mjs <command> [flags] [--json]`
 
