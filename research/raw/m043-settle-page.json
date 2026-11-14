@@ -1,0 +1,1148 @@
+{
+  "schema": "m043-settle-page/v1",
+  "milestone": "stability-explainer",
+  "task": "T005",
+  "question": "Does an inspected page produce an unstable-to-stable change while the shipped stability read is attached, and what do the records that page published report?",
+  "capture": {
+    "when": "2026-11-13T23:32:33.034Z",
+    "browser": {
+      "instance": "chrome-beta-nano",
+      "version": "Chrome/159.0.8154.6",
+      "extensionDir": "extension/",
+      "extensionId": "mgkfgkdgobahfcgkdlokpoehblpbkfok",
+      "extensionLoad": "the instance loads the repository's unpacked extension/ over CDP Extensions.loadUnpacked (--remote-debugging-pipe --enable-unsafe-extension-debugging)",
+      "cdpPort": 9333
+    },
+    "fixture": {
+      "dir": "spikes/ng222-app",
+      "url": "http://localhost:4222/",
+      "port": 4222,
+      "serve": "node node_modules/@angular/cli/bin/ng.js serve --port 4222",
+      "ngVersion": "22.2.2"
+    },
+    "commands": [
+      "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter --json",
+      "node .commandcode/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-nano --json",
+      "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-nano tmp/m043-settle-lazy.probe.js --json"
+    ],
+    "probe": {
+      "file": "tmp/m043-settle-lazy.probe.js",
+      "note": "run-code file: \"async page => {...}\", run in a new tab that is closed afterwards. It adds an init script before any page script runs, which records every angular-ai:record the page agent dispatches and takes one second subscription on the same ApplicationRef.isStable the shipped read subscribes to. The page then loads the route itself.",
+      "source": "async page => {\n  const base = 'http://localhost:4222';\n  const route = '/lazy';\n\n  await page.addInitScript(() => {\n    window.__m043 = { records: [], stream: [], observer: null, observerError: null };\n\n    window.addEventListener('angular-ai:record', (e) => {\n      const d = e.detail || {};\n      window.__m043.records.push({\n        at: performance.now(),\n        path: location.pathname,\n        cycleId: d.cycleId ?? null,\n        startedAt: d.startedAt ?? null,\n        trigger: d.trigger ?? null,\n        zoneMode: d.zoneMode ?? null,\n        events: (d.events || []).length,\n        routerEvents: (d.routerEvents || []).slice(),\n        stability: d.stability ?? null,\n        checks: (d.checks || []).map((c) => c.componentName ?? null),\n      });\n    });\n\n    const subscribeWhenAvailable = () => {\n      try {\n        const ng = window.ng;\n        if (!ng || typeof ng.getInjector !== 'function' || typeof ng.ɵgetInjectorResolutionPath !== 'function') return false;\n        const host = document.querySelector('app-root');\n        if (!host) return false;\n        const injector = ng.getInjector(host);\n        if (!injector) return false;\n        const path = ng.ɵgetInjectorResolutionPath(injector) || [injector];\n        for (const entry of path) {\n          const records = ng.ɵgetInjectorProviders(entry);\n          for (const record of records || []) {\n            if (record && record.token && record.token.name === 'ApplicationRef') {\n              window.__m043.observer = 'ApplicationRef';\n              window.__m043.observerAt = performance.now();\n              entry.get(record.token).isStable.subscribe((value) => {\n                window.__m043.stream.push({ value: value === true, at: performance.now(), path: location.pathname });\n              });\n              return true;\n            }\n          }\n        }\n      } catch (e) {\n        window.__m043.observerError = String((e && e.message) || e);\n      }\n      return false;\n    };\n    let tries = 0;\n    const timer = setInterval(() => {\n      tries += 1;\n      if (subscribeWhenAvailable() || tries > 4000) clearInterval(timer);\n    }, 5);\n  });\n\n  await page.goto(base + route);\n\n  await page.waitForFunction(\n    () => window.__m043 && window.__m043.records.some((r) => r.stability && r.stability.attachAt !== null),\n    null,\n    { timeout: 30000 },\n  );\n\n  // The drive waits for the page's own settle, then for the page to go quiet.\n  let settledInPage = true;\n  try {\n    await page.waitForFunction(\n      () => window.__m043.records.some((r) => r.stability && r.stability.settle && r.stability.settle.state === 'settled'),\n      null,\n      { timeout: 30000 },\n    );\n  } catch (e) {\n    settledInPage = false;\n  }\n\n  await page.waitForFunction(\n    () => {\n      const r = window.__m043.records;\n      const last = r.length ? r[r.length - 1].at : 0;\n      return performance.now() - last > 600;\n    },\n    null,\n    { timeout: 30000 },\n  );\n\n  const t = await page.evaluate(() => {\n    const timing = performance.timing || {};\n    return {\n      url: location.href,\n      path: location.pathname,\n      title: document.title,\n      ngVersion: document.querySelector('[ng-version]')?.getAttribute('ng-version') ?? null,\n      readyState: document.readyState,\n      navigationStart: timing.navigationStart ?? null,\n      domContentLoadedEventEnd: timing.domContentLoadedEventEnd ?? null,\n      loadEventEnd: timing.loadEventEnd ?? null,\n      observedAt: performance.now(),\n      observer: window.__m043.observer,\n      observerAt: window.__m043.observerAt ?? null,\n      observerError: window.__m043.observerError,\n      records: window.__m043.records,\n      stream: window.__m043.stream,\n      bodyPrefix: document.body ? document.body.textContent.trim().slice(0, 160) : null,\n      routeViewTag: document.querySelector('router-outlet')?.nextElementSibling?.tagName ?? null,\n    };\n  });\n\n  return { route, settledInPage, ...t };\n}"
+    },
+    "drive": {
+      "route": "/lazy",
+      "url": "http://localhost:4222/lazy",
+      "title": "Ng222App",
+      "viewTag": "APP-LAZY-PAGE",
+      "readyState": "complete",
+      "documentTiming": {
+        "navigationStart": 1794612758065,
+        "domContentLoadedEventEnd": 1794612758165,
+        "loadEventEnd": 1794612758178,
+        "attachAt": 112.69999998807907,
+        "note": "navigationStart, domContentLoadedEventEnd and loadEventEnd are epoch milliseconds; attachAt is the page's own performance.now() and falls level with the load event, while the lazy route's configuration load was still in flight (RouteConfigLoadEnd arrives 11 ms later)."
+      },
+      "navigation": {
+        "kind": "the router's own initial navigation to /lazy: the route declares loadChildren, and its dynamic import was still in flight when the read attached",
+        "arrivals": [
+          {
+            "type": "RouteConfigLoadEnd",
+            "at": 123.69999998807907,
+            "id": null,
+            "url": null,
+            "urlAfterRedirects": null,
+            "route": "lazy",
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": []
+          },
+          {
+            "type": "RoutesRecognized",
+            "at": 124.29999995231628,
+            "id": 1,
+            "url": "/lazy",
+            "urlAfterRedirects": "/lazy",
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": [
+              null,
+              "lazy",
+              ""
+            ]
+          },
+          {
+            "type": "GuardsCheckStart",
+            "at": 124.39999997615814,
+            "id": 1,
+            "url": "/lazy",
+            "urlAfterRedirects": "/lazy",
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": [
+              null,
+              "lazy",
+              ""
+            ]
+          },
+          {
+            "type": "ChildActivationStart",
+            "at": 124.69999998807907,
+            "id": null,
+            "url": null,
+            "urlAfterRedirects": null,
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": [
+              null,
+              "lazy",
+              ""
+            ]
+          },
+          {
+            "type": "ActivationStart",
+            "at": 124.69999998807907,
+            "id": null,
+            "url": null,
+            "urlAfterRedirects": null,
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": [
+              "lazy",
+              ""
+            ]
+          },
+          {
+            "type": "ChildActivationStart",
+            "at": 125,
+            "id": null,
+            "url": null,
+            "urlAfterRedirects": null,
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": [
+              "lazy",
+              ""
+            ]
+          },
+          {
+            "type": "ActivationStart",
+            "at": 125,
+            "id": null,
+            "url": null,
+            "urlAfterRedirects": null,
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": [
+              ""
+            ]
+          },
+          {
+            "type": "GuardsCheckEnd",
+            "at": 125.09999996423721,
+            "id": 1,
+            "url": "/lazy",
+            "urlAfterRedirects": "/lazy",
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": true,
+            "matchedPaths": [
+              null,
+              "lazy",
+              ""
+            ]
+          },
+          {
+            "type": "ResolveStart",
+            "at": 125.09999996423721,
+            "id": 1,
+            "url": "/lazy",
+            "urlAfterRedirects": "/lazy",
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": [
+              null,
+              "lazy",
+              ""
+            ]
+          },
+          {
+            "type": "ResolveEnd",
+            "at": 125.69999998807907,
+            "id": 1,
+            "url": "/lazy",
+            "urlAfterRedirects": "/lazy",
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": [
+              null,
+              "lazy",
+              ""
+            ]
+          },
+          {
+            "type": "ActivationEnd",
+            "at": 127.5,
+            "id": null,
+            "url": null,
+            "urlAfterRedirects": null,
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": [
+              ""
+            ]
+          },
+          {
+            "type": "ChildActivationEnd",
+            "at": 127.5,
+            "id": null,
+            "url": null,
+            "urlAfterRedirects": null,
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": [
+              "lazy",
+              ""
+            ]
+          },
+          {
+            "type": "ActivationEnd",
+            "at": 127.5,
+            "id": null,
+            "url": null,
+            "urlAfterRedirects": null,
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": [
+              "lazy",
+              ""
+            ]
+          },
+          {
+            "type": "ChildActivationEnd",
+            "at": 127.5,
+            "id": null,
+            "url": null,
+            "urlAfterRedirects": null,
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": [
+              null,
+              "lazy",
+              ""
+            ]
+          },
+          {
+            "type": "NavigationEnd",
+            "at": 127.59999996423721,
+            "id": 1,
+            "url": "/lazy",
+            "urlAfterRedirects": "/lazy",
+            "route": null,
+            "reason": null,
+            "code": null,
+            "error": null,
+            "shouldActivate": null,
+            "matchedPaths": []
+          }
+        ],
+        "publishedBy": "both records carry the same arrival list",
+        "completionAt": 127.59999996423721,
+        "completionType": "NavigationEnd"
+      },
+      "bodyPrefix": "Clicks: 3 (double 6, cart 1)Incrementlazy"
+    },
+    "records": [
+      {
+        "dispatchedAt": 129.39999997615814,
+        "path": "/lazy",
+        "cycleId": 1,
+        "startedAt": 128.19999998807907,
+        "trigger": {
+          "kind": "unknown",
+          "listenerName": null
+        },
+        "zoneMode": "noop",
+        "events": 16,
+        "checks": [
+          "app-root",
+          "app-lazy-page"
+        ],
+        "routerEventTypes": [
+          "RouteConfigLoadEnd",
+          "RoutesRecognized",
+          "GuardsCheckStart",
+          "ChildActivationStart",
+          "ActivationStart",
+          "ChildActivationStart",
+          "ActivationStart",
+          "GuardsCheckEnd",
+          "ResolveStart",
+          "ResolveEnd",
+          "ActivationEnd",
+          "ChildActivationEnd",
+          "ActivationEnd",
+          "ChildActivationEnd",
+          "NavigationEnd"
+        ],
+        "stability": {
+          "reachedBy": "ApplicationRef",
+          "absence": null,
+          "attachAt": 112.69999998807907,
+          "reading": {
+            "value": false,
+            "at": 112.69999998807907
+          },
+          "settle": {
+            "state": "no-settle-observed"
+          },
+          "version": "22.2.2",
+          "coreVersion": null
+        }
+      },
+      {
+        "dispatchedAt": 626,
+        "path": "/lazy",
+        "cycleId": 2,
+        "startedAt": 626,
+        "trigger": {
+          "kind": "unknown",
+          "listenerName": null
+        },
+        "zoneMode": "noop",
+        "events": 0,
+        "checks": [
+          "_App"
+        ],
+        "routerEventTypes": [
+          "RouteConfigLoadEnd",
+          "RoutesRecognized",
+          "GuardsCheckStart",
+          "ChildActivationStart",
+          "ActivationStart",
+          "ChildActivationStart",
+          "ActivationStart",
+          "GuardsCheckEnd",
+          "ResolveStart",
+          "ResolveEnd",
+          "ActivationEnd",
+          "ChildActivationEnd",
+          "ActivationEnd",
+          "ChildActivationEnd",
+          "NavigationEnd"
+        ],
+        "stability": {
+          "reachedBy": "ApplicationRef",
+          "absence": null,
+          "attachAt": 112.69999998807907,
+          "reading": {
+            "value": true,
+            "at": 129.79999995231628
+          },
+          "settle": {
+            "state": "settled",
+            "at": 129.79999995231628
+          },
+          "version": "22.2.2",
+          "coreVersion": null
+        }
+      }
+    ],
+    "observer": {
+      "what": "a second subscription the drive took on the same ApplicationRef.isStable the read subscribes to, on the same injector walk, so the stream the read reads is recorded from outside the read as well",
+      "subscribedAt": 100.5,
+      "observer": "ApplicationRef",
+      "error": null,
+      "values": [
+        {
+          "value": false,
+          "at": 100.59999996423721,
+          "path": "/lazy"
+        },
+        {
+          "value": true,
+          "at": 129.79999995231628,
+          "path": "/lazy"
+        }
+      ]
+    },
+    "reproductions": [
+      {
+        "run": "second run of the same probe",
+        "route": "/lazy",
+        "url": "http://localhost:4222/lazy",
+        "records": [
+          {
+            "dispatchedAt": 177.39999997615814,
+            "path": "/lazy",
+            "cycleId": 1,
+            "startedAt": 176.0999999642372,
+            "trigger": {
+              "kind": "unknown",
+              "listenerName": null
+            },
+            "zoneMode": "noop",
+            "events": 16,
+            "checks": [
+              "app-root",
+              "app-lazy-page"
+            ],
+            "routerEventTypes": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "stability": {
+              "reachedBy": "ApplicationRef",
+              "absence": null,
+              "attachAt": 145.5,
+              "reading": {
+                "value": false,
+                "at": 145.5
+              },
+              "settle": {
+                "state": "no-settle-observed"
+              },
+              "version": "22.2.2",
+              "coreVersion": null
+            }
+          },
+          {
+            "dispatchedAt": 648.1999999880791,
+            "path": "/lazy",
+            "cycleId": 2,
+            "startedAt": 648.0999999642372,
+            "trigger": {
+              "kind": "unknown",
+              "listenerName": null
+            },
+            "zoneMode": "noop",
+            "events": 0,
+            "checks": [
+              "_App"
+            ],
+            "routerEventTypes": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "stability": {
+              "reachedBy": "ApplicationRef",
+              "absence": null,
+              "attachAt": 145.5,
+              "reading": {
+                "value": true,
+                "at": 177.79999995231628
+              },
+              "settle": {
+                "state": "settled",
+                "at": 177.79999995231628
+              },
+              "version": "22.2.2",
+              "coreVersion": null
+            }
+          }
+        ],
+        "observer": {
+          "subscribedAt": 132.5999999642372,
+          "values": [
+            {
+              "value": false,
+              "at": 132.5999999642372,
+              "path": "/lazy"
+            },
+            {
+              "value": true,
+              "at": 177.79999995231628,
+              "path": "/lazy"
+            }
+          ]
+        }
+      },
+      {
+        "run": "third run of the same probe",
+        "route": "/lazy",
+        "url": "http://localhost:4222/lazy",
+        "records": [
+          {
+            "dispatchedAt": 161.5,
+            "path": "/lazy",
+            "cycleId": 1,
+            "startedAt": 160.19999998807907,
+            "trigger": {
+              "kind": "unknown",
+              "listenerName": null
+            },
+            "zoneMode": "noop",
+            "events": 16,
+            "checks": [
+              "app-root",
+              "app-lazy-page"
+            ],
+            "routerEventTypes": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "stability": {
+              "reachedBy": "ApplicationRef",
+              "absence": null,
+              "attachAt": 152.89999997615814,
+              "reading": {
+                "value": false,
+                "at": 152.89999997615814
+              },
+              "settle": {
+                "state": "no-settle-observed"
+              },
+              "version": "22.2.2",
+              "coreVersion": null
+            }
+          },
+          {
+            "dispatchedAt": 656.0999999642372,
+            "path": "/lazy",
+            "cycleId": 2,
+            "startedAt": 656.0999999642372,
+            "trigger": {
+              "kind": "unknown",
+              "listenerName": null
+            },
+            "zoneMode": "noop",
+            "events": 0,
+            "checks": [
+              "_App"
+            ],
+            "routerEventTypes": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "stability": {
+              "reachedBy": "ApplicationRef",
+              "absence": null,
+              "attachAt": 152.89999997615814,
+              "reading": {
+                "value": true,
+                "at": 161.80000001192093
+              },
+              "settle": {
+                "state": "settled",
+                "at": 161.80000001192093
+              },
+              "version": "22.2.2",
+              "coreVersion": null
+            }
+          }
+        ],
+        "observer": {
+          "subscribedAt": 153.0999999642372,
+          "values": [
+            {
+              "value": false,
+              "at": 153.0999999642372,
+              "path": "/lazy"
+            },
+            {
+              "value": true,
+              "at": 161.80000001192093,
+              "path": "/lazy"
+            }
+          ]
+        }
+      },
+      {
+        "run": "a route survey that loaded /lazy directly",
+        "route": "/lazy",
+        "url": "http://localhost:4222/lazy",
+        "records": [
+          {
+            "dispatchedAt": 48.80000001192093,
+            "stability": {
+              "reachedBy": "ApplicationRef",
+              "absence": null,
+              "attachAt": 39.69999998807907,
+              "reading": {
+                "value": false,
+                "at": 39.69999998807907
+              },
+              "settle": {
+                "state": "no-settle-observed"
+              },
+              "version": "22.2.2",
+              "coreVersion": null
+            }
+          },
+          {
+            "dispatchedAt": 553.5,
+            "stability": {
+              "reachedBy": "ApplicationRef",
+              "absence": null,
+              "attachAt": 39.69999998807907,
+              "reading": {
+                "value": true,
+                "at": 49
+              },
+              "settle": {
+                "state": "settled",
+                "at": 49
+              },
+              "version": "22.2.2",
+              "coreVersion": null
+            }
+          }
+        ],
+        "observer": {
+          "subscribedAt": 39.80000001192093,
+          "values": [
+            {
+              "value": false,
+              "at": 39.80000001192093,
+              "path": "/lazy",
+              "href": "http://localhost:4222/lazy"
+            },
+            {
+              "value": true,
+              "at": 49,
+              "path": "/lazy",
+              "href": "http://localhost:4222/lazy"
+            }
+          ]
+        }
+      }
+    ],
+    "controls": {
+      "stableAtAttach": {
+        "route": "/landing",
+        "loadedAt": "/",
+        "note": "a control, not the drive: the page was stable at attach, and a router navigation to /landing ran after it. Its settle stayed at the attach reading across that navigation, while the same stream emitted false at 1093.4 ms and true again at 1099.5 ms - the reason the drive could not be a navigation on an already-settled page.",
+        "navigation": {
+          "at": 1093,
+          "ok": true,
+          "url": "http://localhost:4222/landing"
+        },
+        "records": [
+          {
+            "dispatchedAt": 771.6999999880791,
+            "path": "/",
+            "cycleId": 1,
+            "trigger": {
+              "kind": "unknown",
+              "listenerName": null
+            },
+            "stability": {
+              "reachedBy": "ApplicationRef",
+              "absence": null,
+              "attachAt": 265.89999997615814,
+              "reading": {
+                "value": true,
+                "at": 265.89999997615814
+              },
+              "settle": {
+                "state": "settled",
+                "at": 265.89999997615814
+              },
+              "version": "22.2.2",
+              "coreVersion": null
+            }
+          },
+          {
+            "dispatchedAt": 1099.300000011921,
+            "path": "/landing",
+            "cycleId": 2,
+            "trigger": {
+              "kind": "unknown",
+              "listenerName": null
+            },
+            "stability": {
+              "reachedBy": "ApplicationRef",
+              "absence": null,
+              "attachAt": 265.89999997615814,
+              "reading": {
+                "value": false,
+                "at": 1093.3999999761581
+              },
+              "settle": {
+                "state": "settled",
+                "at": 265.89999997615814
+              },
+              "version": "22.2.2",
+              "coreVersion": null
+            }
+          }
+        ],
+        "observer": {
+          "subscribedAt": 206.39999997615814,
+          "values": [
+            {
+              "value": true,
+              "at": 206.39999997615814,
+              "path": "/"
+            },
+            {
+              "value": false,
+              "at": 1093.3999999761581,
+              "path": "/"
+            },
+            {
+              "value": true,
+              "at": 1099.5,
+              "path": "/landing"
+            }
+          ]
+        }
+      },
+      "routeSurvey": [
+        {
+          "route": "/",
+          "finalPath": "/",
+          "settledInPage": true,
+          "records": [
+            {
+              "dispatchedAt": 613.3000000119209,
+              "stability": {
+                "reachedBy": "ApplicationRef",
+                "absence": null,
+                "attachAt": 98.10000002384186,
+                "reading": {
+                  "value": true,
+                  "at": 98.10000002384186
+                },
+                "settle": {
+                  "state": "settled",
+                  "at": 98.10000002384186
+                },
+                "version": "22.2.2",
+                "coreVersion": null
+              }
+            }
+          ],
+          "observer": {
+            "values": [
+              {
+                "value": true,
+                "at": 98.30000001192093,
+                "path": "/",
+                "href": "http://localhost:4222/"
+              }
+            ]
+          }
+        },
+        {
+          "route": "/lazy",
+          "finalPath": "/lazy",
+          "settledInPage": true,
+          "records": [
+            {
+              "dispatchedAt": 48.80000001192093,
+              "stability": {
+                "reachedBy": "ApplicationRef",
+                "absence": null,
+                "attachAt": 39.69999998807907,
+                "reading": {
+                  "value": false,
+                  "at": 39.69999998807907
+                },
+                "settle": {
+                  "state": "no-settle-observed"
+                },
+                "version": "22.2.2",
+                "coreVersion": null
+              }
+            },
+            {
+              "dispatchedAt": 553.5,
+              "stability": {
+                "reachedBy": "ApplicationRef",
+                "absence": null,
+                "attachAt": 39.69999998807907,
+                "reading": {
+                  "value": true,
+                  "at": 49
+                },
+                "settle": {
+                  "state": "settled",
+                  "at": 49
+                },
+                "version": "22.2.2",
+                "coreVersion": null
+              }
+            }
+          ],
+          "observer": {
+            "values": [
+              {
+                "value": false,
+                "at": 39.80000001192093,
+                "path": "/lazy",
+                "href": "http://localhost:4222/lazy"
+              },
+              {
+                "value": true,
+                "at": 49,
+                "path": "/lazy",
+                "href": "http://localhost:4222/lazy"
+              }
+            ]
+          }
+        },
+        {
+          "route": "/redirect",
+          "finalPath": "/landing",
+          "settledInPage": true,
+          "records": [
+            {
+              "dispatchedAt": 540.8000000119209,
+              "stability": {
+                "reachedBy": "ApplicationRef",
+                "absence": null,
+                "attachAt": 33.5,
+                "reading": {
+                  "value": true,
+                  "at": 33.5
+                },
+                "settle": {
+                  "state": "settled",
+                  "at": 33.5
+                },
+                "version": "22.2.2",
+                "coreVersion": null
+              }
+            }
+          ],
+          "observer": {
+            "values": [
+              {
+                "value": true,
+                "at": 33.60000002384186,
+                "path": "/landing",
+                "href": "http://localhost:4222/landing"
+              }
+            ]
+          }
+        },
+        {
+          "route": "/gated",
+          "finalPath": "/gated",
+          "settledInPage": true,
+          "records": [
+            {
+              "dispatchedAt": 538.5,
+              "stability": {
+                "reachedBy": "ApplicationRef",
+                "absence": null,
+                "attachAt": 36.89999997615814,
+                "reading": {
+                  "value": true,
+                  "at": 36.89999997615814
+                },
+                "settle": {
+                  "state": "settled",
+                  "at": 36.89999997615814
+                },
+                "version": "22.2.2",
+                "coreVersion": null
+              }
+            }
+          ],
+          "observer": {
+            "values": [
+              {
+                "value": true,
+                "at": 36.89999997615814,
+                "path": "/gated",
+                "href": "http://localhost:4222/gated"
+              }
+            ]
+          }
+        },
+        {
+          "route": "/resource-states",
+          "finalPath": "/resource-states",
+          "settledInPage": false,
+          "records": [
+            {
+              "dispatchedAt": 46.80000001192093,
+              "stability": {
+                "reachedBy": "ApplicationRef",
+                "absence": null,
+                "attachAt": 45.59999996423721,
+                "reading": {
+                  "value": false,
+                  "at": 45.59999996423721
+                },
+                "settle": {
+                  "state": "no-settle-observed"
+                },
+                "version": "22.2.2",
+                "coreVersion": null
+              }
+            },
+            {
+              "dispatchedAt": 556.3000000119209,
+              "stability": {
+                "reachedBy": "ApplicationRef",
+                "absence": null,
+                "attachAt": 45.59999996423721,
+                "reading": {
+                  "value": false,
+                  "at": 45.59999996423721
+                },
+                "settle": {
+                  "state": "no-settle-observed"
+                },
+                "version": "22.2.2",
+                "coreVersion": null
+              }
+            }
+          ],
+          "observer": {
+            "values": [
+              {
+                "value": false,
+                "at": 41.30000001192093,
+                "path": "/resource-states",
+                "href": "http://localhost:4222/resource-states"
+              }
+            ]
+          }
+        },
+        {
+          "route": "/after-render",
+          "finalPath": "/after-render",
+          "settledInPage": true,
+          "records": [
+            {
+              "dispatchedAt": 631.1999999880791,
+              "stability": {
+                "reachedBy": "ApplicationRef",
+                "absence": null,
+                "attachAt": 121.80000001192093,
+                "reading": {
+                  "value": true,
+                  "at": 121.80000001192093
+                },
+                "settle": {
+                  "state": "settled",
+                  "at": 121.80000001192093
+                },
+                "version": "22.2.2",
+                "coreVersion": null
+              }
+            }
+          ],
+          "observer": {
+            "values": [
+              {
+                "value": true,
+                "at": 122,
+                "path": "/after-render",
+                "href": "http://localhost:4222/after-render"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "derived": {
+    "answer": "transition-observed",
+    "producedOnAnInspectedPage": true,
+    "attach": {
+      "attachAt": 112.69999998807907,
+      "reading": {
+        "value": false,
+        "at": 112.69999998807907
+      },
+      "settle": {
+        "state": "no-settle-observed"
+      }
+    },
+    "settle": {
+      "state": "settled",
+      "at": 129.79999995231628,
+      "reading": {
+        "value": true,
+        "at": 129.79999995231628
+      },
+      "sinceAttachMs": 17.099999964237213
+    },
+    "sequence": [
+      {
+        "value": false,
+        "at": 112.69999998807907
+      },
+      {
+        "value": true,
+        "at": 129.79999995231628
+      }
+    ],
+    "transition": {
+      "afterAttach": true,
+      "from": false,
+      "to": true,
+      "at": 129.79999995231628
+    },
+    "quietTail": {
+      "lastRecordAt": 626,
+      "sinceAttachMs": 513.3000000119209
+    }
+  },
+  "citations": [
+    {
+      "fact": "the read attaches by stamping the page's own performance.now() and subscribing once",
+      "source": "extension/agent-main.js:2393",
+      "holds": "stabilityAttachAt = nowMs();"
+    },
+    {
+      "fact": "the one subscription the read takes on the page's isStable",
+      "source": "extension/agent-main.js:2398",
+      "holds": "stream.subscribe(onStabilityEmission)"
+    },
+    {
+      "fact": "the first emission is read at attachAt, so a false at attach settles nothing and a true after it settles after it",
+      "source": "extension/agent-main.js:2339",
+      "holds": "var at = first && stabilityAttachAt !== null ? stabilityAttachAt : nowMs();"
+    },
+    {
+      "fact": "the section both records publish, in the interface contract's field order",
+      "source": "extension/agent-main.js:2443",
+      "holds": "function stabilityField() {"
+    },
+    {
+      "fact": "the frame record carries the section",
+      "source": "extension/agent-main.js:1052",
+      "holds": "stability: stabilityField(),"
+    },
+    {
+      "fact": "the snapshot record carries the section",
+      "source": "extension/agent-main.js:1442",
+      "holds": "stability: stabilityField(),"
+    },
+    {
+      "fact": "the snapshot is dispatched 500 ms after install",
+      "source": "extension/agent-main.js:566",
+      "holds": "dispatchInitialRecord, 500"
+    },
+    {
+      "fact": "the install path arms the stability read beside the profiler and the router",
+      "source": "extension/agent-main.js:1865",
+      "holds": "installStability();"
+    },
+    {
+      "fact": "the router arrivals the record publishes, including RouteConfigLoadEnd and NavigationEnd",
+      "source": "extension/agent-main.js:1635",
+      "holds": "function recordRouterEvent(event) {"
+    },
+    {
+      "fact": "the interval the join reports is settle.at minus attachAt",
+      "source": "extension/stability-narrator.js:205",
+      "holds": "sinceAttachMs: attachAt === null ? null : settle.at - attachAt,"
+    },
+    {
+      "fact": "the route the drive loaded is the fixture's lazy route",
+      "source": "spikes/ng222-app/src/app/app.routes.ts:35",
+      "holds": "path: 'lazy'"
+    },
+    {
+      "fact": "the page agent that produced the section runs in the page's MAIN world",
+      "source": "extension/manifest.json:34",
+      "holds": "agent-main.js"
+    }
+  ],
+  "limits": [
+    "The sequence is the read's own published readings, not a subscription log: each record carries the last emission the read held when that record was dispatched, so an emission that arrived and was replaced between two records would not appear here. The drive's second subscription (capture.observer) watches the same stream from outside the read and is recorded beside the sequence, never in place of it: it emitted false at 100.6 ms and true at 129.8 ms, the same two values the two records published.",
+    "The drive is a page load of the lazy route, not a click: the router's own initial navigation to /lazy holds a pending task (its loadChildren import) while the read attaches at document_idle, and releases it at NavigationEnd. The route, the arrival list and the task's release are the page's own evidence; isStable carries no task id, so no cause is recorded.",
+    "A client-side navigation after a settle cannot produce this reading: capture.controls.stableAtAttach measured it. That page was stable at attach, and the section's settle stayed at the attach reading across a router navigation whose false and true the same stream emitted later. The settle field records the first true at or after attach and never moves again, which is why the drive had to attach while the page was still unstable.",
+    "One page, one browser, one fixture at this head. The three reproductions are the same drive repeated, not three pages, and each produced its own transition.",
+    "Nothing under extension/, apps/ or spikes/ng222-app/ changed for this recording: the drive used the shipped agent, the shipped extension and the fixture as this head carries them."
+  ]
+}
