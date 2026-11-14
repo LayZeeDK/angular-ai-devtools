@@ -19,7 +19,7 @@ files:
 
 ## Context
 
-Wave one publishes which references exist and what class each belongs to; this task turns that into the two checks. Both decide from state rather than from an assumption: the archive-path check derives the live paths a milestone's archive move deletes from `.project/STATE.md` and the archive directory, and the fix-record check compares each task log's claimed paths against the range's own `--name-status`, where a rename contributes both names. The failure mode this milestone exists to remove is a check that passes over nothing, so an empty scan must return a finding rather than a pass.
+Wave one publishes which references exist and what class each belongs to; this task turns that into the two checks. Both decide from state rather than from an assumption: the archive-path check derives the live paths a milestone's archive move deletes from `.project/STATE.md` and the archive directory, and the fix-record check compares each task log's claimed paths against the range's own `--name-status`, where a rename contributes both names. The failure mode this milestone exists to remove is a check that passes over nothing, so an empty scan must return a finding rather than a pass. A reference that **names** a live path is not a reference that **reads** it, and T001 measured both in the shipped suites: `scripts/performance-capture.test.mjs:1978` computes `join(ROOT, '.project', 'intent', 'INTENT.md')` only to assert `intentPathForMilestone(ROOT, 'M040') !== live`, while `scripts/navigation-capture.test.mjs:1763` calls `copyFileSync(LIVE_INTENT, live)`. The first survives the archive move; the second throws the moment the path is gone. A check that flagged both would redden every milestone after its own archive and be switched off, so the rule decides on the *use* of the path, not on its presence in the file.
 
 ## Approach
 
@@ -49,7 +49,7 @@ The gate surfaces `checkArchivePaths({ root, milestone })` and `checkFixRecord({
 
 ## Acceptance criteria
 
-1. held-out E1 and E2 — AC1 the archive-path check names the file, the line and the path for a suite resolving a live path the move deletes, and reports a suite reading an archived path as clean — both halves in one suite.
+1. held-out E1 and E2 — AC1 the archive-path check names the file, the line and the path for a suite that *reads* a live path the move deletes (a read is a call that opens, copies, stats or tests existence on the resolved path), reports a suite that only *names* the path as clean with the use it saw recorded, and reports a suite reading an archived path as clean — all three halves in one suite, driven by the wave-one record's own rows.
 2. held-out E4 and E5 — AC2 the fix-record check names the task id and the file for a claim absent from the range, and does not report a claim matching the new name of a rename; the M035 `nx.json` instance is the fixture.
 3. held-out E3 and E11 — AC3 both checks report `examined: 0` as a finding rather than a pass, proven by pointing each at an empty input and observing the refusal.
 4. held-out E9 — AC4 each check carries a mutant that reddens it, with the failure string quoted in the Log.
