@@ -4,9 +4,9 @@ title: Record the checks' behaviour, rule the claims, and run the project verify
 wave: 4
 deps:
   - T003
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T004
+base: 17c8e3bd7b77415f332a24b3c15b90f275ad37af
 worktree: null
 task_branch: null
 files:

@@ -10,7 +10,7 @@
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
     "filesExamined": 271,
     "suitesExamined": 141,
-    "examined": 153,
+    "examined": 158,
     "movedSubtrees": [
       "build",
       "intent",
@@ -27,14 +27,14 @@
     "counts": {
       "archived-by-the-move": 16,
       "deliberate-archive-read": 20,
-      "undecided": 117
+      "undecided": 122
     },
     "sites": {
       "path": 8,
-      "comment": 61,
-      "segment": 41,
+      "comment": 64,
+      "segment": 42,
       "citation": 8,
-      "message": 30,
+      "message": 31,
       "pattern": 5
     },
     "references": [
@@ -574,7 +574,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1510,
+        "line": 1515,
         "path": ".project/archive",
         "site": "path",
         "class": "deliberate-archive-read",
@@ -582,7 +582,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1934,
+        "line": 1939,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -590,7 +590,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1941,
+        "line": 1946,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -598,7 +598,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1945,
+        "line": 1950,
         "path": ".project/archive",
         "site": "message",
         "class": "deliberate-archive-read",
@@ -606,7 +606,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1949,
+        "line": 1954,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -614,7 +614,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1951,
+        "line": 1956,
         "path": ".project",
         "site": "segment",
         "class": "undecided",
@@ -624,7 +624,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1956,
+        "line": 1961,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -632,7 +632,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1975,
+        "line": 1980,
         "path": ".project/archive",
         "site": "path",
         "class": "deliberate-archive-read",
@@ -945,6 +945,48 @@
       {
         "file": "scripts/held-out-nested-run.test.mjs",
         "line": 158,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/navigation-blocking.test.mjs",
+        "line": 2416,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/navigation-blocking.test.mjs",
+        "line": 2444,
+        "path": ".project/STATE.md",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "resolves to .project/STATE.md, and .project/STATE.md is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies",
+        "root": "CLAIM_ROOT",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/navigation-blocking.test.mjs",
+        "line": 2548,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/navigation-blocking.test.mjs",
+        "line": 2660,
+        "path": ".project",
+        "site": "message",
+        "class": "undecided",
+        "reason": "resolves to .project, and .project/ is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
+      },
+      {
+        "file": "scripts/navigation-blocking.test.mjs",
+        "line": 2777,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1633,6 +1675,252 @@
     },
     "reading": "every NavigationSkipped entry the recording carries is recorded with its id, its url and whether that id carries a start entry, in the whole recording and in the entry own frame; the two readings differ because each frame is one probe run, and the difference is recorded rather than averaged away"
   },
+  "drivenChecks": {
+    "command": "node scripts/gate-integrity.mjs --check <archive|fix-record> --root <fixture>|. --range <the record's rename range> --tasks <fixture> --claims log, run in process through main(argv) with stdout captured; every fixture path is recorded as <fixture>",
+    "examined": 4,
+    "fixtures": {
+      "archive": {
+        "suite": "scripts/docs-audit-disposition.test.mjs",
+        "path": ".project/research/DOCS-AUDIT.md",
+        "instance": "the suite with T003's repair reverted to the hardcoded live read T002 measured, so it opens a path the archive move deletes",
+        "control": "the same suite as this checkout carries it, resolving the path at read time so it opens whichever copy exists",
+        "tree": "a temp directory holding <fixture> with the live audit and its archive copy, and scripts/docs-audit-disposition.test.mjs written into it"
+      },
+      "fixRecord": {
+        "range": "d94502d1^..d94502d1",
+        "instance": "a task log claiming nx.json, which d94502d1^..d94502d1 carries no path for",
+        "control": "a task log claiming .project/archive/043-stability-explainer/intent/INTENT.md, the new name of the rename d94502d1^..d94502d1 carries as R100",
+        "tree": "two temp directories under <fixture>, one task file each, so the pair differs by the one name the log claims"
+      }
+    },
+    "runs": [
+      {
+        "check": "archive-paths",
+        "shape": "control",
+        "argv": [
+          "--check",
+          "archive",
+          "--root",
+          "<fixture>",
+          "--milestone",
+          "M044"
+        ],
+        "exitStatus": 0,
+        "refusals": 0,
+        "printed": [
+          "gate-integrity: <fixture> milestone M044; stages archive-paths",
+          "gate-integrity: archive-paths clean - examined 1 live path reference(s) of 8 reference(s) in 1 suite(s), across 1 relocated subtree(s)",
+          "gate-integrity: pass - 0 finding(s)"
+        ]
+      },
+      {
+        "check": "archive-paths",
+        "shape": "instance",
+        "argv": [
+          "--check",
+          "archive",
+          "--root",
+          "<fixture>",
+          "--milestone",
+          "M044"
+        ],
+        "exitStatus": 1,
+        "refusals": 1,
+        "printed": [
+          "gate-integrity: <fixture> milestone M044; stages archive-paths",
+          "gate-integrity: archive-paths refused - examined 1 live path reference(s) of 8 reference(s) in 1 suite(s), across 1 relocated subtree(s)",
+          "gate-integrity: refusal scripts/docs-audit-disposition.test.mjs:57 names .project/research/DOCS-AUDIT.md (archived-by-the-move) - resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives, and this suite reads it with readFileSync at line 58, so that call throws the moment the path is gone",
+          "gate-integrity: refuse - 1 finding(s)"
+        ]
+      },
+      {
+        "check": "fix-record",
+        "shape": "control",
+        "argv": [
+          "--check",
+          "fix-record",
+          "--root",
+          "<root>",
+          "--range",
+          "d94502d1^..d94502d1",
+          "--tasks",
+          "<fixture>\\control",
+          "--claims",
+          "log"
+        ],
+        "exitStatus": 0,
+        "refusals": 0,
+        "printed": [
+          "gate-integrity: <root> milestone M044; stages fix-record",
+          "gate-integrity: fix-record clean - examined 1 claim(s) in 1 task log(s) against 25 changed path(s) of d94502d1^..d94502d1 (the range given; claims: log)",
+          "gate-integrity: pass - 0 finding(s), 0 mention(s)"
+        ]
+      },
+      {
+        "check": "fix-record",
+        "shape": "instance",
+        "argv": [
+          "--check",
+          "fix-record",
+          "--root",
+          "<root>",
+          "--range",
+          "d94502d1^..d94502d1",
+          "--tasks",
+          "<fixture>\\instance",
+          "--claims",
+          "log"
+        ],
+        "exitStatus": 1,
+        "refusals": 1,
+        "printed": [
+          "gate-integrity: <root> milestone M044; stages fix-record",
+          "gate-integrity: fix-record refused - examined 1 claim(s) in 1 task log(s) against 25 changed path(s) of d94502d1^..d94502d1 (the range given; claims: log)",
+          "gate-integrity: refusal nx.json at T901 (claim-absent-from-the-range) - T901 claims nx.json at <fixture>/instance/T901.md:6, and git diff --name-status -M d94502d1^..d94502d1 carries no such path (25 changed path(s), 9 rename row(s))",
+          "gate-integrity: refuse - 1 finding(s), 0 mention(s)"
+        ]
+      }
+    ],
+    "reading": "each check prints a clean line naming what it examined and a refusal line naming the file, the path or the task it reddened on; the instance run of each check exits 1 with a refusal and its control exits 0 with a named non-zero examined count, so the pair records the behaviour rather than the intent"
+  },
+  "suiteDiff": {
+    "command": "git diff --numstat d94502d1 over scripts extension apps src .claude/skills .commandcode/skills, and git diff d94502d1 -- <suite> for each suite that differs; git ls-tree -r --name-only d94502d1 says which the measured head carries",
+    "baseline": {
+      "named": "d94502d1",
+      "commit": "d94502d174aff31b0b1ebbab200d5e47939dec39"
+    },
+    "examined": 199,
+    "filesListed": 549,
+    "differing": [
+      {
+        "file": "scripts/autonomy-gaps.test.mjs",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 36,
+        "removedLines": 1,
+        "addedAssertionLines": 1,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "the live audit path is resolved at read time instead of opened by name, so the suite reads whichever copy the checkout carries; no assertion line was removed"
+      },
+      {
+        "file": "scripts/docs-audit-disposition.test.mjs",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 43,
+        "removedLines": 4,
+        "addedAssertionLines": 1,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "the live audit path is resolved at read time instead of bound once at load, so the suite reads whichever copy the checkout carries; no assertion line was removed"
+      },
+      {
+        "file": "scripts/gate-integrity.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 4247,
+        "removedLines": 0,
+        "addedAssertionLines": 211,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "added at this head: T001 measured the three shapes, T002 the two checks, T003 the wiring and T004 these recordings, so the measured commit carries no such file to edit"
+      },
+      {
+        "file": "scripts/navigation-blocking.test.mjs",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 911,
+        "removedLines": 4,
+        "addedAssertionLines": 51,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "the navigation pin named in SC6: the answer key set gained `skipped`, the E3 message counts five fields, and the E7/E8 pins for an ended id were added — the one edited assertion SC6 permits"
+      },
+      {
+        "file": "scripts/navigation-capture.test.mjs",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 23,
+        "removedLines": 7,
+        "addedAssertionLines": 2,
+        "removedAssertionLines": 1,
+        "recutAssertionLines": 1,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [
+          "assert.notEqual(intentPathForMilestone(ROOT, 'M040')"
+        ],
+        "reason": "the live intent path is asked of `verdict-claims-intent.mjs` rather than spelled, so the suite decides nothing about the archive move itself; one assertion line was re-cut to the resolver’s answer with its call and its subject unchanged, and none was dropped"
+      },
+      {
+        "file": "scripts/panel-typecheck-scope.test.mjs",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 68,
+        "removedLines": 27,
+        "addedAssertionLines": 3,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "the check-chain pin was re-cut from six stages to twelve when T003 wired the two gate stages in, with the red half widened to a dropped, swapped or extra stage of each; strengthened rather than weakened"
+      },
+      {
+        "file": "scripts/retired-suites.test.mjs",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 14,
+        "removedLines": 8,
+        "addedAssertionLines": 0,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "the live record path became a candidate the resolver tests before opening, so nothing opens the name the archive move deletes; no assertion line was removed"
+      }
+    ],
+    "counts": {
+      "differing": 7,
+      "edited": 6,
+      "added": 1,
+      "removedAssertionLines": 1,
+      "recutAssertionLines": 1,
+      "droppedAssertionLines": 0,
+      "addedAssertionLines": 269
+    },
+    "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
+  },
+  "wholeTree": {
+    "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps src .claude/skills .commandcode/skills",
+    "examined": 199,
+    "filesListed": 549,
+    "suites": {
+      "scripts": 96,
+      "extension": 11,
+      "apps": 34,
+      "src": 2,
+      "skills": 56,
+      "total": 199
+    },
+    "declarations": {
+      "tests": 2375,
+      "describes": 284,
+      "total": 2659
+    },
+    "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
+    "run": {
+      "command": "npm run check && npm test",
+      "reading": "the run is the project verify itself, so its own totals are pasted in T004s report rather than recorded here: a measurement taken inside the run cannot report the run"
+    },
+    "reading": "the suite count and the declaration count are read from the files the project verify would run, so a removed test moves the number downward and a green run on a smaller tree is visible as a smaller tree"
+  },
   "capture": {
     "task": "T001",
     "command": "set \"M044_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/gate-integrity.test.mjs\"",
@@ -1655,6 +1943,11 @@
       "archiveReferences.sites",
       "archiveReferences.suiteSelection",
       "archiveReferences.suitesExamined",
+      "drivenChecks.command",
+      "drivenChecks.examined",
+      "drivenChecks.fixtures",
+      "drivenChecks.reading",
+      "drivenChecks.runs",
       "fixRecord.claim",
       "fixRecord.claims",
       "fixRecord.claimsExamined",
@@ -1675,9 +1968,24 @@
       "skippedNavigations.framesExamined",
       "skippedNavigations.reading",
       "skippedNavigations.skippedType",
-      "skippedNavigations.startType"
+      "skippedNavigations.startType",
+      "suiteDiff.baseline",
+      "suiteDiff.command",
+      "suiteDiff.counts",
+      "suiteDiff.differing",
+      "suiteDiff.examined",
+      "suiteDiff.filesListed",
+      "suiteDiff.reading",
+      "wholeTree.command",
+      "wholeTree.declarations",
+      "wholeTree.examined",
+      "wholeTree.filesListed",
+      "wholeTree.reading",
+      "wholeTree.rule",
+      "wholeTree.run",
+      "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-14T18:24:01.627Z"
+    "at": "2026-11-14T20:55:30.858Z"
   }
 }

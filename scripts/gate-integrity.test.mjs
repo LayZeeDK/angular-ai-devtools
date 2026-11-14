@@ -61,7 +61,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { test } from 'node:test';
+import { before, test } from 'node:test';
 
 const SELF_PATH = fileURLToPath(import.meta.url);
 const HERE = dirname(SELF_PATH);
@@ -1267,6 +1267,11 @@ function derivedSections() {
       archiveReferences: deriveArchiveReferences(),
       fixRecord: deriveFixRecord(),
       skippedNavigations: deriveSkippedNavigations(),
+      // T004's three sections: the two checks driven on their instances and their controls, the suite
+      // diff against the head the intent measured at, and the tree the project verify runs.
+      drivenChecks: derivedDrivenChecks(),
+      suiteDiff: deriveSuiteDiff(),
+      wholeTree: deriveWholeTree(),
     };
   }
   return MEASURED;
@@ -3296,3 +3301,947 @@ function canonicalJson(value) {
       : inner,
   );
 }
+
+// ============ T004: the recording of the checks' behaviour, the suite diff and the tree counts ============
+//
+// AC1 asks for a recording of behaviour rather than of intent: each of T002's two checks is pointed at
+// the tree or the claim list that exposed the defect it was written for, and then at a control that
+// differs from it by the one change that reproduces that defect, and both readings are kept — the
+// bytes the gate printed and the status it exited with. AC4's suite diff and AC3's counts are recorded
+// beside them, in the same file and through the same armed path, so a default run holds all three to
+// what this head derives.
+//
+//   drivenChecks  `node scripts/gate-integrity.mjs --check archive|fix-record`, run in process through
+//                 `main` with stdout captured, so the recorded bytes are the bytes the command prints.
+//                 The archive-path instance is `scripts/docs-audit-disposition.test.mjs` with T003's
+//                 repair reverted to the hardcoded live read T002 measured; its control is the same
+//                 suite as this checkout carries it. The fix-record instance is a task log claiming the
+//                 path M035's own log claims and M035's range does not carry; its control claims the new
+//                 name of the rename that range does carry. Both fixtures are written into the operating
+//                 system's temp directory and removed again, and every temp path is recorded as
+//                 `<fixture>`, so the recording names the tree it was driven on rather than where this
+//                 machine put it. The fixture write is the one reason this section is measured in a root
+//                 `before` hook instead of inline: `writeFile` is asynchronous, and every reader of
+//                 `derivedSections()` is not.
+//
+//   suiteDiff     `git diff --numstat` against the head the intent measured at (SC6, AC4): every suite
+//                 the tree carries, whether it differs from that head, how many lines moved, and how
+//                 many of the moved lines were an assertion. A suite that differs and carries no
+//                 recorded reason fails the derivation, so the list cannot grow behind the record's back.
+//
+//   wholeTree     the count of suites and test declarations the project's own verify runs (AC3): the
+//                 number a removed test moves downward.
+//
+// None of the three reads a page, binds a port or spawns anything but the one read-only `git` helper
+// this file already had; the fixture trees are temp directories, and the gate is the library T002 and
+// T003 shipped rather than a second process.
+
+/** The word the record uses where a fixture's own temp path would otherwise be written. */
+const FIXTURE = '<fixture>';
+
+/** The word the record uses where this checkout's own absolute path would otherwise be written. */
+const ROOT_WORD = '<root>';
+
+/** The prefix every fixture directory this section writes is named with. */
+const FIXTURE_PREFIX = 'm044-driven-';
+
+/** A suite, by the file-name shape the archive-path check and this milestone's own record both use. */
+const SUITE_FILE = /\.(test|spec)\.(mjs|cjs|js|mts|ts)$/;
+
+/** What a line that asserts something carries, counted rather than judged. */
+const ASSERTION = /\bassert\.|\bassert\(|\bexpect\(/;
+
+/** The roots this milestone's suites are enumerated under: the three the check scans and the two skill trees. */
+const TREE_ROOTS = [
+  'scripts',
+  'extension',
+  'apps',
+  'src',
+  '.claude/skills',
+  '.commandcode/skills',
+];
+
+/**
+ * Why each suite that differs from the head the intent measured at differs, read from the diff
+ * `deriveSuiteDiff` records. A suite that differs and is not named here is a failed derivation, not an
+ * unexamined row: the list is a reading of the diffs, so a diff nobody read cannot appear in it.
+ */
+const SUITE_DIFF_REASONS = {
+  'scripts/autonomy-gaps.test.mjs':
+    'the live audit path is resolved at read time instead of opened by name, so the suite reads whichever copy the checkout carries; no assertion line was removed',
+  'scripts/docs-audit-disposition.test.mjs':
+    'the live audit path is resolved at read time instead of bound once at load, so the suite reads whichever copy the checkout carries; no assertion line was removed',
+  'scripts/navigation-blocking.test.mjs':
+    'the navigation pin named in SC6: the answer key set gained `skipped`, the E3 message counts five fields, and the E7/E8 pins for an ended id were added — the one edited assertion SC6 permits',
+  'scripts/navigation-capture.test.mjs':
+    'the live intent path is asked of `verdict-claims-intent.mjs` rather than spelled, so the suite decides nothing about the archive move itself; one assertion line was re-cut to the resolver’s answer with its call and its subject unchanged, and none was dropped',
+  'scripts/panel-typecheck-scope.test.mjs':
+    'the check-chain pin was re-cut from six stages to twelve when T003 wired the two gate stages in, with the red half widened to a dropped, swapped or extra stage of each; strengthened rather than weakened',
+  'scripts/retired-suites.test.mjs':
+    'the live record path became a candidate the resolver tests before opening, so nothing opens the name the archive move deletes; no assertion line was removed',
+  'scripts/gate-integrity.test.mjs':
+    'added at this head: T001 measured the three shapes, T002 the two checks, T003 the wiring and T004 these recordings, so the measured commit carries no such file to edit',
+};
+
+/** The driven-check recording, measured once in the root `before` hook below. */
+let DRIVEN = /** @type {any} */ (null);
+
+/**
+ * The driven-check recording, or a failure. A default run reads it rather than deriving it twice, and a
+ * run that reached this before the hook ran refuses instead of recording an empty measurement.
+ *
+ * @returns {Record<string, any>}
+ */
+function derivedDrivenChecks() {
+  if (DRIVEN === null) {
+    fail(
+      'the driven-check measurement has not been taken: it runs in the root before hook, so a caller that reached it earlier would record nothing',
+    );
+  }
+  return DRIVEN;
+}
+
+/**
+ * The lines one run's stdout carried, without the trailing newline's empty entry.
+ *
+ * @param {string} text
+ * @returns {string[]}
+ */
+function linesOf(text) {
+  const lines = text.split('\n');
+  if (lines[lines.length - 1] === '') lines.pop();
+  return lines;
+}
+
+/**
+ * Every spelling of one absolute path a printed line could carry, so a temp directory's own name never
+ * reaches the recording.
+ *
+ * @param {string} root
+ * @returns {string[]}
+ */
+function pathForms(root) {
+  const shown = displayPath(root);
+  const forms = [
+    root,
+    root.split(sep).join('/'),
+    shown,
+    shown.split('/').join('\\'),
+  ];
+  return [...new Set(forms)].filter((form) => form !== '');
+}
+
+/**
+ * One text with every path a run printed replaced by the word the record uses for it: the fixture tree's
+ * own temp directory, and this checkout's absolute path — because a recording that pinned where one
+ * machine put a checkout would re-derive on that machine only, which is the defect a milestone about
+ * gates would be the last one entitled to ship.
+ *
+ * @param {string} text
+ * @param {Array<[string, string]>} pairs the path and the word that replaces it
+ * @returns {string}
+ */
+function sanitise(text, pairs) {
+  let out = text;
+  for (const [root, word] of pairs) {
+    for (const form of pathForms(root)) out = out.split(form).join(word);
+  }
+  return out;
+}
+
+/**
+ * One gate run, printed: `main` is the entry point that writes the lines and answers the status, so
+ * capturing its stdout is what records what the command printed rather than what it meant to.
+ *
+ * @param {string[]} argv
+ * @returns {{ code: number, printed: string[] }}
+ */
+function runGate(argv) {
+  const chunks = [];
+  const original = process.stdout.write;
+  process.stdout.write = (chunk) => {
+    chunks.push(String(chunk));
+    return true;
+  };
+  let code = 0;
+  try {
+    code = main(argv);
+  } finally {
+    process.stdout.write = original;
+  }
+  return { code, printed: linesOf(chunks.join('')) };
+}
+
+/**
+ * One recorded run: what the check printed, sanitised, and the status `main` answered.
+ *
+ * @param {string} check
+ * @param {string} shape
+ * @param {string[]} argv
+ * @param {Array<[string, string]>} pairs the paths to replace and the words that replace them
+ * @returns {Record<string, any>}
+ */
+function recordRun(check, shape, argv, pairs) {
+  const run = runGate(argv);
+  const printed = run.printed.map((line) => sanitise(line, pairs));
+  return {
+    check,
+    shape,
+    argv: argv.map((argument) => sanitise(argument, pairs)),
+    exitStatus: run.code,
+    refusals: printed.filter((line) =>
+      line.startsWith('gate-integrity: refusal '),
+    ).length,
+    printed,
+  };
+}
+
+/**
+ * One task file whose `## Log` claims one path, which is all the fix-record check reads.
+ *
+ * @param {string} id
+ * @param {string} named
+ * @returns {string}
+ */
+function claimTask(id, named) {
+  return [
+    '---',
+    `id: ${id}`,
+    '---',
+    '',
+    '## Log',
+    `- the log claims \`${named}\` was changed`,
+    '',
+  ].join('\n');
+}
+
+/**
+ * The two checks driven against the instance that exposed each and against a clean control. The
+ * archive-path pair shares one fixture tree, so the control and the instance differ by the one suite
+ * body; the fix-record pair shares one range and one task-file shape, so they differ by the one name
+ * the log claims.
+ *
+ * @returns {Promise<Record<string, any>>}
+ */
+async function measureDrivenChecks() {
+  const measured = recorded();
+  const archive = await repairedFixture();
+  const claims = mkdtempSync(join(tmpdir(), `${FIXTURE_PREFIX}claims-`));
+  try {
+    const rename = measured.fixRecord.rename.recorded;
+    const range = measured.fixRecord.rename.range;
+    const absent = measured.fixRecord.claim.named;
+    mkdirSync(join(claims, 'instance'), { recursive: true });
+    mkdirSync(join(claims, 'control'), { recursive: true });
+    await writeFile(
+      join(claims, 'instance', 'T901.md'),
+      claimTask('T901', absent),
+    );
+    await writeFile(
+      join(claims, 'control', 'T902.md'),
+      claimTask('T902', String(rename.to)),
+    );
+
+    const archiveArgv = [
+      '--check',
+      'archive',
+      '--root',
+      archive.root,
+      '--milestone',
+      LIVE_MILESTONE,
+    ];
+    await writeFile(join(archive.root, archive.file), archive.repaired);
+    const archiveControl = recordRun('archive-paths', 'control', archiveArgv, [
+      [archive.root, FIXTURE],
+      [ROOT, ROOT_WORD],
+    ]);
+    await writeFile(join(archive.root, archive.file), archive.reverted);
+    const archiveInstance = recordRun(
+      'archive-paths',
+      'instance',
+      archiveArgv,
+      [
+        [archive.root, FIXTURE],
+        [ROOT, ROOT_WORD],
+      ],
+    );
+
+    const fixArgv = (tasks) => [
+      '--check',
+      'fix-record',
+      '--root',
+      ROOT,
+      '--range',
+      range,
+      '--tasks',
+      tasks,
+      '--claims',
+      'log',
+    ];
+    const fixControl = recordRun(
+      'fix-record',
+      'control',
+      fixArgv(join(claims, 'control')),
+      [
+        [claims, FIXTURE],
+        [ROOT, ROOT_WORD],
+      ],
+    );
+    const fixInstance = recordRun(
+      'fix-record',
+      'instance',
+      fixArgv(join(claims, 'instance')),
+      [
+        [claims, FIXTURE],
+        [ROOT, ROOT_WORD],
+      ],
+    );
+
+    const runs = [archiveControl, archiveInstance, fixControl, fixInstance];
+    return {
+      command:
+        "node scripts/gate-integrity.mjs --check <archive|fix-record> --root <fixture>|. --range <the record's rename range> --tasks <fixture> --claims log, run in process through main(argv) with stdout captured; every fixture path is recorded as <fixture>",
+      examined: runs.length,
+      fixtures: {
+        archive: {
+          suite: archive.file,
+          path: archive.path,
+          instance:
+            "the suite with T003's repair reverted to the hardcoded live read T002 measured, so it opens a path the archive move deletes",
+          control:
+            'the same suite as this checkout carries it, resolving the path at read time so it opens whichever copy exists',
+          tree: `a temp directory holding ${FIXTURE} with the live audit and its archive copy, and ${archive.file} written into it`,
+        },
+        fixRecord: {
+          range,
+          instance: `a task log claiming ${absent}, which ${range} carries no path for`,
+          control: `a task log claiming ${String(rename.to)}, the new name of the rename ${range} carries as ${String(rename.status)}`,
+          tree: `two temp directories under ${FIXTURE}, one task file each, so the pair differs by the one name the log claims`,
+        },
+      },
+      runs,
+      reading:
+        'each check prints a clean line naming what it examined and a refusal line naming the file, the path or the task it reddened on; the instance run of each check exits 1 with a refusal and its control exits 0 with a named non-zero examined count, so the pair records the behaviour rather than the intent',
+    };
+  } finally {
+    rmSync(archive.root, { recursive: true, force: true });
+    rmSync(claims, { recursive: true, force: true });
+  }
+}
+
+/**
+ * One assertion line as the assertion it calls and the expression it asserts about, so a line that is
+ * re-cut — the same assertion, with a different expected value — can be told from one that is deleted.
+ * The shape is the call's own name and its first argument's text, which is the subject the assertion is
+ * about; a re-cut keeps both.
+ *
+ * @param {string} line
+ * @returns {string | null}
+ */
+function assertionShape(line) {
+  const match = /\b(assert\.[A-Za-z]+|assert|expect)\(/.exec(line);
+  if (match === null) return null;
+  const start = match.index + match[0].length;
+  let depth = 0;
+  let end = start;
+  for (; end < line.length; end += 1) {
+    const character = line[end];
+    if (character === '(' || character === '[' || character === '{') depth += 1;
+    else if (character === ')' || character === ']' || character === '}') {
+      if (depth === 0) break;
+      depth -= 1;
+    } else if (character === ',' && depth === 0) break;
+  }
+  return `${match[1]}(${line.slice(start, end).trim()}`;
+}
+
+/**
+ * The assertion lines one differing suite gained, lost and re-cut against the measured head, with the
+ * shape of every re-cut one so the record says which assertion moved rather than only how many. A suite
+ * the head does not carry is wholly added, so its assertion count is read from the file.
+ *
+ * @param {string} baseline
+ * @param {string} file
+ * @param {boolean} present
+ * @returns {{ added: number, removed: number, recut: number, dropped: number, shapes: string[] }}
+ */
+function assertionCounts(baseline, file, present) {
+  if (!present) {
+    const text = readFileSync(join(ROOT, file), 'utf8');
+    return {
+      added: text.split('\n').filter((line) => ASSERTION.test(line)).length,
+      removed: 0,
+      recut: 0,
+      dropped: 0,
+      shapes: [],
+    };
+  }
+  const removed = [];
+  const added = [];
+  for (const line of git(['diff', baseline, '--', file]).split('\n')) {
+    if (line.startsWith('---') || line.startsWith('+++')) continue;
+    if (line.startsWith('-')) removed.push(line.slice(1));
+    else if (line.startsWith('+')) added.push(line.slice(1));
+  }
+  const shown = added.filter((line) => ASSERTION.test(line));
+  const grown = new Set(
+    shown.map((line) => assertionShape(line)).filter((shape) => shape !== null),
+  );
+  const gone = removed.filter((line) => ASSERTION.test(line));
+  const shapes = gone
+    .map((line) => assertionShape(line))
+    .filter((shape) => shape !== null && grown.has(shape));
+  return {
+    added: shown.length,
+    removed: gone.length,
+    recut: shapes.length,
+    dropped: gone.length - shapes.length,
+    shapes,
+  };
+}
+
+/**
+ * The suite diff against the head the intent measured at (SC6, AC4): every suite the tree carries,
+ * whether the measured commit carries it at all, how many lines moved, and how many of those lines were
+ * assertions. A suite that differs with no reason read for it is a failed derivation.
+ *
+ * @returns {Record<string, any>}
+ */
+function deriveSuiteDiff() {
+  const baseline = git(['rev-parse', MEASURED_HEAD]).trim();
+  const atBaseline = new Set(
+    git(['ls-tree', '-r', '--name-only', baseline])
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line !== ''),
+  );
+  const listed = git([
+    'ls-files',
+    '--cached',
+    '--others',
+    '--exclude-standard',
+    '--',
+    ...TREE_ROOTS,
+  ])
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line !== '');
+  const suites = listed.filter((file) => SUITE_FILE.test(file));
+  if (suites.length === 0) {
+    fail(
+      'git ls-files named no suite under the trees this milestone owns, so the diff would compare nothing',
+    );
+  }
+  const moved = new Map();
+  for (const line of git(['diff', '--numstat', baseline]).split('\n')) {
+    if (line.trim() === '') continue;
+    const [added, removed, file] = line.split('\t');
+    if (file === undefined) continue;
+    moved.set(file, {
+      added: /^\d+$/.test(String(added)) ? Number(added) : null,
+      removed: /^\d+$/.test(String(removed)) ? Number(removed) : null,
+    });
+  }
+
+  const differing = [];
+  for (const file of suites) {
+    const present = atBaseline.has(file);
+    const counts = moved.get(file);
+    if (present && counts === undefined) continue;
+    const reason = SUITE_DIFF_REASONS[file];
+    if (typeof reason !== 'string' || reason === '') {
+      fail(
+        `${file} differs from ${MEASURED_HEAD} and no reason was read for it, so recording it would be a guess rather than a reading of the diff`,
+      );
+    }
+    const assertions = assertionCounts(baseline, file, present);
+    differing.push({
+      file,
+      status: present ? 'M' : 'A',
+      atTheMeasuredHead: present,
+      addedLines: counts?.added ?? null,
+      removedLines: counts?.removed ?? null,
+      addedAssertionLines: assertions.added,
+      removedAssertionLines: assertions.removed,
+      recutAssertionLines: assertions.recut,
+      droppedAssertionLines: assertions.dropped,
+      recutAssertions: assertions.shapes,
+      reason,
+    });
+  }
+  if (differing.length === 0) {
+    fail(
+      `no suite differs from ${MEASURED_HEAD}, so the diff this section exists to record has nothing in it`,
+    );
+  }
+  const edited = differing.filter((row) => row.atTheMeasuredHead);
+  return {
+    command: `git diff --numstat ${MEASURED_HEAD} over ${TREE_ROOTS.join(' ')}, and git diff ${MEASURED_HEAD} -- <suite> for each suite that differs; git ls-tree -r --name-only ${MEASURED_HEAD} says which the measured head carries`,
+    baseline: { named: MEASURED_HEAD, commit: baseline },
+    examined: suites.length,
+    filesListed: listed.length,
+    differing,
+    counts: {
+      differing: differing.length,
+      edited: edited.length,
+      added: differing.length - edited.length,
+      removedAssertionLines: differing.reduce(
+        (sum, row) => sum + row.removedAssertionLines,
+        0,
+      ),
+      recutAssertionLines: differing.reduce(
+        (sum, row) => sum + row.recutAssertionLines,
+        0,
+      ),
+      droppedAssertionLines: differing.reduce(
+        (sum, row) => sum + row.droppedAssertionLines,
+        0,
+      ),
+      addedAssertionLines: differing.reduce(
+        (sum, row) => sum + row.addedAssertionLines,
+        0,
+      ),
+    },
+    reading:
+      'every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted',
+  };
+}
+
+/**
+ * The count of suites and test declarations the project's own verify runs (AC3): the number a removed
+ * test moves downward, derived from the files rather than from a run of the suite itself, because this
+ * measurement is taken inside that run.
+ *
+ * @returns {Record<string, any>}
+ */
+function deriveWholeTree() {
+  const command = `git ls-files --cached --others --exclude-standard -- ${TREE_ROOTS.join(' ')}`;
+  const listed = git([
+    'ls-files',
+    '--cached',
+    '--others',
+    '--exclude-standard',
+    '--',
+    ...TREE_ROOTS,
+  ])
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line !== '');
+  const suites = listed.filter((file) => SUITE_FILE.test(file));
+  if (suites.length === 0) {
+    fail(
+      'git ls-files named no suite, so the count this section records would be zero rather than a reading',
+    );
+  }
+  /** @type {Record<string, number>} */
+  const byRoot = { scripts: 0, extension: 0, apps: 0, src: 0, skills: 0 };
+  for (const file of suites) {
+    const root = file.startsWith('.') ? 'skills' : (file.split('/')[0] ?? '');
+    if (!Object.hasOwn(byRoot, root)) {
+      fail(
+        `${file} sits under ${root}, which this count does not name, so the total would not be the whole tree`,
+      );
+    }
+    byRoot[root] += 1;
+  }
+  let tests = 0;
+  let describes = 0;
+  for (const file of suites) {
+    const text = readFileSync(join(ROOT, file), 'utf8');
+    tests += (text.match(/^[ \t]*(?:test|it)\(/gm) ?? []).length;
+    describes += (text.match(/^[ \t]*describe\(/gm) ?? []).length;
+  }
+  return {
+    command,
+    examined: suites.length,
+    filesListed: listed.length,
+    suites: { ...byRoot, total: suites.length },
+    declarations: { tests, describes, total: tests + describes },
+    rule: 'a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`',
+    run: {
+      command: 'npm run check && npm test',
+      reading:
+        'the run is the project verify itself, so its own totals are pasted in T004s report rather than recorded here: a measurement taken inside the run cannot report the run',
+    },
+    reading:
+      'the suite count and the declaration count are read from the files the project verify would run, so a removed test moves the number downward and a green run on a smaller tree is visible as a smaller tree',
+  };
+}
+
+/**
+ * The driven-check section's own shape: both checks, both shapes, both readings and both statuses.
+ *
+ * @param {any} section
+ * @returns {void}
+ */
+function assertDrivenChecksShape(section) {
+  assertExamined(section, 'drivenChecks');
+  if (
+    !Array.isArray(section.runs) ||
+    section.runs.length !== section.examined
+  ) {
+    fail(
+      `drivenChecks.examined is ${JSON.stringify(section.examined)} and it carries ${String(section.runs?.length)} run(s)`,
+    );
+  }
+  for (const check of ['archive-paths', 'fix-record']) {
+    for (const shape of ['instance', 'control']) {
+      const run = section.runs.find(
+        (one) => one?.check === check && one?.shape === shape,
+      );
+      if (run === undefined) {
+        fail(`drivenChecks carries no ${shape} run of the ${check} check`);
+      }
+      if (!Array.isArray(run.printed) || run.printed.length === 0) {
+        fail(
+          `the ${shape} run of ${check} records no printed line, so what it printed is not in the record`,
+        );
+      }
+      if (typeof run.exitStatus !== 'number') {
+        fail(
+          `the ${shape} run of ${check} records exit status ${JSON.stringify(run.exitStatus)}`,
+        );
+      }
+      const refusals = run.printed.filter((line) =>
+        line.startsWith('gate-integrity: refusal '),
+      ).length;
+      if (run.refusals !== refusals) {
+        fail(
+          `the ${shape} run of ${check} records ${String(run.refusals)} refusal(s) and its printed lines carry ${String(refusals)}`,
+        );
+      }
+    }
+  }
+  if (!isObject(section.fixtures)) {
+    fail('drivenChecks does not say which tree each run was driven on');
+  }
+}
+
+/**
+ * The suite-diff section's own shape: every differing suite carries a reason and its line counts, and
+ * the counts add up to the rows.
+ *
+ * @param {any} section
+ * @returns {void}
+ */
+function assertSuiteDiffShape(section) {
+  assertExamined(section, 'suiteDiff');
+  if (!Array.isArray(section.differing) || section.differing.length === 0) {
+    fail('suiteDiff carries no differing suite, so nothing was compared');
+  }
+  if (section.counts?.differing !== section.differing.length) {
+    fail(
+      `suiteDiff.counts.differing is ${JSON.stringify(section.counts?.differing)} and it carries ${section.differing.length} row(s)`,
+    );
+  }
+  for (const row of section.differing) {
+    if (typeof row.file !== 'string' || !SUITE_FILE.test(row.file)) {
+      fail(
+        `suiteDiff records ${JSON.stringify(row.file)}, which is not a suite`,
+      );
+    }
+    if (typeof row.reason !== 'string' || row.reason.length < 60) {
+      fail(
+        `${row.file} differs and its reason is not a statement about the diff: ${JSON.stringify(row.reason)}`,
+      );
+    }
+    if (row.droppedAssertionLines !== 0) {
+      fail(
+        `${row.file} records ${String(row.droppedAssertionLines)} dropped assertion line(s): SC6 permits the navigation pin to be replaced and no assertion to be deleted`,
+      );
+    }
+    if (
+      row.removedAssertionLines - row.recutAssertionLines !==
+      row.droppedAssertionLines
+    ) {
+      fail(
+        `${row.file} records ${String(row.removedAssertionLines)} removed assertion line(s), ${String(row.recutAssertionLines)} re-cut and ${String(row.droppedAssertionLines)} dropped, which do not add up`,
+      );
+    }
+  }
+  for (const row of section.differing.filter((one) => !one.atTheMeasuredHead)) {
+    if (row.status !== 'A' || row.removedLines !== 0) {
+      fail(
+        `${row.file} is absent from ${MEASURED_HEAD} and is recorded ${String(row.status)} with ${String(row.removedLines)} removed line(s)`,
+      );
+    }
+  }
+}
+
+/**
+ * The whole-tree section's own shape: the roots add up to the total, and the declarations are counted.
+ *
+ * @param {any} section
+ * @returns {void}
+ */
+function assertWholeTreeShape(section) {
+  assertExamined(section, 'wholeTree');
+  const named = ['scripts', 'extension', 'apps', 'src', 'skills'];
+  const sum = named.reduce((total, root) => total + section.suites[root], 0);
+  if (sum !== section.suites.total) {
+    fail(
+      `wholeTree.suites.total is ${JSON.stringify(section.suites.total)} and its roots add up to ${String(sum)}`,
+    );
+  }
+  for (const key of ['tests', 'describes', 'total']) {
+    if (typeof section.declarations[key] !== 'number') {
+      fail(
+        `wholeTree.declarations.${key} is ${JSON.stringify(section.declarations[key])}`,
+      );
+    }
+  }
+  if (section.declarations.total === 0) {
+    fail(
+      'wholeTree counted no test declaration, so a removed test would not show',
+    );
+  }
+}
+
+// The fixture write is asynchronous and every reader of `derivedSections()` is not, so the one
+// measurement that needs a tree on disk is taken here, before any test in this file runs.
+before(async () => {
+  DRIVEN = await measureDrivenChecks();
+});
+
+test('T004 AC1: each check is driven on its measured instance and a clean control, with what it printed and its exit status', (t) => {
+  const section = derivedDrivenChecks();
+  assert.doesNotThrow(() => assertDrivenChecksShape(section));
+
+  for (const check of ['archive-paths', 'fix-record']) {
+    const instance = section.runs.find(
+      (run) => run.check === check && run.shape === 'instance',
+    );
+    const control = section.runs.find(
+      (run) => run.check === check && run.shape === 'control',
+    );
+    assert.ok(instance, `the record must carry the ${check} instance run`);
+    assert.ok(control, `the record must carry the ${check} control run`);
+    assert.equal(
+      instance.exitStatus,
+      1,
+      `the ${check} instance must exit 1 as a refusal: ${instance.printed.join(' | ')}`,
+    );
+    assert.equal(
+      control.exitStatus,
+      0,
+      `the ${check} control must exit 0 as a clean run: ${control.printed.join(' | ')}`,
+    );
+    assert.ok(
+      instance.refusals > 0,
+      `the ${check} instance must print a refusal line: ${instance.printed.join(' | ')}`,
+    );
+    assert.equal(
+      control.refusals,
+      0,
+      `the ${check} control must print no refusal: ${control.printed.join(' | ')}`,
+    );
+    assert.match(
+      control.printed.join('\n'),
+      /clean - examined [1-9]/,
+      `the ${check} control must state a non-zero examined count rather than passing over nothing: ${control.printed.join(' | ')}`,
+    );
+    t.diagnostic(
+      `${check}: instance exit ${String(instance.exitStatus)} with ${String(instance.refusals)} refusal(s), control exit ${String(control.exitStatus)} with 0`,
+    );
+  }
+
+  // The instance of each check names the artefact the defect sits in, and the control is the same
+  // fixture with the one repair restored, so the pair is a control rather than two unrelated runs.
+  const archiveInstance = section.runs.find(
+    (run) => run.check === 'archive-paths' && run.shape === 'instance',
+  );
+  assert.ok(
+    archiveInstance.printed.some(
+      (line) =>
+        line.includes(String(section.fixtures.archive.suite)) &&
+        line.includes(String(section.fixtures.archive.path)),
+    ),
+    `the archive-path refusal must name the suite and the path: ${archiveInstance.printed.join(' | ')}`,
+  );
+  const fixInstance = section.runs.find(
+    (run) => run.check === 'fix-record' && run.shape === 'instance',
+  );
+  assert.ok(
+    fixInstance.printed.some(
+      (line) => line.includes('T901') && line.includes(CLAIMED_PATH),
+    ),
+    `the fix-record refusal must name the task and the file: ${fixInstance.printed.join(' | ')}`,
+  );
+
+  // A control is a control rather than a second run: the archive-path pair shares one argument list, so
+  // the two differ by the suite body and nothing else, and the fix-record pair differs at exactly one
+  // argument, the task directory the claim is read from.
+  const archiveRuns = section.runs.filter(
+    (run) => run.check === 'archive-paths',
+  );
+  assert.equal(
+    new Set(archiveRuns.map((run) => run.argv.join(' '))).size,
+    1,
+    `the archive-path pair must be driven with one argument list: ${JSON.stringify(archiveRuns.map((run) => run.argv))}`,
+  );
+  const fixRuns = section.runs.filter((run) => run.check === 'fix-record');
+  assert.equal(
+    fixRuns.length,
+    2,
+    'the fix-record check carries one instance and one control',
+  );
+  const left = fixRuns[0]?.argv ?? [];
+  const right = fixRuns[1]?.argv ?? [];
+  assert.equal(
+    left.length,
+    right.length,
+    'the fix-record pair is driven with the same flags',
+  );
+  assert.equal(
+    left.filter((argument, index) => argument !== right[index]).length,
+    1,
+    `the fix-record pair must differ at one argument, the task directory the claim is read from: ${JSON.stringify([left, right])}`,
+  );
+});
+
+test('T004 AC4: every suite is diffed against the measured head, and an unexplained difference fails', (t) => {
+  const section = derivedSections().suiteDiff;
+  assert.doesNotThrow(() => assertSuiteDiffShape(section));
+
+  const edited = section.differing.filter((row) => row.atTheMeasuredHead);
+  assert.ok(
+    edited.length > 0,
+    `no suite the measured head carries differs, so the diff proves nothing: ${JSON.stringify(section.differing.map((row) => row.file))}`,
+  );
+  const pin = edited.find(
+    (row) => row.file === 'scripts/navigation-blocking.test.mjs',
+  );
+  assert.ok(
+    pin,
+    `the navigation pin SC6 names must appear in the diff: ${JSON.stringify(edited.map((row) => row.file))}`,
+  );
+  assert.ok(
+    pin.addedAssertionLines > 0,
+    `the replaced pin must carry added assertion lines, or nothing was asserted: ${JSON.stringify(pin)}`,
+  );
+  for (const row of edited) {
+    assert.match(
+      row.reason,
+      /\S/,
+      `${row.file} differs and no reason was recorded for it`,
+    );
+  }
+  assert.equal(
+    section.counts.droppedAssertionLines,
+    0,
+    `no assertion line may be dropped from a shipped suite (SC6): ${JSON.stringify(
+      section.differing
+        .filter((row) => row.droppedAssertionLines > 0)
+        .map((row) => row.file),
+    )}`,
+  );
+  // A removed assertion line is only a re-cut when the same assertion is added back about the same
+  // subject, so the navigation-capture re-pin is recorded as one re-cut rather than as a deletion.
+  for (const row of edited.filter((one) => one.removedAssertionLines > 0)) {
+    assert.equal(
+      row.droppedAssertionLines,
+      0,
+      `${row.file} removed ${String(row.removedAssertionLines)} assertion line(s) and dropped ${String(row.droppedAssertionLines)}: ${JSON.stringify(row.recutAssertions)}`,
+    );
+    assert.ok(
+      row.recutAssertions.length > 0,
+      `${row.file} records a re-cut assertion and names none: ${JSON.stringify(row)}`,
+    );
+  }
+  // A row the derivation cannot explain is refused rather than recorded: planted here, so the refusal
+  // is exercised instead of asserted about.
+  let message = '';
+  try {
+    assert.doesNotThrow(() => {
+      const planted = clone(section);
+      planted.counts.differing += 1;
+      planted.differing.push({
+        file: 'scripts/planted.test.mjs',
+        status: 'M',
+        atTheMeasuredHead: true,
+        addedLines: 1,
+        removedLines: 1,
+        addedAssertionLines: 1,
+        removedAssertionLines: 1,
+        recutAssertionLines: 0,
+        droppedAssertionLines: 1,
+        recutAssertions: [],
+        reason:
+          'planted: a removed assertion line, to prove the guard refuses one',
+      });
+      assertSuiteDiffShape(planted);
+    });
+  } catch (error) {
+    message = error instanceof Error ? error.message : String(error);
+  }
+  t.diagnostic(`mutant failure: ${message}`);
+  assert.match(
+    message,
+    /dropped assertion line/,
+    `a suite whose diff drops an assertion line must redden the shape guard; it produced ${JSON.stringify(message.slice(0, 240))}`,
+  );
+  t.diagnostic(
+    `suiteDiff: ${String(section.examined)} suite(s) compared with ${MEASURED_HEAD}, ${String(
+      section.counts.differing,
+    )} differ (${String(section.counts.edited)} edited, ${String(
+      section.counts.added,
+    )} added), ${String(section.counts.removedAssertionLines)} assertion line(s) removed of which ${String(
+      section.counts.recutAssertionLines,
+    )} were re-cut and ${String(section.counts.droppedAssertionLines)} dropped`,
+  );
+  for (const row of section.differing) {
+    t.diagnostic(
+      `${row.status} ${row.file}: +${String(row.addedLines)}/-${String(
+        row.removedLines,
+      )}, assertions +${String(row.addedAssertionLines)}/-${String(
+        row.removedAssertionLines,
+      )} (${String(row.recutAssertionLines)} re-cut, ${String(
+        row.droppedAssertionLines,
+      )} dropped) - ${row.reason}`,
+    );
+  }
+});
+
+test('T004 AC3: the tree the project verify runs is counted, so a removed test is a smaller number', (t) => {
+  const section = derivedSections().wholeTree;
+  assert.doesNotThrow(() => assertWholeTreeShape(section));
+  for (const root of ['scripts', 'extension', 'src', 'skills']) {
+    assert.ok(
+      section.suites[root] > 0,
+      `wholeTree.suites.${root} is ${String(section.suites[root])}, so a root the verify runs examined nothing`,
+    );
+  }
+  assert.ok(
+    section.declarations.tests > 0 && section.declarations.describes > 0,
+    `the tree must carry both test and describe declarations: ${JSON.stringify(section.declarations)}`,
+  );
+  t.diagnostic(
+    `wholeTree: ${String(section.suites.total)} suite(s) of ${String(
+      section.filesListed,
+    )} listed file(s) ${JSON.stringify(section.suites)}, ${String(
+      section.declarations.tests,
+    )} test declaration(s) in ${String(section.declarations.describes)} group(s)`,
+  );
+});
+
+test('T004: the three new sections are what this head derives, so a default run is a read', (t) => {
+  const record = recorded();
+  const derived = derivedSections();
+  for (const name of ['drivenChecks', 'suiteDiff', 'wholeTree']) {
+    assert.deepEqual(
+      record[name],
+      derived[name],
+      `${name} in the recording is not what this head derives: ${JSON.stringify(
+        firstDifference(record[name], derived[name], name),
+      )}`,
+    );
+  }
+  assert.deepEqual(
+    record.capture.remeasured,
+    sectionsOf(derived),
+    'the capture block must name every section an armed run re-measures, so the list cannot go stale',
+  );
+  t.diagnostic(
+    `sections re-measured by an armed run: ${record.capture.remeasured.join(', ')}`,
+  );
+});
