@@ -26,6 +26,9 @@ files:
   - scripts/held-out-nested-run.test.mjs
   - scripts/legacy-diagnostic-capture.test.mjs
   - scripts/linked-state-capture.test.mjs
+  - scripts/autonomy-gaps.test.mjs
+  - scripts/docs-audit-disposition.test.mjs
+  - scripts/retired-suites.test.mjs
 ---
 
 # T003 — Wire the checks into the gate and repair the ended-navigation terminal
@@ -46,6 +49,7 @@ The gate surfaces `checkArchivePaths({ root, milestone })` and `checkFixRecord({
 
 ## Intent coverage
 
+- SC1
 - SC3
 - SC4
 
@@ -63,6 +67,8 @@ The gate surfaces `checkArchivePaths({ root, milestone })` and `checkFixRecord({
 3. held-out E7 — AC3 an entry addressing an already-ended id produces a finding naming the skipped navigation, and a navigation that ends normally still produces exactly one terminal.
 4. held-out E8 and E10 — AC4 the pin reads its event list from `research/raw/m041-navigation.json`, so a mutation reordering the recording reddens it and a list rebuilt in the test cannot satisfy it — both failure strings quoted in the Log.
 5. held-out E6 — AC5 `package.json` is pinned by many suites that assert parts of the verify chain, and this task changes it; the full `npm test` runs after the wiring and every suite that reddens on the new stages is re-cut in this task, with the file named in the Log. No suite is skipped and no assertion is widened to accept an unlisted stage.
+
+6. held-out E6 — AC6 the archive-path check passes on this milestone's own tree: the four live reads T002 measured resolve archive-aware, `checkArchivePaths` reports no finding for the tree with a non-zero `examined`, and a mutant restoring one hardcoded live path reddens the check naming that file — the failure string quoted in the Log.
 
 ## Verify
 
