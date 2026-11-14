@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: gate-integrity
-phase: roadmap
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
@@ -873,3 +873,7 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-14 — define — inspection complete; define opened
 - 2026-11-14 — roadmap — roadmap re-slice started
 - 2026-11-14 — roadmap — program roadmap approved
+- 2026-11-14 — define — roadmap approved; define opened
+- 2026-11-14 — define — milestone intent approved
+- 2026-11-14 — plan — planning started
+- 2026-11-14 — plan — plan approved
