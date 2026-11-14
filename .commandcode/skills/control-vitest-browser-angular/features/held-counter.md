@@ -24,7 +24,7 @@ cart 2)"` and `button "Increment"`.
 
 Preconditions:
 
-- `node $S up --extension s1-vitest --hold 90000` (or a `touch` of the spec for a new hold), `doctor` exits 0
+- `node $S up --hold 90000` (or a `touch` of the spec for a new hold), `doctor` exits 0
   with `mounted-component` passing; session attached and the Vitest tab selected (README).
 
 - **Render.** `playwright-cli -s=<session> snapshot --filename=<evidenceDir>/held-before.yml`. It contains

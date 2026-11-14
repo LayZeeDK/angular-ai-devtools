@@ -1,46 +1,33 @@
 # Extension in the tester iframe
 
-An unpacked extension loaded by `up --extension` runs in the same browser as the tests. With the S1 Vitest
-variant (`--extension s1-vitest`), its content scripts inject into the Vitest tab and the tester iframe. In the
-MAIN world they see `window.ng` and the Counter. Its DevTools panel can evaluate in the tester frame, and in
-attach mode `LanguageModel` is `available` in every extension context except the `devtools_page`.
+An unpacked extension loaded by `up --extension <dir>` runs in the same browser as the tests. In attach mode
+`LanguageModel` is `available` in the tester iframe; in bundled mode it is not.
 
 ## Sub-features
 
 - `ext-loaded` the extension's service worker target exists (`doctor` `extension-loaded`).
-- `ext-content-script` an isolated world from `chrome-extension://<id>` exists in the tester iframe (`doctor`
-  `extension-content-script`); the MAIN-world script records `typeofNg: "object"` and the Counter's count.
-- `ext-panel` the DevTools panel's `chrome.devtools.inspectedWindow.eval` with `{ frameURL: <tester URL> }`
-  reaches `window.ng` in the tester; without `frameURL` it runs in the orchestrator, which has no `ng`.
-- `ext-model` `LanguageModel.availability()` is `available` in the tester iframe and the extension contexts
-  (attach mode); `unavailable` in bundled mode.
+- `ext-model` `LanguageModel.availability()` is `available` in the tester iframe (attach mode); `unavailable` in
+  bundled mode.
 
 ## How to get to it (user POV)
 
-- The extension's own UI: DevTools on the Vitest tab, panel "S1". Results also land in the extension's
-  `chrome.storage.local`, keyed `content_isolated|frame|/`, `content_main|frame|/`, `devtools_panel` and so on.
+- The extension's own UI in the browser `up` attached to or started.
 
 ## Driving it with control-vitest-browser-angular
 
 Preconditions:
 
-- `node $S up --extension s1-vitest --hold 90000`; `doctor` exits 0 with `extension-loaded` and
-  `extension-content-script` passing.
+- `node $S up --extension extension --hold 90000` (the repository's `extension/`); `doctor` exits 0 with
+  `extension-loaded` passing.
 
-- **Content script.** `doctor --json > <evidenceDir>/doctor.json` records the isolated world's name.
-- **Storage.** The content-script results appear once the Counter is mounted. To read them, use the spike runner
-  (`node spikes/probes/vitest-attach.mjs --route attach --cdp-port <port> --label <label>` after `down`), which
-  writes them to `research/raw/vitest-attach-<label>.json` under `extensionStorage`. That folder is tracked:
-  move the file into `<evidenceDir>` after the run unless it is meant for the research record.
-- **Panel.** Same runner: `panelInspectedWindowTop` and `panelInspectedWindowTester` in its output.
-- **Model.** `doctor` `language-model`; for a prompt, the runner's `iframePrompt` ("OK" from Gemma 4 in 10.8 s,
-  research 17).
+- **Loaded.** `doctor --json > <evidenceDir>/doctor.json` records the service worker URL.
+- **Model.** `doctor` `language-model`.
 
 ## Gotchas
 
-- `spikes/s1-extension` was retired in M009; its evidence and archived notes live under `.project/archive/001-run-unrun-spikes/`. Use `s1-vitest`, which matches the Vitest
-  server in every frame.
-- The isolated world sees `typeof window.ng === 'undefined'`; only the MAIN world sees `ng`.
+- No test extension with content scripts for the Vitest server exists in the repository, so nothing checks that
+  an extension reaches the tester iframe. The repository's `extension/` does not inject there (measured
+  2026-11-12: no execution context from its origin in the tester iframe).
 - In attach mode `down` uninstalls the extension (its notes say `uninstalled extension <id>`); in bundled mode it
   deletes the profile the extension was loaded into.
 - In the bundled flow the extension id comes from its service worker target after `up` (the path decides the id).

@@ -110,7 +110,8 @@ Answers "is this instance worth driving?". One line per check:
   `build-log:<name>` (no `[ERROR]`, `error TS`, `NGxxxx` lines; a `[vite]` runtime entry is ignored up to the
   next entry: proxy errors with their `Error: read ECONNRESET` and `at ...` lines, and the browser console
   forwarded as `(client)`, including the multi-line NG0500 that `ssr-check.js` provokes on `?mismatch=1`;
-  `console-errors` covers those). Skipped with `--url`.
+  `console-errors` covers those; NG6100 from `spikes/ng222-app/src/app/legacy-module.ts`, the fixture's deliberate
+  `module.id` warning, is accepted, while NG6100 from any other file still fails). Skipped with `--url`.
 - `pangular-auth` (only when a code prompt blocks the session): with a Pangular server behind `/__pangular`
   the overlay opens a `prompt` for a one-time code that blocks every playwright-cli command. For the portal,
   when the current tab's URL (from `tab-list`, which answers while the prompt is open) has the run's origin,

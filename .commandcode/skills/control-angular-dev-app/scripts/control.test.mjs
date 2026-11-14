@@ -671,6 +671,49 @@ test('buildLogErrors ends a [vite] entry at a timestamped line, a status glyph l
   );
 });
 
+/** @param {string} code @param {string} file  an esbuild warning block as ng serve prints it (colours dropped) */
+const warningBlock = (code, file) =>
+  [
+    `▲ [WARNING] ${code}: Using 'module.id' for NgModule.id is a common anti-pattern [plugin angular-compiler]`,
+    '',
+    `    ${file}:17:16:`,
+    '      17 │ @NgModule({ id: module.id })',
+    '         ╵                 ~~~~~~~~~',
+    '',
+  ].join('\n');
+
+test('buildLogErrors accepts NG6100 from the deliberate spikes/ng222-app legacy-module.ts fixture', () => {
+  assert.deepEqual(
+    buildLogErrors(
+      warningBlock(
+        'NG6100',
+        'D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/src/app/legacy-module.ts',
+      ),
+    ),
+    [],
+  );
+});
+
+test('buildLogErrors still fails any other warning code from the legacy-module.ts fixture', () => {
+  assert.deepEqual(
+    buildLogErrors(
+      warningBlock('NG8107', 'spikes/ng222-app/src/app/legacy-module.ts'),
+    ),
+    [
+      "▲ [WARNING] NG8107: Using 'module.id' for NgModule.id is a common anti-pattern [plugin angular-compiler]",
+    ],
+  );
+});
+
+test('buildLogErrors still fails NG6100 from any other file', () => {
+  assert.deepEqual(
+    buildLogErrors(warningBlock('NG6100', 'src/app/other-module.ts')),
+    [
+      "▲ [WARNING] NG6100: Using 'module.id' for NgModule.id is a common anti-pattern [plugin angular-compiler]",
+    ],
+  );
+});
+
 test('consoleErrors separates the Pangular overlay lines from the other errors', () => {
   const out = [
     '### Result',

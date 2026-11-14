@@ -543,6 +543,8 @@ export function authCodeIn(log) {
  * stop or start), so those belong to the [vite] entry. A forwarded client console error spans many lines (NG0500
  * prints the expected and actual DOM, then "Find more at .../NG0500"), so a [vite] entry runs until a line that
  * starts a new entry: a build error, a timestamped or [tag]-prefixed line, or a builder status line.
+ * NG6100 whose location line names spikes/ng222-app/src/app/legacy-module.ts is that fixture's deliberate warning
+ * and is accepted; NG6100 from any other file, and any other warning from that file, still count.
  * @param {string} log
  * @returns {string[]}
  */
@@ -551,7 +553,7 @@ export function buildLogErrors(log) {
     /\[ERROR\]|error TS\d+|^\[\w+\]|^\d\d\.\d\d\.\d\d |^[❯✔✘]|^Application bundle/;
   let inVite = false;
 
-  return log.split(/\r?\n/).filter((raw) => {
+  return log.split(/\r?\n/).filter((raw, i, lines) => {
     const l = raw.replace(/\x1b\[[0-9;]*m/g, '');
 
     if (l.includes('[vite]')) {
@@ -565,6 +567,15 @@ export function buildLogErrors(log) {
     }
 
     inVite = false;
+
+    if (
+      l.includes('NG6100') &&
+      /spikes\/ng222-app\/src\/app\/legacy-module\.ts:\d+:\d+:$/.test(
+        lines.slice(i + 1).find((n) => n.trim() !== '') ?? '',
+      )
+    ) {
+      return false;
+    }
 
     return /\[ERROR\]|ERROR in|Error:|error TS\d+|NG\d{4}/.test(l);
   });

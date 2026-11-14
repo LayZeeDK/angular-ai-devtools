@@ -178,7 +178,7 @@ test('upOptions reads every value, and a bare --port, --hold or --extension as a
     'hold',
     '--timing-demo',
     '--extension',
-    's1-vitest',
+    'extension',
     '--timeout',
     '30',
   ]);
@@ -189,7 +189,7 @@ test('upOptions reads every value, and a bare --port, --hold or --extension as a
     hold: 90000,
     filter: 'hold',
     timingDemo: true,
-    extension: 's1-vitest',
+    extension: 'extension',
     timeoutMs: 30000,
   });
   const bare = upOptions(['up', '--port', '--hold', '--extension', '--json']);
@@ -854,7 +854,7 @@ test('upRefusal refuses a bare value flag and a timeout or hold that is not a po
       '--instance',
       'edge-dev',
       '--extension',
-      's1-vitest',
+      'extension',
     ]),
     null,
   );

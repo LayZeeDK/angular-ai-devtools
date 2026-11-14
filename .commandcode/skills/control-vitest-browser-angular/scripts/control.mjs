@@ -53,7 +53,6 @@ import { describe, merge, processTable, snapshot, stop } from './proctree.mjs';
  * @property {{ connect: (wsUrl: string) => Promise<CdpClient> }} Cdp
  * @property {(cdp: CdpClient, sid: string, contextId: number, expression: string) => Promise<unknown>} evalIn
  * @property {(cdp: CdpClient, sid: string) => Promise<ExecutionContext[]>} frameContexts
- * @property {(dir: string) => string} writeS1VitestVariant
  */
 
 /**
@@ -125,13 +124,12 @@ const SYSTEM32 = path.join(
 // Windows reads this from the looking process when Node looks up a bare program name: it then skips the current
 // directory. The ng test run inherits it.
 process.env['NoDefaultCurrentDirectoryInExePath'] = '1';
-const { Cdp, evalIn, frameContexts, writeS1VitestVariant } =
-  /** @type {VitestLib} */ (
-    await import(
-      pathToFileURL(path.join(REPO_ROOT, 'spikes', 'probes', 'vitest-lib.mjs'))
-        .href
-    )
-  );
+const { Cdp, evalIn, frameContexts } = /** @type {VitestLib} */ (
+  await import(
+    pathToFileURL(path.join(REPO_ROOT, 'spikes', 'probes', 'vitest-lib.mjs'))
+      .href
+  )
+);
 
 // Vitest's default 63315 is inside a Windows excluded port range on this machine; see vitest-base.config.mts.
 const MAIN_VITEST_PORT = 51315;
@@ -1311,10 +1309,7 @@ async function up() {
   }
 
   if (opts.extension !== null) {
-    const dir =
-      opts.extension === 's1-vitest'
-        ? writeS1VitestVariant(path.join(evidenceDir, 'extension'))
-        : path.resolve(opts.extension);
+    const dir = path.resolve(opts.extension);
 
     if (!existsSync(path.join(dir, 'manifest.json'))) {
       fail(2, `no manifest.json in ${dir}; run down to clear the state`, {
@@ -1346,7 +1341,7 @@ async function up() {
   } else if (bundled) {
     fail(
       2,
-      '--bundled needs --extension <dir> or --extension s1-vitest (vitest-extension.config.mts requires one); run down to clear the state',
+      '--bundled needs --extension <dir> (vitest-extension.config.mts requires one); run down to clear the state',
       { state: statePath(flowId) },
     );
   }
@@ -1668,21 +1663,6 @@ async function doctor() {
         );
         const lm = languageModelCheck(page.lm, state.mode);
         add('language-model', lm.status, lm.detail);
-
-        if (state.extension) {
-          const extOrigin = `chrome-extension://${state.extension.id}`;
-          const world = contexts.find(
-            (c) =>
-              c.auxData?.frameId === tester.frame.id && c.origin === extOrigin,
-          );
-          add(
-            'extension-content-script',
-            world ? 'pass' : 'fail',
-            world
-              ? `isolated world "${world.name}" in the tester iframe`
-              : `no execution context from ${extOrigin} in the tester iframe`,
-          );
-        }
       }
 
       await cdp
@@ -1865,7 +1845,7 @@ if (
 
   if (run === undefined) {
     process.stdout.write(
-      'usage: control.mjs <up|doctor|info|down> [--instance <name> | --bundled] [--extension <dir>|s1-vitest] [--hold <ms>] [--timing-demo] [--filter <text>] [--port N] [--timeout S] [--json]\n',
+      'usage: control.mjs <up|doctor|info|down> [--instance <name> | --bundled] [--extension <dir>] [--hold <ms>] [--timing-demo] [--filter <text>] [--port N] [--timeout S] [--json]\n',
     );
     process.exit(2);
   }
