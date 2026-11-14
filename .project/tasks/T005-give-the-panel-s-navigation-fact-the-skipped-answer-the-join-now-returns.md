@@ -33,9 +33,7 @@ not the fact source, which is the file that had to move with the shape.
 
 ## Interface contract
 
-The fact is the join's own answer for the recorded stream: `FACTS['navigation']` deep-equals
-`narrateNavigation(<record>)`, so every field the answer carries is present in the fact with the value
-the join derived, and `skipped` carries the entries the recording produces rather than a placeholder.
+The gate surfaces `checkArchivePaths({ root, milestone })` and `checkFixRecord({ root, range, tasks })`, each returning `{ examined, findings[] }` where a finding carries `file`, `line`, `claim` and `class`, and `nothing-examined` is a finding rather than a pass. T001's record carries the same shapes as data: `archiveReferences[]`, `fixRecord` and `skippedNavigations[]`, each with `examined` and `command`. The narrator's finding for an ended id carries the navigation id, the url and the word the record uses for the skip, and names no cause, owner or intent the entry does not carry; its answer carries `{ state, absence, navigations, unattributed, skipped }` in that order. The panel fact is the join's own answer for the recorded stream, so `FACTS['navigation']` deep-equals `narrateNavigation(<record>)` and every field the answer carries, `skipped` included, is present with the value the join derived. The claims file cites one artefact per criterion, each artefact a path plus the reading it carries.
 
 ## Intent coverage
 
