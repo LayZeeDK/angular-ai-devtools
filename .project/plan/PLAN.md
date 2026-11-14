@@ -46,6 +46,8 @@ The six criteria this plan answers, quoted from `.project/intent/INTENT.md` char
 | SC1       | T003 | AC6        |
 | SC4       | T003 | AC3        |
 | SC4       | T003 | AC4        |
+| SC4       | T005 | AC1        |
+| SC4       | T005 | AC2        |
 | SC5       | T004 | AC1        |
 | SC1       | T004 | AC2        |
 | SC2       | T004 | AC2        |
@@ -211,3 +213,27 @@ The whole-tree proof is the last step and also SC6's evidence: the shipped suite
 - Acceptance: AC1 each of the two checks is driven against the instance that exposed it and against a clean control, and the recording carries what each printed and the exit status each produced; AC2 `research/raw/m044-verdict-claims.json` cites, per criterion, the artefact that proves it — a criterion without an artefact fails the task rather than being claimed; AC3 the project verify `npm run check && npm test` runs green on the milestone's own tree, and the suite count is recorded so a removed test would show as a count drop rather than as a green run; AC4 the only assertion edited in a shipped suite is the navigation pin named in SC6, proven by diffing every suite against `d94502d1` and recording the one file that differs
 - Verify: `node --check scripts/gate-integrity.test.mjs && node --experimental-strip-types --test "scripts/gate-integrity.test.mjs" "scripts/navigation-blocking.test.mjs" && npx prettier --check scripts/gate-integrity.test.mjs scripts/navigation-blocking.test.mjs research/raw/m044-gate-shapes.json research/raw/m044-verdict-claims.json && npm run check && npm test`
 - Held-out: E10
+
+## Wave 5 — give the panel fact the answer field T003 added, so the app stage runs green rather than cached
+
+Goal: repair the one product file T003's shape change left behind, so `npm test` is green cache-cold
+rather than green through an Nx cache replay.
+
+Review depth: full
+
+T003 added `skipped` to the navigation answer and declared the spec that asserts the fact but not the
+fact source. Cache-cold measurement: `npm test` exits 1 at
+`apps/angular-ai-devtools/src/app/panel-demo.spec.ts:1334`. The repair is one field written from the
+join's own output over `research/raw/m041-navigation.json`; the second measurement this wave records is
+that a green stage reached through "Nx read the output from the cache" is not evidence, which is why the
+Verify runs the app stage with `--skip-nx-cache` as well as the whole suite.
+
+### T005 — Give the panel's navigation fact the skipped answer the join now returns
+
+- Deps: T003
+- Files: `apps/angular-ai-devtools/src/app/panel-demo.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`
+- Intent coverage: SC4
+- Edges: E7
+- Acceptance: AC1 the fact's `skipped` is what the join derives from the recording, quoted from a run, with the spec's assertions unchanged; AC2 `npm test` is green cache-cold after `npx nx reset`, with the app stage's counts recorded; AC3 the diff names exactly those two files and adds no other field
+- Verify: `node --check apps/angular-ai-devtools/src/app/panel-demo.ts && npx prettier --check apps/angular-ai-devtools/src/app/panel-demo.ts apps/angular-ai-devtools/src/app/panel-demo.spec.ts && npm run check && npx nx run angular-ai-devtools:test --skip-nx-cache && npm test`
+- Held-out: E7

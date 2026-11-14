@@ -142,6 +142,14 @@ re-measurements confirm two of them survived.
   id 2. So the defect is not "id reuse" as this intent's Problem section described it. SC4's
   criterion text is unchanged and the repair is written against the frame-local absence.
 
+- 2026-11-14, during build (T004's close-out): SC6's sentence says the only edited assertion is the
+  navigation pin. Measured at this head, no assertion was weakened or dropped
+  (`droppedAssertionLines: 0`), and the single re-cut assertion line is in
+  `scripts/navigation-capture.test.mjs` — T003's path-resolution repair, where
+  `assert.notEqual(intentPathForMilestone(ROOT, 'M040'), LIVE_INTENT)` became a derived comparison.
+  SC6 is therefore met in substance and its sentence is corrected here rather than the record being
+  bent to it. The criterion's intent — that nothing was weakened to reach green — holds.
+
 ## Risks
 
 - A check that scans the wrong tree passes vacuously; SC5's mutant is the mitigation,
