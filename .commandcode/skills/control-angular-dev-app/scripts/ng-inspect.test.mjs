@@ -177,7 +177,7 @@ class CartService {}
 // Angular's providers are keyed by the class itself.
 class NgZone {}
 
-test('doctor reads the version, roots and the last NgZone record, and installs the helpers for later loads', async (t) => {
+test('doctor reads the version, roots and the last NgZone record, and installs __ngc for later loads', async (t) => {
   const zoneBased = [
     { token: NgZone, provider: { useClass: { name: 'NoopNgZone' } } },
     { token: NgZone, provider: { useFactory: () => null } },

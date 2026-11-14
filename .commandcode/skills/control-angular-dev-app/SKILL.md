@@ -7,7 +7,7 @@ description: Drive, screenshot, inspect and reproduce behaviour in an Angular ap
 
 Launches the counter fixture, the SSR fixture or the Insurance Portal on derived ports, or attaches to any running dev-mode
 Angular app by URL; checks the page is an Angular development build; drives it through a named playwright-cli
-session; reads Angular state through `window.ng` helpers; captures evidence; tears down only what it started.
+session; reads Angular state through read-only `window.ng` calls; captures evidence; tears down only what it started.
 Skip it for production builds (no `window.ng`), for unit tests, and for Lars's own browsers: never attach to
 Chrome Beta or Edge Dev (`--cdp`, `--extension`), and never use the sessions `cb`, `ed`, `ai-cb`, `ai-ed`.
 
@@ -136,7 +136,7 @@ found` ("it found no devtools server"). With control-pangular-inspector's server
   which is expected ("expected while a devtools server runs").
 - `console-errors`: `playwright-cli console error` reports zero errors besides the `pangular-overlay` ones.
 
-Exit 0 healthy, 1 a check failed (named), 2 could not run. The doctor also installs the `__ngc` helpers
+Exit 0 healthy, 1 a check failed (named), 2 could not run. The doctor also installs the `__ngc` functions
 (Inspect). It navigates to the app root, so do not run it mid-recipe.
 
 ## Drive
@@ -160,11 +160,11 @@ Recipes per feature: [features/README.md](features/README.md).
 
 `__ngc` is installed by `doctor`, or by
 `playwright-cli -s=<session> --raw run-code --filename=.commandcode/skills/control-angular-dev-app/scripts/ng-inspect.js`
-(also registered for later page loads). All helpers are read-only. Call them with
+(also registered for later page loads). Every `__ngc` function is read-only. Call them with
 `playwright-cli -s=<session> --raw eval "() => __ngc.<fn>(...)"` and return objects, not `JSON.stringify`
 (that double-encodes). `<host>` is a CSS selector or an index from `components()`.
 
-| Helper                        | What it calls                                                                                 | Returns                                                                                                                                    |
+| Function                      | What it calls                                                                                 | Returns                                                                                                                                    |
 | ----------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | `components()`                | `ng.getComponent` over the DOM                                                                | `{i, tag, name}`; dev class names lose their leading `_`                                                                                   |
 | `inspect(host)`               | `getComponent`, `getDirectiveMetadata`, `getListeners`, `getDirectives`, `getOwningComponent` | name, `changeDetection` (`OnPush`/`Eager`), inputs with values, outputs, host listeners, directives, owner, own fields (signals unwrapped) |
@@ -282,7 +282,7 @@ Inspector"` that appears last in every snapshot; recipes do not use it. Without 
 - `/claim/create` shows the heading "Complaint Create" (app bug, reported, not patched).
 - Never run Angular's in-page tool `angular:di_graph` and never call `injector.get` on a node injector's
   `ViewContainerRef`: afterwards `ng.ɵgetSignalGraph` loses the template node for the rest of the page's life
-  (research/05-spikes.md). The helpers read providers through `ɵgetInjectorProviders` only.
+  (research/05-spikes.md). The `__ngc` functions read providers through `ɵgetInjectorProviders` only.
 - Never call `ng.ɵsetProfiler(null)`: it clears every profiler, Angular DevTools' included.
 - Since Angular 22.0 a component without `changeDetection` is OnPush: `getDirectiveMetadata(...)
 .changeDetection === 0`. `Eager` means the author opted out.

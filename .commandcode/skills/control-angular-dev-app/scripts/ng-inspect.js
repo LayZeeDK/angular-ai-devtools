@@ -1,5 +1,5 @@
 // @ts-check
-// playwright-cli run-code file. Installs window.__ngc (read-only ng.* helpers) on this page and on every later load,
+// playwright-cli run-code file. Installs window.__ngc (read-only wrappers of ng.*) on this page and on every later load,
 // then returns the doctor summary as JSON. Never calls injector.get, never runs angular:di_graph, never calls
 // ng.ɵsetProfiler.
 
@@ -12,7 +12,7 @@ async function ngInspect(page) {
   /** @typedef {{ inputs?: Record<string, unknown>, outputs?: Record<string, unknown>, changeDetection?: number, encapsulation?: number }} DirectiveMeta */
 
   /**
-   * The `window.ng` functions the helpers call, as Angular 22 development builds expose them.
+   * The `window.ng` functions the `__ngc` wrappers call, as Angular 22 development builds expose them.
    * @typedef {object} NgApi
    * @property {(el: Node) => Record<string, unknown> | null} getComponent
    * @property {(target: Node | object) => object} getInjector

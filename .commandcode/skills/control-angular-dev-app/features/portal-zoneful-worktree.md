@@ -79,7 +79,7 @@ ChangeDetectionSchedulerImpl`, an `NgZone` `useClass fn:NoopNgZone` record, and 
 - `--dir` (or `CONTROL_NG_PORTAL_DIR`) is what selects the worktree; without it the skill serves the main
   checkout, whose moving `main` is the zoneless target and answers different `change-detection-mode` text.
 - `NgZone` in the doctor line means the record was a `useFactory`, not that the factory name is `NgZone`: the
-  helper reports the record's shape, never the factory's identity.
+  check reports the record's shape, never the factory's identity.
 - A worktree session is refused on the main checkout's slots: drive the worktree from its own checkout, or
   attach with `--url` on purpose.
 - Re-record this entry when the portal migration completes: the pin, the Angular version and the port all
