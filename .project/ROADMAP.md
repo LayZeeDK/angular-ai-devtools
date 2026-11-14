@@ -1595,7 +1595,7 @@ Depends on: [M020, M041, M042]
 Programme: Generation 3 · Batch: 3 · Group: command-line
 Surfaces: command-line gate, research notes
 
-Status: pending
+Status: active
 Archive: null
 Integrated: null
 

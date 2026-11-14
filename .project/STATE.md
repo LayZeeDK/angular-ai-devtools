@@ -1,11 +1,11 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: null
+milestone: gate-integrity
 phase: roadmap
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M044
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -872,3 +872,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-14 — inspect — inspection complete; inspect delta recorded
 - 2026-11-14 — define — inspection complete; define opened
 - 2026-11-14 — roadmap — roadmap re-slice started
+- 2026-11-14 — roadmap — program roadmap approved
