@@ -5,7 +5,7 @@ milestone: gate-integrity
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M044
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -893,3 +893,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-14 — plan — build recovery: {"base": "6d2ca9b8d5948e8a4c7471771d27b1ce3244f4d9", "branch": "gsd-path/M044", "kind": "plan", "source": "build"}
 - 2026-11-14 — plan — plan approved
 - 2026-11-14 — build — build started
+- 2026-11-14 — build — cache-cold npm test is red on panel-demo.spec.ts:1334: T003 added the narrator's skipped field without the panel fact; a patch task on panel-demo.ts must land first
