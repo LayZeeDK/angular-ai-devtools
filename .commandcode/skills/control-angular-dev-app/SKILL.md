@@ -73,6 +73,9 @@ node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target
   with `PORT=3000`, and `node node_modules/nx/dist/bin/nx.js run insurance-portal:serve --port=<port>` with `PORT`
   removed from its environment. Both get `NX_TUI=false`. The Nx daemon stays on: `nx` starts it in the portal
   checkout when none runs, and it outlives `down` by design (see Cleanup).
+- Every server starts through the launcher: `up` starts `control.mjs __serve <server command>` detached with the
+  log as its output, and the launcher runs the server in one hidden console, so the Nx forks open no console
+  window. The launcher is the recorded root of the process tree.
 - Readiness: each URL answers (portal API: `/api/customers`) and the app's index HTML contains its root tag
   (`<app-root>`, `<ng-journal-root>`). The doctor then checks the rendered page.
 - The portal API starts first and the app only after the API answers. Started together, the two cold `nx run`

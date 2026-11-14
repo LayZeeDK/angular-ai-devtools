@@ -22,6 +22,22 @@ import { mapFresh } from './fingerprint.mjs';
 import { printable } from './text.mjs';
 import { describe, merge, processTable, snapshot, stop } from './proctree.mjs';
 
+// The launcher `up` starts detached: it runs the server under one hidden console, so the console programs below it
+// (each Nx fork) open no window of their own. Dispatched before any other top-level work.
+if (process.argv[2] === '__serve') {
+  const server = spawn(process.execPath, process.argv.slice(3), {
+    stdio: 'inherit',
+    windowsHide: true,
+  });
+  server.on('error', (error) => {
+    console.error(`[ERROR] the server did not start: ${error.message}`);
+    process.exit(1);
+  });
+  server.on('exit', (code) => process.exit(code ?? 1));
+} else {
+  main();
+}
+
 /** @typedef {'counter' | 'ssr' | 'portal' | 'components'} TargetName */
 /** @typedef {{ name: string, bin: string | null, args: string[], env: Record<string, string | undefined>, port: number, readyPath: string }} ProcSpec */
 /** @typedef {'derived' | 'fixed' | 'external'} PortKind */
@@ -1311,13 +1327,17 @@ async function launch(state, specs, marker, attempt, t0, timeoutMs) {
     const notBefore = Date.now();
     const child = spawn(
       process.execPath,
-      [/** @type {string} */ (p.bin), ...p.args],
+      [
+        fileURLToPath(import.meta.url),
+        '__serve',
+        /** @type {string} */ (p.bin),
+        ...p.args,
+      ],
       {
         cwd: state.dir,
         env,
         detached: true,
         stdio: ['ignore', fd, fd],
-        windowsHide: true,
       },
     );
     const notAfter = Date.now();
@@ -1941,12 +1961,19 @@ function down() {
 /** @type {Record<string, () => void | Promise<void>>} */
 const commands = { up, doctor, info, down };
 
-// import.meta.url is the real path, so compare real paths: run through a link, the CLI still runs.
-if (
-  process.argv[1] &&
-  realpathSync.native(path.resolve(process.argv[1])) ===
-    realpathSync.native(fileURLToPath(import.meta.url))
-) {
+async function main() {
+  // main() is called above this module's constants; a self-import settles once the module has finished loading.
+  await import(import.meta.url);
+
+  // import.meta.url is the real path, so compare real paths: run through a link, the CLI still runs.
+  if (
+    !process.argv[1] ||
+    realpathSync.native(path.resolve(process.argv[1])) !==
+      realpathSync.native(fileURLToPath(import.meta.url))
+  ) {
+    return;
+  }
+
   const run =
     cmd !== undefined && Object.hasOwn(commands, cmd)
       ? commands[cmd]

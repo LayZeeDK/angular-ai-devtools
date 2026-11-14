@@ -70,7 +70,8 @@ or Lars's own) is never stopped.
    (17-20 s to ready, measured). Its `info` prints the URL (`http://localhost:4507/`).
 3. Start the devtools server: `node $S up --app-url http://localhost:4507/`. It runs
    `node node_modules/@pangular-inspector/devtools/bin.mjs dev --port 9999 --no-open --root <app> --read-only`
-   in the app folder, logs to `<evidenceDir>/pangular.log`, and is ready when MCP `initialize` answers
+   in the app folder through the launcher (`control.mjs __serve <that command>`, started detached; it runs the
+   server in one hidden console and is the recorded root), logs to `<evidenceDir>/pangular.log`, and is ready when MCP `initialize` answers
    (2.2 s measured). `--allow-actions` drops `--read-only`. `up` refuses a busy port 9999 and names its PID and the proxy line that pins it (Pick a flow).
 
 ## Doctor

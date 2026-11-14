@@ -938,6 +938,30 @@ test('down goes through proctree.mjs: the last snapshot below the root is merged
     /snapshot\((?:child\.)?pid, \{ notBefore(?:: t0)?, notAfter \}\)/,
     'up records the spawned process inside its spawn window',
   );
+  assert.match(
+    source,
+    /spawn\(\s*process\.execPath,\s*\[\s*fileURLToPath\(import\.meta\.url\),\s*'__serve',[^;]*?detached: true/,
+    'up starts the server detached through the __serve launcher',
+  );
+});
+
+test('__serve runs the server command with its arguments, passing on its output and exit code', () => {
+  const r = spawnSync(
+    process.execPath,
+    [
+      CONTROL,
+      '__serve',
+      '-e',
+      'process.stdout.write(process.argv.slice(1).join(" ")); process.exit(3)',
+      '--',
+      '--port',
+      '9999',
+      '--json',
+    ],
+    { encoding: 'utf8' },
+  );
+  assert.equal(r.stdout, '--port 9999 --json');
+  assert.equal(r.status, 3);
 });
 
 test('downOutcome refuses a reused root PID and a survivor with exit 2, and only notes a reused child or a shared service', () => {

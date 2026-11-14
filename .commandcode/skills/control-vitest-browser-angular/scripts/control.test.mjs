@@ -1,6 +1,7 @@
 // @ts-check
 // Run: node --test .commandcode/skills/control-vitest-browser-angular/scripts/control.test.mjs
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import {
   mkdirSync,
   mkdtempSync,
@@ -12,6 +13,7 @@ import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import {
   busyPorts,
   cdpPortOf,
@@ -984,6 +986,30 @@ test('down goes through proctree.mjs: the last snapshot below the root is merged
     /snapshot\((?:child\.)?pid, \{ notBefore(?:: t0)?, notAfter \}\)/,
     'up records the spawned process inside its spawn window',
   );
+  assert.match(
+    source,
+    /spawn\(\s*process\.execPath,\s*\[\s*fileURLToPath\(import\.meta\.url\),\s*'__serve',[^;]*?detached: true/,
+    'up starts ng test detached through the __serve launcher',
+  );
+});
+
+test('__serve runs the server command with its arguments, passing on its output and exit code', () => {
+  const r = spawnSync(
+    process.execPath,
+    [
+      fileURLToPath(new URL('./control.mjs', import.meta.url)),
+      '__serve',
+      '-e',
+      'process.stdout.write(process.argv.slice(1).join(" ")); process.exit(3)',
+      '--',
+      '--hold',
+      '90000',
+      '--json',
+    ],
+    { encoding: 'utf8' },
+  );
+  assert.equal(r.stdout, '--hold 90000 --json');
+  assert.equal(r.status, 3);
 });
 
 test('downOutcome refuses a reused root PID and a survivor with exit 2, and only notes a reused child or a shared service', () => {
