@@ -116,6 +116,32 @@ The premise held. Unlike M031-M033, no criterion is rewritten on measurement; th
 defects were already measured at their own heads by the review campaign, and these two
 re-measurements confirm two of them survived.
 
+- 2026-11-14, during build (T001's measurements): two facts were corrected on evidence, and
+  no criterion text changed.
+
+  **The archive-path defect is live as references, not as failures.** This section said it "is
+  not live in the shipped suites" because M043 replaced M042's two hardcoded paths with the
+  archive-aware resolver. T001 measured 16 references that resolve a path the archive move
+  deletes, out of 138 references in 141 suites. What M043 repaired was the two that *read* an
+  archived path; the rest are still there and would break the moment a milestone archived the
+  path they name. SC1 asks for the check rather than the repair, and that is now a measurement
+  rather than a judgement.
+
+  **A reference that is named is not a reference that is read.**
+  `scripts/performance-capture.test.mjs:1978` computes
+  `join(ROOT, '.project', 'intent', 'INTENT.md')` only to assert
+  `intentPathForMilestone(ROOT, 'M040') !== live`, while
+  `scripts/navigation-capture.test.mjs:1763` calls `copyFileSync(LIVE_INTENT, live)`. Both name
+  the same path; only the second resolves it. SC1's wording — "resolves" — carries the
+  distinction, and T002's design must implement it, or the check reddens every milestone after
+  its own archive and gets switched off.
+
+  **SC4's "already-ended navigation id" means an id whose start is absent from its own frame.**
+  The recorded skip carries id 3 with `hasStartInItsOwnFrame: false` while its start exists in a
+  `superseded` frame from a different run; the navigation that ended immediately before it was
+  id 2. So the defect is not "id reuse" as this intent's Problem section described it. SC4's
+  criterion text is unchanged and the repair is written against the frame-local absence.
+
 ## Risks
 
 - A check that scans the wrong tree passes vacuously; SC5's mutant is the mitigation,
