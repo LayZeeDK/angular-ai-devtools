@@ -2,8 +2,7 @@
 id: T001
 title: Measure the three gate shapes and publish one record
 wave: 1
-deps:
-  []
+deps: []
 status: pending
 agent: null
 base: null

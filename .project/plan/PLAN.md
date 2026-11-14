@@ -27,6 +27,45 @@ The six criteria this plan answers, quoted from `.project/intent/INTENT.md` char
 
 ### SC6 — No existing assertion is weakened to make a check pass: the change to the shipped suites is limited to replacing the one probe-shaped navigation pin with one fed from the recording.
 
+## Intent coverage
+
+| Criterion | Task | Acceptance |
+| --------- | ---- | ---------- |
+| SC1       | T001 | AC1        |
+| SC1       | T001 | AC3        |
+| SC2       | T001 | AC2        |
+| SC2       | T001 | AC4        |
+| SC4       | T001 | AC3        |
+| SC1       | T002 | AC1        |
+| SC1       | T002 | AC3        |
+| SC2       | T002 | AC2        |
+| SC5       | T002 | AC4        |
+| SC3       | T003 | AC1        |
+| SC3       | T003 | AC2        |
+| SC3       | T003 | AC5        |
+| SC4       | T003 | AC3        |
+| SC4       | T003 | AC4        |
+| SC5       | T004 | AC1        |
+| SC1       | T004 | AC2        |
+| SC2       | T004 | AC2        |
+| SC3       | T004 | AC2        |
+| SC4       | T004 | AC2        |
+| SC6       | T004 | AC3        |
+| SC6       | T004 | AC4        |
+
+## Prohibitions
+
+| Prohibition | Criterion | Task |
+| ----------- | --------- | ---- |
+| N1          | SC1       | T002 |
+| N2          | SC1       | T002 |
+| N3          | SC2       | T002 |
+| N4          | SC4       | T003 |
+| N5          | SC3       | T003 |
+| N6          | SC5       | T002 |
+| N7          | SC6       | T004 |
+| N8          | SC1       | T004 |
+
 ## Held-out checks
 
 | Edge | Task | Test |
@@ -43,6 +82,50 @@ The six criteria this plan answers, quoted from `.project/intent/INTENT.md` char
 | E10 | T004 | scripts/navigation-blocking.test.mjs |
 
 E10's whole-tree half runs as the project verify (`npm run check && npm test`) inside T004; the row names the suite that proves the edited assertion.
+
+## Surface contract
+
+The command-line gate is the only surface; this milestone adds no panel surface and no page-side
+observable.
+
+### command-line gate — T003
+
+Criteria: SC3, SC4
+
+Entry: the two checks built in T002 receive the working tree and, for the fix-record check, the
+milestone's range and its task files; from this task they are invoked by the ship gate as stages of
+the project's verify chain, and the navigation narrator reads its event stream from the recording
+rather than from a list built in a test. Neither check spawns a browser and neither reads
+`.project/` state it did not name.
+
+States: `clean` carrying `examined: n`, where `n` is the number of references or claims examined;
+`refused` carrying one finding per defect, each naming the file, the line where known, the claim and
+the class, with a non-zero exit at the gate; `nothing-examined` carrying `examined: 0` as a refusal
+rather than a pass; and, for the narrator, `recorded` for a terminal the stream supports against
+`skipped-named` for a terminal arriving after its navigation ended.
+
+Walkthrough:
+
+1. `checkArchivePaths({ root, milestone })` reads `.project/STATE.md` and the milestone's archive directory, derives the live paths the archive move deletes, and scans every authored suite for a reference to one of them, returning `{ examined, findings }`.
+2. A suite resolving a live and deleted path yields a finding carrying its file, its line, the resolved path and the class; a suite reading an archived path yields none, and the examined count says how many suites were read.
+3. `checkFixRecord({ root, range, tasks })` reads each task's `## Log` for claimed paths and the range's own `--name-status`, treating a rename as both of its names, so a claim naming the new name is not reported absent.
+4. The gate runs both checks as stages; a finding exits non-zero naming the file or the task and the claim, and `examined: 0` exits non-zero naming itself as the reason.
+
+### research notes — T004
+
+Criteria: SC6
+
+Entry: the recordings and the verdict claims, written from what the checks printed rather than from
+what the plan expected them to print.
+
+States: `cited` for a criterion whose artefact exists and carries its reading; `uncited` for a
+criterion without one, which fails the task rather than being claimed.
+
+Walkthrough:
+
+1. Each check is driven against the instance that exposed it — the archived-path reference, the `nx.json` claim — and against a clean control, and the recording keeps what each printed and its exit status.
+2. `research/raw/m044-verdict-claims.json` cites one artefact per criterion, and a criterion with no artefact fails the task instead of being claimed.
+3. The project verify runs on the milestone's own tree and the suite count is recorded, then every suite is diffed against `d94502d1` so the one edited assertion is named.
 
 ## Wave 1 — measure the three gate shapes against the repository's own history, and publish the record the later waves read
 
