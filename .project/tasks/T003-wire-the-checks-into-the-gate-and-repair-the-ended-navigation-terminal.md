@@ -7,7 +7,7 @@ deps:
 status: pending
 agent: null
 base: null
-worktree: null
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - package.json
