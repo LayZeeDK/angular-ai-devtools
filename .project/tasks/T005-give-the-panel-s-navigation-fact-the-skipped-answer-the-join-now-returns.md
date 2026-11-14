@@ -66,3 +66,5 @@ E7
 ## Log
 
 - (no entries yet)
+
+- 2026-11-14 — verdict: ready — landed at 84c9df08. The fact's `skipped` is `[]` because the join derives an empty list for the warm frame the spec feeds; the `NavigationSkipped` witness lives in the separate `skip` frame, so the brief's premise that the warm stream carries it was wrong and the measured answer stands. App stage 347/347 with `Cache: Skipped (--skip-nx-cache)`; orchestrator's `npm run check` exit 0 with both stages passing.
