@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: stability-explainer
-phase: shipped
+milestone: null
+phase: roadmap
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
-branch: gsd-path/M043
-archive: .project/archive/043-stability-explainer
+status: active
+branch: gsd-path/M044
+archive: null
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -868,3 +868,7 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-14 — ship — project verify green at the reviewed head; both patch candidates retired
 - 2026-11-14 — ship — archive preflight passed; shipment recorded
 - 2026-11-14 — shipped — archive preflight passed; shipment recorded
+- 2026-11-14 — inspect — generation 2 closed; generation 3 opened
+- 2026-11-14 — inspect — inspection complete; inspect delta recorded
+- 2026-11-14 — define — inspection complete; define opened
+- 2026-11-14 — roadmap — roadmap re-slice started

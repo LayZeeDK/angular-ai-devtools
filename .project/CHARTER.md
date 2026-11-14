@@ -177,6 +177,37 @@ questions, answered in the panel, on the developer's machine.
 ## Corrections
 
 <!-- Verbatim user rulings that amend this charter. Append-only. -->
+- 2026-11-14: programme 2 · Generation 3 admission. Generation 2 (M032-M043) is
+  closed with all twelve entries shipped, integrated, tagged and archived, and a
+  two-arm `lars-review` panel has reviewed each of the twelve individually.
+  **Generation 3 — interaction, agent interop, blocks**, twelve entries M044-M055,
+  enters `Full scope: in`:
+
+  - `M044 gate-integrity` — the review's four verified blocking findings and the
+    three deterministic checks that would have caught three of them: a test resolving
+    a `.project/` path the same commit archives (M040, M042), a task log claiming a
+    file change the range never made (M035), and a pin fed an event composition the
+    app never produces (M041). It runs before any feature work because every one of
+    those shipped green.
+  - `M045 console-read` — carried from Generation 2, whose §2 twelve-entry cap left
+    it over.
+  - `M046-M055` — `copy-to-agent`, `component-search`, `ui-copy-check`,
+    `interaction-story`, `dead-click`, `what-changed`, `webmcp-audit`,
+    `webmcp-rehearsal`, `visual-qa`, `tutor-foundations`.
+
+  Numbering continues from M043 and never restarts (backlog §2). The backlog's
+  remaining eleven Generation 3 milestones — `tutor-signals`, `tutor-routing`,
+  `teardown-leak`, `error-routing`, `locale-correctness`, `outlet-explainer`,
+  `guard-phase`, `lazy-chunk-failure`, `title-input-binding`,
+  `schema-disabled-hidden`, `formfield-binder`, `head-state` and
+  `error-channel-map` — carry to the next generation, again by the twelve-entry cap.
+
+  **Consequence recorded, not decided.** A10 placed the design system immediately
+  after the `angular/components` work, which was Generation 4. Splitting Generation 3
+  means that work now spans two generations, so the design system would sit at
+  Generation 5 unless the next approval reorders it. This Correction does not move
+  A10; it records that the cap has pushed it, so the next roadmap approval decides
+  the order with that fact in front of it.
   - 2026-11-05: programme 2 · Generation 2 admission. Programme 1 (Generation 1,
     M018-M031) is closed with all twelve backlog goals shipped and archived.
     **Generation 2 — core explainers (batch 3)**, twelve entries M032-M043, enters
