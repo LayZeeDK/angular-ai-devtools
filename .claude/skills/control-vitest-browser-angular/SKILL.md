@@ -53,7 +53,7 @@ excluded port range.
 ## Launch
 
 ```bash
-node .claude/skills/control-vitest-browser-angular/scripts/control.mjs up --extension s1-vitest --hold 90000
+node .claude/skills/control-vitest-browser-angular/scripts/control.mjs up --hold 90000
 ```
 
 - Underneath: `node spikes/ng222-app/node_modules/@angular/cli/bin/ng.js test -c attach --watch` in
@@ -62,10 +62,8 @@ node .claude/skills/control-vitest-browser-angular/scripts/control.mjs up --exte
   where extensions run. `--bundled` runs `-c extension` (`vitest-extension.config.mts`) instead.
   Environment: `VITEST_BROWSER_PORT`, `VITEST_CDP_URL` (attach) or `VITEST_EXTENSION_DIR`, `VITEST_CDP_PORT`,
   `VITEST_USER_DATA_DIR` (bundled).
-- `--extension s1-vitest` writes the S1 test extension's Vitest variant (content scripts on
-  `http://127.0.0.1/*` and `http://localhost/*` in every frame) into the evidence directory and loads it.
-  `--extension <dir>` loads any unpacked extension. Attach mode works without an extension; bundled mode needs
-  one.
+- `--extension <dir>` loads any unpacked extension, for example the repository's `extension/`. Attach mode works
+  without an extension; bundled mode needs one.
 - `--hold <ms>` sets `VITE_COUNTER_HOLD_MS`. The spec's hold test then keeps the Counter mounted for that
   long, with `CartService` overridden to `['pear', 'plum']`, and clicks Increment once halfway through. Without
   it, a component exists only for the few milliseconds of each test.
@@ -93,22 +91,21 @@ node .claude/skills/control-vitest-browser-angular/scripts/control.mjs doctor
 
 Read-only. Each check prints one line (`--json` for the list):
 
-| Check                      | Passes when                                                                                                                                                                                                                                                                                  |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `map-fresh`                | always; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`), or that were never proven; never fails doctor                                                                                                                                    |
-| `process-alive`            | the recorded `ng test` PID runs with the recorded start time and command line                                                                                                                                                                                                                |
-| `tree`                     | adds the live processes below the `ng test` root to the recorded tree, for `down`                                                                                                                                                                                                            |
-| `ports`                    | every derived port listens and its PID is in the `ng test` tree (bundled Chromium included); the instance's external port is listed, not checked: `[OK] ports: vitest 51436 (derived), instance 9681 (external: control-ai-browsers instance chrome-beta-gemma4; this skill attaches to it)` |
-| `test-run`                 | the log has Vitest's `DEV` (watch) or `RUN` line and no "An exception occurred" or "Unhandled Error"; reports the last `Tests` summary                                                                                                                                                       |
-| `browser-cdp`              | `/json/version` answers on the CDP port                                                                                                                                                                                                                                                      |
-| `orchestrator-tab`         | a tab starts with `http://127.0.0.1:<port>/__vitest_test__/`                                                                                                                                                                                                                                 |
-| `tester-frame`             | the tab has a child frame named `vitest-iframe` with a default execution context                                                                                                                                                                                                             |
-| `dev-build`                | `window.ng` has functions in the tester iframe                                                                                                                                                                                                                                               |
-| `vitest-runner`            | `window.__vitest_browser_runner__` is an object in the tester iframe                                                                                                                                                                                                                         |
-| `mounted-component`        | a `[ng-version]` host exists now; `[WARN]` when no test is running                                                                                                                                                                                                                           |
-| `language-model`           | `LanguageModel.availability()` in the tester iframe is `available`; in bundled mode `[WARN]` (no model)                                                                                                                                                                                      |
-| `extension-content-script` | with `--extension`: an execution context from `chrome-extension://<id>` exists in the tester iframe                                                                                                                                                                                          |
-| `extension-loaded`         | with `--extension`: the extension's service worker target exists; `[SKIP]` without                                                                                                                                                                                                           |
+| Check               | Passes when                                                                                                                                                                                                                                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `map-fresh`         | always; `[WARN]` names the features whose files changed since they were proven (`scripts/fingerprint.mjs`), or that were never proven; never fails doctor                                                                                                                                    |
+| `process-alive`     | the recorded `ng test` PID runs with the recorded start time and command line                                                                                                                                                                                                                |
+| `tree`              | adds the live processes below the `ng test` root to the recorded tree, for `down`                                                                                                                                                                                                            |
+| `ports`             | every derived port listens and its PID is in the `ng test` tree (bundled Chromium included); the instance's external port is listed, not checked: `[OK] ports: vitest 51436 (derived), instance 9681 (external: control-ai-browsers instance chrome-beta-gemma4; this skill attaches to it)` |
+| `test-run`          | the log has Vitest's `DEV` (watch) or `RUN` line and no "An exception occurred" or "Unhandled Error"; reports the last `Tests` summary                                                                                                                                                       |
+| `browser-cdp`       | `/json/version` answers on the CDP port                                                                                                                                                                                                                                                      |
+| `orchestrator-tab`  | a tab starts with `http://127.0.0.1:<port>/__vitest_test__/`                                                                                                                                                                                                                                 |
+| `tester-frame`      | the tab has a child frame named `vitest-iframe` with a default execution context                                                                                                                                                                                                             |
+| `dev-build`         | `window.ng` has functions in the tester iframe                                                                                                                                                                                                                                               |
+| `vitest-runner`     | `window.__vitest_browser_runner__` is an object in the tester iframe                                                                                                                                                                                                                         |
+| `mounted-component` | a `[ng-version]` host exists now; `[WARN]` when no test is running                                                                                                                                                                                                                           |
+| `language-model`    | `LanguageModel.availability()` in the tester iframe is `available`; in bundled mode `[WARN]` (no model)                                                                                                                                                                                      |
+| `extension-loaded`  | with `--extension`: the extension's service worker target exists; `[SKIP]` without                                                                                                                                                                                                           |
 
 Exit 0 healthy, 1 a check failed (named), 2 could not run (no state file, refused).
 
@@ -152,9 +149,9 @@ From the tester iframe (`page.frame('vitest-iframe').evaluate(...)`), measured i
 - `LanguageModel` in attach mode (Gemma 4 answered a prompt from the tester iframe).
 - The orchestrator page and the tester iframe share one origin, so a script in the orchestrator can read
   `document.querySelector('iframe[data-vitest]').contentWindow.ng`.
-- Extension side: `spikes/probes/vitest-attach.mjs` shows how to open DevTools on the Vitest tab over CDP, show
-  the S1 panel and run `chrome.devtools.inspectedWindow.eval(expr, { frameURL: <tester URL> })`, and how to read the
-  extension's `chrome.storage.local` from its service worker.
+- Extension side (research 17): a DevTools panel reaches the tester iframe with
+  `chrome.devtools.inspectedWindow.eval(expr, { frameURL: <tester URL> })`; without `frameURL` it runs in the
+  orchestrator, which has no `ng`. No extension in the repository checks this now.
 - The test log (`ng-test.log` in the evidence directory): results, failure messages, failure screenshot paths
   (under `spikes/ng222-app/.vitest/attachments/`).
 - Not reachable from this skill: the Angular DevTools extension (manual only; it is not loaded into these
@@ -163,7 +160,7 @@ From the tester iframe (`page.frame('vitest-iframe').evaluate(...)`), measured i
 ## Evidence
 
 The evidence directory is `tmp/control-vitest-browser-angular/<flowId>-<timestamp>/` (git-ignored through
-`tmp/`). It holds `ng-test.log`, the generated `extension/` when `--extension s1-vitest` was used, and what you
+`tmp/`). It holds `ng-test.log` and what you
 save there: `snapshot --filename=<dir>/<name>.yml`, `screenshot --filename=<dir>/<name>.png`, `run-code` output
 redirected to `<dir>/<name>.json`. `down` keeps it. Proof rules: `features/README.md`.
 
@@ -190,12 +187,12 @@ refusal. A state file from before `proctree.mjs`, with no `tree`, stops nothing 
 
 `node .claude/skills/control-vitest-browser-angular/scripts/control.mjs <command> [flags] [--json]`
 
-| Command  | Flags                                                                                                                                                                                             | Does                                                                                                                                                                                                                                                                                       | Exit      |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
-| `up`     | `--instance <name>` (default `chrome-beta-gemma4`) or `--bundled`; `--extension <dir>\|s1-vitest`; `--hold <ms>`; `--timing-demo`; `--filter <text>`; `--port <n>`; `--timeout <s>` (default 180) | starts the run as above, writes the state file, waits until ready                                                                                                                                                                                                                          | 0 / 2     |
-| `doctor` |                                                                                                                                                                                                   | the checks above                                                                                                                                                                                                                                                                           | 0 / 1 / 2 |
-| `info`   |                                                                                                                                                                                                   | the state: flow id, mode, instance, CDP URL, Vitest port, `slot`, `ports` (`{name, port, kind, reason?}`), orchestrator URL, session, evidence dir, extension dir and id, `proc` (`{pid, log}`), `tree` (`{pid, ppid, start, commandLine}`, the root first; `start` in ms since the epoch) | 0 / 2     |
-| `down`   |                                                                                                                                                                                                   | the cleanup above                                                                                                                                                                                                                                                                          | 0 / 2     |
+| Command  | Flags                                                                                                                                                                                  | Does                                                                                                                                                                                                                                                                                       | Exit      |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
+| `up`     | `--instance <name>` (default `chrome-beta-gemma4`) or `--bundled`; `--extension <dir>`; `--hold <ms>`; `--timing-demo`; `--filter <text>`; `--port <n>`; `--timeout <s>` (default 180) | starts the run as above, writes the state file, waits until ready                                                                                                                                                                                                                          | 0 / 2     |
+| `doctor` |                                                                                                                                                                                        | the checks above                                                                                                                                                                                                                                                                           | 0 / 1 / 2 |
+| `info`   |                                                                                                                                                                                        | the state: flow id, mode, instance, CDP URL, Vitest port, `slot`, `ports` (`{name, port, kind, reason?}`), orchestrator URL, session, evidence dir, extension dir and id, `proc` (`{pid, log}`), `tree` (`{pid, ppid, start, commandLine}`, the root first; `start` in ms since the epoch) | 0 / 2     |
+| `down`   |                                                                                                                                                                                        | the cleanup above                                                                                                                                                                                                                                                                          | 0 / 2     |
 
 State file: `tmp/control-vitest-browser-angular/state/<flowId>.json`. Exit codes: 0 done or healthy; 1 not
 healthy; 2 refused or could not run, with the reason (a run already recorded, 10 busy slots, a busy `--port`, worktree on
@@ -222,8 +219,7 @@ command line of its own and prints nothing.
 Every other script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
 `npm run check` type-checks the scripts.
 
-Shared code: `spikes/probes/vitest-lib.mjs` (CDP client, frame contexts, the S1 Vitest variant), also used by
-the spike runner `spikes/probes/vitest-attach.mjs`.
+Shared code: `spikes/probes/vitest-lib.mjs` (CDP client, frame contexts).
 
 ## Gotchas
 

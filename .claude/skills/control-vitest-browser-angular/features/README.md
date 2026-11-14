@@ -6,7 +6,7 @@ control-vitest-browser-angular. Read this index, then use the matching feature f
 ## Baseline preconditions
 
 - Run commands from the repository root. `S` is `.claude/skills/control-vitest-browser-angular/scripts/control.mjs`.
-- `node $S up --extension s1-vitest --hold 90000`, then `node $S doctor` exits 0. `mounted-component` passes
+- `node $S up --hold 90000`, then `node $S doctor` exits 0. `mounted-component` passes
   only while the hold test runs (90 s from `RUN`, or from a `RERUN` after a touch).
 - Take `<session>`, `<cdpUrl>`, `<evidenceDir>` and `orchestratorUrl` from `node $S info`.
 - Attach the session: `playwright-cli attach --cdp=<cdpUrl> --session=<session>`, then `tab-list` and
@@ -52,8 +52,8 @@ Each feature file has an H1, one paragraph of user-visible behaviour, then four 
 - [Counter tests](./counter-tests.md): the four specs, their results, the failing timing demo.
 - [Held Counter](./held-counter.md): the mounted Counter in the tester iframe, its signals, injector, override
   and profiler events.
-- [Extension in the tester iframe](./extension-in-tester.md): the S1 variant's content scripts, DevTools panel
-  and `LanguageModel` reaching the tester iframe.
+- [Extension in the tester iframe](./extension-in-tester.md): an unpacked extension loaded next to the tests,
+  and `LanguageModel` in the tester iframe.
 
 ## Full sweep
 

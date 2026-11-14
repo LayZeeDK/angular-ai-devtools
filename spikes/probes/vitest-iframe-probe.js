@@ -1,4 +1,5 @@
-// Runs inside the Vitest tester iframe (main world), evaluated over CDP by vitest-attach.mjs.
+// Runs inside the Vitest tester iframe (main world); control-vitest-browser-angular's held-counter recipe
+// evaluates this function with run-code, without these comment lines.
 // phase 'mount': reads window.ng, the mounted Counter, its signal graph, injector and provider records,
 // the Vitest runner global, and starts a ng.ɵsetProfiler recorder. phase 'after': reads the recorded
 // profiler events and stops the recorder. phase 'prompt': one LanguageModel prompt, only when available.

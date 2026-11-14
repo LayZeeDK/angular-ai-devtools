@@ -151,9 +151,9 @@ From the tester iframe (`page.frame('vitest-iframe').evaluate(...)`), measured i
 - `LanguageModel` in attach mode (Gemma 4 answered a prompt from the tester iframe).
 - The orchestrator page and the tester iframe share one origin, so a script in the orchestrator can read
   `document.querySelector('iframe[data-vitest]').contentWindow.ng`.
-- Extension side: `spikes/probes/vitest-attach.mjs` shows how to open DevTools on the Vitest tab over CDP, show
-  the S1 panel and run `chrome.devtools.inspectedWindow.eval(expr, { frameURL: <tester URL> })`, and how to read the
-  extension's `chrome.storage.local` from its service worker.
+- Extension side (research 17): a DevTools panel reaches the tester iframe with
+  `chrome.devtools.inspectedWindow.eval(expr, { frameURL: <tester URL> })`; without `frameURL` it runs in the
+  orchestrator, which has no `ng`. No extension in the repository checks this now.
 - The test log (`ng-test.log` in the evidence directory): results, failure messages, failure screenshot paths
   (under `spikes/ng222-app/.vitest/attachments/`).
 - Not reachable from this skill: the Angular DevTools extension (manual only; it is not loaded into these
@@ -221,8 +221,7 @@ command line of its own and prints nothing.
 Every other script has a `node:test` file beside it (`*.test.mjs`); `npm test` at the repository root runs them and
 `npm run check` type-checks the scripts.
 
-Shared code: `spikes/probes/vitest-lib.mjs` (CDP client, frame contexts, the S1 Vitest variant), also used by
-the spike runner `spikes/probes/vitest-attach.mjs`.
+Shared code: `spikes/probes/vitest-lib.mjs` (CDP client, frame contexts).
 
 ## Gotchas
 
