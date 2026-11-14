@@ -1595,8 +1595,8 @@ Depends on: [M020, M041, M042]
 Programme: Generation 3 · Batch: 3 · Group: command-line
 Surfaces: command-line gate, research notes
 
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/044-gate-integrity
 Integrated: null
 
 Scope: in
