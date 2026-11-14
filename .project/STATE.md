@@ -5,7 +5,7 @@ milestone: gate-integrity
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M044
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -878,3 +878,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-14 — plan — planning started
 - 2026-11-14 — plan — plan approved
 - 2026-11-14 — build — build started
+- 2026-11-14 — build — T002 needs a contract repair: T001 measured that a named reference is not a read reference
