@@ -1,0 +1,170 @@
+{
+  "schema": "m044-verdict-claims/v1",
+  "milestone": "M044",
+  "task": "T004",
+  "quotes": {
+    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(CLAIM_ROOT, \"M044\"))",
+    "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 6 criteria it declares are [\"SC1\",\"SC2\",\"SC3\",\"SC4\",\"SC5\",\"SC6\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character"
+  },
+  "ruling": {
+    "required": 0,
+    "notRequired": 6,
+    "why": [
+      "No row is required, and the list therefore names no driver, no instance and no verdict path: scripts/overlay-verdict-claims.test.mjs refuses a list with no required row that names a driver, so naming one would be the opposite defect.",
+      "The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext - with the required rows together citing drawnRect, descriptor and noDevContext. Every fact these six criteria are written about is a reading of this repository's own gate: 158 .project reference(s) in 141 suite(s), 6 claim(s) held against a range, 12 check stages, 1 recorded NavigationSkipped entry, 4 driven check runs and the diff of 199 suite(s) against d94502d1. None of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the gate.",
+      "The portal is not lost by that ruling: it is the page the four defects were measured on and every reason names the clause that would have made a row required. Each row cites the artefact that carries it, the reading it carries and the commands that prove it."
+    ]
+  },
+  "evidence": {
+    "shapes": {
+      "path": "research/raw/m044-gate-shapes.json",
+      "baseline": {
+        "named": "d94502d1",
+        "commit": "d94502d174aff31b0b1ebbab200d5e47939dec39"
+      },
+      "sections": [
+        "archiveReferences",
+        "fixRecord",
+        "skippedNavigations",
+        "drivenChecks",
+        "suiteDiff",
+        "wholeTree"
+      ]
+    },
+    "drivenChecks": [
+      {
+        "check": "archive-paths",
+        "shape": "control",
+        "exitStatus": 0,
+        "refusals": 0
+      },
+      {
+        "check": "archive-paths",
+        "shape": "instance",
+        "exitStatus": 1,
+        "refusals": 1
+      },
+      {
+        "check": "fix-record",
+        "shape": "control",
+        "exitStatus": 0,
+        "refusals": 0
+      },
+      {
+        "check": "fix-record",
+        "shape": "instance",
+        "exitStatus": 1,
+        "refusals": 1
+      }
+    ]
+  },
+  "capture": {
+    "task": "T004",
+    "command": "set \"M044_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "check": "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "records": "research/raw/m044-verdict-claims.json",
+    "criteria": [
+      "SC1",
+      "SC2",
+      "SC3",
+      "SC4",
+      "SC5",
+      "SC6"
+    ],
+    "reading": "an armed run re-derives the list from the intent this checkout binds, the measurements it cites and the files it names, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives."
+  },
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "A committed test that resolves a `.project/` path the milestone's own archive move deletes fails the ship gate, naming the file and the path; a milestone whose tests reference no such path passes the same check.",
+      "criterionCharacters": 211,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause reaches a criterion when an insurance-portal route can produce its facts, and this one's fact is whether a committed suite opens a `.project` path the milestone's own archive move deletes - a property of this repository's test tree and of the ship flow that moves it, which no route of any page carries. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a suite opens, so a portal-backed verdict would name a driver that cannot carry the answer. The portal is the page the defect was found beside, not the surface that can prove the check fires.",
+      "artefactPath": "research/raw/m044-gate-shapes.json",
+      "artefact": "research/raw/m044-gate-shapes.json (archiveReferences: command \"git ls-files --cached --others --exclude-standard -- scripts extension apps\", examined 158 reference(s) in 141 suite(s) of 271 listed file(s), counts archived-by-the-move 16, deliberate-archive-read 20, undecided 122; drivenChecks: scripts/docs-audit-disposition.test.mjs driven with the suite with T003's repair reverted to the hardcoded live read T002 measured, so it opens a path the archive move deletes exits 1 printing \"gate-integrity: refusal scripts/docs-audit-disposition.test.mjs:57 names .project/research/DOCS-AUDIT.md (archived-by-the-move) - resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives, and this suite reads it with readFileSync at line 58, so that call throws the moment the path is gone\", and its control exits 0 printing \"gate-integrity: archive-paths clean - examined 1 live path reference(s) of 8 reference(s) in 1 suite(s), across 1 relocated subtree(s)\") -> scripts/gate-integrity.mjs:974 (checkArchivePaths) -> package.json:24 (\"gate:archive-paths\": \"node scripts/gate-integrity.mjs --check archive\")",
+      "reading": "158 reference(s) in 141 suite(s) classified, with 16 resolving a live path the archive move deletes and 20 reading an archived path on purpose; the check reddens on a suite that reads the live name (exit 1) and passes the same check with the read resolved (exit 0)",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/gate-integrity.test.mjs\"",
+        "npm run gate:archive-paths",
+        "node scripts/gate-integrity.mjs --check archive --root . --milestone M044"
+      ]
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "A task log claiming a file change absent from the milestone's range fails the ship gate, naming the task and the file.",
+      "criterionCharacters": 118,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause asks for a portal-backed verdict where a portal route can produce the facts, and this criterion's facts are what `git diff --name-status` records for a milestone's own range beside what a task log claims - a reading of this repository's history that no inspected page produces and none could. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings; a range's changed paths are not among them, so a portal-backed row would name a driver that cannot carry a range at all. The portal is named here because it was considered: a portal drive would measure a page, not the diff a claim is held against.",
+      "artefactPath": "research/raw/m044-gate-shapes.json",
+      "artefact": "research/raw/m044-gate-shapes.json (fixRecord: claim T006 at .project/archive/035-onpush-readiness/tasks/T006-make-the-gate-measure-instead-of-remember.md:83 names nx.json with inRange false and 0 status row(s) in the range 99054909bd019afd578172200a07b64194e6489e..eb24d1e2deca1deed7992e46a965bb314864b6a1 (ship: M034 — lint-legacy .. ship: M035 — onpush-readiness), findings 2, claims examined 6 with 4 carried by the range; rename R100 .project/intent/INTENT.md -> .project/archive/043-stability-explainer/intent/INTENT.md with the old name present at the head false and the new name present true; drivenChecks: a task log claiming nx.json, which d94502d1^..d94502d1 carries no path for exits 1 printing \"gate-integrity: refusal nx.json at T901 (claim-absent-from-the-range) - T901 claims nx.json at <fixture>/instance/T901.md:6, and git diff --name-status -M d94502d1^..d94502d1 carries no such path (25 changed path(s), 9 rename row(s))\", and its control exits 0 printing \"gate-integrity: fix-record clean - examined 1 claim(s) in 1 task log(s) against 25 changed path(s) of d94502d1^..d94502d1 (the range given; claims: log)\") -> scripts/gate-integrity.mjs:1303 (checkFixRecord) -> package.json:25 (\"gate:fix-record\": \"node scripts/gate-integrity.mjs --check fix-record\")",
+      "reading": "the range carries no path for nx.json, so the claim is a finding naming T006 and the file (exit 1); the same check passes the rename's new name, R100 .project/archive/043-stability-explainer/intent/INTENT.md, because a rename contributes both of its names (exit 0)",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/gate-integrity.test.mjs\"",
+        "npm run gate:fix-record",
+        "git diff --name-status -M 99054909bd019afd578172200a07b64194e6489e..eb24d1e2deca1deed7992e46a965bb314864b6a1"
+      ]
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "The archive-path and fix-record checks run inside the gate rather than as advisory output, so neither defect can reach `ship/done` while the check is red.",
+      "criterionCharacters": 154,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause reaches a criterion only where a portal route produces its facts, and this one's fact is the order and the membership of `package.json`'s check chain: two stages run inside `npm run check` rather than beside a passing gate. A command list is not a page reading, so no route can produce it, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings rather than a chain of commands. The portal is the subject the milestone's first defect was found in, and this criterion is about the gate that must refuse before the portal's page is ever served again.",
+      "artefactPath": "package.json",
+      "artefact": "package.json:7 (\"check\": 12 stages, [\"npm run check:extension\",\"npm run check:companion\",\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last) with \"gate:archive-paths\" at line 24 and \"gate:fix-record\" at line 25 -> research/raw/m044-gate-shapes.json (drivenChecks runs: the archive stage alone exits 1 on the instance where the full gate would also refuse, and the fix-record stage alone exits 1 on its own instance, so each stage refuses rather than printing beside a pass; suiteDiff: scripts/panel-typecheck-scope.test.mjs M +68/-27 re-cut the chain pin to the twelve stages the chain now carries)",
+      "reading": "the check chain carries 12 stages and both gate stages among them, after \"npm run gate:verification\" and before \"npm run format:check\"; the driven check runs show a finding reaching the command as exit 1 and 1 rather than as output beside a pass",
+      "proves": [
+        "npm run check",
+        "npm run gate:archive-paths",
+        "npm run gate:fix-record",
+        "node --experimental-strip-types --test \"scripts/gate-integrity.test.mjs\""
+      ]
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "A navigation terminal for an already-ended navigation id produces a finding naming the skipped navigation, proven by a pin fed from `research/raw/m041-navigation.json` rather than from a hand-built event list.",
+      "criterionCharacters": 209,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts, and this one's fact is a `NavigationSkipped` entry in a recorded stream whose id has already ended - the entry carries id 3 and url /claim/list in frame terminals.skip.events, with its start in [\"superseded.events\"] and not in its own frame. A portal route does emit navigation events, and the recording was taken from one, but the gate's one `control-ai-browsers run` driver reads an element's toolElements, drawnRect, descriptor and noDevContext and returns none of the router's stream, so no driver in this repository carries the facts a portal-backed verdict would have to cite. The portal is named because the recorded page was a real one; what proves the criterion is the recording and the pin fed from it.",
+      "artefactPath": "research/raw/m044-gate-shapes.json",
+      "artefact": "research/raw/m044-gate-shapes.json (skippedNavigations: command \"read research/raw/m041-navigation.json, with the EventType numbers read from node_modules/@angular/router/fesm2022/_router-chunk.mjs\", examined 69 event(s) in 8 frame(s), event types read from node_modules/@angular/router/fesm2022/_router-chunk.mjs (skipped 16, start 0), counts {\"skippedByType\":1,\"skippedByClass\":1,\"withAStartInTheRecording\":1,\"withAStartInItsOwnFrame\":0}; entry {\"frame\":\"terminals.skip.events\",\"id\":3,\"url\":\"/claim/list\",\"code\":0,\"hasStartInTheRecording\":true,\"startFrames\":[\"superseded.events\"],\"hasStartInItsOwnFrame\":false}) -> extension/navigation-narrator.js:482 (the finding the ended id produces) -> scripts/navigation-blocking.test.mjs:2177 (the pin, fed [\"SUPERSEDED\",\"SKIP\"] read out of research/raw/m041-navigation.json)",
+      "reading": "the recorded stream carries 1 NavigationSkipped event(s), found by event type 16 and by class name alike (1), and the one entry has id 3, url /claim/list and no start in its own frame (0 of 1)",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/navigation-capture.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/gate-integrity.test.mjs\""
+      ]
+    },
+    {
+      "criterion": "SC5",
+      "criterionText": "Each check reddens a synthetic regression that reproduces its measured instance, and the failure names the file and the claim — proven by removing the synthetic regression and observing the check green again.",
+      "criterionCharacters": 208,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause is answered rather than dodged: a portal route is an Angular page and could in principle produce a page reading, but this criterion's facts are a check's own behaviour under a synthetic regression - the archive-path instance exits 1 where its control exits 0, the fix-record instance exits 1 where its control exits 0, and what each printed is recorded - and no route produces that. The gate's one control-ai-browsers run driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, so a portal-backed row would make the gate return a rect for a claim about a mutant. The portal is the page the first defect was measured on; the evidence is the pair of runs and the mutants the checks ship.",
+      "artefactPath": "research/raw/m044-gate-shapes.json",
+      "artefact": "research/raw/m044-gate-shapes.json (drivenChecks: 4 run(s) - archive-paths control exit 0 with 0 refusal(s); archive-paths instance exit 1 with 1 refusal(s); fix-record control exit 0 with 0 refusal(s); fix-record instance exit 1 with 1 refusal(s)) -> scripts/gate-integrity.mjs:112 (MUTANTS) -> scripts/navigation-blocking.test.mjs:2243 (the pin whose removal turns the narrator green again)",
+      "reading": "each check reddens on the regression that reproduces its measured instance (exit 1 and 1) and is green with the repair restored (exit 0 and 0), and the failure names the file and the claim it reddens on",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/gate-integrity.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC6",
+      "criterionText": "No existing assertion is weakened to make a check pass: the change to the shipped suites is limited to replacing the one probe-shaped navigation pin with one fed from the recording.",
+      "criterionCharacters": 181,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause cannot reach this criterion: it forbids weakening an assertion in a shipped suite, so its facts are the diffs of the suites against d94502d1, the count of the suites and declarations the project verify runs, and the one navigation pin fed from the recording - none of which any route of any page produces. The gate's one control-ai-browsers run driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and a diff is not among them, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because it is the page whose navigation pin this criterion permits to move; the evidence is the diff and the counts, not a drive.",
+      "artefactPath": "research/raw/m044-gate-shapes.json",
+      "artefact": "research/raw/m044-gate-shapes.json (suiteDiff: command \"git diff --numstat d94502d1 over scripts extension apps src .claude/skills .commandcode/skills, and git diff d94502d1 -- <suite> for each suite that differs; git ls-tree -r --name-only d94502d1 says which the measured head carries\", baseline d94502d1 (d94502d174aff31b0b1ebbab200d5e47939dec39), examined 199 suite(s), counts {\"differing\":7,\"edited\":6,\"added\":1,\"removedAssertionLines\":1,\"recutAssertionLines\":1,\"droppedAssertionLines\":0,\"addedAssertionLines\":269}; differing [\"scripts/autonomy-gaps.test.mjs M +36/-1 with 0 assertion(s) re-cut and 0 dropped\",\"scripts/docs-audit-disposition.test.mjs M +43/-4 with 0 assertion(s) re-cut and 0 dropped\",\"scripts/gate-integrity.test.mjs A +4247/-0 with 0 assertion(s) re-cut and 0 dropped\",\"scripts/navigation-blocking.test.mjs M +911/-4 with 0 assertion(s) re-cut and 0 dropped\",\"scripts/navigation-capture.test.mjs M +23/-7 with 1 assertion(s) re-cut and 0 dropped\",\"scripts/panel-typecheck-scope.test.mjs M +68/-27 with 0 assertion(s) re-cut and 0 dropped\",\"scripts/retired-suites.test.mjs M +14/-8 with 0 assertion(s) re-cut and 0 dropped\"]; wholeTree: 199 suite(s) {\"scripts\":96,\"extension\":11,\"apps\":34,\"src\":2,\"skills\":56,\"total\":199} with 2375 test declaration(s) in 284 group(s)) -> scripts/navigation-blocking.test.mjs:118 (the answer key set the pin was re-cut to) -> package.json (npm test runs the same suites the count enumerates)",
+      "reading": "6 suite(s) the measured head carries differ and 1 were added at this head; 1 assertion line(s) were removed across the whole diff, of which 1 were re-cut with the same assertion about the same subject and 0 were dropped, and the tree the project verify runs holds 199 suite(s) and 2659 declaration(s) so a removed test is a smaller number",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/gate-integrity.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "npm run check && npm test",
+        "git diff --numstat d94502d1"
+      ]
+    }
+  ]
+}

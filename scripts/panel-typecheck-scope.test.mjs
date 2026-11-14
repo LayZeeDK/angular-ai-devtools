@@ -99,12 +99,15 @@ const COMPANION_CONFIG_RELATIVE =
 
 /** The `check` chain, re-pinned stage by stage: the three stages that predate M018, the panel stage
  * M018 added, the extension stage M025 adds, and the companion stage M021 added last, in that
- * order. Every entry is spelled out.
+ * order, then the verification gate, M044's two gate-integrity stages and the format check. Every
+ * entry is spelled out.
  *
  * This ordered list is a deliberate pin, and adding a stage to `check` on purpose is exactly the
  * change it has to be told about. M025's SC1 extends `npm run check` to `extension/`, so T004 added
  * the sixth entry — `npm run check:extension`, before `check:companion` — here, in the same change
- * that moved the chain; the list and the chain are re-cut together.
+ * that moved the chain; M044's T003 added `gate:archive-paths` and `gate:fix-record` after
+ * `gate:verification`, here, in the change that wired them. The list and the chain are re-cut
+ * together.
  *
  * What did *not* change is the strength: still a deep equal against the whole ordered list, still
  * "and nothing else". A wildcard, a `some(...)` or an `includes` here would accept a chain that
@@ -129,6 +132,14 @@ const CHECK_STAGES = [
   // verification skills, and the gate runs inside `npm run check` so the chain cannot pass
   // around it. The pin predated the stage; the pin follows the chain, never the reverse.
   'npm run gate:verification',
+  // M044's two gate-integrity stages. A check that only prints is the defect that milestone
+  // removes, so `checkArchivePaths` and `checkFixRecord` are stages of this chain rather than
+  // advisory output beside it: `gate:archive-paths` refuses a suite that reads a live `.project`
+  // path the milestone's own archive move deletes, and `gate:fix-record` refuses a task log claiming
+  // a change the milestone's range does not carry. Named in position, after the verification gate
+  // and before the format check, in the change that moved the chain.
+  'npm run gate:archive-paths',
+  'npm run gate:fix-record',
   // Added when the repository adopted Prettier: the tree is formatted, so an unformatted
   // commit is a failing check rather than a later surprise. Named in position, not loosened.
   'npm run format:check',
@@ -348,11 +359,11 @@ function assertStageChain(script, expected = CHECK_STAGES) {
   assert.deepEqual(
     checkStages(script),
     expected,
-    'check must run its six stages in order — the root type check, the skills stage, the panel stage, the extension stage and then the companion stage — and nothing else',
+    'check must run its twelve stages in order — the root type check, the four skills stages, the panel stage, the extension stage, the companion stage, the verification gate, the archive-path check, the fix-record check and then the format check — and nothing else',
   );
 }
 
-test('the check chain runs every stage it ran before and ends with the companion stage', () => {
+test('the check chain runs every stage it ran before and ends with the format stage', () => {
   const pkg = JSON.parse(readFileSync(PACKAGE_PATH, 'utf8'));
   const script = pkg.scripts?.check;
   assert.equal(
@@ -361,9 +372,10 @@ test('the check chain runs every stage it ran before and ends with the companion
     'package.json must carry a check script',
   );
 
-  // The pin in one assertion: the three pre-existing stages, the panel stage, the extension stage
-  // and the companion stage, named exactly and in order. A dropped, reordered or extra stage fails
-  // here even though every named stage script is present.
+  // The pin in one assertion: the three pre-existing stages, the panel stage, the extension stage,
+  // the companion stage, the verification gate, M044's two gate-integrity stages and the format
+  // stage, named exactly and in order. A dropped, reordered or extra stage fails here even though
+  // every named stage script is present.
   assertStageChain(script);
 
   assert.equal(
@@ -377,30 +389,59 @@ test('the check chain runs every stage it ran before and ends with the companion
     'check:companion must run tsc against the companion package config and nothing else',
   );
 
-  // The red half, re-cut to the six-stage list: the same comparison must still fail when a stage is
-  // dropped, reordered or added — including the extension stage M025 inserted, so the insertion is
-  // pinned rather than tolerated. Without this half the re-pin could have been widened into a list
-  // that passes unconditionally, which is the weakened pin N6 forbids.
+  // The two gate-integrity stages, held to the scripts that carry them: a stage that ran some other
+  // command would satisfy the chain comparison above while measuring nothing this milestone added.
+  assert.equal(
+    pkg.scripts['gate:archive-paths'],
+    'node scripts/gate-integrity.mjs --check archive',
+    'gate:archive-paths must run the archive-path check and nothing else',
+  );
+  assert.equal(
+    pkg.scripts['gate:fix-record'],
+    'node scripts/gate-integrity.mjs --check fix-record',
+    'gate:fix-record must run the fix-record check and nothing else',
+  );
+
+  // The red half, re-cut to the twelve-stage list: the same comparison must still fail when a stage
+  // is dropped, reordered or added — including the extension stage M025 inserted and M044's two
+  // gate-integrity stages, so each insertion is pinned rather than tolerated. Without this half the
+  // re-pin could have been widened into a list that passes unconditionally, which is the weakened
+  // pin N6 forbids.
+  const at = (stage) => {
+    const index = CHECK_STAGES.indexOf(stage);
+    assert.notEqual(index, -1, `the pin must carry the stage ${stage}`);
+    return index;
+  };
+  const without = (...dropped) =>
+    CHECK_STAGES.filter((_, index) => !dropped.includes(index));
+  const archiveStage = 'npm run gate:archive-paths';
+  const fixRecordStage = 'npm run gate:fix-record';
+  const verificationStage = 'npm run gate:verification';
   const refused = {
-    'a dropped companion stage': CHECK_STAGES.slice(0, -1),
-    'a dropped extension stage with the companion stage still present': [
-      ...CHECK_STAGES.slice(0, 4),
-      CHECK_STAGES[5],
+    'a dropped format stage': CHECK_STAGES.slice(0, -1),
+    'a dropped fix-record stage': without(at(fixRecordStage)),
+    'a dropped archive-paths stage': without(at(archiveStage)),
+    'both gate-integrity stages dropped': without(
+      at(archiveStage),
+      at(fixRecordStage),
+    ),
+    'a dropped verification stage': without(at(verificationStage)),
+    'a dropped companion stage': without(at('npm run check:companion')),
+    'a dropped extension stage': without(at('npm run check:extension')),
+    'a dropped panel stage': without(at('npm run check:panel')),
+    'the two gate-integrity stages swapped': [
+      ...CHECK_STAGES.slice(0, at(archiveStage)),
+      fixRecordStage,
+      archiveStage,
+      ...CHECK_STAGES.slice(at(fixRecordStage) + 1),
     ],
-    'a dropped panel stage with the extension and companion stages still present':
-      [...CHECK_STAGES.slice(0, 3), CHECK_STAGES[4], CHECK_STAGES[5]],
     'the extension and companion stages swapped': [
-      ...CHECK_STAGES.slice(0, 4),
-      CHECK_STAGES[5],
-      CHECK_STAGES[4],
+      ...CHECK_STAGES.slice(0, at('npm run check:extension')),
+      'npm run check:companion',
+      'npm run check:extension',
+      ...CHECK_STAGES.slice(at('npm run check:companion') + 1),
     ],
-    'the panel and extension stages swapped': [
-      ...CHECK_STAGES.slice(0, 3),
-      CHECK_STAGES[4],
-      CHECK_STAGES[3],
-      CHECK_STAGES[5],
-    ],
-    'an extra stage appended after the companion stage': [
+    'an extra stage appended after the format stage': [
       ...CHECK_STAGES,
       'npm run check:extra',
     ],

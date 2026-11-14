@@ -1,0 +1,95 @@
+---
+id: T003
+title: Wire the checks into the gate and repair the ended-navigation terminal
+wave: 3
+deps:
+  - T002
+status: done
+agent: build_T003
+base: 477ecfba47dfa895ff7ec49216f14f1e32f1b2e0
+worktree: null
+task_branch: null
+files:
+  - package.json
+  - scripts/panel-typecheck-scope.test.mjs
+  - scripts/gate-integrity.mjs
+  - extension/navigation-narrator.js
+  - scripts/navigation-blocking.test.mjs
+  - research/raw/m041-navigation.json
+  - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
+  - extension/agent-main.test.mjs
+  - packages/ai-devtools-companion/test/facade.test.mjs
+  - scripts/error-boundary-measure.test.mjs
+  - scripts/facade-dev-build.test.mjs
+  - scripts/error-boundary-capture.test.mjs
+  - scripts/field-state-capture.test.mjs
+  - scripts/held-out-nested-run.test.mjs
+  - scripts/legacy-diagnostic-capture.test.mjs
+  - scripts/linked-state-capture.test.mjs
+  - research/raw/m044-gate-shapes.json
+  - scripts/gate-integrity.test.mjs
+  - scripts/navigation-capture.test.mjs
+  - scripts/autonomy-gaps.test.mjs
+  - scripts/docs-audit-disposition.test.mjs
+  - scripts/retired-suites.test.mjs
+---
+
+# T003 — Wire the checks into the gate and repair the ended-navigation terminal
+
+## Context
+
+A check that only prints is the defect this milestone removes, so both checks become stages of the project's own verify chain, and the pin that asserts that chain's stages is re-cut in the same change. The repair is narrow: `extension/navigation-narrator.js:459` records a terminal only when the navigation is `OPEN`, and a same-URL `NavigationSkipped` reuses the previous id, so the entry arrives for a navigation that has ended and is discarded. The risk is double-reporting, so the pin carries an ended id, an unknown id and a live navigation whose single terminal must not change.
+
+## Approach
+
+- Add both checks as stages of the verify chain in `package.json` and re-cut `scripts/panel-typecheck-scope.test.mjs` so the stage names and count carry them.
+- Record a terminal for an entry addressing an id whose navigation has ended, producing a finding that names the skipped navigation, while a live navigation still produces exactly one terminal.
+- Feed the pin from the event list read out of `research/raw/m041-navigation.json`, so a hand-built list cannot satisfy it.
+
+## Interface contract
+
+The gate surfaces `checkArchivePaths({ root, milestone })` and `checkFixRecord({ root, range, tasks })`, each returning `{ examined, findings[] }` where a finding carries `file`, `line`, `claim` and `class`, and `nothing-examined` is a finding rather than a pass. T001's record carries the same shapes as data: `archiveReferences[]`, `fixRecord` and `skippedNavigations[]`, each with `examined` and `command`. The narrator's finding for an ended id carries the navigation id, the url and the word the record uses for the skip, and names no cause, owner or intent the entry does not carry. The claims file cites one artefact per criterion, each artefact a path plus the reading it carries.
+
+## Intent coverage
+
+- SC1
+- SC3
+- SC4
+
+## Edges
+
+- E6
+- E7
+- E8
+- E10
+
+## Acceptance criteria
+
+1. held-out E6 — AC1 both checks run as stages of the verify chain and the scope pin carries them, proven by deleting one stage and observing the pin redden naming that stage.
+2. held-out E6 — AC2 a red check reaches the gate as a refusal: the gate exits non-zero naming the file on a fixture resolving an archived-then-deleted path, and exits zero on this milestone's own tree.
+3. held-out E7 — AC3 an entry addressing an already-ended id produces a finding naming the skipped navigation, and a navigation that ends normally still produces exactly one terminal.
+4. held-out E8 and E10 — AC4 the pin reads its event list from `research/raw/m041-navigation.json`, so a mutation reordering the recording reddens it and a list rebuilt in the test cannot satisfy it — both failure strings quoted in the Log.
+5. held-out E6 — AC5 `package.json` is pinned by many suites that assert parts of the verify chain, and this task changes it; the full `npm test` runs after the wiring and every suite that reddens on the new stages is re-cut in this task, with the file named in the Log. No suite is skipped and no assertion is widened to accept an unlisted stage.
+
+6. held-out E6 — AC6 the archive-path check passes on this milestone's own tree: the four live reads T002 measured resolve archive-aware, `checkArchivePaths` reports no finding for the tree with a non-zero `examined`, and a mutant restoring one hardcoded live path reddens the check naming that file — the failure string quoted in the Log.
+
+7. held-out E6 — AC7 the gate wires the fix-record check so it can be green over a real task set: a log token is a claim only when the task's own `files:` declares the path, every other path-like token is recorded as a `mention` and named rather than judged, and `claims: 'log'` remains the export's default so T002's nineteen tests pass unchanged — proven by the gate run over M044's own tasks reporting zero absent claims while the same run with `claims: 'log'` still reports `nx.json`.
+8. held-out E10 — AC8 `npm test` at this task's head fails only on `scripts/overlay-verdict-claims.test.mjs`'s two tests, whose cause is the absent `research/raw/m044-verdict-claims.json` that T004 creates; every other suite passes and the total count is recorded. A failure outside those two names is a blocker, and T004 must leave `npm test` fully green.
+
+## Verify
+
+```bash
+node --check scripts/gate-integrity.mjs && node --check extension/navigation-narrator.js && node --check scripts/navigation-blocking.test.mjs && node --experimental-strip-types --test "scripts/navigation-blocking.test.mjs" "scripts/gate-integrity.test.mjs" "scripts/panel-typecheck-scope.test.mjs" && npx prettier --check scripts/gate-integrity.mjs extension/navigation-narrator.js scripts/navigation-blocking.test.mjs scripts/panel-typecheck-scope.test.mjs package.json research/raw/m041-navigation.json && npm run check && npm test
+```
+
+## Held-out
+
+E6, E7, E8, E10
+
+## Log
+
+- (no entries yet)
+
+- 2026-11-14 — T003 landed eleven files at `ec3046e5`. Orchestrator re-ran the proof rather than reading the report: three `node --check` legs exit 0, the three suites reporting 45 tests / 45 pass, the four repaired suites 37 / 37, and `npm run check` exit 0 with both new stages visible — `archive-paths clean - examined 16 live path reference(s) of 153` and `fix-record clean - examined 2 claim(s) ... claims: declared` with `nx.json` recorded as a mention rather than judged. `npm test` is red on exactly the two permitted `overlay-verdict-claims` tests, whose cause is T004's absent claims file.
+- 2026-11-14 — the four live reads are repaired the way the resolver already does it: `autonomy-gaps` and `docs-audit-disposition` resolve the audit artefact, `retired-suites` picks whichever of the live or archived record exists, and `navigation-capture` asks `verdict-claims-intent.mjs` rather than spelling the intent path — that suite's own pin forbids the literal, which the first form tripped.
+- 2026-11-14 — verdict: ready — with one blind spot reported rather than hidden: a whole-path literal bound as `const X = '.project/…'` is classified as a naming and the read behind it is invisible to the use-climb (`scripts/error-boundary-measure.test.mjs:67` sits in that shape today). Every repaired reference sits in a call position, so none of the four relies on that hole, but it is a real gap for a follow-up.

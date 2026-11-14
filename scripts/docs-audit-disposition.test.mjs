@@ -31,6 +31,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -45,10 +46,48 @@ import { resolveRulesRoot } from './user-scope-autonomy.mjs';
 const repoRoot = join(fileURLToPath(new URL('..', import.meta.url)));
 
 /** The audit this suite copies, and the relative path the gate defaults to.
- * The real file is only ever read: every fixture is a copy in os.tmpdir(). */
-const AUDIT_RELATIVE = ['.project', 'research', 'DOCS-AUDIT.md'];
-const headAuditPath = join(repoRoot, ...AUDIT_RELATIVE);
+ * The real file is only ever read: every fixture is a copy in os.tmpdir().
+ *
+ * The audit is *resolved* by `resolveArtefact` below rather than opened by name, because this
+ * milestone's archive move deletes `.project/research`: M044's archive-path check reddens a suite
+ * that reads the live name directly, and M013's audit is the copy an archived checkout carries. The
+ * path is handed to the resolver in the call that consumes it, so the check records which copy the
+ * suite opens instead of a literal it cannot see through. */
+const AUDIT_RELATIVE = ['research', 'DOCS-AUDIT.md'];
+const headAuditPath = resolveArtefact('.project/research/DOCS-AUDIT.md');
 const headAuditText = readFileSync(headAuditPath, 'utf8');
+
+/**
+ * The artefact where this checkout carries it: the live `.project/<subtree>` copy while the milestone
+ * is live, and the newest archive copy once the ship flow has moved the subtree into
+ * `.project/archive/<NNN>-<slug>/`. Which copy exists is decided here, at read time, and an artefact
+ * that is nowhere fails naming the path it tried rather than reading nothing (SC1).
+ *
+ * @param {string} relative the artefact's path from the repository root, `.project` first
+ * @returns {string} the absolute path of the copy this checkout carries
+ */
+function resolveArtefact(relative) {
+  const segments = relative.split('/');
+  const live = join(repoRoot, ...segments);
+  const archives = join(repoRoot, '.project', 'archive');
+  const copies = existsSync(archives)
+    ? readdirSync(archives, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort()
+        .reverse()
+        .map((name) => join(archives, name, ...segments.slice(1)))
+        .filter((path) => existsSync(path))
+    : [];
+  const found = [live, ...copies].find((path) => existsSync(path));
+
+  assert.ok(
+    found,
+    `${relative} must exist: this checkout carries neither ${live} nor a copy under ${archives}`,
+  );
+
+  return found;
+}
 
 /** The audit's own line ending. The checkout's copy is CRLF, and the gate's
  * heading regexes are anchored, so a fixture must keep the file's ending
@@ -402,7 +441,7 @@ function writeFixtureRepo(root, text, inventory) {
     text,
     'the fixture header must stop naming the real checkout',
   );
-  const auditFile = join(root, ...AUDIT_RELATIVE);
+  const auditFile = join(root, '.project', ...AUDIT_RELATIVE);
   mkdirSync(dirname(auditFile), { recursive: true });
   writeFileSync(auditFile, fixture);
   const inventoryFile = join(root, 'inventory.txt');

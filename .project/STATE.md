@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: stability-explainer
+milestone: gate-integrity
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M043
-archive: .project/archive/043-stability-explainer
+branch: gsd-path/M044
+archive: .project/archive/044-gate-integrity
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -867,4 +867,36 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-14 — ship — project verify red in the held-out idempotency guard; patch planned
 - 2026-11-14 — ship — project verify green at the reviewed head; both patch candidates retired
 - 2026-11-14 — ship — archive preflight passed; shipment recorded
+- 2026-11-14 — shipped — archive preflight passed; shipment recorded
+- 2026-11-14 — inspect — generation 2 closed; generation 3 opened
+- 2026-11-14 — inspect — inspection complete; inspect delta recorded
+- 2026-11-14 — define — inspection complete; define opened
+- 2026-11-14 — roadmap — roadmap re-slice started
+- 2026-11-14 — roadmap — program roadmap approved
+- 2026-11-14 — define — roadmap approved; define opened
+- 2026-11-14 — define — milestone intent approved
+- 2026-11-14 — plan — planning started
+- 2026-11-14 — plan — plan approved
+- 2026-11-14 — build — build started
+- 2026-11-14 — build — T002 needs a contract repair: T001 measured that a named reference is not a read reference
+- 2026-11-14 — plan — build plan repair requested
+- 2026-11-14 — plan — build recovery: {"base": "0afd6f49324305b63d33546965f83e770814caad", "branch": "gsd-path/M044", "kind": "plan", "source": "build"}
+- 2026-11-14 — plan — plan approved
+- 2026-11-14 — build — build started
+- 2026-11-14 — build — T003 cannot wire the check into the gate: it is red on the shipped tree with four live reads of paths the archive move deletes, so a repair task must land first
+- 2026-11-14 — plan — build plan repair requested
+- 2026-11-14 — plan — build recovery: {"base": "1c8705e96d37e106c17373ae5611628c6b5ba0cd", "branch": "gsd-path/M044", "kind": "plan", "source": "build"}
+- 2026-11-14 — plan — plan approved
+- 2026-11-14 — build — build started
+- 2026-11-14 — build — T003 needs a wider allow-list, a declared-claims rule for the gate, and a named tolerance for T004's missing claims file
+- 2026-11-14 — plan — build plan repair requested
+- 2026-11-14 — plan — build recovery: {"base": "6d2ca9b8d5948e8a4c7471771d27b1ce3244f4d9", "branch": "gsd-path/M044", "kind": "plan", "source": "build"}
+- 2026-11-14 — plan — plan approved
+- 2026-11-14 — build — build started
+- 2026-11-14 — build — cache-cold npm test is red on panel-demo.spec.ts:1334: T003 added the narrator's skipped field without the panel fact; a patch task on panel-demo.ts must land first
+- 2026-11-14 — plan — build plan repair requested
+- 2026-11-14 — plan — build recovery: {"base": "9220079666d2d26cb57dc062b6407cffaae0974f", "branch": "gsd-path/M044", "kind": "plan", "source": "build"}
+- 2026-11-14 — plan — plan approved
+- 2026-11-14 — build — build started
+- 2026-11-14 — ship — build done; final review pending
 - 2026-11-14 — shipped — archive preflight passed; shipment recorded

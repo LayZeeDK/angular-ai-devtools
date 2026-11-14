@@ -1587,3 +1587,361 @@ Success criteria
 Risks: stability read from a quiet interval is not stability; the observable must come from the reported work.
 Open questions: none
 
+### M044 — gate-integrity
+
+Goal: The gate stops being fooled by the three shapes a Generation 2 review found shipping green — a test that resolves a `.project/` path the same commit archives, a task log that claims a file change the range never made, and a pin fed an event composition the app never produces — and the one product defect those shapes concealed (a navigation terminal dropped for an already-ended id) is answered from a recorded stream.
+
+Depends on: [M020, M041, M042]
+Programme: Generation 3 · Batch: 3 · Group: command-line
+Surfaces: command-line gate, research notes
+
+Status: shipped
+Archive: .project/archive/044-gate-integrity
+Integrated: null
+
+Scope: in
+- A deterministic ship check that fails when any committed test resolves a `.project/` path the milestone's own archive move deletes. Measured instances: `scripts/performance-capture.test.mjs:56` at `c03ed6fa` (M040), `scripts/error-boundary-capture.test.mjs:46` and `scripts/error-boundary-measure.test.mjs:53` at `fb84ff3b` (M042), both red at the shipped head after a green gate one commit earlier.
+- A deterministic check comparing every file a task log claims to have changed against the range's own diff, failing on a claim with no change. Measured instance: M035 T006 records an `nx.json` cache fix, while the range has no `nx.json` diff and `nx.json` still sets `"cache": true` for `@angular/build:unit-test`.
+- The product repair behind the fourth finding: a navigation terminal whose navigation is no longer `OPEN` is recorded rather than discarded (`extension/navigation-narrator.js:459` at `b0e5b082`), because Angular's same-URL `NavigationSkipped` reuses the previous id (`research/raw/m041-navigation.json:2346-2364`).
+- A re-pin of that behaviour from the recorded stream, replacing the isolated probe shape at `scripts/navigation-blocking.test.mjs:304-307`, which is the one composition that cannot occur live.
+
+Scope: out
+- Re-auditing Generation 2's review documents; the four findings are already measured at their own heads and recorded in the review campaign's register.
+- Any new explainer surface or panel feature; this milestone adds no observable to the tool.
+- Changing what a test asserts in order to make a check pass; a check that cannot fail is the defect this milestone exists to remove.
+
+Success criteria
+1. Each of the three checks reddens a synthetic regression that reproduces its measured instance, and names the file and the claim in the failure — proven by a mutant per check whose removal makes the check green again.
+2. The archive-path check runs inside the ship gate, so a milestone that archives a path a committed test still resolves cannot reach `ship/done`; a control milestone with no such reference passes it.
+3. A navigation terminal for an already-ended navigation id produces a finding naming the skipped navigation, and the pin that proves it is fed from `research/raw/m041-navigation.json` rather than a hand-built event list.
+
+
+### M045 — console-read
+
+Goal: The panel reports which console diagnostics the inspected page emitted and which of them the shipped digest can explain, answering per diagnostic with the construct and the code rather than with a count or a stack.
+Depends on: [M020]
+Programme: Generation 3 · Batch: 3 · Group: cross-package
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The capture of console diagnostics the page agent already performs, read as the observable; no new page-side instrumentation.
+- A panel surface that renders one finding per diagnostic from a short fact list: the construct the message body names, its code, and the body with the stack removed.
+- The absence a diagnostic earns when the digest carries no entry for its code, named rather than counted.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A diagnostic whose body is empty reports the absence, not an empty finding.
+2. A code the digest does not carry reports cannot-tell with the code named and no guessed construct.
+3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
+
+## Open questions
+
+- docs/feature-proposals.md — the console-read proposal, including whether a per-page diagnostic budget applies.
+
+### M046 — copy-to-agent
+
+Goal: A finding can be handed to the agent as a question about itself, and what the agent receives is the finding the panel rendered rather than a re-derivation of it.
+Depends on: [M020]
+Programme: Generation 3 · Batch: 3 · Group: cross-package
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The panel's own rendered finding, passed to the agent with the identifiers the page record carries.
+- A surface control that names what will be sent before it sends it.
+- The state reported when the finding cannot be expressed as a question, named rather than silently dropped.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. What is sent quotes the rendered finding; a mutant that re-derives the text from the record reddens the pin.
+2. A finding carrying a named absence is handed over with that absence, not with an empty finding.
+3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
+
+## Open questions
+
+- docs/feature-proposals.md — the copy-to-agent proposal, including whether the hand-off is a message or a prompt.
+
+### M047 — component-search
+
+Goal: The panel answers which components the inspected page rendered, and finds them by name, without reading the DOM for a list the agent already holds.
+Depends on: [M020]
+Programme: Generation 3 · Batch: 3 · Group: cross-package
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The component tree the page agent already captures, read as the observable.
+- A panel surface that lists components and filters them by the text the user types.
+- The absence reported for a page whose component tree the agent could not read.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. Filtering matches the names the record carries; a mutant that matches a name the record lacks reddens it.
+2. An unreadable tree reports cannot-tell naming the absence, never an empty list.
+3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
+
+## Open questions
+
+- docs/feature-proposals.md — the component-search proposal, including whether search spans components or instances.
+
+### M048 — ui-copy-check
+
+Goal: The panel reports which user-visible strings a page renders that its own digest would not explain, so a copy defect is named at the string rather than at the component.
+Depends on: [M020]
+Programme: Generation 3 · Batch: 3 · Group: cross-package
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The rendered text the page already publishes in its record, read as the observable.
+- A surface that names the string and the element identity the record carries, never a cause.
+- The absence reported when the record carries no rendered text.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A string absent from the digest is named with its element; a mutant that suppresses it reddens the pin.
+2. A record with no text reports the named absence, not a clean result.
+3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
+
+## Open questions
+
+- docs/feature-proposals.md — the ui-copy-check proposal, including what corpus of expected strings it compares against.
+
+### M049 — interaction-story
+
+Goal: The panel narrates the interaction sequence a page recorded as a sequence of measured steps, each naming what the user did and what the app emitted, with no inferred intent.
+Depends on: [M020]
+Programme: Generation 3 · Batch: 3 · Group: cross-package
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The interaction and emit events the agent already records, in their recorded order.
+- A panel surface that renders the sequence as steps, each quoting the event it came from.
+- The absence reported for a page whose interaction stream is empty.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. Step order is the recorded order; a mutant that sorts the steps reddens the pin.
+2. No step names an intent, a cause or an owner that the event does not carry.
+3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
+
+## Open questions
+
+- docs/feature-proposals.md — the interaction-story proposal, including whether steps group by navigation.
+
+### M050 — dead-click
+
+Goal: The panel reports a click the page recorded that produced no app-side effect, naming the element and the absence of a following event rather than guessing the handler's fault.
+Depends on: [M020]
+Programme: Generation 3 · Batch: 3 · Group: cross-package
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The click events and the events that followed them within the recorded window.
+- A surface that names the element identity and the window it was judged over.
+- The absence reported when the record cannot bound the window.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A click with no following event is a finding; a mutant that always reports one reddens the control.
+2. The window is quoted from the record, never assumed from a constant.
+3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
+
+## Open questions
+
+- docs/feature-proposals.md — the dead-click proposal (S17), including the window it measures over.
+
+### M051 — what-changed
+
+Goal: The panel reports what differed between two recorded snapshots of the same page, naming the fields that changed rather than describing the app's behaviour.
+Depends on: [M020]
+Programme: Generation 3 · Batch: 3 · Group: cross-package
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- Two records the agent captured for one page, compared field by field.
+- A surface that lists the changed fields with both readings.
+- The absence reported when the two records are not comparable, named.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. The comparison names each changed field with both values; a mutant that omits one reddens it.
+2. Incomparable records report the named absence, never an empty diff.
+3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
+
+## Open questions
+
+- docs/feature-proposals.md — the what-changed proposal (S18), including which record fields are comparable.
+
+### M052 — webmcp-audit
+
+Goal: The panel reports which WebMCP tools the inspected app declares and whether each carries the annotations the draft defines, listing what the app did not declare rather than scoring it.
+Depends on: [M020]
+Programme: Generation 3 · Batch: 3 · Group: cross-package
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The tool declarations the app's own WebMCP registration exposes to the page.
+- A surface that lists each tool with the annotations it carries and the ones it omits.
+- The absence reported for an app that registers no tools.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. Each listed tool is one the app declared; a mutant that invents a tool reddens the pin.
+2. An app with no tools reports the absence, not an empty successful audit.
+3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
+
+## Open questions
+
+- docs/feature-proposals.md and docs/filing-ledger.md §9 — the WebMCP draft's annotation set, including `debugging`.
+
+### M053 — webmcp-rehearsal
+
+Goal: The panel rehearses a declared WebMCP tool call through the panel's own model, reporting what the model chose and what the tool returned, with no write to the inspected app.
+Depends on: [M020]
+Programme: Generation 3 · Batch: 3 · Group: cross-package
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- A declared tool and the panel-local model the companion already provides.
+- A surface that names the tool chosen and the result returned.
+- The state reported when no model is available or the tool refuses.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A rehearsal that writes to the app is a defect; a mutant that enables a write reddens the pin.
+2. No tool available reports cannot-tell naming the absence, never a simulated success.
+3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
+
+## Open questions
+
+- docs/feature-proposals.md — the webmcp-rehearsal proposal, including which tools are read-only by declaration.
+
+### M054 — visual-qa
+
+Goal: The panel reports the style readings it measured for a rendered element against the baseline stylesheet, naming the property and both readings rather than judging the design.
+Depends on: [M020]
+Programme: Generation 3 · Batch: 3 · Group: cross-package
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- Computed style readings the panel measures for a named element in its own document.
+- A surface that lists property, measured value and baseline value.
+- The absence reported when an element cannot be measured.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A property differing from the baseline is named with both readings; a mutant that hides it reddens the pin.
+2. An unmeasurable element reports the named absence, not a zero.
+3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
+
+## Open questions
+
+- docs/feature-proposals.md — the visual-qa proposal (S5), including which element the measurement targets.
+
+### M055 — tutor-foundations
+
+Goal: The panel answers a question about a shipped feature by naming the recorded artefact that proves it, so an explanation is traceable to a measurement rather than to prose.
+Depends on: [M020]
+Programme: Generation 3 · Batch: 3 · Group: cross-package
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Scope: in
+- The verdict claims and recordings the shipped milestones archived.
+- A surface that names the artefact, the file and the criterion it belongs to.
+- The absence reported when no artefact answers the question.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations`, Angular SSR and `angular/components` (A5).
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. Every answer names at least one artefact path; a mutant that answers without one reddens the pin.
+2. A question no artefact answers reports the named absence, never a paraphrase.
+3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
+
+## Open questions
+
+- docs/feature-proposals.md — the tutor-foundations proposal (TS1-TS12), including whether later tutor milestones reuse this surface.

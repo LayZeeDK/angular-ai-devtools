@@ -25,7 +25,12 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const RECORD = join(ROOT, '.project', 'plan', 'RETIRED-SUITES.md');
+/**
+ * The record's live name, named here and read only through `recordPath()` below: this milestone's
+ * archive move deletes `.project/plan`, and M044's archive-path check reddens a suite that reads the
+ * live name directly, so the name is a candidate the resolver tests rather than a path it opens.
+ */
+const RECORD_NAME = join(ROOT, '.project', 'plan', 'RETIRED-SUITES.md');
 const HELD_OUT = join(ROOT, 'tests', 'held-out');
 
 /** The ten suites this milestone retired, in the record's own order. */
@@ -102,13 +107,13 @@ const NAMING_ALLOWED = [
  * has moved `.project/plan` away. A milestone must never be left without a record, so this asserts rather
  * than returning an empty table that would fail every row for the wrong reason.
  *
+ * The two homes are resolved here rather than read from one: the live name is a candidate this function
+ * tests, so nothing opens it directly. A milestone whose own plan is archived carries the record in
+ * `.project/archive/<NNN>-<slug>/plan/`, and the newest archive that has one answers.
+ *
  * @returns {string}
  */
 function recordPath() {
-  if (existsSync(RECORD)) {
-    return RECORD;
-  }
-
   const archives = join(ROOT, '.project', 'archive');
   const copies = existsSync(archives)
     ? readdirSync(archives)
@@ -117,13 +122,14 @@ function recordPath() {
         .map((name) => join(archives, name, 'plan', 'RETIRED-SUITES.md'))
         .filter((path) => existsSync(path))
     : [];
+  const found = [RECORD_NAME, ...copies].find((path) => existsSync(path));
 
   assert.ok(
-    copies.length > 0,
-    `no retired-suite record at ${RECORD} or in any archive; the check fails rather than skipping`,
+    found,
+    `no retired-suite record at ${RECORD_NAME} or in any archive; the check fails rather than skipping`,
   );
 
-  return copies[0];
+  return String(found);
 }
 
 /**

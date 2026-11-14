@@ -4,7 +4,7 @@
   "type": "module",
   "description": "Sandbox scripts that install agent skills and subagents for the AI coding CLIs.",
   "scripts": {
-    "check": "node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run format:check",
+    "check": "node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check",
     "lint:skills": "node scripts/skill-lint.mjs",
     "verify:skills": "node scripts/skills-registered.mjs",
     "check:skills": "tsc -p .claude/skills/tsconfig.json && tsc -p .claude/skills/tsconfig.run-code.json && tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json",
@@ -20,7 +20,9 @@
     "format:check": "prettier --check .",
     "sync:verification-scripts": "node scripts/sync-verification-scripts.mjs",
     "gate:verification": "node scripts/verification-gate.mjs",
-    "gate:verification:ship": "node scripts/verification-gate.mjs --ship"
+    "gate:verification:ship": "node scripts/verification-gate.mjs --ship",
+    "gate:archive-paths": "node scripts/gate-integrity.mjs --check archive",
+    "gate:fix-record": "node scripts/gate-integrity.mjs --check fix-record"
   },
   "devDependencies": {
     "@angular-devkit/core": "~22.1.0",

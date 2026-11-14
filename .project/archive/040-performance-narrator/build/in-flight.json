@@ -1,1 +1,0 @@
-{"kind":"milestone","task":"M040-performance-narrator","status":"landed","landedCommit":"df142d42d0988360240239fd2043aa1162a761bd","subject":"T005: Re-capture behind an opt-in switch and record the milestone's claims","verify":"four suites 59/59 + prettier + npm run check + npm test (1082/1082)","result":"pass"}

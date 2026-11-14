@@ -56,7 +56,7 @@
 //
 // The answer is one object:
 //
-//   narrateNavigation(record) -> { state, absence, navigations, unattributed }
+//   narrateNavigation(record) -> { state, absence, navigations, unattributed, skipped }
 //
 // `state` is `open` when any recorded navigation is open, `ended` when every one of them recorded a
 // terminal event, and `cannot-tell` with a named absence when the record carries no navigation to
@@ -64,6 +64,15 @@
 // `absence` is the record-level absence or `null`, and `unattributed` lists an id-less load by
 // `{ kind, route }`: a load start that arrived with no navigation in flight, or a load end whose own
 // route names no open load. No load is ever dropped and no load is ever lent an id.
+//
+// `skipped` is the fourth absence, and the one M044's SC4 is written about: a terminal entry whose
+// own id has already ended. A same-URL `NavigationSkipped` reuses the id of the navigation it
+// supersedes, so it arrives for a navigation that is closed and used to be discarded; it is now
+// recorded as `{ id, url, terminal }` — the id the entry addresses, the `url` the entry itself
+// carries, and the class word the record uses for that terminal (`NavigationSkipped` for the measured
+// instance) — and nothing else. No cause, no owner and no intent is added, because the entry carries
+// none. A navigation that ends once is unaffected: it still carries exactly the one terminal it
+// recorded, and `skipped` stays empty.
 //
 // `navigations` holds one entry per navigation, in the order the record opened them, each of:
 //
@@ -400,12 +409,13 @@
     };
   }
 
-  function answer(state, absence, navigations, unattributed) {
+  function answer(state, absence, navigations, unattributed, skipped) {
     return {
       state: state,
       absence: absence,
       navigations: navigations,
       unattributed: unattributed,
+      skipped: skipped,
     };
   }
 
@@ -414,7 +424,7 @@
   function narrateNavigation(record) {
     const events = eventsOf(record);
     if (events === null) {
-      return answer(CANNOT_TELL, RECORD_UNREADABLE, [], []);
+      return answer(CANNOT_TELL, RECORD_UNREADABLE, [], [], []);
     }
 
     const navigations = [];
@@ -422,6 +432,10 @@
     // Every load still open, in the order its own start arrived, with the navigation it belongs to.
     const openLoads = [];
     const unattributed = [];
+    // Every terminal an id had already ended before: the shape a same-URL `NavigationSkipped` takes,
+    // because the router reuses the id of the navigation it supersedes. Recorded, never folded into a
+    // second terminal for the navigation that already had one.
+    const skipped = [];
     // The navigation whose events are on the wire: it is set by a start and cleared by that
     // navigation's own terminal, so an id-less stage event and a route-config load start are
     // attributed to the navigation that was in flight when they arrived and never to a later one.
@@ -459,6 +473,13 @@
         if (navigation.state === OPEN) {
           endNavigation(navigation, entry);
           if (inFlight === navigation) inFlight = null;
+        } else {
+          // The id has already ended, so this entry is not a second terminal for it: the navigation
+          // keeps the one terminal it recorded and the entry is named as the skip it is, with the id
+          // it addressed, the `url` it carried and the class word the record uses for it (SC4). No
+          // cause, owner or intent is added - the entry carries none - and nothing is written into
+          // the ended navigation, so a navigation that ends once still answers one terminal.
+          skipped.push({ id: entry.id, url: entry.url, terminal: type });
         }
         continue;
       }
@@ -519,7 +540,13 @@
     // A record carrying no navigation answers the absence rather than zero navigations, because a
     // zero reads as a stream with nothing wrong in it (SC2, E3).
     if (navigations.length === 0) {
-      return answer(CANNOT_TELL, NO_NAVIGATION_RECORDED, [], unattributed);
+      return answer(
+        CANNOT_TELL,
+        NO_NAVIGATION_RECORDED,
+        [],
+        unattributed,
+        skipped,
+      );
     }
 
     const answers = [];
@@ -528,7 +555,7 @@
       answers.push(navigationAnswer(navigations[i]));
       if (navigations[i].state === OPEN) anyOpen = true;
     }
-    return answer(anyOpen ? OPEN : ENDED, null, answers, unattributed);
+    return answer(anyOpen ? OPEN : ENDED, null, answers, unattributed, skipped);
   }
 
   // The open load an end closes: the oldest load whose own `route` path is the one the end names, and
