@@ -16,7 +16,7 @@ Depends on: []
 Surfaces: command-line spike runs, research notes, filing ledger
 Status: shipped
 Archive: .project/archive/001-run-unrun-spikes
-Integrated: null
+Integrated: 5953b1285b4f9ccc025ecee77909624ce709d0bf
 
 Scope: in
 - Run all currently unrun spikes listed in research/05-spikes.md, grouped into waves by the plan.
@@ -56,7 +56,7 @@ Depends on: []
 Surfaces: none
 Status: shipped
 Archive: .project/archive/002-sidecar-hardening
-Integrated: null
+Integrated: dc6e6937590292f3f2ac0f57f09cf9c4162c1350
 
 Scope: in
 - Add a documented dependency-bridge procedure to AGENTS.md (junction command + cleanup).
@@ -87,7 +87,7 @@ Depends on: []
 Surfaces: none
 Status: shipped
 Archive: .project/archive/003-sidecar-dependency-bridge
-Integrated: null
+Integrated: 761d6a33d96f194090a87a906db1ee3fecbc2a2b
 
 Scope: in
 - Modify isolation.py (or the verify-sidecar creation path) to bridge dependencies automatically.
@@ -124,7 +124,7 @@ Depends on: []
 Surfaces: DevTools panel
 Status: shipped
 Archive: .project/archive/004-nx-angular-workspace
-Integrated: null
+Integrated: 2f7500040b0765d06f18e502be86b419b8783239
 
 Scope: in
 - MAIN-world recorder via ng.ɵsetProfiler + signal-graph walk producing per-component trigger chain.
@@ -166,7 +166,7 @@ Depends on: []
 Surfaces: DevTools panel
 Status: shipped
 Archive: .project/archive/005-signal-provenance
-Integrated: null
+Integrated: c4a766ce26e62901c29c8f1165a3d0d4f10d4567
 
 Scope: in
 - MAIN-world provenance tracer via ng.ɵgetSignalGraph producing per-signal/component dependency chain.
@@ -208,7 +208,7 @@ Depends on: []
 Surfaces: DevTools panel
 Status: shipped
 Archive: .project/archive/006-signal-provenance
-Integrated: null
+Integrated: 57387f904558705718412d325a2e24c64cada7bd
 
 Scope: in
 - MAIN-world provenance tracer via ng.ɵgetSignalGraph producing per-signal/component dependency chain.
@@ -249,7 +249,7 @@ Depends on: []
 Surfaces: DevTools panel
 Status: shipped
 Archive: .project/archive/007-n3-di-doctor
-Integrated: null
+Integrated: 6c86ff2023999a8f976ad6ddc32a672a2ba29e5f
 
 Scope: in
 - MAIN-world DI path tracer via ng.ɵgetInjector* producing resolution paths with injector boundaries and provider records.
@@ -568,7 +568,7 @@ Depends on: [M014]
 Surfaces: DevTools panel
 Status: shipped
 Archive: .project/archive/015-program-closeout
-Integrated: null
+Integrated: 135b8c240af586384d3e25ad49e5a95d68876edd
 
 Scope: in
 - Discharge the four M014-deferred `fix-doc` rows (research/10 grader regex and port list, research/11 S1 runner, spikes/ng222-ssr README Vitest) so no released note states a retired fact.
@@ -655,7 +655,7 @@ Depends on: [M016]
 Surfaces: none
 Status: shipped
 Archive: .project/archive/017-verification-coverage
-Integrated: null
+Integrated: 62a10a708cc25b70818da96b18e7a5a1d478418a
 
 Scope: in
 - A project-scope check that fails when a user-scope `gsd` helper regresses on any defect M016 found:
@@ -945,7 +945,7 @@ Depends on: [M023]
 Surfaces: none
 Status: shipped
 Archive: .project/archive/024-proof-corpus-repair
-Integrated: null
+Integrated: 4bf75105b46d49bddfdbb9a7ab234bf2cc3b7b85
 
 Scope: in
 - `tests/held-out/`, the npm scripts, and whatever the ten dead suites need to become honest.
@@ -961,7 +961,7 @@ Surfaces: none
 Status: shipped
 Shipped: 2026-11-04 — `extension/` is type-checked by a sixth `check` stage; the roadmap's panel premise was already closed by M018 and the intent records the re-scope.
 Archive: .project/archive/025-panel-verify-breadth
-Integrated: null
+Integrated: 875ef6549855453c104e09527b963008c095b127
 
 Scope: in
 - `tsc -p apps/angular-ai-devtools/tsconfig.app.json` in `npm run check`, together with the extension sources.
@@ -1000,7 +1000,7 @@ Status: shipped
 Re-scope: the roadmap asked for codes NG02200-NG02800; Angular 22.1.8 declares none in that range, so the digest covers the eighteen codes the image directive and core actually emit.
 Shipped: 2026-11-04 — the image digest covers the eighteen codes Angular 22.1.8 declares, generated at build time, with COM-1 proven on a transcribed sample; the browser capture is carried to the next milestone.
 Archive: .project/archive/026-image-budget-audit
-Integrated: null
+Integrated: 672e6f0a1ddb25c2ccd618eb88d483d12f29d932
 
 Scope: in
 - The image half of the offline error digest: one entry per code from NG02200 through NG02800, generated at extension build time and capped at 150 tokens an entry.
@@ -1040,7 +1040,7 @@ Depends on: [M026]
 Surfaces: none
 Status: shipped
 Archive: .project/archive/027-image-warning-capture
-Integrated: null
+Integrated: 797207fd522b6d0a1e1c35625135b6338407ba58
 
 Scope: in
 - One browser run against `/image-budget` on the fixture in development mode, with the console captured as evidence.
@@ -1073,7 +1073,7 @@ Depends on: [M020]
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/028-after-render-ordering
-Integrated: null
+Integrated: cf9f6f4d909be4cf6717d05e1a7dcafea13fc84f
 
 Scope: in
 - Ordering the profiler after-render events within the single `ɵsetProfiler` list the page agent already records.
@@ -1112,7 +1112,7 @@ Depends on: [M020]
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/029-trust-bypass-triage
-Integrated: null
+Integrated: f5f8dfe919f7c8807ab655dd946bfaf1cc084a2f
 
 Scope: in
 - The sanitizer-decision evidence: what was stripped, from which binding, on which element.
@@ -1152,7 +1152,7 @@ Depends on: [M020]
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/030-redirect-chain
-Integrated: null
+Integrated: d90e40310be017ba17b37855fb9fd676884e278f
 
 Scope: in
 - The redirect walk from `Router.config`, following guards, resolvers and redirect functions in the order the router runs them.
@@ -1192,7 +1192,7 @@ Depends on: [M020]
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/031-cross-field-validation
-Integrated: null
+Integrated: e05bd5e92fa5bf50daac4c27053f15866c9a8c05
 
 Scope: in
 - The Signal Forms field-state read: each field's validity, its errors, and the cross-field rule that keeps submit disabled.
@@ -1233,7 +1233,7 @@ Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/032-lint-core
-Integrated: null
+Integrated: 602141a4fbc1407eaaa8a22d0514bd4009ca82ce
 
 Scope: in
 - The lint findings the compiler raises on the reference fixture, grouped by the API each one concerns.
@@ -1263,7 +1263,7 @@ Programme: core · Batch: 3 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/033-lint-router
-Integrated: null
+Integrated: 75053e0677d8eecc3ba3a02866f5029c62f0b8b1
 
 Scope: in
 - The router findings the compiler raises on the fixture, joined to the configured route they concern.
@@ -1293,7 +1293,7 @@ Programme: core · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/034-lint-legacy
-Integrated: null
+Integrated: 897ed0b568881bf3f35515ba9f0b45c0277467d2
 
 Scope: in
 - The legacy findings on the fixture, each naming the flagged construct and the modern API that replaces it.
@@ -1324,7 +1324,7 @@ Surfaces: panel
 Status: shipped
 Archive: .project/archive/035-onpush-readiness
 Integrated: null
-Integrated: null
+Integrated: 410c8d02aaa9d3e13bfe44c903c07c8763cc8fb7
 
 Scope: in
 - The component facts that make a component OnPush-ready, and the ones that block it.
@@ -1354,7 +1354,7 @@ Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/036-resource-lifecycle
-Integrated: null
+Integrated: 5af71efe73f9a973c56b2a45955fba067e7d880b
 
 Scope: in
 - The resource status the fixture exposes, per resource and per parameter set.
@@ -1385,7 +1385,7 @@ Surfaces: panel
 Gate: S9.
 Status: shipped
 Archive: .project/archive/037-signal-forms-doctor
-Integrated: null
+Integrated: 4b9c16219ccdd17a160f06bdf85a6c2c98062575
 
 Scope: in
 - Each field's validity and its own errors, plus the root's error kind when it carries one.
@@ -1415,7 +1415,7 @@ Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/038-linked-state-reset
-Integrated: null
+Integrated: c125b9b90641efb94a891d26ecc28281e08cf28d
 
 Scope: in
 - The linked state the fixture exposes, its source and its last write.
@@ -1445,7 +1445,7 @@ Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/039-render-phase-effect
-Integrated: null
+Integrated: 273f4459cd58fc6ea85cbc98a6d0db8cea4154b4
 
 Scope: in
 - The effect executions the fixture exposes, with the phase each ran in.
@@ -1475,7 +1475,7 @@ Programme: core · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/040-performance-narrator
-Integrated: null
+Integrated: c03ed6fa878ae3e87815122f351d6ba16b2ff4b7
 
 Scope: in
 - The recorded render work per component, ordered by the profile rather than by wall-clock guesses.
@@ -1505,7 +1505,7 @@ Programme: core · Batch: 3 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/041-navigation-blocking
-Integrated: null
+Integrated: b0e5b08260f301bbfc9df4b92dcfbf16cb672d04
 
 Scope: in
 - The navigation stages the fixture records, and the one the navigation stopped in.
@@ -1536,7 +1536,7 @@ Surfaces: panel
 Gate: S10 (run; answered in .project/archive/042-error-boundary/research/s10-answer.md)
 Status: shipped
 Archive: .project/archive/042-error-boundary
-Integrated: null
+Integrated: fb84ff3b4810d75c6d71174267c9d25660243ead
 
 Scope: in
 - Which boundary caught the error, and the subtree it replaced.
