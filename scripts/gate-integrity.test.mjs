@@ -2233,6 +2233,8 @@ import {
   MUTANTS,
   checkArchivePaths,
   checkFixRecord,
+  gate,
+  main,
   shipRange,
 } from './gate-integrity.mjs';
 
@@ -2292,7 +2294,7 @@ function fixtureSuite(...body) {
 
 // --------------------------------------------------- AC1: the three halves ----
 
-test('AC1: the record own live rows split into one that only names the path and one that reads it', (t) => {
+test('AC1: the live paths this tree carries are all namings, and the four reads T002 measured open none', (t) => {
   const report = archiveCheck();
   const rows = referenceRows();
 
@@ -2335,59 +2337,85 @@ test('AC1: the record own live rows split into one that only names the path and 
     `${named.file} must not be reported, and it was`,
   );
 
-  // The reading half: the same path, read.
-  const reader = report.findings.find(
-    (finding) => finding.file === READING_SUITE,
-  );
-  assert.ok(
-    reader,
-    `${READING_SUITE} reads the live path ${String(
-      named.path,
-    )} and must be a finding; the check reported ${String(
-      report.findings.length,
-    )} finding(s): ${report.findings
-      .map((finding) => `${finding.file}:${String(finding.line)}`)
-      .join(', ')}`,
+  // The reading half the record measured, named rather than dropped: `scripts/navigation-capture.
+  // test.mjs` built the live intent and copied it with `copyFileSync` at its own line 1763. T003
+  // repaired that read, and it repaired it further than a resolver: that suite's own pin forbids a
+  // claims suite from spelling the intent path at all, so it now asks
+  // `scripts/verdict-claims-intent.mjs` for the answer and opens the file at that answer. The live
+  // path is therefore not named by that suite any more, which is the strongest form of the fact this
+  // half asserts: no live path of the archive move is named there, let alone read.
+  const claimsSuite = READING_SUITE;
+  assert.deepEqual(
+    report.rows
+      .filter(
+        (row) =>
+          row.file === claimsSuite && row.class === 'archived-by-the-move',
+      )
+      .map((row) => `${row.line} ${String(row.path)}`),
+    [],
+    `${claimsSuite} must name no live path of its own: the archive-or-live decision belongs to the shared resolver`,
   );
   assert.equal(
-    reader.path,
-    named.path,
-    'both references name the same live path, which is what makes the pair a pair',
-  );
-  assert.equal(reader.class, 'archived-by-the-move');
-  assert.equal(reader.use, 'read');
-  assert.equal(
-    reader.usedBy,
-    'copyFileSync',
-    'the use recorded for the reading row names the call that reads the path',
-  );
-  assert.ok(
-    reader.useLine > reader.line,
-    `the read sits below the reference that builds the path (use line ${String(
-      reader.useLine,
-    )}, reference line ${String(reader.line)}), which is why both are recorded`,
-  );
-  const source = readFileSync(join(ROOT, reader.file), 'utf8').split('\n');
-  assert.match(
-    source[reader.useLine - 1] ?? '',
-    /copyFileSync/,
-    `the recorded use line ${reader.file}:${reader.useLine} must be the line that reads the path`,
+    readFileSync(join(ROOT, claimsSuite), 'utf8').includes(
+      `${DOTTED}/intent/INTENT.md`,
+    ),
+    false,
+    `${claimsSuite} must not spell the live intent path; it asks the shared resolver instead`,
   );
   assert.match(
-    source[reader.line - 1] ?? '',
-    /join\(/,
-    `the recorded reference line ${reader.file}:${reader.line} must be the line that builds the path`,
+    readFileSync(join(ROOT, claimsSuite), 'utf8'),
+    /intentPathForMilestone\(ROOT, boundMilestone\(\)\)/,
+    `${claimsSuite} must take the intent from the shared resolver`,
   );
 
-  // Every finding carries the four fields the contract names, plus the use it saw.
-  for (const finding of report.findings) {
-    for (const field of ['file', 'line', 'claim', 'class', 'use']) {
-      assert.ok(
-        finding[field] !== null && finding[field] !== undefined,
-        `a finding must carry ${field}: ${JSON.stringify(finding)}`,
+  // The live reads T002 measured, each repaired to resolve the path rather than open it. Named one by
+  // one, so a repair of two of the three cannot pass as a repair of the set.
+  const repaired = [
+    'scripts/autonomy-gaps.test.mjs',
+    'scripts/docs-audit-disposition.test.mjs',
+    'scripts/retired-suites.test.mjs',
+  ];
+  for (const file of repaired) {
+    const live = report.rows.filter(
+      (row) => row.file === file && row.class === 'archived-by-the-move',
+    );
+    assert.ok(
+      live.length > 0,
+      `${file} must still name the live path the archive move deletes, and the check recorded none`,
+    );
+    for (const row of live) {
+      assert.equal(
+        row.use,
+        'naming',
+        `${row.file}:${String(
+          row.line,
+        )} opens the live path ${String(row.path)}; T003's repair must resolve it instead`,
       );
+      assert.equal(
+        row.verdict,
+        'clean',
+        `${row.file}:${String(row.line)} resolves the path, so the check must record a clean row`,
+      );
+      for (const field of ['file', 'line', 'claim', 'class', 'use']) {
+        assert.ok(
+          row[field] !== null && row[field] !== undefined,
+          `a row must carry ${field}: ${JSON.stringify(row)}`,
+        );
+      }
     }
   }
+
+  // The check's own verdict on this tree: no finding at all, and a stated non-zero examined count.
+  assert.deepEqual(
+    report.findings.map((finding) => `${finding.file}:${String(finding.line)}`),
+    [],
+    `this milestone's tree must report no live read; the check reported ${report.findings
+      .map(
+        (finding) =>
+          `${finding.file}:${String(finding.line)} ${String(finding.path)}`,
+      )
+      .join(', ')}`,
+  );
   assert.ok(
     report.filesExamined > 0 && report.examined > 0,
     `the check must state what it examined: ${String(
@@ -2397,18 +2425,13 @@ test('AC1: the record own live rows split into one that only names the path and 
   t.diagnostic(
     `archivePaths: ${String(report.examined)} live reference(s) of ${String(
       report.referencesExamined,
-    )} in ${String(report.filesExamined)} suite(s); findings: ${report.findings
-      .map(
-        (finding) =>
-          `${finding.file}:${String(finding.line)} ${String(
-            finding.path,
-          )} read by ${String(finding.usedBy)}:${String(finding.useLine)}`,
-      )
-      .join('; ')}`,
+    )} in ${String(report.filesExamined)} suite(s); findings: none; repaired: ${repaired.join(
+      ', ',
+    )}, ${claimsSuite} (asks the shared resolver)`,
   );
 });
 
-test('AC1: every class the record decided is the class the check derives, and its one divergence is named', () => {
+test('AC1: every class the record decided is the class the check derives, and no row diverges', () => {
   const report = archiveCheck();
   const rows = referenceRows();
   const at = new Map(report.rows.map((row) => [rowKey(row), row]));
@@ -2440,29 +2463,66 @@ test('AC1: every class the record decided is the class the check derives, and it
     );
   }
 
-  // The one row the check decides that the record left undecided, named rather than hidden: the
-  // record's reader stopped at `import.meta.url`, so a `const ROOT = join(HERE, '..')` root looked
-  // like a directory the suite invented. Following the binding is what makes the read visible.
-  const diverged = rows.filter(
-    (row) =>
-      row.class === 'undecided' &&
-      at.get(rowKey(row))?.class === 'archived-by-the-move',
-  );
+  // T002 recorded one divergence here: `scripts/navigation-capture.test.mjs:1595` was undecided in
+  // the record - its reader stopped at `import.meta.url`, so a `const ROOT = join(HERE, '..')` root
+  // looked like a directory the suite invented - while the check followed the binding and called the
+  // row live. T003 repaired that read: the suite takes the intent from `verdict-claims-intent.mjs`
+  // and names no live path at all, so the divergence is gone rather than moved. The assertion is the
+  // stronger one now — no row at all is decided one way by the record and the other by the check.
+  const diverged = rows
+    .filter((row) => at.get(rowKey(row))?.class !== row.class)
+    .map(
+      (row) =>
+        `${row.file}:${row.line} is recorded ${row.class} and the check derives ${String(
+          at.get(rowKey(row))?.class,
+        )}`,
+    );
   assert.deepEqual(
-    diverged.map((row) => `${row.file}:${row.line}`),
-    ['scripts/navigation-capture.test.mjs:1595'],
-    `the check derives one live reference the record left undecided: ${JSON.stringify(
-      diverged.map((row) => `${row.file}:${row.line}`),
+    diverged,
+    [],
+    `the record and the check must decide every reference the same way: ${JSON.stringify(
+      diverged,
     )}`,
   );
-  const undecided = rows.find(
-    (row) =>
-      `${row.file}:${row.line}` === 'scripts/navigation-capture.test.mjs:1595',
+
+  // What closed it, named rather than assumed. The suite T002 left undecided names no live path any
+  // more - nothing of the archive move's is left there to classify - and the live row T003 repointed
+  // instead, the docs audit, is a whole-path literal the archive move deletes, decided the same way by
+  // both readers.
+  assert.deepEqual(
+    report.rows
+      .filter(
+        (row) =>
+          row.file === 'scripts/navigation-capture.test.mjs' &&
+          row.class === 'archived-by-the-move',
+      )
+      .map((row) => `${row.line} ${String(row.path)}`),
+    [],
+    'the suite T002 left undecided must name no live path now, which is why the divergence closed rather than moved',
   );
-  assert.match(
-    String(undecided?.reason),
-    /does not bind to its own module root/,
-    'the record left that row undecided on its root reading, which is the measurement this half adds',
+  const repointed = report.rows.find(
+    (row) =>
+      row.file === 'scripts/docs-audit-disposition.test.mjs' &&
+      row.path === `${DOTTED}/research/DOCS-AUDIT.md`,
+  );
+  assert.ok(
+    repointed,
+    `the docs audit T003 repointed must be enumerated: ${JSON.stringify(
+      report.rows
+        .filter((row) => row.file === 'scripts/docs-audit-disposition.test.mjs')
+        .map((row) => `${row.line} ${String(row.path)}`),
+    )}`,
+  );
+  assert.equal(repointed.class, 'archived-by-the-move');
+  assert.equal(
+    repointed.site,
+    'path',
+    'the repaired reference is a whole path literal the archive move deletes',
+  );
+  assert.equal(
+    at.get(rowKey(repointed))?.class,
+    repointed.class,
+    'the record carries the class the check derives for the repaired row',
   );
 });
 
@@ -2754,61 +2814,144 @@ test('AC3: the fix-record check reports examined 0 as a finding, for an empty ra
 
 // --------------------------------------------------------- AC4: the mutants ----
 
-test('AC4: removing the use distinction reddens the archive-path check, naming the file and the path', (t) => {
-  const real = archiveCheck();
-  const expected = real.findings.find(
-    (finding) => finding.file === READING_SUITE,
-  );
-  assert.ok(
-    expected,
-    'the untouched check must report the live path the suite reads before the mutant is run',
-  );
-
-  const mutated = checkArchivePaths({
-    root: ROOT,
-    milestone: LIVE_MILESTONE,
-    mutant: MUTANTS.archivePaths,
+/**
+ * A tree carrying one repaired suite as this head has it, and the same suite with the repair reverted
+ * to the hardcoded live path T002 measured. The source is read out of this checkout, so the two forms
+ * differ by the one change T003 made rather than by a fixture written to be caught: the repaired form
+ * resolves whichever copy exists, the reverted form opens the live name — the shape AC6 says must
+ * redden the check naming the file. The tree carries both copies of the audit the suite pins, so the
+ * reverted form is a file that exists now and is deleted when the milestone archives.
+ *
+ * @returns {Promise<{ root: string, file: string, path: string, repaired: string, reverted: string }>}
+ */
+async function repairedFixture() {
+  const root = mkdtempSync(join(tmpdir(), 'm044-gate-fixture-'));
+  mkdirSync(join(root, 'scripts'), { recursive: true });
+  mkdirSync(join(root, DOTTED, 'research'), { recursive: true });
+  mkdirSync(join(root, DOTTED, 'archive', '001-fixture', 'research'), {
+    recursive: true,
   });
-  assert.equal(
-    mutated.findings.filter(
-      (finding) => finding.class === 'archived-by-the-move',
-    ).length,
-    0,
-    'the mutant removes the naming/read distinction, so no live reference is a finding in it',
+  await writeFile(
+    join(root, DOTTED, 'research', 'DOCS-AUDIT.md'),
+    '# the live audit\n',
+  );
+  await writeFile(
+    join(root, DOTTED, 'archive', '001-fixture', 'research', 'DOCS-AUDIT.md'),
+    '# the archived audit\n',
   );
 
-  let message = '';
-  try {
-    const found = mutated.findings.find(
-      (finding) =>
-        finding.file === expected.file && finding.path === expected.path,
-    );
-    assert.ok(
-      found,
-      `the live path ${String(expected.path)} that ${expected.file}:${String(
-        expected.line,
-      )} reads with ${String(
-        expected.usedBy,
-      )} must be a finding; the mutant reported it clean because a naming and a read are no longer told apart`,
-    );
-  } catch (error) {
-    message = error instanceof Error ? error.message : String(error);
-  }
-  t.diagnostic(`mutant failure: ${message}`);
-  assert.match(
-    message,
-    new RegExp(escapeForRegExp(expected.file)),
-    `the mutant must redden the check naming ${expected.file}; it produced ${JSON.stringify(
-      message.slice(0, 240),
+  const file = 'scripts/docs-audit-disposition.test.mjs';
+  const repaired = readFileSync(join(ROOT, file), 'utf8');
+  // The one line T003 changed in this suite, back to the hardcoded live read it replaced.
+  const anchor = `const headAuditPath = resolveArtefact('${DOTTED}/research/DOCS-AUDIT.md');`;
+  const reverted = repaired.replace(
+    anchor,
+    `const headAuditPath = join(repoRoot, '${DOTTED}', 'research', 'DOCS-AUDIT.md');`,
+  );
+  assert.notEqual(
+    reverted,
+    repaired,
+    `the fixture must be able to revert the repair ${file} carries, and its source no longer carries ${JSON.stringify(
+      anchor,
     )}`,
   );
-  assert.match(
-    message,
-    new RegExp(escapeForRegExp(String(expected.path))),
-    `the mutant must redden the check naming the path ${String(
-      expected.path,
-    )}; it produced ${JSON.stringify(message.slice(0, 240))}`,
-  );
+  return {
+    root,
+    file,
+    path: `${DOTTED}/research/DOCS-AUDIT.md`,
+    repaired,
+    reverted,
+  };
+}
+
+/**
+ * The archive-path check over one fixture tree with the named suite written into it.
+ *
+ * @param {{ root: string, file: string }} fixture
+ * @param {string} source
+ * @returns {Record<string, any>}
+ */
+async function checkFixture(fixture, source) {
+  await writeFile(join(fixture.root, fixture.file), source);
+  return checkArchivePaths({ root: fixture.root, milestone: LIVE_MILESTONE });
+}
+
+test('AC4: removing the use distinction reddens the archive-path check, naming the file and the path', async (t) => {
+  const fixture = await repairedFixture();
+  try {
+    // The control: the repaired source the fixture was made from is clean over the same tree, so the
+    // finding below is the reverted line and not a fixture that was caught whatever it said.
+    const control = await checkFixture(fixture, fixture.repaired);
+    assert.deepEqual(
+      control.findings,
+      [],
+      `the repaired source must be clean over the fixture tree: ${JSON.stringify(
+        control.findings.map((finding) => `${finding.file}:${finding.line}`),
+      )}`,
+    );
+
+    const real = await checkFixture(fixture, fixture.reverted);
+    const expected = real.findings.find(
+      (finding) => finding.file === fixture.file,
+    );
+    assert.ok(
+      expected,
+      `the hardcoded live read must be a finding before the mutant is run; the check reported ${JSON.stringify(
+        real.findings.map((finding) => `${finding.file}:${finding.line}`),
+      )}`,
+    );
+    assert.equal(expected.use, 'read');
+    assert.equal(expected.usedBy, 'readFileSync');
+    assert.equal(expected.path, fixture.path);
+
+    const mutated = checkArchivePaths({
+      root: fixture.root,
+      milestone: LIVE_MILESTONE,
+      mutant: MUTANTS.archivePaths,
+    });
+    assert.equal(
+      mutated.findings.filter(
+        (finding) => finding.class === 'archived-by-the-move',
+      ).length,
+      0,
+      'the mutant removes the naming/read distinction, so no live reference is a finding in it',
+    );
+
+    let message = '';
+    try {
+      const found = mutated.findings.find(
+        (finding) =>
+          finding.file === expected.file && finding.path === expected.path,
+      );
+      assert.ok(
+        found,
+        `the live path ${String(expected.path)} that ${expected.file}:${String(
+          expected.line,
+        )} reads with ${String(
+          expected.usedBy,
+        )} must be a finding; the mutant reported it clean because a naming and a read are no longer told apart`,
+      );
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    t.diagnostic(`mutant failure: ${message}`);
+    assert.match(
+      message,
+      new RegExp(escapeForRegExp(expected.file)),
+      `the mutant must redden the check naming ${expected.file}; it produced ${JSON.stringify(
+        message.slice(0, 240),
+      )}`,
+    );
+    assert.match(
+      message,
+      new RegExp(escapeForRegExp(String(expected.path))),
+      `the mutant must redden the check naming the path ${String(
+        expected.path,
+      )}; it produced ${JSON.stringify(message.slice(0, 240))}`,
+    );
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
 });
 
 test('AC4: treating a rename as absent reddens the fix-record check, naming the task and the file', (t) => {
@@ -2866,6 +3009,268 @@ test('AC4: treating a rename as absent reddens the fix-record check, naming the 
     `the mutant must redden the check naming the file the claim names; it produced ${JSON.stringify(
       message.slice(0, 240),
     )}`,
+  );
+});
+
+// ------------------------------------ AC6: this tree, and one reverted repair ----
+
+test('AC6: this tree is clean with a non-zero examined count, and one reverted repair reddens it naming the file', async (t) => {
+  const fixture = await repairedFixture();
+  try {
+    // This milestone's own tree: the four live reads T002 measured now resolve the path, so the
+    // check reports no finding and still says how much it examined.
+    const report = archiveCheck();
+    assert.deepEqual(
+      report.findings,
+      [],
+      `this tree must report no live read: ${JSON.stringify(
+        report.findings.map(
+          (finding) =>
+            `${finding.file}:${finding.line} ${String(finding.path)} read by ${String(finding.usedBy)}`,
+        ),
+      )}`,
+    );
+    assert.equal(report.ok, true);
+    assert.ok(
+      report.examined > 0,
+      `the check must examine a non-zero number of live references on this tree: ${String(
+        report.examined,
+      )}`,
+    );
+
+    // The mutant AC6 names: one of the four repairs restored to the hardcoded live path. The check
+    // must redden on it and name the file, the path and the call that reads it.
+    const reverted = await checkFixture(fixture, fixture.reverted);
+    assert.equal(
+      reverted.ok,
+      false,
+      'the check must redden on a suite that reads the live name, which is the defect SC1 is written about',
+    );
+    const finding = reverted.findings.find((one) => one.file === fixture.file);
+    assert.ok(
+      finding,
+      `the reverted repair must be a finding naming ${fixture.file}; the check reported ${JSON.stringify(
+        reverted.findings.map((one) => `${one.file}:${one.line}`),
+      )}`,
+    );
+    assert.equal(finding.class, 'archived-by-the-move');
+    assert.equal(finding.use, 'read');
+    assert.equal(finding.usedBy, 'readFileSync');
+    assert.match(
+      String(finding.reason),
+      /deleted when the milestone archives/,
+      `the finding must say why the path is a defect: ${String(finding.reason)}`,
+    );
+    assert.match(
+      String(finding.reason),
+      /throws the moment the path is gone/,
+      `the finding must say what the read does: ${String(finding.reason)}`,
+    );
+    t.diagnostic(
+      `AC6 mutant: ${finding.file}:${String(finding.line)} ${String(
+        finding.path,
+      )} read by ${String(finding.usedBy)} at line ${String(
+        finding.useLine,
+      )} - ${String(finding.reason)}`,
+    );
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+});
+
+// ---------------------------------------------- AC2: the gate's exit codes ----
+
+test('AC2: a red check reaches the gate as a refusal, and this milestone’s own tree passes it', async (t) => {
+  const fixture = await repairedFixture();
+  try {
+    // This milestone's own tree: both stages run, both are clean, and the run says what it examined.
+    const clean = gate({ root: ROOT, milestone: LIVE_MILESTONE });
+    assert.equal(
+      clean.code,
+      0,
+      `the gate must exit zero on this milestone's own tree: ${clean.lines.join(' | ')}`,
+    );
+    assert.equal(clean.ok, true);
+    assert.ok(
+      clean.archive?.examined > 0,
+      `the archive-path stage must state a non-zero examined count: ${clean.lines.join(' | ')}`,
+    );
+    assert.ok(
+      clean.fix?.examined > 0,
+      `the fix-record stage must hold a non-zero claim count against the range: ${clean.lines.join(' | ')}`,
+    );
+    assert.match(
+      String(clean.range),
+      /^[0-9a-f]{40}\.\.[0-9a-f]{40}$/,
+      `the gate must derive the range it is held to: ${String(clean.range)}`,
+    );
+
+    // The fixture resolving an archived-then-deleted path: the reverted repair is written into it
+    // first, so the tree the gate is pointed at carries a suite that opens the live name.
+    await writeFile(join(fixture.root, fixture.file), fixture.reverted);
+    const red = gate({
+      root: fixture.root,
+      milestone: LIVE_MILESTONE,
+      check: 'archive',
+    });
+    assert.equal(
+      red.code,
+      1,
+      `a finding must reach the gate as a non-zero exit: ${red.lines.join(' | ')}`,
+    );
+    assert.equal(red.ok, false);
+    const refusal = red.lines.find((line) =>
+      line.startsWith('gate-integrity: refusal '),
+    );
+    assert.ok(
+      refusal,
+      `the refusal must be printed as a refusal line: ${red.lines.join(' | ')}`,
+    );
+    assert.match(
+      refusal,
+      new RegExp(escapeForRegExp(fixture.file)),
+      `the refusal must name the file it reddens on: ${refusal}`,
+    );
+    assert.match(
+      refusal,
+      new RegExp(escapeForRegExp(fixture.path)),
+      `the refusal must name the path it reddens on: ${refusal}`,
+    );
+
+    // An argument the gate cannot run with is a refusal of its own: exit 2, not a pass and not a
+    // finding, so a typo cannot be mistaken for a clean tree.
+    assert.equal(
+      gate({ root: ROOT, milestone: LIVE_MILESTONE, check: 'nonsense' }).code,
+      0,
+      'an unknown --check falls back to both stages rather than measuring nothing',
+    );
+    const before = process.stdout.write;
+    process.stdout.write = () => true;
+    let usage = 0;
+    try {
+      usage = main(['--check', 'nonsense']);
+    } finally {
+      process.stdout.write = before;
+    }
+    assert.equal(
+      usage,
+      2,
+      '--check nonsense must be exit 2: the gate cannot run a stage it does not have',
+    );
+
+    t.diagnostic(
+      `AC2: clean exit ${String(clean.code)} on this tree (${String(
+        clean.archive?.examined,
+      )} live reference(s), ${String(
+        clean.fix?.examined,
+      )} claim(s) over ${String(clean.range)}); refused exit ${String(
+        red.code,
+      )} on the fixture with ${refusal ?? 'no refusal line'}`,
+    );
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+});
+
+// ------------------------------- AC7: a claim is what the task declares ----
+
+test('AC7: a log token is a claim only where its task declares it, and claims: log still reports nx.json', (t) => {
+  // The gate's own derivation of the range this milestone has written so far, so no range is
+  // remembered here: `gate` reads it from the previous ship commit to this head.
+  const declaredRun = gate({
+    root: ROOT,
+    milestone: LIVE_MILESTONE,
+    check: 'fix-record',
+  });
+  assert.equal(
+    declaredRun.code,
+    0,
+    `the gate's declared run must be clean over M044's own tasks: ${declaredRun.lines.join(' | ')}`,
+  );
+  const declared = declaredRun.fix;
+  assert.equal(
+    declared.claimsMode,
+    'declared',
+    'the gate wires the fix-record check with claims: declared',
+  );
+  assert.ok(
+    declared.examined > 0,
+    `the run must hold a non-zero number of claims: ${declaredRun.lines.join(' | ')}`,
+  );
+  assert.deepEqual(
+    declared.findings,
+    [],
+    `no claim a task declares may be absent from the range: ${JSON.stringify(
+      declared.findings.map((finding) => `${finding.task} ${finding.file}`),
+    )}`,
+  );
+  assert.ok(
+    declared.mentions.length > 0,
+    'the run must record the tokens its tasks do not declare as mentions rather than dropping them',
+  );
+  const mentionedNx = declared.mentions.find(
+    (mention) => mention.file === CLAIMED_PATH,
+  );
+  assert.ok(
+    mentionedNx,
+    `M044's own T001 names ${CLAIMED_PATH} while measuring M035, so it must be a mention: ${JSON.stringify(
+      declared.mentions.map((mention) => `${mention.task} ${mention.file}`),
+    )}`,
+  );
+  assert.equal(mentionedNx.task, 'T001');
+  assert.match(
+    String(mentionedNx.reason),
+    /does not declare it/,
+    `a mention must state why it is not judged: ${String(mentionedNx.reason)}`,
+  );
+  for (const mention of declared.mentions) {
+    assert.ok(
+      mention.task !== '' && mention.file !== '' && mention.at !== '',
+      `a mention must name the task, the file and the line it sits at: ${JSON.stringify(mention)}`,
+    );
+  }
+
+  // The same run with the export's default: the mention becomes a claim, and it is absent.
+  const loggedRun = gate({
+    root: ROOT,
+    milestone: LIVE_MILESTONE,
+    check: 'fix-record',
+    claims: 'log',
+  });
+  assert.equal(
+    loggedRun.code,
+    1,
+    `the log-mode run must refuse on M044's own tasks: ${loggedRun.lines.join(' | ')}`,
+  );
+  assert.equal(
+    loggedRun.fix.claimsMode,
+    'log',
+    'claims: log must stay the export default the gate can ask for',
+  );
+  const claimed = loggedRun.fix.findings.find(
+    (finding) => finding.file === CLAIMED_PATH,
+  );
+  assert.ok(
+    claimed,
+    `the log-mode run must still report ${CLAIMED_PATH}: ${JSON.stringify(
+      loggedRun.fix.findings.map(
+        (finding) => `${finding.task} ${finding.file}`,
+      ),
+    )}`,
+  );
+  assert.equal(claimed.task, 'T001');
+  assert.equal(claimed.class, 'claim-absent-from-the-range');
+  assert.deepEqual(
+    loggedRun.fix.mentions,
+    [],
+    'claims: log judges every path-like token, so it records no mention',
+  );
+  t.diagnostic(
+    `AC7: declared ${String(declared.examined)} claim(s) and ${String(
+      declared.mentions.length,
+    )} mention(s), 0 absent; log ${String(
+      loggedRun.fix.examined,
+    )} claim(s), ${String(loggedRun.fix.findings.length)} absent (${CLAIMED_PATH} among them)`,
   );
 });
 

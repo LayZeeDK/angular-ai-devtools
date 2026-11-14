@@ -10,7 +10,7 @@
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
     "filesExamined": 271,
     "suitesExamined": 141,
-    "examined": 138,
+    "examined": 153,
     "movedSubtrees": [
       "build",
       "intent",
@@ -26,13 +26,13 @@
     },
     "counts": {
       "archived-by-the-move": 16,
-      "deliberate-archive-read": 18,
-      "undecided": 104
+      "deliberate-archive-read": 20,
+      "undecided": 117
     },
     "sites": {
+      "path": 8,
+      "comment": 61,
       "segment": 41,
-      "comment": 48,
-      "path": 6,
       "citation": 8,
       "message": 30,
       "pattern": 5
@@ -40,11 +40,51 @@
     "references": [
       {
         "file": "scripts/autonomy-gaps.test.mjs",
-        "line": 47,
+        "line": 48,
         "path": ".project/research/DOCS-AUDIT.md",
-        "site": "segment",
+        "site": "path",
         "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives",
+        "reason": "resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/autonomy-gaps.test.mjs",
+        "line": 52,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/autonomy-gaps.test.mjs",
+        "line": 54,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/autonomy-gaps.test.mjs",
+        "line": 55,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/autonomy-gaps.test.mjs",
+        "line": 59,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/autonomy-gaps.test.mjs",
+        "line": 65,
+        "path": ".project/archive",
+        "site": "segment",
+        "class": "deliberate-archive-read",
+        "reason": "resolves to .project/archive, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose",
         "root": "repoRoot",
         "construct": "call"
       },
@@ -58,13 +98,63 @@
       },
       {
         "file": "scripts/docs-audit-disposition.test.mjs",
-        "line": 49,
+        "line": 52,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/docs-audit-disposition.test.mjs",
+        "line": 57,
         "path": ".project/research/DOCS-AUDIT.md",
-        "site": "segment",
+        "site": "path",
         "class": "archived-by-the-move",
-        "reason": "resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives",
+        "reason": "resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/docs-audit-disposition.test.mjs",
+        "line": 61,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/docs-audit-disposition.test.mjs",
+        "line": 63,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/docs-audit-disposition.test.mjs",
+        "line": 66,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/docs-audit-disposition.test.mjs",
+        "line": 72,
+        "path": ".project/archive",
+        "site": "segment",
+        "class": "deliberate-archive-read",
+        "reason": "resolves to .project/archive, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose",
         "root": "repoRoot",
-        "construct": "array"
+        "construct": "call"
+      },
+      {
+        "file": "scripts/docs-audit-disposition.test.mjs",
+        "line": 444,
+        "path": ".project",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "resolves to .project, and .project/ is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies",
+        "root": "root",
+        "construct": "call"
       },
       {
         "file": "scripts/error-boundary-capture.test.mjs",
@@ -871,16 +961,22 @@
       {
         "file": "scripts/navigation-capture.test.mjs",
         "line": 1595,
-        "path": ".project/intent/INTENT.md",
-        "site": "segment",
+        "path": null,
+        "site": "comment",
         "class": "undecided",
-        "reason": "is built on ROOT, which this file does not bind to its own module root, so it names a directory the suite creates rather than this repository's live .project/intent/INTENT.md, and the archive move deletes nothing it names here - .project/intent is a subtree the move relocates, but not this path",
-        "root": "ROOT",
-        "construct": "call"
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
-        "line": 1598,
+        "line": 1599,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/navigation-capture.test.mjs",
+        "line": 1608,
         "path": ".project/archive/040-performance-narrator/intent/INTENT.md",
         "site": "segment",
         "class": "deliberate-archive-read",
@@ -890,7 +986,7 @@
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
-        "line": 1608,
+        "line": 1618,
         "path": ".project/archive/041-navigation-blocking/intent/INTENT.md",
         "site": "segment",
         "class": "deliberate-archive-read",
@@ -900,7 +996,7 @@
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
-        "line": 1618,
+        "line": 1628,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -908,7 +1004,7 @@
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
-        "line": 1625,
+        "line": 1635,
         "path": ".project/STATE.md",
         "site": "segment",
         "class": "undecided",
@@ -918,7 +1014,7 @@
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
-        "line": 1721,
+        "line": 1737,
         "path": ".project/archive/${milestone}-milestone/intent/INTENT.md",
         "site": "segment",
         "class": "deliberate-archive-read",
@@ -928,7 +1024,7 @@
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
-        "line": 1743,
+        "line": 1759,
         "path": ".project/archive/040-missing-intent/intent/INTENT.md",
         "site": "segment",
         "class": "deliberate-archive-read",
@@ -938,7 +1034,7 @@
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
-        "line": 1751,
+        "line": 1767,
         "path": ".project/intent/INTENT.md",
         "site": "segment",
         "class": "undecided",
@@ -948,7 +1044,7 @@
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
-        "line": 1755,
+        "line": 1771,
         "path": ".project/archive/040-missing-intent",
         "site": "segment",
         "class": "deliberate-archive-read",
@@ -958,7 +1054,7 @@
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
-        "line": 1758,
+        "line": 1774,
         "path": ".project/intent",
         "site": "segment",
         "class": "undecided",
@@ -968,7 +1064,7 @@
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
-        "line": 1760,
+        "line": 1776,
         "path": ".project/STATE.md",
         "site": "segment",
         "class": "undecided",
@@ -978,7 +1074,7 @@
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
-        "line": 1761,
+        "line": 1777,
         "path": ".project/STATE.md",
         "site": "segment",
         "class": "undecided",
@@ -988,7 +1084,7 @@
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
-        "line": 1767,
+        "line": 1783,
         "path": ".project/intent/INTENT.md",
         "site": "segment",
         "class": "undecided",
@@ -1039,6 +1135,14 @@
         "site": "path",
         "class": "archived-by-the-move",
         "reason": "resolves to .project/build/verify/synthetic/verdict.json, whose .project subtree build is one the archive move relocates to .project/archive/<NNN>-<slug>/build, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/panel-typecheck-scope.test.mjs",
+        "line": 137,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
       },
       {
         "file": "scripts/performance-capture.test.mjs",
@@ -1094,7 +1198,15 @@
       },
       {
         "file": "scripts/retired-suites.test.mjs",
-        "line": 28,
+        "line": 30,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/retired-suites.test.mjs",
+        "line": 33,
         "path": ".project/plan/RETIRED-SUITES.md",
         "site": "segment",
         "class": "archived-by-the-move",
@@ -1104,7 +1216,7 @@
       },
       {
         "file": "scripts/retired-suites.test.mjs",
-        "line": 88,
+        "line": 93,
         "path": ".project/plan",
         "site": "segment",
         "class": "undecided",
@@ -1114,7 +1226,7 @@
       },
       {
         "file": "scripts/retired-suites.test.mjs",
-        "line": 91,
+        "line": 96,
         "path": ".project/archive",
         "site": "segment",
         "class": "deliberate-archive-read",
@@ -1124,7 +1236,7 @@
       },
       {
         "file": "scripts/retired-suites.test.mjs",
-        "line": 94,
+        "line": 99,
         "path": ".project/tasks",
         "site": "segment",
         "class": "undecided",
@@ -1134,7 +1246,7 @@
       },
       {
         "file": "scripts/retired-suites.test.mjs",
-        "line": 97,
+        "line": 102,
         "path": ".project/review",
         "site": "segment",
         "class": "undecided",
@@ -1144,7 +1256,7 @@
       },
       {
         "file": "scripts/retired-suites.test.mjs",
-        "line": 102,
+        "line": 107,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1153,6 +1265,14 @@
       {
         "file": "scripts/retired-suites.test.mjs",
         "line": 112,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/retired-suites.test.mjs",
+        "line": 117,
         "path": ".project/archive",
         "site": "segment",
         "class": "deliberate-archive-read",
@@ -1162,7 +1282,7 @@
       },
       {
         "file": "scripts/retired-suites.test.mjs",
-        "line": 307,
+        "line": 313,
         "path": ".project/plan/RETIRED-SUITES.md",
         "site": "path",
         "class": "archived-by-the-move",
@@ -1558,6 +1678,6 @@
       "skippedNavigations.startType"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-14T16:20:34.683Z"
+    "at": "2026-11-14T18:24:01.627Z"
   }
 }

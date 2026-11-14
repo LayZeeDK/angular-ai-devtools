@@ -31,6 +31,7 @@ import { spawnSync } from 'node:child_process';
 import {
   existsSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -44,8 +45,42 @@ import { resolveRulesRoot } from './user-scope-autonomy.mjs';
 
 const repoRoot = join(fileURLToPath(new URL('..', import.meta.url)));
 const DOC_PATH = join(repoRoot, 'docs', 'autonomy-gaps.md');
-const AUDIT_PATH = join(repoRoot, '.project', 'research', 'DOCS-AUDIT.md');
+const AUDIT_PATH = resolveArtefact('.project/research/DOCS-AUDIT.md');
 const CORRECTION_SUITE = join('scripts', 'docs-correction.test.mjs');
+
+/**
+ * The artefact where this checkout carries it: the live `.project/<subtree>` copy while the milestone
+ * is live, and the newest archive copy once the ship flow has moved the subtree into
+ * `.project/archive/<NNN>-<slug>/`. M044's archive-path check reddens a suite that reads a live
+ * `.project` path directly, because the move deletes it — this suite resolved the live name until
+ * then — so which copy exists is decided here, at read time, and an artefact that is nowhere fails
+ * naming the path it tried rather than reading nothing (SC1).
+ *
+ * @param {string} relative the artefact's path from the repository root, `.project` first
+ * @returns {string} the absolute path of the copy this checkout carries
+ */
+function resolveArtefact(relative) {
+  const segments = relative.split('/');
+  const live = join(repoRoot, ...segments);
+  const archives = join(repoRoot, '.project', 'archive');
+  const copies = existsSync(archives)
+    ? readdirSync(archives, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort()
+        .reverse()
+        .map((name) => join(archives, name, ...segments.slice(1)))
+        .filter((path) => existsSync(path))
+    : [];
+  const found = [live, ...copies].find((path) => existsSync(path));
+
+  assert.ok(
+    found,
+    `${relative} must exist: this checkout carries neither ${live} nor a copy under ${archives}`,
+  );
+
+  return found;
+}
 
 /** The installed orchestrator prompt, split into segments under the resolved
  * rules root. The prompt's file name is the route-named one the install ships;

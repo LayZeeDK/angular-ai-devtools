@@ -115,7 +115,13 @@ const GUARD_COMPARISON =
     .refusedGuardVersusUnmatchedUrl.comparison;
 
 /** The key sets an answer, a navigation and a load may carry — and the whole of what one may. */
-const ANSWER_KEYS = ['absence', 'navigations', 'state', 'unattributed'];
+const ANSWER_KEYS = [
+  'absence',
+  'navigations',
+  'skipped',
+  'state',
+  'unattributed',
+];
 const NAVIGATION_KEYS = [
   'absence',
   'code',
@@ -819,7 +825,7 @@ function pinOpenStageAndTheEmptyAbsence(api) {
   assert.deepEqual(
     keysOf(answer),
     ANSWER_KEYS,
-    'E3 the answer carries its four fields',
+    'E3 the answer carries its five fields',
   );
   assert.equal(
     answer.absence,
@@ -1846,11 +1852,23 @@ describe('E3 — an open navigation sits at its stage and an empty record answer
         what: 'M5 an empty record answers a zero rather than the absence',
         anchor:
           '    if (navigations.length === 0) {\n' +
-          '      return answer(CANNOT_TELL, NO_NAVIGATION_RECORDED, [], unattributed);\n' +
+          '      return answer(\n' +
+          '        CANNOT_TELL,\n' +
+          '        NO_NAVIGATION_RECORDED,\n' +
+          '        [],\n' +
+          '        unattributed,\n' +
+          '        skipped,\n' +
+          '      );\n' +
           '    }',
         replacement:
           '    if (navigations.length === 0) {\n' +
-          '      return answer(ENDED, null, [], unattributed);\n' +
+          '      return answer(\n' +
+          '        ENDED,\n' +
+          '        null,\n' +
+          '        [],\n' +
+          '        unattributed,\n' +
+          '        skipped,\n' +
+          '      );\n' +
           '    }',
         message: /E3 a record carrying no navigation answers the absence/,
         defect(api) {
@@ -2128,6 +2146,196 @@ describe('E9 — a load is attributed by its own route and its own start, never 
       },
     ]);
     console.log(`E9 non-vacuous:\n  ${caught.join('\n  ')}`);
+  });
+});
+
+// ------------------- E7/E8: a terminal for an id that has already ended ----
+//
+// The shape is the recording's own, and it is the one the intent's fourth correction states: a
+// same-URL `NavigationSkipped` carries id 3, whose start and end live in the `superseded` frame from
+// a different run, so the entry arrives for a navigation that has already ended. The two frames
+// below are read out of `research/raw/m041-navigation.json` at load (`SUPERSEDED`, `SKIP`) and
+// concatenated in the recording's own order: nothing here authors an event list, and the pin's
+// expectation — the id, the url and the class word — is read from the recording rather than written.
+
+/** The recording's two frames in its own order: the ended id, then the skip that addresses it. */
+const ENDED_ID_EVENTS = [...SUPERSEDED, ...SKIP];
+
+/** The same two frames reordered: a mutation of the recording, not of the module under test. */
+const REORDERED_ID_EVENTS = [...SKIP, ...SUPERSEDED];
+
+/**
+ * E7, held out. A terminal entry whose own id has already ended is a finding naming the skipped
+ * navigation — its id, the `url` the entry carried and the word the record uses for the class — and
+ * the navigation that ended keeps exactly the one terminal it recorded. E8's ordering half is the
+ * same pin over a stream the caller names, so a reordered recording or a rebuilt list reddens it.
+ *
+ * @param {any} api
+ * @param {any[]} [events] the recording's events, in the order the pin is fed
+ * @returns {any[]} the findings the answer carried
+ */
+function pinTerminalForAnEndedId(api, events = ENDED_ID_EVENTS) {
+  const skip = RECORDING.terminals.skip.event;
+  const ended = recordedEvent(SUPERSEDED, 'NavigationEnd');
+  assert.equal(
+    skip.payload.id,
+    ended.payload.id,
+    'the recording skip addresses the id the superseded run had already ended, so one id has two terminals',
+  );
+  assert.equal(
+    skip.class,
+    'NavigationSkipped',
+    'the entry that arrives after the end is the class the record uses for a skipped navigation',
+  );
+
+  const answer = answerOf(api, recordOf(events));
+  assert.equal(
+    answer.state,
+    'ended',
+    'E7 both navigations the stream carries recorded a terminal',
+  );
+  assert.equal(
+    answer.navigations.length,
+    2,
+    `E7 the stream carries two navigations and the answer must report two: ${JSON.stringify(
+      answer.navigations.map((navigation) => navigation.id),
+    )}`,
+  );
+
+  // The finding, and the whole of it: the id the entry addressed, the url the entry carried and the
+  // class word the record uses. No cause, no owner and no intent is added, so the key set is the
+  // three fields and nothing else — asserted first, so a finding that is missing, or one that carries
+  // a word the entry never carried, reddens here by shape before the values are compared.
+  assert.deepEqual(
+    keysOf(answer.skipped[0] ?? {}),
+    ['id', 'terminal', 'url'],
+    `E7 the finding names the id, the url and the word for the class, and no cause the entry does not carry: ${JSON.stringify(answer.skipped)}`,
+  );
+  assert.deepEqual(
+    answer.skipped,
+    [{ id: skip.payload.id, url: skip.payload.url, terminal: skip.class }],
+    `E7 an ended id carries the skipped terminal the recording names; the answer reported ${JSON.stringify(
+      answer.skipped,
+    )}`,
+  );
+
+  // The navigation that ended keeps exactly one terminal: the one it recorded. A second terminal for
+  // its id must not overwrite it, and must not open a second navigation for the same id either.
+  const navigation = navById(answer, ended.payload.id);
+  assert.equal(
+    navigation.terminal,
+    'NavigationEnd',
+    `E7 the ended navigation keeps the terminal it recorded: ${JSON.stringify(navigation.terminal)}`,
+  );
+  assert.equal(
+    navigation.state,
+    'ended',
+    'E7 the ended navigation stays ended',
+  );
+  assert.equal(
+    answer.navigations.filter((one) => one.id === ended.payload.id).length,
+    1,
+    'E7 an entry for an ended id opens no second navigation',
+  );
+  return answer.skipped;
+}
+
+describe('E7/E8 — a terminal for an id that already ended is a finding, and a normal end is one terminal', () => {
+  it('names the skipped navigation, and keeps the ended navigation’s single terminal', () => {
+    const caught = proveNonVacuous(
+      (api) => pinTerminalForAnEndedId(api),
+      [
+        {
+          what: 'M16 the narrator drops a terminal whose id has already ended',
+          anchor:
+            '          skipped.push({ id: entry.id, url: entry.url, terminal: type });\n' +
+            '        }',
+          replacement: '        }',
+          message:
+            /E7 the finding names the id, the url and the word for the class/,
+          defect(api) {
+            const answer = answerOf(api, recordOf(ENDED_ID_EVENTS));
+            assert.deepEqual(
+              answer.skipped,
+              [],
+              'the mutant discards the terminal the recording carries for the ended id, which is the defect this repair removes',
+            );
+            assert.equal(
+              navById(answer, RECORDING.terminals.skip.event.payload.id)
+                .terminal,
+              'NavigationEnd',
+              'the mutant leaves the ended navigation’s own terminal in place, so only the finding is missing',
+            );
+          },
+        },
+        {
+          what: 'M17 the finding names a cause the entry does not carry',
+          anchor:
+            '          skipped.push({ id: entry.id, url: entry.url, terminal: type });',
+          replacement:
+            "          skipped.push({ id: entry.id, url: entry.url, terminal: type, reason: 'navigation was skipped because the URL was unchanged' });",
+          message:
+            /E7 the finding names the id, the url and the word for the class/,
+          defect(api) {
+            const answer = answerOf(api, recordOf(ENDED_ID_EVENTS));
+            assert.equal(
+              answer.skipped[0].reason,
+              'navigation was skipped because the URL was unchanged',
+              'the mutant attributes a cause the recorded entry never carried',
+            );
+          },
+        },
+      ],
+    );
+    console.log(`E7/E8 non-vacuous:\n  ${caught.join('\n  ')}`);
+  });
+
+  it('is fed the recording, so a reordered recording or a rebuilt list reddens it', () => {
+    const api = pristineApi();
+
+    // The pin's own premise: the recording's order is what puts the skip after the end.
+    pinTerminalForAnEndedId(api, ENDED_ID_EVENTS);
+
+    // AC4's ordering half. The same events in the other order: the skip opens the navigation and the
+    // superseded run's `NavigationEnd` addresses an id that is still open, so the ended-id finding is
+    // absent and the terminal the answer reports for that id changes. Nothing about the module moved.
+    const reordered = reddens(
+      () => pinTerminalForAnEndedId(api, REORDERED_ID_EVENTS),
+      'a reordered recording',
+    );
+    console.log(`E8 reordered recording: ${reordered.message.split('\n')[0]}`);
+    assert.match(
+      reordered.message,
+      /E7 an ended id carries the skipped terminal/,
+      `the reordered recording must redden the pin naming the finding it lost: ${reordered.message}`,
+    );
+
+    // AC4's rebuilt-list half: the same two frames with the skip entry's url rewritten here. The
+    // pin's expectation is the recording's own id and url, so a list rebuilt in this file — the
+    // composition INTENT's E8 forbids — cannot satisfy it: the finding it produces names the entry
+    // this file invented, not the one the recording carries.
+    const rebuilt = [...SUPERSEDED, ...SKIP].map((event) => ({
+      ...event,
+      payload: { ...(event.payload ?? {}) },
+    }));
+    const tampered = rebuilt.map((event, index) =>
+      index === rebuilt.length - 1
+        ? { ...event, payload: { ...event.payload, url: '/nowhere' } }
+        : event,
+    );
+    const fabricated = reddens(
+      () => pinTerminalForAnEndedId(api, tampered),
+      'a list rebuilt in this file',
+    );
+    console.log(`E8 rebuilt list: ${fabricated.message.split('\n')[0]}`);
+    assert.match(
+      fabricated.message,
+      /E7 an ended id carries the skipped terminal/,
+      `a rebuilt list must redden the pin naming the recording's own finding: ${fabricated.message}`,
+    );
+
+    // And the control: the recording's own events pass the same pin.
+    pinTerminalForAnEndedId(api, ENDED_ID_EVENTS);
   });
 });
 

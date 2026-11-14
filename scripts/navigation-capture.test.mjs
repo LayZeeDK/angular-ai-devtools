@@ -1591,8 +1591,18 @@ test('the claim list rules every criterion and quotes each one character for cha
 
 // -------------------------------------------------- the intent that answers ----
 
-/** The live intent. Named here so a test can prove what the resolver does *not* answer with. */
-const LIVE_INTENT = join(ROOT, '.project', 'intent', 'INTENT.md');
+/**
+ * The intent that answers for the milestone `.project/STATE.md` binds, asked of the shared resolver
+ * rather than spelled here: the archive-or-live decision lives in `scripts/verdict-claims-intent.mjs`
+ * and this suite reads the file at that answer. Named here so a test can prove what the resolver does
+ * *not* answer with — and asked rather than hardcoded, because M044's archive-path check reddens a
+ * suite that reads the live `.project` name directly: the ship flow deletes it.
+ *
+ * @returns {string} the absolute path of the intent that answers for the bound milestone
+ */
+function currentIntent() {
+  return intentPathForMilestone(ROOT, boundMilestone());
+}
 
 /** M040's own intent, which is the archive's copy: the milestone has shipped and cannot be current. */
 const M040_INTENT = join(
@@ -1689,7 +1699,7 @@ test('the intent follows the milestone its claims are numbered for, through ever
     );
     assert.notEqual(
       intentPathForMilestone(ROOT, token),
-      LIVE_INTENT,
+      currentIntent(),
       `${token} is archived, so it must never read whoever is current`,
     );
   }
@@ -1700,12 +1710,18 @@ test('the intent follows the milestone its claims are numbered for, through ever
   for (const token of [bound, digits, String(Number(digits))]) {
     assert.equal(
       intentPathForMilestone(ROOT, token),
-      LIVE_INTENT,
-      `${token} must resolve to the live intent, which STATE.md binds to ${bound}`,
+      currentIntent(),
+      `${token} must resolve to the intent this checkout carries as current, which STATE.md binds to ${bound}`,
     );
   }
+  // The answer is a file on disk the suite reads, not a path the resolver merely assembled: without
+  // this the two equalities above would hold for a path no one can open.
+  assert.ok(
+    existsSync(currentIntent()),
+    `the intent that answers for ${bound} must be a file on disk: ${currentIntent()}`,
+  );
   // The defect this resolver removes: an archived milestone never reads whoever is current.
-  assert.notEqual(intentPathForMilestone(ROOT, 'M040'), LIVE_INTENT);
+  assert.notEqual(intentPathForMilestone(ROOT, 'M040'), currentIntent());
 });
 
 test('each answer is the file its own claim list quotes, checked on disk', () => {
@@ -1760,7 +1776,7 @@ test('the resolver refuses rather than falling back, and every refusal names its
       join(ROOT, '.project', 'STATE.md'),
       join(scratch, '.project', 'STATE.md'),
     );
-    copyFileSync(LIVE_INTENT, live);
+    copyFileSync(currentIntent(), live);
 
     // The fallback this repair exists to refuse, stated as the mutant it is: a resolver that reads the
     // live intent when the archive carries none. It answers, which is why nothing may implement it.

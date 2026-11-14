@@ -43,6 +43,24 @@
 //                      ship commit and this milestone's own, read from `git log` rather than written
 //                      here, so no caller feeds the check a range it remembered.
 //
+//   the gate           `node scripts/gate-integrity.mjs` runs both checks over the tree it stands in
+//                      and exits 0 only when both are clean, so a red check reaches a CI or ship step
+//                      as a refusal rather than as output beside a passing gate. Exit 0 is clean, 1 is
+//                      a finding or a refusal, and 2 is an argument the gate cannot derive its own
+//                      input from. `--check archive|fix-record|both` selects a stage,
+//                      `--root`/`--milestone`/`--range`/`--tasks`/`--claims` supply the inputs, and
+//                      `--json` prints the two reports instead of the reading. `gate(input)` is the
+//                      same run without printing, so a suite can hold it to an exit code without
+//                      spawning a second process.
+//
+// A claim, and what is not one. `checkFixRecord` reads every path-like token in a task's `## Log`.
+// With `claims: 'log'` - the export's default, and what T002's tests were written against - each
+// token is a claim held against the range. With `claims: 'declared'`, a token is a claim only when
+// that task's own `files:` front matter lists the path; every other token is recorded in `mentions`
+// and printed rather than judged, because a log line narrates a milestone while a `files:` list
+// states what the task changed. The gate runs `declared`, so a mention of another milestone's path
+// (M035's `nx.json`, named in M044's own T001 log while measuring it) is named and not reported.
+//
 // Two mutants ship with the code, each a real branch rather than a decoration (T002's AC4):
 // `MUTANTS.archivePaths` removes the naming/read distinction so a live reference reads clean, and
 // `MUTANTS.fixRecord` treats a rename as its old name only, so a claim naming the new name is
@@ -54,6 +72,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve, sep } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 /** The `.project` directory, in the repository's own spelling. */
 const PROJECT = '.project';
@@ -1248,23 +1267,54 @@ function taskInputs(root, tasks) {
 }
 
 /**
+ * The paths one task file's own `files:` front matter declares. A log token that this list carries is
+ * a claim; every other path-like token is a mention, which is named rather than judged. The list is
+ * read from the task's own front matter, never from a list written here, so a task that declares
+ * nothing claims nothing.
+ *
+ * @param {string} text
+ * @returns {string[]}
+ */
+function declaredFiles(text) {
+  const front = /^---\r?\n([\s\S]*?)\r?\n---/.exec(stripBom(text))?.[1] ?? '';
+  const block =
+    /^files:[ \t]*\r?\n((?:[ \t]*-[ \t]*\S.*\r?\n?)*)/m.exec(front)?.[1] ?? '';
+  /** @type {string[]} */
+  const declared = [];
+  for (const match of block.matchAll(/^[ \t]*-[ \t]*(\S+)[ \t]*$/gm)) {
+    const named = (match[1] ?? '').replace(/^['"]|['"]$/g, '');
+    if (named !== '') declared.push(named);
+  }
+  return declared;
+}
+
+/**
  * The fix-record check (SC2; AC2, AC3, AC4): every path a task log's `## Log` claims, held against
  * the range's own `--name-status`, where a rename contributes both of its names.
  *
- * @param {{ root?: string, range?: string, tasks?: unknown, mutant?: string | null }} [input]
+ * `claims` decides what a log token is. The default `'log'` treats every path-like token as a claim.
+ * `'declared'` treats a token as a claim only when that task's own `files:` front matter lists the
+ * path, and records every other token in `mentions` - printed and not judged - so a log that
+ * narrates another milestone's path does not read as a claim about this one.
+ *
+ * @param {{ root?: string, range?: string, tasks?: unknown, mutant?: string | null, claims?: string }} [input]
  * @returns {Record<string, any>}
  */
 export function checkFixRecord(input = {}) {
   const root = typeof input.root === 'string' ? resolve(input.root) : null;
   const range = typeof input.range === 'string' ? input.range.trim() : '';
   const mutant = input.mutant ?? null;
+  const claimsMode = input.claims === 'declared' ? 'declared' : 'log';
   const command = `git diff --name-status -M ${range}`;
   const empty = {
     examined: 0,
     tasksExamined: 0,
     claimsExamined: 0,
+    claimsMode,
     range: { range, command, changed: 0, renames: 0 },
     claims: [],
+    mentions: [],
+    declarations: [],
     findings: [],
     mutant,
     ok: false,
@@ -1312,15 +1362,41 @@ export function checkFixRecord(input = {}) {
   const inputs = taskInputs(root, input.tasks);
   /** @type {Array<Record<string, any>>} */
   const claims = [];
+  /** @type {Array<Record<string, any>>} */
+  const mentions = [];
+  /** @type {Array<{ task: string, file: string, declared: string[] }>} */
+  const declarations = [];
   let tasksExamined = 0;
   for (const task of inputs) {
     const logs = logLines(task.text);
     if (logs.length === 0) continue;
     tasksExamined += 1;
+    const declared = declaredFiles(task.text);
+    declarations.push({ task: task.id, file: task.file, declared });
     for (const log of logs) {
       for (const match of log.text.matchAll(/`([^`]+)`/g)) {
         const named = (match[1] ?? '').trim();
         if (!PATH_LIKE.test(named)) continue;
+        const named_ = named.replace(/^\.\//, '');
+        // In `declared` mode a token the task's own `files:` list does not carry is a mention: it is
+        // recorded with where it sits and what it named, and it is never held against the range.
+        if (
+          claimsMode === 'declared' &&
+          !declared.some(
+            (path) => path === named_ || path.endsWith(`/${named_}`),
+          )
+        ) {
+          mentions.push({
+            task: task.id,
+            file: named_,
+            at: `${task.file}:${log.line}`,
+            taskFile: task.file,
+            line: log.line,
+            claim: log.text.trim(),
+            reason: `${task.id} names ${named_} in its ## Log and its own files: list does not declare it, so it is a mention recorded rather than a claim judged`,
+          });
+          continue;
+        }
         const found = rows
           .filter((row) =>
             row.paths.some(
@@ -1383,7 +1459,9 @@ export function checkFixRecord(input = {}) {
         claim:
           inputs.length === 0
             ? 'no task was supplied'
-            : `${String(tasksExamined)} task log(s) name no path in their ## Log`,
+            : claimsMode === 'declared'
+              ? `${String(tasksExamined)} task log(s) name no path their own files: list declares (${String(mentions.length)} mention(s) recorded and not judged)`
+              : `${String(tasksExamined)} task log(s) name no path in their ## Log`,
         reason:
           'no claim was compared against the range, so the check examined nothing rather than finding every claim true',
       }),
@@ -1394,6 +1472,8 @@ export function checkFixRecord(input = {}) {
     examined: rangeCarries ? claims.length : 0,
     tasksExamined,
     claimsExamined: claims.length,
+    claimsMode,
+    mentionsExamined: mentions.length,
     range: {
       range,
       command,
@@ -1403,6 +1483,8 @@ export function checkFixRecord(input = {}) {
     },
     mutant,
     claims,
+    mentions,
+    declarations,
     findings: [...findings, ...refusals],
     ok: findings.length === 0 && refusals.length === 0,
     reading: `examined ${String(claims.length)} claim(s) from ${String(
@@ -1411,6 +1493,273 @@ export function checkFixRecord(input = {}) {
       mutant === MUTANTS.fixRecord
         ? 'each rename contributing only its first name'
         : 'each rename contributing both of its names'
-    }`,
+    }${claimsMode === 'declared' ? `, and ${String(mentions.length)} token(s) its tasks' files: lists do not declare recorded as mention(s) rather than judged` : ''}`,
   };
+}
+
+// -------------------------------------------------------------- the gate ----
+//
+// The two checks as one command, so a red check reaches a CI or a ship step as a refusal rather than as
+// a paragraph beside a passing gate (SC3; T003's AC1, AC2). It reads and prints; the only process it
+// spawns is the one `git` read `shipRange` and the range's own `--name-status` already named.
+
+/** The stages `--check` selects, and the one it means when the flag is absent. */
+const STAGES = ['archive', 'fix-record', 'both'];
+
+/** The claims modes `--claims` selects. */
+const CLAIMS_MODES = ['log', 'declared'];
+
+/**
+ * The range this milestone owns *so far*: the previous milestone's ship commit to this head. Used when
+ * git records no ship commit for the milestone yet, which is the state every milestone is in while it
+ * is being built - a gate that refused to run until the milestone shipped would be a gate nobody runs.
+ * The derivation is `shipRange`'s own, read one milestone back, so no range is written here.
+ *
+ * @param {string} root
+ * @param {string} milestone
+ * @returns {{ range: string, base: { sha: string, subject: string } | null, head: { sha: string, subject: string } | null, command: string, error: string, mode: string }}
+ */
+function workRange(root, milestone) {
+  const shipped = shipRange({ root, milestone });
+  if (shipped.error === '') return { ...shipped, mode: 'ship' };
+  const digits = /^M?(\d{3})$/.exec(milestone.toUpperCase())?.[1];
+  if (digits === undefined) {
+    return { ...shipped, mode: 'none' };
+  }
+  const previous = String(Number(digits) - 1).padStart(3, '0');
+  const back = shipRange({ root, milestone: `M${previous}` });
+  if (back.head === null) {
+    return {
+      ...shipped,
+      error: `${shipped.error}; and the range this milestone has written so far cannot be derived either, because git log names no ship commit for M${previous}`,
+      mode: 'none',
+    };
+  }
+  const head = git(root, ['rev-parse', 'HEAD']);
+  if (!head.ok) {
+    return { ...shipped, error: head.error, mode: 'none' };
+  }
+  const sha = head.out.trim();
+  const subject = git(root, ['log', '-1', '--format=%s', sha]);
+  return {
+    range: `${back.head.sha}..${sha}`,
+    base: back.head,
+    head: { sha, subject: subject.ok ? subject.out.trim() : '' },
+    command: 'git log --format=%H%x09%s (every ship commit, newest first)',
+    error: '',
+    mode: 'building',
+  };
+}
+
+/**
+ * One gate run, without printing: both checks over one tree, the lines a caller prints, and the exit
+ * code. Kept apart from `main` so a suite holds the run to its exit code in process, rather than
+ * spawning a second node to learn it.
+ *
+ * @param {{ root?: string, milestone?: string, range?: string, tasks?: string, check?: string, claims?: string }} [input]
+ * @returns {{ code: number, ok: boolean, lines: string[], archive: Record<string, any> | null, fix: Record<string, any> | null, range: string }}
+ */
+export function gate(input = {}) {
+  const root = resolve(
+    typeof input.root === 'string' && input.root !== ''
+      ? input.root
+      : process.cwd(),
+  );
+  const stage = STAGES.includes(String(input.check ?? 'both'))
+    ? String(input.check ?? 'both')
+    : 'both';
+  const claims = CLAIMS_MODES.includes(String(input.claims ?? 'declared'))
+    ? String(input.claims ?? 'declared')
+    : 'declared';
+  const state = readState(root);
+  const milestone =
+    typeof input.milestone === 'string' && input.milestone.trim() !== ''
+      ? input.milestone.trim().toUpperCase()
+      : state.milestone;
+  /** @type {string[]} */
+  const lines = [];
+  /** @type {Record<string, any> | null} */
+  let archive = null;
+  /** @type {Record<string, any> | null} */
+  let fix = null;
+
+  lines.push(
+    `gate-integrity: ${displayPath(root)} milestone ${milestone ?? 'unbound'}; stages ${
+      stage === 'both'
+        ? 'archive-paths then fix-record'
+        : stage === 'archive'
+          ? 'archive-paths'
+          : 'fix-record'
+    }`,
+  );
+
+  if (stage !== 'fix-record') {
+    archive = checkArchivePaths({ root, milestone: milestone ?? '' });
+    lines.push(
+      `gate-integrity: archive-paths ${archive.ok ? 'clean' : 'refused'} - examined ${String(
+        archive.examined,
+      )} live path reference(s) of ${String(archive.referencesExamined)} reference(s) in ${String(
+        archive.filesExamined,
+      )} suite(s), across ${String(archive.movedSubtrees.length)} relocated subtree(s)`,
+    );
+    for (const finding of archive.findings) {
+      lines.push(
+        `gate-integrity: refusal ${String(finding.file)}:${String(finding.line)} names ${String(
+          finding.path,
+        )} (${String(finding.class)}) - ${String(finding.reason)}`,
+      );
+    }
+  }
+
+  let range = '';
+  if (stage !== 'archive') {
+    const derived =
+      typeof input.range === 'string' && input.range.trim() !== ''
+        ? { range: input.range.trim(), error: '', mode: 'given' }
+        : workRange(root, milestone ?? '');
+    if (derived.error !== '') {
+      lines.push(
+        `gate-integrity: fix-record cannot derive the range it is held to - ${derived.error}`,
+      );
+      return { code: 2, ok: false, lines, archive, fix, range: '' };
+    }
+    range = derived.range;
+    fix = checkFixRecord({
+      root,
+      range,
+      tasks:
+        typeof input.tasks === 'string' && input.tasks !== ''
+          ? input.tasks
+          : join(PROJECT, 'tasks'),
+      claims,
+    });
+    lines.push(
+      `gate-integrity: fix-record ${fix.ok ? 'clean' : 'refused'} - examined ${String(
+        fix.examined,
+      )} claim(s) in ${String(fix.tasksExamined)} task log(s) against ${String(
+        fix.range.changed,
+      )} changed path(s) of ${range} (${derived.mode === 'building' ? 'the range this milestone has written so far' : derived.mode === 'given' ? 'the range given' : 'the range this milestone shipped'}; claims: ${claims})`,
+    );
+    for (const finding of fix.findings) {
+      lines.push(
+        `gate-integrity: refusal ${String(finding.file)} at ${String(finding.task ?? 'range')} (${String(
+          finding.class,
+        )}) - ${String(finding.reason)}`,
+      );
+    }
+    for (const mention of fix.mentions) {
+      lines.push(
+        `gate-integrity: mention ${String(mention.file)} at ${String(mention.at)} (${String(
+          mention.task,
+        )}) - recorded and not judged`,
+      );
+    }
+  }
+
+  const findings =
+    (archive?.findings.length ?? 0) + (fix?.findings.length ?? 0);
+  const ok =
+    (stage === 'fix-record' || archive?.ok === true) &&
+    (stage === 'archive' || fix?.ok === true);
+  lines.push(
+    `gate-integrity: ${ok ? 'pass' : 'refuse'} - ${String(findings)} finding(s)${
+      stage === 'both' || stage === 'fix-record'
+        ? `, ${String(fix?.mentions.length ?? 0)} mention(s)`
+        : ''
+    }`,
+  );
+  return { code: ok ? 0 : 1, ok, lines, archive, fix, range };
+}
+
+/**
+ * The gate's argument list: `--name value`, `--name=value`, and a `--flag` that stands for itself. An
+ * unknown name, or a flag that needs a value and has none, is an error the gate refuses with rather
+ * than an argument silently ignored, because a gate run with a typo would otherwise measure the
+ * default tree and report a pass.
+ *
+ * @param {string[]} argv
+ * @returns {{ ok: boolean, input: Record<string, any>, error: string }}
+ */
+function parseArguments(argv) {
+  const input = {};
+  for (let index = 0; index < argv.length; index += 1) {
+    const argument = argv[index] ?? '';
+    if (!argument.startsWith('--')) {
+      return {
+        ok: false,
+        input,
+        error: `${JSON.stringify(argument)} is not a --flag; the gate reads no positional argument`,
+      };
+    }
+    const body = argument.slice(2);
+    const equals = body.indexOf('=');
+    const name = equals === -1 ? body : body.slice(0, equals);
+    if (name === 'json') {
+      input.json = true;
+      continue;
+    }
+    if (
+      !['check', 'root', 'milestone', 'range', 'tasks', 'claims'].includes(name)
+    ) {
+      return { ok: false, input, error: `--${name} is not a gate flag` };
+    }
+    const value =
+      equals === -1 ? (argv[index + 1] ?? '') : body.slice(equals + 1);
+    if (equals === -1) index += 1;
+    if (value === '' || value.startsWith('--')) {
+      return { ok: false, input, error: `--${name} needs a value` };
+    }
+    input[name] = value;
+  }
+  if (input.check !== undefined && !STAGES.includes(String(input.check))) {
+    return {
+      ok: false,
+      input,
+      error: `--check ${JSON.stringify(input.check)} is not one of ${STAGES.join('/')}`,
+    };
+  }
+  if (
+    input.claims !== undefined &&
+    !CLAIMS_MODES.includes(String(input.claims))
+  ) {
+    return {
+      ok: false,
+      input,
+      error: `--claims ${JSON.stringify(input.claims)} is not one of ${CLAIMS_MODES.join('/')}`,
+    };
+  }
+  return { ok: true, input, error: '' };
+}
+
+/**
+ * The command-line entry point: parse, run, print, answer the exit code. Every line names the file, the
+ * task or the reading it is about, so a refusal says what reddened rather than only that something did.
+ *
+ * @param {string[]} argv
+ * @returns {number} 0 clean, 1 a finding or a refusal, 2 an argument the gate cannot run with
+ */
+export function main(argv) {
+  const parsed = parseArguments(argv);
+  if (!parsed.ok) {
+    process.stdout.write(`gate-integrity: refuse - ${parsed.error}\n`);
+    return 2;
+  }
+  const result = gate(parsed.input);
+  for (const line of result.lines) process.stdout.write(`${line}\n`);
+  if (parsed.input.json === true) {
+    process.stdout.write(
+      `${JSON.stringify({ archive: result.archive, fix: result.fix }, null, 2)}\n`,
+    );
+  }
+  return result.code;
+}
+
+// A module imported by a suite runs no gate; a module run as a command does. `process.argv[1]` is the
+// path node was given, which is this file's own URL when the file is the entry point and a suite's
+// when the suite is.
+if (
+  typeof process.argv[1] === 'string' &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  process.exitCode = main(process.argv.slice(2));
 }

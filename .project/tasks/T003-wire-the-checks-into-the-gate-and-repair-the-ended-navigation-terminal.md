@@ -4,9 +4,9 @@ title: Wire the checks into the gate and repair the ended-navigation terminal
 wave: 3
 deps:
   - T002
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T003
+base: 477ecfba47dfa895ff7ec49216f14f1e32f1b2e0
 worktree: null
 task_branch: null
 files:
@@ -89,3 +89,7 @@ E6, E7, E8, E10
 ## Log
 
 - (no entries yet)
+
+- 2026-11-14 — T003 landed eleven files at `ec3046e5`. Orchestrator re-ran the proof rather than reading the report: three `node --check` legs exit 0, the three suites reporting 45 tests / 45 pass, the four repaired suites 37 / 37, and `npm run check` exit 0 with both new stages visible — `archive-paths clean - examined 16 live path reference(s) of 153` and `fix-record clean - examined 2 claim(s) ... claims: declared` with `nx.json` recorded as a mention rather than judged. `npm test` is red on exactly the two permitted `overlay-verdict-claims` tests, whose cause is T004's absent claims file.
+- 2026-11-14 — the four live reads are repaired the way the resolver already does it: `autonomy-gaps` and `docs-audit-disposition` resolve the audit artefact, `retired-suites` picks whichever of the live or archived record exists, and `navigation-capture` asks `verdict-claims-intent.mjs` rather than spelling the intent path — that suite's own pin forbids the literal, which the first form tripped.
+- 2026-11-14 — verdict: ready — with one blind spot reported rather than hidden: a whole-path literal bound as `const X = '.project/…'` is classified as a naming and the read behind it is invisible to the use-climb (`scripts/error-boundary-measure.test.mjs:67` sits in that shape today). Every repaired reference sits in a call position, so none of the four relies on that hole, but it is a real gap for a follow-up.
