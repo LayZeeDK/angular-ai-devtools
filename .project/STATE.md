@@ -5,7 +5,7 @@ milestone: gate-phase-stability
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: active
 branch: gsd-path/M056
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -924,3 +924,7 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-15 — plan — patch plan approved
 - 2026-11-15 — build — build started
 - 2026-11-15 — build — build plan repair requested
+- 2026-11-15 — plan — build plan repair requested
+- 2026-11-15 — plan — build recovery: {"base": "52e7e1c33ac514858c535d26e52f058e11470d45", "branch": "gsd-path/M056", "kind": "plan", "source": "build"}
+- 2026-11-15 — plan — patch plan approved
+- 2026-11-15 — build — build started
