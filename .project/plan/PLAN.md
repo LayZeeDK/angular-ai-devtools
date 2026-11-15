@@ -1,0 +1,108 @@
+# PLAN — M045 console-read
+
+## Config
+
+- max_review_cycles: 3
+- wave_budget: none
+- review_panel: off
+- finding_skeptics: on
+
+## Success criteria
+
+| Criterion | Wave | Task |
+|-----------|------|------|
+| SC1 | 1, 2 | T001, T002 |
+| SC2 | 2 | T002 |
+| SC3 | 2, 3 | T002, T003 |
+| SC4 | 3 | T003 |
+| SC5 | 3, 4 | T003, T004 |
+
+## Intent coverage
+
+| Criterion | Task | Acceptance |
+|-----------|------|------------|
+| SC1 | T001 | AC2 |
+| SC1 | T002 | AC1 |
+| SC1 | T002 | AC4 |
+| SC2 | T002 | AC2 |
+| SC3 | T002 | AC3 |
+| SC3 | T003 | AC2 |
+| SC4 | T003 | AC1 |
+| SC5 | T003 | AC4 |
+| SC5 | T004 | AC2 |
+
+## Prohibitions
+
+| Prohibition | Criterion | Must not | Disposition | Detail |
+|-------------|-----------|----------|-------------|--------|
+| N1 | SC1 | the capture | criterion SC1 | add a page-side hook; the observable is what `agent-main.js` records today |
+| N2 | SC2 | the join | criterion SC2 | match message bodies to pick a digest entry |
+| N3 | SC5 | the surface | criterion SC5 | render a cause, element, remedy or unattributed angular wording |
+| N4 | SC3 | the absence | criterion SC3 | report a missing entry as a count or a blank cell |
+| N5 | SC4 | the empty capture | criterion SC4 | collapse "captured nothing" into "no matching entry" |
+
+## Held-out checks
+
+| Edge | Task | Test |
+| ---- | ---- | ---- |
+| E7 | T003 | scripts/console-panel-render.test.mjs |
+
+## Surface contract
+
+`consoleJoin(diagnostics, digest)` returns `{ state, findings[] }` where each finding is
+`{ text, code?, title?, reason? }` and `state` is one of `joined`, `captured-nothing`, `no-diagnostics`.
+The surface renders `findings` and `state` and nothing else.
+
+## Wave 1 — measure what the capture and the digest actually state
+
+Goal: the current capture and digest are measured and published as one record, so the join is written
+against observed shapes rather than the roadmap's sentence.
+
+Review depth: full
+
+T001 reads `extension/agent-main.js`'s capture path and `extension/error-digest.json`, runs the two
+commands that produce each, and publishes `research/raw/m045-console-shapes.json` with the capture's
+payload shape, the digest's entry shape and the code distribution. Owns
+`research/raw/m045-console-shapes.json`.
+
+## Wave 2 — join a captured diagnostic to the digest by code
+
+Goal: a pure join answers, per captured diagnostic, what the digest says about the code it carries.
+
+Review depth: full
+
+T002 adds `extension/console-join.js` and its suite. The join keys only on the code a message carries;
+a message with no code reports that, and a code with no entry reports the code. Three mutants: body
+matching, a count instead of a named absence, and a collapsed empty capture.
+
+## Wave 3 — render the join and pin the routes it adds
+
+Goal: the panel reports the join, and every suite that enumerates the route table is updated in the
+same task.
+
+Review depth: full
+
+T003 adds `panel-console.ts`, its `LOADERS` entry in `panel-demo.ts`, the route, and updates
+`app.spec.ts`, `page-picker.component.spec.ts` and `scripts/after-render-fixture.test.mjs` for the new
+route count. Declares each of those files.
+
+## Wave 4 — record the surface and run the project verify
+
+Goal: the surface's behaviour is recorded and the whole project verify is green at the shipped head.
+
+Review depth: full
+
+T004 captures `research/raw/m045-console-panel.json` read-only behind `M045_CAPTURE=1`, pins it, and
+runs `npm run check && npm test`.
+
+## Risks
+
+- The route count is enumerated by three suites and one recording; all four are declared in T003's
+  `files:` rather than discovered at the gate.
+- `console.error` payloads are strings in the observed path; a non-string argument is an edge (E5) that
+  must not crash the join.
+
+## Out of scope
+
+A page-side control, new capture hooks, changing the digest's entries, and any panel surface for
+console methods other than the captured ones.
