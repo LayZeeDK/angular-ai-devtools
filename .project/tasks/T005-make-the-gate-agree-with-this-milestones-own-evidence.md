@@ -4,21 +4,21 @@ title: Make the gate agree with this milestone's own evidence
 wave: 4
 deps:
   - T003
-status: in-progress
+status: pending
 agent: build_T005
-base: 42d34562867e9461b2d9591ab12e301eeceee282
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: null
+worktree: null
 task_branch: null
 files:
   - scripts/gate-integrity.mjs
   - scripts/gate-integrity.test.mjs
   - scripts/navigation-blocking.test.mjs
   - research/raw/m044-gate-shapes.json
-  - research/raw/m056-gate-shapes.json
+  - research/raw/m056-gate-stability.json
   - research/raw/m057-verdict-claims.json
 ---
 
-# T005 — Make the gate agree with this milestone's own evidence
+# T005 â€” Make the gate agree with this milestone's own evidence
 
 ## Context
 
@@ -41,7 +41,7 @@ stability record disagrees with what the head derives.
 
 - In `scripts/gate-integrity.mjs`, make a declared path a claim only when the range actually changed it: a
   path the task declares and leaves byte-identical is a pin, and a pin is satisfied by the file being
-  unchanged. Do not stop reading undeclared mentions — an undeclared path is the defect that rule exists for.
+  unchanged. Do not stop reading undeclared mentions â€” an undeclared path is the defect that rule exists for.
 - In `scripts/navigation-blocking.test.mjs`, read the intent's five-column edge table, and take the
   test-to-edge mapping from the plan's `## Held-out checks` (`Edge | Task | Test`) instead of requiring edge
   ids in suite titles. Keep the refusal for a cited suite that does not exist.
@@ -53,7 +53,7 @@ stability record disagrees with what the head derives.
 ## Acceptance criteria
 
 1. `npm run check` exits 0 at this head, and `gate:fix-record` reports zero findings while still refusing an
-   undeclared path — prove the refusal with a temporary undeclared mention that is then removed.
+   undeclared path â€” prove the refusal with a temporary undeclared mention that is then removed.
 2. `scripts/navigation-blocking.test.mjs` passes against the five-column intent and the plan's held-out
    table, and a mutant that restores the six-column read reddens naming the column count.
 3. Both shape records are re-armed and an unarmed run leaves each byte-identical; the Log names every value
@@ -76,6 +76,7 @@ The join returns `{ state, findings[] }`, where `state` is exactly one of `joine
 node --check scripts/gate-integrity.mjs && node --test scripts/gate-integrity.test.mjs scripts/navigation-blocking.test.mjs && npm run check && npx prettier --check scripts research
 ```
 
+---
 ## Log
 
 - Task written at plan approval; not started.
