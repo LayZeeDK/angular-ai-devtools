@@ -2,7 +2,7 @@
 
 Milestone: gate-phase-stability
 Branch: gsd-path/M056
-Project verify: `npx nx run angular-ai-devtools:build && npx nx run angular-ai-devtools:build-extension && npm run check && npm test`
+Project verify: `npm run check && npm test`
 
 ## Config
 
