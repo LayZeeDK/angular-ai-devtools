@@ -1945,3 +1945,49 @@ Success criteria
 ## Open questions
 
 - docs/feature-proposals.md — the tutor-foundations proposal (TS1-TS12), including whether later tutor milestones reuse this surface.
+
+### M056 — gate-phase-stability
+
+Ordered before M045. M044's gate is red on its own integrated tree at two stages, so every later milestone
+would meet a red gate on the tree it ships into; this milestone repairs both before the generation continues.
+The id is the next free number rather than an insertion, so no shipped id is renumbered.
+
+Goal: The two-stage check M044 shipped reports clean on the tree M044 integrated, instead of refusing
+`nothing-examined` because the archive move emptied the directory its default reads, and its committish
+recording re-derives identically before and after its own ship commit exists.
+
+Depends on: [M044]
+Programme: Generation 3 · Batch: 3 · Group: command-line
+Surfaces: command-line gate, research notes
+Status: shipped
+Archive: .project/archive/056-gate-phase-stability
+Integrated: null
+
+Scope: in
+- The fix-record stage's default task input, resolved to the live `.project/tasks` while a milestone is being
+  built and to the milestone's own archived `tasks/` once its archive move has emptied the live directory,
+  measured by one fixture suite that pins both phases and the both-empty refusal.
+- The recording's derivation, held to a range or head the recording itself names, so adding the milestone's
+  own ship commit does not move the `fixRecord` section under it.
+- The three red assertions at `main` `a83eff08` as the entry condition: each is reproduced by a command
+  whose output is recorded, before either repair is written.
+
+Scope: out
+- Any change to the archive-path check's classification of a read against a naming; that is measured and
+  correct, and the sixteen references it examines stay as they are.
+- Any widening of `npm run check`'s stage list, and any tolerance raised to reach green.
+- The user-scope `gsd transition` wrapper's flag aliasing, repaired as a lever in the same session this
+  entry was written and not part of this milestone's deliverable.
+
+Success criteria
+1. `npm run gate:fix-record` exits 0 on a tree whose `.project/tasks` is empty because its milestone
+   archived, with the archived task logs examined and the count printed; a mutant that restores the live
+   default reddens it naming `nothing-examined`.
+2. The both-empty tree still refuses: a fixture with no task file in either directory yields
+   `nothing-examined` from the check, so the repair does not trade the refusal away for a green stage.
+3. `node --test scripts/gate-integrity.test.mjs` passes at a head where the milestone's own ship commit
+   exists, and the recording's committed bytes are unchanged by that run.
+4. A mutant that removes the archived-directory branch reddens the fixture suite by name; a mutant that
+   makes the range unconditional reddens the recording suite naming the section that moved.
+5. Every claim in this milestone's logs is inside a task whose `files:` declares the path it names, so the
+   stage this milestone repairs reports `claims: declared` on its own log rather than on a mention.

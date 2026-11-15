@@ -1886,7 +1886,7 @@ if (ARMED) {
 
 // ------------------------------------------------------------ the default run ----
 
-test('a default run is a read: the recording hashes the same before and after', (t) => {
+test('E6: a default run is a read: the recording hashes the same before and after', (t) => {
   const now = sha256(readFileSync(RECORD_PATH));
   t.diagnostic(
     `${RECORD_REL} at load: ${readFileSync(RECORD_PATH).length} bytes, sha256 ${baseline}`,
@@ -2241,6 +2241,7 @@ import {
   gate,
   main,
   shipRange,
+  workRange,
 } from './gate-integrity.mjs';
 
 /** The first characters of a dot-project path, kept apart so no added line is a reference. */
@@ -3180,12 +3181,19 @@ test('AC2: a red check reaches the gate as a refusal, and this milestone’s own
 // ------------------------------- AC7: a claim is what the task declares ----
 
 test('AC7: a log token is a claim only where its task declares it, and claims: log still reports nx.json', (t) => {
+  // M044's own task logs, which its archive move put here: the live directory now holds another
+  // milestone's logs, so the stage's default input names those rather than these, and `nx.json` is
+  // named by M044's T001 and by no later task. Naming the directory is what keeps this measurement
+  // measuring the logs its assertions are about; `DOTTED` keeps the path off this file's recorded
+  // reference list. The gate's default input is exercised by AC2 below.
+  const ownTasks = `${DOTTED}/archive/044-gate-integrity/tasks`;
   // The gate's own derivation of the range this milestone has written so far, so no range is
   // remembered here: `gate` reads it from the previous ship commit to this head.
   const declaredRun = gate({
     root: ROOT,
     milestone: LIVE_MILESTONE,
     check: 'fix-record',
+    tasks: ownTasks,
   });
   assert.equal(
     declaredRun.code,
@@ -3241,6 +3249,7 @@ test('AC7: a log token is a claim only where its task declares it, and claims: l
     milestone: LIVE_MILESTONE,
     check: 'fix-record',
     claims: 'log',
+    tasks: ownTasks,
   });
   assert.equal(
     loggedRun.code,
@@ -3381,6 +3390,10 @@ const SUITE_DIFF_REASONS = {
     'the live record path became a candidate the resolver tests before opening, so nothing opens the name the archive move deletes; no assertion line was removed',
   'scripts/gate-integrity.test.mjs':
     'added at this head: T001 measured the three shapes, T002 the two checks, T003 the wiring and T004 these recordings, so the measured commit carries no such file to edit',
+  'scripts/gate-integrity-default-tasks.test.mjs':
+    'wholly added at this head: M056 T002 measured the fix-record stage’s default task directory on fixture trees, a reading the measured commit carries no file to edit',
+  'scripts/gate-stability-record.test.mjs':
+    'wholly added at this head: M056 T001 spawned the three refusing commands and published what each printed, a reading the measured commit carries no file to edit',
 };
 
 /** The driven-check recording, measured once in the root `before` hook below. */
@@ -3571,6 +3584,12 @@ async function measureDrivenChecks() {
       'fix-record',
       '--root',
       ROOT,
+      // The milestone is named rather than left to `.project/STATE.md`, because that file moves at
+      // every shipment and a recorded run that named whichever milestone the state happened to bind
+      // would re-derive a different answer the moment this milestone shipped - the same phase
+      // dependency the range had, in a field the range does not reach.
+      '--milestone',
+      LIVE_MILESTONE,
       '--range',
       range,
       '--tasks',
@@ -3600,7 +3619,7 @@ async function measureDrivenChecks() {
     const runs = [archiveControl, archiveInstance, fixControl, fixInstance];
     return {
       command:
-        "node scripts/gate-integrity.mjs --check <archive|fix-record> --root <fixture>|. --range <the record's rename range> --tasks <fixture> --claims log, run in process through main(argv) with stdout captured; every fixture path is recorded as <fixture>",
+        "node scripts/gate-integrity.mjs --check <archive|fix-record> --root <fixture>|. --milestone M044 --range <the record's rename range> --tasks <fixture> --claims log, run in process through main(argv) with stdout captured; every fixture path is recorded as <fixture>",
       examined: runs.length,
       fixtures: {
         archive: {
@@ -4243,5 +4262,194 @@ test('T004: the three new sections are what this head derives, so a default run 
   );
   t.diagnostic(
     `sections re-measured by an armed run: ${record.capture.remeasured.join(', ')}`,
+  );
+});
+
+// ============ T003: the range the stage is held to at this head (SC3, SC4; E5, E7, E8) ============
+//
+// Appended after the last line the record pins, so no line above moves and the record's own
+// enumeration of this file's dot-project references stays where it was. This section names no such
+// path and spawns nothing: it drives the exported `workRange` and the gate's printed line, both of
+// which read this tree's `git log` and nothing else.
+
+/** The milestone whose numerically previous id carries no ship commit, measured at this head. */
+const UNSHIPPED_MILESTONE = 'M056';
+
+/** The milestone whose ship commit is the newest `git log` carries, so it answers M056's base. */
+const NEWEST_SHIPPED_MILESTONE = 'M044';
+
+test('T003 E5, E7: a milestone whose numerically previous id is unshipped derives a range, and the base it used is printed', (t) => {
+  const newest = shipRange({ root: ROOT, milestone: NEWEST_SHIPPED_MILESTONE });
+  assert.equal(
+    newest.error,
+    '',
+    `git log must record ${NEWEST_SHIPPED_MILESTONE}'s ship commit for this measurement to mean anything: ${newest.error}`,
+  );
+  assert.ok(
+    newest.head !== null,
+    `${NEWEST_SHIPPED_MILESTONE} must have a ship commit for the fallback to have a base`,
+  );
+
+  // The defect this task repairs: the numerically previous id is unshipped, and the range is
+  // derived anyway rather than stopping with "names no ship commit for M055".
+  const derived = workRange(ROOT, UNSHIPPED_MILESTONE);
+  assert.equal(
+    derived.error,
+    '',
+    `an unshipped predecessor id must not stop the derivation: ${derived.error}`,
+  );
+  assert.equal(
+    derived.mode,
+    'newest-ship',
+    `the rule that answered must be named in the answer, and it must be the fallback rather than the refusal: ${JSON.stringify({ mode: derived.mode, rule: derived.rule })}`,
+  );
+  assert.equal(
+    derived.base?.sha,
+    newest.head.sha,
+    `the base must be the newest ship commit git log carries, not an invented one: ${JSON.stringify(derived.base)}`,
+  );
+  assert.match(
+    String(derived.rule),
+    /no ship commit for M055/,
+    `the rule that answered must name the predecessor id it could not use: ${String(derived.rule)}`,
+  );
+  assert.match(
+    String(derived.rule),
+    new RegExp(derived.base.sha.slice(0, 8)),
+    `the rule must print the base it used: ${String(derived.rule)}`,
+  );
+  assert.equal(
+    derived.range,
+    `${derived.base.sha}..${derived.head.sha}`,
+    `the range must be the base the rule answered to this tree's head: ${derived.range}`,
+  );
+  assert.match(
+    derived.range,
+    /^[0-9a-f]{40}\.\.[0-9a-f]{40}$/,
+    `the range must be a pair of commits: ${derived.range}`,
+  );
+
+  // E5: the head is this tree's HEAD whether or not the milestone's own ship commit exists, so the
+  // range derives the same answer before the shipment and after it. M044 ships at this head, and its
+  // own ship commit is a base - never the head.
+  const shipped = workRange(ROOT, NEWEST_SHIPPED_MILESTONE);
+  const predecessor = shipRange({
+    root: ROOT,
+    milestone: `M${String(Number(NEWEST_SHIPPED_MILESTONE.slice(1)) - 1).padStart(3, '0')}`,
+  });
+  assert.equal(
+    shipped.mode,
+    'ship',
+    `a shipped milestone must start from its predecessor's ship commit: ${JSON.stringify({ mode: shipped.mode, rule: shipped.rule })}`,
+  );
+  assert.equal(
+    shipped.base?.sha,
+    predecessor.head?.sha,
+    `the base must be M043's ship commit: ${JSON.stringify(shipped.base)}`,
+  );
+  assert.notEqual(
+    shipped.head?.sha,
+    newest.head.sha,
+    `the head must not be the milestone's own ship commit, or the range would move the moment that commit appeared: ${JSON.stringify(shipped.head)}`,
+  );
+  assert.equal(
+    shipped.head?.sha,
+    derived.head.sha,
+    `one tree has one head, so the two derivations must agree on it: ${JSON.stringify(
+      {
+        derived: derived.head,
+        shipped: shipped.head,
+      },
+    )}`,
+  );
+
+  // The stage prints which rule answered and which base it used, so a reader of the run sees the
+  // range's origin rather than only its pair of shas.
+  const run = gate({
+    root: ROOT,
+    milestone: UNSHIPPED_MILESTONE,
+    check: 'fix-record',
+  });
+  assert.equal(
+    run.code,
+    0,
+    `the stage must pass on this tree once the range is derived: ${run.lines.join(' | ')}`,
+  );
+  const reading = run.lines.find((line) =>
+    line.includes('gate-integrity: fix-record '),
+  );
+  assert.ok(
+    reading,
+    `the stage must print the line it decided on: ${run.lines.join(' | ')}`,
+  );
+  assert.match(
+    String(reading),
+    /rule newest-ship: /,
+    `the printed line must name the rule that answered: ${String(reading)}`,
+  );
+  assert.match(
+    String(reading),
+    new RegExp(derived.base.sha.slice(0, 8)),
+    `the printed line must name the base it used: ${String(reading)}`,
+  );
+  assert.match(
+    String(reading),
+    new RegExp(derived.range.replace(/\.\./, '\\.\\.')),
+    `the printed line must name the range it held the claims to: ${String(reading)}`,
+  );
+  t.diagnostic(
+    `E7: ${UNSHIPPED_MILESTONE} derives ${derived.range} by rule ${derived.mode} - ${derived.rule}`,
+  );
+  t.diagnostic(
+    `E5: ${NEWEST_SHIPPED_MILESTONE} derives ${shipped.range} by rule ${shipped.mode}`,
+  );
+  t.diagnostic(`printed: ${String(reading)}`);
+});
+
+test('T003 E8: restoring the numeric-predecessor rule refuses this milestone, and the refusal names M055', (t) => {
+  // The mutant is the branch a regression would take: the predecessor's ship commit or nothing. The
+  // pair below differs by that rule alone, so the failure the mutant produces is the one the repair
+  // removes rather than a failure the measurement was going to report anyway.
+  const repaired = workRange(ROOT, UNSHIPPED_MILESTONE);
+  const restored = workRange(
+    ROOT,
+    UNSHIPPED_MILESTONE,
+    null,
+    MUTANTS.workRange,
+  );
+  assert.equal(
+    repaired.error,
+    '',
+    `the repaired rule must derive a range, or the pair proves nothing: ${repaired.error}`,
+  );
+  assert.equal(
+    restored.mode,
+    'none',
+    `the mutant must refuse, so restoring the rule is what reddens the test above: ${JSON.stringify({ mode: restored.mode, rule: restored.rule })}`,
+  );
+  assert.equal(
+    restored.range,
+    '',
+    `a refusal must carry no range: ${JSON.stringify(restored.range)}`,
+  );
+  assert.equal(
+    restored.base,
+    null,
+    `a refusal must name no base: ${JSON.stringify(restored.base)}`,
+  );
+  assert.match(
+    String(restored.error),
+    /names no ship commit for M055/,
+    `the refusal must name the predecessor id whose ship commit git log does not carry: ${String(restored.error)}`,
+  );
+  assert.match(
+    String(restored.error),
+    /numeric-predecessor rule/,
+    `the refusal must name the rule that failed: ${String(restored.error)}`,
+  );
+  // The gate cannot derive a range under the mutant either, and its refusal names the rule.
+  t.diagnostic(`E8 mutant failure: ${String(restored.error)}`);
+  t.diagnostic(
+    `E8: the repair answers ${repaired.range}; the restored rule answers ${JSON.stringify(restored.range)} and refuses`,
   );
 });

@@ -2400,26 +2400,25 @@ describe('the module', () => {
   });
 });
 
-// ============ T004: the milestone's claim list, one artefact citation per criterion ============
+// ============ the milestone's claim list, one artefact citation per criterion ============
 //
-// The ruling the plan leaves to this task: which of `INTENT.md`'s six criteria need a portal-backed
-// `lars-verify` verdict, and what proves each one that does not. The claims are written from artefacts
-// rather than from a reading of the intent: every criterion is quoted at the characters
-// `scripts/overlay-verdict-claims.test.mjs` parses it at, every cited path is a file this checkout
-// carries, and every count, exit status and line number in a citation is interpolated from the artefact
-// it names — `research/raw/m044-gate-shapes.json` for the measurements, `package.json` for the check
-// chain, and the three source files a criterion's mechanism lives in.
+// The ruling the plan leaves to the task that writes the list: which of the bound `INTENT.md`'s criteria
+// need a portal-backed `lars-verify` verdict, and what proves each one that does not. The list is derived
+// rather than remembered, and it is derived for whichever milestone the state file binds: every criterion
+// that intent declares is ruled once, quoted at the characters `scripts/overlay-verdict-claims.test.mjs`
+// parses it at, and cited with the suite the intent's own edge-coverage table assigns it - a path this
+// checkout carries - beside the check chain that runs that suite and the counts read out of it. The
+// list's own path follows the same binding, so the file the armed capture writes is the file that suite
+// opens rather than a finished milestone's.
 //
 // The list rules every row `not-required`, which is a measurement rather than a preference: the charter's
 // portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts,
-// and every criterion here is a fact about this repository's own gate — whether a suite resolves a
-// `.project` path the archive move deletes, whether a range carries what a task log claims, whether the
-// checks are stages of `npm run check`, whether a recorded navigation stream carries a terminal for an
-// ended id, whether a synthetic regression reddens a check, and whether a shipped suite's diff drops an
-// assertion. No route can produce any of them, and the gate's one `control-ai-browsers run` driver
-// returns four readings an element's rect and dev context produce, so a portal-backed row would name a
-// driver that cannot carry the answer. `scripts/overlay-verdict-claims.test.mjs` refuses a list with no
-// required row that names a driver, so the file names none.
+// and every criterion this milestone declares is a fact about this repository's own gate - what a stage
+// examines, what a range is derived from, whether a recording re-derives after the ship commit exists,
+// and what a mutant reddens. No route can produce any of them, and the gate's one `control-ai-browsers
+// run` driver returns four readings an element's rect and dev context produce, so a portal-backed row
+// would name a driver that cannot carry the answer. `scripts/overlay-verdict-claims.test.mjs` refuses a
+// list with no required row that names a driver, so the file names none.
 //
 // `M044_CAPTURE=1` arms the one write, and it writes only when a value moved, so two armed runs leave the
 // file byte-identical. Armed, on Windows cmd.exe:
@@ -2427,7 +2426,7 @@ describe('the module', () => {
 //   set "M044_CAPTURE=1"&& node --experimental-strip-types --test "scripts/navigation-blocking.test.mjs"
 
 import { createHash } from 'node:crypto';
-import { existsSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -2435,16 +2434,22 @@ import { intentPathForMilestone } from './verdict-claims-intent.mjs';
 
 const CLAIM_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-/** The two recordings this milestone publishes: the measurements, and the list that cites them. */
-const SHAPES_REL = 'research/raw/m044-gate-shapes.json';
-const CLAIMS_REL = 'research/raw/m044-verdict-claims.json';
-const SHAPES_PATH = join(CLAIM_ROOT, SHAPES_REL);
-const CLAIMS_PATH = join(CLAIM_ROOT, CLAIMS_REL);
+/** The directory a milestone's records live in: its measurements and the list that cites them. */
+const RAW_REL = 'research/raw';
+const RAW_DIR = join(CLAIM_ROOT, RAW_REL);
 const PACKAGE_PATH = join(CLAIM_ROOT, 'package.json');
 const STATE_PATH = join(CLAIM_ROOT, '.project', 'STATE.md');
-const GATE_REL = 'scripts/gate-integrity.mjs';
 const SUITE_REL = 'scripts/navigation-blocking.test.mjs';
-const NARRATOR_REL = 'extension/navigation-narrator.js';
+
+/**
+ * The milestone this list is numbered for, read from the branch the state file binds - the same reading
+ * `derivedClaims()` takes - so the armed capture writes the file
+ * `scripts/overlay-verdict-claims.test.mjs` opens at that same branch, and the writer and both readers
+ * name one path. A literal here is what left the list describing M044 on every milestone after it.
+ */
+const CLAIMS_MILESTONE = boundMilestone();
+const CLAIMS_REL = `research/raw/${CLAIMS_MILESTONE.toLowerCase()}-verdict-claims.json`;
+const CLAIMS_PATH = join(CLAIM_ROOT, CLAIMS_REL);
 
 /** The commands this list is held to, recorded in it so a reader runs what produced it. */
 const CLAIM_CHECK = `node --experimental-strip-types --test "${SUITE_REL}"`;
@@ -2545,8 +2550,9 @@ function claimCriteria(source) {
 }
 
 /**
- * The milestone `.project/STATE.md` binds, read as the branch line, so the criteria this list quotes are
- * the ones the milestone under work declares.
+ * The milestone the state file binds, read as the branch line, so the criteria this list quotes are the
+ * ones the milestone under work declares and the list is numbered for the same milestone its own path is
+ * derived from.
  *
  * @returns {string}
  */
@@ -2565,21 +2571,123 @@ function boundMilestone() {
 }
 
 /**
- * The list, derived: every criterion the intent declares, ruled, quoting its own text, and citing the
- * artefact that proves it with the reading that artefact carries. Every value below is interpolated from
- * a file this checkout holds, so a citation that moves makes the list stale rather than quietly wrong.
+ * The edges the bound intent's own edge-coverage table binds to each criterion: the row's category, its
+ * disposition, the suite that holds it and the detail it was assigned, read as written. A criterion's
+ * proof is therefore the test the milestone itself assigned it rather than one this file chooses, and a
+ * table that names no suite is a failed derivation rather than an empty citation.
+ *
+ * @param {string} source
+ * @returns {Array<{ edge: string, criterion: string, category: string, disposition: string, suite: string, detail: string }>}
+ */
+function intentEdges(source) {
+  const heading = '## Edge coverage';
+  const at = source.indexOf(heading);
+  assert.ok(at >= 0, 'the intent must carry an "## Edge coverage" section');
+  const rest = source.slice(at + heading.length);
+  const end = rest.indexOf('\n## ');
+  const section = end >= 0 ? rest.slice(0, end) : rest;
+  /** @type {Array<{ edge: string, criterion: string, category: string, disposition: string, suite: string, detail: string }>} */
+  const rows = [];
+  for (const line of section.split(/\r?\n/)) {
+    const cells = line.split('|').map((cell) => cell.trim());
+    if (cells.length < 7 || !/^E\d+$/.test(cells[1] ?? '')) continue;
+    rows.push({
+      edge: cells[1] ?? '',
+      criterion: cells[2] ?? '',
+      category: cells[3] ?? '',
+      disposition: cells[4] ?? '',
+      suite: cells[5] ?? '',
+      detail: cells[6] ?? '',
+    });
+  }
+  assert.ok(
+    rows.length > 0,
+    'the intent must list its edge coverage as a table, so a criterion has a test it is held to by',
+  );
+  return rows;
+}
+
+/**
+ * The test declarations a suite carries, counted the way the whole-tree count counts them: a declaration
+ * is a line whose first token is `test(`, `it(` or `describe(`.
+ *
+ * @param {string} source
+ * @returns {{ tests: number, groups: number }}
+ */
+function declarationsIn(source) {
+  return {
+    tests: (source.match(/^[ \t]*(?:test|it)\(/gm) ?? []).length,
+    groups: (source.match(/^[ \t]*describe\(/gm) ?? []).length,
+  };
+}
+
+/**
+ * The titles one suite declares: the string each `test(...)`, `it(...)` and `describe(...)` call
+ * carries, read from the source rather than from a run, so a citation can be checked against the
+ * tests a suite actually declares without running it a second time.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+function suiteTitles(source) {
+  /** @type {string[]} */
+  const titles = [];
+  for (const line of source.split(/\r?\n/)) {
+    const found =
+      /^\s*(?:test|it|describe)\(\s*(['"`])((?:[^\\]|\\.)*?)\1/.exec(line);
+    if (found?.[2] !== undefined) titles.push(found[2]);
+  }
+  return titles;
+}
+
+/**
+ * Whether one suite's own test titles carry an edge id: the check a citation is held to, because a
+ * row that cites a suite where no test is about its edge names evidence nobody can open.
+ *
+ * @param {string} source
+ * @param {string} edge
+ * @returns {boolean}
+ */
+function carriesEdge(source, edge) {
+  const pattern = new RegExp(`\\b${edge}\\b`);
+  return suiteTitles(source).some((title) => pattern.test(title));
+}
+
+/**
+ * The edge ids a row's artefact claims, read from the `edge ["E8"]` list the artefact string carries.
+ * A row that names none is a citation of a file rather than of a test.
+ *
+ * @param {any} row
+ * @returns {string[]}
+ */
+function claimedEdges(row) {
+  const named = /edge (\[[^\]]*\])/.exec(String(row?.artefact ?? ''))?.[1];
+  if (named === undefined) return [];
+  try {
+    const parsed = JSON.parse(named);
+    return Array.isArray(parsed)
+      ? parsed.filter((edge) => typeof edge === 'string')
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * The list, derived: every criterion the intent declares, ruled once, quoting its own text, and citing the
+ * suite the intent's own edge coverage assigns it with the reading that suite carries. Every value below is
+ * interpolated from a file this checkout holds, so a citation that moves makes the list stale rather than
+ * quietly wrong, and a milestone that declares five criteria gets five rows rather than another
+ * milestone's six.
  *
  * @returns {Record<string, any>}
  */
 function derivedClaims() {
-  const milestone = boundMilestone();
-  const intent = claimCriteria(
-    claimText(
-      intentPathForMilestone(CLAIM_ROOT, milestone),
-      `the intent ${milestone} binds`,
-    ),
-  );
-  const gate = claimJson(SHAPES_PATH, 'the measurements this list cites');
+  const milestone = CLAIMS_MILESTONE;
+  const intentPath = intentPathForMilestone(CLAIM_ROOT, milestone);
+  const intentSource = claimText(intentPath, `the intent ${milestone} binds`);
+  const intent = claimCriteria(intentSource);
+  const edges = intentEdges(intentSource);
   const packageText = claimText(
     PACKAGE_PATH,
     'the check chain is part of this repository',
@@ -2593,225 +2701,141 @@ function derivedClaims() {
     stages.includes(archiveStage) && stages.includes(fixStage),
     `the check chain must run both gate stages: ${JSON.stringify(stages)}`,
   );
-  const gateText = claimText(
-    join(CLAIM_ROOT, GATE_REL),
-    'the two checks live here',
-  );
-  const suiteText = claimText(
-    join(CLAIM_ROOT, SUITE_REL),
-    'the pin this file carries',
-  );
-  const narratorText = claimText(
-    join(CLAIM_ROOT, NARRATOR_REL),
-    'the narrator the fourth criterion is about',
-  );
-
-  const archive = gate.archiveReferences;
-  const fix = gate.fixRecord;
-  const driven = gate.drivenChecks;
-  const diff = gate.suiteDiff;
-  const tree = gate.wholeTree;
-  const runOf = (/** @type {string} */ check, /** @type {string} */ shape) => {
-    const found = (driven.runs ?? []).find(
-      (one) => one.check === check && one.shape === shape,
-    );
+  const chainReading = `package.json:${String(
+    lineOf(packageText, '"check":', 'package.json'),
+  )} ("check": ${String(stages.length)} stage(s), ${JSON.stringify(
+    stages.slice(-4),
+  )} last, with ${JSON.stringify(archiveStage)} and ${JSON.stringify(
+    fixStage,
+  )} among them)`;
+  const suites = [...new Set(edges.map((edge) => edge.suite))];
+  for (const suite of suites) {
     assert.ok(
-      found,
-      `the measurements must carry a ${shape} run of the ${check} check`,
+      suite !== '' && existsSync(join(CLAIM_ROOT, suite)),
+      `the intent's edge coverage names ${JSON.stringify(suite)} as a test this checkout must carry`,
     );
-    return found;
+  }
+  /**
+   * The suite a row cites for one edge: the suite the intent's own table names, when that suite's test
+   * titles carry the edge id, otherwise the first suite the intent names that does. A row that cited
+   * the intent's suite regardless would name evidence nobody can open - the list once cited a suite
+   * holding no `E8` for SC5 - so the citation follows the titles rather than the table's first cell.
+   *
+   * @param {{ edge: string, suite: string }} edge
+   * @param {string} criterion
+   * @returns {string}
+   */
+  const holderOf = (edge, criterion) => {
+    const candidates = [
+      edge.suite,
+      ...suites.filter((suite) => suite !== edge.suite),
+    ];
+    for (const suite of candidates) {
+      const source = claimText(
+        join(CLAIM_ROOT, suite),
+        `${edge.edge}'s citation for ${criterion}`,
+      );
+      if (carriesEdge(source, edge.edge)) return suite;
+    }
+    assert.fail(
+      `the intent assigns ${edge.edge} to ${edge.suite}, whose own test titles do not carry that id, and no suite the intent names carries it either (${JSON.stringify(suites)}), so ${criterion} would cite a suite that cannot hold it`,
+    );
+    return edge.suite;
   };
-  const printed = (/** @type {any} */ run, /** @type {RegExp} */ pattern) => {
-    const found = (run.printed ?? []).find((line) => pattern.test(line));
+  const rows = Object.entries(intent).map(([criterion, criterionText]) => {
+    const held = edges.filter((edge) => edge.criterion === criterion);
     assert.ok(
-      found,
-      `the ${run.check} ${run.shape} run printed no line matching ${String(pattern)}: ${JSON.stringify(run.printed)}`,
+      held.length > 0,
+      `the intent's edge coverage must name ${criterion}, so its row cites the test the milestone assigned it`,
     );
-    return found;
-  };
-  const counts = Object.entries(archive.counts)
-    .map(([name, value]) => `${name} ${String(value)}`)
-    .join(', ');
-  const skipped = (gate.skippedNavigations.entries ?? [])[0];
-  assert.ok(
-    skipped,
-    'the measurements must carry the NavigationSkipped entry the fourth criterion is about',
-  );
-  const absent = (fix.findings ?? []).find(
-    (finding) =>
-      finding.kind === 'claim-absent-from-the-range' &&
-      finding.named === fix.claim.named,
-  );
-  assert.ok(
-    absent,
-    'the measurements must carry the claim its own range does not carry',
-  );
-  const rename = fix.rename.recorded;
-  const varied = (diff.differing ?? []).map(
-    (row) =>
-      `${row.file} ${row.status} +${String(row.addedLines)}/-${String(row.removedLines)} with ${String(row.recutAssertionLines)} assertion(s) re-cut and ${String(row.droppedAssertionLines)} dropped`,
-  );
-  const rows = [
-    {
-      criterion: 'SC1',
-      criterionText: intent.SC1 ?? '',
-      ruling: 'not-required',
-      reason:
-        "The charter's portal clause reaches a criterion when an insurance-portal route can produce its facts, and this one's fact is whether a committed suite opens a `.project` path the milestone's own archive move deletes - a property of this repository's test tree and of the ship flow that moves it, which no route of any page carries. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a suite opens, so a portal-backed verdict would name a driver that cannot carry the answer. The portal is the page the defect was found beside, not the surface that can prove the check fires.",
-      artefactPath: SHAPES_REL,
-      artefact: `${SHAPES_REL} (archiveReferences: command "${archive.command}", examined ${String(archive.examined)} reference(s) in ${String(archive.suitesExamined)} suite(s) of ${String(archive.filesExamined)} listed file(s), counts ${counts}; drivenChecks: ${driven.fixtures?.archive?.suite} driven with ${driven.fixtures?.archive?.instance ?? ''} exits ${String(runOf('archive-paths', 'instance').exitStatus)} printing ${JSON.stringify(printed(runOf('archive-paths', 'instance'), /^gate-integrity: refusal /))}, and its control exits ${String(runOf('archive-paths', 'control').exitStatus)} printing ${JSON.stringify(printed(runOf('archive-paths', 'control'), / clean - examined /))}) -> ${GATE_REL}:${String(lineOf(gateText, 'export function checkArchivePaths', GATE_REL))} (checkArchivePaths) -> package.json:${String(lineOf(packageText, '"gate:archive-paths"', 'package.json'))} ("gate:archive-paths": ${JSON.stringify(packageJson.scripts?.['gate:archive-paths'])})`,
-      reading: `${String(archive.examined)} reference(s) in ${String(archive.suitesExamined)} suite(s) classified, with ${String(archive.counts['archived-by-the-move'])} resolving a live path the archive move deletes and ${String(archive.counts['deliberate-archive-read'])} reading an archived path on purpose; the check reddens on a suite that reads the live name (exit ${String(runOf('archive-paths', 'instance').exitStatus)}) and passes the same check with the read resolved (exit ${String(runOf('archive-paths', 'control').exitStatus)})`,
-      proves: [
-        GATE_SUITE_CHECK,
-        'npm run gate:archive-paths',
-        'node scripts/gate-integrity.mjs --check archive --root . --milestone M044',
-      ],
-    },
-    {
-      criterion: 'SC2',
-      criterionText: intent.SC2 ?? '',
-      ruling: 'not-required',
-      reason:
-        "The charter's portal clause asks for a portal-backed verdict where a portal route can produce the facts, and this criterion's facts are what `git diff --name-status` records for a milestone's own range beside what a task log claims - a reading of this repository's history that no inspected page produces and none could. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings; a range's changed paths are not among them, so a portal-backed row would name a driver that cannot carry a range at all. The portal is named here because it was considered: a portal drive would measure a page, not the diff a claim is held against.",
-      artefactPath: SHAPES_REL,
-      artefact: `${SHAPES_REL} (fixRecord: claim ${absent.task} at ${absent.at} names ${absent.named} with inRange ${String(fix.claim.inRange)} and ${String(fix.claim.statusesInTheRange.length)} status row(s) in the range ${fix.range.base?.sha}..${fix.range.head?.sha} (${String(fix.range.base?.subject)} .. ${String(fix.range.head?.subject)}), findings ${String(fix.findings.length)}, claims examined ${String(fix.claimsExamined)} with ${String(fix.claims.filter((claim) => claim.inRange).length)} carried by the range; rename ${String(rename.status)} ${rename.from} -> ${rename.to} with the old name present at the head ${String(fix.rename.presentAtTheHead.liveNamePresent)} and the new name present ${String(fix.rename.presentAtTheHead.archiveNamePresent)}; drivenChecks: ${String(driven.fixtures?.fixRecord?.instance)} exits ${String(runOf('fix-record', 'instance').exitStatus)} printing ${JSON.stringify(printed(runOf('fix-record', 'instance'), /^gate-integrity: refusal /))}, and its control exits ${String(runOf('fix-record', 'control').exitStatus)} printing ${JSON.stringify(printed(runOf('fix-record', 'control'), / clean - examined /))}) -> ${GATE_REL}:${String(lineOf(gateText, 'export function checkFixRecord', GATE_REL))} (checkFixRecord) -> package.json:${String(lineOf(packageText, '"gate:fix-record"', 'package.json'))} ("gate:fix-record": ${JSON.stringify(packageJson.scripts?.['gate:fix-record'])})`,
-      reading: `the range carries no path for ${absent.named}, so the claim is a finding naming ${absent.task} and the file (exit ${String(runOf('fix-record', 'instance').exitStatus)}); the same check passes the rename's new name, ${String(rename.status)} ${rename.to}, because a rename contributes both of its names (exit ${String(runOf('fix-record', 'control').exitStatus)})`,
-      proves: [
-        GATE_SUITE_CHECK,
-        'npm run gate:fix-record',
-        String(fix.range.diffCommand),
-      ],
-    },
-    {
-      criterion: 'SC3',
-      criterionText: intent.SC3 ?? '',
-      ruling: 'not-required',
-      reason:
-        "The charter's portal clause reaches a criterion only where a portal route produces its facts, and this one's fact is the order and the membership of `package.json`'s check chain: two stages run inside `npm run check` rather than beside a passing gate. A command list is not a page reading, so no route can produce it, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings rather than a chain of commands. The portal is the subject the milestone's first defect was found in, and this criterion is about the gate that must refuse before the portal's page is ever served again.",
-      artefactPath: 'package.json',
-      artefact: `package.json:${String(lineOf(packageText, '"check":', 'package.json'))} ("check": ${String(stages.length)} stages, ${JSON.stringify(stages.slice(-6))} last) with "gate:archive-paths" at line ${String(lineOf(packageText, '"gate:archive-paths"', 'package.json'))} and "gate:fix-record" at line ${String(lineOf(packageText, '"gate:fix-record"', 'package.json'))} -> ${SHAPES_REL} (drivenChecks runs: the archive stage alone exits ${String(runOf('archive-paths', 'instance').exitStatus)} on the instance where the full gate would also refuse, and the fix-record stage alone exits ${String(runOf('fix-record', 'instance').exitStatus)} on its own instance, so each stage refuses rather than printing beside a pass; suiteDiff: scripts/panel-typecheck-scope.test.mjs ${(
-        diff.differing ?? []
+    const holders = held.map((edge) => holderOf(edge, criterion));
+    const suiteRel = holders[0] ?? '';
+    assert.ok(
+      holders.every((suite) => suite === suiteRel),
+      `${criterion} carries one citation, so every edge the intent assigns it must be held by the same suite, and they are held by ${JSON.stringify(holders)}`,
+    );
+    const suiteText = claimText(
+      join(CLAIM_ROOT, suiteRel),
+      `${criterion}'s edge coverage names it as the test that holds the criterion`,
+    );
+    const { tests, groups } = declarationsIn(suiteText);
+    const named = JSON.stringify(held.map((edge) => edge.edge));
+    const varied = held
+      .map(
+        (edge) =>
+          `${edge.edge} ${edge.category} ${edge.disposition}: ${edge.detail}`,
       )
-        .filter((row) => row.file === 'scripts/panel-typecheck-scope.test.mjs')
-        .map(
-          (row) =>
-            `${row.status} +${String(row.addedLines)}/-${String(row.removedLines)}`,
-        )
-        .join(
-          '',
-        )} re-cut the chain pin to the twelve stages the chain now carries)`,
-      reading: `the check chain carries ${String(stages.length)} stages and both gate stages among them, after ${JSON.stringify(stages[stages.indexOf(archiveStage) - 1])} and before ${JSON.stringify(stages[stages.length - 1])}; the driven check runs show a finding reaching the command as exit ${String(runOf('archive-paths', 'instance').exitStatus)} and ${String(runOf('fix-record', 'instance').exitStatus)} rather than as output beside a pass`,
+      .join('; ');
+    const dispositions = JSON.stringify([
+      ...new Set(held.map((edge) => edge.disposition)),
+    ]);
+    return {
+      criterion,
+      criterionText,
+      criterionCharacters: criterionText.length,
+      ruling: 'not-required',
+      reason: `The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. ${criterion} is ${JSON.stringify(criterionText)} - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one \`control-ai-browsers run\` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) ${named} the intent itself assigns the criterion, held by ${JSON.stringify(suites)} and recorded as ${dispositions}.`,
+      artefactPath: suiteRel,
+      artefact: `${suiteRel} (edge ${named} of the intent's own coverage: ${varied}; the suite carries ${String(tests)} test declaration(s) in ${String(groups)} group(s)) -> ${chainReading}`,
+      reading: `${String(tests)} test declaration(s) in ${suiteRel} hold ${criterion} through the ${String(held.length)} ${held[0]?.category ?? ''} edge row(s) the intent assigns it, ${named}, so the criterion is proved by a test this repository runs rather than by a drive no driver here performs`,
       proves: [
+        CLAIM_CHECK,
+        `node --experimental-strip-types --test ${JSON.stringify(suiteRel)}`,
         'npm run check',
-        'npm run gate:archive-paths',
-        'npm run gate:fix-record',
-        GATE_SUITE_CHECK,
       ],
-    },
-    {
-      criterion: 'SC4',
-      criterionText: intent.SC4 ?? '',
-      ruling: 'not-required',
-      reason: `The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts, and this one's fact is a \`NavigationSkipped\` entry in a recorded stream whose id has already ended - the entry carries id ${String(skipped.id)} and url ${String(skipped.url)} in frame ${String(skipped.frame)}, with its start in ${JSON.stringify(skipped.startFrames)} and not in its own frame. A portal route does emit navigation events, and the recording was taken from one, but the gate's one \`control-ai-browsers run\` driver reads an element's toolElements, drawnRect, descriptor and noDevContext and returns none of the router's stream, so no driver in this repository carries the facts a portal-backed verdict would have to cite. The portal is named because the recorded page was a real one; what proves the criterion is the recording and the pin fed from it.`,
-      artefactPath: SHAPES_REL,
-      artefact: `${SHAPES_REL} (skippedNavigations: command "${gate.skippedNavigations.command}", examined ${String(gate.skippedNavigations.examined)} event(s) in ${String(gate.skippedNavigations.framesExamined)} frame(s), event types read from ${gate.skippedNavigations.eventTypesFrom} (skipped ${String(gate.skippedNavigations.skippedType)}, start ${String(gate.skippedNavigations.startType)}), counts ${JSON.stringify(gate.skippedNavigations.counts)}; entry ${JSON.stringify(skipped)}) -> ${NARRATOR_REL}:${String(lineOf(narratorText, 'skipped.push(', NARRATOR_REL))} (the finding the ended id produces) -> ${SUITE_REL}:${String(lineOf(suiteText, 'function pinTerminalForAnEndedId', SUITE_REL))} (the pin, fed ${JSON.stringify(['SUPERSEDED', 'SKIP'])} read out of research/raw/m041-navigation.json)`,
-      reading: `the recorded stream carries ${String(gate.skippedNavigations.counts.skippedByType)} NavigationSkipped event(s), found by event type ${String(gate.skippedNavigations.skippedType)} and by class name alike (${String(gate.skippedNavigations.counts.skippedByClass)}), and the one entry has id ${String(skipped.id)}, url ${String(skipped.url)} and no start in its own frame (${String(gate.skippedNavigations.counts.withAStartInItsOwnFrame)} of ${String(gate.skippedNavigations.counts.skippedByType)})`,
-      proves: [
-        CLAIM_CHECK,
-        'node --experimental-strip-types --test "scripts/navigation-capture.test.mjs"',
-        GATE_SUITE_CHECK,
-      ],
-    },
-    {
-      criterion: 'SC5',
-      criterionText: intent.SC5 ?? '',
-      ruling: 'not-required',
-      reason: `The charter's portal clause is answered rather than dodged: a portal route is an Angular page and could in principle produce a page reading, but this criterion's facts are a check's own behaviour under a synthetic regression - the archive-path instance exits ${String(runOf('archive-paths', 'instance').exitStatus)} where its control exits ${String(runOf('archive-paths', 'control').exitStatus)}, the fix-record instance exits ${String(runOf('fix-record', 'instance').exitStatus)} where its control exits ${String(runOf('fix-record', 'control').exitStatus)}, and what each printed is recorded - and no route produces that. The gate's one control-ai-browsers run driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, so a portal-backed row would make the gate return a rect for a claim about a mutant. The portal is the page the first defect was measured on; the evidence is the pair of runs and the mutants the checks ship.`,
-      artefactPath: SHAPES_REL,
-      artefact: `${SHAPES_REL} (drivenChecks: ${String(driven.examined)} run(s) - ${(driven.runs ?? []).map((row) => `${row.check} ${row.shape} exit ${String(row.exitStatus)} with ${String(row.refusals)} refusal(s)`).join('; ')}) -> ${GATE_REL}:${String(lineOf(gateText, 'export const MUTANTS', GATE_REL))} (MUTANTS) -> ${SUITE_REL}:${String(lineOf(suiteText, "describe('E7/E8", SUITE_REL))} (the pin whose removal turns the narrator green again)`,
-      reading: `each check reddens on the regression that reproduces its measured instance (exit ${String(runOf('archive-paths', 'instance').exitStatus)} and ${String(runOf('fix-record', 'instance').exitStatus)}) and is green with the repair restored (exit ${String(runOf('archive-paths', 'control').exitStatus)} and ${String(runOf('fix-record', 'control').exitStatus)}), and the failure names the file and the claim it reddens on`,
-      proves: [GATE_SUITE_CHECK, CLAIM_CHECK, 'npm run check'],
-    },
-    {
-      criterion: 'SC6',
-      criterionText: intent.SC6 ?? '',
-      ruling: 'not-required',
-      reason: `The charter's portal clause cannot reach this criterion: it forbids weakening an assertion in a shipped suite, so its facts are the diffs of the suites against ${String(diff.baseline?.named)}, the count of the suites and declarations the project verify runs, and the one navigation pin fed from the recording - none of which any route of any page produces. The gate's one control-ai-browsers run driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and a diff is not among them, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because it is the page whose navigation pin this criterion permits to move; the evidence is the diff and the counts, not a drive.`,
-      artefactPath: SHAPES_REL,
-      artefact: `${SHAPES_REL} (suiteDiff: command "${diff.command}", baseline ${diff.baseline?.named} (${diff.baseline?.commit}), examined ${String(diff.examined)} suite(s), counts ${JSON.stringify(diff.counts)}; differing ${JSON.stringify(varied)}; wholeTree: ${String(tree.suites.total)} suite(s) ${JSON.stringify(tree.suites)} with ${String(tree.declarations.tests)} test declaration(s) in ${String(tree.declarations.describes)} group(s)) -> ${SUITE_REL}:${String(lineOf(suiteText, 'const ANSWER_KEYS', SUITE_REL))} (the answer key set the pin was re-cut to) -> package.json (npm test runs the same suites the count enumerates)`,
-      reading: `${String(diff.counts.edited)} suite(s) the measured head carries differ and ${String(diff.counts.added)} were added at this head; ${String(diff.counts.removedAssertionLines)} assertion line(s) were removed across the whole diff, of which ${String(diff.counts.recutAssertionLines)} were re-cut with the same assertion about the same subject and ${String(diff.counts.droppedAssertionLines)} were dropped, and the tree the project verify runs holds ${String(tree.suites.total)} suite(s) and ${String(tree.declarations.total)} declaration(s) so a removed test is a smaller number`,
-      proves: [
-        GATE_SUITE_CHECK,
-        CLAIM_CHECK,
-        'npm run check && npm test',
-        `git diff --numstat ${diff.baseline?.named}`,
-      ],
-    },
-  ];
-
-  const claims = rows.map((row) => ({
-    criterion: row.criterion,
-    criterionText: row.criterionText,
-    criterionCharacters: row.criterionText.length,
-    ruling: row.ruling,
-    reason: row.reason,
-    artefactPath: row.artefactPath,
-    artefact: row.artefact,
-    reading: row.reading,
-    proves: row.proves,
-  }));
+    };
+  });
 
   return {
-    schema: 'm044-verdict-claims/v1',
+    schema: `${milestone.toLowerCase()}-verdict-claims/v1`,
     milestone,
-    task: 'T004',
     quotes: {
       from: `scripts/verdict-claims-intent.mjs (intentPathForMilestone(CLAIM_ROOT, ${JSON.stringify(milestone)}))`,
       how: `parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the ${String(Object.keys(intent).length)} criteria it declares are ${JSON.stringify(Object.keys(intent))} and scripts/overlay-verdict-claims.test.mjs compares them character for character`,
+      edges: `read from ${shown(intentPath)}'s own edge-coverage table, so a row cites the test the milestone assigned its criterion rather than one this file chose: ${String(edges.length)} row(s) over the criteria ${JSON.stringify([...new Set(edges.map((edge) => edge.criterion))])} and the suites ${JSON.stringify(suites)}`,
     },
     ruling: {
       required: 0,
-      notRequired: claims.length,
+      notRequired: rows.length,
       why: [
         'No row is required, and the list therefore names no driver, no instance and no verdict path: scripts/overlay-verdict-claims.test.mjs refuses a list with no required row that names a driver, so naming one would be the opposite defect.',
-        `The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext - with the required rows together citing drawnRect, descriptor and noDevContext. Every fact these six criteria are written about is a reading of this repository's own gate: ${String(gate.archiveReferences.examined)} .project reference(s) in ${String(gate.archiveReferences.suitesExamined)} suite(s), ${String(gate.fixRecord.claimsExamined)} claim(s) held against a range, ${String(stages.length)} check stages, ${String(gate.skippedNavigations.entries.length)} recorded NavigationSkipped entry, ${String(driven.examined)} driven check runs and the diff of ${String(gate.suiteDiff.examined)} suite(s) against ${String(gate.suiteDiff.baseline?.named)}. None of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the gate.`,
-        'The portal is not lost by that ruling: it is the page the four defects were measured on and every reason names the clause that would have made a row required. Each row cites the artefact that carries it, the reading it carries and the commands that prove it.',
+        `The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext - with the required rows together citing drawnRect, descriptor and noDevContext. Every fact the ${String(rows.length)} criteria this milestone declares is written about is a reading of this repository's own gate: ${String(edges.length)} edge row(s) held by ${JSON.stringify(suites)}, against ${String(stages.length)} stage(s) of the check chain. None of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the gate.`,
+        'The portal is not lost by that ruling: each reason names the clause that would have made a row required, and each row cites the suite the milestone itself assigned its criterion, the reading that suite carries and the commands that prove it.',
       ],
     },
     evidence: {
-      shapes: {
-        path: SHAPES_REL,
-        baseline: gate.suiteDiff?.baseline ?? null,
-        sections: Object.keys(gate).filter(
-          (key) =>
-            ![
-              'schema',
-              'milestone',
-              'task',
-              'title',
-              'question',
-              'verdict',
-              'capture',
-            ].includes(key),
-        ),
+      intent: { path: shown(intentPath), criteria: Object.keys(intent) },
+      edges: {
+        rows: edges.length,
+        criteria: [...new Set(edges.map((edge) => edge.criterion))],
       },
-      drivenChecks: (driven.runs ?? []).map((row) => ({
-        check: row.check,
-        shape: row.shape,
-        exitStatus: row.exitStatus,
-        refusals: row.refusals,
+      suites: suites.map((suite) => ({
+        path: suite,
+        ...declarationsIn(
+          claimText(
+            join(CLAIM_ROOT, suite),
+            'the suite the edge coverage names',
+          ),
+        ),
       })),
+      recordings: readdirSync(RAW_DIR)
+        .filter(
+          (name) =>
+            name.startsWith(`${milestone.toLowerCase()}-`) &&
+            `${RAW_REL}/${name}` !== CLAIMS_REL,
+        )
+        .sort()
+        .map((name) => `${RAW_REL}/${name}`),
     },
     capture: {
-      task: 'T004',
       command: CLAIM_CAPTURE,
       check: CLAIM_CHECK,
       records: CLAIMS_REL,
-      criteria: claims.map((row) => row.criterion),
+      criteria: rows.map((row) => row.criterion),
       reading:
-        'an armed run re-derives the list from the intent this checkout binds, the measurements it cites and the files it names, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives.',
+        'an armed run re-derives the list from the intent this checkout binds, the edge coverage that intent declares and the suites it names, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives.',
     },
-    claims,
+    claims: rows,
   };
 }
 
@@ -2865,6 +2889,41 @@ function assertCitations(recording) {
       assert.ok(
         row.reason.length >= 60 && /portal/i.test(row.reason),
         `${where} must answer the charter's portal clause by name`,
+      );
+    }
+  }
+}
+
+/**
+ * Every row's citation must be checkable against the tests it names: the suite at `artefactPath` must
+ * carry each edge id the row's artefact claims in one of its own test titles. A row that cites a suite
+ * where no test is about its edge names evidence nobody can open, which is how this list once cited a
+ * suite holding no `E8` for SC5 while the tests for that edge sat in another file.
+ *
+ * @param {any} recording
+ * @returns {void}
+ */
+function assertEdgeTitles(recording) {
+  assert.ok(
+    Array.isArray(recording?.claims) && recording.claims.length > 0,
+    'the claim list must carry its rows',
+  );
+  for (const row of recording.claims) {
+    const where = row?.criterion ?? 'a row';
+    const edges = claimedEdges(row);
+    assert.ok(
+      edges.length > 0,
+      `${where} names no edge id in its artefact, so the suite it cites cannot be held to one: ${JSON.stringify(row?.artefact)}`,
+    );
+    const source = claimText(
+      join(CLAIM_ROOT, String(row.artefactPath ?? '')),
+      `${where}'s artefact`,
+    );
+    const titles = suiteTitles(source);
+    for (const edge of edges) {
+      assert.ok(
+        carriesEdge(source, edge),
+        `${where} cites ${row.artefactPath} for ${edge}, and none of that suite's ${String(titles.length)} test title(s) carries ${edge}: a citation must name a suite whose own tests hold the edge it claims`,
       );
     }
   }
@@ -3096,5 +3155,53 @@ describe('the claim list', () => {
 
     // And the same guard over the list as it stands: the planted failure above proves it bites.
     assert.doesNotThrow(() => assertCitations(recording));
+  });
+
+  it('cites a suite whose own test titles carry the edge id it claims', () => {
+    const recording = claimJson(
+      CLAIMS_PATH,
+      'the list is part of this repository',
+    );
+    // The list as it stands: every cited suite carries every edge id its row claims.
+    assert.doesNotThrow(
+      () => assertEdgeTitles(recording),
+      `${CLAIMS_REL} cites a suite whose tests do not hold the edge it claims`,
+    );
+
+    // The defect this pin exists for: SC5's row, pointed at a suite the intent names that carries no
+    // E8 title. A citation nobody can open must redden naming the edge, or the next re-capture can
+    // repeat the false claim silently.
+    const planted = clone(recording);
+    const row = planted.claims.find((one) => claimedEdges(one).includes('E8'));
+    assert.ok(
+      row,
+      `the list must carry a row claiming E8, which is the edge SC5 is ruled on: ${JSON.stringify(planted.claims.map((one) => [one.criterion, claimedEdges(one)]))}`,
+    );
+    const without = planted.evidence.suites
+      .map((suite) => suite.path)
+      .filter(
+        (path) =>
+          path !== row.artefactPath &&
+          !carriesEdge(
+            claimText(join(CLAIM_ROOT, path), 'a suite the intent names'),
+            'E8',
+          ),
+      );
+    assert.ok(
+      without.length > 0,
+      `one suite this milestone names must carry no E8 title, so this pin can plant the citation the review found: ${JSON.stringify(planted.evidence.suites.map((suite) => suite.path))}`,
+    );
+    row.artefactPath = without[0];
+    let message = '';
+    try {
+      assert.doesNotThrow(() => assertEdgeTitles(planted));
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    assert.match(
+      message,
+      /none of that suite's \d+ test title\(s\) carries E8/,
+      `citing a suite whose titles carry no E8 must redden naming the edge and the file; it produced ${JSON.stringify(message.slice(0, 320))}`,
+    );
   });
 });
