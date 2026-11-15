@@ -124,5 +124,6 @@ Goal: the milestone's own record agrees with the tree it ships, and the fields t
 ## Wave 5 — the claims record path it describes
 
 Review depth: full
+Goal: the claims list both suites read is written by the milestone that owns it, and neither recording moves on a default run.
 
 - T005 — Derive the claims record path from the milestone it describes: `CLAIMS_REL` becomes a derived path, the M056 claims list is captured and tracked, and both recordings are re-taken in the worktree that holds them.
