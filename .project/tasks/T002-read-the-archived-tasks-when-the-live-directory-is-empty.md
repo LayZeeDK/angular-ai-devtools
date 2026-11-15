@@ -47,7 +47,7 @@ every integrated tree. The refusal is right; the default is wrong.
 
 ## Verify
 
-```
+```bash
 node --check scripts/gate-integrity.mjs && node --test scripts/gate-integrity-default-tasks.test.mjs && npm run gate:fix-record && npm run check
 ```
 

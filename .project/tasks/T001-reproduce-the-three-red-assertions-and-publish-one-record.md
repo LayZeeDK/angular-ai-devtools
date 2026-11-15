@@ -41,14 +41,16 @@ record the later tasks are held to, so neither repair can be written against a m
 
 ## Verify
 
-```
+```bash
 node --check scripts/gate-stability-record.test.mjs && node --test scripts/gate-stability-record.test.mjs && npm run check
 ```
 
 ## Interface contract
 
-`research/raw/m056-gate-stability.json` carries one object with `archive`, `fixRecord` and `predecessor`
-sections, each `{ command, exitCode, refusal, counts, detail }`; `M056_CAPTURE=1` arms the single write.
+`scripts/gate-integrity.mjs` exports the seams the gate drives: `checkArchivePaths({ root, milestone })`,
+`checkFixRecord({ root, range, tasks })`, `defaultTaskInput(root, milestone): string` and
+`workRange(root, milestone): { range, base, head, mode, error }`. `mode` names the rule that answered and the
+stage prints it, so a refusal says which rule failed rather than only that one did.
 
 ## Acceptance criteria
 

@@ -46,7 +46,7 @@ outright when the numerically previous milestone is unshipped.
 
 ## Verify
 
-```
+```bash
 node --check scripts/gate-integrity.mjs && node --test scripts/gate-integrity.test.mjs && npm run check && npm test
 ```
 
