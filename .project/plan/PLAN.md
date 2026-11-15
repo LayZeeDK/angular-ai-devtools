@@ -134,3 +134,10 @@ Review depth: full
 Goal: the record is green at the head that carries it, not only at the head that captured it.
 
 - T006 — Hold the record to a range its own commit cannot move: `workRange` answers `base..HEAD`, so the commit storing the record moves the head it pins; derive at a head its own commit cannot move and pin the choice with a mutant.
+
+## Wave 7 — what the panel found
+
+Review depth: full
+Goal: the gate answers for the milestone it was asked about, and every record asserts what it claims.
+
+- T007 — Answer for the milestone it was asked about and prove what it proves: the task input honours an explicit milestone, the watched names come from the passing roster, the SC5 citation moves to the suite that holds it, the record's carrier must be ahead of its pinned head, and T004's four pins are named in its Log.
