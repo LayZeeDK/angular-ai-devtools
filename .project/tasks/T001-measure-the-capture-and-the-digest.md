@@ -81,3 +81,6 @@ node --check extension/agent-main.js && npx prettier --check research/raw/m045-c
     4. **A shipped witness for the `reason` path.** The digest has no `NG04002` entry, and `NG04002: Cannot match any routes. URL Segment: …` is a text the capture does extract a code from — so SC3's no-entry case can be proven against the shipped digest with no fixture.
     5. **A failed capture is silent.** `captureErrorPayload` swallows every error (`:2528-2530`, `/* never throw */`), so `captured-nothing` cannot be read as "the page was silent"; the record states this so the empty-report wording does not overclaim.
     6. **No location in the payload.** `code`, `message`, `component`, `timestamp` are the only keys — no url, line, column, stack or phase — so nothing in the data can support a "where" claim, matching the contract's exclusion of element references.
+
+- Verdict: ready — the task's Verify exited 0 at head ee4bfbd2 \
+ode --check\ and Prettier clean; the orchestrator re-ran both and independently confirmed the digest's 64 unique codes and that NG04002 is absent from it; the worktree diff equals the declared \iles:\.
