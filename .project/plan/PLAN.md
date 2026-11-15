@@ -20,6 +20,7 @@ Project verify: `npm run check && npm test`
 | SC3 | 3 | T003 |
 | SC4 | 1, 3 | T001, T003 |
 | SC5 | 2, 3 | T002, T003 |
+| SC3 | 4 | T004 |
 
 ## Intent coverage
 
@@ -50,6 +51,7 @@ Project verify: `npm run check && npm test`
 | E7 | T001 | scripts/gate-stability-record.test.mjs |
 | E8 | T003 | scripts/gate-integrity.test.mjs |
 | E9 | T002 | scripts/gate-integrity-default-tasks.test.mjs |
+| — | T004 | scripts/gate-stability-record.test.mjs |
 
 ## Surface contract
 
@@ -108,3 +110,14 @@ section moved. Owns `scripts/gate-integrity.mjs`, `scripts/gate-integrity.test.m
 
 The archive-path check's read-versus-naming classification; the stage list of `npm run check`; the
 user-scope `gsd transition` wrapper, repaired before the intent was approved.
+
+## Wave 4 — re-capture the record its own repairs invalidated
+
+T004 re-captures `research/raw/m056-gate-stability.json` once, after T002 and T003 removed the three
+failures it recorded, and names each moved field with its cause. Its suite already reports the remedy
+(`re-capture with M056_CAPTURE=1 after naming what moved`). Owns
+`research/raw/m056-gate-stability.json` and `scripts/gate-stability-record.test.mjs`.
+
+Review depth: full
+Goal: the milestone's own record agrees with the tree it ships, and the fields that moved are named.
+
