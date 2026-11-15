@@ -1,42 +1,36 @@
 // @ts-check
 //
-// M056 T001 - the three red assertions reproduced at this head, published as one record
-// (INTENT.md SC1, SC4; T001's AC1-AC4).
+// M056 T001/T004 - the three measurements at this head, published as one record, and re-captured
+// once the milestone's own repairs invalidated what T001 recorded (INTENT.md SC1, SC4).
 //
 // Three measurements, each re-derived by spawning the command that makes it rather than remembered:
 //
-//   archive      `npm run gate:fix-record -- --milestone M044` reaches the archived-task refusal:
-//                the fix-record stage examines three task logs of the live tasks directory, none of
-//                them claims a path its own `files:` list declares, so the stage refuses
-//                `nothing-examined` rather than passing over zero claims. The milestone is passed
-//                explicitly because this tree binds M056 in its state file, and git records no ship
-//                commit for M055 or M056: the plain run stops one step earlier, at the range. That
-//                plain reading is recorded beside it in `archive.detail.plainRun`, and the same
-//                command is the predecessor section's own measurement.
+//   archive      `npm run gate:fix-record -- --milestone M044` passes: the stage examines the live
+//                task logs, compares the paths they claim against the range, and prints the summary
+//                line this record carries. The milestone is passed explicitly because this tree
+//                binds M056; the plain run over that binding is recorded beside it as plainRun, and
+//                it is the same command the predecessor section measures.
+//   fixRecord    `node --test scripts/gate-integrity.test.mjs` is green: the three assertions T001
+//                reproduced are the three T002 and T003 repaired, so the section records the
+//                runner's summary line and none of the three among its failures.
+//   predecessor  `node scripts/gate-integrity.mjs --check fix-record` derives the range it is held
+//                to and passes, printing the line and the rule the record carries.
 //
-//   fixRecord    `node --test scripts/gate-integrity.test.mjs` at this head reddens four
-//                assertions, and the record keeps each one's name with the first difference it
-//                prints. Three of them are the assertions this task exists to reproduce: the
-//                committed M044 recording no longer re-derives, the gate over M044's own tree
-//                refuses `nothing-examined`, and the declared claims mode over that same tree
-//                refuses for the same reason. The fourth is the recording's own T004 section,
-//                which names the milestone the tree bound when it was captured.
+// A stage that passes has no refusal class, so `refusal` is null in all three sections; and the
+// verdict is built from the three measured statuses rather than typed, so the record cannot claim a
+// state the tree does not carry. A section that refuses again records its class, and the pins below
+// name it.
 //
-//   predecessor  `node scripts/gate-integrity.mjs --check fix-record` cannot derive the range it is
-//                held to, and says which id is missing: `git log` names no ship commit for M055. A
-//                stage that refused only "no range" would hide the one fact T003's repair needs.
-//
-// The record is compared against the derivation on a default run and written only behind
-// `M056_CAPTURE=1`, so a default run is a read and an armed run with nothing moved changes no byte.
-//
-// Armed, on Windows cmd.exe (a bare `set M056_CAPTURE=1 &&` puts the space inside the variable):
+// The record is compared on a default run and written only behind `M056_CAPTURE=1`, so a default run
+// is a read and an armed run with nothing moved changes no byte. Armed, on Windows cmd.exe (a bare
+// `set M056_CAPTURE=1 &&` puts the space inside the variable):
 //
 //   set "M056_CAPTURE=1"&& node --test scripts/gate-stability-record.test.mjs
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative, sep } from 'node:path';
+import { dirname, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 
@@ -55,8 +49,6 @@ const TITLE =
   'Reproduce the three red assertions at this head and publish one record';
 const QUESTION =
   'which commands refuse at this head, what does each one print, and does the stage name the predecessor whose ship commit git does not record?';
-const VERDICT =
-  'all three measurements refused at this head: the fix-record stage over M044 examines three task logs and zero claims and refuses nothing-examined, the suite reddens the three assertions this task reproduces with the first difference each prints, and the stage on this branch cannot derive a range because git log names no ship commit for M055';
 
 /** The criteria this task answers, read from the task file rather than retyped as a claim. */
 const CRITERIA = ['SC1', 'SC4'];
@@ -75,12 +67,12 @@ const ARMED_COMMAND = `set "M056_CAPTURE=1"&& ${CHECK_COMMAND}`;
 /** The refusal a stage prints when it stops before it can decide anything: no range to hold to. */
 const RANGE_REFUSAL = 'range-not-derivable';
 
-/** The predecessor id git records no ship commit for, named by the refusal itself. */
+/** The predecessor id T003's repair answered: git records no ship commit for it. */
 const UNSHIPPED = 'M055';
 
 /**
- * The three assertions this task exists to reproduce, matched by a prefix of their name so the
- * record keeps the name the runner printed rather than a copy that could drift from it.
+ * The three assertions T001 reproduced, matched by a prefix of their name so the record keeps the
+ * name the runner printed rather than a copy that could drift from it.
  */
 const WATCHED = [
   'the recording still re-derives from the tree, the range and the stream this head carries',
@@ -106,22 +98,17 @@ let baseline = SHA_AT_LOAD;
 
 // ---------------------------------------------------------------- helpers ----
 
-/** @param {string} message @returns {never} */
+/** A refusal to measure further, thrown rather than asserted so the message names the command. */
 function fail(message) {
   throw new Error(message);
 }
 
-/** @param {unknown} value @returns {boolean} */
+/** Whether `value` is a plain object, which is what every recorded section is. */
 function isObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
-/** @param {string} path @returns {string} */
-function displayPath(path) {
-  return relative(ROOT, path).split(sep).join('/');
-}
-
-/** @param {Buffer | string} bytes @returns {string} */
+/** The sha256 of the bytes given, as the hex the record and its diagnostics carry. */
 function sha256(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
 }
@@ -142,9 +129,6 @@ function canonical(record) {
  * `<root>`, so a value that names the tree it was measured in still reads the same when the tree is
  * measured from somewhere else. Both spellings are replaced, because the stage prints forward
  * slashes and a runner's stack lines carry back slashes.
- *
- * @param {string} text
- * @returns {string}
  */
 function normalize(text) {
   const forward = ROOT.split(sep).join('/');
@@ -159,9 +143,9 @@ function normalize(text) {
 /**
  * One command, spawned through the shell so `npm` and `node` resolve the way they do for a person
  * typing the command, and inherited without the runner's own test context: a child `node --test`
- * that kept NODE_TEST_CONTEXT would print as a subtest of this run rather than as the run it is.
- * A non-zero status is an answer, not a failure - these commands are expected to refuse - so only a
- * command that never produced an exit code is a failure here.
+ * that kept NODE_TEST_CONTEXT would print as a subtest of this run rather than as the run it is. A
+ * non-zero status is an answer, not a failure - a repaired stage may still refuse something - so
+ * only a command that never produced an exit code is a failure here.
  *
  * @param {string} command
  * @returns {{ status: number, lines: string[] }}
@@ -191,8 +175,8 @@ function spawn(command) {
 }
 
 /**
- * The first number a pattern captures in one line, or `null` where the line does not carry it. A
- * count that moved must show up as a value the derivation states, never as a silently missing one.
+ * The first number `pattern` captures in `text`, or `null` where it does not carry one. A count that
+ * moved must show up as a value the derivation states, never as a silently missing one.
  *
  * @param {string} text
  * @param {RegExp} pattern
@@ -204,7 +188,7 @@ function numberIn(text, pattern) {
 }
 
 /**
- * The first string a pattern captures in one line, or `null`.
+ * The first string `pattern` captures in `text`, or `null` where it does not carry one.
  *
  * @param {string} text
  * @param {RegExp} pattern
@@ -216,39 +200,51 @@ function textIn(text, pattern) {
 }
 
 /**
- * The class of the refusal a stage printed: the parenthesised class a refusal line carries, else
- * the class of the earlier stop the gate names in words. Derived from the printed lines, so the
- * record cannot claim a class the command did not print.
- *
- * @param {string[]} refusalLines
- * @param {string[]} allLines
- * @returns {string | null}
+ * The line a stage prints last: whether it passed or refused, with the counts it reached, recorded
+ * verbatim so a section that passes carries the line that says so.
+ */
+function summaryIn(lines) {
+  return (
+    lines.find((line) => /^gate-integrity: (?:refuse|pass)\b/.test(line)) ?? ''
+  );
+}
+
+/**
+ * The class of the refusal these lines print: the parenthesised class a refusal line carries, else
+ * `range-not-derivable` where the stage names a stop before the range, else `null` - a stage that
+ * passed printed no refusal, so its class is not the class of a stop it did not make.
  */
 function refusalClass(refusalLines, allLines) {
   for (const line of refusalLines) {
     const named = textIn(line, /\(([a-z][a-z-]+)\)\s+-\s/);
     if (named !== null) return named;
   }
-  if (
-    allLines.some((line) =>
-      line.includes('cannot derive the range it is held to'),
-    )
-  ) {
-    return RANGE_REFUSAL;
-  }
-  return null;
+  const stopped = allLines.some((line) =>
+    line.includes('cannot derive the range it is held to'),
+  );
+  return stopped ? RANGE_REFUSAL : null;
 }
 
 // ----------------------------------------------------- measurement 1: archive ----
 
 /**
- * The refusal the fix-record stage reaches when it is held to the milestone the three red
- * assertions hold it to. The milestone is passed explicitly because the stage binds its own from
- * the state file - M056 here - and no range exists for an id git never shipped; the plain run's
- * reading is recorded inside this section rather than dropped, so the difference between the two is
- * a stated fact and not a hidden choice.
- *
- * @returns {Record<string, any>}
+ * One run of the fix-record stage as one sentence, every clause read from what the run printed or
+ * answered, so a repair that moves the run moves this sentence rather than leaving it behind to
+ * claim the state the tree used to carry.
+ */
+function runSentence(run, label) {
+  const rule = textIn(run.readingLine, /\(rule ([\s\S]*?); claims: /);
+  const state = `${label} exits ${run.status}${
+    run.refusal === null ? ' with no refusal' : ` refusing ${run.refusal}`
+  }`;
+  return rule === null ? state : `${state}, deriving its range by rule ${rule}`;
+}
+
+/**
+ * The fix-record stage over the milestone the reproduced assertions hold it to. The milestone is
+ * passed explicitly because the stage binds its own from the state file - M056 here - and the plain
+ * run's reading is recorded beside it rather than dropped, so the difference between the two is a
+ * stated fact and not a hidden choice.
  */
 function deriveArchive() {
   const held = spawn(GATE_HELD_COMMAND);
@@ -259,21 +255,21 @@ function deriveArchive() {
   const readingLine =
     held.lines.find((line) => line.startsWith('gate-integrity: fix-record ')) ??
     '';
-  const summaryLine =
-    held.lines.find((line) =>
-      /^gate-integrity: (?:refuse|pass)\b/.test(line),
-    ) ?? '';
+  const summary = summaryIn(held.lines);
   const plainRefusals = plain.lines.filter((line) =>
     line.startsWith('gate-integrity: fix-record cannot derive'),
   );
+  const refusal = refusalClass(refusalLines, held.lines);
+  const plainRefusal = refusalClass(plainRefusals, plain.lines);
   return {
     command: GATE_HELD_COMMAND,
     exitCode: held.status,
-    refusal: refusalClass(refusalLines, held.lines),
+    refusal,
+    summary,
     counts: {
       refusalLines: refusalLines.length,
-      findings: numberIn(summaryLine, /(\d+) finding\(s\)/),
-      mentions: numberIn(summaryLine, /(\d+) mention\(s\)/),
+      findings: numberIn(summary, /(\d+) finding\(s\)/),
+      mentions: numberIn(summary, /(\d+) mention\(s\)/),
       claimsExamined: numberIn(readingLine, /examined (\d+) claim\(s\)/),
       taskLogsExamined: numberIn(readingLine, /in (\d+) task log\(s\)/),
       changedPaths: numberIn(readingLine, /against (\d+) changed path\(s\)/),
@@ -282,14 +278,15 @@ function deriveArchive() {
       milestone: textIn(held.lines.join('\n'), /milestone (M\d{3}|unbound)/),
       stage: 'fix-record',
       range: textIn(readingLine, /of ([0-9a-f]{40}\.\.[0-9a-f]{40})/),
-      why: `this tree binds M056 in its state file and git records no ship commit for M055 or M056, so the plain run stops at the range; the three red assertions hold the stage to ${HELD_TO}, whose two ship commits git does record, and that is the run that reaches the archived-task refusal. The plain run is recorded below as plainRun, and the same stop is the predecessor section's own measurement.`,
+      why: `${runSentence({ status: held.status, refusal, readingLine }, `the stage held to ${HELD_TO}`)}; ${runSentence({ status: plain.status, refusal: plainRefusal, readingLine: '' }, "the plain run over this tree's own milestone")}, which is recorded below as plainRun and is the same command the predecessor section measures.`,
       refusalLines,
       readingLine,
       plainRun: {
         command: GATE_COMMAND,
         milestone: textIn(plain.lines.join('\n'), /milestone (M\d{3}|unbound)/),
         exitCode: plain.status,
-        refusal: refusalClass(plainRefusals, plain.lines),
+        refusal: plainRefusal,
+        summary: summaryIn(plain.lines),
         refusalLines: plainRefusals,
       },
     },
@@ -298,12 +295,7 @@ function deriveArchive() {
 
 // --------------------------------------------------- measurement 2: fixRecord ----
 
-/**
- * The name of the test a failure block names, from the line that carries it and its duration.
- *
- * @param {string} line
- * @returns {string | null}
- */
+/** The name of the test a failure block names, from the line that carries it and its duration. */
 function titleOf(line) {
   return textIn(line, /^\s*\S\s+(.*?)\s+\(\d+(?:\.\d+)?ms\)\s*$/u);
 }
@@ -312,9 +304,6 @@ function titleOf(line) {
  * The assertion message one failure block prints, with the deepest reading preferred: a
  * `deepEqual` that wraps another assertion states the difference in `Actual message`, and that is
  * the difference a reader needs, not the wrapper's sentence about it.
- *
- * @param {string[]} body
- * @returns {{ kind: string | null, message: string, difference: string | null }}
  */
 function messageOf(body) {
   const assertion = body.find((line) =>
@@ -352,9 +341,6 @@ function messageOf(body) {
  * recorded-vs-derived comparison prints, else the value a section comparison prints after
  * `is not what this head derives:`, else the whole message, which is the first difference the
  * assertion itself reports.
- *
- * @param {string} message
- * @returns {string}
  */
 function firstDifferenceOf(message) {
   const differs = textIn(message, /first differ(?:s)? at "([\s\S]+)"\s*$/);
@@ -373,9 +359,6 @@ function firstDifferenceOf(message) {
  * difference was read from. The runner prints its detail blocks after the run, each introduced by
  * `test at <file>:<line>:<col>`, so the detail is the authority and the run's own `✖` line is not
  * read twice.
- *
- * @param {string[]} list
- * @returns {Array<Record<string, any>>}
  */
 function failuresIn(list) {
   /** @type {Array<Record<string, any>>} */
@@ -405,17 +388,11 @@ function failuresIn(list) {
 }
 
 /**
- * The suite's red assertions at this head, as this task reads them: the three failing tests it
- * reproduces, each with the first difference it prints.
- *
- * The run reports more than three at this head, and the record deliberately holds only the three.
- * A suite this milestone adds is a difference the M044 recording has not been told a reason for
- * yet, so every assertion that hashes that recording over the suite tree reddens until T003
- * re-captures it with an explanation; those failures are T003's to explain, and folding them into
- * this record would make the record move the moment it did. The three this task reproduces are the
- * ones named above, and a name that stops being red is a difference this record must state.
- *
- * @returns {Record<string, any>}
+ * The watched assertions this head reddens, as this task reads them: which of the three tests it
+ * reproduces are red, each with the first difference it prints. A green watched assertion is a
+ * repair this milestone landed, so the list is empty at a repaired head and the section's counts say
+ * so - and a defect that returns puts its name and its first difference back into this list rather
+ * than hiding inside a count.
  */
 function deriveFixRecord() {
   const run = spawn(TEST_COMMAND);
@@ -431,10 +408,11 @@ function deriveFixRecord() {
     command: TEST_COMMAND,
     exitCode: run.status,
     refusal,
+    summary: run.lines.find((line) => /^ℹ +fail +(\d+)$/.test(line)) ?? '',
     counts: { watched: WATCHED.length, red: watched.length },
     detail: {
       failures: watched,
-      note: 'the run also reddens assertions this task does not own - every one of them is the M044 recording being hashed over a suite tree it has not been told a reason for yet, and T003 re-captures it. The record holds the three assertions this task reproduces so a repair that greens one is a difference it states rather than absorbs.',
+      note: `the suite exits ${run.status} and ${watched.length === 0 ? 'none' : String(watched.length)} of the ${WATCHED.length} assertion(s) T001 reproduced is red at this head; every red one among them is held here with the first difference it prints, so a repair that reddens one again is a value this record states rather than absorbs.`,
     },
   };
 }
@@ -442,11 +420,9 @@ function deriveFixRecord() {
 // -------------------------------------------------- measurement 3: predecessor ----
 
 /**
- * The predecessor failure, as the stage prints it: the gate cannot derive the range it is held to,
- * and names the id git has no ship commit for. The class is derived from the id in the message, so
- * a record that named a different milestone would be a record this head does not derive.
- *
- * @returns {Record<string, any>}
+ * The predecessor measurement, as the stage prints it: whether the gate derived the range it is held
+ * to, the id git has no ship commit for where it names one, and the class the printed lines earn - a
+ * pass carries none, because a run that refused nothing has nothing to name.
  */
 function derivePredecessor() {
   const run = spawn(PREDECESSOR_COMMAND);
@@ -455,27 +431,29 @@ function derivePredecessor() {
       line.includes('cannot derive the range it is held to'),
     ) ?? '';
   const unshipped = textIn(refusalLine, /no ship commit for (M\d{3})/);
-  const prints = refusalLine
+  const summary = summaryIn(run.lines);
+  const prints = (refusalLine === '' ? summary : refusalLine)
     .replace(/^gate-integrity: /, '')
     .replace(
       /,?\s*so the range this milestone owns cannot be derived[\s\S]*$/,
       '',
     );
+  const refusalLines = run.lines.filter((line) =>
+    line.startsWith('gate-integrity: refusal '),
+  );
   return {
     command: PREDECESSOR_COMMAND,
     exitCode: run.status,
     refusal:
-      unshipped === null ? RANGE_REFUSAL : `no-ship-commit-for-${unshipped}`,
+      unshipped === null
+        ? refusalClass(refusalLines, run.lines)
+        : `no-ship-commit-for-${unshipped}`,
+    summary,
     counts: {
       refusalLines: run.lines.filter((line) =>
         line.includes('cannot derive the range it is held to'),
       ).length,
-      findings: numberIn(
-        run.lines.find((line) =>
-          /^gate-integrity: (?:refuse|pass)\b/.test(line),
-        ) ?? '',
-        /(\d+) finding\(s\)/,
-      ),
+      findings: numberIn(summary, /(\d+) finding\(s\)/),
     },
     detail: {
       milestone: textIn(run.lines.join('\n'), /milestone (M\d{3}|unbound)/),
@@ -492,11 +470,8 @@ function derivePredecessor() {
 let MEASURED = null;
 
 /**
- * The three measurements, taken once per run: each spawns a command over the same head, so a second
- * spawn would only repeat it, and one object means every assertion compares against the same
- * reading rather than against a fresh one that could have moved underneath it.
- *
- * @returns {Record<string, any>}
+ * The three measurements, taken once per run: each spawns a command over the same head, so one
+ * object means every assertion compares against the same reading rather than a fresh one.
  */
 function measured() {
   if (MEASURED === null) {
@@ -510,12 +485,34 @@ function measured() {
 }
 
 /**
+ * The record's one-sentence verdict, built from the three measured statuses rather than typed: a
+ * verdict typed here would keep claiming the refusals of the head it was written at, which is the
+ * defect this re-capture removes.
+ */
+function verdictOf(sections) {
+  const rows = [
+    [`the fix-record stage held to ${HELD_TO}`, sections.archive],
+    ['the gate-integrity suite', sections.fixRecord],
+    ['the fix-record stage on this branch', sections.predecessor],
+  ];
+  const passing = rows.filter(
+    ([, one]) => one.exitCode === 0 && one.refusal === null,
+  ).length;
+  const clauses = rows.map(
+    ([label, one]) =>
+      `${label} exits ${one.exitCode}${one.refusal === null ? ' with no refusal' : ` refusing ${one.refusal}`}`,
+  );
+  const head =
+    passing === rows.length
+      ? `all ${rows.length} measurements pass at this head`
+      : `${rows.length - passing} of the ${rows.length} measurements does not pass at this head`;
+  return `${head}: ${clauses.slice(0, -1).join(', ')} and ${clauses[clauses.length - 1]}`;
+}
+
+/**
  * Everything the derivation states, plus the capture block. Nothing here copies a derived value
  * forward, so a field the derivation stops producing shows up as a divergence against the recording
  * rather than as a silent pass.
- *
- * @param {Record<string, any>} sections
- * @returns {string[]}
  */
 function remeasured(sections) {
   /** @type {string[]} */
@@ -534,9 +531,6 @@ function remeasured(sections) {
  * The record as this head derives it, with the capture block on top. `at` is the only value no
  * reading of the tree settles: it is the time the file was first written, carried forward on every
  * re-capture so an armed run with nothing moved reproduces it and writes no byte.
- *
- * @param {string} at
- * @returns {Record<string, any>}
  */
 function derive(at) {
   const sections = measured();
@@ -546,7 +540,7 @@ function derive(at) {
     task: TASK,
     title: TITLE,
     question: QUESTION,
-    verdict: VERDICT,
+    verdict: verdictOf(sections),
     ...sections,
     capture: {
       task: TASK,
@@ -563,7 +557,7 @@ function derive(at) {
 }
 
 /**
- * The first place two values differ, as `path: recorded -> derived`. Arrays are walked row by row.
+ * The first place two values differ, as `path: recorded -> derived`; arrays are walked row by row.
  *
  * @param {any} left
  * @param {any} right
@@ -605,10 +599,6 @@ function firstDifference(left, right, at) {
 /**
  * The recording on disk must be the canonical serialisation of its own record, or a re-capture
  * would not reproduce these bytes.
- *
- * @param {string} text
- * @param {any} record
- * @returns {void}
  */
 function assertCanonical(text, record) {
   const expected = canonical(record);
@@ -676,10 +666,9 @@ function assertShape(recorded) {
 
 /**
  * The whole check of one record: its shape, then every value the derivation can settle compared
- * against this head's reading, section by section so a disagreement names the field that moved.
- *
- * @param {any} recorded
- * @returns {void}
+ * against this head's reading, section by section so a disagreement names the field that moved. The
+ * verdict is compared with them, so the one sentence a reader trusts cannot claim a state the tree
+ * lacks either.
  */
 function assertRecord(recorded) {
   assertShape(recorded);
@@ -696,6 +685,8 @@ function assertRecord(recorded) {
     'capture',
   );
   if (capture !== '') problems.push(capture);
+  const said = firstDifference(recorded.verdict, derived.verdict, 'verdict');
+  if (said !== '') problems.push(said);
   if (problems.length > 0) {
     fail(
       `the recording disagrees with this run's derivation at ${problems.length} value(s) (re-capture with M056_CAPTURE=1 after naming what moved): ${problems.slice(0, 8).join('; ')}`,
@@ -703,7 +694,7 @@ function assertRecord(recorded) {
   }
 }
 
-/** @returns {any} */
+/** The committed record, or a failure that names the switch under which one would be written. */
 function recorded() {
   if (!existsSync(RECORD_PATH)) {
     fail(
@@ -718,8 +709,6 @@ function recorded() {
 /**
  * The armed capture: re-derive, compare, write only when a value moved. A file that is current and
  * canonical is not touched at all, which is what makes two armed runs byte-identical.
- *
- * @returns {{ wrote: boolean, before: string | null, after: string, at: string }}
  */
 function capture() {
   const present = existsSync(RECORD_PATH);
@@ -818,99 +807,110 @@ test('the three sections are what this head derives, so the record cannot drift 
   }
 });
 
-test('the archive section names the nothing-examined refusal the archived task directory earns', (t) => {
+test('the archive section records the clean pass the repaired task directory earns', (t) => {
   const section = recorded().archive;
-  assert.equal(
-    section.refusal,
-    'nothing-examined',
-    `the stage must refuse rather than pass over zero claims: ${JSON.stringify(section.detail.refusalLines)}`,
-  );
-  assert.notEqual(
-    section.exitCode,
-    0,
-    'a refusal is a non-zero exit, never a pass',
+  assert.deepEqual(
+    { exitCode: section.exitCode, refusal: section.refusal },
+    { exitCode: 0, refusal: null },
+    `a stage that compares the claims it declares exits zero and names no class: ${JSON.stringify(section.detail.refusalLines)}`,
   );
   assert.ok(
-    Number(section.counts.taskLogsExamined) > 0,
-    `the stage must examine the task logs it read, not zero: ${JSON.stringify(section.counts)}`,
+    Number(section.counts.claimsExamined) > 0,
+    `zero compared claims is the nothing-examined refusal this stage no longer reaches: ${JSON.stringify(section.counts)}`,
   );
   assert.equal(
-    section.counts.claimsExamined,
+    section.counts.refusalLines,
     0,
-    'the refusal is that no claim was compared, so the claim count is zero',
+    'a passing stage prints no refusal line',
   );
   assert.match(
-    String(section.detail.refusalLines[0]),
-    /refusal .* at range \(nothing-examined\) - no claim was compared/,
-    `the refusal must name the file and the class: ${String(section.detail.refusalLines[0])}`,
+    String(section.summary),
+    /^gate-integrity: pass - 0 finding\(s\), \d+ mention\(s\)$/,
+    `a passing run prints the summary line the record carries: ${String(section.summary)}`,
+  );
+  assert.match(
+    String(section.detail.readingLine),
+    /^gate-integrity: fix-record clean - examined [1-9]\d* claim\(s\) in [1-9]\d* task log\(s\) of \S+ against [1-9]\d* changed path\(s\) of [0-9a-f]{40}\.\.[0-9a-f]{40} \(rule /,
+    `the line must be the pass this head derives, over the logs and the range it names: ${String(section.detail.readingLine)}`,
   );
   assert.match(
     String(section.detail.range),
     /^[0-9a-f]{40}\.\.[0-9a-f]{40}$/,
     `the stage must derive the range it is held to: ${String(section.detail.range)}`,
   );
-  assert.notEqual(
-    section.detail.plainRun.exitCode,
-    0,
-    'the plain run is a refusal too, and it is recorded rather than dropped',
+  assert.deepEqual(
+    {
+      exitCode: section.detail.plainRun.exitCode,
+      refusal: section.detail.plainRun.refusal,
+    },
+    { exitCode: 0, refusal: null },
+    `the plain run over this branch is a pass too, and it is recorded rather than dropped: ${JSON.stringify(section.detail.plainRun.refusalLines)}`,
   );
   t.diagnostic(
-    `archive: exit ${String(section.exitCode)} ${String(section.refusal)} over ${String(section.counts.taskLogsExamined)} task log(s) of ${String(section.detail.range)}; plain run exit ${String(section.detail.plainRun.exitCode)} ${String(section.detail.plainRun.refusal)}`,
+    `archive: exit ${String(section.exitCode)} ${String(section.refusal)} over ${String(section.counts.taskLogsExamined)} task log(s); ${String(section.summary)}`,
   );
 });
 
-test('the fixRecord section names the three red assertions with the first difference each prints', (t) => {
+test('the fixRecord section records the green suite its three repairs produced', (t) => {
   const section = recorded().fixRecord;
-  assert.notEqual(section.exitCode, 0, 'the suite is red at this head');
   const failures = section.detail.failures;
+  assert.deepEqual(
+    { exitCode: section.exitCode, refusal: section.refusal },
+    { exitCode: 0, refusal: null },
+    `a green suite exits zero and names no refusal class: ${JSON.stringify(failures)}`,
+  );
+  assert.equal(
+    section.summary,
+    'ℹ fail 0',
+    `a passing run prints the summary line the record carries: ${JSON.stringify(section.summary)}`,
+  );
   assert.ok(
-    Array.isArray(failures) && failures.length > 0,
-    'the section must keep the failing assertions it was measured from',
+    Array.isArray(failures) && failures.length === 0,
+    `a green run measures none of the three red assertions T001 reproduced: ${JSON.stringify(failures)}`,
   );
   assert.equal(
     failures.length,
     section.counts.red,
     `counts.red is ${String(section.counts.red)} and ${failures.length} watched assertion(s) carry a difference`,
   );
+  assert.equal(
+    section.counts.red,
+    0,
+    'no watched assertion is red, so a red count is a defect this record states rather than absorbs',
+  );
   for (const watched of WATCHED) {
     const found = failures.find((failure) =>
       String(failure.name).includes(watched),
     );
     assert.ok(
-      found,
-      `${watched} is one of the three red assertions this task reproduces and the section does not carry it: ${JSON.stringify(failures.map((failure) => failure.name))}`,
+      found === undefined,
+      `${watched} is one of the three T001 reproduced and it is red again: ${JSON.stringify(found)}`,
     );
-    assert.ok(
-      typeof found.firstDifference === 'string' &&
-        found.firstDifference.trim() !== '',
-      `${watched} must carry the first difference it prints`,
-    );
-    assert.ok(
-      typeof found.at === 'string' && /^scripts\//.test(found.at),
-      `${watched} must name where it sits: ${JSON.stringify(found.at)}`,
-    );
-    t.diagnostic(
-      `fixRecord: ${found.name} at ${found.at} - ${found.firstDifference}`,
-    );
+    t.diagnostic(`fixRecord: ${watched} is green at this head`);
   }
 });
 
-test('the predecessor section names the id git has no ship commit for', (t) => {
+test('the predecessor section records the range the repaired stage derives', (t) => {
   const section = recorded().predecessor;
-  assert.equal(
-    section.exitCode,
-    2,
-    'a range the gate cannot derive its own input from is exit 2, not a finding',
+  assert.deepEqual(
+    {
+      exitCode: section.exitCode,
+      refusal: section.refusal,
+      unshipped: section.detail.unshipped,
+    },
+    { exitCode: 0, refusal: null, unshipped: null },
+    `a pass names no refusal and no unshipped predecessor (${UNSHIPPED}): ${JSON.stringify(section.detail.lines)}`,
   );
-  assert.equal(
-    section.refusal,
-    `no-ship-commit-for-${UNSHIPPED}`,
-    `the refusal must name the unshipped id: ${JSON.stringify(section.detail.lines)}`,
+  assert.match(
+    String(section.summary),
+    /^gate-integrity: pass - 0 finding\(s\), \d+ mention\(s\)$/,
+    `a passing run prints the summary line the record carries: ${String(section.summary)}`,
   );
-  assert.equal(
-    section.detail.prints,
-    `fix-record cannot derive the range it is held to - git log names no ship commit for ${UNSHIPPED}`,
-    `the stage must print the failure T003's repair answers: ${JSON.stringify(section.detail.prints)}`,
+  assert.ok(
+    section.detail.lines.includes(section.summary) &&
+      section.detail.prints ===
+        section.summary.replace(/^gate-integrity: /, ''),
+    `the passing line the record carries is the one the stage printed: ${JSON.stringify(section.detail.prints)}`,
   );
   t.diagnostic(
     `predecessor: exit ${String(section.exitCode)} ${String(section.refusal)} - ${String(section.detail.prints)}`,

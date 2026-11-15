@@ -5,9 +5,9 @@ wave: 4
 deps:
   - T002
   - T003
-status: pending
+status: done
 agent: build_T004
-base: null
+base: 32bbf65cea5c93034f1f76f1bc4fc6339fc7b6ef
 worktree: null
 task_branch: null
 files:
@@ -71,3 +71,6 @@ node --check scripts/gate-stability-record.test.mjs && node --test scripts/gate-
 ## Log
 
 - 2026-11-15 — re-specified; the first attempt proved the capture alone cannot pass. No work started.
+- 2026-11-15 - moved the record and its pins onto the repair: the four red-state pins now assert the repaired state and fail again if the defect returns; verdict/why/note are derived, not written; the predecessor refusal is null on a clean pass. Armed capture twice (second wrote nothing, sha256 94121a1d), unarmed 7/7, suite 8/8, npm run check exit 0. This landing.
+
+Verdict: ready
