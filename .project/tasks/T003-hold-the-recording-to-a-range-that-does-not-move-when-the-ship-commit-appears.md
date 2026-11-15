@@ -68,3 +68,24 @@ stage prints it, so a refusal says which rule failed rather than only that one d
 ## Log
 
 - 2026-11-14 — planned; no work started.
+- 2026-11-15 - verdict: pass. Landed at `afe7bcd3` from `gsd-path-task/T003`; diff is the three declared
+  files (703 insertions, 87 deletions). `workRange` now answers by a named rule (`recorded`, `ship`,
+  `newest-ship`, `none`), always heads at this tree's HEAD, and prints the rule plus the base it used, so the
+  range is identical before and after the milestone's own ship commit - defect B's cause. Measured:
+  `npm run gate:fix-record` exits 0 with `rule newest-ship: git log names no ship commit for M055, so the base
+  is the newest it carries, 53f93bb5`, examining 3 task logs; `node --test scripts/gate-integrity.test.mjs`
+  reports 28 tests / 28 pass, and a default run leaves the recording at `sha256 64cc5501b5af0b6b...`.
+  The E8 mutant was proven in place: restoring the numeric-predecessor rule reddened two tests by name, then
+  the file was restored byte-identically (`61899f4da330...`).
+  One capture, 748 moved leaves across six sections, each named with its cause: archiveReferences (two suites
+  added at this head, and M044's own archive entering the subtree derivation), fixRecord (one tracked
+  `SYNTHESIS.md` from M044's archive), drivenChecks (the two fixture runs now name `--milestone M044` instead
+  of inheriting a STATE that changes every ship), suiteDiff and wholeTree (the two new suites and this file's
+  own two tests), capture.at (the only volatile field).
+  Deviations stated, not hidden: AC7 now names M044's archived task directory, which is what those five
+  assertions are about, with nothing weakened or deleted; a `--base`/`recorded` path is reachable and verified
+  by hand but not driven by a test, because a further test would have forced a second capture, which N2
+  forbids; the `none` refusal is unreachable on a repository with 49 ship commits and is untested; and
+  `research/raw/m056-gate-stability.json` (T001's record) is now stale by three exit codes, which is its own
+  task named T004 rather than work folded in here.
+  verdict: ready
