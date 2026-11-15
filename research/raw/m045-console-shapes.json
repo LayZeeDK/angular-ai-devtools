@@ -19,7 +19,10 @@
         "id": "c1",
         "command": "git rev-parse --abbrev-ref HEAD && git rev-parse --short HEAD",
         "exitCode": 0,
-        "output": ["gsd-path/M057", "9e95f740"]
+        "output": [
+          "gsd-path/M057",
+          "9e95f740"
+        ]
       },
       {
         "id": "c2",
@@ -115,7 +118,10 @@
         "id": "c6",
         "command": "node -e \"const L=require('fs').readFileSync('extension/agent-main.js','utf8').split('\\n');const s=L.findIndex(l=>l.includes('dispatch(ERROR_CAPTURE_EVENT'));const keys=[];for(let i=s+1;i<L.length;i++){if(L[i].includes('});'))break;const t=L[i].trim();const p=t.indexOf(':');if(p>0)keys.push(t.slice(0,p))}console.log('dispatchLine: '+(s+1));console.log('payloadKeys: '+keys.join(','))\"",
         "exitCode": 0,
-        "output": ["dispatchLine: 2522", "payloadKeys: code,message,component,timestamp"]
+        "output": [
+          "dispatchLine: 2522",
+          "payloadKeys: code,message,component,timestamp"
+        ]
       },
       {
         "id": "c7",
@@ -173,7 +179,11 @@
         "id": "c10",
         "command": "node -e \"const fs=require('fs');const b=fs.readFileSync('extension/error-digest.json');const s=b.toString('utf8');console.log('bytes: '+b.length);console.log('chars: '+s.length);console.log('lines: '+s.split('\\n').length)\"",
         "exitCode": 0,
-        "output": ["bytes: 61577", "chars: 61450", "lines: 326"]
+        "output": [
+          "bytes: 61577",
+          "chars: 61450",
+          "lines: 326"
+        ]
       },
       {
         "id": "c11",
@@ -212,7 +222,10 @@
     "fileLines": 2568,
     "from": "c3",
     "eventName": "angular-ai:error-capture",
-    "eventNameDeclaredAt": { "file": "extension/agent-main.js", "line": 16 },
+    "eventNameDeclaredAt": {
+      "file": "extension/agent-main.js",
+      "line": 16
+    },
     "dispatcher": {
       "function": "dispatch",
       "file": "extension/agent-main.js",
@@ -222,29 +235,55 @@
     "entryPoints": [
       {
         "id": "console.error",
-        "hook": { "file": "extension/agent-main.js", "line": 2536 },
-        "callSite": { "file": "extension/agent-main.js", "line": 2538 },
+        "hook": {
+          "file": "extension/agent-main.js",
+          "line": 2536
+        },
+        "callSite": {
+          "file": "extension/agent-main.js",
+          "line": 2538
+        },
         "handsToCapture": "Array.prototype.slice.call(arguments).join(' ')",
         "then": "returns the original console.error called with the untouched arguments (2540)"
       },
       {
         "id": "window error event",
-        "hook": { "file": "extension/agent-main.js", "line": 2550 },
-        "callSite": { "file": "extension/agent-main.js", "line": 2552 },
+        "hook": {
+          "file": "extension/agent-main.js",
+          "line": 2550
+        },
+        "callSite": {
+          "file": "extension/agent-main.js",
+          "line": 2552
+        },
         "handsToCapture": "ev.error || ev.message || ev"
       },
       {
         "id": "unhandledrejection",
-        "hook": { "file": "extension/agent-main.js", "line": 2557 },
-        "callSite": { "file": "extension/agent-main.js", "line": 2559 },
+        "hook": {
+          "file": "extension/agent-main.js",
+          "line": 2557
+        },
+        "callSite": {
+          "file": "extension/agent-main.js",
+          "line": 2559
+        },
         "handsToCapture": "ev.reason || ev"
       }
     ],
     "entryPointCount": 3,
     "entryPointsCrossCheck": "c5 lists every line of the file naming ERROR_CAPTURE_EVENT, captureErrorPayload, console.error or addEventListener(; the only listeners in the file are these three plus the shipped DI_QUERY_EVENT (2484) and PICK_EVENT (2489) listeners, which are not capture",
     "payload": {
-      "objectAt": { "file": "extension/agent-main.js", "line": 2522 },
-      "keys": ["code", "message", "component", "timestamp"],
+      "objectAt": {
+        "file": "extension/agent-main.js",
+        "line": 2522
+      },
+      "keys": [
+        "code",
+        "message",
+        "component",
+        "timestamp"
+      ],
       "keysFrom": "c6",
       "fieldCount": 4,
       "fields": {
@@ -272,7 +311,10 @@
     },
     "codeExtraction": {
       "regex": "/NG0\\d{3,}/",
-      "sourceLine": { "file": "extension/agent-main.js", "line": 2502 },
+      "sourceLine": {
+        "file": "extension/agent-main.js",
+        "line": 2502
+      },
       "from": "c7",
       "caseSensitive": true,
       "shape": "the literal prefix NG0, then at least three digits",
@@ -300,7 +342,9 @@
         "console.assert": 0,
         "console.group": 0
       },
-      "wrapped": ["console.error"],
+      "wrapped": [
+        "console.error"
+      ],
       "meaning": "extension/agent-main.js mentions no console method but console.error; its four mentions are the guard (2534), the saved original (2535), the assignment (2536) and the comment at 2493"
     },
     "installTime": {
@@ -308,9 +352,15 @@
       "when": "at script evaluation, before start() (2566); nothing reinstalls these hooks later in the file"
     },
     "hop": {
-      "relay": { "file": "extension/relay.js", "lines": "26-32" },
+      "relay": {
+        "file": "extension/relay.js",
+        "lines": "26-32"
+      },
       "relayedAs": "chrome.runtime.sendMessage({ type: 'angular-ai:error-capture', ...detail }) — the same four keys plus type (c13)",
-      "allowlist": { "file": "extension/background.js", "line": 16 }
+      "allowlist": {
+        "file": "extension/background.js",
+        "line": 16
+      }
     }
   },
   "digest": {
@@ -319,15 +369,26 @@
     "chars": 61450,
     "lines": 326,
     "sizeFrom": "c10",
-    "topLevelKeys": ["version", "entries"],
+    "topLevelKeys": [
+      "version",
+      "entries"
+    ],
     "version": "22.2.x",
     "versionType": "string",
     "entriesType": "array",
     "entryCount": 64,
     "uniqueCodeCount": 64,
-    "entryFields": ["code", "title", "body"],
+    "entryFields": [
+      "code",
+      "title",
+      "body"
+    ],
     "entryKeySets": 1,
-    "entryFieldTypes": { "code": "string", "title": "string", "body": "string" },
+    "entryFieldTypes": {
+      "code": "string",
+      "title": "string",
+      "body": "string"
+    },
     "firstCode": "NG0100",
     "lastCode": "NG8024",
     "shapeFrom": "c8",
@@ -443,7 +504,8 @@
       "bodyCharsFirstEntry": 965,
       "from": "c9, c12",
       "meaning": "45 of the 64 bodies are already cut off and end with the generator's trim marker character (U+2026), and 62 of the 64 titles repeat the opening words of their own body, so a title adds no fact the body lacks"
-    }
+    },
+    "statedInProse": "the shipped digest is 61577 bytes over 326 lines and 61450 characters, carrying 64 entries"
   },
   "notCaptured": [
     {
@@ -507,8 +569,17 @@
   "joinContract": {
     "source": ".project/tasks/T001-measure-the-capture-and-the-digest.md, section Interface contract (quoted, not measured)",
     "returns": "{ state, findings[] }",
-    "states": ["joined", "captured-nothing", "no-diagnostics"],
-    "finding": ["text", "code?", "title?", "reason?"],
+    "states": [
+      "joined",
+      "captured-nothing",
+      "no-diagnostics"
+    ],
+    "finding": [
+      "text",
+      "code?",
+      "title?",
+      "reason?"
+    ],
     "rules": [
       "reason is present only when the digest lacks the code the message carried",
       "code is absent only when the message carried none",
