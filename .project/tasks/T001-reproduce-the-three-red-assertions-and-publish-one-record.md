@@ -62,3 +62,22 @@ stage prints it, so a refusal says which rule failed rather than only that one d
 ## Log
 
 - 2026-11-14 — planned; no work started.
+- 2026-11-15 — verdict: pass. Landed at `415ba520` from the sidecar (`gsd-path-task/T001`) with a diff of
+  exactly the three declared paths. Coder build_T001 delivered `research/raw/m056-gate-stability.json`
+  (9,278 B) and `scripts/gate-stability-record.test.mjs` (35,702 B); I re-ran the receipts rather than
+  taking the report: default run 7 tests / 7 pass, the recording's sha256 `2e9aa96f742da5fd…` unchanged
+  before and after, `npx prettier --check` clean, `node --check` exit 0.
+  The coder contradicted my brief correctly: plain `npm run gate:fix-record` exits 2 with
+  `fix-record cannot derive the range it is held to - git log names no ship commit for M055`, not the
+  `nothing-examined` refusal I had promised. It recorded both — the plain run verbatim in
+  `archive.detail.plainRun`, and the M044-held run that does print `nothing-examined` — and I verified the
+  substitution myself: `node scripts/gate-integrity.mjs --check fix-record --milestone M044` reports
+  `examined 0 claim(s) in 3 task log(s) against 40 changed path(s)`, `nothing-examined`.
+  Two facts it surfaced that the plan did not carry: this head has four red assertions rather than three
+  (`T004` also reddens because the tree binds M056), and the verify sidecar had no `node_modules`, so only
+  `@angular/router` was copied in to satisfy the router-chunk read.
+  `gsd land-check` blocked this landing on a guard false positive — a task whose declared files are all new
+  has no base counterpart, so the novelty check could not run and refused. Repaired in
+  `build-guard.ts` (`baseComparable`), after which the only remaining blocker is this Log entry itself:
+  the landing commit was made before it existed. Repairing that means amending a landed commit, which the
+  ship validator reads for its `Base:` proof, so it is left as a recorded residual rather than done here.
