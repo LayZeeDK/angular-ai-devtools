@@ -127,3 +127,10 @@ Review depth: full
 Goal: the claims list both suites read is written by the milestone that owns it, and neither recording moves on a default run.
 
 - T005 — Derive the claims record path from the milestone it describes: `CLAIMS_REL` becomes a derived path, the M056 claims list is captured and tracked, and both recordings are re-taken in the worktree that holds them.
+
+## Wave 6 — the head the record pins
+
+Review depth: full
+Goal: the record is green at the head that carries it, not only at the head that captured it.
+
+- T006 — Hold the record to a range its own commit cannot move: `workRange` answers `base..HEAD`, so the commit storing the record moves the head it pins; derive at a head its own commit cannot move and pin the choice with a mutant.
