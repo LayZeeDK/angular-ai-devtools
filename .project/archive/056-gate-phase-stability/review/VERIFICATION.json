@@ -1,6 +1,6 @@
 {
-  "mode": "structure",
-  "at": "2026-11-15T12:16:20.680Z",
+  "mode": "ship",
+  "at": "2026-11-15T16:35:17.797Z",
   "pass": true,
   "blockers": [],
   "findings": [
@@ -207,6 +207,90 @@
       "kind": "structure",
       "ok": true,
       "detail": "3 copies in step"
+    },
+    {
+      "id": "verdict:di-doctor",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T22:04:27.489Z"
+    },
+    {
+      "id": "verdict:error-explainer",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T22:08:54.908Z"
+    },
+    {
+      "id": "verdict:extension-panel",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T20:50:15.439Z"
+    },
+    {
+      "id": "verdict:interop",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T21:12:15.375Z"
+    },
+    {
+      "id": "verdict:model-init",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T21:25:39.619Z"
+    },
+    {
+      "id": "verdict:signal-provenance",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T22:11:15.953Z"
+    },
+    {
+      "id": "verdict:stale-view",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T22:13:41.343Z"
+    },
+    {
+      "id": "verdict:state",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T20:38:45.575Z"
+    },
+    {
+      "id": "verdict:attached",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T20:57:57.711Z"
+    },
+    {
+      "id": "verdict:coexist",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T21:15:27.751Z"
+    },
+    {
+      "id": "verdict:extension-enabled",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T20:59:50.938Z"
+    },
+    {
+      "id": "verdict:live-reads",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T20:55:24.995Z"
+    },
+    {
+      "id": "verdict:read-only",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T20:54:08.367Z"
+    },
+    {
+      "id": "verdict:setup",
+      "kind": "evidence",
+      "ok": true,
+      "detail": "newest is verified at 2026-11-07T20:52:06.147Z"
     }
   ]
 }

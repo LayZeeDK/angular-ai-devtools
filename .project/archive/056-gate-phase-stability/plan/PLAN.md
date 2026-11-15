@@ -24,11 +24,24 @@ Project verify: `npm run check && npm test`
 
 ## Intent coverage
 
-- SC1 — `npm run gate:fix-record` exits 0 on an archived tree, examining the archived logs.
-- SC2 — a tree empty in both places still refuses `nothing-examined`.
-- SC3 — `scripts/gate-integrity.test.mjs` passes with the ship commit present; the recording does not move.
-- SC4 — a milestone whose numerically previous id is unshipped derives a range and names its base.
-- SC5 — three mutants, each naming the defect it breaks.
+| Criterion | Task | Acceptance |
+| --------- | ---- | ---------- |
+| SC1 | T001 | AC1 |
+| SC1 | T002 | AC1 |
+| SC1 | T004 | AC4 |
+| SC1 | T005 | AC4 |
+| SC1 | T006 | AC5 |
+| SC1 | T007 | AC1 |
+| SC2 | T002 | AC2 |
+| SC3 | T003 | AC1 |
+| SC3 | T004 | AC4 |
+| SC3 | T005 | AC2 |
+| SC3 | T006 | AC3 |
+| SC3 | T007 | AC4 |
+| SC4 | T001 | AC2 |
+| SC4 | T003 | AC3 |
+| SC5 | T002 | AC3 |
+| SC5 | T003 | AC4 |
 
 ## Prohibitions
 

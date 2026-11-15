@@ -1959,8 +1959,8 @@ recording re-derives identically before and after its own ship commit exists.
 Depends on: [M044]
 Programme: Generation 3 · Batch: 3 · Group: command-line
 Surfaces: command-line gate, research notes
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/056-gate-phase-stability
 Integrated: null
 
 Scope: in
