@@ -45,11 +45,9 @@ The surface renders the join and nothing else. Adding a route stales every suite
 
 ## Intent coverage
 
-| Criterion | Acceptance |
-| --------- | ---------- |
-| SC3 | AC2 |
-| SC4 | AC1 |
-| SC5 | AC4 |
+- SC3
+- SC4
+- SC5
 
 ## Verify
 

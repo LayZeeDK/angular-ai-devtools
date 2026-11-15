@@ -2,6 +2,8 @@
 
 ## Config
 
+Project verify: `npm run check && npm test`
+
 - max_review_cycles: 3
 - wave_budget: none
 - review_panel: off
@@ -49,9 +51,18 @@
 
 ## Surface contract
 
-`consoleJoin(diagnostics, digest)` returns `{ state, findings[] }` where each finding is
-`{ text, code?, title?, reason? }` and `state` is one of `joined`, `captured-nothing`, `no-diagnostics`.
-The surface renders `findings` and `state` and nothing else.
+### panel — T003
+
+Entry: the panel route `console`, rendered by `panel-console.ts` through the `console` key in `panel-demo.ts` `LOADERS`.
+
+States: `joined`; `captured-nothing`; `no-diagnostics`.
+
+Walkthrough:
+1. Open the panel at route `console` against a page that logged `NG0100`; the surface lists one finding naming the digest title for that code.
+2. Reload against a page that logged nothing; the surface says the page captured nothing rather than showing an empty list.
+3. Log a message carrying a code the digest lacks; the surface names that code as unmatched instead of counting it.
+
+Criteria: SC3, SC4, SC5
 
 ## Wave 1 — measure what the capture and the digest actually state
 

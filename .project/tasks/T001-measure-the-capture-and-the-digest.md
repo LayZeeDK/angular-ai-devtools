@@ -37,9 +37,7 @@ Publishes `research/raw/m045-console-shapes.json` with `capture.entryPoints[]`, 
 
 ## Intent coverage
 
-| Criterion | Acceptance |
-| --------- | ---------- |
-| SC1 | AC2 |
+- SC1
 
 ## Verify
 

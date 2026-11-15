@@ -40,12 +40,9 @@ The panel must say, per captured diagnostic, what the digest says about the code
 
 ## Intent coverage
 
-| Criterion | Acceptance |
-| --------- | ---------- |
-| SC1 | AC1 |
-| SC1 | AC4 |
-| SC2 | AC2 |
-| SC3 | AC3 |
+- SC1
+- SC2
+- SC3
 
 ## Verify
 

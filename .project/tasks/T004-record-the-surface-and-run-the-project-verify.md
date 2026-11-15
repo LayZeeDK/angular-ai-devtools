@@ -39,9 +39,7 @@ The surface's behaviour is recorded so a later change cannot drift silently, and
 
 ## Intent coverage
 
-| Criterion | Acceptance |
-| --------- | ---------- |
-| SC5 | AC2 |
+- SC5
 
 ## Verify
 
