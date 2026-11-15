@@ -4,9 +4,9 @@ title: Read the archived tasks when the live directory is empty
 wave: 2
 deps:
   - T001
-status: pending
+status: done
 agent: build_T002
-base: null
+base: 68936d1ded5ef9f4d4477faf9ed96cef51d13efd
 worktree: null
 task_branch: null
 files:

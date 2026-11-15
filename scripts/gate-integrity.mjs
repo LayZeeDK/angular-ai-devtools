@@ -51,7 +51,12 @@
 //                      `--root`/`--milestone`/`--range`/`--tasks`/`--claims` supply the inputs, and
 //                      `--json` prints the two reports instead of the reading. `gate(input)` is the
 //                      same run without printing, so a suite can hold it to an exit code without
-//                      spawning a second process.
+//                      spawning a second process. With no `--tasks`, the fix-record stage reads
+//                      `defaultTaskInput(root, milestone)`: the live `.project/tasks` while it holds
+//                      task files, the milestone's own archived `tasks/` once the archive move has
+//                      emptied it, and the live directory again when neither carries a task file - so
+//                      an emptied tree still refuses `nothing-examined` rather than passing over
+//                      nothing.
 //
 // A claim, and what is not one. `checkFixRecord` reads every path-like token in a task's `## Log`.
 // With `claims: 'log'` - the export's default, and what T002's tests were written against - each
@@ -1497,6 +1502,113 @@ export function checkFixRecord(input = {}) {
   };
 }
 
+// ---------------------------------------------- the task input the stage reads ----
+//
+// The archive move relocates `.project/tasks` into `.project/archive/<NNN>-<slug>/tasks`, so a stage
+// whose default input is the live directory reads an empty directory on every tree the move has just
+// shipped and refuses `nothing-examined` over task logs that are still there, one directory to the
+// side. The refusal is right and stays (SC2, N1): a tree with no task file anywhere is exactly the
+// tree it exists for. What is wrong is the default, so the default answers the live directory while a
+// milestone is being built, that milestone's own archived `tasks/` once the move has emptied it, and
+// the live directory again when neither carries a task file.
+
+/** The live task directory the archive move empties. */
+const LIVE_TASKS = join(PROJECT, 'tasks');
+
+/**
+ * Whether one directory holds a task file: a `.md` file directly inside it. A directory that exists
+ * and holds no `.md` file is empty for this measurement (E9), and a name that is not a directory at
+ * all - absent, or a file - is empty too.
+ *
+ * @param {string} dir
+ * @returns {boolean}
+ */
+function holdsTaskFile(dir) {
+  if (!existsSync(dir)) return false;
+  try {
+    return readdirSync(dir, { withFileTypes: true }).some(
+      (entry) => entry.isFile() && entry.name.endsWith('.md'),
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The number a milestone id names, spelled the way an archive directory spells it: `M056`, `m056`,
+ * `M56`, `056` and `M0056` are one milestone, so a caller holding any of those spellings resolves the
+ * same archive (E4). Answers null for anything that names no milestone number, so a caller that passes
+ * a milestone name or nothing borrows no archive at all.
+ *
+ * @param {unknown} milestone
+ * @returns {string | null}
+ */
+function milestoneDigits(milestone) {
+  const text = typeof milestone === 'string' ? milestone.trim() : '';
+  const digits = /^[Mm]?(\d{1,4})$/.exec(text)?.[1];
+  if (digits === undefined) return null;
+  const number = Number(digits);
+  return Number.isSafeInteger(number) && number > 0
+    ? String(number).padStart(3, '0')
+    : null;
+}
+
+/**
+ * The milestone's own archived `tasks/`, project-relative, when the archive holds it and it carries a
+ * task file. The archive directories are matched by the number the milestone id names - `<NNN>-<slug>`
+ * - rather than by a slug written here, because the slug belongs to that milestone's own move; matching
+ * directories are read in sorted order so the answer is the same on every run. A milestone with no
+ * archive answers nothing, so `M999` borrows no neighbour's logs (E4).
+ *
+ * @param {string} root
+ * @param {unknown} milestone
+ * @returns {string | null}
+ */
+function archivedTasks(root, milestone) {
+  const digits = milestoneDigits(milestone);
+  if (digits === null) return null;
+  const archive = join(root, PROJECT, 'archive');
+  if (!existsSync(archive)) return null;
+  /** @type {string[]} */
+  let names;
+  try {
+    names = readdirSync(archive, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .filter(
+        (name) => Number(/^(\d+)-/.exec(name)?.[1] ?? 'NaN') === Number(digits),
+      )
+      .sort();
+  } catch {
+    return null;
+  }
+  for (const name of names) {
+    const relative = join(PROJECT, 'archive', name, 'tasks');
+    if (holdsTaskFile(join(root, relative))) return displayPath(relative);
+  }
+  return null;
+}
+
+/**
+ * The task directory the fix-record stage reads when `--tasks` names none (SC1, SC2; E1-E4, E9): the
+ * live directory when it holds task files, otherwise the milestone's own archived `tasks/`, otherwise
+ * the live directory again - so a tree empty in both places still refuses `nothing-examined` rather
+ * than passing over nothing. Project-relative, in this repository's spelling, which is the shape
+ * `checkFixRecord`'s `tasks` input already accepts.
+ *
+ * @param {string} root
+ * @param {unknown} milestone
+ * @returns {string}
+ */
+export function defaultTaskInput(root, milestone) {
+  const base = resolve(
+    typeof root === 'string' && root !== '' ? root : process.cwd(),
+  );
+  if (holdsTaskFile(join(base, LIVE_TASKS))) return displayPath(LIVE_TASKS);
+  const archivedDir = archivedTasks(base, milestone);
+  return archivedDir ?? displayPath(LIVE_TASKS);
+}
+
 // -------------------------------------------------------------- the gate ----
 //
 // The two checks as one command, so a red check reaches a CI or a ship step as a refusal rather than as
@@ -1624,19 +1736,22 @@ export function gate(input = {}) {
       return { code: 2, ok: false, lines, archive, fix, range: '' };
     }
     range = derived.range;
+    // An explicit `--tasks` is the caller's own answer and stays authoritative; with none, the stage
+    // reads the task directory the milestone's own tree holds its logs in.
+    const tasks =
+      typeof input.tasks === 'string' && input.tasks !== ''
+        ? input.tasks
+        : defaultTaskInput(root, milestone ?? '');
     fix = checkFixRecord({
       root,
       range,
-      tasks:
-        typeof input.tasks === 'string' && input.tasks !== ''
-          ? input.tasks
-          : join(PROJECT, 'tasks'),
+      tasks,
       claims,
     });
     lines.push(
       `gate-integrity: fix-record ${fix.ok ? 'clean' : 'refused'} - examined ${String(
         fix.examined,
-      )} claim(s) in ${String(fix.tasksExamined)} task log(s) against ${String(
+      )} claim(s) in ${String(fix.tasksExamined)} task log(s) of ${tasks} against ${String(
         fix.range.changed,
       )} changed path(s) of ${range} (${derived.mode === 'building' ? 'the range this milestone has written so far' : derived.mode === 'given' ? 'the range given' : 'the range this milestone shipped'}; claims: ${claims})`,
     );
