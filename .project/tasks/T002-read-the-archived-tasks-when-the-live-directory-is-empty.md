@@ -68,3 +68,17 @@ stage prints it, so a refusal says which rule failed rather than only that one d
 ## Log
 
 - 2026-11-14 — planned; no work started.
+- 2026-11-15 - verdict: pass. Landed at `6d450aa7` from `gsd-path-task/T002`; diff is the two declared paths.
+  `defaultTaskInput(root, milestone)` reads the live tasks directory when it holds `.md` files, else the
+  milestone's archived `tasks/`, else the live path so `nothing-examined` still fires; an explicit `--tasks`
+  wins (asserted through `gate()`), and the stage now prints the directory it read.
+  Fixture suite 7/7: E1 live wins, E2 archived answers when live is emptied, E3 no task file anywhere refuses,
+  E4 five spellings of 44 reach one archive and M999 borrows nothing, E9 an archived `tasks/` holding no `.md`
+  counts as empty, plus an end-to-end SC1 case - exit 0 over 1 claim in 1 archived task log.
+  `npm run gate:fix-record` does NOT exit 0 at this head, and cannot from these files: milestone M056 and no
+  `ship: M055` in `git log`, so `workRange` refuses before the task directory is consulted. That is SC4/wave 3.
+  `npm run check` is red only at that same step; every earlier stage is green.
+  Deviation 4 recorded: no third mutant, because the interface contract fixes `defaultTaskInput(root, milestone)`
+  with no mutant parameter; the two existing mutants are unchanged.
+  The new suite adds 20 `.project` references to the archive-path scan (143 suites / 178 references / 17 live),
+  all namings or comments, 0 findings; the check's code and classification are untouched.
