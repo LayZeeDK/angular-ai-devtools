@@ -29,7 +29,8 @@ describe('App', () => {
  * after that, M036 appends `resource` after that, M038 appends `linked-state`, M039 appends
  * `render-phase` after that, M040 appends `performance` last, M041 appends `navigation` after
  * that, M042 appends `error-boundary` after that and M043 appends `stability` after that, the same
- * way.
+ * way. M045 appends `console` after `stability`, which is why the count moves from twenty-four to
+ * twenty-five.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -58,6 +59,7 @@ describe('the route table', () => {
       'navigation', // M041 SC1-3 surface: a navigation's stage, the holder it cannot name, its terminal and its loads
       'error-boundary', // M042 SC1-4 surface: the declaring and throwing components apart, the error, the fallback, each named absence
       'stability', // M043 SC5 surface: the state and its emission, the settle time or its absence, the repeated work, apart
+      'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic, the unmatched code named
     ]);
     expect(appRoutes.filter((route) => route.path === 'lint')).toHaveLength(1);
 
@@ -174,5 +176,15 @@ describe('the route table', () => {
     expect(stability.data?.['surface']).toBe('stability');
     // Its own name, so a copy of another surface's route cannot stand in for it.
     expect(stability.data?.['surface']).not.toBe('error-boundary');
+
+    const consoleRoute = appRoutes.find((route) => route.path === 'console');
+    expect(consoleRoute?.component).toBeUndefined();
+    if (consoleRoute?.loadComponent === undefined) {
+      throw new Error('the console surface must load lazily');
+    }
+    expect(await consoleRoute.loadComponent()).toBe(PanelDemoComponent);
+    expect(consoleRoute.data?.['surface']).toBe('console');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(consoleRoute.data?.['surface']).not.toBe('stability');
   });
 });

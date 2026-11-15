@@ -3396,6 +3396,16 @@ const SUITE_DIFF_REASONS = {
     'wholly added at this head: M056 T001 spawned the three refusing commands and published what each printed, a reading the measured commit carries no file to edit',
   'scripts/console-join.test.mjs':
     'wholly added at this head: M045 T002 pins the join of a captured diagnostic to the shipped digest by the code it carries — one finding per diagnostic in capture order, a code the digest lacks named rather than counted, a message with no code saying so, and an empty capture kept distinct from no diagnostics — with five mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit',
+  'apps/angular-ai-devtools/src/app/app.spec.ts':
+    'the ordered route-table pin gained the `console` surface M045 T003 appends last, and the lazy-component / route-data / own-name block for it; every earlier path is unchanged and no assertion line was removed',
+  'apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts':
+    'the chat suite’s two ordered route-table pins gained the `console` surface M045 T003 appends last — in the full path list and in the lazy list — and the per-surface loop names it; no earlier path was reordered and no assertion line was removed',
+  'apps/angular-ai-devtools/src/app/page-picker.component.spec.ts':
+    'the picker suite’s lazy-path list gained the `console` surface M045 T003 appends last, so a route appended without registering still reddens here; the comment above it says so, and no assertion line was removed',
+  'apps/angular-ai-devtools/src/app/panel-demo.spec.ts':
+    'the demo suite gained the M045 T003 console pin: its route, its sample fact held to the shipped digest and to the join, and its rendered lines held to E7 — no cause, no element, no remedy, no count and no empty list; the earlier surfaces’ pins are unchanged and no assertion line was removed',
+  'scripts/console-panel-render.test.mjs':
+    'wholly added at this head: M045 T003 pins the console pane’s rendering of the join’s `{ state, findings[] }` — captured-nothing as a statement, an unmatched code named rather than counted, and no cause, element, remedy or unattributed wording — with six mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit',
 };
 
 /** The driven-check recording, measured once in the root `before` hook below. */

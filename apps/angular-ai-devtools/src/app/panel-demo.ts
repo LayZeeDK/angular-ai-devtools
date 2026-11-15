@@ -51,6 +51,7 @@ const LOADERS: Record<
   navigation: () => import('./panel-navigation') as never,
   'error-boundary': () => import('./panel-error-boundary') as never,
   stability: () => import('./panel-stability') as never,
+  console: () => import('./panel-console') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -365,6 +366,34 @@ export const FACTS: Record<string, unknown> = {
     ],
     version: '22.2.2',
     coreVersion: '22.2.2',
+  },
+  // The join's own answer (`extension/console-join.js`, T002) for the capture T001 measured
+  // (`research/raw/m045-console-shapes.json`). Each entry is written in the payload shape
+  // `captureErrorPayload` dispatches — the record's `capture.payload.keys` are `code`, `message`,
+  // `component` and `timestamp` — and only `code` and `message` reach the join, so `component` and
+  // `timestamp` are the nulls and the order the capture leaves when it resolves nothing. `NG0100` is
+  // a digest code and the title below is the digest's own ("Expression Changed After Checked");
+  // `NG04002` is a code the shipped `/NG0\d{3,}/` regex extracts and the digest does not carry, which
+  // is why that finding names it and carries `no-digest-entry`; and the third message carried no code
+  // at all, which the join reports in the finding's own text. No cause, no element and no remedy is
+  // written here because the capture records none of the three. `panel-demo.spec.ts` holds this fact
+  // to the shipped digest — the title to the entry the code names, the reason to the code the digest
+  // lacks — so a fact that drifted from the digest reddens there.
+  console: {
+    state: 'joined',
+    findings: [
+      {
+        text: 'NG0100: Expression has changed after it was checked.',
+        code: 'NG0100',
+        title: 'Expression Changed After Checked',
+      },
+      {
+        text: 'NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist',
+        code: 'NG04002',
+        reason: 'no-digest-entry',
+      },
+      { text: 'the app failed (this message carried no code)' },
+    ],
   },
 };
 

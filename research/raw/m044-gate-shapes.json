@@ -8,8 +8,8 @@
   "archiveReferences": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps",
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
-    "filesExamined": 275,
-    "suitesExamined": 144,
+    "filesExamined": 277,
+    "suitesExamined": 145,
     "examined": 180,
     "movedSubtrees": [
       "build",
@@ -880,7 +880,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3589,
+        "line": 3599,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -2011,9 +2011,61 @@
       "named": "d94502d1",
       "commit": "d94502d174aff31b0b1ebbab200d5e47939dec39"
     },
-    "examined": 202,
-    "filesListed": 553,
+    "examined": 203,
+    "filesListed": 555,
     "differing": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 13,
+        "removedLines": 1,
+        "addedAssertionLines": 4,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "the ordered route-table pin gained the `console` surface M045 T003 appends last, and the lazy-component / route-data / own-name block for it; every earlier path is unchanged and no assertion line was removed"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 3,
+        "removedLines": 0,
+        "addedAssertionLines": 0,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "the chat suite’s two ordered route-table pins gained the `console` surface M045 T003 appends last — in the full path list and in the lazy list — and the per-surface loop names it; no earlier path was reordered and no assertion line was removed"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/page-picker.component.spec.ts",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 5,
+        "removedLines": 3,
+        "addedAssertionLines": 1,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "the picker suite’s lazy-path list gained the `console` surface M045 T003 appends last, so a route appended without registering still reddens here; the comment above it says so, and no assertion line was removed"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 218,
+        "removedLines": 0,
+        "addedAssertionLines": 29,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "the demo suite gained the M045 T003 console pin: its route, its sample fact held to the shipped digest and to the join, and its rendered lines held to E7 — no cause, no element, no remedy, no count and no empty list; the earlier surfaces’ pins are unchanged and no assertion line was removed"
+      },
       {
         "file": "scripts/autonomy-gaps.test.mjs",
         "status": "M",
@@ -2039,6 +2091,19 @@
         "droppedAssertionLines": 0,
         "recutAssertions": [],
         "reason": "wholly added at this head: M045 T002 pins the join of a captured diagnostic to the shipped digest by the code it carries — one finding per diagnostic in capture order, a code the digest lacks named rather than counted, a message with no code saying so, and an empty capture kept distinct from no diagnostics — with five mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "scripts/console-panel-render.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 901,
+        "removedLines": 0,
+        "addedAssertionLines": 78,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M045 T003 pins the console pane’s rendering of the join’s `{ state, findings[] }` — captured-nothing as a statement, an unmatched code named rather than counted, and no cause, element, remedy or unattributed wording — with six mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit"
       },
       {
         "file": "scripts/docs-audit-disposition.test.mjs",
@@ -2070,7 +2135,7 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 4482,
+        "addedLines": 4492,
         "removedLines": 0,
         "addedAssertionLines": 235,
         "removedAssertionLines": 0,
@@ -2148,32 +2213,32 @@
       }
     ],
     "counts": {
-      "differing": 10,
-      "edited": 6,
-      "added": 4,
+      "differing": 15,
+      "edited": 10,
+      "added": 5,
       "removedAssertionLines": 1,
       "recutAssertionLines": 1,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 458
+      "addedAssertionLines": 570
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
   "wholeTree": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps src .claude/skills .commandcode/skills",
-    "examined": 202,
-    "filesListed": 553,
+    "examined": 203,
+    "filesListed": 555,
     "suites": {
-      "scripts": 99,
+      "scripts": 100,
       "extension": 11,
       "apps": 34,
       "src": 2,
       "skills": 56,
-      "total": 202
+      "total": 203
     },
     "declarations": {
-      "tests": 2418,
-      "describes": 293,
-      "total": 2711
+      "tests": 2436,
+      "describes": 296,
+      "total": 2732
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -2247,6 +2312,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-15T18:46:23.166Z"
+    "at": "2026-11-15T19:38:41.595Z"
   }
 }

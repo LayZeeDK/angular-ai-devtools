@@ -411,9 +411,9 @@ describe('PagePickerComponent', () => {
     expect(route.component).toBeUndefined();
     expect(await route.loadComponent()).toBe(PagePickerComponent);
     // The picker's own reading of the table is the list of lazy paths. It is re-cut whenever a
-    // surface is appended — M039 adds `render-phase` after this one and M040 adds `performance` —
-    // so a route that quietly stopped being lazy, or a surface appended without registering,
-    // reddens here as well as in the app suite rather than going unread.
+    // surface is appended — M039 adds `render-phase` after this one, M040 adds `performance` and
+    // M045 adds `console` last — so a route that quietly stopped being lazy, or a surface appended
+    // without registering, reddens here as well as in the app suite rather than going unread.
     const lazy = appRoutes
       .filter((candidate) => candidate.loadComponent !== undefined)
       .map((candidate) => candidate.path);
@@ -423,6 +423,7 @@ describe('PagePickerComponent', () => {
     expect(lazy).toContain('navigation');
     expect(lazy).toContain('error-boundary');
     expect(lazy).toContain('stability');
+    expect(lazy).toContain('console');
     expect(lazy).toEqual([
       'interop',
       'chat',
@@ -443,6 +444,7 @@ describe('PagePickerComponent', () => {
       'navigation',
       'error-boundary',
       'stability',
+      'console',
     ]);
   });
 });
