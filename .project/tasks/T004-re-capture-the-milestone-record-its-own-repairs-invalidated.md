@@ -37,7 +37,7 @@ this suite byte-identical and reporting the three failures.
 - Name every changed assertion in the Log with what it asserted before and after. An assertion may move; it may
   not become weaker than the property it guards.
 
-## ## Interface contract
+## Interface contract
 
 `scripts/gate-integrity.mjs` exports the seams the gate drives: `checkArchivePaths({ root, milestone })`,
 `checkFixRecord({ root, range, tasks })`, `defaultTaskInput(root, milestone): string` and
