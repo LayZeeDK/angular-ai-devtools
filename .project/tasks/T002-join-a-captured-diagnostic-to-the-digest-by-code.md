@@ -6,7 +6,7 @@ deps:
   - T001
 status: pending
 agent: null
-base: ee4bfbd2a364c33a735564b657029401363bf1fd
+base: null
 worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
