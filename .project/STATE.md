@@ -5,7 +5,7 @@ milestone: console-read
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M057
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -943,3 +943,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-15 — plan — planning started
 - 2026-11-15 — plan — plan approved
 - 2026-11-15 — build — build started
+- 2026-11-15 — build — build blocked: gate-integrity is red at this head and the plan declares none of the files its suites feed
