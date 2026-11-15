@@ -121,3 +121,8 @@ failures it recorded, and names each moved field with its cause. Its suite alrea
 Review depth: full
 Goal: the milestone's own record agrees with the tree it ships, and the fields that moved are named.
 
+## Wave 5 — the claims record path it describes
+
+Review depth: full
+
+- T005 — Derive the claims record path from the milestone it describes: `CLAIMS_REL` becomes a derived path, the M056 claims list is captured and tracked, and both recordings are re-taken in the worktree that holds them.
