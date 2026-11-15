@@ -1,8 +1,9 @@
 ---
 id: T004
-title: Re-capture the milestone record its own repairs invalidated
+title: Move the milestone record and its pins onto the repaired state
 wave: 4
 deps:
+  - T002
   - T003
 status: pending
 agent: null
@@ -14,31 +15,29 @@ files:
   - scripts/gate-stability-record.test.mjs
 ---
 
-# T004 — Re-capture the milestone record its own repairs invalidated
+# T004 — Move the milestone record and its pins onto the repaired state
 
 ## Context
 
-`research/raw/m056-gate-stability.json` recorded the three failures this milestone set out to remove, so
-T002 and T003 turned its own subject green and left the record stale. Measured at `afe7bcd3`, its suite
-reports:
-
-```
-the recording disagrees with this run's derivation at 3 value(s) (re-capture with M056_CAPTURE=1 after naming what moved):
-archive.exitCode: 1 -> 0; fixRecord.exitCode: 1 -> 0; predecessor.exitCode: 2 -> 0
-```
-
-That message names its own remedy. This task takes it, and states which fields moved and why, because a
-re-capture that silently follows the code records nothing.
+T001 recorded three failures: `nothing-examined`, a red suite, and `no-ship-commit-for-M055`. T002 and T003
+removed all three, so the record is stale and — measured at `afe7bcd3` — the suite pins the red state itself:
+`refusal === 'nothing-examined'` at `:823`, `exitCode !== 0` at `:828` and `:864`, `exitCode === 2` at `:900`,
+plus hard-coded `verdict` and `why` prose. A capture alone cannot pass; a previous attempt proved it by leaving
+this suite byte-identical and reporting the three failures.
 
 ## Approach
 
-- Run `set "M056_CAPTURE=1"&& node --test scripts/gate-stability-record.test.mjs` once.
-- In the Log, name every moved field with its cause: each exit code moved because the repair removed the
-  refusal the field recorded, and any field that moved for another reason must say so.
-- Leave the suite's assertions untouched: the sections keep their shape and their commands, and only the
-  recorded values follow the tree.
+- Re-capture the recording once with `set "M056_CAPTURE=1"&& node --test scripts/gate-stability-record.test.mjs`.
+- Rewrite the four pins as assertions about the repaired state, each keeping its subject: the three sections
+  now record `exitCode: 0`, `refusal: null`, and a passing summary line the record carries.
+- Replace the hard-coded `verdict`/`why` prose with values the capture writes, so the record cannot claim a
+  state the tree does not have.
+- Fix the `predecessor.refusal` fallback that reports `range-not-derivable` on a clean pass: a passing run has
+  no refusal class, and the record must say `null`.
+- Name every changed assertion in the Log with what it asserted before and after. An assertion may move; it may
+  not become weaker than the property it guards.
 
-## Interface contract
+## ## Interface contract
 
 `scripts/gate-integrity.mjs` exports the seams the gate drives: `checkArchivePaths({ root, milestone })`,
 `checkFixRecord({ root, range, tasks })`, `defaultTaskInput(root, milestone): string` and
@@ -52,20 +51,23 @@ stage prints it, so a refusal says which rule failed rather than only that one d
 
 ## Edges
 
-None. This task re-records measurements T001 owns; it adds no edge of its own.
+- E5
+- E6
 
 ## Verify
 
 ```bash
-node --check scripts/gate-stability-record.test.mjs && node --test scripts/gate-stability-record.test.mjs && npm run check
+node --check scripts/gate-stability-record.test.mjs && node --test scripts/gate-stability-record.test.mjs && npm run check && npm test
 ```
 
 ## Acceptance criteria
 
-1. `node --test scripts/gate-stability-record.test.mjs` reports 0 failures at this head, with the three exit codes recording 0.
+1. `node --test scripts/gate-stability-record.test.mjs` reports 0 failures, with the three exit codes recording 0 and every refusal recording `null`.
 2. A default run after the capture leaves the recording byte-identical, so the armed write is the only writer.
-3. The Log names each moved field and its cause, and no assertion, command or section shape was changed to make the capture agree.
+3. Each of the four former red-state pins is named in the Log with its before and after, and none is deleted without a replacement that guards the same property.
+4. `npm test` passes on this branch, which is the evidence M044 lacked: the record and the gate agree at the head that carries the milestone's own work.
+5. Held-out edges E5 and E6 are each exercised by `scripts/gate-stability-record.test.mjs`, and each fails when its repair is reverted.
 
 ## Log
 
-- 2026-11-15 — planned; no work started.
+- 2026-11-15 — re-specified; the first attempt proved the capture alone cannot pass. No work started.
