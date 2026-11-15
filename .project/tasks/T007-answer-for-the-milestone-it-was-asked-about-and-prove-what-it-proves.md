@@ -43,7 +43,10 @@ before acceptance (`.commandcode` notes section 29 holds the evidence).
   red on the next commit.
 
 ## Interface contract
-{contract}
+`scripts/gate-integrity.mjs` exports the seams the gate drives: `checkArchivePaths({ root, milestone })`,
+`checkFixRecord({ root, range, tasks })`, `defaultTaskInput(root, milestone): string` and
+`workRange(root, milestone): { range, base, head, mode, error }`. `mode` names the rule that answered and the
+stage prints it, so a refusal says which rule failed rather than only that one did.
 
 ## Approach
 
