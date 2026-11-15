@@ -3288,6 +3288,166 @@ test('AC7: a log token is a claim only where its task declares it, and claims: l
   );
 });
 
+test('AC7: a declared suite or recording the range did not change is a pin, and an undeclared one is never promoted', (t) => {
+  // M035's range carries no m031-field-state.json, and that recording is byte-identical across it. A
+  // task that declares the recording and names it in its Log is pinning it, not claiming the range
+  // changed it.
+  const PINNED_PATH = 'research/raw/m031-field-state.json';
+  const range = shipRange({ root: ROOT, milestone: '035' });
+  assert.equal(range.error, '', `M035's range must derive: ${range.error}`);
+  const pinned = {
+    id: 'T904',
+    file: 'fixture/T904-pin.md',
+    text: [
+      '---',
+      'id: T904',
+      'files:',
+      `  - ${PINNED_PATH}`,
+      '---',
+      '',
+      '## Log',
+      `- the gate pins \`${PINNED_PATH}\` while measuring the tree fact`,
+      '',
+    ].join('\n'),
+  };
+  const declared = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks: [pinned],
+    claims: 'declared',
+  });
+  assert.deepEqual(
+    declared.findings,
+    [],
+    `a declared path the range did not change must not be a finding: ${JSON.stringify(declared.findings)}`,
+  );
+  assert.equal(
+    declared.pins.length,
+    1,
+    `the declared path must be recorded as one pin: ${JSON.stringify(declared.pins)}`,
+  );
+  assert.equal(declared.pins[0]?.file, PINNED_PATH);
+  assert.equal(declared.pins[0]?.task, 'T904');
+  assert.equal(
+    declared.pins[0]?.byteIdentical,
+    true,
+    'the pin records the reading that satisfied it, not the range name list',
+  );
+  assert.equal(
+    declared.claims.length,
+    0,
+    'a pin is not also counted as a claim held against the range',
+  );
+  assert.ok(
+    declared.examined > 0,
+    'a pin is an input the check examined, so the run cannot report examined 0',
+  );
+
+  // The same token with `claims: 'log'`: every path-like token is a claim, so the refusal still fires.
+  const logged = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks: [pinned],
+    claims: 'log',
+  });
+  assert.equal(logged.pins.length, 0, 'log mode promotes no token to a pin');
+  assert.equal(logged.claims.length, 1);
+  assert.equal(logged.findings.length, 1);
+  assert.equal(logged.findings[0]?.file, PINNED_PATH);
+
+  // A token the task does not declare is a mention, and never a pin, even when it is byte-identical.
+  const undeclared = {
+    id: 'T906',
+    file: 'fixture/T906-mention.md',
+    text: [
+      '---',
+      'id: T906',
+      'files:',
+      '  - scripts/gate-integrity.mjs',
+      '---',
+      '',
+      '## Log',
+      `- measuring \`${CLAIMED_PATH}\` while reading another milestone's log`,
+      '',
+    ].join('\n'),
+  };
+  // A control task declares a path M035's range does carry, so the run has a claim beside the
+  // mention and cannot refuse `nothing-examined` for the fixture's own shape.
+  const control = {
+    id: 'T907',
+    file: 'fixture/T907-change.md',
+    text: [
+      '---',
+      'id: T907',
+      'files:',
+      '  - .project/STATE.md',
+      '---',
+      '',
+      '## Log',
+      '- updated `.project/STATE.md` while the milestone landed',
+      '',
+    ].join('\n'),
+  };
+  const mentioned = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks: [undeclared, control],
+    claims: 'declared',
+  });
+  assert.equal(mentioned.pins.length, 0);
+  assert.equal(mentioned.mentions.length, 1);
+  assert.equal(mentioned.mentions[0]?.file, CLAIMED_PATH);
+  assert.deepEqual(mentioned.findings, []);
+
+  t.diagnostic(
+    `AC7 pin: declared ${String(declared.claimsExamined)} claim(s) and ${String(
+      declared.pinsExamined,
+    )} pin(s), 0 absent; log ${String(logged.claimsExamined)} claim(s), ${String(
+      logged.findings.length,
+    )} absent; undeclared ${String(mentioned.mentionsExamined)} mention(s), 0 pin(s)`,
+  );
+});
+
+test('AC7: a declared path the range changed is a claim, not a pin', (t) => {
+  const range = shipRange({ root: ROOT, milestone: '044' });
+  assert.equal(range.error, '', `M044's range must derive: ${range.error}`);
+  const changed = 'research/raw/m044-gate-shapes.json';
+  const task = {
+    id: 'T905',
+    file: 'fixture/T905-change.md',
+    text: [
+      '---',
+      'id: T905',
+      'files:',
+      `  - ${changed}`,
+      '---',
+      '',
+      '## Log',
+      `- wrote \`${changed}\` at this head`,
+      '',
+    ].join('\n'),
+  };
+  const report = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks: [task],
+    claims: 'declared',
+  });
+  assert.equal(
+    report.pins.length,
+    0,
+    'a path the range changed is a claim, never a pin',
+  );
+  assert.equal(report.claims.length, 1);
+  assert.equal(report.claims[0]?.inTheRange, true);
+  assert.deepEqual(report.findings, []);
+  t.diagnostic(
+    `AC7 claim: ${changed} is in M044's range, recorded as ${String(
+      report.claims[0]?.inTheRange,
+    )}, with ${String(report.pins.length)} pin(s)`,
+  );
+});
+
 /**
  * A value as JSON with its object keys in one order. A count map is compared by the counts it
  * carries, never by the order its keys were inserted: `sites` is built in the order the references

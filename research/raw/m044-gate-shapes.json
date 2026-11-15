@@ -10,7 +10,7 @@
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
     "filesExamined": 277,
     "suitesExamined": 145,
-    "examined": 180,
+    "examined": 184,
     "movedSubtrees": [
       "build",
       "intent",
@@ -27,14 +27,14 @@
     "counts": {
       "archived-by-the-move": 17,
       "deliberate-archive-read": 28,
-      "undecided": 135
+      "undecided": 139
     },
     "sites": {
-      "path": 9,
-      "comment": 64,
+      "path": 10,
+      "comment": 66,
       "segment": 62,
       "citation": 8,
-      "message": 32,
+      "message": 33,
       "pattern": 5
     },
     "references": [
@@ -880,7 +880,23 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3599,
+        "line": 3383,
+        "path": ".project/STATE.md",
+        "site": "path",
+        "class": "undecided",
+        "reason": "resolves to .project/STATE.md, and .project/STATE.md is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
+      },
+      {
+        "file": "scripts/gate-integrity.test.mjs",
+        "line": 3387,
+        "path": ".project/STATE.md",
+        "site": "message",
+        "class": "undecided",
+        "reason": "resolves to .project/STATE.md, and .project/STATE.md is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
+      },
+      {
+        "file": "scripts/gate-integrity.test.mjs",
+        "line": 3759,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1200,13 +1216,29 @@
       },
       {
         "file": "scripts/navigation-blocking.test.mjs",
-        "line": 2441,
+        "line": 2450,
         "path": ".project/STATE.md",
         "site": "segment",
         "class": "undecided",
         "reason": "resolves to .project/STATE.md, and .project/STATE.md is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies",
         "root": "CLAIM_ROOT",
         "construct": "call"
+      },
+      {
+        "file": "scripts/navigation-blocking.test.mjs",
+        "line": 2829,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/navigation-blocking.test.mjs",
+        "line": 2830,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
@@ -2135,9 +2167,9 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 4492,
+        "addedLines": 4652,
         "removedLines": 0,
-        "addedAssertionLines": 235,
+        "addedAssertionLines": 256,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2161,9 +2193,9 @@
         "file": "scripts/navigation-blocking.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 1018,
+        "addedLines": 1384,
         "removedLines": 4,
-        "addedAssertionLines": 61,
+        "addedAssertionLines": 72,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2219,7 +2251,7 @@
       "removedAssertionLines": 1,
       "recutAssertionLines": 1,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 570
+      "addedAssertionLines": 602
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
@@ -2236,9 +2268,9 @@
       "total": 203
     },
     "declarations": {
-      "tests": 2436,
+      "tests": 2441,
       "describes": 296,
-      "total": 2732
+      "total": 2737
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -2312,6 +2344,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-15T19:38:41.595Z"
+    "at": "2026-11-15T22:53:45.289Z"
   }
 }

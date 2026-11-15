@@ -81,13 +81,26 @@
 //                      names the milestone the examined logs belong to, so `of .project/tasks` cannot
 //                      be read as the logs of a milestone that has archived.
 //
-// A claim, and what is not one. `checkFixRecord` reads every path-like token in a task's `## Log`.
-// With `claims: 'log'` - the export's default, and what T002's tests were written against - each
-// token is a claim held against the range. With `claims: 'declared'`, a token is a claim only when
+// A claim, a pin, and what is neither. `checkFixRecord` reads every path-like token in a task's
+// `## Log`. With `claims: 'log'` - the export's default, and what T002's tests were written against -
+// each token is a claim held against the range. With `claims: 'declared'`, a token is judged only when
 // that task's own `files:` front matter lists the path; every other token is recorded in `mentions`
-// and printed rather than judged, because a log line narrates a milestone while a `files:` list
-// states what the task changed. The gate runs `declared`, so a mention of another milestone's path
-// (M035's `nx.json`, named in M044's own T001 log while measuring it) is named and not reported.
+// and printed rather than judged, because a log line narrates a milestone while a `files:` list states
+// what the task changed. The gate runs `declared`, so a mention of another milestone's path (M035's
+// `nx.json`, named in M044's own T001 log while measuring it) is named and not reported.
+//
+// A declared suite or recording the range did not change is a pin, not a claim: the plan asks a task
+// to declare the suites that pin a file it changes, so a Log names those suites and recordings even
+// though the task left them byte-identical. A pin is satisfied by reading the path's blob at both ends
+// of the range and finding them equal - both absent counts as equal, which is what an uncommitted new
+// suite or recording is across a range that has not carried it yet. A declared path that exists
+// nowhere - not as a suite, a recording, or a file in this tree - is a claim about a file nobody
+// carries and stays a finding; that is the fixture `scripts/gate-integrity-default-tasks.test.mjs`
+// holds. Only a declared path whose blobs differ
+// without the range naming it is a finding; a declared path the range did change is a claim and the
+// range carries it. An undeclared path is never promoted to a pin: `claims: 'log'` still holds every
+// token against the range, and that is the refusal the `declared` rule exists to keep available rather
+// than silence.
 //
 // Three mutants ship with the code, each a real branch rather than a decoration (T002's AC4, T003's
 // E8): `MUTANTS.archivePaths` removes the naming/read distinction so a live reference reads clean,
@@ -173,6 +186,33 @@ const PATH_BUILDERS = new Set(['dirname', 'join', 'normalize', 'resolve']);
 /** A token a `## Log` line names as a path, by the shape of the name rather than by a list. */
 const PATH_LIKE =
   /^[\w@.-]+(?:[/\\][\w@.-]+)*\.(?:mjs|cjs|js|mts|ts|json|md|html|css)$/;
+
+/** A suite path: the kind of file a task declares because it pins a reading rather than changes it. */
+const SUITE_PATH = /\.(?:test|spec)\.(?:mjs|cjs|js|mts|ts)$/;
+
+/** A recording path: the other kind of file a task pins, under the milestone's own raw directory. */
+const RECORDING_PATH = /^(?:\.\/)?research\/raw\/[\w.@-]+\.json$/;
+
+/**
+ * Whether a declared path may be a pin. A suite and a recording are readings a task holds in place,
+ * so they are pinnable on their own. Any other path is pinnable only when the tree carries it: a
+ * source file a task declares and leaves alone is a pin, while a path that exists nowhere is a claim
+ * about a file nobody carries and stays a finding. That is the distinction the fixture in
+ * `scripts/gate-integrity-default-tasks.test.mjs` states - its archived log writes a `.ts` path the
+ * range and the tree both lack, and that run must still refuse - while a new, uncommitted suite or
+ * recording is a pin the landing commit will carry.
+ *
+ * @param {string} root
+ * @param {string} path
+ * @returns {boolean}
+ */
+function isPinnable(root, path) {
+  return (
+    SUITE_PATH.test(path) ||
+    RECORDING_PATH.test(path) ||
+    existsSync(join(root, path))
+  );
+}
 
 // ---------------------------------------------------------------- helpers ----
 
@@ -1214,6 +1254,64 @@ function nameStatus(root, range) {
 }
 
 /**
+ * The two commits a `base..head` range names, or null when the string is not such a range. The pin
+ * reading compares the path's blob at each end, so a range this cannot split refuses the pin reading
+ * rather than guessing one.
+ *
+ * @param {string} range
+ * @returns {{ base: string, head: string } | null}
+ */
+function rangeEnds(range) {
+  const parts = range.split('..');
+  if (parts.length < 2) return null;
+  const base = parts[0]?.trim() ?? '';
+  const head = parts[parts.length - 1]?.trim() ?? '';
+  if (base === '' || head === '') return null;
+  return { base, head };
+}
+
+/**
+ * The blob one path resolves to at one commit, read with `git rev-parse <commit>:<path>`. A path the
+ * commit does not carry answers null, which is a reading rather than an error: an uncommitted file is
+ * absent at both ends of a range that has not carried it yet. Cached, because a Log may name a pinned
+ * path on many lines and each answer is the same read.
+ *
+ * @param {string} root
+ * @param {string} commit
+ * @param {string} path
+ * @param {Map<string, string | null>} cache
+ * @returns {string | null}
+ */
+function blobAt(root, commit, path, cache) {
+  const key = `${commit}\u0000${path}`;
+  if (cache.has(key)) return cache.get(key) ?? null;
+  const read = git(root, ['rev-parse', `${commit}:${path}`]);
+  const sha = read.ok ? read.out.trim() : null;
+  cache.set(key, sha);
+  return sha;
+}
+
+/**
+ * Whether one path is byte-identical across a range: its blob at the base equals its blob at the head,
+ * with two absences counting as equal. This is the pin's own reading, not the range's name list - a
+ * declared path the range did not change is a pin, and the bytes are what say so.
+ *
+ * @param {string} root
+ * @param {string} range
+ * @param {string} path
+ * @param {Map<string, string | null>} cache
+ * @returns {boolean}
+ */
+function byteIdenticalAcross(root, range, path, cache) {
+  const ends = rangeEnds(range);
+  if (ends === null) return false;
+  return (
+    blobAt(root, ends.base, path, cache) ===
+    blobAt(root, ends.head, path, cache)
+  );
+}
+
+/**
  * The `## Log` of one task file, as the lines it carries after the heading, each with its number.
  *
  * @param {string} text
@@ -1310,13 +1408,17 @@ function declaredFiles(text) {
 }
 
 /**
- * The fix-record check (SC2; AC2, AC3, AC4): every path a task log's `## Log` claims, held against
- * the range's own `--name-status`, where a rename contributes both of its names.
+ * The fix-record check (SC2; AC2, AC3, AC4): every path a task log's `## Log` claims or pins, held
+ * against the range's own `--name-status`, where a rename contributes both of its names.
  *
  * `claims` decides what a log token is. The default `'log'` treats every path-like token as a claim.
- * `'declared'` treats a token as a claim only when that task's own `files:` front matter lists the
+ * `'declared'` treats a token as judged only when that task's own `files:` front matter lists the
  * path, and records every other token in `mentions` - printed and not judged - so a log that
- * narrates another milestone's path does not read as a claim about this one.
+ * narrates another milestone's path does not read as a claim about this one. Within `'declared'`, a
+ * declared path the range did not change is a `pin`: its blob at the base must equal its blob at the
+ * head, and two absences count as equal, so an uncommitted new file is a pin rather than an
+ * unsatisfiable claim. A pin is recorded in `pins` and is never a finding; a declared path whose
+ * blobs differ without the range naming it stays a claim and is reported.
  *
  * @param {{ root?: string, range?: string, tasks?: unknown, mutant?: string | null, claims?: string }} [input]
  * @returns {Record<string, any>}
@@ -1331,9 +1433,11 @@ export function checkFixRecord(input = {}) {
     examined: 0,
     tasksExamined: 0,
     claimsExamined: 0,
+    pinsExamined: 0,
     claimsMode,
     range: { range, command, changed: 0, renames: 0 },
     claims: [],
+    pins: [],
     mentions: [],
     declarations: [],
     findings: [],
@@ -1384,9 +1488,13 @@ export function checkFixRecord(input = {}) {
   /** @type {Array<Record<string, any>>} */
   const claims = [];
   /** @type {Array<Record<string, any>>} */
+  const pins = [];
+  /** @type {Array<Record<string, any>>} */
   const mentions = [];
   /** @type {Array<{ task: string, file: string, declared: string[] }>} */
   const declarations = [];
+  /** The blob readings a pin repeats, one per `commit:path`. */
+  const blobs = new Map();
   let tasksExamined = 0;
   for (const task of inputs) {
     const logs = logLines(task.text);
@@ -1428,6 +1536,32 @@ export function checkFixRecord(input = {}) {
         const present = names.some(
           (entry) => entry === named || entry.endsWith(`/${named}`),
         );
+        // A declared suite, recording or existing file the range did not change is a pin. The
+        // reading is the bytes at both ends of the range, not the range's name list: a task declares
+        // the suites and recordings that pin the files it changes, and those are byte-identical
+        // across the range by design. A declared path that exists nowhere is not eligible, so it is
+        // a claim and is reported. A pin whose bytes differ without the range naming it falls through
+        // to the claim below, so the defect is still reported rather than silently forgiven.
+        if (
+          claimsMode === 'declared' &&
+          !present &&
+          isPinnable(root, named_) &&
+          byteIdenticalAcross(root, range, named_, blobs)
+        ) {
+          pins.push({
+            task: task.id,
+            file: named,
+            at: `${task.file}:${log.line}`,
+            taskFile: task.file,
+            line: log.line,
+            claim: log.text.trim(),
+            inTheRange: false,
+            pin: true,
+            byteIdentical: true,
+            statusesInTheRange: found,
+          });
+          continue;
+        }
         claims.push({
           task: task.id,
           file: named,
@@ -1473,7 +1607,7 @@ export function checkFixRecord(input = {}) {
         reason: `the range carries no changed path, so no claim can be compared against it and the check examined nothing`,
       }),
     );
-  } else if (claims.length === 0) {
+  } else if (claims.length === 0 && pins.length === 0) {
     refusals.push(
       refusal({
         file: inputs.length === 0 ? 'tasks' : (inputs[0]?.file ?? 'tasks'),
@@ -1484,15 +1618,16 @@ export function checkFixRecord(input = {}) {
               ? `${String(tasksExamined)} task log(s) name no path their own files: list declares (${String(mentions.length)} mention(s) recorded and not judged)`
               : `${String(tasksExamined)} task log(s) name no path in their ## Log`,
         reason:
-          'no claim was compared against the range, so the check examined nothing rather than finding every claim true',
+          'no claim was compared against the range and no pin was read, so the check examined nothing rather than finding every claim true',
       }),
     );
   }
 
   return {
-    examined: rangeCarries ? claims.length : 0,
+    examined: rangeCarries ? claims.length + pins.length : 0,
     tasksExamined,
     claimsExamined: claims.length,
+    pinsExamined: pins.length,
     claimsMode,
     mentionsExamined: mentions.length,
     range: {
@@ -1504,13 +1639,16 @@ export function checkFixRecord(input = {}) {
     },
     mutant,
     claims,
+    pins,
     mentions,
     declarations,
     findings: [...findings, ...refusals],
     ok: findings.length === 0 && refusals.length === 0,
-    reading: `examined ${String(claims.length)} claim(s) from ${String(
-      tasksExamined,
-    )} task log(s) against ${String(rows.length)} changed path(s), with ${
+    reading: `examined ${String(claims.length)} claim(s) and ${String(
+      pins.length,
+    )} pin(s) from ${String(tasksExamined)} task log(s) against ${String(
+      rows.length,
+    )} changed path(s), with ${
       mutant === MUTANTS.fixRecord
         ? 'each rename contributing only its first name'
         : 'each rename contributing both of its names'
@@ -2026,7 +2164,7 @@ export function gate(input = {}) {
     });
     lines.push(
       `gate-integrity: fix-record ${fix.ok ? 'clean' : 'refused'} - examined ${String(
-        fix.examined,
+        fix.claimsExamined,
       )} claim(s) in ${String(fix.tasksExamined)} task log(s) of ${tasks} (logs of ${logsOwner(
         tasks,
         state.milestone,
@@ -2034,11 +2172,25 @@ export function gate(input = {}) {
         derived.mode,
       )}: ${String(derived.rule)}; claims: ${claims})`,
     );
+    if (fix.pinsExamined > 0) {
+      lines.push(
+        `gate-integrity: fix-record pins - ${String(
+          fix.pinsExamined,
+        )} declared path(s) byte-identical across ${range}, recorded and not judged as changes`,
+      );
+    }
     for (const finding of fix.findings) {
       lines.push(
         `gate-integrity: refusal ${String(finding.file)} at ${String(finding.task ?? 'range')} (${String(
           finding.class,
         )}) - ${String(finding.reason)}`,
+      );
+    }
+    for (const pin of fix.pins) {
+      lines.push(
+        `gate-integrity: pin ${String(pin.file)} at ${String(pin.at)} (${String(
+          pin.task,
+        )}) - declared and byte-identical across ${range}, recorded and not judged as a change`,
       );
     }
     for (const mention of fix.mentions) {
