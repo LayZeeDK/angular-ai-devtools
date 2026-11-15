@@ -7,7 +7,7 @@ deps:
 status: pending
 agent: null
 base: null
-worktree: D:\projects\sandbox\angular-ai-devtools
+worktree: null
 task_branch: null
 files:
   - extension/console-join.js
