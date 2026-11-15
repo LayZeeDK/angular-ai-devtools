@@ -10,7 +10,7 @@
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
     "filesExamined": 273,
     "suitesExamined": 143,
-    "examined": 175,
+    "examined": 180,
     "movedSubtrees": [
       "build",
       "intent",
@@ -26,13 +26,13 @@
     },
     "counts": {
       "archived-by-the-move": 17,
-      "deliberate-archive-read": 27,
-      "undecided": 131
+      "deliberate-archive-read": 28,
+      "undecided": 135
     },
     "sites": {
       "path": 9,
       "comment": 64,
-      "segment": 57,
+      "segment": 62,
       "citation": 8,
       "message": 32,
       "pattern": 5
@@ -306,7 +306,7 @@
       },
       {
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 45,
+        "line": 51,
         "path": ".project/tasks",
         "site": "path",
         "class": "archived-by-the-move",
@@ -314,7 +314,7 @@
       },
       {
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 49,
+        "line": 55,
         "path": ".project/archive",
         "site": "message",
         "class": "deliberate-archive-read",
@@ -322,67 +322,7 @@
       },
       {
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 175,
-        "path": ".project/tasks",
-        "site": "segment",
-        "class": "undecided",
-        "reason": "is built on root, which this file does not bind to its own module root, so it names a directory the suite creates rather than this repository's live .project/tasks, and the archive move deletes nothing it names here - .project/tasks is a subtree the move relocates, but not this path",
-        "root": "root",
-        "construct": "call"
-      },
-      {
-        "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 177,
-        "path": ".project/archive/044-gate-integrity/tasks",
-        "site": "segment",
-        "class": "deliberate-archive-read",
-        "reason": "resolves to .project/archive/044-gate-integrity/tasks, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose",
-        "root": "root",
-        "construct": "call"
-      },
-      {
-        "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 204,
-        "path": ".project/tasks",
-        "site": "segment",
-        "class": "undecided",
-        "reason": "is built on root, which this file does not bind to its own module root, so it names a directory the suite creates rather than this repository's live .project/tasks, and the archive move deletes nothing it names here - .project/tasks is a subtree the move relocates, but not this path",
-        "root": "root",
-        "construct": "call"
-      },
-      {
-        "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 205,
-        "path": ".project/archive/044-gate-integrity/tasks",
-        "site": "segment",
-        "class": "deliberate-archive-read",
-        "reason": "resolves to .project/archive/044-gate-integrity/tasks, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose",
-        "root": "root",
-        "construct": "call"
-      },
-      {
-        "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 223,
-        "path": ".project/tasks",
-        "site": "segment",
-        "class": "undecided",
-        "reason": "is built on root, which this file does not bind to its own module root, so it names a directory the suite creates rather than this repository's live .project/tasks, and the archive move deletes nothing it names here - .project/tasks is a subtree the move relocates, but not this path",
-        "root": "root",
-        "construct": "call"
-      },
-      {
-        "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 242,
-        "path": ".project/tasks",
-        "site": "segment",
-        "class": "undecided",
-        "reason": "is built on root, which this file does not bind to its own module root, so it names a directory the suite creates rather than this repository's live .project/tasks, and the archive move deletes nothing it names here - .project/tasks is a subtree the move relocates, but not this path",
-        "root": "root",
-        "construct": "call"
-      },
-      {
-        "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 248,
+        "line": 109,
         "path": ".project",
         "site": "segment",
         "class": "undecided",
@@ -392,15 +332,17 @@
       },
       {
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 252,
-        "path": ".project",
-        "site": "message",
+        "line": 111,
+        "path": ".project/STATE.md",
+        "site": "segment",
         "class": "undecided",
-        "reason": "resolves to .project, and .project/ is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
+        "reason": "resolves to .project/STATE.md, and .project/STATE.md is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies",
+        "root": "root",
+        "construct": "call"
       },
       {
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 290,
+        "line": 220,
         "path": ".project/tasks",
         "site": "segment",
         "class": "undecided",
@@ -410,7 +352,7 @@
       },
       {
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 292,
+        "line": 222,
         "path": ".project/archive/044-gate-integrity/tasks",
         "site": "segment",
         "class": "deliberate-archive-read",
@@ -420,7 +362,65 @@
       },
       {
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 336,
+        "line": 249,
+        "path": ".project/tasks",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "is built on root, which this file does not bind to its own module root, so it names a directory the suite creates rather than this repository's live .project/tasks, and the archive move deletes nothing it names here - .project/tasks is a subtree the move relocates, but not this path",
+        "root": "root",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/gate-integrity-default-tasks.test.mjs",
+        "line": 250,
+        "path": ".project/archive/044-gate-integrity/tasks",
+        "site": "segment",
+        "class": "deliberate-archive-read",
+        "reason": "resolves to .project/archive/044-gate-integrity/tasks, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose",
+        "root": "root",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/gate-integrity-default-tasks.test.mjs",
+        "line": 268,
+        "path": ".project/tasks",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "is built on root, which this file does not bind to its own module root, so it names a directory the suite creates rather than this repository's live .project/tasks, and the archive move deletes nothing it names here - .project/tasks is a subtree the move relocates, but not this path",
+        "root": "root",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/gate-integrity-default-tasks.test.mjs",
+        "line": 287,
+        "path": ".project/tasks",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "is built on root, which this file does not bind to its own module root, so it names a directory the suite creates rather than this repository's live .project/tasks, and the archive move deletes nothing it names here - .project/tasks is a subtree the move relocates, but not this path",
+        "root": "root",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/gate-integrity-default-tasks.test.mjs",
+        "line": 293,
+        "path": ".project",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "resolves to .project, and .project/ is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies",
+        "root": "root",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/gate-integrity-default-tasks.test.mjs",
+        "line": 297,
+        "path": ".project",
+        "site": "message",
+        "class": "undecided",
+        "reason": "resolves to .project, and .project/ is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
+      },
+      {
+        "file": "scripts/gate-integrity-default-tasks.test.mjs",
+        "line": 335,
         "path": ".project/tasks",
         "site": "segment",
         "class": "undecided",
@@ -440,7 +440,7 @@
       },
       {
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 379,
+        "line": 381,
         "path": ".project/tasks",
         "site": "segment",
         "class": "undecided",
@@ -450,7 +450,7 @@
       },
       {
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 381,
+        "line": 382,
         "path": ".project/archive/044-gate-integrity/tasks",
         "site": "segment",
         "class": "deliberate-archive-read",
@@ -470,11 +470,61 @@
       },
       {
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
-        "line": 429,
+        "line": 426,
         "path": ".project/archive/044-gate-integrity/tasks",
         "site": "segment",
         "class": "deliberate-archive-read",
         "reason": "resolves to .project/archive/044-gate-integrity/tasks, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose",
+        "root": "root",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/gate-integrity-default-tasks.test.mjs",
+        "line": 471,
+        "path": ".project/tasks",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "is built on root, which this file does not bind to its own module root, so it names a directory the suite creates rather than this repository's live .project/tasks, and the archive move deletes nothing it names here - .project/tasks is a subtree the move relocates, but not this path",
+        "root": "root",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/gate-integrity-default-tasks.test.mjs",
+        "line": 476,
+        "path": ".project/archive/044-gate-integrity/tasks",
+        "site": "segment",
+        "class": "deliberate-archive-read",
+        "reason": "resolves to .project/archive/044-gate-integrity/tasks, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose",
+        "root": "root",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/gate-integrity-default-tasks.test.mjs",
+        "line": 543,
+        "path": ".project/tasks",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "is built on root, which this file does not bind to its own module root, so it names a directory the suite creates rather than this repository's live .project/tasks, and the archive move deletes nothing it names here - .project/tasks is a subtree the move relocates, but not this path",
+        "root": "root",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/gate-integrity-default-tasks.test.mjs",
+        "line": 548,
+        "path": ".project/archive/044-gate-integrity/tasks",
+        "site": "segment",
+        "class": "deliberate-archive-read",
+        "reason": "resolves to .project/archive/044-gate-integrity/tasks, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose",
+        "root": "root",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/gate-integrity-default-tasks.test.mjs",
+        "line": 592,
+        "path": ".project/tasks",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "is built on root, which this file does not bind to its own module root, so it names a directory the suite creates rather than this repository's live .project/tasks, and the archive move deletes nothing it names here - .project/tasks is a subtree the move relocates, but not this path",
         "root": "root",
         "construct": "call"
       },
@@ -1921,7 +1971,7 @@
         "refusals": 0,
         "printed": [
           "gate-integrity: <root> milestone M044; stages fix-record",
-          "gate-integrity: fix-record clean - examined 1 claim(s) in 1 task log(s) of <fixture>\\control against 25 changed path(s) of d94502d1^..d94502d1 (rule given: the range the caller named; claims: log)",
+          "gate-integrity: fix-record clean - examined 1 claim(s) in 1 task log(s) of <fixture>\\control (logs of no milestone) against 25 changed path(s) of d94502d1^..d94502d1 (rule given: the range the caller named; claims: log)",
           "gate-integrity: pass - 0 finding(s), 0 mention(s)"
         ]
       },
@@ -1946,7 +1996,7 @@
         "refusals": 1,
         "printed": [
           "gate-integrity: <root> milestone M044; stages fix-record",
-          "gate-integrity: fix-record refused - examined 1 claim(s) in 1 task log(s) of <fixture>\\instance against 25 changed path(s) of d94502d1^..d94502d1 (rule given: the range the caller named; claims: log)",
+          "gate-integrity: fix-record refused - examined 1 claim(s) in 1 task log(s) of <fixture>\\instance (logs of no milestone) against 25 changed path(s) of d94502d1^..d94502d1 (rule given: the range the caller named; claims: log)",
           "gate-integrity: refusal nx.json at T901 (claim-absent-from-the-range) - T901 claims nx.json at <fixture>/instance/T901.md:6, and git diff --name-status -M d94502d1^..d94502d1 carries no such path (25 changed path(s), 9 rename row(s))",
           "gate-integrity: refuse - 1 finding(s), 0 mention(s)"
         ]
@@ -1993,9 +2043,9 @@
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 474,
+        "addedLines": 636,
         "removedLines": 0,
-        "addedAssertionLines": 28,
+        "addedAssertionLines": 41,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2019,9 +2069,9 @@
         "file": "scripts/gate-stability-record.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 990,
+        "addedLines": 1076,
         "removedLines": 0,
-        "addedAssertionLines": 29,
+        "addedAssertionLines": 34,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2032,9 +2082,9 @@
         "file": "scripts/navigation-blocking.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 851,
+        "addedLines": 1018,
         "removedLines": 4,
-        "addedAssertionLines": 51,
+        "addedAssertionLines": 61,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2090,7 +2140,7 @@
       "removedAssertionLines": 1,
       "recutAssertionLines": 1,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 350
+      "addedAssertionLines": 378
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
@@ -2107,9 +2157,9 @@
       "total": 201
     },
     "declarations": {
-      "tests": 2392,
+      "tests": 2396,
       "describes": 284,
-      "total": 2676
+      "total": 2680
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -2183,6 +2233,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-15T10:49:59.084Z"
+    "at": "2026-11-15T11:56:25.929Z"
   }
 }

@@ -71,11 +71,15 @@
 //                      sees which base the range starts from and which commit it ends at.
 //                      `gate(input)` is the same run without printing, so a suite can hold it to an
 //                      exit code without spawning a second process. With no `--tasks`, the fix-record
-//                      stage reads `defaultTaskInput(root, milestone)`: the live `.project/tasks`
-//                      while it holds task files, the milestone's own archived `tasks/` once the
-//                      archive move has emptied it, and the live directory again when neither carries
-//                      a task file - so an emptied tree still refuses `nothing-examined` rather than
-//                      passing over nothing.
+//                      stage reads `defaultTaskInput(root, milestone)`: the milestone's own archived
+//                      `tasks/` when that archive holds a task file, so `--milestone M044` examines
+//                      M044's archived logs rather than the logs of whatever milestone is being built
+//                      beside them, and the live `.project/tasks` otherwise - a milestone with no
+//                      archive still reads the live directory it is being built in, and a tree with
+//                      no task file anywhere answers that same live path, so an emptied tree still
+//                      refuses `nothing-examined` rather than passing over nothing. The reading line
+//                      names the milestone the examined logs belong to, so `of .project/tasks` cannot
+//                      be read as the logs of a milestone that has archived.
 //
 // A claim, and what is not one. `checkFixRecord` reads every path-like token in a task's `## Log`.
 // With `claims: 'log'` - the export's default, and what T002's tests were written against - each
@@ -1520,9 +1524,11 @@ export function checkFixRecord(input = {}) {
 // whose default input is the live directory reads an empty directory on every tree the move has just
 // shipped and refuses `nothing-examined` over task logs that are still there, one directory to the
 // side. The refusal is right and stays (SC2, N1): a tree with no task file anywhere is exactly the
-// tree it exists for. What is wrong is the default, so the default answers the live directory while a
-// milestone is being built, that milestone's own archived `tasks/` once the move has emptied it, and
-// the live directory again when neither carries a task file.
+// tree it exists for. What is wrong is the default, so the default answers the milestone it was asked
+// about: that milestone's own archived `tasks/` when the archive holds one, and otherwise the live
+// directory - which is the milestone being built, and the same live path a tree empty in both places
+// answers. The stage then prints whose logs it examined, because a reader who sees a directory that
+// does not name a milestone cannot tell the milestone being built from the one that archived.
 
 /** The live task directory the archive move empties. */
 const LIVE_TASKS = join(PROJECT, 'tasks');
@@ -1603,10 +1609,12 @@ function archivedTasks(root, milestone) {
 
 /**
  * The task directory the fix-record stage reads when `--tasks` names none (SC1, SC2; E1-E4, E9): the
- * live directory when it holds task files, otherwise the milestone's own archived `tasks/`, otherwise
- * the live directory again - so a tree empty in both places still refuses `nothing-examined` rather
- * than passing over nothing. Project-relative, in this repository's spelling, which is the shape
- * `checkFixRecord`'s `tasks` input already accepts.
+ * milestone's own archived `tasks/` when that archive holds a task file, otherwise the live directory
+ * - so a milestone with no archive still reads the logs it is being built in, and a tree empty in
+ * both places still refuses `nothing-examined` rather than passing over nothing. The milestone the
+ * caller named is the one this prefers, which is what makes `--milestone M044` examine M044's
+ * archived logs instead of the logs of the milestone being built beside them. Project-relative, in
+ * this repository's spelling, which is the shape `checkFixRecord`'s `tasks` input already accepts.
  *
  * @param {string} root
  * @param {unknown} milestone
@@ -1616,9 +1624,27 @@ export function defaultTaskInput(root, milestone) {
   const base = resolve(
     typeof root === 'string' && root !== '' ? root : process.cwd(),
   );
-  if (holdsTaskFile(join(base, LIVE_TASKS))) return displayPath(LIVE_TASKS);
   const archivedDir = archivedTasks(base, milestone);
   return archivedDir ?? displayPath(LIVE_TASKS);
+}
+
+/**
+ * The milestone the examined task logs belong to, named for the reading line (T007's AC1): an
+ * archived `tasks/` directory names its own milestone by the number `.project/archive/<NNN>-<slug>/`
+ * carries, the live directory names the milestone this tree binds, and a directory the caller named
+ * itself (`--tasks`) names no milestone this stage can read - so a line that says `logs of no
+ * milestone` beside a caller's own path never claims the path belongs to the milestone asked for.
+ *
+ * @param {unknown} tasks
+ * @param {string | null} bound
+ * @returns {string}
+ */
+function logsOwner(tasks, bound) {
+  const shown = displayPath(String(tasks));
+  const digits = /\.project\/archive\/(\d+)-[^/]+\/tasks$/u.exec(shown)?.[1];
+  if (digits !== undefined) return `M${digits.padStart(3, '0')}`;
+  if (shown === displayPath(LIVE_TASKS) && bound !== null) return bound;
+  return 'no milestone';
 }
 
 // -------------------------------------------------------------- the gate ----
@@ -2001,11 +2027,12 @@ export function gate(input = {}) {
     lines.push(
       `gate-integrity: fix-record ${fix.ok ? 'clean' : 'refused'} - examined ${String(
         fix.examined,
-      )} claim(s) in ${String(fix.tasksExamined)} task log(s) of ${tasks} against ${String(
-        fix.range.changed,
-      )} changed path(s) of ${range} (rule ${String(derived.mode)}: ${String(
-        derived.rule,
-      )}; claims: ${claims})`,
+      )} claim(s) in ${String(fix.tasksExamined)} task log(s) of ${tasks} (logs of ${logsOwner(
+        tasks,
+        state.milestone,
+      )}) against ${String(fix.range.changed)} changed path(s) of ${range} (rule ${String(
+        derived.mode,
+      )}: ${String(derived.rule)}; claims: ${claims})`,
     );
     for (const finding of fix.findings) {
       lines.push(

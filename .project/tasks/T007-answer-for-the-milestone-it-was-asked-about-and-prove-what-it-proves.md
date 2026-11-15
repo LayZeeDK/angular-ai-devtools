@@ -4,9 +4,9 @@ title: Answer for the milestone it was asked about and prove what it proves
 wave: 7
 deps:
   - T006
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T007
+base: 724e357f1ed0f61b658ffc4445582daf27990afa
 worktree: null
 task_branch: null
 files:
@@ -91,3 +91,6 @@ node --check scripts/gate-integrity.mjs && node --test scripts/gate-stability-re
 ## Log
 
 - 2026-11-15 — created from the four-review panel at `9ad2079a`. No work started.
+- 2026-11-15 - fixed the panel's HIGH and three MEDIUM: an explicit --milestone answers from that milestone's archive and the line names whose logs they are (M044 now opens 5 archived logs, not 7 live ones); presence is counted off the passing roster and counts.green is pinned; SC5 cites a suite whose titles carry E8 and the citation is checked; the pinned head is compared with the record's carrier, default-run only. Each undone by a mutation that reddens a named test. Recordings idempotent; npm run check exit 0. This landing.
+
+Verdict: ready

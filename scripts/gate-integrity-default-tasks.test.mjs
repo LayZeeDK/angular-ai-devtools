@@ -10,13 +10,14 @@
 // nothing is never a pass - so `defaultTaskInput(root, milestone)` repairs the default and this suite
 // holds it to three answers, each on a tree it builds itself:
 //
-//   the live directory   while it holds a task file, because a milestone being built keeps its logs
-//                        there and whatever sits in the archive beside it belongs to an earlier
-//                        milestone (E1);
-//   the archive          when the live directory holds no task file, answered from the milestone's own
-//                        `<NNN>-<slug>/tasks` and matched by the number the id names, so `M044`,
-//                        `m044`, `M44`, `044` and `M0044` reach the same archive while `M999` reaches
-//                        nothing (E2, E4);
+//   the archive          when the milestone the caller named holds a `tasks/` with a task file in it,
+//                        answered from that milestone's own `<NNN>-<slug>/tasks` and matched by the
+//                        number the id names, so `M044`, `m044`, `M44`, `044` and `M0044` reach the
+//                        same archive while `M999` reaches nothing (E1, E2, E4). An explicit
+//                        `--milestone M044` is a question about M044, so the logs of the milestone
+//                        being built beside that archive are not the answer to it;
+//   the live directory   when the milestone has no archive of its own, because a milestone being built
+//                        keeps its logs there (E1);
 //   the live directory   again when neither holds a task file, so `nothing-examined` still fires on a
 //                        tree that examined nothing (E3) - and an archived `tasks/` directory that
 //                        exists but holds no `.md` file counts as empty rather than as present (E9).
@@ -25,7 +26,12 @@
 // repository carries a commit pair differing by one path, and one archived task log whose `files:`
 // front matter declares that path - so the stage that names no `--tasks` reads the archived log and
 // exits 0 on a tree the move emptied (SC1), the same tree with no task file anywhere refuses with
-// `nothing-examined` (SC2), and an explicit `--tasks` still wins over both.
+// `nothing-examined` (SC2), and an explicit `--tasks` still reads the directory the caller named.
+//
+// The printed line is measured with the same fixtures, because a reader cannot check a claim the line
+// does not make: the stage names the milestone the examined logs belong to - `M044` for an archived
+// `tasks/`, the bound milestone for the live directory, and `no milestone` for a directory the caller
+// named - so a run that examined one milestone's logs cannot be read as another's.
 //
 // Why a file of its own: `scripts/gate-integrity.test.mjs` permits exactly one `writeFileSync`, inside
 // its armed capture gate, and a fixture suite must write. Every fixture here is created under the
@@ -92,6 +98,22 @@ function writeOther(dir, name) {
 }
 
 /**
+ * The front matter that binds one milestone to a fixture tree: the stage reads the milestone the live
+ * directory belongs to from it, so the printed line can name whose logs the live directory holds.
+ *
+ * @param {string} root
+ * @param {string} milestone
+ * @returns {void}
+ */
+function writeState(root, milestone) {
+  mkdirSync(join(root, '.project'), { recursive: true });
+  writeFileSync(
+    join(root, '.project', 'STATE.md'),
+    `---\nmilestone: ${milestone}-fixture\nbranch: gsd-path/${milestone}\n---\n\n# ${milestone}\n`,
+  );
+}
+
+/**
  * One git repository in a fixture tree whose two commits differ by one path, so a range that a real
  * `git diff --name-status -M` reads carries `changed.ts` and the fix-record check has a path to hold a
  * claim against. Answers the range; every git invocation is confined to the fixture, and the identity
@@ -147,8 +169,8 @@ function rangeFixture(root) {
 
 /**
  * The task directory one stage run printed it read, taken from the line that states the counts: the
- * stage names the directory it used, so a refusal says whose logs it examined rather than only that it
- * examined none.
+ * stage names the directory it used and the milestone the examined logs belong to, so a refusal says
+ * whose logs it examined and a reader cannot read one milestone's logs as another's.
  *
  * @param {{ lines: string[] }} run
  * @returns {string}
@@ -159,17 +181,40 @@ function printedTasks(run) {
     line,
     `the stage must print the task directory it read: ${run.lines.join(' | ')}`,
   );
-  const answer = /task log\(s\) of (\S+) against/.exec(String(line))?.[1];
+  const answer = /task log\(s\) of (\S+) \(logs of .+?\) against/.exec(
+    String(line),
+  )?.[1];
   assert.ok(
     answer,
-    `the stage must name the task directory between its counts and its range: ${String(line)}`,
+    `the stage must name the task directory and whose logs they are between its counts and its range: ${String(line)}`,
   );
   return answer;
 }
 
-// ------------------------------------------------ E1: the live directory wins ----
+/**
+ * The milestone the printed line says the examined logs belong to: `M###` for an archived `tasks/` or
+ * the live directory of a bound tree, and `no milestone` for a directory the caller named.
+ *
+ * @param {{ lines: string[] }} run
+ * @returns {string}
+ */
+function printedOwner(run) {
+  const line = run.lines.find((entry) => entry.includes('task log(s) of '));
+  assert.ok(
+    line,
+    `the stage must print the task directory it read: ${run.lines.join(' | ')}`,
+  );
+  const answer = /\(logs of (.+?)\) against/.exec(String(line))?.[1];
+  assert.ok(
+    answer,
+    `the stage must name the milestone the examined logs belong to: ${String(line)}`,
+  );
+  return answer;
+}
 
-test('E1: the live directory wins while a milestone is being built', (t) => {
+// ------------------- E1: the milestone asked about answers, and the live logs are named ----
+
+test('E1: the milestone the caller named answers, and the live directory answers for one with no archive', (t) => {
   const root = fixtureRoot('e1');
   try {
     writeTask(join(root, '.project', 'tasks'), 'T001-live.md');
@@ -180,8 +225,8 @@ test('E1: the live directory wins while a milestone is being built', (t) => {
 
     assert.equal(
       defaultTaskInput(root, 'M044'),
-      LIVE,
-      'a live directory holding a task file must answer even when the milestone has an archive of its own',
+      archived('044-gate-integrity'),
+      'a milestone that holds an archive must answer with that archive even while the live directory holds logs: the live logs beside it belong to the milestone being built, not to the one asked about',
     );
     assert.equal(
       defaultTaskInput(root, 'M056'),
@@ -189,7 +234,7 @@ test('E1: the live directory wins while a milestone is being built', (t) => {
       'a milestone with no archive must still read the live directory that holds the logs',
     );
     t.diagnostic(
-      `E1: ${LIVE} answered while it holds a task file, with ${archived('044-gate-integrity')} beside it`,
+      `E1: ${archived('044-gate-integrity')} answered for M044 with ${LIVE} beside it, and ${LIVE} answered for M056, which has no archive`,
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -215,7 +260,7 @@ test('E2: the archived tasks answer when the archive move has emptied the live d
     assert.equal(
       defaultTaskInput(root, 'M044'),
       archived('044-gate-integrity'),
-      'an empty live directory must fall through to the milestone its archive holds',
+      'a milestone whose archive holds task files must answer with that archive, which is what keeps the move from refusing over logs one directory to the side',
     );
 
     // The move deletes the live directory rather than emptying it, so the absent shape answers the
@@ -419,8 +464,10 @@ test('an explicit --tasks stays authoritative over the default', (t) => {
   const root = fixtureRoot('explicit');
   try {
     const range = rangeFixture(root);
+    writeState(root, 'M056');
     // Both directories hold a log: the live one claims the path the range carries, the archived one
-    // claims a path it does not, so the printed directory and the verdict tell the two apart.
+    // claims a path it does not, so the printed directory, the printed owner and the verdict tell the
+    // two apart.
     writeTask(join(root, '.project', 'tasks'), 'T001-live.md', {
       id: 'T001',
       claims: 'changed.ts',
@@ -439,13 +486,18 @@ test('an explicit --tasks stays authoritative over the default', (t) => {
     });
     assert.equal(
       printedTasks(byDefault),
-      LIVE,
-      'with no --tasks the stage must read the live directory that holds a log',
+      archived('044-gate-integrity'),
+      'with no --tasks the stage must read the archive of the milestone it was asked about',
+    );
+    assert.equal(
+      printedOwner(byDefault),
+      'M044',
+      `the default run must say the archived logs belong to M044: ${byDefault.lines.join(' | ')}`,
     );
     assert.equal(
       byDefault.code,
-      0,
-      `the live log claims a path in the range: ${byDefault.lines.join(' | ')}`,
+      1,
+      `the archived log claims a path the range does not carry, so the default run must refuse: ${byDefault.lines.join(' | ')}`,
     );
 
     const given = gate({
@@ -453,20 +505,130 @@ test('an explicit --tasks stays authoritative over the default', (t) => {
       milestone: 'M044',
       range,
       check: 'fix-record',
-      tasks: archived('044-gate-integrity'),
+      tasks: LIVE,
     });
     assert.equal(
       printedTasks(given),
-      archived('044-gate-integrity'),
+      LIVE,
       'an explicit --tasks must win over the default',
     );
     assert.equal(
+      printedOwner(given),
+      'M056',
+      `a live directory the caller named belongs to the milestone this tree binds: ${given.lines.join(' | ')}`,
+    );
+    assert.equal(
       given.code,
-      1,
-      `the archived log claims a path the range does not carry, so the run must refuse: ${given.lines.join(' | ')}`,
+      0,
+      `the live log claims a path in the range, so the run the caller aimed must pass: ${given.lines.join(' | ')}`,
     );
     t.diagnostic(
-      `explicit: default read ${LIVE} (exit ${String(byDefault.code)}), --tasks read ${archived('044-gate-integrity')} (exit ${String(given.code)})`,
+      `explicit: default read ${archived('044-gate-integrity')} as M044 (exit ${String(byDefault.code)}), --tasks read ${LIVE} as M056 (exit ${String(given.code)})`,
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// ------------------ AC1: the run answers for the milestone it was asked about ----
+
+test('AC1: --milestone M044 examines M044 archived logs while the milestone being built sits beside them', (t) => {
+  const root = fixtureRoot('ac1-archive');
+  try {
+    const range = rangeFixture(root);
+    writeState(root, 'M056');
+    // The milestone being built claims a path the range does not carry; the milestone that archived
+    // claims the one it does. The verdict therefore says which milestone's logs were read, not only
+    // the printed directory.
+    writeTask(join(root, '.project', 'tasks'), 'T007-live.md', {
+      id: 'T007',
+      claims: 'live-only.ts',
+    });
+    writeTask(
+      join(root, '.project', 'archive', '044-gate-integrity', 'tasks'),
+      'T001-archived.md',
+      { id: 'T001', claims: 'changed.ts' },
+    );
+
+    const run = gate({ root, milestone: 'M044', range, check: 'fix-record' });
+    assert.equal(
+      run.code,
+      0,
+      `the run must pass on the archived logs it was asked about, and a run that read the live log would refuse: ${run.lines.join(' | ')}`,
+    );
+    assert.equal(
+      run.fix?.tasksExamined,
+      1,
+      'exactly the one archived log must be examined',
+    );
+    assert.equal(
+      printedTasks(run),
+      archived('044-gate-integrity'),
+      'the line must name the archived directory the logs were read from',
+    );
+    assert.equal(
+      printedOwner(run),
+      'M044',
+      `the line must name M044 as the milestone those logs belong to: ${run.lines.join(' | ')}`,
+    );
+    assert.match(
+      String(run.lines.find((line) => line.includes('task log(s) of ')) ?? ''),
+      /\(logs of M044\) against/,
+      `the reading line must carry the milestone beside the directory: ${run.lines.join(' | ')}`,
+    );
+    t.diagnostic(
+      `AC1: M044 read ${archived('044-gate-integrity')} with ${LIVE} beside it - exit ${String(run.code)}`,
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('AC1: a milestone with no archive reads the live directory, and a caller-named directory names no milestone', (t) => {
+  const root = fixtureRoot('ac1-live');
+  try {
+    const range = rangeFixture(root);
+    writeState(root, 'M056');
+    writeTask(join(root, '.project', 'tasks'), 'T007-live.md', {
+      id: 'T007',
+      claims: 'changed.ts',
+    });
+
+    const run = gate({ root, milestone: 'M056', range, check: 'fix-record' });
+    assert.equal(
+      run.code,
+      0,
+      `a milestone with no archive must read the live directory and pass on it: ${run.lines.join(' | ')}`,
+    );
+    assert.equal(
+      printedTasks(run),
+      LIVE,
+      'the live rule must still answer for a milestone with no archive',
+    );
+    assert.equal(
+      printedOwner(run),
+      'M056',
+      `the live directory must be named as the milestone this tree binds: ${run.lines.join(' | ')}`,
+    );
+
+    // A directory the caller names itself carries no milestone this stage can read, and the line must
+    // not claim the milestone it was asked about for it.
+    const own = join(root, 'caller-tasks');
+    writeTask(own, 'T001-own.md', { id: 'T001', claims: 'changed.ts' });
+    const given = gate({
+      root,
+      milestone: 'M044',
+      range,
+      check: 'fix-record',
+      tasks: 'caller-tasks',
+    });
+    assert.equal(
+      printedOwner(given),
+      'no milestone',
+      `a caller-named directory must be named as no milestone rather than as M044: ${given.lines.join(' | ')}`,
+    );
+    t.diagnostic(
+      `AC1: M056 (no archive) read ${LIVE}, and --tasks caller-tasks read its own directory as no milestone`,
     );
   } finally {
     rmSync(root, { recursive: true, force: true });

@@ -2622,6 +2622,58 @@ function declarationsIn(source) {
 }
 
 /**
+ * The titles one suite declares: the string each `test(...)`, `it(...)` and `describe(...)` call
+ * carries, read from the source rather than from a run, so a citation can be checked against the
+ * tests a suite actually declares without running it a second time.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+function suiteTitles(source) {
+  /** @type {string[]} */
+  const titles = [];
+  for (const line of source.split(/\r?\n/)) {
+    const found =
+      /^\s*(?:test|it|describe)\(\s*(['"`])((?:[^\\]|\\.)*?)\1/.exec(line);
+    if (found?.[2] !== undefined) titles.push(found[2]);
+  }
+  return titles;
+}
+
+/**
+ * Whether one suite's own test titles carry an edge id: the check a citation is held to, because a
+ * row that cites a suite where no test is about its edge names evidence nobody can open.
+ *
+ * @param {string} source
+ * @param {string} edge
+ * @returns {boolean}
+ */
+function carriesEdge(source, edge) {
+  const pattern = new RegExp(`\\b${edge}\\b`);
+  return suiteTitles(source).some((title) => pattern.test(title));
+}
+
+/**
+ * The edge ids a row's artefact claims, read from the `edge ["E8"]` list the artefact string carries.
+ * A row that names none is a citation of a file rather than of a test.
+ *
+ * @param {any} row
+ * @returns {string[]}
+ */
+function claimedEdges(row) {
+  const named = /edge (\[[^\]]*\])/.exec(String(row?.artefact ?? ''))?.[1];
+  if (named === undefined) return [];
+  try {
+    const parsed = JSON.parse(named);
+    return Array.isArray(parsed)
+      ? parsed.filter((edge) => typeof edge === 'string')
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
  * The list, derived: every criterion the intent declares, ruled once, quoting its own text, and citing the
  * suite the intent's own edge coverage assigns it with the reading that suite carries. Every value below is
  * interpolated from a file this checkout holds, so a citation that moves makes the list stale rather than
@@ -2663,13 +2715,45 @@ function derivedClaims() {
       `the intent's edge coverage names ${JSON.stringify(suite)} as a test this checkout must carry`,
     );
   }
+  /**
+   * The suite a row cites for one edge: the suite the intent's own table names, when that suite's test
+   * titles carry the edge id, otherwise the first suite the intent names that does. A row that cited
+   * the intent's suite regardless would name evidence nobody can open - the list once cited a suite
+   * holding no `E8` for SC5 - so the citation follows the titles rather than the table's first cell.
+   *
+   * @param {{ edge: string, suite: string }} edge
+   * @param {string} criterion
+   * @returns {string}
+   */
+  const holderOf = (edge, criterion) => {
+    const candidates = [
+      edge.suite,
+      ...suites.filter((suite) => suite !== edge.suite),
+    ];
+    for (const suite of candidates) {
+      const source = claimText(
+        join(CLAIM_ROOT, suite),
+        `${edge.edge}'s citation for ${criterion}`,
+      );
+      if (carriesEdge(source, edge.edge)) return suite;
+    }
+    assert.fail(
+      `the intent assigns ${edge.edge} to ${edge.suite}, whose own test titles do not carry that id, and no suite the intent names carries it either (${JSON.stringify(suites)}), so ${criterion} would cite a suite that cannot hold it`,
+    );
+    return edge.suite;
+  };
   const rows = Object.entries(intent).map(([criterion, criterionText]) => {
     const held = edges.filter((edge) => edge.criterion === criterion);
     assert.ok(
       held.length > 0,
       `the intent's edge coverage must name ${criterion}, so its row cites the test the milestone assigned it`,
     );
-    const suiteRel = held[0]?.suite ?? '';
+    const holders = held.map((edge) => holderOf(edge, criterion));
+    const suiteRel = holders[0] ?? '';
+    assert.ok(
+      holders.every((suite) => suite === suiteRel),
+      `${criterion} carries one citation, so every edge the intent assigns it must be held by the same suite, and they are held by ${JSON.stringify(holders)}`,
+    );
     const suiteText = claimText(
       join(CLAIM_ROOT, suiteRel),
       `${criterion}'s edge coverage names it as the test that holds the criterion`,
@@ -2805,6 +2889,41 @@ function assertCitations(recording) {
       assert.ok(
         row.reason.length >= 60 && /portal/i.test(row.reason),
         `${where} must answer the charter's portal clause by name`,
+      );
+    }
+  }
+}
+
+/**
+ * Every row's citation must be checkable against the tests it names: the suite at `artefactPath` must
+ * carry each edge id the row's artefact claims in one of its own test titles. A row that cites a suite
+ * where no test is about its edge names evidence nobody can open, which is how this list once cited a
+ * suite holding no `E8` for SC5 while the tests for that edge sat in another file.
+ *
+ * @param {any} recording
+ * @returns {void}
+ */
+function assertEdgeTitles(recording) {
+  assert.ok(
+    Array.isArray(recording?.claims) && recording.claims.length > 0,
+    'the claim list must carry its rows',
+  );
+  for (const row of recording.claims) {
+    const where = row?.criterion ?? 'a row';
+    const edges = claimedEdges(row);
+    assert.ok(
+      edges.length > 0,
+      `${where} names no edge id in its artefact, so the suite it cites cannot be held to one: ${JSON.stringify(row?.artefact)}`,
+    );
+    const source = claimText(
+      join(CLAIM_ROOT, String(row.artefactPath ?? '')),
+      `${where}'s artefact`,
+    );
+    const titles = suiteTitles(source);
+    for (const edge of edges) {
+      assert.ok(
+        carriesEdge(source, edge),
+        `${where} cites ${row.artefactPath} for ${edge}, and none of that suite's ${String(titles.length)} test title(s) carries ${edge}: a citation must name a suite whose own tests hold the edge it claims`,
       );
     }
   }
@@ -3036,5 +3155,53 @@ describe('the claim list', () => {
 
     // And the same guard over the list as it stands: the planted failure above proves it bites.
     assert.doesNotThrow(() => assertCitations(recording));
+  });
+
+  it('cites a suite whose own test titles carry the edge id it claims', () => {
+    const recording = claimJson(
+      CLAIMS_PATH,
+      'the list is part of this repository',
+    );
+    // The list as it stands: every cited suite carries every edge id its row claims.
+    assert.doesNotThrow(
+      () => assertEdgeTitles(recording),
+      `${CLAIMS_REL} cites a suite whose tests do not hold the edge it claims`,
+    );
+
+    // The defect this pin exists for: SC5's row, pointed at a suite the intent names that carries no
+    // E8 title. A citation nobody can open must redden naming the edge, or the next re-capture can
+    // repeat the false claim silently.
+    const planted = clone(recording);
+    const row = planted.claims.find((one) => claimedEdges(one).includes('E8'));
+    assert.ok(
+      row,
+      `the list must carry a row claiming E8, which is the edge SC5 is ruled on: ${JSON.stringify(planted.claims.map((one) => [one.criterion, claimedEdges(one)]))}`,
+    );
+    const without = planted.evidence.suites
+      .map((suite) => suite.path)
+      .filter(
+        (path) =>
+          path !== row.artefactPath &&
+          !carriesEdge(
+            claimText(join(CLAIM_ROOT, path), 'a suite the intent names'),
+            'E8',
+          ),
+      );
+    assert.ok(
+      without.length > 0,
+      `one suite this milestone names must carry no E8 title, so this pin can plant the citation the review found: ${JSON.stringify(planted.evidence.suites.map((suite) => suite.path))}`,
+    );
+    row.artefactPath = without[0];
+    let message = '';
+    try {
+      assert.doesNotThrow(() => assertEdgeTitles(planted));
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    assert.match(
+      message,
+      /none of that suite's \d+ test title\(s\) carries E8/,
+      `citing a suite whose titles carry no E8 must redden naming the edge and the file; it produced ${JSON.stringify(message.slice(0, 320))}`,
+    );
   });
 });

@@ -9,13 +9,13 @@
     "command": "npm run gate:fix-record -- --milestone M044 --head 5290d939497448823ca0f5d1ce5c1d777805ddb8",
     "exitCode": 0,
     "refusal": null,
-    "summary": "gate-integrity: pass - 0 finding(s), 4 mention(s)",
+    "summary": "gate-integrity: pass - 0 finding(s), 7 mention(s)",
     "counts": {
       "refusalLines": 0,
       "findings": 0,
-      "mentions": 4,
+      "mentions": 7,
       "claimsExamined": 4,
-      "taskLogsExamined": 6,
+      "taskLogsExamined": 5,
       "changedPaths": 52
     },
     "detail": {
@@ -24,7 +24,7 @@
       "range": "d94502d174aff31b0b1ebbab200d5e47939dec39..5290d939497448823ca0f5d1ce5c1d777805ddb8",
       "why": "the stage held to M044 at 5290d939 exits 0 with no refusal, deriving its range by rule ship: M043's ship commit, d94502d1 (ship: M043 — stability-explainer); the head is the commit the caller named, 5290d939 (plan(M056): T006 approved; build resumed); the live run over this tree's own milestone and its own head exits 0 with no refusal, which is recorded below as plainRun and is the same stage the predecessor section holds to the commit this record names rather than to HEAD.",
       "refusalLines": [],
-      "readingLine": "gate-integrity: fix-record clean - examined 4 claim(s) in 6 task log(s) of .project/tasks against 52 changed path(s) of d94502d174aff31b0b1ebbab200d5e47939dec39..5290d939497448823ca0f5d1ce5c1d777805ddb8 (rule ship: M043's ship commit, d94502d1 (ship: M043 — stability-explainer); the head is the commit the caller named, 5290d939 (plan(M056): T006 approved; build resumed); claims: declared)",
+      "readingLine": "gate-integrity: fix-record clean - examined 4 claim(s) in 5 task log(s) of .project/archive/044-gate-integrity/tasks (logs of M044) against 52 changed path(s) of d94502d174aff31b0b1ebbab200d5e47939dec39..5290d939497448823ca0f5d1ce5c1d777805ddb8 (rule ship: M043's ship commit, d94502d1 (ship: M043 — stability-explainer); the head is the commit the caller named, 5290d939 (plan(M056): T006 approved; build resumed); claims: declared)",
       "plainRun": {
         "command": "npm run gate:fix-record",
         "milestone": "M056",
@@ -42,11 +42,17 @@
     "summary": "ℹ fail 0",
     "counts": {
       "watched": 3,
+      "green": 3,
       "red": 0
     },
     "detail": {
       "failures": [],
-      "note": "the suite exits 0 and none of the 3 assertion(s) T001 reproduced is red at this head; every red one among them is held here with the first difference it prints, so a repair that reddens one again is a value this record states rather than absorbs."
+      "green": [
+        "the recording still re-derives from the tree, the range and the stream this head carries",
+        "AC2: a red check reaches the gate as a refusal",
+        "AC7: a log token is a claim only where its task declares it"
+      ],
+      "note": "the suite exits 0 and 3 of the 3 assertion(s) T001 reproduced is printed as passing by the runner's own roster, with none of them red at this head; a name that leaves the roster is a deleted or renamed test rather than a repair, so counts.green counts presence and every red one among them is held here with the first difference it prints."
     }
   },
   "predecessor": {
@@ -64,7 +70,7 @@
       "prints": "pass - 0 finding(s), 4 mention(s)",
       "lines": [
         "gate-integrity: <root> milestone M056; stages fix-record",
-        "gate-integrity: fix-record clean - examined 4 claim(s) in 6 task log(s) of .project/tasks against 18 changed path(s) of 53f93bb555ef1805934442b90976dcc807b1bda1..5290d939497448823ca0f5d1ce5c1d777805ddb8 (rule newest-ship: git log names no ship commit for M055, so the base is the newest it carries, 53f93bb5 (ship: M044 — gate-integrity); the head is the commit the caller named, 5290d939 (plan(M056): T006 approved; build resumed); claims: declared)",
+        "gate-integrity: fix-record clean - examined 4 claim(s) in 7 task log(s) of .project/tasks (logs of M056) against 18 changed path(s) of 53f93bb555ef1805934442b90976dcc807b1bda1..5290d939497448823ca0f5d1ce5c1d777805ddb8 (rule newest-ship: git log names no ship commit for M055, so the base is the newest it carries, 53f93bb5 (ship: M044 — gate-integrity); the head is the commit the caller named, 5290d939 (plan(M056): T006 approved; build resumed); claims: declared)",
         "gate-integrity: mention build-guard.ts at .project/tasks/T001-reproduce-the-three-red-assertions-and-publish-one-record.md:81 (T001) - recorded and not judged",
         "gate-integrity: mention SYNTHESIS.md at .project/tasks/T003-hold-the-recording-to-a-range-that-does-not-move-when-the-ship-commit-appears.md:82 (T003) - recorded and not judged",
         "gate-integrity: mention research/raw/m056-gate-stability.json at .project/tasks/T003-hold-the-recording-to-a-range-that-does-not-move-when-the-ship-commit-appears.md:89 (T003) - recorded and not judged",

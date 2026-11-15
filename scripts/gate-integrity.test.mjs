@@ -1886,7 +1886,7 @@ if (ARMED) {
 
 // ------------------------------------------------------------ the default run ----
 
-test('a default run is a read: the recording hashes the same before and after', (t) => {
+test('E6: a default run is a read: the recording hashes the same before and after', (t) => {
   const now = sha256(readFileSync(RECORD_PATH));
   t.diagnostic(
     `${RECORD_REL} at load: ${readFileSync(RECORD_PATH).length} bytes, sha256 ${baseline}`,

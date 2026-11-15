@@ -13,7 +13,11 @@
 //                predecessor section holds to the commit this record names rather than to HEAD.
 //   fixRecord    `node --test scripts/gate-integrity.test.mjs` is green: the three assertions T001
 //                reproduced are the three T002 and T003 repaired, so the section records the
-//                runner's summary line and none of the three among its failures.
+//                runner's summary line, none of the three among its failures, and the three by name
+//                out of the runner's own passing roster (`✔ name (Nms)`). `counts.green` is that
+//                presence rather than a constant: a watched test that is deleted or renamed stops
+//                being printed as passing, so the count falls and the record reddens instead of
+//                passing over a test that no longer exists.
 //   predecessor  `node scripts/gate-integrity.mjs --check fix-record --head <MEASURED_AT>` derives the
 //                range it is held to and passes, printing the line and the rule the record carries.
 //
@@ -28,7 +32,11 @@
 // disagrees with the record the moment it lands, and a re-capture re-pins the previous head for the
 // next commit to move - which is how two captures were lost. The named head is the commit the record
 // was measured at, so the commit carrying the record sits outside the range the record pins and the
-// derivation answers the same before it and after it.
+// derivation answers the same before it and after it. A default run proves that is the state it is
+// in rather than trusting the constant: `git log <capture.head>..HEAD -- <record>` must name the
+// commit that carries the record, so a re-pin to HEAD reddens on the next commit instead of going
+// quietly stale. An armed run has just written the record into the working tree, so its list is
+// legitimately empty and that one assertion is a default-run assertion.
 //
 // The record is compared on a default run and written only behind `M056_CAPTURE=1`, so a default run
 // is a read and an armed run with nothing moved changes no byte. Armed, on Windows cmd.exe (a bare
@@ -318,6 +326,21 @@ function titleOf(line) {
 }
 
 /**
+ * The names the child runner printed as passing: every `✔ name (Nms)` line's title, read with the
+ * same parser the failure blocks use. A test that is deleted or renamed is no longer printed here, so
+ * this roster is what presence is measured from rather than a count written beside it.
+ *
+ * @param {string[]} lines
+ * @returns {string[]}
+ */
+function passingTitles(lines) {
+  return lines
+    .filter((line) => /^\s*✔\s/u.test(line))
+    .map((line) => titleOf(line))
+    .filter((name) => name !== null && name !== '');
+}
+
+/**
  * The assertion message one failure block prints, with the deepest reading preferred: a
  * `deepEqual` that wraps another assertion states the difference in `Actual message`, and that is
  * the difference a reader needs, not the wrapper's sentence about it.
@@ -406,15 +429,21 @@ function failuresIn(list) {
 
 /**
  * The watched assertions this head reddens, as this task reads them: which of the three tests it
- * reproduces are red, each with the first difference it prints. A green watched assertion is a
- * repair this milestone landed, so the list is empty at a repaired head and the section's counts say
- * so - and a defect that returns puts its name and its first difference back into this list rather
- * than hiding inside a count.
+ * reproduces are red, each with the first difference it prints, and which of the three the runner's
+ * passing roster names. A green watched assertion is a repair this milestone landed, so the failure
+ * list is empty at a repaired head and the section's counts say so - and a defect that returns puts
+ * its name and its first difference back into this list rather than hiding inside a count. The roster
+ * is the other half of the same reading: a test that was deleted or renamed never appears in it, so
+ * `green` is a presence measured from the run rather than the constant `watched` looks like.
  */
 function deriveFixRecord() {
   const run = spawn(TEST_COMMAND);
   const watched = failuresIn(run.lines).filter((failure) =>
     WATCHED.some((name) => String(failure.name).includes(name)),
+  );
+  const passing = passingTitles(run.lines);
+  const green = WATCHED.filter((name) =>
+    passing.some((title) => title.includes(name)),
   );
   const refusal = watched.some((failure) =>
     String(failure.message).includes('(nothing-examined)'),
@@ -426,10 +455,15 @@ function deriveFixRecord() {
     exitCode: run.status,
     refusal,
     summary: run.lines.find((line) => /^ℹ +fail +(\d+)$/.test(line)) ?? '',
-    counts: { watched: WATCHED.length, red: watched.length },
+    counts: {
+      watched: WATCHED.length,
+      green: green.length,
+      red: watched.length,
+    },
     detail: {
       failures: watched,
-      note: `the suite exits ${run.status} and ${watched.length === 0 ? 'none' : String(watched.length)} of the ${WATCHED.length} assertion(s) T001 reproduced is red at this head; every red one among them is held here with the first difference it prints, so a repair that reddens one again is a value this record states rather than absorbs.`,
+      green,
+      note: `the suite exits ${run.status} and ${green.length} of the ${WATCHED.length} assertion(s) T001 reproduced is printed as passing by the runner's own roster, with ${watched.length === 0 ? 'none' : String(watched.length)} of them red at this head; a name that leaves the roster is a deleted or renamed test rather than a repair, so counts.green counts presence and every red one among them is held here with the first difference it prints.`,
     },
   };
 }
@@ -833,8 +867,38 @@ test('the three sections are what this head derives, so the record cannot drift 
   }
 });
 
+test('the commit carrying the record sits ahead of the head the record pins', (t) => {
+  const record = recorded();
+  const command = `git log --format=%H ${String(record.capture.head)}..HEAD -- ${RECORD_REL}`;
+  if (CAPTURE) {
+    // An armed run has just written the record into the working tree, so no commit carries the bytes
+    // it measured and the list is legitimately empty: this pin belongs to the default run.
+    t.diagnostic(
+      'armed run: the record is written into the working tree and not yet committed, so the carrier list is checked by a default run',
+    );
+    return;
+  }
+  const run = spawn(command);
+  assert.equal(
+    run.status,
+    0,
+    `${command} must run, or the carrier of this record is unmeasured: ${run.lines.join(' | ')}`,
+  );
+  const carriers = run.lines
+    .map((line) => line.trim())
+    .filter((line) => /^[0-9a-f]{40}$/.test(line));
+  assert.ok(
+    carriers.length > 0,
+    `${command} names no commit, so the head this record pins (${String(record.capture.head).slice(0, 8)}) is not behind the commit that carries ${RECORD_REL}: a record pinned at HEAD, or a record never committed, would pin nothing it outlives - and the next commit would move the range it names`,
+  );
+  t.diagnostic(
+    `carrier: ${command} names ${String(carriers.length)} commit(s), newest ${String(carriers[0]).slice(0, 8)}`,
+  );
+});
+
 test('the archive section records the clean pass the repaired task directory earns', (t) => {
-  const section = recorded().archive;
+  const record = recorded();
+  const section = record.archive;
   assert.deepEqual(
     { exitCode: section.exitCode, refusal: section.refusal },
     { exitCode: 0, refusal: null },
@@ -856,8 +920,8 @@ test('the archive section records the clean pass the repaired task directory ear
   );
   assert.match(
     String(section.detail.readingLine),
-    /^gate-integrity: fix-record clean - examined [1-9]\d* claim\(s\) in [1-9]\d* task log\(s\) of \S+ against [1-9]\d* changed path\(s\) of [0-9a-f]{40}\.\.[0-9a-f]{40} \(rule /,
-    `the line must be the pass this head derives, over the logs and the range it names: ${String(section.detail.readingLine)}`,
+    /^gate-integrity: fix-record clean - examined [1-9]\d* claim\(s\) in [1-9]\d* task log\(s\) of \S+ \(logs of (?:M\d{3}|no milestone)\) against [1-9]\d* changed path\(s\) of [0-9a-f]{40}\.\.[0-9a-f]{40} \(rule /,
+    `the line must be the pass this head derives, over the logs it names and the milestone they belong to: ${String(section.detail.readingLine)}`,
   );
   assert.match(
     String(section.detail.range),
@@ -866,8 +930,8 @@ test('the archive section records the clean pass the repaired task directory ear
   );
   assert.equal(
     String(section.detail.range).split('..')[1],
-    MEASURED_AT,
-    `the range must end at the commit the record was measured at rather than at this tree's HEAD, or the commit carrying the record moves it: ${String(section.detail.range)}`,
+    String(record.capture.head),
+    `the range must end at the commit this record's own capture block pins rather than at this tree's HEAD, or the commit carrying the record moves it: ${String(section.detail.range)} against ${String(record.capture.head)}`,
   );
   assert.deepEqual(
     {
@@ -909,6 +973,28 @@ test('the fixRecord section records the green suite its three repairs produced',
     0,
     'no watched assertion is red, so a red count is a defect this record states rather than absorbs',
   );
+  // Presence, not only absence: `counts.watched` is the constant the three names are, so it cannot
+  // see a test that no longer exists. `counts.green` comes from the runner's own passing roster, and
+  // the roster's names are recorded beside it - a deleted or renamed watched test leaves both short.
+  assert.equal(
+    section.counts.green,
+    WATCHED.length,
+    `counts.green is ${String(section.counts.green)} and ${String(WATCHED.length)} watched assertion(s) are pinned: a test that is deleted or renamed stops being printed as passing, so a short count is a missing test rather than a repair: ${JSON.stringify(section.detail.green)}`,
+  );
+  assert.deepEqual(
+    section.detail.green,
+    WATCHED,
+    `the passing roster must name every watched assertion, and it names ${JSON.stringify(section.detail.green)} of ${JSON.stringify(WATCHED)}: a missing name is a deleted or renamed test, not a green one`,
+  );
+  // The same presence read from this run rather than from the record, so a watched test deleted or
+  // renamed after the last capture is named here and not only counted by the drift pin.
+  const roster = measured().fixRecord.detail.green;
+  for (const watched of WATCHED) {
+    assert.ok(
+      roster.includes(watched),
+      `${watched} is one of the three T001 reproduced, and this head's passing roster names ${JSON.stringify(roster)}: a watched test that is deleted or renamed is a missing name rather than a repaired one`,
+    );
+  }
   for (const watched of WATCHED) {
     const found = failures.find((failure) =>
       String(failure.name).includes(watched),
