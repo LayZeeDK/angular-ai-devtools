@@ -12,6 +12,7 @@ task_branch: null
 files:
   - research/raw/m045-console-panel.json
   - scripts/console-panel-record.test.mjs
+  - research/raw/m057-verdict-claims.json
 ---
 
 # T004 — Record the surface and run the project verify
