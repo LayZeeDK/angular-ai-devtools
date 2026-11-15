@@ -1,9 +1,9 @@
 ---
 id: T004
 title: Record the surface and run the project verify
-wave: 4
+wave: 5
 deps:
-  - T003
+  - T005
 status: pending
 agent: null
 base: null

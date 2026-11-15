@@ -97,7 +97,19 @@ T003 adds `panel-console.ts`, its `LOADERS` entry in `panel-demo.ts`, the route,
 `app.spec.ts`, `page-picker.component.spec.ts` and `scripts/after-render-fixture.test.mjs` for the new
 route count. Declares each of those files.
 
-## Wave 4 — record the surface and run the project verify
+## Wave 4 — make the gate agree with this milestone's own evidence
+
+Goal: the project verify is green at a head this milestone produced, so T004's recording is the only
+thing left between the branch and `prepare-final`.
+
+Review depth: full
+
+T005 owns the two rules that refuse: `gate:fix-record` must treat a declared path left byte-identical
+as a pin rather than a claim, and `scripts/navigation-blocking.test.mjs` must read the five-column
+intent table with the test-to-edge mapping taken from the plan's held-out table. It also re-arms the
+two shape records those changes move.
+
+## Wave 5 — record the surface and run the project verify
 
 Goal: the surface's behaviour is recorded and the whole project verify is green at the shipped head.
 
