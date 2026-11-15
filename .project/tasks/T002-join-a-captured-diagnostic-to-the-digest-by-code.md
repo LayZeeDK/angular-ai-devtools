@@ -12,6 +12,10 @@ task_branch: null
 files:
   - extension/console-join.js
   - scripts/console-join.test.mjs
+  - scripts/gate-integrity.test.mjs
+  - research/raw/m044-gate-shapes.json
+  - scripts/recording-consistency.test.mjs
+  - scripts/gate-integrity-default-tasks.test.mjs
 ---
 
 # T002 — Join a captured diagnostic to the digest by code
@@ -26,6 +30,8 @@ The panel must say, per captured diagnostic, what the digest says about the code
 - Report a message with no code as such, and a code with no entry by name, never as a count.
 - Report an empty capture as `captured-nothing`, distinct from `no-diagnostics`.
 - Arm three mutants: body matching, absence-as-count, and a collapsed empty capture; each must redden a test that names its defect.
+
+- Declare the gate this suite feeds and repair it in the same landing: add the suite to `SUITE_DIFF_REASONS` in `scripts/gate-integrity.test.mjs`, re-arm `M044_CAPTURE=1 node --experimental-strip-types --test scripts/gate-integrity.test.mjs` so `research/raw/m044-gate-shapes.json` derives the new suite count, and make `scripts/recording-consistency.test.mjs` accept T001's `research/raw/m045-console-shapes.json` in its prose terms. The gate is red at this head before this task: the record's `fixRecord` disagrees with what the head derives, and the re-capture is what settles it.
 
 ## Acceptance criteria
 

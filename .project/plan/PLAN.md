@@ -108,10 +108,15 @@ runs `npm run check && npm test`.
 
 ## Risks
 
+- **The gate pins the suites this milestone adds.** `scripts/gate-integrity.test.mjs` requires a
+  hand-written reason for every suite that differs from `d94502d1`, and holds its derivation against
+  `research/raw/m044-gate-shapes.json`; `scripts/recording-consistency.test.mjs` judges every
+  recording's prose. Three of the four tasks add a suite or a recording, so T002 and T003 each declare
+  those three files and each re-arms the capture in its own landing. Measured at `c071d9dd` before
+  T002: the gate was already red — `fixRecord` disagrees with what that head derives — so the first
+  landing that touches it also repairs that.
 - The route count is enumerated by three suites and one recording; all four are declared in T003's
   `files:` rather than discovered at the gate.
-- `console.error` payloads are strings in the observed path; a non-string argument is an edge (E5) that
-  must not crash the join.
 
 ## Out of scope
 

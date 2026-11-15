@@ -17,6 +17,13 @@ files:
   - apps/angular-ai-devtools/src/app/page-picker.component.spec.ts
   - scripts/after-render-fixture.test.mjs
   - scripts/console-panel-render.test.mjs
+  - scripts/gate-integrity.test.mjs
+  - research/raw/m044-gate-shapes.json
+  - scripts/recording-consistency.test.mjs
+  - apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts
+  - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
+  - scripts/gate-integrity-default-tasks.test.mjs
+  - tests/held-out/fixture-explainers-unchanged.test.mjs
 ---
 
 # T003 — Render the join and pin the routes it adds
@@ -31,6 +38,8 @@ The surface renders the join and nothing else. Adding a route stales every suite
 - Add its `LOADERS` entry in `panel-demo.ts` and its route in `app.routes.ts`.
 - Update the route-count pins in `app.spec.ts`, `page-picker.component.spec.ts` and `scripts/after-render-fixture.test.mjs`.
 - Add `scripts/console-panel-render.test.mjs` pinning that the rendered surface carries no cause, element, remedy or unattributed angular wording (E7).
+
+- Re-arm the same gate after adding the panel render suite, and keep `research/raw/m044-gate-shapes.json` in step with the suite counts this task changes.
 
 ## Acceptance criteria
 
