@@ -36,7 +36,7 @@ The panel must say, per captured diagnostic, what the digest says about the code
 
 ## Interface contract
 
-`extension/console-join.js` exports `consoleJoin(diagnostics, digest)` returning `{ state, findings[] }`, where `state` is `joined`, `captured-nothing` or `no-diagnostics`, and each finding is `{ text, code?, title?, reason? }` with `reason` present only when the digest lacks the code the message carried. The panel renders `state` and `findings` and nothing else, at route `console`, through the `console` key in `panel-demo.ts` `LOADERS`. The recordings are `research/raw/m045-console-shapes.json` (capture and digest shapes) and `research/raw/m045-console-panel.json` (per-case `{ state, findings[] }`).
+The join returns `{ state, findings[] }`, where `state` is exactly one of `joined`, `captured-nothing` or `no-diagnostics`, and each finding is `{ text, code?, title?, reason? }` with `reason` present only when the digest lacks the code the message carried and `code` absent only when the message carried none. The panel renders `state` and `findings` and nothing else: no cause, element, remedy or unattributed wording. The capture and digest shapes are recorded as data, and the surface's per-case `{ state, findings[] }` is recorded the same way, so a suite can assert either without re-deriving it.
 
 ## Intent coverage
 
