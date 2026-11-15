@@ -10,7 +10,7 @@
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
     "filesExamined": 273,
     "suitesExamined": 143,
-    "examined": 179,
+    "examined": 175,
     "movedSubtrees": [
       "build",
       "intent",
@@ -27,14 +27,14 @@
     "counts": {
       "archived-by-the-move": 17,
       "deliberate-archive-read": 27,
-      "undecided": 135
+      "undecided": 131
     },
     "sites": {
       "path": 9,
-      "comment": 67,
+      "comment": 64,
       "segment": 57,
       "citation": 8,
-      "message": 33,
+      "message": 32,
       "pattern": 5
     },
     "references": [
@@ -1150,45 +1150,13 @@
       },
       {
         "file": "scripts/navigation-blocking.test.mjs",
-        "line": 2416,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/navigation-blocking.test.mjs",
-        "line": 2444,
+        "line": 2441,
         "path": ".project/STATE.md",
         "site": "segment",
         "class": "undecided",
         "reason": "resolves to .project/STATE.md, and .project/STATE.md is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies",
         "root": "CLAIM_ROOT",
         "construct": "call"
-      },
-      {
-        "file": "scripts/navigation-blocking.test.mjs",
-        "line": 2548,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/navigation-blocking.test.mjs",
-        "line": 2660,
-        "path": ".project",
-        "site": "message",
-        "class": "undecided",
-        "reason": "resolves to .project, and .project/ is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
-      },
-      {
-        "file": "scripts/navigation-blocking.test.mjs",
-        "line": 2777,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
       },
       {
         "file": "scripts/navigation-capture.test.mjs",
@@ -2064,7 +2032,7 @@
         "file": "scripts/navigation-blocking.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 911,
+        "addedLines": 851,
         "removedLines": 4,
         "addedAssertionLines": 51,
         "removedAssertionLines": 0,
@@ -2215,6 +2183,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-15T03:19:12.944Z"
+    "at": "2026-11-15T09:55:12.338Z"
   }
 }

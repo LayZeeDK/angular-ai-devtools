@@ -4,9 +4,9 @@ title: Derive the claims record path from the milestone it describes
 wave: 5
 deps:
   - T004
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T005
+base: aa9e821f378fe165d07c2deb9cb3e23ec75387bf
 worktree: null
 task_branch: null
 files:
@@ -79,3 +79,6 @@ node --check scripts/navigation-blocking.test.mjs && node --test scripts/overlay
 - 2026-11-15 — created from the four failures measured at `7af74f06`. No work started.
 
 - 2026-11-15 - contract extended: editing `scripts/navigation-blocking.test.mjs` moves two values in `research/raw/m044-gate-shapes.json` (archiveReferences.references and suiteDiff), which reddens three assertions in `scripts/gate-integrity.test.mjs` and, through it, the stability record's green pin. T003 declares that file for the same reason. Repair order: M044_CAPTURE=1 on gate-integrity, then M056_CAPTURE=1 on the stability record, then npm test in a worktree with fixture installs (a verify sidecar cannot reach the baseline).
+- 2026-11-15 - derived the claims path, wrote the M056 claims list, re-captured both recordings; each suite green, npm run check exit 0. This landing.
+
+Verdict: ready
