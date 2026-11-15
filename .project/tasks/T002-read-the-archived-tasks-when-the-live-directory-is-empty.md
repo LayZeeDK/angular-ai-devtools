@@ -58,11 +58,10 @@ node --check scripts/gate-integrity.mjs && node --test scripts/gate-integrity-de
 
 ## Acceptance criteria
 
-- `npm run gate:fix-record` exits 0 on this tree, printing the number of archived task logs it examined.
-- A fixture with no task file in either directory still yields `nothing-examined`.
-- Removing the archived-directory branch reddens the fixture suite naming the empty-live case.
-
-- Held-out edges E1, E2, E3, E4, E9 are each exercised by `scripts/gate-integrity-default-tasks.test.mjs`, and each fails when its repair is reverted.
+1. `npm run gate:fix-record` exits 0 on this tree, printing the number of archived task logs it examined.
+2. A fixture with no task file in either directory still yields `nothing-examined`.
+3. Removing the archived-directory branch reddens the fixture suite naming the empty-live case.
+4. Held-out edges E1, E2, E3, E4, E9 are each exercised by `scripts/gate-integrity-default-tasks.test.mjs`, and each fails when its repair is reverted.
 
 ## Log
 

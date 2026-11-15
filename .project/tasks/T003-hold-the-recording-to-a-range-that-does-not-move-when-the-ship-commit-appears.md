@@ -57,12 +57,11 @@ node --check scripts/gate-integrity.mjs && node --test scripts/gate-integrity.te
 
 ## Acceptance criteria
 
-- `node --test scripts/gate-integrity.test.mjs` reports 0 failures at this head, with the ship commit present.
-- A default run leaves the recording's bytes unchanged; the capture diff names only the section it moved.
-- A milestone whose numerically previous id is unshipped derives a range and prints the base it used.
-- Restoring the numeric-predecessor rule reddens a test that names it.
-
-- Held-out edges E5, E6, E8 are each exercised by `scripts/gate-integrity.test.mjs`, and each fails when its repair is reverted.
+1. `node --test scripts/gate-integrity.test.mjs` reports 0 failures at this head, with the ship commit present.
+2. A default run leaves the recording's bytes unchanged; the capture diff names only the section it moved.
+3. A milestone whose numerically previous id is unshipped derives a range and prints the base it used.
+4. Restoring the numeric-predecessor rule reddens a test that names it.
+5. Held-out edges E5, E6, E8 are each exercised by `scripts/gate-integrity.test.mjs`, and each fails when its repair is reverted.
 
 ## Log
 

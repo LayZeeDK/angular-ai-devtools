@@ -52,11 +52,10 @@ node --check scripts/gate-stability-record.test.mjs && node --test scripts/gate-
 
 ## Acceptance criteria
 
-- The record names the three commands and their exit codes, and a default run of the suite re-derives them.
-- Removing the `nothing-examined` refusal from the stage reddens the suite naming the section.
-- Two armed runs with nothing moved leave the recording byte-identical.
-
-- Held-out edges E7 are each exercised by `scripts/gate-stability-record.test.mjs`, and each fails when its repair is reverted.
+1. The record names the three commands and their exit codes, and a default run of the suite re-derives them.
+2. Removing the `nothing-examined` refusal from the stage reddens the suite naming the section.
+3. Two armed runs with nothing moved leave the recording byte-identical.
+4. Held-out edges E7 are each exercised by `scripts/gate-stability-record.test.mjs`, and each fails when its repair is reverted.
 
 ## Log
 
