@@ -32,11 +32,6 @@ outright when the numerically previous milestone is unshipped.
   `git log` carries and print the base it used, instead of stopping.
 - Re-capture once, and state in the task log which section moved and why.
 
-## Interface contract
-
-`workRange(root, milestone)` returns `{ range, base, head, mode, error }`; `mode` names which rule answered
-(`ship`, `recorded`, `newest-ship` or `none`) and is printed by the stage so a refusal says which rule failed.
-
 ## Intent coverage
 
 - SC3

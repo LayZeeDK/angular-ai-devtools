@@ -31,11 +31,6 @@ every integrated tree. The refusal is right; the default is wrong.
 - Put the fixture suite in its own file: `scripts/gate-integrity.test.mjs` permits exactly one
   `writeFileSync` inside its armed capture gate and a fixture test must write.
 
-## Interface contract
-
-`defaultTaskInput(root: string, milestone: string): string` — a project-relative path, always one of the
-two directories, never `null`, so a caller cannot accidentally disable the check.
-
 ## Intent coverage
 
 - SC1

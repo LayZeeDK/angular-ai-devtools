@@ -30,11 +30,6 @@ record the later tasks are held to, so neither repair can be written against a m
 - Publish `research/raw/m056-gate-stability.json` with those three sections, and a suite that re-derives
   them: the two commands are spawned, so the record cannot drift from the tree without failing.
 
-## Interface contract
-
-Each section carries `command`, `exitCode`, `refusal` (or `null`), `counts` and `detail`. `M056_CAPTURE=1`
-arms the one write, exactly as M044's recording does.
-
 ## Intent coverage
 
 - SC1
