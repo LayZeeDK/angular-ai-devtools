@@ -120,6 +120,18 @@ ship blocker, and a `--evidence` path that hides a check is not an argument.
 
 ## Programmes
 
+### The intent's edge table is five columns — owner ruling 2026-11-15
+
+`check_handoffs` validates `## Edge coverage` as `Edge | Criterion | Category | Disposition | Detail`
+(five columns). M041's `scripts/navigation-blocking.test.mjs` reads a six-column table with a `Test`
+column and expects suite titles to carry edge ids; an intent cannot satisfy both, and four of M045's
+thirteen verify failures came from that alone.
+
+The five-column grammar is authoritative. The test-to-edge mapping lives in one place: the plan's
+`## Held-out checks` table (`Edge | Task | Test`). `navigation-blocking.test.mjs` must read the plan's
+table for that mapping instead of demanding a sixth intent column. Do not add a `Test` column to
+`INTENT.md`; duplicating the mapping across two files leaves nothing keeping them in step.
+
 The product is a backlog of **seven programmes** (generations), defined in
 `plans/angular-ai-devtools-program-backlog.md`. That document is the durable record of the
 owner's rulings and the milestone backlog; `.project/ROADMAP.md` is the authoritative roadmap
