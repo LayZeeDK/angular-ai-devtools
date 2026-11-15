@@ -14,6 +14,7 @@ files:
   - research/raw/m056-verdict-claims.json
   - scripts/gate-stability-record.test.mjs
   - research/raw/m056-gate-stability.json
+  - research/raw/m044-gate-shapes.json
 ---
 
 # T005 — Derive the claims record path from the milestone it describes
@@ -76,3 +77,5 @@ node --check scripts/navigation-blocking.test.mjs && node --test scripts/overlay
 ## Log
 
 - 2026-11-15 — created from the four failures measured at `7af74f06`. No work started.
+
+- 2026-11-15 - contract extended: editing `scripts/navigation-blocking.test.mjs` moves two values in `research/raw/m044-gate-shapes.json` (archiveReferences.references and suiteDiff), which reddens three assertions in `scripts/gate-integrity.test.mjs` and, through it, the stability record's green pin. T003 declares that file for the same reason. Repair order: M044_CAPTURE=1 on gate-integrity, then M056_CAPTURE=1 on the stability record, then npm test in a worktree with fixture installs (a verify sidecar cannot reach the baseline).
