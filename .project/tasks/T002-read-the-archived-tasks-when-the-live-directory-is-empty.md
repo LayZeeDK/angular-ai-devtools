@@ -5,7 +5,7 @@ wave: 2
 deps:
   - T001
 status: pending
-agent: null
+agent: build_T002
 base: null
 worktree: null
 task_branch: null
