@@ -4,7 +4,7 @@ title: Reproduce the three red assertions at this head and publish one record
 wave: 1
 deps: []
 status: pending
-agent: null
+agent: build_T001
 base: null
 worktree: null
 task_branch: null
