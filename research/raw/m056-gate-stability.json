@@ -1,0 +1,125 @@
+{
+  "schema": "m056-gate-stability/v1",
+  "milestone": "gate-phase-stability",
+  "task": "T001",
+  "title": "Reproduce the three red assertions at this head and publish one record",
+  "question": "which commands refuse at this head, what does each one print, and does the stage name the predecessor whose ship commit git does not record?",
+  "verdict": "all three measurements refused at this head: the fix-record stage over M044 examines three task logs and zero claims and refuses nothing-examined, the suite reddens the three assertions this task reproduces with the first difference each prints, and the stage on this branch cannot derive a range because git log names no ship commit for M055",
+  "archive": {
+    "command": "npm run gate:fix-record -- --milestone M044",
+    "exitCode": 1,
+    "refusal": "nothing-examined",
+    "counts": {
+      "refusalLines": 1,
+      "findings": 1,
+      "mentions": 0,
+      "claimsExamined": 0,
+      "taskLogsExamined": 3,
+      "changedPaths": 40
+    },
+    "detail": {
+      "milestone": "M044",
+      "stage": "fix-record",
+      "range": "d94502d174aff31b0b1ebbab200d5e47939dec39..53f93bb555ef1805934442b90976dcc807b1bda1",
+      "why": "this tree binds M056 in its state file and git records no ship commit for M055 or M056, so the plain run stops at the range; the three red assertions hold the stage to M044, whose two ship commits git does record, and that is the run that reaches the archived-task refusal. The plain run is recorded below as plainRun, and the same stop is the predecessor section's own measurement.",
+      "refusalLines": [
+        "gate-integrity: refusal .project/tasks/T001-reproduce-the-three-red-assertions-and-publish-one-record.md at range (nothing-examined) - no claim was compared against the range, so the check examined nothing rather than finding every claim true"
+      ],
+      "readingLine": "gate-integrity: fix-record refused - examined 0 claim(s) in 3 task log(s) against 40 changed path(s) of d94502d174aff31b0b1ebbab200d5e47939dec39..53f93bb555ef1805934442b90976dcc807b1bda1 (the range this milestone shipped; claims: declared)",
+      "plainRun": {
+        "command": "npm run gate:fix-record",
+        "milestone": "M056",
+        "exitCode": 2,
+        "refusal": "range-not-derivable",
+        "refusalLines": [
+          "gate-integrity: fix-record cannot derive the range it is held to - git log names no ship commit for M055, so the range this milestone owns cannot be derived; and the range this milestone has written so far cannot be derived either, because git log names no ship commit for M055"
+        ]
+      }
+    }
+  },
+  "fixRecord": {
+    "command": "node --test scripts/gate-integrity.test.mjs",
+    "exitCode": 1,
+    "refusal": "nothing-examined",
+    "counts": {
+      "watched": 3,
+      "red": 3
+    },
+    "detail": {
+      "failures": [
+        {
+          "name": "the recording still re-derives from the tree, the range and the stream this head carries",
+          "at": "scripts/gate-integrity.test.mjs:1912:1",
+          "kind": "Error",
+          "firstDifference": "scripts/gate-stability-record.test.mjs differs from d94502d1 and no reason was read for it, so recording it would be a guess rather than a reading of the diff",
+          "difference": null,
+          "message": "scripts/gate-stability-record.test.mjs differs from d94502d1 and no reason was read for it, so recording it would be a guess rather than a reading of the diff"
+        },
+        {
+          "name": "AC2: a red check reaches the gate as a refusal, and this milestone’s own tree passes it",
+          "at": "scripts/gate-integrity.test.mjs:3088:1",
+          "kind": "AssertionError",
+          "firstDifference": "the gate must exit zero on this milestone's own tree: gate-integrity: <root> milestone M044; stages archive-paths then fix-record | gate-integrity: archive-paths clean - examined 16 live path reference(s) of 158 reference(s) in 142 suite(s), across 6 relocated subtree(s) | gate-integrity: fix-record refused - examined 0 claim(s) in 3 task log(s) against 40 changed path(s) of d94502d174aff31b0b1ebbab200d5e47939dec39..53f93bb555ef1805934442b90976dcc807b1bda1 (the range this milestone shipped; claims: declared) | gate-integrity: refusal .project/tasks/T001-reproduce-the-three-red-assertions-and-publish-one-record.md at range (nothing-examined) - no claim was compared against the range, so the check examined nothing rather than finding every claim true | gate-integrity: refuse - 1 finding(s), 0 mention(s)",
+          "difference": "1 !== 0",
+          "message": "the gate must exit zero on this milestone's own tree: gate-integrity: <root> milestone M044; stages archive-paths then fix-record | gate-integrity: archive-paths clean - examined 16 live path reference(s) of 158 reference(s) in 142 suite(s), across 6 relocated subtree(s) | gate-integrity: fix-record refused - examined 0 claim(s) in 3 task log(s) against 40 changed path(s) of d94502d174aff31b0b1ebbab200d5e47939dec39..53f93bb555ef1805934442b90976dcc807b1bda1 (the range this milestone shipped; claims: declared) | gate-integrity: refusal .project/tasks/T001-reproduce-the-three-red-assertions-and-publish-one-record.md at range (nothing-examined) - no claim was compared against the range, so the check examined nothing rather than finding every claim true | gate-integrity: refuse - 1 finding(s), 0 mention(s)"
+        },
+        {
+          "name": "AC7: a log token is a claim only where its task declares it, and claims: log still reports nx.json",
+          "at": "scripts/gate-integrity.test.mjs:3182:1",
+          "kind": "AssertionError",
+          "firstDifference": "the gate's declared run must be clean over M044's own tasks: gate-integrity: <root> milestone M044; stages fix-record | gate-integrity: fix-record refused - examined 0 claim(s) in 3 task log(s) against 40 changed path(s) of d94502d174aff31b0b1ebbab200d5e47939dec39..53f93bb555ef1805934442b90976dcc807b1bda1 (the range this milestone shipped; claims: declared) | gate-integrity: refusal .project/tasks/T001-reproduce-the-three-red-assertions-and-publish-one-record.md at range (nothing-examined) - no claim was compared against the range, so the check examined nothing rather than finding every claim true | gate-integrity: refuse - 1 finding(s), 0 mention(s)",
+          "difference": "1 !== 0",
+          "message": "the gate's declared run must be clean over M044's own tasks: gate-integrity: <root> milestone M044; stages fix-record | gate-integrity: fix-record refused - examined 0 claim(s) in 3 task log(s) against 40 changed path(s) of d94502d174aff31b0b1ebbab200d5e47939dec39..53f93bb555ef1805934442b90976dcc807b1bda1 (the range this milestone shipped; claims: declared) | gate-integrity: refusal .project/tasks/T001-reproduce-the-three-red-assertions-and-publish-one-record.md at range (nothing-examined) - no claim was compared against the range, so the check examined nothing rather than finding every claim true | gate-integrity: refuse - 1 finding(s), 0 mention(s)"
+        }
+      ],
+      "note": "the run also reddens assertions this task does not own - every one of them is the M044 recording being hashed over a suite tree it has not been told a reason for yet, and T003 re-captures it. The record holds the three assertions this task reproduces so a repair that greens one is a difference it states rather than absorbs."
+    }
+  },
+  "predecessor": {
+    "command": "node scripts/gate-integrity.mjs --check fix-record",
+    "exitCode": 2,
+    "refusal": "no-ship-commit-for-M055",
+    "counts": {
+      "refusalLines": 1,
+      "findings": null
+    },
+    "detail": {
+      "milestone": "M056",
+      "unshipped": "M055",
+      "prints": "fix-record cannot derive the range it is held to - git log names no ship commit for M055",
+      "lines": [
+        "gate-integrity: <root> milestone M056; stages fix-record",
+        "gate-integrity: fix-record cannot derive the range it is held to - git log names no ship commit for M055, so the range this milestone owns cannot be derived; and the range this milestone has written so far cannot be derived either, because git log names no ship commit for M055"
+      ]
+    }
+  },
+  "capture": {
+    "task": "T001",
+    "command": "set \"M056_CAPTURE=1\"&& node --test scripts/gate-stability-record.test.mjs",
+    "check": "node --test scripts/gate-stability-record.test.mjs",
+    "records": "research/raw/m056-gate-stability.json",
+    "criteria": [
+      "SC1",
+      "SC4"
+    ],
+    "remeasured": [
+      "archive.command",
+      "archive.counts",
+      "archive.detail",
+      "archive.exitCode",
+      "archive.refusal",
+      "fixRecord.command",
+      "fixRecord.counts",
+      "fixRecord.detail",
+      "fixRecord.exitCode",
+      "fixRecord.refusal",
+      "predecessor.command",
+      "predecessor.counts",
+      "predecessor.detail",
+      "predecessor.exitCode",
+      "predecessor.refusal"
+    ],
+    "reading": "an armed run spawns the three commands the record is made of and re-derives every field from what they printed; a default run spawns the same commands and asserts the committed record is exactly what this head derives, so the record cannot drift from the tree without failing.",
+    "at": "2026-11-15T01:09:35.719Z"
+  }
+}

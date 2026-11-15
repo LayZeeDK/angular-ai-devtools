@@ -3,9 +3,9 @@ id: T001
 title: Reproduce the three red assertions at this head and publish one record
 wave: 1
 deps: []
-status: pending
+status: done
 agent: build_T001
-base: null
+base: db227f7b19be4b9a8e61cbb79dbce804f257eedf
 worktree: null
 task_branch: null
 files:
