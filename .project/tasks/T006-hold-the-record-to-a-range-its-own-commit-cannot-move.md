@@ -4,9 +4,9 @@ title: Hold the record to a range its own commit cannot move
 wave: 6
 deps:
   - T005
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T006
+base: 5290d939497448823ca0f5d1ce5c1d777805ddb8
 worktree: null
 task_branch: null
 files:
@@ -74,3 +74,6 @@ node --check scripts/gate-stability-record.test.mjs && node --check scripts/gate
 ## Log
 
 - 2026-11-15 — created from the single failure measured at `3d3ccc88`. No work started.
+- 2026-11-15 - chose approach 3: the range's head is a named commit, threaded through a new --head flag, with the record naming the commit that does not carry it. Mutant that drops --head reddens the suite at the committed head, naming the range it derived instead. Armed 8/armed-again-nothing-written/unarmed 7, record byte-identical across default runs, npm run check exit 0. This landing.
+
+Verdict: ready

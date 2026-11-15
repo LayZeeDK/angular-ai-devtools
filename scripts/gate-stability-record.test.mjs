@@ -5,21 +5,30 @@
 //
 // Three measurements, each re-derived by spawning the command that makes it rather than remembered:
 //
-//   archive      `npm run gate:fix-record -- --milestone M044` passes: the stage examines the live
-//                task logs, compares the paths they claim against the range, and prints the summary
-//                line this record carries. The milestone is passed explicitly because this tree
-//                binds M056; the plain run over that binding is recorded beside it as plainRun, and
-//                it is the same command the predecessor section measures.
+//   archive      `npm run gate:fix-record -- --milestone M044 --head <MEASURED_AT>` passes: the stage
+//                examines the live task logs, compares the paths they claim against the range, and
+//                prints the summary line this record carries. The milestone is passed explicitly
+//                because this tree binds M056, and the head because HEAD moves; the live run over
+//                that binding is recorded beside it as plainRun, which is the same stage the
+//                predecessor section holds to the commit this record names rather than to HEAD.
 //   fixRecord    `node --test scripts/gate-integrity.test.mjs` is green: the three assertions T001
 //                reproduced are the three T002 and T003 repaired, so the section records the
 //                runner's summary line and none of the three among its failures.
-//   predecessor  `node scripts/gate-integrity.mjs --check fix-record` derives the range it is held
-//                to and passes, printing the line and the rule the record carries.
+//   predecessor  `node scripts/gate-integrity.mjs --check fix-record --head <MEASURED_AT>` derives the
+//                range it is held to and passes, printing the line and the rule the record carries.
 //
 // A stage that passes has no refusal class, so `refusal` is null in all three sections; and the
 // verdict is built from the three measured statuses rather than typed, so the record cannot claim a
 // state the tree does not carry. A section that refuses again records its class, and the pins below
 // name it.
+//
+// The head the two stage runs are held to is `MEASURED_AT`, a commit this tree carries, named with
+// `--head` rather than left to HEAD. A record that pins `<base>..HEAD` is moved by the very commit
+// that carries it: the head it named becomes the parent of its own commit, so the derivation
+// disagrees with the record the moment it lands, and a re-capture re-pins the previous head for the
+// next commit to move - which is how two captures were lost. The named head is the commit the record
+// was measured at, so the commit carrying the record sits outside the range the record pins and the
+// derivation answers the same before it and after it.
 //
 // The record is compared on a default run and written only behind `M056_CAPTURE=1`, so a default run
 // is a read and an armed run with nothing moved changes no byte. Armed, on Windows cmd.exe (a bare
@@ -53,13 +62,21 @@ const QUESTION =
 /** The criteria this task answers, read from the task file rather than retyped as a claim. */
 const CRITERIA = ['SC1', 'SC4'];
 
+/**
+ * The commit the record was measured at, named as the range's head instead of HEAD: the last commit
+ * that does not carry this record. It is an input the brief names rather than a value a reading of the
+ * tree settles - the same kind of value as `capture.at` - and it is what makes the record outlive the
+ * commit that writes it. `git rev-parse` resolves it, so a commit this repository does not carry is a
+ * refusal rather than a range over nothing.
+ */
+const MEASURED_AT = '5290d939497448823ca0f5d1ce5c1d777805ddb8';
+
 /** The three commands the record is made of, spelled as a person would type them. */
 const GATE_COMMAND = 'npm run gate:fix-record';
 const HELD_TO = 'M044';
-const GATE_HELD_COMMAND = `${GATE_COMMAND} -- --milestone ${HELD_TO}`;
+const GATE_HELD_COMMAND = `${GATE_COMMAND} -- --milestone ${HELD_TO} --head ${MEASURED_AT}`;
 const TEST_COMMAND = 'node --test scripts/gate-integrity.test.mjs';
-const PREDECESSOR_COMMAND =
-  'node scripts/gate-integrity.mjs --check fix-record';
+const PREDECESSOR_COMMAND = `node scripts/gate-integrity.mjs --check fix-record --head ${MEASURED_AT}`;
 
 const CHECK_COMMAND = 'node --test scripts/gate-stability-record.test.mjs';
 const ARMED_COMMAND = `set "M056_CAPTURE=1"&& ${CHECK_COMMAND}`;
@@ -278,7 +295,7 @@ function deriveArchive() {
       milestone: textIn(held.lines.join('\n'), /milestone (M\d{3}|unbound)/),
       stage: 'fix-record',
       range: textIn(readingLine, /of ([0-9a-f]{40}\.\.[0-9a-f]{40})/),
-      why: `${runSentence({ status: held.status, refusal, readingLine }, `the stage held to ${HELD_TO}`)}; ${runSentence({ status: plain.status, refusal: plainRefusal, readingLine: '' }, "the plain run over this tree's own milestone")}, which is recorded below as plainRun and is the same command the predecessor section measures.`,
+      why: `${runSentence({ status: held.status, refusal, readingLine }, `the stage held to ${HELD_TO} at ${MEASURED_AT.slice(0, 8)}`)}; ${runSentence({ status: plain.status, refusal: plainRefusal, readingLine: '' }, "the live run over this tree's own milestone and its own head")}, which is recorded below as plainRun and is the same stage the predecessor section holds to the commit this record names rather than to HEAD.`,
       refusalLines,
       readingLine,
       plainRun: {
@@ -547,10 +564,11 @@ function derive(at) {
       command: ARMED_COMMAND,
       check: CHECK_COMMAND,
       records: RECORD_REL,
+      head: MEASURED_AT,
       criteria: CRITERIA,
       remeasured: remeasured(sections),
       reading:
-        'an armed run spawns the three commands the record is made of and re-derives every field from what they printed; a default run spawns the same commands and asserts the committed record is exactly what this head derives, so the record cannot drift from the tree without failing.',
+        'an armed run spawns the three commands the record is made of and re-derives every field from what they printed; the two stage runs are held to capture.head rather than HEAD, so the commit that carries this record cannot move the range it pins; a default run spawns the same commands and asserts the committed record is exactly what this head derives, so the record cannot drift from the tree without failing.',
       at,
     },
   };
@@ -647,6 +665,14 @@ function assertShape(recorded) {
   }
   if (capture.records !== RECORD_REL) {
     fail(`capture.records is ${JSON.stringify(capture.records)}`);
+  }
+  if (
+    typeof capture.head !== 'string' ||
+    !/^[0-9a-f]{40}$/.test(capture.head)
+  ) {
+    fail(
+      `capture.head is ${JSON.stringify(capture.head)}, not the commit the record was measured at`,
+    );
   }
   if (JSON.stringify(capture.criteria) !== JSON.stringify(CRITERIA)) {
     fail(`capture.criteria is ${JSON.stringify(capture.criteria)}`);
@@ -837,6 +863,11 @@ test('the archive section records the clean pass the repaired task directory ear
     String(section.detail.range),
     /^[0-9a-f]{40}\.\.[0-9a-f]{40}$/,
     `the stage must derive the range it is held to: ${String(section.detail.range)}`,
+  );
+  assert.equal(
+    String(section.detail.range).split('..')[1],
+    MEASURED_AT,
+    `the range must end at the commit the record was measured at rather than at this tree's HEAD, or the commit carrying the record moves it: ${String(section.detail.range)}`,
   );
   assert.deepEqual(
     {

@@ -2019,9 +2019,9 @@
         "file": "scripts/gate-stability-record.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 959,
+        "addedLines": 990,
         "removedLines": 0,
-        "addedAssertionLines": 28,
+        "addedAssertionLines": 29,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2090,7 +2090,7 @@
       "removedAssertionLines": 1,
       "recutAssertionLines": 1,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 349
+      "addedAssertionLines": 350
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
@@ -2183,6 +2183,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-15T09:55:12.338Z"
+    "at": "2026-11-15T10:49:59.084Z"
   }
 }

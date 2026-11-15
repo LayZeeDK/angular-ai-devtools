@@ -43,33 +43,39 @@
 //                      ship commit and this milestone's own, read from `git log` rather than written
 //                      here, so no caller feeds the check a range it remembered.
 //
-//   workRange          The range the gate holds a stage to at the head it runs on: `<base>..<HEAD>`,
-//                      with the base answered by the first rule that can (`mode` names which). A
-//                      recording pins the base its own capture used, so a re-run compares against
-//                      that base rather than against whatever HEAD now prefers; otherwise the base is
-//                      the numerically previous milestone's ship commit, and when that id is
+//   workRange          The range the gate holds a stage to at the head it runs on: `<base>..<head>`,
+//                      with the base answered by the first rule that can (`mode` names which) and the
+//                      head this tree's `HEAD` unless the caller names a commit (`headMode` names
+//                      which). A recording pins the base its own capture used, so a re-run compares
+//                      against that base rather than against whatever HEAD now prefers; otherwise the
+//                      base is the numerically previous milestone's ship commit, and when that id is
 //                      unshipped - milestones ship in id order, not numeric order - the newest ship
 //                      commit `git log` carries. Only a git log with no ship commit at all refuses,
-//                      and a refusal names the rule that failed. The head is always HEAD: a range
-//                      that switched to this milestone's own ship commit the moment it appeared would
-//                      derive one answer before the shipment and another after it.
+//                      and a refusal names the rule that failed. The head is HEAD for a live run: a
+//                      range that switched to this milestone's own ship commit the moment it appeared
+//                      would derive one answer before the shipment and another after it. A recording
+//                      names the commit it was measured at instead, because a range ending at HEAD
+//                      moves the moment the commit carrying the recording lands - the derivation then
+//                      disagrees with the head it pinned, and a re-capture re-pins the previous head
+//                      for the next commit to move.
 //
 //   the gate           `node scripts/gate-integrity.mjs` runs both checks over the tree it stands in
 //                      and exits 0 only when both are clean, so a red check reaches a CI or ship step
 //                      as a refusal rather than as output beside a passing gate. Exit 0 is clean, 1 is
 //                      a finding or a refusal, and 2 is an argument the gate cannot derive its own
 //                      input from. `--check archive|fix-record|both` selects a stage,
-//                      `--root`/`--milestone`/`--range`/`--base`/`--tasks`/`--claims` supply the
-//                      inputs, and `--json` prints the two reports instead of the reading. `--base`
-//                      is the base a recording names, and the run prints the rule that answered so a
-//                      reader sees which base the range starts from. `gate(input)` is the same run
-//                      without printing, so a suite can hold it to an exit code without spawning a
-//                      second process. With no `--tasks`, the fix-record stage reads
-//                      `defaultTaskInput(root, milestone)`: the live `.project/tasks` while it holds
-//                      task files, the milestone's own archived `tasks/` once the archive move has
-//                      emptied it, and the live directory again when neither carries a task file - so
-//                      an emptied tree still refuses `nothing-examined` rather than passing over
-//                      nothing.
+//                      `--root`/`--milestone`/`--range`/`--base`/`--head`/`--tasks`/`--claims` supply
+//                      the inputs, and `--json` prints the two reports instead of the reading. `--base`
+//                      is the base a recording names, `--head` the commit it was measured at rather
+//                      than this tree's HEAD, and the run prints the rule that answered so a reader
+//                      sees which base the range starts from and which commit it ends at.
+//                      `gate(input)` is the same run without printing, so a suite can hold it to an
+//                      exit code without spawning a second process. With no `--tasks`, the fix-record
+//                      stage reads `defaultTaskInput(root, milestone)`: the live `.project/tasks`
+//                      while it holds task files, the milestone's own archived `tasks/` once the
+//                      archive move has emptied it, and the live directory again when neither carries
+//                      a task file - so an emptied tree still refuses `nothing-examined` rather than
+//                      passing over nothing.
 //
 // A claim, and what is not one. `checkFixRecord` reads every path-like token in a task's `## Log`.
 // With `claims: 'log'` - the export's default, and what T002's tests were written against - each
@@ -1664,6 +1670,19 @@ function namedCommit(commit) {
 }
 
 /**
+ * The subject `git log` records for one commit, or `''` where it cannot be read: the range still names
+ * the commit by its sha, so a missing subject is a thinner line rather than a refusal.
+ *
+ * @param {string} root
+ * @param {string} sha
+ * @returns {string}
+ */
+function commitSubject(root, sha) {
+  const subject = git(root, ['log', '-1', '--format=%s', sha]);
+  return subject.ok ? subject.out.trim() : '';
+}
+
+/**
  * The rules that may answer the base of the range, in the order they are tried. `workRange` answers
  * the one that did in `mode`, and the stage prints it, so a refusal names the rule that failed
  * rather than only that one did.
@@ -1681,8 +1700,9 @@ export const RANGE_RULES = Object.freeze([
 ]);
 
 /**
- * The range one milestone is held to at the head it runs on: `<base>..<head>`, where the head is
- * always this tree's `HEAD` and the base is the first rule in `RANGE_RULES` that answers.
+ * The range one milestone is held to at the head it runs on: `<base>..<head>`, where the base is the
+ * first rule in `RANGE_RULES` that answers and the head is this tree's `HEAD` unless the caller names
+ * a commit.
  *
  * The head is HEAD rather than the milestone's own ship commit on purpose. A range that switched to
  * `<previous ship>..<this milestone's ship>` the moment that commit appeared would derive one answer
@@ -1691,15 +1711,34 @@ export const RANGE_RULES = Object.freeze([
  * that is the point: the range measures what the milestone has written so far, from a base one of
  * three named rules fixes.
  *
+ * A recording names the commit it was measured at instead, and that is the other half of the same
+ * rule: a record that pins `<base>..HEAD` is moved by the very commit that carries it - the head it
+ * named is now the parent of its own commit - so the derivation disagrees with the record the moment
+ * it lands, and a re-capture re-pins the previous head for the next commit to move. A named head is a
+ * commit id this repository carries, so a live run keeps measuring to HEAD and a record keeps the
+ * head it was taken at.
+ *
  * @param {string} root
  * @param {string} milestone
  * @param {{ sha?: string, subject?: string } | string | null} [recorded] the base a recording names
  * @param {string | null} [mutant] the branch this module ships that a regression would take
- * @returns {{ range: string, base: { sha: string, subject: string } | null, head: { sha: string, subject: string } | null, command: string, error: string, mode: string, rule: string }}
+ * @param {string | null} [namedHead] the commit the caller names as the head, rather than HEAD
+ * @returns {{ range: string, base: { sha: string, subject: string } | null, head: { sha: string, subject: string } | null, command: string, error: string, mode: string, rule: string, headMode: string }}
  */
-export function workRange(root, milestone, recorded = null, mutant = null) {
+export function workRange(
+  root,
+  milestone,
+  recorded = null,
+  mutant = null,
+  namedHead = null,
+) {
   const command =
-    'git log --format=%H%x09%s (every ship commit, newest first), then git rev-parse HEAD';
+    'git log --format=%H%x09%s (every ship commit, newest first), then git rev-parse HEAD, or git rev-parse --verify <--head>^{commit} when the caller names one';
+  /**
+   * Which rule answered the head: `head` for this tree's HEAD, `named` for the commit a caller names.
+   * Read by `answer` when it builds each reply, so a refusal carries the rule it stopped on.
+   */
+  let headMode = 'head';
   /** @param {Record<string, any>} input @returns {Record<string, any>} */
   const answer = (input) =>
     Object.assign(
@@ -1711,6 +1750,7 @@ export function workRange(root, milestone, recorded = null, mutant = null) {
         error: '',
         mode: 'none',
         rule: '',
+        headMode,
       },
       input,
     );
@@ -1736,9 +1776,45 @@ export function workRange(root, milestone, recorded = null, mutant = null) {
       error: `the head rule cannot answer, so the range has no head: ${read.error}`,
     });
   }
-  const sha = read.out.trim();
-  const subject = git(tree, ['log', '-1', '--format=%s', sha]);
-  const head = { sha, subject: subject.ok ? subject.out.trim() : '' };
+  let head = { sha: read.out.trim(), subject: '' };
+  head.subject = commitSubject(tree, head.sha);
+
+  // Rule 0, `named`: the head the caller names, which is how a record keeps the head it was measured
+  // at. A live run names none and measures to HEAD, so the gate still reads what the milestone has
+  // written so far; a record names the commit it was taken at, so the commit carrying the record is
+  // outside the range it pins. The name must be a commit id this repository carries: a branch is a
+  // name that moves, and a range held to a moving name is the defect this rule removes.
+  const pinned = typeof namedHead === 'string' ? namedHead.trim() : '';
+  if (pinned !== '') {
+    if (!/^[0-9a-f]{7,64}$/i.test(pinned)) {
+      return answer({
+        head,
+        rule: 'the head rule',
+        error: `the head rule cannot answer: ${JSON.stringify(namedHead)} names no commit id, so the range has no head`,
+      });
+    }
+    const resolved = git(tree, [
+      'rev-parse',
+      '--verify',
+      '--quiet',
+      `${pinned}^{commit}`,
+    ]);
+    if (!resolved.ok) {
+      return answer({
+        head,
+        rule: 'the head rule',
+        error: `the head rule cannot answer: git does not carry the commit ${pinned} the caller named, so the range has no head`,
+      });
+    }
+    const sha = resolved.out.trim();
+    head = { sha, subject: commitSubject(tree, sha) };
+    headMode = 'named';
+  }
+  // Every base rule below ends the range at this head, so each printed line says which head rule put
+  // it there rather than leaving a reader to infer it from the pair of shas.
+  const headClause = `; the head is ${
+    headMode === 'named' ? 'the commit the caller named' : "this tree's HEAD"
+  }, ${namedCommit(head)}`;
 
   // Rule 1, `recorded`: the base a recording names, when the caller holds one.
   const named =
@@ -1757,7 +1833,7 @@ export function workRange(root, milestone, recorded = null, mutant = null) {
       base: named,
       head,
       mode: 'recorded',
-      rule: `the base the recording names, ${namedCommit(named)}`,
+      rule: `the base the recording names, ${namedCommit(named)}${headClause}`,
     });
   }
 
@@ -1780,7 +1856,7 @@ export function workRange(root, milestone, recorded = null, mutant = null) {
       base: predecessor,
       head,
       mode: 'ship',
-      rule: `M${previous}'s ship commit, ${namedCommit(predecessor)}`,
+      rule: `M${previous}'s ship commit, ${namedCommit(predecessor)}${headClause}`,
     });
   }
 
@@ -1806,7 +1882,7 @@ export function workRange(root, milestone, recorded = null, mutant = null) {
       base: newest,
       head,
       mode: 'newest-ship',
-      rule: `git log names no ship commit for M${previous}, so the base is the newest it carries, ${namedCommit(newest)}`,
+      rule: `git log names no ship commit for M${previous}, so the base is the newest it carries, ${namedCommit(newest)}${headClause}`,
     });
   }
 
@@ -1822,7 +1898,7 @@ export function workRange(root, milestone, recorded = null, mutant = null) {
  * code. Kept apart from `main` so a suite holds the run to its exit code in process, rather than
  * spawning a second node to learn it.
  *
- * @param {{ root?: string, milestone?: string, range?: string, base?: string, tasks?: string, check?: string, claims?: string }} [input]
+ * @param {{ root?: string, milestone?: string, range?: string, base?: string, head?: string, tasks?: string, check?: string, claims?: string }} [input]
  * @returns {{ code: number, ok: boolean, lines: string[], archive: Record<string, any> | null, fix: Record<string, any> | null, range: string }}
  */
 export function gate(input = {}) {
@@ -1888,12 +1964,17 @@ export function gate(input = {}) {
             rule: 'the range the caller named',
             base: null,
             head: null,
+            headMode: 'given',
           }
         : workRange(
             root,
             milestone ?? '',
             typeof input.base === 'string' && input.base !== ''
               ? input.base
+              : null,
+            null,
+            typeof input.head === 'string' && input.head !== ''
+              ? input.head
               : null,
           );
     if (derived.error !== '') {
@@ -1991,6 +2072,7 @@ function parseArguments(argv) {
         'milestone',
         'range',
         'base',
+        'head',
         'tasks',
         'claims',
       ].includes(name)
