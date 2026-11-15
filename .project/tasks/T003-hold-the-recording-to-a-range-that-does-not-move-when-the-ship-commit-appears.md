@@ -4,9 +4,9 @@ title: Hold the recording to a range that does not move when the ship commit app
 wave: 3
 deps:
   - T002
-status: pending
+status: done
 agent: build_T003
-base: null
+base: 647382779b7483a9f7b39295028cb2a21e0e3a7c
 worktree: null
 task_branch: null
 files:
