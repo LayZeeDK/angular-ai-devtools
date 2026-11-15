@@ -4,9 +4,9 @@ title: Join a captured diagnostic to the digest by code
 wave: 2
 deps:
   - T001
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T002b
+base: f4fa5f4fb393689a071417713a1b603dc3857079
 worktree: null
 task_branch: null
 files:
@@ -198,3 +198,4 @@ re-captured. Both files are outside this task's `files:`, so this task cannot ma
   M044 capture once, at the head that carries all three suites.
 
 - Verdict: blocked
+- 2026-11-15 - re-dispatch (build_T002b) verdict: ready. Join suite 26 tests / 26 pass with five named mutants re-confirmed; gate-integrity 28/28 unarmed after the armed re-capture; recording-consistency 7/7; combined 35/35; Prettier clean on every touched file. The gate's own derivation gained a sorted file list and a measured line count for an untracked suite in place of null, and fixRecord.claims[5].resolvesTo moved 43 -> 44 when the M044 record was re-armed.

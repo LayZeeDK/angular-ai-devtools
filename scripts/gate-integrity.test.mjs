@@ -3394,6 +3394,8 @@ const SUITE_DIFF_REASONS = {
     'wholly added at this head: M056 T002 measured the fix-record stage’s default task directory on fixture trees, a reading the measured commit carries no file to edit',
   'scripts/gate-stability-record.test.mjs':
     'wholly added at this head: M056 T001 spawned the three refusing commands and published what each printed, a reading the measured commit carries no file to edit',
+  'scripts/console-join.test.mjs':
+    'wholly added at this head: M045 T002 pins the join of a captured diagnostic to the shipped digest by the code it carries — one finding per diagnostic in capture order, a code the digest lacks named rather than counted, a message with no code saying so, and an empty capture kept distinct from no diagnostics — with five mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit',
 };
 
 /** The driven-check recording, measured once in the root `before` hook below. */
@@ -3720,6 +3722,19 @@ function assertionCounts(baseline, file, present) {
 }
 
 /**
+ * The line count of one file, counted the way `git diff --numstat` counts a wholly added path: every
+ * line of it, a final newline closing the last line rather than opening an empty one.
+ *
+ * @param {string} file
+ * @returns {number}
+ */
+function lineCount(file) {
+  const text = readFileSync(join(ROOT, file), 'utf8');
+  const lines = text.split('\n');
+  return text.endsWith('\n') ? lines.length - 1 : lines.length;
+}
+
+/**
  * The suite diff against the head the intent measured at (SC6, AC4): every suite the tree carries,
  * whether the measured commit carries it at all, how many lines moved, and how many of those lines were
  * assertions. A suite that differs with no reason read for it is a failed derivation.
@@ -3744,7 +3759,12 @@ function deriveSuiteDiff() {
   ])
     .split('\n')
     .map((line) => line.trim())
-    .filter((line) => line !== '');
+    .filter((line) => line !== '')
+    // `git ls-files --cached --others` lists an untracked path ahead of the indexed ones, so this
+    // list's order would move the moment the landing commit appeared. The measurement is a set of
+    // suites, so it is sorted here and the record does not depend on whether that commit has been
+    // made yet - the same rule M056 T006 applied to the range.
+    .sort();
   const suites = listed.filter((file) => SUITE_FILE.test(file));
   if (suites.length === 0) {
     fail(
@@ -3774,12 +3794,19 @@ function deriveSuiteDiff() {
       );
     }
     const assertions = assertionCounts(baseline, file, present);
+    // A suite the measured head lacks and the index does not carry either - the tree a capture runs on
+    // has not committed it yet: `git diff --numstat` is silent about an untracked path, so the reading
+    // is taken from the file, where every line is added and none is removed. That is the answer the
+    // same command gives once the landing commit carries the path, so the record does not drift the
+    // moment it does, and a row is measured rather than left null.
+    const addedLines = counts?.added ?? (present ? null : lineCount(file));
+    const removedLines = counts?.removed ?? (present ? null : 0);
     differing.push({
       file,
       status: present ? 'M' : 'A',
       atTheMeasuredHead: present,
-      addedLines: counts?.added ?? null,
-      removedLines: counts?.removed ?? null,
+      addedLines,
+      removedLines,
       addedAssertionLines: assertions.added,
       removedAssertionLines: assertions.removed,
       recutAssertionLines: assertions.recut,
