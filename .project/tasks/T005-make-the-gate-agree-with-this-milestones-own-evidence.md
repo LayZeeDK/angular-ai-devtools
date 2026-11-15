@@ -4,10 +4,10 @@ title: Make the gate agree with this milestone's own evidence
 wave: 4
 deps:
   - T003
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T005
+base: 42d34562867e9461b2d9591ab12e301eeceee282
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - scripts/gate-integrity.mjs
