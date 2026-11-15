@@ -74,3 +74,6 @@ node --check scripts/gate-stability-record.test.mjs && node --test scripts/gate-
 - 2026-11-15 - moved the record and its pins onto the repair: the four red-state pins now assert the repaired state and fail again if the defect returns; verdict/why/note are derived, not written; the predecessor refusal is null on a clean pass. Armed capture twice (second wrote nothing, sha256 94121a1d), unarmed 7/7, suite 8/8, npm run check exit 0. This landing.
 
 Verdict: ready
+- 2026-11-15 - the four former red-state pins, each named with what it asserted before and after, as AC3 required. Archive pin: was efusal === 'nothing-examined' at :824, now deepEqual({exitCode, refusal}, {exitCode: 0, refusal: null}) at :812 plus claimsExamined > 0, efusalLines === 0 and the pass summary. Plain-run pin: was 
+otEqual(plainRun.exitCode, 0) at :828, now deepEqual(..., {exitCode: 0, refusal: null}) at :813. fixRecord pin: was 
+otEqual(section.exitCode, 0) at :864, now the same deepEqual shape at :858 plus counts.red === 0 and ailures.length === 0. Predecessor pin: was qual(section.exitCode, 2) and qual(section.refusal, 'no-ship-commit-for-M055') at :900, now deepEqual({exitCode, refusal, unshipped}, {0, null, null}) at :895. Line positions are those at 7af74f06; T007's edits moved them later.
