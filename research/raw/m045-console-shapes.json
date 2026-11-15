@@ -1,0 +1,519 @@
+{
+  "schema": "m045-console-shapes/v1",
+  "milestone": "M045 console-read",
+  "task": "T001",
+  "title": "Measure the capture and the digest",
+  "measuredAt": {
+    "branch": "gsd-path/M057",
+    "commit": "9e95f740",
+    "node": "v24.22.0",
+    "platform": "win32",
+    "repo": "D:\\projects\\sandbox\\angular-ai-devtools"
+  },
+  "question": "what does the console capture actually hand to captureErrorPayload, what shape is extension/error-digest.json, and what is not captured?",
+  "verdict": "the capture is narrower than the roadmap's sentence: three entry points (the console.error wrapper, the window error event, unhandledrejection) feed one four-key payload, and of the ten console methods measured only console.error is mentioned anywhere in extension/agent-main.js; the code a message carries is whatever the shipped /NG0\\d{3,}/ regex finds, so 11 of the digest's 64 codes can never arrive as a code while 53 can, and 45 of the 64 digest bodies are already cut off with the trim marker",
+  "provenance": {
+    "rule": "every number and shape in this file is the printed output of one of the commands below, run at the commit above from the repo root; each command's output is recorded verbatim, a multi-line output as one string per line, and each measured block names the command id it came from",
+    "commands": [
+      {
+        "id": "c1",
+        "command": "git rev-parse --abbrev-ref HEAD && git rev-parse --short HEAD",
+        "exitCode": 0,
+        "output": ["gsd-path/M057", "9e95f740"]
+      },
+      {
+        "id": "c2",
+        "command": "node --version",
+        "exitCode": 0,
+        "output": "v24.22.0"
+      },
+      {
+        "id": "c3",
+        "command": "node -e \"const s=require('fs').readFileSync('extension/agent-main.js','utf8');const names=['console.error','console.warn','console.log','console.info','console.debug','console.trace','console.dir','console.table','console.assert','console.group'];const o=[];for(const n of names)o.push(n+'='+(s.split(n).length-1));o.push('agent-main.js lines='+s.split('\\n').length);console.log(o.join('\\n'))\"",
+        "exitCode": 0,
+        "output": [
+          "console.error=4",
+          "console.warn=0",
+          "console.log=0",
+          "console.info=0",
+          "console.debug=0",
+          "console.trace=0",
+          "console.dir=0",
+          "console.table=0",
+          "console.assert=0",
+          "console.group=0",
+          "agent-main.js lines=2568"
+        ]
+      },
+      {
+        "id": "c4",
+        "command": "node -e \"const L=require('fs').readFileSync('extension/agent-main.js','utf8').split('\\n');const out=[];for(let i=2494;i<2531;i++)out.push(String(i+1)+': '+L[i]);console.log(out.join('\\n'))\"",
+        "exitCode": 0,
+        "output": [
+          "2495:   function captureErrorPayload(message) {",
+          "2496:     try {",
+          "2497:       var ng = ngObj || readNg();",
+          "2498:       var text =",
+          "2499:         message instanceof Error",
+          "2500:           ? message.message || String(message)",
+          "2501:           : String(message);",
+          "2502:       var codeMatch = text.match(/NG0\\d{3,}/);",
+          "2503:       var code = codeMatch ? codeMatch[0] : null;",
+          "2504:       var component = null;",
+          "2505:       if (ng && typeof ng.getOwningComponent === 'function') {",
+          "2506:         try {",
+          "2507:           var el =",
+          "2508:             typeof document !== 'undefined' && document",
+          "2509:               ? document.activeElement ||",
+          "2510:                 document.querySelector('app-root') ||",
+          "2511:                 document.body ||",
+          "2512:                 document.documentElement",
+          "2513:               : null;",
+          "2514:           var instance = ng.getOwningComponent(el);",
+          "2515:           if (instance && instance.constructor && instance.constructor.name)",
+          "2516:             component = instance.constructor.name;",
+          "2517:           else if (typeof instance === 'string') component = instance;",
+          "2518:         } catch (e) {",
+          "2519:           component = null;",
+          "2520:         }",
+          "2521:       }",
+          "2522:       dispatch(ERROR_CAPTURE_EVENT, {",
+          "2523:         code: code,",
+          "2524:         message: text,",
+          "2525:         component: component,",
+          "2526:         timestamp: typeof Date !== 'undefined' ? Date.now() : 0,",
+          "2527:       });",
+          "2528:     } catch (e) {",
+          "2529:       /* never throw */",
+          "2530:     }",
+          "2531:   }"
+        ]
+      },
+      {
+        "id": "c5",
+        "command": "node -e \"const L=require('fs').readFileSync('extension/agent-main.js','utf8').split('\\n');const needles=['ERROR_CAPTURE_EVENT','captureErrorPayload','console.error','addEventListener('];L.forEach((l,i)=>{for(const n of needles){if(l.includes(n)){console.log((i+1)+': '+l.trim());break}}})\"",
+        "exitCode": 0,
+        "output": [
+          "16: var ERROR_CAPTURE_EVENT = NS + ':error-capture';",
+          "2469: ERROR_CAPTURE_EVENT: ERROR_CAPTURE_EVENT,",
+          "2484: globalThis.addEventListener(DI_QUERY_EVENT, handleDiQuery);",
+          "2489: globalThis.addEventListener(PICK_EVENT, handlePick, true);",
+          "2493: // N4: error capture hooks at document_start (console.error, window.onerror,",
+          "2495: function captureErrorPayload(message) {",
+          "2522: dispatch(ERROR_CAPTURE_EVENT, {",
+          "2534: if (typeof console !== 'undefined' && typeof console.error === 'function') {",
+          "2535: var originalConsoleError = console.error;",
+          "2536: console.error = function () {",
+          "2538: captureErrorPayload(Array.prototype.slice.call(arguments).join(' '));",
+          "2550: globalThis.addEventListener('error', function (ev) {",
+          "2552: captureErrorPayload(",
+          "2557: globalThis.addEventListener('unhandledrejection', function (ev) {",
+          "2559: captureErrorPayload(ev && ev.reason ? ev.reason : ev);"
+        ]
+      },
+      {
+        "id": "c6",
+        "command": "node -e \"const L=require('fs').readFileSync('extension/agent-main.js','utf8').split('\\n');const s=L.findIndex(l=>l.includes('dispatch(ERROR_CAPTURE_EVENT'));const keys=[];for(let i=s+1;i<L.length;i++){if(L[i].includes('});'))break;const t=L[i].trim();const p=t.indexOf(':');if(p>0)keys.push(t.slice(0,p))}console.log('dispatchLine: '+(s+1));console.log('payloadKeys: '+keys.join(','))\"",
+        "exitCode": 0,
+        "output": ["dispatchLine: 2522", "payloadKeys: code,message,component,timestamp"]
+      },
+      {
+        "id": "c7",
+        "command": "node -e \"const src=require('fs').readFileSync('extension/agent-main.js','utf8');const line=src.split('\\n').find(l=>l.includes('var codeMatch'));const lit=line.slice(line.indexOf('match(')+6,line.lastIndexOf(')'));const re=eval(lit);const samples=['NG04002: Cannot match any routes. URL Segment: x','NG0100','NG8008','NG0500','ExpressionChangedAfterItHasBeenCheckedError: Expression has changed after it was checked.','NG0950','NG0','ng0100','  NG0100  ','error NG04002 happened'];console.log('sourceLine: '+line.trim());console.log('regexLiteral: '+lit);for(const t of samples){const m=t.match(re);console.log(t+' -> '+(m?m[0]:'null'))}\"",
+        "exitCode": 0,
+        "output": [
+          "sourceLine: var codeMatch = text.match(/NG0\\d{3,}/);",
+          "regexLiteral: /NG0\\d{3,}/",
+          "NG04002: Cannot match any routes. URL Segment: x -> NG04002",
+          "NG0100 -> NG0100",
+          "NG8008 -> null",
+          "NG0500 -> NG0500",
+          "ExpressionChangedAfterItHasBeenCheckedError: Expression has changed after it was checked. -> null",
+          "NG0950 -> NG0950",
+          "NG0 -> null",
+          "ng0100 -> null",
+          "  NG0100   -> NG0100",
+          "error NG04002 happened -> NG04002"
+        ]
+      },
+      {
+        "id": "c8",
+        "command": "node -e \"const d=require('./extension/error-digest.json');const codes=d.entries.map(e=>e.code);console.log('topLevelKeys: '+Object.keys(d).join(','));console.log('version: '+d.version+' (type '+typeof d.version+')');console.log('entries: '+(Array.isArray(d.entries)?'array':'not array'));console.log('entryCount: '+d.entries.length);console.log('uniqueCodes: '+new Set(codes).size);console.log('entryKeySets: '+[...new Set(d.entries.map(e=>Object.keys(e).sort().join(',')))].join(' '));console.log('fieldTypes: '+[...new Set(d.entries.flatMap(e=>Object.entries(e).map(([k,v])=>k+':'+typeof v)))].join(' '));console.log('firstCode: '+codes[0]);console.log('lastCode: '+codes[codes.length-1])\"",
+        "exitCode": 0,
+        "output": [
+          "topLevelKeys: version,entries",
+          "version: 22.2.x (type string)",
+          "entries: array",
+          "entryCount: 64",
+          "uniqueCodes: 64",
+          "entryKeySets: body,code,title",
+          "fieldTypes: code:string title:string body:string",
+          "firstCode: NG0100",
+          "lastCode: NG8024"
+        ]
+      },
+      {
+        "id": "c9",
+        "command": "node -e \"const src=require('fs').readFileSync('extension/agent-main.js','utf8');const line=src.split('\\n').find(l=>l.includes('var codeMatch'));const lit=line.slice(line.indexOf('match(')+6,line.lastIndexOf(')'));const re=eval(lit);const d=require('./extension/error-digest.json');const codes=d.entries.map(e=>e.code);const byPrefix={};for(const c of codes){const k=c.slice(0,3);byPrefix[k]=(byPrefix[k]||0)+1}const hit=codes.filter(c=>re.test(c));const miss=codes.filter(c=>!re.test(c));const ell=String.fromCharCode(8230);console.log('byThreeCharPrefix: '+Object.entries(byPrefix).map(([k,v])=>k+'='+v).join(' '));console.log('total: '+codes.length);console.log('codesExtractableByCaptureRegex: '+hit.length);console.log('codesNotExtractableByCaptureRegex: '+miss.length);console.log('notExtractableCodes: '+miss.join(' '));console.log('bodiesEndingWithTrimMarker: '+d.entries.filter(e=>e.body.trim().endsWith(ell)).length);console.log('codesEqualToTheirUppercase: '+codes.filter(c=>c===c.toUpperCase()).length);console.log('entriesWhoseTitleStartsTheirBody: '+d.entries.filter(e=>e.body.startsWith(e.title)).length);console.log('minCodeLength: '+Math.min.apply(null,codes.map(c=>c.length)));console.log('maxCodeLength: '+Math.max.apply(null,codes.map(c=>c.length)))\"",
+        "exitCode": 0,
+        "output": [
+          "byThreeCharPrefix: NG0=53 NG1=1 NG2=2 NG3=1 NG6=1 NG8=6",
+          "total: 64",
+          "codesExtractableByCaptureRegex: 53",
+          "codesNotExtractableByCaptureRegex: 11",
+          "notExtractableCodes: NG1001 NG2003 NG2009 NG3003 NG6100 NG8001 NG8002 NG8003 NG8011 NG8023 NG8024",
+          "bodiesEndingWithTrimMarker: 45",
+          "codesEqualToTheirUppercase: 64",
+          "entriesWhoseTitleStartsTheirBody: 62",
+          "minCodeLength: 6",
+          "maxCodeLength: 7"
+        ]
+      },
+      {
+        "id": "c10",
+        "command": "node -e \"const fs=require('fs');const b=fs.readFileSync('extension/error-digest.json');const s=b.toString('utf8');console.log('bytes: '+b.length);console.log('chars: '+s.length);console.log('lines: '+s.split('\\n').length)\"",
+        "exitCode": 0,
+        "output": ["bytes: 61577", "chars: 61450", "lines: 326"]
+      },
+      {
+        "id": "c11",
+        "command": "node -e \"const d=require('./extension/error-digest.json');console.log(d.entries.map(e=>e.code).join(','))\"",
+        "exitCode": 0,
+        "output": "NG0100,NG01002,NG01055,NG01101,NG01203,NG01354,NG01902,NG0200,NG0201,NG0203,NG0204,NG0205,NG0207,NG0209,NG02200,NG02800,NG02802,NG02825,NG0300,NG0301,NG0302,NG0318,NG0401,NG0403,NG0500,NG05000,NG0501,NG0502,NG0503,NG0504,NG0505,NG0506,NG0507,NG05101,NG05102,NG05104,NG05106,NG05201,NG05703,NG0600,NG0602,NG0750,NG0751,NG0904,NG0910,NG0912,NG0913,NG0919,NG0950,NG0951,NG0955,NG0956,NG0991,NG1001,NG2003,NG2009,NG3003,NG6100,NG8001,NG8002,NG8003,NG8011,NG8023,NG8024"
+      },
+      {
+        "id": "c12",
+        "command": "node -e \"const d=require('./extension/error-digest.json');const L=require('fs').readFileSync('extension/error-digest.json','utf8').split('\\n');L.slice(0,6).forEach((l,i)=>console.log((i+1)+': '+l));console.log('bodyChars of entry 1 (line 7, not quoted): '+d.entries[0].body.length)\"",
+        "exitCode": 0,
+        "output": [
+          "1: {",
+          "2:   \"version\": \"22.2.x\",",
+          "3:   \"entries\": [",
+          "4:     {",
+          "5:       \"code\": \"NG0100\",",
+          "6:       \"title\": \"Expression Changed After Checked\",",
+          "bodyChars of entry 1 (line 7, not quoted): 965"
+        ]
+      },
+      {
+        "id": "c13",
+        "command": "node -e \"const fs=require('fs');for(const f of ['extension/relay.js','extension/background.js']){const L=fs.readFileSync(f,'utf8').split('\\n');L.forEach((l,i)=>{if(l.includes('error-capture'))console.log(f+':'+(i+1)+': '+l.trim())})}\"",
+        "exitCode": 0,
+        "output": [
+          "extension/relay.js:27: 'angular-ai:error-capture',",
+          "extension/relay.js:30: chrome.runtime.sendMessage({ type: 'angular-ai:error-capture', ...d });",
+          "extension/background.js:16: 'angular-ai:error-capture',"
+        ]
+      }
+    ]
+  },
+  "capture": {
+    "file": "extension/agent-main.js",
+    "fileLines": 2568,
+    "from": "c3",
+    "eventName": "angular-ai:error-capture",
+    "eventNameDeclaredAt": { "file": "extension/agent-main.js", "line": 16 },
+    "dispatcher": {
+      "function": "dispatch",
+      "file": "extension/agent-main.js",
+      "line": 1397,
+      "carries": "the payload as the detail of a CustomEvent of the event name above (1408-1410), dispatched on the page's global object (1411-1415)"
+    },
+    "entryPoints": [
+      {
+        "id": "console.error",
+        "hook": { "file": "extension/agent-main.js", "line": 2536 },
+        "callSite": { "file": "extension/agent-main.js", "line": 2538 },
+        "handsToCapture": "Array.prototype.slice.call(arguments).join(' ')",
+        "then": "returns the original console.error called with the untouched arguments (2540)"
+      },
+      {
+        "id": "window error event",
+        "hook": { "file": "extension/agent-main.js", "line": 2550 },
+        "callSite": { "file": "extension/agent-main.js", "line": 2552 },
+        "handsToCapture": "ev.error || ev.message || ev"
+      },
+      {
+        "id": "unhandledrejection",
+        "hook": { "file": "extension/agent-main.js", "line": 2557 },
+        "callSite": { "file": "extension/agent-main.js", "line": 2559 },
+        "handsToCapture": "ev.reason || ev"
+      }
+    ],
+    "entryPointCount": 3,
+    "entryPointsCrossCheck": "c5 lists every line of the file naming ERROR_CAPTURE_EVENT, captureErrorPayload, console.error or addEventListener(; the only listeners in the file are these three plus the shipped DI_QUERY_EVENT (2484) and PICK_EVENT (2489) listeners, which are not capture",
+    "payload": {
+      "objectAt": { "file": "extension/agent-main.js", "line": 2522 },
+      "keys": ["code", "message", "component", "timestamp"],
+      "keysFrom": "c6",
+      "fieldCount": 4,
+      "fields": {
+        "code": {
+          "line": 2523,
+          "type": "string | null",
+          "rule": "the first /NG0\\d{3,}/ match in the text, else null (2502-2503)"
+        },
+        "message": {
+          "line": 2524,
+          "type": "string",
+          "rule": "message.message for an Error, else String(message) (2498-2501); for console.error, the arguments joined with a single space (2538)"
+        },
+        "component": {
+          "line": 2525,
+          "type": "string | null",
+          "rule": "ng.getOwningComponent(el).constructor.name, or the returned value when it is a string, else null (2504-2521)"
+        },
+        "timestamp": {
+          "line": 2526,
+          "type": "number",
+          "rule": "Date.now(), or 0 when Date is absent"
+        }
+      }
+    },
+    "codeExtraction": {
+      "regex": "/NG0\\d{3,}/",
+      "sourceLine": { "file": "extension/agent-main.js", "line": 2502 },
+      "from": "c7",
+      "caseSensitive": true,
+      "shape": "the literal prefix NG0, then at least three digits",
+      "firstMatchOnly": true,
+      "nullWhen": "no match, which is dispatched as code: null and never invented"
+    },
+    "componentResolution": {
+      "lines": "2504-2521",
+      "resolver": "ng.getOwningComponent(el) (2514)",
+      "elementProbed": "document.activeElement || document.querySelector('app-root') || document.body || document.documentElement (2507-2513)",
+      "nullWhen": "the page exposes no ng.getOwningComponent (2505), the call throws (2518-2520), or it returns neither a named instance nor a string",
+      "notTheCallSite": "the element probed is the focused element or the app root, never the element that logged, so the field can name a component other than the one that emitted the message"
+    },
+    "consoleMethods": {
+      "from": "c3",
+      "measured": {
+        "console.error": 4,
+        "console.warn": 0,
+        "console.log": 0,
+        "console.info": 0,
+        "console.debug": 0,
+        "console.trace": 0,
+        "console.dir": 0,
+        "console.table": 0,
+        "console.assert": 0,
+        "console.group": 0
+      },
+      "wrapped": ["console.error"],
+      "meaning": "extension/agent-main.js mentions no console method but console.error; its four mentions are the guard (2534), the saved original (2535), the assignment (2536) and the comment at 2493"
+    },
+    "installTime": {
+      "lines": "2533-2563",
+      "when": "at script evaluation, before start() (2566); nothing reinstalls these hooks later in the file"
+    },
+    "hop": {
+      "relay": { "file": "extension/relay.js", "lines": "26-32" },
+      "relayedAs": "chrome.runtime.sendMessage({ type: 'angular-ai:error-capture', ...detail }) — the same four keys plus type (c13)",
+      "allowlist": { "file": "extension/background.js", "line": 16 }
+    }
+  },
+  "digest": {
+    "file": "extension/error-digest.json",
+    "bytes": 61577,
+    "chars": 61450,
+    "lines": 326,
+    "sizeFrom": "c10",
+    "topLevelKeys": ["version", "entries"],
+    "version": "22.2.x",
+    "versionType": "string",
+    "entriesType": "array",
+    "entryCount": 64,
+    "uniqueCodeCount": 64,
+    "entryFields": ["code", "title", "body"],
+    "entryKeySets": 1,
+    "entryFieldTypes": { "code": "string", "title": "string", "body": "string" },
+    "firstCode": "NG0100",
+    "lastCode": "NG8024",
+    "shapeFrom": "c8",
+    "quotedHead": [
+      "1: {",
+      "2:   \"version\": \"22.2.x\",",
+      "3:   \"entries\": [",
+      "4:     {",
+      "5:       \"code\": \"NG0100\",",
+      "6:       \"title\": \"Expression Changed After Checked\",",
+      "bodyChars of entry 1 (line 7, not quoted): 965"
+    ],
+    "quotedHeadFrom": "c12",
+    "codes": [
+      "NG0100",
+      "NG01002",
+      "NG01055",
+      "NG01101",
+      "NG01203",
+      "NG01354",
+      "NG01902",
+      "NG0200",
+      "NG0201",
+      "NG0203",
+      "NG0204",
+      "NG0205",
+      "NG0207",
+      "NG0209",
+      "NG02200",
+      "NG02800",
+      "NG02802",
+      "NG02825",
+      "NG0300",
+      "NG0301",
+      "NG0302",
+      "NG0318",
+      "NG0401",
+      "NG0403",
+      "NG0500",
+      "NG05000",
+      "NG0501",
+      "NG0502",
+      "NG0503",
+      "NG0504",
+      "NG0505",
+      "NG0506",
+      "NG0507",
+      "NG05101",
+      "NG05102",
+      "NG05104",
+      "NG05106",
+      "NG05201",
+      "NG05703",
+      "NG0600",
+      "NG0602",
+      "NG0750",
+      "NG0751",
+      "NG0904",
+      "NG0910",
+      "NG0912",
+      "NG0913",
+      "NG0919",
+      "NG0950",
+      "NG0951",
+      "NG0955",
+      "NG0956",
+      "NG0991",
+      "NG1001",
+      "NG2003",
+      "NG2009",
+      "NG3003",
+      "NG6100",
+      "NG8001",
+      "NG8002",
+      "NG8003",
+      "NG8011",
+      "NG8023",
+      "NG8024"
+    ],
+    "codesFrom": "c11",
+    "codeDistribution": {
+      "byThreeCharPrefix": {
+        "NG0": 53,
+        "NG1": 1,
+        "NG2": 2,
+        "NG3": 1,
+        "NG6": 1,
+        "NG8": 6
+      },
+      "extractableByCaptureRegex": 53,
+      "notExtractableByCaptureRegex": 11,
+      "notExtractableCodes": [
+        "NG1001",
+        "NG2003",
+        "NG2009",
+        "NG3003",
+        "NG6100",
+        "NG8001",
+        "NG8002",
+        "NG8003",
+        "NG8011",
+        "NG8023",
+        "NG8024"
+      ],
+      "codeLengthMin": 6,
+      "codeLengthMax": 7,
+      "codesEqualToTheirUppercase": 64,
+      "from": "c9"
+    },
+    "text": {
+      "bodiesEndingWithTrimMarker": 45,
+      "titlesThatStartTheirBody": 62,
+      "bodyCharsFirstEntry": 965,
+      "from": "c9, c12",
+      "meaning": "45 of the 64 bodies are already cut off and end with the generator's trim marker character (U+2026), and 62 of the 64 titles repeat the opening words of their own body, so a title adds no fact the body lacks"
+    }
+  },
+  "notCaptured": [
+    {
+      "what": "every console method except console.error — warn, log, info, debug, trace, dir, table, assert, group",
+      "evidence": "c3 counts 0 mentions of each of those nine methods in extension/agent-main.js, while the only console method the file assigns is console.error at line 2536",
+      "consequence": "a page whose only diagnostic is a console.warn or console.log produces no capture event at all; the join can only ever see what these three hooks dispatch"
+    },
+    {
+      "what": "the 11 digest codes that are not NG0 followed by at least three digits",
+      "evidence": "c9: 53 of 64 codes are extractable by the shipped regex and 11 are not (NG1001, NG2003, NG2009, NG3003, NG6100, NG8001, NG8002, NG8003, NG8011, NG8023, NG8024); c7 shows the regex returning null for the sample NG8008",
+      "consequence": "a page that logs one of those message texts verbatim reaches the join as a message carrying no code, so those 11 digest entries can never be selected by the capture's own extraction"
+    },
+    {
+      "what": "a lowercase or mixed-case code in message text",
+      "evidence": "c7: 'ng0100 -> null' and the same for a mixed-case spelling, against 'NG0100 -> NG0100'; c9: all 64 digest codes are already uppercase (codesEqualToTheirUppercase 64)",
+      "consequence": "an exact-string join is total over the capture's own code space, but a lowercased code in a message is not extracted as a code at all, so case folding can never rescue it at join time"
+    },
+    {
+      "what": "the logged arguments as values, and any object inside them",
+      "evidence": "c4 line 2538 joins the arguments with a single space before capture, and c6 shows the payload's only text key is message",
+      "consequence": "an object argument arrives as its string form and no argument can be recovered separately; the join has one string per diagnostic and nothing structured to inspect"
+    },
+    {
+      "what": "where the diagnostic was logged — no url, line, column, stack or phase",
+      "evidence": "c6: the payload has exactly four keys, code, message, component and timestamp, and no field carries a source location; the digest entry carries none either (c8)",
+      "consequence": "the panel cannot name a file, a line or an element, which is consistent with the interface contract's exclusion of an element reference"
+    },
+    {
+      "what": "which component actually emitted the message",
+      "evidence": "c4 2507-2514 probes document.activeElement, then app-root, then body, then documentElement, and resolves that element rather than the call site; 2505 and 2518-2520 leave the field null when the page exposes no resolver or it throws",
+      "consequence": "component may be null, and when present it names the component owning the focused element or the app root, not necessarily the one that logged"
+    },
+    {
+      "what": "any digest fact beyond code, title and body — no cause, element, remedy, severity or message text",
+      "evidence": "c8: one entry key set, body,code,title, with all three fields typed string; c9: 45 of 64 bodies are already trimmed and 62 titles repeat their body's opening words",
+      "consequence": "a finding can carry only the digest's title and the capture's own message; the exclusion of cause, element and remedy is structural in the data, not only a rendering choice"
+    },
+    {
+      "what": "a diagnostic logged before the hooks install, or after the page replaces console.error, or through a reference saved from the original console.error",
+      "evidence": "c5: the file contains one assignment to console.error (2536) and one saved original (2535), inside a single install block (2533-2543) that runs at script evaluation and is never repeated",
+      "consequence": "the capture is a snapshot of one moment in the page's life; a later override or a saved reference bypasses it silently"
+    },
+    {
+      "what": "a capture attempt that failed",
+      "evidence": "c4: the dispatch sits inside captureErrorPayload's try (2522-2527) and every path falls into catch with the comment never throw (2528-2530)",
+      "consequence": "a diagnostic whose capture throws emits no event and is indistinguishable, from the panel's side, from a page that logged nothing — captured-nothing cannot be read as a claim that the page was silent"
+    },
+    {
+      "what": "a diagnostic emitted in another frame or another global",
+      "evidence": "c5: both event hooks are registered on globalThis (2550, 2557) and the console hook patches this realm's console (2534-2536); no payload key carries a frame or window identity (c6)",
+      "consequence": "output from a nested frame is not captured by these lines, and if it were it could not be attributed to a frame"
+    }
+  ],
+  "captureToDigestGap": {
+    "codesTheDigestCarries": 64,
+    "codesTheCaptureCanName": 53,
+    "codesTheDigestCarriesThatTheCaptureCannotName": 11,
+    "from": "c9",
+    "note": "the capture's code space is a strict subset of the digest's, so the join's captured-nothing and no-digest-entry paths cannot be exercised by a message the capture produced from one of the 11 non-NG0 codes — such a message is a finding with no code"
+  },
+  "joinContract": {
+    "source": ".project/tasks/T001-measure-the-capture-and-the-digest.md, section Interface contract (quoted, not measured)",
+    "returns": "{ state, findings[] }",
+    "states": ["joined", "captured-nothing", "no-diagnostics"],
+    "finding": ["text", "code?", "title?", "reason?"],
+    "rules": [
+      "reason is present only when the digest lacks the code the message carried",
+      "code is absent only when the message carried none",
+      "the panel renders state and findings and nothing else: no cause, element, remedy or unattributed wording"
+    ],
+    "notRecordedHere": "the surface's per-case { state, findings[] } belongs to the task that writes the join; this file records only the two input shapes it reads, so that record can be asserted against these shapes without re-deriving them"
+  }
+}
