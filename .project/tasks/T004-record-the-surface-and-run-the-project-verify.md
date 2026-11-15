@@ -35,7 +35,7 @@ The surface's behaviour is recorded so a later change cannot drift silently, and
 
 ## Interface contract
 
-`research/raw/m045-console-panel.json` records `{ state, findings[] }` per fixture case; `scripts/console-panel-record.test.mjs` reads it and asserts the absences it carries.
+`extension/console-join.js` exports `consoleJoin(diagnostics, digest)` returning `{ state, findings[] }`, where `state` is `joined`, `captured-nothing` or `no-diagnostics`, and each finding is `{ text, code?, title?, reason? }` with `reason` present only when the digest lacks the code the message carried. The panel renders `state` and `findings` and nothing else, at route `console`, through the `console` key in `panel-demo.ts` `LOADERS`. The recordings are `research/raw/m045-console-shapes.json` (capture and digest shapes) and `research/raw/m045-console-panel.json` (per-case `{ state, findings[] }`).
 
 ## Intent coverage
 
