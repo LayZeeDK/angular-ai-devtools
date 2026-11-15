@@ -50,6 +50,13 @@ outright when the numerically previous milestone is unshipped.
 node --check scripts/gate-integrity.mjs && node --test scripts/gate-integrity.test.mjs && npm run check && npm test
 ```
 
+## Interface contract
+
+`scripts/gate-integrity.mjs` exports the seams the gate drives: `checkArchivePaths({ root, milestone })`,
+`checkFixRecord({ root, range, tasks })`, `defaultTaskInput(root, milestone): string` and
+`workRange(root, milestone): { range, base, head, mode, error }`. `mode` names the rule that answered and the
+stage prints it, so a refusal says which rule failed rather than only that one did.
+
 ## Acceptance criteria
 
 1. `node --test scripts/gate-integrity.test.mjs` reports 0 failures at this head, with the ship commit present.

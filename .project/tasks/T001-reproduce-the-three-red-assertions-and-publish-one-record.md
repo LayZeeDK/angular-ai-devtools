@@ -45,6 +45,11 @@ record the later tasks are held to, so neither repair can be written against a m
 node --check scripts/gate-stability-record.test.mjs && node --test scripts/gate-stability-record.test.mjs && npm run check
 ```
 
+## Interface contract
+
+`research/raw/m056-gate-stability.json` carries one object with `archive`, `fixRecord` and `predecessor`
+sections, each `{ command, exitCode, refusal, counts, detail }`; `M056_CAPTURE=1` arms the single write.
+
 ## Acceptance criteria
 
 1. The record names the three commands and their exit codes, and a default run of the suite re-derives them.

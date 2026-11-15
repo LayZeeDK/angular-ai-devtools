@@ -51,6 +51,13 @@ every integrated tree. The refusal is right; the default is wrong.
 node --check scripts/gate-integrity.mjs && node --test scripts/gate-integrity-default-tasks.test.mjs && npm run gate:fix-record && npm run check
 ```
 
+## Interface contract
+
+`scripts/gate-integrity.mjs` exports the seams the gate drives: `checkArchivePaths({ root, milestone })`,
+`checkFixRecord({ root, range, tasks })`, `defaultTaskInput(root, milestone): string` and
+`workRange(root, milestone): { range, base, head, mode, error }`. `mode` names the rule that answered and the
+stage prints it, so a refusal says which rule failed rather than only that one did.
+
 ## Acceptance criteria
 
 1. `npm run gate:fix-record` exits 0 on this tree, printing the number of archived task logs it examined.
