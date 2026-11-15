@@ -82,3 +82,4 @@ stage prints it, so a refusal says which rule failed rather than only that one d
   with no mutant parameter; the two existing mutants are unchanged.
   The new suite adds 20 `.project` references to the archive-path scan (143 suites / 178 references / 17 live),
   all namings or comments, 0 findings; the check's code and classification are untouched.
+  verdict: ready
