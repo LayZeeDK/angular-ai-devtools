@@ -63,6 +63,8 @@ failed rather than only that one did.
 
 ## Wave 1 — reproduce the three red assertions and publish one record
 
+Goal: the three red assertions are reproduced by commands at this head and published as one record.
+
 Review depth: full
 
 T001 reproduces `npm run gate:fix-record`'s `nothing-examined` refusal, the three red assertions in
@@ -73,6 +75,8 @@ spawns the two commands, so the record cannot drift from the tree. Owns
 
 ## Wave 2 — read the archived tasks when the live directory is empty
 
+Goal: the fix-record stage reads the milestone's archived tasks when the archive move has emptied the live directory, and still refuses a tree that examined nothing.
+
 Review depth: full
 
 T002 adds `defaultTaskInput` and uses it where the stage joins the live tasks directory, keeping an explicit
@@ -81,6 +85,8 @@ permits exactly one `writeFileSync` inside its armed capture gate. Owns `scripts
 `scripts/gate-integrity-default-tasks.test.mjs`.
 
 ## Wave 3 — hold the recording to a range that does not move when the ship commit appears
+
+Goal: the recording re-derives identically before and after this milestone's own ship commit exists, and the stage derives a range when the previous id is unshipped.
 
 Review depth: full
 
