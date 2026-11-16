@@ -5,7 +5,7 @@ milestone: console-read
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M057
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -963,3 +963,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-16 — plan — build recovery: {"base": "400f2f85cbf5746bc7334bfbef84a7df2f4b5719", "branch": "gsd-path/M057", "kind": "plan", "source": "build"}
 - 2026-11-16 — plan — plan approved
 - 2026-11-16 — build — build started
+- 2026-11-16 — build — build blocked: the third-cycle reviews found a dropped word, a phrase lexicon and an unmet held-out criterion
