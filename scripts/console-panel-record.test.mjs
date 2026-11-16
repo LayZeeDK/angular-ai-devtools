@@ -34,6 +34,20 @@
 // labels when the record's list and the pane disagree either way. The pin's own limits are stated at
 // the block that holds it.
 //
+// `contract.sentenceRegistry` is a second statement of the same kind, and it is held the same way
+// (T019). The pane's own sentences are enumerated in the module (`PANE_SENTENCES`): the three state
+// sentences, the six named absences and the case-difference sentence, each with an id and its exact
+// text. The record carries a copy of that registry, and `pinTheSentenceRegistryIsThePanes` fails
+// naming the entry when the pane's registry and the record's copy disagree in either direction — an
+// entry the pane states and the record lacks, an entry the record carries and the pane does not write,
+// or an entry whose text, slots or state word moved on one side only. The recorded lines are held to
+// the same copy: `pinRecordedLinesAreRegistrySentences` reads the recording's own bytes, so every
+// pane-written line of a recorded surface is a labelled fact the recorded answer states or an entry of
+// the record's own copy, and an armed re-capture cannot bless a sentence the pane has no entry for.
+// That is what makes a fifth wording impossible to smuggle past the absence rule rather than merely
+// unlikely to be caught: the rule is kept as a secondary check on the registry's text, and the
+// enumeration is what refuses a sentence it has not seen.
+//
 // The wording list polices only the lines the pane writes itself — the state line, the three state
 // sentences and its named absences. A `title:` value is the digest's word, a `text:` value the
 // capture's, and `code:` and `reason:` are the answer's, so none of those four is this pane's
@@ -181,6 +195,82 @@ const PROHIBITED_WORDING = [
   'framework',
   'count',
   'number',
+];
+
+/**
+ * The pane's own sentences, as `contract.sentenceRegistry` carries them (T019): the three state
+ * sentences, the six named absences and the case-difference sentence, each with the id it is
+ * registered under, its exact text, the `{slot}` its text states, and the state word it answers where
+ * it answers one. This is the record's copy of the module's `PANE_SENTENCES`, and it is a statement
+ * about the shipped pane rather than a sample of the recorded subset: `pinTheSentenceRegistryIsThePanes`
+ * holds it to the module in both directions, so an entry either side gains alone reddens naming the
+ * entry, and an entry whose wording moved on one side reddens naming the field.
+ *
+ * The two entries with a slot are one sentence each, not a family: `no-digest-entry` names the code it
+ * states, and `case-difference` names the two spellings a folded match produced, and neither sentence
+ * exists in the pane outside the text written here.
+ */
+const SENTENCE_REGISTRY = [
+  {
+    id: 'state-joined',
+    text: "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
+    slots: [],
+    state: JOINED,
+  },
+  {
+    id: 'state-captured-nothing',
+    text: 'captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent',
+    slots: [],
+    state: CAPTURED_NOTHING,
+  },
+  {
+    id: 'state-no-diagnostics',
+    text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read',
+    slots: [],
+    state: 'no-diagnostics',
+  },
+  {
+    id: 'no-console-answer',
+    text: 'no-console-answer: no console join answer was handed over, so no state and no finding are reported',
+    slots: [],
+    state: null,
+  },
+  {
+    id: 'no-finding',
+    text: 'no-finding: the answer reported joined and carried no finding, so no finding is rendered',
+    slots: [],
+    state: null,
+  },
+  {
+    id: 'no-code',
+    text: 'no-code: the captured message carried no code, so this finding carries no code and no title',
+    slots: [],
+    state: null,
+  },
+  {
+    id: 'no-title',
+    text: 'no-title: the digest carries the code this message carried and states no title for it, so no title is rendered',
+    slots: [],
+    state: null,
+  },
+  {
+    id: 'unreadable-finding',
+    text: 'unreadable-finding: the answer carried a list entry that is not a finding, so it is named here and nothing is filled in for it',
+    slots: [],
+    state: null,
+  },
+  {
+    id: 'no-digest-entry',
+    text: 'no-digest-entry: the digest carries no entry for {code}, so this finding is named by the code it carried and no title is rendered',
+    slots: ['code'],
+    state: null,
+  },
+  {
+    id: 'case-difference',
+    text: "case-difference: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and title",
+    slots: ['carriedCode', 'digestCode'],
+    state: null,
+  },
 ];
 
 /**
@@ -574,6 +664,7 @@ function derive() {
       rendered:
         'the pane renders state and findings and nothing else: no cause, no element, no remedy and no unattributed wording',
       lineLabels: LINE_LABELS,
+      sentenceRegistry: SENTENCE_REGISTRY,
       prohibitedWording: PROHIBITED_WORDING,
       absenceStatement: ABSENCE_STATEMENT,
     },
@@ -1561,6 +1652,162 @@ function pinTheVocabularyIsThePane(
 }
 
 /**
+ * T019: the registry's label, read off its own text so the two cannot disagree. Every registry entry
+ * carries a labelled sentence, and its label is one of the labels the record states — the two
+ * vocabularies are about the same lines, so a registry entry labelled with a word
+ * `contract.lineLabels` does not carry would be a sentence the record could not record.
+ */
+function sentenceLabel(sentence) {
+  return lineLabel(sentence.text);
+}
+
+/**
+ * T019/AC4: the record's `contract.sentenceRegistry` and the pane's `PANE_SENTENCES` are one registry,
+ * read in both directions — the same shape `pinTheVocabularyIsThePane` uses for the labels.
+ *
+ * Fails naming what moved: an entry the pane states and the record's copy lacks (so a sentence added
+ * to the pane alone cannot be rendered until the record carries it too), an entry the record carries
+ * and the pane does not write (so the record cannot bless a sentence the pane has no entry for), an
+ * entry whose text, slots or state word differ on one side, and a registry label the record's own
+ * label vocabulary does not carry. The module is a parameter so a mutated copy can be held to the same
+ * pin, which is how both directions are proven live.
+ */
+function pinTheSentenceRegistryIsThePanes(
+  contract,
+  module = SURFACE,
+  source = SURFACE_SRC,
+) {
+  const carried = contract.sentenceRegistry;
+  assert.ok(
+    Array.isArray(carried) && carried.length > 0,
+    `sentence-registry: ${RECORD_REL} must carry the pane's own sentences in contract.sentenceRegistry, or the record cannot say which sentences the pane writes; its contract carries ${JSON.stringify(carried)}`,
+  );
+  const pane = module.PANE_SENTENCES;
+  assert.ok(
+    Array.isArray(pane) && pane.length > 0,
+    `sentence-registry: the pane must enumerate its own sentences in PANE_SENTENCES, or this pin reads nothing; the module exports ${JSON.stringify(pane)}`,
+  );
+  const labelled = (ids) => ids.map((id) => JSON.stringify(id)).join(', ');
+  const paneIds = pane.map((entry) => entry.id);
+  const recordIds = carried.map((entry) => entry.id);
+  assert.equal(
+    new Set(recordIds).size,
+    recordIds.length,
+    `sentence-registry: the record's copy states each sentence once; its ids are ${JSON.stringify(recordIds)}`,
+  );
+  assert.equal(
+    new Set(paneIds).size,
+    paneIds.length,
+    `sentence-registry: the pane registers each sentence once; its ids are ${JSON.stringify(paneIds)}`,
+  );
+  const added = paneIds.filter((id) => !recordIds.includes(id));
+  assert.deepEqual(
+    added,
+    [],
+    `sentence-registry: the pane states ${added.length} sentence(s) the record's contract.sentenceRegistry does not carry: ${labelled(added)} — the record states the sentences the pane writes, so an entry added to the pane alone is drift, and a sentence the record does not carry cannot be rendered by a pane this suite passes; the record would have to carry ${labelled(paneIds)}`,
+  );
+  const missing = recordIds.filter((id) => !paneIds.includes(id));
+  assert.deepEqual(
+    missing,
+    [],
+    `sentence-registry: the record's contract.sentenceRegistry carries ${missing.length} sentence(s) the pane does not write: ${labelled(missing)} — a recording cannot stand on a sentence the pane has no entry for; the pane states ${labelled(paneIds)}`,
+  );
+  for (const entry of pane) {
+    const copy = carried.find((candidate) => candidate.id === entry.id);
+    assert.deepEqual(
+      Object.keys(copy).sort(),
+      ['id', 'slots', 'state', 'text'],
+      `sentence-registry: the record's copy of ${JSON.stringify(entry.id)} carries the field(s) ${JSON.stringify(Object.keys(copy).sort())}, and a registry entry is an id, its text, its slots and its state word`,
+    );
+    for (const field of ['text', 'slots', 'state'])
+      assert.deepEqual(
+        copy[field],
+        entry[field],
+        `sentence-registry: the record's copy of ${JSON.stringify(entry.id)} states the ${field} ${JSON.stringify(copy[field])}, and the pane states ${JSON.stringify(entry[field])} — the record states the sentences the pane writes, so the two are one registry or they are not`,
+      );
+    const label = sentenceLabel(entry);
+    assert.ok(
+      (contract.lineLabels ?? []).includes(label),
+      `sentence-registry: the entry ${JSON.stringify(entry.id)} renders the line ${JSON.stringify(label)}, and the record's contract.lineLabels does not carry that label; a registry whose labels the record cannot record is a registry it does not state`,
+    );
+    assert.equal(
+      entry.state === null ? null : label,
+      entry.state,
+      `sentence-registry: the entry ${JSON.stringify(entry.id)} answers the state word ${JSON.stringify(entry.state)} and its line is labelled ${JSON.stringify(label)}, so a reader would read one state and the pane report another`,
+    );
+  }
+  // The pane's own reading of its registry is the record's copy, so the two are not two lists that
+  // happen to agree: the module's `PANE_SENTENCES` is what must equal the copy, and the source names
+  // it, so a pane that resolved its sentences from somewhere else would redden here.
+  assert.ok(
+    source.includes('export const PANE_SENTENCES'),
+    'sentence-registry: the pane must declare the registry this pin reads as `export const PANE_SENTENCES`, or the module and its source could disagree about where the sentences come from',
+  );
+  return carried;
+}
+
+/**
+ * T019/AC1 and AC4, on the recording's own bytes: every pane-written line of a recorded surface is a
+ * labelled fact the recorded answer states or an entry of the registry the record's own contract
+ * carries, with its slots filled from the recorded findings. A line that is neither is a sentence the
+ * recording blessed and the pane has no entry for, and the failure names the line and the case.
+ *
+ * The two exemptions are the ones the prohibitions already use: the state line is the answer's word,
+ * and a `code` / `title` / `text` / `reason` line is the answer's field. A recorded fact that is not
+ * one the recorded answer states reddens too, so the exemption cannot be widened by writing one.
+ *
+ * The slot values are the recorded findings' own, so a sentence naming a code the recording does not
+ * carry is not a line this pin will accept. `case-difference` needs two spellings the record's finding
+ * shape does not carry, so a recorded case can never render it — which is why that line would redden
+ * here as a sentence outside the recording's registry rather than passing on the label alone.
+ */
+function pinRecordedLinesAreRegistrySentences(entry, contract) {
+  const carried = contract.sentenceRegistry;
+  assert.ok(
+    Array.isArray(carried) && carried.length > 0,
+    `sentence-registry: ${RECORD_REL} must carry the pane's sentences in contract.sentenceRegistry, or the recording cannot be held to them; its contract carries ${JSON.stringify(carried)}`,
+  );
+  const texts = new Set();
+  for (const sentence of carried) {
+    if (sentence.slots.length === 0) {
+      texts.add(sentence.text);
+      continue;
+    }
+    const absent = entry.findings.find(
+      (finding) => finding.reason === NO_DIGEST_ENTRY,
+    );
+    if (sentence.id !== 'no-digest-entry' || typeof absent?.code !== 'string')
+      continue;
+    texts.add(sentence.text.split('{code}').join(absent.code));
+  }
+  const facts = new Set([`state: ${entry.state}`]);
+  for (const finding of entry.findings) {
+    if (typeof finding.text === 'string') facts.add(`text: ${finding.text}`);
+    if (typeof finding.code === 'string') facts.add(`code: ${finding.code}`);
+    if (typeof finding.title === 'string') facts.add(`title: ${finding.title}`);
+    if (
+      typeof finding.reason === 'string' &&
+      finding.reason !== NO_DIGEST_ENTRY
+    )
+      facts.add(`reason: ${finding.reason}`);
+  }
+  for (const [index, line] of entry.surface.lines.entries()) {
+    const label = lineLabel(line);
+    if (label === 'state' || CARRIED_FIELDS.includes(label)) {
+      assert.ok(
+        facts.has(line),
+        `renders-from-the-registry: ${entry.id} surface line ${index} is ${JSON.stringify(line)}, and the recorded answer states no such fact; a line labelled ${JSON.stringify(label)} carries the answer's own words, so it cannot be one the recording invented`,
+      );
+      continue;
+    }
+    assert.ok(
+      texts.has(line),
+      `renders-from-the-registry: ${entry.id} surface line ${index} is ${JSON.stringify(line)}, and that line is neither a labelled fact the recorded answer states nor one of the sentences the record's contract.sentenceRegistry carries — the recording cannot bless a sentence the pane has no registry entry for; the registry records ${JSON.stringify([...texts])}`,
+    );
+  }
+}
+
+/**
  * The contract's own two rules, held against the diagnostics the case handed over: one finding per
  * diagnostic in capture order, `code` present exactly when the message carried one, and `reason`
  * present exactly when the digest lacks the code it carried.
@@ -1756,9 +2003,9 @@ const MUTATIONS = [
     id: 'remedy-spelled-fix',
     defect: 'recorded-vocabulary',
     anchor:
-      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
+      "    text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
     replacement:
-      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read, and to fix this, edit the binding',",
+      "    text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read, and to fix this, edit the binding',",
     caseId: 'no-diagnostics',
     pin: (entry, rendered) =>
       pinRecordsOnlyTheContractVocabulary(
@@ -1917,6 +2164,10 @@ describe('every case states what the join answered and what the pane rendered', 
       // The absence rule on the recorded bytes as well as on the pane's current output, so a
       // re-capture cannot bless a claim about the page that the render suite refuses.
       pinRecordedAbsenceStatement(entry, recorded().contract);
+      // T019: and every pane-written line of the recorded surface is an entry of the registry the
+      // record itself carries, or a labelled fact of the recorded answer — so the recording cannot
+      // bless a sentence the pane has no entry for, armed re-capture or not.
+      pinRecordedLinesAreRegistrySentences(entry, recorded().contract);
 
       assert.deepEqual(
         rendered.lines,
@@ -2008,6 +2259,41 @@ describe('every case states what the join answered and what the pane rendered', 
   });
 });
 
+/**
+ * The sentences wave 3's cycle-4 review measured passing the absence rule and then blessed into the
+ * recording with an armed capture, plus the one the older phrase list policed — each with what it
+ * states and why the rule cannot see it. None of them is a sentence the pane may render: a wording
+ * exists in the pane only as an entry of `PANE_SENTENCES`, and this record refuses to carry an entry
+ * the pane writes.
+ *
+ * The last is `the digest states the page's silence`, and it is settled in
+ * `scripts/console-panel-render.test.mjs`: it is *impossible to render* rather than refused by the
+ * rule — the rule passes it, because `digest` is both a read subject and a read action and `page's` is
+ * not a word the rule carries — and what refuses it is the enumeration on this side too.
+ */
+const UNRENDERABLE_SENTENCES = [
+  [
+    "the capture reflects the page's silence",
+    'a possessive nominalisation, whose verb the rule decides by "capture"',
+  ],
+  [
+    'no diagnostic was reported',
+    'an agentless passive whose participle is one of the read actions',
+  ],
+  [
+    'this is never a claim that the page was silent, and it rendered nothing',
+    'a lawful denial, then a pronoun that stands because "rendered" is a pane action',
+  ],
+  [
+    'the capture was not empty before the page ran clean',
+    'a denial about the capture, taken to govern the page word after it',
+  ],
+  [
+    "the digest states the page's silence",
+    'a page possessive as the object of a read action, which the rule does not read',
+  ],
+];
+
 describe('the record’s label vocabulary is the pane’s, read both ways', () => {
   test('the record states exactly the labels the pane can write', () => {
     const written = pinTheVocabularyIsThePane(recorded().contract);
@@ -2023,6 +2309,22 @@ describe('the record’s label vocabulary is the pane’s, read both ways', () =
     );
     console.log(
       `pane label vocabulary (${written.size}): ${[...written].sort().join(', ')}`,
+    );
+    // T019: the record's copy of the pane's sentences is the pane's, and it is this suite's constant
+    // that writes it — so the record, the constant and the module are one registry, read both ways.
+    const sentences = pinTheSentenceRegistryIsThePanes(recorded().contract);
+    assert.deepEqual(
+      sentences,
+      SENTENCE_REGISTRY,
+      'sentence-registry: the contract.sentenceRegistry this suite writes into the record must be the constant above, or the record and this suite state two registries',
+    );
+    assert.equal(
+      sentences.length,
+      SENTENCE_REGISTRY.length,
+      `sentence-registry: the record states ${sentences.length} sentence(s) and this suite writes ${SENTENCE_REGISTRY.length}; the two are one registry or they are not`,
+    );
+    console.log(
+      `pane sentence registry (${sentences.length}): ${sentences.map((sentence) => sentence.id).join(', ')}`,
     );
   });
 
@@ -2100,6 +2402,7 @@ describe('the record’s label vocabulary is the pane’s, read both ways', () =
     // Green on the shipped pane and the record's own list first, so both failures below are the
     // mutation's and not a defect this head already carries.
     pinTheVocabularyIsThePane(contract);
+    pinTheSentenceRegistryIsThePanes(contract);
 
     // (1) The pane gains a line the record's list does not carry. Nothing is written into the
     // recording: the mutant is a copy in this run's temp directory, and it is the pin that reads it.
@@ -2134,6 +2437,124 @@ describe('the record’s label vocabulary is the pane’s, read both ways', () =
     );
     console.log(
       `a label added to the record alone reddens: ${recordFailure.message.replace(/\s+/g, ' ').trim()}`,
+    );
+
+    // (3) T019: the pane's registry gains a whole entry the record's copy does not carry. This is the
+    // half that makes a new sentence impossible to smuggle in — the pane can render one only by
+    // registering it, and the record refuses to stand on an entry it does not state itself.
+    const registryPane = await loadMutant(
+      [
+        "    slots: ['carriedCode', 'digestCode'],",
+        '    state: null,',
+        '  },',
+        '];',
+      ].join('\n'),
+      [
+        "    slots: ['carriedCode', 'digestCode'],",
+        '    state: null,',
+        '  },',
+        '  {',
+        "    id: 'a-sentence-the-record-lacks',",
+        "    text: 'a-sentence-the-record-lacks: no capture was handed over, so nothing was read',",
+        '    slots: [],',
+        '    state: null,',
+        '  },',
+        '];',
+      ].join('\n'),
+    );
+    const registryFailure = reddens('sentence-registry', () =>
+      pinTheSentenceRegistryIsThePanes(
+        contract,
+        registryPane.module,
+        registryPane.source,
+      ),
+    );
+    assert.match(registryFailure.message, /does not carry/);
+    assert.ok(
+      registryFailure.message.includes('"a-sentence-the-record-lacks"'),
+      `the failure must name the entry the pane gained; it failed with ${registryFailure.message}`,
+    );
+    console.log(
+      `a sentence added to the pane alone reddens the record: ${registryFailure.message.replace(/\s+/g, ' ').trim()}`,
+    );
+
+    // (4) The record's copy gains a sentence the pane has no entry for, in memory: the same pin names
+    // it as the record's own, so the copy cannot be widened to let a sentence pass either.
+    const recordRegistry = reddens('sentence-registry', () =>
+      pinTheSentenceRegistryIsThePanes({
+        ...contract,
+        sentenceRegistry: [
+          ...contract.sentenceRegistry,
+          {
+            id: 'a-sentence-nobody-writes',
+            text: 'a-sentence-nobody-writes: the page logged nothing',
+            slots: [],
+            state: null,
+          },
+        ],
+      }),
+    );
+    assert.match(recordRegistry.message, /the pane does not write/);
+    assert.ok(
+      recordRegistry.message.includes('"a-sentence-nobody-writes"'),
+      `the failure must name the entry the record gained; it failed with ${recordRegistry.message}`,
+    );
+    console.log(
+      `a sentence added to the record alone reddens: ${recordRegistry.message.replace(/\s+/g, ' ').trim()}`,
+    );
+
+    // (5) T019/AC2: each of the four sentences wave 3's cycle-4 review measured, and the one the older
+    // phrase list policed, is refused on this side too. The pane registers the wording — which is the
+    // only way it could render it — and the record refuses to bless the entry, naming the sentence it
+    // does not carry. So a re-capture cannot make any of them true.
+    for (const [sentence, what] of UNRENDERABLE_SENTENCES) {
+      const line = `no-diagnostics: ${sentence}`;
+      const pane = await loadMutant(
+        "    text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
+        `    text: ${JSON.stringify(line)},`,
+      );
+      assert.equal(
+        pane.module.PANE_SENTENCES.find(
+          (entry) => entry.id === 'state-no-diagnostics',
+        ).text,
+        line,
+        `the mutant must really register ${JSON.stringify(line)}, or this probe proves nothing`,
+      );
+      const failure = reddens('sentence-registry', () =>
+        pinTheSentenceRegistryIsThePanes(contract, pane.module, pane.source),
+      );
+      assert.ok(
+        failure.message.includes(line),
+        `the record must refuse ${JSON.stringify(line)} naming the sentence it does not carry; it failed with ${failure.message}`,
+      );
+      console.log(
+        `the pane's new sentence is refused by the record: ${JSON.stringify(sentence)} — ${what}; ${failure.message.replace(/\s+/g, ' ').trim()}`,
+      );
+    }
+
+    // (6) And the recording's own bytes: a case whose surface carries one of those sentences — exactly
+    // what an armed re-capture writes once the pane renders one — reddens the pin that holds every
+    // pane-written line to the report's own registry, so the file itself cannot bless the wording.
+    const nothing = recordedCase('no-diagnostics');
+    const blessed = {
+      ...nothing,
+      surface: {
+        ...nothing.surface,
+        lines: [
+          nothing.surface.lines[0],
+          `no-diagnostics: ${UNRENDERABLE_SENTENCES[0][0]}`,
+        ],
+      },
+    };
+    const blessedFailure = reddens('renders-from-the-registry', () =>
+      pinRecordedLinesAreRegistrySentences(blessed, contract),
+    );
+    assert.ok(
+      blessedFailure.message.includes(UNRENDERABLE_SENTENCES[0][0]),
+      `the failure must name the sentence the recording blessed; it failed with ${blessedFailure.message}`,
+    );
+    console.log(
+      `a blessed sentence reddens on the recorded bytes: ${blessedFailure.message.replace(/\s+/g, ' ').trim()}`,
     );
   });
 });

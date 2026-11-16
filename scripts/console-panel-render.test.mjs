@@ -34,16 +34,32 @@
 // The E7 prohibitions are a rule and not a snapshot of the `joined` surface: `pinE7OnEveryState` runs
 // them on `joined`, `captured-nothing`, `no-diagnostics` and a state word the pane was not written
 // for, so a cause, an element, a remedy or an unattributed word about the framework added to any one
-// of those surfaces reddens a pin that names both the state and the phrase. The absence rule reaches
-// every state as well, and it is a property of the sentence rather than a list of silence phrases: a
-// pane-written sentence may say what was read and what that means for the panel, and may never assert
-// what the page did. Its clauses take as their subject a thing the pane read, and the page may be
-// named only inside a denial — so "the page emitted no diagnostic at all" reddens where "never that
-// the page was silent" passes, in whatever words the claim is written. The rule itself is stated once,
-// in `research/raw/m045-console-panel.json`'s contract, and read here and in the record suite; the
-// matcher that reads a sentence with it is duplicated and pinned byte-identical in both. The no-code
-// absence may never become a count, and the state sentence is looked up as an own property, so a word
-// such as `constructor` renders itself and not a function's source.
+// of those surfaces reddens a pin that names both the state and the phrase.
+//
+// The pane's own sentences are enumerated, not policed (T019). Every sentence it writes for itself is
+// an entry of `PANE_SENTENCES` in the module — the three state sentences, the six named absences and
+// the case-difference sentence, each with an id and its exact text — and the pane renders from that
+// registry and from nothing else. The pins below hold the registry to the rendered output in both
+// directions: `pinEveryRegistryEntryRenders` requires an answer that renders each entry where it
+// belongs, and `pinNoRenderedLineIsOutsideTheRegistry` requires every rendered pane-written line to be
+// a labelled fact of the answer or an entry of the registry, naming the line when it is neither.
+// `pinOnlyTheRegistryWritesSentences` reads the module's own source, so a sentence written beside the
+// registry — even the registry's own wording — reddens too. `pinTheRegistryIsTheRecords` holds the
+// registry to the copy in `research/raw/m045-console-panel.json`'s `contract.sentenceRegistry`, in
+// both directions, which is why an entry added to the pane alone is not enough to render a new
+// sentence: the record has to carry it as well, and the record suite refuses the same disagreement.
+//
+// The absence rule is kept as a secondary check over the registry's own text
+// (`pinNoModuleSentenceClaimsSilence`): a registry entry that claims what the page did still reddens.
+// It is a closed list of subjects and actions decided by a clause's first matching token, not a
+// property of meaning, and this suite does not ask it to catch wording it has not seen — the
+// enumeration is what refuses a new sentence. The four sentences wave 3's cycle-4 review measured, and
+// `the digest states the page's silence`, are refused by the enumeration and not by the matcher, and
+// `pinTheReviewEvasionsAreRefused` measures both halves of that refusal for each of them. The rule
+// itself is stated once, in `research/raw/m045-console-panel.json`'s contract, and read here and in
+// the record suite; the matcher that reads a sentence with it is duplicated and pinned byte-identical
+// in both. The no-code absence may never become a count, and the state sentence is looked up as an own
+// property, so a word such as `constructor` renders itself and not a function's source.
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -256,14 +272,16 @@ function reddens(name, pin) {
 
 // -------------------------------------------------------------------------- the pins ----
 
-/** Every sentence the pane may write of its own for one answer, read from the module itself. */
+/**
+ * Every sentence the pane may write of its own for one answer, read from the module's own registry
+ * (T019) rather than restated here: the entries whose text is fixed, plus the two that name a code,
+ * filled from the findings the answer carried — so a pane that named a spelling the answer does not
+ * carry still reddens.
+ */
 function ownSentences(answer) {
-  const sentences = new Set(Object.values(SURFACE.STATE_TEXTS));
-  sentences.add(SURFACE.NO_ANSWER_TEXT);
-  sentences.add(SURFACE.NO_FINDING_TEXT);
-  sentences.add(SURFACE.NO_CODE_TEXT);
-  sentences.add(SURFACE.NO_TITLE_TEXT);
-  sentences.add(SURFACE.UNREADABLE_FINDING_TEXT);
+  const sentences = new Set();
+  for (const entry of SURFACE.PANE_SENTENCES)
+    if (entry.slots.length === 0) sentences.add(entry.text);
   for (const finding of answer.findings) {
     if (typeof finding.code === 'string')
       sentences.add(SURFACE.noDigestEntryText(finding.code));
@@ -949,31 +967,537 @@ function pinNoAbsenceClaimsSilence(surface) {
 }
 
 /**
- * SC4/E7: the same rule at the source, so it covers the sentences a given answer does not render.
- * Every sentence the module states for a state or an absence is read, naming the state or the
- * absence it belongs to.
+ * SC4/E7/T019: the same rule over the registry's own text, so it covers the sentences a given answer
+ * does not render — including an entry written for an id no answer in this suite reaches, which is the
+ * one case a surface pin cannot see. Every entry of `PANE_SENTENCES` is read by the label its line
+ * carries, so a registry entry that claims what the page did reddens naming the entry.
+ *
+ * This is the secondary check the task keeps and not the guard: the rule decides a clause by its first
+ * matching token, so a wording it has not seen passes it, and the enumeration is what refuses that
+ * wording. `pinTheReviewEvasionsAreRefused` measures exactly that boundary.
  */
 function pinNoModuleSentenceClaimsSilence(api) {
   const rule = absenceRule();
-  for (const [name, sentence] of [
-    [api.JOINED, api.STATE_TEXTS[api.JOINED]],
-    [api.CAPTURED_NOTHING, api.STATE_TEXTS[api.CAPTURED_NOTHING]],
-    [api.NO_DIAGNOSTICS, api.STATE_TEXTS[api.NO_DIAGNOSTICS]],
-    [api.NO_CONSOLE_ANSWER, api.NO_ANSWER_TEXT],
-    [api.NO_FINDING, api.NO_FINDING_TEXT],
-    [api.NO_CODE, api.NO_CODE_TEXT],
-    [api.NO_TITLE, api.NO_TITLE_TEXT],
-    [api.UNREADABLE_FINDING, api.UNREADABLE_FINDING_TEXT],
-    [api.NO_DIGEST_ENTRY, api.noDigestEntryText('NG04002')],
-    [api.CASE_DIFFERENCE, api.caseFoldedMatchText(FOLDED.code, 'NG01002')],
-  ]) {
+  for (const entry of sentenceRegistry(api)) {
+    const sentence = registryText(api, entry);
     assert.equal(
       typeof sentence,
       'string',
-      `absence-statement: the pane must state a sentence for ${JSON.stringify(name)}, or this pin proves nothing`,
+      `absence-statement: the pane must state a sentence for ${JSON.stringify(entry.id)}, or this pin proves nothing`,
     );
-    assertAbsenceStatement(absenceBody(sentence), `${name} sentence`, rule);
+    assertAbsenceStatement(
+      absenceBody(sentence),
+      `${registryLabel(entry)} sentence`,
+      rule,
+    );
   }
+}
+
+// ---------------------------------------------------- the pane's sentence registry (T019) ----
+//
+// The pane writes no sentence that is not an entry of `PANE_SENTENCES`, and this block is what holds
+// that: the registry's own shape, its reach into the rendered output, the output's reach back into it,
+// the record's copy of it, and the module's source beside it.
+//
+// The values the two parameterised entries are filled with come from the join's own answers, never
+// from a string written here, so a pin cannot bless a spelling the join would not produce.
+
+/** The pane's registry, asserted to be one. */
+function sentenceRegistry(api) {
+  const registry = api.PANE_SENTENCES;
+  assert.ok(
+    Array.isArray(registry) && registry.length > 0,
+    `sentence-registry: the pane must enumerate its own sentences in PANE_SENTENCES, because a sentence outside it is one no pin can hold; the module exports ${JSON.stringify(registry)}`,
+  );
+  return registry;
+}
+
+/** The label a line carries: everything before its first `: `. */
+function renderedLabel(line) {
+  const at = line.indexOf(': ');
+  return at < 0 ? line : line.slice(0, at);
+}
+
+/** The label one registry entry's text carries, read off the text so the two cannot disagree. */
+function registryLabel(entry) {
+  return renderedLabel(entry.text);
+}
+
+/**
+ * The value each slot of one parameterised entry is filled with, read from the join's own answers: the
+ * code the digest lacks, and the two spellings a folded match produced.
+ */
+function slotValues(api, entry) {
+  if (entry.id === 'no-digest-entry') {
+    const absent = joinedAnswer().findings.find(
+      (finding) => finding.reason === api.NO_DIGEST_ENTRY,
+    );
+    assert.ok(
+      typeof absent?.code === 'string',
+      'sentence-registry: the join must answer a code the digest lacks, or the no-digest-entry sentence cannot be filled and this pin would read a hole',
+    );
+    return { code: absent.code };
+  }
+  if (entry.id === 'case-difference') {
+    const folded = foldedAnswer().findings[0];
+    assert.ok(
+      typeof folded?.carriedCode === 'string' &&
+        typeof folded.code === 'string' &&
+        folded.carriedCode !== folded.code,
+      'sentence-registry: the join must answer a folded match with two spellings, or the case-difference sentence cannot be filled and this pin would read a hole',
+    );
+    return { carriedCode: folded.carriedCode, digestCode: folded.code };
+  }
+  assert.deepEqual(
+    [...entry.slots],
+    [],
+    `sentence-registry: the entry ${JSON.stringify(entry.id)} states the slot(s) ${JSON.stringify([...entry.slots])} and this suite fills none of them, so the text it reads would carry a hole; a new slot needs a value here before a pin can read the sentence`,
+  );
+  return {};
+}
+
+/** One registry entry's text with its slots filled, exactly as the pane must render it. */
+function registryText(api, entry) {
+  const values = slotValues(api, entry);
+  let text = entry.text;
+  for (const slot of entry.slots)
+    text = text.split(`{${slot}}`).join(values[slot]);
+  return text;
+}
+
+/**
+ * T019/AC1: the registry is a registry — each id once, each entry a labelled sentence whose label is
+ * the state word it answers where it answers one, each slot a hole its own text states, and the three
+ * state sentences keyed to the join's three states in the join's order. A table that repeated an id,
+ * stated a slot it never used, or labelled a line with a word the module does not answer would be a
+ * registry that could not be held to the output at all.
+ */
+function pinTheRegistryIsWellFormed(api) {
+  const registry = sentenceRegistry(api);
+  const ids = registry.map((entry) => entry.id);
+  assert.deepEqual(
+    [...new Set(ids)],
+    ids,
+    `sentence-registry: each sentence is registered once; the ids are ${JSON.stringify(ids)}`,
+  );
+  for (const entry of registry) {
+    assert.match(
+      String(entry.id),
+      /^[a-z][a-z-]*$/,
+      `sentence-registry: the id ${JSON.stringify(entry.id)} must be a kebab-case name, so a pin can name the entry it reads`,
+    );
+    const label = registryLabel(entry);
+    assert.match(
+      label,
+      /^[a-z][a-z-]*$/,
+      `sentence-registry: the entry ${JSON.stringify(entry.id)} must state a labelled sentence — "label: text" — because every line the pane renders is a labelled fact; its text is ${JSON.stringify(entry.text)}`,
+    );
+    const holes = [...String(entry.text).matchAll(/\{([a-zA-Z]+)\}/g)]
+      .map((match) => match[1])
+      .sort();
+    assert.deepEqual(
+      holes,
+      [...entry.slots].sort(),
+      `sentence-registry: the entry ${JSON.stringify(entry.id)} states the slot(s) ${JSON.stringify([...entry.slots])} and its text carries ${JSON.stringify(holes)}; a slot is a hole in the text and nowhere else`,
+    );
+    assert.ok(
+      entry.state === null || typeof entry.state === 'string',
+      `sentence-registry: the entry ${JSON.stringify(entry.id)} must state the state word it answers or null; it states ${JSON.stringify(entry.state)}`,
+    );
+    if (entry.state !== null)
+      assert.equal(
+        label,
+        entry.state,
+        `sentence-registry: the entry ${JSON.stringify(entry.id)} answers the state word ${JSON.stringify(entry.state)} and its line is labelled ${JSON.stringify(label)}, so a reader would read one state and the pane report another`,
+      );
+  }
+  assert.deepEqual(
+    registry
+      .filter((entry) => entry.state !== null)
+      .map((entry) => entry.state),
+    [...api.STATES],
+    `sentence-registry: the state sentences are the join's three states in its own order; the registry carries ${JSON.stringify(registry.filter((entry) => entry.state !== null).map((entry) => entry.state))}`,
+  );
+  assert.deepEqual(
+    Object.keys(api.STATE_TEXTS).sort(),
+    [...api.STATES].sort(),
+    `sentence-registry: the state table is the registry's state entries and nothing else; it carries ${JSON.stringify(Object.keys(api.STATE_TEXTS))}`,
+  );
+}
+
+/**
+ * The answers this suite hands the pane so that every branch it can take is taken, each named by what
+ * it reaches. The registry's two directions both run over this list. A sentence rendered on a branch
+ * no answer here reaches would be invisible to both, which is what the module's source pin is for.
+ */
+const PANE_ANSWERS = [
+  [
+    'a joined answer of three diagnostics, one per digest case',
+    () => joinedAnswer(),
+  ],
+  [
+    'a capture that was read and carried no diagnostic',
+    () => capturedNothingAnswer(),
+  ],
+  ['no capture handed to the join at all', () => noDiagnosticsAnswer()],
+  ['no answer at all', () => undefined],
+  ['an answer that carried no state word', () => ({ findings: [] })],
+  [
+    'a joined answer that carried no finding',
+    () => ({ state: SURFACE.JOINED, findings: [] }),
+  ],
+  ['a code the digest matched only by folding case', () => foldedAnswer()],
+  [
+    'a list entry that is not a finding',
+    () => ({ state: SURFACE.JOINED, findings: ['not a finding'] }),
+  ],
+  [
+    'a finding the digest carries no title for',
+    () => ({
+      state: SURFACE.JOINED,
+      findings: [{ text: 'NG0100: no title beside it', code: MATCHED.code }],
+    }),
+  ],
+  [
+    'a reason the join was not written for',
+    () => ({
+      state: SURFACE.JOINED,
+      findings: [
+        {
+          text: 'NG0100: a reason beside it',
+          code: MATCHED.code,
+          title: shippedTitle(MATCHED.code),
+          reason: 'a-reason-the-join-does-not-state',
+        },
+      ],
+    }),
+  ],
+  ['a word the pane was not written for', () => ({ state: 'wedged' })],
+  [
+    'a finding carrying a cause, an element, a remedy, a component and a count',
+    () => fattenedAnswer(),
+  ],
+];
+
+/**
+ * The lines one answer is allowed to write through the pane beside the registry: its state word, and
+ * the four fields a finding carries. They are the answer's words and not this pane's, which is the
+ * same exemption the prohibitions use.
+ */
+function answerFacts(answer) {
+  const facts = new Set();
+  if (answer === null || typeof answer !== 'object') return facts;
+  if (typeof answer.state === 'string') facts.add(`state: ${answer.state}`);
+  for (const finding of Array.isArray(answer.findings) ? answer.findings : []) {
+    if (finding === null || typeof finding !== 'object') continue;
+    if (typeof finding.text === 'string') facts.add(`text: ${finding.text}`);
+    if (typeof finding.code === 'string') facts.add(`code: ${finding.code}`);
+    if (typeof finding.title === 'string') facts.add(`title: ${finding.title}`);
+    if (
+      typeof finding.reason === 'string' &&
+      finding.reason !== SURFACE.NO_DIGEST_ENTRY
+    )
+      facts.add(`reason: ${finding.reason}`);
+  }
+  return facts;
+}
+
+/**
+ * T019/AC1, one direction: every entry of the registry is reachable. An answer in `PANE_ANSWERS`
+ * renders the entry's exact text, and a state sentence renders on its own state's surface and never
+ * beside another. An entry no answer renders is a sentence the pane states and never writes, which is
+ * what a registry that had drifted from the pane would look like.
+ */
+function pinEveryRegistryEntryRenders(api) {
+  const rendered = PANE_ANSWERS.map(([reaches, answer]) => [
+    reaches,
+    api.consolePanel(answer()),
+  ]);
+  for (const entry of sentenceRegistry(api)) {
+    const text = registryText(api, entry);
+    const reaches = rendered
+      .filter(([, surface]) => paneWrittenLines(surface).includes(text))
+      .map(([reaches]) => reaches);
+    assert.ok(
+      reaches.length > 0,
+      `registry-reach: the registry states ${JSON.stringify(entry.id)} as ${JSON.stringify(text)}, and no answer this suite hands the pane renders it, so the registry carries a sentence the pane never writes; the pane rendered ${JSON.stringify(rendered.map(([reaches, surface]) => [reaches, surface.lines]))}`,
+    );
+    for (const [reaches, surface] of rendered)
+      if (entry.state !== null && paneWrittenLines(surface).includes(text))
+        assert.equal(
+          surface.state,
+          entry.state,
+          `registry-reach: the registry states ${JSON.stringify(entry.id)} as the ${JSON.stringify(entry.state)} sentence, and it rendered on the ${JSON.stringify(surface.state)} surface (${reaches}); a reader would read a state the answer did not carry`,
+        );
+    console.log(`registry entry ${entry.id} renders: ${reaches.join('; ')}`);
+  }
+}
+
+/**
+ * T019/AC1, the other direction: no rendered pane-written line falls outside the registry. A line
+ * that is a labelled fact the answer carried is allowed, because its words are the answer's; anything
+ * else must be an entry of the registry, and the failure names the line it read.
+ */
+function pinNoRenderedLineIsOutsideTheRegistry(api) {
+  const registry = sentenceRegistry(api);
+  const registryTexts = new Set(
+    registry.map((entry) => registryText(api, entry)),
+  );
+  for (const [reaches, answer] of PANE_ANSWERS) {
+    const value = answer();
+    const surface = api.consolePanel(value);
+    const facts = answerFacts(value);
+    for (const line of paneWrittenLines(surface)) {
+      if (facts.has(line)) continue;
+      assert.ok(
+        registryTexts.has(line),
+        `renders-from-the-registry: the ${JSON.stringify(surface.state)} surface rendered the line ${JSON.stringify(line)} (${reaches}), and that line is neither a labelled fact the answer carried nor an entry of PANE_SENTENCES — every sentence the pane writes for itself is a registry entry, so a new sentence is an edit to the registry and not a literal beside it; the registry is ${JSON.stringify([...registryTexts])}`,
+      );
+    }
+  }
+}
+
+/**
+ * T019/AC4: the record's contract carries the pane's registry, and the two are one registry in both
+ * directions — the shape `contract.lineLabels` already uses. A sentence added to the pane alone
+ * reddens here naming the entry the record does not carry; a sentence the record carries and the pane
+ * does not write reddens too; and an entry whose text, slots or state word differ from the pane's
+ * reddens naming the field. The record suite holds the same pin against the same record, so an armed
+ * re-capture cannot bless a sentence the pane does not write.
+ */
+function pinTheRegistryIsTheRecords(api) {
+  const carried = PANEL_RECORD?.contract?.sentenceRegistry;
+  assert.ok(
+    Array.isArray(carried) && carried.length > 0,
+    `sentence-registry: ${PANEL_RECORD_REL} must carry the pane's sentences in contract.sentenceRegistry, or the record cannot say which sentences the pane writes; its contract carries ${JSON.stringify(carried)}`,
+  );
+  const registry = sentenceRegistry(api);
+  const named = (ids) => ids.map((id) => JSON.stringify(id)).join(', ');
+  const paneIds = registry.map((entry) => entry.id);
+  const recordIds = carried.map((entry) => entry.id);
+  const added = paneIds.filter((id) => !recordIds.includes(id));
+  assert.deepEqual(
+    added,
+    [],
+    `sentence-registry: the pane states ${added.length} sentence(s) the record's contract.sentenceRegistry does not carry: ${named(added)} — the record states the sentences the pane writes, so an entry added to the pane alone is drift, and a sentence cannot be rendered until the record carries it too; the record would have to carry ${named(paneIds)}`,
+  );
+  const missing = recordIds.filter((id) => !paneIds.includes(id));
+  assert.deepEqual(
+    missing,
+    [],
+    `sentence-registry: the record's contract.sentenceRegistry carries ${missing.length} sentence(s) the pane does not write: ${named(missing)} — the record cannot bless a sentence the pane has no entry for; the pane states ${named(paneIds)}`,
+  );
+  for (const entry of registry) {
+    const copy = carried.find((candidate) => candidate.id === entry.id);
+    assert.deepEqual(
+      Object.keys(copy).sort(),
+      ['id', 'slots', 'state', 'text'],
+      `sentence-registry: the record's copy of ${JSON.stringify(entry.id)} carries the field(s) ${JSON.stringify(Object.keys(copy).sort())}, and a registry entry is an id, its text, its slots and its state word`,
+    );
+    for (const field of ['text', 'slots', 'state'])
+      assert.deepEqual(
+        copy[field],
+        entry[field],
+        `sentence-registry: the record's copy of ${JSON.stringify(entry.id)} states the ${field} ${JSON.stringify(copy[field])}, and the pane states ${JSON.stringify(entry[field])} — the record states the sentences the pane writes, so the two are one registry or they are not`,
+      );
+  }
+}
+
+/** The pane's source with its comments taken out, so a sentence quoted in prose is not read as a line. */
+function codeWithoutComments(source) {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/^[ \t]*\/\/.*$/gm, '');
+}
+
+/** The labels whose value is a labelled fact of the answer, and so not a sentence of this pane's. */
+const CARRIED_LABELS = ['state', 'code', 'title', 'text', 'reason'];
+
+/**
+ * T019/AC1: the pane renders from the registry and from nothing else, read off its own source. The
+ * registry's own entries are cut out of the source first; every other string in the module that opens
+ * a labelled line — `'no-code: …'`, `` `cause: ${cause}` `` — is then read, and the only labels allowed
+ * there are the five whose value is a fact the answer carried. So a sentence written beside the
+ * registry reddens with the label and the text around it, even when it is the registry's own wording
+ * copied out — which the rendered-output pins could not see, because such a line is a registry text.
+ */
+function pinOnlyTheRegistryWritesSentences(source) {
+  const code = codeWithoutComments(source);
+  const open = code.indexOf('export const PANE_SENTENCES');
+  assert.ok(
+    open >= 0,
+    'renders-from-the-registry: the pane must declare its sentence registry as `export const PANE_SENTENCES`, or this pin reads a file that has no registry in it',
+  );
+  const close = code.indexOf('\n];', open);
+  assert.ok(
+    close > open,
+    'renders-from-the-registry: the registry must end with a closing `];`, or this pin would cut the module at the wrong place',
+  );
+  const body = `${code.slice(0, open)}${code.slice(close)}`;
+  const written = [...body.matchAll(/(['"`])([a-z][a-z-]*): /g)];
+  const labels = new Set(written.map((match) => match[2]));
+  for (const label of CARRIED_LABELS)
+    assert.ok(
+      labels.has(label),
+      `renders-from-the-registry: the scan must read the pane's own labelled lines, and it found none labelled ${JSON.stringify(label)}; it read ${JSON.stringify([...labels])}`,
+    );
+  for (const match of written) {
+    assert.ok(
+      CARRIED_LABELS.includes(match[2]),
+      `renders-from-the-registry: the pane writes the sentence labelled ${JSON.stringify(match[2])} in its own body (${JSON.stringify(body.slice(Math.max(0, match.index - 40), match.index + 80).replace(/\s+/g, ' '))}), and every sentence the pane writes for itself is an entry of PANE_SENTENCES — a sentence's text lives in the registry, so the wording belongs there and not beside it`,
+    );
+  }
+  return written;
+}
+
+/**
+ * The four sentences wave 3's cycle-4 review measured passing the absence rule and then blessed into
+ * the recording by an armed capture, and what each of them states. Each keeps a read subject and a
+ * read action in place and puts the claim about the page beside them, which is why a matcher that
+ * decides a clause by its first matching token cannot see any of them.
+ */
+const REVIEW_EVASIONS = [
+  [
+    "the capture reflects the page's silence",
+    'a possessive nominalisation: the page is named in a possessive the rule\'s word list does not carry, and the clause\'s verb is decided by "capture"',
+  ],
+  [
+    'no diagnostic was reported',
+    'an agentless passive whose participle is one of the read actions, so the agent it elides is never read',
+  ],
+  [
+    'this is never a claim that the page was silent, and it rendered nothing',
+    'a lawful denial in the first clause, and a pronoun in the second that stands because "rendered" is a pane action',
+  ],
+  [
+    'the capture was not empty before the page ran clean',
+    'a denial about the capture, which the rule takes to govern the page word after it',
+  ],
+];
+
+/**
+ * T019/AC2 and item 5 of the task: each of the review's four evasions is refused by construction, and
+ * both halves are measured on the pane's own source in this run's temp directory.
+ *
+ *   (a) rendered without a registry entry — a literal pushed beside the state sentence — the output
+ *       pin refuses it and names the line, and the module's own source pin refuses the literal too. So
+ *       the sentence cannot reach a surface without an edit to `PANE_SENTENCES`.
+ *   (b) added to the registry, the record's copy refuses it: the pane states a sentence
+ *       `contract.sentenceRegistry` does not carry, and the failure names the entry and both texts. The
+ *       record has to carry it as well — a deliberate edit a reviewer sees — and the record suite
+ *       refuses the same disagreement from its own side.
+ *
+ * The rule's reach is measured beside each, because the honest statement of why these are refused is
+ * the enumeration and not the matcher: if the rule were later widened to catch one of them, this pin
+ * would redden and the settlement in this file would have to be re-worded.
+ */
+async function pinTheReviewEvasionsAreRefused(api) {
+  const rule = absenceRule();
+  for (const [evasion, what] of REVIEW_EVASIONS) {
+    const line = `${api.NO_DIAGNOSTICS}: ${evasion}`;
+    assert.deepEqual(
+      absenceBreaches(absenceBody(line), rule),
+      [],
+      `the review's evasion ${JSON.stringify(evasion)} is refused by the enumeration and not by the absence rule, and the rule's reach is measured here rather than claimed: if this reddens, the matcher has been widened and this file's settlement has to say so`,
+    );
+    // (a) rendered without a registry entry.
+    const rendered = await loadMutant(
+      '  lines.push(sentence);',
+      `  lines.push(sentence);\n  lines.push(${JSON.stringify(line)});`,
+    );
+    assert.equal(
+      rendered.module.consolePanel(noDiagnosticsAnswer()).lines.includes(line),
+      true,
+      `the mutant must really render ${JSON.stringify(line)}, or this probe proves nothing`,
+    );
+    const onSurface = reddens('renders-from-the-registry', () =>
+      pinNoRenderedLineIsOutsideTheRegistry(rendered.module),
+    );
+    assert.ok(
+      onSurface.message.includes(line),
+      `the pin must name the line it read; it failed with ${onSurface.message}`,
+    );
+    const onSource = reddens('renders-from-the-registry', () =>
+      pinOnlyTheRegistryWritesSentences(rendered.source),
+    );
+    assert.ok(
+      onSource.message.includes(`"${api.NO_DIAGNOSTICS}"`),
+      `the source pin must name the label the literal carries; it failed with ${onSource.message}`,
+    );
+    // (b) added to the registry, which the record's own copy refuses.
+    const added = await loadMutant(
+      "    text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
+      `    text: ${JSON.stringify(line)},`,
+    );
+    assert.equal(
+      added.module.PANE_SENTENCES.find(
+        (entry) => entry.id === 'state-no-diagnostics',
+      ).text,
+      line,
+      `the mutant must really register ${JSON.stringify(line)}, or this probe proves nothing`,
+    );
+    const onRecord = reddens('sentence-registry', () =>
+      pinTheRegistryIsTheRecords(added.module),
+    );
+    assert.ok(
+      onRecord.message.includes(line),
+      `the record's pin must name the sentence the record does not carry; it failed with ${onRecord.message}`,
+    );
+    console.log(
+      `the review's evasion is refused by construction: ${JSON.stringify(evasion)} — ${what}; without an entry: ${onSurface.message.replace(/\s+/g, ' ').trim()}; with one: ${onRecord.message.replace(/\s+/g, ' ').trim()}`,
+    );
+  }
+}
+
+/**
+ * T019/AC5: `the digest states the page's silence` — the wording the absence rule lost when it
+ * replaced the older phrase list — is settled here, and the settlement is *impossible to render*, not
+ * *refused by the rule*:
+ *
+ *   · the rule alone reads it and passes it (measured below on the rule's own vocabulary), because
+ *     `digest` is both a read subject and a read action and `page's` is not a word the rule carries;
+ *   · a pane that renders it as a literal is refused by the output pin, which names the line, and by
+ *     the source pin, which names the label — so it cannot reach a surface without an edit to
+ *     `PANE_SENTENCES`;
+ *   · that edit is refused until the record carries the same sentence, in both suites.
+ *
+ * So the sentence needs a deliberate, reviewable change to two files and no wording of it can slip
+ * past a matcher. This test says which of the acceptance criterion's two answers applies instead of
+ * letting a reader assume the classifier sees the sentence.
+ */
+async function pinTheDigestSilenceSentenceIsSettled(api) {
+  const sentence = "the digest states the page's silence";
+  const line = `${api.NO_DIAGNOSTICS}: ${sentence}`;
+  assert.deepEqual(
+    absenceBreaches(absenceBody(line), absenceRule()),
+    [],
+    `the digest sentence is settled as impossible to render and not as refused by the absence rule: the rule passes ${JSON.stringify(sentence)}, because "digest" is both a read subject and a read action and "page's" is not a word it carries. If this reddens, the rule has been widened and this settlement must say "refused by the rule" instead`,
+  );
+  const rendered = await loadMutant(
+    '  lines.push(sentence);',
+    `  lines.push(sentence);\n  lines.push(${JSON.stringify(line)});`,
+  );
+  const onSurface = reddens('renders-from-the-registry', () =>
+    pinNoRenderedLineIsOutsideTheRegistry(rendered.module),
+  );
+  assert.ok(
+    onSurface.message.includes(line),
+    `the pin must name the line it read; it failed with ${onSurface.message}`,
+  );
+  const added = await loadMutant(
+    "    text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
+    `    text: ${JSON.stringify(line)},`,
+  );
+  const onRecord = reddens('sentence-registry', () =>
+    pinTheRegistryIsTheRecords(added.module),
+  );
+  assert.ok(
+    onRecord.message.includes(line),
+    `the record's pin must name the sentence the record does not carry; it failed with ${onRecord.message}`,
+  );
+  console.log(
+    `the digest sentence is impossible to render and not refused by the rule: ${JSON.stringify(sentence)}; without an entry: ${onSurface.message.replace(/\s+/g, ' ').trim()}`,
+  );
 }
 
 /**
@@ -1242,7 +1766,7 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
     pinRendersTheAnswerAndNothingElse(surface, answer);
   });
 
-  it('E7/SC4: every state the pane renders carries no cause, element, remedy or unattributed wording, and the two absences stay two statements', () => {
+  it('E7/SC4: every state the pane renders carries no cause, element, remedy or unattributed wording, and the two absences stay two statements', async () => {
     const nothing = SURFACE.consolePanel(capturedNothingAnswer());
     const none = SURFACE.consolePanel(noDiagnosticsAnswer());
     pinTheTwoAbsencesDiffer(nothing, none);
@@ -1253,9 +1777,9 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
     // pane's own about the framework or a claim about what the page did, added to any one of them,
     // reddens naming that state.
     pinE7OnEveryState(SURFACE);
-    // The absence rule at the source as well as at the surface: every sentence the module states for a
-    // state or a named absence is read, so a claim in `no-diagnostics` or in the no-code sentence
-    // reddens naming the sentence it was written in.
+    // The absence rule at the source as well as at the surface, and over the registry's own text: every
+    // entry the pane states is read by the label its line carries, so a claim in `no-diagnostics`, in
+    // the no-code sentence, or in an entry no answer renders reddens naming the sentence.
     pinNoModuleSentenceClaimsSilence(SURFACE);
     // And the rule itself, proved as a property rather than as the phrase list it replaced: every
     // shipped sentence passes, the wordings that list never matched redden naming the sentence and
@@ -1263,6 +1787,17 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
     pinShippedAbsenceSentencesPass();
     pinThePhraseListMissedNothing();
     pinAbsenceRuleIsTheRecords();
+    // T019: the sentences the pane writes for itself are one registry, and the pins below hold it to
+    // the rendered output in both directions, to the record's own copy of it, and to the module's
+    // source beside it — then measure that the four sentences wave 3's cycle-4 review found, and the
+    // one the older phrase list policed, are refused by the enumeration rather than by the matcher.
+    pinTheRegistryIsWellFormed(SURFACE);
+    pinEveryRegistryEntryRenders(SURFACE);
+    pinNoRenderedLineIsOutsideTheRegistry(SURFACE);
+    pinTheRegistryIsTheRecords(SURFACE);
+    pinOnlyTheRegistryWritesSentences(SURFACE_SRC);
+    await pinTheReviewEvasionsAreRefused(SURFACE);
+    await pinTheDigestSilenceSentenceIsSettled(SURFACE);
   });
 
   it('AC2: a code the digest lacks renders by name, and a count instead reddens', () => {
@@ -1630,6 +2165,34 @@ function pinThePhraseListMissedNothing() {
     'no-diagnostics sentence',
     rule,
   );
+  // And the rule is not dead: the two wordings wave 3's cycle-4 review found still refused are still
+  // refused, so what the review measured is a rule narrower than its prose rather than a matcher that
+  // says nothing. `no diagnostic was emitted` states "emitted" and `nothing was emitted` leaves the
+  // indeterminate standing; both redden by the clause that carries them.
+  for (const control of ['no diagnostic was emitted', 'nothing was emitted']) {
+    let failure = null;
+    try {
+      assertAbsenceStatement(
+        absenceBody(`no-diagnostics: ${control}`),
+        'no-diagnostics sentence',
+        rule,
+      );
+    } catch (error) {
+      failure = error;
+    }
+    assert.ok(
+      failure instanceof Error,
+      `the control ${JSON.stringify(control)} must still redden the rule, or the rule refuses nothing and the sentences it does refuse prove nothing`,
+    );
+    assert.match(failure.message, /absence-statement: the /);
+    assert.ok(
+      failure.message.includes(control),
+      `the control's failure must name the wording it read; it failed with ${failure.message}`,
+    );
+    console.log(
+      `the control is still refused: ${failure.message.replace(/\s+/g, ' ').trim()}`,
+    );
+  }
 }
 
 /** AC4: the record states the rule, and the matcher here is the record suite’s, so the two cannot drift. */
@@ -1718,12 +2281,12 @@ const MUTATIONS = [
     id: 'no-code-as-count',
     defect: 'no-code',
     anchor: [
-      'export const NO_CODE_TEXT =',
-      "  'no-code: the captured message carried no code, so this finding carries no code and no title';",
+      "    id: 'no-code',",
+      "    text: 'no-code: the captured message carried no code, so this finding carries no code and no title',",
     ].join('\n'),
     replacement: [
-      'export const NO_CODE_TEXT =',
-      "  'no-code: 1 captured message carried no code, so this finding carries no code and no title';",
+      "    id: 'no-code',",
+      "    text: 'no-code: 1 captured message carried no code, so this finding carries no code and no title',",
     ].join('\n'),
     check: (api) => {
       const answer = joinedAnswer();
@@ -1759,12 +2322,12 @@ const MUTATIONS = [
     id: 'captured-nothing-claims-silence',
     defect: 'never what the page did',
     anchor: [
-      "  'captured-nothing':",
-      "    'captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent',",
+      "    id: 'state-captured-nothing',",
+      "    text: 'captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent',",
     ].join('\n'),
     replacement: [
-      "  'captured-nothing':",
-      "    'captured-nothing: the page was silent, so no diagnostic was captured',",
+      "    id: 'state-captured-nothing',",
+      "    text: 'captured-nothing: the page was silent, so no diagnostic was captured',",
     ].join('\n'),
     check: (api) => {
       return () =>
@@ -1785,12 +2348,13 @@ const MUTATIONS = [
     id: 'captured-nothing-as-a-prefix',
     defect: 'says what was read',
     anchor: [
-      "  'captured-nothing':",
-      "    'captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent',",
+      "    id: 'state-captured-nothing',",
+      "    text: 'captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent',",
     ].join('\n'),
-    replacement: ["  'captured-nothing':", "    'captured-nothing: ',"].join(
-      '\n',
-    ),
+    replacement: [
+      "    id: 'state-captured-nothing',",
+      "    text: 'captured-nothing: ',",
+    ].join('\n'),
     check: (api) => {
       return () =>
         pinCapturedNothingNeverClaimsSilence(
@@ -1809,12 +2373,12 @@ const MUTATIONS = [
     id: 'captured-nothing-page-ran-clean',
     defect: 'never what the page did',
     anchor: [
-      "  'captured-nothing':",
-      "    'captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent',",
+      "    id: 'state-captured-nothing',",
+      "    text: 'captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent',",
     ].join('\n'),
     replacement: [
-      "  'captured-nothing':",
-      "    'captured-nothing: the page ran clean, so a capture was read and carried no diagnostic',",
+      "    id: 'state-captured-nothing',",
+      "    text: 'captured-nothing: the page ran clean, so a capture was read and carried no diagnostic',",
     ].join('\n'),
     check: (api) => {
       return () =>
@@ -1833,12 +2397,12 @@ const MUTATIONS = [
     id: 'joined-page-had-nothing-to-say',
     defect: 'never what the page did',
     anchor: [
-      '  joined:',
-      '    "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture\'s own order",',
+      "    id: 'state-joined',",
+      '    text: "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture\'s own order",',
     ].join('\n'),
     replacement: [
-      '  joined:',
-      '    "joined: the capture held at least one diagnostic, and the page had nothing else to say",',
+      "    id: 'state-joined',",
+      '    text: "joined: the capture held at least one diagnostic, and the page had nothing else to say",',
     ].join('\n'),
     check: (api) => {
       return () => pinNoAbsenceClaimsSilence(api.consolePanel(joinedAnswer()));
@@ -1964,12 +2528,12 @@ const MUTATIONS = [
     id: 'remedy-on-no-diagnostics',
     defect: 'must render no remedy',
     anchor: [
-      "  'no-diagnostics':",
-      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
+      "    id: 'state-no-diagnostics',",
+      "    text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
     ].join('\n'),
     replacement: [
-      "  'no-diagnostics':",
-      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read, and a remedy is to hand it one',",
+      "    id: 'state-no-diagnostics',",
+      "    text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read, and a remedy is to hand it one',",
     ].join('\n'),
     check: (api) => () => pinE7OnEveryState(api),
     exhibits: (module) =>
@@ -1985,12 +2549,12 @@ const MUTATIONS = [
     id: 'because-on-no-diagnostics',
     defect: 'must render no cause',
     anchor: [
-      "  'no-diagnostics':",
-      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
+      "    id: 'state-no-diagnostics',",
+      "    text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
     ].join('\n'),
     replacement: [
-      "  'no-diagnostics':",
-      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read because every console hook failed to install',",
+      "    id: 'state-no-diagnostics',",
+      "    text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read because every console hook failed to install',",
     ].join('\n'),
     check: (api) => () => pinE7OnEveryState(api),
     exhibits: (module) =>
@@ -2006,12 +2570,12 @@ const MUTATIONS = [
     id: 'no-diagnostics-claims-silence',
     defect: 'never what the page did',
     anchor: [
-      "  'no-diagnostics':",
-      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
+      "    id: 'state-no-diagnostics',",
+      "    text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
     ].join('\n'),
     replacement: [
-      "  'no-diagnostics':",
-      "    'no-diagnostics: the page was silent, so no capture was handed to the join at all',",
+      "    id: 'state-no-diagnostics',",
+      "    text: 'no-diagnostics: the page was silent, so no capture was handed to the join at all',",
     ].join('\n'),
     check: (api) => {
       return () =>
@@ -2030,12 +2594,12 @@ const MUTATIONS = [
     id: 'no-diagnostics-emitted-no-diagnostic',
     defect: 'never what the page did',
     anchor: [
-      "  'no-diagnostics':",
-      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
+      "    id: 'state-no-diagnostics',",
+      "    text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
     ].join('\n'),
     replacement: [
-      "  'no-diagnostics':",
-      "    'no-diagnostics: the page emitted no diagnostic at all, so no capture was handed to the join',",
+      "    id: 'state-no-diagnostics',",
+      "    text: 'no-diagnostics: the page emitted no diagnostic at all, so no capture was handed to the join',",
     ].join('\n'),
     check: (api) => {
       return () =>
@@ -2055,12 +2619,12 @@ const MUTATIONS = [
     id: 'no-console-answer-claims-silence',
     defect: 'never what the page did',
     anchor: [
-      'export const NO_ANSWER_TEXT =',
-      "  'no-console-answer: no console join answer was handed over, so no state and no finding are reported';",
+      "    id: 'no-console-answer',",
+      "    text: 'no-console-answer: no console join answer was handed over, so no state and no finding are reported',",
     ].join('\n'),
     replacement: [
-      'export const NO_ANSWER_TEXT =',
-      "  'no-console-answer: the page logged nothing, so no console join answer was handed over';",
+      "    id: 'no-console-answer',",
+      "    text: 'no-console-answer: the page logged nothing, so no console join answer was handed over',",
     ].join('\n'),
     check: (api) => () => pinNoModuleSentenceClaimsSilence(api),
     exhibits: (module) =>
@@ -2118,9 +2682,9 @@ const MUTATIONS = [
     // the difference the row reports is never stated. The pin above reddens on the sentence, not on
     // the prefix, which is why the mutant keeps the prefix.
     anchor:
-      "  return `case-difference: the message carried ${carriedCode} and the digest carries ${digestCode}, so this finding carries the digest's own spelling and title`;",
+      '    text: "case-difference: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest\'s own spelling and title",',
     replacement:
-      "  return `case-difference: the finding carries the digest's own code and title`;",
+      '    text: "case-difference: the finding carries the digest\'s own code and title",',
     check: (api) => {
       const answer = foldedAnswer();
       return () => pinCaseDifferenceIsNamed(api.consolePanel(answer), answer);
@@ -2134,16 +2698,86 @@ const MUTATIONS = [
       ),
     names: /case-difference/,
   },
+  {
+    // T019: the registry is what a sentence is, so writing one of its texts again beside the entries
+    // is the same defect as writing a new one — and it is the one the rendered-output pins cannot see,
+    // because a line that equals a registry entry is a registry entry. Only the module's own source is
+    // read here, and the sentence inlined below is the shipped `joined` sentence verbatim.
+    id: 'sentence-inlined-beside-the-registry',
+    defect: 'renders-from-the-registry',
+    anchor: '  lines.push(sentence);',
+    replacement:
+      '  lines.push("joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture\'s own order");',
+    check:
+      (api, source = SURFACE_SRC) =>
+      () =>
+        pinOnlyTheRegistryWritesSentences(source),
+    exhibits: (module) =>
+      assert.ok(
+        module
+          .consolePanel(noDiagnosticsAnswer())
+          .lines.some((line) => line.startsWith(`${SURFACE.JOINED}: `)),
+        'the mutant really writes the registry’s own joined sentence in the body of consolePanel',
+      ),
+    names:
+      /renders-from-the-registry: the pane writes the sentence labelled "joined"/,
+  },
+  {
+    // T019: the absence rule kept as a secondary check over the registry's own text. This entry is
+    // rendered by no answer in this suite, so no surface pin reads it and the module's export reading
+    // does not either; the rule over the registry does, which is why it is measured on the entry
+    // rather than on a surface.
+    id: 'registry-entry-claims-the-page',
+    defect: 'the page logged nothing',
+    anchor: [
+      "    slots: ['carriedCode', 'digestCode'],",
+      '    state: null,',
+      '  },',
+      '];',
+    ].join('\n'),
+    replacement: [
+      "    slots: ['carriedCode', 'digestCode'],",
+      '    state: null,',
+      '  },',
+      '  {',
+      "    id: 'a-sentence-nothing-renders',",
+      "    text: 'a-sentence-nothing-renders: the page logged nothing, so nothing was reported',",
+      '    slots: [],',
+      '    state: null,',
+      '  },',
+      '];',
+    ].join('\n'),
+    check: (api) => () => pinNoModuleSentenceClaimsSilence(api),
+    exhibits: (module) => {
+      assert.ok(
+        module.PANE_SENTENCES.some(
+          (entry) => entry.id === 'a-sentence-nothing-renders',
+        ),
+        'the mutant really registers a sentence that claims what the page did',
+      );
+      assert.equal(
+        module
+          .consolePanel(noDiagnosticsAnswer())
+          .text.includes('the page logged nothing'),
+        false,
+        'the entry is one no answer in this suite renders, which is why the surface pins cannot see it',
+      );
+    },
+    names: /the page logged nothing/,
+  },
 ];
 
 describe('panel-console mutants', () => {
   for (const mutation of MUTATIONS) {
     it(`${mutation.id} reddens naming "${mutation.defect}"`, async () => {
       // The pin is green on the shipped pane first, so the failure below is the mutation's.
-      mutation.check(SURFACE)();
+      mutation.check(SURFACE, SURFACE_SRC)();
       const mutant = await loadMutant(mutation.anchor, mutation.replacement);
       mutation.exhibits(mutant.module);
-      const failure = reddens(mutation.defect, mutation.check(mutant.module));
+      const failure = reddens(
+        mutation.defect,
+        mutation.check(mutant.module, mutant.source),
+      );
       assert.match(failure.message, mutation.names);
     });
   }

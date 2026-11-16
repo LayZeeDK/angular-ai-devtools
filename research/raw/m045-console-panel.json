@@ -36,6 +36,73 @@
       "captured-nothing",
       "no-diagnostics"
     ],
+    "sentenceRegistry": [
+      {
+        "id": "state-joined",
+        "text": "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
+        "slots": [],
+        "state": "joined"
+      },
+      {
+        "id": "state-captured-nothing",
+        "text": "captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent",
+        "slots": [],
+        "state": "captured-nothing"
+      },
+      {
+        "id": "state-no-diagnostics",
+        "text": "no-diagnostics: no capture was handed to the join at all, so no capture was read",
+        "slots": [],
+        "state": "no-diagnostics"
+      },
+      {
+        "id": "no-console-answer",
+        "text": "no-console-answer: no console join answer was handed over, so no state and no finding are reported",
+        "slots": [],
+        "state": null
+      },
+      {
+        "id": "no-finding",
+        "text": "no-finding: the answer reported joined and carried no finding, so no finding is rendered",
+        "slots": [],
+        "state": null
+      },
+      {
+        "id": "no-code",
+        "text": "no-code: the captured message carried no code, so this finding carries no code and no title",
+        "slots": [],
+        "state": null
+      },
+      {
+        "id": "no-title",
+        "text": "no-title: the digest carries the code this message carried and states no title for it, so no title is rendered",
+        "slots": [],
+        "state": null
+      },
+      {
+        "id": "unreadable-finding",
+        "text": "unreadable-finding: the answer carried a list entry that is not a finding, so it is named here and nothing is filled in for it",
+        "slots": [],
+        "state": null
+      },
+      {
+        "id": "no-digest-entry",
+        "text": "no-digest-entry: the digest carries no entry for {code}, so this finding is named by the code it carried and no title is rendered",
+        "slots": [
+          "code"
+        ],
+        "state": null
+      },
+      {
+        "id": "case-difference",
+        "text": "case-difference: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and title",
+        "slots": [
+          "carriedCode",
+          "digestCode"
+        ],
+        "state": null
+      }
+    ],
     "prohibitedWording": [
       "cause",
       "because",

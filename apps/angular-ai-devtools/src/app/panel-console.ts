@@ -1,5 +1,5 @@
 /**
- * The console-read panel surface — M045 T003 (INTENT.md SC3, SC4, SC5; held-out E7).
+ * The console-read panel surface — M045 T003, T019 (INTENT.md SC3, SC4, SC5; held-out E7).
  *
  * The join itself lives in `extension/console-join.js` (T002, `globalThis.angularAiConsoleJoin`): it
  * is handed the diagnostics the page agent dispatched from `captureErrorPayload` and the shipped
@@ -47,20 +47,31 @@
  * "element" and a captured message may say "because", and both render here as they were handed over;
  * what the pane may not do is write such a word into a sentence of its own.
  *
- * Nor may any sentence it writes assert what the page did. An absence statement says what was read and
- * what that means for the panel, and that is a property of the sentence rather than a list of
- * phrasings: each of its clauses takes as its subject a thing this pane read — the capture, the answer,
- * the join, the digest, the message, the finding, the list, the state, the code, the title, the reason,
- * or the sentence itself — and states an action the read or the pane performs; a clause a denial
- * introduces is the pane saying what it did *not* find, which is why `captured-nothing` may say that a
- * capture whose own attempt failed also emits nothing, and may say of the page only that it never
- * claims the page was silent. What no clause may do is take the page — or an indeterminate standing
- * where the page would be — as the subject of what happened: "the page emitted no diagnostic", "the
- * app ran clean", "nothing was logged" and "there was nothing to read" are all the same claim, in
- * words no list of verbs could enumerate. The rule is stated once, in the record's own contract
- * (`research/raw/m045-console-panel.json`, `contract.absenceStatement`), and both suites read it from
- * there; the capture swallows its own failures, so an empty capture is never a report that the page
- * said nothing.
+ * The sentences it writes for itself are enumerated once, below, in `PANE_SENTENCES`: the three state
+ * sentences, the six named absences and the case-difference sentence, each with an id and its exact
+ * text — the two that name a code state the hole that code is filled into as a `{slot}`. Every line
+ * the pane writes of its own is one of those entries and nothing else: a pane-written line is either
+ * a labelled fact the answer carried or an entry of the registry, and there is no third place a
+ * sentence can come from. A new sentence is therefore a deliberate edit to the registry — which both
+ * suites read, and which the record's own contract must carry (`contract.sentenceRegistry`) before
+ * either of them passes — rather than a wording that slips past a matcher.
+ *
+ * The absence statement of the record's contract (`contract.absenceStatement`) is kept as a secondary
+ * check over the registry's own text, so an entry that claims what the page did still reddens. Its
+ * reach is stated honestly and is narrower than the sentences it is meant to refuse, because it
+ * decides a clause by its first matching token: a possessive (`the page's silence`), a passive whose
+ * participle is one of the read's own actions (`no diagnostic was reported`), a pronoun that inherits
+ * the page from the denial before it (`and it rendered nothing`), and a denial about one thing taken
+ * to govern the page word after it (`not empty before the page ran clean`) are all wordings it does
+ * not see. What refuses them is the enumeration and not the matcher: none of the four can be rendered
+ * without an entry, and an entry the record does not carry reddens both suites naming it.
+ * `the digest states the page's silence` — the wording the rule lost when it replaced the older
+ * phrase list — is refused the same way and not by the rule, and the suite says so rather than
+ * claiming a reach this matcher does not have.
+ *
+ * What no sentence may do is assert what the page did. An absence statement says what was read and
+ * what that means for the panel; the capture swallows its own failures, so an empty capture is never a
+ * report that the page said nothing.
  *
  * A drawing of the pane for one joined answer:
  *
@@ -111,46 +122,178 @@ export const NO_CODE = 'no-code';
 export const NO_TITLE = 'no-title';
 export const UNREADABLE_FINDING = 'unreadable-finding';
 
+/** The label the case-difference sentence carries, so the pane's own words are recognisable. */
+export const CASE_DIFFERENCE = 'case-difference';
+
 /** Every state word the join can answer, in the order the pane states them. */
 export const STATES = [JOINED, CAPTURED_NOTHING, NO_DIAGNOSTICS] as const;
 
 /**
- * The sentence each state word renders — its own name, then the one fact the join's contract states
- * for it. The three are three different statements: `captured-nothing` says a capture was read and
- * carried nothing, `no-diagnostics` says no capture was read, and neither is a statement that the
- * page was silent.
+ * One sentence the pane writes for itself: the id it is registered under, its exact text, the slots
+ * that text states as `{slot}`, and the state word it answers where it is a state's own sentence.
+ *
+ * The label the line carries is the text's own prefix — `no-code:` — and is read off the text rather
+ * than kept in a second field, so the two cannot disagree. A text with a slot in it is one sentence
+ * with one hole, not a family of sentences: `no-digest-entry` names the code it states, and the
+ * sentence is otherwise the registry's.
  */
-export const STATE_TEXTS: Readonly<Record<string, string>> = {
-  joined:
-    "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
-  'captured-nothing':
-    'captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent',
-  'no-diagnostics':
-    'no-diagnostics: no capture was handed to the join at all, so no capture was read',
+export type PaneSentence = {
+  readonly id: string;
+  readonly text: string;
+  readonly slots: readonly string[];
+  readonly state: string | null;
 };
 
+/**
+ * The pane's own sentences, enumerated. This is the only place a sentence this pane writes for itself
+ * lives: the state sentences, the named absences, and the one difference a folded match states. The
+ * pane renders from here and from nothing else, so a new sentence is an entry a reviewer sees rather
+ * than a wording a matcher has to be taught.
+ *
+ * Order: the three state sentences in the join's own order, then the absences a surface can state,
+ * then the two that name a code.
+ */
+export const PANE_SENTENCES: readonly PaneSentence[] = [
+  {
+    id: 'state-joined',
+    text: "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
+    slots: [],
+    state: JOINED,
+  },
+  {
+    id: 'state-captured-nothing',
+    text: 'captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent',
+    slots: [],
+    state: CAPTURED_NOTHING,
+  },
+  {
+    id: 'state-no-diagnostics',
+    text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read',
+    slots: [],
+    state: NO_DIAGNOSTICS,
+  },
+  {
+    id: 'no-console-answer',
+    text: 'no-console-answer: no console join answer was handed over, so no state and no finding are reported',
+    slots: [],
+    state: null,
+  },
+  {
+    id: 'no-finding',
+    text: 'no-finding: the answer reported joined and carried no finding, so no finding is rendered',
+    slots: [],
+    state: null,
+  },
+  {
+    id: 'no-code',
+    text: 'no-code: the captured message carried no code, so this finding carries no code and no title',
+    slots: [],
+    state: null,
+  },
+  {
+    id: 'no-title',
+    text: 'no-title: the digest carries the code this message carried and states no title for it, so no title is rendered',
+    slots: [],
+    state: null,
+  },
+  {
+    id: 'unreadable-finding',
+    text: 'unreadable-finding: the answer carried a list entry that is not a finding, so it is named here and nothing is filled in for it',
+    slots: [],
+    state: null,
+  },
+  {
+    id: 'no-digest-entry',
+    text: 'no-digest-entry: the digest carries no entry for {code}, so this finding is named by the code it carried and no title is rendered',
+    slots: ['code'],
+    state: null,
+  },
+  {
+    id: 'case-difference',
+    text: "case-difference: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and title",
+    slots: ['carriedCode', 'digestCode'],
+    state: null,
+  },
+];
+
+/** The registry entry one id names, or `undefined` where the pane states no such sentence. */
+function paneSentence(id: string): PaneSentence | undefined {
+  for (const entry of PANE_SENTENCES) if (entry.id === id) return entry;
+  return undefined;
+}
+
+/**
+ * One pane sentence, rendered from the registry and from nothing else: the entry's own text with each
+ * of its slots filled.
+ *
+ * A slot with no value, and a text left with a hole in it, are defects in this module rather than
+ * lines to render — the pane would otherwise print `{code}` where a code belongs — so they throw
+ * instead of rendering a sentence nobody wrote.
+ *
+ * @param id the registry entry the line is
+ * @param values the value each slot the entry states is filled with
+ */
+export function sentenceText(
+  id: string,
+  values: Readonly<Record<string, string>> = {},
+): string {
+  const entry = paneSentence(id);
+  if (entry === undefined)
+    throw new Error(`panel-console has no sentence registered as ${id}`);
+  let text = entry.text;
+  for (const slot of entry.slots) {
+    const value = values[slot];
+    if (typeof value !== 'string')
+      throw new Error(
+        `panel-console cannot render ${id} without a value for its slot ${slot}`,
+      );
+    text = text.split(`{${slot}}`).join(value);
+  }
+  if (/\{[a-zA-Z]+\}/.test(text))
+    throw new Error(`panel-console cannot render ${id} with a slot unfilled`);
+  return text;
+}
+
+/** The state sentences read off the registry, keyed by the word each answers. */
+function stateTexts(): Record<string, string> {
+  const texts: Record<string, string> = {};
+  for (const entry of PANE_SENTENCES)
+    if (entry.state !== null) texts[entry.state] = entry.text;
+  return texts;
+}
+
+/**
+ * The sentence each state word renders — its own name, then the one fact the join's contract states
+ * for it, read from `PANE_SENTENCES` so the registry and the table cannot disagree. The three are
+ * three different statements: `captured-nothing` says a capture was read and carried nothing,
+ * `no-diagnostics` says no capture was read, and neither is a statement that the page was silent.
+ */
+export const STATE_TEXTS: Readonly<Record<string, string>> = stateTexts();
+
 /** The sentence the pane renders for an answer it was not handed: no state, and no finding. */
-export const NO_ANSWER_TEXT =
-  'no-console-answer: no console join answer was handed over, so no state and no finding are reported';
+export const NO_ANSWER_TEXT = sentenceText('no-console-answer');
 
 /** The sentence the pane renders for a joined answer that carried no finding, never an empty list. */
-export const NO_FINDING_TEXT =
-  'no-finding: the answer reported joined and carried no finding, so no finding is rendered';
+export const NO_FINDING_TEXT = sentenceText('no-finding');
 
 /** The sentence a finding renders where the message carried no code: the absence, never a blank. */
-export const NO_CODE_TEXT =
-  'no-code: the captured message carried no code, so this finding carries no code and no title';
+export const NO_CODE_TEXT = sentenceText('no-code');
 
 /** The sentence a finding renders where the digest carries the code but states no title for it. */
-export const NO_TITLE_TEXT =
-  'no-title: the digest carries the code this message carried and states no title for it, so no title is rendered';
+export const NO_TITLE_TEXT = sentenceText('no-title');
 
 /** The sentence the pane renders for a list entry it cannot read as a finding, never a silence. */
-export const UNREADABLE_FINDING_TEXT =
-  'unreadable-finding: the answer carried a list entry that is not a finding, so it is named here and nothing is filled in for it';
+export const UNREADABLE_FINDING_TEXT = sentenceText('unreadable-finding');
 
-/** The label the case-difference sentence carries, so the pane's own words are recognisable. */
-export const CASE_DIFFERENCE = 'case-difference';
+/**
+ * The sentence a finding renders where the digest lacks the code the message carried: the code is
+ * named, and the absence is stated. It is never a count, a blank or an index.
+ *
+ * @param code the code the message carried, as the capture wrote it
+ */
+export function noDigestEntryText(code: string): string {
+  return sentenceText('no-digest-entry', { code });
+}
 
 /**
  * The sentence a finding renders where the digest matched its code only after folding case: the row
@@ -165,17 +308,7 @@ export function caseFoldedMatchText(
   carriedCode: string,
   digestCode: string,
 ): string {
-  return `case-difference: the message carried ${carriedCode} and the digest carries ${digestCode}, so this finding carries the digest's own spelling and title`;
-}
-
-/**
- * The sentence a finding renders where the digest lacks the code the message carried: the code is
- * named, and the absence is stated. It is never a count, a blank or an index.
- *
- * @param code the code the message carried, as the capture wrote it
- */
-export function noDigestEntryText(code: string): string {
-  return `no-digest-entry: the digest carries no entry for ${code}, so this finding is named by the code it carried and no title is rendered`;
+  return sentenceText('case-difference', { carriedCode, digestCode });
 }
 
 /**
