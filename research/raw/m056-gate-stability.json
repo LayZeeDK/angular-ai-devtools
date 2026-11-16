@@ -30,7 +30,7 @@
         "milestone": "M057",
         "exitCode": 0,
         "refusal": null,
-        "summary": "gate-integrity: pass - 0 finding(s), 37 mention(s)",
+        "summary": "gate-integrity: pass - 0 finding(s), 59 mention(s)",
         "refusalLines": []
       }
     }
@@ -59,7 +59,7 @@
     "command": "node scripts/gate-integrity.mjs --check fix-record --head 5290d939497448823ca0f5d1ce5c1d777805ddb8",
     "exitCode": 0,
     "refusal": null,
-    "summary": "gate-integrity: pass - 0 finding(s), 37 mention(s)",
+    "summary": "gate-integrity: pass - 0 finding(s), 59 mention(s)",
     "counts": {
       "refusalLines": 0,
       "findings": 0
@@ -67,11 +67,11 @@
     "detail": {
       "milestone": "M057",
       "unshipped": null,
-      "prints": "pass - 0 finding(s), 37 mention(s)",
+      "prints": "pass - 0 finding(s), 59 mention(s)",
       "lines": [
         "gate-integrity: <root> milestone M057; stages fix-record",
-        "gate-integrity: fix-record clean - examined 17 claim(s) in 5 task log(s) of .project/tasks (logs of M057) against 40 changed path(s) of b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8 (rule ship: M056's ship commit, b8d3341c (ship: M056 — gate-phase-stability); the head is the commit the caller named, 5290d939 (plan(M056): T006 approved; build resumed); claims: declared)",
-        "gate-integrity: fix-record pins - 23 declared path(s) byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as changes",
+        "gate-integrity: fix-record clean - examined 38 claim(s) in 5 task log(s) of .project/tasks (logs of M057) against 40 changed path(s) of b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8 (rule ship: M056's ship commit, b8d3341c (ship: M056 — gate-phase-stability); the head is the commit the caller named, 5290d939 (plan(M056): T006 approved; build resumed); claims: declared)",
+        "gate-integrity: fix-record pins - 32 declared path(s) byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as changes",
         "gate-integrity: pin research/raw/m045-console-shapes.json at .project/tasks/T001-measure-the-capture-and-the-digest.md:52 (T001) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
         "gate-integrity: pin extension/console-join.js at .project/tasks/T002-join-a-captured-diagnostic-to-the-digest-by-code.md:68 (T002) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
         "gate-integrity: pin scripts/console-join.test.mjs at .project/tasks/T002-join-a-captured-diagnostic-to-the-digest-by-code.md:68 (T002) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
@@ -95,6 +95,15 @@
         "gate-integrity: pin research/raw/m045-console-panel.json at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:100 (T004) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
         "gate-integrity: pin research/raw/m057-verdict-claims.json at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:100 (T004) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
         "gate-integrity: pin scripts/console-panel-record.test.mjs at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:100 (T004) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
+        "gate-integrity: pin research/raw/m045-console-panel.json at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:104 (T004) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
+        "gate-integrity: pin research/raw/m057-verdict-claims.json at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:105 (T004) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
+        "gate-integrity: pin scripts/console-panel-record.test.mjs at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:109 (T004) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
+        "gate-integrity: pin research/raw/m057-verdict-claims.json at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:113 (T004) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
+        "gate-integrity: pin research/raw/m045-console-panel.json at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:121 (T004) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
+        "gate-integrity: pin scripts/console-panel-record.test.mjs at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:121 (T004) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
+        "gate-integrity: pin research/raw/m057-verdict-claims.json at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:121 (T004) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
+        "gate-integrity: pin research/raw/m057-verdict-claims.json at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:87 (T005) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
+        "gate-integrity: pin research/raw/m057-verdict-claims.json at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:101 (T005) - declared and byte-identical across b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8, recorded and not judged as a change",
         "gate-integrity: mention extension/agent-main.js at .project/tasks/T001-measure-the-capture-and-the-digest.md:56 (T001) - recorded and not judged",
         "gate-integrity: mention extension/relay.js at .project/tasks/T001-measure-the-capture-and-the-digest.md:66 (T001) - recorded and not judged",
         "gate-integrity: mention extension/background.js at .project/tasks/T001-measure-the-capture-and-the-digest.md:66 (T001) - recorded and not judged",
@@ -132,7 +141,29 @@
         "gate-integrity: mention run-user-scope-tests.mjs at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:95 (T004) - recorded and not judged",
         "gate-integrity: mention .project/intent/INTENT.md at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:97 (T004) - recorded and not judged",
         "gate-integrity: mention .project/tasks/T004-record-the-surface-and-run-the-project-verify.md at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:100 (T004) - recorded and not judged",
-        "gate-integrity: pass - 0 finding(s), 37 mention(s)"
+        "gate-integrity: mention scripts/navigation-blocking.test.mjs at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:105 (T004) - recorded and not judged",
+        "gate-integrity: mention scripts/console-panel-render.test.mjs at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:108 (T004) - recorded and not judged",
+        "gate-integrity: mention package.json at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:113 (T004) - recorded and not judged",
+        "gate-integrity: mention scripts/console-join.test.mjs at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:113 (T004) - recorded and not judged",
+        "gate-integrity: mention scripts/console-panel-render.test.mjs at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:113 (T004) - recorded and not judged",
+        "gate-integrity: mention run-user-scope-tests.mjs at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:116 (T004) - recorded and not judged",
+        "gate-integrity: mention scripts/gate-stability-record.test.mjs at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:117 (T004) - recorded and not judged",
+        "gate-integrity: mention research/raw/m056-gate-stability.json at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:117 (T004) - recorded and not judged",
+        "gate-integrity: mention .project/tasks/T004-record-the-surface-and-run-the-project-verify.md at .project/tasks/T004-record-the-surface-and-run-the-project-verify.md:121 (T004) - recorded and not judged",
+        "gate-integrity: mention research/raw/m056-gate-shapes.json at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:83 (T005) - recorded and not judged",
+        "gate-integrity: mention scratch/t005-undeclared-probe.json at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:84 (T005) - recorded and not judged",
+        "gate-integrity: mention research/raw/m031-field-state.json at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:85 (T005) - recorded and not judged",
+        "gate-integrity: mention scripts/absent-held-out-suite.test.mjs at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:86 (T005) - recorded and not judged",
+        "gate-integrity: mention scripts/console-join.test.mjs at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:87 (T005) - recorded and not judged",
+        "gate-integrity: mention scripts/console-panel-render.test.mjs at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:87 (T005) - recorded and not judged",
+        "gate-integrity: mention .project/STATE.md at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:88 (T005) - recorded and not judged",
+        "gate-integrity: mention tests/held-out/companion-surface.test.mjs at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:99 (T005) - recorded and not judged",
+        "gate-integrity: mention tests/held-out/e3-zero-skipped.test.mjs at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:99 (T005) - recorded and not judged",
+        "gate-integrity: mention e4-idempotent-checks.test.mjs at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:99 (T005) - recorded and not judged",
+        "gate-integrity: mention e4-idempotent-checks.test.mjs at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:99 (T005) - recorded and not judged",
+        "gate-integrity: mention research/raw/m056-gate-shapes.json at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:101 (T005) - recorded and not judged",
+        "gate-integrity: mention .project/review/VERIFICATION.json at .project/tasks/T005-make-the-gate-agree-with-this-milestones-own-evidence.md:101 (T005) - recorded and not judged",
+        "gate-integrity: pass - 0 finding(s), 59 mention(s)"
       ]
     }
   },
