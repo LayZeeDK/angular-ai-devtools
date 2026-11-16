@@ -15,6 +15,8 @@ files:
   - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
   - apps/angular-ai-devtools/src/app/page-picker.component.spec.ts
   - scripts/console-panel-render.test.mjs
+  - scripts/console-panel-record.test.mjs
+  - research/raw/m045-console-panel.json
   - .project/tasks/T003-render-the-join-and-pin-the-routes-it-adds.md
 ---
 
@@ -51,6 +53,11 @@ when it carries the join's answer shape (`:382-397`).
   assert, so an appended route reddens in every suite that enumerates the table.
 - Correct the `panel-demo.ts` comment and append a Log correction to T003 saying what the sample really is;
   do not rewrite the Log's earlier lines.
+- Bind the recording to its own contract: the recorded `surface.lines` must be checked against the
+  vocabulary the record states (no cause, element, remedy or unattributed angular wording), so a pane that
+  starts rendering one cannot be blessed by an armed re-capture. Correct the record's provenance sentence
+  where it overstates what is derived, and say plainly that the message texts are exemplars, not capture
+  output.
 
 ## Acceptance criteria
 
@@ -60,6 +67,8 @@ when it carries the join's answer shape (`:382-397`).
 4. Replacing the no-code absence with a count reddens a pin naming the count.
 5. An appended 26th route reddens `page-picker.component.spec.ts` and `panel-demo.spec.ts` as well as the two suites that already pin the count.
 6. The demo prose states the shape the sample actually carries, and the T003 Log records the correction by appending, not rewriting.
+7. A pane that renders an extra `cause:` line reddens the recording suite even after an armed re-capture, because the recorded lines are checked against the record's own vocabulary; the probe the wave-5 review used must fail.
+8. The recording's provenance sentence states what is derived and what is a suite constant, and names the message texts as exemplars.
 
 ## Interface contract
 
