@@ -1,11 +1,11 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: copy-to-agent
-phase: roadmap
+milestone: null
+phase: define
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M046
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1010,3 +1010,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-16 — define — inspection complete; audit assembled
 - 2026-11-16 — roadmap — roadmap re-slice started
 - 2026-11-16 — roadmap — program roadmap approved
+- 2026-11-16 — define — roadmap approved unchanged; the repairs join this milestone's plan
+- 2026-11-16 — define — STATE repair: milestone rebound from "copy-to-agent" to null
