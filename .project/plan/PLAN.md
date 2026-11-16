@@ -26,6 +26,7 @@ Project verify: `npm run check && npm test`
 | SC1 | T001 | AC2 |
 | SC1 | T002 | AC1 |
 | SC1 | T002 | AC4 |
+| SC1 | T021 | AC1 |
 | SC2 | T002 | AC2 |
 | SC2 | T015 | AC1 |
 | SC3 | T002 | AC3 |
@@ -223,6 +224,25 @@ Review depth: full
 
 T020 runs after T021 has re-captured the shapes record, so the text it leaves behind describes a record that
 is no longer changing under it.
+
+## Wave 15 — close the join's vocabulary too
+
+Goal: the join's own reasons and states are a closed set, so no prose reaches the surface through a channel the
+pins do not inspect.
+
+Review depth: full
+
+T022 applies to the join's vocabulary the fix that worked for the pane's sentences and labels: enumerate it,
+then pin both directions.
+
+## Wave 16 — let the record hold what the join can say
+
+Goal: a folded match is recorded end to end, and the record's finding contract lists every key the join returns.
+
+Review depth: full
+
+T023 adds `carriedCode` to the record's finding contract, records the case E6 exists for, and corrects two pieces
+of prose that state counts the record's own bytes contradict.
 
 ## Risks
 
