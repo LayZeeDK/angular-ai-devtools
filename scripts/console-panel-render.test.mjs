@@ -12,19 +12,27 @@
 // What the pane may render: the state word, and for each finding the code it carried, the digest's
 // title for it where the digest has one, the join's reason where the digest lacks it, and the
 // captured text verbatim. What it may not render (E7): a cause, an element reference, a remedy, an
-// unattributed word about the framework, an empty list standing in for `captured-nothing`, or a count
-// standing in for a code the digest lacks. Each of those defects is armed as a mutation of the pane's
-// own source and shown to redden the pin that names it — a mutant that survives its pin, or reddens
-// with a message that does not name the defect, fails this suite.
+// unattributed word about the framework, an empty list standing in for `captured-nothing`, a claim
+// that the page was silent, or a count standing in for a code the digest lacks. Each of those defects
+// is armed as a mutation of the pane's own source and shown to redden the pin that names it — a
+// mutant that survives its pin, or reddens with a message that does not name the defect, fails this
+// suite.
+//
+// The prohibitions are rules about what the pane writes itself, and not about the words it is handed.
+// A `title:` value is the digest's word, a `text:` value the capture's, and `code:` and `reason:` are
+// the answer's, so none of the four is this pane's attribution: a pane that renders the digest's own
+// title for `NG0910` — "Unsafe bindings on an element" — and a captured message saying "because" must
+// pass, and that is asserted here rather than assumed.
 //
 // The E7 prohibitions are a rule and not a snapshot of the `joined` surface: `pinE7OnEveryState` runs
 // them on `joined`, `captured-nothing`, `no-diagnostics` and a state word the pane was not written
 // for, so a cause, an element, a remedy or an unattributed word about the framework added to any one
-// of those surfaces reddens a pin that names both the state and the phrase. The two absence sentences
-// are pinned where they live and read whole: `captured-nothing` may never claim the page was silent
-// (and is checked as a sentence, not as a prefix), the no-code absence may never become a count, and
-// the state sentence is looked up as an own property, so a word such as `constructor` renders itself
-// and not a function's source.
+// of those surfaces reddens a pin that names both the state and the phrase. The silence rule reaches
+// every state as well: no sentence the pane writes — `captured-nothing`'s, `no-diagnostics`'s, a
+// joined answer's, or any of its named absences — may claim the page was silent, and each is read
+// whole rather than by its prefix. The no-code absence may never become a count, and the state
+// sentence is looked up as an own property, so a word such as `constructor` renders itself and not a
+// function's source.
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -223,6 +231,21 @@ function ownSentences(answer) {
 }
 
 /**
+ * The four fields a finding carries, whose values are the answer's words and not this pane's: the
+ * capture's `text` and `code`, the digest's `title`, the join's `reason`. The pane writes the label
+ * and prints the value, and only the value is somebody else's — so a line labelled with one of these
+ * four is exempt from the prohibitions below, while every other line is the pane's own sentence.
+ */
+const CARRIED_FIELDS = ['code', 'title', 'text', 'reason'];
+
+/** The lines the pane writes itself on one surface: every line but a finding's four fields. */
+function paneWrittenLines(surface, carried = CARRIED_FIELDS) {
+  return surface.lines.filter(
+    (line) => !carried.includes(line.slice(0, line.indexOf(': '))),
+  );
+}
+
+/**
  * SC4/E7: every line is the state word, a field of a finding, or one of the pane's own named
  * absences — nothing else reaches the surface. Every finding is rendered, once each, in the capture's
  * own order, and no finding is collapsed or repeated.
@@ -386,11 +409,17 @@ function pinTheTwoAbsencesDiffer(nothing, none) {
  * renders none of them — so an absence sentence that gained an "because …" clause, a `remedy:` line
  * or an element reference reddens here with the state word and the offending phrase both named.
  *
+ * Only the pane's own lines are read. A `title:` value is the digest's word and a `text:` value the
+ * capture's, and the digest's own title for `NG0910` states "element", so policing those two would
+ * refuse a correct pane for rendering exactly what the join handed it.
+ *
  * @param surface the pane's rendering of one state
  * @param answer the join's answer behind it, where the surface has one; the finding count is held to
  *   it, because dropping the extras is a filter and not a blank
+ * @param carried the labels whose values are the answer's words, so the exemption itself can be armed:
+ *   called with none, the same correct pane reddens on the digest's own title
  */
-function pinNoCauseElementRemedy(surface, answer) {
+function pinNoCauseElementRemedy(surface, answer, carried = CARRIED_FIELDS) {
   const state = surface.state;
   for (const name of ['cause', 'element', 'remedy']) {
     assert.equal(
@@ -399,7 +428,7 @@ function pinNoCauseElementRemedy(surface, answer) {
       `no-${name}: the ${state} surface must render no ${name} — the capture records none and the answer carries none; it rendered ${JSON.stringify(surface.lines)}`,
     );
   }
-  const own = surface.lines.filter((line) => !line.startsWith('text: '));
+  const own = paneWrittenLines(surface, carried);
   const written = own.join('\n');
   for (const [defect, pattern] of [
     ['cause', /\bthe cause is\b/i],
@@ -428,23 +457,25 @@ function pinNoCauseElementRemedy(surface, answer) {
 }
 
 /**
- * E7: no unattributed wording, on whichever state the surface renders. Every line the pane writes of
- * its own is a labelled fact, and none of them names the framework — only a captured message (a
- * `text:` line) may, because the page wrote it.
+ * E7: no unattributed wording, on whichever state the surface renders. Every line the pane renders is
+ * a labelled fact, and none of the sentences it writes of its own names the framework — only a finding
+ * field may: a captured message (a `text:` line) and the digest's title (a `title:` line) are the
+ * answer's words, and the page and the digest may name Angular where the pane may not.
  */
 function pinNoUnattributedAngularWording(surface) {
   const state = surface.state;
   for (const line of surface.lines) {
-    if (line.startsWith('text: ')) continue;
+    assert.match(
+      line,
+      /^[a-z][a-z-]*: /,
+      `no-unattributed-wording: every line the ${state} surface renders is a labelled fact — a state, a finding's field or a named absence; it rendered ${JSON.stringify(line)}`,
+    );
+  }
+  for (const line of paneWrittenLines(surface)) {
     assert.doesNotMatch(
       line,
       /angular/i,
       `no-unattributed-wording: the ${state} surface writes no wording of its own naming Angular; it rendered ${JSON.stringify(line)} in ${JSON.stringify(surface.lines)}`,
-    );
-    assert.match(
-      line,
-      /^[a-z][a-z-]*: /,
-      `no-unattributed-wording: every line the ${state} surface writes of its own is a labelled fact — a state, a finding's field or a named absence; it rendered ${JSON.stringify(line)}`,
     );
   }
   for (const key of Object.keys(surface)) {
@@ -457,9 +488,10 @@ function pinNoUnattributedAngularWording(surface) {
 
 /**
  * E7 on every state the pane renders: `joined`, `captured-nothing`, `no-diagnostics` and a word the
- * pane was not written for. The two rules that make E7 a rule rather than a snapshot of today's
- * wording are run on each of the four surfaces, so a cause, an element reference, a remedy or a word
- * of the pane's own about the framework added to *any* of them reddens naming that state.
+ * pane was not written for. The rules that make E7 a rule rather than a snapshot of today's wording
+ * are run on each of the four surfaces, so a cause, an element reference, a remedy, a word of the
+ * pane's own about the framework or a claim that the page was silent, added to *any* of them, reddens
+ * naming that state.
  */
 function pinE7OnEveryState(api) {
   for (const [word, answer] of [
@@ -476,6 +508,7 @@ function pinE7OnEveryState(api) {
     );
     pinNoCauseElementRemedy(surface, answer);
     pinNoUnattributedAngularWording(surface);
+    pinNoAbsenceClaimsSilence(surface);
   }
 }
 
@@ -496,7 +529,7 @@ const SILENCE_CLAIMS = [
 /**
  * SC4/E7: the sentence is read whole — never only its prefix — and it claims no silence. Every
  * silence word it carries must be governed by a negation, and no clause may state that the page
- * produced nothing: that is the one thing `captured-nothing` may not say.
+ * produced nothing: the one thing no state the pane renders may say.
  */
 function assertNoSilenceClaim(sentence, where) {
   for (const claim of SILENCE_CLAIMS) {
@@ -505,9 +538,48 @@ function assertNoSilenceClaim(sentence, where) {
       assert.match(
         before,
         /\b(never|not|no|nor|cannot)\b[^.;:]{0,40}$/i,
-        `captured-nothing-silence: the ${where} never claims the page was silent — a capture whose own attempt failed emits nothing too, so it states what was read and not that the page was silent; it rendered ${JSON.stringify(sentence)} (claimed ${JSON.stringify(match[0])})`,
+        `silence-claim: the ${where} never claims the page was silent — a capture whose own attempt failed emits nothing too, so an absence states what was read and not that the page was silent; it rendered ${JSON.stringify(sentence)} (claimed ${JSON.stringify(match[0])})`,
       );
     }
+  }
+}
+
+/**
+ * SC4/E7: the silence rule reaches every state the pane renders, not only `captured-nothing`. Every
+ * line the pane writes itself on this surface — the state sentence, a `no-finding` sentence, a named
+ * absence — is read whole and claims no silence, so a silence claim in `no-diagnostics` reddens
+ * naming that state. A finding's four fields are left alone: a captured message may say whatever the
+ * page said, and the digest's title is the digest's word.
+ */
+function pinNoAbsenceClaimsSilence(surface) {
+  for (const line of paneWrittenLines(surface)) {
+    assertNoSilenceClaim(line, `${surface.state} surface`);
+  }
+}
+
+/**
+ * SC4/E7: the same rule at the source, so it covers the sentences a given answer does not render. Every
+ * sentence the module states for a state or an absence is read and claims no silence, naming the state
+ * or the absence it belongs to.
+ */
+function pinNoModuleSentenceClaimsSilence(api) {
+  for (const [name, sentence] of [
+    [api.JOINED, api.STATE_TEXTS[api.JOINED]],
+    [api.CAPTURED_NOTHING, api.STATE_TEXTS[api.CAPTURED_NOTHING]],
+    [api.NO_DIAGNOSTICS, api.STATE_TEXTS[api.NO_DIAGNOSTICS]],
+    [api.NO_CONSOLE_ANSWER, api.NO_ANSWER_TEXT],
+    [api.NO_FINDING, api.NO_FINDING_TEXT],
+    [api.NO_CODE, api.NO_CODE_TEXT],
+    [api.NO_TITLE, api.NO_TITLE_TEXT],
+    [api.UNREADABLE_FINDING, api.UNREADABLE_FINDING_TEXT],
+    [api.NO_DIGEST_ENTRY, api.noDigestEntryText('NG04002')],
+  ]) {
+    assert.equal(
+      typeof sentence,
+      'string',
+      `silence-claim: the pane must state a sentence for ${JSON.stringify(name)}, or this pin proves nothing`,
+    );
+    assertNoSilenceClaim(sentence, `${name} sentence`);
   }
 }
 
@@ -521,13 +593,13 @@ function pinCapturedNothingNeverClaimsSilence(surface) {
   const sentence = surface.lines.find((line) => line.startsWith(prefix));
   assert.ok(
     sentence,
-    `captured-nothing-silence: the ${SURFACE.CAPTURED_NOTHING} surface states its absence in a sentence of its own; it rendered ${JSON.stringify(surface.lines)}`,
+    `silence-claim: the ${SURFACE.CAPTURED_NOTHING} surface states its absence in a sentence of its own; it rendered ${JSON.stringify(surface.lines)}`,
   );
   const body = sentence.slice(prefix.length);
   assertNoSilenceClaim(sentence, `${SURFACE.CAPTURED_NOTHING} surface`);
   assert.ok(
     /\bread\b/i.test(body),
-    `captured-nothing-silence: the sentence says what was read — the check reads the sentence and not only its prefix; it rendered ${JSON.stringify(sentence)}`,
+    `silence-claim: the sentence says what was read — the check reads the sentence and not only its prefix; it rendered ${JSON.stringify(sentence)}`,
   );
 }
 
@@ -740,9 +812,14 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
     assert.equal(none.lines.length, 2);
     assert.equal(none.lines[1], SURFACE.STATE_TEXTS[SURFACE.NO_DIAGNOSTICS]);
     // The rule, not a snapshot of one state: joined, captured-nothing, no-diagnostics and a word the
-    // pane was not written for are each held to E7, so a cause, an element, a remedy or a word of the
-    // pane's own about the framework added to any one of them reddens naming that state.
+    // pane was not written for are each held to E7, so a cause, an element, a remedy, a word of the
+    // pane's own about the framework or a claim that the page was silent, added to any one of them,
+    // reddens naming that state.
     pinE7OnEveryState(SURFACE);
+    // The silence rule at the source as well as at the surface: every sentence the module states for a
+    // state or a named absence is read, so a silence claim in `no-diagnostics` or in the no-code
+    // sentence reddens naming the sentence it was written in.
+    pinNoModuleSentenceClaimsSilence(SURFACE);
   });
 
   it('AC2: a code the digest lacks renders by name, and a count instead reddens', () => {
@@ -814,6 +891,58 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
       false,
       'E7: a count a finding carries is never rendered beside the absence it states',
     );
+
+    // The other half of the same rule: a pane that renders the words the answer carried is correct,
+    // and must not be refused. NG0910's digest title states "element" and this captured message says
+    // "because" — the title is the digest's word and the text is the capture's, so the prohibitions
+    // above read only the pane's own lines and both of these render untouched.
+    const carried = clone(
+      JOIN.consoleJoin(
+        [
+          {
+            code: 'NG0910',
+            message:
+              'NG0910: unsanitized HTML was stripped because the binding bypassed the sanitizer',
+            component: null,
+            timestamp: 4,
+          },
+        ],
+        DIGEST,
+      ),
+    );
+    const titled = SURFACE.consolePanel(carried);
+    const title = shippedTitle('NG0910');
+    assert.match(
+      String(title),
+      /\belement\b/i,
+      `the shipped digest's own title for NG0910 must state a prohibited word (${JSON.stringify(title)}), or this pin proves nothing`,
+    );
+    assert.ok(
+      titled.lines.includes(`title: ${title}`),
+      `E7: the digest's own title for NG0910 renders verbatim: ${JSON.stringify(`title: ${title}`)}; the pane rendered ${JSON.stringify(titled.lines)}`,
+    );
+    assert.ok(
+      titled.lines.some(
+        (line) => line.startsWith('text: ') && /\bbecause\b/i.test(line),
+      ),
+      `E7: a captured message saying "because" renders verbatim; the pane rendered ${JSON.stringify(titled.lines)}`,
+    );
+    pinNoCauseElementRemedy(titled, carried);
+    pinNoUnattributedAngularWording(titled);
+    pinNoAbsenceClaimsSilence(titled);
+    pinNoModuleSentenceClaimsSilence(SURFACE);
+
+    // And the exemption is what lets them through: with the captured text policed as if the pane had
+    // written it, the same correct pane reddens on "because"; with the digest's title policed as well,
+    // it reddens on the "element" the digest itself wrote.
+    const onText = reddens('no-cause-element-remedy', () =>
+      pinNoCauseElementRemedy(titled, carried, []),
+    );
+    assert.match(onText.message, /must render no cause/);
+    const onTitle = reddens('no-cause-element-remedy', () =>
+      pinNoCauseElementRemedy(titled, carried, ['text']),
+    );
+    assert.match(onTitle.message, /must render no element/);
   });
 
   it('E7: two diagnostics sharing a code are two findings, in capture order', () => {
@@ -909,13 +1038,15 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
  * asserts the mutated copy really carries the defect, so a mutation that fails to reproduce it is a
  * failure rather than a green mutant.
  *
- * Four groups. The defects a joined answer could carry: a count for the digest miss, an empty list
+ * Five groups. The defects a joined answer could carry: a count for the digest miss, an empty list
  * for `captured-nothing`, a cause, an element, a remedy and a word of the pane's own naming Angular.
  * The same prohibitions proved on the states besides `joined` — an element on `captured-nothing`, a
  * remedy and a "because" clause on `no-diagnostics`, and Angular wording on a word the pane was not
  * written for — one per state, each reddening a pin whose message names that state and the phrase.
  * The state sentence's own rules: the own-property lookup, the claim of silence, a sentence that is
- * only its prefix, and the count guard extended to the no-code absence.
+ * only its prefix, and the count guard extended to the no-code absence. And the silence rule where
+ * the wave-3 review found it missing: a silence claim in `no-diagnostics` and one in the
+ * `no-console-answer` sentence, each reddening a pin that names the sentence it was written in.
  */
 const MUTATIONS = [
   {
@@ -1168,6 +1299,49 @@ const MUTATIONS = [
         'the mutant really appends a cause clause to no-diagnostics',
       ),
     names: /the no-diagnostics surface must render no cause/,
+  },
+  {
+    id: 'no-diagnostics-claims-silence',
+    defect: 'never claims the page was silent',
+    anchor: [
+      "  'no-diagnostics':",
+      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
+    ].join('\n'),
+    replacement: [
+      "  'no-diagnostics':",
+      "    'no-diagnostics: the page was silent, so no capture was handed to the join at all',",
+    ].join('\n'),
+    check: (api) => {
+      return () =>
+        pinNoAbsenceClaimsSilence(api.consolePanel(noDiagnosticsAnswer()));
+    },
+    exhibits: (module) =>
+      assert.ok(
+        module
+          .consolePanel(noDiagnosticsAnswer())
+          .text.includes('the page was silent'),
+        'the mutant really replaces the no-diagnostics statement with a claim that the page was silent',
+      ),
+    names: /the no-diagnostics surface never claims the page was silent/,
+  },
+  {
+    id: 'no-console-answer-claims-silence',
+    defect: 'never claims the page was silent',
+    anchor: [
+      'export const NO_ANSWER_TEXT =',
+      "  'no-console-answer: no console join answer was handed over, so no state and no finding are reported';",
+    ].join('\n'),
+    replacement: [
+      'export const NO_ANSWER_TEXT =',
+      "  'no-console-answer: the page logged nothing, so no console join answer was handed over';",
+    ].join('\n'),
+    check: (api) => () => pinNoModuleSentenceClaimsSilence(api),
+    exhibits: (module) =>
+      assert.ok(
+        module.consolePanel(undefined).text.includes('the page logged nothing'),
+        'the mutant really replaces the no-console-answer sentence with a claim about the page',
+      ),
+    names: /the no-console-answer sentence never claims the page was silent/,
   },
   {
     id: 'angular-on-a-given-word',

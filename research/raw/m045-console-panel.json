@@ -37,13 +37,12 @@
     ],
     "prohibitedWording": [
       "cause",
-      "element",
-      "remedy",
-      "fix",
       "because",
       "due to",
-      "angular",
+      "element",
       "component",
+      "remedy",
+      "angular",
       "count"
     ]
   },
@@ -58,7 +57,7 @@
     "check": "node --test scripts/console-panel-record.test.mjs",
     "records": "research/raw/m045-console-panel.json",
     "write": "an armed run re-derives every case from the join and the pane and writes this file only when a value moved, so a default run is a read and a second armed run writes no byte",
-    "reproduces": "the cases, their findings and the rendered lines below are derived at the head that carries them from the four files named under sources — the join over the shipped digest, and the pane over the join’s answer — so a second run at the same path re-derives the same bytes, and this record carries no clock, no commit and no absolute path; schema, milestone, task, title, question, the whole contract and this prose are the suite’s own constants, and contract.states restates the join’s three state words rather than reading the namespace the join publishes"
+    "reproduces": "each case’s state, its findings and its rendered lines below are derived at the head that carries them from the four files named under sources — the join over the shipped digest, and the pane over the join’s answer — so a second run at the same path re-derives the same bytes, and this record carries no clock, no commit and no absolute path; every cases[].input and every cases[].why are this suite’s own fixture constants, not values read from the tree, and so are schema, milestone, task, title, question, the whole contract and this prose, and contract.states restates the join’s three state words rather than reading the namespace the join publishes"
   },
   "fixture": {
     "payloadKeys": [
@@ -75,6 +74,7 @@
     "digestCarriesUnmatchedCode": false,
     "captureRegex": "/NG0\\d{3,}/",
     "unmatchedExtractedByTheCaptureRegex": true,
+    "caseInputs": "every cases[].input — the diagnostics the fixture hands over, or the absence of a capture — and every cases[].why are this suite’s own fixture constants, not values read from the tree; what this record derives about a case is its state, its findings and its rendered lines",
     "messageTexts": "the message texts are exemplars written in the capture’s payload shape, not strings a capture recorded: what this record measures about them is the payload key set, the code extraction and the digest lookup, so a capture that read different text would move the recorded text and not the shape"
   },
   "cases": [
@@ -187,6 +187,42 @@
           "text: NG0100: second report"
         ],
         "text": "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG0100\ntitle: Expression Changed After Checked\ntext: NG0100: Expression has changed after it was checked.\ncode: NG0100\ntitle: Expression Changed After Checked\ntext: NG0100: second report"
+      }
+    },
+    {
+      "id": "digest-title-and-captured-wording",
+      "why": "a code the digest carries whose own title states \"element\" and whose captured message says \"because\": both are the answer’s words, and neither is refused as the pane’s",
+      "input": {
+        "handedOver": true,
+        "diagnostics": [
+          {
+            "code": "NG0910",
+            "message": "NG0910: unsanitized HTML was stripped because the binding bypassed the sanitizer",
+            "component": null,
+            "timestamp": 5
+          }
+        ]
+      },
+      "state": "joined",
+      "findings": [
+        {
+          "text": "NG0910: unsanitized HTML was stripped because the binding bypassed the sanitizer",
+          "code": "NG0910",
+          "title": "Unsafe bindings on an element"
+        }
+      ],
+      "surface": {
+        "state": "joined",
+        "kind": "joined",
+        "message": "state: joined",
+        "lines": [
+          "state: joined",
+          "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
+          "code: NG0910",
+          "title: Unsafe bindings on an element",
+          "text: NG0910: unsanitized HTML was stripped because the binding bypassed the sanitizer"
+        ],
+        "text": "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG0910\ntitle: Unsafe bindings on an element\ntext: NG0910: unsanitized HTML was stripped because the binding bypassed the sanitizer"
       }
     },
     {

@@ -35,6 +35,15 @@
  * them, and this pane reads exactly `text`, `code`, `title` and `reason` off a finding, so a finding
  * that carries `component`, `cause`, `element`, `remedy` or a count renders none of them (E7, N3).
  *
+ * The qualifier that keeps that rule honest is whose word each line is: a `title:` value is the
+ * digest's word, a `text:` and a `code:` value the capture's, and a `reason:` value the join's, so
+ * none of those four is this pane's attribution. The digest's own title for `NG0910` states
+ * "element" and a captured message may say "because", and both render here as they were handed over;
+ * what the pane may not do is write such a word into a sentence of its own. Nor may any sentence it
+ * writes claim the page was silent: `captured-nothing`, `no-diagnostics`, a joined answer that carried
+ * no finding and every named absence state what was read, and the capture swallows its own failures,
+ * so an empty capture is never a report that the page said nothing.
+ *
  * A drawing of the pane for one joined answer:
  *
  *   state: joined
