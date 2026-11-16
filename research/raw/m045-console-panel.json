@@ -15,9 +15,11 @@
       "text",
       "code?",
       "title?",
-      "reason?"
+      "reason?",
+      "carriedCode?"
     ],
     "reason": "reason is present only when the digest lacks the code the message carried, and code is absent only when the message carried none",
+    "carriedCode": "carriedCode is present only where the digest matched the code the message carried after folding case, and it is the spelling the message used: it folds to the finding’s code and is never a second code",
     "rendered": "the pane renders state and findings and nothing else: no cause, no element, no remedy and no unattributed wording",
     "lineLabels": [
       "state",
@@ -103,6 +105,7 @@
         "state": null
       }
     ],
+    "sentenceRegistryProvenance": "contract.sentenceRegistry is the pane’s own registry, copied here from the pane’s PANE_SENTENCES so the recording can be held to the sentences the pane writes without re-reading the module: the pane’s registry is the source, this copy is a statement about it, and both suites pin the two equal in both directions, so an entry either side gains alone reddens",
     "prohibitedWording": [
       "cause",
       "because",
@@ -481,6 +484,44 @@
           "text: NG0910: unsanitized HTML was stripped because the binding bypassed the sanitizer"
         ],
         "text": "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG0910\ntitle: Unsafe bindings on an element\ntext: NG0910: unsanitized HTML was stripped because the binding bypassed the sanitizer"
+      }
+    },
+    {
+      "id": "case-folded-match",
+      "why": "a code the digest carries only in another case: the digest’s spelling and title with the message’s own spelling beside them, and the pane states the difference it made",
+      "input": {
+        "handedOver": true,
+        "diagnostics": [
+          {
+            "code": "ng01002",
+            "message": "ng01002: Missing control value for the input",
+            "component": null,
+            "timestamp": 6
+          }
+        ]
+      },
+      "state": "joined",
+      "findings": [
+        {
+          "text": "ng01002: Missing control value for the input",
+          "code": "NG01002",
+          "title": "Missing Control Value",
+          "carriedCode": "ng01002"
+        }
+      ],
+      "surface": {
+        "state": "joined",
+        "kind": "joined",
+        "message": "state: joined",
+        "lines": [
+          "state: joined",
+          "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
+          "code: NG01002",
+          "title: Missing Control Value",
+          "case-difference: the message carried ng01002 and the digest carries NG01002, so this finding carries the digest's own spelling and title",
+          "text: ng01002: Missing control value for the input"
+        ],
+        "text": "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG01002\ntitle: Missing Control Value\ncase-difference: the message carried ng01002 and the digest carries NG01002, so this finding carries the digest's own spelling and title\ntext: ng01002: Missing control value for the input"
       }
     },
     {

@@ -25,10 +25,11 @@
 // the unarmed suite still reddens, because `cause` is not a label the contract carries.
 //
 // `contract.lineLabels` is itself held to the pane, in both directions. That field is a statement
-// about the shipped module and not about the recorded subset — five of its entries are rendered by no
-// recorded case — and nothing read it against the module, so it drifted: the pane gained a
-// `case-difference:` sentence and the list stayed at fourteen, and the record's own vocabulary pin
-// then refused a line the pane legitimately writes. `pinTheVocabularyIsThePane` reads the labels the
+// about the shipped module and not about the recorded subset — the labels no recorded case renders
+// are counted from the record's own bytes by `labelsTheRecordRenders` and logged by the vocabulary
+// test, never fixed in this comment — and nothing read it against the module, so it drifted: the pane
+// gained a `case-difference:` sentence and the list stayed at fourteen, and the record's own vocabulary
+// pin then refused a line the pane legitimately writes. `pinTheVocabularyIsThePane` reads the labels the
 // module can write — from the lines it renders for the answers in `PANE_PROBES`, from the sentences it
 // exports, and from the `lines.push(`label: ...`)` calls in its own source — and fails naming the
 // labels when the record's list and the pane disagree either way. The pin's own limits are stated at
@@ -136,7 +137,12 @@ const QUESTION =
 
 /** The join's contract, stated once here and quoted into the record rather than retyped. */
 const STATES = ['joined', 'captured-nothing', 'no-diagnostics'];
-const FINDING_FIELDS = ['text', 'code', 'title', 'reason'];
+const FINDING_FIELDS = ['text', 'code', 'title', 'reason', 'carriedCode'];
+const OPTIONAL_FINDING_FIELDS = ['code', 'title', 'reason', 'carriedCode'];
+/** The contract's own spelling: `text`, then every field the join carries only sometimes, with `?`. */
+const FINDING_CONTRACT = FINDING_FIELDS.map((field) =>
+  OPTIONAL_FINDING_FIELDS.includes(field) ? `${field}?` : field,
+);
 const JOINED = 'joined';
 const CAPTURED_NOTHING = 'captured-nothing';
 const NO_DIGEST_ENTRY = 'no-digest-entry';
@@ -274,10 +280,12 @@ const SENTENCE_REGISTRY = [
 ];
 
 /**
- * The four fields a finding carries, whose values are the answer's words and not this pane's: the
- * capture's `text` and `code`, the digest's `title`, the join's `reason`. The wording list does not
- * police them — the digest's own title for `NG0910` states "element", and a capture that says
- * "because" is the page's word — so this suite refuses only what the pane writes itself.
+ * The four finding fields that render as a labelled line of their own: the capture's `text` and
+ * `code`, the digest's `title`, the join's `reason`. The wording list does not police them — the
+ * digest's own title for `NG0910` states "element", and a capture that says "because" is the page's
+ * word — so this suite refuses only what the pane writes itself. The join's fifth field,
+ * `carriedCode`, has no label of its own: the pane states it inside the `case-difference` sentence,
+ * which is the pane's own wording and is policed as such.
  */
 const CARRIED_FIELDS = ['text', 'code', 'title', 'reason'];
 
@@ -533,6 +541,20 @@ const TITLED = {
 };
 
 /**
+ * A code the digest matches only after folding case, and the message that carries it. The shipped
+ * digest carries `NG01002` ("Missing Control Value") and no lowercase spelling of any code, so this
+ * message is one the digest joins by folding — the answer that makes the pane write its
+ * `case-difference` sentence. The fixture is the render suite's and this record's, and the join is
+ * what decides the match, so the sentence is never assembled here.
+ */
+const FOLDED = {
+  code: 'ng01002',
+  message: 'ng01002: Missing control value for the input',
+  component: null,
+  timestamp: 6,
+};
+
+/**
  * The cases the record carries. Each one names the diagnostics the capture would have handed over —
  * or that no capture was handed over at all — and why the case is in the record. `input` and `why`
  * are this suite's own constants; the state, the findings and the rendered lines are derived.
@@ -555,6 +577,12 @@ const CASES = [
     why: 'a code the digest carries whose own title states "element" and whose captured message says "because": both are the answer’s words, and neither is refused as the pane’s',
     handedOver: true,
     diagnostics: [TITLED],
+  },
+  {
+    id: 'case-folded-match',
+    why: 'a code the digest carries only in another case: the digest’s spelling and title with the message’s own spelling beside them, and the pane states the difference it made',
+    handedOver: true,
+    diagnostics: [FOLDED],
   },
   {
     id: 'captured-nothing',
@@ -599,6 +627,16 @@ function shippedTitle(code) {
   return entry === undefined ? null : entry.title;
 }
 
+/**
+ * The join's fold, re-stated only to read an expected match: ASCII A–Z lowered and nothing else. A
+ * Unicode `toLowerCase()` would call U+212A KELVIN SIGN a case spelling of `k`, and the join refuses
+ * that fold, so a pin that measured a match with the wider one would expect an answer the join does
+ * not give.
+ */
+function asciiFolded(code) {
+  return String(code).replace(/[A-Z]/g, (letter) => letter.toLowerCase());
+}
+
 /** The join's own answer for one case: a capture's diagnostics, or the absence of a capture. */
 function answerFor(entry) {
   return entry.handedOver
@@ -606,12 +644,14 @@ function answerFor(entry) {
     : clone(JOIN.consoleJoin(undefined, DIGEST));
 }
 
-/** One finding as the record states it: `text`, then `code` / `title` / `reason` only when carried. */
+/** One finding as the record states it: `text`, then every optional field that was carried. */
 function findingRecord(finding) {
   const record = { text: finding.text };
   if (finding.code !== undefined) record.code = finding.code;
   if (finding.title !== undefined) record.title = finding.title;
   if (finding.reason !== undefined) record.reason = finding.reason;
+  if (finding.carriedCode !== undefined)
+    record.carriedCode = finding.carriedCode;
   return record;
 }
 
@@ -658,13 +698,17 @@ function derive() {
     contract: {
       returns: '{ state, findings[] }',
       states: STATES,
-      finding: ['text', 'code?', 'title?', 'reason?'],
+      finding: FINDING_CONTRACT,
       reason:
         'reason is present only when the digest lacks the code the message carried, and code is absent only when the message carried none',
+      carriedCode:
+        'carriedCode is present only where the digest matched the code the message carried after folding case, and it is the spelling the message used: it folds to the finding’s code and is never a second code',
       rendered:
         'the pane renders state and findings and nothing else: no cause, no element, no remedy and no unattributed wording',
       lineLabels: LINE_LABELS,
       sentenceRegistry: SENTENCE_REGISTRY,
+      sentenceRegistryProvenance:
+        'contract.sentenceRegistry is the pane’s own registry, copied here from the pane’s PANE_SENTENCES so the recording can be held to the sentences the pane writes without re-reading the module: the pane’s registry is the source, this copy is a statement about it, and both suites pin the two equal in both directions, so an entry either side gains alone reddens',
       prohibitedWording: PROHIBITED_WORDING,
       absenceStatement: ABSENCE_STATEMENT,
     },
@@ -1091,6 +1135,86 @@ function absenceMatcherSource(source) {
 
 // -------------------------------------------------------------------------- the pins ----
 
+/** A list of field names as a failure reads them: each quoted, comma-separated. */
+function quotedFields(names) {
+  return names.map((name) => JSON.stringify(name)).join(', ');
+}
+
+/**
+ * T023/AC2: the record's finding contract is every field the join can return, pinned in both
+ * directions. The probe is the join itself over four diagnostics chosen so that every field a
+ * finding can carry is produced by a real answer and every optional field is left off at least one —
+ * a code the digest carries, a code it carries only after folding case, a code it lacks, and a
+ * message that carried none — so the union of the findings' keys is what the join can return at this
+ * head, not a list written here.
+ *
+ * Fails naming the field when the join returns one `contract.finding` omits (so a join field the
+ * record does not list reddens), when the contract lists a field the join never returns, and when a
+ * field's `?` marker disagrees with whether the join can leave it off a finding.
+ */
+function pinTheFindingContractIsTheJoins(contract) {
+  const declared = contract.finding;
+  assert.ok(
+    Array.isArray(declared) && declared.length > 0,
+    `finding-contract: the record must state the fields a finding can carry; its contract.finding is ${JSON.stringify(declared)}`,
+  );
+  const fields = declared.map((entry) => {
+    assert.match(
+      String(entry),
+      /^[a-z][a-zA-Z]*\??$/,
+      `finding-contract: ${JSON.stringify(entry)} is not a field name, optionally marked optional with "?"`,
+    );
+    return entry.endsWith('?')
+      ? { name: entry.slice(0, -1), optional: true }
+      : { name: entry, optional: false };
+  });
+  const answer = clone(
+    JOIN.consoleJoin([MATCHED, FOLDED, UNMATCHED, UNCODED], DIGEST),
+  );
+  assert.equal(
+    answer.state,
+    JOINED,
+    `finding-contract: the probe must reach a joined answer, or it reads no finding; the join answered ${JSON.stringify(answer)}`,
+  );
+  const returned = new Set(
+    answer.findings.flatMap((finding) => Object.keys(finding)),
+  );
+  const declaredNames = fields.map((field) => field.name);
+  const omitted = [...returned]
+    .filter((name) => !declaredNames.includes(name))
+    .sort();
+  assert.deepEqual(
+    omitted,
+    [],
+    `finding-contract: the join returns ${omitted.length} field(s) the record's contract.finding does not carry: ${quotedFields(omitted)} — the record states every field a finding can carry, so a field the join returns and the record omits is drift; contract.finding would have to carry ${quotedFields([...FINDING_CONTRACT].sort())}`,
+  );
+  const invented = declaredNames.filter((name) => !returned.has(name)).sort();
+  assert.deepEqual(
+    invented,
+    [],
+    `finding-contract: the record's contract.finding carries ${invented.length} field(s) the join never returns: ${quotedFields(invented)} — a contract field the join cannot produce is a claim about an answer the pane is never handed; the join returns ${quotedFields([...returned].sort())}`,
+  );
+  for (const field of fields) {
+    const onEvery = answer.findings.every((finding) =>
+      Object.hasOwn(finding, field.name),
+    );
+    const onSome = answer.findings.some((finding) =>
+      Object.hasOwn(finding, field.name),
+    );
+    assert.equal(
+      onSome,
+      true,
+      `finding-contract: the record lists ${JSON.stringify(field.name)}, and no finding the probe reaches carries it; the probe answered ${JSON.stringify(answer.findings)}`,
+    );
+    assert.equal(
+      field.optional,
+      !onEvery,
+      `finding-contract: the record marks ${JSON.stringify(field.name)} ${field.optional ? 'optional' : 'required'}, and the join ${onEvery ? 'carries it on every finding' : 'leaves it off at least one finding'} — the "?" is the contract's only statement about whether a field can be absent`,
+    );
+  }
+  return fields;
+}
+
 /**
  * SC3/SC4: the pane reports the state the answer carried, and reports the same word as its kind.
  * `captured-nothing` and `no-diagnostics` are two different states, never one collapse.
@@ -1215,9 +1339,10 @@ function pinRecordedAbsenceStatement(entry, contract) {
 }
 
 /**
- * SC1/SC2/SC3, field for field: every finding the record states is one the pane rendered, with the
+ * SC1/SC2/SC3/E6, field for field: every finding the record states is one the pane rendered, with the
  * text it carried, the code it carried named or its absence stated, the digest's title where the
- * digest has one, and no third thing invented for a finding that carries neither.
+ * digest has one, the message's spelling where the match folded case, and no third thing invented for
+ * a finding that carries none of the optional fields.
  */
 function pinRendersEachRecordedFinding(entry, rendered) {
   for (const [index, finding] of entry.findings.entries()) {
@@ -1276,6 +1401,31 @@ function pinRendersEachRecordedFinding(entry, rendered) {
         `title: ${where} must render the digest's own title: ${JSON.stringify(`title: ${finding.title}`)}; the pane rendered ${JSON.stringify(rendered.lines)}`,
       );
     }
+    if ('carriedCode' in finding) {
+      assert.equal(
+        typeof finding.carriedCode,
+        'string',
+        `carriedCode: ${where} records ${JSON.stringify(finding.carriedCode)}, and the message's spelling is a string or absent`,
+      );
+      assert.notEqual(
+        finding.carriedCode,
+        finding.code,
+        `carriedCode: ${where} records the spelling ${JSON.stringify(finding.carriedCode)} as a difference from the digest's code, and the two are the same spelling — a difference the fold did not make`,
+      );
+      assert.equal(
+        asciiFolded(finding.carriedCode),
+        asciiFolded(finding.code),
+        `carriedCode: ${where} records ${JSON.stringify(finding.carriedCode)} beside ${JSON.stringify(finding.code)}, and the two do not fold together, so the pane would state a difference that is not a case difference`,
+      );
+      const sentence = SURFACE.caseFoldedMatchText(
+        finding.carriedCode,
+        finding.code,
+      );
+      assert.ok(
+        rendered.lines.includes(sentence),
+        `carriedCode: ${where} must render the difference the fold made in the pane's own sentence: ${JSON.stringify(sentence)}; the pane rendered ${JSON.stringify(rendered.lines)}`,
+      );
+    }
     if ('reason' in finding) {
       assert.equal(
         finding.reason,
@@ -1289,6 +1439,22 @@ function pinRendersEachRecordedFinding(entry, rendered) {
       );
     }
   }
+  // The case-difference sentence is rendered once per finding whose match folded case, and never for
+  // a finding that carries no second spelling: a line stated for a difference the answer did not
+  // carry would be the pane inventing one.
+  const differences = rendered.lines.filter((line) =>
+    line.startsWith(`${SURFACE.CASE_DIFFERENCE}: `),
+  );
+  const folded = entry.findings.filter(
+    (finding) =>
+      typeof finding.carriedCode === 'string' &&
+      typeof finding.code === 'string',
+  );
+  assert.equal(
+    differences.length,
+    folded.length,
+    `carriedCode: ${entry.id} records ${folded.length} folded match(es) and the pane rendered ${differences.length} case-difference line(s); the sentence states the difference a folded finding carries, and no other`,
+  );
 }
 
 /** A regular expression metacharacter, escaped so a word is matched as itself and nothing else. */
@@ -1400,11 +1566,12 @@ function pinRecordsOnlyTheContractVocabulary(
 
 // -------------------------------------------------- the vocabulary, held to the pane ----
 //
-// `contract.lineLabels` is a statement about the shipped pane and not about the recorded subset: five
-// of its entries are rendered by no recorded case, so comparing it to the recording could not keep it
-// true, and that is how it drifted — the pane gained a `case-difference:` sentence (T015) and the list
-// stayed at fourteen. The list is held to the module instead, which needs three readings because no
-// single one covers the pane:
+// `contract.lineLabels` is a statement about the shipped pane and not about the recorded subset: the
+// labels no recorded case renders are counted from the record's own bytes by `labelsTheRecordRenders`
+// and logged by the vocabulary test, never fixed here, so comparing the list to the recording could not
+// keep it true, and that is how it drifted — the pane gained a `case-difference:` sentence (T015) and the
+// list stayed at fourteen. The list is held to the module instead, which needs three readings because
+// no single one covers the pane:
 //
 //   the probes    every line the shipped module renders for the answers in `PANE_PROBES`, chosen so
 //                 that each branch the pane can take is taken. This is the pane's real output — the
@@ -1437,20 +1604,6 @@ function lineLabel(line) {
   const at = line.indexOf(': ');
   return at < 0 ? line : line.slice(0, at);
 }
-
-/**
- * A code the digest matches only after folding case, and the message that carries it. The shipped
- * digest carries `NG01002` ("Missing Control Value") and no lowercase spelling of any code, so this
- * message is one the digest joins by folding — the answer that makes the pane write its
- * `case-difference` sentence. The fixture is the render suite's, and the join is what decides the
- * match, so the sentence below is never assembled here.
- */
-const FOLDED = {
-  code: 'ng01002',
-  message: 'ng01002: Missing control value for the input',
-  component: null,
-  timestamp: 6,
-};
 
 /** The join's own answer for one diagnostic: exactly what the pane is handed for it. */
 function answerForDiagnostic(diagnostic) {
@@ -1533,6 +1686,19 @@ function labelsThePaneWrites(module) {
     );
     for (const line of surface.lines) labels.add(lineLabel(line));
   }
+  return labels;
+}
+
+/**
+ * The labels the recording's own bytes render, read off every recorded `surface.lines` entry. This is
+ * a fact about the record and not about the pane: the labels it leaves unrendered are whichever ones
+ * no case in `cases[]` writes, so the broad rationale above states no number that the record's bytes
+ * could move away from.
+ */
+function labelsTheRecordRenders() {
+  const labels = new Set();
+  for (const entry of recorded().cases)
+    for (const line of entry.surface.lines) labels.add(lineLabel(line));
   return labels;
 }
 
@@ -1757,9 +1923,10 @@ function pinTheSentenceRegistryIsThePanes(
  * one the recorded answer states reddens too, so the exemption cannot be widened by writing one.
  *
  * The slot values are the recorded findings' own, so a sentence naming a code the recording does not
- * carry is not a line this pin will accept. `case-difference` needs two spellings the record's finding
- * shape does not carry, so a recorded case can never render it — which is why that line would redden
- * here as a sentence outside the recording's registry rather than passing on the label alone.
+ * carry is not a line this pin will accept. `case-difference` is filled from a finding that carries
+ * both `code` and `carriedCode` — the record's finding shape gained `carriedCode` (T023), which is
+ * what lets the folded case this record now carries render its own sentence; a line whose two
+ * spellings are not a recorded finding's reddens as a sentence outside the recording's registry.
  */
 function pinRecordedLinesAreRegistrySentences(entry, contract) {
   const carried = contract.sentenceRegistry;
@@ -1773,12 +1940,29 @@ function pinRecordedLinesAreRegistrySentences(entry, contract) {
       texts.add(sentence.text);
       continue;
     }
-    const absent = entry.findings.find(
-      (finding) => finding.reason === NO_DIGEST_ENTRY,
-    );
-    if (sentence.id !== 'no-digest-entry' || typeof absent?.code !== 'string')
+    if (sentence.id === 'no-digest-entry') {
+      for (const finding of entry.findings)
+        if (
+          finding.reason === NO_DIGEST_ENTRY &&
+          typeof finding.code === 'string'
+        )
+          texts.add(sentence.text.split('{code}').join(finding.code));
       continue;
-    texts.add(sentence.text.split('{code}').join(absent.code));
+    }
+    if (sentence.id === 'case-difference') {
+      for (const finding of entry.findings)
+        if (
+          typeof finding.carriedCode === 'string' &&
+          typeof finding.code === 'string'
+        )
+          texts.add(
+            sentence.text
+              .split('{carriedCode}')
+              .join(finding.carriedCode)
+              .split('{digestCode}')
+              .join(finding.code),
+          );
+    }
   }
   const facts = new Set([`state: ${entry.state}`]);
   for (const finding of entry.findings) {
@@ -1808,9 +1992,10 @@ function pinRecordedLinesAreRegistrySentences(entry, contract) {
 }
 
 /**
- * The contract's own two rules, held against the diagnostics the case handed over: one finding per
- * diagnostic in capture order, `code` present exactly when the message carried one, and `reason`
- * present exactly when the digest lacks the code it carried.
+ * The join's contract, held against the diagnostics the case handed over: one finding per diagnostic
+ * in capture order, `code` present exactly when the message carried one, `reason` present exactly
+ * when the digest lacks the code it carried, and `carriedCode` present exactly where the digest
+ * matched that code only by folding case.
  */
 function pinHoldsTheJoinContract(entry) {
   if (!entry.input.handedOver) {
@@ -1841,18 +2026,45 @@ function pinHoldsTheJoinContract(entry) {
       `text: ${entry.id} finding ${index} must carry the message the fixture states; it records ${JSON.stringify(finding.text)}`,
     );
     if (carriesCode) {
-      const known = DIGEST.entries.some(
-        (candidate) => candidate.code === carried,
+      const spelling = carried.trim();
+      const exactEntry =
+        DIGEST.entries.find((candidate) => candidate.code === spelling) ?? null;
+      const foldedEntry =
+        exactEntry === null
+          ? (DIGEST.entries.find(
+              (candidate) =>
+                typeof candidate.code === 'string' &&
+                asciiFolded(candidate.code) === asciiFolded(spelling),
+            ) ?? null)
+          : null;
+      const matched = exactEntry ?? foldedEntry;
+      const folded = foldedEntry !== null;
+      assert.equal(
+        'carriedCode' in finding,
+        folded,
+        `carriedCode: ${entry.id} finding ${index} carries the code ${spelling}, which the digest ${folded ? `matched only after folding case, so the message's spelling belongs beside the digest's` : 'did not reach only by folding case, so no second spelling belongs on it'}`,
       );
+      if (folded) {
+        assert.equal(
+          finding.code,
+          foldedEntry.code,
+          `carriedCode: ${entry.id} finding ${index} must carry the digest's own spelling ${foldedEntry.code} as its code; it records ${JSON.stringify(finding.code)}`,
+        );
+        assert.equal(
+          finding.carriedCode,
+          spelling,
+          `carriedCode: ${entry.id} finding ${index} must carry the spelling the message used ${spelling}; it records ${JSON.stringify(finding.carriedCode)}`,
+        );
+      }
       assert.equal(
         'reason' in finding,
-        !known,
-        `reason: ${entry.id} finding ${index} carries the code ${carried}, which the digest ${known ? 'carries, so no reason belongs on it' : 'lacks, so the reason belongs on it'}`,
+        matched === null,
+        `reason: ${entry.id} finding ${index} carries the code ${spelling}, which the digest ${matched === null ? 'lacks, so the reason belongs on it' : 'carries, so no reason belongs on it'}`,
       );
       assert.equal(
         'title' in finding,
-        known,
-        `title: ${entry.id} finding ${index} carries the code ${carried}, which the digest ${known ? 'carries, so its title belongs on the finding' : 'lacks, so no title belongs on it'}`,
+        matched !== null && typeof matched.title === 'string',
+        `title: ${entry.id} finding ${index} carries the code ${spelling}, which the digest ${matched !== null && typeof matched.title === 'string' ? 'carries with a title, so its title belongs on the finding' : 'does not carry with a title, so no title belongs on it'}`,
       );
     }
   });
@@ -2053,12 +2265,26 @@ describe('the record is the derivation this head makes', () => {
     assert.equal(record.capture.check, CHECK_COMMAND);
     assert.equal(record.capture.records, RECORD_REL);
     assert.deepEqual(record.contract.states, STATES);
-    assert.deepEqual(record.contract.finding, [
-      'text',
-      'code?',
-      'title?',
-      'reason?',
-    ]);
+    // T023/AC2: the finding contract is the join's, in both directions. `derive()` is what writes it
+    // and `pinTheFindingContractIsTheJoins` reads the join over an answer that reaches every branch a
+    // finding can take, so a field the join returns and the record omits reddens naming the field.
+    // The pin runs first so its failure names the field rather than a bare deep-equal diff.
+    pinTheFindingContractIsTheJoins(record.contract);
+    assert.deepEqual(record.contract.finding, FINDING_CONTRACT);
+    assert.deepEqual(record.contract.finding, derive().contract.finding);
+    // T023/AC4: the record says whose registry `sentenceRegistry` is, and why the copy exists there.
+    const provenance = record.contract.sentenceRegistryProvenance;
+    assert.equal(
+      typeof provenance,
+      'string',
+      `the record must state whose registry contract.sentenceRegistry is; its contract carries ${JSON.stringify(provenance)}`,
+    );
+    for (const fact of ['pane', 'PANE_SENTENCES', 'copied']) {
+      assert.ok(
+        provenance.includes(fact),
+        `the record's sentenceRegistry provenance must name ${JSON.stringify(fact)}, and it states ${JSON.stringify(provenance)}`,
+      );
+    }
   });
 
   test('records no clock, no commit and no absolute path a second run would not reproduce', () => {
@@ -2310,6 +2536,26 @@ describe('the record’s label vocabulary is the pane’s, read both ways', () =
     console.log(
       `pane label vocabulary (${written.size}): ${[...written].sort().join(', ')}`,
     );
+    // T023/AC3: the labels the recording's own bytes leave unrendered are a fact about the record,
+    // counted here rather than asserted as a fixed number in the rationale above. Every label is
+    // either rendered by a recorded case or named as one no case renders, so the count is the
+    // record's own: the list and the cases cannot disagree about it.
+    const renderedLabels = labelsTheRecordRenders();
+    const unrendered = LINE_LABELS.filter(
+      (label) => !renderedLabels.has(label),
+    ).sort();
+    assert.deepEqual(
+      [...renderedLabels].filter((label) => !LINE_LABELS.includes(label)),
+      [],
+      `label-vocabulary: the record renders ${JSON.stringify([...renderedLabels].filter((label) => !LINE_LABELS.includes(label)))} label(s) its contract.lineLabels does not carry; the record's own bytes are held to the vocabulary it states`,
+    );
+    assert.ok(
+      renderedLabels.has(SURFACE.CASE_DIFFERENCE),
+      `label-vocabulary: the record must render ${JSON.stringify(SURFACE.CASE_DIFFERENCE)} from a recorded case, or the count logged below describes a record that cannot hold the folded match; it renders ${JSON.stringify([...renderedLabels].sort())}`,
+    );
+    console.log(
+      `the record renders ${renderedLabels.size} of ${LINE_LABELS.length} labels; no recorded case renders: ${unrendered.length === 0 ? 'none' : unrendered.join(', ')}`,
+    );
     // T019: the record's copy of the pane's sentences is the pane's, and it is this suite's constant
     // that writes it — so the record, the constant and the module are one registry, read both ways.
     const sentences = pinTheSentenceRegistryIsThePanes(recorded().contract);
@@ -2382,18 +2628,40 @@ describe('the record’s label vocabulary is the pane’s, read both ways', () =
     console.log(
       `case-difference line reddens the fourteen-label list: ${failure.message.replace(/\s+/g, ' ').trim()}`,
     );
-    // Honest about the record's own cases: none of them renders this sentence at this head. The
-    // record's finding shape carries no `carriedCode`, so the pane cannot re-render the line from the
-    // recorded findings and a folded case cannot be recorded without widening that shape — which is
-    // T015's field and not this list's. This probe is where the label is rendered and held.
-    assert.equal(
-      recorded().cases.some((candidate) =>
-        candidate.surface.lines.some((line) =>
-          line.startsWith(`${SURFACE.CASE_DIFFERENCE}: `),
-        ),
-      ),
-      false,
-      'no recorded case renders the case-difference sentence at this head, and this suite says so instead of claiming the recording covers it',
+    // T023/AC1: the record now carries the folded case end to end, rather than this probe being the
+    // only place the sentence is rendered. The recorded case's findings are the join's own answer for
+    // the diagnostic it hands over, one of them carries `carriedCode`, and its pane lines include the
+    // `case-difference:` sentence built from that recorded finding — so the unarmed suite's pins are
+    // what hold the recording, not a probe standing beside it.
+    const recordedFolded = recordedCase('case-folded-match');
+    const joinAnswer = answerFor({
+      handedOver: true,
+      diagnostics: [FOLDED],
+    });
+    assert.deepEqual(
+      recordedFolded.findings,
+      joinAnswer.findings.map(findingRecord),
+      `case-difference: the recorded folded case must be the join's own answer; it records ${JSON.stringify(recordedFolded.findings)} and the join answers ${JSON.stringify(joinAnswer.findings)}`,
+    );
+    const recordedDifference = recordedFolded.findings.find(
+      (candidate) =>
+        typeof candidate.carriedCode === 'string' &&
+        typeof candidate.code === 'string',
+    );
+    assert.ok(
+      recordedDifference,
+      `case-difference: the recorded folded case must carry the message's spelling beside the digest's; it records ${JSON.stringify(recordedFolded.findings)}`,
+    );
+    const recordedSentence = SURFACE.caseFoldedMatchText(
+      recordedDifference.carriedCode,
+      recordedDifference.code,
+    );
+    assert.ok(
+      recordedFolded.surface.lines.includes(recordedSentence),
+      `case-difference: the recorded folded case's pane lines must include ${JSON.stringify(recordedSentence)}; it records ${JSON.stringify(recordedFolded.surface.lines)}`,
+    );
+    console.log(
+      `the record carries the folded case: ${JSON.stringify(recordedFolded.surface.lines.find((line) => line.startsWith(`${SURFACE.CASE_DIFFERENCE}: `)))}`,
     );
   });
 

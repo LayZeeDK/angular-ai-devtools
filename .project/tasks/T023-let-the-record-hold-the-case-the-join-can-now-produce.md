@@ -4,9 +4,9 @@ title: Let the record hold the case the join can now produce
 wave: 16
 deps:
   - T022
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T023
+base: 2e4c57ae624a1d5cf97a30e4c6e90b274e493441
 worktree: null
 task_branch: null
 files:
