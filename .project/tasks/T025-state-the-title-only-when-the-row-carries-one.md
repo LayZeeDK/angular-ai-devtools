@@ -4,10 +4,10 @@ title: State the title only when the row carries one
 wave: 18
 deps:
   - T015
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T025
+base: 6ee85358c53771a50fee8142395314f5074a9c33
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-console.ts
