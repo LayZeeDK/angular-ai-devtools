@@ -1,16 +1,26 @@
 // console-panel-record.test.mjs — M045 T004. `research/raw/m045-console-panel.json` is the console
 // pane's behaviour, recorded case by case: for each case the state the join answered, every finding
 // the answer carried (`text`, and `code` / `title` / `reason` exactly where the join's contract puts
-// them), and the pane's own rendering of that answer. This file re-derives every one of those values
-// from the tree it runs in — the join (`extension/console-join.js`) over the shipped digest
+// them), and the pane's own rendering of that answer. What this file derives — and holds the
+// recording to, so a change to either module reddens it instead of drifting silently — is those
+// values: the join (`extension/console-join.js`) run over the shipped digest
 // (`extension/error-digest.json`), and the pane (`apps/angular-ai-devtools/src/app/panel-console.ts`)
-// over the join's answer — and holds the recording to the derivation, so nothing in the record is
-// typed by hand and a change to either module reddens it instead of drifting silently.
+// run over the join's answer. The record's schema, milestone, task, title, question, the `contract`
+// block and the capture prose are this suite's own constants (see `derive`), and `contract.states`
+// restates the join's three state words rather than reading the namespace the join publishes.
 //
-// The fixture is measured, not invented: the payload keys are the ones
-// `research/raw/m045-console-shapes.json` records `captureErrorPayload` dispatching, `NG0100` is a
-// code the digest carries with a title of its own, and `NG04002` is a code the capture's own
-// `/NG0\d{3,}/` regex extracts and the digest does not carry, so the named absence below is real.
+// The fixture's shape and codes are measured; its message texts are exemplars. The payload keys are
+// the ones `research/raw/m045-console-shapes.json` records `captureErrorPayload` dispatching,
+// `NG0100` is a code the digest carries with a title of its own, and `NG04002` is a code the capture's
+// own `/NG0\d{3,}/` regex extracts and the digest does not carry, so the named absence below is real.
+// The three message strings in `MATCHED` / `UNMATCHED` / `UNCODED` are written in that shape and are
+// not output any capture recorded: what the record measures about them is the payload key set, the
+// code extraction and the digest lookup.
+//
+// The recorded surface is held to the vocabulary the record itself states
+// (`contract.lineLabels`, `contract.prohibitedWording`), not to a snapshot of today's pane: a pane
+// that started rendering a `cause:` line would write it into the recording on the next armed run, and
+// the unarmed suite still reddens, because `cause` is not a label the contract carries.
 //
 // Two defects the milestone is written about (INTENT.md SC3, SC4 — held-out E7) are armed as
 // in-memory rewrites of the pane's own source, each loaded from this run's own temp directory and
@@ -75,6 +85,42 @@ const JOINED = 'joined';
 const CAPTURED_NOTHING = 'captured-nothing';
 const NO_DIGEST_ENTRY = 'no-digest-entry';
 
+/**
+ * The vocabulary the pane's own lines may use, and the wording it may not: the state word, a
+ * finding's four fields, and the pane's own named absences are the labels; a cause, an element, a
+ * remedy, a fix, a reason clause, a word about the framework or a count is not. The record states
+ * both lists, and the recorded `surface.lines` are held to them — a label outside the list reddens
+ * whether the recording was made by hand or by an armed re-capture. A `text:` line is exempt from the
+ * wording list because the page wrote that text; no other line is.
+ */
+const LINE_LABELS = [
+  'state',
+  'code',
+  'title',
+  'reason',
+  'text',
+  'no-code',
+  'no-title',
+  'no-digest-entry',
+  'no-finding',
+  'no-console-answer',
+  'unreadable-finding',
+  JOINED,
+  CAPTURED_NOTHING,
+  'no-diagnostics',
+];
+const PROHIBITED_WORDING = [
+  'cause',
+  'element',
+  'remedy',
+  'fix',
+  'because',
+  'due to',
+  'angular',
+  'component',
+  'count',
+];
+
 /** The one switch that arms the write; nothing else in this file writes into the checkout. */
 const CAPTURE = String(process.env.M045_CAPTURE ?? '').trim() === '1';
 
@@ -90,6 +136,8 @@ const SHAPES = JSON.parse(readFileSync(join(ROOT, SHAPES_REL), 'utf8'));
  * Three diagnostics in the payload shape the shapes record states — `{ code, message, component,
  * timestamp }` — plus a second message carrying the same code as the first. `component` and
  * `timestamp` are written because the capture writes them; only `code` and `message` reach the join.
+ * The message texts are exemplars in that shape, not output any capture recorded: what is measured
+ * about them is the key set, the code extraction and the digest lookup.
  */
 const MATCHED = {
   code: 'NG0100',
@@ -216,9 +264,12 @@ function caseRecord(entry) {
 }
 
 /**
- * The whole record this head derives. Everything in it is read from the four files under `sources`:
- * no clock, no commit, no run count, no absolute path, so a second run at the same path re-derives
- * the same bytes.
+ * The whole record this head derives. The `cases` are read from the four files named under `sources`
+ * — the join over the shipped digest, the pane over the join's answer, and the shapes record for the
+ * capture's own regex — and so are the fixture's measured fields. `schema`, `milestone`, `task`,
+ * `title`, `question`, the whole of `contract` and the capture prose are this suite's own constants,
+ * quoted into the record rather than derived from it. No clock, no commit, no run count and no
+ * absolute path is written, so a second run at the same path re-derives the same bytes.
  */
 function derive() {
   const regex = SHAPES.capture.codeExtraction.regex;
@@ -236,6 +287,8 @@ function derive() {
         'reason is present only when the digest lacks the code the message carried, and code is absent only when the message carried none',
       rendered:
         'the pane renders state and findings and nothing else: no cause, no element, no remedy and no unattributed wording',
+      lineLabels: LINE_LABELS,
+      prohibitedWording: PROHIBITED_WORDING,
     },
     sources: {
       surface: SURFACE_REL,
@@ -250,7 +303,7 @@ function derive() {
       write:
         'an armed run re-derives every case from the join and the pane and writes this file only when a value moved, so a default run is a read and a second armed run writes no byte',
       reproduces:
-        'every value below is derived from the four files named under sources at the head that carries them, so a second run at the same path re-derives the same bytes: this record carries no clock, no commit and no absolute path',
+        'the cases, their findings and the rendered lines below are derived at the head that carries them from the four files named under sources — the join over the shipped digest, and the pane over the join’s answer — so a second run at the same path re-derives the same bytes, and this record carries no clock, no commit and no absolute path; schema, milestone, task, title, question, the whole contract and this prose are the suite’s own constants, and contract.states restates the join’s three state words rather than reading the namespace the join publishes',
     },
     fixture: {
       payloadKeys: SHAPES.capture.payload.keys,
@@ -266,6 +319,8 @@ function derive() {
       unmatchedExtractedByTheCaptureRegex: new RegExp(regex.slice(1, -1)).test(
         UNMATCHED.message,
       ),
+      messageTexts:
+        'the message texts are exemplars written in the capture’s payload shape, not strings a capture recorded: what this record measures about them is the payload key set, the code extraction and the digest lookup, so a capture that read different text would move the recorded text and not the shape',
     },
     cases: CASES.map(caseRecord),
   };
@@ -548,6 +603,67 @@ function pinRendersEachRecordedFinding(entry, rendered) {
 }
 
 /**
+ * SC5/E7: the recorded surface is the vocabulary the record states, and nothing else. This reads the
+ * recording's own bytes — `cases[i].surface.lines` — rather than the pane's current output, so a pane
+ * that started rendering a `cause:` line cannot be blessed by an armed re-capture: the re-captured
+ * line is still labelled `cause`, and `cause` is not a label the record's contract carries.
+ *
+ * A line is a labelled fact (`label: sentence`); the label is one of `contract.lineLabels`; every
+ * other line's text carries none of `contract.prohibitedWording`. A `text:` line is exempt from the
+ * wording list and only from that list: the page wrote that text, and the pane may not.
+ */
+function pinRecordsOnlyTheContractVocabulary(entry, contract) {
+  const labels = contract.lineLabels;
+  const prohibited = contract.prohibitedWording;
+  assert.ok(
+    Array.isArray(labels) && labels.length > 0,
+    `recorded-vocabulary: the record must state the labels its surface lines may carry; its contract carries ${JSON.stringify(labels)}`,
+  );
+  assert.ok(
+    Array.isArray(prohibited) && prohibited.length > 0,
+    `recorded-vocabulary: the record must state the wording it forbids; its contract carries ${JSON.stringify(prohibited)}`,
+  );
+  for (const word of prohibited) {
+    assert.equal(
+      labels.includes(word),
+      false,
+      `recorded-vocabulary: ${JSON.stringify(word)} is forbidden wording and cannot also be a label the record states`,
+    );
+  }
+  for (const [index, line] of entry.surface.lines.entries()) {
+    const where = `${entry.id} surface line ${index}`;
+    assert.equal(
+      typeof line,
+      'string',
+      `recorded-vocabulary: ${where} must be a line of text; it records ${JSON.stringify(line)}`,
+    );
+    assert.equal(
+      line,
+      line.trim(),
+      `recorded-vocabulary: ${where} must carry no padding; it records ${JSON.stringify(line)}`,
+    );
+    assert.match(
+      line,
+      /^[a-z][a-z-]*: /,
+      `recorded-vocabulary: ${where} must be a labelled fact — a state, a finding's field or one of the pane's own named absences; it records ${JSON.stringify(line)}`,
+    );
+    const label = line.slice(0, line.indexOf(': '));
+    assert.ok(
+      labels.includes(label),
+      `recorded-vocabulary: ${where} is labelled ${JSON.stringify(label)}, which the record's contract does not carry; it records ${JSON.stringify(line)}`,
+    );
+    if (label === 'text') continue;
+    for (const word of prohibited) {
+      assert.equal(
+        line.toLowerCase().includes(word),
+        false,
+        `recorded-vocabulary: ${where} carries ${JSON.stringify(word)}, and the contract states that the pane renders no ${JSON.stringify(word)}; it records ${JSON.stringify(line)}`,
+      );
+    }
+  }
+}
+
+/**
  * The contract's own two rules, held against the diagnostics the case handed over: one finding per
  * diagnostic in capture order, `code` present exactly when the message carried one, and `reason`
  * present exactly when the digest lacks the code it carried.
@@ -578,7 +694,7 @@ function pinHoldsTheJoinContract(entry) {
     assert.equal(
       finding.text.startsWith(String(diagnostic.message)),
       true,
-      `text: ${entry.id} finding ${index} must carry the message the capture recorded; it records ${JSON.stringify(finding.text)}`,
+      `text: ${entry.id} finding ${index} must carry the message the fixture states; it records ${JSON.stringify(finding.text)}`,
     );
     if (carriesCode) {
       const known = DIGEST.entries.some(
@@ -875,6 +991,10 @@ describe('every case states what the join answered and what the pane rendered', 
       pinReportsTheRecordedState(entry, rendered);
       pinRendersEachRecordedFinding(entry, rendered);
       pinHoldsTheJoinContract(entry);
+      // The recording, not the pane: the lines written into the file are held to the vocabulary the
+      // file's own contract states, so an armed re-capture cannot bless a line the pane should not
+      // have written.
+      pinRecordsOnlyTheContractVocabulary(entry, recorded().contract);
 
       assert.deepEqual(
         rendered.lines,
@@ -907,7 +1027,7 @@ describe('every case states what the join answered and what the pane rendered', 
     );
   });
 
-  test('every case carries a finding whose own text is the message the capture recorded', () => {
+  test('every case carries a finding whose own text is the message the fixture states', () => {
     for (const entry of recorded().cases) {
       assert.equal(
         Object.keys(entry).includes('findings'),
@@ -987,7 +1107,7 @@ describe('mutants: each defect reddens the pin that names it', () => {
     });
   }
 
-  test('applies every mutation to a source that really changed', () => {
+  test('applies every mutation to a source that really changed, and a recorded cause line reddens even after an armed capture', () => {
     for (const mutation of MUTATIONS) {
       assert.equal(
         SURFACE_SRC.split(mutation.anchor).length - 1,
@@ -1000,6 +1120,30 @@ describe('mutants: each defect reddens the pin that names it', () => {
         `mutation ${mutation.id} must change the pane`,
       );
     }
+
+    // The wave-5 probe, in memory and without writing the recording: a record whose joined case
+    // carries a `cause:` line — exactly what an armed re-capture writes when the pane starts
+    // rendering one — reddens the vocabulary pin, because `cause` is not a label the record's
+    // contract carries. This is the half a snapshot cannot give: the recording is a reading of the
+    // pane, so the rule has to be the record's own vocabulary rather than yesterday's bytes.
+    const joined = recordedCase('joined');
+    const blessed = {
+      ...joined,
+      surface: {
+        ...joined.surface,
+        lines: [
+          ...joined.surface.lines,
+          'cause: the application modified a bound value during change detection',
+        ],
+      },
+    };
+    const failure = reddens('recorded-vocabulary', () =>
+      pinRecordsOnlyTheContractVocabulary(blessed, recorded().contract),
+    );
+    assert.match(failure.message, /the record's contract does not carry/);
+    console.log(
+      `recorded-vocabulary probe: ${failure.message.replace(/\s+/g, ' ').trim()}`,
+    );
   });
 });
 

@@ -18,7 +18,34 @@
       "reason?"
     ],
     "reason": "reason is present only when the digest lacks the code the message carried, and code is absent only when the message carried none",
-    "rendered": "the pane renders state and findings and nothing else: no cause, no element, no remedy and no unattributed wording"
+    "rendered": "the pane renders state and findings and nothing else: no cause, no element, no remedy and no unattributed wording",
+    "lineLabels": [
+      "state",
+      "code",
+      "title",
+      "reason",
+      "text",
+      "no-code",
+      "no-title",
+      "no-digest-entry",
+      "no-finding",
+      "no-console-answer",
+      "unreadable-finding",
+      "joined",
+      "captured-nothing",
+      "no-diagnostics"
+    ],
+    "prohibitedWording": [
+      "cause",
+      "element",
+      "remedy",
+      "fix",
+      "because",
+      "due to",
+      "angular",
+      "component",
+      "count"
+    ]
   },
   "sources": {
     "surface": "apps/angular-ai-devtools/src/app/panel-console.ts",
@@ -31,7 +58,7 @@
     "check": "node --test scripts/console-panel-record.test.mjs",
     "records": "research/raw/m045-console-panel.json",
     "write": "an armed run re-derives every case from the join and the pane and writes this file only when a value moved, so a default run is a read and a second armed run writes no byte",
-    "reproduces": "every value below is derived from the four files named under sources at the head that carries them, so a second run at the same path re-derives the same bytes: this record carries no clock, no commit and no absolute path"
+    "reproduces": "the cases, their findings and the rendered lines below are derived at the head that carries them from the four files named under sources — the join over the shipped digest, and the pane over the join’s answer — so a second run at the same path re-derives the same bytes, and this record carries no clock, no commit and no absolute path; schema, milestone, task, title, question, the whole contract and this prose are the suite’s own constants, and contract.states restates the join’s three state words rather than reading the namespace the join publishes"
   },
   "fixture": {
     "payloadKeys": [
@@ -47,7 +74,8 @@
     "digestEntries": 64,
     "digestCarriesUnmatchedCode": false,
     "captureRegex": "/NG0\\d{3,}/",
-    "unmatchedExtractedByTheCaptureRegex": true
+    "unmatchedExtractedByTheCaptureRegex": true,
+    "messageTexts": "the message texts are exemplars written in the capture’s payload shape, not strings a capture recorded: what this record measures about them is the payload key set, the code extraction and the digest lookup, so a capture that read different text would move the recorded text and not the shape"
   },
   "cases": [
     {

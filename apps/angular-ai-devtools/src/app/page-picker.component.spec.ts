@@ -412,8 +412,10 @@ describe('PagePickerComponent', () => {
     expect(await route.loadComponent()).toBe(PagePickerComponent);
     // The picker's own reading of the table is the list of lazy paths. It is re-cut whenever a
     // surface is appended — M039 adds `render-phase` after this one, M040 adds `performance` and
-    // M045 adds `console` last — so a route that quietly stopped being lazy, or a surface appended
-    // without registering, reddens here as well as in the app suite rather than going unread.
+    // M045 adds `console` last — so a route that quietly stopped being lazy reddens here as well as
+    // in the app suite rather than going unread. The list of lazy paths is one reading of the table
+    // and it is not the count: the whole table is pinned below, so an eager surface appended last
+    // cannot slip past this suite either (M045 T007).
     const lazy = appRoutes
       .filter((candidate) => candidate.loadComponent !== undefined)
       .map((candidate) => candidate.path);
@@ -446,6 +448,39 @@ describe('PagePickerComponent', () => {
       'stability',
       'console',
     ]);
+
+    // The whole table, in order and to the count — twenty-five paths, exactly the ordered list
+    // `app.spec.ts` and `chat-entry.component.spec.ts` pin. The lazy list above is one reading of the
+    // table; without this one an eager route appended to the end would leave this suite green, which
+    // is what M045 T007 repairs here.
+    expect(appRoutes.map((candidate) => candidate.path)).toEqual([
+      '',
+      'signal-provenance',
+      'di-doctor',
+      'error-explainer',
+      'stale-view',
+      'interop',
+      'chat',
+      'picker',
+      'image-budget',
+      'after-render',
+      'sanitizer',
+      'redirect',
+      'fields',
+      'lint',
+      'router',
+      'legacy',
+      'onpush',
+      'resource',
+      'linked-state',
+      'render-phase',
+      'performance',
+      'navigation',
+      'error-boundary',
+      'stability',
+      'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
+    ]);
+    expect(appRoutes).toHaveLength(25);
   });
 });
 

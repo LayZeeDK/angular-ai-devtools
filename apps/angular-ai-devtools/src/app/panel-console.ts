@@ -51,7 +51,10 @@
  * A page the pane has no answer for — nothing was handed over, or a value with no state word —
  * renders `no-console-answer` in a sentence of its own: never an empty pane, and never a state read
  * off an answer nobody gave. A state word the pane was not written for is rendered as the word it was
- * given and nothing else, because the pane has no field of its own to fill in for it.
+ * given and nothing else, because the pane has no field of its own to fill in for it. That word is
+ * looked up as an own property of the table below, so a word that collides with an `Object.prototype`
+ * key — `constructor`, `toString`, `hasOwnProperty`, `__proto__` — is such a word and not a sentence:
+ * it renders `state: constructor` and no line beside it, never a function's source.
  *
  * No runtime imports and no global CSS: the route reaches this module lazily through `panel-demo.ts`
  * (see `app.routes.ts`), the way `panel-stability.ts` and `panel-navigation.ts` are reached, so the
@@ -215,10 +218,15 @@ export function consolePanel(answer?: unknown): ConsoleSurface {
   if (state === null) return noAnswer();
 
   const lines: string[] = [`state: ${state}`];
-  const sentence = STATE_TEXTS[state];
 
   // A state word this pane was not written for is rendered as the word it was given and nothing else:
   // it borrows no finding and no absence sentence, because the pane has no field to fill in for it.
+  // The lookup is an own-property one (`Object.hasOwn`), so a word that collides with an
+  // `Object.prototype` key — `constructor`, `toString`, `hasOwnProperty`, `__proto__` — is such a
+  // word rather than a sentence, and never renders a function's source or a prototype object.
+  const sentence = Object.hasOwn(STATE_TEXTS, state)
+    ? STATE_TEXTS[state]
+    : undefined;
   if (sentence === undefined) return surface(state, lines);
   lines.push(sentence);
 

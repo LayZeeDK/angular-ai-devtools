@@ -13,9 +13,18 @@
 // title for it where the digest has one, the join's reason where the digest lacks it, and the
 // captured text verbatim. What it may not render (E7): a cause, an element reference, a remedy, an
 // unattributed word about the framework, an empty list standing in for `captured-nothing`, or a count
-// standing in for a code the digest lacks. Each of those six defects is armed as a mutation of the
-// pane's own source and shown to redden the pin that names it — a mutant that survives its pin, or
-// reddens with a message that does not name the defect, fails this suite.
+// standing in for a code the digest lacks. Each of those defects is armed as a mutation of the pane's
+// own source and shown to redden the pin that names it — a mutant that survives its pin, or reddens
+// with a message that does not name the defect, fails this suite.
+//
+// The E7 prohibitions are a rule and not a snapshot of the `joined` surface: `pinE7OnEveryState` runs
+// them on `joined`, `captured-nothing`, `no-diagnostics` and a state word the pane was not written
+// for, so a cause, an element, a remedy or an unattributed word about the framework added to any one
+// of those surfaces reddens a pin that names both the state and the phrase. The two absence sentences
+// are pinned where they live and read whole: `captured-nothing` may never claim the page was silent
+// (and is checked as a sentence, not as a prefix), the no-code absence may never become a count, and
+// the state sentence is looked up as an own property, so a word such as `constructor` renders itself
+// and not a function's source.
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -372,77 +381,216 @@ function pinTheTwoAbsencesDiffer(nothing, none) {
 }
 
 /**
- * E7/N3: no cause, no element and no remedy. The capture records none of the three, the digest carries
- * no field for them, and a finding that carries them renders none of them.
+ * E7/N3: no cause, no element and no remedy, on whichever state the surface renders. The capture
+ * records none of the three, the digest carries no field for them, and a finding that carries them
+ * renders none of them — so an absence sentence that gained an "because …" clause, a `remedy:` line
+ * or an element reference reddens here with the state word and the offending phrase both named.
+ *
+ * @param surface the pane's rendering of one state
+ * @param answer the join's answer behind it, where the surface has one; the finding count is held to
+ *   it, because dropping the extras is a filter and not a blank
  */
 function pinNoCauseElementRemedy(surface, answer) {
+  const state = surface.state;
   for (const name of ['cause', 'element', 'remedy']) {
     assert.equal(
       surface.lines.some((line) => line.startsWith(`${name}: `)),
       false,
-      `no-${name}: the pane must render no ${name} — the capture records none and the answer carries none; it rendered ${JSON.stringify(surface.lines)}`,
+      `no-${name}: the ${state} surface must render no ${name} — the capture records none and the answer carries none; it rendered ${JSON.stringify(surface.lines)}`,
     );
   }
   const own = surface.lines.filter((line) => !line.startsWith('text: '));
   const written = own.join('\n');
-  for (const pattern of [
-    /\bthe cause is\b/i,
-    /\bcaused by\b/i,
-    /\bbecause\b/i,
-    /\bdue to\b/i,
-    /\bthe fix is\b/i,
-    /\bfix it\b/i,
-    /\bremedy\b/i,
-    /\belement\b/i,
+  for (const [defect, pattern] of [
+    ['cause', /\bthe cause is\b/i],
+    ['cause', /\bcaused by\b/i],
+    ['cause', /\bbecause\b/i],
+    ['cause', /\bdue to\b/i],
+    ['remedy', /\bthe fix is\b/i],
+    ['remedy', /\bfix it\b/i],
+    ['remedy', /\bremedy\b/i],
+    ['element', /\belement\b/i],
   ]) {
     assert.equal(
       pattern.test(written),
       false,
-      `no-cause-element-remedy: the pane's own lines name no ${pattern}; it rendered ${JSON.stringify(own)}`,
+      `no-cause-element-remedy: the ${state} surface must render no ${defect} — none of its own lines names one; it rendered ${JSON.stringify(own)} (matched ${pattern})`,
     );
   }
   // The fields the pane does render are still rendered: dropping the extras is a filter, not a blank.
-  assert.equal(
-    surface.lines.filter((line) => line.startsWith('text: ')).length,
-    answer.findings.length,
-    'no-unrendered-field: every finding still renders its own text beside the dropped fields',
-  );
+  if (answer !== undefined) {
+    assert.equal(
+      surface.lines.filter((line) => line.startsWith('text: ')).length,
+      answer.findings.length,
+      `no-unrendered-field: every finding on the ${state} surface still renders its own text beside the dropped fields`,
+    );
+  }
 }
 
 /**
- * E7: no unattributed wording. Every line the pane writes of its own is a labelled fact, and none of
- * them names the framework — only a captured message (a `text:` line) may, because the page wrote it.
+ * E7: no unattributed wording, on whichever state the surface renders. Every line the pane writes of
+ * its own is a labelled fact, and none of them names the framework — only a captured message (a
+ * `text:` line) may, because the page wrote it.
  */
 function pinNoUnattributedAngularWording(surface) {
+  const state = surface.state;
   for (const line of surface.lines) {
     if (line.startsWith('text: ')) continue;
     assert.doesNotMatch(
       line,
       /angular/i,
-      `no-unattributed-wording: the pane writes no wording of its own naming Angular; it rendered ${JSON.stringify(line)} in ${JSON.stringify(surface.lines)}`,
+      `no-unattributed-wording: the ${state} surface writes no wording of its own naming Angular; it rendered ${JSON.stringify(line)} in ${JSON.stringify(surface.lines)}`,
     );
     assert.match(
       line,
       /^[a-z][a-z-]*: /,
-      `no-unattributed-wording: every line the pane writes of its own is a labelled fact — a state, a finding's field or a named absence; it rendered ${JSON.stringify(line)}`,
+      `no-unattributed-wording: every line the ${state} surface writes of its own is a labelled fact — a state, a finding's field or a named absence; it rendered ${JSON.stringify(line)}`,
     );
   }
   for (const key of Object.keys(surface)) {
     assert.ok(
       ['state', 'kind', 'message', 'lines', 'text'].includes(key),
-      `no-unattributed-wording: the pane answers the fields a surface answers and nothing beside them; it carried ${JSON.stringify(key)}`,
+      `no-unattributed-wording: the ${state} surface answers the fields a surface answers and nothing beside them; it carried ${JSON.stringify(key)}`,
     );
   }
 }
 
-/** SC4: a state word the pane was not written for is rendered as the word it was given, and alone. */
+/**
+ * E7 on every state the pane renders: `joined`, `captured-nothing`, `no-diagnostics` and a word the
+ * pane was not written for. The two rules that make E7 a rule rather than a snapshot of today's
+ * wording are run on each of the four surfaces, so a cause, an element reference, a remedy or a word
+ * of the pane's own about the framework added to *any* of them reddens naming that state.
+ */
+function pinE7OnEveryState(api) {
+  for (const [word, answer] of [
+    [SURFACE.JOINED, joinedAnswer()],
+    [SURFACE.CAPTURED_NOTHING, capturedNothingAnswer()],
+    [SURFACE.NO_DIAGNOSTICS, noDiagnosticsAnswer()],
+    ['wedged', undefined],
+  ]) {
+    const surface = api.consolePanel(answer ?? { state: word });
+    assert.equal(
+      surface.state,
+      word,
+      `every-state: the ${word} surface must report the word it was given; it reported ${surface.state}`,
+    );
+    pinNoCauseElementRemedy(surface, answer);
+    pinNoUnattributedAngularWording(surface);
+  }
+}
+
+/**
+ * The words that would make a state's own sentence a claim about the page rather than about what was
+ * read. Only a negation may sit in front of one: `captured-nothing` says what the capture did, and
+ * `extension/console-join.js:27-29` records that a capture whose own attempt failed emits nothing too,
+ * so "the page was silent" is a claim the join's contract never makes.
+ */
+const SILENCE_CLAIMS = [
+  /\bsilen(ce|t)\b/gi,
+  /\bthe page (produced|reported|logged|said|showed) nothing\b/gi,
+  /\bnothing (was|has been) (logged|captured|reported)\b/gi,
+  /\bno console (output|activity|messages?)\b/gi,
+  /\bthe page (did not|didn't) (log|report|complain)\b/gi,
+];
+
+/**
+ * SC4/E7: the sentence is read whole — never only its prefix — and it claims no silence. Every
+ * silence word it carries must be governed by a negation, and no clause may state that the page
+ * produced nothing: that is the one thing `captured-nothing` may not say.
+ */
+function assertNoSilenceClaim(sentence, where) {
+  for (const claim of SILENCE_CLAIMS) {
+    for (const match of sentence.matchAll(claim)) {
+      const before = sentence.slice(Math.max(0, match.index - 48), match.index);
+      assert.match(
+        before,
+        /\b(never|not|no|nor|cannot)\b[^.;:]{0,40}$/i,
+        `captured-nothing-silence: the ${where} never claims the page was silent — a capture whose own attempt failed emits nothing too, so it states what was read and not that the page was silent; it rendered ${JSON.stringify(sentence)} (claimed ${JSON.stringify(match[0])})`,
+      );
+    }
+  }
+}
+
+/**
+ * SC4/E7: `captured-nothing` states what was read. The sentence it renders is read whole, so a pane
+ * that kept the `captured-nothing: ` prefix while changing the claim — to "the page was silent", or
+ * to nothing at all — reddens here rather than passing on its prefix.
+ */
+function pinCapturedNothingNeverClaimsSilence(surface) {
+  const prefix = `${SURFACE.CAPTURED_NOTHING}: `;
+  const sentence = surface.lines.find((line) => line.startsWith(prefix));
+  assert.ok(
+    sentence,
+    `captured-nothing-silence: the ${SURFACE.CAPTURED_NOTHING} surface states its absence in a sentence of its own; it rendered ${JSON.stringify(surface.lines)}`,
+  );
+  const body = sentence.slice(prefix.length);
+  assertNoSilenceClaim(sentence, `${SURFACE.CAPTURED_NOTHING} surface`);
+  assert.ok(
+    /\bread\b/i.test(body),
+    `captured-nothing-silence: the sentence says what was read — the check reads the sentence and not only its prefix; it rendered ${JSON.stringify(sentence)}`,
+  );
+}
+
+/**
+ * SC3/N4: the second absence is named too, and in a sentence of its own. A finding whose message
+ * carried no code states that absence by name — never a blank, a dash or a count — and the guard
+ * that forbids a count reaches this sentence as well as the digest-miss one.
+ */
+function pinNoCodeAbsenceIsNamed(surface, answer) {
+  const bare = answer.findings.filter(
+    (finding) => typeof finding.code !== 'string',
+  );
+  assert.ok(
+    bare.length > 0,
+    'the fixture must carry a message with no code, or this pin proves nothing',
+  );
+  const prefix = `${SURFACE.NO_CODE}: `;
+  const sentence = surface.lines.find((line) => line.startsWith(prefix));
+  assert.ok(
+    sentence,
+    `no-code: a message that carried no code is named in a sentence of its own, never a blank and never a count; the pane rendered ${JSON.stringify(surface.lines)}`,
+  );
+  assert.doesNotMatch(
+    sentence,
+    /\d/,
+    `no-code: a count is not a name — the sentence states that the capture's message carried no code, never how many did; the pane rendered ${JSON.stringify(sentence)}`,
+  );
+  assert.match(
+    sentence.slice(prefix.length),
+    /\bno code\b/i,
+    `no-code: the sentence must say the message carried no code, and state the absence in words rather than as a blank; the pane rendered ${JSON.stringify(sentence)}`,
+  );
+}
+
+/**
+ * SC4: a state word the pane was not written for is rendered as the word it was given, and alone.
+ * The state sentence is looked up as an own property, so the words that collide with an
+ * `Object.prototype` key are such words: they render themselves and nothing else.
+ */
 function pinGivenState(surface, word) {
   assert.equal(surface.state, word, `given-state: got ${surface.state}`);
   assert.deepEqual(
     [...surface.lines],
     [`state: ${word}`],
-    `given-state: a word the pane was not written for renders that word and nothing else; the pane rendered ${JSON.stringify(surface.lines)}`,
+    `given-state: a word the pane was not written for — ${JSON.stringify(word)} — renders that word and nothing else, because the state sentence is looked up as an own property; the pane rendered ${JSON.stringify(surface.lines)}`,
   );
+}
+
+/** Every word the pane was not written for this pin tries, the prototype keys among them. */
+const GIVEN_WORDS = [
+  'wedged',
+  'not-yet-named',
+  'constructor',
+  'toString',
+  'hasOwnProperty',
+  '__proto__',
+];
+
+/** SC4/E7: the given words, one surface each, rendered as the word and nothing else. */
+function pinGivenStates(api) {
+  for (const word of GIVEN_WORDS) {
+    pinGivenState(api.consolePanel({ state: word }), word);
+  }
 }
 
 /** E7: an answer the pane was not handed renders `no-console-answer`, never an empty pane. */
@@ -568,20 +716,33 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
     console.log(`console pane: ${JSON.stringify(surface.lines)}`);
   });
 
-  it('AC1: captured-nothing is that statement, never an empty list', () => {
+  it('AC1: captured-nothing is that statement, never an empty list, and never a claim of silence', () => {
     const answer = capturedNothingAnswer();
     const surface = SURFACE.consolePanel(answer);
     pinCapturedNothingStatesIt(surface);
+    pinCapturedNothingNeverClaimsSilence(surface);
+    // The sentence is pinned where it lives as well as where it renders: the module's own text for
+    // the state is read whole and claims no silence, so a pane that kept the prefix while changing
+    // the claim cannot pass on the prefix alone.
+    assertNoSilenceClaim(
+      SURFACE.STATE_TEXTS[SURFACE.CAPTURED_NOTHING],
+      `${SURFACE.CAPTURED_NOTHING} sentence`,
+    );
+    pinNoCauseElementRemedy(surface, answer);
     pinNoUnattributedAngularWording(surface);
     pinRendersTheAnswerAndNothingElse(surface, answer);
   });
 
-  it('AC1: the two absences are two statements, and neither is an empty pane', () => {
+  it('E7/SC4: every state the pane renders carries no cause, element, remedy or unattributed wording, and the two absences stay two statements', () => {
     const nothing = SURFACE.consolePanel(capturedNothingAnswer());
     const none = SURFACE.consolePanel(noDiagnosticsAnswer());
     pinTheTwoAbsencesDiffer(nothing, none);
     assert.equal(none.lines.length, 2);
     assert.equal(none.lines[1], SURFACE.STATE_TEXTS[SURFACE.NO_DIAGNOSTICS]);
+    // The rule, not a snapshot of one state: joined, captured-nothing, no-diagnostics and a word the
+    // pane was not written for are each held to E7, so a cause, an element, a remedy or a word of the
+    // pane's own about the framework added to any one of them reddens naming that state.
+    pinE7OnEveryState(SURFACE);
   });
 
   it('AC2: a code the digest lacks renders by name, and a count instead reddens', () => {
@@ -622,6 +783,8 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
       false,
       'no-code: no invented code is rendered for a message that carried none',
     );
+    // The same prohibition the digest miss is held to, on the other absence: a count is not a name.
+    pinNoCodeAbsenceIsNamed(surface, answer);
   });
 
   it('E7: a finding carrying a cause, an element, a remedy or a count renders none of them', () => {
@@ -720,10 +883,10 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
       }),
       'wedged',
     );
-    pinGivenState(
-      SURFACE.consolePanel({ state: 'not-yet-named' }),
-      'not-yet-named',
-    );
+    // A word that collides with an `Object.prototype` key is a word the pane was not written for: the
+    // state sentence is looked up as an own property, so `constructor` renders `state: constructor`
+    // and not a function's source, and `__proto__` renders itself and not a prototype object.
+    pinGivenStates(SURFACE);
   });
 
   it('AC5: the pane derives nothing — no clock, no digest, no join, no DOM, no markup', () => {
@@ -742,9 +905,17 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
 // ---------------------------------------------------------------- the mutants ----
 
 /**
- * The six defects E7 names, each one anchored edit of the pane's own source. `exhibits` asserts the
- * mutated copy really carries the defect, so a mutation that fails to reproduce it is a failure
- * rather than a green mutant.
+ * The defects E7 and SC3/SC4 name, each one anchored edit of the pane's own source. `exhibits`
+ * asserts the mutated copy really carries the defect, so a mutation that fails to reproduce it is a
+ * failure rather than a green mutant.
+ *
+ * Four groups. The defects a joined answer could carry: a count for the digest miss, an empty list
+ * for `captured-nothing`, a cause, an element, a remedy and a word of the pane's own naming Angular.
+ * The same prohibitions proved on the states besides `joined` — an element on `captured-nothing`, a
+ * remedy and a "because" clause on `no-diagnostics`, and Angular wording on a word the pane was not
+ * written for — one per state, each reddening a pin whose message names that state and the phrase.
+ * The state sentence's own rules: the own-property lookup, the claim of silence, a sentence that is
+ * only its prefix, and the count guard extended to the no-code absence.
  */
 const MUTATIONS = [
   {
@@ -772,6 +943,30 @@ const MUTATIONS = [
     names: /a count is not a name/,
   },
   {
+    id: 'no-code-as-count',
+    defect: 'no-code',
+    anchor: [
+      'export const NO_CODE_TEXT =',
+      "  'no-code: the captured message carried no code, so this finding carries no code and no title';",
+    ].join('\n'),
+    replacement: [
+      'export const NO_CODE_TEXT =',
+      "  'no-code: 1 captured message carried no code, so this finding carries no code and no title';",
+    ].join('\n'),
+    check: (api) => {
+      const answer = joinedAnswer();
+      return () => pinNoCodeAbsenceIsNamed(api.consolePanel(answer), answer);
+    },
+    exhibits: (module) =>
+      assert.ok(
+        module
+          .consolePanel(joinedAnswer())
+          .text.includes('1 captured message carried no code'),
+        'the mutant really renders a count where the no-code absence belongs',
+      ),
+    names: /a count is not a name/,
+  },
+  {
     id: 'captured-nothing-as-empty-list',
     defect: 'captured-nothing',
     anchor: '  if (state !== JOINED) return surface(state, lines);',
@@ -789,17 +984,68 @@ const MUTATIONS = [
     names: /never an empty list/,
   },
   {
-    id: 'cause-added',
-    defect: 'no-cause',
-    anchor: '  const sentence = STATE_TEXTS[state];',
+    id: 'captured-nothing-claims-silence',
+    defect: 'claims the page was silent',
+    anchor: [
+      "  'captured-nothing':",
+      "    'captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent',",
+    ].join('\n'),
     replacement: [
-      '  const sentence = STATE_TEXTS[state];',
-      "  lines.push('cause: the console.error call the page made');",
+      "  'captured-nothing':",
+      "    'captured-nothing: the page was silent, so no diagnostic was captured',",
     ].join('\n'),
     check: (api) => {
-      const answer = joinedAnswer();
-      return () => pinNoCauseElementRemedy(api.consolePanel(answer), answer);
+      return () =>
+        pinCapturedNothingNeverClaimsSilence(
+          api.consolePanel(capturedNothingAnswer()),
+        );
     },
+    exhibits: (module) =>
+      assert.ok(
+        module
+          .consolePanel(capturedNothingAnswer())
+          .text.includes('the page was silent'),
+        'the mutant really replaces the statement with a claim that the page was silent',
+      ),
+    names: /never claims the page was silent/,
+  },
+  {
+    id: 'captured-nothing-as-a-prefix',
+    defect: 'says what was read',
+    anchor: [
+      "  'captured-nothing':",
+      "    'captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent',",
+    ].join('\n'),
+    replacement: ["  'captured-nothing':", "    'captured-nothing: ',"].join(
+      '\n',
+    ),
+    check: (api) => {
+      return () =>
+        pinCapturedNothingNeverClaimsSilence(
+          api.consolePanel(capturedNothingAnswer()),
+        );
+    },
+    exhibits: (module) =>
+      assert.equal(
+        module.consolePanel(capturedNothingAnswer()).lines[1],
+        'captured-nothing: ',
+        'the mutant really keeps the prefix and drops the sentence behind it',
+      ),
+    names: /says what was read/,
+  },
+  {
+    id: 'cause-added',
+    defect: 'no-cause',
+    anchor: [
+      '  if (sentence === undefined) return surface(state, lines);',
+      '  lines.push(sentence);',
+    ].join('\n'),
+    replacement: [
+      '  if (sentence === undefined) return surface(state, lines);',
+      '  lines.push(sentence);',
+      "  lines.push('cause: the console.error call the page made');",
+    ].join('\n'),
+    check: (api) => () => pinE7OnEveryState(api),
     exhibits: (module) =>
       assert.ok(
         module
@@ -807,7 +1053,7 @@ const MUTATIONS = [
           .text.includes('cause: the console.error call'),
         'the mutant really names a cause',
       ),
-    names: /must render no cause/,
+    names: /the joined surface must render no cause/,
   },
   {
     id: 'element-added',
@@ -817,16 +1063,13 @@ const MUTATIONS = [
       "  lines.push(`element: ${String(raw['component'] ?? 'none')}`);",
       '  lines.push(`text: ${text}`);',
     ].join('\n'),
-    check: (api) => {
-      const answer = joinedAnswer();
-      return () => pinNoCauseElementRemedy(api.consolePanel(answer), answer);
-    },
+    check: (api) => () => pinE7OnEveryState(api),
     exhibits: (module) =>
       assert.ok(
         module.consolePanel(joinedAnswer()).text.includes('element: '),
         'the mutant really renders an element reference',
       ),
-    names: /must render no element/,
+    names: /the joined surface must render no element/,
   },
   {
     id: 'remedy-added',
@@ -836,10 +1079,7 @@ const MUTATIONS = [
       "  lines.push('remedy: read the digest entry and fix the check');",
       '  if (findings.length === 0) {',
     ].join('\n'),
-    check: (api) => {
-      const answer = joinedAnswer();
-      return () => pinNoCauseElementRemedy(api.consolePanel(answer), answer);
-    },
+    check: (api) => () => pinE7OnEveryState(api),
     exhibits: (module) =>
       assert.ok(
         module
@@ -847,7 +1087,7 @@ const MUTATIONS = [
           .text.includes('remedy: read the digest entry'),
         'the mutant really states a remedy',
       ),
-    names: /must render no remedy/,
+    names: /the joined surface must render no remedy/,
   },
   {
     id: 'unattributed-wording',
@@ -857,10 +1097,7 @@ const MUTATIONS = [
       '  const lines: string[] = [`state: ${state}`];',
       "  lines.push('angular: the framework reported this');",
     ].join('\n'),
-    check: (api) => {
-      return () =>
-        pinNoUnattributedAngularWording(api.consolePanel(joinedAnswer()));
-    },
+    check: (api) => () => pinE7OnEveryState(api),
     exhibits: (module) =>
       assert.ok(
         module
@@ -868,7 +1105,108 @@ const MUTATIONS = [
           .text.includes('angular: the framework reported this'),
         'the mutant really adds wording of its own naming Angular',
       ),
-    names: /naming Angular/,
+    names: /the joined surface writes no wording of its own naming Angular/,
+  },
+  {
+    id: 'element-on-captured-nothing',
+    defect: 'must render no element',
+    anchor: '  if (state !== JOINED) return surface(state, lines);',
+    replacement: [
+      '  if (state === CAPTURED_NOTHING) {',
+      '    lines.push(\'element: <app-root class="shell">\');',
+      '  }',
+      '  if (state !== JOINED) return surface(state, lines);',
+    ].join('\n'),
+    check: (api) => () => pinE7OnEveryState(api),
+    exhibits: (module) =>
+      assert.ok(
+        module
+          .consolePanel(capturedNothingAnswer())
+          .lines.some((line) => line.startsWith('element: ')),
+        'the mutant really renders an element reference on captured-nothing',
+      ),
+    names: /the captured-nothing surface must render no element/,
+  },
+  {
+    id: 'remedy-on-no-diagnostics',
+    defect: 'must render no remedy',
+    anchor: [
+      "  'no-diagnostics':",
+      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
+    ].join('\n'),
+    replacement: [
+      "  'no-diagnostics':",
+      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read, and a remedy is to hand it one',",
+    ].join('\n'),
+    check: (api) => () => pinE7OnEveryState(api),
+    exhibits: (module) =>
+      assert.ok(
+        module
+          .consolePanel(noDiagnosticsAnswer())
+          .text.includes('a remedy is to hand it one'),
+        'the mutant really states a remedy on no-diagnostics',
+      ),
+    names: /the no-diagnostics surface must render no remedy/,
+  },
+  {
+    id: 'because-on-no-diagnostics',
+    defect: 'must render no cause',
+    anchor: [
+      "  'no-diagnostics':",
+      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
+    ].join('\n'),
+    replacement: [
+      "  'no-diagnostics':",
+      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read because every console hook failed to install',",
+    ].join('\n'),
+    check: (api) => () => pinE7OnEveryState(api),
+    exhibits: (module) =>
+      assert.ok(
+        module
+          .consolePanel(noDiagnosticsAnswer())
+          .text.includes('because every console hook failed to install'),
+        'the mutant really appends a cause clause to no-diagnostics',
+      ),
+    names: /the no-diagnostics surface must render no cause/,
+  },
+  {
+    id: 'angular-on-a-given-word',
+    defect: 'naming Angular',
+    anchor: '  if (sentence === undefined) return surface(state, lines);',
+    replacement: [
+      '  if (sentence === undefined) {',
+      "    lines.push('angular: the framework reported this');",
+      '    return surface(state, lines);',
+      '  }',
+    ].join('\n'),
+    check: (api) => () => pinE7OnEveryState(api),
+    exhibits: (module) =>
+      assert.ok(
+        module
+          .consolePanel({ state: 'wedged' })
+          .text.includes('angular: the framework reported this'),
+        'the mutant really adds wording of its own naming Angular to a given state',
+      ),
+    names: /the wedged surface writes no wording of its own naming Angular/,
+  },
+  {
+    id: 'state-looked-up-through-the-prototype',
+    defect: 'looked up as an own property',
+    anchor: [
+      '  const sentence = Object.hasOwn(STATE_TEXTS, state)',
+      '    ? STATE_TEXTS[state]',
+      '    : undefined;',
+    ].join('\n'),
+    replacement: '  const sentence = STATE_TEXTS[state];',
+    check: (api) => () => pinGivenStates(api),
+    exhibits: (module) =>
+      assert.ok(
+        module
+          .consolePanel({ state: 'constructor' })
+          .text.includes('native code'),
+        'the mutant really renders the prototype’s function source for the word constructor',
+      ),
+    names: /looked up as an own property/,
   },
 ];
 

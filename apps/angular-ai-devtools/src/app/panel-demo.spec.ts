@@ -66,12 +66,15 @@
  * renders that absence's own sentence rather than an empty list or a dash).
  *
  * M045 T003 extends it to the `console` surface, and to the narrowest answer this panel renders: the
- * join's `{ state, findings[] }` and nothing beside it. The sample fact is written in the payload
- * shape `research/raw/m045-console-shapes.json` records `captureErrorPayload` dispatching, and it is
- * held to the shipped digest rather than to a copy of the digest's titles: a code the digest carries
- * must print that entry's own title, and a code it lacks must print the code with `no-digest-entry`.
- * Nothing the capture does not record is printed — no cause, no element and no remedy — and neither
- * absence is rendered as an empty list or a count.
+ * join's `{ state, findings[] }` and nothing beside it. The sample fact carries that answer's own
+ * shape — `{ state, findings: [{ text, code?, title?, reason? }] }` — which is what the join reads and
+ * the pane renders; it is not the capture's payload shape (`{ code, message, component, timestamp }`,
+ * the shape `research/raw/m045-console-shapes.json` records `captureErrorPayload` dispatching and the
+ * shape `scripts/console-panel-record.test.mjs` builds its diagnostics in). The fact is held to the
+ * shipped digest rather than to a copy of the digest's titles: a code the digest carries must print
+ * that entry's own title, and a code it lacks must print the code with `no-digest-entry`. Nothing the
+ * capture does not record is printed — no cause, no element and no remedy — and neither absence is
+ * rendered as an empty list or a count.
  */
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -1812,6 +1815,39 @@ describe('the panel demo', () => {
       throw new Error('the console route must name its surface in route data');
     }
     expect(surfaceName).toBe('console');
+
+    // The whole table, in order and to the count — twenty-five paths, the same ordered list
+    // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
+    // suite reads the table for this one route, so without it an appended twenty-sixth route would
+    // leave it green while the other suites reddened (M045 T007).
+    expect(appRoutes.map((candidate) => candidate.path)).toEqual([
+      '',
+      'signal-provenance',
+      'di-doctor',
+      'error-explainer',
+      'stale-view',
+      'interop',
+      'chat',
+      'picker',
+      'image-budget',
+      'after-render',
+      'sanitizer',
+      'redirect',
+      'fields',
+      'lint',
+      'router',
+      'legacy',
+      'onpush',
+      'resource',
+      'linked-state',
+      'render-phase',
+      'performance',
+      'navigation',
+      'error-boundary',
+      'stability',
+      'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
+    ]);
+    expect(appRoutes).toHaveLength(25);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
