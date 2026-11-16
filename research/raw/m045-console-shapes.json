@@ -302,6 +302,33 @@
           "2567: })(typeof globalThis !== 'undefined' ? globalThis : this);",
           "2568: "
         ]
+      },
+      {
+        "id": "c16",
+        "command": "node -e \"const A=require('fs').readFileSync('extension/agent-main.js','utf8').split('\\n');const s=A.findIndex(l=>l.includes('function dispatch(type, detail)'));for(let i=s;i<s+20;i++)console.log((i+1)+': '+A[i])\"",
+        "exitCode": 0,
+        "output": [
+          "1397:   function dispatch(type, detail) {",
+          "1398:     var CustomEventCtor =",
+          "1399:       typeof globalThis.CustomEvent === 'function'",
+          "1400:         ? globalThis.CustomEvent",
+          "1401:         : typeof global.CustomEvent === 'function'",
+          "1402:           ? global.CustomEvent",
+          "1403:           : null;",
+          "1404:     // `dispatchEvent` takes a DOM `Event`, and a bare `{ type, detail }` is not one — it has none of",
+          "1405:     // an event's members and a DOM dispatcher refuses it. The fallback for a realm with no",
+          "1406:     // `CustomEvent` constructor is therefore that realm's base `Event` of the requested type, with",
+          "1407:     // the same `detail` attached, so the relay reads the same two members on either path.",
+          "1408:     var ev = CustomEventCtor",
+          "1409:       ? new CustomEventCtor(type, { detail: detail })",
+          "1410:       : Object.assign(new Event(type), { detail: detail });",
+          "1411:     if (typeof globalThis.dispatchEvent === 'function') {",
+          "1412:       globalThis.dispatchEvent(ev);",
+          "1413:     } else if (typeof global.dispatchEvent === 'function') {",
+          "1414:       global.dispatchEvent(ev);",
+          "1415:     }",
+          "1416:   }"
+        ]
       }
     ]
   },
@@ -318,6 +345,7 @@
       "function": "dispatch",
       "file": "extension/agent-main.js",
       "line": 1397,
+      "from": "c16",
       "carries": "the payload as the detail of a CustomEvent of the event name above (1408-1410), dispatched on the page's global object (1411-1415)"
     },
     "entryPoints": [
