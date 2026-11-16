@@ -4,10 +4,10 @@ title: Stop the join editing the captured text
 wave: 13
 deps:
   - T002
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T021
+base: 18b172c3680d4b0a6126ab885284e20c3e03982e
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - extension/console-join.js
