@@ -57,4 +57,4 @@ node --test scripts/copy-to-agent.test.mjs && node -e "JSON.parse(require('fs').
 ## Log
 
 - Queued by the plan for M046 copy-to-agent. No work has run yet.
-- Landed paths: research/raw/m046-pane-and-copy.json, scripts/copy-to-agent.test.mjs — each is read from this tree, ready.
+- Landed paths: `research/raw/m046-pane-and-copy.json`, `scripts/copy-to-agent.test.mjs` — each is read from this tree, ready.
