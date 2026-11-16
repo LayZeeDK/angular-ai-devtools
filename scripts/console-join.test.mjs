@@ -1226,7 +1226,7 @@ describe('AC1/E6: a message carrying a digest code is joined by that code, in th
     // collapse between two spellings, or a fold wider than ASCII case. Each is armed by the mutant it
     // exists to refuse, in `MUTATIONS` below. (They are pinned as the named functions called here
     // rather than as declarations of their own, so this suite's declaration count is the one
-    // `research/raw/m057-verdict-claims.json` records.)
+    // `research/raw/m045-verdict-claims.json` records.)
     pinRefusesAPrefixRule(api);
     pinRefusesASubstringRule(api);
     pinStatesTheCaseCollapseIsDeliberate(api);

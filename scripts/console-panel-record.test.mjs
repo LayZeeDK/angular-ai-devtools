@@ -3349,8 +3349,8 @@ describe('mutants: each defect reddens the pin that names it', () => {
  * paraphrase or a reading the artefact does not state reddens here.
  */
 describe('the verdict claims cite artefacts this head carries', () => {
-  const CLAIMS_REL = 'research/raw/m057-verdict-claims.json';
-  const CLAIMS_MILESTONE = 'M057';
+  const CLAIMS_REL = 'research/raw/m045-verdict-claims.json';
+  const CLAIMS_MILESTONE = 'M045';
   const CLAIMS = JSON.parse(readFileSync(join(ROOT, CLAIMS_REL), 'utf8'));
   const INTENT = readFileSync(
     intentPathForMilestone(ROOT, CLAIMS_MILESTONE),

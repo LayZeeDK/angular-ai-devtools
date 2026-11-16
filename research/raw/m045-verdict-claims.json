@@ -1,8 +1,8 @@
 {
-  "schema": "m057-verdict-claims/v1",
-  "milestone": "M057",
+  "schema": "m045-verdict-claims/v1",
+  "milestone": "M045",
   "quotes": {
-    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(CLAIM_ROOT, \"M057\"))",
+    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(CLAIM_ROOT, \"M045\"))",
     "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 5 criteria it declares are [\"SC1\",\"SC2\",\"SC3\",\"SC4\",\"SC5\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
     "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/plan/PLAN.md's ## Held-out checks table (Edge | Task | Test), so a row cites the suite the milestone's own plan assigns its edges rather than one this file chose: 7 edge row(s) over the criteria [\"SC1\",\"SC3\",\"SC4\",\"SC2\",\"SC5\"] and the suites [\"scripts/console-join.test.mjs\",\"scripts/console-panel-render.test.mjs\"]"
   },
@@ -59,7 +59,7 @@
   "capture": {
     "command": "set \"M044_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
     "check": "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
-    "records": "research/raw/m057-verdict-claims.json",
+    "records": "research/raw/m045-verdict-claims.json",
     "criteria": [
       "SC1",
       "SC2",
