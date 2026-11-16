@@ -254,6 +254,22 @@ record is stale after six waves of added pins, so `gate-integrity.test.mjs` exit
 `fixRecord.exitCode` disagrees. The census's own counts report zero dropped assertion lines, so re-derivation is
 correct — provided the difference is named rather than captured away.
 
+## Wave 18 — state only what the row carries
+
+Goal: the pane's case-difference sentence stops asserting a title the finding does not carry.
+
+Review depth: full
+
+T025 exists because wave 10's review reproduced an answer the join really produces — a case-folded match whose digest entry carries a code and no title — and the pane answered it with "…so this finding carries the digest's own spelling and title", while the same surface printed "no-title: …states no title for it, so no title is rendered". Two sentences on one surface disagreeing about the same row is the class this milestone exists to end: the surface may state what the observable states and nothing more. The sentence gains the title claim only when the row carries one, and both shapes are pinned.
+
+## Wave 19 — subtract the two facts T020 still restates
+
+Goal: T020's Log entry stops asserting the two derived facts its own rule forbids.
+
+Review depth: full
+
+T026 exists because wave 14's review opened T020's Log against the tree and found two sentences of exactly the class T020 withdrew elsewhere: a worktree hash equated to a blob at a named commit (false at this head), and "no commit since has touched it" (falsified by T015's own landing). T020's rule — state measurements at named commits and name commands, never restate a count or an equality the next append can move — is applied to the sentences that were missed, not extended.
+
 ## Risks
 
 - **The gate pins the suites this milestone adds.** `scripts/gate-integrity.test.mjs` requires a
