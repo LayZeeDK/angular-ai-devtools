@@ -96,3 +96,44 @@ ode --check\ and Prettier clean; the orchestrator re-ran both and independently 
   - **Measured at this head.** `node -e "const s=require('fs').readFileSync('.project/tasks/T001-measure-the-capture-and-the-digest.md','utf8');const f=[],at=[];for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);if((c<32&&c!==10)||(c>=127&&c<160)||c===8232||c===8233){f.push('U+'+c.toString(16).toUpperCase().padStart(4,'0')+' at '+i);at.push(i)}}console.log('controlCharsOtherThanLF: '+f.length+(f.length?': '+f.join(', '):''));console.log('carriageReturns: '+(s.split(String.fromCharCode(13)).length-1));console.log('controlCharacterLine: '+(at.length?s.slice(0,at[0]).split(String.fromCharCode(10)).length:0));console.log('textAroundIt: '+JSON.stringify(at.length?s.slice(at[0]-3,at[0]+6):''));console.log('charAt9064: '+JSON.stringify(s.charAt(9064)));console.log('nextLineFeedFrom9056: '+s.indexOf(String.fromCharCode(10),9056))"` → `controlCharsOtherThanLF: 1: U+000C at 9056`, `carriageReturns: 0`, `controlCharacterLine: 86`, `textAroundIt: "d \\\files:"`, `charAt9064: "\n"`, `nextLineFeedFrom9056: 9064`, exit 0.
   - **What each line of that output settles.** The scan walks every character of this file and reports each one whose code is `c<32` (below `U+0020`), `c>=127&&c<160` (`U+007F`–`U+009F`) or `c===8232||c===8233` (`U+2028`/`U+2029`), excluding `c===10` only because the file is made of lines. It finds **one** such character and no other: `U+000C`, a form feed, at index 9056, on the line the command itself numbers 86, sitting between the backslash and `files` of the corrupted `\files:\` reading. `carriageReturns: 0` is the measured sense of "LF-only": nothing in the file is a carriage return, and the scan would have listed any other line-control character had one been there. `charAt9064: "\n"` together with `nextLineFeedFrom9056: 9064` says index 9064 is the first line feed at or after the form feed — the newline terminating the corrupted line — and carries no control character of its own.
   - **The rest of `:91` is not in question.** The restated sentence, the backslashes-where-backticks-were reading of `ode --check\`, and the paragraph this correction attaches to were verified when they were written and are left as they stand. Only the count and the identity of index 9064 change here, and they change by measurement rather than by preference.
+
+- 2026-11-16 — **T013: the deliverable's size is restated as a measurement at a named commit, and the command count is corrected. Nothing above is rewritten.**
+  - **What this entry corrects, and why it is an append.** The entry at `:89` states the record as **33,917 bytes** with a command beside it that prints a different number today, and counts "15 recorded commands (`c1`–`c15`)" where the record holds 16. Both statements are corrected here rather than edited, because this Log is append-only: `:89` stays byte-identical, remains true of the commit named below, and this entry is the correction of record.
+  - **The size, restated as a measurement at a named commit.** The command below prints the byte length of the record's blob at each commit it names — `git cat-file -s` reads that commit's own tree, never the worktree. Run at head `628bd800`, exit 0:
+    ```
+    node -e "const {execFileSync}=require('child_process');for(const c of ['ee4bfbd2','a4a57f9e','9f0603c9','234a3b4c','e1ba31fc','628bd800'])console.log(c+': '+execFileSync('git',['cat-file','-s',c+':research/raw/m045-console-shapes.json']).toString().trim())"
+    ```
+    ```
+    ee4bfbd2: 27122
+    a4a57f9e: 27783
+    9f0603c9: 33917
+    234a3b4c: 35619
+    e1ba31fc: 35619
+    628bd800: 35619
+    ```
+  - **Every size this Log states, held to the commit it was measured at.** Each line above is the number that command prints at the commit beside it:
+    - **27,122 bytes at `ee4bfbd2`** — T001's own commit; the "27,122 bytes" of the first entry.
+    - **27,783 bytes at `a4a57f9e`** — the rewrite the first entry names.
+    - **33,917 bytes at `9f0603c9`** — T008's commit. That is the number `:89` states without a commit: a correct measurement of that commit, and of no later one.
+    - **35,619 bytes at `234a3b4c`, at `e1ba31fc` and at `628bd800`** — T010's own `c16` append is what moved the record off 33,917, and no commit since has touched it, so **the deliverable is 35,619 bytes measured at `628bd800`**, the head this entry was written at.
+  - **Why the restated claim cannot go stale.** Every line is read from a commit's tree by `git cat-file -s`, so a later append — a `c17`, another correction — changes the file a checkout gives you and leaves all six lines byte-for-byte as printed, `628bd800`'s included, which stays the last commit that touched the record until another one does. The command in `:89` cannot be restated that way, because it reads the worktree: `node -e "const fs=require('fs');const b=fs.readFileSync('research/raw/m045-console-shapes.json');console.log('bytes: '+b.length)"` prints `bytes: 35619` at this head (measured, exit 0) and printed `bytes: 33917` only on a tree at `9f0603c9`. The worktree is the named commit's bytes and not some later state: `git hash-object research/raw/m045-console-shapes.json` and `git rev-parse 628bd800:research/raw/m045-console-shapes.json` both print `de0f927ab2dce1d722a1dbada2dd00d116d4feef`, so the size above describes what is checked in at this head.
+  - **The Log's other stated size, held the same way.** The digest's `61,577 bytes` (`:70`, printed by `c10`) is not the deliverable's, and it has not moved: `node -e "const {execFileSync}=require('child_process');for(const c of ['9e95f740','628bd800'])console.log('extension/error-digest.json at '+c+': '+execFileSync('git',['cat-file','-s',c+':extension/error-digest.json']).toString().trim())"` prints `extension/error-digest.json at 9e95f740: 61577` and `extension/error-digest.json at 628bd800: 61577`, exit 0 — the commit `c10` measured at, and this head.
+  - **The commands: 16, `c1`–`c16`, each named.** `:89`'s "15 recorded commands (`c1`–`c15`)" is corrected: `provenance.commands` in the record holds **16** entries, every one `exitCode: 0`. Which command is which:
+    - `c1` branch and short HEAD → `gsd-path/M057`, `9e95f740` (the head it was captured at)
+    - `c2` node version → `v24.22.0`
+    - `c3` counts the ten `console.<method>` occurrences in `extension/agent-main.js` and its line count → `console.error=4`, the other nine `=0`, `agent-main.js lines=2568`
+    - `c4` prints `extension/agent-main.js:2495-2531` — the `captureErrorPayload` body
+    - `c5` prints every line naming `ERROR_CAPTURE_EVENT`, `captureErrorPayload`, `console.error` or `addEventListener(` → 15 lines
+    - `c6` derives the payload keys from the dispatch site → `dispatchLine: 2522`, `payloadKeys: code,message,component,timestamp`
+    - `c7` slices the shipped regex literal out of the code-match line, `eval`s it, and prints `sample -> code` for 10 texts
+    - `c8` the digest's top level and entry shape → `topLevelKeys: version,entries`, `entryCount: 64`, `uniqueCodes: 64`, one key set `body,code,title` all string, `firstCode: NG0100`, `lastCode: NG8024`
+    - `c9` the code distribution against the shipped regex, the trim-marker count, the title/body facts and the code lengths
+    - `c10` the digest's size → `bytes: 61577`, `chars: 61450`, `lines: 326`
+    - `c11` all 64 codes, comma-joined
+    - `c12` quotes `extension/error-digest.json:1-6` and measures entry 1's body length → `965`
+    - `c13` the `error-capture` occurrences in `extension/relay.js` and `extension/background.js`
+    - `c14` prints `extension/manifest.json:18-50`, the two manifest counts (`agent-main.js mentions in manifest: 1`, `document_start mentions in manifest: 1`) and `agent-main.js:2493`
+    - `c15` prints `extension/agent-main.js:2531-2568` — the console hook block, the install site
+    - `c16` prints `extension/agent-main.js:1397-1416` — the `dispatch` body `capture.dispatcher` cites
+  - **The 16 are carried, not just counted.** Replaying all 16 recorded command strings at this head (scratch script in the session scratchpad, not committed) gives 15 byte-identical outputs, `c2`–`c16`; `c1` differs in one line only — it records the short HEAD at capture time (`9e95f740`) where this head prints `628bd800`, which is that command doing its job. So "16" counts commands that run, and each description above is what that command's own recorded output shows.
+  - **What did not change.** The deliverable is untouched — its worktree hash equals its blob at `628bd800` (`de0f927a…`) — and no product value moved. This task's changes are two task Logs: this entry and the correction T011 carries.
