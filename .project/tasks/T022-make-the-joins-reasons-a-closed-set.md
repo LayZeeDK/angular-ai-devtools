@@ -4,9 +4,9 @@ title: Make the join's reasons a closed set
 wave: 15
 deps:
   - T021
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T022
+base: 0e83441b88a24dfa232b2083510ced4f67f0e632
 worktree: null
 task_branch: null
 files:

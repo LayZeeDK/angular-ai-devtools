@@ -24,6 +24,15 @@
 // title for `NG0910` — "Unsafe bindings on an element" — and a captured message saying "because" must
 // pass, and that is asserted here rather than assumed.
 //
+// T022 keeps that exemption for `text` and `title` — the capture's and the digest's words by contract —
+// and closes the one field of it that is the join's own: `reason`, which this module writes itself. The
+// join enumerates it (`REASONS`) and this suite holds the two sets to each other in both directions.
+// Every reason the join can state must render as one of the pane's own known absences, and an answer
+// whose `reason` or `state` is outside those closed sets is refused by name instead of being read as an
+// answer the join could have given. That closes the channel wave 3's cycle-5 review found, where
+// `reason: "the page was silent; to fix this, edit the element"` or an arbitrary `state` word supplied
+// with an answer reached the surface as prose no pin inspected.
+//
 // E6 is the one match the pane must state as a difference: where the join found a digest entry by
 // folding case, the finding carries the digest's spelling as its `code` and the message's spelling as
 // `carriedCode`, and the pane renders one sentence naming both. That sentence is the pane's own, so it
@@ -142,13 +151,38 @@ const FOLDED = {
 };
 
 /** The join, in a bare context: no DOM, no clock, no console, publishing its own namespace. */
-function joinApi() {
+function joinApi(source = JOIN_SRC) {
   const context = createContext({});
-  runInContext(JOIN_SRC, context);
+  runInContext(source, context);
   const api = context.angularAiConsoleJoin;
   assert.ok(api, 'extension/console-join.js must publish its namespace');
   assert.equal(typeof api.consoleJoin, 'function');
   return api;
+}
+
+/**
+ * A copy of the join's source with one anchored replacement applied, loaded the same bare way. This
+ * suite's two vocabulary pins are about words the join writes (`reason`) and words it answers with
+ * (`state`), so the mutant that arms each of them is the join's own: the anchor must occur exactly
+ * once, the result must differ from the source, and nothing is written to the checkout.
+ */
+function joinMutant(anchor, replacement) {
+  assert.ok(
+    JOIN_SRC.includes(anchor),
+    `mutation anchor not found in console-join.js: ${JSON.stringify(anchor)}`,
+  );
+  assert.equal(
+    JOIN_SRC.split(anchor).length - 1,
+    1,
+    `mutation anchor must occur exactly once: ${JSON.stringify(anchor)}`,
+  );
+  const source = JOIN_SRC.replace(anchor, () => replacement);
+  assert.notEqual(
+    source,
+    JOIN_SRC,
+    `the mutation must change the join: ${JSON.stringify(anchor)}`,
+  );
+  return { api: joinApi(source), source };
 }
 
 const JOIN = joinApi();
@@ -1303,6 +1337,241 @@ function pinTheRegistryIsTheRecords(api) {
   }
 }
 
+// ------------------------------------------------- the join's reason vocabulary (T022) ----
+//
+// Wave 3's cycle-5 review attacked the sentence registry with 23 mutations and found one channel every
+// pin in both suites left open: a `reason:` value the join supplies. A finding carrying
+// `reason: "the page was silent; to fix this, edit the element"` rendered as-is, because this suite's
+// prohibitions and the registry's reach both treat "the answer's words" as carried — the finding's
+// `text`, `code`, `title` and `reason` are somebody else's words, and only what the *pane* writes is
+// policed. The same holds for a `state` word taken from the answer: an unknown word renders as
+// `state: <word>` and nothing else.
+//
+// That exemption is right for `text` (the capture's string) and `title` (the digest's), and it stays
+// exactly as it was: the positive cases below hand the pane a digest title that states "element" and a
+// captured message that says "because", and neither is refused. What changes is the join's *own*
+// vocabulary: `reason` is the one field of a finding this module writes itself, so the join enumerates
+// it (`REASONS`, in `extension/console-join.js`) and this suite holds the two sets to each other in
+// both directions —
+//
+//   join-to-pane   every reason the join can state is one this pane renders as a known absence, an
+//                  entry of `PANE_SENTENCES` labelled with the reason itself;
+//   answer-to-set  an answer whose `reason` or `state` is outside those closed sets is refused by
+//                  name, rather than accepted as an answer this suite renders.
+//
+// The limit is stated where it lies: the pane still echoes a word it is handed by hand (it renders
+// `state: wedged` and `reason: …`, which `pinGivenStates` and the `PANE_ANSWERS` probes pin on
+// purpose), and no pane edit is in this task's gift. What refuses the channel is the enumeration plus
+// `pinAnswerVocabularyIsClosed`: no answer the join can give carries a word outside the sets, and an
+// answer that does is refused naming the word instead of being read as the join's.
+
+/**
+ * T022, one direction: every reason the join can state is one this pane renders as a known absence.
+ *
+ * For each entry of the join's `REASONS`, the pane is handed the answer the join gives for a code the
+ * digest lacks — `code` named, `reason` the entry — and the pane must render the registry sentence
+ * whose own label is that reason, with its slot filled. A reason with no such entry is a word the pane
+ * would print under a `reason:` label of its own (the channel the review found), so it reddens here
+ * naming the reason. The join is a parameter so a mutated copy can be held to the same pin, which is
+ * how the direction is proven live.
+ */
+function pinEveryJoinReasonIsAKnownAbsence(api, join = JOIN) {
+  const reasons = join.REASONS;
+  assert.ok(
+    Array.isArray(reasons) && reasons.length > 0,
+    `reason-vocabulary: extension/console-join.js must enumerate the reasons it can state in REASONS, or the pane can be written against no set at all; it exports ${JSON.stringify(reasons)}`,
+  );
+  const registry = sentenceRegistry(api);
+  for (const reason of reasons) {
+    const entry = registry.find(
+      (candidate) => registryLabel(candidate) === reason,
+    );
+    assert.ok(
+      entry,
+      `reason-vocabulary: the join states the reason ${JSON.stringify(reason)}, and this pane has no registry sentence labelled ${JSON.stringify(reason)} — a reason no entry answers is a word the pane prints as ${JSON.stringify(`reason: ${reason}`)} under its own label, which the carried-value exemption leaves unpoliced, so it is refused here rather than rendered; the pane states ${JSON.stringify(registry.map(registryLabel))}`,
+    );
+    const text = registryText(api, entry);
+    const answer = {
+      state: SURFACE.JOINED,
+      findings: [
+        {
+          text: `${UNMATCHED.code}: a code the digest lacks, with the join's reason beside it`,
+          code: UNMATCHED.code,
+          reason: reason,
+        },
+      ],
+    };
+    const surface = api.consolePanel(answer);
+    assert.ok(
+      surface.lines.includes(text),
+      `reason-vocabulary: the reason ${JSON.stringify(reason)} must render as the pane's known absence — ${JSON.stringify(text)} — so every reason the join can state has a sentence the surface states; the pane rendered ${JSON.stringify(surface.lines)}`,
+    );
+    assert.equal(
+      surface.lines.includes(`reason: ${reason}`),
+      false,
+      `reason-vocabulary: a reason the pane has a sentence for is rendered as that sentence and never echoed as the raw line ${JSON.stringify(`reason: ${reason}`)}; the pane rendered ${JSON.stringify(surface.lines)}`,
+    );
+  }
+}
+
+/**
+ * T022, the other direction: an answer whose `state` or `reason` is outside the closed sets is refused
+ * by name rather than rendered.
+ *
+ * The two sets are the pane's three state words (`STATES`, each with a sentence of its own) and the
+ * join's enumerated reasons (`REASONS`). A state word outside the first renders as `state: <word>` and
+ * nothing else, and a reason outside the second prints under a `reason:` label — both are a word taken
+ * from the answer reaching the surface through a channel the pane's prohibitions exempt, which is what
+ * this pin refuses. `text`, `code`, `title` and `carriedCode` are not read: they are the capture's,
+ * the digest's and the message's words by contract, and the exemption for them is not touched here.
+ */
+function pinAnswerVocabularyIsClosed(answer) {
+  assert.ok(
+    answer !== null && typeof answer === 'object',
+    `answer-vocabulary: an answer is an object with a state word; it is ${JSON.stringify(answer)}`,
+  );
+  const states = SURFACE.STATES;
+  assert.ok(
+    states.includes(answer.state),
+    `answer-vocabulary: the answer carried the state ${JSON.stringify(answer.state)}, and the pane has a sentence for ${JSON.stringify([...states])} and for no other word — a state word taken from the answer is rendered as ${JSON.stringify(`state: ${answer.state}`)} and nothing else, so this answer is refused rather than rendered`,
+  );
+  const reasons = JOIN.REASONS;
+  for (const finding of Array.isArray(answer.findings) ? answer.findings : []) {
+    if (finding === null || typeof finding !== 'object') continue;
+    if (!('reason' in finding)) continue;
+    assert.ok(
+      reasons.includes(finding.reason),
+      `answer-vocabulary: the answer's finding carried the reason ${JSON.stringify(finding.reason)}, and the join states only ${JSON.stringify([...reasons])} — a reason outside that list is prose the pane would print under its own "reason:" label, which the carried-value exemption leaves unpoliced, so this answer is refused rather than rendered`,
+    );
+  }
+}
+
+/**
+ * T022: the two sets closed, both directions proven live, and the review's two constructions measured.
+ *
+ * Green first, then armed: the shipped join's reasons all render as known absences and the answers it
+ * really gives are all in vocabulary; a join that enumerates a reason the pane has no sentence for
+ * reddens naming it; the joined answer that carries a page claim as its `reason` reddens naming the
+ * claim, after the existing prohibitions are shown to pass it (the exemption, measured); and the answer
+ * that carries a page claim as its `state` reddens naming the word. Last, the exemption itself: a
+ * digest title stating "element" and a captured message saying "because" stay in vocabulary, which is
+ * what keeps this pin from becoming a second, wider set of prohibitions.
+ */
+function pinTheJoinedVocabularyIsClosed() {
+  pinEveryJoinReasonIsAKnownAbsence(SURFACE);
+  for (const answer of [
+    joinedAnswer(),
+    foldedAnswer(),
+    capturedNothingAnswer(),
+    noDiagnosticsAnswer(),
+  ])
+    pinAnswerVocabularyIsClosed(answer);
+
+  // (1) A join that enumerates a reason this pane has no sentence for: the join-to-pane direction is
+  // refused naming the word, rather than rendered as a `reason:` line.
+  const unrendered = 'the-page-was-silent';
+  const enumerated = joinMutant(
+    "  const REASONS = Object.freeze(['no-digest-entry']);",
+    `  const REASONS = Object.freeze(['no-digest-entry', ${JSON.stringify(unrendered)}]);`,
+  );
+  assert.ok(
+    enumerated.api.REASONS.includes(unrendered),
+    `the mutant join must really enumerate ${JSON.stringify(unrendered)}, or this probe proves nothing`,
+  );
+  const onUnrendered = reddens('reason-vocabulary', () =>
+    pinEveryJoinReasonIsAKnownAbsence(SURFACE, enumerated.api),
+  );
+  assert.ok(
+    onUnrendered.message.includes(unrendered),
+    `the pin must name the reason it refused; it failed with ${onUnrendered.message}`,
+  );
+
+  // (2) The review's first construction: a `reason` carrying a page claim, supplied by the join. The
+  // existing pins are measured green on it first, so what reddens below is the new one and not a pin
+  // that was already covering the channel.
+  const pageClaim = 'the page was silent; to fix this, edit the element';
+  const claimJoin = joinMutant(
+    'findings.push({ text: text, code: code, reason: NO_DIGEST_ENTRY });',
+    `findings.push({ text: text, code: code, reason: ${JSON.stringify(pageClaim)} });`,
+  );
+  const claimAnswer = clone(claimJoin.api.consoleJoin([UNMATCHED], DIGEST));
+  assert.equal(
+    claimAnswer.findings[0].reason,
+    pageClaim,
+    `the mutant join must really state the page claim as its reason, or this construction proves nothing; it answered ${JSON.stringify(claimAnswer.findings[0])}`,
+  );
+  const claimSurface = SURFACE.consolePanel(claimAnswer);
+  assert.ok(
+    claimSurface.lines.includes(`reason: ${pageClaim}`),
+    `the construction reaches the surface under a "reason:" label — that is the channel the review found; the pane rendered ${JSON.stringify(claimSurface.lines)}`,
+  );
+  pinNoCauseElementRemedy(claimSurface, claimAnswer);
+  pinNoAbsenceClaimsSilence(claimSurface);
+  const onClaim = reddens('answer-vocabulary', () =>
+    pinAnswerVocabularyIsClosed(claimAnswer),
+  );
+  assert.ok(
+    onClaim.message.includes(pageClaim),
+    `the pin must name the reason it refused; it failed with ${onClaim.message}`,
+  );
+
+  // (3) The review's second construction: a `state` word taken from the answer. The pane renders it as
+  // `state: <word>` and stops, so the claim is on the surface under the state's own label — measured,
+  // then refused naming the word.
+  const spokenState = 'the page was silent';
+  const stateJoin = joinMutant(
+    "  const NO_DIAGNOSTICS = 'no-diagnostics';",
+    `  const NO_DIAGNOSTICS = ${JSON.stringify(spokenState)};`,
+  );
+  const stateAnswer = clone(stateJoin.api.consoleJoin(undefined, DIGEST));
+  assert.equal(
+    stateAnswer.state,
+    spokenState,
+    `the mutant join must really answer with the word ${JSON.stringify(spokenState)}, or this construction proves nothing`,
+  );
+  const stateSurface = SURFACE.consolePanel(stateAnswer);
+  assert.deepEqual(
+    [...stateSurface.lines],
+    [`state: ${spokenState}`],
+    `the construction reaches the surface as the state word itself and nothing else, which is the second channel the review found; the pane rendered ${JSON.stringify(stateSurface.lines)}`,
+  );
+  pinNoAbsenceClaimsSilence(stateSurface);
+  const onState = reddens('answer-vocabulary', () =>
+    pinAnswerVocabularyIsClosed(stateAnswer),
+  );
+  assert.ok(
+    onState.message.includes(spokenState),
+    `the pin must name the state it refused; it failed with ${onState.message}`,
+  );
+
+  // (4) The carried-value exemption is untouched: only the join's own vocabulary is closed, so a digest
+  // title that states "element" and a captured message that says "because" are in vocabulary however
+  // they read — policing them is what the prohibitions already refuse to do, for the good reason that
+  // they are the answer's words and not the pane's.
+  assert.match(
+    String(shippedTitle('NG0910')),
+    /\belement\b/i,
+    `the positive case needs a shipped digest title that states a prohibited word; ${JSON.stringify(shippedTitle('NG0910'))} does not`,
+  );
+  pinAnswerVocabularyIsClosed({
+    state: SURFACE.JOINED,
+    findings: [
+      {
+        text: 'NG0910: unsanitized HTML was stripped because the binding bypassed the sanitizer',
+        code: 'NG0910',
+        title: shippedTitle('NG0910'),
+      },
+    ],
+  });
+
+  console.log(
+    `join reason vocabulary: ${JSON.stringify(JOIN.REASONS)} is one set with the pane's absence sentences; a join reason outside it is refused: ${onUnrendered.message.replace(/\s+/g, ' ').trim()}`,
+  );
+  console.log(
+    `answer vocabulary: a page claim as the reason is refused: ${onClaim.message.replace(/\s+/g, ' ').trim()}; as the state: ${onState.message.replace(/\s+/g, ' ').trim()}`,
+  );
+}
+
 /** The pane's source with its comments taken out, so a sentence quoted in prose is not read as a line. */
 function codeWithoutComments(source) {
   return source
@@ -1891,6 +2160,10 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
     pinNoRenderedLineIsOutsideTheRegistry(SURFACE);
     pinTheRegistryIsTheRecords(SURFACE);
     pinOnlyTheRegistryWritesSentences(SURFACE_SRC);
+    // T022: the one field of a finding the join writes itself is closed — every reason it can state is
+    // a sentence this pane renders as a known absence, and an answer whose `reason` or `state` is
+    // outside those sets is refused by name, with the review's two constructions armed below.
+    pinTheJoinedVocabularyIsClosed();
     await pinTheReviewEvasionsAreRefused(SURFACE);
     await pinTheDigestSilenceSentenceIsSettled(SURFACE);
   });
@@ -1911,6 +2184,17 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
       false,
       'the absence names the code and counts nothing',
     );
+    // T022: the vocabulary these answers are written in is closed, and it is read here on the four
+    // answers the join really gives — a `reason` that is not one of the join's own words, or a state
+    // word the pane has no sentence for, reddens naming it instead of being accepted as one of the
+    // join's. `pinTheJoinedVocabularyIsClosed` arms this pin with the review's two constructions.
+    pinAnswerVocabularyIsClosed(answer);
+    for (const other of [
+      foldedAnswer(),
+      capturedNothingAnswer(),
+      noDiagnosticsAnswer(),
+    ])
+      pinAnswerVocabularyIsClosed(other);
   });
 
   it('AC2: a finding with no code renders its absence by name, never a blank', () => {

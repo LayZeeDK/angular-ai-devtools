@@ -9,6 +9,11 @@
 // module's own claim needs — that a folded match is exact equality after case folding and is never a
 // prefix, a substring or a trim — plus the two properties wave 2 found unpinned: two digest spellings
 // of one code collapse to the first listed (deliberately), and a fold beyond ASCII case is refused.
+// T022 closed the join's own vocabulary: a `reason` is the one field of a finding this module writes
+// itself (`text` is the capture's, `code`, `title` and `carriedCode` are the digest's or the message's
+// spelling), so the reasons are enumerated in the module's `REASONS` and a finding carries one of those
+// words and nothing else — the channel wave 3's cycle-5 review found, where a `reason` value the join
+// supplied reached the surface as prose no pin inspected.
 //
 // The module is evaluated in a bare `node:vm` context: no DOM, no clock, no console. The mutations
 // are in-memory rewrites of the same source string, so the checkout is never written by this file.
@@ -293,6 +298,18 @@ export const MUTATIONS = [
     anchor:
       '    return code.replace(/[A-Z]/g, (letter) => letter.toLowerCase());',
     replacement: '    return code.toLowerCase();',
+  },
+  {
+    // T022: the join's reasons are a closed list, and the channel wave 3's cycle-5 review found was a
+    // `reason:` value the join supplies — prose that reached the surface because both suites exempt
+    // "the answer's words" from the pane's prohibitions. This mutant states a page claim and a remedy
+    // where the absent code's reason belongs: the word is no longer a word, and the pin reads it.
+    id: 'reason-outside-the-enumeration',
+    defect: 'the page was silent',
+    anchor:
+      'findings.push({ text: text, code: code, reason: NO_DIGEST_ENTRY });',
+    replacement:
+      "findings.push({ text: text, code: code, reason: 'the page was silent; to fix this, edit the element' });",
   },
 ];
 
@@ -652,6 +669,110 @@ function pinFoldingInventsNoMatch(api) {
 }
 
 // -------------------------------------------------------------------------------------------
+// T022. The join's reasons are a closed set.
+//
+// `text` is the capture's string and `code`, `title` and `carriedCode` are the digest's words or the
+// message's own spelling of a name: the join quotes all four. `reason` is the one field of a finding
+// this module writes itself, so its whole vocabulary is the module's `REASONS` list — and wave 3's
+// cycle-5 review found the channel that left it open: a `reason:` value the join supplies was exempt
+// from the surface's prohibitions as "the answer's words", so a join that stated a sentence beside a
+// code it could not join put prose on the surface through a label no pin inspected. A word is not a
+// sentence, and the list is the reason a surface can be written against.
+// -------------------------------------------------------------------------------------------
+
+// The probe takes every branch a finding can take, so "every reason the join states is enumerated" is
+// read off real answers rather than off one: a matched code with the digest's title, a folded match, a
+// match whose entry states no title, a code the digest lacks, a message that carried no code, the
+// folded absence, and a padded spelling of a digest code.
+const TITLELESS_CODE = 'NG01101';
+
+function reasonProbeDiagnostics() {
+  return [
+    diag('NG0100', 'NG0100: matched'),
+    diag(FOLDED_CODE, FOLDED_TEXT),
+    diag(
+      TITLELESS_CODE,
+      `${TITLELESS_CODE}: the digest states no title for this one`,
+    ),
+    diag(MISSING_CODE, ROUTER_TEXT),
+    diag(null, 'the app failed'),
+    diag(FOLDED_ABSENT_CODE, 'ng04002: Cannot match any routes.'),
+    diag(KELVIN_CARRIED, 'NG0K00: kelvin'),
+    diag('  ng01002  ', 'padded, folded'),
+  ];
+}
+
+// The digest the probe uses: the shipped one with one entry's title taken away, so the "the digest
+// carries the code and states no title for it" branch is reached as well. Every other entry is the
+// shipped one, unchanged.
+function reasonProbeDigest() {
+  return {
+    version: SHIPPED.version,
+    entries: SHIPPED_ENTRIES.map((entry) =>
+      entry.code === TITLELESS_CODE
+        ? { code: entry.code, body: entry.body }
+        : entry,
+    ),
+  };
+}
+
+function pinTheReasonsAreAClosedSet(api) {
+  const reasons = api.REASONS;
+  assert.ok(
+    Array.isArray(reasons) && reasons.length > 0,
+    `reasons-closed: the join must enumerate the reasons a finding can carry in REASONS, because a reason outside that list is a word no surface has a sentence for; the module exports ${JSON.stringify(reasons)}`,
+  );
+  assert.equal(
+    new Set(reasons).size,
+    reasons.length,
+    `reasons-closed: each reason is enumerated once, so the list is a set of words; it is ${JSON.stringify(reasons)}`,
+  );
+  for (const reason of reasons)
+    assert.match(
+      String(reason),
+      /^[a-z][a-z0-9-]*$/,
+      `reasons-closed: the reason ${JSON.stringify(reason)} must be a word — kebab-case, never a sentence — because it names which absence a finding carries and is not prose of its own`,
+    );
+  assert.ok(
+    reasons.includes(api.NO_DIGEST_ENTRY),
+    `reasons-closed: the reason a code the digest lacks carries (${api.NO_DIGEST_ENTRY}) must be one of the enumerated reasons; the list is ${JSON.stringify(reasons)}`,
+  );
+  // The titleless branch really is reached by the probe digest, measured on the probe's own answer,
+  // so the probe is not four answers that all take the same path.
+  const probe = reasonProbeDiagnostics();
+  const answer = host(api.consoleJoin(probe, reasonProbeDigest()));
+  assert.equal(answer.state, JOINED);
+  assert.equal(
+    answer.findings.length,
+    probe.length,
+    'reasons-closed: the probe must answer one finding per diagnostic, or the reasons read below are not every branch a finding can take',
+  );
+  assert.ok(
+    !('title' in answer.findings[2]) &&
+      answer.findings[2].code === TITLELESS_CODE,
+    `reasons-closed: the probe must reach a finding the digest carries no title for (${TITLELESS_CODE}), so the reason probe covers the branch where a code is joined without one; it answered ${JSON.stringify(answer.findings[2])}`,
+  );
+  const emitted = [];
+  for (const finding of answer.findings) {
+    if (!('reason' in finding)) continue;
+    emitted.push(finding.reason);
+    assert.ok(
+      reasons.includes(finding.reason),
+      `reasons-closed: a finding carries the reason ${JSON.stringify(finding.reason)}, which is not one of the reasons the join enumerates (${JSON.stringify(reasons)}) — a reason is the one word this module writes itself, so a word outside its own list is prose no surface was written for`,
+    );
+  }
+  assert.ok(
+    emitted.length > 0,
+    'reasons-closed: the probe must reach a finding that carries a reason, or the membership check above proves nothing',
+  );
+  assert.deepEqual(
+    [...new Set(emitted)].sort(),
+    [...reasons].sort(),
+    `reasons-closed: every enumerated reason is one a finding really carries, and no reason is enumerated that the join cannot state; the probe emitted ${JSON.stringify(emitted)} and the list is ${JSON.stringify(reasons)}`,
+  );
+}
+
+// -------------------------------------------------------------------------------------------
 // T018. The fold is exact equality after case folding, and nothing else.
 //
 // `extension/console-join.js` states that a folded match is exact equality after case folding and is
@@ -959,6 +1080,7 @@ const PINS = {
   'fold-trims-both': pinRefusesTrimmingTheDigestEntry,
   'fold-last-listed': pinStatesTheCaseCollapseIsDeliberate,
   'fold-beyond-ascii': pinRefusesAFoldBeyondAscii,
+  'reason-outside-the-enumeration': pinTheReasonsAreAClosedSet,
 };
 
 describe('provenance: the input is the shipped digest and the measured record', () => {
@@ -1144,6 +1266,9 @@ describe('AC2: a code the digest lacks is reported by name', () => {
     // digest that states it padded carries no entry for the code the message names, and the entry-side
     // trim is a wrong rule this pin refuses (armed as `fold-trims-entry` and `fold-trims-both`).
     pinRefusesTrimmingTheDigestEntry(api);
+    // T022: that reason is a word from the module's own closed list, so a join that stated a sentence
+    // here — which the surface would print under its own `reason:` label — reddens naming it.
+    pinTheReasonsAreAClosedSet(api);
   });
 
   it('reports a count nowhere: every finding value is a string', () => {

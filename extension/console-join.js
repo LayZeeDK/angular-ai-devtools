@@ -62,7 +62,14 @@
 //            reason  `no-digest-entry`, present only when the digest lacks the code the message
 //                    carried. The finding names that code; the absence is never reported as a count
 //                    or a blank (N4), and there is no `body`, `cause`, `element` or `remedy` field
-//                    for the surface to render (N3).
+//                    for the surface to render (N3). It is one of `REASONS`, the closed list of
+//                    the reasons this join can state, and it is a word and never a sentence: `text`
+//                    is the capture's string, `code`, `title` and `carriedCode` are the digest's
+//                    words or the message's own spelling of a name, and `reason` is the one field
+//                    of a finding this module writes itself. So the words are enumerated once,
+//                    below, and the join states one of them and nothing else — a reason outside
+//                    that list is not a join answer at all, and a surface has a sentence for each
+//                    entry of the list and none for a word that is not in it (T022).
 //            carriedCode  the spelling the message used, present only where the digest's spelling
 //                    differs from it — that is, where the entry was found by folding case. It is the
 //                    one fact a surface needs to state the difference, and it is never a second code:
@@ -74,7 +81,21 @@
   const CAPTURED_NOTHING = 'captured-nothing';
   const NO_DIAGNOSTICS = 'no-diagnostics';
 
-  const NO_DIGEST_ENTRY = 'no-digest-entry';
+  // The reasons the join can state, enumerated in one place. A `reason` is the one word on a finding
+  // this module writes itself — the answer's word for why the finding could not be joined — so the
+  // whole vocabulary of that field is this list, and the join emits an entry of it rather than a
+  // literal of its own: `NO_DIGEST_ENTRY` below is the entry named from here, so the word is written
+  // once. A reason outside the list is not a join answer at all, and a reason emitted that the list
+  // does not carry is prose this module has no business on a surface: a surface renders each entry as
+  // the known absence it has a sentence for, so "every reason the join can state is one the surface
+  // renders as a known absence" and "a reason outside the list is refused by name" are the same rule
+  // read from its two sides.
+  const REASONS = Object.freeze(['no-digest-entry']);
+
+  // The one reason this join states at this head: the digest carries no entry for the code the message
+  // carried. It is read from `REASONS` rather than respelled beside it, so the list above is the only
+  // place the word is written and the join cannot state a reason the list does not enumerate.
+  const NO_DIGEST_ENTRY = REASONS[0];
 
   // The digest as shipped is `{ version, entries }`. A bare array of entries is read the same way,
   // so a caller holding only the list does not have to wrap it; anything else holds no entries.
@@ -210,6 +231,8 @@
         );
         continue;
       }
+      // The one reason this join states, taken from the enumeration above: a finding names the code it
+      // carried and the absence it is, and states no sentence beside it.
       findings.push({ text: text, code: code, reason: NO_DIGEST_ENTRY });
     }
 
@@ -221,6 +244,7 @@
     JOINED: JOINED,
     CAPTURED_NOTHING: CAPTURED_NOTHING,
     NO_DIAGNOSTICS: NO_DIAGNOSTICS,
+    REASONS: REASONS,
     NO_DIGEST_ENTRY: NO_DIGEST_ENTRY,
   };
 
