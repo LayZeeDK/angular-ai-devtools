@@ -51,9 +51,7 @@ None
 ## Verify
 
 ```bash
-node --test scripts/copy-to-agent.test.mjs
-node -e "JSON.parse(require('fs').readFileSync('research/raw/m046-pane-and-copy.json','utf8'))"
-npx prettier --check scripts/copy-to-agent.test.mjs research/raw/m046-pane-and-copy.json
+node --test scripts/copy-to-agent.test.mjs && node -e "JSON.parse(require('fs').readFileSync('research/raw/m046-pane-and-copy.json','utf8'))" && npx prettier --check scripts/copy-to-agent.test.mjs research/raw/m046-pane-and-copy.json
 ```
 
 ## Log

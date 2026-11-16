@@ -59,10 +59,7 @@ None
 ## Verify
 
 ```bash
-node --check scripts/skill-lint.mjs
-node scripts/skill-lint.mjs
-npm run check
-npx prettier --check AGENTS.md
+node --check scripts/skill-lint.mjs && node scripts/skill-lint.mjs && npm run check && npx prettier --check AGENTS.md
 ```
 
 ## Log

@@ -48,8 +48,7 @@ None
 ## Verify
 
 ```bash
-node --test scripts/copy-to-agent.test.mjs
-npx prettier --check extension/copy-to-agent.js scripts/copy-to-agent.test.mjs
+node --test scripts/copy-to-agent.test.mjs && npx prettier --check extension/copy-to-agent.js scripts/copy-to-agent.test.mjs
 ```
 
 ## Log

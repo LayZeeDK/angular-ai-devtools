@@ -61,9 +61,7 @@ None
 ## Verify
 
 ```bash
-node --test scripts/panel-routes.test.mjs
-npm run check
-npx prettier --check apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts apps/angular-ai-devtools/src/app/panel-demo.ts apps/angular-ai-devtools/src/app/app.routes.ts
+node --test scripts/panel-routes.test.mjs && npm run check && npx prettier --check apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts apps/angular-ai-devtools/src/app/panel-demo.ts apps/angular-ai-devtools/src/app/app.routes.ts
 ```
 
 ## Log

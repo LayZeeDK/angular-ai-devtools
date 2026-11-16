@@ -57,9 +57,7 @@ None
 ## Verify
 
 ```bash
-npx prettier --check plans/angular-ai-devtools-program-backlog.md
-npm run check
-npx prettier --check AGENTS.md .commandcode/skills/monitor-ci/SKILL.md references/ai-browsers-verification.md plans/angular-ai-devtools-program-backlog.md
+npx prettier --check plans/angular-ai-devtools-program-backlog.md && npm run check && npx prettier --check AGENTS.md .commandcode/skills/monitor-ci/SKILL.md references/ai-browsers-verification.md plans/angular-ai-devtools-program-backlog.md
 ```
 
 ## Log
