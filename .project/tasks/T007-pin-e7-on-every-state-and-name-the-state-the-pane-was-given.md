@@ -25,12 +25,12 @@ files:
 Wave 3's review found E7 pinned on the `joined` state only. `pinNoCauseElementRemedy`
 (`scripts/console-panel-render.test.mjs:378-410`) runs only with a joined answer, and
 `pinNoUnattributedAngularWording` never runs on the `no-diagnostics` surface, so appending " and this page is
-not an Angular app" to `STATE_TEXTS['no-diagnostics']`, or replacing the `captured-nothing` sentence with
+not an Angular app" to the no-diagnostics sentence, or replacing the `captured-nothing` sentence with
 "…so the page was silent", or adding "because every console hook failed to install", each left the suite at
 22/22. `ownSentences` (`:202-214`) reads whatever sentences the module exports, so a mutated sentence counts
 as the pane's own.
 
-The same review found `consolePanel({ state: 'constructor' })` rendering `function Object() { [native code]
+The same review found consolePanel given the state word constructor rendering `function Object() { [native code]
 }`, because `STATE_TEXTS[state]` (`panel-console.ts:218-222`) is an ordinary object lookup into a literal
 (`:88-95`); `no-code`'s count guard is scoped to the digest-miss sentence only
 (`scripts/console-panel-render.test.mjs:299-303`); `page-picker.component.spec.ts:417-448` pins only the lazy
@@ -56,7 +56,7 @@ when it carries the join's answer shape (`:382-397`).
 
 1. Adding a cause, an element reference, a remedy or an unattributed angular wording to any rendered state reddens a pin that names the state and the offending phrase; proven by four mutants, one per state.
 2. Replacing the `captured-nothing` sentence with one claiming silence reddens a pin whose message names that claim.
-3. `consolePanel({ state: 'constructor' })` renders the word it was given and nothing else; the same holds for `toString`, `hasOwnProperty` and `__proto__`.
+3. consolePanel given the state word constructor renders the word it was given and nothing else; the same holds for `toString`, `hasOwnProperty` and `__proto__`.
 4. Replacing the no-code absence with a count reddens a pin naming the count.
 5. An appended 26th route reddens `page-picker.component.spec.ts` and `panel-demo.spec.ts` as well as the two suites that already pin the count.
 6. The demo prose states the shape the sample actually carries, and the T003 Log records the correction by appending, not rewriting.
