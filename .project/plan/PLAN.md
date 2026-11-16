@@ -27,6 +27,7 @@ Project verify: `npm run check && npm test`
 | SC1 | T002 | AC1 |
 | SC1 | T002 | AC4 |
 | SC2 | T002 | AC2 |
+| SC2 | T015 | AC1 |
 | SC3 | T002 | AC3 |
 | SC3 | T003 | AC2 |
 | SC4 | T003 | AC1 |
@@ -147,6 +148,37 @@ word rather than substring. It also carries the silence rule to every absence st
 left scoped to `captured-nothing`. T010 corrects two numbers that owe a command: the record's one unprinted
 leaf, and the Log's over-reported control-character count. T011 removes the tail-suffix resolution the previous
 repair added to the gate, which pinned a spelling that exists nowhere and that no test could see.
+
+## Wave 8 — repair what the third reviews refuted
+
+Goal: the prohibitions are rules rather than word lists, the measurements name their commit, and the
+milestone's own held-out criterion is implemented.
+
+Review depth: full
+
+T012 restores the word the list dropped and re-examines the rest. T014 replaces the silence lexicon with a
+property of the sentence and gives the record suite the same rule. T013 pins the measurements to the commit
+they were taken at and corrects a criterion the shipped code was right about. T015 implements E6: a code
+that matches the digest only after case folding is reported as the digest carries it, and the row names the
+difference.
+
+## Wave 9 — make the silence rule a property, not a phrase list
+
+Goal: a sentence that claims what the page did is refused in whatever words it uses, in both suites.
+
+Review depth: full
+
+T014 replaces the five-pattern silence lexicon with a property of the sentence and gives the record suite the
+same rule, so a recording cannot bless what the render pins refuse.
+
+## Wave 10 — implement the criterion nothing owned
+
+Goal: E6 is implemented rather than ruled out.
+
+Review depth: full
+
+T015 folds case for the digest match only, reports the digest's own code and title, and renders a sentence
+naming the case difference without a cause, an element or a remedy.
 
 ## Risks
 
