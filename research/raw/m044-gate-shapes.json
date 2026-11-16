@@ -21,7 +21,7 @@
     ],
     "movedSubtreesDerivedFrom": {
       "command": "readdir .project\\archive/<NNN>-<slug>",
-      "archivesExamined": 45,
+      "archivesExamined": 46,
       "rule": "every directory name any archived milestone directory carries is a subtree the archive move relocates; a file the archive writes there (MANIFEST.md) is not"
     },
     "counts": {
@@ -1803,6 +1803,7 @@
           ".project/archive/042-error-boundary/research/SYNTHESIS.md",
           ".project/archive/043-stability-explainer/research/SYNTHESIS.md",
           ".project/archive/044-gate-integrity/research/SYNTHESIS.md",
+          ".project/archive/045-console-read/research/SYNTHESIS.md",
           ".project/archive/056-gate-phase-stability/research/SYNTHESIS.md"
         ],
         "presentInTheTree": true
@@ -2357,6 +2358,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-16T13:27:14.620Z"
+    "at": "2026-11-16T15:57:17.057Z"
   }
 }

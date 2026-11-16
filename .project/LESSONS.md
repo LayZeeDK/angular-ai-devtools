@@ -51,3 +51,20 @@ rejected by the completion gate, which cost three cycles.
 
 - 041-navigation-blocking — A gate task's declared files must cover every defect the gate can report: T005 blocked because `npm run check` was red on three defects outside its declared files, so the repair had to widen ownership before the gate could carry a verdict.
 - 041-navigation-blocking — A guard whose red names only a count costs a second cycle: the held-out E3 guard failed twice with `expected at least 3 pass summary blocks, got 1` and nothing to read, so T009 now asserts the nested run's own status, signal and tail first and names the first leg that left no evidence.
+
+## A claim is judged against the range's endpoints, so a path that moved reads as absent
+
+Measured after M045 shipped. `gate-integrity --check fix-record` refused three claims that
+`.project/tasks/T001-measure-the-capture-and-the-digest.md` changed, with
+`claim-absent-from-the-range`. The claim is true: the file was created during the milestone and edited in
+several waves. It is absent from `git diff --name-status -M base..head` because that diff compares the two
+endpoints, and at the head the file lives under `.project/archive/045-console-read/tasks/`. At the base it
+did not exist under either name, so the net change is one `A` at the archived path and no row at all for
+the name the Log uses.
+
+The repair is to judge a claim against the range's history rather than its endpoint diff, for example
+`git log --format= --name-only base..head -- <path>`, which answers whether any commit in the range touched
+the path. A rename inside the range then reads the same as an edit, which is what the claim asserts.
+
+Until that repair lands, a milestone that archives its own task files makes its own fix-record gate refuse
+at the shipped head. The recording is not stale; the derivation is incomplete.
