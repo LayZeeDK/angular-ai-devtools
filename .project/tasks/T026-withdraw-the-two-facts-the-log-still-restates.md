@@ -4,9 +4,9 @@ title: Withdraw the two facts the Log still restates
 wave: 19
 deps:
   - T020
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T026
+base: 71fc887ca29cc14cac9f531e01db30a6fd007769
 worktree: null
 task_branch: null
 files:
