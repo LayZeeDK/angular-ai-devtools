@@ -2,10 +2,10 @@
 id: T001
 title: Measure what the panel renders and what a copy path composes today
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: af433755e8f3734a81a01eb3434f7838bb868de0
 worktree: null
 task_branch: null
 files:
