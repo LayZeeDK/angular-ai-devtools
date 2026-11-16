@@ -2,11 +2,11 @@
 id: T002
 title: Remove the .claude mirror and the rule that maintained it
 wave: 2
-status: pending
+status: in-progress
 deps: []
-agent: null
-base: null
-worktree: null
+agent: build_T002
+base: c3e7ff350a6d86dc73c8f4fe7e2f37bde1956072
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - .claude/skills/control-ai-browsers/SKILL.md
@@ -14,6 +14,10 @@ files:
   - scripts/skill-lint.mjs
   - AGENTS.md
   - package.json
+  - scripts/docs-correction.test.mjs
+  - scripts/doc-fix-alignment.test.mjs
+  - tests/docs-alignment.test.mjs
+  - scripts/gate-integrity.test.mjs
 ---
 
 # T002 — Remove the .claude mirror and the rule that maintained it
@@ -54,7 +58,9 @@ None
 
 1. `.claude/` carries no tracked path, and `git ls-files '.claude/*'` prints nothing.
 2. No suite or script resolves a `.claude` path: `skills-mirror.test.mjs` is gone, `skill-lint.mjs` names only `.commandcode`, and the `check:skills` script no longer typechecks a `.claude` project.
-3. The rule in `AGENTS.md` that told a reader to copy a skill across the two trees is withdrawn, and the text that remains says where the maintained copy lives.
+3. Every suite whose diff this task caused names why it differs from the measured head, in `SUITE_DIFF_REASONS`, so the gate reads a stated reason rather than a guess.
+4. No suite enumerates the removed tree: the three suites that read `.claude` paths now read `.commandcode` alone, and each still fails when the tree it reads is wrong.
+4. The rule in `AGENTS.md` that told a reader to copy a skill across the two trees is withdrawn, and the text that remains says where the maintained copy lives.
 
 ## Verify
 

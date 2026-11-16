@@ -3570,6 +3570,14 @@ const TREE_ROOTS = [
  * unexamined row: the list is a reading of the diffs, so a diff nobody read cannot appear in it.
  */
 const SUITE_DIFF_REASONS = {
+  'scripts/copy-to-agent.test.mjs':
+    'a suite this milestone added rather than changed: it pins the measurement record `research/raw/m046-pane-and-copy.json`, its five assertions are all additions and none was removed, and every cited path and line is read from that record rather than spelled here',
+  'scripts/doc-fix-alignment.test.mjs':
+    'the two-tree loop over `.commandcode` and `.claude` became one read of the maintained tree, because the owner deleted the mirror; the four assertions it carried still run, once, and the only deleted lines are the loop scaffolding and the second root',
+  'scripts/docs-correction.test.mjs':
+    'same reason: the cross-tree loop became a single read, and the three assertions that existed only to prove the two trees agreed were replaced by equivalents on the maintained file alone - the Chromium build-and-revision shape, the maintain rationale standing as its own paragraph, and the reference citing the `.commandcode` path',
+  'tests/docs-alignment.test.mjs':
+    'same reason: the byte-equality assertion between the two health-check copies cannot hold with one tree, so the surviving `/Exit 0 and nineteen check lines/` match is asserted against the maintained file',
   'scripts/performance-capture.test.mjs':
     'the live intent is asked of `verdict-claims-intent.mjs` rather than spelled, so the suite reads whichever intent was most recently current when none is live between milestones; two assertion lines added and none dropped',
   'scripts/autonomy-gaps.test.mjs':
