@@ -4,10 +4,10 @@ title: Re-derive the two gate recordings our waves moved
 wave: 17
 deps:
   - T021
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T024
+base: dd7a9fb2245d0adb3b81f75dd97fac350cb8b195
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - research/raw/m044-gate-shapes.json
