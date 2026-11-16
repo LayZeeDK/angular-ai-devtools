@@ -4,9 +4,9 @@ title: Withdraw the third instance the heading miscounted
 wave: 20
 deps:
   - T026
-status: pending
-agent: null
-base: null
+status: done
+agent: build_T027
+base: a8ff8e59bdd2805a676e2aeed91b8ed602d6fe2f
 worktree: null
 task_branch: null
 files:
