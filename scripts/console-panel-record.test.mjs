@@ -33,6 +33,16 @@
 // never on "account". The word `fix` is on the list: word-boundary matching is what clears "prefix",
 // and a pane that writes "to fix this" states a remedy without ever spelling "remedy".
 //
+// The wording list is not the only prohibition the recording is held to. The same lines are held to
+// the absence rule the record's own `contract.absenceStatement` states, and that rule is a property
+// of the sentence rather than a list of phrasings: an absence statement may say what was read and
+// what that means for the panel, and may never assert what the page did — its clauses take a thing
+// the pane read as their subject, and the page is named only inside a denial. `the page emitted no
+// diagnostic at all` reddens here as it does in the render suite, on the recording's own bytes, so an
+// armed re-capture cannot bless a sentence the surface pins refuse. The rule is stated once, in the
+// record's contract; both suites read it from there, and the matcher that applies it is copied between
+// them and pinned byte-identical, so the two cannot drift.
+//
 // Two defects the milestone is written about (INTENT.md SC3, SC4 — held-out E7) are armed as
 // in-memory rewrites of the pane's own source, each loaded from this run's own temp directory and
 // shown to redden the pin that names it:
@@ -83,6 +93,7 @@ const ROOT = join(HERE, '..');
 const RECORD_REL = 'research/raw/m045-console-panel.json';
 const RECORD_PATH = join(ROOT, RECORD_REL);
 const SCRIPT_REL = 'scripts/console-panel-record.test.mjs';
+const RENDER_REL = 'scripts/console-panel-render.test.mjs';
 const SURFACE_REL = 'apps/angular-ai-devtools/src/app/panel-console.ts';
 const JOIN_REL = 'extension/console-join.js';
 const DIGEST_REL = 'extension/error-digest.json';
@@ -165,6 +176,201 @@ const PROHIBITED_WORDING = [
  * "because" is the page's word — so this suite refuses only what the pane writes itself.
  */
 const CARRIED_FIELDS = ['text', 'code', 'title', 'reason'];
+
+/**
+ * The absence-statement rule, stated here once and written into the record's own contract, from where
+ * both this suite and `scripts/console-panel-render.test.mjs` read it. It is not a phrase list. An
+ * absence sentence may say what was read and what that means for the panel, and may never assert what
+ * the page did: each clause takes as its subject one of the things the pane read, and states one of
+ * the actions the read or the pane performs. A clause a denial introduces is the pane saying what it
+ * did not find, and the page may be named only inside such a denial. That is why `the page emitted no
+ * diagnostic at all`, `the app ran clean`, `nothing was logged` and `there was nothing to read` are
+ * refused while `a capture whose own attempt failed also emits nothing` passes — the rule reads the
+ * sentence's subjects and actions, and no list of page verbs could enumerate them.
+ *
+ * The two lists below the prose are the rule's vocabulary, and they are closed on purpose: they are
+ * the things this pane reads and the actions it and the read perform, not the open set of things a
+ * page can be said to do. `readSubjects` may head a clause; `readActions` may be its verb;
+ * `paneActions` are the acts of rendering that let an indeterminate subject stand; `placeholders` are
+ * the indeterminates; `pageWords` are the words that name the page and may appear only in a denial;
+ * `denials` are the words that introduce one.
+ */
+const ABSENCE_STATEMENT = {
+  rule: 'an absence statement says what was read and what that means for the panel, and never what the page did: each clause takes as its subject a thing the pane read — the capture, the answer, the join, the digest, the message, the finding, the list, the state, the code, the title or the reason, or the sentence itself — and states an action the read or the pane performs; a clause a denial introduces says what was not found, and the page is named only inside a denial, because a sentence that takes the page, or an indeterminate standing where the page would be, as the subject of what happened is a claim about the page in whatever words it chooses',
+  readSubjects: [
+    'capture',
+    'captures',
+    'answer',
+    'answers',
+    'join',
+    'joins',
+    'digest',
+    'digests',
+    'message',
+    'messages',
+    'finding',
+    'findings',
+    'list',
+    'lists',
+    'entry',
+    'entries',
+    'state',
+    'states',
+    'diagnostic',
+    'diagnostics',
+    'code',
+    'codes',
+    'title',
+    'titles',
+    'reason',
+    'reasons',
+    'sentence',
+    'sentences',
+    'line',
+    'lines',
+    'statement',
+    'statements',
+    'pane',
+    'panel',
+    'surface',
+  ],
+  readActions: [
+    'read',
+    'reads',
+    'capture',
+    'captures',
+    'captured',
+    'carry',
+    'carries',
+    'carried',
+    'hold',
+    'holds',
+    'held',
+    'hand',
+    'hands',
+    'handed',
+    'join',
+    'joins',
+    'joined',
+    'record',
+    'records',
+    'recorded',
+    'list',
+    'lists',
+    'listed',
+    'name',
+    'names',
+    'named',
+    'state',
+    'states',
+    'stated',
+    'render',
+    'renders',
+    'rendered',
+    'print',
+    'prints',
+    'printed',
+    'fill',
+    'fills',
+    'filled',
+    'report',
+    'reports',
+    'reported',
+    'match',
+    'matches',
+    'matched',
+    'find',
+    'finds',
+    'found',
+    'digest',
+    'digests',
+    'digested',
+    'extract',
+    'extracts',
+    'extracted',
+    'fail',
+    'fails',
+    'failed',
+    'give',
+    'gives',
+    'given',
+    'contain',
+    'contains',
+    'contained',
+  ],
+  paneActions: [
+    'render',
+    'renders',
+    'rendered',
+    'state',
+    'states',
+    'stated',
+    'name',
+    'names',
+    'named',
+    'carry',
+    'carries',
+    'carried',
+    'read',
+    'reads',
+    'fill',
+    'fills',
+    'filled',
+    'list',
+    'lists',
+    'listed',
+    'print',
+    'prints',
+    'printed',
+    'record',
+    'records',
+    'recorded',
+    'hold',
+    'holds',
+    'held',
+    'hand',
+    'hands',
+    'handed',
+    'join',
+    'joins',
+    'joined',
+  ],
+  placeholders: ['nothing', 'none', 'it', 'this', 'that'],
+  pageWords: [
+    'page',
+    'pages',
+    'app',
+    'apps',
+    'application',
+    'applications',
+    'browser',
+    'browsers',
+    'tab',
+    'tabs',
+    'window',
+    'windows',
+    'site',
+    'sites',
+    'document',
+    'documents',
+    'dom',
+    'framework',
+    'angular',
+  ],
+  denials: [
+    'never',
+    'not',
+    'nor',
+    'cannot',
+    'without',
+    "isn't",
+    "wasn't",
+    "aren't",
+    "doesn't",
+    "don't",
+    "didn't",
+  ],
+};
 
 /** The one switch that arms the write; nothing else in this file writes into the checkout. */
 const CAPTURE = String(process.env.M045_CAPTURE ?? '').trim() === '1';
@@ -355,6 +561,7 @@ function derive() {
         'the pane renders state and findings and nothing else: no cause, no element, no remedy and no unattributed wording',
       lineLabels: LINE_LABELS,
       prohibitedWording: PROHIBITED_WORDING,
+      absenceStatement: ABSENCE_STATEMENT,
     },
     sources: {
       surface: SURFACE_REL,
@@ -507,6 +714,276 @@ function recordedCase(id) {
   return entry;
 }
 
+// >>> absence-statement-matcher
+//
+// The matcher for the rule the record states (`contract.absenceStatement`). The rule itself — what
+// an absence sentence may take as its subject, which actions are the read's and the pane's, which
+// words name the page — is data in `research/raw/m045-console-panel.json`, so this block is only the
+// syntax that reads a sentence with it. It is copied verbatim into the other suite and the two copies
+// are pinned equal, so the property cannot drift between the surface and the recording.
+
+/** Where a sentence's clauses end: punctuation, and the subordinators this pane writes with. */
+const ABSENCE_CLAUSE_SPLIT =
+  /\s*[,;:]\s*|\s+(?:so|but|and|then|because|yet|while)\s+/i;
+
+/** The conjunction a clause may open with, which is not part of its subject. */
+const ABSENCE_CLAUSE_LEAD = /^(?:and|but|so|then|also|yet|or|while)\s+/i;
+
+/** The words that may precede a clause's subject without being it: determiners, and its adjectives. */
+const ABSENCE_PREMODIFIERS = new Set([
+  'the',
+  'a',
+  'an',
+  'its',
+  'their',
+  'our',
+  'my',
+  'your',
+  'his',
+  'her',
+  'every',
+  'each',
+  'all',
+  'no',
+  'any',
+  'some',
+  'both',
+  'either',
+  'neither',
+  'one',
+  'two',
+  'three',
+  'first',
+  'second',
+  'last',
+  'next',
+  'own',
+  'whole',
+  'single',
+  'other',
+  'same',
+  'above',
+  'below',
+  'remaining',
+  'captured',
+  'carried',
+  'handed',
+  'joined',
+  'recorded',
+  'printed',
+  'rendered',
+  'named',
+  'stated',
+  'read',
+  'held',
+  'listed',
+  'digest',
+  'join',
+  'console',
+  'unreadable',
+  'new',
+  'old',
+  'full',
+  'empty',
+  'given',
+  'only',
+  'very',
+]);
+
+/** The copulas and auxiliaries: where one governs a participle, the participle is the clause's verb. */
+const ABSENCE_AUXILIARIES = new Set([
+  'is',
+  'are',
+  'was',
+  'were',
+  'be',
+  'been',
+  'being',
+  'has',
+  'have',
+  'had',
+  'does',
+  'do',
+  'did',
+]);
+
+/** The negations an auxiliary may take before the participle it governs. */
+const ABSENCE_NEGATIONS = new Set(['not', 'never', 'no', 'nor']);
+
+/** The word endings that mark a verb this rule does not otherwise know: it is read, and refused. */
+const ABSENCE_VERB_ENDINGS = /(?:ed|en|ing)$/;
+
+/** The rule read as sets, so one sentence is read in one pass. */
+function absenceSets(rule) {
+  return {
+    readSubjects: new Set(rule.readSubjects),
+    readActions: new Set(rule.readActions),
+    paneActions: new Set(rule.paneActions),
+    placeholders: new Set(rule.placeholders),
+    pageWords: new Set(rule.pageWords),
+    denials: new Set(rule.denials),
+  };
+}
+
+/** The sentence a pane-written line states, with its `label: ` taken off. */
+function absenceBody(line) {
+  const at = line.indexOf(': ');
+  return at < 0 ? line : line.slice(at + 2);
+}
+
+/** The clauses one sentence states, each stripped of its closing punctuation and opening conjunction. */
+function absenceClauses(sentence) {
+  return String(sentence)
+    .split(ABSENCE_CLAUSE_SPLIT)
+    .map((clause) =>
+      clause
+        .replace(ABSENCE_CLAUSE_LEAD, '')
+        .replace(/[.!?]+$/, '')
+        .trim(),
+    )
+    .filter((clause) => clause !== '');
+}
+
+/** A clause's words, lowercased, with the punctuation dropped. */
+function absenceTokens(clause) {
+  return clause.toLowerCase().match(/[a-z0-9']+/g) ?? [];
+}
+
+/**
+ * The subject a clause states: the head of the noun phrase it opens with, or `null` where the clause
+ * elides its subject and inherits the clause before it.
+ */
+function absenceSubject(tokens, sets) {
+  let index = 0;
+  while (index < tokens.length && ABSENCE_PREMODIFIERS.has(tokens[index]))
+    index += 1;
+  const head = tokens[index];
+  if (head === undefined) return null;
+  if (ABSENCE_AUXILIARIES.has(head)) return null;
+  if (sets.readActions.has(head)) return null;
+  // An indeterminate is a subject even where it ends like a participle: `nothing` ends in `ing`.
+  if (sets.placeholders.has(head)) return head;
+  if (ABSENCE_VERB_ENDINGS.test(head) && !sets.readSubjects.has(head))
+    return null;
+  return head;
+}
+
+/**
+ * The verb a clause states, or `null` where it states none: a noun list, or a copula linking a noun
+ * or an adjective. Where an auxiliary governs a participle, the participle is the verb, so
+ * `no diagnostic was emitted` states "emitted" and is refused while `no capture was read` states
+ * "read" and passes.
+ */
+function absenceVerb(tokens, sets) {
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index];
+    if (ABSENCE_AUXILIARIES.has(token)) {
+      let next = index + 1;
+      while (next < tokens.length && ABSENCE_NEGATIONS.has(tokens[next]))
+        next += 1;
+      const governed = tokens[next];
+      if (governed === undefined) return null;
+      if (sets.readActions.has(governed)) return governed;
+      if (sets.readSubjects.has(governed)) return null;
+      if (sets.placeholders.has(governed)) return null;
+      if (ABSENCE_VERB_ENDINGS.test(governed)) return governed;
+      return null;
+    }
+    if (sets.readActions.has(token)) return token;
+    if (
+      ABSENCE_VERB_ENDINGS.test(token) &&
+      !sets.readSubjects.has(token) &&
+      !sets.placeholders.has(token)
+    )
+      return token;
+  }
+  return null;
+}
+
+/**
+ * Every clause of one sentence that breaks the property, with what broke it: `page` where the page is
+ * named outside a denial, `placeholder` where an indeterminate stands where the page would be and the
+ * clause states no act of the pane's own, `subject` where a clause takes as its subject something the
+ * pane did not read, `verb` where it asserts an action the read and the pane do not perform.
+ */
+function absenceBreaches(sentence, rule) {
+  const sets = absenceSets(rule);
+  const breaches = [];
+  for (const clause of absenceClauses(sentence)) {
+    const tokens = absenceTokens(clause);
+    if (tokens.length === 0) continue;
+    // A clause a denial introduces is the pane saying what it did *not* find — the one place the
+    // shipped `captured-nothing` sentence, and any sentence like it, may name the page.
+    if (sets.denials.has(tokens[0])) continue;
+    const pageAt = tokens.findIndex((token) => sets.pageWords.has(token));
+    if (pageAt >= 0) {
+      // A denial before the page word governs it — `never that the page was silent`, `this is never
+      // a claim that the page emitted nothing` — and is how the pane names the page at all. A page
+      // word its clause does not deny is a claim about the page, whichever verb it carries.
+      const denied = tokens
+        .slice(0, pageAt)
+        .some((token) => sets.denials.has(token));
+      if (!denied) breaches.push({ clause, page: tokens[pageAt] });
+      continue;
+    }
+    const subject = absenceSubject(tokens, sets);
+    if (subject !== null && sets.placeholders.has(subject)) {
+      if (!tokens.some((token) => sets.paneActions.has(token))) {
+        breaches.push({ clause, placeholder: subject });
+      }
+      continue;
+    }
+    if (subject !== null && !sets.readSubjects.has(subject)) {
+      breaches.push({ clause, subject });
+      continue;
+    }
+    const verb = absenceVerb(tokens, sets);
+    if (verb !== null && !sets.readActions.has(verb)) {
+      breaches.push({ clause, verb });
+    }
+  }
+  return breaches;
+}
+
+/** What one breach broke, in the words its pin fails with. */
+function absenceBreachReason(breach) {
+  if (breach.page !== undefined)
+    return `it names the page (${JSON.stringify(breach.page)}) outside a denial`;
+  if (breach.placeholder !== undefined)
+    return `its clause ${JSON.stringify(breach.clause)} leaves the indeterminate ${JSON.stringify(breach.placeholder)} standing where the page would be, and states no act of the pane's own`;
+  if (breach.subject !== undefined)
+    return `its clause ${JSON.stringify(breach.clause)} takes ${JSON.stringify(breach.subject)} as its subject, and the pane reads no such thing`;
+  return `its clause ${JSON.stringify(breach.clause)} asserts ${JSON.stringify(breach.verb)}, which the read and the pane do not do`;
+}
+
+/**
+ * The property as a pin: an absence statement may say what was read and what that means for the
+ * panel, and may never assert what the page did. The failure names the surface (or the sentence) it
+ * was written in and the phrase that broke the rule.
+ */
+function assertAbsenceStatement(sentence, where, rule) {
+  const [breach] = absenceBreaches(sentence, rule);
+  if (breach === undefined) return;
+  assert.fail(
+    `absence-statement: the ${where} says what was read and what it means for the panel, and never what the page did — ${absenceBreachReason(breach)}; it rendered ${JSON.stringify(sentence)} (claimed ${JSON.stringify(breach.clause)})`,
+  );
+}
+
+/**
+ * The matcher block as one file states it, for the pin that holds the two copies equal. The markers
+ * are found at the start of a line, because this function names them in its own source.
+ */
+function absenceMatcherSource(source) {
+  const open = source.indexOf('\n// >>> absence-statement-matcher');
+  const close = source.indexOf('\n// <<< absence-statement-matcher');
+  assert.ok(
+    open >= 0 && close > open,
+    'the absence-statement matcher must sit between its two markers, or the drift pin proves nothing',
+  );
+  return source.slice(open + 1, close + 1);
+}
+// <<< absence-statement-matcher
+
 // -------------------------------------------------------------------------- the pins ----
 
 /**
@@ -591,6 +1068,45 @@ function pinCapturedNothingStatesIt(entry, rendered) {
     false,
     `captured-nothing: a capture that carried no diagnostic has no message to print, so no text line is rendered; the pane rendered ${JSON.stringify(rendered.lines)}`,
   );
+}
+
+/**
+ * SC4/E7: the recorded surface states what was read and never what the page did. The rule is the
+ * record's own (`contract.absenceStatement`), so an armed re-capture cannot bless a sentence the
+ * render suite refuses: the recording's own bytes — `cases[i].surface.lines` — are read here and held
+ * to the same property the pane is held to. The state line is the answer's word and a finding's four
+ * fields are the answer's words, so neither is policed; every other line is the pane's own sentence.
+ */
+function pinRecordedAbsenceStatement(entry, contract) {
+  const rule = contract.absenceStatement;
+  assert.ok(
+    rule !== null && typeof rule === 'object',
+    `absence-statement: ${RECORD_REL} must state the rule its surfaces are held to; its contract carries ${JSON.stringify(rule)}`,
+  );
+  for (const key of [
+    'rule',
+    'readSubjects',
+    'readActions',
+    'paneActions',
+    'placeholders',
+    'pageWords',
+    'denials',
+  ]) {
+    assert.ok(
+      Object.hasOwn(rule, key),
+      `absence-statement: ${RECORD_REL} must state the rule's ${JSON.stringify(key)}, or the rule is incomplete`,
+    );
+  }
+  for (const [index, line] of entry.surface.lines.entries()) {
+    const at = line.indexOf(': ');
+    const label = at < 0 ? line : line.slice(0, at);
+    if (label === 'state' || CARRIED_FIELDS.includes(label)) continue;
+    assertAbsenceStatement(
+      at < 0 ? line : line.slice(at + 2),
+      `${entry.state} surface line ${index} (${entry.id})`,
+      rule,
+    );
+  }
 }
 
 /**
@@ -1131,6 +1647,9 @@ describe('every case states what the join answered and what the pane rendered', 
       // file's own contract states, so an armed re-capture cannot bless a line the pane should not
       // have written.
       pinRecordsOnlyTheContractVocabulary(entry, recorded().contract);
+      // The absence rule on the recorded bytes as well as on the pane's current output, so a
+      // re-capture cannot bless a claim about the page that the render suite refuses.
+      pinRecordedAbsenceStatement(entry, recorded().contract);
 
       assert.deepEqual(
         rendered.lines,
@@ -1219,6 +1738,170 @@ describe('every case states what the join answered and what the pane rendered', 
         `${entry.id} records ${JSON.stringify(entry.state)}, which is not a state the join answers`,
       );
     }
+  });
+});
+
+describe('the absence rule is the record’s, and the recording cannot bless a claim about the page', () => {
+  test('the record states the rule once, and this suite is what writes it', () => {
+    const rule = recorded().contract.absenceStatement;
+    assert.deepEqual(
+      rule,
+      ABSENCE_STATEMENT,
+      'the record and this suite must state the same absence rule, or the pin proves a rule nobody states',
+    );
+    assert.ok(
+      typeof rule.rule === 'string' && rule.rule.length > 200,
+      `the record must state the property and not only its vocabulary; it states ${JSON.stringify(rule.rule)}`,
+    );
+    for (const key of [
+      'readSubjects',
+      'readActions',
+      'paneActions',
+      'placeholders',
+      'pageWords',
+      'denials',
+    ]) {
+      assert.ok(
+        Array.isArray(rule[key]) && rule[key].length > 0,
+        `the record's absence-statement rule must carry ${JSON.stringify(key)}`,
+      );
+    }
+    // The words the Sibling task added to the wording list are a different rule and stay where they
+    // are: the absence rule reads subjects and actions, and it refuses or allows a word by its place
+    // in the sentence, not by its presence.
+    for (const word of [
+      'since',
+      'dom',
+      'node',
+      'solution',
+      'repair',
+      'framework',
+      'number',
+    ])
+      assert.ok(
+        recorded().contract.prohibitedWording.includes(word),
+        `the wording list must still carry ${JSON.stringify(word)}: the absence rule is a different rule`,
+      );
+    assert.ok(recorded().contract.prohibitedWording.includes('fix'));
+  });
+
+  test('the shipped sentences pass, including the one that says a failed capture emits nothing', () => {
+    const contract = recorded().contract;
+    const nothing = recordedCase('captured-nothing');
+    pinRecordedAbsenceStatement(nothing, contract);
+    assert.ok(
+      nothing.surface.lines.some((line) =>
+        line.includes('a capture whose own attempt failed also emits nothing'),
+      ),
+      `the recorded captured-nothing sentence must still say what a failed capture did: ${JSON.stringify(nothing.surface.lines)}`,
+    );
+    assert.ok(
+      nothing.surface.lines.some((line) =>
+        line.includes('never that the page was silent'),
+      ),
+      `the recorded captured-nothing sentence must still carry its denial: ${JSON.stringify(nothing.surface.lines)}`,
+    );
+    // A pane-written sentence that merely describes what was read passes, in words the record does
+    // not carry: the rule is not a snapshot of the recorded sentences.
+    const none = recordedCase('no-diagnostics');
+    const written = {
+      ...none,
+      surface: {
+        ...none.surface,
+        lines: [
+          none.surface.lines[0],
+          'no-diagnostics: no capture was handed to the join at all, so no capture was read and no finding is rendered',
+        ],
+      },
+    };
+    pinRecordedAbsenceStatement(written, contract);
+    // And the denial is the other side of the boundary: the same claim, denied, passes.
+    pinRecordedAbsenceStatement(
+      {
+        ...none,
+        surface: {
+          ...none.surface,
+          lines: [
+            none.surface.lines[0],
+            'no-diagnostics: no capture was handed to the join at all, and this is never a claim that the page emitted nothing',
+          ],
+        },
+      },
+      contract,
+    );
+  });
+
+  test('a claim about the page reddens, in three wordings the old phrase list never matched, across three states', () => {
+    const contract = recorded().contract;
+    const oldPhraseList = [
+      /\bsilen(ce|t)\b/gi,
+      /\bthe page (produced|reported|logged|said|showed) nothing\b/gi,
+      /\bnothing (was|has been) (logged|captured|reported)\b/gi,
+      /\bno console (output|activity|messages?)\b/gi,
+      /\bthe page (did not|didn't) (log|report|complain)\b/gi,
+    ];
+    for (const [id, sentence, phrase] of [
+      [
+        'no-diagnostics',
+        'no-diagnostics: the page emitted no diagnostic at all, so no capture was handed to the join',
+        'the page emitted no diagnostic at all',
+      ],
+      [
+        'captured-nothing',
+        'captured-nothing: the page ran clean, so a capture was read and carried no diagnostic',
+        'the page ran clean',
+      ],
+      [
+        'joined',
+        'joined: the capture held at least one diagnostic, and the page had nothing else to say',
+        'the page had nothing else to say',
+      ],
+    ]) {
+      assert.equal(
+        oldPhraseList.some((pattern) => {
+          pattern.lastIndex = 0;
+          return pattern.test(sentence);
+        }),
+        false,
+        `the probe ${JSON.stringify(sentence)} must be a wording the old phrase list never matched, or it proves nothing`,
+      );
+      const entry = recordedCase(id);
+      const written = {
+        ...entry,
+        surface: {
+          ...entry.surface,
+          lines: [entry.surface.lines[0], sentence],
+        },
+      };
+      const failure = reddens('absence-statement', () =>
+        pinRecordedAbsenceStatement(written, contract),
+      );
+      assert.ok(
+        failure.message.includes(entry.state),
+        `the failure must name the state ${JSON.stringify(entry.state)}; it failed with ${failure.message}`,
+      );
+      assert.ok(
+        failure.message.includes(phrase),
+        `the failure must name the phrase ${JSON.stringify(phrase)}; it failed with ${failure.message}`,
+      );
+      console.log(
+        `recorded surface reddens, old phrase list missed: ${failure.message.replace(/\s+/g, ' ').trim()}`,
+      );
+    }
+  });
+
+  test('the matcher here is the render suite’s matcher, so the two suites cannot drift', () => {
+    const here = readFileSync(SELF_PATH, 'utf8');
+    const there = readFileSync(join(ROOT, RENDER_REL), 'utf8');
+    assert.equal(
+      absenceMatcherSource(here),
+      absenceMatcherSource(there),
+      'the absence-statement matcher must be the same code in both suites, or the rule can drift between the surface and the recording',
+    );
+    assert.ok(
+      absenceMatcherSource(here).includes('function absenceBreaches('),
+      'the drift pin must compare the matcher and not an empty block',
+    );
   });
 });
 

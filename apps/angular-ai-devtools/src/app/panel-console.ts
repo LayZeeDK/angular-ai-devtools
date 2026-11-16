@@ -39,10 +39,22 @@
  * digest's word, a `text:` and a `code:` value the capture's, and a `reason:` value the join's, so
  * none of those four is this pane's attribution. The digest's own title for `NG0910` states
  * "element" and a captured message may say "because", and both render here as they were handed over;
- * what the pane may not do is write such a word into a sentence of its own. Nor may any sentence it
- * writes claim the page was silent: `captured-nothing`, `no-diagnostics`, a joined answer that carried
- * no finding and every named absence state what was read, and the capture swallows its own failures,
- * so an empty capture is never a report that the page said nothing.
+ * what the pane may not do is write such a word into a sentence of its own.
+ *
+ * Nor may any sentence it writes assert what the page did. An absence statement says what was read and
+ * what that means for the panel, and that is a property of the sentence rather than a list of
+ * phrasings: each of its clauses takes as its subject a thing this pane read — the capture, the answer,
+ * the join, the digest, the message, the finding, the list, the state, the code, the title, the reason,
+ * or the sentence itself — and states an action the read or the pane performs; a clause a denial
+ * introduces is the pane saying what it did *not* find, which is why `captured-nothing` may say that a
+ * capture whose own attempt failed also emits nothing, and may say of the page only that it never
+ * claims the page was silent. What no clause may do is take the page — or an indeterminate standing
+ * where the page would be — as the subject of what happened: "the page emitted no diagnostic", "the
+ * app ran clean", "nothing was logged" and "there was nothing to read" are all the same claim, in
+ * words no list of verbs could enumerate. The rule is stated once, in the record's own contract
+ * (`research/raw/m045-console-panel.json`, `contract.absenceStatement`), and both suites read it from
+ * there; the capture swallows its own failures, so an empty capture is never a report that the page
+ * said nothing.
  *
  * A drawing of the pane for one joined answer:
  *
