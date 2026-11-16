@@ -30,7 +30,8 @@
 // attribution and none is refused here: the digest's own title for `NG0910` states "element" and a
 // captured message may say "because". Each word is matched as a whole word, with its own
 // inflections, so a pane-written "because" reddens while `fix` never fires on "prefix" and `count`
-// never on "account".
+// never on "account". The word `fix` is on the list: word-boundary matching is what clears "prefix",
+// and a pane that writes "to fix this" states a remedy without ever spelling "remedy".
 //
 // Two defects the milestone is written about (INTENT.md SC3, SC4 — held-out E7) are armed as
 // in-memory rewrites of the pane's own source, each loaded from this run's own temp directory and
@@ -131,19 +132,30 @@ const LINE_LABELS = [
 /**
  * The wording the pane may not write of its own, matched as whole words: `because` is a word of its
  * own beside `cause`, so a pane-written "because" reddens, while `fix` never fires on "prefix" and
- * `count` never on "account". One entry per word family, and no entry subsumed by a more general one
- * — `fix` is dropped because a fix is a remedy and `remedy` is the general word the record's own
- * `contract.rendered` states.
+ * `count` never on "account". An entry is a word a pane could write to state the thing, and no entry
+ * is dropped on the argument that a more general word covers it: `fix` is carried beside `remedy`
+ * because a pane can write "to fix this, edit the binding" without ever spelling "remedy", and
+ * word-boundary matching is what clears "prefix" — never the absence of the word. The families are
+ * the four SC5 prohibitions — a cause, an element, a remedy and a word of the pane's own naming
+ * Angular — plus the count SC3 refuses in place of a name.
  */
 const PROHIBITED_WORDING = [
   'cause',
   'because',
   'due to',
+  'since',
   'element',
   'component',
+  'dom',
+  'node',
   'remedy',
+  'fix',
+  'solution',
+  'repair',
   'angular',
+  'framework',
   'count',
+  'number',
 ];
 
 /**
@@ -957,6 +969,28 @@ const MUTATIONS = [
       ),
     names: /never an empty list/,
   },
+  {
+    id: 'remedy-spelled-fix',
+    defect: 'recorded-vocabulary',
+    anchor:
+      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read',",
+    replacement:
+      "    'no-diagnostics: no capture was handed to the join at all, so no capture was read, and to fix this, edit the binding',",
+    caseId: 'no-diagnostics',
+    pin: (entry, rendered) =>
+      pinRecordsOnlyTheContractVocabulary(
+        { ...entry, surface: rendered },
+        recorded().contract,
+      ),
+    exhibits: (module) =>
+      assert.ok(
+        renderedBy(module, recordedCase('no-diagnostics')).text.includes(
+          'to fix this',
+        ),
+        'the mutant really states a remedy without spelling "remedy"',
+      ),
+    names: /carries "fix"/,
+  },
 ];
 
 // -------------------------------------------------------------------------- the record ----
@@ -1352,11 +1386,123 @@ describe('mutants: each defect reddens the pin that names it', () => {
         ...none.surface,
         lines: [
           none.surface.lines[0],
-          'no-diagnostics: no capture was handed to the join at all, so no account of a prefix is given',
+          'no-diagnostics: no capture was handed to the join at all, so an account of the prefix is not given',
         ],
       },
     };
     pinRecordsOnlyTheContractVocabulary(harmless, contract);
+  });
+
+  test('a pane-written remedy spelled "fix" reddens, and "prefix" and "affix" pass', () => {
+    const contract = recorded().contract;
+    assert.equal(
+      contract.prohibitedWording.includes('fix'),
+      true,
+      'the contract must carry "fix": a pane can state a remedy without spelling "remedy"',
+    );
+    // The sentence wave 5's cycle-3 review constructed, and the longer words word-boundary
+    // matching must leave alone.
+    assert.equal(
+      prohibitedPattern('fix').test('to fix this, edit the binding'),
+      true,
+    );
+    assert.equal(prohibitedPattern('fix').test('the prefix'), false);
+    assert.equal(prohibitedPattern('fix').test('the affix'), false);
+
+    const none = recordedCase('no-diagnostics');
+    const written = {
+      ...none,
+      surface: {
+        ...none.surface,
+        lines: [
+          none.surface.lines[0],
+          'no-diagnostics: no capture was handed to the join at all, and to fix this, edit the binding',
+        ],
+      },
+    };
+    const failure = reddens('recorded-vocabulary', () =>
+      pinRecordsOnlyTheContractVocabulary(written, contract),
+    );
+    assert.match(
+      failure.message,
+      /no-diagnostics surface line 1 is policed as the pane's own "no-diagnostics" line/,
+    );
+    assert.ok(
+      failure.message.includes('carries "fix"'),
+      `the pin must name the word "fix"; it failed with ${failure.message}`,
+    );
+    assert.match(failure.message, /matched the word "fix" as a whole word/);
+    console.log(
+      `pane-written "fix" probe: ${failure.message.replace(/\s+/g, ' ').trim()}`,
+    );
+
+    // The same pin passes the sentence with "prefix" and "account" in it, so the rule is the word
+    // and not a substring of it.
+    const harmless = {
+      ...none,
+      surface: {
+        ...none.surface,
+        lines: [
+          none.surface.lines[0],
+          'no-diagnostics: no capture was handed to the join at all, so an account of the prefix is not given',
+        ],
+      },
+    };
+    pinRecordsOnlyTheContractVocabulary(harmless, contract);
+  });
+
+  test('every prohibited entry catches a demonstrably bad sentence', () => {
+    const contract = recorded().contract;
+    assert.deepEqual(
+      contract.prohibitedWording,
+      PROHIBITED_WORDING,
+      'the record and this suite must carry the same list, or the pin proves a list nobody states',
+    );
+    const bad = {
+      cause: 'the cause is the write',
+      because: 'the page was silent because nothing was captured',
+      'due to': 'the binding was skipped due to the write',
+      since: 'the page was silent since nothing was captured',
+      element: 'the element was not found',
+      component: 'the component was not rendered',
+      dom: 'the DOM was not updated',
+      node: 'the node was not found',
+      remedy: 'the remedy is to hand it one',
+      fix: 'to fix this, edit the binding',
+      solution: 'the solution is to edit the binding',
+      repair: 'to repair this, edit the binding',
+      angular: 'angular reported nothing',
+      framework: 'the framework reported nothing',
+      count: 'one count of the findings',
+      number: 'the number of findings is one',
+    };
+    assert.deepEqual(
+      Object.keys(bad).sort(),
+      [...PROHIBITED_WORDING].sort(),
+      'every entry needs a demonstrably bad sentence here, and this table must prove no entry it does not carry',
+    );
+    const none = recordedCase('no-diagnostics');
+    for (const word of PROHIBITED_WORDING) {
+      const written = {
+        ...none,
+        surface: {
+          ...none.surface,
+          lines: [none.surface.lines[0], `no-diagnostics: ${bad[word]}`],
+        },
+      };
+      const failure = reddens('recorded-vocabulary', () =>
+        pinRecordsOnlyTheContractVocabulary(written, contract),
+      );
+      assert.match(failure.message, /no-diagnostics surface line 1/);
+      assert.ok(
+        failure.message.includes(`carries "${word}"`),
+        `the pin must name ${JSON.stringify(word)}; it failed with ${failure.message}`,
+      );
+      assert.match(failure.message, /as a whole word/);
+    }
+    console.log(
+      `every prohibited entry reddened: ${PROHIBITED_WORDING.join(', ')}`,
+    );
   });
 });
 

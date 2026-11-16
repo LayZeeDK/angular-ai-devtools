@@ -437,6 +437,7 @@ function pinNoCauseElementRemedy(surface, answer, carried = CARRIED_FIELDS) {
     ['cause', /\bdue to\b/i],
     ['remedy', /\bthe fix is\b/i],
     ['remedy', /\bfix it\b/i],
+    ['remedy', /\bfix\b/i],
     ['remedy', /\bremedy\b/i],
     ['element', /\belement\b/i],
   ]) {
@@ -943,6 +944,33 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
       pinNoCauseElementRemedy(titled, carried, ['text']),
     );
     assert.match(onTitle.message, /must render no element/);
+
+    // The remedy wave 5's cycle-3 review constructed: a pane that writes "to fix this" states a remedy
+    // without spelling "remedy", so `fix` is matched as a whole word — "prefix" and "affix" are not it.
+    const none = SURFACE.consolePanel(noDiagnosticsAnswer());
+    const withFix = {
+      ...none,
+      lines: [
+        none.lines[0],
+        'no-diagnostics: no capture was handed to the join at all, and to fix this, edit the binding',
+      ],
+    };
+    const fixFailure = reddens('no-cause-element-remedy', () =>
+      pinNoCauseElementRemedy(withFix, noDiagnosticsAnswer()),
+    );
+    assert.match(fixFailure.message, /must render no remedy/);
+    assert.match(fixFailure.message, /matched \/\\bfix\\b\/i/);
+    console.log(
+      `pane-written "fix" probe: ${fixFailure.message.replace(/\s+/g, ' ').trim()}`,
+    );
+    const withPrefix = {
+      ...none,
+      lines: [
+        none.lines[0],
+        'no-diagnostics: no capture was handed to the join at all, so an account of the prefix is not given',
+      ],
+    };
+    pinNoCauseElementRemedy(withPrefix, noDiagnosticsAnswer());
   });
 
   it('E7: two diagnostics sharing a code are two findings, in capture order', () => {
@@ -1217,6 +1245,20 @@ const MUTATIONS = [
           .consolePanel(joinedAnswer())
           .text.includes('remedy: read the digest entry'),
         'the mutant really states a remedy',
+      ),
+    names: /the joined surface must render no remedy/,
+  },
+  {
+    id: 'remedy-spelled-fix',
+    defect: 'no-cause-element-remedy',
+    anchor: 'in the capture\'s own order",',
+    replacement:
+      'in the capture\'s own order, and to fix this, edit the binding",',
+    check: (api) => () => pinE7OnEveryState(api),
+    exhibits: (module) =>
+      assert.ok(
+        module.consolePanel(joinedAnswer()).text.includes('to fix this'),
+        'the mutant really states a remedy without spelling "remedy"',
       ),
     names: /the joined surface must render no remedy/,
   },
