@@ -137,3 +137,98 @@ ode --check\ and Prettier clean; the orchestrator re-ran both and independently 
     - `c16` prints `extension/agent-main.js:1397-1416` — the `dispatch` body `capture.dispatcher` cites
   - **The 16 are carried, not just counted.** Replaying all 16 recorded command strings at this head (scratch script in the session scratchpad, not committed) gives 15 byte-identical outputs, `c2`–`c16`; `c1` differs in one line only — it records the short HEAD at capture time (`9e95f740`) where this head prints `628bd800`, which is that command doing its job. So "16" counts commands that run, and each description above is what that command's own recorded output shows.
   - **What did not change.** The deliverable is untouched — its worktree hash equals its blob at `628bd800` (`de0f927a…`) — and no product value moved. This task's changes are two task Logs: this entry and the correction T011 carries.
+
+- 2026-11-16 — **T016: the command count is restated as a measurement at a named commit, the `9e95f740` size attribution and the worktree-hash sentence are corrected. Nothing above is rewritten.**
+  - **What this entry corrects, and why it is an append.** Three statements above are aged, and one of them is false. `:121` says "The commands: 16, `c1`–`c16`, each named" and `:138` says "15 byte-identical outputs, `c2`–`c16`", where the record's `provenance.commands` holds **18** at this head. `:51` dates the deliverable to head `9e95f740`, and that commit does not carry the record at that path at all. `:119`'s closing sentence — "The worktree is the named commit's bytes and not some later state … both print `de0f927a…`" — is true of `628bd800` and reads as timeless. Each is corrected below, and no earlier byte changes: the prefix hash appended with these corrections is the proof.
+  - **The count, restated as a measurement at a named commit.** `provenance.commands` is a list every append grows, so a bare count of it is true only of the commit it was counted at — the same defect T013 fixed for the sizes, one layer up. The command below reads the record out of each named commit's own tree (`git show <commit>:<path>`, never the worktree) and prints how many commands that commit carries, the ids they run between, whether every one recorded `exitCode: 0`, and the record's own byte size there. Run at head `686c6124`, exit 0:
+    ```
+    node -e "const {execFileSync}=require('child_process');for(const c of ['ee4bfbd2','a4a57f9e','9f0603c9','234a3b4c','e1ba31fc','628bd800','85208150','686c6124']){const b=execFileSync('git',['show',c+':research/raw/m045-console-shapes.json']);const r=JSON.parse(b);const ids=r.provenance.commands.map(x=>x.id);console.log(c+': '+ids.length+' commands ('+ids[0]+'-'+ids[ids.length-1]+'), all exit 0: '+r.provenance.commands.every(x=>x.exitCode===0)+', bytes '+b.length)}"
+    ```
+    ```
+    ee4bfbd2: 13 commands (c1-c13), all exit 0: true, bytes 27122
+    a4a57f9e: 13 commands (c1-c13), all exit 0: true, bytes 27783
+    9f0603c9: 15 commands (c1-c15), all exit 0: true, bytes 33917
+    234a3b4c: 16 commands (c1-c16), all exit 0: true, bytes 35619
+    e1ba31fc: 16 commands (c1-c16), all exit 0: true, bytes 35619
+    628bd800: 16 commands (c1-c16), all exit 0: true, bytes 35619
+    85208150: 18 commands (c1-c18), all exit 0: true, bytes 39284
+    686c6124: 18 commands (c1-c18), all exit 0: true, bytes 39284
+    ```
+    The byte column is the same reading as the block at `:107-112`, so the counts are read from the same trees the sizes are, and neither has moved.
+  - **Every count this Log states, held to the commit it was counted at.**
+    - **13 commands, `c1`–`c13`, at `ee4bfbd2`** — T001's own commit, and `a4a57f9e` carries the same 13, so `:52`'s "13 recorded commands" is a correct measurement of `ee4bfbd2`.
+    - **15 commands, `c1`–`c15`, at `9f0603c9`** — T008's commit, which appended `c14` and `c15`, so `:89`'s "15 recorded commands (`c1`–`c15`)" is a correct measurement of `9f0603c9`.
+    - **16 commands, `c1`–`c16`, at `234a3b4c`, at `e1ba31fc` and at `628bd800`** — T010's `c16` append, so `628bd800` is the commit `:121`'s "**16**, `c1`–`c16`" is true of, and the last commit it is true of.
+    - **18 commands, `c1`–`c18`, at `85208150` and at `686c6124`** — T015 appended `c17` and `c18` and appended nothing to this Log, so "16" was falsified by the next commit that read the record and left two commands unnamed. **The count at this head is 18, `c1`–`c18`.**
+  - **The commands added since the last correction, named.** `:122`–`:137` name `c1`–`c16`. The commands this Log leaves unnamed are `c17` and `c18`, and which commit added which is measured rather than remembered — each named commit's command list against its own parent's:
+    ```
+    node -e "const {execFileSync}=require('child_process');const ids=c=>JSON.parse(execFileSync('git',['show',c+':research/raw/m045-console-shapes.json'])).provenance.commands.map(x=>x.id);for(const c of ['a4a57f9e','9f0603c9','234a3b4c','85208150']){const added=ids(c).filter(i=>!ids(c+'^').includes(i));console.log(c+' added: '+(added.length?added.join(','):'none'))}"
+    ```
+    ```
+    a4a57f9e added: none
+    9f0603c9 added: c14,c15
+    234a3b4c added: c16
+    85208150 added: c17,c18
+    ```
+    What each of the two does, printed from the record itself — its `id`, its own recorded `exitCode`, and its recorded output — exit 0:
+    ```
+    node -e "const r=require('./research/raw/m045-console-shapes.json');for(const id of ['c17','c18']){const c=r.provenance.commands.find(x=>x.id===id);console.log(id+' exit '+c.exitCode+': '+(Array.isArray(c.output)?c.output.join(' | '):c.output))}"
+    ```
+    ```
+    c17 exit 0: {"state":"joined","findings":[{"text":"ng01002: Missing control value for the input","code":"NG01002","title":"Missing Control Value","carriedCode":"ng01002"}]}
+    c18 exit 0: {"state":"joined","findings":[{"text":"ng04002: Cannot match any routes.","code":"ng04002","reason":"no-digest-entry"}]}
+    ```
+    So `c17` joins a case-folded `ng01002` to the digest's `NG01002`, and `c18` reports `ng04002` as an absence the digest does not carry, named by the code the message carried. **No command in the record is unnamed by this Log:** `c1`–`c16` are named at `:122`–`:137`, and `c17` and `c18` are named here.
+  - **The replayed count, held to the head it was replayed at.** `:138`'s "15 byte-identical outputs, `c2`–`c16`" is corrected the same way: a count of a replayed list is also a measurement at a commit. Each recorded command string is re-run at head `686c6124` and its stdout compared with the recorded output line for line, after normalising CRLF to LF (this is a win32 tree, and `node --version` prints `v24.22.0` plus a carriage return where the record stores the line without one) and dropping one trailing newline:
+    ```
+    node -e "const {execSync}=require('child_process');const r=require('./research/raw/m045-console-shapes.json');const lines=s=>String(s).replace(/\r\n/g,'\n').replace(/\n$/,'').split('\n');const rec=c=>Array.isArray(c.output)?c.output:lines(c.output);const run=c=>{try{return execSync(c.command,{encoding:'utf8'})}catch(e){return String(e.stdout||'')}};let same=0;const diff=[];for(const c of r.provenance.commands){if(JSON.stringify(lines(run(c)))===JSON.stringify(rec(c)))same++;else diff.push(c.id)}console.log('replayed '+r.provenance.commands.length+' recorded commands at head: '+same+' identical, differ: '+(diff.length?diff.join(','):'none'));const c1=r.provenance.commands[0];console.log('c1 recorded: '+JSON.stringify(rec(c1))+' now: '+JSON.stringify(lines(run(c1))))"
+    ```
+    ```
+    replayed 18 recorded commands at head: 17 identical, differ: c1
+    c1 recorded: ["gsd-path/M057","9e95f740"] now: ["gsd-path/M057","686c6124"]
+    ```
+    **17 identical, `c2`–`c18`**, and `c1` alone differs — in its second line only, the short HEAD it captured (`9e95f740` then, `686c6124` now), which is that command doing its job. So "16" and "15" both count commands that run at `628bd800` and do not count the two T015 added.
+  - **The `9e95f740` attribution corrected: a commit that does not carry the file cannot be the commit a size was measured at.** `:51` reads "T001 measured and recorded at branch `gsd-path/M057`, head `9e95f740` … Deliverable: `research/raw/m045-console-shapes.json`, **27,122 bytes**". The record does not exist at that commit:
+    ```
+    git cat-file -s 9e95f740:research/raw/m045-console-shapes.json
+    fatal: path 'research/raw/m045-console-shapes.json' exists on disk, but not in '9e95f740'
+    ```
+    exit **128**. `9e95f740` is the commit `:51` calls the head at capture time and the one the record's own `measuredAt.commit` names: it is the commit the commands were **run** at, and `git rev-parse --short ee4bfbd2^` prints `9e95f740`, so it is the parent of the commit that first carried the record. The commit that does carry the 27,122-byte record is **`ee4bfbd2`**, T001's landing commit:
+    ```
+    git cat-file -s ee4bfbd2:research/raw/m045-console-shapes.json
+    27122
+    ```
+    exit **0**. The record's whole history is five commits and begins there, so no earlier commit is a candidate:
+    ```
+    git log --format="%h %s" -- research/raw/m045-console-shapes.json
+    85208150 T015: Report a case-folded match as the digest carries it
+    234a3b4c T010: Correct the control-character count and give every number a command
+    9f0603c9 T008: Correct the measurement record and pin that text cannot choose an entry
+    a4a57f9e T001: state the digest's size in prose, which the recording-consistency suite reads as a claim
+    ee4bfbd2 T001: Measure the capture and the digest
+    ```
+    So the "27,122 bytes" of `:51` is a measurement of `ee4bfbd2` and of no earlier commit — `git show --stat ee4bfbd2` adds 519 lines of the record there, the first carrying commit. The clause "measured and recorded … at head `9e95f740`" is true only as "the commands ran at `9e95f740`, whose tree carries nothing yet"; the size it states is `ee4bfbd2`'s, which is why the number cannot be read at the commit the entry names.
+  - **The worktree-hash sentence, restated so it names the commit whose bytes it describes.** `:119` closes with "The worktree is the named commit's bytes and not some later state: `git hash-object research/raw/m045-console-shapes.json` and `git rev-parse 628bd800:research/raw/m045-console-shapes.json` both print `de0f927ab2dce1d722a1dbada2dd00d116d4feef`, so the size above describes what is checked in at this head." That equality is a measurement of **`628bd800`** — the head the entry was written at — and it stopped holding of a checkout the moment T015 appended the two commands. Read as a statement about `628bd800` it stands; read as timeless, it is the same ageing the sentence was written to end, since the record's blob moves with every append. Measured at this head, exit 0:
+    ```
+    node -e "const {execFileSync}=require('child_process');for(const c of ['628bd800','85208150','686c6124'])console.log(c+': '+execFileSync('git',['rev-parse',c+':research/raw/m045-console-shapes.json']).toString().trim()+' ('+execFileSync('git',['cat-file','-s',c+':research/raw/m045-console-shapes.json']).toString().trim()+' bytes)');console.log('worktree: '+execFileSync('git',['hash-object','research/raw/m045-console-shapes.json']).toString().trim())"
+    ```
+    ```
+    628bd800: de0f927ab2dce1d722a1dbada2dd00d116d4feef (35619 bytes)
+    85208150: 9b6f9e70593723004331b6bc25e97bc725f853a9 (39284 bytes)
+    686c6124: 9b6f9e70593723004331b6bc25e97bc725f853a9 (39284 bytes)
+    worktree: 9b6f9e70593723004331b6bc25e97bc725f853a9
+    ```
+    The worktree holds `9b6f9e70…` — **the bytes of `686c6124`**, the same blob `85208150` carries — while `de0f927a…` is `628bd800`'s blob, 35,619 bytes, which no checkout gives you now. Restated, replacing the closing sentence of `:119`: *"The worktree was `628bd800`'s bytes and not some later state when that entry was written — `git hash-object` and `git rev-parse 628bd800:research/raw/m045-console-shapes.json` both printed `de0f927a…` then — so 35,619 bytes is what `628bd800` carries; at `686c6124` the record is 39,284 bytes with blob `9b6f9e70…`, because T015 appended `c17` and `c18` to it."*
+  - **What did not change.** No product value moved and the record was measured, not written: this tree's record is byte-identical to the one `85208150` carries (`9b6f9e70…`, 39,284 bytes), and this task's only edit is this Log, appended to.
+
+- 2026-11-16 — **T016: the prefix hash that proves the corrections above are an append and not a rewrite.**
+  - **The proof.** sha256 of `.project/tasks/T001-measure-the-capture-and-the-digest.md` as `686c6124` carries it, against sha256 of the first that-many bytes of this file, measured with the correction above in place — exit 0:
+    ```
+    node -e "const fs=require('fs'),{execFileSync}=require('child_process'),crypto=require('crypto');const p='.project/tasks/T001-measure-the-capture-and-the-digest.md';const committed=execFileSync('git',['show','686c6124:'+p],{stdio:['ignore','pipe','ignore']});const now=fs.readFileSync(p);const sha=b=>crypto.createHash('sha256').update(b).digest('hex');console.log('sha256 of '+p+' at 686c6124: '+sha(committed)+' ('+committed.length+' bytes)');console.log('sha256 of the first '+committed.length+' bytes of this file: '+sha(now.subarray(0,committed.length)));console.log('identical: '+now.subarray(0,committed.length).equals(committed))"
+    ```
+    ```
+    sha256 of .project/tasks/T001-measure-the-capture-and-the-digest.md at 686c6124: 3a9792be234799741d99fc2b35ab539d67ef4c03f7589b14bfe9e69680623aa1 (21745 bytes)
+    sha256 of the first 21745 bytes of this file: 3a9792be234799741d99fc2b35ab539d67ef4c03f7589b14bfe9e69680623aa1
+    identical: true
+    ```
+  - **What that settles, and why it stays settled.** Both printed digests are sha256 over the same 21,745 bytes — the commit's whole file, and this file's first 21,745 bytes — and they agree, so every `## Log` byte of `686c6124` is still there and the correction above adds bytes after them rather than rewriting one of them. The command prints nothing that moves when the file grows: it hashes a fixed byte range at both ends, and a hash over a prefix is unchanged by bytes appended after the prefix, so a later reader re-running the same command gets the same three lines. What it does not prove is that the bytes appended *after* that range are a pure append — this entry is itself the second such append, and the same command re-run after it landed printed the same three lines.
