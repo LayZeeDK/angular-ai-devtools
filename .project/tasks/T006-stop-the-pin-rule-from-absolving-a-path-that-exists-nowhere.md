@@ -4,10 +4,10 @@ title: Stop the pin rule from absolving a path that exists nowhere
 wave: 6
 deps:
   - T005
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T006
+base: c98d6ee625d53e984a6352dff480451903abc97c
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - scripts/gate-integrity.mjs

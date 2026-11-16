@@ -5,10 +5,10 @@ wave: 6
 deps:
   - T001
   - T002
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T008
+base: c98d6ee625d53e984a6352dff480451903abc97c
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - research/raw/m045-console-shapes.json
