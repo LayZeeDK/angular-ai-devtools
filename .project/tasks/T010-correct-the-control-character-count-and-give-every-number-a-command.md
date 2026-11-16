@@ -4,10 +4,10 @@ title: Correct the control-character count and give every number a command
 wave: 7
 deps:
   - T008
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T010
+base: 562de854312a437cd14cc0ffff06d3e30f847112
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - research/raw/m045-console-shapes.json

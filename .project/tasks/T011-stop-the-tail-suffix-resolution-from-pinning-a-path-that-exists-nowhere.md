@@ -4,10 +4,10 @@ title: Stop the tail-suffix resolution from pinning a path that exists nowhere
 wave: 7
 deps:
   - T006
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T011
+base: 562de854312a437cd14cc0ffff06d3e30f847112
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - scripts/gate-integrity.mjs

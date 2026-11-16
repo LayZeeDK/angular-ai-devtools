@@ -4,10 +4,10 @@ title: Police only the words the pane writes itself
 wave: 7
 deps:
   - T007
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T009
+base: 562de854312a437cd14cc0ffff06d3e30f847112
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-console.ts
