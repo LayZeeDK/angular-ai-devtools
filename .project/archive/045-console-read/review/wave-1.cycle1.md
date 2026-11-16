@@ -1,6 +1,6 @@
-# Review — wave 1, cycle 6
+# Review — wave 1, cycle 1
 
-Cycle: 6
+Cycle: 1
 Depth: full
 Wave verdict: pass
 Tasks reviewed: 1

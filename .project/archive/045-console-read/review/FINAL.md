@@ -1,6 +1,6 @@
 # FINAL — M057 console-read
 
-Reviewed HEAD: 72aaedafa74760ae9b5812933acd2976f75623ac
+Reviewed HEAD: 11efb4a537f4f4ae130606a949424717dc5a4f55
 
 Overall verdict: pass
 
@@ -104,3 +104,16 @@ landing rather than at the commit that happened to be convenient.
 The gates in `~/.commandcode/scripts/gsd` that this milestone's reviews examined are outside this
 repository and outside this milestone's scope; their findings are recorded in the review artifacts and
 remain open.
+
+## The gap panel's finding, fixed at ship
+
+Both gap reviews, run independently over the whole milestone diff, found the same defect: the demo
+fixture still carried the note `T021` removed, and a spec asserted that note by regex. The fixture is the
+join's own answer, so the record now matches the join: bare text, with the absence stated once in the
+pane's `no-code` sentence. `11efb4a5` carries that change, and the render suite passes 41 of 41 at it,
+including the pin that no `text:` line may carry the removed note.
+
+The finding arrived after `prepare-final` had run at `72aaedaf`, so the reviewed head recorded here is the
+commit that carries the fix rather than the one the wave reviews name. That difference is stated rather
+than smoothed: every wave review in this directory was written against `72aaedaf`, and this is the only
+change between them and the shipped tree.
