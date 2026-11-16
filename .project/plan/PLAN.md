@@ -204,6 +204,26 @@ T019 stops patching the sentence classifier. The pane's own sentences become one
 tests pin it against the rendered output in both directions, and the record carries the same registry. The
 absence rule stays as a secondary check over the registry's text rather than as the defence itself.
 
+## Wave 13 — subtract the prose that keeps going stale
+
+Goal: the Log states measurements at commits and names commands, and the surface quotes the capture rather than
+editing it.
+
+Review depth: full
+
+T020 stops correcting the Log one sentence at a time and removes the class: derived counts restated as prose
+become a command and a sentence saying what it prints. T021 makes `text` the capture's own text, since the join
+has been appending a note to a string the surface claims to quote verbatim.
+
+## Wave 14 — the same subtraction, once the record is quiet
+
+Goal: the Log's derived counts are removed after the record has stopped moving.
+
+Review depth: full
+
+T020 runs after T021 has re-captured the shapes record, so the text it leaves behind describes a record that
+is no longer changing under it.
+
 ## Risks
 
 - **The gate pins the suites this milestone adds.** `scripts/gate-integrity.test.mjs` requires a
