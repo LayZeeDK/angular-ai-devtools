@@ -2252,7 +2252,7 @@ const DOTTED = '.' + 'project';
 const LIVE_MILESTONE = 'M044';
 
 /** The two suites the record and the check agree name the same live path, one naming it and one reading it. */
-const NAMING_SUITE = 'scripts/performance-capture.test.mjs';
+const NAMING_SUITE = 'scripts/overlay-verdict-claims.test.mjs';
 const READING_SUITE = 'scripts/navigation-capture.test.mjs';
 
 /** The archive-path report over this repository, derived once: the check reads 141 suites. */
@@ -3566,6 +3566,8 @@ const TREE_ROOTS = [
  * unexamined row: the list is a reading of the diffs, so a diff nobody read cannot appear in it.
  */
 const SUITE_DIFF_REASONS = {
+  'scripts/performance-capture.test.mjs':
+    'the live intent is asked of `verdict-claims-intent.mjs` rather than spelled, so the suite reads whichever intent was most recently current when none is live between milestones; two assertion lines added and none dropped',
   'scripts/autonomy-gaps.test.mjs':
     'the live audit path is resolved at read time instead of opened by name, so the suite reads whichever copy the checkout carries; no assertion line was removed',
   'scripts/docs-audit-disposition.test.mjs':

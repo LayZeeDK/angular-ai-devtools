@@ -122,3 +122,41 @@ export function intentPathForMilestone(root, milestone) {
 
   return live;
 }
+
+/**
+ * The intent that was most recently current: the live one while a milestone is bound, otherwise the
+ * highest-numbered archive that carries one.
+ *
+ * This answers the question `intentPathForMilestone` deliberately refuses: "held to whoever is current,
+ * would these claims redden?". Between milestones the live intent is absent - the ship moves it into the
+ * archive - so a suite that needs a live intent to hold *another* milestone's claims against would
+ * otherwise fail on a missing file rather than on the property it proves.
+ *
+ * @param {string} root
+ * @returns {string} the live intent, or the newest archived intent
+ * @throws when neither exists, so a caller never reads a path that was invented
+ */
+export function currentIntentPath(root) {
+  const at = resolve(String(root ?? ''));
+  const live = join(at, '.project', 'intent', 'INTENT.md');
+
+  if (existsSync(live) && boundMilestone(at) !== null) {
+    return live;
+  }
+
+  const archives = join(at, '.project', 'archive');
+  const carrying = existsSync(archives)
+    ? readdirSync(archives)
+        .filter((name) => existsSync(join(archives, name, 'intent', 'INTENT.md')))
+        .sort()
+    : [];
+  const newest = carrying.pop();
+
+  if (newest === undefined) {
+    throw new Error(
+      `no current intent exists: the live intent ${live} is ${existsSync(live) ? 'not bound to a milestone' : 'absent'} and no archive under ${archives} carries an intent`,
+    );
+  }
+
+  return join(archives, newest, 'intent', 'INTENT.md');
+}

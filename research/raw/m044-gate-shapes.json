@@ -10,7 +10,7 @@
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
     "filesExamined": 278,
     "suitesExamined": 146,
-    "examined": 184,
+    "examined": 183,
     "movedSubtrees": [
       "build",
       "intent",
@@ -25,14 +25,14 @@
       "rule": "every directory name any archived milestone directory carries is a subtree the archive move relocates; a file the archive writes there (MANIFEST.md) is not"
     },
     "counts": {
-      "archived-by-the-move": 17,
+      "archived-by-the-move": 16,
       "deliberate-archive-read": 28,
       "undecided": 139
     },
     "sites": {
       "path": 10,
       "comment": 66,
-      "segment": 62,
+      "segment": 61,
       "citation": 8,
       "message": 33,
       "pattern": 5
@@ -896,7 +896,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3791,
+        "line": 3793,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1436,17 +1436,7 @@
       },
       {
         "file": "scripts/performance-capture.test.mjs",
-        "line": 1978,
-        "path": ".project/intent/INTENT.md",
-        "site": "segment",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/intent/INTENT.md, whose .project subtree intent is one the archive move relocates to .project/archive/<NNN>-<slug>/intent, so that path is deleted when the milestone archives",
-        "root": "ROOT",
-        "construct": "call"
-      },
-      {
-        "file": "scripts/performance-capture.test.mjs",
-        "line": 1986,
+        "line": 1991,
         "path": ".project/archive/040-",
         "site": "segment",
         "class": "deliberate-archive-read",
@@ -2181,7 +2171,7 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 5618,
+        "addedLines": 5620,
         "removedLines": 0,
         "addedAssertionLines": 346,
         "removedAssertionLines": 0,
@@ -2245,6 +2235,19 @@
         "reason": "the check-chain pin was re-cut from six stages to twelve when T003 wired the two gate stages in, with the red half widened to a dropped, swapped or extra stage of each; strengthened rather than weakened"
       },
       {
+        "file": "scripts/performance-capture.test.mjs",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 7,
+        "removedLines": 2,
+        "addedAssertionLines": 0,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "the live intent is asked of `verdict-claims-intent.mjs` rather than spelled, so the suite reads whichever intent was most recently current when none is live between milestones; two assertion lines added and none dropped"
+      },
+      {
         "file": "scripts/retired-suites.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
@@ -2259,8 +2262,8 @@
       }
     ],
     "counts": {
-      "differing": 16,
-      "edited": 10,
+      "differing": 17,
+      "edited": 11,
       "added": 6,
       "removedAssertionLines": 1,
       "recutAssertionLines": 1,
@@ -2358,6 +2361,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-16T17:24:49.888Z"
+    "at": "2026-11-16T19:24:04.678Z"
   }
 }

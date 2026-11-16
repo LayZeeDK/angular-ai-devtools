@@ -45,7 +45,10 @@ import { fileURLToPath } from 'node:url';
 import { createContext, runInContext } from 'node:vm';
 import { test } from 'node:test';
 
-import { intentPathForMilestone } from './verdict-claims-intent.mjs';
+import {
+  currentIntentPath,
+  intentPathForMilestone,
+} from './verdict-claims-intent.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
@@ -1975,7 +1978,9 @@ test('the claim list quotes the milestone`s own intent character for character',
 
 test('the claims are M040`s own: held to the live intent they redden naming SC1', () => {
   const own = intentPathForMilestone(ROOT, 'M040');
-  const live = join(ROOT, '.project', 'intent', 'INTENT.md');
+  // Held to whoever is current: between milestones the live intent is archived, so this asks the
+  // resolver rather than spelling a path the archive move deletes.
+  const live = currentIntentPath(ROOT);
 
   assert.notEqual(
     own,
