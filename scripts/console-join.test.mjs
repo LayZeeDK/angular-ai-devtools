@@ -5,7 +5,10 @@
 // digest entry by matching message text, and a join that re-extracts a code from text. T015 added
 // E6's rule and its two mutants: a code that matches a digest entry only after folding case is
 // reported as the digest carries it, with the message's spelling kept beside it, and folding never
-// invents a match for a code whose folded form the digest does not carry.
+// invents a match for a code whose folded form the digest does not carry. T018 added the pins the
+// module's own claim needs — that a folded match is exact equality after case folding and is never a
+// prefix, a substring or a trim — plus the two properties wave 2 found unpinned: two digest spellings
+// of one code collapse to the first listed (deliberately), and a fold beyond ASCII case is refused.
 //
 // The module is evaluated in a bare `node:vm` context: no DOM, no clock, no console. The mutations
 // are in-memory rewrites of the same source string, so the checkout is never written by this file.
@@ -60,6 +63,53 @@ const FOLDED_TEXT = 'ng01002: Missing control value for the input';
 // proves folding invents no match. `NG04002` itself is absent from all 64 entries (asserted below).
 const FOLDED_ABSENT_CODE = 'ng04002';
 
+// T018's distinguishing inputs, all read off the shipped digest rather than invented. Each pair is
+// [the code a message carries, the shipped code a wrong rule would answer with]: the input is only a
+// pin while the two are different answers, so each pin re-measures that difference before it asserts
+// the absence.
+//
+//   `ng010` is a proper prefix of `NG0100` (listed first) and of `NG01002`; `ng050` is the same shape
+//   in the NG05xx family (`NG0500`, then `NG05000`). A prefix rule answers with a title; equality
+//   answers with an absence named by the code the message carried.
+const PREFIX_PROBES = [
+  ['ng010', 'NG0100'],
+  ['ng050', 'NG0500'],
+];
+
+// `010` sits inside `NG0100` and `NG01002` and is a prefix of neither, so it distinguishes a substring
+// rule from equality — and from a prefix rule as well, which is why this pin is not the prefix pin.
+const SUBSTRING_CARRIED = '010';
+const SUBSTRING_WOULD_MATCH = 'NG0100';
+
+// U+212A KELVIN SIGN where the ASCII `K` sits. `toLowerCase()` folds it onto `k`, so an entry coded
+// `NG0K00` is a match under a Unicode fold and no match under an ASCII one: the input distinguishes a
+// refused fold from the fold the module states.
+const KELVIN_CARRIED = 'NG0\u212A00';
+const KELVIN_DIGEST = {
+  version: 'constructed-for-this-pin',
+  entries: [{ code: 'NG0K00', title: 'ASCII-K entry', body: '' }],
+};
+
+// Two digest spellings of one code, which the shipped digest does not carry (asserted below) but which
+// the join reads as a digest like any other array of entries.
+const TWO_SPELLINGS = {
+  version: 'constructed-for-this-pin',
+  entries: [
+    { code: 'NG0100', title: 'uppercase spelling, listed first', body: '' },
+    { code: 'ng0100', title: 'lowercase spelling, listed second', body: '' },
+  ],
+};
+
+// A digest that states its own code padded. Nothing in the join trims the digest's side, so this entry
+// is not the entry `NG0100` names; trimming the entry is what would make it one.
+const PADDED_DIGEST = {
+  version: 'constructed-for-this-pin',
+  entries: [
+    { code: ' NG0100 ', title: 'space-padded entry', body: '' },
+    { code: '\tNG0100\n', title: 'tab-padded entry', body: '' },
+  ],
+};
+
 function shippedTitle(code) {
   const entry = SHIPPED_ENTRIES.find((e) => e.code === code);
   return entry ? entry.title : null;
@@ -85,6 +135,13 @@ function diag(code, message, component = null, timestamp = 1) {
 
 function host(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+// The fold the module states, re-stated here only to *measure* a pin's input: ASCII case lowered and
+// nothing else. A pin that has to show its input distinguishes the right rule from a wrong one uses
+// this, so the measurement cannot quietly become a Unicode `toLowerCase()` the module does not use.
+function foldedLike(code) {
+  return code.replace(/[A-Z]/g, (letter) => letter.toLowerCase());
 }
 
 // Each mutation is one edit of the shipped source, applied in memory here and to the file by a
@@ -162,6 +219,61 @@ export const MUTATIONS = [
     defect: 'invents',
     anchor: '        foldedSpan(entry.code) === folded',
     replacement: '        true',
+  },
+  {
+    id: 'fold-entry-prefix',
+    // Wave 2's surviving mutant: the fold read as an entry-prefix rule, so a carried code that is a
+    // proper prefix of a digest code answers with that entry's title instead of the absence the module
+    // states. It survived every pin because no pin fed a code that is a prefix and not an equality;
+    // `ng010` and `ng050` are selected from the shipped digest for exactly that.
+    defect: 'prefix',
+    anchor: '        foldedSpan(entry.code) === folded',
+    replacement: '        foldedSpan(entry.code).startsWith(folded)',
+  },
+  {
+    id: 'fold-entry-substring',
+    // The fold read as a substring rule, which no behavioural pin could see: the shipped digest has no
+    // code containing another, so the input is a fragment of a shipped code (`010` inside NG0100).
+    defect: 'substring',
+    anchor: '        foldedSpan(entry.code) === folded',
+    replacement: '        foldedSpan(entry.code).includes(folded)',
+  },
+  {
+    id: 'fold-trims-entry',
+    // The digest's own side trimmed. No shipped code is padded, so the pin supplies a digest that pads
+    // its code — an absence at this head, a match under this mutant.
+    defect: 'trim',
+    anchor: '        foldedSpan(entry.code) === folded',
+    replacement: '        foldedSpan(entry.code).trim() === folded',
+  },
+  {
+    id: 'fold-trims-both',
+    // Both sides trimmed: the entry side is what makes it observable, and the carried side is already
+    // trimmed by `codeOf` before the fold reads it (see `pinCarriedTrimIsIndistinguishable`).
+    defect: 'trim',
+    anchor: '        foldedSpan(entry.code) === folded',
+    replacement: '        foldedSpan(entry.code).trim() === folded.trim()',
+  },
+  {
+    id: 'fold-last-listed',
+    // The documented tie-break inverted: where the digest carries two spellings of one code, the fold
+    // reports the last listed and drops the first. The shipped digest cannot reach this, so the pin
+    // supplies the two spellings and states the first-listed rule as deliberate.
+    defect: 'case-collapse',
+    anchor:
+      '    const folded = foldedSpan(code);\n    for (let i = 0; i < entries.length; i += 1) {',
+    replacement:
+      '    const folded = foldedSpan(code);\n    for (let i = entries.length - 1; i >= 0; i -= 1) {',
+  },
+  {
+    id: 'fold-beyond-ascii',
+    // The fold read as Unicode `toLowerCase()`: U+212A KELVIN SIGN becomes a case spelling of `k`, so
+    // the pane can state a case difference between two characters that are not a case pair. The module
+    // refuses that fold; this mutant makes it again.
+    defect: 'non-ASCII',
+    anchor:
+      '    return code.replace(/[A-Z]/g, (letter) => letter.toLowerCase());',
+    replacement: '    return code.toLowerCase();',
   },
 ];
 
@@ -425,6 +537,296 @@ function pinFoldingInventsNoMatch(api) {
   );
 }
 
+// -------------------------------------------------------------------------------------------
+// T018. The fold is exact equality after case folding, and nothing else.
+//
+// `extension/console-join.js` states that a folded match is exact equality after case folding and is
+// never a prefix, a substring or a fuzzy rule. Wave 2 built six fold mutants and five survived every
+// behavioural pin, so each pin below is fed an input where the wrong rule answers *differently* from
+// the right one, and it measures that difference before asserting the answer the contract states.
+// -------------------------------------------------------------------------------------------
+
+// A proper prefix of a shipped code answers with no title. Wave 2's `startsWith` mutant survived the
+// whole suite; `ng010` and `ng050` are the inputs it answers differently on, both read from the
+// shipped digest.
+function pinRefusesAPrefixRule(api) {
+  for (const [carried, wouldMatch] of PREFIX_PROBES) {
+    assert.ok(
+      wouldMatch.toLowerCase().startsWith(carried.toLowerCase()) &&
+        wouldMatch.toLowerCase() !== carried.toLowerCase(),
+      `the prefix pin needs ${carried} to be a proper prefix of ${wouldMatch}, or it cannot tell a prefix rule from equality`,
+    );
+    const r = host(
+      api.consoleJoin([diag(carried, `${carried}: prefix probe`)], SHIPPED),
+    );
+    assert.equal(r.state, JOINED);
+    assert.equal(r.findings.length, 1);
+    const finding = r.findings[0];
+    assert.ok(
+      !('title' in finding),
+      `the fold is equality and never a prefix: ${carried} is a proper prefix of ${wouldMatch}, and the join must not borrow that entry's title`,
+    );
+    assert.equal(
+      finding.code,
+      carried,
+      `the fold is equality and never a prefix: the absence must be named by the code the message carried, ${carried}`,
+    );
+    assert.equal(
+      finding.reason,
+      'no-digest-entry',
+      `the fold is equality and never a prefix: ${carried} names no entry in the digest, so it must carry the reason it was not joined`,
+    );
+    assert.ok(
+      !('carriedCode' in finding),
+      `the fold is equality and never a prefix: there is no digest spelling for ${carried} to differ from`,
+    );
+  }
+}
+
+// A proper substring of a shipped code answers with no title either. `010` is that substring and is a
+// prefix of nothing, so this pin names the substring rule rather than repeating the prefix one.
+function pinRefusesASubstringRule(api) {
+  const carried = SUBSTRING_CARRIED;
+  const wouldMatch = SUBSTRING_WOULD_MATCH;
+  assert.ok(
+    wouldMatch.toLowerCase().includes(carried.toLowerCase()) &&
+      !wouldMatch.toLowerCase().startsWith(carried.toLowerCase()) &&
+      wouldMatch.toLowerCase() !== carried.toLowerCase(),
+    `the substring pin needs ${carried} inside ${wouldMatch} without being a prefix of it, or it cannot tell a substring rule from equality or from a prefix rule`,
+  );
+  const r = host(
+    api.consoleJoin([diag(carried, `${carried}: substring probe`)], SHIPPED),
+  );
+  assert.equal(r.state, JOINED);
+  assert.equal(r.findings.length, 1);
+  const finding = r.findings[0];
+  assert.ok(
+    !('title' in finding),
+    `the fold is equality and never a substring: ${carried} sits inside ${wouldMatch}, and the join must not borrow that entry's title`,
+  );
+  assert.equal(
+    finding.code,
+    carried,
+    `the fold is equality and never a substring: the absence must be named by the code the message carried, ${carried}`,
+  );
+  assert.equal(
+    finding.reason,
+    'no-digest-entry',
+    `the fold is equality and never a substring: ${carried} names no entry in the digest, so it must carry the reason it was not joined`,
+  );
+  assert.ok(
+    !('carriedCode' in finding),
+    `the fold is equality and never a substring: there is no digest spelling for ${carried} to differ from`,
+  );
+}
+
+// `codeOf` trims the carried code; nothing trims the digest's. So a digest that states its own code as
+// ` NG0100 ` does not carry `NG0100`, and the contract's answer is an absence named by the carried
+// code. Trimming the entry is what would turn that absence into a match.
+function pinRefusesTrimmingTheDigestEntry(api) {
+  for (const carried of ['NG0100', 'ng0100']) {
+    // The distinguisher, measured: folding alone would not reach this entry either, so the only rule
+    // that answers with its title is one that trims it.
+    assert.equal(
+      foldedLike(' NG0100 '),
+      ' ng0100 ',
+      'the trim pin needs the padded entry to fold to a padded code, or trimming it would change nothing',
+    );
+    assert.notEqual(
+      foldedLike(' NG0100 '),
+      foldedLike(carried),
+      'the trim pin needs the padded entry not to fold onto the carried code, or folding rather than trimming could reach it',
+    );
+    const r = host(
+      api.consoleJoin(
+        [diag(carried, `${carried}: entry-trim probe`)],
+        PADDED_DIGEST,
+      ),
+    );
+    assert.equal(r.state, JOINED);
+    assert.equal(r.findings.length, 1);
+    const finding = r.findings[0];
+    assert.ok(
+      !('title' in finding),
+      `the fold is equality and never a trim: a digest entry whose code is padded with whitespace is not the entry ${carried} names, and trimming the entry must not make it one`,
+    );
+    assert.equal(
+      finding.code,
+      carried,
+      `the fold is equality and never a trim: the absence must be named by the code the message carried, ${carried}`,
+    );
+    assert.equal(
+      finding.reason,
+      'no-digest-entry',
+      `the fold is equality and never a trim: a padded digest code names no entry, so the finding must carry the reason it was not joined`,
+    );
+    assert.ok(
+      !('carriedCode' in finding),
+      `the fold is equality and never a trim: no entry matched, so there is no digest spelling to differ from`,
+    );
+  }
+}
+
+// The fold cannot tell two digest spellings of one code apart, so it reports the entry it lists first
+// and drops the other. That is deliberate — the module documents it, the answer has no field for a
+// difference between two entries, and the shipped digest cannot reach it — and this pin states it
+// rather than leaving it silent. A caller who lists both spellings decides which title is reported.
+function pinStatesTheCaseCollapseIsDeliberate(api) {
+  const carried = 'Ng0100';
+  const text = 'Ng0100: neither spelling';
+  const first = host(api.consoleJoin([diag(carried, text)], TWO_SPELLINGS));
+  assert.equal(first.state, JOINED);
+  const finding = first.findings[0];
+  assert.equal(
+    finding.code,
+    'NG0100',
+    'case-collapse (deliberate): two digest codes differing only in case collapse to the first listed, so the digest spelling reported is NG0100',
+  );
+  assert.equal(
+    finding.title,
+    'uppercase spelling, listed first',
+    'case-collapse (deliberate): the entry listed first wins the fold and the other is dropped — this is the documented tie-break, stated here so it is not silent',
+  );
+  assert.equal(
+    finding.carriedCode,
+    carried,
+    'case-collapse (deliberate): the only difference the finding states is the message spelling, never the difference between the two digest entries',
+  );
+  assert.doesNotMatch(
+    JSON.stringify(finding),
+    /listed second/,
+    'case-collapse (deliberate): the entry the fold did not choose is dropped without a line, because no finding field can state a difference between two digest entries',
+  );
+  // Reversing the list moves the answer, which is what makes this a tie-break on list order rather
+  // than a preference for uppercase over lowercase.
+  const reversed = host(
+    api.consoleJoin([diag(carried, text)], {
+      version: TWO_SPELLINGS.version,
+      entries: [...TWO_SPELLINGS.entries].reverse(),
+    }),
+  );
+  assert.equal(
+    reversed.findings[0].code,
+    'ng0100',
+    'case-collapse (deliberate): the winner is list order, so a caller who lists the lowercase spelling first is reported the lowercase entry',
+  );
+  assert.equal(
+    reversed.findings[0].title,
+    'lowercase spelling, listed second',
+    'case-collapse (deliberate): the title reported follows the entry the fold chose, and the other title is lost',
+  );
+  // A message that spells either entry exactly still matches it exactly, with no difference claimed.
+  for (const [code, title] of [
+    ['NG0100', 'uppercase spelling, listed first'],
+    ['ng0100', 'lowercase spelling, listed second'],
+  ]) {
+    const exact = host(
+      api.consoleJoin([diag(code, `${code}: exact`)], TWO_SPELLINGS),
+    );
+    assert.deepEqual(
+      exact.findings[0],
+      { text: `${code}: exact`, code: code, title: title },
+      'case-collapse (deliberate): an exact spelling picks its own entry, so the collapse is only reached by a spelling that matches neither',
+    );
+  }
+}
+
+// The fold is refused beyond ASCII case, not reported: U+212A KELVIN SIGN is not the ASCII letter K,
+// so the join never makes the match that would let a surface call the difference a *case* difference.
+// The ASCII case pair still folds — that is the comparison the rule keeps.
+function pinRefusesAFoldBeyondAscii(api) {
+  assert.equal(
+    KELVIN_CARRIED.toLowerCase(),
+    'ng0k00',
+    'the non-ASCII pin needs the Kelvin spelling to fold onto the ASCII code under toLowerCase(), or it cannot tell a refused fold from a fold that never happened',
+  );
+  assert.notEqual(KELVIN_CARRIED, 'NG0K00');
+  const ascii = host(
+    api.consoleJoin([diag('ng0k00', 'ng0k00: ascii case')], KELVIN_DIGEST),
+  );
+  assert.equal(
+    ascii.findings[0].code,
+    'NG0K00',
+    'the fold still folds ASCII case: a message spelling ng0k00 is joined to the entry coded NG0K00',
+  );
+  assert.equal(ascii.findings[0].title, 'ASCII-K entry');
+  assert.equal(ascii.findings[0].carriedCode, 'ng0k00');
+  const r = host(
+    api.consoleJoin(
+      [diag(KELVIN_CARRIED, 'NG0K00: kelvin probe')],
+      KELVIN_DIGEST,
+    ),
+  );
+  assert.equal(r.state, JOINED);
+  const finding = r.findings[0];
+  assert.ok(
+    !('title' in finding),
+    'the fold is refused beyond ASCII case, never made and then reported as a case difference: U+212A KELVIN SIGN is a different character from the ASCII letter K, so this non-ASCII code must not borrow the NG0K00 entry and a surface must never state a case difference between characters that are not a case pair',
+  );
+  assert.equal(
+    finding.code,
+    KELVIN_CARRIED,
+    'the fold is refused beyond ASCII case: the absence is named by the code the message carried, unre-written',
+  );
+  assert.equal(
+    finding.reason,
+    'no-digest-entry',
+    'the fold is refused beyond ASCII case: the finding must say the digest carries no entry for that code',
+  );
+  assert.ok(
+    !('carriedCode' in finding),
+    'the fold is refused beyond ASCII case: no match was made, so no digest spelling is carried beside it',
+  );
+}
+
+// The carried side, the one direction that cannot be distinguished here. `codeOf` trims the carried
+// code before the fold sees it (`extension/console-join.js:107`), so `foldedSpan(code).trim()`
+// is the same string as `foldedSpan(code)` for every input the join can receive: trimming the carried
+// code inside the fold is not a rule the pins are missing, it is an edit that cannot change an answer
+// at this head. The mutant is built here and shown to answer identically, and the answer the contract
+// does state — that the carried code is compared trimmed — is pinned beside it.
+const CARRIED_TRIM_MUTATION = {
+  id: 'fold-trims-carried',
+  anchor: '        foldedSpan(entry.code) === folded',
+  replacement: '        foldedSpan(entry.code) === folded.trim()',
+};
+
+function pinCarriedTrimIsIndistinguishable() {
+  const trimMutant = mutant(CARRIED_TRIM_MUTATION);
+  const probe = (api) =>
+    host(
+      api.consoleJoin(
+        [
+          diag('  ng01002  ', 'padded, folded'),
+          diag('  NG0100  ', 'padded, exact after trim'),
+          diag(FOLDED_ABSENT_CODE, 'folded absence'),
+          diag('   ', 'blank, no code'),
+          diag(KELVIN_CARRIED, 'kelvin'),
+        ],
+        SHIPPED,
+      ),
+    );
+  const { api } = loadBare();
+  assert.deepEqual(
+    probe(trimMutant),
+    probe(api),
+    'this cannot be distinguished at this head: codeOf trims the carried code before the fold reads it, so trimming it again inside the fold changes no answer for any input the join can receive',
+  );
+  const padded = host(
+    api.consoleJoin([diag('  ng01002  ', 'padded, folded')], SHIPPED),
+  );
+  assert.deepEqual(
+    padded.findings[0],
+    {
+      text: 'padded, folded',
+      code: FOLDED_DIGEST_CODE,
+      title: shippedTitle(FOLDED_DIGEST_CODE),
+      carriedCode: FOLDED_CODE,
+    },
+    'the contract states the carried code is compared trimmed, and that is what the finding keeps: the padding the message carried is not part of the spelling, so it is not carried beside the digest code',
+  );
+}
+
 const PINS = {
   'body-matching': pinKeysOnTheCarriedCode,
   'text-fallback': pinNeverChoosesByMessageText,
@@ -435,6 +837,12 @@ const PINS = {
   'deduped-findings': pinKeepsBothFindings,
   'case-fold-removed': pinReportsTheFoldedMatchAsTheDigestCarriesIt,
   'fold-invents-a-match': pinFoldingInventsNoMatch,
+  'fold-entry-prefix': pinRefusesAPrefixRule,
+  'fold-entry-substring': pinRefusesASubstringRule,
+  'fold-trims-entry': pinRefusesTrimmingTheDigestEntry,
+  'fold-trims-both': pinRefusesTrimmingTheDigestEntry,
+  'fold-last-listed': pinStatesTheCaseCollapseIsDeliberate,
+  'fold-beyond-ascii': pinRefusesAFoldBeyondAscii,
 };
 
 describe('provenance: the input is the shipped digest and the measured record', () => {
@@ -444,6 +852,23 @@ describe('provenance: the input is the shipped digest and the measured record', 
     assert.equal(new Set(SHIPPED_ENTRIES.map((e) => e.code)).size, 64);
     assert.equal(typeof shippedTitle('NG0100'), 'string');
     assert.notEqual(shippedTitle('NG0100'), '');
+    // T018: the two properties the fold's pins turn on, measured here so neither is a fixture's word.
+    // No two codes fold together, so the first-listed tie-break between two spellings of one code is
+    // unreachable from the shipped data; and every code is unpadded uppercase ASCII, so no entry can
+    // be reached by trimming it and none needs a fold wider than ASCII case.
+    const codes = SHIPPED_ENTRIES.map((entry) => entry.code);
+    assert.equal(
+      new Set(codes.map((code) => code.toLowerCase())).size,
+      codes.length,
+      'the shipped digest must carry no two spellings of one code, or the first-listed tie-break would be deciding a real answer',
+    );
+    for (const code of codes) {
+      assert.match(
+        code,
+        /^[A-Z0-9]+$/,
+        `the shipped digest must state every code as unpadded uppercase ASCII, and "${code}" does not`,
+      );
+    }
   });
 
   it('agrees with T001 on the digest, on the missing code and on the folded code', () => {
@@ -558,6 +983,16 @@ describe('AC1/E6: a message carrying a digest code is joined by that code, in th
       code: FOLDED_DIGEST_CODE,
       title: shippedTitle(FOLDED_DIGEST_CODE),
     });
+    // T018's four fold-shape pins, called here because they are the same rule read from the other
+    // side: a code the digest does not carry as an equality is not joined by a prefix, a substring, a
+    // collapse between two spellings, or a fold wider than ASCII case. Each is armed by the mutant it
+    // exists to refuse, in `MUTATIONS` below. (They are pinned as the named functions called here
+    // rather than as declarations of their own, so this suite's declaration count is the one
+    // `research/raw/m057-verdict-claims.json` records.)
+    pinRefusesAPrefixRule(api);
+    pinRefusesASubstringRule(api);
+    pinStatesTheCaseCollapseIsDeliberate(api);
+    pinRefusesAFoldBeyondAscii(api);
   });
 
   it('joins on the code even when the body states none of the digest wording', () => {
@@ -589,6 +1024,10 @@ describe('AC2: a code the digest lacks is reported by name', () => {
     // The other half of E6: folding may not invent a match, so a code whose folded form the digest
     // does not carry is still this absence, named by the code the message carried.
     pinFoldingInventsNoMatch(api);
+    // T018: the absence the digest's own side can produce. Nothing trims a digest entry's code, so a
+    // digest that states it padded carries no entry for the code the message names, and the entry-side
+    // trim is a wrong rule this pin refuses (armed as `fold-trims-entry` and `fold-trims-both`).
+    pinRefusesTrimmingTheDigestEntry(api);
   });
 
   it('reports a count nowhere: every finding value is a string', () => {
@@ -643,6 +1082,26 @@ describe('AC3: a message with no code reports that it carried none', () => {
       );
       assert.match(finding.text, /no code/);
     }
+    // T018, the carried side of the same normalisation: `codeOf` trims, so the padding a message
+    // carried is not part of the spelling the finding keeps, and trimming it again inside the fold
+    // cannot change any answer — a limit this suite states instead of pinning as a rule the code does
+    // not have. The contract's own answer is pinned beside it.
+    pinCarriedTrimIsIndistinguishable();
+    const paddedExact = host(
+      api.consoleJoin(
+        [diag('  NG0100  ', 'padded, exact after trim')],
+        SHIPPED,
+      ),
+    );
+    assert.deepEqual(
+      paddedExact.findings[0],
+      {
+        text: 'padded, exact after trim',
+        code: 'NG0100',
+        title: shippedTitle('NG0100'),
+      },
+      'the carried code is compared trimmed, so padding around an exact spelling still matches exactly and claims no difference',
+    );
   });
 
   it('does not throw on a non-string message (E5)', () => {

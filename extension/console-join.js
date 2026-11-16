@@ -27,6 +27,13 @@
 // or a fuzzy rule, so a code whose folded form matches no entry is still an absence named by the code
 // the message carried. Folding invents no match.
 //
+// "Case" means ASCII case here, because that is the whole alphabet a code is written in, and the fold
+// is refused beyond it. `toLowerCase()` folds further than case: U+212A KELVIN SIGN lowercases to `k`,
+// so a Unicode fold would join two codes that differ by character identity and let the surface state a
+// *case* difference between characters that are not a case pair. The fold below therefore folds A–Z
+// and nothing else: a code only a wider fold would reach is an absence named by the code the message
+// carried, and no difference is claimed about it.
+//
 // The answer is `{ state, findings[] }` and nothing else:
 //
 //   state  joined            the capture held at least one diagnostic. `findings` has one entry per
@@ -101,16 +108,22 @@
     return trimmed === '' ? null : trimmed;
   }
 
-  // The folded form two codes are compared by. It is a comparison and nothing else: no code in
-  // `carriedCode`, in `code` or in a title is ever rewritten by this.
+  // The folded form two codes are compared by. It folds ASCII case and nothing else: `toLowerCase()`
+  // is Unicode-aware and would call U+212A KELVIN SIGN a case spelling of `k`, so a fold that wide is
+  // refused rather than reported — the codes it would join are not two spellings of one name. It is a
+  // comparison and nothing else: no code in `carriedCode`, in `code` or in a title is ever rewritten by
+  // this, and it is equality, never a prefix, a substring or a trim.
   function foldedSpan(code) {
-    return code.toLowerCase();
+    return code.replace(/[A-Z]/g, (letter) => letter.toLowerCase());
   }
 
   // The digest entry for one code: the exact spelling first, so a code the digest carries as the
   // message wrote it is joined without any fold, then the same code in another case. Only the first
   // entry whose folded spelling matches is chosen, so a digest that carried two spellings of one code
-  // would report the one it lists first rather than inventing a third. No entry means no entry.
+  // would report the one it lists first rather than inventing a third; the entry it did not choose is
+  // dropped, deliberately and without a line, because the answer has no field for a difference between
+  // two entries — `carriedCode` is the message's spelling, not a second digest code. No entry means no
+  // entry.
   function matchEntry(entries, code) {
     for (let i = 0; i < entries.length; i += 1) {
       const entry = entries[i];
