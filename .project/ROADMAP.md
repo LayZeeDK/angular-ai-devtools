@@ -1323,7 +1323,6 @@ Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/035-onpush-readiness
-Integrated: null
 Integrated: 410c8d02aaa9d3e13bfe44c903c07c8763cc8fb7
 
 Scope: in
