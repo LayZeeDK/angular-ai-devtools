@@ -896,7 +896,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3797,
+        "line": 3805,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -2034,8 +2034,8 @@
       "named": "d94502d1",
       "commit": "d94502d174aff31b0b1ebbab200d5e47939dec39"
     },
-    "examined": 204,
-    "filesListed": 556,
+    "examined": 176,
+    "filesListed": 445,
     "differing": [
       {
         "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
@@ -2142,6 +2142,43 @@
         "reason": "wholly added at this head: M045 T003 pins the console pane’s rendering of the join’s `{ state, findings[] }` — captured-nothing as a statement, an unmatched code named rather than counted, and no cause, element, remedy or unattributed wording — with six mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit"
       },
       {
+        "file": "scripts/copy-to-agent.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 208,
+        "removedLines": 0,
+        "addedAssertionLines": 30,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "a suite this milestone added rather than changed: it pins the measurement record `research/raw/m046-pane-and-copy.json`, its five assertions are all additions and none was removed, and every cited path and line is read from that record rather than spelled here"
+      },
+      {
+        "file": "scripts/doc-fix-alignment.test.mjs",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 39,
+        "removedLines": 50,
+        "addedAssertionLines": 10,
+        "removedAssertionLines": 10,
+        "recutAssertionLines": 10,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(text.includes('1.22.1')",
+          "assert(!text.includes('1.22.0')",
+          "assert(text.includes('1.22.1')",
+          "assert(!text.includes('1.22.0')",
+          "assert(",
+          "assert(",
+          "assert("
+        ],
+        "reason": "the two-tree loop over `.commandcode` and `.claude` became one read of the maintained tree, because the owner deleted the mirror; the four assertions it carried still run, once, and the only deleted lines are the loop scaffolding and the second root"
+      },
+      {
         "file": "scripts/docs-audit-disposition.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
@@ -2153,6 +2190,37 @@
         "droppedAssertionLines": 0,
         "recutAssertions": [],
         "reason": "the live audit path is resolved at read time instead of bound once at load, so the suite reads whichever copy the checkout carries; no assertion line was removed"
+      },
+      {
+        "file": "scripts/docs-correction.test.mjs",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 105,
+        "removedLines": 128,
+        "addedAssertionLines": 18,
+        "removedAssertionLines": 18,
+        "recutAssertionLines": 17,
+        "droppedAssertionLines": 1,
+        "recutAssertions": [
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(",
+          "assert(paragraph"
+        ],
+        "reason": "same reason: the cross-tree loop became a single read, and the three assertions that existed only to prove the two trees agreed were replaced by equivalents on the maintained file alone - the Chromium build-and-revision shape, the maintain rationale standing as its own paragraph, and the reference citing the `.commandcode` path"
       },
       {
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
@@ -2171,7 +2239,7 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 5624,
+        "addedLines": 5632,
         "removedLines": 0,
         "addedAssertionLines": 346,
         "removedAssertionLines": 0,
@@ -2262,32 +2330,32 @@
       }
     ],
     "counts": {
-      "differing": 17,
-      "edited": 11,
-      "added": 6,
-      "removedAssertionLines": 1,
-      "recutAssertionLines": 1,
-      "droppedAssertionLines": 0,
-      "addedAssertionLines": 1171
+      "differing": 20,
+      "edited": 13,
+      "added": 7,
+      "removedAssertionLines": 29,
+      "recutAssertionLines": 28,
+      "droppedAssertionLines": 1,
+      "addedAssertionLines": 1229
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
   "wholeTree": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps src .claude/skills .commandcode/skills",
-    "examined": 204,
-    "filesListed": 556,
+    "examined": 176,
+    "filesListed": 445,
     "suites": {
       "scripts": 101,
       "extension": 11,
       "apps": 34,
       "src": 2,
-      "skills": 56,
-      "total": 204
+      "skills": 28,
+      "total": 176
     },
     "declarations": {
-      "tests": 2482,
+      "tests": 2172,
       "describes": 303,
-      "total": 2785
+      "total": 2475
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -2361,6 +2429,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-16T20:19:22.903Z"
+    "at": "2026-11-16T23:51:02.977Z"
   }
 }

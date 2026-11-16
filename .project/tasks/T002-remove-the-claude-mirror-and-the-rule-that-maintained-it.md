@@ -18,6 +18,7 @@ files:
   - scripts/doc-fix-alignment.test.mjs
   - tests/docs-alignment.test.mjs
   - scripts/gate-integrity.test.mjs
+  - research/raw/m044-gate-shapes.json
 ---
 
 # T002 — Remove the .claude mirror and the rule that maintained it
