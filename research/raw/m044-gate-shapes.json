@@ -880,7 +880,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3413,
+        "line": 3417,
         "path": ".project/STATE.md",
         "site": "path",
         "class": "undecided",
@@ -888,7 +888,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3417,
+        "line": 3421,
         "path": ".project/STATE.md",
         "site": "message",
         "class": "undecided",
@@ -896,7 +896,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3793,
+        "line": 3797,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -2171,7 +2171,7 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 5620,
+        "addedLines": 5624,
         "removedLines": 0,
         "addedAssertionLines": 346,
         "removedAssertionLines": 0,
@@ -2361,6 +2361,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-16T19:24:04.678Z"
+    "at": "2026-11-16T20:19:22.903Z"
   }
 }
