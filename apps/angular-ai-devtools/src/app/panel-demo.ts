@@ -376,8 +376,8 @@ export const FACTS: Record<string, unknown> = {
   // nothing itself. `NG0100` is a digest code and the title below is the digest's own ("Expression
   // Changed After Checked"); `NG04002` is a code the shipped `/NG0\d{3,}/` regex extracts and the
   // digest does not carry, which is why that finding names it and carries `no-digest-entry`; and the
-  // third message carried no code at all, which the join reports in the finding's own text. No cause,
-  // no element and no remedy is written here because the capture records none of the three.
+  // third message carried no code at all, which the join leaves in the text and the pane states as its own
+  // `no-code` sentence. No cause, no element and no remedy is written here because the capture records none.
   // `panel-demo.spec.ts` holds this answer to the join and to the shipped digest — the finding to the
   // join's own answer for it, the title to the entry the code names, the reason to the code the digest
   // lacks — so a fact that drifted from either reddens there.
@@ -394,7 +394,7 @@ export const FACTS: Record<string, unknown> = {
         code: 'NG04002',
         reason: 'no-digest-entry',
       },
-      { text: 'the app failed (this message carried no code)' },
+      { text: 'the app failed' },
     ],
   },
 };

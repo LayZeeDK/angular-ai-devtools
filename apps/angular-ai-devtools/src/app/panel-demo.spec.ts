@@ -1903,9 +1903,9 @@ describe('the panel demo', () => {
     expect(unmatched.reason).toBe('no-digest-entry');
     expect('title' in unmatched).toBe(false);
 
-    // The third message carried no code, which the join states in the finding's own text.
+    // The third message carried no code: the join leaves its text alone, so the absence is the pane's sentence.
     expect(bare?.code).toBeUndefined();
-    expect(bare?.text).toMatch(/\(this message carried no code\)$/);
+    expect(bare?.text).toBe('the app failed');
 
     // The pane renders the fact it was handed, and nothing else.
     const demo = await renderDemo(surfaceName);
