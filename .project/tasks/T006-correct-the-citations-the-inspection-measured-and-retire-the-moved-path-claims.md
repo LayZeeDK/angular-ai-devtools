@@ -35,7 +35,7 @@ now lives. Do not touch the 142 `unverifiable` rows: their evidence is outside t
 
 ## Intent coverage
 
-- SC4 — AC1, AC2
+- SC4
 
 ## Interface contract
 
@@ -51,8 +51,8 @@ None
 
 ## Acceptance criteria
 
-- AC1 Every corrected citation names a line that carries the claimed text at this head, and the suite that reads that artefact passes.
-- AC2 No `unverifiable` row is edited, proven by a diff that touches no row the audit ruled so.
+1. Every corrected citation names a line that carries the claimed text at this head, and the suite that reads that artefact passes.
+2. No `unverifiable` row is edited, proven by a diff that touches no row the audit ruled so.
 
 ## Verify
 

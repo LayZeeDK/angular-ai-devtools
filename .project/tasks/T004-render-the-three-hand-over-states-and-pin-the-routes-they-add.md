@@ -34,8 +34,8 @@ pins in the same commit. The surface renders three states: `handed-over`, `absen
 
 ## Intent coverage
 
-- SC1 — AC1, AC3
-- SC2 — AC1
+- SC1
+- SC2
 
 ## Interface contract
 
@@ -54,9 +54,9 @@ None
 
 ## Acceptance criteria
 
-- AC1 Each of the three states renders its own sentence, and no state names a cause, element or remedy the finding does not carry.
-- AC2 `panel-routes.test.mjs` compares every route's `data.surface` against a `LOADERS` key, and a mutant that drops the new key reddens it naming the surface.
-- AC3 `app.spec.ts` pins the route table including the new route.
+1. Each of the three states renders its own sentence, and no state names a cause, element or remedy the finding does not carry.
+2. `panel-routes.test.mjs` compares every route's `data.surface` against a `LOADERS` key, and a mutant that drops the new key reddens it naming the surface.
+3. `app.spec.ts` pins the route table including the new route.
 
 ## Verify
 

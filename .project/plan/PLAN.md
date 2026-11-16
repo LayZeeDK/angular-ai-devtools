@@ -23,12 +23,14 @@ Project verify: `npm run check && npm test`
 | Criterion | Task | Acceptance |
 |-----------|------|------------|
 | SC1 | T001 | AC1 |
+| SC4 | T001 | AC1 |
+| SC4 | T002 | AC1 |
 | SC1 | T003 | AC1 |
 | SC1 | T004 | AC1 |
-| SC2 | T004 | AC2 |
+| SC2 | T004 | AC1 |
 | SC3 | T005 | AC1 |
-| SC4 | T002 | AC1 |
 | SC4 | T006 | AC1 |
+| SC1 | T007 | AC1 |
 
 ## Prohibitions
 
@@ -61,7 +63,18 @@ is handed over with it; `cannot-tell` — the finding cannot be expressed as a q
 The surface writes its own sentences: it never names a cause, element, remedy or rule identity that the finding
 does not state.
 
+Walkthrough:
+1. Open the panel at route `console-read` with a finding selected; the surface states the text it will send, and that text is the pane's own rendering.
+2. Send the hand-off; the surface states what was sent and names no cause, element or remedy beyond it.
+3. Select a finding that carries an absence; the surface hands it over with the absence stated rather than filling it in.
+4. Select a finding that carries a named absence; the surface carries it over rather than filling it in.
+
+Criteria: SC1, SC2
+
+
 ## Wave 1 — measure what the pane renders and what a copy path composes today
+
+Goal: the pane's rendered text and a copy path's composed text are measured and published as one record, so the hand-off is written against what the panel actually draws rather than against the roadmap's sentence.
 
 Review depth: full
 
@@ -69,15 +82,19 @@ T001 reads the rendered finding for two subjects and records, at `path:line`, wh
 composes. It does not build anything. The measurement decides whether SC1 is new behaviour or a repair, and the
 record it writes is what T003 and T004 are held to.
 
-## Wave 2 — make the two skill trees agree again
+## Wave 2 — remove the second skill tree
+
+Goal: the `.claude` mirror is gone and the rule that maintained it retired, so `.commandcode` is the single source for every skill and no citation can name a stale copy.
 
 Review depth: full
 
-T002 mirrors `.claude/skills/control-angular-dev-app` and `.claude/skills/control-pangular-inspector` onto their
-maintained `.commandcode` copies and restores `scripts/text.mjs` where it is missing. The mirror is proven by hash
-and by the suite that already reads both trees.
+T002 deletes `.claude/` and retires every rule that existed to keep it in step: the mirror suite, the mirror clause
+in the skill linter, and the `AGENTS.md` instruction to copy a changed skill across. Proof is a tree with no
+`.claude` path and a linter that resolves only `.commandcode`.
 
 ## Wave 3 — hand the rendered finding over and state what was sent
+
+Goal: a finding is handed to the agent as the text the pane drew, through a control that names what it will send before it sends it.
 
 Review depth: full
 
@@ -87,6 +104,8 @@ closed reason set and proves an invented cause reddens.
 
 ## Wave 4 — the corrections the inspection ruled `fix-doc`
 
+Goal: `cannot-tell` has a closed reason set, and the citations this milestone's inspection measured are corrected at the files they name.
+
 Review depth: full
 
 T006 corrects the citations this milestone's inspection measured — `AGENTS.md:64`, `monitor-ci/SKILL.md:313`,
@@ -95,6 +114,8 @@ claims in the four `research/` and `spikes/` documents, plus the backlog's dead 
 lines. Each correction is proven by the pin that reads the corrected artefact.
 
 ## Wave 5 — record the surface and run the project verify
+
+Goal: the surface is recorded and the project verify runs at the head that ships, so a red build cannot reach ship.
 
 Review depth: full
 

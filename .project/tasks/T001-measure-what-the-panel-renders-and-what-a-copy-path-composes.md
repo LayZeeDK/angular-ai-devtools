@@ -31,8 +31,8 @@ the record and asserts the two differ for at least one subject. Build nothing; t
 
 ## Intent coverage
 
-- SC1 — AC1, AC2
-- SC4 — AC1, AC2
+- SC1
+- SC4
 
 ## Interface contract
 
@@ -45,8 +45,8 @@ None
 
 ## Acceptance criteria
 
-- AC1 The record names, per subject, the pane's rendered text and the copy path's composed text, each with the path and line that produces it.
-- AC2 The suite fails when the record claims the two agree for a subject whose pane text and composed text differ.
+1. The record names, per subject, the pane's rendered text and the copy path's composed text, each with the path and line that produces it.
+2. The suite fails when the record claims the two agree for a subject whose pane text and composed text differ.
 
 ## Verify
 

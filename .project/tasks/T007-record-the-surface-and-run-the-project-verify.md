@@ -27,7 +27,7 @@ Derive `research/raw/m046-surface.json` from the shipped tree, pin it, and run t
 
 ## Intent coverage
 
-- SC1 — AC1, AC2
+- SC1
 
 ## Interface contract
 
@@ -40,8 +40,8 @@ None
 
 ## Acceptance criteria
 
-- AC1 The record is derived from this tree, and a default run writes no byte.
-- AC2 The project verify passes at the head this task lands.
+1. The record is derived from this tree, and a default run writes no byte.
+2. The project verify passes at the head this task lands.
 
 ## Verify
 

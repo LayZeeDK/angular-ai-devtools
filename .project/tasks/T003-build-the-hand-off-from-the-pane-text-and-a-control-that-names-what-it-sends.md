@@ -29,7 +29,7 @@ text. The suite pins the pane text as the source and reddens when a mutant recom
 
 ## Intent coverage
 
-- SC1 — AC1, AC2
+- SC1
 
 ## Interface contract
 
@@ -42,8 +42,8 @@ None
 
 ## Acceptance criteria
 
-- AC1 The hand-off returns the pane's rendered text unchanged, and a mutant that recomposes it from the record reddens the pin naming the difference.
-- AC2 The control description states what will be sent, and states no cause, element, remedy or rule identity the finding does not carry.
+1. The hand-off returns the pane's rendered text unchanged, and a mutant that recomposes it from the record reddens the pin naming the difference.
+2. The control description states what will be sent, and states no cause, element, remedy or rule identity the finding does not carry.
 
 ## Verify
 

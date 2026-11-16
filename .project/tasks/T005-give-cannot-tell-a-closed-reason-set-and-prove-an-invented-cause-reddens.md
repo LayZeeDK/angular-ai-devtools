@@ -27,7 +27,7 @@ carries the sentence the pane draws for it.
 
 ## Intent coverage
 
-- SC3 — AC1, AC2
+- SC3
 
 ## Interface contract
 
@@ -40,8 +40,8 @@ None
 
 ## Acceptance criteria
 
-- AC1 The reason set is closed and exported, and a value outside it reddens the suite naming the value.
-- AC2 Each member's sentence is asserted to the character, so a reworded sentence reddens.
+1. The reason set is closed and exported, and a value outside it reddens the suite naming the value.
+2. Each member's sentence is asserted to the character, so a reworded sentence reddens.
 
 ## Verify
 
