@@ -79,12 +79,20 @@ const CRITERIA = ['SC1', 'SC4'];
  */
 const MEASURED_AT = '5290d939497448823ca0f5d1ce5c1d777805ddb8';
 
+/**
+ * The milestone whose predecessor rule this section records. Pinned rather than read from STATE: the
+ * command without `--milestone` binds whichever milestone is active, so once M056 shipped the section
+ * stopped measuring M056's own logs and refused over M045's, and the fact it records moved with the
+ * pipeline instead of staying the fact it was written to record.
+ */
+const PREDECESSOR_MILESTONE = 'M056';
+
 /** The three commands the record is made of, spelled as a person would type them. */
 const GATE_COMMAND = 'npm run gate:fix-record';
 const HELD_TO = 'M044';
 const GATE_HELD_COMMAND = `${GATE_COMMAND} -- --milestone ${HELD_TO} --head ${MEASURED_AT}`;
 const TEST_COMMAND = 'node --test scripts/gate-integrity.test.mjs';
-const PREDECESSOR_COMMAND = `node scripts/gate-integrity.mjs --check fix-record --head ${MEASURED_AT}`;
+const PREDECESSOR_COMMAND = `node scripts/gate-integrity.mjs --check fix-record --milestone ${PREDECESSOR_MILESTONE} --head ${MEASURED_AT}`;
 
 const CHECK_COMMAND = 'node --test scripts/gate-stability-record.test.mjs';
 const ARMED_COMMAND = `set "M056_CAPTURE=1"&& ${CHECK_COMMAND}`;

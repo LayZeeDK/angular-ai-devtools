@@ -2194,7 +2194,7 @@
         "file": "scripts/gate-stability-record.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1076,
+        "addedLines": 1084,
         "removedLines": 0,
         "addedAssertionLines": 34,
         "removedAssertionLines": 0,
@@ -2358,6 +2358,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-16T17:09:59.416Z"
+    "at": "2026-11-16T17:24:49.888Z"
   }
 }
