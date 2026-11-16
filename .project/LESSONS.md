@@ -87,3 +87,23 @@ that will move.
 
 The cost when it is wrong is not a red test; it is a red test that reads as a product defect, which is how
 three already-correct repairs were reverted before one landed.
+
+## The last red test needs three edits that must move in one commit
+
+`performance-capture.test.mjs` fails between milestones because `.project/intent/INTENT.md` is archived,
+and the fix is proven but cannot land alone. `currentIntentPath(root)` in `verdict-claims-intent.mjs`
+answers "the live intent, or the newest archived one"; the suite asks it instead of spelling the path;
+and `gate-integrity.test.mjs`'s `NAMING_SUITE` must name a *different* suite, because
+`scripts/performance-capture.test.mjs:1978` is the row that certificate pins as the naming example and the
+change removes it. Land one without the other two and `AC1: the live paths this tree carries are all
+namings` reddens while the recording re-derives cleanly - which reads as a fixture bug rather than the
+expected consequence.
+
+The candidates for a replacement naming row are in `research/raw/m044-gate-shapes.json` under
+`archiveReferences.references`, filtered to `class: archived-by-the-move`: `overlay-verdict-claims.test.mjs:429`
+is one, and `error-boundary-measure.test.mjs` carries ten. Pick the one the armed run still derives after
+the change, not the one that looks right before it.
+
+Then `M044_CAPTURE=1` over `gate-integrity`, `M056_CAPTURE=1` over `gate-stability-record`, and measure
+once. Every recording in this repository is coupled to the suites that write it, so an edit to a suite is
+an edit to a record.
