@@ -22,8 +22,8 @@ files:
 Wave 4's cycle-2 review confirmed the four repairs and then found a fifth change nothing asked for.
 `scripts/gate-integrity.mjs:1606-1611` resolves any Log token that is a proper tail of a declared path to
 that declaration, and `:1626` and `:1645-1650` then judge the pin on the resolved path. With
-`apps/angular-ai-devtools/src/app/panel-console.ts` declared, a Log naming `src/app/panel-console.ts` — a
-spelling absent at `19c199c3`, `9f0603c9` and `2fa589b9` — is pinned instead of reported, and a second
+the app's console module declared, a Log naming it with its first directory levels truncated — a spelling
+absent at `19c199c3`, `9f0603c9` and `2fa589b9` — is pinned instead of reported, and a second
 variant yields a clean claim naming a path that exists nowhere. With two declarations sharing a tail, the
 choice is front-matter order and nothing is reported.
 
