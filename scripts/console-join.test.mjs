@@ -1,7 +1,8 @@
 // console-join.test.mjs — M045 T002. The join is proven against the digest the extension actually
 // ships (`extension/error-digest.json`, 64 entries, 64 unique codes), not only against a fixture, and
-// each of the five defects the milestone names is armed as a mutation of the module's own source and
-// shown to redden the pin that names it.
+// each defect the milestone names is armed as a mutation of the module's own source and shown to
+// redden the pin that names it. T008 added the two rules wave 2 found unenforced: a join that picks a
+// digest entry by matching message text, and a join that re-extracts a code from text.
 //
 // The module is evaluated in a bare `node:vm` context: no DOM, no clock, no console. The mutations
 // are in-memory rewrites of the same source string, so the checkout is never written by this file.
@@ -81,6 +82,26 @@ export const MUTATIONS = [
     anchor: 'const entry = matchEntry(entries, code);',
     replacement:
       "const entry = entries.find((e) => typeof e.title === 'string' && text.includes(e.title)) || null;",
+  },
+  {
+    id: 'text-fallback',
+    // The mutant wave 2 built: key on the carried code first, then fall back to a digest title the
+    // message text happens to contain. Every behavioural pin that fed a message carrying a code the
+    // digest has, or a message containing no title, stayed green.
+    defect: 'message text',
+    anchor: 'const entry = matchEntry(entries, code);',
+    replacement:
+      "let entry = matchEntry(entries, code);\n      if (!entry) {\n        entry =\n          entries.find(\n            (candidate) =>\n              typeof candidate.title === 'string' &&\n              text.includes(candidate.title),\n          ) || null;\n      }",
+  },
+  {
+    id: 're-extracted-code',
+    // The second mutant wave 2 built: when the capture wrote no code, run the capture's own regex
+    // over the message again. The pin that asserted `'the app failed'` carries no NG0xxx text stayed
+    // green because that message has no code to find.
+    defect: 're-extract',
+    anchor: 'const code = codeOf(diagnostic);',
+    replacement:
+      'let code = codeOf(diagnostic);\n      if (code === null) {\n        const fromText = text.match(/NG0\\d{3,}/);\n        if (fromText) code = fromText[0];\n      }',
   },
   {
     id: 'absence-as-count',
@@ -236,8 +257,62 @@ function pinKeepsBothFindings(api) {
   }
 }
 
+// The carried code decides which digest entry is read. A message may quote any wording it likes,
+// including another entry's title; only the code the capture wrote may choose an entry.
+function pinNeverChoosesByMessageText(api) {
+  // NG04002 is extractable by the capture's regex and absent from all 64 digest entries, while the
+  // message also contains NG0200's shipped title. A join that falls back to matching text picks the
+  // title for a code the diagnostic never carried.
+  const text = `${MISSING_CODE}: Cannot match any routes. Circular Dependency in DI was also logged.`;
+  const r = host(api.consoleJoin([diag(MISSING_CODE, text)], SHIPPED));
+  assert.equal(r.state, JOINED);
+  assert.equal(r.findings.length, 1);
+  const finding = r.findings[0];
+  assert.equal(
+    finding.code,
+    MISSING_CODE,
+    `the finding must carry the code the message carried: ${MISSING_CODE}`,
+  );
+  assert.equal(
+    finding.reason,
+    'no-digest-entry',
+    'a join must never choose a digest entry by matching message text: the message carried NG04002, the digest lacks it, and the absence must be reported by name',
+  );
+  assert.ok(
+    !('title' in finding),
+    'a join must never choose a digest entry by matching message text: a title from another entry is not the title for the carried code',
+  );
+}
+
+// A code is whatever the capture wrote and nothing else. The message text is evidence the capture
+// already read; re-reading it here would be a second rule nobody measured.
+function pinNeverReExtractsACode(api) {
+  // The capture wrote null for this diagnostic, yet the message contains an extractable code. A join
+  // that re-extracts from the text invents the code the capture said was absent.
+  const text = 'bootstrap failed after NG0100 while rendering';
+  const r = host(api.consoleJoin([diag(null, text)], SHIPPED));
+  assert.equal(r.state, JOINED);
+  assert.equal(r.findings.length, 1);
+  const finding = r.findings[0];
+  assert.ok(
+    !('code' in finding),
+    'a join must never re-extract a code from message text: the capture wrote no code, and joining one from the text is a second rule nobody measured',
+  );
+  assert.ok(
+    !('title' in finding),
+    'a join must never re-extract a code from message text: no digest entry may be chosen from a code the capture did not carry',
+  );
+  assert.match(
+    finding.text,
+    /carried no code/,
+    'a message the capture recorded with no code must still report that it carried none',
+  );
+}
+
 const PINS = {
   'body-matching': pinKeysOnTheCarriedCode,
+  'text-fallback': pinNeverChoosesByMessageText,
+  're-extracted-code': pinNeverReExtractsACode,
   'absence-as-count': pinNamesTheMissingCode,
   'collapsed-empty-capture': pinKeepsEmptyCaptureDistinct,
   'invented-code': pinReportsTheMissingCode,

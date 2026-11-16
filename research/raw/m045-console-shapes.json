@@ -214,6 +214,94 @@
           "extension/relay.js:30: chrome.runtime.sendMessage({ type: 'angular-ai:error-capture', ...d });",
           "extension/background.js:16: 'angular-ai:error-capture',"
         ]
+      },
+      {
+        "id": "c14",
+        "command": "node -e \"const fs=require('fs');const M=fs.readFileSync('extension/manifest.json','utf8');const L=M.split('\\n');for(let i=17;i<50;i++)console.log((i+1)+': '+L[i]);console.log('agent-main.js mentions in manifest: '+(M.split('agent-main.js').length-1));console.log('document_start mentions in manifest: '+(M.split('document_start').length-1));const A=fs.readFileSync('extension/agent-main.js','utf8').split('\\n');console.log('agent-main.js:2493: '+A[2492].trim())\"",
+        "exitCode": 0,
+        "output": [
+          "18:   \"content_scripts\": [",
+          "19:     {",
+          "20:       \"matches\": [",
+          "21:         \"<all_urls>\"",
+          "22:       ],",
+          "23:       \"js\": [",
+          "24:         \"observer-filter.js\",",
+          "25:         \"relay.js\"",
+          "26:       ],",
+          "27:       \"run_at\": \"document_idle\"",
+          "28:     },",
+          "29:     {",
+          "30:       \"matches\": [",
+          "31:         \"<all_urls>\"",
+          "32:       ],",
+          "33:       \"js\": [",
+          "34:         \"agent-main.js\"",
+          "35:       ],",
+          "36:       \"run_at\": \"document_idle\",",
+          "37:       \"world\": \"MAIN\"",
+          "38:     },",
+          "39:     {",
+          "40:       \"matches\": [",
+          "41:         \"<all_urls>\"",
+          "42:       ],",
+          "43:       \"js\": [",
+          "44:         \"observer-filter.js\",",
+          "45:         \"overlay-geometry.js\",",
+          "46:         \"overlay.js\"",
+          "47:       ],",
+          "48:       \"run_at\": \"document_start\"",
+          "49:     }",
+          "50:   ],",
+          "agent-main.js mentions in manifest: 1",
+          "document_start mentions in manifest: 1",
+          "agent-main.js:2493: // N4: error capture hooks at document_start (console.error, window.onerror,"
+        ]
+      },
+      {
+        "id": "c15",
+        "command": "node -e \"const A=require('fs').readFileSync('extension/agent-main.js','utf8').split('\\n');for(let i=2530;i<2568;i++)console.log((i+1)+': '+A[i])\"",
+        "exitCode": 0,
+        "output": [
+          "2531:   }",
+          "2532: ",
+          "2533:   try {",
+          "2534:     if (typeof console !== 'undefined' && typeof console.error === 'function') {",
+          "2535:       var originalConsoleError = console.error;",
+          "2536:       console.error = function () {",
+          "2537:         try {",
+          "2538:           captureErrorPayload(Array.prototype.slice.call(arguments).join(' '));",
+          "2539:         } catch (e) {}",
+          "2540:         return originalConsoleError.apply(this, arguments);",
+          "2541:       };",
+          "2542:     }",
+          "2543:   } catch (e) {}",
+          "2544: ",
+          "2545:   try {",
+          "2546:     if (",
+          "2547:       typeof globalThis !== 'undefined' &&",
+          "2548:       typeof globalThis.addEventListener === 'function'",
+          "2549:     ) {",
+          "2550:       globalThis.addEventListener('error', function (ev) {",
+          "2551:         try {",
+          "2552:           captureErrorPayload(",
+          "2553:             ev && ev.error ? ev.error : ev && ev.message ? ev.message : ev,",
+          "2554:           );",
+          "2555:         } catch (e) {}",
+          "2556:       });",
+          "2557:       globalThis.addEventListener('unhandledrejection', function (ev) {",
+          "2558:         try {",
+          "2559:           captureErrorPayload(ev && ev.reason ? ev.reason : ev);",
+          "2560:         } catch (e) {}",
+          "2561:       });",
+          "2562:     }",
+          "2563:   } catch (e) {}",
+          "2564: ",
+          "2565:   // Auto-run when loaded as a content script.",
+          "2566:   start();",
+          "2567: })(typeof globalThis !== 'undefined' ? globalThis : this);",
+          "2568: "
+        ]
       }
     ]
   },
@@ -349,7 +437,23 @@
     },
     "installTime": {
       "lines": "2533-2563",
-      "when": "at script evaluation, before start() (2566); nothing reinstalls these hooks later in the file"
+      "when": "when extension/agent-main.js is evaluated as a content script, at the run_at moment the manifest states: document_idle, not document_start",
+      "manifest": {
+        "file": "extension/manifest.json",
+        "line": 36,
+        "runAt": "document_idle",
+        "registration": "the second content_scripts entry (:29-38), the only entry whose js lists agent-main.js (:34), world MAIN (:37); c14 prints the block and counts one agent-main.js mention",
+        "documentStart": "the only run_at document_start in the file is the third content_scripts entry, the overlay (:39-49, run_at at :48); c14 counts one document_start mention",
+        "from": "c14"
+      },
+      "codeCommentContradicted": {
+        "file": "extension/agent-main.js",
+        "line": 2493,
+        "says": "// N4: error capture hooks at document_start (console.error, window.onerror,",
+        "status": "contradicted by extension/manifest.json:36 — the script's own comment states a moment the manifest does not give it, because run_at is the manifest's field and it says document_idle"
+      },
+      "startLine": 2566,
+      "reinstalled": "nothing reinstalls these hooks later in the file; c15 prints 2531-2568 and start() at 2566"
     },
     "hop": {
       "relay": {
@@ -544,9 +648,9 @@
       "consequence": "a finding can carry only the digest's title and the capture's own message; the exclusion of cause, element and remedy is structural in the data, not only a rendering choice"
     },
     {
-      "what": "a diagnostic logged before the hooks install, or after the page replaces console.error, or through a reference saved from the original console.error",
-      "evidence": "c5: the file contains one assignment to console.error (2536) and one saved original (2535), inside a single install block (2533-2543) that runs at script evaluation and is never repeated",
-      "consequence": "the capture is a snapshot of one moment in the page's life; a later override or a saved reference bypasses it silently"
+      "what": "every diagnostic logged before extension/agent-main.js is injected at document_idle — including bootstrap-time NG0xxx codes, the errors this milestone exists to join — and, separately, any diagnostic logged after the page replaces console.error or through a reference saved from the original console.error",
+      "evidence": "c14: extension/manifest.json:36 injects extension/agent-main.js with \"run_at\": \"document_idle\" — the second content_scripts entry (:29-38), the only entry whose js lists agent-main.js (:34), world MAIN (:37); the only run_at document_start in the file is the overlay (:39-49, :48), and c14 counts one mention of each. extension/agent-main.js:2493 comments \"error capture hooks at document_start\", which the manifest contradicts. c5 shows one assignment to console.error (2536) and one saved original (2535), inside a single install block (2533-2543) evaluated once and never repeated",
+      "consequence": "the capture does not exist for the part of bootstrap that runs before document_idle, so a page that logs an NG0xxx error there produces no capture event for it and the join can only report diagnostics logged after the injection; a later override or a saved reference bypasses the hook silently"
     },
     {
       "what": "a capture attempt that failed",
@@ -561,10 +665,10 @@
   ],
   "captureToDigestGap": {
     "codesTheDigestCarries": 64,
-    "codesTheCaptureCanName": 53,
-    "codesTheDigestCarriesThatTheCaptureCannotName": 11,
-    "from": "c9",
-    "note": "the capture's code space is a strict subset of the digest's, so the join's captured-nothing and no-digest-entry paths cannot be exercised by a message the capture produced from one of the 11 non-NG0 codes — such a message is a finding with no code"
+    "digestCodesTheCaptureCanExtract": 53,
+    "digestCodesTheCaptureCannotExtract": 11,
+    "from": "c7, c8, c9, c11",
+    "note": "the 53 digest codes the capture's /NG0\\d{3,}/ can extract are a strict subset of the digest's 64 (c9), so 11 digest codes can never arrive as a code; the relation does not run the other way — NG04002 is extractable by the capture's regex (c7) and absent from all 64 digest entries (c8, c11), so the capture can produce a code the digest lacks and the join's no-digest-entry path is exercisable against the shipped digest. A message carrying one of the 11 non-NG0 codes arrives as a finding with no code"
   },
   "joinContract": {
     "source": ".project/tasks/T001-measure-the-capture-and-the-digest.md, section Interface contract (quoted, not measured)",
