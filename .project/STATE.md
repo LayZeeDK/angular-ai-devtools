@@ -5,7 +5,7 @@ milestone: copy-to-agent
 phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M046
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1014,3 +1014,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-16 — define — STATE repair: milestone rebound from "copy-to-agent" to null
 - 2026-11-16 — define — milestone intent approved
 - 2026-11-16 — plan — planning started
+- 2026-11-16 — plan — plan approved
