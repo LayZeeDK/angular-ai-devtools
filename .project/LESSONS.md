@@ -68,3 +68,22 @@ the path. A rename inside the range then reads the same as an edit, which is wha
 
 Until that repair lands, a milestone that archives its own task files makes its own fix-record gate refuse
 at the shipped head. The recording is not stale; the derivation is incomplete.
+
+## A fixture that captures a state breaks when the pipeline moves; one that captures the property does not
+
+Three failures in one evening, all the same shape, all found the hard way after M045 shipped.
+
+`NEWEST_SHIPPED_MILESTONE = 'M044'` named the newest milestone instead of reading it, so once M045 shipped
+the fallback answered correctly with M045's base and the assertion failed on a correct answer. `AC2`'s
+`nx.json` instance asserted "the range carries no such path" from an endpoint diff, which is true of the
+endpoints and false of the range. `PREDECESSOR_COMMAND` ran without `--milestone`, so it bound whatever
+`STATE` named, and the section stopped measuring the milestone it was written about.
+
+The rule that covers all three: a fixture states the property it means, and reads the state at run time.
+"Newest ship" is a query, not a constant. "Carried by the range" is every commit in the range, not the two
+ends. "This milestone's logs" names the milestone, not whoever is active. A constant is right when the
+value is frozen history - a measured head, a recorded SHA - and wrong when it is a fact about the pipeline
+that will move.
+
+The cost when it is wrong is not a red test; it is a red test that reads as a product defect, which is how
+three already-correct repairs were reverted before one landed.
