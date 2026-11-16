@@ -329,6 +329,18 @@
           "1415:     }",
           "1416:   }"
         ]
+      },
+      {
+        "id": "c17",
+        "command": "node -e \"const {readFileSync}=require('fs');const vm=require('vm');const cx=vm.createContext({});vm.runInContext(readFileSync('extension/console-join.js','utf8'),cx);const digest=JSON.parse(readFileSync('extension/error-digest.json','utf8'));const answer=cx.angularAiConsoleJoin.consoleJoin([{code:'ng01002',message:'ng01002: Missing control value for the input',component:null,timestamp:1}],digest);console.log(JSON.stringify(answer))\"",
+        "exitCode": 0,
+        "output": "{\"state\":\"joined\",\"findings\":[{\"text\":\"ng01002: Missing control value for the input\",\"code\":\"NG01002\",\"title\":\"Missing Control Value\",\"carriedCode\":\"ng01002\"}]}"
+      },
+      {
+        "id": "c18",
+        "command": "node -e \"const {readFileSync}=require('fs');const vm=require('vm');const cx=vm.createContext({});vm.runInContext(readFileSync('extension/console-join.js','utf8'),cx);const digest=JSON.parse(readFileSync('extension/error-digest.json','utf8'));const answer=cx.angularAiConsoleJoin.consoleJoin([{code:'ng04002',message:'ng04002: Cannot match any routes.',component:null,timestamp:1}],digest);console.log(JSON.stringify(answer))\"",
+        "exitCode": 0,
+        "output": "{\"state\":\"joined\",\"findings\":[{\"text\":\"ng04002: Cannot match any routes.\",\"code\":\"ng04002\",\"reason\":\"no-digest-entry\"}]}"
       }
     ]
   },
@@ -653,7 +665,7 @@
     {
       "what": "a lowercase or mixed-case code in message text",
       "evidence": "c7: 'ng0100 -> null' and the same for a mixed-case spelling, against 'NG0100 -> NG0100'; c9: all 64 digest codes are already uppercase (codesEqualToTheirUppercase 64)",
-      "consequence": "an exact-string join is total over the capture's own code space, but a lowercased code in a message is not extracted as a code at all, so case folding can never rescue it at join time"
+      "consequence": "the capture's own /NG0\\d{3,}/ is case-sensitive, so a lowercased code in message text is never extracted as a code and never arrives from that path; a diagnostic carrying one therefore reaches the join only from another writer of the payload (a replay, a hand-built diagnostic, a capture variant), and since T015 the join matches such a code to its digest entry by folding case, reporting the digest's own spelling and title and keeping the message's spelling beside it (c17) — while a code that folds to nothing stays an absence named by the code the message carried (c18)"
     },
     {
       "what": "the logged arguments as values, and any object inside them",
@@ -697,6 +709,31 @@
     "digestCodesTheCaptureCannotExtract": 11,
     "from": "c7, c8, c9, c11",
     "note": "the 53 digest codes the capture's /NG0\\d{3,}/ can extract are a strict subset of the digest's 64 (c9), so 11 digest codes can never arrive as a code; the relation does not run the other way — NG04002 is extractable by the capture's regex (c7) and absent from all 64 digest entries (c8, c11), so the capture can produce a code the digest lacks and the join's no-digest-entry path is exercisable against the shipped digest. A message carrying one of the 11 non-NG0 codes arrives as a finding with no code"
+  },
+  "caseFoldedMatch": {
+    "from": "c17, c18",
+    "measuredAfter": "T015: the fold was added to extension/console-join.js after measuredAt.commit, so c17 and c18 are a later measurement than the blocks above, taken from the same repo root and under the same rule — each command's output is recorded verbatim",
+    "what": "a diagnostic whose code matches a digest entry only after folding case, and a diagnostic whose code folds to no digest entry",
+    "answerForAFoldedCode": "c17",
+    "answerForACodeThatFoldsToNothing": "c18",
+    "matched": {
+      "messageCode": "ng01002",
+      "messageText": "ng01002: Missing control value for the input",
+      "digestCode": "NG01002",
+      "digestTitle": "Missing Control Value",
+      "finding": "the digest's own code and title, with carriedCode holding the spelling the message used (c17)"
+    },
+    "unmatched": {
+      "messageCode": "ng04002",
+      "finding": "no entry and no title, so the absence is reported by the reason no-digest-entry and named by the code the message carried (c18)"
+    },
+    "rules": [
+      "case is folded for the match only: a code that folds to no digest entry is never reported as a match (c18)",
+      "the finding carries the digest's code and title, and the message's spelling beside them as carriedCode, present only where the two spellings differ and fold together",
+      "nothing in the digest's spelling, the title or the captured text is rewritten by the fold",
+      "the surface states the difference in one sentence of its own naming both spellings; this file records the join's output, not that rendering"
+    ],
+    "supersedesNote": "the joinContract block below is T001's quote of that task's Interface contract, whose finding list was text, code, title and reason; since T015 a folded match additionally carries carriedCode, and the quote is left as it was written"
   },
   "joinContract": {
     "source": ".project/tasks/T001-measure-the-capture-and-the-digest.md, section Interface contract (quoted, not measured)",

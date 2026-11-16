@@ -19,6 +19,14 @@
 // a digest title or body (N2), and it never re-extracts a code from the text — the capture already
 // did that, and doing it again here would be a second rule nobody measured.
 //
+// The code is compared case-insensitively (E6). A code is a name, and `ng01002` names the same entry
+// as `NG01002`; so a message that spells a digest code in another case is joined to that entry, and
+// the finding carries the digest's own `code` and `title` — not the message's spelling. The match is
+// the only place case is folded: the spelling the message used travels beside the digest's as
+// `carriedCode`, so the surface can state the difference, and folding is never a prefix, a substring
+// or a fuzzy rule, so a code whose folded form matches no entry is still an absence named by the code
+// the message carried. Folding invents no match.
+//
 // The answer is `{ state, findings[] }` and nothing else:
 //
 //   state  joined            the capture held at least one diagnostic. `findings` has one entry per
@@ -31,16 +39,22 @@
 //                            is not the list the capture produces. The two absences differ: one
 //                            states that the capture came back empty, the other that it was not read.
 //
-//   findings  { text, code?, title?, reason? }
+//   findings  { text, code?, title?, reason?, carriedCode? }
 //            text    the captured message, verbatim; for a message that carried no code, the message
 //                    followed by ` (this message carried no code)`. The report of that absence
 //                    belongs to the finding, and `reason` is reserved (below).
-//            code    the code the message carried — absent only when it carried none.
+//            code    the digest's code where the digest carries the code the message carried, in the
+//                    digest's own spelling — else the code the message carried. Absent only when the
+//                    message carried none.
 //            title   the digest's title for that code — present only when the digest carries it.
 //            reason  `no-digest-entry`, present only when the digest lacks the code the message
 //                    carried. The finding names that code; the absence is never reported as a count
 //                    or a blank (N4), and there is no `body`, `cause`, `element` or `remedy` field
 //                    for the surface to render (N3).
+//            carriedCode  the spelling the message used, present only where the digest's spelling
+//                    differs from it — that is, where the entry was found by folding case. It is the
+//                    one fact a surface needs to state the difference, and it is never a second code:
+//                    it folds to the `code` on the same finding.
 (function () {
   'use strict';
 
@@ -87,13 +101,45 @@
     return trimmed === '' ? null : trimmed;
   }
 
+  // The folded form two codes are compared by. It is a comparison and nothing else: no code in
+  // `carriedCode`, in `code` or in a title is ever rewritten by this.
+  function foldedSpan(code) {
+    return code.toLowerCase();
+  }
+
+  // The digest entry for one code: the exact spelling first, so a code the digest carries as the
+  // message wrote it is joined without any fold, then the same code in another case. Only the first
+  // entry whose folded spelling matches is chosen, so a digest that carried two spellings of one code
+  // would report the one it lists first rather than inventing a third. No entry means no entry.
   function matchEntry(entries, code) {
     for (let i = 0; i < entries.length; i += 1) {
       const entry = entries[i];
       if (entry && typeof entry === 'object' && entry.code === code)
         return entry;
     }
+    const folded = foldedSpan(code);
+    for (let i = 0; i < entries.length; i += 1) {
+      const entry = entries[i];
+      if (
+        entry &&
+        typeof entry === 'object' &&
+        typeof entry.code === 'string' &&
+        foldedSpan(entry.code) === folded
+      )
+        return entry;
+    }
     return null;
+  }
+
+  // Whether the entry was reached by folding case: the two spellings fold together and differ. A
+  // digest entry whose code does not fold to this one is not a folded match however it was found, so
+  // the difference a surface states is always one the fold really made.
+  function foldedMatch(entry, code) {
+    return (
+      entry !== null &&
+      entry.code !== code &&
+      foldedSpan(entry.code) === foldedSpan(code)
+    );
   }
 
   function consoleJoin(diagnostics, digest) {
@@ -116,14 +162,33 @@
         continue;
       }
       const entry = matchEntry(entries, code);
+      // True only where the digest's spelling folds to the message's and differs from it, which is
+      // exactly the folded match; false where the digest carries the message's own spelling, so an
+      // exact match carries no second spelling and no difference is claimed.
+      const folded = foldedMatch(entry, code);
       if (entry && typeof entry.title === 'string') {
-        findings.push({ text: text, code: code, title: entry.title });
+        if (!folded) {
+          findings.push({ text: text, code: code, title: entry.title });
+        } else {
+          // The digest's word decides the row: its code and its title, with the message's spelling
+          // beside them, so the surface can state the difference the fold made (E6).
+          findings.push({
+            text: text,
+            code: entry.code,
+            title: entry.title,
+            carriedCode: code,
+          });
+        }
         continue;
       }
       if (entry) {
         // The digest carries the code but stated no title for it: the code is still the match, and
         // a blank title would be the blank N4 forbids, so none is carried.
-        findings.push({ text: text, code: code });
+        findings.push(
+          !folded
+            ? { text: text, code: code }
+            : { text: text, code: entry.code, carriedCode: code },
+        );
         continue;
       }
       findings.push({ text: text, code: code, reason: NO_DIGEST_ENTRY });

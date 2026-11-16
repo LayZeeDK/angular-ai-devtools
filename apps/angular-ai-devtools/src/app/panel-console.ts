@@ -8,11 +8,13 @@
  *   consoleJoin(diagnostics, digest) -> { state, findings[] }
  *
  * where `state` is exactly one of `joined`, `captured-nothing` or `no-diagnostics`, and each finding
- * is `{ text, code?, title?, reason? }` — `reason` present only when the digest lacks the code the
- * message carried, `code` absent only when the message carried none. This module is the display half
- * and nothing else: it is handed that answer and renders it. It reads no capture, matches nothing
- * against the digest and touches no DOM, so the join's own rules are never restated here as a
- * computation, and a title this pane printed is a title the join matched.
+ * is `{ text, code?, title?, reason?, carriedCode? }` — `reason` present only when the digest lacks
+ * the code the message carried, `code` absent only when the message carried none, and `carriedCode`
+ * present only where the digest's spelling differs from the message's because the join matched the
+ * two by folding case. This module is the display half and nothing else: it is handed that answer and
+ * renders it. It reads no capture, matches nothing against the digest and touches no DOM, so the
+ * join's own rules are never restated here as a computation, and a title this pane printed is a title
+ * the join matched.
  *
  * What the pane renders is `state` and `findings`, field for field, and nothing else (SC4, E7):
  *
@@ -29,11 +31,15 @@
  *
  * A code the digest lacks is named — `code: NG04002` plus the sentence saying the digest carries no
  * entry for it — and never replaced by a count, an index or a blank (SC3, N4). A message that carried
- * no code renders that absence in its own sentence, and the finding's `text` already says so. No line
- * this pane writes of its own names a cause, an element or a remedy: the capture records none of the
- * three (`research/raw/m045-console-shapes.json`, `notCaptured`), the digest carries no field for
- * them, and this pane reads exactly `text`, `code`, `title` and `reason` off a finding, so a finding
- * that carries `component`, `cause`, `element`, `remedy` or a count renders none of them (E7, N3).
+ * no code renders that absence in its own sentence, and the finding's `text` already says so. And a
+ * code the digest matched only after folding case renders the digest's own spelling as its `code`
+ * line, followed by one sentence naming both spellings, because a row that printed `NG01002` for a
+ * message that carried `ng01002` would be reporting a difference it never stated (E6). No line this
+ * pane writes of its own names a cause, an element or a remedy: the capture records none of the three
+ * (`research/raw/m045-console-shapes.json`, `notCaptured`), the digest carries no field for them, and
+ * this pane reads exactly `text`, `code`, `title`, `reason` and `carriedCode` off a finding, so a
+ * finding that carries `component`, `cause`, `element`, `remedy` or a count renders none of them
+ * (E7, N3).
  *
  * The qualifier that keeps that rule honest is whose word each line is: a `title:` value is the
  * digest's word, a `text:` and a `code:` value the capture's, and a `reason:` value the join's, so
@@ -68,6 +74,11 @@
  *   no-digest-entry: the digest carries no entry for NG04002, so this finding is named by the code
  *           it carried and no title is rendered
  *   text: NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist
+ *   code: NG01002
+ *   title: Missing Control Value
+ *   case-difference: the message carried ng01002 and the digest carries NG01002, so this finding
+ *           carries the digest's own spelling and title
+ *   text: ng01002: Missing control value for the input
  *
  * A page the pane has no answer for — nothing was handed over, or a value with no state word —
  * renders `no-console-answer` in a sentence of its own: never an empty pane, and never a state read
@@ -138,6 +149,25 @@ export const NO_TITLE_TEXT =
 export const UNREADABLE_FINDING_TEXT =
   'unreadable-finding: the answer carried a list entry that is not a finding, so it is named here and nothing is filled in for it';
 
+/** The label the case-difference sentence carries, so the pane's own words are recognisable. */
+export const CASE_DIFFERENCE = 'case-difference';
+
+/**
+ * The sentence a finding renders where the digest matched its code only after folding case: the row
+ * carries the digest's own spelling, so this sentence names both spellings and says which is which.
+ * It states a difference between two names, never a cause, an element or a remedy, and never what the
+ * page did.
+ *
+ * @param carriedCode the code as the capture wrote it — the spelling the digest does not carry
+ * @param digestCode the digest's own spelling, which is the `code` the finding carries
+ */
+export function caseFoldedMatchText(
+  carriedCode: string,
+  digestCode: string,
+): string {
+  return `case-difference: the message carried ${carriedCode} and the digest carries ${digestCode}, so this finding carries the digest's own spelling and title`;
+}
+
 /**
  * The sentence a finding renders where the digest lacks the code the message carried: the code is
  * named, and the absence is stated. It is never a count, a blank or an index.
@@ -195,20 +225,25 @@ function noAnswer(): ConsoleSurface {
 }
 
 /**
- * One finding, written in one place so a pin on its lines is a pin on every finding. Exactly the four
- * fields the join supports are read and printed — `text`, `code`, `title`, `reason` — in that order,
- * and nothing else is: a finding that carries `component`, `cause`, `element`, `remedy` or a count
- * renders none of them, because the capture records none of them.
+ * One finding, written in one place so a pin on its lines is a pin on every finding. Exactly the five
+ * fields the join supports are read and printed — `text`, `code`, `title`, `reason`, `carriedCode` —
+ * in that order, and nothing else is: a finding that carries `component`, `cause`, `element`, `remedy`
+ * or a count renders none of them, because the capture records none of them.
  *
  * The two absences a finding can state render as their own named sentences: no code where the message
  * carried none, and no title where the digest lacks the code it carried. Neither is a blank, a count
  * or an index.
+ *
+ * The one difference a match can state renders as its own sentence too: where the digest's spelling
+ * differs from the message's, the pane says which spelling each side carried, because the row above
+ * prints the digest's spelling and a reader must be able to see that the message's differed.
  */
 function findingLines(raw: Record<string, unknown>): readonly string[] {
   const text = typeof raw['text'] === 'string' ? raw['text'] : '';
   const code = nonEmptyString(raw['code']);
   const title = nonEmptyString(raw['title']);
   const reason = nonEmptyString(raw['reason']);
+  const carriedCode = nonEmptyString(raw['carriedCode']);
   const lines: string[] = [];
 
   if (code === null) lines.push(NO_CODE_TEXT);
@@ -218,6 +253,12 @@ function findingLines(raw: Record<string, unknown>): readonly string[] {
   else if (code !== null && reason === NO_DIGEST_ENTRY)
     lines.push(noDigestEntryText(code));
   else if (code !== null) lines.push(NO_TITLE_TEXT);
+
+  // The message's own spelling of a code the digest matched by folding case. It is stated beside the
+  // digest's spelling above, and only where the two really differ, so the sentence never claims a
+  // difference a reader cannot see.
+  if (code !== null && carriedCode !== null && carriedCode !== code)
+    lines.push(caseFoldedMatchText(carriedCode, code));
 
   // A reason this pane was not written for is echoed as itself rather than dropped; `no-digest-entry`
   // is already stated by the sentence above, so it is never printed twice.

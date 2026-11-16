@@ -2,7 +2,10 @@
 // ships (`extension/error-digest.json`, 64 entries, 64 unique codes), not only against a fixture, and
 // each defect the milestone names is armed as a mutation of the module's own source and shown to
 // redden the pin that names it. T008 added the two rules wave 2 found unenforced: a join that picks a
-// digest entry by matching message text, and a join that re-extracts a code from text.
+// digest entry by matching message text, and a join that re-extracts a code from text. T015 added
+// E6's rule and its two mutants: a code that matches a digest entry only after folding case is
+// reported as the digest carries it, with the message's spelling kept beside it, and folding never
+// invents a match for a code whose folded form the digest does not carry.
 //
 // The module is evaluated in a bare `node:vm` context: no DOM, no clock, no console. The mutations
 // are in-memory rewrites of the same source string, so the checkout is never written by this file.
@@ -45,6 +48,17 @@ const NO_DIAGNOSTICS = 'no-diagnostics';
 const ROUTER_TEXT =
   'NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist';
 const MISSING_CODE = 'NG04002';
+
+// The digest carries `NG01002` ("Missing Control Value"), and it carries no lowercase spelling of any
+// code, so a message that spells this one `ng01002` carries a code that matches that entry only after
+// folding case — the shape E6 is written about. Both values are read from the shipped digest below.
+const FOLDED_CODE = 'ng01002';
+const FOLDED_DIGEST_CODE = 'NG01002';
+const FOLDED_TEXT = 'ng01002: Missing control value for the input';
+
+// The same spelling with `NG04002`'s digits: a code that folds to nothing in the digest, which is what
+// proves folding invents no match. `NG04002` itself is absent from all 64 entries (asserted below).
+const FOLDED_ABSENT_CODE = 'ng04002';
 
 function shippedTitle(code) {
   const entry = SHIPPED_ENTRIES.find((e) => e.code === code);
@@ -129,6 +143,25 @@ export const MUTATIONS = [
     anchor: 'findings.push({ text: text, code: code, title: entry.title });',
     replacement:
       'if (findings.some((f) => f.code === code)) continue; findings.push({ text: text, code: code, title: entry.title });',
+  },
+  {
+    id: 'case-fold-removed',
+    // E6 built backwards: the comparison between the two codes is the unfolded one the module shipped
+    // before T015, so a message that spells a digest code in another case is reported as an absence
+    // and the digest's own spelling and title never appear. `defect` is the criterion's own name, so
+    // the test that reddens on it is titled after E6.
+    defect: 'E6',
+    anchor: '        foldedSpan(entry.code) === folded',
+    replacement: '        entry.code === folded',
+  },
+  {
+    id: 'fold-invents-a-match',
+    // Folding taken past the point where it is still a fold: every code matches the first entry, so a
+    // code the digest does not carry is reported with some other entry's title instead of as an
+    // absence named by the code the message carried.
+    defect: 'invents',
+    anchor: '        foldedSpan(entry.code) === folded',
+    replacement: '        true',
   },
 ];
 
@@ -309,6 +342,89 @@ function pinNeverReExtractsACode(api) {
   );
 }
 
+// -------------------------------------------------------------------------------------------
+// E6. A code that matches a digest entry only after folding case is reported as the digest carries
+// it, and the spelling the message used is kept beside it so a surface can name the difference.
+// -------------------------------------------------------------------------------------------
+
+// A code is a name, and a name is the same name in another case. The finding therefore carries the
+// digest's own `code` and `title`; the message's spelling travels as `carriedCode`, and nothing else
+// about the match moves — no reason, no count, no second rule.
+function pinReportsTheFoldedMatchAsTheDigestCarriesIt(api) {
+  const r = host(api.consoleJoin([diag(FOLDED_CODE, FOLDED_TEXT)], SHIPPED));
+  assert.equal(r.state, JOINED);
+  assert.equal(r.findings.length, 1);
+  const finding = r.findings[0];
+  assert.equal(
+    finding.code,
+    FOLDED_DIGEST_CODE,
+    `case-folded-match (E6): a code that matches a digest entry only after folding case must be reported as the digest carries it — ${FOLDED_DIGEST_CODE}, not ${FOLDED_CODE}`,
+  );
+  assert.equal(
+    finding.title,
+    shippedTitle(FOLDED_DIGEST_CODE),
+    'case-folded-match (E6): the finding must carry the digest’s own title for the entry it matched',
+  );
+  assert.equal(
+    finding.carriedCode,
+    FOLDED_CODE,
+    `case-folded-match (E6): the finding must keep the spelling the message carried (${FOLDED_CODE}), or no surface can name the difference`,
+  );
+  assert.equal(
+    finding.text,
+    FOLDED_TEXT,
+    'case-folded-match (E6): the captured message still renders verbatim beside the digest’s spelling',
+  );
+  assert.ok(
+    !('reason' in finding),
+    'case-folded-match (E6): a folded match is a match, so no absence reason belongs on it',
+  );
+  assert.equal(
+    finding.carriedCode.toLowerCase(),
+    finding.code.toLowerCase(),
+    'case-folded-match (E6): the two spellings must fold together, or the finding is naming a difference it did not match',
+  );
+  assert.deepEqual(
+    finding,
+    {
+      text: FOLDED_TEXT,
+      code: FOLDED_DIGEST_CODE,
+      title: shippedTitle(FOLDED_DIGEST_CODE),
+      carriedCode: FOLDED_CODE,
+    },
+    'case-folded-match (E6): the folded match carries the digest’s code and title and the message’s spelling, and nothing else',
+  );
+}
+
+// AC3, the other half: folding may not invent a match. `ng04002` folds to a code the digest does not
+// carry, so it is an absence named by the code the message carried — no title, no digest spelling, no
+// borrowed entry.
+function pinFoldingInventsNoMatch(api) {
+  const text = 'ng04002: Cannot match any routes.';
+  const r = host(api.consoleJoin([diag(FOLDED_ABSENT_CODE, text)], SHIPPED));
+  assert.equal(r.state, JOINED);
+  assert.equal(r.findings.length, 1);
+  const finding = r.findings[0];
+  assert.equal(
+    finding.code,
+    FOLDED_ABSENT_CODE,
+    'case-folded-match: folding invents no match — a code whose folded form the digest does not carry is an absence named by the code the message carried',
+  );
+  assert.equal(
+    finding.reason,
+    'no-digest-entry',
+    'case-folded-match: folding invents no match — the absence still carries the reason it was not joined',
+  );
+  assert.ok(
+    !('title' in finding),
+    'case-folded-match: folding invents no match — no entry may be borrowed for a code the digest lacks',
+  );
+  assert.ok(
+    !('carriedCode' in finding),
+    'case-folded-match: folding invents no match — there is no digest spelling to differ from, so no second spelling is carried',
+  );
+}
+
 const PINS = {
   'body-matching': pinKeysOnTheCarriedCode,
   'text-fallback': pinNeverChoosesByMessageText,
@@ -317,6 +433,8 @@ const PINS = {
   'collapsed-empty-capture': pinKeepsEmptyCaptureDistinct,
   'invented-code': pinReportsTheMissingCode,
   'deduped-findings': pinKeepsBothFindings,
+  'case-fold-removed': pinReportsTheFoldedMatchAsTheDigestCarriesIt,
+  'fold-invents-a-match': pinFoldingInventsNoMatch,
 };
 
 describe('provenance: the input is the shipped digest and the measured record', () => {
@@ -328,7 +446,7 @@ describe('provenance: the input is the shipped digest and the measured record', 
     assert.notEqual(shippedTitle('NG0100'), '');
   });
 
-  it('agrees with T001 on the digest and on the missing code', () => {
+  it('agrees with T001 on the digest, on the missing code and on the folded code', () => {
     assert.equal(RECORD.digest.entryCount, SHIPPED_ENTRIES.length);
     assert.equal(RECORD.digest.uniqueCodeCount, 64);
     assert.ok(
@@ -339,6 +457,67 @@ describe('provenance: the input is the shipped digest and the measured record', 
       SHIPPED_ENTRIES.some((e) => e.code === MISSING_CODE),
       false,
       'the shipped digest must lack NG04002 for the absent-entry pin to be real',
+    );
+    // E6's fixture is measured too: the digest carries `NG01002` in one case only, so the fold is what
+    // decides the match, and it carries no entry folding to the code the no-invented-match pin uses.
+    assert.equal(
+      shippedTitle(FOLDED_DIGEST_CODE),
+      'Missing Control Value',
+      'the shipped digest must carry NG01002 with its own title, or the fold proves nothing',
+    );
+    assert.equal(
+      SHIPPED_ENTRIES.some((entry) => entry.code === FOLDED_CODE),
+      false,
+      `the shipped digest must carry no lowercase spelling (${FOLDED_CODE}), or an unfolded match would find it`,
+    );
+    assert.notEqual(FOLDED_CODE, FOLDED_DIGEST_CODE);
+    assert.equal(FOLDED_CODE.toLowerCase(), FOLDED_DIGEST_CODE.toLowerCase());
+    assert.equal(
+      SHIPPED_ENTRIES.some(
+        (entry) => entry.code.toLowerCase() === FOLDED_ABSENT_CODE,
+      ),
+      false,
+      `the shipped digest must carry no entry folding to ${FOLDED_ABSENT_CODE}, or the no-invented-match pin proves nothing`,
+    );
+    // The two commands the fold was measured into (T015) are read back here as the join's own output,
+    // so the record is a reading of this head and a stale one reddens instead of drifting: an unarmed
+    // run compares the recorded bytes with what the join answers now.
+    const { api } = loadBare();
+    const recordedAnswer = (id) => {
+      const command = RECORD.provenance.commands.find(
+        (entry) => entry.id === id,
+      );
+      assert.ok(
+        command,
+        `the record must carry ${id}, or its reading proves nothing`,
+      );
+      assert.equal(command.exitCode, 0);
+      return JSON.parse(command.output);
+    };
+    assert.deepEqual(
+      recordedAnswer('c17'),
+      host(api.consoleJoin([diag(FOLDED_CODE, FOLDED_TEXT)], SHIPPED)),
+      'the record’s folded-code command must be the answer the join gives at this head',
+    );
+    assert.deepEqual(
+      recordedAnswer('c18'),
+      host(
+        api.consoleJoin(
+          [diag(FOLDED_ABSENT_CODE, 'ng04002: Cannot match any routes.')],
+          SHIPPED,
+        ),
+      ),
+      'the record’s no-entry command must be the answer the join gives at this head',
+    );
+    assert.equal(RECORD.caseFoldedMatch.matched.digestCode, FOLDED_DIGEST_CODE);
+    assert.equal(
+      RECORD.caseFoldedMatch.matched.digestTitle,
+      shippedTitle(FOLDED_DIGEST_CODE),
+    );
+    assert.equal(RECORD.caseFoldedMatch.matched.messageCode, FOLDED_CODE);
+    assert.equal(
+      RECORD.caseFoldedMatch.unmatched.messageCode,
+      FOLDED_ABSENT_CODE,
     );
   });
 });
@@ -354,7 +533,7 @@ describe('purity', () => {
   });
 });
 
-describe('AC1: a message carrying a digest code is joined by that code', () => {
+describe('AC1/E6: a message carrying a digest code is joined by that code, in the case it spells it', () => {
   it('yields one finding naming the shipped digest title', () => {
     const { api } = loadBare();
     const text = 'NG0100: Expression has changed after it was checked.';
@@ -365,6 +544,19 @@ describe('AC1: a message carrying a digest code is joined by that code', () => {
       text: text,
       code: 'NG0100',
       title: shippedTitle('NG0100'),
+    });
+    // E6, in the same test as AC1's rule because it is the same rule applied to a code spelled in
+    // another case: the digest's code and title, with the message's spelling kept beside them.
+    pinReportsTheFoldedMatchAsTheDigestCarriesIt(api);
+    // And the fold is the match and nothing else: a message that spells the code as the digest does
+    // carries no second spelling, so no difference is claimed where there is none.
+    const exact = host(
+      api.consoleJoin([diag(FOLDED_DIGEST_CODE, 'NG01002: exact')], SHIPPED),
+    );
+    assert.deepEqual(exact.findings[0], {
+      text: 'NG01002: exact',
+      code: FOLDED_DIGEST_CODE,
+      title: shippedTitle(FOLDED_DIGEST_CODE),
     });
   });
 
@@ -394,6 +586,9 @@ describe('AC2: a code the digest lacks is reported by name', () => {
       code: MISSING_CODE,
       reason: 'no-digest-entry',
     });
+    // The other half of E6: folding may not invent a match, so a code whose folded form the digest
+    // does not carry is still this absence, named by the code the message carried.
+    pinFoldingInventsNoMatch(api);
   });
 
   it('reports a count nowhere: every finding value is a string', () => {
@@ -546,11 +741,18 @@ describe('interface: the answer is state and findings and nothing else', () => {
     const { api } = loadBare();
     const r = host(
       api.consoleJoin(
-        [diag('NG0100', 'x'), diag(MISSING_CODE, 'y'), diag(null, 'z')],
+        [
+          diag('NG0100', 'x'),
+          diag(MISSING_CODE, 'y'),
+          diag(null, 'z'),
+          // The folded match's one extra field is listed below with the others the join declares, so
+          // a field the join does not declare is what this pin still refuses on every finding.
+          diag(FOLDED_CODE, 'w'),
+        ],
         SHIPPED,
       ),
     );
-    const allowed = ['code', 'reason', 'text', 'title'];
+    const allowed = ['carriedCode', 'code', 'reason', 'text', 'title'];
     const forbidden = [
       'body',
       'cause',

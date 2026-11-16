@@ -24,6 +24,13 @@
 // title for `NG0910` — "Unsafe bindings on an element" — and a captured message saying "because" must
 // pass, and that is asserted here rather than assumed.
 //
+// E6 is the one match the pane must state as a difference: where the join found a digest entry by
+// folding case, the finding carries the digest's spelling as its `code` and the message's spelling as
+// `carriedCode`, and the pane renders one sentence naming both. That sentence is the pane's own, so it
+// is held to the same prohibitions as the absences — no cause, no element, no remedy, no wording of the
+// pane's own naming Angular, and no claim about the page — and the pin that holds it reddens when the
+// sentence stops naming the difference.
+//
 // The E7 prohibitions are a rule and not a snapshot of the `joined` surface: `pinE7OnEveryState` runs
 // them on `joined`, `captured-nothing`, `no-diagnostics` and a state word the pane was not written
 // for, so a cause, an element, a remedy or an unattributed word about the framework added to any one
@@ -105,6 +112,19 @@ const UNCODED = {
   timestamp: 3,
 };
 
+/**
+ * A code that matches a digest entry only after folding case (E6): the shipped digest carries
+ * `NG01002` ("Missing Control Value") and no lowercase spelling of any code, so this message carries a
+ * code the digest joins only by folding. The fold and the fixture are asserted below, so the pane is
+ * never handed a difference that does not exist.
+ */
+const FOLDED = {
+  code: 'ng01002',
+  message: 'ng01002: Missing control value for the input',
+  component: null,
+  timestamp: 4,
+};
+
 /** The join, in a bare context: no DOM, no clock, no console, publishing its own namespace. */
 function joinApi() {
   const context = createContext({});
@@ -130,6 +150,15 @@ function joinedAnswer() {
 /** The join's own answer for a capture that was read and carried no diagnostic. */
 function capturedNothingAnswer() {
   return clone(JOIN.consoleJoin([], DIGEST));
+}
+
+/**
+ * The join's own answer for the case-folded diagnostic: the digest's code and title, with the
+ * message's spelling beside them. The join decides that, not this suite, so the pane is held to the
+ * answer it would really be handed.
+ */
+function foldedAnswer() {
+  return clone(JOIN.consoleJoin([FOLDED], DIGEST));
 }
 
 /** The join's own answer for a capture that was never handed over at all. */
@@ -238,6 +267,15 @@ function ownSentences(answer) {
   for (const finding of answer.findings) {
     if (typeof finding.code === 'string')
       sentences.add(SURFACE.noDigestEntryText(finding.code));
+    // E6: the difference sentence names the two spellings, so it is read off the finding rather than
+    // written out here — a pane that named a spelling the answer does not carry still reddens.
+    if (
+      typeof finding.carriedCode === 'string' &&
+      typeof finding.code === 'string'
+    )
+      sentences.add(
+        SURFACE.caseFoldedMatchText(finding.carriedCode, finding.code),
+      );
   }
   return sentences;
 }
@@ -351,6 +389,78 @@ function pinNamesTheAbsenceByCode(surface, answer) {
       `named-absence: the absence must name the code the capture carried, never a blank; the pane rendered ${JSON.stringify(sentence)}`,
     );
   }
+}
+
+/**
+ * SC3/E6: a code the digest matched only after folding case is rendered as the digest carries it, and
+ * the row states the difference in one sentence of the pane's own. The code line is the digest's
+ * spelling and never the message's; the sentence names both spellings; and no absence sentence is
+ * rendered for a match, because a folded match is a match.
+ */
+function pinCaseDifferenceIsNamed(surface, answer) {
+  const folded = answer.findings.filter(
+    (finding) =>
+      typeof finding.carriedCode === 'string' &&
+      typeof finding.code === 'string',
+  );
+  assert.equal(
+    folded.length,
+    1,
+    `case-difference: the fixture must carry exactly one case-folded match, or this pin proves nothing; the answer carried ${JSON.stringify(answer.findings)}`,
+  );
+  const finding = folded[0];
+  assert.equal(
+    finding.carriedCode.toLowerCase(),
+    finding.code.toLowerCase(),
+    `case-difference: the two spellings the row states must fold together (${finding.carriedCode} and ${finding.code}), or the pin is naming a difference the digest did not match`,
+  );
+  assert.notEqual(
+    finding.carriedCode,
+    finding.code,
+    'case-difference: the two spellings must differ, or there is no difference to state',
+  );
+  assert.ok(
+    surface.lines.includes(`code: ${finding.code}`),
+    `case-difference (E6): the row must report the code as the digest carries it — ${JSON.stringify(`code: ${finding.code}`)}; the pane rendered ${JSON.stringify(surface.lines)}`,
+  );
+  assert.equal(
+    surface.lines.includes(`code: ${finding.carriedCode}`),
+    false,
+    `case-difference (E6): the row must not report the message's spelling as the code — ${JSON.stringify(`code: ${finding.carriedCode}`)} is the spelling the digest does not carry; the pane rendered ${JSON.stringify(surface.lines)}`,
+  );
+  assert.ok(
+    surface.lines.includes(`title: ${finding.title}`),
+    `case-difference (E6): the row must carry the digest's own title for the folded match — ${JSON.stringify(`title: ${finding.title}`)}; the pane rendered ${JSON.stringify(surface.lines)}`,
+  );
+  const stated = surface.lines.filter(
+    (line) => line.slice(0, line.indexOf(': ')) === SURFACE.CASE_DIFFERENCE,
+  );
+  assert.equal(
+    stated.length,
+    1,
+    `case-difference: the pane must state the difference in exactly one sentence of its own, labelled ${JSON.stringify(SURFACE.CASE_DIFFERENCE)}; the pane rendered ${JSON.stringify(surface.lines)}`,
+  );
+  const [sentence] = stated;
+  assert.ok(
+    sentence.includes(finding.carriedCode),
+    `case-difference: the sentence must name the spelling the message carried (${finding.carriedCode}), or the difference it states is not the one the row shows; it rendered ${JSON.stringify(sentence)}`,
+  );
+  assert.ok(
+    sentence.includes(finding.code),
+    `case-difference: the sentence must name the spelling the digest carries (${finding.code}), or a reader cannot see which spelling the row uses; it rendered ${JSON.stringify(sentence)}`,
+  );
+  assert.match(
+    sentence,
+    /NG0\d{3,}/i,
+    `case-difference: the sentence names codes rather than a count or a blank; it rendered ${JSON.stringify(sentence)}`,
+  );
+  assert.equal(
+    surface.lines.filter((line) =>
+      line.startsWith(`${SURFACE.NO_DIGEST_ENTRY}: `),
+    ).length,
+    0,
+    `case-difference: a folded match is a match, so no absence sentence is rendered for it; the pane rendered ${JSON.stringify(surface.lines)}`,
+  );
 }
 
 /**
@@ -855,6 +965,7 @@ function pinNoModuleSentenceClaimsSilence(api) {
     [api.NO_TITLE, api.NO_TITLE_TEXT],
     [api.UNREADABLE_FINDING, api.UNREADABLE_FINDING_TEXT],
     [api.NO_DIGEST_ENTRY, api.noDigestEntryText('NG04002')],
+    [api.CASE_DIFFERENCE, api.caseFoldedMatchText(FOLDED.code, 'NG01002')],
   ]) {
     assert.equal(
       typeof sentence,
@@ -1047,7 +1158,7 @@ describe('the fixture is the join’s, measured from the shipped digest', () => 
 });
 
 describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () => {
-  it('AC1: the state and every finding, field for field, and nothing else', () => {
+  it('AC1/E6: the state and every finding, field for field, and nothing else', () => {
     const answer = joinedAnswer();
     const surface = SURFACE.consolePanel(answer);
 
@@ -1072,6 +1183,45 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
       'the pane renders the state, then one block per finding in capture order, and nothing beside them',
     );
     console.log(`console pane: ${JSON.stringify(surface.lines)}`);
+
+    // E6, beside AC1's rule because it is that rule on a code the join matched by folding case: the
+    // join's own answer for the folded diagnostic, rendered as the digest carries it, with one
+    // sentence of the pane's own naming both spellings — and held to the same prohibitions.
+    const folded = foldedAnswer();
+    const foldedSurface = SURFACE.consolePanel(folded);
+    const foldedFinding = folded.findings[0];
+    assert.equal(foldedFinding.code, 'NG01002');
+    assert.equal(foldedFinding.carriedCode, FOLDED.code);
+    assert.equal(shippedTitle(foldedFinding.code), foldedFinding.title);
+    assert.equal(
+      DIGEST.entries.some((entry) => entry.code === FOLDED.code),
+      false,
+      `the shipped digest must carry no ${FOLDED.code}, or the fold is not what decided the match`,
+    );
+    pinCaseDifferenceIsNamed(foldedSurface, folded);
+    pinRendersTheAnswerAndNothingElse(foldedSurface, folded);
+    pinNoCauseElementRemedy(foldedSurface, folded);
+    pinNoUnattributedAngularWording(foldedSurface);
+    pinNoAbsenceClaimsSilence(foldedSurface);
+    pinNoModuleSentenceClaimsSilence(SURFACE);
+    assert.deepEqual(
+      [...foldedSurface.lines],
+      [
+        `state: ${SURFACE.JOINED}`,
+        SURFACE.STATE_TEXTS[SURFACE.JOINED],
+        `code: ${foldedFinding.code}`,
+        `title: ${foldedFinding.title}`,
+        SURFACE.caseFoldedMatchText(
+          foldedFinding.carriedCode,
+          foldedFinding.code,
+        ),
+        `text: ${foldedFinding.text}`,
+      ],
+      `case-difference: the pane renders the folded match as the digest carries it, then the one sentence naming both spellings, then the captured text; it rendered ${JSON.stringify(foldedSurface.lines)}`,
+    );
+    console.log(
+      `console pane case-folded: ${JSON.stringify(foldedSurface.lines)}`,
+    );
   });
 
   it('AC1: captured-nothing is that statement, never an empty list, and never a claim of silence', () => {
@@ -1372,6 +1522,10 @@ function pinShippedAbsenceSentencesPass() {
     ['no-title sentence', SURFACE.NO_TITLE_TEXT],
     ['unreadable-finding sentence', SURFACE.UNREADABLE_FINDING_TEXT],
     ['no-digest-entry sentence', SURFACE.noDigestEntryText('NG04002')],
+    [
+      'case-difference sentence',
+      SURFACE.caseFoldedMatchText(FOLDED.code, 'NG01002'),
+    ],
     [
       'no-diagnostics sentence',
       'no-diagnostics: no capture was handed to the join at all, so no capture was read and no finding is rendered',
@@ -1955,6 +2109,30 @@ const MUTATIONS = [
         'the mutant really renders the prototype’s function source for the word constructor',
       ),
     names: /looked up as an own property/,
+  },
+  {
+    id: 'case-difference-dropped',
+    defect: 'case-difference',
+    // E6 built backwards: the row still carries the digest's code and title, and the pane still writes
+    // a `case-difference:` line — but the sentence no longer says which spelling each side carried, so
+    // the difference the row reports is never stated. The pin above reddens on the sentence, not on
+    // the prefix, which is why the mutant keeps the prefix.
+    anchor:
+      "  return `case-difference: the message carried ${carriedCode} and the digest carries ${digestCode}, so this finding carries the digest's own spelling and title`;",
+    replacement:
+      "  return `case-difference: the finding carries the digest's own code and title`;",
+    check: (api) => {
+      const answer = foldedAnswer();
+      return () => pinCaseDifferenceIsNamed(api.consolePanel(answer), answer);
+    },
+    exhibits: (module) =>
+      assert.ok(
+        module
+          .consolePanel(foldedAnswer())
+          .lines.some((line) => line.startsWith('case-difference: ')),
+        'the mutant really keeps the case-difference line and drops the spellings from it',
+      ),
+    names: /case-difference/,
   },
 ];
 
