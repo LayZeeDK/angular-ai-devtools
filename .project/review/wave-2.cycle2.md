@@ -253,8 +253,9 @@ exceptions recorded as (e) and (j). **Against the record:** c17 and c18 were rep
 are byte-identical, and the record's two folded expectations are read back by the suite itself, so a stale
 record reddens. **Against the tree:** every file was hashed before and after; the nine mutants each restored
 `extension/console-join.js` to
-`2294c7eacd82de526be1e478fcf938c3f6962af4b18d99e9bd121f867709687c` (10,332 B), and `git status --porcelain`
-ends with only the pre-existing untracked `.project/review/VERIFICATION.json`.
+`2294c7eacd82de526be1e478fcf938c3f6962af4b18d99e9bd121f867709687c` (10,332 B), and no product file
+differs from HEAD (`git diff` touches only `.project/plan/PLAN.md`, which another agent wrote — the Environment
+note records what appeared under `.project/` while this review ran).
 
 ## Intent coverage
 
@@ -297,10 +298,13 @@ product files this review read were hashed at the start and again at the end and
 `.project/` was written by another agent while this review ran: between the mutant run and the final status
 read, `.project/plan/PLAN.md` gained a "Wave 11" section (+11 lines), and
 `.project/tasks/T016-make-the-counts-a-measurement-at-a-commit-too.md` and `.project/review/wave-1.cycle4.md`
-appeared — none of them written by this review, which wrote only this file. `git status --porcelain` therefore
-ends with `M .project/plan/PLAN.md`, those two untracked files, the pre-existing untracked
-`.project/review/VERIFICATION.json`, and `?? .project/review/wave-2.cycle2.md`. `git diff` touched nothing
-outside `.project/plan/PLAN.md`; no product file differs from HEAD. Hashes at the end:
+appeared — none of them written by this review, which wrote only this file. HEAD then advanced to
+`cb6caf6b` (`4da2241f`, `cb6caf6b`), and `git diff --name-status 85208150..HEAD` lists only `.project/STATE.md`,
+`.project/plan/PLAN.md`, `.project/review/VERIFICATION.json`, `.project/review/wave-1.cycle4.md`, this file and
+`.project/tasks/T016-…`; `git show HEAD:extension/console-join.js` hashes to
+`2294c7ea…df867709687c` (10,332 B), the same value, so every statement here is true of the join at both heads.
+`git diff` at the final read touched nothing outside `.project/`; no product file differs from HEAD. Hashes at
+the end:
 `extension/console-join.js` `2294c7eacd82de526be1e478fcf938c3f6962af4b18d99e9bd121f867709687c` (10,332 B) —
 the same value T015's Log records; `scripts/console-join.test.mjs`
 `de160238b5b7c0725e58fe16c9b200a3f2ea89d0231a904dcdc23e9b4bdd928d` (31,430 B);
