@@ -2406,10 +2406,18 @@ describe('the module', () => {
 // need a portal-backed `lars-verify` verdict, and what proves each one that does not. The list is derived
 // rather than remembered, and it is derived for whichever milestone the state file binds: every criterion
 // that intent declares is ruled once, quoted at the characters `scripts/overlay-verdict-claims.test.mjs`
-// parses it at, and cited with the suite the intent's own edge-coverage table assigns it - a path this
-// checkout carries - beside the check chain that runs that suite and the counts read out of it. The
-// list's own path follows the same binding, so the file the armed capture writes is the file that suite
-// opens rather than a finished milestone's.
+// parses it at, and cited with a suite this checkout carries - beside the check chain that runs that
+// suite and the counts read out of it. The list's own path follows the same binding, so the file the
+// armed capture writes is the file that suite opens rather than a finished milestone's.
+//
+// Two documents carry the derivation, and the owner's ruling fixes which reads which. The intent's
+// `## Edge coverage` table is the five-column grammar
+// `Edge | Criterion | Category | Disposition | Detail` (`check_handoffs.py` refuses a sixth column), so
+// it says which edges a criterion is held by and nothing about a suite. The test-to-edge mapping lives
+// once, in the plan's `## Held-out checks` table `Edge | Task | Test`. An edge the plan does not hold
+// out is held by the suite the task the plan's `## Intent coverage` assigns its criterion added, read
+// from that task's own `files:` list and `base`. No suite has to carry an edge id in a test title: the
+// ruling replaced that demand with the plan's table, and this file reads the table.
 //
 // The list rules every row `not-required`, which is a measurement rather than a preference: the charter's
 // portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts,
@@ -2425,6 +2433,7 @@ describe('the module', () => {
 //
 //   set "M044_CAPTURE=1"&& node --experimental-strip-types --test "scripts/navigation-blocking.test.mjs"
 
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, sep } from 'node:path';
@@ -2469,6 +2478,11 @@ function digest(bytes) {
 /** @param {string} path @returns {string} */
 function shown(path) {
   return relative(CLAIM_ROOT, path).split(sep).join('/');
+}
+
+/** @param {string} text @returns {string} */
+function stripBom(text) {
+  return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
 }
 
 /** @param {string} path @param {string} why @returns {string} */
@@ -2571,40 +2585,210 @@ function boundMilestone() {
 }
 
 /**
- * The edges the bound intent's own edge-coverage table binds to each criterion: the row's category, its
- * disposition, the suite that holds it and the detail it was assigned, read as written. A criterion's
- * proof is therefore the test the milestone itself assigned it rather than one this file chooses, and a
- * table that names no suite is a failed derivation rather than an empty citation.
+ * The text of one `##` section, up to the next `##` heading. Every table this file reads lives in one,
+ * so a table in a task example or a later section cannot be mistaken for the one the ruling names.
  *
  * @param {string} source
- * @returns {Array<{ edge: string, criterion: string, category: string, disposition: string, suite: string, detail: string }>}
+ * @param {string} heading
+ * @returns {string}
  */
-function intentEdges(source) {
-  const heading = '## Edge coverage';
+function sectionOf(source, heading) {
   const at = source.indexOf(heading);
-  assert.ok(at >= 0, 'the intent must carry an "## Edge coverage" section');
+  assert.ok(
+    at >= 0,
+    `the document must carry a ${JSON.stringify(heading)} section`,
+  );
   const rest = source.slice(at + heading.length);
   const end = rest.indexOf('\n## ');
-  const section = end >= 0 ? rest.slice(0, end) : rest;
-  /** @type {Array<{ edge: string, criterion: string, category: string, disposition: string, suite: string, detail: string }>} */
+  return end >= 0 ? rest.slice(0, end) : rest;
+}
+
+/**
+ * The data cells of every row of one pipe-delimited table, with the header and separator included so a
+ * table that carries an extra column is refused rather than silently skipped. `columns` is the ruling's
+ * own count, and the failure names the count it read and the count it expected: a six-column edge table
+ * restored over a five-column intent is exactly the defect this reading replaces, so it must redden
+ * naming the column count rather than falling through to an empty list.
+ *
+ * @param {string} section
+ * @param {number} columns
+ * @param {string} what
+ * @returns {string[][]}
+ */
+function tableRows(section, columns, what) {
+  /** @type {string[][]} */
   const rows = [];
   for (const line of section.split(/\r?\n/)) {
+    if (!/^\s*\|/.test(line)) continue;
     const cells = line.split('|').map((cell) => cell.trim());
-    if (cells.length < 7 || !/^E\d+$/.test(cells[1] ?? '')) continue;
+    const data = cells.slice(1, -1);
+    if (data.length === 0) continue;
+    if (data.length !== columns) {
+      assert.fail(
+        `${what} carries ${String(
+          data.length,
+        )} column(s); the ruling's grammar is ${String(columns)} columns, so a table with ${String(
+          data.length,
+        )} is a different shape and the count is what this reading refuses`,
+      );
+    }
+    rows.push(data);
+  }
+  return rows;
+}
+
+/**
+ * The edges the bound intent's own edge-coverage table binds to each criterion, read as the five
+ * columns the owner's ruling makes authoritative: `Edge | Criterion | Category | Disposition | Detail`.
+ * The table no longer names a suite - the test-to-edge mapping lives once, in the plan's held-out
+ * checks - so a criterion's proof is derived rather than taken from a sixth cell.
+ *
+ * @param {string} source
+ * @returns {Array<{ edge: string, criterion: string, category: string, disposition: string, detail: string }>}
+ */
+function intentEdges(source) {
+  const section = sectionOf(source, '## Edge coverage');
+  /** @type {Array<{ edge: string, criterion: string, category: string, disposition: string, detail: string }>} */
+  const rows = [];
+  for (const data of tableRows(
+    section,
+    5,
+    "the intent's edge-coverage table",
+  )) {
+    if (!/^E\d+$/.test(data[0] ?? '')) continue;
     rows.push({
-      edge: cells[1] ?? '',
-      criterion: cells[2] ?? '',
-      category: cells[3] ?? '',
-      disposition: cells[4] ?? '',
-      suite: cells[5] ?? '',
-      detail: cells[6] ?? '',
+      edge: data[0] ?? '',
+      criterion: data[1] ?? '',
+      category: data[2] ?? '',
+      disposition: data[3] ?? '',
+      detail: data[4] ?? '',
     });
   }
   assert.ok(
     rows.length > 0,
-    'the intent must list its edge coverage as a table, so a criterion has a test it is held to by',
+    'the intent must list its edge coverage as a five-column table, so a criterion has an edge it is held by',
   );
   return rows;
+}
+
+/**
+ * The plan's `## Held-out checks` table, `Edge | Task | Test`: the one place the test-to-edge mapping
+ * lives. A row names the edge, the task that holds it and the suite that carries it, so a citation can
+ * name a suite the milestone itself assigned the edge rather than one this file chooses.
+ *
+ * @param {string} source
+ * @returns {Map<string, { task: string, test: string }>}
+ */
+function heldOutChecks(source) {
+  const section = sectionOf(source, '## Held-out checks');
+  /** @type {Map<string, { task: string, test: string }>} */
+  const held = new Map();
+  for (const data of tableRows(
+    section,
+    3,
+    "the plan's held-out-checks table",
+  )) {
+    const edge = data[0] ?? '';
+    if (!/^E\d+$/.test(edge)) continue;
+    held.set(edge, { task: data[1] ?? '', test: data[2] ?? '' });
+  }
+  return held;
+}
+
+/**
+ * The plan's `## Intent coverage` table, `Criterion | Task | Acceptance`: which task answers each
+ * criterion. It is the second derivation this file needs, because an edge the plan does not hold out
+ * has no row in the held-out table, and the task the plan assigns its criterion is where its suite is
+ * declared.
+ *
+ * @param {string} source
+ * @returns {Array<{ criterion: string, task: string, acceptance: string }>}
+ */
+function intentCoverage(source) {
+  const section = sectionOf(source, '## Intent coverage');
+  /** @type {Array<{ criterion: string, task: string, acceptance: string }>} */
+  const rows = [];
+  for (const data of tableRows(
+    section,
+    3,
+    "the plan's intent-coverage table",
+  )) {
+    if (!/^SC\d+$/.test(data[0] ?? '')) continue;
+    rows.push({
+      criterion: data[0] ?? '',
+      task: data[1] ?? '',
+      acceptance: data[2] ?? '',
+    });
+  }
+  return rows;
+}
+
+/**
+ * The suite paths one task's own `files:` front matter declares, in the order it spells them. A task
+ * declares the suites it feeds; the one that is absent at the task's own base is the suite the task
+ * added, which is the one a criterion's row cites when the plan holds no edge out.
+ *
+ * @param {string} text
+ * @returns {string[]}
+ */
+function declaredSuites(text) {
+  const front = /^---\r?\n([\s\S]*?)\r?\n---/.exec(stripBom(text))?.[1] ?? '';
+  const block =
+    /^files:[ \t]*\r?\n((?:[ \t]*-[ \t]*\S.*\r?\n?)*)/m.exec(front)?.[1] ?? '';
+  /** @type {string[]} */
+  const suites = [];
+  for (const match of block.matchAll(/^[ \t]*-[ \t]*(\S+)[ \t]*$/gm)) {
+    const named = (match[1] ?? '').replace(/^['"]|['"]$/g, '');
+    if (/\.(test|spec)\.(mjs|cjs|js|mts|ts)$/.test(named)) suites.push(named);
+  }
+  return suites;
+}
+
+/**
+ * The task file one plan row names, by id, in the directory the plan sits beside. A plan that names a
+ * task this checkout does not carry answers null, so a criterion with no other source is a refusal
+ * rather than an empty citation.
+ *
+ * @param {string} tasksDir
+ * @param {string} task
+ * @returns {string | null}
+ */
+function taskFileAt(tasksDir, task) {
+  if (!existsSync(tasksDir)) return null;
+  const name = readdirSync(tasksDir)
+    .filter(
+      (entry) =>
+        entry.endsWith('.md') &&
+        (entry === `${task}.md` || entry.startsWith(`${task}-`)),
+    )
+    .sort()[0];
+  return name === undefined ? null : join(tasksDir, name);
+}
+
+/**
+ * The suite one task added: the first suite its `files:` list declares that its own `base` commit does
+ * not carry. A task that modifies a shared suite declares it too, so the added suite is the feature
+ * suite the criterion's reading lives in; a task whose base names no commit answers its first declared
+ * suite, which is a fallback stated rather than hidden.
+ *
+ * @param {string} text
+ * @returns {string | null}
+ */
+function suiteAddedByTask(text) {
+  const suites = declaredSuites(text);
+  if (suites.length === 0) return null;
+  const base =
+    /^base:\s*([0-9a-f]{7,64})\s*$/im.exec(stripBom(text))?.[1] ?? '';
+  if (base !== '') {
+    for (const suite of suites) {
+      const read = spawnSync('git', ['cat-file', '-e', `${base}:${suite}`], {
+        cwd: CLAIM_ROOT,
+        encoding: 'utf8',
+      });
+      if (read.error || read.status !== 0) return suite;
+    }
+  }
+  return suites[0] ?? null;
 }
 
 /**
@@ -2619,38 +2803,6 @@ function declarationsIn(source) {
     tests: (source.match(/^[ \t]*(?:test|it)\(/gm) ?? []).length,
     groups: (source.match(/^[ \t]*describe\(/gm) ?? []).length,
   };
-}
-
-/**
- * The titles one suite declares: the string each `test(...)`, `it(...)` and `describe(...)` call
- * carries, read from the source rather than from a run, so a citation can be checked against the
- * tests a suite actually declares without running it a second time.
- *
- * @param {string} source
- * @returns {string[]}
- */
-function suiteTitles(source) {
-  /** @type {string[]} */
-  const titles = [];
-  for (const line of source.split(/\r?\n/)) {
-    const found =
-      /^\s*(?:test|it|describe)\(\s*(['"`])((?:[^\\]|\\.)*?)\1/.exec(line);
-    if (found?.[2] !== undefined) titles.push(found[2]);
-  }
-  return titles;
-}
-
-/**
- * Whether one suite's own test titles carry an edge id: the check a citation is held to, because a
- * row that cites a suite where no test is about its edge names evidence nobody can open.
- *
- * @param {string} source
- * @param {string} edge
- * @returns {boolean}
- */
-function carriesEdge(source, edge) {
-  const pattern = new RegExp(`\\b${edge}\\b`);
-  return suiteTitles(source).some((title) => pattern.test(title));
 }
 
 /**
@@ -2674,20 +2826,76 @@ function claimedEdges(row) {
 }
 
 /**
- * The list, derived: every criterion the intent declares, ruled once, quoting its own text, and citing the
- * suite the intent's own edge coverage assigns it with the reading that suite carries. Every value below is
- * interpolated from a file this checkout holds, so a citation that moves makes the list stale rather than
- * quietly wrong, and a milestone that declares five criteria gets five rows rather than another
- * milestone's six.
+ * The plan a milestone's intent sits beside: `.project/plan/PLAN.md` for the live milestone and
+ * `.project/archive/<NNN>-<slug>/plan/PLAN.md` for an archived one, both one directory above the
+ * intent's own directory. Derived rather than written, so the plan and the intent cannot be read for
+ * two different milestones.
  *
+ * @param {string} intentPath
+ * @returns {string}
+ */
+function planPathForIntent(intentPath) {
+  return join(dirname(intentPath), '..', 'plan', 'PLAN.md');
+}
+
+/**
+ * The suite one edge is held by, and the derivation that says so. A held-out edge names its suite in
+ * the plan's own `## Held-out checks` table. An in-scope edge has no row there, so the suite is the one
+ * the task the plan assigns its criterion added - read from that task's `files:` list and its own
+ * `base`, never from this file's opinion. A criterion whose edges resolve to different suites is a
+ * failed derivation, because a row carries one citation and two suites would name evidence the row
+ * cannot open in one place.
+ *
+ * @param {{ edge: string, criterion: string }} edge
+ * @param {Map<string, { task: string, test: string }>} heldOut
+ * @param {Array<{ criterion: string, task: string, acceptance: string }>} coverage
+ * @param {string} tasksDir
+ * @returns {string}
+ */
+function suiteForEdge(edge, heldOut, coverage, tasksDir) {
+  const held = heldOut.get(edge.edge);
+  if (held !== undefined) return held.test;
+  for (const row of coverage.filter(
+    (entry) => entry.criterion === edge.criterion,
+  )) {
+    const taskFile = taskFileAt(tasksDir, row.task);
+    if (taskFile === null) continue;
+    const suite = suiteAddedByTask(
+      claimText(
+        taskFile,
+        `${row.task} is the task the plan assigns ${edge.criterion}`,
+      ),
+    );
+    if (suite !== null) return suite;
+  }
+  assert.fail(
+    `the plan holds no held-out row for ${edge.edge}, and no task it assigns ${edge.criterion} adds a suite this checkout carries, so ${edge.criterion} would cite no test at all`,
+  );
+  return '';
+}
+
+/**
+ * The list, derived: every criterion the intent declares, ruled once, quoting its own text, and citing
+ * the suite the milestone's own plan assigns it. The intent's table is read as the five columns the
+ * owner's ruling makes authoritative; the test-to-edge mapping is read from the plan's `## Held-out
+ * checks` table and, for an edge the plan does not hold out, from the task that criterion's row names.
+ * Every value below is interpolated from a file this checkout holds, so a citation that moves makes the
+ * list stale rather than quietly wrong, and a milestone that declares five criteria gets five rows
+ * rather than another milestone's six.
+ *
+ * @param {string} intentSource
+ * @param {string} planSource
+ * @param {string} intentPath
+ * @param {string} planPath
  * @returns {Record<string, any>}
  */
-function derivedClaims() {
+function derivedClaimsFrom(intentSource, planSource, intentPath, planPath) {
   const milestone = CLAIMS_MILESTONE;
-  const intentPath = intentPathForMilestone(CLAIM_ROOT, milestone);
-  const intentSource = claimText(intentPath, `the intent ${milestone} binds`);
   const intent = claimCriteria(intentSource);
   const edges = intentEdges(intentSource);
+  const heldOut = heldOutChecks(planSource);
+  const coverage = intentCoverage(planSource);
+  const tasksDir = join(dirname(planPath), '..', 'tasks');
   const packageText = claimText(
     PACKAGE_PATH,
     'the check chain is part of this repository',
@@ -2708,47 +2916,15 @@ function derivedClaims() {
   )} last, with ${JSON.stringify(archiveStage)} and ${JSON.stringify(
     fixStage,
   )} among them)`;
-  const suites = [...new Set(edges.map((edge) => edge.suite))];
-  for (const suite of suites) {
-    assert.ok(
-      suite !== '' && existsSync(join(CLAIM_ROOT, suite)),
-      `the intent's edge coverage names ${JSON.stringify(suite)} as a test this checkout must carry`,
-    );
-  }
-  /**
-   * The suite a row cites for one edge: the suite the intent's own table names, when that suite's test
-   * titles carry the edge id, otherwise the first suite the intent names that does. A row that cited
-   * the intent's suite regardless would name evidence nobody can open - the list once cited a suite
-   * holding no `E8` for SC5 - so the citation follows the titles rather than the table's first cell.
-   *
-   * @param {{ edge: string, suite: string }} edge
-   * @param {string} criterion
-   * @returns {string}
-   */
-  const holderOf = (edge, criterion) => {
-    const candidates = [
-      edge.suite,
-      ...suites.filter((suite) => suite !== edge.suite),
-    ];
-    for (const suite of candidates) {
-      const source = claimText(
-        join(CLAIM_ROOT, suite),
-        `${edge.edge}'s citation for ${criterion}`,
-      );
-      if (carriesEdge(source, edge.edge)) return suite;
-    }
-    assert.fail(
-      `the intent assigns ${edge.edge} to ${edge.suite}, whose own test titles do not carry that id, and no suite the intent names carries it either (${JSON.stringify(suites)}), so ${criterion} would cite a suite that cannot hold it`,
-    );
-    return edge.suite;
-  };
   const rows = Object.entries(intent).map(([criterion, criterionText]) => {
     const held = edges.filter((edge) => edge.criterion === criterion);
     assert.ok(
       held.length > 0,
       `the intent's edge coverage must name ${criterion}, so its row cites the test the milestone assigned it`,
     );
-    const holders = held.map((edge) => holderOf(edge, criterion));
+    const holders = held.map((edge) =>
+      suiteForEdge(edge, heldOut, coverage, tasksDir),
+    );
     const suiteRel = holders[0] ?? '';
     assert.ok(
       holders.every((suite) => suite === suiteRel),
@@ -2756,7 +2932,7 @@ function derivedClaims() {
     );
     const suiteText = claimText(
       join(CLAIM_ROOT, suiteRel),
-      `${criterion}'s edge coverage names it as the test that holds the criterion`,
+      `${criterion}'s plan assigns it ${suiteRel} as the suite that holds its edge`,
     );
     const { tests, groups } = declarationsIn(suiteText);
     const named = JSON.stringify(held.map((edge) => edge.edge));
@@ -2774,7 +2950,7 @@ function derivedClaims() {
       criterionText,
       criterionCharacters: criterionText.length,
       ruling: 'not-required',
-      reason: `The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. ${criterion} is ${JSON.stringify(criterionText)} - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one \`control-ai-browsers run\` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) ${named} the intent itself assigns the criterion, held by ${JSON.stringify(suites)} and recorded as ${dispositions}.`,
+      reason: `The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. ${criterion} is ${JSON.stringify(criterionText)} - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one \`control-ai-browsers run\` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) ${named} the intent itself assigns the criterion, held by ${JSON.stringify(holders)} and recorded as ${dispositions}.`,
       artefactPath: suiteRel,
       artefact: `${suiteRel} (edge ${named} of the intent's own coverage: ${varied}; the suite carries ${String(tests)} test declaration(s) in ${String(groups)} group(s)) -> ${chainReading}`,
       reading: `${String(tests)} test declaration(s) in ${suiteRel} hold ${criterion} through the ${String(held.length)} ${held[0]?.category ?? ''} edge row(s) the intent assigns it, ${named}, so the criterion is proved by a test this repository runs rather than by a drive no driver here performs`,
@@ -2785,6 +2961,13 @@ function derivedClaims() {
       ],
     };
   });
+  const suites = [...new Set(rows.map((row) => row.artefactPath))];
+  for (const suite of suites) {
+    assert.ok(
+      suite !== '' && existsSync(join(CLAIM_ROOT, suite)),
+      `${JSON.stringify(suite)} is the suite the plan assigns a criterion, and this checkout must carry it`,
+    );
+  }
 
   return {
     schema: `${milestone.toLowerCase()}-verdict-claims/v1`,
@@ -2792,7 +2975,7 @@ function derivedClaims() {
     quotes: {
       from: `scripts/verdict-claims-intent.mjs (intentPathForMilestone(CLAIM_ROOT, ${JSON.stringify(milestone)}))`,
       how: `parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the ${String(Object.keys(intent).length)} criteria it declares are ${JSON.stringify(Object.keys(intent))} and scripts/overlay-verdict-claims.test.mjs compares them character for character`,
-      edges: `read from ${shown(intentPath)}'s own edge-coverage table, so a row cites the test the milestone assigned its criterion rather than one this file chose: ${String(edges.length)} row(s) over the criteria ${JSON.stringify([...new Set(edges.map((edge) => edge.criterion))])} and the suites ${JSON.stringify(suites)}`,
+      edges: `read from ${shown(intentPath)}'s own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from ${shown(planPath)}'s ## Held-out checks table (Edge | Task | Test), so a row cites the suite the milestone's own plan assigns its edges rather than one this file chose: ${String(edges.length)} edge row(s) over the criteria ${JSON.stringify([...new Set(edges.map((edge) => edge.criterion))])} and the suites ${JSON.stringify(suites)}`,
     },
     ruling: {
       required: 0,
@@ -2805,6 +2988,10 @@ function derivedClaims() {
     },
     evidence: {
       intent: { path: shown(intentPath), criteria: Object.keys(intent) },
+      plan: {
+        path: shown(planPath),
+        heldOut: [...heldOut.keys()].sort(),
+      },
       edges: {
         rows: edges.length,
         criteria: [...new Set(edges.map((edge) => edge.criterion))],
@@ -2814,7 +3001,7 @@ function derivedClaims() {
         ...declarationsIn(
           claimText(
             join(CLAIM_ROOT, suite),
-            'the suite the edge coverage names',
+            'the suite the plan assigns a criterion',
           ),
         ),
       })),
@@ -2833,10 +3020,28 @@ function derivedClaims() {
       records: CLAIMS_REL,
       criteria: rows.map((row) => row.criterion),
       reading:
-        'an armed run re-derives the list from the intent this checkout binds, the edge coverage that intent declares and the suites it names, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives.',
+        'an armed run re-derives the list from the intent this checkout binds, the five-column edge coverage that intent declares and the suites the plan assigns each criterion, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives.',
     },
     claims: rows,
   };
+}
+
+/**
+ * The list the bound milestone's own two documents derive: the intent for its criteria and edge rows,
+ * and the plan for the test-to-edge mapping. One wrapper so the armed capture and every read-only pin
+ * call the same derivation with the same two paths.
+ *
+ * @returns {Record<string, any>}
+ */
+function derivedClaims() {
+  const intentPath = intentPathForMilestone(CLAIM_ROOT, CLAIMS_MILESTONE);
+  const planPath = planPathForIntent(intentPath);
+  return derivedClaimsFrom(
+    claimText(intentPath, `the intent ${CLAIMS_MILESTONE} binds`),
+    claimText(planPath, `the plan ${CLAIMS_MILESTONE} binds`),
+    intentPath,
+    planPath,
+  );
 }
 
 /**
@@ -2895,15 +3100,15 @@ function assertCitations(recording) {
 }
 
 /**
- * Every row's citation must be checkable against the tests it names: the suite at `artefactPath` must
- * carry each edge id the row's artefact claims in one of its own test titles. A row that cites a suite
- * where no test is about its edge names evidence nobody can open, which is how this list once cited a
- * suite holding no `E8` for SC5 while the tests for that edge sat in another file.
+ * Every row's artefact must name the edge ids it is ruled on, and name only edge ids: the ruling moved
+ * the test-to-edge mapping out of the suite titles and into the plan's held-out table, so a title no
+ * longer has to carry `E7` for the citation to be checkable. What stays checkable is that the row
+ * states the edges it holds, and that each one is an edge id rather than prose.
  *
  * @param {any} recording
  * @returns {void}
  */
-function assertEdgeTitles(recording) {
+function assertClaimedEdges(recording) {
   assert.ok(
     Array.isArray(recording?.claims) && recording.claims.length > 0,
     'the claim list must carry its rows',
@@ -2913,20 +3118,76 @@ function assertEdgeTitles(recording) {
     const edges = claimedEdges(row);
     assert.ok(
       edges.length > 0,
-      `${where} names no edge id in its artefact, so the suite it cites cannot be held to one: ${JSON.stringify(row?.artefact)}`,
+      `${where} names no edge id in its artefact, so the suite it cites is held to no edge: ${JSON.stringify(row?.artefact)}`,
     );
-    const source = claimText(
-      join(CLAIM_ROOT, String(row.artefactPath ?? '')),
-      `${where}'s artefact`,
-    );
-    const titles = suiteTitles(source);
     for (const edge of edges) {
-      assert.ok(
-        carriesEdge(source, edge),
-        `${where} cites ${row.artefactPath} for ${edge}, and none of that suite's ${String(titles.length)} test title(s) carries ${edge}: a citation must name a suite whose own tests hold the edge it claims`,
+      assert.match(
+        edge,
+        /^E\d+$/,
+        `${where} claims ${JSON.stringify(edge)} in its artefact, and an edge id is E followed by digits`,
       );
     }
   }
+}
+
+/**
+ * The mutant the ruling replaces: the intent's edge table rewritten as the six-column shape with a
+ * `Test` cell between `Disposition` and `Detail`. It is applied to the live source in memory, so the
+ * reading is proven against the table this head actually carries rather than a fixture invented for
+ * the test.
+ *
+ * @param {string} source
+ * @returns {string}
+ */
+function sixColumnEdgeTable(source) {
+  const lines = source.split(/\r?\n/);
+  /** @type {string[]} */
+  const out = [];
+  let inSection = false;
+  for (const line of lines) {
+    if (/^## Edge coverage\s*$/.test(line)) {
+      inSection = true;
+      out.push(line);
+      continue;
+    }
+    if (inSection && /^## /.test(line)) inSection = false;
+    if (inSection && /^\s*\|/.test(line)) {
+      const cells = line.split('|').map((cell) => cell.trim());
+      const data = cells.slice(1, -1);
+      if (data.length === 5) {
+        const separator = data.every((cell) => /^:?-{2,}:?$/.test(cell));
+        const inserted = separator
+          ? '---'
+          : data[0] === 'Edge'
+            ? 'Test'
+            : 'scripts/console-panel-render.test.mjs';
+        out.push(`| ${[...data.slice(0, 4), inserted, data[4]].join(' | ')} |`);
+        continue;
+      }
+    }
+    out.push(line);
+  }
+  return out.join('\n');
+}
+
+/**
+ * The same plan with the first held-out row's Test cell replaced, so the derivation's refusal for a
+ * cited suite this checkout does not carry can be proven without writing a file.
+ *
+ * @param {string} source
+ * @param {string} test
+ * @returns {string}
+ */
+function replaceFirstHeldOutTest(source, test) {
+  const section = sectionOf(source, '## Held-out checks');
+  const line = section
+    .split(/\r?\n/)
+    .find((entry) => /^\s*\|\s*E\d+\s*\|/.test(entry));
+  assert.ok(line, 'the plan must carry a held-out row to replace');
+  const cells = line.split('|').map((cell) => cell.trim());
+  const data = cells.slice(1, -1);
+  data[2] = test;
+  return source.replace(line, `| ${data.join(' | ')} |`);
 }
 
 /** The bytes the read-only pin holds the claim list to; an armed run re-bases it after its own write. */
@@ -3157,51 +3418,156 @@ describe('the claim list', () => {
     assert.doesNotThrow(() => assertCitations(recording));
   });
 
-  it('cites a suite whose own test titles carry the edge id it claims', () => {
+  it("reads the intent's five-column edge table and the plan's held-out mapping", () => {
+    const intentPath = intentPathForMilestone(CLAIM_ROOT, CLAIMS_MILESTONE);
+    const planPath = planPathForIntent(intentPath);
+    const intentSource = claimText(
+      intentPath,
+      `the intent ${CLAIMS_MILESTONE} binds`,
+    );
+    const planSource = claimText(
+      planPath,
+      `the plan ${CLAIMS_MILESTONE} binds`,
+    );
+
+    // The ruling's five columns, read as written: no sixth cell, and every row carries its detail.
+    const edges = intentEdges(intentSource);
+    assert.ok(edges.length > 0, 'the intent must declare at least one edge');
+    for (const edge of edges) {
+      assert.equal(
+        'suite' in edge,
+        false,
+        `the five-column table names no suite, and ${edge.edge} was read with one`,
+      );
+      assert.ok(
+        edge.detail !== '',
+        `${edge.edge} must carry the detail the five-column table names`,
+      );
+    }
+
+    // The mapping the ruling moves to one place: every held-out test the plan names is a suite this
+    // checkout carries, and the derivation cites only suites that exist.
+    const heldOut = heldOutChecks(planSource);
+    for (const [edge, row] of heldOut) {
+      assert.ok(
+        row.test !== '',
+        `${edge} must name the test the plan assigns it`,
+      );
+      assert.ok(
+        existsSync(join(CLAIM_ROOT, row.test)),
+        `the plan assigns ${edge} to ${row.test}, which this checkout does not carry`,
+      );
+    }
+    const derived = derivedClaimsFrom(
+      intentSource,
+      planSource,
+      intentPath,
+      planPath,
+    );
+    for (const row of derived.claims) {
+      assert.ok(
+        existsSync(join(CLAIM_ROOT, row.artefactPath)),
+        `${row.criterion} cites ${row.artefactPath}, which this checkout does not carry`,
+      );
+    }
+
     const recording = claimJson(
       CLAIMS_PATH,
       'the list is part of this repository',
     );
-    // The list as it stands: every cited suite carries every edge id its row claims.
     assert.doesNotThrow(
-      () => assertEdgeTitles(recording),
-      `${CLAIMS_REL} cites a suite whose tests do not hold the edge it claims`,
+      () => assertClaimedEdges(recording),
+      `${CLAIMS_REL} names an edge id its artefact does not state`,
     );
+    console.log(
+      `${shown(planPath)} held-out mapping: ${JSON.stringify(
+        [...heldOut.entries()].map(([edge, row]) => `${edge} -> ${row.test}`),
+      )}; ${String(edges.length)} edge row(s) read as five columns`,
+    );
+  });
 
-    // The defect this pin exists for: SC5's row, pointed at a suite the intent names that carries no
-    // E8 title. A citation nobody can open must redden naming the edge, or the next re-capture can
-    // repeat the false claim silently.
-    const planted = clone(recording);
-    const row = planted.claims.find((one) => claimedEdges(one).includes('E8'));
-    assert.ok(
-      row,
-      `the list must carry a row claiming E8, which is the edge SC5 is ruled on: ${JSON.stringify(planted.claims.map((one) => [one.criterion, claimedEdges(one)]))}`,
+  it('reddens a six-column edge table by naming its column count', () => {
+    const intentPath = intentPathForMilestone(CLAIM_ROOT, CLAIMS_MILESTONE);
+    const intentSource = claimText(
+      intentPath,
+      `the intent ${CLAIMS_MILESTONE} binds`,
     );
-    const without = planted.evidence.suites
-      .map((suite) => suite.path)
-      .filter(
-        (path) =>
-          path !== row.artefactPath &&
-          !carriesEdge(
-            claimText(join(CLAIM_ROOT, path), 'a suite the intent names'),
-            'E8',
-          ),
-      );
-    assert.ok(
-      without.length > 0,
-      `one suite this milestone names must carry no E8 title, so this pin can plant the citation the review found: ${JSON.stringify(planted.evidence.suites.map((suite) => suite.path))}`,
-    );
-    row.artefactPath = without[0];
+    // The control: the live table is the five-column grammar, and it yields rows.
+    assert.ok(intentEdges(intentSource).length > 0);
+
+    // The mutant restores the six-column read: the old table shape with a Test cell between
+    // Disposition and Detail. The parser must redden naming the count it read, not skip the rows and
+    // then report an empty table.
+    const six = sixColumnEdgeTable(intentSource);
     let message = '';
     try {
-      assert.doesNotThrow(() => assertEdgeTitles(planted));
+      intentEdges(six);
     } catch (error) {
       message = error instanceof Error ? error.message : String(error);
     }
     assert.match(
       message,
-      /none of that suite's \d+ test title\(s\) carries E8/,
-      `citing a suite whose titles carry no E8 must redden naming the edge and the file; it produced ${JSON.stringify(message.slice(0, 320))}`,
+      /carries 6 column\(s\)/,
+      `the restored six-column read must redden naming its column count; it produced ${JSON.stringify(message.slice(0, 320))}`,
+    );
+    assert.match(
+      message,
+      /5 columns/,
+      `the refusal must name the five-column grammar the ruling makes authoritative; it produced ${JSON.stringify(message.slice(0, 320))}`,
+    );
+    console.log(`six-column mutant: ${message.split('\n')[0]}`);
+  });
+
+  it('refuses a held-out test this checkout does not carry', () => {
+    const intentPath = intentPathForMilestone(CLAIM_ROOT, CLAIMS_MILESTONE);
+    const planPath = planPathForIntent(intentPath);
+    const intentSource = claimText(
+      intentPath,
+      `the intent ${CLAIMS_MILESTONE} binds`,
+    );
+    const planSource = claimText(
+      planPath,
+      `the plan ${CLAIMS_MILESTONE} binds`,
+    );
+    const broken = replaceFirstHeldOutTest(
+      planSource,
+      'scripts/absent-held-out-suite.test.mjs',
+    );
+    let message = '';
+    try {
+      derivedClaimsFrom(intentSource, broken, intentPath, planPath);
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    assert.match(
+      message,
+      /absent-held-out-suite\.test\.mjs/,
+      `a citation of a suite that is not there must redden naming the path; it produced ${JSON.stringify(message.slice(0, 320))}`,
+    );
+    console.log(`held-out absence: ${message.split('\n')[0]}`);
+  });
+
+  it('reddens when a row names prose where an edge id belongs', () => {
+    const recording = claimJson(
+      CLAIMS_PATH,
+      'the list is part of this repository',
+    );
+    assert.doesNotThrow(() => assertClaimedEdges(recording));
+    const planted = clone(recording);
+    planted.claims[0].artefact = planted.claims[0].artefact.replace(
+      /edge \["E\d+"/,
+      'edge ["not-an-edge"',
+    );
+    let message = '';
+    try {
+      assert.doesNotThrow(() => assertClaimedEdges(planted));
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    assert.match(
+      message,
+      /an edge id is E followed by digits/,
+      `a row that names prose where an edge id belongs must redden; it produced ${JSON.stringify(message.slice(0, 320))}`,
     );
   });
 });

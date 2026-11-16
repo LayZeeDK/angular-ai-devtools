@@ -3288,6 +3288,166 @@ test('AC7: a log token is a claim only where its task declares it, and claims: l
   );
 });
 
+test('AC7: a declared suite or recording the range did not change is a pin, and an undeclared one is never promoted', (t) => {
+  // M035's range carries no m031-field-state.json, and that recording is byte-identical across it. A
+  // task that declares the recording and names it in its Log is pinning it, not claiming the range
+  // changed it.
+  const PINNED_PATH = 'research/raw/m031-field-state.json';
+  const range = shipRange({ root: ROOT, milestone: '035' });
+  assert.equal(range.error, '', `M035's range must derive: ${range.error}`);
+  const pinned = {
+    id: 'T904',
+    file: 'fixture/T904-pin.md',
+    text: [
+      '---',
+      'id: T904',
+      'files:',
+      `  - ${PINNED_PATH}`,
+      '---',
+      '',
+      '## Log',
+      `- the gate pins \`${PINNED_PATH}\` while measuring the tree fact`,
+      '',
+    ].join('\n'),
+  };
+  const declared = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks: [pinned],
+    claims: 'declared',
+  });
+  assert.deepEqual(
+    declared.findings,
+    [],
+    `a declared path the range did not change must not be a finding: ${JSON.stringify(declared.findings)}`,
+  );
+  assert.equal(
+    declared.pins.length,
+    1,
+    `the declared path must be recorded as one pin: ${JSON.stringify(declared.pins)}`,
+  );
+  assert.equal(declared.pins[0]?.file, PINNED_PATH);
+  assert.equal(declared.pins[0]?.task, 'T904');
+  assert.equal(
+    declared.pins[0]?.byteIdentical,
+    true,
+    'the pin records the reading that satisfied it, not the range name list',
+  );
+  assert.equal(
+    declared.claims.length,
+    0,
+    'a pin is not also counted as a claim held against the range',
+  );
+  assert.ok(
+    declared.examined > 0,
+    'a pin is an input the check examined, so the run cannot report examined 0',
+  );
+
+  // The same token with `claims: 'log'`: every path-like token is a claim, so the refusal still fires.
+  const logged = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks: [pinned],
+    claims: 'log',
+  });
+  assert.equal(logged.pins.length, 0, 'log mode promotes no token to a pin');
+  assert.equal(logged.claims.length, 1);
+  assert.equal(logged.findings.length, 1);
+  assert.equal(logged.findings[0]?.file, PINNED_PATH);
+
+  // A token the task does not declare is a mention, and never a pin, even when it is byte-identical.
+  const undeclared = {
+    id: 'T906',
+    file: 'fixture/T906-mention.md',
+    text: [
+      '---',
+      'id: T906',
+      'files:',
+      '  - scripts/gate-integrity.mjs',
+      '---',
+      '',
+      '## Log',
+      `- measuring \`${CLAIMED_PATH}\` while reading another milestone's log`,
+      '',
+    ].join('\n'),
+  };
+  // A control task declares a path M035's range does carry, so the run has a claim beside the
+  // mention and cannot refuse `nothing-examined` for the fixture's own shape.
+  const control = {
+    id: 'T907',
+    file: 'fixture/T907-change.md',
+    text: [
+      '---',
+      'id: T907',
+      'files:',
+      '  - .project/STATE.md',
+      '---',
+      '',
+      '## Log',
+      '- updated `.project/STATE.md` while the milestone landed',
+      '',
+    ].join('\n'),
+  };
+  const mentioned = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks: [undeclared, control],
+    claims: 'declared',
+  });
+  assert.equal(mentioned.pins.length, 0);
+  assert.equal(mentioned.mentions.length, 1);
+  assert.equal(mentioned.mentions[0]?.file, CLAIMED_PATH);
+  assert.deepEqual(mentioned.findings, []);
+
+  t.diagnostic(
+    `AC7 pin: declared ${String(declared.claimsExamined)} claim(s) and ${String(
+      declared.pinsExamined,
+    )} pin(s), 0 absent; log ${String(logged.claimsExamined)} claim(s), ${String(
+      logged.findings.length,
+    )} absent; undeclared ${String(mentioned.mentionsExamined)} mention(s), 0 pin(s)`,
+  );
+});
+
+test('AC7: a declared path the range changed is a claim, not a pin', (t) => {
+  const range = shipRange({ root: ROOT, milestone: '044' });
+  assert.equal(range.error, '', `M044's range must derive: ${range.error}`);
+  const changed = 'research/raw/m044-gate-shapes.json';
+  const task = {
+    id: 'T905',
+    file: 'fixture/T905-change.md',
+    text: [
+      '---',
+      'id: T905',
+      'files:',
+      `  - ${changed}`,
+      '---',
+      '',
+      '## Log',
+      `- wrote \`${changed}\` at this head`,
+      '',
+    ].join('\n'),
+  };
+  const report = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks: [task],
+    claims: 'declared',
+  });
+  assert.equal(
+    report.pins.length,
+    0,
+    'a path the range changed is a claim, never a pin',
+  );
+  assert.equal(report.claims.length, 1);
+  assert.equal(report.claims[0]?.inTheRange, true);
+  assert.deepEqual(report.findings, []);
+  t.diagnostic(
+    `AC7 claim: ${changed} is in M044's range, recorded as ${String(
+      report.claims[0]?.inTheRange,
+    )}, with ${String(report.pins.length)} pin(s)`,
+  );
+});
+
 /**
  * A value as JSON with its object keys in one order. A count map is compared by the counts it
  * carries, never by the order its keys were inserted: `sites` is built in the order the references
@@ -3394,6 +3554,20 @@ const SUITE_DIFF_REASONS = {
     'wholly added at this head: M056 T002 measured the fix-record stage’s default task directory on fixture trees, a reading the measured commit carries no file to edit',
   'scripts/gate-stability-record.test.mjs':
     'wholly added at this head: M056 T001 spawned the three refusing commands and published what each printed, a reading the measured commit carries no file to edit',
+  'scripts/console-join.test.mjs':
+    'wholly added at this head: M045 T002 pins the join of a captured diagnostic to the shipped digest by the code it carries — one finding per diagnostic in capture order, a code the digest lacks named rather than counted, a message with no code saying so, and an empty capture kept distinct from no diagnostics — with five mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit',
+  'apps/angular-ai-devtools/src/app/app.spec.ts':
+    'the ordered route-table pin gained the `console` surface M045 T003 appends last, and the lazy-component / route-data / own-name block for it; every earlier path is unchanged and no assertion line was removed',
+  'apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts':
+    'the chat suite’s two ordered route-table pins gained the `console` surface M045 T003 appends last — in the full path list and in the lazy list — and the per-surface loop names it; no earlier path was reordered and no assertion line was removed',
+  'apps/angular-ai-devtools/src/app/page-picker.component.spec.ts':
+    'the picker suite’s lazy-path list gained the `console` surface M045 T003 appends last, so a route appended without registering still reddens here; the comment above it says so, and no assertion line was removed',
+  'apps/angular-ai-devtools/src/app/panel-demo.spec.ts':
+    'the demo suite gained the M045 T003 console pin: its route, its sample fact held to the shipped digest and to the join, and its rendered lines held to E7 — no cause, no element, no remedy, no count and no empty list; the earlier surfaces’ pins are unchanged and no assertion line was removed',
+  'scripts/console-panel-render.test.mjs':
+    'wholly added at this head: M045 T003 pins the console pane’s rendering of the join’s `{ state, findings[] }` — captured-nothing as a statement, an unmatched code named rather than counted, and no cause, element, remedy or unattributed wording — with six mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit',
+  'scripts/console-panel-record.test.mjs':
+    'wholly added at this head: M045 T004 pins the console pane’s behaviour as one recorded reading of it — every case’s join `state`, each finding’s `text` with its `code`/`title`/`reason` exactly where the contract places them, and the pane’s own rendered lines — by re-deriving all of it from the join, the shipped digest and the pane, with a code the digest lacks named rather than counted, captured-nothing stated rather than rendered as an empty list, the two absences kept as two statements, and the one write behind `M045_CAPTURE=1` so a default run reads the same bytes; two mutants each redden the pin that names its defect, a reading the measured commit carries no file to edit',
 };
 
 /** The driven-check recording, measured once in the root `before` hook below. */
@@ -3720,6 +3894,19 @@ function assertionCounts(baseline, file, present) {
 }
 
 /**
+ * The line count of one file, counted the way `git diff --numstat` counts a wholly added path: every
+ * line of it, a final newline closing the last line rather than opening an empty one.
+ *
+ * @param {string} file
+ * @returns {number}
+ */
+function lineCount(file) {
+  const text = readFileSync(join(ROOT, file), 'utf8');
+  const lines = text.split('\n');
+  return text.endsWith('\n') ? lines.length - 1 : lines.length;
+}
+
+/**
  * The suite diff against the head the intent measured at (SC6, AC4): every suite the tree carries,
  * whether the measured commit carries it at all, how many lines moved, and how many of those lines were
  * assertions. A suite that differs with no reason read for it is a failed derivation.
@@ -3744,7 +3931,12 @@ function deriveSuiteDiff() {
   ])
     .split('\n')
     .map((line) => line.trim())
-    .filter((line) => line !== '');
+    .filter((line) => line !== '')
+    // `git ls-files --cached --others` lists an untracked path ahead of the indexed ones, so this
+    // list's order would move the moment the landing commit appeared. The measurement is a set of
+    // suites, so it is sorted here and the record does not depend on whether that commit has been
+    // made yet - the same rule M056 T006 applied to the range.
+    .sort();
   const suites = listed.filter((file) => SUITE_FILE.test(file));
   if (suites.length === 0) {
     fail(
@@ -3774,12 +3966,19 @@ function deriveSuiteDiff() {
       );
     }
     const assertions = assertionCounts(baseline, file, present);
+    // A suite the measured head lacks and the index does not carry either - the tree a capture runs on
+    // has not committed it yet: `git diff --numstat` is silent about an untracked path, so the reading
+    // is taken from the file, where every line is added and none is removed. That is the answer the
+    // same command gives once the landing commit carries the path, so the record does not drift the
+    // moment it does, and a row is measured rather than left null.
+    const addedLines = counts?.added ?? (present ? null : lineCount(file));
+    const removedLines = counts?.removed ?? (present ? null : 0);
     differing.push({
       file,
       status: present ? 'M' : 'A',
       atTheMeasuredHead: present,
-      addedLines: counts?.added ?? null,
-      removedLines: counts?.removed ?? null,
+      addedLines,
+      removedLines,
       addedAssertionLines: assertions.added,
       removedAssertionLines: assertions.removed,
       recutAssertionLines: assertions.recut,
@@ -4451,5 +4650,922 @@ test('T003 E8: restoring the numeric-predecessor rule refuses this milestone, an
   t.diagnostic(`E8 mutant failure: ${String(restored.error)}`);
   t.diagnostic(
     `E8: the repair answers ${repaired.range}; the restored rule answers ${JSON.stringify(restored.range)} and refuses`,
+  );
+});
+
+// ======== T006: existence, one normalised token, two ends, and one markdown file of tasks ========
+//
+// Wave 4's review proved the pin branch disarmed the exists-nowhere refusal for exactly the two path
+// shapes tasks declare: `isPinnable` tested a *spelling* (`SUITE_PATH`, `RECORDING_PATH`,
+// `existsSync`) and the pin branch accepted two absences as equal, so a declared suite-shaped name and
+// a recording-shaped name that no commit and no tree carried were printed as `pin … not judged as a
+// change`. Three smaller defects sat beside it in the same reading: the declaration match stripped a
+// leading `./` while the range match did not, `rangeEnds` split a three-dot range into a base and a
+// head that does not exist, and `--tasks` given one markdown file crashed with `ENOTDIR` because the
+// directory listing came first. One test per defect below, each named so a red run says which rule it
+// is about. Appended after the last line the record pins, and no line here spells a dot-project path,
+// so the record's own enumeration of this file's references does not move.
+
+/** The suite-shaped path no commit of M035's range and no tree carries: the shape tasks declare most. */
+const ABSENT_SUITE = 'scripts/absent-probe-suite.test.mjs';
+
+/** The recording-shaped path no commit of M035's range and no tree carries. */
+const ABSENT_RECORDING = 'research/raw/m999-absent-recording.json';
+
+/**
+ * One task file whose `files:` front matter declares `named` and whose `## Log` names `logged`, in the
+ * shape the fix-record check reads: the declaration is what makes the token judged rather than a
+ * mention, and the log line is where the pin and the claim are read from.
+ *
+ * @param {string} id
+ * @param {string} named the path the task declares
+ * @param {string} logged the token its `## Log` names - the same path, or the same path another way
+ * @returns {{ id: string, file: string, text: string }}
+ */
+function declaringTask(id, named, logged) {
+  return {
+    id,
+    file: `fixture/${id}-declare.md`,
+    text: [
+      '---',
+      `id: ${id}`,
+      'files:',
+      `  - ${named}`,
+      '---',
+      '',
+      '## Log',
+      `- the gate reads \`${logged}\` while measuring the tree fact`,
+      '',
+    ].join('\n'),
+  };
+}
+
+test('T006: a declared suite-shaped path no commit and no tree carries is refused, not pinned', (t) => {
+  const range = shipRange({ root: ROOT, milestone: '035' });
+  assert.equal(range.error, '', `M035's range must derive: ${range.error}`);
+  assert.equal(
+    existsSync(join(ROOT, ABSENT_SUITE)),
+    false,
+    `${ABSENT_SUITE} must exist nowhere for this test to measure the defect: this tree carries it`,
+  );
+  const tasks = [declaringTask('T908', ABSENT_SUITE, ABSENT_SUITE)];
+
+  const report = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+  });
+  assert.deepEqual(
+    report.pins,
+    [],
+    `a suite-shaped path that exists nowhere is not a pin: the pin rule must not absolve a path that exists nowhere, and it pinned ${JSON.stringify(
+      report.pins.map((pin) => pin.file),
+    )}`,
+  );
+  assert.equal(
+    report.claims.length,
+    1,
+    `a declared path the range does not carry is a claim held against it: ${JSON.stringify(
+      report.claims,
+    )}`,
+  );
+  const finding = report.findings.find((one) => one.file === ABSENT_SUITE);
+  assert.ok(
+    finding,
+    `a declared suite-shaped path no commit in ${range.range} carries and this tree does not carry must be a finding naming ${ABSENT_SUITE}: the pin rule must not absolve a path that exists nowhere, and the run reported ${JSON.stringify(
+      report.findings.map(
+        (one) => `${one.task} ${String(one.file)} ${String(one.class)}`,
+      ),
+    )}`,
+  );
+  assert.equal(finding.class, 'claim-absent-from-the-range');
+  assert.match(
+    String(finding.reason),
+    new RegExp(escapeForRegExp(range.range)),
+    `the finding must name the range it was held against: ${String(finding.reason)}`,
+  );
+  assert.equal(report.ok, false);
+
+  // The mutant restores the spelling rule, so `SUITE_PATH` alone makes the absent path pinnable and
+  // two absences are read as equal. That pin is the defect; the assertion above is the one an armed run
+  // reddens, and it names the rule the pin breaks.
+  const mutated = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+    mutant: MUTANTS.fixRecordPin,
+  });
+  assert.deepEqual(
+    mutated.findings,
+    [],
+    `the spelling rule must absolve ${ABSENT_SUITE} by its name, which is the defect the existence rule removes: ${JSON.stringify(
+      mutated.findings,
+    )}`,
+  );
+  assert.equal(
+    mutated.pins.length,
+    1,
+    `the mutant must pin ${ABSENT_SUITE} although no commit and no tree carries it, or the armed run below proves nothing: ${JSON.stringify(
+      mutated.pins,
+    )}`,
+  );
+  t.diagnostic(
+    `T006 pin: ${ABSENT_SUITE} is a claim absent from ${range.range}; under ${MUTANTS.fixRecordPin} it is 1 pin and 0 finding`,
+  );
+});
+
+test('T006: a declared recording-shaped path no commit and no tree carries is refused, not pinned', (t) => {
+  const range = shipRange({ root: ROOT, milestone: '035' });
+  assert.equal(range.error, '', `M035's range must derive: ${range.error}`);
+  assert.equal(
+    existsSync(join(ROOT, ABSENT_RECORDING)),
+    false,
+    `${ABSENT_RECORDING} must exist nowhere for this test to measure the defect: this tree carries it`,
+  );
+  const tasks = [declaringTask('T909', ABSENT_RECORDING, ABSENT_RECORDING)];
+
+  const report = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+  });
+  assert.deepEqual(
+    report.pins,
+    [],
+    `a recording-shaped path that exists nowhere is not a pin: the pin rule must not absolve a path that exists nowhere, and it pinned ${JSON.stringify(
+      report.pins.map((pin) => pin.file),
+    )}`,
+  );
+  const finding = report.findings.find((one) => one.file === ABSENT_RECORDING);
+  assert.ok(
+    finding,
+    `a declared recording-shaped path no commit in ${range.range} carries and this tree does not carry must be a finding naming ${ABSENT_RECORDING}: the pin rule must not absolve a path that exists nowhere, and the run reported ${JSON.stringify(
+      report.findings.map(
+        (one) => `${one.task} ${String(one.file)} ${String(one.class)}`,
+      ),
+    )}`,
+  );
+  assert.equal(finding.class, 'claim-absent-from-the-range');
+  assert.match(
+    String(finding.reason),
+    new RegExp(escapeForRegExp(range.range)),
+    `the finding must name the range it was held against: ${String(finding.reason)}`,
+  );
+  assert.equal(report.ok, false);
+
+  const mutated = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+    mutant: MUTANTS.fixRecordPin,
+  });
+  assert.deepEqual(
+    mutated.findings,
+    [],
+    `the spelling rule must absolve ${ABSENT_RECORDING} by its name, which is the defect the existence rule removes: ${JSON.stringify(
+      mutated.findings,
+    )}`,
+  );
+  assert.equal(
+    mutated.pins.length,
+    1,
+    `the mutant must pin ${ABSENT_RECORDING} although no commit and no tree carries it, or the armed run below proves nothing: ${JSON.stringify(
+      mutated.pins,
+    )}`,
+  );
+  t.diagnostic(
+    `T006 pin: ${ABSENT_RECORDING} is a claim absent from ${range.range}; under ${MUTANTS.fixRecordPin} it is 1 pin and 0 finding`,
+  );
+});
+
+test('T006: a path named with a leading dot-slash and one named bare produce the same verdict', (t) => {
+  const range = shipRange({ root: ROOT, milestone: '044' });
+  assert.equal(range.error, '', `M044's range must derive: ${range.error}`);
+  // A path M044's own range carries, so neither spelling can be pinned: the pair differs by how the
+  // token is spelled and by nothing else.
+  const named = 'research/raw/m044-gate-shapes.json';
+
+  const verdict = (spelling, mutant = null) => {
+    const run = checkFixRecord({
+      root: ROOT,
+      range: range.range,
+      tasks: [declaringTask('T910', named, spelling)],
+      claims: 'declared',
+      mutant,
+    });
+    return {
+      ok: run.ok,
+      claimsExamined: run.claimsExamined,
+      pinsExamined: run.pinsExamined,
+      inTheRange: run.claims.map((claim) => claim.inTheRange),
+      findings: run.findings.map(
+        (one) => `${String(one.file)} ${String(one.class)}`,
+      ),
+    };
+  };
+
+  const bare = verdict(named);
+  const dotted = verdict(`./${named}`);
+  assert.deepEqual(
+    dotted,
+    bare,
+    `a Log naming ./${named} and one naming ${named} must produce the same verdict at ${range.range}: the token must be normalised once, before the declaration test and the range test, and the two runs read ${JSON.stringify(
+      { bare, dotted },
+    )}`,
+  );
+  assert.deepEqual(
+    bare.inTheRange,
+    [true],
+    `the bare spelling must be a claim the range carries: ${JSON.stringify(bare)}`,
+  );
+  assert.deepEqual(bare.findings, []);
+
+  // The mutant reads the range with the token as written, which is the asymmetry the review measured:
+  // the dot-slash spelling is refused `claim-absent-from-the-range` while the bare spelling passes.
+  const mutated = verdict(`./${named}`, MUTANTS.fixRecordToken);
+  assert.deepEqual(
+    mutated.findings,
+    [`${named} claim-absent-from-the-range`],
+    `the mutant must refuse the dot-slash spelling the bare spelling passes, which is the asymmetry one normalisation removes: ${JSON.stringify(
+      mutated,
+    )}`,
+  );
+  t.diagnostic(
+    `T006 token: ${named} reads ${JSON.stringify(bare)} bare and ${JSON.stringify(
+      dotted,
+    )} with a leading ./; under ${MUTANTS.fixRecordToken} the dot-slash form reads ${JSON.stringify(mutated)}`,
+  );
+});
+
+test('T006: a three-dot range is refused with its form named, not read as a two-dot range', (t) => {
+  const range = shipRange({ root: ROOT, milestone: '044' });
+  assert.equal(range.error, '', `M044's range must derive: ${range.error}`);
+  const named = 'research/raw/m044-gate-shapes.json';
+  const tasks = [declaringTask('T911', named, named)];
+
+  // The control: the same task over the same two commits, spelled `base..head`, is clean. So the
+  // refusal below is the range's form rather than the claim.
+  const pair = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+  });
+  assert.equal(
+    pair.ok,
+    true,
+    `the two-dot range must read the same task cleanly, or the refusal below is not the range's form: ${JSON.stringify(
+      pair.findings.map((one) => `${String(one.file)} ${String(one.class)}`),
+    )}`,
+  );
+
+  const three = range.range.replace('..', '...');
+  assert.equal(three, `${range.base.sha}...${range.head.sha}`);
+  const report = checkFixRecord({
+    root: ROOT,
+    range: three,
+    tasks,
+    claims: 'declared',
+  });
+  assert.equal(
+    report.ok,
+    false,
+    `a three-dot range must be refused rather than read as a two-dot range: ${JSON.stringify(
+      report,
+    ).slice(0, 240)}`,
+  );
+  assert.equal(
+    report.examined,
+    0,
+    `the refusal must judge nothing, so no head is guessed: examined ${String(report.examined)}`,
+  );
+  const finding = report.findings[0];
+  assert.ok(
+    finding,
+    `a three-dot range must be refused with a finding naming its form: ${JSON.stringify(report.findings)}`,
+  );
+  assert.equal(finding.class, 'nothing-examined');
+  assert.match(
+    String(finding.reason),
+    /three-dot range/,
+    `the refusal must name the form it was given rather than only that it refused: ${String(finding.reason)}`,
+  );
+  assert.match(
+    String(finding.reason),
+    new RegExp(escapeForRegExp(three)),
+    `the refusal must name the range it was given: ${String(finding.reason)}`,
+  );
+  assert.equal(
+    String(finding.reason).includes(`${range.base.sha}..${range.head.sha}`),
+    false,
+    `the refusal must not read the three-dot range as the two-dot pair: ${String(finding.reason)}`,
+  );
+  t.diagnostic(`T006 range: ${three} is refused - ${String(finding.reason)}`);
+});
+
+test('T006: --tasks given one markdown file reads it, and a directory still reads every task file', async (t) => {
+  const range = shipRange({ root: ROOT, milestone: '044' });
+  assert.equal(range.error, '', `M044's range must derive: ${range.error}`);
+  const named = 'research/raw/m044-gate-shapes.json';
+  const dir = mkdtempSync(join(tmpdir(), 'm044-one-task-'));
+  try {
+    await writeFile(
+      join(dir, 'T912.md'),
+      declaringTask('T912', named, named).text,
+    );
+    await writeFile(
+      join(dir, 'T913.md'),
+      declaringTask('T913', named, named).text,
+    );
+
+    // One markdown file, named as the argument: the stage must read that file and exit 0. Before the
+    // repair it listed the file as a directory first and threw ENOTDIR instead of reading it.
+    const single = gate({
+      root: ROOT,
+      milestone: LIVE_MILESTONE,
+      check: 'fix-record',
+      range: range.range,
+      tasks: join(dir, 'T912.md'),
+      claims: 'declared',
+    });
+    assert.equal(
+      single.code,
+      0,
+      `--tasks must read a single markdown file before any directory listing, so it reads that file rather than throwing ENOTDIR: ${single.lines.join(' | ')}`,
+    );
+    assert.equal(
+      single.fix?.tasksExamined,
+      1,
+      `the one named file is the one task read: ${single.lines.join(' | ')}`,
+    );
+    assert.deepEqual(
+      single.fix?.declarations.map((entry) => entry.task),
+      ['T912'],
+      `the task read must be the one the argument named: ${JSON.stringify(
+        single.fix?.declarations,
+      )}`,
+    );
+
+    // A directory is still a directory: every task file it holds is read.
+    const directory = gate({
+      root: ROOT,
+      milestone: LIVE_MILESTONE,
+      check: 'fix-record',
+      range: range.range,
+      tasks: dir,
+      claims: 'declared',
+    });
+    assert.equal(
+      directory.code,
+      0,
+      `a directory --tasks must still read its task files: ${directory.lines.join(' | ')}`,
+    );
+    assert.equal(
+      directory.fix?.tasksExamined,
+      2,
+      `a directory must read every task file it holds: ${directory.lines.join(' | ')}`,
+    );
+    t.diagnostic(
+      `T006 tasks: one file read ${String(single.fix?.tasksExamined)} task (${String(
+        single.code,
+      )}), the directory read ${String(directory.fix?.tasksExamined)} (${String(
+        directory.code,
+      )})`,
+    );
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ==== T011: a tail is a claim, never a pin; two tails are never chosen between; a name is not a kind ====
+//
+// Wave 4's cycle-2 review found one change nothing asked for beside T006's four repairs: the fix-record
+// check resolved any Log token that was a proper tail of a declaration to that declaration, and then
+// judged the pin and the range on the resolved path. With the console module declared, a Log naming
+// `src/app/console-…` with its first directory levels truncated — a spelling absent at every commit in
+// range — was pinned instead of reported, and a second variant read clean; two declarations sharing a
+// tail were separated by front-matter order with nothing reported. A spelling that exists nowhere is a
+// claim and a finding, however it relates to a declaration, so the resolution is kept only where the
+// spelling the Log used names a file, and the corpus reading's own counts are pinned beside it so no
+// branch can move them without a red test. Appended after the last line the record pins, and no line
+// here spells a dot-project path, so the record's own enumeration of this file's references holds.
+
+/** The console module M045 declares, in this tree. */
+const CONSOLE_MODULE = 'apps/angular-ai-devtools/src/app/panel-console.ts';
+
+/** The same module with its first two directory levels truncated: the spelling the review measured. */
+const CONSOLE_TRUNCATED = 'src/app/panel-console.ts';
+
+/** A file this tree carries at the root, and a declaration of a neighbour that ends in its name. */
+const ROOT_TS_CONFIG = 'tsconfig.json';
+const EXTENSION_TS_CONFIG = 'extension/tsconfig.json';
+
+/** A root manifest the pair below can share as a tail. */
+const ROOT_MANIFEST = 'nx.json';
+const SHARED_TAIL = ['apps/one/nx.json', 'apps/two/nx.json'];
+
+/**
+ * The commit and the range the corpus counts below are the reading of: the head this task was written
+ * against, and the range this milestone's fix-record stage derives from it. A recording names both, so
+ * the counts are settled rather than following whatever a task log appended beside this one says next -
+ * a total that moves with the working tree is not a recording, and a branch that moves it moves this
+ * reading too.
+ */
+const CORPUS_HEAD = '516b24506336cbcb8937090f94ad13156ff6f346';
+const CORPUS_RANGE =
+  'b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..516b24506336cbcb8937090f94ad13156ff6f346';
+
+/**
+ * The claims, pins and mentions that corpus reading holds. A recording rather than a derivation: a
+ * branch that resolves a token, promotes one to a pin or drops one into the mentions moves one of
+ * these three numbers, and the test below reddens naming all three rather than agreeing with itself.
+ */
+const CORPUS_COUNTS = { claims: 83, pins: 1, mentions: 93 };
+
+/**
+ * Every task file the corpus carries at one commit, as the inline entries the check reads rather than
+ * as paths in the working tree: the reading is of that commit's logs, so an edit landing in the tree
+ * afterwards cannot move it.
+ *
+ * @param {string} commit
+ * @returns {Array<{ id: string, file: string, text: string }>}
+ */
+function corpusAt(commit) {
+  const listed = git([
+    'ls-tree',
+    '-r',
+    '--name-only',
+    commit,
+    '--',
+    `${DOTTED}/tasks`,
+  ])
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.endsWith('.md'))
+    .sort();
+  return listed.map((file) => {
+    const text = git(['show', `${commit}:${file}`]);
+    return { id: /^id:\s*(\S+)\s*$/m.exec(text)?.[1] ?? file, file, text };
+  });
+}
+
+/** The three numbers one run records, so two runs are compared as the reading they are. */
+function countReading(/** @type {any} */ run) {
+  return {
+    claims: run.claimsExamined,
+    pins: run.pinsExamined,
+    mentions: run.mentionsExamined,
+  };
+}
+
+/**
+ * One task file whose `files:` front matter declares every path in `declared` and whose `## Log` names
+ * `logged`: the shape `declaringTask` gives, widened to the two declarations the ambiguity rule is
+ * about, so the pair differs by the number of declarations that share the tail and by nothing else.
+ *
+ * @param {string} id
+ * @param {string[]} declared
+ * @param {string} logged
+ * @returns {{ id: string, file: string, text: string }}
+ */
+function taskDeclaring(id, declared, logged) {
+  return {
+    id,
+    file: `fixture/${id}-declare.md`,
+    text: [
+      '---',
+      `id: ${id}`,
+      'files:',
+      ...declared.map((path) => `  - ${path}`),
+      '---',
+      '',
+      '## Log',
+      `- the gate reads \`${logged}\` while measuring the tree fact`,
+      '',
+    ].join('\n'),
+  };
+}
+
+test('T011: a declared tail whose spelling exists nowhere is reported, not pinned', (t) => {
+  const range = shipRange({ root: ROOT, milestone: '035' });
+  assert.equal(range.error, '', `M035's range must derive: ${range.error}`);
+  assert.equal(
+    existsSync(join(ROOT, CONSOLE_TRUNCATED)),
+    false,
+    `${CONSOLE_TRUNCATED} must exist nowhere for this test to measure the defect: this tree carries it`,
+  );
+  assert.equal(
+    existsSync(join(ROOT, CONSOLE_MODULE)),
+    true,
+    `${CONSOLE_MODULE} must exist, so the resolution below has blobs to lend the truncated spelling unless the rule refuses to lend them`,
+  );
+  const tasks = [declaringTask('T920', CONSOLE_MODULE, CONSOLE_TRUNCATED)];
+
+  const report = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+  });
+  assert.deepEqual(
+    report.pins,
+    [],
+    `${CONSOLE_TRUNCATED} is a spelling no commit in ${range.range} and no tree carries, so it is not a pin: the resolution must not lend it the blobs of ${CONSOLE_MODULE}, and the run pinned ${JSON.stringify(
+      report.pins.map((pin) => pin.file),
+    )}`,
+  );
+  assert.deepEqual(
+    report.claims,
+    [],
+    `${CONSOLE_TRUNCATED} is a token its own files: list does not declare, so no declaration's path may be judged in its place: ${JSON.stringify(
+      report.claims.map((claim) => claim.file),
+    )}`,
+  );
+  const mention = report.mentions.find((one) => one.file === CONSOLE_TRUNCATED);
+  assert.ok(
+    mention,
+    `the truncated spelling must still be recorded, naming it and the line it sits on: ${JSON.stringify(
+      report.mentions.map((one) => `${one.task} ${one.file}`),
+    )}`,
+  );
+  assert.match(
+    String(mention.at),
+    /^fixture\/T920-declare\.md:\d+$/,
+    `the record must name where the spelling was named: ${String(mention.at)}`,
+  );
+
+  // With `claims: 'log'` every path-like token is held against the range, so the same spelling is a
+  // claim and a finding naming the spelling and the range rather than a path nobody carries.
+  const logged = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'log',
+  });
+  const finding = logged.findings.find((one) => one.file === CONSOLE_TRUNCATED);
+  assert.ok(
+    finding,
+    `the spelling must be a finding naming ${CONSOLE_TRUNCATED}: ${JSON.stringify(
+      logged.findings.map((one) => `${String(one.file)} ${String(one.class)}`),
+    )}`,
+  );
+  assert.equal(finding.class, 'claim-absent-from-the-range');
+  assert.equal(
+    finding.path,
+    CONSOLE_TRUNCATED,
+    `the finding must name the spelling the Log used rather than the declaration it tails: ${String(
+      finding.path,
+    )}`,
+  );
+  assert.match(
+    String(finding.reason),
+    new RegExp(escapeForRegExp(range.range)),
+    `the finding must name the range it was held against: ${String(finding.reason)}`,
+  );
+  assert.equal(
+    String(finding.reason).includes(CONSOLE_MODULE),
+    false,
+    `the finding must not borrow the declaration's name for the spelling: ${String(finding.reason)}`,
+  );
+
+  // The mutant is the rule the review measured: any proper tail is the declaration it tails, so the
+  // spelling is pinned by the declaration's blobs although it exists nowhere.
+  const mutated = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+    mutant: MUTANTS.fixRecordTail,
+  });
+  assert.equal(
+    mutated.pins.length,
+    1,
+    `under ${MUTANTS.fixRecordTail} the truncation must be pinned, or the assertion above is not the rule this task repairs: ${JSON.stringify(
+      mutated.pins,
+    )}`,
+  );
+  assert.equal(mutated.pins[0]?.file, CONSOLE_MODULE);
+  t.diagnostic(
+    `T011 tail: ${CONSOLE_TRUNCATED} is 1 mention naming it and, in claims: log, a finding naming the spelling and ${range.range}; under ${MUTANTS.fixRecordTail} it is 1 pin of ${CONSOLE_MODULE}`,
+  );
+});
+
+test('T011: a basename that names a file this tree carries still resolves to its declaration', (t) => {
+  const range = shipRange({ root: ROOT, milestone: '035' });
+  assert.equal(range.error, '', `M035's range must derive: ${range.error}`);
+  assert.equal(
+    existsSync(join(ROOT, ROOT_TS_CONFIG)),
+    true,
+    `${ROOT_TS_CONFIG} must be a file this tree carries, or the spelling below names nothing and resolves nothing`,
+  );
+  assert.equal(
+    EXTENSION_TS_CONFIG.endsWith(`/${ROOT_TS_CONFIG}`),
+    true,
+    `${EXTENSION_TS_CONFIG} must end in ${ROOT_TS_CONFIG} for the token to be a tail of it`,
+  );
+  assert.equal(
+    existsSync(join(ROOT, EXTENSION_TS_CONFIG)),
+    true,
+    `${EXTENSION_TS_CONFIG} must exist, so the declaration's own blobs are the ones read`,
+  );
+  const tasks = [declaringTask('T921', EXTENSION_TS_CONFIG, ROOT_TS_CONFIG)];
+
+  const report = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+  });
+  assert.deepEqual(
+    report.mentions,
+    [],
+    `${ROOT_TS_CONFIG} names a file this tree carries and is a tail of ${EXTENSION_TS_CONFIG}, so it must be the declaration rather than a mention: ${JSON.stringify(
+      report.mentions.map((one) => one.file),
+    )}`,
+  );
+  assert.deepEqual(
+    [...report.claims, ...report.pins].map((one) => one.file),
+    [EXTENSION_TS_CONFIG],
+    `the token must be judged as ${EXTENSION_TS_CONFIG}, the file the front matter declares: ${JSON.stringify(
+      report.claims.map((one) => one.file),
+    )}`,
+  );
+  assert.deepEqual(report.findings, []);
+
+  // The mutant drops the resolution entirely, which is the other direction the rule can fail in: a
+  // token that does name a file stops being judged as the declaration behind it.
+  const mutated = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+    mutant: MUTANTS.fixRecordTailOff,
+  });
+  assert.deepEqual(
+    [...mutated.claims, ...mutated.pins],
+    [],
+    `under ${MUTANTS.fixRecordTailOff} nothing may be judged as ${EXTENSION_TS_CONFIG}, or the assertion above is not the resolution: ${JSON.stringify(
+      [...mutated.claims, ...mutated.pins].map((one) => one.file),
+    )}`,
+  );
+  assert.deepEqual(
+    mutated.mentions.map((one) => one.file),
+    [ROOT_TS_CONFIG],
+    `under ${MUTANTS.fixRecordTailOff} the token must fall back to a mention of ${ROOT_TS_CONFIG}: ${JSON.stringify(
+      mutated.mentions.map((one) => one.file),
+    )}`,
+  );
+  t.diagnostic(
+    `T011 basename: ${ROOT_TS_CONFIG} resolves to ${EXTENSION_TS_CONFIG} as 1 pin, 0 mention; under ${MUTANTS.fixRecordTailOff} it is 0 pin and a mention of ${ROOT_TS_CONFIG}`,
+  );
+});
+
+test('T011: two declarations that share a tail are reported, never separated by front-matter order', (t) => {
+  const range = shipRange({ root: ROOT, milestone: '044' });
+  assert.equal(range.error, '', `M044's range must derive: ${range.error}`);
+  assert.equal(
+    existsSync(join(ROOT, ROOT_MANIFEST)),
+    true,
+    `${ROOT_MANIFEST} must be a file this tree carries, so the ambiguity rule rather than the existence rule is what this test measures`,
+  );
+  const shared = SHARED_TAIL;
+  const tasks = [taskDeclaring('T922', shared, ROOT_MANIFEST)];
+
+  const report = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+  });
+  assert.equal(
+    report.ambiguities.length,
+    1,
+    `the run must record the ambiguity rather than resolve it: ${JSON.stringify(
+      report.ambiguities,
+    )}`,
+  );
+  assert.deepEqual(
+    report.ambiguities[0]?.declarations,
+    shared,
+    `the ambiguity must name both declarations: ${JSON.stringify(
+      report.ambiguities[0]?.declarations,
+    )}`,
+  );
+  const finding = report.findings.find(
+    (one) => one.class === 'ambiguous-declaration',
+  );
+  assert.ok(
+    finding,
+    `the ambiguity must be a finding, not a silent choice: ${JSON.stringify(
+      report.findings.map((one) => `${String(one.file)} ${String(one.class)}`),
+    )}`,
+  );
+  assert.equal(finding.path, ROOT_MANIFEST);
+  for (const declaration of shared) {
+    assert.match(
+      String(finding.reason),
+      new RegExp(escapeForRegExp(declaration)),
+      `the finding must name ${declaration} as one of the declarations it will not choose between: ${String(
+        finding.reason,
+      )}`,
+    );
+  }
+  assert.deepEqual(
+    [...report.claims, ...report.pins].map((one) => one.file),
+    [ROOT_MANIFEST],
+    `the token must be judged as itself rather than as either declaration: ${JSON.stringify(
+      report.claims.map((one) => one.file),
+    )}`,
+  );
+
+  // The mutant restores front-matter order: the first declaration wins and the second is never named,
+  // which is the silent choice this rule removes.
+  const mutated = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+    mutant: MUTANTS.fixRecordAmbiguity,
+  });
+  assert.deepEqual(
+    mutated.ambiguities,
+    [],
+    `under ${MUTANTS.fixRecordAmbiguity} the ambiguity must not be recorded at all: ${JSON.stringify(
+      mutated.ambiguities,
+    )}`,
+  );
+  assert.equal(
+    mutated.findings.some((one) => one.class === 'ambiguous-declaration'),
+    false,
+    `under ${MUTANTS.fixRecordAmbiguity} nothing may report the ambiguity: ${JSON.stringify(
+      mutated.findings.map((one) => String(one.class)),
+    )}`,
+  );
+  assert.deepEqual(
+    [...mutated.claims, ...mutated.pins].map((one) => one.file),
+    [shared[0]],
+    `under ${MUTANTS.fixRecordAmbiguity} the first declaration in front-matter order must win: ${JSON.stringify(
+      mutated.claims.map((one) => one.file),
+    )}`,
+  );
+  assert.equal(
+    JSON.stringify([mutated.claims, mutated.pins]).includes(shared[1] ?? ''),
+    false,
+    `under ${MUTANTS.fixRecordAmbiguity} the declaration it did not choose must not be named at all`,
+  );
+  t.diagnostic(
+    `T011 ambiguity: ${ROOT_MANIFEST} tails ${shared.join(' and ')}, so the run reports both and judges the token as itself; under ${MUTANTS.fixRecordAmbiguity} it judges ${String(
+      shared[0],
+    )} and never names ${String(shared[1])}`,
+  );
+});
+
+test('T011: --tasks given a directory named with the markdown suffix is read, not thrown as EISDIR', async (t) => {
+  const range = shipRange({ root: ROOT, milestone: '044' });
+  assert.equal(range.error, '', `M044's range must derive: ${range.error}`);
+  const named = 'research/raw/m044-gate-shapes.json';
+  const parent = mkdtempSync(join(tmpdir(), 'm044-tasks-directory-'));
+  const directory = join(parent, 'tasks.md');
+  try {
+    mkdirSync(directory);
+    await writeFile(
+      join(directory, 'T914.md'),
+      declaringTask('T914', named, named).text,
+    );
+    await writeFile(
+      join(directory, 'T915.md'),
+      declaringTask('T915', named, named).text,
+    );
+
+    // What the argument is decides how it is read. Before the repair the markdown suffix decided
+    // first, so this path was read as a file and `readFileSync` threw EISDIR out of the gate.
+    const report = checkFixRecord({
+      root: ROOT,
+      range: range.range,
+      tasks: directory,
+      claims: 'declared',
+    });
+    assert.equal(
+      report.tasksExamined,
+      2,
+      `a directory must be read for the task files it holds whatever its name is, and this one holds two: ${JSON.stringify(
+        report.declarations.map((one) => one.task),
+      )}`,
+    );
+    assert.deepEqual(
+      report.declarations.map((one) => one.task),
+      ['T914', 'T915'],
+      `both task files must be read: ${JSON.stringify(report.declarations)}`,
+    );
+
+    // The run names the path it read, so a reader sees which directory the log lines came from.
+    const run = gate({
+      root: ROOT,
+      milestone: LIVE_MILESTONE,
+      check: 'fix-record',
+      range: range.range,
+      tasks: directory,
+      claims: 'declared',
+    });
+    assert.equal(
+      run.code,
+      0,
+      `the gate must exit zero over this directory: ${run.lines.join(' | ')}`,
+    );
+    assert.ok(
+      run.lines.some((line) => line.includes(directory)),
+      `the printed reading must name ${directory}: ${run.lines.join(' | ')}`,
+    );
+
+    // The mutant restores the suffix test, so the directory is read as a file and the throw returns.
+    assert.throws(
+      () =>
+        checkFixRecord({
+          root: ROOT,
+          range: range.range,
+          tasks: directory,
+          claims: 'declared',
+          mutant: MUTANTS.tasksDirectory,
+        }),
+      /EISDIR/,
+      `under ${MUTANTS.tasksDirectory} reading ${directory} as a file must throw EISDIR, which is the defect the filesystem test removes`,
+    );
+    t.diagnostic(
+      `T011 tasks directory: ${directory} read ${String(
+        report.tasksExamined,
+      )} task file(s) and the gate named it on exit ${String(
+        run.code,
+      )}; under ${MUTANTS.tasksDirectory} the same argument throws EISDIR`,
+    );
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test('T011: the corpus reading counts are pinned, so no branch can move them silently', (t) => {
+  const tasks = corpusAt(CORPUS_HEAD);
+  assert.ok(
+    tasks.length > 0,
+    `the corpus at ${CORPUS_HEAD} must carry a task file, or the counts below are a reading of nothing`,
+  );
+  const report = checkFixRecord({
+    root: ROOT,
+    range: CORPUS_RANGE,
+    tasks,
+    claims: 'declared',
+  });
+  assert.equal(
+    report.ok,
+    true,
+    `the corpus must read clean before its counts are pinned, or the numbers below record a defect: ${JSON.stringify(
+      report.findings.map((one) => `${one.task} ${String(one.file)}`),
+    )}`,
+  );
+  const reading = countReading(report);
+  assert.deepEqual(
+    reading,
+    CORPUS_COUNTS,
+    `the corpus at ${CORPUS_HEAD} reads ${String(
+      reading.claims,
+    )} claim(s), ${String(reading.pins)} pin(s) and ${String(
+      reading.mentions,
+    )} mention(s) over ${CORPUS_RANGE}, and the recording holds ${JSON.stringify(
+      CORPUS_COUNTS,
+    )}: a branch that resolves a token, promotes one to a pin or drops one into the mentions moved a count without a red test`,
+  );
+
+  // The resolution the review measured is the branch that moves them, so the pin is load-bearing:
+  // restoring it moves the same three numbers, by the same nine tokens, that the review measured.
+  const restored = checkFixRecord({
+    root: ROOT,
+    range: CORPUS_RANGE,
+    tasks,
+    claims: 'declared',
+    mutant: MUTANTS.fixRecordTail,
+  });
+  const mutated = countReading(restored);
+  assert.deepEqual(
+    {
+      claims: mutated.claims - reading.claims,
+      pins: mutated.pins - reading.pins,
+      mentions: mutated.mentions - reading.mentions,
+    },
+    { claims: 8, pins: 1, mentions: -9 },
+    `under ${MUTANTS.fixRecordTail} the corpus must read as the review measured it - nine tokens the repair leaves as mentions judged again, one of them pinned - and it read ${JSON.stringify(
+      mutated,
+    )} against ${JSON.stringify(reading)}`,
+  );
+  t.diagnostic(
+    `T011 counts: the corpus at ${CORPUS_HEAD} reads ${String(
+      reading.claims,
+    )} claim(s), ${String(reading.pins)} pin(s) and ${String(
+      reading.mentions,
+    )} mention(s) over ${CORPUS_RANGE}; under ${MUTANTS.fixRecordTail} it reads ${String(
+      mutated.claims,
+    )}, ${String(mutated.pins)} and ${String(mutated.mentions)}`,
   );
 });

@@ -64,6 +64,17 @@
  * settle reading and the repeated work as three blocks that keep their own text, with every named
  * absence in a block of its own (E9: asked for a cause, an outstanding item, an owner or an order, it
  * renders that absence's own sentence rather than an empty list or a dash).
+ *
+ * M045 T003 extends it to the `console` surface, and to the narrowest answer this panel renders: the
+ * join's `{ state, findings[] }` and nothing beside it. The sample fact carries that answer's own
+ * shape — `{ state, findings: [{ text, code?, title?, reason? }] }` — which is what the join reads and
+ * the pane renders; it is not the capture's payload shape (`{ code, message, component, timestamp }`,
+ * the shape `research/raw/m045-console-shapes.json` records `captureErrorPayload` dispatching and the
+ * shape `scripts/console-panel-record.test.mjs` builds its diagnostics in). The fact is held to the
+ * shipped digest rather than to a copy of the digest's titles: a code the digest carries must print
+ * that entry's own title, and a code it lacks must print the code with `no-digest-entry`. Nothing the
+ * capture does not record is printed — no cause, no element and no remedy — and neither absence is
+ * rendered as an empty list or a count.
  */
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -73,6 +84,7 @@ import { FACTS, PanelDemoComponent } from './panel-demo';
 import { fieldsPanel } from './panel-fields';
 import { errorBoundaryPanel } from './panel-error-boundary';
 import { stabilityPanel } from './panel-stability';
+import { consolePanel } from './panel-console';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -874,6 +886,90 @@ function navigationJoin(): NavigationNarrator {
     throw new Error(
       'extension/navigation-narrator.js published no narrateNavigation',
     );
+  }
+  return join;
+}
+
+/** The part of the M045 console-shapes recording this spec reads. */
+interface ConsoleShapesRecording {
+  capture: {
+    payload: { keys: string[]; fieldCount: number };
+    codeExtraction: { regex: string; firstMatchOnly: boolean };
+  };
+  digest: { entryCount: number; uniqueCodeCount: number; codes: string[] };
+  captureToDigestGap: {
+    codesTheDigestCarries: number;
+    codesTheCaptureCanName: number;
+  };
+}
+
+/** One finding of the console join's answer, for the fields this spec reads. */
+interface ConsoleFinding {
+  text: string;
+  code?: string;
+  title?: string;
+  reason?: string;
+}
+
+/** The console join's answer: the two keys the pane renders and no others. */
+interface ConsoleAnswer {
+  state: string;
+  findings: ConsoleFinding[];
+}
+
+/** The page's own console namespace, as `extension/console-join.js` publishes it. */
+interface ConsoleJoin {
+  consoleJoin(diagnostics: unknown, digest: unknown): ConsoleAnswer;
+}
+
+/** The M045 console-shapes recording and its text, inlined from disk the same way. */
+function readConsoleShapesRecording(): {
+  recording: ConsoleShapesRecording;
+  text: string;
+} {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m045-console-shapes.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m045-console-shapes.json was not inlined above this spec file',
+    );
+  }
+  return { recording: JSON.parse(text) as ConsoleShapesRecording, text };
+}
+
+/**
+ * The join `extension/console-join.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's sample fact is held to the join's answer for the capture it describes,
+ * not to a copy of it written in this spec. The module is an IIFE with no imports, so running it is
+ * the whole of loading it.
+ */
+function consoleJoin(): ConsoleJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/console-join.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/console-join.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (globalThis as unknown as { angularAiConsoleJoin?: ConsoleJoin })
+    .angularAiConsoleJoin;
+  if (join === undefined || typeof join.consoleJoin !== 'function') {
+    throw new Error('extension/console-join.js published no consoleJoin');
   }
   return join;
 }
@@ -1688,6 +1784,164 @@ describe('the panel demo', () => {
       /\b(who|owns?) its\b/i,
     ]) {
       expect(demo.text()).not.toMatch(claim);
+    }
+  });
+
+  /**
+   * The M045 half — the narrowest answer this panel renders. The surface behind `/console` is reached
+   * through its own route entry, and the sample fact is the join's own `{ state, findings[] }` for a
+   * capture in the shape `research/raw/m045-console-shapes.json` records `captureErrorPayload`
+   * dispatching. The fact is held to the join and to the shipped digest rather than to a copy of the
+   * join's answer written here: the matched code must print the digest's own title, and the code the
+   * digest lacks must be printed by name with `no-digest-entry`. Nothing the capture does not record
+   * reaches the pane — no cause, no element and no remedy — and no absence is rendered as a count
+   * (E7).
+   */
+  it('E7: renders the join’s state and findings, never a cause, an element, a remedy or a count', async () => {
+    const { recording } = readConsoleShapesRecording();
+    const { digest } = readErrorDigest();
+    const join = consoleJoin();
+    const fact = FACTS['console'] as ConsoleAnswer;
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find((candidate) => candidate.path === 'console');
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the console surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    const surfaceName = route.data?.['surface'];
+    if (typeof surfaceName !== 'string') {
+      throw new Error('the console route must name its surface in route data');
+    }
+    expect(surfaceName).toBe('console');
+
+    // The whole table, in order and to the count — twenty-five paths, the same ordered list
+    // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
+    // suite reads the table for this one route, so without it an appended twenty-sixth route would
+    // leave it green while the other suites reddened (M045 T007).
+    expect(appRoutes.map((candidate) => candidate.path)).toEqual([
+      '',
+      'signal-provenance',
+      'di-doctor',
+      'error-explainer',
+      'stale-view',
+      'interop',
+      'chat',
+      'picker',
+      'image-budget',
+      'after-render',
+      'sanitizer',
+      'redirect',
+      'fields',
+      'lint',
+      'router',
+      'legacy',
+      'onpush',
+      'resource',
+      'linked-state',
+      'render-phase',
+      'performance',
+      'navigation',
+      'error-boundary',
+      'stability',
+      'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
+    ]);
+    expect(appRoutes).toHaveLength(25);
+
+    // The capture's own payload shape, and the digest the join reads: both are the recording's.
+    expect(recording.capture.payload.keys).toEqual([
+      'code',
+      'message',
+      'component',
+      'timestamp',
+    ]);
+    expect(recording.capture.payload.fieldCount).toBe(4);
+    expect(recording.digest.entryCount).toBe(digest.entries.length);
+    expect(recording.digest.uniqueCodeCount).toBe(
+      new Set(digest.entries.map((entry) => entry.code)).size,
+    );
+
+    // Each coded finding is the join's own answer for the diagnostic it describes: handed the code
+    // and the text the finding carries, the join answers the finding back, title and reason included.
+    expect(fact.state).toBe('joined');
+    expect(fact.findings).toHaveLength(3);
+    const matched = fact.findings[0];
+    const unmatched = fact.findings[1];
+    const bare = fact.findings[2];
+    if (matched?.code === undefined || unmatched?.code === undefined) {
+      throw new Error('the console sample must carry its two coded findings');
+    }
+    const matchedCode: string = matched.code;
+    const unmatchedCode: string = unmatched.code;
+    const joined = join.consoleJoin(
+      [
+        { code: matchedCode, message: matched.text },
+        { code: unmatchedCode, message: unmatched.text },
+      ],
+      digest,
+    );
+    expect(joined.findings[0]).toEqual(matched);
+    expect(joined.findings[1]).toEqual(unmatched);
+
+    // The matched code is in the digest, carrying exactly the title the fact carries…
+    expect(
+      digest.entries.find((entry) => entry.code === matchedCode)?.title,
+    ).toBe(matched.title);
+    // …and the unmatched code is one the capture's own regex extracts while the digest lacks it, so
+    // it arrives as a code the join can name and cannot join.
+    const captureRegex = new RegExp(
+      recording.capture.codeExtraction.regex
+        .replace(/^\//, '')
+        .replace(/\/$/, ''),
+    );
+    expect(captureRegex.test(unmatchedCode)).toBe(true);
+    expect(digest.entries.some((entry) => entry.code === unmatchedCode)).toBe(
+      false,
+    );
+    expect(recording.digest.codes.includes(unmatchedCode)).toBe(false);
+    expect(unmatched.reason).toBe('no-digest-entry');
+    expect('title' in unmatched).toBe(false);
+
+    // The third message carried no code: the join leaves its text alone, so the absence is the pane's sentence.
+    expect(bare?.code).toBeUndefined();
+    expect(bare?.text).toBe('the app failed');
+
+    // The pane renders the fact it was handed, and nothing else.
+    const demo = await renderDemo(surfaceName);
+    expect(demo.state()).toBe(fact.state);
+    expect(demo.lines()).toEqual(consolePanel(FACTS['console']).lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+    expect(demo.lines()).toContain(`code: ${matchedCode}`);
+    expect(demo.lines()).toContain(`title: ${matched.title}`);
+    expect(demo.lines()).toContain(`code: ${unmatchedCode}`);
+    // The unmatched code is named, and the absence is stated beside it — never a count.
+    expect(
+      demo
+        .lines()
+        .some(
+          (line) =>
+            line.startsWith('no-digest-entry: ') &&
+            line.includes(unmatchedCode),
+        ),
+    ).toBe(true);
+    expect(demo.text()).not.toMatch(
+      /\b\d+\s+(codes?|entry|entries|findings?)\b/i,
+    );
+
+    // E7: no cause, no element and no remedy is rendered, and the capture's own `component` field is
+    // never carried as an element reference.
+    for (const forbidden of ['cause', 'element', 'remedy', 'component']) {
+      expect(
+        demo.lines().some((line) => line.startsWith(`${forbidden}: `)),
+      ).toBe(false);
+    }
+    // Nor does the pane add wording of its own about the framework: every line is a labelled field of
+    // the answer or one of the pane's own named absences, and the only line that may name Angular is
+    // the captured message itself.
+    for (const line of demo.lines()) {
+      if (line.startsWith('text: ')) continue;
+      expect(line).not.toMatch(/angular/i);
     }
   });
 

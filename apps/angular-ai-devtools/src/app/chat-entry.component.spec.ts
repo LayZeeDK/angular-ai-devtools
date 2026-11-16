@@ -714,6 +714,7 @@ describe('the chat route', () => {
       'navigation', // M041 SC1-3 surface: a navigation's stage, the holder it cannot name, its terminal and its loads
       'error-boundary', // M042 SC1-4 surface: the declaring and throwing components apart, the error, the fallback, each named absence
       'stability', // M043 SC5 surface: the state and its emission, the settle time or its absence, the repeated work, apart
+      'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic, the unmatched code named
     ]);
     // T003's conversion stayed the only other lazy route: five explainers are still eager.
     expect(
@@ -740,6 +741,7 @@ describe('the chat route', () => {
       'navigation', // M041 SC1-3 surface
       'error-boundary', // M042 SC1-4 surface
       'stability', // M043 SC5 surface
+      'console', // M045 SC3-5 surface
     ]);
     for (const path of [
       '',
@@ -786,6 +788,7 @@ describe('the chat route', () => {
       'navigation',
       'error-boundary',
       'stability',
+      'console',
     ]) {
       const route = appRoutes.find((candidate) => candidate.path === surface);
       if (route?.loadComponent === undefined) {

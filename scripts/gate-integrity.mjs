@@ -81,26 +81,65 @@
 //                      names the milestone the examined logs belong to, so `of .project/tasks` cannot
 //                      be read as the logs of a milestone that has archived.
 //
-// A claim, and what is not one. `checkFixRecord` reads every path-like token in a task's `## Log`.
-// With `claims: 'log'` - the export's default, and what T002's tests were written against - each
-// token is a claim held against the range. With `claims: 'declared'`, a token is a claim only when
+// A claim, a pin, and what is neither. `checkFixRecord` reads every path-like token in a task's
+// `## Log`. With `claims: 'log'` - the export's default, and what T002's tests were written against -
+// each token is a claim held against the range. With `claims: 'declared'`, a token is judged only when
 // that task's own `files:` front matter lists the path; every other token is recorded in `mentions`
-// and printed rather than judged, because a log line narrates a milestone while a `files:` list
-// states what the task changed. The gate runs `declared`, so a mention of another milestone's path
-// (M035's `nx.json`, named in M044's own T001 log while measuring it) is named and not reported.
+// and printed rather than judged, because a log line narrates a milestone while a `files:` list states
+// what the task changed. The gate runs `declared`, so a mention of another milestone's path (M035's
+// `nx.json`, named in M044's own T001 log while measuring it) is named and not reported.
 //
-// Three mutants ship with the code, each a real branch rather than a decoration (T002's AC4, T003's
-// E8): `MUTANTS.archivePaths` removes the naming/read distinction so a live reference reads clean,
-// `MUTANTS.fixRecord` treats a rename as its old name only, so a claim naming the new name is
-// reported absent, and `MUTANTS.workRange` restores the numeric-predecessor rule, so every milestone
-// whose numerically previous id is unshipped stops instead of falling back to the newest ship commit.
-// The suite drives each one and quotes the failure it produces.
+// A declared suite or recording the range did not change is a pin, not a claim: the plan asks a task
+// to declare the suites that pin a file it changes, so a Log names those suites and recordings even
+// though the task left them byte-identical. A pin is satisfied by reading the path's blob at both ends
+// of the range and finding them equal - both absent counts as equal, which is what an uncommitted new
+// suite or recording is across a range that has not carried it yet. Two absences are equal only for a
+// path that exists *somewhere*: a path is pinnable only when some commit in the range carries it or
+// this tree does. A declared path that exists nowhere - whatever its spelling, a suite's or a
+// recording's or neither - is a claim about a file nobody carries and stays a finding; that is the
+// fixture `scripts/gate-integrity-default-tasks.test.mjs` holds, stated for a path no shape exempts.
+// The token a Log names is normalised once, before the declaration test and the range test, so a
+// leading `./` and a bare spelling read identically in the pin branch and in the claim branch. Only a
+// declared path whose blobs differ without the range naming it is a finding; a declared path the range
+// did change is a claim and the range carries it. An undeclared path is never promoted to a pin:
+// `claims: 'log'` still holds every token against the range, and that is the refusal the `declared`
+// rule exists to keep available rather than silence.
+//
+// A token whose spelling differs from a declaration's is matched to that declaration only where the
+// match cannot absolve it. A token that is only a proper tail of a declaration (`panel-console.ts` for
+// `apps/angular-ai-devtools/src/app/panel-console.ts`) is judged as that declaration in one case only:
+// when the spelling the Log used names a file this repository carries - in this tree, or at either end
+// of the range. A spelling that names nothing names no file, and no declaration it is a tail of can
+// lend it one: it is a claim about a path nobody carries, so it is judged as itself - in `declared`
+// mode a token its own `files:` list does not declare, recorded as a mention that names it - and the
+// range test reads it as absent for the same reason, because a range carries paths rather than their
+// tails. Two declarations that share a tail are never separated by front-matter order: both are
+// reported and the token is judged as itself, so the ambiguity is a finding naming both rather than a
+// silent choice between them.
+//
+// A range the pin reading cannot split into exactly two commits is refused, naming the form it was
+// given: `rangeEnds` answers null for anything but a `base..head` pair, so a three-dot range is
+// reported rather than read as a pair whose head is `.b`.
+//
+// Nine mutants ship with the code, each a real branch rather than a decoration (T002's AC4, T003's
+// E8, T011's four): `MUTANTS.archivePaths` removes the naming/read distinction so a live reference
+// reads clean, `MUTANTS.fixRecord` treats a rename as its old name only, so a claim naming the new
+// name is reported absent, `MUTANTS.fixRecordPin` restores the spelling test that made a suite-shaped
+// or recording-shaped path pinnable however absent it was, `MUTANTS.fixRecordToken` leaves a log token
+// as written so a `./` spelling is refused while the bare one passes, `MUTANTS.fixRecordTail` resolves
+// any proper tail of a declaration however absent the spelling it used is, `MUTANTS.fixRecordTailOff`
+// drops the resolution so a token that does name a file stops being judged as the declaration behind
+// it, `MUTANTS.fixRecordAmbiguity` lets the first declaration in front-matter order win a tail two of
+// them share, `MUTANTS.tasksDirectory` decides a `--tasks` path by the suffix its name carries rather
+// than by what it is, and `MUTANTS.workRange` restores the numeric-predecessor rule, so every
+// milestone whose numerically previous id is unshipped stops instead of falling back to the newest
+// ship commit. The suite drives each one and quotes the failure it produces.
 //
 // What a run does: it reads files and spawns one read-only `git` per range. It writes nothing, opens
 // no browser and binds no port.
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -136,12 +175,18 @@ const CLASSES = [
 export const NOTHING_EXAMINED = 'nothing-examined';
 
 /**
- * The mutants this module ships, one per check. Each names a branch inside its check, so the mutant
- * is the code path a regression would take rather than a fixture beside it.
+ * The mutants this module ships, one per repaired branch. Each names a branch inside its check, so the
+ * mutant is the code path a regression would take rather than a fixture beside it.
  */
 export const MUTANTS = Object.freeze({
   archivePaths: 'archive-paths-ignore-use',
   fixRecord: 'fix-record-drop-renames',
+  fixRecordPin: 'fix-record-pin-by-spelling',
+  fixRecordToken: 'fix-record-token-unnormalised',
+  fixRecordTail: 'fix-record-resolve-any-tail',
+  fixRecordTailOff: 'fix-record-tail-resolution-off',
+  fixRecordAmbiguity: 'fix-record-first-tail-wins',
+  tasksDirectory: 'tasks-read-directory-as-file',
   workRange: 'work-range-numeric-predecessor',
 });
 
@@ -173,6 +218,109 @@ const PATH_BUILDERS = new Set(['dirname', 'join', 'normalize', 'resolve']);
 /** A token a `## Log` line names as a path, by the shape of the name rather than by a list. */
 const PATH_LIKE =
   /^[\w@.-]+(?:[/\\][\w@.-]+)*\.(?:mjs|cjs|js|mts|ts|json|md|html|css)$/;
+
+/**
+ * A suite path by its spelling. Read by `MUTANTS.fixRecordPin` alone: the pin rule decides on whether
+ * a path exists, not on what its name looks like, and the shape is kept here because it is the rule a
+ * regression would go back to.
+ */
+const SUITE_PATH = /\.(?:test|spec)\.(?:mjs|cjs|js|mts|ts)$/;
+
+/**
+ * A recording path by its spelling, for the same mutant branch: a path under the milestone's own raw
+ * directory.
+ */
+const RECORDING_PATH = /^(?:\.\/)?research\/raw\/[\w.@-]+\.json$/;
+
+/**
+ * Whether one spelling names a path this repository carries: in this tree, at the range's base, or at
+ * its head. The pin reading compares a path's blob at both ends of a range, so a path that exists
+ * somewhere is one whose bytes can be read twice; a spelling that exists nowhere names no file, and no
+ * declaration it is a tail of can lend it one.
+ *
+ * @param {string} root
+ * @param {string} range
+ * @param {string} path
+ * @param {Map<string, string | null>} cache the blob readings this run already holds
+ * @returns {boolean}
+ */
+function carries(root, range, path, cache) {
+  if (existsSync(join(root, path))) return true;
+  const ends = rangeEnds(range);
+  if (ends === null) return false;
+  return (
+    blobAt(root, ends.base, path, cache) !== null ||
+    blobAt(root, ends.head, path, cache) !== null
+  );
+}
+
+/**
+ * Whether a declared path may be a pin. A pin is satisfied by two equal readings, and two absences are
+ * equal only for a path that exists somewhere: a path some commit in the range carries, or this tree
+ * carries. A path nobody carries is a claim about a file nobody has, whatever shape it is spelled in,
+ * and the caller reports it.
+ *
+ * The shape test below is the rule a regression would restore, and it is exactly what the mutant
+ * turns on: `SUITE_PATH` and `RECORDING_PATH` read a *spelling*, so a suite-shaped or
+ * recording-shaped name was pinnable however absent it was - a declared
+ * `scripts/absent-probe-suite.test.mjs` and a declared `research/raw/m999-absent-recording.json` were
+ * each absolved by carrying no blob at either end of the range. Requiring existence is what keeps a
+ * path that exists nowhere a finding.
+ *
+ * @param {string} root
+ * @param {string} range
+ * @param {string} path
+ * @param {Map<string, string | null>} cache the blob readings this run already holds
+ * @param {string | null} [mutant] `MUTANTS.fixRecordPin` restores the spelling rule
+ * @returns {boolean}
+ */
+function isPinnable(root, range, path, cache, mutant = null) {
+  if (mutant === MUTANTS.fixRecordPin) {
+    return (
+      SUITE_PATH.test(path) ||
+      RECORDING_PATH.test(path) ||
+      existsSync(join(root, path))
+    );
+  }
+  return carries(root, range, path, cache);
+}
+
+/**
+ * What one Log token's own `files:` list makes of it. A token the list spells exactly is that
+ * declaration. A token that is only a proper tail of a declaration is judged as that declaration only
+ * when the spelling the Log used names a path this repository carries, so the resolution can never
+ * absolve a spelling that exists nowhere. A tail two declarations share is never separated by
+ * front-matter order: both are answered as `ambiguous` and the caller reports them, judging the token
+ * as itself.
+ *
+ * @param {string} root
+ * @param {string} range
+ * @param {string} token the spelling the Log used, normalised
+ * @param {string[]} declared the task's own `files:` list
+ * @param {Map<string, string | null>} cache the blob readings this run already holds
+ * @param {string | null} [mutant]
+ * @returns {{ path: string | null, ambiguous: string[] }}
+ */
+function declarationFor(root, range, token, declared, cache, mutant = null) {
+  const exact = declared.find((path) => path === token) ?? null;
+  if (exact !== null) return { path: exact, ambiguous: [] };
+  const tails = declared.filter((path) => path.endsWith(`/${token}`));
+  if (tails.length === 0) return { path: null, ambiguous: [] };
+  if (mutant === MUTANTS.fixRecordTail) {
+    // The rule a regression would restore: any proper tail is the declaration it tails, whether the
+    // spelling names a file or nothing at all.
+    return { path: tails[0] ?? null, ambiguous: [] };
+  }
+  if (mutant === MUTANTS.fixRecordTailOff) return { path: null, ambiguous: [] };
+  if (mutant === MUTANTS.fixRecordAmbiguity) {
+    // The rule a regression would restore: the first declaration in front-matter order wins, and the
+    // one it did not choose is never named.
+    return { path: tails[0] ?? null, ambiguous: [] };
+  }
+  if (tails.length > 1) return { path: null, ambiguous: tails };
+  if (!carries(root, range, token, cache)) return { path: null, ambiguous: [] };
+  return { path: tails[0] ?? null, ambiguous: [] };
+}
 
 // ---------------------------------------------------------------- helpers ----
 
@@ -1214,6 +1362,87 @@ function nameStatus(root, range) {
 }
 
 /**
+ * The two commits a `base..head` range names, or null when the string is not such a range. The pin
+ * reading compares the path's blob at each end, so a range this cannot split refuses the pin reading
+ * rather than guessing one.
+ *
+ * Exactly two parts, and a head that is not the tail of a longer dot run: `'a...b'.split('..')` is
+ * `['a', '.b']`, so a three-dot range used to answer a base of `a` and a head of `.b`, which no commit
+ * carries and which `nameStatus` never read as a pair either. A `..` chain and a range with an empty
+ * end are refused the same way.
+ *
+ * @param {string} range
+ * @returns {{ base: string, head: string } | null}
+ */
+function rangeEnds(range) {
+  const parts = range.split('..');
+  if (parts.length !== 2) return null;
+  const base = parts[0]?.trim() ?? '';
+  const head = parts[1]?.trim() ?? '';
+  if (base === '' || head === '') return null;
+  // A head that opens with a dot is the tail of a three-dot (`a...b`) or longer dot run, and a base
+  // that closes with one is the head of the same run read backwards: neither is a commit.
+  if (head.startsWith('.') || base.endsWith('.')) return null;
+  return { base, head };
+}
+
+/**
+ * What a range string is, named, so a refusal says which form it could not read rather than only that
+ * it could not. Read by `checkFixRecord` when `rangeEnds` answers null.
+ *
+ * @param {string} range
+ * @returns {string}
+ */
+function rangeForm(range) {
+  const dots = (range.match(/\./g) ?? []).length;
+  if (dots === 3) return 'a three-dot range (`base...head`)';
+  if (dots === 2) return 'a `base..head` pair with an empty end';
+  if (dots === 0) return 'a single revision rather than a range';
+  return `a range carrying ${String(dots)} dots rather than one \`..\``;
+}
+
+/**
+ * The blob one path resolves to at one commit, read with `git rev-parse <commit>:<path>`. A path the
+ * commit does not carry answers null, which is a reading rather than an error: an uncommitted file is
+ * absent at both ends of a range that has not carried it yet. Cached, because a Log may name a pinned
+ * path on many lines and each answer is the same read.
+ *
+ * @param {string} root
+ * @param {string} commit
+ * @param {string} path
+ * @param {Map<string, string | null>} cache
+ * @returns {string | null}
+ */
+function blobAt(root, commit, path, cache) {
+  const key = `${commit}\u0000${path}`;
+  if (cache.has(key)) return cache.get(key) ?? null;
+  const read = git(root, ['rev-parse', `${commit}:${path}`]);
+  const sha = read.ok ? read.out.trim() : null;
+  cache.set(key, sha);
+  return sha;
+}
+
+/**
+ * Whether one path is byte-identical across a range: its blob at the base equals its blob at the head,
+ * with two absences counting as equal. This is the pin's own reading, not the range's name list - a
+ * declared path the range did not change is a pin, and the bytes are what say so.
+ *
+ * @param {string} root
+ * @param {string} range
+ * @param {string} path
+ * @param {Map<string, string | null>} cache
+ * @returns {boolean}
+ */
+function byteIdenticalAcross(root, range, path, cache) {
+  const ends = rangeEnds(range);
+  if (ends === null) return false;
+  return (
+    blobAt(root, ends.base, path, cache) ===
+    blobAt(root, ends.head, path, cache)
+  );
+}
+
+/**
  * The `## Log` of one task file, as the lines it carries after the heading, each with its number.
  *
  * @param {string} text
@@ -1239,24 +1468,36 @@ function logLines(text) {
  * `{ id, file, text }` entries a caller supplies. An entry that carries its own text is read from
  * that text, so a claim can be held against a real range without writing a file to make it.
  *
+ * What decides how a path is read is what the path *is*, not what its name ends in: a file is read as
+ * that task file and a directory is listed for the task files it holds, whatever either of them is
+ * called. Testing a suffix instead is what made two crashes reachable - `readdirSync` on a file threw
+ * `ENOTDIR`, and `readFileSync` on a directory named `x.md` threw `EISDIR` - so the argument is asked
+ * of the filesystem once, before either call. `MUTANTS.tasksDirectory` restores the suffix test that
+ * read a directory named with the markdown suffix as a file.
+ *
  * @param {string} root
  * @param {unknown} tasks
+ * @param {string | null} [mutant] `MUTANTS.tasksDirectory` restores the suffix test
  * @returns {Array<{ id: string, file: string, text: string }>}
  */
-function taskInputs(root, tasks) {
+function taskInputs(root, tasks, mutant = null) {
   /** @type {Array<{ id: string, file: string, text: string }>} */
   const inputs = [];
   /** @param {string} named @returns {void} */
   const fromPath = (named) => {
     const absolute = resolve(root, named);
     if (!existsSync(absolute)) return;
-    const entries = readdirSync(absolute, { withFileTypes: true });
-    if (absolute.endsWith('.md')) {
+    const isDirectory =
+      mutant === MUTANTS.tasksDirectory
+        ? !absolute.endsWith('.md')
+        : statSync(absolute).isDirectory();
+    if (!isDirectory) {
       const text = readFileSync(absolute, 'utf8');
       const id = /^id:\s*(\S+)\s*$/m.exec(stripBom(text))?.[1] ?? named;
       inputs.push({ id, file: displayPath(relative(root, absolute)), text });
       return;
     }
+    const entries = readdirSync(absolute, { withFileTypes: true });
     for (const entry of entries) {
       if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
       const path = join(absolute, entry.name);
@@ -1310,13 +1551,28 @@ function declaredFiles(text) {
 }
 
 /**
- * The fix-record check (SC2; AC2, AC3, AC4): every path a task log's `## Log` claims, held against
- * the range's own `--name-status`, where a rename contributes both of its names.
+ * The fix-record check (SC2; AC2, AC3, AC4): every path a task log's `## Log` claims or pins, held
+ * against the range's own `--name-status`, where a rename contributes both of its names.
  *
  * `claims` decides what a log token is. The default `'log'` treats every path-like token as a claim.
- * `'declared'` treats a token as a claim only when that task's own `files:` front matter lists the
+ * `'declared'` treats a token as judged only when that task's own `files:` front matter lists the
  * path, and records every other token in `mentions` - printed and not judged - so a log that
- * narrates another milestone's path does not read as a claim about this one.
+ * narrates another milestone's path does not read as a claim about this one. Within `'declared'`, a
+ * declared path the range did not change is a `pin`: its blob at the base must equal its blob at the
+ * head, and two absences count as equal only for a path some commit in the range or this tree carries,
+ * so an uncommitted new file is a pin rather than an unsatisfiable claim while a path that exists
+ * nowhere stays a claim and is reported. A pin is recorded in `pins` and is never a finding; a
+ * declared path whose blobs differ without the range naming it stays a claim and is reported.
+ *
+ * A token that is only a proper tail of a declaration is judged as that declaration only when the
+ * spelling it used names a path this repository carries, and only when exactly one declaration tails
+ * it, so a spelling that exists nowhere cannot be pinned or read clean and two declarations are never
+ * separated by front-matter order: the run records the token in `ambiguities`, names both, and judges
+ * the token as itself.
+ *
+ * The range must be a `base..head` pair: the pin reading compares two commits, so a range
+ * `rangeEnds` cannot split is refused with the form it was given named, rather than read by one
+ * branch as a pair and by `nameStatus` as something else.
  *
  * @param {{ root?: string, range?: string, tasks?: unknown, mutant?: string | null, claims?: string }} [input]
  * @returns {Record<string, any>}
@@ -1331,10 +1587,13 @@ export function checkFixRecord(input = {}) {
     examined: 0,
     tasksExamined: 0,
     claimsExamined: 0,
+    pinsExamined: 0,
     claimsMode,
     range: { range, command, changed: 0, renames: 0 },
     claims: [],
+    pins: [],
     mentions: [],
+    ambiguities: [],
     declarations: [],
     findings: [],
     mutant,
@@ -1354,6 +1613,24 @@ export function checkFixRecord(input = {}) {
       ],
       reading:
         'examined 0 claim(s): the check was called without a root and a range, so it refuses',
+    };
+  }
+
+  // The pin reading is a comparison of the path's blob at the range's two ends, so a range that is not
+  // a `base..head` pair is refused before anything is read: a three-dot range is readable by git but
+  // not splittable into two commits, and this check reports the form rather than guessing the head the
+  // split would leave. That refusal names what it was given, so no caller can read it as a clean run.
+  if (rangeEnds(range) === null) {
+    return {
+      ...empty,
+      findings: [
+        refusal({
+          file: range,
+          claim: command,
+          reason: `the range ${JSON.stringify(range)} is ${rangeForm(range)}, and the pin reading compares a path's blob at exactly two commits, so this check refuses rather than splitting it into a base and a head that no commit carries`,
+        }),
+      ],
+      reading: `examined 0 claim(s): ${range} is ${rangeForm(range)}, so the pin reading has no two ends to compare`,
     };
   }
 
@@ -1380,13 +1657,19 @@ export function checkFixRecord(input = {}) {
     mutant === MUTANTS.fixRecord ? row.paths.slice(0, 1) : row.paths,
   );
 
-  const inputs = taskInputs(root, input.tasks);
+  const inputs = taskInputs(root, input.tasks, mutant);
   /** @type {Array<Record<string, any>>} */
   const claims = [];
   /** @type {Array<Record<string, any>>} */
+  const pins = [];
+  /** @type {Array<Record<string, any>>} */
   const mentions = [];
+  /** @type {Array<Record<string, any>>} the tokens two or more declarations share as a tail */
+  const ambiguities = [];
   /** @type {Array<{ task: string, file: string, declared: string[] }>} */
   const declarations = [];
+  /** The blob readings a pin repeats, one per `commit:path`. */
+  const blobs = new Map();
   let tasksExamined = 0;
   for (const task of inputs) {
     const logs = logLines(task.text);
@@ -1398,39 +1681,101 @@ export function checkFixRecord(input = {}) {
       for (const match of log.text.matchAll(/`([^`]+)`/g)) {
         const named = (match[1] ?? '').trim();
         if (!PATH_LIKE.test(named)) continue;
-        const named_ = named.replace(/^\.\//, '');
+        // The token is normalised once, here, before the declaration test and the range test: a Log
+        // naming `./research/raw/x.json` and one naming `research/raw/x.json` are the same path, so
+        // they must read the same in the pin branch and in the claim branch. `MUTANTS.fixRecordToken`
+        // reads the range with the token as written instead, which is the asymmetry that refused the
+        // `.`-prefixed spelling as `claim-absent-from-the-range` while the bare spelling passed.
+        const token = named.replace(/^\.\//, '');
+        const rangeToken = mutant === MUTANTS.fixRecordToken ? named : token;
+        // The declaration this token may be judged as: the one its own `files:` list spells, or a
+        // declaration it tails when the spelling it used names a file this repository carries, and
+        // never one of two declarations that share the tail. `claims: 'log'` reads no declaration at
+        // all, so nothing is resolved there.
+        const resolution =
+          claimsMode === 'declared'
+            ? declarationFor(root, range, token, declared, blobs, mutant)
+            : { path: null, ambiguous: [] };
+        const declaredPath = resolution.path;
+        const ambiguous = resolution.ambiguous;
         // In `declared` mode a token the task's own `files:` list does not carry is a mention: it is
-        // recorded with where it sits and what it named, and it is never held against the range.
+        // recorded with where it sits and what it named, and it is never held against the range. A
+        // token two declarations share is judged rather than mentioned, because the ambiguity is what
+        // this run has to report about it.
         if (
           claimsMode === 'declared' &&
-          !declared.some(
-            (path) => path === named_ || path.endsWith(`/${named_}`),
-          )
+          declaredPath === null &&
+          ambiguous.length === 0
         ) {
           mentions.push({
             task: task.id,
-            file: named_,
+            file: token,
             at: `${task.file}:${log.line}`,
             taskFile: task.file,
             line: log.line,
             claim: log.text.trim(),
-            reason: `${task.id} names ${named_} in its ## Log and its own files: list does not declare it, so it is a mention recorded rather than a claim judged`,
+            reason: `${task.id} names ${token} in its ## Log and its own files: list does not declare it, so it is a mention recorded rather than a claim judged`,
           });
           continue;
         }
+        const judged = declaredPath ?? token;
+        // The range carries paths, so a spelling that names no path is in no range: the suffix match
+        // below is how an abbreviated name meets the full one, and it cannot meet a spelling that
+        // begins at the repository root and exists nowhere.
+        const carried = carries(root, range, token, blobs);
+        const matches = (/** @type {string} */ entry) =>
+          carried && (entry === rangeToken || entry.endsWith(`/${rangeToken}`));
         const found = rows
-          .filter((row) =>
-            row.paths.some(
-              (entry) => entry === named || entry.endsWith(`/${named}`),
-            ),
-          )
+          .filter((row) => row.paths.some(matches))
           .map((row) => ({ status: row.status, paths: row.paths }));
-        const present = names.some(
-          (entry) => entry === named || entry.endsWith(`/${named}`),
-        );
+        const present = names.some(matches);
+        if (ambiguous.length > 0) {
+          ambiguities.push({
+            task: task.id,
+            file: token,
+            at: `${task.file}:${log.line}`,
+            taskFile: task.file,
+            line: log.line,
+            claim: log.text.trim(),
+            declarations: ambiguous,
+            reason: `${task.id} names ${token} in its ## Log at ${task.file}:${log.line}, and ${String(
+              ambiguous.length,
+            )} of its own files: declarations end in it (${ambiguous.join(
+              ', ',
+            )}), so this run reports the ambiguity and chooses neither`,
+          });
+        }
+        // A declared file the range did not change is a pin. The reading is the bytes at both ends of
+        // the range, not the range's name list: a task declares the suites and recordings that pin the
+        // files it changes, and those are byte-identical across the range by design. A path that
+        // exists nowhere - no commit in the range carries it and this tree does not - is not eligible
+        // whatever its spelling, so it is a claim and is reported. A pin whose bytes differ without
+        // the range naming it falls through to the claim below, so the defect is still reported rather
+        // than silently forgiven. A token two declarations share is never a pin: it is neither of them.
+        if (
+          claimsMode === 'declared' &&
+          ambiguous.length === 0 &&
+          !present &&
+          isPinnable(root, range, judged, blobs, mutant) &&
+          byteIdenticalAcross(root, range, judged, blobs)
+        ) {
+          pins.push({
+            task: task.id,
+            file: judged,
+            at: `${task.file}:${log.line}`,
+            taskFile: task.file,
+            line: log.line,
+            claim: log.text.trim(),
+            inTheRange: false,
+            pin: true,
+            byteIdentical: true,
+            statusesInTheRange: found,
+          });
+          continue;
+        }
         claims.push({
           task: task.id,
-          file: named,
+          file: judged,
           at: `${task.file}:${log.line}`,
           taskFile: task.file,
           line: log.line,
@@ -1443,26 +1788,47 @@ export function checkFixRecord(input = {}) {
   }
 
   const rangeCarries = rows.length > 0;
-  const findings = claims
-    .filter((claim) => rangeCarries && !claim.inTheRange)
-    .map((claim) => ({
-      file: claim.file,
-      line: claim.line,
-      claim: claim.claim,
-      path: claim.file,
+  // A tail two declarations share is reported before anything else, because it is the one answer this
+  // run must never make silently: the token is judged as itself and both declarations are named, so a
+  // reader sees the ambiguity rather than the choice front-matter order would have made.
+  const findings = [
+    ...ambiguities.map((ambiguity) => ({
+      file: ambiguity.file,
+      line: ambiguity.line,
+      claim: ambiguity.claim,
+      path: ambiguity.file,
       site: 'log',
-      class: 'claim-absent-from-the-range',
+      class: 'ambiguous-declaration',
       use: 'claimed',
       usedBy: command,
-      useLine: claim.line,
+      useLine: ambiguity.line,
       verdict: 'finding',
-      task: claim.task,
-      taskFile: claim.taskFile,
-      statusesInTheRange: claim.statusesInTheRange,
-      reason: `${claim.task} claims ${claim.file} at ${claim.at}, and ${command} carries no such path (${String(
-        rows.length,
-      )} changed path(s), ${String(renames.length)} rename row(s))`,
-    }));
+      task: ambiguity.task,
+      taskFile: ambiguity.taskFile,
+      declarations: ambiguity.declarations,
+      reason: ambiguity.reason,
+    })),
+    ...claims
+      .filter((claim) => rangeCarries && !claim.inTheRange)
+      .map((claim) => ({
+        file: claim.file,
+        line: claim.line,
+        claim: claim.claim,
+        path: claim.file,
+        site: 'log',
+        class: 'claim-absent-from-the-range',
+        use: 'claimed',
+        usedBy: command,
+        useLine: claim.line,
+        verdict: 'finding',
+        task: claim.task,
+        taskFile: claim.taskFile,
+        statusesInTheRange: claim.statusesInTheRange,
+        reason: `${claim.task} claims ${claim.file} at ${claim.at}, and ${command} carries no such path (${String(
+          rows.length,
+        )} changed path(s), ${String(renames.length)} rename row(s))`,
+      })),
+  ];
 
   const refusals = [];
   if (!rangeCarries) {
@@ -1473,7 +1839,7 @@ export function checkFixRecord(input = {}) {
         reason: `the range carries no changed path, so no claim can be compared against it and the check examined nothing`,
       }),
     );
-  } else if (claims.length === 0) {
+  } else if (claims.length === 0 && pins.length === 0) {
     refusals.push(
       refusal({
         file: inputs.length === 0 ? 'tasks' : (inputs[0]?.file ?? 'tasks'),
@@ -1484,15 +1850,16 @@ export function checkFixRecord(input = {}) {
               ? `${String(tasksExamined)} task log(s) name no path their own files: list declares (${String(mentions.length)} mention(s) recorded and not judged)`
               : `${String(tasksExamined)} task log(s) name no path in their ## Log`,
         reason:
-          'no claim was compared against the range, so the check examined nothing rather than finding every claim true',
+          'no claim was compared against the range and no pin was read, so the check examined nothing rather than finding every claim true',
       }),
     );
   }
 
   return {
-    examined: rangeCarries ? claims.length : 0,
+    examined: rangeCarries ? claims.length + pins.length : 0,
     tasksExamined,
     claimsExamined: claims.length,
+    pinsExamined: pins.length,
     claimsMode,
     mentionsExamined: mentions.length,
     range: {
@@ -1504,13 +1871,17 @@ export function checkFixRecord(input = {}) {
     },
     mutant,
     claims,
+    pins,
     mentions,
+    ambiguities,
     declarations,
     findings: [...findings, ...refusals],
     ok: findings.length === 0 && refusals.length === 0,
-    reading: `examined ${String(claims.length)} claim(s) from ${String(
-      tasksExamined,
-    )} task log(s) against ${String(rows.length)} changed path(s), with ${
+    reading: `examined ${String(claims.length)} claim(s) and ${String(
+      pins.length,
+    )} pin(s) from ${String(tasksExamined)} task log(s) against ${String(
+      rows.length,
+    )} changed path(s), with ${
       mutant === MUTANTS.fixRecord
         ? 'each rename contributing only its first name'
         : 'each rename contributing both of its names'
@@ -2026,7 +2397,7 @@ export function gate(input = {}) {
     });
     lines.push(
       `gate-integrity: fix-record ${fix.ok ? 'clean' : 'refused'} - examined ${String(
-        fix.examined,
+        fix.claimsExamined,
       )} claim(s) in ${String(fix.tasksExamined)} task log(s) of ${tasks} (logs of ${logsOwner(
         tasks,
         state.milestone,
@@ -2034,11 +2405,25 @@ export function gate(input = {}) {
         derived.mode,
       )}: ${String(derived.rule)}; claims: ${claims})`,
     );
+    if (fix.pinsExamined > 0) {
+      lines.push(
+        `gate-integrity: fix-record pins - ${String(
+          fix.pinsExamined,
+        )} declared path(s) byte-identical across ${range}, recorded and not judged as changes`,
+      );
+    }
     for (const finding of fix.findings) {
       lines.push(
         `gate-integrity: refusal ${String(finding.file)} at ${String(finding.task ?? 'range')} (${String(
           finding.class,
         )}) - ${String(finding.reason)}`,
+      );
+    }
+    for (const pin of fix.pins) {
+      lines.push(
+        `gate-integrity: pin ${String(pin.file)} at ${String(pin.at)} (${String(
+          pin.task,
+        )}) - declared and byte-identical across ${range}, recorded and not judged as a change`,
       );
     }
     for (const mention of fix.mentions) {

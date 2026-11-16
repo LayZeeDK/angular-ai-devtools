@@ -1,0 +1,577 @@
+{
+  "schema": "m045-console-panel/v1",
+  "milestone": "M045 console-read",
+  "task": "T004",
+  "title": "Record the surface and run the project verify",
+  "question": "what does the console pane render, case by case, from the join the extension ships?",
+  "contract": {
+    "returns": "{ state, findings[] }",
+    "states": [
+      "joined",
+      "captured-nothing",
+      "no-diagnostics"
+    ],
+    "finding": [
+      "text",
+      "code?",
+      "title?",
+      "reason?",
+      "carriedCode?"
+    ],
+    "reason": "reason is present only when the digest lacks the code the message carried, and code is absent only when the message carried none",
+    "carriedCode": "carriedCode is present only where the digest matched the code the message carried after folding case, and it is the spelling the message used: it folds to the finding’s code and is never a second code",
+    "rendered": "the pane renders state and findings and nothing else: no cause, no element, no remedy and no unattributed wording",
+    "lineLabels": [
+      "state",
+      "code",
+      "title",
+      "reason",
+      "text",
+      "no-code",
+      "no-title",
+      "no-digest-entry",
+      "case-difference",
+      "case-difference-no-title",
+      "no-finding",
+      "no-console-answer",
+      "unreadable-finding",
+      "joined",
+      "captured-nothing",
+      "no-diagnostics"
+    ],
+    "sentenceRegistry": [
+      {
+        "id": "state-joined",
+        "text": "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
+        "slots": [],
+        "state": "joined"
+      },
+      {
+        "id": "state-captured-nothing",
+        "text": "captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent",
+        "slots": [],
+        "state": "captured-nothing"
+      },
+      {
+        "id": "state-no-diagnostics",
+        "text": "no-diagnostics: no capture was handed to the join at all, so no capture was read",
+        "slots": [],
+        "state": "no-diagnostics"
+      },
+      {
+        "id": "no-console-answer",
+        "text": "no-console-answer: no console join answer was handed over, so no state and no finding are reported",
+        "slots": [],
+        "state": null
+      },
+      {
+        "id": "no-finding",
+        "text": "no-finding: the answer reported joined and carried no finding, so no finding is rendered",
+        "slots": [],
+        "state": null
+      },
+      {
+        "id": "no-code",
+        "text": "no-code: the captured message carried no code, so this finding carries no code and no title",
+        "slots": [],
+        "state": null
+      },
+      {
+        "id": "no-title",
+        "text": "no-title: the digest carries the code this message carried and states no title for it, so no title is rendered",
+        "slots": [],
+        "state": null
+      },
+      {
+        "id": "unreadable-finding",
+        "text": "unreadable-finding: the answer carried a list entry that is not a finding, so it is named here and nothing is filled in for it",
+        "slots": [],
+        "state": null
+      },
+      {
+        "id": "no-digest-entry",
+        "text": "no-digest-entry: the digest carries no entry for {code}, so this finding is named by the code it carried and no title is rendered",
+        "slots": [
+          "code"
+        ],
+        "state": null
+      },
+      {
+        "id": "case-difference",
+        "text": "case-difference: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and title",
+        "slots": [
+          "carriedCode",
+          "digestCode"
+        ],
+        "state": null
+      },
+      {
+        "id": "case-difference-no-title",
+        "text": "case-difference-no-title: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and no title is stated for it",
+        "slots": [
+          "carriedCode",
+          "digestCode"
+        ],
+        "state": null
+      }
+    ],
+    "sentenceRegistryProvenance": "contract.sentenceRegistry is the pane’s own registry, copied here from the pane’s PANE_SENTENCES so the recording can be held to the sentences the pane writes without re-reading the module: the pane’s registry is the source, this copy is a statement about it, and both suites pin the two equal in both directions, so an entry either side gains alone reddens",
+    "prohibitedWording": [
+      "cause",
+      "because",
+      "due to",
+      "since",
+      "element",
+      "component",
+      "dom",
+      "node",
+      "remedy",
+      "fix",
+      "solution",
+      "repair",
+      "angular",
+      "framework",
+      "count",
+      "number"
+    ],
+    "absenceStatement": {
+      "rule": "an absence statement says what was read and what that means for the panel, and never what the page did: each clause takes as its subject a thing the pane read — the capture, the answer, the join, the digest, the message, the finding, the list, the state, the code, the title or the reason, or the sentence itself — and states an action the read or the pane performs; a clause a denial introduces says what was not found, and the page is named only inside a denial, because a sentence that takes the page, or an indeterminate standing where the page would be, as the subject of what happened is a claim about the page in whatever words it chooses",
+      "readSubjects": [
+        "capture",
+        "captures",
+        "answer",
+        "answers",
+        "join",
+        "joins",
+        "digest",
+        "digests",
+        "message",
+        "messages",
+        "finding",
+        "findings",
+        "list",
+        "lists",
+        "entry",
+        "entries",
+        "state",
+        "states",
+        "diagnostic",
+        "diagnostics",
+        "code",
+        "codes",
+        "title",
+        "titles",
+        "reason",
+        "reasons",
+        "sentence",
+        "sentences",
+        "line",
+        "lines",
+        "statement",
+        "statements",
+        "pane",
+        "panel",
+        "surface"
+      ],
+      "readActions": [
+        "read",
+        "reads",
+        "capture",
+        "captures",
+        "captured",
+        "carry",
+        "carries",
+        "carried",
+        "hold",
+        "holds",
+        "held",
+        "hand",
+        "hands",
+        "handed",
+        "join",
+        "joins",
+        "joined",
+        "record",
+        "records",
+        "recorded",
+        "list",
+        "lists",
+        "listed",
+        "name",
+        "names",
+        "named",
+        "state",
+        "states",
+        "stated",
+        "render",
+        "renders",
+        "rendered",
+        "print",
+        "prints",
+        "printed",
+        "fill",
+        "fills",
+        "filled",
+        "report",
+        "reports",
+        "reported",
+        "match",
+        "matches",
+        "matched",
+        "find",
+        "finds",
+        "found",
+        "digest",
+        "digests",
+        "digested",
+        "extract",
+        "extracts",
+        "extracted",
+        "fail",
+        "fails",
+        "failed",
+        "give",
+        "gives",
+        "given",
+        "contain",
+        "contains",
+        "contained"
+      ],
+      "paneActions": [
+        "render",
+        "renders",
+        "rendered",
+        "state",
+        "states",
+        "stated",
+        "name",
+        "names",
+        "named",
+        "carry",
+        "carries",
+        "carried",
+        "read",
+        "reads",
+        "fill",
+        "fills",
+        "filled",
+        "list",
+        "lists",
+        "listed",
+        "print",
+        "prints",
+        "printed",
+        "record",
+        "records",
+        "recorded",
+        "hold",
+        "holds",
+        "held",
+        "hand",
+        "hands",
+        "handed",
+        "join",
+        "joins",
+        "joined"
+      ],
+      "placeholders": [
+        "nothing",
+        "none",
+        "it",
+        "this",
+        "that"
+      ],
+      "pageWords": [
+        "page",
+        "pages",
+        "app",
+        "apps",
+        "application",
+        "applications",
+        "browser",
+        "browsers",
+        "tab",
+        "tabs",
+        "window",
+        "windows",
+        "site",
+        "sites",
+        "document",
+        "documents",
+        "dom",
+        "framework",
+        "angular"
+      ],
+      "denials": [
+        "never",
+        "not",
+        "nor",
+        "cannot",
+        "without",
+        "isn't",
+        "wasn't",
+        "aren't",
+        "doesn't",
+        "don't",
+        "didn't"
+      ]
+    }
+  },
+  "sources": {
+    "surface": "apps/angular-ai-devtools/src/app/panel-console.ts",
+    "join": "extension/console-join.js",
+    "digest": "extension/error-digest.json",
+    "shapes": "research/raw/m045-console-shapes.json"
+  },
+  "capture": {
+    "command": "set \"M045_CAPTURE=1\"&& node --test scripts/console-panel-record.test.mjs",
+    "check": "node --test scripts/console-panel-record.test.mjs",
+    "records": "research/raw/m045-console-panel.json",
+    "write": "an armed run re-derives every case from the join and the pane and writes this file only when a value moved, so a default run is a read and a second armed run writes no byte",
+    "reproduces": "each case’s state, its findings and its rendered lines below are derived at the head that carries them from the four files named under sources — the join over the shipped digest, and the pane over the join’s answer — so a second run at the same path re-derives the same bytes, and this record carries no clock, no commit and no absolute path; every cases[].input and every cases[].why are this suite’s own fixture constants, not values read from the tree, and so are schema, milestone, task, title, question, the whole contract and this prose, and contract.states restates the join’s three state words rather than reading the namespace the join publishes"
+  },
+  "fixture": {
+    "payloadKeys": [
+      "code",
+      "message",
+      "component",
+      "timestamp"
+    ],
+    "matchedCode": "NG0100",
+    "matchedTitle": "Expression Changed After Checked",
+    "unmatchedCode": "NG04002",
+    "unmatchedTitle": null,
+    "digestEntries": 64,
+    "digestCarriesUnmatchedCode": false,
+    "captureRegex": "/NG0\\d{3,}/",
+    "unmatchedExtractedByTheCaptureRegex": true,
+    "caseInputs": "every cases[].input — the diagnostics the fixture hands over, or the absence of a capture — and every cases[].why are this suite’s own fixture constants, not values read from the tree; what this record derives about a case is its state, its findings and its rendered lines",
+    "messageTexts": "the message texts are exemplars written in the capture’s payload shape, not strings a capture recorded: what this record measures about them is the payload key set, the code extraction and the digest lookup, so a capture that read different text would move the recorded text and not the shape"
+  },
+  "cases": [
+    {
+      "id": "joined",
+      "why": "a matched code, a code the digest lacks and a message that carried none, in capture order",
+      "input": {
+        "handedOver": true,
+        "diagnostics": [
+          {
+            "code": "NG0100",
+            "message": "NG0100: Expression has changed after it was checked.",
+            "component": null,
+            "timestamp": 1
+          },
+          {
+            "code": "NG04002",
+            "message": "NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist",
+            "component": null,
+            "timestamp": 2
+          },
+          {
+            "code": null,
+            "message": "the app failed",
+            "component": null,
+            "timestamp": 3
+          }
+        ]
+      },
+      "state": "joined",
+      "findings": [
+        {
+          "text": "NG0100: Expression has changed after it was checked.",
+          "code": "NG0100",
+          "title": "Expression Changed After Checked"
+        },
+        {
+          "text": "NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist",
+          "code": "NG04002",
+          "reason": "no-digest-entry"
+        },
+        {
+          "text": "the app failed"
+        }
+      ],
+      "surface": {
+        "state": "joined",
+        "kind": "joined",
+        "message": "state: joined",
+        "lines": [
+          "state: joined",
+          "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
+          "code: NG0100",
+          "title: Expression Changed After Checked",
+          "text: NG0100: Expression has changed after it was checked.",
+          "code: NG04002",
+          "no-digest-entry: the digest carries no entry for NG04002, so this finding is named by the code it carried and no title is rendered",
+          "text: NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist",
+          "no-code: the captured message carried no code, so this finding carries no code and no title",
+          "text: the app failed"
+        ],
+        "text": "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG0100\ntitle: Expression Changed After Checked\ntext: NG0100: Expression has changed after it was checked.\ncode: NG04002\nno-digest-entry: the digest carries no entry for NG04002, so this finding is named by the code it carried and no title is rendered\ntext: NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist\nno-code: the captured message carried no code, so this finding carries no code and no title\ntext: the app failed"
+      }
+    },
+    {
+      "id": "shared-code",
+      "why": "two diagnostics sharing one code are two findings, in capture order, with the one title",
+      "input": {
+        "handedOver": true,
+        "diagnostics": [
+          {
+            "code": "NG0100",
+            "message": "NG0100: Expression has changed after it was checked.",
+            "component": null,
+            "timestamp": 1
+          },
+          {
+            "code": "NG0100",
+            "message": "NG0100: second report",
+            "component": null,
+            "timestamp": 4
+          }
+        ]
+      },
+      "state": "joined",
+      "findings": [
+        {
+          "text": "NG0100: Expression has changed after it was checked.",
+          "code": "NG0100",
+          "title": "Expression Changed After Checked"
+        },
+        {
+          "text": "NG0100: second report",
+          "code": "NG0100",
+          "title": "Expression Changed After Checked"
+        }
+      ],
+      "surface": {
+        "state": "joined",
+        "kind": "joined",
+        "message": "state: joined",
+        "lines": [
+          "state: joined",
+          "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
+          "code: NG0100",
+          "title: Expression Changed After Checked",
+          "text: NG0100: Expression has changed after it was checked.",
+          "code: NG0100",
+          "title: Expression Changed After Checked",
+          "text: NG0100: second report"
+        ],
+        "text": "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG0100\ntitle: Expression Changed After Checked\ntext: NG0100: Expression has changed after it was checked.\ncode: NG0100\ntitle: Expression Changed After Checked\ntext: NG0100: second report"
+      }
+    },
+    {
+      "id": "digest-title-and-captured-wording",
+      "why": "a code the digest carries whose own title states \"element\" and whose captured message says \"because\": both are the answer’s words, and neither is refused as the pane’s",
+      "input": {
+        "handedOver": true,
+        "diagnostics": [
+          {
+            "code": "NG0910",
+            "message": "NG0910: unsanitized HTML was stripped because the binding bypassed the sanitizer",
+            "component": null,
+            "timestamp": 5
+          }
+        ]
+      },
+      "state": "joined",
+      "findings": [
+        {
+          "text": "NG0910: unsanitized HTML was stripped because the binding bypassed the sanitizer",
+          "code": "NG0910",
+          "title": "Unsafe bindings on an element"
+        }
+      ],
+      "surface": {
+        "state": "joined",
+        "kind": "joined",
+        "message": "state: joined",
+        "lines": [
+          "state: joined",
+          "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
+          "code: NG0910",
+          "title: Unsafe bindings on an element",
+          "text: NG0910: unsanitized HTML was stripped because the binding bypassed the sanitizer"
+        ],
+        "text": "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG0910\ntitle: Unsafe bindings on an element\ntext: NG0910: unsanitized HTML was stripped because the binding bypassed the sanitizer"
+      }
+    },
+    {
+      "id": "case-folded-match",
+      "why": "a code the digest carries only in another case: the digest’s spelling and title with the message’s own spelling beside them, and the pane states the difference it made",
+      "input": {
+        "handedOver": true,
+        "diagnostics": [
+          {
+            "code": "ng01002",
+            "message": "ng01002: Missing control value for the input",
+            "component": null,
+            "timestamp": 6
+          }
+        ]
+      },
+      "state": "joined",
+      "findings": [
+        {
+          "text": "ng01002: Missing control value for the input",
+          "code": "NG01002",
+          "title": "Missing Control Value",
+          "carriedCode": "ng01002"
+        }
+      ],
+      "surface": {
+        "state": "joined",
+        "kind": "joined",
+        "message": "state: joined",
+        "lines": [
+          "state: joined",
+          "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
+          "code: NG01002",
+          "title: Missing Control Value",
+          "case-difference: the message carried ng01002 and the digest carries NG01002, so this finding carries the digest's own spelling and title",
+          "text: ng01002: Missing control value for the input"
+        ],
+        "text": "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG01002\ntitle: Missing Control Value\ncase-difference: the message carried ng01002 and the digest carries NG01002, so this finding carries the digest's own spelling and title\ntext: ng01002: Missing control value for the input"
+      }
+    },
+    {
+      "id": "captured-nothing",
+      "why": "a capture that was read and carried no diagnostic: a statement, never an empty list",
+      "input": {
+        "handedOver": true,
+        "diagnostics": []
+      },
+      "state": "captured-nothing",
+      "findings": [],
+      "surface": {
+        "state": "captured-nothing",
+        "kind": "captured-nothing",
+        "message": "state: captured-nothing",
+        "lines": [
+          "state: captured-nothing",
+          "captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent"
+        ],
+        "text": "state: captured-nothing\ncaptured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent"
+      }
+    },
+    {
+      "id": "no-diagnostics",
+      "why": "no capture handed to the join at all, which is a different absence from an empty one",
+      "input": {
+        "handedOver": false
+      },
+      "state": "no-diagnostics",
+      "findings": [],
+      "surface": {
+        "state": "no-diagnostics",
+        "kind": "no-diagnostics",
+        "message": "state: no-diagnostics",
+        "lines": [
+          "state: no-diagnostics",
+          "no-diagnostics: no capture was handed to the join at all, so no capture was read"
+        ],
+        "text": "state: no-diagnostics\nno-diagnostics: no capture was handed to the join at all, so no capture was read"
+      }
+    }
+  ]
+}

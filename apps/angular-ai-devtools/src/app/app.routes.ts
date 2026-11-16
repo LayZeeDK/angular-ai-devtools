@@ -168,4 +168,13 @@ export const appRoutes: Route[] = [
     loadComponent: loadPanelDemo,
     data: { surface: 'stability' },
   },
+  // The M045 SC3-SC5 surface: the console join's own answer — the state the capture reported and one
+  // block of lines per captured diagnostic, each named by the code it carried — and nothing else: no
+  // cause, no element and no remedy, because the capture records none of the three. Lazy for the same
+  // reason as the surfaces above it — the panel's eager bundle is measured.
+  {
+    path: 'console',
+    loadComponent: loadPanelDemo,
+    data: { surface: 'console' },
+  },
 ];

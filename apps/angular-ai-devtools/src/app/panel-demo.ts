@@ -51,6 +51,7 @@ const LOADERS: Record<
   navigation: () => import('./panel-navigation') as never,
   'error-boundary': () => import('./panel-error-boundary') as never,
   stability: () => import('./panel-stability') as never,
+  console: () => import('./panel-console') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -365,6 +366,36 @@ export const FACTS: Record<string, unknown> = {
     ],
     version: '22.2.2',
     coreVersion: '22.2.2',
+  },
+  // The join's own answer (`extension/console-join.js`, T002) for the capture T001 measured
+  // (`research/raw/m045-console-shapes.json`), and nothing beside it: `{ state, findings[] }`, where
+  // each finding is `{ text, code?, title?, reason? }`. That is the answer's shape, not the capture's
+  // payload shape (`code`, `message`, `component`, `timestamp` — the record's `capture.payload.keys`),
+  // which is what `captureErrorPayload` dispatches and what the join reads; a payload-shaped sample
+  // would reach the pane as `no-console-answer`, because the pane is handed the answer and joins
+  // nothing itself. `NG0100` is a digest code and the title below is the digest's own ("Expression
+  // Changed After Checked"); `NG04002` is a code the shipped `/NG0\d{3,}/` regex extracts and the
+  // digest does not carry, which is why that finding names it and carries `no-digest-entry`; and the
+  // third message carried no code at all, which the join leaves in the text and the pane states as its own
+  // `no-code` sentence. No cause, no element and no remedy is written here because the capture records none.
+  // `panel-demo.spec.ts` holds this answer to the join and to the shipped digest — the finding to the
+  // join's own answer for it, the title to the entry the code names, the reason to the code the digest
+  // lacks — so a fact that drifted from either reddens there.
+  console: {
+    state: 'joined',
+    findings: [
+      {
+        text: 'NG0100: Expression has changed after it was checked.',
+        code: 'NG0100',
+        title: 'Expression Changed After Checked',
+      },
+      {
+        text: 'NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist',
+        code: 'NG04002',
+        reason: 'no-digest-entry',
+      },
+      { text: 'the app failed' },
+    ],
   },
 };
 

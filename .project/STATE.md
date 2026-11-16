@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: gate-phase-stability
+milestone: console-read
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M056
-archive: .project/archive/056-gate-phase-stability
+branch: gsd-path/M045
+archive: .project/archive/045-console-read
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -936,3 +936,72 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-15 — ship — build done; final review pending
 - 2026-11-15 — ship — archive preflight passed; shipment recorded
 - 2026-11-15 — shipped — archive preflight passed; shipment recorded
+- 2026-11-15 — inspect — router bound next milestone
+- 2026-11-15 — inspect — inspection complete; audit assembled
+- 2026-11-15 — define — inspection complete; audit assembled
+- 2026-11-15 — define — milestone intent approved
+- 2026-11-15 — plan — planning started
+- 2026-11-15 — plan — plan approved
+- 2026-11-15 — build — build started
+- 2026-11-15 — build — build blocked: gate-integrity is red at this head and the plan declares none of the files its suites feed
+- 2026-11-15 — plan — build plan repair requested
+- 2026-11-15 — plan — build recovery: {"base": "bf861ac9da0d9dc1b3bb7ab934a8c00100dc8c68", "branch": "gsd-path/M057", "kind": "plan", "source": "build"}
+- 2026-11-15 — plan — plan approved
+- 2026-11-15 — build — build started
+- 2026-11-15 — build — build blocked: the gate refuses on claims this milestone cannot satisfy; a repair task returns to the plan
+- 2026-11-15 — plan — build plan repair requested
+- 2026-11-15 — plan — build recovery: {"base": "37d2360b7f0576d1c0c14f16dc54ca7e337bcf8a", "branch": "gsd-path/M057", "kind": "plan", "source": "build"}
+- 2026-11-15 — plan — plan approved
+- 2026-11-15 — build — build started
+- 2026-11-16 — build — build blocked: three wave reviews failed and the repair returns to the plan
+- 2026-11-16 — plan — build plan repair requested
+- 2026-11-16 — plan — build recovery: {"base": "a315fa5e6a7c0b5ff0c8f3218d64e4de8c063f86", "branch": "gsd-path/M057", "kind": "plan", "source": "build"}
+- 2026-11-16 — plan — plan approved
+- 2026-11-16 — build — build started
+- 2026-11-16 — build — build blocked: two second-cycle reviews failed and the repair returns to the plan
+- 2026-11-16 — plan — build plan repair requested
+- 2026-11-16 — plan — build recovery: {"base": "400f2f85cbf5746bc7334bfbef84a7df2f4b5719", "branch": "gsd-path/M057", "kind": "plan", "source": "build"}
+- 2026-11-16 — plan — plan approved
+- 2026-11-16 — build — build started
+- 2026-11-16 — build — build blocked: the third-cycle reviews found a dropped word, a phrase lexicon and an unmet held-out criterion
+- 2026-11-16 — plan — build plan repair requested
+- 2026-11-16 — plan — build recovery: {"base": "b0bab4463b77872a5eaaa9799928ea488e16d384", "branch": "gsd-path/M057", "kind": "plan", "source": "build"}
+- 2026-11-16 — plan — plan approved
+- 2026-11-16 — build — build started
+- 2026-11-16 — build — build blocked: the fourth-cycle review found the command count unpinned
+- 2026-11-16 — plan — build plan repair requested
+- 2026-11-16 — plan — build recovery: {"base": "9a11c57c997a21f93f778a251637dad9ef9e0039", "branch": "gsd-path/M057", "kind": "plan", "source": "build"}
+- 2026-11-16 — plan — plan approved
+- 2026-11-16 — build — build started
+- 2026-11-16 — build — build blocked: the fourth cycle found four evasions of the absence rule
+- 2026-11-16 — plan — build plan repair requested
+- 2026-11-16 — plan — build recovery: {"base": "6a5382c771b6f091004b5991f18b8185360a2eb2", "branch": "gsd-path/M057", "kind": "plan", "source": "build"}
+- 2026-11-16 — plan — plan approved
+- 2026-11-16 — build — build started
+- 2026-11-16 — build — build blocked: the fifth cycle found the Log's derived counts and the join's edited text
+- 2026-11-16 — plan — build plan repair requested
+- 2026-11-16 — plan — build recovery: {"base": "a1ec01920766dffa02e5fec9c03c00e240ada1e8", "branch": "gsd-path/M057", "kind": "plan", "source": "build"}
+- 2026-11-16 — plan — plan approved
+- 2026-11-16 — build — build started
+- 2026-11-16 — build — build blocked: the ledger backfill found the census and stability records staled by six waves
+- 2026-11-16 — plan — build plan repair requested
+- 2026-11-16 — plan — build recovery: {"base": "11de634b21b7d3563e8a1187fce8258aa402558c", "branch": "gsd-path/M057", "kind": "plan", "source": "build"}
+- 2026-11-16 — plan — plan approved
+- 2026-11-16 — build — build started
+- 2026-11-16 — build — build blocked
+- 2026-11-16 — plan — build plan repair requested
+- 2026-11-16 — plan — build recovery: {"base": "305199c390190a061f26e0e6f046195d8f7d6a63", "branch": "gsd-path/M057", "kind": "plan", "source": "build"}
+- 2026-11-16 — plan — plan approved
+- 2026-11-16 — build — build started
+- 2026-11-16 — build — build blocked
+- 2026-11-16 — plan — build plan repair requested
+- 2026-11-16 — plan — build recovery: {"base": "6bb35b212f97502f8b50e4886b20e19ab994e1d6", "branch": "gsd-path/M057", "kind": "plan", "source": "build"}
+- 2026-11-16 — plan — plan approved
+- 2026-11-16 — build — build started
+- 2026-11-16 — build — build blocked
+- 2026-11-16 — plan — build plan repair requested
+- 2026-11-16 — plan — build recovery: {"base": "41081992278cc68ba5ec4a4ccfdfcad73aad8dac", "branch": "gsd-path/M057", "kind": "plan", "source": "build"}
+- 2026-11-16 — plan — plan approved
+- 2026-11-16 — build — build started
+- 2026-11-16 — ship — build done; final review pending
+- 2026-11-16 — shipped — archive preflight passed; shipment recorded

@@ -1,0 +1,21 @@
+# Review — wave 5, cycle 1
+
+Cycle: 1
+Depth: full
+Wave verdict: pass
+Tasks reviewed: 1
+Reviewed HEAD: cd319fa9e48749985d63b318ab295ec0220b49a9
+
+## T004 — Record the surface and run the project verify: pass
+
+- ✅ Verify, run at the reviewed HEAD: `node --test scripts/console-panel-record.test.mjs` → exit 0, `ℹ tests 38`, `ℹ pass 38`, `ℹ fail 0` (7 suites), including `✔ every artefact it cites exists, and every edge it names is the intent's for its criterion`. The `npm run check` leg → exit 0 at this head (`gate-integrity: pass - 0 finding(s), 145 mention(s)` … `All matched files use Prettier code style!`), which is the stage the task's blocked attempts could not clear and T005's pin rule unlocked. The `npm test` leg was not re-run at the reviewed HEAD (it ran 636 s at T004's landing and its remaining three failures at that head were named as outside the task's five files); the one gate-suite failure now observable at this head (`gate-integrity.test.mjs`'s stale `m044-gate-shapes` `suiteDiff` row) is the wave-17 staleness class caused by T020/T022/T023's suite edits after T024's re-derivation, not by this task's files.
+- ✅ The recording exists and is the derivation this head makes: the pin suite's own output at the reviewed HEAD — `✔ is the canonical serialisation of one JSON document (2.9404ms)`, `✔ re-derives from the join, the digest and the pane this head carries (1.3347ms)`, `✔ records no clock, no commit and no absolute path a second run would not reproduce (0.5366ms)`, and AC1's byte-identity: `✔ a default run reads the recording and writes no byte (0.2922ms)` with `✔ the arming gate guards the one write to the recording (0.6515ms)`.
+- ✅ AC2 holds: the reviewed-HEAD run reddens both mutants by name — `mutant absence-as-count reddens: named-absence: the pane must state the absence in one sentence naming the code the message carried (NG04002) — a count is not a name; it rendered ["no-digest-entry: 1 code the digest does not carry"]` and `mutant captured-nothing-as-empty-list reddens: captured-nothing: the pane renders that statement, never an empty list; it rendered []`.
+- ✅ Landing commit: `f7eb8581` (`git show --stat f7eb8581`: `research/raw/m045-console-panel.json` +204 new, `scripts/console-panel-record.test.mjs` +1156 new, `scripts/gate-integrity.test.mjs` +2 — the one `SUITE_DIFF_REASONS` entry for the new suite — and `research/raw/m044-gate-shapes.json` +47, the armed re-capture).
+- This review replaces `.project/review/wave-5.cycle5.md`, deleted with it: that record judged T004's landing before the repair waves rewrote the files it covered — `research/raw/m045-console-panel.json` gained the label vocabulary, the sentence registry and the `carriedCode` case (T017, T019, T023), and `scripts/console-panel-record.test.mjs` grew with them — so the earlier verdict no longer describes the recording a checkout carries.
+
+## Intent coverage
+
+### SC5 — The surface renders only what the capture states: no cause, no element, no fix, and no "angular" attribution that the message text does not carry.: pass
+
+- ✅ yes — T004 records that behaviour instead of trusting it: `research/raw/m045-console-panel.json` carries six cases (`joined`, `shared-code`, `digest-title-and-captured-wording`, `case-folded-match`, `captured-nothing`, `no-diagnostics` — the record renders its cases as the run shows: `console pane joined: ["state: joined",…,"no-digest-entry: the digest carries no entry for NG04002, …","text: NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist","no-code: the captured message carried no code, …","text: the app failed"]`), and the pin suite holds the record to the pane's derivation so the surface can render nothing beyond it: from the reviewed-HEAD run, `✔ re-derives from the join, the digest and the pane this head carries`, `✔ the shipped sentences pass, including the one that says a failed capture emits nothing (1.0356ms)`, and the prohibition mutants `mutant remedy-spelled-fix reddens naming "recorded-vocabulary"` and `✔ a word the pane writes itself reddens, and a word the digest or the capture carries does not (0.7315ms)` — the digest's own title (`title: Unsafe bindings on an element`) renders, while a pane-written `fix`/`because`/`angular` reddens.
