@@ -191,8 +191,27 @@ export const MUTATIONS = [
   {
     id: 'invented-code',
     defect: 'no code',
-    anchor: 'findings.push({ text: text + NO_CODE_NOTE });',
+    anchor: 'findings.push({ text: text });',
     replacement: "findings.push({ text: text, code: 'NG0100' });",
+  },
+  {
+    // T021: the note the join used to append to a message that carried no code. It edits the string
+    // the contract calls the capture's own, so the pin that holds `text` byte-identical to the input
+    // reddens naming the defect: the absence is carried by the missing `code`, not written into text.
+    id: 'text-edited-with-the-note',
+    defect: 'verbatim',
+    anchor: 'findings.push({ text: text });',
+    replacement:
+      "findings.push({ text: text + ' (this message carried no code)' });",
+  },
+  {
+    // T021: the other way a join can edit the captured text — trimming it. `codeOf` trims the code it
+    // compares, and nothing trims the text, so this mutant is observable only on a message that
+    // really carries surrounding whitespace; the pin supplies one.
+    id: 'text-trimmed',
+    defect: 'whitespace',
+    anchor: 'const text = textOf(diagnostic);',
+    replacement: 'const text = textOf(diagnostic).trim();',
   },
   {
     id: 'deduped-findings',
@@ -364,10 +383,17 @@ function pinReportsTheMissingCode(api) {
     !('code' in finding),
     'a message that carried no code must not be given one',
   );
-  assert.match(
+  // T021: the absence is the missing `code` key, and the text is the capture's own string. A surface
+  // selects its no-code sentence by this missing key, so nothing is lost by keeping `text` verbatim.
+  assert.equal(
     finding.text,
-    /no code/,
-    'a message that carried no code must report that it carried no code',
+    'the app failed',
+    'the captured text is reported verbatim: a message that carried no code keeps its own string, and the absence is the missing `code` rather than a note appended to the text',
+  );
+  assert.deepEqual(
+    Object.keys(finding),
+    ['text'],
+    'a message that carried no code carries its captured text and no other field',
   );
   assert.doesNotMatch(
     JSON.stringify(finding),
@@ -402,8 +428,96 @@ function pinKeepsBothFindings(api) {
   }
 }
 
-// The carried code decides which digest entry is read. A message may quote any wording it likes,
-// including another entry's title; only the code the capture wrote may choose an entry.
+// T021. `text` is the capture's string, byte for byte, on every finding and in every state: the join
+// neither appends the fact that a message carried no code nor trims the text it was given. The absence
+// is the missing `code` field, which is what a surface's own no-code sentence is selected by, so the
+// note the join used to append stated a fact the answer already carried — and it stated it inside a
+// string the contract calls the capture's.
+//
+// Four inputs, one per branch the join can take on a finding: a code the digest carries, a message
+// that carried none, a code the digest lacks, and a message whose text itself carries leading and
+// trailing whitespace. The last one is the deliberate statement about whitespace: `codeOf` trims the
+// *code* it compares (so the padded spelling still joins NG0100), and nothing trims the text, so the
+// captured string keeps its padding and its multi-byte characters exactly as recorded.
+function pinTextIsTheCapturedText(api) {
+  const withCodeText = 'NG0100: Expression has changed after it was checked.';
+  const withoutCodeText = 'the app failed';
+  const digestLacksText = 'ng04002: Cannot match any routes.';
+  const paddedText = '  NG0100: état — padded exactly as captured  ';
+  const probes = [
+    {
+      what: 'a message that carries a code the digest has',
+      input: diag('NG0100', withCodeText),
+      expected: {
+        text: withCodeText,
+        code: 'NG0100',
+        title: shippedTitle('NG0100'),
+      },
+    },
+    {
+      what: 'a message that carries no code',
+      input: diag(null, withoutCodeText),
+      expected: { text: withoutCodeText },
+    },
+    {
+      what: 'a message whose code the digest lacks',
+      input: diag(FOLDED_ABSENT_CODE, digestLacksText),
+      expected: {
+        text: digestLacksText,
+        code: FOLDED_ABSENT_CODE,
+        reason: 'no-digest-entry',
+      },
+    },
+    {
+      what: 'a message with leading and trailing whitespace',
+      input: diag('  NG0100  ', paddedText),
+      expected: {
+        text: paddedText,
+        code: 'NG0100',
+        title: shippedTitle('NG0100'),
+      },
+    },
+  ];
+  for (const probe of probes) {
+    const answer = host(api.consoleJoin([probe.input], SHIPPED));
+    assert.equal(answer.state, JOINED);
+    assert.equal(answer.findings.length, 1);
+    const finding = answer.findings[0];
+    assert.deepEqual(
+      finding,
+      probe.expected,
+      `text is the captured text, verbatim — never trimmed and never given an appended note: for ${probe.what} the finding must be the capture's own string and the fields the answer carries, and nothing else; the join answered ${JSON.stringify(finding)}`,
+    );
+    assert.equal(
+      Buffer.from(finding.text, 'utf8').equals(
+        Buffer.from(probe.input.message, 'utf8'),
+      ),
+      true,
+      `text is the captured text, verbatim: for ${probe.what} the UTF-8 bytes of the finding's text must equal the bytes the capture recorded; the join answered ${JSON.stringify(finding.text)}`,
+    );
+  }
+  // The whitespace is stated by measurement, not by the prose above: the padded input really carries
+  // it, the text keeps all of it, and the code is the trimmed spelling the digest carries.
+  assert.notEqual(
+    paddedText,
+    paddedText.trim(),
+    'the whitespace probe must really carry surrounding whitespace, or trimming the text would be invisible',
+  );
+  const padded = host(
+    api.consoleJoin([diag('  NG0100  ', paddedText)], SHIPPED),
+  ).findings[0];
+  assert.equal(
+    padded.text,
+    paddedText,
+    'text keeps its whitespace: nothing trims the captured text, so the leading and trailing characters the capture recorded are rendered unchanged',
+  );
+  assert.equal(
+    padded.code,
+    'NG0100',
+    'the code is compared trimmed: `codeOf` trims the code it matches, so the padded spelling joins NG0100 while the captured text above keeps its own padding',
+  );
+}
+
 function pinNeverChoosesByMessageText(api) {
   // NG04002 is extractable by the capture's regex and absent from all 64 digest entries, while the
   // message also contains NG0200's shipped title. A join that falls back to matching text picks the
@@ -447,10 +561,10 @@ function pinNeverReExtractsACode(api) {
     !('title' in finding),
     'a join must never re-extract a code from message text: no digest entry may be chosen from a code the capture did not carry',
   );
-  assert.match(
+  assert.equal(
     finding.text,
-    /carried no code/,
-    'a message the capture recorded with no code must still report that it carried none',
+    text,
+    'a message the capture recorded with no code keeps its own text verbatim: the absence is the missing code, never a note appended to the capture string',
   );
 }
 
@@ -834,6 +948,8 @@ const PINS = {
   'absence-as-count': pinNamesTheMissingCode,
   'collapsed-empty-capture': pinKeepsEmptyCaptureDistinct,
   'invented-code': pinReportsTheMissingCode,
+  'text-edited-with-the-note': pinTextIsTheCapturedText,
+  'text-trimmed': pinTextIsTheCapturedText,
   'deduped-findings': pinKeepsBothFindings,
   'case-fold-removed': pinReportsTheFoldedMatchAsTheDigestCarriesIt,
   'fold-invents-a-match': pinFoldingInventsNoMatch,
@@ -1051,7 +1167,7 @@ describe('AC2: a code the digest lacks is reported by name', () => {
 });
 
 describe('AC3: a message with no code reports that it carried none', () => {
-  it('carries no code, no reason and a text saying so', () => {
+  it('carries no code, no reason and the captured text verbatim', () => {
     const { api } = loadBare();
     const r = host(api.consoleJoin([diag(null, 'the app failed')], SHIPPED));
     const finding = r.findings[0];
@@ -1060,8 +1176,22 @@ describe('AC3: a message with no code reports that it carried none', () => {
       !('reason' in finding),
       'reason is reserved for a code the digest lacks; this message carried no code',
     );
-    assert.ok(finding.text.startsWith('the app failed'));
-    assert.match(finding.text, /carried no code/);
+    // T021: the absence is reported by the missing `code`, and the text is the capture's own string.
+    // A surface selects its no-code sentence by that missing key, so the note the join used to append
+    // stated twice what the answer already carried, and edited a string it claimed to quote.
+    assert.equal(
+      finding.text,
+      'the app failed',
+      'the captured text is verbatim: a message that carried no code keeps its own string, and the absence is carried by the missing `code` field',
+    );
+    assert.deepEqual(
+      Object.keys(finding),
+      ['text'],
+      'the finding is the capture text and nothing else where the message carried no code',
+    );
+    // The four inputs the text rule is pinned on: a code the digest has, none, one the digest lacks,
+    // and one whose text carries leading and trailing whitespace.
+    pinTextIsTheCapturedText(api);
   });
 
   it('treats undefined, empty and non-string codes the same way', () => {
@@ -1072,16 +1202,21 @@ describe('AC3: a message with no code reports that it carried none', () => {
       diag('   ', 'c'),
       diag(42, 'd'),
     ];
+    const texts = cases.map((diagnostic) => diagnostic.message);
     const r = host(api.consoleJoin(cases, SHIPPED));
     assert.equal(r.state, JOINED);
     assert.equal(r.findings.length, 4);
-    for (const finding of r.findings) {
+    r.findings.forEach((finding, index) => {
       assert.ok(
         !('code' in finding),
         'no code may be invented from a non-code',
       );
-      assert.match(finding.text, /no code/);
-    }
+      assert.equal(
+        finding.text,
+        texts[index],
+        'each message keeps its own captured text verbatim: the absence is the missing code field, not something appended to the text',
+      );
+    });
     // T018, the carried side of the same normalisation: `codeOf` trims, so the padding a message
     // carried is not part of the spelling the finding keeps, and trimming it again inside the fold
     // cannot change any answer — a limit this suite states instead of pinning as a rule the code does

@@ -1501,6 +1501,101 @@ async function pinTheDigestSilenceSentenceIsSettled(api) {
 }
 
 /**
+ * T021: the join used to append ` (this message carried no code)` to the captured text, so the pane
+ * said the absence twice — once in its own `no-code:` sentence and once inside a string it claimed to
+ * quote verbatim. The join now reports the capture's string byte for byte, and this pin proves the
+ * removal loses nothing the surface showed: the pane's absence sentence is byte-identical with and
+ * without the old note, the two surfaces differ in exactly the one `text:` line, and a coded finding
+ * whose text happens to contain the note-shaped wording still gets no no-code sentence — the sentence
+ * is selected by the finding having no `code`, never by the words in its text.
+ */
+function pinTheRemovedNoteLosesNothing(surface, answer) {
+  const bare = answer.findings.find(
+    (finding) => typeof finding.code !== 'string',
+  );
+  assert.ok(
+    bare,
+    'the fixture must carry a finding with no code, or this pin proves nothing',
+  );
+  assert.equal(
+    bare.text,
+    UNCODED.message,
+    `the captured text is rendered verbatim: the join reports ${JSON.stringify(UNCODED.message)} for a message that carried no code, and the pane must render it without a note appended; it rendered ${JSON.stringify(bare.text)}`,
+  );
+  const textLines = surface.lines.filter((line) => line.startsWith('text: '));
+  assert.ok(
+    textLines.includes(`text: ${UNCODED.message}`),
+    `the pane renders the captured text verbatim: ${JSON.stringify(`text: ${UNCODED.message}`)} must be a line; it rendered ${JSON.stringify(surface.lines)}`,
+  );
+  assert.equal(
+    textLines.some((line) => line.includes('carried no code')),
+    false,
+    `the pane states the absence in its own sentence and never inside the string it quotes: no text line may carry the join's old note; it rendered ${JSON.stringify(textLines)}`,
+  );
+  const statements = surface.lines.filter((line) =>
+    line.startsWith(`${SURFACE.NO_CODE}: `),
+  );
+  assert.deepEqual(
+    statements,
+    [SURFACE.NO_CODE_TEXT],
+    `the pane states the absence once, in its own no-code sentence; it rendered ${JSON.stringify(statements)}`,
+  );
+  // The answer the join used to give for the same capture: the note, in the one finding that carried
+  // no code. Nothing but that text line may move, because the pane selects its sentence by the
+  // missing `code`.
+  const previous = clone(answer);
+  const index = previous.findings.findIndex(
+    (finding) => typeof finding.code !== 'string',
+  );
+  previous.findings[index] = {
+    ...previous.findings[index],
+    text: `${UNCODED.message} (this message carried no code)`,
+  };
+  const previousSurface = SURFACE.consolePanel(previous);
+  assert.deepEqual(
+    previousSurface.lines.filter((line) =>
+      line.startsWith(`${SURFACE.NO_CODE}: `),
+    ),
+    statements,
+    "the pane's own no-code sentence is selected by the finding having no code, not by the note: it is byte-identical with the old answer, so removing the note loses nothing the surface showed",
+  );
+  const at = surface.lines.lastIndexOf(`text: ${UNCODED.message}`);
+  assert.deepEqual(
+    previousSurface.lines,
+    surface.lines.map((line, position) =>
+      position === at
+        ? `text: ${UNCODED.message} (this message carried no code)`
+        : line,
+    ),
+    `the two surfaces differ in exactly the captured text line and nowhere else, so the note added no information the pane does not state in its own sentence; the old answer rendered ${JSON.stringify(previousSurface.lines)} and the new one ${JSON.stringify(surface.lines)}`,
+  );
+  // And the sentence is not selected by the note-shaped wording: a coded finding whose text carries
+  // the same words renders no no-code sentence at all.
+  const coded = {
+    state: SURFACE.JOINED,
+    findings: [
+      {
+        text: `${UNCODED.message} (this message carried no code)`,
+        code: MATCHED.code,
+        title: shippedTitle(MATCHED.code),
+      },
+    ],
+  };
+  const codedSurface = SURFACE.consolePanel(coded);
+  assert.equal(
+    codedSurface.lines.some((line) => line.startsWith(`${SURFACE.NO_CODE}: `)),
+    false,
+    `the no-code sentence is selected by the finding having no code, never by the words in its text; the pane rendered ${JSON.stringify(codedSurface.lines)}`,
+  );
+  assert.ok(
+    codedSurface.lines.includes(
+      `text: ${UNCODED.message} (this message carried no code)`,
+    ),
+    "the pane renders a coded finding's text verbatim, note-shaped or not, because that string is the answer's word and not the pane's sentence",
+  );
+}
+
+/**
  * SC4/E7: `captured-nothing` states what was read. The sentence it renders is read whole, so a pane
  * that kept the `captured-nothing: ` prefix while changing the claim — to "the page was silent", or
  * to nothing at all — reddens here rather than passing on its prefix.
@@ -1702,7 +1797,7 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
         SURFACE.noDigestEntryText(UNMATCHED.code),
         `text: ${UNMATCHED.message}`,
         SURFACE.NO_CODE_TEXT,
-        `text: ${UNCODED.message} (this message carried no code)`,
+        `text: ${UNCODED.message}`,
       ],
       'the pane renders the state, then one block per finding in capture order, and nothing beside them',
     );
@@ -1840,6 +1935,9 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
     );
     // The same prohibition the digest miss is held to, on the other absence: a count is not a name.
     pinNoCodeAbsenceIsNamed(surface, answer);
+    // T021: the captured text stays the capture's, and the absence is still stated — by the pane's
+    // own sentence, selected by the finding carrying no code.
+    pinTheRemovedNoteLosesNothing(surface, answer);
   });
 
   it('E7: a finding carrying a cause, an element, a remedy or a count renders none of them', () => {
@@ -2317,6 +2415,29 @@ const MUTATIONS = [
         'the mutant really renders an empty list for captured-nothing',
       ),
     names: /never an empty list/,
+  },
+  {
+    id: 'no-code-sentence-dropped',
+    // T021: the join no longer writes the absence into the captured text, so the pane's own `no-code:`
+    // sentence is the only place it is stated. A pane that drops that sentence loses the fact the
+    // surface used to carry twice, and the pin below reddens naming the sentence it lost.
+    defect: 'no-code',
+    anchor: '  if (code === null) lines.push(NO_CODE_TEXT);',
+    replacement: "  if (code === null) lines.push('');",
+    check: (api) => {
+      const answer = joinedAnswer();
+      return () =>
+        pinTheRemovedNoteLosesNothing(api.consolePanel(answer), answer);
+    },
+    exhibits: (module) =>
+      assert.equal(
+        module
+          .consolePanel(joinedAnswer())
+          .lines.includes(SURFACE.NO_CODE_TEXT),
+        false,
+        'the mutant really drops the pane’s no-code sentence',
+      ),
+    names: /no-code/,
   },
   {
     id: 'captured-nothing-claims-silence',

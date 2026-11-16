@@ -47,9 +47,14 @@
 //                            states that the capture came back empty, the other that it was not read.
 //
 //   findings  { text, code?, title?, reason?, carriedCode? }
-//            text    the captured message, verbatim; for a message that carried no code, the message
-//                    followed by ` (this message carried no code)`. The report of that absence
-//                    belongs to the finding, and `reason` is reserved (below).
+//            text    the captured message, verbatim — byte for byte the string the capture recorded,
+//                    on every finding and in every state. It is never trimmed, decorated or suffixed:
+//                    `codeOf` trims the code it compares, and nothing trims or rewrites this field, so
+//                    a captured message keeps its own leading and trailing whitespace. A message that
+//                    carried no code is reported by the absence of `code`, and that field is not the
+//                    place this absence is stated — a surface that states it does so in a sentence of
+//                    its own, selected by the missing `code`, rather than finding it written into a
+//                    string the contract calls the capture's.
 //            code    the digest's code where the digest carries the code the message carried, in the
 //                    digest's own spelling — else the code the message carried. Absent only when the
 //                    message carried none.
@@ -70,7 +75,6 @@
   const NO_DIAGNOSTICS = 'no-diagnostics';
 
   const NO_DIGEST_ENTRY = 'no-digest-entry';
-  const NO_CODE_NOTE = ' (this message carried no code)';
 
   // The digest as shipped is `{ version, entries }`. A bare array of entries is read the same way,
   // so a caller holding only the list does not have to wrap it; anything else holds no entries.
@@ -171,7 +175,9 @@
       const text = textOf(diagnostic);
       const code = codeOf(diagnostic);
       if (code === null) {
-        findings.push({ text: text + NO_CODE_NOTE });
+        // The absence of a code is the missing `code` key, and nothing else: appending a note here
+        // would edit the capture's own string and repeat what a surface states in its own sentence.
+        findings.push({ text: text });
         continue;
       }
       const entry = matchEntry(entries, code);

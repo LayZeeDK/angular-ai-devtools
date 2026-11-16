@@ -375,7 +375,7 @@
           "reason": "no-digest-entry"
         },
         {
-          "text": "the app failed (this message carried no code)"
+          "text": "the app failed"
         }
       ],
       "surface": {
@@ -392,9 +392,9 @@
           "no-digest-entry: the digest carries no entry for NG04002, so this finding is named by the code it carried and no title is rendered",
           "text: NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist",
           "no-code: the captured message carried no code, so this finding carries no code and no title",
-          "text: the app failed (this message carried no code)"
+          "text: the app failed"
         ],
-        "text": "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG0100\ntitle: Expression Changed After Checked\ntext: NG0100: Expression has changed after it was checked.\ncode: NG04002\nno-digest-entry: the digest carries no entry for NG04002, so this finding is named by the code it carried and no title is rendered\ntext: NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist\nno-code: the captured message carried no code, so this finding carries no code and no title\ntext: the app failed (this message carried no code)"
+        "text": "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG0100\ntitle: Expression Changed After Checked\ntext: NG0100: Expression has changed after it was checked.\ncode: NG04002\nno-digest-entry: the digest carries no entry for NG04002, so this finding is named by the code it carried and no title is rendered\ntext: NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist\nno-code: the captured message carried no code, so this finding carries no code and no title\ntext: the app failed"
       }
     },
     {
