@@ -147,7 +147,9 @@ export function currentIntentPath(root) {
   const archives = join(at, '.project', 'archive');
   const carrying = existsSync(archives)
     ? readdirSync(archives)
-        .filter((name) => existsSync(join(archives, name, 'intent', 'INTENT.md')))
+        .filter((name) =>
+          existsSync(join(archives, name, 'intent', 'INTENT.md')),
+        )
         .sort()
     : [];
   const newest = carrying.pop();

@@ -2716,7 +2716,11 @@ test('AC2: M035 own range carries no nx.json, and the claim is a finding naming 
   );
   const carried = report.claims.find((claim) => claim.file === 'nx.json');
   assert.ok(carried, 'the claim is recorded rather than dropped');
-  assert.equal(carried.inTheRange, true, 'the history reading carries the path');
+  assert.equal(
+    carried.inTheRange,
+    true,
+    'the history reading carries the path',
+  );
   assert.deepEqual(
     carried.statusesInTheRange,
     [],
