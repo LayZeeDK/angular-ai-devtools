@@ -1362,6 +1362,28 @@ function nameStatus(root, range) {
 }
 
 /**
+ * Every path any commit in the range touched. The endpoint diff answers what the tree looks like at
+ * each end; this answers whether the range ever carried the path at all, which is what a Log's claim
+ * about a change asserts. A path created and then moved inside the range has no endpoint row for the
+ * name it moved away from, and this reading still names it. Measured on M045, whose archive moved every
+ * task file after the Logs were written: three true claims read as `claim-absent-from-the-range`.
+ *
+ * @param {string} root
+ * @param {string} range
+ * @returns {Set<string>}
+ */
+function historyPaths(root, range) {
+  const read = git(root, ['log', '--format=', '--name-only', range]);
+  if (!read.ok) return new Set();
+  return new Set(
+    read.out
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line !== ''),
+  );
+}
+
+/**
  * The two commits a `base..head` range names, or null when the string is not such a range. The pin
  * reading compares the path's blob at each end, so a range this cannot split refuses the pin reading
  * rather than guessing one.
@@ -1651,6 +1673,11 @@ export function checkFixRecord(input = {}) {
 
   const rows = read.rows;
   const renames = rows.filter((row) => /^[RC]/.test(row.status));
+  // The history reading is the one M045's archive proved necessary, and the mutant that proves the
+  // endpoint reading still bites must not consult it: `MUTANTS.fixRecord` reads the range the way the
+  // shipped check used to, so its claims stay absent and its refusal still names the defect.
+  const touched =
+    mutant === MUTANTS.fixRecord ? new Set() : historyPaths(root, range);
   // A rename is a path with two names, and a claim about either name is true. The mutant keeps only
   // the first name, so a claim naming the new name is reported absent.
   const names = rows.flatMap((row) =>
@@ -1728,7 +1755,13 @@ export function checkFixRecord(input = {}) {
         const found = rows
           .filter((row) => row.paths.some(matches))
           .map((row) => ({ status: row.status, paths: row.paths }));
-        const present = names.some(matches);
+        // A path the range carried and then moved is not in `names`, which reads the two endpoints,
+        // but it is in `touched`, which reads every commit. The suffix match is the same one, so an
+        // abbreviated spelling meets the full path in either reading.
+        const inHistory = [...touched].some(
+          (entry) => entry === rangeToken || entry.endsWith(`/${rangeToken}`),
+        );
+        const present = names.some(matches) || inHistory;
         if (ambiguous.length > 0) {
           ambiguities.push({
             task: task.id,

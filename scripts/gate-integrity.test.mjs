@@ -2701,35 +2701,64 @@ test('AC2: M035 own range carries no nx.json, and the claim is a finding naming 
     'a claim the range carries must not be reported absent, or the check would report every claim',
   );
 
+  // `nx.json` is the measured instance of the reading this check used to get wrong. M035's range does
+  // not change it - `git diff --name-status -M 99054909..eb24d1e2` has no row for it - but its commits
+  // touch it twice, so the range carried the path and T006's claim is true. The check reads both
+  // readings, so a claim is absent only when neither names it, and the mutant keeps the endpoint reading
+  // alone: the same instance answers both questions rather than a synthetic one.
   const claimed = report.findings.find((finding) => finding.file === 'nx.json');
-  assert.ok(
+  assert.equal(
     claimed,
-    `M035's T006 claims nx.json and the range carries no such path; findings: ${JSON.stringify(
+    undefined,
+    `M035's T006 claims nx.json and M035's commits touch nx.json, so the claim is not absent; findings: ${JSON.stringify(
       report.findings.map((finding) => `${finding.task} ${finding.file}`),
     )}`,
   );
-  assert.equal(claimed.task, 'T006');
-  assert.equal(claimed.class, 'claim-absent-from-the-range');
+  const carried = report.claims.find((claim) => claim.file === 'nx.json');
+  assert.ok(carried, 'the claim is recorded rather than dropped');
+  assert.equal(carried.inTheRange, true, 'the history reading carries the path');
   assert.deepEqual(
-    claimed.statusesInTheRange,
+    carried.statusesInTheRange,
     [],
-    'the range fact is an empty status list for that path',
+    'the endpoint fact stays empty for that path, so the two readings are distinguishable',
   );
   assert.equal(
-    'cache' in claimed,
+    'cache' in carried,
     false,
     'the check reports the range fact and never asserts the tree fact as its verdict',
   );
   assert.equal('tree' in report, false);
   assert.match(
-    String(claimed.claim),
+    String(carried.claim),
     /nx\.json/,
-    `the finding carries the log line the claim was made on: ${String(claimed.claim)}`,
+    `the claim carries the log line it was made on: ${String(carried.claim)}`,
   );
   assert.match(
-    String(claimed.taskFile),
+    String(carried.taskFile),
     /T006-make-the-gate-measure-instead-of-remember\.md$/,
-    'the finding names the task file the claim sits in as well as the file it claims',
+    'the claim names the task file it sits in as well as the file it claims',
+  );
+  // The finding branch is what the history reading must not swallow, so it is driven on the mutant,
+  // which reads the endpoints alone and reports the claim the shipped check reported.
+  const mutantReport = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks: `${DOTTED}/archive/035-onpush-readiness/tasks`,
+    mutant: MUTANTS.fixRecord,
+  });
+  const absent = mutantReport.findings.find(
+    (finding) => finding.file === 'nx.json',
+  );
+  assert.ok(
+    absent,
+    'with the endpoint reading alone the claim is absent again, so the history reading is what carries it',
+  );
+  assert.equal(absent.task, 'T006');
+  assert.equal(absent.class, 'claim-absent-from-the-range');
+  assert.deepEqual(
+    absent.statusesInTheRange,
+    [],
+    'the range fact is an empty status list for that path',
   );
   t.diagnostic(
     `fixRecord: ${String(report.examined)} claim(s) from ${String(
