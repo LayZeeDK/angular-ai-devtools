@@ -36,7 +36,7 @@ Reviewed HEAD: 85208150f3cbff73dbcd77eb9ad18a4bb2552628
   states, the six named absences, the case-difference sentence, and two reworded absences that merely describe
   what was read) and `pinNoModuleSentenceClaimsSilence` reads ten at the source; both green on every run. The
   legitimate emission sentence — "a capture whose own attempt failed also emits nothing" — still passes, as
-  does the denials "…and never that the page was silent" and "this is never a claim that the page emitted
+  do the denials "…and never that the page was silent" and "this is never a claim that the page emitted
   nothing".
 - ⚠️ **Advisory 1 — the property is grammatical only to the first matching token, so a page claim in another
   grammatical form still passes, and an armed re-capture blesses it.** The rule as stated is "never what the
@@ -68,12 +68,17 @@ Reviewed HEAD: 85208150f3cbff73dbcd77eb9ad18a4bb2552628
   (e) the same first-token mechanism lets an embedded claim hide behind a read verb with no denial at all:
   `the capture says nothing was emitted` passes (the first read action is `capture`; the passive is never
   reached), and it is not blessed above only because I did not arm it.
-  None of these is the shipped sentence, and none is a regression against cycle 3 (all five reddened under the
-  old lexicon too, by different luck). What is new is the claim in T014's Log that the rule is a property and
-  not a phrase list: it is a closed list of subjects and verbs, which is better than a list of phrases, but it
-  decides a clause by its first matching token and a page word by its first occurrence, so the class of sentence
-  the rule cannot see is still open. The honest statement of the reach is: a bare page noun, with no denial
-  anywhere before it in the clause, in a clause whose first read token is not a read action.
+  None of these is the shipped sentence, and the reach has not simply widened or narrowed: the old
+  five-pattern list would have caught the word `silence` in (a) and (c) — and would have caught the shipped
+  denial "…and never that the page was silent" by the same word, which is why it was replaced — while (b), (d)
+  and (e) contain no word the old list matched and are misses old and new. What is new is the claim in T014's
+  Log that the rule is a property and not a phrase list: it is a closed list of subjects and verbs, which is
+  better than a list of phrases, but it decides a clause by its first matching token and a page word by its
+  first occurrence, so the class of sentence the rule cannot see is still open — and the one word the old list
+  did police, `silence`/`silent`, is now unpoliced wherever it is the object of a read verb
+  (`the digest states the page's silence`, `the capture recorded the page's silence`,
+  `the pane names the page's silence` all pass). The honest statement of the reach is: a bare page noun, with
+  no denial anywhere before it in the clause, in a clause whose first read token is not a read action.
 - ⚠️ **Advisory 2 — the record's `contract.lineLabels` does not carry `case-difference`.** T015 added a fifteenth
   label to the surface (the folded-match sentence) and declared `research/raw/m045-console-panel.json`, but
   re-captured it byte-identically: the record's `contract.lineLabels` still lists the fourteen labels from
@@ -85,12 +90,12 @@ Reviewed HEAD: 85208150f3cbff73dbcd77eb9ad18a4bb2552628
   states the vocabulary of the surface it records, and the record-side E7/SC5 rule never sees the one line this
   wave added.
 - ✅ The two repairs did not weaken anything cycle 3 measured, and they touched no route. T014 and T015 change
-  only `panel-console.ts`, the two suites, `extension/console-join.js` and the two records (T015's stat names
-  six files, none of them `app.routes.ts`, `panel-demo.ts` or a route spec), so T003's twenty-first route and
-  its pins are exactly as cycle 3 left them. The sixteen render mutants and eight record mutants still arm,
-  redden and restore on a green run; the wording list still carries all sixteen entries; the carried-field
-  exemption still lets the digest's "Unsafe bindings on an element" and a captured `because` render while
-  emptying it reddens.
+  the pane, the two panel suites, `extension/console-join.js`, its suite and the two records (T014's stat names
+  four files, T015's six, all declared and none of them `app.routes.ts`, `panel-demo.ts` or a route spec), so
+  T003's twenty-first route and its pins are exactly as cycle 3 left them. The twenty-one render mutants and
+  three record mutants still arm, redden and restore on a green run; the wording list still carries all sixteen
+  entries; the carried-field exemption still lets the digest's "Unsafe bindings on an element" and a captured
+  `because` render while emptying it reddens.
 - ✅ Both required commands pass at the frozen head. `node --test scripts/console-panel-render.test.mjs
   scripts/console-panel-record.test.mjs` → exit 0, `ℹ tests 71 / ℹ pass 71 / ℹ fail 0 / ℹ skipped 0`
   (37 render tests in 3 suites, 34 record tests in 6 suites). `npm run check:panel` is not re-run here because
@@ -123,10 +128,11 @@ all fourteen cases:
 | matcher drifted (record suite) | record suite | `cb1a6614…` | `391ace70…` |
 | armed captures (`e060dcf2…`, `7268b1f7…`, `ac3fe44b…`, `50858350…`, `c0bfff9c…`) | record | — | `6db94179…` |
 
-The shared worktree is back at HEAD: `git status --porcelain` lists only other sessions' untracked review files
-and the pre-existing `.project/review/VERIFICATION.json`, and the pane, both suites and the record hash to their
-HEAD values (`cd3dcc99…`, `91e66824…`, `391ace70…`, `6db94179…`). No branch was switched and nothing was
-committed.
+The shared worktree's product files are at HEAD — the pane, both suites and the record hash to `cd3dcc99…`,
+`91e66824…`, `391ace70…`, `6db94179…` — and no file I mutated is left changed. No branch was switched and
+nothing was committed. (While this review was being written, another session in the same worktree deleted the
+tracked `.project/review/` files and touched `.project/STATE.md` and `.project/plan/PLAN.md`; those changes are
+that session's, not this review's, and this file was re-written after the deletion.)
 
 ## Intent coverage
 
