@@ -30,7 +30,7 @@
         "milestone": "M057",
         "exitCode": 0,
         "refusal": null,
-        "summary": "gate-integrity: pass - 0 finding(s), 139 mention(s)",
+        "summary": "gate-integrity: pass - 0 finding(s), 145 mention(s)",
         "refusalLines": []
       }
     }
@@ -59,7 +59,7 @@
     "command": "node scripts/gate-integrity.mjs --check fix-record --head 5290d939497448823ca0f5d1ce5c1d777805ddb8",
     "exitCode": 0,
     "refusal": null,
-    "summary": "gate-integrity: pass - 0 finding(s), 139 mention(s)",
+    "summary": "gate-integrity: pass - 0 finding(s), 145 mention(s)",
     "counts": {
       "refusalLines": 0,
       "findings": 0
@@ -67,7 +67,7 @@
     "detail": {
       "milestone": "M057",
       "unshipped": null,
-      "prints": "pass - 0 finding(s), 139 mention(s)",
+      "prints": "pass - 0 finding(s), 145 mention(s)",
       "lines": [
         "gate-integrity: <root> milestone M057; stages fix-record",
         "gate-integrity: fix-record clean - examined 51 claim(s) in 24 task log(s) of .project/tasks (logs of M057) against 40 changed path(s) of b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..5290d939497448823ca0f5d1ce5c1d777805ddb8 (rule ship: M056's ship commit, b8d3341c (ship: M056 — gate-phase-stability); the head is the commit the caller named, 5290d939 (plan(M056): T006 approved; build resumed); claims: declared)",
@@ -199,6 +199,12 @@
         "gate-integrity: mention extension/relay.js at .project/tasks/T001-measure-the-capture-and-the-digest.md:134 (T001) - recorded and not judged",
         "gate-integrity: mention extension/background.js at .project/tasks/T001-measure-the-capture-and-the-digest.md:134 (T001) - recorded and not judged",
         "gate-integrity: mention .project/tasks/T001-measure-the-capture-and-the-digest.md at .project/tasks/T001-measure-the-capture-and-the-digest.md:225 (T001) - recorded and not judged",
+        "gate-integrity: mention extension/error-digest.json at .project/tasks/T001-measure-the-capture-and-the-digest.md:256 (T001) - recorded and not judged",
+        "gate-integrity: mention extension/agent-main.js at .project/tasks/T001-measure-the-capture-and-the-digest.md:257 (T001) - recorded and not judged",
+        "gate-integrity: mention extension/error-digest.json at .project/tasks/T001-measure-the-capture-and-the-digest.md:257 (T001) - recorded and not judged",
+        "gate-integrity: mention extension/relay.js at .project/tasks/T001-measure-the-capture-and-the-digest.md:257 (T001) - recorded and not judged",
+        "gate-integrity: mention extension/background.js at .project/tasks/T001-measure-the-capture-and-the-digest.md:257 (T001) - recorded and not judged",
+        "gate-integrity: mention extension/manifest.json at .project/tasks/T001-measure-the-capture-and-the-digest.md:257 (T001) - recorded and not judged",
         "gate-integrity: mention error-boundary.js at .project/tasks/T002-join-a-captured-diagnostic-to-the-digest-by-code.md:74 (T002) - recorded and not judged",
         "gate-integrity: mention router-diagnostic.js at .project/tasks/T002-join-a-captured-diagnostic-to-the-digest-by-code.md:74 (T002) - recorded and not judged",
         "gate-integrity: mention field-state.js at .project/tasks/T002-join-a-captured-diagnostic-to-the-digest-by-code.md:75 (T002) - recorded and not judged",
@@ -328,7 +334,7 @@
         "gate-integrity: mention .project/review/VERIFICATION.json at .project/tasks/T021-stop-the-join-editing-the-captured-text.md:81 (T021) - recorded and not judged",
         "gate-integrity: mention research/raw/m057-verdict-claims.json at .project/tasks/T021-stop-the-join-editing-the-captured-text.md:120 (T021) - recorded and not judged",
         "gate-integrity: mention apps/angular-ai-devtools/src/app/panel-console.ts at .project/tasks/T021-stop-the-join-editing-the-captured-text.md:140 (T021) - recorded and not judged",
-        "gate-integrity: pass - 0 finding(s), 139 mention(s)"
+        "gate-integrity: pass - 0 finding(s), 145 mention(s)"
       ]
     }
   },

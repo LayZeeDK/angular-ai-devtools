@@ -1,0 +1,16 @@
+# Review — wave 4, cycle 1
+
+Cycle: 1
+Depth: full
+Wave verdict: pass
+Tasks reviewed: 1
+Reviewed HEAD: cd319fa9e48749985d63b318ab295ec0220b49a9
+
+## T005 — Make the gate agree with this milestone's own evidence: pass
+
+- ✅ AC1's first half holds at the reviewed HEAD: `npm run check` → exit 0, with the gate leg printing verbatim `gate-integrity: fix-record clean - examined 167 claim(s) in 24 task log(s) of .project/tasks (logs of M057) against 115 changed path(s) of b8d3341c..cd319fa9 … ; claims: declared)` and `gate-integrity: pass - 0 finding(s), 145 mention(s)`. The pin rule the task added is in the shipped source, `scripts/gate-integrity.mjs:92-94`: "A declared suite or recording the range did not change is a pin, not a claim … A pin is satisfied by reading the path's blob at both ends", with `:104` "An undeclared path is never promoted to a pin", and the reviewed-HEAD run shows it working on a live path: `gate-integrity: pin scripts/recording-consistency.test.mjs at .project/tasks/T002-…:163 (T002) - declared and byte-identical across b8d3341c..cd319fa9`.
+- ✅ AC2 holds at the reviewed HEAD: `node --test scripts/navigation-blocking.test.mjs` passes its claim-list group — `✔ is exactly the list this head derives, so a citation cannot drift (3058.7468ms)`, `✔ reads the intent's five-column edge table and the plan's held-out mapping (1774.3789ms)`, `✔ reddens a six-column edge table by naming its column count (1.5376ms)` (output line: `six-column mutant: the intent's edge-coverage table carries 6 column(s); the ruling's grammar is 5 columns …`), `✔ refuses a held-out test this checkout does not carry (4431.9798ms)`, and the read-back line `.project/plan/PLAN.md held-out mapping: ["E7 -> scripts/console-panel-render.test.mjs"]; 7 edge row(s) read as five columns`. `node --check scripts/gate-integrity.mjs` → exit 0, and `npx prettier --check scripts research` → `Checking formatting...` / `All matched files use Prettier code style!`, exit 0.
+- ✅ The shape records were re-armed in the landing, never hand-edited: `git show --stat bf3d1c04` moves `research/raw/m044-gate-shapes.json` (+62) and `research/raw/m056-gate-stability.json` (+81) alongside the two suites, and the Log names every value that moved (`archiveReferences.examined 180 -> 184`, `suiteDiff.differing[9].addedLines 4492 -> 4652`, `fixRecord.exitCode 0`, predecessor M056 → M057, 23 pins, 37 mentions).
+- Note, not a defect of this task: at the reviewed HEAD `node --test scripts/gate-integrity.test.mjs` carries exactly 1 failing test (`T004: the three new sections are what this head derives, so a default run is a read`), whose diff names only the recorded `suiteDiff` line counts of `scripts/console-join.test.mjs`, `scripts/console-panel-record.test.mjs` and `scripts/console-panel-render.test.mjs` — the suite files that waves 14–16 (T020, T022, T023) edited after T024's re-derivation, the staleness class wave 17's re-derivation task owns. T005's own subjects — the pin rule in `gate-integrity.mjs` and the five-column read in `navigation-blocking.test.mjs` — are green at this head, and T005's landing predates those edits. The task's full Verify chain was therefore not re-run to its end at the reviewed HEAD; its first two legs plus `npm run check` and the Prettier legs are the evidence above.
+
+## Intent coverage
