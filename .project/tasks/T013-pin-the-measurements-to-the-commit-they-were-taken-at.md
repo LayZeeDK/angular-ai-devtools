@@ -4,10 +4,10 @@ title: Pin the measurements to the commit they were taken at
 wave: 8
 deps:
   - T010
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T013
+base: 9c955463fbe7f22b1c80fb6b7303490213575d9c
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - .project/tasks/T001-measure-the-capture-and-the-digest.md

@@ -4,10 +4,10 @@ title: Restore the word the list dropped
 wave: 8
 deps:
   - T009
-status: pending
-agent: null
-base: null
-worktree: null
+status: in-progress
+agent: build_T012
+base: 9c955463fbe7f22b1c80fb6b7303490213575d9c
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - scripts/console-panel-record.test.mjs
