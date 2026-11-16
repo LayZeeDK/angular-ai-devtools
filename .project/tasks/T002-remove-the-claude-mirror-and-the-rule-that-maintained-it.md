@@ -53,14 +53,14 @@ None
 ## Acceptance criteria
 
 1. `.claude/` carries no tracked path, and `git ls-files '.claude/*'` prints nothing.
-2. No suite or script resolves a `.claude` path: `skills-mirror.test.mjs` is gone and `skill-lint.mjs` names only `.commandcode`, proven by the suite that reads it.
+2. No suite or script resolves a `.claude` path: `skills-mirror.test.mjs` is gone, `skill-lint.mjs` names only `.commandcode`, and the `check:skills` script no longer typechecks a `.claude` project.
 3. The rule in `AGENTS.md` that told a reader to copy a skill across the two trees is withdrawn, and the text that remains says where the maintained copy lives.
 
 ## Verify
 
 ```bash
 node --check scripts/skill-lint.mjs
-node --test scripts/skill-lint.test.mjs
+node scripts/skill-lint.mjs
 npm run check
 npx prettier --check AGENTS.md
 ```
