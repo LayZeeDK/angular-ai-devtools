@@ -5040,3 +5040,532 @@ test('T006: --tasks given one markdown file reads it, and a directory still read
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ==== T011: a tail is a claim, never a pin; two tails are never chosen between; a name is not a kind ====
+//
+// Wave 4's cycle-2 review found one change nothing asked for beside T006's four repairs: the fix-record
+// check resolved any Log token that was a proper tail of a declaration to that declaration, and then
+// judged the pin and the range on the resolved path. With the console module declared, a Log naming
+// `src/app/console-…` with its first directory levels truncated — a spelling absent at every commit in
+// range — was pinned instead of reported, and a second variant read clean; two declarations sharing a
+// tail were separated by front-matter order with nothing reported. A spelling that exists nowhere is a
+// claim and a finding, however it relates to a declaration, so the resolution is kept only where the
+// spelling the Log used names a file, and the corpus reading's own counts are pinned beside it so no
+// branch can move them without a red test. Appended after the last line the record pins, and no line
+// here spells a dot-project path, so the record's own enumeration of this file's references holds.
+
+/** The console module M045 declares, in this tree. */
+const CONSOLE_MODULE = 'apps/angular-ai-devtools/src/app/panel-console.ts';
+
+/** The same module with its first two directory levels truncated: the spelling the review measured. */
+const CONSOLE_TRUNCATED = 'src/app/panel-console.ts';
+
+/** A file this tree carries at the root, and a declaration of a neighbour that ends in its name. */
+const ROOT_TS_CONFIG = 'tsconfig.json';
+const EXTENSION_TS_CONFIG = 'extension/tsconfig.json';
+
+/** A root manifest the pair below can share as a tail. */
+const ROOT_MANIFEST = 'nx.json';
+const SHARED_TAIL = ['apps/one/nx.json', 'apps/two/nx.json'];
+
+/**
+ * The commit and the range the corpus counts below are the reading of: the head this task was written
+ * against, and the range this milestone's fix-record stage derives from it. A recording names both, so
+ * the counts are settled rather than following whatever a task log appended beside this one says next -
+ * a total that moves with the working tree is not a recording, and a branch that moves it moves this
+ * reading too.
+ */
+const CORPUS_HEAD = '516b24506336cbcb8937090f94ad13156ff6f346';
+const CORPUS_RANGE =
+  'b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..516b24506336cbcb8937090f94ad13156ff6f346';
+
+/**
+ * The claims, pins and mentions that corpus reading holds. A recording rather than a derivation: a
+ * branch that resolves a token, promotes one to a pin or drops one into the mentions moves one of
+ * these three numbers, and the test below reddens naming all three rather than agreeing with itself.
+ */
+const CORPUS_COUNTS = { claims: 83, pins: 1, mentions: 93 };
+
+/**
+ * Every task file the corpus carries at one commit, as the inline entries the check reads rather than
+ * as paths in the working tree: the reading is of that commit's logs, so an edit landing in the tree
+ * afterwards cannot move it.
+ *
+ * @param {string} commit
+ * @returns {Array<{ id: string, file: string, text: string }>}
+ */
+function corpusAt(commit) {
+  const listed = git([
+    'ls-tree',
+    '-r',
+    '--name-only',
+    commit,
+    '--',
+    `${DOTTED}/tasks`,
+  ])
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.endsWith('.md'))
+    .sort();
+  return listed.map((file) => {
+    const text = git(['show', `${commit}:${file}`]);
+    return { id: /^id:\s*(\S+)\s*$/m.exec(text)?.[1] ?? file, file, text };
+  });
+}
+
+/** The three numbers one run records, so two runs are compared as the reading they are. */
+function countReading(/** @type {any} */ run) {
+  return {
+    claims: run.claimsExamined,
+    pins: run.pinsExamined,
+    mentions: run.mentionsExamined,
+  };
+}
+
+/**
+ * One task file whose `files:` front matter declares every path in `declared` and whose `## Log` names
+ * `logged`: the shape `declaringTask` gives, widened to the two declarations the ambiguity rule is
+ * about, so the pair differs by the number of declarations that share the tail and by nothing else.
+ *
+ * @param {string} id
+ * @param {string[]} declared
+ * @param {string} logged
+ * @returns {{ id: string, file: string, text: string }}
+ */
+function taskDeclaring(id, declared, logged) {
+  return {
+    id,
+    file: `fixture/${id}-declare.md`,
+    text: [
+      '---',
+      `id: ${id}`,
+      'files:',
+      ...declared.map((path) => `  - ${path}`),
+      '---',
+      '',
+      '## Log',
+      `- the gate reads \`${logged}\` while measuring the tree fact`,
+      '',
+    ].join('\n'),
+  };
+}
+
+test('T011: a declared tail whose spelling exists nowhere is reported, not pinned', (t) => {
+  const range = shipRange({ root: ROOT, milestone: '035' });
+  assert.equal(range.error, '', `M035's range must derive: ${range.error}`);
+  assert.equal(
+    existsSync(join(ROOT, CONSOLE_TRUNCATED)),
+    false,
+    `${CONSOLE_TRUNCATED} must exist nowhere for this test to measure the defect: this tree carries it`,
+  );
+  assert.equal(
+    existsSync(join(ROOT, CONSOLE_MODULE)),
+    true,
+    `${CONSOLE_MODULE} must exist, so the resolution below has blobs to lend the truncated spelling unless the rule refuses to lend them`,
+  );
+  const tasks = [declaringTask('T920', CONSOLE_MODULE, CONSOLE_TRUNCATED)];
+
+  const report = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+  });
+  assert.deepEqual(
+    report.pins,
+    [],
+    `${CONSOLE_TRUNCATED} is a spelling no commit in ${range.range} and no tree carries, so it is not a pin: the resolution must not lend it the blobs of ${CONSOLE_MODULE}, and the run pinned ${JSON.stringify(
+      report.pins.map((pin) => pin.file),
+    )}`,
+  );
+  assert.deepEqual(
+    report.claims,
+    [],
+    `${CONSOLE_TRUNCATED} is a token its own files: list does not declare, so no declaration's path may be judged in its place: ${JSON.stringify(
+      report.claims.map((claim) => claim.file),
+    )}`,
+  );
+  const mention = report.mentions.find((one) => one.file === CONSOLE_TRUNCATED);
+  assert.ok(
+    mention,
+    `the truncated spelling must still be recorded, naming it and the line it sits on: ${JSON.stringify(
+      report.mentions.map((one) => `${one.task} ${one.file}`),
+    )}`,
+  );
+  assert.match(
+    String(mention.at),
+    /^fixture\/T920-declare\.md:\d+$/,
+    `the record must name where the spelling was named: ${String(mention.at)}`,
+  );
+
+  // With `claims: 'log'` every path-like token is held against the range, so the same spelling is a
+  // claim and a finding naming the spelling and the range rather than a path nobody carries.
+  const logged = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'log',
+  });
+  const finding = logged.findings.find((one) => one.file === CONSOLE_TRUNCATED);
+  assert.ok(
+    finding,
+    `the spelling must be a finding naming ${CONSOLE_TRUNCATED}: ${JSON.stringify(
+      logged.findings.map((one) => `${String(one.file)} ${String(one.class)}`),
+    )}`,
+  );
+  assert.equal(finding.class, 'claim-absent-from-the-range');
+  assert.equal(
+    finding.path,
+    CONSOLE_TRUNCATED,
+    `the finding must name the spelling the Log used rather than the declaration it tails: ${String(
+      finding.path,
+    )}`,
+  );
+  assert.match(
+    String(finding.reason),
+    new RegExp(escapeForRegExp(range.range)),
+    `the finding must name the range it was held against: ${String(finding.reason)}`,
+  );
+  assert.equal(
+    String(finding.reason).includes(CONSOLE_MODULE),
+    false,
+    `the finding must not borrow the declaration's name for the spelling: ${String(finding.reason)}`,
+  );
+
+  // The mutant is the rule the review measured: any proper tail is the declaration it tails, so the
+  // spelling is pinned by the declaration's blobs although it exists nowhere.
+  const mutated = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+    mutant: MUTANTS.fixRecordTail,
+  });
+  assert.equal(
+    mutated.pins.length,
+    1,
+    `under ${MUTANTS.fixRecordTail} the truncation must be pinned, or the assertion above is not the rule this task repairs: ${JSON.stringify(
+      mutated.pins,
+    )}`,
+  );
+  assert.equal(mutated.pins[0]?.file, CONSOLE_MODULE);
+  t.diagnostic(
+    `T011 tail: ${CONSOLE_TRUNCATED} is 1 mention naming it and, in claims: log, a finding naming the spelling and ${range.range}; under ${MUTANTS.fixRecordTail} it is 1 pin of ${CONSOLE_MODULE}`,
+  );
+});
+
+test('T011: a basename that names a file this tree carries still resolves to its declaration', (t) => {
+  const range = shipRange({ root: ROOT, milestone: '035' });
+  assert.equal(range.error, '', `M035's range must derive: ${range.error}`);
+  assert.equal(
+    existsSync(join(ROOT, ROOT_TS_CONFIG)),
+    true,
+    `${ROOT_TS_CONFIG} must be a file this tree carries, or the spelling below names nothing and resolves nothing`,
+  );
+  assert.equal(
+    EXTENSION_TS_CONFIG.endsWith(`/${ROOT_TS_CONFIG}`),
+    true,
+    `${EXTENSION_TS_CONFIG} must end in ${ROOT_TS_CONFIG} for the token to be a tail of it`,
+  );
+  assert.equal(
+    existsSync(join(ROOT, EXTENSION_TS_CONFIG)),
+    true,
+    `${EXTENSION_TS_CONFIG} must exist, so the declaration's own blobs are the ones read`,
+  );
+  const tasks = [declaringTask('T921', EXTENSION_TS_CONFIG, ROOT_TS_CONFIG)];
+
+  const report = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+  });
+  assert.deepEqual(
+    report.mentions,
+    [],
+    `${ROOT_TS_CONFIG} names a file this tree carries and is a tail of ${EXTENSION_TS_CONFIG}, so it must be the declaration rather than a mention: ${JSON.stringify(
+      report.mentions.map((one) => one.file),
+    )}`,
+  );
+  assert.deepEqual(
+    [...report.claims, ...report.pins].map((one) => one.file),
+    [EXTENSION_TS_CONFIG],
+    `the token must be judged as ${EXTENSION_TS_CONFIG}, the file the front matter declares: ${JSON.stringify(
+      report.claims.map((one) => one.file),
+    )}`,
+  );
+  assert.deepEqual(report.findings, []);
+
+  // The mutant drops the resolution entirely, which is the other direction the rule can fail in: a
+  // token that does name a file stops being judged as the declaration behind it.
+  const mutated = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+    mutant: MUTANTS.fixRecordTailOff,
+  });
+  assert.deepEqual(
+    [...mutated.claims, ...mutated.pins],
+    [],
+    `under ${MUTANTS.fixRecordTailOff} nothing may be judged as ${EXTENSION_TS_CONFIG}, or the assertion above is not the resolution: ${JSON.stringify(
+      [...mutated.claims, ...mutated.pins].map((one) => one.file),
+    )}`,
+  );
+  assert.deepEqual(
+    mutated.mentions.map((one) => one.file),
+    [ROOT_TS_CONFIG],
+    `under ${MUTANTS.fixRecordTailOff} the token must fall back to a mention of ${ROOT_TS_CONFIG}: ${JSON.stringify(
+      mutated.mentions.map((one) => one.file),
+    )}`,
+  );
+  t.diagnostic(
+    `T011 basename: ${ROOT_TS_CONFIG} resolves to ${EXTENSION_TS_CONFIG} as 1 pin, 0 mention; under ${MUTANTS.fixRecordTailOff} it is 0 pin and a mention of ${ROOT_TS_CONFIG}`,
+  );
+});
+
+test('T011: two declarations that share a tail are reported, never separated by front-matter order', (t) => {
+  const range = shipRange({ root: ROOT, milestone: '044' });
+  assert.equal(range.error, '', `M044's range must derive: ${range.error}`);
+  assert.equal(
+    existsSync(join(ROOT, ROOT_MANIFEST)),
+    true,
+    `${ROOT_MANIFEST} must be a file this tree carries, so the ambiguity rule rather than the existence rule is what this test measures`,
+  );
+  const shared = SHARED_TAIL;
+  const tasks = [taskDeclaring('T922', shared, ROOT_MANIFEST)];
+
+  const report = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+  });
+  assert.equal(
+    report.ambiguities.length,
+    1,
+    `the run must record the ambiguity rather than resolve it: ${JSON.stringify(
+      report.ambiguities,
+    )}`,
+  );
+  assert.deepEqual(
+    report.ambiguities[0]?.declarations,
+    shared,
+    `the ambiguity must name both declarations: ${JSON.stringify(
+      report.ambiguities[0]?.declarations,
+    )}`,
+  );
+  const finding = report.findings.find(
+    (one) => one.class === 'ambiguous-declaration',
+  );
+  assert.ok(
+    finding,
+    `the ambiguity must be a finding, not a silent choice: ${JSON.stringify(
+      report.findings.map((one) => `${String(one.file)} ${String(one.class)}`),
+    )}`,
+  );
+  assert.equal(finding.path, ROOT_MANIFEST);
+  for (const declaration of shared) {
+    assert.match(
+      String(finding.reason),
+      new RegExp(escapeForRegExp(declaration)),
+      `the finding must name ${declaration} as one of the declarations it will not choose between: ${String(
+        finding.reason,
+      )}`,
+    );
+  }
+  assert.deepEqual(
+    [...report.claims, ...report.pins].map((one) => one.file),
+    [ROOT_MANIFEST],
+    `the token must be judged as itself rather than as either declaration: ${JSON.stringify(
+      report.claims.map((one) => one.file),
+    )}`,
+  );
+
+  // The mutant restores front-matter order: the first declaration wins and the second is never named,
+  // which is the silent choice this rule removes.
+  const mutated = checkFixRecord({
+    root: ROOT,
+    range: range.range,
+    tasks,
+    claims: 'declared',
+    mutant: MUTANTS.fixRecordAmbiguity,
+  });
+  assert.deepEqual(
+    mutated.ambiguities,
+    [],
+    `under ${MUTANTS.fixRecordAmbiguity} the ambiguity must not be recorded at all: ${JSON.stringify(
+      mutated.ambiguities,
+    )}`,
+  );
+  assert.equal(
+    mutated.findings.some((one) => one.class === 'ambiguous-declaration'),
+    false,
+    `under ${MUTANTS.fixRecordAmbiguity} nothing may report the ambiguity: ${JSON.stringify(
+      mutated.findings.map((one) => String(one.class)),
+    )}`,
+  );
+  assert.deepEqual(
+    [...mutated.claims, ...mutated.pins].map((one) => one.file),
+    [shared[0]],
+    `under ${MUTANTS.fixRecordAmbiguity} the first declaration in front-matter order must win: ${JSON.stringify(
+      mutated.claims.map((one) => one.file),
+    )}`,
+  );
+  assert.equal(
+    JSON.stringify([mutated.claims, mutated.pins]).includes(shared[1] ?? ''),
+    false,
+    `under ${MUTANTS.fixRecordAmbiguity} the declaration it did not choose must not be named at all`,
+  );
+  t.diagnostic(
+    `T011 ambiguity: ${ROOT_MANIFEST} tails ${shared.join(' and ')}, so the run reports both and judges the token as itself; under ${MUTANTS.fixRecordAmbiguity} it judges ${String(
+      shared[0],
+    )} and never names ${String(shared[1])}`,
+  );
+});
+
+test('T011: --tasks given a directory named with the markdown suffix is read, not thrown as EISDIR', async (t) => {
+  const range = shipRange({ root: ROOT, milestone: '044' });
+  assert.equal(range.error, '', `M044's range must derive: ${range.error}`);
+  const named = 'research/raw/m044-gate-shapes.json';
+  const parent = mkdtempSync(join(tmpdir(), 'm044-tasks-directory-'));
+  const directory = join(parent, 'tasks.md');
+  try {
+    mkdirSync(directory);
+    await writeFile(
+      join(directory, 'T914.md'),
+      declaringTask('T914', named, named).text,
+    );
+    await writeFile(
+      join(directory, 'T915.md'),
+      declaringTask('T915', named, named).text,
+    );
+
+    // What the argument is decides how it is read. Before the repair the markdown suffix decided
+    // first, so this path was read as a file and `readFileSync` threw EISDIR out of the gate.
+    const report = checkFixRecord({
+      root: ROOT,
+      range: range.range,
+      tasks: directory,
+      claims: 'declared',
+    });
+    assert.equal(
+      report.tasksExamined,
+      2,
+      `a directory must be read for the task files it holds whatever its name is, and this one holds two: ${JSON.stringify(
+        report.declarations.map((one) => one.task),
+      )}`,
+    );
+    assert.deepEqual(
+      report.declarations.map((one) => one.task),
+      ['T914', 'T915'],
+      `both task files must be read: ${JSON.stringify(report.declarations)}`,
+    );
+
+    // The run names the path it read, so a reader sees which directory the log lines came from.
+    const run = gate({
+      root: ROOT,
+      milestone: LIVE_MILESTONE,
+      check: 'fix-record',
+      range: range.range,
+      tasks: directory,
+      claims: 'declared',
+    });
+    assert.equal(
+      run.code,
+      0,
+      `the gate must exit zero over this directory: ${run.lines.join(' | ')}`,
+    );
+    assert.ok(
+      run.lines.some((line) => line.includes(directory)),
+      `the printed reading must name ${directory}: ${run.lines.join(' | ')}`,
+    );
+
+    // The mutant restores the suffix test, so the directory is read as a file and the throw returns.
+    assert.throws(
+      () =>
+        checkFixRecord({
+          root: ROOT,
+          range: range.range,
+          tasks: directory,
+          claims: 'declared',
+          mutant: MUTANTS.tasksDirectory,
+        }),
+      /EISDIR/,
+      `under ${MUTANTS.tasksDirectory} reading ${directory} as a file must throw EISDIR, which is the defect the filesystem test removes`,
+    );
+    t.diagnostic(
+      `T011 tasks directory: ${directory} read ${String(
+        report.tasksExamined,
+      )} task file(s) and the gate named it on exit ${String(
+        run.code,
+      )}; under ${MUTANTS.tasksDirectory} the same argument throws EISDIR`,
+    );
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test('T011: the corpus reading counts are pinned, so no branch can move them silently', (t) => {
+  const tasks = corpusAt(CORPUS_HEAD);
+  assert.ok(
+    tasks.length > 0,
+    `the corpus at ${CORPUS_HEAD} must carry a task file, or the counts below are a reading of nothing`,
+  );
+  const report = checkFixRecord({
+    root: ROOT,
+    range: CORPUS_RANGE,
+    tasks,
+    claims: 'declared',
+  });
+  assert.equal(
+    report.ok,
+    true,
+    `the corpus must read clean before its counts are pinned, or the numbers below record a defect: ${JSON.stringify(
+      report.findings.map((one) => `${one.task} ${String(one.file)}`),
+    )}`,
+  );
+  const reading = countReading(report);
+  assert.deepEqual(
+    reading,
+    CORPUS_COUNTS,
+    `the corpus at ${CORPUS_HEAD} reads ${String(
+      reading.claims,
+    )} claim(s), ${String(reading.pins)} pin(s) and ${String(
+      reading.mentions,
+    )} mention(s) over ${CORPUS_RANGE}, and the recording holds ${JSON.stringify(
+      CORPUS_COUNTS,
+    )}: a branch that resolves a token, promotes one to a pin or drops one into the mentions moved a count without a red test`,
+  );
+
+  // The resolution the review measured is the branch that moves them, so the pin is load-bearing:
+  // restoring it moves the same three numbers, by the same nine tokens, that the review measured.
+  const restored = checkFixRecord({
+    root: ROOT,
+    range: CORPUS_RANGE,
+    tasks,
+    claims: 'declared',
+    mutant: MUTANTS.fixRecordTail,
+  });
+  const mutated = countReading(restored);
+  assert.deepEqual(
+    {
+      claims: mutated.claims - reading.claims,
+      pins: mutated.pins - reading.pins,
+      mentions: mutated.mentions - reading.mentions,
+    },
+    { claims: 8, pins: 1, mentions: -9 },
+    `under ${MUTANTS.fixRecordTail} the corpus must read as the review measured it - nine tokens the repair leaves as mentions judged again, one of them pinned - and it read ${JSON.stringify(
+      mutated,
+    )} against ${JSON.stringify(reading)}`,
+  );
+  t.diagnostic(
+    `T011 counts: the corpus at ${CORPUS_HEAD} reads ${String(
+      reading.claims,
+    )} claim(s), ${String(reading.pins)} pin(s) and ${String(
+      reading.mentions,
+    )} mention(s) over ${CORPUS_RANGE}; under ${MUTANTS.fixRecordTail} it reads ${String(
+      mutated.claims,
+    )}, ${String(mutated.pins)} and ${String(mutated.mentions)}`,
+  );
+});
