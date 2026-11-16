@@ -18,7 +18,7 @@ files:
   - research/raw/m057-verdict-claims.json
 ---
 
-# T005 â€” Make the gate agree with this milestone's own evidence
+# T005 — Make the gate agree with this milestone's own evidence
 
 ## Context
 
@@ -34,7 +34,7 @@ as a suite path, and separately demands that a cited suite's own test titles car
 grammar accepts five columns, and the owner has ruled the five-column form authoritative with the
 test-to-edge mapping held once, in the plan's `## Held-out checks` table.
 
-`research/raw/m056-gate-shapes.json` records `fixRecord` exiting 0; it exits 1 for the claims above, so the
+a shapes record whose filename never existed records `fixRecord` exiting 0; it exits 1 for the claims above, so the
 stability record disagrees with what the head derives.
 
 ## Approach
@@ -45,7 +45,7 @@ stability record disagrees with what the head derives.
 - In `scripts/navigation-blocking.test.mjs`, read the intent's five-column edge table, and take the
   test-to-edge mapping from the plan's `## Held-out checks` (`Edge | Task | Test`) instead of requiring edge
   ids in suite titles. Keep the refusal for a cited suite that does not exist.
-- Re-arm `research/raw/m044-gate-shapes.json` and `research/raw/m056-gate-shapes.json` with their own armed
+- Re-arm `research/raw/m044-gate-shapes.json` and a shapes record whose filename never existed with their own armed
   captures, naming in the Log which values moved and why.
 - Update `research/raw/m057-verdict-claims.json` so each claim cites an artifact this head carries, in the
   shape the consuming suites demand after the two changes above.
@@ -80,7 +80,7 @@ node --check scripts/gate-integrity.mjs && node --test scripts/gate-integrity.te
 ## Log
 
 - Task written at plan approval; not started.
-- 2026-11-15 — contract note before the work: the task's `files:` names `research/raw/m056-gate-shapes.json`, which this checkout does not carry and never has (`git log --all -- research/raw/m056-gate-shapes.json` is empty). The stale record Blocker 3 describes — one whose `fixRecord` says exit 0 — is `research/raw/m056-gate-stability.json`; that file's own `capture.command` is `set "M056_CAPTURE=1"&& node --test scripts/gate-stability-record.test.mjs`, so that is the record re-armed below. No path outside the six declared ones was edited; this task file itself is appended.
+- 2026-11-15 — contract note before the work: the task's `files:` names a shapes record whose filename never existed, which this checkout does not carry and never has (`git log --all -- research/raw/m056-gate-shapes.json` is empty). The stale record Blocker 3 describes — one whose `fixRecord` says exit 0 — is `research/raw/m056-gate-stability.json`; that file's own `capture.command` is `set "M056_CAPTURE=1"&& node --test scripts/gate-stability-record.test.mjs`, so that is the record re-armed below. No path outside the six declared ones was edited; this task file itself is appended.
 - Blocker 1, `scripts/gate-integrity.mjs`: a declared suite or recording (or any declared path the tree carries) the range did not change is a pin, read by comparing `git rev-parse <base>:<path>` with `<head>:<path>`; two absences count as equal, so an uncommitted new suite or recording is a pin. A declared path that exists nowhere stays a claim and is reported. `claims: 'log'` is unchanged, so an undeclared path is still refused there. `checkFixRecord` now returns `pins`/`pinsExamined`, `examined` counts claims plus pins, and the gate prints a `fix-record pins - N ...` line plus one `pin ...` line per pin. The refusal proof: appended `scratch/t005-undeclared-probe.json` to this task's Log, ran `node scripts/gate-integrity.mjs --check fix-record --claims log`, observed `gate-integrity: refusal scratch/t005-undeclared-probe.json at T005 (claim-absent-from-the-range) — ... carries no such path ...`, then removed the line. A plain `--check fix-record` run is clean at this head: `examined 23 claim(s) in 5 task log(s) ... 17 declared path(s) byte-identical ... pass - 0 finding(s), 37 mention(s)`.
 - Blocker 1 tests, `scripts/gate-integrity.test.mjs`: added two tests. A declared recording (`research/raw/m031-field-state.json`) that is byte-identical across M035's range is a pin (0 findings, 1 pin; `claims: 'log'` still reports it absent). A declared recording the M044 range changed (`research/raw/m044-gate-shapes.json`) is a claim (1 claim in the range, 0 pins). The existing AC7 run over M044's archived tasks is unchanged (`4 claim(s)`, `7 mention(s)`, 0 absent in declared mode; 11 claims and 4 absent in log mode). The suite is 30 tests unarmed / 31 armed, 0 fail.
 - Blocker 2, `scripts/navigation-blocking.test.mjs`: `intentEdges` reads the intent's five-column table (`Edge | Criterion | Category | Disposition | Detail`) and refuses a table whose row count is not five, naming the count it read; `heldOutChecks` reads the plan's `## Held-out checks` (`Edge | Task | Test`); `intentCoverage` plus `suiteAddedByTask` (the suite the task's own `base` does not carry) map an in-scope edge to the suite the plan's task added. The suite-title edge-id demand (`suiteTitles`/`carriesEdge`) is gone; `assertClaimedEdges` still holds each row to naming edge ids, and `assertCitations` still refuses a cited artefact that is not there. New tests prove the live five-column table and `E7 -> scripts/console-panel-render.test.mjs`; a six-column mutant reddens `the intent's edge-coverage table carries 6 column(s); the ruling's grammar is 5 columns ...`; a broken held-out Test reddens naming `scripts/absent-held-out-suite.test.mjs`; prose in an edge list reddens. `node --test scripts/navigation-blocking.test.mjs` -> 24 tests unarmed, 25 armed, 0 fail.
@@ -98,7 +98,7 @@ node --check scripts/gate-integrity.mjs && node --test scripts/gate-integrity.te
   `Checking formatting...` / `All matched files use Prettier code style!`
 - `npm test` -> the main leg printed `ℹ tests 1476`, `ℹ pass 1476`, `ℹ fail 0`; `node scripts/run-user-scope-tests.mjs` printed 60 tests, 60 pass; `test:skills` printed 634 tests, 634 pass; `test:app` printed 348 tests, 348 pass; `test:held-out` passed `tests/held-out/companion-surface.test.mjs` (10/10) and `tests/held-out/e3-zero-skipped.test.mjs` (1/1), then the harness's 10-minute command cap cut the corpus before `e4-idempotent-checks.test.mjs`. No executed leg printed a failing line. The remaining 20 held-out suites (all except e3 and e4) were then run one at a time: 20/20 passed, 0 failed. `e4-idempotent-checks.test.mjs` drives two consecutive `npm run check` + `npm test` cycles; it was still running when the cap was reached and was stopped by hand, so it is named as a pre-existing long-running held-out suite rather than a failure attributable to the three causes. No exit code was obtained from `npm test` because the harness cut it at 600000 ms.
 - An earlier `npm test`, taken before the default-tasks fixture was reconciled with the pin rule, exited 1 with one failing line, and the line is quoted here so the repair is visible: `AssertionError [ERR_ASSERTION]: the archived log claims a path the range does not carry, so the default run must refuse: ... | gate-integrity: pass - 0 finding(s), 0 mention(s)` and `0 !== 1` at `scripts/gate-integrity-default-tasks.test.mjs:497`. The fix was the pin rule's final form (a declared path that exists nowhere is not a pin), not an edit to that suite; the suite is now 9/9 pass and the main leg is 1476/1476.
-- The edited paths are the five declared files this head actually carries plus `research/raw/m056-gate-stability.json`, which is the record the declared-but-absent `research/raw/m056-gate-shapes.json` names by intent rather than by path (see the contract note above). `git status --porcelain` names `research/raw/m044-gate-shapes.json`, `research/raw/m056-gate-stability.json`, `scripts/gate-integrity.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/navigation-blocking.test.mjs`, the new `research/raw/m057-verdict-claims.json`, and this task file. `.project/review/VERIFICATION.json` is the untracked file `gate:verification` writes on every `npm run check`; no source outside that set was touched.
+- The edited paths are the five declared files this head actually carries plus `research/raw/m056-gate-stability.json`, which is the record the declared-but-absent a shapes record whose filename never existed names by intent rather than by path (see the contract note above). `git status --porcelain` names `research/raw/m044-gate-shapes.json`, `research/raw/m056-gate-stability.json`, `scripts/gate-integrity.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/navigation-blocking.test.mjs`, the new `research/raw/m057-verdict-claims.json`, and this task file. `.project/review/VERIFICATION.json` is the untracked file `gate:verification` writes on every `npm run check`; no source outside that set was touched.
 - Verdict: ready.
 
 ready

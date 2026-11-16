@@ -118,6 +118,22 @@ Review depth: full
 T004 captures `research/raw/m045-console-panel.json` read-only behind `M045_CAPTURE=1`, pins it, and
 runs `npm run check && npm test`.
 
+## Wave 6 — repair what the reviews refuted
+
+Goal: the three waves whose reviews failed carry their claims honestly, and the two rules that judge other
+people's work refuse again.
+
+Review depth: full
+
+T006 repairs the gate: a declared path that exists nowhere is a claim again, the `./` spelling is normalised
+on both sides, a range that cannot be split is refused rather than guessed, and a single-file `--tasks`
+argument reads instead of crashing. T007 repairs the surface: E7 runs against every state, the state look-up
+is an own-property read, the no-code absence is guarded against a count, every route-table suite asserts the
+count, and the demo's prose states the shape its sample carries. T008 repairs the record: the install time
+comes from the manifest, the lost-before-injection gap is written down, the containment note and its field
+name say what is true, the size is restated from a command, and the join's "text cannot choose an entry" rule
+gets the pin it never had.
+
 ## Risks
 
 - **The gate pins the suites this milestone adds.** `scripts/gate-integrity.test.mjs` requires a
