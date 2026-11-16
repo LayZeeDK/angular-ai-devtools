@@ -53,7 +53,7 @@ The join returns `{ state, findings[] }`, where `state` is exactly one of `joine
 
 ## Intent coverage
 
-- SC1
+- None
 
 ## Verify
 

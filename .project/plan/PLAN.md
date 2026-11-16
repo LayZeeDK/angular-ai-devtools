@@ -26,7 +26,6 @@ Project verify: `npm run check && npm test`
 | SC1 | T001 | AC2 |
 | SC1 | T002 | AC1 |
 | SC1 | T002 | AC4 |
-| SC1 | T021 | AC1 |
 | SC2 | T002 | AC2 |
 | SC2 | T015 | AC1 |
 | SC3 | T002 | AC3 |
