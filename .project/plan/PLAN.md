@@ -243,6 +243,17 @@ Review depth: full
 T023 adds `carriedCode` to the record's finding contract, records the case E6 exists for, and corrects two pieces
 of prose that state counts the record's own bytes contradict.
 
+## Wave 17 — re-derive the recordings the waves moved
+
+Goal: the census and the stability record are re-derived at this head, with every moved value named.
+
+Review depth: full
+
+T024 exists because the ledger backfill ran every done task's Verify at this head and found the chain: the census
+record is stale after six waves of added pins, so `gate-integrity.test.mjs` exits 1, so the stability record's
+`fixRecord.exitCode` disagrees. The census's own counts report zero dropped assertion lines, so re-derivation is
+correct — provided the difference is named rather than captured away.
+
 ## Risks
 
 - **The gate pins the suites this milestone adds.** `scripts/gate-integrity.test.mjs` requires a
