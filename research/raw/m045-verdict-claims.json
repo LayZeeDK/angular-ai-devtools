@@ -4,7 +4,7 @@
   "quotes": {
     "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(CLAIM_ROOT, \"M045\"))",
     "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 5 criteria it declares are [\"SC1\",\"SC2\",\"SC3\",\"SC4\",\"SC5\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
-    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/plan/PLAN.md's ## Held-out checks table (Edge | Task | Test), so a row cites the suite the milestone's own plan assigns its edges rather than one this file chose: 7 edge row(s) over the criteria [\"SC1\",\"SC3\",\"SC4\",\"SC2\",\"SC5\"] and the suites [\"scripts/console-join.test.mjs\",\"scripts/console-panel-render.test.mjs\"]"
+    "edges": "read from .project/archive/045-console-read/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/archive/045-console-read/plan/PLAN.md's ## Held-out checks table (Edge | Task | Test), so a row cites the suite the milestone's own plan assigns its edges rather than one this file chose: 7 edge row(s) over the criteria [\"SC1\",\"SC3\",\"SC4\",\"SC2\",\"SC5\"] and the suites [\"scripts/console-join.test.mjs\",\"scripts/console-panel-render.test.mjs\"]"
   },
   "ruling": {
     "required": 0,
@@ -17,7 +17,7 @@
   },
   "evidence": {
     "intent": {
-      "path": ".project/intent/INTENT.md",
+      "path": ".project/archive/045-console-read/intent/INTENT.md",
       "criteria": [
         "SC1",
         "SC2",
@@ -27,7 +27,7 @@
       ]
     },
     "plan": {
-      "path": ".project/plan/PLAN.md",
+      "path": ".project/archive/045-console-read/plan/PLAN.md",
       "heldOut": [
         "E7"
       ]
@@ -54,7 +54,10 @@
         "groups": 3
       }
     ],
-    "recordings": []
+    "recordings": [
+      "research/raw/m045-console-panel.json",
+      "research/raw/m045-console-shapes.json"
+    ]
   },
   "capture": {
     "command": "set \"M044_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
