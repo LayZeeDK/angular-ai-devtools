@@ -189,7 +189,9 @@ Review depth: full
 T016 completes what T013 started. Sizes are pinned to commits; the command count is not, and the next task
 that appended a command falsified it. The repair states the count as a measurement, names the commands added
 since, corrects a size attributed to a commit that does not carry the file, and pins the worktree-hash
-sentence it left reading as timeless.
+sentence it left reading as timeless. T017 holds the record's label vocabulary to the pane, so a label the
+pane writes cannot be refused by the record that describes it, and T018 pins the fold's exactness behaviourally
+rather than by the comment that claims it.
 
 ## Risks
 
