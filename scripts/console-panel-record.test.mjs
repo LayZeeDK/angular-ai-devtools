@@ -24,6 +24,16 @@
 // that started rendering a `cause:` line would write it into the recording on the next armed run, and
 // the unarmed suite still reddens, because `cause` is not a label the contract carries.
 //
+// `contract.lineLabels` is itself held to the pane, in both directions. That field is a statement
+// about the shipped module and not about the recorded subset — five of its entries are rendered by no
+// recorded case — and nothing read it against the module, so it drifted: the pane gained a
+// `case-difference:` sentence and the list stayed at fourteen, and the record's own vocabulary pin
+// then refused a line the pane legitimately writes. `pinTheVocabularyIsThePane` reads the labels the
+// module can write — from the lines it renders for the answers in `PANE_PROBES`, from the sentences it
+// exports, and from the `lines.push(`label: ...`)` calls in its own source — and fails naming the
+// labels when the record's list and the pane disagree either way. The pin's own limits are stated at
+// the block that holds it.
+//
 // The wording list polices only the lines the pane writes itself — the state line, the three state
 // sentences and its named absences. A `title:` value is the digest's word, a `text:` value the
 // capture's, and `code:` and `reason:` are the answer's, so none of those four is this pane's
@@ -118,10 +128,13 @@ const CAPTURED_NOTHING = 'captured-nothing';
 const NO_DIGEST_ENTRY = 'no-digest-entry';
 
 /**
- * The vocabulary the pane's lines carry: the state word, a finding's four fields, and the pane's own
- * named absences are the labels; a cause, an element, a remedy, a word about the framework or a count
- * is not. The record states both lists, and every recorded `surface.lines` entry is held to them — a
- * label outside the list reddens whether the recording was made by hand or by an armed re-capture.
+ * The labels the pane can write: the state word, a finding's four carried fields, the pane's own named
+ * absences and the one difference it states about a match. A cause, an element, a remedy, a word about
+ * the framework or a count is not a label here. The record states this list, every recorded
+ * `surface.lines` entry is held to it — a label outside the list reddens whether the recording was
+ * made by hand or by an armed re-capture — and `pinTheVocabularyIsThePane` holds the list itself to
+ * the shipped module in both directions, so this constant is a statement about the pane rather than a
+ * sample of what the recorded cases happen to render.
  */
 const LINE_LABELS = [
   'state',
@@ -132,6 +145,7 @@ const LINE_LABELS = [
   'no-code',
   'no-title',
   'no-digest-entry',
+  'case-difference',
   'no-finding',
   'no-console-answer',
   'unreadable-finding',
@@ -1293,6 +1307,259 @@ function pinRecordsOnlyTheContractVocabulary(
   }
 }
 
+// -------------------------------------------------- the vocabulary, held to the pane ----
+//
+// `contract.lineLabels` is a statement about the shipped pane and not about the recorded subset: five
+// of its entries are rendered by no recorded case, so comparing it to the recording could not keep it
+// true, and that is how it drifted — the pane gained a `case-difference:` sentence (T015) and the list
+// stayed at fourteen. The list is held to the module instead, which needs three readings because no
+// single one covers the pane:
+//
+//   the probes    every line the shipped module renders for the answers in `PANE_PROBES`, chosen so
+//                 that each branch the pane can take is taken. This is the pane's real output — the
+//                 only reading that sees a label computed rather than written down — and it is what
+//                 the record's list is compared against.
+//   the exports   every labelled sentence the module exports (`STATE_TEXTS` and the `NO_*` /
+//                 `UNREADABLE_FINDING` sentences) and the two exported sentence builders, called
+//                 with the codes the join really produces.
+//   the pushes    every `lines.push(`label: ...`)` in the module's own source, which reads a label
+//                 written on a branch no probe answer reaches.
+//
+// The exports and the pushes are asserted to lie inside what the probes render, so a sentence or a
+// pushed label this suite does not render reddens here as an unread label rather than passing unseen.
+// Two of the fifteen labels come from branches no answer the join can give reaches: the shipped
+// digest states a title for every code it carries and the join states its one reason for every code it
+// lacks, so `no-title` and an unmodelled `reason` are reached by two answers written below rather than
+// read from the join — and no recorded case renders either, which is why both are in the list with no
+// case behind them. The honest limit: this reading is these three, so a label the pane starts writing
+// from a helper this suite does not call, on a branch no probe reaches, would be invisible to it. At
+// this head no label is in that position, and the completeness check fails rather than letting one
+// slip.
+//
+// What this does not do is widen the vocabulary to let a sentence pass. It compares two sets of
+// *labels*: the words inside a sentence are policed by `contract.prohibitedWording` and by the absence
+// rule, neither of which is relaxed here, and an entry added to the record's list reddens this pin
+// because the pane writes no line that carries it.
+
+/** The label a line carries: everything before its first `: `. */
+function lineLabel(line) {
+  const at = line.indexOf(': ');
+  return at < 0 ? line : line.slice(0, at);
+}
+
+/**
+ * A code the digest matches only after folding case, and the message that carries it. The shipped
+ * digest carries `NG01002` ("Missing Control Value") and no lowercase spelling of any code, so this
+ * message is one the digest joins by folding — the answer that makes the pane write its
+ * `case-difference` sentence. The fixture is the render suite's, and the join is what decides the
+ * match, so the sentence below is never assembled here.
+ */
+const FOLDED = {
+  code: 'ng01002',
+  message: 'ng01002: Missing control value for the input',
+  component: null,
+  timestamp: 6,
+};
+
+/** The join's own answer for one diagnostic: exactly what the pane is handed for it. */
+function answerForDiagnostic(diagnostic) {
+  return clone(JOIN.consoleJoin([diagnostic], DIGEST));
+}
+
+/** The join's own answer for the case-folded diagnostic: the digest's spelling beside the message's. */
+function foldedAnswer() {
+  return answerForDiagnostic(FOLDED);
+}
+
+/**
+ * The answers this suite hands the pane so that every branch it can take is taken, each named by what
+ * it reaches. Two of them — the titleless finding and the unmodelled reason — are this suite's own and
+ * not the join's, for the reason stated above the block: no answer the join can give reaches those two
+ * branches at this head.
+ */
+const PANE_PROBES = [
+  ['a joined answer that carried no finding', { state: JOINED, findings: [] }],
+  [
+    'a capture that was read and carried no diagnostic',
+    { state: CAPTURED_NOTHING, findings: [] },
+  ],
+  [
+    'no capture handed to the join at all',
+    { state: 'no-diagnostics', findings: [] },
+  ],
+  ['no answer at all', undefined],
+  ['an answer that carried no state word', { findings: [] }],
+  [
+    'a code the digest carries, with its own title',
+    answerForDiagnostic(MATCHED),
+  ],
+  ['a message that carried no code', answerForDiagnostic(UNCODED)],
+  [
+    'a code the digest lacks, with the join’s one reason',
+    answerForDiagnostic(UNMATCHED),
+  ],
+  ['a code the digest matched only by folding case', foldedAnswer()],
+  [
+    'a list entry that is not a finding',
+    { state: JOINED, findings: ['not a finding'] },
+  ],
+  [
+    'a finding the digest carries no title for',
+    {
+      state: JOINED,
+      findings: [
+        {
+          text: 'NG0100: a message with no title beside it',
+          code: MATCHED.code,
+        },
+      ],
+    },
+  ],
+  [
+    'a reason the join was not written for',
+    {
+      state: JOINED,
+      findings: [
+        {
+          text: 'NG0100: a message with a reason beside it',
+          code: MATCHED.code,
+          title: shippedTitle(MATCHED.code),
+          reason: 'a-reason-the-join-does-not-state',
+        },
+      ],
+    },
+  ],
+];
+
+/** The labels the pane writes, read off the lines it renders for the probe answers. */
+function labelsThePaneWrites(module) {
+  const labels = new Set();
+  for (const [reaches, answer] of PANE_PROBES) {
+    const surface = module.consolePanel(answer);
+    assert.ok(
+      Array.isArray(surface.lines) && surface.lines.length > 0,
+      `label-vocabulary: the probe ${JSON.stringify(reaches)} must render at least one line, or this reading reads nothing`,
+    );
+    for (const line of surface.lines) labels.add(lineLabel(line));
+  }
+  return labels;
+}
+
+/**
+ * The labels of the sentences the pane exports, as `[label, where it was read]` pairs: every exported
+ * string that is itself a labelled sentence, every one inside an exported table of sentences
+ * (`STATE_TEXTS`), and the two exported sentence builders run with the codes the join produces.
+ */
+function labelsThePaneExports(module) {
+  const labels = new Map();
+  const sentence = (value) =>
+    typeof value === 'string' && /^[a-z][a-z-]*: /.test(value);
+  for (const [name, value] of Object.entries(module)) {
+    if (sentence(value)) labels.set(lineLabel(value), `the sentence ${name}`);
+    else if (value !== null && typeof value === 'object')
+      for (const [key, inner] of Object.entries(value))
+        if (sentence(inner))
+          labels.set(
+            lineLabel(inner),
+            `the sentence ${name}[${JSON.stringify(key)}]`,
+          );
+  }
+  const absent = answerForDiagnostic(UNMATCHED).findings[0];
+  const folded = foldedAnswer().findings[0];
+  for (const [name, built] of [
+    ['noDigestEntryText', module.noDigestEntryText?.(absent.code)],
+    [
+      'caseFoldedMatchText',
+      module.caseFoldedMatchText?.(folded.carriedCode, folded.code),
+    ],
+  ]) {
+    assert.ok(
+      sentence(built),
+      `label-vocabulary: the pane must export ${name} as a builder of a labelled sentence, or this reading proves nothing; it built ${JSON.stringify(built)}`,
+    );
+    labels.set(lineLabel(built), `the sentence ${name} builds`);
+  }
+  assert.ok(
+    labels.size > 0,
+    'label-vocabulary: the pane must state at least one sentence of its own, or this reading proves nothing',
+  );
+  return labels;
+}
+
+/**
+ * The labels the pane writes into a line in its own body — `lines.push(`code: ${code}`)` — read off
+ * the module's source rather than off a rendering, so a label written on a branch no probe answer
+ * reaches is still read. A sentence built in a helper is read by the export reading above.
+ */
+function labelsThePanePushes(source) {
+  const labels = new Map();
+  for (const match of source.matchAll(/lines\.push\(\s*`([a-z][a-z-]*): /g))
+    labels.set(match[1], 'a labelled line the pane pushes itself');
+  return labels;
+}
+
+/**
+ * SC5/E7: the record's label vocabulary is the pane's, in both directions. The record states which
+ * labels the pane can write; this reads the labels the shipped module can write and fails naming what
+ * the record omits and what it carries that the pane cannot write, so drift of this kind reddens at the
+ * moment it is introduced rather than when a case first renders the missing label. The module and its
+ * source are parameters so a mutated copy can be held to the same pin, which is how the two directions
+ * are proven to be live.
+ */
+function pinTheVocabularyIsThePane(
+  contract,
+  module = SURFACE,
+  source = SURFACE_SRC,
+) {
+  const labels = contract.lineLabels;
+  assert.ok(
+    Array.isArray(labels) && labels.length > 0,
+    `label-vocabulary: the record must state the labels the pane can write; its contract carries ${JSON.stringify(labels)}`,
+  );
+  assert.equal(
+    new Set(labels).size,
+    labels.length,
+    `label-vocabulary: the record's list must state each label once; it carries ${JSON.stringify(labels)}`,
+  );
+
+  const written = labelsThePaneWrites(module);
+  const exported = labelsThePaneExports(module);
+  const pushed = labelsThePanePushes(source);
+
+  for (const [label, where] of [...exported, ...pushed]) {
+    assert.ok(
+      written.has(label),
+      `label-vocabulary: the pane states a sentence labelled ${JSON.stringify(label)} (${where}), and no answer in this suite's probes renders it, so the comparison below could pass while that label went unread; add the answer that reaches it`,
+    );
+  }
+
+  const named = (set) =>
+    [...set]
+      .sort()
+      .map((label) => JSON.stringify(label))
+      .join(', ');
+  const added = [...written].filter((label) => !labels.includes(label)).sort();
+  const missing = labels.filter((label) => !written.has(label)).sort();
+  assert.deepEqual(
+    added,
+    [],
+    `label-vocabulary: the pane writes ${added.length} label(s) the record's contract.lineLabels does not carry: ${named(added)} — the record states which labels the pane writes, so a label the pane writes and the record omits is drift; the list would have to carry ${named(new Set([...labels, ...written]))}`,
+  );
+  assert.deepEqual(
+    missing,
+    [],
+    `label-vocabulary: the record's contract.lineLabels carries ${missing.length} label(s) the pane writes no line for: ${named(missing)} — the record states which labels the pane writes, so a label it carries and the pane cannot write is drift; the list would have to carry ${named(written)}`,
+  );
+  for (const word of contract.prohibitedWording ?? []) {
+    assert.equal(
+      labels.includes(word),
+      false,
+      `label-vocabulary: ${JSON.stringify(word)} is forbidden wording and cannot also be a label the record states`,
+    );
+  }
+  return written;
+}
+
 /**
  * The contract's own two rules, held against the diagnostics the case handed over: one finding per
  * diagnostic in capture order, `code` present exactly when the message carried one, and `reason`
@@ -1738,6 +2005,136 @@ describe('every case states what the join answered and what the pane rendered', 
         `${entry.id} records ${JSON.stringify(entry.state)}, which is not a state the join answers`,
       );
     }
+  });
+});
+
+describe('the record’s label vocabulary is the pane’s, read both ways', () => {
+  test('the record states exactly the labels the pane can write', () => {
+    const written = pinTheVocabularyIsThePane(recorded().contract);
+    assert.deepEqual(
+      [...written].sort(),
+      [...LINE_LABELS].sort(),
+      `label-vocabulary: this suite writes ${JSON.stringify([...LINE_LABELS].sort())} into the record and the pane writes ${JSON.stringify([...written].sort())}; the two must be one vocabulary`,
+    );
+    assert.equal(
+      written.size,
+      LINE_LABELS.length,
+      `label-vocabulary: the pane writes ${written.size} label(s) and the record states ${LINE_LABELS.length}; the two are one vocabulary or they are not`,
+    );
+    console.log(
+      `pane label vocabulary (${written.size}): ${[...written].sort().join(', ')}`,
+    );
+  });
+
+  test('a case-difference line the pane really renders passes the record’s pins, and the fourteen-label list reddened on it', () => {
+    const answer = foldedAnswer();
+    const finding = answer.findings[0];
+    assert.equal(
+      typeof finding.carriedCode,
+      'string',
+      `case-difference: the join must hand the pane a spelling the digest did not carry, or this probe proves nothing; it answered ${JSON.stringify(answer)}`,
+    );
+    const rendered = clone(SURFACE.consolePanel(answer));
+    const sentence = rendered.lines.find((line) =>
+      line.startsWith(`${SURFACE.CASE_DIFFERENCE}: `),
+    );
+    assert.ok(
+      sentence,
+      `case-difference: the shipped pane must state the folded match in a sentence of its own, labelled ${JSON.stringify(SURFACE.CASE_DIFFERENCE)}; it rendered ${JSON.stringify(rendered.lines)}`,
+    );
+    // The sentence names both spellings, so it is the difference the row shows and not a restatement.
+    assert.ok(sentence.includes(finding.carriedCode));
+    assert.ok(sentence.includes(finding.code));
+    const entry = {
+      id: 'case-difference',
+      state: answer.state,
+      findings: answer.findings.map(findingRecord),
+      surface: {
+        state: rendered.state,
+        kind: rendered.kind,
+        message: rendered.message,
+        lines: rendered.lines,
+        text: rendered.text,
+      },
+    };
+    // Green on the record's own contract: a case that rendered this sentence does not redden the
+    // record's pin. The list it is held to is the repaired one, read from the file.
+    pinRecordsOnlyTheContractVocabulary(entry, recorded().contract);
+    pinRecordedAbsenceStatement(entry, recorded().contract);
+    // And the line is load-bearing: the fourteen-label list the review measured reddens on it, in the
+    // record's own words, so the entry is what lets the sentence be recorded and not a widening.
+    const before = recorded().contract.lineLabels.filter(
+      (label) => label !== SURFACE.CASE_DIFFERENCE,
+    );
+    assert.equal(before.length, recorded().contract.lineLabels.length - 1);
+    const failure = reddens('recorded-vocabulary', () =>
+      pinRecordsOnlyTheContractVocabulary(entry, {
+        ...recorded().contract,
+        lineLabels: before,
+      }),
+    );
+    assert.match(
+      failure.message,
+      /is labelled "case-difference", which the record's contract does not carry/,
+    );
+    console.log(
+      `case-difference line reddens the fourteen-label list: ${failure.message.replace(/\s+/g, ' ').trim()}`,
+    );
+    // Honest about the record's own cases: none of them renders this sentence at this head. The
+    // record's finding shape carries no `carriedCode`, so the pane cannot re-render the line from the
+    // recorded findings and a folded case cannot be recorded without widening that shape — which is
+    // T015's field and not this list's. This probe is where the label is rendered and held.
+    assert.equal(
+      recorded().cases.some((candidate) =>
+        candidate.surface.lines.some((line) =>
+          line.startsWith(`${SURFACE.CASE_DIFFERENCE}: `),
+        ),
+      ),
+      false,
+      'no recorded case renders the case-difference sentence at this head, and this suite says so instead of claiming the recording covers it',
+    );
+  });
+
+  test('a label added to the pane alone reddens the record, and a label added to the record alone reddens too', async () => {
+    const contract = recorded().contract;
+    // Green on the shipped pane and the record's own list first, so both failures below are the
+    // mutation's and not a defect this head already carries.
+    pinTheVocabularyIsThePane(contract);
+
+    // (1) The pane gains a line the record's list does not carry. Nothing is written into the
+    // recording: the mutant is a copy in this run's temp directory, and it is the pin that reads it.
+    const pane = await loadMutant(
+      '  lines.push(`text: ${text}`);',
+      '  lines.push(`text: ${text}`);\n  lines.push(`cause: the message states one`);',
+    );
+    const paneFailure = reddens('label-vocabulary', () =>
+      pinTheVocabularyIsThePane(contract, pane.module, pane.source),
+    );
+    assert.match(paneFailure.message, /does not carry/);
+    assert.ok(
+      paneFailure.message.includes('"cause"'),
+      `the failure must name the label the pane gained; it failed with ${paneFailure.message}`,
+    );
+    console.log(
+      `a label added to the pane alone reddens: ${paneFailure.message.replace(/\s+/g, ' ').trim()}`,
+    );
+
+    // (2) The record gains a label the pane cannot write, in memory: the same pin names it as the
+    // record's own, so the list cannot be widened to let a sentence pass either.
+    const recordFailure = reddens('label-vocabulary', () =>
+      pinTheVocabularyIsThePane({
+        ...contract,
+        lineLabels: [...contract.lineLabels, 'cause'],
+      }),
+    );
+    assert.match(recordFailure.message, /writes no line for/);
+    assert.ok(
+      recordFailure.message.includes('"cause"'),
+      `the failure must name the label the record gained; it failed with ${recordFailure.message}`,
+    );
+    console.log(
+      `a label added to the record alone reddens: ${recordFailure.message.replace(/\s+/g, ' ').trim()}`,
+    );
   });
 });
 

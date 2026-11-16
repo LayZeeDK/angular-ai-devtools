@@ -28,6 +28,7 @@
       "no-code",
       "no-title",
       "no-digest-entry",
+      "case-difference",
       "no-finding",
       "no-console-answer",
       "unreadable-finding",
