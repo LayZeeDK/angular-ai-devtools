@@ -35,8 +35,7 @@ The join returns `{ state, findings[] }`, where `state` is exactly one of `joine
 
 ## Intent coverage
 
-- None — this repairs a review finding inside SC4's subtraction: a record states measurements at named commits
-  and names commands.
+- None — this repairs a review finding inside SC4's subtraction.
 
 ## Acceptance criteria
 
