@@ -193,6 +193,16 @@ sentence it left reading as timeless. T017 holds the record's label vocabulary t
 pane writes cannot be refused by the record that describes it, and T018 pins the fold's exactness behaviourally
 rather than by the comment that claims it.
 
+## Wave 12 — enumerate the pane's own sentences
+
+Goal: a page claim cannot enter by wording, only by a deliberate edit a reviewer sees.
+
+Review depth: full
+
+T019 stops patching the sentence classifier. The pane's own sentences become one registry in the module, the
+tests pin it against the rendered output in both directions, and the record carries the same registry. The
+absence rule stays as a secondary check over the registry's text rather than as the defence itself.
+
 ## Risks
 
 - **The gate pins the suites this milestone adds.** `scripts/gate-integrity.test.mjs` requires a
