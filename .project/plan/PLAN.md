@@ -270,6 +270,17 @@ Review depth: full
 
 T026 exists because wave 14's review opened T020's Log against the tree and found two sentences of exactly the class T020 withdrew elsewhere: a worktree hash equated to a blob at a named commit (false at this head), and "no commit since has touched it" (falsified by T015's own landing). T020's rule — state measurements at named commits and name commands, never restate a count or an equality the next append can move — is applied to the sentences that were missed, not extended.
 
+## Wave 20 — withdraw the third instance
+
+Goal: the Log stops stating the worktree-hash equality, which T026's heading miscounted as two instances.
+
+Review depth: full
+
+T027 exists because wave 19's review failed T026 on its own "in any form" clause and named the survivor: `:221`
+states the equality in the present tense, while the withdrawal entry promises that no outcome of that comparison
+is stated. T020 had classified the sentence as a fixed measurement; it is not, because the worktree is not a
+named commit. The fix is T026's rule applied to the sentence it missed.
+
 ## Risks
 
 - **The gate pins the suites this milestone adds.** `scripts/gate-integrity.test.mjs` requires a

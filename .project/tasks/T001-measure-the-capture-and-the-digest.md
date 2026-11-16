@@ -311,3 +311,15 @@ ode --check\ and Prettier clean; the orchestrator re-ran both and independently 
     ```
     `node --test scripts/console-panel-record.test.mjs` exited 0 with no failing test, and `npx prettier --check research/raw .project/tasks/T001-measure-the-capture-and-the-digest.md` printed the two lines above.
   - **What this entry changes.** This Log, appended to; the record measured and not written; no product value moved.
+
+## T027 — the third instance
+
+Wave 19's review found the class stated a third time at `:221`, in the present tense. That sentence is withdrawn
+here, for the same reason as the two T026 named: the worktree is not a named commit, so no sentence of this Log
+may state what its bytes are equal to.
+
+- which commits touched the record in a range: `git log --format="%h %s" <from>..<to> -- research/raw/m045-console-shapes.json`
+- the blob the checkout holds: `git hash-object research/raw/m045-console-shapes.json`
+- the blob at a named commit: `git rev-parse <commit>:research/raw/m045-console-shapes.json`
+
+This Log states no outcome of that comparison, here or above.
