@@ -562,7 +562,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 76,
+        "line": 77,
         "path": ".project/archive",
         "site": "segment",
         "class": "deliberate-archive-read",
@@ -572,7 +572,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 310,
+        "line": 311,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -580,15 +580,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 425,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/gate-integrity.test.mjs",
-        "line": 484,
+        "line": 426,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -612,7 +604,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 529,
+        "line": 487,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -620,7 +612,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 529,
+        "line": 530,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -644,7 +636,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 563,
+        "line": 532,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -654,13 +646,21 @@
         "file": "scripts/gate-integrity.test.mjs",
         "line": 564,
         "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/gate-integrity.test.mjs",
+        "line": 565,
+        "path": null,
         "site": "pattern",
         "class": "undecided",
         "reason": "named in a regular expression, which resolves no path, so neither class applies"
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 567,
+        "line": 568,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -668,7 +668,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 604,
+        "line": 605,
         "path": null,
         "site": "pattern",
         "class": "undecided",
@@ -676,7 +676,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 610,
+        "line": 611,
         "path": ".project",
         "site": "segment",
         "class": "undecided",
@@ -686,7 +686,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 617,
+        "line": 618,
         "path": ".project",
         "site": "segment",
         "class": "undecided",
@@ -696,7 +696,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 630,
+        "line": 631,
         "path": ".project",
         "site": "segment",
         "class": "undecided",
@@ -706,7 +706,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 642,
+        "line": 643,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -714,7 +714,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 690,
+        "line": 691,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -722,7 +722,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 694,
+        "line": 695,
         "path": ".project",
         "site": "segment",
         "class": "undecided",
@@ -732,7 +732,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 697,
+        "line": 698,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -740,7 +740,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 703,
+        "line": 704,
         "path": ".project/archive",
         "site": "message",
         "class": "deliberate-archive-read",
@@ -748,7 +748,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 710,
+        "line": 711,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -756,7 +756,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 710,
+        "line": 711,
         "path": ".project/archive",
         "site": "message",
         "class": "deliberate-archive-read",
@@ -764,7 +764,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 719,
+        "line": 720,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -772,7 +772,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 719,
+        "line": 720,
         "path": ".project/archive",
         "site": "message",
         "class": "deliberate-archive-read",
@@ -780,7 +780,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 730,
+        "line": 731,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -788,7 +788,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 768,
+        "line": 769,
         "path": ".project",
         "site": "segment",
         "class": "undecided",
@@ -798,7 +798,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 814,
+        "line": 815,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -806,7 +806,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1083,
+        "line": 1084,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -814,7 +814,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1515,
+        "line": 1516,
         "path": ".project/archive",
         "site": "path",
         "class": "deliberate-archive-read",
@@ -822,7 +822,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1939,
+        "line": 1940,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -830,7 +830,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1946,
+        "line": 1947,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -838,7 +838,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1950,
+        "line": 1951,
         "path": ".project/archive",
         "site": "message",
         "class": "deliberate-archive-read",
@@ -846,7 +846,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1954,
+        "line": 1955,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -854,7 +854,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1956,
+        "line": 1957,
         "path": ".project",
         "site": "segment",
         "class": "undecided",
@@ -864,7 +864,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1961,
+        "line": 1962,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -872,7 +872,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1980,
+        "line": 1981,
         "path": ".project/archive",
         "site": "path",
         "class": "deliberate-archive-read",
@@ -880,7 +880,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3383,
+        "line": 3384,
         "path": ".project/STATE.md",
         "site": "path",
         "class": "undecided",
@@ -888,7 +888,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3387,
+        "line": 3388,
         "path": ".project/STATE.md",
         "site": "message",
         "class": "undecided",
@@ -896,7 +896,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3761,
+        "line": 3762,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -2181,9 +2181,9 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 5571,
+        "addedLines": 5589,
         "removedLines": 0,
-        "addedAssertionLines": 341,
+        "addedAssertionLines": 342,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2265,7 +2265,7 @@
       "removedAssertionLines": 1,
       "recutAssertionLines": 1,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 1166
+      "addedAssertionLines": 1167
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
@@ -2358,6 +2358,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-16T15:57:17.057Z"
+    "at": "2026-11-16T16:54:30.370Z"
   }
 }

@@ -4,7 +4,7 @@
   "task": "T001",
   "title": "Reproduce the three red assertions at this head and publish one record",
   "question": "which commands refuse at this head, what does each one print, and does the stage name the predecessor whose ship commit git does not record?",
-  "verdict": "2 of the 3 measurements does not pass at this head: the fix-record stage held to M044 exits 0 with no refusal, the gate-integrity suite exits 1 with no refusal and the fix-record stage on this branch exits 1 refusing claim-absent-from-the-range",
+  "verdict": "1 of the 3 measurements does not pass at this head: the fix-record stage held to M044 exits 0 with no refusal, the gate-integrity suite exits 0 with no refusal and the fix-record stage on this branch exits 1 refusing claim-absent-from-the-range",
   "archive": {
     "command": "npm run gate:fix-record -- --milestone M044 --head 5290d939497448823ca0f5d1ce5c1d777805ddb8",
     "exitCode": 0,
@@ -37,9 +37,9 @@
   },
   "fixRecord": {
     "command": "node --test scripts/gate-integrity.test.mjs",
-    "exitCode": 1,
+    "exitCode": 0,
     "refusal": null,
-    "summary": "ℹ fail 1",
+    "summary": "ℹ fail 0",
     "counts": {
       "watched": 3,
       "green": 3,
@@ -52,7 +52,7 @@
         "AC2: a red check reaches the gate as a refusal",
         "AC7: a log token is a claim only where its task declares it"
       ],
-      "note": "the suite exits 1 and 3 of the 3 assertion(s) T001 reproduced is printed as passing by the runner's own roster, with none of them red at this head; a name that leaves the roster is a deleted or renamed test rather than a repair, so counts.green counts presence and every red one among them is held here with the first difference it prints."
+      "note": "the suite exits 0 and 3 of the 3 assertion(s) T001 reproduced is printed as passing by the runner's own roster, with none of them red at this head; a name that leaves the roster is a deleted or renamed test rather than a repair, so counts.green counts presence and every red one among them is held here with the first difference it prints."
     }
   },
   "predecessor": {

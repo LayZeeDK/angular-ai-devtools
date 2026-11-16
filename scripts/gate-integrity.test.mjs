@@ -57,6 +57,7 @@
 //   set "M044_CAPTURE=1"&& node --experimental-strip-types --test "scripts/gate-integrity.test.mjs"
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, sep } from 'node:path';
@@ -4474,8 +4475,25 @@ test('T004: the three new sections are what this head derives, so a default run 
 /** The milestone whose numerically previous id carries no ship commit, measured at this head. */
 const UNSHIPPED_MILESTONE = 'M056';
 
-/** The milestone whose ship commit is the newest `git log` carries, so it answers M056's base. */
-const NEWEST_SHIPPED_MILESTONE = 'M044';
+/**
+ * The milestone whose ship commit is the newest `git log` carries, so it answers M056's base. Read from
+ * the log rather than named: naming it made the fixture assert that M044 was newest, which stopped being
+ * true the moment M045 shipped, and the fallback then answered with a base the constant could not see.
+ * The property is "newest", so the fixture reads the newest.
+ */
+const NEWEST_SHIPPED_MILESTONE = (() => {
+  const log = execFileSync('git', ['log', '--format=%s', '--grep=^ship: M'], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  });
+  const first = log.split('\n').find((line) => line.trim() !== '') ?? '';
+  const numbered = /^ship: (M\d+)/.exec(first);
+  assert.ok(
+    numbered,
+    `git log must name at least one ship commit for this measurement to mean anything: ${first}`,
+  );
+  return numbered[1];
+})();
 
 test('T003 E5, E7: a milestone whose numerically previous id is unshipped derives a range, and the base it used is printed', (t) => {
   const newest = shipRange({ root: ROOT, milestone: NEWEST_SHIPPED_MILESTONE });
