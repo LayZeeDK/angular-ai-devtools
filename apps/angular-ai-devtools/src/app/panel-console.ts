@@ -34,7 +34,10 @@
  * no code renders that absence in its own sentence, and the finding's `text` already says so. And a
  * code the digest matched only after folding case renders the digest's own spelling as its `code`
  * line, followed by one sentence naming both spellings, because a row that printed `NG01002` for a
- * message that carried `ng01002` would be reporting a difference it never stated (E6). No line this
+ * message that carried `ng01002` would be reporting a difference it never stated (E6). That sentence
+ * claims the digest's title only where the finding carries one: a row whose digest entry states no
+ * title carries no title, so its sentence names the difference and says no title is stated, and the
+ * two sentences beside it agree instead of contradicting each other on one surface. No line this
  * pane writes of its own names a cause, an element or a remedy: the capture records none of the three
  * (`research/raw/m045-console-shapes.json`, `notCaptured`), the digest carries no field for them, and
  * this pane reads exactly `text`, `code`, `title`, `reason` and `carriedCode` off a finding, so a
@@ -48,13 +51,15 @@
  * what the pane may not do is write such a word into a sentence of its own.
  *
  * The sentences it writes for itself are enumerated once, below, in `PANE_SENTENCES`: the three state
- * sentences, the six named absences and the case-difference sentence, each with an id and its exact
- * text — the two that name a code state the hole that code is filled into as a `{slot}`. Every line
- * the pane writes of its own is one of those entries and nothing else: a pane-written line is either
- * a labelled fact the answer carried or an entry of the registry, and there is no third place a
- * sentence can come from. A new sentence is therefore a deliberate edit to the registry — which both
- * suites read, and which the record's own contract must carry (`contract.sentenceRegistry`) before
- * either of them passes — rather than a wording that slips past a matcher.
+ * sentences, the six named absences and the two a folded match states — the one that claims the
+ * digest's own spelling and title, and the one that claims the spelling and says no title is stated —
+ * each with an id and its exact text. The three that name a code state the hole that code is filled
+ * into as a `{slot}`. Every line the pane writes of its own is one of those entries and nothing else:
+ * a pane-written line is either a labelled fact the answer carried or an entry of the registry, and
+ * there is no third place a sentence can come from. A new sentence is therefore a deliberate edit to
+ * the registry — which both suites read, and which the record's own contract must carry
+ * (`contract.sentenceRegistry`) before either of them passes — rather than a wording that slips past a
+ * matcher.
  *
  * The absence statement of the record's contract (`contract.absenceStatement`) is kept as a secondary
  * check over the registry's own text, so an entry that claims what the page did still reddens. Its
@@ -91,6 +96,17 @@
  *           carries the digest's own spelling and title
  *   text: ng01002: Missing control value for the input
  *
+ * The same row where the digest carries `NG01002` and states no title for it: the row carries the
+ * digest's spelling and no title, so the difference is stated without the title claim, and the
+ * absence sentence above it says the same thing.
+ *
+ *   code: NG01002
+ *   no-title: the digest carries the code this message carried and states no title for it, so no
+ *           title is rendered
+ *   case-difference-no-title: the message carried ng01002 and the digest carries NG01002, so this
+ *           finding carries the digest's own spelling and no title is stated for it
+ *   text: ng01002: Missing control value for the input
+ *
  * A page the pane has no answer for — nothing was handed over, or a value with no state word —
  * renders `no-console-answer` in a sentence of its own: never an empty pane, and never a state read
  * off an answer nobody gave. A state word the pane was not written for is rendered as the word it was
@@ -125,6 +141,9 @@ export const UNREADABLE_FINDING = 'unreadable-finding';
 /** The label the case-difference sentence carries, so the pane's own words are recognisable. */
 export const CASE_DIFFERENCE = 'case-difference';
 
+/** The label the same sentence carries where the row the fold produced states no title. */
+export const CASE_DIFFERENCE_NO_TITLE = 'case-difference-no-title';
+
 /** Every state word the join can answer, in the order the pane states them. */
 export const STATES = [JOINED, CAPTURED_NOTHING, NO_DIAGNOSTICS] as const;
 
@@ -146,12 +165,13 @@ export type PaneSentence = {
 
 /**
  * The pane's own sentences, enumerated. This is the only place a sentence this pane writes for itself
- * lives: the state sentences, the named absences, and the one difference a folded match states. The
- * pane renders from here and from nothing else, so a new sentence is an entry a reviewer sees rather
- * than a wording a matcher has to be taught.
+ * lives: the state sentences, the named absences, and the two wordings the one difference a folded
+ * match states takes — the row carrying the digest's title, and the row carrying none. The pane renders
+ * from here and from nothing else, so a new sentence is an entry a reviewer sees rather than a wording
+ * a matcher has to be taught.
  *
  * Order: the three state sentences in the join's own order, then the absences a surface can state,
- * then the two that name a code.
+ * then the three that name a code.
  */
 export const PANE_SENTENCES: readonly PaneSentence[] = [
   {
@@ -211,6 +231,12 @@ export const PANE_SENTENCES: readonly PaneSentence[] = [
   {
     id: 'case-difference',
     text: "case-difference: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and title",
+    slots: ['carriedCode', 'digestCode'],
+    state: null,
+  },
+  {
+    id: 'case-difference-no-title',
+    text: "case-difference-no-title: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and no title is stated for it",
     slots: ['carriedCode', 'digestCode'],
     state: null,
   },
@@ -312,6 +338,24 @@ export function caseFoldedMatchText(
 }
 
 /**
+ * The sentence a finding renders where the digest matched its code only after folding case and states
+ * no title for it: the row carries the digest's own spelling and no title, so this sentence names both
+ * spellings and claims the spelling alone. It says no title is stated, which is what the row shows, so
+ * it agrees with the absence sentence beside it instead of claiming a title the row does not carry. It
+ * states a difference between two names, never a cause, an element or a remedy, and never what the
+ * page did.
+ *
+ * @param carriedCode the code as the capture wrote it — the spelling the digest does not carry
+ * @param digestCode the digest's own spelling, which is the `code` the finding carries
+ */
+export function caseFoldedMatchWithoutTitleText(
+  carriedCode: string,
+  digestCode: string,
+): string {
+  return sentenceText('case-difference-no-title', { carriedCode, digestCode });
+}
+
+/**
  * What the panel renders for one answer.
  *
  * `state` is the word the answer carried; `kind` is the same word, the way every panel surface names
@@ -369,7 +413,10 @@ function noAnswer(): ConsoleSurface {
  *
  * The one difference a match can state renders as its own sentence too: where the digest's spelling
  * differs from the message's, the pane says which spelling each side carried, because the row above
- * prints the digest's spelling and a reader must be able to see that the message's differed.
+ * prints the digest's spelling and a reader must be able to see that the message's differed. That
+ * sentence claims the digest's title only where the row carries one: where it carries none, the
+ * sentence says the spelling and that no title is stated, which is what the `no-title` sentence above
+ * it already says, so the two agree on that surface.
  */
 function findingLines(raw: Record<string, unknown>): readonly string[] {
   const text = typeof raw['text'] === 'string' ? raw['text'] : '';
@@ -389,9 +436,14 @@ function findingLines(raw: Record<string, unknown>): readonly string[] {
 
   // The message's own spelling of a code the digest matched by folding case. It is stated beside the
   // digest's spelling above, and only where the two really differ, so the sentence never claims a
-  // difference a reader cannot see.
+  // difference a reader cannot see. The title claim is read off the row: a titled row says the digest's
+  // spelling and title, a titleless one says the spelling and that no title is stated — never both.
   if (code !== null && carriedCode !== null && carriedCode !== code)
-    lines.push(caseFoldedMatchText(carriedCode, code));
+    lines.push(
+      title === null
+        ? caseFoldedMatchWithoutTitleText(carriedCode, code)
+        : caseFoldedMatchText(carriedCode, code),
+    );
 
   // A reason this pane was not written for is echoed as itself rather than dropped; `no-digest-entry`
   // is already stated by the sentence above, so it is never printed twice.

@@ -40,15 +40,23 @@
 // pane's own naming Angular, and no claim about the page — and the pin that holds it reddens when the
 // sentence stops naming the difference.
 //
+// T025: that sentence carries a second claim, the digest's title, and it may state that claim only
+// where the row carries a title. A folded row whose digest entry carries the code and no title renders
+// the absence in the `no-title` sentence and the difference in a sentence of its own that says no title
+// is stated, and `pinFoldedRowWithoutTitleStatesNoTitle` holds the two to each other — the defect wave
+// 10's review reproduced was those two sentences contradicting each other on one surface, and the pin
+// reddens on the claim rather than on the branch.
+//
 // The E7 prohibitions are a rule and not a snapshot of the `joined` surface: `pinE7OnEveryState` runs
 // them on `joined`, `captured-nothing`, `no-diagnostics` and a state word the pane was not written
 // for, so a cause, an element, a remedy or an unattributed word about the framework added to any one
 // of those surfaces reddens a pin that names both the state and the phrase.
 //
 // The pane's own sentences are enumerated, not policed (T019). Every sentence it writes for itself is
-// an entry of `PANE_SENTENCES` in the module — the three state sentences, the six named absences and
-// the case-difference sentence, each with an id and its exact text — and the pane renders from that
-// registry and from nothing else. The pins below hold the registry to the rendered output in both
+// an entry of `PANE_SENTENCES` in the module — the three state sentences, the six named absences and the
+// two wordings the one difference a folded match states takes (the row carrying the digest's title and
+// the row carrying none), each with an id and its exact text — and the pane renders from that registry
+// and from nothing else. The pins below hold the registry to the rendered output in both
 // directions: `pinEveryRegistryEntryRenders` requires an answer that renders each entry where it
 // belongs, and `pinNoRenderedLineIsOutsideTheRegistry` requires every rendered pane-written line to be
 // a labelled fact of the answer or an entry of the registry, naming the line when it is neither.
@@ -217,6 +225,34 @@ function noDiagnosticsAnswer() {
 }
 
 /**
+ * The code the folded fixture lands on in the digest, read from the join's own answer rather than
+ * written here.
+ */
+const FOLDED_DIGEST_CODE = foldedAnswer().findings[0].code;
+
+/**
+ * The shipped digest with the one entry the folded fixture lands on reduced to its code: `NG01002`
+ * carrying no title. Every one of the shipped entries states a title, so this is the one shape the
+ * shipped digest cannot produce and the join's contract still answers — a finding with the digest's
+ * spelling, no `title`, and the message's spelling beside it. The pane is held to the answer the join
+ * really gives for it, not to one written here.
+ */
+const TITLELESS_DIGEST = {
+  version: DIGEST.version,
+  entries: DIGEST.entries.map((entry) =>
+    entry.code === FOLDED_DIGEST_CODE ? { code: entry.code } : entry,
+  ),
+};
+
+/**
+ * The join's own answer for the case-folded diagnostic where the digest carries that code and states
+ * no title for it: the digest's spelling beside the message's, and no `title` on the finding.
+ */
+function titlelessFoldedAnswer() {
+  return clone(JOIN.consoleJoin([FOLDED], TITLELESS_DIGEST));
+}
+
+/**
  * The joined answer with its one finding fattened by the fields the capture does not record for it: a
  * cause, an element reference, a remedy, the capture's own `component` and a count. The pane may
  * render none of them, which is what E7 is written about.
@@ -320,13 +356,20 @@ function ownSentences(answer) {
     if (typeof finding.code === 'string')
       sentences.add(SURFACE.noDigestEntryText(finding.code));
     // E6: the difference sentence names the two spellings, so it is read off the finding rather than
-    // written out here — a pane that named a spelling the answer does not carry still reddens.
+    // written out here — a pane that named a spelling the answer does not carry still reddens. T025:
+    // the sentence the folded row states depends on the title the row carries, so it is read off that
+    // too; the titled wording claims a title only a titled row may claim.
     if (
       typeof finding.carriedCode === 'string' &&
       typeof finding.code === 'string'
     )
       sentences.add(
-        SURFACE.caseFoldedMatchText(finding.carriedCode, finding.code),
+        typeof finding.title === 'string'
+          ? SURFACE.caseFoldedMatchText(finding.carriedCode, finding.code)
+          : SURFACE.caseFoldedMatchWithoutTitleText(
+              finding.carriedCode,
+              finding.code,
+            ),
       );
   }
   return sentences;
@@ -506,12 +549,121 @@ function pinCaseDifferenceIsNamed(surface, answer) {
     /NG0\d{3,}/i,
     `case-difference: the sentence names codes rather than a count or a blank; it rendered ${JSON.stringify(sentence)}`,
   );
+  // T025/AC1: the row carries the digest's title, so the sentence that states the difference states that
+  // claim too. It is the claim only a titled row may make — `pinFoldedRowWithoutTitleStatesNoTitle` holds
+  // the other shape to the other wording — and the assertion is here so neither shape can borrow the
+  // other's sentence.
+  assert.match(
+    sentence,
+    /\b(?:own|the digest's) spelling and title\b/,
+    `case-difference: the row carries the digest's own title, so the sentence states the difference and that title claim; it rendered ${JSON.stringify(sentence)}`,
+  );
   assert.equal(
     surface.lines.filter((line) =>
       line.startsWith(`${SURFACE.NO_DIGEST_ENTRY}: `),
     ).length,
     0,
     `case-difference: a folded match is a match, so no absence sentence is rendered for it; the pane rendered ${JSON.stringify(surface.lines)}`,
+  );
+}
+
+/**
+ * T025, AC1 and AC2: a folded match whose digest entry carries the code and states no title. The row
+ * carries the digest's spelling and no title, so the pane may claim no title anywhere on that surface:
+ * no `title:` line is rendered, the absence is stated in the `no-title` sentence, and the difference is
+ * stated in the sentence registered for exactly this shape — the two sentences agree, and neither says
+ * the row carries a title it does not carry.
+ *
+ * The failure names the claim rather than the branch, so the mutant that renders the titled sentence on
+ * a titleless row reddens with `states-no-title` and not with a diff of lines: what the pin reads is the
+ * sentence the surface states, which is what the defect was.
+ */
+function pinFoldedRowWithoutTitleStatesNoTitle(surface, answer) {
+  const folded = answer.findings.filter(
+    (finding) =>
+      typeof finding.carriedCode === 'string' &&
+      typeof finding.code === 'string',
+  );
+  assert.equal(
+    folded.length,
+    1,
+    `states-no-title: the fixture must carry exactly one case-folded match, or this pin proves nothing; the answer carried ${JSON.stringify(answer.findings)}`,
+  );
+  const [finding] = folded;
+  assert.equal(
+    Object.hasOwn(finding, 'title'),
+    false,
+    `states-no-title: this pin holds the folded row whose digest entry states no title, and the finding carries one (${JSON.stringify(finding.title)}); a titled row is the other shape, held by pinCaseDifferenceIsNamed`,
+  );
+  assert.equal(
+    folded[0].carriedCode.toLowerCase(),
+    folded[0].code.toLowerCase(),
+    `states-no-title: the two spellings the row states must fold together (${finding.carriedCode} and ${finding.code}), or the pin is naming a difference the digest did not match`,
+  );
+  assert.equal(
+    surface.lines.some((line) => line.startsWith('title: ')),
+    false,
+    `states-no-title: the row carries no title, so the pane prints no title line for it; the pane rendered ${JSON.stringify(surface.lines)}`,
+  );
+  const claims = surface.lines.filter((line) =>
+    /\b(?:own|the digest's) spelling and title\b/.test(line),
+  );
+  assert.deepEqual(
+    claims,
+    [],
+    `states-no-title: a folded row the digest carries no title for must claim no title, and the pane claimed one on ${JSON.stringify(claims)} — a surface may state what the row carries and nothing more; the pane rendered ${JSON.stringify(surface.lines)}`,
+  );
+  const absence = surface.lines.filter(
+    (line) => renderedLabel(line) === SURFACE.NO_TITLE,
+  );
+  assert.equal(
+    absence.length,
+    1,
+    `states-no-title: the digest carries the code and states no title for it, so the pane states that absence in exactly one sentence labelled ${JSON.stringify(SURFACE.NO_TITLE)}; the pane rendered ${JSON.stringify(surface.lines)}`,
+  );
+  const stated = surface.lines.filter(
+    (line) => renderedLabel(line) === SURFACE.CASE_DIFFERENCE_NO_TITLE,
+  );
+  assert.equal(
+    stated.length,
+    1,
+    `states-no-title: the pane must state the difference in exactly one sentence labelled ${JSON.stringify(SURFACE.CASE_DIFFERENCE_NO_TITLE)}, which is the wording for a folded row with no title; the pane rendered ${JSON.stringify(surface.lines)}`,
+  );
+  const [sentence] = stated;
+  assert.ok(
+    sentence.includes(finding.carriedCode),
+    `states-no-title: the sentence must name the spelling the message carried (${finding.carriedCode}), or the difference it states is not the one the row shows; it rendered ${JSON.stringify(sentence)}`,
+  );
+  assert.ok(
+    sentence.includes(finding.code),
+    `states-no-title: the sentence must name the spelling the digest carries (${finding.code}), or a reader cannot see which spelling the row uses; it rendered ${JSON.stringify(sentence)}`,
+  );
+  assert.match(
+    sentence,
+    /NG0\d{3,}/i,
+    `states-no-title: the sentence names codes rather than a count or a blank; it rendered ${JSON.stringify(sentence)}`,
+  );
+  // AC2, the half the review measured: the two sentences on that surface agree. Both say the row has no
+  // title, and neither claims one.
+  for (const line of [...absence, sentence])
+    assert.match(
+      line,
+      /\bno title\b/,
+      `states-no-title: the absence and the difference both say the row carries no title, so the two sentences on this surface agree; the pane rendered ${JSON.stringify(line)} of ${JSON.stringify(surface.lines)}`,
+    );
+  assert.equal(
+    surface.lines.some(
+      (line) => renderedLabel(line) === SURFACE.CASE_DIFFERENCE,
+    ),
+    false,
+    `states-no-title: the sentence labelled ${JSON.stringify(SURFACE.CASE_DIFFERENCE)} claims a title, and this row carries none, so it is not rendered beside ${JSON.stringify(SURFACE.CASE_DIFFERENCE_NO_TITLE)}; the pane rendered ${JSON.stringify(surface.lines)}`,
+  );
+  assert.equal(
+    surface.lines.filter((line) =>
+      line.startsWith(`${SURFACE.NO_DIGEST_ENTRY}: `),
+    ).length,
+    0,
+    `states-no-title: a folded match is a match, so no absence sentence is rendered for it; the pane rendered ${JSON.stringify(surface.lines)}`,
   );
 }
 
@@ -1072,13 +1224,21 @@ function slotValues(api, entry) {
     );
     return { code: absent.code };
   }
-  if (entry.id === 'case-difference') {
-    const folded = foldedAnswer().findings[0];
+  if (
+    entry.id === 'case-difference' ||
+    entry.id === 'case-difference-no-title'
+  ) {
+    // Both wordings name the same two spellings: the titled row's and the titleless row's are the same
+    // fold, stated with and without the title claim, so the values are read from the answer of the
+    // shape the entry is worded for.
+    const answer =
+      entry.id === 'case-difference' ? foldedAnswer() : titlelessFoldedAnswer();
+    const folded = answer.findings[0];
     assert.ok(
       typeof folded?.carriedCode === 'string' &&
         typeof folded.code === 'string' &&
         folded.carriedCode !== folded.code,
-      'sentence-registry: the join must answer a folded match with two spellings, or the case-difference sentence cannot be filled and this pin would read a hole',
+      `sentence-registry: the join must answer a folded match with two spellings for ${JSON.stringify(entry.id)}, or this sentence cannot be filled and this pin would read a hole`,
     );
     return { carriedCode: folded.carriedCode, digestCode: folded.code };
   }
@@ -1181,6 +1341,10 @@ const PANE_ANSWERS = [
     () => ({ state: SURFACE.JOINED, findings: [] }),
   ],
   ['a code the digest matched only by folding case', () => foldedAnswer()],
+  [
+    'a code the digest matched only by folding case, with no title in the digest',
+    () => titlelessFoldedAnswer(),
+  ],
   [
     'a list entry that is not a finding',
     () => ({ state: SURFACE.JOINED, findings: ['not a finding'] }),
@@ -2109,6 +2273,51 @@ describe('the pane renders the join’s state and findings (SC3, SC4, E7)', () =
     );
     console.log(
       `console pane case-folded: ${JSON.stringify(foldedSurface.lines)}`,
+    );
+
+    // T025/AC2, the shape wave 10's review reproduced: the same fold, where the digest carries the code
+    // and states no title for it. The row carries the digest's spelling and no title, so the titled
+    // sentence's claim is one this surface cannot support — the pane states the absence and the
+    // difference, and `pinFoldedRowWithoutTitleStatesNoTitle` holds those two sentences to each other.
+    const titleless = titlelessFoldedAnswer();
+    const titlelessFinding = titleless.findings[0];
+    assert.deepEqual(
+      TITLELESS_DIGEST.entries.find(
+        (entry) => entry.code === FOLDED_DIGEST_CODE,
+      ),
+      { code: FOLDED_DIGEST_CODE },
+      'the titleless digest must carry the code and no title, or this shape proves nothing',
+    );
+    assert.equal(
+      Object.hasOwn(titlelessFinding, 'title'),
+      false,
+      `the join must carry no title for a digest entry that states none; it answered ${JSON.stringify(titlelessFinding)}`,
+    );
+    assert.equal(titlelessFinding.code, FOLDED_DIGEST_CODE);
+    assert.equal(titlelessFinding.carriedCode, FOLDED.code);
+    const titlelessSurface = SURFACE.consolePanel(titleless);
+    pinFoldedRowWithoutTitleStatesNoTitle(titlelessSurface, titleless);
+    pinRendersTheAnswerAndNothingElse(titlelessSurface, titleless);
+    pinNoCauseElementRemedy(titlelessSurface, titleless);
+    pinNoUnattributedAngularWording(titlelessSurface);
+    pinNoAbsenceClaimsSilence(titlelessSurface);
+    assert.deepEqual(
+      [...titlelessSurface.lines],
+      [
+        `state: ${SURFACE.JOINED}`,
+        SURFACE.STATE_TEXTS[SURFACE.JOINED],
+        `code: ${titlelessFinding.code}`,
+        SURFACE.NO_TITLE_TEXT,
+        SURFACE.caseFoldedMatchWithoutTitleText(
+          titlelessFinding.carriedCode,
+          titlelessFinding.code,
+        ),
+        `text: ${titlelessFinding.text}`,
+      ],
+      `states-no-title: a folded row whose digest entry carries no title renders the digest's spelling, the absence and the difference, and no title claim; it rendered ${JSON.stringify(titlelessSurface.lines)}`,
+    );
+    console.log(
+      `console pane case-folded without a title: ${JSON.stringify(titlelessSurface.lines)}`,
     );
   });
 
@@ -3102,6 +3311,35 @@ const MUTATIONS = [
         'the mutant really keeps the case-difference line and drops the spellings from it',
       ),
     names: /case-difference/,
+  },
+  {
+    // T025: the shape wave 10's review reproduced — a folded row whose digest entry carries the code and
+    // no title, rendered with the sentence that claims the digest's title. The claim is what reddens, not
+    // the branch, so the mutant keeps the sentence and drops the condition it is read under; the pane
+    // then states two sentences that contradict each other on one surface.
+    id: 'title-claimed-without-a-title',
+    defect: 'states-no-title',
+    anchor: [
+      '    lines.push(',
+      '      title === null',
+      '        ? caseFoldedMatchWithoutTitleText(carriedCode, code)',
+      '        : caseFoldedMatchText(carriedCode, code),',
+      '    );',
+    ].join('\n'),
+    replacement: '    lines.push(caseFoldedMatchText(carriedCode, code));',
+    check: (api) => {
+      const answer = titlelessFoldedAnswer();
+      return () =>
+        pinFoldedRowWithoutTitleStatesNoTitle(api.consolePanel(answer), answer);
+    },
+    exhibits: (module) =>
+      assert.ok(
+        module
+          .consolePanel(titlelessFoldedAnswer())
+          .lines.some((line) => /\bown spelling and title\b/.test(line)),
+        'the mutant really claims the digest’s title on a row that carries none',
+      ),
+    names: /states-no-title/,
   },
   {
     // T019: the registry is what a sentence is, so writing one of its texts again beside the entries

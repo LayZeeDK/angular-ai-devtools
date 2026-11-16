@@ -31,6 +31,7 @@
       "no-title",
       "no-digest-entry",
       "case-difference",
+      "case-difference-no-title",
       "no-finding",
       "no-console-answer",
       "unreadable-finding",
@@ -98,6 +99,15 @@
       {
         "id": "case-difference",
         "text": "case-difference: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and title",
+        "slots": [
+          "carriedCode",
+          "digestCode"
+        ],
+        "state": null
+      },
+      {
+        "id": "case-difference-no-title",
+        "text": "case-difference-no-title: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and no title is stated for it",
         "slots": [
           "carriedCode",
           "digestCode"

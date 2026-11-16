@@ -37,14 +37,16 @@
 //
 // `contract.sentenceRegistry` is a second statement of the same kind, and it is held the same way
 // (T019). The pane's own sentences are enumerated in the module (`PANE_SENTENCES`): the three state
-// sentences, the six named absences and the case-difference sentence, each with an id and its exact
-// text. The record carries a copy of that registry, and `pinTheSentenceRegistryIsThePanes` fails
-// naming the entry when the pane's registry and the record's copy disagree in either direction — an
-// entry the pane states and the record lacks, an entry the record carries and the pane does not write,
-// or an entry whose text, slots or state word moved on one side only. The recorded lines are held to
-// the same copy: `pinRecordedLinesAreRegistrySentences` reads the recording's own bytes, so every
-// pane-written line of a recorded surface is a labelled fact the recorded answer states or an entry of
-// the record's own copy, and an armed re-capture cannot bless a sentence the pane has no entry for.
+// sentences, the six named absences and the two wordings the one difference a folded match states takes
+// — the row carrying the digest's title (T015) and, from T025, the row whose digest entry states no
+// title — each with an id and its exact text. The record carries a copy of that registry, and
+// `pinTheSentenceRegistryIsThePanes` fails naming the entry when the pane's registry and the record's
+// copy disagree in either direction — an entry the pane states and the record lacks, an entry the record
+// carries and the pane does not write, or an entry whose text, slots or state word moved on one side
+// only. The recorded lines are held to the same copy: `pinRecordedLinesAreRegistrySentences` reads the
+// recording's own bytes, so every pane-written line of a recorded surface is a labelled fact the
+// recorded answer states or an entry of the record's own copy, and an armed re-capture cannot bless a
+// sentence the pane has no entry for.
 // That is what makes a fifth wording impossible to smuggle past the absence rule rather than merely
 // unlikely to be caught: the rule is kept as a secondary check on the registry's text, and the
 // enumeration is what refuses a sentence it has not seen.
@@ -166,6 +168,7 @@ const LINE_LABELS = [
   'no-title',
   'no-digest-entry',
   'case-difference',
+  'case-difference-no-title',
   'no-finding',
   'no-console-answer',
   'unreadable-finding',
@@ -205,15 +208,17 @@ const PROHIBITED_WORDING = [
 
 /**
  * The pane's own sentences, as `contract.sentenceRegistry` carries them (T019): the three state
- * sentences, the six named absences and the case-difference sentence, each with the id it is
- * registered under, its exact text, the `{slot}` its text states, and the state word it answers where
- * it answers one. This is the record's copy of the module's `PANE_SENTENCES`, and it is a statement
- * about the shipped pane rather than a sample of the recorded subset: `pinTheSentenceRegistryIsThePanes`
- * holds it to the module in both directions, so an entry either side gains alone reddens naming the
- * entry, and an entry whose wording moved on one side reddens naming the field.
+ * sentences, the six named absences and the two wordings the one difference a folded match states takes
+ * — `case-difference` for the row carrying the digest's title, and `case-difference-no-title` (T025) for
+ * the row whose digest entry states none — each with the id it is registered under, its exact text, the
+ * `{slot}` its text states, and the state word it answers where it answers one. This is the record's
+ * copy of the module's `PANE_SENTENCES`, and it is a statement about the shipped pane rather than a
+ * sample of the recorded subset: `pinTheSentenceRegistryIsThePanes` holds it to the module in both
+ * directions, so an entry either side gains alone reddens naming the entry, and an entry whose wording
+ * moved on one side reddens naming the field.
  *
- * The two entries with a slot are one sentence each, not a family: `no-digest-entry` names the code it
- * states, and `case-difference` names the two spellings a folded match produced, and neither sentence
+ * The three entries with a slot are one sentence each, not a family: `no-digest-entry` names the code it
+ * states, and the two folded sentences name the two spellings a folded match produced, and none of them
  * exists in the pane outside the text written here.
  */
 const SENTENCE_REGISTRY = [
@@ -274,6 +279,12 @@ const SENTENCE_REGISTRY = [
   {
     id: 'case-difference',
     text: "case-difference: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and title",
+    slots: ['carriedCode', 'digestCode'],
+    state: null,
+  },
+  {
+    id: 'case-difference-no-title',
+    text: "case-difference-no-title: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and no title is stated for it",
     slots: ['carriedCode', 'digestCode'],
     state: null,
   },
@@ -1585,14 +1596,15 @@ function pinRecordsOnlyTheContractVocabulary(
 //
 // The exports and the pushes are asserted to lie inside what the probes render, so a sentence or a
 // pushed label this suite does not render reddens here as an unread label rather than passing unseen.
-// Two of the fifteen labels come from branches no answer the join can give reaches: the shipped
-// digest states a title for every code it carries and the join states its one reason for every code it
-// lacks, so `no-title` and an unmodelled `reason` are reached by two answers written below rather than
-// read from the join — and no recorded case renders either, which is why both are in the list with no
-// case behind them. The honest limit: this reading is these three, so a label the pane starts writing
-// from a helper this suite does not call, on a branch no probe reaches, would be invisible to it. At
-// this head no label is in that position, and the completeness check fails rather than letting one
-// slip.
+// Three of the sixteen labels come from branches the shipped digest cannot reach: it states a title for
+// every code it carries and the join states its one reason for every code it lacks, so `no-title` and an
+// unmodelled `reason` are reached by two answers written below rather than read from the join, and
+// `case-difference-no-title` (T025) is reached by the join's own answer over a digest whose folded entry
+// states no title — the shape the shipped digest cannot produce, written below beside them. No recorded
+// case renders any of the three, which is why all three are in the list with no case behind them. The
+// honest limit: this reading is these three, so a label the pane starts writing from a helper this suite
+// does not call, on a branch no probe reaches, would be invisible to it. At this head no label is in
+// that position, and the completeness check fails rather than letting one slip.
 //
 // What this does not do is widen the vocabulary to let a sentence pass. It compares two sets of
 // *labels*: the words inside a sentence are policed by `contract.prohibitedWording` and by the absence
@@ -1616,10 +1628,37 @@ function foldedAnswer() {
 }
 
 /**
+ * The code the folded fixture lands on in the digest, read from the join's own answer rather than
+ * written here.
+ */
+const FOLDED_DIGEST_CODE = foldedAnswer().findings[0].code;
+
+/**
+ * The shipped digest with the one entry the folded fixture lands on reduced to its code: the code and
+ * no title. Every one of the shipped entries states a title, so this is the shape the shipped digest
+ * cannot produce and the join still answers — a finding with the digest's spelling, no `title`, and the
+ * message's spelling beside it (T025). Nothing is recorded from it: `derive()` reads the shipped digest,
+ * and this digest is read only by the label-vocabulary probe below, which needs the sentence the pane
+ * writes for that row.
+ */
+const TITLELESS_DIGEST = {
+  version: DIGEST.version,
+  entries: DIGEST.entries.map((entry) =>
+    entry.code === FOLDED_DIGEST_CODE ? { code: entry.code } : entry,
+  ),
+};
+
+/** The join's own answer for the folded diagnostic where the digest states no title for its code. */
+function titlelessFoldedAnswer() {
+  return clone(JOIN.consoleJoin([FOLDED], TITLELESS_DIGEST));
+}
+
+/**
  * The answers this suite hands the pane so that every branch it can take is taken, each named by what
  * it reaches. Two of them — the titleless finding and the unmodelled reason — are this suite's own and
  * not the join's, for the reason stated above the block: no answer the join can give reaches those two
- * branches at this head.
+ * branches at this head. The third, the folded row with no title, is the join's own over a digest that
+ * states no title for the folded code, which is the shape T025 repaired and no recorded case carries.
  */
 const PANE_PROBES = [
   ['a joined answer that carried no finding', { state: JOINED, findings: [] }],
@@ -1643,6 +1682,10 @@ const PANE_PROBES = [
     answerForDiagnostic(UNMATCHED),
   ],
   ['a code the digest matched only by folding case', foldedAnswer()],
+  [
+    'a code the digest matched only by folding case, with no title in the digest',
+    titlelessFoldedAnswer(),
+  ],
   [
     'a list entry that is not a finding',
     { state: JOINED, findings: ['not a finding'] },
@@ -1926,7 +1969,10 @@ function pinTheSentenceRegistryIsThePanes(
  * carry is not a line this pin will accept. `case-difference` is filled from a finding that carries
  * both `code` and `carriedCode` — the record's finding shape gained `carriedCode` (T023), which is
  * what lets the folded case this record now carries render its own sentence; a line whose two
- * spellings are not a recorded finding's reddens as a sentence outside the recording's registry.
+ * spellings are not a recorded finding's reddens as a sentence outside the recording's registry. The
+ * second wording a folded match takes, `case-difference-no-title` (T025), is filled only from a finding
+ * of the shape it is written for — both spellings and no `title` — so no recording can bless the title
+ * claim on a row that carries none, or the absence of one on a row that does.
  */
 function pinRecordedLinesAreRegistrySentences(entry, contract) {
   const carried = contract.sentenceRegistry;
@@ -1954,6 +2000,25 @@ function pinRecordedLinesAreRegistrySentences(entry, contract) {
         if (
           typeof finding.carriedCode === 'string' &&
           typeof finding.code === 'string'
+        )
+          texts.add(
+            sentence.text
+              .split('{carriedCode}')
+              .join(finding.carriedCode)
+              .split('{digestCode}')
+              .join(finding.code),
+          );
+      continue;
+    }
+    if (sentence.id === 'case-difference-no-title') {
+      // T025: the wording for a folded row that carries no title. It is filled only from a recorded
+      // finding of that shape, so a recording that blessed the titled wording on a titleless row — or
+      // this wording on a row that does carry a title — reddens as a sentence outside its registry.
+      for (const finding of entry.findings)
+        if (
+          typeof finding.carriedCode === 'string' &&
+          typeof finding.code === 'string' &&
+          typeof finding.title !== 'string'
         )
           texts.add(
             sentence.text
