@@ -8,8 +8,8 @@
   "archiveReferences": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps",
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
-    "filesExamined": 277,
-    "suitesExamined": 145,
+    "filesExamined": 278,
+    "suitesExamined": 146,
     "examined": 184,
     "movedSubtrees": [
       "build",
@@ -896,7 +896,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3759,
+        "line": 3761,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -2043,8 +2043,8 @@
       "named": "d94502d1",
       "commit": "d94502d174aff31b0b1ebbab200d5e47939dec39"
     },
-    "examined": 203,
-    "filesListed": 555,
+    "examined": 204,
+    "filesListed": 556,
     "differing": [
       {
         "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
@@ -2125,6 +2125,19 @@
         "reason": "wholly added at this head: M045 T002 pins the join of a captured diagnostic to the shipped digest by the code it carries — one finding per diagnostic in capture order, a code the digest lacks named rather than counted, a message with no code saying so, and an empty capture kept distinct from no diagnostics — with five mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit"
       },
       {
+        "file": "scripts/console-panel-record.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 1156,
+        "removedLines": 0,
+        "addedAssertionLines": 108,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M045 T004 pins the console pane’s behaviour as one recorded reading of it — every case’s join `state`, each finding’s `text` with its `code`/`title`/`reason` exactly where the contract places them, and the pane’s own rendered lines — by re-deriving all of it from the join, the shipped digest and the pane, with a code the digest lacks named rather than counted, captured-nothing stated rather than rendered as an empty list, the two absences kept as two statements, and the one write behind `M045_CAPTURE=1` so a default run reads the same bytes; two mutants each redden the pin that names its defect, a reading the measured commit carries no file to edit"
+      },
+      {
         "file": "scripts/console-panel-render.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
@@ -2167,7 +2180,7 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 4652,
+        "addedLines": 4654,
         "removedLines": 0,
         "addedAssertionLines": 256,
         "removedAssertionLines": 0,
@@ -2245,32 +2258,32 @@
       }
     ],
     "counts": {
-      "differing": 15,
+      "differing": 16,
       "edited": 10,
-      "added": 5,
+      "added": 6,
       "removedAssertionLines": 1,
       "recutAssertionLines": 1,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 602
+      "addedAssertionLines": 710
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
   "wholeTree": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps src .claude/skills .commandcode/skills",
-    "examined": 203,
-    "filesListed": 555,
+    "examined": 204,
+    "filesListed": 556,
     "suites": {
-      "scripts": 100,
+      "scripts": 101,
       "extension": 11,
       "apps": 34,
       "src": 2,
       "skills": 56,
-      "total": 203
+      "total": 204
     },
     "declarations": {
-      "tests": 2441,
-      "describes": 296,
-      "total": 2737
+      "tests": 2461,
+      "describes": 301,
+      "total": 2762
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -2344,6 +2357,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-15T22:53:45.289Z"
+    "at": "2026-11-16T00:16:44.836Z"
   }
 }

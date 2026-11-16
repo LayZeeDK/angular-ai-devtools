@@ -1,0 +1,204 @@
+{
+  "schema": "m045-console-panel/v1",
+  "milestone": "M045 console-read",
+  "task": "T004",
+  "title": "Record the surface and run the project verify",
+  "question": "what does the console pane render, case by case, from the join the extension ships?",
+  "contract": {
+    "returns": "{ state, findings[] }",
+    "states": [
+      "joined",
+      "captured-nothing",
+      "no-diagnostics"
+    ],
+    "finding": [
+      "text",
+      "code?",
+      "title?",
+      "reason?"
+    ],
+    "reason": "reason is present only when the digest lacks the code the message carried, and code is absent only when the message carried none",
+    "rendered": "the pane renders state and findings and nothing else: no cause, no element, no remedy and no unattributed wording"
+  },
+  "sources": {
+    "surface": "apps/angular-ai-devtools/src/app/panel-console.ts",
+    "join": "extension/console-join.js",
+    "digest": "extension/error-digest.json",
+    "shapes": "research/raw/m045-console-shapes.json"
+  },
+  "capture": {
+    "command": "set \"M045_CAPTURE=1\"&& node --test scripts/console-panel-record.test.mjs",
+    "check": "node --test scripts/console-panel-record.test.mjs",
+    "records": "research/raw/m045-console-panel.json",
+    "write": "an armed run re-derives every case from the join and the pane and writes this file only when a value moved, so a default run is a read and a second armed run writes no byte",
+    "reproduces": "every value below is derived from the four files named under sources at the head that carries them, so a second run at the same path re-derives the same bytes: this record carries no clock, no commit and no absolute path"
+  },
+  "fixture": {
+    "payloadKeys": [
+      "code",
+      "message",
+      "component",
+      "timestamp"
+    ],
+    "matchedCode": "NG0100",
+    "matchedTitle": "Expression Changed After Checked",
+    "unmatchedCode": "NG04002",
+    "unmatchedTitle": null,
+    "digestEntries": 64,
+    "digestCarriesUnmatchedCode": false,
+    "captureRegex": "/NG0\\d{3,}/",
+    "unmatchedExtractedByTheCaptureRegex": true
+  },
+  "cases": [
+    {
+      "id": "joined",
+      "why": "a matched code, a code the digest lacks and a message that carried none, in capture order",
+      "input": {
+        "handedOver": true,
+        "diagnostics": [
+          {
+            "code": "NG0100",
+            "message": "NG0100: Expression has changed after it was checked.",
+            "component": null,
+            "timestamp": 1
+          },
+          {
+            "code": "NG04002",
+            "message": "NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist",
+            "component": null,
+            "timestamp": 2
+          },
+          {
+            "code": null,
+            "message": "the app failed",
+            "component": null,
+            "timestamp": 3
+          }
+        ]
+      },
+      "state": "joined",
+      "findings": [
+        {
+          "text": "NG0100: Expression has changed after it was checked.",
+          "code": "NG0100",
+          "title": "Expression Changed After Checked"
+        },
+        {
+          "text": "NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist",
+          "code": "NG04002",
+          "reason": "no-digest-entry"
+        },
+        {
+          "text": "the app failed (this message carried no code)"
+        }
+      ],
+      "surface": {
+        "state": "joined",
+        "kind": "joined",
+        "message": "state: joined",
+        "lines": [
+          "state: joined",
+          "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
+          "code: NG0100",
+          "title: Expression Changed After Checked",
+          "text: NG0100: Expression has changed after it was checked.",
+          "code: NG04002",
+          "no-digest-entry: the digest carries no entry for NG04002, so this finding is named by the code it carried and no title is rendered",
+          "text: NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist",
+          "no-code: the captured message carried no code, so this finding carries no code and no title",
+          "text: the app failed (this message carried no code)"
+        ],
+        "text": "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG0100\ntitle: Expression Changed After Checked\ntext: NG0100: Expression has changed after it was checked.\ncode: NG04002\nno-digest-entry: the digest carries no entry for NG04002, so this finding is named by the code it carried and no title is rendered\ntext: NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist\nno-code: the captured message carried no code, so this finding carries no code and no title\ntext: the app failed (this message carried no code)"
+      }
+    },
+    {
+      "id": "shared-code",
+      "why": "two diagnostics sharing one code are two findings, in capture order, with the one title",
+      "input": {
+        "handedOver": true,
+        "diagnostics": [
+          {
+            "code": "NG0100",
+            "message": "NG0100: Expression has changed after it was checked.",
+            "component": null,
+            "timestamp": 1
+          },
+          {
+            "code": "NG0100",
+            "message": "NG0100: second report",
+            "component": null,
+            "timestamp": 4
+          }
+        ]
+      },
+      "state": "joined",
+      "findings": [
+        {
+          "text": "NG0100: Expression has changed after it was checked.",
+          "code": "NG0100",
+          "title": "Expression Changed After Checked"
+        },
+        {
+          "text": "NG0100: second report",
+          "code": "NG0100",
+          "title": "Expression Changed After Checked"
+        }
+      ],
+      "surface": {
+        "state": "joined",
+        "kind": "joined",
+        "message": "state: joined",
+        "lines": [
+          "state: joined",
+          "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
+          "code: NG0100",
+          "title: Expression Changed After Checked",
+          "text: NG0100: Expression has changed after it was checked.",
+          "code: NG0100",
+          "title: Expression Changed After Checked",
+          "text: NG0100: second report"
+        ],
+        "text": "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG0100\ntitle: Expression Changed After Checked\ntext: NG0100: Expression has changed after it was checked.\ncode: NG0100\ntitle: Expression Changed After Checked\ntext: NG0100: second report"
+      }
+    },
+    {
+      "id": "captured-nothing",
+      "why": "a capture that was read and carried no diagnostic: a statement, never an empty list",
+      "input": {
+        "handedOver": true,
+        "diagnostics": []
+      },
+      "state": "captured-nothing",
+      "findings": [],
+      "surface": {
+        "state": "captured-nothing",
+        "kind": "captured-nothing",
+        "message": "state: captured-nothing",
+        "lines": [
+          "state: captured-nothing",
+          "captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent"
+        ],
+        "text": "state: captured-nothing\ncaptured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent"
+      }
+    },
+    {
+      "id": "no-diagnostics",
+      "why": "no capture handed to the join at all, which is a different absence from an empty one",
+      "input": {
+        "handedOver": false
+      },
+      "state": "no-diagnostics",
+      "findings": [],
+      "surface": {
+        "state": "no-diagnostics",
+        "kind": "no-diagnostics",
+        "message": "state: no-diagnostics",
+        "lines": [
+          "state: no-diagnostics",
+          "no-diagnostics: no capture was handed to the join at all, so no capture was read"
+        ],
+        "text": "state: no-diagnostics\nno-diagnostics: no capture was handed to the join at all, so no capture was read"
+      }
+    }
+  ]
+}
