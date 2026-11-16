@@ -1651,7 +1651,7 @@ Goal: A finding can be handed to the agent as a question about itself, and what 
 Depends on: [M020]
 Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
-Status: pending
+Status: active
 Archive: null
 Integrated: null
 
