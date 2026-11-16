@@ -32,6 +32,7 @@ Project verify: `npm run check && npm test`
 | SC3 | T003 | AC2 |
 | SC4 | T003 | AC1 |
 | SC5 | T003 | AC4 |
+| SC5 | T019 | AC1 |
 | SC5 | T004 | AC2 |
 
 ## Prohibitions
