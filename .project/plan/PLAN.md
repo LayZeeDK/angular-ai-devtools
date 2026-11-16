@@ -134,6 +134,20 @@ comes from the manifest, the lost-before-injection gap is written down, the cont
 name say what is true, the size is restated from a command, and the join's "text cannot choose an entry" rule
 gets the pin it never had.
 
+## Wave 7 — repair what the second reviews refuted
+
+Goal: the recording pin refuses only what a pane may not say, and every number the record carries is a
+command's output.
+
+Review depth: full
+
+T009 repairs the over-reach the previous repair introduced: the prohibited-word list now polices only the
+lines the pane writes itself, so the digest's titles and the capture's text are exempt, and matching is by
+word rather than substring. It also carries the silence rule to every absence state, which the third setup
+left scoped to `captured-nothing`. T010 corrects two numbers that owe a command: the record's one unprinted
+leaf, and the Log's over-reported control-character count. T011 removes the tail-suffix resolution the previous
+repair added to the gate, which pinned a spelling that exists nowhere and that no test could see.
+
 ## Risks
 
 - **The gate pins the suites this milestone adds.** `scripts/gate-integrity.test.mjs` requires a
