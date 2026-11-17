@@ -8,7 +8,7 @@
   "archiveReferences": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps",
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
-    "filesExamined": 278,
+    "filesExamined": 280,
     "suitesExamined": 146,
     "examined": 183,
     "movedSubtrees": [
@@ -896,7 +896,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3805,
+        "line": 3807,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -2035,15 +2035,15 @@
       "commit": "d94502d174aff31b0b1ebbab200d5e47939dec39"
     },
     "examined": 176,
-    "filesListed": 445,
+    "filesListed": 447,
     "differing": [
       {
         "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 13,
+        "addedLines": 26,
         "removedLines": 1,
-        "addedAssertionLines": 4,
+        "addedAssertionLines": 8,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2054,7 +2054,7 @@
         "file": "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 3,
+        "addedLines": 6,
         "removedLines": 0,
         "addedAssertionLines": 0,
         "removedAssertionLines": 0,
@@ -2067,9 +2067,9 @@
         "file": "apps/angular-ai-devtools/src/app/page-picker.component.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 40,
+        "addedLines": 43,
         "removedLines": 3,
-        "addedAssertionLines": 3,
+        "addedAssertionLines": 4,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2080,9 +2080,9 @@
         "file": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 254,
+        "addedLines": 466,
         "removedLines": 0,
-        "addedAssertionLines": 31,
+        "addedAssertionLines": 56,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2145,9 +2145,9 @@
         "file": "scripts/copy-to-agent.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 208,
+        "addedLines": 880,
         "removedLines": 0,
-        "addedAssertionLines": 30,
+        "addedAssertionLines": 86,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2239,7 +2239,7 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 5632,
+        "addedLines": 5634,
         "removedLines": 0,
         "addedAssertionLines": 346,
         "removedAssertionLines": 0,
@@ -2290,6 +2290,19 @@
         "reason": "the live intent path is asked of `verdict-claims-intent.mjs` rather than spelled, so the suite decides nothing about the archive move itself; one assertion line was re-cut to the resolver’s answer with its call and its subject unchanged, and none was dropped"
       },
       {
+        "file": "scripts/panel-routes.test.mjs",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 47,
+        "removedLines": 0,
+        "addedAssertionLines": 6,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "the surface list gained `console-read`, so E1 checks that route and E2 exports it; E4 gained a mutant that drops its LOADERS key and E1 gained one that deletes its route entry, and no existing assertion was removed"
+      },
+      {
         "file": "scripts/panel-typecheck-scope.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
@@ -2330,20 +2343,20 @@
       }
     ],
     "counts": {
-      "differing": 20,
-      "edited": 13,
+      "differing": 21,
+      "edited": 14,
       "added": 7,
       "removedAssertionLines": 28,
       "recutAssertionLines": 28,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 1229
+      "addedAssertionLines": 1321
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
   "wholeTree": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps src .claude/skills .commandcode/skills",
     "examined": 176,
-    "filesListed": 445,
+    "filesListed": 447,
     "suites": {
       "scripts": 101,
       "extension": 11,
@@ -2353,9 +2366,9 @@
       "total": 176
     },
     "declarations": {
-      "tests": 2172,
+      "tests": 2182,
       "describes": 303,
-      "total": 2475
+      "total": 2485
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -2429,6 +2442,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-17T00:15:19.223Z"
+    "at": "2026-11-17T01:08:22.149Z"
   }
 }

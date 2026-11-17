@@ -3570,6 +3570,8 @@ const TREE_ROOTS = [
  * unexamined row: the list is a reading of the diffs, so a diff nobody read cannot appear in it.
  */
 const SUITE_DIFF_REASONS = {
+  'scripts/panel-routes.test.mjs':
+    'the surface list gained `console-read`, so E1 checks that route and E2 exports it; E4 gained a mutant that drops its LOADERS key and E1 gained one that deletes its route entry, and no existing assertion was removed',
   'scripts/copy-to-agent.test.mjs':
     'a suite this milestone added rather than changed: it pins the measurement record `research/raw/m046-pane-and-copy.json`, its five assertions are all additions and none was removed, and every cited path and line is read from that record rather than spelled here',
   'scripts/doc-fix-alignment.test.mjs':
