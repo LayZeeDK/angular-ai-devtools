@@ -263,7 +263,17 @@ if (values.ship) {
   for (const { check } of checks()) {
     const mine = verdicts
       .filter((v) => v.check === check)
-      .sort((a, b) => a.at.localeCompare(b.at));
+      // Equal timestamps are a real case: two verdicts written in the same millisecond carry the
+      // same ISO string, and the order then came from the directory walk. Measured on M047 T004:
+      // the ship-mode refusal test passed in one run and failed in a nested run of the same head.
+      // A tie is not evidence that the later run verified the check, so the non-verified verdict
+      // is placed last and decides — the conservative reading, which cannot turn a red into a pass.
+      .sort(
+        (a, b) =>
+          a.at.localeCompare(b.at) ||
+          (a.verdict === 'verified' ? -1 : 1) -
+            (b.verdict === 'verified' ? -1 : 1),
+      );
     const verified = mine.filter((v) => v.verdict === 'verified');
     const newest = mine[mine.length - 1];
     add(
