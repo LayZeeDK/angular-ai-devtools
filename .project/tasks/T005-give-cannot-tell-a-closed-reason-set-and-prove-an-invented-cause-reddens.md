@@ -2,10 +2,10 @@
 id: T005
 title: Give cannot-tell a closed reason set and prove an invented cause reddens
 wave: 4
-status: pending
+status: done
 deps: [T004]
-agent: null
-base: null
+agent: build_T005
+base: c0b1036caa3067389c81f69e217d07bb160d66f6
 worktree: null
 task_branch: null
 files:
@@ -52,3 +52,4 @@ node --test scripts/copy-to-agent.test.mjs && npx prettier --check extension/cop
 ## Log
 
 - Queued by the plan for M046 copy-to-agent. No work has run yet.
+- Landed paths: `extension/copy-to-agent.js`, `scripts/copy-to-agent.test.mjs` — each is read from this tree, ready.

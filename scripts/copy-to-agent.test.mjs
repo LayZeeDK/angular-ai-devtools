@@ -571,3 +571,310 @@ test('the hand-off states what the pane drew and names no cause, element, remedy
     }
   }
 });
+
+// ---------------------------------------------------------------------------
+// T005 — the cannot-tell reason set: closed, exported, and a sentence per member
+// ---------------------------------------------------------------------------
+//
+// An open vocabulary of reasons is an open vocabulary of causes: a caller that can spell a reason can
+// name an absence the observable never stated, which is the prohibition this milestone carries (N3).
+// So the set is written out here, member and sentence both, rather than read off the module — a suite
+// that read them back would agree with any rewording — and three things are held to it: the set is
+// what the module publishes and cannot be widened at runtime, each member's sentence is the module's
+// words to the character, and a reason outside the set cannot leave the join at all.
+//
+// The set has one member because the join has one way to fail. Any string is the text the pane drew
+// and is handed over, so the only refusal is the input that is not a text — `nothing-rendered`. A
+// second name would have to name an absence this module observes, and it observes none: the candidates
+// (`no-absence`, a text that "states no finding") are readings of the pane's own vocabulary or of the
+// caller's wishes, not of this join's input, and inventing one is the failure AC1 exists for. The
+// suite pins the set at one member, so adding a second is a deliberate edit here and not a slip.
+
+/** The reason set, exactly: the one absence the join refuses with, and no second name for it. */
+const CLOSED_SET = ['nothing-rendered'];
+
+/** Each reason's sentence, to the character: the module's own words for that absence. */
+const REASON_SENTENCES = {
+  'nothing-rendered':
+    'nothing-rendered: no text was drawn, so there is no hand-off to send',
+};
+
+/** Every input the join refuses with an absence: nothing that is the text the pane drew. */
+const ABSENT_INPUTS = [
+  ['the empty string', { rendered: '' }],
+  ['a missing rendered field', {}],
+  ['a rendered that is null', { rendered: null }],
+  ['a rendered that is a number', { rendered: 42 }],
+  [
+    'an array of lines in place of the joined text',
+    { rendered: ['state: joined'] },
+  ],
+  ['no argument at all', undefined],
+];
+
+/**
+ * The pin the closed set exists for: the reason an absence states is a member of the set the module
+ * publishes. A reason outside it is an invented absence, so the message names the value it found
+ * rather than the rule it broke.
+ * @param {any} api the module's namespace
+ * @param {any} answer one answer the join gave
+ * @param {string} what what the answer was
+ */
+function assertReasonInTheSet(api, answer, what) {
+  const reasons = host(api.CANNOT_TELL_REASONS);
+  assert.ok(
+    Array.isArray(reasons) && reasons.length > 0,
+    'the module must publish the reason set as a non-empty list a caller can enumerate',
+  );
+  assert.ok(
+    reasons.includes(answer.reason),
+    `${what} names the reason ${JSON.stringify(
+      answer.reason,
+    )}, which is outside the closed set [${reasons.join(', ')}]`,
+  );
+}
+
+/**
+ * The sentence pin: one sentence per member, no sentence for a reason the set does not carry, each
+ * sentence carrying its own reason as its label, and each one the module's own words to the
+ * character. A reworded sentence reddens here naming the reason it belongs to.
+ * @param {any} api the module's namespace
+ */
+function assertSentencesExact(api) {
+  const sentences = host(api.CANNOT_TELL_SENTENCES);
+  assert.deepEqual(
+    Object.keys(sentences).sort(),
+    Object.keys(REASON_SENTENCES).sort(),
+    'the sentences must be one per member of the set and no sentence for a reason the set does not carry',
+  );
+  for (const [reason, sentence] of Object.entries(REASON_SENTENCES)) {
+    assert.equal(
+      sentences[reason],
+      sentence,
+      `the sentence for ${reason} must be the module's words for it, to the character`,
+    );
+    assert.ok(
+      sentences[reason].startsWith(`${reason}: `),
+      `the sentence for ${reason} must carry its own reason as its label: ${sentences[reason]}`,
+    );
+    const text = sentences[reason].toLowerCase();
+    for (const word of FORBIDDEN)
+      assert.ok(
+        !text.includes(word),
+        `the sentence for ${reason} must name no cause, element, remedy or rule identity: "${word}" appears in ${text}`,
+      );
+  }
+}
+
+/**
+ * The failure a mutant raises, whether it refuses or answers: a value the module throws out of a
+ * `node:vm` context carries that context's `TypeError`, not this realm's, so the check is a message
+ * rather than an `instanceof`.
+ * @param {() => any} pin
+ * @param {string} what
+ * @param {RegExp} assertion
+ */
+function refusesBy(pin, what, assertion) {
+  let failure = null;
+  try {
+    pin();
+  } catch (error) {
+    failure = error;
+  }
+  assert.ok(
+    failure !== null,
+    `${what} raised nothing, so the mutation is not caught`,
+  );
+  assert.equal(
+    typeof failure.message,
+    'string',
+    `${what} raised something that carries no message`,
+  );
+  assert.match(
+    failure.message,
+    assertion,
+    `${what} must redden naming the value it found, not an unrelated assertion: ${failure.message}`,
+  );
+  return failure;
+}
+
+test('the cannot-tell reason set is closed, frozen and exported', () => {
+  const { api } = loadBare();
+  const reasons = host(api.CANNOT_TELL_REASONS);
+
+  // The set is the whole vocabulary, named here rather than read off the module.
+  assert.deepEqual(
+    reasons,
+    CLOSED_SET,
+    'the join must publish exactly the reason set this suite pins, one member and no second name',
+  );
+  assert.ok(
+    Object.isFrozen(api.CANNOT_TELL_REASONS),
+    'the reason set must be frozen, so a caller cannot widen the vocabulary at runtime',
+  );
+  assert.ok(
+    Object.isFrozen(api.CANNOT_TELL_SENTENCES),
+    'the sentences must be frozen, so a caller cannot reword one at runtime',
+  );
+  for (const reason of reasons) {
+    assert.equal(
+      typeof reason,
+      'string',
+      'every reason in the set is a name a caller compares as a string',
+    );
+    assert.ok(
+      reason.trim().length > 0,
+      'every reason in the set says something',
+    );
+  }
+  assert.equal(
+    new Set(reasons).size,
+    reasons.length,
+    'each reason is named once, so the set is a set rather than a list of spellings',
+  );
+  assert.equal(
+    api.NOTHING_RENDERED,
+    CLOSED_SET[0],
+    'the constant the module exports is the member its set carries',
+  );
+
+  // The namespace is the vocabulary and nothing else: a member added to the module without being read
+  // here would otherwise be a reason nobody pinned.
+  assert.deepEqual(
+    Object.keys(api).sort(),
+    [
+      'CANNOT_TELL',
+      'CANNOT_TELL_REASONS',
+      'CANNOT_TELL_SENTENCES',
+      'HANDED_OVER',
+      'NOTHING_RENDERED',
+      'copyToAgent',
+    ],
+    'the module publishes the join, the two state words and the reason set, and nothing unexamined',
+  );
+
+  // Every refusal the join can give names a member, and names that member to the character.
+  for (const [what, input] of ABSENT_INPUTS) {
+    const answer = host(api.copyToAgent(input));
+    assert.equal(
+      answer.state,
+      'cannot-tell',
+      `${what} must be the absence, not a hand-off`,
+    );
+    assertReasonInTheSet(api, answer, what);
+    assert.equal(
+      answer.reason,
+      CLOSED_SET[0],
+      `${what} must name the set's one member, to the character`,
+    );
+  }
+
+  // A reason a caller supplies is not echoed: the join names the absence it read, so a caller cannot
+  // hand its own vocabulary to the surface through the input.
+  const sneaked = host(
+    api.copyToAgent({
+      rendered: '',
+      reason: 'invented-cause',
+      subject: 'invented-cause',
+    }),
+  );
+  assertReasonInTheSet(api, sneaked, 'an input carrying a reason');
+  assert.equal(
+    sneaked.reason,
+    CLOSED_SET[0],
+    'a caller-supplied reason must not reach the answer',
+  );
+});
+
+test('each reason states its sentence to the character, so a reworded one reddens', (t) => {
+  // The pin first, on the module as it stands.
+  assertSentencesExact(loadBare().api);
+
+  // The mutant rewords the one sentence: a surface rendering the join's words would print a claim the
+  // module does not make, which is the defect this pin exists for.
+  const reworded = mutant(
+    "    'nothing-rendered: no text was drawn, so there is no hand-off to send';",
+    "    'nothing-rendered: nothing was handed over, so nothing is sent';",
+  );
+  const failure = reddensBy(
+    () => assertSentencesExact(reworded),
+    'rewording the nothing-rendered sentence',
+    /nothing-rendered/,
+  );
+  t.diagnostic(
+    `a reworded sentence reddens: ${failure.message.split('\n')[0]}`,
+  );
+
+  // A member left without a sentence is caught the same way: the set and the sentences are one table.
+  const dropped = mutant(
+    '    [NOTHING_RENDERED]: NOTHING_RENDERED_SENTENCE,\n',
+    '',
+  );
+  reddensBy(
+    () => assertSentencesExact(dropped),
+    'a reason carrying no sentence',
+    /one per member/,
+  );
+
+  // The file on disk was never written, so reloading it restores the pin.
+  assertSentencesExact(loadBare().api);
+});
+
+test('a reason outside the set cannot leave the join, and the pin names the value', (t) => {
+  const { api } = loadBare();
+
+  // The pin: every absence the join states names a member of the set.
+  for (const [what, input] of ABSENT_INPUTS)
+    assertReasonInTheSet(api, host(api.copyToAgent(input)), what);
+
+  // The join reaches the absence through its own definition and one call site, and that call site
+  // names the set's constant: a second way out would be a second vocabulary.
+  assert.equal(
+    MODULE_SRC.split('cannotTell(').length - 1,
+    2,
+    'the module must reach the absence through its definition and one call site',
+  );
+  assert.ok(
+    MODULE_SRC.includes('    return cannotTell(NOTHING_RENDERED);'),
+    'the join must name the set member when it refuses, rather than a spelling of it',
+  );
+
+  // A mutant that makes the join answer with a reason outside the set: the pin reddens naming the
+  // value, so an invented cause cannot pass as an answer.
+  const answering = mutant(
+    '    return cannotTell(NOTHING_RENDERED);',
+    "    return { state: CANNOT_TELL, reason: 'invented-cause' };",
+  );
+  const invented = host(answering.copyToAgent({ rendered: '' }));
+  assert.equal(
+    invented.reason,
+    'invented-cause',
+    'the mutant must answer with the invented reason, or it is not the answer this pin exists for',
+  );
+  const failure = reddensBy(
+    () => assertReasonInTheSet(answering, invented, 'a mutant answer'),
+    'an answer naming a reason outside the set',
+    /invented-cause/,
+  );
+  t.diagnostic(`an outside reason reddens: ${failure.message.split('\n')[0]}`);
+
+  // A second mutant asks the module's own refusal for that reason: the join throws rather than
+  // handing over an answer whose reason is not in the set, and the refusal names the value.
+  const refusing = mutant(
+    '    return cannotTell(NOTHING_RENDERED);',
+    "    return cannotTell('invented-cause');",
+  );
+  const refusal = refusesBy(
+    () => refusing.copyToAgent({ rendered: '' }),
+    'asking the join for a reason outside the set',
+    /invented-cause/,
+  );
+  t.diagnostic(
+    `the join refuses an outside reason: ${refusal.message.split('\n')[0]}`,
+  );
+
+  // The file on disk was never written: the module as it stands answers with a member again.
+  const reloaded = loadBare().api;
+  for (const [what, input] of ABSENT_INPUTS)
+    assertReasonInTheSet(reloaded, host(reloaded.copyToAgent(input)), what);
+});
