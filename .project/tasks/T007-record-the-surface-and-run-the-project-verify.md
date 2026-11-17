@@ -2,14 +2,15 @@
 id: T007
 title: Record the surface and run the project verify
 wave: 5
-status: pending
+status: in-progress
 deps: [T002, T004, T005, T006]
-agent: null
-base: null
-worktree: null
+agent: build_T007
+base: 988dc89adb5c53bc285076ce7c4ccdd05e29e7c9
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - research/raw/m046-surface.json
+  - research/raw/m046-verdict-claims.json
   - scripts/copy-to-agent.test.mjs
   - .project/research/DOCS-AUDIT.md
 ---
@@ -54,3 +55,4 @@ node --test scripts/copy-to-agent.test.mjs && npm run check && npm test
 ## Log
 
 - Queued by the plan for M046 copy-to-agent. No work has run yet.
+- Landed paths: `research/raw/m046-surface.json`, `research/raw/m046-verdict-claims.json`, `scripts/copy-to-agent.test.mjs`, `.project/research/DOCS-AUDIT.md` — each is read from this tree, ready.

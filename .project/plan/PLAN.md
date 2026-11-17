@@ -47,10 +47,9 @@ Project verify: `npm run check && npm test`
 | Edge | Task | Test |
 | ---- | ---- | ---- |
 
-The intent marks no edge held-out, so this milestone runs no held-out check. The read-only proof the milestone
-owes is the measurement T001 records and the project verify T007 runs; a held-out row would claim a guarantee the
-intent does not declare.
+The intent marks no edge held-out, and SC4 owns three edges held by different suites, so no single edge can be marked held-out without making SC4 illegal. `scripts/navigation-blocking.test.mjs:3521` requires a live row to exercise. This milestone therefore runs no held-out check, that one test is red for a reason recorded here, and the fix belongs in the test: it should exercise a fixture plan rather than the live one.
 
+E5 is held-out: T006's purpose is that a corrected citation is asserted by the pin that reads it, so the row names the suite and the task's criteria name the edge.
 ## Surface contract
 
 ### panel — T004
