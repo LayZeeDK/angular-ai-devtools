@@ -10,6 +10,10 @@ worktree: null
 task_branch: null
 files:
   - research/raw/m047-surface.json
+  - scripts/gate-integrity.test.mjs
+  - scripts/recording-consistency.test.mjs
+  - research/raw/m044-gate-shapes.json
+  - research/raw/m056-gate-stability.json
 ---
 
 # T004 — Record the surface and run the project verify
@@ -35,6 +39,10 @@ None
 
 ## Files
 
+  - scripts/gate-integrity.test.mjs
+  - scripts/recording-consistency.test.mjs
+  - research/raw/m044-gate-shapes.json
+  - research/raw/m056-gate-stability.json
   - research/raw/m047-surface.json
 
 ## Acceptance criteria
