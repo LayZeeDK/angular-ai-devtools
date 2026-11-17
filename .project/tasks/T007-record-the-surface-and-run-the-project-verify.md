@@ -48,7 +48,7 @@ None
 
 ## Verify
 
-```bash
+```
 node --test scripts/copy-to-agent.test.mjs && npm run check && npm test
 ```
 
