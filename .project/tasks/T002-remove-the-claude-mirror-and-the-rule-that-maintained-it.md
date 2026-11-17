@@ -2,11 +2,11 @@
 id: T002
 title: Remove the .claude mirror and the rule that maintained it
 wave: 2
-status: in-progress
+status: done
 deps: []
 agent: build_T002
-base: c3e7ff350a6d86dc73c8f4fe7e2f37bde1956072
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 43125f9d4fbc9066f803a5dda105621e02119af6
+worktree: null
 task_branch: null
 files:
   - .claude/skills/control-ai-browsers/SKILL.md
@@ -73,3 +73,4 @@ node --check scripts/skill-lint.mjs && node scripts/skill-lint.mjs && npm run ch
 
 - Queued by the plan for M046 copy-to-agent. The owner's instruction of 2026-11-16 authorises the deletion; the
   work lands here rather than as an ad-hoc removal, so the rules that maintained the mirror retire in one commit.
+- Landed paths: `.claude/skills/control-ai-browsers/SKILL.md`, `scripts/skills-mirror.test.mjs`, `scripts/skill-lint.mjs`, `AGENTS.md`, `package.json`, `scripts/docs-correction.test.mjs`, `scripts/doc-fix-alignment.test.mjs`, `tests/docs-alignment.test.mjs`, `scripts/gate-integrity.test.mjs`, `research/raw/m044-gate-shapes.json` — each is read from this tree, ready.

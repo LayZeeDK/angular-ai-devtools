@@ -37,10 +37,9 @@ sidecars, including worktree and branch).
 - Every instance loads `extension/`. Run `npx nx run angular-ai-devtools:build-extension` before `up`, and prove the
   extension's Prompt API feature with `control-ai-browsers panel <name> --url=<app>` or `verify-ai-browsers`
   `checks/extension-panel.mjs`.
-- `.commandcode/skills/` is the maintained copy of the `control-*` and `verify-*` skills. `control-ai-browsers` and
-  `verify-ai-browsers` drive shared instances, so `.claude/skills/` holds byte copies of them; after changing one,
-  copy its `.commandcode` folder over the `.claude` one (`scripts/skills-mirror.test.mjs` fails until you do). The
-  other `.claude/skills/` folders are older copies, not kept in step. `npm test` and `npm run check` cover both trees.
+- `.commandcode/skills/` is the only maintained copy of the `control-*` and `verify-*` skills. `control-ai-browsers`
+  and `verify-ai-browsers` drive instances shared by every checkout, so change a skill there and nowhere else: there
+  is no second tree to keep in step. `npm test` and `npm run check` read that tree alone.
 - `edge-dev-aion` runs with `--disable-component-update` and a pin of model 2026.10.15.1, runtime 2026.10.12.1 and
   manifest 2026.10.19.1 (measured 2026-10-30 on Edge Dev 158.0.4357.0: doctor exit 0, canaries 2-4 s). The earlier
   2026.10.2.1 pin could not generate on 158 and wedged a renderer, so do not restore it. Keep the switch, and prove a

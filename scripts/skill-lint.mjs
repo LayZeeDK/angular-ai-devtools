@@ -23,7 +23,7 @@ const ROOT = path.resolve(
   '..',
 );
 
-const SCANNED_ROOTS = ['.commandcode/skills', '.claude/skills'];
+const SCANNED_ROOTS = ['.commandcode/skills'];
 
 const REQUIRED = ['name', 'description'];
 
@@ -98,9 +98,8 @@ function lineOf(file, message) {
 
 function lintFile(file) {
   const rel = path.relative(ROOT, file).split(path.sep).join('/');
-  // `.commandcode/skills` and `.claude/skills` hold the same skills by design — the second is a byte
-  // copy, and `scripts/skills-mirror.test.mjs` owns that relationship. A name repeated across the two
-  // roots is the mirror working, not a duplicate; a repeat within one root is not.
+  // `.commandcode/skills` is the only maintained tree, so a name declared twice inside it is a duplicate,
+  // never a second copy: Command Code would register one of the two and the other would never load.
   const rootKey = rel.split('/').slice(0, 2).join('/');
   const text = fs.readFileSync(file, 'utf8');
   const parts = split(rel, text);

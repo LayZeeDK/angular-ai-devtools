@@ -54,8 +54,6 @@ test('monitor-ci SKILL.md no longer claims nx.json contains nxCloudId/nxCloudAcc
 // sentence cannot rot while the page still reads as corrected.
 import { readdirSync } from 'node:fs';
 
-const SKILL_TREES = ['.commandcode', '.claude'];
-
 function read(rel) {
   return readFileSync(join(ROOT, ...rel.split('/')), 'utf8');
 }
@@ -64,7 +62,7 @@ function readJson(rel) {
   return JSON.parse(read(rel));
 }
 
-test('control-angular-dev-app SKILL.md (both trees) names the two routes the counter declares', () => {
+test('control-angular-dev-app SKILL.md names the two routes the counter declares', () => {
   const fixture = read('spikes/ng222-app/src/app/app.routes.ts');
   assert(
     fixture.includes("path: 'stale-view',"),
@@ -74,69 +72,63 @@ test('control-angular-dev-app SKILL.md (both trees) names the two routes the cou
     fixture.includes("path: 'stale-view-deferred',"),
     'the fixture declares /stale-view-deferred',
   );
-  for (const tree of SKILL_TREES) {
-    const text = read(`${tree}/skills/control-angular-dev-app/SKILL.md`);
-    assert(
-      !text.includes('`provideRouter` with no routes'),
-      `${tree}: the empty-router claim must be gone`,
-    );
-    assert(
-      text.includes('/stale-view') && text.includes('/stale-view-deferred'),
-      `${tree}: both routes must be named`,
-    );
-    assert(
-      text.includes('src/app/app.routes.ts:5-8'),
-      `${tree}: the proving path must be cited`,
-    );
-  }
+  const text = read('.commandcode/skills/control-angular-dev-app/SKILL.md');
+  assert(
+    !text.includes('`provideRouter` with no routes'),
+    'the empty-router claim must be gone',
+  );
+  assert(
+    text.includes('/stale-view') && text.includes('/stale-view-deferred'),
+    'both routes must be named',
+  );
+  assert(
+    text.includes('src/app/app.routes.ts:5-8'),
+    'the proving path must be cited',
+  );
 });
 
-test('control-angular-dev-app features/counter.md (both trees) states the router lists two routes', () => {
-  for (const tree of SKILL_TREES) {
-    const text = read(
-      `${tree}/skills/control-angular-dev-app/features/counter.md`,
-    );
-    assert(
-      !text.includes('with `routes = []`'),
-      `${tree}: the empty routes array must be gone`,
-    );
-    assert(
-      !text.includes('empty route list'),
-      `${tree}: the empty-route-list claim must be gone`,
-    );
-    assert(
-      !text.includes('There are no routes'),
-      `${tree}: the no-routes claim must be gone`,
-    );
-    assert(
-      text.includes('/stale-view') && text.includes('/stale-view-deferred'),
-      `${tree}: both routes must be named`,
-    );
-    assert(
-      text.includes('present: true'),
-      `${tree}: router() must still be described as present`,
-    );
-  }
+test('control-angular-dev-app features/counter.md states the router lists two routes', () => {
+  const text = read(
+    '.commandcode/skills/control-angular-dev-app/features/counter.md',
+  );
+  assert(
+    !text.includes('with `routes = []`'),
+    'the empty routes array must be gone',
+  );
+  assert(
+    !text.includes('empty route list'),
+    'the empty-route-list claim must be gone',
+  );
+  assert(
+    !text.includes('There are no routes'),
+    'the no-routes claim must be gone',
+  );
+  assert(
+    text.includes('/stale-view') && text.includes('/stale-view-deferred'),
+    'both routes must be named',
+  );
+  assert(
+    text.includes('present: true'),
+    'router() must still be described as present',
+  );
 });
 
-test('control-angular-devtools features/README.md (both trees) drops the empty-route-list example', () => {
-  for (const tree of SKILL_TREES) {
-    const text = read(
-      `${tree}/skills/control-angular-devtools/features/README.md`,
-    );
-    assert(
-      !text.includes('empty route list'),
-      `${tree}: the empty-route-list example must be gone`,
-    );
-    assert(
-      !text.includes('as in the counter'),
-      `${tree}: the counter example must be gone`,
-    );
-    assert(
-      text.includes('Router Tree shows only when the app provides the router'),
-      `${tree}: the rule must stay`,
-    );
-  }
+test('control-angular-devtools features/README.md drops the empty-route-list example', () => {
+  const text = read(
+    '.commandcode/skills/control-angular-devtools/features/README.md',
+  );
+  assert(
+    !text.includes('empty route list'),
+    'the empty-route-list example must be gone',
+  );
+  assert(
+    !text.includes('as in the counter'),
+    'the counter example must be gone',
+  );
+  assert(
+    text.includes('Router Tree shows only when the app provides the router'),
+    'the rule must stay',
+  );
 });
 
 // The Chromium build this case pins is a fact about Playwright's own install, which no clean worktree
@@ -148,8 +140,7 @@ test('control-angular-devtools features/README.md (both trees) drops the empty-r
 //      and carries 153.0.8010.12), so its build is a different fact and must not be stated here;
 //   2. the recorded reading for the pinned playwright-core version, taken 2026-11-01 from
 //      node_modules/playwright-core/browsers.json in the primary checkout;
-//   3. the documented token, held to the build-and-revision shape and to agreement across both trees,
-//      when neither is reachable.
+//   3. the documented token, held to the build-and-revision shape, when neither is reachable.
 // A fallback is always reported through t.diagnostic, so no run passes on a weaker check silently, and
 // the stale-build assertions hold in every mode.
 const RECORDED_CHROMIUM = {
@@ -186,7 +177,7 @@ function chromiumBuilds() {
   return { pin, matching, other };
 }
 
-test('control-angular-devtools SKILL.md (both trees) states the Chromium build the installed Playwright pins', (t) => {
+test('control-angular-devtools SKILL.md states the Chromium build the installed Playwright pins', (t) => {
   const { pin, matching, other } = chromiumBuilds();
   const installed = matching[0];
   const recorded = pin ? RECORDED_CHROMIUM[pin] : undefined;
@@ -209,68 +200,59 @@ test('control-angular-devtools SKILL.md (both trees) states the Chromium build t
       : `cross-check: unavailable — no playwright-core install and no recorded reading for ${pin ?? 'an unknown pin'}; asserting the documented token only`,
   );
 
-  const documented = [];
-  for (const tree of SKILL_TREES) {
-    const text = read(`${tree}/skills/control-angular-devtools/SKILL.md`);
+  const text = read('.commandcode/skills/control-angular-devtools/SKILL.md');
+  assert(!text.includes('154.0.8037.0'), 'the stale build number must be gone');
+  assert(
+    !text.includes('Chrome for Testing 154'),
+    'the stale build must be gone',
+  );
+  assert(
+    text.includes('node_modules/playwright-core/browsers.json'),
+    'the proving path must be cited',
+  );
+  for (const displace of other) {
     assert(
-      !text.includes('154.0.8037.0'),
-      `${tree}: the stale build number must be gone`,
+      !text.includes(displace.chromium.browserVersion),
+      `${displace.path} pins playwright-core ${displace.version}, not the installed ${pin}; its Chromium must not be stated`,
     );
-    assert(
-      !text.includes('Chrome for Testing 154'),
-      `${tree}: the stale build must be gone`,
-    );
-    assert(
-      text.includes('node_modules/playwright-core/browsers.json'),
-      `${tree}: the proving path must be cited`,
-    );
-    for (const displace of other) {
-      assert(
-        !text.includes(displace.chromium.browserVersion),
-        `${tree}: ${displace.path} pins playwright-core ${displace.version}, not the installed ${pin}; its Chromium must not be stated`,
-      );
-    }
-    if (expected) {
-      assert(
-        text.includes(expected.browserVersion),
-        `${tree}: the pinned build ${expected.browserVersion} must be stated`,
-      );
-      assert(
-        text.includes(`revision ${expected.revision}`),
-        `${tree}: the pinned revision ${expected.revision} must be stated`,
-      );
-    } else {
-      const stated = text.match(
-        /Chrome for Testing (\d+\.\d+\.\d+\.\d+), revision (\d+)/,
-      );
-      assert(
-        stated,
-        `${tree}: the document must state the Chrome for Testing build and its revision`,
-      );
-      documented.push(`${stated[1]} revision ${stated[2]}`);
-    }
   }
-  if (!expected)
-    assert.equal(
-      new Set(documented).size,
-      1,
-      `both trees must state the same build and revision, not ${documented.join(' / ')}`,
+  if (expected) {
+    assert(
+      text.includes(expected.browserVersion),
+      `the pinned build ${expected.browserVersion} must be stated`,
     );
+    assert(
+      text.includes(`revision ${expected.revision}`),
+      `the pinned revision ${expected.revision} must be stated`,
+    );
+  } else {
+    assert.match(
+      text,
+      /Chrome for Testing \d+\.\d+\.\d+\.\d+, revision \d+/,
+      'the document must state the Chrome for Testing build and its revision',
+    );
+    const stated = [
+      ...text.matchAll(/Chrome for Testing (\d+\.\d+\.\d+\.\d+)/g),
+    ].map((match) => match[1]);
+    assert.equal(
+      new Set(stated).size,
+      1,
+      `the document must state one build and its revision, not ${stated.join(' / ')}`,
+    );
+  }
 });
 
-test('verify-ai-browsers SKILL.md (both trees) gives every shipped check a standalone command', () => {
+test('verify-ai-browsers SKILL.md gives every shipped check a standalone command', () => {
   const checks = readdirSync(
     join(ROOT, '.commandcode', 'skills', 'verify-ai-browsers', 'checks'),
   ).filter((f) => f.endsWith('.mjs') && !f.endsWith('.test.mjs'));
   assert.equal(checks.length, 8, 'the skill ships eight checks');
-  for (const tree of SKILL_TREES) {
-    const text = read(`${tree}/skills/verify-ai-browsers/SKILL.md`);
-    for (const file of checks) {
-      assert(
-        text.includes(`checks/${file}`),
-        `${tree}: the standalone list must name checks/${file}`,
-      );
-    }
+  const text = read('.commandcode/skills/verify-ai-browsers/SKILL.md');
+  for (const file of checks) {
+    assert(
+      text.includes(`checks/${file}`),
+      `the standalone list must name checks/${file}`,
+    );
   }
 });
 
@@ -282,15 +264,17 @@ test('the maintained control-angular-dev-app SKILL.md carries the maintain ratio
     restored.includes(marker),
     'the maintain rationale must be in the maintained copy',
   );
+  // The rationale must still read as one paragraph, ending on the decision it records. The
+  // cross-copy equality this case used to assert is gone with the mirror (T002).
   const paragraph = (
-    read('.claude/skills/control-angular-dev-app/SKILL.md')
-      .split(/\r?\n\r?\n/)
-      .find((p) => p.startsWith(marker)) ?? ''
+    restored.split(/\r?\n\r?\n/).find((p) => p.startsWith(marker)) ?? ''
   ).trim();
-  assert(paragraph, 'the .claude copy must still carry the paragraph');
+  assert(paragraph, 'the rationale must stand as a paragraph of its own');
   assert(
-    restored.includes(paragraph),
-    'the maintained copy must carry that paragraph verbatim',
+    paragraph.endsWith(
+      'A maintain pass keeps it whole rather than splitting it per app.',
+    ),
+    'the rationale must close on the decision to keep the skill whole',
   );
 });
 
@@ -365,7 +349,7 @@ test('references/ai-browsers-verification.md attributes the 600 s to the check, 
   }
 });
 
-test('references/edge-dev-aion-model.md calls the .claude skills copy byte-identical, not older', () => {
+test('references/edge-dev-aion-model.md keeps the byte-identical fact, not the older-copy claim', () => {
   const text = read('references/edge-dev-aion-model.md');
   assert(
     !text.includes("Claude Code's older copy"),
@@ -375,15 +359,16 @@ test('references/edge-dev-aion-model.md calls the .claude skills copy byte-ident
     text.includes('byte-identical'),
     'the byte-identical fact must be stated',
   );
-  const model = 'skills/control-ai-browsers/features/model-lifecycle.md';
-  const maintained = readFileSync(
-    join(ROOT, '.commandcode', ...model.split('/')),
-  );
-  const copy = readFileSync(join(ROOT, '.claude', ...model.split('/')));
+  // The two-tree equality this case used to assert cannot run: the mirror it compared is gone
+  // (T002). The reference now has to hold to the copy it names, and that copy is the maintained
+  // one at .commandcode/skills.
+  const model =
+    '.commandcode/skills/control-ai-browsers/features/model-lifecycle.md';
   assert(
-    maintained.equals(copy),
-    'the two control-ai-browsers trees must stay byte-identical',
+    text.includes(model),
+    'the doc must cite the maintained model-lifecycle.md',
   );
+  assert(read(model).length > 0, 'the cited file must carry text');
 });
 
 test('research/10-model-capabilities.md names the edge-phi4mini profile path', () => {
