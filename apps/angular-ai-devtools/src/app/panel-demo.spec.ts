@@ -104,6 +104,15 @@ import {
   STATE_TEXTS,
   consoleReadPanel,
 } from './panel-copy-to-agent';
+import {
+  CANNOT_TELL as COMPONENTS_CANNOT_TELL,
+  EMPTY as COMPONENTS_EMPTY,
+  FILTERED as COMPONENTS_FILTERED,
+  LISTED as COMPONENTS_LISTED,
+  NO_ANSWER_TEXT as COMPONENTS_NO_ANSWER_TEXT,
+  NO_INSTANCE_COUNT_TEXT,
+  componentsPanel,
+} from './panel-components';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -1037,6 +1046,78 @@ function copyToAgentJoin(): CopyToAgentJoin {
   return join;
 }
 
+/** One row of the component-search join's answer, for the fields this spec reads. */
+interface ComponentSearchRow {
+  name: string;
+  instanceCount: number | null;
+}
+
+/** The component-search join's answer: the four fields the surface renders. */
+interface ComponentSearchAnswer {
+  state: string;
+  rows: ComponentSearchRow[];
+  matched: number;
+  reason?: string;
+}
+
+/** The page's own component-search namespace, as `extension/component-search.js` publishes it. */
+interface ComponentSearchJoin {
+  componentSearch(record: unknown, query: unknown): ComponentSearchAnswer;
+  reasons: readonly string[];
+  states: readonly string[];
+}
+
+/**
+ * The join `extension/component-search.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `components` sample fact is held to the join's answer for the record
+ * assembled here, not to a copy of that answer written in this spec. The module is an IIFE with no
+ * imports, so running it is the whole of loading it.
+ */
+function componentSearchJoin(): ComponentSearchJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/component-search.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/component-search.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (
+    globalThis as unknown as { angularAiComponentSearch?: ComponentSearchJoin }
+  ).angularAiComponentSearch;
+  if (join === undefined || typeof join.componentSearch !== 'function') {
+    throw new Error(
+      'extension/component-search.js published no componentSearch',
+    );
+  }
+  return join;
+}
+
+/**
+ * The record the demo's `components` fact is the join's answer for: three named components beside a
+ * source the record states it read. `app-counter` and `app` are the two names M047's T001 measured
+ * the fixture's page agent reading (`research/raw/m047-names-and-absences.json`, its
+ * `sources[per-check-host-tag]` and `sources[per-check-class-name]`), and `router-outlet` is the
+ * third so the typed text `app` has a row to drop. The counts are fixture data — the enumerator
+ * deduplicates by class name and states no instance count, which T002's `notPinned` says — and the
+ * second row states none, so the pane has a stated absence to render beside a stated count.
+ */
+const COMPONENTS_RECORD = {
+  components: [
+    { name: 'app-counter', instanceCount: 2 },
+    { name: 'app', instanceCount: null },
+    { name: 'router-outlet', instanceCount: 1 },
+  ],
+  source: { state: 'read' },
+};
+
 /** The demo rendered for one surface name, once its lazy surface has answered. */
 async function renderDemo(surface: string): Promise<PanelDemoComponent> {
   await TestBed.configureTestingModule({
@@ -1879,10 +1960,10 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — twenty-five paths, the same ordered list
+    // The whole table, in order and to the count — twenty-seven paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
-    // suite reads the table for this one route, so without it an appended twenty-sixth route would
-    // leave it green while the other suites reddened (M045 T007).
+    // suite reads the table for this one route, so without it an appended route would leave it
+    // green while the other suites reddened (M045 T007, M047 T003).
     expect(appRoutes.map((candidate) => candidate.path)).toEqual([
       '',
       'signal-provenance',
@@ -1910,8 +1991,9 @@ describe('the panel demo', () => {
       'stability',
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
+      'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
     ]);
-    expect(appRoutes).toHaveLength(26);
+    expect(appRoutes).toHaveLength(27);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -2194,5 +2276,186 @@ describe('the panel demo', () => {
     });
     expect(tellable.state).toBe('fields');
     expect(tellable.text).toContain('form: error name-too-short-for-age');
+  });
+
+  /**
+   * The M047 half — the surface behind `/components` is reached through its own route entry, and the
+   * fact it renders is the shipped join's answer for the record this spec assembles, beside the text
+   * that answer was computed for. The four states are held apart: `listed` renders one row per name
+   * the record carries with the count it states — and a stated absence where it states none, never a
+   * `0`; `filtered` states how many rows matched, and matching nothing renders no invented name;
+   * `empty` is the record's own statement that the page rendered none, a different sentence and a
+   * different state word from `cannot-tell`; and `cannot-tell` echoes the join's reason verbatim from
+   * its closed set, with no cause, element, remedy or rule identity beside it (INTENT.md SC1, SC2,
+   * SC3; N1, N2, N3, N4, N5; held-out E4).
+   */
+  it('E4: renders the names and counts the record carries, the filtered count, the stated empty list and the cannot-tell reason apart', async () => {
+    const join = componentSearchJoin();
+    const record = COMPONENTS_RECORD;
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'components',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the components surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    const surfaceName = route.data?.['surface'];
+    if (typeof surfaceName !== 'string') {
+      throw new Error(
+        'the components route must name its surface in route data',
+      );
+    }
+    expect(surfaceName).toBe('components');
+
+    // The fact the pane is handed is the join's answer for the record, beside the text it was
+    // answered for — field for field, with no answer written beside the join here.
+    const answer = join.componentSearch(record, 'app');
+    expect(answer.state).toBe('listed');
+    expect(answer.rows.map((row) => row.name)).toEqual(['app-counter', 'app']);
+    expect(answer.matched).toBe(2);
+    expect(FACTS['components']).toEqual({ ...answer, query: 'app' });
+    // `componentSearch` is the only filter: this suite pins the join's own answer, not a copy of it.
+    expect(JSON.stringify(join.states)).toBe(
+      JSON.stringify(['listed', 'empty', 'cannot-tell']),
+    );
+
+    // filtered: the typed text narrowed three rows to two, and the count says how many matched.
+    const demo = await renderDemo(surfaceName);
+    expect(demo.state()).toBe(COMPONENTS_FILTERED);
+    expect(demo.lines()).toEqual(componentsPanel(FACTS['components']).lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+    expect(demo.lines()).toContain('component: app-counter');
+    expect(demo.lines()).toContain('instances: 2');
+    expect(demo.lines()).toContain('component: app');
+    // The row the record states no count for renders that absence, never a `0` (E7, N1).
+    expect(demo.lines()).toContain(NO_INSTANCE_COUNT_TEXT);
+    expect(demo.lines()).not.toContain('instances: 0');
+    expect(demo.lines()).toContain('matched: 2');
+    // The row the typed text dropped is nowhere on the pane: the join kept it out, and the pane
+    // may not put it back.
+    expect(demo.text()).not.toContain('router-outlet');
+
+    // listed: no typed text ran no filter, so every row the record carries is listed.
+    const listedAnswer = join.componentSearch(record, '');
+    expect(listedAnswer.matched).toBe(3);
+    const listed = componentsPanel({ ...listedAnswer, query: '' });
+    expect(listed.state).toBe(COMPONENTS_LISTED);
+    expect(listed.lines).toContain('component: router-outlet');
+    expect(listed.lines).toContain('matched: 3');
+    expect(listed.message).not.toBe(
+      componentsPanel(FACTS['components']).message,
+    );
+
+    // filtered to nothing: the count is stated and no name is invented (E1, N1).
+    const matchedNothing = join.componentSearch(record, 'zzz');
+    expect(matchedNothing.matched).toBe(0);
+    expect(matchedNothing.rows).toEqual([]);
+    const none = componentsPanel({ ...matchedNothing, query: 'zzz' });
+    expect(none.state).toBe(COMPONENTS_FILTERED);
+    expect(none.lines).toContain('matched: 0');
+    expect(none.lines.some((line) => line.startsWith('component: '))).toBe(
+      false,
+    );
+
+    // N1: a name the record does not carry is never completed from framework knowledge. The query
+    // `root` matches nothing here, because the record carries no `app-root`.
+    const root = join.componentSearch(record, 'root');
+    expect(root.matched).toBe(0);
+    expect(componentsPanel({ ...root, query: 'root' }).text).not.toContain(
+      'app-root',
+    );
+
+    // E4: the record states the page rendered no components — an empty list, its own state word and
+    // its own sentence, with no reason line and no `matched`.
+    const statedEmpty = join.componentSearch(
+      { components: [], source: { state: 'read' } },
+      '',
+    );
+    expect(statedEmpty).toEqual({ state: 'empty', rows: [], matched: 0 });
+    const emptyPanel = componentsPanel({ ...statedEmpty, query: '' });
+    expect(emptyPanel.state).toBe(COMPONENTS_EMPTY);
+    expect(emptyPanel.lines).toContain('rows: 0');
+    expect(emptyPanel.lines.some((line) => line.startsWith('reason: '))).toBe(
+      false,
+    );
+    expect(emptyPanel.lines.some((line) => line.startsWith('matched: '))).toBe(
+      false,
+    );
+
+    // And the same empty list beside a source the record could not read is cannot-tell, with the
+    // join's reason verbatim — never a zero-length list offered in its place.
+    const unreadable = join.componentSearch(
+      {
+        components: [],
+        source: { state: 'unreadable', reason: 'enumerate-without-getter' },
+      },
+      '',
+    );
+    expect(unreadable).toEqual({
+      state: 'cannot-tell',
+      rows: [],
+      matched: 0,
+      reason: 'enumerate-without-getter',
+    });
+    const cannotTell = componentsPanel({ ...unreadable, query: '' });
+    expect(cannotTell.state).toBe(COMPONENTS_CANNOT_TELL);
+    expect(cannotTell.lines).toContain('reason: enumerate-without-getter');
+    expect(cannotTell.lines.some((line) => line.startsWith('rows: '))).toBe(
+      false,
+    );
+    // The two statements cannot collapse: different state words and different sentences.
+    expect(cannotTell.state).not.toBe(emptyPanel.state);
+    expect(cannotTell.message).not.toBe(emptyPanel.message);
+
+    // Every reason of the join's closed set is echoed verbatim, so the pane states no cause of its
+    // own and drops none the join carries.
+    expect(join.reasons.length).toBeGreaterThan(0);
+    for (const reason of join.reasons) {
+      const answerForReason = join.componentSearch(
+        { components: [], source: { state: 'unreadable', reason } },
+        '',
+      );
+      expect(answerForReason.reason).toBe(reason);
+      expect(componentsPanel(answerForReason).lines).toContain(
+        `reason: ${reason}`,
+      );
+    }
+    // A cause the record invented is answered as `unreadable-source` by the join, and the pane
+    // repeats only that word (N3).
+    const invented = join.componentSearch(
+      {
+        components: [],
+        source: { state: 'unreadable', reason: 'framework-not-detected' },
+      },
+      '',
+    );
+    expect(invented.reason).toBe('unreadable-source');
+    expect(componentsPanel(invented).text).not.toContain(
+      'framework-not-detected',
+    );
+
+    // An answer nobody gave is its own named absence, and a state word this pane was not written
+    // for renders as the word it was given and nothing else.
+    expect(componentsPanel(undefined).lines).toEqual([
+      COMPONENTS_NO_ANSWER_TEXT,
+    ]);
+    expect(componentsPanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+
+    // Idempotency (E6): the same fact renders the same rows in the same order, twice.
+    expect(componentsPanel(FACTS['components'])).toEqual(
+      componentsPanel(FACTS['components']),
+    );
+
+    // N4, N5: the pane adds no DOM and writes no element, cause, remedy or rule identity of its
+    // own. Every line is a labelled field of the answer or one of the pane's sentences.
+    expect(demo.text()).not.toMatch(/<\/?[a-z]/i);
+    for (const label of ['cause: ', 'element: ', 'remedy: ', 'rule: ']) {
+      expect(demo.lines().some((line) => line.startsWith(label))).toBe(false);
+    }
   });
 });

@@ -188,4 +188,15 @@ export const appRoutes: Route[] = [
     loadComponent: loadPanelDemo,
     data: { surface: 'console-read' },
   },
+  // The M047 SC1-SC2 surface: the components the record names, filtered by the text a user typed
+  // and counted by the rows the join kept — or the record's own statement that the page rendered
+  // none, or the reason its source could not be read, each in a sentence of its own. It installs
+  // the shared loader above, so the demo module is imported once and the panel's initial bundle
+  // keeps the bytes it had. Lazy for the same reason as the surfaces above it — the panel's eager
+  // bundle is measured.
+  {
+    path: 'components',
+    loadComponent: loadPanelDemo,
+    data: { surface: 'components' },
+  },
 ];

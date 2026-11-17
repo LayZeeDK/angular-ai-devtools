@@ -53,6 +53,7 @@ const LOADERS: Record<
   stability: () => import('./panel-stability') as never,
   console: () => import('./panel-console') as never,
   'console-read': () => import('./panel-copy-to-agent') as never,
+  components: () => import('./panel-components') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -412,6 +413,25 @@ export const FACTS: Record<string, unknown> = {
     body: "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG0100\ntitle: Expression Changed After Checked\ntext: NG0100: Expression has changed after it was checked.\ncode: NG04002\nno-digest-entry: the digest carries no entry for NG04002, so this finding is named by the code it carried and no title is rendered\ntext: NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist\nno-code: the captured message carried no code, so this finding carries no code and no title\ntext: the app failed",
     control:
       'Send 10 lines from the console pane to the agent, beginning: state: joined',
+  },
+  // The join's own answer (`extension/component-search.js`, T002) for a record naming three
+  // components and the text `app`, which keeps two of them. The two names below are the ones T001
+  // measured the fixture's page agent reading (`research/raw/m047-names-and-absences.json`, its
+  // `sources[per-check-host-tag]` yields `app-counter` and `sources[per-check-class-name]` yields
+  // `app`), and `router-outlet` is the third so the typed text has a row to drop. The counts are
+  // fixture data — the enumerator deduplicates by class name and states no instance count, which
+  // T002's `notPinned` says — and the second row states none, so the pane has a stated absence to
+  // render beside a stated count. `state`, `rows` and `matched` are `componentSearch(record, 'app')`
+  // field for field, `query` is the text it was answered for, and `panel-demo.spec.ts` re-derives
+  // all of it by running the shipped join over that record, so a fact that drifted reddens there.
+  components: {
+    state: 'listed',
+    rows: [
+      { name: 'app-counter', instanceCount: 2 },
+      { name: 'app', instanceCount: null },
+    ],
+    matched: 2,
+    query: 'app',
   },
 };
 
