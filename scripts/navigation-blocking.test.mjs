@@ -3183,7 +3183,21 @@ function replaceFirstHeldOutTest(source, test) {
   const line = section
     .split(/\r?\n/)
     .find((entry) => /^\s*\|\s*E\d+\s*\|/.test(entry));
-  assert.ok(line, 'the plan must carry a held-out row to replace');
+  // A milestone may run no held-out check: a held-out edge needs its criterion to carry exactly one
+  // citation, and M046's SC4 owns three edges held by three suites, so no row can be marked. The
+  // refusal path below still has to be exercised, so this case seeds the row it needs on its own copy
+  // of the plan rather than demanding that the live plan carry one.
+  if (!line) {
+    const seeded = section
+      .split(/\r?\n/)
+      .map((entry) =>
+        /^\s*\|\s*-+\s*\|/.test(entry)
+          ? `${entry}\n| E1 | T000 | scripts/present-suite.test.mjs |`
+          : entry,
+      )
+      .join('\n');
+    return replaceFirstHeldOutTest(source.replace(section, seeded), test);
+  }
   const cells = line.split('|').map((cell) => cell.trim());
   const data = cells.slice(1, -1);
   data[2] = test;
