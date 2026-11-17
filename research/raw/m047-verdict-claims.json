@@ -1,0 +1,111 @@
+{
+  "schema": "m047-verdict-claims/v1",
+  "milestone": "M047",
+  "quotes": {
+    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(CLAIM_ROOT, \"M047\"))",
+    "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 3 criteria it declares are [\"SC1\",\"SC2\",\"SC3\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
+    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/plan/PLAN.md's ## Held-out checks table (Edge | Task | Test), so a row cites the suite the milestone's own plan assigns its edges rather than one this file chose: 7 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\"] and the suites [\"scripts/component-search.test.mjs\"]"
+  },
+  "ruling": {
+    "required": 0,
+    "notRequired": 3,
+    "why": [
+      "No row is required, and the list therefore names no driver, no instance and no verdict path: scripts/overlay-verdict-claims.test.mjs refuses a list with no required row that names a driver, so naming one would be the opposite defect.",
+      "The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext - with the required rows together citing drawnRect, descriptor and noDevContext. Every fact the 3 criteria this milestone declares is written about is a reading of this repository's own gate: 7 edge row(s) held by [\"scripts/component-search.test.mjs\"], against 12 stage(s) of the check chain. None of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the gate.",
+      "The portal is not lost by that ruling: each reason names the clause that would have made a row required, and each row cites the suite the milestone itself assigned its criterion, the reading that suite carries and the commands that prove it."
+    ]
+  },
+  "evidence": {
+    "intent": {
+      "path": ".project/intent/INTENT.md",
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3"
+      ]
+    },
+    "plan": {
+      "path": ".project/plan/PLAN.md",
+      "heldOut": [
+        "E4"
+      ]
+    },
+    "edges": {
+      "rows": 7,
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3"
+      ]
+    },
+    "suites": [
+      {
+        "path": "scripts/component-search.test.mjs",
+        "tests": 16,
+        "groups": 0
+      }
+    ],
+    "recordings": [
+      "research/raw/m047-names-and-absences.json",
+      "research/raw/m047-surface.json"
+    ]
+  },
+  "capture": {
+    "command": "set \"M044_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "check": "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "records": "research/raw/m047-verdict-claims.json",
+    "criteria": [
+      "SC1",
+      "SC2",
+      "SC3"
+    ],
+    "reading": "an armed run re-derives the list from the intent this checkout binds, the five-column edge coverage that intent declares and the suites the plan assigns each criterion, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives."
+  },
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "Filtering matches the names the record carries; a mutant that matches a name the record lacks reddens it.",
+      "criterionCharacters": 105,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC1 is \"Filtering matches the names the record carries; a mutant that matches a name the record lacks reddens it.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E1\",\"E2\",\"E6\",\"E7\"] the intent itself assigns the criterion, held by [\"scripts/component-search.test.mjs\",\"scripts/component-search.test.mjs\",\"scripts/component-search.test.mjs\",\"scripts/component-search.test.mjs\"] and recorded as [\"criterion SC1\"].",
+      "artefactPath": "scripts/component-search.test.mjs",
+      "artefact": "scripts/component-search.test.mjs (edge [\"E1\",\"E2\",\"E6\",\"E7\"] of the intent's own coverage: E1 boundary criterion SC1: A component name the record carries is matched only when the typed text is a substring of that recorded name.; E2 precision criterion SC1: A name typed with different case matches the recorded name; the match is case-insensitive and says so.; E6 idempotency criterion SC1: Filtering the same text twice returns the same rows in the same order.; E7 precision criterion SC1: A duplicated name in one list appears once per rendered instance, and the count says which.; the suite carries 16 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "16 test declaration(s) in scripts/component-search.test.mjs hold SC1 through the 4 boundary edge row(s) the intent assigns it, [\"E1\",\"E2\",\"E6\",\"E7\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/component-search.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "An unreadable tree reports cannot-tell naming the absence, never an empty list.",
+      "criterionCharacters": 79,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC2 is \"An unreadable tree reports cannot-tell naming the absence, never an empty list.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E3\",\"E4\"] the intent itself assigns the criterion, held by [\"scripts/component-search.test.mjs\",\"scripts/component-search.test.mjs\"] and recorded as [\"criterion SC2\",\"held-out\"].",
+      "artefactPath": "scripts/component-search.test.mjs",
+      "artefact": "scripts/component-search.test.mjs (edge [\"E3\",\"E4\"] of the intent's own coverage: E3 empty criterion SC2: A page whose component source could not be read reports `cannot-tell` with its reason, never a zero-length list.; E4 boundary held-out: A page that rendered no components reports a stated empty list, which is distinct from `cannot-tell`.; the suite carries 16 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "16 test declaration(s) in scripts/component-search.test.mjs hold SC2 through the 2 empty edge row(s) the intent assigns it, [\"E3\",\"E4\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/component-search.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "A subject that does not match this milestone's premise reports \"cannot tell\" rather than naming a wrong cause.",
+      "criterionCharacters": 110,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC3 is \"A subject that does not match this milestone's premise reports \\\"cannot tell\\\" rather than naming a wrong cause.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E5\"] the intent itself assigns the criterion, held by [\"scripts/component-search.test.mjs\"] and recorded as [\"criterion SC3\"].",
+      "artefactPath": "scripts/component-search.test.mjs",
+      "artefact": "scripts/component-search.test.mjs (edge [\"E5\"] of the intent's own coverage: E5 boundary criterion SC3: A subject outside this milestone's premise reports the mismatch it observed, not a component name.; the suite carries 16 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "16 test declaration(s) in scripts/component-search.test.mjs hold SC3 through the 1 boundary edge row(s) the intent assigns it, [\"E5\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/component-search.test.mjs\"",
+        "npm run check"
+      ]
+    }
+  ]
+}
