@@ -2,11 +2,11 @@
 id: T007
 title: Record the surface and run the project verify
 wave: 5
-status: in-progress
+status: done
 deps: [T002, T004, T005, T006]
 agent: build_T007
-base: 1fc7b8a58c7d983dfd99a7657199b330194ad6bc
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 47b119431128d84e03f64d8d8887e9bb2cc9a1e1
+worktree: null
 task_branch: null
 files:
   - research/raw/m046-surface.json
