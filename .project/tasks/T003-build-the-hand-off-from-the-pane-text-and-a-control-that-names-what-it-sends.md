@@ -2,10 +2,10 @@
 id: T003
 title: Build the hand-off from the pane text and a control that names what it sends
 wave: 3
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T003
+base: 4623c97b953b61a8d71df919246f45432cd561b5
 worktree: null
 task_branch: null
 files:
@@ -54,3 +54,4 @@ node --test scripts/copy-to-agent.test.mjs && npx prettier --check extension/cop
 ## Log
 
 - Queued by the plan for M046 copy-to-agent. No work has run yet.
+- Landed paths: `extension/copy-to-agent.js`, `scripts/copy-to-agent.test.mjs` — each is read from this tree, ready.
