@@ -2195,8 +2195,8 @@
         "file": "scripts/docs-correction.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 111,
-        "removedLines": 126,
+        "addedLines": 112,
+        "removedLines": 127,
         "addedAssertionLines": 18,
         "removedAssertionLines": 17,
         "recutAssertionLines": 17,
@@ -2220,7 +2220,7 @@
           "assert(",
           "assert(paragraph"
         ],
-        "reason": "same reason: the cross-tree loop became a single read, and the three assertions that existed only to prove the two trees agreed were replaced by equivalents on the maintained file alone - the Chromium build-and-revision shape, the maintain rationale standing as its own paragraph, and the reference citing the `.commandcode` path"
+        "reason": "same reason: the cross-tree loop became a single read, the three assertions that existed only to prove the two trees agreed were replaced by equivalents on the maintained file alone, and the re-attribution pin now asserts checks/state.mjs:321, the line that carries the 600 s timeout, instead of :253 - the Chromium build-and-revision shape, the maintain rationale standing as its own paragraph, and the reference citing the `.commandcode` path"
       },
       {
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
@@ -2442,6 +2442,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-17T01:08:22.149Z"
+    "at": "2026-11-17T01:28:22.525Z"
   }
 }
