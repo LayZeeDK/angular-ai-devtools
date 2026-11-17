@@ -1,0 +1,693 @@
+{
+  "schema": "m047-names-and-absences/v1",
+  "milestone": "M047 component-search",
+  "task": "T001",
+  "title": "Measure what the page agent can name and where it can name nothing",
+  "question": "which text can the page agent read as a component name, at which path:line, and where can it read none?",
+  "head": "84704872b6dc221aae4b0dea41bced9672584c79",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: extension/agent-main.js and apps/angular-ai-devtools/src/app/app.routes.ts were read line by line at the head above, and research/raw/m022-ng-context.json was consulted for the two production-page readings it already holds. No browser was opened, no build was run, nothing was executed.",
+  "agent": {
+    "file": "extension/agent-main.js",
+    "lastContentLine": {
+      "file": "extension/agent-main.js",
+      "line": 2567,
+      "lineText": "})(typeof globalThis !== 'undefined' ? globalThis : this);"
+    },
+    "ngSource": {
+      "file": "extension/agent-main.js",
+      "line": 50,
+      "lineText": "return typeof globalThis !== 'undefined' ? globalThis.ng : global.ng;",
+      "yields": "the page's own window.ng, or undefined on a page that publishes none — the handle every name reader below is reached through"
+    },
+    "handle": {
+      "file": "extension/agent-main.js",
+      "line": 47,
+      "lineText": "var ngObj = null;"
+    }
+  },
+  "sources": [
+    {
+      "id": "per-check-host-tag",
+      "source": "the per-check componentName a profiler check records, read from the instance's host element",
+      "function": "hostOrClassName",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 781,
+        "lineText": "return el.tagName.toLowerCase();"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 755,
+          "lineText": "componentName: componentNameFor(instance),"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 763,
+          "lineText": "return hostOrClassName(instance) || 'component';"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 770,
+          "lineText": "function hostOrClassName(instance) {"
+        }
+      ],
+      "yields": "the instance's DOM host element tagName, lowercased — \"app-counter\" for the fixture's counter component",
+      "yieldsKind": "page-name",
+      "yieldsName": true,
+      "why": "getHostElement (or ɵgetHostElement) answers the instance's host node and its tagName is lowercased, so the check the performance pane lists carries a real page name."
+    },
+    {
+      "id": "per-check-class-name",
+      "source": "the per-check componentName, read from the instance's constructor when no host element is available",
+      "function": "classNameFor",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 799,
+        "lineText": "(instance && instance.constructor && instance.constructor.name) || null"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 785,
+          "lineText": "return cls ? cls.toLowerCase() : null;"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 796,
+          "lineText": "function classNameFor(instance) {"
+        }
+      ],
+      "yields": "the instance's constructor name, lowercased — \"app\" for the fixture's App class",
+      "yieldsKind": "page-name",
+      "yieldsName": true,
+      "why": "the second reader hostOrClassName tries, so a page with no host-element getter still yields a name."
+    },
+    {
+      "id": "fallback-word",
+      "source": "the per-check componentName when neither reader yields a name",
+      "function": "componentNameFor",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 763,
+        "lineText": "return hostOrClassName(instance) || 'component';"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 762,
+          "lineText": "function componentNameFor(instance) {"
+        }
+      ],
+      "yields": "component",
+      "yieldsKind": "fallback-word",
+      "yieldsName": false,
+      "why": "the one name-shaped string the agent produces without reading the page: a literal word substituted when both readers gave nothing. It is recorded as a fallback word and not as a name, and the frame-level entry deliberately does not use it (see profiler-passed-no-instance)."
+    },
+    {
+      "id": "frame-entry-name",
+      "source": "the frame-level work entry's componentName, for an instance the profiler passed",
+      "function": "instanceNameFor",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 793,
+        "lineText": "return hostOrClassName(instance);"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 700,
+          "lineText": "componentName: instanceNameFor(instance),"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 791,
+          "lineText": "function instanceNameFor(instance) {"
+        }
+      ],
+      "yields": "whatever hostOrClassName yields for a non-null instance — the host tag lowercased, else the class name lowercased — and no fallback word",
+      "yieldsKind": "page-name",
+      "yieldsName": true,
+      "why": "the entry records the reader's own answer, so the frame list names a component only when the page gave one."
+    },
+    {
+      "id": "pick-host-tag",
+      "source": "the pick descriptor's componentName, read from the owning instance's host element",
+      "function": "pickComponentName",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 1306,
+        "lineText": "if (tag) return tag;"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1288,
+          "lineText": "return typeof tag === 'string' && tag.length ? tag.toLowerCase() : null;"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1296,
+          "lineText": "function pickComponentName(instance, ng) {"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1378,
+          "lineText": "componentName: pickComponentName(walk.owning, ng),"
+        }
+      ],
+      "yields": "the owning instance's host element tagName, lowercased by lowerTagName — the picked element's componentName",
+      "yieldsKind": "page-name",
+      "yieldsName": true,
+      "why": "the picker resolves only when a context and an owning instance were both found, so this name is the one the panel shows for a successful pick."
+    },
+    {
+      "id": "pick-class-name",
+      "source": "the pick descriptor's componentName when the owning instance yields no host tag",
+      "function": "pickComponentName",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 1310,
+        "lineText": "return cls ? cls.toLowerCase() : null;"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1309,
+          "lineText": "var cls = classNameFor(instance);"
+        }
+      ],
+      "yields": "the owning instance's class name, lowercased",
+      "yieldsKind": "page-name",
+      "yieldsName": true,
+      "why": "the same instance the per-check reader falls back to, reached from the pick path. Null when the instance has no constructor name — see no-host-and-no-class."
+    },
+    {
+      "id": "pick-ancestor-path",
+      "source": "the pick descriptor's componentPath, read from the bounded DOM ancestor walk",
+      "function": "walkOwningComponents",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 1335,
+        "lineText": "path.push(cls);"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1316,
+          "lineText": "function walkOwningComponents(el, getOwning) {"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1332,
+          "lineText": "var cls = classNameFor(instance);"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1380,
+          "lineText": "componentPath: walk.path,"
+        }
+      ],
+      "yields": "the constructor names of every instance the ancestor walk meets, in walk order, deduplicated — not lowercased",
+      "yieldsKind": "page-name",
+      "yieldsName": true,
+      "why": "the only place the agent yields more than one name for one subject, and it is a path over DOM ancestors, not a component tree: the walk is bounded by PICK_MAX_ANCESTORS (extension/agent-main.js:1278)."
+    },
+    {
+      "id": "enumerated-node-class",
+      "source": "the initial record's component list, read through ng.getComponent per element",
+      "function": "enumerateComponentNodes",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 887,
+        "lineText": "var cls = inst.constructor.name;"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 855,
+          "lineText": "(typeof ng.getComponent === 'function'"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 896,
+          "lineText": "out.push({"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 906,
+          "lineText": "component: cls,"
+        }
+      ],
+      "yields": "the class name of the component ng.getComponent answers for an element — each node's component (and debuggableFn), and the label beside it from el.tagName.toLowerCase() (extension/agent-main.js:901)",
+      "yieldsKind": "page-name",
+      "yieldsName": true,
+      "why": "elements are walked with document.querySelectorAll('*') and deduplicated by class name, so this list names classes the page carries, once each."
+    },
+    {
+      "id": "error-capture-component",
+      "source": "the error capture's component field, read through ng.getOwningComponent on one element",
+      "function": "captureErrorPayload",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 2516,
+        "lineText": "component = instance.constructor.name;"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 2505,
+          "lineText": "if (ng && typeof ng.getOwningComponent === 'function') {"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 2514,
+          "lineText": "var instance = ng.getOwningComponent(el);"
+        }
+      ],
+      "yields": "the constructor name, not lowercased, of the component owning the active element, else the app-root element, else the body",
+      "yieldsKind": "page-name",
+      "yieldsName": true,
+      "why": "the name an error is attributed to; it is read from one element the capture chooses, not from the element that threw."
+    }
+  ],
+  "absences": [
+    {
+      "id": "no-dev-context",
+      "case": "a picked element that carries no __ngContext__",
+      "function": "pickDescriptorFor",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 1372,
+        "lineText": "return { status: 'no-dev-api', reason: PICK_NO_CONTEXT_REASON };"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1367,
+          "lineText": "context = el.__ngContext__;"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1371,
+          "lineText": "if (context === undefined)"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1283,
+          "lineText": "'the picked element carries no __ngContext__; this page may be a production build';"
+        }
+      ],
+      "state": "no-dev-api",
+      "yields": null,
+      "yieldsKind": "named-state",
+      "yieldsName": false,
+      "why": "the descriptor that leaves the pick hop is {status, reason} and carries no componentName, no className and no componentPath, so the pick is named by a state word and a reason sentence and by no component. __ngContext__ is read as a presence test and never serialized."
+    },
+    {
+      "id": "no-debug-api-pick",
+      "case": "a page that publishes no ng.getOwningComponent — the production build",
+      "function": "pickDescriptorFor",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 1364,
+        "lineText": "if (!getOwning) return { status: 'no-dev-api', reason: PICK_NO_API_REASON };"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1361,
+          "lineText": "ng && typeof ng.getOwningComponent === 'function'"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1281,
+          "lineText": "'ng.getOwningComponent not found; this page may be a production build';"
+        }
+      ],
+      "state": "no-dev-api",
+      "yields": null,
+      "yieldsKind": "named-state",
+      "yieldsName": false,
+      "why": "a production page publishes no window.ng, so the picker answers before it reads the element at all, and the answer carries no name field of any kind."
+    },
+    {
+      "id": "no-owning-instance",
+      "case": "a development context whose ancestor walk meets no component instance",
+      "function": "walkOwningComponents",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 1374,
+        "lineText": "if (!walk.owning) return { status: 'no-component' };"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1316,
+          "lineText": "function walkOwningComponents(el, getOwning) {"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1330,
+          "lineText": "if (instance) {"
+        }
+      ],
+      "state": "no-component",
+      "yields": null,
+      "yieldsKind": "named-state",
+      "yieldsName": false,
+      "why": "the descriptor is one word and no fields: an element with a context but no owning instance above it is not named, and the record says so with a state rather than a guess."
+    },
+    {
+      "id": "agent-not-installed",
+      "case": "the page publishes no window.ng at all, so the agent never installs",
+      "function": "tryInstall",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 509,
+        "lineText": "if (!ngObj) return 'waiting';"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 47,
+          "lineText": "var ngObj = null;"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 508,
+          "lineText": "ngObj = readNg();"
+        }
+      ],
+      "state": "waiting",
+      "yields": null,
+      "yieldsKind": "named-state",
+      "yieldsName": false,
+      "why": "with no window.ng the agent records nothing at all: the absence is the whole record rather than a field in it."
+    },
+    {
+      "id": "no-profiler",
+      "case": "the page publishes no ng.ɵsetProfiler — the production build",
+      "function": "tryInstall",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 531,
+        "lineText": "return 'notsupported';"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 529,
+          "lineText": "'ng.ɵsetProfiler not found (production build or not an Angular page)',"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 526,
+          "lineText": "if (!setProfiler) {"
+        }
+      ],
+      "state": "notsupported",
+      "yields": null,
+      "yieldsKind": "named-state",
+      "yieldsName": false,
+      "why": "a production page publishes no debug API, so the agent installs no profiler tap and no frame is ever produced: on a production page the page agent names nothing because it records nothing."
+    },
+    {
+      "id": "profiler-passed-no-instance",
+      "case": "a profiler event that passed no instance",
+      "function": "instanceNameFor",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 792,
+        "lineText": "if (instance === null || typeof instance === 'undefined') return null;"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 575,
+          "lineText": "recordWorkEvent(event, instance);"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 700,
+          "lineText": "componentName: instanceNameFor(instance),"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 622,
+          "lineText": "// the profiler passed no instance for is recorded with `componentName: null`, never with a name"
+        }
+      ],
+      "state": null,
+      "yields": null,
+      "yieldsKind": "null",
+      "yieldsName": false,
+      "why": "the frame-level entry records componentName: instanceNameFor(instance), and instanceNameFor answers null for a null or undefined instance before any name reader runs, so the entry carries componentName: null. The fallback word componentNameFor answers is on a different path and is unreachable from the entry — see callGraph."
+    },
+    {
+      "id": "enumerate-without-getter",
+      "case": "a page that publishes no component getter, so the enumerated list is empty",
+      "function": "enumerateComponentNodes",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 862,
+        "lineText": "if (!getComponent) return [];"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 851,
+          "lineText": "function enumerateComponentNodes() {"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 975,
+          "lineText": "var extra = enumerateComponentNodes();"
+        }
+      ],
+      "state": null,
+      "yields": null,
+      "yieldsKind": "empty-list",
+      "yieldsName": false,
+      "why": "with no getComponent, no getOwningComponent and no ɵgetComponent the enumeration answers an empty array, so the panel receives a list with no node rather than a node with no name."
+    },
+    {
+      "id": "no-host-and-no-class",
+      "case": "an instance whose host element yields no tag and which has no constructor name",
+      "function": "hostOrClassName",
+      "producer": {
+        "file": "extension/agent-main.js",
+        "line": 785,
+        "lineText": "return cls ? cls.toLowerCase() : null;"
+      },
+      "also": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 770,
+          "lineText": "function hostOrClassName(instance) {"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 799,
+          "lineText": "(instance && instance.constructor && instance.constructor.name) || null"
+        }
+      ],
+      "state": null,
+      "yields": null,
+      "yieldsKind": "null",
+      "yieldsName": false,
+      "why": "the shared reader's last answer is null; the frame-level entry records that null (extension/agent-main.js:792) where the per-check name substitutes the word 'component' (extension/agent-main.js:763). This is the case where a name cannot be had and only a fallback word stands in."
+    }
+  ],
+  "callGraph": [
+    {
+      "function": "componentNameFor",
+      "file": "extension/agent-main.js",
+      "callSites": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 755,
+          "lineText": "componentName: componentNameFor(instance),"
+        }
+      ],
+      "note": "the only caller is getOrCreateCheck, which runs for an instance the profiler handed to the tap. The frame-level entry at :700 is not a caller, so a null instance's entry never reaches the 'component' fallback."
+    },
+    {
+      "function": "instanceNameFor",
+      "file": "extension/agent-main.js",
+      "callSites": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 700,
+          "lineText": "componentName: instanceNameFor(instance),"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 2058,
+          "lineText": "declarationInstanceName: instanceNameFor("
+        }
+      ],
+      "note": "two callers, both recording a value as it arrived; neither substitutes a word."
+    },
+    {
+      "function": "hostOrClassName",
+      "file": "extension/agent-main.js",
+      "callSites": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 763,
+          "lineText": "return hostOrClassName(instance) || 'component';"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 793,
+          "lineText": "return hostOrClassName(instance);"
+        }
+      ],
+      "note": "the two readers differ only in the fallback a null answer gets: :763 substitutes the word 'component', :793 keeps the null."
+    }
+  ],
+  "tree": {
+    "premise": "the M047 roadmap sentence: the panel reads a component tree the page agent already captures",
+    "statement": "does not hold at this head. Components reach the record as one flat node list, one node per distinct class, with no parent, child or depth field on any node; the only edges the record carries are the signal graph's consumer/producer pairs, and the initial record passes an empty list.",
+    "citations": [
+      {
+        "file": "extension/agent-main.js",
+        "line": 851,
+        "lineText": "function enumerateComponentNodes() {"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 896,
+        "lineText": "out.push({"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 906,
+        "lineText": "component: cls,"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1003,
+        "lineText": "edges.push({ consumer: consumerId, producer: producerId });"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1429,
+        "lineText": "graph: { nodes: nodes, edges: [] },"
+      }
+    ],
+    "childrenOccurrences": 0,
+    "childrenClaim": "no field in extension/agent-main.js names a component's children: the word does not occur in the file at all.",
+    "parentClaim": "every line in extension/agent-main.js that mentions a parent is one of the four below, and all four are the picker's DOM ancestor walk — a document path, not a component path. Nothing in the file walks a component's parent.",
+    "parentLines": [
+      {
+        "file": "extension/agent-main.js",
+        "line": 1338,
+        "lineText": "var parent = null;"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1340,
+        "lineText": "parent = node.parentElement;"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1342,
+        "lineText": "parent = null;"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1344,
+        "lineText": "node = parent;"
+      }
+    ]
+  },
+  "corrections": [
+    {
+      "claim": "the brief's third absence case names \"a production build that carries none\" — none being no __ngContext__",
+      "measured": "a production build writes __ngContext__ and publishes no window.ng. What a production page carries none of is the debug API, not the context.",
+      "citations": [
+        {
+          "file": "research/raw/m022-ng-context.json",
+          "line": 179,
+          "lineText": "\"ngGlobalType\": \"undefined\","
+        },
+        {
+          "file": "research/raw/m022-ng-context.json",
+          "line": 181,
+          "lineText": "\"appRootComponentName\": null"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 529,
+          "lineText": "'ng.ɵsetProfiler not found (production build or not an Angular page)',"
+        }
+      ],
+      "consequence": "the production-page absences this record carries are no-profiler and no-debug-api-pick, plus agent-not-installed for a realm with no window.ng at all — all three read from the code, and none of them is no-dev-context. A development page whose element genuinely carries no context still answers no-dev-context, so the two stay distinct — the same ruling research/raw/m022-ng-context.json reaches at its line 196."
+    },
+    {
+      "claim": "the brief and .project/intent/INTENT.md put `el.__ngContext__` at lines 1283 and 1367, and count the word `component` at 69 occurrences",
+      "measured": "`el.__ngContext__` is read at extension/agent-main.js:1367 and nowhere else: line 1283 is the picker's reason sentence, which mentions the property without reading it, and the file's other presence test is `node.__ngContext__` at extension/agent-main.js:1739 (the router probe, not the pick). The word `component` occurs 48 times lowercased, 30 times as a whole word in any case, and 80 times in any case; none of the three is 69.",
+      "citations": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1367,
+          "lineText": "context = el.__ngContext__;"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1283,
+          "lineText": "'the picked element carries no __ngContext__; this page may be a production build';"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1739,
+          "lineText": "context = node.__ngContext__;"
+        }
+      ],
+      "command": "node -e \"const s=require('fs').readFileSync('extension/agent-main.js','utf8');for(const [k,re] of [['component-lower',/component/g],['component-any-case',/component/gi],['word-component-ci',/\\bcomponent\\b/gi]])console.log(k,[...s.matchAll(re)].length)\"",
+      "output": [
+        "component-lower 48",
+        "component-any-case 80",
+        "word-component-ci 30"
+      ],
+      "consequence": "the record's citations are the lines this task read; the count in INTENT.md is not reproduced here and nothing in this record rests on it."
+    }
+  ],
+  "panelRoutes": {
+    "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "declaration": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 17,
+      "lineText": "export const appRoutes: Route[] = ["
+    },
+    "measurement": {
+      "command": "node -e \"const s=require('fs').readFileSync('apps/angular-ai-devtools/src/app/app.routes.ts','utf8');for(const [k,re] of [['path',/path:\\s*'/g],['component',/\\bcomponent:/g],['loadComponent',/\\bloadComponent:/g],['children',/\\bchildren:/g],['components',/\\bcomponents:/g]])console.log(k,[...s.matchAll(re)].length)\"",
+      "output": [
+        "path 26",
+        "component 5",
+        "loadComponent 21",
+        "children 0",
+        "components 0"
+      ],
+      "at": "the head above"
+    },
+    "routes": 26,
+    "componentKeyRoutes": 5,
+    "loadComponentKeyRoutes": 21,
+    "childrenKeyRoutes": 0,
+    "componentsKeyRoutes": 0,
+    "pinned": "the suite recomputes childrenKeyRoutes and componentsKeyRoutes from the file, because those two are the counts that carry the claim; it asserts routes === componentKeyRoutes + loadComponentKeyRoutes, which must hold whatever the table does; and it does not assert the three totals against the file, because a sibling task in this milestone adds a route to this table on purpose, which would stale a pinned total without changing what the record says.",
+    "statement": "no route in this table lists components: no entry carries a components key or a children key, so the panel's route table is not a component tree either."
+  },
+  "notCaptured": [
+    "The record names the readers and their absences; it does not claim any of them answered on a running page. Nothing here was executed — no browser, no build, no page. What a served development page yields is research/raw/m022-ng-context.json's own reading, which is why its two production-page lines are cited above and no new reading was taken.",
+    "The record does not measure the panel. What the panel does with these names — which fields it renders, whether it joins a name to a row, which state it shows for an absence — is T002's filter and T003's surface, and neither file exists at this head.",
+    "The three route totals (26, 5, 21) are the reading at the recorded head, with the command that produced them recorded beside them. They are not pinned: a sibling task in this milestone adds a route to that table on purpose. Re-run the recorded command to re-measure them.",
+    "The record does not claim the agent's names are unique, complete or ordered. enumerateComponentNodes deduplicates by class name (extension/agent-main.js:888), so two instances of one class appear once, and the record states that and claims nothing about instance identity.",
+    "No production page was opened for this task. The production-page absences are read from the code (extension/agent-main.js:509, :529, :862, :1364) and from the two readings research/raw/m022-ng-context.json already holds at its lines 179 and 181."
+  ],
+  "verdict": "measured: eight of the page agent's nine recorded name readers yield a name read from the page — a profiler instance's host tag or class name, the picker's owning instance (host tag, class name and the ancestor class path), the enumerated node's class name and the error capture's class name — and the ninth yields the literal word 'component'. Against those, eight absences are recorded: three are the picker's own named states, two are the agent or its debug reader finding nothing on a page that publishes no window.ng, two are readers returning null or an empty list, and one is a profiler event that passed no instance, which the frame-level entry records as componentName: null and which cannot reach the 'component' fallback. The panel's route table declares 26 routes and not one of them lists components. The roadmap's premise that the page agent already captures a component tree does not hold at this head: components arrive as one flat node list with no children field anywhere in the file, and the record's only edges are the signal graph's consumer/producer pairs."
+}
