@@ -1,0 +1,97 @@
+{
+  "schema": "m046-surface/v1",
+  "milestone": "M046 copy-to-agent",
+  "task": "T007",
+  "title": "Record the surface and run the project verify",
+  "question": "which surfaces does the panel declare, which loader serves each one, and what does the hand-off join state?",
+  "head": "d84dd64e186f0b2de140214a27fd9d6fe7a8516f",
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "join": "extension/copy-to-agent.js",
+    "surface": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts"
+  },
+  "milestoneSurfaces": ["console", "console-read"],
+  "routes": {
+    "field": "data.surface",
+    "order": "route table order",
+    "surfaces": [
+      "after-render",
+      "sanitizer",
+      "redirect",
+      "fields",
+      "lint",
+      "router",
+      "legacy",
+      "onpush",
+      "resource",
+      "linked-state",
+      "render-phase",
+      "performance",
+      "navigation",
+      "error-boundary",
+      "stability",
+      "console",
+      "console-read"
+    ]
+  },
+  "loaders": {
+    "map": "LOADERS",
+    "order": "map order",
+    "keys": [
+      "fields",
+      "redirect",
+      "sanitizer",
+      "after-render",
+      "lint",
+      "router",
+      "legacy",
+      "onpush",
+      "resource",
+      "linked-state",
+      "render-phase",
+      "performance",
+      "navigation",
+      "error-boundary",
+      "stability",
+      "console",
+      "console-read"
+    ]
+  },
+  "join": {
+    "namespace": "angularAiCopyToAgent",
+    "exports": [
+      "CANNOT_TELL",
+      "CANNOT_TELL_REASONS",
+      "CANNOT_TELL_SENTENCES",
+      "HANDED_OVER",
+      "NOTHING_RENDERED",
+      "copyToAgent"
+    ],
+    "states": ["handed-over", "cannot-tell"],
+    "stateWords": {
+      "HANDED_OVER": "handed-over",
+      "CANNOT_TELL": "cannot-tell"
+    },
+    "reasons": ["nothing-rendered"],
+    "reasonSentences": {
+      "nothing-rendered": "nothing-rendered: no text was drawn, so there is no hand-off to send"
+    },
+    "answers": [
+      { "state": "handed-over", "fields": ["body", "control", "state"] },
+      { "state": "cannot-tell", "fields": ["reason", "state"] }
+    ]
+  },
+  "surfaceStates": {
+    "source": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+    "states": ["handed-over", "absence-carried", "cannot-tell"]
+  },
+  "derivation": "every list above is read from the file the `sources` block names beside it, at the head recorded above, by the pin in `scripts/copy-to-agent.test.mjs`; the pin reads and never writes, so a default run writes no byte",
+  "notCaptured": [
+    "the record lists the surfaces the route table declares in `data.surface` and the keys the demo module's `LOADERS` map carries. It does not record route paths, components, guards or which loader a single route installs, and it does not claim a surface is reachable or renders anything in a running panel.",
+    "`absence-carried` is a state the surface renders (`panel-copy-to-agent.ts` `STATES`) and not one this join answers: `copyToAgent` returns `handed-over` or `cannot-tell`, so the record does not claim the surface's third state has a producer.",
+    "the record names the join's state words, its one reason, that reason's sentence and the field set of each answer. It does not record what any answer carries for a given text: the pane's text, the control's count and the finding's identifiers are measured in `research/raw/m046-pane-and-copy.json`, not here.",
+    "nothing here was rendered, clicked or measured in a browser: every value is read statically from the four files above at the recorded head, and the record carries no clock, no timing and no capture.",
+    "the two lists are recorded in the order their files give them, but the pin compares them as sets, so a reordering is not a defect and a surface either side gains alone is."
+  ]
+}
